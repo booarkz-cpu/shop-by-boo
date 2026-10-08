@@ -39,3 +39,57 @@ body{background:radial-gradient(ellipse at 80% 0%,#30245766,transparent 55%),var
 :root[data-theme="light"]{color-scheme:light;--bg:#f1f3fc;--panel:#fff;--surface:#fff;--surface-2:#edf0fa;--line:#dbe0f1;--border:#dbe0f1;--text:#1c2444;--muted:#637193;--corgi-bg:#f1f3fc;--corgi-surface:#fff;--corgi-text:#1c2444;--corgi-muted:#637193}:root[data-theme="light"] .sidebar,:root[data-theme="light"] .topbar{background:#ffffffed}:root[data-theme="light"] .hero{background:linear-gradient(125deg,#e8e1fb,#e1ebff);color:var(--text)}:root[data-theme="light"] .hero h1,:root[data-theme="light"] .hero p{color:var(--text)}
 @media(max-width:720px){.table-head input{width:100%;margin:0}.customer-desk .stats{grid-template-columns:1fr 1fr}.table-pagination{justify-content:center}}
 .support-messages{display:grid;gap:.75rem;margin:1rem 0}.support-message{padding:1rem;border:1px solid var(--border,#3b3c69);border-radius:14px;background:rgba(76,92,180,.08);overflow-wrap:anywhere}.support-message.admin{background:rgba(133,85,255,.13);border-color:rgba(133,85,255,.35)}.support-message small{display:block;opacity:.65;margin-top:.25rem}.support-message p{white-space:pre-wrap}
+
+
+/* Aurora visual refresh */
+/* Corgi Aurora design refresh: calm contrast, compact density, keyboard-first controls. */
+:root {
+  --aurora-bg: #070b16;
+  --aurora-panel: rgba(18, 24, 42, .86);
+  --aurora-panel-raised: rgba(24, 32, 55, .94);
+  --aurora-line: rgba(160, 177, 255, .16);
+  --aurora-text: #f4f7ff;
+  --aurora-muted: #9ca9c8;
+  --aurora-violet: #9b8cff;
+  --aurora-blue: #62a4ff;
+  --aurora-mint: #56dec7;
+  --aurora-shadow: 0 22px 70px rgba(0,0,0,.28);
+}
+
+body {
+  background:
+    radial-gradient(900px 460px at 90% -10%, rgba(98,164,255,.18), transparent 62%),
+    radial-gradient(700px 420px at -10% 30%, rgba(155,140,255,.13), transparent 64%),
+    var(--aurora-bg);
+}
+
+.sidebar { background: linear-gradient(180deg, rgba(12,18,34,.97), rgba(12,16,30,.94)); border-right: 1px solid var(--aurora-line); }
+.sidebar .brand { border-bottom-color: var(--aurora-line); }
+.sidebar .nav-group-title { color: #8492b5; letter-spacing: .16em; }
+.sidebar .nav-item { min-height: 44px; border: 1px solid transparent; }
+.sidebar .nav-item.active { border-color: rgba(155,140,255,.28); background: linear-gradient(100deg, rgba(155,140,255,.22), rgba(98,164,255,.07)); box-shadow: inset 3px 0 0 var(--aurora-violet); }
+.sidebar .nav-item em { display: none; }
+.workspace { background: transparent; }
+.workspace .topbar { background: rgba(7,11,22,.78); border-bottom-color: var(--aurora-line); }
+.workspace .content-wrap { max-width: 1540px; margin: 0 auto; }
+.card, .panel, .metric, .table-card { background: var(--aurora-panel); border-color: var(--aurora-line); box-shadow: var(--aurora-shadow); backdrop-filter: blur(18px); }
+.card:hover, .metric:hover { border-color: rgba(155,140,255,.3); }
+.hero { border-color: rgba(155,140,255,.32); background: linear-gradient(130deg, rgba(43,32,90,.94), rgba(20,54,91,.8) 68%, rgba(25,35,56,.8)); box-shadow: var(--aurora-shadow); }
+.hero:after { background: rgba(86,222,199,.12); }
+.primary, button.primary { background: linear-gradient(120deg, var(--aurora-violet), var(--aurora-blue)) !important; box-shadow: 0 10px 26px rgba(98,164,255,.2); }
+button, .button { min-height: 42px; border-radius: 12px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(86,222,199,.75); outline-offset: 3px; }
+input, select, textarea { background: rgba(6,10,20,.62) !important; border-color: var(--aurora-line) !important; }
+input:focus, select:focus, textarea:focus { border-color: var(--aurora-blue) !important; box-shadow: 0 0 0 4px rgba(98,164,255,.13) !important; }
+.table-wrap { border: 1px solid var(--aurora-line); border-radius: 14px; overflow: auto; }
+.table-wrap table { background: transparent; }
+.table-wrap th { background: rgba(98,164,255,.08); color: #b9c6e5; }
+.table-wrap td, .table-wrap th { border-bottom-color: var(--aurora-line); }
+.secure span, .online span { background: var(--aurora-mint); box-shadow: 0 0 12px rgba(86,222,199,.65); }
+.alert { border-color: rgba(255,207,112,.28); background: rgba(255,207,112,.08); }
+.empty-state { border: 1px dashed var(--aurora-line); border-radius: 16px; }
+@media (max-width: 680px) {
+  .workspace .content-wrap { padding: 14px; }
+  .workspace .topbar { padding: 0 14px; }
+  .card { border-radius: 16px; padding: 18px; }
+}
