@@ -25,3 +25,16 @@ body{background:radial-gradient(ellipse at 80% 0%,#30245766,transparent 55%),var
 .miniapp-extras{max-width:1272px;margin:0 auto 20px;padding:20px}.miniapp-banner{max-width:100%;max-height:220px;object-fit:cover;border-radius:14px}.connection-qr{width:180px;height:180px;border-radius:12px;padding:10px;background:white;margin-top:16px}
 
 .support-conversation{margin-top:1rem;min-width:0}.support-messages{display:grid;gap:.75rem;margin:1rem 0}.support-message{padding:1rem;border:1px solid var(--border,#3b3c69);border-radius:14px;background:rgba(76,92,180,.08);overflow-wrap:anywhere}.support-message.admin{background:rgba(133,85,255,.13);border-color:rgba(133,85,255,.35)}.support-message small{display:block;opacity:.65;margin-top:.25rem}.support-message p{white-space:pre-wrap}
+
+/* Aurora customer workspace refresh */
+:root{--aurora-bg:#070b16;--aurora-panel:rgba(18,24,42,.86);--aurora-line:rgba(160,177,255,.16);--aurora-violet:#9b8cff;--aurora-blue:#62a4ff;--aurora-mint:#56dec7;--aurora-shadow:0 22px 70px rgba(0,0,0,.28)}
+body{background:radial-gradient(900px 460px at 88% -10%,rgba(98,164,255,.18),transparent 62%),radial-gradient(700px 420px at -10% 30%,rgba(155,140,255,.13),transparent 64%),var(--aurora-bg)}
+.topbar{background:rgba(7,11,22,.78);border-bottom-color:var(--aurora-line)}
+.hero{border-color:rgba(155,140,255,.32);background:linear-gradient(130deg,rgba(43,32,90,.94),rgba(20,54,91,.8) 68%,rgba(25,35,56,.8));box-shadow:var(--aurora-shadow)}
+.user-sidebar,.panel,.form-card{background:var(--aurora-panel);border-color:var(--aurora-line);box-shadow:var(--aurora-shadow);backdrop-filter:blur(18px)}
+.side-nav-item.active{border-color:rgba(155,140,255,.28);background:linear-gradient(100deg,rgba(155,140,255,.22),rgba(98,164,255,.07));box-shadow:inset 3px 0 0 var(--aurora-violet)}
+.metric,.plan-item,.platform-chip,.platform-guide{background:rgba(255,255,255,.035);border-color:var(--aurora-line)}
+.btn-primary,.primary{background:linear-gradient(120deg,var(--aurora-violet),var(--aurora-blue))!important;box-shadow:0 10px 26px rgba(98,164,255,.2)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--aurora-blue)!important;box-shadow:0 0 0 4px rgba(98,164,255,.13)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(86,222,199,.75);outline-offset:3px}
+.status.ok{color:var(--aurora-mint);background:rgba(86,222,199,.1)}

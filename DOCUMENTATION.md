@@ -21,6 +21,7 @@
 | Резервирование, диагностика и инциденты | [Эксплуатация](OPERATIONS_RUNBOOK_RU.md) |
 | Права и защита данных | [SECURITY.md](SECURITY.md) |
 | HTTP API | [API_REFERENCE_RU.md](API_REFERENCE_RU.md) |
+| Карта проекта и дизайн | [PROJECT_MAP_RU.md](docs/PROJECT_MAP_RU.md) |
 | Проверки этого выпуска | [Отчёт v21.5.1](docs/ru/RELEASE_21_5_1_STABLE.md) |
 | Что ещё не реализовано | [Матрица покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) |
 
