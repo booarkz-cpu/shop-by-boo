@@ -478,7 +478,7 @@ async def startup():
     if not settings.admin_email or not settings.admin_password:
         return
     async with AsyncSession(engine, expire_on_commit=False) as db:
-        await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1300000001})
+        await _advisory_lock(db, 1300000001)
         existing=(await db.execute(select(AdminUser).where(AdminUser.email==settings.admin_email.lower()))).scalar_one_or_none()
         if not existing:
             db.add(AdminUser(email=settings.admin_email.lower(), password_hash=hash_password(settings.admin_password), role="admin"))
@@ -628,7 +628,7 @@ def telegram_user_from_init_data(init_data:str):
 async def telegram_auth(payload:dict, request:Request, response: Response, db:AsyncSession=Depends(get_db)):
     u=telegram_user_from_init_data(payload.get("initData",""))
     telegram_id=int(u["id"])
-    await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1000000000 + int(hashlib.sha256(str(telegram_id).encode()).hexdigest()[:8],16) % 900000000})
+    await _advisory_lock(db, 1000000000 + int(hashlib.sha256(str(telegram_id).encode()).hexdigest()[:8],16) % 900000000)
     user=(await db.execute(select(User).where(User.telegram_id==telegram_id))).scalar_one_or_none()
     if not user:
         user=User(telegram_id=telegram_id,username=u.get("username"),referral_code=secrets.token_urlsafe(8).upper()); db.add(user)
@@ -737,7 +737,7 @@ async def yandex_callback(code:str,state:str,request:Request,db:AsyncSession=Dep
     info=me_r.json(); yid=str(info.get("id"))
     if not yid or yid == "None": raise HTTPException(401,"Yandex profile has no stable identifier")
     yandex_lock_key=int(hashlib.sha256(yid.encode()).hexdigest()[:8],16) % 900000000
-    await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1100000000 + yandex_lock_key})
+    await _advisory_lock(db, 1100000000 + yandex_lock_key)
     user=(await db.execute(select(User).where(User.yandex_id==yid))).scalar_one_or_none()
     if not user:
         user=User(yandex_id=yid,username=info.get("login") or info.get("display_name"),referral_code=secrets.token_urlsafe(8).upper()); db.add(user)
@@ -829,7 +829,7 @@ async def register_device(payload:DeviceRegisterIn, request:Request, db:AsyncSes
         raise HTTPException(403,"Устройство в чёрном списке")
     # Serialize device-limit checks per user. Without this lock, two concurrent
     # registrations could both observe the same active_count and exceed the plan limit.
-    await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 710000000 + int(user.id)})
+    await _advisory_lock(db, 710000000 + int(user.id))
     user=await db.scalar(select(User).where(User.id==user.id).execution_options(populate_existing=True).with_for_update())
     if not user or user.deleted_at:raise HTTPException(409,"Аккаунт недоступен")
     x=(await db.execute(select(UserDevice).where(UserDevice.device_key==payload.device_key))).scalar_one_or_none()
@@ -869,7 +869,7 @@ async def claim_trial(payload:TrialIn,request:Request,db:AsyncSession=Depends(ge
     reject_restricted(user)
     # Serialize trial claims per user; the UNIQUE constraint remains the final
     # database invariant, while this prevents duplicate grants under concurrency.
-    await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 720000000 + int(user.id)})
+    await _advisory_lock(db, 720000000 + int(user.id))
     if await db.scalar(select(TrialGrant).where(TrialGrant.user_id==user.id)): raise HTTPException(409,"Пробный период уже использован")
     now=datetime.utcnow()
     active_sub=(await db.execute(select(Subscription).where(Subscription.user_id==user.id, Subscription.lifecycle_status.in_(["active","cancel_scheduled","grace"]), or_(Subscription.expires_at.is_(None), Subscription.expires_at>now)).limit(1).with_for_update())).scalar_one_or_none()
@@ -1045,11 +1045,17 @@ async def feature_enabled(db: AsyncSession, key: str, default: bool = True) -> b
     return bool(row.enabled) if row is not None else default
 
 # ---------- Payments ----------
+async def _advisory_lock(db: AsyncSession, key: int) -> None:
+    """Serialize PostgreSQL writes while keeping SQLite test/dev mode portable."""
+    bind = db.get_bind()
+    if bind is not None and bind.dialect.name == "postgresql":
+        await _advisory_lock(db, key)
+
 async def _payment_provider_order(db: AsyncSession, requested: str|None):
     names=routing_names(payments_sandbox_allowed())
     # Provider health rows are lazily bootstrapped. Serialize that bootstrap so
     # concurrent first requests cannot race into a unique-constraint failure.
-    await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1300000002})
+    await _advisory_lock(db, 1300000002)
     if requested and requested not in names: raise HTTPException(400,"Unsupported provider")
     # A fresh database has no provider-health rows until the admin opens the
     # feature-flags page. Payment availability must not depend on visiting an
@@ -2608,7 +2614,7 @@ async def request_withdrawal(payload:WithdrawalIn,request:Request,db:AsyncSessio
     if idem is not None:
         if not idem.strip() or len(idem)>128: raise HTTPException(400,"Invalid Idempotency-Key")
         key=int.from_bytes(hashlib.sha256(f"withdrawal:{user.id}:{idem}".encode()).digest()[:8],"big",signed=True)
-        await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"),{"key":key})
+        await _advisory_lock(db, key)
         existing=(await db.execute(select(WithdrawalRequest).where(WithdrawalRequest.user_id==user.id,WithdrawalRequest.idempotency_key==idem))).scalar_one_or_none()
         if existing:
             if existing.amount!=amount or existing.destination!=destination: raise HTTPException(409,"Idempotency-Key уже использован для другой выплаты")
@@ -3672,7 +3678,7 @@ class ProductionGateIn(BaseModel):
 
 @app.post("/api/admin/payments/production-gate")
 async def production_payment_gate(payload:ProductionGateIn, db:AsyncSession=Depends(get_db), admin=Depends(require_permission("security.manage"))):
-    await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1300000013})
+    await _advisory_lock(db, 1300000013)
     if not payload.enabled:
         await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"0")
         await audit(db,"payments.production_gate.disabled",admin.email,None)
@@ -3752,7 +3758,7 @@ async def staging_e2e_config(db:AsyncSession=Depends(get_db),admin=Depends(requi
 
 @app.put("/api/admin/staging-e2e/config")
 async def update_staging_e2e_config(payload:StagingE2EConfigIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("staging_e2e.manage"))):
-    await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1300000013})
+    await _advisory_lock(db, 1300000013)
     # Staging endpoints are administrator-supplied and later contacted by the server/runner.
     # Require globally routable HTTPS targets to prevent SSRF and DNS-rebinding to internal services.
     validate_public_url(payload.public_base_url, allow_empty=False)
@@ -3806,7 +3812,7 @@ async def _publish_staging_running(config, started, chunks):
     text=_redact_staging_output("".join(chunks)[-30000:], config)
     try:
         async with AsyncSession(engine,expire_on_commit=False) as db:
-            await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1300000013})
+            await _advisory_lock(db, 1300000013)
             if await _staging_config_is_current(db, config):
                 await set_setting(db,STAGING_E2E_STATUS_KEY,json.dumps({"status":"running","started_at":started,"full_e2e":False,"config_revision":config["revision"],"output":text},ensure_ascii=False))
                 await db.commit()
@@ -3816,7 +3822,7 @@ async def _publish_staging_running(config, started, chunks):
 async def _run_staging_e2e(config, admin_email):
     started=datetime.utcnow().isoformat()
     async with AsyncSession(engine,expire_on_commit=False) as db:
-        await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1300000013})
+        await _advisory_lock(db, 1300000013)
         if not await _staging_config_is_current(db, config): return
         await set_setting(db,STAGING_E2E_STATUS_KEY,json.dumps({"status":"running","started_at":started,"provider_results":[],"full_e2e":False,"config_revision":config["revision"],"output":""},ensure_ascii=False)); await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"0"); await db.commit()
     env=os.environ.copy()
@@ -3850,7 +3856,7 @@ async def _run_staging_e2e(config, admin_email):
         partial=_redact_staging_output("".join(chunks)[-30000:], config)
         result={"status":"failed","full_e2e":False,"config_revision":config["revision"],"exit_code":-1,"finished_at":datetime.utcnow().isoformat(),"output":_redact_staging_output((partial+"\n"+str(exc)).strip(), config),"admin":admin_email}
     async with AsyncSession(engine,expire_on_commit=False) as db:
-        await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1300000013})
+        await _advisory_lock(db, 1300000013)
         if not await _staging_config_is_current(db, config):
             await audit(db,"staging_e2e.discarded",admin_email,None,{"reason":"configuration_changed"}); await db.commit(); return
         await set_setting(db,STAGING_E2E_STATUS_KEY,json.dumps(result,ensure_ascii=False)); await audit(db,"staging_e2e.completed",admin_email,None,{"status":result["status"],"exit_code":result["exit_code"]}); await db.commit()
@@ -3932,7 +3938,7 @@ async def internal_staging_remnawave(request:Request,db:AsyncSession=Depends(get
 @app.post("/api/admin/staging-e2e/run")
 async def run_staging_e2e(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("staging_e2e.manage"))):
     if STAGING_E2E_LOCK.locked(): raise HTTPException(409,"Staging E2E уже выполняется")
-    await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1300000013})
+    await _advisory_lock(db, 1300000013)
     cfg=await _staging_config(db)
     if not cfg: raise HTTPException(400,"Сначала сохраните конфигурацию staging E2E")
     if not cfg.get("revision"): raise HTTPException(409,"Сохраните конфигурацию staging E2E заново перед запуском")
