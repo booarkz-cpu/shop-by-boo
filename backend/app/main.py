@@ -1047,7 +1047,9 @@ async def feature_enabled(db: AsyncSession, key: str, default: bool = True) -> b
 # ---------- Payments ----------
 async def _advisory_lock(db: AsyncSession, key: int) -> None:
     """Serialize PostgreSQL writes while keeping SQLite test/dev mode portable."""
-    bind = db.get_bind()
+    bind = getattr(db, "bind", None)
+    if bind is None:
+        bind = getattr(getattr(db, "sync_session", None), "bind", None)
     if bind is not None and bind.dialect.name == "postgresql":
         await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": key})
 
