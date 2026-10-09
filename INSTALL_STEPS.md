@@ -2,7 +2,7 @@
 
 ## 1. Выберите контур
 
-v21.5.1 stable выпускает текущее проверенное ядро. Перед эксплуатацией нужен отдельный стенд; production-платежи пока закрыты. Локальная песочница не требует касс и Remnawave. Отдельный HTTPS стенд нужен для внешних callbacks, SMTP и настоящего тестового VPN. [Все требования](INSTALL.md).
+v26 выпускает текущее проверенное ядро; runtime/API сообщает версию `21.5.1`. Перед эксплуатацией нужен отдельный стенд; production-платежи пока закрыты. Локальная песочница не требует касс и Remnawave. Отдельный HTTPS стенд нужен для внешних callbacks, SMTP и настоящего тестового VPN. [Все требования](INSTALL.md).
 
 ## 2. Подключитесь к VDS
 
@@ -17,7 +17,7 @@ ssh root@SERVER_IP
 ## 3. Поднимите тестовый магазин одной последовательностью
 
 ```bash
-git clone --branch v21.5.1 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v26 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```
@@ -55,6 +55,6 @@ Volumes сохраняются. Параметр `-v` удаляет тесто�
 
 [INSTALL.md](INSTALL.md), [готовность stable](docs/ru/FINAL_RELEASE_READINESS.md), [миграции и backup](docs/ru/WORKSPACE_UPGRADE.md). В этом выпуске подтверждённого внешнего платёжного E2E нет; обход gate не является этапом установки.
 
-## Что изменилось в v21.5.1
+## Что изменилось в v26
 
 Команды закреплены за точным тегом, а migration head и release identity синхронизированы. [Полная инструкция production](docs/ru/PRODUCTION_CURRENT.md) охватывает SSH/Termius, DNS/TLS, настройку, приёмку, backup/restore, обновления и инциденты. Матрица документации завершена; фактически открытые функции и внешний E2E перечислены в [реестре критериев](docs/ru/MATRIX_COMPLETION_21_5_1.md). Production gate закрыт.

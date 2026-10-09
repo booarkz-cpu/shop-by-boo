@@ -1,5 +1,13 @@
 # Changelog
 
+## v26 — 2026-10-09
+
+- Опубликован стабильный GitHub-релиз `v26` на commit `98ceb7f`; основной CI, Docker-сборка ветки и Docker-сборка тега завершены успешно.
+- Исправлены переносимые advisory locks для SQLite/PostgreSQL, стабильность WebAuthn E2E и уязвимые зависимости.
+- Добавлены `PROJECT_SPEC.md`, полная структура проекта и runbook диагностики нод Remnawave; обновлена визуальная система кабинета и административной панели.
+- Актуальные команды установки и обновления переведены на тег `v26`; runtime/API намеренно остаётся `21.5.1`, схемы — `0062_support_delivery_identity` и Support Pro `0006`.
+- Внешний платёжный E2E, отдельный Remnawave-стенд и owner-signed mobile assets остаются обязательными внешними gates.
+
 ## 21.5.1 — 2026-10-03
 
 - Синхронизированы runtime, installer, release manifest, publish workflow и команды установки на точный тег `v21.5.1`; схема остаётся `0062_support_delivery_identity`, Support Pro `0006` / 3.6.
