@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
+DISTRIBUTION_TAG = "v26"
 SHOP_HEAD = "0062_support_delivery_identity"
 SUPPORT_HEAD = "0006"
 
@@ -30,10 +31,11 @@ def main() -> None:
     require("backend/app/main.py", f'APP_VERSION = "{VERSION}"')
     require("deploy/install-vps.sh", f'INSTALLER_VERSION="{VERSION}"')
     require("scripts/build-release.sh", f'VERSION="{VERSION}"')
-    require("README.md", TAG, SHOP_HEAD, "MATRIX_COMPLETION_21_5_1.md")
-    require("DOCUMENTATION.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
-    require("INSTALL_STEPS.md", TAG)
-    require("docs/ru/DEPLOYMENT_CURRENT.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
+    require("README.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "MATRIX_COMPLETION_21_5_1.md")
+    require("DOCUMENTATION.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
+    require("INSTALL_STEPS.md", DISTRIBUTION_TAG, VERSION)
+    require("install.sh", 'BRANCH="${BRANCH:-v26}"')
+    require("docs/ru/DEPLOYMENT_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/PRODUCTION_CURRENT.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/WORKSPACE_COVERAGE.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require(".github/workflows/publish-release.yml", TAG, "v21_5_1")
@@ -59,7 +61,7 @@ def main() -> None:
     if len(table_rows) < 45:
         raise SystemExit(f"coverage matrix unexpectedly short: {len(table_rows)} rows")
 
-    print(f"current documentation contract OK: {TAG}, shop {SHOP_HEAD}, support {SUPPORT_HEAD}")
+    print(f"current documentation contract OK: distribution {DISTRIBUTION_TAG}, runtime {TAG}, shop {SHOP_HEAD}, support {SUPPORT_HEAD}")
 
 
 if __name__ == "__main__":
