@@ -13,6 +13,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -155,8 +156,8 @@ def main() -> None:
             items = _observations()
             if items:
                 _post(base, "/api/agent/observations", token, {"items": items})
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError):
-            pass
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError) as exc:
+            print(f"node-agent delivery failed: {exc}", file=sys.stderr, flush=True)
         time.sleep(interval)
 
 

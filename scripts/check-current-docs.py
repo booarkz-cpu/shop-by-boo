@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
-DISTRIBUTION_TAG = "v26"
+DISTRIBUTION_TAG = "v27"
 SHOP_HEAD = "0062_support_delivery_identity"
 SUPPORT_HEAD = "0006"
 
@@ -34,7 +34,7 @@ def main() -> None:
     require("README.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "MATRIX_COMPLETION_21_5_1.md")
     require("DOCUMENTATION.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("INSTALL_STEPS.md", DISTRIBUTION_TAG, VERSION)
-    require("install.sh", 'BRANCH="${BRANCH:-v26}"')
+    require("install.sh", 'BRANCH="${BRANCH:-v27}"')
     require("docs/ru/DEPLOYMENT_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/PRODUCTION_CURRENT.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/WORKSPACE_COVERAGE.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
