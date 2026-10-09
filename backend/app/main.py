@@ -1049,7 +1049,7 @@ async def _advisory_lock(db: AsyncSession, key: int) -> None:
     """Serialize PostgreSQL writes while keeping SQLite test/dev mode portable."""
     bind = db.get_bind()
     if bind is not None and bind.dialect.name == "postgresql":
-        await _advisory_lock(db, key)
+        await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": key})
 
 async def _payment_provider_order(db: AsyncSession, requested: str|None):
     names=routing_names(payments_sandbox_allowed())
