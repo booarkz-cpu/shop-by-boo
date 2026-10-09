@@ -10,4 +10,4 @@ def upgrade():
     op.execute("UPDATE platform_plugins SET enabled = TRUE WHERE key IN ('abuse','agent','webhooks','mail','metrics','torrents')")
 
 def downgrade():
-    pass
+    return None

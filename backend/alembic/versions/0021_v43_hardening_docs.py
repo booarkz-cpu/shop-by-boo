@@ -6,7 +6,7 @@ depends_on=None
 from alembic import op
 
 def upgrade():
-    pass
+    return None
 
 def downgrade():
-    pass
+    return None

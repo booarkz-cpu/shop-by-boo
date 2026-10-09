@@ -5,6 +5,6 @@ down_revision="0019_v41_enterprise_features"
 branch_labels=None
 depends_on=None
 def upgrade():
-    pass
+    return None
 def downgrade():
-    pass
+    return None
