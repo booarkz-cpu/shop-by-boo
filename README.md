@@ -4,11 +4,11 @@
 
 Единый магазин VPN-подписок: админ-панель, веб кабинет пользователя, Telegram-бот и Mini App, приложения Android и iOS. Интерфейсы оформлены в сине-фиолетовой палитре.
 
-**v26 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0062_support_delivery_identity` и Support Pro `0006` / 3.6. Разделение тега и версии API намеренное: оператор устанавливает `v26`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
+**v27 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0062_support_delivery_identity` и Support Pro `0006` / 3.6. Разделение тега и версии API намеренное: оператор устанавливает `v27`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
 
 В alpha.7 добавлен [вход администратора по passkey](docs/ru/ADMIN_PASSKEYS.md), [операционный dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Исправлена привязка публикации мобильных пакетов к актуальному тегу; подписи владельца по-прежнему нужны.
 
-Текущий стабильный выпуск: [v26](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v26), проверенный commit `98ceb7f678070ecbc5c590a50a74ea8db067892d`. Production-платежи остаются закрытыми: application E2E v2 не завершён. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). Актуальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
+Текущий стабильный выпуск: [v27](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v27). Точный commit и результаты CI указаны на странице релиза. Production-платежи остаются закрытыми: application E2E v2 не завершён. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). Актуальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
 
 Сведение поддержки и перенос старой истории: [отдельная инструкция](docs/ru/WORKSPACE_SUPPORT_BRIDGE.md).
 
@@ -30,7 +30,7 @@
 Для проверки без настоящих касс, Telegram и Remnawave нужны Docker Engine, Compose и Python 3:
 
 ```bash
-git clone --branch v26 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v27 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```
@@ -40,7 +40,7 @@ bash scripts/test-up.sh
 Установка на VDS через SSH или Termius:
 
 ```bash
-git clone --branch v26 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v27 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 sudo bash deploy/install-vps.sh
 ```
@@ -52,7 +52,7 @@ sudo bash deploy/install-vps.sh
 | Задача | Руководство |
 | --- | --- |
 | Создать конкурс или колесо призов | [Правила, бюджет, розыгрыш и приватность](docs/ru/WORKSPACE_GIVEAWAYS.md) |
-| Прочитать результаты текущего выпуска | [Отчёт v26](docs/ru/RELEASE_V26.md) |
+| Прочитать результаты текущего выпуска | [Отчёт v27](docs/ru/RELEASE_V27.md) |
 | Восстановить пароль и подтвердить email | [Почта и безопасность аккаунта](docs/ru/WORKSPACE_ACCOUNT_SECURITY.md) |
 | Создать изолированный стенд через Termius | [Проверка перед финальным релизом](docs/ru/FINAL_RELEASE_READINESS.md) |
 | Пользоваться всеми страницами кабинета | [Кабинет пользователя: пошагово](docs/ru/WORKSPACE_USER_GUIDE.md) |
@@ -101,9 +101,9 @@ npm run build
 
 Подробные правила новых подписок и подарков: [инструкция](docs/ru/WORKSPACE_SUBSCRIPTIONS.md).
 
-## Выпуск v26
+## Выпуск v27
 
-Релиз v26 закрепляет проверенный commit, зелёные CI/Docker-сборки, исправления advisory locks и WebAuthn E2E, обновлённую карту проекта и мониторинг Remnawave. Матрица перечисляет открытые области и критерии приёмки; это не означает успешный внешний E2E, поэтому production gate остаётся закрытым. [Заметки выпуска v26](docs/ru/RELEASE_V26.md).
+Релиз v27 закрепляет проверенный commit, зелёные CI/Docker-сборки, исправления advisory locks и WebAuthn E2E, обновлённую карту проекта и мониторинг Remnawave. Матрица перечисляет открытые области и критерии приёмки; это не означает успешный внешний E2E, поэтому production gate остаётся закрытым. [Заметки выпуска v27](docs/ru/RELEASE_V27.md).
 
 Импорт users.db и массовые операции доступны роли admin в «Клиенты → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## v27 — 2026-10-09
+
+- Удалены placeholder-конструкции из production Python: пустые классы оформлены контрактами, abstract-provider ошибки типизированы, молчаливые исключения заменены контролируемым fallback и журналированием.
+- Добавлена AST-проверка `scripts/check-runtime-placeholders.py`, запрещающая `pass`, `NotImplementedError`, TODO/FIXME и урезанные маркеры в runtime-коде.
+- Однокомандный установщик, README и актуальные инструкции переведены на тег `v27`; runtime/API остаётся `21.5.1`, схемы — `0062_support_delivery_identity` и Support Pro `0006`.
+- Внешние payment/SMTP/Remnawave E2E и owner signing остаются инфраструктурными gates и не объявлены выполненными без доказательств владельца.
+
 ## v26 — 2026-10-09
 
 - Опубликован стабильный GitHub-релиз `v26` на commit `98ceb7f`; основной CI, Docker-сборка ветки и Docker-сборка тега завершены успешно.
