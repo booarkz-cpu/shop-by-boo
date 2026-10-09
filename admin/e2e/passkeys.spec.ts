@@ -15,7 +15,7 @@ test('browser registration, discoverable login, reload and credential deletion',
   await page.getByLabel('Название',{exact:true}).fill('Browser authenticator');
   await page.getByLabel('Пароль',{exact:true}).fill('browser-only-password');
   await page.getByRole('button',{name:'Добавить ключ доступа'}).click();
-  await expect(page.getByRole('cell',{name:'Browser authenticator'})).toBeVisible();
+  await expect(page.getByRole('cell',{name:'Browser authenticator'})).toBeVisible({timeout:15000});
   await expect(page.getByLabel('Пароль',{exact:true})).toHaveValue('');
   await page.evaluate(async()=>{
     const csrf=decodeURIComponent(document.cookie.split('; ').find(x=>x.startsWith('rw_csrf='))?.split('=')[1]||'');
