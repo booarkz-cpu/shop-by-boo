@@ -13,7 +13,7 @@
 Нужны Git, Python 3, Docker Engine и Compose. На Windows используйте WSL2/Docker Desktop; на VDS — Linux с установленным Docker. Скрипт не арендует сервер и не подключает реальные кассы.
 
 ```bash
-git clone --branch v26 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v27 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```
