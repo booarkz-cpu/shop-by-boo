@@ -8,7 +8,7 @@ def now():
 
 
 class Base(DeclarativeBase):
-    pass
+    """Declarative base for Support Pro persistence models."""
 
 
 class Team(Base):

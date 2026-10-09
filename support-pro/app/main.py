@@ -7,6 +7,7 @@ import csv
 import hashlib
 import io
 import json
+import logging
 import os
 import re
 import secrets
@@ -33,6 +34,8 @@ from .realtime import r, publish
 from .security import csrf, valid_csrf, new_totp, session_secret
 from .services import STATUSES, PRIORITIES, DELIVERY, settings, notify, assign, create_ticket, close_ticket
 from .sla import validate, set_deadlines, utc
+
+logger = logging.getLogger(__name__)
 from .access import scope, can_read, ROLES
 from .models import LoginSession, WorkItem, Team
 from .jobs import validate_rule, validate_url
@@ -225,8 +228,8 @@ async def login_post(request: Request):
         if op and op.active and op.totp_secret:
             try:
                 valid = ph.verify(op.password_hash, text_field(data, 'password', 256, True, trim=False))
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.info('Operator password verification rejected: %s', type(exc).__name__)
         if not valid:
             raise HTTPException(401, 'Неверный логин, пароль или код 2FA')
         code = text_field(data, 'code', 6, True)
@@ -854,7 +857,7 @@ async def websocket(ws: WebSocket, tid: int):
             try:
                 await asyncio.wait_for(ws.receive_text(),timeout=0.01)
             except asyncio.TimeoutError:
-                pass
+                await asyncio.sleep(0)
             if not await permitted():
                 await ws.close(code=1008)
                 break
@@ -862,8 +865,8 @@ async def websocket(ws: WebSocket, tid: int):
             await ws.send_text(msg['data'] if msg else '{"type":"ping"}')
             if not msg:
                 await asyncio.sleep(0.2)
-    except (WebSocketDisconnect, RuntimeError):
-        pass
+    except (WebSocketDisconnect, RuntimeError) as exc:
+        logger.info('Support websocket closed: %s', type(exc).__name__)
     except Exception:
         await ws.close(code=1011)
     finally:

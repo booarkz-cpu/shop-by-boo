@@ -5,6 +5,7 @@ Every page and message cursor is committed only after its files are persisted.
 """
 import base64
 import hashlib
+import logging
 import os
 import re
 from datetime import datetime, timedelta, timezone
@@ -17,8 +18,10 @@ from .services import settings, assign, notify
 from .sla import set_deadlines, utc
 
 MAX_BYTES=2*1024*1024
+logger = logging.getLogger(__name__)
 
-class BridgeError(ValueError):pass
+class BridgeError(ValueError):
+    """Shop bridge payload, identity or attachment validation failed."""
 
 class ClientAPI:
     def __init__(self):
@@ -63,7 +66,8 @@ def validate_file(name,data):
     if ext=='pdf' and data.startswith(b'%PDF-'):return 'application/pdf'
     if ext=='txt' and b'\0' not in data:
         try:data.decode('utf-8');return 'text/plain'
-        except UnicodeDecodeError:pass
+        except UnicodeDecodeError as exc:
+            logger.debug('Rejected non-UTF-8 text attachment: %s', exc)
     raise BridgeError('Вложения магазина: только PNG, JPEG, PDF и UTF-8 TXT')
 
 async def send_files(api,s,ticket,message,import_source_id=None):
@@ -113,7 +117,8 @@ async def purge(s,ticket):
     files=(await s.scalars(select(Attachment).where(Attachment.ticket_id==ticket.id))).all()
     for item in files:
         try:checked_path(item.path).unlink()
-        except ValueError:pass
+        except ValueError as exc:
+            logger.warning("Rejected unsafe attachment path during ticket cleanup: %s", exc)
         await s.delete(item)
     rows=(await s.scalars(select(Message).where(Message.ticket_id==ticket.id))).all()
     for m in rows:
