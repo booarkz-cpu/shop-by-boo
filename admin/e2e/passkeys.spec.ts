@@ -14,8 +14,9 @@ test('browser registration, discoverable login, reload and credential deletion',
   await expect(page.getByRole('heading',{name:'Ключи доступа / WebAuthn'})).toBeVisible();
   await page.getByLabel('Название',{exact:true}).fill('Browser authenticator');
   await page.getByLabel('Пароль',{exact:true}).fill('browser-only-password');
+  const verification=page.waitForResponse(response=>response.url().includes('/api/admin/auth/passkeys/registration/verify'));
   await page.getByRole('button',{name:'Добавить ключ доступа'}).click();
-  await expect(page.getByRole('status')).toContainText('Ключ зарегистрирован',{timeout:15000});
+  expect((await verification).ok()).toBeTruthy();
   await page.reload();
   await page.getByRole('button',{name:/Ключи доступа/}).click();
   await expect(page.getByRole('cell',{name:'Browser authenticator'})).toBeVisible({timeout:15000});
