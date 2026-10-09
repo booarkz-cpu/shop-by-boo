@@ -252,8 +252,8 @@ async def review_violation(violation_id: int, payload: dict, db: AsyncSession = 
                     try:
                         from .remnawave import RemnawaveClient
                         await RemnawaveClient().disable_user(sub.remnawave_uuid)
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning("Failed to disable restricted user's Remnawave subscription %s: %s", sub.id, exc)
     if action == "clear" and row.user_id:
         user = await db.get(User, row.user_id)
         if user:

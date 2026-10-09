@@ -4,7 +4,7 @@ import paramiko
 logger = logging.getLogger("remnawave.provisioner")
 
 class ProvisionError(RuntimeError):
-    pass
+    """Secure node provisioning could not be completed."""
 
 class _FingerprintPolicy(paramiko.MissingHostKeyPolicy):
     def __init__(self, expected): self.expected=expected

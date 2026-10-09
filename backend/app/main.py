@@ -213,8 +213,8 @@ def _client_ip(request: Request) -> str:
         candidate=forwarded.split(",",1)[0].strip()
         try:
             return str(ipaddress.ip_address(candidate))
-        except ValueError:
-            pass
+        except ValueError as exc:
+            logger.debug("Ignored invalid X-Forwarded-For address %r: %s", candidate, exc)
     return peer
 
 def _csrf_cookie_value(request: Request) -> str:
@@ -292,10 +292,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                         from fastapi.responses import JSONResponse
                         return JSONResponse({"detail": "Request body too large"}, status_code=413)
                     body_parts.append(chunk)
-            except RuntimeError:
+            except RuntimeError as exc:
                 # Request bodies that have already been consumed by an earlier middleware
                 # are left untouched.
-                pass
+                logger.debug("Request body already consumed before redaction: %s", exc)
             else:
                 request._body=b"".join(body_parts)
         response = await call_next(request)
@@ -2243,7 +2243,8 @@ async def expiry_notification_scheduler():
                                 await redis_client.set(key,"1",ex=86400*7)
                             except Exception as exc:
                                 try: await redis_client.delete(sending_key)
-                                except Exception: pass
+                                except Exception as cleanup_exc:
+                                    logger.warning("Failed to clear notification delivery lock: %s", cleanup_exc)
                                 logger.warning("Expiry notification failed for user %s: %s",u.id,exc)
             await asyncio.sleep(3600)
         except Exception: await asyncio.sleep(3600)
@@ -5125,7 +5126,8 @@ async def v41_backup_test_restore(backup_id:int,db:AsyncSession=Depends(get_db),
         try:
             drop=await asyncio.create_subprocess_exec("psql","-h",dbcli["host"],"-p",dbcli["port"],"-U",dbcli["user"],"-d",dbcli["database"],"-c",f'DROP DATABASE IF EXISTS "{temp_db}"',env={**os.environ,"PGPASSWORD":dbcli["password"]},stdout=asyncio.subprocess.DEVNULL,stderr=asyncio.subprocess.DEVNULL)
             await drop.communicate()
-        except Exception: pass
+        except Exception as cleanup_exc:
+            logger.warning("Failed to remove isolated restore database %s: %s", temp_db, cleanup_exc)
         shutil.rmtree(work,ignore_errors=True)
 
 @app.get("/api/admin/v41/referrals")

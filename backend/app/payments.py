@@ -106,12 +106,12 @@ class BasePaymentProvider(ABC):
         metadata: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Создать платеж."""
-        raise NotImplementedError
+        raise PaymentError(f"{type(self).__name__} does not implement payment creation")
 
     @abstractmethod
     async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
         """Получить статус платежа."""
-        raise NotImplementedError
+        raise PaymentError(f"{type(self).__name__} does not implement status lookup")
 
     @abstractmethod
     def verify_webhook(
@@ -121,7 +121,7 @@ class BasePaymentProvider(ABC):
         remote_addr: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Проверить вебхук и вернуть его данные."""
-        raise NotImplementedError
+        raise SignatureVerificationError(f"{type(self).__name__} does not implement webhook verification")
 
 
 # ============================================================

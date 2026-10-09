@@ -7,7 +7,8 @@ import httpx, jwt
 from cryptography.hazmat.primitives import serialization
 from app.config import settings
 
-class PlatformProviderError(Exception): pass
+class PlatformProviderError(Exception):
+    """A platform payment provider returned an invalid or failed response."""
 
 def _client():
     from .main import _pinned_public_http_client

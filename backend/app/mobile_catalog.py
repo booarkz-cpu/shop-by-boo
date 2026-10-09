@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import ipaddress
 import json
+import logging
 import pathlib
 import re
 import secrets
@@ -18,6 +19,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .db import get_db
 from .models import AppSetting
 from .security import require_permission
+
+logger = logging.getLogger(__name__)
 
 CATALOG_KEY = "mobile_apps"
 LOGO_KEY = "client_logo"
@@ -342,8 +345,8 @@ async def delete_client_logo(db: AsyncSession = Depends(get_db), admin=Depends(r
         if name:
             try:
                 pathlib.Path(settings.media_dir, name).unlink(missing_ok=True)
-            except Exception:
-                pass
+            except OSError as exc:
+                logger.warning("Failed to remove previous client logo %s: %s", name, exc)
         row.value = ""
     await audit(db, "content.apps.logo.deleted", admin.email)
     await db.commit()

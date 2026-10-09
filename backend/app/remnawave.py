@@ -36,10 +36,10 @@ def redact_remote(value):
     return value
 
 class RemnawaveError(RuntimeError):
-    pass
+    """A validated Remnawave request or reconciliation failure."""
 
 class RemnawaveCircuitOpen(RemnawaveError):
-    pass
+    """Remote calls are temporarily blocked after repeated failures."""
 
 class RemnawaveClient:
     _shared_client: httpx.AsyncClient | None = None

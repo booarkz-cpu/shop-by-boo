@@ -1,5 +1,6 @@
 """Bounded menu trees with Telegram button styles and custom emoji metadata."""
 import secrets
+import logging
 from typing import Literal
 from pydantic import BaseModel,ConfigDict,Field,model_validator
 from fastapi import HTTPException
@@ -9,6 +10,7 @@ from .models import BotMenuItem
 MAX_ITEMS=30
 MAX_DEPTH=4
 Style=Literal['default','primary','success','danger']
+logger = logging.getLogger(__name__)
 
 
 async def lock_menu(db):
@@ -142,7 +144,8 @@ async def menu_emoji(emoji_id:str=Path(pattern=r'^[0-9]{5,32}$'),db:AsyncSession
             if isinstance(node.get('icon_custom_emoji_id'),str):ids.add(node['icon_custom_emoji_id'])
             if isinstance(node.get('children'),list):collect(node['children'],depth+1)
     try:collect(json.loads(setting.value) if setting else [])
-    except (ValueError,TypeError):pass
+    except (ValueError,TypeError) as exc:
+        logger.warning('Configured menu tree is invalid while resolving custom emoji: %s', exc)
     if emoji_id not in ids:raise HTTPException(404,'Emoji не настроен в меню')
     if not settings.bot_token:raise HTTPException(503,'Бот не настроен')
     if len(_emoji_locks)>=64 and emoji_id not in _emoji_locks:_emoji_locks.clear()

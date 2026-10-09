@@ -297,9 +297,9 @@ async def start(message:Message):
         try:
             await menu_answer(message.answer_photo,photo=photo_url,caption=text,reply_markup=markup,parse_mode="HTML")
             return
-        except Exception:
+        except Exception as exc:
             # Image delivery must never break the bot's core /start response.
-            pass
+            logger.warning("Bot start image delivery failed; falling back to text: %s", exc)
     await menu_answer(message.answer,text,reply_markup=markup,parse_mode="HTML")
 
 @router.message(Command("buy"))
