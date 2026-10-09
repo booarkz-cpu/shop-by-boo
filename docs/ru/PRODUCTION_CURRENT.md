@@ -54,7 +54,7 @@ ss -ltnp
 На свежем VDS от root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v21.5.1/install.sh -o /root/shop-install.sh && BRANCH=v21.5.1 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v26/install.sh -o /root/shop-install.sh && BRANCH=v26 bash /root/shop-install.sh
 ```
 
 Установщик сам клонирует точный тег, устанавливает зависимости, собирает и запускает сервисы. Ручная распаковка ZIP не нужна. Source-каталог по умолчанию `/opt/vpn-shop-src`, рабочий каталог `/opt/vpn-shop`. Для иных каталогов задайте `SOURCE_DIR` и `APP_DIR` перед `bash`.

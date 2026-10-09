@@ -1,4 +1,4 @@
-> Актуальная инструкция v21.5.1. Head магазина `0062_support_delivery_identity`, Support Pro `0006`/3.6.
+> Актуальная инструкция для дистрибутива v26. Runtime/API `21.5.1`. Head магазина `0062_support_delivery_identity`, Support Pro `0006`/3.6.
 
 # Обновление существующего магазина
 
@@ -30,7 +30,7 @@ CLI создаёт зашифрованный bundle обеих баз, файл
 
 ```bash
 git fetch origin
-git switch --detach v21.5.1
+git switch --detach v26
 docker compose build backend worker bot admin cabinet miniapp support_migrate support_pro support_worker
 docker compose up -d db redis support_db support_redis
 docker compose run --rm backend alembic upgrade head
