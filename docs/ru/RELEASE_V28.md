@@ -1,0 +1,50 @@
+# v28 — Obsidian/Amber admin interface
+
+Дата выпуска: 10 октября 2026 года. Тег: `v28`. Внутренняя версия runtime/API: `21.5.1`.
+
+## Идентичность выпуска
+
+| Компонент | Версия |
+| --- | --- |
+| GitHub tag | `v28` |
+| Runtime/API | `21.5.1` |
+| Shop migration head | `0062_support_delivery_identity` |
+| Support Pro | `0006` / 3.6 |
+
+## Что изменилось
+
+- административная панель переведена на адаптивную Obsidian/Amber-дизайн-систему;
+- экран авторизации разделён на операционный intro и защищённую форму входа;
+- навигация и действия используют иконки `lucide-react`;
+- добавлены компактная верхняя панель, палитра команд, светлая тема и мобильное меню;
+- все редактируемые поля получают контекстную помощь, `title` и доступное описание; подсказка видна при наведении и клавиатурном фокусе поля;
+- динамические формы также покрываются подсказками без ручного дублирования;
+- добавлены Playwright-проверки login, цветового контракта, field hints и mobile navigation.
+
+Изменения не затрагивают публичный API, схему базы, платежную логику и Remnawave-интеграцию.
+
+## Установка
+
+```bash
+git clone --branch v28 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git
+cd shop-by-boo
+sudo bash deploy/install-vps.sh
+```
+
+Для обновления существующей установки используйте [регламент обновления](WORKSPACE_UPGRADE.md), а не повторную установку.
+
+## Проверки выпуска
+
+```bash
+python3 scripts/check-runtime-placeholders.py
+python3 scripts/check-current-docs.py
+cd admin
+npm ci
+npm run typecheck
+npm run build
+npm run test:e2e
+```
+
+## Границы готовности
+
+Новый дизайн и автоматические подсказки не означают прохождение внешней production-приёмки. Реальные payment/SMTP/Remnawave E2E, restore drill и подписанные владельцем мобильные пакеты остаются обязательными инфраструктурными gates. Точный реестр — [карта покрытия](WORKSPACE_COVERAGE.md).
