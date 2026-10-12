@@ -12,7 +12,10 @@ async function signIn(page: Page) {
 }
 
 test('login and admin shell use the Obsidian design system', async ({page}) => {
-  await page.addInitScript(() => localStorage.setItem('rw_theme', 'dark'));
+  await page.addInitScript(() => {
+    localStorage.setItem('rw_theme', 'dark');
+    localStorage.setItem('rw_lang', 'ru');
+  });
   await page.goto('/');
 
   await expect(page.getByRole('heading', {name: 'Вход в панель'})).toBeVisible();
@@ -25,7 +28,7 @@ test('login and admin shell use the Obsidian design system', async ({page}) => {
   const email = page.getByLabel('Email', {exact: true});
   await expect(email).toHaveAttribute('aria-description', /рабочий email администратора/i);
   const emailLabel = page.locator('label').filter({has: email});
-  await expect(emailLabel.locator('.field-help')).toHaveAttribute('data-tooltip', /системных уведомлений/i);
+  await expect(emailLabel).toHaveAttribute('data-tooltip', /системных уведомлений/i);
 
   await signIn(page);
   await expect(page.locator('.sidebar')).toBeVisible();
