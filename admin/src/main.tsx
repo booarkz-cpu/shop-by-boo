@@ -242,9 +242,7 @@ function FieldHints(){
    const label=control.closest("label")||document.querySelector(`label[for="${CSS.escape(control.id)}"]`);
    const explicitLabel=label?Array.from(label.childNodes).filter(node=>node.nodeType===Node.TEXT_NODE).map(node=>node.textContent||"").join(" ").trim():"";
    if(explicitLabel&&!control.hasAttribute("aria-label"))control.setAttribute("aria-label",explicitLabel);
-   if(label&&!label.querySelector(":scope > .field-help")){
-    const hint=document.createElement("span");hint.className="field-help";hint.setAttribute("aria-hidden","true");hint.dataset.tooltip=message;hint.textContent="?";label.appendChild(hint);
-   }
+   if(label){label.classList.add("has-field-help");label.setAttribute("data-tooltip",message)}
   });
    document.querySelector<HTMLButtonElement>(".auth-alternatives button:last-child")?.setAttribute("aria-label",TELEGRAM_LOGIN_LABEL);
   };
