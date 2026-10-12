@@ -297,8 +297,9 @@ textarea:focus { border-color: var(--primary) !important; box-shadow: var(--focu
 .command-box button:hover { background: var(--primary-soft); }
 
 /* Contextual field help. Every editable field receives a generated description. */
-label:has(.field-help) { position: relative; }
-.field-help {
+label.has-field-help { position: relative; }
+label.has-field-help::after {
+  content: "?";
   display: inline-grid;
   place-items: center;
   width: 16px;
@@ -311,7 +312,7 @@ label:has(.field-help) { position: relative; }
   cursor: help;
   vertical-align: middle;
 }
-.field-help::after {
+label.has-field-help::before {
   content: attr(data-tooltip);
   position: absolute;
   z-index: 300;
@@ -332,8 +333,8 @@ label:has(.field-help) { position: relative; }
   transition: .16s ease;
   pointer-events: none;
 }
-.field-help:hover,.field-help:focus { color: #120a02; border-color: var(--primary); background: var(--primary); outline: none; }
-.field-help:hover::after,label:focus-within>.field-help::after { opacity: 1; visibility: visible; transform: translateY(0); }
+label.has-field-help:hover::after,label.has-field-help:focus-within::after { color: #120a02; border-color: var(--primary); background: var(--primary); outline: none; }
+label.has-field-help:hover::before,label.has-field-help:focus-within::before { opacity: 1; visibility: visible; transform: translateY(0); }
 
 @media (max-width: 1050px) {
   :root { --sidebar: 0px; }
