@@ -341,7 +341,7 @@ label.has-field-help:hover::before,label.has-field-help:focus-within::before { o
   .workspace { width: 100%; margin-left: 0; }
   .sidebar { width: 274px; transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); box-shadow: 24px 0 70px rgba(0,0,0,.55); }
-  .sidebar-close,.mobile-menu { display: inline-flex; align-items: center; justify-content: center; }
+  .sidebar .sidebar-close,.mobile-menu { display: inline-flex; align-items: center; justify-content: center; }
   .mobile-menu svg { width: 18px; }
 }
 @media (max-width: 760px) {
