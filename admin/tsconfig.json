@@ -19,11 +19,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "react": [
-        "./node_modules/react"
-      ],
-      "react/*": [
-        "./node_modules/react/*"
+      "@/*": [
+        "./src/*"
       ]
     }
   },

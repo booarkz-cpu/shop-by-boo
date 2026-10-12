@@ -530,6 +530,30 @@ export const EN: Record<string, string> = {
   "Контрольная сумма": "Checksum",
 };
 
+Object.assign(EN, {
+  "Вход в панель": "Sign in to the console", "Система работает.": "The system is running.",
+  "Всё под контролем.": "Everything under control.", "Используйте учётную запись администратора.": "Use your administrator account.",
+  "Продажи, подписки, VPN-инфраструктура и поддержка — в едином защищённом пространстве.": "Sales, subscriptions, VPN infrastructure and support in one secure workspace.",
+  "Сервисы доступны": "Services available", "Безопасное подключение": "Secure connection", "Введите пароль": "Enter password",
+  "если включён": "if enabled", "Проверяем доступ…": "Checking access…", "или": "or", "Ключ доступа": "Passkey",
+  "Защищённая cookie · CSRF · сессия 30 минут": "Secure cookie · CSRF · 30-minute session",
+  "Главная": "Home", "Аналитика продаж": "Sales analytics", "Продажи": "Sales", "Пакеты трафика": "Traffic packages",
+  "Изменения подписок": "Subscription changes", "Платёжные агенты": "Payment agents", "Клиенты магазина": "Shop customers",
+  "Импорт и массовые операции": "Import and bulk operations", "Пользователи VPN": "VPN users", "Обращения клиентов": "Customer requests",
+  "Инфраструктура": "Infrastructure", "Антиабуз и агенты": "Abuse control and agents", "Фоновые процессы": "Background workers",
+  "Настройка магазина": "Shop settings", "Новости и страницы": "News and pages", "Меню бота и Mini App": "Bot and Mini App menu",
+  "Дерево кнопок": "Button tree", "Личный кабинет": "Customer workspace", "Акции и рассылки": "Offers and broadcasts",
+  "Группы и предложения": "Groups and personal offers", "Опросы": "Surveys", "Конкурсы и призы": "Giveaways and prizes",
+  "Оформление": "Appearance", "Защита и 2FA": "Protection and 2FA", "Роли и администраторы": "Roles and administrators",
+  "Резервные копии": "Backups", "Восстановление": "Recovery", "Обслуживание": "Maintenance", "Диагностика": "Diagnostics",
+  "Обновления": "Updates", "Функции и модули": "Features and modules", "Проверка платежей": "Payment checks",
+  "Планирование мощности": "Capacity planning", "Оркестратор": "Orchestrator", "Рекомендации": "Recommendations",
+  "Система работает штатно": "System operating normally", "Найти раздел": "Find a section", "Найти раздел…": "Find a section…",
+  "Быстрый поиск": "Quick search", "Защищено": "Protected", "Обновить": "Refresh", "Сменить тему": "Change theme",
+  "Открыть меню": "Open menu", "Закрыть меню": "Close menu", "Поиск раздела…": "Search sections…", "Параметр": "Setting",
+  "Выберите значение": "Choose a value"
+});
+
 let activeLang: Lang = "ru";
 
 Object.assign(EN, {"Открыть переписку": "Open conversation", "Закрыть переписку": "Close conversation", "Загрузка переписки…": "Loading conversation…", "Ожидает ответа поддержки": "Waiting for support", "Ответ получен": "Reply received", "Поддержка": "Support", "Вы": "You", "Клиент": "Customer", "Повторить загрузку": "Retry loading", "Загрузить следующие сообщения": "Load next messages", "Сообщение отправлено": "Message sent", "Отправить сообщение": "Send message", "Ваш ответ снова откроет обращение. Переписка сохранится.": "Your reply will reopen the ticket. The conversation is saved.", "Последний ответ поддержки": "Latest support reply"});

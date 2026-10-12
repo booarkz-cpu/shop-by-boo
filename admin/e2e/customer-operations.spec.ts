@@ -12,15 +12,15 @@ test('administrator imports a SQLite balance once and sends a previewed bulk not
   await Promise.all([page.waitForResponse(response=>response.url().endsWith('/api/admin/customer-operations/import/history')&&response.request().method()==='GET'),
     page.getByRole('button',{name:/Импорт и массовые операции/}).click()]);
   await expect(page.getByRole('heading',{name:'Перенос клиентов из users.db'})).toBeVisible();
-  await page.getByLabel('Snapshot SQLite до 5 МБ').setInputFiles({name:'users.db',mimeType:'application/octet-stream',buffer:source});
+  await page.getByLabel('Snapshot SQLite до 5 МБ',{exact:true}).setInputFiles({name:'users.db',mimeType:'application/octet-stream',buffer:source});
   await page.getByRole('button',{name:'Прочитать поля'}).click();
-  await expect(page.getByLabel('Telegram ID',{exact:true})).toHaveValue('telegram_id');
-  await page.getByLabel('Зачислить исходный баланс только новым клиентам').check();
+  await expect(page.getByRole('combobox',{name:'Telegram ID',exact:true})).toContainText('telegram_id');
+  await page.getByLabel('Зачислить исходный баланс только новым клиентам',{exact:true}).check();
   await page.getByRole('button',{name:'Проверить перенос'}).click();
   await expect(page.getByRole('heading',{name:'Результат проверки импорта'})).toBeVisible();
   await expect(page.getByText(/Зачисление: 37.50 RUB/)).toBeVisible();
   await expect(page.getByRole('button',{name:'Применить перенос'})).toBeDisabled();
-  await page.getByLabel('Я проверил все строки, валюту и достоверность исходного остатка').check();
+  await page.getByLabel('Я проверил все строки, валюту и достоверность исходного остатка',{exact:true}).check();
   await page.getByRole('button',{name:'Применить перенос'}).click();
   await expect(page.getByRole('status')).toContainText('создано 1');
   await page.getByRole('button',{name:'Проверить перенос'}).click();
@@ -32,13 +32,14 @@ test('administrator imports a SQLite balance once and sends a previewed bulk not
     return rows.find((row:any)=>row.status==='applied').result.user_ids[0];
   });
   await page.getByLabel('ID клиентов магазина',{exact:true}).fill(String(userId));
-  await page.getByLabel('Действие',{exact:true}).selectOption('notify');
+  await page.getByRole('combobox',{name:'Действие',exact:true}).click();
+  await page.getByRole('option',{name:'Отправить уведомление в кабинет',exact:true}).click();
   await page.getByLabel('Причина',{exact:true}).fill('Import welcome');
   await page.getByLabel('Заголовок',{exact:true}).fill('Welcome');
   await page.getByLabel('Текст',{exact:true}).fill('Your profile was transferred.');
   await page.getByRole('button',{name:'Проверить операцию'}).click();
   await expect(page.getByRole('button',{name:'Применить операцию'})).toBeDisabled();
-  await page.getByLabel('Я проверил список и действие').check();
+  await page.getByLabel('Я проверил список и действие',{exact:true}).check();
   await page.getByRole('button',{name:'Применить операцию'}).click();
   await expect(page.getByRole('status')).toContainText('обработано клиентов 1');
 });

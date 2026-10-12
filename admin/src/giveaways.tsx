@@ -1,3 +1,4 @@
+import {SelectField} from "./components/select-field";
 import React, {useEffect,useRef,useState} from 'react';
 type RequestFn=(path:string,options?:RequestInit)=>Promise<any>;
 function localDate(d:Date){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
@@ -16,7 +17,7 @@ export function AdminGiveaways({rows:initial,request,reload}:{rows:any[];request
  const budget=form.kind==='contest'?Number(form.prizes[0].amount)*form.winners_count:Math.max(...form.prizes.map(p=>Number(p.amount)))*form.max_entries;
  return <div className="stack">{error&&<p className="error" role="alert">{error}</p>}<div className="card"><h2>Конкурсы и колесо призов</h2><p>Бесплатное участие, один раз на подтверждённый email-аккаунт. После публикации условия неизменяемы. Бюджет — верхний предел бонусов магазина; награды не являются списанием с кассы.</p>
  <form className="form" onSubmit={save}><label>Название<input required maxLength={255} value={form.title} onChange={e=>set('title',e.target.value)}/></label><label>Описание<textarea maxLength={4000} value={form.description} onChange={e=>set('description',e.target.value)}/></label>
- <label>Механика<select value={form.kind} onChange={e=>{set('kind',e.target.value);set('prizes',[{amount:'10',weight:1}]);set('winners_count',1)}}><option value="contest">Конкурс</option><option value="wheel">Колесо призов</option></select></label>
+ <label>Механика<SelectField value={form.kind} onChange={e=>{set('kind',e.target.value);set('prizes',[{amount:'10',weight:1}]);set('winners_count',1)}}><option value="contest">Конкурс</option><option value="wheel">Колесо призов</option></SelectField></label>
  <label>Начало (ваш часовой пояс)<input required type="datetime-local" value={form.starts_at} onChange={e=>set('starts_at',e.target.value)}/></label><label>Окончание (ваш часовой пояс)<input required type="datetime-local" value={form.ends_at} onChange={e=>set('ends_at',e.target.value)}/></label>
  <label>Лимит участников<input type="number" required min={1} max={10000} value={form.max_entries} onChange={e=>set('max_entries',Number(e.target.value))}/></label>{form.kind==='contest'&&<label>Число победителей<input type="number" required min={1} max={100} value={form.winners_count} onChange={e=>set('winners_count',Number(e.target.value))}/></label>}
  <label><input type="checkbox" checked={form.require_subscription} onChange={e=>set('require_subscription',e.target.checked)}/>Нужна действующая подписка</label>

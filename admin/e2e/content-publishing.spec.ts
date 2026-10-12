@@ -4,7 +4,7 @@ test('editor publishes safely, preserves old text while editing and archives pub
  await page.addInitScript(()=>localStorage.setItem('rw_lang','ru'));
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill('browser@example.test');await page.getByLabel('Пароль',{exact:true}).fill('browser-only-password');await page.getByRole('button',{name:'Войти',exact:true}).click();
  await Promise.all([page.waitForResponse(r=>r.url().endsWith('/api/admin/pages')&&r.request().method()==='GET'),page.getByRole('button',{name:/Новости и страницы/}).click()]);
- await page.getByLabel('Slug',{exact:true}).fill('browser-terms');await page.getByLabel('Тип страницы',{exact:true}).selectOption('legal');await page.getByLabel('Заголовок',{exact:true}).fill('Browser terms');
+ await page.getByLabel('Slug',{exact:true}).fill('browser-terms');await page.getByRole('combobox',{name:'Тип страницы',exact:true}).click();await page.getByRole('option',{name:'Юридическая страница',exact:true}).click();await page.getByLabel('Заголовок',{exact:true}).fill('Browser terms');
  const hostile='<img src=x onerror="window.cmsInjected=1">';await page.getByLabel('Текст блока',{exact:true}).fill(hostile);
  await page.getByRole('button',{name:'Предпросмотр',exact:true}).click();await expect(page.getByLabel('Предпросмотр страницы')).toContainText(hostile);
  expect(await page.evaluate(()=>(window as any).cmsInjected)).toBeUndefined();await page.getByRole('button',{name:'Сохранить черновик',exact:true}).click();

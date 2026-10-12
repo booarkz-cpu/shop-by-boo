@@ -992,10 +992,8 @@ async def admin_login(payload:LoginIn, request:Request, response:Response, db:As
         if not verify_totp(admin,payload.otp) and not consume_recovery_code(admin,payload.otp):
             raise HTTPException(401,"MFA code required or invalid")
     admin.last_login_at=datetime.utcnow();
-    if redis_client is not None:
-        try: await redis_client.delete(limiter_key)
-        except Exception as exc:
-            logger.warning("Non-critical operation failed: %s", exc)
+    from .runtime_security import reset_login_attempts
+    await reset_login_attempts(redis_client, limiter_key)
     await db.commit()
     jti=secrets.token_urlsafe(32)
     expires=datetime.utcnow()+timedelta(minutes=30)

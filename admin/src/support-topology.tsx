@@ -1,3 +1,4 @@
+import {SelectField} from "./components/select-field";
 import React, {useState} from 'react';
 
 export function SupportTopology({ticket, thread, request, onComplete}:{ticket:any;thread:any;
@@ -20,8 +21,8 @@ export function SupportTopology({ticket, thread, request, onComplete}:{ticket:an
   }catch(e:any){setMessage(e.message)}finally{setBusy(false)}}
   return <details><summary>Объединить или разделить обращение</summary>
     <p>Можно перемещать историю только внутри одного клиентского аккаунта. Вложения сохраняют ID. Перед применением проверьте preview.</p>
-    <label>Операция<select value={kind} disabled={busy} onChange={e=>{setKind(e.target.value);changed()}}>
-      <option value="merge">Объединить в другое обращение</option><option value="split">Выделить сообщения в новое</option></select></label>
+    <label>Операция<SelectField value={kind} disabled={busy} onChange={e=>{setKind(e.target.value);changed()}}>
+      <option value="merge">Объединить в другое обращение</option><option value="split">Выделить сообщения в новое</option></SelectField></label>
     {kind==='merge'?<label>Номер итогового обращения<input type="number" min={1} value={target} disabled={busy} onChange={e=>{setTarget(e.target.value);changed()}}/></label>:<>
       <label>Тема нового обращения<input maxLength={255} value={subject} disabled={busy} onChange={e=>{setSubject(e.target.value);changed()}}/></label>
       <p>Выберите сообщения из загруженной истории; при необходимости загрузите следующую страницу.</p>

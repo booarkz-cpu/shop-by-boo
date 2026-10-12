@@ -15,6 +15,10 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 import uvicorn
 from app import main as shop
+# One ephemeral browser runner shares one loopback address. Production limits
+# are tested separately; UI scenarios use an isolated general request cap.
+shop.RATE_LIMITS = {**shop.RATE_LIMITS, "/api/admin/auth/login": 64}
+
 from app.db import get_db
 from app.models import Base, AdminUser, FeatureFlag, User
 from app.security import hash_password

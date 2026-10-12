@@ -296,46 +296,6 @@ textarea:focus { border-color: var(--primary) !important; box-shadow: var(--focu
 .command-box button span svg { width: 16px; }
 .command-box button:hover { background: var(--primary-soft); }
 
-/* Contextual field help. Every editable field receives a generated description. */
-label.has-field-help { position: relative; }
-label.has-field-help::after {
-  content: "?";
-  display: inline-grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  margin-left: 6px;
-  border: 1px solid var(--line-strong);
-  border-radius: 50%;
-  color: var(--muted);
-  font: 700 10px/1 ui-monospace, monospace;
-  cursor: help;
-  vertical-align: middle;
-}
-label.has-field-help::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  z-index: 300;
-  left: 0;
-  top: calc(100% + 8px);
-  width: min(300px, calc(100vw - 42px));
-  padding: 11px 13px;
-  border: 1px solid #3a3027;
-  border-radius: 8px;
-  background: #17130f;
-  color: #d8d1ca;
-  box-shadow: 0 16px 42px rgba(0,0,0,.42);
-  font: 500 11px/1.55 Inter, sans-serif;
-  letter-spacing: 0;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-4px);
-  transition: .16s ease;
-  pointer-events: none;
-}
-label.has-field-help:hover::after,label.has-field-help:focus-within::after { color: #120a02; border-color: var(--primary); background: var(--primary); outline: none; }
-label.has-field-help:hover::before,label.has-field-help:focus-within::before { opacity: 1; visibility: visible; transform: translateY(0); }
-
 @media (max-width: 1050px) {
   :root { --sidebar: 0px; }
   .workspace { width: 100%; margin-left: 0; }
@@ -364,3 +324,27 @@ label.has-field-help:hover::before,label.has-field-help:focus-within::before { o
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+.select-field { display:block;width:100%; }
+.select-option-label { display:inline-flex;align-items:center;gap:.5rem; }
+.select-option-label svg,.ui-menu-item>svg { width:1rem;height:1rem;flex-shrink:0; }
+.ui-menu-content,.ui-select-content,.ui-tooltip { font-family:inherit;background:var(--surface);color:var(--text);border-color:var(--line-strong); }
+.ui-menu-content { min-width:11rem; }
+.ui-menu-item[data-highlighted],.ui-select-item[data-highlighted] { background:var(--primary-soft); }
+.ui-menu-item[data-state="checked"],.ui-select-item[data-state="checked"] { color:var(--primary); }
+.ui-menu-item>span>svg,.ui-select-item>span>svg { width:1rem;height:1rem; }
+.ui-select-trigger { background:var(--input);color:var(--text);border:1px solid var(--line-strong);text-align:left;font:inherit;padding:.625rem .75rem; }
+.ui-select-trigger:focus-visible { outline:2px solid var(--primary);outline-offset:2px; }
+.ui-select-trigger:disabled { opacity:.5; }
+.ui-tooltip { max-width:min(22rem,calc(100vw - 2rem));font-size:.8125rem;line-height:1.6; }
+.ui-menu-content[data-state="open"],.ui-select-content[data-state="open"],.ui-tooltip[data-state="instant-open"],.ui-tooltip[data-state="delayed-open"] { animation:ui-reveal .16s ease-out; }
+@keyframes ui-reveal { from { opacity:0;transform:translateY(-4px); } to { opacity:1;transform:translateY(0); } }
+.field-help-slot { display:inline-flex;vertical-align:middle;margin-left:.375rem; }
+.field-help-trigger { display:inline-flex;align-items:center;justify-content:center;padding:0;width:2rem;height:2rem;min-height:2rem;border:0;background:transparent;color:var(--muted);box-shadow:none; }
+.field-help-trigger svg { width:1rem;height:1rem; }
+.field-help-trigger:hover,.field-help-trigger:focus-visible { color:var(--primary); }
+.field-help-trigger:focus-visible { outline:2px solid var(--primary);outline-offset:2px; }
+.ui-button.round-btn { width:2.5rem;height:2.5rem;padding:0; }
+label.has-field-help { position:relative; }
+label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position:absolute;right:0;top:-.25rem;margin:0; }
+@media (prefers-reduced-motion:reduce) { .ui-menu-content,.ui-select-content,.ui-tooltip,.ui-button,.ui-select-trigger { animation:none!important;transition:none!important; } }

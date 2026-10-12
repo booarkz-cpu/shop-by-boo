@@ -1,6 +1,7 @@
 """Explicit configuration boundaries, scoped CORS and bounded rate fallback."""
 from collections import OrderedDict
 import ipaddress
+import logging
 import time
 from urllib.parse import urlsplit, unquote
 from fastapi.middleware.cors import CORSMiddleware
@@ -123,6 +124,21 @@ async def rate_allowed(redis, key, limit, window):
         return int(count) <= limit
     except Exception:
         return fallback
+
+
+async def reset_login_attempts(redis, key: str) -> None:
+    """Reset only a verified login's attempt bucket, including Redis fallback."""
+    if not key.startswith("login:"):
+        raise ValueError("Only a verified login attempt bucket can be reset")
+    _LOCAL.pop(key, None)
+    if redis is None:
+        return
+    try:
+        await redis.delete(key)
+    except Exception:
+        logging.getLogger(__name__).warning(
+            "Shared login counter reset unavailable; local counter cleared"
+        )
 
 
 class ScopedCORSMiddleware:
