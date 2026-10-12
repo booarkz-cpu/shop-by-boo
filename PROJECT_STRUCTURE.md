@@ -1,5 +1,7 @@
 # Shop by Boo — структура проекта
 
+Дистрибутив `v28.1.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
 ## Корень
@@ -47,10 +49,18 @@ shop-by-boo/
 
 ## Рабочий поток релиза
 
-```text
-feature change → backend/frontend tests → typecheck/build → Docker/CI
-→ documentation contract → review of external gates → release workflow
-```
+Изменение проходит проверки Python, браузерные сценарии, типы и сборки, затем CI и Docker на точном коммите `main`. Workflow формирует детерминированный архив, SHA-256 и манифест. Publisher проверяет загруженные файлы и неизменность коммита до публикации, затем запускает Docker на релизном теге.
+
+| Модуль | Назначение |
+| --- | --- |
+| `admin/src/components/ui/` | shadcn/Radix кнопки, меню, списки и tooltip |
+| `admin/src/components/field-hints.tsx` | Контекстная помощь RU/EN для динамических форм |
+| `admin/src/components/select-field.tsx` | Адаптер существующих форм к Radix Select |
+| `backend/app/release_identity.py` | Версия дистрибутива независимо от API |
+| `scripts/package-distribution.py` | Архив, checksum и detached manifest |
+| `scripts/publish-github-release.cjs` | Проверка и публикация GitHub Release |
+| `scripts/generate-project-map.py` | Полная проверяемая карта файлов |
+
 
 Release не объявляется production-ready, если не подтверждены provider E2E, owner signing mobile assets и внешний Remnawave stand.
 

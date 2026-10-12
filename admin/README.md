@@ -2,20 +2,25 @@
 
 # VPN Shop by Corgi — Admin Panel
 
-## Obsidian/Amber interface (v28)
+## Obsidian/Amber interface (v28.1.0)
 
-Панель использует почти чёрную операторскую палитру с тёплым оранжевым акцентом, компактной навигацией и иконками `lucide-react`. Макет адаптируется к desktop, планшету и мобильному экрану. Тема переключается кнопкой с иконкой солнца/луны.
+Почти чёрная палитра с оранжевым акцентом, светлая тема, иконки Lucide и адаптивная навигация. Тема и язык выбираются в меню shadcn/Radix; выбор сохраняется в браузере, а `theme_default` сервера применяется при отсутствии сохранённой темы.
 
-Компонент `FieldHints` добавляет каждому `input`, `select` и `textarea`:
+В `src/components/ui/` находятся `Button`, `DropdownMenu`, `Select` и `Tooltip`; `cn` объединяет Tailwind-классы. Меню и списки поддерживают клавиатуру, возврат фокуса, иконки, выбранное и disabled-состояние. Кнопка поддерживает варианты оформления, спиннер и `aria-busy`.
 
-- контекстное доступное описание `aria-description`;
-- нативную подсказку `title`;
-- значок `?` у связанного `label`, открывающийся также при фокусе поля;
-- поддержку динамических форм через `MutationObserver`.
+`SelectField` сохраняет скрытый нативный элемент и существующие обработчики форм. Видимый элемент — Radix combobox. Значения пустых пунктов кодируются отдельно: контракт API не меняется.
 
-Подсказка открывается при наведении и при клавиатурном фокусе. Специализированные тексты предусмотрены для email, пароля, 2FA, поиска, чисел, списков, многострочного текста и переключателей; неизвестные поля получают безопасное универсальное объяснение.
+`FieldHints` добавляет `aria-description`, `title` и кнопку помощи каждому видимому редактируемому полю. Подсказка RU/EN открывается при фокусе или нажатии, закрывается Escape и выводится в portal с ограничением по границам экрана. `MutationObserver` обрабатывает динамические формы. Для точного текста задайте `data-hint` и `data-hint-en`; значения полей и секреты в подсказки не включаются.
 
-Регрессии покрыты `e2e/obsidian-design.spec.ts`.
+Панель использует React/Vite. `npm run typecheck` проверяет весь существующий код и отдельно новые UI-компоненты в strict-режиме (`tsconfig.ui.json`). Наследуемый код ещё не переведён целиком в strict TypeScript. Браузерные регрессии: `e2e/obsidian-design.spec.ts`, `e2e/preferences-help.spec.ts` и сценарии редакторов.
+
+## Проверенный внешний вид
+
+Скриншоты сняты с изолированного браузерного стенда текущего кода, без production-данных:
+
+- [Тёмная тема и список](../docs/screenshots/admin-dark-v28-1-0.png)
+- [Светлая тема](../docs/screenshots/admin-light-v28-1-0.png)
+- [Подсказка на мобильном экране](../docs/screenshots/admin-mobile-help-v28-1-0.png)
 
 ## Branding
 
@@ -30,13 +35,13 @@
 
 ## Theme
 
-Тема переключается кнопкой в верхней панели. Выбор пользователя хранится локально в браузере; server-side `theme_default` используется как default для новых/очищенных browser sessions.
+Тема выбирается в выпадающем меню верхней панели. Выбор пользователя хранится локально в браузере; server-side `theme_default` используется как default для новых/очищенных browser sessions.
 
 ## Language
 
-Кнопка языка в шапке переключает русский и английский. Выбор хранится в `localStorage` (`rw_lang`). Русские строки остаются в `src/main.tsx`, английские подставляются словарём `src/i18n.tsx` после отрисовки. Пока выбора нет, язык берётся из браузера. Серверный `DEFAULT_LANGUAGE` задаёт запасной язык Mini App и бота.
+Меню языка в шапке выбирает русский или английский. Выбор хранится в `localStorage` (`rw_lang`). Русские строки остаются в `src/main.tsx`, английские подставляются словарём `src/i18n.tsx` после отрисовки. Пока выбора нет, язык берётся из браузера. Серверный `DEFAULT_LANGUAGE` задаёт запасной язык Mini App и бота.
 
-The header language button switches Russian and English. The choice is stored in `localStorage` (`rw_lang`). Russian strings stay in `src/main.tsx`; English is applied after render from `src/i18n.tsx`.
+The header language menu selects Russian or English. The choice is stored in `localStorage` (`rw_lang`). Russian strings stay in `src/main.tsx`; English is applied after render from `src/i18n.tsx`.
 
 ## 3.1.6
 

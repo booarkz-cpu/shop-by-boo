@@ -554,6 +554,13 @@ Object.assign(EN, {
   "Выберите значение": "Choose a value"
 });
 
+Object.assign(EN, {
+ "Маршрутизация":"Routing", "Язык":"Language", "Тип страницы":"Page type", "Новость":"News", "Лендинг":"Landing page", "Юридическая страница":"Legal page",
+ "Русский":"Russian", "Новая страница":"New page", "Новая публикация":"New publication", "Краткое описание":"Summary", "Начало публикации (UTC)":"Publication start (UTC)", "Конец публикации (UTC)":"Publication end (UTC)",
+ "Тип блока":"Block type", "Текст":"Text", "Заголовок блока":"Block title", "Текст блока":"Block text", "Выше":"Move up", "Ниже":"Move down", "Удалить блок":"Delete block", "Добавить блок":"Add block", "Сохранить черновик":"Save draft", "Предпросмотр":"Preview",
+ "Черновик публикуется отдельным действием. Изменение черновика не меняет действующую страницу. Текст отображается безопасно; HTML не исполняется.":"Publishing is a separate action. Editing a draft does not change the published page. Text is displayed safely; HTML is not executed."
+});
+
 let activeLang: Lang = "ru";
 
 Object.assign(EN, {"Открыть переписку": "Open conversation", "Закрыть переписку": "Close conversation", "Загрузка переписки…": "Loading conversation…", "Ожидает ответа поддержки": "Waiting for support", "Ответ получен": "Reply received", "Поддержка": "Support", "Вы": "You", "Клиент": "Customer", "Повторить загрузку": "Retry loading", "Загрузить следующие сообщения": "Load next messages", "Сообщение отправлено": "Message sent", "Отправить сообщение": "Send message", "Ваш ответ снова откроет обращение. Переписка сохранится.": "Your reply will reopen the ticket. The conversation is saved.", "Последний ответ поддержки": "Latest support reply"});
@@ -636,6 +643,8 @@ Object.assign(EN, {
 export function translate(lang: Lang, value: string): string {
   if (!value || lang !== "en") return value;
   if (EN[value]) return EN[value];
+  const block = value.match(/^Блок (\d+)$/);
+  if (block) return `Block ${block[1]}`;
   if (value.startsWith("АДМИН / ")) return "ADMIN / " + value.slice("АДМИН / ".length);
   const records = value.match(/^(\d+) записей$/);
   if (records) return `${records[1]} records`;

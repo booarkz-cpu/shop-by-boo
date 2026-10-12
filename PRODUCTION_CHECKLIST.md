@@ -1,3 +1,5 @@
+> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+
 # Готовность к production — v21.5.1
 
 Актуальная пошаговая инструкция: [Готовность к production](docs/ru/FINAL_RELEASE_READINESS.md). Общий каталог: [DOCUMENTATION.md](DOCUMENTATION.md).

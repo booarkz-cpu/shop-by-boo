@@ -28,11 +28,13 @@ test('login and admin shell use the Obsidian design system', async ({page}) => {
   const email = page.getByLabel('Email', {exact: true});
   await expect(email).toHaveAttribute('aria-description', /рабочий email администратора/i);
   const emailLabel = page.locator('label').filter({has: email});
-  await expect(emailLabel).toHaveAttribute('data-tooltip', /системных уведомлений/i);
+  await expect(emailLabel.getByRole('button', {name: 'Подсказка: Email'})).toBeVisible();
 
   await signIn(page);
   await expect(page.locator('.sidebar')).toBeVisible();
   await expect(page.getByRole('button', {name: /Главная/})).toBeVisible();
+  await expect(page.getByRole('button', {name: 'Открыть меню'})).toBeHidden();
+  await expect(page.locator('.sidebar .nav-item').first()).toHaveCSS('background-image', 'none');
   await expect(page.getByRole('button', {name: /Быстрый поиск/})).toBeVisible();
   await expect(page.locator('.sidebar .nav-item.active')).toHaveCSS('box-shadow', /rgb\(255, 138, 31\)/);
 });
@@ -41,7 +43,7 @@ test('all editable controls receive keyboard-accessible contextual help', async 
   await signIn(page);
   await page.getByRole('button', {name: /Диагностика/}).click();
 
-  const controls = page.locator('input, select, textarea');
+  const controls = page.locator('input:not([type="hidden"]), select:not([hidden]):not([aria-hidden="true"]), textarea, button[role="combobox"]');
   await expect.poll(async () => controls.count()).toBeGreaterThan(0);
   const count = await controls.count();
   for (let index = 0; index < count; index += 1) {
@@ -57,6 +59,8 @@ test('mobile layout keeps navigation accessible', async ({page}) => {
   await signIn(page);
 
   await expect(page.getByRole('button', {name: 'Открыть меню'})).toBeVisible();
+  await expect.poll(async () => {const bounds=await page.locator('.sidebar').boundingBox();return bounds?Math.round(bounds.x+bounds.width):1;}).toBeLessThanOrEqual(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole('button', {name: 'Открыть меню'}).click();
   await expect(page.locator('.sidebar')).toHaveClass(/open/);
   await expect(page.getByRole('button', {name: 'Закрыть меню'})).toBeVisible();

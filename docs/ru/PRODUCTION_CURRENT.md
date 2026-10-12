@@ -1,3 +1,5 @@
+> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+
 # Production: установка, настройка и эксплуатация v21.5.1
 
 Это регламент для собственного VDS и собственной Remnawave. Он описывает реальные команды текущего выпуска, приёмку, обновление, резервирование и действия при сбоях. **Полный магазин пока не допущен к коммерческому запуску:** приложение не имеет завершённого payment application E2E v2, поэтому production gate закрыт. Данный документ позволяет установить и проверить инфраструктуру; он не разрешает обходить gate. Незавершённые продукты перечислены в [матрице покрытия](WORKSPACE_COVERAGE.md).
@@ -54,7 +56,7 @@ ss -ltnp
 На свежем VDS от root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28/install.sh -o /root/shop-install.sh && BRANCH=v28 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.1.0/install.sh -o /root/shop-install.sh && BRANCH=v28.1.0 bash /root/shop-install.sh
 ```
 
 Установщик сам клонирует точный тег, устанавливает зависимости, собирает и запускает сервисы. Ручная распаковка ZIP не нужна. Source-каталог по умолчанию `/opt/vpn-shop-src`, рабочий каталог `/opt/vpn-shop`. Для иных каталогов задайте `SOURCE_DIR` и `APP_DIR` перед `bash`.

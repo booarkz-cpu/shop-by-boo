@@ -1,8 +1,101 @@
-import {Languages,Moon,Sun} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {DropdownMenu,DropdownMenuContent,DropdownMenuLabel,DropdownMenuRadioGroup,DropdownMenuRadioItem,DropdownMenuTrigger} from '@/components/ui/dropdown-menu';
-import {useLang} from '../i18n';
-type Theme='dark'|'light';
-interface PreferencesMenuProps {theme:Theme;onThemeChange:(theme:Theme)=>void}
-export function LanguageMenu(){const {lang,setLang}=useLang();return <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="round-btn language-button" aria-label={lang==='ru'?'Выбрать язык':'Choose language'}><Languages aria-hidden="true"/><span>{lang.toUpperCase()}</span></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel className="px-2 py-1 text-xs text-muted-foreground">{lang==='ru'?'Язык интерфейса':'Interface language'}</DropdownMenuLabel><DropdownMenuRadioGroup value={lang} onValueChange={value=>{if(value==='ru'||value==='en')setLang(value)}}><DropdownMenuRadioItem value="ru"><Languages aria-hidden="true"/>Русский</DropdownMenuRadioItem><DropdownMenuRadioItem value="en"><Languages aria-hidden="true"/>English</DropdownMenuRadioItem></DropdownMenuRadioGroup></DropdownMenuContent></DropdownMenu>}
-export function PreferencesMenu({theme,onThemeChange}:PreferencesMenuProps){const {lang}=useLang();return <><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="round-btn" aria-label={lang==='ru'?'Сменить тему':'Change theme'}>{theme==='dark'?<Moon aria-hidden="true"/>:<Sun aria-hidden="true"/>}</Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel className="px-2 py-1 text-xs text-muted-foreground">{lang==='ru'?'Тема оформления':'Theme'}</DropdownMenuLabel><DropdownMenuRadioGroup value={theme} onValueChange={value=>{if(value==='dark'||value==='light')onThemeChange(value)}}><DropdownMenuRadioItem value="dark"><Moon aria-hidden="true"/>{lang==='ru'?'Тёмная':'Dark'}</DropdownMenuRadioItem><DropdownMenuRadioItem value="light"><Sun aria-hidden="true"/>{lang==='ru'?'Светлая':'Light'}</DropdownMenuRadioItem></DropdownMenuRadioGroup></DropdownMenuContent></DropdownMenu><LanguageMenu/></>}
+import { Languages, Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useLang } from "../i18n";
+type Theme = "dark" | "light";
+interface PreferencesMenuProps {
+  theme: Theme;
+  onThemeChange: (theme: Theme) => void;
+}
+export function LanguageMenu() {
+  const { lang, setLang } = useLang();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="round-btn language-button"
+          aria-label={lang === "ru" ? "Выбрать язык" : "Choose language"}
+        >
+          <Languages aria-hidden="true" />
+          <span>{lang.toUpperCase()}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel className="px-2 py-1 text-xs text-muted-foreground">
+          {lang === "ru" ? "Язык интерфейса" : "Interface language"}
+        </DropdownMenuLabel>
+        <DropdownMenuRadioGroup
+          value={lang}
+          onValueChange={(value) => {
+            if (value === "ru" || value === "en") setLang(value);
+          }}
+        >
+          <DropdownMenuRadioItem value="ru">
+            <Languages aria-hidden="true" />
+            Русский
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="en">
+            <Languages aria-hidden="true" />
+            English
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+export function PreferencesMenu({
+  theme,
+  onThemeChange,
+}: PreferencesMenuProps) {
+  const { lang } = useLang();
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="round-btn"
+            aria-label={lang === "ru" ? "Сменить тему" : "Change theme"}
+          >
+            {theme === "dark" ? (
+              <Moon aria-hidden="true" />
+            ) : (
+              <Sun aria-hidden="true" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel className="px-2 py-1 text-xs text-muted-foreground">
+            {lang === "ru" ? "Тема оформления" : "Theme"}
+          </DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            value={theme}
+            onValueChange={(value) => {
+              if (value === "dark" || value === "light") onThemeChange(value);
+            }}
+          >
+            <DropdownMenuRadioItem value="dark">
+              <Moon aria-hidden="true" />
+              {lang === "ru" ? "Тёмная" : "Dark"}
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="light">
+              <Sun aria-hidden="true" />
+              {lang === "ru" ? "Светлая" : "Light"}
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <LanguageMenu />
+    </>
+  );
+}

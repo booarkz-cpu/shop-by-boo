@@ -138,10 +138,14 @@ def test_failed_database_dump_cancels_update_before_copy(tmp_path):
     assert (tmp_path / "marker").read_text() == "unchanged"
 
 
-def test_release_asset_names_match_current_version():
-    version = (ROOT / "backend/app/main.py").read_text().split('APP_VERSION = "', 1)[1].split('"', 1)[0]
+def test_release_asset_names_match_distribution_manifest():
+    import json
+    manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
+    tag = manifest["distribution_tag"]
+    name = f"remnawave_vpn_shop_{tag.replace('.', '_')}_full_release.zip"
+    assert manifest["artifact"] == name
+    assert manifest["detached_manifest"] == name.removesuffix(".zip") + "_manifest.json"
     workflow = (ROOT / ".github/workflows/publish-release.yml").read_text()
-    name = f"remnawave_vpn_shop_v{version.replace('.', '_')}_full_release.zip"
-    assert workflow.count(name) >= 4
-    assert f"const tag = 'v{version}'" in workflow
+    assert "package-distribution.py" in workflow
+    assert "publish-github-release.cjs" in workflow
     assert "remnawave_vpn_shop_v20_0_15_full_release.zip" not in workflow

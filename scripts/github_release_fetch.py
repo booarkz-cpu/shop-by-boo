@@ -45,6 +45,38 @@ def current_version(app_dir: Path) -> str:
     return text[start:text.index('"', start)]
 
 
+def current_distribution(app_dir: Path) -> str:
+    runtime = current_version(app_dir)
+    manifest_path = app_dir / "release-manifest.template.json"
+    if not manifest_path.is_file():
+        return runtime
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict):
+        raise ValueError("Invalid distribution manifest")
+    tag = manifest.get("distribution_tag")
+    if not tag:
+        return runtime
+    if not isinstance(tag, str) or not re.fullmatch(r"v\d+\.\d+\.\d+", tag):
+        raise ValueError("Invalid installed distribution tag")
+    if manifest.get("version") != runtime:
+        raise ValueError("Distribution manifest does not match the API version")
+    return tag[1:]
+
+
+def tag_commit(tag: str) -> str:
+    payload = fetch_json(f"https://api.github.com/repos/{REPO}/git/ref/tags/{tag}")
+    for _ in range(5):
+        obj = payload.get("object") if isinstance(payload, dict) else None
+        if not isinstance(obj, dict) or not re.fullmatch(r"[0-9a-f]{40}", str(obj.get("sha") or "")):
+            fail("Invalid GitHub tag object")
+        if obj.get("type") == "commit":
+            return obj["sha"]
+        if obj.get("type") != "tag":
+            fail("Release tag does not identify a commit")
+        payload = fetch_json(f"https://api.github.com/repos/{REPO}/git/tags/{obj['sha']}")
+    fail("Release tag has too many annotated tag layers")
+
+
 def fetch_json(url: str) -> dict:
     request = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json", "User-Agent": "RemnawaveShop-Updater"})
     with urllib.request.urlopen(request, timeout=30) as response:
@@ -128,10 +160,10 @@ def safe_extract(blob: bytes, destination: Path) -> None:
 def main() -> None:
     app_dir = Path(sys.argv[1]).resolve()
     stage = Path(sys.argv[2]).resolve()
-    installed = current_version(app_dir)
+    installed = current_distribution(app_dir)
     requested = os.environ.get('RELEASE_TAG', '').strip()
     if requested and not re.fullmatch(r'v\d+\.\d+\.\d+', requested):
-        fail('RELEASE_TAG must be an exact stable tag such as v21.0.0')
+        fail('RELEASE_TAG must be an exact stable tag such as v28.1.0')
     payload = fetch_json(f'https://api.github.com/repos/{REPO}/releases/tags/{requested}' if requested else API)
     if payload.get('draft') or payload.get('prerelease'):
         fail('Production updater refuses draft and prerelease releases')
@@ -165,8 +197,28 @@ def main() -> None:
         extracted = current_version(stage)
     except (OSError, ValueError):
         fail("В архиве нет версии приложения")
-    if extracted != latest:
-        fail("Версия приложения в архиве не совпадает с тегом релиза")
+    try:
+        distribution = current_distribution(stage)
+    except (OSError, ValueError):
+        fail("Некорректная версия дистрибутива в архиве")
+    if distribution != latest:
+        fail("Версия дистрибутива в архиве не совпадает с тегом релиза")
+    if distribution != extracted:
+        manifest_name = zip_name.removesuffix(".zip") + "_manifest.json"
+        if assets.get(manifest_name) != f"{DOWNLOAD_PREFIX}{tag}/{manifest_name}":
+            fail("В релизе нет манифеста дистрибутива")
+        try:
+            manifest = json.loads(download(str(assets[manifest_name])))
+        except (ValueError, UnicodeDecodeError):
+            fail("Некорректный манифест дистрибутива")
+        if not isinstance(manifest, dict) or any((
+            manifest.get("distribution_tag") != tag,
+            manifest.get("version") != extracted,
+            manifest.get("artifact") != zip_name,
+            manifest.get("sha256") != actual,
+            manifest.get("commit") != tag_commit(tag),
+        )):
+            fail("Манифест дистрибутива не совпадает с архивом или коммитом тега")
     print(latest)
 
 

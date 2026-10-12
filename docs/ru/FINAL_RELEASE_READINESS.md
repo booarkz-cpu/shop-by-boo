@@ -1,3 +1,5 @@
+> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+
 # Проверка выпуска и готовность к production
 
 Текущий выпуск **v21.5.1 stable** фиксирует проверенное ядро. Полная готовность магазина к production не подтверждена; отдельный внешний стенд с сервисами владельца не проверен. CI и локальные тесты проверяют исходники, PostgreSQL, сборки и регрессии; они не подтверждают реальные платежи, SMTP, VPN-подключение или подписанные APK/IPA.
@@ -13,7 +15,7 @@
 Нужны Git, Python 3, Docker Engine и Compose. На Windows используйте WSL2/Docker Desktop; на VDS — Linux с установленным Docker. Скрипт не арендует сервер и не подключает реальные кассы.
 
 ```bash
-git clone --branch v28 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.1.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```

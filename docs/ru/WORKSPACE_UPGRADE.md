@@ -1,4 +1,4 @@
-> Актуальная инструкция для дистрибутива v28. Runtime/API `21.5.1`. Head магазина `0062_support_delivery_identity`, Support Pro `0006`/3.6.
+> Актуальная инструкция для дистрибутива v28.1.0. Runtime/API `21.5.1`. Head магазина `0062_support_delivery_identity`, Support Pro `0006`/3.6.
 
 # Обновление существующего магазина
 
@@ -30,7 +30,7 @@ CLI создаёт зашифрованный bundle обеих баз, файл
 
 ```bash
 git fetch origin
-git switch --detach v28
+git switch --detach v28.1.0
 docker compose build backend worker bot admin cabinet miniapp support_migrate support_pro support_worker
 docker compose up -d db redis support_db support_redis
 docker compose run --rm backend alembic upgrade head
@@ -74,3 +74,5 @@ docker compose logs --tail=80 support_worker
 | 0062 + Support Pro 0006 | Исходные delivery keys, версии структуры, постоянные remote IDs и приостановленная очередь объединённого источника |
 
 Миграции применяются всей цепочкой через `upgrade head`, не выборочным запуском файлов. Downgrade использованной истории/структуры блокируется. При ошибке исправление вперёд предпочтительно; полный возврат требует остановки writers и восстановления **обеих БД, файлов и соответствующих исходников**. Не обнуляйте защитные поля SQL-командами. [Восстановление](BACKUP_CURRENT.md) · [Production](PRODUCTION_CURRENT.md) · [Матрица](WORKSPACE_COVERAGE.md).
+
+Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.1.0](DISTRIBUTION_UPGRADE_CURRENT.md).

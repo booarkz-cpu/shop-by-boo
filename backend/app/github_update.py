@@ -23,12 +23,14 @@ def version_tuple(value: str) -> tuple:
     return tuple(numbers)
 
 
-def release_status(current: str, payload: dict) -> dict:
+def release_status(current: str, payload: dict, current_distribution: str | None = None) -> dict:
     tag = str(payload.get("tag_name") or "")
-    valid_tag = bool(re.fullmatch(r"v\d+\.\d+\.\d+", tag))
+    valid_tag = bool(re.fullmatch(r"v\d+\.\d+\.\d+", tag)) and not payload.get("draft") and not payload.get("prerelease")
     latest = tag[1:] if valid_tag else ""
     zip_name = f"remnawave_vpn_shop_v{latest.replace('.', '_')}_full_release.zip"
     required = {zip_name, zip_name + ".sha256"} if valid_tag else set()
+    if valid_tag and current_distribution and latest != current:
+        required.add(zip_name.removesuffix(".zip") + "_manifest.json")
     available = {}
     for item in payload.get("assets") or []:
         url = str(item.get("browser_download_url") or "")
@@ -40,9 +42,10 @@ def release_status(current: str, payload: dict) -> dict:
     return {
         "repository": GITHUB_REPO,
         "current": current,
+        "current_tag": current_distribution or f"v{current}",
         "latest": latest,
         "tag": tag,
-        "update_available": len(assets) == 2 and version_tuple(latest) > version_tuple(current),
+        "update_available": len(available) == len(required) and len(assets) == 2 and version_tuple(latest) > version_tuple(current_distribution or current),
         "assets": assets,
         "apply_command": "sudo bash /opt/vpn-shop/scripts/update-from-github.sh",
     }

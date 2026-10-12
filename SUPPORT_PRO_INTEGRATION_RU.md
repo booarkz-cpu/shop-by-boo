@@ -1,3 +1,5 @@
+> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+
 # Support Pro — v21.5.1
 
 Актуальная пошаговая инструкция: [Support Pro](docs/ru/WORKSPACE_SUPPORT_BRIDGE.md). Общий каталог: [DOCUMENTATION.md](DOCUMENTATION.md).

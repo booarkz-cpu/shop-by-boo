@@ -1,3 +1,5 @@
+> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+
 # Единая переписка магазина и Support Pro
 
 Инструкция для v21.5.1. Магазин хранит клиентскую историю и файлы. Support Pro показывает её операторам, сохраняет назначения, SLA и внутренние заметки, а ответы передаёт через закрытый машинный API. Кабинет и админка магазина видят те же сообщения. Это дополнение к существующему SSO, а не новая система входа.
@@ -11,7 +13,7 @@
 ```bash
 cd /opt/vpn-shop
 git fetch origin
-git switch --detach v28
+git switch --detach v28.1.0
 docker compose stop backend worker support_pro support_worker
 docker compose build backend worker support_migrate support_pro support_worker
 docker compose run --rm backend alembic upgrade head

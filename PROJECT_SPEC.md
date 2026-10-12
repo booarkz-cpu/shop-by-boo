@@ -35,3 +35,7 @@ python scripts/check-current-docs.py
 bash scripts/test-up.sh
 ```
 
+
+## Контракт дистрибутива v28.1.0
+
+Runtime/API сохраняет `21.5.1`; магазин — `0062_support_delivery_identity`, Support Pro — `0006`. `backend/app/release_identity.py` задаёт тег дистрибутива независимо от API. `release-manifest.template.json` — канонический источник имён релизных файлов. Загрузчик требует совпадения тега, версии API, SHA-256 и коммита; publisher проверяет CI и Docker на текущем `main`, не перемещает существующий тег и не заменяет несовпадающие assets. Матрица остаётся открытой для неперенесённых подсистем и внешней приёмки.

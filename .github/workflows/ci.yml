@@ -76,7 +76,16 @@ jobs:
         working-directory: backend
         run: python -m compileall -q app worker.py
       - name: Current release documentation contract
-        run: python scripts/check-current-docs.py
+        run: |
+          python scripts/check-current-docs.py
+          python scripts/check-runtime-placeholders.py
+          python scripts/generate-project-map.py --check
+      - name: Setup Node for release publisher checks
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Release publisher invariants
+        run: node --test tests/release-publisher.test.cjs
       - name: Alembic heads
         working-directory: backend
         run: alembic heads

@@ -55,7 +55,7 @@ VERSION="21.5.1"
 # Historical compatibility marker: 0032_v2_0_0_product_features
 # VERSION="43.1.0-production" legacy regression marker
 # migration_head="0021_v43_hardening_docs" legacy regression marker
-ARTIFACT="remnawave_vpn_shop_v21_5_1_full_release.zip"
+ARTIFACT="$(python3 -c 'import json; print(json.load(open("release-manifest.template.json"))["artifact"])')"
 # Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_6_full_release.zip"
 # Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_5_full_release.zip"
 # Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_4_full_release.zip"
@@ -116,6 +116,8 @@ import json,sys
 t='release-manifest.template.json'; out=sys.argv[3].removesuffix('.zip')+'_manifest.json'
 m=json.load(open(t)); m['version']=sys.argv[2]; m['artifact']=sys.argv[3]; m['sha256']=sys.argv[1]; m['tests']=int(sys.argv[4]); m['signed']=False
 m['detached_manifest']=out
+m['commit']=__import__('subprocess').check_output(['git','rev-parse','HEAD']).decode().strip()
+m['ci_run']=__import__('os').environ.get('RELEASE_CI_RUN','')
 m['note']='Detached manifest. The ZIP intentionally does not contain its own final SHA256 manifest; use this exact detached manifest to verify the artifact.'
 json.dump(m,open(out,'w'),ensure_ascii=False,indent=2); open(out,'a').write('\n')
 PY

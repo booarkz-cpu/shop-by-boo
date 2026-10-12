@@ -70,3 +70,8 @@ htmlcov/
 DerivedData/
 *.xcarchive
 *.ipa
+
+# Generated source-release files belong in GitHub Release assets.
+/remnawave_vpn_shop_*_full_release.zip
+/remnawave_vpn_shop_*_full_release.zip.sha256
+/remnawave_vpn_shop_*_full_release_manifest.json

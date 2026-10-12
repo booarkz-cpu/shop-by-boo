@@ -3506,7 +3506,8 @@ async def admin_payment_detail(payment_id:int,db:AsyncSession=Depends(get_db),ad
 @app.get("/api/admin/github-update")
 async def admin_github_update(admin=Depends(require_permission("ops.releases"))):
     from .github_update import fetch_latest_release, release_status
-    return release_status(APP_VERSION, await fetch_latest_release())
+    from .release_identity import DISTRIBUTION_TAG
+    return release_status(APP_VERSION, await fetch_latest_release(), current_distribution=DISTRIBUTION_TAG)
 
 @app.get("/api/admin/payments")
 async def admin_payments(page:int=1,page_size:int=50,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):

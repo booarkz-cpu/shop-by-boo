@@ -1,3 +1,5 @@
+> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+
 # CI/CD — v21.5.1
 
 GitHub CI проверяет Python/backend с PostgreSQL и миграциями, Support Pro, аудит зависимостей, три web-сборки, настоящий Chromium WebAuthn, Compose/контейнеры с Redis AUTH, Android и iOS. Локальные SQLite-тесты не заменяют PostgreSQL-проверки конкуренции.

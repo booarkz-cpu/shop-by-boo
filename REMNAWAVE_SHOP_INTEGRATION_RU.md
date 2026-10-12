@@ -1,3 +1,5 @@
+> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+
 # Интеграция Remnawave — v21.5.1
 
 Актуальная пошаговая инструкция: [Интеграция Remnawave](docs/ru/WORKSPACE_SUBSCRIPTIONS.md). Общий каталог: [DOCUMENTATION.md](DOCUMENTATION.md).

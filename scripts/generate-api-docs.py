@@ -21,7 +21,7 @@ def render():
                 continue
             title = (info.get('summary') or info.get('operationId') or '').replace('|','\\|').replace('\n',' ')
             rows.append(f'| `{method.upper()}` | `{path}` | {title} |')
-    return f'''# Каталог API — v{manifest['version']}
+    return f'''# Каталог API — {manifest['distribution_tag']} / API v{manifest['version']}
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `{manifest['migration_head']}`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.

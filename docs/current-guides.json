@@ -94,6 +94,10 @@
     "docs/ru/MENU_TREE_CURRENT.md",
     "docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md",
     "docs/ru/MATRIX_COMPLETION_21_5_1.md",
-    "docs/ru/RELEASE_21_5_1_STABLE.md"
-  ]
+    "docs/ru/RELEASE_21_5_1_STABLE.md",
+    "docs/ru/RELEASE_V28_1_0.md",
+    "docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md",
+    "docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md"
+  ],
+  "distribution_tag": "v28.1.0"
 }
