@@ -19,14 +19,26 @@ def migration(name):
 @pytest.mark.asyncio
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
-    names=['0060_promo_audiences','0059_content_publishing','0058_customer_operations','0057_partner_commissions','0056_support_topology','0055_customer_passkeys']
-    for name in names:
-        module=migration(name)
-        async with database.bind.begin() as conn:
-            def cycle(sync):
-                with Operations.context(MigrationContext.configure(sync)):
-                    module.downgrade();module.upgrade()
-            await conn.run_sync(cycle)
+    roundtrip_names = [
+        '0063_account_merge',
+        '0062_support_delivery_identity',
+        '0061_menu_hierarchy',
+        '0060_promo_audiences',
+        '0059_content_publishing',
+        '0058_customer_operations',
+        '0057_partner_commissions',
+        '0056_support_topology',
+        '0055_customer_passkeys',
+    ]
+    guarded_names = roundtrip_names[3:]
+    async with database.bind.begin() as conn:
+        def cycle(sync):
+            with Operations.context(MigrationContext.configure(sync)):
+                for name in roundtrip_names:
+                    migration(name).downgrade()
+                for name in reversed(roundtrip_names):
+                    migration(name).upgrade()
+        await conn.run_sync(cycle)
     partner=Reseller(name='Test',slug='test',api_key_hash='hash',owner_user_id=1)
     database.add(partner);await database.flush()
     database.add(PartnerWithdrawal(reseller_id=partner.id,amount=1,currency='RUB',destination='Test',idempotency_key='one'))
@@ -36,7 +48,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     database.add(PromoGroup(name='Retain history',segment='manual'))
     database.add(ContentPage(slug='terms',locale='ru',kind='legal',draft={}))
     await database.commit()
-    for name in names:
+    for name in guarded_names:
         module=migration(name)
         async with database.bind.begin() as conn:
             def guarded(sync):
