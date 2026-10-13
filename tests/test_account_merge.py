@@ -309,9 +309,11 @@ async def test_parallel_confirmation_commits_once_on_postgres(database, monkeypa
     if database.bind.dialect.name != 'postgresql':
         pytest.skip('PostgreSQL row locks run in CI')
     target, source, _, code = await prepare_accounts(database, monkeypatch)
+    target_id = target.id
+    source_id = source.id
 
     async def active_target(_request, session):
-        return await session.get(User, target.id)
+        return await session.get(User, target_id)
 
     monkeypatch.setattr(shop, 'user_from_token', active_target)
     payload = merge.ConfirmMergeIn(code=code, password='target-password', acknowledge_data_transfer=True)
@@ -324,4 +326,4 @@ async def test_parallel_confirmation_commits_once_on_postgres(database, monkeypa
     assert first == second
     database.expire_all()
     assert await database.scalar(select(func.count()).select_from(AccountMergeOperation)) == 1
-    assert (await database.get(User, source.id)).merged_into_user_id == target.id
+    assert (await database.get(User, source_id)).merged_into_user_id == target_id
