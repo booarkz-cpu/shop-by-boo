@@ -124,7 +124,10 @@ class ImportIn(BaseModel):
 async def import_ticket(source_id:int,payload:ImportIn,db:AsyncSession=Depends(get_db),instance=Depends(identity)):
     if source_id<=0 or not payload.subject.strip():raise HTTPException(400,'Некорректное обращение')
     if db.bind.dialect.name=='postgresql':await db.execute(text('SELECT pg_advisory_xact_lock(1400000006)'))
-    owner=await db.scalar(select(User).where(User.telegram_id==payload.telegram_id,User.deleted_at.is_(None)).with_for_update())
+    from .account_merge import identity_user
+    owner=await identity_user(db,"telegram",payload.telegram_id)
+    if owner:
+        owner=await db.scalar(select(User).where(User.id==owner.id,User.deleted_at.is_(None)).with_for_update())
     if not owner:raise HTTPException(409,'Клиент Telegram не найден в магазине; автоматическое создание аккаунта запрещено')
     key=f'{instance}:{source_id}'
     previous=await db.get(SupportImportLink,key)

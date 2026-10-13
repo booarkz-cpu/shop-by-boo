@@ -179,6 +179,34 @@ Object.assign(EN, {
   "Показать": "Show"
 });
 
+Object.assign(EN, {
+  "Объединение аккаунтов": "Merge accounts",
+  "Сначала создайте код в аккаунте, данные которого нужно перенести. Затем войдите в основной аккаунт, вставьте код и проверьте план переноса. Запись выполняется только после подтверждения обеих сторон.": "First create a code in the account whose data you want to transfer. Then sign in to the primary account, paste the code, and review the transfer plan. Nothing is written until both sides are confirmed.",
+  "1. Создать код в исходном аккаунте": "1. Create a code in the source account",
+  "Текущий пароль исходного аккаунта": "Current source-account password",
+  "Для аккаунта без пароля оставьте поле пустым и войдите заново не более пяти минут назад.": "For an account without a password, leave this empty and make sure you signed in within the last five minutes.",
+  "Создать одноразовый код": "Create one-time code",
+  "Одноразовый код": "One-time code",
+  "Скопировать код": "Copy code",
+  "2. Проверить код в основном аккаунте": "2. Review the code in the primary account",
+  "Код исходного аккаунта": "Source-account code",
+  "Вставьте код после входа в аккаунт, который должен остаться основным.": "Paste the code after signing in to the account that should remain primary.",
+  "Показать план переноса": "Show transfer plan",
+  "Исходный аккаунт": "Source account",
+  "Основной аккаунт": "Primary account",
+  "Ключи доступа": "Passkeys",
+  "Способы входа": "Sign-in methods",
+  "Конфликты": "Conflicts",
+  "Текущий пароль основного аккаунта": "Current primary-account password",
+  "Для аккаунта без пароля оставьте поле пустым и используйте свежий вход.": "For an account without a password, leave this empty and use a recent sign-in.",
+  "Я проверил план и подтверждаю необратимый перенос данных в текущий аккаунт.": "I reviewed the plan and confirm the irreversible transfer into the current account.",
+  "Объединить аккаунты": "Merge accounts",
+  "Объединение пока невозможно. Устраните перечисленные конфликты.": "The accounts cannot be merged yet. Resolve the listed conflicts first.",
+  "Не удалось создать код объединения": "Could not create a merge code",
+  "Не удалось проверить объединение": "Could not validate the merge",
+  "Не удалось объединить аккаунты": "Could not merge the accounts"
+});
+
 export function translate(lang: Lang, value: string): string {
   if (!value || lang !== "en") return value;
   if (EN[value]) return EN[value];

@@ -38,3 +38,14 @@ body{background:radial-gradient(900px 460px at 88% -10%,rgba(98,164,255,.18),tra
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--aurora-blue)!important;box-shadow:0 0 0 4px rgba(98,164,255,.13)}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(86,222,199,.75);outline-offset:3px}
 .status.ok{color:var(--aurora-mint);background:rgba(86,222,199,.1)}
+
+.account-merge{margin-top:24px;padding-top:24px;border-top:1px solid var(--aurora-line)}
+.account-merge-step,.account-merge-plan{padding:18px;border:1px solid var(--aurora-line);border-radius:16px;background:rgba(255,255,255,.025)}
+.account-merge-step summary{cursor:pointer;font-weight:700;color:var(--text);margin:-4px 0 16px}
+.account-merge-code{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-top:14px}
+.account-merge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.account-merge-summary{padding:16px;border:1px solid var(--aurora-line);border-radius:14px;background:rgba(10,15,30,.44)}
+.account-merge-summary h4{margin:0 0 12px}.account-merge-summary dl{display:grid;gap:8px;margin:0}.account-merge-summary dl div{display:flex;justify-content:space-between;gap:16px}.account-merge-summary dt{color:var(--muted)}.account-merge-summary dd{margin:0;font-weight:700}
+.account-merge-effects{color:var(--muted);line-height:1.6;padding-left:20px}.account-merge-consent{display:flex;align-items:flex-start;gap:10px;line-height:1.5}.account-merge-consent input{width:18px;height:18px;flex:0 0 auto;margin-top:2px}
+.field small{color:var(--muted);font-weight:400;line-height:1.45}
+@media(max-width:700px){.account-merge-grid,.account-merge-code{grid-template-columns:1fr}.account-merge-step,.account-merge-plan{padding:14px}}

@@ -222,15 +222,13 @@ async def start(message:Message):
     if message.from_user:
         async with AsyncSession(engine, expire_on_commit=False) as db:
             tg_id = int(message.from_user.id)
-            user = (await db.execute(select(User).where(User.telegram_id == tg_id))).scalar_one_or_none()
+            from .account_merge import identity_user
+            user = await identity_user(db, "telegram", tg_id)
             if user:
                 changed = False
                 username = message.from_user.username or user.username
-                if username and username != user.username:
+                if user.telegram_id == tg_id and username and username != user.username:
                     user.username = username
-                    changed = True
-                if user.deleted_at is not None:
-                    user.deleted_at = None
                     changed = True
                 if changed:
                     await db.commit()
@@ -322,7 +320,8 @@ async def subscription(message: Message):
     if not message.from_user:
         return
     async with AsyncSession(engine, expire_on_commit=False) as db:
-        user = (await db.execute(select(User).where(User.telegram_id == int(message.from_user.id)))).scalar_one_or_none()
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(message.from_user.id))
         sub = (await db.execute(select(Subscription).where(Subscription.user_id == user.id,Subscription.is_primary.is_(True)))).scalar_one_or_none() if user else None
     if not sub or not sub.subscription_url:
         await message.answer("Активной подписки нет. Откройте магазин." if lang == "ru" else "No active subscription. Open the shop.", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"), web_app=WebAppInfo(url=settings.mini_app_url))]]))

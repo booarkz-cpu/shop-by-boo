@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.1.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.2.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **912**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **919**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -327,9 +327,11 @@
 | [backend/alembic/versions/0060_promo_audiences.py](../backend/alembic/versions/0060_promo_audiences.py) | API, бот и worker |
 | [backend/alembic/versions/0061_menu_hierarchy.py](../backend/alembic/versions/0061_menu_hierarchy.py) | API, бот и worker |
 | [backend/alembic/versions/0062_support_delivery_identity.py](../backend/alembic/versions/0062_support_delivery_identity.py) | API, бот и worker |
+| [backend/alembic/versions/0063_account_merge.py](../backend/alembic/versions/0063_account_merge.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
+| [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
@@ -398,6 +400,8 @@
 | [cabinet/package-lock.json](../cabinet/package-lock.json) | Кабинет |
 | [cabinet/package.json](../cabinet/package.json) | Кабинет |
 | [cabinet/public/manifest.webmanifest](../cabinet/public/manifest.webmanifest) | Кабинет |
+| [cabinet/src/account-merge.test.tsx](../cabinet/src/account-merge.test.tsx) | Кабинет |
+| [cabinet/src/account-merge.tsx](../cabinet/src/account-merge.tsx) | Кабинет |
 | [cabinet/src/account-recovery.test.tsx](../cabinet/src/account-recovery.test.tsx) | Кабинет |
 | [cabinet/src/account-recovery.tsx](../cabinet/src/account-recovery.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
@@ -511,6 +515,7 @@
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
 | [docs/en/TESTING.md](../docs/en/TESTING.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
+| [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PASSKEYS.md](../docs/ru/ADMIN_PASSKEYS.md) | Документация |
 | [docs/ru/ALL_PAYMENT_PROVIDERS_BEGINNER_CHECKLIST.md](../docs/ru/ALL_PAYMENT_PROVIDERS_BEGINNER_CHECKLIST.md) | Документация |
 | [docs/ru/AUDIT_2026_09_28_REPOSITORY.md](../docs/ru/AUDIT_2026_09_28_REPOSITORY.md) | Документация |
@@ -558,6 +563,7 @@
 | [docs/ru/RELEASE_V27.md](../docs/ru/RELEASE_V27.md) | Документация |
 | [docs/ru/RELEASE_V28.md](../docs/ru/RELEASE_V28.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
+| [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
 | [docs/ru/SECURITY_UPGRADE_20_0_14.md](../docs/ru/SECURITY_UPGRADE_20_0_14.md) | Документация |
 | [docs/ru/STAGING_E2E_20_0_8.md](../docs/ru/STAGING_E2E_20_0_8.md) | Документация |
@@ -799,6 +805,7 @@
 | [tests/passkey_browser_server.py](../tests/passkey_browser_server.py) | Проверки |
 | [tests/release-publisher.test.cjs](../tests/release-publisher.test.cjs) | Проверки |
 | [tests/test_account_actions.py](../tests/test_account_actions.py) | Проверки |
+| [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
 | [tests/test_audit_v2009_runtime.py](../tests/test_audit_v2009_runtime.py) | Проверки |

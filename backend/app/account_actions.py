@@ -14,7 +14,7 @@ from sqlalchemy import select,update,delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from .config import settings
 from .db import get_db
-from .models import User,UserSession,AuthExchangeCode,AccountAction,AccountMail
+from .models import User,UserSession,AuthExchangeCode,AccountAction,AccountMail,AccountMergeAlias
 from .security import hash_password,verify_password,encrypt_secret,decrypt_secret
 router=APIRouter()
 
@@ -48,8 +48,10 @@ async def owner_lock(db,user_id):
     if not user or user.deleted_at:raise HTTPException(400,'Ссылка недействительна или устарела')
     return user
 
-async def enqueue(db,user,purpose):
+async def enqueue(db,user,purpose,email=None,password_hash=None):
     now=datetime.utcnow()
+    action_email=email or user.email
+    credential_hash=password_hash if email else user.email_password_hash
     recent=await db.scalar(select(AccountAction.id).where(AccountAction.user_id==user.id,AccountAction.purpose==purpose,
         AccountAction.created_at>now-timedelta(minutes=2)).limit(1))
     if recent:return
@@ -57,8 +59,8 @@ async def enqueue(db,user,purpose):
     await db.execute(update(AccountAction).where(AccountAction.user_id==user.id,AccountAction.purpose==purpose,
         AccountAction.used_at.is_(None)).values(used_at=now))
     raw=secrets.token_urlsafe(48)
-    row=AccountAction(user_id=user.id,token_hash=hashlib.sha256(raw.encode()).hexdigest(),purpose=purpose,email=user.email,
-        password_fingerprint=fingerprint(user.email_password_hash) if purpose=='password_reset' else None,
+    row=AccountAction(user_id=user.id,token_hash=hashlib.sha256(raw.encode()).hexdigest(),purpose=purpose,email=action_email,
+        password_fingerprint=fingerprint(credential_hash) if purpose=='password_reset' else None,
         expires_at=now+timedelta(minutes=30 if purpose=='password_reset' else 1440))
     db.add(row);await db.flush()
     db.add(AccountMail(action_id=row.id,token_encrypted=encrypt_secret(raw)))
@@ -68,9 +70,11 @@ async def request_reset(payload:EmailIn,request:Request,response:Response,db:Asy
     require_mail()
     from .cabinet_api import _normalize_email
     email=_normalize_email(payload.email)
-    user=await db.scalar(select(User).where(User.email==email).with_for_update())
-    if user and not user.deleted_at and user.email_password_hash:
-        await enqueue(db,user,'password_reset');await db.commit()
+    from .account_merge import email_identity
+    user,password_hash,_=await email_identity(db,email)
+    if user and not user.deleted_at and password_hash:
+        user=await owner_lock(db,user.id)
+        await enqueue(db,user,'password_reset',email=email,password_hash=password_hash);await db.commit()
     response.headers['Cache-Control']='private, no-store'
     return {'ok':True,'message':'Если для этой почты есть пароль, письмо отправлено. Проверьте также папку «Спам».'}
 
@@ -80,9 +84,14 @@ async def consume(db,raw,purpose):
     if not seed:raise HTTPException(400,'Ссылка недействительна или устарела')
     user=await owner_lock(db,seed.user_id)
     action=await db.scalar(select(AccountAction).where(AccountAction.id==seed.id).execution_options(populate_existing=True).with_for_update())
-    if not action or action.used_at or action.expires_at<=datetime.utcnow() or action.email!=user.email:
+    if not action or action.used_at or action.expires_at<=datetime.utcnow():
         raise HTTPException(400,'Ссылка недействительна или устарела')
-    if purpose=='password_reset' and (not user.email_password_hash or not hmac.compare_digest(action.password_fingerprint or '',fingerprint(user.email_password_hash))):
+    alias=None if action.email==user.email else await db.scalar(select(AccountMergeAlias).where(
+        AccountMergeAlias.target_user_id==user.id,AccountMergeAlias.email==action.email))
+    if action.email!=user.email and not alias:
+        raise HTTPException(400,'Ссылка недействительна или устарела')
+    credential_hash=user.email_password_hash if action.email==user.email else alias.email_password_hash
+    if purpose=='password_reset' and (not credential_hash or not hmac.compare_digest(action.password_fingerprint or '',fingerprint(credential_hash))):
         raise HTTPException(400,'Ссылка недействительна или устарела')
     action.used_at=datetime.utcnow()
     return user,action
@@ -101,6 +110,8 @@ async def confirm_reset(payload:ResetIn,response:Response,db:AsyncSession=Depend
     from .main import audit
     user,action=await consume(db,payload.token,'password_reset')
     user.email_password_hash=hash_password(payload.password)
+    from .account_merge import update_account_password
+    await update_account_password(db,user.id,user.email_password_hash)
     await revoke_access(db,user)
     await audit(db,'auth.user.password_reset',f'user:{user.id}');await db.commit()
     clear_cookies(response)
@@ -140,6 +151,8 @@ async def change_password(payload:PasswordIn,request:Request,response:Response,d
     if not user.email_password_hash or not verify_password(payload.current_password,user.email_password_hash):
         raise HTTPException(400,'Текущий пароль неверен')
     user.email_password_hash=hash_password(payload.password)
+    from .account_merge import update_account_password
+    await update_account_password(db,user.id,user.email_password_hash)
     await revoke_access(db,user);await audit(db,'auth.user.password_changed',f'user:{user.id}');await db.commit()
     clear_cookies(response)
     return {'ok':True,'message':'Пароль изменён. Войдите снова.'}
@@ -167,7 +180,9 @@ async def deliver_one(db,mail_id):
     mail=await db.scalar(select(AccountMail).where(AccountMail.id==mail_id).execution_options(populate_existing=True).with_for_update(skip_locked=True))
     if not mail or mail.status!='queued' or mail.next_retry_at>datetime.utcnow():return
     await db.refresh(action)
-    if not user or user.deleted_at or user.email!=action.email or action.used_at or action.expires_at<=datetime.utcnow():
+    alias=None if not user or user.email==action.email else await db.scalar(select(AccountMergeAlias).where(
+        AccountMergeAlias.target_user_id==user.id,AccountMergeAlias.email==action.email))
+    if not user or user.deleted_at or (user.email!=action.email and not alias) or action.used_at or action.expires_at<=datetime.utcnow():
         mail.status='cancelled';mail.token_encrypted='';await db.commit();return
     mail.attempts+=1
     try:

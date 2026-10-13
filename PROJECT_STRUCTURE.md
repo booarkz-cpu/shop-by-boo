@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.1.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.2.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -11,7 +11,7 @@ shop-by-boo/
 ├── backend/                 FastAPI API, модели, миграции и фоновые операции
 │   ├── app/                 роутеры, безопасность, платежи, provisioning, support
 │   ├── alembic/             миграции PostgreSQL/SQLite
-│   └── tests/               unit/integration tests
+│   └── requirements*.txt    runtime и test зависимости Python
 ├── bot/                     Telegram bot и worker handlers
 ├── admin/                   React/Vite админская панель
 │   ├── src/                 feature-модули и design-system.css
@@ -23,6 +23,7 @@ shop-by-boo/
 ├── support-pro/             изолированный сервис поддержки
 ├── deploy/                  production installer и operational scripts
 ├── scripts/                 тесты, диагностика, backup и release packaging
+├── tests/                   backend unit/integration/PostgreSQL regression tests
 ├── docs/                    актуальные инструкции, карта покрытия и архивы
 ├── docker-compose.yml       локальный и тестовый orchestration
 ├── .env.example             полный контракт конфигурации без секретов
@@ -33,7 +34,7 @@ shop-by-boo/
 
 | Контур | Владелец | Правило изменений |
 | --- | --- | --- |
-| Identity/security | `backend/app/security.py`, `passkeys.py`, `customer_passkeys.py` | Любая новая auth-функция требует негативного теста и аудита |
+| Identity/security | `backend/app/security.py`, `passkeys.py`, `customer_passkeys.py`, `account_merge.py` | Любая новая auth-функция требует негативного теста и аудита; merge требует обе стороны, preview и reconciliation |
 | Commerce/payments | `backend/app/subscription_commerce.py`, `payments.py`, `payment_policy.py` | Финансовые записи неизменяемы; webhook идемпотентен |
 | Remnawave/provisioning | `backend/app/remnawave.py`, `provisioner.py`, `subscriptions.py` | Повторная операция безопасна, ownership проверяется до remote-вызова |
 | Telegram | `bot/`, `backend/app/bot*` | Bot/Mini App не дублируют бизнес-правила API |
@@ -56,6 +57,10 @@ shop-by-boo/
 | `admin/src/components/ui/` | shadcn/Radix кнопки, меню, списки и tooltip |
 | `admin/src/components/field-hints.tsx` | Контекстная помощь RU/EN для динамических форм |
 | `admin/src/components/select-field.tsx` | Адаптер существующих форм к Radix Select |
+| `backend/app/account_merge.py` | Двухсторонняя авторизация, conflict preview, атомарный перенос, aliases и retry journal |
+| `backend/alembic/versions/0063_account_merge.py` | Merge schema и credential-specific passkey handles |
+| `cabinet/src/account-merge.tsx` | Двухшаговый доступный интерфейс объединения аккаунтов |
+| `docs/ru/ACCOUNT_MERGE_CURRENT.md` | Пользовательский, security и операторский регламент merge |
 | `backend/app/release_identity.py` | Версия дистрибутива независимо от API |
 | `scripts/package-distribution.py` | Архив, checksum и detached manifest |
 | `scripts/publish-github-release.cjs` | Проверка и публикация GitHub Release |

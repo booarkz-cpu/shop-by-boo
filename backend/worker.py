@@ -163,6 +163,7 @@ async def worker_heartbeat():
 
 async def main_worker():
     from app.account_actions import mail_scheduler
+    from app.account_merge import account_merge_cleanup_scheduler
     settings.validate_security()
     main.redis_client = Redis.from_url(settings.redis_url, decode_responses=True, **settings.redis_connection_kwargs())
     await main.redis_client.ping()
@@ -174,6 +175,7 @@ async def main_worker():
         main.auto_renew_scheduler(),
         main.refund_revoke_scheduler(),
         mail_scheduler(),
+        account_merge_cleanup_scheduler(),
         main.subscription_lifecycle_scheduler(),
     )
 

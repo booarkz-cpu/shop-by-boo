@@ -63,7 +63,8 @@ async def auth_register(payload: EmailAuthIn, request: Request, response: Respon
     # Serialize competing registrations before testing the unique email index.
     lock_key = int.from_bytes(hashlib.sha256(("register:" + email).encode()).digest()[:8], "big", signed=True)
     await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": lock_key})
-    if await db.scalar(select(User.id).where(User.email == email)):
+    from .account_merge import email_registered
+    if await email_registered(db, email):
         raise HTTPException(409, "Email already registered")
     user = User(
         email=email,
@@ -93,8 +94,9 @@ async def auth_login(payload: EmailAuthIn, request: Request, response: Response,
     require_mobile_proof(request)
 
     email = _normalize_email(payload.email)
-    user = (await db.execute(select(User).where(User.email == email).with_for_update())).scalar_one_or_none()
-    if not user or user.deleted_at is not None or not user.email_password_hash or not verify_password(payload.password, user.email_password_hash):
+    from .account_merge import email_identity
+    user, password_hash, _ = await email_identity(db, email)
+    if not user or user.deleted_at is not None or not password_hash or not verify_password(payload.password, password_hash):
         raise HTTPException(401, "Invalid email or password")
     token = await create_user_session(db, user, request)
     await audit(db, "auth.user.login", f"user:{user.id}", None, {"method": "email", "ip": _client_ip(request)})
@@ -150,10 +152,10 @@ async def vk_callback(code: str, state: str, request: Request, db: AsyncSession 
         raise HTTPException(400, "VK did not return a user id")
     email = (token_data.get("email") or "").strip().lower() or None
     await db.execute(sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": 1200000000 + (int(hashlib.sha256(vk_user_id.encode()).hexdigest()[:8], 16) % 900000000)})
-    user = (await db.execute(select(User).where(User.vk_id == vk_user_id))).scalar_one_or_none()
+    from .account_merge import email_registered, identity_user
+    user = await identity_user(db, "vk", vk_user_id)
     if not user and email:
-        existing = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
-        if existing:
+        if await email_registered(db, email):
             # Email registration does not verify ownership. Automatic linking would
             # preserve an attacker's password and sessions on the victim's VK account.
             raise HTTPException(409, "Email already registered; automatic account linking is disabled")

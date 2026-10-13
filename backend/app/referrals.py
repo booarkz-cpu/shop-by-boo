@@ -1,6 +1,6 @@
 """Referral binding shared by the cabinet and Telegram entry point."""
 from fastapi import HTTPException
-from sqlalchemy import func, select, text
+from sqlalchemy import select, text
 from .models import User
 
 async def bind_referrer(db, user, code: str):
@@ -12,7 +12,8 @@ async def bind_referrer(db, user, code: str):
     await db.refresh(user)
     if user.referred_by_id:
         raise HTTPException(409, "Referral is already set")
-    ref = (await db.execute(select(User).where(func.upper(User.referral_code)==code.strip().upper(), User.deleted_at.is_(None)).execution_options(populate_existing=True))).scalar_one_or_none()
+    from .account_merge import referral_owner
+    ref = await referral_owner(db, code.strip())
     if not ref or ref.id == user.id or ref.restricted_at:
         raise HTTPException(400, "Invalid referral code")
     # No cycles even when an existing customer's first referral is assigned later.

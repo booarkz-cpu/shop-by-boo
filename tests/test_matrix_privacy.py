@@ -5,7 +5,16 @@ from fastapi import HTTPException
 from sqlalchemy import func, select
 
 from app import main as shop
-from app.models import CustomerPasskey, CustomerPasskeyChallenge, PartnerWithdrawal, Reseller, Subscription, User
+from app.models import (
+    AccountAction,
+    AccountMergeAlias,
+    CustomerPasskey,
+    CustomerPasskeyChallenge,
+    PartnerWithdrawal,
+    Reseller,
+    Subscription,
+    User,
+)
 from test_subscription_commerce import database, request
 
 
@@ -30,7 +39,11 @@ async def test_account_deletion_erases_customer_keys_and_disables_partner(databa
     user=await database.get(User,1);user.passkey_user_handle='private-handle'
     sub=await database.get(Subscription,1);sub.expires_at=datetime.utcnow()-timedelta(days=1)
     partner=Reseller(owner_user_id=1,name='Owner',slug='owner',api_key_hash='original',balance=0)
-    database.add_all([partner,CustomerPasskey(user_id=1,credential_id='private',public_key='key',name='Device'),
+    database.add_all([partner,AccountMergeAlias(source_user_id=2,target_user_id=1,email='old@example.test',
+        email_password_hash='private-hash',referral_code='OLD-CODE',merged_at=datetime.utcnow()),
+        AccountAction(user_id=2,token_hash='a'*64,purpose='password_reset',email='old@example.test',
+            expires_at=datetime.utcnow()+timedelta(minutes=5)),
+        CustomerPasskey(user_id=1,credential_id='private',public_key='key',name='Device'),
         CustomerPasskeyChallenge(user_id=1,ticket_hash='ticket',binding_hash='binding',purpose='register',
             challenge='challenge',context={},expires_at=datetime.utcnow()+timedelta(minutes=5))])
     await database.commit()
@@ -41,3 +54,5 @@ async def test_account_deletion_erases_customer_keys_and_disables_partner(databa
     assert user.passkey_user_handle is None and not partner.enabled and partner.api_key_hash!='original'
     for model in (CustomerPasskey,CustomerPasskeyChallenge):
         assert await database.scalar(select(func.count()).select_from(model))==0
+    assert await database.scalar(select(func.count()).select_from(AccountMergeAlias))==0
+    assert await database.scalar(select(func.count()).select_from(AccountAction))==0

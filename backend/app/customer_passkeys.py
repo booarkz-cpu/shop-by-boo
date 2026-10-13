@@ -154,7 +154,8 @@ async def registration_verify(payload: VerifyIn, request: Request, response: Res
         raise HTTPException(409, 'At most ten passkeys per account')
     row = CustomerPasskey(user_id=user.id, name=saved.context['name'],
         credential_id=bytes_to_base64url(verified.credential_id),
-        public_key=bytes_to_base64url(verified.credential_public_key), sign_count=verified.sign_count)
+        public_key=bytes_to_base64url(verified.credential_public_key), user_handle=user.passkey_user_handle,
+        sign_count=verified.sign_count)
     db.add(row)
     try:
         await db.flush()
@@ -190,12 +191,13 @@ async def login_verify(payload: VerifyIn, request: Request, response: Response, 
         raise HTTPException(401, 'Invalid passkey')
     user = await db.scalar(select(User).where(User.id == seed.user_id).with_for_update().execution_options(populate_existing=True))
     row = await db.scalar(select(CustomerPasskey).where(CustomerPasskey.id == seed.id).with_for_update().execution_options(populate_existing=True))
-    if not row or not user or user.deleted_at or user.restricted_at or not user.passkey_user_handle:
+    credential_handle = (row.user_handle if row else None) or (user.passkey_user_handle if user else None)
+    if not row or not user or user.deleted_at or user.restricted_at or not credential_handle:
         raise HTTPException(401, 'Invalid passkey')
     reject_cross_origin(payload.credential)
     try:
         handle = payload.credential['response']['userHandle']
-        if not isinstance(handle, str) or not hmac.compare_digest(base64url_to_bytes(handle), base64url_to_bytes(user.passkey_user_handle)):
+        if not isinstance(handle, str) or not hmac.compare_digest(base64url_to_bytes(handle), base64url_to_bytes(credential_handle)):
             raise ValueError('Wrong user handle')
         verified = verify_authentication_response(credential=payload.credential,
             expected_challenge=base64url_to_bytes(saved.challenge), expected_rp_id=rp_id,

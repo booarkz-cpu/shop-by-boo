@@ -2,7 +2,7 @@
 
 # VPN Shop by Corgi — Admin Panel
 
-## Obsidian/Amber interface (v28.1.0)
+## Obsidian/Amber interface (v28.2.0)
 
 Почти чёрная палитра с оранжевым акцентом, светлая тема, иконки Lucide и адаптивная навигация. Тема и язык выбираются в меню shadcn/Radix; выбор сохраняется в браузере, а `theme_default` сервера применяется при отсутствии сохранённой темы.
 

@@ -66,7 +66,12 @@ async def test_vk_cannot_merge_an_email_password_account(shop, monkeypatch):
     state = jwt.encode({'exp': datetime.now(timezone.utc) + timedelta(minutes=5)}, shop.settings.app_secret, algorithm='HS256')
     request = Request({'type': 'http', 'headers': [(b'cookie', f'vk_oauth_state={state}'.encode())]})
     existing = SimpleNamespace(vk_id=None, email_password_hash='attacker-password')
-    db = SimpleNamespace(execute=AsyncMock(side_effect=[None, Mock(scalar_one_or_none=lambda: None), Mock(scalar_one_or_none=lambda: existing)]), commit=AsyncMock(), add=Mock())
+    db = SimpleNamespace(execute=AsyncMock(side_effect=[
+        None,
+        Mock(scalar_one_or_none=lambda: None),
+        Mock(scalar_one_or_none=lambda: None),
+        Mock(scalar_one_or_none=lambda: existing),
+    ]), commit=AsyncMock(), add=Mock())
     with pytest.raises(HTTPException) as error:
         await vk_callback('code', state, request, db)
     assert error.value.status_code == 409

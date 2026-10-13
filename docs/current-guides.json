@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0062_support_delivery_identity",
+  "migration_head": "0063_account_merge",
   "guides": [
     "ADMIN_GUIDE_RU.md",
     "API_REFERENCE_RU.md",
@@ -97,7 +97,9 @@
     "docs/ru/RELEASE_21_5_1_STABLE.md",
     "docs/ru/RELEASE_V28_1_0.md",
     "docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md",
-    "docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md"
+    "docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md",
+    "docs/ru/ACCOUNT_MERGE_CURRENT.md",
+    "docs/ru/RELEASE_V28_2_0.md"
   ],
-  "distribution_tag": "v28.1.0"
+  "distribution_tag": "v28.2.0"
 }

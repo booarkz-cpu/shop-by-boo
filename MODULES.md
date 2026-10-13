@@ -1,13 +1,13 @@
-> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.2.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
-> Актуальная инструкция v21.5.1. Head магазина `0062_support_delivery_identity`, Support Pro `0006`.
+> Актуальная инструкция v21.5.1. Head магазина `0063_account_merge`, Support Pro `0006`.
 
 # Компоненты проекта
 
 | Каталог / сервис | Назначение |
 | --- | --- |
 | `backend/app`, `backend/worker.py` | API магазина, checkout, выдача, финансовый журнал, задачи и бот |
-| `backend/alembic` | Миграции PostgreSQL; текущий head `0053_admin_passkeys` |
+| `backend/alembic` | Миграции PostgreSQL; текущий head `0063_account_merge` |
 | `admin` | Административная React-панель, поиск, таблицы и операторские действия |
 | `cabinet` | Общий пользовательский React-интерфейс |
 | `miniapp` | Telegram-поверхность, импортирующая общий кабинет |
@@ -20,4 +20,4 @@
 
 [Архитектура](docs/ru/WORKSPACE_ARCHITECTURE.md), [точная функциональная матрица](docs/ru/WORKSPACE_COVERAGE.md), [эксплуатация](OPERATIONS_RUNBOOK_RU.md).
 
-Изменения alpha.7: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
+Текущие дополнения: [объединение аккаунтов](docs/ru/ACCOUNT_MERGE_CURRENT.md), [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.

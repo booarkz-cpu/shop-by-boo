@@ -1,4 +1,4 @@
-> Актуальная инструкция для дистрибутива v28.1.0. Runtime/API `21.5.1`. Head магазина `0062_support_delivery_identity`, Support Pro `0006`/3.6.
+> Актуальная инструкция для дистрибутива v28.2.0. Runtime/API `21.5.1`. Head магазина `0063_account_merge`, Support Pro `0006`/3.6.
 
 # Обновление существующего магазина
 
@@ -30,7 +30,7 @@ CLI создаёт зашифрованный bundle обеих баз, файл
 
 ```bash
 git fetch origin
-git switch --detach v28.1.0
+git switch --detach v28.2.0
 docker compose build backend worker bot admin cabinet miniapp support_migrate support_pro support_worker
 docker compose up -d db redis support_db support_redis
 docker compose run --rm backend alembic upgrade head
@@ -39,7 +39,7 @@ docker compose run --rm support_migrate
 
 Не используйте `git reset --hard`, удаление volumes или обнуление migration history. Если checkout конфликтует с собственными файлами, остановитесь и перенесите их в проверенную ветку; работающий production не должен быть местом для разрешения такого конфликта.
 
-Для standalone Support Pro примените его `python -m app.migrate` в существующем compose-проекте, сохранив его credentials/volumes. Ожидаются head магазина 0062 и Support Pro 0006. До запуска нового worker обязателен обновлённый API магазина.
+Для standalone Support Pro примените его `python -m app.migrate` в существующем compose-проекте, сохранив его credentials/volumes. Ожидаются head магазина `0063_account_merge` и Support Pro `0006`. До запуска нового worker обязателен обновлённый API магазина.
 
 ## Запуск и проверка
 
@@ -58,7 +58,7 @@ bash scripts/doctor.sh
 docker compose logs --tail=80 support_worker
 ```
 
-Проверьте вход и права, баланс/финансовый журнал, старые подписки, частные файлы поддержки, редакторы страниц/офферы и дерево меню. Support Pro 0006 запускает полный обход старой связанной истории. До окончания первого обхода не применяйте merge/split к старым обращениям. После обхода проверьте один выбранный перенос, постоянные ID/файл, внутреннюю заметку, закрытый источник и его приостановленную очередь. [Регламент mapping](SUPPORT_REMOTE_HISTORY_CURRENT.md).
+Проверьте вход и права, баланс/финансовый журнал, старые подписки, частные файлы поддержки, редакторы страниц/офферы и дерево меню. На двух тестовых профилях проверьте [account merge](ACCOUNT_MERGE_CURRENT.md). Support Pro 0006 запускает полный обход старой связанной истории. До окончания первого обхода не применяйте merge/split к старым обращениям. После обхода проверьте один выбранный перенос, постоянные ID/файл, внутреннюю заметку, закрытый источник и его приостановленную очередь. [Регламент mapping](SUPPORT_REMOTE_HISTORY_CURRENT.md).
 
 ## Особенность автоматического updater
 
@@ -72,7 +72,8 @@ docker compose logs --tail=80 support_worker
 | 0059/0060 | Неизменяемые публикации, ограничения аудитории и резервы промокодов |
 | 0061 | Старые плоские кнопки остаются в корне; дерево/стили/emoji защищены от потери при downgrade |
 | 0062 + Support Pro 0006 | Исходные delivery keys, версии структуры, постоянные remote IDs и приостановленная очередь объединённого источника |
+| 0063 | Account merge aliases, одноразовые разрешения, operation journal, credential handles; после первой операции downgrade блокируется |
 
 Миграции применяются всей цепочкой через `upgrade head`, не выборочным запуском файлов. Downgrade использованной истории/структуры блокируется. При ошибке исправление вперёд предпочтительно; полный возврат требует остановки writers и восстановления **обеих БД, файлов и соответствующих исходников**. Не обнуляйте защитные поля SQL-командами. [Восстановление](BACKUP_CURRENT.md) · [Production](PRODUCTION_CURRENT.md) · [Матрица](WORKSPACE_COVERAGE.md).
 
-Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.1.0](DISTRIBUTION_UPGRADE_CURRENT.md).
+Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.2.0](DISTRIBUTION_UPGRADE_CURRENT.md).

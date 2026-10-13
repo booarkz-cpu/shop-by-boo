@@ -1,8 +1,8 @@
-> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.2.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # VPN Shop — v21.5.1
 
-Current stable core: API, admin, cabinet/Mini App, bot, Support Pro and mobile sources. Shop migration: `0062_support_delivery_identity`; Support Pro: `0006`. New features: immutable multilevel referral rewards and a private network graph; authenticated coordinated CLI backups of both databases and files.
+Current stable core: API, admin, cabinet/Mini App, bot, Support Pro and mobile sources. Shop migration: `0063_account_merge`; Support Pro: `0006`. New features: immutable multilevel referral rewards and a private network graph; authenticated coordinated CLI backups of both databases and files.
 
 Production payments remain closed until application E2E v2 is completed. Full roadmap transfer and owner-signed APK/IPA are not complete. Stable is the release channel of the current core.
 

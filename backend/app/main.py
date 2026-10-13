@@ -129,6 +129,8 @@ from .personal_offers import router as personal_offers_router
 app.include_router(personal_offers_router)
 from .menu_tree import emoji_router
 app.include_router(emoji_router)
+from .account_merge import router as account_merge_router
+app.include_router(account_merge_router)
 
 MAX_REQUEST_BYTES = 12 * 1024 * 1024
 PACKAGE_UPLOAD_BYTES = 80 * 1024 * 1024
@@ -150,6 +152,9 @@ RATE_LIMITS = {
     "/api/auth/email/verification/confirm": 8,
     "/api/me/email/verification/request": 5,
     "/api/me/password/change": 5,
+    "/api/me/account-merge/authorization": 5,
+    "/api/me/account-merge/preview": 12,
+    "/api/me/account-merge/confirm": 5,
     "/api/me/surveys": 30,
     "/api/me/giveaways": 30,
     "/api/auth/exchange": 20,
@@ -521,6 +526,8 @@ async def start_backup_scheduler():
     _track_task(mail_scheduler())
     from .admin_customer_operations import import_cleanup_scheduler
     _track_task(import_cleanup_scheduler())
+    from .account_merge import account_merge_cleanup_scheduler
+    _track_task(account_merge_cleanup_scheduler())
     _track_task(monitor_checks_scheduler())
 
 @app.get("/health/live")
@@ -629,10 +636,12 @@ async def telegram_auth(payload:dict, request:Request, response: Response, db:As
     u=telegram_user_from_init_data(payload.get("initData",""))
     telegram_id=int(u["id"])
     await _advisory_lock(db, 1000000000 + int(hashlib.sha256(str(telegram_id).encode()).hexdigest()[:8],16) % 900000000)
-    user=(await db.execute(select(User).where(User.telegram_id==telegram_id))).scalar_one_or_none()
+    from .account_merge import identity_user
+    user=await identity_user(db,"telegram",telegram_id)
     if not user:
         user=User(telegram_id=telegram_id,username=u.get("username"),referral_code=secrets.token_urlsafe(8).upper()); db.add(user)
-    else: user.username=u.get("username")
+    elif user.telegram_id == telegram_id:
+        user.username=u.get("username")
     await db.commit(); await db.refresh(user)
     token=await create_user_session(db,user,request)
     await audit(db,"auth.user.login",f"user:{user.id}",None,{"method":"telegram","ip":_client_ip(request)})
@@ -647,6 +656,9 @@ def issue_user_token(user:User, ttl_minutes:int=60, jti:str|None=None):
     return __import__("jwt").encode({"sub":str(user.id),"type":"user","jti":jti,"iat":int(now.timestamp()),"exp":int((now+timedelta(minutes=ttl_minutes)).timestamp())},settings.app_secret,algorithm="HS256")
 
 async def create_user_session(db:AsyncSession,user:User,request:Request,ttl_minutes:int=60):
+    if user.deleted_at is not None and not getattr(user,"merged_into_user_id",None):raise HTTPException(401,"User account deleted")
+    from .account_merge import canonical_user
+    user=await canonical_user(db,user)
     if user.deleted_at is not None:raise HTTPException(401,"User account deleted")
     user=(await db.execute(select(User).where(User.id==user.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
     from .platform_api import reject_restricted
@@ -668,20 +680,23 @@ async def user_from_token(request:Request, db:AsyncSession):
     if claims.get("type")!="user": raise HTTPException(401,"Invalid user token")
     try: user_id=int(claims["sub"])
     except (KeyError,TypeError,ValueError): raise HTTPException(401,"Invalid user token")
-    user=await db.get(User,user_id)
-    if not user or user.deleted_at is not None: raise HTTPException(401,"User not found")
-    from .platform_api import reject_restricted
-    reject_restricted(user)
+    subject_user=await db.get(User,user_id)
+    if not subject_user: raise HTTPException(401,"User not found")
     jti=claims.get("jti")
     if not jti: raise HTTPException(401,"User session is not registered")
     session=(await db.execute(select(UserSession).where(UserSession.jti_hash==hashlib.sha256(jti.encode()).hexdigest(),UserSession.revoked_at.is_(None)))).scalar_one_or_none()
     now=datetime.utcnow()
-    if not session or session.expires_at<now or session.user_id!=user.id: raise HTTPException(401,"User session expired or revoked")
+    if not session or session.expires_at<now or session.user_id!=subject_user.id: raise HTTPException(401,"User session expired or revoked")
     current_ua=(request.headers.get("user-agent") or "")[:512]
     if session.user_agent and current_ua and session.user_agent!=current_ua:
         session.revoked_at=now; await db.commit(); raise HTTPException(401,"User session device changed")
     session.last_seen_at=now
     await db.commit()
+    from .account_merge import canonical_user
+    user=await canonical_user(db,subject_user)
+    if user.deleted_at is not None: raise HTTPException(401,"User not found")
+    from .platform_api import reject_restricted
+    reject_restricted(user)
     return user
 
 @app.post("/api/auth/logout")
@@ -738,10 +753,12 @@ async def yandex_callback(code:str,state:str,request:Request,db:AsyncSession=Dep
     if not yid or yid == "None": raise HTTPException(401,"Yandex profile has no stable identifier")
     yandex_lock_key=int(hashlib.sha256(yid.encode()).hexdigest()[:8],16) % 900000000
     await _advisory_lock(db, 1100000000 + yandex_lock_key)
-    user=(await db.execute(select(User).where(User.yandex_id==yid))).scalar_one_or_none()
+    from .account_merge import identity_user
+    user=await identity_user(db,"yandex",yid)
     if not user:
         user=User(yandex_id=yid,username=info.get("login") or info.get("display_name"),referral_code=secrets.token_urlsafe(8).upper()); db.add(user)
-    else: user.username=info.get("login") or info.get("display_name") or user.username
+    elif user.yandex_id == yid:
+        user.username=info.get("login") or info.get("display_name") or user.username
     await db.commit(); await db.refresh(user)
     raw=secrets.token_urlsafe(32); code_hash=hashlib.sha256(raw.encode()).hexdigest()
     db.add(AuthExchangeCode(code_hash=code_hash,user_id=user.id,expires_at=datetime.utcnow()+timedelta(minutes=1)))
@@ -760,6 +777,8 @@ async def auth_exchange(payload:ExchangeIn,request:Request,response: Response,db
     if not row or row.used_at or row.expires_at < datetime.utcnow(): raise HTTPException(400,"Invalid or expired authorization code")
     user=await db.get(User,row.user_id)
     if not user: raise HTTPException(404,"User not found")
+    from .account_merge import canonical_user
+    user=await canonical_user(db,user)
     row.used_at=datetime.utcnow(); await db.commit()
     token=await create_user_session(db,user,request); await audit(db,"auth.user.login",f"user:{user.id}",None,{"method":"yandex","ip":_client_ip(request)}); await db.commit(); response.set_cookie("rw_user",token,httponly=True,secure=settings.cookie_secure,samesite=settings.cookie_samesite,max_age=3600); _set_auth_cookies(response,token)
     return {"id":user.id,"telegram_id":user.telegram_id,"yandex_id":user.yandex_id,"username":user.username,"referral_code":user.referral_code,"auto_renew_enabled":user.auto_renew_enabled}
@@ -3077,7 +3096,7 @@ async def system_health(admin=Depends(require_permission("read"))):
 async def admin_analytics(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("analytics.read"))):
     now=datetime.utcnow(); day=now-timedelta(days=1); week=now-timedelta(days=7); month=now-timedelta(days=30)
     async def rev(since): return float((await db.execute(select(func.coalesce(func.sum(Payment.amount),0)).where(Payment.status=="paid",Payment.created_at>=since))).scalar() or 0)
-    return {"revenue":{"24h":await rev(day),"7d":await rev(week),"30d":await rev(month)},"users":{"total":int((await db.execute(select(func.count()).select_from(User))).scalar() or 0),"new_24h":int((await db.execute(select(func.count()).select_from(User).where(User.created_at>=day))).scalar() or 0)},"subscriptions":{"active":int((await db.execute(select(func.count()).select_from(Subscription).where(Subscription.expires_at>now))).scalar() or 0)},"payments":{"pending":int((await db.execute(select(func.count()).select_from(Payment).where(Payment.status=="pending"))).scalar() or 0),"fulfillment_failed":int((await db.execute(select(func.count()).select_from(Payment).where(Payment.fulfillment_status=="failed"))).scalar() or 0)}}
+    return {"revenue":{"24h":await rev(day),"7d":await rev(week),"30d":await rev(month)},"users":{"total":int((await db.execute(select(func.count()).select_from(User).where(User.deleted_at.is_(None)))).scalar() or 0),"new_24h":int((await db.execute(select(func.count()).select_from(User).where(User.created_at>=day,User.deleted_at.is_(None)))).scalar() or 0)},"subscriptions":{"active":int((await db.execute(select(func.count()).select_from(Subscription).where(Subscription.expires_at>now))).scalar() or 0)},"payments":{"pending":int((await db.execute(select(func.count()).select_from(Payment).where(Payment.status=="pending"))).scalar() or 0),"fulfillment_failed":int((await db.execute(select(func.count()).select_from(Payment).where(Payment.fulfillment_status=="failed"))).scalar() or 0)}}
 
 @app.get("/api/admin/sessions")
 async def admin_sessions(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("sessions.manage"))):
@@ -3160,6 +3179,8 @@ async def my_traffic(request:Request,db:AsyncSession=Depends(get_db)):
 @app.get("/api/me/privacy/export")
 async def privacy_export(request:Request,db:AsyncSession=Depends(get_db)):
     user=await user_from_token(request,db)
+    from .models import AccountMergeAlias
+    aliases=(await db.scalars(select(AccountMergeAlias).where(AccountMergeAlias.target_user_id==user.id).order_by(AccountMergeAlias.id))).all()
     sub=(await db.execute(select(Subscription).where(Subscription.user_id==user.id,Subscription.is_primary.is_(True)))).scalar_one_or_none()
     payments=(await db.execute(select(Payment).where(Payment.user_id==user.id).order_by(Payment.id))).scalars().all()
     tickets=(await db.execute(select(SupportTicket).where(SupportTicket.user_id==user.id).order_by(SupportTicket.id))).scalars().all()
@@ -3171,7 +3192,7 @@ async def privacy_export(request:Request,db:AsyncSession=Depends(get_db)):
     survey_answers=(await db.execute(select(SurveyResponse).where(SurveyResponse.user_id==user.id).order_by(SurveyResponse.id))).scalars().all()
     from .models import GiveawayEntry
     giveaway_entries=(await db.scalars(select(GiveawayEntry).where(GiveawayEntry.user_id==user.id).order_by(GiveawayEntry.id))).all()
-    return {"giveaway_entries":[{"giveaway_id":x.giveaway_id,"outcome":x.outcome,"reward_amount":str(x.reward_amount),"created_at":x.created_at} for x in giveaway_entries],"survey_answers":[{"survey_id":x.survey_id,"answers":x.answers,"reward_amount":str(x.reward_amount),"currency":x.currency,"created_at":x.created_at} for x in survey_answers],"subscriptions":[{"id":x.id,"name":x.name,"plan_id":x.plan_id,"is_primary":x.is_primary,"status":x.lifecycle_status,"expires_at":x.expires_at} for x in subscriptions],"exported_at":datetime.utcnow(),"user":{"id":user.id,"telegram_id":user.telegram_id,"yandex_id":user.yandex_id,"username":user.username,"referral_code":user.referral_code,"created_at":user.created_at},"subscription":None if not sub else {"id":sub.id,"name":sub.name,"plan_id":sub.plan_id,"remnawave_uuid":sub.remnawave_uuid,"expires_at":sub.expires_at},"payments":[{"id":x.id,"amount":str(x.amount),"currency":x.currency,"provider":x.provider,"status":x.status,"created_at":x.created_at} for x in payments],"tickets":[{"id":x.id,"subject":x.subject,"message":x.message,"admin_reply":x.admin_reply,"status":x.status,"created_at":x.created_at} for x in tickets],"support_messages":[{"ticket_id":x.ticket_id,"role":x.role,"body":x.body,"created_at":x.created_at} for x in messages],"withdrawals":[{"id":x.id,"amount":str(x.amount),"status":x.status,"created_at":x.created_at} for x in withdrawals]}
+    return {"login_aliases":[{"telegram_id":x.telegram_id,"yandex_id":x.yandex_id,"vk_id":x.vk_id,"email":x.email,"referral_code":x.referral_code,"merged_at":x.merged_at} for x in aliases],"giveaway_entries":[{"giveaway_id":x.giveaway_id,"outcome":x.outcome,"reward_amount":str(x.reward_amount),"created_at":x.created_at} for x in giveaway_entries],"survey_answers":[{"survey_id":x.survey_id,"answers":x.answers,"reward_amount":str(x.reward_amount),"currency":x.currency,"created_at":x.created_at} for x in survey_answers],"subscriptions":[{"id":x.id,"name":x.name,"plan_id":x.plan_id,"is_primary":x.is_primary,"status":x.lifecycle_status,"expires_at":x.expires_at} for x in subscriptions],"exported_at":datetime.utcnow(),"user":{"id":user.id,"telegram_id":user.telegram_id,"yandex_id":user.yandex_id,"username":user.username,"referral_code":user.referral_code,"created_at":user.created_at},"subscription":None if not sub else {"id":sub.id,"name":sub.name,"plan_id":sub.plan_id,"remnawave_uuid":sub.remnawave_uuid,"expires_at":sub.expires_at},"payments":[{"id":x.id,"amount":str(x.amount),"currency":x.currency,"provider":x.provider,"status":x.status,"created_at":x.created_at} for x in payments],"tickets":[{"id":x.id,"subject":x.subject,"message":x.message,"admin_reply":x.admin_reply,"status":x.status,"created_at":x.created_at} for x in tickets],"support_messages":[{"ticket_id":x.ticket_id,"role":x.role,"body":x.body,"created_at":x.created_at} for x in messages],"withdrawals":[{"id":x.id,"amount":str(x.amount),"status":x.status,"created_at":x.created_at} for x in withdrawals]}
 
 @app.delete("/api/me/privacy/account")
 async def privacy_delete(request:Request,db:AsyncSession=Depends(get_db)):
@@ -3187,7 +3208,7 @@ async def privacy_delete(request:Request,db:AsyncSession=Depends(get_db)):
         unresolved_gift=await db.scalar(select(GiftRedemption.id).where(GiftRedemption.user_id==user.id,GiftRedemption.status!="completed").limit(1))
         unresolved_payment=await db.scalar(select(Payment.id).where(Payment.user_id==user.id,Payment.status.in_(("creating","pending","creation_unknown","paid","fulfilled","refunded_pending_revoke")),Payment.fulfillment_status!="completed").limit(1))
         if unresolved_gift or unresolved_payment:raise HTTPException(409,"Сначала завершите обработку покупок и подарков")
-        from .models import Reseller, PartnerWithdrawal, CustomerPasskey, CustomerPasskeyChallenge
+        from .models import Reseller, PartnerWithdrawal, CustomerPasskey, CustomerPasskeyChallenge, AccountMergeAlias
         partner=await db.scalar(select(Reseller).where(Reseller.owner_user_id==user.id).execution_options(populate_existing=True).with_for_update())
         if partner:
             pending_payout=await db.scalar(select(PartnerWithdrawal.id).where(PartnerWithdrawal.reseller_id==partner.id,PartnerWithdrawal.status.in_(("pending","approved"))).limit(1))
@@ -3215,9 +3236,14 @@ async def privacy_delete(request:Request,db:AsyncSession=Depends(get_db)):
         from .account_actions import revoke_access
         from .models import AccountAction
         await revoke_access(db,user)
-        await db.execute(delete(AccountAction).where(AccountAction.user_id==user.id))
+        alias_source_ids=select(AccountMergeAlias.source_user_id).where(AccountMergeAlias.target_user_id==user.id)
+        await db.execute(delete(AccountAction).where(or_(
+            AccountAction.user_id==user.id,
+            AccountAction.user_id.in_(alias_source_ids),
+        )))
         await db.execute(delete(CustomerPasskey).where(CustomerPasskey.user_id==user.id))
         await db.execute(delete(CustomerPasskeyChallenge).where(CustomerPasskeyChallenge.user_id==user.id))
+        await db.execute(delete(AccountMergeAlias).where(AccountMergeAlias.target_user_id==user.id))
         user.passkey_user_handle=None
         if partner:
             partner.enabled=False
@@ -4985,8 +5011,8 @@ async def v41_feature_update(key:str,payload:FeatureFlagIn,db:AsyncSession=Depen
 @app.get("/api/admin/v41/analytics")
 async def v41_analytics(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("analytics.read"))):
     now=datetime.utcnow(); since=now-timedelta(days=30)
-    users_total=int((await db.execute(select(func.count()).select_from(User))).scalar_one())
-    users_new=int((await db.execute(select(func.count()).select_from(User).where(User.created_at>=since))).scalar_one())
+    users_total=int((await db.execute(select(func.count()).select_from(User).where(User.deleted_at.is_(None)))).scalar_one())
+    users_new=int((await db.execute(select(func.count()).select_from(User).where(User.created_at>=since,User.deleted_at.is_(None)))).scalar_one())
     payments_total=int((await db.execute(select(func.count()).select_from(Payment))).scalar_one())
     paid=int((await db.execute(select(func.count()).select_from(Payment).where(Payment.status.in_(["paid","succeeded"])))).scalar_one())
     revenue=(await db.execute(select(func.coalesce(func.sum(Payment.amount),0)).where(Payment.status.in_(["paid","succeeded"])))).scalar_one()
@@ -4997,11 +5023,16 @@ async def v41_analytics(db:AsyncSession=Depends(get_db),admin=Depends(require_pe
 
 @app.get("/api/admin/v41/crm/users")
 async def v41_crm_users(q:str="",page:int=1,page_size:int=50,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("users.read"))):
+    from .models import AccountMergeAlias
     page=max(1,page); page_size=min(100,max(1,page_size)); stmt=select(User).where(User.deleted_at.is_(None)).order_by(User.id.desc())
     q=q.strip()
     if q:
-        if q.isdigit(): stmt=stmt.where(or_(User.id==int(q),User.telegram_id==int(q)))
-        else: stmt=stmt.where(or_(User.username.ilike(f"%{q}%"),User.email.ilike(f"%{q}%")))
+        if q.isdigit():
+            alias_ids=select(AccountMergeAlias.target_user_id).where(AccountMergeAlias.telegram_id==int(q))
+            stmt=stmt.where(or_(User.id==int(q),User.telegram_id==int(q),User.id.in_(alias_ids)))
+        else:
+            alias_ids=select(AccountMergeAlias.target_user_id).where(or_(AccountMergeAlias.email.ilike(f"%{q}%"),AccountMergeAlias.referral_code.ilike(f"%{q}%")))
+            stmt=stmt.where(or_(User.username.ilike(f"%{q}%"),User.email.ilike(f"%{q}%"),User.referral_code.ilike(f"%{q}%"),User.id.in_(alias_ids)))
     rows=(await db.execute(stmt.offset((page-1)*page_size).limit(page_size))).scalars().all()
     return [{"id":u.id,"telegram_id":u.telegram_id,"username":u.username,"email":u.email,"referral_code":u.referral_code,"auto_renew":u.auto_renew_enabled,"created_at":str(u.created_at)} for u in rows]
 

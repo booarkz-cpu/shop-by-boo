@@ -2,7 +2,7 @@
 
 ## 1. Выберите контур
 
-v28.1.0 выпускает текущее проверенное ядро; runtime/API сообщает версию `21.5.1`. Перед эксплуатацией нужен отдельный стенд; production-платежи пока закрыты. Локальная песочница не требует касс и Remnawave. Отдельный HTTPS стенд нужен для внешних callbacks, SMTP и настоящего тестового VPN. [Все требования](INSTALL.md).
+v28.2.0 выпускает текущее проверенное ядро; runtime/API сообщает версию `21.5.1`. Перед эксплуатацией нужен отдельный стенд; production-платежи пока закрыты. Локальная песочница не требует касс и Remnawave. Отдельный HTTPS стенд нужен для внешних callbacks, SMTP и настоящего тестового VPN. [Все требования](INSTALL.md).
 
 ## 2. Подключитесь к VDS
 
@@ -17,7 +17,7 @@ ssh root@SERVER_IP
 ## 3. Поднимите тестовый магазин одной последовательностью
 
 ```bash
-git clone --branch v28.1.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.2.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```
@@ -41,7 +41,7 @@ ssh -L 18080:127.0.0.1:18080 -L 18081:127.0.0.1:18081 -L 18082:127.0.0.1:18082 -
 
 ## 5. Проверьте функции
 
-Регистрация → фиксированный тариф/конструктор → sandbox-заказ → подписка и профиль → кошелёк → смена тарифа/трафик → поддержка. Email-восстановление и участие в наградных акциях требуют SMTP и подтверждения email. Не делайте отметку подтверждения в БД вместо внешней проверки письма. [Кабинет](docs/ru/WORKSPACE_USER_GUIDE.md), [админка](docs/ru/WORKSPACE_ADMIN_GUIDE.md), [конкурсы](docs/ru/WORKSPACE_GIVEAWAYS.md).
+Регистрация → фиксированный тариф/конструктор → sandbox-заказ → подписка и профиль → кошелёк → смена тарифа/трафик → поддержка. На отдельных тестовых аккаунтах проверьте preview и перенос через [account merge](docs/ru/ACCOUNT_MERGE_CURRENT.md). Email-восстановление и участие в наградных акциях требуют SMTP и подтверждения email. Не делайте отметку подтверждения в БД вместо внешней проверки письма. [Кабинет](docs/ru/WORKSPACE_USER_GUIDE.md), [админка](docs/ru/WORKSPACE_ADMIN_GUIDE.md), [конкурсы](docs/ru/WORKSPACE_GIVEAWAYS.md).
 
 ## 6. Остановите тест
 
@@ -55,6 +55,6 @@ Volumes сохраняются. Параметр `-v` удаляет тесто�
 
 [INSTALL.md](INSTALL.md), [готовность stable](docs/ru/FINAL_RELEASE_READINESS.md), [миграции и backup](docs/ru/WORKSPACE_UPGRADE.md). В этом выпуске подтверждённого внешнего платёжного E2E нет; обход gate не является этапом установки.
 
-## Что изменилось в v28.1.0
+## Что изменилось в v28.2.0
 
-Команды закреплены за точным тегом, а migration head и release identity синхронизированы. Админ-панель получила Obsidian/Amber-тему и подсказки у всех полей без изменения API или базы. [Полная инструкция production](docs/ru/PRODUCTION_CURRENT.md) охватывает SSH/Termius, DNS/TLS, настройку, приёмку, backup/restore, обновления и инциденты. Фактически открытые функции и внешний E2E перечислены в [реестре критериев](docs/ru/MATRIX_COMPLETION_21_5_1.md). Production gate закрыт.
+Команды закреплены за точным тегом, а migration head и release identity синхронизированы. Миграция `0063_account_merge` добавляет журналируемое объединение аккаунтов и credential aliases; до неё нужен backup. [Полная инструкция production](docs/ru/PRODUCTION_CURRENT.md) охватывает SSH/Termius, DNS/TLS, настройку, приёмку, backup/restore, обновления и инциденты. Фактически открытые функции и внешний E2E перечислены в [реестре критериев](docs/ru/MATRIX_COMPLETION_21_5_1.md). Production gate закрыт.

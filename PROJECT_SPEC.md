@@ -12,6 +12,7 @@
 | Ноды | monitoring/provisioning API и worker | degraded/offline state, audit event, alert route |
 | Платежи | YooKassa, Platega, RollyPay, sandbox | signature verification, idempotent webhook, ledger entry |
 | Подписки | `subscription_commerce.py`, `subscriptions.py` | quote → payment → entitlement → retry |
+| Объединение аккаунтов | `account_merge.py`, миграция `0063_account_merge` | две авторизации, conflict preview, atomic transfer, reconciliation, retry journal |
 | Роли | permission dependencies и audit log | deny-by-default, protected mutation, traceable actor |
 | Telegram alerts | worker/notification contracts | deduplicated alert, recovery notification, cooldown |
 | Web UI | `admin`, `cabinet`, `miniapp` | typecheck/build, responsive states, keyboard focus |
@@ -36,6 +37,6 @@ bash scripts/test-up.sh
 ```
 
 
-## Контракт дистрибутива v28.1.0
+## Контракт дистрибутива v28.2.0
 
-Runtime/API сохраняет `21.5.1`; магазин — `0062_support_delivery_identity`, Support Pro — `0006`. `backend/app/release_identity.py` задаёт тег дистрибутива независимо от API. `release-manifest.template.json` — канонический источник имён релизных файлов. Загрузчик требует совпадения тега, версии API, SHA-256 и коммита; publisher проверяет CI и Docker на текущем `main`, не перемещает существующий тег и не заменяет несовпадающие assets. Матрица остаётся открытой для неперенесённых подсистем и внешней приёмки.
+Runtime/API сохраняет `21.5.1`; магазин — `0063_account_merge`, Support Pro — `0006`. Миграция добавляет merge aliases, одноразовые разрешения, idempotency journal и credential-specific WebAuthn handle; использованная merge-история блокирует downgrade. `backend/app/release_identity.py` задаёт тег дистрибутива независимо от API. `release-manifest.template.json` — канонический источник имён релизных файлов. Загрузчик требует совпадения тега, версии API, SHA-256 и коммита; publisher проверяет CI и Docker на текущем `main`, не перемещает существующий тег и не заменяет несовпадающие assets. Матрица остаётся открытой для неперенесённых подсистем и внешней приёмки.

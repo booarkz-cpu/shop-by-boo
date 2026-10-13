@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.1.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.2.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Функции и отдельные инструкции
 
@@ -7,6 +7,7 @@
 | Функция | Отдельная инструкция |
 | --- | --- |
 | Регистрация, вход, профиль и сессии | [Кабинет](docs/ru/WORKSPACE_USER_GUIDE.md), [безопасность аккаунта](docs/ru/WORKSPACE_ACCOUNT_SECURITY.md) |
+| Объединение собственных аккаунтов | [Две авторизации, preview, перенос и диагностика](docs/ru/ACCOUNT_MERGE_CURRENT.md) |
 | Тарифы, конструктор и триал | [Администратор](docs/ru/WORKSPACE_ADMIN_GUIDE.md), [пользователь](docs/ru/WORKSPACE_USER_GUIDE.md) |
 | Несколько подписок, названия и выбор профиля | [Подписки](docs/ru/WORKSPACE_SUBSCRIPTIONS.md) |
 | Пропорциональная смена тарифа и докупка трафика | [Коммерческие операции](docs/ru/WORKSPACE_COMMERCE.md) |
@@ -26,13 +27,13 @@
 | Роли, 2FA, аудит и секреты | [Безопасность](SECURITY.md) |
 | HTTP API и идемпотентность | [API](API_REFERENCE_RU.md) |
 
-Многоуровневые рефералы, browser passkeys клиента, merge/split поддержки и безопасный профильный импорт реализованы в обозначенных границах. Merge аккаунтов, native passkeys, исторический импорт VPN/платежей произвольной схемы, удалённый терминал, полный plugin runtime и native push/виджеты ещё не завершены. Полный реестр без скрытых пунктов: [критерии завершения v21.5.1](docs/ru/MATRIX_COMPLETION_21_5_1.md).
+Многоуровневые рефералы, browser passkeys клиента, merge/split поддержки, безопасный профильный импорт и объединение аккаунтов реализованы в обозначенных границах. Native passkeys, исторический импорт VPN/платежей произвольной схемы, удалённый терминал, полный plugin runtime и native push/виджеты ещё не завершены. Полный реестр без скрытых пунктов: [критерии завершения v21.5.1](docs/ru/MATRIX_COMPLETION_21_5_1.md).
 
 Изменения alpha.7: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 
 ## Текущие дополнения
 
-[Многоуровневые рефералы и сеть](docs/ru/REFERRALS_CURRENT.md), [согласованный CLI backup](docs/ru/BACKUP_CURRENT.md), [актуальная установка через SSH/Termius](docs/ru/DEPLOYMENT_CURRENT.md).
+[Многоуровневые рефералы и сеть](docs/ru/REFERRALS_CURRENT.md), [объединение аккаунтов](docs/ru/ACCOUNT_MERGE_CURRENT.md), [согласованный CLI backup](docs/ru/BACKUP_CURRENT.md), [актуальная установка через SSH/Termius](docs/ru/DEPLOYMENT_CURRENT.md).
 
 Импорт users.db и массовые операции доступны роли admin в «Клиенты → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 

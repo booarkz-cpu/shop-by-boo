@@ -51,6 +51,13 @@ async def import_snapshot(db, payload, lock=False):
     statement = select(User).where(User.telegram_id.in_([row['telegram_id'] for row in rows])).order_by(User.id).execution_options(populate_existing=True)
     if lock:statement = statement.with_for_update()
     users = {row.telegram_id: row for row in (await db.scalars(statement)).all()}
+    from .account_merge import identity_user
+    for telegram_id in {row['telegram_id'] for row in rows} - set(users):
+        resolved = await identity_user(db, 'telegram', telegram_id)
+        if resolved and lock:
+            resolved = await db.scalar(select(User).where(User.id == resolved.id).with_for_update().execution_options(populate_existing=True))
+        if resolved:
+            users[telegram_id] = resolved
     if mapping.currency != settings.default_currency:raise HTTPException(409, 'Валюта snapshot отличается от валюты магазина')
     states, output = [], []
     for row, key in zip(rows, keys):

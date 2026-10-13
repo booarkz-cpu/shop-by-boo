@@ -11,6 +11,7 @@ import {PartnerPortal} from "./partner";
 import {CustomerPasskeys, loginWithPasskey} from "./passkeys";
 import {Workspace} from "./workspace";
 import {AccountRecovery, AccountSecurity, accountLink} from "./account-recovery";
+import {AccountMerge} from "./account-merge";
 import type {AccountLink} from "./account-recovery";
 import {DomLocalizer, LangProvider, detectLang, t, useLang} from "./i18n";
 
@@ -77,7 +78,10 @@ async function req(path: string, opts: RequestInit = {}) {
     try {
       d = await r.json();
     } catch {}
-    if (!r.ok) throw Object.assign(Error(typeof d.detail==="string"?d.detail:d.message||`HTTP ${r.status}`), {status:r.status});
+    if (!r.ok) throw Object.assign(
+      Error(typeof d.detail==="string" ? d.detail : d.detail?.message || d.message || `HTTP ${r.status}`),
+      {status:r.status, detail:d.detail},
+    );
     return d;
   } finally {
     clearTimeout(timer);
@@ -957,7 +961,7 @@ function App() {
               {["wallet","payments","gifts","referral","subscription","security","notifications","support"].includes(activeItem?.kind||"") && <>
                 <h2 className="section-title">{activeItem.title}</h2>
                 {activeItem.kind==="partner"&&<PartnerPortal request={req}/>}
-                {activeItem.kind==="security"&&<><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><CustomerPasskeys req={req}/></>}
+                {activeItem.kind==="security"&&<><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><CustomerPasskeys req={req}/><AccountMerge request={req} onMerged={loadSession}/></>}
                 {activeItem.kind==="subscription"&&<SubscriptionProfiles profiles={profiles} request={req} reload={loadSession}/>}
                 <Workspace key={activeItem.kind+":"+(sub?.id||"none")} kind={activeItem.kind} request={req} reload={loadSession} plans={plans} provider={provider} botUsername={cfg.bot_username||""} providers={(cfg.payment_providers||[]).filter((p:string)=>["yookassa","rollypay","platega","sandbox"].includes(p))} currency={currency} api={API}/>
               </>}

@@ -1,6 +1,6 @@
-# Каталог API — v28.1.0 / API v21.5.1
+# Каталог API — v28.2.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0062_support_delivery_identity`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0063_account_merge`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -341,6 +341,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/internal/support-bridge/tickets/{ticket_id}/reply` | Reply |
 | `POST` | `/api/internal/support-bridge/tickets/{ticket_id}/status` | Status |
 | `GET` | `/api/me` | Api Me |
+| `POST` | `/api/me/account-merge/authorization` | Create Authorization |
+| `POST` | `/api/me/account-merge/confirm` | Confirm Merge |
+| `POST` | `/api/me/account-merge/preview` | Preview Merge |
 | `GET` | `/api/me/auto-renew` | Auto Renew Status |
 | `PUT` | `/api/me/auto-renew` | Set Auto Renew |
 | `DELETE` | `/api/me/auto-renew/method` | Remove Auto Renew Method |

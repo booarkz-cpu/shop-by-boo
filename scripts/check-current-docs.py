@@ -11,8 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
-DISTRIBUTION_TAG = "v28.1.0"
-SHOP_HEAD = "0062_support_delivery_identity"
+DISTRIBUTION_TAG = "v28.2.0"
+SHOP_HEAD = "0063_account_merge"
 SUPPORT_HEAD = "0006"
 
 
@@ -34,10 +34,12 @@ def main() -> None:
     require("README.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "MATRIX_COMPLETION_21_5_1.md")
     require("DOCUMENTATION.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("INSTALL_STEPS.md", DISTRIBUTION_TAG, VERSION)
-    require("install.sh", 'BRANCH="${BRANCH:-v28.1.0}"')
+    require("install.sh", 'BRANCH="${BRANCH:-v28.2.0}"')
     require("docs/ru/DEPLOYMENT_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/PRODUCTION_CURRENT.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/WORKSPACE_COVERAGE.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
+    require("docs/ru/ACCOUNT_MERGE_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
+    require("docs/ru/RELEASE_V28_2_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require(".github/workflows/publish-release.yml", "package-distribution.py", "publish-github-release.cjs", "['ci.yml', 'docker.yml']")
     require("backend/app/release_identity.py", f'DISTRIBUTION_TAG = "{DISTRIBUTION_TAG}"', f'RUNTIME_VERSION = "{VERSION}"')
 
@@ -45,11 +47,12 @@ def main() -> None:
     expected = {
         "version": VERSION,
         "distribution_tag": DISTRIBUTION_TAG,
-        "artifact": "remnawave_vpn_shop_v28_1_0_full_release.zip",
-        "detached_manifest": "remnawave_vpn_shop_v28_1_0_full_release_manifest.json",
+        "artifact": "remnawave_vpn_shop_v28_2_0_full_release.zip",
+        "detached_manifest": "remnawave_vpn_shop_v28_2_0_full_release_manifest.json",
         "migration_head": SHOP_HEAD,
         "support_migration_head": SUPPORT_HEAD,
         "upgrade_from": "21.5.0",
+        "release_notes": "docs/ru/RELEASE_V28_2_0.md",
     }
     mismatches = {key: (manifest.get(key), value) for key, value in expected.items() if manifest.get(key) != value}
     if mismatches:

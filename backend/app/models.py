@@ -25,6 +25,8 @@ class User(Base):
     deleted_at: Mapped[datetime|None] = mapped_column(DateTime)
     restricted_at: Mapped[datetime|None] = mapped_column(DateTime)
     passkey_user_handle: Mapped[str|None] = mapped_column(String(64))
+    merged_into_user_id: Mapped[int|None] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"), index=True)
+    merged_at: Mapped[datetime|None] = mapped_column(DateTime)
 
 
 class CustomerImportJob(Base):
@@ -1089,6 +1091,43 @@ class AccountMail(Base):
     next_retry_at: Mapped[datetime] = mapped_column(DateTime,default=datetime.utcnow,nullable=False)
     error: Mapped[str|None] = mapped_column(String(40))
 
+
+class AccountMergeAlias(Base):
+    __tablename__ = 'account_merge_aliases'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), unique=True, index=True)
+    target_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
+    telegram_id: Mapped[int|None] = mapped_column(BigInteger, unique=True, index=True)
+    yandex_id: Mapped[str|None] = mapped_column(String(255), unique=True, index=True)
+    vk_id: Mapped[str|None] = mapped_column(String(255), unique=True, index=True)
+    email: Mapped[str|None] = mapped_column(String(320), unique=True, index=True)
+    email_password_hash: Mapped[str|None] = mapped_column(String(512))
+    email_verified_at: Mapped[datetime|None] = mapped_column(DateTime)
+    referral_code: Mapped[str] = mapped_column(String(32), unique=True, index=True)
+    merged_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class AccountMergeAuthorization(Base):
+    __tablename__ = 'account_merge_authorizations'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, index=True)
+    used_at: Mapped[datetime|None] = mapped_column(DateTime)
+    target_user_id: Mapped[int|None] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class AccountMergeOperation(Base):
+    __tablename__ = 'account_merge_operations'
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    authorization_id: Mapped[int] = mapped_column(ForeignKey('account_merge_authorizations.id', ondelete='RESTRICT'))
+    source_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
+    target_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
+    result: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
 class Survey(Base):
     __tablename__='surveys'
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -1170,6 +1209,7 @@ class CustomerPasskey(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     credential_id: Mapped[str] = mapped_column(String(1024), unique=True)
     public_key: Mapped[str] = mapped_column(Text)
+    user_handle: Mapped[str|None] = mapped_column(String(64))
     sign_count: Mapped[int] = mapped_column(BigInteger, default=0)
     name: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

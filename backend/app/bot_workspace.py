@@ -30,7 +30,8 @@ async def workspace(message: Message):
         return
     command = (message.text or "").split()[0].split("@")[0].lstrip("/")
     async with AsyncSession(engine, expire_on_commit=False) as db:
-        user = (await db.execute(select(User).where(User.telegram_id==message.from_user.id, User.deleted_at.is_(None)))).scalar_one_or_none()
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(message.from_user.id))
         if not user or user.restricted_at:
             await message.answer("Начните с /start. Если доступ ограничен, обратитесь в поддержку.")
             return
