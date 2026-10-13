@@ -25,7 +25,10 @@ class User(Base):
     deleted_at: Mapped[datetime|None] = mapped_column(DateTime)
     restricted_at: Mapped[datetime|None] = mapped_column(DateTime)
     passkey_user_handle: Mapped[str|None] = mapped_column(String(64))
-    merged_into_user_id: Mapped[int|None] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"), index=True)
+    merged_into_user_id: Mapped[int|None] = mapped_column(
+        ForeignKey("users.id", name="fk_users_merged_into", ondelete="RESTRICT"),
+        index=True,
+    )
     merged_at: Mapped[datetime|None] = mapped_column(DateTime)
 
 
