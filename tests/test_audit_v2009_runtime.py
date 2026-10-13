@@ -113,10 +113,28 @@ async def pg(shop):
     async with root.begin() as conn:
         await conn.execute(text(f'CREATE SCHEMA {schema}'))
     engine = create_async_engine(url, connect_args={'server_settings': {'search_path': schema}})
-    from app.models import User, Payment, FinancialLedger, AdminUser, AppSetting, AuditLog, PaymentProviderEvent
+    from app.models import (
+        AccountMergeAlias,
+        AdminUser,
+        AppSetting,
+        AuditLog,
+        FinancialLedger,
+        Payment,
+        PaymentProviderEvent,
+        User,
+    )
     try:
         async with engine.begin() as conn:
-            for model in (User, Payment, FinancialLedger, AdminUser, AppSetting, AuditLog, PaymentProviderEvent):
+            for model in (
+                User,
+                Payment,
+                FinancialLedger,
+                AdminUser,
+                AppSetting,
+                AuditLog,
+                PaymentProviderEvent,
+                AccountMergeAlias,
+            ):
                 await conn.run_sync(model.__table__.create)
         yield engine
     finally:
