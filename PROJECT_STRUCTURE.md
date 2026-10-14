@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.2.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.3.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -40,6 +40,7 @@ shop-by-boo/
 | Telegram | `bot/`, `backend/app/bot*` | Bot/Mini App не дублируют бизнес-правила API |
 | Web UI | `admin/src`, `cabinet/src`, `miniapp/src` | Визуальные токены общие, бизнес-логика остаётся в API/feature-модулях |
 | Operations | `deploy/`, `scripts/`, `.github/workflows/` | Backup/restore и release contract проверяются CI |
+| Live configuration | `backend/app/runtime_settings.py`, `admin/src/runtime-settings.tsx` | Только явно типизированные поля; секреты маскируются; применение версионировано и аудируется |
 
 ## Конфигурация
 
@@ -61,6 +62,10 @@ shop-by-boo/
 | `backend/alembic/versions/0063_account_merge.py` | Merge schema и credential-specific passkey handles |
 | `cabinet/src/account-merge.tsx` | Двухшаговый доступный интерфейс объединения аккаунтов |
 | `docs/ru/ACCOUNT_MERGE_CURRENT.md` | Пользовательский, security и операторский регламент merge |
+| `backend/app/runtime_settings.py` | Полный реестр, проверка зависимостей, шифрование, stage/apply/rollback и polling |
+| `backend/alembic/versions/0064_runtime_settings.py` | Версия и защищённая история runtime-настроек |
+| `admin/src/runtime-settings.tsx` | Поиск, группы, preview, история и deployment-классификация |
+| `docs/ru/RUNTIME_SETTINGS_CURRENT.md` | Операторская инструкция live-config |
 | `backend/app/release_identity.py` | Версия дистрибутива независимо от API |
 | `scripts/package-distribution.py` | Архив, checksum и detached manifest |
 | `scripts/publish-github-release.cjs` | Проверка и публикация GitHub Release |

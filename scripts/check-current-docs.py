@@ -11,8 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
-DISTRIBUTION_TAG = "v28.2.0"
-SHOP_HEAD = "0063_account_merge"
+DISTRIBUTION_TAG = "v28.3.0"
+SHOP_HEAD = "0064_runtime_settings"
 SUPPORT_HEAD = "0006"
 
 
@@ -32,14 +32,21 @@ def main() -> None:
     require("deploy/install-vps.sh", f'INSTALLER_VERSION="{VERSION}"')
     require("scripts/build-release.sh", f'VERSION="{VERSION}"')
     require("README.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "MATRIX_COMPLETION_21_5_1.md")
+    require(".env.example", DISTRIBUTION_TAG, "RUNTIME_SETTINGS_CURRENT.md", "REMNAWAVE_TOKEN", "YOOKASSA_SECRET_KEY")
+    require("CHANGELOG.md", f"# {DISTRIBUTION_TAG}", SHOP_HEAD, "96")
     require("DOCUMENTATION.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("INSTALL_STEPS.md", DISTRIBUTION_TAG, VERSION)
-    require("install.sh", 'BRANCH="${BRANCH:-v28.2.0}"')
+    require("RELEASE_DOCUMENTATION_INDEX_RU.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "RUNTIME_SETTINGS_CURRENT.md")
+    require("install.sh", 'BRANCH="${BRANCH:-v28.3.0}"')
     require("docs/ru/DEPLOYMENT_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/PRODUCTION_CURRENT.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/WORKSPACE_COVERAGE.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/ACCOUNT_MERGE_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
-    require("docs/ru/RELEASE_V28_2_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
+    require("docs/ru/RUNTIME_SETTINGS_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
+    require("docs/ru/RELEASE_V28_3_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
+    require("PROJECT_SPEC.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "96")
+    require("PROJECT_STRUCTURE.md", DISTRIBUTION_TAG, SHOP_HEAD, "runtime_settings.py")
+    require("docs/PROJECT_MAP_RU.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "Obsidian/Amber", "runtime_settings.py")
     require(".github/workflows/publish-release.yml", "package-distribution.py", "publish-github-release.cjs", "['ci.yml', 'docker.yml']")
     require("backend/app/release_identity.py", f'DISTRIBUTION_TAG = "{DISTRIBUTION_TAG}"', f'RUNTIME_VERSION = "{VERSION}"')
 
@@ -47,12 +54,12 @@ def main() -> None:
     expected = {
         "version": VERSION,
         "distribution_tag": DISTRIBUTION_TAG,
-        "artifact": "remnawave_vpn_shop_v28_2_0_full_release.zip",
-        "detached_manifest": "remnawave_vpn_shop_v28_2_0_full_release_manifest.json",
+        "artifact": "remnawave_vpn_shop_v28_3_0_full_release.zip",
+        "detached_manifest": "remnawave_vpn_shop_v28_3_0_full_release_manifest.json",
         "migration_head": SHOP_HEAD,
         "support_migration_head": SUPPORT_HEAD,
         "upgrade_from": "21.5.0",
-        "release_notes": "docs/ru/RELEASE_V28_2_0.md",
+        "release_notes": "docs/ru/RELEASE_V28_3_0.md",
     }
     mismatches = {key: (manifest.get(key), value) for key, value in expected.items() if manifest.get(key) != value}
     if mismatches:

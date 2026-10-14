@@ -1,28 +1,35 @@
 # VPN Shop by Corgi
 
+[![CI](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/ci.yml)
+[![Docker](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/docker.yml)
+[![Release](https://img.shields.io/github/v/release/booarkz-cpu/shop-by-boo?display_name=tag)](https://github.com/booarkz-cpu/shop-by-boo/releases/latest)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)
+![License](https://img.shields.io/badge/license-2.8-FF8A1F)
+
 Актуальная схема каталогов, функциональных границ и визуальной системы собрана в [карте проекта](docs/PROJECT_MAP_RU.md). Полное дерево каталогов и правила границ модулей: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md).
 
 Единый магазин VPN-подписок: админ-панель, веб кабинет пользователя, Telegram-бот и Mini App, приложения Android и iOS. Административный интерфейс использует адаптивную Obsidian/Amber-систему с контекстными подсказками у всех редактируемых полей.
 
-**v28.2.0 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0063_account_merge` и Support Pro `0006` / 3.6. Разделение тега и версии API намеренное: оператор устанавливает `v28.2.0`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
+**v28.3.0 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0064_runtime_settings` и Support Pro `0006` / 3.6. Разделение тега и версии API намеренное: оператор устанавливает `v28.3.0`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
 
 В alpha.7 добавлен [вход администратора по passkey](docs/ru/ADMIN_PASSKEYS.md), [операционный dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Исправлена привязка публикации мобильных пакетов к актуальному тегу; подписи владельца по-прежнему нужны.
 
-Текущий стабильный выпуск: [v28.2.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.2.0). Точный commit и результаты CI указаны на странице релиза. Production-платежи остаются закрытыми: application E2E v2 не завершён. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). Актуальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
+Текущий стабильный выпуск: [v28.3.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.3.0). Точный commit и результаты CI указаны на странице релиза. Production-платежи остаются закрытыми: application E2E v2 не завершён. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). Актуальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
 
 Сведение поддержки и перенос старой истории: [отдельная инструкция](docs/ru/WORKSPACE_SUPPORT_BRIDGE.md).
 
-## Обновление v28.2.0
+## Обновление v28.3.0
 
-В кабинете добавлено безопасное объединение аккаунтов: подтверждение обеих сторон, preview конфликтов, атомарный перенос балансов, подписок, платежей и истории, сохранение прежних способов входа и идемпотентный повтор. Подробный контракт и проверка: [инструкция account merge](docs/ru/ACCOUNT_MERGE_CURRENT.md). Дизайн и доступные подсказки административной панели из v28.1.0 сохранены. Полный перечень файлов: [карта файлов](docs/PROJECT_FILE_MAP.md).
+Админ-панель получила типизированные настройки без перезапуска: 96 live-параметров, зашифрованные секреты, двухфазное подтверждение, optimistic lock, audit, поиск и безопасный откат последней версии. Все 144 поля конфигурации классифицированы; 46 deployment-параметров и 2 специализированных workflow показаны отдельно и не выдаются за hot-reload. [Инструкция оператора](docs/ru/RUNTIME_SETTINGS_CURRENT.md). Объединение аккаунтов из v28.2.0 и Obsidian/Amber-дизайн с подсказками сохранены. Полный перечень файлов: [карта файлов](docs/PROJECT_FILE_MAP.md).
 
-Обновление существующей установки с тегов `v26`–`v28.1.0` выполняется проверяющим скриптом: [инструкция обновления дистрибутива](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md). Версия API остаётся `21.5.1`; перед применением новой миграции `0063_account_merge` обязателен согласованный backup.
+Обновление существующей установки с тегов `v26`–`v28.2.0` выполняется проверяющим скриптом: [инструкция обновления дистрибутива](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md). Версия API остаётся `21.5.1`; перед применением новой миграции `0064_runtime_settings` обязателен согласованный backup.
 
 ## Что входит в проект
 
 | Компонент | Возможности |
 | --- | --- |
-| Админ-панель | Поиск разделов, таблицы с поиском и страницами, тарифы и конструктор, платежи и возвраты, поиск клиента по ID/Telegram/email/имени, читаемая карточка клиента, обращения и ответы, реферальные выплаты, маркетинг, серверы, агенты, антиабуз, роли и 2FA, резервные копии |
+| Админ-панель | Поиск разделов, таблицы с поиском и страницами, типизированные live-настройки с шифрованием/историей/откатом, тарифы и конструктор, платежи и возвраты, поиск клиента по ID/Telegram/email/имени, читаемая карточка клиента, обращения и ответы, реферальные выплаты, маркетинг, серверы, агенты, антиабуз, роли и 2FA, резервные копии |
 | Кабинет | Регистрация и вход, безопасное объединение аккаунтов, подписка, смена тарифа, докупка трафика, тарифы, кошелёк и история, подарки и подарочные карты, история платежей и PDF-квитанции, управление автопродлением, подключение по ссылке/QR, устройства, рефералы и заявки на выплаты, уведомления, обращения с перепиской |
 | Telegram Mini App | Тот же кабинет и API; настраиваемые изображение, инструкции и кнопки бота; авторизация Telegram |
 | Бот | `/start`, `/buy`, `/subscription`, `/promo`, `/account`, `/balance`, `/payments`, `/gifts`, `/referral`, `/support`, `/devices`, `/ops`; рассылки и переходы в нужные страницы кабинета |
@@ -36,7 +43,7 @@
 Для проверки без настоящих касс, Telegram и Remnawave нужны Docker Engine, Compose и Python 3:
 
 ```bash
-git clone --branch v28.2.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.3.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```
@@ -46,7 +53,7 @@ bash scripts/test-up.sh
 Установка на VDS через SSH или Termius:
 
 ```bash
-git clone --branch v28.2.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.3.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 sudo bash deploy/install-vps.sh
 ```
@@ -58,7 +65,8 @@ sudo bash deploy/install-vps.sh
 | Задача | Руководство |
 | --- | --- |
 | Создать конкурс или колесо призов | [Правила, бюджет, розыгрыш и приватность](docs/ru/WORKSPACE_GIVEAWAYS.md) |
-| Прочитать результаты текущего выпуска | [Отчёт v28.2.0](docs/ru/RELEASE_V28_2_0.md) |
+| Прочитать результаты текущего выпуска | [Отчёт v28.3.0](docs/ru/RELEASE_V28_3_0.md) |
+| Изменить операционные параметры без restart | [Live-config, секреты, откат и deployment-границы](docs/ru/RUNTIME_SETTINGS_CURRENT.md) |
 | Объединить два своих аккаунта | [Подтверждение, конфликты, перенос и диагностика](docs/ru/ACCOUNT_MERGE_CURRENT.md) |
 | Восстановить пароль и подтвердить email | [Почта и безопасность аккаунта](docs/ru/WORKSPACE_ACCOUNT_SECURITY.md) |
 | Создать изолированный стенд через Termius | [Проверка перед финальным релизом](docs/ru/FINAL_RELEASE_READINESS.md) |
@@ -108,9 +116,9 @@ npm run build
 
 Подробные правила новых подписок и подарков: [инструкция](docs/ru/WORKSPACE_SUBSCRIPTIONS.md).
 
-## Выпуск v28.2.0
+## Выпуск v28.3.0
 
-Релиз v28.2.0 закрывает строку матрицы «Объединение аккаунтов»: обе стороны подтверждают владение, preview показывает блокирующие конфликты, а одна транзакция переносит финансовые и профильные данные с reconciliation и operation journal. Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0063_account_merge`. Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.2.0](docs/ru/RELEASE_V28_2_0.md).
+Релиз v28.3.0 закрывает строку матрицы «70+ настроек с hot-reload и шифрованием»: 96 операционных значений проходят типизированную проверку, staged apply, атомарную публикацию и версионный откат; секреты не покидают зашифрованное хранилище. Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0064_runtime_settings`. Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.3.0](docs/ru/RELEASE_V28_3_0.md).
 
 Импорт users.db и массовые операции доступны роли admin в «Клиенты → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 

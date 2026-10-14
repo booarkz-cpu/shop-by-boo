@@ -1,8 +1,8 @@
-# Матрица функций и критерии завершения — дистрибутив v28.2.0
+# Матрица функций и критерии завершения — дистрибутив v28.3.0
 
 Этот документ завершает **описание** функциональной матрицы: у каждой открытой области есть владелец проверки, обязательный сценарий и условие, после которого статус можно повысить. Он не подменяет отсутствующую реализацию и не объявляет внешнюю production-проверку выполненной.
 
-Актуальные версии: API `21.5.1`, база магазина `0063_account_merge`, Support Pro `0006` / 3.6. Полный перечень реализованных функций и границ находится в [карте покрытия](WORKSPACE_COVERAGE.md), инструкции по функциям — в [общем указателе](../../FUNCTIONS.md).
+Актуальные версии: API `21.5.1`, база магазина `0064_runtime_settings`, Support Pro `0006` / 3.6. Полный перечень реализованных функций и границ находится в [карте покрытия](WORKSPACE_COVERAGE.md), инструкции по функциям — в [общем указателе](../../FUNCTIONS.md).
 
 ## Значения статусов
 
@@ -36,14 +36,15 @@
 | MX/SPF/DMARC | Исходящий SMTP и DKIM | Приём почты, очереди, антиспам, DNS-проверки, отчёты и retention | Spoofing, oversized mail, malware path, bounce loop, privacy deletion |
 | Расширенная DNS/ASN/reputation карта | Страны и базовые наблюдения | Источники данных, лицензирование, кэш, оценка свежести и UI анализа | Ошибка источника, устаревание, IPv6, приватные адреса, rate limits |
 | Plugin runtime/hotload | API keys, webhooks и существующие модули | Подписанный пакетный формат, capability sandbox, lifecycle, rollback и совместимость API | Недоверенный plugin, отказ и откат, обновление, изоляция секретов |
-| Полный hot-reload настроек | AppSetting и отдельные сервисные настройки | Типизированный реестр, шифрование секретов, зависимости, staged apply и rollback | Неверный тип, конкурентное изменение, перезапуск, аудит секрета |
 | Native push/widget/multiprofile admin | Native-клиенты и выбор пользовательской подписки | Push enrollment/revocation, Android widget, административный мультипрофиль и UX ошибок | Потерянный token, logout, offline, upgrade, подписанная сборка |
 
-## Закрыто в v28.2.0
+## Закрыто в v28.3.0
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Объединение аккаунтов | Две повторные авторизации, одноразовый код, conflict preview, атомарный перенос профиля/кошелька/подписок/рефералов/платежей, login aliases, audit и idempotency journal | `tests/test_account_merge.py`: self, конфликтный rollback, финансовая сверка, сохранение passkeys/способов входа, безопасный retry и PostgreSQL concurrent confirm; UI: `cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md) |
+| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 144 поля классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
+
+Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
 
 ## Порядок закрытия матрицы
 

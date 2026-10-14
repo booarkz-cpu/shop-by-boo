@@ -1,10 +1,22 @@
-> Актуальный дистрибутив: `v28.2.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.3.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # HTTP API
 
 Точный каталог маршрутов: [docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md). Реальные схемы запросов: `/openapi.json` собственного backend. Проверяйте права серверной роли; наличие кнопки интерфейса не авторизует действие.
 
 Для клиента используется текущая веб-сессия или поддерживаемая мобильная авторизация. Изменяющие запросы с cookie требуют штатной CSRF-защиты. Чужой владелец, отозванная сессия и ограниченный аккаунт не должны получать финансовые/приватные операции. Для покупок сохраняйте исходный `Idempotency-Key` и снимок заказа при повторах; не меняйте его после потери ответа.
+
+## Настройки без перезапуска v28.3.0
+
+| Метод | Маршрут | Право / результат |
+| --- | --- | --- |
+| GET | `/api/admin/runtime-settings` | `settings.runtime.read`; masked catalog, version, history and full field classification |
+| POST | `/api/admin/runtime-settings/stage` | `settings.runtime.write`; strict validation, dependency check and encrypted staged payload |
+| POST | `/api/admin/runtime-settings/changes/{id}/apply` | `settings.runtime.write`; expected version and HMAC fingerprint required |
+| POST | `/api/admin/runtime-settings/changes/{id}/rollback` | `settings.runtime.write`; only the latest applied revision |
+| DELETE | `/api/admin/runtime-settings/changes/{id}` | `settings.runtime.write`; discards a staged revision |
+
+Значения секретов не возвращаются ни одним ответом. Полный контракт: [RUNTIME_SETTINGS_CURRENT.md](docs/ru/RUNTIME_SETTINGS_CURRENT.md).
 
 ## Объединение аккаунтов v28.2.0
 

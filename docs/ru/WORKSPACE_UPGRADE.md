@@ -1,4 +1,4 @@
-> Актуальная инструкция для дистрибутива v28.2.0. Runtime/API `21.5.1`. Head магазина `0063_account_merge`, Support Pro `0006`/3.6.
+> Актуальная инструкция для дистрибутива v28.3.0. Runtime/API `21.5.1`. Head магазина `0064_runtime_settings`, Support Pro `0006`/3.6.
 
 # Обновление существующего магазина
 
@@ -30,7 +30,7 @@ CLI создаёт зашифрованный bundle обеих баз, файл
 
 ```bash
 git fetch origin
-git switch --detach v28.2.0
+git switch --detach v28.3.0
 docker compose build backend worker bot admin cabinet miniapp support_migrate support_pro support_worker
 docker compose up -d db redis support_db support_redis
 docker compose run --rm backend alembic upgrade head
@@ -39,7 +39,7 @@ docker compose run --rm support_migrate
 
 Не используйте `git reset --hard`, удаление volumes или обнуление migration history. Если checkout конфликтует с собственными файлами, остановитесь и перенесите их в проверенную ветку; работающий production не должен быть местом для разрешения такого конфликта.
 
-Для standalone Support Pro примените его `python -m app.migrate` в существующем compose-проекте, сохранив его credentials/volumes. Ожидаются head магазина `0063_account_merge` и Support Pro `0006`. До запуска нового worker обязателен обновлённый API магазина.
+Для standalone Support Pro примените его `python -m app.migrate` в существующем compose-проекте, сохранив его credentials/volumes. Ожидаются head магазина `0064_runtime_settings` и Support Pro `0006`. До запуска нового worker обязателен обновлённый API магазина.
 
 ## Запуск и проверка
 
@@ -60,6 +60,8 @@ docker compose logs --tail=80 support_worker
 
 Проверьте вход и права, баланс/финансовый журнал, старые подписки, частные файлы поддержки, редакторы страниц/офферы и дерево меню. На двух тестовых профилях проверьте [account merge](ACCOUNT_MERGE_CURRENT.md). Support Pro 0006 запускает полный обход старой связанной истории. До окончания первого обхода не применяйте merge/split к старым обращениям. После обхода проверьте один выбранный перенос, постоянные ID/файл, внутреннюю заметку, закрытый источник и его приостановленную очередь. [Регламент mapping](SUPPORT_REMOTE_HISTORY_CURRENT.md).
 
+Откройте **Система → Настройки без перезапуска**. Сверьте версию реестра и отсутствие ошибок зависимостей, затем измените на стенде один безопасный параметр: создайте staged-набор, сопоставьте fingerprint, примените его и дождитесь сходимости процессов. Верните значение штатным rollback последней версии. Секреты не должны раскрываться в API, интерфейсе или audit. Полная процедура: [runtime-настройки](RUNTIME_SETTINGS_CURRENT.md).
+
 ## Особенность автоматического updater
 
 Существующий `scripts/update.sh` автоматически сохраняет и восстанавливает только основную БД; он не является согласованным rollback двух схем. При переходе на Support Pro 0006 используйте ручную процедуру выше и полный bundle. Не считайте сообщение updater об откате доказательством восстановления Support Pro. При неудаче после его миграции сначала остановите writers и восстановите обе базы/файлы из одной согласованной копии. Внешние платежи, принятые после snapshot, требуют отдельной сверки.
@@ -73,7 +75,8 @@ docker compose logs --tail=80 support_worker
 | 0061 | Старые плоские кнопки остаются в корне; дерево/стили/emoji защищены от потери при downgrade |
 | 0062 + Support Pro 0006 | Исходные delivery keys, версии структуры, постоянные remote IDs и приостановленная очередь объединённого источника |
 | 0063 | Account merge aliases, одноразовые разрешения, operation journal, credential handles; после первой операции downgrade блокируется |
+| 0064 | Версионированные runtime-настройки, зашифрованные staged-наборы, audit и rollback; после первой ревизии downgrade блокируется |
 
 Миграции применяются всей цепочкой через `upgrade head`, не выборочным запуском файлов. Downgrade использованной истории/структуры блокируется. При ошибке исправление вперёд предпочтительно; полный возврат требует остановки writers и восстановления **обеих БД, файлов и соответствующих исходников**. Не обнуляйте защитные поля SQL-командами. [Восстановление](BACKUP_CURRENT.md) · [Production](PRODUCTION_CURRENT.md) · [Матрица](WORKSPACE_COVERAGE.md).
 
-Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.2.0](DISTRIBUTION_UPGRADE_CURRENT.md).
+Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.3.0](DISTRIBUTION_UPGRADE_CURRENT.md).

@@ -226,6 +226,35 @@ class AppSetting(Base):
     key: Mapped[str] = mapped_column(String(100), primary_key=True)
     value: Mapped[str] = mapped_column(Text, default="", nullable=False)
 
+
+class RuntimeSettingState(Base):
+    __tablename__ = "runtime_setting_state"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class RuntimeSettingChange(Base):
+    __tablename__ = "runtime_setting_changes"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    base_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    target_version: Mapped[int | None] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(16), index=True, nullable=False)
+    keys: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    payload_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    actor: Mapped[str] = mapped_column(String(320), nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    source_change_id: Mapped[str | None] = mapped_column(
+        ForeignKey(
+            "runtime_setting_changes.id",
+            name="fk_runtime_setting_change_source",
+            ondelete="RESTRICT",
+        )
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    applied_at: Mapped[datetime | None] = mapped_column(DateTime)
+
 class BotMenuItem(Base):
     __tablename__ = "bot_menu_items"
     id: Mapped[int] = mapped_column(primary_key=True)

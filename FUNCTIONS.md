@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.2.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.3.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Функции и отдельные инструкции
 
@@ -22,6 +22,7 @@
 | Переписка, приватные файлы, Support Pro | [Мост поддержки](docs/ru/WORKSPACE_SUPPORT_BRIDGE.md) |
 | Telegram-бот и Mini App | [Администратор](docs/ru/WORKSPACE_ADMIN_GUIDE.md#telegram-бот) |
 | Управление Remnawave, устройства и мониторинг | [Администратор](docs/ru/WORKSPACE_ADMIN_GUIDE.md), [архитектура](docs/ru/WORKSPACE_ARCHITECTURE.md) |
+| Live-конфигурация, секреты и откат | [Настройки без перезапуска](docs/ru/RUNTIME_SETTINGS_CURRENT.md) |
 | Android/iOS клиента и администратора | [Мобильные приложения](MOBILE.md) |
 | Backup, восстановление и обновление | [Эксплуатация](OPERATIONS_RUNBOOK_RU.md), [обновление](docs/ru/WORKSPACE_UPGRADE.md) |
 | Роли, 2FA, аудит и секреты | [Безопасность](SECURITY.md) |
@@ -33,7 +34,7 @@
 
 ## Текущие дополнения
 
-[Многоуровневые рефералы и сеть](docs/ru/REFERRALS_CURRENT.md), [объединение аккаунтов](docs/ru/ACCOUNT_MERGE_CURRENT.md), [согласованный CLI backup](docs/ru/BACKUP_CURRENT.md), [актуальная установка через SSH/Termius](docs/ru/DEPLOYMENT_CURRENT.md).
+[Настройки без перезапуска](docs/ru/RUNTIME_SETTINGS_CURRENT.md), [многоуровневые рефералы и сеть](docs/ru/REFERRALS_CURRENT.md), [объединение аккаунтов](docs/ru/ACCOUNT_MERGE_CURRENT.md), [согласованный CLI backup](docs/ru/BACKUP_CURRENT.md), [актуальная установка через SSH/Termius](docs/ru/DEPLOYMENT_CURRENT.md).
 
 Импорт users.db и массовые операции доступны роли admin в «Клиенты → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 
