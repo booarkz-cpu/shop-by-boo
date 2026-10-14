@@ -128,8 +128,9 @@ jobs:
             const fs = require('fs');
             const args = {owner: context.repo.owner, repo: context.repo.repo};
             const manifest = JSON.parse(fs.readFileSync('release-manifest.template.json','utf8'));
-            if (!/^\d+\.\d+\.\d+(?:-(?:alpha|beta|rc)\.\d+)?$/.test(manifest.version)) throw new Error('Invalid source release version');
-            const tag = `v${manifest.version}`;
+            // `version` is the runtime version; GitHub source releases use the distribution tag.
+            const tag = manifest.distribution_tag;
+            if (!/^v\d+\.\d+\.\d+(?:-(?:alpha|beta|rc)\.\d+)?$/.test(tag)) throw new Error('Invalid source distribution tag');
             // This workflow may run for later maintenance commits. Only the
             // release's own source commit can publish assets to its tag.
             const main = await github.rest.repos.getBranch({...args, branch: 'main'});
@@ -153,7 +154,10 @@ jobs:
                 if (release && !release.draft) {
                   let ref = (await github.rest.git.getRef({...args, ref:`tags/${tag}`})).data.object;
                   if (ref.type === 'tag') ref = (await github.rest.git.getTag({...args, tag_sha:ref.sha})).data.object;
-                  if (ref.type !== 'commit' || ref.sha !== context.sha) throw new Error('Source release belongs to another commit');
+                  if (ref.type !== 'commit' || ref.sha !== context.sha) {
+                    core.notice('Release tag belongs to another commit; packages remain available as workflow artifacts.');
+                    return;
+                  }
                   break;
                 }
               }
