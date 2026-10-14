@@ -128,6 +128,7 @@ jobs:
             const fs = require('fs');
             const args = {owner: context.repo.owner, repo: context.repo.repo};
             const manifest = JSON.parse(fs.readFileSync('release-manifest.template.json','utf8'));
+            // `version` is the runtime version; GitHub source releases use the distribution tag.
             const tag = manifest.distribution_tag;
             if (!/^v\d+\.\d+\.\d+(?:-(?:alpha|beta|rc)\.\d+)?$/.test(tag)) throw new Error('Invalid source distribution tag');
             // This workflow may run for later maintenance commits. Only the
