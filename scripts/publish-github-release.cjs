@@ -32,10 +32,17 @@ async function publish({github, context, core, root = process.cwd()}) {
     await github.rest.git.createRef({...repo, ref: `refs/tags/${tag}`, sha});
     ref = await tagRef();
   }
-  if (ref.type !== 'commit' || ref.sha !== sha) throw new Error('Existing tag belongs to another commit');
   let release;
   try { release = (await github.rest.repos.getReleaseByTag({...repo, tag})).data; }
   catch (error) { if (!missing(error)) throw error; }
+  if (ref.type !== 'commit') throw new Error('Existing tag does not point directly to a commit');
+  if (ref.sha !== sha) {
+    if (release && !release.draft) {
+      core.info(`Release ${tag} is already published from ${ref.sha}; skipping maintenance commit ${sha}`);
+      return release;
+    }
+    throw new Error('Existing tag belongs to another commit');
+  }
   if (!release) release = (await github.rest.repos.createRelease({
     ...repo, tag_name: tag, target_commitish: sha, name: template.release_title,
     body, draft: true, prerelease: false

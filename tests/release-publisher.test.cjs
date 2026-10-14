@@ -80,6 +80,13 @@ test('an existing tag is never moved to another commit', async t => {
   const {state,args} = fixture(t);state.ref={type:'commit',sha:'b'.repeat(40)};
   await assert.rejects(publish(args),/another commit/);assert.equal(state.ref.sha,'b'.repeat(40));assert.equal(state.uploads,0);
 });
+test('published release from an earlier source commit skips a maintenance commit', async t => {
+  const {state,args} = fixture(t);state.ref={type:'commit',sha:'b'.repeat(40)};
+  state.release={id:1,html_url:'https://github.com/test/releases/tag/'+TAG,draft:false,assets:[]};
+  const release=await publish(args);
+  assert.equal(release,state.release);assert.equal(state.ref.sha,'b'.repeat(40));
+  assert.equal(state.uploads,0);assert.equal(state.publications,0);assert.equal(state.dispatches,0);
+});
 test('corrupt uploaded bytes leave the release draft', async t => {
   const {state,args} = fixture(t);state.badUpload=true;
   await assert.rejects(publish(args),/verification failed/);assert.equal(state.release.draft,true);assert.equal(state.publications,0);
