@@ -86,10 +86,12 @@ from .v3_api import router as v3_router
 from .v6_api import router as v6_router
 from .remnawave_shop_api import router as remnawave_shop_router
 from .marketplace_api import router as marketplace_router
+from .runtime_settings import refresh_runtime_settings, router as runtime_settings_router, runtime_settings_scheduler
 app.include_router(cabinet_router)
 app.include_router(customer_workspace_router)
 app.include_router(subscription_commerce_router)
 app.include_router(subscriptions_router)
+app.include_router(runtime_settings_router)
 from .support_attachments import router as support_attachments_router
 app.include_router(support_attachments_router)
 from .support_bridge import router as support_bridge_router
@@ -465,6 +467,8 @@ def _maintenance_response():
 async def startup():
     global redis_client
     if Redis is None: raise RuntimeError("redis package is required")
+    async with AsyncSession(engine, expire_on_commit=False) as runtime_db:
+        await refresh_runtime_settings(runtime_db, force=True)
     settings.validate_security()
     redis_client = Redis.from_url(settings.redis_url, decode_responses=True, **settings.redis_connection_kwargs())
     await redis_client.ping()
@@ -514,6 +518,7 @@ async def shutdown_resources():
 
 @app.on_event("startup")
 async def start_backup_scheduler():
+    _track_task(runtime_settings_scheduler())
     if settings.worker_role == "api":
         return
     _track_task(backup_scheduler())
@@ -4469,10 +4474,6 @@ class MenuIn(BaseModel):
 class FieldIn(BaseModel): key:str=Field(min_length=1,max_length=100,pattern=r"^[A-Za-z0-9_.-]+$"); label:str=Field(min_length=1,max_length=255); field_type:str=Field(default="text",pattern="^(text|url|number)$"); value:str=Field(default="",max_length=10000); enabled:bool=True; sort_order:int=Field(default=0,ge=-100000,le=100000)
 
 BRANDING_KEYS = {"app_name", "app_logo", "app_favicon", "theme_default"}
-
-def _branding_payload(db):
-    # Placeholder; actual async retrieval is implemented in endpoint below.
-    return None
 
 @app.get("/api/public/branding")
 async def public_branding(db:AsyncSession=Depends(get_db)):

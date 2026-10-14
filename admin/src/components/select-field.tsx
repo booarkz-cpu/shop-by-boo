@@ -17,7 +17,10 @@ interface Option {
 interface SelectFieldProps extends Omit<
   React.SelectHTMLAttributes<HTMLSelectElement>,
   "multiple" | "size"
-> {}
+> {
+  "data-hint"?: string;
+  "data-hint-en"?: string;
+}
 function textOf(children: React.ReactNode): string {
   return React.Children.toArray(children)
     .map((child) =>
@@ -64,6 +67,8 @@ export function SelectField({
   disabled,
   id,
   "aria-label": ariaLabel,
+  "data-hint": dataHint,
+  "data-hint-en": dataHintEn,
   ...props
 }: SelectFieldProps) {
   const { lang } = useLang(),
@@ -131,6 +136,8 @@ export function SelectField({
           id={id ?? generatedId}
           aria-label={translate(lang, label)}
           aria-required={props.required || undefined}
+          data-hint={dataHint}
+          data-hint-en={dataHintEn}
           className={cn(className)}
         >
           <SelectValue />

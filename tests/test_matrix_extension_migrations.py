@@ -5,7 +5,7 @@ import pytest
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
-from app.models import CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup
+from app.models import CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange
 from test_subscription_commerce import database
 
 
@@ -20,6 +20,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0064_runtime_settings',
         '0063_account_merge',
         '0062_support_delivery_identity',
         '0061_menu_hierarchy',
@@ -30,7 +31,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
-    guarded_names = roundtrip_names[3:]
+    guarded_names = [roundtrip_names[0], *roundtrip_names[4:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):
@@ -47,6 +48,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     database.add(CustomerBatchOperation(key='key',fingerprint='fingerprint',result={}))
     database.add(PromoGroup(name='Retain history',segment='manual'))
     database.add(ContentPage(slug='terms',locale='ru',kind='legal',draft={}))
+    database.add(RuntimeSettingChange(id='retain-runtime-history',base_version=0,target_version=1,status='applied',keys=['trial_max_days'],payload_encrypted='encrypted',fingerprint='f'*64,actor='test',reason='retain history'))
     await database.commit()
     for name in guarded_names:
         module=migration(name)

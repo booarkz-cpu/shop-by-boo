@@ -1,9 +1,11 @@
 {
   "version": "21.5.1",
-  "migration_head": "0063_account_merge",
+  "migration_head": "0064_runtime_settings",
   "guides": [
+    ".env.example",
     "ADMIN_GUIDE_RU.md",
     "API_REFERENCE_RU.md",
+    "CHANGELOG.md",
     "CI_CD_RU.md",
     "DOCUMENTATION.md",
     "DOCUMENTATION_RU.md",
@@ -16,6 +18,8 @@
     "MODULES.md",
     "OPERATIONS_RUNBOOK_RU.md",
     "PRODUCTION_CHECKLIST.md",
+    "PROJECT_SPEC.md",
+    "PROJECT_STRUCTURE.md",
     "README.md",
     "README_GITHUB.md",
     "README_PRODUCTION_RU.md",
@@ -24,6 +28,7 @@
     "SECURITY.md",
     "SECURITY_MODEL_RU.md",
     "SUPPORT_PRO_INTEGRATION_RU.md",
+    "THIRD_PARTY_NOTICES.md",
     "UNIFIED_ARCHITECTURE_RU.md",
     "admin/README.md",
     "corgi-cli/README.md",
@@ -34,6 +39,8 @@
     "desktop/windows/README.md",
     "docs/API_ENDPOINTS.md",
     "docs/INDEX.md",
+    "docs/PROJECT_MAP_RU.md",
+    "docs/PROJECT_FILE_MAP.md",
     "docs/en/DEPLOYMENT.md",
     "docs/en/DOCUMENTATION.md",
     "docs/en/PAYMENTS.md",
@@ -99,7 +106,9 @@
     "docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md",
     "docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md",
     "docs/ru/ACCOUNT_MERGE_CURRENT.md",
-    "docs/ru/RELEASE_V28_2_0.md"
+    "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
+    "docs/ru/RELEASE_V28_2_0.md",
+    "docs/ru/RELEASE_V28_3_0.md"
   ],
-  "distribution_tag": "v28.2.0"
+  "distribution_tag": "v28.3.0"
 }

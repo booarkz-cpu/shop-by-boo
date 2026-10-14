@@ -1,6 +1,6 @@
-# Каталог API — v28.2.0 / API v21.5.1
+# Каталог API — v28.3.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0063_account_merge`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0064_runtime_settings`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -220,6 +220,11 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/remnawave/users/{user_id}/extend` | Rw Extend |
 | `GET` | `/api/admin/remnawave/users/{user_id}/keys` | Rw Keys |
 | `GET` | `/api/admin/remnawave/users/{user_id}/subscription` | Rw Subscription |
+| `GET` | `/api/admin/runtime-settings` | Admin Runtime Settings |
+| `DELETE` | `/api/admin/runtime-settings/changes/{change_id}` | Admin Discard Runtime Settings |
+| `POST` | `/api/admin/runtime-settings/changes/{change_id}/apply` | Admin Apply Runtime Settings |
+| `POST` | `/api/admin/runtime-settings/changes/{change_id}/rollback` | Admin Rollback Runtime Settings |
+| `POST` | `/api/admin/runtime-settings/stage` | Admin Stage Runtime Settings |
 | `GET` | `/api/admin/security` | Admin Security |
 | `POST` | `/api/admin/security/incident` | Security Incident |
 | `GET` | `/api/admin/security/incidents` | Security Incidents |

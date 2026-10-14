@@ -60,7 +60,13 @@ def _tr(lang: str, key: str, **kwargs) -> str:
 
 async def get_bot_config():
     async with AsyncSession(engine,expire_on_commit=False) as db:
-        vals={x.key:x.value for x in (await db.execute(select(AppSetting))).scalars().all()}
+        public_keys = {"bot_name", "bot_start_image"}
+        vals = {
+            row.key: row.value
+            for row in (
+                await db.execute(select(AppSetting).where(AppSetting.key.in_(public_keys)))
+            ).scalars().all()
+        }
         menu=(await db.execute(select(BotMenuItem).where(BotMenuItem.enabled.is_(True)).order_by(BotMenuItem.sort_order,BotMenuItem.id))).scalars().all()
         fields=(await db.execute(select(CustomField).where(CustomField.enabled.is_(True)).order_by(CustomField.sort_order,CustomField.id))).scalars().all()
         now=datetime.utcnow()
@@ -357,13 +363,22 @@ async def ops(message: Message):
     await message.answer(_tr(lang, "ops_status", violations=violations, agents=agents, url=escape(url)), reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons), parse_mode="HTML")
 
 async def main():
+    from .runtime_settings import refresh_runtime_settings, runtime_settings_scheduler
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        await refresh_runtime_settings(db, force=True)
+    runtime_task = asyncio.create_task(runtime_settings_scheduler())
     if not settings.bot_token:
         if (settings.app_env or "").strip().lower() == "production":
+            runtime_task.cancel()
+            await asyncio.gather(runtime_task, return_exceptions=True)
             raise RuntimeError("BOT_TOKEN is empty")
         logger.warning("BOT_TOKEN is empty; Telegram polling stays idle outside production")
-        while True:
-            await asyncio.sleep(3600)
-        return
+        try:
+            while True:
+                await asyncio.sleep(3600)
+        finally:
+            runtime_task.cancel()
+            await asyncio.gather(runtime_task, return_exceptions=True)
     from . import bot_workspace  # Registers account commands on the shared router.
     bot = Bot(settings.bot_token)
     dp = Dispatcher()
@@ -378,5 +393,7 @@ async def main():
     try:
         await dp.start_polling(bot)
     finally:
+        runtime_task.cancel()
+        await asyncio.gather(runtime_task, return_exceptions=True)
         await bot.session.close()
 if __name__=="__main__": asyncio.run(main())
