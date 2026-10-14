@@ -77,22 +77,22 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
   await expect(registryCounts).toContainText('2 workflow');
   await expect(page.getByText('RW доступ')).toBeVisible();
 
-  const trialDays = page.getByLabel('Максимальный пробный период');
+  const trialDays = page.getByRole('spinbutton', {name: 'Максимальный пробный период', exact: true});
   await expect(trialDays).toHaveAttribute('data-hint-ready', 'true');
   await trialDays.fill('7');
-  await page.getByLabel('Причина изменения').fill('Browser acceptance check');
+  await page.getByRole('textbox', {name: 'Причина изменения', exact: true}).fill('Browser acceptance check');
   await page.getByRole('button', {name: /Проверить и подготовить/}).click();
 
-  await expect(page.getByText('Проверка пройдена')).toBeVisible();
+  await expect(page.getByText('Проверка пройдена', {exact: true})).toBeVisible();
   await expect(page.locator('.runtime-preview')).toContainText('Максимальный пробный период');
   await expect(page.locator('.runtime-preview')).toContainText('7');
   page.once('dialog', (dialog) => dialog.accept());
-  await page.getByRole('button', {name: 'Применить версию 1'}).click();
-  await expect(page.getByText('LIVE CONFIG · VERSION 1')).toBeVisible();
+  await page.getByRole('button', {name: 'Применить версию 1', exact: true}).click();
+  await expect(page.getByText('LIVE CONFIG · VERSION 1', {exact: true})).toBeVisible();
 
   page.on('dialog', async (dialog) => {
     await dialog.accept(dialog.type() === 'prompt' ? 'Browser rollback check' : undefined);
   });
-  await page.getByRole('button', {name: 'Откатить'}).click();
-  await expect(page.getByText('LIVE CONFIG · VERSION 2')).toBeVisible();
+  await page.getByRole('button', {name: 'Откатить', exact: true}).click();
+  await expect(page.getByText('LIVE CONFIG · VERSION 2', {exact: true})).toBeVisible();
 });

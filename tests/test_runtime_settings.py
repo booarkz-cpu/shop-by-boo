@@ -2,10 +2,12 @@
 
 import asyncio
 import importlib.util
+from contextlib import asynccontextmanager
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 from fastapi import HTTPException
@@ -46,6 +48,42 @@ def test_integer_limits_are_checked_without_float_rounding():
         with pytest.raises(HTTPException) as error:
             runtime._parse_value(definition, value)
         assert error.value.status_code == 422
+
+
+def test_numeric_overflow_and_nonfinite_values_are_validation_errors():
+    definition = runtime.DEFINITION_BY_KEY["default_tax_rate"]
+    for value in (10**1000, float("inf"), float("nan")):
+        with pytest.raises(HTTPException) as error:
+            runtime._parse_value(definition, value)
+        assert error.value.status_code == 422
+
+
+@pytest.mark.parametrize("schema,version", [(runtime.StageSettingsIn, "base_version"), (runtime.RollbackSettingsIn, "expected_version")])
+def test_change_reason_is_required_after_trimming(schema, version):
+    for reason in ("   ", " x "):
+        with pytest.raises(ValidationError):
+            schema(**{version: 0, "reason": reason})
+    assert schema(**{version: 0, "reason": "  Reviewed operation  "}).reason == "Reviewed operation"
+
+
+@pytest.mark.asyncio
+async def test_secret_whitespace_is_preserved_exactly(database):
+    secret = "  smtp-password-with-surrounding-spaces  "
+    staged = await runtime.stage_change(
+        runtime.StageSettingsIn(base_version=0, changes={"smtp_password": secret}, reason="Preserve provider credential"),
+        database,
+        ACTOR.email,
+    )
+    change = staged["change"]
+    await runtime.apply_change(
+        change["id"],
+        runtime.ApplySettingsIn(expected_version=0, fingerprint=change["fingerprint"]),
+        database,
+        ACTOR.email,
+    )
+    stored = await database.get(AppSetting, "runtime.smtp_password")
+    assert runtime._deserialize_stored(runtime.DEFINITION_BY_KEY["smtp_password"], stored.value) == secret
+    assert runtime.settings.smtp_password == secret
 
 
 @pytest.mark.asyncio
@@ -321,10 +359,22 @@ async def test_standalone_worker_loads_committed_settings_and_converges(database
     database.add(AppSetting(key="runtime.trial_max_days", value="7"))
     await database.commit()
     monkeypatch.setattr(worker.main, "engine", database.bind)
-    monkeypatch.setattr(runtime, "SessionLocal", async_sessionmaker(database.bind, expire_on_commit=False))
     monkeypatch.setattr(runtime, "POLL_INTERVAL_SECONDS", 0.01)
     seen = []
     finished = asyncio.Event()
+    committed = asyncio.Event()
+    sessions = async_sessionmaker(database.bind, expire_on_commit=False)
+
+    @asynccontextmanager
+    async def scheduled_session():
+        # SQLite's in-memory fixture shares one physical connection. Start the
+        # polling read after the independent writer commits, so another session's
+        # rollback cannot cancel that writer on this test-only connection.
+        await committed.wait()
+        async with sessions() as session:
+            yield session
+
+    monkeypatch.setattr(runtime, "SessionLocal", scheduled_session)
 
     def validate(_settings):
         seen.append(("startup", _settings.trial_max_days))
@@ -342,6 +392,7 @@ async def test_standalone_worker_loads_committed_settings_and_converges(database
             (await other.get(AppSetting, "runtime.trial_max_days")).value = "9"
             (await other.get(RuntimeSettingState, 1)).version = 2
             await other.commit()
+        committed.set()
         while runtime.settings.trial_max_days != 9:
             await asyncio.sleep(0.005)
         finished.set()
@@ -358,7 +409,7 @@ async def test_standalone_worker_loads_committed_settings_and_converges(database
     monkeypatch.setattr(account_merge, "account_merge_cleanup_scheduler", idle)
     task = asyncio.create_task(worker.main_worker())
     try:
-        await asyncio.wait_for(finished.wait(), 2)
+        await asyncio.wait_for(finished.wait(), 5)
         assert seen == [("startup", 7), ("redis", 7), ("job", 7)]
         assert runtime.settings.trial_max_days == 9
         assert runtime._loaded_version == 2

@@ -13,11 +13,11 @@ import urllib.parse
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -223,13 +223,16 @@ if len(HOT_SETTING_FIELDS) + len(RESTART_REQUIRED) + len(MANAGED_ELSEWHERE) != l
     raise RuntimeError("Runtime settings registry does not cover every Settings field")
 
 
+ChangeReason = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
+
+
 class StageSettingsIn(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
     base_version: int = Field(ge=0)
     changes: dict[str, SettingValue] = Field(default_factory=dict, max_length=50)
     clear: list[str] = Field(default_factory=list, max_length=50)
-    reason: str = Field(min_length=3, max_length=500)
+    reason: ChangeReason
 
 
 class ApplySettingsIn(BaseModel):
@@ -243,7 +246,7 @@ class RollbackSettingsIn(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
     expected_version: int = Field(ge=0)
-    reason: str = Field(min_length=3, max_length=500)
+    reason: ChangeReason
 
 
 def _setting_key(key: str) -> str:
@@ -278,7 +281,10 @@ def _parse_value(definition: SettingDefinition, value: object) -> bool | int | f
     if definition.kind == "number":
         if type(value) not in {int, float}:
             raise HTTPException(422, f"{definition.key}: требуется число")
-        numeric = float(value)
+        try:
+            numeric = float(value)
+        except OverflowError as exc:
+            raise HTTPException(422, f"{definition.key}: недопустимое число") from exc
         if not (-1e308 < numeric < 1e308):
             raise HTTPException(422, f"{definition.key}: недопустимое число")
         if definition.minimum is not None and numeric < definition.minimum:
@@ -288,7 +294,7 @@ def _parse_value(definition: SettingDefinition, value: object) -> bool | int | f
         return numeric
     if not isinstance(value, str):
         raise HTTPException(422, f"{definition.key}: требуется строка")
-    normalized = value.strip()
+    normalized = value if definition.secret else value.strip()
     if not normalized and not definition.optional:
         raise HTTPException(422, f"{definition.key}: значение обязательно")
     maximum_length = 100_000 if definition.secret else 2048
