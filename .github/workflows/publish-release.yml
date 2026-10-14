@@ -26,7 +26,7 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
       - name: Require successful CI and Docker on current main
         id: gate
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const repo = {owner: context.repo.owner, repo: context.repo.repo};
@@ -52,7 +52,7 @@ jobs:
           python3 scripts/package-distribution.py --ci-run '${{ steps.gate.outputs.ci_run }}'
       - name: Publish verified files and dispatch tagged Docker
         if: steps.gate.outputs.ready == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const {publish} = require('./scripts/publish-github-release.cjs');
