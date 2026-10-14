@@ -2,6 +2,7 @@
 
 import asyncio
 import importlib.util
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import SimpleNamespace
@@ -25,9 +26,12 @@ ACTOR = SimpleNamespace(email="owner@example.test", role="admin")
 
 @pytest.fixture(autouse=True)
 def isolate_process_settings(monkeypatch):
+    previous_log_level = logging.getLogger().level
     for definition in runtime.DEFINITIONS:
         monkeypatch.setattr(runtime.settings, definition.env_attr, runtime.ENVIRONMENT_VALUES[definition.key])
     monkeypatch.setattr(runtime, "_loaded_version", -1)
+    yield
+    logging.getLogger().setLevel(previous_log_level)
 
 
 def test_every_configuration_field_has_one_explicit_runtime_classification():
@@ -359,6 +363,7 @@ async def test_standalone_worker_loads_committed_settings_and_converges(database
     database.add(AppSetting(key="runtime.trial_max_days", value="7"))
     await database.commit()
     monkeypatch.setattr(worker.main, "engine", database.bind)
+    monkeypatch.setattr(worker.main, "redis_client", None)
     monkeypatch.setattr(runtime, "POLL_INTERVAL_SECONDS", 0.01)
     seen = []
     finished = asyncio.Event()
