@@ -75,6 +75,7 @@ app = FastAPI(title="VPN Shop by Corgi Lusi API", version=APP_VERSION, docs_url=
 from .cabinet_api import router as cabinet_router
 from .customer_workspace_api import router as customer_workspace_router
 from .customer_profile import router as customer_profile_router
+from .history_import import router as history_import_router, customer_imported_payments
 from .subscription_commerce import router as subscription_commerce_router
 from .subscriptions import router as subscriptions_router, reserve_target, check_retry, payment_target, remote_username, owned as owned_subscription
 from .mobile_api import router as mobile_router
@@ -91,6 +92,7 @@ from .runtime_settings import refresh_runtime_settings, router as runtime_settin
 app.include_router(cabinet_router)
 app.include_router(customer_workspace_router)
 app.include_router(customer_profile_router)
+app.include_router(history_import_router)
 app.include_router(subscription_commerce_router)
 app.include_router(subscriptions_router)
 app.include_router(runtime_settings_router)
@@ -2283,7 +2285,7 @@ async def billing_center(request:Request,db:AsyncSession=Depends(get_db)):
     user=await user_from_token(request,db)
     sub=(await db.execute(select(Subscription).where(Subscription.user_id==user.id,Subscription.is_primary.is_(True)))).scalar_one_or_none()
     payments=(await db.execute(select(Payment).where(Payment.user_id==user.id).order_by(Payment.id.desc()).limit(50))).scalars().all()
-    return {"subscription": None if not sub else {"id":sub.id,"plan_id":sub.plan_id,"status":sub.lifecycle_status,"expires_at":sub.expires_at,"grace_until":sub.grace_until,"scheduled_cancel_at":sub.scheduled_cancel_at,"auto_renew":user.auto_renew_enabled},"payments":[{"id":p.id,"order_id":p.order_id,"amount":str(p.amount),"currency":p.currency,"status":p.status,"fulfillment_status":p.fulfillment_status,"created_at":p.created_at,"paid_at":p.paid_at} for p in payments]}
+    return {"subscription": None if not sub else {"id":sub.id,"plan_id":sub.plan_id,"status":sub.lifecycle_status,"expires_at":sub.expires_at,"grace_until":sub.grace_until,"scheduled_cancel_at":sub.scheduled_cancel_at,"auto_renew":user.auto_renew_enabled},"payments":[{"id":p.id,"order_id":p.order_id,"amount":str(p.amount),"currency":p.currency,"status":p.status,"fulfillment_status":p.fulfillment_status,"created_at":p.created_at,"paid_at":p.paid_at} for p in payments],"imported_payments":await customer_imported_payments(db,user.id)}
 
 @app.get("/api/me/security-center")
 async def security_center(request:Request,db:AsyncSession=Depends(get_db)):

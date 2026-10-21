@@ -1,11 +1,12 @@
 import importlib.util
+from datetime import datetime
 from pathlib import Path
 
 import pytest
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
-from app.models import CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange
+from app.models import HistoryImportJob, CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange
 from test_subscription_commerce import database
 
 
@@ -20,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0065_history_import',
         '0064_runtime_settings',
         '0063_account_merge',
         '0062_support_delivery_identity',
@@ -31,7 +33,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
-    guarded_names = [roundtrip_names[0], *roundtrip_names[4:]]
+    guarded_names = [roundtrip_names[0], roundtrip_names[1], *roundtrip_names[5:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):
@@ -44,6 +46,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     database.add(partner);await database.flush()
     database.add(PartnerWithdrawal(reseller_id=partner.id,amount=1,currency='RUB',destination='Test',idempotency_key='one'))
     database.add(CustomerPasskey(user_id=1,credential_id='credential',public_key='key',name='Test'))
+    database.add(HistoryImportJob(id='retain-history-import',namespace='old-bot',adapter='generic-sqlite-v1',source_sha256='a'*64,actor='test',fingerprint='f'*64,payload_encrypted='',control={},status='cancelled',expires_at=datetime.utcnow()))
     database.add(SupportTopologyOperation(key='key',fingerprint='fingerprint',result={}))
     database.add(CustomerBatchOperation(key='key',fingerprint='fingerprint',result={}))
     database.add(PromoGroup(name='Retain history',segment='manual'))

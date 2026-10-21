@@ -30,7 +30,13 @@ def quoted(name):
     return '"' + name.replace('"', '""') + '"'
 
 
-def extract(data: bytes, table: str, mapping: MappingIn | None = None):
+def read_table(data: bytes, table: str, selected: list[str] | None = None, max_rows: int = MAX_ROWS):
+    """Read-only, time/size-bounded SELECT of `selected` columns (or schema only when None).
+
+    Shared by the profile import and the versioned history adapters. The snapshot is
+    opened immutable, untrusted schema is disabled and an authorizer limits the
+    statement to plain reads of the named table and columns.
+    """
     if len(data) > MAX_BYTES or not data.startswith(b'SQLite format 3\0'):
         raise HTTPException(422, 'Нужен SQLite snapshot до 5 МБ')
     if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,63}', table):
@@ -57,10 +63,7 @@ def extract(data: bytes, table: str, mapping: MappingIn | None = None):
                     raise HTTPException(422, 'Выберите обычную таблицу; views и virtual tables запрещены')
                 fields = connection.execute(f'PRAGMA table_xinfo({quoted(table)})').fetchall()
                 columns = [field[1] for field in fields if field[6] == 0]
-                if not mapping:return {'table': table, 'columns': columns, 'max_rows': MAX_ROWS, 'max_bytes': MAX_BYTES}
-                selected = [mapping.source_id or mapping.telegram_id, mapping.telegram_id]
-                if mapping.username:selected.append(mapping.username)
-                if mapping.balance:selected.append(mapping.balance)
+                if selected is None:return columns, []
                 if any(column not in columns for column in selected):
                     raise HTTPException(422, 'Поле отсутствует либо является вычисляемым')
                 def authorize(action, arg1, arg2, database, trigger):
@@ -69,10 +72,21 @@ def extract(data: bytes, table: str, mapping: MappingIn | None = None):
                         return sqlite3.SQLITE_OK
                     return sqlite3.SQLITE_DENY
                 connection.set_authorizer(authorize)
-                rows = connection.execute('SELECT ' + ','.join(map(quoted, selected)) + f' FROM {quoted(table)} LIMIT ?', (MAX_ROWS + 1,)).fetchall()
+                rows = connection.execute('SELECT ' + ','.join(map(quoted, selected)) + f' FROM {quoted(table)} LIMIT ?', (max_rows + 1,)).fetchall()
             finally:connection.close()
     except sqlite3.Error as error:
         raise HTTPException(422, 'Не удалось безопасно прочитать snapshot SQLite') from error
+    return columns, rows
+
+
+def extract(data: bytes, table: str, mapping: MappingIn | None = None):
+    if not mapping:
+        columns, _ = read_table(data, table)
+        return {'table': table, 'columns': columns, 'max_rows': MAX_ROWS, 'max_bytes': MAX_BYTES}
+    selected = [mapping.source_id or mapping.telegram_id, mapping.telegram_id]
+    if mapping.username:selected.append(mapping.username)
+    if mapping.balance:selected.append(mapping.balance)
+    _, rows = read_table(data, table, selected)
     if not rows or len(rows) > MAX_ROWS:raise HTTPException(422, 'В snapshot должно быть 1–1000 клиентов')
     normalized = []
     source_ids, telegram_ids = set(), set()

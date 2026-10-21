@@ -9,21 +9,23 @@
 
 Актуальная схема каталогов, функциональных границ и визуальной системы собрана в [карте проекта](docs/PROJECT_MAP_RU.md). Полное дерево каталогов и правила границ модулей: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md).
 
-Единый магазин VPN-подписок: админ-панель, веб кабинет пользователя, Telegram-бот и Mini App, приложения Android и iOS. Административный интерфейс использует адаптивную Obsidian/Amber-систему с контекстными подсказками у всех редактируемых полей.
+Единый магазин VPN-подписок: админ-панель, веб кабинет пользователя, Telegram-бот и Mini App, приложения Android и iOS. Админка, кабинет и Mini App построены на Next.js и используют единую тёмную систему Remna Dark (светлая тема сохранена) с контекстными подсказками у всех редактируемых полей.
 
-**v28.3.0 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0064_runtime_settings` и Support Pro `0006` / 3.6. Разделение тега и версии API намеренное: оператор устанавливает `v28.3.0`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
+**v28.4.0 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0065_history_import` и Support Pro `0006` / 3.6. Разделение тега и версии API намеренное: оператор устанавливает `v28.4.0`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
 
 В alpha.7 добавлен [вход администратора по passkey](docs/ru/ADMIN_PASSKEYS.md), [операционный dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Исправлена привязка публикации мобильных пакетов к актуальному тегу; подписи владельца по-прежнему нужны.
 
-Текущий стабильный выпуск: [v28.3.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.3.0). Точный commit и результаты CI указаны на странице релиза. Production-платежи остаются закрытыми: application E2E v2 не завершён. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). Актуальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
+Текущий стабильный выпуск: [v28.4.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.4.0). Точный commit и результаты CI указаны на странице релиза. Production-платежи остаются закрытыми: application E2E v2 не завершён. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). Актуальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
 
 Сведение поддержки и перенос старой истории: [отдельная инструкция](docs/ru/WORKSPACE_SUPPORT_BRIDGE.md).
 
-## Обновление v28.3.0
+## Обновление v28.4.0
 
-Админ-панель получила типизированные настройки без перезапуска: 96 live-параметров, зашифрованные секреты, двухфазное подтверждение, optimistic lock, audit, поиск и безопасный откат последней версии. Все 144 поля конфигурации классифицированы; 46 deployment-параметров и 2 специализированных workflow показаны отдельно и не выдаются за hot-reload. [Инструкция оператора](docs/ru/RUNTIME_SETTINGS_CURRENT.md). Объединение аккаунтов из v28.2.0 и Obsidian/Amber-дизайн с подсказками сохранены. Полный перечень файлов: [карта файлов](docs/PROJECT_FILE_MAP.md).
+Админ-панель, личный кабинет и Telegram Mini App переведены на **Next.js** (static export, прежние nginx-образы и Caddy) и получили единый дизайн **Remna Dark**: сворачиваемый sidebar и выдвижное меню на телефонах, дашборд с плашкой состояния, плитками метрик 2×2/4×1, поиском и сегментированным фильтром серверов, skeleton-загрузку. Mini App использует Telegram WebApp SDK: тема и safe area из клиента, haptic feedback, нативные BackButton/MainButton, подтверждение закрытия во время оплаты. Кабинет показывает статус, остаток трафика и срок подписки, QR и копирование ссылки, пошаговую инструкцию, карточки тарифов, профиль и историю платежей. Новый [перенос истории](docs/ru/HISTORY_IMPORT_CURRENT.md) подписок и платежей сверяет контрольные итоги, не дублирует строки при повторе и откатывается журналом. Production CSP (`script-src 'self'`) соблюдается: inline-скрипты Next.js выносятся в файлы при сборке.
 
-Обновление существующей установки с тегов `v26`–`v28.2.0` выполняется проверяющим скриптом: [инструкция обновления дистрибутива](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md). Версия API остаётся `21.5.1`; перед применением новой миграции `0064_runtime_settings` обязателен согласованный backup.
+Настройки без перезапуска из v28.3.0 (96 live-параметров, зашифрованные секреты, staged apply и откат) сохранены.
+
+Обновление существующей установки с тегов `v26`–`v28.3.0` выполняется проверяющим скриптом: [инструкция обновления дистрибутива](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md). Версия API остаётся `21.5.1`; перед применением новой миграции `0065_history_import` обязателен согласованный backup.
 
 ## Что входит в проект
 
@@ -43,7 +45,7 @@
 Для проверки без настоящих касс, Telegram и Remnawave нужны Docker Engine, Compose и Python 3:
 
 ```bash
-git clone --branch v28.3.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.4.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```
@@ -53,7 +55,7 @@ bash scripts/test-up.sh
 Установка на VDS через SSH или Termius:
 
 ```bash
-git clone --branch v28.3.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.4.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 sudo bash deploy/install-vps.sh
 ```
@@ -65,7 +67,7 @@ sudo bash deploy/install-vps.sh
 | Задача | Руководство |
 | --- | --- |
 | Создать конкурс или колесо призов | [Правила, бюджет, розыгрыш и приватность](docs/ru/WORKSPACE_GIVEAWAYS.md) |
-| Прочитать результаты текущего выпуска | [Отчёт v28.3.0](docs/ru/RELEASE_V28_3_0.md) |
+| Прочитать результаты текущего выпуска | [Отчёт v28.4.0](docs/ru/RELEASE_V28_4_0.md) |
 | Изменить операционные параметры без restart | [Live-config, секреты, откат и deployment-границы](docs/ru/RUNTIME_SETTINGS_CURRENT.md) |
 | Объединить два своих аккаунта | [Подтверждение, конфликты, перенос и диагностика](docs/ru/ACCOUNT_MERGE_CURRENT.md) |
 | Восстановить пароль и подтвердить email | [Почта и безопасность аккаунта](docs/ru/WORKSPACE_ACCOUNT_SECURITY.md) |
@@ -103,12 +105,13 @@ npm run typecheck
 npm test
 npm run build
 cd ../miniapp
-npm ci
-npm run typecheck
-npm run build
+npm run build          # кабинет с NEXT_PUBLIC_SURFACE=miniapp
+cd ../admin
+NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
+npx playwright test    # Chromium под production CSP
 ```
 
-Перед проверкой Mini App установите зависимости `cabinet`: приложение импортирует общий интерфейс. В контейнере Mini App собирается непосредственно из `cabinet`, с `VITE_SURFACE=miniapp`. Полная проверка Docker, PostgreSQL и мобильных сборок выполняется CI; локальные сборки интерфейса и тесты не заменяют платёжный E2E на сервере.
+Интерфейсы — Next.js (static export в `dist/`). Mini App — это кабинет, собранный с `NEXT_PUBLIC_SURFACE=miniapp`: `miniapp/` делегирует сборку в `cabinet`, в контейнере Mini App собирается из `cabinet`. Для разработки: `npm run dev` в `admin` (порт 5173) или `cabinet` (порт 5174), API — через `NEXT_PUBLIC_API_URL`. Полная проверка Docker, PostgreSQL и мобильных сборок выполняется CI; локальные сборки интерфейса и тесты не заменяют платёжный E2E на сервере.
 
 ## Лицензия 2.8
 
@@ -116,9 +119,9 @@ npm run build
 
 Подробные правила новых подписок и подарков: [инструкция](docs/ru/WORKSPACE_SUBSCRIPTIONS.md).
 
-## Выпуск v28.3.0
+## Выпуск v28.4.0
 
-Релиз v28.3.0 закрывает строку матрицы «70+ настроек с hot-reload и шифрованием»: 96 операционных значений проходят типизированную проверку, staged apply, атомарную публикацию и версионный откат; секреты не покидают зашифрованное хранилище. Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0064_runtime_settings`. Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.3.0](docs/ru/RELEASE_V28_3_0.md).
+Релиз v28.4.0 переводит админ-панель, кабинет и Mini App на Next.js (static export, прежние nginx-образы) в дизайне Remna Dark и закрывает строку матрицы «Исторический импорт VPN/платежей»: версионированный адаптер, preview без записи, сверка с контрольными итогами, повтор без дублей и журнал отката ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)). Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0065_history_import`. Релиз v28.3.0 закрыл «70+ настроек с hot-reload и шифрованием». Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.4.0](docs/ru/RELEASE_V28_4_0.md).
 
 Импорт users.db и массовые операции доступны роли admin в «Клиенты → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 

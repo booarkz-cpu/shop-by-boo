@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.3.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.4.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **938**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **949**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -218,6 +218,7 @@
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
+| [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
 | [admin/e2e/passkeys.spec.ts](../admin/e2e/passkeys.spec.ts) | Админ-панель |
 | [admin/e2e/personal-offers.spec.ts](../admin/e2e/personal-offers.spec.ts) | Админ-панель |
@@ -250,6 +251,7 @@
 | [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
+| [admin/src/history-import.tsx](../admin/src/history-import.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
 | [admin/src/main.tsx](../admin/src/main.tsx) | Админ-панель |
@@ -338,6 +340,7 @@
 | [backend/alembic/versions/0062_support_delivery_identity.py](../backend/alembic/versions/0062_support_delivery_identity.py) | API, бот и worker |
 | [backend/alembic/versions/0063_account_merge.py](../backend/alembic/versions/0063_account_merge.py) | API, бот и worker |
 | [backend/alembic/versions/0064_runtime_settings.py](../backend/alembic/versions/0064_runtime_settings.py) | API, бот и worker |
+| [backend/alembic/versions/0065_history_import.py](../backend/alembic/versions/0065_history_import.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -355,6 +358,7 @@
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
 | [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
+| [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
 | [backend/app/main.py](../backend/app/main.py) | API, бот и worker |
 | [backend/app/marketplace_api.py](../backend/app/marketplace_api.py) | API, бот и worker |
 | [backend/app/menu_tree.py](../backend/app/menu_tree.py) | API, бот и worker |
@@ -554,6 +558,7 @@
 | [docs/ru/DOCUMENTATION.md](../docs/ru/DOCUMENTATION.md) | Документация |
 | [docs/ru/FINAL_RELEASE_READINESS.md](../docs/ru/FINAL_RELEASE_READINESS.md) | Документация |
 | [docs/ru/FUNCTION_GUIDE.md](../docs/ru/FUNCTION_GUIDE.md) | Документация |
+| [docs/ru/HISTORY_IMPORT_CURRENT.md](../docs/ru/HISTORY_IMPORT_CURRENT.md) | Документация |
 | [docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md](../docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md) | Документация |
 | [docs/ru/MATRIX_COMPLETION_21_5_1.md](../docs/ru/MATRIX_COMPLETION_21_5_1.md) | Документация |
 | [docs/ru/MENU_TREE_CURRENT.md](../docs/ru/MENU_TREE_CURRENT.md) | Документация |
@@ -586,6 +591,7 @@
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
+| [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
 | [docs/ru/SECURITY_UPGRADE_20_0_14.md](../docs/ru/SECURITY_UPGRADE_20_0_14.md) | Документация |
@@ -628,9 +634,13 @@
 | [docs/ru/steps/04-payments.md](../docs/ru/steps/04-payments.md) | Документация |
 | [docs/ru/steps/05-operations.md](../docs/ru/steps/05-operations.md) | Документация |
 | [docs/ru/steps/README.md](../docs/ru/steps/README.md) | Документация |
-| [docs/screenshots/admin-dark-v28-1-0.png](../docs/screenshots/admin-dark-v28-1-0.png) | Документация |
-| [docs/screenshots/admin-light-v28-1-0.png](../docs/screenshots/admin-light-v28-1-0.png) | Документация |
-| [docs/screenshots/admin-mobile-help-v28-1-0.png](../docs/screenshots/admin-mobile-help-v28-1-0.png) | Документация |
+| [docs/screenshots/admin-dashboard-v28-4-0.png](../docs/screenshots/admin-dashboard-v28-4-0.png) | Документация |
+| [docs/screenshots/admin-login-v28-4-0.png](../docs/screenshots/admin-login-v28-4-0.png) | Документация |
+| [docs/screenshots/admin-mobile-drawer-v28-4-0.png](../docs/screenshots/admin-mobile-drawer-v28-4-0.png) | Документация |
+| [docs/screenshots/admin-mobile-v28-4-0.png](../docs/screenshots/admin-mobile-v28-4-0.png) | Документация |
+| [docs/screenshots/cabinet-overview-v28-4-0.png](../docs/screenshots/cabinet-overview-v28-4-0.png) | Документация |
+| [docs/screenshots/cabinet-plans-v28-4-0.png](../docs/screenshots/cabinet-plans-v28-4-0.png) | Документация |
+| [docs/screenshots/miniapp-light-v28-4-0.png](../docs/screenshots/miniapp-light-v28-4-0.png) | Документация |
 | [docs/uk/DEPLOYMENT.md](../docs/uk/DEPLOYMENT.md) | Документация |
 | [docs/uk/DOCUMENTATION.md](../docs/uk/DOCUMENTATION.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
@@ -843,6 +853,7 @@
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
+| [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_matrix_extension_migrations.py](../tests/test_matrix_extension_migrations.py) | Проверки |
 | [tests/test_matrix_privacy.py](../tests/test_matrix_privacy.py) | Проверки |
