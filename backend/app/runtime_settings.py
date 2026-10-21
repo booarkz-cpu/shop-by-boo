@@ -202,6 +202,8 @@ def _restart_reason(key: str) -> str:
         return "Параметр относится к deployment policy, а не к runtime приложения."
     if key in {"bot_token", "worker_role", "app_env", "admin_email", "admin_password", "payments_sandbox"}:
         return "Параметр определяет идентичность или режим процесса и проверяется до запуска."
+    if key.startswith("fcm_") or key.startswith("apns_"):
+        return "Ключ провайдера push — секрет сервера; меняется через .env и restart worker, не хранится в БД."
     if key == "default_currency":
         return "Смена расчётной валюты требует миграции тарифов и финансовых снимков, затем контролируемого restart."
     return "Параметр инициализируется до обработки запросов и требует контролируемого restart."

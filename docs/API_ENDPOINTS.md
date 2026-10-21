@@ -195,6 +195,7 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/promotions/{item_id}` | Delete Promotion |
 | `PUT` | `/api/admin/promotions/{item_id}` | Update Promotion |
 | `POST` | `/api/admin/provision-node` | Provision Node |
+| `GET` | `/api/admin/push/status` | Admin Push Status |
 | `GET` | `/api/admin/recovery` | Admin Recovery |
 | `GET` | `/api/admin/recovery/operations` | Recovery Operations |
 | `POST` | `/api/admin/recovery/operations/{operation_id}/retry` | Retry Operation |
@@ -398,6 +399,11 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/privacy/export` | Privacy Export |
 | `GET` | `/api/me/profile` | My Profile |
 | `PATCH` | `/api/me/profile` | Update Profile |
+| `GET` | `/api/me/push/devices` | List Devices |
+| `POST` | `/api/me/push/devices` | Register Device |
+| `POST` | `/api/me/push/devices/unregister` | Unregister Device |
+| `DELETE` | `/api/me/push/devices/{device_id}` | Delete Device |
+| `POST` | `/api/me/push/test` | Test Push |
 | `GET` | `/api/me/referral` | My Referral |
 | `POST` | `/api/me/referral/apply` | Apply Referral |
 | `GET` | `/api/me/referral/ledger` | My Referral Ledger |

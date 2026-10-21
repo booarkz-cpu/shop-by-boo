@@ -776,6 +776,43 @@ class Notification(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     read_at: Mapped[datetime|None] = mapped_column(DateTime)
     sent_at: Mapped[datetime|None] = mapped_column(DateTime)
+    # Set when the push worker has created PushDelivery rows (or decided not to).
+    push_fanout_at: Mapped[datetime|None] = mapped_column(DateTime, index=True)
+
+
+class PushDevice(Base):
+    """A mobile app installation that receives native push for one signed-in session."""
+    __tablename__ = "push_devices"
+    __table_args__ = (UniqueConstraint("token_hash", name="uq_push_devices_token_hash"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    session_id: Mapped[int|None] = mapped_column(ForeignKey("user_sessions.id", ondelete="SET NULL"), index=True)
+    platform: Mapped[str] = mapped_column(String(16), nullable=False)
+    provider: Mapped[str] = mapped_column(String(16), nullable=False)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    token_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
+    app_version: Mapped[str|None] = mapped_column(String(32))
+    locale: Mapped[str|None] = mapped_column(String(8))
+    failures: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    revoked_at: Mapped[datetime|None] = mapped_column(DateTime, index=True)
+    revoke_reason: Mapped[str|None] = mapped_column(String(32))
+
+
+class PushDelivery(Base):
+    """Per-device delivery attempt state of one notification."""
+    __tablename__ = "push_deliveries"
+    __table_args__ = (UniqueConstraint("notification_id", "device_id", name="uq_push_deliveries_notification_device"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    notification_id: Mapped[int] = mapped_column(ForeignKey("notifications.id", ondelete="CASCADE"), index=True, nullable=False)
+    device_id: Mapped[int] = mapped_column(ForeignKey("push_devices.id", ondelete="CASCADE"), index=True, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="queued", index=True, nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    next_attempt_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+    last_error: Mapped[str|None] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    sent_at: Mapped[datetime|None] = mapped_column(DateTime)
 
 
 class StatusComponent(Base):

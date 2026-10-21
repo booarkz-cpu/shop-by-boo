@@ -236,6 +236,17 @@ class Settings(BaseSettings):
     smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
     smtp_from: str = Field(default="", alias="SMTP_FROM")
 
+    # ---------- Мобильные push-уведомления ----------
+    # Firebase Cloud Messaging HTTP v1 (Android): service-account JSON or its base64.
+    fcm_project_id: str = Field(default="", alias="FCM_PROJECT_ID")
+    fcm_service_account_json: str = Field(default="", alias="FCM_SERVICE_ACCOUNT_JSON")
+    # Apple Push Notification service (iOS): token-based auth with a .p8 key.
+    apns_key_id: str = Field(default="", alias="APNS_KEY_ID")
+    apns_team_id: str = Field(default="", alias="APNS_TEAM_ID")
+    apns_bundle_id: str = Field(default="shop.remnawave.user", alias="APNS_BUNDLE_ID")
+    apns_private_key: str = Field(default="", alias="APNS_PRIVATE_KEY")
+    apns_environment: str = Field(default="production", alias="APNS_ENVIRONMENT")
+
     # ---------- Безопасность ----------
     firewall_mode: str = Field(default="strict", alias="FIREWALL_MODE")
     require_pinned_images: bool = Field(
