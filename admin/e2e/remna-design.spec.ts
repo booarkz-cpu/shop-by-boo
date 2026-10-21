@@ -132,7 +132,7 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
   await expect(page.getByRole('heading', {name: 'Настройки без перезапуска', level: 2})).toBeVisible();
   const registryCounts = page.locator('.runtime-registry-counts');
   await expect(registryCounts).toContainText('96 live');
-  await expect(registryCounts).toContainText('46 deployment');
+  await expect(registryCounts).toContainText('53 deployment');
   await expect(registryCounts).toContainText('2 workflow');
   await expect(page.getByText('RW доступ')).toBeVisible();
 
@@ -154,4 +154,16 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
   });
   await page.getByRole('button', {name: 'Откатить', exact: true}).click();
   await expect(page.getByText('LIVE CONFIG · VERSION 2', {exact: true})).toBeVisible();
+});
+
+test('notifications section reports native push readiness without leaking tokens', async ({page}) => {
+  await signIn(page);
+  await page.getByRole('button', {name: /Уведомления/}).first().click();
+  const card = page.getByRole('region', {name: 'Push-уведомления'});
+  await expect(card).toBeVisible();
+  await expect(card.getByText('Android · FCM')).toBeVisible();
+  await expect(card.getByText('iOS · APNs')).toBeVisible();
+  await expect(card.getByText('Не настроен').first()).toBeVisible();
+  await expect(card.getByText('Android 0 · iOS 0')).toBeVisible();
+  await expect(card.getByText('За 24 часа отправок не было')).toBeVisible();
 });

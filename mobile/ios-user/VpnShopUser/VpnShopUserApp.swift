@@ -1,9 +1,12 @@
 import CryptoKit
 import Security
 import SwiftUI
+import UIKit
+import UserNotifications
 
 @main
 struct VpnShopUserApp: App {
+    @UIApplicationDelegateAdaptor(PushAppDelegate.self) private var pushDelegate
     var body: some Scene {
         WindowGroup {
             UserRootView()
@@ -207,5 +210,99 @@ enum SessionKeychain {
         guard status == errSecSuccess else {
             throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
         }
+    }
+}
+
+
+// MARK: - Native push (APNs)
+
+enum PushError: Error { case denied }
+
+/// Opt-in APNs registration. The token is bound on the server to the signed-in session and
+/// revoked on sign-out, so a shared iPhone never receives another account's notifications.
+final class PushCenter: ObservableObject {
+    static let shared = PushCenter()
+    static let enabledKey = "push_enabled"
+    static let tokenKey = "push_token"
+    @Published var openNotifications = false
+    @Published private(set) var latestToken: String?
+    private var pending: ((Result<String, Error>) -> Void)?
+
+    var enabled: Bool { UserDefaults.standard.bool(forKey: Self.enabledKey) }
+
+    /// Asks for permission and returns the APNs device token on the main queue.
+    func requestToken(_ completion: @escaping (Result<String, Error>) -> Void) {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            DispatchQueue.main.async {
+                if let error { completion(.failure(error)); return }
+                guard granted else { completion(.failure(PushError.denied)); return }
+                self.pending = completion
+                UIApplication.shared.registerForRemoteNotifications()
+            }
+        }
+    }
+
+    func received(_ deviceToken: Data) {
+        let hex = deviceToken.map { String(format: "%02x", $0) }.joined()
+        latestToken = hex
+        pending?(.success(hex))
+        pending = nil
+    }
+
+    func failed(_ error: Error) {
+        pending?(.failure(error))
+        pending = nil
+    }
+
+    /// Blocking network call; run off the main queue.
+    static func register(base: String, session: String, lang: String, token: String) throws -> [String: Any] {
+        var body: [String: Any] = [
+            "platform": "ios",
+            "token": token,
+            "app_version": String((Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "").prefix(32)),
+            "locale": String(lang.prefix(8)),
+        ]
+        if let previous = UserDefaults.standard.string(forKey: tokenKey), previous != token { body["replaces"] = previous }
+        let response = try ShopClient(base: base, token: session, lang: lang).call("POST", "/api/me/push/devices", body: body) as? [String: Any] ?? [:]
+        UserDefaults.standard.set(token, forKey: tokenKey)
+        UserDefaults.standard.set(true, forKey: enabledKey)
+        return response
+    }
+
+    /// Blocking network call that never throws: revoke on the server, then stop APNs locally.
+    static func unregister(base: String, session: String, lang: String) {
+        let token = UserDefaults.standard.string(forKey: tokenKey)
+        UserDefaults.standard.removeObject(forKey: tokenKey)
+        UserDefaults.standard.set(false, forKey: enabledKey)
+        if let token, !base.isEmpty, !session.isEmpty {
+            _ = try? ShopClient(base: base, token: session, lang: lang).call("POST", "/api/me/push/devices/unregister", body: ["token": token])
+        }
+        DispatchQueue.main.async { UIApplication.shared.unregisterForRemoteNotifications() }
+    }
+}
+
+final class PushAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        // APNs may rotate the token; fetch the current one so the next refresh re-binds it.
+        if PushCenter.shared.enabled { application.registerForRemoteNotifications() }
+        return true
+    }
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        PushCenter.shared.received(deviceToken)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        PushCenter.shared.failed(error)
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .list, .sound])
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        DispatchQueue.main.async { PushCenter.shared.openNotifications = true }
+        completionHandler()
     }
 }

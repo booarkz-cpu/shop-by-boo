@@ -1,8 +1,8 @@
-# Матрица функций и критерии завершения — дистрибутив v28.4.0
+# Матрица функций и критерии завершения — дистрибутив v28.5.0
 
 Этот документ завершает **описание** функциональной матрицы: у каждой открытой области есть владелец проверки, обязательный сценарий и условие, после которого статус можно повысить. Он не подменяет отсутствующую реализацию и не объявляет внешнюю production-проверку выполненной.
 
-Актуальные версии: API `21.5.1`, база магазина `0065_history_import`, Support Pro `0006` / 3.6. Полный перечень реализованных функций и границ находится в [карте покрытия](WORKSPACE_COVERAGE.md), инструкции по функциям — в [общем указателе](../../FUNCTIONS.md).
+Актуальные версии: API `21.5.1`, база магазина `0066_push_notifications`, Support Pro `0006` / 3.6. Полный перечень реализованных функций и границ находится в [карте покрытия](WORKSPACE_COVERAGE.md), инструкции по функциям — в [общем указателе](../../FUNCTIONS.md).
 
 ## Значения статусов
 
@@ -35,7 +35,15 @@
 | MX/SPF/DMARC | Исходящий SMTP и DKIM | Приём почты, очереди, антиспам, DNS-проверки, отчёты и retention | Spoofing, oversized mail, malware path, bounce loop, privacy deletion |
 | Расширенная DNS/ASN/reputation карта | Страны и базовые наблюдения | Источники данных, лицензирование, кэш, оценка свежести и UI анализа | Ошибка источника, устаревание, IPv6, приватные адреса, rate limits |
 | Plugin runtime/hotload | API keys, webhooks и существующие модули | Подписанный пакетный формат, capability sandbox, lifecycle, rollback и совместимость API | Недоверенный plugin, отказ и откат, обновление, изоляция секретов |
-| Native push/widget/multiprofile admin | Native-клиенты и выбор пользовательской подписки | Push enrollment/revocation, Android widget, административный мультипрофиль и UX ошибок | Потерянный token, logout, offline, upgrade, подписанная сборка |
+| Native widget/multiprofile admin | Native-клиенты, выбор пользовательской подписки и push-уведомления (v28.5.0) | Android widget, административный мультипрофиль и UX ошибок | Offline, upgrade, подписанная сборка; доставка push на реальных устройствах |
+
+## Частично закрыто в v28.5.0
+
+| Область | Реализация | Доказательство в исходниках |
+| --- | --- | --- |
+| Native push (из строки «Native push/widget/multiprofile admin») | Реестр устройств с SHA-256 индексом и AES-GCM токеном, привязка к сессии входа, очередь `push_deliveries`, FCM HTTP v1 (OAuth сервисного аккаунта) и APNs (ES256, HTTP/2), повтор с backoff, отзыв при потерянном токене, выходе, смене аккаунта и удалении; opt-in в Android (FCM без google-services) и iOS; состояние в админке | `tests/test_push.py` (SQLite/PostgreSQL): регистрация и повтор, переход токена между аккаунтами, лимит устройств, подписи FCM/APNs, скрытие текста ответа поддержки, UNREGISTERED/410, backoff до отказа, logout без обращения к провайдеру, удалённый аккаунт, отсутствие ключей; `admin/e2e/remna-design.spec.ts`; CI-сборка Android/iOS. [Регламент](PUSH_NOTIFICATIONS_CURRENT.md) |
+
+Виджет Android и административный мультипрофиль остаются в реестре выше. Реальная доставка через Firebase/Apple требует ключей оператора и проверяется на стенде.
 
 ## Закрыто в v28.4.0
 
@@ -48,7 +56,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 144 поля классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
+| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 151 поле классифицировано | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
 
 Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
 

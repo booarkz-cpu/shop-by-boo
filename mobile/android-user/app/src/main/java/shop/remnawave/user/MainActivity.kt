@@ -4,7 +4,9 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
@@ -53,6 +55,7 @@ import java.util.concurrent.Executors
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.concurrent.thread
+import shop.remnawave.user.push.CorgiPush
 
 
 
@@ -99,7 +102,9 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
-        setContent { MaterialTheme(colorScheme = shopColors()) { UserApp() } }
+        // A tapped push opens the notification center (FCM puts the data payload into extras).
+        val initialTab = if (intent?.hasExtra(CorgiPush.EXTRA_TAB) == true || intent?.hasExtra("notification_id") == true) "notifications" else "overview"
+        setContent { MaterialTheme(colorScheme = shopColors()) { UserApp(initialTab) } }
     }
 }
 
@@ -251,7 +256,7 @@ private fun detailOf(payload: String, status: Int): String {
 }
 
 @Composable
-private fun UserApp() {
+private fun UserApp(initialTab: String = "overview") {
     val context = LocalContext.current
     val activity = context as FragmentActivity
     val prefs = remember { context.getSharedPreferences("shop_user", 0) }
@@ -261,7 +266,7 @@ private fun UserApp() {
     var token by remember { mutableStateOf(tokenStore.read()) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var tab by remember { mutableStateOf("overview") }
+    var tab by remember { mutableStateOf(initialTab) }
     var notice by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var dashboard by remember { mutableStateOf(JSONObject()) }
@@ -285,6 +290,7 @@ private fun UserApp() {
     var topupAmount by remember { mutableStateOf("100") }
     var qr by remember { mutableStateOf<ImageBitmap?>(null) }
     var unlocked by remember { mutableStateOf(token.isBlank()) }
+    var pushEnabled by remember { mutableStateOf(CorgiPush.enabled(context)) }
     DisposableEffect(activity) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) unlocked = false
@@ -310,7 +316,10 @@ private fun UserApp() {
         tokenStore.clear()
         token = ""
         unlocked = false
+        pushEnabled = false
         thread {
+            // Revoke the push token while the session is still valid, then end the session.
+            CorgiPush.unregister(context, origin, previous, lang)
             try {
                 if (previous.isNotBlank()) ShopApi(origin, previous, lang).post("/api/auth/logout", JSONObject())
             } catch (_: Exception) {
@@ -329,9 +338,30 @@ private fun UserApp() {
             }
         }
     }
+    fun enablePush() {
+        work {
+            if (!CorgiPush.buildSupportsPush()) throw IllegalStateException(t("push_unavailable"))
+            val response = CorgiPush.register(context, base, token, lang)
+            activity.runOnUiThread {
+                pushEnabled = true
+                notice = if (response.optBoolean("push_available")) t("push_on") else t("push_server_off")
+            }
+        }
+    }
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            enablePush()
+        } else {
+            notice = t("push_denied")
+        }
+    }
     fun refresh() {
         val api = ShopApi(base, token, lang)
         work {
+            // Re-bind the push token to the current session (tokens rotate, sessions are re-issued).
+            if (CorgiPush.enabled(context) && CorgiPush.permissionGranted(context)) {
+                try { CorgiPush.register(context, base, token, lang) } catch (_: Exception) { }
+            }
             val nextDashboard = api.get("/api/me/dashboard") as JSONObject
             val nextProfiles = api.get("/api/me/subscriptions") as JSONArray
             val nextPlans = api.get("/api/plans") as JSONArray
@@ -595,6 +625,34 @@ private fun UserApp() {
                         }) { Text(t("trial")) }
                     }
                     "notifications" -> {
+                        Text(t("push_title"), style = MaterialTheme.typography.titleMedium)
+                        if (!CorgiPush.buildSupportsPush()) Text(t("push_unavailable"), color = Color(0xFFA4AFD0))
+                        else {
+                            Text(if (pushEnabled) t("push_on") else t("push_off"), color = Color(0xFFA4AFD0))
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                if (pushEnabled) {
+                                    TextButton(enabled = !busy, onClick = {
+                                        val session = token
+                                        work {
+                                            CorgiPush.unregister(context, base, session, lang)
+                                            activity.runOnUiThread { pushEnabled = false; notice = t("push_off") }
+                                        }
+                                    }) { Text(t("push_disable")) }
+                                    TextButton(enabled = !busy, onClick = {
+                                        work {
+                                            ShopApi(base, token, lang).post("/api/me/push/test", JSONObject())
+                                            activity.runOnUiThread { notice = t("push_test_sent") }
+                                        }
+                                    }) { Text(t("push_test")) }
+                                } else {
+                                    Button(enabled = !busy, onClick = {
+                                        if (android.os.Build.VERSION.SDK_INT >= 33 && !CorgiPush.permissionGranted(context)) {
+                                            notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                        } else enablePush()
+                                    }) { Text(t("push_enable")) }
+                                }
+                            }
+                        }
                         if (notifications.length() == 0) Text(t("no_notifications"))
                         for (index in 0 until notifications.length()) {
                             val n = notifications.getJSONObject(index)

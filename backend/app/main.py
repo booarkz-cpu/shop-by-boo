@@ -76,6 +76,7 @@ from .cabinet_api import router as cabinet_router
 from .customer_workspace_api import router as customer_workspace_router
 from .customer_profile import router as customer_profile_router
 from .history_import import router as history_import_router, customer_imported_payments
+from .push import router as push_router
 from .subscription_commerce import router as subscription_commerce_router
 from .subscriptions import router as subscriptions_router, reserve_target, check_retry, payment_target, remote_username, owned as owned_subscription
 from .mobile_api import router as mobile_router
@@ -93,6 +94,7 @@ app.include_router(cabinet_router)
 app.include_router(customer_workspace_router)
 app.include_router(customer_profile_router)
 app.include_router(history_import_router)
+app.include_router(push_router)
 app.include_router(subscription_commerce_router)
 app.include_router(subscriptions_router)
 app.include_router(runtime_settings_router)

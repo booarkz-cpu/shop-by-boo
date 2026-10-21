@@ -2,7 +2,7 @@
 
 # VPN Shop by Corgi — Admin Panel
 
-## Remna Dark interface (v28.4.0)
+## Remna Dark interface (v28.4.0+)
 
 Панель — приложение **Next.js 16** (App Router, `output: "export"`): `npm run build` создаёт статический `dist/`, который отдаёт прежний nginx-образ. Весь интерфейс рендерится в браузере (`src/app/page.tsx` подключает `src/main.tsx` без SSR): cookie-сессия, CSRF и WebAuthn работают как раньше. После сборки `../cabinet/scripts/csp-externalize.mjs` переносит inline-скрипты Next.js в `_next/static/csp/`, чтобы CSP `script-src 'self'` оставалась строгой. Браузерные тесты запускаются под той же политикой.
 

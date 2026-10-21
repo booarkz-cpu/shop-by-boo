@@ -79,7 +79,17 @@
     "corgi_user": "VPN Shop by Corgi Lusi",
     "my_subscriptions": "Мои подписки",
     "selected_subscription": "Выбрана",
-    "select_subscription": "Выбрать подписку"
+    "select_subscription": "Выбрать подписку",
+    "push_title": "Push-уведомления",
+    "push_enable": "Включить push",
+    "push_disable": "Выключить push",
+    "push_on": "Push включены на этом устройстве",
+    "push_off": "Push выключены",
+    "push_denied": "Разрешение на уведомления не выдано — включите его в настройках системы",
+    "push_unavailable": "Эта сборка приложения не поддерживает push",
+    "push_server_off": "Магазин ещё не настроил отправку push",
+    "push_test": "Отправить тестовое уведомление",
+    "push_test_sent": "Тестовое уведомление отправлено"
   },
   "en": {
     "app_name": "VPN shop",
@@ -161,7 +171,17 @@
     "corgi_user": "VPN Shop by Corgi Lusi",
     "my_subscriptions": "My subscriptions",
     "selected_subscription": "Selected",
-    "select_subscription": "Select subscription"
+    "select_subscription": "Select subscription",
+    "push_title": "Push notifications",
+    "push_enable": "Enable push",
+    "push_disable": "Disable push",
+    "push_on": "Push is enabled on this device",
+    "push_off": "Push is disabled",
+    "push_denied": "Notification permission was not granted — enable it in system settings",
+    "push_unavailable": "This app build does not support push",
+    "push_server_off": "The shop has not set up push delivery yet",
+    "push_test": "Send a test notification",
+    "push_test_sent": "Test notification sent"
   },
   "uk": {
     "app_name": "VPN Shop by Corgi Lusi",
@@ -243,6 +263,16 @@
     "corgi_user": "VPN Shop by Corgi Lusi",
     "my_subscriptions": "Мої підписки",
     "selected_subscription": "Вибрана",
-    "select_subscription": "Вибрати підписку"
+    "select_subscription": "Вибрати підписку",
+    "push_title": "Push-сповіщення",
+    "push_enable": "Увімкнути push",
+    "push_disable": "Вимкнути push",
+    "push_on": "Push увімкнено на цьому пристрої",
+    "push_off": "Push вимкнено",
+    "push_denied": "Дозвіл на сповіщення не надано — увімкніть його в налаштуваннях системи",
+    "push_unavailable": "Ця збірка застосунку не підтримує push",
+    "push_server_off": "Магазин ще не налаштував надсилання push",
+    "push_test": "Надіслати тестове сповіщення",
+    "push_test_sent": "Тестове сповіщення надіслано"
   }
 }

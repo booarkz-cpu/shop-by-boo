@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0065_history_import",
+  "migration_head": "0066_push_notifications",
   "guides": [
     ".env.example",
     "ADMIN_GUIDE_RU.md",
@@ -70,6 +70,7 @@
     "docs/ru/PAYMENTS_VDS_BEGINNER_2026_09_28.md",
     "docs/ru/PERSONAL_OFFERS_CURRENT.md",
     "docs/ru/PRODUCTION_CURRENT.md",
+    "docs/ru/PUSH_NOTIFICATIONS_CURRENT.md",
     "docs/ru/README.md",
     "docs/ru/REAL_PAYMENTS_FROM_ZERO.md",
     "docs/ru/REFERRALS_CURRENT.md",
@@ -79,6 +80,7 @@
     "docs/ru/RELEASE_V28_1_0.md",
     "docs/ru/RELEASE_V28_2_0.md",
     "docs/ru/RELEASE_V28_4_0.md",
+    "docs/ru/RELEASE_V28_5_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md",
@@ -111,5 +113,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.4.0"
+  "distribution_tag": "v28.5.0"
 }

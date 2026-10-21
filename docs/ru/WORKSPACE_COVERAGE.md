@@ -1,10 +1,10 @@
-> Актуальная инструкция дистрибутива v28.4.0. Runtime/API `21.5.1`, head магазина `0065_history_import`, Support Pro `0006`.
+> Актуальная инструкция дистрибутива v28.5.0. Runtime/API `21.5.1`, head магазина `0066_push_notifications`, Support Pro `0006`.
 
 # Карта функционального покрытия
 
 Для всех открытых строк определены конкретные критерии завершения и минимальная приёмка: [реестр v21.5.1](MATRIX_COMPLETION_21_5_1.md). Статус повышается только после реализации и указанного evidence.
 
-В v28.4.0 production-код очищен от `pass`, `NotImplementedError`, TODO/FIXME и урезанных шаблонов; контракт проверяется `scripts/check-runtime-placeholders.py`. Архитектурно корректные no-op миграции используют явный `return None`, а обработчики отказов журналируют результат вместо молчаливого подавления.
+В v28.5.0 production-код очищен от `pass`, `NotImplementedError`, TODO/FIXME и урезанных шаблонов; контракт проверяется `scripts/check-runtime-placeholders.py`. Архитектурно корректные no-op миграции используют явный `return None`, а обработчики отказов журналируют результат вместо молчаливого подавления.
 
 Проверены актуальные исходники четырёх указанных проектов. Ниже отмечены реально имеющиеся части магазина и незавершённые требования. Это не заявление о полном переносе. Код этих проектов не скопирован: существующая лицензия магазина сохранена. Рекламные ссылки, логотипы и внешнее брендирование этих проектов в интерфейсах не добавляются.
 
@@ -76,10 +76,10 @@
 | Marketplace внешних плагинов/hotload | Частично | Существующие модули, не перенос полного plugin runtime |
 | Массовые операции и импорт users.db другого бота | Есть для профилей/остатков и пяти batch-действий | SQLite mapping/preview, постоянные связи, начальные остатки только новых профилей, атомарный журнал/retry; revoke sessions, disable renew, in-app notice, restrict/restore shop access. Исторические подписки/платежи переносятся отдельным адаптером (строка ниже). [Инструкция](CUSTOMER_OPERATIONS_CURRENT.md) |
 | Перенос истории VPN-подписок и платежей | Есть, внешний E2E нужен | Версионированный адаптер `generic-sqlite-v1`, зашифрованный снимок сверки, контрольные итоги блокируют apply при расхождении, повтор без дублей, конфликт изменённых строк, журнал и защищённый откат; платежи — только история. Произвольные не-SQLite форматы требуют нового адаптера. [Инструкция](HISTORY_IMPORT_CURRENT.md) |
-| 70+ настроек с hot-reload и шифрованием | Есть | 96 typed live-полей, AES-GCM секретов и staged payload, dependency validation, optimistic lock, audit, rollback и сходимость API/worker/bot ≤5 секунд; все 144 поля классифицированы. [Инструкция](RUNTIME_SETTINGS_CURRENT.md) |
+| 70+ настроек с hot-reload и шифрованием | Есть | 96 typed live-полей, AES-GCM секретов и staged payload, dependency validation, optimistic lock, audit, rollback и сходимость API/worker/bot ≤5 секунд; все 151 поле классифицировано. [Инструкция](RUNTIME_SETTINGS_CURRENT.md) |
 | Резервное копирование и восстановление | Есть; внешний restore drill нужен | Административные копии и согласованный зашифрованный CLI bundle двух баз/файлов. [Регламент CLI](BACKUP_CURRENT.md) |
 | Android/iOS клиента и администратора | Сохранены | Палитра в исходниках, новые бинарники ещё не опубликованы |
-| Виджет Android, push, мультипрофиль внешней админки | Нет | Не перенесены в native-приложения |
+| Виджет Android, push, мультипрофиль внешней админки | Частично | Push-уведомления Android/iOS через FCM/APNs: opt-in, привязка к сессии, отзыв при выходе и потере токена, состояние в админке ([регламент](PUSH_NOTIFICATIONS_CURRENT.md)). Виджет Android и мультипрофиль внешней админки не перенесены |
 | Единая стилистика Remna Dark | Есть, внешняя визуальная приёмка нужна | Next.js, общая палитра и компоненты админки, кабинета и Mini App, светлая тема; Chromium-тесты desktop/390 px, клавиатура и отсутствие горизонтальной прокрутки под production CSP. Приёмка на устройствах владельца остаётся внешней |
 
 ## Устранение дублей
@@ -95,7 +95,7 @@
 
 ## Реестр оставшейся работы
 
-Незавершённые области перечислены без скрытых «прочих» пунктов: внешний платёжный/SMTP/VPN E2E; самостоятельные helpdesk/email-каналы; nDPI; защищённый terminal/snippets/shaping; MX/SPF/DMARC; расширенная DNS/ASN/reputation-аналитика; sandboxed plugin runtime; native push/widget/административный мультипрофиль; подписанные мобильные пакеты и визуальная приёмка. Критерии для каждой области: [матрица завершения](MATRIX_COMPLETION_21_5_1.md).
+Незавершённые области перечислены без скрытых «прочих» пунктов: внешний платёжный/SMTP/VPN E2E; самостоятельные helpdesk/email-каналы; nDPI; защищённый terminal/snippets/shaping; MX/SPF/DMARC; расширенная DNS/ASN/reputation-аналитика; sandboxed plugin runtime; Android widget/административный мультипрофиль и проверка доставки push на реальных устройствах; подписанные мобильные пакеты и визуальная приёмка. Критерии для каждой области: [матрица завершения](MATRIX_COMPLETION_21_5_1.md).
 
 ## Проверенные этапы
 
@@ -111,9 +111,9 @@
 
 В v28.3.0 закрыт типизированный hot-reload: реестр покрывает все конфигурационные поля, применяемые значения версионируются и проверяются, секреты шифруются и маскируются, последняя версия откатывается без restart. Deployment и специализированные workflow отделены явно. [Регламент](RUNTIME_SETTINGS_CURRENT.md).
 
-В v28.4.0 закрыт перенос истории подписок и платежей, а админка, кабинет и Mini App переведены на Next.js в дизайне Remna Dark с интеграцией Telegram WebApp SDK. Остальные «частично/нет» не переименованы в «есть». [Заметки выпуска](RELEASE_V28_4_0.md).
+В v28.5.0 добавлены нативные push-уведомления Android/iOS (строка «Native push/widget/multiprofile» — частично: push есть, виджет и мультипрофиль нет). В v28.4.0 закрыт перенос истории подписок и платежей, а админка, кабинет и Mini App переведены на Next.js в дизайне Remna Dark с интеграцией Telegram WebApp SDK. Остальные «частично/нет» не переименованы в «есть». [Заметки выпуска](RELEASE_V28_5_0.md).
 
-## Закрытые изменения дистрибутивов v28.1.0–v28.4.0
+## Закрытые изменения дистрибутивов v28.1.0–v28.5.0
 
 | Область | Реализация | Проверка |
 | --- | --- | --- |
@@ -122,9 +122,10 @@
 | Локальный лимит входа | `runtime_security.reset_login_attempts` после проверки пароля/MFA | Сброс только verified login bucket при отказе Redis |
 | Дистрибутив и публикация | `release_identity.py`, `github_release_fetch.py`, package/publisher | Манифест/commit/SHA, неизменность тега, черновик при ошибке |
 | Объединение аккаунтов | `account_merge.py`, `0063_account_merge`, кабинет безопасности | Две авторизации, self/cycle, rollback, reconciliation, aliases, passkeys, retry и PostgreSQL race |
-| Настройки без перезапуска | `runtime_settings.py`, `0064_runtime_settings`, `runtime-settings.tsx` | 96 live / 46 deployment / 2 workflow, secrets, staged apply, race, rollback, migration roundtrip и UI build |
+| Настройки без перезапуска | `runtime_settings.py`, `0064_runtime_settings`, `runtime-settings.tsx` | 96 live / 53 deployment / 2 workflow, secrets, staged apply, race, rollback, migration roundtrip и UI build |
 | Перенос истории подписок/платежей | `history_import.py`, `0065_history_import`, `history-import.tsx` | SQLite/PostgreSQL: сверка без записи, расхождение итогов, повтор без дублей, конфликт, блокировки, устаревший preview, откат и его отказ; Chromium-сценарий |
 | Next.js и Remna Dark | `admin/src/app`, `admin-shell.tsx`, `dashboard.tsx`, `cabinet/src/app`, `telegram.ts`, `csp-externalize.mjs` | Chromium под production CSP: sidebar/drawer, сетка 2×2/4×1, фильтр и меню, 390 px без прокрутки, Telegram SDK mock (тема, haptics, BackButton/MainButton) |
+| Native push Android/iOS | `push.py`, `0066_push_notifications`, `push/CorgiPush.kt`, `PushCenter` в iOS, `push-status.tsx` | SQLite/PostgreSQL: hash-индекс токена, привязка к сессии, подписи FCM/APNs, backoff, потерянный токен, logout, удалённый аккаунт; Chromium: карточка состояния; CI-сборка Android/iOS |
 | Профиль клиента | `customer_profile.py`, `cabinet/src/profile.tsx` | Нормализация имени, отказ bidi/управляющих символов, ограниченный клиент, Chromium-сценарий |
 
 Эти строки не закрывают неперенесённые продуктовые подсистемы и внешние production gates, перечисленные выше. API остаётся `21.5.1`.
