@@ -27,7 +27,7 @@ def test_v26_customer_dashboard_and_support():
     assert '/api/me/dashboard' in MAIN
     assert '/api/me/support/tickets' in MAIN
     assert 'class SupportTicket' in MODELS
-    assert 'Реферальная программа' in (ROOT/'miniapp/src/main.tsx').read_text()
+    assert 'Реферальная программа' in __import__('frontend_sources').miniapp_sources()
 
 def test_v27_referral_withdrawals():
     assert 'class WithdrawalRequest' in MODELS

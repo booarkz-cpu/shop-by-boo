@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.3.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.4.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -13,11 +13,12 @@ shop-by-boo/
 │   ├── alembic/             миграции PostgreSQL/SQLite
 │   └── requirements*.txt    runtime и test зависимости Python
 ├── bot/                     Telegram bot и worker handlers
-├── admin/                   React/Vite админская панель
-│   ├── src/                 feature-модули и design-system.css
+├── admin/                   Next.js (static export) админская панель
+│   ├── src/app/             App Router: layout и клиентская страница
+│   ├── src/                 feature-модули, admin-shell, dashboard, theme.css
 │   └── e2e/                 Chromium workflows
-├── cabinet/                 React/Vite кабинет пользователя
-├── miniapp/                 Telegram Mini App оболочка кабинета
+├── cabinet/                 Next.js кабинет пользователя и Telegram Mini App (telegram.ts, scripts/csp-externalize.mjs)
+├── miniapp/                 Docker-образ Mini App: сборка кабинета с NEXT_PUBLIC_SURFACE=miniapp
 ├── mobile/                  Android/iOS клиентские и admin исходники
 ├── desktop/                 контракты desktop WireGuard shell
 ├── support-pro/             изолированный сервис поддержки
@@ -64,6 +65,11 @@ shop-by-boo/
 | `docs/ru/ACCOUNT_MERGE_CURRENT.md` | Пользовательский, security и операторский регламент merge |
 | `backend/app/runtime_settings.py` | Полный реестр, проверка зависимостей, шифрование, stage/apply/rollback и polling |
 | `backend/alembic/versions/0064_runtime_settings.py` | Версия и защищённая история runtime-настроек |
+| `backend/app/history_import.py` | Версионированный перенос истории подписок/платежей: сверка, повтор без дублей, откат |
+| `backend/alembic/versions/0065_history_import.py` | Журнал переноса истории, импортированные платежи и связи подписок |
+| `backend/app/customer_profile.py` | Профиль клиента: имя и способы входа |
+| `cabinet/src/telegram.ts` | Обёртка Telegram WebApp SDK: тема, haptics, BackButton/MainButton |
+| `cabinet/scripts/csp-externalize.mjs` | Перенос inline-скриптов Next.js в файлы для строгой CSP |
 | `admin/src/runtime-settings.tsx` | Поиск, группы, preview, история и deployment-классификация |
 | `docs/ru/RUNTIME_SETTINGS_CURRENT.md` | Операторская инструкция live-config |
 | `backend/app/release_identity.py` | Версия дистрибутива независимо от API |

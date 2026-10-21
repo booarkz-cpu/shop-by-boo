@@ -54,6 +54,52 @@ class CustomerImportIdentity(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
+class HistoryImportJob(Base):
+    """Preview/apply/rollback journal of a versioned historical import (subscriptions, payments)."""
+    __tablename__ = "history_import_jobs"
+    id: Mapped[str] = mapped_column(String(48), primary_key=True)
+    namespace: Mapped[str] = mapped_column(String(64))
+    adapter: Mapped[str] = mapped_column(String(48))
+    source_sha256: Mapped[str] = mapped_column(String(64))
+    actor: Mapped[str] = mapped_column(String(320))
+    fingerprint: Mapped[str] = mapped_column(String(64))
+    payload_encrypted: Mapped[str] = mapped_column(Text)
+    control: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(String(16), default="preview")
+    result: Mapped[dict|None] = mapped_column(JSON)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, index=True)
+    applied_at: Mapped[datetime|None] = mapped_column(DateTime)
+    rolled_back_at: Mapped[datetime|None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class ImportedPayment(Base):
+    """Payment from a previous shop. History only: never fulfilled, refunded or counted as revenue."""
+    __tablename__ = "imported_payments"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source_key: Mapped[str] = mapped_column(String(64), unique=True)
+    job_id: Mapped[str] = mapped_column(ForeignKey("history_import_jobs.id", ondelete="RESTRICT"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"), index=True)
+    source_payment_id: Mapped[str] = mapped_column(String(128))
+    amount: Mapped[Decimal] = mapped_column(Numeric(12,2))
+    currency: Mapped[str] = mapped_column(String(3))
+    status: Mapped[str] = mapped_column(String(16))
+    paid_at: Mapped[datetime|None] = mapped_column(DateTime)
+    description: Mapped[str|None] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class ImportedSubscriptionLink(Base):
+    """Source identity and as-imported snapshot of a subscription created by a history import."""
+    __tablename__ = "imported_subscription_links"
+    source_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    job_id: Mapped[str] = mapped_column(ForeignKey("history_import_jobs.id", ondelete="RESTRICT"), index=True)
+    subscription_id: Mapped[int] = mapped_column(ForeignKey("subscriptions.id", ondelete="RESTRICT"), unique=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"), index=True)
+    snapshot: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
 class CustomerBatchOperation(Base):
     __tablename__ = "customer_batch_operations"
     key: Mapped[str] = mapped_column(String(64), primary_key=True)

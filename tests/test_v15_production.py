@@ -39,6 +39,6 @@ class V15ProductionTests(unittest.TestCase):
         self.assertIn("transaction/{payment_id}", pay)
         self.assertIn("api/v1/payments/{payment_id}", pay)
     def test_frontends_cookie_auth(self):
-        for p in (ROOT / "admin/src/main.tsx", ROOT / "miniapp/src/main.tsx"):
+        for p in (ROOT / "admin/src/main.tsx", ROOT / "cabinet/src/main.tsx"):
             s=p.read_text(); self.assertNotIn('localStorage.setItem("user_token"',s); self.assertNotIn('localStorage.setItem("rw_admin_token"',s); self.assertIn('credentials:"include"',s)
 if __name__=='__main__': unittest.main()

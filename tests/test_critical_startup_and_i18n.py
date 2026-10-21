@@ -65,8 +65,9 @@ def test_admin_enterprise_view_compiles_as_jsx_and_keeps_labels():
 
 def test_interfaces_have_russian_and_english_catalogs():
     admin_i18n = (ROOT / "admin/src/i18n.tsx").read_text()
-    mini_i18n = (ROOT / "miniapp/src/i18n.tsx").read_text()
-    mini = (ROOT / "miniapp/src/main.tsx").read_text()
+    from frontend_sources import cabinet_i18n, miniapp_sources
+    mini_i18n = cabinet_i18n()
+    mini = miniapp_sources()
     bot = (ROOT / "backend/app/bot.py").read_text()
     assert "export type Lang = \"ru\" | \"en\"" in admin_i18n
     assert "Sign in" in admin_i18n and "Войти" in admin_i18n

@@ -19,7 +19,8 @@ for marker in ["CSRF validation failed", "TrustedHostMiddleware", "X-Content-Typ
 
 # Frontend regression that previously caused a broken JSX tree.
 cab=(ROOT/"cabinet"/"src"/"main.tsx").read_text(encoding="utf-8")
-if cab.count('option key={p} value={p}') != 1:
+plans=(ROOT/"cabinet"/"src"/"plans.tsx").read_text(encoding="utf-8")
+if plans.count('option key={p} value={p}') != 1:
     errors.append("Cabinet payment-provider option block is malformed or duplicated")
 if "VPN Shop by Corgi" not in cab:
     errors.append("Cabinet brand marker missing")
@@ -27,7 +28,8 @@ if "VPN Shop by Corgi" not in cab:
 admin=(ROOT/"admin"/"src"/"main.tsx").read_text(encoding="utf-8")
 if "navigate={setTab}" not in admin:
     errors.append("Admin dashboard navigation wiring missing")
-if "design-system.css" not in admin:
+layout=(ROOT/"admin"/"src"/"app"/"layout.tsx").read_text(encoding="utf-8")
+if "design-system.css" not in layout or "theme.css" not in layout:
     errors.append("Admin design-system import missing")
 
 if errors:

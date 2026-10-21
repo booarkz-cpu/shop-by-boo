@@ -23,11 +23,6 @@ def _assembled_read_text(self, *args, **kwargs):
         parts = self.resolve().parent / "main_src"
         chunks = [_read_text(path, encoding="utf-8") for path in sorted(parts.glob("part-*"))]
         return "".join(chunks)
-    if self.name == "main.tsx" and '"../../cabinet/src/main"' in text:
-        cabinet = self.resolve().parents[2] / "cabinet" / "src"
-        return text + _read_text(cabinet / "main.tsx", encoding="utf-8") + _read_text(cabinet / "workspace.tsx", encoding="utf-8")
-    if self.name == "i18n.tsx" and '"../../cabinet/src/i18n"' in text:
-        return _read_text(self.resolve().parents[2] / "cabinet/src/i18n.tsx", encoding="utf-8")
     if self.name == "install-vps.sh" and "INSTALLER_ASSEMBLED_FROM_PARTS" in text:
         parts = self.resolve().parent / "install-vps-src"
         chunks = [base64.b64decode(_read_text(path, encoding="utf-8").strip()) for path in sorted(parts.glob("part-*"))]

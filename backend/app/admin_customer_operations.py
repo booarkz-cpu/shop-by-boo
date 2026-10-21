@@ -95,7 +95,8 @@ async def import_cleanup_scheduler():
     while True:
         try:
             async with AsyncSession(engine) as db:
-                await cleanup_import_previews(db);await db.commit()
+                from .history_import import cleanup_history_previews
+                await cleanup_import_previews(db);await cleanup_history_previews(db);await db.commit()
         except Exception as error:logging.getLogger(__name__).warning('Import preview cleanup failed: %s', type(error).__name__)
         await asyncio.sleep(60)
 

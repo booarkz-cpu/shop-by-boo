@@ -46,7 +46,7 @@ def test_install_guide_and_package_checksum():
     assert BUYER_APK in catalog and ADMIN_APK in catalog
     assert 'card["file_sha256"] = digest' in catalog
     assert "def safe_sha256" in catalog
-    cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
+    cabinet = __import__("frontend_sources").cabinet_sources()
     admin = (ROOT / "admin/src/main.tsx").read_text()
     assert "Скачать подписку" in cabinet and "/api/me/subscription-file" in cabinet
     assert "Контрольная сумма" in cabinet and "Контрольная сумма" in admin

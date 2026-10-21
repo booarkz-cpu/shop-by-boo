@@ -48,6 +48,19 @@ app.router.routes.extend(shop.app.router.routes)
 app.dependency_overrides[get_db]=database
 shop.app.dependency_overrides[get_db]=database
 app.add_middleware(shop.SecurityHeadersMiddleware)
+
+# Static panels get the production policy from deploy/Caddyfile so browser tests
+# fail if a frontend build ever needs inline scripts or third-party code.
+PANEL_CSP=("default-src 'self'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; img-src 'self' https: data:; "
+           "connect-src 'self' https:; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'")
+
+
+@app.middleware("http")
+async def panel_content_security_policy(request,call_next):
+    response=await call_next(request)
+    if not request.url.path.startswith(("/api/","/media/")):
+        response.headers["Content-Security-Policy"]=PANEL_CSP
+    return response
 app.mount('/cabinet',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'cabinet/dist'),html=True))
 app.mount('/',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'admin/dist'),html=True))
 

@@ -1,13 +1,9 @@
 {
   "private": true,
+  "name": "miniapp",
+  "description": "Telegram Mini App surface: the customer cabinet built with NEXT_PUBLIC_SURFACE=miniapp.",
   "scripts": {
-    "build": "vite build",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "vite": "7.3.6",
-    "typescript": "5.9.2",
-    "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "build": "npm run build:miniapp --prefix ../cabinet",
+    "typecheck": "npm run typecheck --prefix ../cabinet"
   }
 }

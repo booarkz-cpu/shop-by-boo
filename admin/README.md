@@ -2,27 +2,34 @@
 
 # VPN Shop by Corgi — Admin Panel
 
-## Obsidian/Amber interface (v28.3.0)
+## Remna Dark interface (v28.4.0)
 
-Почти чёрная палитра с оранжевым акцентом, светлая тема, иконки Lucide и адаптивная навигация. Тема и язык выбираются в меню shadcn/Radix; выбор сохраняется в браузере, а `theme_default` сервера применяется при отсутствии сохранённой темы.
+Панель — приложение **Next.js 16** (App Router, `output: "export"`): `npm run build` создаёт статический `dist/`, который отдаёт прежний nginx-образ. Весь интерфейс рендерится в браузере (`src/app/page.tsx` подключает `src/main.tsx` без SSR): cookie-сессия, CSRF и WebAuthn работают как раньше. После сборки `../cabinet/scripts/csp-externalize.mjs` переносит inline-скрипты Next.js в `_next/static/csp/`, чтобы CSP `script-src 'self'` оставалась строгой. Браузерные тесты запускаются под той же политикой.
 
-В `src/components/ui/` находятся `Button`, `DropdownMenu`, `Select` и `Tooltip`; `cn` объединяет Tailwind-классы. Меню и списки поддерживают клавиатуру, возврат фокуса, иконки, выбранное и disabled-состояние. Кнопка поддерживает варианты оформления, спиннер и `aria-busy`.
+Палитра Remna Dark: фон `#090D16`, карточки `#0F172A`, границы slate, ярко-синие основные кнопки с белым текстом, полупрозрачные вторичные. Светлая тема сохранена. Шрифты Inter и JetBrains Mono поставляются из npm-пакетов (без внешних CDN).
 
-`SelectField` сохраняет скрытый нативный элемент и существующие обработчики форм. Видимый элемент — Radix combobox. Значения пустых пунктов кодируются отдельно: контракт API не меняется.
+- `src/admin-shell.tsx` — фиксированный sidebar на ПК со сворачиванием в icon-rail (выбор запоминается), drawer на экранах до 1050 px по кнопке ☰, backdrop, Escape, блокировка прокрутки, командная палитра ⌘K с клавиатурной навигацией, skeleton разделов.
+- `src/dashboard.tsx` — плашка состояния, плитки метрик (2×2 на телефоне, 4×1 на ПК), KPI-полоса, «Обновить» и выпадающее меню «Действия», поиск с лупой и сегментированный фильтр серверов, состояние API/БД/Redis/Remnawave, быстрые действия.
+- `src/components/ui/` — `Button`, `DropdownMenu` (+ `Item`/`Separator`), `Select`, `Tooltip`, `Skeleton`, `Segmented`, `StatusDot`/`StatusBadge`, `SearchInput`; strict TypeScript (`tsconfig.ui.json`).
+- `src/history-import.tsx` — перенос истории подписок и платежей со сверкой и откатом ([регламент](../docs/ru/HISTORY_IMPORT_CURRENT.md)).
 
-`FieldHints` добавляет `aria-description`, `title` и кнопку помощи каждому видимому редактируемому полю. Подсказка RU/EN открывается при фокусе или нажатии, закрывается Escape и выводится в portal с ограничением по границам экрана. `MutationObserver` обрабатывает динамические формы. Для точного текста задайте `data-hint` и `data-hint-en`; значения полей и секреты в подсказки не включаются.
+`SelectField` сохраняет скрытый нативный элемент и существующие обработчики форм. Видимый элемент — Radix combobox.
 
-Раздел **Обслуживание → Настройки без перезапуска** использует отдельный typed-компонент `src/runtime-settings.tsx`. Он показывает 96 live-параметров по группам, источник `.env`/БД, маскированный статус секрета, staged preview, историю и допустимый откат. Поиск работает по названию, ключу, группе и подсказке. Ещё 46 deployment-полей и 2 специализированных workflow доступны в раскрываемом read-only реестре без значений. Запись требует `settings.runtime.write`; подробности — [в операторской инструкции](../docs/ru/RUNTIME_SETTINGS_CURRENT.md).
+`FieldHints` добавляет `aria-description`, `title` и кнопку помощи каждому видимому редактируемому полю. Подсказка RU/EN открывается при фокусе или нажатии, закрывается Escape и выводится в portal с ограничением по границам экрана.
 
-Панель использует React/Vite. `npm run typecheck` проверяет весь существующий код и отдельно новые UI-компоненты в strict-режиме (`tsconfig.ui.json`). Наследуемый код ещё не переведён целиком в strict TypeScript. Браузерные регрессии: `e2e/obsidian-design.spec.ts`, `e2e/preferences-help.spec.ts` и сценарии редакторов.
+Раздел **Обслуживание → Настройки без перезапуска** использует `src/runtime-settings.tsx` ([операторская инструкция](../docs/ru/RUNTIME_SETTINGS_CURRENT.md)).
+
+Команды: `npm run dev` (порт 5173), `npm run typecheck`, `npm run build`, `npm run test:e2e`. Браузерные регрессии: `e2e/remna-design.spec.ts`, `e2e/cabinet-design.spec.ts` (кабинет и Telegram Mini App), `e2e/history-import.spec.ts`, `e2e/preferences-help.spec.ts` и сценарии редакторов. Для e2e кабинет собирается с `NEXT_BASE_PATH=/cabinet`.
 
 ## Проверенный внешний вид
 
 Скриншоты сняты с изолированного браузерного стенда текущего кода, без production-данных:
 
-- [Тёмная тема и список](../docs/screenshots/admin-dark-v28-1-0.png)
-- [Светлая тема](../docs/screenshots/admin-light-v28-1-0.png)
-- [Подсказка на мобильном экране](../docs/screenshots/admin-mobile-help-v28-1-0.png)
+- [Дашборд, ПК](../docs/screenshots/admin-dashboard-v28-4-0.png)
+- [Дашборд, телефон](../docs/screenshots/admin-mobile-v28-4-0.png) и [выдвижное меню](../docs/screenshots/admin-mobile-drawer-v28-4-0.png)
+- [Вход](../docs/screenshots/admin-login-v28-4-0.png)
+- [Кабинет: обзор](../docs/screenshots/cabinet-overview-v28-4-0.png), [тарифы](../docs/screenshots/cabinet-plans-v28-4-0.png)
+- [Mini App в светлой теме Telegram](../docs/screenshots/miniapp-light-v28-4-0.png)
 
 ## Branding
 

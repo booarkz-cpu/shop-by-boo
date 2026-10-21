@@ -1,6 +1,6 @@
-# Каталог API — v28.3.0 / API v21.5.1
+# Каталог API — v28.4.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0064_runtime_settings`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0065_history_import`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -67,6 +67,12 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/corporate-accounts` | Create Corporate |
 | `POST` | `/api/admin/customer-operations/bulk/apply` | Bulk Apply |
 | `POST` | `/api/admin/customer-operations/bulk/preview` | Bulk Preview |
+| `GET` | `/api/admin/customer-operations/history` | History Jobs |
+| `POST` | `/api/admin/customer-operations/history/inspect` | Inspect |
+| `POST` | `/api/admin/customer-operations/history/preview` | Preview |
+| `POST` | `/api/admin/customer-operations/history/{job_id}/apply` | Apply |
+| `POST` | `/api/admin/customer-operations/history/{job_id}/cancel` | Cancel |
+| `POST` | `/api/admin/customer-operations/history/{job_id}/rollback` | Rollback |
 | `GET` | `/api/admin/customer-operations/import/history` | Import History |
 | `POST` | `/api/admin/customer-operations/import/inspect` | Inspect |
 | `POST` | `/api/admin/customer-operations/import/preview` | Import Preview |
@@ -390,6 +396,8 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/me/preferences/language` | Set Language |
 | `DELETE` | `/api/me/privacy/account` | Privacy Delete |
 | `GET` | `/api/me/privacy/export` | Privacy Export |
+| `GET` | `/api/me/profile` | My Profile |
+| `PATCH` | `/api/me/profile` | Update Profile |
 | `GET` | `/api/me/referral` | My Referral |
 | `POST` | `/api/me/referral/apply` | Apply Referral |
 | `GET` | `/api/me/referral/ledger` | My Referral Ledger |
