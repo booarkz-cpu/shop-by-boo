@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.4.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.5.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Production: установка, настройка и эксплуатация v21.5.1
 
@@ -56,7 +56,7 @@ ss -ltnp
 На свежем VDS от root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.4.0/install.sh -o /root/shop-install.sh && BRANCH=v28.4.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.5.0/install.sh -o /root/shop-install.sh && BRANCH=v28.5.0 bash /root/shop-install.sh
 ```
 
 Установщик сам клонирует точный тег, устанавливает зависимости, собирает и запускает сервисы. Ручная распаковка ZIP не нужна. Source-каталог по умолчанию `/opt/vpn-shop-src`, рабочий каталог `/opt/vpn-shop`. Для иных каталогов задайте `SOURCE_DIR` и `APP_DIR` перед `bash`.
@@ -79,7 +79,7 @@ docker compose exec -T backend alembic current
 docker compose exec -T support_db psql -U support -d support -Atc 'SELECT version_num FROM alembic_version'
 ```
 
-Ожидается API `21.5.1`, head магазина `0065_history_import`, Support Pro `0006`. Одноразовые init/migration контейнеры могут завершиться с кодом 0 — это штатно. Постоянные сервисы должны работать; healthcheck смотрите там, где он определён.
+Ожидается API `21.5.1`, head магазина `0066_push_notifications`, Support Pro `0006`. Одноразовые init/migration контейнеры могут завершиться с кодом 0 — это штатно. Постоянные сервисы должны работать; healthcheck смотрите там, где он определён.
 
 С другого устройства проверьте HTTPS админки, кабинета, Mini App и Support Pro. На API:
 
@@ -144,7 +144,7 @@ docker compose up -d --force-recreate backend worker bot
 
 Для новой синхронизации после merge/split обязательны магазинная 0062 и Support Pro 0006. Обновляйте обе стороны вместе, сначала API, затем worker; дождитесь полного обхода старой истории и проверьте очередь объединённого источника. [Подробный регламент](SUPPORT_REMOTE_HISTORY_CURRENT.md).
 
-Объединение **клиентских аккаунтов** — отдельная операция кабинета, не merge обращений поддержки. Оно требует миграцию `0063_account_merge`, подтверждение обоих владельцев и разрешённый conflict preview. Текущий head — `0065_history_import`. После тестового объединения проверьте reconciliation балансов, владельцев подписок/платежей, вход через прежние идентичности и audit. [Полный регламент](ACCOUNT_MERGE_CURRENT.md).
+Объединение **клиентских аккаунтов** — отдельная операция кабинета, не merge обращений поддержки. Оно требует миграцию `0063_account_merge`, подтверждение обоих владельцев и разрешённый conflict preview. Текущий head — `0066_push_notifications`. После тестового объединения проверьте reconciliation балансов, владельцев подписок/платежей, вход через прежние идентичности и audit. [Полный регламент](ACCOUNT_MERGE_CURRENT.md).
 
 ## 12. Резервирование и restore drill
 
@@ -179,13 +179,13 @@ df -h
 
 Логи перед передачей другим людям обезличьте. Не выполняйте `docker compose down -v` или `docker volume prune` на рабочей установке: это может удалить данные.
 
-## 14. Обновление до v28.4.0 (runtime v21.5.1)
+## 14. Обновление до v28.5.0 (runtime v21.5.1)
 
 Сначала проверьте изолированный стенд, создайте полную согласованную копию и сохраните предыдущие исходники/окружение. Затем:
 
 ```bash
 cd /opt/vpn-shop
-# Для v28.4.0 с Support Pro 0006 используйте согласованное обновление.
+# Для v28.5.0 с Support Pro 0006 используйте согласованное обновление.
 # scripts/update.sh не восстанавливает автоматически вторую БД.
 ```
 

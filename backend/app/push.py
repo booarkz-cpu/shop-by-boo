@@ -113,7 +113,7 @@ def _apns_key() -> str:
 
 
 class PushConfigError(RuntimeError):
-    pass
+    """Provider credentials are missing or malformed (never a reason to drop a device)."""
 
 
 # ---------------------------------------------------------------- providers
