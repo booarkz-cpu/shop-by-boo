@@ -50,7 +50,7 @@ def test_distribution_upgrade_preserves_api_version(tmp_path, monkeypatch):
     _, stage, _ = release_fixture(tmp_path, monkeypatch)
     updater.main()
     assert updater.current_version(stage) == "21.5.1"
-    assert updater.current_distribution(stage) == "28.4.0"
+    assert updater.current_distribution(stage) == "28.5.0"
 
 
 @pytest.mark.parametrize("override", [
