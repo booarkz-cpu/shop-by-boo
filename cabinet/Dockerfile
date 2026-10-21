@@ -2,7 +2,8 @@ ARG NODE_BASE_IMAGE=node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b4
 ARG NGINX_BASE_IMAGE=nginx:1.29-alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
 FROM ${NODE_BASE_IMAGE} AS build
 ARG VITE_API_URL=""
-ENV VITE_API_URL=$VITE_API_URL
+ENV NEXT_PUBLIC_API_URL=$VITE_API_URL \
+    NEXT_TELEMETRY_DISABLED=1
 WORKDIR /src
 COPY package*.json ./
 RUN if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fund; else npm install --package-lock=false --ignore-scripts --no-audit --no-fund; fi

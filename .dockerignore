@@ -10,3 +10,6 @@ mobile
 backups
 logs
 *.log
+**/.next
+**/*.tsbuildinfo
+**/test-results

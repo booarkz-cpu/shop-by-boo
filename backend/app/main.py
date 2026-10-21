@@ -74,6 +74,7 @@ logger = logging.getLogger("remnawave")
 app = FastAPI(title="VPN Shop by Corgi Lusi API", version=APP_VERSION, docs_url=None, redoc_url=None, openapi_url=None)
 from .cabinet_api import router as cabinet_router
 from .customer_workspace_api import router as customer_workspace_router
+from .customer_profile import router as customer_profile_router
 from .subscription_commerce import router as subscription_commerce_router
 from .subscriptions import router as subscriptions_router, reserve_target, check_retry, payment_target, remote_username, owned as owned_subscription
 from .mobile_api import router as mobile_router
@@ -89,6 +90,7 @@ from .marketplace_api import router as marketplace_router
 from .runtime_settings import refresh_runtime_settings, router as runtime_settings_router, runtime_settings_scheduler
 app.include_router(cabinet_router)
 app.include_router(customer_workspace_router)
+app.include_router(customer_profile_router)
 app.include_router(subscription_commerce_router)
 app.include_router(subscriptions_router)
 app.include_router(runtime_settings_router)

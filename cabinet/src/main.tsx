@@ -1,9 +1,14 @@
 import {ButtonTree} from "./button-tree";
 import {PersonalOffers} from "./personal-offers";
 import {PublicPages} from "./public-pages";
-import React, {useEffect, useState, useRef} from "react";
-import {createRoot} from "react-dom/client";
-import "./style.css";
+import React, {useEffect, useState, useRef, useCallback} from "react";
+import {Bell, CircleHelp, CreditCard, Gift, Handshake, Home, KeyRound, LayoutGrid, ListChecks, LogOut, Menu, Moon, Server, Smartphone, Sparkles, Sun, Trophy, UserRound, Users, Wallet, X, Zap, Plug, Receipt, FileText} from "lucide-react";
+import {Overview, type Traffic} from "./overview";
+import {Connection} from "./connection";
+import {Plans} from "./plans";
+import {ProfileCard} from "./profile";
+import {Skeleton, StatusBadge} from "./ui";
+import {haptic, initTelegram, isTelegram, openExternal, setClosingGuard, useBackButton, useMainButton} from "./telegram";
 import {SubscriptionProfiles} from "./subscription-profiles";
 import {Surveys} from "./surveys";
 import {Giveaways} from "./giveaways";
@@ -15,8 +20,18 @@ import {AccountMerge} from "./account-merge";
 import type {AccountLink} from "./account-recovery";
 import {DomLocalizer, LangProvider, detectLang, t, useLang} from "./i18n";
 
-const API = import.meta.env.VITE_API_URL || "";
-const MINI_APP = import.meta.env.VITE_SURFACE === "miniapp" || !!(window as any).__SHOP_SURFACE__ || !!(window as any).Telegram?.WebApp;
+const API = process.env.NEXT_PUBLIC_API_URL || "";
+// The same bundle serves the web cabinet and the Telegram Mini App build
+// (NEXT_PUBLIC_SURFACE=miniapp); a real Telegram launch switches surfaces at runtime too.
+const MINI_APP = process.env.NEXT_PUBLIC_SURFACE === "miniapp" || isTelegram();
+const NAV_ICON: Record<string, React.ReactNode> = {
+  overview: <Home aria-hidden="true" />, plans: <Zap aria-hidden="true" />, trial: <Sparkles aria-hidden="true" />, connection: <Plug aria-hidden="true" />,
+  servers: <Server aria-hidden="true" />, devices: <Smartphone aria-hidden="true" />, wallet: <Wallet aria-hidden="true" />, subscription: <LayoutGrid aria-hidden="true" />,
+  payments: <Receipt aria-hidden="true" />, gifts: <Gift aria-hidden="true" />, referral: <Users aria-hidden="true" />, notifications: <Bell aria-hidden="true" />,
+  security: <KeyRound aria-hidden="true" />, surveys: <ListChecks aria-hidden="true" />, giveaways: <Trophy aria-hidden="true" />, support: <CircleHelp aria-hidden="true" />,
+  partner: <Handshake aria-hidden="true" />, custom: <FileText aria-hidden="true" />,
+};
+const BOTTOM_KINDS = ["overview", "plans", "connection", "wallet"];
 
 type MenuKind = "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "custom";
 type MenuItem = {slug: string; title: string; kind: MenuKind; body?: string};
@@ -135,21 +150,22 @@ function serverLabel(status?: string) {
 function ServerList({servers}: {servers: any}) {
   const nodes = servers?.nodes || [];
   return (
-    <div className="plan-list">
+    <div className="plan-list server-list">
       <p className="section-sub">
         {servers?.ok
           ? `Онлайн ${servers.online ?? 0} из ${servers.total ?? 0}`
           : servers?.error || "Corgi VPN недоступен"}
       </p>
       {nodes.map((node: any, index: number) => (
-        <article className="plan-item" key={`${node.name}-${index}`}>
+        <article className="plan-item server-item" key={`${node.name}-${index}`}>
           <div>
             <h3>{node.name}</h3>
             <p className="section-sub" style={{margin: 0}}>
-              {node.country || "—"} · {serverLabel(node.status)}
+              {node.country || "—"}
               {typeof node.users_online === "number" ? ` · ${node.users_online}` : ""}
             </p>
           </div>
+          <StatusBadge tone={node.status === "online" ? "ok" : node.status === "offline" ? "danger" : "idle"}>{serverLabel(node.status)}</StatusBadge>
         </article>
       ))}
       {!nodes.length && <p className="section-sub">Нет узлов</p>}
@@ -240,11 +256,48 @@ function App() {
   const [devices, setDevices] = useState<any[]>([]);
   const [routing, setRouting] = useState<any>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [traffic, setTraffic] = useState<Traffic>(null);
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    try {
+      return localStorage.getItem("rw_cabinet_theme") === "light" ? "light" : "dark";
+    } catch {
+      return "dark";
+    }
+  });
+  const navStack = useRef<string[]>([]);
 
   function flash(text: string, error = false) {
     setMsg(text);
     setMsgError(error);
+    if (text) haptic.notify(error ? "error" : "success");
   }
+  useEffect(() => {
+    if (!msg) return;
+    const timer = setTimeout(() => setMsg(""), msgError ? 7000 : 3500);
+    return () => clearTimeout(timer);
+  }, [msg, msgError]);
+  useEffect(() => initTelegram(), []);
+  useEffect(() => {
+    // Telegram dictates the scheme inside the Mini App; the web cabinet keeps the user's choice.
+    if (isTelegram()) return;
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem("rw_cabinet_theme", theme);
+    } catch {
+      /* private mode */
+    }
+  }, [theme]);
+  const go = useCallback((slug: string) => {
+    setTab((prev) => {
+      if (prev !== slug) {
+        navStack.current.push(prev);
+        haptic.select();
+      }
+      return slug;
+    });
+    setDrawerOpen(false);
+    window.scrollTo({top: 0});
+  }, []);
 
   useEffect(()=>{const change=()=>setTab(location.hash.slice(1)||"overview");window.addEventListener("hashchange",change);return()=>window.removeEventListener("hashchange",change)},[]);
   useEffect(()=>{if(menu.some(m=>m.slug===tab))history.replaceState(null,"",`#${tab}`)},[tab,menu]);
@@ -324,7 +377,7 @@ function App() {
     setDash(dashboard);
     setPlans(Array.isArray(planList) ? planList : []);
     setAuthed(true);
-    await Promise.all([loadConstructors(), loadServers(true), (async()=>{try{setDevices(await req("/api/me/devices"))}catch{setDevices([])}})(), (async()=>{try{setRouting(await req("/api/me/routing/recommendation"))}catch{setRouting(null)}})()]);
+    await Promise.all([loadConstructors(), loadServers(true), (async()=>{try{setTraffic(await req("/api/me/traffic"))}catch{setTraffic(null)}})(), (async()=>{try{setDevices(await req("/api/me/devices"))}catch{setDevices([])}})(), (async()=>{try{setRouting(await req("/api/me/routing/recommendation"))}catch{setRouting(null)}})()]);
     try {
       const info = await req("/api/me/connection-info");
       setConnection(info);
@@ -423,6 +476,7 @@ function App() {
   async function buySelection(body: Record<string, unknown>, wallet: boolean, gift = false) {
     if(purchaseLocked.current)return;
     purchaseLocked.current=true;
+    setClosingGuard(true);
     const selected=profileTarget==="current"?dash?.subscription?.id:profileTarget==="new"?undefined:Number(profileTarget);
     if(!gift)body={...body,...(profileTarget==="new"?{new_subscription:true}:selected?{subscription_id:selected}:{})};
     const partner=new URLSearchParams(location.search).get("partner");
@@ -454,7 +508,8 @@ function App() {
         if (r.url) {
           const target=new URL(r.url,location.origin);
           if(target.protocol!=="https:"&&target.origin!==location.origin)throw Error("Некорректная ссылка оплаты");
-          location.href=target.href;
+          // Inside Telegram the payment page opens in the in-app browser so the Mini App keeps its state.
+          if(isTelegram()&&target.origin!==location.origin)openExternal(target.href);else location.href=target.href;
         }
         else {
           flash(t("Платёж создан"));
@@ -466,6 +521,7 @@ function App() {
       flash(err.message || t("Ошибка"), true);
     } finally {
       purchaseLocked.current=false;
+      setClosingGuard(false);
       setBusy(false);
     }
   }
@@ -559,43 +615,85 @@ function App() {
     else if(button.type==="field")document.getElementById(`field-${button.field_key}`)?.scrollIntoView({behavior:"smooth"});
   }
 
+  const homeSlug = (menu.find((m) => m.kind === "overview") || menu[0])?.slug || "overview";
+  const slugOf = (kind: string) => menu.find((m) => m.kind === kind)?.slug || kind;
+  const goKind = (kind: string) => go(slugOf(kind));
+  const back = () => {
+    const previous = navStack.current.pop();
+    setTab(previous && menu.some((m) => m.slug === previous) ? previous : homeSlug);
+  };
+  useBackButton(MINI_APP && authed && tab !== homeSlug, back);
+  const mainAction: [string, () => void] | null =
+    !MINI_APP || !authed || !activeItem
+      ? null
+      : activeItem.kind === "overview"
+        ? sub
+          ? ["Продлить подписку", () => goKind("plans")]
+          : ["Выбрать тариф", () => goKind("plans")]
+        : activeItem.kind === "connection" && subUrl
+          ? ["Копировать ссылку", () => copyLink(subUrl)]
+          : null;
+  useMainButton(mainAction?.[0] ?? null, () => mainAction?.[1](), busy);
+
   if(tab==="pages"||tab.startsWith("page/"))return <DomLocalizer><PublicPages request={req} route={tab} locale={lang}/></DomLocalizer>;
 
   if (booting) {
     return (
       <DomLocalizer>
-        <div className="loading">Загрузка…</div>
+        <div className="boot" role="status" aria-label="Загрузка…">
+          <div className="boot-bar"><Skeleton className="sk-brand" /><Skeleton className="sk-pill" /></div>
+          <div className="boot-body">
+            <Skeleton className="sk-hero" />
+            <div className="boot-tiles"><Skeleton className="sk-tile" /><Skeleton className="sk-tile" /><Skeleton className="sk-tile" /></div>
+            <Skeleton className="sk-card" />
+          </div>
+        </div>
       </DomLocalizer>
     );
   }
 
+  const bottomItems = BOTTOM_KINDS.map((kind) => menu.find((m) => m.kind === kind)).filter(Boolean) as MenuItem[];
+  const userName = dash?.user?.username || dash?.user?.email || brand;
+
   return (
     <DomLocalizer>
-      <div className={`app-shell user-shell ${authed ? "is-authenticated" : ""}`}>
-        <div className="topbar">
+      <div className={`app-shell user-shell ${authed ? "is-authenticated" : ""} ${MINI_APP ? "is-miniapp" : ""}`}>
+        <header className="topbar">
+          {authed && (
+            <button type="button" className="drawer-toggle icon-btn" aria-label="Открыть меню" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)}>
+              <Menu aria-hidden="true" />
+            </button>
+          )}
           <div className="brand-mark">
             {clientLogo ? <img className="brand-logo" src={API + clientLogo} alt="" /> : <span className="orb" aria-hidden />}
             <span>{brand}</span>
           </div>
-          <div className="btn-row">
-            <button type="button" className="drawer-toggle btn-ghost" aria-label="Открыть меню" onClick={() => setDrawerOpen(true)}>☰</button>
-            <button type="button" className="btn-ghost" onClick={() => setLang(lang === "ru" ? "en" : "ru")}>
+          <div className="btn-row topbar-actions">
+            {!isTelegram() && (
+              <button type="button" className="icon-btn" aria-label="Сменить тему" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+              </button>
+            )}
+            <button type="button" className="icon-btn lang-btn" aria-label="Сменить язык" onClick={() => setLang(lang === "ru" ? "en" : "ru")}>
               {lang === "ru" ? "EN" : "RU"}
             </button>
-            {authed && (
-              <button type="button" className="btn-ghost" onClick={logout}>
-                Выйти
+            {authed && !MINI_APP && (
+              <button type="button" className="icon-btn topbar-logout" aria-label="Выйти" title="Выйти" onClick={logout}>
+                <LogOut aria-hidden="true" />
               </button>
             )}
           </div>
-        </div>
-
-        <header className="hero" style={MINI_APP&&mediaUrl(m.background_image)?{backgroundImage:`url(${mediaUrl(m.background_image)})`,backgroundSize:"cover"}:undefined}>
-          <h1>{MINI_APP&&m.title?m.title:brand}</h1>
-          <p>{authed ? "Управляйте подпиской, тарифами и подключением" : "Безопасный доступ к сети"}</p>
         </header>
-        <AppsNotice apps={shopApps} lang={lang} />
-        {MINI_APP&&(m.image||m.instructions||(m.buttons||[]).length>0)&&<section className="miniapp-extras form-card">
+
+        {!authed && (
+          <header className="hero" style={MINI_APP&&mediaUrl(m.background_image)?{backgroundImage:`url(${mediaUrl(m.background_image)})`,backgroundSize:"cover"}:undefined}>
+            <span className="eyebrow">Личный кабинет</span>
+            <h1>{MINI_APP&&m.title?m.title:brand}</h1>
+            <p>Безопасный доступ к сети</p>
+          </header>
+        )}
+        {!authed && <AppsNotice apps={shopApps} lang={lang} />}
+        {MINI_APP&&(m.image||m.instructions||(m.buttons||[]).length>0)&&(!authed||activeItem?.kind==="overview")&&<section className="miniapp-extras form-card">
           {mediaUrl(m.image)&&<img src={mediaUrl(m.image)} alt="" className="miniapp-banner"/>}
           {m.subtitle&&<h2>{m.subtitle}</h2>}{m.instructions&&<p>{m.instructions}</p>}
           <ButtonTree buttons={m.buttons||[]} run={runButton} request={req} assetBase={API}/>
@@ -605,11 +703,11 @@ function App() {
         {accountFlow ? <AccountRecovery link={accountFlow} request={req} onClose={reset=>{setAccountFlow(null);if(reset)setAuthed(false)}}/> : !authed ? (
           <section className="auth-layout">
             <div className="form-card">
-              <div className="auth-switch">
-                <button type="button" className={`tab ${authMode === "login" ? "active" : ""}`} onClick={() => setAuthMode("login")}>
+              <div className="auth-switch" role="tablist">
+                <button type="button" role="tab" aria-selected={authMode === "login"} className={`tab ${authMode === "login" ? "active" : ""}`} onClick={() => setAuthMode("login")}>
                   Вход
                 </button>
-                <button type="button" className={`tab ${authMode === "register" ? "active" : ""}`} onClick={() => setAuthMode("register")}>
+                <button type="button" role="tab" aria-selected={authMode === "register"} className={`tab ${authMode === "register" ? "active" : ""}`} onClick={() => setAuthMode("register")}>
                   Регистрация
                 </button>
               </div>
@@ -654,13 +752,8 @@ function App() {
                   {authMode === "login" ? "Войти" : "Создать аккаунт"}
                 </button>
               </form>
-              {authMode==="login"&&<><button type="button" className="btn-ghost" disabled={busy} onClick={async()=>{setBusy(true);try{await loginWithPasskey(req);await loadSession()}catch(e:any){flash(e.message)}finally{setBusy(false)}}}>Войти с ключом доступа</button><button type="button" className="btn-ghost" onClick={()=>setAccountFlow({kind:"request",token:""})}>Забыли пароль?</button></>}
-              <button
-                type="button"
-                className="btn-soft"
-                style={{marginTop: 12, width: "100%"}}
-                onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
-              >
+              {authMode==="login"&&<div className="auth-links"><button type="button" className="btn-ghost" disabled={busy} onClick={async()=>{setBusy(true);try{await loginWithPasskey(req);await loadSession()}catch(e:any){flash(e.message)}finally{setBusy(false)}}}><KeyRound aria-hidden="true"/>Войти с ключом доступа</button><button type="button" className="btn-link" onClick={()=>setAccountFlow({kind:"request",token:""})}>Забыли пароль?</button></div>}
+              <button type="button" className="btn-soft auth-toggle" onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}>
                 {authMode === "login" ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти"}
               </button>
             </div>
@@ -689,305 +782,155 @@ function App() {
             </div>
           </section>
         ) : (
-          <>
-            <div className="user-layout">
-              <div className={`drawer-backdrop ${drawerOpen ? "open" : ""}`} onClick={() => setDrawerOpen(false)} aria-hidden="true" />
-              <aside className={`user-sidebar ${drawerOpen ? "drawer-open" : ""}`} aria-label="Навигация кабинета">
-                <div className="sidebar-heading">
+          <div className="user-layout">
+            <div className={`drawer-backdrop ${drawerOpen ? "open" : ""}`} onClick={() => setDrawerOpen(false)} aria-hidden="true" />
+            <aside className={`user-sidebar ${drawerOpen ? "drawer-open" : ""}`} aria-label="Навигация кабинета">
+              <div className="sidebar-heading">
+                <span className="profile-avatar" aria-hidden="true">{String(userName).slice(0, 1).toUpperCase()}</span>
+                <div>
                   <span className="sidebar-kicker">ЛИЧНЫЙ КАБИНЕТ</span>
-                  <strong>{dash?.user?.username || brand}</strong>
+                  <strong>{userName}</strong>
                   <span>{dash?.user?.email || "Ваш аккаунт"}</span>
                 </div>
-                <nav className="side-nav">
-                  {menu.map((item) => (
-                    <button
-                      key={item.slug}
-                      type="button"
-                      className={`side-nav-item ${tab === item.slug ? "active" : ""}`}
-                      onClick={() => { setTab(item.slug); setDrawerOpen(false); }}
-                    >
-                      <span className="side-nav-icon" aria-hidden>
-                        {item.kind === "plans" ? "₽" : item.kind === "connection" ? "⌁" : item.kind === "support" ? "?" : item.kind === "servers" ? "◉" : "◆"}
-                      </span>
-                      <span>{item.title}</span>
-                    </button>
-                  ))}
-                </nav>
-                <div className="sidebar-status">
-                  <span className="status-pulse" />
-                  <span>Ваш личный кабинет</span>
-                </div>
-              </aside>
-
-              <div className="user-main">
-                <div className="mobile-tabs" aria-label="Разделы кабинета">
-                  {menu.map((item) => (
-                    <button
-                      key={item.slug}
-                      type="button"
-                      className={`tab ${tab === item.slug ? "active" : ""}`}
-                      onClick={() => setTab(item.slug)}
-                    >
-                      {item.title}
-                    </button>
-                  ))}
-                </div>
-
-            <section className="panel">
-              {activeItem?.kind === "overview" && (
-                <>
-                  <h2 className="section-title">Обзор</h2>
-                  <p className="section-sub">Подписка и балансы вашего аккаунта</p>
-                  <div className="metrics">
-                    <div className="metric">
-                      <span className="label">Подписка</span>
-                      <span className={`value ${sub?.expires_at ? "ok" : "warn"}`}>
-                        {sub?.expires_at ? "Активна" : "Неактивна"}
-                      </span>
-                    </div>
-                    <div className="metric">
-                      <span className="label">Истекает</span>
-                      <span className="value">{sub?.expires_at ? formatDate(sub.expires_at) : "Нет активной подписки"}</span>
-                    </div>
-                    <div className="metric">
-                      <span className="label">Кошелёк</span>
-                      <span className="value">{dash?.user?.wallet_balance || "0.00"} {currency}</span>
-                    </div>
-                  </div>
-                  <div className="metrics">
-                    <div className="metric">
-                      <span className="label">Реферальный баланс</span>
-                      <span className="value">{dash?.user?.referral_balance || "0.00"} {currency}</span>
-                    </div>
-                    <div className="metric">
-                      <span className="label">Статус</span>
-                      <span className="value">{sub?.expires_at ? `Активна до ${formatDate(sub.expires_at)}` : "Нет активной подписки"}</span>
-                    </div>
-                    <div className="metric">
-                      <span className="label">Код</span>
-                      <span className="value">{dash?.user?.referral_code || "—"}</span>
-                    </div>
-                  </div>
-                  {subUrl&&<img className="connection-qr" src={API+"/api/me/connection-qr"} alt="QR-код вашей подписки"/>}
-                  <h3 className="section-title" style={{marginTop: 22, fontSize: "1.1rem"}}>Серверы</h3>
-                  <ServerList servers={servers} />
-                </>
-              )}
-
-              {activeItem?.kind === "plans" && <PersonalOffers request={req} onSelect={setPromo}/>}
-              {activeItem?.kind === "plans" && (
-                <>
-                  <h2 className="section-title">Тарифы</h2>
-                  <p className="section-sub">Выберите тариф и способ оплаты</p>
-                  <label className="field">Для какой подписки<select value={profileTarget} disabled={busy} onChange={e=>setProfileTarget(e.target.value)}><option value="current">Продлить выбранную подписку</option><option value="new">Новая независимая подписка</option>{profiles.map(p=><option key={p.id} value={p.id}>{p.name} · {p.plan||`№${p.id}`}</option>)}</select></label>
-                  <div className="form-card stack" style={{marginBottom: 14}}>
-                    <label className="field">
-                      Промокод
-                      <input value={promo} onChange={(e) => setPromo(e.target.value.toUpperCase())} placeholder="Промокод" />
-                    </label>
-                    {(cfg.payment_providers || []).length > 0 && (
-                      <label className="field">
-                        Провайдер оплаты
-                        <select value={provider} onChange={(e) => setProvider(e.target.value)}>
-                          {(cfg.payment_providers || []).map((p: string) => (
-                            <option key={p} value={p}>
-                              {p}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    )}
-                  </div>
-                  <div className="plan-list">
-                    {plans.map((p) => (
-                      <article className="plan-item" key={p.id}>
-                        <div>
-                          <h3>{p.name}</h3>
-                          <p className="price">
-                            {p.final_price ?? p.price} {currency} · {p.duration_days} дней
-                          </p>
-                        </div>
-                        <div className="btn-row">
-                          <button type="button" className="btn-primary" disabled={busy || !provider} onClick={() => buy(p)}>
-                            Оплатить
-                          </button>
-                          <button type="button" className="btn-ghost" disabled={busy} onClick={() => buyWallet(p)}>
-                            С баланса
-                          </button>
-                        </div>
-                      </article>
-                    ))}
-                    {!plans.length && <p className="section-sub">Выберите тариф</p>}
-                  </div>
-                  {!!constructors.length&&<h3 className="section-title">Конструктор тарифов</h3>}
-                  {constructors.map((row) => {
-                    const selected = pick[row.id] || defaultPick(row);
-                    const total = constructorTotal(row, selected);
-                    return (
-                      <article className="form-card stack" key={row.id} style={{marginTop: 14}}>
-                        <h3>{row.name}</h3>
-                        <p className="section-sub">{row.description || "Соберите тариф: устройства, трафик и срок"}</p>
-                        {(["devices", "traffic_gb", "days"] as const).map((kind) => (
-                          <label className="field" key={kind}>
-                            {kind === "devices" ? "Устройства" : kind === "traffic_gb" ? "Трафик" : "Срок"}
-                            <select
-                              value={selected[kind] || ""}
-                              onChange={(e) =>
-                                setPick((prev) => ({
-                                  ...prev,
-                                  [row.id]: {...(prev[row.id] || defaultPick(row)), [kind]: Number(e.target.value)},
-                                }))
-                              }
-                            >
-                              {(row.options || [])
-                                .filter((o: any) => o.kind === kind)
-                                .map((o: any) => (
-                                  <option key={o.id} value={o.id}>
-                                    {o.label} · {o.value === 0 && kind === "traffic_gb" ? "Безлимит" : o.value}
-                                    {Number(o.price) ? ` · +${o.price}` : ""}
-                                  </option>
-                                ))}
-                            </select>
-                          </label>
-                        ))}
-                        <p className="price">
-                          {total} {currency}
-                        </p>
-                        <div className="btn-row">
-                          <button type="button" className="btn-primary" disabled={busy || !provider} onClick={() => buyConstructor(row, false)}>
-                            Оплатить
-                          </button>
-                          <button type="button" className="btn-ghost" disabled={busy} onClick={() => buyConstructor(row, true)}>
-                            С баланса
-                          </button>
-                          <button type="button" className="btn-ghost" disabled={busy} onClick={() => buyConstructor(row, true, true)}>Купить в подарок с баланса</button>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </>
-              )}
-
-              {activeItem?.kind === "trial" && (
-                <>
-                  <h2 className="section-title">Пробный период</h2>
-                  <p className="section-sub">
-                    Пробный период · {cfg.trial_days || 3} дней
-                  </p>
-                  <div className="plan-list">
-                    {plans.map((p) => (
-                      <article className="plan-item" key={p.id}>
-                        <div>
-                          <h3>{p.name}</h3>
-                          <p className="section-sub" style={{margin: 0}}>
-                            {cfg.trial_days || 3} дней бесплатно
-                          </p>
-                        </div>
-                        <button type="button" className="btn-primary" disabled={busy} onClick={() => claimTrial(p.id)}>
-                          Активировать пробный период
-                        </button>
-                      </article>
-                    ))}
-                    {!plans.length && <p className="section-sub">Выберите тариф для пробного периода</p>}
-                  </div>
-                </>
-              )}
-
-              {activeItem?.kind === "connection" && (
-                <>
-                  <h2 className="section-title">Подключение</h2>
-                  <p className="section-sub">Ссылка подписки и инструкции по устройствам</p>
-                  {subUrl ? (
-                    <div className="form-card stack">
-                      <label className="field">
-                        Ссылка подписки
-                        <div className="link-box">
-                          <input readOnly value={subUrl} />
-                          <button type="button" className="btn-primary" onClick={() => copyLink(subUrl)}>
-                            {copied ? "Скопировано" : "Копировать ссылку"}
-                          </button>
-                          <a className="btn-primary" href={API + "/api/me/subscription-file"}>Скачать подписку</a>
-                        </div>
-                      </label>
-                    </div>
-                  ) : (
-                    <p className="section-sub">Ссылка подписки пока недоступна</p>
-                  )}
-                  {subUrl&&<img className="connection-qr" src={API+"/api/me/connection-qr"} alt="QR-код вашей подписки"/>}
-                  <h3 className="section-title" style={{marginTop: 22, fontSize: "1.1rem"}}>
-                    Инструкции по устройствам
-                  </h3>
-                  <div className="platform-grid">
-                    {(platformKeys.length ? platformKeys : PLATFORM_ORDER).map((key) => (
-                      <button
-                        key={key}
-                        type="button"
-                        className={`platform-chip ${platform === key ? "active" : ""}`}
-                        onClick={() => setPlatform(key)}
-                      >
-                        {PLATFORM_LABELS[key] || key}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="platform-guide">{guideText || apiGuide}</div>
-                </>
-              )}
-
-              {activeItem?.kind === "devices" && (
-                <>
-                  <h2 className="section-title">Мои устройства</h2>
-                  <p className="section-sub">Управляйте устройствами, которым разрешён доступ к VPN.</p>
-                  <div className="plan-list">
-                    <p className="section-sub">Устройства выбранной подписки. Выбрать другой профиль можно в «Моей подписке».</p>
-                    {devices.map((device:any)=><article className="plan-item" key={device.id}><div><h3>{device.name}</h3><p className="section-sub">{device.platform || "unknown"} · {device.last_seen_at ? formatDate(device.last_seen_at) : "ещё не подключалось"}</p></div><span className={`status ${device.status === "active" ? "ok" : "warn"}`}>{device.status === "active" ? "Активно" : device.status}</span></article>)}
-                    {!devices.length && <p className="section-sub">Устройства появятся после первого подключения.</p>}
-                  </div>
-                  <div className="form-card stack" style={{marginTop:14}}>
-                    <h3>Рекомендованный сервер</h3>
-                    <p className="section-sub">Smart Routing выбирает доступную ноду по здоровью и нагрузке.</p>
-                    {routing?.recommendation ? <div className="plan-item"><div><h3>{routing.recommendation.name}</h3><p className="section-sub">{routing.recommendation.country || "—"} · нагрузка {routing.recommendation.load}%</p></div><span className="status ok">Рекомендуется</span></div> : <p className="section-sub">Рекомендация пока недоступна.</p>}
-                  </div>
-                </>
-              )}
-
-              {activeItem?.kind === "servers" && (
-                <>
-                  <h2 className="section-title">Серверы</h2>
-                  <p className="section-sub">Статус узлов без адресов и служебных данных</p>
-                  <ServerList servers={servers} />
-                </>
-              )}
-
-              {["wallet","payments","gifts","referral","subscription","security","notifications","support"].includes(activeItem?.kind||"") && <>
-                <h2 className="section-title">{activeItem.title}</h2>
-                {activeItem.kind==="partner"&&<PartnerPortal request={req}/>}
-                {activeItem.kind==="security"&&<><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><CustomerPasskeys req={req}/><AccountMerge request={req} onMerged={loadSession}/></>}
-                {activeItem.kind==="subscription"&&<SubscriptionProfiles profiles={profiles} request={req} reload={loadSession}/>}
-                <Workspace key={activeItem.kind+":"+(sub?.id||"none")} kind={activeItem.kind} request={req} reload={loadSession} plans={plans} provider={provider} botUsername={cfg.bot_username||""} providers={(cfg.payment_providers||[]).filter((p:string)=>["yookassa","rollypay","platega","sandbox"].includes(p))} currency={currency} api={API}/>
-              </>}
-
-              {activeItem?.kind === "surveys" && <Surveys request={req} reload={loadSession}/>}
-              {activeItem?.kind === "giveaways" && <Giveaways request={req} reload={loadSession}/>}
-              {activeItem?.kind === "custom" && (
-                <>
-                  <h2 className="section-title">{activeItem.title || "Пользовательский раздел"}</h2>
-                  <div className="custom-body" style={{whiteSpace: "pre-wrap"}}>{activeItem.body || ""}</div>
-                </>
-              )}
-            </section>
+                <button type="button" className="icon-btn drawer-close" aria-label="Закрыть меню" onClick={() => setDrawerOpen(false)}>
+                  <X aria-hidden="true" />
+                </button>
               </div>
-            </div>
-          </>
+              <nav className="side-nav" aria-label="Разделы кабинета">
+                {menu.map((item) => (
+                  <button
+                    key={item.slug}
+                    type="button"
+                    aria-current={tab === item.slug ? "page" : undefined}
+                    className={`side-nav-item ${tab === item.slug ? "active" : ""}`}
+                    onClick={() => go(item.slug)}
+                  >
+                    <span className="side-nav-icon" aria-hidden>{NAV_ICON[item.kind] || NAV_ICON.custom}</span>
+                    <span>{item.title}</span>
+                  </button>
+                ))}
+              </nav>
+              <div className="sidebar-status">
+                <span className="status-pulse" />
+                <span>Ваш личный кабинет</span>
+                <button type="button" className="btn-link" onClick={logout}>Выйти</button>
+              </div>
+            </aside>
+
+            <main className="user-main">
+              <section className="panel" key={tab}>
+                {activeItem?.kind === "overview" && (
+                  <>
+                    <Overview sub={sub} user={dash?.user} traffic={traffic} subUrl={subUrl} currency={currency} api={API} copied={copied} onCopy={copyLink} go={goKind} formatDate={formatDate} />
+                    <h3 className="section-title section-title-sm">Серверы</h3>
+                    <ServerList servers={servers} />
+                    <AppsNotice apps={shopApps} lang={lang} />
+                  </>
+                )}
+
+                {activeItem?.kind === "plans" && (
+                  <Plans plans={plans} constructors={constructors} pick={pick} setPick={setPick} defaultPick={defaultPick} constructorTotal={constructorTotal} promo={promo} setPromo={setPromo} providers={cfg.payment_providers || []} provider={provider} setProvider={setProvider} profiles={profiles} profileTarget={profileTarget} setProfileTarget={setProfileTarget} busy={busy} currency={currency} buy={buy} buyWallet={buyWallet} buyConstructor={buyConstructor} offers={<PersonalOffers request={req} onSelect={setPromo}/>} />
+                )}
+
+                {activeItem?.kind === "trial" && (
+                  <>
+                    <h2 className="section-title">Пробный период</h2>
+                    <p className="section-sub">
+                      Пробный период · {cfg.trial_days || 3} дней
+                    </p>
+                    <div className="plan-list">
+                      {plans.map((p) => (
+                        <article className="plan-item" key={p.id}>
+                          <div>
+                            <h3>{p.name}</h3>
+                            <p className="section-sub" style={{margin: 0}}>
+                              {cfg.trial_days || 3} дней бесплатно
+                            </p>
+                          </div>
+                          <button type="button" className="btn-primary" disabled={busy} onClick={() => claimTrial(p.id)}>
+                            Активировать пробный период
+                          </button>
+                        </article>
+                      ))}
+                      {!plans.length && <p className="section-sub">Выберите тариф для пробного периода</p>}
+                    </div>
+                  </>
+                )}
+
+                {activeItem?.kind === "connection" && (
+                  <Connection subUrl={subUrl} api={API} copied={copied} onCopy={copyLink} platform={platform} platformKeys={platformKeys.length ? platformKeys : PLATFORM_ORDER} labels={PLATFORM_LABELS} onPlatform={setPlatform} guideText={guideText || apiGuide} goPlans={() => goKind("plans")} />
+                )}
+
+                {activeItem?.kind === "devices" && (
+                  <>
+                    <h2 className="section-title">Мои устройства</h2>
+                    <p className="section-sub">Управляйте устройствами, которым разрешён доступ к VPN.</p>
+                    <div className="plan-list">
+                      <p className="section-sub">Устройства выбранной подписки. Выбрать другой профиль можно в «Моей подписке».</p>
+                      {devices.map((device:any)=><article className="plan-item" key={device.id}><div><h3>{device.name}</h3><p className="section-sub">{device.platform || "unknown"} · {device.last_seen_at ? formatDate(device.last_seen_at) : "ещё не подключалось"}</p></div><StatusBadge tone={device.status === "active" ? "ok" : "warn"}>{device.status === "active" ? "Активно" : device.status}</StatusBadge></article>)}
+                      {!devices.length && <p className="section-sub">Устройства появятся после первого подключения.</p>}
+                    </div>
+                    <div className="form-card stack" style={{marginTop:14}}>
+                      <h3>Рекомендованный сервер</h3>
+                      <p className="section-sub">Smart Routing выбирает доступную ноду по здоровью и нагрузке.</p>
+                      {routing?.recommendation ? <div className="plan-item"><div><h3>{routing.recommendation.name}</h3><p className="section-sub">{routing.recommendation.country || "—"} · нагрузка {routing.recommendation.load}%</p></div><StatusBadge tone="ok">Рекомендуется</StatusBadge></div> : <p className="section-sub">Рекомендация пока недоступна.</p>}
+                    </div>
+                  </>
+                )}
+
+                {activeItem?.kind === "servers" && (
+                  <>
+                    <h2 className="section-title">Серверы</h2>
+                    <p className="section-sub">Статус узлов без адресов и служебных данных</p>
+                    <ServerList servers={servers} />
+                  </>
+                )}
+
+                {activeItem?.kind === "partner" && <><h2 className="section-title">{activeItem.title}</h2><PartnerPortal request={req}/></>}
+
+                {["wallet","payments","gifts","referral","subscription","security","notifications","support"].includes(activeItem?.kind||"") && <>
+                  <h2 className="section-title">{activeItem.title}</h2>
+                  {activeItem.kind==="security"&&<><ProfileCard request={req} onSaved={loadSession}/><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><CustomerPasskeys req={req}/><AccountMerge request={req} onMerged={loadSession}/></>}
+                  {activeItem.kind==="subscription"&&<SubscriptionProfiles profiles={profiles} request={req} reload={loadSession}/>}
+                  <Workspace key={activeItem.kind+":"+(sub?.id||"none")} kind={activeItem.kind} request={req} reload={loadSession} plans={plans} provider={provider} botUsername={cfg.bot_username||""} providers={(cfg.payment_providers||[]).filter((p:string)=>["yookassa","rollypay","platega","sandbox"].includes(p))} currency={currency} api={API}/>
+                </>}
+
+                {activeItem?.kind === "surveys" && <Surveys request={req} reload={loadSession}/>}
+                {activeItem?.kind === "giveaways" && <Giveaways request={req} reload={loadSession}/>}
+                {activeItem?.kind === "custom" && (
+                  <>
+                    <h2 className="section-title">{activeItem.title || "Пользовательский раздел"}</h2>
+                    <div className="custom-body" style={{whiteSpace: "pre-wrap"}}>{activeItem.body || ""}</div>
+                  </>
+                )}
+              </section>
+            </main>
+
+            <nav className="bottom-nav" aria-label="Основные разделы">
+              {bottomItems.map((item) => (
+                <button key={item.slug} type="button" aria-current={tab === item.slug ? "page" : undefined} className={tab === item.slug ? "active" : ""} onClick={() => go(item.slug)}>
+                  {NAV_ICON[item.kind]}
+                  <span>{item.title}</span>
+                </button>
+              ))}
+              <button type="button" aria-expanded={drawerOpen} className={bottomItems.some((x) => x.slug === tab) ? "" : "active"} onClick={() => setDrawerOpen(true)}>
+                <LayoutGrid aria-hidden="true" />
+                <span>Ещё</span>
+              </button>
+            </nav>
+          </div>
         )}
 
-        {msg && <div className={`toast ${msgError ? "error" : ""}`}>{msg}</div>}
+        {msg && <div className={`toast ${msgError ? "error" : ""}`} role={msgError ? "alert" : "status"}>{msg}</div>}
       </div>
     </DomLocalizer>
   );
 }
 
-createRoot(document.getElementById("root")!).render(
-  <LangProvider>
-    <App />
-  </LangProvider>,
-);
+export default function CabinetRoot() {
+  return (
+    <LangProvider>
+      <App />
+    </LangProvider>
+  );
+}

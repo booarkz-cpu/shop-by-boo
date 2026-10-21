@@ -390,6 +390,8 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/me/preferences/language` | Set Language |
 | `DELETE` | `/api/me/privacy/account` | Privacy Delete |
 | `GET` | `/api/me/privacy/export` | Privacy Export |
+| `GET` | `/api/me/profile` | My Profile |
+| `PATCH` | `/api/me/profile` | Update Profile |
 | `GET` | `/api/me/referral` | My Referral |
 | `POST` | `/api/me/referral/apply` | Apply Referral |
 | `GET` | `/api/me/referral/ledger` | My Referral Ledger |

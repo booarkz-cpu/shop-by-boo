@@ -47,7 +47,8 @@ def test_v240_frontends_and_sandbox_script_exist():
     assert "CabinetCMS" in admin
     assert "Личный кабинет" in admin
     assert "--accent:" in style
-    assert 'family=Inter' in style
+    assert "Inter" in style
+    assert "@fontsource-variable/inter" in (ROOT / "admin/src/app/layout.tsx").read_text()
     assert "cabinet:" in compose
     assert "CABINET_DOMAIN" in compose
     ci = (ROOT / ".github/workflows/ci.yml").read_text()

@@ -36,7 +36,7 @@ def test_content_upload_endpoints_and_public_config():
     assert 'miniapp_image' in s
 
 def test_miniapp_consumes_configured_buttons_and_images():
-    s=read('miniapp/src/main.tsx')
+    s=__import__('frontend_sources').miniapp_sources()
     assert 'runButton' in s
     assert 'm.background_image' in s
     assert 'm.image' in s

@@ -32,7 +32,7 @@ def test_v250_constructor_checkout_and_monitoring_are_wired():
 def test_v250_frontends_expose_builder_and_servers():
     admin = (ROOT / "admin/src/main.tsx").read_text()
     cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
-    mini = (ROOT / "miniapp/src/main.tsx").read_text()
+    mini = __import__("frontend_sources").miniapp_sources()
     assert "Конструктор тарифов" in admin
     assert "Мониторинг Remnawave" in admin
     assert "TariffConstructorPanel" in admin

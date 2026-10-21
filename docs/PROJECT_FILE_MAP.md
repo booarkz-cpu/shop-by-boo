@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **925**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **938**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -215,36 +215,45 @@
 | [admin/THIRD_PARTY_LICENSES.txt](../admin/THIRD_PARTY_LICENSES.txt) | Админ-панель |
 | [admin/components.json](../admin/components.json) | Админ-панель |
 | [admin/default.conf](../admin/default.conf) | Админ-панель |
+| [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
-| [admin/e2e/obsidian-design.spec.ts](../admin/e2e/obsidian-design.spec.ts) | Админ-панель |
 | [admin/e2e/passkeys.spec.ts](../admin/e2e/passkeys.spec.ts) | Админ-панель |
 | [admin/e2e/personal-offers.spec.ts](../admin/e2e/personal-offers.spec.ts) | Админ-панель |
 | [admin/e2e/preferences-help.spec.ts](../admin/e2e/preferences-help.spec.ts) | Админ-панель |
+| [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
 | [admin/index.html](../admin/index.html) | Админ-панель |
+| [admin/next.config.mjs](../admin/next.config.mjs) | Админ-панель |
 | [admin/nginx.conf](../admin/nginx.conf) | Админ-панель |
 | [admin/package-lock.json](../admin/package-lock.json) | Админ-панель |
 | [admin/package.json](../admin/package.json) | Админ-панель |
 | [admin/playwright.config.ts](../admin/playwright.config.ts) | Админ-панель |
+| [admin/postcss.config.mjs](../admin/postcss.config.mjs) | Админ-панель |
+| [admin/src/admin-shell.tsx](../admin/src/admin-shell.tsx) | Админ-панель |
+| [admin/src/app/layout.tsx](../admin/src/app/layout.tsx) | Админ-панель |
+| [admin/src/app/page.tsx](../admin/src/app/page.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
 | [admin/src/components/preferences-menu.tsx](../admin/src/components/preferences-menu.tsx) | Админ-панель |
 | [admin/src/components/select-field.tsx](../admin/src/components/select-field.tsx) | Админ-панель |
 | [admin/src/components/ui/button.tsx](../admin/src/components/ui/button.tsx) | Админ-панель |
 | [admin/src/components/ui/dropdown-menu.tsx](../admin/src/components/ui/dropdown-menu.tsx) | Админ-панель |
+| [admin/src/components/ui/search-input.tsx](../admin/src/components/ui/search-input.tsx) | Админ-панель |
+| [admin/src/components/ui/segmented.tsx](../admin/src/components/ui/segmented.tsx) | Админ-панель |
 | [admin/src/components/ui/select.tsx](../admin/src/components/ui/select.tsx) | Админ-панель |
+| [admin/src/components/ui/skeleton.tsx](../admin/src/components/ui/skeleton.tsx) | Админ-панель |
+| [admin/src/components/ui/status.tsx](../admin/src/components/ui/status.tsx) | Админ-панель |
 | [admin/src/components/ui/tooltip.tsx](../admin/src/components/ui/tooltip.tsx) | Админ-панель |
 | [admin/src/content-publishing.tsx](../admin/src/content-publishing.tsx) | Админ-панель |
 | [admin/src/customer-desk.tsx](../admin/src/customer-desk.tsx) | Админ-панель |
 | [admin/src/customer-operations.tsx](../admin/src/customer-operations.tsx) | Админ-панель |
-| [admin/src/design-refresh.css](../admin/src/design-refresh.css) | Админ-панель |
+| [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
 | [admin/src/main.tsx](../admin/src/main.tsx) | Админ-панель |
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
-| [admin/src/obsidian-admin.css](../admin/src/obsidian-admin.css) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
 | [admin/src/promo-audiences.tsx](../admin/src/promo-audiences.tsx) | Админ-панель |
@@ -256,10 +265,9 @@
 | [admin/src/support-topology.tsx](../admin/src/support-topology.tsx) | Админ-панель |
 | [admin/src/surveys.tsx](../admin/src/surveys.tsx) | Админ-панель |
 | [admin/src/tailwind.css](../admin/src/tailwind.css) | Админ-панель |
-| [admin/src/vite-env.d.ts](../admin/src/vite-env.d.ts) | Админ-панель |
+| [admin/src/theme.css](../admin/src/theme.css) | Админ-панель |
 | [admin/tsconfig.json](../admin/tsconfig.json) | Админ-панель |
 | [admin/tsconfig.ui.json](../admin/tsconfig.ui.json) | Админ-панель |
-| [admin/vite.config.ts](../admin/vite.config.ts) | Админ-панель |
 | [backend/.dockerignore](../backend/.dockerignore) | API, бот и worker |
 | [backend/Dockerfile](../backend/Dockerfile) | API, бот и worker |
 | [backend/Dockerfile.bot](../backend/Dockerfile.bot) | API, бот и worker |
@@ -341,6 +349,7 @@
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
 | [backend/app/content_publishing.py](../backend/app/content_publishing.py) | API, бот и worker |
 | [backend/app/customer_passkeys.py](../backend/app/customer_passkeys.py) | API, бот и worker |
+| [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
 | [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
@@ -396,25 +405,33 @@
 | [backend/worker.py](../backend/worker.py) | API, бот и worker |
 | [browser-extension/manifest.json](../browser-extension/manifest.json) | Корень проекта |
 | [browser-extension/service-worker.js](../browser-extension/service-worker.js) | Корень проекта |
+| [cabinet/.dockerignore](../cabinet/.dockerignore) | Кабинет |
 | [cabinet/Dockerfile](../cabinet/Dockerfile) | Кабинет |
 | [cabinet/default.conf](../cabinet/default.conf) | Кабинет |
-| [cabinet/index.html](../cabinet/index.html) | Кабинет |
+| [cabinet/next.config.mjs](../cabinet/next.config.mjs) | Кабинет |
 | [cabinet/nginx.conf](../cabinet/nginx.conf) | Кабинет |
 | [cabinet/package-lock.json](../cabinet/package-lock.json) | Кабинет |
 | [cabinet/package.json](../cabinet/package.json) | Кабинет |
 | [cabinet/public/manifest.webmanifest](../cabinet/public/manifest.webmanifest) | Кабинет |
+| [cabinet/scripts/csp-externalize.mjs](../cabinet/scripts/csp-externalize.mjs) | Кабинет |
 | [cabinet/src/account-merge.test.tsx](../cabinet/src/account-merge.test.tsx) | Кабинет |
 | [cabinet/src/account-merge.tsx](../cabinet/src/account-merge.tsx) | Кабинет |
 | [cabinet/src/account-recovery.test.tsx](../cabinet/src/account-recovery.test.tsx) | Кабинет |
 | [cabinet/src/account-recovery.tsx](../cabinet/src/account-recovery.tsx) | Кабинет |
+| [cabinet/src/app/layout.tsx](../cabinet/src/app/layout.tsx) | Кабинет |
+| [cabinet/src/app/page.tsx](../cabinet/src/app/page.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
+| [cabinet/src/connection.tsx](../cabinet/src/connection.tsx) | Кабинет |
 | [cabinet/src/giveaways.test.tsx](../cabinet/src/giveaways.test.tsx) | Кабинет |
 | [cabinet/src/giveaways.tsx](../cabinet/src/giveaways.tsx) | Кабинет |
 | [cabinet/src/i18n.tsx](../cabinet/src/i18n.tsx) | Кабинет |
 | [cabinet/src/main.tsx](../cabinet/src/main.tsx) | Кабинет |
+| [cabinet/src/overview.tsx](../cabinet/src/overview.tsx) | Кабинет |
 | [cabinet/src/partner.tsx](../cabinet/src/partner.tsx) | Кабинет |
 | [cabinet/src/passkeys.tsx](../cabinet/src/passkeys.tsx) | Кабинет |
 | [cabinet/src/personal-offers.tsx](../cabinet/src/personal-offers.tsx) | Кабинет |
+| [cabinet/src/plans.tsx](../cabinet/src/plans.tsx) | Кабинет |
+| [cabinet/src/profile.tsx](../cabinet/src/profile.tsx) | Кабинет |
 | [cabinet/src/public-pages.tsx](../cabinet/src/public-pages.tsx) | Кабинет |
 | [cabinet/src/referral-network.test.tsx](../cabinet/src/referral-network.test.tsx) | Кабинет |
 | [cabinet/src/referral-network.tsx](../cabinet/src/referral-network.tsx) | Кабинет |
@@ -428,11 +445,12 @@
 | [cabinet/src/support-conversation.tsx](../cabinet/src/support-conversation.tsx) | Кабинет |
 | [cabinet/src/surveys.test.tsx](../cabinet/src/surveys.test.tsx) | Кабинет |
 | [cabinet/src/surveys.tsx](../cabinet/src/surveys.tsx) | Кабинет |
-| [cabinet/src/vite-env.d.ts](../cabinet/src/vite-env.d.ts) | Кабинет |
+| [cabinet/src/telegram.ts](../cabinet/src/telegram.ts) | Кабинет |
+| [cabinet/src/ui.tsx](../cabinet/src/ui.tsx) | Кабинет |
 | [cabinet/src/workspace.test.tsx](../cabinet/src/workspace.test.tsx) | Кабинет |
 | [cabinet/src/workspace.tsx](../cabinet/src/workspace.tsx) | Кабинет |
 | [cabinet/tsconfig.json](../cabinet/tsconfig.json) | Кабинет |
-| [cabinet/vite.config.ts](../cabinet/vite.config.ts) | Кабинет |
+| [cabinet/vitest.config.mts](../cabinet/vitest.config.mts) | Кабинет |
 | [conftest.py](../conftest.py) | Корень проекта |
 | [corgi-cli/README.md](../corgi-cli/README.md) | Корень проекта |
 | [deploy/Caddyfile](../deploy/Caddyfile) | Установка |
@@ -624,16 +642,9 @@
 | [miniapp/.dockerignore](../miniapp/.dockerignore) | Telegram Mini App |
 | [miniapp/Dockerfile](../miniapp/Dockerfile) | Telegram Mini App |
 | [miniapp/default.conf](../miniapp/default.conf) | Telegram Mini App |
-| [miniapp/index.html](../miniapp/index.html) | Telegram Mini App |
 | [miniapp/nginx.conf](../miniapp/nginx.conf) | Telegram Mini App |
 | [miniapp/package-lock.json](../miniapp/package-lock.json) | Telegram Mini App |
 | [miniapp/package.json](../miniapp/package.json) | Telegram Mini App |
-| [miniapp/src/i18n.tsx](../miniapp/src/i18n.tsx) | Telegram Mini App |
-| [miniapp/src/main.tsx](../miniapp/src/main.tsx) | Telegram Mini App |
-| [miniapp/src/style.css](../miniapp/src/style.css) | Telegram Mini App |
-| [miniapp/src/vite-env.d.ts](../miniapp/src/vite-env.d.ts) | Telegram Mini App |
-| [miniapp/tsconfig.json](../miniapp/tsconfig.json) | Telegram Mini App |
-| [miniapp/vite.config.ts](../miniapp/vite.config.ts) | Telegram Mini App |
 | [mobile/LICENSE](../mobile/LICENSE) | Мобильные приложения |
 | [mobile/__init__.py](../mobile/__init__.py) | Мобильные приложения |
 | [mobile/android-admin/app/build.gradle.kts](../mobile/android-admin/app/build.gradle.kts) | Мобильные приложения |
@@ -807,6 +818,7 @@
 | [support-pro/tests/test_security_audit.py](../support-pro/tests/test_security_audit.py) | Support Pro |
 | [support-pro/tests/test_shop_bridge.py](../support-pro/tests/test_shop_bridge.py) | Support Pro |
 | [terraform/corgi/main.tf](../terraform/corgi/main.tf) | Корень проекта |
+| [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
 | [tests/passkey_browser_server.py](../tests/passkey_browser_server.py) | Проверки |
 | [tests/release-publisher.test.cjs](../tests/release-publisher.test.cjs) | Проверки |
 | [tests/test_account_actions.py](../tests/test_account_actions.py) | Проверки |
@@ -826,6 +838,7 @@
 | [tests/test_critical_startup_and_i18n.py](../tests/test_critical_startup_and_i18n.py) | Проверки |
 | [tests/test_current_documentation.py](../tests/test_current_documentation.py) | Проверки |
 | [tests/test_customer_passkeys.py](../tests/test_customer_passkeys.py) | Проверки |
+| [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |

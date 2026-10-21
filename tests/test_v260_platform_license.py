@@ -123,7 +123,7 @@ def test_license_and_bilingual_platform_docs():
     index = (ROOT / "docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md").read_text()
     admin = (ROOT / "admin/src/main.tsx").read_text()
     i18n = (ROOT / "admin/src/i18n.tsx").read_text()
-    cabinet = (ROOT / "cabinet/index.html").read_text()
+    cabinet = (ROOT / "cabinet/src/app/layout.tsx").read_text()
     assert "LicenseRef-CorgiLusi-Commercial-Use" in license_text
     assert "VPN Shop Source License" in license_text
     assert "Source License" in license_text

@@ -118,7 +118,7 @@ jobs:
         run: |
           npm run typecheck
           npm run build
-          npm run build --prefix ../cabinet -- --base=/cabinet/
+          NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
           npm run test:e2e
 
   support:

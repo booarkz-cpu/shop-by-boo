@@ -18,6 +18,6 @@ test('menu editor creates folders, previews nested buttons and prevents stale sa
  await page.getByRole('button',{name:'Сохранить меню приложения',exact:true}).click();await expect(page.getByRole('status')).toContainText('Меню приложения сохранено');
  // Simulate another operator saving the same menu after this editor loaded it.
  await page.evaluate(async()=>{const config=await (await fetch('/api/admin/content')).json();const r=await fetch('/api/admin/miniapp/menu',{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-Token':decodeURIComponent(document.cookie.split('; ').find(x=>x.startsWith('rw_csrf='))?.split('=')[1]||'')},body:JSON.stringify({fingerprint:config.miniapp_buttons_fingerprint,buttons:[{id:'other-operator',title:'Other operator',type:'plans'}]})});if(!r.ok)throw new Error('Fixture update failed')});
- await page.getByRole('button',{name:'Сохранить меню приложения',exact:true}).click();await expect(page.getByRole('alert')).toContainText('изменено');
+ await page.getByRole('button',{name:'Сохранить меню приложения',exact:true}).click();await expect(page.locator('.content-wrap').getByRole('alert')).toContainText('изменено');
  page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'Загрузить актуальное меню',exact:true}).click();await expect(page.getByRole('status')).toContainText('Загружено актуальное меню');await expect(preview.getByRole('button',{name:'Other operator',exact:true})).toBeVisible();
 });

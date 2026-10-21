@@ -30,7 +30,7 @@ def test_admin_ui_contracts():
     s=read(ROOT/"admin/src/main.tsx"); assert '/api/admin/payments/reconcile' in s; assert '/api/admin/sessions/revoke-all' in s; assert 'req("/health")' in s
 
 def test_miniapp_contracts():
-    s=read(ROOT/"miniapp/src/main.tsx"); assert '/api/me/connection-qr' in s; assert 'Автопродление' in s; assert 'Реферальная программа' in s
+    from frontend_sources import miniapp_sources; s=miniapp_sources(); assert '/api/me/connection-qr' in s; assert 'Автопродление' in s; assert 'Реферальная программа' in s
 
 def test_no_unsafe_restore_extract():
     s=read(ROOT/"backend/app/main.py"); assert 'tar.extract(member,path=work)' not in s; assert '_safe_extract_members' in s
