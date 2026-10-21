@@ -746,3 +746,16 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
   .runtime-registry-counts { justify-content:flex-start; }
   .runtime-bound-grid { grid-template-columns:1fr; }
 }
+
+/* Native push readiness card (Notifications section) */
+.push-status { display:grid;gap:12px;margin-bottom:16px; }
+.push-status h2 { display:flex;align-items:center;gap:8px;margin:0;font-size:15px; }
+.push-status h2 svg { width:18px;height:18px;color:var(--primary); }
+.push-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px; }
+.push-provider { display:grid;gap:4px;align-content:start;min-width:0;padding:12px;border:1px solid var(--line);border-radius:10px; }
+.push-provider .muted { overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.push-provider .ui-badge { justify-self:start; }
+.push-deliveries { display:flex;flex-wrap:wrap;gap:8px; }
+.push-errors { margin:0;padding-left:18px;color:var(--muted);font-size:12px; }
+.push-errors code { word-break:break-all; }
+@media (max-width:760px) { .push-grid { grid-template-columns:minmax(0,1fr); } }

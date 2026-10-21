@@ -14,8 +14,20 @@ android {
         versionCode = 2150
         versionName = "2.15.0"
         // Historical compatibility marker: versionName = "2.9.0"
+        // Firebase client identifiers for FCM push (public values, not secrets).
+        // Empty values build the app without push; see docs/ru/PUSH_NOTIFICATIONS_CURRENT.md.
+        fun firebase(name: String): String =
+            ((project.findProperty("corgi.firebase.$name") as String?) ?: System.getenv("CORGI_FIREBASE_${name.uppercase()}") ?: "")
+                .replace("\\", "").replace("\"", "")
+        buildConfigField("String", "FIREBASE_APP_ID", "\"${firebase("app_id")}\"")
+        buildConfigField("String", "FIREBASE_API_KEY", "\"${firebase("api_key")}\"")
+        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${firebase("project_id")}\"")
+        buildConfigField("String", "FIREBASE_SENDER_ID", "\"${firebase("sender_id")}\"")
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -54,4 +66,6 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.biometric:biometric:1.1.0")
+    // FCM without the google-services plugin: FirebaseApp is initialised from BuildConfig.
+    implementation("com.google.firebase:firebase-messaging:24.1.0")
 }

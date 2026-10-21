@@ -35,6 +35,8 @@ struct UserRootView: View {
     @State private var subject = ""
     @State private var message = ""
     @State private var logo: UIImage?
+    @ObservedObject private var push = PushCenter.shared
+    @State private var pushEnabled = PushCenter.shared.enabled
 
     private static func detectLanguage() -> String {
         let code = Locale.preferredLanguages.first?.lowercased() ?? "ru"
@@ -87,6 +89,9 @@ struct UserRootView: View {
         }
         .onChange(of: unlocked) { value in if value && !token.isEmpty { refresh() } }
         .onChange(of: lang) { _ in if !token.isEmpty && unlocked { refresh() } }
+        .onChange(of: push.openNotifications) { open in
+            if open { tab = "notifications"; push.openNotifications = false }
+        }
     }
 
     private var auth: some View {
@@ -185,6 +190,14 @@ struct UserRootView: View {
             }
             Button(t("trial")) { startTrial() }
         case "notifications":
+            Text(t("push_title")).font(.headline)
+            Text(pushEnabled ? t("push_on") : t("push_off")).foregroundStyle(.secondary)
+            if pushEnabled {
+                Button(t("push_disable")) { disablePush() }.disabled(busy)
+                Button(t("push_test")) { testPush() }.disabled(busy)
+            } else {
+                Button(t("push_enable")) { enablePush() }.buttonStyle(.borderedProminent).disabled(busy)
+            }
             if notifications.isEmpty { Text(t("no_notifications")) }
             ForEach(Array(notifications.enumerated()), id: \.offset) { _, n in
                 VStack(alignment: .leading) {
@@ -280,6 +293,10 @@ struct UserRootView: View {
             let nextPrivacy = try api.call("GET", "/api/me/mobile/privacy") as? [String: Any] ?? [:]
             let nextLiveConnection = try api.call("GET", "/api/me/mobile/connection") as? [String: Any] ?? [:]
             let nextLogo = logoImage(api, "/api/public/apps")
+            // Re-bind a rotated APNs token, or the same token to a re-issued session.
+            if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
+                _ = try? PushCenter.register(base: base, session: token, lang: lang, token: current)
+            }
             DispatchQueue.main.async {
                 dashboard = nextDashboard
                 profiles = nextProfiles
@@ -308,10 +325,49 @@ struct UserRootView: View {
         token = ""
         SessionKeychain.clear()
         unlocked = false
+        pushEnabled = false
         work {
+            // Revoke the push token while the session is still valid, then end the session.
+            PushCenter.unregister(base: origin, session: previous, lang: lang)
             if !previous.isEmpty {
                 _ = try ShopClient(base: origin, token: previous, lang: lang).call("POST", "/api/auth/logout")
             }
+        }
+    }
+
+    private func enablePush() {
+        busy = true
+        notice = ""
+        push.requestToken { result in
+            switch result {
+            case .failure(let error):
+                busy = false
+                notice = (error as? PushError) == .denied ? t("push_denied") : error.localizedDescription
+            case .success(let deviceToken):
+                busy = false
+                work {
+                    let response = try PushCenter.register(base: base, session: token, lang: lang, token: deviceToken)
+                    DispatchQueue.main.async {
+                        pushEnabled = true
+                        notice = jsonBool(response["push_available"]) ? t("push_on") : t("push_server_off")
+                    }
+                }
+            }
+        }
+    }
+
+    private func disablePush() {
+        let session = token
+        work {
+            PushCenter.unregister(base: base, session: session, lang: lang)
+            DispatchQueue.main.async { pushEnabled = false; notice = t("push_off") }
+        }
+    }
+
+    private func testPush() {
+        work {
+            _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/push/test", body: [:])
+            DispatchQueue.main.async { notice = t("push_test_sent") }
         }
     }
 
