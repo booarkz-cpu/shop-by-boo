@@ -18,6 +18,7 @@ jobs:
   backend:
     name: Backend • Python + tests + migrations
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:16-alpine
@@ -94,10 +95,16 @@ jobs:
         run: alembic upgrade head
       - name: Tests
         # A hung test fails after 5 minutes with all thread stacks instead of blocking the job.
+        timeout-minutes: 30
         run: |
-          set -o pipefail
           # -v prints each test id before it runs, so a timeout dump names the hung test.
-          python -m pytest -v tests --disable-warnings --maxfail=1 --timeout=300 --timeout-method=thread 2>&1 | tee "$RUNNER_TEMP/pytest.log"
+          # Output goes to a file, not a pipe: a stray child process that keeps the pipe
+          # open can no longer stall the step after pytest has finished.
+          status=0
+          python -m pytest -v tests --disable-warnings --maxfail=1 --timeout=300 --timeout-method=thread > "$RUNNER_TEMP/pytest.log" 2>&1 < /dev/null || status=$?
+          grep -vE ' PASSED +\[' "$RUNNER_TEMP/pytest.log" | tail -n 400
+          grep -cE ' PASSED +\[' "$RUNNER_TEMP/pytest.log" | sed 's/^/passed tests: /'
+          exit $status
       - name: Report failing tests
         if: failure()
         run: |
