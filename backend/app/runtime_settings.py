@@ -202,6 +202,8 @@ def _restart_reason(key: str) -> str:
         return "Параметр относится к deployment policy, а не к runtime приложения."
     if key in {"bot_token", "worker_role", "app_env", "admin_email", "admin_password", "payments_sandbox"}:
         return "Параметр определяет идентичность или режим процесса и проверяется до запуска."
+    if key in {"network_intel_enabled", "abuseipdb_api_key"}:
+        return "Источник сетевой аналитики настраивается в .env и применяется после restart worker; ключ AbuseIPDB не хранится в БД."
     if key.startswith("fcm_") or key.startswith("apns_"):
         return "Ключ провайдера push — секрет сервера; меняется через .env и restart worker, не хранится в БД."
     if key == "default_currency":

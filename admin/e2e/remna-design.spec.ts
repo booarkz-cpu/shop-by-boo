@@ -132,7 +132,7 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
   await expect(page.getByRole('heading', {name: 'Настройки без перезапуска', level: 2})).toBeVisible();
   const registryCounts = page.locator('.runtime-registry-counts');
   await expect(registryCounts).toContainText('96 live');
-  await expect(registryCounts).toContainText('53 deployment');
+  await expect(registryCounts).toContainText('55 deployment');
   await expect(registryCounts).toContainText('2 workflow');
   await expect(page.getByText('RW доступ')).toBeVisible();
 
@@ -166,4 +166,20 @@ test('notifications section reports native push readiness without leaking tokens
   await expect(card.getByText('Не настроен').first()).toBeVisible();
   await expect(card.getByText('Android 0 · iOS 0')).toBeVisible();
   await expect(card.getByText('За 24 часа отправок не было')).toBeVisible();
+});
+
+test('node network section shows sources, freshness rules and stays usable on phones', async ({page}) => {
+  await signIn(page);
+  await page.getByRole('button', {name: /Сеть узлов/}).first().click();
+  const sources = page.getByRole('region', {name: 'Источники сетевых данных'});
+  await expect(sources.getByRole('heading', {name: /ASN и репутация/})).toBeVisible();
+  await expect(sources.getByText('RIPEstat (RIPE NCC)')).toBeVisible();
+  await expect(sources.getByText('Задайте ABUSEIPDB_API_KEY, чтобы проверять репутацию.')).toBeVisible();
+  // No Remnawave panel in the browser stand: the section explains it instead of failing.
+  await expect(sources.getByRole('alert')).toContainText('Remnawave недоступен');
+  const customers = page.getByRole('region', {name: 'Сети клиентов'});
+  await expect(customers.getByText('Отдельные IP-адреса клиентов здесь не показываются.')).toBeVisible();
+  await page.setViewportSize({width: 390, height: 844});
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });

@@ -247,6 +247,11 @@ class Settings(BaseSettings):
     apns_private_key: str = Field(default="", alias="APNS_PRIVATE_KEY")
     apns_environment: str = Field(default="production", alias="APNS_ENVIRONMENT")
 
+    # ---------- Сетевая аналитика узлов (ASN и репутация) ----------
+    # RIPEstat (без ключа) даёт ASN, владельца и страну RIR; AbuseIPDB — репутацию, только с ключом.
+    network_intel_enabled: bool = Field(default=True, alias="NETWORK_INTEL_ENABLED")
+    abuseipdb_api_key: str = Field(default="", alias="ABUSEIPDB_API_KEY")
+
     # ---------- Безопасность ----------
     firewall_mode: str = Field(default="strict", alias="FIREWALL_MODE")
     require_pinned_images: bool = Field(

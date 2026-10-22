@@ -787,3 +787,21 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
   .plugin-secret { grid-template-columns:minmax(0,1fr) auto; }
   .plugin-secret span { grid-column:1 / -1; }
 }
+
+/* Network intelligence */
+.network-intel { display:grid;gap:16px; }
+.network-intel h2,.network-intel h3 { display:flex;align-items:center;gap:8px; }
+.network-intel h2 svg,.network-intel h3 svg { width:18px;height:18px;color:var(--primary); }
+.intel-sources { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px; }
+.intel-source { display:grid;gap:4px;align-content:start;min-width:0;padding:12px;border:1px solid var(--line);border-radius:10px; }
+.intel-source .ui-badge { justify-self:start; }
+.intel-node { display:grid;gap:10px; }
+.intel-node-head { display:flex;align-items:flex-start;justify-content:space-between;gap:12px; }
+.intel-node-head h3 { margin:0; }
+.intel-node-head .mono,.network-intel code { overflow-wrap:anywhere; }
+.intel-warnings { margin:0;padding:0;list-style:none;display:grid;gap:6px; }
+.intel-customers { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
+.intel-attribution { font-size:12px; }
+.network-intel .spin { animation:intel-spin 1s linear infinite; }
+@keyframes intel-spin { to { transform:rotate(360deg); } }
+@media (max-width:760px) { .intel-sources,.intel-customers { grid-template-columns:minmax(0,1fr); } }

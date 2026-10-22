@@ -21,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0068_network_intel',
         '0067_plugin_runtime',
         '0066_push_notifications',
         '0065_history_import',
@@ -36,7 +37,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0055_customer_passkeys',
     ]
     # 0066 holds only re-registrable push tokens, so its downgrade is intentionally unguarded.
-    guarded_names = [roundtrip_names[2], roundtrip_names[3], *roundtrip_names[7:]]
+    guarded_names = [roundtrip_names[3], roundtrip_names[4], *roundtrip_names[8:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):
