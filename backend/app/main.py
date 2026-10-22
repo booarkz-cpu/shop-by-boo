@@ -5220,7 +5220,7 @@ async def _record_provider_metric(db, provider, *, attempt=0, success=0, failed=
     day=datetime.utcnow().date().isoformat()
     row=(await db.execute(select(PaymentProviderMetric).where(PaymentProviderMetric.provider==provider,PaymentProviderMetric.day==day).with_for_update())).scalar_one_or_none()
     if not row:
-        row=PaymentProviderMetric(provider=provider,day=day); db.add(row)
+        row=PaymentProviderMetric(provider=provider,day=day,attempts=0,succeeded=0,failed=0,refunded=0,gross_amount=Decimal("0"),fees_amount=Decimal("0"),net_amount=Decimal("0")); db.add(row)
     row.attempts += attempt; row.succeeded += success; row.failed += failed; row.refunded += refunded; row.gross_amount += gross; row.fees_amount += fee; row.net_amount += gross-fee
 
 async def _issue_invoice(db, payment: Payment):
