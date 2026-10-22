@@ -57,6 +57,29 @@ async def deliver(bot, mid):
                 await s.commit()
             await publish(ticket.id,{'type':'changed'})
             return
+        if ticket.channel == 'email':
+            from . import email_channel
+            try:
+                await email_channel.deliver(s, ticket, m, a)
+            except Exception:
+                log.exception('Email delivery interrupted for message %s', mid)
+                m.delivery_state = 'uncertain'
+                m.error = 'Отправка письма прервана; результат неизвестен. Проверьте почту перед повтором.'
+            if m.delivery_state == 'sent':
+                ticket = await s.scalar(select(Ticket).where(Ticket.id == m.ticket_id).with_for_update().execution_options(populate_existing=True))
+                if m.sender == 'operator':
+                    ticket.first_response_at = ticket.first_response_at or m.sent_at
+                    latest_user = await s.scalar(select(Message).where(Message.ticket_id == ticket.id, Message.sender == 'user').order_by(Message.id.desc()).limit(1))
+                    if not latest_user or utc(latest_user.created_at) <= utc(m.created_at):
+                        ticket.waiting_since = None
+                    if ticket.status == 'new':
+                        ticket.status = 'open'
+                    ticket.updated_at = now()
+            elif m.delivery_state in ('failed', 'uncertain'):
+                await notify(s, ticket, f'Письмо в обращении #{ticket.id}: {m.error}', f'delivery:{mid}:{m.attempts}')
+            await s.commit()
+            await publish(ticket.id, {'type': 'changed'})
+            return
         if ticket.channel == 'web':
             ticket=await s.scalar(select(Ticket).where(Ticket.id==m.ticket_id).with_for_update().execution_options(populate_existing=True))
             m.delivery_state, m.sent_at = 'sent', now()
@@ -207,6 +230,8 @@ async def main():
     bot = Bot(os.environ['BOT_TOKEN'])
     last_maintenance = 0
     last_shop_poll = 0
+    last_email_poll = 0
+    last_email_purge = 0
     try:
         while True:
             try:
@@ -231,6 +256,13 @@ async def main():
                                     await s.commit()
                         except Exception:log.warning('Cannot persist shop bridge status')
                     last_shop_poll=time.monotonic()
+                from . import email_channel
+                if email_channel.enabled() and time.monotonic() - last_email_poll > int(os.getenv('EMAIL_POLL_SECONDS', '30')):
+                    await email_channel.poll(Session)
+                    last_email_poll = time.monotonic()
+                if time.monotonic() - last_email_purge > 3600:
+                    await email_channel.purge_expired(Session)
+                    last_email_purge = time.monotonic()
                 # Limit a batch so incoming downloads and deadlines are not starved.
                 for _ in range(10):
                     mid = await claim_message()

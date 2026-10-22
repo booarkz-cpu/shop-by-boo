@@ -232,6 +232,7 @@ class CallRequest(Base):
 
 class ChannelIdentity(Base):
     __tablename__ = 'channel_identities'
+    __table_args__ = (UniqueConstraint('channel', 'external_id', name='uq_channel_identity_external'),)
     id: Mapped[int] = mapped_column(primary_key=True)
     client_id: Mapped[int] = mapped_column(BigInteger, index=True)
     channel: Mapped[str] = mapped_column(String(30))
@@ -302,3 +303,31 @@ class ShopSyncState(Base):
     after_id: Mapped[int] = mapped_column(Integer,default=0)
     last_success: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     error: Mapped[str] = mapped_column(String(500),default='')
+
+
+class EmailChannelState(Base):
+    """IMAP cursor of the email channel; the cursor advances in the same commit as the ticket."""
+    __tablename__ = 'email_channel_state'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    uidvalidity: Mapped[int] = mapped_column(BigInteger, default=0)
+    last_uid: Mapped[int] = mapped_column(BigInteger, default=0)
+    stuck_uid: Mapped[int] = mapped_column(BigInteger, default=0)
+    stuck_attempts: Mapped[int] = mapped_column(Integer, default=0)
+    last_success: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_error_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    error: Mapped[str] = mapped_column(String(500), default='')
+    received: Mapped[int] = mapped_column(Integer, default=0)
+    skipped: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class EmailLink(Base):
+    """RFC 5322 Message-ID of each inbound or outbound email, for threading, replay and bounces."""
+    __tablename__ = 'email_links'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    message_id_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    message_id: Mapped[str] = mapped_column(String(255))
+    direction: Mapped[str] = mapped_column(String(3))
+    ticket_id: Mapped[int] = mapped_column(ForeignKey('tickets.id', ondelete='CASCADE'), index=True)
+    message_row_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id', ondelete='SET NULL'))
+    auth: Mapped[str] = mapped_column(String(10), default='none')
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
