@@ -1,6 +1,6 @@
 # Документация VPN Shop by Corgi
 
-Текущий тег дистрибутива: **v28.7.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0066_push_notifications**, Support Pro **0007** / 3.7. Production-ready не подтверждён: рабочие сценарии и незавершённые внешние проверки описаны отдельно, реальные платежи не сертифицированы.
+Текущий тег дистрибутива: **v28.8.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0067_plugin_runtime**, Support Pro **0007** / 3.7. Production-ready не подтверждён: рабочие сценарии и незавершённые внешние проверки описаны отдельно, реальные платежи не сертифицированы.
 
 | Задача | Инструкция |
 | --- | --- |
@@ -19,6 +19,7 @@
 | Конкурсы и колесо | [Конкурсы и призы](docs/ru/WORKSPACE_GIVEAWAYS.md) |
 | Support Pro и история | [Мост поддержки](docs/ru/WORKSPACE_SUPPORT_BRIDGE.md) |
 | Email-канал поддержки | [Email-канал](docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md) |
+| Плагины и внешние сервисы | [Плагины](docs/ru/PLUGINS_CURRENT.md) |
 | Обновить базу и приложения | [Обновление](docs/ru/WORKSPACE_UPGRADE.md) |
 | Android/iOS | [MOBILE.md](MOBILE.md) |
 | Push-уведомления в приложениях | [Push Android/iOS](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md) |
@@ -28,16 +29,16 @@
 | HTTP API | [API_REFERENCE_RU.md](API_REFERENCE_RU.md) |
 | Карта проекта и дизайн | [PROJECT_MAP_RU.md](docs/PROJECT_MAP_RU.md) |
 | Дерево каталогов и архитектурные границы | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) |
-| Проверки этого выпуска | [Отчёт v28.7.0](docs/ru/RELEASE_V28_7_0.md) |
+| Проверки этого выпуска | [Отчёт v28.8.0](docs/ru/RELEASE_V28_8_0.md) |
 | Что ещё не реализовано | [Матрица покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) |
 
 Исторические корневые справочники сохранены в `docs/archive/*_BEFORE_ALPHA_6.md`. Они фиксируют прежние версии и могут описывать отключённые кассы, старую структуру кода и неподтверждённые сценарии. Для текущей установки используйте инструкции выше. Исторические release notes остаются без изменения.
 
 Изменения alpha.7: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 
-## Выпуск v28.7.0
+## Выпуск v28.8.0
 
-Тег v28.7.0 добавляет email-канал поддержки в Support Pro 3.7: письма клиентов становятся обращениями, ответы уходят письмом ([регламент](docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md)). Тег v28.6.0 добавил виджет подписки на рабочий стол Android и несколько профилей магазинов в админ-приложениях ([регламент](docs/ru/WIDGET_AND_PROFILES_CURRENT.md)). Тег v28.5.0 добавил нативные push-уведомления в приложения Android и iOS ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Тег v28.4.0 перевёл админ-панель, личный кабинет и Telegram Mini App на Next.js в дизайне Remna Dark, добавил сверяемый перенос истории подписок и платежей с откатом ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)) и редактирование профиля клиента. Тег v28.3.0 добавил типизированный реестр 96 live-настроек с зашифрованными секретами, staged apply, версионным откатом и audit. Ожидаемая версия `/health` и API остаётся `21.5.1`, migration head — `0066_push_notifications`. [Полные заметки](docs/ru/RELEASE_V28_7_0.md). Открытые внешние проверки не объявлены готовыми; production gate закрыт.
+Тег v28.8.0 добавляет среду плагинов: подписанные пакеты, подтверждение прав, обновление и откат без перезапуска ([регламент](docs/ru/PLUGINS_CURRENT.md)). Тег v28.7.0 добавил email-канал поддержки в Support Pro 3.7: письма клиентов становятся обращениями, ответы уходят письмом ([регламент](docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md)). Тег v28.6.0 добавил виджет подписки на рабочий стол Android и несколько профилей магазинов в админ-приложениях ([регламент](docs/ru/WIDGET_AND_PROFILES_CURRENT.md)). Тег v28.5.0 добавил нативные push-уведомления в приложения Android и iOS ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Тег v28.4.0 перевёл админ-панель, личный кабинет и Telegram Mini App на Next.js в дизайне Remna Dark, добавил сверяемый перенос истории подписок и платежей с откатом ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)) и редактирование профиля клиента. Тег v28.3.0 добавил типизированный реестр 96 live-настроек с зашифрованными секретами, staged apply, версионным откатом и audit. Ожидаемая версия `/health` и API остаётся `21.5.1`, migration head — `0067_plugin_runtime`. [Полные заметки](docs/ru/RELEASE_V28_8_0.md). Открытые внешние проверки не объявлены готовыми; production gate закрыт.
 
 Импорт users.db и массовые операции доступны роли admin в «Клиенты → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 

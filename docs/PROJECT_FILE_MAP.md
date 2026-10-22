@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.7.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.8.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **973**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **983**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -222,6 +222,7 @@
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
 | [admin/e2e/passkeys.spec.ts](../admin/e2e/passkeys.spec.ts) | Админ-панель |
 | [admin/e2e/personal-offers.spec.ts](../admin/e2e/personal-offers.spec.ts) | Админ-панель |
+| [admin/e2e/plugins.spec.ts](../admin/e2e/plugins.spec.ts) | Админ-панель |
 | [admin/e2e/preferences-help.spec.ts](../admin/e2e/preferences-help.spec.ts) | Админ-панель |
 | [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
 | [admin/index.html](../admin/index.html) | Админ-панель |
@@ -258,6 +259,7 @@
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
+| [admin/src/plugins.tsx](../admin/src/plugins.tsx) | Админ-панель |
 | [admin/src/promo-audiences.tsx](../admin/src/promo-audiences.tsx) | Админ-панель |
 | [admin/src/push-status.tsx](../admin/src/push-status.tsx) | Админ-панель |
 | [admin/src/referral-program.tsx](../admin/src/referral-program.tsx) | Админ-панель |
@@ -343,6 +345,7 @@
 | [backend/alembic/versions/0064_runtime_settings.py](../backend/alembic/versions/0064_runtime_settings.py) | API, бот и worker |
 | [backend/alembic/versions/0065_history_import.py](../backend/alembic/versions/0065_history_import.py) | API, бот и worker |
 | [backend/alembic/versions/0066_push_notifications.py](../backend/alembic/versions/0066_push_notifications.py) | API, бот и worker |
+| [backend/alembic/versions/0067_plugin_runtime.py](../backend/alembic/versions/0067_plugin_runtime.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -376,6 +379,7 @@
 | [backend/app/payments.py](../backend/app/payments.py) | API, бот и worker |
 | [backend/app/personal_offers.py](../backend/app/personal_offers.py) | API, бот и worker |
 | [backend/app/platform_api.py](../backend/app/platform_api.py) | API, бот и worker |
+| [backend/app/plugins.py](../backend/app/plugins.py) | API, бот и worker |
 | [backend/app/production_api.py](../backend/app/production_api.py) | API, бот и worker |
 | [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
 | [backend/app/provisioner.py](../backend/app/provisioner.py) | API, бот и worker |
@@ -543,6 +547,8 @@
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
 | [docs/en/TESTING.md](../docs/en/TESTING.md) | Документация |
+| [docs/examples/plugin/README.md](../docs/examples/plugin/README.md) | Документация |
+| [docs/examples/plugin/manifest.json](../docs/examples/plugin/manifest.json) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PASSKEYS.md](../docs/ru/ADMIN_PASSKEYS.md) | Документация |
@@ -574,6 +580,7 @@
 | [docs/ru/PAYMENTS_VDS_BEGINNER_2026_09_28.md](../docs/ru/PAYMENTS_VDS_BEGINNER_2026_09_28.md) | Документация |
 | [docs/ru/PAYMENT_AUDIT_2026_09_28.md](../docs/ru/PAYMENT_AUDIT_2026_09_28.md) | Документация |
 | [docs/ru/PERSONAL_OFFERS_CURRENT.md](../docs/ru/PERSONAL_OFFERS_CURRENT.md) | Документация |
+| [docs/ru/PLUGINS_CURRENT.md](../docs/ru/PLUGINS_CURRENT.md) | Документация |
 | [docs/ru/PRODUCTION_20_0_15.md](../docs/ru/PRODUCTION_20_0_15.md) | Документация |
 | [docs/ru/PRODUCTION_CURRENT.md](../docs/ru/PRODUCTION_CURRENT.md) | Документация |
 | [docs/ru/PUSH_NOTIFICATIONS_CURRENT.md](../docs/ru/PUSH_NOTIFICATIONS_CURRENT.md) | Документация |
@@ -600,6 +607,7 @@
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
+| [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
 | [docs/ru/SECURITY_UPGRADE_20_0_14.md](../docs/ru/SECURITY_UPGRADE_20_0_14.md) | Документация |
@@ -751,6 +759,7 @@
 | [scripts/rotate-secrets.sh](../scripts/rotate-secrets.sh) | Эксплуатация и релиз |
 | [scripts/sandbox-e2e.sh](../scripts/sandbox-e2e.sh) | Эксплуатация и релиз |
 | [scripts/security-scan.sh](../scripts/security-scan.sh) | Эксплуатация и релиз |
+| [scripts/sign-plugin.py](../scripts/sign-plugin.py) | Эксплуатация и релиз |
 | [scripts/staging-e2e.sh](../scripts/staging-e2e.sh) | Эксплуатация и релиз |
 | [scripts/static_audit.py](../scripts/static_audit.py) | Эксплуатация и релиз |
 | [scripts/test-up.sh](../scripts/test-up.sh) | Эксплуатация и релиз |
@@ -886,6 +895,7 @@
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
 | [tests/test_personal_offers.py](../tests/test_personal_offers.py) | Проверки |
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
+| [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |
 | [tests/test_production_installer_v2016.py](../tests/test_production_installer_v2016.py) | Проверки |
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
