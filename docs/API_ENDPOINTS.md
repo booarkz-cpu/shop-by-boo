@@ -1,4 +1,4 @@
-# Каталог API — v28.5.0 / API v21.5.1
+# Каталог API — v28.6.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0066_push_notifications`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -445,6 +445,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/wallet/history` | Wallet History |
 | `POST` | `/api/me/wallet/spend` | Wallet Spend |
 | `POST` | `/api/me/wallet/topup` | Wallet Topup |
+| `GET` | `/api/me/widget` | Widget Summary |
 | `POST` | `/api/payments/create` | Create Payment |
 | `POST` | `/api/payments/mobile/verify` | Verify Mobile Purchase |
 | `GET` | `/api/payments/providers` | Payment Providers |

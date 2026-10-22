@@ -1,6 +1,6 @@
 # Документация VPN Shop by Corgi
 
-Текущий тег дистрибутива: **v28.5.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0066_push_notifications**, Support Pro **0006** / 3.6. Production-ready не подтверждён: рабочие сценарии и незавершённые внешние проверки описаны отдельно, реальные платежи не сертифицированы.
+Текущий тег дистрибутива: **v28.6.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0066_push_notifications**, Support Pro **0006** / 3.6. Production-ready не подтверждён: рабочие сценарии и незавершённые внешние проверки описаны отдельно, реальные платежи не сертифицированы.
 
 | Задача | Инструкция |
 | --- | --- |
@@ -21,21 +21,22 @@
 | Обновить базу и приложения | [Обновление](docs/ru/WORKSPACE_UPGRADE.md) |
 | Android/iOS | [MOBILE.md](MOBILE.md) |
 | Push-уведомления в приложениях | [Push Android/iOS](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md) |
+| Виджет Android и профили админ-приложений | [Виджет и профили](docs/ru/WIDGET_AND_PROFILES_CURRENT.md) |
 | Резервирование, диагностика и инциденты | [Эксплуатация](OPERATIONS_RUNBOOK_RU.md) |
 | Права и защита данных | [SECURITY.md](SECURITY.md) |
 | HTTP API | [API_REFERENCE_RU.md](API_REFERENCE_RU.md) |
 | Карта проекта и дизайн | [PROJECT_MAP_RU.md](docs/PROJECT_MAP_RU.md) |
 | Дерево каталогов и архитектурные границы | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) |
-| Проверки этого выпуска | [Отчёт v28.5.0](docs/ru/RELEASE_V28_5_0.md) |
+| Проверки этого выпуска | [Отчёт v28.6.0](docs/ru/RELEASE_V28_6_0.md) |
 | Что ещё не реализовано | [Матрица покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) |
 
 Исторические корневые справочники сохранены в `docs/archive/*_BEFORE_ALPHA_6.md`. Они фиксируют прежние версии и могут описывать отключённые кассы, старую структуру кода и неподтверждённые сценарии. Для текущей установки используйте инструкции выше. Исторические release notes остаются без изменения.
 
 Изменения alpha.7: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 
-## Выпуск v28.5.0
+## Выпуск v28.6.0
 
-Тег v28.5.0 добавляет нативные push-уведомления в приложения Android и iOS ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Тег v28.4.0 перевёл админ-панель, личный кабинет и Telegram Mini App на Next.js в дизайне Remna Dark, добавил сверяемый перенос истории подписок и платежей с откатом ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)) и редактирование профиля клиента. Тег v28.3.0 добавил типизированный реестр 96 live-настроек с зашифрованными секретами, staged apply, версионным откатом и audit. Ожидаемая версия `/health` и API остаётся `21.5.1`, migration head — `0066_push_notifications`. [Полные заметки](docs/ru/RELEASE_V28_5_0.md). Открытые внешние проверки не объявлены готовыми; production gate закрыт.
+Тег v28.6.0 добавляет виджет подписки на рабочий стол Android и несколько профилей магазинов в админ-приложениях ([регламент](docs/ru/WIDGET_AND_PROFILES_CURRENT.md)). Тег v28.5.0 добавил нативные push-уведомления в приложения Android и iOS ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Тег v28.4.0 перевёл админ-панель, личный кабинет и Telegram Mini App на Next.js в дизайне Remna Dark, добавил сверяемый перенос истории подписок и платежей с откатом ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)) и редактирование профиля клиента. Тег v28.3.0 добавил типизированный реестр 96 live-настроек с зашифрованными секретами, staged apply, версионным откатом и audit. Ожидаемая версия `/health` и API остаётся `21.5.1`, migration head — `0066_push_notifications`. [Полные заметки](docs/ru/RELEASE_V28_6_0.md). Открытые внешние проверки не объявлены готовыми; production gate закрыт.
 
 Импорт users.db и массовые операции доступны роли admin в «Клиенты → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 

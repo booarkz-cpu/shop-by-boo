@@ -81,11 +81,13 @@
     "docs/ru/RELEASE_V28_2_0.md",
     "docs/ru/RELEASE_V28_4_0.md",
     "docs/ru/RELEASE_V28_5_0.md",
+    "docs/ru/RELEASE_V28_6_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md",
     "docs/ru/SUPPORT_TOPOLOGY_CURRENT.md",
     "docs/ru/TESTING.md",
+    "docs/ru/WIDGET_AND_PROFILES_CURRENT.md",
     "docs/ru/WORKSPACE_ACCOUNT_SECURITY.md",
     "docs/ru/WORKSPACE_ADMIN_GUIDE.md",
     "docs/ru/WORKSPACE_ARCHITECTURE.md",
@@ -113,5 +115,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.5.0"
+  "distribution_tag": "v28.6.0"
 }

@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.5.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.6.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Единая переписка магазина и Support Pro
 
@@ -13,7 +13,7 @@
 ```bash
 cd /opt/vpn-shop
 git fetch origin
-git switch --detach v28.5.0
+git switch --detach v28.6.0
 docker compose stop backend worker support_pro support_worker
 docker compose build backend worker support_migrate support_pro support_worker
 docker compose run --rm backend alembic upgrade head
