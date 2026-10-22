@@ -1,14 +1,13 @@
 import React, {useEffect, useRef, useState} from "react";
-import {ChevronRight, LogOut, Menu, PanelLeftClose, PanelLeftOpen, PawPrint, RefreshCw, Search, ShieldCheck, X} from "lucide-react";
+import {ChevronRight, LayoutGrid, LogOut, Menu, PanelLeftClose, PanelLeftOpen, PawPrint, RefreshCw, Search, ShieldCheck, X} from "lucide-react";
+import {matchesSection, sectionInfo, type SectionGroup, type SectionItem} from "./sections";
 import {PreferencesMenu} from "./components/preferences-menu";
 import {Skeleton} from "./components/ui/skeleton";
 import {StatusDot} from "./components/ui/status";
 
-export type NavEntry<T extends string> = [T, string, string];
-export type NavGroup<T extends string> = {title: string; items: NavEntry<T>[]};
 
 type ShellProps<T extends string> = {
-  groups: NavGroup<T>[];
+  groups: SectionGroup<T>[];
   tab: T;
   onNavigate: (tab: T) => void;
   icon: (tab: T) => React.ReactNode;
@@ -23,6 +22,33 @@ type ShellProps<T extends string> = {
 };
 
 const COLLAPSE_KEY = "rw_sidebar_collapsed";
+
+const normalize = (text: string | null | undefined) => (text || "").replace(/\s+/g, " ").trim().toLowerCase();
+
+/**
+ * Sections were written as standalone pages and often start with a heading
+ * that repeats the page title, or put a table titled like the card around it.
+ * The page header already shows the title, so such repeats are hidden.
+ */
+function hideRepeatedHeadings(root: HTMLElement, title: string) {
+  const headings = Array.from(root.querySelectorAll<HTMLElement>("h2, h3"));
+  const first = headings[0];
+  headings.forEach((heading, index) => {
+    const text = normalize(heading.textContent);
+    const previous = index > 0 ? normalize(headings[index - 1].textContent) : "";
+    const repeatsTitle = heading === first && text === normalize(title);
+    const repeatsPrevious = text !== "" && text === previous && !headings[index - 1].hasAttribute("data-repeated-heading");
+    if (repeatsTitle || repeatsPrevious) {
+      if (!heading.hasAttribute("data-repeated-heading")) {
+        heading.setAttribute("data-repeated-heading", "true");
+        heading.setAttribute("aria-hidden", "true");
+      }
+    } else if (heading.hasAttribute("data-repeated-heading")) {
+      heading.removeAttribute("data-repeated-heading");
+      heading.removeAttribute("aria-hidden");
+    }
+  });
+}
 
 function readCollapsed() {
   try {
@@ -45,13 +71,13 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
   const [commandQuery, setCommandQuery] = useState("");
   const [commandIndex, setCommandIndex] = useState(0);
   const menuButton = useRef<HTMLButtonElement>(null);
-  const flat = groups.flatMap((group) => group.items);
-  const current = flat.find((item) => item[0] === tab);
-  const query = navQuery.trim().toLowerCase();
+  const content = useRef<HTMLDivElement>(null);
+  const flat: SectionItem<T>[] = groups.flatMap((group) => group.items);
+  const {item: current, group: currentGroup} = sectionInfo(tab);
   const visibleGroups = groups
-    .map((group) => ({...group, items: group.items.filter((item) => item[2].toLowerCase().includes(query))}))
+    .map((group) => ({...group, items: group.items.filter((item) => matchesSection(item, navQuery))}))
     .filter((group) => group.items.length);
-  const commandHits = flat.filter((item) => item[2].toLowerCase().includes(commandQuery.trim().toLowerCase())).slice(0, 12);
+  const commandHits = flat.filter((item) => matchesSection(item, commandQuery)).slice(0, 12);
 
   useEffect(() => {
     try {
@@ -87,6 +113,26 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
     return () => document.body.classList.remove("drawer-locked");
   }, [drawer]);
 
+  const pageTitle = current?.label || "Все разделы";
+  useEffect(() => {
+    const root = content.current;
+    if (!root) return;
+    let frame = 0;
+    const run = () => {
+      frame = 0;
+      hideRepeatedHeadings(root, pageTitle);
+    };
+    run();
+    const observer = new MutationObserver(() => {
+      if (!frame) frame = requestAnimationFrame(run);
+    });
+    observer.observe(root, {childList: true, subtree: true, characterData: true});
+    return () => {
+      observer.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [pageTitle]);
+
   function go(next: T) {
     onNavigate(next);
     setDrawer(false);
@@ -101,7 +147,7 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
           <div className="brand-icon">{logoUrl ? <img src={logoUrl} alt="" /> : <PawPrint aria-hidden="true" />}</div>
           <div className="brand-copy">
             <strong>{brandName}</strong>
-            <span>CONTROL CENTER</span>
+            <span>Панель управления</span>
           </div>
           <button type="button" className="sidebar-close" aria-label="Закрыть меню" onClick={() => setDrawer(false)}>
             <X aria-hidden="true" />
@@ -113,20 +159,32 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
           <kbd>⌘K</kbd>
         </label>
         <nav className="sidebar-scroll">
+          <button
+            type="button"
+            className={tab === "panel" ? "nav-item nav-hub active" : "nav-item nav-hub"}
+            aria-current={tab === "panel" ? "page" : undefined}
+            title={collapsed ? "Все разделы" : undefined}
+            onClick={() => go("panel" as T)}
+          >
+            <i>
+              <LayoutGrid aria-hidden="true" />
+            </i>
+            <span>Все разделы</span>
+          </button>
           {visibleGroups.map((group) => (
-            <section className="nav-group" key={group.title}>
+            <section className="nav-group" key={group.id}>
               <div className="nav-group-title">{group.title}</div>
               {group.items.map((item) => (
                 <button
                   type="button"
-                  key={item[0]}
-                  className={tab === item[0] ? "nav-item active" : "nav-item"}
-                  aria-current={tab === item[0] ? "page" : undefined}
-                  title={collapsed ? item[2] : undefined}
-                  onClick={() => go(item[0])}
+                  key={item.tab}
+                  className={tab === item.tab ? "nav-item active" : "nav-item"}
+                  aria-current={tab === item.tab ? "page" : undefined}
+                  title={collapsed ? item.label : item.description}
+                  onClick={() => go(item.tab)}
                 >
-                  <i>{icon(item[0])}</i>
-                  <span>{item[2]}</span>
+                  <i>{icon(item.tab)}</i>
+                  <span>{item.label}</span>
                 </button>
               ))}
             </section>
@@ -156,10 +214,18 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
             <Menu aria-hidden="true" />
           </button>
           <div className="page-heading">
-            <div className="breadcrumb">
-              {brandName.toUpperCase()} <ChevronRight aria-hidden="true" /> {current?.[2]?.toUpperCase()}
-            </div>
-            <h1>{current?.[2] || "Обзор"}</h1>
+            <nav className="breadcrumb" aria-label="Путь к разделу">
+              <button type="button" onClick={() => go("panel" as T)}>
+                Админ-панель
+              </button>
+              {currentGroup && (
+                <>
+                  <ChevronRight aria-hidden="true" />
+                  <span>{currentGroup.title}</span>
+                </>
+              )}
+            </nav>
+            <h1>{current?.label || "Все разделы"}</h1>
           </div>
           <div className="topbar-actions">
             <button type="button" className="command-trigger" onClick={() => setCommand(true)}>
@@ -177,12 +243,15 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
             <PreferencesMenu theme={theme} onThemeChange={onThemeChange} />
           </div>
         </header>
-        <div className="content-wrap">{children}</div>
+        <div className="content-wrap" ref={content}>
+          {current && tab !== "panel" && <p className="page-description">{current.description}</p>}
+          {children}
+        </div>
       </main>
       {command && (
         <div className="command-overlay" onClick={() => setCommand(false)}>
           <div className="command-box" role="dialog" aria-modal="true" aria-label="Быстрый поиск" onClick={(event) => event.stopPropagation()}>
-            <div className="command-search">
+            <div className="command-search" data-no-field-help="">
               <Search aria-hidden="true" />
               <input
                 autoFocus
@@ -201,18 +270,21 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
                     setCommandIndex((index) => Math.max(index - 1, 0));
                   } else if (event.key === "Enter" && commandHits[commandIndex]) {
                     event.preventDefault();
-                    go(commandHits[commandIndex][0]);
+                    go(commandHits[commandIndex].tab);
                   }
                 }}
-                placeholder="Поиск раздела…"
+                placeholder="Название раздела или задача…"
               />
               <kbd>ESC</kbd>
             </div>
             <div className="command-results">
               {commandHits.map((item, index) => (
-                <button type="button" key={item[0]} className={index === commandIndex ? "is-active" : ""} onMouseEnter={() => setCommandIndex(index)} onClick={() => go(item[0])}>
-                  <span>{icon(item[0])}</span>
-                  {item[2]}
+                <button type="button" key={item.tab} className={index === commandIndex ? "is-active" : ""} onMouseEnter={() => setCommandIndex(index)} onClick={() => go(item.tab)}>
+                  <span>{icon(item.tab)}</span>
+                  <span className="command-copy">
+                    <b>{item.label}</b>
+                    <small>{item.description}</small>
+                  </span>
                   <kbd>↵</kbd>
                 </button>
               ))}

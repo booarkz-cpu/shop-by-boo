@@ -342,7 +342,7 @@ export function RuntimeSettings({
     <div className="runtime-settings-page">
       <section className="hero runtime-settings-hero">
         <div>
-          <div className="eyebrow">LIVE CONFIG · VERSION {data.version}</div>
+          <div className="eyebrow">Версия настроек: {data.version}</div>
           <h2>Настройки без перезапуска</h2>
           <p>
             Типизированные значения применяются атомарно. Секреты зашифрованы,

@@ -219,7 +219,8 @@ export function FieldHints() {
         .forEach((control) => {
           if (
             control.getAttribute("aria-hidden") === "true" ||
-            control.closest("[data-field-help-slot]")
+            control.closest("[data-field-help-slot]") ||
+            control.closest("[data-no-field-help]")
           )
             return;
           const label = fieldLabel(control),

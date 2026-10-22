@@ -109,7 +109,7 @@ async def capacity(db:AsyncSession=Depends(get_db),admin=Depends(require_permiss
             except:return 0.0
         load=max(pct(a.cpu),pct(a.mem),pct(a.disk)); state='critical' if load>=cfg['critical_percent'] else 'warning' if load>=cfg['warning_percent'] else 'healthy'
         out.append({'id':a.id,'name':a.name,'load':load,'state':state,'forecast_days':0 if load>=cfg['critical_percent'] else max(1,int((cfg['critical_percent']-load)/max(load*.03,1)))})
-    return {'config':cfg,'nodes':out,'recommendation':{'add_nodes':sum(1 for x in out if x['state']=='critical'),'note':'Forecast uses current agent telemetry; connect historical metrics for time-series forecasting.'}}
+    return {'config':cfg,'nodes':out,'recommendation':{'add_nodes':sum(1 for x in out if x['state']=='critical'),'note':'Прогноз строится по текущей телеметрии агентов; для прогноза по времени подключите исторические метрики.'}}
 
 @router.post('/api/admin/v6/orchestrator/evaluate')
 async def orchestrate(db:AsyncSession=Depends(get_db),admin=Depends(require_permission('provision_nodes'))):

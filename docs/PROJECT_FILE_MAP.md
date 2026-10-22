@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.9.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.10.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **989**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1007**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -232,6 +232,9 @@
 | [admin/package.json](../admin/package.json) | Админ-панель |
 | [admin/playwright.config.ts](../admin/playwright.config.ts) | Админ-панель |
 | [admin/postcss.config.mjs](../admin/postcss.config.mjs) | Админ-панель |
+| [admin/scripts/audit-sections.mjs](../admin/scripts/audit-sections.mjs) | Админ-панель |
+| [admin/scripts/screenshots.mjs](../admin/scripts/screenshots.mjs) | Админ-панель |
+| [admin/src/admin-hub.tsx](../admin/src/admin-hub.tsx) | Админ-панель |
 | [admin/src/admin-shell.tsx](../admin/src/admin-shell.tsx) | Админ-панель |
 | [admin/src/app/layout.tsx](../admin/src/app/layout.tsx) | Админ-панель |
 | [admin/src/app/page.tsx](../admin/src/app/page.tsx) | Админ-панель |
@@ -265,6 +268,7 @@
 | [admin/src/push-status.tsx](../admin/src/push-status.tsx) | Админ-панель |
 | [admin/src/referral-program.tsx](../admin/src/referral-program.tsx) | Админ-панель |
 | [admin/src/runtime-settings.tsx](../admin/src/runtime-settings.tsx) | Админ-панель |
+| [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
 | [admin/src/style.css](../admin/src/style.css) | Админ-панель |
 | [admin/src/subscription-commerce.tsx](../admin/src/subscription-commerce.tsx) | Админ-панель |
 | [admin/src/support-desk.tsx](../admin/src/support-desk.tsx) | Админ-панель |
@@ -554,6 +558,7 @@
 | [docs/examples/plugin/manifest.json](../docs/examples/plugin/manifest.json) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
+| [docs/ru/ADMIN_PANEL_CURRENT.md](../docs/ru/ADMIN_PANEL_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PASSKEYS.md](../docs/ru/ADMIN_PASSKEYS.md) | Документация |
 | [docs/ru/ALL_PAYMENT_PROVIDERS_BEGINNER_CHECKLIST.md](../docs/ru/ALL_PAYMENT_PROVIDERS_BEGINNER_CHECKLIST.md) | Документация |
 | [docs/ru/AUDIT_2026_09_28_REPOSITORY.md](../docs/ru/AUDIT_2026_09_28_REPOSITORY.md) | Документация |
@@ -604,6 +609,7 @@
 | [docs/ru/RELEASE_V26.md](../docs/ru/RELEASE_V26.md) | Документация |
 | [docs/ru/RELEASE_V27.md](../docs/ru/RELEASE_V27.md) | Документация |
 | [docs/ru/RELEASE_V28.md](../docs/ru/RELEASE_V28.md) | Документация |
+| [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
@@ -657,13 +663,25 @@
 | [docs/ru/steps/04-payments.md](../docs/ru/steps/04-payments.md) | Документация |
 | [docs/ru/steps/05-operations.md](../docs/ru/steps/05-operations.md) | Документация |
 | [docs/ru/steps/README.md](../docs/ru/steps/README.md) | Документация |
-| [docs/screenshots/admin-dashboard-v28-4-0.png](../docs/screenshots/admin-dashboard-v28-4-0.png) | Документация |
-| [docs/screenshots/admin-login-v28-4-0.png](../docs/screenshots/admin-login-v28-4-0.png) | Документация |
-| [docs/screenshots/admin-mobile-drawer-v28-4-0.png](../docs/screenshots/admin-mobile-drawer-v28-4-0.png) | Документация |
-| [docs/screenshots/admin-mobile-v28-4-0.png](../docs/screenshots/admin-mobile-v28-4-0.png) | Документация |
-| [docs/screenshots/cabinet-overview-v28-4-0.png](../docs/screenshots/cabinet-overview-v28-4-0.png) | Документация |
-| [docs/screenshots/cabinet-plans-v28-4-0.png](../docs/screenshots/cabinet-plans-v28-4-0.png) | Документация |
-| [docs/screenshots/miniapp-light-v28-4-0.png](../docs/screenshots/miniapp-light-v28-4-0.png) | Документация |
+| [docs/screenshots/admin-admins-v28-10-0.png](../docs/screenshots/admin-admins-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-bot-content-v28-10-0.png](../docs/screenshots/admin-bot-content-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-command-search-v28-10-0.png](../docs/screenshots/admin-command-search-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-dashboard-v28-10-0.png](../docs/screenshots/admin-dashboard-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-login-v28-10-0.png](../docs/screenshots/admin-login-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-marketing-v28-10-0.png](../docs/screenshots/admin-marketing-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-mobile-drawer-v28-10-0.png](../docs/screenshots/admin-mobile-drawer-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-mobile-form-v28-10-0.png](../docs/screenshots/admin-mobile-form-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-mobile-v28-10-0.png](../docs/screenshots/admin-mobile-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-network-intel-v28-10-0.png](../docs/screenshots/admin-network-intel-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-panel-light-v28-10-0.png](../docs/screenshots/admin-panel-light-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-panel-search-v28-10-0.png](../docs/screenshots/admin-panel-search-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-panel-v28-10-0.png](../docs/screenshots/admin-panel-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-plans-v28-10-0.png](../docs/screenshots/admin-plans-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-runtime-settings-v28-10-0.png](../docs/screenshots/admin-runtime-settings-v28-10-0.png) | Документация |
+| [docs/screenshots/admin-tariff-constructor-v28-10-0.png](../docs/screenshots/admin-tariff-constructor-v28-10-0.png) | Документация |
+| [docs/screenshots/cabinet-overview-v28-10-0.png](../docs/screenshots/cabinet-overview-v28-10-0.png) | Документация |
+| [docs/screenshots/cabinet-plans-v28-10-0.png](../docs/screenshots/cabinet-plans-v28-10-0.png) | Документация |
+| [docs/screenshots/miniapp-light-v28-10-0.png](../docs/screenshots/miniapp-light-v28-10-0.png) | Документация |
 | [docs/uk/DEPLOYMENT.md](../docs/uk/DEPLOYMENT.md) | Документация |
 | [docs/uk/DOCUMENTATION.md](../docs/uk/DOCUMENTATION.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |

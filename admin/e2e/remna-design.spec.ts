@@ -11,6 +11,11 @@ async function signIn(page: Page) {
   await page.getByRole('button', {name: 'Войти', exact: true}).click();
 }
 
+async function openDashboard(page: Page) {
+  await signIn(page);
+  await page.locator('.sidebar').getByRole('button', {name: 'Главная', exact: true}).click();
+}
+
 test('login and admin shell use the Remna dark design system', async ({page}) => {
   await page.addInitScript(() => {
     localStorage.setItem('rw_theme', 'dark');
@@ -32,7 +37,7 @@ test('login and admin shell use the Remna dark design system', async ({page}) =>
 
   await signIn(page);
   await expect(page.locator('.sidebar')).toBeVisible();
-  await expect(page.getByRole('button', {name: /Главная/})).toBeVisible();
+  await expect(page.locator('.sidebar').getByRole('button', {name: /Главная/})).toBeVisible();
   await expect(page.getByRole('button', {name: 'Открыть меню'})).toBeHidden();
   await expect(page.locator('.sidebar .nav-item').first()).toHaveCSS('background-image', 'none');
   await expect(page.getByRole('button', {name: /Быстрый поиск/})).toBeVisible();
@@ -78,7 +83,7 @@ test('mobile layout keeps navigation accessible', async ({page}) => {
 });
 
 test('dashboard tiles use a 2x2 grid on phones and 4x1 on desktop', async ({page}) => {
-  await signIn(page);
+  await openDashboard(page);
   const tiles = page.locator('.dash-metric');
   await expect(tiles).toHaveCount(4);
   const desktopRows = new Set<number>();
@@ -97,7 +102,7 @@ test('dashboard tiles use a 2x2 grid on phones and 4x1 on desktop', async ({page
 });
 
 test('dashboard search, segmented filter and actions menu are keyboard operable', async ({page}) => {
-  await signIn(page);
+  await openDashboard(page);
   const filter = page.getByRole('radiogroup', {name: 'Фильтр по статусу'});
   await expect(filter.getByRole('radio', {name: /Все/})).toHaveAttribute('aria-checked', 'true');
   await filter.getByRole('radio', {name: /Все/}).focus();
@@ -129,7 +134,7 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
   await signIn(page);
   await page.getByRole('button', {name: /Настройки без перезапуска/}).click();
 
-  await expect(page.getByRole('heading', {name: 'Настройки без перезапуска', level: 2})).toBeVisible();
+  await expect(page.getByRole('heading', {name: 'Настройки без перезапуска', level: 1})).toBeVisible();
   const registryCounts = page.locator('.runtime-registry-counts');
   await expect(registryCounts).toContainText('96 live');
   await expect(registryCounts).toContainText('55 deployment');
@@ -147,13 +152,13 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
   await expect(page.locator('.runtime-preview')).toContainText('7');
   page.once('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', {name: 'Применить версию 1', exact: true}).click();
-  await expect(page.getByText('LIVE CONFIG · VERSION 1', {exact: true})).toBeVisible();
+  await expect(page.getByText('Версия настроек: 1', {exact: true})).toBeVisible();
 
   page.on('dialog', async (dialog) => {
     await dialog.accept(dialog.type() === 'prompt' ? 'Browser rollback check' : undefined);
   });
   await page.getByRole('button', {name: 'Откатить', exact: true}).click();
-  await expect(page.getByText('LIVE CONFIG · VERSION 2', {exact: true})).toBeVisible();
+  await expect(page.getByText('Версия настроек: 2', {exact: true})).toBeVisible();
 });
 
 test('notifications section reports native push readiness without leaking tokens', async ({page}) => {
@@ -172,7 +177,8 @@ test('node network section shows sources, freshness rules and stays usable on ph
   await signIn(page);
   await page.getByRole('button', {name: /Сеть узлов/}).first().click();
   const sources = page.getByRole('region', {name: 'Источники сетевых данных'});
-  await expect(sources.getByRole('heading', {name: /ASN и репутация/})).toBeVisible();
+  await expect(page.getByRole('heading', {name: /ASN и репутация/, level: 1})).toBeVisible();
+  await expect(sources).toBeVisible();
   await expect(sources.getByText('RIPEstat (RIPE NCC)')).toBeVisible();
   await expect(sources.getByText('Задайте ABUSEIPDB_API_KEY, чтобы проверять репутацию.')).toBeVisible();
   // No Remnawave panel in the browser stand: the section explains it instead of failing.
@@ -182,4 +188,40 @@ test('node network section shows sources, freshness rules and stays usable on ph
   await page.setViewportSize({width: 390, height: 844});
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
+});
+
+test('all-sections hub lists every feature with a description and finds them by task', async ({page}) => {
+  await signIn(page);
+  await expect(page.getByRole('heading', {level: 1, name: 'Все разделы'})).toBeVisible();
+  const cards = page.locator('.hub-card');
+  await expect(cards).toHaveCount(8);
+  for (const title of ['Аналитика', 'Пользователи', 'Тарифы и оплата', 'Маркетинг', 'Бот и кабинет', 'Серверы', 'Система', 'Безопасность'])
+    await expect(page.locator('.hub-card h3', {hasText: title}).first()).toBeVisible();
+  // Every entry has a name and a one-sentence description.
+  const items = page.locator('.hub-item');
+  const total = await items.count();
+  expect(total).toBeGreaterThanOrEqual(58);
+  for (let i = 0; i < total; i += 1) await expect(items.nth(i).locator('small')).toHaveText(/\S.{20,}/);
+
+  const search = page.getByPlaceholder('Например: промокод, возврат, логотип');
+  await search.fill('логотип');
+  await expect(items).toHaveCount(1);
+  await expect(page.locator('.hub-item', {hasText: 'Оформление'})).toBeVisible();
+  await search.fill('ничего такого нет');
+  await expect(page.getByText('Ничего не найдено')).toBeVisible();
+  await page.getByRole('button', {name: 'Очистить поиск'}).click();
+  await expect(items).toHaveCount(total);
+
+  await page.locator('.hub-item', {hasText: 'Конструктор тарифов'}).click();
+  await expect(page.getByRole('heading', {level: 1, name: 'Конструктор тарифов'})).toBeVisible();
+  await expect(page.locator('.breadcrumb')).toContainText('Тарифы и оплата');
+  await expect(page.locator('.page-description')).toContainText('собирает сам');
+  // Fields carry a visible label, not just a placeholder.
+  await expect(page.locator('label.field', {hasText: 'Базовая цена, ₽'})).toBeVisible();
+  await expect(page.locator('label.field', {hasText: 'Доплата, ₽'}).first()).toBeVisible();
+  await page.locator('.breadcrumb').getByRole('button', {name: 'Админ-панель'}).click();
+  await expect(page.getByRole('heading', {level: 1, name: 'Все разделы'})).toBeVisible();
+
+  await page.setViewportSize({width: 390, height: 844});
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
