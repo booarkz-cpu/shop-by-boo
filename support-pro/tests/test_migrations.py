@@ -17,7 +17,7 @@ def test_fresh_database_and_upgrade_preserves_history(tmp_path):
     fresh = tmp_path/'fresh.db'
     migrate(fresh, 'head')
     with sqlite3.connect(fresh) as c:
-        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0006'
+        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0007'
         assert 'notifications' in {x[0] for x in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     old = tmp_path/'old.db'
     migrate(old,'0001')
@@ -50,7 +50,7 @@ def test_unversioned_legacy_is_verified_and_upgraded(tmp_path):
     result = run_guard(path)
     assert result.returncode == 0, result.stdout + result.stderr
     with sqlite3.connect(path) as c:
-        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0006'
+        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0007'
         assert c.execute('SELECT subject FROM tickets').fetchone()[0] == 'Keep me'
 
 
@@ -78,3 +78,23 @@ def test_upgrade_from_33_preserves_product_data(tmp_path):
         assert c.execute('SELECT subject,channel,paused_seconds FROM tickets').fetchone()==('Original','telegram',0)
         assert c.execute('SELECT body FROM knowledge_articles').fetchone()[0]=='Article'
         assert 'work_items' in {r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+
+
+def test_email_channel_migration_roundtrip_and_downgrade_guard(tmp_path):
+    path = tmp_path/'email.db'
+    migrate(path, 'head')
+    def downgrade():
+        return subprocess.run([sys.executable, '-m', 'alembic', 'downgrade', '0006'], cwd=ROOT,
+            env={**os.environ, 'DATABASE_URL':'sqlite+aiosqlite:///'+str(path)}, text=True, capture_output=True)
+    assert downgrade().returncode == 0
+    migrate(path, 'head')
+    with sqlite3.connect(path) as c:
+        c.execute("INSERT INTO tickets(id,telegram_user_id,subject,channel) VALUES(1,-5,'Mail','email')")
+        c.execute("INSERT INTO channel_identities(client_id,channel,external_id,address,verified) VALUES(-5,'email','a@example.org','a@example.org',0)")
+        try:
+            c.execute("INSERT INTO channel_identities(client_id,channel,external_id,address,verified) VALUES(-6,'email','a@example.org','a@example.org',0)")
+            raise AssertionError('duplicate identity accepted')
+        except sqlite3.IntegrityError:
+            pass
+    result = downgrade()
+    assert result.returncode != 0 and 'Email tickets exist' in result.stdout + result.stderr

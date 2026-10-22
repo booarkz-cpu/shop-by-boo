@@ -42,7 +42,7 @@ from .jobs import validate_rule, validate_url
 from .storage import save_upload, checked_path, safe_name, MAX_BYTES
 
 ROOT = Path(__file__).resolve().parent
-app = FastAPI(title='Support Pro 3.6', docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title='Support Pro 3.7', docs_url=None, redoc_url=None, openapi_url=None)
 app.add_middleware(SessionMiddleware, secret_key=session_secret(os.getenv('SESSION_SECRET', '')),
                    https_only=os.getenv('COOKIE_SECURE', 'true').lower() == 'true',
                    same_site='lax', max_age=28800)
@@ -113,7 +113,7 @@ async def render(request, name, op=None, **context):
     page_title = {'dashboard': 'Обращения', 'ticket': 'Карточка обращения', 'client': 'Карточка клиента',
                   'reports': 'Аналитика', 'catalog': 'База ответов', 'knowledge': 'База знаний', 'calls': 'Обратные звонки', 'operators': 'Команда',
                   'settings': 'SLA и распределение', 'rules': 'Автоматизация', 'webhooks': 'Интеграции', 'audit': 'Журнал действий',
-                  'login': 'Вход', 'twofa': 'Настройка 2FA'}.get(page_key, 'Support Pro')
+                  'login': 'Вход', 'twofa': 'Настройка 2FA', 'email': 'Email-канал'}.get(page_key, 'Support Pro')
     return tpl.TemplateResponse(request=request, name=name, context={
         'op': op, 'csrf': csrf(request.session), 'page_key': page_key, 'page_title': page_title, **context})
 
@@ -332,13 +332,15 @@ async def ticket_page(request: Request, tid: int, op=Depends(current_operator)):
         cats = (await s.scalars(select(Category).order_by(Category.name))).all()
         macros = (await s.scalars(select(Macro).where(Macro.active.is_(True)).order_by(Macro.title))).all()
         client = await s.get(Client, ticket.telegram_user_id)
+        from .email_admin import context_for_ticket
+        email_info = await context_for_ticket(s, ticket)
         canonical=await s.scalar(select(Ticket).where(Ticket.shop_ticket_id==ticket.shop_merged_into_id)) if ticket.shop_merged_into_id else None
     grouped = defaultdict(list)
     for item in atts:
         grouped[item.message_id].append(item)
     return await render(request, 'ticket.html', op, t=ticket, messages=msgs, attachments=grouped,
                         ops=ops, operator_names={o.id: o.login for o in ops}, cats=cats, macros=macros,
-                        client=client, canonical=canonical, nonce=secrets.token_urlsafe(24), max_upload=2 if ticket.shop_ticket_id else MAX_BYTES // 1024 // 1024,
+                        client=client, canonical=canonical, email_info=email_info, nonce=secrets.token_urlsafe(24), max_upload=2 if ticket.shop_ticket_id else MAX_BYTES // 1024 // 1024,
                         ai_enabled=bool(os.getenv('AI_BASE_URL') and os.getenv('AI_MODEL') and os.getenv('AI_API_KEY')))
 
 
@@ -499,7 +501,9 @@ async def client_page(request: Request, uid: int, op=Depends(current_operator)):
         page = min(page, pages)
         tickets = (await s.scalars(select(Ticket).where(Ticket.telegram_user_id == uid)
                                   .order_by(Ticket.id.desc()).offset((page - 1) * 30).limit(30))).all()
-    return await render(request, 'client.html', op, client=client, tickets=tickets, total=total, pages=pages, page=page)
+        from .email_admin import context_for_client
+        identities = await context_for_client(s, uid)
+    return await render(request, 'client.html', op, client=client, tickets=tickets, total=total, pages=pages, page=page, identities=identities)
 
 
 @app.post('/client/{uid}')
@@ -1142,7 +1146,7 @@ async def metrics_endpoint(op=Depends(metrics_access)):
     lines.append(f'support_worker_alive {int(bool(heartbeat and float(heartbeat)>time.time()-180))}')
     return StreamingResponse(iter(['\n'.join(lines)+'\n']), media_type='text/plain; version=0.0.4')
 
-from . import operations, portal  # noqa: E402,F401
+from . import operations, portal, email_admin  # noqa: E402,F401
 
 @app.get('/live')
 async def live():

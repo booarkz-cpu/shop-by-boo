@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% from '_ui.html' import icon, pagehead %}{% block content %}{{ pagehead('СИСТЕМА', 'Email-канал', 'Письма клиентов становятся обращениями, ответы операторов уходят письмом.') }}
+<div class="editor-grid"><section class="card stack" aria-label="Состояние канала"><div class="section-heading"><div class="heading-with-icon">{{ icon('message') }}<h2>Состояние</h2></div></div>
+<dl class="sla-grid">
+<div class="sla-highlight"><dt>Адрес поддержки</dt><dd>{{ info.address or 'не задан' }}</dd></div>
+<div><dt>Приём (IMAP)</dt><dd>{% if info.inbound %}<span class="badge open">Включён</span> {{ info.imap_host }}{% else %}<span class="badge closed">Не настроен</span>{% endif %}</dd></div>
+<div><dt>Отправка (SMTP)</dt><dd>{% if info.outbound %}<span class="badge open">Включена</span> {{ info.smtp_host }}{% else %}<span class="badge closed">Не настроена</span>{% endif %}</dd></div>
+<div><dt>Последнее успешное чтение</dt><dd>{{ (info.state.last_success|dt) if info.state else '—' }}</dd></div>
+<div><dt>Принято писем</dt><dd>{{ info.state.received if info.state else 0 }}</dd></div>
+<div><dt>Пропущено (автоответы, рассылки, дубли, возвраты)</dt><dd>{{ info.state.skipped if info.state else 0 }}</dd></div>
+<div><dt>Клиентов с email</dt><dd>{{ info.clients }}</dd></div>
+<div><dt>Хранение закрытых обращений</dt><dd>{{ (info.retention_days|string + ' дн.') if info.retention_days else 'без ограничения' }}</dd></div>
+<div><dt>Лимит вложений письма</dt><dd>{{ info.max_mb }} МБ</dd></div>
+</dl>
+{% if info.state and info.state.error %}<p class="error-text" role="alert">{{ info.state.error }}</p>{% endif %}
+<small class="composer-hint">{{ icon('lock') }}Пароли почты задаются только в файле окружения Support Pro и здесь не показываются.</small></section>
+<aside><section class="card stack"><div class="section-heading"><div class="heading-with-icon">{{ icon('shield') }}<h2>Защита</h2></div></div><p class="muted">Повтор письма не создаёт дубль: учитывается Message-ID. Автоответы, рассылки и письма с собственного адреса пропускаются, возвраты отмечают ответ как недоставленный. Ответ присоединяется к обращению только от того же адреса.</p><p class="muted">Отправитель email не подтверждён. В обращении показывается проверка DMARC принимающего сервера — не выполняйте по письму действия с аккаунтом без дополнительной проверки.</p></section></aside></div>
+<section class="card"><div class="section-heading"><div class="heading-with-icon">{{ icon('inbox') }}<h2>Последние email-обращения</h2></div></div><div class="table-wrap"><table><tr><th>Обращение</th><th>Клиент</th><th>Статус</th><th>Обновлено</th></tr>{% for t in recent %}<tr><td><a class="ticket-link" href="/ticket/{{ t.id }}"><span class="ticket-reference">#{{ t.id }}</span><b>{{ t.subject }}</b></a></td><td><a href="/client/{{ t.telegram_user_id }}">{{ t.full_name }}</a></td><td><span class="badge {{ t.status }}">{{ statuses[t.status] }}</span></td><td class="date-cell">{{ t.updated_at|dt }}</td></tr>{% else %}<tr><td colspan="4" class="empty">Писем пока нет.</td></tr>{% endfor %}</table></div></section>{% endblock %}

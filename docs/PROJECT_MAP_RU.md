@@ -1,6 +1,6 @@
 # Карта проекта Shop by Boo
 
-Документ описывает актуальную структуру дистрибутива `v28.6.0` (runtime/API `21.5.1`, migration head `0066_push_notifications`) и границы компонентов. Карта не объявляет внешние платёжные, SMTP, VPN или mobile-signing проверки пройденными.
+Документ описывает актуальную структуру дистрибутива `v28.7.0` (runtime/API `21.5.1`, migration head `0066_push_notifications`) и границы компонентов. Карта не объявляет внешние платёжные, SMTP, VPN или mobile-signing проверки пройденными.
 
 ## Архитектура
 
@@ -73,7 +73,7 @@ flowchart TD
 - каждое редактируемое поле получает доступную контекстную подсказку;
 - reduced-motion отключает декоративные переходы.
 
-Дизайн реализован без дублирования бизнес-логики: `admin/src/theme.css`, оболочка `admin/src/admin-shell.tsx`, дашборд `admin/src/dashboard.tsx`, shadcn/Radix-компоненты `admin/src/components/ui/` и слой `cabinet/src/style.css` меняют интерфейс, а не API-контракты. Сборка выносит inline-скрипты Next.js в файлы (`cabinet/scripts/csp-externalize.mjs`), поэтому CSP `script-src 'self'` не ослаблена. Перенос истории — `backend/app/history_import.py`, миграция `0065_history_import`. Push-уведомления мобильных приложений — `backend/app/push.py` (реестр устройств, worker доставки FCM/APNs), миграция `0066_push_notifications`, `mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt`, `PushCenter` в `mobile/ios-user/VpnShopUser/VpnShopUserApp.swift`, карточка `admin/src/push-status.tsx`. Виджет Android — `backend/app/widget.py` (`GET /api/me/widget`) и `mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt`; профили админ-приложений — `mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt` и `ProfileVault` в `mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift`.
+Дизайн реализован без дублирования бизнес-логики: `admin/src/theme.css`, оболочка `admin/src/admin-shell.tsx`, дашборд `admin/src/dashboard.tsx`, shadcn/Radix-компоненты `admin/src/components/ui/` и слой `cabinet/src/style.css` меняют интерфейс, а не API-контракты. Сборка выносит inline-скрипты Next.js в файлы (`cabinet/scripts/csp-externalize.mjs`), поэтому CSP `script-src 'self'` не ослаблена. Перенос истории — `backend/app/history_import.py`, миграция `0065_history_import`. Push-уведомления мобильных приложений — `backend/app/push.py` (реестр устройств, worker доставки FCM/APNs), миграция `0066_push_notifications`, `mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt`, `PushCenter` в `mobile/ios-user/VpnShopUser/VpnShopUserApp.swift`, карточка `admin/src/push-status.tsx`. Виджет Android — `backend/app/widget.py` (`GET /api/me/widget`) и `mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt`; профили админ-приложений — `mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt` и `ProfileVault` в `mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift`. Email-канал поддержки — `support-pro/app/email_channel.py` (IMAP, цепочки, SMTP, удаление и срок хранения), `support-pro/app/email_admin.py` и шаблон `support-pro/app/templates/email.html`, миграция Support Pro `0007_email_channel`.
 
 ## Рабочий цикл изменения
 

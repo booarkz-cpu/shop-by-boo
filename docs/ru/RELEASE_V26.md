@@ -54,7 +54,7 @@ docker compose exec -T backend alembic current
 docker compose logs --tail=100 backend worker support_pro support_worker
 ```
 
-Ожидаются runtime `21.5.1`, migration head `0062_support_delivery_identity` и Support Pro `0006`.
+Ожидаются runtime `21.5.1`, migration head `0062_support_delivery_identity` и Support Pro `0007`.
 
 ## Документация
 

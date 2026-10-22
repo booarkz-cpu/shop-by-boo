@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.6.0. Runtime/API `21.5.1`, head магазина `0066_push_notifications`, Support Pro `0006`.
+> Актуальная инструкция дистрибутива v28.7.0. Runtime/API `21.5.1`, head магазина `0066_push_notifications`, Support Pro `0007`.
 
 # Перенос истории подписок и платежей
 
