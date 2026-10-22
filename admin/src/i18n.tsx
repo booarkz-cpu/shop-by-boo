@@ -770,6 +770,8 @@ export const EN: Record<string, string> = {
   "принимаются": "accepted",
   "в норме": "healthy",
   "Прогноз строится по текущей телеметрии агентов; для прогноза по времени подключите исторические метрики.": "Forecast uses current agent telemetry; connect historical metrics for time-series forecasting.",
+  "Ответ сервера: ": "Server response: ",
+  "Ответ сервера:": "Server response:",
 };
 
 Object.assign(EN, {

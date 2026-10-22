@@ -23,12 +23,18 @@ from app.db import get_db
 from app.models import Base, AdminUser, FeatureFlag, User
 from app.security import hash_password
 
-engine=create_async_engine('sqlite+aiosqlite:///'+str(Path(test_files.name)/'browser.sqlite3'))
+# BROWSER_DATABASE_URL points the fixture at a disposable PostgreSQL database
+# (needed for flows that take advisory locks, e.g. customer registration).
+engine=create_async_engine(os.environ.get('BROWSER_DATABASE_URL') or 'sqlite+aiosqlite:///'+str(Path(test_files.name)/'browser.sqlite3'))
 
 
 @asynccontextmanager
 async def lifespan(app):
     async with engine.begin() as connection:await connection.run_sync(Base.metadata.create_all)
+    if os.environ.get('BROWSER_REDIS_URL'):
+        # Optional real Redis for flows that take distributed locks (sandbox purchases).
+        from redis.asyncio import Redis
+        shop.redis_client=Redis.from_url(os.environ['BROWSER_REDIS_URL'],decode_responses=True)
     async with AsyncSession(engine,expire_on_commit=False) as db:
         db.add(AdminUser(email='browser@example.test',password_hash=hash_password('browser-only-password'),role='admin'))
         db.add(FeatureFlag(key='passkeys',enabled=True))

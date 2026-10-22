@@ -191,7 +191,18 @@ APP_ENV=test APP_SECRET=browser-test-only-secret-at-least-32-characters COOKIE_S
 node scripts/screenshots.mjs ../docs/screenshots v28-10-0
 ```
 
-Скрипт создаёт три тестовых тарифа и два промокода, снимает страницы на 1440×900 и 390×844 в тёмной и светлой теме. Для проверки всех 58 разделов (снимок каждого и список полей без подписи) есть `node scripts/audit-sections.mjs <каталог>`.
+Скрипт создаёт три тестовых тарифа и два промокода, снимает страницы на 1440×900 и 390×844 в тёмной и светлой теме.
+
+Полный каталог — каждый раздел панели (`screenshots/admin_panel/`, 61 снимок в порядке меню) и каждый раздел личного кабинета (`screenshots/storefront_user/`, 20 снимков) — снимает `node scripts/screenshots-catalog.mjs ..`. Ему нужен стенд с PostgreSQL, Redis и sandbox-платежами, потому что регистрация покупателя и оплата берут блокировки:
+
+```bash
+BROWSER_DATABASE_URL=postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/docshots \
+BROWSER_REDIS_URL=redis://127.0.0.1:6379/0 PAYMENTS_SANDBOX=true \
+APP_ENV=test APP_SECRET=browser-test-only-secret-at-least-32-characters COOKIE_SECURE=false \
+  MOBILE_REQUIRE_PROOF=false python tests/passkey_browser_server.py
+```
+
+База должна быть пустой: скрипт создаёт тарифы, промокоды и покупателя `demo.buyer` с двумя sandbox-оплатами и обращением в поддержку. Список снимков с описаниями для раздела «Скриншоты» в README скрипт записывает во временный каталог (`admin-screenshots-index.json`). Для проверки всех 58 разделов (снимок каждого и список полей без подписи) есть `node scripts/audit-sections.mjs <каталог>`.
 
 ## Проверка
 

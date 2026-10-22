@@ -9,7 +9,8 @@ const out = process.argv[2] || '../docs/screenshots';
 const tag = process.argv[3] || 'dev';
 const base = 'http://localhost:8777';
 fs.mkdirSync(out, {recursive: true});
-const browser = await chromium.launch({executablePath: process.env.E2E_CHROMIUM_PATH || undefined});
+// --lang makes the browser's own controls (file pickers) Russian as well.
+const browser = await chromium.launch({executablePath: process.env.E2E_CHROMIUM_PATH || undefined, args: ['--lang=ru-RU'], env: {...process.env, LANG: 'ru_RU.UTF-8', LANGUAGE: 'ru'}});
 
 async function context(viewport, theme = 'dark', extra = {}) {
   const ctx = await browser.newContext({viewport, locale: 'ru-RU', deviceScaleFactor: 1, ...extra});
@@ -75,6 +76,9 @@ async function shot(page, name, {full = false} = {}) {
   const page = await ctx.newPage();
   await page.goto(base + '/');
   await page.waitForSelector('.auth-card');
+  await page.waitForTimeout(400);
+  await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
+  await page.waitForTimeout(300);
   await shot(page, 'admin-login');
   await adminSignIn(page);
   await settle(page);
