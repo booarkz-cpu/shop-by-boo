@@ -96,12 +96,18 @@ jobs:
         # A hung test fails after 5 minutes with all thread stacks instead of blocking the job.
         run: |
           set -o pipefail
-          python -m pytest -q tests --disable-warnings --maxfail=1 --timeout=300 --timeout-method=thread 2>&1 | tee "$RUNNER_TEMP/pytest.log"
+          # -v prints each test id before it runs, so a timeout dump names the hung test.
+          python -m pytest -v tests --disable-warnings --maxfail=1 --timeout=300 --timeout-method=thread 2>&1 | tee "$RUNNER_TEMP/pytest.log"
       - name: Report failing tests
         if: failure()
         run: |
-          tail -c 6000 "$RUNNER_TEMP/pytest.log" | grep -v '^$' | tail -n 80 | sed 's/%/%25/g' > "$RUNNER_TEMP/tail.txt" || true
-          echo "::error title=pytest output (tail)::$(sed ':a;N;$!ba;s/\n/%0A/g' "$RUNNER_TEMP/tail.txt")"
+          {
+            echo "Last test started: $(grep -E '^tests/.*::' "$RUNNER_TEMP/pytest.log" | tail -n 1)"
+            grep -E '^(FAILED|ERROR) |Timeout|^E  ' "$RUNNER_TEMP/pytest.log" | head -n 30
+            echo "--- tail ---"
+            grep -v '^$' "$RUNNER_TEMP/pytest.log" | grep -v 'site-packages' | tail -n 40
+          } | sed 's/%/%25/g' > "$RUNNER_TEMP/tail.txt" || true
+          echo "::error title=pytest failure summary::$(sed ':a;N;$!ba;s/\n/%0A/g' "$RUNNER_TEMP/tail.txt")"
 
   passkey-browser:
     name: Content, customer operations and passkeys • Chromium end-to-end
