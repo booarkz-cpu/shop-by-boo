@@ -34,15 +34,18 @@ jobs:
             core.setOutput('ready', 'false');
             const main = (await github.rest.repos.getBranch({...repo, branch: 'main'})).data.commit.sha;
             if (main !== sha) { core.info('Newer main will publish after its own checks.'); return; }
+            // The head_sha filter of the runs API is not always consistent, so runs are
+            // listed by branch and event and matched to the commit here; the CI run found
+            // is reused as evidence instead of being looked up a second time.
+            let evidence;
             for (const workflow_id of ['ci.yml', 'docker.yml']) {
-              const runs = (await github.rest.actions.listWorkflowRuns({...repo, workflow_id, head_sha: sha, per_page: 100})).data.workflow_runs;
-              const run = runs.filter(item => item.event === 'push' && item.head_branch === 'main').sort((a,b) => b.id-a.id)[0];
+              const runs = (await github.rest.actions.listWorkflowRuns({...repo, workflow_id, branch: 'main', event: 'push', per_page: 50})).data.workflow_runs;
+              const run = runs.filter(item => item.head_sha === sha).sort((a,b) => b.id-a.id)[0];
               if (!run || run.status !== 'completed' || run.conclusion !== 'success') {
                 core.info(`Waiting for successful ${workflow_id} on ${sha}`); return;
               }
+              if (workflow_id === 'ci.yml') evidence = run;
             }
-            const verified = (await github.rest.actions.listWorkflowRuns({...repo, workflow_id: 'ci.yml', head_sha: sha, status: 'completed', per_page: 100})).data.workflow_runs;
-            const evidence = verified.filter(run => run.event === 'push' && run.head_branch === 'main' && run.conclusion === 'success').sort((a,b) => a.id-b.id)[0];
             core.setOutput('ci_run', evidence.html_url);
             core.setOutput('ready', 'true');
       - name: Package deterministic distribution
