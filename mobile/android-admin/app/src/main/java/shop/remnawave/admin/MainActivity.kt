@@ -54,8 +54,11 @@ import kotlin.concurrent.thread
 /** Tokens are encrypted by a non-exportable Android Keystore AES-GCM key.
  * The API origin is authenticated as AAD. Legacy plaintext sessions are discarded.
  */
-class SecureTokenStore(private val prefs: android.content.SharedPreferences) {
+class SecureTokenStore(private val prefs: android.content.SharedPreferences, slot: String = "") {
     private val alias = "shop.session.v2"
+    // Each admin profile has its own slot; the empty slot is the original single session.
+    private val tokenKey = "secure_token$slot"
+    private val baseKey = "base$slot"
     init { prefs.edit().remove("token").commit() }
     private fun key(): javax.crypto.SecretKey {
         val store = java.security.KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
@@ -66,15 +69,15 @@ class SecureTokenStore(private val prefs: android.content.SharedPreferences) {
             .setBlockModes("GCM").setEncryptionPaddings("NoPadding").setKeySize(256).build())
         return generator.generateKey()
     }
-    fun clear() { prefs.edit().remove("token").remove("secure_token").commit() }
+    fun clear() { prefs.edit().remove("token").remove(tokenKey).commit() }
     fun read(): String {
-        val encoded = prefs.getString("secure_token", null) ?: return ""
+        val encoded = prefs.getString(tokenKey, null) ?: return ""
         return try {
             val raw = android.util.Base64.decode(encoded, android.util.Base64.NO_WRAP)
             require(raw.size > 28)
             val cipher = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding")
             cipher.init(javax.crypto.Cipher.DECRYPT_MODE, key(), javax.crypto.spec.GCMParameterSpec(128, raw.copyOfRange(0, 12)))
-            cipher.updateAAD((prefs.getString("base", "") ?: "").toByteArray(Charsets.UTF_8))
+            cipher.updateAAD((prefs.getString(baseKey, "") ?: "").toByteArray(Charsets.UTF_8))
             String(cipher.doFinal(raw.copyOfRange(12, raw.size)), Charsets.UTF_8)
         } catch (_: Exception) { clear(); "" }
     }
@@ -84,7 +87,7 @@ class SecureTokenStore(private val prefs: android.content.SharedPreferences) {
         cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, key())
         cipher.updateAAD(base.toByteArray(Charsets.UTF_8))
         val encoded = android.util.Base64.encodeToString(cipher.iv + cipher.doFinal(token.toByteArray(Charsets.UTF_8)), android.util.Base64.NO_WRAP)
-        check(prefs.edit().putString("base", base).putString("secure_token", encoded).remove("token").commit()) {
+        check(prefs.edit().putString(baseKey, base).putString(tokenKey, encoded).remove("token").commit()) {
             "Could not securely store the session"
         }
     }
@@ -204,7 +207,7 @@ class ShopApi(private val base: String, private val token: String, private val l
         }
         val code = connection.responseCode
         val text = (if (code in 200..299) connection.inputStream else connection.errorStream)?.bufferedReader()?.use { it.readText() }.orEmpty()
-        if (code !in 200..299) throw IllegalStateException(detailOf(text, code))
+        if (code !in 200..299) throw ApiException(code, detailOf(text, code))
         val trimmed = text.trim()
         val result: Any = if (trimmed.startsWith("[")) JSONArray(trimmed) else JSONObject(if (trimmed.isBlank()) "{}" else trimmed)
         if (verifier != null && result is JSONObject && result.has("authorization_code")) {
@@ -235,10 +238,16 @@ private fun AdminApp() {
     val context = LocalContext.current
     val activity = context as FragmentActivity
     val prefs = remember { context.getSharedPreferences("shop_admin", 0) }
-    val tokenStore = remember { SecureTokenStore(prefs) }
+    val profileStore = remember { ProfileStore(prefs) }
+    var profiles by remember { mutableStateOf(profileStore.all()) }
+    var activeId by remember { mutableStateOf(profileStore.activeId()) }
+    val tokenStore = remember(activeId) { profileStore.tokens(activeId) }
     var lang by remember { mutableStateOf(prefs.getString("lang", "ru") ?: "ru") }
-    var base by remember { mutableStateOf(prefs.getString("base", "") ?: "") }
+    var base by remember { mutableStateOf(profileStore.find(activeId)?.base ?: "") }
     var token by remember { mutableStateOf(tokenStore.read()) }
+    var profileLabel by remember { mutableStateOf(profileStore.find(activeId)?.label ?: "") }
+    var showProfiles by remember { mutableStateOf(false) }
+    var signedInIds by remember { mutableStateOf(setOf<String>()) }
     var unlocked by remember { mutableStateOf(token.isBlank()) }
     DisposableEffect(activity) {
         val observer = LifecycleEventObserver { _, event ->
@@ -249,7 +258,7 @@ private fun AdminApp() {
     }
 
     var paymentDetail by remember { mutableStateOf(JSONObject()) }
-    var email by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf(profileStore.find(activeId)?.email ?: "") }
     var password by remember { mutableStateOf("") }
     var otp by remember { mutableStateOf("") }
     var tab by remember { mutableStateOf("overview") }
@@ -269,12 +278,44 @@ private fun AdminApp() {
     var logo by remember { mutableStateOf<ImageBitmap?>(null) }
     val strings = remember(lang) { loadStrings(context, lang) }
     fun t(key: String) = strings.optString(key, key)
+    fun profileTitle(): String = profileStore.find(activeId)?.title ?: (try { URI(base).host } catch (_: Exception) { null } ?: base)
+    fun clearLoaded() {
+        overview = JSONObject(); plans = JSONArray(); payments = JSONArray(); monitoring = JSONObject()
+        platform = JSONObject(); ops = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
+        paymentDetail = JSONObject(); logo = null; reply = ""; broadcastText = ""
+    }
+    fun reloadProfiles() {
+        profiles = profileStore.all()
+        signedInIds = profiles.filter { profileStore.tokens(it.id).read().isNotBlank() }.map { it.id }.toSet()
+    }
+    fun switchTo(id: String) {
+        clearLoaded()
+        profileStore.setActive(id)
+        activeId = id
+        val profile = profileStore.find(id)
+        base = profile?.base ?: ""
+        email = profile?.email ?: ""
+        profileLabel = profile?.label ?: ""
+        password = ""; otp = ""; tab = "overview"
+        token = profileStore.tokens(id).read()
+        showProfiles = false
+        notice = if (profile != null) t("profile_switched").replace("{profile}", profile.title) else ""
+    }
+    fun addProfile() {
+        if (profiles.size >= ProfileStore.MAX_PROFILES) { notice = t("profile_limit"); return }
+        clearLoaded()
+        activeId = profileStore.newId()
+        base = ""; email = ""; password = ""; otp = ""; profileLabel = ""; token = ""
+        showProfiles = false
+        notice = ""
+    }
     fun signOut() {
         val previous = token
         val origin = base
         tokenStore.clear()
         token = ""
         unlocked = false
+        clearLoaded()
         thread {
             try {
                 if (previous.isNotBlank()) ShopApi(origin, previous, lang).post("/api/admin/auth/logout", JSONObject())
@@ -286,16 +327,33 @@ private fun AdminApp() {
     fun work(block: () -> Unit) {
         busy = true
         notice = ""
+        val startedFor = activeId
         thread {
-            val error = try { block(); null } catch (exc: Exception) { exc.message ?: "HTTP" }
+            var expired = false
+            val error = try { block(); null } catch (exc: ApiException) {
+                when (exc.status) {
+                    401 -> { expired = true; t("session_expired").replace("{profile}", profileTitle()) }
+                    403 -> exc.message?.takeIf { it.isNotBlank() && !it.startsWith("HTTP") } ?: t("forbidden")
+                    else -> exc.message ?: "HTTP ${exc.status}"
+                }
+            } catch (exc: java.io.IOException) {
+                "${t("network_error").replace("{profile}", profileTitle())} (${exc.javaClass.simpleName})"
+            } catch (exc: Exception) { exc.message ?: "HTTP" }
             activity.runOnUiThread {
                 busy = false
+                if (expired && startedFor == activeId) {
+                    // Keep the profile, drop only its dead session, so the admin can sign in again.
+                    tokenStore.clear()
+                    token = ""
+                    clearLoaded()
+                }
                 if (error != null) notice = error
             }
         }
     }
     fun refresh() {
         val api = ShopApi(base, token, lang)
+        val refreshedFor = activeId
         work {
             val nextOverview = api.get("/api/admin/overview") as JSONObject
             val nextPlans = api.get("/api/admin/plans") as JSONArray
@@ -311,6 +369,8 @@ private fun AdminApp() {
                 loadLogoBitmap(base, catalog.optString("logo_url"))?.asImageBitmap()
             } catch (_: Exception) { null }
             activity.runOnUiThread {
+                // A slow response must not paint the previous profile's data after a switch.
+                if (refreshedFor != activeId) return@runOnUiThread
                 overview = nextOverview
                 plans = nextPlans
                 payments = nextPayments
@@ -352,8 +412,40 @@ private fun AdminApp() {
                 }) { Text(if (lang == "ru") "EN" else "RU") }
             }
             Text(t("tagline"), color = Color(0xFFA4AFD0))
+            if (token.isBlank() || unlocked) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(if (base.isBlank()) t("add_profile") else profileTitle(), color = Color(0xFF93C5FD))
+                    TextButton(onClick = { reloadProfiles(); showProfiles = !showProfiles }) { Text("${t("profiles")} (${profiles.size})") }
+                }
+            }
             if (notice.isNotBlank()) Text(notice, color = Color(0xFFFFB020))
+            if (showProfiles && (token.isBlank() || unlocked)) {
+                for (profile in profiles) {
+                    val current = profile.id == activeId
+                    val state = if (profile.id in signedInIds) t("signed_in") else t("signed_out")
+                    Text("${profile.title} · ${profile.host}${if (profile.email.isNotBlank()) " · ${profile.email}" else ""} · $state${if (current) " · ${t("active_profile")}" else ""}")
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        if (!current) TextButton(enabled = !busy, onClick = { switchTo(profile.id) }) { Text(t("switch_profile")) }
+                        TextButton(enabled = !busy, onClick = {
+                            val removed = profile
+                            val removedToken = profileStore.tokens(removed.id).read()
+                            profileStore.remove(removed.id)
+                            thread {
+                                try { if (removedToken.isNotBlank()) ShopApi(removed.base, removedToken, lang).post("/api/admin/auth/logout", JSONObject()) } catch (_: Exception) { }
+                            }
+                            reloadProfiles()
+                            if (current) {
+                                val next = profileStore.all().firstOrNull()
+                                if (next != null) switchTo(next.id) else addProfile()
+                            }
+                            notice = t("profile_removed")
+                        }) { Text(t("remove_profile")) }
+                    }
+                }
+                Button(enabled = !busy, onClick = { addProfile() }) { Text(t("add_profile")) }
+            }
             if (token.isBlank()) {
+                OutlinedTextField(profileLabel, { profileLabel = it.take(40) }, label = { Text(t("profile_label")) }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(base, { base = it }, label = { Text(t("server")) }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(email, { email = it }, label = { Text(t("email")) }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(password, { password = it }, label = { Text(t("password")) }, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
@@ -362,14 +454,22 @@ private fun AdminApp() {
                     val normalized = try { normalizeBase(base) } catch (_: Exception) { notice = t("https_required"); return@Button }
                     if (!email.contains("@") || !email.contains(".")) { notice = t("email_invalid"); return@Button }
                     if (password.length < 8) { notice = t("password_short"); return@Button }
+                    val profileId = activeId
+                    val duplicate = profileStore.duplicateOf(profileId, normalized, email.trim())
+                    if (duplicate != null) { notice = t("profile_duplicate"); reloadProfiles(); showProfiles = true; return@Button }
+                    if (profileStore.find(profileId) == null && profileStore.all().size >= ProfileStore.MAX_PROFILES) { notice = t("profile_limit"); return@Button }
+                    val label = profileLabel.trim()
                     work {
                         val body = JSONObject().put("email", email.trim()).put("password", password)
                         if (otp.isNotBlank()) body.put("otp", otp.trim())
                         val response = ShopApi(normalized, "", lang).post("/api/admin/auth/login", body) as JSONObject
                         val issued = response.optString("access_token")
                         if (issued.isBlank()) throw IllegalStateException("HTTP")
-                        tokenStore.write(issued, normalized)
+                        profileStore.tokens(profileId).write(issued, normalized)
+                        profileStore.upsert(AdminProfile(profileId, label, normalized, email.trim()))
+                        profileStore.setActive(profileId)
                         activity.runOnUiThread {
+                            reloadProfiles()
                             base = normalized
                             token = issued
                             password = ""
