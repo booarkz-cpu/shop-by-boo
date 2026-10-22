@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.5.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.6.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -69,6 +69,7 @@ shop-by-boo/
 | `backend/alembic/versions/0065_history_import.py` | Журнал переноса истории, импортированные платежи и связи подписок |
 | `backend/alembic/versions/0066_push_notifications.py` | Реестр push-устройств и очередь доставки FCM/APNs |
 | `backend/app/push.py` | Регистрация push-токенов, доставка FCM/APNs, отзыв при выходе и потере токена |
+| `backend/app/widget.py` | Минимальная сводка подписки для виджета Android с кэшем трафика |
 | `backend/app/customer_profile.py` | Профиль клиента: имя и способы входа |
 | `cabinet/src/telegram.ts` | Обёртка Telegram WebApp SDK: тема, haptics, BackButton/MainButton |
 | `cabinet/scripts/csp-externalize.mjs` | Перенос inline-скриптов Next.js в файлы для строгой CSP |

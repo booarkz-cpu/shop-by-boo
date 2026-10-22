@@ -11,21 +11,21 @@
 
 Единый магазин VPN-подписок: админ-панель, веб кабинет пользователя, Telegram-бот и Mini App, приложения Android и iOS. Админка, кабинет и Mini App построены на Next.js и используют единую тёмную систему Remna Dark (светлая тема сохранена) с контекстными подсказками у всех редактируемых полей.
 
-**v28.5.0 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0066_push_notifications` и Support Pro `0006` / 3.6. Разделение тега и версии API намеренное: оператор устанавливает `v28.5.0`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
+**v28.6.0 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0066_push_notifications` и Support Pro `0006` / 3.6. Разделение тега и версии API намеренное: оператор устанавливает `v28.6.0`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
 
 В alpha.7 добавлен [вход администратора по passkey](docs/ru/ADMIN_PASSKEYS.md), [операционный dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Исправлена привязка публикации мобильных пакетов к актуальному тегу; подписи владельца по-прежнему нужны.
 
-Текущий стабильный выпуск: [v28.5.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.5.0). Точный commit и результаты CI указаны на странице релиза. Production-платежи остаются закрытыми: application E2E v2 не завершён. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). Актуальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
+Текущий стабильный выпуск: [v28.6.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.6.0). Точный commit и результаты CI указаны на странице релиза. Production-платежи остаются закрытыми: application E2E v2 не завершён. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). Актуальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
 
 Сведение поддержки и перенос старой истории: [отдельная инструкция](docs/ru/WORKSPACE_SUPPORT_BRIDGE.md).
 
-## Обновление v28.5.0
+## Обновление v28.6.0
 
 Админ-панель, личный кабинет и Telegram Mini App переведены на **Next.js** (static export, прежние nginx-образы и Caddy) и получили единый дизайн **Remna Dark**: сворачиваемый sidebar и выдвижное меню на телефонах, дашборд с плашкой состояния, плитками метрик 2×2/4×1, поиском и сегментированным фильтром серверов, skeleton-загрузку. Mini App использует Telegram WebApp SDK: тема и safe area из клиента, haptic feedback, нативные BackButton/MainButton, подтверждение закрытия во время оплаты. Кабинет показывает статус, остаток трафика и срок подписки, QR и копирование ссылки, пошаговую инструкцию, карточки тарифов, профиль и историю платежей. Новый [перенос истории](docs/ru/HISTORY_IMPORT_CURRENT.md) подписок и платежей сверяет контрольные итоги, не дублирует строки при повторе и откатывается журналом. Production CSP (`script-src 'self'`) соблюдается: inline-скрипты Next.js выносятся в файлы при сборке.
 
 Настройки без перезапуска из v28.3.0 (96 live-параметров, зашифрованные секреты, staged apply и откат) сохранены.
 
-Обновление существующей установки с тегов `v26`–`v28.3.0` выполняется проверяющим скриптом: [инструкция обновления дистрибутива](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md). Версия API остаётся `21.5.1`; перед применением новой миграции `0066_push_notifications` обязателен согласованный backup.
+Обновление существующей установки с тегов `v26`–`v28.5.0` выполняется проверяющим скриптом: [инструкция обновления дистрибутива](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md). Версия API остаётся `21.5.1`; перед применением новой миграции `0066_push_notifications` обязателен согласованный backup.
 
 ## Что входит в проект
 
@@ -45,7 +45,7 @@
 Для проверки без настоящих касс, Telegram и Remnawave нужны Docker Engine, Compose и Python 3:
 
 ```bash
-git clone --branch v28.5.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.6.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```
@@ -55,7 +55,7 @@ bash scripts/test-up.sh
 Установка на VDS через SSH или Termius:
 
 ```bash
-git clone --branch v28.5.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.6.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 sudo bash deploy/install-vps.sh
 ```
@@ -67,7 +67,7 @@ sudo bash deploy/install-vps.sh
 | Задача | Руководство |
 | --- | --- |
 | Создать конкурс или колесо призов | [Правила, бюджет, розыгрыш и приватность](docs/ru/WORKSPACE_GIVEAWAYS.md) |
-| Прочитать результаты текущего выпуска | [Отчёт v28.5.0](docs/ru/RELEASE_V28_5_0.md) |
+| Прочитать результаты текущего выпуска | [Отчёт v28.6.0](docs/ru/RELEASE_V28_6_0.md) |
 | Изменить операционные параметры без restart | [Live-config, секреты, откат и deployment-границы](docs/ru/RUNTIME_SETTINGS_CURRENT.md) |
 | Объединить два своих аккаунта | [Подтверждение, конфликты, перенос и диагностика](docs/ru/ACCOUNT_MERGE_CURRENT.md) |
 | Восстановить пароль и подтвердить email | [Почта и безопасность аккаунта](docs/ru/WORKSPACE_ACCOUNT_SECURITY.md) |
@@ -119,9 +119,9 @@ npx playwright test    # Chromium под production CSP
 
 Подробные правила новых подписок и подарков: [инструкция](docs/ru/WORKSPACE_SUBSCRIPTIONS.md).
 
-## Выпуск v28.5.0
+## Выпуск v28.6.0
 
-Релиз v28.5.0 добавляет нативные push-уведомления в приложения Android (FCM) и iOS (APNs): включение по согласию клиента, токен привязан к сессии входа и отзывается при выходе, потерянные токены отключаются автоматически, в админке — состояние провайдеров и доставки ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Релиз v28.4.0 перевёл админ-панель, кабинет и Mini App на Next.js (static export, прежние nginx-образы) в дизайне Remna Dark и закрыл строку матрицы «Исторический импорт VPN/платежей»: версионированный адаптер, preview без записи, сверка с контрольными итогами, повтор без дублей и журнал отката ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)). Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0066_push_notifications`. Релиз v28.3.0 закрыл «70+ настроек с hot-reload и шифрованием». Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.5.0](docs/ru/RELEASE_V28_5_0.md).
+Релиз v28.6.0 добавляет виджет подписки на рабочий стол Android и несколько профилей магазинов в админ-приложениях Android и iOS — строка матрицы «Native push/widget/multiprofile» закрыта ([регламент](docs/ru/WIDGET_AND_PROFILES_CURRENT.md)). Релиз v28.5.0 добавил нативные push-уведомления в приложения Android (FCM) и iOS (APNs): включение по согласию клиента, токен привязан к сессии входа и отзывается при выходе, потерянные токены отключаются автоматически, в админке — состояние провайдеров и доставки ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Релиз v28.4.0 перевёл админ-панель, кабинет и Mini App на Next.js (static export, прежние nginx-образы) в дизайне Remna Dark и закрыл строку матрицы «Исторический импорт VPN/платежей»: версионированный адаптер, preview без записи, сверка с контрольными итогами, повтор без дублей и журнал отката ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)). Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0066_push_notifications`. Релиз v28.3.0 закрыл «70+ настроек с hot-reload и шифрованием». Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.6.0](docs/ru/RELEASE_V28_6_0.md).
 
 Импорт users.db и массовые операции доступны роли admin в «Клиенты → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 

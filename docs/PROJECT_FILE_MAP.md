@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.5.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.6.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **957**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **966**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -404,6 +404,7 @@
 | [backend/app/totp.py](../backend/app/totp.py) | API, бот и worker |
 | [backend/app/v3_api.py](../backend/app/v3_api.py) | API, бот и worker |
 | [backend/app/v6_api.py](../backend/app/v6_api.py) | API, бот и worker |
+| [backend/app/widget.py](../backend/app/widget.py) | API, бот и worker |
 | [backend/bot-entrypoint.sh](../backend/bot-entrypoint.sh) | API, бот и worker |
 | [backend/entrypoint.sh](../backend/entrypoint.sh) | API, бот и worker |
 | [backend/requirements-test.txt](../backend/requirements-test.txt) | API, бот и worker |
@@ -597,6 +598,7 @@
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
+| [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
 | [docs/ru/SECURITY_UPGRADE_20_0_14.md](../docs/ru/SECURITY_UPGRADE_20_0_14.md) | Документация |
@@ -620,6 +622,7 @@
 | [docs/ru/VDS_PRODUCTION_20_0_28.md](../docs/ru/VDS_PRODUCTION_20_0_28.md) | Документация |
 | [docs/ru/VDS_PRODUCTION_20_0_29.md](../docs/ru/VDS_PRODUCTION_20_0_29.md) | Документация |
 | [docs/ru/VDS_PRODUCTION_V20_0_12.md](../docs/ru/VDS_PRODUCTION_V20_0_12.md) | Документация |
+| [docs/ru/WIDGET_AND_PROFILES_CURRENT.md](../docs/ru/WIDGET_AND_PROFILES_CURRENT.md) | Документация |
 | [docs/ru/WORKSPACE_ACCOUNT_SECURITY.md](../docs/ru/WORKSPACE_ACCOUNT_SECURITY.md) | Документация |
 | [docs/ru/WORKSPACE_ADMIN_GUIDE.md](../docs/ru/WORKSPACE_ADMIN_GUIDE.md) | Документация |
 | [docs/ru/WORKSPACE_ARCHITECTURE.md](../docs/ru/WORKSPACE_ARCHITECTURE.md) | Документация |
@@ -666,6 +669,7 @@
 | [mobile/android-admin/app/src/debug/AndroidManifest.xml](../mobile/android-admin/app/src/debug/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/AndroidManifest.xml](../mobile/android-admin/app/src/main/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/assets/l10n.json](../mobile/android-admin/app/src/main/assets/l10n.json) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/values-en/strings.xml](../mobile/android-admin/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
@@ -685,9 +689,13 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-user/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/drawable/widget_background.xml](../mobile/android-user/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/layout/corgi_widget.xml](../mobile/android-user/app/src/main/res/layout/corgi_widget.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/values-en/strings.xml](../mobile/android-user/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/values/strings.xml](../mobile/android-user/app/src/main/res/values/strings.xml) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml](../mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/xml/network_security.xml](../mobile/android-user/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
 | [mobile/android-user/build.gradle.kts](../mobile/android-user/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-user/gradle.properties](../mobile/android-user/gradle.properties) | Мобильные приложения |
@@ -965,3 +973,4 @@
 | [tests/test_v45_4_deep_regressions.py](../tests/test_v45_4_deep_regressions.py) | Проверки |
 | [tests/test_v45_5_deep_regressions.py](../tests/test_v45_5_deep_regressions.py) | Проверки |
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
+| [tests/test_widget.py](../tests/test_widget.py) | Проверки |

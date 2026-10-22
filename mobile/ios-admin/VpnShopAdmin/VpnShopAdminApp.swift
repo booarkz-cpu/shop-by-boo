@@ -168,34 +168,108 @@ func loadStrings(_ lang: String) -> [String: String] {
 
 /// Device-only Keychain storage; plaintext UserDefaults sessions are never reused.
 enum SessionKeychain {
-    private static var query: [String: Any] {
+    /// Each admin profile has its own Keychain item; "session" is the original single session.
+    private static func query(_ account: String = "session") -> [String: Any] {
         [kSecClass as String: kSecClassGenericPassword,
          kSecAttrService as String: (Bundle.main.bundleIdentifier ?? "shop.session") + ".session.v2",
-         kSecAttrAccount as String: "session"]
+         kSecAttrAccount as String: account]
     }
-    static func clear() { SecItemDelete(query as CFDictionary) }
+    static func clear(account: String = "session") { SecItemDelete(query(account) as CFDictionary) }
     static func load(baseKey: String, legacyKey: String) -> String {
         UserDefaults.standard.removeObject(forKey: legacyKey)
-        var lookup = query
+        return load(account: "session", base: UserDefaults.standard.string(forKey: baseKey) ?? "")
+    }
+    static func load(account: String, base: String) -> String {
+        var lookup = query(account)
         lookup[kSecReturnData as String] = true
         lookup[kSecMatchLimit as String] = kSecMatchLimitOne
         var result: CFTypeRef?
         guard SecItemCopyMatching(lookup as CFDictionary, &result) == errSecSuccess,
               let data = result as? Data,
               let stored = try? JSONSerialization.jsonObject(with: data) as? [String: String],
-              stored["base"] == UserDefaults.standard.string(forKey: baseKey) else { return "" }
+              !base.isEmpty, stored["base"] == base else { return "" }
         return stored["token"] ?? ""
     }
-    static func save(_ token: String, base: String) throws {
+    static func save(_ token: String, base: String, account: String = "session") throws {
+        let item = query(account)
         let data = try JSONSerialization.data(withJSONObject: ["token": token, "base": base])
         let attributes: [String: Any] = [kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly]
-        var status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        var status = SecItemUpdate(item as CFDictionary, attributes as CFDictionary)
         if status == errSecItemNotFound {
-            status = SecItemAdd(query.merging(attributes) { _, new in new } as CFDictionary, nil)
+            status = SecItemAdd(item.merging(attributes) { _, new in new } as CFDictionary, nil)
         }
         guard status == errSecSuccess else {
             throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
         }
+    }
+}
+
+
+// MARK: - Admin profiles
+
+/// One saved shop/admin connection; its session lives in a separate Keychain item.
+struct AdminProfile: Codable, Identifiable, Equatable {
+    let id: String
+    var label: String
+    var base: String
+    var email: String
+    var host: String { URL(string: base)?.host ?? base }
+    var title: String { label.isEmpty ? host : label }
+}
+
+/// Several admin profiles on one device. The pre-multiprofile session becomes "default".
+enum ProfileVault {
+    static let maxProfiles = 8
+    static let defaultId = "default"
+    private static let listKey = "shop_admin_profiles"
+    private static let activeKey = "shop_admin_active_profile"
+
+    static func account(_ id: String) -> String { id == defaultId ? "session" : "session.\(id)" }
+
+    static func all() -> [AdminProfile] {
+        if let data = UserDefaults.standard.data(forKey: listKey) {
+            return (try? JSONDecoder().decode([AdminProfile].self, from: data)) ?? []
+        }
+        let legacy = UserDefaults.standard.string(forKey: "shop_admin_base") ?? ""
+        guard !legacy.isEmpty else { return [] }
+        let list = [AdminProfile(id: defaultId, label: "", base: legacy, email: "")]
+        save(list)
+        return list
+    }
+
+    private static func save(_ list: [AdminProfile]) {
+        if let data = try? JSONEncoder().encode(list) { UserDefaults.standard.set(data, forKey: listKey) }
+    }
+
+    static func find(_ id: String) -> AdminProfile? { all().first { $0.id == id } }
+
+    static func activeId() -> String {
+        let list = all()
+        if let saved = UserDefaults.standard.string(forKey: activeKey), list.contains(where: { $0.id == saved }) { return saved }
+        return list.first?.id ?? defaultId
+    }
+
+    static func setActive(_ id: String) { UserDefaults.standard.set(id, forKey: activeKey) }
+
+    static func newId() -> String { String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(12)).lowercased() }
+
+    static func token(_ id: String) -> String {
+        guard let profile = find(id) else { return "" }
+        return SessionKeychain.load(account: account(id), base: profile.base)
+    }
+
+    static func duplicate(of id: String, base: String, email: String) -> AdminProfile? {
+        all().first { $0.id != id && $0.base == base && $0.email.caseInsensitiveCompare(email) == .orderedSame }
+    }
+
+    static func upsert(_ profile: AdminProfile) {
+        save(all().filter { $0.id != profile.id } + [profile])
+    }
+
+    static func remove(_ id: String) {
+        SessionKeychain.clear(account: account(id))
+        save(all().filter { $0.id != id })
+        if UserDefaults.standard.string(forKey: activeKey) == id { UserDefaults.standard.removeObject(forKey: activeKey) }
     }
 }
