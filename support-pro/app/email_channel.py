@@ -206,6 +206,8 @@ def parse(raw: bytes) -> Inbound:
             inbound.oversized.append(filename)
             continue
         inbound.attachments.append((filename, part.get_content_type() or "application/octet-stream", payload))
+    if str(message.get("X-Support-Truncated") or "") == "yes":
+        inbound.text = f"[Письмо больше {limit * 2 // 1024 // 1024 + 1} МБ и не загружено. Попросите клиента прислать файлы меньшего размера.]"
     if not inbound.text and not inbound.attachments:
         inbound.text = "(пустое письмо)"
     return inbound
@@ -323,17 +325,22 @@ def _imap_fetch(uidvalidity: int, after_uid: int) -> tuple[int, list[tuple[int, 
             raise RuntimeError("IMAP search failed")
         uids = sorted(int(x) for x in (data[0] or b"").split() if int(x) >= start)[:BATCH]
         messages = []
+        ceiling = max_bytes() * 2 + 1024 * 1024
         for uid in uids:
-            status, parts = client.uid("fetch", str(uid), "(BODY.PEEK[])")
+            status, sized = client.uid("fetch", str(uid), "(RFC822.SIZE)")
+            match = re.search(rb"RFC822\.SIZE (\d+)", b" ".join(x if isinstance(x, bytes) else x[0] for x in sized if x)) if status == "OK" else None
+            too_big = bool(match and int(match.group(1)) > ceiling)
+            # An oversized message is read without its body so it cannot exhaust memory.
+            status, parts = client.uid("fetch", str(uid), "(BODY.PEEK[HEADER])" if too_big else "(BODY.PEEK[])")
             raw = next((part[1] for part in parts if isinstance(part, tuple)), None)
             if status == "OK" and raw is not None:
-                messages.append((uid, bytes(raw)))
+                messages.append((uid, (b"X-Support-Truncated: yes\r\n" + bytes(raw)) if too_big else bytes(raw)))
         return current, messages
     finally:
         try:
             client.logout()
-        except Exception:
-            pass
+        except Exception as exc:
+            log.debug("IMAP logout failed: %s", type(exc).__name__)
 
 
 fetcher = _imap_fetch  # tests replace this with an in-memory mailbox
@@ -409,15 +416,15 @@ async def poll(Session) -> dict:
 # ---------------------------------------------------------------- SMTP
 
 class PermanentError(Exception):
-    pass
+    """The receiving server refused the message for good (5xx, unknown recipient)."""
 
 
 class TemporaryError(Exception):
-    pass
+    """The message was not accepted yet; retrying later is safe."""
 
 
 class UncertainError(Exception):
-    pass
+    """The connection broke during DATA: the message may or may not have been accepted."""
 
 
 def _smtp_send(message: EmailMessage) -> None:
@@ -453,8 +460,8 @@ def _smtp_send(message: EmailMessage) -> None:
     finally:
         try:
             client.quit()
-        except Exception:
-            pass
+        except Exception as exc:
+            log.debug("SMTP quit failed: %s", type(exc).__name__)
 
 
 sender = _smtp_send  # tests replace this with an in-memory transport
@@ -529,7 +536,7 @@ async def erase_ticket_content(s, ticket: Ticket, marker: str) -> int:
             try:
                 checked_path(attachment.path).unlink(missing_ok=True)
             except ValueError:
-                pass
+                log.info("Attachment %s file was already missing", attachment.id)
         attachment.path, attachment.state, attachment.filename, attachment.error = "", "deleted", "удалено", marker
         removed += 1
     await s.execute(update(Message).where(Message.ticket_id == ticket.id, Message.sender != "note").values(text=marker))

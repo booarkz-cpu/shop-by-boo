@@ -369,3 +369,48 @@ async def test_without_smtp_reply_fails_with_clear_reason(channel, monkeypatch):
     tid = (await rows(channel["session"], Ticket))[0].id
     message = await operator_reply(channel, tid)
     assert message.delivery_state == "failed" and "EMAIL_SMTP_HOST" in message.error
+
+
+def test_imap_fetch_reads_readonly_peeks_and_truncates_oversized(monkeypatch):
+    import imaplib
+    small = mail(message_id="<small@example.org>")
+    calls = {"select": None, "fetch": []}
+
+    class FakeIMAP:
+        def __init__(self, host, port, ssl_context=None, timeout=None):
+            assert host == "imap.shop.example" and port == 993
+
+        def login(self, user, password):
+            assert user == "support@shop.example" and password == "secret"
+
+        def select(self, folder, readonly=False):
+            calls["select"] = (folder, readonly)
+            return "OK", [b"2"]
+
+        def response(self, name):
+            return name, [b"777"]
+
+        def uid(self, command, *args):
+            if command == "search":
+                assert args[1] == "UID 6:*"
+                return "OK", [b"5 6 7"]
+            uid, what = args
+            calls["fetch"].append((uid, what))
+            if what == "(RFC822.SIZE)":
+                return "OK", [f"{uid} (UID {uid} RFC822.SIZE {99_000_000 if uid == '7' else 900})".encode()]
+            if what == "(BODY.PEEK[HEADER])":
+                return "OK", [(b"7 (BODY[HEADER] {40}", b"From: anna@example.org\r\nMessage-ID: <big@example.org>\r\n\r\n"), b")"]
+            return "OK", [(b"6 (BODY[] {10}", small), b")"]
+
+        def logout(self):
+            return "BYE", []
+
+    for key, value in {"EMAIL_IMAP_HOST": "imap.shop.example", "EMAIL_ADDRESS": "support@shop.example", "EMAIL_IMAP_PASSWORD": "secret"}.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setattr(imaplib, "IMAP4_SSL", FakeIMAP)
+    uidvalidity, messages = email_channel._imap_fetch(777, 5)
+    assert uidvalidity == 777 and calls["select"] == ("INBOX", True)
+    assert [uid for uid, _ in messages] == [6, 7]
+    assert ("6", "(BODY.PEEK[])") in calls["fetch"] and ("7", "(BODY.PEEK[HEADER])") in calls["fetch"]
+    big = email_channel.parse(messages[1][1])
+    assert "не загружено" in big.text and big.message_id == "<big@example.org>"

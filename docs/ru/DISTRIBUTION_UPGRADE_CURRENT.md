@@ -1,11 +1,11 @@
-# Обновление дистрибутива до v28.6.0
+# Обновление дистрибутива до v28.7.0
 
-Актуальный дистрибутив — `v28.6.0`, runtime/API — `21.5.1`. Миграции: магазин `0066_push_notifications`, Support Pro `0006`. При обновлении с v28.4.0 и раньше нужна миграция магазина `0066_push_notifications` (с v28.5.0 новых миграций нет); до обновления обязателен согласованный backup.
+Актуальный дистрибутив — `v28.7.0`, runtime/API — `21.5.1`. Миграции: магазин `0066_push_notifications`, Support Pro `0007`. При обновлении с v28.4.0 и раньше нужна миграция магазина `0066_push_notifications` (с v28.5.0 миграций магазина нет); в этом выпуске Support Pro получает миграцию `0007` (email-канал). До обновления обязателен согласованный backup обеих баз.
 
 ## Новая установка
 
 ```bash
-git clone --branch v28.6.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.7.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 sudo bash deploy/install-vps.sh
 ```
@@ -25,23 +25,23 @@ upgrade_stage=$(mktemp -d)
 upgrade_checker=$(mktemp)
 trap 'rm -rf -- "$upgrade_stage"; rm -f -- "$upgrade_checker"' EXIT
 curl --fail --show-error --silent --proto '=https' --max-time 60 \
-  https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.6.0/scripts/github_release_fetch.py \
+  https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.7.0/scripts/github_release_fetch.py \
   -o "$upgrade_checker"
-RELEASE_TAG=v28.6.0 python3 "$upgrade_checker" "$shop_dir" "$upgrade_stage"
+RELEASE_TAG=v28.7.0 python3 "$upgrade_checker" "$shop_dir" "$upgrade_stage"
 if [ -f "$upgrade_stage/backend/app/main.py" ]; then
   APP_DIR="$shop_dir" UPDATE_STAGE="$upgrade_stage" bash "$shop_dir/scripts/update.sh"
 fi
 APP_DIR="$shop_dir" bash "$shop_dir/scripts/doctor.sh"
 ```
 
-Загрузчик отказывается применять draft/prerelease, более старую версию, архив с небезопасными путями, неправильной суммой или несовпадающим коммитом. При уже установленном `v28.6.0` он завершится без применения файлов. Не удаляйте `.env`, `support-pro/.env`, volumes и backups.
+Загрузчик отказывается применять draft/prerelease, более старую версию, архив с небезопасными путями, неправильной суммой или несовпадающим коммитом. При уже установленном `v28.7.0` он завершится без применения файлов. Не удаляйте `.env`, `support-pro/.env`, volumes и backups.
 
 ## Последующие обновления
 
 После первого обновления установленный загрузчик знает тег дистрибутива:
 
 ```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.6.0 \
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.7.0 \
   bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
