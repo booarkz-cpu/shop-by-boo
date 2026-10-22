@@ -96,7 +96,7 @@ export function Dashboard({d, navigate, reload, request, toast, brandName}: {d: 
             <Gauge aria-hidden="true" />
           </div>
           <div>
-            <div className="eyebrow">{brandName} · CONTROL CENTER</div>
+            <div className="eyebrow">{brandName} · панель управления</div>
             <h2>{attention ? "Есть пункты, требующие внимания" : "Все системы работают штатно"}</h2>
             <p>Продажи, подписки, узлы Remnawave и фоновые задачи — сводка в реальном времени.</p>
           </div>

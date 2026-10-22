@@ -99,7 +99,7 @@ async def test_preview_reconciles_without_touching_customer_data(database, tmp_p
     assert result["can_apply"] is True
     assert (await count(database, Subscription), await count(database, ImportedPayment), await count(database, Payment)) == before
     job = await database.get(HistoryImportJob, result["id"])
-    assert job.status == "preview" and job.adapter == "generic-sqlite-v1" and "p-1" not in job.payload_encrypted
+    assert job.status == "preview" and job.adapter == "generic-sqlite-v1" and '"p-1"' not in job.payload_encrypted  # quoted JSON value; base64 ciphertext never contains quotes
 
 
 @pytest.mark.asyncio

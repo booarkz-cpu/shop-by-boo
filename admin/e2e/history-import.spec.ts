@@ -21,7 +21,7 @@ test('administrator reconciles, applies and rolls back a historical import', asy
   await page.getByLabel('Email', {exact: true}).fill('browser@example.test');
   await page.getByLabel('Пароль', {exact: true}).fill('browser-only-password');
   await page.getByRole('button', {name: 'Войти', exact: true}).click();
-  await expect(page.locator('.dash-metric').first()).toBeVisible();
+  await expect(page.locator('.hub-card').first()).toBeVisible();
 
   // Profiles of the same source and a target plan are prerequisites of the history import.
   await page.evaluate(async (bytes) => {
@@ -38,7 +38,7 @@ test('administrator reconciles, applies and rolls back a historical import', asy
     if (!applied.ok) throw new Error('profiles');
   }, [...source]);
 
-  await page.getByRole('button', {name: /Импорт и массовые операции/}).click();
+  await page.locator('.sidebar').getByRole('button', {name: /Импорт и массовые операции/}).click();
   await expect(page.getByRole('heading', {name: 'Перенос подписок и платежей'})).toBeVisible();
   await page.getByLabel('Выгрузка SQLite с подписками и платежами', {exact: true}).setInputFiles({name: 'old.db', mimeType: 'application/octet-stream', buffer: source});
   await page.getByLabel('Имя источника профилей', {exact: true}).fill('history-browser');

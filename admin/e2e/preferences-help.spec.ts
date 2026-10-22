@@ -32,7 +32,7 @@ test("theme and language menus support keyboard focus and persist preferences", 
     .getByRole("menuitemradio", { name: "English", exact: true })
     .click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("button", { name: /Home/ })).toBeVisible();
+  await expect(page.locator(".sidebar").getByRole("button", { name: /Home/ })).toBeVisible();
   const language = page.getByRole("button", {
     name: "Choose language",
     exact: true,
@@ -106,7 +106,7 @@ test("select supports keyboard choices, icons and disabled persisted identity", 
 }) => {
   await page.addInitScript(() => localStorage.setItem("rw_lang", "ru"));
   await login(page);
-  await page.getByRole("button", { name: /Новости и страницы/ }).click();
+  await page.locator(".sidebar").getByRole("button", { name: /Новости и страницы/ }).click();
   const kind = page.getByRole("combobox", {
     name: "Тип страницы",
     exact: true,

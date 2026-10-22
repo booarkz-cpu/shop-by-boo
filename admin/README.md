@@ -11,13 +11,14 @@
 - `src/admin-shell.tsx` — фиксированный sidebar на ПК со сворачиванием в icon-rail (выбор запоминается), drawer на экранах до 1050 px по кнопке ☰, backdrop, Escape, блокировка прокрутки, командная палитра ⌘K с клавиатурной навигацией, skeleton разделов.
 - `src/dashboard.tsx` — плашка состояния, плитки метрик (2×2 на телефоне, 4×1 на ПК), KPI-полоса, «Обновить» и выпадающее меню «Действия», поиск с лупой и сегментированный фильтр серверов, состояние API/БД/Redis/Remnawave, быстрые действия.
 - `src/components/ui/` — `Button`, `DropdownMenu` (+ `Item`/`Separator`), `Select`, `Tooltip`, `Skeleton`, `Segmented`, `StatusDot`/`StatusBadge`, `SearchInput`; strict TypeScript (`tsconfig.ui.json`).
+- `src/sections.ts` — карта панели: группы, названия и описания всех разделов; из неё строятся меню, страница «Все разделы» (`src/admin-hub.tsx`), заголовки разделов и быстрый поиск.
 - `src/history-import.tsx` — перенос истории подписок и платежей со сверкой и откатом ([регламент](../docs/ru/HISTORY_IMPORT_CURRENT.md)).
 
 `SelectField` сохраняет скрытый нативный элемент и существующие обработчики форм. Видимый элемент — Radix combobox.
 
 `FieldHints` добавляет `aria-description`, `title` и кнопку помощи каждому видимому редактируемому полю. Подсказка RU/EN открывается при фокусе или нажатии, закрывается Escape и выводится в portal с ограничением по границам экрана.
 
-Раздел **Обслуживание → Настройки без перезапуска** использует `src/runtime-settings.tsx` ([операторская инструкция](../docs/ru/RUNTIME_SETTINGS_CURRENT.md)).
+Раздел **Система → Настройки без перезапуска** использует `src/runtime-settings.tsx` ([операторская инструкция](../docs/ru/RUNTIME_SETTINGS_CURRENT.md)).
 
 Команды: `npm run dev` (порт 5173), `npm run typecheck`, `npm run build`, `npm run test:e2e`. Браузерные регрессии: `e2e/remna-design.spec.ts`, `e2e/cabinet-design.spec.ts` (кабинет и Telegram Mini App), `e2e/history-import.spec.ts`, `e2e/preferences-help.spec.ts` и сценарии редакторов. Для e2e кабинет собирается с `NEXT_BASE_PATH=/cabinet`.
 
@@ -25,11 +26,14 @@
 
 Скриншоты сняты с изолированного браузерного стенда текущего кода, без production-данных:
 
-- [Дашборд, ПК](../docs/screenshots/admin-dashboard-v28-4-0.png)
-- [Дашборд, телефон](../docs/screenshots/admin-mobile-v28-4-0.png) и [выдвижное меню](../docs/screenshots/admin-mobile-drawer-v28-4-0.png)
-- [Вход](../docs/screenshots/admin-login-v28-4-0.png)
-- [Кабинет: обзор](../docs/screenshots/cabinet-overview-v28-4-0.png), [тарифы](../docs/screenshots/cabinet-plans-v28-4-0.png)
-- [Mini App в светлой теме Telegram](../docs/screenshots/miniapp-light-v28-4-0.png)
+- [Все разделы](../docs/screenshots/admin-panel-v28-10-0.png), [поиск по задаче](../docs/screenshots/admin-panel-search-v28-10-0.png), [быстрый поиск Ctrl+K](../docs/screenshots/admin-command-search-v28-10-0.png), [светлая тема](../docs/screenshots/admin-panel-light-v28-10-0.png)
+- [Главная](../docs/screenshots/admin-dashboard-v28-10-0.png), [Тарифы](../docs/screenshots/admin-plans-v28-10-0.png), [Конструктор тарифов](../docs/screenshots/admin-tariff-constructor-v28-10-0.png), [Акции и рассылки](../docs/screenshots/admin-marketing-v28-10-0.png), [Меню бота и Mini App](../docs/screenshots/admin-bot-content-v28-10-0.png), [Настройки без перезапуска](../docs/screenshots/admin-runtime-settings-v28-10-0.png), [Роли и администраторы](../docs/screenshots/admin-admins-v28-10-0.png), [Сеть узлов](../docs/screenshots/admin-network-intel-v28-10-0.png)
+- Телефон: [Все разделы](../docs/screenshots/admin-mobile-v28-10-0.png), [выдвижное меню](../docs/screenshots/admin-mobile-drawer-v28-10-0.png), [форма](../docs/screenshots/admin-mobile-form-v28-10-0.png)
+- [Вход](../docs/screenshots/admin-login-v28-10-0.png)
+- [Кабинет: обзор](../docs/screenshots/cabinet-overview-v28-10-0.png), [тарифы](../docs/screenshots/cabinet-plans-v28-10-0.png)
+- [Mini App в светлой теме Telegram](../docs/screenshots/miniapp-light-v28-10-0.png)
+
+Разделы, кнопки и подписи полей описаны в [руководстве по админ-панели](../docs/ru/ADMIN_PANEL_CURRENT.md). Скриншоты снимает `node scripts/screenshots.mjs ../docs/screenshots v28-10-0` на тестовом стенде.
 
 ## Branding
 
