@@ -1497,3 +1497,29 @@ class PluginEventCursor(Base):
     __tablename__ = "plugin_event_cursors"
     source: Mapped[str] = mapped_column(String(32), primary_key=True)
     last_id: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+
+class NetworkIntel(Base):
+    """Cached lookup of one IP from one source (ASN/registry or reputation) with freshness."""
+    __tablename__ = "network_intel"
+    __table_args__ = (UniqueConstraint("ip", "source", name="uq_network_intel_ip_source"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ip: Mapped[str] = mapped_column(String(45), index=True, nullable=False)
+    source: Mapped[str] = mapped_column(String(16), nullable=False)
+    data: Mapped[dict|None] = mapped_column(JSON)
+    fetched_at: Mapped[datetime|None] = mapped_column(DateTime)
+    expires_at: Mapped[datetime|None] = mapped_column(DateTime, index=True)
+    error: Mapped[str|None] = mapped_column(String(255))
+    error_at: Mapped[datetime|None] = mapped_column(DateTime)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    next_attempt_at: Mapped[datetime|None] = mapped_column(DateTime)
+
+
+class NetworkIntelSourceState(Base):
+    """Per-source rate-limit window and backoff after HTTP 429."""
+    __tablename__ = "network_intel_sources"
+    source: Mapped[str] = mapped_column(String(16), primary_key=True)
+    window_start: Mapped[datetime|None] = mapped_column(DateTime)
+    used: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    blocked_until: Mapped[datetime|None] = mapped_column(DateTime)
+    last_error: Mapped[str|None] = mapped_column(String(255))

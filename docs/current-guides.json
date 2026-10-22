@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0067_plugin_runtime",
+  "migration_head": "0068_network_intel",
   "guides": [
     ".env.example",
     "ADMIN_GUIDE_RU.md",
@@ -64,6 +64,7 @@
     "docs/ru/MATRIX_COMPLETION_21_5_1.md",
     "docs/ru/MENU_TREE_CURRENT.md",
     "docs/ru/MOBILE_GUIDE.md",
+    "docs/ru/NETWORK_INTEL_CURRENT.md",
     "docs/ru/OPERATIONS_MONITORING.md",
     "docs/ru/PARTNERS_CURRENT.md",
     "docs/ru/PAYMENTS.md",
@@ -85,6 +86,7 @@
     "docs/ru/RELEASE_V28_6_0.md",
     "docs/ru/RELEASE_V28_7_0.md",
     "docs/ru/RELEASE_V28_8_0.md",
+    "docs/ru/RELEASE_V28_9_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md",
@@ -119,5 +121,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.8.0"
+  "distribution_tag": "v28.9.0"
 }
