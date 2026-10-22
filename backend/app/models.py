@@ -1428,3 +1428,72 @@ class PromoAudience(Base):
     user_ids: Mapped[list]=mapped_column(JSON,default=list)
     enabled: Mapped[bool]=mapped_column(Boolean,default=True)
     version: Mapped[int]=mapped_column(Integer,default=1)
+
+
+class PluginPublisher(Base):
+    """Trusted Ed25519 publisher key; only packages signed by an active key install."""
+    __tablename__ = "plugin_publishers"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    public_key: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(16), unique=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    revoked_at: Mapped[datetime|None] = mapped_column(DateTime)
+
+
+class PluginPackage(Base):
+    """One uploaded, signature-verified version of a plugin (manifest only, no code)."""
+    __tablename__ = "plugin_packages"
+    __table_args__ = (UniqueConstraint("plugin_id", "version", name="uq_plugin_packages_version"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    plugin_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
+    version: Mapped[str] = mapped_column(String(32), nullable=False)
+    manifest: Mapped[dict] = mapped_column(JSON, nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    publisher_fingerprint: Mapped[str] = mapped_column(String(16), nullable=False)
+    uploaded_by: Mapped[str] = mapped_column(String(320), nullable=False)
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class PluginInstall(Base):
+    """Lifecycle of an installed plugin: active version, approved capabilities, credentials."""
+    __tablename__ = "plugin_installs"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    state: Mapped[str] = mapped_column(String(16), default="installed", nullable=False)
+    active_version: Mapped[str|None] = mapped_column(String(32))
+    approved_capabilities: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    approved_events: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    settings_encrypted: Mapped[str|None] = mapped_column(Text)
+    token_hash: Mapped[str|None] = mapped_column(String(64), unique=True)
+    signing_secret_encrypted: Mapped[str|None] = mapped_column(Text)
+    consecutive_failures: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_error: Mapped[str|None] = mapped_column(String(255))
+    disabled_reason: Mapped[str|None] = mapped_column(String(255))
+    enabled_at: Mapped[datetime|None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class PluginDelivery(Base):
+    """Signed event delivery to a plugin endpoint, retried with backoff and deduplicated."""
+    __tablename__ = "plugin_deliveries"
+    __table_args__ = (UniqueConstraint("plugin_id", "event_key", name="uq_plugin_deliveries_event"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    plugin_id: Mapped[str] = mapped_column(ForeignKey("plugin_installs.id", ondelete="CASCADE"), index=True, nullable=False)
+    event: Mapped[str] = mapped_column(String(64), nullable=False)
+    event_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="queued", index=True, nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    next_attempt_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+    last_error: Mapped[str|None] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    sent_at: Mapped[datetime|None] = mapped_column(DateTime)
+
+
+class PluginEventCursor(Base):
+    """Outbox scan position per event source (users, notifications)."""
+    __tablename__ = "plugin_event_cursors"
+    source: Mapped[str] = mapped_column(String(32), primary_key=True)
+    last_id: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

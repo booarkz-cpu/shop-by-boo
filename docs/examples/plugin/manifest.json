@@ -1,0 +1,15 @@
+{
+  "id": "example.crm-sync",
+  "name": "CRM sync (example)",
+  "version": "1.0.0",
+  "api_version": 1,
+  "publisher": "Example Ltd",
+  "description": "Sends new customers and successful payments to an external CRM.",
+  "endpoint": "https://crm.example.com/corgi/events",
+  "capabilities": ["users.read", "payments.read"],
+  "events": ["user.registered", "payment.succeeded"],
+  "settings": [
+    {"key": "crm_api_key", "type": "secret", "label": "CRM API key", "required": true},
+    {"key": "pipeline", "type": "string", "label": "CRM pipeline"}
+  ]
+}

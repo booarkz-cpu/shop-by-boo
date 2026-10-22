@@ -165,6 +165,7 @@ async def main_worker():
     from app.account_actions import mail_scheduler
     from app.account_merge import account_merge_cleanup_scheduler
     from app.push import push_scheduler
+    from app.plugins import plugin_scheduler
     from app.runtime_settings import refresh_runtime_settings, runtime_settings_scheduler
     async with AsyncSession(main.engine, expire_on_commit=False) as db:
         await refresh_runtime_settings(db, force=True)
@@ -181,6 +182,7 @@ async def main_worker():
         mail_scheduler(),
         account_merge_cleanup_scheduler(),
         push_scheduler(),
+        plugin_scheduler(),
         main.subscription_lifecycle_scheduler(),
     )
 

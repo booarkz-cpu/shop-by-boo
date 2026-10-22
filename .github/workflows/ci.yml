@@ -93,7 +93,15 @@ jobs:
         working-directory: backend
         run: alembic upgrade head
       - name: Tests
-        run: python -m pytest -q tests --disable-warnings --maxfail=1
+        # A hung test fails after 5 minutes with all thread stacks instead of blocking the job.
+        run: |
+          set -o pipefail
+          python -m pytest -q tests --disable-warnings --maxfail=1 --timeout=300 --timeout-method=thread 2>&1 | tee "$RUNNER_TEMP/pytest.log"
+      - name: Report failing tests
+        if: failure()
+        run: |
+          tail -c 6000 "$RUNNER_TEMP/pytest.log" | grep -v '^$' | tail -n 80 | sed 's/%/%25/g' > "$RUNNER_TEMP/tail.txt" || true
+          echo "::error title=pytest output (tail)::$(sed ':a;N;$!ba;s/\n/%0A/g' "$RUNNER_TEMP/tail.txt")"
 
   passkey-browser:
     name: Content, customer operations and passkeys • Chromium end-to-end

@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.7.0. Runtime/API `21.5.1`, head магазина `0066_push_notifications`, Support Pro `0007`.
+> Актуальная инструкция дистрибутива v28.8.0. Runtime/API `21.5.1`, head магазина `0067_plugin_runtime`, Support Pro `0007`.
 
 # Виджет Android и профили админ-приложений
 

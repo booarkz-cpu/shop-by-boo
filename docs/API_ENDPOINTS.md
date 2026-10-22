@@ -1,6 +1,6 @@
-# Каталог API — v28.7.0 / API v21.5.1
+# Каталог API — v28.8.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0066_push_notifications`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0067_plugin_runtime`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -183,6 +183,16 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/platform/summary` | Platform Summary |
 | `POST` | `/api/admin/platform/violations/{violation_id}/review` | Review Violation |
 | `POST` | `/api/admin/platform/webhooks` | Create Webhook |
+| `GET` | `/api/admin/plugins` | Admin Plugins |
+| `POST` | `/api/admin/plugins/publishers` | Add Publisher |
+| `POST` | `/api/admin/plugins/publishers/{publisher_id}/revoke` | Revoke Publisher |
+| `POST` | `/api/admin/plugins/upload` | Upload |
+| `DELETE` | `/api/admin/plugins/{plugin_id}` | Uninstall |
+| `POST` | `/api/admin/plugins/{plugin_id}/disable` | Disable |
+| `POST` | `/api/admin/plugins/{plugin_id}/enable` | Enable |
+| `POST` | `/api/admin/plugins/{plugin_id}/rollback` | Rollback |
+| `POST` | `/api/admin/plugins/{plugin_id}/rotate` | Rotate |
+| `POST` | `/api/admin/plugins/{plugin_id}/settings` | Save Settings |
 | `GET` | `/api/admin/promo-audiences` | Audiences |
 | `PUT` | `/api/admin/promo-audiences/{promo_id}` | Set Audience |
 | `POST` | `/api/admin/promo-codes` | Create Promo Code |
@@ -453,6 +463,11 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/payments/webhooks/paypal` | Paypal Webhook |
 | `POST` | `/api/payments/webhooks/stripe` | Stripe Webhook |
 | `GET` | `/api/plans` | Plans |
+| `GET` | `/api/plugin/v1/me` | Plugin Me |
+| `POST` | `/api/plugin/v1/notifications` | Plugin Notify |
+| `GET` | `/api/plugin/v1/payments/{payment_id}` | Plugin Payment |
+| `GET` | `/api/plugin/v1/users/{user_id}` | Plugin User |
+| `GET` | `/api/plugin/v1/users/{user_id}/subscriptions` | Plugin Subscriptions |
 | `GET` | `/api/promo/validate` | Validate Promo |
 | `GET` | `/api/public/apps` | Public Apps |
 | `GET` | `/api/public/apps/install` | Public Install Guide |

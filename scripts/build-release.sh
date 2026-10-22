@@ -44,7 +44,7 @@ VERSION="21.5.1"
 # Legacy regression contract marker: VERSION="1.0.0-realise"
 # Previous release contract: VERSION="45.0.0-enterprise" artifact=remnawave_vpn_shop_v44_5_9_enterprise_deep_audited_fixed.zip
 # Previous migration head retained for compatibility: 0030_v44_5_16_privacy_and_refund_integrity
-# Current migration head: 0066_push_notifications
+# Current migration head: 0067_plugin_runtime
 # Historical compatibility marker: 2.9.0 keeps migration 0038_v2_6_0_platform
 # Historical compatibility marker: 2.8.0 keeps migration 0038_v2_6_0_platform
 # Historical compatibility marker: 2.7.0 keeps migration 0038_v2_6_0_platform
