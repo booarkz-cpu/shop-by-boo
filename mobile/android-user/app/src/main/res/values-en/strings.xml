@@ -3,4 +3,5 @@
     <string name="app_name">VPN shop</string>
     <string name="diagnostics">Diagnostics</string>
     <string name="privacy">Privacy</string>
+    <string name="widget_description">VPN subscription status, expiry and remaining traffic</string>
 </resources>

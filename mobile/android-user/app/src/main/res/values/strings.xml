@@ -3,4 +3,5 @@
     <string name="app_name">VPN Shop by Corgi Lusi</string>
     <string name="diagnostics">Diagnostics</string>
     <string name="privacy">Privacy</string>
+    <string name="widget_description">Статус VPN-подписки, срок и остаток трафика</string>
 </resources>

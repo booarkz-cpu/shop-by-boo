@@ -56,6 +56,7 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.concurrent.thread
 import shop.remnawave.user.push.CorgiPush
+import shop.remnawave.user.widget.CorgiWidgetData
 
 
 
@@ -291,6 +292,7 @@ private fun UserApp(initialTab: String = "overview") {
     var qr by remember { mutableStateOf<ImageBitmap?>(null) }
     var unlocked by remember { mutableStateOf(token.isBlank()) }
     var pushEnabled by remember { mutableStateOf(CorgiPush.enabled(context)) }
+    var widgetEnabled by remember { mutableStateOf(CorgiWidgetData.enabled(context)) }
     DisposableEffect(activity) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) unlocked = false
@@ -317,6 +319,8 @@ private fun UserApp(initialTab: String = "overview") {
         token = ""
         unlocked = false
         pushEnabled = false
+        widgetEnabled = false
+        CorgiWidgetData.clear(context)
         thread {
             // Revoke the push token while the session is still valid, then end the session.
             CorgiPush.unregister(context, origin, previous, lang)
@@ -362,6 +366,7 @@ private fun UserApp(initialTab: String = "overview") {
             if (CorgiPush.enabled(context) && CorgiPush.permissionGranted(context)) {
                 try { CorgiPush.register(context, base, token, lang) } catch (_: Exception) { }
             }
+            if (CorgiWidgetData.enabled(context)) CorgiWidgetData.refresh(context)
             val nextDashboard = api.get("/api/me/dashboard") as JSONObject
             val nextProfiles = api.get("/api/me/subscriptions") as JSONArray
             val nextPlans = api.get("/api/plans") as JSONArray
@@ -661,6 +666,20 @@ private fun UserApp(initialTab: String = "overview") {
                         }
                     }
                     "security" -> {
+                        Text(t("widget_title"), style = MaterialTheme.typography.titleMedium)
+                        Text(if (widgetEnabled) t("widget_on") else t("widget_off"), color = Color(0xFFA4AFD0))
+                        if (widgetEnabled) {
+                            TextButton(onClick = {
+                                CorgiWidgetData.setEnabled(context, false)
+                                widgetEnabled = false
+                            }) { Text(t("widget_disable")) }
+                        } else {
+                            Button(enabled = !busy, onClick = {
+                                CorgiWidgetData.setEnabled(context, true)
+                                widgetEnabled = true
+                                work { CorgiWidgetData.refresh(context) }
+                            }) { Text(t("widget_enable")) }
+                        }
                         Text(t("security"))
                         Text("Biometric unlock: ON")
                         Text("Kill Switch: ON")
