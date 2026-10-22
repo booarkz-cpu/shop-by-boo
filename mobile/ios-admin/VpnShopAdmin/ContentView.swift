@@ -4,11 +4,16 @@ import UIKit
 
 struct AdminRootView: View {
     @AppStorage("shop_admin_lang") private var lang = "ru"
-    @AppStorage("shop_admin_base") private var base = ""
-    @State private var token = SessionKeychain.load(baseKey: "shop_admin_base", legacyKey: "shop_admin_token")
+    @State private var activeId = ProfileVault.activeId()
+    @State private var profiles = ProfileVault.all()
+    @State private var base = ProfileVault.find(ProfileVault.activeId())?.base ?? ""
+    @State private var token = ProfileVault.token(ProfileVault.activeId())
+    @State private var profileLabel = ProfileVault.find(ProfileVault.activeId())?.label ?? ""
+    @State private var showProfiles = false
+    @State private var signedInIds: Set<String> = []
     @Environment(\.scenePhase) private var scenePhase
     @State private var authenticationContext: LAContext?
-    @State private var email = ""
+    @State private var email = ProfileVault.find(ProfileVault.activeId())?.email ?? ""
     @State private var password = ""
     @State private var otp = ""
     @State private var tab = "overview"
@@ -41,7 +46,15 @@ struct AdminRootView: View {
                     Button(lang == "ru" ? "EN" : "RU") { lang = lang == "ru" ? "en" : "ru" }
                 }
                 Text(t("tagline")).foregroundStyle(.secondary)
+                if token.isEmpty || unlocked {
+                    HStack {
+                        Text(base.isEmpty ? t("add_profile") : profileTitle()).foregroundStyle(Color(red: 0.58, green: 0.77, blue: 0.99))
+                        Spacer()
+                        Button("\(t("profiles")) (\(profiles.count))") { reloadProfiles(); showProfiles.toggle() }
+                    }
+                }
                 if !notice.isEmpty { Text(notice).foregroundStyle(.orange) }
+                if showProfiles && (token.isEmpty || unlocked) { profilePanel }
                 if token.isEmpty { auth } else if !unlocked { lock } else { home }
             }.padding()
         }
@@ -53,8 +66,7 @@ struct AdminRootView: View {
             else if !unlocked { unlockSavedSession() }
         }
         .onChange(of: token) { value in
-            if value.isEmpty { SessionKeychain.clear() }
-            else if unlocked { refresh() }
+            if !value.isEmpty && unlocked { refresh() }
         }
         .onChange(of: scenePhase) { phase in
             if phase == .background {
@@ -67,8 +79,73 @@ struct AdminRootView: View {
         .onChange(of: lang) { _ in if !token.isEmpty && unlocked { refresh() } }
     }
 
+    private var profilePanel: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(profiles) { profile in
+                let current = profile.id == activeId
+                Text("\(profile.title) · \(profile.host)\(profile.email.isEmpty ? "" : " · \(profile.email)") · \(signedInIds.contains(profile.id) ? t("signed_in") : t("signed_out"))\(current ? " · \(t("active_profile"))" : "")")
+                HStack {
+                    if !current { Button(t("switch_profile")) { switchTo(profile.id) }.disabled(busy) }
+                    Button(t("remove_profile"), role: .destructive) { removeProfile(profile) }.disabled(busy)
+                }
+            }
+            Button(t("add_profile")) { addProfile() }.buttonStyle(.borderedProminent).disabled(busy)
+        }
+    }
+
+    private func profileTitle() -> String { ProfileVault.find(activeId)?.title ?? (URL(string: base)?.host ?? base) }
+
+    private func clearLoaded() {
+        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]
+        tickets = []; broadcasts = []; paymentDetail = [:]; logo = nil; reply = ""; broadcastText = ""
+    }
+
+    private func reloadProfiles() {
+        profiles = ProfileVault.all()
+        signedInIds = Set(profiles.filter { !ProfileVault.token($0.id).isEmpty }.map(\.id))
+    }
+
+    private func switchTo(_ id: String) {
+        clearLoaded()
+        ProfileVault.setActive(id)
+        activeId = id
+        let profile = ProfileVault.find(id)
+        base = profile?.base ?? ""
+        email = profile?.email ?? ""
+        profileLabel = profile?.label ?? ""
+        password = ""; otp = ""; tab = "overview"
+        showProfiles = false
+        token = ProfileVault.token(id)
+        notice = profile.map { t("profile_switched").replacingOccurrences(of: "{profile}", with: $0.title) } ?? ""
+    }
+
+    private func addProfile() {
+        guard profiles.count < ProfileVault.maxProfiles else { notice = t("profile_limit"); return }
+        clearLoaded()
+        activeId = ProfileVault.newId()
+        base = ""; email = ""; password = ""; otp = ""; profileLabel = ""; token = ""
+        showProfiles = false
+        notice = ""
+    }
+
+    private func removeProfile(_ profile: AdminProfile) {
+        let removedToken = ProfileVault.token(profile.id)
+        ProfileVault.remove(profile.id)
+        if !removedToken.isEmpty {
+            DispatchQueue.global(qos: .utility).async {
+                _ = try? ShopClient(base: profile.base, token: removedToken, lang: lang).call("POST", "/api/admin/auth/logout")
+            }
+        }
+        reloadProfiles()
+        if profile.id == activeId {
+            if let next = profiles.first { switchTo(next.id) } else { addProfile() }
+        }
+        notice = t("profile_removed")
+    }
+
     private var auth: some View {
         VStack(alignment: .leading, spacing: 8) {
+            TextField(t("profile_label"), text: $profileLabel).textFieldStyle(.roundedBorder)
             TextField(t("server"), text: $base).textFieldStyle(.roundedBorder)
             TextField(t("email"), text: $email).textFieldStyle(.roundedBorder)
             SecureField(t("password"), text: $password).textFieldStyle(.roundedBorder)
@@ -188,14 +265,24 @@ struct AdminRootView: View {
         guard let normalized = try? normalizeBase(base) else { notice = t("https_required"); return }
         guard email.contains("@"), email.contains(".") else { notice = t("email_invalid"); return }
         guard password.count >= 8 else { notice = t("password_short"); return }
+        let profileId = activeId
+        let address = email.trimmingCharacters(in: .whitespaces)
+        if ProfileVault.duplicate(of: profileId, base: normalized, email: address) != nil {
+            notice = t("profile_duplicate"); reloadProfiles(); showProfiles = true; return
+        }
+        if ProfileVault.find(profileId) == nil && ProfileVault.all().count >= ProfileVault.maxProfiles { notice = t("profile_limit"); return }
+        let label = String(profileLabel.trimmingCharacters(in: .whitespaces).prefix(40))
         work {
-            var body: [String: Any] = ["email": email, "password": password]
+            var body: [String: Any] = ["email": address, "password": password]
             if !otp.trimmingCharacters(in: .whitespaces).isEmpty { body["otp"] = otp }
             let response = try ShopClient(base: normalized, token: "", lang: lang).call("POST", "/api/admin/auth/login", body: body) as? [String: Any]
             let issued = response?["access_token"] as? String ?? ""
             guard !issued.isEmpty else { throw URLError(.userAuthenticationRequired) }
-            try SessionKeychain.save(issued, base: normalized)
+            try SessionKeychain.save(issued, base: normalized, account: ProfileVault.account(profileId))
+            ProfileVault.upsert(AdminProfile(id: profileId, label: label, base: normalized, email: address))
+            ProfileVault.setActive(profileId)
             DispatchQueue.main.async {
+                reloadProfiles()
                 base = normalized
                 token = issued
                 password = ""
@@ -222,6 +309,7 @@ struct AdminRootView: View {
     }
 
     private func refresh() {
+        let refreshedFor = activeId
         work {
             let api = ShopClient(base: base, token: token, lang: lang)
             let nextOverview = try api.call("GET", "/api/admin/overview") as? [String: Any] ?? [:]
@@ -235,6 +323,8 @@ struct AdminRootView: View {
             let nextBroadcasts = nextMarketing["broadcasts"] as? [[String: Any]] ?? []
             let nextLogo = logoImage(api, "/api/admin/apps")
             DispatchQueue.main.async {
+                // A slow response must not paint the previous profile's data after a switch.
+                guard refreshedFor == activeId else { return }
                 overview = nextOverview
                 plans = nextPlans
                 payments = nextPayments
@@ -252,8 +342,9 @@ struct AdminRootView: View {
         let previous = token
         let origin = base
         token = ""
-        SessionKeychain.clear()
+        SessionKeychain.clear(account: ProfileVault.account(activeId))
         unlocked = false
+        clearLoaded()
         work {
             if !previous.isEmpty {
                 _ = try ShopClient(base: origin, token: previous, lang: lang).call("POST", "/api/admin/auth/logout")
@@ -333,12 +424,32 @@ struct AdminRootView: View {
     private func work(_ block: @escaping () throws -> Void) {
         busy = true
         notice = ""
+        let startedFor = activeId
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try block()
                 DispatchQueue.main.async { busy = false }
             } catch {
-                DispatchQueue.main.async { busy = false; notice = error.localizedDescription }
+                let failure = error as NSError
+                DispatchQueue.main.async {
+                    busy = false
+                    if failure.domain == "shop" && failure.code == 401 {
+                        notice = t("session_expired").replacingOccurrences(of: "{profile}", with: profileTitle())
+                        // Keep the profile, drop only its dead session, so the admin can sign in again.
+                        if startedFor == activeId {
+                            SessionKeychain.clear(account: ProfileVault.account(activeId))
+                            token = ""
+                            clearLoaded()
+                        }
+                    } else if failure.domain == "shop" && failure.code == 403 {
+                        let detail = failure.localizedDescription
+                        notice = detail.hasPrefix("HTTP") ? t("forbidden") : detail
+                    } else if failure.domain == NSURLErrorDomain {
+                        notice = "\(t("network_error").replacingOccurrences(of: "{profile}", with: profileTitle())) (\(failure.code))"
+                    } else {
+                        notice = failure.localizedDescription
+                    }
+                }
             }
         }
     }
