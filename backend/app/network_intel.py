@@ -94,9 +94,11 @@ async def resolve(address: str) -> tuple[list[str], str | None]:
     if not host:
         return [], "Адрес узла не указан"
     try:
-        return [str(ipaddress.ip_address(host))], None
+        literal = str(ipaddress.ip_address(host))
     except ValueError:
-        pass
+        literal = None  # a host name: resolve it below
+    if literal:
+        return [literal], None
     ips = await asyncio.to_thread(resolver, host)
     return (ips, None) if ips else ([], "DNS не вернул адресов")
 

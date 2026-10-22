@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.8.0. Runtime/API `21.5.1`, head магазина `0067_plugin_runtime`, Support Pro `0007`.
+> Актуальная инструкция дистрибутива v28.9.0. Runtime/API `21.5.1`, head магазина `0068_network_intel`, Support Pro `0007`.
 
 # Плагины
 

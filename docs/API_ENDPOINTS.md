@@ -1,6 +1,6 @@
-# Каталог API — v28.8.0 / API v21.5.1
+# Каталог API — v28.9.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0067_plugin_runtime`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0068_network_intel`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -135,6 +135,8 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/miniapp/menu` | Save Mini Tree |
 | `GET` | `/api/admin/mobile/ops` | Admin Mobile Ops |
 | `GET` | `/api/admin/monitoring` | Admin Monitoring |
+| `GET` | `/api/admin/network/intel` | Admin Network Intel |
+| `POST` | `/api/admin/network/intel/refresh` | Admin Network Refresh |
 | `GET` | `/api/admin/notifications` | Admin Notifications |
 | `POST` | `/api/admin/notifications` | Admin Notification Create |
 | `GET` | `/api/admin/openapi.json` | Admin Openapi |
