@@ -68,12 +68,12 @@ def test_report_keeps_counts_when_the_shop_is_unreachable(tmp_path, monkeypatch)
     pending = {}
     with pytest.raises(agent.urllib.error.URLError):
         agent.torrent_report("https://shop", TOKEN, reader, pending)
-    assert pending == {"user_1": 3}
+    assert pending == {("user_1", "xray"): 3}
     monkeypatch.setattr(agent, "_post", lambda base, path, token, body: sent.append((path, body)) or {})
     with log_file.open("a") as handle:
         handle.write(line("user_1"))
     assert agent.torrent_report("https://shop", TOKEN, reader, pending) == {}
-    assert sent == [("/api/agent/torrent", {"items": [{"client": "user_1", "events": 4}]})]
+    assert sent == [("/api/agent/torrent", {"items": [{"client": "user_1", "kind": "xray", "events": 4}]})]
     assert all("198.51.100" not in json.dumps(body) for _, body in sent), "no destinations leave the node"
 
 
@@ -106,7 +106,7 @@ async def test_counts_resolve_clients_and_notify_once_a_day(database):
     assert len(notices) == 1 and notices[0].user_id == 1, "one notice per day"
     assert "198.51.100" not in notices[0].body
     columns = set(TorrentDetection.__table__.columns.keys())
-    assert columns == {"id", "hour", "agent_id", "client", "user_id", "events"}, "only counters are stored"
+    assert columns == {"id", "hour", "agent_id", "client", "user_id", "events", "kind"}, "only counters are stored"
 
 
 @pytest.mark.asyncio

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.15.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.16.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1125**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1129**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -360,6 +360,7 @@
 | [backend/alembic/versions/0069_mail_domain.py](../backend/alembic/versions/0069_mail_domain.py) | API, бот и worker |
 | [backend/alembic/versions/0070_node_terminal.py](../backend/alembic/versions/0070_node_terminal.py) | API, бот и worker |
 | [backend/alembic/versions/0071_torrent_detection.py](../backend/alembic/versions/0071_torrent_detection.py) | API, бот и worker |
+| [backend/alembic/versions/0072_traffic_analysis.py](../backend/alembic/versions/0072_traffic_analysis.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -629,6 +630,7 @@
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
+| [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
@@ -650,6 +652,7 @@
 | [docs/ru/SUPPORT_TOPOLOGY_CURRENT.md](../docs/ru/SUPPORT_TOPOLOGY_CURRENT.md) | Документация |
 | [docs/ru/TESTING.md](../docs/ru/TESTING.md) | Документация |
 | [docs/ru/TORRENT_DETECTION_CURRENT.md](../docs/ru/TORRENT_DETECTION_CURRENT.md) | Документация |
+| [docs/ru/TRAFFIC_ANALYSIS_CURRENT.md](../docs/ru/TRAFFIC_ANALYSIS_CURRENT.md) | Документация |
 | [docs/ru/UPDATE_TO_CURRENT_20_0_28.md](../docs/ru/UPDATE_TO_CURRENT_20_0_28.md) | Документация |
 | [docs/ru/UPDATE_TO_CURRENT_20_0_29.md](../docs/ru/UPDATE_TO_CURRENT_20_0_29.md) | Документация |
 | [docs/ru/VDS_PRODUCTION_20_0_17.md](../docs/ru/VDS_PRODUCTION_20_0_17.md) | Документация |
@@ -1054,6 +1057,7 @@
 | [tests/test_support_topology.py](../tests/test_support_topology.py) | Проверки |
 | [tests/test_surveys.py](../tests/test_surveys.py) | Проверки |
 | [tests/test_torrent_detection.py](../tests/test_torrent_detection.py) | Проверки |
+| [tests/test_traffic_analysis.py](../tests/test_traffic_analysis.py) | Проверки |
 | [tests/test_unified_workspace.py](../tests/test_unified_workspace.py) | Проверки |
 | [tests/test_v15_production.py](../tests/test_v15_production.py) | Проверки |
 | [tests/test_v16_v19_release.py](../tests/test_v16_v19_release.py) | Проверки |

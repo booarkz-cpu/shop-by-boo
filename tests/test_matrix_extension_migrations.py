@@ -21,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0072_traffic_analysis',
         '0071_torrent_detection',
         '0070_node_terminal',
         '0069_mail_domain',
@@ -39,8 +40,8 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
-    # 0071 (30-day counters), 0068 (cache) and 0066 (re-registrable push tokens) are intentionally unguarded.
-    guarded_names = [roundtrip_names[1], roundtrip_names[2], roundtrip_names[6], roundtrip_names[7], *roundtrip_names[11:]]
+    # 0072/0071 (30-day counters), 0068 (cache) and 0066 (re-registrable push tokens) are intentionally unguarded.
+    guarded_names = [roundtrip_names[2], roundtrip_names[3], roundtrip_names[7], roundtrip_names[8], *roundtrip_names[12:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):

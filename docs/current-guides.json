@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0071_torrent_detection",
+  "migration_head": "0072_traffic_analysis",
   "guides": [
     ".env.example",
     "ADMIN_GUIDE_RU.md",
@@ -97,6 +97,7 @@
     "docs/ru/RELEASE_V28_13_0.md",
     "docs/ru/RELEASE_V28_14_0.md",
     "docs/ru/RELEASE_V28_15_0.md",
+    "docs/ru/RELEASE_V28_16_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md",
@@ -105,6 +106,7 @@
     "docs/ru/SUPPORT_TOPOLOGY_CURRENT.md",
     "docs/ru/TESTING.md",
     "docs/ru/TORRENT_DETECTION_CURRENT.md",
+    "docs/ru/TRAFFIC_ANALYSIS_CURRENT.md",
     "docs/ru/WIDGET_AND_PROFILES_CURRENT.md",
     "docs/ru/WORKSPACE_ACCOUNT_SECURITY.md",
     "docs/ru/WORKSPACE_ADMIN_GUIDE.md",
@@ -133,5 +135,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.15.0"
+  "distribution_tag": "v28.16.0"
 }
