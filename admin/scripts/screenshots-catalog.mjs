@@ -90,6 +90,23 @@ async function settle(page) {
     await api('/api/admin/promo-codes', 'POST', {code: 'WELCOME10', kind: 'percent', value: 10});
     await api('/api/admin/promotions', 'POST', {name: 'Чёрная пятница', kind: 'percent', value: 30});
   });
+  // Mail domain: two DMARC aggregate reports and a DNS check (the stand sets MAIL_DOMAIN;
+  // without a reachable DNS-over-HTTPS resolver the check shows "not performed").
+  await page.evaluate(async () => {
+    const csrf = decodeURIComponent(document.cookie.split('; ').find((c) => c.startsWith('rw_csrf='))?.split('=')[1] || '');
+    const day = 86400, begin = Math.floor(Date.now() / 1000) - 2 * day;
+    const report = (org, id, rows) => `<?xml version="1.0"?><feedback><report_metadata><org_name>${org}</org_name><email>dmarc-reports@${org}</email><report_id>${id}</report_id><date_range><begin>${begin}</begin><end>${begin + day}</end></date_range></report_metadata><policy_published><domain>shop.example</domain><p>quarantine</p><pct>100</pct></policy_published>${rows.map(([ip, n, dkim, spf, disp]) => `<record><row><source_ip>${ip}</source_ip><count>${n}</count><policy_evaluated><disposition>${disp}</disposition><dkim>${dkim}</dkim><spf>${spf}</spf></policy_evaluated></row><identifiers><header_from>shop.example</header_from></identifiers><auth_results><dkim><domain>${dkim === 'pass' ? 'shop.example' : 'unknown.example'}</domain><result>${dkim}</result></dkim><spf><domain>shop.example</domain><result>${spf}</result></spf></auth_results></record>`).join('')}</feedback>`;
+    const files = [
+      ['google.com!shop.example.xml', report('google.com', 'g-1024', [['198.51.100.7', 1840, 'pass', 'pass', 'none'], ['198.51.100.8', 312, 'pass', 'fail', 'none'], ['192.0.2.66', 14, 'fail', 'fail', 'quarantine']])],
+      ['mail.ru!shop.example.xml', report('mail.ru', 'm-77', [['198.51.100.7', 655, 'pass', 'pass', 'none'], ['203.0.113.90', 3, 'fail', 'fail', 'quarantine']])],
+    ];
+    for (const [name, xml] of files) {
+      const body = new FormData();
+      body.append('file', new Blob([xml], {type: 'text/xml'}), name);
+      await fetch('/api/admin/mail/dmarc/upload', {method: 'POST', credentials: 'include', headers: {'X-CSRF-Token': csrf}, body});
+    }
+    await fetch('/api/admin/mail/domain/check', {method: 'POST', credentials: 'include', headers: {'X-CSRF-Token': csrf, 'Content-Type': 'application/json'}, body: JSON.stringify({dkim_selectors: []})});
+  });
   await page.context().close();
 }
 {

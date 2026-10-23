@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.12.0. Runtime/API `21.5.1`, head магазина `0068_network_intel`, Support Pro `0008` / 3.8.
+> Актуальная инструкция дистрибутива v28.13.0. Runtime/API `21.5.1`, head магазина `0069_mail_domain`, Support Pro `0008` / 3.8.
 
 # Мост Zendesk и Freshdesk (Support Pro 3.8)
 

@@ -1,4 +1,4 @@
-> Current distribution: `v28.12.0`; runtime/API: `21.5.1`. Exact readiness boundaries are documented in the current coverage matrix.
+> Current distribution: `v28.13.0`; runtime/API: `21.5.1`. Exact readiness boundaries are documented in the current coverage matrix.
 
 > v21.5.1: API 18080, admin 18081, cabinet 18082, Mini App 18083. [Current testing guide](../ru/TESTING.md).
 

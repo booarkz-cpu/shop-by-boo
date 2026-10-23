@@ -805,6 +805,13 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
 .network-intel .spin { animation:intel-spin 1s linear infinite; }
 @keyframes intel-spin { to { transform:rotate(360deg); } }
 @media (max-width:760px) { .intel-sources,.intel-customers { grid-template-columns:minmax(0,1fr); } }
+.mail-check-form { display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:12px 0; }
+.mail-check-form label { display:grid;gap:4px;flex:1 1 260px;min-width:0; }
+.mail-check-form label span { font-size:13px;color:var(--muted); }
+.mail-finding { display:block; }
+.mail-record { display:block;margin-top:4px;font-size:12px;overflow-wrap:anywhere;white-space:pre-wrap; }
+.mail-opened { display:grid;gap:8px;margin-top:12px; }
+.mail-domain h2 code { font-size:15px; }
 
 /* ---------- v28.10: cabinet typography, labelled forms, section hub ---------- */
 /* Same type scale as the customer cabinet: 14px body, 13px field labels, sentence-case headings. */

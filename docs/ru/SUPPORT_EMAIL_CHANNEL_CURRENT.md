@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.12.0. Runtime/API `21.5.1`, head магазина `0068_network_intel`, Support Pro `0008` / 3.8.
+> Актуальная инструкция дистрибутива v28.13.0. Runtime/API `21.5.1`, head магазина `0069_mail_domain`, Support Pro `0008` / 3.8.
 
 # Email-канал поддержки (Support Pro 3.7)
 
@@ -62,7 +62,7 @@ EMAIL_PRIVACY_NOTICE=Мы обрабатываем переписку по по�
 Порядок:
 
 1. Создайте отдельный ящик поддержки и пароль приложения (у Яндекс, Mail.ru и Gmail обычный пароль для IMAP/SMTP не подходит). Включите доступ по IMAP.
-2. Для доставляемости настройте у домена SPF, DKIM и DMARC для сервера SMTP.
+2. Для доставляемости настройте у домена SPF, DKIM и DMARC (проверка — раздел магазина «Почтовый домен», [инструкция](MAIL_DOMAIN_CURRENT.md)) для сервера SMTP.
 3. Сделайте согласованный backup базы Support Pro и выполните миграцию до `0007` (`docker compose run --rm support_migrate` или `python -m app.migrate`).
 4. Перезапустите `support_worker` (и `support_pro`): `docker compose up -d support_pro support_worker`.
 5. Откройте в Support Pro раздел **Система → Email-канал**: приём и отправка должны быть «Включены», ошибок нет.

@@ -116,6 +116,7 @@ export const SECTION_GROUPS = [
       {tab: "automation", label: "Автоматизация", description: "Правила «событие → действие» и автоматические кампании.", keywords: "campaign rules"},
       {tab: "workers", label: "Фоновые процессы", description: "Worker и планировщик: работают ли, когда последний раз отвечали.", keywords: "worker"},
       {tab: "jobs", label: "Очередь задач", description: "Фоновые задачи: ожидают, выполняются, завершились ошибкой; повтор вручную.", keywords: "очередь jobs"},
+      {tab: "mailDomain", label: "Почтовый домен: SPF, DKIM, DMARC", description: "Доходят ли письма магазина: DNS-записи домена и отчёты DMARC о том, кто отправляет почту от его имени.", keywords: "почта email mx spf dkim dmarc доставляемость"},
       {tab: "operations", label: "Диагностика", description: "Проверка конфигурации, подключений и готовности к работе с подсказками по исправлению.", keywords: "проверка"},
       {tab: "releases", label: "Обновления", description: "Установленная версия, доступные выпуски и история обновлений.", keywords: "релизы версии github"},
       {tab: "deployments", label: "Развёртывания", description: "Постепенный выпуск новой версии: доля трафика и ошибки.", keywords: "canary"},

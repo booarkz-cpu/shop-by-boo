@@ -256,6 +256,14 @@ class Settings(BaseSettings):
     # RIPEstat (без ключа) даёт ASN, владельца и страну RIR; AbuseIPDB — репутацию, только с ключом.
     network_intel_enabled: bool = Field(default=True, alias="NETWORK_INTEL_ENABLED")
     abuseipdb_api_key: str = Field(default="", alias="ABUSEIPDB_API_KEY")
+    mail_domain: str = Field(default="", alias="MAIL_DOMAIN")
+    mail_dns_doh_url: str = Field(default="https://cloudflare-dns.com/dns-query", alias="MAIL_DNS_DOH_URL")
+    dmarc_imap_host: str = Field(default="", alias="DMARC_IMAP_HOST")
+    dmarc_imap_port: int = Field(default=993, alias="DMARC_IMAP_PORT")
+    dmarc_imap_user: str = Field(default="", alias="DMARC_IMAP_USER")
+    dmarc_imap_password: str = Field(default="", alias="DMARC_IMAP_PASSWORD")
+    dmarc_imap_folder: str = Field(default="INBOX", alias="DMARC_IMAP_FOLDER")
+    dmarc_report_retention_days: int = Field(default=180, alias="DMARC_REPORT_RETENTION_DAYS")
 
     # ---------- Безопасность ----------
     firewall_mode: str = Field(default="strict", alias="FIREWALL_MODE")

@@ -1,6 +1,6 @@
-# Каталог API — v28.12.0 / API v21.5.1
+# Каталог API — v28.13.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0068_network_intel`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0069_mail_domain`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -119,6 +119,12 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/incident-mode` | Incident Mode |
 | `GET` | `/api/admin/jobs` | Admin Jobs |
 | `POST` | `/api/admin/jobs/{job_id}/retry` | Retry Job |
+| `POST` | `/api/admin/mail/dmarc/erase` | Admin Dmarc Erase |
+| `GET` | `/api/admin/mail/dmarc/reports/{report_id}` | Admin Dmarc Report |
+| `POST` | `/api/admin/mail/dmarc/sync` | Admin Dmarc Sync |
+| `POST` | `/api/admin/mail/dmarc/upload` | Admin Dmarc Upload |
+| `GET` | `/api/admin/mail/domain` | Admin Mail Domain |
+| `POST` | `/api/admin/mail/domain/check` | Admin Mail Check |
 | `GET` | `/api/admin/marketing` | Admin Marketing |
 | `GET` | `/api/admin/marketplace/resellers` | List Resellers |
 | `POST` | `/api/admin/marketplace/resellers` | Create Reseller |
