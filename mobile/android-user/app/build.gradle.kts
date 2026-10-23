@@ -68,4 +68,8 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
     // FCM without the google-services plugin: FirebaseApp is initialised from BuildConfig.
     implementation("com.google.firebase:firebase-messaging:24.1.0")
+    // Passkeys: Credential Manager (Play services provider for Android 9-13, platform on 14+).
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 }

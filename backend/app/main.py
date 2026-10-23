@@ -130,8 +130,9 @@ from .giveaways import router as giveaways_router
 app.include_router(giveaways_router)
 from .passkeys import router as passkeys_router
 app.include_router(passkeys_router)
-from .customer_passkeys import router as customer_passkeys_router
+from .customer_passkeys import router as customer_passkeys_router, well_known as app_association_router
 app.include_router(customer_passkeys_router)
+app.include_router(app_association_router)
 from .referral_program import router as referral_program_router
 app.include_router(referral_program_router)
 from .admin_customer_operations import router as admin_customer_operations_router

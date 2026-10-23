@@ -37,6 +37,8 @@ struct UserRootView: View {
     @State private var logo: UIImage?
     @ObservedObject private var push = PushCenter.shared
     @State private var pushEnabled = PushCenter.shared.enabled
+    @State private var passkeys: [[String: Any]] = []
+    @State private var passkeyPassword = ""
 
     private static func detectLanguage() -> String {
         let code = Locale.preferredLanguages.first?.lowercased() ?? "ru"
@@ -101,6 +103,8 @@ struct UserRootView: View {
             SecureField(t("password"), text: $password).textFieldStyle(.roundedBorder)
             Button(t("sign_in")) { authenticate("/api/auth/login") }.disabled(busy)
             Button(t("sign_up")) { authenticate("/api/auth/register") }.disabled(busy)
+            // Discoverable passkey: only the shop address is needed.
+            Button(t("passkey_sign_in")) { signInWithPasskey() }.disabled(busy)
         }
     }
 
@@ -207,6 +211,19 @@ struct UserRootView: View {
                 }
             }
         case "security":
+            Text(t("passkeys")).font(.headline)
+            Text(t("passkeys_hint")).foregroundStyle(.secondary)
+            if passkeys.isEmpty { Text(t("passkeys_empty")).foregroundStyle(.secondary) }
+            ForEach(Array(passkeys.enumerated()), id: \.offset) { _, key in
+                HStack {
+                    Text(jsonText(key["name"]))
+                    Spacer()
+                    Button(t("passkey_delete")) { deletePasskey(jsonInt(key["id"]) ?? 0) }.disabled(busy)
+                }
+            }
+            SecureField(t("current_password"), text: $passkeyPassword).textFieldStyle(.roundedBorder)
+            Button(t("passkey_add")) { addPasskey() }.buttonStyle(.borderedProminent).disabled(busy)
+                .onAppear { loadPasskeys() }
             Text(t("security")).font(.headline)
             Text("Biometric unlock: ON")
             if let rec = routing["recommendation"] as? [String: Any] { Text("\(t("recommended")): \(jsonText(rec["name"])) · \(jsonText(rec["country"]))") }
@@ -256,6 +273,53 @@ struct UserRootView: View {
             guard !issued.isEmpty else { throw URLError(.userAuthenticationRequired) }
             try SessionKeychain.save(issued, base: normalized)
             DispatchQueue.main.async { base = normalized; token = issued; password = ""; unlocked = scenePhase == .active }
+        }
+    }
+
+    private func signInWithPasskey() {
+        guard let normalized = try? normalizeBase(base) else { notice = t("https_required"); return }
+        work {
+            do {
+                let issued = try ShopPasskeys.signIn(base: normalized, lang: lang)
+                try SessionKeychain.save(issued, base: normalized)
+                DispatchQueue.main.async { base = normalized; token = issued; password = ""; unlocked = scenePhase == .active }
+            } catch PasskeyError.cancelled {
+                DispatchQueue.main.async { notice = t("passkey_cancelled") }
+            } catch PasskeyError.noPasskey {
+                throw NSError(domain: "shop", code: 0, userInfo: [NSLocalizedDescriptionKey: t("passkey_none")])
+            }
+        }
+    }
+
+    private func loadPasskeys() {
+        let (api, session, language) = (base, token, lang)
+        work {
+            let rows = try ShopPasskeys.list(base: api, session: session, lang: language)
+            DispatchQueue.main.async { passkeys = rows }
+        }
+    }
+
+    private func addPasskey() {
+        let (api, session, language, secret) = (base, token, lang, passkeyPassword)
+        let deviceName = UIDevice.current.name  // UIKit is read on the main thread
+        work {
+            do {
+                try ShopPasskeys.register(base: api, session: session, lang: language, password: secret, name: deviceName)
+            } catch PasskeyError.cancelled {
+                DispatchQueue.main.async { notice = t("passkey_cancelled") }
+                return
+            }
+            let rows = try ShopPasskeys.list(base: api, session: session, lang: language)
+            DispatchQueue.main.async { passkeys = rows; passkeyPassword = ""; notice = t("passkey_added") }
+        }
+    }
+
+    private func deletePasskey(_ id: Int) {
+        let (api, session, language, secret) = (base, token, lang, passkeyPassword)
+        work {
+            try ShopPasskeys.delete(base: api, session: session, lang: language, id: id, password: secret)
+            let rows = try ShopPasskeys.list(base: api, session: session, lang: language)
+            DispatchQueue.main.async { passkeys = rows; passkeyPassword = ""; notice = t("passkey_deleted") }
         }
     }
 

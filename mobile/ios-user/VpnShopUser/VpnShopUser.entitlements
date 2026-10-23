@@ -5,5 +5,12 @@
     <!-- Xcode rewrites this to "production" when exporting an App Store / Ad Hoc build. -->
     <key>aps-environment</key>
     <string>development</string>
+    <!-- Passkeys: the cabinet domain (WebAuthn relying party) publishes
+         /.well-known/apple-app-site-association for this app. Set the domain with
+         the CORGI_ASSOCIATED_DOMAIN build setting, e.g. cabinet.example.com. -->
+    <key>com.apple.developer.associated-domains</key>
+    <array>
+        <string>webcredentials:$(CORGI_ASSOCIATED_DOMAIN)</string>
+    </array>
 </dict>
 </plist>

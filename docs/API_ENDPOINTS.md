@@ -1,4 +1,4 @@
-# Каталог API — v28.10.0 / API v21.5.1
+# Каталог API — v28.11.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0068_network_intel`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -11,6 +11,8 @@ production gate остаётся закрытым без полного applicat
 
 | Метод | Путь | Операция |
 | --- | --- | --- |
+| `GET` | `/.well-known/apple-app-site-association` | Apple App Site Association |
+| `GET` | `/.well-known/assetlinks.json` | Assetlinks |
 | `GET` | `/api/admin/admins` | List Admins |
 | `POST` | `/api/admin/admins` | Create Admin |
 | `DELETE` | `/api/admin/admins/{admin_id}` | Delete Admin |

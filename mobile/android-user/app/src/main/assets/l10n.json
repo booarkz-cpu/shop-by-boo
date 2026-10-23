@@ -108,7 +108,18 @@
     "widget_unlimited": "Безлимитный трафик",
     "widget_traffic_na": "Трафик пока недоступен",
     "widget_updated": "Обновлено",
-    "widget_unread": "Новых"
+    "widget_unread": "Новых",
+    "passkey_sign_in": "Войти с ключом доступа",
+    "passkey_cancelled": "Действие с ключом доступа отменено",
+    "passkey_none": "На устройстве нет ключа доступа для этого магазина. Войдите по паролю и добавьте ключ в разделе «Безопасность».",
+    "passkeys": "Ключи доступа",
+    "passkeys_hint": "Вход по отпечатку, лицу или PIN-коду устройства вместо пароля. Для добавления и удаления введите текущий пароль.",
+    "passkeys_empty": "Ключей доступа пока нет",
+    "current_password": "Текущий пароль",
+    "passkey_add": "Добавить ключ доступа",
+    "passkey_added": "Ключ доступа добавлен",
+    "passkey_delete": "Удалить",
+    "passkey_deleted": "Ключ доступа удалён"
   },
   "en": {
     "app_name": "VPN shop",
@@ -219,7 +230,18 @@
     "widget_unlimited": "Unlimited traffic",
     "widget_traffic_na": "Traffic not available yet",
     "widget_updated": "Updated",
-    "widget_unread": "New"
+    "widget_unread": "New",
+    "passkey_sign_in": "Sign in with a passkey",
+    "passkey_cancelled": "Passkey action cancelled",
+    "passkey_none": "This device has no passkey for this shop. Sign in with your password and add one under Security.",
+    "passkeys": "Passkeys",
+    "passkeys_hint": "Sign in with your fingerprint, face or device PIN instead of a password. Enter your current password to add or remove a passkey.",
+    "passkeys_empty": "No passkeys yet",
+    "current_password": "Current password",
+    "passkey_add": "Add a passkey",
+    "passkey_added": "Passkey added",
+    "passkey_delete": "Remove",
+    "passkey_deleted": "Passkey removed"
   },
   "uk": {
     "app_name": "VPN Shop by Corgi Lusi",
@@ -330,6 +352,17 @@
     "widget_unlimited": "Безлімітний трафік",
     "widget_traffic_na": "Трафік поки недоступний",
     "widget_updated": "Оновлено",
-    "widget_unread": "Нових"
+    "widget_unread": "Нових",
+    "passkey_sign_in": "Увійти з ключем доступу",
+    "passkey_cancelled": "Дію з ключем доступу скасовано",
+    "passkey_none": "На пристрої немає ключа доступу для цього магазину. Увійдіть за паролем і додайте ключ у розділі «Безпека».",
+    "passkeys": "Ключі доступу",
+    "passkeys_hint": "Вхід за відбитком, обличчям або PIN-кодом пристрою замість пароля. Щоб додати чи видалити ключ, введіть поточний пароль.",
+    "passkeys_empty": "Ключів доступу ще немає",
+    "current_password": "Поточний пароль",
+    "passkey_add": "Додати ключ доступу",
+    "passkey_added": "Ключ доступу додано",
+    "passkey_delete": "Видалити",
+    "passkey_deleted": "Ключ доступу видалено"
   }
 }
