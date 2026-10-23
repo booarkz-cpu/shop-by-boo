@@ -34,6 +34,12 @@ logger = logging.getLogger("vpnshop.torrent_detection")
 RETENTION_DAYS = 30
 ABUSE_WINDOW = timedelta(hours=24)
 NOTIFY_KEY = "torrent_notify"
+# Detection kinds: "xray" (Xray routing), the built-in classifier's confirmed signatures,
+# "ndpi" (nDPI), and "encrypted" — a heuristic for MSE/PE that is shown as "likely" only:
+# it never marks the abuse score and never notifies the customer.
+KINDS = ("xray", "bittorrent", "dht", "utp", "tracker", "ndpi", "encrypted")
+CONFIRMED = ("xray", "bittorrent", "dht", "utp", "tracker", "ndpi")
+UNATTRIBUTED = "-"
 CLIENT_NAME = re.compile(r"^user_(\d{1,12})(?:_sub_\d{1,12})?$")
 
 
@@ -73,21 +79,22 @@ async def recent_users(db: AsyncSession, user_ids: set[int], now: datetime | Non
     if not user_ids:
         return set()
     since = hour_of((now or utcnow()) - ABUSE_WINDOW)
-    rows = await db.scalars(select(TorrentDetection.user_id).where(TorrentDetection.user_id.in_(user_ids), TorrentDetection.hour >= since).distinct())
+    rows = await db.scalars(select(TorrentDetection.user_id).where(TorrentDetection.user_id.in_(user_ids), TorrentDetection.hour >= since,
+                                                                   TorrentDetection.kind.in_(CONFIRMED)).distinct())
     return {r for r in rows.all() if r is not None}
 
 
-async def _add(db: AsyncSession, hour: datetime, agent_id: int, client: str, user_id: int | None, events: int) -> None:
+async def _add(db: AsyncSession, hour: datetime, agent_id: int, client: str, user_id: int | None, events: int, kind: str = "xray") -> None:
     for _ in range(3):
         row = await db.scalar(select(TorrentDetection).where(TorrentDetection.hour == hour, TorrentDetection.agent_id == agent_id,
-                                                             TorrentDetection.client == client).with_for_update())
+                                                             TorrentDetection.client == client, TorrentDetection.kind == kind).with_for_update())
         if row is not None:
             row.events += events
             row.user_id = row.user_id or user_id
             return
         try:
             async with db.begin_nested():
-                db.add(TorrentDetection(hour=hour, agent_id=agent_id, client=client, user_id=user_id, events=events))
+                db.add(TorrentDetection(hour=hour, agent_id=agent_id, client=client, user_id=user_id, events=events, kind=kind))
             return
         except IntegrityError:
             continue  # another request created the bucket: add to it
@@ -108,6 +115,7 @@ class TorrentItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
     client: str = Field(min_length=1, max_length=128)
     events: int = Field(ge=1, le=1_000_000)
+    kind: str = Field(default="xray", pattern="^(xray|bittorrent|dht|utp|tracker|ndpi|encrypted)$")
 
 
 class TorrentBatch(BaseModel):
@@ -127,18 +135,24 @@ async def agent_torrent(payload: TorrentBatch, db: AsyncSession = Depends(get_db
     now = utcnow()
     hour = hour_of(now)
     notify = await notify_enabled(db)
-    merged: dict[str, int] = {}
+    merged: dict[tuple[str, str], int] = {}
     for item in payload.items:
-        client = item.client.strip()
-        merged[client] = min(1_000_000, merged.get(client, 0) + item.events)
+        key = (item.client.strip(), item.kind)
+        merged[key] = min(1_000_000, merged.get(key, 0) + item.events)
     users: set[int] = set()
-    for client, events in merged.items():
-        user_id = await resolve_user(db, client)
-        await _add(db, hour, agent.id, client, user_id, events)
+    confirmed: set[int] = set()
+    resolved: dict[str, int | None] = {}
+    for (client, kind), events in merged.items():
+        if client not in resolved:
+            resolved[client] = None if client == UNATTRIBUTED else await resolve_user(db, client)
+        user_id = resolved[client]
+        await _add(db, hour, agent.id, client, user_id, events, kind)
         if user_id:
             users.add(user_id)
+            if kind in CONFIRMED:
+                confirmed.add(user_id)
     if notify:
-        for user_id in users:
+        for user_id in confirmed:  # a heuristic ("encrypted") alone never notifies
             await _notify(db, user_id, now)
     await db.commit()
     return {"ok": True, "accepted": len(merged), "matched": len(users), "enabled": True}
@@ -161,10 +175,18 @@ async def admin_torrents(days: int = 30, db: AsyncSession = Depends(get_db), adm
     for hour, events in (await db.execute(select(TorrentDetection.hour, TorrentDetection.events).where(TorrentDetection.hour >= since))).all():
         key = hour.date().isoformat()
         per_day[key] = per_day.get(key, 0) + events
+    by_kind: dict[str, dict[str, int]] = {}
+    totals: dict[str, int] = {}
+    for client, kind, events in (await db.execute(select(TorrentDetection.client, TorrentDetection.kind, func.sum(TorrentDetection.events))
+                                                  .where(TorrentDetection.hour >= since).group_by(TorrentDetection.client, TorrentDetection.kind))).all():
+        by_kind.setdefault(client, {})[kind] = int(events)
+        totals[kind] = totals.get(kind, 0) + int(events)
     usernames = {u.id: u.username or u.email or f"#{u.id}" for u in (await db.scalars(select(User).where(User.id.in_([r[1] for r in rows if r[1]])))).all()} if rows else {}
     return {
         "enabled": await _plugin_on(db, "torrents"), "notify": await notify_enabled(db), "days": days, "retention_days": RETENTION_DAYS,
-        "clients": [{"client": c, "user_id": u, "user": usernames.get(u) if u else None, "events": int(e), "last_hour": h.isoformat(), "nodes": int(n)} for c, u, e, h, n in rows],
+        "clients": [{"client": c, "user_id": u, "user": usernames.get(u) if u else None, "events": int(e), "last_hour": h.isoformat(), "nodes": int(n),
+                     "kinds": by_kind.get(c, {}), "likely_only": set(by_kind.get(c, {})) <= {"encrypted"}} for c, u, e, h, n in rows],
+        "kinds": totals,
         "nodes": [{"agent_id": a, "node": agents.get(a, f"#{a}"), "events": int(e)} for a, e in sorted(per_node, key=lambda r: -int(r[1]))],
         "days_series": [{"day": d, "events": per_day[d]} for d in sorted(per_day)],
         "total": sum(per_day.values()),

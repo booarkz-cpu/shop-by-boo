@@ -16,6 +16,13 @@ With AGENT_XRAY_ACCESS_LOG set, the agent counts connections that Xray routed to
 the BitTorrent outbound (AGENT_TORRENT_TAG) per Xray client and posts only those
 counts: no destinations, ports or log lines leave the node.
 See docs/ru/TORRENT_DETECTION_CURRENT.md.
+
+With AGENT_DPI=1 (root, AGENT_DPI_IFACE) the agent also classifies traffic itself:
+nDPI's ndpiReader when installed, otherwise a built-in classifier of the first packets
+of each flow (BitTorrent handshake, DHT, uTP, trackers, and a heuristic for encrypted
+BitTorrent). Flows are attributed to Xray clients by destination from the access log,
+kept in memory only; again only counts per client and kind leave the node.
+See docs/ru/TRAFFIC_ANALYSIS_CURRENT.md.
 """
 from __future__ import annotations
 
@@ -165,17 +172,55 @@ def _post(base: str, path: str, token: str, body: dict) -> dict:
 
 # ---------------------------------------------------------------- BitTorrent counts from the Xray access log
 
+class DestinationIndex:
+    """Recent Xray destinations -> client, kept only in memory.
+
+    Every accepted connection in the access log maps (protocol, host, port) to the
+    Xray client for 15 minutes, so a flow seen by the traffic classifier can be
+    attributed to a client. Nothing from the index is ever sent."""
+
+    TTL = 900.0
+    LIMIT = 200_000
+
+    def __init__(self):
+        self.items: dict = {}
+        self.lock = threading.Lock()
+
+    def add(self, proto: str, host: str, port: int, client: str) -> None:
+        with self.lock:
+            key = (proto, host.lower(), port)
+            self.items.pop(key, None)
+            self.items[key] = (client, time.monotonic())
+            while len(self.items) > self.LIMIT:
+                self.items.pop(next(iter(self.items)))
+
+    def client(self, proto: str, host: str, port: int) -> str | None:
+        with self.lock:
+            found = self.items.get((proto, host.lower(), port))
+        if not found or time.monotonic() - found[1] > self.TTL:
+            return None
+        return found[0]
+
+
+def _split_destination(value: str) -> tuple[str, int] | None:
+    host, _, port = value.rpartition(":")
+    if not host or not port.isdigit():
+        return None
+    return host.strip("[]"), int(port)
+
+
 class XrayAccessLog:
-    """Follows the Xray access log and counts BitTorrent-routed lines per client.
+    """Follows the Xray access log: counts BitTorrent-routed lines per client and,
+    for the traffic classifier, remembers recent destinations per client.
 
     Starts at the end of the file (no backfill), follows rotation (new inode or a
     shorter file) and reads at most 8 MB per poll. Only counts are kept."""
 
-    LINE = re.compile(r"\baccepted\s+(?:tcp|udp):\S+\s+\[([^\]]*)\]\s+email:\s*(\S+)")
+    LINE = re.compile(r"\baccepted\s+(tcp|udp):(\S+)\s+\[([^\]]*)\]\s+email:\s*(\S+)")
     CHUNK = 8 * 1024 * 1024
 
-    def __init__(self, path: str, tag: str):
-        self.path, self.tag = path, tag
+    def __init__(self, path: str, tag: str, index: DestinationIndex | None = None):
+        self.path, self.tag, self.index = path, tag, index
         self.inode: int | None = None
         self.offset = 0
         self.rest = b""
@@ -208,22 +253,271 @@ class XrayAccessLog:
         counts: dict = {}
         for raw in lines:
             match = self.LINE.search(raw.decode("utf-8", "replace"))
-            if match and self._routed(match.group(1)):
-                client = match.group(2)[:128]
+            if not match:
+                continue
+            proto, destination, route, client = match.groups()
+            client = client[:128]
+            if self.index is not None:
+                parsed = _split_destination(destination)
+                if parsed:
+                    self.index.add(proto, parsed[0], parsed[1], client)
+            if self._routed(route):
                 counts[client] = counts.get(client, 0) + 1
         return counts
 
 
-def torrent_report(base: str, token: str, log: XrayAccessLog, pending: dict) -> dict:
-    """Merges new counts into ``pending`` and posts them; keeps them on failure."""
-    for client, events in log.poll().items():
-        if client in pending or len(pending) < 2000:
-            pending[client] = min(1_000_000, pending.get(client, 0) + events)
+# ---------------------------------------------------------------- traffic classifier
+
+BT_HANDSHAKE = b"\x13BitTorrent protocol"
+UDP_TRACKER_MAGIC = (0x41727101980).to_bytes(8, "big")
+CONFIRMED = ("bittorrent", "dht", "utp", "tracker")
+SKIP_PORTS = {22, 53, 443, 465, 853, 993, 995}
+
+
+def _entropy_ratio(data: bytes) -> float:
+    import math
+
+    if not data:
+        return 0.0
+    counts = [0] * 256
+    for byte in data:
+        counts[byte] += 1
+    total = len(data)
+    entropy = -sum(c / total * math.log2(c / total) for c in counts if c)
+    return entropy / math.log2(min(total, 256))
+
+
+def _random_looking(payload: bytes) -> bool:
+    """Shape of an MSE/PE key exchange: 96 bytes of DH key plus up to 512 of padding,
+    no known protocol prefix, near-maximal byte entropy."""
+    if not 96 <= len(payload) <= 608:
+        return False
+    if payload[:1] in (b"\x16", b"\x17") or payload[:4] in (b"SSH-", b"GET ", b"POST", b"HTTP", b"PRI ") or payload.startswith(BT_HANDSHAKE):
+        return False
+    return _entropy_ratio(payload) >= 0.85
+
+
+def classify_payload(proto: str, payload: bytes) -> str | None:
+    """A confirmed BitTorrent-family protocol from the first bytes of one packet."""
+    if proto == "tcp":
+        if payload.startswith(BT_HANDSHAKE):
+            return "bittorrent"
+        head = payload[:512]
+        if head.startswith(b"GET /") and (b"info_hash=" in head or head.startswith(b"GET /announce") or head.startswith(b"GET /scrape")):
+            return "tracker"
+        return None
+    if len(payload) >= 16 and payload[:8] == UDP_TRACKER_MAGIC and payload[8:12] == b"\x00\x00\x00\x00":
+        return "tracker"  # UDP tracker connect request (BEP 15)
+    head = payload[:400]
+    if head.startswith(b"d") and b"1:y1:" in head and (b"2:id20:" in head or b"1:t" in head) and (b"1:q" in head or b"1:r" in head):
+        return "dht"  # bencoded KRPC (BEP 5)
+    if len(payload) >= 20 and payload[0] == 0x41 and payload[1] in (0, 1, 2):
+        return "utp"  # uTP ST_SYN, version 1 (BEP 29)
+    return None
+
+
+class FlowTable:
+    """First packets of each flow -> one detection per flow, attributed via the Xray index.
+
+    Counts are kept per (client, kind); unattributed flows use the client "-"."""
+
+    LIMIT = 100_000
+    INSPECT = 6
+
+    def __init__(self, index: DestinationIndex | None = None):
+        self.index = index
+        self.flows: dict = {}
+        self.counts: dict = {}
+        self.lock = threading.Lock()
+        self.packets = 0
+
+    def _count(self, proto: str, remote: str, port: int, kind: str) -> None:
+        client = (self.index.client(proto, remote, port) if self.index else None) or "-"
+        with self.lock:
+            key = (client, kind)
+            self.counts[key] = self.counts.get(key, 0) + 1
+
+    def packet(self, proto: str, local: tuple, remote: tuple, outgoing: bool, payload: bytes) -> None:
+        self.packets += 1
+        if not payload:
+            return
+        key = (proto, local, remote)
+        flow = self.flows.get(key)
+        if flow is None:
+            if len(self.flows) >= self.LIMIT:
+                self.flows.pop(next(iter(self.flows)))
+            flow = self.flows[key] = {"seen": 0, "done": False, "out": None}
+        if flow["done"]:
+            return
+        flow["seen"] += 1
+        kind = classify_payload(proto, payload)
+        if kind is None and proto == "tcp" and remote[1] not in SKIP_PORTS:
+            if outgoing and flow["out"] is None:
+                flow["out"] = _random_looking(payload)
+            elif not outgoing and flow["out"] and _random_looking(payload):
+                kind = "encrypted"  # heuristic: both directions open with key-exchange-shaped noise
+        if kind:
+            flow["done"] = True
+            self._count(proto, remote[0], remote[1], kind)
+        elif flow["seen"] >= self.INSPECT:
+            flow["done"] = True
+
+    def drain(self) -> dict:
+        with self.lock:
+            counts, self.counts = self.counts, {}
+        return counts
+
+
+def parse_l3(data: bytes) -> tuple | None:
+    """(proto, src, sport, dst, dport, payload) from an IPv4/IPv6 packet."""
+    if len(data) < 20:
+        return None
+    version = data[0] >> 4
+    if version == 4:
+        ihl = (data[0] & 0x0F) * 4
+        number = data[9]
+        total = int.from_bytes(data[2:4], "big") or len(data)
+        if int.from_bytes(data[6:8], "big") & 0x1FFF:
+            return None  # a later fragment carries no transport header
+        src, dst = str(ipaddress.IPv4Address(data[12:16])), str(ipaddress.IPv4Address(data[16:20]))
+        body = data[ihl:total]
+    elif version == 6 and len(data) >= 40:
+        number = data[6]
+        src, dst = str(ipaddress.IPv6Address(data[8:24])), str(ipaddress.IPv6Address(data[24:40]))
+        body = data[40:40 + int.from_bytes(data[4:6], "big")]
+    else:
+        return None
+    if number == 6 and len(body) >= 20:
+        offset = (body[12] >> 4) * 4
+        return "tcp", src, int.from_bytes(body[0:2], "big"), dst, int.from_bytes(body[2:4], "big"), body[offset:]
+    if number == 17 and len(body) >= 8:
+        return "udp", src, int.from_bytes(body[0:2], "big"), dst, int.from_bytes(body[2:4], "big"), body[8:]
+    return None
+
+
+class PacketCapture:
+    """AF_PACKET capture on one interface (needs CAP_NET_RAW); feeds the flow table."""
+
+    def __init__(self, iface: str, table: FlowTable):
+        self.iface, self.table = iface, table
+        self.stop = threading.Event()
+
+    def run(self) -> None:
+        import socket
+
+        sock = socket.socket(socket.AF_PACKET, socket.SOCK_DGRAM, socket.htons(0x0003))
+        sock.bind((self.iface, 0))
+        sock.settimeout(1.0)
+        while not self.stop.is_set():
+            try:
+                data, address = sock.recvfrom(65535)
+            except socket.timeout:
+                continue
+            except OSError:
+                time.sleep(1)
+                continue
+            if address[1] not in (0x0800, 0x86DD):
+                continue
+            parsed = parse_l3(data)
+            if not parsed:
+                continue
+            proto, src, sport, dst, dport, payload = parsed
+            outgoing = address[2] == 4  # PACKET_OUTGOING
+            local, remote = ((src, sport), (dst, dport)) if outgoing else ((dst, dport), (src, sport))
+            self.table.packet(proto, local, remote, outgoing, payload)
+        sock.close()
+
+
+class NdpiReader:
+    """Runs nDPI's ndpiReader for a capture window and counts BitTorrent flows from its CSV."""
+
+    def __init__(self, iface: str, index: DestinationIndex | None, binary: str = "ndpiReader", seconds: int = 30):
+        self.iface, self.index, self.binary, self.seconds = iface, index, binary, seconds
+        self.counts: dict = {}
+        self.lock = threading.Lock()
+        self.stop = threading.Event()
+
+    def parse(self, text: str) -> None:
+        import csv
+        import io as _io
+
+        rows = list(csv.reader(_io.StringIO(text)))
+        if not rows:
+            return
+        header = [h.strip().lstrip("#").lower() for h in rows[0]]
+
+        def column(*names):
+            return next((header.index(n) for n in names if n in header), None)
+
+        src, dst = column("src_ip", "src_addr", "client_ip"), column("dst_ip", "dst_addr", "server_ip")
+        sport, dport = column("src_port", "sport", "client_port"), column("dst_port", "dport", "server_port")
+        for row in rows[1:]:
+            if not any(re.search(r"(?i)bittorrent", cell or "") for cell in row):
+                continue
+            client = None
+            if self.index is not None:
+                for host, port in ((dst, dport), (src, sport)):
+                    if host is None or port is None or host >= len(row) or port >= len(row) or not row[port].strip().isdigit():
+                        continue
+                    for proto in ("tcp", "udp"):
+                        client = client or self.index.client(proto, row[host].strip(), int(row[port]))
+            with self.lock:
+                key = (client or "-", "ndpi")
+                self.counts[key] = self.counts.get(key, 0) + 1
+
+    def run(self) -> None:
+        import tempfile
+
+        while not self.stop.is_set():
+            with tempfile.TemporaryDirectory() as tmp:
+                out = os.path.join(tmp, "flows.csv")
+                try:
+                    subprocess.run([self.binary, "-i", self.iface, "-s", str(self.seconds), "-C", out, "-q"],
+                                   check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=self.seconds + 60)
+                    with open(out, encoding="utf-8", errors="replace") as handle:
+                        self.parse(handle.read())
+                except (OSError, subprocess.TimeoutExpired) as exc:
+                    print(f"node-agent ndpiReader failed: {exc}", file=sys.stderr, flush=True)
+                    time.sleep(30)
+
+    def drain(self) -> dict:
+        with self.lock:
+            counts, self.counts = self.counts, {}
+        return counts
+
+
+def start_dpi(index: DestinationIndex | None):
+    """AGENT_DPI=1: nDPI when installed (or AGENT_DPI_ENGINE=ndpi), else the built-in classifier."""
+    iface = _env("AGENT_DPI_IFACE")
+    if not iface or len(iface) > 15:
+        print("node-agent: AGENT_DPI_IFACE is required for traffic analysis", file=sys.stderr, flush=True)
+        return None
+    engine = (_env("AGENT_DPI_ENGINE") or "auto").lower()
+    if engine == "ndpi" or (engine == "auto" and shutil.which("ndpiReader")):
+        source = NdpiReader(iface, index, shutil.which("ndpiReader") or "ndpiReader")
+    else:
+        source = FlowTable(index)
+        capture = PacketCapture(iface, source)
+        threading.Thread(target=capture.run, daemon=True).start()
+        return source
+    threading.Thread(target=source.run, daemon=True).start()
+    return source
+
+
+def torrent_report(base: str, token: str, log: XrayAccessLog | None, pending: dict, dpi=None) -> dict:
+    """Merges new counts into ``pending`` ((client, kind) -> n) and posts them; keeps them on failure."""
+    fresh = {(client, "xray"): n for client, n in (log.poll() if log else {}).items()}
+    if dpi is not None:
+        for key, n in dpi.drain().items():
+            fresh[key] = fresh.get(key, 0) + n
+    for key, events in fresh.items():
+        if key in pending or len(pending) < 2000:
+            pending[key] = min(1_000_000, pending.get(key, 0) + events)
     while pending:
         batch = dict(list(pending.items())[:500])
-        _post(base, "/api/agent/torrent", token, {"items": [{"client": c, "events": n} for c, n in batch.items()]})
-        for client in batch:
-            pending.pop(client, None)
+        _post(base, "/api/agent/torrent", token, {"items": [{"client": c, "kind": k, "events": n} for (c, k), n in batch.items()]})
+        for key in batch:
+            pending.pop(key, None)
     return pending
 
 
@@ -465,14 +759,17 @@ def main() -> None:
         interval = 60
     if _env("AGENT_TERMINAL") == "1":
         threading.Thread(target=terminal_loop, args=(base, token), daemon=True).start()
-    access_log = XrayAccessLog(_env("AGENT_XRAY_ACCESS_LOG"), _env("AGENT_TORRENT_TAG") or "TORRENT") if _env("AGENT_XRAY_ACCESS_LOG") else None
+    dpi_on = _env("AGENT_DPI") == "1"
+    index = DestinationIndex() if dpi_on and _env("AGENT_XRAY_ACCESS_LOG") else None
+    access_log = XrayAccessLog(_env("AGENT_XRAY_ACCESS_LOG"), _env("AGENT_TORRENT_TAG") or "TORRENT", index) if _env("AGENT_XRAY_ACCESS_LOG") else None
     pending_torrent: dict = {}
     if access_log:
         access_log.poll()  # remember the current end of the log
+    dpi = start_dpi(index) if dpi_on else None
     while True:
-        if access_log:
+        if access_log or dpi:
             try:
-                torrent_report(base, token, access_log, pending_torrent)
+                torrent_report(base, token, access_log, pending_torrent, dpi)
             except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError) as exc:
                 print(f"node-agent torrent report failed: {exc}", file=sys.stderr, flush=True)
         try:

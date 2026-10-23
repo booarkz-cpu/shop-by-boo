@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.15.0. Runtime/API `21.5.1`, head магазина `0071_torrent_detection`, Support Pro `0008` / 3.8.
+> Актуальная инструкция дистрибутива v28.16.0. Runtime/API `21.5.1`, head магазина `0072_traffic_analysis`, Support Pro `0008` / 3.8.
 
 # Мост Zendesk и Freshdesk (Support Pro 3.8)
 
