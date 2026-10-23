@@ -17,6 +17,10 @@ the BitTorrent outbound (AGENT_TORRENT_TAG) per Xray client and posts only those
 counts: no destinations, ports or log lines leave the node.
 See docs/ru/TORRENT_DETECTION_CURRENT.md.
 
+With AGENT_OBSERVE_ACCESS_LOG=1 the same log also feeds the abuse scoring: the agent
+sends each client's distinct public source IPs (up to 8 per client per interval) as
+connection observations; destinations and log lines still stay on the node.
+
 With AGENT_DPI=1 (root, AGENT_DPI_IFACE) the agent also classifies traffic itself:
 nDPI's ndpiReader when installed, otherwise a built-in classifier of the first packets
 of each flow (BitTorrent handshake, DHT, uTP, trackers, and a heuristic for encrypted
@@ -217,13 +221,37 @@ class XrayAccessLog:
     shorter file) and reads at most 8 MB per poll. Only counts are kept."""
 
     LINE = re.compile(r"\baccepted\s+(tcp|udp):(\S+)\s+\[([^\]]*)\]\s+email:\s*(\S+)")
+    SOURCE = re.compile(r"\bfrom\s+(?:tcp:|udp:)?\[?([0-9A-Fa-f:.]+?)\]?:\d+\s+accepted\b")
     CHUNK = 8 * 1024 * 1024
+    SOURCE_CLIENTS, SOURCE_IPS = 2000, 8
 
-    def __init__(self, path: str, tag: str, index: DestinationIndex | None = None):
+    def __init__(self, path: str, tag: str, index: DestinationIndex | None = None, sources: bool = False):
         self.path, self.tag, self.index = path, tag, index
         self.inode: int | None = None
         self.offset = 0
         self.rest = b""
+        # AGENT_OBSERVE_ACCESS_LOG=1: client -> distinct public source IPs since the last drain.
+        self.collect_sources = sources
+        self.sources: dict = {}
+
+    def _remember_source(self, text: str, client: str) -> None:
+        match = self.SOURCE.search(text)
+        ip = _global_ip(match.group(1)) if match else None
+        if not ip:
+            return
+        seen = self.sources.get(client)
+        if seen is None:
+            if len(self.sources) >= self.SOURCE_CLIENTS:
+                return
+            seen = self.sources[client] = set()
+        if len(seen) < self.SOURCE_IPS:
+            seen.add(ip)
+
+    def drain_sources(self) -> list:
+        """Observations for the abuse scoring: one item per client and source IP."""
+        items = [{"client": client, "ip": ip} for client, ips in self.sources.items() for ip in sorted(ips)]
+        self.sources = {}
+        return items[:200]
 
     def _routed(self, route: str) -> bool:
         target = re.split(r"->|>>", route)[-1].strip() if ("->" in route or ">>" in route) else ""
@@ -252,11 +280,14 @@ class XrayAccessLog:
         self.rest = lines.pop()[-65536:]  # an unfinished last line waits for the next poll
         counts: dict = {}
         for raw in lines:
-            match = self.LINE.search(raw.decode("utf-8", "replace"))
+            text = raw.decode("utf-8", "replace")
+            match = self.LINE.search(text)
             if not match:
                 continue
             proto, destination, route, client = match.groups()
             client = client[:128]
+            if self.collect_sources:
+                self._remember_source(text, client)
             if self.index is not None:
                 parsed = _split_destination(destination)
                 if parsed:
@@ -761,7 +792,8 @@ def main() -> None:
         threading.Thread(target=terminal_loop, args=(base, token), daemon=True).start()
     dpi_on = _env("AGENT_DPI") == "1"
     index = DestinationIndex() if dpi_on and _env("AGENT_XRAY_ACCESS_LOG") else None
-    access_log = XrayAccessLog(_env("AGENT_XRAY_ACCESS_LOG"), _env("AGENT_TORRENT_TAG") or "TORRENT", index) if _env("AGENT_XRAY_ACCESS_LOG") else None
+    access_log = XrayAccessLog(_env("AGENT_XRAY_ACCESS_LOG"), _env("AGENT_TORRENT_TAG") or "TORRENT", index,
+                               sources=_env("AGENT_OBSERVE_ACCESS_LOG") == "1") if _env("AGENT_XRAY_ACCESS_LOG") else None
     pending_torrent: dict = {}
     if access_log:
         access_log.poll()  # remember the current end of the log
@@ -776,6 +808,8 @@ def main() -> None:
             beat = _post(base, "/api/agent/heartbeat", token, _metrics())
             _apply(beat.get("actions") or [])
             items = _observations()
+            if access_log and access_log.collect_sources:
+                items = (items + access_log.drain_sources())[:200]
             if items:
                 _post(base, "/api/agent/observations", token, {"items": items})
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError) as exc:

@@ -154,3 +154,48 @@ async def test_overview_and_retention(database):
     await database.commit()
     assert await torrent.enforce_retention(database) == 1
     assert await database.scalar(select(func.sum(TorrentDetection.events))) == 9
+
+
+# ---------------------------------------------------------------- abuse observations from the same log
+
+def test_access_log_sources_feed_observations_without_destinations(tmp_path):
+    agent = load_agent()
+    log_file = tmp_path / "access.log"
+    log_file.write_text("")
+    reader = agent.XrayAccessLog(str(log_file), "TORRENT", sources=True)
+    reader.poll()
+    lines = [line("user_1", route="VLESS >> DIRECT", src="93.184.216.34:1000"),
+             line("user_1", route="VLESS >> DIRECT", src="93.184.216.34:1001"),
+             line("user_1", route="VLESS >> DIRECT", src="tcp:8.8.8.8:2000"),
+             line("user_2", route="VLESS >> DIRECT", src="[2606:4700:4700::1111]:3000"),
+             line("user_3", route="VLESS >> DIRECT", src="10.0.0.5:4000")]
+    lines += [line("user_4", route="VLESS >> DIRECT", src=f"1.1.1.{n}:5000") for n in range(1, 12)]
+    log_file.write_text("".join(lines))
+    reader.poll()
+    items = reader.drain_sources()
+    by_client = {}
+    for item in items:
+        by_client.setdefault(item["client"], []).append(item["ip"])
+    assert by_client["user_1"] == ["8.8.8.8", "93.184.216.34"], "one item per distinct source"
+    assert by_client["user_2"] == ["2606:4700:4700::1111"]
+    assert "user_3" not in by_client, "private sources are not reported"
+    assert len(by_client["user_4"]) == agent.XrayAccessLog.SOURCE_IPS
+    assert all(set(item) == {"client", "ip"} for item in items), "no destinations or log lines"
+    assert reader.drain_sources() == []
+    off = agent.XrayAccessLog(str(log_file), "TORRENT")
+    off.poll()
+    with log_file.open("a") as handle:
+        handle.write(lines[0])
+    off.poll()
+    assert off.drain_sources() == [], "collection is opt-in"
+
+
+@pytest.mark.asyncio
+async def test_observation_by_client_name_reaches_the_customer(database):
+    await make_agent(database)
+    from app.models import ConnectionObservation
+
+    batch = platform_api.ObservationBatch(items=[{"ip": "93.184.216.34", "client": "user_1"}, {"ip": "93.184.216.35", "client": "stranger"}])
+    await platform_api.agent_observations(batch, database, TOKEN)
+    rows = {r.ip: r.user_id for r in (await database.scalars(select(ConnectionObservation))).all()}
+    assert rows == {"93.184.216.34": 1, "93.184.216.35": None}

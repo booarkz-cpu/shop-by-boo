@@ -198,6 +198,9 @@ class RemnawaveClient:
     async def accessible_nodes(self,user_id:int|str):
         return await self._request("GET",f"/api/users/{user_id}/accessible-nodes")
 
+    async def list_internal_squads(self):
+        return await self._request("GET","/api/internal-squads")
+
     async def list_nodes(self,start=0,size=25):
         return await self._request("GET","/api/nodes",
                                    params={"start":start,"size":min(size,1000)})

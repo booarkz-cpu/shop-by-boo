@@ -122,6 +122,39 @@ async def remnawave_shop_test(admin=Depends(require_permission("read"))):
         raise HTTPException(502, f"Remnawave connection failed: {str(exc)[:500]}")
 
 
+def parse_squads(data) -> list[dict]:
+    """Internal Squads from the panel answer: tolerant to the wrapper and field names."""
+    body = data.get("response", data) if isinstance(data, dict) else data
+    items = body.get("internalSquads", body.get("squads", [])) if isinstance(body, dict) else body
+    out = []
+    for item in items if isinstance(items, list) else []:
+        if not isinstance(item, dict):
+            continue
+        uuid = item.get("uuid") or item.get("id")
+        if not uuid:
+            continue
+        info = item.get("info") if isinstance(item.get("info"), dict) else {}
+        out.append({
+            "uuid": str(uuid),
+            "name": str(item.get("name") or uuid)[:120],
+            "members": info.get("membersCount", item.get("membersCount")),
+            "inbounds": info.get("inboundsCount", item.get("inboundsCount")),
+        })
+    return out
+
+
+@router.get("/admin/remnawave/internal-squads")
+async def remnawave_internal_squads(admin=Depends(require_permission("read"))):
+    """Squads a plan can grant; the plans editor falls back to a typed UUID when this fails."""
+    if not settings.remnawave_url or not settings.remnawave_token:
+        return {"configured": False, "squads": [], "error": "REMNAWAVE_URL и REMNAWAVE_TOKEN не заданы"}
+    try:
+        data = await RemnawaveClient().list_internal_squads()
+    except Exception as exc:
+        return {"configured": True, "squads": [], "error": f"Remnawave не ответил: {type(exc).__name__}"}
+    return {"configured": True, "squads": parse_squads(data), "error": None}
+
+
 @router.post("/admin/remnawave/shop/plan-mapping/validate")
 async def validate_plan_mapping(admin=Depends(require_permission("read")), db: AsyncSession = Depends(get_db)):
     plans = (await db.execute(select(Plan).where(Plan.enabled.is_(True)).order_by(Plan.id))).scalars().all()

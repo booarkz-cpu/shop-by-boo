@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.17.0. Runtime/API `21.5.1`, head магазина `0072_traffic_analysis`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.18.0. Runtime/API `21.5.1`, head магазина `0072_traffic_analysis`, Support Pro `0008`.
 
 # Глубокий анализ трафика на узлах
 
@@ -50,6 +50,8 @@ AGENT_XRAY_ACCESS_LOG=/var/log/remnanode/access.log \
 AGENT_DPI=1 AGENT_DPI_IFACE=eth0 \
 python3 /opt/corgi/node-agent.py        # от root
 ```
+
+С `AGENT_OBSERVE_ACCESS_LOG=1` агент дополнительно передаёт антиабузу адреса подключений клиентов из журнала Xray ([модуль 19](modules/19-node-agent-antiabuse.md)).
 
 | Переменная | Значение |
 | --- | --- |
