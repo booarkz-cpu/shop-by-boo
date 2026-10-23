@@ -123,55 +123,44 @@ function Admission({data, request, toast, reload}: any) {
     if (busy) return; setBusy(true); setError("");
     try { await fn(); toast(ok); reload(); } catch (err: any) { setError(err.message); } finally { setBusy(false); }
   };
-  const expires = status.status === "passed" && status.finished_at ? new Date(new Date(status.finished_at).getTime() + 24 * 3600 * 1000) : null;
-  const fresh = !!expires && expires.getTime() > Date.now();
 
   return <div className="grid2">
     <div className="card">
-      <h3>Допуск реальных платежей (E2E v2)</h3>
-      <p className="muted">Реальные платежи открываются только после полной проверки на отдельном стенде с APP_ENV=staging: настоящий заказ, подписанный webhook, выдача, повтор и подделки webhook, возврат и отзыв доступа. Стенд должен работать на той же версии ({data.distribution_tag}). Результат действует 24 часа.</p>
+      <h3>Приём реальных платежей</h3>
+      <p>Реальные платежи: <b>{a.payments_allowed ? "открыты" : "остановлены администратором"}</b></p>
+      <p className="muted">Платежи открыты с момента установки, по таймеру не закрываются. Остановка — аварийная мера: при сбое кассы или выдачи новые оплаты, пополнения и автопродления временно не принимаются, клиент видит «Приём платежей временно остановлен». Технический режим тоже останавливает оплату.</p>
       {error && <div role="alert" className="error">{error}</div>}
-      <h4>1. Стенд</h4>
+      <div className="inline">
+        <button className="danger" disabled={busy || !a.payments_allowed} onClick={() => run(() => request("/api/admin/payments/production-gate", {method: "POST", body: JSON.stringify({enabled: false})}), "Приём реальных платежей остановлен")}>Остановить приём платежей</button>
+        <button className="primary" disabled={busy || a.payments_allowed} onClick={() => run(() => request("/api/admin/payments/production-gate", {method: "POST", body: JSON.stringify({enabled: true})}), "Реальные платежи открыты")}>Открыть реальные платежи</button>
+      </div>
+      <h4>Что проверяется в добровольной проверке E2E v2</h4>
+      <Checks data={data} checks={(status.provider_results || [])[0]?.checks || []}/>
+    </div>
+    <div className="card">
+      <h3>Добровольная проверка на стенде (E2E v2)</h3>
+      <p className="muted">По желанию: полная проверка платёжного контура на отдельном стенде с APP_ENV=staging той же версии ({data.distribution_tag}) — настоящий заказ, webhook, выдача, повторы и подделки webhook, возврат и отзыв доступа. На приём платежей она не влияет.</p>
+      <p>Последняя проверка: <b>{status.status === "passed" ? `пройдена ${when(status.finished_at)}` : status.status === "awaiting_attestation" ? "ждёт результат со стенда" : "не проводилась"}</b></p>
       <label className="field">Открытый ключ стенда
         <input value={key} onChange={e => setKey(e.target.value)} placeholder="Из раздела «Проверка платежей» на стенде"/>
       </label>
       <label className="field">Адрес стенда (для заметки)
         <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://staging.example.com"/>
       </label>
-      <fieldset><legend>Платёжные системы, которые будут принимать оплату</legend>
+      <fieldset><legend>Платёжные системы для проверки</legend>
         {PROVIDERS.map(([id, label]) => <label key={id} className="inline">
           <input type="checkbox" checked={providers.includes(id)} onChange={e => setProviders(e.target.checked ? [...providers, id] : providers.filter(x => x !== id))}/>{label}
         </label>)}
       </fieldset>
-      <button disabled={busy || !key || providers.length === 0} onClick={() => run(() => request("/api/admin/e2e-v2/admission/config", {method: "PUT", body: JSON.stringify({public_key: key.trim(), providers, staging_url: url.trim()})}), "Настройки сохранены, платежи закрыты до новой проверки")}>Сохранить</button>
-      <p className="muted">Сохранение закрывает реальные платежи и требует новой проверки.</p>
-      <h4>2. Код запуска</h4>
+      <button disabled={busy || !key || providers.length === 0} onClick={() => run(() => request("/api/admin/e2e-v2/admission/config", {method: "PUT", body: JSON.stringify({public_key: key.trim(), providers, staging_url: url.trim()})}), "Настройки проверки сохранены")}>Сохранить</button>
       {status.status === "awaiting_attestation" && status.nonce ? <label className="field">Код для этого запуска
         <input readOnly value={status.nonce} onFocus={e => e.currentTarget.select()}/>
       </label> : null}
       <button disabled={busy || !a.config} onClick={() => run(() => request("/api/admin/e2e-v2/admission/nonce", {method: "POST"}), "Новый код запуска выдан")}>Получить код запуска</button>
-      <p className="muted">Введите код на стенде при запуске проверки. Новый код отменяет предыдущий и закрывает платежи.</p>
-      <h4>3. Результат со стенда</h4>
       <label className="field">Подписанный результат
         <textarea rows={4} value={attestation} onChange={e => setAttestation(e.target.value)} placeholder="e2e2.…"/>
       </label>
       <button className="primary" disabled={busy || !attestation.trim() || status.status !== "awaiting_attestation"} onClick={() => run(async () => { await request("/api/admin/e2e-v2/admission/attestation", {method: "POST", body: JSON.stringify({attestation: attestation.trim()})}); setAttestation(""); }, "Результат принят")}>Принять результат</button>
-    </div>
-    <div className="card">
-      <h3>Состояние допуска</h3>
-      <p>Проверка: <b>{status.status === "passed" ? (fresh ? "пройдена" : "устарела") : status.status === "awaiting_attestation" ? "ждёт результат со стенда" : "не пройдена"}</b></p>
-      {status.status === "passed" && <>
-        <p className="muted">Завершена {when(status.finished_at)} · действует до {expires ? expires.toLocaleString() : "—"} · запуск {status.run_id}</p>
-        {(status.provider_results || []).map((r: any) => <p key={r.provider}>{name(r.provider)}: {r.status === "passed" ? "все этапы пройдены" : "не пройдено"}</p>)}
-      </>}
-      <p>Реальные платежи: <b>{a.payments_allowed ? "открыты" : "закрыты"}</b></p>
-      <div className="inline">
-        <button className="primary" disabled={busy || !fresh || a.gate_enabled} onClick={() => run(() => request("/api/admin/payments/production-gate", {method: "POST", body: JSON.stringify({enabled: true})}), "Реальные платежи открыты")}>Открыть реальные платежи</button>
-        <button className="danger" disabled={busy || !a.gate_enabled} onClick={() => run(() => request("/api/admin/payments/production-gate", {method: "POST", body: JSON.stringify({enabled: false})}), "Реальные платежи закрыты")}>Закрыть</button>
-      </div>
-      <p className="muted">Через 24 часа после проверки новые оплаты, пополнения и автопродления снова блокируются, пока не будет принят свежий результат. Открывать и закрывать платежи может только администратор.</p>
-      <h4>Что проверяется для каждой платёжной системы</h4>
-      <Checks data={data} checks={(status.provider_results || [])[0]?.checks || []}/>
     </div>
   </div>;
 }

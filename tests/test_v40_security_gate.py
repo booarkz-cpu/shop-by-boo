@@ -8,13 +8,11 @@ def test_admin_frontend_identifiers_are_valid_and_staging_secret_preservation_is
     assert "<Рабочие процессы" not in s and "<Задачаs" not in s
     assert "сохранить текущий" in s
 
-def test_production_payments_are_fail_closed_behind_staging_gate():
+def test_real_payments_are_open_by_default_with_an_emergency_switch():
     s=read("backend/app/main.py")
-    # v2 uses a new key: a flag stored by an older release never opens payments.
-    assert 'PRODUCTION_PAYMENTS_GATE_KEY="payments.production_gate.v2"' in s
-    assert 'status.get("contract_version")!=2' in s
-    assert "требуется успешный staging E2E" in s
-    assert 'await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"0")' in s
+    assert 'PRODUCTION_PAYMENTS_CLOSED_KEY="payments.real.closed"' in s
+    assert 'return await setting_value(db,PRODUCTION_PAYMENTS_CLOSED_KEY,"0") != "1"' in s
+    assert "Приём платежей временно остановлен администратором" in s
     assert '@app.post("/api/admin/payments/production-gate")' in s
 
 def test_staging_internal_endpoint_is_loopback_only():

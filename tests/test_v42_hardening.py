@@ -26,7 +26,8 @@ def test_admin_session_persists_last_seen():
 def test_staging_gate_requires_full_e2e_marker():
     s=read('backend/app/main.py')
     assert "full_pass = False" in s
-    assert 'status.get("full_e2e")' in s
+    # Real payments are an administrator's switch, open by default.
+    assert 'PRODUCTION_PAYMENTS_CLOSED_KEY="payments.real.closed"' in s
 
 def test_content_upload_endpoints_and_public_config():
     s=read('backend/app/main.py')

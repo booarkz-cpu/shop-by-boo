@@ -799,7 +799,6 @@ async def overview(db: AsyncSession = Depends(get_db), admin=Depends(require_per
         cfg = await admission_config(db)
         data["admission"] = {"config": {k: cfg.get(k) for k in ("public_key", "providers", "staging_url")} if cfg else None,
                              "revision": (cfg or {}).get("revision"), "status": await admission_status(db),
-                             "gate_enabled": await main.setting_value(db, main.PRODUCTION_PAYMENTS_GATE_KEY, "0") == "1",
                              "payments_allowed": await main.production_payments_allowed(db)}
     return data
 
@@ -912,7 +911,6 @@ async def save_admission_config(payload: AdmissionConfigIn, db: AsyncSession = D
            "revision": secrets.token_hex(16)}
     await main.set_setting(db, ADMISSION_CONFIG_KEY, json.dumps(cfg))
     await main.set_setting(db, ADMISSION_STATUS_KEY, json.dumps({"status": "never", "full_e2e": False, "config_revision": cfg["revision"]}))
-    await main.set_setting(db, main.PRODUCTION_PAYMENTS_GATE_KEY, "0")
     await main.audit(db, "staging_e2e.v2.config.updated", admin.email, None, {"providers": providers, "staging_url": cfg["staging_url"]})
     await db.commit()
     return {"ok": True, "revision": cfg["revision"]}
@@ -930,7 +928,6 @@ async def issue_nonce(db: AsyncSession = Depends(get_db), admin=Depends(require_
     status = {"status": "awaiting_attestation", "full_e2e": False, "config_revision": cfg["revision"], "nonce": nonce,
               "issued_at": _iso(_now()), "providers": cfg["providers"]}
     await main.set_setting(db, ADMISSION_STATUS_KEY, json.dumps(status))
-    await main.set_setting(db, main.PRODUCTION_PAYMENTS_GATE_KEY, "0")
     await main.audit(db, "staging_e2e.v2.nonce.issued", admin.email, None, {"revision": cfg["revision"]})
     await db.commit()
     return {"nonce": nonce}

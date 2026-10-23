@@ -47,26 +47,19 @@ def test_legacy_naive_timestamp_is_interpreted_as_utc():
     assert staging_evidence_valid(status, {"revision": "staging-a"}, now)
 
 
-def test_enabled_gate_is_rechecked_on_each_request(monkeypatch, tmp_path):
+def test_real_payments_are_open_unless_an_administrator_closed_them(monkeypatch, tmp_path):
     monkeypatch.setenv("MEDIA_DIR", str(tmp_path / "media"))
-    from app import main, e2e_v2
+    from app import main
 
-    now = datetime.now(timezone.utc)
-    state = {main.PRODUCTION_PAYMENTS_GATE_KEY: "1",
-             e2e_v2.ADMISSION_STATUS_KEY: json.dumps(evidence(now - timedelta(hours=25))),
-             e2e_v2.ADMISSION_CONFIG_KEY: json.dumps({"revision": "staging-a", "public_key": "k", "providers": ["yookassa"]})}
+    state = {}
 
     async def setting(db, key, default=""):
         return state.get(key, default)
 
     monkeypatch.setattr(main, "setting_value", setting)
-    assert asyncio.run(main.production_payments_allowed(None)) is False
-    state[e2e_v2.ADMISSION_STATUS_KEY] = json.dumps(evidence(now))
+    # A fresh installation accepts real payments without any staging evidence.
     assert asyncio.run(main.production_payments_allowed(None)) is True
-    state[main.PRODUCTION_PAYMENTS_GATE_KEY] = "0"
+    state[main.PRODUCTION_PAYMENTS_CLOSED_KEY] = "1"
     assert asyncio.run(main.production_payments_allowed(None)) is False
-    # The v1 smoke runner's status key is not evidence any more.
-    state[main.PRODUCTION_PAYMENTS_GATE_KEY] = "1"
-    state[e2e_v2.ADMISSION_STATUS_KEY] = "{}"
-    state[main.STAGING_E2E_STATUS_KEY] = json.dumps(evidence(now))
-    assert asyncio.run(main.production_payments_allowed(None)) is False
+    state[main.PRODUCTION_PAYMENTS_CLOSED_KEY] = "0"
+    assert asyncio.run(main.production_payments_allowed(None)) is True

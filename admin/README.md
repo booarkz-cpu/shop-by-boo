@@ -88,9 +88,9 @@ Overview shows only the Remnawave user total. The user card omits the subscripti
 
 ## 3.1.1
 
-Вкладка **Проверка тестового контура** требует флажок **Подтверждаю sandbox-ключи**. Пустое поле секрета, Shop ID или Merchant ID при повторном сохранении оставляет записанное значение. Журнал показывает строку `[CHECKOUT]`. Кнопка **Разрешить реальные платежи** на вкладке **Безопасность** включает gate после `FULL_E2E_PASS` не старше 24 часов. Порядок — раздел 9.15 `INSTRUCTION.md`.
+Вкладка **Проверка тестового контура** требует флажок **Подтверждаю sandbox-ключи**. Пустое поле секрета, Shop ID или Merchant ID при повторном сохранении оставляет записанное значение. Журнал показывает строку `[CHECKOUT]`. Реальные платежи открыты с момента установки; на вкладке **Безопасность** есть аварийные кнопки **Остановить приём платежей** и **Открыть реальные платежи**.
 
-**Проверка тестового контура** (Staging checks) requires **Подтверждаю sandbox-ключи** (I confirm these are sandbox keys). A blank secret, Shop ID, or Merchant ID on a later save keeps the stored value. The log shows a `[CHECKOUT]` line. **Разрешить реальные платежи** (Allow live payments) on **Безопасность** (Security) enables the gate after `FULL_E2E_PASS` younger than 24 hours. The order is section 9.15 of `INSTRUCTION.md`.
+**Проверка тестового контура** (Staging checks) requires **Подтверждаю sandbox-ключи** (I confirm these are sandbox keys). A blank secret, Shop ID, or Merchant ID on a later save keeps the stored value. The log shows a `[CHECKOUT]` line. Real payments are open from the first start; **Безопасность** (Security) has the emergency buttons **Остановить приём платежей** (stop payments) and **Открыть реальные платежи** (open real payments).
 
 ## 3.1.0
 

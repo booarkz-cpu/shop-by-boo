@@ -1,4 +1,4 @@
-> Current distribution: `v28.19.0`; runtime/API: `21.5.1`. Exact readiness boundaries are documented in the current coverage matrix.
+> Current distribution: `v28.20.0`; runtime/API: `21.5.1`. Exact readiness boundaries are documented in the current coverage matrix.
 
 > v21.5.1: API 18080, admin 18081, cabinet 18082, Mini App 18083. [Current testing guide](../ru/TESTING.md).
 
@@ -82,8 +82,8 @@ If the cabinet shows a wallet top-up, the amount must be from 50 to 100000. Sand
 
 - The test compose file does not start the bot. An empty `BOT_TOKEN` still stops the bot in production. Outside production the bot process waits instead of crash-looping if you start it yourself.
 - `/api/public/servers` may list no nodes. That is expected without an agent and without Remnawave.
-- A live provider returns an error or `503`: the production gate is closed and the gateway keys are empty.
-- `provider=yookassa` is not rewritten to sandbox while the gate is closed. Sandbox is chosen automatically only when the provider is omitted and no live gateway is configured, or when `sandbox` is sent explicitly.
+- A live provider returns an error: the gateway keys are empty.
+- `provider=yookassa` is not rewritten to sandbox. Sandbox is chosen automatically only when the provider is omitted and no live gateway is configured, or when `sandbox` is sent explicitly.
 
 ## 7. If startup fails
 

@@ -29,7 +29,6 @@ def test_blank_staging_secrets_are_preserved_and_output_is_redacted():
     assert "yookassa_shop_id" not in redact
     assert "platega_merchant_id" not in redact
     assert "full_pass = False" in main
-    assert 'status.get("full_e2e")' in main
 
 
 def test_runner_prints_checkout_and_image_has_curl():

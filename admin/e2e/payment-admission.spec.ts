@@ -5,7 +5,7 @@ const b64url = (b: Buffer) => b.toString('base64').replace(/\+/g, '-').replace(/
 const CHECKS = ['checkout', 'idempotent_checkout', 'signed_webhook', 'provider_match', 'fulfilled', 'duplicate_ignored',
   'tamper_rejected', 'refund_confirmed', 'refund_idempotent', 'access_revoked', 'late_success_ignored'];
 
-test('administrator admits real payments with a signed staging E2E v2 result', async ({page}) => {
+test('real payments are open by default, can be stopped, and the optional E2E v2 result is recorded', async ({page}) => {
   const {publicKey, privateKey} = generateKeyPairSync('ed25519');
   const raw = b64url(Buffer.from((publicKey.export({format: 'jwk'}) as any).x, 'base64url'));
   await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
@@ -17,7 +17,7 @@ test('administrator admits real payments with a signed staging E2E v2 result', a
     page.waitForResponse((r) => r.url().endsWith('/api/admin/e2e-v2/overview')),
     page.getByRole('button', {name: 'Проверка платежей', exact: true}).click(),
   ]);
-  await expect(page.getByText('Реальные платежи:')).toContainText('закрыты');
+  await expect(page.getByText('Реальные платежи:')).toContainText('открыты');
   await page.getByLabel('Открытый ключ стенда', {exact: true}).fill(raw);
   await Promise.all([
     page.waitForResponse((r) => r.url().endsWith('/api/admin/e2e-v2/admission/config') && r.request().method() === 'PUT'),
@@ -41,15 +41,16 @@ test('administrator admits real payments with a signed staging E2E v2 result', a
     page.waitForResponse((r) => r.url().endsWith('/api/admin/e2e-v2/admission/attestation')),
     page.getByRole('button', {name: 'Принять результат', exact: true}).click(),
   ]);
-  await expect(page.getByText('Проверка: пройдена')).toBeVisible();
+  await expect(page.getByText('Последняя проверка:')).toContainText('пройдена');
+  await expect(page.getByText('Реальные платежи:')).toContainText('открыты');
+  await Promise.all([
+    page.waitForResponse((r) => r.url().endsWith('/api/admin/payments/production-gate')),
+    page.getByRole('button', {name: 'Остановить приём платежей', exact: true}).click(),
+  ]);
+  await expect(page.getByText('Реальные платежи:')).toContainText('остановлены');
   await Promise.all([
     page.waitForResponse((r) => r.url().endsWith('/api/admin/payments/production-gate')),
     page.getByRole('button', {name: 'Открыть реальные платежи', exact: true}).click(),
   ]);
   await expect(page.getByText('Реальные платежи:')).toContainText('открыты');
-  await Promise.all([
-    page.waitForResponse((r) => r.url().endsWith('/api/admin/payments/production-gate')),
-    page.getByRole('button', {name: 'Закрыть', exact: true}).click(),
-  ]);
-  await expect(page.getByText('Реальные платежи:')).toContainText('закрыты');
 });

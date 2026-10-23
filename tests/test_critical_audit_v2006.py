@@ -27,8 +27,8 @@ def test_live_version_is_20_0_6():
 
 def test_full_pass_requires_its_own_line_and_localhost_checks():
     main = (ROOT / "backend/app/main.py").read_text()
+    # The v1 sandbox runner never claims a full pass.
     assert "full_pass = False" in main
-    assert 'status.get("contract_version")!=2' in main
     assert 'client_host not in {"127.0.0.1","::1"}' in main
     for path in ("/api/internal/staging-e2e/verify", "/api/internal/staging-e2e/refund", "/api/internal/staging-e2e/refund-status", "/api/internal/staging-e2e/remnawave"):
         assert path in main

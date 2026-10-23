@@ -21,7 +21,6 @@ from .db import engine, get_db
 from .models import User, Plan, Payment, Subscription, AuditLog, FinancialLedger, AdminUser, AdminSession, AppSetting, BotMenuItem, CustomField, MenuImage, Promotion, PromoCode, PromoRedemption, Advertisement, Broadcast, Reseller, BackupJob, AuthExchangeCode, ReferralReward, PaymentProviderEvent, ReferralLedger, AutoRenewMethod, ProvisioningOperation, RefundRequest, SupportTicket, WithdrawalRequest, WorkerState, ReleaseRecord, SecurityIncident, Job, FraudSignal, PayoutTransaction, FeatureFlag, PaymentProviderHealth, SecurityIncidentEvent, BackupVerification, WebAuthnCredential, UserDevice, Campaign, AutomationRule, MonitoringCheck, TrialGrant, PromoReservation, GiftCode, GiftRedemption, UserSession, Notification, StatusComponent, Deployment, CabinetMenuItem, TariffConstructor, PaymentTaxProfile, PaymentInvoice, PaymentChargeback, PaymentRiskAssessment, PaymentProviderMetric, GiftCard, CorporateAccount, PaymentPriceExperiment
 from .payments import YooKassaProvider, PlategaProvider, RollyPayProvider, SandboxProvider, verify_rollypay, verify_platega_headers, staging_create_payment, staging_read_payment, staging_refund_payment, staging_refund_read
 from .sandbox_mode import payments_sandbox_allowed, sandbox_checkout_requested, sandbox_local_vpn
-from .staging_gate import staging_evidence_valid
 from .referral_program import snapshot as referral_snapshot
 from .payment_platform import StripePlatform, PayPalPlatform, CryptoGatewayPlatform, AppleStorePlatform, GooglePlayPlatform, PlatformProviderError
 from .payment_policy import PAYMENT_AGENTS, PROVIDER_CAPABILITIES, routing_names
@@ -1194,7 +1193,7 @@ async def create_payment(payload:dict, request:Request, db:AsyncSession=Depends(
     if not await feature_enabled(db, "payments", True): raise HTTPException(503,"Платежи отключены администратором")
     sandbox_requested=sandbox_checkout_requested(payload.get("provider"))
     if not sandbox_requested and not await production_payments_allowed(db) and not await e2e_checkout_allowed(db,request,payload):
-        raise HTTPException(503,"Реальные платежи временно заблокированы: требуется успешный staging E2E")
+        raise HTTPException(503,"Приём платежей временно остановлен администратором")
     user=await user_from_token(request,db)
     from .platform_api import reject_restricted
     reject_restricted(user)
@@ -2345,7 +2344,7 @@ async def wallet_topup(payload:dict, request:Request, db:AsyncSession=Depends(ge
     requested_provider=str(payload.get("provider") or "").lower()
     sandbox_requested=sandbox_checkout_requested(requested_provider)
     if not sandbox_requested and not await production_payments_allowed(db):
-        raise HTTPException(503,"Реальные платежи временно заблокированы: требуется успешный staging E2E")
+        raise HTTPException(503,"Приём платежей временно остановлен администратором")
     user=await user_from_token(request,db)
     idem=request.headers.get("Idempotency-Key")
     if not idem or len(idem)>128: raise HTTPException(400,"Idempotency-Key is required")
@@ -3755,37 +3754,25 @@ class ProductionGateIn(BaseModel):
 
 @app.post("/api/admin/payments/production-gate")
 async def production_payment_gate(payload:ProductionGateIn, db:AsyncSession=Depends(get_db), admin=Depends(require_permission("security.manage"))):
+    """Emergency switch: real payments are open by default; an administrator may close and reopen them."""
     await _advisory_lock(db, 1300000013)
-    if not payload.enabled:
-        await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"0")
-        await audit(db,"payments.production_gate.disabled",admin.email,None)
-        await db.commit()
-        return {"enabled":False}
-    from .e2e_v2 import admission_config, admission_status
-    status=await admission_status(db)
-    if status.get("status")!="passed" or not status.get("full_e2e") or status.get("contract_version")!=2:
-        raise HTTPException(409,"Сначала необходимо успешно завершить полный staging E2E: checkout → webhook → fulfillment → duplicate webhook → refund")
-    cfg=await admission_config(db)
-    if not staging_evidence_valid(status,cfg,datetime.now(timezone.utc),PRODUCTION_GATE_MAX_AGE_HOURS):
-        raise HTTPException(409,"Результат staging E2E устарел либо конфигурация изменилась; запустите проверку заново")
-    await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"1")
-    await audit(db,"payments.production_gate.enabled",admin.email,None,{"staging_finished_at":status["finished_at"]})
+    await set_setting(db,PRODUCTION_PAYMENTS_CLOSED_KEY,"0" if payload.enabled else "1")
+    await audit(db,"payments.real.opened" if payload.enabled else "payments.real.closed",admin.email,None)
     await db.commit()
-    return {"enabled":True}
+    return {"enabled":payload.enabled}
 
 # ---------- Staging E2E ----------
 STAGING_E2E_CONFIG_KEY="staging_e2e.config"
 STAGING_E2E_STATUS_KEY="staging_e2e.status"
 STAGING_E2E_LOCK=asyncio.Lock()
-# A new key invalidates a gate enabled by the old runner's false positive.
-PRODUCTION_PAYMENTS_GATE_KEY="payments.production_gate.v2"
+# Real payments are open from the first start. "1" means an administrator closed them
+# (emergency switch). The staging E2E v2 check is optional and never closes payments.
+PRODUCTION_PAYMENTS_CLOSED_KEY="payments.real.closed"
 PRODUCTION_GATE_MAX_AGE_HOURS=24
 
 async def production_payments_allowed(db):
-    """Real payments need an open gate *and* a fresh E2E v2 attestation of the current admission config."""
-    if await setting_value(db,PRODUCTION_PAYMENTS_GATE_KEY,"0") != "1": return False
-    from .e2e_v2 import admission_config, admission_status
-    return staging_evidence_valid(await admission_status(db),await admission_config(db),datetime.now(timezone.utc),PRODUCTION_GATE_MAX_AGE_HOURS)
+    """Real payments are allowed unless an administrator closed them."""
+    return await setting_value(db,PRODUCTION_PAYMENTS_CLOSED_KEY,"0") != "1"
 
 class StagingE2EConfigIn(BaseModel):
     public_base_url:str=Field(min_length=8,max_length=2048)
@@ -3870,7 +3857,6 @@ async def update_staging_e2e_config(payload:StagingE2EConfigIn,db:AsyncSession=D
     data["revision"]=secrets.token_hex(16)
     await set_setting(db,STAGING_E2E_CONFIG_KEY,encrypt_secret(json.dumps(data,ensure_ascii=False)))
     await set_setting(db,STAGING_E2E_STATUS_KEY,json.dumps({"status":"never","full_e2e":False,"config_revision":data["revision"]}))
-    await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"0")
     await audit(db,"staging_e2e.config.updated",admin.email,None,{"providers":providers,"public_base_url":payload.public_base_url,"remnawave_url":payload.remnawave_url,"plan_id":payload.plan_id})
     await db.commit()
     return {"ok":True,"providers":providers}
@@ -3899,7 +3885,7 @@ async def _run_staging_e2e(config, admin_email):
     async with AsyncSession(engine,expire_on_commit=False) as db:
         await _advisory_lock(db, 1300000013)
         if not await _staging_config_is_current(db, config): return
-        await set_setting(db,STAGING_E2E_STATUS_KEY,json.dumps({"status":"running","started_at":started,"provider_results":[],"full_e2e":False,"config_revision":config["revision"],"output":""},ensure_ascii=False)); await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"0"); await db.commit()
+        await set_setting(db,STAGING_E2E_STATUS_KEY,json.dumps({"status":"running","started_at":started,"provider_results":[],"full_e2e":False,"config_revision":config["revision"],"output":""},ensure_ascii=False)); await db.commit()
     env=os.environ.copy()
     env.update({"STAGING_PUBLIC_BASE_URL":config["public_base_url"],"STAGING_REMNAWAVE_URL":config["remnawave_url"],"STAGING_REMNAWAVE_TOKEN":config["remnawave_token"],"STAGING_USER_BEARER_TOKEN":config["user_bearer_token"],"STAGING_PLAN_ID":str(config["plan_id"]),"STAGING_TIMEOUT_SECONDS":str(config.get("timeout_seconds",1800)),"STAGING_PROVIDERS":",".join(config.get("providers",[])),"STAGING_RUNNER_TOKEN":config["runner_token"]})
     script="/app/staging-e2e.sh"

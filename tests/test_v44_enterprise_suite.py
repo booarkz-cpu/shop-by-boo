@@ -50,5 +50,5 @@ def test_auto_renew_respects_production_gate_and_payments_flag():
     marker='async def auto_renew_scheduler()'
     block=src[src.index(marker):src.index('async def reconciliation_scheduler()')]
     assert 'production_payments_allowed(db)' in block
-    assert 'PRODUCTION_PAYMENTS_GATE_KEY' in src[src.index('async def production_payments_allowed'):]
+    assert 'PRODUCTION_PAYMENTS_CLOSED_KEY' in src[src.index('async def production_payments_allowed'):]
     assert 'feature_enabled(db, "payments", True)' in block

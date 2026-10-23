@@ -19,5 +19,6 @@ def test_connection_info_has_no_unreachable_duplicate_return():
     assert section.count('return Response(')==1
     assert 'return {"subscription_url":sub.subscription_url' not in section
 
-def test_production_gate_requires_full_e2e():
-    assert 'status.get("status")!="passed" or not status.get("full_e2e")' in MAIN
+def test_production_gate_is_an_administrator_emergency_switch():
+    assert 'PRODUCTION_PAYMENTS_CLOSED_KEY,"0" if payload.enabled else "1"' in MAIN
+    assert 'require_permission("security.manage")' in MAIN[MAIN.index('async def production_payment_gate'):]
