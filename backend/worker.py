@@ -169,6 +169,7 @@ async def main_worker():
     from app.network_intel import network_intel_scheduler
     from app.mail_domain import mail_domain_scheduler
     from app.node_terminal import terminal_scheduler
+    from app.torrent_detection import torrent_scheduler
     from app.runtime_settings import refresh_runtime_settings, runtime_settings_scheduler
     async with AsyncSession(main.engine, expire_on_commit=False) as db:
         await refresh_runtime_settings(db, force=True)
@@ -189,6 +190,7 @@ async def main_worker():
         network_intel_scheduler(),
         mail_domain_scheduler(),
         terminal_scheduler(),
+        torrent_scheduler(),
         main.subscription_lifecycle_scheduler(),
     )
 

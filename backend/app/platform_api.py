@@ -440,6 +440,10 @@ async def agent_observations(payload: ObservationBatch, db: AsyncSession = Depen
             torrents.add(key)
     await db.flush()
     created = 0
+    # A detection from the Xray access log (torrent_detection) marks the client for 24 hours.
+    from .torrent_detection import recent_users
+
+    detected = await recent_users(db, {r[0]["user_id"] for r in grouped.values() if r[0].get("user_id")}) if await _plugin_on(db, "torrents") else set()
     for key, rows in grouped.items():
         user_id = rows[0].get("user_id")
         hwid_accounts = 1
@@ -452,7 +456,7 @@ async def agent_observations(payload: ObservationBatch, db: AsyncSession = Depen
         if user_id:
             sub = (await db.execute(select(Subscription).where(Subscription.user_id == user_id,Subscription.remnawave_uuid==rows[0].get("remnawave_uuid")))).scalar_one_or_none()
             device_limit = sub.device_limit_snapshot if sub else None
-        result = score_observations(rows, device_limit=device_limit, thresholds=policy, hwid_accounts=hwid_accounts, torrent=key in torrents)
+        result = score_observations(rows, device_limit=device_limit, thresholds=policy, hwid_accounts=hwid_accounts, torrent=key in torrents or user_id in detected)
         if result["score"] < int(policy["min_score"]):
             continue
         summary = "; ".join(f"{hit['name']}: {hit['detail']}" for hit in result["analyzers"]) or "скоринг"

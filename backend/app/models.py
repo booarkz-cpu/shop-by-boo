@@ -1627,3 +1627,17 @@ class TerminalSnippet(Base):
     command: Mapped[str] = mapped_column(Text, nullable=False)
     created_by: Mapped[str] = mapped_column(String(320), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class TorrentDetection(Base):
+    """Hourly count of BitTorrent detections for one Xray client on one node.
+
+    Only the count is kept: no destination addresses, ports or log lines."""
+    __tablename__ = "torrent_detections"
+    __table_args__ = (UniqueConstraint("hour", "agent_id", "client", name="uq_torrent_detections_bucket"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    hour: Mapped[datetime] = mapped_column(DateTime, index=True, nullable=False)
+    agent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    client: Mapped[str] = mapped_column(String(128), nullable=False)
+    user_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    events: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

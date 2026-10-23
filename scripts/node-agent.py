@@ -11,6 +11,11 @@ shell on a pseudo-terminal as AGENT_TERMINAL_USER when set, never passes its
 own environment (and so never the agent token) to the shell, reports when the
 terminal reads a secret (echo off in line mode) so typed passwords are not recorded, and ends the shell
 when the session closes or its time is up. See docs/ru/NODE_TERMINAL_CURRENT.md.
+
+With AGENT_XRAY_ACCESS_LOG set, the agent counts connections that Xray routed to
+the BitTorrent outbound (AGENT_TORRENT_TAG) per Xray client and posts only those
+counts: no destinations, ports or log lines leave the node.
+See docs/ru/TORRENT_DETECTION_CURRENT.md.
 """
 from __future__ import annotations
 
@@ -23,6 +28,7 @@ import os
 import pathlib
 import pty
 import pwd
+import re
 import select
 import shutil
 import signal
@@ -155,6 +161,70 @@ def _post(base: str, path: str, token: str, body: dict) -> dict:
     with urllib.request.urlopen(request, timeout=20) as response:
         raw = response.read().decode()
     return json.loads(raw) if raw else {}
+
+
+# ---------------------------------------------------------------- BitTorrent counts from the Xray access log
+
+class XrayAccessLog:
+    """Follows the Xray access log and counts BitTorrent-routed lines per client.
+
+    Starts at the end of the file (no backfill), follows rotation (new inode or a
+    shorter file) and reads at most 8 MB per poll. Only counts are kept."""
+
+    LINE = re.compile(r"\baccepted\s+(?:tcp|udp):\S+\s+\[([^\]]*)\]\s+email:\s*(\S+)")
+    CHUNK = 8 * 1024 * 1024
+
+    def __init__(self, path: str, tag: str):
+        self.path, self.tag = path, tag
+        self.inode: int | None = None
+        self.offset = 0
+        self.rest = b""
+
+    def _routed(self, route: str) -> bool:
+        target = re.split(r"->|>>", route)[-1].strip() if ("->" in route or ">>" in route) else ""
+        return target == self.tag
+
+    def poll(self) -> dict:
+        try:
+            stat = os.stat(self.path)
+        except OSError:
+            return {}
+        if self.inode is None:
+            self.inode, self.offset = stat.st_ino, stat.st_size  # start at the end
+            return {}
+        if stat.st_ino != self.inode or stat.st_size < self.offset:
+            self.inode, self.offset, self.rest = stat.st_ino, 0, b""  # rotated or truncated
+        if stat.st_size == self.offset:
+            return {}
+        try:
+            with open(self.path, "rb") as handle:
+                handle.seek(self.offset)
+                data = handle.read(self.CHUNK)
+        except OSError:
+            return {}
+        self.offset += len(data)
+        lines = (self.rest + data).split(b"\n")
+        self.rest = lines.pop()[-65536:]  # an unfinished last line waits for the next poll
+        counts: dict = {}
+        for raw in lines:
+            match = self.LINE.search(raw.decode("utf-8", "replace"))
+            if match and self._routed(match.group(1)):
+                client = match.group(2)[:128]
+                counts[client] = counts.get(client, 0) + 1
+        return counts
+
+
+def torrent_report(base: str, token: str, log: XrayAccessLog, pending: dict) -> dict:
+    """Merges new counts into ``pending`` and posts them; keeps them on failure."""
+    for client, events in log.poll().items():
+        if client in pending or len(pending) < 2000:
+            pending[client] = min(1_000_000, pending.get(client, 0) + events)
+    while pending:
+        batch = dict(list(pending.items())[:500])
+        _post(base, "/api/agent/torrent", token, {"items": [{"client": c, "events": n} for c, n in batch.items()]})
+        for client in batch:
+            pending.pop(client, None)
+    return pending
 
 
 # ---------------------------------------------------------------- terminal
@@ -395,7 +465,16 @@ def main() -> None:
         interval = 60
     if _env("AGENT_TERMINAL") == "1":
         threading.Thread(target=terminal_loop, args=(base, token), daemon=True).start()
+    access_log = XrayAccessLog(_env("AGENT_XRAY_ACCESS_LOG"), _env("AGENT_TORRENT_TAG") or "TORRENT") if _env("AGENT_XRAY_ACCESS_LOG") else None
+    pending_torrent: dict = {}
+    if access_log:
+        access_log.poll()  # remember the current end of the log
     while True:
+        if access_log:
+            try:
+                torrent_report(base, token, access_log, pending_torrent)
+            except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError) as exc:
+                print(f"node-agent torrent report failed: {exc}", file=sys.stderr, flush=True)
         try:
             beat = _post(base, "/api/agent/heartbeat", token, _metrics())
             _apply(beat.get("actions") or [])

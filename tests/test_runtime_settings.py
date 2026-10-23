@@ -415,12 +415,13 @@ async def test_standalone_worker_loads_committed_settings_and_converges(database
     # Every background loop started by the worker is replaced: the real push, plugin
     # and network loops use the application engine and outbound HTTP, and a task
     # cancelled mid-connection could stall event-loop teardown.
-    from app import mail_domain, network_intel, node_terminal, plugins, push
+    from app import mail_domain, network_intel, node_terminal, plugins, push, torrent_detection
     monkeypatch.setattr(push, "push_scheduler", idle)
     monkeypatch.setattr(plugins, "plugin_scheduler", idle)
     monkeypatch.setattr(network_intel, "network_intel_scheduler", idle)
     monkeypatch.setattr(mail_domain, "mail_domain_scheduler", idle)
     monkeypatch.setattr(node_terminal, "terminal_scheduler", idle)
+    monkeypatch.setattr(torrent_detection, "torrent_scheduler", idle)
     task = asyncio.create_task(worker.main_worker())
     try:
         await asyncio.wait_for(finished.wait(), 5)

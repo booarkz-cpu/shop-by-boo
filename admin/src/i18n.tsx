@@ -586,6 +586,8 @@ export const EN: Record<string, string> = {
   "В чьих сетях стоят узлы и не попали ли их адреса в списки злоупотреблений.": "Whose networks the nodes are in and whether their addresses are on abuse lists.",
   "Почтовый домен: SPF, DKIM, DMARC": "Mail domain: SPF, DKIM, DMARC",
   "Терминал узлов": "Node terminal",
+  "Торренты на узлах": "Torrents on nodes",
+  "Кто из клиентов качает торренты: счётчики срабатываний Xray без адресов, отметка в антиабузе и уведомление.": "Which customers use torrents: Xray detection counts without addresses, an abuse mark and a notice.",
   "Командная оболочка на VPN-сервере через агент: с подтверждением 2FA и записью сессии.": "A shell on a VPN server through its agent, confirmed with 2FA and recorded.",
   "Доходят ли письма магазина: DNS-записи домена и отчёты DMARC о том, кто отправляет почту от его имени.": "Whether shop mail is delivered: the domain's DNS records and DMARC reports on who sends mail in its name.",
   "Выбор узла для клиента по задержке и нагрузке.": "Choosing a node for each customer by latency and load.",
