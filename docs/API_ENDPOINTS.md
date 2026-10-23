@@ -1,4 +1,4 @@
-# Каталог API — v28.17.0 / API v21.5.1
+# Каталог API — v28.18.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0072_traffic_analysis`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -238,6 +238,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/releases` | Admin Releases |
 | `POST` | `/api/admin/releases/check` | Check Release |
 | `GET` | `/api/admin/remnawave/health` | Remnawave Health |
+| `GET` | `/api/admin/remnawave/internal-squads` | Remnawave Internal Squads |
 | `GET` | `/api/admin/remnawave/monitoring` | Admin Monitoring |
 | `GET` | `/api/admin/remnawave/nodes` | Rw Nodes |
 | `GET` | `/api/admin/remnawave/shop` | Remnawave Shop Overview |

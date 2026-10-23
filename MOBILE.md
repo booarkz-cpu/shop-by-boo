@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.17.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.18.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Android и iOS
 
@@ -10,4 +10,4 @@
 
 Для собственной сборки нужны Android SDK/JDK или macOS/Xcode, HTTPS адреса своего магазина и, для распространения, собственные signing keys/профили. Секреты подписи не коммитьте. [CI](.github/workflows/ci.yml), [mobile release workflow](.github/workflows/mobile-release.yml), [условия использования](LICENSE), [сторонние уведомления](THIRD_PARTY_NOTICES.md).
 
-Изменения alpha.7: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
+Справочники: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.

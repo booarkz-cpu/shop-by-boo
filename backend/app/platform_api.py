@@ -106,6 +106,8 @@ class BlacklistIn(BaseModel):
 class ObservationIn(BaseModel):
     ip: str = Field(max_length=64)
     remnawave_uuid: str | None = Field(default=None, max_length=64)
+    # Xray client name from the access log (``user_<id>`` or a subscription UUID).
+    client: str | None = Field(default=None, max_length=128)
     asn: str | None = Field(default=None, max_length=32)
     asn_org: str | None = Field(default=None, max_length=255)
     country: str | None = Field(default=None, max_length=16)
@@ -417,6 +419,11 @@ async def agent_observations(payload: ObservationBatch, db: AsyncSession = Depen
         if item.remnawave_uuid:
             sub = (await db.execute(select(Subscription).where(Subscription.remnawave_uuid == item.remnawave_uuid))).scalar_one_or_none()
             user = await db.get(User, sub.user_id) if sub else None
+        elif item.client:
+            from .torrent_detection import resolve_user
+
+            user_id = await resolve_user(db, item.client.strip())
+            user = await db.get(User, user_id) if user_id else None
         obs = ConnectionObservation(
             user_id=user.id if user else None,
             remnawave_uuid=item.remnawave_uuid,

@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.17.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.18.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Эксплуатация и восстановление
 
@@ -23,11 +23,11 @@ docker compose logs --tail=100 backend worker bot
 Для alpha используйте отдельный стенд и [WORKSPACE_UPGRADE.md](docs/ru/WORKSPACE_UPGRADE.md). Production обновляется только по stable GitHub Releases. Для выбранного stable тега:
 
 ```bash
-# Для v28.17.0 (runtime 21.5.1) с Support Pro 0008 используйте согласованное ручное обновление.
+# Для v28.18.0 (runtime 21.5.1) с Support Pro 0008 используйте согласованное ручное обновление.
 # scripts/update.sh не восстанавливает автоматически вторую БД.
 ```
 
-`v28.17.0` — тег этого дистрибутива. Перед запуском убедитесь, что он опубликован и вложения доступны. Скрипт проверяет источник и SHA256, сохраняет `.env`, вызывает резервирование и health/recovery. Без RELEASE_TAG выбирается последний stable; downgrade не выполняется.
+`v28.18.0` — тег этого дистрибутива. Перед запуском убедитесь, что он опубликован и вложения доступны. Скрипт проверяет источник и SHA256, сохраняет `.env`, вызывает резервирование и health/recovery. Без RELEASE_TAG выбирается последний stable; downgrade не выполняется.
 
 GitHub Deploy использует обязательный `release_tag`, secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PORT`, `DEPLOY_PATH` и environment `production`. Он не публикует исходники и не запускается при выпуске alpha. Старый updater без поддержки RELEASE_TAG должен быть сначала обновлён вручную. Указатель Git HEAD установленного через архив дерева может не совпадать с содержимым; ориентируйтесь на APP_VERSION и проверенный release manifest.
 
@@ -35,7 +35,7 @@ GitHub Deploy использует обязательный `release_tag`, secre
 
 Отключите новые оплаты/акцию, сохраните ID операций и журналы аудита. Свяжите заказ, provider ID, выбранную подписку и выдачу. Не меняйте paid/refunded и финансовые строки вручную. Для наград сверяйте giveaway entry, ключ финансового события и бюджет. Для восстановления используйте изолированную копию; не удаляйте volumes действующего магазина. [Безопасность](SECURITY.md), [платежи](docs/ru/WORKSPACE_PAYMENTS.md).
 
-Изменения alpha.7: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
+Справочники: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 
 ## Настройки без перезапуска
 

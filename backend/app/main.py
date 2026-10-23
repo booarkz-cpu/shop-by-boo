@@ -3055,13 +3055,27 @@ async def admin_recovery(db:AsyncSession=Depends(get_db),admin=Depends(require_p
     now=datetime.utcnow()
     heartbeat=[{"worker_id":w.worker_id,"role":w.role,"status":"stale" if now-w.last_seen_at>timedelta(seconds=90) else w.status,"last_seen_at":w.last_seen_at} for w in workers]
     failed=int((await db.execute(select(func.count()).select_from(Payment).where(Payment.fulfillment_status=="failed",Payment.fulfillment_terminal.is_(True)))).scalar() or 0)
-    return {"maintenance_mode":maintenance,"restore_state":restore_state,"workers":heartbeat,"terminal_fulfillment_failures":failed,"recovery_required":maintenance or restore_state=="failed" or any(x["status"]=="stale" for x in heartbeat)}
+    return {"maintenance_mode":maintenance,"incident_mode":await setting_value(db,"incident_mode","0")=="1","restore_state":restore_state,"workers":heartbeat,"terminal_fulfillment_failures":failed,"recovery_required":maintenance or restore_state=="failed" or any(x["status"]=="stale" for x in heartbeat)}
 
 @app.post("/api/admin/incident-mode")
 async def incident_mode(payload:dict,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_admins"))):
-    enabled=bool(payload.get("enabled")); await set_setting(db,"incident_mode","1" if enabled else "0");
-    if enabled: await set_setting(db,"maintenance_mode","1")
-    await audit(db,"security.incident_mode",admin.email,None,{"enabled":enabled}); await db.commit(); return {"enabled":enabled}
+    enabled=bool(payload.get("enabled")); await set_setting(db,"incident_mode","1" if enabled else "0")
+    maintenance_kept=False
+    if enabled:
+        await set_setting(db,"maintenance_mode","1")
+    else:
+        # Incident mode switched maintenance on; switching it off lifts maintenance too, unless a
+        # restore failed or is running: that state must stay locked until the operator checks it.
+        restore_locked=False
+        if redis_client is not None:
+            try: restore_locked=bool(await redis_client.get("lock:maintenance"))
+            except Exception as exc: logger.warning("Maintenance lock check failed: %s", exc)
+        if await setting_value(db,"restore_state","ok")=="failed" or restore_locked:
+            maintenance_kept=True
+        else:
+            await set_setting(db,"maintenance_mode","0")
+    await audit(db,"security.incident_mode",admin.email,None,{"enabled":enabled,"maintenance_kept":maintenance_kept}); await db.commit()
+    return {"enabled":enabled,"maintenance_mode":enabled or maintenance_kept or bool(settings.maintenance_mode),"maintenance_kept":maintenance_kept}
 
 @app.get("/api/admin/incident-mode")
 async def incident_mode_status(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):

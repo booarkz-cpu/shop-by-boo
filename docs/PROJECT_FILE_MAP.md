@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.17.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.18.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1137**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1174**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -222,6 +222,7 @@
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
 | [admin/e2e/passkeys.spec.ts](../admin/e2e/passkeys.spec.ts) | Админ-панель |
 | [admin/e2e/personal-offers.spec.ts](../admin/e2e/personal-offers.spec.ts) | Админ-панель |
+| [admin/e2e/plans-editor.spec.ts](../admin/e2e/plans-editor.spec.ts) | Админ-панель |
 | [admin/e2e/plugins.spec.ts](../admin/e2e/plugins.spec.ts) | Админ-панель |
 | [admin/e2e/preferences-help.spec.ts](../admin/e2e/preferences-help.spec.ts) | Админ-панель |
 | [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
@@ -266,6 +267,7 @@
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
+| [admin/src/plans-editor.tsx](../admin/src/plans-editor.tsx) | Админ-панель |
 | [admin/src/plugins.tsx](../admin/src/plugins.tsx) | Админ-панель |
 | [admin/src/promo-audiences.tsx](../admin/src/promo-audiences.tsx) | Админ-панель |
 | [admin/src/push-status.tsx](../admin/src/push-status.tsx) | Админ-панель |
@@ -593,6 +595,7 @@
 | [docs/ru/FUNCTION_GUIDE.md](../docs/ru/FUNCTION_GUIDE.md) | Документация |
 | [docs/ru/HISTORY_IMPORT_CURRENT.md](../docs/ru/HISTORY_IMPORT_CURRENT.md) | Документация |
 | [docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md](../docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md) | Документация |
+| [docs/ru/LAUNCH_GUIDE.md](../docs/ru/LAUNCH_GUIDE.md) | Документация |
 | [docs/ru/MAIL_DOMAIN_CURRENT.md](../docs/ru/MAIL_DOMAIN_CURRENT.md) | Документация |
 | [docs/ru/MAIL_RECEIVER_CURRENT.md](../docs/ru/MAIL_RECEIVER_CURRENT.md) | Документация |
 | [docs/ru/MATRIX_COMPLETION_21_5_1.md](../docs/ru/MATRIX_COMPLETION_21_5_1.md) | Документация |
@@ -636,6 +639,7 @@
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
+| [docs/ru/RELEASE_V28_18_0.md](../docs/ru/RELEASE_V28_18_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
@@ -686,6 +690,37 @@
 | [docs/ru/WORKSPACE_UPGRADE.md](../docs/ru/WORKSPACE_UPGRADE.md) | Документация |
 | [docs/ru/WORKSPACE_USER_GUIDE.md](../docs/ru/WORKSPACE_USER_GUIDE.md) | Документация |
 | [docs/ru/YOOKASSA_CLICKS_BEGINNER.md](../docs/ru/YOOKASSA_CLICKS_BEGINNER.md) | Документация |
+| [docs/ru/modules/01-dashboard-analytics.md](../docs/ru/modules/01-dashboard-analytics.md) | Документация |
+| [docs/ru/modules/02-health-incidents-monitoring.md](../docs/ru/modules/02-health-incidents-monitoring.md) | Документация |
+| [docs/ru/modules/03-customers.md](../docs/ru/modules/03-customers.md) | Документация |
+| [docs/ru/modules/04-customer-import.md](../docs/ru/modules/04-customer-import.md) | Документация |
+| [docs/ru/modules/05-support.md](../docs/ru/modules/05-support.md) | Документация |
+| [docs/ru/modules/06-plans.md](../docs/ru/modules/06-plans.md) | Документация |
+| [docs/ru/modules/07-payments.md](../docs/ru/modules/07-payments.md) | Документация |
+| [docs/ru/modules/08-gifts.md](../docs/ru/modules/08-gifts.md) | Документация |
+| [docs/ru/modules/09-promotions-broadcasts.md](../docs/ru/modules/09-promotions-broadcasts.md) | Документация |
+| [docs/ru/modules/10-giveaways-surveys.md](../docs/ru/modules/10-giveaways-surveys.md) | Документация |
+| [docs/ru/modules/11-referrals-partners.md](../docs/ru/modules/11-referrals-partners.md) | Документация |
+| [docs/ru/modules/12-notifications-push.md](../docs/ru/modules/12-notifications-push.md) | Документация |
+| [docs/ru/modules/13-content-pages.md](../docs/ru/modules/13-content-pages.md) | Документация |
+| [docs/ru/modules/14-bot-miniapp.md](../docs/ru/modules/14-bot-miniapp.md) | Документация |
+| [docs/ru/modules/15-cabinet.md](../docs/ru/modules/15-cabinet.md) | Документация |
+| [docs/ru/modules/16-mobile-apps.md](../docs/ru/modules/16-mobile-apps.md) | Документация |
+| [docs/ru/modules/17-branding.md](../docs/ru/modules/17-branding.md) | Документация |
+| [docs/ru/modules/18-nodes-routing.md](../docs/ru/modules/18-nodes-routing.md) | Документация |
+| [docs/ru/modules/19-node-agent-antiabuse.md](../docs/ru/modules/19-node-agent-antiabuse.md) | Документация |
+| [docs/ru/modules/20-torrents-traffic-analysis.md](../docs/ru/modules/20-torrents-traffic-analysis.md) | Документация |
+| [docs/ru/modules/21-node-terminal.md](../docs/ru/modules/21-node-terminal.md) | Документация |
+| [docs/ru/modules/22-network-intel.md](../docs/ru/modules/22-network-intel.md) | Документация |
+| [docs/ru/modules/23-settings-features.md](../docs/ru/modules/23-settings-features.md) | Документация |
+| [docs/ru/modules/24-plugins.md](../docs/ru/modules/24-plugins.md) | Документация |
+| [docs/ru/modules/25-automation-jobs.md](../docs/ru/modules/25-automation-jobs.md) | Документация |
+| [docs/ru/modules/26-mail.md](../docs/ru/modules/26-mail.md) | Документация |
+| [docs/ru/modules/27-releases-updates.md](../docs/ru/modules/27-releases-updates.md) | Документация |
+| [docs/ru/modules/28-admin-security.md](../docs/ru/modules/28-admin-security.md) | Документация |
+| [docs/ru/modules/29-fraud.md](../docs/ru/modules/29-fraud.md) | Документация |
+| [docs/ru/modules/30-backups-recovery.md](../docs/ru/modules/30-backups-recovery.md) | Документация |
+| [docs/ru/modules/README.md](../docs/ru/modules/README.md) | Документация |
 | [docs/ru/steps/01-project.md](../docs/ru/steps/01-project.md) | Документация |
 | [docs/ru/steps/02-local-test.md](../docs/ru/steps/02-local-test.md) | Документация |
 | [docs/ru/steps/03-vds.md](../docs/ru/steps/03-vds.md) | Документация |
@@ -1031,6 +1066,7 @@
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
+| [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
 | [tests/test_mail_receiver.py](../tests/test_mail_receiver.py) | Проверки |
@@ -1053,6 +1089,7 @@
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
+| [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
