@@ -836,6 +836,11 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
 .term-t-in { color:#a6e3a1; }
 .term-t-hidden { color:#f9e2af; }
 .term-t-event { color:#89b4fa; }
+.torrent-bars { display:flex;align-items:flex-end;gap:4px;height:120px;padding-top:8px;overflow-x:auto; }
+.torrent-bar { display:grid;grid-template-rows:1fr auto;justify-items:center;min-width:22px;height:100%; }
+.torrent-bar span { align-self:end;width:14px;border-radius:4px 4px 0 0;background:var(--primary); }
+.torrent-bar small { font-size:10px;color:var(--muted); }
+.torrent-rules { margin:0;padding:10px 12px;border-left:3px solid var(--primary);background:color-mix(in srgb,var(--primary) 8%,transparent);border-radius:6px; }
 
 /* ---------- v28.10: cabinet typography, labelled forms, section hub ---------- */
 /* Same type scale as the customer cabinet: 14px body, 13px field labels, sentence-case headings. */

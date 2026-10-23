@@ -102,6 +102,7 @@ export const SECTION_GROUPS = [
       {tab: "routing", label: "Маршрутизация", description: "Выбор узла для клиента по задержке и нагрузке.", keywords: "smart routing балансировка"},
       {tab: "capacity", label: "Планирование мощности", description: "Прогноз нагрузки: когда узлам не хватит ресурсов и сколько добавить.", keywords: "capacity прогноз"},
       {tab: "orchestrator", label: "Оркестратор", description: "Автоматическое включение и вывод узлов по правилам нагрузки.", keywords: "orchestrator"},
+      {tab: "torrents", label: "Торренты на узлах", description: "Кто из клиентов качает торренты: счётчики срабатываний Xray без адресов, отметка в антиабузе и уведомление.", keywords: "bittorrent p2p dht utp торрент"},
       {tab: "platform", label: "Антиабуз и агенты", description: "Агенты на узлах, блокировка устройств-нарушителей и вебхуки событий.", keywords: "abuse hwid агенты"},
       {tab: "monitoring", label: "Мониторинг", description: "Проверки доступности, версии компонентов и рабочие процессы.", keywords: "uptime"},
     ],

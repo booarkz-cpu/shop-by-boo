@@ -82,6 +82,7 @@ from .plugins import router as plugins_router
 from .network_intel import router as network_intel_router
 from .mail_domain import router as mail_domain_router
 from .node_terminal import router as node_terminal_router
+from .torrent_detection import router as torrent_router
 from .subscription_commerce import router as subscription_commerce_router
 from .subscriptions import router as subscriptions_router, reserve_target, check_retry, payment_target, remote_username, owned as owned_subscription
 from .mobile_api import router as mobile_router
@@ -105,6 +106,7 @@ app.include_router(plugins_router)
 app.include_router(network_intel_router)
 app.include_router(mail_domain_router)
 app.include_router(node_terminal_router)
+app.include_router(torrent_router)
 app.include_router(subscription_commerce_router)
 app.include_router(subscriptions_router)
 app.include_router(runtime_settings_router)
@@ -3266,6 +3268,8 @@ async def privacy_delete(request:Request,db:AsyncSession=Depends(get_db)):
         await db.execute(delete(CustomerPasskey).where(CustomerPasskey.user_id==user.id))
         await db.execute(delete(CustomerPasskeyChallenge).where(CustomerPasskeyChallenge.user_id==user.id))
         await db.execute(delete(AccountMergeAlias).where(AccountMergeAlias.target_user_id==user.id))
+        from .models import TorrentDetection
+        await db.execute(delete(TorrentDetection).where(TorrentDetection.user_id==user.id))
         user.passkey_user_handle=None
         if partner:
             partner.enabled=False

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.14.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.15.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1118**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1125**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -280,6 +280,7 @@
 | [admin/src/tailwind.css](../admin/src/tailwind.css) | Админ-панель |
 | [admin/src/terminal-screen.ts](../admin/src/terminal-screen.ts) | Админ-панель |
 | [admin/src/theme.css](../admin/src/theme.css) | Админ-панель |
+| [admin/src/torrents.tsx](../admin/src/torrents.tsx) | Админ-панель |
 | [admin/tsconfig.json](../admin/tsconfig.json) | Админ-панель |
 | [admin/tsconfig.ui.json](../admin/tsconfig.ui.json) | Админ-панель |
 | [backend/.dockerignore](../backend/.dockerignore) | API, бот и worker |
@@ -358,6 +359,7 @@
 | [backend/alembic/versions/0068_network_intel.py](../backend/alembic/versions/0068_network_intel.py) | API, бот и worker |
 | [backend/alembic/versions/0069_mail_domain.py](../backend/alembic/versions/0069_mail_domain.py) | API, бот и worker |
 | [backend/alembic/versions/0070_node_terminal.py](../backend/alembic/versions/0070_node_terminal.py) | API, бот и worker |
+| [backend/alembic/versions/0071_torrent_detection.py](../backend/alembic/versions/0071_torrent_detection.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -420,6 +422,7 @@
 | [backend/app/support_topology.py](../backend/app/support_topology.py) | API, бот и worker |
 | [backend/app/surveys.py](../backend/app/surveys.py) | API, бот и worker |
 | [backend/app/tariff_api.py](../backend/app/tariff_api.py) | API, бот и worker |
+| [backend/app/torrent_detection.py](../backend/app/torrent_detection.py) | API, бот и worker |
 | [backend/app/totp.py](../backend/app/totp.py) | API, бот и worker |
 | [backend/app/v3_api.py](../backend/app/v3_api.py) | API, бот и worker |
 | [backend/app/v6_api.py](../backend/app/v6_api.py) | API, бот и worker |
@@ -625,6 +628,7 @@
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
+| [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
@@ -645,6 +649,7 @@
 | [docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md](../docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md) | Документация |
 | [docs/ru/SUPPORT_TOPOLOGY_CURRENT.md](../docs/ru/SUPPORT_TOPOLOGY_CURRENT.md) | Документация |
 | [docs/ru/TESTING.md](../docs/ru/TESTING.md) | Документация |
+| [docs/ru/TORRENT_DETECTION_CURRENT.md](../docs/ru/TORRENT_DETECTION_CURRENT.md) | Документация |
 | [docs/ru/UPDATE_TO_CURRENT_20_0_28.md](../docs/ru/UPDATE_TO_CURRENT_20_0_28.md) | Документация |
 | [docs/ru/UPDATE_TO_CURRENT_20_0_29.md](../docs/ru/UPDATE_TO_CURRENT_20_0_29.md) | Документация |
 | [docs/ru/VDS_PRODUCTION_20_0_17.md](../docs/ru/VDS_PRODUCTION_20_0_17.md) | Документация |
@@ -811,29 +816,30 @@
 | [screenshots/admin_panel/37_routing.png](../screenshots/admin_panel/37_routing.png) | Корень проекта |
 | [screenshots/admin_panel/38_capacity.png](../screenshots/admin_panel/38_capacity.png) | Корень проекта |
 | [screenshots/admin_panel/39_orchestrator.png](../screenshots/admin_panel/39_orchestrator.png) | Корень проекта |
-| [screenshots/admin_panel/40_platform.png](../screenshots/admin_panel/40_platform.png) | Корень проекта |
-| [screenshots/admin_panel/41_monitoring.png](../screenshots/admin_panel/41_monitoring.png) | Корень проекта |
-| [screenshots/admin_panel/42_runtimeSettings.png](../screenshots/admin_panel/42_runtimeSettings.png) | Корень проекта |
-| [screenshots/admin_panel/43_features.png](../screenshots/admin_panel/43_features.png) | Корень проекта |
-| [screenshots/admin_panel/44_plugins.png](../screenshots/admin_panel/44_plugins.png) | Корень проекта |
-| [screenshots/admin_panel/45_automation.png](../screenshots/admin_panel/45_automation.png) | Корень проекта |
-| [screenshots/admin_panel/46_workers.png](../screenshots/admin_panel/46_workers.png) | Корень проекта |
-| [screenshots/admin_panel/47_jobs.png](../screenshots/admin_panel/47_jobs.png) | Корень проекта |
-| [screenshots/admin_panel/48_mailDomain.png](../screenshots/admin_panel/48_mailDomain.png) | Корень проекта |
-| [screenshots/admin_panel/49_operations.png](../screenshots/admin_panel/49_operations.png) | Корень проекта |
-| [screenshots/admin_panel/50_releases.png](../screenshots/admin_panel/50_releases.png) | Корень проекта |
-| [screenshots/admin_panel/51_deployments.png](../screenshots/admin_panel/51_deployments.png) | Корень проекта |
-| [screenshots/admin_panel/52_enterprise.png](../screenshots/admin_panel/52_enterprise.png) | Корень проекта |
-| [screenshots/admin_panel/53_intelligence.png](../screenshots/admin_panel/53_intelligence.png) | Корень проекта |
-| [screenshots/admin_panel/54_security.png](../screenshots/admin_panel/54_security.png) | Корень проекта |
-| [screenshots/admin_panel/55_passkeys.png](../screenshots/admin_panel/55_passkeys.png) | Корень проекта |
-| [screenshots/admin_panel/56_admins.png](../screenshots/admin_panel/56_admins.png) | Корень проекта |
-| [screenshots/admin_panel/57_sessions.png](../screenshots/admin_panel/57_sessions.png) | Корень проекта |
-| [screenshots/admin_panel/58_fraud.png](../screenshots/admin_panel/58_fraud.png) | Корень проекта |
-| [screenshots/admin_panel/59_audit.png](../screenshots/admin_panel/59_audit.png) | Корень проекта |
-| [screenshots/admin_panel/60_backups.png](../screenshots/admin_panel/60_backups.png) | Корень проекта |
-| [screenshots/admin_panel/61_recovery.png](../screenshots/admin_panel/61_recovery.png) | Корень проекта |
-| [screenshots/admin_panel/62_command_search.png](../screenshots/admin_panel/62_command_search.png) | Корень проекта |
+| [screenshots/admin_panel/40_torrents.png](../screenshots/admin_panel/40_torrents.png) | Корень проекта |
+| [screenshots/admin_panel/41_platform.png](../screenshots/admin_panel/41_platform.png) | Корень проекта |
+| [screenshots/admin_panel/42_monitoring.png](../screenshots/admin_panel/42_monitoring.png) | Корень проекта |
+| [screenshots/admin_panel/43_runtimeSettings.png](../screenshots/admin_panel/43_runtimeSettings.png) | Корень проекта |
+| [screenshots/admin_panel/44_features.png](../screenshots/admin_panel/44_features.png) | Корень проекта |
+| [screenshots/admin_panel/45_plugins.png](../screenshots/admin_panel/45_plugins.png) | Корень проекта |
+| [screenshots/admin_panel/46_automation.png](../screenshots/admin_panel/46_automation.png) | Корень проекта |
+| [screenshots/admin_panel/47_workers.png](../screenshots/admin_panel/47_workers.png) | Корень проекта |
+| [screenshots/admin_panel/48_jobs.png](../screenshots/admin_panel/48_jobs.png) | Корень проекта |
+| [screenshots/admin_panel/49_mailDomain.png](../screenshots/admin_panel/49_mailDomain.png) | Корень проекта |
+| [screenshots/admin_panel/50_operations.png](../screenshots/admin_panel/50_operations.png) | Корень проекта |
+| [screenshots/admin_panel/51_releases.png](../screenshots/admin_panel/51_releases.png) | Корень проекта |
+| [screenshots/admin_panel/52_deployments.png](../screenshots/admin_panel/52_deployments.png) | Корень проекта |
+| [screenshots/admin_panel/53_enterprise.png](../screenshots/admin_panel/53_enterprise.png) | Корень проекта |
+| [screenshots/admin_panel/54_intelligence.png](../screenshots/admin_panel/54_intelligence.png) | Корень проекта |
+| [screenshots/admin_panel/55_security.png](../screenshots/admin_panel/55_security.png) | Корень проекта |
+| [screenshots/admin_panel/56_passkeys.png](../screenshots/admin_panel/56_passkeys.png) | Корень проекта |
+| [screenshots/admin_panel/57_admins.png](../screenshots/admin_panel/57_admins.png) | Корень проекта |
+| [screenshots/admin_panel/58_sessions.png](../screenshots/admin_panel/58_sessions.png) | Корень проекта |
+| [screenshots/admin_panel/59_fraud.png](../screenshots/admin_panel/59_fraud.png) | Корень проекта |
+| [screenshots/admin_panel/60_audit.png](../screenshots/admin_panel/60_audit.png) | Корень проекта |
+| [screenshots/admin_panel/61_backups.png](../screenshots/admin_panel/61_backups.png) | Корень проекта |
+| [screenshots/admin_panel/62_recovery.png](../screenshots/admin_panel/62_recovery.png) | Корень проекта |
+| [screenshots/admin_panel/63_command_search.png](../screenshots/admin_panel/63_command_search.png) | Корень проекта |
 | [screenshots/storefront_user/01_login.png](../screenshots/storefront_user/01_login.png) | Корень проекта |
 | [screenshots/storefront_user/02_register.png](../screenshots/storefront_user/02_register.png) | Корень проекта |
 | [screenshots/storefront_user/03_overview.png](../screenshots/storefront_user/03_overview.png) | Корень проекта |
@@ -1047,6 +1053,7 @@
 | [tests/test_support_postgres.py](../tests/test_support_postgres.py) | Проверки |
 | [tests/test_support_topology.py](../tests/test_support_topology.py) | Проверки |
 | [tests/test_surveys.py](../tests/test_surveys.py) | Проверки |
+| [tests/test_torrent_detection.py](../tests/test_torrent_detection.py) | Проверки |
 | [tests/test_unified_workspace.py](../tests/test_unified_workspace.py) | Проверки |
 | [tests/test_v15_production.py](../tests/test_v15_production.py) | Проверки |
 | [tests/test_v16_v19_release.py](../tests/test_v16_v19_release.py) | Проверки |

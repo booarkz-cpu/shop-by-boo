@@ -1,6 +1,6 @@
-# Каталог API — v28.14.0 / API v21.5.1
+# Каталог API — v28.15.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0070_node_terminal`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0071_torrent_detection`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -191,6 +191,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/platform/plugins/{key}` | Toggle Plugin |
 | `PUT` | `/api/admin/platform/policy` | Save Policy |
 | `GET` | `/api/admin/platform/summary` | Platform Summary |
+| `GET` | `/api/admin/platform/torrents` | Admin Torrents |
+| `POST` | `/api/admin/platform/torrents/notify` | Admin Torrents Notify |
 | `POST` | `/api/admin/platform/violations/{violation_id}/review` | Review Violation |
 | `POST` | `/api/admin/platform/webhooks` | Create Webhook |
 | `GET` | `/api/admin/plugins` | Admin Plugins |
@@ -347,6 +349,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/agent/terminal/pending` | Agent Terminal Pending |
 | `GET` | `/api/agent/terminal/{sid}/input` | Agent Terminal Input |
 | `POST` | `/api/agent/terminal/{sid}/output` | Agent Terminal Output |
+| `POST` | `/api/agent/torrent` | Agent Torrent |
 | `POST` | `/api/auth/email/verification/confirm` | Confirm Verification |
 | `POST` | `/api/auth/exchange` | Auth Exchange |
 | `POST` | `/api/auth/login` | Auth Login |
