@@ -61,6 +61,11 @@ class Settings(BaseSettings):
 
     # ---------- Админ-панель ----------
     customer_webauthn_origin: str = Field(default="", alias="CUSTOMER_WEBAUTHN_ORIGIN")
+    # Native passkeys in the customer apps: the cabinet domain publishes
+    # /.well-known/assetlinks.json and apple-app-site-association from these values.
+    android_user_package: str = Field(default="shop.remnawave.user", alias="ANDROID_USER_PACKAGE")
+    android_user_cert_sha256: str = Field(default="", alias="ANDROID_USER_CERT_SHA256")
+    ios_user_app_id: str = Field(default="", alias="IOS_USER_APP_ID")
     webauthn_origin: str = Field(default="", alias="WEBAUTHN_ORIGIN")
     admin_email: str = Field(default="admin@example.com", alias="ADMIN_EMAIL")
     admin_password: str = Field(default="change-me", alias="ADMIN_PASSWORD")

@@ -5,7 +5,7 @@ MAIN=(ROOT/'backend/app/main.py').read_text()
 MODELS=(ROOT/'backend/app/models.py').read_text()
 SEC=(ROOT/'backend/app/security.py').read_text()
 MAN=(ROOT/'release-manifest.template.json').read_text()
-# Menu labels live in the section map since v28.10.0.
+# Menu labels live in the section map since v28.11.0.
 ADMIN=(ROOT/'admin/src/main.tsx').read_text()+(ROOT/'admin/src/passkeys.tsx').read_text()+(ROOT/'admin/src/sections.ts').read_text()
 
 

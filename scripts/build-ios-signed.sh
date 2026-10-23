@@ -62,7 +62,8 @@ PY
   xcodebuild -project "$ROOT/mobile/ios-$role/$project.xcodeproj" -scheme "$project" \
     -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
     -archivePath "$WORK/$project.xcarchive" CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Manual \
-    CODE_SIGN_IDENTITY="$IDENTITY" DEVELOPMENT_TEAM="$IOS_TEAM_ID" PROVISIONING_PROFILE_SPECIFIER="$UUID" archive
+    CODE_SIGN_IDENTITY="$IDENTITY" DEVELOPMENT_TEAM="$IOS_TEAM_ID" PROVISIONING_PROFILE_SPECIFIER="$UUID" \
+    CORGI_ASSOCIATED_DOMAIN="${CORGI_ASSOCIATED_DOMAIN:-cabinet.example.com}" archive
   xcodebuild -exportArchive -archivePath "$WORK/$project.xcarchive" \
     -exportOptionsPlist "$WORK/export.plist" -exportPath "$WORK/export-$role"
   ipa="$WORK/export-$role/$project.ipa"

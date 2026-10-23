@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.10.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.11.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1090**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1094**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -583,6 +583,7 @@
 | [docs/ru/MENU_TREE_CURRENT.md](../docs/ru/MENU_TREE_CURRENT.md) | Документация |
 | [docs/ru/MOBILE_GUIDE.md](../docs/ru/MOBILE_GUIDE.md) | Документация |
 | [docs/ru/MOBILE_RELEASE_2_14_1.md](../docs/ru/MOBILE_RELEASE_2_14_1.md) | Документация |
+| [docs/ru/NATIVE_PASSKEYS_CURRENT.md](../docs/ru/NATIVE_PASSKEYS_CURRENT.md) | Документация |
 | [docs/ru/NETWORK_INTEL_CURRENT.md](../docs/ru/NETWORK_INTEL_CURRENT.md) | Документация |
 | [docs/ru/OPERATIONS_MONITORING.md](../docs/ru/OPERATIONS_MONITORING.md) | Документация |
 | [docs/ru/PARTNERS_CURRENT.md](../docs/ru/PARTNERS_CURRENT.md) | Документация |
@@ -611,6 +612,7 @@
 | [docs/ru/RELEASE_V27.md](../docs/ru/RELEASE_V27.md) | Документация |
 | [docs/ru/RELEASE_V28.md](../docs/ru/RELEASE_V28.md) | Документация |
 | [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
+| [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
@@ -721,6 +723,7 @@
 | [mobile/android-user/app/src/main/AndroidManifest.xml](../mobile/android-user/app/src/main/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/assets/l10n.json](../mobile/android-user/app/src/main/assets/l10n.json) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt) | Мобильные приложения |
@@ -996,6 +999,7 @@
 | [tests/test_menu_hierarchy.py](../tests/test_menu_hierarchy.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
 | [tests/test_multiple_subscriptions.py](../tests/test_multiple_subscriptions.py) | Проверки |
+| [tests/test_native_passkeys.py](../tests/test_native_passkeys.py) | Проверки |
 | [tests/test_network_intel.py](../tests/test_network_intel.py) | Проверки |
 | [tests/test_observability.py](../tests/test_observability.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |

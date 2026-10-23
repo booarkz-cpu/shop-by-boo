@@ -1,7 +1,16 @@
-"""Customer WebAuthn: exact cabinet origin, UV and single-use DB challenges."""
+"""Customer WebAuthn: exact cabinet origin, UV and single-use DB challenges.
+
+Native customer apps use the same ceremonies. They send no browser Origin and
+keep no cookies, so the challenge binding travels in a header, the expected
+origin is the app's own (Android `android:apk-key-hash:...`, iOS the cabinet
+origin through associated domains) and a successful login returns the
+PKCE-bound authorization code used by native password sign-in.
+"""
+import base64
 import hashlib
 import hmac
 import json
+import re
 import secrets
 from datetime import datetime, timedelta
 
@@ -25,8 +34,10 @@ from .security import decode_token, verify_password
 
 router = APIRouter(prefix='/api/auth/passkeys', tags=['customer-passkeys'])
 COOKIE = 'rw_customer_passkey'
+BINDING_HEADER = 'x-shop-passkey-binding'
 PATH = '/api/auth/passkeys'
 TTL = 300
+NATIVE_CLIENTS = frozenset({'android-user', 'ios-user'})
 
 
 class RegisterIn(BaseModel):
@@ -35,13 +46,58 @@ class RegisterIn(BaseModel):
     name: str = Field(default='Мой ключ', min_length=1, max_length=100)
 
 
+def native_client(request) -> str:
+    from .mobile_auth import mobile_client_name
+    name = mobile_client_name(request)
+    return name if name in NATIVE_CLIENTS else ''
+
+
+def android_origins(fingerprints: str) -> list[str]:
+    """`android:apk-key-hash:` origins from SHA-256 signing-certificate fingerprints."""
+    values = []
+    for item in (fingerprints or '').split(','):
+        hex_digits = item.strip().replace(':', '')
+        if not hex_digits:
+            continue
+        if not re.fullmatch(r'[0-9A-Fa-f]{64}', hex_digits):
+            raise HTTPException(503, 'ANDROID_USER_CERT_SHA256 must list SHA-256 certificate fingerprints')
+        digest = bytes.fromhex(hex_digits)
+        values.append('android:apk-key-hash:' + base64.urlsafe_b64encode(digest).decode().rstrip('='))
+    return values
+
+
 def origin(request):
-    from .mobile_auth import require_mobile_proof
+    """Returns the RP ID and the origins accepted for this caller."""
+    from .mobile_auth import require_mobile_proof, require_native_transport
     require_mobile_proof(request)
     rp_id, value = rp_config(settings.customer_webauthn_origin)
+    client = native_client(request)
+    if client:
+        require_native_transport(request)
+        if client == 'android-user':
+            allowed = android_origins(settings.android_user_cert_sha256)
+            if not allowed:
+                raise HTTPException(503, 'Native passkeys need ANDROID_USER_CERT_SHA256')
+            return rp_id, allowed
+        if not ios_app_id():
+            raise HTTPException(503, 'Native passkeys need IOS_USER_APP_ID or APNS_TEAM_ID')
+        # iOS reports the associated web origin of the relying party.
+        return rp_id, value
     if request.headers.get('origin') != value:
         raise HTTPException(403, 'Customer WebAuthn origin denied')
     return rp_id, value
+
+
+def ios_app_id() -> str:
+    if settings.ios_user_app_id.strip():
+        return settings.ios_user_app_id.strip()
+    if settings.apns_team_id.strip():
+        return f'{settings.apns_team_id.strip()}.{settings.apns_bundle_id.strip() or "shop.remnawave.user"}'
+    return ''
+
+
+def presented_binding(request) -> str:
+    return request.headers.get(BINDING_HEADER, '') if native_client(request) else request.cookies.get(COOKIE, '')
 
 
 def auth_state(user):
@@ -78,7 +134,7 @@ async def reauthenticate(db, request, user, password):
             raise HTTPException(401, 'Sign in again before registering or deleting a passkey')
 
 
-async def challenge(db, response, options, purpose, user=None, context=None):
+async def challenge(db, request, response, options, purpose, user=None, context=None):
     await db.execute(delete(CustomerPasskeyChallenge).where(CustomerPasskeyChallenge.expires_at < datetime.utcnow()))
     ticket, binding = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
     db.add(CustomerPasskeyChallenge(ticket_hash=hashlib.sha256(ticket.encode()).hexdigest(),
@@ -87,13 +143,19 @@ async def challenge(db, response, options, purpose, user=None, context=None):
         context=context or {}, expires_at=datetime.utcnow()+timedelta(seconds=TTL)))
     await db.commit()
     response.headers['Cache-Control'] = 'no-store'
-    response.set_cookie(COOKIE, binding, httponly=True, secure=settings.cookie_secure,
-        samesite=settings.cookie_samesite, max_age=TTL, path=PATH)
-    return {'ticket': ticket, 'options': json.loads(options_to_json(options))}
+    body = {'ticket': ticket, 'options': json.loads(options_to_json(options))}
+    if native_client(request):
+        # No cookie jar in the native HTTP client: the app keeps the binding in
+        # memory for this one ceremony and returns it in a header.
+        body['binding'] = binding
+    else:
+        response.set_cookie(COOKIE, binding, httponly=True, secure=settings.cookie_secure,
+            samesite=settings.cookie_samesite, max_age=TTL, path=PATH)
+    return body
 
 
 async def consume(db, request, payload, purpose, user_id=None):
-    binding = request.cookies.get(COOKIE, '')
+    binding = presented_binding(request)
     saved = (await db.execute(delete(CustomerPasskeyChallenge).where(
         CustomerPasskeyChallenge.ticket_hash == hashlib.sha256(payload.ticket.encode()).hexdigest(),
         CustomerPasskeyChallenge.binding_hash == hashlib.sha256(binding.encode()).hexdigest(),
@@ -128,7 +190,7 @@ async def registration_options(payload: RegisterIn, request: Request, response: 
         authenticator_selection=AuthenticatorSelectionCriteria(resident_key=ResidentKeyRequirement.REQUIRED,
             require_resident_key=True, user_verification=UserVerificationRequirement.REQUIRED),
         exclude_credentials=[PublicKeyCredentialDescriptor(id=base64url_to_bytes(x.credential_id)) for x in rows])
-    return await challenge(db, response, options, 'registration', user,
+    return await challenge(db, request, response, options, 'registration', user,
         {'name': name, 'auth_state': auth_state(user)})
 
 
@@ -164,7 +226,8 @@ async def registration_verify(payload: VerifyIn, request: Request, response: Res
     except IntegrityError:
         await db.rollback()
         raise HTTPException(409, 'Passkey already registered')
-    response.delete_cookie(COOKIE, path=PATH)
+    if not native_client(request):
+        response.delete_cookie(COOKIE, path=PATH)
     response.headers['Cache-Control'] = 'no-store'
     return {'ok': True, 'id': row.id}
 
@@ -174,13 +237,19 @@ async def login_options(request: Request, response: Response, db: AsyncSession =
     rp_id, _ = origin(request)
     await ensure_enabled(db)
     options = generate_authentication_options(rp_id=rp_id, user_verification=UserVerificationRequirement.REQUIRED)
-    return await challenge(db, response, options, 'authentication')
+    return await challenge(db, request, response, options, 'authentication')
 
 
 @router.post('/login/verify')
 async def login_verify(payload: VerifyIn, request: Request, response: Response, db: AsyncSession = Depends(get_db)):
     from .main import audit, create_user_session, _set_auth_cookies
     rp_id, expected_origin = origin(request)
+    client = native_client(request)
+    if client:
+        # Checked before the single-use challenge is spent: a native sign-in
+        # must end in a PKCE-bound code, never in a bare token.
+        from .mobile_auth import require_pkce_challenge
+        require_pkce_challenge(request)
     await ensure_enabled(db)
     saved = await consume(db, request, payload, 'authentication')
     identifier = payload.credential.get('id')
@@ -207,13 +276,19 @@ async def login_verify(payload: VerifyIn, request: Request, response: Response, 
         raise HTTPException(401, 'Passkey authentication verification failed')
     row.sign_count = verified.new_sign_count
     row.last_used_at = datetime.utcnow()
-    await audit(db, 'customer.passkey_login', f'user:{user.id}', str(row.id))
+    await audit(db, 'customer.passkey_login', f'user:{user.id}', str(row.id),
+        {'client': client or 'web'})
     token = await create_user_session(db, user, request)
+    response.headers['Cache-Control'] = 'no-store'
+    if client:
+        # Same contract as native password sign-in: a one-use code bound to the
+        # app's PKCE verifier, exchanged at /api/auth/mobile/token.
+        from .mobile_auth import session_body
+        return session_body(request, token, {'ok': True, 'auth_method': 'passkey'})
     response.set_cookie('rw_user', token, httponly=True, secure=settings.cookie_secure,
         samesite=settings.cookie_samesite, max_age=3600)
     response.delete_cookie(COOKIE, path=PATH)
     _set_auth_cookies(response, token)
-    response.headers['Cache-Control'] = 'no-store'
     return {'ok': True, 'auth_method': 'passkey'}
 
 
@@ -238,3 +313,37 @@ async def remove(credential_id: int, payload: RegisterIn, request: Request,
     await audit(db, 'customer.passkey_deleted', f'user:{user.id}', str(row.id))
     await db.commit()
     return {'ok': True}
+
+
+# ---------------------------------------------------------------- app association
+# Served on the cabinet domain (the WebAuthn RP ID) so Android Credential Manager
+# and iOS AuthenticationServices accept the shop's apps for this relying party.
+well_known = APIRouter(tags=['customer-passkeys'])
+
+
+def _association_headers(response: Response):
+    response.headers['Cache-Control'] = 'public, max-age=3600'
+
+
+@well_known.get('/.well-known/assetlinks.json')
+async def assetlinks(response: Response):
+    fingerprints = []
+    for item in (settings.android_user_cert_sha256 or '').split(','):
+        digits = item.strip().replace(':', '').upper()
+        if re.fullmatch(r'[0-9A-F]{64}', digits):
+            fingerprints.append(':'.join(digits[i:i + 2] for i in range(0, 64, 2)))
+    _association_headers(response)
+    if not fingerprints:
+        return []
+    return [{
+        'relation': ['delegate_permission/common.handle_all_urls', 'delegate_permission/common.get_login_creds'],
+        'target': {'namespace': 'android_app', 'package_name': settings.android_user_package.strip() or 'shop.remnawave.user',
+                   'sha256_cert_fingerprints': fingerprints},
+    }]
+
+
+@well_known.get('/.well-known/apple-app-site-association')
+async def apple_app_site_association(response: Response):
+    app_id = ios_app_id()
+    _association_headers(response)
+    return {'webcredentials': {'apps': [app_id] if app_id else []}}

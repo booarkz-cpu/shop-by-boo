@@ -1,4 +1,4 @@
-# Матрица функций и критерии завершения — дистрибутив v28.10.0
+# Матрица функций и критерии завершения — дистрибутив v28.11.0
 
 Этот документ завершает **описание** функциональной матрицы: у каждой открытой области есть владелец проверки, обязательный сценарий и условие, после которого статус можно повысить. Он не подменяет отсутствующую реализацию и не объявляет внешнюю production-проверку выполненной.
 
@@ -21,7 +21,7 @@
 | Remnawave | [Коммерческие операции](WORKSPACE_COMMERCE.md), [production](PRODUCTION_CURRENT.md) | Выдача, продление, смена тарифа, трафик и отзыв на отдельном стенде | Открыто |
 | SMTP | [Безопасность аккаунта](WORKSPACE_ACCOUNT_SECURITY.md), [опросы](WORKSPACE_SURVEYS.md) | Доставка, одноразовость ссылок, истечение, bounce/error и отсутствие секрета в логах | Открыто |
 | Backup/restore | [Регламент](BACKUP_CURRENT.md) | Восстановление двух БД и файлов на чистом стенде с проверкой health и контрольных записей | Открыто для конкретной установки |
-| WebAuthn | [Администратор](ADMIN_PASSKEYS.md), [клиент](CUSTOMER_PASSKEYS_CURRENT.md) | Регистрация и вход через HTTPS для целевых браузеров; проверка отказов origin/RP/UV/replay | Browser реализован; native открыт |
+| WebAuthn | [Администратор](ADMIN_PASSKEYS.md), [клиент](CUSTOMER_PASSKEYS_CURRENT.md) | Регистрация и вход через HTTPS для целевых браузеров; проверка отказов origin/RP/UV/replay | Есть: браузер, админка и приложения Android/iOS ([приложения](NATIVE_PASSKEYS_CURRENT.md)); проверка системного окна на устройствах — у оператора |
 | Android/iOS | [Мобильные приложения](MOBILE_GUIDE.md), [релиз пакетов](MOBILE_RELEASE_2_14_1.md) | Сборка из тега, постоянная подпись владельца, checksum и smoke-test установки | Открыто для новых production-бинарников |
 | Визуальная приёмка | [Локальная проверка](TESTING.md), [финальная готовность](FINAL_RELEASE_READINESS.md) | Desktop/mobile viewport, клавиатура, ошибки форм, RU/EN и критические пользовательские пути на устройствах владельца, включая клиенты Telegram iOS/Android/Desktop/Web | Автоматическая часть выполнена (Chromium desktop/390 px под production CSP, имитация Telegram WebApp); ручная приёмка открыта |
 
@@ -33,6 +33,12 @@
 | nDPI/BitTorrent/DHT/uTP | Heartbeat и общие наблюдения | Отдельный агент захвата, нормализация, retention, приватность, сигнатуры и безопасное обновление | Нагрузка, ложные срабатывания, шифрование, удаление и opt-out |
 | Терминал/snippets/shaping | Узловое управление и API-инфраструктура | Изолированный execution broker, краткоживущие полномочия, allowlist команд, лимиты и полный аудит | Побег из sandbox, обрыв сессии, повтор, RBAC, журнал без секретов |
 | MX/SPF/DMARC | Исходящий SMTP и DKIM | Приём почты, очереди, антиспам, DNS-проверки, отчёты и retention | Spoofing, oversized mail, malware path, bounce loop, privacy deletion |
+
+## Закрыто в v28.11.0
+
+| Область | Реализация | Доказательство в исходниках |
+| --- | --- | --- |
+| Native passkeys (из строки «WebAuthn/passkeys/биометрия») | Нативный режим `customer_passkeys.py`: происхождение `android:apk-key-hash` по `ANDROID_USER_CERT_SHA256` и адрес кабинета для iOS, привязка challenge заголовком, PKCE-код после входа, отказ браузерному `Origin`; `/.well-known/assetlinks.json` и `apple-app-site-association`; Android Credential Manager (`passkey/CorgiPasskeys.kt`), iOS AuthenticationServices (`PasskeyCeremony`) | `tests/test_native_passkeys.py` (SQLite и PostgreSQL, реальные подписи ECDSA), сборки Android/iOS в CI |
 
 ## Закрыто в v28.9.0
 
@@ -85,7 +91,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 153 поля классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
+| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 156 полей классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
 
 Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
 

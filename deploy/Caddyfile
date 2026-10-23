@@ -64,6 +64,13 @@
     }
 
     encode zstd gzip
+    # App association for native passkeys (Android assetlinks, iOS webcredentials).
+    handle /.well-known/assetlinks.json {
+        reverse_proxy {$BACKEND_UPSTREAM:backend:8000}
+    }
+    handle /.well-known/apple-app-site-association {
+        reverse_proxy {$BACKEND_UPSTREAM:backend:8000}
+    }
     handle /api/* {
         reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
             header_up X-Forwarded-For {remote_host}

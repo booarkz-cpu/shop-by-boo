@@ -1,3 +1,4 @@
+import AuthenticationServices
 import CryptoKit
 import Security
 import SwiftUI
@@ -97,8 +98,9 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         completionHandler(nil)
     }
 
-    func call(_ method: String, _ path: String, body: [String: Any]? = nil, idempotency: String? = nil) throws -> Any {
-        let verifier: String? = try (["/api/auth/login", "/api/auth/register", "/api/admin/auth/login"].contains(path) ? pkceVerifier() : nil)
+    func call(_ method: String, _ path: String, body: [String: Any]? = nil, idempotency: String? = nil, headers: [String: String] = [:]) throws -> Any {
+        // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
+        let verifier: String? = try (["/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify"].contains(path) ? pkceVerifier() : nil)
         var request = URLRequest(url: URL(string: base + path)!)
         if let verifier { request.setValue(pkceChallenge(verifier), forHTTPHeaderField: "X-Shop-Code-Challenge") }
         request.httpMethod = method
@@ -112,6 +114,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
 
         if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
         if let idempotency { request.setValue(idempotency, forHTTPHeaderField: "Idempotency-Key") }
+        for (name, value) in headers { request.setValue(value, forHTTPHeaderField: name) }
         if let body {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
@@ -304,5 +307,147 @@ final class PushAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         DispatchQueue.main.async { PushCenter.shared.openNotifications = true }
         completionHandler()
+    }
+}
+
+
+// MARK: - Passkeys
+
+func base64url(_ data: Data) -> String {
+    data.base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+}
+
+func base64urlData(_ text: String) -> Data? {
+    var value = text.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+    while value.count % 4 != 0 { value += "=" }
+    return Data(base64Encoded: value)
+}
+
+enum PasskeyError: LocalizedError {
+    case cancelled, noPasskey, invalidOptions, failed(String)
+    var errorDescription: String? {
+        switch self {
+        case .cancelled: return "cancelled"
+        case .noPasskey: return "no passkey"
+        case .invalidOptions: return "invalid passkey options"
+        case .failed(let message): return message
+        }
+    }
+}
+
+/// One AuthenticationServices ceremony. The cabinet domain is the relying party:
+/// it publishes apple-app-site-association with `webcredentials` for this app, the
+/// app lists `webcredentials:<cabinet domain>` in its associated domains, and iOS
+/// signs with the cabinet origin that the server accepts.
+/// `run` blocks the calling background thread until the system sheet finishes.
+final class PasskeyCeremony: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    private var result: Result<[String: Any], Error> = .failure(PasskeyError.cancelled)
+    private let done = DispatchSemaphore(value: 0)
+    private var controller: ASAuthorizationController?
+
+    static func assertion(options: [String: Any]) throws -> [String: Any] {
+        guard let rpId = options["rpId"] as? String, let challenge = base64urlData(options["challenge"] as? String ?? "") else {
+            throw PasskeyError.invalidOptions
+        }
+        let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
+        let request = provider.createCredentialAssertionRequest(challenge: challenge)
+        request.userVerificationPreference = .required
+        let allowed = (options["allowCredentials"] as? [[String: Any]] ?? []).compactMap { base64urlData($0["id"] as? String ?? "") }
+        if !allowed.isEmpty { request.allowedCredentials = allowed.map { ASAuthorizationPlatformPublicKeyCredentialDescriptor(credentialID: $0) } }
+        return try PasskeyCeremony().run(request)
+    }
+
+    static func registration(options: [String: Any]) throws -> [String: Any] {
+        guard let rp = options["rp"] as? [String: Any], let rpId = rp["id"] as? String,
+              let user = options["user"] as? [String: Any], let userID = base64urlData(user["id"] as? String ?? ""),
+              let challenge = base64urlData(options["challenge"] as? String ?? "") else {
+            throw PasskeyError.invalidOptions
+        }
+        let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
+        let request = provider.createCredentialRegistrationRequest(challenge: challenge, name: user["name"] as? String ?? "VPN Shop", userID: userID)
+        request.userVerificationPreference = .required
+        return try PasskeyCeremony().run(request)
+    }
+
+    private func run(_ request: ASAuthorizationRequest) throws -> [String: Any] {
+        DispatchQueue.main.async {
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = self
+            controller.presentationContextProvider = self
+            self.controller = controller  // kept alive until the delegate answers
+            controller.performRequests()
+        }
+        done.wait()
+        return try result.get()
+    }
+
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        return scenes.flatMap { $0.windows }.first { $0.isKeyWindow } ?? ASPresentationAnchor()
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let assertion = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialAssertion {
+            let id = base64url(assertion.credentialID)
+            result = .success(["id": id, "rawId": id, "type": "public-key", "response": [
+                "clientDataJSON": base64url(assertion.rawClientDataJSON),
+                "authenticatorData": base64url(assertion.rawAuthenticatorData),
+                "signature": base64url(assertion.signature),
+                "userHandle": base64url(assertion.userID),
+            ]])
+        } else if let registration = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialRegistration,
+                  let attestation = registration.rawAttestationObject {
+            let id = base64url(registration.credentialID)
+            result = .success(["id": id, "rawId": id, "type": "public-key", "response": [
+                "clientDataJSON": base64url(registration.rawClientDataJSON),
+                "attestationObject": base64url(attestation),
+            ]])
+        } else {
+            result = .failure(PasskeyError.failed("passkey"))
+        }
+        done.signal()
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        let code = (error as? ASAuthorizationError)?.code
+        result = .failure(code == .canceled ? PasskeyError.cancelled : PasskeyError.failed(error.localizedDescription))
+        done.signal()
+    }
+}
+
+/// Server side of the passkey flows; the challenge binding stays in memory for one ceremony.
+enum ShopPasskeys {
+    static func signIn(base: String, lang: String) throws -> String {
+        let api = ShopClient(base: base, token: "", lang: lang)
+        guard let start = try api.call("POST", "/api/auth/passkeys/login/options", body: [:]) as? [String: Any],
+              let options = start["options"] as? [String: Any], let ticket = start["ticket"] as? String,
+              let binding = start["binding"] as? String else { throw PasskeyError.invalidOptions }
+        let credential = try PasskeyCeremony.assertion(options: options)
+        let result = try api.call("POST", "/api/auth/passkeys/login/verify", body: ["ticket": ticket, "credential": credential],
+                                  headers: ["X-Shop-Passkey-Binding": binding]) as? [String: Any]
+        guard let token = result?["access_token"] as? String, !token.isEmpty else { throw PasskeyError.failed("HTTP") }
+        return token
+    }
+
+    static func register(base: String, session: String, lang: String, password: String, name: String) throws {
+        let api = ShopClient(base: base, token: session, lang: lang)
+        var body: [String: Any] = ["name": name]
+        if !password.isEmpty { body["password"] = password }
+        guard let start = try api.call("POST", "/api/auth/passkeys/registration/options", body: body) as? [String: Any],
+              let options = start["options"] as? [String: Any], let ticket = start["ticket"] as? String,
+              let binding = start["binding"] as? String else { throw PasskeyError.invalidOptions }
+        let credential = try PasskeyCeremony.registration(options: options)
+        _ = try api.call("POST", "/api/auth/passkeys/registration/verify", body: ["ticket": ticket, "credential": credential],
+                         headers: ["X-Shop-Passkey-Binding": binding])
+    }
+
+    static func list(base: String, session: String, lang: String) throws -> [[String: Any]] {
+        try ShopClient(base: base, token: session, lang: lang).call("GET", "/api/auth/passkeys") as? [[String: Any]] ?? []
+    }
+
+    static func delete(base: String, session: String, lang: String, id: Int, password: String) throws {
+        var body: [String: Any] = [:]
+        if !password.isEmpty { body["password"] = password }
+        _ = try ShopClient(base: base, token: session, lang: lang).call("POST", "/api/auth/passkeys/\(id)/delete", body: body)
     }
 }

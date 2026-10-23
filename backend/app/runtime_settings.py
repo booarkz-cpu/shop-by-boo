@@ -204,6 +204,8 @@ def _restart_reason(key: str) -> str:
         return "Параметр определяет идентичность или режим процесса и проверяется до запуска."
     if key in {"network_intel_enabled", "abuseipdb_api_key"}:
         return "Источник сетевой аналитики настраивается в .env и применяется после restart worker; ключ AbuseIPDB не хранится в БД."
+    if key in {"android_user_package", "android_user_cert_sha256", "ios_user_app_id"}:
+        return "Привязка приложений к домену кабинета для passkeys публикуется в /.well-known; меняется через .env и restart backend."
     if key.startswith("fcm_") or key.startswith("apns_"):
         return "Ключ провайдера push — секрет сервера; меняется через .env и restart worker, не хранится в БД."
     if key == "default_currency":

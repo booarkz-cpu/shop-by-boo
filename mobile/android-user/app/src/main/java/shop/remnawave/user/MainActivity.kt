@@ -55,6 +55,7 @@ import java.util.concurrent.Executors
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.concurrent.thread
+import shop.remnawave.user.passkey.CorgiPasskeys
 import shop.remnawave.user.push.CorgiPush
 import shop.remnawave.user.widget.CorgiWidgetData
 
@@ -202,11 +203,13 @@ fun publicNode(row: JSONObject): JSONObject {
 }
 
 class ShopApi(private val base: String, private val token: String, private val lang: String) {
-    fun get(path: String): Any = call("GET", path, null, null)
-    fun post(path: String, body: JSONObject, idempotency: String? = null): Any = call("POST", path, body, idempotency)
+    fun get(path: String): Any = call("GET", path, null, null, emptyMap())
+    fun post(path: String, body: JSONObject, idempotency: String? = null, headers: Map<String, String> = emptyMap()): Any =
+        call("POST", path, body, idempotency, headers)
 
-    private fun call(method: String, path: String, body: JSONObject?, idempotency: String?): Any {
-        val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login")) pkceVerifier() else null
+    private fun call(method: String, path: String, body: JSONObject?, idempotency: String?, headers: Map<String, String>): Any {
+        // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
+        val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify")) pkceVerifier() else null
         val connection = (URL(base + path).openConnection() as HttpURLConnection).apply {
             requestMethod = method
             instanceFollowRedirects = false
@@ -222,6 +225,7 @@ class ShopApi(private val base: String, private val token: String, private val l
 
             if (token.isNotBlank()) setRequestProperty("Authorization", "Bearer $token")
             if (idempotency != null) setRequestProperty("Idempotency-Key", idempotency)
+            headers.forEach { (name, value) -> setRequestProperty(name, value) }
             if (body != null) {
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json")
@@ -293,6 +297,8 @@ private fun UserApp(initialTab: String = "overview") {
     var unlocked by remember { mutableStateOf(token.isBlank()) }
     var pushEnabled by remember { mutableStateOf(CorgiPush.enabled(context)) }
     var widgetEnabled by remember { mutableStateOf(CorgiWidgetData.enabled(context)) }
+    var passkeys by remember { mutableStateOf(JSONArray()) }
+    var passkeyPassword by remember { mutableStateOf("") }
     DisposableEffect(activity) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) unlocked = false
@@ -470,6 +476,22 @@ private fun UserApp(initialTab: String = "overview") {
                         activity.runOnUiThread { saveSession(normalized, issued) }
                     }
                 }, enabled = !busy) { Text(t("sign_up")) }
+                // Discoverable passkey: no email or password needed, only the shop address.
+                TextButton(onClick = {
+                    val normalized = try { normalizeBase(base) } catch (_: Exception) { notice = t("https_required"); return@TextButton }
+                    work {
+                        val issued = try {
+                            CorgiPasskeys.signIn(activity, normalized, lang)
+                        } catch (_: CorgiPasskeys.Cancelled) {
+                            activity.runOnUiThread { notice = t("passkey_cancelled") }
+                            return@work
+                        } catch (_: CorgiPasskeys.NoPasskey) {
+                            throw IllegalStateException(t("passkey_none"))
+                        }
+                        tokenStore.write(issued, normalized)
+                        activity.runOnUiThread { saveSession(normalized, issued) }
+                    }
+                }, enabled = !busy) { Text(t("passkey_sign_in")) }
             } else if (!unlocked) {
                 Button(onClick = { promptUnlock(activity, t("unlock")) { unlocked = it } }) { Text(t("unlock")) }
                 TextButton(onClick = { signOut() }) { Text(t("sign_out")) }
@@ -680,6 +702,42 @@ private fun UserApp(initialTab: String = "overview") {
                                 work { CorgiWidgetData.refresh(context) }
                             }) { Text(t("widget_enable")) }
                         }
+                        Text(t("passkeys"), style = MaterialTheme.typography.titleMedium)
+                        Text(t("passkeys_hint"), color = Color(0xFFA4AFD0))
+                        LaunchedEffect(tab, token) {
+                            if (tab == "security" && token.isNotBlank()) work {
+                                val rows = CorgiPasskeys.list(base, token, lang)
+                                activity.runOnUiThread { passkeys = rows }
+                            }
+                        }
+                        for (i in 0 until passkeys.length()) {
+                            val key = passkeys.getJSONObject(i)
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(key.optString("name"))
+                                TextButton(enabled = !busy, onClick = {
+                                    work {
+                                        CorgiPasskeys.delete(base, token, lang, key.optInt("id"), passkeyPassword)
+                                        val rows = CorgiPasskeys.list(base, token, lang)
+                                        activity.runOnUiThread { passkeys = rows; passkeyPassword = ""; notice = t("passkey_deleted") }
+                                    }
+                                }) { Text(t("passkey_delete")) }
+                            }
+                        }
+                        if (passkeys.length() == 0) Text(t("passkeys_empty"), color = Color(0xFFA4AFD0))
+                        OutlinedTextField(passkeyPassword, { passkeyPassword = it }, label = { Text(t("current_password")) },
+                            visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
+                        Button(enabled = !busy, onClick = {
+                            work {
+                                try {
+                                    CorgiPasskeys.register(activity, base, token, lang, passkeyPassword, android.os.Build.MODEL.take(60).ifBlank { "Android" })
+                                } catch (_: CorgiPasskeys.Cancelled) {
+                                    activity.runOnUiThread { notice = t("passkey_cancelled") }
+                                    return@work
+                                }
+                                val rows = CorgiPasskeys.list(base, token, lang)
+                                activity.runOnUiThread { passkeys = rows; passkeyPassword = ""; notice = t("passkey_added") }
+                            }
+                        }) { Text(t("passkey_add")) }
                         Text(t("security"))
                         Text("Biometric unlock: ON")
                         Text("Kill Switch: ON")
