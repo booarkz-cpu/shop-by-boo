@@ -17,8 +17,9 @@ def test_fresh_database_and_upgrade_preserves_history(tmp_path):
     fresh = tmp_path/'fresh.db'
     migrate(fresh, 'head')
     with sqlite3.connect(fresh) as c:
-        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0007'
-        assert 'notifications' in {x[0] for x in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0008'
+        tables = {x[0] for x in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        assert {'notifications', 'helpdesk_state', 'helpdesk_links'} <= tables
     old = tmp_path/'old.db'
     migrate(old,'0001')
     with sqlite3.connect(old) as c:
@@ -50,7 +51,7 @@ def test_unversioned_legacy_is_verified_and_upgraded(tmp_path):
     result = run_guard(path)
     assert result.returncode == 0, result.stdout + result.stderr
     with sqlite3.connect(path) as c:
-        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0007'
+        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0008'
         assert c.execute('SELECT subject FROM tickets').fetchone()[0] == 'Keep me'
 
 
@@ -98,3 +99,19 @@ def test_email_channel_migration_roundtrip_and_downgrade_guard(tmp_path):
             pass
     result = downgrade()
     assert result.returncode != 0 and 'Email tickets exist' in result.stdout + result.stderr
+
+
+def test_helpdesk_migration_roundtrip_and_downgrade_guard(tmp_path):
+    db = tmp_path/'helpdesk.db'
+    migrate(db, 'head')
+    result = subprocess.run([sys.executable, '-m', 'alembic', 'downgrade', '0007'], cwd=ROOT,
+        env={**os.environ, 'DATABASE_URL':'sqlite+aiosqlite:///'+str(db)}, text=True, capture_output=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    with sqlite3.connect(db) as c:
+        assert 'helpdesk_links' not in {x[0] for x in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    migrate(db, 'head')
+    with sqlite3.connect(db) as c:
+        c.execute("INSERT INTO tickets(id,telegram_user_id,channel,status,priority,subject) VALUES(1,-5,'zendesk','open','normal','Импорт')")
+    blocked = subprocess.run([sys.executable, '-m', 'alembic', 'downgrade', '0007'], cwd=ROOT,
+        env={**os.environ, 'DATABASE_URL':'sqlite+aiosqlite:///'+str(db)}, text=True, capture_output=True)
+    assert blocked.returncode != 0 and 'Helpdesk tickets exist' in blocked.stdout + blocked.stderr

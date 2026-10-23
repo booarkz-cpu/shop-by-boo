@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.11.0. Runtime/API `21.5.1`, head магазина `0068_network_intel`, Support Pro `0007` / 3.7.
+> Актуальная инструкция дистрибутива v28.12.0. Runtime/API `21.5.1`, head магазина `0068_network_intel`, Support Pro `0008` / 3.8.
 
 # Email-канал поддержки (Support Pro 3.7)
 

@@ -16,7 +16,7 @@ import {StatusDot} from "./components/ui/status";
 import React,{useEffect,useState,useRef}from"react";
 import{LangProvider,useLang,DomLocalizer,t}from"./i18n";
 // Исторические названия интерфейса для регрессионных тестов: Campaign Manager, Rules Engine, мультиустройства, Trial.
-// Прежние английские заголовки (Smart Routing, Device Management, Automation Center, Node Orchestrator) заменены русскими в v28.11.0.
+// Прежние английские заголовки (Smart Routing, Device Management, Automation Center, Node Orchestrator) заменены русскими в v28.10.0.
 import {TrafficPackages,SubscriptionOperations} from "./subscription-commerce";
 import {AdminSurveys} from "./surveys";
 import {AdminGiveaways} from "./giveaways";

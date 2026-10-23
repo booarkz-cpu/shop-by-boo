@@ -528,7 +528,7 @@ export const EN: Record<string, string> = {
   "Файл приложения сохранён": "App file saved",
   "Файл приложения удалён": "App file removed",
   "Контрольная сумма": "Checksum",
-  // v28.11.0: section map, hub, field labels
+  // v28.10.0: section map, hub, field labels
   "Продажи, выручка и состояние магазина": "Sales, revenue and shop health",
   "Сводка за сутки и месяц: клиенты, подписки, выручка, серверы и то, что требует внимания.": "Daily and monthly summary: customers, subscriptions, revenue, servers and what needs attention.",
   "Аналитика продаж": "Sales analytics",

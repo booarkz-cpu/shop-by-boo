@@ -1,0 +1,18 @@
+{% extends 'base.html' %}{% from '_ui.html' import icon, pagehead %}{% block content %}{{ pagehead('СИСТЕМА', 'Внешний helpdesk', 'Обращения из Zendesk или Freshdesk попадают в очередь Support Pro, ответы операторов публикуются обратно.') }}
+{% if result %}<div class="notice" role="status">Синхронизация: {{ result }}</div>{% endif %}
+<div class="editor-grid"><section class="card stack" aria-label="Состояние моста"><div class="section-heading"><div class="heading-with-icon">{{ icon('inbox') }}<h2>Состояние</h2></div></div>
+<dl class="sla-grid">
+<div class="sla-highlight"><dt>Система</dt><dd>{{ {'zendesk':'Zendesk','freshdesk':'Freshdesk'}.get(info.provider, 'не выбрана') }}{% if info.host %} · {{ info.host }}{% endif %}</dd></div>
+<div><dt>Подключение</dt><dd>{% if info.enabled %}<span class="badge open">Настроено</span>{% else %}<span class="badge closed">Не настроено</span>{% endif %}{% if info.paused %} <span class="badge pending">Пауза по лимиту запросов</span>{% endif %}</dd></div>
+<div><dt>Импорт истории с</dt><dd>{{ info.since|dt }}</dd></div>
+<div><dt>Последняя успешная синхронизация</dt><dd>{{ (info.state.last_success|dt) if info.state and info.state.last_success else '—' }}</dd></div>
+<div><dt>Импортировано обращений</dt><dd>{{ info.state.imported_tickets if info.state else 0 }}</dd></div>
+<div><dt>Импортировано сообщений</dt><dd>{{ info.state.imported_comments if info.state else 0 }}</dd></div>
+<div><dt>Связано обращений</dt><dd>{{ info.tickets }}</dd></div>
+<div><dt>Пауза до</dt><dd>{{ (info.state.paused_until|dt) if info.paused else '—' }}</dd></div>
+</dl>
+{% if info.state and info.state.error %}<p class="error-text" role="alert">Последняя ошибка: {{ info.state.error }}</p>{% endif %}
+{% if info.enabled %}<form method="post" action="/helpdesk/sync"><input type="hidden" name="csrf_token" value="{{ csrf }}"><button>Синхронизировать сейчас</button></form>{% endif %}
+<small class="composer-hint">{{ icon('lock') }}Ключ API задаётся только в файле окружения Support Pro и здесь не показывается.</small></section>
+<aside><section class="card stack"><div class="section-heading"><div class="heading-with-icon">{{ icon('shield') }}<h2>Как работает</h2></div></div><p class="muted">Повтор страницы или сбой не создают дублей: каждое внешнее обращение и сообщение учитывается один раз, курсор сдвигается вместе с импортом.</p><p class="muted">Автор обращения становится клиентом Support Pro. Если этот email уже писал на почту поддержки, история попадает к тому же клиенту.</p><p class="muted">Ответ оператора публикуется публичным комментарием. Если ответ внешней системы потерян, сообщение получает статус «результат неизвестен», и следующая синхронизация сверяет его по тексту.</p></section></aside></div>
+<section class="card"><div class="section-heading"><div class="heading-with-icon">{{ icon('history') }}<h2>Последние обращения из внешней системы</h2></div></div><div class="table-wrap"><table><tr><th>Обращение</th><th>Клиент</th><th>Система</th><th>Статус</th><th>Обновлено</th></tr>{% for t in recent %}<tr><td><a class="ticket-link" href="/ticket/{{ t.id }}"><span class="ticket-reference">#{{ t.id }}</span><b>{{ t.subject }}</b></a></td><td><a href="/client/{{ t.telegram_user_id }}">{{ t.full_name }}</a></td><td>{{ {'zendesk':'Zendesk','freshdesk':'Freshdesk'}.get(t.channel, t.channel) }}</td><td><span class="badge {{ t.status }}">{{ statuses[t.status] }}</span></td><td class="date-cell">{{ t.updated_at|dt }}</td></tr>{% else %}<tr><td colspan="5" class="empty">Обращений пока нет.</td></tr>{% endfor %}</table></div></section>{% endblock %}
