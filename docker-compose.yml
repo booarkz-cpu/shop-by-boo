@@ -140,6 +140,41 @@ services:
     mem_limit: 512m
     cpus: 1.00
 
+  mail_receiver:
+    # Receive-only MX for the shop's service addresses (docs/ru/MAIL_RECEIVER_CURRENT.md).
+    # Started only with: docker compose --profile mail up -d mail_receiver
+    profiles: ["mail"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9}
+    restart: unless-stopped
+    command: ["python", "-m", "app.mail_receiver"]
+    env_file: .env
+    environment:
+      WORKER_ROLE: mail
+      MAIL_RECEIVER_ENABLED: "true"
+      MAIL_RECEIVER_PORT: "2525"
+    ports:
+      - "${MAIL_RECEIVER_PUBLISH:-25}:2525"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./deploy/mail-tls:/tls:ro
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    mem_limit: 256m
+    cpus: 0.50
+
   bot:
     build:
       context: ./backend

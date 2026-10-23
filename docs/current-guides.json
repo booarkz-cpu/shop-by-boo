@@ -63,6 +63,7 @@
     "docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md",
     "docs/ru/MATRIX_COMPLETION_21_5_1.md",
     "docs/ru/MAIL_DOMAIN_CURRENT.md",
+    "docs/ru/MAIL_RECEIVER_CURRENT.md",
     "docs/ru/MENU_TREE_CURRENT.md",
     "docs/ru/MOBILE_GUIDE.md",
     "docs/ru/NETWORK_INTEL_CURRENT.md",
@@ -98,6 +99,7 @@
     "docs/ru/RELEASE_V28_14_0.md",
     "docs/ru/RELEASE_V28_15_0.md",
     "docs/ru/RELEASE_V28_16_0.md",
+    "docs/ru/RELEASE_V28_17_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md",
@@ -135,5 +137,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.16.0"
+  "distribution_tag": "v28.17.0"
 }

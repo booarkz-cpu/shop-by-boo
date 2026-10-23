@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.16.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.17.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1129**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1137**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -379,7 +379,9 @@
 | [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
+| [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
+| [backend/app/mail_receiver.py](../backend/app/mail_receiver.py) | API, бот и worker |
 | [backend/app/main.py](../backend/app/main.py) | API, бот и worker |
 | [backend/app/marketplace_api.py](../backend/app/marketplace_api.py) | API, бот и worker |
 | [backend/app/menu_tree.py](../backend/app/menu_tree.py) | API, бот и worker |
@@ -492,6 +494,7 @@
 | [deploy/grafana/vpnshop-platform.json](../deploy/grafana/vpnshop-platform.json) | Установка |
 | [deploy/install-docker.sh](../deploy/install-docker.sh) | Установка |
 | [deploy/install-vps.sh](../deploy/install-vps.sh) | Установка |
+| [deploy/mail-tls/README.txt](../deploy/mail-tls/README.txt) | Установка |
 | [deploy/nginx/default.conf](../deploy/nginx/default.conf) | Установка |
 | [deploy/nginx/nginx.conf](../deploy/nginx/nginx.conf) | Установка |
 | [deploy/nginx/test-proxy.conf](../deploy/nginx/test-proxy.conf) | Установка |
@@ -591,6 +594,7 @@
 | [docs/ru/HISTORY_IMPORT_CURRENT.md](../docs/ru/HISTORY_IMPORT_CURRENT.md) | Документация |
 | [docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md](../docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md) | Документация |
 | [docs/ru/MAIL_DOMAIN_CURRENT.md](../docs/ru/MAIL_DOMAIN_CURRENT.md) | Документация |
+| [docs/ru/MAIL_RECEIVER_CURRENT.md](../docs/ru/MAIL_RECEIVER_CURRENT.md) | Документация |
 | [docs/ru/MATRIX_COMPLETION_21_5_1.md](../docs/ru/MATRIX_COMPLETION_21_5_1.md) | Документация |
 | [docs/ru/MENU_TREE_CURRENT.md](../docs/ru/MENU_TREE_CURRENT.md) | Документация |
 | [docs/ru/MOBILE_GUIDE.md](../docs/ru/MOBILE_GUIDE.md) | Документация |
@@ -631,6 +635,7 @@
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
+| [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
@@ -930,6 +935,7 @@
 | [support-pro/app/db.py](../support-pro/app/db.py) | Support Pro |
 | [support-pro/app/email_admin.py](../support-pro/app/email_admin.py) | Support Pro |
 | [support-pro/app/email_channel.py](../support-pro/app/email_channel.py) | Support Pro |
+| [support-pro/app/email_inbound.py](../support-pro/app/email_inbound.py) | Support Pro |
 | [support-pro/app/events.py](../support-pro/app/events.py) | Support Pro |
 | [support-pro/app/helpdesk_admin.py](../support-pro/app/helpdesk_admin.py) | Support Pro |
 | [support-pro/app/helpdesk_bridge.py](../support-pro/app/helpdesk_bridge.py) | Support Pro |
@@ -989,6 +995,7 @@
 | [support-pro/scripts/restore-check.sh](../support-pro/scripts/restore-check.sh) | Support Pro |
 | [support-pro/tests/conftest.py](../support-pro/tests/conftest.py) | Support Pro |
 | [support-pro/tests/test_email_channel.py](../support-pro/tests/test_email_channel.py) | Support Pro |
+| [support-pro/tests/test_email_inbound.py](../support-pro/tests/test_email_inbound.py) | Support Pro |
 | [support-pro/tests/test_flows.py](../support-pro/tests/test_flows.py) | Support Pro |
 | [support-pro/tests/test_helpdesk_bridge.py](../support-pro/tests/test_helpdesk_bridge.py) | Support Pro |
 | [support-pro/tests/test_migrations.py](../support-pro/tests/test_migrations.py) | Support Pro |
@@ -1026,6 +1033,7 @@
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
+| [tests/test_mail_receiver.py](../tests/test_mail_receiver.py) | Проверки |
 | [tests/test_matrix_extension_migrations.py](../tests/test_matrix_extension_migrations.py) | Проверки |
 | [tests/test_matrix_privacy.py](../tests/test_matrix_privacy.py) | Проверки |
 | [tests/test_menu_hierarchy.py](../tests/test_menu_hierarchy.py) | Проверки |
