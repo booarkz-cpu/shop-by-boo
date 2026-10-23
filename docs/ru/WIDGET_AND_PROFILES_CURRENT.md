@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.16.0. Runtime/API `21.5.1`, head магазина `0072_traffic_analysis`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.17.0. Runtime/API `21.5.1`, head магазина `0072_traffic_analysis`, Support Pro `0008`.
 
 # Виджет Android и профили админ-приложений
 

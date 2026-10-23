@@ -268,6 +268,17 @@ class Settings(BaseSettings):
     terminal_max_minutes: int = Field(default=30, alias="TERMINAL_MAX_MINUTES")
     terminal_idle_minutes: int = Field(default=10, alias="TERMINAL_IDLE_MINUTES")
     terminal_transcript_days: int = Field(default=90, alias="TERMINAL_TRANSCRIPT_DAYS")
+    mail_receiver_enabled: bool = Field(default=False, alias="MAIL_RECEIVER_ENABLED")
+    mail_receiver_port: int = Field(default=2525, alias="MAIL_RECEIVER_PORT")
+    mail_receiver_routes: str = Field(default="", alias="MAIL_RECEIVER_ROUTES")
+    mail_receiver_hostname: str = Field(default="", alias="MAIL_RECEIVER_HOSTNAME")
+    mail_receiver_max_mb: int = Field(default=10, alias="MAIL_RECEIVER_MAX_MB")
+    mail_receiver_tls_cert: str = Field(default="", alias="MAIL_RECEIVER_TLS_CERT")
+    mail_receiver_tls_key: str = Field(default="", alias="MAIL_RECEIVER_TLS_KEY")
+    mail_receiver_clamav: str = Field(default="", alias="MAIL_RECEIVER_CLAMAV")
+    mail_receiver_greylist: bool = Field(default=True, alias="MAIL_RECEIVER_GREYLIST")
+    mail_support_inbound_url: str = Field(default="", alias="MAIL_SUPPORT_INBOUND_URL")
+    mail_inbound_secret: str = Field(default="", alias="MAIL_INBOUND_SECRET")
 
     # ---------- Безопасность ----------
     firewall_mode: str = Field(default="strict", alias="FIREWALL_MODE")

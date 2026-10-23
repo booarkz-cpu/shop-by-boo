@@ -1148,7 +1148,7 @@ async def metrics_endpoint(op=Depends(metrics_access)):
     lines.append(f'support_worker_alive {int(bool(heartbeat and float(heartbeat)>time.time()-180))}')
     return StreamingResponse(iter(['\n'.join(lines)+'\n']), media_type='text/plain; version=0.0.4')
 
-from . import operations, portal, email_admin, helpdesk_admin  # noqa: E402,F401
+from . import operations, portal, email_admin, helpdesk_admin, email_inbound  # noqa: E402,F401
 
 @app.get('/live')
 async def live():

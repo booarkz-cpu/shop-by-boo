@@ -1,3 +1,11 @@
+# v28.17.0
+
+- Собственный приём почты: сервис `mail_receiver` (профиль `mail`, порт 25) — SMTP только для адресов из `MAIL_RECEIVER_ROUTES`, остальные отклоняются (не open relay).
+- Проверки: SPF отправителя, DKIM (rsa-sha256, ed25519-sha256, simple/relaxed), DMARC с выравниванием; отказ при SPF fail и DMARC reject, `Authentication-Results` сверху с удалением подделанных.
+- Антиспам: грейлистинг с белым списком, лимиты размера, частоты, соединений, получателей и длины строки, тайм-ауты, ClamAV; STARTTLS; никаких писем о недоставке.
+- Доставка: отчёты DMARC — в раздел «Почтовый домен», адрес поддержки — в Support Pro через подписанный `POST /email/inbound`; журнал приёма в разделе «Почтовый домен».
+- Новые переменные `MAIL_RECEIVER_*`, `MAIL_SUPPORT_INBOUND_URL`, `MAIL_INBOUND_SECRET` (реестр настроек — 96 live, 81 deployment, 2 workflow); миграций нет; runtime/API остаётся 21.5.1.
+
 # v28.16.0
 
 - Глубокий анализ трафика на узлах (`AGENT_DPI=1`, `AGENT_DPI_IFACE`): nDPI (`ndpiReader`), если установлен (или `AGENT_DPI_ENGINE=ndpi`), иначе встроенный классификатор через `AF_PACKET`.

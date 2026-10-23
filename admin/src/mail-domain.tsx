@@ -13,6 +13,7 @@ type View = {
   intake: {configured: boolean; mailbox: string; folder: string; retention_days: number; last_success: string | null; last_error: string | null; imported: number; duplicates: number; rejected: number; journal: {at: string; outcome: string; detail: string; source: string}[]};
   summary: {days: number; reports: number; messages: number; passed: number; failed: number; pass_rate: number | null; sources: Source[]; reporters: {org: string; reports: number}[]};
   reports: Report[];
+  receiver?: {enabled: boolean; hostname: string; greylist: boolean; tls: boolean; antivirus: boolean; support_ready: boolean; routes: {address: string; target: string}[]; journal: {at: string; ip: string; from: string; to: string[]; outcome: string; detail: string}[]};
 };
 
 const TONE: Record<string, Tone> = {ok: "ok", info: "info", warn: "warn", fail: "danger"};
@@ -119,6 +120,58 @@ export function MailDomain({data, request, toast}: {data: View; request: Request
           </ul>
         </article>
       ))}
+
+      {view.receiver && (
+        <section className="card" aria-label="Приём почты (MX)">
+          <h3>Приём почты (MX)</h3>
+          <p className="muted">
+            Собственный приёмник принимает письма только на служебные адреса и ничего не пересылает дальше. Проверяет SPF, DKIM и DMARC отправителя, применяет грейлистинг и лимиты; отчёты DMARC попадают сюда, письма на адрес поддержки — в Support Pro.
+          </p>
+          <ul className="intel-warnings">
+            <li>
+              <StatusBadge tone={view.receiver.enabled ? "ok" : "idle"}>{view.receiver.enabled ? "Включён" : "Выключен"}</StatusBadge>{" "}
+              {view.receiver.enabled ? `${view.receiver.hostname}: STARTTLS ${view.receiver.tls ? "есть" : "не настроен"}, грейлистинг ${view.receiver.greylist ? "включён" : "выключен"}, антивирус ${view.receiver.antivirus ? "подключён" : "не подключён"}.` : "Сервис mail_receiver запускается профилем mail: docker compose --profile mail up -d mail_receiver."}
+            </li>
+            {view.receiver.routes.map((r) => (
+              <li key={r.address}>
+                <code>{r.address}</code> → {r.target === "dmarc" ? "отчёты DMARC (этот раздел)" : view.receiver?.support_ready ? "обращения Support Pro" : "Support Pro (не настроен: MAIL_SUPPORT_INBOUND_URL и MAIL_INBOUND_SECRET)"}
+              </li>
+            ))}
+            {view.receiver.enabled && view.receiver.routes.length === 0 && <li className="muted">Адреса не заданы (MAIL_RECEIVER_ROUTES): приёмник отклоняет все письма.</li>}
+          </ul>
+          {view.receiver.journal.length > 0 && (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Время</th>
+                    <th>Отправитель</th>
+                    <th>Кому</th>
+                    <th>Итог</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {view.receiver.journal.map((j, i) => (
+                    <tr key={i}>
+                      <td>{day(j.at)}</td>
+                      <td className="mono">
+                        {j.from || "<>"} · {j.ip}
+                      </td>
+                      <td>{j.to.join(", ")}</td>
+                      <td>
+                        <StatusBadge tone={j.outcome === "accepted" ? "ok" : j.outcome === "deferred" ? "warn" : "danger"}>
+                          {j.outcome === "accepted" ? "принято" : j.outcome === "deferred" ? "отложено" : "отклонено"}
+                        </StatusBadge>{" "}
+                        <span className="muted">{j.detail}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="card" aria-label="Отчёты DMARC">
         <h2>Отчёты DMARC за {s.days} дней</h2>

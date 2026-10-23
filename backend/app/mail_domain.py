@@ -207,6 +207,12 @@ async def check_mx(dns: Resolver, domain: str) -> list[dict]:
     for pref, host in sorted(rows):
         if not await dns.addresses(host):
             out.append(finding("mx", "fail", f"MX-хост {host} не резолвится", "Отправители не смогут доставить почту на этот сервер.", f"{pref} {host}"))
+    if settings.mail_receiver_enabled and settings.mail_receiver_hostname.strip():
+        own = settings.mail_receiver_hostname.strip().lower().rstrip(".")
+        if own not in [host for _, host in rows]:
+            out.append(finding("mx", "warn", f"MX не указывает на приёмник магазина ({own})",
+                               "Приёмник почты включён, но почта домена идёт на другие серверы. Добавьте MX-запись на этот хост или выключите приёмник.",
+                               "; ".join(f"{p} {h}" for p, h in sorted(rows))))
     if not out:
         out.append(finding("mx", "ok", "MX-записи на месте", ", ".join(f"{p} {h}" for p, h in sorted(rows)), "; ".join(f"{p} {h}" for p, h in sorted(rows))))
     return out
@@ -937,7 +943,26 @@ async def _view(db: AsyncSession) -> dict:
         },
         "summary": await summary(db),
         "reports": [_report_row(r) for r in recent],
+        "receiver": await receiver_status(),
     }
+
+
+async def receiver_status() -> dict:
+    """The MX receiver runs as its own process; its journal is shared through Redis."""
+    from .mail_receiver import JOURNAL_KEY, hostname, routes
+    from . import main
+
+    journal: list = []
+    client = getattr(main, "redis_client", None)
+    if client is not None:
+        try:
+            journal = [json.loads(item) for item in await client.lrange(JOURNAL_KEY, 0, 19)]
+        except Exception:
+            journal = []
+    return {"enabled": settings.mail_receiver_enabled, "hostname": hostname(), "greylist": settings.mail_receiver_greylist,
+            "tls": bool(settings.mail_receiver_tls_cert and settings.mail_receiver_tls_key), "antivirus": bool(settings.mail_receiver_clamav),
+            "support_ready": bool(settings.mail_support_inbound_url and settings.mail_inbound_secret),
+            "routes": [{"address": a, "target": t} for a, t in routes().items()], "journal": journal}
 
 
 @router.get("/api/admin/mail/domain")
