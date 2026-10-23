@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0068_network_intel",
+  "migration_head": "0069_mail_domain",
   "guides": [
     ".env.example",
     "ADMIN_GUIDE_RU.md",
@@ -62,6 +62,7 @@
     "docs/ru/HISTORY_IMPORT_CURRENT.md",
     "docs/ru/INFRASTRUCTURE_CHECKS_CURRENT.md",
     "docs/ru/MATRIX_COMPLETION_21_5_1.md",
+    "docs/ru/MAIL_DOMAIN_CURRENT.md",
     "docs/ru/MENU_TREE_CURRENT.md",
     "docs/ru/MOBILE_GUIDE.md",
     "docs/ru/NETWORK_INTEL_CURRENT.md",
@@ -92,6 +93,7 @@
     "docs/ru/RELEASE_V28_10_0.md",
     "docs/ru/RELEASE_V28_11_0.md",
     "docs/ru/RELEASE_V28_12_0.md",
+    "docs/ru/RELEASE_V28_13_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md",
@@ -127,5 +129,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.12.0"
+  "distribution_tag": "v28.13.0"
 }

@@ -584,6 +584,8 @@ export const EN: Record<string, string> = {
   "Узлы Remnawave: онлайн, нагрузка, трафик и число подключённых клиентов.": "Remnawave nodes: online status, load, traffic and connected customers.",
   "Сеть узлов: ASN и репутация": "Node network: ASN and reputation",
   "В чьих сетях стоят узлы и не попали ли их адреса в списки злоупотреблений.": "Whose networks the nodes are in and whether their addresses are on abuse lists.",
+  "Почтовый домен: SPF, DKIM, DMARC": "Mail domain: SPF, DKIM, DMARC",
+  "Доходят ли письма магазина: DNS-записи домена и отчёты DMARC о том, кто отправляет почту от его имени.": "Whether shop mail is delivered: the domain's DNS records and DMARC reports on who sends mail in its name.",
   "Выбор узла для клиента по задержке и нагрузке.": "Choosing a node for each customer by latency and load.",
   "Прогноз нагрузки: когда узлам не хватит ресурсов и сколько добавить.": "Load forecast: when nodes run out of capacity and how much to add.",
   "Оркестратор": "Orchestrator",

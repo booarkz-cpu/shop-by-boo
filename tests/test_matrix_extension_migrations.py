@@ -6,7 +6,7 @@ import pytest
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
-from app.models import HistoryImportJob, CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange
+from app.models import DmarcReport, HistoryImportJob, CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange
 from test_subscription_commerce import database
 
 
@@ -21,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0069_mail_domain',
         '0068_network_intel',
         '0067_plugin_runtime',
         '0066_push_notifications',
@@ -36,8 +37,8 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
-    # 0066 holds only re-registrable push tokens, so its downgrade is intentionally unguarded.
-    guarded_names = [roundtrip_names[3], roundtrip_names[4], *roundtrip_names[8:]]
+    # 0068 (cache) and 0066 (re-registrable push tokens) are intentionally unguarded.
+    guarded_names = [roundtrip_names[0], roundtrip_names[4], roundtrip_names[5], *roundtrip_names[9:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):
@@ -55,6 +56,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     database.add(CustomerBatchOperation(key='key',fingerprint='fingerprint',result={}))
     database.add(PromoGroup(name='Retain history',segment='manual'))
     database.add(ContentPage(slug='terms',locale='ru',kind='legal',draft={}))
+    database.add(DmarcReport(org_name='Retain', report_id='r-1', domain='shop.example', date_begin=datetime.utcnow(), date_end=datetime.utcnow(), received_at=datetime.utcnow(), source='upload'))
     database.add(RuntimeSettingChange(id='retain-runtime-history',base_version=0,target_version=1,status='applied',keys=['trial_max_days'],payload_encrypted='encrypted',fingerprint='f'*64,actor='test',reason='retain history'))
     await database.commit()
     for name in guarded_names:

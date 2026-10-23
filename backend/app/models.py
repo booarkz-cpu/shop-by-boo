@@ -1523,3 +1523,56 @@ class NetworkIntelSourceState(Base):
     used: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     blocked_until: Mapped[datetime|None] = mapped_column(DateTime)
     last_error: Mapped[str|None] = mapped_column(String(255))
+
+
+class DmarcReport(Base):
+    """One DMARC aggregate report (RFC 7489 appendix C) about the shop's mail domain."""
+    __tablename__ = "dmarc_reports"
+    __table_args__ = (UniqueConstraint("org_name", "report_id", name="uq_dmarc_reports_org_report"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    org_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    report_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    reporter_email: Mapped[str|None] = mapped_column(String(255))
+    sender_matches: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    domain: Mapped[str] = mapped_column(String(255), nullable=False)
+    policy: Mapped[str|None] = mapped_column(String(16))
+    pct: Mapped[int|None] = mapped_column(Integer)
+    date_begin: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    date_end: Mapped[datetime] = mapped_column(DateTime, index=True, nullable=False)
+    received_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    source: Mapped[str] = mapped_column(String(16), nullable=False)
+    messages: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    passed: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    failed: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+
+
+class DmarcRecord(Base):
+    """One row of an aggregate report: messages from one source IP with one result."""
+    __tablename__ = "dmarc_records"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    report_row_id: Mapped[int] = mapped_column(ForeignKey("dmarc_reports.id", ondelete="CASCADE"), index=True, nullable=False)
+    source_ip: Mapped[str] = mapped_column(String(45), index=True, nullable=False)
+    count: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    disposition: Mapped[str|None] = mapped_column(String(16))
+    dkim: Mapped[str|None] = mapped_column(String(8))
+    spf: Mapped[str|None] = mapped_column(String(8))
+    header_from: Mapped[str|None] = mapped_column(String(255))
+    dkim_domain: Mapped[str|None] = mapped_column(String(255))
+    dkim_result: Mapped[str|None] = mapped_column(String(16))
+    spf_domain: Mapped[str|None] = mapped_column(String(255))
+    spf_result: Mapped[str|None] = mapped_column(String(16))
+
+
+class DmarcIntakeState(Base):
+    """Read-only IMAP cursor of the DMARC report mailbox and the intake journal."""
+    __tablename__ = "dmarc_intake_state"
+    mailbox: Mapped[str] = mapped_column(String(64), primary_key=True)
+    uidvalidity: Mapped[int|None] = mapped_column(BigInteger)
+    last_uid: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    last_success: Mapped[datetime|None] = mapped_column(DateTime)
+    last_error: Mapped[str|None] = mapped_column(String(255))
+    last_error_at: Mapped[datetime|None] = mapped_column(DateTime)
+    imported: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    duplicates: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    rejected: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    journal: Mapped[list|None] = mapped_column(JSON)

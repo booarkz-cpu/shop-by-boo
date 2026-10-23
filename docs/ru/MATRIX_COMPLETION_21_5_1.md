@@ -1,8 +1,8 @@
-# Матрица функций и критерии завершения — дистрибутив v28.12.0
+# Матрица функций и критерии завершения — дистрибутив v28.13.0
 
 Этот документ завершает **описание** функциональной матрицы: у каждой открытой области есть владелец проверки, обязательный сценарий и условие, после которого статус можно повысить. Он не подменяет отсутствующую реализацию и не объявляет внешнюю production-проверку выполненной.
 
-Актуальные версии: API `21.5.1`, база магазина `0068_network_intel`, Support Pro `0008` / 3.8. Полный перечень реализованных функций и границ находится в [карте покрытия](WORKSPACE_COVERAGE.md), инструкции по функциям — в [общем указателе](../../FUNCTIONS.md).
+Актуальные версии: API `21.5.1`, база магазина `0069_mail_domain`, Support Pro `0008` / 3.8. Полный перечень реализованных функций и границ находится в [карте покрытия](WORKSPACE_COVERAGE.md), инструкции по функциям — в [общем указателе](../../FUNCTIONS.md).
 
 ## Значения статусов
 
@@ -31,7 +31,15 @@
 | --- | --- | --- | --- |
 | nDPI/BitTorrent/DHT/uTP | Heartbeat и общие наблюдения | Отдельный агент захвата, нормализация, retention, приватность, сигнатуры и безопасное обновление | Нагрузка, ложные срабатывания, шифрование, удаление и opt-out |
 | Терминал/snippets/shaping | Узловое управление и API-инфраструктура | Изолированный execution broker, краткоживущие полномочия, allowlist команд, лимиты и полный аудит | Побег из sandbox, обрыв сессии, повтор, RBAC, журнал без секретов |
-| MX/SPF/DMARC | Исходящий SMTP и DKIM | Приём почты, очереди, антиспам, DNS-проверки, отчёты и retention | Spoofing, oversized mail, malware path, bounce loop, privacy deletion |
+| Собственный MX-сервер | DNS-проверки MX/SPF/DKIM/DMARC и отчёты DMARC (v28.13.0); входящая почта принимается ящиком провайдера | Приём SMTP на своём MX, очереди, антиспам и проверка вложений — только если магазину нужен собственный почтовый сервер | Spoofing, oversized mail, malware path, bounce loop, privacy deletion |
+
+## Закрыто в v28.13.0
+
+| Область | Реализация | Доказательство в исходниках |
+| --- | --- | --- |
+| SPF/DKIM/DMARC и отчёты (из строки «MX/SPF/DMARC») | Миграция `0069_mail_domain`: `mail_domain.py` — проверка MX, SPF (одна запись, лимит 10 DNS-запросов с учётом include/redirect, завершающий all, покрытие адреса SMTP), DKIM (совпадение с ключом панели, отзыв, t=y), DMARC (политика, pct, rua, подтверждение внешнего получателя по RFC 7489 7.1) через DNS-over-HTTPS; отчёты DMARC из ящика IMAP только на чтение или загрузкой: лимиты размера и сжатия, запрет DOCTYPE/ENTITY, только свой домен, уникальность отчёта, курсор UID с UIDVALIDITY, пометка неподтверждённого отправителя; сводка по источникам, срок хранения и удаление; раздел «Почтовый домен: SPF, DKIM, DMARC» | `tests/test_mail_domain.py` (SQLite/PostgreSQL): ошибки SPF/DKIM/DMARC/MX и сбой резолвера; архив-бомба, DOCTYPE, чужой домен, повтор; ящик без изменений, дубли, смена UIDVALIDITY, ошибка входа; срок хранения и удаление; `tests/test_matrix_extension_migrations.py`: roundtrip `0069` и защита отката. [Регламент](MAIL_DOMAIN_CURRENT.md) |
+
+Собственный приём почты (MX-сервер, очереди, антиспам) остаётся в реестре выше: магазин читает отчёты из ящика провайдера. Проверка на реальном домене и ящике — за оператором.
 
 ## Закрыто в v28.12.0
 
@@ -98,7 +106,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 156 полей классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
+| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 164 поля классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
 
 Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
 
