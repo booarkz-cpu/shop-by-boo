@@ -122,7 +122,7 @@ jobs:
           cd dist/mobile
           for checksum in *.sha256; do sha256sum -c "$checksum"; done
       - name: Require CI and attach only signed production packages
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
