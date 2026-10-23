@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.13.0. Runtime/API `21.5.1`, head магазина `0069_mail_domain`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.14.0. Runtime/API `21.5.1`, head магазина `0070_node_terminal`, Support Pro `0008`.
 
 # Push-уведомления в приложениях Android и iOS
 

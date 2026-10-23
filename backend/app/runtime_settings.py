@@ -204,6 +204,8 @@ def _restart_reason(key: str) -> str:
         return "Параметр определяет идентичность или режим процесса и проверяется до запуска."
     if key in {"network_intel_enabled", "abuseipdb_api_key"}:
         return "Источник сетевой аналитики настраивается в .env и применяется после restart worker; ключ AbuseIPDB не хранится в БД."
+    if key.startswith("terminal_"):
+        return "Терминал узлов — граница безопасности: включается и ограничивается только через .env и restart backend, панель не может его включить."
     if key == "mail_domain" or key.startswith("mail_dns_") or key.startswith("dmarc_"):
         return "Почтовый домен и ящик DMARC-отчётов настраиваются в .env; пароль ящика не хранится в БД, изменения применяются после restart backend и worker."
     if key in {"android_user_package", "android_user_cert_sha256", "ios_user_app_id"}:

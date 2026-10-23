@@ -87,6 +87,8 @@ jobs:
           node-version: "22"
       - name: Release publisher invariants
         run: node --test tests/release-publisher.test.cjs
+      - name: Terminal screen model
+        run: node --experimental-strip-types --test tests/terminal-screen.test.mjs
       - name: Alembic heads
         working-directory: backend
         run: alembic heads

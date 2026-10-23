@@ -81,6 +81,7 @@ from .widget import router as widget_router
 from .plugins import router as plugins_router
 from .network_intel import router as network_intel_router
 from .mail_domain import router as mail_domain_router
+from .node_terminal import router as node_terminal_router
 from .subscription_commerce import router as subscription_commerce_router
 from .subscriptions import router as subscriptions_router, reserve_target, check_retry, payment_target, remote_username, owned as owned_subscription
 from .mobile_api import router as mobile_router
@@ -103,6 +104,7 @@ app.include_router(widget_router)
 app.include_router(plugins_router)
 app.include_router(network_intel_router)
 app.include_router(mail_domain_router)
+app.include_router(node_terminal_router)
 app.include_router(subscription_commerce_router)
 app.include_router(subscriptions_router)
 app.include_router(runtime_settings_router)

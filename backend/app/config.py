@@ -264,6 +264,10 @@ class Settings(BaseSettings):
     dmarc_imap_password: str = Field(default="", alias="DMARC_IMAP_PASSWORD")
     dmarc_imap_folder: str = Field(default="INBOX", alias="DMARC_IMAP_FOLDER")
     dmarc_report_retention_days: int = Field(default=180, alias="DMARC_REPORT_RETENTION_DAYS")
+    terminal_enabled: bool = Field(default=False, alias="TERMINAL_ENABLED")
+    terminal_max_minutes: int = Field(default=30, alias="TERMINAL_MAX_MINUTES")
+    terminal_idle_minutes: int = Field(default=10, alias="TERMINAL_IDLE_MINUTES")
+    terminal_transcript_days: int = Field(default=90, alias="TERMINAL_TRANSCRIPT_DAYS")
 
     # ---------- Безопасность ----------
     firewall_mode: str = Field(default="strict", alias="FIREWALL_MODE")
