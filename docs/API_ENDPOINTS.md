@@ -1,6 +1,6 @@
-# Каталог API — v28.13.0 / API v21.5.1
+# Каталог API — v28.14.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0069_mail_domain`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0070_node_terminal`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -293,6 +293,14 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/tariff-constructors` | Admin Constructor Create |
 | `DELETE` | `/api/admin/tariff-constructors/{constructor_id}` | Admin Constructor Delete |
 | `PUT` | `/api/admin/tariff-constructors/{constructor_id}` | Admin Constructor Update |
+| `GET` | `/api/admin/terminal` | Admin Terminal |
+| `POST` | `/api/admin/terminal/sessions` | Admin Terminal Start |
+| `POST` | `/api/admin/terminal/sessions/{sid}/close` | Admin Terminal Close |
+| `POST` | `/api/admin/terminal/sessions/{sid}/input` | Admin Terminal Input |
+| `GET` | `/api/admin/terminal/sessions/{sid}/output` | Admin Terminal Output |
+| `GET` | `/api/admin/terminal/sessions/{sid}/transcript` | Admin Terminal Transcript |
+| `POST` | `/api/admin/terminal/snippets` | Admin Snippet Create |
+| `POST` | `/api/admin/terminal/snippets/{snippet_id}/delete` | Admin Snippet Delete |
 | `GET` | `/api/admin/traffic-packages` | Admin Packages |
 | `POST` | `/api/admin/traffic-packages` | Create Package |
 | `PUT` | `/api/admin/traffic-packages/{package_id}` | Edit Package |
@@ -336,6 +344,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/workers` | Admin Workers |
 | `POST` | `/api/agent/heartbeat` | Agent Heartbeat |
 | `POST` | `/api/agent/observations` | Agent Observations |
+| `GET` | `/api/agent/terminal/pending` | Agent Terminal Pending |
+| `GET` | `/api/agent/terminal/{sid}/input` | Agent Terminal Input |
+| `POST` | `/api/agent/terminal/{sid}/output` | Agent Terminal Output |
 | `POST` | `/api/auth/email/verification/confirm` | Confirm Verification |
 | `POST` | `/api/auth/exchange` | Auth Exchange |
 | `POST` | `/api/auth/login` | Auth Login |

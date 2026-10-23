@@ -127,6 +127,8 @@ class HeartbeatIn(BaseModel):
     disk: str = Field(default="", max_length=32)
     xray_ok: bool | None = None
     version: str = Field(default="1", max_length=32)
+    # The node owner started the agent with AGENT_TERMINAL=1.
+    terminal: bool = False
 
 
 class ApiKeyIn(BaseModel):
@@ -383,6 +385,7 @@ async def agent_heartbeat(payload: HeartbeatIn, db: AsyncSession = Depends(get_d
     agent.disk = payload.disk
     agent.xray_ok = payload.xray_ok
     agent.version = payload.version
+    agent.terminal_ready = payload.terminal
     agent.last_seen_at = datetime.utcnow()
     actions = (await db.execute(
         select(AgentAction).where(AgentAction.agent_id == agent.id, AgentAction.status == "queued").order_by(AgentAction.id).limit(20)

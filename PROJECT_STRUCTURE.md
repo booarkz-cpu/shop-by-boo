@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.13.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.14.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -70,7 +70,7 @@ shop-by-boo/
 | `backend/alembic/versions/0066_push_notifications.py` | Реестр push-устройств и очередь доставки FCM/APNs |
 | `backend/app/push.py` | Регистрация push-токенов, доставка FCM/APNs, отзыв при выходе и потере токена |
 | `backend/alembic/versions/0067_plugin_runtime.py` | Издатели, пакеты, установки и доставки плагинов |
-| `backend/alembic/versions/0069_mail_domain.py` | Кэш сетевых данных узлов и состояние лимитов источников |
+| `backend/alembic/versions/0070_node_terminal.py` | Кэш сетевых данных узлов и состояние лимитов источников |
 | `backend/app/network_intel.py` | ASN, владелец сети и репутация адресов узлов с кэшем свежести |
 | `backend/app/plugins.py` | Среда плагинов: подписанные пакеты, подтверждение прав, API плагина, подписанные события |
 | `backend/app/widget.py` | Минимальная сводка подписки для виджета Android с кэшем трафика |

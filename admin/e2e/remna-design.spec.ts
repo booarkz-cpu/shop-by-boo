@@ -137,7 +137,7 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
   await expect(page.getByRole('heading', {name: 'Настройки без перезапуска', level: 1})).toBeVisible();
   const registryCounts = page.locator('.runtime-registry-counts');
   await expect(registryCounts).toContainText('96 live');
-  await expect(registryCounts).toContainText('66 deployment');
+  await expect(registryCounts).toContainText('70 deployment');
   await expect(registryCounts).toContainText('2 workflow');
   await expect(page.getByText('RW доступ')).toBeVisible();
 
@@ -200,7 +200,7 @@ test('all-sections hub lists every feature with a description and finds them by 
   // Every entry has a name and a one-sentence description.
   const items = page.locator('.hub-item');
   const total = await items.count();
-  expect(total).toBeGreaterThanOrEqual(59);
+  expect(total).toBeGreaterThanOrEqual(60);
   for (let i = 0; i < total; i += 1) await expect(items.nth(i).locator('small')).toHaveText(/\S.{20,}/);
 
   const search = page.getByPlaceholder('Например: промокод, возврат, логотип');

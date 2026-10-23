@@ -1023,6 +1023,8 @@ class NodeAgent(Base):
     version: Mapped[str|None] = mapped_column(String(32))
     last_seen_at: Mapped[datetime|None] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    # The node owner enabled the terminal on this node (AGENT_TERMINAL=1), reported by heartbeat.
+    terminal_ready: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"), nullable=False)
 
 
 class AgentAction(Base):
@@ -1576,3 +1578,52 @@ class DmarcIntakeState(Base):
     duplicates: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     rejected: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     journal: Mapped[list|None] = mapped_column(JSON)
+
+
+class TerminalSession(Base):
+    """One interactive shell on a node, opened by an administrator through the node agent."""
+    __tablename__ = "terminal_sessions"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    agent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    agent_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    admin_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    admin_email: Mapped[str] = mapped_column(String(320), nullable=False)
+    reason: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), index=True, nullable=False)  # requested, active, closed
+    close_reason: Mapped[str|None] = mapped_column(String(255))
+    agent_key_hash: Mapped[str|None] = mapped_column(String(64))
+    client_ip: Mapped[str|None] = mapped_column(String(64))
+    cols: Mapped[int] = mapped_column(Integer, default=120, nullable=False)
+    rows: Mapped[int] = mapped_column(Integer, default=32, nullable=False)
+    input_seq: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    output_seq: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    echo_off: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    bytes_in: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    bytes_out: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    exit_code: Mapped[int|None] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+    claimed_at: Mapped[datetime|None] = mapped_column(DateTime)
+    last_activity_at: Mapped[datetime|None] = mapped_column(DateTime)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    closed_at: Mapped[datetime|None] = mapped_column(DateTime)
+
+
+class TerminalChunk(Base):
+    """Encrypted transcript piece: operator input, node output or a session event."""
+    __tablename__ = "terminal_chunks"
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
+    session_id: Mapped[str] = mapped_column(ForeignKey("terminal_sessions.id", ondelete="CASCADE"), index=True, nullable=False)
+    direction: Mapped[str] = mapped_column(String(8), nullable=False)  # in, out, hidden, event
+    size: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    data_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class TerminalSnippet(Base):
+    """A saved command an administrator can paste into a terminal session."""
+    __tablename__ = "terminal_snippets"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(80), nullable=False)
+    command: Mapped[str] = mapped_column(Text, nullable=False)
+    created_by: Mapped[str] = mapped_column(String(320), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

@@ -812,6 +812,30 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
 .mail-record { display:block;margin-top:4px;font-size:12px;overflow-wrap:anywhere;white-space:pre-wrap; }
 .mail-opened { display:grid;gap:8px;margin-top:12px; }
 .mail-domain h2 code { font-size:15px; }
+.node-terminal { --term-bg:#0b0d14;--term-fg:#d6dae6; }
+.term-window { display:grid;gap:10px; }
+.term-head { display:flex;flex-wrap:wrap;align-items:center;gap:10px; }
+.term-head > div { flex:1 1 220px;min-width:0; }
+.term-head h3 { margin:0; }
+.term-snippet { display:flex;align-items:center;gap:6px; }
+.term-snippet span { font-size:13px;color:var(--muted); }
+.term-screen { height:min(62vh,600px);overflow:auto;padding:6px 8px;border-radius:10px;background:var(--term-bg);color:var(--term-fg);
+  font:14px/18px "JetBrains Mono Variable",ui-monospace,monospace;white-space:pre;outline:none;border:1px solid var(--line);cursor:text; }
+.term-screen:focus { border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 35%,transparent); }
+.term-line { height:18px; }
+.term-cursor { background:var(--term-fg) !important;color:var(--term-bg) !important; }
+.term-confirm { display:grid;gap:10px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px; }
+.term-confirm label { display:grid;gap:4px; }
+.term-confirm label span { font-size:13px;color:var(--muted); }
+.term-confirm h4 { margin:0; }
+.term-actions { display:flex;flex-wrap:wrap;gap:8px;align-items:center; }
+.term-actions button { white-space:nowrap; }
+.term-snippet-row { display:flex;flex-wrap:wrap;align-items:center;gap:8px; }
+.term-snippet-row code { overflow-wrap:anywhere; }
+.term-transcript { max-height:420px;overflow:auto;padding:10px;border-radius:10px;background:var(--term-bg);color:var(--term-fg);font:13px/1.45 "JetBrains Mono Variable",ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere; }
+.term-t-in { color:#a6e3a1; }
+.term-t-hidden { color:#f9e2af; }
+.term-t-event { color:#89b4fa; }
 
 /* ---------- v28.10: cabinet typography, labelled forms, section hub ---------- */
 /* Same type scale as the customer cabinet: 14px body, 13px field labels, sentence-case headings. */

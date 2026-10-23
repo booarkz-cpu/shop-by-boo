@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0069_mail_domain",
+  "migration_head": "0070_node_terminal",
   "guides": [
     ".env.example",
     "ADMIN_GUIDE_RU.md",
@@ -68,6 +68,7 @@
     "docs/ru/NETWORK_INTEL_CURRENT.md",
     "docs/ru/ADMIN_PANEL_CURRENT.md",
     "docs/ru/NATIVE_PASSKEYS_CURRENT.md",
+    "docs/ru/NODE_TERMINAL_CURRENT.md",
     "docs/ru/OPERATIONS_MONITORING.md",
     "docs/ru/PARTNERS_CURRENT.md",
     "docs/ru/PAYMENTS.md",
@@ -94,6 +95,7 @@
     "docs/ru/RELEASE_V28_11_0.md",
     "docs/ru/RELEASE_V28_12_0.md",
     "docs/ru/RELEASE_V28_13_0.md",
+    "docs/ru/RELEASE_V28_14_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md",
@@ -129,5 +131,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.13.0"
+  "distribution_tag": "v28.14.0"
 }

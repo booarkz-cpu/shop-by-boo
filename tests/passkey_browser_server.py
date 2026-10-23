@@ -26,6 +26,10 @@ from app.security import hash_password
 # BROWSER_DATABASE_URL points the fixture at a disposable PostgreSQL database
 # (needed for flows that take advisory locks, e.g. customer registration).
 engine=create_async_engine(os.environ.get('BROWSER_DATABASE_URL') or 'sqlite+aiosqlite:///'+str(Path(test_files.name)/'browser.sqlite3'))
+# Long-polling terminal endpoints open their own short DB sessions instead of get_db.
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from app import node_terminal
+node_terminal.session_factory=async_sessionmaker(engine,expire_on_commit=False)
 
 
 @asynccontextmanager

@@ -98,6 +98,7 @@ export const SECTION_GROUPS = [
     items: [
       {tab: "nodes", label: "Серверы", description: "Узлы Remnawave: онлайн, нагрузка, трафик и число подключённых клиентов.", keywords: "ноды узлы remnawave"},
       {tab: "networkIntel", label: "Сеть узлов: ASN и репутация", description: "В чьих сетях стоят узлы и не попали ли их адреса в списки злоупотреблений.", keywords: "asn abuseipdb ripestat ip"},
+      {tab: "nodeTerminal", label: "Терминал узлов", description: "Командная оболочка на VPN-сервере через агент: с подтверждением 2FA и записью сессии.", keywords: "ssh shell консоль терминал сниппеты"},
       {tab: "routing", label: "Маршрутизация", description: "Выбор узла для клиента по задержке и нагрузке.", keywords: "smart routing балансировка"},
       {tab: "capacity", label: "Планирование мощности", description: "Прогноз нагрузки: когда узлам не хватит ресурсов и сколько добавить.", keywords: "capacity прогноз"},
       {tab: "orchestrator", label: "Оркестратор", description: "Автоматическое включение и вывод узлов по правилам нагрузки.", keywords: "orchestrator"},
