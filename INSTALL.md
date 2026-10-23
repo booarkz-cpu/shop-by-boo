@@ -1,13 +1,13 @@
-# Установка v28.18.0
+# Установка v28.19.0
 
-Это стабильный дистрибутив v28.18.0 с runtime/API `21.5.1`. Production-платежи закрыты до завершения application E2E v2. Для знакомства используйте отдельный локальный контур либо отдельный VDS. Не заменяйте действующий магазин без проверенной копии базы, файлов и сохранённых серверных настроек.
+Это стабильный дистрибутив v28.19.0 с runtime/API `21.5.1`. Реальные платежи открываются после проверки staging E2E v2 на отдельном стенде ([допуск платежей](docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md)). Для знакомства используйте отдельный локальный контур либо отдельный VDS. Не заменяйте действующий магазин без проверенной копии базы, файлов и сохранённых серверных настроек.
 
 ## Локально
 
 Нужны Git, Python 3, Docker Engine и Compose. На Windows используйте WSL2/Docker Desktop.
 
 ```bash
-git clone --branch v28.18.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.19.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```
@@ -19,19 +19,19 @@ bash scripts/test-up.sh
 Подключитесь к отдельному Ubuntu-серверу через SSH/Termius и выполните:
 
 ```bash
-git clone --branch v28.18.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.19.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 sudo bash deploy/install-vps.sh
 ```
 
-Нужны домены с корректными DNS A/AAAA, открытые 80/443, доступ к Docker, Telegram и Remnawave. Установщик запрашивает параметры. Проверяйте назначение доменов API, админки и кабинета. Подробные требования и поля: [VDS](docs/ru/DEPLOYMENT_CURRENT.md); это актуальное руководство v28.18.0, обновление описано в [обновлении](docs/ru/WORKSPACE_UPGRADE.md).
+Нужны домены с корректными DNS A/AAAA, открытые 80/443, доступ к Docker, Telegram и Remnawave. Установщик запрашивает параметры. Проверяйте назначение доменов API, админки и кабинета. Подробные требования и поля: [VDS](docs/ru/DEPLOYMENT_CURRENT.md); это актуальное руководство v28.19.0, обновление описано в [обновлении](docs/ru/WORKSPACE_UPGRADE.md).
 
 Для loopback-теста на VDS вместо публичной установки запустите `scripts/test-up.sh` и настройте туннель по [INSTALL_STEPS.md](INSTALL_STEPS.md). Для HTTPS стенда прочитайте [условия готовности](docs/ru/FINAL_RELEASE_READINESS.md). Настройка доменов не открывает реальные платежи.
 
 ## Существующий магазин
 
-Используйте [регламент обновления](docs/ru/WORKSPACE_UPGRADE.md). Новый head магазина — `0072_traffic_analysis`, Support Pro — `0008`. Не откатывайте 0052 после появления участия в акциях. Новая установка backend применяет Alembic через entrypoint; после обновления отдельно проверьте `alembic current`, health и фоновые задачи.
+Используйте [регламент обновления](docs/ru/WORKSPACE_UPGRADE.md). Новый head магазина — `0073_e2e_v2`, Support Pro — `0008`. Не откатывайте 0052 после появления участия в акциях. Новая установка backend применяет Alembic через entrypoint; после обновления отдельно проверьте `alembic current`, health и фоновые задачи.
 
-## Состав v28.18.0
+## Состав v28.19.0
 
-Админ-панель, кабинет и Mini App собраны на Next.js (static export в прежние nginx-образы) в тёмной теме Remna с выдвижным меню на телефонах и контекстными подсказками. Раздел [переноса истории](docs/ru/HISTORY_IMPORT_CURRENT.md) переносит подписки и платежи прежнего магазина со сверкой и откатом; [настройки без перезапуска](docs/ru/RUNTIME_SETTINGS_CURRENT.md) сохраняются. Схема обновляется до `0072_traffic_analysis`, runtime/API остаётся `21.5.1`. [Полная инструкция production](docs/ru/PRODUCTION_CURRENT.md) охватывает SSH/Termius, DNS/TLS, настройку, приёмку, backup/restore, обновления и инциденты. Вся матрица ещё не завершена; production gate закрыт.
+Админ-панель, кабинет и Mini App собраны на Next.js (static export в прежние nginx-образы) в тёмной теме Remna с выдвижным меню на телефонах и контекстными подсказками. Раздел [переноса истории](docs/ru/HISTORY_IMPORT_CURRENT.md) переносит подписки и платежи прежнего магазина со сверкой и откатом; [настройки без перезапуска](docs/ru/RUNTIME_SETTINGS_CURRENT.md) сохраняются. Схема обновляется до `0073_e2e_v2`, runtime/API остаётся `21.5.1`. [Полная инструкция production](docs/ru/PRODUCTION_CURRENT.md) охватывает SSH/Termius, DNS/TLS, настройку, приёмку, backup/restore, обновления и инциденты. Вся матрица ещё не завершена; production gate закрыт.

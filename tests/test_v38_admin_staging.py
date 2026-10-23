@@ -19,7 +19,8 @@ def test_admin_ui_has_russian_staging_and_telegram_controls():
     ui=(ROOT/'admin/src/main.tsx').read_text()
     assert 'Telegram ID' in ui
     assert 'Войти через Telegram' in ui
-    assert 'Настройка боевого staging E2E' in ui
+    assert 'Проверка ключей песочницы (v1)' in ui
+    assert '/api/admin/e2e-v2/overview' in (ROOT/'admin/src/payment-admission.tsx').read_text()
     assert '/api/admin/staging-e2e/run' in ui
 
 
