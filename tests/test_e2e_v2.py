@@ -75,30 +75,28 @@ def test_foreign_key_or_tampered_payload_is_rejected():
 
 
 @pytest.mark.asyncio
-async def test_production_admission_flow_opens_and_closes_the_gate(database, monkeypatch):
+async def test_optional_admission_records_the_result_and_never_closes_payments(database, monkeypatch):
     monkeypatch.setattr(settings, "app_env", "production")
     key = Ed25519PrivateKey.generate()
-    with pytest.raises(HTTPException) as gate:
-        await main.production_payment_gate(main.ProductionGateIn(enabled=True), database, ADMIN)
-    assert gate.value.status_code == 409
+    assert await main.production_payments_allowed(database) is True  # open from the first start
     await e2e_v2.save_admission_config(e2e_v2.AdmissionConfigIn(public_key=e2e_v2.public_key_text(key), providers=["yookassa"]), database, ADMIN)
     nonce = (await e2e_v2.issue_nonce(database, ADMIN))["nonce"]
     assert e2e_v2.NONCE_RE.match(nonce)
+    assert await main.production_payments_allowed(database) is True  # the optional check does not close payments
     good = payload(nonce=nonce, finished_at=datetime.now(timezone.utc).isoformat())
     with pytest.raises(HTTPException) as wrong:
         await e2e_v2.accept_attestation(e2e_v2.AttestationIn(attestation=e2e_v2.sign_attestation(payload(), key)), database, ADMIN)
     assert wrong.value.status_code == 409 and "Код запуска" in wrong.value.detail
     accepted = await e2e_v2.accept_attestation(e2e_v2.AttestationIn(attestation=e2e_v2.sign_attestation(good, key)), database, ADMIN)
     assert accepted["contract_version"] == 2 and accepted["full_e2e"] is True
-    assert await main.production_payments_allowed(database) is False  # evidence alone does not open payments
-    assert await main.production_payment_gate(main.ProductionGateIn(enabled=True), database, ADMIN) == {"enabled": True}
-    assert await main.production_payments_allowed(database) is True
     # The same attestation cannot be accepted twice: the nonce is spent.
     with pytest.raises(HTTPException):
         await e2e_v2.accept_attestation(e2e_v2.AttestationIn(attestation=e2e_v2.sign_attestation(good, key)), database, ADMIN)
-    # A new configuration revision closes the gate and invalidates the evidence.
-    await e2e_v2.save_admission_config(e2e_v2.AdmissionConfigIn(public_key=e2e_v2.public_key_text(key), providers=["yookassa"]), database, ADMIN)
+    # The emergency switch closes and reopens real payments.
+    assert await main.production_payment_gate(main.ProductionGateIn(enabled=False), database, ADMIN) == {"enabled": False}
     assert await main.production_payments_allowed(database) is False
+    assert await main.production_payment_gate(main.ProductionGateIn(enabled=True), database, ADMIN) == {"enabled": True}
+    assert await main.production_payments_allowed(database) is True
 
 
 @pytest.mark.asyncio
