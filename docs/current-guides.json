@@ -91,9 +91,11 @@
     "docs/ru/RELEASE_V28_9_0.md",
     "docs/ru/RELEASE_V28_10_0.md",
     "docs/ru/RELEASE_V28_11_0.md",
+    "docs/ru/RELEASE_V28_12_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md",
+    "docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md",
     "docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md",
     "docs/ru/SUPPORT_TOPOLOGY_CURRENT.md",
     "docs/ru/TESTING.md",
@@ -125,5 +127,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.11.0"
+  "distribution_tag": "v28.12.0"
 }

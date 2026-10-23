@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.11.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.12.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1094**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1101**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -613,6 +613,7 @@
 | [docs/ru/RELEASE_V28.md](../docs/ru/RELEASE_V28.md) | Документация |
 | [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
+| [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
@@ -629,6 +630,7 @@
 | [docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md](../docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md) | Документация |
 | [docs/ru/STAGING_VDS_E2E_OPERATOR_20_0_18.md](../docs/ru/STAGING_VDS_E2E_OPERATOR_20_0_18.md) | Документация |
 | [docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md](../docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md) | Документация |
+| [docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md](../docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md) | Документация |
 | [docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md](../docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md) | Документация |
 | [docs/ru/SUPPORT_TOPOLOGY_CURRENT.md](../docs/ru/SUPPORT_TOPOLOGY_CURRENT.md) | Документация |
 | [docs/ru/TESTING.md](../docs/ru/TESTING.md) | Документация |
@@ -895,6 +897,7 @@
 | [support-pro/alembic/versions/0005_shop_bridge.py](../support-pro/alembic/versions/0005_shop_bridge.py) | Support Pro |
 | [support-pro/alembic/versions/0006_remote_history.py](../support-pro/alembic/versions/0006_remote_history.py) | Support Pro |
 | [support-pro/alembic/versions/0007_email_channel.py](../support-pro/alembic/versions/0007_email_channel.py) | Support Pro |
+| [support-pro/alembic/versions/0008_helpdesk_bridge.py](../support-pro/alembic/versions/0008_helpdesk_bridge.py) | Support Pro |
 | [support-pro/app/Dockerfile](../support-pro/app/Dockerfile) | Support Pro |
 | [support-pro/app/__init__.py](../support-pro/app/__init__.py) | Support Pro |
 | [support-pro/app/access.py](../support-pro/app/access.py) | Support Pro |
@@ -905,6 +908,8 @@
 | [support-pro/app/email_admin.py](../support-pro/app/email_admin.py) | Support Pro |
 | [support-pro/app/email_channel.py](../support-pro/app/email_channel.py) | Support Pro |
 | [support-pro/app/events.py](../support-pro/app/events.py) | Support Pro |
+| [support-pro/app/helpdesk_admin.py](../support-pro/app/helpdesk_admin.py) | Support Pro |
+| [support-pro/app/helpdesk_bridge.py](../support-pro/app/helpdesk_bridge.py) | Support Pro |
 | [support-pro/app/jobs.py](../support-pro/app/jobs.py) | Support Pro |
 | [support-pro/app/main.py](../support-pro/app/main.py) | Support Pro |
 | [support-pro/app/migrate.py](../support-pro/app/migrate.py) | Support Pro |
@@ -934,6 +939,7 @@
 | [support-pro/app/templates/dashboard.html](../support-pro/app/templates/dashboard.html) | Support Pro |
 | [support-pro/app/templates/email.html](../support-pro/app/templates/email.html) | Support Pro |
 | [support-pro/app/templates/error.html](../support-pro/app/templates/error.html) | Support Pro |
+| [support-pro/app/templates/helpdesk.html](../support-pro/app/templates/helpdesk.html) | Support Pro |
 | [support-pro/app/templates/knowledge.html](../support-pro/app/templates/knowledge.html) | Support Pro |
 | [support-pro/app/templates/knowledge_article.html](../support-pro/app/templates/knowledge_article.html) | Support Pro |
 | [support-pro/app/templates/login.html](../support-pro/app/templates/login.html) | Support Pro |
@@ -961,6 +967,7 @@
 | [support-pro/tests/conftest.py](../support-pro/tests/conftest.py) | Support Pro |
 | [support-pro/tests/test_email_channel.py](../support-pro/tests/test_email_channel.py) | Support Pro |
 | [support-pro/tests/test_flows.py](../support-pro/tests/test_flows.py) | Support Pro |
+| [support-pro/tests/test_helpdesk_bridge.py](../support-pro/tests/test_helpdesk_bridge.py) | Support Pro |
 | [support-pro/tests/test_migrations.py](../support-pro/tests/test_migrations.py) | Support Pro |
 | [support-pro/tests/test_operations.py](../support-pro/tests/test_operations.py) | Support Pro |
 | [support-pro/tests/test_remote_history.py](../support-pro/tests/test_remote_history.py) | Support Pro |

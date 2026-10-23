@@ -57,14 +57,16 @@ async def deliver(bot, mid):
                 await s.commit()
             await publish(ticket.id,{'type':'changed'})
             return
-        if ticket.channel == 'email':
-            from . import email_channel
+        if ticket.channel in ('email', 'zendesk', 'freshdesk'):
+            from . import email_channel, helpdesk_bridge
+            channel_deliver = email_channel.deliver if ticket.channel == 'email' else helpdesk_bridge.deliver
             try:
-                await email_channel.deliver(s, ticket, m, a)
+                await channel_deliver(s, ticket, m, a)
             except Exception:
-                log.exception('Email delivery interrupted for message %s', mid)
+                log.exception('%s delivery interrupted for message %s', ticket.channel, mid)
                 m.delivery_state = 'uncertain'
-                m.error = 'Отправка письма прервана; результат неизвестен. Проверьте почту перед повтором.'
+                m.error = ('Отправка письма прервана; результат неизвестен. Проверьте почту перед повтором.' if ticket.channel == 'email'
+                           else 'Отправка во внешнюю систему прервана; следующая синхронизация сверит ответ.')
             if m.delivery_state == 'sent':
                 ticket = await s.scalar(select(Ticket).where(Ticket.id == m.ticket_id).with_for_update().execution_options(populate_existing=True))
                 if m.sender == 'operator':
@@ -76,7 +78,8 @@ async def deliver(bot, mid):
                         ticket.status = 'open'
                     ticket.updated_at = now()
             elif m.delivery_state in ('failed', 'uncertain'):
-                await notify(s, ticket, f'Письмо в обращении #{ticket.id}: {m.error}', f'delivery:{mid}:{m.attempts}')
+                label = 'Письмо' if ticket.channel == 'email' else f'Ответ в {ticket.channel}'
+                await notify(s, ticket, f'{label} в обращении #{ticket.id}: {m.error}', f'delivery:{mid}:{m.attempts}')
             await s.commit()
             await publish(ticket.id, {'type': 'changed'})
             return
@@ -232,6 +235,7 @@ async def main():
     last_shop_poll = 0
     last_email_poll = 0
     last_email_purge = 0
+    last_helpdesk_poll = 0
     try:
         while True:
             try:
@@ -260,6 +264,13 @@ async def main():
                 if email_channel.enabled() and time.monotonic() - last_email_poll > int(os.getenv('EMAIL_POLL_SECONDS', '30')):
                     await email_channel.poll(Session)
                     last_email_poll = time.monotonic()
+                from . import helpdesk_bridge
+                if helpdesk_bridge.enabled() and time.monotonic() - last_helpdesk_poll > int(os.getenv('HELPDESK_SYNC_SECONDS', '60')):
+                    try:
+                        await helpdesk_bridge.poll(Session)
+                    except Exception:
+                        log.exception('Helpdesk sync cycle failed; the cursor is unchanged')
+                    last_helpdesk_poll = time.monotonic()
                 if time.monotonic() - last_email_purge > 3600:
                     await email_channel.purge_expired(Session)
                     last_email_purge = time.monotonic()

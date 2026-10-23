@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.11.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.12.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Эксплуатация и восстановление
 
@@ -23,11 +23,11 @@ docker compose logs --tail=100 backend worker bot
 Для alpha используйте отдельный стенд и [WORKSPACE_UPGRADE.md](docs/ru/WORKSPACE_UPGRADE.md). Production обновляется только по stable GitHub Releases. Для выбранного stable тега:
 
 ```bash
-# Для v28.11.0 (runtime 21.5.1) с Support Pro 0007 используйте согласованное ручное обновление.
+# Для v28.12.0 (runtime 21.5.1) с Support Pro 0008 используйте согласованное ручное обновление.
 # scripts/update.sh не восстанавливает автоматически вторую БД.
 ```
 
-`v28.11.0` — тег этого дистрибутива. Перед запуском убедитесь, что он опубликован и вложения доступны. Скрипт проверяет источник и SHA256, сохраняет `.env`, вызывает резервирование и health/recovery. Без RELEASE_TAG выбирается последний stable; downgrade не выполняется.
+`v28.12.0` — тег этого дистрибутива. Перед запуском убедитесь, что он опубликован и вложения доступны. Скрипт проверяет источник и SHA256, сохраняет `.env`, вызывает резервирование и health/recovery. Без RELEASE_TAG выбирается последний stable; downgrade не выполняется.
 
 GitHub Deploy использует обязательный `release_tag`, secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PORT`, `DEPLOY_PATH` и environment `production`. Он не публикует исходники и не запускается при выпуске alpha. Старый updater без поддержки RELEASE_TAG должен быть сначала обновлён вручную. Указатель Git HEAD установленного через архив дерева может не совпадать с содержимым; ориентируйтесь на APP_VERSION и проверенный release manifest.
 
@@ -45,4 +45,4 @@ GitHub Deploy использует обязательный `release_tag`, secre
 
 Реализованы [партнёрский кабинет и комиссии](docs/ru/PARTNERS_CURRENT.md), [клиентские ключи доступа](docs/ru/CUSTOMER_PASSKEYS_CURRENT.md), [объединение клиентских аккаунтов](docs/ru/ACCOUNT_MERGE_CURRENT.md) и [объединение/разделение обращений](docs/ru/SUPPORT_TOPOLOGY_CURRENT.md). [Полная инструкция production](docs/ru/PRODUCTION_CURRENT.md) охватывает SSH/Termius, DNS/TLS, настройку, приёмку, backup/restore, обновления и инциденты. Вся матрица ещё не завершена; production gate закрыт.
 
-Переход на Support Pro 0007 выполняйте по [согласованной процедуре обновления](docs/ru/WORKSPACE_UPGRADE.md): текущий автоматический rollback updater охватывает только основную БД.
+Переход на Support Pro 0008 выполняйте по [согласованной процедуре обновления](docs/ru/WORKSPACE_UPGRADE.md): текущий автоматический rollback updater охватывает только основную БД.

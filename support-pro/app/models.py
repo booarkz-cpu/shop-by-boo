@@ -331,3 +331,31 @@ class EmailLink(Base):
     message_row_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id', ondelete='SET NULL'))
     auth: Mapped[str] = mapped_column(String(10), default='none')
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class HelpdeskState(Base):
+    """Cursor and health of the external helpdesk bridge; the cursor commits with each imported page."""
+    __tablename__ = 'helpdesk_state'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    provider: Mapped[str] = mapped_column(String(20), unique=True)
+    cursor: Mapped[str] = mapped_column(Text, default='')
+    last_success: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_error_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    paused_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    error: Mapped[str] = mapped_column(String(500), default='')
+    imported_tickets: Mapped[int] = mapped_column(Integer, default=0)
+    imported_comments: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class HelpdeskLink(Base):
+    """External ticket or comment id mirrored in Support Pro; unique per provider, kind and id."""
+    __tablename__ = 'helpdesk_links'
+    __table_args__ = (UniqueConstraint('provider', 'kind', 'external_id', name='uq_helpdesk_links_external'),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    provider: Mapped[str] = mapped_column(String(20))
+    kind: Mapped[str] = mapped_column(String(10))
+    external_id: Mapped[str] = mapped_column(String(64))
+    ticket_id: Mapped[int] = mapped_column(ForeignKey('tickets.id', ondelete='CASCADE'), index=True)
+    message_row_id: Mapped[int | None] = mapped_column(ForeignKey('messages.id', ondelete='SET NULL'))
+    erased: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
