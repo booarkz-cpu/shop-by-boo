@@ -62,7 +62,7 @@ jobs:
           done
           printf '%s\n' "$state" > dist/mobile/android-status.txt
           echo "Android production: $state" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: mobile-android
           path: dist/mobile/
@@ -95,7 +95,7 @@ jobs:
           fi
           printf '%s\n' "$state" > dist/mobile/ios-status.txt
           echo "iOS production: $state" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: mobile-ios
           path: dist/mobile/
