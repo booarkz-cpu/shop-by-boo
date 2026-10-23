@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.18.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.19.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1174**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1183**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -218,9 +218,11 @@
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
+| [admin/e2e/fraud-decisions.spec.ts](../admin/e2e/fraud-decisions.spec.ts) | Админ-панель |
 | [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
 | [admin/e2e/passkeys.spec.ts](../admin/e2e/passkeys.spec.ts) | Админ-панель |
+| [admin/e2e/payment-admission.spec.ts](../admin/e2e/payment-admission.spec.ts) | Админ-панель |
 | [admin/e2e/personal-offers.spec.ts](../admin/e2e/personal-offers.spec.ts) | Админ-панель |
 | [admin/e2e/plans-editor.spec.ts](../admin/e2e/plans-editor.spec.ts) | Админ-панель |
 | [admin/e2e/plugins.spec.ts](../admin/e2e/plugins.spec.ts) | Админ-панель |
@@ -256,6 +258,7 @@
 | [admin/src/customer-operations.tsx](../admin/src/customer-operations.tsx) | Админ-панель |
 | [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
+| [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
 | [admin/src/history-import.tsx](../admin/src/history-import.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
@@ -267,6 +270,7 @@
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
+| [admin/src/payment-admission.tsx](../admin/src/payment-admission.tsx) | Админ-панель |
 | [admin/src/plans-editor.tsx](../admin/src/plans-editor.tsx) | Админ-панель |
 | [admin/src/plugins.tsx](../admin/src/plugins.tsx) | Админ-панель |
 | [admin/src/promo-audiences.tsx](../admin/src/promo-audiences.tsx) | Админ-панель |
@@ -363,6 +367,7 @@
 | [backend/alembic/versions/0070_node_terminal.py](../backend/alembic/versions/0070_node_terminal.py) | API, бот и worker |
 | [backend/alembic/versions/0071_torrent_detection.py](../backend/alembic/versions/0071_torrent_detection.py) | API, бот и worker |
 | [backend/alembic/versions/0072_traffic_analysis.py](../backend/alembic/versions/0072_traffic_analysis.py) | API, бот и worker |
+| [backend/alembic/versions/0073_e2e_v2.py](../backend/alembic/versions/0073_e2e_v2.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -377,6 +382,7 @@
 | [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
 | [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
+| [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
 | [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
@@ -640,6 +646,7 @@
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
 | [docs/ru/RELEASE_V28_18_0.md](../docs/ru/RELEASE_V28_18_0.md) | Документация |
+| [docs/ru/RELEASE_V28_19_0.md](../docs/ru/RELEASE_V28_19_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
@@ -1063,7 +1070,9 @@
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
+| [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
+| [tests/test_fraud_signals.py](../tests/test_fraud_signals.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |

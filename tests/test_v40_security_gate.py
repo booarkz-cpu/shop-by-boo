@@ -10,7 +10,8 @@ def test_admin_frontend_identifiers_are_valid_and_staging_secret_preservation_is
 
 def test_production_payments_are_fail_closed_behind_staging_gate():
     s=read("backend/app/main.py")
-    assert 'PRODUCTION_PAYMENTS_GATE_KEY="payments.production_gate.v20_0_8"' in s
+    # v2 uses a new key: a flag stored by an older release never opens payments.
+    assert 'PRODUCTION_PAYMENTS_GATE_KEY="payments.production_gate.v2"' in s
     assert 'status.get("contract_version")!=2' in s
     assert "требуется успешный staging E2E" in s
     assert 'await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"0")' in s

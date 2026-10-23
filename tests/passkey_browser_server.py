@@ -20,7 +20,7 @@ from app import main as shop
 shop.RATE_LIMITS = {**shop.RATE_LIMITS, "/api/admin/auth/login": 64}
 
 from app.db import get_db
-from app.models import Base, AdminUser, FeatureFlag, User
+from app.models import Base, AdminUser, FeatureFlag, User, FraudSignal
 from app.security import hash_password
 
 # BROWSER_DATABASE_URL points the fixture at a disposable PostgreSQL database
@@ -43,6 +43,8 @@ async def lifespan(app):
         db.add(AdminUser(email='browser@example.test',password_hash=hash_password('browser-only-password'),role='admin'))
         db.add(FeatureFlag(key='passkeys',enabled=True))
         db.add(User(email='customer@example.test', email_password_hash=hash_password('customer-browser-password')))
+        # One open anti-fraud signal for the decision flow in the admin panel.
+        db.add(FraudSignal(user_id=1,kind='payment_velocity',score=55,details='11 payments in 24h'))
         await db.commit()
     yield
     await engine.dispose()

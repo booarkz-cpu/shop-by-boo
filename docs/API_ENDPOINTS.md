@@ -1,6 +1,6 @@
-# Каталог API — v28.18.0 / API v21.5.1
+# Каталог API — v28.19.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0072_traffic_analysis`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0073_e2e_v2`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -85,6 +85,12 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/deployments` | Deployment Create |
 | `POST` | `/api/admin/deployments/{deployment_id}/promote` | Deployment Promote |
 | `POST` | `/api/admin/deployments/{deployment_id}/rollback` | Deployment Rollback |
+| `POST` | `/api/admin/e2e-v2/admission/attestation` | Accept Attestation |
+| `PUT` | `/api/admin/e2e-v2/admission/config` | Save Admission Config |
+| `POST` | `/api/admin/e2e-v2/admission/nonce` | Issue Nonce |
+| `GET` | `/api/admin/e2e-v2/overview` | Overview |
+| `POST` | `/api/admin/e2e-v2/runs` | Start Run |
+| `POST` | `/api/admin/e2e-v2/runs/{run_id}/cancel` | Cancel Run |
 | `GET` | `/api/admin/enterprise/campaigns` | Enterprise Campaigns |
 | `POST` | `/api/admin/enterprise/campaigns` | Enterprise Campaign Create |
 | `PUT` | `/api/admin/enterprise/campaigns/{campaign_id}` | Enterprise Campaign Update |

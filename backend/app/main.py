@@ -128,6 +128,8 @@ app.include_router(remnawave_shop_router)
 app.include_router(marketplace_router)
 from .partners import router as partners_router
 app.include_router(partners_router)
+from .e2e_v2 import router as e2e_v2_router, checkout_allowed as e2e_checkout_allowed, capture_webhook as e2e_capture_webhook
+app.include_router(e2e_v2_router)
 from .account_actions import router as account_actions_router
 app.include_router(account_actions_router)
 from .surveys import router as surveys_router
@@ -1191,7 +1193,7 @@ async def create_payment(payload:dict, request:Request, db:AsyncSession=Depends(
     if await maintenance_enabled(db): raise HTTPException(503,"Service is in maintenance mode")
     if not await feature_enabled(db, "payments", True): raise HTTPException(503,"Платежи отключены администратором")
     sandbox_requested=sandbox_checkout_requested(payload.get("provider"))
-    if not sandbox_requested and not await production_payments_allowed(db):
+    if not sandbox_requested and not await production_payments_allowed(db) and not await e2e_checkout_allowed(db,request,payload):
         raise HTTPException(503,"Реальные платежи временно заблокированы: требуется успешный staging E2E")
     user=await user_from_token(request,db)
     from .platform_api import reject_restricted
@@ -1844,6 +1846,7 @@ async def yookassa_webhook(request:Request, db:AsyncSession=Depends(get_db)):
     # Verify the provider object itself, including immutable order metadata, before
     # binding a previously-unknown provider payment ID to a durable local intent.
     if not await YooKassaProvider().verify_succeeded(pid,Decimal(str(p.amount)),p.currency,p.order_id): raise HTTPException(503,"Payment status verification unavailable")
+    await e2e_capture_webhook("yookassa",request,raw,p.id)
     if not p.provider_payment_id:
         await bind_provider_payment_id(db,p,pid)
     if not await register_provider_event(db,"yookassa",event_id,p.id): await db.rollback(); return {"ok":True,"duplicate":True}
@@ -1873,6 +1876,7 @@ async def platega_webhook(request:Request, db:AsyncSession=Depends(get_db)):
     if p:
         if payload_order and payload_order != p.order_id: raise HTTPException(403,"Order mismatch")
         if not await PlategaProvider().verify_succeeded(pid,Decimal(str(p.amount)),p.currency,p.order_id): raise HTTPException(503,"Payment verification unavailable")
+        await e2e_capture_webhook("platega",request,raw,p.id)
         if not p.provider_payment_id:
             await bind_provider_payment_id(db,p,pid)
         if not await register_provider_event(db,"platega",event_id,p.id): await db.rollback(); return {"ok":True,"duplicate":True}
@@ -1903,6 +1907,7 @@ async def rollypay_webhook(request:Request,db:AsyncSession=Depends(get_db)):
     if p:
         if order_id and order_id != p.order_id: raise HTTPException(403,"Order mismatch")
         if not await RollyPayProvider().verify_succeeded(pid,Decimal(str(p.amount)),p.currency,p.order_id): raise HTTPException(503,"Payment verification unavailable")
+        await e2e_capture_webhook("rollypay",request,raw,p.id)
         if not p.provider_payment_id:
             await bind_provider_payment_id(db,p,pid)
         if not await register_provider_event(db,"rollypay",event_id,p.id): await db.rollback(); return {"ok":True,"duplicate":True}
@@ -3334,7 +3339,7 @@ async def retry_job(job_id:int,db:AsyncSession=Depends(get_db),admin=Depends(req
 @app.get("/api/admin/fraud")
 async def admin_fraud(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("security.manage"))):
     rows=(await db.execute(select(FraudSignal).order_by(FraudSignal.id.desc()).limit(500))).scalars().all()
-    return [{"id":x.id,"user_id":x.user_id,"ip":x.ip,"fingerprint":x.fingerprint,"kind":x.kind,"score":x.score,"status":x.status,"details":x.details,"created_at":x.created_at} for x in rows]
+    return [{"id":x.id,"user_id":x.user_id,"ip":x.ip,"fingerprint":x.fingerprint,"kind":x.kind,"score":x.score,"status":x.status,"details":x.details,"created_at":x.created_at,"resolved_at":x.resolved_at} for x in rows]
 
 @app.post("/api/admin/fraud/{signal_id}")
 async def fraud_decision(signal_id:int,payload:FraudDecisionIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("security.manage"))):
@@ -3348,10 +3353,14 @@ async def fraud_scan(db:AsyncSession=Depends(get_db),admin=Depends(require_permi
     since=datetime.utcnow()-timedelta(hours=24); created=0
     # Velocity checks: repeated payments from the same user and repeated failed fulfillment.
     rows=(await db.execute(select(Payment.user_id,func.count(Payment.id)).where(Payment.created_at>=since).group_by(Payment.user_id).having(func.count(Payment.id)>=10))).all()
+    # A repeated scan must not pile up duplicates: one open signal per user and kind is enough.
+    open_keys={(u,k) for u,k in (await db.execute(select(FraudSignal.user_id,FraudSignal.kind).where(FraudSignal.status=="open",FraudSignal.kind.in_(("payment_velocity","fulfillment_failure_velocity"))))).all()}
     for uid,count in rows:
+        if (uid,"payment_velocity") in open_keys: continue
         db.add(FraudSignal(user_id=uid,kind="payment_velocity",score=min(100,int(count)*5),details=f"{count} payments in 24h")); created+=1
     failed=(await db.execute(select(Payment.user_id,func.count(Payment.id)).where(Payment.created_at>=since,Payment.fulfillment_status=="failed").group_by(Payment.user_id).having(func.count(Payment.id)>=3))).all()
     for uid,count in failed:
+        if (uid,"fulfillment_failure_velocity") in open_keys: continue
         db.add(FraudSignal(user_id=uid,kind="fulfillment_failure_velocity",score=min(100,int(count)*15),details=f"{count} failed fulfillments in 24h")); created+=1
     await audit(db,"fraud.scan",admin.email,None,{"created":created}); await db.commit(); return {"created":created}
 
@@ -3752,12 +3761,11 @@ async def production_payment_gate(payload:ProductionGateIn, db:AsyncSession=Depe
         await audit(db,"payments.production_gate.disabled",admin.email,None)
         await db.commit()
         return {"enabled":False}
-    raw=await setting_value(db,STAGING_E2E_STATUS_KEY,"{}")
-    try: status=json.loads(raw)
-    except Exception: status={}
+    from .e2e_v2 import admission_config, admission_status
+    status=await admission_status(db)
     if status.get("status")!="passed" or not status.get("full_e2e") or status.get("contract_version")!=2:
         raise HTTPException(409,"Сначала необходимо успешно завершить полный staging E2E: checkout → webhook → fulfillment → duplicate webhook → refund")
-    cfg=await _staging_config(db)
+    cfg=await admission_config(db)
     if not staging_evidence_valid(status,cfg,datetime.now(timezone.utc),PRODUCTION_GATE_MAX_AGE_HOURS):
         raise HTTPException(409,"Результат staging E2E устарел либо конфигурация изменилась; запустите проверку заново")
     await set_setting(db,PRODUCTION_PAYMENTS_GATE_KEY,"1")
@@ -3770,15 +3778,14 @@ STAGING_E2E_CONFIG_KEY="staging_e2e.config"
 STAGING_E2E_STATUS_KEY="staging_e2e.status"
 STAGING_E2E_LOCK=asyncio.Lock()
 # A new key invalidates a gate enabled by the old runner's false positive.
-PRODUCTION_PAYMENTS_GATE_KEY="payments.production_gate.v20_0_8"
+PRODUCTION_PAYMENTS_GATE_KEY="payments.production_gate.v2"
 PRODUCTION_GATE_MAX_AGE_HOURS=24
 
 async def production_payments_allowed(db):
+    """Real payments need an open gate *and* a fresh E2E v2 attestation of the current admission config."""
     if await setting_value(db,PRODUCTION_PAYMENTS_GATE_KEY,"0") != "1": return False
-    try: status=json.loads(await setting_value(db,STAGING_E2E_STATUS_KEY,"{}"))
-    except (TypeError,ValueError): return False
-    cfg=await _staging_config(db)
-    return staging_evidence_valid(status,cfg,datetime.now(timezone.utc),PRODUCTION_GATE_MAX_AGE_HOURS)
+    from .e2e_v2 import admission_config, admission_status
+    return staging_evidence_valid(await admission_status(db),await admission_config(db),datetime.now(timezone.utc),PRODUCTION_GATE_MAX_AGE_HOURS)
 
 class StagingE2EConfigIn(BaseModel):
     public_base_url:str=Field(min_length=8,max_length=2048)

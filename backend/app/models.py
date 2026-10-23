@@ -1643,3 +1643,72 @@ class TorrentDetection(Base):
     events: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     # xray, bittorrent, dht, utp, tracker, ndpi or encrypted (heuristic)
     kind: Mapped[str] = mapped_column(String(16), default="xray", server_default="xray", nullable=False)
+
+
+class E2ERun(Base):
+    """A staging E2E v2 run: one real order per provider, checked from the shop's own records."""
+    __tablename__ = "e2e_runs"
+    __table_args__ = (Index("uq_e2e_runs_active", "active", unique=True,
+                            postgresql_where=text("active"), sqlite_where=text("active")),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    nonce: Mapped[str] = mapped_column(String(128), nullable=False)
+    # queued, running, passed, failed, cancelled
+    status: Mapped[str] = mapped_column(String(16), default="queued", nullable=False)
+    # True while queued or running: the partial unique index allows one active run.
+    active: Mapped[bool|None] = mapped_column(Boolean, default=True)
+    providers: Mapped[list] = mapped_column(JSON, nullable=False)
+    plan_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    buyer_user_id: Mapped[int|None] = mapped_column(Integer)
+    admin_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    admin_email: Mapped[str] = mapped_column(String(320), nullable=False)
+    payment_timeout_seconds: Mapped[int] = mapped_column(Integer, default=1800, nullable=False)
+    distribution_tag: Mapped[str] = mapped_column(String(32), nullable=False)
+    error: Mapped[str|None] = mapped_column(Text)
+    attestation: Mapped[str|None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    started_at: Mapped[datetime|None] = mapped_column(DateTime)
+    finished_at: Mapped[datetime|None] = mapped_column(DateTime)
+    heartbeat_at: Mapped[datetime|None] = mapped_column(DateTime)
+
+
+class E2ECase(Base):
+    """One provider inside an E2E v2 run, with the identifiers that link every stage."""
+    __tablename__ = "e2e_cases"
+    __table_args__ = (UniqueConstraint("run_id", "provider", name="uq_e2e_cases_run_provider"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    run_id: Mapped[str] = mapped_column(String(36), ForeignKey("e2e_runs.id", ondelete="CASCADE"), index=True, nullable=False)
+    provider: Mapped[str] = mapped_column(String(32), nullable=False)
+    # pending, running, passed, failed
+    status: Mapped[str] = mapped_column(String(16), default="pending", nullable=False)
+    stage: Mapped[str] = mapped_column(String(32), default="pending", nullable=False)
+    checks: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    idempotency_key: Mapped[str|None] = mapped_column(String(128))
+    payment_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    order_id: Mapped[str|None] = mapped_column(String(255))
+    provider_payment_id: Mapped[str|None] = mapped_column(String(255))
+    amount: Mapped[Decimal|None] = mapped_column(Numeric(12,2))
+    currency: Mapped[str|None] = mapped_column(String(3))
+    checkout_url: Mapped[str|None] = mapped_column(Text)
+    webhook_event_id: Mapped[str|None] = mapped_column(String(255))
+    subscription_id: Mapped[int|None] = mapped_column(Integer)
+    remote_user_id: Mapped[str|None] = mapped_column(String(255))
+    refund_id: Mapped[int|None] = mapped_column(Integer)
+    provider_refund_id: Mapped[str|None] = mapped_column(String(255))
+    error: Mapped[str|None] = mapped_column(Text)
+    checkout_at: Mapped[datetime|None] = mapped_column(DateTime)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class E2EWebhookCapture(Base):
+    """The first verified provider webhook of an E2E case, encrypted, kept only to replay it.
+
+    The body and headers are encrypted with APP_SECRET and erased when the run ends."""
+    __tablename__ = "e2e_webhook_captures"
+    __table_args__ = (UniqueConstraint("case_id", name="uq_e2e_webhook_captures_case"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    case_id: Mapped[int] = mapped_column(Integer, ForeignKey("e2e_cases.id", ondelete="CASCADE"), nullable=False)
+    provider: Mapped[str] = mapped_column(String(32), nullable=False)
+    path: Mapped[str] = mapped_column(String(128), nullable=False)
+    body_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    data_encrypted: Mapped[str|None] = mapped_column(Text)
+    received_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

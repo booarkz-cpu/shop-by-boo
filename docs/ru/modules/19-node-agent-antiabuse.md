@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.18.0. Runtime/API `21.5.1`, head магазина `0072_traffic_analysis`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.19.0. Runtime/API `21.5.1`, head магазина `0073_e2e_v2`, Support Pro `0008`.
 
 # 19. Агенты узлов и антиабуз
 
@@ -42,7 +42,7 @@
 
 ```bash
 mkdir -p /opt/corgi && cd /opt/corgi
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.18.0/scripts/node-agent.py -o node-agent.py
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.19.0/scripts/node-agent.py -o node-agent.py
 cat > /etc/corgi-agent.env <<'ENV'
 SHOP_API_BASE=https://api.ДОМЕН
 AGENT_TOKEN=токен-из-магазина
