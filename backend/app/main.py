@@ -135,6 +135,8 @@ from .bot_banners import router as bot_banners_router
 app.include_router(bot_banners_router)
 from .app_config import router as app_config_router
 app.include_router(app_config_router)
+from .telegram_stars import router as telegram_stars_router, TelegramStarsProvider
+app.include_router(telegram_stars_router)
 from .account_actions import router as account_actions_router
 app.include_router(account_actions_router)
 from .surveys import router as surveys_router
@@ -189,6 +191,9 @@ RATE_LIMITS = {
     "/api/payments/create": 20,
     "/api/payments/sandbox/complete": 30,
     "/api/public/servers": 30,
+    "/api/app-config": 120,
+    "/api/me/wallet/stars-invoice": 10,
+    "/api/me/consent": 30,
     "/api/me/servers": 30,
     "/api/tariff-constructors": 60,
     "/api/agent/heartbeat": 120,
@@ -1219,6 +1224,9 @@ async def create_payment(payload:dict, request:Request, db:AsyncSession=Depends(
     user=await user_from_token(request,db)
     from .platform_api import reject_restricted
     reject_restricted(user)
+    if not await e2e_checkout_allowed(db,request,payload):
+        from .app_config import require_consent
+        await require_consent(db,user)
     constructor_requested=payload.get("constructor_id") not in (None, "", 0, "0")
     constructor_quote=None
     quote_error=None
@@ -2003,7 +2011,7 @@ async def refund_revoke_scheduler():
     while True:
         try:
             async with AsyncSession(engine,expire_on_commit=False) as db:
-                providers={"yookassa":YooKassaProvider(),"platega":PlategaProvider(),"rollypay":RollyPayProvider(),"stripe":StripePlatform(),"paypal":PayPalPlatform()}
+                providers={"yookassa":YooKassaProvider(),"platega":PlategaProvider(),"rollypay":RollyPayProvider(),"stripe":StripePlatform(),"paypal":PayPalPlatform(),"telegram_stars":TelegramStarsProvider()}
                 pending=(await db.execute(select(RefundRequest).where(RefundRequest.status=="processing",RefundRequest.provider_refund_id.is_not(None)).order_by(RefundRequest.updated_at).limit(50))).scalars().all()
                 for r in pending:
                     p=await db.get(Payment,r.payment_id); provider=providers.get(p.provider) if p else None
@@ -2396,6 +2404,8 @@ async def subscription_lifecycle(payload:SubscriptionActionIn,request:Request,db
     finally:
         await _release_payment_side_effect_lock(lock,token)
 
+YOOKASSA_METHODS={"bank_card","sbp","yoo_money","sberbank","tinkoff_bank"}
+
 def _money(value) -> Decimal:
     return Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
@@ -2408,8 +2418,12 @@ async def wallet_topup(payload:dict, request:Request, db:AsyncSession=Depends(ge
     if not sandbox_requested and not await production_payments_allowed(db):
         raise HTTPException(503,"Приём платежей временно остановлен администратором")
     user=await user_from_token(request,db)
+    from .app_config import require_consent
+    await require_consent(db,user)
     idem=request.headers.get("Idempotency-Key")
     if not idem or len(idem)>128: raise HTTPException(400,"Idempotency-Key is required")
+    method=str(payload.get("method") or "")
+    if method and method not in YOOKASSA_METHODS: raise HTTPException(400,"Unsupported payment method")
     try:
         amount=_money(payload.get("amount"))
     except Exception:
@@ -2432,6 +2446,7 @@ async def wallet_topup(payload:dict, request:Request, db:AsyncSession=Depends(ge
     try:
         meta={"order_id":order_id,"user_id":user.id,"email":user.email,"return_url":settings.cabinet_url or settings.mini_app_url,"cancel_url":settings.cabinet_url or settings.mini_app_url}
         if candidate in {"stripe","paypal","crypto"}: result=await provider.create(amount,settings.default_currency,"Wallet top-up",meta)
+        elif candidate=="yookassa" and method: result=await provider.create(amount,order_id,"Wallet top-up",settings.mini_app_url,method=method)
         else: result=await provider.create(amount,order_id,"Wallet top-up",settings.mini_app_url)
         if not result.get("id"): raise RuntimeError("Payment provider returned no payment ID")
         row=(await db.execute(select(Payment).where(Payment.id==row.id).with_for_update())).scalar_one()
@@ -2459,6 +2474,8 @@ async def wallet_spend(payload:dict, request:Request, db:AsyncSession=Depends(ge
     user=await user_from_token(request,db)
     from .platform_api import reject_restricted
     reject_restricted(user)
+    from .app_config import require_consent
+    await require_consent(db,user)
     constructor_requested=payload.get("constructor_id") not in (None, "", 0, "0")
     constructor_quote=None
     quote_error=None
@@ -2924,7 +2941,7 @@ async def execute_refund(refund_id:int,db:AsyncSession=Depends(get_db),admin=Dep
     if r.status not in {"requested","approved","review"}: raise HTTPException(400,"Refund must be requested, approved, or retried from review")
     p=await db.get(Payment,r.payment_id)
     if not p: raise HTTPException(404,"Payment not found")
-    provider={"yookassa":YooKassaProvider(),"platega":PlategaProvider(),"rollypay":RollyPayProvider(),"stripe":StripePlatform(),"paypal":PayPalPlatform()}.get(p.provider)
+    provider={"yookassa":YooKassaProvider(),"platega":PlategaProvider(),"rollypay":RollyPayProvider(),"stripe":StripePlatform(),"paypal":PayPalPlatform(),"telegram_stars":TelegramStarsProvider()}.get(p.provider)
     if not provider or not hasattr(provider,"refund"): raise HTTPException(409,"Automatic refund is not supported by this provider adapter")
     # Claim the refund before calling the external provider. The state transition is
     # committed separately so a second admin request cannot issue a second refund.
@@ -3455,7 +3472,7 @@ async def reconcile_refund(refund_id:int,db:AsyncSession=Depends(get_db),admin=D
     if not r.provider_refund_id: raise HTTPException(409,"Provider refund ID is missing")
     p=await db.get(Payment,r.payment_id)
     if not p: raise HTTPException(404,"Payment not found")
-    providers={"yookassa":YooKassaProvider(),"platega":PlategaProvider(),"rollypay":RollyPayProvider(),"stripe":StripePlatform(),"paypal":PayPalPlatform()}
+    providers={"yookassa":YooKassaProvider(),"platega":PlategaProvider(),"rollypay":RollyPayProvider(),"stripe":StripePlatform(),"paypal":PayPalPlatform(),"telegram_stars":TelegramStarsProvider()}
     provider=providers.get(p.provider)
     if not provider or not hasattr(provider,"get_refund_status"): raise HTTPException(409,"Refund status adapter is unavailable")
     try:

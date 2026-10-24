@@ -45,6 +45,9 @@ export type TelegramWebApp = {
   onEvent?: (event: string, cb: () => void) => void;
   offEvent?: (event: string, cb: () => void) => void;
   openLink?: (url: string, options?: {try_instant_view?: boolean}) => void;
+  openTelegramLink?: (url: string) => void;
+  openInvoice?: (url: string, cb?: (status: "paid" | "cancelled" | "failed" | "pending") => void) => void;
+  initDataUnsafe?: {user?: {first_name?: string; username?: string; language_code?: string}};
   showConfirm?: (message: string, cb: (ok: boolean) => void) => void;
   HapticFeedback?: Haptic;
   BackButton?: TgButton;
@@ -198,4 +201,31 @@ export function openExternal(url: string) {
     return;
   }
   window.open(url, "_blank", "noopener,noreferrer");
+}
+
+
+/** Telegram Stars / payments invoice (Bot API 6.1+). Resolves with the final invoice status. */
+export function openInvoice(url: string): Promise<"paid" | "cancelled" | "failed" | "pending" | "unsupported"> {
+  const app = telegram();
+  if (!app?.openInvoice || (app.isVersionAtLeast && !app.isVersionAtLeast("6.1"))) return Promise.resolve("unsupported");
+  return new Promise((resolve) => {
+    try {
+      app.openInvoice?.(url, (status) => resolve(status));
+    } catch {
+      resolve("failed");
+    }
+  });
+}
+
+/** Open a t.me link inside Telegram, any other https link in the in-app browser. */
+export function openAnyLink(url: string) {
+  const app = telegram();
+  if (app && /^https:\/\/t\.me\//.test(url) && app.openTelegramLink) {
+    try { app.openTelegramLink(url); return; } catch { /* fall through */ }
+  }
+  openExternal(url);
+}
+
+export function telegramFirstName(): string {
+  return telegram()?.initDataUnsafe?.user?.first_name || "";
 }

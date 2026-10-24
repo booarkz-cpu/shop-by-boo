@@ -42,6 +42,13 @@ SECTIONS = {
     "support": ("ПОДДЕРЖКА", "#38bdf8", "chat", "headset"),
     "devices": ("УСТРОЙСТВА", "#22d3ee", "devices", "sit"),
     "surveys": ("ОПРОСЫ", "#facc15", "clipboard", "sit"),
+    # Mini App sections
+    "home": ("ГЛАВНАЯ", "#39ff88", "house", "wave"),
+    "topup": ("ПОПОЛНЕНИЕ БАЛАНСА", "#39ff88", "topup", "sit"),
+    "trial": ("ПРОБНЫЙ ПЕРИОД", "#a3e635", "hourglass", "sit"),
+    "connection": ("ПОДКЛЮЧЕНИЕ", "#2dd4bf", "qr", "sit"),
+    "servers": ("СЕРВЕРЫ", "#60a5fa", "globe", "sit"),
+    "info": ("ИНФОРМАЦИЯ", "#c084fc", "book", "sit"),
 }
 
 
@@ -173,6 +180,53 @@ def prop(kind: str, a: str) -> str:
         return (f'<rect x="-105" y="-118" width="210" height="240" rx="22" fill="{a}" {w}/>'
                 f'<rect x="-90" y="-90" width="180" height="198" rx="12" fill="#fffbe8"/>'
                 f'<rect x="-44" y="-136" width="88" height="40" rx="12" fill="#9fb0cc" {S(5)}/>' + rows)
+    if kind == "house":
+        return (f'<path d="M-120 -10 L0 -120 L120 -10" fill="none" stroke="{O}" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<path d="M-120 -10 L0 -120 L120 -10" fill="none" stroke="{a}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<rect x="-95" y="-20" width="190" height="135" rx="14" fill="#e9fff3" {w}/>'
+                f'<rect x="-28" y="30" width="56" height="85" rx="10" fill="{a}" {S(5)}/>'
+                f'<rect x="-80" y="5" width="40" height="36" rx="8" fill="#bdf7d6" {S(4)}/><rect x="40" y="5" width="40" height="36" rx="8" fill="#bdf7d6" {S(4)}/>'
+                f'<path d="M0 -70 C-14 -86 -36 -76 -28 -58 L0 -34 L28 -58 C36 -76 14 -86 0 -70 Z" fill="#ff8fa3" {S(4)}/>')
+    if kind == "topup":
+        coin = lambda x, y, r: (f'<circle cx="{x}" cy="{y}" r="{r}" fill="#ffd54a" {S(5)}/>'
+                                f'<circle cx="{x}" cy="{y}" r="{r * .66:.0f}" fill="none" stroke="#e0a800" stroke-width="5"/>')
+        return (f'<rect x="-120" y="-40" width="210" height="150" rx="26" fill="#1f2b45" {w}/>'
+                f'<rect x="-104" y="-24" width="178" height="40" rx="10" fill="{a}" opacity=".9"/>'
+                f'<rect x="-104" y="40" width="80" height="14" rx="7" fill="#8fa3c7"/><rect x="-104" y="66" width="120" height="14" rx="7" fill="#5f7398"/>'
+                + coin(90, -80, 36) + coin(30, -120, 26) +
+                f'<circle cx="105" cy="70" r="44" fill="{a}" {S(6)}/>'
+                f'<path d="M105 48 V92 M83 70 H127" stroke="#0b1220" stroke-width="12" stroke-linecap="round"/>')
+    if kind == "hourglass":
+        return (f'<rect x="-80" y="-120" width="160" height="26" rx="12" fill="{a}" {w}/>'
+                f'<rect x="-80" y="94" width="160" height="26" rx="12" fill="{a}" {w}/>'
+                f'<path d="M-62 -94 H62 C62 -40 14 -16 14 0 C14 16 62 40 62 94 H-62 C-62 40 -14 16 -14 0 C-14 -16 -62 -40 -62 -94 Z" fill="#effee0" {w}/>'
+                f'<path d="M-40 -70 H40 C34 -44 10 -28 0 -16 C-10 -28 -34 -44 -40 -70 Z" fill="#ffd54a"/>'
+                f'<path d="M-44 86 C-40 60 -14 44 0 40 C14 44 40 60 44 86 Z" fill="#ffd54a"/>'
+                f'<path d="M0 -10 V36" stroke="#e0a800" stroke-width="5" stroke-dasharray="6 8"/>'
+                f'<path d="{star_path(95, -90, 26)}" fill="#fff3b0" {S(4)}/>')
+    if kind == "qr":
+        cells = "".join(f'<rect x="{-58 + (i % 6) * 20}" y="{-58 + (i // 6) * 20}" width="16" height="16" rx="3" fill="{O}"/>'
+                        for i in (2, 3, 8, 9, 14, 16, 19, 20, 21, 26, 27, 32, 33, 35))
+        finder = lambda x, y: (f'<rect x="{x}" y="{y}" width="44" height="44" rx="8" fill="none" stroke="{O}" stroke-width="8"/>'
+                               f'<rect x="{x + 14}" y="{y + 14}" width="16" height="16" rx="3" fill="{O}"/>')
+        return (f'<rect x="-100" y="-100" width="200" height="200" rx="26" fill="#f0fffc" {w}/>'
+                + finder(-80, -80) + finder(36, -80) + finder(-80, 36) + cells +
+                f'<circle cx="92" cy="92" r="40" fill="{a}" {S(6)}/>'
+                f'<path d="M78 80 V96 M106 80 V96 M70 96 H114 V104 C114 116 104 124 92 124 C80 124 70 116 70 104 Z" fill="#0b1220" stroke="#0b1220" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>')
+    if kind == "globe":
+        pin = lambda x, y, c: (f'<path d="M{x} {y + 30} C{x - 22} {y + 4} {x - 22} {y - 22} {x} {y - 22} C{x + 22} {y - 22} {x + 22} {y + 4} {x} {y + 30} Z" fill="{c}" {S(4)}/>'
+                               f'<circle cx="{x}" cy="{y - 4}" r="7" fill="#fff"/>')
+        return (f'<circle cx="0" cy="0" r="112" fill="#1e3a8a" {w}/>'
+                f'<path d="M-70 -60 C-30 -80 0 -50 -20 -20 C-40 10 -90 0 -96 -30 Z M10 20 C50 0 90 30 70 70 C50 100 10 80 0 50 Z M30 -96 C60 -90 90 -60 80 -40 C60 -50 30 -60 30 -96 Z" fill="{a}" opacity=".85"/>'
+                f'<ellipse cx="0" cy="0" rx="112" ry="40" fill="none" stroke="#9ec5ff" stroke-width="4" opacity=".6"/>'
+                f'<ellipse cx="0" cy="0" rx="45" ry="112" fill="none" stroke="#9ec5ff" stroke-width="4" opacity=".6"/>'
+                + pin(-40, -50, "#ff7a7a") + pin(50, 30, "#ffd54a") + pin(70, -70, "#39ff88"))
+    if kind == "book":
+        return (f'<path d="M0 -80 C-40 -104 -96 -104 -124 -90 V96 C-96 82 -40 82 0 106 Z" fill="#f6efff" {w}/>'
+                f'<path d="M0 -80 C40 -104 96 -104 124 -90 V96 C96 82 40 82 0 106 Z" fill="#ede0ff" {w}/>'
+                + "".join(f'<path d="M-100 {y} C-70 {y - 10} -40 {y - 10} -20 {y}" stroke="#c9b4f2" stroke-width="8" fill="none" stroke-linecap="round"/>' for y in (-50, -20, 10, 40))
+                + f'<circle cx="62" cy="0" r="40" fill="{a}" {S(6)}/>'
+                f'<circle cx="62" cy="-18" r="7" fill="#fff"/><rect x="55" y="-4" width="14" height="34" rx="7" fill="#fff"/>')
     raise KeyError(kind)
 
 

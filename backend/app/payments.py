@@ -163,8 +163,10 @@ class YooKassaProvider(BasePaymentProvider):
                 ),
             },
             "description": description,
-            "metadata": metadata,
+            "metadata": {k: v for k, v in metadata.items() if k != "payment_method_type"},
         }
+        if metadata.get("payment_method_type"):
+            payload["payment_method_data"] = {"type": metadata["payment_method_type"]}
 
         email = metadata.get("email")
         if email:
@@ -293,8 +295,12 @@ class YooKassaProvider(BasePaymentProvider):
         for eid in expired:
             del self._processed_events[eid]
 
-    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str) -> Dict[str, Any]:
-        data = await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url})
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        meta = {"order_id": order_id, "return_url": return_url}
+        if method:
+            # Preselects SBP, card or another YooKassa method (payment_method_data.type).
+            meta["payment_method_type"] = method
+        data = await self.create_payment(float(amount), settings.default_currency, description, meta)
         return _checkout(data)
 
     async def charge_recurring(self, amount: Decimal, order_id: str, description: str, payment_method_id: str) -> Dict[str, Any]:
@@ -559,8 +565,12 @@ class RollyPayProvider(BasePaymentProvider):
         data = response.json()
         return str(data.get("status") or "")
 
-    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str) -> Dict[str, Any]:
-        data = await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url})
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        meta = {"order_id": order_id, "return_url": return_url}
+        if method:
+            # Preselects SBP, card or another YooKassa method (payment_method_data.type).
+            meta["payment_method_type"] = method
+        data = await self.create_payment(float(amount), settings.default_currency, description, meta)
         return _checkout(data)
 
     async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str|None = None) -> bool:

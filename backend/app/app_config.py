@@ -339,7 +339,7 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
     if not methods:
         names = {"yookassa": ("Банковская карта", "card"), "platega": ("СБП", "sbp"), "rollypay": ("Криптовалюта", "crypto"), "sandbox": ("Тестовая оплата", "card")}
         methods = [{"id": p, "title": names[p][0], "icon": names[p][1], "provider": p, "yookassa_method": ""} for p in providers if p in names]
-        if "yookassa" in providers:
+        if "yookassa" in providers and "platega" not in providers:
             methods.insert(1, {"id": "yookassa-sbp", "title": "СБП", "icon": "sbp", "provider": "yookassa", "yookassa_method": "sbp"})
     stars = overrides.wallet.stars
     stars_ready = stars.enabled and bool(settings.bot_token)
@@ -371,6 +371,7 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
         "texts": texts,
         "navigation": navigation,
         "banners": banners,
+        "banner_keys": SECTION_BANNERS,
         "promos": _promos(plans, ads, overrides, currency),
         "plans": plans,
         "servers": {"categories": [c.model_dump() for c in overrides.servers.categories], "show_load": overrides.servers.show_load},
@@ -390,9 +391,15 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
 
 @router.get("/api/app-config")
 async def app_config(request: Request, response: Response, db: AsyncSession = Depends(get_db)):
-    response.headers["Cache-Control"] = "private, max-age=30"
-    response.headers["Vary"] = "X-Telegram-Init-Data"
-    return await build_config(db, request)
+    config = await build_config(db, request)
+    viewer = hashlib.sha256(json.dumps(config["viewer"], sort_keys=True).encode()).hexdigest()[:8]
+    etag = f'"{config["version"]}-{viewer}"'
+    headers = {"Cache-Control": "private, no-cache", "Vary": "X-Telegram-Init-Data", "ETag": etag}
+    # Clients revalidate on every start; an unchanged config costs a 304 without a body.
+    if request.headers.get("If-None-Match") == etag:
+        return Response(status_code=304, headers=headers)
+    response.headers.update(headers)
+    return config
 
 
 # ---------------------------------------------------------------- consent
