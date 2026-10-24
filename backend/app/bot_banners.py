@@ -60,6 +60,14 @@ SECTIONS: dict[str, tuple[str, str]] = {
     "support": ("Поддержка", "/support"),
     "devices": ("Устройства", "/devices"),
     "surveys": ("Опросы", "/surveys"),
+    # Mini App sections (the Mini App also uses buy, subscription, payments, gifts, referral,
+    # support, devices, surveys and account from the list above).
+    "home": ("Главная", "Mini App: главная"),
+    "topup": ("Пополнение баланса", "Mini App: кошелёк"),
+    "trial": ("Пробный период", "Mini App: пробный период"),
+    "connection": ("Подключение", "Mini App: подключение"),
+    "servers": ("Серверы", "Mini App: серверы"),
+    "info": ("Информация", "Mini App: информация и оферта"),
 }
 MENU_KEY = re.compile(r"^menu-([1-9][0-9]{0,9})$")
 

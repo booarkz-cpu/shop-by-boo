@@ -107,3 +107,7 @@ input:focus, select:focus, textarea:focus{ border-color: var(--aurora-blue) !imp
 .alert{ border-color: rgba(255,207,112,.28); background: rgba(255,207,112,.08); }
 .empty-state{ border: 1px dashed var(--aurora-line); border-radius: 16px; }
 @media (max-width: 680px) {.card{ border-radius: 16px; padding: 18px; }}
+
+.config-rows{display:grid;gap:10px;margin:8px 0}
+.config-row{display:grid;gap:8px;margin:0}
+.app-config-editor{display:grid;gap:16px}

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1223**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1227**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -373,11 +373,13 @@
 | [backend/alembic/versions/0072_traffic_analysis.py](../backend/alembic/versions/0072_traffic_analysis.py) | API, бот и worker |
 | [backend/alembic/versions/0073_e2e_v2.py](../backend/alembic/versions/0073_e2e_v2.py) | API, бот и worker |
 | [backend/alembic/versions/0074_automation_engine.py](../backend/alembic/versions/0074_automation_engine.py) | API, бот и worker |
+| [backend/alembic/versions/0075_app_config.py](../backend/alembic/versions/0075_app_config.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
 | [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
+| [backend/app/app_config.py](../backend/app/app_config.py) | API, бот и worker |
 | [backend/app/assets/bot_banners/account.jpg](../backend/app/assets/bot_banners/account.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/balance.jpg](../backend/app/assets/bot_banners/balance.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/buy.jpg](../backend/app/assets/bot_banners/buy.jpg) | API, бот и worker |
@@ -978,6 +980,7 @@
 | [scripts/test-up.sh](../scripts/test-up.sh) | Эксплуатация и релиз |
 | [scripts/update-from-github.sh](../scripts/update-from-github.sh) | Эксплуатация и релиз |
 | [scripts/update.sh](../scripts/update.sh) | Эксплуатация и релиз |
+| [scripts/upgrade-postgres.sh](../scripts/upgrade-postgres.sh) | Эксплуатация и релиз |
 | [scripts/v15_quality_gate.py](../scripts/v15_quality_gate.py) | Эксплуатация и релиз |
 | [scripts/v16_production_gate.py](../scripts/v16_production_gate.py) | Эксплуатация и релиз |
 | [scripts/v19_marketplace_gate.py](../scripts/v19_marketplace_gate.py) | Эксплуатация и релиз |
@@ -1130,6 +1133,7 @@
 | [tests/test_personal_offers.py](../tests/test_personal_offers.py) | Проверки |
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |
+| [tests/test_postgres18.py](../tests/test_postgres18.py) | Проверки |
 | [tests/test_production_installer_v2016.py](../tests/test_production_installer_v2016.py) | Проверки |
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
 | [tests/test_provider_metric_counters.py](../tests/test_provider_metric_counters.py) | Проверки |

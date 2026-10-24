@@ -50,6 +50,8 @@ if [[ -n "${UPDATE_STAGE:-}" ]]; then
   [[ -d "$UPDATE_STAGE" && -f "$UPDATE_STAGE/backend/app/main.py" ]] || { echo "UPDATE_STAGE is not a shop release" >&2; exit 1; }
   tar --exclude='./.env' --exclude='./.env.*' --exclude='*/.env' --exclude='*/.env.*' --exclude='./.rollback' --exclude='*/.rollback' --exclude='./.git' --exclude='*/.git' -C "$UPDATE_STAGE" -cf - . | tar -C "$APP_DIR" -xf -
 fi
+# v28.23.0+: move PostgreSQL 16 data to the PostgreSQL 18 volumes once (no-op afterwards).
+bash scripts/upgrade-postgres.sh
 bash deploy/build-production.sh
 bash scripts/doctor.sh
 trap - ERR

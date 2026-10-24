@@ -35,6 +35,8 @@ async def purchase_gift(payload,request,db):
     from .platform_api import reject_restricted
     if await main.maintenance_enabled(db):raise HTTPException(503,'Service is in maintenance mode')
     user=await main.user_from_token(request,db);reject_restricted(user)
+    from .app_config import require_consent
+    await require_consent(db,user)
     key=request.headers.get('Idempotency-Key')
     if not key or len(key)>128:raise HTTPException(400,'Idempotency-Key is required')
     digest=fingerprint(payload)
