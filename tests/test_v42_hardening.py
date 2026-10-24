@@ -43,9 +43,10 @@ def test_miniapp_consumes_configured_buttons_and_images():
     assert 'm.image' in s
 
 def test_bot_consumes_start_image():
-    s=read('backend/app/bot.py')
+    s=read('backend/app/bot_banners.py')
     assert 'bot_start_image' in s
     assert 'answer_photo' in s
+    assert 'send_section(message,"start"' in read('backend/app/bot.py')
 
 def test_build_release_points_to_v42():
     s=read('scripts/build-release.sh')

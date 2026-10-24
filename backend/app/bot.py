@@ -10,6 +10,7 @@ from sqlalchemy import select, text as sql_text
 from sqlalchemy.ext.asyncio import AsyncSession
 from .config import settings
 from .db import engine
+from .bot_banners import send_section
 from .models import AppSetting,BotMenuItem,CustomField,Promotion,Advertisement,Plan,Broadcast,User,Subscription,AbuseViolation,NodeAgent
 
 logger = logging.getLogger("remnawave.broadcast")
@@ -217,11 +218,12 @@ async def menu_callback(query:CallbackQuery):
         if not row or row.item_type!='field' or row not in visible_children(menu,row.parent_id):await query.answer('Кнопка больше не доступна');return
         field=next((f for f in fields if f.key==row.action and f.enabled),None)
         if not field:await query.answer('Поле больше не доступно');return
-        await query.answer();await menu_answer(query.message.answer,f'<b>{escape(field.label)}</b>\n{escape(field.value)}',parse_mode='HTML');return
+        await query.answer();await send_section(query.message,f'menu-{row.id}',f'<b>{escape(field.label)}</b>\n{escape(field.value)}');return
     if item_id and (not row or row.item_type!='folder' or not visible_children(menu,item_id)):
         await query.answer('Меню пусто или больше не доступно');return
     markup=telegram_keyboard(menu,fields,item_id or None)
-    await query.answer();await menu_answer(query.message.answer,escape(row.title) if row else 'Меню',reply_markup=markup,parse_mode='HTML')
+    # Navigation edits the same message (banner + text + buttons) instead of posting new ones.
+    await query.answer();await send_section(query.message,f'menu-{row.id}' if row else 'menu',escape(row.title) if row else 'Меню',markup,fallback='menu',edit=True)
 
 
 @router.message(CommandStart())
@@ -305,16 +307,8 @@ async def start(message:Message):
         if a.button_text and a.button_url: buttons.append([InlineKeyboardButton(text=a.button_text,url=a.button_url)])
     if field_text: text += "\n\n"+"\n\n".join(field_text)
     markup=InlineKeyboardMarkup(inline_keyboard=buttons)
-    start_image=vals.get("bot_start_image","")
-    if start_image:
-        photo_url=start_image if start_image.startswith("https://") else settings.public_base_url.rstrip("/")+"/"+start_image.lstrip("/")
-        try:
-            await menu_answer(message.answer_photo,photo=photo_url,caption=text,reply_markup=markup,parse_mode="HTML")
-            return
-        except Exception as exc:
-            # Image delivery must never break the bot's core /start response.
-            logger.warning("Bot start image delivery failed; falling back to text: %s", exc)
-    await menu_answer(message.answer,text,reply_markup=markup,parse_mode="HTML")
+    # Banner: own image from the admin panel, the legacy /start image or the default corgi Lusi.
+    await send_section(message,"start",text,markup)
 
 @router.message(Command("buy"))
 async def buy(message: Message):
@@ -330,7 +324,7 @@ async def buy(message: Message):
     unit = "дн." if lang == "ru" else "days"
     lines = [f"• {escape(p.name)} — {p.price:.2f} {currency} / {p.duration_days} {unit}" for p in plans]
     url = settings.mini_app_url
-    await message.answer(("🛒 <b>Тарифы</b>\n" if lang == "ru" else "🛒 <b>Plans</b>\n") + "\n".join(lines), parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang, "open"), web_app=WebAppInfo(url=url))]]))
+    await send_section(message, "buy", ("🛒 <b>Тарифы</b>\n" if lang == "ru" else "🛒 <b>Plans</b>\n") + "\n".join(lines), InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang, "open"), web_app=WebAppInfo(url=url))]]))
 
 @router.message(Command("subscription"))
 async def subscription(message: Message):
@@ -345,9 +339,9 @@ async def subscription(message: Message):
         user = await identity_user(db, "telegram", int(message.from_user.id))
         sub = (await db.execute(select(Subscription).where(Subscription.user_id == user.id,Subscription.is_primary.is_(True)))).scalar_one_or_none() if user else None
     if not sub or not sub.subscription_url:
-        await message.answer("Активной подписки нет. Откройте магазин." if lang == "ru" else "No active subscription. Open the shop.", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"), web_app=WebAppInfo(url=settings.mini_app_url))]]))
+        await send_section(message, "subscription", "Активной подписки нет. Откройте магазин." if lang == "ru" else "No active subscription. Open the shop.", InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"), web_app=WebAppInfo(url=settings.mini_app_url))]]))
         return
-    await message.answer(("Ваша подписка:\n" if lang == "ru" else "Your subscription:\n") + escape(sub.subscription_url), parse_mode="HTML")
+    await send_section(message, "subscription", ("Ваша подписка:\n" if lang == "ru" else "Your subscription:\n") + escape(sub.subscription_url))
 
 @router.message(Command("promo"))
 async def promo(message:Message):
@@ -362,7 +356,7 @@ async def promo(message:Message):
     # Deep-link into Mini App with the code; server validates it again before payment.
     from urllib.parse import quote
     promo_code=code[1].strip().upper()
-    await message.answer(_tr(lang,"promo_ready",code=escape(promo_code)),reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=settings.mini_app_url+"?promo="+quote(promo_code)))] ]),parse_mode="HTML")
+    await send_section(message,"promo",_tr(lang,"promo_ready",code=escape(promo_code)),InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=settings.mini_app_url+"?promo="+quote(promo_code)))] ]))
 
 @router.message(Command("ops"))
 async def ops(message: Message):

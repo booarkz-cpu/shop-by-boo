@@ -131,6 +131,8 @@ from .e2e_v2 import router as e2e_v2_router, checkout_allowed as e2e_checkout_al
 app.include_router(e2e_v2_router)
 from .automation import router as automation_router
 app.include_router(automation_router)
+from .bot_banners import router as bot_banners_router
+app.include_router(bot_banners_router)
 from .account_actions import router as account_actions_router
 app.include_router(account_actions_router)
 from .surveys import router as surveys_router
@@ -1654,7 +1656,7 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
         op_row.status="processing"; op_row.attempts=(op_row.attempts or 0)+1; op_row.updated_at=now; await db.commit()
         try:
             if sub and sub.remnawave_uuid in {"None","none","null"}:
-                # Releases before v28.21.0 read the panel answer without its "response" wrapper and
+                # Releases before v28.22.0 read the panel answer without its "response" wrapper and
                 # stored the literal "None". Forget it: the user is then found again by username.
                 sub.remnawave_uuid=None
             if payment.provider == "sandbox" and sandbox_local_vpn():
@@ -4823,8 +4825,12 @@ async def admin_menu_delete(item_id:int,db:AsyncSession=Depends(get_db),admin=De
     x=await db.get(BotMenuItem,item_id)
     if not x: raise HTTPException(404,"Menu item not found")
     await db.delete(x)
+    from .bot_banners import forget_menu_banner
+    banner_file=await forget_menu_banner(db,item_id)
     await audit(db,"content.menu.deleted",admin.email,str(item_id))
     await db.commit()
+    from .bot_banners import remove_file
+    remove_file(banner_file)
     return {"ok":True}
 
 @app.post("/api/admin/fields")

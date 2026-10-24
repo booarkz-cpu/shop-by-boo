@@ -51,4 +51,5 @@ async def workspace(message: Message):
             if not rows: lines.append("Платежей пока нет.")
     keys = list(PAGES) if command == "account" else [command]
     buttons = [[InlineKeyboardButton(text=TITLES[key], web_app=WebAppInfo(url=page_url(PAGES[key])))] for key in keys if page_url(PAGES[key])]
-    await message.answer("\n".join(lines), parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None)
+    from .bot_banners import send_section
+    await send_section(message, command if command in PAGES else "account", "\n".join(lines), InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None)

@@ -86,6 +86,7 @@ export const SECTION_GROUPS = [
     items: [
       {tab: "content", label: "Меню бота и Mini App", description: "Тексты бота, кнопки главного меню, экран Mini App и инструкции по подключению.", keywords: "тексты кнопки telegram"},
       {tab: "menuTree", label: "Дерево кнопок", description: "Вложенные меню бота: порядок кнопок, подменю и действия по нажатию.", keywords: "меню"},
+      {tab: "botBanners", label: "Баннеры бота", description: "Картинки над разделами и кнопками бота: стандартные с корги Люси или свои.", keywords: "баннер картинка изображение start"},
       {tab: "cabinet", label: "Личный кабинет", description: "Вкладки веб-кабинета клиента: порядок, названия и собственные страницы.", keywords: "веб-кабинет вкладки"},
       {tab: "apps", label: "Android и iOS", description: "Приложения магазина: версии, файлы для загрузки и ссылки на сторы.", keywords: "apk мобильные"},
       {tab: "branding", label: "Оформление", description: "Название магазина, логотип, иконка сайта, цвета и тема по умолчанию.", keywords: "брендинг логотип тема"},

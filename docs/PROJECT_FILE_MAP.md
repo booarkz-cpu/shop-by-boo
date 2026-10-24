@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.21.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.22.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1199**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1223**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -216,6 +216,7 @@
 | [admin/components.json](../admin/components.json) | Админ-панель |
 | [admin/default.conf](../admin/default.conf) | Админ-панель |
 | [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
+| [admin/e2e/bot-banners.spec.ts](../admin/e2e/bot-banners.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
@@ -244,6 +245,7 @@
 | [admin/src/app/layout.tsx](../admin/src/app/layout.tsx) | Админ-панель |
 | [admin/src/app/page.tsx](../admin/src/app/page.tsx) | Админ-панель |
 | [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
+| [admin/src/botBanners.tsx](../admin/src/botBanners.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
 | [admin/src/components/preferences-menu.tsx](../admin/src/components/preferences-menu.tsx) | Админ-панель |
 | [admin/src/components/select-field.tsx](../admin/src/components/select-field.tsx) | Админ-панель |
@@ -376,8 +378,22 @@
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
 | [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
+| [backend/app/assets/bot_banners/account.jpg](../backend/app/assets/bot_banners/account.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/balance.jpg](../backend/app/assets/bot_banners/balance.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/buy.jpg](../backend/app/assets/bot_banners/buy.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/devices.jpg](../backend/app/assets/bot_banners/devices.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/gifts.jpg](../backend/app/assets/bot_banners/gifts.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/menu.jpg](../backend/app/assets/bot_banners/menu.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/payments.jpg](../backend/app/assets/bot_banners/payments.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/promo.jpg](../backend/app/assets/bot_banners/promo.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/referral.jpg](../backend/app/assets/bot_banners/referral.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/start.jpg](../backend/app/assets/bot_banners/start.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/subscription.jpg](../backend/app/assets/bot_banners/subscription.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/support.jpg](../backend/app/assets/bot_banners/support.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/surveys.jpg](../backend/app/assets/bot_banners/surveys.jpg) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
+| [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
@@ -583,6 +599,8 @@
 | [docs/en/TESTING.md](../docs/en/TESTING.md) | Документация |
 | [docs/examples/plugin/README.md](../docs/examples/plugin/README.md) | Документация |
 | [docs/examples/plugin/manifest.json](../docs/examples/plugin/manifest.json) | Документация |
+| [docs/img/bot-banner-start.jpg](../docs/img/bot-banner-start.jpg) | Документация |
+| [docs/img/bot-banners-all.jpg](../docs/img/bot-banners-all.jpg) | Документация |
 | [docs/img/bot-commands.svg](../docs/img/bot-commands.svg) | Документация |
 | [docs/img/bot-start.svg](../docs/img/bot-start.svg) | Документация |
 | [docs/img/miniapp-plans.svg](../docs/img/miniapp-plans.svg) | Документация |
@@ -658,6 +676,7 @@
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_20_0.md](../docs/ru/RELEASE_V28_20_0.md) | Документация |
 | [docs/ru/RELEASE_V28_21_0.md](../docs/ru/RELEASE_V28_21_0.md) | Документация |
+| [docs/ru/RELEASE_V28_22_0.md](../docs/ru/RELEASE_V28_22_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -923,6 +942,10 @@
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/backup.sh](../scripts/backup.sh) | Эксплуатация и релиз |
 | [scripts/backup_bundle.py](../scripts/backup_bundle.py) | Эксплуатация и релиз |
+| [scripts/bot-banners/fonts/OFL-Rubik.txt](../scripts/bot-banners/fonts/OFL-Rubik.txt) | Эксплуатация и релиз |
+| [scripts/bot-banners/fonts/rubik-cyrillic-900-normal.woff2](../scripts/bot-banners/fonts/rubik-cyrillic-900-normal.woff2) | Эксплуатация и релиз |
+| [scripts/bot-banners/fonts/rubik-latin-900-normal.woff2](../scripts/bot-banners/fonts/rubik-latin-900-normal.woff2) | Эксплуатация и релиз |
+| [scripts/bot-banners/render.py](../scripts/bot-banners/render.py) | Эксплуатация и релиз |
 | [scripts/build-android-apk.sh](../scripts/build-android-apk.sh) | Эксплуатация и релиз |
 | [scripts/build-ios-packages.sh](../scripts/build-ios-packages.sh) | Эксплуатация и релиз |
 | [scripts/build-ios-signed.sh](../scripts/build-ios-signed.sh) | Эксплуатация и релиз |
@@ -1070,6 +1093,7 @@
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
+| [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |
 | [tests/test_content_publishing.py](../tests/test_content_publishing.py) | Проверки |
 | [tests/test_critical_audit_v2002.py](../tests/test_critical_audit_v2002.py) | Проверки |
