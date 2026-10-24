@@ -193,6 +193,9 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+    volumes:
+      # Banners uploaded in the admin panel are read from the shared media volume.
+      - media_data:/data/media:ro
 
   admin:
     build:

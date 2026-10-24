@@ -1,4 +1,4 @@
-# Каталог API — v28.21.0 / API v21.5.1
+# Каталог API — v28.22.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0074_automation_engine`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -55,6 +55,11 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/backups/{backup_id}/restore/request` | Request Restore |
 | `POST` | `/api/admin/backups/{backup_id}/validate` | Validate Backup Archive |
 | `POST` | `/api/admin/backups/{backup_id}/verify` | Verify Backup |
+| `GET` | `/api/admin/bot/banners` | List Banners |
+| `PUT` | `/api/admin/bot/banners-enabled` | Banners Enabled |
+| `DELETE` | `/api/admin/bot/banners/{key}` | Reset Banner |
+| `POST` | `/api/admin/bot/banners/{key}` | Upload Banner |
+| `PUT` | `/api/admin/bot/banners/{key}/visibility` | Banner Visibility |
 | `DELETE` | `/api/admin/bot/start-image` | Admin Bot Start Image Delete |
 | `POST` | `/api/admin/bot/start-image` | Admin Bot Start Image |
 | `POST` | `/api/admin/branding/favicon` | Admin Branding Favicon |
@@ -380,6 +385,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/auth/vk/callback` | Vk Callback |
 | `GET` | `/api/auth/yandex` | Yandex Login |
 | `GET` | `/api/auth/yandex/callback` | Yandex Callback |
+| `GET` | `/api/bot/banners/default/{name}` | Default Banner |
 | `POST` | `/api/internal/staging-e2e/payment` | Internal Staging Payment |
 | `POST` | `/api/internal/staging-e2e/refund` | Internal Staging Refund |
 | `POST` | `/api/internal/staging-e2e/refund-status` | Internal Staging Refund Status |

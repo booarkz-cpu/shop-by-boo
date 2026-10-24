@@ -115,7 +115,7 @@ async def redeem_gift(payload,request,db):
             raise HTTPException(409,'Подписка изменилась после начала активации; требуется проверка оператором')
         if not redemption.before_snapshot:redemption.before_snapshot=entitlement_state(sub)
         rw=main.RemnawaveClient();now=datetime.utcnow()
-        if sub.remnawave_uuid in {'None','none','null'}:sub.remnawave_uuid=None  # stored by releases before v28.21.0
+        if sub.remnawave_uuid in {'None','none','null'}:sub.remnawave_uuid=None  # stored by releases before v28.22.0
         remote_id=sub.remnawave_uuid or (redemption.remote_user_id if redemption.remote_user_id not in {'None','none','null'} else None)
         if remote_id:
             await _validate_reduction(db,sub,{'traffic_gb':terms['traffic_gb'],'devices':terms['devices']},remote_id=remote_id,remote_client=rw)
