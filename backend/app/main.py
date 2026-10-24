@@ -133,6 +133,8 @@ from .automation import router as automation_router
 app.include_router(automation_router)
 from .bot_banners import router as bot_banners_router
 app.include_router(bot_banners_router)
+from .app_config import router as app_config_router
+app.include_router(app_config_router)
 from .account_actions import router as account_actions_router
 app.include_router(account_actions_router)
 from .surveys import router as surveys_router

@@ -147,7 +147,7 @@ class ScopedCORSMiddleware:
         admin = _origins(settings.admin_cors_origins, prod, {settings.admin_domain})
         cabinet = _origins(settings.cabinet_cors_origins, prod, {settings.cabinet_domain, settings.app_domain, settings.miniapp_domain})
         common = dict(allow_credentials=True, allow_methods=['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-                      allow_headers=['Content-Type','Idempotency-Key','X-CSRF-Token'])
+                      allow_headers=['Content-Type','Idempotency-Key','X-CSRF-Token','X-Telegram-Init-Data'])
         self.admin = CORSMiddleware(app, allow_origins=admin, **common)
         self.cabinet = CORSMiddleware(app, allow_origins=cabinet, **common)
         self.app = app

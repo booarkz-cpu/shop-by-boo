@@ -314,7 +314,13 @@ jobs:
           test "$(docker compose run --rm --no-deps --entrypoint id caddy -u)" = 10001
       - name: Logs on failure
         if: failure()
-        run: docker compose logs --tail=100
+        run: |
+          docker compose logs --tail=100
+          # Job logs are not always downloadable: surface the state as annotations too.
+          docker compose ps -a --format '{{.Service}} {{.State}} {{.Status}}' | while read -r line; do echo "::warning title=service::$line"; done
+          for svc in $(docker compose ps -a --format '{{.Service}} {{.State}} {{.Health}}' | awk '$2!="running" || $3=="unhealthy" {print $1}'); do
+            echo "::error title=$svc logs::$(docker compose logs --tail=25 --no-log-prefix "$svc" 2>&1 | tr '\n' ' ' | cut -c1-3500)"
+          done
       - name: Stop isolated services
         if: always()
         run: docker compose down -v
