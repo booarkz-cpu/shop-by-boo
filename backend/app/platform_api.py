@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import secrets
 import smtplib
 from datetime import datetime, timedelta
@@ -30,6 +31,8 @@ from .models import (
 )
 from .security import encrypt_secret, require_permission
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 DEFAULT_POLICY = {
     "min_score": 50,
@@ -45,6 +48,59 @@ DEFAULT_POLICY = {
 
 def _hash(value: str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
+
+
+ACTIVE_LIFECYCLES = ("active", "cancel_scheduled", "grace")
+
+
+async def _audit(db, action, actor, target=None, details=None):
+    from .main import audit
+    await audit(db, action, actor, target, details)
+
+
+async def suspend_access(db: AsyncSession, user: User) -> int:
+    """Restrict the customer and pause (not cancel) every live subscription.
+
+    The previous lifecycle is kept in ``suspended_from`` so that clearing the
+    restriction gives the customer exactly what was paid for back."""
+    now = datetime.utcnow()
+    user.restricted_at = user.restricted_at or now
+    subs = (await db.execute(select(Subscription).where(Subscription.user_id == user.id,
+                                                         Subscription.lifecycle_status.in_(ACTIVE_LIFECYCLES)))).scalars().all()
+    for sub in subs:
+        sub.suspended_from = sub.lifecycle_status
+        sub.lifecycle_status = "suspended"
+        if sub.remnawave_uuid:
+            try:
+                from .remnawave import RemnawaveClient
+                await RemnawaveClient().disable_user(sub.remnawave_uuid)
+            except Exception as exc:
+                logger.warning("Failed to disable restricted user's Remnawave subscription %s: %s", sub.id, exc)
+    return len(subs)
+
+
+async def resume_access(db: AsyncSession, user: User) -> int:
+    """Lift the restriction and re-enable subscriptions that are still within their term."""
+    now = datetime.utcnow()
+    user.restricted_at = None
+    subs = (await db.execute(select(Subscription).where(Subscription.user_id == user.id,
+                                                         Subscription.lifecycle_status == "suspended"))).scalars().all()
+    restored = 0
+    for sub in subs:
+        if sub.expires_at and sub.expires_at > now:
+            if sub.remnawave_uuid:
+                try:
+                    from .remnawave import RemnawaveClient
+                    await RemnawaveClient().enable_user(sub.remnawave_uuid)
+                except Exception as exc:
+                    logger.warning("Failed to re-enable Remnawave subscription %s: %s", sub.id, exc)
+                    continue  # stays suspended; clearing again retries
+            sub.lifecycle_status = sub.suspended_from or "active"
+            restored += 1
+        else:
+            sub.lifecycle_status = "expired"
+        sub.suspended_from = None
+    return restored
 
 
 def reject_restricted(user) -> None:
@@ -248,20 +304,13 @@ async def review_violation(violation_id: int, payload: dict, db: AsyncSession = 
     if action == "restrict" and row.user_id:
         user = await db.get(User, row.user_id)
         if user:
-            user.restricted_at = datetime.utcnow()
-            subscriptions=(await db.execute(select(Subscription).where(Subscription.user_id==user.id))).scalars().all()
-            for sub in subscriptions:
-                sub.lifecycle_status="revoke_pending";sub.scheduled_cancel_at=datetime.utcnow()
-                if sub.remnawave_uuid:
-                    try:
-                        from .remnawave import RemnawaveClient
-                        await RemnawaveClient().disable_user(sub.remnawave_uuid)
-                    except Exception as exc:
-                        logger.warning("Failed to disable restricted user's Remnawave subscription %s: %s", sub.id, exc)
+            await suspend_access(db, user)
+            await _audit(db, "abuse.user.restricted", admin.email, str(user.id), {"violation_id": row.id})
     if action == "clear" and row.user_id:
         user = await db.get(User, row.user_id)
         if user:
-            user.restricted_at = None
+            restored = await resume_access(db, user)
+            await _audit(db, "abuse.user.cleared", admin.email, str(user.id), {"violation_id": row.id, "restored": restored})
     await db.commit()
     return {"ok": True, "status": row.status}
 
@@ -481,7 +530,7 @@ async def agent_observations(payload: ObservationBatch, db: AsyncSession = Depen
         if policy.get("auto_hard_block") and result["score"] >= int(policy["hard_score"]) and user_id:
             user = await db.get(User, user_id)
             if user and not user.restricted_at:
-                user.restricted_at = now
+                await suspend_access(db, user)
         if result["recommendation"] == "throttle" and user_id:
             ips = [r["ip"] for r in rows if source_prefix(r["ip"])]
             agents = (await db.execute(select(NodeAgent).where(NodeAgent.enabled.is_(True)))).scalars().all()

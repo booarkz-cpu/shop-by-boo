@@ -24,7 +24,7 @@ def test_remote_entitlement_update_clears_old_limits_and_profiles():
 def test_existing_remote_user_recovery_reenables_and_reapplies_entitlements():
     block=MAIN[MAIN.index('existing_remote and existing_remote.get("id")'):MAIN.index('else:\n                    expires=now+timedelta', MAIN.index('existing_remote and existing_remote.get("id")'))]
     assert 'await rw.enable_user(remote_id)' in block
-    assert 'await rw.update_entitlements(remote_id,traffic_limit_gb,profile_id)' in block
+    assert 'await rw.update_entitlements(remote_id,traffic_limit_gb,profile_id,device_limit=payment.device_limit_snapshot)' in block
 
 
 def test_webhooks_can_bind_unknown_creation_to_provider_id_by_order_id():

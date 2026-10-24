@@ -89,7 +89,7 @@ async def admin_automation(db: AsyncSession = Depends(get_db), admin=Depends(req
     campaigns = (await db.execute(select(Campaign).order_by(desc(Campaign.id)).limit(50))).scalars().all()
     return {
         "rules": [{"id": r.id, "name": r.name, "event": r.event, "conditions": r.conditions, "actions": r.actions, "enabled": r.enabled, "priority": r.priority, "run_count": r.run_count, "last_run_at": r.last_run_at} for r in rules],
-        "campaigns": [{"id": c.id, "name": c.name, "kind": c.kind, "status": c.status, "sent_count": c.sent_count, "failed_count": c.failed_count, "starts_at": c.starts_at, "ends_at": c.ends_at} for c in campaigns],
+        "campaigns": [{"id": c.id, "name": c.name, "kind": c.kind, "status": c.status, "audience": c.audience, "content": c.content, "sent_count": c.sent_count, "failed_count": c.failed_count, "starts_at": c.starts_at, "ends_at": c.ends_at} for c in campaigns],
     }
 
 
@@ -98,8 +98,15 @@ async def toggle_automation(rule_id: int, payload: dict, db: AsyncSession = Depe
     rule = await db.get(AutomationRule, rule_id)
     if not rule:
         raise HTTPException(404, "Правило не найдено")
+    if payload.get("enabled"):
+        from .automation import validate_rule
+        rule.conditions, rule.actions = validate_rule(rule.event, rule.conditions or {}, rule.actions or {})
+        if rule.actions.get("wallet_bonus") and getattr(admin, "role", "") != "admin":
+            raise HTTPException(403, "Правило с бонусом на баланс включает администратор")
     rule.enabled = bool(payload.get("enabled"))
     rule.updated_at = datetime.utcnow()
+    from .main import audit
+    await audit(db, "automation.rule.toggled", admin.email, str(rule.id), {"enabled": rule.enabled})
     await db.commit()
     return {"ok": True, "enabled": rule.enabled}
 
@@ -133,7 +140,8 @@ async def routing_recommendation(request: Request, db: AsyncSession = Depends(ge
         remote = await RemnawaveClient().list_nodes(start=0, size=100)
     except Exception:
         return {"enabled": True, "recommendation": None, "nodes": [], "degraded": True}
-    raw = remote.get("response", {}).get("nodes", []) if isinstance(remote, dict) else []
+    from .tariff_api import _iter_nodes
+    raw = _iter_nodes(remote)
     preferred = {str(x).upper() for x in config.get("preferred_countries", [])}
     nodes: list[dict[str, Any]] = []
     for node in raw:

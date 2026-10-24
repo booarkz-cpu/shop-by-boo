@@ -160,7 +160,7 @@ class FakeRemnawave:
     async def get_user_by_username(self, username):
         return next((u for u in FakeRemnawave.users.values() if u["username"] == username), None)
 
-    async def create_user(self, username, expires, traffic, active_internal_squads=None, telegram_id=None):
+    async def create_user(self, username, expires, traffic, active_internal_squads=None, telegram_id=None, device_limit=None):
         uid = str(uuid.uuid4())
         FakeRemnawave.users[uid] = {"id": uid, "uuid": uid, "username": username, "status": "ACTIVE", "expire": expires,
                                     "subscriptionUrl": f"https://sub.test/{uid}"}

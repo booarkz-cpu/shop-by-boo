@@ -1,5 +1,5 @@
-> Актуальный дистрибутив: `v28.20.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.21.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Пошаговая инструкция — v21.5.1
 
-[Текущий подробный регламент](../WORKSPACE_PAYMENTS.md), [все руководства](../../../DOCUMENTATION.md), [рефералы](../REFERRALS_CURRENT.md), [backup](../BACKUP_CURRENT.md). Миграция магазина `0073_e2e_v2`, Support Pro `0008`. Production-платежи закрыты до полного application E2E.
+[Текущий подробный регламент](../WORKSPACE_PAYMENTS.md), [все руководства](../../../DOCUMENTATION.md), [рефералы](../REFERRALS_CURRENT.md), [backup](../BACKUP_CURRENT.md). Миграция магазина `0074_automation_engine`, Support Pro `0008`. Production-платежи закрыты до полного application E2E.

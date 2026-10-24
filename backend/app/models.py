@@ -172,6 +172,8 @@ class Subscription(Base):
     plan_id: Mapped[int] = mapped_column(Integer, nullable=False)
     remnawave_uuid: Mapped[str|None] = mapped_column(String(255))
     subscription_url: Mapped[str|None] = mapped_column(Text)
+    # Lifecycle before an anti-abuse restriction paused the subscription; restored when it is lifted.
+    suspended_from: Mapped[str|None] = mapped_column(String(32))
     expires_at: Mapped[datetime|None] = mapped_column(DateTime)
     # Immutable entitlement limits of the currently active subscription.
     # These are copied from the paid/trial grant so later Plan edits cannot
@@ -1712,3 +1714,14 @@ class E2EWebhookCapture(Base):
     body_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
     data_encrypted: Mapped[str|None] = mapped_column(Text)
     received_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class AutomationExecution(Base):
+    """One executed (rule, anchor) pair: the idempotency key of the automation engine."""
+    __tablename__ = "automation_executions"
+    __table_args__ = (UniqueConstraint("rule_id", "anchor", name="uq_automation_executions_rule_anchor"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    rule_id: Mapped[int] = mapped_column(Integer, ForeignKey("automation_rules.id", ondelete="CASCADE"), index=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    anchor: Mapped[str] = mapped_column(String(128), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)

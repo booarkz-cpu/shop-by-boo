@@ -82,7 +82,7 @@ async def test_gift_lost_remote_answer_retries_fixed_target_once(database,monkey
         async def create_user(self,name,expiry,*args,**kwargs):
             remote[name]={'id':'gift-remote','subscriptionUrl':'https://example.test/sub'}
             return remote[name]
-        async def update_entitlements(self,*args):pass
+        async def update_entitlements(self,*args,**kwargs):pass
         async def extend_idempotent(self,uuid,days,before,after):
             extensions.append((uuid,days,before,after))
             if len(extensions)==1:raise RuntimeError('response lost after SET expiry')

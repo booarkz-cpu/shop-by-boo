@@ -382,6 +382,19 @@ class YooKassaProvider(BasePaymentProvider):
         response.raise_for_status()
         return str(response.json().get("status") or "")
 
+    async def get_refund(self, refund_id: str) -> Dict[str, Any]:
+        """The refund object as YooKassa stores it: used to verify a refund notification."""
+        async with _public_client(10) as client:
+            response = await client.get(
+                f"{settings.yookassa_api_url}/v3/refunds/{refund_id}",
+                auth=(settings.yookassa_shop_id, settings.yookassa_secret_key),
+            )
+        response.raise_for_status()
+        data = response.json()
+        amount = data.get("amount") or {}
+        return {"id": data.get("id"), "status": str(data.get("status") or ""), "payment_id": data.get("payment_id"),
+                "amount": amount.get("value"), "currency": amount.get("currency")}
+
 
 # ============================================================
 # Platega Provider

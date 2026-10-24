@@ -1,6 +1,6 @@
-# Каталог API — v28.20.0 / API v21.5.1
+# Каталог API — v28.21.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0073_e2e_v2`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0074_automation_engine`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -40,6 +40,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/auth/passkeys/registration/options` | Registration Options |
 | `POST` | `/api/admin/auth/passkeys/registration/verify` | Registration Verify |
 | `POST` | `/api/admin/auth/telegram` | Admin Telegram Login |
+| `DELETE` | `/api/admin/automation/campaigns/{campaign_id}` | Delete Campaign |
+| `GET` | `/api/admin/automation/catalog` | Catalog |
+| `DELETE` | `/api/admin/automation/rules/{rule_id}` | Delete Rule |
+| `GET` | `/api/admin/automation/rules/{rule_id}/preview` | Preview |
 | `GET` | `/api/admin/backups` | List Backups |
 | `GET` | `/api/admin/backups/config` | Backup Config |
 | `PUT` | `/api/admin/backups/config` | Update Backup Config |

@@ -41,7 +41,7 @@ def test_remote_extension_rejects_unexpected_advanced_expiry():
 
 
 def test_existing_remote_user_receives_purchased_traffic_and_profile_terms():
-    assert 'await rw.update_entitlements(sub.remnawave_uuid,traffic_limit_gb,profile_id)' in MAIN
+    assert 'await rw.update_entitlements(sub.remnawave_uuid,traffic_limit_gb,profile_id,device_limit=payment.device_limit_snapshot)' in MAIN
     assert 'async def update_entitlements' in RW
 
 

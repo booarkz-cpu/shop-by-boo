@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.20.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.21.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1184**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1199**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -215,6 +215,7 @@
 | [admin/THIRD_PARTY_LICENSES.txt](../admin/THIRD_PARTY_LICENSES.txt) | Админ-панель |
 | [admin/components.json](../admin/components.json) | Админ-панель |
 | [admin/default.conf](../admin/default.conf) | Админ-панель |
+| [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
@@ -242,6 +243,7 @@
 | [admin/src/admin-shell.tsx](../admin/src/admin-shell.tsx) | Админ-панель |
 | [admin/src/app/layout.tsx](../admin/src/app/layout.tsx) | Админ-панель |
 | [admin/src/app/page.tsx](../admin/src/app/page.tsx) | Админ-панель |
+| [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
 | [admin/src/components/preferences-menu.tsx](../admin/src/components/preferences-menu.tsx) | Админ-панель |
 | [admin/src/components/select-field.tsx](../admin/src/components/select-field.tsx) | Админ-панель |
@@ -368,11 +370,13 @@
 | [backend/alembic/versions/0071_torrent_detection.py](../backend/alembic/versions/0071_torrent_detection.py) | API, бот и worker |
 | [backend/alembic/versions/0072_traffic_analysis.py](../backend/alembic/versions/0072_traffic_analysis.py) | API, бот и worker |
 | [backend/alembic/versions/0073_e2e_v2.py](../backend/alembic/versions/0073_e2e_v2.py) | API, бот и worker |
+| [backend/alembic/versions/0074_automation_engine.py](../backend/alembic/versions/0074_automation_engine.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
 | [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
+| [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
@@ -579,6 +583,10 @@
 | [docs/en/TESTING.md](../docs/en/TESTING.md) | Документация |
 | [docs/examples/plugin/README.md](../docs/examples/plugin/README.md) | Документация |
 | [docs/examples/plugin/manifest.json](../docs/examples/plugin/manifest.json) | Документация |
+| [docs/img/bot-commands.svg](../docs/img/bot-commands.svg) | Документация |
+| [docs/img/bot-start.svg](../docs/img/bot-start.svg) | Документация |
+| [docs/img/miniapp-plans.svg](../docs/img/miniapp-plans.svg) | Документация |
+| [docs/img/miniapp-subscription.svg](../docs/img/miniapp-subscription.svg) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PANEL_CURRENT.md](../docs/ru/ADMIN_PANEL_CURRENT.md) | Документация |
@@ -649,6 +657,7 @@
 | [docs/ru/RELEASE_V28_19_0.md](../docs/ru/RELEASE_V28_19_0.md) | Документация |
 | [docs/ru/RELEASE_V28_1_0.md](../docs/ru/RELEASE_V28_1_0.md) | Документация |
 | [docs/ru/RELEASE_V28_20_0.md](../docs/ru/RELEASE_V28_20_0.md) | Документация |
+| [docs/ru/RELEASE_V28_21_0.md](../docs/ru/RELEASE_V28_21_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -1051,13 +1060,16 @@
 | [tests/passkey_browser_server.py](../tests/passkey_browser_server.py) | Проверки |
 | [tests/release-publisher.test.cjs](../tests/release-publisher.test.cjs) | Проверки |
 | [tests/terminal-screen.test.mjs](../tests/terminal-screen.test.mjs) | Проверки |
+| [tests/test_abuse_suspension.py](../tests/test_abuse_suspension.py) | Проверки |
 | [tests/test_account_actions.py](../tests/test_account_actions.py) | Проверки |
 | [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
 | [tests/test_audit_v2009_runtime.py](../tests/test_audit_v2009_runtime.py) | Проверки |
+| [tests/test_automation_engine.py](../tests/test_automation_engine.py) | Проверки |
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
+| [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |
 | [tests/test_content_publishing.py](../tests/test_content_publishing.py) | Проверки |
 | [tests/test_critical_audit_v2002.py](../tests/test_critical_audit_v2002.py) | Проверки |
@@ -1073,6 +1085,7 @@
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
+| [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
 | [tests/test_fraud_signals.py](../tests/test_fraud_signals.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
@@ -1099,12 +1112,14 @@
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
+| [tests/test_remnawave_contract.py](../tests/test_remnawave_contract.py) | Проверки |
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
+| [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_subscription_commerce.py](../tests/test_subscription_commerce.py) | Проверки |
 | [tests/test_support_attachments.py](../tests/test_support_attachments.py) | Проверки |
 | [tests/test_support_bridge.py](../tests/test_support_bridge.py) | Проверки |

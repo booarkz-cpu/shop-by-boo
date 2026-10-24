@@ -1,55 +1,196 @@
-# VPN Shop by Corgi
+<div align="center">
+
+# 🐶 VPN Shop by Corgi
+
+**Магазин VPN-подписок под ключ для собственной панели Remnawave:**
+Telegram-бот и Mini App, личный кабинет, админ-панель, поддержка, приложения Android и iOS.
 
 [![CI](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/ci.yml)
 [![Docker](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/docker.yml)
-[![Release](https://img.shields.io/github/v/release/booarkz-cpu/shop-by-boo?display_name=tag)](https://github.com/booarkz-cpu/shop-by-boo/releases/latest)
-![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)
-![License](https://img.shields.io/badge/license-2.8-FF8A1F)
+[![Release](https://img.shields.io/github/v/release/booarkz-cpu/shop-by-boo?display_name=tag&color=3b82f6)](https://github.com/booarkz-cpu/shop-by-boo/releases/latest)
+[![License](https://img.shields.io/badge/license-Corgi%20Lusi%202.8-FF8A1F)](LICENSE)
 
-Актуальная схема каталогов, функциональных границ и визуальной системы собрана в [карте проекта](docs/PROJECT_MAP_RU.md). Полное дерево каталогов и правила границ модулей: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md).
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.141-009688?logo=fastapi&logoColor=white)
+![aiogram](https://img.shields.io/badge/aiogram-3.31-2CA5E0?logo=telegram&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00)
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9%20strict-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7.4-DC382D?logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker%20Compose-ready-2496ED?logo=docker&logoColor=white)
+![Remnawave](https://img.shields.io/badge/Remnawave-3.x-7c3aed)
 
-Единый магазин VPN-подписок: админ-панель, веб кабинет пользователя, Telegram-бот и Mini App, приложения Android и iOS. Админка, кабинет и Mini App построены на Next.js и используют единую тёмную систему Remna Dark (светлая тема сохранена) с контекстными подсказками у всех редактируемых полей.
+[🚀 Быстрый старт](#-быстрый-старт) · [🏗 Архитектура](#-архитектура) · [⚙️ Переменные окружения](#️-переменные-окружения) · [📸 Скриншоты](#-скриншоты) · [📚 Документация](#-документация)
 
-**v28.20.0 — текущий стабильный тег дистрибутива.** Он содержит runtime/API `21.5.1`, head магазина `0073_e2e_v2` и Support Pro `0008` / 3.8. Разделение тега и версии API намеренное: оператор устанавливает `v28.20.0`, а health/API возвращает `21.5.1`. Полная фактическая матрица и критерии закрытия опубликованы отдельно: [карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md).
+</div>
 
-Справочники: [вход администратора по passkey](docs/ru/ADMIN_PASSKEYS.md), [операционный dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильные пакеты публикуются с актуальным тегом; подписи владельца по-прежнему нужны.
+---
 
-Текущий стабильный выпуск: [v28.20.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.20.0). Точный commit и результаты CI указаны на странице релиза. Реальные платежи открыты сразу после установки и настройки ключей провайдера; администратор может остановить их аварийной кнопкой. Подписанные APK/IPA требуют ключей владельца. Изменения рабочего пространства описаны в [CHANGELOG.md](CHANGELOG.md). **Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) — от сервера до первой продажи; [инструкции по каждому модулю](docs/ru/modules/README.md). Остальные инструкции: [DOCUMENTATION.md](DOCUMENTATION.md), [INSTALL_STEPS.md](INSTALL_STEPS.md), [FUNCTIONS.md](FUNCTIONS.md), [SECURITY.md](SECURITY.md). Исторические редакции не являются текущим руководством.
+> **v28.21.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0074_automation_engine`, Support Pro `0008` / 3.8.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.21.0`, `/health` отвечает `21.5.1`.
+> Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
-Сведение поддержки и перенос старой истории: [отдельная инструкция](docs/ru/WORKSPACE_SUPPORT_BRIDGE.md).
+**Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) и [инструкции по 30 модулям](docs/ru/modules/README.md).
 
-## Обновление v28.20.0
+## ✨ Возможности
 
-Админ-панель, личный кабинет и Telegram Mini App переведены на **Next.js** (static export, прежние nginx-образы и Caddy) и получили единый дизайн **Remna Dark**: сворачиваемый sidebar и выдвижное меню на телефонах, дашборд с плашкой состояния, плитками метрик 2×2/4×1, поиском и сегментированным фильтром серверов, skeleton-загрузку. Mini App использует Telegram WebApp SDK: тема и safe area из клиента, haptic feedback, нативные BackButton/MainButton, подтверждение закрытия во время оплаты. Кабинет показывает статус, остаток трафика и срок подписки, QR и копирование ссылки, пошаговую инструкцию, карточки тарифов, профиль и историю платежей. Новый [перенос истории](docs/ru/HISTORY_IMPORT_CURRENT.md) подписок и платежей сверяет контрольные итоги, не дублирует строки при повторе и откатывается журналом. Production CSP (`script-src 'self'`) соблюдается: inline-скрипты Next.js выносятся в файлы при сборке.
-
-Настройки без перезапуска из v28.3.0 (96 live-параметров, зашифрованные секреты, staged apply и откат) сохранены.
-
-Обновление существующей установки с тегов `v26`–`v28.7.0` выполняется проверяющим скриптом: [инструкция обновления дистрибутива](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md). Версия API остаётся `21.5.1`; перед применением новой миграции `0073_e2e_v2` обязателен согласованный backup.
-
-## Что входит в проект
-
-| Компонент | Возможности |
+| | |
 | --- | --- |
-| Админ-панель | Поиск разделов, таблицы с поиском и страницами, типизированные live-настройки с шифрованием/историей/откатом, тарифы и конструктор, платежи и возвраты, поиск клиента по ID/Telegram/email/имени, читаемая карточка клиента, обращения и ответы, реферальные выплаты, маркетинг, серверы, агенты, антиабуз, роли и 2FA, резервные копии |
-| Кабинет | Регистрация и вход, безопасное объединение аккаунтов, подписка, смена тарифа, докупка трафика, тарифы, кошелёк и история, подарки и подарочные карты, история платежей и PDF-квитанции, управление автопродлением, подключение по ссылке/QR, устройства, рефералы и заявки на выплаты, уведомления, обращения с перепиской |
-| Telegram Mini App | Тот же кабинет и API; настраиваемые изображение, инструкции и кнопки бота; авторизация Telegram |
-| Бот | `/start`, `/buy`, `/subscription`, `/promo`, `/account`, `/balance`, `/payments`, `/gifts`, `/referral`, `/support`, `/devices`, `/ops`; рассылки и переходы в нужные страницы кабинета |
-| Android и iOS | Сохранены приложения клиента и администратора, мобильная авторизация и VPN-компоненты; обновлены цвета |
-| Ядро | PostgreSQL, Redis, очередь фоновых задач, Remnawave, проверка платежей, финансовый журнал, идемпотентность, аудит |
+| 🤖 **Telegram-бот** | `/start` с меню из конструктора кнопок, `/buy`, `/subscription`, `/promo`, `/account`, `/balance`, `/payments`, `/gifts`, `/referral`, `/support`, `/devices`; рассылки с учётом лимитов Telegram |
+| 📱 **Mini App** | Тот же кабинет внутри Telegram: тема и haptic из Telegram WebApp SDK, BackButton/MainButton, статус подписки, трафик, QR и ссылка, оплата |
+| 🧑‍💻 **Личный кабинет** | Вход по email, Telegram, OAuth и passkey; несколько подписок, смена тарифа, докупка трафика, кошелёк, подарки, рефералы, устройства, обращения |
+| 🛠 **Админ-панель** | 60+ разделов: клиенты, тарифы и конструктор, платежи и возвраты, маркетинг, автоматизация, узлы и антиабуз, почта, плагины, 2FA и роли, копии |
+| 💳 **Оплата** | ЮKassa, Platega, RollyPay и внутренний кошелёк. Подтверждение только после сверки с провайдером, идемпотентные webhook, финансовый журнал, возвраты с отзывом доступа |
+| 🛰 **Remnawave** | Выдача, продление, смена тарифа, трафик, Internal Squads, лимит устройств HWID, отзыв доступа; совместимо с API 3.x |
+| ⚡ **Автоматизация** | Правила «событие → условие → действие» (уведомления, Telegram, бонус на баланс) и кампании по расписанию |
+| 🛡 **Защита** | Антифрод платежей, антиабуз подключений с агентами узлов, распознавание торрентов и DPI, 2FA, passkeys, аудит, CSP |
+| 💬 **Поддержка** | Встроенный Support Pro: обращения из бота, кабинета и email, мост Zendesk/Freshdesk |
+| 📈 **Эксплуатация** | Prometheus-метрики, состояние системы, фоновые процессы, резервные копии с двойным подтверждением восстановления, обновление из GitHub |
 
-**Платёжные агенты для новых покупок: YooKassa, RollyPay, Platega.** Внутренний кошелёк — способ оплаты имеющимся балансом. Sandbox — тестовый режим, запрещённый в production. Покупки через Apple/Google отключены; наличие Android/iOS-приложений от этого не зависит. Старые платёжные записи сохранены, прежние адаптеры используются только для сверки и возвратов исторических операций.
+## 🏗 Архитектура
 
-## Скриншоты
+```mermaid
+flowchart LR
+    U["👤 Клиент"] --> TG["Telegram"]
+    TG -->|"long polling"| BOT["🤖 bot<br/>aiogram 3"]
+    TG -->|"WebApp initData"| MA["📱 miniapp<br/>Next.js"]
+    U --> CAB["🧑‍💻 cabinet<br/>Next.js"]
+    ADM["🛠 admin<br/>Next.js"] --> CADDY
+    MA --> CADDY["🔒 Caddy<br/>TLS, 5 доменов"]
+    CAB --> CADDY
+    CADDY --> API["⚙️ backend<br/>FastAPI"]
+    BOT --> DB
+    API --> DB[("PostgreSQL 16")]
+    API --> R[("Redis 7")]
+    W["🔁 worker<br/>выдача, автопродление,<br/>автоматизация, копии"] --> DB
+    W --> R
+    API <-->|"REST API"| RW["🛰 Remnawave"]
+    W <-->|"REST API"| RW
+    PAY["💳 ЮKassa · Platega · RollyPay"] -->|"webhook"| CADDY
+    API --> PAY
+    AG["🖥 node-agent<br/>на VPN-узлах"] -->|"метрики, наблюдения"| CADDY
+    CADDY --> SP["💬 Support Pro"]
+```
 
-Снимки всех разделов админ-панели и личного кабинета пользователя (Remna Dark, 1440×900), дистрибутив v28.20.0. Сняты на изолированном тестовом стенде (`tests/passkey_browser_server.py` с PostgreSQL, Redis и sandbox-платежами, без Telegram и Remnawave) скриптом [`admin/scripts/screenshots-catalog.mjs`](admin/scripts/screenshots-catalog.mjs): он создаёт тестовые тарифы, промокоды и покупателя `demo.buyer` с двумя sandbox-оплатами. Поэтому серверы Remnawave на снимках недоступны, а суммы и клиенты тестовые. Файлы лежат в [`screenshots/admin_panel/`](screenshots/admin_panel/) (64 шт.) и [`screenshots/storefront_user/`](screenshots/storefront_user/) (20 шт.). Описание всех разделов, кнопок и полей — в [руководстве по админ-панели](docs/ru/ADMIN_PANEL_CURRENT.md).
+| Сервис (`docker-compose.yml`) | Что делает |
+| --- | --- |
+| `backend` | API магазина: авторизация, кабинет, админка, платежи и webhook, выдача в Remnawave |
+| `worker` | Тот же код в роли фоновых процессов: очередь выдачи, повторы, автопродление, напоминания, автоматизация и кампании, сверка возвратов, копии, мониторинг |
+| `bot` | Telegram-бот на aiogram 3 (long polling) и очередь рассылок с соблюдением flood control |
+| `admin`, `cabinet`, `miniapp` | Статические сборки Next.js за nginx |
+| `db`, `redis` | PostgreSQL 16 и Redis 7.4 магазина |
+| `support_pro`, `support_worker`, `support_db`, `support_redis` | Встроенная служба поддержки |
+| `caddy` | HTTPS для API, админки, кабинета, Mini App и Support Pro |
+| `mail_receiver` (профиль `mail`) | Необязательный приём почты для служебных адресов |
+
+**Стек.**
+- Backend: Python 3.12, FastAPI 0.141, SQLAlchemy 2.0 (async, asyncpg), Alembic 1.18, Pydantic 2, httpx, aiogram 3.31.
+- Frontend: Next.js 16, React 19, TypeScript 5.9 strict, Tailwind CSS 4, shadcn/Radix.
+- Мобильные приложения: Kotlin (Android) и Swift (iOS).
+- Инфраструктура: Docker Compose, Caddy, GitHub Actions (CI, Docker, выпуски, мобильные сборки).
+
+## 🚀 Быстрый старт
+
+### Установка на VDS одной командой
+
+Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.21.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.21.0 bash /root/shop-install.sh
+```
+
+Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
+
+```bash
+cd /opt/vpn-shop
+docker compose ps                         # все сервисы running/healthy
+curl -fsS https://api.ДОМЕН/health/ready  # {"ok": true, ...}
+bash scripts/doctor.sh                    # сводная проверка
+```
+
+Дальше откройте `https://admin.ДОМЕН`, включите 2FA и пройдите шаги [руководства по запуску](docs/ru/LAUNCH_GUIDE.md).
+
+### Ручная установка через Docker Compose
+
+```bash
+git clone --branch v28.21.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+cd /opt/vpn-shop
+cp .env.example .env
+# Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
+docker compose up -d --build
+docker compose exec -T backend alembic upgrade head
+docker compose ps
+```
+
+### Локальный стенд без касс, Telegram и Remnawave
+
+```bash
+git clone --branch v28.21.0 https://github.com/booarkz-cpu/shop-by-boo.git
+cd shop-by-boo
+bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
+```
+
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.21.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+
+## ⚙️ Переменные окружения
+
+Полный список с комментариями — [`.env.example`](.env.example). Большинство операционных параметров меняются без перезапуска в **Система → Настройки без перезапуска** ([реестр](docs/ru/RUNTIME_SETTINGS_CURRENT.md)).
+
+| Переменная | Зачем | Пример |
+| --- | --- | --- |
+| `APP_ENV` | `production`, `staging` или `test` | `production` |
+| `APP_SECRET` | Подпись сессий и шифрование секретов в базе, не меньше 32 символов | `openssl rand -hex 32` |
+| `DB_PASSWORD`, `POSTGRES_PASSWORD`, `DATABASE_URL` | Доступ к PostgreSQL магазина | `postgresql+asyncpg://vpnshop:…@db:5432/vpnshop` |
+| `REDIS_PASSWORD`, `REDIS_URL` | Redis: блокировки, ограничение запросов, circuit breaker | `redis://:…@redis:6379/0` |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Первый администратор (создаётся при запуске) | `owner@example.com` |
+| `API_DOMAIN`, `ADMIN_DOMAIN`, `APP_DOMAIN`, `CABINET_DOMAIN`, `SUPPORT_PRO_DOMAIN` | Домены Caddy | `api.vpn.example.com` |
+| `PUBLIC_BASE_URL`, `MINI_APP_URL`, `CABINET_URL` | Публичные адреса API, Mini App и кабинета | `https://app.vpn.example.com` |
+| `CADDY_EMAIL` | Почта для сертификатов Let's Encrypt | `owner@example.com` |
+| `BOT_TOKEN`, `BOT_USERNAME`, `ADMIN_TELEGRAM_ID` | Telegram-бот и владелец для `/ops` | `123456:ABC…` |
+| `REMNAWAVE_URL`, `REMNAWAVE_TOKEN` | Панель Remnawave и её API-токен | `https://panel.example.com` |
+| `DEFAULT_CURRENCY`, `PRICE_1/3/6/12` | Валюта и цены стартовых тарифов (создаются выключенными на пустой базе) | `RUB`, `199` |
+| `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY`, `YOOKASSA_WEBHOOK_IP_ALLOWLIST` | ЮKassa | IP-адреса уведомлений ЮKassa |
+| `PLATEGA_MERCHANT_ID`, `PLATEGA_SECRET` | Platega | |
+| `ROLLYPAY_API_KEY`, `ROLLYPAY_SIGNING_SECRET` | RollyPay | |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | Письма: подтверждение email, восстановление пароля | `smtp.provider.example`, `587` |
+| `ALERT_TELEGRAM_CHAT_ID` | Куда слать оповещения о сбоях | `-100…` |
+
+Адреса уведомлений у провайдеров: `https://api.ДОМЕН/api/webhooks/yookassa`, `…/platega`, `…/rollypay`. В ЮKassa включите события `payment.succeeded` и `refund.succeeded`: тогда возврат, оформленный в кабинете ЮKassa, тоже отзывает доступ.
+
+## 📸 Скриншоты
+
+### Telegram-бот и Mini App
+
+Это макеты в SVG, а не снимки экрана. Чтобы заменить макет настоящим скриншотом, положите PNG в [`docs/img/`](docs/img/) и укажите его вместо `.svg`.
+
+| Бот: `/start` и меню | Бот: подписка и промокод | Mini App: подписка | Mini App: тарифы |
+| :---: | :---: | :---: | :---: |
+| ![Telegram-бот: приветствие и меню](docs/img/bot-start.svg) | ![Telegram-бот: подписка, промокод, поддержка](docs/img/bot-commands.svg) | ![Mini App: статус подписки, трафик, QR](docs/img/miniapp-subscription.svg) | ![Mini App: тарифы, промокод и оплата](docs/img/miniapp-plans.svg) |
+
+Куда класть настоящие скриншоты (имя файла → какая строка таблицы):
+
+| Файл в `docs/img/` | Что снять |
+| --- | --- |
+| `bot-start.png` | `/start` в Telegram: приветствие и кнопки меню |
+| `bot-commands.png` | `/subscription`, `/promo` или `/support` в личном чате |
+| `miniapp-subscription.png` | Mini App, вкладка подписки: срок, трафик, QR |
+| `miniapp-plans.png` | Mini App, выбор тарифа и оплата |
+
+Положите файл и замените в таблице выше расширение `.svg` на `.png` в пути к картинке.
+
+### Админ-панель и личный кабинет
+
+Ниже настоящие снимки всех разделов админ-панели и кабинета (Remna Dark, 1440×900). Их снимает скрипт [`admin/scripts/screenshots-catalog.mjs`](admin/scripts/screenshots-catalog.mjs) на изолированном тестовом стенде с тестовыми тарифами и sandbox-оплатами. Поэтому серверы Remnawave на снимках недоступны, а суммы и клиенты тестовые. Описание каждого раздела — в [руководстве по админ-панели](docs/ru/ADMIN_PANEL_CURRENT.md).
 
 | Админ-панель | Личный кабинет |
 | --- | --- |
 | ![Все разделы админ-панели](screenshots/admin_panel/00_all_sections.png) | ![Обзор кабинета](screenshots/storefront_user/03_overview.png) |
 | ![Конструктор тарифов](screenshots/admin_panel/14_constructor.png) | ![Тарифы](screenshots/storefront_user/04_plans.png) |
 
-### Админ-панель
+#### Админ-панель
 
 Порядок совпадает с боковым меню панели. Разверните группу, чтобы увидеть снимки.
 
@@ -364,7 +505,7 @@
 
 </details>
 
-### Личный кабинет пользователя
+#### Личный кабинет пользователя
 
 Вход, регистрация, оформление заказа и все разделы бокового меню кабинета.
 
@@ -453,86 +594,59 @@
 
 </details>
 
-## Начать работу
+## 💳 Как устроена оплата
 
-Для проверки без настоящих касс, Telegram и Remnawave нужны Docker Engine, Compose и Python 3:
+1. Клиент выбирает тариф в боте, Mini App или кабинете. Магазин создаёт заказ с ключом идемпотентности и открывает страницу оплаты провайдера.
+2. Провайдер присылает webhook. Магазин проверяет подпись или IP и запрашивает статус платежа у провайдера: сумма, валюта и номер заказа должны совпасть.
+3. Заказ становится оплаченным, worker выдаёт или продлевает доступ в Remnawave: срок, трафик, Internal Squad, лимит устройств.
+4. Повтор webhook ничего не повторяет. Возврат из админки или из кабинета ЮKassa отзывает доступ и записывается в финансовый журнал.
 
-```bash
-git clone --branch v28.20.0 https://github.com/booarkz-cpu/shop-by-boo.git
-cd shop-by-boo
-bash scripts/test-up.sh
-```
+Реальные платежи открыты сразу после установки. На случай сбоя есть аварийная кнопка «Остановить приём платежей». Подробно: [модуль «Платежи»](docs/ru/modules/07-payments.md), [три платёжных агента](docs/ru/WORKSPACE_PAYMENTS.md), [сквозная проверка на стенде](docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md).
 
-Скрипт создаст `.env.test`, покажет параметры входа и адреса тестовых интерфейсов. Пароли не публикуйте. [Подробная проверка](docs/ru/TESTING.md).
+## 📚 Документация
 
-Установка на VDS через SSH или Termius:
-
-```bash
-git clone --branch v28.20.0 https://github.com/booarkz-cpu/shop-by-boo.git
-cd shop-by-boo
-sudo bash deploy/install-vps.sh
-```
-
-Сначала прочитайте [установку на VDS](docs/ru/DEPLOYMENT_CURRENT.md). Нужны DNS-записи для выбранных доменов, открытые 80/443, токен Telegram и доступ к Remnawave. Установщик запрашивает значения интерактивно. Перед эксплуатацией проверьте выпуск на отдельном стенде; стабильный канал не означает допуск production-платежей. Автообновление существующего production-сервера остаётся на стабильных выпусках.
-
-## Руководства по каждой функции
-
-| Задача | Руководство |
+| Задача | Где |
 | --- | --- |
-| Создать конкурс или колесо призов | [Правила, бюджет, розыгрыш и приватность](docs/ru/WORKSPACE_GIVEAWAYS.md) |
-| Прочитать результаты текущего выпуска | [Отчёт v28.20.0](docs/ru/RELEASE_V28_20_0.md) |
-| Изменить операционные параметры без restart | [Live-config, секреты, откат и deployment-границы](docs/ru/RUNTIME_SETTINGS_CURRENT.md) |
-| Объединить два своих аккаунта | [Подтверждение, конфликты, перенос и диагностика](docs/ru/ACCOUNT_MERGE_CURRENT.md) |
-| Восстановить пароль и подтвердить email | [Почта и безопасность аккаунта](docs/ru/WORKSPACE_ACCOUNT_SECURITY.md) |
-| Создать изолированный стенд через Termius | [Проверка перед финальным релизом](docs/ru/FINAL_RELEASE_READINESS.md) |
-| Пользоваться всеми страницами кабинета | [Кабинет пользователя: пошагово](docs/ru/WORKSPACE_USER_GUIDE.md) |
-| Настроить магазин, тарифы и продажи | [Администратор: по каждому разделу](docs/ru/WORKSPACE_ADMIN_GUIDE.md) |
-| Сменить тариф, докупить трафик или вернуть заказ | [Изменения подписки](docs/ru/WORKSPACE_COMMERCE.md) |
-| Подключить три платёжных агента | [Оплата](docs/ru/WORKSPACE_PAYMENTS.md) |
-| Обновить существующий сервер и миграции | [Обновление и проверка](docs/ru/WORKSPACE_UPGRADE.md) |
-| Посмотреть точные API и права | [Каталог API](docs/API_ENDPOINTS.md), [архитектура](docs/ru/WORKSPACE_ARCHITECTURE.md) |
-| Проверить полноту переноса функций | [Карта покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) |
-| Собрать Android/iOS | [Мобильные приложения](docs/ru/MOBILE_GUIDE.md), [мобильный выпуск](docs/ru/MOBILE_RELEASE_2_14_1.md) |
-| Настроить Telegram-бот | [Инструкция администратора](docs/ru/WORKSPACE_ADMIN_GUIDE.md#telegram-бот) |
-| Найти инструкции по эксплуатации | [Указатель](docs/INDEX.md), [операционный регламент](OPERATIONS_RUNBOOK_RU.md) |
+| Запустить магазин с нуля | [Руководство по запуску](docs/ru/LAUNCH_GUIDE.md) |
+| Работать с каждым разделом панели | [30 модулей](docs/ru/modules/README.md) |
+| Установка через SSH/Termius, DNS, TLS | [Установка на VDS](docs/ru/DEPLOYMENT_CURRENT.md), [INSTALL_STEPS.md](INSTALL_STEPS.md) |
+| Эксплуатация, обновление, сбои | [Регламент](docs/ru/PRODUCTION_CURRENT.md), [обновление](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md) |
+| Резервные копии | [Модуль 30](docs/ru/modules/30-backups-recovery.md), [полная копия](docs/ru/BACKUP_CURRENT.md) |
+| API и права | [Каталог API](docs/API_ENDPOINTS.md), [архитектура](docs/ru/WORKSPACE_ARCHITECTURE.md), [карта проекта](docs/PROJECT_MAP_RU.md) |
+| Android и iOS | [Мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
+| Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md) |
+| English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |
 
-## Как устроена оплата
-
-Создание счёта, подтверждение оплаты и выдача VPN — три отдельных состояния. Переход браузера после оплаты не подтверждает платёж. Сервер проверяет сумму, валюту и заказ через провайдера, а повтор запроса или вебхука не должен повторно списывать деньги или выдавать доступ.
-
-Список доступных касс зависит от настроенных ключей, включения агента и его состояния. Реальные платежи открыты сразу; аварийная остановка — в **Безопасность → Защита и 2FA** или **Тарифы и оплата → Проверка платежей**. Сквозная проверка на стенде — по желанию ([E2E v2](docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md)). [Точные ограничения](docs/ru/WORKSPACE_PAYMENTS.md).
-
-## Проверка исходников
+## 🧪 Разработка и проверка
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r backend/requirements.txt -r backend/requirements-test.txt
 APP_ENV=test APP_SECRET=test-only-secret PYTHONPATH=backend .venv/bin/python -m pytest -q tests
-cd admin
-npm ci
-npm run typecheck
-npm run build
-cd ../cabinet
-npm ci
-npm run typecheck
-npm test
-npm run build
-cd ../miniapp
-npm run build          # кабинет с NEXT_PUBLIC_SURFACE=miniapp
-cd ../admin
-NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
-npx playwright test    # Chromium под production CSP
+
+cd admin && npm ci && npm run typecheck && npm run build
+cd ../cabinet && npm ci && npm run typecheck && npm test && npm run build
+cd ../admin && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet && npx playwright test   # Chromium под production CSP
 ```
 
-Интерфейсы — Next.js (static export в `dist/`). Mini App — это кабинет, собранный с `NEXT_PUBLIC_SURFACE=miniapp`: `miniapp/` делегирует сборку в `cabinet`, в контейнере Mini App собирается из `cabinet`. Для разработки: `npm run dev` в `admin` (порт 5173) или `cabinet` (порт 5174), API — через `NEXT_PUBLIC_API_URL`. Полная проверка Docker, PostgreSQL и мобильных сборок выполняется CI; локальные сборки интерфейса и тесты не заменяют платёжный E2E на сервере.
+Тесты с PostgreSQL и Redis включаются переменными `AUDIT_TEST_DATABASE_URL` и `REDIS_URL`. **CI** (`.github/workflows/ci.yml`) поднимает PostgreSQL 16 и Redis 7.4 и выполняет:
+- миграции Alembic;
+- тесты backend и Support Pro;
+- typecheck, сборку и Playwright-проверки интерфейсов;
+- сборку Android;
+- проверки контейнеров и документации.
 
-## Лицензия 2.8
+`docker.yml` собирает образы. `publish-release.yml` публикует выпуск после слияния в `main`. `mobile-release.yml` прикладывает мобильные пакеты.
 
-[LICENSE](LICENSE) разрешает бесплатное использование и изменение проекта для собственного магазина, включая коммерческую работу и сборку мобильных клиентов. Соблюдайте условия распространения, изложенные в лицензии. Код запрошенных сторонних проектов в этой переработке не включён; функции реализуются в существующем ядре. Рекламных ссылок на эти проекты в интерфейсах нет. [Сторонние компоненты и уведомления](THIRD_PARTY_NOTICES.md).
+Для разработки интерфейсов: `npm run dev` в `admin` (порт 5173) или `cabinet` (порт 5174), адрес API — `NEXT_PUBLIC_API_URL`. Mini App — это кабинет, собранный с `NEXT_PUBLIC_SURFACE=miniapp`.
 
-Подробные правила новых подписок и подарков: [инструкция](docs/ru/WORKSPACE_SUBSCRIPTIONS.md).
+## 📄 Лицензия
 
-## Выпуск v28.20.0
+[LICENSE](LICENSE) (Corgi Lusi VPN Shop Source License 2.8) разрешает бесплатно использовать и менять проект для собственного магазина, включая коммерческую работу и сборку мобильных клиентов. Соблюдайте условия распространения из лицензии. [Сторонние компоненты](THIRD_PARTY_NOTICES.md).
+
+## 🗂 История выпусков
+
+Релиз v28.21.0 запустил движок автоматизации: правила «событие → условия → действия» (истечение подписки, оплата, новый клиент, клиент без покупки) выполняются фоновым процессом один раз на клиента и событие, кампании уходят в очередь рассылок ([модуль 25](docs/ru/modules/25-automation-jobs.md)). Исправлена работа с Remnawave 3.x (обёртка ответов `response`, лимит устройств `hwidDeviceLimit`), ограничение антиабуза стало обратимым, возвраты из кабинета YooKassa (`refund.succeeded`) отзывают доступ, бот не отправляет кнопки Mini App в группах. Миграция `0074_automation_engine` ([заметки](docs/ru/RELEASE_V28_21_0.md)).
 
 Релиз v28.20.0 открыл реальные платежи сразу после установки: отдельного допуска и закрытия через 24 часа больше нет, а кнопка «Остановить приём платежей» остаётся для аварий; проверка staging E2E v2 стала добровольной ([платежи](docs/ru/modules/07-payments.md)).
 
@@ -540,7 +654,7 @@ npx playwright test    # Chromium под production CSP
 
 Релиз v28.18.0 полностью обновил инструкции: [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) от сервера до первой продажи и [30 инструкций по модулям](docs/ru/modules/README.md), проверенных по коду. В админке появился редактор тарифов (срок, трафик, устройства, профиль Remnawave из списка Internal Squads), реферальная программа и партнёры перенесены в «Маркетинг → Рефералы и партнёры», выключение аварийного режима снимает технический режим, агент узла может передавать антиабузу адреса подключений из журнала Xray (`AGENT_OBSERVE_ACCESS_LOG=1`).
 
-Релиз v28.17.0 добавил собственный приём почты (сервис `mail_receiver`, профиль `mail`): SMTP-сервер только для служебных адресов — отчёты DMARC попадают в раздел «Почтовый домен», письма на адрес поддержки становятся обращениями Support Pro; проверка SPF, DKIM и DMARC отправителя, грейлистинг, лимиты, ClamAV, STARTTLS, никаких писем о недоставке; чужие адреса отклоняются ([регламент](docs/ru/MAIL_RECEIVER_CURRENT.md)). Релиз v28.16.0 добавил глубокий анализ трафика на узлах (`AGENT_DPI=1`): nDPI, если установлен, иначе встроенный классификатор первых пакетов потоков — рукопожатие BitTorrent, DHT, uTP, трекеры и эвристика шифрованного BitTorrent; клиент определяется по журналу Xray в памяти узла, наружу уходят только счётчики, эвристика не влияет на антиабуз (миграция `0073_e2e_v2`, [регламент](docs/ru/TRAFFIC_ANALYSIS_CURRENT.md)). Релиз v28.15.0 добавил раздел «Торренты на узлах»: Xray распознаёт BitTorrent, агент узла передаёт из access-журнала только число срабатываний по клиенту (без адресов и строк журнала), магазин хранит почасовые счётчики 30 дней, на 24 часа отмечает клиента в антиабузе и раз в сутки уведомляет его; шифрованный BitTorrent не распознаётся (миграция `0071_torrent_detection`, [регламент](docs/ru/TORRENT_DETECTION_CURRENT.md)). Релиз v28.14.0 добавил раздел «Терминал узлов»: полную командную оболочку на VPN-сервере прямо в панели через агент узла (без SSH и открытых портов на узле). Терминал включается и на сервере магазина (`TERMINAL_ENABLED`), и на узле (`AGENT_TERMINAL=1`), доступен только администратору с 2FA, каждая сессия подтверждается паролем и кодом, ограничена по времени и простою и записывается в зашифрованный журнал без паролей, набранных при выключенном эхо; сниппеты команд (миграция `0070_node_terminal`, [регламент](docs/ru/NODE_TERMINAL_CURRENT.md)). Релиз v28.13.0 добавил раздел «Почтовый домен: SPF, DKIM, DMARC»: проверку MX, SPF (лимит 10 DNS-запросов, покрытие адреса SMTP), DKIM (совпадение с ключом панели) и DMARC (политика, адреса отчётов) и приём отчётов DMARC из ящика только на чтение или загрузкой — без дублей, с защитой от архивов-бомб и XXE, только о своём домене, со сроком хранения и удалением (миграция `0069_mail_domain`, [регламент](docs/ru/MAIL_DOMAIN_CURRENT.md)). Релиз v28.12.0 добавил в Support Pro 3.8 мост Zendesk и Freshdesk: обращения и история внешнего helpdesk попадают в общую очередь без дублей, клиент объединяется по email, ответы операторов публикуются во внешнем обращении однократно, ограничение частоты (429) ставит синхронизацию на паузу, удаление данных клиента не даёт импортировать обращение снова ([регламент](docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md)). Релиз v28.11.0 добавил ключи доступа (passkeys) в приложения Android и iOS: вход отпечатком, лицом или PIN-кодом, добавление и удаление ключей в приложении, связь приложений с доменом кабинета через `assetlinks.json` и `apple-app-site-association`, PKCE-код после входа; ключи общие с веб-кабинетом ([инструкция](docs/ru/NATIVE_PASSKEYS_CURRENT.md)). Миграций нет. Релиз v28.10.0 переработал административную панель: стартовая страница «Все разделы» собирает все 58 функций в 8 групп (аналитика, пользователи, тарифы и оплата, маркетинг, бот и кабинет, серверы, система, безопасность) с описанием каждой и поиском по задаче; у каждого раздела есть путь «Админ-панель → группа», заголовок и описание; все поля форм подписаны, примеры перенесены в подсказки внутри полей; типографика и тексты приведены к стилю личного кабинета, английские заголовки заменены русскими; скриншоты документации пересняты ([руководство](docs/ru/ADMIN_PANEL_CURRENT.md)). Миграций нет. Релиз v28.9.0 добавил сетевую аналитику узлов (миграция `0068_network_intel`): для адресов узлов Remnawave показываются ASN, владелец сети, префикс и страна RIR (RIPEstat) и репутация IP (AbuseIPDB при наличии ключа) с кэшем, отметкой свежести, учётом лимитов источников и предупреждениями; внутренние адреса наружу не отправляются, IPv6 поддерживается — строка матрицы «Расширенная DNS/ASN/reputation карта» закрыта ([регламент](docs/ru/NETWORK_INTEL_CURRENT.md)). Релиз v28.8.0 добавил среду плагинов (миграция `0067_plugin_runtime`): плагин — внешний HTTPS-сервис с подписанным пакетом-манифестом; администратор доверяет ключу издателя и подтверждает права, плагин получает подписанные события и API только с разрешёнными правами, версии обновляются и откатываются без перезапуска, при сбоях плагин останавливается автоматически — строка матрицы «Plugin runtime/hotload» закрыта ([регламент](docs/ru/PLUGINS_CURRENT.md)). Релиз v28.7.0 добавил email-канал поддержки (Support Pro 3.7, миграция `0007`): письма клиентов по IMAP становятся обращениями без дублей, ответы операторов уходят письмом с сохранением цепочки, автоответы и возвраты не открывают обращений, есть удаление данных клиента и срок хранения — строка матрицы «Внешние helpdesk/email каналы» закрыта для email ([регламент](docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md)). Релиз v28.6.0 добавил виджет подписки на рабочий стол Android и несколько профилей магазинов в админ-приложениях Android и iOS — строка матрицы «Native push/widget/multiprofile» закрыта ([регламент](docs/ru/WIDGET_AND_PROFILES_CURRENT.md)). Релиз v28.5.0 добавил нативные push-уведомления в приложения Android (FCM) и iOS (APNs): включение по согласию клиента, токен привязан к сессии входа и отзывается при выходе, потерянные токены отключаются автоматически, в админке — состояние провайдеров и доставки ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Релиз v28.4.0 перевёл админ-панель, кабинет и Mini App на Next.js (static export, прежние nginx-образы) в дизайне Remna Dark и закрыл строку матрицы «Исторический импорт VPN/платежей»: версионированный адаптер, preview без записи, сверка с контрольными итогами, повтор без дублей и журнал отката ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)). Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0067_plugin_runtime`. Релиз v28.3.0 закрыл «70+ настроек с hot-reload и шифрованием». Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.20.0](docs/ru/RELEASE_V28_20_0.md).
+Релиз v28.17.0 добавил собственный приём почты (сервис `mail_receiver`, профиль `mail`): SMTP-сервер только для служебных адресов — отчёты DMARC попадают в раздел «Почтовый домен», письма на адрес поддержки становятся обращениями Support Pro; проверка SPF, DKIM и DMARC отправителя, грейлистинг, лимиты, ClamAV, STARTTLS, никаких писем о недоставке; чужие адреса отклоняются ([регламент](docs/ru/MAIL_RECEIVER_CURRENT.md)). Релиз v28.16.0 добавил глубокий анализ трафика на узлах (`AGENT_DPI=1`): nDPI, если установлен, иначе встроенный классификатор первых пакетов потоков — рукопожатие BitTorrent, DHT, uTP, трекеры и эвристика шифрованного BitTorrent; клиент определяется по журналу Xray в памяти узла, наружу уходят только счётчики, эвристика не влияет на антиабуз (миграция `0072_traffic_analysis`, [регламент](docs/ru/TRAFFIC_ANALYSIS_CURRENT.md)). Релиз v28.15.0 добавил раздел «Торренты на узлах»: Xray распознаёт BitTorrent, агент узла передаёт из access-журнала только число срабатываний по клиенту (без адресов и строк журнала), магазин хранит почасовые счётчики 30 дней, на 24 часа отмечает клиента в антиабузе и раз в сутки уведомляет его; шифрованный BitTorrent не распознаётся (миграция `0071_torrent_detection`, [регламент](docs/ru/TORRENT_DETECTION_CURRENT.md)). Релиз v28.14.0 добавил раздел «Терминал узлов»: полную командную оболочку на VPN-сервере прямо в панели через агент узла (без SSH и открытых портов на узле). Терминал включается и на сервере магазина (`TERMINAL_ENABLED`), и на узле (`AGENT_TERMINAL=1`), доступен только администратору с 2FA, каждая сессия подтверждается паролем и кодом, ограничена по времени и простою и записывается в зашифрованный журнал без паролей, набранных при выключенном эхо; сниппеты команд (миграция `0070_node_terminal`, [регламент](docs/ru/NODE_TERMINAL_CURRENT.md)). Релиз v28.13.0 добавил раздел «Почтовый домен: SPF, DKIM, DMARC»: проверку MX, SPF (лимит 10 DNS-запросов, покрытие адреса SMTP), DKIM (совпадение с ключом панели) и DMARC (политика, адреса отчётов) и приём отчётов DMARC из ящика только на чтение или загрузкой — без дублей, с защитой от архивов-бомб и XXE, только о своём домене, со сроком хранения и удалением (миграция `0069_mail_domain`, [регламент](docs/ru/MAIL_DOMAIN_CURRENT.md)). Релиз v28.12.0 добавил в Support Pro 3.8 мост Zendesk и Freshdesk: обращения и история внешнего helpdesk попадают в общую очередь без дублей, клиент объединяется по email, ответы операторов публикуются во внешнем обращении однократно, ограничение частоты (429) ставит синхронизацию на паузу, удаление данных клиента не даёт импортировать обращение снова ([регламент](docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md)). Релиз v28.11.0 добавил ключи доступа (passkeys) в приложения Android и iOS: вход отпечатком, лицом или PIN-кодом, добавление и удаление ключей в приложении, связь приложений с доменом кабинета через `assetlinks.json` и `apple-app-site-association`, PKCE-код после входа; ключи общие с веб-кабинетом ([инструкция](docs/ru/NATIVE_PASSKEYS_CURRENT.md)). Миграций нет. Релиз v28.10.0 переработал административную панель: стартовая страница «Все разделы» собирает все 58 функций в 8 групп (аналитика, пользователи, тарифы и оплата, маркетинг, бот и кабинет, серверы, система, безопасность) с описанием каждой и поиском по задаче; у каждого раздела есть путь «Админ-панель → группа», заголовок и описание; все поля форм подписаны, примеры перенесены в подсказки внутри полей; типографика и тексты приведены к стилю личного кабинета, английские заголовки заменены русскими; скриншоты документации пересняты ([руководство](docs/ru/ADMIN_PANEL_CURRENT.md)). Миграций нет. Релиз v28.9.0 добавил сетевую аналитику узлов (миграция `0068_network_intel`): для адресов узлов Remnawave показываются ASN, владелец сети, префикс и страна RIR (RIPEstat) и репутация IP (AbuseIPDB при наличии ключа) с кэшем, отметкой свежести, учётом лимитов источников и предупреждениями; внутренние адреса наружу не отправляются, IPv6 поддерживается — строка матрицы «Расширенная DNS/ASN/reputation карта» закрыта ([регламент](docs/ru/NETWORK_INTEL_CURRENT.md)). Релиз v28.8.0 добавил среду плагинов (миграция `0067_plugin_runtime`): плагин — внешний HTTPS-сервис с подписанным пакетом-манифестом; администратор доверяет ключу издателя и подтверждает права, плагин получает подписанные события и API только с разрешёнными правами, версии обновляются и откатываются без перезапуска, при сбоях плагин останавливается автоматически — строка матрицы «Plugin runtime/hotload» закрыта ([регламент](docs/ru/PLUGINS_CURRENT.md)). Релиз v28.7.0 добавил email-канал поддержки (Support Pro 3.7, миграция `0007`): письма клиентов по IMAP становятся обращениями без дублей, ответы операторов уходят письмом с сохранением цепочки, автоответы и возвраты не открывают обращений, есть удаление данных клиента и срок хранения — строка матрицы «Внешние helpdesk/email каналы» закрыта для email ([регламент](docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md)). Релиз v28.6.0 добавил виджет подписки на рабочий стол Android и несколько профилей магазинов в админ-приложениях Android и iOS — строка матрицы «Native push/widget/multiprofile» закрыта ([регламент](docs/ru/WIDGET_AND_PROFILES_CURRENT.md)). Релиз v28.5.0 добавил нативные push-уведомления в приложения Android (FCM) и iOS (APNs): включение по согласию клиента, токен привязан к сессии входа и отзывается при выходе, потерянные токены отключаются автоматически, в админке — состояние провайдеров и доставки ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Релиз v28.4.0 перевёл админ-панель, кабинет и Mini App на Next.js (static export, прежние nginx-образы) в дизайне Remna Dark и закрыл строку матрицы «Исторический импорт VPN/платежей»: версионированный адаптер, preview без записи, сверка с контрольными итогами, повтор без дублей и журнал отката ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)). Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0067_plugin_runtime`. Релиз v28.3.0 закрыл «70+ настроек с hot-reload и шифрованием». Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.21.0](docs/ru/RELEASE_V28_21_0.md).
 
 Импорт users.db и массовые операции доступны роли admin в «Пользователи → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 
