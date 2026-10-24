@@ -24,6 +24,9 @@ def test_node_control_and_public_release_are_closed():
     public = launch[launch.index("async def release"):]
     assert 'require_permission("provision_nodes")' in register
     assert 'require_permission("provision_nodes")' in failover
+    # The old routes returned invented data; they now say where the real mechanism is.
+    assert "raise HTTPException(410, GONE_NODES)" in register and "raise HTTPException(410, GONE_NODES)" in failover
+    assert "agent_token" not in launch and "signature" not in launch
     assert '"release": APP_VERSION' in public
     assert "16.0.0" not in public
     assert '"version":APP_VERSION' in (ROOT / "backend/app/main.py").read_text()

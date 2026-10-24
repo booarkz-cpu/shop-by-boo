@@ -129,6 +129,8 @@ from .partners import router as partners_router
 app.include_router(partners_router)
 from .e2e_v2 import router as e2e_v2_router, checkout_allowed as e2e_checkout_allowed, capture_webhook as e2e_capture_webhook
 app.include_router(e2e_v2_router)
+from .automation import router as automation_router
+app.include_router(automation_router)
 from .account_actions import router as account_actions_router
 app.include_router(account_actions_router)
 from .surveys import router as surveys_router
@@ -511,11 +513,25 @@ async def startup():
         existing=(await db.execute(select(AdminUser).where(AdminUser.email==settings.admin_email.lower()))).scalar_one_or_none()
         if not existing:
             db.add(AdminUser(email=settings.admin_email.lower(), password_hash=hash_password(settings.admin_password), role="admin"))
-        if payments_sandbox_allowed():
-            plan_count = await db.scalar(select(func.count()).select_from(Plan))
-            if not plan_count:
-                db.add(Plan(name="Тестовый месяц", price=Decimal("100.00"), duration_days=30, traffic_limit_gb=100, device_limit=3, enabled=True))
+        await seed_starter_plans(db)
         await db.commit()
+
+async def seed_starter_plans(db: AsyncSession) -> int:
+    """Create first plans when the shop has none: a test plan in sandbox, otherwise the installer prices."""
+    if await db.scalar(select(func.count()).select_from(Plan)):
+        return 0
+    if payments_sandbox_allowed():
+        db.add(Plan(name="Тестовый месяц", price=Decimal("100.00"), duration_days=30, traffic_limit_gb=100, device_limit=3, enabled=True))
+        return 1
+    created = 0
+    # The installer asks for PRICE_1/3/6/12. They become starter plans, switched off
+    # until the administrator picks a Remnawave profile for them in «Тарифы».
+    for months, name, days, price in ((1, "1 месяц", 30, settings.price_1), (3, "3 месяца", 90, settings.price_3),
+                                      (6, "6 месяцев", 180, settings.price_6), (12, "12 месяцев", 365, settings.price_12)):
+        if price and price > 0:
+            db.add(Plan(name=name, price=Decimal(price), duration_days=days, enabled=False))
+            created += 1
+    return created
 
 @app.on_event("shutdown")
 async def shutdown_resources():
@@ -554,6 +570,8 @@ async def start_backup_scheduler():
     from .account_merge import account_merge_cleanup_scheduler
     _track_task(account_merge_cleanup_scheduler())
     _track_task(monitor_checks_scheduler())
+    from .automation import automation_scheduler
+    _track_task(automation_scheduler())
 
 @app.get("/health/live")
 async def health_live():
@@ -1635,6 +1653,10 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
             db.add(op_row); await db.commit()
         op_row.status="processing"; op_row.attempts=(op_row.attempts or 0)+1; op_row.updated_at=now; await db.commit()
         try:
+            if sub and sub.remnawave_uuid in {"None","none","null"}:
+                # Releases before v28.21.0 read the panel answer without its "response" wrapper and
+                # stored the literal "None". Forget it: the user is then found again by username.
+                sub.remnawave_uuid=None
             if payment.provider == "sandbox" and sandbox_local_vpn():
                 sub=await payment_target(db,payment)
                 local_now=datetime.utcnow()
@@ -1679,7 +1701,7 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
                 # Existing remote users must receive the purchased traffic/profile terms too;
                 # otherwise a plan upgrade can pay for more traffic while the old remote
                 # quota remains in force (or a downgrade can leave excess quota active).
-                await rw.update_entitlements(sub.remnawave_uuid,traffic_limit_gb,profile_id)
+                await rw.update_entitlements(sub.remnawave_uuid,traffic_limit_gb,profile_id,device_limit=payment.device_limit_snapshot)
                 extension=await rw.extend_idempotent(sub.remnawave_uuid,duration_days,before_local,expected_after)
                 rw_sub=await rw.get_subscription(sub.remnawave_uuid)
                 verified_expiry=extension.get("expires_at") if isinstance(extension,dict) else None
@@ -1702,7 +1724,7 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
                     remote_status=str(data.get("status") or data.get("state") or "").lower()
                     if remote_status in {"disabled","blocked","inactive"}:
                         await rw.enable_user(remote_id)
-                    await rw.update_entitlements(remote_id,traffic_limit_gb,profile_id)
+                    await rw.update_entitlements(remote_id,traffic_limit_gb,profile_id,device_limit=payment.device_limit_snapshot)
                     remote_expiry=await rw.get_expiry(remote_id)
                     target_expiry=max(now+timedelta(days=duration_days), remote_expiry or now)
                     if not remote_expiry or remote_expiry < target_expiry:
@@ -1714,7 +1736,8 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
                     final_remote_expiry=await rw.get_expiry(str(data.get("id"))) or target_expiry
                 else:
                     expires=now+timedelta(days=duration_days); traffic=traffic_limit_gb*1024**3 if traffic_limit_gb else 0
-                    data=await rw.create_user(username,expires,traffic,active_internal_squads=[profile_id] if profile_id else None,telegram_id=user.telegram_id)
+                    data=await rw.create_user(username,expires,traffic,active_internal_squads=[profile_id] if profile_id else None,telegram_id=user.telegram_id,device_limit=payment.device_limit_snapshot)
+                    if not isinstance(data,dict) or not data.get("id"): raise RuntimeError("Remnawave returned no user id")
                     op_row.remote_user_id=str(data.get("id")); final_remote_expiry=expires
                 if not sub:
                     sub=Subscription(user_id=user.id,plan_id=plan.id); db.add(sub)
@@ -1827,6 +1850,39 @@ async def finish_provider_event(db:AsyncSession, provider:str, event_id:str, *, 
     await db.execute(sql_text("UPDATE payment_provider_events SET status=:status,last_error=:error,processed_at=:processed WHERE provider=:p AND event_id=:e"),
                      {"status":"processed" if ok else "retry","error":None if ok else (error or "")[:2000],"processed":datetime.utcnow() if ok else None,"p":provider,"e":event_id})
 
+async def _external_refund(provider:str, refund_id:str, db:AsyncSession):
+    """A refund made in the provider's own dashboard: record it and revoke access like a shop refund.
+
+    The notification is only a hint. The refund is read back from the provider and must be
+    succeeded, belong to a paid payment of this shop and cover its full amount. Partial refunds
+    are recorded in the audit log for an operator and do not revoke access."""
+    if provider!="yookassa": return {"ok":True}
+    try: info=await YooKassaProvider().get_refund(refund_id)
+    except Exception: raise HTTPException(503,"Refund verification unavailable")
+    if info.get("status")!="succeeded" or not info.get("payment_id"): return {"ok":True,"ignored":True}
+    p=await payment_by_provider(db,provider,str(info["payment_id"]))
+    if not p: return {"ok":True,"ignored":True}
+    existing=(await db.execute(select(RefundRequest).where(RefundRequest.payment_id==p.id))).scalar_one_or_none()
+    if existing and existing.status in {"refunded","refunded_pending_revoke"}: return {"ok":True,"duplicate":True}
+    try: full=Decimal(str(info.get("amount") or "0"))>=Decimal(str(p.amount)) and (info.get("currency") or p.currency)==p.currency
+    except Exception: full=False
+    if not full:
+        await audit(db,"payment.refund.partial_external","provider",str(p.id),{"refund_id":refund_id,"amount":info.get("amount")}); await db.commit()
+        return {"ok":True,"partial":True}
+    if p.status not in {"paid","fulfilled","refunded_pending_revoke"}: return {"ok":True,"ignored":True}
+    if existing:
+        if existing.provider_refund_id and existing.provider_refund_id!=refund_id:
+            await audit(db,"payment.refund.external_conflict","provider",str(p.id),{"refund_id":refund_id}); await db.commit()
+            return {"ok":True,"conflict":True}
+        existing.provider_refund_id=refund_id; existing.status="processing"; existing.updated_at=datetime.utcnow(); r=existing
+    else:
+        r=RefundRequest(payment_id=p.id,user_id=p.user_id,amount=p.amount,reason="Возврат оформлен в кабинете провайдера",status="processing",provider_refund_id=refund_id)
+        db.add(r)
+    await audit(db,"payment.refund.external","provider",str(p.id),{"refund_id":refund_id}); await db.commit(); await db.refresh(r)
+    from types import SimpleNamespace
+    result=await reconcile_refund(r.id,db,SimpleNamespace(email=f"{provider}-webhook"))
+    return {"ok":True,"refund":result.get("status")}
+
 @app.post("/api/webhooks/yookassa")
 async def yookassa_webhook(request:Request, db:AsyncSession=Depends(get_db)):
     client_ip=_client_ip(request)
@@ -1838,6 +1894,8 @@ async def yookassa_webhook(request:Request, db:AsyncSession=Depends(get_db)):
     obj=d.get("object",{}) or {}
     pid=obj.get("id"); event_id=str(d.get("id") or hashlib.sha256(raw).hexdigest())
     order_id=(obj.get("metadata") or {}).get("order_id")
+    if d.get("event")=="refund.succeeded" and pid:
+        return await _external_refund("yookassa",str(pid),db)
     if d.get("event")!="payment.succeeded" or not pid: return {"ok":True}
     p=await payment_by_provider_or_order(db,"yookassa",pid,order_id)
     if not p: return {"ok":True}
@@ -3409,6 +3467,7 @@ async def reconcile_refund(refund_id:int,db:AsyncSession=Depends(get_db),admin=D
             p=(await db.execute(select(Payment).where(Payment.id==p.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
             r=(await db.execute(select(RefundRequest).where(RefundRequest.id==r.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
             r.status="refunded"; r.updated_at=datetime.utcnow(); p.status="refunded"; p.fulfillment_terminal=True
+            await record_financial_event(db,operation_key=f"payment:{p.id}:refund:{r.id}",user_id=p.user_id,payment_id=p.id,kind="refund",direction="debit",amount=Decimal(str(p.amount)),currency=p.currency,metadata={"provider":p.provider,"refund_id":r.id,"provider_refund_id":r.provider_refund_id})
             try:
                 revoke_result=await _safe_revoke_for_refunded_payment(db,p,admin.email,"subscription.revoked.refund.reconciled")
             except Exception as exc:
@@ -4968,12 +5027,17 @@ async def enterprise_campaigns(db:AsyncSession=Depends(get_db),admin=Depends(req
 
 @app.post("/api/admin/enterprise/campaigns")
 async def enterprise_campaign_create(payload:CampaignIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_marketing"))):
+    from .automation import validate_campaign
+    validate_campaign(payload.model_dump())
     x=Campaign(**payload.model_dump()); db.add(x); await db.commit(); await audit(db,"campaign.created",admin.email,str(x.id)); await db.commit(); return {"id":x.id,"status":x.status}
 
 @app.put("/api/admin/enterprise/campaigns/{campaign_id}")
 async def enterprise_campaign_update(campaign_id:int,payload:CampaignIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_marketing"))):
     x=await db.get(Campaign,campaign_id)
     if not x: raise HTTPException(404,"Кампания не найдена")
+    if x.status=="running": raise HTTPException(409,"Кампания уже отправляется")
+    from .automation import validate_campaign
+    validate_campaign(payload.model_dump())
     for k,v in payload.model_dump().items(): setattr(x,k,v)
     x.updated_at=datetime.utcnow(); await db.commit(); return {"ok":True}
 
@@ -4983,14 +5047,20 @@ async def enterprise_rules(db:AsyncSession=Depends(get_db),admin=Depends(require
 
 @app.post("/api/admin/enterprise/rules")
 async def enterprise_rule_create(payload:RuleIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("feature_flags.manage"))):
+    from .automation import validate_rule
+    payload.conditions,payload.actions=validate_rule(payload.event,payload.conditions,payload.actions)
+    if payload.actions.get("wallet_bonus") and admin.role!="admin": raise HTTPException(403,"Бонус на баланс в правилах настраивает администратор")
     x=AutomationRule(**payload.model_dump()); db.add(x); await db.commit(); await audit(db,"automation.rule.created",admin.email,str(x.id)); await db.commit(); return {"id":x.id}
 
 @app.put("/api/admin/enterprise/rules/{rule_id}")
 async def enterprise_rule_update(rule_id:int,payload:RuleIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("feature_flags.manage"))):
     x=await db.get(AutomationRule,rule_id)
     if not x: raise HTTPException(404,"Правило не найдено")
+    from .automation import validate_rule
+    payload.conditions,payload.actions=validate_rule(payload.event,payload.conditions,payload.actions)
+    if (payload.actions.get("wallet_bonus") or (x.actions or {}).get("wallet_bonus")) and admin.role!="admin": raise HTTPException(403,"Бонус на баланс в правилах настраивает администратор")
     for k,v in payload.model_dump().items(): setattr(x,k,v)
-    x.updated_at=datetime.utcnow(); await db.commit(); return {"ok":True}
+    x.updated_at=datetime.utcnow(); await audit(db,"automation.rule.updated",admin.email,str(rule_id),{"enabled":x.enabled}); await db.commit(); return {"ok":True}
 
 @app.get("/api/admin/enterprise/summary")
 async def enterprise_summary(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):

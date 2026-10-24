@@ -54,7 +54,7 @@ async def test_recovered_gift_uuid_checks_used_traffic_before_overwrite(database
     await database.commit();seen=[]
     class Remote:
         async def get_user(self,uuid):seen.append(uuid);return {'userTraffic':{'usedTrafficBytes':31*1024**3}}
-        async def update_entitlements(self,*args):raise AssertionError('must not overwrite consumed quota')
+        async def update_entitlements(self,*args,**kwargs):raise AssertionError('must not overwrite consumed quota')
     monkeypatch.setattr(shop,'RemnawaveClient',Remote)
     with pytest.raises(HTTPException) as error:
         await gifts.redeem_gift(shop.GiftRedeemIn(code='RECOVER_LIMIT'),request(),database)

@@ -38,6 +38,19 @@ def redact_remote(value):
 class RemnawaveError(RuntimeError):
     """A validated Remnawave request or reconciliation failure."""
 
+_KEEP = object()
+
+
+def unwrap(body):
+    """Remnawave answers ``{"response": <payload>}`` (backend contract 2.x and 3.x).
+
+    Callers work with the payload itself: a user object, ``{"users": [...], "total": N}``,
+    a list of nodes. A body that is not wrapped is returned as is."""
+    if isinstance(body, dict) and set(body) == {"response"}:
+        return body["response"]
+    return body
+
+
 class RemnawaveCircuitOpen(RemnawaveError):
     """Remote calls are temporarily blocked after repeated failures."""
 
@@ -93,7 +106,7 @@ class RemnawaveClient:
                 try: await redis_client.delete(fail_key)
                 except Exception as exc:
                     logger.warning("Redis circuit-breaker reset failed: %s", exc)
-            return r.json() if r.content else {}
+            return unwrap(r.json()) if r.content else {}
         except Exception:
             if redis_client is not None:
                 try:
@@ -123,7 +136,7 @@ class RemnawaveClient:
 
     async def create_user(self,username,expire_at,traffic_limit_bytes=0,
                           traffic_limit_strategy="NO_RESET",
-                          active_internal_squads=None,telegram_id=None):
+                          active_internal_squads=None,telegram_id=None,device_limit=None):
         payload={
             "username":username,
             "expireAt":expire_at.isoformat(),
@@ -134,6 +147,9 @@ class RemnawaveClient:
             payload["activeInternalSquads"]=active_internal_squads
         if telegram_id is not None:
             payload["telegramId"]=telegram_id
+        if device_limit:
+            # Enforced by the panel when its HWID device limit is turned on; otherwise ignored.
+            payload["hwidDeviceLimit"]=int(device_limit)
         return await self._request("POST","/api/users",json=payload)
 
 
@@ -171,13 +187,16 @@ class RemnawaveClient:
         return await self._request("POST",f"/api/users/{user_id}/actions/extend",
                                    json={"days":days})
 
-    async def update_entitlements(self,user_id:int|str,traffic_limit_gb:int|None,profile_id:str|None):
+    async def update_entitlements(self,user_id:int|str,traffic_limit_gb:int|None,profile_id:str|None,device_limit=_KEEP):
         # None is an explicit unlimited/empty entitlement, not "leave the old
         # remote value untouched". Otherwise downgrading to an unlimited/no-profile
         # plan would silently retain the previous customer's restrictive quota or
         # privileged internal squad. This must mirror create_user semantics.
         payload={"trafficLimitBytes": int(traffic_limit_gb)*1024**3 if traffic_limit_gb is not None else 0,
                  "activeInternalSquads": [profile_id] if profile_id else []}
+        if device_limit is not _KEEP:
+            # None returns the user to the panel's default HWID limit.
+            payload["hwidDeviceLimit"]=int(device_limit) if device_limit else None
         return await self.patch_user(user_id,payload)
 
     async def disable_user(self,user_id:int|str):

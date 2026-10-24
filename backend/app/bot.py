@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 from datetime import datetime
 from html import escape
 from aiogram import Bot,Dispatcher,Router
@@ -97,12 +98,21 @@ def broadcast_recipient_query(target: str, now: datetime):
     return stmt.distinct().order_by(User.id)
 
 
+def _private(message) -> bool:
+    """Web App buttons are accepted by Telegram only in private chats (BUTTON_TYPE_INVALID otherwise)."""
+    return getattr(getattr(message, "chat", None), "type", "private") == "private"
+
+
+PROMO_RE = re.compile(r"[A-Z0-9_-]{2,64}")
+
+
 async def _telegram_post(client, method: str, payload: dict):
+    """Bot API call honoring flood control: on 429 wait ``retry_after`` and try again (3 attempts)."""
     url = f"https://api.telegram.org/bot{settings.bot_token}/{method}"
     response = None
-    for attempt in range(2):
+    for attempt in range(3):
         response = await client.post(url, json=payload)
-        if response.status_code != 429 or attempt == 1:
+        if response.status_code != 429 or attempt == 2:
             return response
         wait = 1.0
         try:
@@ -308,12 +318,17 @@ async def start(message:Message):
 
 @router.message(Command("buy"))
 async def buy(message: Message):
+    if not _private(message):
+        await message.answer("Откройте личный чат с ботом, чтобы выбрать тариф.")
+        return
     lang = _lang(message)
     _, _, _, _, _, plans = await get_bot_config()
     if not plans:
         await message.answer("Магазин временно не содержит тарифов." if lang == "ru" else "The shop has no plans configured.")
         return
-    lines = [f"• {escape(p.name)} — {p.price:.2f} ₽ / {p.duration_days} days" for p in plans]
+    currency = escape(settings.default_currency or "RUB")
+    unit = "дн." if lang == "ru" else "days"
+    lines = [f"• {escape(p.name)} — {p.price:.2f} {currency} / {p.duration_days} {unit}" for p in plans]
     url = settings.mini_app_url
     await message.answer(("🛒 <b>Тарифы</b>\n" if lang == "ru" else "🛒 <b>Plans</b>\n") + "\n".join(lines), parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang, "open"), web_app=WebAppInfo(url=url))]]))
 
@@ -336,9 +351,12 @@ async def subscription(message: Message):
 
 @router.message(Command("promo"))
 async def promo(message:Message):
+    if not _private(message):
+        await message.answer("Откройте личный чат с ботом, чтобы применить промокод.")
+        return
     lang=_lang(message)
     code=(message.text or "").split(maxsplit=1)
-    if len(code)<2:
+    if len(code)<2 or not PROMO_RE.fullmatch(code[1].strip().upper()):
         await message.answer(_tr(lang,"promo_usage"))
         return
     # Deep-link into Mini App with the code; server validates it again before payment.

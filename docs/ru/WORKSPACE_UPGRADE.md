@@ -1,4 +1,4 @@
-> Актуальная инструкция для дистрибутива v28.20.0. Runtime/API `21.5.1`. Head магазина `0073_e2e_v2`, Support Pro `0008`/3.8.
+> Актуальная инструкция для дистрибутива v28.21.0. Runtime/API `21.5.1`. Head магазина `0074_automation_engine`, Support Pro `0008`/3.8.
 
 # Обновление существующего магазина
 
@@ -30,7 +30,7 @@ CLI создаёт зашифрованный bundle обеих баз, файл
 
 ```bash
 git fetch origin
-git switch --detach v28.20.0
+git switch --detach v28.21.0
 docker compose build backend worker bot admin cabinet miniapp support_migrate support_pro support_worker
 docker compose up -d db redis support_db support_redis
 docker compose run --rm backend alembic upgrade head
@@ -39,7 +39,7 @@ docker compose run --rm support_migrate
 
 Не используйте `git reset --hard`, удаление volumes или обнуление migration history. Если checkout конфликтует с собственными файлами, остановитесь и перенесите их в проверенную ветку; работающий production не должен быть местом для разрешения такого конфликта.
 
-Для standalone Support Pro примените его `python -m app.migrate` в существующем compose-проекте, сохранив его credentials/volumes. Ожидаются head магазина `0073_e2e_v2` и Support Pro `0008`. До запуска нового worker обязателен обновлённый API магазина.
+Для standalone Support Pro примените его `python -m app.migrate` в существующем compose-проекте, сохранив его credentials/volumes. Ожидаются head магазина `0074_automation_engine` и Support Pro `0008`. До запуска нового worker обязателен обновлённый API магазина.
 
 ## Запуск и проверка
 
@@ -80,4 +80,4 @@ docker compose logs --tail=80 support_worker
 
 Миграции применяются всей цепочкой через `upgrade head`, не выборочным запуском файлов. Downgrade использованной истории/структуры блокируется. При ошибке исправление вперёд предпочтительно; полный возврат требует остановки writers и восстановления **обеих БД, файлов и соответствующих исходников**. Не обнуляйте защитные поля SQL-командами. [Восстановление](BACKUP_CURRENT.md) · [Production](PRODUCTION_CURRENT.md) · [Матрица](WORKSPACE_COVERAGE.md).
 
-Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.20.0](DISTRIBUTION_UPGRADE_CURRENT.md).
+Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.21.0](DISTRIBUTION_UPGRADE_CURRENT.md).
