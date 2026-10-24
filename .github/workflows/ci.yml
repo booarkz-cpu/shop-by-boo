@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 45
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18.6-alpine
         env:
           POSTGRES_USER: vpnshop
           POSTGRES_PASSWORD: ci-password
@@ -149,7 +149,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18.6-alpine
         env:
           POSTGRES_USER: support
           POSTGRES_PASSWORD: ci-support-password
@@ -238,6 +238,12 @@ jobs:
           cp .env.example .env
           cp support-pro/.env.example support-pro/.env
           docker compose -f docker-compose.yml config --quiet
+          # Every PostgreSQL image reference is pinned to the digest of its tag.
+          want="$(docker buildx imagetools inspect postgres:18.6-alpine --format '{{json .Manifest.Digest}}' | tr -d '"')"
+          echo "::notice title=postgres:18.6-alpine digest::$want"
+          refs="$(grep -rhoE 'postgres:[0-9][^ "}]*' docker-compose.yml docker-compose.test.yml support-pro/docker-compose.yml | sort -u)"
+          echo "$refs"
+          test "$refs" = "postgres:18.6-alpine@$want"
           cp .env.test.example .env.test
           docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
 
@@ -260,10 +266,39 @@ jobs:
           p=Path('support-pro/.env')
           p.write_text(p.read_text()+'\nSESSION_SECRET='+secrets.token_hex(32)+'\nBOT_TOKEN=123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi\n')
           PY
+      - name: Move PostgreSQL 16 data to PostgreSQL 18
+        run: |
+          project="$(docker compose config --format json | jq -r .name)"
+          old=postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+          seed(){ # volume user db
+            docker volume create "${project}_$1" >/dev/null
+            docker run -d --name "seed-$1" -e POSTGRES_USER="$2" -e POSTGRES_PASSWORD=seed -e POSTGRES_DB="$3" -v "${project}_$1":/var/lib/postgresql/data "$old" >/dev/null
+            for i in $(seq 1 60); do docker exec "seed-$1" pg_isready -U "$2" -d "$3" >/dev/null 2>&1 && break; sleep 2; done
+            sleep 3
+            docker exec "seed-$1" psql -U "$2" -d "$3" -v ON_ERROR_STOP=1 -c "CREATE TABLE legacy_orders(id serial PRIMARY KEY, note text, paid numeric(12,2)); INSERT INTO legacy_orders(note, paid) SELECT 'order '||g, g FROM generate_series(1,1500) g; CREATE TABLE legacy_users(id int PRIMARY KEY); INSERT INTO legacy_users SELECT generate_series(1,42);"
+            docker rm -f "seed-$1" >/dev/null
+          }
+          seed postgres_data vpnshop vpnshop
+          seed support_postgres_data support support
+          APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres.sh | tee "$RUNNER_TEMP/upgrade.log"
+          grep -q 'db: moved to PostgreSQL 18' "$RUNNER_TEMP/upgrade.log"
+          grep -q 'support_db: moved to PostgreSQL 18' "$RUNNER_TEMP/upgrade.log"
+          docker compose up -d --wait db support_db
+          test "$(docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SELECT count(*), sum(paid) FROM legacy_orders')" = "1500|1125750.00"
+          test "$(docker compose exec -T support_db psql -U support -d support -At -c 'SELECT count(*) FROM legacy_users')" = "42"
+          docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SHOW server_version' | grep -E '^18\.'
+          # A second run is a no-op and the PostgreSQL 16 volume is kept for rollback.
+          APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres.sh | grep -q 'db: already moved to PostgreSQL 18'
+          docker volume inspect "${project}_postgres_data" >/dev/null
+          ls "$RUNNER_TEMP/rollback"/postgres16-db-*.dump
       - name: Build and start services
         run: |
           docker compose build backend admin miniapp cabinet support_pro support_worker caddy
           docker compose up -d --wait --wait-timeout 240 backend admin miniapp cabinet support_pro support_worker
+          # PostgreSQL 18 everywhere, and pg_dump in the backend image matches the server major version.
+          docker compose exec -T db postgres --version | grep -E 'PostgreSQL\) 18\.'
+          docker compose exec -T support_db postgres --version | grep -E 'PostgreSQL\) 18\.'
+          docker compose exec -T backend pg_dump --version | grep -E 'PostgreSQL\) 18\.'
       - name: Verify privilege and authentication boundaries
         run: |
           for service in backend admin miniapp cabinet support_pro; do
