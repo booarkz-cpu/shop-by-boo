@@ -348,6 +348,11 @@ async def revoke_publisher(publisher_id: int, db: AsyncSession = Depends(get_db)
 @router.post("/api/admin/plugins/upload")
 async def upload(file: UploadFile = File(...), db: AsyncSession = Depends(get_db), admin=Depends(require_permission("security.manage"))):
     data = await file.read(MAX_PACKAGE_BYTES + 1)
+    return await ingest(db, data, admin)
+
+
+async def ingest(db: AsyncSession, data: bytes, admin):
+    """Verify a package (signature, manifest) and store it as a new version."""
     try:
         files = read_package(data)
         publishers = (await db.scalars(select(PluginPublisher))).all()
@@ -724,3 +729,161 @@ def sign_package(files: dict[str, bytes], private_key) -> bytes:
             archive.writestr(name, data)
         archive.writestr("signature.json", json.dumps(signature))
     return buffer.getvalue()
+
+
+# ---------------------------------------------------------------- catalog
+#
+# A catalog is a JSON index published by a plugin publisher on HTTPS:
+#   {"catalog": 1, "name": "...", "plugins": [{"id", "name", "version", "description",
+#    "package_url", "sha256", "homepage"}], "public_key": "<base64>", "signature": "<base64>"}
+# The signature (Ed25519) covers SHA-256 of the canonical JSON of {"catalog", "name",
+# "plugins"}; the key must be a trusted publisher. Installing downloads the package over
+# HTTPS (pinned DNS, no redirects), checks its SHA-256 from the index and then runs the
+# normal package verification, so a catalog can never bypass the package signature.
+
+CATALOG_SETTING = "plugin_catalogs"
+MAX_CATALOGS = 5
+MAX_CATALOG_BYTES = 512 * 1024
+
+
+def catalog_digest(index: dict) -> bytes:
+    body = {"catalog": index.get("catalog"), "name": index.get("name"), "plugins": index.get("plugins")}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).digest()
+
+
+def verify_catalog(index: dict, publishers: list[PluginPublisher]) -> PluginPublisher:
+    if not isinstance(index, dict) or index.get("catalog") != 1 or not isinstance(index.get("plugins"), list):
+        raise PackageError("Каталог должен быть JSON с полями catalog=1 и plugins")
+    if len(index["plugins"]) > 200:
+        raise PackageError("В каталоге больше 200 плагинов")
+    key_b64, sig_b64 = str(index.get("public_key") or ""), str(index.get("signature") or "")
+    publisher = next((p for p in publishers if p.public_key == key_b64 and p.revoked_at is None), None)
+    if publisher is None:
+        raise PackageError("Каталог подписан неизвестным или отозванным ключом издателя")
+    try:
+        Ed25519PublicKey.from_public_bytes(b64decode(key_b64)).verify(b64decode(sig_b64), catalog_digest(index))
+    except (InvalidSignature, ValueError) as exc:
+        raise PackageError("Подпись каталога не совпадает") from exc
+    for item in index["plugins"]:
+        if not isinstance(item, dict) or not ID_RE.match(str(item.get("id", ""))) or not VERSION_RE.match(str(item.get("version", ""))):
+            raise PackageError("Запись каталога: неверный id или version")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(item.get("sha256", ""))) or not str(item.get("package_url", "")).startswith("https://"):
+            raise PackageError(f"Запись {item.get('id')}: нужен sha256 и package_url на https://")
+    return publisher
+
+
+async def _fetch(url: str, limit: int) -> bytes:
+    from .main import _pinned_public_http_client, validate_public_url
+    validate_public_url(url, allow_empty=False)
+    async with _pinned_public_http_client(15) as client:
+        async with client.stream("GET", url, headers={"Accept": "application/json, application/zip"}) as response:
+            if response.status_code != 200:
+                raise PackageError(f"{url}: HTTP {response.status_code}")
+            chunks, size = [], 0
+            async for chunk in response.aiter_bytes():
+                size += len(chunk)
+                if size > limit:
+                    raise PackageError(f"{url}: ответ больше {limit // 1024} КБ")
+                chunks.append(chunk)
+    return b"".join(chunks)
+
+
+async def _catalog_urls(db: AsyncSession) -> list[str]:
+    from .models import AppSetting
+    row = await db.get(AppSetting, CATALOG_SETTING)
+    try:
+        urls = json.loads(row.value) if row and row.value else []
+    except ValueError:
+        urls = []
+    return [u for u in urls if isinstance(u, str)][:MAX_CATALOGS]
+
+
+async def _load_catalog(db: AsyncSession, url: str) -> tuple[dict, PluginPublisher]:
+    raw = await _fetch(url, MAX_CATALOG_BYTES)
+    try:
+        index = json.loads(raw)
+    except ValueError as exc:
+        raise PackageError(f"{url}: не JSON") from exc
+    publishers = (await db.scalars(select(PluginPublisher))).all()
+    return index, verify_catalog(index, list(publishers))
+
+
+class CatalogsIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    urls: list[str] = Field(default_factory=list, max_length=MAX_CATALOGS)
+
+
+@router.get("/api/admin/plugins/catalogs")
+async def catalog_settings(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("ops.diagnostics"))):
+    return {"urls": await _catalog_urls(db)}
+
+
+@router.put("/api/admin/plugins/catalogs")
+async def save_catalogs(body: CatalogsIn, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("security.manage"))):
+    from .main import validate_public_url
+    from .models import AppSetting
+    urls = []
+    for url in body.urls:
+        url = url.strip()
+        if not url.startswith("https://"):
+            raise HTTPException(400, "Адрес каталога должен начинаться с https://")
+        validate_public_url(url, allow_empty=False)
+        if url not in urls:
+            urls.append(url)
+    row = await db.get(AppSetting, CATALOG_SETTING)
+    if row:
+        row.value = json.dumps(urls)
+    else:
+        db.add(AppSetting(key=CATALOG_SETTING, value=json.dumps(urls)))
+    await _audit(db, "plugin.catalogs.updated", admin, "catalogs", {"urls": urls})
+    await db.commit()
+    return {"urls": urls}
+
+
+@router.get("/api/admin/plugins/catalog")
+async def catalog(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("ops.diagnostics"))):
+    installed = {row.id: row for row in (await db.scalars(select(PluginInstall))).all()}
+    sources, entries = [], []
+    for url in await _catalog_urls(db):
+        try:
+            index, publisher = await _load_catalog(db, url)
+        except (PackageError, HTTPException, httpx.HTTPError) as exc:
+            sources.append({"url": url, "ok": False, "error": str(getattr(exc, "detail", exc))[:300]})
+            continue
+        sources.append({"url": url, "ok": True, "name": str(index.get("name") or "")[:80], "publisher": publisher.name, "count": len(index["plugins"])})
+        for item in index["plugins"]:
+            current = installed.get(item["id"])
+            entries.append({"catalog": url, "id": item["id"], "name": str(item.get("name") or item["id"])[:80], "version": item["version"],
+                            "description": str(item.get("description") or "")[:500], "homepage": str(item.get("homepage") or "")[:300],
+                            "installed_version": current.active_version if current else None,
+                            "update": bool(current and current.active_version and version_key(item["version"]) > version_key(current.active_version))})
+    return {"sources": sources, "plugins": entries}
+
+
+class CatalogInstallIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    catalog: str
+    id: str
+    version: str
+
+
+@router.post("/api/admin/plugins/catalog/install")
+async def catalog_install(body: CatalogInstallIn, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("security.manage"))):
+    if body.catalog not in await _catalog_urls(db):
+        raise HTTPException(404, "Каталог не подключён")
+    try:
+        index, _ = await _load_catalog(db, body.catalog)
+        item = next((x for x in index["plugins"] if x["id"] == body.id and x["version"] == body.version), None)
+        if item is None:
+            raise PackageError("Плагина с такой версией нет в каталоге")
+        data = await _fetch(item["package_url"], MAX_PACKAGE_BYTES)
+    except PackageError as exc:
+        raise HTTPException(422, str(exc))
+    except httpx.HTTPError as exc:
+        raise HTTPException(502, f"Пакет не скачан: {exc}")
+    if hashlib.sha256(data).hexdigest() != item["sha256"]:
+        raise HTTPException(422, "SHA-256 скачанного пакета не совпадает с каталогом")
+    view = await ingest(db, data, admin)
+    await _audit(db, "plugin.catalog.installed", admin, body.id, {"version": body.version, "catalog": body.catalog})
+    await db.commit()
+    return view

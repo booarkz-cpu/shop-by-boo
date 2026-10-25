@@ -12,9 +12,10 @@ export type Plan = {
   device_limit: number | null;
   remnawave_profile_id: string | null;
   enabled: boolean;
+  family_seats?: number;
 };
 type Squad = {uuid: string; name: string; members?: number | null; inbounds?: number | null};
-type Form = {name: string; price: string; duration_days: string; traffic_limit_gb: string; device_limit: string; remnawave_profile_id: string; enabled: boolean};
+type Form = {name: string; price: string; duration_days: string; traffic_limit_gb: string; device_limit: string; remnawave_profile_id: string; enabled: boolean; family_seats?: string};
 
 const DURATIONS = [
   {days: 30, label: "1 месяц"},
@@ -22,7 +23,7 @@ const DURATIONS = [
   {days: 180, label: "6 месяцев"},
   {days: 365, label: "12 месяцев"},
 ];
-const EMPTY: Form = {name: "", price: "", duration_days: "30", traffic_limit_gb: "0", device_limit: "3", remnawave_profile_id: "", enabled: true};
+const EMPTY: Form = {name: "", price: "", duration_days: "30", traffic_limit_gb: "0", device_limit: "3", remnawave_profile_id: "", enabled: true, family_seats: "0"};
 
 export function durationLabel(days: number): string {
   return DURATIONS.find((d) => d.days === days)?.label || `${days} дн.`;
@@ -40,6 +41,8 @@ export function planBody(form: Form): {body?: Record<string, unknown>; error?: s
   if (!Number.isInteger(days) || days < 1 || days > 3650) return {error: "Срок — целое число дней от 1 до 3650"};
   if (!Number.isInteger(traffic) || traffic < 0) return {error: "Трафик — целое число ГБ, 0 — без ограничения"};
   if (devices !== null && (!Number.isInteger(devices) || devices < 1 || devices > 100)) return {error: "Устройств — от 1 до 100"};
+  const seats = (form.family_seats || "").trim() === "" ? 0 : Number(form.family_seats);
+  if (!Number.isInteger(seats) || seats < 0 || seats > 10) return {error: "Мест в семье — от 0 до 10"};
   return {
     body: {
       name,
@@ -49,6 +52,7 @@ export function planBody(form: Form): {body?: Record<string, unknown>; error?: s
       device_limit: devices,
       remnawave_profile_id: form.remnawave_profile_id.trim() || null,
       enabled: form.enabled,
+      family_seats: seats,
     },
   };
 }
@@ -62,6 +66,7 @@ function toForm(plan: Plan): Form {
     device_limit: plan.device_limit ? String(plan.device_limit) : "",
     remnawave_profile_id: plan.remnawave_profile_id || "",
     enabled: plan.enabled,
+    family_seats: String(plan.family_seats || 0),
   };
 }
 
@@ -108,6 +113,9 @@ function PlanForm({initial, squads, squadError, busy, onSubmit, onCancel, submit
         </label>
         <label className="field">Устройств (пусто — без ограничения)
           <input inputMode="numeric" value={form.device_limit} onChange={(e) => set({device_limit: e.target.value})} />
+        </label>
+        <label className="field">Мест в семейной подписке (0 — без семьи)
+          <input inputMode="numeric" value={form.family_seats ?? "0"} onChange={(e) => set({family_seats: e.target.value})} />
         </label>
         <label className="field">Профиль Remnawave (Internal Squad)
           {squads.length > 0 ? (
@@ -247,7 +255,7 @@ export function PlansEditor({data, request, reload, toast}: {data: Plan[]; reque
                     {plan.price} <small>₽</small>
                   </div>
                   <p className="muted">
-                    {durationLabel(plan.duration_days)} · {plan.traffic_limit_gb ? `${plan.traffic_limit_gb} ГБ` : "трафик без ограничения"} · {plan.device_limit ? `устройств: ${plan.device_limit}` : "устройства без ограничения"} · ID {plan.id}
+                    {durationLabel(plan.duration_days)} · {plan.traffic_limit_gb ? `${plan.traffic_limit_gb} ГБ` : "трафик без ограничения"} · {plan.device_limit ? `устройств: ${plan.device_limit}` : "устройства без ограничения"}{plan.family_seats ? ` · семья: +${plan.family_seats}` : ""} · ID {plan.id}
                   </p>
                   <p className={plan.remnawave_profile_id ? "muted" : "error"}>Профиль Remnawave: {squadName(plan.remnawave_profile_id) || "не выбран"}</p>
                   <div className="inline">

@@ -75,6 +75,7 @@ export function AppConfigEditor({data, request, reload, toast}: {data: any; requ
         <label className="field">Кнопки сумм (через запятую)<input value={(o.wallet.amounts || []).join(", ")} onChange={(e) => up("wallet", {amounts: e.target.value.split(",").map((x) => Number(x.trim())).filter((x) => Number.isFinite(x) && x > 0)})}/></label>
         <label className="inline"><input type="checkbox" checked={!!o.wallet.stars.enabled} onChange={(e) => up("wallet", {stars: {...o.wallet.stars, enabled: e.target.checked}})}/>Оплата Telegram Stars</label>
         <label className="field">Курс: сколько единиц валюты даёт 1 Star<input type="number" step="0.01" min="0.01" value={o.wallet.stars.rate} onChange={(e) => up("wallet", {stars: {...o.wallet.stars, rate: e.target.value}})}/></label>
+        <label className="inline"><input type="checkbox" checked={!!o.wallet.stars.subscriptions} onChange={(e) => up("wallet", {stars: {...o.wallet.stars, subscriptions: e.target.checked}})}/>Подписка Stars с автопродлением (тарифы на 30 дней)</label>
         <label className="field">Минимум Stars за платёж<input type="number" min={1} value={o.wallet.stars.min_stars} onChange={(e) => up("wallet", {stars: {...o.wallet.stars, min_stars: Number(e.target.value)}})}/></label>
         <Rows title="Способ оплаты" max={8} rows={o.wallet.methods} onChange={(methods) => up("wallet", {methods})}
           blank={{id: "sbp", title: "СБП", icon: "sbp", provider: "yookassa", yookassa_method: "sbp"}}
@@ -125,12 +126,40 @@ export function AppConfigEditor({data, request, reload, toast}: {data: any; requ
       </div>
     </div>
 
+    <div className="grid2">
+      <div className="card">
+        <h4>Защита пробного периода</h4>
+        <label className="inline"><input type="checkbox" checked={!!o.trial?.require_telegram} onChange={(e) => up("trial", {require_telegram: e.target.checked})}/>Пробный период только с привязанным Telegram</label>
+        <label className="field">Пробных периодов с одной сети за сутки (0 — без ограничения)<input type="number" min={0} max={1000} value={o.trial?.max_per_ip_per_day ?? 3} onChange={(e) => up("trial", {max_per_ip_per_day: Number(e.target.value)})}/></label>
+        <label className="inline"><input type="checkbox" checked={!!o.trial?.revoke_on_shared_device} onChange={(e) => up("trial", {revoke_on_shared_device: e.target.checked})}/>Отзывать пробный период на устройстве, где он уже был</label>
+        <p className="muted">IP хранится только как необратимый хеш. Устройство проверяется по событию Remnawave о новом HWID; оплаченные подписки не отзываются.</p>
+      </div>
+      <div className="card">
+        <h4>Уведомления из Remnawave</h4>
+        <p className="muted">Клиент получает сообщение в Telegram с кнопкой Mini App, когда панель присылает подписанное событие на <code>/api/webhooks/remnawave</code>.</p>
+        {([["traffic_threshold", "Трафик почти закончился"], ["limited", "Трафик закончился"], ["expired", "Подписка истекла"], ["first_connected", "Первое подключение"], ["not_connected", "Не подключился после покупки"], ["expiration", "Скоро закончится (напоминание панели)"]] as [string, string][]).map(([key, label]) =>
+          <label className="inline" key={key}><input type="checkbox" checked={!!o.remnawave_notify?.[key]} onChange={(e) => up("remnawave_notify", {[key]: e.target.checked})}/>{label}</label>)}
+      </div>
+    </div>
+
     <div className="card">
       <h4>Тексты интерфейса</h4>
       <div className="form-grid">
         {Object.entries(texts).map(([key, value]) => <label className="field" key={key}>{`Текст «${key}»`}<input maxLength={300} placeholder={value} value={o.texts?.[key] ?? ""} onChange={(e) => setO({...o, texts: {...o.texts, [key]: e.target.value}})}/></label>)}
       </div>
     </div>
+
+    <details className="card">
+      <summary>Переводы: English и Українська</summary>
+      <p className="muted">Mini App выбирает язык по Telegram или параметру <code>?lang=</code>. Пустое поле — стандартный перевод.</p>
+      {(["en", "uk"] as const).map((lang) => <div key={lang}>
+        <h4>{lang === "en" ? "English" : "Українська"}</h4>
+        <div className="form-grid">
+          {Object.keys(texts).map((key) => <label className="field" key={key}>{`${lang.toUpperCase()} «${key}»`}<input maxLength={300} placeholder={data.texts_i18n?.[lang]?.[key] || ""} value={o.texts_i18n?.[lang]?.[key] ?? ""}
+            onChange={(e) => setO({...o, texts_i18n: {...(o.texts_i18n || {}), [lang]: {...(o.texts_i18n?.[lang] || {}), [key]: e.target.value}}})}/></label>)}
+        </div>
+      </div>)}
+    </details>
 
     <details className="card">
       <summary>Расширенный режим: JSON</summary>

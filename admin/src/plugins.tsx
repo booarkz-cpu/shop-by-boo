@@ -113,6 +113,8 @@ export function Plugins({data, request, reload, toast}: {data: Data; request: Re
         </section>
       )}
 
+      <PluginCatalog request={request} toast={toast} busy={busy} act={act} />
+
       {plugins.length === 0 && <p className="muted card">Плагины ещё не загружены.</p>}
       {plugins.map((plugin) => (
         <PluginCard key={plugin.id} plugin={plugin} capabilities={capabilities} busy={busy} act={act} post={post} request={request} />
@@ -308,5 +310,56 @@ function PluginCard({plugin, capabilities, busy, act, post, request}: {plugin: P
         </button>
       </footer>
     </article>
+  );
+}
+
+
+/** Signed catalogs: HTTPS indexes of plugin packages signed by a trusted publisher; install checks the package hash. */
+function PluginCatalog({request, toast, busy, act}: {request: RequestFn; toast: (m: string) => void; busy: boolean; act: (fn: () => Promise<any>, message: string) => Promise<void>}) {
+  const [urls, setUrls] = useState("");
+  const [view, setView] = useState<{sources: any[]; plugins: any[]} | null>(null);
+  const [error, setError] = useState("");
+  async function load() {
+    setError("");
+    try {
+      const saved = await request("/api/admin/plugins/catalogs");
+      setUrls((saved.urls || []).join("\n"));
+      setView(saved.urls?.length ? await request("/api/admin/plugins/catalog") : {sources: [], plugins: []});
+    } catch (e: any) { setError(e.message || "Каталог недоступен"); }
+  }
+  useEffect(() => { load(); }, []);
+  async function save() {
+    setError("");
+    try {
+      await request("/api/admin/plugins/catalogs", {method: "PUT", body: JSON.stringify({urls: urls.split(/\s+/).map((x) => x.trim()).filter(Boolean)})});
+      toast("Каталоги сохранены");
+      await load();
+    } catch (e: any) { setError(e.message); }
+  }
+  async function install(item: any) {
+    await act(() => request("/api/admin/plugins/catalog/install", {method: "POST", body: JSON.stringify({catalog: item.catalog, id: item.id, version: item.version})}),
+      item.installed_version ? `Загружена версия ${item.version}: подтвердите обновление` : "Пакет из каталога проверен и загружен");
+    await load();
+  }
+  return (
+    <section className="card plugin-catalog" aria-label="Каталог плагинов">
+      <h3><ShieldCheck aria-hidden="true" /> Каталог плагинов</h3>
+      <p className="muted">Каталог — JSON по HTTPS, подписанный ключом доверенного издателя (<code>scripts/sign-plugin.py catalog</code>). Магазин проверяет подпись каталога и SHA-256 каждого пакета; после загрузки плагин всё равно включается вручную с подтверждением прав.</p>
+      <label className="field">Адреса каталогов (по одному в строке, до 5)
+        <textarea rows={2} value={urls} placeholder="https://plugins.example.com/catalog.json" onChange={(e) => setUrls(e.target.value)} />
+      </label>
+      <button type="button" disabled={busy} onClick={save}>Сохранить каталоги</button>
+      {error && <p className="error" role="alert">{error}</p>}
+      {(view?.sources || []).map((src) => <p key={src.url} className={src.ok ? "muted" : "error"}>{src.ok ? `${src.name || src.url} · издатель ${src.publisher} · пакетов: ${src.count}` : `${src.url}: ${src.error}`}</p>)}
+      {(view?.plugins || []).map((item) => (
+        <div className="automation-row" key={`${item.catalog}-${item.id}-${item.version}`} data-catalog-plugin={item.id}>
+          <div><b>{item.name} {item.version}</b><span className="muted">{item.description || item.id}</span>
+            {item.installed_version && <span className="muted">Установлена версия {item.installed_version}</span>}</div>
+          <button type="button" disabled={busy || (item.installed_version && !item.update)} onClick={() => install(item)}>
+            {item.installed_version ? (item.update ? `Обновить «${item.name}»` : "Установлено") : `Установить «${item.name}»`}
+          </button>
+        </div>
+      ))}
+    </section>
   );
 }

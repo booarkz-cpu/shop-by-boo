@@ -406,6 +406,11 @@ class YooKassaProvider(BasePaymentProvider):
 # Platega Provider
 # ============================================================
 
+# Statuses Platega and RollyPay use for a transaction refunded in their dashboards.
+PLATEGA_REFUNDED = {"REFUNDED", "REFUND", "CHARGEBACK", "CHARGEBACKED"}
+ROLLYPAY_REFUNDED = {"refunded", "refund", "chargeback"}
+
+
 class PlategaProvider(BasePaymentProvider):
     """Провайдер Platega."""
 
@@ -499,6 +504,25 @@ class PlategaProvider(BasePaymentProvider):
         response.raise_for_status()
         data = response.json()
         return str(data.get("status") or data.get("Status") or "")
+
+    async def read_refund(self, payment_id: str) -> Dict[str, Any]:
+        """Read back a transaction the webhook reports as refunded (a dashboard refund).
+
+        Returns the common refund shape used by the shop: status ``succeeded`` only when
+        Platega itself reports the transaction as refunded, with the refunded amount when
+        Platega gives it and the paid amount otherwise."""
+        async with _public_client(10) as client:
+            response = await client.get(
+                f"{settings.platega_api_url.rstrip('/')}/transaction/{payment_id}",
+                headers={"X-MerchantId": settings.platega_merchant_id, "X-Secret": settings.platega_secret},
+            )
+        response.raise_for_status()
+        d = response.json()
+        status = str(d.get("status") or d.get("Status") or "").upper()
+        details = d.get("paymentDetails") or {}
+        amount = d.get("refundedAmount") or d.get("refundAmount") or details.get("amount") or "0"
+        return {"id": f"platega-refund-{payment_id}", "status": "succeeded" if status in PLATEGA_REFUNDED else status.lower(),
+                "payment_id": payment_id, "amount": str(amount), "currency": details.get("currency") or d.get("currency") or ""}
 
     def verify_webhook(self, headers, body, remote_addr=None):
         """Platega's documented callback uses X-MerchantId and X-Secret, not HMAC."""
@@ -610,6 +634,20 @@ class RollyPayProvider(BasePaymentProvider):
             response = await client.get(url.rstrip("/") + "/" + refund_id, headers={"Authorization": f"Bearer {settings.rollypay_api_key}"})
         response.raise_for_status()
         return str(response.json().get("status") or "")
+
+    async def read_refund(self, payment_id: str) -> Dict[str, Any]:
+        """Read back a payment the webhook reports as refunded (see PlategaProvider.read_refund)."""
+        async with _public_client(10) as client:
+            response = await client.get(
+                f"{settings.rollypay_api_url}/api/v1/payments/{payment_id}",
+                headers={"X-API-Key": settings.rollypay_api_key, "X-Nonce": str(uuid.uuid4())},
+            )
+        response.raise_for_status()
+        d = response.json()
+        status = str(d.get("status") or "").lower()
+        amount = d.get("refunded_amount") or d.get("refund_amount") or d.get("amount") or "0"
+        return {"id": f"rollypay-refund-{payment_id}", "status": "succeeded" if status in ROLLYPAY_REFUNDED else status,
+                "payment_id": payment_id, "amount": str(amount), "currency": d.get("payment_currency") or d.get("currency") or ""}
 
     def verify_webhook(self, headers, body, remote_addr=None):
         lowered = {k.lower(): v for k, v in headers.items()}

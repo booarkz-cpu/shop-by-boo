@@ -51,6 +51,31 @@ EVENTS: dict[str, dict[str, Any]] = {
                         "hint": "Каждый клиент, зарегистрированный после создания правила."},
     "user.no_purchase": {"label": "Клиент не купил за N дней", "days": (3, 1, 60),
                          "hint": "Через N дней после регистрации, если не было ни одной оплаты."},
+    "trial.ended": {"label": "Пробный период закончился без покупки", "days": (1, 0, 30),
+                    "hint": "Через N дней после конца пробного периода, если клиент ничего не купил."},
+}
+# Remnawave webhook events (see remnawave_events.py): each received event triggers once.
+for _event, _label in (("remnawave.traffic_threshold", "Remnawave: трафик заканчивается"), ("remnawave.limited", "Remnawave: трафик закончился"),
+                       ("remnawave.expired", "Remnawave: подписка истекла"), ("remnawave.first_connected", "Remnawave: первое подключение"),
+                       ("remnawave.not_connected", "Remnawave: клиент не подключился"), ("remnawave.expiration", "Remnawave: срок скоро закончится")):
+    EVENTS[_event] = {"label": _label, "days": None, "hint": "Каждое событие из вебхука Remnawave после создания правила (нужен REMNAWAVE_WEBHOOK_SECRET)."}
+MAX_PROMO_PERCENT = 90
+
+# Ready-made win-back scenarios: created disabled, the administrator reviews and enables them.
+PRESETS = {
+    "winback_expired": {"name": "Возврат: подписка истекла 3 дня назад", "event": "subscription.expired", "conditions": {"days": 3, "daily_limit": 300},
+                        "actions": {"notify": {"title": "Скучаем! −20% на продление", "body": "Подписка закончилась {expires_at}. Ваш личный промокод {promo} даёт скидку 20% на 48 часов.", "telegram": True},
+                                    "promo_code": {"percent": 20, "days": 2}}},
+    "trial_no_purchase": {"name": "Возврат: пробный период закончился", "event": "trial.ended", "conditions": {"days": 1, "daily_limit": 300},
+                          "actions": {"notify": {"title": "Понравился VPN? −15% на первый месяц", "body": "Пробный период закончился. Промокод {promo} действует 3 дня.", "telegram": True},
+                                      "promo_code": {"percent": 15, "days": 3}}},
+    "expiring_reminder": {"name": "Напоминание: подписка закончится через 3 дня", "event": "subscription.expiring", "conditions": {"days": 3, "daily_limit": 500},
+                          "actions": {"notify": {"title": "Подписка скоро закончится", "body": "Подписка действует до {expires_at}. Продлите заранее, чтобы VPN не отключился.", "telegram": True}}},
+    "no_purchase_week": {"name": "Возврат: зарегистрировался, но не купил за 7 дней", "event": "user.no_purchase", "conditions": {"days": 7, "daily_limit": 300},
+                         "actions": {"notify": {"title": "Первый месяц со скидкой 10%", "body": "Промокод {promo} на первую покупку действует 3 дня.", "telegram": True},
+                                     "promo_code": {"percent": 10, "days": 3}}},
+    "traffic_upsell": {"name": "Допродажа: трафик заканчивается", "event": "remnawave.traffic_threshold", "conditions": {"daily_limit": 500},
+                       "actions": {"notify": {"title": "Трафик заканчивается", "body": "Докупите пакет трафика в разделе «Моя подписка» — VPN продолжит работать без перерыва.", "telegram": True}}},
 }
 SEGMENTS = {"all": "Все клиенты с Telegram", "active": "С активной подпиской", "inactive": "Без активной подписки"}
 
@@ -113,6 +138,17 @@ def validate_rule(event: str, conditions: dict, actions: dict) -> tuple[dict, di
         if not Decimal("0.01") <= amount <= MAX_BONUS:
             raise HTTPException(400, f"Бонус: от 0.01 до {MAX_BONUS}")
         act["wallet_bonus"] = {"amount": str(amount)}
+    promo = actions.get("promo_code")
+    if promo:
+        try:
+            percent, days = int(promo.get("percent")), int(promo.get("days", 2))
+        except (TypeError, ValueError):
+            raise HTTPException(400, "Промокод: процент и дни — целые числа")
+        if not 5 <= percent <= MAX_PROMO_PERCENT or not 1 <= days <= 30:
+            raise HTTPException(400, f"Промокод: скидка 5–{MAX_PROMO_PERCENT}%, срок 1–30 дней")
+        if not act.get("notify"):
+            raise HTTPException(400, "Промокод отправляется в уведомлении: добавьте уведомление с {promo}")
+        act["promo_code"] = {"percent": percent, "days": days}
     if not act:
         raise HTTPException(400, "Выберите хотя бы одно действие: уведомление или бонус")
     return cond, act
@@ -164,6 +200,21 @@ async def candidates(db: AsyncSession, rule: AutomationRule, now: datetime, limi
         q = select(User).where(User.created_at >= since, User.deleted_at.is_(None))
         for u in (await db.execute(q.order_by(User.created_at).limit(limit * 3))).scalars():
             rows.append((u.id, f"user:{u.id}", {}))
+    elif rule.event.startswith("remnawave."):
+        from .models import RemnawaveEvent
+        source = rule.event.replace("remnawave.", "user.").replace("user.traffic_threshold", "user.bandwidth_usage_threshold_reached")
+        q = select(RemnawaveEvent).where(RemnawaveEvent.event == source, RemnawaveEvent.user_id.is_not(None),
+                                         RemnawaveEvent.created_at >= rule.created_at, RemnawaveEvent.created_at >= now - timedelta(days=7))
+        for ev in (await db.execute(q.order_by(RemnawaveEvent.id).limit(limit * 3))).scalars():
+            rows.append((ev.user_id, f"rwevent:{ev.id}", {"subscription_id": ev.subscription_id}))
+    elif rule.event == "trial.ended":
+        from .models import TrialGrant
+        days = int(cond.get("days", 1))
+        paid = exists().where(Payment.user_id == TrialGrant.user_id, Payment.status.in_(("paid", "fulfilled")))
+        q = select(TrialGrant).where(TrialGrant.expires_at <= now - timedelta(days=days),
+                                     TrialGrant.expires_at >= max(now - timedelta(days=days + 7), rule.created_at - timedelta(days=days)), ~paid)
+        for grant in (await db.execute(q.order_by(TrialGrant.expires_at).limit(limit * 3))).scalars():
+            rows.append((grant.user_id, f"trial:{grant.id}:ended:{days}", {"expires_at": grant.expires_at}))
     elif rule.event == "user.no_purchase":
         days = int(cond.get("days", 3))
         cutoff = now - timedelta(days=days)
@@ -182,7 +233,7 @@ async def candidates(db: AsyncSession, rule: AutomationRule, now: datetime, limi
 
 def _render(text: str, user: User, ctx: dict) -> str:
     values = {"name": user.username or "", "expires_at": ctx["expires_at"].strftime("%d.%m.%Y") if ctx.get("expires_at") else "",
-              "amount": str(ctx.get("amount") or "")}
+              "amount": str(ctx.get("amount") or ""), "promo": str(ctx.get("promo") or "")}
     for key, value in values.items():
         text = text.replace("{" + key + "}", value)
     return text
@@ -227,6 +278,16 @@ async def execute(db: AsyncSession, rule: AutomationRule, user_id: int, anchor: 
         await main.record_financial_event(db, operation_key=f"automation:{rule.id}:{anchor}", user_id=user.id, payment_id=None,
                                           kind="automation_bonus", direction="credit", amount=amount, currency=settings.default_currency,
                                           metadata={"rule_id": rule.id, "anchor": anchor})
+    if actions.get("promo_code"):
+        # A single-use personal code that expires: shareable, but only one purchase can use it.
+        import secrets as _secrets
+        from .models import PromoCode
+        spec = actions["promo_code"]
+        code = "BACK" + _secrets.token_hex(4).upper()
+        db.add(PromoCode(code=code, kind="percent", value=Decimal(spec["percent"]), usage_limit=1, max_uses_per_user=1,
+                         starts_at=datetime.utcnow(), ends_at=datetime.utcnow() + timedelta(days=int(spec["days"]))))
+        await db.flush()
+        ctx = {**ctx, "promo": code}
     if actions.get("notify"):
         title = _render(actions["notify"]["title"], user, ctx)
         body = _render(actions["notify"]["body"], user, ctx)
@@ -342,7 +403,24 @@ async def _paused(factory) -> bool:
 async def catalog(admin=Depends(require_permission("read"))):
     return {"events": [{"id": k, "label": v["label"], "hint": v["hint"], "days": v["days"]} for k, v in EVENTS.items()],
             "segments": [{"id": k, "label": v} for k, v in SEGMENTS.items()], "max_bonus": str(MAX_BONUS),
-            "placeholders": ["{name}", "{expires_at}", "{amount}"], "tick_seconds": TICK_SECONDS}
+            "placeholders": ["{name}", "{expires_at}", "{amount}", "{promo}"], "tick_seconds": TICK_SECONDS,
+            "max_promo_percent": MAX_PROMO_PERCENT,
+            "presets": [{"id": k, "name": v["name"], "event": v["event"], "body": v["actions"]["notify"]["body"]} for k, v in PRESETS.items()]}
+
+
+@router.post("/api/admin/automation/presets/{preset_id}")
+async def create_preset(preset_id: str, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("feature_flags.manage"))):
+    from . import main
+    preset = PRESETS.get(preset_id)
+    if not preset:
+        raise HTTPException(404, "Сценарий не найден")
+    cond, act = validate_rule(preset["event"], preset["conditions"], preset["actions"])
+    rule = AutomationRule(name=preset["name"], event=preset["event"], conditions=cond, actions=act, enabled=False, priority=100)
+    db.add(rule)
+    await db.flush()
+    await main.audit(db, "automation.preset.created", admin.email, str(rule.id), {"preset": preset_id})
+    await db.commit()
+    return {"id": rule.id, "name": rule.name, "enabled": False}
 
 
 @router.get("/api/admin/automation/rules/{rule_id}/preview")

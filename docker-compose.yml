@@ -483,7 +483,7 @@ volumes:
   redis_data:
   backup_data:
   postgres18_data:
-  # PostgreSQL 16 data of releases before v28.24.0: scripts/upgrade-postgres.sh copies it
+  # PostgreSQL 16 data of releases before v28.23.0: scripts/upgrade-postgres.sh copies it
   # into postgres18_data once and leaves it untouched for rollback.
   postgres_data:
   media_data:

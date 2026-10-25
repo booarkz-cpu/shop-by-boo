@@ -276,6 +276,7 @@ async def start(message:Message):
     if len(parts)>1:
         start_arg=parts[1].strip().split()[0]
     gift_code=start_arg.upper() if start_arg.upper().startswith("GIFT_") else ""
+    family_code=start_arg[7:] if start_arg.startswith("family_") and re.fullmatch(r"[A-Za-z0-9]{6,32}",start_arg[7:]) else ""
     from .menu_tree import telegram_keyboard,visible_children
     buttons=telegram_keyboard(menu,fields).inline_keyboard;field_text=[]
     for m in visible_children(menu):
@@ -286,12 +287,16 @@ async def start(message:Message):
     if gift_code:
         join="&" if "?" in shop_url else "?"
         shop_url=f"{shop_url}{join}gift={gift_code}"
+    if family_code:
+        join="&" if "?" in shop_url else "?"
+        shop_url=f"{shop_url}{join}family={family_code}"
     if not buttons: buttons=[[InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=shop_url))]]
-    elif gift_code:
+    elif gift_code or family_code:
         buttons.append([InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=shop_url))])
     name=escape(vals.get("bot_name") or "VPN Shop by Corgi Lusi"); text=_tr(lang,"welcome",name=name)
     pt=promo_text(promos,plans,lang)
     if gift_code: text += "\n\n"+_tr(lang,"gift_ready",code=escape(gift_code))
+    if family_code: text += "\n\n"+("👨‍👩‍👧 Вас пригласили в семейную подписку. Откройте магазин, чтобы присоединиться." if lang!="en" else "👨‍👩‍👧 You are invited to a family subscription. Open the shop to join.")
     if pt: text += "\n\n"+pt
     price_lines=[]
     for plan in plans:
@@ -377,9 +382,13 @@ async def stars_paid(message: Message):
     paid = message.successful_payment
     try:
         async with AsyncSession(engine, expire_on_commit=False) as db:
+            expires = getattr(paid, "subscription_expiration_date", None)
             await record_successful_payment(db, order_id=paid.invoice_payload, currency=paid.currency, total=paid.total_amount,
-                                            telegram_id=message.from_user.id, charge_id=paid.telegram_payment_charge_id)
-        await message.answer("⭐ Оплата получена, баланс пополнен.")
+                                            telegram_id=message.from_user.id, charge_id=paid.telegram_payment_charge_id,
+                                            is_recurring=bool(getattr(paid, "is_recurring", False)),
+                                            is_first_recurring=bool(getattr(paid, "is_first_recurring", False)),
+                                            period_end=datetime.utcfromtimestamp(expires) if isinstance(expires, int) else None)
+        await message.answer("⭐ Оплата получена: подписка продлена." if paid.invoice_payload.startswith("starsub-") else "⭐ Оплата получена, баланс пополнен.")
     except Exception:
         # The charge id is in the update log; reconciliation by an operator uses it.
         logger.exception("Stars payment %s was not recorded", paid.telegram_payment_charge_id)

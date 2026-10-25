@@ -30,7 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
 from .db import get_db
-from .models import AppSetting, UserConsent
+from .models import AppSetting, Plan, UserConsent
 from .security import require_permission
 
 logger = logging.getLogger(__name__)
@@ -49,12 +49,13 @@ SECTION_BANNERS = {
     "wallet": "topup", "subscription": "subscription", "payments": "payments", "gifts": "gifts",
     "referral": "referral", "support": "support", "devices": "devices", "surveys": "surveys",
     "giveaways": "gifts", "security": "account", "notifications": "menu", "partner": "referral", "info": "info",
+    "family": "referral", "status": "servers",
 }
 NAV_ICONS = {
     "overview": "home", "plans": "zap", "trial": "sparkles", "connection": "plug", "servers": "server",
     "wallet": "wallet", "subscription": "shield", "payments": "receipt", "gifts": "gift", "referral": "users",
     "support": "help", "devices": "smartphone", "surveys": "list", "giveaways": "trophy", "security": "key",
-    "notifications": "bell", "partner": "users", "info": "info", "custom": "file",
+    "notifications": "bell", "partner": "users", "info": "info", "custom": "file", "family": "heart", "status": "server",
 }
 
 DEFAULT_TEXTS = {
@@ -85,6 +86,53 @@ DEFAULT_TEXTS = {
     "retry": "Повторить",
     "error": "Не удалось загрузить приложение",
 }
+
+
+TEXTS_I18N = {
+    "en": {
+        "greeting": "Hi, {name}!", "greeting_anonymous": "Welcome!", "home_subtitle": "Your VPN guarded by corgi Lusi",
+        "promo_title": "Offers", "promo_ends_in": "Ends in", "subscription_title": "Subscription", "servers_title": "Servers",
+        "servers_empty": "The server list is not available yet", "wallet_title": "Top up balance", "wallet_balance": "Balance",
+        "wallet_amount": "Top-up amount", "wallet_method": "Payment method", "wallet_pay": "Top up",
+        "wallet_code": "Promo code or gift card", "wallet_code_apply": "Redeem", "referral_title": "Invite friends",
+        "referral_link": "Your invite link", "referral_copy": "Copy link", "support_title": "Support",
+        "support_subtitle": "Choose how to reach us", "info_title": "Information", "consent_title": "Terms of use",
+        "consent_accept": "I accept", "offline": "No connection to the server — showing saved data", "retry": "Retry",
+        "error": "The app could not be loaded",
+    },
+    "uk": {
+        "greeting": "Привіт, {name}!", "greeting_anonymous": "Ласкаво просимо!", "home_subtitle": "Ваш VPN під захистом коргі Люсі",
+        "promo_title": "Акції", "promo_ends_in": "До кінця акції", "subscription_title": "Підписка", "servers_title": "Сервери",
+        "servers_empty": "Список серверів поки недоступний", "wallet_title": "Поповнення балансу", "wallet_balance": "Баланс",
+        "wallet_amount": "Сума поповнення", "wallet_method": "Спосіб оплати", "wallet_pay": "Поповнити",
+        "wallet_code": "Промокод або подарункова картка", "wallet_code_apply": "Активувати", "referral_title": "Запроси друзів",
+        "referral_link": "Ваше посилання-запрошення", "referral_copy": "Скопіювати посилання", "support_title": "Підтримка",
+        "support_subtitle": "Оберіть зручний спосіб зв'язку", "info_title": "Інформація", "consent_title": "Умови використання",
+        "consent_accept": "Приймаю", "offline": "Немає зв'язку з сервером — показано збережені дані", "retry": "Повторити",
+        "error": "Не вдалося завантажити застосунок",
+    },
+}
+NAV_I18N = {
+    "en": {"overview": "Home", "plans": "Plans", "trial": "Free trial", "connection": "Connect", "servers": "Servers", "wallet": "Wallet",
+           "subscription": "My subscription", "payments": "Payments", "gifts": "Gifts", "referral": "Invite friends", "support": "Support",
+           "devices": "Devices", "surveys": "Surveys", "giveaways": "Giveaways", "security": "Security", "notifications": "Notifications",
+           "partner": "Partner portal", "info": "Information", "family": "Family", "status": "Service status"},
+    "uk": {"overview": "Огляд", "plans": "Тарифи", "trial": "Пробний період", "connection": "Підключення", "servers": "Сервери", "wallet": "Гаманець",
+           "subscription": "Моя підписка", "payments": "Платежі", "gifts": "Подарунки", "referral": "Запроси друзів", "support": "Підтримка",
+           "devices": "Пристрої", "surveys": "Опитування", "giveaways": "Конкурси", "security": "Безпека", "notifications": "Сповіщення",
+           "partner": "Партнерський кабінет", "info": "Інформація", "family": "Родина", "status": "Стан сервісу"},
+}
+
+
+def pick_lang(request: Request | None, viewer: dict | None) -> str:
+    """Language of the response: ?lang=, then the Telegram user's language, then Russian."""
+    raw = ""
+    if request is not None:
+        raw = (getattr(request, "query_params", None) or {}).get("lang", "")
+    raw = (raw or (viewer or {}).get("language") or "ru").lower()
+    if raw.startswith(("uk", "ua")):
+        return "uk"
+    return "en" if raw.startswith("en") else "ru"
 
 
 class _Strict(BaseModel):
@@ -159,6 +207,24 @@ class Stars(_Strict):
     enabled: bool = False
     rate: Decimal = Field(default=Decimal("1.50"), gt=0, le=1000, description="Сколько единиц валюты магазина даёт 1 Star")
     min_stars: int = Field(default=50, ge=1, le=10000)
+    # Telegram Stars subscriptions: a 30-day plan renews itself every 30 days in Stars.
+    subscriptions: bool = False
+
+
+class TrialGuard(_Strict):
+    require_telegram: bool = False
+    max_per_ip_per_day: int = Field(default=3, ge=0, le=1000, description="0 — без ограничения")
+    revoke_on_shared_device: bool = True
+
+
+class RemnawaveNotify(_Strict):
+    """Customer messages for verified Remnawave webhooks (event → on/off)."""
+    traffic_threshold: bool = True
+    limited: bool = True
+    expired: bool = True
+    first_connected: bool = True
+    not_connected: bool = True
+    expiration: bool = False  # the shop already reminds about the end of a subscription
 
 
 class Wallet(_Strict):
@@ -221,6 +287,18 @@ class Overrides(_Strict):
     support: Support = Field(default_factory=Support)
     info: Info = Field(default_factory=Info)
     consent: Consent = Field(default_factory=Consent)
+    trial: TrialGuard = Field(default_factory=TrialGuard)
+    remnawave_notify: RemnawaveNotify = Field(default_factory=RemnawaveNotify)
+    texts_i18n: dict[Literal["en", "uk"], dict[str, str]] = Field(default_factory=dict)
+
+    @field_validator("texts_i18n")
+    @classmethod
+    def known_i18n(cls, value):
+        for lang, texts in value.items():
+            unknown = sorted(set(texts) - set(DEFAULT_TEXTS))
+            if unknown or any(len(v) > 300 for v in texts.values()):
+                raise ValueError(f"Тексты {lang}: неизвестные ключи или длиннее 300 символов")
+        return {lang: {k: v for k, v in texts.items() if v.strip()} for lang, texts in value.items()}
 
     @field_validator("texts")
     @classmethod
@@ -331,6 +409,11 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
     banners = await _banners(db, overrides.banners_enabled)
     navigation = [{"slug": m["slug"], "title": m["title"], "kind": m["kind"], "icon": NAV_ICONS.get(m["kind"], "file"),
                    "banner": banners.get(m["kind"], ""), "body": m.get("body", "")} for m in menu]
+    family_plans = await db.scalar(select(Plan.id).where(Plan.enabled.is_(True), Plan.family_seats > 0).limit(1))
+    if family_plans and not any(n["kind"] == "family" for n in navigation):
+        navigation.append({"slug": "family", "title": "Семья", "kind": "family", "icon": "heart", "banner": banners.get("family", ""), "body": ""})
+    if not any(n["kind"] == "status" for n in navigation):
+        navigation.append({"slug": "status", "title": "Состояние сервиса", "kind": "status", "icon": "server", "banner": banners.get("status", ""), "body": ""})
     if not any(n["kind"] == "info" for n in navigation):
         navigation.append({"slug": "info", "title": "Информация", "kind": "info", "icon": "info", "banner": banners.get("info", ""), "body": ""})
 
@@ -360,7 +443,14 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
     if not support_buttons and settings.bot_username:
         support_buttons = [{"title": "Написать в Telegram", "icon": "send", "link": f"https://t.me/{settings.bot_username}?start=support"}]
     theme = overrides.theme
-    texts = {**DEFAULT_TEXTS, **overrides.texts}
+    viewer = _viewer(request) if request is not None else None
+    lang = pick_lang(request, viewer)
+    texts = {**DEFAULT_TEXTS, **overrides.texts} if lang == "ru" else {**DEFAULT_TEXTS, **TEXTS_I18N[lang], **overrides.texts_i18n.get(lang, {})}
+    if lang != "ru":
+        # Section titles of the standard sections follow the language; custom pages keep their names.
+        for item in navigation:
+            if item["kind"] in NAV_I18N[lang] and item["kind"] != "custom":
+                item["title"] = NAV_I18N[lang][item["kind"]]
     config = {
         "schema": 1,
         "brand": {"name": public.get("app_name") or "VPN Shop by Corgi Lusi", "bot_username": settings.bot_username or "",
@@ -376,7 +466,8 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
         "plans": plans,
         "servers": {"categories": [c.model_dump() for c in overrides.servers.categories], "show_load": overrides.servers.show_load},
         "wallet": {"currency": currency, "amounts": overrides.wallet.amounts, "min": 50, "max": 100000, "methods": methods,
-                   "stars": {"enabled": stars_ready, "rate": str(stars.rate), "min_stars": stars.min_stars}},
+                   "stars": {"enabled": stars_ready, "rate": str(stars.rate), "min_stars": stars.min_stars,
+                             "subscriptions": stars_ready and stars.subscriptions}},
         "referral": {"conditions": overrides.referral.conditions, "levels": levels, "withdraw_enabled": overrides.referral.withdraw_enabled,
                      "link_template": f"https://t.me/{settings.bot_username}?start=ref_{{code}}" if settings.bot_username else ""},
         "support": {"buttons": support_buttons, "ticket_form": overrides.support.ticket_form},
@@ -385,7 +476,8 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
         "trial_days": public.get("trial_days"),
     }
     config["version"] = hashlib.sha256(json.dumps(config, sort_keys=True, default=str, ensure_ascii=False).encode()).hexdigest()[:16]
-    config["viewer"] = _viewer(request) if request is not None else None
+    config["viewer"] = viewer
+    config["lang"] = lang
     return config
 
 
@@ -451,7 +543,7 @@ async def accept_consent(payload: ConsentIn, request: Request, db: AsyncSession 
 async def admin_app_config(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
     overrides = await load_overrides(db)
     return {"overrides": overrides.model_dump(mode="json"), "defaults": Overrides().model_dump(mode="json"),
-            "texts": DEFAULT_TEXTS, "icons": list(ICONS), "preview": await build_config(db)}
+            "texts": DEFAULT_TEXTS, "texts_i18n": TEXTS_I18N, "icons": list(ICONS), "preview": await build_config(db)}
 
 
 @router.put("/api/admin/app-config")

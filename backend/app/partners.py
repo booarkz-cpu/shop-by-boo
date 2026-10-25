@@ -28,6 +28,44 @@ async def checkout_terms(db, slug, plan_id, user_id):
     return {'reseller_id': partner.id, 'reseller_slug_snapshot': slug, 'reseller_percent_snapshot': partner.commission_percent}
 
 
+async def renewal_terms(db, subscription_id):
+    """Partner snapshot for an automatic renewal: the partner of the latest paid order of
+    the same subscription keeps earning its percent while the partner stays enabled."""
+    if not subscription_id:
+        return {}
+    previous = await db.scalar(select(Payment).where(Payment.subscription_id == subscription_id, Payment.reseller_id.is_not(None),
+                                                     Payment.status.in_(('paid', 'fulfilled'))).order_by(Payment.id.desc()).limit(1))
+    if not previous:
+        return {}
+    partner = await db.get(Reseller, previous.reseller_id)
+    if not partner or not partner.enabled:
+        return {}
+    return {'reseller_id': partner.id, 'reseller_slug_snapshot': previous.reseller_slug_snapshot,
+            'reseller_percent_snapshot': previous.reseller_percent_snapshot}
+
+
+async def credit_gift(db, gift, terms):
+    """Commission for a gift bought from the wallet through a partner link (once per gift)."""
+    if not terms or not terms.get('reseller_id') or terms.get('reseller_percent_snapshot') is None:
+        return None
+    if await db.scalar(select(PartnerCommission.id).where(PartnerCommission.gift_code_id == gift.id)):
+        return None
+    partner = await db.scalar(select(Reseller).where(Reseller.id == terms['reseller_id']).with_for_update().execution_options(populate_existing=True))
+    if not partner:
+        return None
+    currency = settings.default_currency
+    if partner.balance_currency and partner.balance_currency != currency:
+        raise HTTPException(409, 'Валюта партнёрского баланса отличается от валюты магазина')
+    partner.balance_currency = currency
+    percent = Decimal(str(terms['reseller_percent_snapshot']))
+    amount = (Decimal(str(gift.purchase_amount)) * percent / Decimal(100)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+    row = PartnerCommission(payment_id=None, gift_code_id=gift.id, reseller_id=partner.id, amount=amount, percent=percent, currency=currency)
+    db.add(row)
+    partner.balance = Decimal(partner.balance or 0) + amount
+    await db.flush()
+    return row
+
+
 def check_retry(payment, payload):
     if payment.reseller_slug_snapshot != (str(payload.get('reseller_slug') or '').strip().lower() or None):
         raise HTTPException(409, 'Ключ уже использован для другого партнёра')

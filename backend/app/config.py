@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     remnawave_token: str = Field(default="", alias="REMNAWAVE_TOKEN")
     remnawave_cb_failures: int = Field(default=5, alias="REMNAWAVE_CB_FAILURES")
     remnawave_cb_cooldown: int = Field(default=30, alias="REMNAWAVE_CB_COOLDOWN")
+    # Remnawave WEBHOOK_SECRET_HEADER: verifies X-Remnawave-Signature of /api/webhooks/remnawave.
+    remnawave_webhook_secret: str = Field(default="", alias="REMNAWAVE_WEBHOOK_SECRET")
 
     # ---------- Админ-панель ----------
     customer_webauthn_origin: str = Field(default="", alias="CUSTOMER_WEBAUTHN_ORIGIN")

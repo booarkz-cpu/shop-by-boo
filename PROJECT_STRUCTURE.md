@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.24.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.25.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -75,10 +75,13 @@ shop-by-boo/
 | `backend/alembic/versions/0074_automation_engine.py` | Однократные выполнения правил автоматизации, обратимое ограничение подписок |
 | `backend/alembic/versions/0075_app_config.py` | Согласия с офертой и сумма платежей Telegram Stars |
 | `backend/app/app_config.py` | Конфигурация Mini App `GET /api/app-config`, согласие с офертой, редактор в админке |
-| `backend/app/telegram_stars.py` | Пополнение кошелька Telegram Stars: счёт, проверка, зачисление, возврат |
+| `backend/alembic/versions/0076_growth.py` | Места в семье, хеш IP пробных периодов, комиссия за подарок, события Remnawave, подписки Stars, семьи, причины отмены |
+| `backend/app/telegram_stars.py` | Telegram Stars: пополнение кошелька, подписка с автопродлением каждые 30 дней, проверка, зачисление, возврат |
+| `backend/app/remnawave_events.py` | Подписанные вебхуки Remnawave: уведомления клиентам, события автоматизации, защита пробного периода (IP, Telegram, HWID) |
+| `backend/app/growth.py` | Семейная подписка, аналитика удержания, публичный статус сервиса |
 | `scripts/upgrade-postgres.sh` | Перенос данных PostgreSQL 16 в PostgreSQL 18 при обновлении |
 | `backend/app/network_intel.py` | ASN, владелец сети и репутация адресов узлов с кэшем свежести |
-| `backend/app/plugins.py` | Среда плагинов: подписанные пакеты, подтверждение прав, API плагина, подписанные события |
+| `backend/app/plugins.py` | Среда плагинов: подписанные пакеты и каталоги, подтверждение прав, API плагина, подписанные события |
 | `backend/app/widget.py` | Минимальная сводка подписки для виджета Android с кэшем трафика |
 | `support-pro/app/email_channel.py` | Email-канал Support Pro: приём IMAP, цепочки, ответы SMTP, удаление и срок хранения |
 | `backend/app/customer_profile.py` | Профиль клиента: имя и способы входа |

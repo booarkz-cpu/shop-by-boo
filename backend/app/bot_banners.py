@@ -105,7 +105,7 @@ def resolve(key: str, state: dict[str, str]) -> tuple[str, pathlib.Path | None, 
         return "hidden", None, ""
     url = state.get(PREFIX + key, "")
     if not url and key == "start":
-        url = state.get("bot_start_image", "")  # image uploaded before v28.24.0
+        url = state.get("bot_start_image", "")  # image uploaded before v28.22.0
     if url.startswith("/media/") or url.startswith("https://"):
         return "custom", media_path(url), url
     if MENU_KEY.match(key):

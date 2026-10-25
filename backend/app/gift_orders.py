@@ -43,6 +43,7 @@ async def purchase_gift(payload,request,db):
     gift=await db.scalar(select(GiftCode).where(GiftCode.purchaser_user_id==user.id,GiftCode.idempotency_key==key))
     if gift:check_retry(gift,payload,digest);return result(gift)
     await main.ensure_required_channel(user)
+    from .partners import checkout_terms
     from .tariff_api import quote_constructor,linked_constructor_id
     if payload.get('constructor_id'):
         choice=await quote_constructor(db,payload);plan=await db.get(Plan,choice['plan_id'])
@@ -57,6 +58,7 @@ async def purchase_gift(payload,request,db):
         price=main._money(plan.price)
         snapshot={'days':plan.duration_days,'traffic_gb':plan.traffic_limit_gb,'devices':plan.device_limit,'profile_id':plan.remnawave_profile_id}
     if price<=0:raise HTTPException(400,'Gift plan must have a positive price')
+    partner_terms=await checkout_terms(db,payload.get('reseller_slug'),plan.id,user.id)
     snapshot['currency']=main.settings.default_currency
     lock,token=await main._acquire_user_fulfillment_lock(user.id,ttl=300)
     try:
@@ -74,7 +76,9 @@ async def purchase_gift(payload,request,db):
         db.add(gift);await db.flush()
         await main.record_financial_event(db,operation_key=f'gift-purchase:{gift.id}',user_id=user.id,payment_id=None,
             kind='gift_purchase',direction='debit',amount=price,currency=main.settings.default_currency,metadata={'plan_id':plan.id})
-        await main.audit(db,'gift.purchased',f'user:{user.id}',str(gift.id),{'plan_id':plan.id});await db.commit()
+        from .partners import credit_gift
+        await credit_gift(db,gift,partner_terms)
+        await main.audit(db,'gift.purchased',f'user:{user.id}',str(gift.id),{'plan_id':plan.id,'reseller_id':partner_terms.get('reseller_id')});await db.commit()
         return result(gift,user)
     finally:await main._release_payment_side_effect_lock(lock,token)
 
@@ -117,7 +121,7 @@ async def redeem_gift(payload,request,db):
             raise HTTPException(409,'Подписка изменилась после начала активации; требуется проверка оператором')
         if not redemption.before_snapshot:redemption.before_snapshot=entitlement_state(sub)
         rw=main.RemnawaveClient();now=datetime.utcnow()
-        if sub.remnawave_uuid in {'None','none','null'}:sub.remnawave_uuid=None  # stored by releases before v28.24.0
+        if sub.remnawave_uuid in {'None','none','null'}:sub.remnawave_uuid=None  # stored by releases before v28.21.0
         remote_id=sub.remnawave_uuid or (redemption.remote_user_id if redemption.remote_user_id not in {'None','none','null'} else None)
         if remote_id:
             await _validate_reduction(db,sub,{'traffic_gb':terms['traffic_gb'],'devices':terms['devices']},remote_id=remote_id,remote_client=rw)

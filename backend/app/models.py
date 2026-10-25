@@ -117,6 +117,8 @@ class Plan(Base):
     device_limit: Mapped[int|None] = mapped_column(Integer)
     remnawave_profile_id: Mapped[str|None] = mapped_column(String(255))
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Family plans: how many extra people the buyer can invite (each gets an own Remnawave user).
+    family_seats: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
 
 class Payment(Base):
     __tablename__ = "payments"
@@ -966,6 +968,8 @@ class TrialGrant(Base):
     device_limit_snapshot: Mapped[int|None] = mapped_column(Integer)
     remnawave_profile_id_snapshot: Mapped[str|None] = mapped_column(String(255))
     status: Mapped[str] = mapped_column(String(32), default="active", nullable=False)
+    # Keyed hash of the claiming IP: limits trials per network without storing the address.
+    ip_hash: Mapped[str|None] = mapped_column(String(64), index=True)
     granted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     expires_at: Mapped[datetime|None] = mapped_column(DateTime)
     expected_before_expires_at: Mapped[datetime|None] = mapped_column(DateTime)
@@ -1358,7 +1362,9 @@ class SupportTopologyOperation(Base):
 class PartnerCommission(Base):
     __tablename__ = "partner_commissions"
     id: Mapped[int] = mapped_column(primary_key=True)
-    payment_id: Mapped[int] = mapped_column(ForeignKey("payments.id", ondelete="RESTRICT"), unique=True)
+    # A commission belongs to a paid order or to a gift bought from the wallet (never both).
+    payment_id: Mapped[int|None] = mapped_column(ForeignKey("payments.id", ondelete="RESTRICT"), unique=True, nullable=True)
+    gift_code_id: Mapped[int|None] = mapped_column(ForeignKey("gift_codes.id", ondelete="RESTRICT"), unique=True, nullable=True)
     reseller_id: Mapped[int] = mapped_column(ForeignKey("resellers.id", ondelete="RESTRICT"), index=True)
     amount: Mapped[Decimal] = mapped_column(Numeric(14,2))
     currency: Mapped[str] = mapped_column(String(3))
@@ -1739,3 +1745,73 @@ class UserConsent(Base):
     version: Mapped[str] = mapped_column(String(64), nullable=False)
     source: Mapped[str] = mapped_column(String(16), default="miniapp", nullable=False)
     accepted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class RemnawaveEvent(Base):
+    """A verified Remnawave webhook: customer notifications and automation triggers."""
+    __tablename__ = "remnawave_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    event_key: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    scope: Mapped[str] = mapped_column(String(32), nullable=False)
+    event: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
+    user_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    subscription_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    remote_id: Mapped[str|None] = mapped_column(String(64))
+    data: Mapped[dict|None] = mapped_column(JSON)
+    notified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class StarsSubscription(Base):
+    """A Telegram Stars subscription (30-day period) that renews a shop subscription."""
+    __tablename__ = "stars_subscriptions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    order_id: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    plan_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    subscription_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    stars_amount: Mapped[int] = mapped_column(Integer, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    first_charge_id: Mapped[str|None] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(16), default="pending", nullable=False)  # pending, active, canceled
+    renewals: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    current_period_end: Mapped[datetime|None] = mapped_column(DateTime)
+    reseller_id: Mapped[int|None] = mapped_column(Integer)
+    reseller_percent_snapshot: Mapped[Decimal|None] = mapped_column(Numeric(5, 2))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    canceled_at: Mapped[datetime|None] = mapped_column(DateTime)
+
+
+class FamilyGroup(Base):
+    """The owner of a family plan subscription shares it with invited members."""
+    __tablename__ = "family_groups"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    owner_user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    owner_subscription_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
+    invite_code: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, default=lambda: secrets.token_urlsafe(9).replace("-", "x").replace("_", "y"))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class FamilyMember(Base):
+    __tablename__ = "family_members"
+    __table_args__ = (UniqueConstraint("group_id", "user_id", name="uq_family_members_group_user"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("family_groups.id", ondelete="CASCADE"), index=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    subscription_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)  # active, removed
+    joined_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    removed_at: Mapped[datetime|None] = mapped_column(DateTime)
+    synced_at: Mapped[datetime|None] = mapped_column(DateTime)
+    sync_error: Mapped[str|None] = mapped_column(Text)
+
+
+class CancellationFeedback(Base):
+    """Why a customer cancelled: feeds the retention report."""
+    __tablename__ = "cancellation_feedback"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    subscription_id: Mapped[int|None] = mapped_column(Integer)
+    reason: Mapped[str] = mapped_column(String(32), nullable=False)
+    comment: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
