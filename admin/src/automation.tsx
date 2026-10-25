@@ -27,13 +27,14 @@ function summary(rule: any, catalog: any) {
   if (c.min_amount) parts.push(`от ${c.min_amount}`);
   if (c.max_amount) parts.push(`до ${c.max_amount}`);
   const a = rule.actions || {};
-  const acts = [a.notify ? (a.notify.telegram ? "уведомление + Telegram" : "уведомление") : null, a.wallet_bonus ? `бонус ${a.wallet_bonus.amount}` : null].filter(Boolean);
+  const acts = [a.notify ? (a.notify.telegram ? "уведомление + Telegram" : "уведомление") : null, a.wallet_bonus ? `бонус ${a.wallet_bonus.amount}` : null,
+    a.promo_code ? `промокод −${a.promo_code.percent}% на ${a.promo_code.days} дн.` : null].filter(Boolean);
   return `${parts.join(" · ")} → ${acts.join(", ") || "нет действий"}`;
 }
 
 function Rules({rules, catalog, request, reload, toast}: any) {
   const blank = {name: "", event: "subscription.expiring", days: "", plan_ids: "", min_amount: "", max_amount: "", daily_limit: "500",
-    notify: true, title: "", body: "", telegram: true, bonus: ""};
+    notify: true, title: "", body: "", telegram: true, bonus: "", promo_percent: "", promo_days: "2"};
   const [f, setF] = useState<any>(blank);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -50,6 +51,7 @@ function Rules({rules, catalog, request, reload, toast}: any) {
     const actions: any = {};
     if (f.notify) actions.notify = {title: f.title, body: f.body, telegram: f.telegram};
     if (f.bonus) actions.wallet_bonus = {amount: f.bonus};
+    if (f.promo_percent) actions.promo_code = {percent: Number(f.promo_percent), days: Number(f.promo_days || 2)};
     try {
       await request("/api/admin/enterprise/rules", {method: "POST", body: JSON.stringify({name: f.name, event: f.event, conditions, actions, enabled: false, priority: 100})});
       toast("Правило создано выключенным: проверьте и включите"); setF(blank); reload();
@@ -63,6 +65,11 @@ function Rules({rules, catalog, request, reload, toast}: any) {
     try { const r = await request(`/api/admin/automation/rules/${rule.id}/preview`); setPending({...pending, [rule.id]: r.pending}); }
     catch (err: any) { setError(err.message); }
   }
+  async function preset(id: string) {
+    if (busy) return; setBusy(true); setError("");
+    try { await request(`/api/admin/automation/presets/${id}`, {method: "POST"}); toast("Готовый сценарий добавлен выключенным: проверьте текст и включите"); reload(); }
+    catch (err: any) { setError(err.message); } finally { setBusy(false); }
+  }
   async function remove(rule: any) {
     try { await request(`/api/admin/automation/rules/${rule.id}`, {method: "DELETE"}); toast("Правило удалено"); reload(); }
     catch (err: any) { setError(err.message); }
@@ -72,6 +79,14 @@ function Rules({rules, catalog, request, reload, toast}: any) {
     <h3>Правила автоматизации</h3>
     <p className="muted">Включённые правила выполняются фоновым процессом каждые {Math.round(catalog.tick_seconds / 60)} минут. Каждое действие выполняется один раз для каждого клиента и события; клиенты, подходившие до создания правила, не затрагиваются. В тексте можно использовать {catalog.placeholders.join(", ")}.</p>
     {error && <div role="alert" className="error">{error}</div>}
+    {(catalog.presets || []).length > 0 && <div className="automation-presets">
+      <h4>Готовые сценарии</h4>
+      <p className="muted">Возврат ушедших клиентов, пробный период без покупки, напоминание о продлении, трафик на исходе. Сценарий создаётся выключенным; промокод в нём одноразовый и личный.</p>
+      {catalog.presets.map((p: any) => <div className="automation-row" key={p.id} data-preset={p.id}>
+        <div><b>{p.name}</b><span className="muted">{p.body}</span></div>
+        <button disabled={busy} onClick={() => preset(p.id)}>{`Добавить сценарий «${p.name}»`}</button>
+      </div>)}
+    </div>}
     {rules.length === 0 && <p className="muted">Правил пока нет.</p>}
     {rules.map((r: any) => <div className="automation-row" key={r.id} data-rule-id={r.id}>
       <div><b>{r.name}</b><span>{summary(r, catalog)}</span><span className="muted">Выполнено: {r.run_count} · последний запуск {when(r.last_run_at)}{pending[r.id] !== undefined ? ` · ожидают: ${pending[r.id]}` : ""}</span></div>
@@ -100,6 +115,9 @@ function Rules({rules, catalog, request, reload, toast}: any) {
         <label className="inline"><input type="checkbox" checked={f.telegram} onChange={set("telegram")}/>Также сообщением в Telegram</label>
       </>}
       <label className="field">{`Бонус на баланс (до ${catalog.max_bonus}, пусто — без бонуса)`}<input type="number" min="0" step="0.01" max={catalog.max_bonus} value={f.bonus} onChange={set("bonus")}/></label>
+      <label className="field">{`Личный промокод, % скидки (до ${catalog.max_promo_percent || 90}, пусто — без промокода)`}<input type="number" min="5" max={catalog.max_promo_percent || 90} value={f.promo_percent} onChange={set("promo_percent")}/></label>
+      {f.promo_percent && <label className="field">Промокод действует, дней<input type="number" min="1" max="30" value={f.promo_days} onChange={set("promo_days")}/></label>}
+      {f.promo_percent && !f.notify && <p className="muted">Промокод отправляется в уведомлении — включите уведомление и вставьте {"{promo}"} в текст.</p>}
       <button className="primary" disabled={busy || !f.name}>Создать правило</button>
     </form>
   </div>;

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.24.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.25.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1279**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1289**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -222,6 +222,7 @@
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
 | [admin/e2e/fraud-decisions.spec.ts](../admin/e2e/fraud-decisions.spec.ts) | Админ-панель |
+| [admin/e2e/growth.spec.ts](../admin/e2e/growth.spec.ts) | Админ-панель |
 | [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
 | [admin/e2e/passkeys.spec.ts](../admin/e2e/passkeys.spec.ts) | Админ-панель |
@@ -266,6 +267,7 @@
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
+| [admin/src/growth.tsx](../admin/src/growth.tsx) | Админ-панель |
 | [admin/src/history-import.tsx](../admin/src/history-import.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
@@ -376,6 +378,7 @@
 | [backend/alembic/versions/0073_e2e_v2.py](../backend/alembic/versions/0073_e2e_v2.py) | API, бот и worker |
 | [backend/alembic/versions/0074_automation_engine.py](../backend/alembic/versions/0074_automation_engine.py) | API, бот и worker |
 | [backend/alembic/versions/0075_app_config.py](../backend/alembic/versions/0075_app_config.py) | API, бот и worker |
+| [backend/alembic/versions/0076_growth.py](../backend/alembic/versions/0076_growth.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -416,6 +419,7 @@
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
 | [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
+| [backend/app/growth.py](../backend/app/growth.py) | API, бот и worker |
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
 | [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
@@ -447,6 +451,7 @@
 | [backend/app/refund_accounting.py](../backend/app/refund_accounting.py) | API, бот и worker |
 | [backend/app/release_identity.py](../backend/app/release_identity.py) | API, бот и worker |
 | [backend/app/remnawave.py](../backend/app/remnawave.py) | API, бот и worker |
+| [backend/app/remnawave_events.py](../backend/app/remnawave_events.py) | API, бот и worker |
 | [backend/app/remnawave_shop_api.py](../backend/app/remnawave_shop_api.py) | API, бот и worker |
 | [backend/app/restore_approval.py](../backend/app/restore_approval.py) | API, бот и worker |
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
@@ -517,6 +522,8 @@
 | [cabinet/src/connection.tsx](../cabinet/src/connection.tsx) | Кабинет |
 | [cabinet/src/giveaways.test.tsx](../cabinet/src/giveaways.test.tsx) | Кабинет |
 | [cabinet/src/giveaways.tsx](../cabinet/src/giveaways.tsx) | Кабинет |
+| [cabinet/src/growth.test.tsx](../cabinet/src/growth.test.tsx) | Кабинет |
+| [cabinet/src/growth.tsx](../cabinet/src/growth.tsx) | Кабинет |
 | [cabinet/src/i18n.tsx](../cabinet/src/i18n.tsx) | Кабинет |
 | [cabinet/src/main.tsx](../cabinet/src/main.tsx) | Кабинет |
 | [cabinet/src/miniapp-sections.tsx](../cabinet/src/miniapp-sections.tsx) | Кабинет |
@@ -681,6 +688,7 @@
 | [docs/ru/OPERATIONS_MONITORING.md](../docs/ru/OPERATIONS_MONITORING.md) | Документация |
 | [docs/ru/PARTNERS_CURRENT.md](../docs/ru/PARTNERS_CURRENT.md) | Документация |
 | [docs/ru/PAYMENTS.md](../docs/ru/PAYMENTS.md) | Документация |
+| [docs/ru/PAYMENTS_LIVE_CHECKLIST.md](../docs/ru/PAYMENTS_LIVE_CHECKLIST.md) | Документация |
 | [docs/ru/PAYMENTS_VDS_BEGINNER_2026_09_28.md](../docs/ru/PAYMENTS_VDS_BEGINNER_2026_09_28.md) | Документация |
 | [docs/ru/PAYMENT_AUDIT_2026_09_28.md](../docs/ru/PAYMENT_AUDIT_2026_09_28.md) | Документация |
 | [docs/ru/PERSONAL_OFFERS_CURRENT.md](../docs/ru/PERSONAL_OFFERS_CURRENT.md) | Документация |
@@ -720,6 +728,7 @@
 | [docs/ru/RELEASE_V28_22_0.md](../docs/ru/RELEASE_V28_22_0.md) | Документация |
 | [docs/ru/RELEASE_V28_23_0.md](../docs/ru/RELEASE_V28_23_0.md) | Документация |
 | [docs/ru/RELEASE_V28_24_0.md](../docs/ru/RELEASE_V28_24_0.md) | Документация |
+| [docs/ru/RELEASE_V28_25_0.md](../docs/ru/RELEASE_V28_25_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -1167,6 +1176,7 @@
 | [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
 | [tests/test_fraud_signals.py](../tests/test_fraud_signals.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
+| [tests/test_growth.py](../tests/test_growth.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |

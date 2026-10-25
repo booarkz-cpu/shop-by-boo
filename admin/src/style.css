@@ -373,3 +373,12 @@ dd{margin:0;font-size:12px;font-weight:600}
 .page-operations table{width:100%}
 .readonly form[method="post"]:not([action^="/sessions/"]):not([action="/logout"]){display:none}
 html[data-theme="light"]{color-scheme:light}
+
+/* v28.25.0: retention analytics and automation presets */
+.retention .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px}
+.retention .kpi span{display:block;color:var(--muted, #8a94a6);font-size:.85rem}
+.retention .kpi b{font-size:1.5rem}
+.retention td .bar,.reason-row .bar{display:inline-block;height:6px;border-radius:3px;background:currentColor;opacity:.45;margin-right:6px;vertical-align:middle;max-width:80px}
+.reason-row{display:grid;grid-template-columns:minmax(140px,1fr) 2fr auto;align-items:center;gap:8px;margin:6px 0}
+.reason-row .bar{max-width:none}
+.automation-presets{margin-bottom:16px}

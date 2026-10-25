@@ -214,6 +214,8 @@ def _restart_reason(key: str) -> str:
         return "Привязка приложений к домену кабинета для passkeys публикуется в /.well-known; меняется через .env и restart backend."
     if key.startswith("fcm_") or key.startswith("apns_"):
         return "Ключ провайдера push — секрет сервера; меняется через .env и restart worker, не хранится в БД."
+    if key == "remnawave_webhook_secret":
+        return "Секрет подписи вебхуков Remnawave совпадает с WEBHOOK_SECRET_HEADER панели; меняется в .env вместе с панелью и restart backend."
     if key == "default_currency":
         return "Смена расчётной валюты требует миграции тарифов и финансовых снимков, затем контролируемого restart."
     return "Параметр инициализируется до обработки запросов и требует контролируемого restart."

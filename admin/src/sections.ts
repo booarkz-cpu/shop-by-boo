@@ -31,6 +31,7 @@ export const SECTION_GROUPS = [
     items: [
       {tab: "dashboard", label: "Главная", description: "Сводка за сутки и месяц: клиенты, подписки, выручка, серверы и то, что требует внимания.", keywords: "обзор дашборд"},
       {tab: "analytics", label: "Аналитика продаж", description: "Выручка, конверсия, средний чек и динамика продаж по периодам.", keywords: "статистика отчёты"},
+      {tab: "retention", label: "Удержание клиентов", description: "Когорты по месяцу первой оплаты, повторные покупки, LTV и причины отмены подписки.", keywords: "ltv когорты отток churn retention"},
       {tab: "financial", label: "Финансовый журнал", description: "Неизменяемый журнал всех денежных операций: оплаты, возвраты, бонусы и выплаты.", keywords: "ledger бухгалтерия"},
       {tab: "health", label: "Состояние системы", description: "Работают ли API, база данных, Redis, Remnawave и фоновые процессы.", keywords: "health здоровье"},
       {tab: "incidents", label: "Инциденты", description: "Сбои и проблемы: открыть инцидент, отметить решение, посмотреть историю.", keywords: "аварии"},
@@ -61,6 +62,7 @@ export const SECTION_GROUPS = [
       {tab: "payments", label: "Платежи", description: "Все оплаты клиентов со статусом, суммой и платёжной системой.", keywords: "транзакции"},
       {tab: "providers", label: "Платёжные агенты", description: "Подключённые платёжные системы, их доступность и доля успешных оплат.", keywords: "провайдеры yookassa stripe"},
       {tab: "refunds", label: "Возвраты", description: "Заявки на возврат денег: проверить, одобрить или отклонить.", keywords: "refund"},
+      {tab: "family", label: "Семейные подписки", description: "Семьи владельцев тарифов с местами: участники и их синхронизация с Remnawave.", keywords: "семья family приглашение"},
       {tab: "gifts", label: "Подарки", description: "Подарочные коды на подписку: создать код, задать срок и число активаций.", keywords: "подарочные коды"},
       {tab: "staging", label: "Проверка платежей", description: "Тестовые оплаты в sandbox платёжных систем перед запуском магазина.", keywords: "sandbox тест e2e"},
     ],

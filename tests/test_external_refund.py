@@ -68,3 +68,34 @@ async def test_partial_or_unconfirmed_refund_does_not_revoke(database, monkeypat
     assert payment.status == "paid" and Panel.disabled == []
     assert await database.scalar(select(func.count()).select_from(RefundRequest)) == 0
     assert await database.scalar(select(func.count()).select_from(AuditLog).where(AuditLog.action == "payment.refund.partial_external")) == 1
+
+
+class DashboardRefunds:
+    """Platega/RollyPay double: the payment reads back as refunded."""
+    state = {}
+
+    async def read_refund(self, payment_id):
+        return DashboardRefunds.state[payment_id]
+
+    async def get_refund_status(self, refund_id):
+        raise AssertionError("dashboard refunds are reconciled from the payment, not the refund URL")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("provider,cls", [("platega", "PlategaProvider"), ("rollypay", "RollyPayProvider")])
+async def test_dashboard_refunds_of_platega_and_rollypay_are_verified_and_revoke(database, monkeypatch, provider, cls):
+    monkeypatch.setattr(main, cls, DashboardRefunds)
+    monkeypatch.setattr(main, "RemnawaveClient", Panel)
+    Panel.disabled = []
+    p = Payment(user_id=1, subscription_id=1, plan_id=1, provider=provider, provider_payment_id=f"{provider}-pay-9", order_id=f"ext-{provider}",
+                amount=Decimal("100"), currency="RUB", status="paid", fulfillment_status="completed", paid_at=datetime.utcnow())
+    database.add(p)
+    await database.commit()
+    DashboardRefunds.state = {f"{provider}-pay-9": {"id": f"{provider}-refund-{provider}-pay-9", "status": "pending", "payment_id": f"{provider}-pay-9", "amount": "100", "currency": "RUB"}}
+    assert (await main._external_refund(provider, f"{provider}-pay-9", database)).get("ignored") is True  # not refunded yet
+    DashboardRefunds.state[f"{provider}-pay-9"]["status"] = "succeeded"
+    result = await main._external_refund(provider, f"{provider}-pay-9", database)
+    assert result == {"ok": True, "refund": "refunded"}
+    refund = (await database.execute(select(RefundRequest).where(RefundRequest.payment_id == p.id))).scalar_one()
+    assert refund.provider_refund_id == f"{provider}-refund-{provider}-pay-9" and Panel.disabled == ["remote-1"]
+    assert (await main._external_refund(provider, f"{provider}-pay-9", database)) == {"ok": True, "duplicate": True}

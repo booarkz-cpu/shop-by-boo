@@ -264,7 +264,8 @@
     "stars": {
       "enabled": false,
       "rate": "1.50",
-      "min_stars": 50
+      "min_stars": 50,
+      "subscriptions": false
     }
   },
   "referral": {
@@ -318,6 +319,7 @@
   },
   "trial_days": 3,
   "version": "mock",
+  "lang": "ru",
   "viewer": null,
   "offline": true
 }

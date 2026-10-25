@@ -1,6 +1,6 @@
-# Каталог API — v28.24.0 / API v21.5.1
+# Каталог API — v28.25.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0075_app_config`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0076_growth`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -21,6 +21,7 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/advertisements/{item_id}` | Delete Ad |
 | `PUT` | `/api/admin/advertisements/{item_id}` | Update Ad |
 | `GET` | `/api/admin/analytics` | Admin Analytics |
+| `GET` | `/api/admin/analytics/retention` | Retention |
 | `DELETE` | `/api/admin/app-config` | Admin App Config Reset |
 | `GET` | `/api/admin/app-config` | Admin App Config |
 | `PUT` | `/api/admin/app-config` | Admin App Config Save |
@@ -45,6 +46,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/auth/telegram` | Admin Telegram Login |
 | `DELETE` | `/api/admin/automation/campaigns/{campaign_id}` | Delete Campaign |
 | `GET` | `/api/admin/automation/catalog` | Catalog |
+| `POST` | `/api/admin/automation/presets/{preset_id}` | Create Preset |
 | `DELETE` | `/api/admin/automation/rules/{rule_id}` | Delete Rule |
 | `GET` | `/api/admin/automation/rules/{rule_id}/preview` | Preview |
 | `GET` | `/api/admin/backups` | List Backups |
@@ -113,6 +115,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/enterprise/rules` | Enterprise Rule Create |
 | `PUT` | `/api/admin/enterprise/rules/{rule_id}` | Enterprise Rule Update |
 | `GET` | `/api/admin/enterprise/summary` | Enterprise Summary |
+| `GET` | `/api/admin/family` | Admin Family |
 | `POST` | `/api/admin/fields` | Admin Field |
 | `DELETE` | `/api/admin/fields/{field_id}` | Admin Field Delete |
 | `PUT` | `/api/admin/fields/{field_id}` | Admin Field Update |
@@ -214,6 +217,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/platform/violations/{violation_id}/review` | Review Violation |
 | `POST` | `/api/admin/platform/webhooks` | Create Webhook |
 | `GET` | `/api/admin/plugins` | Admin Plugins |
+| `GET` | `/api/admin/plugins/catalog` | Catalog |
+| `POST` | `/api/admin/plugins/catalog/install` | Catalog Install |
+| `GET` | `/api/admin/plugins/catalogs` | Catalog Settings |
+| `PUT` | `/api/admin/plugins/catalogs` | Save Catalogs |
 | `POST` | `/api/admin/plugins/publishers` | Add Publisher |
 | `POST` | `/api/admin/plugins/publishers/{publisher_id}/revoke` | Revoke Publisher |
 | `POST` | `/api/admin/plugins/upload` | Upload |
@@ -426,6 +433,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/devices/{device_id}/revoke` | Revoke Device |
 | `GET` | `/api/me/email` | Email Status |
 | `POST` | `/api/me/email/verification/request` | Request Verification |
+| `GET` | `/api/me/family` | My Family |
+| `POST` | `/api/me/family/join` | Family Join |
+| `DELETE` | `/api/me/family/members/{member_id}` | Family Remove |
+| `POST` | `/api/me/family/{subscription_id}/invite` | Family Invite |
 | `GET` | `/api/me/gifts` | Purchased Gifts |
 | `POST` | `/api/me/gifts/purchase` | Purchase Gift |
 | `POST` | `/api/me/gifts/redeem` | Redeem Gift |
@@ -473,6 +484,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/security-center` | Security Center |
 | `POST` | `/api/me/security/revoke-all` | Revoke All User Sessions |
 | `GET` | `/api/me/servers` | My Servers |
+| `GET` | `/api/me/stars-subscriptions` | My Stars Subscriptions |
+| `POST` | `/api/me/stars-subscriptions` | Create Stars Subscription |
+| `POST` | `/api/me/stars-subscriptions/{row_id}/cancel` | Cancel Stars Subscription |
 | `GET` | `/api/me/subscription` | My Subscription |
 | `GET` | `/api/me/subscription-file` | Subscription File |
 | `GET` | `/api/me/subscription/commerce` | Commerce Catalog |
@@ -527,6 +541,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/public/pages` | Catalog |
 | `GET` | `/api/public/pages/{slug}` | Public Page |
 | `GET` | `/api/public/servers` | Public Servers |
+| `GET` | `/api/public/service-status` | Public Status |
 | `GET` | `/api/public/status` | Public Status |
 | `GET` | `/api/public/v15/privacy` | Public Privacy |
 | `GET` | `/api/public/v16/release` | Release |
@@ -538,6 +553,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/v3/status` | V3 Status |
 | `POST` | `/api/webhooks/crypto` | Crypto Webhook |
 | `POST` | `/api/webhooks/platega` | Platega Webhook |
+| `POST` | `/api/webhooks/remnawave` | Remnawave Webhook |
 | `POST` | `/api/webhooks/rollypay` | Rollypay Webhook |
 | `POST` | `/api/webhooks/yookassa` | Yookassa Webhook |
 | `GET` | `/health` | Health |

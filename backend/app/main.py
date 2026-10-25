@@ -19,7 +19,7 @@ from sqlalchemy import text as sql_text
 from .config import settings
 from .db import engine, get_db
 from .models import User, Plan, Payment, Subscription, AuditLog, FinancialLedger, AdminUser, AdminSession, AppSetting, BotMenuItem, CustomField, MenuImage, Promotion, PromoCode, PromoRedemption, Advertisement, Broadcast, Reseller, BackupJob, AuthExchangeCode, ReferralReward, PaymentProviderEvent, ReferralLedger, AutoRenewMethod, ProvisioningOperation, RefundRequest, SupportTicket, WithdrawalRequest, WorkerState, ReleaseRecord, SecurityIncident, Job, FraudSignal, PayoutTransaction, FeatureFlag, PaymentProviderHealth, SecurityIncidentEvent, BackupVerification, WebAuthnCredential, UserDevice, Campaign, AutomationRule, MonitoringCheck, TrialGrant, PromoReservation, GiftCode, GiftRedemption, UserSession, Notification, StatusComponent, Deployment, CabinetMenuItem, TariffConstructor, PaymentTaxProfile, PaymentInvoice, PaymentChargeback, PaymentRiskAssessment, PaymentProviderMetric, GiftCard, CorporateAccount, PaymentPriceExperiment
-from .payments import YooKassaProvider, PlategaProvider, RollyPayProvider, SandboxProvider, verify_rollypay, verify_platega_headers, staging_create_payment, staging_read_payment, staging_refund_payment, staging_refund_read
+from .payments import YooKassaProvider, PlategaProvider, RollyPayProvider, PLATEGA_REFUNDED, ROLLYPAY_REFUNDED, SandboxProvider, verify_rollypay, verify_platega_headers, staging_create_payment, staging_read_payment, staging_refund_payment, staging_refund_read
 from .sandbox_mode import payments_sandbox_allowed, sandbox_checkout_requested, sandbox_local_vpn
 from .referral_program import snapshot as referral_snapshot
 from .payment_platform import StripePlatform, PayPalPlatform, CryptoGatewayPlatform, AppleStorePlatform, GooglePlayPlatform, PlatformProviderError
@@ -137,6 +137,10 @@ from .app_config import router as app_config_router
 app.include_router(app_config_router)
 from .telegram_stars import router as telegram_stars_router, TelegramStarsProvider
 app.include_router(telegram_stars_router)
+from .remnawave_events import router as remnawave_events_router
+app.include_router(remnawave_events_router)
+from .growth import router as growth_router
+app.include_router(growth_router)
 from .account_actions import router as account_actions_router
 app.include_router(account_actions_router)
 from .surveys import router as surveys_router
@@ -194,6 +198,10 @@ RATE_LIMITS = {
     "/api/app-config": 120,
     "/api/me/wallet/stars-invoice": 10,
     "/api/me/consent": 30,
+    "/api/webhooks/remnawave": 600,
+    "/api/me/stars-subscriptions": 20,
+    "/api/me/family/join": 10,
+    "/api/public/service-status": 60,
     "/api/me/servers": 30,
     "/api/tariff-constructors": 60,
     "/api/agent/heartbeat": 120,
@@ -375,6 +383,7 @@ class PlanIn(BaseModel):
     device_limit: int|None = Field(default=None, ge=1, le=100)
     remnawave_profile_id: str|None = Field(default=None, max_length=255)
     enabled: bool = True
+    family_seats: int = Field(default=0, ge=0, le=10)
 
 class TicketIn(BaseModel):
     subject: str = Field(min_length=1, max_length=255)
@@ -398,6 +407,9 @@ class RefundIn(BaseModel):
 
 class SubscriptionActionIn(BaseModel):
     action: str = Field(pattern="^(cancel|resume)$")
+    # Optional cancellation survey for the retention report.
+    reason: str|None = Field(default=None, pattern="^(price|speed|stability|not_needed|other_service|other)$")
+    comment: str = Field(default="", max_length=500)
 
 class GiftRedeemIn(BaseModel):
     subscription_id: int|None = Field(default=None,gt=0)
@@ -581,6 +593,8 @@ async def start_backup_scheduler():
     _track_task(monitor_checks_scheduler())
     from .automation import automation_scheduler
     _track_task(automation_scheduler())
+    from .growth import family_scheduler
+    _track_task(family_scheduler())
 
 @app.get("/health/live")
 async def health_live():
@@ -942,6 +956,8 @@ async def claim_trial(payload:TrialIn,request:Request,db:AsyncSession=Depends(ge
     # database invariant, while this prevents duplicate grants under concurrency.
     await _advisory_lock(db, 720000000 + int(user.id))
     if await db.scalar(select(TrialGrant).where(TrialGrant.user_id==user.id)): raise HTTPException(409,"Пробный период уже использован")
+    from .remnawave_events import trial_guard
+    trial_ip_hash=await trial_guard(db,user,_client_ip(request))
     now=datetime.utcnow()
     active_sub=(await db.execute(select(Subscription).where(Subscription.user_id==user.id, Subscription.lifecycle_status.in_(["active","cancel_scheduled","grace"]), or_(Subscription.expires_at.is_(None), Subscription.expires_at>now)).limit(1).with_for_update())).scalar_one_or_none()
     if active_sub:
@@ -956,7 +972,7 @@ async def claim_trial(payload:TrialIn,request:Request,db:AsyncSession=Depends(ge
     target=await reserve_target(db,user,plan.id,{})
     now=datetime.utcnow(); grant=TrialGrant(user_id=user.id,subscription_id=target.id,plan_id=plan.id,days=days,
         traffic_limit_gb_snapshot=plan.traffic_limit_gb,device_limit_snapshot=plan.device_limit,
-        remnawave_profile_id_snapshot=plan.remnawave_profile_id,expires_at=now+timedelta(days=days));
+        remnawave_profile_id_snapshot=plan.remnawave_profile_id,expires_at=now+timedelta(days=days),ip_hash=trial_ip_hash);
     db.add(grant); await db.flush(); db.add(Job(job_key=f"trial:{grant.id}",kind="trial",status="queued",attempts=0,max_attempts=5,payload={"trial_id":grant.id})); await audit(db,"trial.granted",str(user.id),str(plan.id),{"days":days}); await db.commit()
     return {"ok":True,"status":"queued","expires_at":grant.expires_at,"plan_id":grant.plan_id,"days":grant.days}
 
@@ -996,7 +1012,7 @@ async def plans(db:AsyncSession=Depends(get_db)):
         if p.id in anchor_ids: continue
         price=Decimal(str(p.price)); promo=await active_promotion(db,p.id); discount=discounted_amount(price,promo.kind,promo.value) if promo else Decimal("0.00")
         final_price=(price-discount).quantize(Decimal("0.01"),rounding=ROUND_HALF_UP)
-        out.append({"id":p.id,"name":p.name,"price":float(price),"final_price":float(final_price),"discount":float(discount),"discount_percent":float((discount/price*Decimal("100")).quantize(Decimal("0.01"))) if price else 0,"promotion":({"id":promo.id,"name":promo.name,"kind":promo.kind,"value":float(promo.value),"description":promo.description} if promo else None),"duration_days":p.duration_days,"traffic_limit_gb":p.traffic_limit_gb,"device_limit":p.device_limit})
+        out.append({"id":p.id,"name":p.name,"price":float(price),"final_price":float(final_price),"discount":float(discount),"discount_percent":float((discount/price*Decimal("100")).quantize(Decimal("0.01"))) if price else 0,"promotion":({"id":promo.id,"name":promo.name,"kind":promo.kind,"value":float(promo.value),"description":promo.description} if promo else None),"duration_days":p.duration_days,"traffic_limit_gb":p.traffic_limit_gb,"device_limit":p.device_limit,"family_seats":int(p.family_seats or 0)})
     return out
 
 @app.get("/api/promo/validate")
@@ -1666,7 +1682,7 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
         op_row.status="processing"; op_row.attempts=(op_row.attempts or 0)+1; op_row.updated_at=now; await db.commit()
         try:
             if sub and sub.remnawave_uuid in {"None","none","null"}:
-                # Releases before v28.24.0 read the panel answer without its "response" wrapper and
+                # Releases before v28.21.0 read the panel answer without its "response" wrapper and
                 # stored the literal "None". Forget it: the user is then found again by username.
                 sub.remnawave_uuid=None
             if payment.provider == "sandbox" and sandbox_local_vpn():
@@ -1868,9 +1884,14 @@ async def _external_refund(provider:str, refund_id:str, db:AsyncSession):
     The notification is only a hint. The refund is read back from the provider and must be
     succeeded, belong to a paid payment of this shop and cover its full amount. Partial refunds
     are recorded in the audit log for an operator and do not revoke access."""
-    if provider!="yookassa": return {"ok":True}
-    try: info=await YooKassaProvider().get_refund(refund_id)
+    readers={"yookassa":lambda: YooKassaProvider().get_refund(refund_id),
+             # Platega/RollyPay report the refund on the payment itself: refund_id is their payment id.
+             "platega":lambda: PlategaProvider().read_refund(refund_id),
+             "rollypay":lambda: RollyPayProvider().read_refund(refund_id)}
+    if provider not in readers: return {"ok":True}
+    try: info=await readers[provider]()
     except Exception: raise HTTPException(503,"Refund verification unavailable")
+    if provider!="yookassa": refund_id=str(info.get("id") or refund_id)
     if info.get("status")!="succeeded" or not info.get("payment_id"): return {"ok":True,"ignored":True}
     p=await payment_by_provider(db,provider,str(info["payment_id"]))
     if not p: return {"ok":True,"ignored":True}
@@ -1939,6 +1960,8 @@ async def platega_webhook(request:Request, db:AsyncSession=Depends(get_db)):
     try: d=PlategaProvider().verify_webhook(dict(request.headers),raw)
     except Exception: raise HTTPException(403,"Invalid Platega webhook")
     pid=d.get("id") or d.get("Id") or d.get("transactionId"); event_id=str(d.get("eventId") or d.get("id") or hashlib.sha256(raw).hexdigest())
+    if pid and str(d.get("status") or d.get("Status")).upper() in PLATEGA_REFUNDED:
+        return await _external_refund("platega",str(pid),db)
     if str(d.get("status") or d.get("Status")).upper() not in {"CONFIRMED","SUCCESS","SUCCEEDED"} or not pid: return {"ok":True}
     payload_order=str(d.get("payload") or d.get("Payload") or "")
     p=await payment_by_provider_or_order(db,"platega",pid,payload_order or None)
@@ -1970,6 +1993,8 @@ async def rollypay_webhook(request:Request,db:AsyncSession=Depends(get_db)):
     try: d=json.loads(raw)
     except Exception: raise HTTPException(400,"Invalid JSON")
     pid=d.get("payment_id"); event_id=str(d.get("event_id") or d.get("id") or hashlib.sha256(raw).hexdigest())
+    if pid and str(d.get("status")).lower() in ROLLYPAY_REFUNDED:
+        return await _external_refund("rollypay",str(pid),db)
     if str(d.get("status")).lower() not in {"paid","success","succeeded"} or not pid: return {"ok":True}
     order_id=str(d.get("order_id") or "")
     p=await payment_by_provider_or_order(db,"rollypay",pid,order_id or None)
@@ -2191,7 +2216,9 @@ async def auto_renew_scheduler():
                         # idempotency key instead of issuing a second charge.
                         payment=(await db.execute(select(Payment).where(Payment.order_id==order_id).execution_options(populate_existing=True).with_for_update())).scalar_one_or_none()
                         if not payment:
-                            payment=Payment(user_id=user.id,subscription_id=sub.id,plan_id=plan.id,provider="yookassa",provider_payment_id=None,order_id=order_id,amount=renewal_amount,original_amount=renewal_amount,discount_amount=Decimal("0"),duration_days_snapshot=int(terms['days']),traffic_limit_gb_snapshot=terms['traffic_gb'],device_limit_snapshot=terms['devices'],remnawave_profile_id_snapshot=terms['profile_id'],referrer_id_snapshot=user.referred_by_id,referral_terms_snapshot=await referral_snapshot(db,user),currency=settings.default_currency,status="creating",fulfillment_status="pending",paid_at=None)
+                            from .partners import renewal_terms as partner_renewal_terms
+                            renewal_partner=await partner_renewal_terms(db,sub.id)
+                            payment=Payment(**renewal_partner,user_id=user.id,subscription_id=sub.id,plan_id=plan.id,provider="yookassa",provider_payment_id=None,order_id=order_id,amount=renewal_amount,original_amount=renewal_amount,discount_amount=Decimal("0"),duration_days_snapshot=int(terms['days']),traffic_limit_gb_snapshot=terms['traffic_gb'],device_limit_snapshot=terms['devices'],remnawave_profile_id_snapshot=terms['profile_id'],referrer_id_snapshot=user.referred_by_id,referral_terms_snapshot=await referral_snapshot(db,user),currency=settings.default_currency,status="creating",fulfillment_status="pending",paid_at=None)
                             db.add(payment); await db.flush()
                         method.last_attempt_at=datetime.utcnow(); method.next_attempt_at=datetime.utcnow()+timedelta(hours=24); sub.next_renewal_at=method.next_attempt_at; await db.commit()
                         result=await YooKassaProvider().charge_recurring(Decimal(str(payment.amount)),order_id,f"Auto-renew {plan.name}",token)
@@ -2396,6 +2423,9 @@ async def subscription_lifecycle(payload:SubscriptionActionIn,request:Request,db
         if payload.action=="cancel":
             if sub.lifecycle_status in {"expired","cancelled"}: raise HTTPException(409,"Subscription is already inactive")
             sub.scheduled_cancel_at=sub.expires_at or now; sub.lifecycle_status="cancel_scheduled"
+            if payload.reason:
+                from .models import CancellationFeedback
+                db.add(CancellationFeedback(user_id=user.id,subscription_id=sub.id,reason=payload.reason,comment=payload.comment.strip()))
         else:
             if sub.lifecycle_status not in {"cancel_scheduled","grace"}: raise HTTPException(409,"Subscription cannot be resumed from its current state")
             sub.scheduled_cancel_at=None; sub.cancelled_at=None; sub.lifecycle_status="active" if (sub.expires_at and sub.expires_at>now) else "grace"
@@ -3478,7 +3508,12 @@ async def reconcile_refund(refund_id:int,db:AsyncSession=Depends(get_db),admin=D
     provider=providers.get(p.provider)
     if not provider or not hasattr(provider,"get_refund_status"): raise HTTPException(409,"Refund status adapter is unavailable")
     try:
-        status=str(await provider.get_refund_status(r.provider_refund_id)).lower()
+        dashboard_prefix=f"{p.provider}-refund-"
+        if p.provider in {"platega","rollypay"} and str(r.provider_refund_id).startswith(dashboard_prefix):
+            # Refund made in the provider's dashboard: its state is read from the payment itself.
+            status=str((await provider.read_refund(str(r.provider_refund_id)[len(dashboard_prefix):])).get("status") or "").lower()
+        else:
+            status=str(await provider.get_refund_status(r.provider_refund_id)).lower()
     except Exception as exc:
         await audit(db,"payment.refund.reconcile_failed",admin.email,str(r.id),{"error":str(exc)[:500]}); await db.commit()
         raise HTTPException(503,"Provider refund status unavailable")
@@ -3617,7 +3652,7 @@ async def admin_overview(db:AsyncSession=Depends(get_db),admin=Depends(require_p
 @app.get("/api/admin/plans")
 async def admin_list_plans(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):
     rows=(await db.execute(select(Plan).order_by(Plan.id))).scalars().all()
-    return [{"id":p.id,"name":p.name,"price":float(p.price),"duration_days":p.duration_days,"traffic_limit_gb":p.traffic_limit_gb,"device_limit":p.device_limit,"remnawave_profile_id":p.remnawave_profile_id,"enabled":p.enabled} for p in rows]
+    return [{"id":p.id,"name":p.name,"price":float(p.price),"duration_days":p.duration_days,"traffic_limit_gb":p.traffic_limit_gb,"device_limit":p.device_limit,"remnawave_profile_id":p.remnawave_profile_id,"enabled":p.enabled,"family_seats":int(p.family_seats or 0)} for p in rows]
 
 @app.post("/api/admin/plans")
 async def create_plan(payload:PlanIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_plans"))):

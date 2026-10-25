@@ -2,7 +2,7 @@ import {ButtonTree} from "./button-tree";
 import {PersonalOffers} from "./personal-offers";
 import {PublicPages} from "./public-pages";
 import React, {useEffect, useState, useRef, useCallback} from "react";
-import {Bell, CircleHelp, CreditCard, Gift, Handshake, Home, KeyRound, LayoutGrid, ListChecks, LogOut, Menu, Moon, Server, Smartphone, Sparkles, Sun, Trophy, UserRound, Users, Wallet, X, Zap, Plug, Receipt, FileText} from "lucide-react";
+import {Bell, CircleHelp, CreditCard, Gift, Handshake, Home, KeyRound, LayoutGrid, ListChecks, LogOut, Menu, Moon, Server, Smartphone, Sparkles, Sun, Trophy, UserRound, Users, Wallet, X, Zap, Plug, Receipt, FileText, Heart, Activity} from "lucide-react";
 import {Overview, type Traffic} from "./overview";
 import {Connection} from "./connection";
 import {Plans} from "./plans";
@@ -20,6 +20,7 @@ import {AccountMerge} from "./account-merge";
 import type {AccountLink} from "./account-recovery";
 import {DomLocalizer, LangProvider, detectLang, t, useLang} from "./i18n";
 import {AppConfigProvider, useAppConfig} from "./app-config";
+import {FamilySection, StarsSubscribe, StatusSection, familyCodeFromUrl} from "./growth";
 import {ConfigIcon, ConfigNotice, ConfigSkeleton, ConsentGate, Greeting, InfoSection, PromoCards, ReferralTerms, SectionBanner, SectionBoundary, ServerCatalog, SupportButtons, WalletTopup} from "./miniapp-sections";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "";
@@ -32,10 +33,11 @@ const NAV_ICON: Record<string, React.ReactNode> = {
   payments: <Receipt aria-hidden="true" />, gifts: <Gift aria-hidden="true" />, referral: <Users aria-hidden="true" />, notifications: <Bell aria-hidden="true" />,
   security: <KeyRound aria-hidden="true" />, surveys: <ListChecks aria-hidden="true" />, giveaways: <Trophy aria-hidden="true" />, support: <CircleHelp aria-hidden="true" />,
   partner: <Handshake aria-hidden="true" />, custom: <FileText aria-hidden="true" />, info: <CircleHelp aria-hidden="true" />,
+  family: <Heart aria-hidden="true" />, status: <Activity aria-hidden="true" />,
 };
 const BOTTOM_KINDS = ["overview", "plans", "connection", "wallet"];
 
-type MenuKind = "info" | "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "custom";
+type MenuKind = "info" | "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "family" | "status" | "custom";
 type MenuItem = {slug: string; title: string; kind: MenuKind; body?: string; icon?: string};
 
 const FALLBACK_MENU: MenuItem[] = [
@@ -394,6 +396,7 @@ function App() {
           try{await req("/api/me/gifts/redeem",{method:"POST",body:JSON.stringify({code:gift})});flash("Подарок активирован");await loadSession()}catch(e:any){flash(e.message,true)}
           const url=new URL(location.href);url.searchParams.delete("gift");history.replaceState(null,"",url.pathname+url.search+url.hash);
         }
+        if(familyCodeFromUrl())location.hash="family";
         if (sandboxPayment) {
           try {
             await req("/api/payments/sandbox/complete", {
@@ -460,7 +463,7 @@ function App() {
     const selected=profileTarget==="current"?dash?.subscription?.id:profileTarget==="new"?undefined:Number(profileTarget);
     if(!gift)body={...body,...(profileTarget==="new"?{new_subscription:true}:selected?{subscription_id:selected}:{})};
     const partner=new URLSearchParams(location.search).get("partner");
-    if(!gift&&partner)body={...body,reseller_slug:partner};
+    if(partner)body={...body,reseller_slug:partner};
     const fingerprint=JSON.stringify({body,wallet,gift,provider:wallet?"wallet":provider});
     purchaseKeys.current[fingerprint]??=crypto.randomUUID();
     const key=purchaseKeys.current[fingerprint];
@@ -822,6 +825,7 @@ function App() {
                   <Plans plans={plans} constructors={constructors} pick={pick} setPick={setPick} defaultPick={defaultPick} constructorTotal={constructorTotal} promo={promo} setPromo={setPromo} providers={cfg.payment_providers || []} provider={provider} setProvider={setProvider} profiles={profiles} profileTarget={profileTarget} setProfileTarget={setProfileTarget} busy={busy} currency={currency} buy={buy} buyWallet={buyWallet} buyConstructor={buyConstructor} offers={<PersonalOffers request={req} onSelect={setPromo}/>} />
                 )}
 
+                {activeItem?.kind === "plans" && <StarsSubscribe plans={plans} request={req} flash={flash} subscriptionId={profileTarget==="current"?dash?.subscription?.id:profileTarget==="new"?null:Number(profileTarget)||null} />}
                 {activeItem?.kind === "trial" && (
                   <>
                     <h2 className="section-title">Пробный период</h2>
@@ -888,6 +892,8 @@ function App() {
                   <Workspace compact={["wallet","referral"].includes(activeItem.kind)} withdraw={config.referral?.withdraw_enabled!==false} ticketForm={config.support?.ticket_form!==false} key={activeItem.kind+":"+(sub?.id||"none")} kind={activeItem.kind} request={req} reload={loadSession} plans={plans} provider={provider} botUsername={cfg.bot_username||""} providers={(cfg.payment_providers||[]).filter((p:string)=>["yookassa","rollypay","platega","sandbox"].includes(p))} currency={currency} api={API}/>
                 </>}
 
+                {activeItem?.kind === "family" && <FamilySection request={req} flash={flash} reload={loadSession} />}
+                {activeItem?.kind === "status" && <StatusSection api={API} />}
                 {activeItem?.kind === "info" && <><h2 className="section-title">{activeItem.title}</h2><InfoSection request={req} locale={lang} /></>}
                 {activeItem?.kind === "surveys" && <Surveys request={req} reload={loadSession}/>}
                 {activeItem?.kind === "giveaways" && <Giveaways request={req} reload={loadSession}/>}

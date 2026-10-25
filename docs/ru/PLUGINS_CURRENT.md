@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.24.0. Runtime/API `21.5.1`, head магазина `0075_app_config`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.25.0. Runtime/API `21.5.1`, head магазина `0076_growth`, Support Pro `0008`.
 
 # Плагины
 
@@ -71,6 +71,16 @@
 «Выключить» сразу закрывает плагину API и останавливает события. «Удалить» стирает плагин, все его версии, настройки и журнал доставок.
 
 ## Для издателя плагина
+
+### Каталог
+
+Издатель может опубликовать каталог своих пакетов — JSON `{"catalog": 1, "name": "…", "plugins": [{"id", "name", "version", "package_url", "sha256", "description", "homepage"}]}` по HTTPS — и подписать его тем же ключом:
+
+```bash
+python3 scripts/sign-plugin.py catalog publisher.key catalog.json catalog.signed.json
+```
+
+Подписывается канонический JSON полей `catalog`, `name`, `plugins`; в файл добавляются `public_key` и `signature`. Магазин принимает каталог, только если ключ есть среди доверенных и не отозван, а при установке сверяет SHA-256 скачанного пакета. Новая версия = новая запись в `plugins` и повторная подпись каталога.
 
 ### Манифест
 
@@ -152,6 +162,9 @@ X-Corgi-Signature: v1=<hex HMAC-SHA256(secret, timestamp + "." + body)>
 | `POST` | `/api/admin/plugins/{id}/disable` | выключить |
 | `POST` | `/api/admin/plugins/{id}/rotate` | новые токен и секрет |
 | `DELETE` | `/api/admin/plugins/{id}` | удалить |
+| `GET`/`PUT` | `/api/admin/plugins/catalogs` | адреса подписанных каталогов (до 5, HTTPS) |
+| `GET` | `/api/admin/plugins/catalog` | пакеты из каталогов, установленные версии и обновления |
+| `POST` | `/api/admin/plugins/catalog/install` | скачать пакет из каталога, сверить SHA-256 и загрузить (`{catalog, id, version}`) |
 
 ## Проверка
 

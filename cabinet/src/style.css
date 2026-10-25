@@ -553,3 +553,16 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 .referral-link { display: block; padding: 10px 12px; }
 .support-buttons { margin-bottom: 14px; }
 .info-page { display: grid; gap: 12px; }
+
+/* v28.25.0: family plans, service status, Stars subscription, cancel survey */
+.family-card{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.family-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.family-head span{color:var(--muted)}
+.family-code{font-size:1.2rem;letter-spacing:.12em;padding:8px 12px;border-radius:var(--radius);background:rgb(var(--primary-rgb)/.12);align-self:flex-start}
+.family-members{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.family-members li{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.status-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.status-countries{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.status-country{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:var(--radius);background:var(--surface)}
+.stars-subscribe{margin-top:12px}
+.cancel-survey{margin-top:10px}

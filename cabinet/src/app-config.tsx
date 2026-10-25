@@ -7,7 +7,8 @@
  * Loading order: last good config from localStorage (instant paint) → network → bundled
  * mock-config.json when the API is unreachable (the UI then shows an offline notice with
  * a retry button). Telegram initData goes in X-Telegram-Init-Data so the server can greet
- * the user by name.
+ * the user by name. The language follows ?lang= in the page address, then the language chosen
+ * in the cabinet (rw_lang), then the Telegram user's language; the server answers in ru/en/uk.
  */
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import mock from "./mock-config.json";
@@ -20,6 +21,7 @@ export type InfoPage = {slug: string; title: string; kind: string};
 export type AppConfig = {
   schema: number;
   version: string;
+  lang?: "ru" | "en" | "uk";
   offline?: boolean;
   brand: {name: string; bot_username: string; currency: string};
   theme: {vars: Record<string, string>};
@@ -30,7 +32,7 @@ export type AppConfig = {
   promos: PromoCard[];
   plans: any[];
   servers: {categories: ServerCategory[]; show_load: boolean};
-  wallet: {currency: string; amounts: number[]; min: number; max: number; methods: PaymentMethod[]; stars: {enabled: boolean; rate: string; min_stars: number}};
+  wallet: {currency: string; amounts: number[]; min: number; max: number; methods: PaymentMethod[]; stars: {enabled: boolean; rate: string; min_stars: number; subscriptions?: boolean}};
   referral: {conditions: string; levels: string[]; withdraw_enabled: boolean; link_template: string};
   support: {buttons: {title: string; icon: string; link: string}[]; ticket_form: boolean};
   info: {pages: InfoPage[]};
@@ -47,11 +49,22 @@ export const MOCK_CONFIG = mock as unknown as AppConfig;
 
 const Ctx = createContext<ConfigState>({config: MOCK_CONFIG, status: "loading", error: "", reload: () => undefined});
 
+/** Language asked for explicitly: ?lang= (ru, en, uk) or the cabinet switch; "" lets the server use Telegram's. */
+export function wantedLang(): string {
+  try {
+    const raw = (new URLSearchParams(location.search).get("lang") || localStorage.getItem("rw_lang") || "").toLowerCase();
+    return ["ru", "en", "uk"].includes(raw) ? raw : "";
+  } catch {
+    return "";
+  }
+}
+
 function readCache(): AppConfig | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
-    return parsed && parsed.schema === MOCK_CONFIG.schema ? parsed : null;
+    const lang = wantedLang();
+    return parsed && parsed.schema === MOCK_CONFIG.schema && (!lang || (parsed.lang || "ru") === lang) ? parsed : null;
   } catch {
     return null;
   }
@@ -122,10 +135,10 @@ export function bundledBanner(config: AppConfig, kind: string): string {
   return key ? `${BASE}/assets/banners/${key}.jpg` : "";
 }
 
-export async function fetchConfig(initData: string, signal?: AbortSignal): Promise<AppConfig> {
+export async function fetchConfig(initData: string, signal?: AbortSignal, lang = ""): Promise<AppConfig> {
   const headers: Record<string, string> = {Accept: "application/json"};
   if (initData) headers["X-Telegram-Init-Data"] = initData;
-  const r = await fetch(API + "/api/app-config", {headers, credentials: "include", signal});
+  const r = await fetch(API + "/api/app-config" + (lang ? `?lang=${encodeURIComponent(lang)}` : ""), {headers, credentials: "include", signal});
   if (!r.ok) throw Error(`HTTP ${r.status}`);
   const data = await r.json();
   if (!data || typeof data !== "object" || !Array.isArray(data.navigation)) throw Error("Некорректный конфиг");
@@ -146,7 +159,7 @@ export function AppConfigProvider({children, initialConfig}: {children: React.Re
     const timer = setTimeout(() => ctrl.abort(), 10000);
     const initData = (window as any).Telegram?.WebApp?.initData || "";
     setStatus((s) => (s === "offline" ? "loading" : s));
-    fetchConfig(initData, ctrl.signal)
+    fetchConfig(initData, ctrl.signal, wantedLang())
       .then((next) => {
         if (!live) return;
         setConfig(next);
