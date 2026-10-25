@@ -50,9 +50,9 @@ test('retention, family plans, plugin catalog and trial protection have their sc
     page.waitForResponse((r: any) => r.url().endsWith('/api/admin/app-config')),
     page.getByRole('button', {name: 'Конфигурация Mini App', exact: true}).first().click(),
   ]);
-  await page.getByLabel('Пробных периодов с одной сети за сутки (0 — без ограничения)').fill('2');
-  await page.getByLabel('Пробный период только с привязанным Telegram').check();
-  await page.getByLabel('Подписка Stars с автопродлением (тарифы на 30 дней)').check();
+  await page.getByRole('spinbutton', {name: 'Пробных периодов с одной сети за сутки (0 — без ограничения)', exact: true}).fill('2');
+  await page.getByRole('checkbox', {name: 'Пробный период только с привязанным Telegram', exact: true}).check();
+  await page.getByRole('checkbox', {name: 'Подписка Stars с автопродлением (тарифы на 30 дней)', exact: true}).check();
   await Promise.all([
     page.waitForResponse((r: any) => r.url().endsWith('/api/admin/app-config') && r.request().method() === 'PUT' && r.status() === 200),
     page.getByRole('button', {name: 'Сохранить', exact: true}).first().click(),

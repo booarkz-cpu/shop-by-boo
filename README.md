@@ -228,7 +228,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 | Админ-панель | Личный кабинет |
 | --- | --- |
 | ![Все разделы админ-панели](screenshots/admin_panel/00_all_sections.png) | ![Обзор кабинета](screenshots/storefront_user/03_overview.png) |
-| ![Конструктор тарифов](screenshots/admin_panel/14_constructor.png) | ![Тарифы](screenshots/storefront_user/04_plans.png) |
+| ![Конструктор тарифов](screenshots/admin_panel/15_constructor.png) | ![Тарифы](screenshots/storefront_user/04_plans.png) |
 
 #### Админ-панель
 
@@ -253,7 +253,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 </details>
 
 <details>
-<summary><b>Аналитика</b> (5)</summary>
+<summary><b>Аналитика</b> (6)</summary>
 
 **Главная** — Сводка за сутки и месяц: клиенты, подписки, выручка, серверы и то, что требует внимания.
 
@@ -263,17 +263,21 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ![Аналитика продаж](screenshots/admin_panel/03_analytics.png)
 
+**Удержание клиентов** — Когорты по месяцу первой оплаты, повторные покупки, LTV и причины отмены подписки.
+
+![Удержание клиентов](screenshots/admin_panel/04_retention.png)
+
 **Финансовый журнал** — Неизменяемый журнал всех денежных операций: оплаты, возвраты, бонусы и выплаты.
 
-![Финансовый журнал](screenshots/admin_panel/04_financial.png)
+![Финансовый журнал](screenshots/admin_panel/05_financial.png)
 
 **Состояние системы** — Работают ли API, база данных, Redis, Remnawave и фоновые процессы.
 
-![Состояние системы](screenshots/admin_panel/05_health.png)
+![Состояние системы](screenshots/admin_panel/06_health.png)
 
 **Инциденты** — Сбои и проблемы: открыть инцидент, отметить решение, посмотреть историю.
 
-![Инциденты](screenshots/admin_panel/06_incidents.png)
+![Инциденты](screenshots/admin_panel/07_incidents.png)
 
 </details>
 
@@ -282,68 +286,72 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Клиенты магазина** — Поиск клиента по ID, Telegram, имени или email и полная карточка: подписка, баланс, платежи, действия.
 
-![Клиенты магазина](screenshots/admin_panel/07_crm.png)
+![Клиенты магазина](screenshots/admin_panel/08_crm.png)
 
 **Пользователи VPN** — Учётные записи в Remnawave: статус, имя пользователя и дата создания.
 
-![Пользователи VPN](screenshots/admin_panel/08_users.png)
+![Пользователи VPN](screenshots/admin_panel/09_users.png)
 
 **Устройства** — Устройства клиентов (HWID): сколько подключено и какие можно отключить.
 
-![Устройства](screenshots/admin_panel/09_devices.png)
+![Устройства](screenshots/admin_panel/10_devices.png)
 
 **Импорт и массовые операции** — Перенос клиентов из другого бота и действия сразу над группой клиентов.
 
-![Импорт и массовые операции](screenshots/admin_panel/10_customerOperations.png)
+![Импорт и массовые операции](screenshots/admin_panel/11_customerOperations.png)
 
 **Обращения клиентов** — Вопросы клиентов из бота и кабинета: ответить, назначить, закрыть.
 
-![Обращения клиентов](screenshots/admin_panel/11_support.png)
+![Обращения клиентов](screenshots/admin_panel/12_support.png)
 
 **Support Pro** — Состояние отдельного центра поддержки: очереди, операторы, каналы и SLA.
 
-![Support Pro](screenshots/admin_panel/12_supportPro.png)
+![Support Pro](screenshots/admin_panel/13_supportPro.png)
 
 </details>
 
 <details>
-<summary><b>Тарифы и оплата</b> (9)</summary>
+<summary><b>Тарифы и оплата</b> (10)</summary>
 
 **Тарифы** — Готовые тарифы: название, срок, цена, трафик и число устройств.
 
-![Тарифы](screenshots/admin_panel/13_plans.png)
+![Тарифы](screenshots/admin_panel/14_plans.png)
 
 **Конструктор тарифов** — Тариф, который клиент собирает сам: устройства, трафик и срок с ценой за каждый пункт.
 
-![Конструктор тарифов](screenshots/admin_panel/14_constructor.png)
+![Конструктор тарифов](screenshots/admin_panel/15_constructor.png)
 
 **Пакеты трафика** — Дополнительные гигабайты, которые клиент докупает к действующей подписке.
 
-![Пакеты трафика](screenshots/admin_panel/15_trafficPackages.png)
+![Пакеты трафика](screenshots/admin_panel/16_trafficPackages.png)
 
 **Изменения подписок** — Продления, смены тарифа и докупки: что запросил клиент и чем закончилось.
 
-![Изменения подписок](screenshots/admin_panel/16_subscriptionOperations.png)
+![Изменения подписок](screenshots/admin_panel/17_subscriptionOperations.png)
 
 **Платежи** — Все оплаты клиентов со статусом, суммой и платёжной системой.
 
-![Платежи](screenshots/admin_panel/17_payments.png)
+![Платежи](screenshots/admin_panel/18_payments.png)
 
 **Платёжные агенты** — Подключённые платёжные системы, их доступность и доля успешных оплат.
 
-![Платёжные агенты](screenshots/admin_panel/18_providers.png)
+![Платёжные агенты](screenshots/admin_panel/19_providers.png)
 
 **Возвраты** — Заявки на возврат денег: проверить, одобрить или отклонить.
 
-![Возвраты](screenshots/admin_panel/19_refunds.png)
+![Возвраты](screenshots/admin_panel/20_refunds.png)
+
+**Семейные подписки** — Семьи владельцев тарифов с местами: участники и их синхронизация с Remnawave.
+
+![Семейные подписки](screenshots/admin_panel/21_family.png)
 
 **Подарки** — Подарочные коды на подписку: создать код, задать срок и число активаций.
 
-![Подарки](screenshots/admin_panel/20_gifts.png)
+![Подарки](screenshots/admin_panel/22_gifts.png)
 
 **Проверка платежей** — Тестовые оплаты в sandbox платёжных систем перед запуском магазина.
 
-![Проверка платежей](screenshots/admin_panel/21_staging.png)
+![Проверка платежей](screenshots/admin_panel/23_staging.png)
 
 </details>
 
@@ -352,31 +360,31 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Акции и рассылки** — Скидочные акции, промокоды, рекламные блоки и рассылки в Telegram.
 
-![Акции и рассылки](screenshots/admin_panel/22_marketing.png)
+![Акции и рассылки](screenshots/admin_panel/24_marketing.png)
 
 **Группы и предложения** — Группы клиентов по условиям и персональные предложения для каждой группы.
 
-![Группы и предложения](screenshots/admin_panel/23_offers.png)
+![Группы и предложения](screenshots/admin_panel/25_offers.png)
 
 **Конкурсы и призы** — Розыгрыши и призы: условия участия, победители и выдача наград.
 
-![Конкурсы и призы](screenshots/admin_panel/24_giveaways.png)
+![Конкурсы и призы](screenshots/admin_panel/26_giveaways.png)
 
 **Опросы** — Вопросы клиентам в боте и кабинете и сводка ответов.
 
-![Опросы](screenshots/admin_panel/25_surveys.png)
+![Опросы](screenshots/admin_panel/27_surveys.png)
 
 **Рефералы и партнёры** — Реферальная программа (уровни и проценты), партнёры со своей ставкой, сверка балансов и заявки на вывод вознаграждения.
 
-![Рефералы и партнёры](screenshots/admin_panel/26_payouts.png)
+![Рефералы и партнёры](screenshots/admin_panel/28_payouts.png)
 
 **Уведомления** — Отправленные клиентам уведомления и состояние push для Android и iOS.
 
-![Уведомления](screenshots/admin_panel/27_notifications.png)
+![Уведомления](screenshots/admin_panel/29_notifications.png)
 
 **Новости и страницы** — Новости, инструкции и правовые страницы для бота и кабинета.
 
-![Новости и страницы](screenshots/admin_panel/28_pages.png)
+![Новости и страницы](screenshots/admin_panel/30_pages.png)
 
 </details>
 
@@ -385,31 +393,31 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Меню бота и Mini App** — Тексты бота, кнопки главного меню, экран Mini App и инструкции по подключению.
 
-![Меню бота и Mini App](screenshots/admin_panel/29_content.png)
+![Меню бота и Mini App](screenshots/admin_panel/31_content.png)
 
 **Дерево кнопок** — Вложенные меню бота: порядок кнопок, подменю и действия по нажатию.
 
-![Дерево кнопок](screenshots/admin_panel/30_menuTree.png)
+![Дерево кнопок](screenshots/admin_panel/32_menuTree.png)
 
 **Конфигурация Mini App** — Тема, акции, серверы, способы пополнения, рефералы, поддержка, документы и оферта Mini App.
 
-![Конфигурация Mini App](screenshots/admin_panel/31_appConfig.png)
+![Конфигурация Mini App](screenshots/admin_panel/33_appConfig.png)
 
 **Баннеры бота** — Картинки над разделами бота и Mini App: стандартные с корги Люси или свои.
 
-![Баннеры бота](screenshots/admin_panel/32_botBanners.png)
+![Баннеры бота](screenshots/admin_panel/34_botBanners.png)
 
 **Личный кабинет** — Вкладки веб-кабинета клиента: порядок, названия и собственные страницы.
 
-![Личный кабинет](screenshots/admin_panel/33_cabinet.png)
+![Личный кабинет](screenshots/admin_panel/35_cabinet.png)
 
 **Android и iOS** — Приложения магазина: версии, файлы для загрузки и ссылки на сторы.
 
-![Android и iOS](screenshots/admin_panel/34_apps.png)
+![Android и iOS](screenshots/admin_panel/36_apps.png)
 
 **Оформление** — Название магазина, логотип, иконка сайта, цвета и тема по умолчанию.
 
-![Оформление](screenshots/admin_panel/35_branding.png)
+![Оформление](screenshots/admin_panel/37_branding.png)
 
 </details>
 
@@ -418,39 +426,39 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Серверы** — Узлы Remnawave: онлайн, нагрузка, трафик и число подключённых клиентов.
 
-![Серверы](screenshots/admin_panel/36_nodes.png)
+![Серверы](screenshots/admin_panel/38_nodes.png)
 
 **Сеть узлов: ASN и репутация** — В чьих сетях стоят узлы и не попали ли их адреса в списки злоупотреблений.
 
-![Сеть узлов: ASN и репутация](screenshots/admin_panel/37_networkIntel.png)
+![Сеть узлов: ASN и репутация](screenshots/admin_panel/39_networkIntel.png)
 
 **Терминал узлов** — Командная оболочка на VPN-сервере через агент: с подтверждением 2FA и записью сессии.
 
-![Терминал узлов](screenshots/admin_panel/38_nodeTerminal.png)
+![Терминал узлов](screenshots/admin_panel/40_nodeTerminal.png)
 
 **Маршрутизация** — Выбор узла для клиента по задержке и нагрузке.
 
-![Маршрутизация](screenshots/admin_panel/39_routing.png)
+![Маршрутизация](screenshots/admin_panel/41_routing.png)
 
 **Планирование мощности** — Прогноз нагрузки: когда узлам не хватит ресурсов и сколько добавить.
 
-![Планирование мощности](screenshots/admin_panel/40_capacity.png)
+![Планирование мощности](screenshots/admin_panel/42_capacity.png)
 
 **Оркестратор** — Автоматическое включение и вывод узлов по правилам нагрузки.
 
-![Оркестратор](screenshots/admin_panel/41_orchestrator.png)
+![Оркестратор](screenshots/admin_panel/43_orchestrator.png)
 
 **Торренты на узлах** — Кто из клиентов качает торренты: счётчики срабатываний Xray без адресов, отметка в антиабузе и уведомление.
 
-![Торренты на узлах](screenshots/admin_panel/42_torrents.png)
+![Торренты на узлах](screenshots/admin_panel/44_torrents.png)
 
 **Антиабуз и агенты** — Агенты на узлах, блокировка устройств-нарушителей и вебхуки событий.
 
-![Антиабуз и агенты](screenshots/admin_panel/43_platform.png)
+![Антиабуз и агенты](screenshots/admin_panel/45_platform.png)
 
 **Мониторинг** — Проверки доступности, версии компонентов и рабочие процессы.
 
-![Мониторинг](screenshots/admin_panel/44_monitoring.png)
+![Мониторинг](screenshots/admin_panel/46_monitoring.png)
 
 </details>
 
@@ -459,51 +467,51 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Настройки без перезапуска** — Параметры магазина, платёжных систем и интеграций, которые применяются сразу.
 
-![Настройки без перезапуска](screenshots/admin_panel/45_runtimeSettings.png)
+![Настройки без перезапуска](screenshots/admin_panel/47_runtimeSettings.png)
 
 **Функции и модули** — Включение и выключение отдельных возможностей магазина.
 
-![Функции и модули](screenshots/admin_panel/46_features.png)
+![Функции и модули](screenshots/admin_panel/48_features.png)
 
 **Плагины** — Установка подписанных плагинов, их права и журнал работы.
 
-![Плагины](screenshots/admin_panel/47_plugins.png)
+![Плагины](screenshots/admin_panel/49_plugins.png)
 
 **Автоматизация** — Правила «событие → действие» и автоматические кампании.
 
-![Автоматизация](screenshots/admin_panel/48_automation.png)
+![Автоматизация](screenshots/admin_panel/50_automation.png)
 
 **Фоновые процессы** — Worker и планировщик: работают ли, когда последний раз отвечали.
 
-![Фоновые процессы](screenshots/admin_panel/49_workers.png)
+![Фоновые процессы](screenshots/admin_panel/51_workers.png)
 
 **Очередь задач** — Фоновые задачи: ожидают, выполняются, завершились ошибкой; повтор вручную.
 
-![Очередь задач](screenshots/admin_panel/50_jobs.png)
+![Очередь задач](screenshots/admin_panel/52_jobs.png)
 
 **Почтовый домен: SPF, DKIM, DMARC** — Доходят ли письма магазина: DNS-записи домена и отчёты DMARC о том, кто отправляет почту от его имени.
 
-![Почтовый домен: SPF, DKIM, DMARC](screenshots/admin_panel/51_mailDomain.png)
+![Почтовый домен: SPF, DKIM, DMARC](screenshots/admin_panel/53_mailDomain.png)
 
 **Диагностика** — Проверка конфигурации, подключений и готовности к работе с подсказками по исправлению.
 
-![Диагностика](screenshots/admin_panel/52_operations.png)
+![Диагностика](screenshots/admin_panel/54_operations.png)
 
 **Обновления** — Установленная версия, доступные выпуски и история обновлений.
 
-![Обновления](screenshots/admin_panel/53_releases.png)
+![Обновления](screenshots/admin_panel/55_releases.png)
 
 **Развёртывания** — Постепенный выпуск новой версии: доля трафика и ошибки.
 
-![Развёртывания](screenshots/admin_panel/54_deployments.png)
+![Развёртывания](screenshots/admin_panel/56_deployments.png)
 
 **Корпоративный контур** — Проверки, кампании и правила автоматизации для крупных установок.
 
-![Корпоративный контур](screenshots/admin_panel/55_enterprise.png)
+![Корпоративный контур](screenshots/admin_panel/57_enterprise.png)
 
 **Рекомендации** — Подсказки по росту продаж и снижению нагрузки на основе данных магазина.
 
-![Рекомендации](screenshots/admin_panel/56_intelligence.png)
+![Рекомендации](screenshots/admin_panel/58_intelligence.png)
 
 </details>
 
@@ -512,35 +520,35 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Защита и 2FA** — Двухфакторный вход, смена пароля и правила доступа к панели.
 
-![Защита и 2FA](screenshots/admin_panel/57_security.png)
+![Защита и 2FA](screenshots/admin_panel/59_security.png)
 
 **Ключи доступа** — Вход в панель по ключу доступа (passkey) вместо пароля.
 
-![Ключи доступа](screenshots/admin_panel/58_passkeys.png)
+![Ключи доступа](screenshots/admin_panel/60_passkeys.png)
 
 **Роли и администраторы** — Кто имеет доступ к панели и с какими правами.
 
-![Роли и администраторы](screenshots/admin_panel/59_admins.png)
+![Роли и администраторы](screenshots/admin_panel/61_admins.png)
 
 **Сессии** — Активные входы в панель; завершить чужую или все сессии.
 
-![Сессии](screenshots/admin_panel/60_sessions.png)
+![Сессии](screenshots/admin_panel/62_sessions.png)
 
 **Антифрод** — Подозрительные оплаты и аккаунты: проверить и принять решение.
 
-![Антифрод](screenshots/admin_panel/61_fraud.png)
+![Антифрод](screenshots/admin_panel/63_fraud.png)
 
 **Журнал действий** — Кто из администраторов, когда и что изменил.
 
-![Журнал действий](screenshots/admin_panel/62_audit.png)
+![Журнал действий](screenshots/admin_panel/64_audit.png)
 
 **Резервные копии** — Расписание и хранение копий базы, ручной запуск и проверка.
 
-![Резервные копии](screenshots/admin_panel/63_backups.png)
+![Резервные копии](screenshots/admin_panel/65_backups.png)
 
 **Восстановление** — Восстановление из копии и проверка готовности к аварии.
 
-![Восстановление](screenshots/admin_panel/64_recovery.png)
+![Восстановление](screenshots/admin_panel/66_recovery.png)
 
 </details>
 
@@ -549,7 +557,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Быстрый поиск** — Ctrl+K (⌘K) из любого раздела: поиск по названию, описанию и синонимам, переход клавишами.
 
-![Быстрый поиск](screenshots/admin_panel/65_command_search.png)
+![Быстрый поиск](screenshots/admin_panel/67_command_search.png)
 
 </details>
 

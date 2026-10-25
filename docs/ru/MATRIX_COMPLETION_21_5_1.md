@@ -134,7 +134,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 179 полей классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
+| Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 180 полей классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
 
 Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
 
