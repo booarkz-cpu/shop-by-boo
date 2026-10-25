@@ -35,14 +35,15 @@ services:
     cpus: 0.50
 
   db:
-    image: ${POSTGRES_IMAGE:-postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea}
+    image: ${POSTGRES_IMAGE:-postgres:18.6-alpine@sha256:898c60cb390d1085bc97bdd6a1ae968757421df394b071848b52b1c09c89d6a5}
     restart: unless-stopped
     environment:
       POSTGRES_USER: vpnshop
       POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
       POSTGRES_DB: vpnshop
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # PostgreSQL 18 images keep data in /var/lib/postgresql/18/docker; the volume is the parent.
+      - postgres18_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vpnshop -d vpnshop"]
       interval: 5s
@@ -305,14 +306,14 @@ services:
       start_period: 10s
 
   support_db:
-    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    image: postgres:18.6-alpine@sha256:898c60cb390d1085bc97bdd6a1ae968757421df394b071848b52b1c09c89d6a5
     restart: unless-stopped
     environment:
       POSTGRES_DB: support
       POSTGRES_USER: support
       POSTGRES_PASSWORD: ${SUPPORT_PRO_DB_PASSWORD:?set SUPPORT_PRO_DB_PASSWORD in .env}
     volumes:
-      - support_postgres_data:/var/lib/postgresql/data
+      - support_postgres18_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U support -d support"]
       interval: 5s
@@ -481,9 +482,13 @@ services:
 volumes:
   redis_data:
   backup_data:
+  postgres18_data:
+  # PostgreSQL 16 data of releases before v28.23.0: scripts/upgrade-postgres.sh copies it
+  # into postgres18_data once and leaves it untouched for rollback.
   postgres_data:
   media_data:
   app_packages:
+  support_postgres18_data:
   support_postgres_data:
   support_redis_data:
   support_uploads:

@@ -156,6 +156,8 @@ class Payment(Base):
     reseller_percent_snapshot: Mapped[Decimal|None] = mapped_column(Numeric(5,2))
     bonus_days: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     checkout_url: Mapped[str|None] = mapped_column(Text)
+    # Telegram Stars invoices: the exact number of Stars the customer pays (currency XTR).
+    stars_amount: Mapped[int|None] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     paid_at: Mapped[datetime|None] = mapped_column(DateTime)
 
@@ -1725,3 +1727,15 @@ class AutomationExecution(Base):
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     anchor: Mapped[str] = mapped_column(String(128), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class UserConsent(Base):
+    """A customer accepted a version of a document (public offer) in the Mini App or cabinet."""
+    __tablename__ = "user_consents"
+    __table_args__ = (UniqueConstraint("user_id", "document", "version", name="uq_user_consents_user_document_version"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    document: Mapped[str] = mapped_column(String(32), nullable=False)
+    version: Mapped[str] = mapped_column(String(64), nullable=False)
+    source: Mapped[str] = mapped_column(String(16), default="miniapp", nullable=False)
+    accepted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

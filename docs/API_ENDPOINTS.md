@@ -1,6 +1,6 @@
-# Каталог API — v28.22.0 / API v21.5.1
+# Каталог API — v28.23.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0074_automation_engine`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0075_app_config`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -21,6 +21,9 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/advertisements/{item_id}` | Delete Ad |
 | `PUT` | `/api/admin/advertisements/{item_id}` | Update Ad |
 | `GET` | `/api/admin/analytics` | Admin Analytics |
+| `DELETE` | `/api/admin/app-config` | Admin App Config Reset |
+| `GET` | `/api/admin/app-config` | Admin App Config |
+| `PUT` | `/api/admin/app-config` | Admin App Config Save |
 | `GET` | `/api/admin/apps` | Admin Apps |
 | `PUT` | `/api/admin/apps` | Save Apps |
 | `DELETE` | `/api/admin/apps/logo` | Delete Client Logo |
@@ -366,6 +369,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/agent/terminal/{sid}/input` | Agent Terminal Input |
 | `POST` | `/api/agent/terminal/{sid}/output` | Agent Terminal Output |
 | `POST` | `/api/agent/torrent` | Agent Torrent |
+| `GET` | `/api/app-config` | App Config |
 | `POST` | `/api/auth/email/verification/confirm` | Confirm Verification |
 | `POST` | `/api/auth/exchange` | Auth Exchange |
 | `POST` | `/api/auth/login` | Auth Login |
@@ -413,6 +417,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/billing-center` | Billing Center |
 | `GET` | `/api/me/connection-info` | Connection Info |
 | `GET` | `/api/me/connection-qr` | Connection Qr |
+| `GET` | `/api/me/consent` | My Consent |
+| `POST` | `/api/me/consent` | Accept Consent |
 | `GET` | `/api/me/dashboard` | Customer Dashboard |
 | `GET` | `/api/me/devices` | My Devices |
 | `POST` | `/api/me/devices` | Register Device |
@@ -495,6 +501,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/v16/tunnel-profile` | Tunnel Profile |
 | `GET` | `/api/me/wallet/history` | Wallet History |
 | `POST` | `/api/me/wallet/spend` | Wallet Spend |
+| `POST` | `/api/me/wallet/stars-invoice` | Stars Invoice |
 | `POST` | `/api/me/wallet/topup` | Wallet Topup |
 | `GET` | `/api/me/widget` | Widget Summary |
 | `POST` | `/api/payments/create` | Create Payment |

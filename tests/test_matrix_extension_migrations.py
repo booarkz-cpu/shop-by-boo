@@ -6,7 +6,7 @@ import pytest
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
-from app.models import DmarcReport, TerminalSession, HistoryImportJob, CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange
+from app.models import DmarcReport, TerminalSession, HistoryImportJob, CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange, UserConsent
 from test_subscription_commerce import database
 
 
@@ -21,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0075_app_config',
         '0074_automation_engine',
         '0073_e2e_v2',
         '0072_traffic_analysis',
@@ -42,9 +43,9 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
-    # 0074 (automation executions; downgrade restores suspended lifecycles), 0073 (staging run evidence, re-creatable by a new run), 0072/0071 (30-day counters), 0068 (cache)
+    # 0075 is guarded by stored offer consents. 0074 (automation executions; downgrade restores suspended lifecycles), 0073 (staging run evidence, re-creatable by a new run), 0072/0071 (30-day counters), 0068 (cache)
     # and 0066 (re-registrable push tokens) are intentionally unguarded.
-    guarded_names = [roundtrip_names[4], roundtrip_names[5], roundtrip_names[9], roundtrip_names[10], *roundtrip_names[14:]]
+    guarded_names = [roundtrip_names[0], roundtrip_names[5], roundtrip_names[6], roundtrip_names[10], roundtrip_names[11], *roundtrip_names[15:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):
@@ -57,6 +58,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     database.add(partner);await database.flush()
     database.add(PartnerWithdrawal(reseller_id=partner.id,amount=1,currency='RUB',destination='Test',idempotency_key='one'))
     database.add(CustomerPasskey(user_id=1,credential_id='credential',public_key='key',name='Test'))
+    database.add(UserConsent(user_id=1,document='offer',version='1'))
     database.add(HistoryImportJob(id='retain-history-import',namespace='old-bot',adapter='generic-sqlite-v1',source_sha256='a'*64,actor='test',fingerprint='f'*64,payload_encrypted='',control={},status='cancelled',expires_at=datetime.utcnow()))
     database.add(SupportTopologyOperation(key='key',fingerprint='fingerprint',result={}))
     database.add(CustomerBatchOperation(key='key',fingerprint='fingerprint',result={}))

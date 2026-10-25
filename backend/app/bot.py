@@ -5,7 +5,7 @@ from datetime import datetime
 from html import escape
 from aiogram import Bot,Dispatcher,Router
 from aiogram.filters import CommandStart, Command
-from aiogram.types import CallbackQuery,Message,InlineKeyboardMarkup,InlineKeyboardButton,WebAppInfo
+from aiogram.types import CallbackQuery,Message,InlineKeyboardMarkup,InlineKeyboardButton,PreCheckoutQuery,WebAppInfo
 from sqlalchemy import select, text as sql_text
 from sqlalchemy.ext.asyncio import AsyncSession
 from .config import settings
@@ -358,6 +358,34 @@ async def promo(message:Message):
     promo_code=code[1].strip().upper()
     await send_section(message,"promo",_tr(lang,"promo_ready",code=escape(promo_code)),InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=settings.mini_app_url+"?promo="+quote(promo_code)))] ]))
 
+@router.pre_checkout_query()
+async def stars_pre_checkout(query: PreCheckoutQuery):
+    """Telegram Stars: accept only a pending order with the same amount (10 s deadline)."""
+    from .telegram_stars import check_pre_checkout
+    try:
+        async with AsyncSession(engine, expire_on_commit=False) as db:
+            error = await check_pre_checkout(db, order_id=query.invoice_payload, currency=query.currency, total=query.total_amount, telegram_id=query.from_user.id)
+    except Exception:
+        logger.exception("Stars pre-checkout check failed")
+        error = "Не удалось проверить счёт. Попробуйте ещё раз."
+    await query.answer(ok=error is None, error_message=error)
+
+
+@router.message(lambda message: bool(getattr(message, "successful_payment", None)))
+async def stars_paid(message: Message):
+    from .telegram_stars import record_successful_payment
+    paid = message.successful_payment
+    try:
+        async with AsyncSession(engine, expire_on_commit=False) as db:
+            await record_successful_payment(db, order_id=paid.invoice_payload, currency=paid.currency, total=paid.total_amount,
+                                            telegram_id=message.from_user.id, charge_id=paid.telegram_payment_charge_id)
+        await message.answer("⭐ Оплата получена, баланс пополнен.")
+    except Exception:
+        # The charge id is in the update log; reconciliation by an operator uses it.
+        logger.exception("Stars payment %s was not recorded", paid.telegram_payment_charge_id)
+        await message.answer("Оплата получена. Зачисление на баланс задерживается — поддержка уже видит платёж.")
+
+
 @router.message(Command("ops"))
 async def ops(message: Message):
     lang = _lang(message)
@@ -403,7 +431,8 @@ async def main():
 
     asyncio.create_task(broadcast_worker(bot))
     try:
-        await dp.start_polling(bot)
+        # Explicit update types: Telegram Stars needs pre_checkout_query and the payment messages.
+        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
         runtime_task.cancel()
         await asyncio.gather(runtime_task, return_exceptions=True)

@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0074_automation_engine",
+  "migration_head": "0075_app_config",
   "guides": [
     ".env.example",
     "ADMIN_GUIDE_RU.md",
@@ -105,6 +105,7 @@
     "docs/ru/RELEASE_V28_20_0.md",
     "docs/ru/RELEASE_V28_21_0.md",
     "docs/ru/RELEASE_V28_22_0.md",
+    "docs/ru/RELEASE_V28_23_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md",
@@ -174,5 +175,5 @@
     "docs/ru/modules/29-fraud.md",
     "docs/ru/modules/30-backups-recovery.md"
   ],
-  "distribution_tag": "v28.22.0"
+  "distribution_tag": "v28.23.0"
 }

@@ -60,6 +60,14 @@ SECTIONS: dict[str, tuple[str, str]] = {
     "support": ("Поддержка", "/support"),
     "devices": ("Устройства", "/devices"),
     "surveys": ("Опросы", "/surveys"),
+    # Mini App sections (the Mini App also uses buy, subscription, payments, gifts, referral,
+    # support, devices, surveys and account from the list above).
+    "home": ("Главная", "Mini App: главная"),
+    "topup": ("Пополнение баланса", "Mini App: кошелёк"),
+    "trial": ("Пробный период", "Mini App: пробный период"),
+    "connection": ("Подключение", "Mini App: подключение"),
+    "servers": ("Серверы", "Mini App: серверы"),
+    "info": ("Информация", "Mini App: информация и оферта"),
 }
 MENU_KEY = re.compile(r"^menu-([1-9][0-9]{0,9})$")
 
@@ -97,7 +105,7 @@ def resolve(key: str, state: dict[str, str]) -> tuple[str, pathlib.Path | None, 
         return "hidden", None, ""
     url = state.get(PREFIX + key, "")
     if not url and key == "start":
-        url = state.get("bot_start_image", "")  # image uploaded before v28.22.0
+        url = state.get("bot_start_image", "")  # image uploaded before v28.23.0
     if url.startswith("/media/") or url.startswith("https://"):
         return "custom", media_path(url), url
     if MENU_KEY.match(key):

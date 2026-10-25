@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "brand": {
+    "name": "VPN Shop by Corgi Lusi",
+    "bot_username": "corgi_lusi_bot",
+    "currency": "RUB"
+  },
+  "theme": {
+    "vars": {
+      "--cfg-accent": "#39ff88",
+      "--cfg-accent-2": "#22d3ee",
+      "--cfg-bg": "#070b12",
+      "--cfg-surface": "#0e1522",
+      "--cfg-text": "#e8f1ff",
+      "--cfg-muted": "#8a99b3",
+      "--cfg-danger": "#ff5c7a",
+      "--cfg-radius": "16px"
+    }
+  },
+  "texts": {
+    "greeting": "Привет, {name}!",
+    "greeting_anonymous": "Добро пожаловать!",
+    "home_subtitle": "Ваш VPN под защитой корги Люси",
+    "promo_title": "Акции",
+    "promo_ends_in": "До конца акции",
+    "subscription_title": "Подписка",
+    "servers_title": "Серверы",
+    "servers_empty": "Список серверов пока недоступен",
+    "wallet_title": "Пополнение баланса",
+    "wallet_balance": "Баланс",
+    "wallet_amount": "Сумма пополнения",
+    "wallet_method": "Способ оплаты",
+    "wallet_pay": "Пополнить",
+    "wallet_code": "Промокод или подарочная карта",
+    "wallet_code_apply": "Активировать",
+    "referral_title": "Пригласи друзей",
+    "referral_link": "Ваша ссылка-приглашение",
+    "referral_copy": "Скопировать ссылку",
+    "support_title": "Поддержка",
+    "support_subtitle": "Выберите удобный способ связи",
+    "info_title": "Информация",
+    "consent_title": "Условия использования",
+    "consent_accept": "Принимаю",
+    "offline": "Нет связи с сервером — показаны сохранённые данные",
+    "retry": "Повторить",
+    "error": "Не удалось загрузить приложение"
+  },
+  "navigation": [
+    {
+      "slug": "overview",
+      "title": "Обзор",
+      "kind": "overview",
+      "icon": "home",
+      "banner": "/assets/banners/home.jpg",
+      "body": ""
+    },
+    {
+      "slug": "plans",
+      "title": "Тарифы",
+      "kind": "plans",
+      "icon": "zap",
+      "banner": "/assets/banners/buy.jpg",
+      "body": ""
+    },
+    {
+      "slug": "trial",
+      "title": "Пробный период",
+      "kind": "trial",
+      "icon": "sparkles",
+      "banner": "/assets/banners/trial.jpg",
+      "body": ""
+    },
+    {
+      "slug": "connection",
+      "title": "Подключение",
+      "kind": "connection",
+      "icon": "plug",
+      "banner": "/assets/banners/connection.jpg",
+      "body": ""
+    },
+    {
+      "slug": "surveys",
+      "title": "Опросы",
+      "kind": "surveys",
+      "icon": "list",
+      "banner": "/assets/banners/surveys.jpg",
+      "body": ""
+    },
+    {
+      "slug": "giveaways",
+      "title": "Конкурсы и призы",
+      "kind": "giveaways",
+      "icon": "trophy",
+      "banner": "/assets/banners/gifts.jpg",
+      "body": ""
+    },
+    {
+      "slug": "support",
+      "title": "Поддержка",
+      "kind": "support",
+      "icon": "help",
+      "banner": "/assets/banners/support.jpg",
+      "body": ""
+    },
+    {
+      "slug": "info",
+      "title": "Информация",
+      "kind": "info",
+      "icon": "info",
+      "banner": "/assets/banners/info.jpg",
+      "body": ""
+    }
+  ],
+  "banners": {
+    "overview": "/assets/banners/home.jpg",
+    "plans": "/assets/banners/buy.jpg",
+    "trial": "/assets/banners/trial.jpg",
+    "connection": "/assets/banners/connection.jpg",
+    "servers": "/assets/banners/servers.jpg",
+    "wallet": "/assets/banners/topup.jpg",
+    "subscription": "/assets/banners/subscription.jpg",
+    "payments": "/assets/banners/payments.jpg",
+    "gifts": "/assets/banners/gifts.jpg",
+    "referral": "/assets/banners/referral.jpg",
+    "support": "/assets/banners/support.jpg",
+    "devices": "/assets/banners/devices.jpg",
+    "surveys": "/assets/banners/surveys.jpg",
+    "giveaways": "/assets/banners/gifts.jpg",
+    "security": "/assets/banners/account.jpg",
+    "notifications": "/assets/banners/menu.jpg",
+    "partner": "/assets/banners/referral.jpg",
+    "info": "/assets/banners/info.jpg"
+  },
+  "banner_keys": {
+    "overview": "home",
+    "plans": "buy",
+    "trial": "trial",
+    "connection": "connection",
+    "servers": "servers",
+    "wallet": "topup",
+    "subscription": "subscription",
+    "payments": "payments",
+    "gifts": "gifts",
+    "referral": "referral",
+    "support": "support",
+    "devices": "devices",
+    "surveys": "surveys",
+    "giveaways": "gifts",
+    "security": "account",
+    "notifications": "menu",
+    "partner": "referral",
+    "info": "info"
+  },
+  "promos": [
+    {
+      "id": "mock-welcome",
+      "title": "Первый месяц со скидкой",
+      "text": "Оформите подписку сегодня — Люси охраняет ваше соединение.",
+      "discount": "-30%",
+      "ends_at": null,
+      "button_text": "Выбрать тариф",
+      "link": "#plans"
+    }
+  ],
+  "plans": [
+    {
+      "id": 1,
+      "name": "1 месяц",
+      "price": 250.0,
+      "final_price": 250.0,
+      "discount": 0.0,
+      "discount_percent": 0.0,
+      "promotion": null,
+      "duration_days": 30,
+      "traffic_limit_gb": 0,
+      "device_limit": 3
+    },
+    {
+      "id": 2,
+      "name": "12 месяцев",
+      "price": 2100.0,
+      "final_price": 2100.0,
+      "discount": 0.0,
+      "discount_percent": 0.0,
+      "promotion": null,
+      "duration_days": 365,
+      "traffic_limit_gb": 0,
+      "device_limit": 10
+    }
+  ],
+  "servers": {
+    "categories": [
+      {
+        "id": "europe",
+        "title": "Европа",
+        "icon": "globe",
+        "countries": [
+          "DE",
+          "NL",
+          "FI",
+          "FR",
+          "PL"
+        ],
+        "match": []
+      },
+      {
+        "id": "russia",
+        "title": "Россия",
+        "icon": "flag",
+        "countries": [
+          "RU"
+        ],
+        "match": []
+      },
+      {
+        "id": "usa",
+        "title": "США",
+        "icon": "flag",
+        "countries": [
+          "US"
+        ],
+        "match": []
+      }
+    ],
+    "show_load": true
+  },
+  "wallet": {
+    "currency": "RUB",
+    "amounts": [
+      100,
+      250,
+      500,
+      1000,
+      2000
+    ],
+    "min": 50,
+    "max": 100000,
+    "methods": [
+      {
+        "id": "yookassa",
+        "title": "Банковская карта",
+        "icon": "card",
+        "provider": "yookassa",
+        "yookassa_method": "",
+        "available": true
+      },
+      {
+        "id": "platega",
+        "title": "СБП",
+        "icon": "sbp",
+        "provider": "platega",
+        "yookassa_method": "",
+        "available": true
+      },
+      {
+        "id": "stars",
+        "title": "Telegram Stars",
+        "icon": "star",
+        "provider": "telegram_stars",
+        "yookassa_method": "",
+        "available": false
+      }
+    ],
+    "stars": {
+      "enabled": false,
+      "rate": "1.50",
+      "min_stars": 50
+    }
+  },
+  "referral": {
+    "conditions": "Приглашайте друзей по своей ссылке и получайте процент с каждой их оплаты. Начисления можно потратить на подписку или вывести.",
+    "levels": [
+      "5.0"
+    ],
+    "withdraw_enabled": true,
+    "link_template": "https://t.me/corgi_lusi_bot?start=ref_{code}"
+  },
+  "support": {
+    "buttons": [
+      {
+        "title": "Написать в Telegram",
+        "icon": "send",
+        "link": "https://t.me/corgi_lusi_bot?start=support"
+      }
+    ],
+    "ticket_form": true
+  },
+  "info": {
+    "pages": [
+      {
+        "slug": "faq",
+        "title": "Частые вопросы",
+        "kind": "faq"
+      },
+      {
+        "slug": "rules",
+        "title": "Правила",
+        "kind": "rules"
+      },
+      {
+        "slug": "privacy",
+        "title": "Политика конфиденциальности",
+        "kind": "privacy"
+      },
+      {
+        "slug": "offer",
+        "title": "Публичная оферта",
+        "kind": "offer"
+      }
+    ]
+  },
+  "consent": {
+    "enabled": false,
+    "required_for_payment": true,
+    "version": "1",
+    "text": "Я прочитал(а) и принимаю условия публичной оферты",
+    "page_slug": "offer"
+  },
+  "trial_days": 3,
+  "version": "mock",
+  "viewer": null,
+  "offline": true
+}

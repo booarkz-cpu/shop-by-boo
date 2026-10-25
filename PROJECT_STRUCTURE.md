@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.22.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.23.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -71,7 +71,12 @@ shop-by-boo/
 | `backend/app/push.py` | Регистрация push-токенов, доставка FCM/APNs, отзыв при выходе и потере токена |
 | `backend/alembic/versions/0067_plugin_runtime.py` | Издатели, пакеты, установки и доставки плагинов |
 | `backend/alembic/versions/0072_traffic_analysis.py` | Вид срабатывания в счётчиках торрентов |
-| `backend/alembic/versions/0074_automation_engine.py` | Проверки staging E2E v2: запуски, случаи по платёжным системам, зашифрованные webhook для повтора |
+| `backend/alembic/versions/0073_e2e_v2.py` | Проверки staging E2E v2: запуски, случаи по платёжным системам, зашифрованные webhook для повтора |
+| `backend/alembic/versions/0074_automation_engine.py` | Однократные выполнения правил автоматизации, обратимое ограничение подписок |
+| `backend/alembic/versions/0075_app_config.py` | Согласия с офертой и сумма платежей Telegram Stars |
+| `backend/app/app_config.py` | Конфигурация Mini App `GET /api/app-config`, согласие с офертой, редактор в админке |
+| `backend/app/telegram_stars.py` | Пополнение кошелька Telegram Stars: счёт, проверка, зачисление, возврат |
+| `scripts/upgrade-postgres.sh` | Перенос данных PostgreSQL 16 в PostgreSQL 18 при обновлении |
 | `backend/app/network_intel.py` | ASN, владелец сети и репутация адресов узлов с кэшем свежести |
 | `backend/app/plugins.py` | Среда плагинов: подписанные пакеты, подтверждение прав, API плагина, подписанные события |
 | `backend/app/widget.py` | Минимальная сводка подписки для виджета Android с кэшем трафика |

@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.22.0. Runtime/API `21.5.1`, head магазина `0074_automation_engine`, Support Pro `0008` / 3.8.
+> Актуальная инструкция дистрибутива v28.23.0. Runtime/API `21.5.1`, head магазина `0075_app_config`, Support Pro `0008` / 3.8.
 
 # Email-канал поддержки (Support Pro 3.7)
 

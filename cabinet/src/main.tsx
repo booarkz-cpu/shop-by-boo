@@ -19,6 +19,8 @@ import {AccountRecovery, AccountSecurity, accountLink} from "./account-recovery"
 import {AccountMerge} from "./account-merge";
 import type {AccountLink} from "./account-recovery";
 import {DomLocalizer, LangProvider, detectLang, t, useLang} from "./i18n";
+import {AppConfigProvider, useAppConfig} from "./app-config";
+import {ConfigIcon, ConfigNotice, ConfigSkeleton, ConsentGate, Greeting, InfoSection, PromoCards, ReferralTerms, SectionBanner, SectionBoundary, ServerCatalog, SupportButtons, WalletTopup} from "./miniapp-sections";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "";
 // The same bundle serves the web cabinet and the Telegram Mini App build
@@ -29,12 +31,12 @@ const NAV_ICON: Record<string, React.ReactNode> = {
   servers: <Server aria-hidden="true" />, devices: <Smartphone aria-hidden="true" />, wallet: <Wallet aria-hidden="true" />, subscription: <LayoutGrid aria-hidden="true" />,
   payments: <Receipt aria-hidden="true" />, gifts: <Gift aria-hidden="true" />, referral: <Users aria-hidden="true" />, notifications: <Bell aria-hidden="true" />,
   security: <KeyRound aria-hidden="true" />, surveys: <ListChecks aria-hidden="true" />, giveaways: <Trophy aria-hidden="true" />, support: <CircleHelp aria-hidden="true" />,
-  partner: <Handshake aria-hidden="true" />, custom: <FileText aria-hidden="true" />,
+  partner: <Handshake aria-hidden="true" />, custom: <FileText aria-hidden="true" />, info: <CircleHelp aria-hidden="true" />,
 };
 const BOTTOM_KINDS = ["overview", "plans", "connection", "wallet"];
 
-type MenuKind = "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "custom";
-type MenuItem = {slug: string; title: string; kind: MenuKind; body?: string};
+type MenuKind = "info" | "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "custom";
+type MenuItem = {slug: string; title: string; kind: MenuKind; body?: string; icon?: string};
 
 const FALLBACK_MENU: MenuItem[] = [
   {slug:"partner", title:"Партнёрский кабинет", kind:"partner"},
@@ -53,6 +55,7 @@ const FALLBACK_MENU: MenuItem[] = [
   {slug: "surveys", title: "Опросы", kind: "surveys"},
   {slug: "giveaways", title: "Конкурсы и призы", kind: "giveaways"},
   {slug: "support", title: "Поддержка", kind: "support"},
+  {slug: "info", title: "Информация", kind: "info"},
 ];
 
 const PLATFORM_ORDER = ["android", "ios", "tv", "windows", "macos", "linux"] as const;
@@ -140,39 +143,6 @@ function constructorTotal(row: any, selected: Record<string, number>) {
   return Math.round(sum * 100) / 100;
 }
 
-function serverLabel(status?: string) {
-  if (status === "online") return "Онлайн";
-  if (status === "offline") return "Офлайн";
-  if (status === "disabled") return "Отключён";
-  return "Неизвестно";
-}
-
-function ServerList({servers}: {servers: any}) {
-  const nodes = servers?.nodes || [];
-  return (
-    <div className="plan-list server-list">
-      <p className="section-sub">
-        {servers?.ok
-          ? `Онлайн ${servers.online ?? 0} из ${servers.total ?? 0}`
-          : servers?.error || "Corgi VPN недоступен"}
-      </p>
-      {nodes.map((node: any, index: number) => (
-        <article className="plan-item server-item" key={`${node.name}-${index}`}>
-          <div>
-            <h3>{node.name}</h3>
-            <p className="section-sub" style={{margin: 0}}>
-              {node.country || "—"}
-              {typeof node.users_online === "number" ? ` · ${node.users_online}` : ""}
-            </p>
-          </div>
-          <StatusBadge tone={node.status === "online" ? "ok" : node.status === "offline" ? "danger" : "idle"}>{serverLabel(node.status)}</StatusBadge>
-        </article>
-      ))}
-      {!nodes.length && <p className="section-sub">Нет узлов</p>}
-    </div>
-  );
-}
-
 function withServers(items: MenuItem[]) {
   const seenKinds = new Set<string>(), seenSlugs = new Set<string>();
   const result = items.filter(item => {
@@ -222,6 +192,8 @@ function AppsNotice({apps, lang}: {apps: any[]; lang: string}) {
 
 function App() {
   const {lang, setLang} = useLang();
+  const {config, status: configStatus} = useAppConfig();
+  const [needConsent, setNeedConsent] = useState(false);
   const [booting, setBooting] = useState(true);
   const [authed, setAuthed] = useState(false);
   const [accountFlow,setAccountFlow]=useState<AccountLink|null>(accountLink);
@@ -323,6 +295,14 @@ function App() {
       setShopApps([]);
     }
   }
+
+  useEffect(() => {
+    // Navigation comes from the app config (cabinet menu + info); system pages missing there are added by withServers.
+    if (config.version === "mock" || !Array.isArray(config.navigation) || !config.navigation.length) return;
+    const items = config.navigation.filter((x) => x && x.slug && x.title).map((x) => ({slug: String(x.slug), title: String(x.title), kind: (x.kind || "custom") as MenuKind, body: x.body || "", icon: x.icon}));
+    const next = withServers(items.some((m) => m.slug === "devices") ? items : [...items, {slug: "devices", title: "Устройства", kind: "devices" as MenuKind, body: ""}]);
+    setMenu(next);
+  }, [config.version]);
 
   async function loadMenu() {
     try {
@@ -518,6 +498,7 @@ function App() {
       }
       delete purchaseKeys.current[fingerprint];
     } catch (err: any) {
+      if (err?.detail?.code === "consent_required") setNeedConsent(true);
       flash(err.message || t("Ошибка"), true);
     } finally {
       purchaseLocked.current=false;
@@ -595,7 +576,7 @@ function App() {
     setConnection(undefined);
   }
 
-  const brand = cfg.app_name || cfg.bot_name || "VPN Shop by Corgi";
+  const brand = config.brand?.name || cfg.app_name || cfg.bot_name || "VPN Shop by Corgi";
   const currency = cfg.currency || "₽";
   const sub = dash?.subscription;
   const subUrl = connection?.subscription_url || sub?.subscription_url || "";
@@ -618,6 +599,8 @@ function App() {
   const homeSlug = (menu.find((m) => m.kind === "overview") || menu[0])?.slug || "overview";
   const slugOf = (kind: string) => menu.find((m) => m.kind === kind)?.slug || kind;
   const goKind = (kind: string) => go(slugOf(kind));
+  // Config links use "#slug", "#kind" or "#page/<slug>".
+  const goLink = (target: string) => (target.startsWith("page/") || menu.some((m) => m.slug === target) ? go(target) : goKind(target));
   const back = () => {
     const previous = navStack.current.pop();
     setTab(previous && menu.some((m) => m.slug === previous) ? previous : homeSlug);
@@ -637,7 +620,8 @@ function App() {
 
   if(tab==="pages"||tab.startsWith("page/"))return <DomLocalizer><PublicPages request={req} route={tab} locale={lang}/></DomLocalizer>;
 
-  if (booting) {
+  if (booting || (configStatus === "loading" && config.version === "mock")) {
+    if (MINI_APP) return <DomLocalizer><ConfigSkeleton /></DomLocalizer>;
     return (
       <DomLocalizer>
         <div className="boot" role="status" aria-label="Загрузка…">
@@ -805,7 +789,7 @@ function App() {
                     className={`side-nav-item ${tab === item.slug ? "active" : ""}`}
                     onClick={() => go(item.slug)}
                   >
-                    <span className="side-nav-icon" aria-hidden>{NAV_ICON[item.kind] || NAV_ICON.custom}</span>
+                    <span className="side-nav-icon" aria-hidden>{item.icon ? <ConfigIcon name={item.icon} /> : NAV_ICON[item.kind] || NAV_ICON.custom}</span>
                     <span>{item.title}</span>
                   </button>
                 ))}
@@ -818,16 +802,22 @@ function App() {
             </aside>
 
             <main className="user-main">
+              <ConfigNotice />
               <section className="panel" key={tab}>
+                <SectionBoundary resetKey={tab}>
+                {activeItem && !["custom", "partner"].includes(activeItem.kind) && <SectionBanner kind={activeItem.kind} title={activeItem.title} />}
                 {activeItem?.kind === "overview" && (
                   <>
+                    <Greeting fallbackName={dash?.user?.username || ""} />
+                    <PromoCards go={goLink} />
                     <Overview sub={sub} user={dash?.user} traffic={traffic} subUrl={subUrl} currency={currency} api={API} copied={copied} onCopy={copyLink} go={goKind} formatDate={formatDate} />
-                    <h3 className="section-title section-title-sm">Серверы</h3>
-                    <ServerList servers={servers} />
+                    <h3 className="section-title section-title-sm">{config.texts?.servers_title || "Серверы"}</h3>
+                    <ServerCatalog servers={servers} />
                     <AppsNotice apps={shopApps} lang={lang} />
                   </>
                 )}
 
+                {activeItem?.kind === "plans" && <ConsentGate request={req} force={needConsent} onAccepted={() => setNeedConsent(false)} />}
                 {activeItem?.kind === "plans" && (
                   <Plans plans={plans} constructors={constructors} pick={pick} setPick={setPick} defaultPick={defaultPick} constructorTotal={constructorTotal} promo={promo} setPromo={setPromo} providers={cfg.payment_providers || []} provider={provider} setProvider={setProvider} profiles={profiles} profileTarget={profileTarget} setProfileTarget={setProfileTarget} busy={busy} currency={currency} buy={buy} buyWallet={buyWallet} buyConstructor={buyConstructor} offers={<PersonalOffers request={req} onSelect={setPromo}/>} />
                 )}
@@ -882,7 +872,7 @@ function App() {
                   <>
                     <h2 className="section-title">Серверы</h2>
                     <p className="section-sub">Статус узлов без адресов и служебных данных</p>
-                    <ServerList servers={servers} />
+                    <ServerCatalog servers={servers} />
                   </>
                 )}
 
@@ -892,9 +882,13 @@ function App() {
                   <h2 className="section-title">{activeItem.title}</h2>
                   {activeItem.kind==="security"&&<><ProfileCard request={req} onSaved={loadSession}/><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><CustomerPasskeys req={req}/><AccountMerge request={req} onMerged={loadSession}/></>}
                   {activeItem.kind==="subscription"&&<SubscriptionProfiles profiles={profiles} request={req} reload={loadSession}/>}
-                  <Workspace key={activeItem.kind+":"+(sub?.id||"none")} kind={activeItem.kind} request={req} reload={loadSession} plans={plans} provider={provider} botUsername={cfg.bot_username||""} providers={(cfg.payment_providers||[]).filter((p:string)=>["yookassa","rollypay","platega","sandbox"].includes(p))} currency={currency} api={API}/>
+                  {activeItem.kind==="wallet"&&<><ConsentGate request={req} force={needConsent} onAccepted={()=>setNeedConsent(false)}/><WalletTopup request={req} balance={String(dash?.user?.wallet_balance ?? "0.00")} reload={loadSession} flash={flash} onConsentRequired={()=>setNeedConsent(true)}/></>}
+                  {activeItem.kind==="referral"&&<ReferralTerms code={dash?.user?.referral_code||""} flash={flash}/>}
+                  {activeItem.kind==="support"&&<SupportButtons go={goLink}/>}
+                  <Workspace compact={["wallet","referral"].includes(activeItem.kind)} withdraw={config.referral?.withdraw_enabled!==false} ticketForm={config.support?.ticket_form!==false} key={activeItem.kind+":"+(sub?.id||"none")} kind={activeItem.kind} request={req} reload={loadSession} plans={plans} provider={provider} botUsername={cfg.bot_username||""} providers={(cfg.payment_providers||[]).filter((p:string)=>["yookassa","rollypay","platega","sandbox"].includes(p))} currency={currency} api={API}/>
                 </>}
 
+                {activeItem?.kind === "info" && <><h2 className="section-title">{activeItem.title}</h2><InfoSection request={req} locale={lang} /></>}
                 {activeItem?.kind === "surveys" && <Surveys request={req} reload={loadSession}/>}
                 {activeItem?.kind === "giveaways" && <Giveaways request={req} reload={loadSession}/>}
                 {activeItem?.kind === "custom" && (
@@ -903,13 +897,14 @@ function App() {
                     <div className="custom-body" style={{whiteSpace: "pre-wrap"}}>{activeItem.body || ""}</div>
                   </>
                 )}
+                </SectionBoundary>
               </section>
             </main>
 
             <nav className="bottom-nav" aria-label="Основные разделы">
               {bottomItems.map((item) => (
                 <button key={item.slug} type="button" aria-current={tab === item.slug ? "page" : undefined} className={tab === item.slug ? "active" : ""} onClick={() => go(item.slug)}>
-                  {NAV_ICON[item.kind]}
+                  {item.icon ? <ConfigIcon name={item.icon} /> : NAV_ICON[item.kind]}
                   <span>{item.title}</span>
                 </button>
               ))}
@@ -930,7 +925,9 @@ function App() {
 export default function CabinetRoot() {
   return (
     <LangProvider>
-      <App />
+      <AppConfigProvider>
+        <App />
+      </AppConfigProvider>
     </LangProvider>
   );
 }
