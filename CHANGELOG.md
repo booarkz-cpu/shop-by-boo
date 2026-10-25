@@ -1,3 +1,8 @@
+# v28.24.0
+
+- Все 19 стандартных баннеров бота и Mini App перерисованы в фирменном стиле: корги Люси из фирменного рисунка на солнечной террасе, подпись «Корги Люси · Свободный Гав!», название раздела на жёлтой ленте, наклейки и реплики. Генераторы `scripts/bot-banners/prepare.py` и `render.py`, шрифт Balsamiq Sans (OFL).
+- Свежие скриншоты README: админ-панель (66), кабинет (21), Mini App (7), чаты бота с баннерами (`scripts/screenshots/bot_chat.py`). Баннер раздела в кабинете не шире 760 px. Миграций нет; head `0075_app_config`; runtime/API остаётся 21.5.1.
+
 # v28.23.0
 
 - PostgreSQL 18.6 для магазина, Support Pro, стенда и CI (закреплённый digest, проверка в CI); `postgresql-client-18` из PGDG в backend; новые тома `postgres18_data`/`support_postgres18_data`; `scripts/upgrade-postgres.sh` при обновлении переносит данные PostgreSQL 16 со сверкой строк, перезакрепляет `POSTGRES_IMAGE`, старые тома оставляет для отката.
