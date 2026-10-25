@@ -31,6 +31,26 @@ temp=""
 cleanup(){ [[ -n "$temp" ]] && docker rm -f "$temp" >/dev/null 2>&1 || true; rm -rf "$work"; }
 trap cleanup EXIT
 
+# Installs pinned before v28.23.0 keep POSTGRES_IMAGE=postgres:16… in .env and .env.images.
+# Docker Compose would start PostgreSQL 16 on the new volume; switch them to the
+# PostgreSQL 18 digest from docker-compose.yml first.
+repin_postgres(){
+  local default file value
+  default="$(sed -nE 's/.*\$\{POSTGRES_IMAGE:-([^}]+)\}.*/\1/p' docker-compose.yml | head -1)"
+  [[ "$default" == postgres:18* ]] || { echo "docker-compose.yml has no PostgreSQL 18 default image" >&2; exit 2; }
+  for file in .env .env.images; do
+    [[ -f "$file" ]] || continue
+    value="$(sed -nE 's/^POSTGRES_IMAGE=(.*)$/\1/p' "$file" | tail -1)"
+    if [[ -n "$value" && "$value" != postgres:18* ]]; then
+      sed -i -E "s|^POSTGRES_IMAGE=.*$|POSTGRES_IMAGE=${default}|" "$file"
+      echo "$file: POSTGRES_IMAGE ${value%%@*} -> ${default%%@*}"
+    fi
+  done
+}
+repin_postgres
+export POSTGRES_IMAGE="$(sed -nE 's/^POSTGRES_IMAGE=(.*)$/\1/p' .env.images 2>/dev/null | tail -1)"
+[[ -n "$POSTGRES_IMAGE" ]] || unset POSTGRES_IMAGE
+
 # psql \gexec prints "schema.table count" for every user table, sorted.
 COUNT_SQL="SELECT format('SELECT %L || '' '' || count(*) FROM %I.%I', schemaname || '.' || tablename, schemaname, tablename) FROM pg_tables WHERE schemaname NOT IN ('pg_catalog','information_schema') ORDER BY schemaname, tablename \\gexec"
 

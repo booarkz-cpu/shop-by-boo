@@ -224,3 +224,21 @@ async def test_public_endpoint_revalidates_with_etag(database):
     assert first.headers["cache-control"] == "private, no-cache" and body["version"] in etag
     again = await app_config.app_config(Req({"If-None-Match": etag}), Response(), database)
     assert again.status_code == 304
+
+
+@pytest.mark.asyncio
+async def test_withdrawals_respect_the_admin_switch(database, monkeypatch):
+    from app import main
+    from app.models import AppSetting
+    overrides = app_config.Overrides()
+    overrides.referral.withdraw_enabled = False
+    database.add(AppSetting(key=app_config.SETTING_KEY, value=overrides.model_dump_json()))
+    await database.commit()
+    user = await database.get(User, 1)
+
+    async def who(request, db):
+        return user
+    monkeypatch.setattr(main, "user_from_token", who)
+    with pytest.raises(HTTPException) as denied:
+        await main.request_withdrawal(main.WithdrawalIn(amount=Decimal("10"), destination="card"), SimpleNamespace(headers={}), database)
+    assert denied.value.status_code == 409

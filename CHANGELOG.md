@@ -1,3 +1,10 @@
+# v28.23.0
+
+- PostgreSQL 18.6 для магазина, Support Pro, стенда и CI (закреплённый digest, проверка в CI); `postgresql-client-18` из PGDG в backend; новые тома `postgres18_data`/`support_postgres18_data`; `scripts/upgrade-postgres.sh` при обновлении переносит данные PostgreSQL 16 со сверкой строк, перезакрепляет `POSTGRES_IMAGE`, старые тома оставляет для отката.
+- Mini App на данных: `GET /api/app-config` (тема, навигация, баннеры, акции с таймером, категории серверов, способы пополнения, рефералы, поддержка, документы, согласие, тексты, приветствие по `initData`), `useAppConfig` с кэшем и `mock-config.json`, скелетоны, плашка «нет связи»; редактор «Конфигурация Mini App»; 6 новых баннеров с корги Люси.
+- Пополнение Telegram Stars (`createInvoiceLink`, `pre_checkout_query`, `successful_payment`, `refundStarPayment`), СБП через YooKassa, согласие с офертой (`user_consents`, `409 consent_required`), серверные переключатели вывода средств и формы обращения.
+- Миграция `0075_app_config`; runtime/API остаётся 21.5.1.
+
 # v28.22.0
 
 - Баннеры разделов бота: 13 стандартных баннеров с корги Люси (`backend/app/assets/bot_banners/`, генератор `scripts/bot-banners/render.py`), свои изображения для каждого раздела и кнопки-папки или кнопки-поля в новом разделе «Бот и кабинет → Баннеры бота» (проверка и пересохранение в JPEG, сброс, скрытие, общий выключатель).

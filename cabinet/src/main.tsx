@@ -885,7 +885,7 @@ function App() {
                   {activeItem.kind==="wallet"&&<><ConsentGate request={req} force={needConsent} onAccepted={()=>setNeedConsent(false)}/><WalletTopup request={req} balance={String(dash?.user?.wallet_balance ?? "0.00")} reload={loadSession} flash={flash} onConsentRequired={()=>setNeedConsent(true)}/></>}
                   {activeItem.kind==="referral"&&<ReferralTerms code={dash?.user?.referral_code||""} flash={flash}/>}
                   {activeItem.kind==="support"&&<SupportButtons go={goLink}/>}
-                  <Workspace compact={["wallet","referral"].includes(activeItem.kind)} key={activeItem.kind+":"+(sub?.id||"none")} kind={activeItem.kind} request={req} reload={loadSession} plans={plans} provider={provider} botUsername={cfg.bot_username||""} providers={(cfg.payment_providers||[]).filter((p:string)=>["yookassa","rollypay","platega","sandbox"].includes(p))} currency={currency} api={API}/>
+                  <Workspace compact={["wallet","referral"].includes(activeItem.kind)} withdraw={config.referral?.withdraw_enabled!==false} ticketForm={config.support?.ticket_form!==false} key={activeItem.kind+":"+(sub?.id||"none")} kind={activeItem.kind} request={req} reload={loadSession} plans={plans} provider={provider} botUsername={cfg.bot_username||""} providers={(cfg.payment_providers||[]).filter((p:string)=>["yookassa","rollypay","platega","sandbox"].includes(p))} currency={currency} api={API}/>
                 </>}
 
                 {activeItem?.kind === "info" && <><h2 className="section-title">{activeItem.title}</h2><InfoSection request={req} locale={lang} /></>}

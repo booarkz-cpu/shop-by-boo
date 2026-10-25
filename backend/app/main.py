@@ -1666,7 +1666,7 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
         op_row.status="processing"; op_row.attempts=(op_row.attempts or 0)+1; op_row.updated_at=now; await db.commit()
         try:
             if sub and sub.remnawave_uuid in {"None","none","null"}:
-                # Releases before v28.22.0 read the panel answer without its "response" wrapper and
+                # Releases before v28.23.0 read the panel answer without its "response" wrapper and
                 # stored the literal "None". Forget it: the user is then found again by username.
                 sub.remnawave_uuid=None
             if payment.provider == "sandbox" and sandbox_local_vpn():
@@ -2733,6 +2733,8 @@ async def my_support_tickets(request:Request,db:AsyncSession=Depends(get_db)):
 @app.post("/api/me/referral/withdrawals")
 async def request_withdrawal(payload:WithdrawalIn,request:Request,db:AsyncSession=Depends(get_db)):
     user=await user_from_token(request,db)
+    from .app_config import load_overrides
+    if not (await load_overrides(db)).referral.withdraw_enabled: raise HTTPException(409,"Вывод реферальных средств отключён администратором")
     amount=payload.amount.quantize(Decimal("0.01"))
     if amount < Decimal("1.00"): raise HTTPException(400,"Minimum withdrawal is 1.00")
     destination=payload.destination.strip()

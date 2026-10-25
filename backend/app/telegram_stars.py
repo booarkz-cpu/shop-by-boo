@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from datetime import datetime
 from decimal import ROUND_CEILING, Decimal
 
 import httpx
@@ -37,7 +36,7 @@ CURRENCY = "XTR"
 
 
 class StarsError(RuntimeError):
-    pass
+    """Telegram rejected a Stars call or an update does not match its order."""
 
 
 async def bot_api(method: str, payload: dict) -> dict:

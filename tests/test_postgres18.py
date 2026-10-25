@@ -69,6 +69,7 @@ case "$*" in
 esac
 """)
     (bin_dir / "docker").chmod(0o755)
+    (tmp_path / "docker-compose.yml").write_text((ROOT / "docker-compose.yml").read_text())
     return bin_dir, log
 
 
@@ -87,3 +88,19 @@ def test_rejects_malformed_specs(tmp_path):
     run = subprocess.run(["bash", str(SCRIPT)], env={**os.environ, "APP_DIR": str(tmp_path), "PATH": f"{bin_dir}:{os.environ['PATH']}",
                                                      "PG_UPGRADE_SPEC": "db:old;rm -rf /:new:u:d"}, capture_output=True, text=True)
     assert run.returncode == 2 and "Bad PG_UPGRADE_SPEC" in run.stderr
+
+
+def test_installs_pinned_to_postgres_16_are_switched_to_18(tmp_path):
+    bin_dir, _ = fake_docker(tmp_path)
+    old = "postgres:16-alpine@sha256:" + "1" * 64
+    (tmp_path / ".env").write_text(f"DB_PASSWORD=x\nPOSTGRES_IMAGE={old}\nREDIS_IMAGE=redis@sha256:{'2'*64}\n")
+    (tmp_path / ".env.images").write_text(f"POSTGRES_IMAGE={old}\n")
+    run = subprocess.run(["bash", str(SCRIPT)], env={**os.environ, "APP_DIR": str(tmp_path), "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                         capture_output=True, text=True)
+    assert run.returncode == 0, run.stderr
+    default = re.search(r"\$\{POSTGRES_IMAGE:-([^}]+)\}", (ROOT / "docker-compose.yml").read_text()).group(1)
+    for name in (".env", ".env.images"):
+        text = (tmp_path / name).read_text()
+        assert f"POSTGRES_IMAGE={default}" in text and "postgres:16" not in text
+    assert "REDIS_IMAGE=redis@sha256:" in (tmp_path / ".env").read_text()
+    assert ".env: POSTGRES_IMAGE postgres:16-alpine -> postgres:18.6-alpine" in run.stdout

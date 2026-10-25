@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.22.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.23.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1227**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1266**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -215,6 +215,7 @@
 | [admin/THIRD_PARTY_LICENSES.txt](../admin/THIRD_PARTY_LICENSES.txt) | Админ-панель |
 | [admin/components.json](../admin/components.json) | Админ-панель |
 | [admin/default.conf](../admin/default.conf) | Админ-панель |
+| [admin/e2e/app-config.spec.ts](../admin/e2e/app-config.spec.ts) | Админ-панель |
 | [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
 | [admin/e2e/bot-banners.spec.ts](../admin/e2e/bot-banners.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
@@ -244,6 +245,7 @@
 | [admin/src/admin-shell.tsx](../admin/src/admin-shell.tsx) | Админ-панель |
 | [admin/src/app/layout.tsx](../admin/src/app/layout.tsx) | Админ-панель |
 | [admin/src/app/page.tsx](../admin/src/app/page.tsx) | Админ-панель |
+| [admin/src/appConfig.tsx](../admin/src/appConfig.tsx) | Админ-панель |
 | [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
 | [admin/src/botBanners.tsx](../admin/src/botBanners.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
@@ -383,16 +385,22 @@
 | [backend/app/assets/bot_banners/account.jpg](../backend/app/assets/bot_banners/account.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/balance.jpg](../backend/app/assets/bot_banners/balance.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/buy.jpg](../backend/app/assets/bot_banners/buy.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/connection.jpg](../backend/app/assets/bot_banners/connection.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/devices.jpg](../backend/app/assets/bot_banners/devices.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/gifts.jpg](../backend/app/assets/bot_banners/gifts.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/home.jpg](../backend/app/assets/bot_banners/home.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/info.jpg](../backend/app/assets/bot_banners/info.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/menu.jpg](../backend/app/assets/bot_banners/menu.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/payments.jpg](../backend/app/assets/bot_banners/payments.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/promo.jpg](../backend/app/assets/bot_banners/promo.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/referral.jpg](../backend/app/assets/bot_banners/referral.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/servers.jpg](../backend/app/assets/bot_banners/servers.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/start.jpg](../backend/app/assets/bot_banners/start.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/subscription.jpg](../backend/app/assets/bot_banners/subscription.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/support.jpg](../backend/app/assets/bot_banners/support.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/surveys.jpg](../backend/app/assets/bot_banners/surveys.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/topup.jpg](../backend/app/assets/bot_banners/topup.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
@@ -455,6 +463,7 @@
 | [backend/app/support_topology.py](../backend/app/support_topology.py) | API, бот и worker |
 | [backend/app/surveys.py](../backend/app/surveys.py) | API, бот и worker |
 | [backend/app/tariff_api.py](../backend/app/tariff_api.py) | API, бот и worker |
+| [backend/app/telegram_stars.py](../backend/app/telegram_stars.py) | API, бот и worker |
 | [backend/app/torrent_detection.py](../backend/app/torrent_detection.py) | API, бот и worker |
 | [backend/app/totp.py](../backend/app/totp.py) | API, бот и worker |
 | [backend/app/v3_api.py](../backend/app/v3_api.py) | API, бот и worker |
@@ -475,12 +484,30 @@
 | [cabinet/nginx.conf](../cabinet/nginx.conf) | Кабинет |
 | [cabinet/package-lock.json](../cabinet/package-lock.json) | Кабинет |
 | [cabinet/package.json](../cabinet/package.json) | Кабинет |
+| [cabinet/public/assets/banners/account.jpg](../cabinet/public/assets/banners/account.jpg) | Кабинет |
+| [cabinet/public/assets/banners/buy.jpg](../cabinet/public/assets/banners/buy.jpg) | Кабинет |
+| [cabinet/public/assets/banners/connection.jpg](../cabinet/public/assets/banners/connection.jpg) | Кабинет |
+| [cabinet/public/assets/banners/devices.jpg](../cabinet/public/assets/banners/devices.jpg) | Кабинет |
+| [cabinet/public/assets/banners/gifts.jpg](../cabinet/public/assets/banners/gifts.jpg) | Кабинет |
+| [cabinet/public/assets/banners/home.jpg](../cabinet/public/assets/banners/home.jpg) | Кабинет |
+| [cabinet/public/assets/banners/info.jpg](../cabinet/public/assets/banners/info.jpg) | Кабинет |
+| [cabinet/public/assets/banners/menu.jpg](../cabinet/public/assets/banners/menu.jpg) | Кабинет |
+| [cabinet/public/assets/banners/payments.jpg](../cabinet/public/assets/banners/payments.jpg) | Кабинет |
+| [cabinet/public/assets/banners/referral.jpg](../cabinet/public/assets/banners/referral.jpg) | Кабинет |
+| [cabinet/public/assets/banners/servers.jpg](../cabinet/public/assets/banners/servers.jpg) | Кабинет |
+| [cabinet/public/assets/banners/subscription.jpg](../cabinet/public/assets/banners/subscription.jpg) | Кабинет |
+| [cabinet/public/assets/banners/support.jpg](../cabinet/public/assets/banners/support.jpg) | Кабинет |
+| [cabinet/public/assets/banners/surveys.jpg](../cabinet/public/assets/banners/surveys.jpg) | Кабинет |
+| [cabinet/public/assets/banners/topup.jpg](../cabinet/public/assets/banners/topup.jpg) | Кабинет |
+| [cabinet/public/assets/banners/trial.jpg](../cabinet/public/assets/banners/trial.jpg) | Кабинет |
 | [cabinet/public/manifest.webmanifest](../cabinet/public/manifest.webmanifest) | Кабинет |
 | [cabinet/scripts/csp-externalize.mjs](../cabinet/scripts/csp-externalize.mjs) | Кабинет |
 | [cabinet/src/account-merge.test.tsx](../cabinet/src/account-merge.test.tsx) | Кабинет |
 | [cabinet/src/account-merge.tsx](../cabinet/src/account-merge.tsx) | Кабинет |
 | [cabinet/src/account-recovery.test.tsx](../cabinet/src/account-recovery.test.tsx) | Кабинет |
 | [cabinet/src/account-recovery.tsx](../cabinet/src/account-recovery.tsx) | Кабинет |
+| [cabinet/src/app-config.test.tsx](../cabinet/src/app-config.test.tsx) | Кабинет |
+| [cabinet/src/app-config.tsx](../cabinet/src/app-config.tsx) | Кабинет |
 | [cabinet/src/app/layout.tsx](../cabinet/src/app/layout.tsx) | Кабинет |
 | [cabinet/src/app/page.tsx](../cabinet/src/app/page.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
@@ -489,6 +516,8 @@
 | [cabinet/src/giveaways.tsx](../cabinet/src/giveaways.tsx) | Кабинет |
 | [cabinet/src/i18n.tsx](../cabinet/src/i18n.tsx) | Кабинет |
 | [cabinet/src/main.tsx](../cabinet/src/main.tsx) | Кабинет |
+| [cabinet/src/miniapp-sections.tsx](../cabinet/src/miniapp-sections.tsx) | Кабинет |
+| [cabinet/src/mock-config.json](../cabinet/src/mock-config.json) | Кабинет |
 | [cabinet/src/overview.tsx](../cabinet/src/overview.tsx) | Кабинет |
 | [cabinet/src/partner.tsx](../cabinet/src/partner.tsx) | Кабинет |
 | [cabinet/src/passkeys.tsx](../cabinet/src/passkeys.tsx) | Кабинет |
@@ -605,8 +634,15 @@
 | [docs/img/bot-banners-all.jpg](../docs/img/bot-banners-all.jpg) | Документация |
 | [docs/img/bot-commands.svg](../docs/img/bot-commands.svg) | Документация |
 | [docs/img/bot-start.svg](../docs/img/bot-start.svg) | Документация |
+| [docs/img/miniapp-info.png](../docs/img/miniapp-info.png) | Документация |
+| [docs/img/miniapp-overview.png](../docs/img/miniapp-overview.png) | Документация |
+| [docs/img/miniapp-plans.png](../docs/img/miniapp-plans.png) | Документация |
 | [docs/img/miniapp-plans.svg](../docs/img/miniapp-plans.svg) | Документация |
+| [docs/img/miniapp-referral.png](../docs/img/miniapp-referral.png) | Документация |
+| [docs/img/miniapp-servers.png](../docs/img/miniapp-servers.png) | Документация |
 | [docs/img/miniapp-subscription.svg](../docs/img/miniapp-subscription.svg) | Документация |
+| [docs/img/miniapp-support.png](../docs/img/miniapp-support.png) | Документация |
+| [docs/img/miniapp-wallet.png](../docs/img/miniapp-wallet.png) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PANEL_CURRENT.md](../docs/ru/ADMIN_PANEL_CURRENT.md) | Документация |
@@ -679,6 +715,7 @@
 | [docs/ru/RELEASE_V28_20_0.md](../docs/ru/RELEASE_V28_20_0.md) | Документация |
 | [docs/ru/RELEASE_V28_21_0.md](../docs/ru/RELEASE_V28_21_0.md) | Документация |
 | [docs/ru/RELEASE_V28_22_0.md](../docs/ru/RELEASE_V28_22_0.md) | Документация |
+| [docs/ru/RELEASE_V28_23_0.md](../docs/ru/RELEASE_V28_23_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -973,6 +1010,7 @@
 | [scripts/rollback.sh](../scripts/rollback.sh) | Эксплуатация и релиз |
 | [scripts/rotate-secrets.sh](../scripts/rotate-secrets.sh) | Эксплуатация и релиз |
 | [scripts/sandbox-e2e.sh](../scripts/sandbox-e2e.sh) | Эксплуатация и релиз |
+| [scripts/screenshots/miniapp.mjs](../scripts/screenshots/miniapp.mjs) | Эксплуатация и релиз |
 | [scripts/security-scan.sh](../scripts/security-scan.sh) | Эксплуатация и релиз |
 | [scripts/sign-plugin.py](../scripts/sign-plugin.py) | Эксплуатация и релиз |
 | [scripts/staging-e2e.sh](../scripts/staging-e2e.sh) | Эксплуатация и релиз |
@@ -1091,6 +1129,7 @@
 | [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
+| [tests/test_app_config.py](../tests/test_app_config.py) | Проверки |
 | [tests/test_audit_v2009_runtime.py](../tests/test_audit_v2009_runtime.py) | Проверки |
 | [tests/test_automation_engine.py](../tests/test_automation_engine.py) | Проверки |
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |

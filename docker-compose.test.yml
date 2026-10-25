@@ -21,7 +21,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env.test}
       POSTGRES_DB: vpnshop
     volumes:
-      - test_postgres_data:/var/lib/postgresql
+      - test_postgres18_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vpnshop -d vpnshop"]
       interval: 5s
@@ -118,6 +118,6 @@ services:
 
 volumes:
   test_redis_data:
-  test_postgres_data:
+  test_postgres18_data:
   test_media_data:
   test_backup_data:

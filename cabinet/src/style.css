@@ -540,9 +540,10 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 .amount-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { min-height: 40px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2); color: var(--text); font-weight: 650; }
 .chip.active, .method.active { border-color: var(--primary); background: rgb(var(--primary-rgb) / .14); color: var(--text-strong); box-shadow: 0 0 0 1px rgb(var(--primary-rgb) / .4), 0 0 18px rgb(var(--primary-rgb) / .18); }
-.method-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.method-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .method { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); color: var(--text); font-weight: 650; text-align: left; }
 .method svg { flex: 0 0 auto; width: 20px; height: 20px; color: var(--primary); }
+.method span { min-width: 0; overflow-wrap: anywhere; hyphens: auto; padding: 6px 0; }
 .consent-card { display: grid; gap: 10px; margin-bottom: 14px; border-color: rgb(var(--primary-rgb) / .4); }
 .consent-card h3 { display: flex; align-items: center; gap: 8px; margin: 0; }
 .consent-card h3 svg { width: 18px; height: 18px; color: var(--primary); }

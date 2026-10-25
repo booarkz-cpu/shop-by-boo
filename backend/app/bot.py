@@ -431,7 +431,8 @@ async def main():
 
     asyncio.create_task(broadcast_worker(bot))
     try:
-        await dp.start_polling(bot)
+        # Explicit update types: Telegram Stars needs pre_checkout_query and the payment messages.
+        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
         runtime_task.cancel()
         await asyncio.gather(runtime_task, return_exceptions=True)
