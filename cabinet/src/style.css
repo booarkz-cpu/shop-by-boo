@@ -509,7 +509,7 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 }
 
 /* ---- Data-driven Mini App sections (app-config.tsx, miniapp-sections.tsx) ---- */
-.section-banner { margin: 0 0 16px; overflow: hidden; border: 1px solid rgb(var(--primary-rgb) / .28); border-radius: var(--radius); background: var(--surface-soft); box-shadow: 0 0 0 1px rgb(var(--primary-rgb) / .06), 0 12px 40px rgb(var(--primary-rgb) / .12); aspect-ratio: 2 / 1; }
+.section-banner { margin: 0 0 16px; overflow: hidden; border: 1px solid rgb(var(--primary-rgb) / .28); border-radius: var(--radius); background: var(--surface-soft); box-shadow: 0 0 0 1px rgb(var(--primary-rgb) / .06), 0 12px 40px rgb(var(--primary-rgb) / .12); aspect-ratio: 2 / 1; max-width: 760px; }
 .section-banner img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sk-banner { width: 100%; aspect-ratio: 2 / 1; height: auto; border-radius: var(--radius); }
 .config-notice { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; padding: 10px 14px; border: 1px solid rgb(var(--warning-rgb) / .4); border-radius: var(--radius-sm); background: rgb(var(--warning-rgb) / .1); color: var(--text); font-size: 14px; }

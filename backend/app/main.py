@@ -1666,7 +1666,7 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
         op_row.status="processing"; op_row.attempts=(op_row.attempts or 0)+1; op_row.updated_at=now; await db.commit()
         try:
             if sub and sub.remnawave_uuid in {"None","none","null"}:
-                # Releases before v28.23.0 read the panel answer without its "response" wrapper and
+                # Releases before v28.24.0 read the panel answer without its "response" wrapper and
                 # stored the literal "None". Forget it: the user is then found again by username.
                 sub.remnawave_uuid=None
             if payment.provider == "sandbox" and sandbox_local_vpn():

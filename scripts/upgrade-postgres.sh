@@ -2,7 +2,7 @@
 # Move the shop and Support Pro databases from PostgreSQL 16 volumes to PostgreSQL 18.
 #
 # PostgreSQL 18 cannot open data files of an older major version, and the official
-# postgres:18 image keeps data in /var/lib/postgresql/18/docker. Releases from v28.23.0
+# postgres:18 image keeps data in /var/lib/postgresql/18/docker. Releases from v28.24.0
 # therefore use new volumes (postgres18_data, support_postgres18_data). This script:
 #   1. stops the stack and starts the old data once in a temporary postgres:16 container;
 #   2. dumps it (pg_dump -Fc) and counts rows in every table;
@@ -31,7 +31,7 @@ temp=""
 cleanup(){ [[ -n "$temp" ]] && docker rm -f "$temp" >/dev/null 2>&1 || true; rm -rf "$work"; }
 trap cleanup EXIT
 
-# Installs pinned before v28.23.0 keep POSTGRES_IMAGE=postgres:16… in .env and .env.images.
+# Installs pinned before v28.24.0 keep POSTGRES_IMAGE=postgres:16… in .env and .env.images.
 # Docker Compose would start PostgreSQL 16 on the new volume; switch them to the
 # PostgreSQL 18 digest from docker-compose.yml first.
 repin_postgres(){
