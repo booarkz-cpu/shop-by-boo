@@ -40,7 +40,7 @@ python-dotenv==1.2.3
 python-multipart==0.0.32
 PyYAML==6.0.3
 qrcode==8.2
-redis==6.4.0
+redis==8.1.0
 SQLAlchemy==2.0.54
 starlette==1.6.0
 typing-inspection==0.4.4
