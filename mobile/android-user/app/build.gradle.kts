@@ -11,6 +11,7 @@ android {
         applicationId = "shop.remnawave.user"
         minSdk = 26
         targetSdk = 35
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionCode = 3100
         versionName = "3.1.0"
         // Historical compatibility marker: versionName = "2.9.0"
@@ -83,4 +84,11 @@ dependencies {
     // Embedded VPN engine (Xray-core via libv2ray.aar, scripts/mobile/build-xray-aar.sh). Optional:
     // without it the app hands the subscription to Happ, v2rayNG or Hiddify.
     if (file("libs/libv2ray.aar").exists()) implementation(files("libs/libv2ray.aar"))
+    // UI tests (app/src/androidTest): Compose testing on the demo mode of the debug build.
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

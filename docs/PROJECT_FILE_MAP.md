@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1529**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1533**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -945,6 +945,7 @@
 | [mobile/LICENSE](../mobile/LICENSE) | Мобильные приложения |
 | [mobile/__init__.py](../mobile/__init__.py) | Мобильные приложения |
 | [mobile/android-admin/app/build.gradle.kts](../mobile/android-admin/app/build.gradle.kts) | Мобильные приложения |
+| [mobile/android-admin/app/src/androidTest/java/shop/remnawave/admin/AdminScreensTest.kt](../mobile/android-admin/app/src/androidTest/java/shop/remnawave/admin/AdminScreensTest.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/debug/AndroidManifest.xml](../mobile/android-admin/app/src/debug/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/AndroidManifest.xml](../mobile/android-admin/app/src/main/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/assets/l10n.json](../mobile/android-admin/app/src/main/assets/l10n.json) | Мобильные приложения |
@@ -969,6 +970,7 @@
 | [mobile/android-admin/settings.gradle.kts](../mobile/android-admin/settings.gradle.kts) | Мобильные приложения |
 | [mobile/android-user/.gitignore](../mobile/android-user/.gitignore) | Мобильные приложения |
 | [mobile/android-user/app/build.gradle.kts](../mobile/android-user/app/build.gradle.kts) | Мобильные приложения |
+| [mobile/android-user/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt](../mobile/android-user/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/debug/AndroidManifest.xml](../mobile/android-user/app/src/debug/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/AndroidManifest.xml](../mobile/android-user/app/src/main/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/assets/banners/app-devices.jpg](../mobile/android-user/app/src/main/assets/banners/app-devices.jpg) | Мобильные приложения |
@@ -1032,6 +1034,7 @@
 | [mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift](../mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin/l10n.json](../mobile/ios-admin/VpnShopAdmin/l10n.json) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj](../mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj) | Мобильные приложения |
+| [mobile/ios-user/VpnShopUser.xcodeproj/xcshareddata/xcschemes/VpnShopUser.xcscheme](../mobile/ios-user/VpnShopUser.xcodeproj/xcshareddata/xcschemes/VpnShopUser.xcscheme) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json](../mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/icon-1024.png](../mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/icon-1024.png) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/Assets.xcassets/Contents.json](../mobile/ios-user/VpnShopUser/Assets.xcassets/Contents.json) | Мобильные приложения |
@@ -1059,6 +1062,7 @@
 | [mobile/ios-user/VpnShopUser/VpnShopUserApp.swift](../mobile/ios-user/VpnShopUser/VpnShopUserApp.swift) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/default_layout.json](../mobile/ios-user/VpnShopUser/default_layout.json) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/l10n.json](../mobile/ios-user/VpnShopUser/l10n.json) | Мобильные приложения |
+| [mobile/ios-user/VpnShopUserUITests/VpnShopUserUITests.swift](../mobile/ios-user/VpnShopUserUITests/VpnShopUserUITests.swift) | Мобильные приложения |
 | [mobile/l10n/admin.json](../mobile/l10n/admin.json) | Мобильные приложения |
 | [mobile/l10n/user.json](../mobile/l10n/user.json) | Мобильные приложения |
 | [mobile/store/app-store/en-US/description.txt](../mobile/store/app-store/en-US/description.txt) | Мобильные приложения |
