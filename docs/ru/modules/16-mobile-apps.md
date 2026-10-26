@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.29.0. Runtime/API `21.5.1`, head магазина `0076_growth`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.30.0. Runtime/API `21.5.1`, head магазина `0076_growth`, Support Pro `0008`.
 
 # 16. Мобильные приложения
 
@@ -48,6 +48,17 @@ CORGI_ASSOCIATED_DOMAIN=cabinet.ДОМЕН bash scripts/build-ios-signed.sh "$PW
 `CORGI_ASSOCIATED_DOMAIN` нужен для ключей доступа. В App ID включите Associated Domains и Push Notifications.
 
 Ключи подписи и профили храните вне репозитория, не коммитьте их.
+
+## Скриншоты
+
+Workflow **Mobile screenshots** (`.github/workflows/mobile-screenshots.yml`) запускается вручную (Actions → Run workflow) и в PR, которые меняют клиентские приложения.
+
+1. Собирает отладочные версии клиентских приложений.
+2. Запускает их в эмуляторе Android и симуляторе iPhone в демо-режиме.
+3. Снимает экраны «Обзор», «Тарифы», «Семья» и «Статус сервиса».
+4. Выкладывает снимки как артефакты `mobile-screenshots-android` и `mobile-screenshots-ios` на странице запуска.
+
+Демо-режим есть только в отладочных сборках. На Android его включает `--ez corgi_demo true` (вкладка — `--es corgi_tab`, язык — `--es corgi_lang`), на iOS — `-CorgiDemo` (вкладка — `-CorgiTab`). В этом режиме данные фиксированы, сеть не используется, сессия не сохраняется. На Android в демо-режиме снят запрет снимков экрана (`FLAG_SECURE`), в рабочих сборках он действует как раньше.
 
 ## Публикация
 

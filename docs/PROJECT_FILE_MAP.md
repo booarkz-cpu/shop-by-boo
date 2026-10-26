@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.29.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.30.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1348**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1356**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -62,6 +62,7 @@
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
 | [.github/workflows/docker.yml](../.github/workflows/docker.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-release.yml](../.github/workflows/mobile-release.yml) | GitHub CI/CD |
+| [.github/workflows/mobile-screenshots.yml](../.github/workflows/mobile-screenshots.yml) | GitHub CI/CD |
 | [.github/workflows/publish-release.yml](../.github/workflows/publish-release.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -386,6 +387,7 @@
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
 | [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
+| [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
 | [backend/app/app_config.py](../backend/app/app_config.py) | API, бот и worker |
 | [backend/app/assets/bot_banners/account.jpg](../backend/app/assets/bot_banners/account.jpg) | API, бот и worker |
@@ -423,6 +425,7 @@
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
 | [backend/app/content_branding_api.py](../backend/app/content_branding_api.py) | API, бот и worker |
 | [backend/app/content_publishing.py](../backend/app/content_publishing.py) | API, бот и worker |
+| [backend/app/customer_ops_api.py](../backend/app/customer_ops_api.py) | API, бот и worker |
 | [backend/app/customer_passkeys.py](../backend/app/customer_passkeys.py) | API, бот и worker |
 | [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
 | [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
@@ -448,11 +451,14 @@
 | [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
 | [backend/app/node_terminal.py](../backend/app/node_terminal.py) | API, бот и worker |
+| [backend/app/notifications_status_api.py](../backend/app/notifications_status_api.py) | API, бот и worker |
 | [backend/app/observability.py](../backend/app/observability.py) | API, бот и worker |
+| [backend/app/operations_api.py](../backend/app/operations_api.py) | API, бот и worker |
 | [backend/app/ops_alerts.py](../backend/app/ops_alerts.py) | API, бот и worker |
 | [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
 | [backend/app/passkeys.py](../backend/app/passkeys.py) | API, бот и worker |
 | [backend/app/payment_platform.py](../backend/app/payment_platform.py) | API, бот и worker |
+| [backend/app/payment_platform_api.py](../backend/app/payment_platform_api.py) | API, бот и worker |
 | [backend/app/payment_policy.py](../backend/app/payment_policy.py) | API, бот и worker |
 | [backend/app/payments.py](../backend/app/payments.py) | API, бот и worker |
 | [backend/app/personal_offers.py](../backend/app/personal_offers.py) | API, бот и worker |
@@ -773,6 +779,7 @@
 | [docs/ru/RELEASE_V28_28_0.md](../docs/ru/RELEASE_V28_28_0.md) | Документация |
 | [docs/ru/RELEASE_V28_29_0.md](../docs/ru/RELEASE_V28_29_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
+| [docs/ru/RELEASE_V28_30_0.md](../docs/ru/RELEASE_V28_30_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
@@ -1207,6 +1214,7 @@
 | [tests/test_automation_engine.py](../tests/test_automation_engine.py) | Проверки |
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
+| [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |
