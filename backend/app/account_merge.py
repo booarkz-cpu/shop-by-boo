@@ -114,6 +114,7 @@ async def identity_user(db: AsyncSession, kind: str, value: object) -> User | No
         'telegram': (User.telegram_id, AccountMergeAlias.telegram_id),
         'yandex': (User.yandex_id, AccountMergeAlias.yandex_id),
         'vk': (User.vk_id, AccountMergeAlias.vk_id),
+        'google': (User.google_id, AccountMergeAlias.google_id),
     }
     if kind not in columns:
         raise ValueError('Unsupported identity kind')
@@ -324,6 +325,7 @@ async def _conflicts(db: AsyncSession, source: User, target: User) -> list[dict[
         ('telegram_identity', AccountMergeAlias.telegram_id, source.telegram_id),
         ('yandex_identity', AccountMergeAlias.yandex_id, source.yandex_id),
         ('vk_identity', AccountMergeAlias.vk_id, source.vk_id),
+        ('google_identity', AccountMergeAlias.google_id, source.google_id),
         ('email_identity', AccountMergeAlias.email, source.email),
         ('referral_identity', AccountMergeAlias.referral_code, source.referral_code),
     )
@@ -389,7 +391,7 @@ async def _summary(db: AsyncSession, source: User, target: User) -> dict:
             'subscriptions': source_subscriptions,
             'payments': source_payments,
             'passkeys': source_passkeys,
-            'login_methods': sum(bool(value) for value in (source.email, source.telegram_id, source.yandex_id, source.vk_id, source.passkey_user_handle)),
+            'login_methods': sum(bool(value) for value in (source.email, source.telegram_id, source.yandex_id, source.vk_id, source.google_id, source.passkey_user_handle)),
         },
         'target': {
             'created_at': target.created_at.isoformat(),
@@ -398,7 +400,7 @@ async def _summary(db: AsyncSession, source: User, target: User) -> dict:
             'subscriptions': target_subscriptions,
             'payments': target_payments,
             'passkeys': target_passkeys,
-            'login_methods': sum(bool(value) for value in (target.email, target.telegram_id, target.yandex_id, target.vk_id, target.passkey_user_handle)),
+            'login_methods': sum(bool(value) for value in (target.email, target.telegram_id, target.yandex_id, target.vk_id, target.google_id, target.passkey_user_handle)),
         },
         'result': {
             'wallet_balance': str(wallet),
@@ -430,6 +432,7 @@ async def _transfer(db: AsyncSession, source: User, target: User, authorization:
     source_telegram_id = source.telegram_id
     source_yandex_id = source.yandex_id
     source_vk_id = source.vk_id
+    source_google_id = source.google_id
     source_referral_code = source.referral_code
     source_passkey_handle = source.passkey_user_handle
     before_wallet = Decimal(str(source.wallet_balance or 0)) + Decimal(str(target.wallet_balance or 0))
@@ -450,9 +453,11 @@ async def _transfer(db: AsyncSession, source: User, target: User, authorization:
     moved_telegram = bool(target.telegram_id is None and source_telegram_id is not None)
     moved_yandex = bool(not target.yandex_id and source_yandex_id)
     moved_vk = bool(not target.vk_id and source_vk_id)
+    moved_google = bool(not target.google_id and source_google_id)
     source.telegram_id = None
     source.yandex_id = None
     source.vk_id = None
+    source.google_id = None
     source.email = None
     source.email_password_hash = None
     source.email_verified_at = None
@@ -470,6 +475,8 @@ async def _transfer(db: AsyncSession, source: User, target: User, authorization:
         target.yandex_id = source_yandex_id
     if moved_vk:
         target.vk_id = source_vk_id
+    if moved_google:
+        target.google_id = source_google_id
     if not target.username and source.username:
         target.username = source.username
     if not target.passkey_user_handle and source_passkey_handle:
@@ -498,6 +505,7 @@ async def _transfer(db: AsyncSession, source: User, target: User, authorization:
         telegram_id=None if moved_telegram else source_telegram_id,
         yandex_id=None if moved_yandex else source_yandex_id,
         vk_id=None if moved_vk else source_vk_id,
+        google_id=None if moved_google else source_google_id,
         email=None if moved_email else source_email,
         email_password_hash=target_password if source_email and not moved_email else None,
         email_verified_at=source_email_verified_at if source_email and not moved_email else None,

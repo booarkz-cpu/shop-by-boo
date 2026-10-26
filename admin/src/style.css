@@ -394,3 +394,30 @@ html[data-theme="light"]{color-scheme:light}
 .ops-summary{white-space:pre-wrap;background:var(--panel-2,rgba(255,255,255,.04));padding:12px 14px;border-radius:10px;font:13px/1.5 ui-monospace,monospace}
 .doc-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 .doc-faq{border:1px solid var(--line,rgba(255,255,255,.08));border-radius:12px;padding:12px;margin:10px 0}
+
+/* «Приложения: экраны и кнопки» (v28.31.0) */
+.mobile-config{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+.mobile-config-main{display:grid;gap:14px;min-width:0}
+.mobile-preview{position:sticky;top:12px}
+.mc-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0}
+.mc-row input:not([type=checkbox]){flex:1;min-width:120px}
+.color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.phone{width:300px;height:600px;border-radius:38px;border:8px solid #1d2233;background:var(--p-bg);color:var(--p-text);display:flex;flex-direction:column;overflow:hidden;font-size:13px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.phone-head{padding:16px 16px 6px;font-size:16px;color:var(--p-accent)}
+.phone-body{flex:1;overflow:auto;padding:8px 12px;display:grid;gap:8px;align-content:start}
+.p-card,.p-notice{background:var(--p-surface);border-radius:var(--p-radius);padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.p-notice{font-size:12px}
+.p-connect{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 0}
+.p-orb{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;font-size:34px;background:radial-gradient(circle at 50% 35%,var(--p-accent2),var(--p-accent) 60%,var(--p-bg));color:#fff;box-shadow:0 0 30px var(--p-accent)}
+.p-connect span,.p-card span,.p-login p,.p-login small,.p-plans small{color:var(--p-muted)}
+.p-bar{display:block;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--p-accent) 38%,var(--p-surface) 38%)}
+.p-ok{color:#2bd47d}
+.p-promo{background:linear-gradient(120deg,var(--p-accent),var(--p-accent2));color:#fff}
+.p-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.p-btn{display:block;text-align:center;padding:10px;border-radius:var(--p-radius);background:var(--p-surface)}
+.p-btn.primary{background:var(--p-accent);color:#fff}.p-btn.accent{background:linear-gradient(120deg,var(--p-accent),var(--p-accent2));color:#fff}
+.p-login,.p-plans,.p-support{display:grid;gap:8px}
+.p-plans table{width:100%;border-collapse:collapse;font-size:12px}.p-plans td,.p-plans th{padding:4px;border-bottom:1px solid var(--p-surface);text-align:left}
+.phone-tabs{display:flex;justify-content:space-around;padding:10px 6px 14px;background:var(--p-surface);font-size:11px;color:var(--p-muted)}
+.phone-tabs .on{color:var(--p-accent);font-weight:600}
+@media (max-width: 1100px){.mobile-config{grid-template-columns:1fr}.mobile-preview{position:static}}

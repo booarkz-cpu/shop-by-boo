@@ -269,6 +269,10 @@ async def start(message:Message):
                     await db.rollback()
 
 
+    if incoming.startswith("login_"):
+        await app_login_prompt(message, incoming[6:])
+        return
+
     vals,menu,fields,ads,promos,plans=await get_bot_config()
     lang=_lang(message)
     start_arg=""
@@ -314,6 +318,60 @@ async def start(message:Message):
     markup=InlineKeyboardMarkup(inline_keyboard=buttons)
     # Banner: own image from the admin panel, the legacy /start image or the default corgi Lusi.
     await send_section(message,"start",text,markup)
+
+# ---------------------------------------------------------------- app sign-in (v28.31.0)
+
+APP_LOGIN = {
+    "ru": ("📱 <b>Вход в приложение {app} на {platform}</b>\n\nВыберите код, который сейчас показан в приложении. "
+           "Если вы не входите в приложение прямо сейчас — нажмите «Это не я»: кто-то пытается войти в ваш аккаунт по вашей ссылке.",
+           "Это не я", "✅ Готово! Вернитесь в приложение.", "Вход отменён. Если это были не вы — ничего делать не нужно, доступ не выдан.",
+           "Ссылка для входа устарела. Начните вход в приложении заново."),
+    "en": ("📱 <b>Sign in to the {app} app on {platform}</b>\n\nPick the code shown in the app right now. "
+           "If you are not signing in yourself, tap «Not me»: someone is trying to use your account through this link.",
+           "Not me", "✅ Done! Go back to the app.", "Sign-in cancelled. If it was not you, nothing else is needed: no access was given.",
+           "This sign-in link has expired. Start again in the app."),
+    "uk": ("📱 <b>Вхід у застосунок {app} на {platform}</b>\n\nОберіть код, який зараз показано в застосунку. "
+           "Якщо ви зараз не входите — натисніть «Це не я»: хтось намагається увійти у ваш акаунт за цим посиланням.",
+           "Це не я", "✅ Готово! Поверніться до застосунку.", "Вхід скасовано. Якщо це були не ви — нічого робити не потрібно, доступ не надано.",
+           "Посилання для входу застаріло. Почніть вхід у застосунку знову."),
+}
+
+
+async def app_login_prompt(message: Message, nonce: str):
+    from .mobile_oauth import telegram_prompt
+    lang = _lang(message)
+    text, deny, _, _, expired = APP_LOGIN.get(lang, APP_LOGIN["ru"])
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        prompt = await telegram_prompt(db, nonce)
+        vals, *_ = await get_bot_config()
+    if not prompt:
+        await message.answer(expired)
+        return
+    rows = [[InlineKeyboardButton(text=c, callback_data=f"applogin:{nonce}:{c}") for c in prompt["choices"]],
+            [InlineKeyboardButton(text=deny, callback_data=f"applogin:{nonce}:deny")]]
+    app = escape(vals.get("app_name") or vals.get("bot_name") or "Корги Люси")
+    await message.answer(text.replace("{app}", app).replace("{platform}", prompt["platform"]), parse_mode="HTML",
+                         reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
+
+
+@router.callback_query(lambda query: bool(query.data and query.data.startswith("applogin:")))
+async def app_login_answer(query: CallbackQuery):
+    from .mobile_oauth import telegram_answer
+    parts = query.data.split(":")
+    if len(parts) != 3 or not query.message or query.message.chat.type != "private" or not query.from_user:
+        await query.answer()
+        return
+    code = (query.from_user.language_code or "").lower()
+    lang = "uk" if code.startswith(("uk", "ua")) else "en" if code.startswith("en") else "ru"
+    _, _, done, denied, expired = APP_LOGIN[lang]
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        result = await telegram_answer(db, parts[1], "deny" if parts[2] == "deny" else parts[2], query.from_user.id, query.from_user.username)
+    await query.answer()
+    try:
+        await query.message.edit_text({"approved": done, "denied": denied}.get(result, expired))
+    except Exception:
+        await query.message.answer({"approved": done, "denied": denied}.get(result, expired))
+
 
 # ---------------------------------------------------------------- documents (v28.29.0)
 

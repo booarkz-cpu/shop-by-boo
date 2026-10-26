@@ -326,6 +326,10 @@ class Settings(BaseSettings):
     vk_client_id: str = Field(default="", alias="VK_CLIENT_ID")
     vk_client_secret: str = Field(default="", alias="VK_CLIENT_SECRET")
     vk_redirect_uri: str = Field(default="", alias="VK_REDIRECT_URI")
+    google_client_id: str = Field(default="", alias="GOOGLE_CLIENT_ID")
+    google_client_secret: str = Field(default="", alias="GOOGLE_CLIENT_SECRET")
+    # Custom URL scheme the Android and iOS customer apps register for the sign-in return.
+    mobile_auth_scheme: str = Field(default="corgilusi", alias="MOBILE_AUTH_SCHEME", pattern=r"^[a-z][a-z0-9+.-]{1,31}$")
 
     # Public cabinet URL (separate from Telegram Mini App when needed)
     cabinet_url: str = Field(default="", alias="CABINET_URL")

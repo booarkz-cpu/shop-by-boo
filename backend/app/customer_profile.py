@@ -47,6 +47,7 @@ async def _payload(db: AsyncSession, user: User) -> dict:
             "telegram": user.telegram_id is not None,
             "yandex": bool(user.yandex_id),
             "vk": bool(user.vk_id),
+            "google": bool(user.google_id),
             "passkey": passkeys > 0,
         },
     }

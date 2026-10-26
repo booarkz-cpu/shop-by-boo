@@ -98,6 +98,10 @@ from .runtime_settings import refresh_runtime_settings, router as runtime_settin
 app.include_router(cabinet_router)
 from .info_pages import router as info_pages_router
 app.include_router(info_pages_router)
+from .mobile_oauth import router as mobile_oauth_router
+app.include_router(mobile_oauth_router)
+from .mobile_config import router as mobile_config_router
+app.include_router(mobile_config_router)
 app.include_router(customer_workspace_router)
 app.include_router(customer_profile_router)
 app.include_router(history_import_router)
@@ -184,6 +188,9 @@ RATE_LIMITS = {
     "/api/auth/vk/callback": 20,
     "/api/auth/login": 12,
     "/api/auth/mobile/token": 20,
+    "/api/auth/mobile/telegram/start": 10,
+    "/api/auth/mobile/telegram/poll": 120,
+    "/api/mobile/config": 120,
     "/api/auth/register": 8,
     "/api/auth/password/reset/request": 5,
     "/api/auth/password/reset/confirm": 5,

@@ -151,6 +151,8 @@ DEFINITIONS = (
     SettingDefinition("vk_client_id", "oauth", "VK client ID", "Client ID приложения VK ID.", "string", "vk_client_id", optional=True),
     SettingDefinition("vk_client_secret", "oauth", "VK client secret", "Client secret VK ID.", "secret", "vk_client_secret", secret=True, optional=True),
     SettingDefinition("vk_redirect_uri", "oauth", "VK redirect URI", "Точный HTTPS callback VK ID.", "string", "vk_redirect_uri", optional=True),
+    SettingDefinition("google_client_id", "oauth", "Google client ID", "Client ID OAuth-клиента Google (тип «Веб-приложение»).", "string", "google_client_id", optional=True),
+    SettingDefinition("google_client_secret", "oauth", "Google client secret", "Client secret OAuth-клиента Google.", "secret", "google_client_secret", secret=True, optional=True),
     SettingDefinition("support_pro_url", "support", "URL Support Pro", "HTTPS URL отдельного сервиса Support Pro.", "string", "support_pro_url", optional=True),
     SettingDefinition("support_pro_sso_secret", "support", "Support Pro SSO secret", "Общий SSO-секрет; хранится зашифрованно.", "secret", "support_pro_sso_secret", secret=True, optional=True),
     SettingDefinition("support_pro_timeout_seconds", "support", "Timeout Support Pro", "Лимит ожидания ответа Support Pro.", "number", "support_pro_timeout_seconds", minimum=1, maximum=20, unit="сек."),
@@ -407,6 +409,7 @@ def _dependency_errors(values: dict[str, bool | int | float | str]) -> tuple[lis
     for title, keys in (
         ("Yandex ID", ("yandex_client_id", "yandex_client_secret", "yandex_redirect_uri")),
         ("VK ID", ("vk_client_id", "vk_client_secret", "vk_redirect_uri")),
+        ("Google", ("google_client_id", "google_client_secret")),
         ("Apple Store", ("apple_issuer_id", "apple_key_id", "apple_private_key", "apple_bundle_id")),
         ("Google Play", ("google_play_package", "google_service_account_json")),
     ):
