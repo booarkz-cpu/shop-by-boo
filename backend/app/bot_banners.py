@@ -74,6 +74,22 @@ SECTIONS: dict[str, tuple[str, str]] = {
     "rules": ("Правила", "/rules и Mini App: документы"),
     "privacy": ("Политика конфиденциальности", "/privacy и Mini App: документы"),
     "offer": ("Публичная оферта", "/offer и Mini App: документы"),
+    # Sections of the Android and iOS apps (mobile_layout): dark banners in the app style.
+    "app-vpn": ("Приложение: VPN", "Android/iOS: главный экран"),
+    "app-locations": ("Приложение: локации", "Android/iOS: выбор сервера"),
+    "app-premium": ("Приложение: премиум", "Android/iOS: тарифы"),
+    "app-subscription": ("Приложение: подписка", "Android/iOS: подписка"),
+    "app-support": ("Приложение: поддержка", "Android/iOS: поддержка"),
+    "app-settings": ("Приложение: настройки", "Android/iOS: настройки"),
+    "app-devices": ("Приложение: устройства", "Android/iOS: устройства"),
+    "app-family": ("Приложение: семья", "Android/iOS: семейная подписка"),
+    "app-referral": ("Приложение: пригласи друга", "Android/iOS: рефералы"),
+    "app-wallet": ("Приложение: баланс", "Android/iOS: баланс"),
+    "app-gifts": ("Приложение: подарки", "Android/iOS: подарки"),
+    "app-notifications": ("Приложение: уведомления", "Android/iOS: уведомления"),
+    "app-status": ("Приложение: состояние сервиса", "Android/iOS: состояние сервиса"),
+    "app-security": ("Приложение: безопасность", "Android/iOS: вход и безопасность"),
+    "app-info": ("Приложение: информация", "Android/iOS: документы"),
 }
 MENU_KEY = re.compile(r"^menu-([1-9][0-9]{0,9})$")
 

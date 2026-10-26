@@ -1,0 +1,1955 @@
+{
+ "en": {
+  "lang": "en",
+  "links": {
+   "cabinet": "",
+   "telegram_channel": ""
+  },
+  "schema": 1,
+  "sections": [
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-subscription.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "copy_id",
+      "audience": "any",
+      "icon": "copy",
+      "id": "copy_id",
+      "label": "Copy ID",
+      "style": "ghost",
+      "target": ""
+     },
+     {
+      "action": "import_app",
+      "audience": "subscribed",
+      "icon": "download",
+      "id": "happ",
+      "label": "Add to Happ",
+      "style": "primary",
+      "target": "happ"
+     },
+     {
+      "action": "import_app",
+      "audience": "subscribed",
+      "icon": "download",
+      "id": "v2rayng",
+      "label": "Add to v2rayNG",
+      "style": "secondary",
+      "target": "v2rayng"
+     },
+     {
+      "action": "copy_subscription",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "copy_link",
+      "label": "Copy subscription link",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "show_qr",
+      "audience": "subscribed",
+      "icon": "qr",
+      "id": "qr",
+      "label": "QR code for another device",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "smartphone",
+      "id": "devices",
+      "label": "Add devices",
+      "style": "secondary",
+      "target": "devices"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "crown",
+      "id": "premium",
+      "label": "Go Premium",
+      "style": "accent",
+      "target": "premium"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "wallet",
+      "id": "wallet",
+      "label": "Balance and top-up",
+      "style": "secondary",
+      "target": "wallet"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "heart",
+      "id": "family",
+      "label": "Family plan",
+      "style": "secondary",
+      "target": "family"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "users",
+      "id": "referral",
+      "label": "Invite a friend",
+      "style": "secondary",
+      "target": "referral"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "gift",
+      "id": "gifts",
+      "label": "Gifts and promo codes",
+      "style": "secondary",
+      "target": "gifts"
+     }
+    ],
+    "icon": "user",
+    "id": "subscription",
+    "kind": "subscription",
+    "subtitle": "",
+    "tab": true,
+    "title": "Subscription"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-premium.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "buy",
+      "audience": "any",
+      "icon": "card",
+      "id": "buy",
+      "label": "Pay",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "pay_wallet",
+      "audience": "any",
+      "icon": "wallet",
+      "id": "pay_wallet",
+      "label": "Pay from balance",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "redeem",
+      "audience": "any",
+      "icon": "gift",
+      "id": "redeem",
+      "label": "I have a promo code",
+      "style": "ghost",
+      "target": ""
+     }
+    ],
+    "icon": "crown",
+    "id": "premium",
+    "kind": "premium",
+    "subtitle": "Unlimited traffic, every location and priority support",
+    "tab": true,
+    "title": "Premium"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-vpn.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "connect",
+      "audience": "any",
+      "icon": "power",
+      "id": "connect",
+      "label": "Connect",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "globe",
+      "id": "location",
+      "label": "Choose location",
+      "style": "secondary",
+      "target": "locations"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "crown",
+      "id": "upgrade",
+      "label": "Upgrade to Premium",
+      "style": "accent",
+      "target": "premium"
+     },
+     {
+      "action": "trial",
+      "audience": "unsubscribed",
+      "icon": "star",
+      "id": "trial",
+      "label": "Try for free",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "headset",
+      "id": "support",
+      "label": "Support",
+      "style": "ghost",
+      "target": "support"
+     },
+     {
+      "action": "report_problem",
+      "audience": "any",
+      "icon": "bug",
+      "id": "report",
+      "label": "Report a problem",
+      "style": "ghost",
+      "target": ""
+     }
+    ],
+    "icon": "power",
+    "id": "vpn",
+    "kind": "vpn",
+    "subtitle": "",
+    "tab": true,
+    "title": "VPN"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-locations.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "auto_location",
+      "audience": "any",
+      "icon": "rocket",
+      "id": "auto",
+      "label": "Auto — the fastest",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "globe",
+    "id": "locations",
+    "kind": "locations",
+    "subtitle": "",
+    "tab": true,
+    "title": "Locations"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-settings.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "language",
+      "audience": "any",
+      "icon": "language",
+      "id": "language",
+      "label": "Language",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "push_toggle",
+      "audience": "any",
+      "icon": "bell",
+      "id": "push",
+      "label": "Push notifications",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "widget_toggle",
+      "audience": "any",
+      "icon": "smartphone",
+      "id": "widget",
+      "label": "Home screen widget",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "bell",
+      "id": "notifications",
+      "label": "Notifications",
+      "style": "secondary",
+      "target": "notifications"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "key",
+      "id": "security",
+      "label": "Sign-in and security",
+      "style": "secondary",
+      "target": "security"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "file",
+      "id": "documents",
+      "label": "Documents",
+      "style": "secondary",
+      "target": "info"
+     },
+     {
+      "action": "report_problem",
+      "audience": "any",
+      "icon": "bug",
+      "id": "report",
+      "label": "Report a problem",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "sign_out",
+      "audience": "any",
+      "icon": "logout",
+      "id": "sign_out",
+      "label": "Sign out",
+      "style": "danger",
+      "target": ""
+     }
+    ],
+    "icon": "settings",
+    "id": "settings",
+    "kind": "settings",
+    "subtitle": "",
+    "tab": true,
+    "title": "Settings"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-support.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "support_ticket",
+      "audience": "any",
+      "icon": "message",
+      "id": "chat",
+      "label": "Message support",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "help",
+      "id": "faq",
+      "label": "FAQ",
+      "style": "secondary",
+      "target": "info"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "activity",
+      "id": "status",
+      "label": "Service status",
+      "style": "secondary",
+      "target": "status"
+     }
+    ],
+    "icon": "headset",
+    "id": "support",
+    "kind": "support",
+    "subtitle": "",
+    "tab": false,
+    "title": "Support"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-devices.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "show_qr",
+      "audience": "subscribed",
+      "icon": "qr",
+      "id": "qr",
+      "label": "Connect with a QR code",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "copy_subscription",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "copy_link",
+      "label": "Copy subscription link",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "smartphone",
+    "id": "devices",
+    "kind": "devices",
+    "subtitle": "",
+    "tab": false,
+    "title": "Devices"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-family.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "family_invite",
+      "audience": "any",
+      "icon": "share",
+      "id": "invite",
+      "label": "Invite your family",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "heart",
+    "id": "family",
+    "kind": "family",
+    "subtitle": "",
+    "tab": false,
+    "title": "Family"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-referral.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "share_referral",
+      "audience": "any",
+      "icon": "share",
+      "id": "share",
+      "label": "Share",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "copy_referral",
+      "audience": "any",
+      "icon": "copy",
+      "id": "copy",
+      "label": "Copy",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "users",
+    "id": "referral",
+    "kind": "referral",
+    "subtitle": "Get a bonus for every friend who buys a subscription",
+    "tab": false,
+    "title": "Invite a friend"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-wallet.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "topup",
+      "audience": "any",
+      "icon": "card",
+      "id": "topup",
+      "label": "Top up",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "wallet",
+    "id": "wallet",
+    "kind": "wallet",
+    "subtitle": "",
+    "tab": false,
+    "title": "Balance"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-gifts.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "redeem",
+      "audience": "any",
+      "icon": "gift",
+      "id": "redeem",
+      "label": "Redeem a code",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "gift",
+    "id": "gifts",
+    "kind": "gifts",
+    "subtitle": "",
+    "tab": false,
+    "title": "Gifts"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-notifications.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "push_toggle",
+      "audience": "any",
+      "icon": "bell",
+      "id": "push",
+      "label": "Push notifications",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "bell",
+    "id": "notifications",
+    "kind": "notifications",
+    "subtitle": "",
+    "tab": false,
+    "title": "Notifications"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-status.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "refresh",
+      "audience": "any",
+      "icon": "refresh",
+      "id": "refresh",
+      "label": "Refresh",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "activity",
+    "id": "status",
+    "kind": "status",
+    "subtitle": "",
+    "tab": false,
+    "title": "Service status"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-security.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "passkey_add",
+      "audience": "any",
+      "icon": "key",
+      "id": "passkey",
+      "label": "Add a passkey",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "key",
+    "id": "security",
+    "kind": "security",
+    "subtitle": "",
+    "tab": false,
+    "title": "Sign-in and security"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-info.jpg"
+    },
+    "body": "",
+    "buttons": [],
+    "icon": "info",
+    "id": "info",
+    "kind": "info",
+    "subtitle": "",
+    "tab": false,
+    "title": "Information"
+   }
+  ],
+  "tabs": [
+   "subscription",
+   "premium",
+   "vpn",
+   "locations",
+   "settings"
+  ],
+  "texts": {
+   "auto_location": "Auto — the fastest",
+   "brand": "Corgi VPN",
+   "consent": "By paying you accept the offer and the auto-renewal terms",
+   "days_left": "{n} days left",
+   "devices": "Devices",
+   "no_subscription": "No active subscription",
+   "offline": "Offline — showing saved data",
+   "per_month": "₽/mo",
+   "servers": "Servers",
+   "status_connecting": "Connecting…",
+   "status_no_client": "Install a VPN client to connect",
+   "status_off": "VPN is off",
+   "status_on": "VPN is on",
+   "traffic_left": "Traffic left",
+   "unlimited": "Unlimited",
+   "until": "until",
+   "your_id": "Your ID"
+  },
+  "theme": {
+   "accent": "#FF8A1F",
+   "accent_2": "#FFC069",
+   "background": "#0E0F14",
+   "danger": "#FF5A6E",
+   "muted": "#9A97A3",
+   "radius": 22,
+   "success": "#3DDC84",
+   "surface": "#1A1C24",
+   "surface_2": "#252833",
+   "text": "#F5F2EE"
+  },
+  "version": "e9c5b69c024c383f"
+ },
+ "ru": {
+  "lang": "ru",
+  "links": {
+   "cabinet": "",
+   "telegram_channel": ""
+  },
+  "schema": 1,
+  "sections": [
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-subscription.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "copy_id",
+      "audience": "any",
+      "icon": "copy",
+      "id": "copy_id",
+      "label": "Копировать ID",
+      "style": "ghost",
+      "target": ""
+     },
+     {
+      "action": "import_app",
+      "audience": "subscribed",
+      "icon": "download",
+      "id": "happ",
+      "label": "Добавить в Happ",
+      "style": "primary",
+      "target": "happ"
+     },
+     {
+      "action": "import_app",
+      "audience": "subscribed",
+      "icon": "download",
+      "id": "v2rayng",
+      "label": "Добавить в v2rayNG",
+      "style": "secondary",
+      "target": "v2rayng"
+     },
+     {
+      "action": "copy_subscription",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "copy_link",
+      "label": "Скопировать ссылку подписки",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "show_qr",
+      "audience": "subscribed",
+      "icon": "qr",
+      "id": "qr",
+      "label": "QR-код для другого устройства",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "smartphone",
+      "id": "devices",
+      "label": "Добавить устройства",
+      "style": "secondary",
+      "target": "devices"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "crown",
+      "id": "premium",
+      "label": "Перейти на Премиум",
+      "style": "accent",
+      "target": "premium"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "wallet",
+      "id": "wallet",
+      "label": "Баланс и пополнение",
+      "style": "secondary",
+      "target": "wallet"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "heart",
+      "id": "family",
+      "label": "Семейная подписка",
+      "style": "secondary",
+      "target": "family"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "users",
+      "id": "referral",
+      "label": "Пригласить друга",
+      "style": "secondary",
+      "target": "referral"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "gift",
+      "id": "gifts",
+      "label": "Подарки и промокоды",
+      "style": "secondary",
+      "target": "gifts"
+     }
+    ],
+    "icon": "user",
+    "id": "subscription",
+    "kind": "subscription",
+    "subtitle": "",
+    "tab": true,
+    "title": "Подписка"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-premium.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "buy",
+      "audience": "any",
+      "icon": "card",
+      "id": "buy",
+      "label": "Оплатить",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "pay_wallet",
+      "audience": "any",
+      "icon": "wallet",
+      "id": "pay_wallet",
+      "label": "Оплатить с баланса",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "redeem",
+      "audience": "any",
+      "icon": "gift",
+      "id": "redeem",
+      "label": "У меня есть промокод",
+      "style": "ghost",
+      "target": ""
+     }
+    ],
+    "icon": "crown",
+    "id": "premium",
+    "kind": "premium",
+    "subtitle": "Безлимитный трафик, все локации и приоритетная поддержка",
+    "tab": true,
+    "title": "Премиум"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-vpn.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "connect",
+      "audience": "any",
+      "icon": "power",
+      "id": "connect",
+      "label": "Подключить",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "globe",
+      "id": "location",
+      "label": "Выбрать локацию",
+      "style": "secondary",
+      "target": "locations"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "crown",
+      "id": "upgrade",
+      "label": "Улучшить до Премиум",
+      "style": "accent",
+      "target": "premium"
+     },
+     {
+      "action": "trial",
+      "audience": "unsubscribed",
+      "icon": "star",
+      "id": "trial",
+      "label": "Попробовать бесплатно",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "headset",
+      "id": "support",
+      "label": "Поддержка",
+      "style": "ghost",
+      "target": "support"
+     },
+     {
+      "action": "report_problem",
+      "audience": "any",
+      "icon": "bug",
+      "id": "report",
+      "label": "Сообщить о проблеме",
+      "style": "ghost",
+      "target": ""
+     }
+    ],
+    "icon": "power",
+    "id": "vpn",
+    "kind": "vpn",
+    "subtitle": "",
+    "tab": true,
+    "title": "VPN"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-locations.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "auto_location",
+      "audience": "any",
+      "icon": "rocket",
+      "id": "auto",
+      "label": "Автовыбор — самый быстрый",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "globe",
+    "id": "locations",
+    "kind": "locations",
+    "subtitle": "",
+    "tab": true,
+    "title": "Локации"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-settings.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "language",
+      "audience": "any",
+      "icon": "language",
+      "id": "language",
+      "label": "Язык",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "push_toggle",
+      "audience": "any",
+      "icon": "bell",
+      "id": "push",
+      "label": "Push-уведомления",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "widget_toggle",
+      "audience": "any",
+      "icon": "smartphone",
+      "id": "widget",
+      "label": "Виджет на главный экран",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "bell",
+      "id": "notifications",
+      "label": "Уведомления",
+      "style": "secondary",
+      "target": "notifications"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "key",
+      "id": "security",
+      "label": "Вход и безопасность",
+      "style": "secondary",
+      "target": "security"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "file",
+      "id": "documents",
+      "label": "Документы",
+      "style": "secondary",
+      "target": "info"
+     },
+     {
+      "action": "report_problem",
+      "audience": "any",
+      "icon": "bug",
+      "id": "report",
+      "label": "Сообщить о проблеме",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "sign_out",
+      "audience": "any",
+      "icon": "logout",
+      "id": "sign_out",
+      "label": "Выйти",
+      "style": "danger",
+      "target": ""
+     }
+    ],
+    "icon": "settings",
+    "id": "settings",
+    "kind": "settings",
+    "subtitle": "",
+    "tab": true,
+    "title": "Настройки"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-support.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "support_ticket",
+      "audience": "any",
+      "icon": "message",
+      "id": "chat",
+      "label": "Написать в поддержку",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "help",
+      "id": "faq",
+      "label": "Частые вопросы",
+      "style": "secondary",
+      "target": "info"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "activity",
+      "id": "status",
+      "label": "Состояние сервиса",
+      "style": "secondary",
+      "target": "status"
+     }
+    ],
+    "icon": "headset",
+    "id": "support",
+    "kind": "support",
+    "subtitle": "",
+    "tab": false,
+    "title": "Поддержка"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-devices.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "show_qr",
+      "audience": "subscribed",
+      "icon": "qr",
+      "id": "qr",
+      "label": "Подключить по QR-коду",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "copy_subscription",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "copy_link",
+      "label": "Скопировать ссылку подписки",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "smartphone",
+    "id": "devices",
+    "kind": "devices",
+    "subtitle": "",
+    "tab": false,
+    "title": "Устройства"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-family.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "family_invite",
+      "audience": "any",
+      "icon": "share",
+      "id": "invite",
+      "label": "Пригласить близких",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "heart",
+    "id": "family",
+    "kind": "family",
+    "subtitle": "",
+    "tab": false,
+    "title": "Семья"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-referral.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "share_referral",
+      "audience": "any",
+      "icon": "share",
+      "id": "share",
+      "label": "Поделиться",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "copy_referral",
+      "audience": "any",
+      "icon": "copy",
+      "id": "copy",
+      "label": "Скопировать",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "users",
+    "id": "referral",
+    "kind": "referral",
+    "subtitle": "Дарим бонус за каждого друга, который оплатит подписку",
+    "tab": false,
+    "title": "Пригласи друга"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-wallet.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "topup",
+      "audience": "any",
+      "icon": "card",
+      "id": "topup",
+      "label": "Пополнить",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "wallet",
+    "id": "wallet",
+    "kind": "wallet",
+    "subtitle": "",
+    "tab": false,
+    "title": "Баланс"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-gifts.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "redeem",
+      "audience": "any",
+      "icon": "gift",
+      "id": "redeem",
+      "label": "Активировать код",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "gift",
+    "id": "gifts",
+    "kind": "gifts",
+    "subtitle": "",
+    "tab": false,
+    "title": "Подарки"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-notifications.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "push_toggle",
+      "audience": "any",
+      "icon": "bell",
+      "id": "push",
+      "label": "Push-уведомления",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "bell",
+    "id": "notifications",
+    "kind": "notifications",
+    "subtitle": "",
+    "tab": false,
+    "title": "Уведомления"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-status.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "refresh",
+      "audience": "any",
+      "icon": "refresh",
+      "id": "refresh",
+      "label": "Обновить",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "activity",
+    "id": "status",
+    "kind": "status",
+    "subtitle": "",
+    "tab": false,
+    "title": "Состояние сервиса"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-security.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "passkey_add",
+      "audience": "any",
+      "icon": "key",
+      "id": "passkey",
+      "label": "Добавить ключ входа",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "key",
+    "id": "security",
+    "kind": "security",
+    "subtitle": "",
+    "tab": false,
+    "title": "Вход и безопасность"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-info.jpg"
+    },
+    "body": "",
+    "buttons": [],
+    "icon": "info",
+    "id": "info",
+    "kind": "info",
+    "subtitle": "",
+    "tab": false,
+    "title": "Информация"
+   }
+  ],
+  "tabs": [
+   "subscription",
+   "premium",
+   "vpn",
+   "locations",
+   "settings"
+  ],
+  "texts": {
+   "auto_location": "Автовыбор — самый быстрый",
+   "brand": "Корги VPN",
+   "consent": "Нажимая «Оплатить», вы принимаете оферту и условия автопродления",
+   "days_left": "осталось {n} дн.",
+   "devices": "Устройств",
+   "no_subscription": "Нет активной подписки",
+   "offline": "Нет связи — показаны сохранённые данные",
+   "per_month": "₽/мес",
+   "servers": "Серверы",
+   "status_connecting": "Подключаем…",
+   "status_no_client": "Установите VPN-клиент, чтобы подключиться",
+   "status_off": "VPN отключён",
+   "status_on": "VPN подключён",
+   "traffic_left": "Осталось трафика",
+   "unlimited": "Безлимит",
+   "until": "до",
+   "your_id": "Ваш ID"
+  },
+  "theme": {
+   "accent": "#FF8A1F",
+   "accent_2": "#FFC069",
+   "background": "#0E0F14",
+   "danger": "#FF5A6E",
+   "muted": "#9A97A3",
+   "radius": 22,
+   "success": "#3DDC84",
+   "surface": "#1A1C24",
+   "surface_2": "#252833",
+   "text": "#F5F2EE"
+  },
+  "version": "5db8cd5ab4218d08"
+ },
+ "uk": {
+  "lang": "uk",
+  "links": {
+   "cabinet": "",
+   "telegram_channel": ""
+  },
+  "schema": 1,
+  "sections": [
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-subscription.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "copy_id",
+      "audience": "any",
+      "icon": "copy",
+      "id": "copy_id",
+      "label": "Копіювати ID",
+      "style": "ghost",
+      "target": ""
+     },
+     {
+      "action": "import_app",
+      "audience": "subscribed",
+      "icon": "download",
+      "id": "happ",
+      "label": "Додати в Happ",
+      "style": "primary",
+      "target": "happ"
+     },
+     {
+      "action": "import_app",
+      "audience": "subscribed",
+      "icon": "download",
+      "id": "v2rayng",
+      "label": "Додати в v2rayNG",
+      "style": "secondary",
+      "target": "v2rayng"
+     },
+     {
+      "action": "copy_subscription",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "copy_link",
+      "label": "Скопіювати посилання",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "show_qr",
+      "audience": "subscribed",
+      "icon": "qr",
+      "id": "qr",
+      "label": "QR-код для іншого пристрою",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "smartphone",
+      "id": "devices",
+      "label": "Додати пристрої",
+      "style": "secondary",
+      "target": "devices"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "crown",
+      "id": "premium",
+      "label": "Перейти на Преміум",
+      "style": "accent",
+      "target": "premium"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "wallet",
+      "id": "wallet",
+      "label": "Баланс і поповнення",
+      "style": "secondary",
+      "target": "wallet"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "heart",
+      "id": "family",
+      "label": "Сімейна підписка",
+      "style": "secondary",
+      "target": "family"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "users",
+      "id": "referral",
+      "label": "Запросити друга",
+      "style": "secondary",
+      "target": "referral"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "gift",
+      "id": "gifts",
+      "label": "Подарунки та промокоди",
+      "style": "secondary",
+      "target": "gifts"
+     }
+    ],
+    "icon": "user",
+    "id": "subscription",
+    "kind": "subscription",
+    "subtitle": "",
+    "tab": true,
+    "title": "Підписка"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-premium.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "buy",
+      "audience": "any",
+      "icon": "card",
+      "id": "buy",
+      "label": "Оплатити",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "pay_wallet",
+      "audience": "any",
+      "icon": "wallet",
+      "id": "pay_wallet",
+      "label": "Оплатити з балансу",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "redeem",
+      "audience": "any",
+      "icon": "gift",
+      "id": "redeem",
+      "label": "У мене є промокод",
+      "style": "ghost",
+      "target": ""
+     }
+    ],
+    "icon": "crown",
+    "id": "premium",
+    "kind": "premium",
+    "subtitle": "Безлімітний трафік, усі локації та пріоритетна підтримка",
+    "tab": true,
+    "title": "Преміум"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-vpn.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "connect",
+      "audience": "any",
+      "icon": "power",
+      "id": "connect",
+      "label": "Підключити",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "globe",
+      "id": "location",
+      "label": "Обрати локацію",
+      "style": "secondary",
+      "target": "locations"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "crown",
+      "id": "upgrade",
+      "label": "Покращити до Преміум",
+      "style": "accent",
+      "target": "premium"
+     },
+     {
+      "action": "trial",
+      "audience": "unsubscribed",
+      "icon": "star",
+      "id": "trial",
+      "label": "Спробувати безкоштовно",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "headset",
+      "id": "support",
+      "label": "Підтримка",
+      "style": "ghost",
+      "target": "support"
+     },
+     {
+      "action": "report_problem",
+      "audience": "any",
+      "icon": "bug",
+      "id": "report",
+      "label": "Повідомити про проблему",
+      "style": "ghost",
+      "target": ""
+     }
+    ],
+    "icon": "power",
+    "id": "vpn",
+    "kind": "vpn",
+    "subtitle": "",
+    "tab": true,
+    "title": "VPN"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-locations.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "auto_location",
+      "audience": "any",
+      "icon": "rocket",
+      "id": "auto",
+      "label": "Автовибір — найшвидший",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "globe",
+    "id": "locations",
+    "kind": "locations",
+    "subtitle": "",
+    "tab": true,
+    "title": "Локації"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-settings.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "language",
+      "audience": "any",
+      "icon": "language",
+      "id": "language",
+      "label": "Мова",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "push_toggle",
+      "audience": "any",
+      "icon": "bell",
+      "id": "push",
+      "label": "Push-сповіщення",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "widget_toggle",
+      "audience": "any",
+      "icon": "smartphone",
+      "id": "widget",
+      "label": "Віджет на головний екран",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "bell",
+      "id": "notifications",
+      "label": "Сповіщення",
+      "style": "secondary",
+      "target": "notifications"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "key",
+      "id": "security",
+      "label": "Вхід і безпека",
+      "style": "secondary",
+      "target": "security"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "file",
+      "id": "documents",
+      "label": "Документи",
+      "style": "secondary",
+      "target": "info"
+     },
+     {
+      "action": "report_problem",
+      "audience": "any",
+      "icon": "bug",
+      "id": "report",
+      "label": "Повідомити про проблему",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "sign_out",
+      "audience": "any",
+      "icon": "logout",
+      "id": "sign_out",
+      "label": "Вийти",
+      "style": "danger",
+      "target": ""
+     }
+    ],
+    "icon": "settings",
+    "id": "settings",
+    "kind": "settings",
+    "subtitle": "",
+    "tab": true,
+    "title": "Налаштування"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-support.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "support_ticket",
+      "audience": "any",
+      "icon": "message",
+      "id": "chat",
+      "label": "Написати в підтримку",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "help",
+      "id": "faq",
+      "label": "Часті питання",
+      "style": "secondary",
+      "target": "info"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "activity",
+      "id": "status",
+      "label": "Стан сервісу",
+      "style": "secondary",
+      "target": "status"
+     }
+    ],
+    "icon": "headset",
+    "id": "support",
+    "kind": "support",
+    "subtitle": "",
+    "tab": false,
+    "title": "Підтримка"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-devices.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "show_qr",
+      "audience": "subscribed",
+      "icon": "qr",
+      "id": "qr",
+      "label": "Підключити за QR-кодом",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "copy_subscription",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "copy_link",
+      "label": "Скопіювати посилання",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "smartphone",
+    "id": "devices",
+    "kind": "devices",
+    "subtitle": "",
+    "tab": false,
+    "title": "Пристрої"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-family.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "family_invite",
+      "audience": "any",
+      "icon": "share",
+      "id": "invite",
+      "label": "Запросити близьких",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "heart",
+    "id": "family",
+    "kind": "family",
+    "subtitle": "",
+    "tab": false,
+    "title": "Родина"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-referral.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "share_referral",
+      "audience": "any",
+      "icon": "share",
+      "id": "share",
+      "label": "Поділитися",
+      "style": "primary",
+      "target": ""
+     },
+     {
+      "action": "copy_referral",
+      "audience": "any",
+      "icon": "copy",
+      "id": "copy",
+      "label": "Скопіювати",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "users",
+    "id": "referral",
+    "kind": "referral",
+    "subtitle": "Даруємо бонус за кожного друга, який оплатить підписку",
+    "tab": false,
+    "title": "Запроси друга"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-wallet.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "topup",
+      "audience": "any",
+      "icon": "card",
+      "id": "topup",
+      "label": "Поповнити",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "wallet",
+    "id": "wallet",
+    "kind": "wallet",
+    "subtitle": "",
+    "tab": false,
+    "title": "Баланс"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-gifts.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "redeem",
+      "audience": "any",
+      "icon": "gift",
+      "id": "redeem",
+      "label": "Активувати код",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "gift",
+    "id": "gifts",
+    "kind": "gifts",
+    "subtitle": "",
+    "tab": false,
+    "title": "Подарунки"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-notifications.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "push_toggle",
+      "audience": "any",
+      "icon": "bell",
+      "id": "push",
+      "label": "Push-сповіщення",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "bell",
+    "id": "notifications",
+    "kind": "notifications",
+    "subtitle": "",
+    "tab": false,
+    "title": "Сповіщення"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-status.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "refresh",
+      "audience": "any",
+      "icon": "refresh",
+      "id": "refresh",
+      "label": "Оновити",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
+    "icon": "activity",
+    "id": "status",
+    "kind": "status",
+    "subtitle": "",
+    "tab": false,
+    "title": "Стан сервісу"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-security.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "passkey_add",
+      "audience": "any",
+      "icon": "key",
+      "id": "passkey",
+      "label": "Додати ключ входу",
+      "style": "primary",
+      "target": ""
+     }
+    ],
+    "icon": "key",
+    "id": "security",
+    "kind": "security",
+    "subtitle": "",
+    "tab": false,
+    "title": "Вхід і безпека"
+   },
+   {
+    "banner": {
+     "link": "",
+     "url": "/api/bot/banners/default/app-info.jpg"
+    },
+    "body": "",
+    "buttons": [],
+    "icon": "info",
+    "id": "info",
+    "kind": "info",
+    "subtitle": "",
+    "tab": false,
+    "title": "Інформація"
+   }
+  ],
+  "tabs": [
+   "subscription",
+   "premium",
+   "vpn",
+   "locations",
+   "settings"
+  ],
+  "texts": {
+   "auto_location": "Автовибір — найшвидший",
+   "brand": "Коргі VPN",
+   "consent": "Натискаючи «Оплатити», ви приймаєте оферту та умови автопродовження",
+   "days_left": "залишилось {n} дн.",
+   "devices": "Пристроїв",
+   "no_subscription": "Немає активної підписки",
+   "offline": "Немає зв'язку — показано збережені дані",
+   "per_month": "₽/міс",
+   "servers": "Сервери",
+   "status_connecting": "Підключаємо…",
+   "status_no_client": "Встановіть VPN-клієнт, щоб підключитися",
+   "status_off": "VPN вимкнено",
+   "status_on": "VPN підключено",
+   "traffic_left": "Залишилось трафіку",
+   "unlimited": "Безліміт",
+   "until": "до",
+   "your_id": "Ваш ID"
+  },
+  "theme": {
+   "accent": "#FF8A1F",
+   "accent_2": "#FFC069",
+   "background": "#0E0F14",
+   "danger": "#FF5A6E",
+   "muted": "#9A97A3",
+   "radius": 22,
+   "success": "#3DDC84",
+   "surface": "#1A1C24",
+   "surface_2": "#252833",
+   "text": "#F5F2EE"
+  },
+  "version": "ffa4f8d2334ce318"
+ }
+}

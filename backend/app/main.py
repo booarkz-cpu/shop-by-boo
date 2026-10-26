@@ -137,6 +137,8 @@ from .bot_banners import router as bot_banners_router
 app.include_router(bot_banners_router)
 from .app_config import router as app_config_router
 app.include_router(app_config_router)
+from .mobile_layout import router as mobile_layout_router
+app.include_router(mobile_layout_router)
 from .telegram_stars import router as telegram_stars_router, TelegramStarsProvider
 app.include_router(telegram_stars_router)
 from .remnawave_events import router as remnawave_events_router
@@ -200,6 +202,7 @@ RATE_LIMITS = {
     "/api/payments/sandbox/complete": 30,
     "/api/public/servers": 30,
     "/api/app-config": 120,
+    "/api/mobile/layout": 120,
     "/api/me/wallet/stars-invoice": 10,
     "/api/me/consent": 30,
     "/api/webhooks/remnawave": 600,
