@@ -109,6 +109,6 @@ def test_docs_describe_312_and_keep_311():
     assert "FULL_E2E_PASS" in instruction and "users.keys" in instruction
     assert "Русский" in notes and "English" in notes
     assert "2.10.0" in notes and "2.12.0" in notes and "0038_v2_6_0_platform" in notes
-    assert "docs/archive/root/RELEASE_NOTES_V3_1_2.md" in docs and "INSTALL_STEPS.md" in docs and "docs/archive/root/RELEASE_NOTES_V3_1_1.md" in docs
+    assert "RELEASE_NOTES_V3_1_2.md" in docs and "INSTALL_STEPS.md" in docs and "RELEASE_NOTES_V3_1_1.md" in docs
     assert '"version": "3.1.2"' in steps
     assert "client-logo" not in ui

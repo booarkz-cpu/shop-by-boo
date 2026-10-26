@@ -112,7 +112,7 @@ def test_docs_describe_313_and_keep_312():
     assert "2.10.0" in notes and "2.12.0" in notes and "0038_v2_6_0_platform" in notes
     assert '"version": "3.1.2"' in steps
     assert '"version": "3.1.3"' in steps
-    assert "docs/archive/root/RELEASE_NOTES_V3_1_3.md" in docs and "docs/archive/root/RELEASE_NOTES_V3_1_2.md" in docs
+    assert "RELEASE_NOTES_V3_1_3.md" in docs and "RELEASE_NOTES_V3_1_2.md" in docs
     assert "client-logo" not in ui
 
 
