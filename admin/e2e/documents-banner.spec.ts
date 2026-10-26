@@ -23,7 +23,7 @@ test('administrator sets the text and the banner of a document and both appear e
   await expect(banner.getByRole('img', {name: 'Баннер: Политика конфиденциальности'})).toHaveAttribute('src', /\/api\/bot\/banners\/default\/privacy\.jpg$/);
   await Promise.all([
     page.waitForResponse((r) => r.url().endsWith('/api/admin/bot/banners/privacy') && r.request().method() === 'POST' && r.ok()),
-    banner.getByLabel('Загрузить своё изображение').setInputFiles({name: 'privacy.png', mimeType: 'image/png', buffer: PNG}),
+    banner.getByLabel('Загрузить своё изображение', {exact: true}).setInputFiles({name: 'privacy.png', mimeType: 'image/png', buffer: PNG}),
   ]);
   const doc = await page.evaluate(async () => (await (await fetch('/api/public/info-pages/privacy?lang=ru', {cache: 'no-store'})).json()));
   expect(doc.body).toContain('Храним только **email**');
