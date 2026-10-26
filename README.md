@@ -228,7 +228,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 | Админ-панель | Личный кабинет |
 | --- | --- |
 | ![Все разделы админ-панели](screenshots/admin_panel/00_all_sections.png) | ![Обзор кабинета](screenshots/storefront_user/03_overview.png) |
-| ![Конструктор тарифов](screenshots/admin_panel/15_constructor.png) | ![Тарифы](screenshots/storefront_user/04_plans.png) |
+| ![Конструктор тарифов](screenshots/admin_panel/16_constructor.png) | ![Тарифы](screenshots/storefront_user/04_plans.png) |
 
 #### Админ-панель
 
