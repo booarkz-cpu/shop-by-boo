@@ -139,6 +139,8 @@ from .app_config import router as app_config_router
 app.include_router(app_config_router)
 from .mobile_layout import router as mobile_layout_router
 app.include_router(mobile_layout_router)
+from .app_login import router as app_login_router
+app.include_router(app_login_router)
 from .telegram_stars import router as telegram_stars_router, TelegramStarsProvider
 app.include_router(telegram_stars_router)
 from .remnawave_events import router as remnawave_events_router
@@ -186,6 +188,11 @@ RATE_LIMITS = {
     "/api/auth/vk/callback": 20,
     "/api/auth/login": 12,
     "/api/auth/mobile/token": 20,
+    "/api/auth/mobile/code": 20,
+    "/api/me/app-login": 10,
+    "/api/app/open": 30,
+    "/api/auth/google": 20,
+    "/api/auth/google/callback": 20,
     "/api/auth/register": 8,
     "/api/auth/password/reset/request": 5,
     "/api/auth/password/reset/confirm": 5,
@@ -275,7 +282,7 @@ def _csrf_cookie_value(request: Request) -> str:
 
 def _require_csrf(request: Request):
     if request.method not in {"POST", "PUT", "PATCH", "DELETE"}: return
-    if request.url.path in {"/api/auth/telegram", "/api/auth/yandex", "/api/auth/yandex/callback", "/api/auth/vk", "/api/auth/vk/callback", "/api/auth/exchange", "/api/auth/login", "/api/auth/register", "/api/admin/auth/login"}: return
+    if request.url.path in {"/api/auth/telegram", "/api/auth/yandex", "/api/auth/yandex/callback", "/api/auth/vk", "/api/auth/vk/callback", "/api/auth/google", "/api/auth/google/callback", "/api/auth/exchange", "/api/auth/login", "/api/auth/register", "/api/admin/auth/login"}: return
     if request.url.path.startswith("/api/webhooks/"): return
     if request.cookies.get("rw_admin") or request.cookies.get("rw_user"):
         supplied=request.headers.get("X-CSRF-Token", "")
@@ -827,11 +834,11 @@ async def revoke_all_user_sessions(request:Request,db:AsyncSession=Depends(get_d
     await db.commit(); return {"ok":True}
 
 @app.get("/api/auth/yandex")
-async def yandex_login(request:Request):
+async def yandex_login(request:Request, app:int=0):
     if not settings.yandex_client_id or not settings.yandex_redirect_uri: raise HTTPException(503,"Yandex ID is not configured")
     state=secrets.token_urlsafe(24)
-    # State is signed so it is stateless and cannot be forged.
-    signed=__import__("jwt").encode({"state":state,"exp":int((datetime.now(timezone.utc)+timedelta(minutes=10)).timestamp())},settings.app_secret,algorithm="HS256")
+    # State is signed so it is stateless and cannot be forged; app=1 returns to the native app.
+    signed=__import__("jwt").encode({"state":state,"app":bool(app),"exp":int((datetime.now(timezone.utc)+timedelta(minutes=10)).timestamp())},settings.app_secret,algorithm="HS256")
     params=urllib.parse.urlencode({"response_type":"code","client_id":settings.yandex_client_id,"redirect_uri":settings.yandex_redirect_uri,"state":signed})
     resp=RedirectResponse("https://oauth.yandex.ru/authorize?"+params)
     resp.set_cookie("yandex_oauth_state",signed,httponly=True,secure=True,samesite="lax",max_age=600)
@@ -841,7 +848,7 @@ async def yandex_login(request:Request):
 async def yandex_callback(code:str,state:str,request:Request,db:AsyncSession=Depends(get_db)):
     try:
         if not request.cookies.get("yandex_oauth_state") or not hmac.compare_digest(request.cookies["yandex_oauth_state"],state): raise ValueError()
-        __import__("jwt").decode(state,settings.app_secret,algorithms=["HS256"])
+        state_claims=__import__("jwt").decode(state,settings.app_secret,algorithms=["HS256"])
     except Exception: raise HTTPException(400,"Invalid OAuth state")
     if not settings.yandex_client_secret: raise HTTPException(503,"Yandex ID secret is not configured")
     import httpx
@@ -863,9 +870,11 @@ async def yandex_callback(code:str,state:str,request:Request,db:AsyncSession=Dep
         user.username=info.get("login") or info.get("display_name") or user.username
     await db.commit(); await db.refresh(user)
     raw=secrets.token_urlsafe(32); code_hash=hashlib.sha256(raw.encode()).hexdigest()
-    db.add(AuthExchangeCode(code_hash=code_hash,user_id=user.id,expires_at=datetime.utcnow()+timedelta(minutes=1)))
+    to_app=bool(state_claims.get("app"))
+    db.add(AuthExchangeCode(code_hash=code_hash,user_id=user.id,expires_at=datetime.utcnow()+timedelta(minutes=5 if to_app else 1)))
     await db.commit()
-    resp=RedirectResponse(settings.mini_app_url.rstrip("/")+"/?code="+urllib.parse.quote(raw))
+    from .app_login import deep_link
+    resp=RedirectResponse(deep_link(raw) if to_app else settings.mini_app_url.rstrip("/")+"/?code="+urllib.parse.quote(raw))
     resp.delete_cookie("yandex_oauth_state")
     return resp
 

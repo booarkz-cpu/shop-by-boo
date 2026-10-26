@@ -113,8 +113,18 @@ class SecureTokenStore(private val prefs: android.content.SharedPreferences) {
 }
 
 class MainActivity : FragmentActivity() {
+    companion object {
+        /** corgi://login?base=…&code=… waiting to be redeemed (cold start or onNewIntent). */
+        val pendingLogin = androidx.compose.runtime.mutableStateOf<LoginLink?>(null)
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        LoginLink.parse(intent.data)?.let { pendingLogin.value = it }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LoginLink.parse(intent?.data)?.let { pendingLogin.value = it }
         // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true.
         val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && intent?.getBooleanExtra("corgi_demo", false) == true
         if (!demo) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
@@ -136,6 +146,26 @@ private fun shopColors() = darkColorScheme(
 )
 
 private val localHttpHosts = setOf("localhost", "127.0.0.1", "10.0.2.2")
+
+/** Sign-in link: the shop it belongs to and a one-use code (backend/app/app_login.py). */
+data class LoginLink(val base: String, val code: String) {
+    companion object {
+        private val CODE = Regex("[A-Za-z0-9_-]{20,128}")
+        fun parse(uri: Uri?): LoginLink? {
+            if (uri == null || uri.scheme != "corgi" || uri.host != "login") return null
+            val code = uri.getQueryParameter("code").orEmpty()
+            if (!CODE.matches(code)) return null
+            val base = try { normalizeBase(uri.getQueryParameter("base").orEmpty()) } catch (_: Exception) { "" }
+            return LoginLink(base, code)
+        }
+        /** The shop the link may sign in to: a baked address wins, a foreign one is refused. */
+        fun target(link: LoginLink, baked: String, current: String): String? {
+            if (baked.isNotBlank()) return if (link.base.isBlank() || link.base == baked) baked else null
+            if (link.base.isNotBlank()) return link.base
+            return current.ifBlank { null }
+        }
+    }
+}
 
 fun pkceVerifier(): String {
     val bytes = ByteArray(32)
@@ -226,7 +256,7 @@ class ShopApi(private val base: String, private val token: String, private val l
 
     private fun call(method: String, path: String, body: JSONObject?, idempotency: String?, headers: Map<String, String>): Any {
         // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
-        val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify")) pkceVerifier() else null
+        val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify", "/api/auth/mobile/code")) pkceVerifier() else null
         val connection = (URL(base + path).openConnection() as HttpURLConnection).apply {
             requestMethod = method
             instanceFollowRedirects = false
@@ -284,7 +314,11 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     val prefs = remember { context.getSharedPreferences("shop_user", 0) }
     val tokenStore = remember { SecureTokenStore(prefs) }
     var lang by remember { mutableStateOf(demoLang ?: prefs.getString("lang", null) ?: autoLanguage()) }
-    var base by remember { mutableStateOf(prefs.getString("base", "") ?: "") }
+    // A shop address baked into the build (corgi.shop_url) replaces the address field.
+    val bakedBase = BuildConfig.SHOP_URL
+    var base by remember { mutableStateOf(bakedBase.ifBlank { prefs.getString("base", "") ?: "" }) }
+    // Sign-in methods the shop has configured (GET /api/public/app-login/methods).
+    var methods by remember { mutableStateOf(JSONObject()) }
     var token by remember { mutableStateOf(if (demo) "demo" else tokenStore.read()) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -362,6 +396,25 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
             activity.runOnUiThread { ui = ui.copy(busy = false, notice = error ?: ui.notice) }
         }
     }
+    fun loadMethods(origin: String) {
+        if (demo || origin.isBlank()) return
+        thread {
+            try {
+                val next = ShopApi(origin, "", lang).get("/api/public/app-login/methods") as JSONObject
+                activity.runOnUiThread { methods = next }
+            } catch (_: Exception) { }
+        }
+    }
+    fun redeemLink(link: LoginLink) {
+        val origin = LoginLink.target(link, bakedBase, base) ?: run { notice(t("login_link_foreign")); return }
+        work {
+            val response = ShopApi(origin, "", lang).post("/api/auth/mobile/code", JSONObject().put("code", link.code)) as JSONObject
+            val issued = response.optString("access_token")
+            if (issued.isBlank()) throw IllegalStateException(t("login_link_invalid"))
+            tokenStore.write(issued, origin)
+            activity.runOnUiThread { prefs.edit().putString("base", origin).apply(); saveSession(origin, issued) }
+        }
+    }
     fun loadLayout(origin: String) {
         if (demo || origin.isBlank()) return
         thread { LayoutStore.fetch(context, origin, lang)?.let { next -> activity.runOnUiThread { layout = next } } }
@@ -421,6 +474,11 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     fun openExternal(url: String) {
         if (!(externalUrlAllowed(url) || url.startsWith("tg://"))) { notice(t("link_missing")); return }
         try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } catch (_: ActivityNotFoundException) { notice(url) }
+    }
+    fun openOAuth(provider: String) {
+        val origin = try { normalizeBase(base) } catch (_: Exception) { notice(t("https_required")); return }
+        // The browser comes back with corgi://login?code=… (app=1 in the OAuth state).
+        openExternal("$origin/api/auth/$provider?app=1")
     }
     fun copy(label: String, value: String) {
         if (value.isBlank()) return
@@ -627,7 +685,15 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     }
     LaunchedEffect(base) {
         val normalized = try { normalizeBase(base) } catch (_: Exception) { return@LaunchedEffect }
-        if (token.isBlank()) { loadLayout(normalized); loadLogo(normalized) }
+        if (token.isBlank()) { loadLayout(normalized); loadLogo(normalized); loadMethods(normalized) }
+    }
+    val pending by MainActivity.pendingLogin
+    LaunchedEffect(pending) {
+        val link = pending ?: return@LaunchedEffect
+        MainActivity.pendingLogin.value = null
+        if (demo) return@LaunchedEffect
+        if (token.isNotBlank()) { notice(t("login_link_signed_in")); return@LaunchedEffect }
+        redeemLink(link)
     }
 
     val theme = layout.theme
@@ -635,6 +701,11 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         Box(Modifier.fillMaxSize().background(theme.background)) {
             when {
                 token.isBlank() -> LoginScreen(layout, base, email, password, ui, ::t, logo,
+                    showBase = bakedBase.isBlank(), methods = methods,
+                    onProvider = { provider ->
+                        if (provider == "telegram") methods.optString("telegram_url").takeIf { it.startsWith("https://t.me/") }?.let { openExternal(it) }
+                        else openOAuth(provider)
+                    },
                     onBase = { base = it }, onEmail = { email = it }, onPassword = { password = it },
                     onSignIn = { register ->
                         val normalized = try { normalizeBase(base) } catch (_: Exception) { notice(t("https_required")); return@LoginScreen }
@@ -729,6 +800,7 @@ private fun currentLanguageLabel(lang: String): String = when (lang) { "en" -> "
 @Composable
 private fun LoginScreen(
     layout: AppLayout, base: String, email: String, password: String, ui: UiFlags, t: (String) -> String, logo: ImageBitmap?,
+    showBase: Boolean, methods: JSONObject, onProvider: (String) -> Unit,
     onBase: (String) -> Unit, onEmail: (String) -> Unit, onPassword: (String) -> Unit,
     onSignIn: (Boolean) -> Unit, onPasskey: () -> Unit, onLanguage: () -> Unit,
 ) {
@@ -746,7 +818,15 @@ private fun LoginScreen(
         Text(t("welcome"), color = theme.text, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         Muted(t("tagline"), theme)
         if (ui.notice.isNotBlank()) Text(ui.notice, color = theme.accent2)
-        TextInput(base, onBase, t("server"), theme)
+        if (showBase) TextInput(base, onBase, t("server"), theme)
+        // Quick sign-in: Telegram bot link and OAuth providers enabled on the shop.
+        if (layout.feature("login_quick")) {
+            if (methods.optBoolean("telegram")) ActionButton(LayoutButton("login_telegram", t("login_telegram"), "refresh", "", "primary", "send", "any"), theme, enabled = !ui.busy) { onProvider("telegram") }
+            listOf("yandex", "vk", "google").filter { methods.optBoolean(it) }.forEach { provider ->
+                ActionButton(LayoutButton("login_$provider", t("login_$provider"), "refresh", "", "secondary", "user", "any"), theme, enabled = !ui.busy) { onProvider(provider) }
+            }
+            if (methods.optBoolean("telegram") || methods.optBoolean("yandex") || methods.optBoolean("vk") || methods.optBoolean("google")) Muted(t("login_or_email"), theme)
+        }
         TextInput(email, onEmail, t("email"), theme)
         TextInput(password, onPassword, t("password"), theme, secret = true)
         ActionButton(LayoutButton("sign_in", t("sign_in"), "refresh", "", "primary", "user", "any"), theme, enabled = !ui.busy) { onSignIn(false) }

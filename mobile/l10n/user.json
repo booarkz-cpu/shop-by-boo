@@ -155,7 +155,15 @@
     "code": "Код",
     "link_missing": "Ссылка ещё не настроена магазином",
     "welcome": "Вход в аккаунт",
-    "version": "Версия"
+    "version": "Версия",
+    "login_telegram": "Войти через Telegram",
+    "login_yandex": "Войти через Яндекс",
+    "login_vk": "Войти через VK",
+    "login_google": "Войти через Google",
+    "login_or_email": "или по почте и паролю",
+    "login_link_foreign": "Ссылка для входа от другого магазина — её нельзя открыть в этом приложении",
+    "login_link_invalid": "Ссылка для входа устарела или уже использована. Получите новую в боте",
+    "login_link_signed_in": "Вы уже вошли. Чтобы войти в другой аккаунт, сначала выйдите"
   },
   "en": {
     "app_name": "VPN shop",
@@ -313,7 +321,15 @@
     "code": "Code",
     "link_missing": "The shop has not set this link yet",
     "welcome": "Sign in",
-    "version": "Version"
+    "version": "Version",
+    "login_telegram": "Sign in with Telegram",
+    "login_yandex": "Sign in with Yandex",
+    "login_vk": "Sign in with VK",
+    "login_google": "Sign in with Google",
+    "login_or_email": "or with e-mail and password",
+    "login_link_foreign": "This sign-in link belongs to another shop and cannot be opened here",
+    "login_link_invalid": "The sign-in link has expired or was already used. Get a new one in the bot",
+    "login_link_signed_in": "You are already signed in. Sign out first to use another account"
   },
   "uk": {
     "app_name": "Коргі Люсі",
@@ -471,6 +487,14 @@
     "code": "Код",
     "link_missing": "Посилання ще не налаштоване магазином",
     "welcome": "Вхід в акаунт",
-    "version": "Версія"
+    "version": "Версія",
+    "login_telegram": "Увійти через Telegram",
+    "login_yandex": "Увійти через Яндекс",
+    "login_vk": "Увійти через VK",
+    "login_google": "Увійти через Google",
+    "login_or_email": "або поштою та паролем",
+    "login_link_foreign": "Посилання для входу від іншого магазину — його не можна відкрити тут",
+    "login_link_invalid": "Посилання для входу застаріло або вже використане. Отримайте нове в боті",
+    "login_link_signed_in": "Ви вже увійшли. Щоб увійти в інший акаунт, спершу вийдіть"
   }
 }

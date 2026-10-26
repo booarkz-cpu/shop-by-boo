@@ -335,6 +335,7 @@ FEATURES: dict[str, str] = {
     "login_banner": "Экран входа: баннер",
     "login_sign_up": "Экран входа: кнопка регистрации",
     "login_passkey": "Экран входа: вход по ключу (passkey)",
+    "login_quick": "Экран входа: Telegram, Яндекс, VK и Google (если настроены)",
     "language_switch": "Экран входа: переключатель языка",
     "settings_version": "Настройки: версия приложения",
 }

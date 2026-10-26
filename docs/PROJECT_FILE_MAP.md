@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1446**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1450**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -275,6 +275,7 @@
 | [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
 | [backend/app/app_config.py](../backend/app/app_config.py) | API, бот и worker |
+| [backend/app/app_login.py](../backend/app/app_login.py) | API, бот и worker |
 | [backend/app/assets/bot_banners/account.jpg](../backend/app/assets/bot_banners/account.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/app-devices.jpg](../backend/app/assets/bot_banners/app-devices.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/app-family.jpg](../backend/app/assets/bot_banners/app-family.jpg) | API, бот и worker |
@@ -459,6 +460,8 @@
 | [cabinet/src/account-recovery.tsx](../cabinet/src/account-recovery.tsx) | Кабинет |
 | [cabinet/src/app-config.test.tsx](../cabinet/src/app-config.test.tsx) | Кабинет |
 | [cabinet/src/app-config.tsx](../cabinet/src/app-config.tsx) | Кабинет |
+| [cabinet/src/app-login.test.tsx](../cabinet/src/app-login.test.tsx) | Кабинет |
+| [cabinet/src/app-login.tsx](../cabinet/src/app-login.tsx) | Кабинет |
 | [cabinet/src/app/layout.tsx](../cabinet/src/app/layout.tsx) | Кабинет |
 | [cabinet/src/app/page.tsx](../cabinet/src/app/page.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
@@ -1298,6 +1301,7 @@
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
 | [tests/test_app_config.py](../tests/test_app_config.py) | Проверки |
+| [tests/test_app_login.py](../tests/test_app_login.py) | Проверки |
 | [tests/test_audit_v2009_runtime.py](../tests/test_audit_v2009_runtime.py) | Проверки |
 | [tests/test_automation_engine.py](../tests/test_automation_engine.py) | Проверки |
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |

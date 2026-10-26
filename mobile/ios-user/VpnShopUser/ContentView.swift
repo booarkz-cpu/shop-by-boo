@@ -35,6 +35,8 @@ struct UserRootView: View {
     @State private var logo: UIImage?
     @ObservedObject private var push = PushCenter.shared
     @State private var pushEnabled = PushCenter.shared.enabled
+    /// Sign-in methods the shop has configured (GET /api/public/app-login/methods).
+    @State private var methods: [String: Any] = [:]
     private let vpnTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
     private static func detectLanguage() -> String {
@@ -67,7 +69,16 @@ struct UserRootView: View {
         .preferredColorScheme(.dark)
         .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
         .sheet(isPresented: Binding(get: { !sheet.isEmpty }, set: { if !$0 { sheet = "" } })) { sheetView }
+        .onOpenURL { url in
+            guard let link = LoginLink.parse(url) else { return }
+            #if DEBUG
+            if DemoMode.enabled { return }
+            #endif
+            if !token.isEmpty { notice = t("login_link_signed_in"); return }
+            redeem(link)
+        }
         .onAppear {
+            if !bakedShopURL.isEmpty { base = bakedShopURL }
             layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
             #if DEBUG
             if DemoMode.enabled { loadDemo(); return }
@@ -126,7 +137,21 @@ struct UserRootView: View {
                 Text(t("welcome")).font(.system(size: 26, weight: .bold)).foregroundStyle(theme.text)
                 Text(t("tagline")).foregroundStyle(theme.muted)
                 if !notice.isEmpty { Text(notice).foregroundStyle(theme.accent2) }
-                InputField(title: t("server"), text: $base, theme: theme)
+                if bakedShopURL.isEmpty { InputField(title: t("server"), text: $base, theme: theme) }
+                // Quick sign-in: Telegram bot link and OAuth providers enabled on the shop.
+                if layout.feature("login_quick") {
+                    if methods["telegram"] as? Bool == true {
+                        ActionButtonView(button: LayoutButton(id: "login_telegram", label: t("login_telegram"), action: "refresh", target: "", style: "primary", icon: "send", audience: "any"), theme: theme, enabled: !busy) {
+                            if let link = methods["telegram_url"] as? String, link.hasPrefix("https://t.me/") { openExternal(link) }
+                        }
+                    }
+                    ForEach(["yandex", "vk", "google"].filter { methods[$0] as? Bool == true }, id: \.self) { provider in
+                        ActionButtonView(button: LayoutButton(id: "login_\(provider)", label: t("login_\(provider)"), action: "refresh", target: "", style: "secondary", icon: "user", audience: "any"), theme: theme, enabled: !busy) { openOAuth(provider) }
+                    }
+                    if ["telegram", "yandex", "vk", "google"].contains(where: { methods[$0] as? Bool == true }) {
+                        Text(t("login_or_email")).foregroundStyle(theme.muted)
+                    }
+                }
                 InputField(title: t("email"), text: $email, theme: theme)
                 InputField(title: t("password"), text: $password, theme: theme, secure: true)
                 ActionButtonView(button: LayoutButton(id: "sign_in", label: t("sign_in"), action: "refresh", target: "", style: "primary", icon: "user", audience: "any"), theme: theme, enabled: !busy) { authenticate("/api/auth/login") }
@@ -138,8 +163,8 @@ struct UserRootView: View {
             }
             .padding(22)
         }
-        .onChange(of: base) { _ in loadLayout(); loadLogo() }
-        .onAppear { loadLogo() }
+        .onChange(of: base) { _ in loadLayout(); loadLogo(); loadMethods() }
+        .onAppear { loadLogo(); loadMethods() }
     }
 
     private var lock: some View {
@@ -784,6 +809,38 @@ struct UserRootView: View {
             try SessionKeychain.save(issued, base: normalized)
             DispatchQueue.main.async { base = normalized; token = issued; password = ""; unlocked = scenePhase == .active }
         }
+    }
+
+    private func loadMethods() {
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
+        guard let normalized = try? normalizeBase(base) else { return }
+        let language = lang
+        DispatchQueue.global(qos: .utility).async {
+            guard let next = try? ShopClient(base: normalized, token: "", lang: language).call("GET", "/api/public/app-login/methods") as? [String: Any] else { return }
+            DispatchQueue.main.async { methods = next }
+        }
+    }
+
+    /// Redeems a one-use link from the bot, the cabinet or Yandex/VK/Google (POST /api/auth/mobile/code).
+    private func redeem(_ link: LoginLink) {
+        guard let origin = LoginLink.target(link, baked: bakedShopURL, current: (try? normalizeBase(base)) ?? "") else {
+            notice = t("login_link_foreign"); return
+        }
+        work {
+            let response = try ShopClient(base: origin, token: "", lang: lang).call("POST", "/api/auth/mobile/code", body: ["code": link.code]) as? [String: Any]
+            let issued = response?["access_token"] as? String ?? ""
+            guard !issued.isEmpty else { throw NSError(domain: "shop", code: 0, userInfo: [NSLocalizedDescriptionKey: t("login_link_invalid")]) }
+            try SessionKeychain.save(issued, base: origin)
+            DispatchQueue.main.async { base = origin; token = issued; password = ""; unlocked = scenePhase == .active }
+        }
+    }
+
+    private func openOAuth(_ provider: String) {
+        guard let origin = try? normalizeBase(base) else { notice = t("https_required"); return }
+        // Safari comes back with corgi://login?code=… (app=1 in the OAuth state).
+        openExternal("\(origin)/api/auth/\(provider)?app=1")
     }
 
     private func signInWithPasskey() {

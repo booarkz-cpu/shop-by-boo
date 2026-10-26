@@ -45,6 +45,35 @@ func normalizeBase(_ raw: String) throws -> String {
     throw URLError(.badURL)
 }
 
+/// Shop address baked into the build (Info.plist CorgiShopURL ← CORGI_SHOP_URL); "" when not set.
+let bakedShopURL: String = {
+    let raw = (Bundle.main.object(forInfoDictionaryKey: "CorgiShopURL") as? String) ?? ""
+    guard !raw.isEmpty, !raw.hasPrefix("$("), let value = try? normalizeBase(raw), value.hasPrefix("https://") else { return "" }
+    return value
+}()
+
+/// corgi://login?base=…&code=… — a one-use sign-in link (backend/app/app_login.py).
+struct LoginLink: Equatable {
+    let base: String
+    let code: String
+
+    static func parse(_ url: URL) -> LoginLink? {
+        guard url.scheme == "corgi", url.host == "login",
+              let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems else { return nil }
+        let code = items.first { $0.name == "code" }?.value ?? ""
+        guard code.range(of: "^[A-Za-z0-9_-]{20,128}$", options: .regularExpression) != nil else { return nil }
+        let base = (try? normalizeBase(items.first { $0.name == "base" }?.value ?? "")) ?? ""
+        return LoginLink(base: base, code: code)
+    }
+
+    /// The shop the link may sign in to: a baked address wins, a foreign one is refused.
+    static func target(_ link: LoginLink, baked: String, current: String) -> String? {
+        if !baked.isEmpty { return link.base.isEmpty || link.base == baked ? baked : nil }
+        if !link.base.isEmpty { return link.base }
+        return current.isEmpty ? nil : current
+    }
+}
+
 func jsonInt(_ value: Any?) -> Int? {
     if value == nil || value is NSNull { return nil }
     if let number = value as? Int { return number }
@@ -100,7 +129,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
 
     func call(_ method: String, _ path: String, body: [String: Any]? = nil, idempotency: String? = nil, headers: [String: String] = [:]) throws -> Any {
         // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
-        let verifier: String? = try (["/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify"].contains(path) ? pkceVerifier() : nil)
+        let verifier: String? = try (["/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify", "/api/auth/mobile/code"].contains(path) ? pkceVerifier() : nil)
         var request = URLRequest(url: URL(string: base + path)!)
         if let verifier { request.setValue(pkceChallenge(verifier), forHTTPHeaderField: "X-Shop-Code-Challenge") }
         request.httpMethod = method

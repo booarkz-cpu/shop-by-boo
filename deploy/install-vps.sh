@@ -271,6 +271,8 @@ prompt YANDEX_CLIENT_ID "Yandex OAuth Client ID (Enter = пропустить)"
 prompt YANDEX_CLIENT_SECRET "Yandex OAuth Client Secret (Enter = пропустить)" "" 1
 prompt VK_CLIENT_ID "VK OAuth Client ID (Enter = пропустить)"
 prompt VK_CLIENT_SECRET "VK OAuth Client Secret (Enter = пропустить)" "" 1
+prompt GOOGLE_CLIENT_ID "Google OAuth Client ID (Enter = пропустить)"
+prompt GOOGLE_CLIENT_SECRET "Google OAuth Client Secret (Enter = пропустить)" "" 1
 prompt PAYMENTS_SANDBOX "Песочница платежей без шлюзов (true/false)" "false"
 [[ "$PAYMENTS_SANDBOX" == "false" ]] || die "Production не допускает PAYMENTS_SANDBOX=true"
 prompt TRIAL_MAX_DAYS "Максимум дней пробного периода" "3"
@@ -394,6 +396,10 @@ umask 077
   env_line VK_CLIENT_ID "$VK_CLIENT_ID"
   env_line VK_CLIENT_SECRET "$VK_CLIENT_SECRET"
   env_line VK_REDIRECT_URI "https://${API_DOMAIN}/api/auth/vk/callback"
+  env_line GOOGLE_CLIENT_ID "$GOOGLE_CLIENT_ID"
+  env_line GOOGLE_CLIENT_SECRET "$GOOGLE_CLIENT_SECRET"
+  env_line GOOGLE_REDIRECT_URI "https://${API_DOMAIN}/api/auth/google/callback"
+  env_line MOBILE_APP_SCHEME "corgi"
   env_line PAYMENTS_SANDBOX "$PAYMENTS_SANDBOX"
   env_line TRIAL_MAX_DAYS "$TRIAL_MAX_DAYS"
   env_line MEDIA_DIR "/data/media"

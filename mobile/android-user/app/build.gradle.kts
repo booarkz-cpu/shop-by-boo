@@ -23,6 +23,12 @@ android {
         buildConfigField("String", "FIREBASE_API_KEY", "\"${firebase("api_key")}\"")
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${firebase("project_id")}\"")
         buildConfigField("String", "FIREBASE_SENDER_ID", "\"${firebase("sender_id")}\"")
+        // Shop address baked into the build: the sign-in screen then has no «Адрес магазина» field.
+        // -Pcorgi.shop_url=https://api.example.com or CORGI_SHOP_URL; empty keeps the field.
+        val shopUrl = ((project.findProperty("corgi.shop_url") as String?) ?: System.getenv("CORGI_SHOP_URL") ?: "")
+            .trim().trimEnd('/').replace("\\", "").replace("\"", "")
+        require(shopUrl.isEmpty() || shopUrl.startsWith("https://")) { "corgi.shop_url must start with https://" }
+        buildConfigField("String", "SHOP_URL", "\"$shopUrl\"")
     }
     buildFeatures {
         compose = true

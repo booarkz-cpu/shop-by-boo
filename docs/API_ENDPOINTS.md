@@ -387,10 +387,14 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/agent/terminal/{sid}/output` | Agent Terminal Output |
 | `POST` | `/api/agent/torrent` | Agent Torrent |
 | `GET` | `/api/app-config` | App Config |
+| `GET` | `/api/app/open` | Open App |
 | `POST` | `/api/auth/email/verification/confirm` | Confirm Verification |
 | `POST` | `/api/auth/exchange` | Auth Exchange |
+| `GET` | `/api/auth/google` | Google Login |
+| `GET` | `/api/auth/google/callback` | Google Callback |
 | `POST` | `/api/auth/login` | Auth Login |
 | `POST` | `/api/auth/logout` | User Logout |
+| `POST` | `/api/auth/mobile/code` | Redeem App Code |
 | `POST` | `/api/auth/mobile/token` | Mobile Token |
 | `GET` | `/api/auth/passkeys` | Inventory |
 | `POST` | `/api/auth/passkeys/login/options` | Login Options |
@@ -428,6 +432,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/account-merge/authorization` | Create Authorization |
 | `POST` | `/api/me/account-merge/confirm` | Confirm Merge |
 | `POST` | `/api/me/account-merge/preview` | Preview Merge |
+| `POST` | `/api/me/app-login` | Create App Login |
 | `GET` | `/api/me/auto-renew` | Auto Renew Status |
 | `PUT` | `/api/me/auto-renew` | Set Auto Renew |
 | `DELETE` | `/api/me/auto-renew/method` | Remove Auto Renew Method |
@@ -543,6 +548,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/plugin/v1/users/{user_id}` | Plugin User |
 | `GET` | `/api/plugin/v1/users/{user_id}/subscriptions` | Plugin Subscriptions |
 | `GET` | `/api/promo/validate` | Validate Promo |
+| `GET` | `/api/public/app-login/methods` | Public Login Methods |
 | `GET` | `/api/public/apps` | Public Apps |
 | `GET` | `/api/public/apps/install` | Public Install Guide |
 | `GET` | `/api/public/apps/{app_id}/download` | Public App Download |

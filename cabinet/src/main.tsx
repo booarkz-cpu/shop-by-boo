@@ -14,6 +14,7 @@ import {Surveys} from "./surveys";
 import {Giveaways} from "./giveaways";
 import {PartnerPortal} from "./partner";
 import {CustomerPasskeys, loginWithPasskey} from "./passkeys";
+import {AppLogin} from "./app-login";
 import {Workspace} from "./workspace";
 import {AccountRecovery, AccountSecurity, accountLink} from "./account-recovery";
 import {AccountMerge} from "./account-merge";
@@ -896,7 +897,7 @@ function App() {
 
                 {["wallet","payments","gifts","referral","subscription","security","notifications","support"].includes(activeItem?.kind||"") && <>
                   <h2 className="section-title">{activeItem.title}</h2>
-                  {activeItem.kind==="security"&&<><ProfileCard request={req} onSaved={loadSession}/><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><CustomerPasskeys req={req}/><AccountMerge request={req} onMerged={loadSession}/></>}
+                  {activeItem.kind==="security"&&<><ProfileCard request={req} onSaved={loadSession}/><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><AppLogin request={req}/><CustomerPasskeys req={req}/><AccountMerge request={req} onMerged={loadSession}/></>}
                   {activeItem.kind==="subscription"&&<SubscriptionProfiles profiles={profiles} request={req} reload={loadSession}/>}
                   {activeItem.kind==="wallet"&&<><ConsentGate request={req} force={needConsent} onAccepted={()=>setNeedConsent(false)}/><WalletTopup request={req} balance={String(dash?.user?.wallet_balance ?? "0.00")} reload={loadSession} flash={flash} onConsentRequired={()=>setNeedConsent(true)}/></>}
                   {activeItem.kind==="referral"&&<ReferralTerms code={dash?.user?.referral_code||""} flash={flash}/>}

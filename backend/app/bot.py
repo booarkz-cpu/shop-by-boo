@@ -226,6 +226,36 @@ async def menu_callback(query:CallbackQuery):
     await query.answer();await send_section(query.message,f'menu-{row.id}' if row else 'menu',escape(row.title) if row else 'Меню',markup,fallback='menu',edit=True)
 
 
+async def send_app_login(message:Message):
+    """One-use button that opens the Android/iOS app already signed in."""
+    if not message.from_user:
+        return
+    from .account_merge import identity_user
+    from .app_login import APP_CODE_MINUTES, issue_app_code, open_url
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        user=await identity_user(db,"telegram",int(message.from_user.id))
+        if not user:
+            await message.answer("Сначала отправьте /start, чтобы создать аккаунт.")
+            return
+        code=await issue_app_code(db,user.id)
+        await db.commit()
+    lang=_lang(message)
+    text=("📱 <b>Вход в приложение</b>\nНажмите кнопку на телефоне, где установлено приложение. "
+          f"Ссылка работает один раз и действует {APP_CODE_MINUTES} минут. Никому её не пересылайте.") if lang!="en" else \
+         ("📱 <b>Sign in to the app</b>\nTap the button on the phone with the app installed. "
+          f"The link works once and expires in {APP_CODE_MINUTES} minutes. Do not forward it.")
+    markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Открыть приложение" if lang!="en" else "Open the app",url=open_url(code))]])
+    await message.answer(text,reply_markup=markup,parse_mode="HTML")
+
+
+@router.message(Command("app"))
+async def app_command(message:Message):
+    if not _private(message):
+        await message.answer("Откройте личный чат с ботом, чтобы войти в приложение.")
+        return
+    await send_app_login(message)
+
+
 @router.message(CommandStart())
 async def start(message:Message):
     if getattr(getattr(message,"chat",None),"type","private")!="private":
@@ -268,6 +298,10 @@ async def start(message:Message):
                 except HTTPException:
                     await db.rollback()
 
+
+    if incoming.lower()=="app_login":
+        await send_app_login(message)
+        return
 
     vals,menu,fields,ads,promos,plans=await get_bot_config()
     lang=_lang(message)
