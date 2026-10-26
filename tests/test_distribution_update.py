@@ -55,7 +55,7 @@ def test_distribution_upgrade_preserves_api_version(tmp_path, monkeypatch):
 
 @pytest.mark.parametrize("override", [
     {"commit": "b" * 40}, {"sha256": "0" * 64}, {"version": "99.0.0"},
-    {"distribution_tag": "v28.31.0"}, {"artifact": "different.zip"}
+    {"distribution_tag": "v28.32.0"}, {"artifact": "different.zip"}
 ])
 def test_mismatched_detached_manifest_is_rejected(tmp_path, monkeypatch, override):
     release_fixture(tmp_path, monkeypatch, **override)
