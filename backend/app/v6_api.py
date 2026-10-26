@@ -29,9 +29,9 @@ async def event(db,kind,actor='system',target=None,payload=None):
 DEFAULTS={
  'orchestrator':{'auto_heal':False,'drain_threshold':90,'recover_threshold':70,'stale_seconds':180,'approval_required':True},
  'capacity':{'warning_percent':75,'critical_percent':90,'forecast_days':14},
- 'tenancy':{'enabled':False,'mode':'single-tenant','workspaces':[{'id':'default','name':'VPN Shop by Corgi Lusi','domain':'','currency':'EUR'}]},
+ 'tenancy':{'enabled':False,'mode':'single-tenant','workspaces':[{'id':'default','name':'Корги Люси','domain':'','currency':'EUR'}]},
  'retention':{'enabled':True,'expiry_days':[7,3,1],'winback_days':[1,7,30]},
- 'status_page':{'enabled':True,'title':'VPN Shop by Corgi Lusi Status','history_days':90},
+ 'status_page':{'enabled':True,'title':'Corgi Lusi Status','history_days':90},
  'approval':{'refund_threshold':500,'node_delete':True,'provider_change':True,'data_export':True},
  'localization':{'languages':['ru','en','de','uk'],'currencies':['EUR','USD','GBP','CHF'],'default_currency':'EUR'},
 }

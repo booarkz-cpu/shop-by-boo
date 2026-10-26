@@ -267,9 +267,13 @@ async def family_scheduler(session_factory=None):
 @router.get("/api/admin/family")
 async def admin_family(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
     groups = (await db.execute(select(FamilyGroup).order_by(FamilyGroup.id.desc()).limit(200))).scalars().all()
+    by_group: dict[int, list] = {}
+    if groups:  # one query for all members instead of one per family
+        for m in (await db.execute(select(FamilyMember).where(FamilyMember.group_id.in_([g.id for g in groups])).order_by(FamilyMember.id))).scalars():
+            by_group.setdefault(m.group_id, []).append(m)
     out = []
     for g in groups:
-        members = (await db.execute(select(FamilyMember).where(FamilyMember.group_id == g.id))).scalars().all()
+        members = by_group.get(g.id, [])
         out.append({"id": g.id, "owner_user_id": g.owner_user_id, "subscription_id": g.owner_subscription_id, "created_at": g.created_at,
                     "members": [{"id": m.id, "user_id": m.user_id, "status": m.status, "synced_at": m.synced_at, "error": m.sync_error} for m in members]})
     return out
@@ -285,26 +289,32 @@ REASONS = {"price": "Дорого", "speed": "Низкая скорость", "s
 async def retention(months: int = 12, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
     months = max(1, min(months, 24))
     now = datetime.utcnow()
-    paid = select(Payment.user_id, Payment.amount, Payment.paid_at).where(
+    # One row per customer, aggregated by the database: first payment, number of
+    # payments and revenue. The payments table is never loaded into memory.
+    per_user = (await db.execute(select(Payment.user_id, func.min(Payment.paid_at), func.count(Payment.id),
+                                        func.coalesce(func.sum(Payment.amount), 0)).where(
         Payment.status.in_(("paid", "fulfilled")), Payment.paid_at.is_not(None), Payment.purpose == "subscription")
-    rows = (await db.execute(paid)).all()
-    by_user: dict[int, list[tuple[datetime, Decimal]]] = {}
-    for user_id, amount, paid_at in rows:
-        by_user.setdefault(user_id, []).append((paid_at, Decimal(str(amount or 0))))
-    active = set((await db.execute(select(Subscription.user_id).where(Subscription.lifecycle_status.in_(LIVE), Subscription.expires_at > now))).scalars())
+        .group_by(Payment.user_id))).all()
+    active = set((await db.execute(select(Subscription.user_id).where(Subscription.lifecycle_status.in_(LIVE), Subscription.expires_at > now).distinct())).scalars())
     cohorts: dict[str, dict] = {}
     start = (now.replace(day=1) - timedelta(days=31 * (months - 1))).replace(day=1)
-    for user_id, payments in by_user.items():
-        payments.sort()
-        first = payments[0][0]
+    customers = len(per_user)
+    total = Decimal("0")
+    repeat = 0
+    for user_id, first, count, revenue in per_user:
+        revenue = Decimal(str(revenue or 0))
+        total += revenue
+        repeat += 1 if count > 1 else 0
+        if isinstance(first, str):  # SQLite returns aggregated timestamps as text
+            first = datetime.fromisoformat(first)
         if first < start:
             continue
         key = first.strftime("%Y-%m")
         c = cohorts.setdefault(key, {"month": key, "customers": 0, "repeat": 0, "active": 0, "revenue": Decimal("0")})
         c["customers"] += 1
-        c["repeat"] += 1 if len(payments) > 1 else 0
+        c["repeat"] += 1 if count > 1 else 0
         c["active"] += 1 if user_id in active else 0
-        c["revenue"] += sum(a for _, a in payments)
+        c["revenue"] += revenue
     table = []
     for key in sorted(cohorts):
         c = cohorts[key]
@@ -312,9 +322,6 @@ async def retention(months: int = 12, db: AsyncSession = Depends(get_db), admin=
         table.append({"month": key, "customers": c["customers"], "repeat_rate": round(c["repeat"] * 100 / n, 1),
                       "active_rate": round(c["active"] * 100 / n, 1), "revenue": str(c["revenue"].quantize(Decimal(".01"))),
                       "ltv": str((c["revenue"] / n).quantize(Decimal(".01")))})
-    customers = len(by_user)
-    total = sum((a for p in by_user.values() for _, a in p), Decimal("0"))
-    repeat = sum(1 for p in by_user.values() if len(p) > 1)
     feedback = (await db.execute(select(CancellationFeedback.reason, func.count()).where(
         CancellationFeedback.created_at >= now - timedelta(days=90)).group_by(CancellationFeedback.reason))).all()
     comments = (await db.execute(select(CancellationFeedback).where(CancellationFeedback.comment != "").order_by(

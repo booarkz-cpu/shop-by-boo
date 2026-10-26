@@ -57,7 +57,7 @@ async def admin_mobile_ops(request: Request, db: AsyncSession = Depends(get_db),
 async def mobile_features(request: Request, db: AsyncSession = Depends(get_db)):
     user = await _user(request, db)
     return {
-        'app_name': 'VPN Shop by Corgi Lusi',
+        'app_name': 'Корги Люси',
         'version': '9.0.0',
         'features': {
             'smart_connect': False, 'auto_failover': False, 'kill_switch': False,

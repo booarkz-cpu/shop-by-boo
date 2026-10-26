@@ -25,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .config import settings
 from .db import get_db
 from .models import (AppSetting, BackupJob, MonitoringCheck, Payment, PaymentProviderHealth, Plan, RemnawaveEvent,
-                     WorkerState)
+                     User, WorkerState)
 from .security import require_permission
 
 logger = logging.getLogger(__name__)
@@ -115,6 +115,11 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     for c in (await db.execute(select(MonitoringCheck).where(MonitoringCheck.enabled.is_(True), MonitoringCheck.failure_streak >= 3))).scalars():
         out.append(Problem(f"monitor:{c.id}", f"Проверка «{c.name}» не проходит",
                            f"{c.failure_streak} раз подряд: {(c.last_error or c.last_status or '')[:200]}.", "medium"))
+    # A refunded or charged-back top-up that was already spent leaves a negative wallet:
+    # what was bought with it stays active, so an operator decides (restrict, recover).
+    for u in (await db.execute(select(User).where(User.wallet_balance < 0, User.deleted_at.is_(None)).order_by(User.id).limit(20))).scalars():
+        out.append(Problem(f"wallet_debt:{u.id}", f"Отрицательный баланс клиента №{u.id}",
+                           f"Баланс {u.wallet_balance}: возвращённое пополнение уже потрачено. Клиенты → №{u.id}: ограничьте доступ или договоритесь о погашении.", "warning"))
     backup = await db.scalar(select(BackupJob).order_by(BackupJob.id.desc()).limit(1))
     if backup and backup.status == "failed" and backup.created_at >= day:
         out.append(Problem(f"backup:{backup.id}", "Резервная копия не создана", (backup.error or "ошибка")[:300] + ". Безопасность → Резервные копии."))

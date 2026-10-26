@@ -467,7 +467,7 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
                 item["title"] = NAV_I18N[lang][item["kind"]]
     config = {
         "schema": 1,
-        "brand": {"name": public.get("app_name") or "VPN Shop by Corgi Lusi", "bot_username": settings.bot_username or "",
+        "brand": {"name": public.get("app_name") or "Корги Люси", "bot_username": settings.bot_username or "",
                   "currency": currency},
         "theme": {"vars": {"--cfg-accent": theme.accent, "--cfg-accent-2": theme.accent_2, "--cfg-bg": theme.background,
                            "--cfg-surface": theme.surface, "--cfg-text": theme.text, "--cfg-muted": theme.muted,

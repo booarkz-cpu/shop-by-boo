@@ -54,7 +54,7 @@ async def node_failover(node_name: str, admin=Depends(require_permission("provis
 async def release():
     from .main import APP_VERSION
     return {
-        "product": "VPN Shop by Corgi Lusi",
+        "product": "Corgi Lusi",
         "platform": "Corgi Lusi Platform",
         "release": APP_VERSION,
         "channels": ["stable"],

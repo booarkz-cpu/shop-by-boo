@@ -70,7 +70,7 @@ APP_VERSION = "21.5.1"
 # APP_VERSION = "43.1.0-production" (legacy compatibility marker for historical regression tests)
 # Legacy idempotency contract marker: provider_name}:{user.id}:{plan.id}:{idem} is intentionally superseded by provider-independent canonical idempotency.
 logger = logging.getLogger("remnawave")
-app = FastAPI(title="VPN Shop by Corgi Lusi API", version=APP_VERSION, docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="Corgi Lusi API", version=APP_VERSION, docs_url=None, redoc_url=None, openapi_url=None)
 from .cabinet_api import router as cabinet_router
 from .customer_workspace_api import router as customer_workspace_router
 from .customer_profile import router as customer_profile_router
@@ -653,14 +653,14 @@ async def send_alert(message:str):
     if settings.alert_telegram_chat_id and settings.bot_token:
         try:
             async with __import__("httpx").AsyncClient(timeout=10, trust_env=False) as c:
-                await c.post(f"https://api.telegram.org/bot{settings.bot_token}/sendMessage",json={"chat_id":settings.alert_telegram_chat_id,"text":"⚠️ VPN Shop alert\n"+message})
+                await c.post(f"https://api.telegram.org/bot{settings.bot_token}/sendMessage",json={"chat_id":settings.alert_telegram_chat_id,"text":"⚠️ Corgi Lusi\n"+message})
         except Exception as exc:
             logger.warning("Non-critical operation failed: %s", exc)
     if settings.smtp_host and settings.alert_email:
         import smtplib
         from email.message import EmailMessage
         def _mail():
-            msg=EmailMessage(); msg["Subject"]="VPN Shop alert"; msg["From"]=settings.smtp_from or settings.smtp_user; msg["To"]=settings.alert_email; msg.set_content(message)
+            msg=EmailMessage(); msg["Subject"]="Corgi Lusi: оповещение"; msg["From"]=settings.smtp_from or settings.smtp_user; msg["To"]=settings.alert_email; msg.set_content(message)
             with smtplib.SMTP(settings.smtp_host,settings.smtp_port,timeout=10) as smtp:
                 smtp.starttls();
                 if settings.smtp_user: smtp.login(settings.smtp_user,settings.smtp_password)
@@ -1025,7 +1025,7 @@ async def public_config(db:AsyncSession=Depends(get_db)):
         payment_providers=await _payment_provider_order(db,None)
     except HTTPException:
         payment_providers=[]
-    return {"default_language": settings.default_language if settings.default_language in {"ru","en"} else "ru","required_channel":settings.required_telegram_channel,"app_name":values.get("app_name","VPN Shop by Corgi Lusi"),"bot_name":values.get("bot_name","VPN Shop by Corgi Lusi"),"bot_start_image":values.get("bot_start_image",""),"menu":[{"title":m.title,"action":m.action,"type":m.item_type,"id":m.id,"parent_id":m.parent_id,"style":m.style,"icon_custom_emoji_id":m.icon_custom_emoji_id,"icon":m.icon} for m in menus],"fields":[{"key":f.key,"label":f.label,"type":f.field_type,"value":f.value} for f in fields],"images":[{"title":i.title,"url":"/media/"+i.filename} for i in images],"yandex_enabled":bool(settings.yandex_client_id and settings.yandex_redirect_uri),"vk_enabled":bool(settings.vk_client_id and settings.vk_redirect_uri),"email_auth_enabled":True,"trial_days":max(1,min(int(settings.trial_max_days or 3),30)),"payments_sandbox":bool(settings.payments_sandbox),"cabinet_url":settings.cabinet_url or settings.mini_app_url,"bot_username":settings.bot_username,"advertisements":[{"title":a.title,"text":a.text,"image_url":a.image_url,"button_text":a.button_text,"button_url":a.button_url} for a in ads],"promotions":[{"id":p.id,"name":p.name,"kind":p.kind,"value":float(p.value),"description":p.description,"plan_ids":p.plan_ids} for p in promos],"miniapp":{"title":values.get("miniapp_title",values.get("app_name","VPN Shop by Corgi Lusi")),"subtitle":values.get("miniapp_subtitle",""),"background_color":values.get("miniapp_background_color","#f5f7fb"),"background_image":values.get("miniapp_background_image",""),"image":values.get("miniapp_image",""),"instructions":values.get("miniapp_instructions",""),"buttons":mini_buttons},"payment_providers":payment_providers}
+    return {"default_language": settings.default_language if settings.default_language in {"ru","en"} else "ru","required_channel":settings.required_telegram_channel,"app_name":values.get("app_name","Корги Люси"),"bot_name":values.get("bot_name","Корги Люси"),"bot_start_image":values.get("bot_start_image",""),"menu":[{"title":m.title,"action":m.action,"type":m.item_type,"id":m.id,"parent_id":m.parent_id,"style":m.style,"icon_custom_emoji_id":m.icon_custom_emoji_id,"icon":m.icon} for m in menus],"fields":[{"key":f.key,"label":f.label,"type":f.field_type,"value":f.value} for f in fields],"images":[{"title":i.title,"url":"/media/"+i.filename} for i in images],"yandex_enabled":bool(settings.yandex_client_id and settings.yandex_redirect_uri),"vk_enabled":bool(settings.vk_client_id and settings.vk_redirect_uri),"email_auth_enabled":True,"trial_days":max(1,min(int(settings.trial_max_days or 3),30)),"payments_sandbox":bool(settings.payments_sandbox),"cabinet_url":settings.cabinet_url or settings.mini_app_url,"bot_username":settings.bot_username,"advertisements":[{"title":a.title,"text":a.text,"image_url":a.image_url,"button_text":a.button_text,"button_url":a.button_url} for a in ads],"promotions":[{"id":p.id,"name":p.name,"kind":p.kind,"value":float(p.value),"description":p.description,"plan_ids":p.plan_ids} for p in promos],"miniapp":{"title":values.get("miniapp_title",values.get("app_name","Корги Люси")),"subtitle":values.get("miniapp_subtitle",""),"background_color":values.get("miniapp_background_color","#f5f7fb"),"background_image":values.get("miniapp_background_image",""),"image":values.get("miniapp_image",""),"instructions":values.get("miniapp_instructions",""),"buttons":mini_buttons},"payment_providers":payment_providers}
 
 @app.get("/api/me")
 async def api_me(request:Request,db:AsyncSession=Depends(get_db)):
@@ -1128,7 +1128,7 @@ async def admin_login(payload:LoginIn, request:Request, response:Response, db:As
 async def mfa_setup(db:AsyncSession=Depends(get_db), admin=Depends(require_permission("manage_own_mfa"))):
     if admin.mfa_enabled: raise HTTPException(409,"MFA is already enabled")
     secret=random_base32(); admin.totp_secret_encrypted=encrypt_secret(secret); codes=generate_recovery_codes(); set_recovery_codes(admin,codes); await db.commit()
-    return {"secret":secret,"otpauth_url":provisioning_uri(secret,admin.email,"VPN Shop by Corgi Lusi"),"recovery_codes":codes}
+    return {"secret":secret,"otpauth_url":provisioning_uri(secret,admin.email,"Corgi Lusi"),"recovery_codes":codes}
 
 @app.post("/api/admin/auth/mfa/enable")
 async def mfa_enable(payload:OtpIn, db:AsyncSession=Depends(get_db), admin=Depends(require_permission("manage_own_mfa"))):
@@ -1784,7 +1784,13 @@ async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str
                         await rw.enable_user(remote_id)
                     await rw.update_entitlements(remote_id,traffic_limit_gb,profile_id,device_limit=payment.device_limit_snapshot)
                     remote_expiry=await rw.get_expiry(remote_id)
-                    target_expiry=max(now+timedelta(days=duration_days), remote_expiry or now)
+                    # Time the customer already has (shop ledger or panel) is kept: the purchase
+                    # is added on top. A create whose response was lost already holds
+                    # now+duration, which the one-hour tolerance recognises as applied.
+                    base_expiry=max(now, sub.expires_at if sub and sub.expires_at else now)
+                    target_expiry=base_expiry+timedelta(days=duration_days)
+                    if remote_expiry and remote_expiry>=target_expiry-timedelta(hours=1):
+                        target_expiry=remote_expiry
                     if not remote_expiry or remote_expiry < target_expiry:
                         before_remote=remote_expiry or now
                         extension_seconds=(target_expiry-max(before_remote,now)).total_seconds()
@@ -2133,6 +2139,37 @@ async def refund_revoke_scheduler():
             await send_alert("Refund scheduler failure")
         await asyncio.sleep(30)
 
+def auto_renew_chargeable(user:User,sub:Subscription)->bool:
+    """Only a live subscription of an unrestricted customer may be charged automatically."""
+    return (user.restricted_at is None and sub.scheduled_cancel_at is None
+            and (sub.lifecycle_status or "active") in {"active","grace"})
+
+
+RECURRING_IDEMPOTENCE_WINDOW=timedelta(hours=23)
+
+
+async def adopt_or_retry_recurring(payment:Payment,method:AutoRenewMethod,plan:Plan)->str:
+    """Resolve a recurring intent left in «creating»: adopt / retry / unknown."""
+    provider=YooKassaProvider()
+    created=payment.created_at or datetime.utcnow()
+    found=await provider.find_by_order_id(payment.order_id,created-timedelta(hours=1))
+    if found and found.get("id"):
+        payment.provider_payment_id=str(found["id"]); payment.status="pending"
+        return "adopted"
+    if datetime.utcnow()-created>RECURRING_IDEMPOTENCE_WINDOW:
+        payment.status="creation_unknown"; payment.fulfillment_terminal=True
+        payment.fulfillment_error="Recurring charge outcome unknown after the idempotence window; reconciliation required"
+        return "unknown"
+    token=decrypt_secret(method.external_token_encrypted)
+    result=await provider.charge_recurring(Decimal(str(payment.amount)),payment.order_id,f"Auto-renew {plan.name}",token)
+    payment.provider_payment_id=result["id"]; payment.status="pending"
+    return "retried"
+
+
+async def _record_paid(db:AsyncSession,payment:Payment):
+    await record_financial_event(db, operation_key=f"payment:{payment.id}:paid", user_id=payment.user_id, payment_id=payment.id, kind="payment", direction="credit", amount=Decimal(str(payment.amount)), currency=payment.currency, metadata={"provider": payment.provider, "order_id": payment.order_id})
+
+
 async def auto_renew_scheduler():
     while True:
         try:
@@ -2168,6 +2205,11 @@ async def auto_renew_scheduler():
                             continue
                         if not sub.expires_at or sub.expires_at <= datetime.utcnow() or sub.expires_at > cutoff:
                             continue
+                        # A cancelled, suspended or restricted subscription is never charged:
+                        # cancellation keeps auto_renew_enabled so «undo» restores it, and an
+                        # abuse restriction must not be reversed by a renewal's fulfill().
+                        if not auto_renew_chargeable(user,sub):
+                            continue
                         from .subscriptions import ensure_no_pending_gift
                         try:await ensure_no_pending_gift(db,sub.id)
                         except HTTPException:continue
@@ -2186,12 +2228,13 @@ async def auto_renew_scheduler():
                                 method.last_error='Recurring payment currency changed; operator reconciliation required'
                                 await db.commit();continue
                             if existing.status=="creating" and existing.provider_payment_id is None:
-                                # YooKassa idempotency is keyed by order_id, so retrying the
-                                # same durable intent is safe even if the previous HTTP response
-                                # was lost after the provider accepted the charge.
-                                token=decrypt_secret(method.external_token_encrypted)
-                                result=await YooKassaProvider().charge_recurring(Decimal(str(existing.amount)),existing.order_id,f"Auto-renew {plan.name}",token)
-                                existing.provider_payment_id=result["id"]; existing.status="pending"; await db.commit()
+                                # The previous run may have died after YooKassa accepted the
+                                # charge. Adopt that payment first; YooKassa keeps idempotence
+                                # keys for 24 hours only, so an older intent is never re-sent —
+                                # it goes to reconciliation (creation_unknown) instead.
+                                adopted=await adopt_or_retry_recurring(existing,method,plan)
+                                await db.commit()
+                                if adopted=="unknown": continue
                             if existing.status=="pending":
                                 try:
                                     provider=YooKassaProvider()
@@ -2202,7 +2245,8 @@ async def auto_renew_scheduler():
                                             existing=(await db.execute(select(Payment).where(Payment.id==existing.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
                                             if existing.status in {"refunded", "refunded_pending_revoke"}:
                                                 continue
-                                            existing.status="paid"; existing.paid_at=existing.paid_at or datetime.utcnow(); await db.commit()
+                                            existing.status="paid"; existing.paid_at=existing.paid_at or datetime.utcnow()
+                                            await _record_paid(db,existing); await db.commit()
                                         finally:
                                             await _release_payment_side_effect_lock(payment_lock, payment_token)
                                         try:
@@ -2261,7 +2305,8 @@ async def auto_renew_scheduler():
                                 p=(await db.execute(select(Payment).where(Payment.provider_payment_id==result["id"]).execution_options(populate_existing=True).with_for_update())).scalar_one()
                                 if p.status in {"refunded", "refunded_pending_revoke"}:
                                     continue
-                                p.status="paid"; p.paid_at=p.paid_at or datetime.utcnow(); await db.commit()
+                                p.status="paid"; p.paid_at=p.paid_at or datetime.utcnow()
+                                await _record_paid(db,p); await db.commit()
                             finally:
                                 await _release_payment_side_effect_lock(payment_lock, payment_token)
                             try:
@@ -2993,8 +3038,24 @@ async def _safe_revoke_for_refunded_payment(db:AsyncSession, payment:Payment, ad
     if later_paid:
         await audit(db,"subscription.revoke.skipped_refund_older_payment",admin_email,str(sub.id),{"payment_id":payment.id,"later_paid_count":int(later_paid)})
         return {"revoked":False,"reason":"newer_fulfilled_payment"}
+    now=datetime.utcnow()
+    marker_key=f"refund_revoke:{payment.id}"
+    if await db.get(AppSetting,marker_key):
+        # Already taken back once (retries and reconcile calls must not subtract again).
+        return {"revoked":True,"already_applied":True}
+    days=int(payment.duration_days_snapshot or 0)+int(payment.bonus_days or 0)
+    if days>0 and sub.expires_at and sub.expires_at-timedelta(days=days)>now:
+        # Only the refunded payment's days are taken back: time paid by earlier
+        # payments, gifts and operator extensions stays with the customer.
+        remaining=sub.expires_at-timedelta(days=days)
+        await RemnawaveClient().patch_user(sub.remnawave_uuid,{"expireAt":remaining.isoformat()})
+        sub.expires_at=remaining
+        db.add(AppSetting(key=marker_key,value=now.isoformat()))
+        await audit(db,audit_action,admin_email,str(sub.id),{"payment_id":payment.id,"days_removed":days,"expires_at":remaining.isoformat()})
+        return {"revoked":True,"days_removed":days,"expires_at":remaining.isoformat()}
     await RemnawaveClient().disable_user(sub.remnawave_uuid)
-    sub.expires_at=datetime.utcnow()
+    sub.expires_at=now
+    db.add(AppSetting(key=marker_key,value=now.isoformat()))
     await audit(db,audit_action,admin_email,str(sub.id),{"payment_id":payment.id})
     return {"revoked":True}
 
@@ -3557,6 +3618,8 @@ async def reconcile_refund(refund_id:int,db:AsyncSession=Depends(get_db),admin=D
             payment_lock, payment_token = await _acquire_payment_side_effect_lock(p.id)
             p=(await db.execute(select(Payment).where(Payment.id==p.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
             r=(await db.execute(select(RefundRequest).where(RefundRequest.id==r.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
+            if r.status=="refunded":
+                return {"ok":True,"status":"refunded","already_reconciled":True}
             r.status="refunded"; r.updated_at=datetime.utcnow(); p.status="refunded"; p.fulfillment_terminal=True
             await record_financial_event(db,operation_key=f"payment:{p.id}:refund:{r.id}",user_id=p.user_id,payment_id=p.id,kind="refund",direction="debit",amount=Decimal(str(p.amount)),currency=p.currency,metadata={"provider":p.provider,"refund_id":r.id,"provider_refund_id":r.provider_refund_id})
             try:
@@ -4658,7 +4721,7 @@ async def public_branding(db:AsyncSession=Depends(get_db)):
     rows=(await db.execute(select(AppSetting).where(AppSetting.key.in_(BRANDING_KEYS)))).scalars().all()
     values={x.key:x.value for x in rows}
     return {
-        "name": values.get("app_name") or "VPN Shop by Corgi Lusi",
+        "name": values.get("app_name") or "Корги Люси",
         "logo_url": values.get("app_logo") or "",
         "favicon_url": values.get("app_favicon") or "",
         "theme_default": values.get("theme_default") if values.get("theme_default") in {"light","dark"} else "dark",
@@ -5452,7 +5515,7 @@ async def payment_invoice(payment_id:int,request:Request,db:AsyncSession=Depends
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
     buf=BytesIO(); c=canvas.Canvas(buf,pagesize=A4); c.setTitle(invoice.invoice_number)
-    c.drawString(50,800,"VPN Shop by Corgi Lusi")
+    c.drawString(50,800,"Corgi Lusi")
     c.drawString(50,780,f"Invoice: {invoice.invoice_number}")
     c.drawString(50,760,f"Payment: {payment.order_id}")
     c.drawString(50,740,f"Country: {invoice.country}")
