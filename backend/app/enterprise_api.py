@@ -211,7 +211,7 @@ async def v41_backup_verification_list(db:AsyncSession=Depends(get_db),admin=Dep
 @shop.app.post("/api/admin/v41/backups/{backup_id}/test-restore")
 async def v41_backup_test_restore(backup_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.backups.verify"))):
     # v28.29.0: the check lives in backup_verify (also run weekly by itself) and compares
-    # the restored customers, subscriptions and payments with the shop.
+    # the restored customers, subscriptions and payments with the live database.
     from .backup_verify import verify
     return await verify(db,backup_id,admin.email)
 

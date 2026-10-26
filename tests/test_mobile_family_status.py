@@ -32,3 +32,23 @@ def test_both_apps_have_family_and_status_tabs_on_the_shop_api():
 def test_store_display_names_carry_the_brand():
     for project, name in (("ios-user/VpnShopUser.xcodeproj", "Corgi Lusi"), ("ios-admin/VpnShopAdmin.xcodeproj", "Corgi Lusi Admin")):
         assert f'CFBundleDisplayName = "{name}"' in (ROOT / "mobile" / project / "project.pbxproj").read_text()
+
+
+def test_admin_apps_show_launch_readiness_and_alerts():
+    android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
+    ios = (ROOT / "mobile/ios-admin/VpnShopAdmin/ContentView.swift").read_text()
+    catalog = json.loads((ROOT / "mobile/l10n/admin.json").read_text())
+    for source in (android, ios):
+        assert '"overview", "launch", "plans"' in source
+        for path in ("/api/admin/ops/readiness", "/api/admin/ops/alerts", "/api/admin/ops/alerts/test"):
+            assert path in source
+    for lang in ("ru", "en", "uk"):
+        assert all(catalog[lang].get(k) for k in ("launch", "launch_ready", "launch_missing", "alerts_test", "no_problems"))
+
+
+def test_apps_are_version_2_16_0():
+    for gradle in ("mobile/android-user/app/build.gradle.kts", "mobile/android-admin/app/build.gradle.kts"):
+        text = (ROOT / gradle).read_text()
+        assert "versionCode = 2160" in text and 'versionName = "2.16.0"' in text
+    for project in ("ios-user/VpnShopUser.xcodeproj", "ios-admin/VpnShopAdmin.xcodeproj"):
+        assert "MARKETING_VERSION = 2.16.0" in (ROOT / "mobile" / project / "project.pbxproj").read_text()

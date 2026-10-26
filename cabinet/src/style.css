@@ -591,3 +591,8 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 .faq-item summary::after{content:"＋";float:right;opacity:.6}
 .faq-item[open] summary::after{content:"－"}
 .faq-item p{margin:10px 0 0;line-height:1.55}
+/* An opened document shows its own banner instead of the «Информация» one, and its title. */
+:has(> .info-page[data-doc]) > .section-banner,
+:has(> .info-page[data-doc]) > .section-title,
+.panel:has(.info-page[data-doc]) > .section-banner,
+.panel:has(.info-page[data-doc]) > .section-title { display: none; }

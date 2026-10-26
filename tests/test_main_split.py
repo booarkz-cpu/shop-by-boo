@@ -18,7 +18,7 @@ def test_moved_sections_are_imported_by_main_and_keep_their_routes():
             assert getattr(shop, exported) is getattr(module, exported), (name, exported)
         endpoints = [n for n in module.__all__ if getattr(getattr(module, n), "__module__", "") == module.__name__ and n in names]
         assert endpoints, f"{name} registers no routes"
-    assert len(shop.app.routes) == 291
+    assert len(shop.app.routes) >= 291  # 291 at the split; later releases add routers
 
 
 def test_main_source_is_one_parseable_text_again():

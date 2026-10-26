@@ -398,7 +398,7 @@ export function InfoSection({request, locale}: {request: Request; locale: string
   // The document's own banner replaces the «Информация» one at the top of the screen.
   useEffect(() => { if (page && open?.source === "info") top.current?.scrollIntoView?.({block: "start"}); }, [page, open]);
   if (open) return (
-    <article className="info-page" ref={top}>
+    <article className="info-page" ref={top} data-doc={open.source === "info" ? open.kind : undefined}>
       <button type="button" className="btn-link" onClick={() => setOpen(null)}>← Все документы</button>
       {error && <p role="alert" className="error">{error}</p>}
       {!page && !error && <Skeleton className="sk-card" />}
