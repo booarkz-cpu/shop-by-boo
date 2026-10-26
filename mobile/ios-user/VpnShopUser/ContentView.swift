@@ -180,7 +180,8 @@ struct UserRootView: View {
     }
 
     private func visible(_ section: LayoutSection) -> [LayoutButton] {
-        section.buttons.filter { b in
+        // The iOS app has no home screen widget: its switch is Android-only.
+        section.buttons.filter { $0.action != "widget_toggle" }.filter { b in
             switch b.audience { case "subscribed": return data.subscribed; case "unsubscribed": return !data.subscribed; default: return true }
         }
     }
