@@ -82,7 +82,7 @@ jobs:
           python scripts/check-runtime-placeholders.py
           python scripts/generate-project-map.py --check
       - name: Setup Node for release publisher checks
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Release publisher invariants
@@ -126,7 +126,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Install runtime and browser
@@ -181,13 +181,13 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Python dependencies
         run: |
           python -m pip install pip-audit
-          for file in backend/requirements.txt support-pro/app/requirements.txt support-pro/requirements.txt support-pro/requirements-dev.txt; do
+          for file in backend/requirements.txt support-pro/requirements.txt support-pro/requirements-dev.txt; do
             pip-audit -r "$file"
           done
       - name: JavaScript dependencies
@@ -209,7 +209,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -296,7 +296,12 @@ jobs:
           docker compose exec -T support_db psql -U support -d support -c 'DROP TABLE legacy_orders, legacy_users'
       - name: Build and start services
         run: |
-          docker compose build backend admin miniapp cabinet support_pro support_worker caddy
+          # Job logs are not always downloadable: on a failed build surface its tail as an annotation.
+          if ! docker compose --progress plain build backend admin miniapp cabinet support_pro support_worker caddy > "$RUNNER_TEMP/build.log" 2>&1; then
+            tail -n 300 "$RUNNER_TEMP/build.log"
+            echo "::error title=docker compose build::$(grep -E 'ERROR|error|failed|npm ERR|Cannot|No matching|conflict' "$RUNNER_TEMP/build.log" | tail -n 25 | tr '\n' ' ' | cut -c1-3500)"
+            exit 1
+          fi
           docker compose up -d --wait --wait-timeout 240 backend admin miniapp cabinet support_pro support_worker
           # PostgreSQL 18 everywhere, and pg_dump in the backend image matches the server major version.
           docker compose exec -T db postgres --version | grep -E 'PostgreSQL\) 18\.'
@@ -336,7 +341,7 @@ jobs:
         app: [android-user, android-admin]
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'

@@ -9,23 +9,38 @@ updates:
     groups:
       backend-minor: {update-types: [minor, patch]}
   - package-ecosystem: pip
+    # support-pro/requirements.txt is the only Support Pro lock: tests and the image install it.
     directory: /support-pro
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:
       support-minor: {update-types: [minor, patch]}
+    ignore:
+      # aiogram 3.31 requires pydantic<2.14; lift when aiogram allows newer pydantic.
+      - dependency-name: pydantic
+        versions: [">=2.14"]
+      - dependency-name: pydantic-core
+        versions: [">=2.47"]
   - package-ecosystem: npm
     directory: /admin
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:
       admin-minor: {update-types: [minor, patch]}
+    ignore:
+      # Types must match the runtime: images and CI use Node 22.
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
   - package-ecosystem: npm
     directory: /cabinet
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:
       cabinet-minor: {update-types: [minor, patch]}
+    ignore:
+      # Types must match the runtime: images and CI use Node 22.
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
   - package-ecosystem: docker
     directory: /backend
     schedule: {interval: weekly, day: monday}

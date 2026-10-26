@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
@@ -62,7 +62,7 @@ jobs:
           done
           printf '%s\n' "$state" > dist/mobile/android-status.txt
           echo "Android production: $state" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: mobile-android
           path: dist/mobile/
@@ -95,7 +95,7 @@ jobs:
           fi
           printf '%s\n' "$state" > dist/mobile/ios-status.txt
           echo "iOS production: $state" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: mobile-ios
           path: dist/mobile/
@@ -112,7 +112,7 @@ jobs:
       actions: read
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: mobile-*
           merge-multiple: true
@@ -122,7 +122,7 @@ jobs:
           cd dist/mobile
           for checksum in *.sha256; do sha256sum -c "$checksum"; done
       - name: Require CI and attach only signed production packages
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');

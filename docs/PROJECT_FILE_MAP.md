@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.25.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.25.1`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1291**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1292**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -729,6 +729,7 @@
 | [docs/ru/RELEASE_V28_23_0.md](../docs/ru/RELEASE_V28_23_0.md) | Документация |
 | [docs/ru/RELEASE_V28_24_0.md](../docs/ru/RELEASE_V28_24_0.md) | Документация |
 | [docs/ru/RELEASE_V28_25_0.md](../docs/ru/RELEASE_V28_25_0.md) | Документация |
+| [docs/ru/RELEASE_V28_25_1.md](../docs/ru/RELEASE_V28_25_1.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -1087,7 +1088,6 @@
 | [support-pro/app/outbound.py](../support-pro/app/outbound.py) | Support Pro |
 | [support-pro/app/portal.py](../support-pro/app/portal.py) | Support Pro |
 | [support-pro/app/realtime.py](../support-pro/app/realtime.py) | Support Pro |
-| [support-pro/app/requirements.txt](../support-pro/app/requirements.txt) | Support Pro |
 | [support-pro/app/schema_v2.json](../support-pro/app/schema_v2.json) | Support Pro |
 | [support-pro/app/security.py](../support-pro/app/security.py) | Support Pro |
 | [support-pro/app/services.py](../support-pro/app/services.py) | Support Pro |
@@ -1171,6 +1171,7 @@
 | [tests/test_current_documentation.py](../tests/test_current_documentation.py) | Проверки |
 | [tests/test_customer_passkeys.py](../tests/test_customer_passkeys.py) | Проверки |
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
+| [tests/test_dependency_locks.py](../tests/test_dependency_locks.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |

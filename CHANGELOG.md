@@ -1,3 +1,9 @@
+# v28.25.1
+
+- Зависимости: магазин — FastAPI 0.161, Starlette 1.9, SQLAlchemy 2.1.6 (`sqlalchemy[asyncio]`: без `greenlet` бэкенд не запускался), Alembic 1.20.1, asyncpg 0.32, uvicorn 0.54, pydantic-settings 2.16 и патчи; Support Pro — те же фреймворки, redis 8.1, aiofiles 25.1, multidict 7.1 (`pydantic` остаётся 2.13 из-за `aiogram`); админка и кабинет — React 19.3.1, TypeScript 7.0.2, lucide-react 1.61, Vitest 5.0.5, Playwright 1.64.1; GitHub Actions — setup-node 7, setup-java 6, github-script 9, upload-artifact 7, download-artifact 8.
+- Support Pro: один список версий `support-pro/requirements.txt` (удалена копия `support-pro/app/requirements.txt`, которую проверял только аудит); правила Dependabot для `@types/node` и `pydantic`; `tests/test_dependency_locks.py`.
+- Админка показывает причину отклонённой формы (ошибки проверки FastAPI) вместо «HTTP 422». Миграций нет; head `0076_growth`; реестр настроек — 96 live, 82 deployment, 2 workflow; runtime/API остаётся 21.5.1.
+
 # v28.25.0
 
 - Платежи: возвраты из кабинетов Platega и RollyPay подхватываются по уведомлению с перепроверкой через API; подписка Telegram Stars с автопродлением каждые 30 дней (`subscription_period`, продления `…:r<n>`, отмена `editUserStarSubscription`); партнёрская комиссия с автопродлений (YooKassa, Stars) и подарков с кошелька; [живая проверка всех касс](docs/ru/PAYMENTS_LIVE_CHECKLIST.md).
