@@ -34,6 +34,7 @@ async def db():
         ])
         # 5, 6 never bought; 7 is deleted
         session.add(UserSession(user_id=5, jti_hash="a" * 64, expires_at=NOW + timedelta(hours=1), last_seen_at=NOW - timedelta(days=20)))
+        session.add(UserSession(user_id=1, jti_hash="c" * 64, expires_at=NOW + timedelta(hours=1), last_seen_at=NOW - timedelta(days=1)))
         session.add(UserSession(user_id=6, jti_hash="b" * 64, expires_at=NOW + timedelta(hours=1), last_seen_at=NOW - timedelta(hours=2)))
         for uid in (1, 5, 6):
             session.add(PushDevice(user_id=uid, platform="android", provider="fcm", token_hash=str(uid) * 64, token_encrypted="x"))

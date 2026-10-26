@@ -11,10 +11,7 @@ test('app analytics counts the funnel and a push campaign reaches its segment', 
   expect((await events.json()).accepted).toBe(5);
   // A second «install» of the same installation is not counted again.
   expect((await (await page.request.post('/api/mobile/events', {data: {install_id: install, platform: 'android', events: [{event: 'install'}]}})).json()).accepted).toBe(0);
-  // A customer who never bought a subscription, for the campaign segment.
-  const register = await page.request.post('/api/auth/register', {data: {email: `campaign-${Date.now()}@example.test`, password: 'campaign-password-1'}});
-  expect(register.ok()).toBeTruthy();
-
+  // The seeded customer@example.test never bought a subscription: the campaign segment.
   await page.getByLabel('Email', {exact: true}).fill('browser@example.test');
   await page.getByLabel('Пароль', {exact: true}).fill('browser-only-password');
   await page.getByRole('button', {name: 'Войти', exact: true}).click();
