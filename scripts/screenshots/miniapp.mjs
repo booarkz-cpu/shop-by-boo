@@ -26,8 +26,10 @@ try { ({chromium} = require("playwright")); } catch { ({chromium} = require(join
 
 const config = JSON.parse(await readFile(join(root, "cabinet/src/mock-config.json"), "utf8"));
 const days = (n) => new Date(Date.now() + n * 86400000).toISOString();
+// Demo store for the pictures: brand "Корги Люси", no product names in the demo texts.
 const live = {...config, version: "screenshots", offline: false, viewer: {first_name: "Артём", username: "artem", language: "ru"},
-  promos: [{id: "autumn", title: "Осенняя скидка", text: "Год VPN по цене девяти месяцев", discount: "-25%", ends_at: days(3), button_text: "Выбрать тариф", link: "#plans"}],
+  brand: {...config.brand, name: "Корги Люси"}, texts: {...config.texts, home_subtitle: "Корги Люси всегда рядом"},
+  promos: [{id: "autumn", title: "Осенняя скидка", text: "Годовая подписка по цене девяти месяцев", discount: "-25%", ends_at: days(3), button_text: "Выбрать тариф", link: "#plans"}],
   wallet: {...config.wallet, methods: [
     {id: "sbp", title: "СБП", icon: "sbp", provider: "yookassa", yookassa_method: "sbp", available: true},
     {id: "card", title: "Банковская карта", icon: "card", provider: "yookassa", yookassa_method: "bank_card", available: true},
@@ -44,7 +46,7 @@ const nodes = [["Frankfurt #1", "DE", 41], ["Amsterdam", "NL", 33], ["Helsinki",
   .map(([name, country, users]) => ({name, country, status: "online", users_online: users}));
 const api = {
   "/api/app-config": live,
-  "/api/public/config": {app_name: "VPN Shop by Corgi Lusi", payment_providers: ["yookassa", "rollypay"], trial_days: 3, miniapp: {}, bot_username: "corgi_lusi_bot"},
+  "/api/public/config": {app_name: "Корги Люси", payment_providers: ["yookassa", "rollypay"], trial_days: 3, miniapp: {}, bot_username: "corgi_lusi_bot"},
   "/api/public/apps": {apps: []},
   "/api/public/cabinet-menu": live.navigation,
   "/api/tariff-constructors": [],

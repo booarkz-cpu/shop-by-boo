@@ -85,7 +85,10 @@ async function settle(page) {
   await page.evaluate(csrfFetch);
   await page.evaluate(async () => {
     const api = window.__api;
-    for (const [name, price, days] of [['Месяц', 199, 30], ['Три месяца', 499, 90], ['Год', 1690, 365]]) await api('/api/admin/plans', 'POST', {name, price, duration_days: days, enabled: true});
+    // Demo store name on the pictures; the yearly plan has family seats so the family section is shown.
+    await api('/api/admin/settings/app_name', 'PUT', {value: 'Корги Люси'});
+    await api('/api/admin/app-config', 'PUT', {texts: {home_subtitle: 'Корги Люси всегда рядом'}});
+    for (const [name, price, days, seats] of [['Месяц', 199, 30, 0], ['Три месяца', 499, 90, 0], ['Год', 1690, 365, 2]]) await api('/api/admin/plans', 'POST', {name, price, duration_days: days, enabled: true, family_seats: seats});
     await api('/api/admin/promo-codes', 'POST', {code: 'SUMMER25', kind: 'percent', value: 25});
     await api('/api/admin/promo-codes', 'POST', {code: 'WELCOME10', kind: 'percent', value: 10});
     await api('/api/admin/promotions', 'POST', {name: 'Чёрная пятница', kind: 'percent', value: 30});
