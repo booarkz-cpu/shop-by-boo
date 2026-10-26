@@ -77,6 +77,8 @@ async def _match(db: AsyncSession, data: dict) -> tuple[int | None, Subscription
     m = re.fullmatch(r"user_(\d+)(?:_sub_(\d+))?", str(user.get("username") or ""))
     if m:
         sub = await db.get(Subscription, int(m.group(2))) if m.group(2) else None
+        if sub and sub.user_id != int(m.group(1)):
+            sub = None
         return int(m.group(1)), sub, ids[0] if ids else None
     return None, None, ids[0] if ids else None
 
@@ -165,7 +167,9 @@ async def trial_device_check(db: AsyncSession, user_id: int, hwid: str) -> bool:
         await db.commit()
         return False
     others = select(ConnectionObservation.user_id).where(ConnectionObservation.hwid == hwid, ConnectionObservation.user_id != user_id)
-    earlier = await db.scalar(select(TrialGrant.id).where(TrialGrant.user_id.in_(others), TrialGrant.id != grant.id).limit(1))
+    # Only a trial granted BEFORE this one counts: the account that took the first trial on the
+    # device keeps it when it connects again after a second account took a trial there.
+    earlier = await db.scalar(select(TrialGrant.id).where(TrialGrant.user_id.in_(others), TrialGrant.id < grant.id).limit(1))
     if not earlier:
         await db.commit()
         return False

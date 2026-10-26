@@ -2694,6 +2694,8 @@ async def set_auto_renew(payload:dict,request:Request,db:AsyncSession=Depends(ge
     sub=await owned_subscription(db,user.id,lock=True)
     if not sub:raise HTTPException(404,"Подписка не найдена")
     if enabled:
+        from .subscriptions import FAMILY_TARGET,is_family_subscription
+        if await is_family_subscription(db,sub.id):raise HTTPException(409,FAMILY_TARGET)
         from .subscriptions import renewal_terms
         plan=await db.get(Plan,sub.plan_id)
         terms=await renewal_terms(db,sub,plan) if plan else None

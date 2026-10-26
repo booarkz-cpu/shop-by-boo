@@ -200,11 +200,15 @@ async def sync_member(db: AsyncSession, member_id: int, rw=None) -> str:
     if not sub:
         return "missing"
     try:
-        if member.status != "active" or not _live(owner_sub, now):
+        seats = await _seats(db, owner_sub) if owner_sub else 0
+        seated = [m.id for m in (await _members(db, group))[:seats]]
+        if member.status != "active" or not _live(owner_sub, now) or member.id not in seated:
+            # Ended, owner not live, or the owner moved to a plan with fewer family seats:
+            # the oldest members keep their seats, the rest lose access until seats return.
             if sub.remnawave_uuid and sub.lifecycle_status != "expired":
                 await rw.disable_user(sub.remnawave_uuid)
             sub.lifecycle_status, sub.expires_at = "expired", min(sub.expires_at or now, now)
-            result = "ended"
+            result = "ended" if member.status != "active" or not _live(owner_sub, now) else "no_seat"
         else:
             plan = await db.get(Plan, owner_sub.plan_id)
             target = owner_sub.expires_at
@@ -226,6 +230,9 @@ async def sync_member(db: AsyncSession, member_id: int, rw=None) -> str:
                     await rw.enable_user(sub.remnawave_uuid)
                 if not sub.expires_at or abs((sub.expires_at - target).total_seconds()) > 60:
                     await rw.patch_user(sub.remnawave_uuid, {"expireAt": target.isoformat()})
+                if (sub.traffic_limit_gb_snapshot, sub.device_limit_snapshot, sub.remnawave_profile_id_snapshot) != (traffic, devices, profile):
+                    # The owner changed plan: traffic, devices and squad follow, not only the expiry.
+                    await rw.update_entitlements(sub.remnawave_uuid, traffic, profile, device_limit=devices)
                 result = "updated"
             sub.expires_at, sub.lifecycle_status, sub.plan_id = target, "active", owner_sub.plan_id
             sub.traffic_limit_gb_snapshot, sub.device_limit_snapshot, sub.remnawave_profile_id_snapshot = traffic, devices, profile
