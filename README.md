@@ -479,7 +479,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 </details>
 
 <details>
-<summary><b>Бот и кабинет</b> (8)</summary>
+<summary><b>Бот и кабинет</b> (9)</summary>
 
 **Меню бота и Mini App** — Тексты бота, кнопки главного меню, экран Mini App и инструкции по подключению.
 
@@ -489,7 +489,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ![Дерево кнопок](screenshots/admin_panel/33_menuTree.png)
 
-**Документы** — Частые вопросы, правила, политика конфиденциальности и публичная оферта для Mini App, кабинета и бота.
+**Документы** — Частые вопросы, правила, политика конфиденциальности и публичная оферта: свой текст и баннер для Mini App, кабинета, бота и приложений Android и iOS.
 
 ![Документы](screenshots/admin_panel/34_documents.png)
 
@@ -497,21 +497,25 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ![Конфигурация Mini App](screenshots/admin_panel/35_appConfig.png)
 
-**Баннеры бота** — Картинки над разделами бота и Mini App: стандартные с корги Люси или свои.
+**Приложения: экраны и кнопки** — Разделы, нижняя панель, все кнопки, баннеры, тексты и цвета приложений Android и iOS.
 
-![Баннеры бота](screenshots/admin_panel/36_botBanners.png)
+![Приложения: экраны и кнопки](screenshots/admin_panel/36_mobileLayout.png)
+
+**Баннеры бота** — Картинки над разделами бота, Mini App и приложений Android и iOS: стандартные с корги Люси или свои.
+
+![Баннеры бота](screenshots/admin_panel/37_botBanners.png)
 
 **Личный кабинет** — Вкладки веб-кабинета клиента: порядок, названия и собственные страницы.
 
-![Личный кабинет](screenshots/admin_panel/37_cabinet.png)
+![Личный кабинет](screenshots/admin_panel/38_cabinet.png)
 
 **Android и iOS** — Приложения магазина: версии, файлы для загрузки и ссылки на сторы.
 
-![Android и iOS](screenshots/admin_panel/38_apps.png)
+![Android и iOS](screenshots/admin_panel/39_apps.png)
 
 **Оформление** — Название магазина, логотип, иконка сайта, цвета и тема по умолчанию.
 
-![Оформление](screenshots/admin_panel/39_branding.png)
+![Оформление](screenshots/admin_panel/40_branding.png)
 
 </details>
 
@@ -520,39 +524,39 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Серверы** — Узлы Remnawave: онлайн, нагрузка, трафик и число подключённых клиентов.
 
-![Серверы](screenshots/admin_panel/40_nodes.png)
+![Серверы](screenshots/admin_panel/41_nodes.png)
 
 **Сеть узлов: ASN и репутация** — В чьих сетях стоят узлы и не попали ли их адреса в списки злоупотреблений.
 
-![Сеть узлов: ASN и репутация](screenshots/admin_panel/41_networkIntel.png)
+![Сеть узлов: ASN и репутация](screenshots/admin_panel/42_networkIntel.png)
 
 **Терминал узлов** — Командная оболочка на VPN-сервере через агент: с подтверждением 2FA и записью сессии.
 
-![Терминал узлов](screenshots/admin_panel/42_nodeTerminal.png)
+![Терминал узлов](screenshots/admin_panel/43_nodeTerminal.png)
 
 **Маршрутизация** — Выбор узла для клиента по задержке и нагрузке.
 
-![Маршрутизация](screenshots/admin_panel/43_routing.png)
+![Маршрутизация](screenshots/admin_panel/44_routing.png)
 
 **Планирование мощности** — Прогноз нагрузки: когда узлам не хватит ресурсов и сколько добавить.
 
-![Планирование мощности](screenshots/admin_panel/44_capacity.png)
+![Планирование мощности](screenshots/admin_panel/45_capacity.png)
 
 **Оркестратор** — Автоматическое включение и вывод узлов по правилам нагрузки.
 
-![Оркестратор](screenshots/admin_panel/45_orchestrator.png)
+![Оркестратор](screenshots/admin_panel/46_orchestrator.png)
 
 **Торренты на узлах** — Кто из клиентов качает торренты: счётчики срабатываний Xray без адресов, отметка в антиабузе и уведомление.
 
-![Торренты на узлах](screenshots/admin_panel/46_torrents.png)
+![Торренты на узлах](screenshots/admin_panel/47_torrents.png)
 
 **Антиабуз и агенты** — Агенты на узлах, блокировка устройств-нарушителей и вебхуки событий.
 
-![Антиабуз и агенты](screenshots/admin_panel/47_platform.png)
+![Антиабуз и агенты](screenshots/admin_panel/48_platform.png)
 
 **Мониторинг** — Проверки доступности, версии компонентов и рабочие процессы.
 
-![Мониторинг](screenshots/admin_panel/48_monitoring.png)
+![Мониторинг](screenshots/admin_panel/49_monitoring.png)
 
 </details>
 
@@ -561,51 +565,51 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Настройки без перезапуска** — Параметры магазина, платёжных систем и интеграций, которые применяются сразу.
 
-![Настройки без перезапуска](screenshots/admin_panel/49_runtimeSettings.png)
+![Настройки без перезапуска](screenshots/admin_panel/50_runtimeSettings.png)
 
 **Функции и модули** — Включение и выключение отдельных возможностей магазина.
 
-![Функции и модули](screenshots/admin_panel/50_features.png)
+![Функции и модули](screenshots/admin_panel/51_features.png)
 
 **Плагины** — Установка подписанных плагинов, их права и журнал работы.
 
-![Плагины](screenshots/admin_panel/51_plugins.png)
+![Плагины](screenshots/admin_panel/52_plugins.png)
 
 **Автоматизация** — Правила «событие → действие» и автоматические кампании.
 
-![Автоматизация](screenshots/admin_panel/52_automation.png)
+![Автоматизация](screenshots/admin_panel/53_automation.png)
 
 **Фоновые процессы** — Worker и планировщик: работают ли, когда последний раз отвечали.
 
-![Фоновые процессы](screenshots/admin_panel/53_workers.png)
+![Фоновые процессы](screenshots/admin_panel/54_workers.png)
 
 **Очередь задач** — Фоновые задачи: ожидают, выполняются, завершились ошибкой; повтор вручную.
 
-![Очередь задач](screenshots/admin_panel/54_jobs.png)
+![Очередь задач](screenshots/admin_panel/55_jobs.png)
 
 **Почтовый домен: SPF, DKIM, DMARC** — Доходят ли письма магазина: DNS-записи домена и отчёты DMARC о том, кто отправляет почту от его имени.
 
-![Почтовый домен: SPF, DKIM, DMARC](screenshots/admin_panel/55_mailDomain.png)
+![Почтовый домен: SPF, DKIM, DMARC](screenshots/admin_panel/56_mailDomain.png)
 
 **Диагностика** — Проверка конфигурации, подключений и готовности к работе с подсказками по исправлению.
 
-![Диагностика](screenshots/admin_panel/56_operations.png)
+![Диагностика](screenshots/admin_panel/57_operations.png)
 
 **Обновления** — Установленная версия, доступные выпуски и история обновлений.
 
-![Обновления](screenshots/admin_panel/57_releases.png)
+![Обновления](screenshots/admin_panel/58_releases.png)
 
 **Развёртывания** — Постепенный выпуск новой версии: доля трафика и ошибки.
 
-![Развёртывания](screenshots/admin_panel/58_deployments.png)
+![Развёртывания](screenshots/admin_panel/59_deployments.png)
 
 **Корпоративный контур** — Проверки, кампании и правила автоматизации для крупных установок.
 
-![Корпоративный контур](screenshots/admin_panel/59_enterprise.png)
+![Корпоративный контур](screenshots/admin_panel/60_enterprise.png)
 
 **Рекомендации** — Подсказки по росту продаж и снижению нагрузки на основе данных магазина.
 
-![Рекомендации](screenshots/admin_panel/60_intelligence.png)
+![Рекомендации](screenshots/admin_panel/61_intelligence.png)
 
 </details>
 
@@ -614,35 +618,35 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Защита и 2FA** — Двухфакторный вход, смена пароля и правила доступа к панели.
 
-![Защита и 2FA](screenshots/admin_panel/61_security.png)
+![Защита и 2FA](screenshots/admin_panel/62_security.png)
 
 **Ключи доступа** — Вход в панель по ключу доступа (passkey) вместо пароля.
 
-![Ключи доступа](screenshots/admin_panel/62_passkeys.png)
+![Ключи доступа](screenshots/admin_panel/63_passkeys.png)
 
 **Роли и администраторы** — Кто имеет доступ к панели и с какими правами.
 
-![Роли и администраторы](screenshots/admin_panel/63_admins.png)
+![Роли и администраторы](screenshots/admin_panel/64_admins.png)
 
 **Сессии** — Активные входы в панель; завершить чужую или все сессии.
 
-![Сессии](screenshots/admin_panel/64_sessions.png)
+![Сессии](screenshots/admin_panel/65_sessions.png)
 
 **Антифрод** — Подозрительные оплаты и аккаунты: проверить и принять решение.
 
-![Антифрод](screenshots/admin_panel/65_fraud.png)
+![Антифрод](screenshots/admin_panel/66_fraud.png)
 
 **Журнал действий** — Кто из администраторов, когда и что изменил.
 
-![Журнал действий](screenshots/admin_panel/66_audit.png)
+![Журнал действий](screenshots/admin_panel/67_audit.png)
 
 **Резервные копии** — Расписание и хранение копий базы, ручной запуск и проверка.
 
-![Резервные копии](screenshots/admin_panel/67_backups.png)
+![Резервные копии](screenshots/admin_panel/68_backups.png)
 
 **Восстановление** — Восстановление из копии и проверка готовности к аварии.
 
-![Восстановление](screenshots/admin_panel/68_recovery.png)
+![Восстановление](screenshots/admin_panel/69_recovery.png)
 
 </details>
 
@@ -651,7 +655,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Быстрый поиск** — Ctrl+K (⌘K) из любого раздела: поиск по названию, описанию и синонимам, переход клавишами.
 
-![Быстрый поиск](screenshots/admin_panel/69_command_search.png)
+![Быстрый поиск](screenshots/admin_panel/70_command_search.png)
 
 </details>
 
