@@ -11,12 +11,21 @@
 		B00000000000000000000005 /* VpnShopUserApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000002 /* VpnShopUserApp.swift */; };
 		B00000000000000000000006 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000003 /* ContentView.swift */; };
 		B00000000000000000000007 /* l10n.json in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000004 /* l10n.json */; };
+		B00000000000000000000017 /* LayoutUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutUI.swift; sourceTree = "<group>"; };
+		B00000000000000000000018 /* LayoutUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000017 /* LayoutUI.swift */; };
+		B00000000000000000000019 /* default_layout.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = default_layout.json; sourceTree = "<group>"; };
+		B0000000000000000000001A /* default_layout.json in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000019 /* default_layout.json */; };
+		B0000000000000000000001B /* Banners */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Banners; sourceTree = "<group>"; };
+		B0000000000000000000001C /* Banners in Resources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001B /* Banners */; };
 		B00000000000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B00000000000000000000008 = {isa = PBXGroup; children = (
 				B00000000000000000000002 /* VpnShopUserApp.swift */,
 				B00000000000000000000003 /* ContentView.swift */,
+				B00000000000000000000017 /* LayoutUI.swift */,
 				B00000000000000000000016 /* Info.plist */,
 				B00000000000000000000004 /* l10n.json */,
+				B00000000000000000000019 /* default_layout.json */,
+				B0000000000000000000001B /* Banners */,
 		); path = VpnShopUser; sourceTree = "<group>"; };
 		B00000000000000000000009 = {isa = PBXGroup; children = (
 			B00000000000000000000001 /* VpnShopUser.app */,
@@ -28,15 +37,18 @@
 		B0000000000000000000000B = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 				B00000000000000000000005,
 				B00000000000000000000006,
+				B00000000000000000000018,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		B0000000000000000000000C = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
 				B00000000000000000000007,
+				B0000000000000000000001A,
+				B0000000000000000000001C,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		B0000000000000000000000D = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		B0000000000000000000000E = {isa = PBXNativeTarget; buildConfigurationList = B00000000000000000000010; buildPhases = (B0000000000000000000000B, B0000000000000000000000D, B0000000000000000000000C); buildRules = (); dependencies = (); name = VpnShopUser; productName = VpnShopUser; productReference = B00000000000000000000001; productType = "com.apple.product-type.application"; };
 		B0000000000000000000000F = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = 1; LastUpgradeCheck = 1600; }; buildConfigurationList = B00000000000000000000011; compatibilityVersion = "Xcode 14.0"; developmentRegion = ru; hasScannedForEncodings = 0; knownRegions = (ru, en, Base); mainGroup = B0000000000000000000000A; productRefGroup = B00000000000000000000009; projectDirPath = ""; projectRoot = ""; targets = (B0000000000000000000000E); };
-		B00000000000000000000012 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGNING_ALLOWED = NO; CODE_SIGN_ENTITLEMENTS = VpnShopUser/VpnShopUser.entitlements; CORGI_ASSOCIATED_DOMAIN = cabinet.example.com; CURRENT_PROJECT_VERSION = 2160; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = VpnShopUser/Info.plist; INFOPLIST_KEY_CFBundleDisplayName = "Corgi Lusi"; INFOPLIST_KEY_UILaunchScreen_Generation = YES; IPHONEOS_DEPLOYMENT_TARGET = 16.0; MARKETING_VERSION = 2.16.0; PRODUCT_BUNDLE_IDENTIFIER = shop.remnawave.user; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
-		B00000000000000000000013 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGNING_ALLOWED = NO; CODE_SIGN_ENTITLEMENTS = VpnShopUser/VpnShopUser.entitlements; CORGI_ASSOCIATED_DOMAIN = cabinet.example.com; CURRENT_PROJECT_VERSION = 2160; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = VpnShopUser/Info.plist; INFOPLIST_KEY_CFBundleDisplayName = "Corgi Lusi"; INFOPLIST_KEY_UILaunchScreen_Generation = YES; IPHONEOS_DEPLOYMENT_TARGET = 16.0; MARKETING_VERSION = 2.16.0; PRODUCT_BUNDLE_IDENTIFIER = shop.remnawave.user; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+		B00000000000000000000012 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGNING_ALLOWED = NO; CODE_SIGN_ENTITLEMENTS = VpnShopUser/VpnShopUser.entitlements; CORGI_ASSOCIATED_DOMAIN = cabinet.example.com; CURRENT_PROJECT_VERSION = 3000; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = VpnShopUser/Info.plist; INFOPLIST_KEY_CFBundleDisplayName = "Corgi Lusi"; INFOPLIST_KEY_UILaunchScreen_Generation = YES; IPHONEOS_DEPLOYMENT_TARGET = 16.0; MARKETING_VERSION = 3.0.0; PRODUCT_BUNDLE_IDENTIFIER = shop.remnawave.user; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+		B00000000000000000000013 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGNING_ALLOWED = NO; CODE_SIGN_ENTITLEMENTS = VpnShopUser/VpnShopUser.entitlements; CORGI_ASSOCIATED_DOMAIN = cabinet.example.com; CURRENT_PROJECT_VERSION = 3000; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = VpnShopUser/Info.plist; INFOPLIST_KEY_CFBundleDisplayName = "Corgi Lusi"; INFOPLIST_KEY_UILaunchScreen_Generation = YES; IPHONEOS_DEPLOYMENT_TARGET = 16.0; MARKETING_VERSION = 3.0.0; PRODUCT_BUNDLE_IDENTIFIER = shop.remnawave.user; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 		B00000000000000000000014 = {isa = XCBuildConfiguration; buildSettings = {SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 16.0; SWIFT_VERSION = 5.0; }; name = Debug; };
 		B00000000000000000000015 = {isa = XCBuildConfiguration; buildSettings = {SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 16.0; SWIFT_VERSION = 5.0; }; name = Release; };
 		B00000000000000000000010 = {isa = XCConfigurationList; buildConfigurations = (B00000000000000000000012, B00000000000000000000013); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };

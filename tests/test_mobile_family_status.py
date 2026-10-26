@@ -19,8 +19,11 @@ def test_every_new_string_is_translated():
 
 
 def test_both_apps_have_family_and_status_tabs_on_the_shop_api():
+    # Since 3.0.0 the sections come from the layout (GET /api/mobile/layout); family and status are sections of it.
+    layout = json.loads((ROOT / "mobile/android-user/app/src/main/assets/default_layout.json").read_text())
+    kinds = {s["kind"] for s in layout["ru"]["sections"]}
+    assert {"family", "devices", "notifications", "status"} <= kinds
     for source in (ANDROID, IOS):
-        assert '"family", "devices", "notifications", "status"' in source
         for path in ("/api/me/family", "/api/public/service-status", "/api/me/family/join", "/api/me/family/members/"):
             assert path in source, path
         # An older shop without these endpoints must not break the rest of the app.
@@ -46,9 +49,9 @@ def test_admin_apps_show_launch_readiness_and_alerts():
         assert all(catalog[lang].get(k) for k in ("launch", "launch_ready", "launch_missing", "alerts_test", "no_problems"))
 
 
-def test_apps_are_version_2_16_0():
+def test_apps_are_version_3_0_0():
     for gradle in ("mobile/android-user/app/build.gradle.kts", "mobile/android-admin/app/build.gradle.kts"):
         text = (ROOT / gradle).read_text()
-        assert "versionCode = 2160" in text and 'versionName = "2.16.0"' in text
+        assert "versionCode = 3000" in text and 'versionName = "3.0.0"' in text
     for project in ("ios-user/VpnShopUser.xcodeproj", "ios-admin/VpnShopAdmin.xcodeproj"):
-        assert "MARKETING_VERSION = 2.16.0" in (ROOT / "mobile" / project / "project.pbxproj").read_text()
+        assert "MARKETING_VERSION = 3.0.0" in (ROOT / "mobile" / project / "project.pbxproj").read_text()

@@ -1,7 +1,11 @@
+import Combine
 import LocalAuthentication
 import SwiftUI
 import UIKit
 
+/// The customer app. Every screen, button, banner and colour comes from the layout the shop
+/// administrator edits («Приложения: экраны и кнопки»); the bundled default is drawn until the
+/// shop answers and whenever it is unreachable.
 struct UserRootView: View {
     @AppStorage("shop_lang") private var lang = UserRootView.detectLanguage()
     @AppStorage("shop_base") private var base = ""
@@ -10,38 +14,23 @@ struct UserRootView: View {
     @State private var authenticationContext: LAContext?
     @State private var email = ""
     @State private var password = ""
-    @State private var tab = "overview"
+    @State private var tab = "vpn"
     @State private var notice = ""
     @State private var busy = false
-    @State private var dashboard: [String: Any] = [:]
-    @State private var profiles: [[String: Any]] = []
-    @State private var plans: [[String: Any]] = []
-    @State private var builders: [[String: Any]] = []
-    @State private var servers: [String: Any] = [:]
-    @State private var connection: [String: Any] = [:]
-    @State private var config: [String: Any] = [:]
-    @State private var promo = ""
-    @State private var devices: [[String: Any]] = []
-    @State private var notifications: [[String: Any]] = []
-    @State private var routing: [String: Any] = [:]
-    @State private var features: [String: Any] = [:]
-    @State private var diagnostics: [String: Any] = [:]
-    @State private var privacy: [String: Any] = [:]
-    @State private var liveConnection: [String: Any] = [:]
-    @State private var traffic: [String: Any] = [:]
-    @State private var giftCode = ""
-    @State private var topupAmount = "100"
+    @State private var offline = false
     @State private var unlocked = false
-    @State private var subject = ""
-    @State private var message = ""
-    @State private var logo: UIImage?
+    @State private var layout = AppLayout()
+    @State private var data = ShopData()
+    @State private var vpn: VpnState = .off
+    @State private var selectedPlan = 0
+    @State private var topupAmount = "300"
+    @State private var familyCode = ""
+    @State private var sheet = ""
+    @State private var sheetText = ""
+    @State private var sheetText2 = ""
     @ObservedObject private var push = PushCenter.shared
     @State private var pushEnabled = PushCenter.shared.enabled
-    @State private var passkeys: [[String: Any]] = []
-    @State private var passkeyPassword = ""
-    @State private var family: [String: Any] = [:]
-    @State private var familyCode = ""
-    @State private var serviceStatus: [String: Any] = [:]
+    private let vpnTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
     private static func detectLanguage() -> String {
         let code = Locale.preferredLanguages.first?.lowercased() ?? "ru"
@@ -55,34 +44,37 @@ struct UserRootView: View {
     private static func languageLabel(_ current: String) -> String {
         switch current { case "ru": return "EN"; case "en": return "UK"; default: return "RU" }
     }
+    private static func languageName(_ current: String) -> String {
+        switch current { case "en": return "English"; case "uk": return "Українська"; default: return "Русский" }
+    }
 
     private var strings: [String: String] { loadStrings(lang) }
     private func t(_ key: String) -> String { strings[key] ?? key }
+    private var theme: LayoutTheme { layout.theme }
+    private var appVersion: String { "Corgi Lusi " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "") }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    if let logo { Image(uiImage: logo).resizable().frame(width: 48, height: 48) }
-                    Text(t("app_name")).font(.title2).foregroundStyle(Color(red: 0.54, green: 0.47, blue: 1.0))
-                    Spacer()
-                    Button(Self.languageLabel(lang)) { lang = Self.nextLanguage(lang) }
-                }
-                Text(t("tagline")).foregroundStyle(.secondary)
-                if !notice.isEmpty { Text(notice).foregroundStyle(.orange) }
-                if token.isEmpty { auth } else if !unlocked { lock } else { home }
-            }
-            .padding()
+        ZStack {
+            theme.background.ignoresSafeArea()
+            if token.isEmpty { login } else if !unlocked { lock } else { home }
         }
-        .background(Color(red: 0.047, green: 0.063, blue: 0.129))
         .preferredColorScheme(.dark)
         .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
+        .sheet(isPresented: Binding(get: { !sheet.isEmpty }, set: { if !$0 { sheet = "" } })) { sheetView }
         .onAppear {
+            layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
             #if DEBUG
             if DemoMode.enabled { loadDemo(); return }
             #endif
-            if token.isEmpty { loadPublicLogo() }
-            else if !unlocked { unlockSavedSession() }
+            loadLayout()
+            if !token.isEmpty && !unlocked { unlockSavedSession() }
+        }
+        .onReceive(vpnTimer) { _ in
+            #if DEBUG
+            if DemoMode.enabled { return }
+            #endif
+            let on = VpnClients.vpnActive()
+            if on { vpn = .on } else if vpn == .on { vpn = .off }
         }
         .onChange(of: token) { value in
             if value.isEmpty { SessionKeychain.clear() }
@@ -96,234 +88,618 @@ struct UserRootView: View {
             }
         }
         .onChange(of: unlocked) { value in if value && !token.isEmpty { refresh() } }
-        .onChange(of: lang) { _ in if !token.isEmpty && unlocked { refresh() } }
+        .onChange(of: lang) { _ in
+            layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
+            loadLayout()
+            if !token.isEmpty && unlocked { refresh() }
+        }
         .onChange(of: push.openNotifications) { open in
-            if open { tab = "notifications"; push.openNotifications = false }
+            if open, layout.section("notifications") != nil { tab = "notifications"; push.openNotifications = false }
         }
     }
 
-    private var auth: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            field(t("server"), text: $base)
-            field(t("email"), text: $email)
-            SecureField(t("password"), text: $password).textFieldStyle(.roundedBorder)
-            Button(t("sign_in")) { authenticate("/api/auth/login") }.disabled(busy)
-            Button(t("sign_up")) { authenticate("/api/auth/register") }.disabled(busy)
-            // Discoverable passkey: only the shop address is needed.
-            Button(t("passkey_sign_in")) { signInWithPasskey() }.disabled(busy)
+    // MARK: sign-in and lock
+
+    private var login: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Text(layout.text("brand")).font(.system(size: 30, weight: .black)).foregroundStyle(theme.accent)
+                    Spacer()
+                    Button(Self.languageLabel(lang)) { lang = Self.nextLanguage(lang) }.foregroundStyle(theme.muted)
+                }
+                SectionBannerView(base: base, banner: layout.sections.first { $0.kind == "vpn" }?.banner, theme: theme) { _ in }
+                Text(t("welcome")).font(.system(size: 26, weight: .bold)).foregroundStyle(theme.text)
+                Text(t("tagline")).foregroundStyle(theme.muted)
+                if !notice.isEmpty { Text(notice).foregroundStyle(theme.accent2) }
+                InputField(title: t("server"), text: $base, theme: theme)
+                InputField(title: t("email"), text: $email, theme: theme)
+                InputField(title: t("password"), text: $password, theme: theme, secure: true)
+                ActionButtonView(button: LayoutButton(id: "sign_in", label: t("sign_in"), action: "refresh", target: "", style: "primary", icon: "user", audience: "any"), theme: theme, enabled: !busy) { authenticate("/api/auth/login") }
+                ActionButtonView(button: LayoutButton(id: "sign_up", label: t("sign_up"), action: "refresh", target: "", style: "secondary", icon: "plus", audience: "any"), theme: theme, enabled: !busy) { authenticate("/api/auth/register") }
+                // Discoverable passkey: only the shop address is needed.
+                ActionButtonView(button: LayoutButton(id: "passkey", label: t("passkey_sign_in"), action: "refresh", target: "", style: "ghost", icon: "key", audience: "any"), theme: theme, enabled: !busy) { signInWithPasskey() }
+            }
+            .padding(22)
         }
+        .onChange(of: base) { _ in loadLayout() }
     }
 
     private var lock: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Button(t("unlock")) { unlockSavedSession() }.buttonStyle(.borderedProminent)
-            Button(t("sign_out")) { signOut() }
+        VStack(spacing: 14) {
+            Text(layout.text("brand")).font(.system(size: 34, weight: .black)).foregroundStyle(theme.accent)
+            if !notice.isEmpty { Text(notice).foregroundStyle(theme.accent2) }
+            ActionButtonView(button: LayoutButton(id: "unlock", label: t("unlock"), action: "refresh", target: "", style: "primary", icon: "lock", audience: "any"), theme: theme) { unlockSavedSession() }
+            ActionButtonView(button: LayoutButton(id: "sign_out", label: t("sign_out"), action: "sign_out", target: "", style: "ghost", icon: "logout", audience: "any"), theme: theme) { signOut() }
         }
+        .padding(32)
+    }
+
+    // MARK: sections
+
+    private var currentSection: LayoutSection? {
+        layout.section(tab) ?? layout.sections.first { $0.kind == "vpn" } ?? layout.sections.first
     }
 
     private var home: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(["overview", "plans", "builder", "servers", "connection", "family", "devices", "notifications", "status", "security", "diagnostics", "privacy", "support"], id: \.self) { key in
-                        Button(t(key)) { tab = key }.buttonStyle(.bordered).tint(tab == key ? Color(red: 0.54, green: 0.47, blue: 1.0) : .gray)
+        VStack(spacing: 0) {
+            ZStack(alignment: .topLeading) {
+                ScrollView {
+                    VStack(spacing: 14) {
+                        if let section = currentSection { sectionView(section) }
                     }
+                    .padding(.horizontal, 18).padding(.vertical, 12).padding(.bottom, 24)
+                }
+                .refreshable { refresh() }
+                if let section = currentSection, !section.tab {
+                    Button { tab = layout.tabs.first { layout.section($0)?.kind == "vpn" } ?? layout.tabs.first ?? "vpn" } label: {
+                        Image(systemName: "chevron.left").font(.system(size: 20, weight: .semibold)).foregroundStyle(theme.text).padding(14)
+                    }
+                    .accessibilityLabel("Назад")
                 }
             }
-            Button(t("refresh")) { refresh() }.disabled(busy)
-            Button(t("sign_out")) { signOut() }
-            section
+            BottomBar(layout: layout, current: currentSection?.tab == true ? currentSection?.id ?? "" : "") { id in tab = id; notice = "" }
         }
     }
 
-    @ViewBuilder private var section: some View {
-        switch tab {
-        case "overview":
-            Text(t("my_subscriptions")).font(.headline)
-            ForEach(Array(profiles.enumerated()), id: \.offset) { _, profile in
-                Text("\(jsonText(profile["name"])) · \(jsonText(profile["plan"])) · \(jsonText(profile["expires_at"]))")
-                if jsonBool(profile["is_primary"]) { Text(t("selected_subscription")) }
-                else { Button(t("select_subscription")) { selectProfile(profile) }.disabled(busy) }
+    private func visible(_ section: LayoutSection) -> [LayoutButton] {
+        section.buttons.filter { b in
+            switch b.audience { case "subscribed": return data.subscribed; case "unsubscribed": return !data.subscribed; default: return true }
+        }
+    }
+
+    @ViewBuilder private func sectionView(_ section: LayoutSection) -> some View {
+        if section.kind == "vpn" {
+            vpnSection(section)
+        } else {
+            Text(section.title).font(.system(size: 28, weight: .bold)).foregroundStyle(theme.text).frame(maxWidth: .infinity).padding(.top, 8)
+            if offline { Text(layout.text("offline")).foregroundStyle(theme.muted).font(.footnote) }
+            if !notice.isEmpty { noticeLine }
+            SectionBannerView(base: base, banner: section.banner, theme: theme) { openExternal($0) }
+            if !section.subtitle.isEmpty { Text(section.subtitle).foregroundStyle(theme.muted).font(.subheadline).frame(maxWidth: .infinity, alignment: .leading) }
+            switch section.kind {
+            case "locations": locationsBody
+            case "premium": premiumBody
+            case "subscription": subscriptionBody
+            case "devices": devicesBody
+            case "family": familySection
+            case "referral": referralBody
+            case "wallet": walletBody
+            case "notifications": notificationsBody
+            case "status": statusSection
+            case "security": securityBody
+            default: EmptyView()
             }
-            let user = dashboard["user"] as? [String: Any] ?? [:]
-            Text("\(t("wallet")): \(user["wallet_balance"] as? String ?? "0")")
-            Text("\(t("referral")): \(user["referral_code"] as? String ?? "")")
-            if dashboard["subscription"] == nil || dashboard["subscription"] is NSNull {
-                Text(t("no_subscription"))
+            if !section.body.isEmpty { CardView(theme: theme) { Text(section.body).foregroundStyle(theme.text) } }
+            let buttons = visible(section)
+            if section.kind == "settings" || section.kind == "support" {
+                rows(buttons)
+                if section.kind == "settings" { Text(appVersion).font(.footnote).foregroundStyle(theme.muted) }
             } else {
-                Text(t("active"))
+                ForEach(buttons) { b in ActionButtonView(button: b, theme: theme, enabled: !busy) { run(b) } }
             }
-            Text("\(t("traffic_used")): \(jsonBool(traffic["available"]) ? jsonText(traffic["traffic_used_bytes"]) : t("usage_unavailable"))")
-            Text("\(t("traffic_limit")): \(jsonText(traffic["traffic_limit_bytes"]).isEmpty ? t("unlimited") : jsonText(traffic["traffic_limit_bytes"]))")
-            field(t("topup_amount"), text: $topupAmount)
-            Button(t("topup")) { topUp() }.disabled(busy)
-            field(t("gift_code"), text: $giftCode)
-            Button(t("redeem")) { redeemGift() }.disabled(busy)
-        case "plans":
-            field(t("promo"), text: $promo)
-            ForEach(Array(plans.enumerated()), id: \.offset) { _, plan in
-                Text("\(jsonText(plan["name"])) · \(jsonText(plan["price"]))")
-                Button(t("pay")) { buy(plan, wallet: false) }
-                Button(t("pay_wallet")) { buy(plan, wallet: true) }
-            }
-        case "builder":
-            ForEach(Array(builders.enumerated()), id: \.offset) { _, row in
-                Text(row["name"] as? String ?? "")
-                Button(t("pay")) { buyConstructor(row) }
-            }
-        case "servers":
-            if (servers["error"] as? String)?.isEmpty == false { Text(t("panel_down")) }
-            let nodes = servers["nodes"] as? [[String: Any]] ?? []
-            if nodes.isEmpty { Text(t("nodes_empty")) }
-            ForEach(Array(nodes.enumerated()), id: \.offset) { _, row in
-                let node = publicNode(row)
-                Text("\(node["name"] as? String ?? "") · \(node["country"] as? String ?? "") · \(t(node["status"] as? String ?? "unknown")) · \(node["users_online"] as? Int ?? 0)")
-            }
-        case "connection":
-            let url = connection["subscription_url"] as? String ?? ""
-            Text(url.isEmpty ? t("no_subscription") : url)
-            if !url.isEmpty {
-                Button(t("copy")) {
-                    UIPasteboard.general.string = url
-                    notice = t("copied")
+        }
+    }
+
+    private var noticeLine: some View {
+        Text(notice).font(.subheadline).foregroundStyle(theme.accent2).frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12).background(RoundedRectangle(cornerRadius: 12).fill(theme.surface))
+    }
+
+    @ViewBuilder private func rows(_ buttons: [LayoutButton]) -> some View {
+        let head = Array(buttons.prefix { $0.style == "primary" })
+        let rest = Array(buttons.dropFirst(head.count))
+        ForEach(head) { b in ActionButtonView(button: b, theme: theme, enabled: !busy) { run(b) } }
+        if !rest.isEmpty {
+            VStack(spacing: 0) {
+                ForEach(Array(rest.enumerated()), id: \.element.id) { i, b in
+                    ActionRowView(button: b, theme: theme, value: b.action == "language" ? Self.languageName(lang) : "",
+                                  toggled: b.action == "push_toggle" ? pushEnabled : nil) { run(b) }
+                    if i < rest.count - 1 { Divider().background(theme.surface2).padding(.leading, 58) }
                 }
-                ForEach(subscriptionApps(url), id: \.0) { item in
-                    Button(item.0) {
-                        if let target = URL(string: item.1) { UIApplication.shared.open(target) }
+            }
+            .background(RoundedRectangle(cornerRadius: theme.radius).fill(theme.surface))
+        }
+    }
+
+    @ViewBuilder private func vpnSection(_ section: LayoutSection) -> some View {
+        let buttons = visible(section)
+        let connect = buttons.first { $0.action == "connect" }
+        let location = buttons.first { $0.action == "open" && layout.section($0.target)?.kind == "locations" }
+        HStack {
+            BrandTitle(brand: layout.text("brand"), theme: theme)
+            Spacer()
+            if let support = layout.section("support") {
+                Button { tab = "support" } label: { Image(systemName: "headphones").font(.system(size: 22)).foregroundStyle(theme.text) }.accessibilityLabel(support.title)
+            }
+            if let notifications = layout.section("notifications") {
+                Button { tab = "notifications" } label: { Image(systemName: "bell.fill").font(.system(size: 22)).foregroundStyle(theme.text) }.accessibilityLabel(notifications.title)
+            }
+        }
+        if offline { Text(layout.text("offline")).foregroundStyle(theme.muted).font(.footnote) }
+        if !notice.isEmpty { noticeLine }
+        SectionBannerView(base: base, banner: section.banner, theme: theme) { openExternal($0) }
+        VStack(spacing: 10) {
+            switch vpn {
+            case .on: StatusPill(text: layout.text("status_on"), color: theme.success, theme: theme)
+            case .connecting: StatusPill(text: layout.text("status_connecting"), color: theme.accent2, theme: theme)
+            case .off: StatusPill(text: layout.text("status_off"), color: theme.muted, theme: theme)
+            }
+            if let connect {
+                PowerButton(state: vpn, theme: theme, label: connect.label) { run(connect) }
+                Text(connect.label).font(.system(size: 18, weight: .bold)).foregroundStyle(theme.text)
+            }
+        }
+        planSummary
+        if let location {
+            Button { run(location) } label: { locationCard }.buttonStyle(.plain)
+        }
+        ForEach(buttons.filter { $0 != connect && $0 != location }) { b in ActionButtonView(button: b, theme: theme, enabled: !busy) { run(b) } }
+    }
+
+    private var trafficLeft: (String, Double?) {
+        let used = Double(jsonInt(data.traffic["traffic_used_bytes"]) ?? 0)
+        let limit = Double(jsonInt(data.traffic["traffic_limit_bytes"]) ?? 0)
+        if !data.subscribed { return (layout.text("no_subscription"), nil) }
+        if limit <= 0 { return (layout.text("unlimited"), nil) }
+        return ("\(formatBytes(max(limit - used, 0))) / \(formatBytes(limit))", max(limit - used, 0) / limit)
+    }
+
+    private var untilLine: String {
+        guard data.subscribed, let days = data.daysLeft else { return "" }
+        return "\(layout.text("until")) \(data.expires) · \(layout.text("days_left").replacingOccurrences(of: "{n}", with: String(days)))"
+    }
+
+    private var planSummary: some View {
+        Button { if layout.section("subscription") != nil { tab = "subscription" } } label: {
+            CardView(theme: theme) {
+                Text(jsonText(data.subscription?["name"]).isEmpty ? layout.text("no_subscription") : jsonText(data.subscription?["name"]))
+                    .font(.system(size: 17, weight: .bold)).foregroundStyle(theme.text)
+                if !untilLine.isEmpty { Text(untilLine).font(.footnote).foregroundStyle(theme.muted) }
+                HStack {
+                    Text(layout.text("traffic_left")).foregroundStyle(theme.muted)
+                    Spacer()
+                    Text(trafficLeft.0).fontWeight(.bold).foregroundStyle(theme.text)
+                }
+                if let progress = trafficLeft.1 {
+                    ProgressView(value: min(max(progress, 0), 1)).tint(theme.accent)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var locationCard: some View {
+        let rec = data.routing["recommendation"] as? [String: Any]
+        return CardView(theme: theme) {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle().fill(theme.surface2).frame(width: 52, height: 52)
+                    if let rec { Text(flagEmoji(jsonText(rec["country"]))).font(.system(size: 26)) }
+                    else { Image(systemName: "bolt.fill").foregroundStyle(theme.accent) }
+                }
+                VStack(alignment: .leading) {
+                    Text(rec.map { jsonText($0["name"]) }.flatMap { $0.isEmpty ? nil : $0 } ?? layout.text("auto_location"))
+                        .font(.system(size: 17, weight: .bold)).foregroundStyle(theme.text)
+                    Text(layout.section("locations")?.title ?? "").font(.footnote).foregroundStyle(theme.muted)
+                }
+                Spacer()
+                LoadBars(level: 5, color: theme.success, theme: theme)
+            }
+        }
+    }
+
+    @ViewBuilder private var locationsBody: some View {
+        let nodes = data.nodes
+        let busiest = max(nodes.map { jsonInt($0["users_online"]) ?? 0 }.max() ?? 1, 1)
+        let rec = jsonText((data.routing["recommendation"] as? [String: Any])?["name"])
+        if nodes.isEmpty { Text(layout.text("offline")).foregroundStyle(theme.muted) }
+        ForEach(Array(nodes.enumerated()), id: \.offset) { _, node in
+            let online = jsonText(node["status"]) == "online"
+            let load = jsonInt(node["users_online"]) ?? 0
+            CardView(theme: theme) {
+                HStack(spacing: 14) {
+                    Text(flagEmoji(jsonText(node["country"]))).font(.system(size: 28))
+                    VStack(alignment: .leading) {
+                        Text(jsonText(node["name"])).font(.system(size: 16, weight: .bold)).foregroundStyle(theme.text)
+                        if jsonText(node["name"]) == rec { Text(layout.text("auto_location")).font(.caption).foregroundStyle(theme.accent) }
+                    }
+                    Spacer()
+                    LoadBars(level: online ? min(max(5 - load * 4 / busiest, 1), 5) : 0, color: online ? theme.success : theme.danger, theme: theme)
+                }
+            }
+        }
+    }
+
+    private var planId: Int { selectedPlan > 0 ? selectedPlan : (data.plans.first.flatMap { jsonInt($0["id"]) } ?? 0) }
+
+    @ViewBuilder private var premiumBody: some View {
+        let base = data.plans.min { (jsonInt($0["duration_days"]) ?? 30) < (jsonInt($1["duration_days"]) ?? 30) }.map(monthlyPrice) ?? 0
+        ForEach(Array(data.plans.enumerated()), id: \.offset) { _, plan in
+            let id = jsonInt(plan["id"]) ?? 0
+            let chosen = id == planId
+            let perMonth = monthlyPrice(plan)
+            let discount = base > 0 && perMonth < base ? Int((1 - perMonth / base) * 100) : 0
+            let price = (jsonText(plan["final_price"]).isEmpty ? jsonText(plan["price"]) : jsonText(plan["final_price"])).replacingOccurrences(of: ".00", with: "")
+            Button { selectedPlan = id } label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(jsonText(plan["name"])).font(.system(size: 18, weight: .bold)).foregroundStyle(theme.text)
+                        let devices = jsonInt(plan["device_limit"]) ?? 0
+                        let gb = jsonInt(plan["traffic_limit_gb"]) ?? 0
+                        Text([devices > 0 ? "\(layout.text("devices")): \(devices)" : nil, gb > 0 ? "\(gb) GB" : layout.text("unlimited")].compactMap { $0 }.joined(separator: " · "))
+                            .font(.footnote).foregroundStyle(theme.muted)
+                    }
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("\(price) ₽").font(.system(size: 18, weight: .bold)).foregroundStyle(theme.accent2)
+                        Text(String(format: "%.0f %@", perMonth, layout.text("per_month")) + (discount > 0 ? "  −\(discount)%" : "")).font(.footnote).foregroundStyle(theme.muted)
+                    }
+                    Image(systemName: chosen ? "checkmark.circle.fill" : "circle").foregroundStyle(chosen ? theme.accent2 : theme.muted).padding(.leading, 8)
+                }
+                .padding(18)
+                .background(RoundedRectangle(cornerRadius: theme.radius).fill(theme.surface))
+                .overlay(RoundedRectangle(cornerRadius: theme.radius).stroke(chosen ? theme.accent2 : .clear, lineWidth: 2))
+            }
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(chosen ? .isSelected : [])
+        }
+        Text(layout.text("consent")).font(.footnote).foregroundStyle(theme.muted)
+    }
+
+    @ViewBuilder private var subscriptionBody: some View {
+        Button { copy(data.customerId) } label: {
+            CardView(theme: theme) {
+                HStack {
+                    Text(layout.text("your_id")).fontWeight(.bold).foregroundStyle(theme.success)
+                    Spacer()
+                    Text(data.customerId.isEmpty ? "—" : data.customerId).fontWeight(.bold).foregroundStyle(theme.success)
+                    Image(systemName: "doc.on.doc").foregroundStyle(theme.muted)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        CardView(theme: theme) {
+            Text(jsonText(data.subscription?["name"]).isEmpty ? layout.text("no_subscription") : jsonText(data.subscription?["name"]))
+                .font(.system(size: 26, weight: .bold)).foregroundStyle(theme.text)
+            if !untilLine.isEmpty { Text(untilLine).foregroundStyle(theme.muted) }
+            infoLine(layout.text("devices"), "\(data.activeDevices) / \(jsonInt(data.currentPlan?["device_limit"]).flatMap { $0 > 0 ? String($0) : nil } ?? "∞")")
+            infoLine(layout.text("traffic_left"), trafficLeft.0)
+            infoLine(layout.text("servers"), "\(data.nodes.filter { jsonText($0["status"]) == "online" }.count)")
+        }
+        if data.profiles.count > 1 {
+            ForEach(Array(data.profiles.enumerated()), id: \.offset) { _, profile in
+                Button { selectProfile(profile) } label: {
+                    CardView(theme: theme) {
+                        HStack {
+                            Text("\(jsonText(profile["name"])) · \(jsonText(profile["plan"]))").foregroundStyle(theme.text)
+                            Spacer()
+                            Image(systemName: jsonBool(profile["is_primary"]) ? "checkmark.circle.fill" : "circle").foregroundStyle(jsonBool(profile["is_primary"]) ? theme.accent : theme.muted)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private func infoLine(_ title: String, _ value: String) -> some View {
+        HStack {
+            Text(title).foregroundStyle(theme.muted)
+            Spacer()
+            Text(value).fontWeight(.bold).foregroundStyle(theme.text)
+        }
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 14).fill(theme.surface2))
+    }
+
+    @ViewBuilder private var devicesBody: some View {
+        ForEach(Array(data.devices.enumerated()), id: \.offset) { _, device in
+            CardView(theme: theme) {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(jsonText(device["name"])).fontWeight(.bold).foregroundStyle(theme.text)
+                        Text("\(jsonText(device["platform"])) · \(jsonText(device["status"]))").font(.footnote).foregroundStyle(theme.muted)
+                    }
+                    Spacer()
+                    if jsonText(device["status"]) == "active" {
+                        Button { revokeDevice(device) } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(theme.danger) }.accessibilityLabel(t("revoke"))
                     }
                 }
             }
-            Text(t("guides"))
-            let platforms = connection["platforms"] as? [String: Any] ?? [:]
-            ForEach(["android", "ios", "tv", "windows", "macos", "linux"], id: \.self) { key in
-                Text("\(key): \(jsonText(platforms[key]))")
-            }
-            Button(t("trial")) { startTrial() }
-        case "notifications":
-            Text(t("push_title")).font(.headline)
-            Text(pushEnabled ? t("push_on") : t("push_off")).foregroundStyle(.secondary)
-            if pushEnabled {
-                Button(t("push_disable")) { disablePush() }.disabled(busy)
-                Button(t("push_test")) { testPush() }.disabled(busy)
-            } else {
-                Button(t("push_enable")) { enablePush() }.buttonStyle(.borderedProminent).disabled(busy)
-            }
-            if notifications.isEmpty { Text(t("no_notifications")) }
-            ForEach(Array(notifications.enumerated()), id: \.offset) { _, n in
-                VStack(alignment: .leading) {
-                    Text(jsonText(n["title"])).font(.headline)
-                    Text(jsonText(n["body"])).foregroundStyle(.secondary)
-                    if !(n["read"] as? Bool ?? false) { Button(t("mark_read")) { markNotification(n) } }
-                }
-            }
-        case "security":
-            Text(t("passkeys")).font(.headline)
-            Text(t("passkeys_hint")).foregroundStyle(.secondary)
-            if passkeys.isEmpty { Text(t("passkeys_empty")).foregroundStyle(.secondary) }
-            ForEach(Array(passkeys.enumerated()), id: \.offset) { _, key in
-                HStack {
-                    Text(jsonText(key["name"]))
-                    Spacer()
-                    Button(t("passkey_delete")) { deletePasskey(jsonInt(key["id"]) ?? 0) }.disabled(busy)
-                }
-            }
-            SecureField(t("current_password"), text: $passkeyPassword).textFieldStyle(.roundedBorder)
-            Button(t("passkey_add")) { addPasskey() }.buttonStyle(.borderedProminent).disabled(busy)
-                .onAppear { loadPasskeys() }
-            Text(t("security")).font(.headline)
-            Text("Biometric unlock: ON")
-            if let rec = routing["recommendation"] as? [String: Any] { Text("\(t("recommended")): \(jsonText(rec["name"])) · \(jsonText(rec["country"]))") }
-            Button(t("unlock")) { unlockSavedSession() }.buttonStyle(.borderedProminent)
-        case "diagnostics":
-            Text("Corgi Diagnostics").font(.headline)
-            Text("Status: \(jsonText(diagnostics["overall"]))")
-            let checks = diagnostics["checks"] as? [[String: Any]] ?? []
-            ForEach(Array(checks.enumerated()), id: \.offset) { _, c in Text("\(jsonText(c["name"])) · \(jsonText(c["status"])) · \(jsonText(c["detail"]))") }
-            Text("Server: \(jsonText((liveConnection["server"] as? [String: Any])?["name"]))")
-            Text("Latency: \(jsonText(liveConnection["latency_ms"])) ms")
-            Text("Packet loss: \(jsonText(liveConnection["packet_loss_percent"]))%")
-        case "privacy":
-            Text("Privacy Dashboard").font(.headline)
-            Text("DNS protected: \(jsonBool(privacy["dns_protected"]))")
-            Text("IPv6 protected: \(jsonBool(privacy["ipv6_protected"]))")
-            Text("Kill Switch: \(jsonBool(privacy["kill_switch"]))")
-            Text("Protected traffic: \(jsonText(privacy["protected_traffic_bytes"]))")
-            Text("Family Plan: available · Business VPN: available")
-            Text("Referral & Rewards: available")
-        case "family":
-            familySection
-        case "status":
-            statusSection
-        case "devices":
-            if devices.isEmpty { Text(t("no_devices")) }
-            ForEach(Array(devices.enumerated()), id: \.offset) { _, device in
-                Text("\(jsonText(device["name"])) · \(jsonText(device["platform"])) · \(jsonText(device["status"]))")
-                if jsonText(device["status"]) == "active" {
-                    Button(t("revoke")) { revokeDevice(device) }
-                }
-            }
-        default:
-            field(t("subject"), text: $subject)
-            field(t("message"), text: $message)
-            Button(t("send")) { sendTicket() }.disabled(busy)
         }
     }
 
     @ViewBuilder private var familySection: some View {
-        let owned = family["owned"] as? [[String: Any]] ?? []
-        let memberOf = family["member_of"] as? [[String: Any]] ?? []
-        if owned.isEmpty && memberOf.isEmpty { Text(t("family_none")).foregroundStyle(.secondary) }
+        let owned = data.family["owned"] as? [[String: Any]] ?? []
+        let memberOf = data.family["member_of"] as? [[String: Any]] ?? []
+        if owned.isEmpty && memberOf.isEmpty { Text(t("family_none")).foregroundStyle(theme.muted) }
         ForEach(Array(owned.enumerated()), id: \.offset) { _, group in
-            Text("\(t("family_owned")): \(jsonText(group["name"]))").font(.headline)
-            Text("\(t("family_seats")): \(jsonInt(group["used"]) ?? 0) / \(jsonInt(group["seats"]) ?? 0)")
-            if let invite = group["invite"] as? [String: Any] {
-                Text("\(t("family_code")): \(jsonText(invite["code"]))").textSelection(.enabled)
-                if let link = URL(string: jsonText(invite["bot"])), !jsonText(invite["bot"]).isEmpty {
-                    ShareLink(item: link) { Text(t("family_invite")) }
+            CardView(theme: theme) {
+                Text("\(t("family_owned")): \(jsonText(group["name"]))").fontWeight(.bold).foregroundStyle(theme.text)
+                Text("\(t("family_seats")): \(jsonInt(group["used"]) ?? 0) / \(jsonInt(group["seats"]) ?? 0)").foregroundStyle(theme.muted)
+                if let invite = group["invite"] as? [String: Any] {
+                    Text(jsonText(invite["code"])).font(.title3.bold()).foregroundStyle(theme.accent2).textSelection(.enabled)
                 }
-            } else {
-                Button(t("family_invite")) { familyAction("POST", "/api/me/family/\(jsonInt(group["subscription_id"]) ?? 0)/invite") }.disabled(busy)
-            }
-            ForEach(Array((group["members"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, member in
-                HStack {
-                    Text("\(jsonText(member["name"])) · \(jsonBool(member["synced"]) ? t("family_synced") : t("family_pending"))")
-                    Spacer()
-                    Button(t("family_remove")) { familyAction("DELETE", "/api/me/family/members/\(jsonInt(member["id"]) ?? 0)") }.disabled(busy)
+                ForEach(Array((group["members"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, member in
+                    HStack {
+                        Text("\(jsonText(member["name"])) · \(jsonBool(member["synced"]) ? t("family_synced") : t("family_pending"))").foregroundStyle(theme.text)
+                        Spacer()
+                        Button(t("family_remove")) { familyAction("DELETE", "/api/me/family/members/\(jsonInt(member["id"]) ?? 0)") }.foregroundStyle(theme.danger).disabled(busy)
+                    }
                 }
             }
         }
         ForEach(Array(memberOf.enumerated()), id: \.offset) { _, row in
-            Text("\(t("family_member_of")) · \(t("family_owner")): \(jsonText(row["owner"])) · \(t("expires")) \(jsonText(row["expires_at"]))")
-            Button(t("family_leave")) { familyAction("DELETE", "/api/me/family/members/\(jsonInt(row["id"]) ?? 0)") }.disabled(busy)
+            CardView(theme: theme) {
+                Text("\(t("family_member_of")) · \(t("family_owner")): \(jsonText(row["owner"]))").foregroundStyle(theme.text)
+                Button(t("family_leave")) { familyAction("DELETE", "/api/me/family/members/\(jsonInt(row["id"]) ?? 0)") }.foregroundStyle(theme.danger).disabled(busy)
+            }
         }
-        field(t("family_code"), text: $familyCode)
-        Button(t("family_join")) {
-            let code = familyCode.trimmingCharacters(in: .whitespaces)
-            guard !code.isEmpty else { return }
-            familyAction("POST", "/api/me/family/join", body: ["code": code], done: t("family_joined"))
-        }.disabled(busy)
-        Text(t("stars_hint")).foregroundStyle(.secondary)
+        InputField(title: t("family_code"), text: $familyCode, theme: theme)
+        if !familyCode.trimmingCharacters(in: .whitespaces).isEmpty {
+            ActionButtonView(button: LayoutButton(id: "join", label: t("family_join"), action: "open", target: "", style: "secondary", icon: "heart", audience: "any"), theme: theme, enabled: !busy) {
+                familyAction("POST", "/api/me/family/join", body: ["code": familyCode.trimmingCharacters(in: .whitespaces)], done: t("family_joined"))
+            }
+        }
+    }
+
+    private var referralBody: some View {
+        CardView(theme: theme) {
+            Text(jsonText(data.user["referral_code"])).font(.system(size: 24, weight: .bold)).foregroundStyle(theme.accent2)
+            let earned = jsonText(data.user["referral_balance"])
+            if !earned.isEmpty && earned != "0" && earned != "0.00" { Text("+\(earned) ₽").foregroundStyle(theme.success) }
+        }
+    }
+
+    @ViewBuilder private var walletBody: some View {
+        CardView(theme: theme) {
+            Text("\(jsonText(data.user["wallet_balance"]).isEmpty ? "0" : jsonText(data.user["wallet_balance"])) ₽").font(.system(size: 34, weight: .bold)).foregroundStyle(theme.text)
+        }
+        HStack(spacing: 8) {
+            ForEach(["100", "300", "500", "1000"], id: \.self) { value in
+                Button("\(value) ₽") { topupAmount = value }
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(value == topupAmount ? Color(hex: "#1A0F05") : theme.text)
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Capsule().fill(value == topupAmount ? theme.accent : theme.surface))
+            }
+        }
+        InputField(title: "₽", text: $topupAmount, theme: theme).keyboardType(.numberPad)
+    }
+
+    @ViewBuilder private var notificationsBody: some View {
+        ForEach(Array(data.notifications.enumerated()), id: \.offset) { _, n in
+            Button { if !jsonBool(n["read"]) { markNotification(n) } } label: {
+                CardView(theme: theme) {
+                    HStack {
+                        if !jsonBool(n["read"]) { Circle().fill(theme.accent).frame(width: 8, height: 8) }
+                        Text(jsonText(n["title"])).fontWeight(.bold).foregroundStyle(theme.text)
+                    }
+                    Text(jsonText(n["body"])).font(.subheadline).foregroundStyle(theme.muted)
+                }
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     @ViewBuilder private var statusSection: some View {
-        let level = jsonText(serviceStatus["status"])
-        let known = ["ok", "degraded", "down"].contains(level)
-        Text(t("status_" + (known ? level : "unknown"))).font(.headline)
-            .foregroundStyle(level == "ok" ? Color.green : level == "degraded" ? Color.orange : level == "down" ? Color.red : Color.secondary)
-        let srv = serviceStatus["servers"] as? [String: Any] ?? [:]
-        Text("\(t("status_servers")): \(jsonInt(srv["online"]) ?? 0) / \(jsonInt(srv["total"]) ?? 0)")
-        ForEach(Array((serviceStatus["countries"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, c in
-            Text("\(jsonText(c["country"])) · \(jsonInt(c["online"]) ?? 0) / \(jsonInt(c["total"]) ?? 0)")
+        let level = jsonText(data.status["status"])
+        let srv = data.status["servers"] as? [String: Any] ?? [:]
+        CardView(theme: theme) {
+            HStack {
+                Circle().fill(level == "ok" ? theme.success : level == "degraded" ? theme.accent2 : level == "down" ? theme.danger : theme.muted).frame(width: 12, height: 12)
+                Text("\(layout.text("servers")): \(jsonInt(srv["online"]) ?? 0) / \(jsonInt(srv["total"]) ?? 0)").fontWeight(.bold).foregroundStyle(theme.text)
+            }
         }
-        ForEach(Array((serviceStatus["components"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, c in
-            Text("\(jsonText(c["name"])) · \(jsonText(c["status"])) \(jsonText(c["message"]))")
+        ForEach(Array((data.status["countries"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, c in
+            infoLine("\(flagEmoji(jsonText(c["country"])))  \(jsonText(c["country"]))", "\(jsonInt(c["online"]) ?? 0) / \(jsonInt(c["total"]) ?? 0)")
         }
-        Text(t("status_incidents")).font(.subheadline)
-        let incidents = serviceStatus["incidents"] as? [[String: Any]] ?? []
-        if incidents.isEmpty { Text(t("status_none")).foregroundStyle(.secondary) }
-        ForEach(Array(incidents.enumerated()), id: \.offset) { _, i in
-            Text("\(jsonText(i["title"])) · \(jsonText(i["since"]))").foregroundStyle(.orange)
+        ForEach(Array((data.status["incidents"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, i in
+            Text("\(jsonText(i["title"])) · \(jsonText(i["since"]))").foregroundStyle(theme.accent2)
         }
+    }
+
+    @ViewBuilder private var securityBody: some View {
+        ForEach(Array(data.passkeys.enumerated()), id: \.offset) { _, key in
+            CardView(theme: theme) {
+                HStack {
+                    Text(jsonText(key["name"])).foregroundStyle(theme.text)
+                    Spacer()
+                    Button { sheet = "passkey_delete:\(jsonInt(key["id"]) ?? 0)"; sheetText = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(theme.danger) }
+                        .accessibilityLabel(t("passkey_delete"))
+                }
+            }
+        }
+    }
+
+    // MARK: sheets
+
+    @ViewBuilder private var sheetView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                switch sheet {
+                case "qr":
+                    Text(t("qr")).font(.title2.bold()).foregroundStyle(theme.text)
+                    if let qr = data.qr {
+                        Image(uiImage: qr).interpolation(.none).resizable().scaledToFit().padding(12)
+                            .background(RoundedRectangle(cornerRadius: theme.radius).fill(Color.white))
+                    }
+                case "install":
+                    Text(t("vpn_install")).font(.title2.bold()).foregroundStyle(theme.text)
+                    Text(t("vpn_install_hint")).foregroundStyle(theme.muted)
+                    ForEach(VpnClients.all.filter { !$0.store.isEmpty }, id: \.id) { client in
+                        ActionButtonView(button: LayoutButton(id: client.id, label: client.title, action: "url", target: client.store, style: "secondary", icon: "download", audience: "any"), theme: theme) {
+                            if let url = URL(string: client.store) { UIApplication.shared.open(url) }
+                        }
+                    }
+                case "redeem":
+                    Text(t("gift_code")).font(.title2.bold()).foregroundStyle(theme.text)
+                    InputField(title: t("code"), text: $sheetText, theme: theme)
+                    confirm(t("redeem"))
+                case "ticket":
+                    Text(t("support")).font(.title2.bold()).foregroundStyle(theme.text)
+                    InputField(title: t("subject"), text: $sheetText2, theme: theme)
+                    InputField(title: t("message"), text: $sheetText, theme: theme)
+                    confirm(t("send"))
+                case "report":
+                    Text(t("report_subject")).font(.title2.bold()).foregroundStyle(theme.text)
+                    Text(t("report_hint")).foregroundStyle(theme.muted)
+                    InputField(title: t("message"), text: $sheetText, theme: theme)
+                    confirm(t("send"))
+                default:
+                    Text(sheet == "passkey_add" ? t("passkey_add") : t("passkey_delete")).font(.title2.bold()).foregroundStyle(theme.text)
+                    InputField(title: t("current_password"), text: $sheetText, theme: theme, secure: true)
+                    confirm(t("done"))
+                }
+                ActionButtonView(button: LayoutButton(id: "close", label: ["qr", "install"].contains(sheet) ? t("done") : t("cancel"), action: "refresh", target: "", style: "ghost", icon: "", audience: "any"), theme: theme) { sheet = "" }
+            }
+            .padding(22)
+        }
+        .background(theme.background.ignoresSafeArea())
+        .presentationDetents([.medium, .large])
+    }
+
+    private func confirm(_ title: String) -> some View {
+        ActionButtonView(button: LayoutButton(id: "confirm", label: title, action: "refresh", target: "", style: "primary", icon: "", audience: "any"), theme: theme, enabled: !busy) { submitSheet() }
+    }
+
+    private func submitSheet() {
+        let kind = sheet
+        let text = sheetText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text2 = sheetText2.trimmingCharacters(in: .whitespacesAndNewlines)
+        sheet = ""
+        switch kind {
+        case "redeem":
+            guard !text.isEmpty else { return }
+            work {
+                _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/gifts/redeem", body: ["code": text.uppercased()])
+                DispatchQueue.main.async { notice = t("gift_ok"); refresh() }
+            }
+        case "ticket", "report":
+            let subject = kind == "report" ? t("report_subject") : text2
+            let message = kind == "report" ? "\(text)\n\n— \(appVersion) · iOS \(UIDevice.current.systemVersion) · VPN \(vpn)" : text
+            guard !subject.isEmpty, !text.isEmpty else { return }
+            work {
+                _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/support/tickets", body: ["subject": subject, "message": message])
+                DispatchQueue.main.async { notice = t("ticket_sent") }
+            }
+        case "passkey_add":
+            let (api, session, language) = (base, token, lang)
+            let deviceName = UIDevice.current.name  // UIKit is read on the main thread
+            work {
+                do {
+                    try ShopPasskeys.register(base: api, session: session, lang: language, password: text, name: deviceName)
+                } catch PasskeyError.cancelled {
+                    DispatchQueue.main.async { notice = t("passkey_cancelled") }
+                    return
+                }
+                DispatchQueue.main.async { notice = t("passkey_added"); refresh() }
+            }
+        default:
+            guard kind.hasPrefix("passkey_delete:"), let id = Int(kind.dropFirst("passkey_delete:".count)) else { return }
+            let (api, session, language) = (base, token, lang)
+            work {
+                try ShopPasskeys.delete(base: api, session: session, lang: language, id: id, password: text)
+                DispatchQueue.main.async { notice = t("passkey_deleted"); refresh() }
+            }
+        }
+    }
+
+    // MARK: actions of the layout buttons
+
+    private func run(_ button: LayoutButton) {
+        switch button.action {
+        case "connect", "auto_location":
+            #if DEBUG
+            if DemoMode.enabled { vpn = vpn == .on ? .off : .on; return }
+            #endif
+            switch VpnClients.connect(data.subscriptionUrl) {
+            case .imported: vpn = .connecting; notice = t("vpn_imported")
+            case .opened: notice = t("vpn_opened")
+            case .noClient: sheet = "install"
+            case .noSubscription:
+                notice = t("need_subscription")
+                if let premium = layout.sections.first(where: { $0.kind == "premium" }) { tab = premium.id }
+            }
+        case "open": if layout.section(button.target) != nil { tab = button.target; notice = "" }
+        case "url": openExternal(button.target)
+        case "cabinet": openExternal(layout.links["cabinet"] ?? "")
+        case "telegram_channel": openExternal(layout.links["telegram_channel"] ?? "")
+        case "import_app":
+            if data.subscriptionUrl.isEmpty { notice = t("need_subscription") }
+            else if !VpnClients.importInto(button.target, data.subscriptionUrl) { sheet = "install" }
+        case "copy_subscription": copy(data.subscriptionUrl)
+        case "show_qr": sheet = "qr"
+        case "copy_id": copy(data.customerId)
+        case "buy": buy(wallet: false)
+        case "pay_wallet": buy(wallet: true)
+        case "trial": startTrial()
+        case "topup": topUp()
+        case "redeem": sheetText = ""; sheet = "redeem"
+        case "share_referral": share(referralLink)
+        case "copy_referral": copy(referralLink)
+        case "family_invite": familyInvite()
+        case "support_ticket": sheetText = ""; sheetText2 = ""; sheet = "ticket"
+        case "report_problem": sheetText = ""; sheet = "report"
+        case "language": lang = Self.nextLanguage(lang)
+        case "push_toggle": if pushEnabled { disablePush() } else { enablePush() }
+        case "passkey_add": sheetText = ""; sheet = "passkey_add"
+        case "refresh": refresh()
+        case "sign_out": signOut()
+        default: break  // widget_toggle: the iOS app has no home screen widget yet
+        }
+    }
+
+    private var referralLink: String {
+        let code = jsonText(data.user["referral_code"])
+        let bot = jsonText(data.config["bot_username"])
+        return !bot.isEmpty && !code.isEmpty ? "https://t.me/\(bot)?start=ref_\(code)" : code
+    }
+
+    private func copy(_ value: String) {
+        guard !value.isEmpty else { return }
+        UIPasteboard.general.string = value
+        notice = t("copied")
+    }
+
+    private func share(_ text: String) {
+        guard !text.isEmpty, let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let root = scene.windows.first?.rootViewController else { return }
+        root.present(UIActivityViewController(activityItems: [text], applicationActivities: nil), animated: true)
+    }
+
+    private func openExternal(_ raw: String) {
+        guard !raw.contains(where: { $0.isWhitespace }), let target = URL(string: raw), target.user == nil, target.password == nil else { notice = t("link_missing"); return }
+        let host = target.host?.lowercased() ?? ""
+        let allowed = target.scheme == "https" || target.scheme == "tg" || (target.scheme == "http" && localHttpHosts.contains(host))
+        if allowed { UIApplication.shared.open(target) } else { notice = t("link_missing") }
+    }
+
+    private func familyInvite() {
+        guard let group = (data.family["owned"] as? [[String: Any]])?.first else { notice = t("family_none"); return }
+        if let link = (group["invite"] as? [String: Any]).map({ jsonText($0["bot"]) }), !link.isEmpty { share(link); return }
+        familyAction("POST", "/api/me/family/\(jsonInt(group["subscription_id"]) ?? 0)/invite")
     }
 
     private func familyAction(_ method: String, _ path: String, body: [String: Any]? = nil, done: String? = nil) {
@@ -335,10 +711,6 @@ struct UserRootView: View {
                 refresh()
             }
         }
-    }
-
-    private func field(_ title: String, text: Binding<String>) -> some View {
-        TextField(title, text: text).textFieldStyle(.roundedBorder)
     }
 
     private func authenticate(_ path: String) {
@@ -369,50 +741,16 @@ struct UserRootView: View {
         }
     }
 
-    private func loadPasskeys() {
-        let (api, session, language) = (base, token, lang)
-        work {
-            let rows = try ShopPasskeys.list(base: api, session: session, lang: language)
-            DispatchQueue.main.async { passkeys = rows }
-        }
-    }
-
-    private func addPasskey() {
-        let (api, session, language, secret) = (base, token, lang, passkeyPassword)
-        let deviceName = UIDevice.current.name  // UIKit is read on the main thread
-        work {
-            do {
-                try ShopPasskeys.register(base: api, session: session, lang: language, password: secret, name: deviceName)
-            } catch PasskeyError.cancelled {
-                DispatchQueue.main.async { notice = t("passkey_cancelled") }
-                return
-            }
-            let rows = try ShopPasskeys.list(base: api, session: session, lang: language)
-            DispatchQueue.main.async { passkeys = rows; passkeyPassword = ""; notice = t("passkey_added") }
-        }
-    }
-
-    private func deletePasskey(_ id: Int) {
-        let (api, session, language, secret) = (base, token, lang, passkeyPassword)
-        work {
-            try ShopPasskeys.delete(base: api, session: session, lang: language, id: id, password: secret)
-            let rows = try ShopPasskeys.list(base: api, session: session, lang: language)
-            DispatchQueue.main.async { passkeys = rows; passkeyPassword = ""; notice = t("passkey_deleted") }
-        }
-    }
-
-    private func logoImage(_ api: ShopClient, _ path: String) -> UIImage? {
-        guard let catalog = try? api.call("GET", path) as? [String: Any],
-              let media = catalog["logo_url"] as? String,
-              let data = try? api.bytes(media) else { return nil }
-        return UIImage(data: data)
-    }
-
-    private func loadPublicLogo() {
+    private func loadLayout() {
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
         guard let normalized = try? normalizeBase(base) else { return }
-        work {
-            let image = logoImage(ShopClient(base: normalized, token: "", lang: lang), "/api/public/apps")
-            DispatchQueue.main.async { logo = image }
+        let language = lang
+        DispatchQueue.global(qos: .utility).async {
+            if let next = LayoutStore.fetch(base: normalized, lang: language) {
+                DispatchQueue.main.async { if language == lang { layout = next } }
+            }
         }
     }
 
@@ -420,53 +758,45 @@ struct UserRootView: View {
         #if DEBUG
         if DemoMode.enabled { return }  // screenshots: no network, fixed demo data
         #endif
-        work {
-            let api = ShopClient(base: base, token: token, lang: lang)
-            let nextDashboard = try api.call("GET", "/api/me/dashboard") as? [String: Any] ?? [:]
-            let nextProfiles = try api.call("GET", "/api/me/subscriptions") as? [[String: Any]] ?? []
-            let nextPlans = try api.call("GET", "/api/plans") as? [[String: Any]] ?? []
-            let nextBuilders = try api.call("GET", "/api/tariff-constructors") as? [[String: Any]] ?? []
-            let nextServers = try api.call("GET", "/api/me/servers") as? [String: Any] ?? [:]
-            let nextConnection = try api.call("GET", "/api/me/connection-info") as? [String: Any] ?? [:]
-            let nextConfig = try api.call("GET", "/api/public/config") as? [String: Any] ?? [:]
-            let nextTraffic = try api.call("GET", "/api/me/traffic") as? [String: Any] ?? [:]
-            let nextDevices = try api.call("GET", "/api/me/devices") as? [[String: Any]] ?? []
-            let nextNotifications = try api.call("GET", "/api/me/mobile/notifications?unread_only=false") as? [[String: Any]] ?? []
-            let nextRouting = try api.call("GET", "/api/me/routing/recommendation") as? [String: Any] ?? [:]
-            let nextFeatures = try api.call("GET", "/api/me/mobile/features") as? [String: Any] ?? [:]
-            let nextDiagnostics = try api.call("GET", "/api/me/mobile/diagnostics") as? [String: Any] ?? [:]
-            let nextPrivacy = try api.call("GET", "/api/me/mobile/privacy") as? [String: Any] ?? [:]
-            let nextLiveConnection = try api.call("GET", "/api/me/mobile/connection") as? [String: Any] ?? [:]
-            let nextLogo = logoImage(api, "/api/public/apps")
-            // Shops on releases before v28.25.0 have no family or status page: keep the rest working.
-            let nextFamily = (try? api.call("GET", "/api/me/family")) as? [String: Any] ?? [:]
-            let nextStatus = (try? api.call("GET", "/api/public/service-status")) as? [String: Any] ?? [:]
-            // Re-bind a rotated APNs token, or the same token to a re-issued session.
-            if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
-                _ = try? PushCenter.register(base: base, session: token, lang: lang, token: current)
-            }
-            DispatchQueue.main.async {
-                dashboard = nextDashboard
-                profiles = nextProfiles
-                plans = nextPlans
-                builders = nextBuilders
-                servers = nextServers
-                connection = nextConnection
-                config = nextConfig
-                traffic = nextTraffic
-                devices = nextDevices
-                notifications = nextNotifications
-                routing = nextRouting
-                logo = nextLogo
-                family = nextFamily
-                serviceStatus = nextStatus
+        loadLayout()
+        let (origin, session, language) = (base, token, lang)
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let api = ShopClient(base: origin, token: session, lang: language)
+                var next = ShopData()
+                next.dashboard = try api.call("GET", "/api/me/dashboard") as? [String: Any] ?? [:]
+                next.profiles = try api.call("GET", "/api/me/subscriptions") as? [[String: Any]] ?? []
+                next.plans = try api.call("GET", "/api/plans") as? [[String: Any]] ?? []
+                next.servers = try api.call("GET", "/api/me/servers") as? [String: Any] ?? [:]
+                next.connection = try api.call("GET", "/api/me/connection-info") as? [String: Any] ?? [:]
+                next.config = try api.call("GET", "/api/public/config") as? [String: Any] ?? [:]
+                next.traffic = try api.call("GET", "/api/me/traffic") as? [String: Any] ?? [:]
+                next.devices = try api.call("GET", "/api/me/devices") as? [[String: Any]] ?? []
+                next.notifications = try api.call("GET", "/api/me/mobile/notifications?unread_only=false") as? [[String: Any]] ?? []
+                next.routing = try api.call("GET", "/api/me/routing/recommendation") as? [String: Any] ?? [:]
+                next.qr = (try? api.bytes("/api/me/connection-qr")).flatMap(UIImage.init(data:))
+                // Shops on releases before v28.25.0 have no family or status page: keep the rest working.
+                next.family = (try? api.call("GET", "/api/me/family")) as? [String: Any] ?? [:]
+                next.status = (try? api.call("GET", "/api/public/service-status")) as? [String: Any] ?? [:]
+                next.passkeys = (try? ShopPasskeys.list(base: origin, session: session, lang: language)) ?? []
+                // Re-bind a rotated APNs token, or the same token to a re-issued session.
+                if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
+                    _ = try? PushCenter.register(base: origin, session: session, lang: language, token: current)
+                }
+                let loaded = next
+                DispatchQueue.main.async { data = loaded; offline = false }
+            } catch {
+                DispatchQueue.main.async { offline = true; notice = error.localizedDescription }
             }
         }
     }
 
     private func markNotification(_ row: [String: Any]) {
         guard let id = jsonInt(row["id"]) else { return }
-        work { _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/mobile/notifications/\(id)/read"); refresh() }
+        work {
+            _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/mobile/notifications/\(id)/read")
+            DispatchQueue.main.async { refresh() }
+        }
     }
 
     private func signOut() {
@@ -476,6 +806,7 @@ struct UserRootView: View {
         SessionKeychain.clear()
         unlocked = false
         pushEnabled = false
+        data = ShopData()
         work {
             // Revoke the push token while the session is still valid, then end the session.
             PushCenter.unregister(base: origin, session: previous, lang: lang)
@@ -514,13 +845,6 @@ struct UserRootView: View {
         }
     }
 
-    private func testPush() {
-        work {
-            _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/push/test", body: [:])
-            DispatchQueue.main.async { notice = t("push_test_sent") }
-        }
-    }
-
     private func unlockSavedSession() {
         authenticationContext?.invalidate()
         let context = LAContext()
@@ -539,18 +863,10 @@ struct UserRootView: View {
     }
 
     private func topUp() {
+        let amount = topupAmount
         work {
-            let response = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/wallet/topup", body: ["amount": topupAmount, "provider": providerName()], idempotency: UUID().uuidString) as? [String: Any]
+            let response = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/wallet/topup", body: ["amount": amount, "provider": providerName()], idempotency: UUID().uuidString) as? [String: Any]
             DispatchQueue.main.async { notice = t("topup_ok"); openPayment(response?["url"] as? String ?? "") }
-        }
-    }
-
-    private func redeemGift() {
-        let code = giftCode.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        guard !code.isEmpty else { return }
-        work {
-            _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/gifts/redeem", body: ["code": code])
-            DispatchQueue.main.async { notice = t("gift_ok"); giftCode = "" }
         }
     }
 
@@ -558,7 +874,7 @@ struct UserRootView: View {
         guard let id = jsonInt(device["id"]) else { return }
         work {
             _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/devices/\(id)/revoke", body: [:])
-            DispatchQueue.main.async { notice = t("device_revoked") }
+            DispatchQueue.main.async { notice = t("device_revoked"); refresh() }
         }
     }
 
@@ -570,16 +886,27 @@ struct UserRootView: View {
         }
     }
 
-    private func buy(_ plan: [String: Any], wallet: Bool) {
-        guard let id = jsonInt(plan["id"]) else { return }
+    private func buy(wallet: Bool) {
+        let id = planId
         work {
-            var body: [String: Any] = ["plan_id": id]
-            if let sub = dashboard["subscription"] as? [String: Any], let selected = jsonInt(sub["id"]) { body["subscription_id"] = selected }
-            if !promo.trimmingCharacters(in: .whitespaces).isEmpty { body["promo_code"] = promo }
             let api = ShopClient(base: base, token: token, lang: lang)
+            var body: [String: Any] = [:]
+            if let sub = data.subscription, let selected = jsonInt(sub["id"]) { body["subscription_id"] = selected }
+            if id > 0 {
+                body["plan_id"] = id
+            } else {
+                // A shop that sells only through the tariff constructor: its first enabled options.
+                guard let row = (try api.call("GET", "/api/tariff-constructors") as? [[String: Any]])?.first, let constructor = jsonInt(row["id"]) else { return }
+                let options = row["options"] as? [[String: Any]] ?? []
+                func pick(_ kind: String) -> Int { options.first { jsonText($0["kind"]) == kind }.flatMap { jsonInt($0["id"]) } ?? 0 }
+                body["constructor_id"] = constructor
+                body["device_option_id"] = pick("devices")
+                body["traffic_option_id"] = pick("traffic_gb")
+                body["days_option_id"] = pick("days")
+            }
             if wallet {
                 _ = try api.call("POST", "/api/me/wallet/spend", body: body, idempotency: UUID().uuidString)
-                DispatchQueue.main.async { notice = t("paid_wallet") }
+                DispatchQueue.main.async { notice = t("paid_wallet"); refresh() }
             } else {
                 body["provider"] = providerName()
                 let response = try api.call("POST", "/api/payments/create", body: body, idempotency: UUID().uuidString) as? [String: Any]
@@ -591,53 +918,18 @@ struct UserRootView: View {
         }
     }
 
-    private func buyConstructor(_ row: [String: Any]) {
-        guard let id = jsonInt(row["id"]) else { return }
-        let options = row["options"] as? [[String: Any]] ?? []
-        var picked: [String: Int] = [:]
-        for kind in ["devices", "traffic_gb", "days"] {
-            if let option = options.first(where: { ($0["kind"] as? String) == kind }), let optionId = jsonInt(option["id"]) {
-                picked[kind] = optionId
-            }
-        }
-        work {
-            var body: [String: Any] = [
-                "constructor_id": id,
-                "provider": providerName(),
-                "device_option_id": picked["devices"] ?? 0,
-                "traffic_option_id": picked["traffic_gb"] ?? 0,
-                "days_option_id": picked["days"] ?? 0,
-            ]
-            if let sub = dashboard["subscription"] as? [String: Any], let selected = jsonInt(sub["id"]) { body["subscription_id"] = selected }
-            let response = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/payments/create", body: body, idempotency: UUID().uuidString) as? [String: Any]
-            DispatchQueue.main.async {
-                notice = t("payment_created")
-                openPayment(response?["url"] as? String ?? "")
-            }
-        }
-    }
-
     private func startTrial() {
-        guard let plan = plans.first, let id = jsonInt(plan["id"]) else { return }
-        let days = jsonInt(config["trial_days"]) ?? 3
+        let id = planId
+        guard id > 0 else { return }
+        let days = jsonInt(data.config["trial_days"]) ?? 3
         work {
             _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/trial", body: ["plan_id": id, "days": days])
-            DispatchQueue.main.async { notice = t("trial_started") }
-        }
-    }
-
-    private func sendTicket() {
-        let title = subject.trimmingCharacters(in: .whitespaces)
-        let text = message.trimmingCharacters(in: .whitespaces)
-        if title.isEmpty || text.isEmpty { return }
-        work {
-            _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/support/tickets", body: ["subject": title, "message": text])
-            DispatchQueue.main.async { notice = t("ticket_sent"); subject = ""; message = "" }
+            DispatchQueue.main.async { notice = t("trial_started"); refresh() }
         }
     }
 
     private func providerName() -> String {
-        let providers = config["payment_providers"] as? [String] ?? []
+        let providers = data.config["payment_providers"] as? [String] ?? []
         return providers.first { $0.lowercased() == "sandbox" } ?? providers.first ?? ""
     }
 
@@ -669,34 +961,44 @@ enum DemoMode {
     static var enabled: Bool { ProcessInfo.processInfo.arguments.contains("-CorgiDemo") }
     static var tab: String {
         let args = ProcessInfo.processInfo.arguments
-        guard let i = args.firstIndex(of: "-CorgiTab"), i + 1 < args.count else { return "overview" }
-        return args[i + 1]
+        guard let i = args.firstIndex(of: "-CorgiTab"), i + 1 < args.count else { return "vpn" }
+        return args[i + 1] == "overview" ? "vpn" : args[i + 1]
     }
+    static var vpnOn: Bool { ProcessInfo.processInfo.arguments.contains("-CorgiVpnOn") }
 }
 
 extension UserRootView {
     fileprivate func loadDemo() {
         let days: (Int) -> String = { ISO8601DateFormatter().string(from: Date().addingTimeInterval(Double($0) * 86400)) }
-        base = "https://shop.example"
+        base = ""
         token = "demo"
         unlocked = true
         tab = DemoMode.tab
-        dashboard = ["user": ["wallet_balance": "350.00", "referral_code": "LUSI42"],
-                     "subscription": ["id": 1, "name": "12 месяцев", "status": "active", "expires_at": days(214)]]
-        profiles = [["id": 1, "name": "Основная", "plan": "Год", "expires_at": days(214), "is_primary": true]]
-        plans = [["id": 1, "name": "Месяц", "price": "199.00"], ["id": 2, "name": "Три месяца", "price": "499.00"], ["id": 3, "name": "Год", "price": "1690.00"]]
-        traffic = ["available": true, "traffic_used_bytes": 38_000_000_000, "traffic_limit_bytes": NSNull()]
-        servers = ["nodes": [["name": "Frankfurt #1", "country": "DE", "status": "online", "users_online": 41],
-                             ["name": "Amsterdam", "country": "NL", "status": "online", "users_online": 33],
-                             ["name": "Helsinki", "country": "FI", "status": "online", "users_online": 12]]]
-        connection = ["subscription_url": "https://sub.example.com/s/demo", "platforms": [:]]
-        family = ["owned": [["subscription_id": 1, "name": "Год", "seats": 3, "used": 2,
-                             "invite": ["code": "aB3x9Kq2", "bot": "https://t.me/corgi_lusi_bot?start=family_aB3x9Kq2"],
-                             "members": [["id": 1, "name": "mama", "synced": true], ["id": 2, "name": "brother", "synced": false]]]],
-                  "member_of": []]
-        serviceStatus = ["status": "ok", "servers": ["online": 5, "total": 5],
-                         "countries": [["country": "DE", "online": 2, "total": 2], ["country": "NL", "online": 1, "total": 1], ["country": "FI", "online": 2, "total": 2]],
-                         "components": [["name": "Оплата", "status": "operational", "message": ""]], "incidents": []]
+        vpn = DemoMode.vpnOn ? .on : .off
+        var demo = ShopData()
+        demo.dashboard = ["user": ["id": 42, "wallet_balance": "350.00", "referral_code": "LUSI42", "referral_balance": "120.00"],
+                          "subscription": ["id": 1, "name": "Премиум · 12 месяцев", "plan_id": 3, "status": "active", "expires_at": days(214)]]
+        demo.profiles = [["id": 1, "name": "Основная", "plan": "Год", "expires_at": days(214), "is_primary": true]]
+        demo.plans = [["id": 1, "name": "1 месяц", "price": "299.00", "duration_days": 30, "device_limit": 3],
+                      ["id": 2, "name": "3 месяца", "price": "549.00", "duration_days": 90, "device_limit": 3],
+                      ["id": 3, "name": "12 месяцев", "price": "1499.00", "duration_days": 365, "device_limit": 5]]
+        demo.traffic = ["available": true, "traffic_used_bytes": 38_000_000_000, "traffic_limit_bytes": NSNull()]
+        demo.servers = ["nodes": [["name": "Амстердам", "country": "NL", "status": "online", "users_online": 33],
+                                  ["name": "Франкфурт", "country": "DE", "status": "online", "users_online": 41],
+                                  ["name": "Хельсинки", "country": "FI", "status": "online", "users_online": 12],
+                                  ["name": "Стокгольм", "country": "SE", "status": "online", "users_online": 8]]]
+        demo.routing = ["recommendation": ["name": "Хельсинки", "country": "FI"]]
+        demo.connection = ["subscription_url": "https://sub.example.com/s/demo"]
+        demo.devices = [["id": 1, "name": "iPhone 16", "platform": "ios", "status": "active"], ["id": 2, "name": "MacBook", "platform": "macos", "status": "active"]]
+        demo.family = ["owned": [["subscription_id": 1, "name": "Год", "seats": 3, "used": 2,
+                                  "invite": ["code": "aB3x9Kq2", "bot": "https://t.me/corgi_lusi_bot?start=family_aB3x9Kq2"],
+                                  "members": [["id": 1, "name": "mama", "synced": true]]]],
+                       "member_of": []]
+        demo.status = ["status": "ok", "servers": ["online": 5, "total": 5],
+                       "countries": [["country": "DE", "online": 2, "total": 2], ["country": "NL", "online": 1, "total": 1], ["country": "FI", "online": 2, "total": 2]],
+                       "components": [], "incidents": []]
+        demo.notifications = [["id": 1, "title": "Подписка продлена", "body": "Спасибо! Следующее списание через 214 дней", "read": false]]
+        data = demo
     }
 }
 #endif

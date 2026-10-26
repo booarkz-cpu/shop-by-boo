@@ -142,7 +142,15 @@ jobs:
           npm run typecheck
           npm run build
           NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
-          npm run test:e2e
+          status=0
+          npx playwright test --reporter=line > "$RUNNER_TEMP/e2e.log" 2>&1 || status=$?
+          tail -n 200 "$RUNNER_TEMP/e2e.log"
+          if [ "$status" -ne 0 ]; then
+            # The failing specs and their first error lines, readable from the check annotations.
+            grep -E '^\s+[0-9]+\) |Error:|Expected|Received|Timeout|locator' "$RUNNER_TEMP/e2e.log" | head -n 40 > "$RUNNER_TEMP/e2e-summary.txt" || true
+            echo "::error title=e2e failure summary::$(sed ':a;N;$!ba;s/\n/%0A/g' "$RUNNER_TEMP/e2e-summary.txt")"
+            exit "$status"
+          fi
 
   support:
     name: Support Pro • runtime tests
