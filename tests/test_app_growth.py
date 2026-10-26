@@ -131,3 +131,14 @@ async def test_expiry_reminder_reaches_every_customer_once(db, monkeypatch):
     assert await shop.enqueue_expiry_notifications(db, NOW) == 0, "once per subscription and date"
     row = (await db.execute(select(Notification).where(Notification.kind == "subscription_expiring", Notification.user_id == 1))).scalar_one()
     assert row.user_id == 1 and "осталось 2 дн." in row.body and row.push_fanout_at is None
+
+
+@pytest.mark.asyncio
+async def test_one_installation_cannot_flood_the_events(db, monkeypatch):
+    monkeypatch.setattr(growth, "DAILY_LIMIT", 3)
+    batch = events("install-0000000009", "android", *[("open", "")] * 5)
+    assert await growth.record_events(db, batch, None, NOW) == 3
+    await db.commit()
+    assert await growth.record_events(db, batch, None, NOW + timedelta(hours=1)) == 0
+    await db.commit()
+    assert await growth.record_events(db, batch, None, NOW + timedelta(days=2)) == 3, "the limit is per day"

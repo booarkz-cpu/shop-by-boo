@@ -97,6 +97,14 @@ class FiscalConfig(BaseModel):
                 clean.append(item)
         return clean
 
+    @field_validator("atol_api", "payment_address")
+    @classmethod
+    def _https(cls, value):
+        value = value.strip().rstrip("/") if value else value
+        if value and not value.startswith("https://"):
+            raise ValueError("Только адрес https://")
+        return value
+
     @field_validator("company_email", "fallback_email")
     @classmethod
     def _email(cls, value):

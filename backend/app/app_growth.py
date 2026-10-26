@@ -43,6 +43,7 @@ EVENTS = ("install", "open", "sign_in_view", "sign_in", "screen", "connect_tap",
 PLATFORMS = ("android", "ios")
 ACTIVE = ("active", "cancel_scheduled")
 RETENTION_DAYS = 180
+DAILY_LIMIT = 500
 
 
 # ------------------------------------------------------------------ campaigns
@@ -180,8 +181,12 @@ async def analytics_enabled(db: AsyncSession) -> bool:
 async def record_events(db: AsyncSession, payload: EventsIn, user_id: int | None, now: datetime | None = None) -> int:
     now = now or datetime.utcnow()
     digest = install_hash(payload.install_id)
+    # One installation cannot flood the table: at most DAILY_LIMIT events a day are stored.
+    today = int(await db.scalar(select(func.count(AppEvent.id)).where(AppEvent.install_hash == digest,
+                                                                   AppEvent.created_at >= now - timedelta(days=1))) or 0)
+    room = max(0, DAILY_LIMIT - today)
     accepted = 0
-    for item in payload.events:
+    for item in payload.events[:room]:
         if item.event not in EVENTS:
             continue
         if item.event == "install" and await db.scalar(select(AppEvent.id).where(
