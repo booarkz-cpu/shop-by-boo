@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.25.1`; runtime/API `21.5.1`.
+Дистрибутив `v28.26.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1292**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1297**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -390,6 +390,7 @@
 | [backend/app/assets/bot_banners/buy.jpg](../backend/app/assets/bot_banners/buy.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/connection.jpg](../backend/app/assets/bot_banners/connection.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/devices.jpg](../backend/app/assets/bot_banners/devices.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/family.jpg](../backend/app/assets/bot_banners/family.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/gifts.jpg](../backend/app/assets/bot_banners/gifts.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/home.jpg](../backend/app/assets/bot_banners/home.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/info.jpg](../backend/app/assets/bot_banners/info.jpg) | API, бот и worker |
@@ -399,6 +400,7 @@
 | [backend/app/assets/bot_banners/referral.jpg](../backend/app/assets/bot_banners/referral.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/servers.jpg](../backend/app/assets/bot_banners/servers.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/start.jpg](../backend/app/assets/bot_banners/start.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/status.jpg](../backend/app/assets/bot_banners/status.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/subscription.jpg](../backend/app/assets/bot_banners/subscription.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/support.jpg](../backend/app/assets/bot_banners/support.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/surveys.jpg](../backend/app/assets/bot_banners/surveys.jpg) | API, бот и worker |
@@ -494,6 +496,7 @@
 | [cabinet/public/assets/banners/buy.jpg](../cabinet/public/assets/banners/buy.jpg) | Кабинет |
 | [cabinet/public/assets/banners/connection.jpg](../cabinet/public/assets/banners/connection.jpg) | Кабинет |
 | [cabinet/public/assets/banners/devices.jpg](../cabinet/public/assets/banners/devices.jpg) | Кабинет |
+| [cabinet/public/assets/banners/family.jpg](../cabinet/public/assets/banners/family.jpg) | Кабинет |
 | [cabinet/public/assets/banners/gifts.jpg](../cabinet/public/assets/banners/gifts.jpg) | Кабинет |
 | [cabinet/public/assets/banners/home.jpg](../cabinet/public/assets/banners/home.jpg) | Кабинет |
 | [cabinet/public/assets/banners/info.jpg](../cabinet/public/assets/banners/info.jpg) | Кабинет |
@@ -503,6 +506,7 @@
 | [cabinet/public/assets/banners/referral.jpg](../cabinet/public/assets/banners/referral.jpg) | Кабинет |
 | [cabinet/public/assets/banners/servers.jpg](../cabinet/public/assets/banners/servers.jpg) | Кабинет |
 | [cabinet/public/assets/banners/start.jpg](../cabinet/public/assets/banners/start.jpg) | Кабинет |
+| [cabinet/public/assets/banners/status.jpg](../cabinet/public/assets/banners/status.jpg) | Кабинет |
 | [cabinet/public/assets/banners/subscription.jpg](../cabinet/public/assets/banners/subscription.jpg) | Кабинет |
 | [cabinet/public/assets/banners/support.jpg](../cabinet/public/assets/banners/support.jpg) | Кабинет |
 | [cabinet/public/assets/banners/surveys.jpg](../cabinet/public/assets/banners/surveys.jpg) | Кабинет |
@@ -730,6 +734,7 @@
 | [docs/ru/RELEASE_V28_24_0.md](../docs/ru/RELEASE_V28_24_0.md) | Документация |
 | [docs/ru/RELEASE_V28_25_0.md](../docs/ru/RELEASE_V28_25_0.md) | Документация |
 | [docs/ru/RELEASE_V28_25_1.md](../docs/ru/RELEASE_V28_25_1.md) | Документация |
+| [docs/ru/RELEASE_V28_26_0.md](../docs/ru/RELEASE_V28_26_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -1000,15 +1005,14 @@
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/backup.sh](../scripts/backup.sh) | Эксплуатация и релиз |
 | [scripts/backup_bundle.py](../scripts/backup_bundle.py) | Эксплуатация и релиз |
-| [scripts/bot-banners/fonts/OFL-BalsamiqSans.txt](../scripts/bot-banners/fonts/OFL-BalsamiqSans.txt) | Эксплуатация и релиз |
-| [scripts/bot-banners/fonts/balsamiq-sans-cyrillic-700-normal.woff2](../scripts/bot-banners/fonts/balsamiq-sans-cyrillic-700-normal.woff2) | Эксплуатация и релиз |
-| [scripts/bot-banners/fonts/balsamiq-sans-latin-700-normal.woff2](../scripts/bot-banners/fonts/balsamiq-sans-latin-700-normal.woff2) | Эксплуатация и релиз |
-| [scripts/bot-banners/prepare.py](../scripts/bot-banners/prepare.py) | Эксплуатация и релиз |
-| [scripts/bot-banners/props.py](../scripts/bot-banners/props.py) | Эксплуатация и релиз |
+| [scripts/bot-banners/fonts/OFL-RobotoCondensed.txt](../scripts/bot-banners/fonts/OFL-RobotoCondensed.txt) | Эксплуатация и релиз |
+| [scripts/bot-banners/fonts/roboto-condensed-cyrillic-800-normal.woff2](../scripts/bot-banners/fonts/roboto-condensed-cyrillic-800-normal.woff2) | Эксплуатация и релиз |
+| [scripts/bot-banners/fonts/roboto-condensed-latin-800-normal.woff2](../scripts/bot-banners/fonts/roboto-condensed-latin-800-normal.woff2) | Эксплуатация и релиз |
 | [scripts/bot-banners/render.py](../scripts/bot-banners/render.py) | Эксплуатация и релиз |
-| [scripts/bot-banners/source/background.jpg](../scripts/bot-banners/source/background.jpg) | Эксплуатация и релиз |
-| [scripts/bot-banners/source/corgi-lusi-original.jpg](../scripts/bot-banners/source/corgi-lusi-original.jpg) | Эксплуатация и релиз |
-| [scripts/bot-banners/source/lusi-cutout.png](../scripts/bot-banners/source/lusi-cutout.png) | Эксплуатация и релиз |
+| [scripts/bot-banners/source/stickers/sheet-1-account.jpg](../scripts/bot-banners/source/stickers/sheet-1-account.jpg) | Эксплуатация и релиз |
+| [scripts/bot-banners/source/stickers/sheet-2-service.jpg](../scripts/bot-banners/source/stickers/sheet-2-service.jpg) | Эксплуатация и релиз |
+| [scripts/bot-banners/source/stickers/sheet-3-ops.jpg](../scripts/bot-banners/source/stickers/sheet-3-ops.jpg) | Эксплуатация и релиз |
+| [scripts/bot-banners/source/stickers/sheet-4-shop.jpg](../scripts/bot-banners/source/stickers/sheet-4-shop.jpg) | Эксплуатация и релиз |
 | [scripts/build-android-apk.sh](../scripts/build-android-apk.sh) | Эксплуатация и релиз |
 | [scripts/build-ios-packages.sh](../scripts/build-ios-packages.sh) | Эксплуатация и релиз |
 | [scripts/build-ios-signed.sh](../scripts/build-ios-signed.sh) | Эксплуатация и релиз |
@@ -1016,6 +1020,7 @@
 | [scripts/cabinet_audit.py](../scripts/cabinet_audit.py) | Эксплуатация и релиз |
 | [scripts/check-current-docs.py](../scripts/check-current-docs.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
+| [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
 | [scripts/configure-support-bridge.py](../scripts/configure-support-bridge.py) | Эксплуатация и релиз |
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |

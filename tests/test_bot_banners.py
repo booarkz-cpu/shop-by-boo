@@ -1,4 +1,5 @@
 """Bot section banners: defaults, admin overrides, Telegram delivery and fallbacks."""
+from pathlib import Path
 from io import BytesIO
 from types import SimpleNamespace
 
@@ -195,3 +196,19 @@ async def test_deleting_a_menu_button_removes_its_banner(database, tmp_path, mon
     await main.admin_menu_delete(folder.id, database, ADMIN)
     assert not (tmp_path / up["url"].rsplit("/", 1)[1]).exists()
     assert (await database.scalar(select(AppSetting).where(AppSetting.key == f"bot_banner:menu-{folder.id}"))) is None
+
+
+def test_generator_covers_every_banner_and_new_sections_have_their_own():
+    import ast
+    from app.app_config import SECTION_BANNERS
+    source = (Path(__file__).resolve().parents[1] / "scripts/bot-banners/render.py").read_text()
+    tree = ast.parse(source)
+    sections = next(n.value for n in tree.body if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "SECTIONS")
+    rendered = {k.value for k in sections.keys}
+    assert rendered == set(bot_banners.SECTIONS) and len(rendered) == 21
+    assert SECTION_BANNERS["family"] == "family" and SECTION_BANNERS["status"] == "status"
+    # No picture carries the old slogan or the word VPN in its title or caption.
+    for key in sections.values:
+        title, caption = key.elts[0].value, key.elts[1].value
+        assert "VPN" not in title + caption and "Гав" not in title + caption
+    assert '"privacy"' not in source.split("CATALOG = {", 1)[1].split("}", 1)[0]

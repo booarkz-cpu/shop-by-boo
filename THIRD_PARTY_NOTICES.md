@@ -16,6 +16,7 @@
 | Android | Gradle-конфигурация каждого приложения и разрешённый граф runtime-зависимостей сборки |
 | iOS | Swift Package Manager / package resolution конкретного приложения |
 | Docker | Закреплённые базовые образы, их пакеты ОС и зависимости приложения |
+| Баннеры бота и Mini App | Шрифт Roboto Condensed (SIL OFL 1.1, `scripts/bot-banners/fonts/OFL-RobotoCondensed.txt`) в генераторе `scripts/bot-banners/render.py`; стикеры корги Люси — авторские иллюстрации проекта (`scripts/bot-banners/source/stickers/`) |
 
 Поле `license` в lock-файле помогает составить список, но не заменяет полный LICENSE/COPYING установленного пакета. Проверяйте пакет из закреплённой версии, сохраняйте полный текст и copyright, а не только короткое имя лицензии. Установленные в тестовой среде версии не обязательно совпадают с production lock-файлом.
 
@@ -37,6 +38,6 @@
 
 Сервер WebAuthn использует `webauthn==3.0.1` (py_webauthn, BSD-3-Clause); браузерные тесты — `@playwright/test==1.63.0` (Apache-2.0). Сохраните их полные license/copyright notices при распространении зависимостей. Эти библиотеки не перелицензируются лицензией магазина. Нативный WebAuthn API браузера используется без копирования стороннего JS verifier. Новые модули интеграции и мониторинга написаны в этом репозитории.
 
-## UI дистрибутива v28.25.1
+## UI дистрибутива v28.26.0
 
 shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `admin/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [admin/THIRD_PARTY_LICENSES.txt](admin/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.

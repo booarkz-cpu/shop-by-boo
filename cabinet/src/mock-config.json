@@ -129,7 +129,9 @@
     "security": "/assets/banners/account.jpg",
     "notifications": "/assets/banners/menu.jpg",
     "partner": "/assets/banners/referral.jpg",
-    "info": "/assets/banners/info.jpg"
+    "info": "/assets/banners/info.jpg",
+    "family": "/assets/banners/family.jpg",
+    "status": "/assets/banners/status.jpg"
   },
   "banner_keys": {
     "overview": "home",
@@ -149,7 +151,9 @@
     "security": "account",
     "notifications": "menu",
     "partner": "referral",
-    "info": "info"
+    "info": "info",
+    "family": "family",
+    "status": "status"
   },
   "promos": [
     {

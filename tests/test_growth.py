@@ -335,6 +335,9 @@ class FakePanel:
     async def enable_user(self, uid):
         self.enabled.append(uid)
 
+    async def update_entitlements(self, uid, traffic, profile, device_limit=None):
+        self.entitlements = getattr(self, "entitlements", []) + [(uid, traffic, profile, device_limit)]
+
 
 @pytest.mark.asyncio
 async def test_family_invite_join_follow_owner_and_remove(database, monkeypatch):
@@ -433,3 +436,138 @@ async def test_app_config_speaks_english_and_ukrainian(database):
     assert en["lang"] == "en" and en["texts"]["wallet_pay"] == "Top up" and uk["texts"]["wallet_pay"] == "Поповнити"
     assert ru["texts"]["wallet_pay"] == "Пополнить" and en["version"] != ru["version"]
     assert any(n["kind"] == "info" and n["title"] == "Information" for n in en["navigation"])
+
+
+# ---------------------------------------------------------------- v28.25.2 review fixes
+
+async def joined_family(database, monkeypatch, seats=1):
+    panel = FakePanel()
+    monkeypatch.setattr(main, "RemnawaveClient", lambda: panel)
+    plan = await database.get(Plan, 1)
+    plan.family_seats = seats
+    await database.commit()
+    who = {"user": await database.get(User, 1)}
+
+    async def current(request, db):
+        return who["user"]
+    monkeypatch.setattr(main, "user_from_token", current)
+    invite = await growth.family_invite(1, req(), database)
+    who["user"] = await database.get(User, 2)
+    joined = await growth.family_join(growth.JoinIn(code=invite["code"]), req(), database)
+    return panel, await database.get(FamilyMember, joined["member_id"]), who, invite
+
+
+@pytest.mark.asyncio
+async def test_purchases_never_land_on_a_family_subscription(database, monkeypatch):
+    from app import subscriptions
+    panel, fm, who, _ = await joined_family(database, monkeypatch)
+    member = await database.get(User, 2)
+    family_sub = await database.get(Subscription, fm.subscription_id)
+    family_id = family_sub.id
+    assert family_sub.is_primary  # the member had no subscription of their own
+    # Buying "the current subscription" creates the member's own one instead of extending the family one,
+    # whose expiry the next sync would overwrite with the owner's.
+    target = await subscriptions.reserve_target(database, member, 1, {})
+    assert target.id != family_id and target.user_id == 2 and not target.is_primary
+    await database.rollback()
+    member = await database.get(User, 2)
+    with pytest.raises(HTTPException) as chosen:
+        await subscriptions.reserve_target(database, member, 1, {"subscription_id": family_id})
+    assert chosen.value.status_code == 409 and "семейная" in chosen.value.detail
+    await database.rollback()
+    with pytest.raises(HTTPException):
+        await subscriptions.ensure_no_pending_purchase(database, family_id)  # plan change, traffic, auto-renew
+
+
+@pytest.mark.asyncio
+async def test_auto_renew_cannot_be_enabled_on_a_family_subscription(database, monkeypatch):
+    from app.models import AutoRenewMethod
+    panel, fm, who, _ = await joined_family(database, monkeypatch)
+    database.add(AutoRenewMethod(user_id=2, provider="yookassa", external_token_encrypted="x", enabled=True, status="active"))
+    await database.commit()
+    with pytest.raises(HTTPException) as refused:
+        await main.set_auto_renew({"enabled": True}, req(), database)
+    assert refused.value.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_members_lose_access_when_the_owner_has_fewer_seats_and_get_it_back(database, monkeypatch):
+    panel, fm, who, _ = await joined_family(database, monkeypatch, seats=1)
+    plan = await database.get(Plan, 1)
+    plan.family_seats = 0  # the owner moved to a plan without family seats
+    await database.commit()
+    assert await growth.sync_member(database, fm.id, panel) == "no_seat"
+    sub = await database.get(Subscription, fm.subscription_id, populate_existing=True)
+    assert sub.lifecycle_status == "expired" and panel.disabled == [sub.remnawave_uuid]
+    plan.family_seats = 1
+    await database.commit()
+    assert await growth.sync_member(database, fm.id, panel) == "updated"
+    sub = await database.get(Subscription, fm.subscription_id, populate_existing=True)
+    assert sub.lifecycle_status == "active" and panel.enabled == [sub.remnawave_uuid]
+
+
+@pytest.mark.asyncio
+async def test_member_limits_follow_the_owner_plan_change(database, monkeypatch):
+    panel, fm, who, _ = await joined_family(database, monkeypatch)
+    owner_sub = await database.get(Subscription, 1)
+    owner_sub.traffic_limit_gb_snapshot, owner_sub.device_limit_snapshot, owner_sub.remnawave_profile_id_snapshot = 200, 5, "squad-premium"
+    await database.commit()
+    assert await growth.sync_member(database, fm.id, panel) == "updated"
+    sub = await database.get(Subscription, fm.subscription_id, populate_existing=True)
+    assert panel.entitlements == [(sub.remnawave_uuid, 200, "squad-premium", 5)]
+    assert (sub.traffic_limit_gb_snapshot, sub.device_limit_snapshot, sub.remnawave_profile_id_snapshot) == (200, 5, "squad-premium")
+    assert await growth.sync_member(database, fm.id, panel) == "updated"
+    assert len(panel.entitlements) == 1  # nothing changed, nothing re-sent
+
+
+@pytest.mark.asyncio
+async def test_the_first_trial_on_a_device_is_kept_when_its_owner_connects_again(database, monkeypatch):
+    monkeypatch.setattr(settings, "remnawave_webhook_secret", "rwsecret")
+    disabled = []
+
+    class Panel:
+        async def disable_user(self, uid):
+            disabled.append(uid)
+    import app.remnawave as rw_module
+    monkeypatch.setattr(rw_module, "RemnawaveClient", Panel)
+    now = datetime.utcnow()
+    first_sub = Subscription(user_id=1, plan_id=1, is_primary=False, expires_at=now + timedelta(days=3), lifecycle_status="active", remnawave_uuid="trial-a")
+    second_sub = Subscription(user_id=2, plan_id=1, is_primary=False, expires_at=now + timedelta(days=3), lifecycle_status="active", remnawave_uuid="trial-b")
+    database.add_all([first_sub, second_sub])
+    await database.flush()
+    # Payments of the fixture subscription 1 do not exist, so both trials are unpaid.
+    database.add(TrialGrant(user_id=1, plan_id=1, days=3, subscription_id=first_sub.id, expires_at=now + timedelta(days=3), status="completed"))
+    await database.flush()
+    database.add(TrialGrant(user_id=2, plan_id=1, days=3, subscription_id=second_sub.id, expires_at=now + timedelta(days=3), status="completed"))
+    await database.commit()
+
+    async def device(remote, n):
+        raw, sig = signed({"scope": "user_hwid_devices", "event": "user_hwid_devices.added", "n": n,
+                           "data": {"user": {"id": remote}, "hwidUserDevice": {"hwid": "HW-shared"}}})
+        return (await remnawave_events.remnawave_webhook(WebhookRequest(raw, sig), database))["trial_revoked"]
+    assert await device("trial-a", 1) is False   # A took the first trial on the device
+    assert await device("trial-b", 2) is True    # B's later trial on the same device is revoked
+    assert await device("trial-a", 3) is False   # A connecting again keeps the first trial
+    grants = {g.user_id: g.status for g in (await database.scalars(select(TrialGrant))).all()}
+    assert grants == {1: "completed", 2: "revoked"} and disabled == ["trial-b"]
+
+
+@pytest.mark.asyncio
+async def test_webhook_username_match_ignores_a_subscription_of_another_customer(database):
+    other = Subscription(user_id=2, plan_id=1, is_primary=False, expires_at=datetime.utcnow(), lifecycle_status="active")
+    database.add(other)
+    await database.commit()
+    user_id, sub, _ = await remnawave_events._match(database, {"username": f"user_1_sub_{other.id}"})
+    assert user_id == 1 and sub is None
+
+
+@pytest.mark.asyncio
+async def test_stars_subscription_cancelled_in_telegram_is_shown_as_ended(database, monkeypatch):
+    now = datetime.utcnow()
+    database.add_all([StarsSubscription(order_id="starsub-live", user_id=1, plan_id=1, stars_amount=50, amount=100, status="active",
+                                        current_period_end=now + timedelta(days=10)),
+                      StarsSubscription(order_id="starsub-lapsed", user_id=1, plan_id=1, stars_amount=50, amount=100, status="active",
+                                        current_period_end=now - timedelta(days=5))])
+    await database.commit()
+    rows = await telegram_stars.my_stars_subscriptions(req(), database)
+    assert sorted(r["status"] for r in rows) == ["active", "ended"]

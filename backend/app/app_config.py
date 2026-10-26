@@ -49,7 +49,7 @@ SECTION_BANNERS = {
     "wallet": "topup", "subscription": "subscription", "payments": "payments", "gifts": "gifts",
     "referral": "referral", "support": "support", "devices": "devices", "surveys": "surveys",
     "giveaways": "gifts", "security": "account", "notifications": "menu", "partner": "referral", "info": "info",
-    "family": "referral", "status": "servers",
+    "family": "family", "status": "status",
 }
 NAV_ICONS = {
     "overview": "home", "plans": "zap", "trial": "sparkles", "connection": "plug", "servers": "server",

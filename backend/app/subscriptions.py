@@ -26,6 +26,15 @@ async def owned(db,user_id,subscription_id=None,lock=False):
     return await db.scalar(q)
 
 
+FAMILY_TARGET='Это семейная подписка: её продлевает владелец семьи. Купите для себя отдельную подписку.'
+
+
+async def is_family_subscription(db,subscription_id):
+    """A family member's subscription follows the owner's: it is never bought, renewed or changed directly."""
+    from .models import FamilyMember
+    return bool(subscription_id and await db.scalar(select(FamilyMember.id).where(FamilyMember.subscription_id==subscription_id).limit(1)))
+
+
 async def reserve_target(db,user,plan_id,payload):
     sub_id,new=selection(payload)
     # This row lock serializes profile creation with wallet reservations and primary selection.
@@ -34,6 +43,10 @@ async def reserve_target(db,user,plan_id,payload):
     primary=await owned(db,user.id,lock=True)
     sub=await owned(db,user.id,sub_id,lock=True) if sub_id is not None else primary
     if sub_id is not None and not sub:raise HTTPException(404,'Подписка не найдена')
+    if sub is not None and not new and await is_family_subscription(db,sub.id):
+        # Paid days on a family subscription would be overwritten by the owner's expiry on the next sync.
+        if sub_id is not None:raise HTTPException(409,FAMILY_TARGET)
+        new=True
     if new or sub is None:
         count=await db.scalar(select(func.count()).select_from(Subscription).where(Subscription.user_id==user.id))
         if count>=20:raise HTTPException(409,'Достигнут лимит 20 подписок')
@@ -57,6 +70,7 @@ async def ensure_no_pending_purchase(db,subscription_id):
     purchase can freeze terms for the same profile. Other profiles stay available.
     Existing idempotent retries are resolved before this check by each caller.
     """
+    if await is_family_subscription(db,subscription_id):raise HTTPException(409,FAMILY_TARGET)
     await ensure_no_pending_gift(db,subscription_id)
     operation=await db.scalar(select(EntitlementOperation.id).where(
         EntitlementOperation.subscription_id==subscription_id,

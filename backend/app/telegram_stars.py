@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import ROUND_CEILING, Decimal
 
 import httpx
@@ -183,6 +183,7 @@ class TelegramStarsProvider:
 # extends it through the common fulfillment. editUserStarSubscription cancels renewals.
 
 PERIOD_SECONDS = 2592000
+LAPSE_GRACE = timedelta(days=3)
 
 
 class SubscriptionIn(BaseModel):
@@ -316,7 +317,11 @@ async def my_stars_subscriptions(request: Request, db: AsyncSession = Depends(ge
     rows = (await db.execute(select(StarsSubscription).where(StarsSubscription.user_id == user.id, StarsSubscription.status.in_(("active", "canceled")))
                              .order_by(StarsSubscription.id.desc()))).scalars().all()
     plans = {p.id: p.name for p in (await db.execute(select(Plan).where(Plan.id.in_([r.plan_id for r in rows] or [0])))).scalars()}
-    return [{"id": r.id, "plan": plans.get(r.plan_id, ""), "stars": r.stars_amount, "amount": str(r.amount), "status": r.status,
+    lapse = datetime.utcnow() - LAPSE_GRACE
+    # A customer can cancel in Telegram settings without the bot being told: once a period ends
+    # with no renewal for LAPSE_GRACE the subscription is shown as ended instead of active.
+    status = lambda r: "ended" if r.status == "active" and r.current_period_end and r.current_period_end < lapse else r.status  # noqa: E731
+    return [{"id": r.id, "plan": plans.get(r.plan_id, ""), "stars": r.stars_amount, "amount": str(r.amount), "status": status(r),
              "renewals": r.renewals, "current_period_end": r.current_period_end, "subscription_id": r.subscription_id} for r in rows]
 
 
