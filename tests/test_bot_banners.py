@@ -205,11 +205,18 @@ def test_generator_covers_every_banner_and_new_sections_have_their_own():
     source = (Path(__file__).resolve().parents[1] / "scripts/bot-banners/render.py").read_text()
     tree = ast.parse(source)
     sections = next(n.value for n in tree.body if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "SECTIONS")
+    app_sections = next(n.value for n in tree.body if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "APP_SECTIONS")
     rendered = {k.value for k in sections.keys}
-    assert rendered == set(bot_banners.SECTIONS) and len(rendered) == 25
+    rendered_app = {k.value for k in app_sections.keys}
+    # 25 bot and Mini App banners plus 15 banners of the Android and iOS app sections (v28.31.0).
+    assert rendered | rendered_app == set(bot_banners.SECTIONS) and len(rendered) == 25 and len(rendered_app) == 15
+    assert all(k.startswith("app-") for k in rendered_app) and not any(k.startswith("app-") for k in rendered)
+    # Every app section has its own sticker.
+    app_stickers = [v.elts[2].value for v in app_sections.values]
+    assert len(set(app_stickers)) == len(app_stickers)
     assert SECTION_BANNERS["family"] == "family" and SECTION_BANNERS["status"] == "status"
     # No picture carries the old slogan or the word VPN in its title or caption.
-    for key in sections.values:
+    for key in [*sections.values, *app_sections.values]:
         title, caption = key.elts[0].value, key.elts[1].value
         assert "VPN" not in title + caption and "Гав" not in title + caption
     assert '"privacy"' not in source.split("CATALOG = {", 1)[1].split("}", 1)[0]
