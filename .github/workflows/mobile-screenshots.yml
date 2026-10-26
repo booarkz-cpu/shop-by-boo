@@ -160,14 +160,14 @@ jobs:
           python tests/passkey_browser_server.py > "$RUNNER_TEMP/server.log" 2>&1 &
           for i in $(seq 1 60); do curl -fsS -o /dev/null http://localhost:8777/ && break; sleep 2; done
           node admin/scripts/screenshots-catalog.mjs "$PWD"
-          python3 scripts/screenshots/readme_admin.py
+          cp "$(python3 -c 'import tempfile; print(tempfile.gettempdir())')/admin-screenshots-index.json" screenshots/admin-screenshots-index.json
       - uses: actions/upload-artifact@v7
         with:
           name: admin-screenshots
           path: |
             screenshots/admin_panel/
             screenshots/storefront_user/
-            README.md
+            screenshots/admin-screenshots-index.json
           if-no-files-found: error
 
   commit:
@@ -193,12 +193,25 @@ jobs:
           mkdir -p screenshots/mobile
           cp "$shots"/mobile-screenshots-android/*.png "$shots"/mobile-screenshots-ios/*.png screenshots/mobile/
           rm -rf screenshots/admin_panel screenshots/storefront_user
-          cp -r "$shots"/admin-screenshots/screenshots/admin_panel "$shots"/admin-screenshots/screenshots/storefront_user screenshots/
-          cp "$shots"/admin-screenshots/README.md README.md
-          python3 scripts/generate-project-map.py
+          cp -r "$shots"/admin-screenshots/admin_panel "$shots"/admin-screenshots/storefront_user screenshots/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add screenshots README.md docs/PROJECT_FILE_MAP.md
-          git diff --cached --quiet && { echo "No changes"; exit 0; }
-          git commit -m "Скриншоты: приложения Android/iOS, админ-панель и кабинет (workflow Mobile screenshots)"
-          git push origin "HEAD:${{ github.ref_name }}"
+          # Only the generated admin block of README changes; the rest of README stays as on the branch.
+          commit() {
+            python3 scripts/screenshots/readme_admin.py "$shots"/admin-screenshots/admin-screenshots-index.json
+            python3 scripts/generate-project-map.py
+            git add screenshots README.md docs/PROJECT_FILE_MAP.md
+            git diff --cached --quiet && { echo "No changes"; return 0; }
+            git commit -q -m "Скриншоты: приложения Android/iOS, админ-панель и кабинет (workflow Mobile screenshots)"
+          }
+          commit
+          # The branch may have moved while the screenshots were taken: replay on top of it and retry.
+          for attempt in 1 2 3; do
+            git push origin "HEAD:${{ github.ref_name }}" && exit 0
+            git fetch origin "${{ github.ref_name }}"
+            git reset -q --soft "origin/${{ github.ref_name }}"
+            git checkout -q "origin/${{ github.ref_name }}" -- README.md docs/PROJECT_FILE_MAP.md
+            git reset -q
+            commit
+          done
+          exit 1
