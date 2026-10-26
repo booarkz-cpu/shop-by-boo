@@ -3,7 +3,7 @@ cancellation feedback and partner commissions for wallet gifts."""
 from alembic import op
 import sqlalchemy as sa
 
-revision = "0077_app_growth"
+revision = "0076_growth"
 down_revision = "0075_app_config"
 branch_labels = None
 depends_on = None

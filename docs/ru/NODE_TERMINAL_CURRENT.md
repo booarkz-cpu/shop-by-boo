@@ -44,7 +44,7 @@ TERMINAL_TRANSCRIPT_DAYS=90
 1. Примените миграцию `0070_node_terminal` и перезапустите backend и worker: `docker compose up -d backend worker`.
 2. Для нескольких процессов backend нужен Redis из стандартного `docker-compose.yml`: через него ввод и вывод передаются между процессами.
 
-Переменные — настройки развёртывания: панель их не меняет. Реестр настроек — 180 полей: 96 live, 82 deployment, 2 workflow.
+Переменные — настройки развёртывания: панель их не меняет. Реестр настроек — 184 полей: 96 live, 86 deployment, 2 workflow.
 
 ### 2. Узел
 
