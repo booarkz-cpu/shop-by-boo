@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.27.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.28.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1319**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1328**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -409,17 +409,20 @@
 | [backend/app/assets/bot_banners/topup.jpg](../backend/app/assets/bot_banners/topup.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
+| [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
+| [backend/app/content_branding_api.py](../backend/app/content_branding_api.py) | API, бот и worker |
 | [backend/app/content_publishing.py](../backend/app/content_publishing.py) | API, бот и worker |
 | [backend/app/customer_passkeys.py](../backend/app/customer_passkeys.py) | API, бот и worker |
 | [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
 | [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
+| [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
 | [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
@@ -429,6 +432,7 @@
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
 | [backend/app/mail_receiver.py](../backend/app/mail_receiver.py) | API, бот и worker |
 | [backend/app/main.py](../backend/app/main.py) | API, бот и worker |
+| [backend/app/marketing_api.py](../backend/app/marketing_api.py) | API, бот и worker |
 | [backend/app/marketplace_api.py](../backend/app/marketplace_api.py) | API, бот и worker |
 | [backend/app/menu_tree.py](../backend/app/menu_tree.py) | API, бот и worker |
 | [backend/app/mobile_api.py](../backend/app/mobile_api.py) | API, бот и worker |
@@ -464,6 +468,7 @@
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
 | [backend/app/security.py](../backend/app/security.py) | API, бот и worker |
 | [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
+| [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
 | [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
 | [backend/app/subscriptions.py](../backend/app/subscriptions.py) | API, бот и worker |
@@ -752,6 +757,7 @@
 | [docs/ru/RELEASE_V28_25_1.md](../docs/ru/RELEASE_V28_25_1.md) | Документация |
 | [docs/ru/RELEASE_V28_26_0.md](../docs/ru/RELEASE_V28_26_0.md) | Документация |
 | [docs/ru/RELEASE_V28_27_0.md](../docs/ru/RELEASE_V28_27_0.md) | Документация |
+| [docs/ru/RELEASE_V28_28_0.md](../docs/ru/RELEASE_V28_28_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -1170,6 +1176,7 @@
 | [terraform/corgi/main.tf](../terraform/corgi/main.tf) | Корень проекта |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
+| [tests/main_source.py](../tests/main_source.py) | Проверки |
 | [tests/passkey_browser_server.py](../tests/passkey_browser_server.py) | Проверки |
 | [tests/release-publisher.test.cjs](../tests/release-publisher.test.cjs) | Проверки |
 | [tests/terminal-screen.test.mjs](../tests/terminal-screen.test.mjs) | Проверки |
@@ -1210,9 +1217,11 @@
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
 | [tests/test_mail_receiver.py](../tests/test_mail_receiver.py) | Проверки |
+| [tests/test_main_split.py](../tests/test_main_split.py) | Проверки |
 | [tests/test_matrix_extension_migrations.py](../tests/test_matrix_extension_migrations.py) | Проверки |
 | [tests/test_matrix_privacy.py](../tests/test_matrix_privacy.py) | Проверки |
 | [tests/test_menu_hierarchy.py](../tests/test_menu_hierarchy.py) | Проверки |
+| [tests/test_mobile_family_status.py](../tests/test_mobile_family_status.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
 | [tests/test_money_review.py](../tests/test_money_review.py) | Проверки |
 | [tests/test_multiple_subscriptions.py](../tests/test_multiple_subscriptions.py) | Проверки |
