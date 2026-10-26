@@ -49,8 +49,15 @@ jobs:
                                     ownRunName: 'Merge green patch update'});
             core.info(`PR #${pr.number}: ${verdict.reason}`);
             if (!verdict.merge) return;
-            await github.rest.pulls.merge({owner, repo, pull_number: pr.number, sha, merge_method: 'squash',
-                                           commit_title: `${pr.title} (#${pr.number})`});
+            try {
+              await github.rest.pulls.merge({owner, repo, pull_number: pr.number, sha, merge_method: 'squash',
+                                             commit_title: `${pr.title} (#${pr.number})`});
+            } catch (error) {
+              // The repository ruleset lets only listed actors update branches. Add
+              // «GitHub Actions» to its bypass list to allow this merge (docs/BRANCHES.md).
+              core.warning(`PR #${pr.number} is ready but GitHub refused the merge: ${error.message}`);
+              return;
+            }
             // A merge made with GITHUB_TOKEN starts no push workflows: run CI on main explicitly.
             await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id: 'ci.yml', ref: 'main'});
             core.notice(`Merged #${pr.number}: ${verdict.reason}`);

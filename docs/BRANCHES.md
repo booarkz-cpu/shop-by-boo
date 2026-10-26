@@ -4,6 +4,18 @@
 
 `main` содержит опубликованный код. Теги `v*` и `mobile-v*`, миграции, тесты, исторические CHANGELOG и документы в `docs/archive/` сохраняются.
 
+## Автослияние патч-обновлений Dependabot
+
+Workflow `.github/workflows/dependabot-automerge.yml` сам вливает PR Dependabot (squash), если выполнены все условия:
+
+- автор PR — `dependabot[bot]`, ветка начинается с `dependabot/`;
+- в блоке `updated-dependencies` коммита все обновления `version-update:semver-patch`. Если в группе есть хотя бы одно minor или major обновление, PR ждёт человека;
+- все проверки на этом коммите зелёные: CI и Docker.
+
+Код из PR при этом не запускается: решение принимает `scripts/dependabot-automerge.cjs` из `main` (тест — `tests/dependabot-automerge.test.cjs`). После слияния workflow запускает CI на `main`. Отдельный выпуск ради патча зависимостей не публикуется: изменение войдёт в ближайший выпуск.
+
+Ruleset `Rules` разрешает обновлять ветки только участникам из списка обхода. Чтобы автослияние заработало, владелец добавляет в этот список приложение **GitHub Actions**: Settings → Rules → Rulesets → Rules → Bypass list → Add bypass. Пока это не сделано, workflow пишет в журнал предупреждение «GitHub refused the merge», а PR остаётся открытым.
+
 ## Как почистить ветки
 
 ```bash
