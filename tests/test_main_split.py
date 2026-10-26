@@ -8,7 +8,7 @@ from app import main as shop
 
 
 def test_moved_sections_are_imported_by_main_and_keep_their_routes():
-    assert MODULES == ["customer_ops_api", "notifications_status_api", "recovery_api", "operations_api", "admin_api", "staging_e2e_api",
+    assert MODULES == ["payments_api", "customer_ops_api", "notifications_status_api", "recovery_api", "operations_api", "admin_api", "staging_e2e_api",
                        "backups_api", "content_branding_api", "marketing_api", "enterprise_api", "payment_platform_api"]
     names = {getattr(r, "endpoint", None).__name__ for r in shop.app.routes if getattr(r, "endpoint", None)}
     for name in MODULES:
@@ -28,5 +28,6 @@ def test_main_source_is_one_parseable_text_again():
     defined = {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
     assert {"backup_scheduler", "monitor_checks_scheduler", "_validate_tar_safety", "fulfill"} <= defined
     assert "shop." not in text
-    # v28.31.0: recovery, refunds and withdrawals moved to recovery_api.py
-    assert len((APP / "main.py").read_text().splitlines()) < 2900
+    # v28.31.0: recovery, refunds and withdrawals moved to recovery_api.py;
+    # v28.32.0: checkout, webhooks, fulfillment and provisioning moved to payments_api.py
+    assert len((APP / "main.py").read_text().splitlines()) < 2000

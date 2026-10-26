@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1461**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1463**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -369,6 +369,7 @@
 | [backend/app/payment_platform_api.py](../backend/app/payment_platform_api.py) | API, бот и worker |
 | [backend/app/payment_policy.py](../backend/app/payment_policy.py) | API, бот и worker |
 | [backend/app/payments.py](../backend/app/payments.py) | API, бот и worker |
+| [backend/app/payments_api.py](../backend/app/payments_api.py) | API, бот и worker |
 | [backend/app/personal_offers.py](../backend/app/personal_offers.py) | API, бот и worker |
 | [backend/app/platform_api.py](../backend/app/platform_api.py) | API, бот и worker |
 | [backend/app/plugins.py](../backend/app/plugins.py) | API, бот и worker |
@@ -1318,6 +1319,7 @@
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
+| [tests/test_behaviour_payments_v2.py](../tests/test_behaviour_payments_v2.py) | Проверки |
 | [tests/test_behaviour_store_and_webhooks.py](../tests/test_behaviour_store_and_webhooks.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |

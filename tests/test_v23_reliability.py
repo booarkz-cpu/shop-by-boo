@@ -5,15 +5,11 @@ MAIN=main_source()
 MODELS=(ROOT/'backend/app/models.py').read_text()
 MIG=(ROOT/'backend/alembic/versions/0027_v44_5_10_financial_integrity.py').read_text()
 
-def test_v23_provisioning_operation_and_user_lock():
+# v28.32.0: the user lock, the webhook order and the provider-scoped event claim are run in
+# tests/test_behaviour_payments_v2.py instead of being looked up in the source.
+def test_v23_provisioning_operation_and_event_constraint():
     assert 'class ProvisioningOperation' in MODELS
-    assert 'lock:fulfill:user:' in MAIN
     assert 'get_user_by_username' in MAIN
-
-def test_v23_webhook_verify_before_claim_and_provider_scoped_dedupe():
-    assert 'ON CONFLICT (provider,event_id) DO UPDATE' in MAIN
-    assert 'payment_provider_events.provider = EXCLUDED.provider' in MAIN
-    assert MAIN.index('verify_succeeded(pid,Decimal(str(p.amount)),p.currency,p.order_id)') < MAIN.index('register_provider_event(db,"yookassa"', MAIN.index('async def yookassa_webhook'))
     assert 'uq_payment_provider_events_provider_event' in MIG
 
 def test_v23_tar_restore_safety_and_recovery_mode():
@@ -28,6 +24,6 @@ def test_v23_security_and_recovery_contracts():
     assert '/api/admin/incident-mode' in MAIN
     assert '/api/admin/referrals/reconcile' in MAIN
 
-def test_v23_idempotency_and_validation():
+def test_v23_idempotency_scope():
+    # Plan validation and the required key: tests/test_behaviour_payments_v2.py
     assert 'provider_name}:{user.id}:{plan.id}:{idem}' in MAIN
-    assert 'raise HTTPException(400,"Invalid plan_id")' in MAIN

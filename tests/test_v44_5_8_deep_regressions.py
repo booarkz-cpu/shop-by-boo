@@ -65,22 +65,7 @@ def test_payment_provider_id_is_nullable_for_durable_external_intents():
     assert 'provider_payment_id=None' in MAIN
 
 
-def test_interactive_checkout_persists_intent_before_provider_call():
-    marker = 'Durable payment intent BEFORE the external provider call.'
-    assert marker in MAIN
-    block = MAIN[MAIN.index(marker):MAIN.index('async def fulfill', MAIN.index(marker))]
-    assert block.index('db.add(payment_row)') < block.index('result=await candidate_provider.create')
-
-
-def test_interactive_checkout_never_falls_back_after_ambiguous_creation():
-    assert 'payment_row.status="creation_unknown"' in MAIN
-    assert 'fallback_blocked' in MAIN
-    assert 'Результат создания платежа не определён' in MAIN
-
-
-def test_existing_uncertain_non_yookassa_payment_is_not_automatically_recharged():
-    assert 'if existing.provider != "yookassa":' in MAIN
-    assert 'Повторное списание заблокировано' in MAIN
-
+# v28.32.0: the intent-before-provider order, the blocked fallback and the blocked recharge run in
+# tests/test_behaviour_payments_v2.py instead of being looked up in the source.
 
 # v28.30.0: the remote-extension, entitlement, auto-renew intent and retry checks now run the code: tests/test_behaviour_payments.py, tests/test_money_review.py.
