@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.30.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.31.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1416**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1422**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -67,150 +67,32 @@
 | [.gitignore](../.gitignore) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
-| [AUDIT_REPORT_V2_0_2_RU.md](../AUDIT_REPORT_V2_0_2_RU.md) | Корень проекта |
-| [AUDIT_REPORT_V2_0_3_RU.md](../AUDIT_REPORT_V2_0_3_RU.md) | Корень проекта |
-| [AUDIT_REPORT_V2_0_4_RU.md](../AUDIT_REPORT_V2_0_4_RU.md) | Корень проекта |
-| [AUDIT_REPORT_V2_1_0_RU.md](../AUDIT_REPORT_V2_1_0_RU.md) | Корень проекта |
-| [AUDIT_REPORT_V2_2_0_RU.md](../AUDIT_REPORT_V2_2_0_RU.md) | Корень проекта |
-| [AUDIT_REPORT_V2_2_1_RU.md](../AUDIT_REPORT_V2_2_1_RU.md) | Корень проекта |
-| [CABINET_V7_RELEASE_RU.md](../CABINET_V7_RELEASE_RU.md) | Корень проекта |
 | [CHANGELOG.md](../CHANGELOG.md) | Корень проекта |
 | [CI_CD_RU.md](../CI_CD_RU.md) | Корень проекта |
 | [DOCUMENTATION.md](../DOCUMENTATION.md) | Корень проекта |
 | [DOCUMENTATION_RU.md](../DOCUMENTATION_RU.md) | Корень проекта |
-| [DOCUMENTATION_V44_RU.md](../DOCUMENTATION_V44_RU.md) | Корень проекта |
 | [E2E_PROCEDURE_RU.md](../E2E_PROCEDURE_RU.md) | Корень проекта |
 | [FUNCTIONS.md](../FUNCTIONS.md) | Корень проекта |
 | [INSTALL.md](../INSTALL.md) | Корень проекта |
 | [INSTALL_STEPS.md](../INSTALL_STEPS.md) | Корень проекта |
 | [INSTRUCTION.md](../INSTRUCTION.md) | Корень проекта |
 | [LICENSE](../LICENSE) | Корень проекта |
-| [MARKETPLACE_V19_RU.md](../MARKETPLACE_V19_RU.md) | Корень проекта |
 | [MOBILE.md](../MOBILE.md) | Корень проекта |
-| [MOBILE_APPS_V8_RU.md](../MOBILE_APPS_V8_RU.md) | Корень проекта |
-| [MOBILE_V8_RELEASE_RU.md](../MOBILE_V8_RELEASE_RU.md) | Корень проекта |
 | [MODULES.md](../MODULES.md) | Корень проекта |
 | [OPERATIONS_RUNBOOK_RU.md](../OPERATIONS_RUNBOOK_RU.md) | Корень проекта |
-| [PLATFORM_2_2_0_RU.md](../PLATFORM_2_2_0_RU.md) | Корень проекта |
-| [PLATFORM_2_2_1_RU.md](../PLATFORM_2_2_1_RU.md) | Корень проекта |
-| [PRODUCTION_CERTIFICATION_2_2_1_RU.md](../PRODUCTION_CERTIFICATION_2_2_1_RU.md) | Корень проекта |
 | [PRODUCTION_CHECKLIST.md](../PRODUCTION_CHECKLIST.md) | Корень проекта |
-| [PRODUCTION_HARDENING_2_1_0_RU.md](../PRODUCTION_HARDENING_2_1_0_RU.md) | Корень проекта |
-| [PRODUCTION_LAUNCH_V15.md](../PRODUCTION_LAUNCH_V15.md) | Корень проекта |
 | [PROJECT_SPEC.md](../PROJECT_SPEC.md) | Корень проекта |
 | [PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md) | Корень проекта |
 | [README.md](../README.md) | Корень проекта |
 | [README_GITHUB.md](../README_GITHUB.md) | Корень проекта |
 | [README_PRODUCTION_RU.md](../README_PRODUCTION_RU.md) | Корень проекта |
-| [README_PRODUCTION_V44_RU.md](../README_PRODUCTION_V44_RU.md) | Корень проекта |
 | [RELEASE_DOCUMENTATION_INDEX_RU.md](../RELEASE_DOCUMENTATION_INDEX_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V1_0_4_RU.md](../RELEASE_NOTES_V1_0_4_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V1_0_5_RU.md](../RELEASE_NOTES_V1_0_5_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V1_0_6_RU.md](../RELEASE_NOTES_V1_0_6_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V1_0_7_RU.md](../RELEASE_NOTES_V1_0_7_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V1_0_8_RU.md](../RELEASE_NOTES_V1_0_8_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V1_0_9_RU.md](../RELEASE_NOTES_V1_0_9_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V2_0_0_RU.md](../RELEASE_NOTES_V2_0_0_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V2_0_2_AUDITED_RU.md](../RELEASE_NOTES_V2_0_2_AUDITED_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V2_0_3_AUDITED_RU.md](../RELEASE_NOTES_V2_0_3_AUDITED_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V2_0_4_AUDITED_RU.md](../RELEASE_NOTES_V2_0_4_AUDITED_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V2_10_0.md](../RELEASE_NOTES_V2_10_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_11_0.md](../RELEASE_NOTES_V2_11_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_12_0.md](../RELEASE_NOTES_V2_12_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_13_0.md](../RELEASE_NOTES_V2_13_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_1_0_RU.md](../RELEASE_NOTES_V2_1_0_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V2_2_0_RU.md](../RELEASE_NOTES_V2_2_0_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V2_2_1_RU.md](../RELEASE_NOTES_V2_2_1_RU.md) | Корень проекта |
-| [RELEASE_NOTES_V2_3_0.md](../RELEASE_NOTES_V2_3_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_4_0.md](../RELEASE_NOTES_V2_4_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_5_0.md](../RELEASE_NOTES_V2_5_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_6_0.md](../RELEASE_NOTES_V2_6_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_7_0.md](../RELEASE_NOTES_V2_7_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_8_0.md](../RELEASE_NOTES_V2_8_0.md) | Корень проекта |
-| [RELEASE_NOTES_V2_9_0.md](../RELEASE_NOTES_V2_9_0.md) | Корень проекта |
-| [RELEASE_NOTES_V3_0_0.md](../RELEASE_NOTES_V3_0_0.md) | Корень проекта |
-| [RELEASE_NOTES_V3_0_1.md](../RELEASE_NOTES_V3_0_1.md) | Корень проекта |
-| [RELEASE_NOTES_V3_1_0.md](../RELEASE_NOTES_V3_1_0.md) | Корень проекта |
-| [RELEASE_NOTES_V3_1_1.md](../RELEASE_NOTES_V3_1_1.md) | Корень проекта |
-| [RELEASE_NOTES_V3_1_2.md](../RELEASE_NOTES_V3_1_2.md) | Корень проекта |
-| [RELEASE_NOTES_V3_1_3.md](../RELEASE_NOTES_V3_1_3.md) | Корень проекта |
-| [RELEASE_NOTES_V3_1_4.md](../RELEASE_NOTES_V3_1_4.md) | Корень проекта |
-| [RELEASE_NOTES_V3_1_5.md](../RELEASE_NOTES_V3_1_5.md) | Корень проекта |
-| [RELEASE_NOTES_V3_1_6.md](../RELEASE_NOTES_V3_1_6.md) | Корень проекта |
-| [RELEASE_NOTES_V5_SUPPORT_PRO_RU.md](../RELEASE_NOTES_V5_SUPPORT_PRO_RU.md) | Корень проекта |
 | [REMNAWAVE_SHOP_INTEGRATION_RU.md](../REMNAWAVE_SHOP_INTEGRATION_RU.md) | Корень проекта |
-| [REMNAWAVE_SHOP_RELEASE_V17_RU.md](../REMNAWAVE_SHOP_RELEASE_V17_RU.md) | Корень проекта |
-| [REMNAWAVE_V3_NOTES.md](../REMNAWAVE_V3_NOTES.md) | Корень проекта |
 | [SECURITY.md](../SECURITY.md) | Корень проекта |
 | [SECURITY_MODEL_RU.md](../SECURITY_MODEL_RU.md) | Корень проекта |
 | [SUPPORT_PRO_INTEGRATION_RU.md](../SUPPORT_PRO_INTEGRATION_RU.md) | Корень проекта |
 | [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) | Корень проекта |
 | [UNIFIED_ARCHITECTURE_RU.md](../UNIFIED_ARCHITECTURE_RU.md) | Корень проекта |
-| [V10_RELEASE_NOTES.md](../V10_RELEASE_NOTES.md) | Корень проекта |
-| [V10_SECURITY_HARDENING.md](../V10_SECURITY_HARDENING.md) | Корень проекта |
-| [V11_ARCHIVED_RELEASE_NOTES.md](../V11_ARCHIVED_RELEASE_NOTES.md) | Корень проекта |
-| [V11_ARCHIVED_SECURITY_HARDENING.md](../V11_ARCHIVED_SECURITY_HARDENING.md) | Корень проекта |
-| [V12_RELEASE_NOTES.md](../V12_RELEASE_NOTES.md) | Корень проекта |
-| [V12_SECURITY_HARDENING.md](../V12_SECURITY_HARDENING.md) | Корень проекта |
-| [V14_PRODUCTION_TEST_RELEASE.md](../V14_PRODUCTION_TEST_RELEASE.md) | Корень проекта |
-| [V14_SECURITY_NOTES.md](../V14_SECURITY_NOTES.md) | Корень проекта |
-| [V15_RELEASE_NOTES.md](../V15_RELEASE_NOTES.md) | Корень проекта |
-| [V19_RELEASE_NOTES.md](../V19_RELEASE_NOTES.md) | Корень проекта |
-| [V19_RELEASE_RU.md](../V19_RELEASE_RU.md) | Корень проекта |
-| [V1_0_0_DEEP_AUDIT_RU.md](../V1_0_0_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V1_0_1_DEEP_AUDIT_RU.md](../V1_0_1_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V1_0_2_DEEP_AUDIT_RU.md](../V1_0_2_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V1_0_3_DEEP_AUDIT_RU.md](../V1_0_3_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V1_0_4_CRITICAL_AUDIT_RU.md](../V1_0_4_CRITICAL_AUDIT_RU.md) | Корень проекта |
-| [V1_0_5_CRITICAL_AUDIT_RU.md](../V1_0_5_CRITICAL_AUDIT_RU.md) | Корень проекта |
-| [V1_0_6_CRITICAL_AUDIT_RU.md](../V1_0_6_CRITICAL_AUDIT_RU.md) | Корень проекта |
-| [V1_0_7_CRITICAL_AUDIT_RU.md](../V1_0_7_CRITICAL_AUDIT_RU.md) | Корень проекта |
-| [V1_0_8_CRITICAL_AUDIT_RU.md](../V1_0_8_CRITICAL_AUDIT_RU.md) | Корень проекта |
-| [V1_0_9_CRITICAL_AUDIT_RU.md](../V1_0_9_CRITICAL_AUDIT_RU.md) | Корень проекта |
-| [V20_PAYMENT_PLATFORM_RU.md](../V20_PAYMENT_PLATFORM_RU.md) | Корень проекта |
-| [V20_RELEASE_NOTES.md](../V20_RELEASE_NOTES.md) | Корень проекта |
-| [V21_RELEASE_NOTES.md](../V21_RELEASE_NOTES.md) | Корень проекта |
-| [V22_RELEASE_NOTES.md](../V22_RELEASE_NOTES.md) | Корень проекта |
-| [V23_RELEASE_NOTES.md](../V23_RELEASE_NOTES.md) | Корень проекта |
-| [V28_RELEASE_NOTES.md](../V28_RELEASE_NOTES.md) | Корень проекта |
-| [V29_RELEASE_NOTES.md](../V29_RELEASE_NOTES.md) | Корень проекта |
-| [V2_0_0_PRODUCT_AND_CRITICAL_AUDIT_RU.md](../V2_0_0_PRODUCT_AND_CRITICAL_AUDIT_RU.md) | Корень проекта |
-| [V2_ARCHITECTURE.md](../V2_ARCHITECTURE.md) | Корень проекта |
-| [V2_RELEASE_AUDIT_RU.md](../V2_RELEASE_AUDIT_RU.md) | Корень проекта |
-| [V30_RELEASE_NOTES.md](../V30_RELEASE_NOTES.md) | Корень проекта |
-| [V31_RELEASE_NOTES.md](../V31_RELEASE_NOTES.md) | Корень проекта |
-| [V32_RELEASE_NOTES_ARCHIVED.md](../V32_RELEASE_NOTES_ARCHIVED.md) | Корень проекта |
-| [V33_RELEASE_NOTES.md](../V33_RELEASE_NOTES.md) | Корень проекта |
-| [V34_RELEASE_NOTES.md](../V34_RELEASE_NOTES.md) | Корень проекта |
-| [V3_FEATURES_RU.md](../V3_FEATURES_RU.md) | Корень проекта |
-| [V44_1_SECURITY_AUDIT_RU.md](../V44_1_SECURITY_AUDIT_RU.md) | Корень проекта |
-| [V44_2_DEEP_AUDIT_RU.md](../V44_2_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_3_MAX_AUDIT_RU.md](../V44_3_MAX_AUDIT_RU.md) | Корень проекта |
-| [V44_4_MAX_AUDIT_RU.md](../V44_4_MAX_AUDIT_RU.md) | Корень проекта |
-| [V44_5_10_DEEP_AUDIT_RU.md](../V44_5_10_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_11_DEEP_AUDIT_RU.md](../V44_5_11_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_12_DEEP_AUDIT_RU.md](../V44_5_12_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_13_DEEP_AUDIT_RU.md](../V44_5_13_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_14_DEEP_AUDIT_RU.md](../V44_5_14_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_16_DEEP_AUDIT_RU.md](../V44_5_16_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_17_DEEP_AUDIT_RU.md](../V44_5_17_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_18_DEEP_AUDIT_RU.md](../V44_5_18_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_19_DEEP_AUDIT_RU.md](../V44_5_19_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_1_RELEASE_NOTES_RU.md](../V44_5_1_RELEASE_NOTES_RU.md) | Корень проекта |
-| [V44_5_20_DEEP_AUDIT_RU.md](../V44_5_20_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_2_DEEP_AUDIT_RU.md](../V44_5_2_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_3_DEEP_AUDIT_RU.md](../V44_5_3_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_4_DEEP_AUDIT_RU.md](../V44_5_4_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_5_DEEP_AUDIT_RU.md](../V44_5_5_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_6_DEEP_AUDIT_RU.md](../V44_5_6_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_7_DEEP_AUDIT_RU.md](../V44_5_7_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_8_DEEP_AUDIT_RU.md](../V44_5_8_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_9_DEEP_AUDIT_RU.md](../V44_5_9_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V44_5_MAX_AUDIT_RU.md](../V44_5_MAX_AUDIT_RU.md) | Корень проекта |
-| [V45_0_0_DEEP_AUDIT_RU.md](../V45_0_0_DEEP_AUDIT_RU.md) | Корень проекта |
-| [V4_NODE_PROVISIONING.md](../V4_NODE_PROVISIONING.md) | Корень проекта |
-| [V4_RELEASE_NOTES.md](../V4_RELEASE_NOTES.md) | Корень проекта |
-| [V6_PLATFORM_RELEASE_RU.md](../V6_PLATFORM_RELEASE_RU.md) | Корень проекта |
 | [admin/.dockerignore](../admin/.dockerignore) | Админ-панель |
 | [admin/Dockerfile](../admin/Dockerfile) | Админ-панель |
 | [admin/README.md](../admin/README.md) | Админ-панель |
@@ -486,6 +368,7 @@
 | [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
 | [backend/app/provisioner.py](../backend/app/provisioner.py) | API, бот и worker |
 | [backend/app/push.py](../backend/app/push.py) | API, бот и worker |
+| [backend/app/recovery_api.py](../backend/app/recovery_api.py) | API, бот и worker |
 | [backend/app/referral_program.py](../backend/app/referral_program.py) | API, бот и worker |
 | [backend/app/referrals.py](../backend/app/referrals.py) | API, бот и worker |
 | [backend/app/refund_accounting.py](../backend/app/refund_accounting.py) | API, бот и worker |
@@ -692,6 +575,125 @@
 | [docs/archive/instructions_before_21_0_1/docs__uk__DOCUMENTATION.md](../docs/archive/instructions_before_21_0_1/docs__uk__DOCUMENTATION.md) | Документация |
 | [docs/archive/instructions_before_21_0_1/docs__uk__PAYMENTS.md](../docs/archive/instructions_before_21_0_1/docs__uk__PAYMENTS.md) | Документация |
 | [docs/archive/instructions_before_21_0_1/docs__uk__README.md](../docs/archive/instructions_before_21_0_1/docs__uk__README.md) | Документация |
+| [docs/archive/root/AUDIT_REPORT_V2_0_2_RU.md](../docs/archive/root/AUDIT_REPORT_V2_0_2_RU.md) | Документация |
+| [docs/archive/root/AUDIT_REPORT_V2_0_3_RU.md](../docs/archive/root/AUDIT_REPORT_V2_0_3_RU.md) | Документация |
+| [docs/archive/root/AUDIT_REPORT_V2_0_4_RU.md](../docs/archive/root/AUDIT_REPORT_V2_0_4_RU.md) | Документация |
+| [docs/archive/root/AUDIT_REPORT_V2_1_0_RU.md](../docs/archive/root/AUDIT_REPORT_V2_1_0_RU.md) | Документация |
+| [docs/archive/root/AUDIT_REPORT_V2_2_0_RU.md](../docs/archive/root/AUDIT_REPORT_V2_2_0_RU.md) | Документация |
+| [docs/archive/root/AUDIT_REPORT_V2_2_1_RU.md](../docs/archive/root/AUDIT_REPORT_V2_2_1_RU.md) | Документация |
+| [docs/archive/root/CABINET_V7_RELEASE_RU.md](../docs/archive/root/CABINET_V7_RELEASE_RU.md) | Документация |
+| [docs/archive/root/DOCUMENTATION_V44_RU.md](../docs/archive/root/DOCUMENTATION_V44_RU.md) | Документация |
+| [docs/archive/root/MARKETPLACE_V19_RU.md](../docs/archive/root/MARKETPLACE_V19_RU.md) | Документация |
+| [docs/archive/root/MOBILE_APPS_V8_RU.md](../docs/archive/root/MOBILE_APPS_V8_RU.md) | Документация |
+| [docs/archive/root/MOBILE_V8_RELEASE_RU.md](../docs/archive/root/MOBILE_V8_RELEASE_RU.md) | Документация |
+| [docs/archive/root/PLATFORM_2_2_0_RU.md](../docs/archive/root/PLATFORM_2_2_0_RU.md) | Документация |
+| [docs/archive/root/PLATFORM_2_2_1_RU.md](../docs/archive/root/PLATFORM_2_2_1_RU.md) | Документация |
+| [docs/archive/root/PRODUCTION_CERTIFICATION_2_2_1_RU.md](../docs/archive/root/PRODUCTION_CERTIFICATION_2_2_1_RU.md) | Документация |
+| [docs/archive/root/PRODUCTION_HARDENING_2_1_0_RU.md](../docs/archive/root/PRODUCTION_HARDENING_2_1_0_RU.md) | Документация |
+| [docs/archive/root/PRODUCTION_LAUNCH_V15.md](../docs/archive/root/PRODUCTION_LAUNCH_V15.md) | Документация |
+| [docs/archive/root/README.md](../docs/archive/root/README.md) | Документация |
+| [docs/archive/root/README_PRODUCTION_V44_RU.md](../docs/archive/root/README_PRODUCTION_V44_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V1_0_4_RU.md](../docs/archive/root/RELEASE_NOTES_V1_0_4_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V1_0_5_RU.md](../docs/archive/root/RELEASE_NOTES_V1_0_5_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V1_0_6_RU.md](../docs/archive/root/RELEASE_NOTES_V1_0_6_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V1_0_7_RU.md](../docs/archive/root/RELEASE_NOTES_V1_0_7_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V1_0_8_RU.md](../docs/archive/root/RELEASE_NOTES_V1_0_8_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V1_0_9_RU.md](../docs/archive/root/RELEASE_NOTES_V1_0_9_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_0_0_RU.md](../docs/archive/root/RELEASE_NOTES_V2_0_0_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_0_2_AUDITED_RU.md](../docs/archive/root/RELEASE_NOTES_V2_0_2_AUDITED_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_0_3_AUDITED_RU.md](../docs/archive/root/RELEASE_NOTES_V2_0_3_AUDITED_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_0_4_AUDITED_RU.md](../docs/archive/root/RELEASE_NOTES_V2_0_4_AUDITED_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_10_0.md](../docs/archive/root/RELEASE_NOTES_V2_10_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_11_0.md](../docs/archive/root/RELEASE_NOTES_V2_11_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_12_0.md](../docs/archive/root/RELEASE_NOTES_V2_12_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_13_0.md](../docs/archive/root/RELEASE_NOTES_V2_13_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_1_0_RU.md](../docs/archive/root/RELEASE_NOTES_V2_1_0_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_2_0_RU.md](../docs/archive/root/RELEASE_NOTES_V2_2_0_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_2_1_RU.md](../docs/archive/root/RELEASE_NOTES_V2_2_1_RU.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_3_0.md](../docs/archive/root/RELEASE_NOTES_V2_3_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_4_0.md](../docs/archive/root/RELEASE_NOTES_V2_4_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_5_0.md](../docs/archive/root/RELEASE_NOTES_V2_5_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_6_0.md](../docs/archive/root/RELEASE_NOTES_V2_6_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_7_0.md](../docs/archive/root/RELEASE_NOTES_V2_7_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_8_0.md](../docs/archive/root/RELEASE_NOTES_V2_8_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V2_9_0.md](../docs/archive/root/RELEASE_NOTES_V2_9_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_0_0.md](../docs/archive/root/RELEASE_NOTES_V3_0_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_0_1.md](../docs/archive/root/RELEASE_NOTES_V3_0_1.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_1_0.md](../docs/archive/root/RELEASE_NOTES_V3_1_0.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_1_1.md](../docs/archive/root/RELEASE_NOTES_V3_1_1.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_1_2.md](../docs/archive/root/RELEASE_NOTES_V3_1_2.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_1_3.md](../docs/archive/root/RELEASE_NOTES_V3_1_3.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_1_4.md](../docs/archive/root/RELEASE_NOTES_V3_1_4.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_1_5.md](../docs/archive/root/RELEASE_NOTES_V3_1_5.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V3_1_6.md](../docs/archive/root/RELEASE_NOTES_V3_1_6.md) | Документация |
+| [docs/archive/root/RELEASE_NOTES_V5_SUPPORT_PRO_RU.md](../docs/archive/root/RELEASE_NOTES_V5_SUPPORT_PRO_RU.md) | Документация |
+| [docs/archive/root/REMNAWAVE_SHOP_RELEASE_V17_RU.md](../docs/archive/root/REMNAWAVE_SHOP_RELEASE_V17_RU.md) | Документация |
+| [docs/archive/root/REMNAWAVE_V3_NOTES.md](../docs/archive/root/REMNAWAVE_V3_NOTES.md) | Документация |
+| [docs/archive/root/V10_RELEASE_NOTES.md](../docs/archive/root/V10_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V10_SECURITY_HARDENING.md](../docs/archive/root/V10_SECURITY_HARDENING.md) | Документация |
+| [docs/archive/root/V11_ARCHIVED_RELEASE_NOTES.md](../docs/archive/root/V11_ARCHIVED_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V11_ARCHIVED_SECURITY_HARDENING.md](../docs/archive/root/V11_ARCHIVED_SECURITY_HARDENING.md) | Документация |
+| [docs/archive/root/V12_RELEASE_NOTES.md](../docs/archive/root/V12_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V12_SECURITY_HARDENING.md](../docs/archive/root/V12_SECURITY_HARDENING.md) | Документация |
+| [docs/archive/root/V14_PRODUCTION_TEST_RELEASE.md](../docs/archive/root/V14_PRODUCTION_TEST_RELEASE.md) | Документация |
+| [docs/archive/root/V14_SECURITY_NOTES.md](../docs/archive/root/V14_SECURITY_NOTES.md) | Документация |
+| [docs/archive/root/V15_RELEASE_NOTES.md](../docs/archive/root/V15_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V19_RELEASE_NOTES.md](../docs/archive/root/V19_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V19_RELEASE_RU.md](../docs/archive/root/V19_RELEASE_RU.md) | Документация |
+| [docs/archive/root/V1_0_0_DEEP_AUDIT_RU.md](../docs/archive/root/V1_0_0_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_1_DEEP_AUDIT_RU.md](../docs/archive/root/V1_0_1_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_2_DEEP_AUDIT_RU.md](../docs/archive/root/V1_0_2_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_3_DEEP_AUDIT_RU.md](../docs/archive/root/V1_0_3_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_4_CRITICAL_AUDIT_RU.md](../docs/archive/root/V1_0_4_CRITICAL_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_5_CRITICAL_AUDIT_RU.md](../docs/archive/root/V1_0_5_CRITICAL_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_6_CRITICAL_AUDIT_RU.md](../docs/archive/root/V1_0_6_CRITICAL_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_7_CRITICAL_AUDIT_RU.md](../docs/archive/root/V1_0_7_CRITICAL_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_8_CRITICAL_AUDIT_RU.md](../docs/archive/root/V1_0_8_CRITICAL_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V1_0_9_CRITICAL_AUDIT_RU.md](../docs/archive/root/V1_0_9_CRITICAL_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V20_PAYMENT_PLATFORM_RU.md](../docs/archive/root/V20_PAYMENT_PLATFORM_RU.md) | Документация |
+| [docs/archive/root/V20_RELEASE_NOTES.md](../docs/archive/root/V20_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V21_RELEASE_NOTES.md](../docs/archive/root/V21_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V22_RELEASE_NOTES.md](../docs/archive/root/V22_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V23_RELEASE_NOTES.md](../docs/archive/root/V23_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V28_RELEASE_NOTES.md](../docs/archive/root/V28_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V29_RELEASE_NOTES.md](../docs/archive/root/V29_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V2_0_0_PRODUCT_AND_CRITICAL_AUDIT_RU.md](../docs/archive/root/V2_0_0_PRODUCT_AND_CRITICAL_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V2_ARCHITECTURE.md](../docs/archive/root/V2_ARCHITECTURE.md) | Документация |
+| [docs/archive/root/V2_RELEASE_AUDIT_RU.md](../docs/archive/root/V2_RELEASE_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V30_RELEASE_NOTES.md](../docs/archive/root/V30_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V31_RELEASE_NOTES.md](../docs/archive/root/V31_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V32_RELEASE_NOTES_ARCHIVED.md](../docs/archive/root/V32_RELEASE_NOTES_ARCHIVED.md) | Документация |
+| [docs/archive/root/V33_RELEASE_NOTES.md](../docs/archive/root/V33_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V34_RELEASE_NOTES.md](../docs/archive/root/V34_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V3_FEATURES_RU.md](../docs/archive/root/V3_FEATURES_RU.md) | Документация |
+| [docs/archive/root/V44_1_SECURITY_AUDIT_RU.md](../docs/archive/root/V44_1_SECURITY_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_2_DEEP_AUDIT_RU.md](../docs/archive/root/V44_2_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_3_MAX_AUDIT_RU.md](../docs/archive/root/V44_3_MAX_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_4_MAX_AUDIT_RU.md](../docs/archive/root/V44_4_MAX_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_10_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_10_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_11_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_11_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_12_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_12_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_13_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_13_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_14_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_14_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_16_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_16_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_17_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_17_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_18_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_18_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_19_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_19_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_1_RELEASE_NOTES_RU.md](../docs/archive/root/V44_5_1_RELEASE_NOTES_RU.md) | Документация |
+| [docs/archive/root/V44_5_20_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_20_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_2_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_2_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_3_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_3_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_4_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_4_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_5_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_5_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_6_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_6_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_7_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_7_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_8_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_8_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_9_DEEP_AUDIT_RU.md](../docs/archive/root/V44_5_9_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V44_5_MAX_AUDIT_RU.md](../docs/archive/root/V44_5_MAX_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V45_0_0_DEEP_AUDIT_RU.md](../docs/archive/root/V45_0_0_DEEP_AUDIT_RU.md) | Документация |
+| [docs/archive/root/V4_NODE_PROVISIONING.md](../docs/archive/root/V4_NODE_PROVISIONING.md) | Документация |
+| [docs/archive/root/V4_RELEASE_NOTES.md](../docs/archive/root/V4_RELEASE_NOTES.md) | Документация |
+| [docs/archive/root/V6_PLATFORM_RELEASE_RU.md](../docs/archive/root/V6_PLATFORM_RELEASE_RU.md) | Документация |
 | [docs/current-guides.json](../docs/current-guides.json) | Документация |
 | [docs/en/DEPLOYMENT.md](../docs/en/DEPLOYMENT.md) | Документация |
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
@@ -799,6 +801,7 @@
 | [docs/ru/RELEASE_V28_29_0.md](../docs/ru/RELEASE_V28_29_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_30_0.md](../docs/ru/RELEASE_V28_30_0.md) | Документация |
+| [docs/ru/RELEASE_V28_31_0.md](../docs/ru/RELEASE_V28_31_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
@@ -834,6 +837,7 @@
 | [docs/ru/VDS_PRODUCTION_20_0_29.md](../docs/ru/VDS_PRODUCTION_20_0_29.md) | Документация |
 | [docs/ru/VDS_PRODUCTION_V20_0_12.md](../docs/ru/VDS_PRODUCTION_V20_0_12.md) | Документация |
 | [docs/ru/WIDGET_AND_PROFILES_CURRENT.md](../docs/ru/WIDGET_AND_PROFILES_CURRENT.md) | Документация |
+| [docs/ru/WORKLIST_V28_31_0.md](../docs/ru/WORKLIST_V28_31_0.md) | Документация |
 | [docs/ru/WORKSPACE_ACCOUNT_SECURITY.md](../docs/ru/WORKSPACE_ACCOUNT_SECURITY.md) | Документация |
 | [docs/ru/WORKSPACE_ADMIN_GUIDE.md](../docs/ru/WORKSPACE_ADMIN_GUIDE.md) | Документация |
 | [docs/ru/WORKSPACE_ARCHITECTURE.md](../docs/ru/WORKSPACE_ARCHITECTURE.md) | Документация |
@@ -1149,6 +1153,7 @@
 | [scripts/sandbox-e2e.sh](../scripts/sandbox-e2e.sh) | Эксплуатация и релиз |
 | [scripts/screenshots/bot_chat.py](../scripts/screenshots/bot_chat.py) | Эксплуатация и релиз |
 | [scripts/screenshots/miniapp.mjs](../scripts/screenshots/miniapp.mjs) | Эксплуатация и релиз |
+| [scripts/screenshots/readme_admin.py](../scripts/screenshots/readme_admin.py) | Эксплуатация и релиз |
 | [scripts/security-scan.sh](../scripts/security-scan.sh) | Эксплуатация и релиз |
 | [scripts/sign-plugin.py](../scripts/sign-plugin.py) | Эксплуатация и релиз |
 | [scripts/staging-e2e.sh](../scripts/staging-e2e.sh) | Эксплуатация и релиз |
@@ -1274,6 +1279,7 @@
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
+| [tests/test_behaviour_store_and_webhooks.py](../tests/test_behaviour_store_and_webhooks.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |

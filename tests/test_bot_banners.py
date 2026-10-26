@@ -28,7 +28,8 @@ def test_every_section_ships_a_readable_default_banner():
         path = bot_banners.default_path(key)
         assert path is not None, key
         with Image.open(path) as im:
-            assert im.format == "JPEG" and im.size == (1280, 640)
+            # Bot and Mini App banners are 2:1; the dark app banners (app-*) are 2.5:1.
+            assert im.format == "JPEG" and im.size == ((1280, 512) if key.startswith("app-") else (1280, 640)), key
         assert path.stat().st_size < 200_000
 
 

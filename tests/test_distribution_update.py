@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("distribution_fetch", ROOT / "scripts/github_release_fetch.py")
 updater = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(updater)
-TAG = "v28.30.0"
-ARCHIVE = "remnawave_vpn_shop_v28_30_0_full_release.zip"
+TAG = "v28.31.0"
+ARCHIVE = "remnawave_vpn_shop_v28_31_0_full_release.zip"
 MANIFEST = ARCHIVE.removesuffix(".zip") + "_manifest.json"
 COMMIT = "a" * 40
 
@@ -50,7 +50,7 @@ def test_distribution_upgrade_preserves_api_version(tmp_path, monkeypatch):
     _, stage, _ = release_fixture(tmp_path, monkeypatch)
     updater.main()
     assert updater.current_version(stage) == "21.5.1"
-    assert updater.current_distribution(stage) == "28.30.0"
+    assert updater.current_distribution(stage) == "28.31.0"
 
 
 @pytest.mark.parametrize("override", [

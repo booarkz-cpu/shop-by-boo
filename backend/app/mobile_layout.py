@@ -425,7 +425,8 @@ async def resolve_layout(db: AsyncSession, lang: str) -> dict:
 async def mobile_layout(request: Request, response: Response, lang: str = "ru", db: AsyncSession = Depends(get_db)):
     doc = await resolve_layout(db, pick_lang(lang))
     etag = f'"{doc["version"]}"'
-    headers = {"Cache-Control": "public, max-age=60", "ETag": etag, "Vary": "Accept-Language"}
+    # Clients revalidate on every start; an unchanged layout costs a 304 without a body.
+    headers = {"Cache-Control": "no-cache", "ETag": etag}
     if request.headers.get("If-None-Match") == etag:
         return Response(status_code=304, headers=headers)
     response.headers.update(headers)

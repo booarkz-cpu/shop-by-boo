@@ -8,7 +8,7 @@ def test_v290_apk_script_notes_and_clients():
     script = (ROOT / "scripts/build-android-apk.sh").read_text()
     assert "android-user" in script and "android-admin" in script
     assert "2_9_0" in script
-    notes = (ROOT / "RELEASE_NOTES_V2_9_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_9_0.md").read_text()
     assert "2.9.0" in notes and "APK" in notes
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
     assert "9.8" in instruction and "9.7" in instruction and "9.6" in instruction

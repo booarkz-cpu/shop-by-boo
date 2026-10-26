@@ -6,7 +6,7 @@ checks={
 'payment_models':root/'backend/app/models.py',
 'payment_migration':root/'backend/alembic/versions/0040_v20_payment_platform.py',
 'payment_env':root/'.env.example',
-'payment_release_notes':root/'V20_PAYMENT_PLATFORM_RU.md',
+'payment_release_notes':root/'docs/archive/root/V20_PAYMENT_PLATFORM_RU.md',
 }
 required={
 'payment_platform_adapter':['class StripePlatform','class PayPalPlatform','class AppleStorePlatform','class GooglePlayPlatform','class CryptoGatewayPlatform','PROVIDER_CAPABILITIES'],

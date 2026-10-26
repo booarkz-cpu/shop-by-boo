@@ -63,7 +63,7 @@ def test_v240_frontends_and_sandbox_script_exist():
 
 def test_v240_docs_and_installer_cover_cabinet():
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
-    notes = (ROOT / "RELEASE_NOTES_V2_4_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_4_0.md").read_text()
     installer = (ROOT / "deploy/install-vps.sh").read_text()
     assert "2.4.0" in readme
     assert "личный кабинет" in readme.lower() or "Личный кабинет" in readme

@@ -9,7 +9,7 @@ ADMIN_APK = "https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download
 
 def test_release_310_is_current_and_documented():
     main = main_source()
-    notes = (ROOT / "RELEASE_NOTES_V3_1_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_0.md").read_text()
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     security = (ROOT / "docs/archive/SECURITY_BEFORE_ALPHA_6.md").read_text()
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()

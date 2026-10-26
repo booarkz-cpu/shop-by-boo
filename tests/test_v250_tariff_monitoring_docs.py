@@ -53,7 +53,7 @@ def test_v250_docs_are_bilingual_and_cover_sandbox():
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
     security = (ROOT / "docs/archive/SECURITY_BEFORE_ALPHA_6.md").read_text()
     modules = (ROOT / "docs/archive/MODULES_BEFORE_ALPHA_6.md").read_text()
-    notes = (ROOT / "RELEASE_NOTES_V2_5_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_5_0.md").read_text()
     script = (ROOT / "scripts/sandbox-e2e.sh").read_text()
     assert "2.5.0" in readme
     assert "2.4.0" in readme

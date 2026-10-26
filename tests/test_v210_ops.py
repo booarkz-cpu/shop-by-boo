@@ -70,7 +70,7 @@ def test_routes_and_release_scripts():
     fetch = (ROOT / "scripts/github_release_fetch.py").read_text()
     assert "sha256" in fetch and "full_release" in fetch
     assert (ROOT / "mobile/android-user/app-release.apk").exists() is False
-    notes = (ROOT / "RELEASE_NOTES_V2_10_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_10_0.md").read_text()
     assert "2.10.0" in notes and "SHA-256" in notes and "2.9.0" in notes
 
 

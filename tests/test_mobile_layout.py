@@ -184,3 +184,11 @@ def test_apps_ship_the_current_default_layout():
         # Every default banner exists as a file the backend serves.
         key = section["banner"]["url"].rsplit("/", 1)[1].removesuffix(".jpg")
         assert bot_banners.default_path(key) is not None, key
+
+
+@pytest.mark.asyncio
+async def test_clients_always_revalidate_the_layout(database):
+    """An admin change must reach the apps at the next start: no max-age, only ETag revalidation."""
+    resp = Resp()
+    await mobile_layout.mobile_layout(Req(), resp, "ru", database)
+    assert resp.headers["Cache-Control"] == "no-cache"

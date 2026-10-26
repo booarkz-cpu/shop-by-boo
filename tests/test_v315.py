@@ -31,7 +31,7 @@ def test_nginx_frontends_have_writable_cache_and_pid():
 
 
 def test_docs_describe_315_and_keep_314():
-    notes = (ROOT / "RELEASE_NOTES_V3_1_5.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_5.md").read_text()
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
     steps = (ROOT / "docs/archive/INSTALL_STEPS_BEFORE_ALPHA_6.md").read_text()
     assert "client_temp" in notes

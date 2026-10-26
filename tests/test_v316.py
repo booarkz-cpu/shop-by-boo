@@ -36,7 +36,7 @@ def test_nginx_uses_tmp_and_is_mounted():
 
 
 def test_docs_describe_316():
-    notes = (ROOT / "RELEASE_NOTES_V3_1_6.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_6.md").read_text()
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
     assert "client_temp" in notes or "/tmp/nginx" in notes
     assert "502" in notes

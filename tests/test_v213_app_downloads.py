@@ -57,5 +57,5 @@ def test_panel_and_cabinet_expose_download_links():
     assert '@router.get("/api/admin/apps/{app_id}/download")' in catalog
     assert 'audience") != "user"' in catalog
     assert "app-packages" in main_source()
-    notes = (ROOT / "RELEASE_NOTES_V2_13_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_13_0.md").read_text()
     assert "2.13.0" in notes and "Русский" in notes and "English" in notes
