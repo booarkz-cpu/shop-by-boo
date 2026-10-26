@@ -30,10 +30,10 @@ test('app analytics counts the funnel and a push campaign reaches its segment', 
     page.getByRole('button', {name: 'Приложения: push-кампании', exact: true}).click(),
   ]);
   const campaigns = page.locator('[data-push-campaigns]');
-  await campaigns.getByLabel('Сегмент').selectOption('no_subscription');
+  await campaigns.getByLabel('Сегмент', {exact: true}).selectOption('no_subscription');
   await expect(campaigns.locator('[data-reach]')).toContainText(/Получателей: [1-9]/);
-  await campaigns.getByLabel('Заголовок').fill('Попробуйте Корги Люси');
-  await campaigns.getByLabel('Текст').fill('Три дня бесплатно — нажмите «Попробовать» в приложении');
+  await campaigns.getByLabel('Заголовок', {exact: true}).fill('Попробуйте Корги Люси');
+  await campaigns.getByLabel('Текст', {exact: true}).fill('Три дня бесплатно — нажмите «Попробовать» в приложении');
   page.once('dialog', (d) => d.accept());
   await Promise.all([
     page.waitForResponse((r) => r.url().endsWith('/api/admin/push-campaigns') && r.request().method() === 'POST' && r.ok()),
