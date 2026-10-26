@@ -11,8 +11,8 @@ android {
         applicationId = "shop.remnawave.user"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3000
-        versionName = "3.0.0"
+        versionCode = 3100
+        versionName = "3.1.0"
         // Historical compatibility marker: versionName = "2.9.0"
         // Firebase client identifiers for FCM push (public values, not secrets).
         // Empty values build the app without push; see docs/ru/PUSH_NOTIFICATIONS_CURRENT.md.

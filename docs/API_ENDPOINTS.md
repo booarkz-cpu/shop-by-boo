@@ -1,6 +1,6 @@
-# Каталог API — v28.31.0 / API v21.5.1
+# Каталог API — v28.32.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0076_growth`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0077_app_growth`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -22,6 +22,7 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/advertisements/{item_id}` | Update Ad |
 | `GET` | `/api/admin/analytics` | Admin Analytics |
 | `GET` | `/api/admin/analytics/retention` | Retention |
+| `GET` | `/api/admin/app-analytics` | Admin Analytics |
 | `DELETE` | `/api/admin/app-config` | Admin App Config Reset |
 | `GET` | `/api/admin/app-config` | Admin App Config |
 | `PUT` | `/api/admin/app-config` | Admin App Config Save |
@@ -252,6 +253,9 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/promotions/{item_id}` | Delete Promotion |
 | `PUT` | `/api/admin/promotions/{item_id}` | Update Promotion |
 | `POST` | `/api/admin/provision-node` | Provision Node |
+| `GET` | `/api/admin/push-campaigns` | List Campaigns |
+| `POST` | `/api/admin/push-campaigns` | Create Campaign |
+| `POST` | `/api/admin/push-campaigns/preview` | Preview Campaign |
 | `GET` | `/api/admin/push/status` | Admin Push Status |
 | `GET` | `/api/admin/recovery` | Admin Recovery |
 | `GET` | `/api/admin/recovery/operations` | Recovery Operations |
@@ -534,6 +538,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/wallet/stars-invoice` | Stars Invoice |
 | `POST` | `/api/me/wallet/topup` | Wallet Topup |
 | `GET` | `/api/me/widget` | Widget Summary |
+| `POST` | `/api/mobile/events` | Collect Events |
 | `GET` | `/api/mobile/layout` | Mobile Layout |
 | `POST` | `/api/payments/create` | Create Payment |
 | `POST` | `/api/payments/mobile/verify` | Verify Mobile Purchase |

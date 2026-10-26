@@ -41,7 +41,7 @@ async def db(monkeypatch):
 
 
 def native(path="/api/auth/mobile/code", client="android-user", challenge=True, browser=False):
-    headers = [(b"x-shop-client", client.encode()), (b"user-agent", b"CorgiLusi-Android-User/3.0.0"), (b"host", b"api.corgi.test")]
+    headers = [(b"x-shop-client", client.encode()), (b"user-agent", b"CorgiLusi-Android-User/3.1.0"), (b"host", b"api.corgi.test")]
     if challenge:
         headers.append((b"x-shop-code-challenge", pkce_challenge(VERIFIER).encode()))
     if browser:

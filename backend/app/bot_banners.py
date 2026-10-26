@@ -86,6 +86,7 @@ SECTIONS: dict[str, tuple[str, str]] = {
     "app-referral": ("Приложение: пригласи друга", "Android/iOS: рефералы"),
     "app-wallet": ("Приложение: баланс", "Android/iOS: баланс"),
     "app-gifts": ("Приложение: подарки", "Android/iOS: подарки"),
+    "app-giveaways": ("Приложение: розыгрыши и бонусы", "Android/iOS: розыгрыши, баннер акции на главном"),
     "app-notifications": ("Приложение: уведомления", "Android/iOS: уведомления"),
     "app-status": ("Приложение: состояние сервиса", "Android/iOS: состояние сервиса"),
     "app-security": ("Приложение: безопасность", "Android/iOS: вход и безопасность"),

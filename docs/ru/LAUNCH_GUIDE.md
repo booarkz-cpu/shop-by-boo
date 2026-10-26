@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.31.0. Runtime/API `21.5.1`, head магазина `0076_growth`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.32.0. Runtime/API `21.5.1`, head магазина `0077_app_growth`, Support Pro `0008`.
 
 # Запуск магазина в работу: полный порядок
 
@@ -60,7 +60,7 @@ ssh -t root@SERVER_IP
 Выполните одну команду установки:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.31.0/install.sh -o /root/shop-install.sh && BRANCH=v28.31.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.32.0/install.sh -o /root/shop-install.sh && BRANCH=v28.32.0 bash /root/shop-install.sh
 ```
 
 Установщик ставит Docker, клонирует точный тег, задаёт вопросы, создаёт `.env`, собирает и запускает все сервисы, включает firewall (открыты только SSH, 80/443 TCP и 443 UDP). Рабочий каталог — `/opt/vpn-shop`.
@@ -99,7 +99,7 @@ curl -fsS https://api.vpn.example.com/health/ready
 Ожидается:
 
 - все постоянные сервисы в состоянии `running`. Одноразовые `volume_init` и `support_migrate` завершаются с кодом 0;
-- head миграций `0076_growth`;
+- head миграций `0077_app_growth`;
 - `health/ready` отвечает `200`.
 
 Откройте все пять адресов в браузере: везде должен быть HTTPS без предупреждений. Если сертификат не выдан — проверьте A-записи и открытость портов 80/443 у хостера, затем `docker compose logs --tail=100 caddy`.

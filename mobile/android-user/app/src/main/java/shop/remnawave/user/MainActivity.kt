@@ -68,6 +68,7 @@ import kotlin.concurrent.thread
 import shop.remnawave.user.passkey.CorgiPasskeys
 import shop.remnawave.user.push.CorgiPush
 import shop.remnawave.user.widget.CorgiWidgetData
+import shop.remnawave.user.analytics.CorgiAnalytics
 import shop.remnawave.user.ui.*
 import shop.remnawave.user.vpn.VpnClients
 
@@ -265,7 +266,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.0.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.1.0")
             // Historical compatibility marker: CorgiLusi-Android-User/2.9.0
             setRequestProperty("X-Shop-Client", "android-user")
 
@@ -352,6 +353,9 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     // A string replaced in the admin panel («Строки приложения») wins over the bundled one.
     fun t(key: String) = layout.strings[key] ?: strings.optString(key, key)
     fun notice(text: String) { ui = ui.copy(notice = text) }
+    fun track(event: String, screen: String = "") {
+        if (!demo) CorgiAnalytics.track(context, base, token, event, screen)
+    }
 
     DisposableEffect(activity) {
         val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) unlocked = demo }
@@ -366,6 +370,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     fun saveSession(nextBase: String, nextToken: String) {
         base = nextBase
         token = nextToken
+        if (!demo) CorgiAnalytics.track(context, nextBase, nextToken, "sign_in")
         password = ""
         unlocked = activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         prefs.edit().putString("lang", lang).apply()
@@ -464,6 +469,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     passkeys = try { CorgiPasskeys.list(base, token, lang) } catch (_: Exception) { JSONArray() },
                     // Shops before v28.29.0 have no documents: the section stays empty.
                     docs = try { api.get("/api/public/info-pages?lang=$lang") as JSONArray } catch (_: Exception) { JSONArray() },
+                    giveaways = try { (api.get("/api/me/giveaways") as JSONObject).optJSONArray("items") ?: JSONArray() } catch (_: Exception) { JSONArray() },
                 )
                 activity.runOnUiThread { data = next; ui = ui.copy(offline = false) }
             } catch (exc: Exception) {
@@ -495,6 +501,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
     }
     fun pay(planId: Int) {
+        track("checkout_start")
         work {
             val body = JSONObject().put("provider", providerOf(data.config))
             if (planId > 0) body.put("plan_id", planId) else {
@@ -541,6 +548,16 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
             ShopApi(base, token, lang).post("/api/me/family/join", JSONObject().put("code", code))
             activity.runOnUiThread { notice(t("family_joined")); refresh() }
         }
+        override fun enterGiveaway(giveawayId: Int) = work {
+            track("giveaway_enter")
+            val row = ShopApi(base, token, lang).post("/api/me/giveaways/$giveawayId/enter", JSONObject()) as JSONObject
+            val mine = row.optJSONObject("my_entry")
+            activity.runOnUiThread {
+                notice(if (mine?.optString("outcome") == "won") layout.text("giveaway_won").replace("{amount}", "${mine.optString("reward_amount")} ${row.optString("currency")}")
+                    else layout.text("giveaway_entered"))
+                refresh()
+            }
+        }
         override fun deletePasskey(passkeyId: Int) { dialog = "passkey_delete:$passkeyId"; dialogText = "" }
         override fun openDocument(kind: String) {
             if (kind !in setOf("faq", "rules", "privacy", "offer")) return
@@ -558,6 +575,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         override fun run(button: LayoutButton) {
             when (button.action) {
                 "connect", "auto_location" -> {
+                    track("connect_tap")
                     if (demo) { ui = ui.copy(vpn = if (ui.vpn == VpnState.ON) VpnState.OFF else VpnState.ON); return }
                     when (VpnClients.connect(context, data.subscriptionUrl)) {
                         VpnClients.Result.Imported -> {
@@ -596,6 +614,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     activity.runOnUiThread { notice(t("paid_wallet")); refresh() }
                 }
                 "trial" -> work {
+                    track("trial_tap")
                     val planId = selectedPlanId()
                     if (planId == 0) throw IllegalStateException(t("nodes_empty"))
                     ShopApi(base, token, lang).post("/api/me/trial", JSONObject().put("plan_id", planId).put("days", data.config.optInt("trial_days", 3)))
@@ -679,6 +698,17 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         if (demo) return@LaunchedEffect
         if (token.isNotBlank() && !unlocked) promptUnlock(activity, t("unlock")) { unlocked = it }
     }
+    // Analytics follow the «analytics» layout feature; the first launch and every screen are counted.
+    LaunchedEffect(layout) { CorgiAnalytics.enabled = layout.feature("analytics") }
+    LaunchedEffect(base) {
+        if (demo || base.isBlank()) return@LaunchedEffect
+        CorgiAnalytics.install(context, base)
+        track("open")
+    }
+    LaunchedEffect(tab, token) {
+        if (token.isBlank()) track("sign_in_view") else track("screen", tab)
+    }
+    LaunchedEffect(ui.vpn) { if (ui.vpn == VpnState.ON) track("connected") }
     LaunchedEffect(token, lang, unlocked) {
         if (demo) return@LaunchedEffect
         if (token.isNotBlank() && unlocked) refresh()
@@ -894,7 +924,7 @@ private fun loadAuthedPng(base: String, path: String, token: String, lang: Strin
         readTimeout = 15000
         setRequestProperty("Accept", "image/png")
         setRequestProperty("Accept-Language", lang)
-        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.0.0")
+        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.1.0")
         setRequestProperty("X-Shop-Client", "android-user")
 
 

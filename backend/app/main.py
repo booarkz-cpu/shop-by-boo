@@ -141,6 +141,8 @@ from .mobile_layout import router as mobile_layout_router
 app.include_router(mobile_layout_router)
 from .app_login import router as app_login_router
 app.include_router(app_login_router)
+from .app_growth import router as app_growth_router
+app.include_router(app_growth_router)
 from .telegram_stars import router as telegram_stars_router, TelegramStarsProvider
 app.include_router(telegram_stars_router)
 from .remnawave_events import router as remnawave_events_router
@@ -189,6 +191,7 @@ RATE_LIMITS = {
     "/api/auth/login": 12,
     "/api/auth/mobile/token": 20,
     "/api/auth/mobile/code": 20,
+    "/api/mobile/events": 60,
     "/api/me/app-login": 10,
     "/api/app/open": 30,
     "/api/auth/google": 20,

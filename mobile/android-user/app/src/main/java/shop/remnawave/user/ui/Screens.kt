@@ -49,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.json.JSONArray
 import org.json.JSONObject
 
 /** Buttons of a section visible to this customer (audience «с подпиской» / «без подписки»). */
@@ -88,6 +89,7 @@ fun SectionScreen(layout: AppLayout, section: LayoutSection, base: String, data:
                 "status" -> StatusBody(layout, data)
                 "security" -> SecurityBody(layout, data, actions)
                 "info" -> InfoBody(layout, base, data, actions)
+                "giveaways" -> GiveawaysBody(layout, data, ui, actions)
                 else -> {}
             }
             if (section.body.isNotBlank()) Card(theme) { Text(section.body, color = theme.text, fontSize = 15.sp, lineHeight = 22.sp) }
@@ -160,6 +162,10 @@ private fun VpnScreen(layout: AppLayout, section: LayoutSection, base: String, d
         }
     }
     if (layout.feature("vpn_plan_card")) PlanSummary(layout, data, actions)
+    // «Розыгрыш» banner like Lagom: shown while a giveaway is open and the customer has not joined.
+    val promo = data.openGiveaway()
+    val promoSection = layout.sections.firstOrNull { it.kind == "giveaways" }
+    if (layout.feature("home_promo") && promo != null && promoSection != null) PromoCard(layout, promo) { actions.open(promoSection.id) }
     val location = buttons.firstOrNull { it.action == "open" && layout.section(it.target)?.kind == "locations" }
     val locationCard = location != null && layout.feature("vpn_location_card")
     if (locationCard) LocationCard(layout, data) { actions.run(location!!) }
@@ -519,6 +525,57 @@ private fun InfoBody(layout: AppLayout, base: String, data: ShopData, actions: S
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(doc.optString("title"), color = theme.text, fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.weight(1f))
                 Text("›", color = theme.muted, fontSize = 22.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PromoCard(layout: AppLayout, row: JSONObject, onOpen: () -> Unit) {
+    val theme = layout.theme
+    Card(theme, onClick = onOpen) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("🎁", fontSize = 30.sp)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(row.optString("title"), color = theme.accent, fontWeight = FontWeight.Black, fontSize = 17.sp)
+                Text(prizeLine(layout, row), color = theme.muted, fontSize = 13.sp)
+            }
+            Text(layout.text("giveaway_join"), color = theme.accent, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+private fun prizeLine(layout: AppLayout, row: JSONObject): String {
+    val prizes = row.optJSONArray("prizes") ?: JSONArray()
+    var best = 0.0
+    for (i in 0 until prizes.length()) best = maxOf(best, prizes.optJSONObject(i)?.optString("amount")?.toDoubleOrNull() ?: 0.0)
+    val until = row.optString("ends_at").take(10)
+    val prize = if (best > 0) "🏆 ${"%.0f".format(best)} ${row.optString("currency")}" else ""
+    return listOf(prize, if (until.isNotBlank()) "${layout.text("until")} $until" else "").filter { it.isNotBlank() }.joinToString(" · ")
+}
+
+@Composable
+private fun GiveawaysBody(layout: AppLayout, data: ShopData, ui: UiFlags, actions: ShopActions) {
+    val theme = layout.theme
+    if (data.giveaways.length() == 0) { Muted(layout.text("giveaway_none"), theme, center = true); return }
+    for (i in 0 until data.giveaways.length()) {
+        val row = data.giveaways.optJSONObject(i) ?: continue
+        Card(theme) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(row.optString("title"), color = theme.text, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                if (row.optString("description").isNotBlank()) Text(row.optString("description"), color = theme.muted, fontSize = 14.sp)
+                Text(prizeLine(layout, row), color = theme.accent2, fontSize = 13.sp)
+                val mine = row.optJSONObject("my_entry")
+                when {
+                    mine != null && mine.optString("outcome") == "won" ->
+                        Text(layout.text("giveaway_won").replace("{amount}", "${mine.optString("reward_amount")} ${row.optString("currency")}"), color = theme.success, fontWeight = FontWeight.Bold)
+                    mine != null && mine.optString("outcome") in setOf("lost", "ineligible") -> Muted(layout.text("giveaway_lost"), theme)
+                    mine != null -> Muted(layout.text("giveaway_entered"), theme)
+                    row.optString("phase") == "open" -> ActionButton(LayoutButton("giveaway_${row.optInt("id")}", layout.text("giveaway_join"),
+                        "refresh", "", "primary", "trophy", "any"), theme, enabled = !ui.busy) { actions.enterGiveaway(row.optInt("id")) }
+                    else -> Muted(layout.text("giveaway_closed"), theme)
+                }
             }
         }
     }

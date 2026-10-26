@@ -74,6 +74,56 @@ struct LoginLink: Equatable {
     }
 }
 
+/// Anonymous app statistics («Приложения: аналитика», backend/app/app_growth.py): a random
+/// installation id (never a device identifier), platform, app version, event and screen.
+enum CorgiAnalytics {
+    static var enabled = true
+    private static var queue: [[String: String]] = []
+    private static var lastFlush = Date.distantPast
+    private static let lock = NSLock()
+
+    static var installId: String {
+        if let id = UserDefaults.standard.string(forKey: "install_id") { return id }
+        let id = UUID().uuidString
+        UserDefaults.standard.set(id, forKey: "install_id")
+        UserDefaults.standard.set(false, forKey: "install_reported")
+        return id
+    }
+
+    static func install(base: String) {
+        _ = installId
+        if UserDefaults.standard.bool(forKey: "install_reported") { return }
+        UserDefaults.standard.set(true, forKey: "install_reported")
+        track(base: base, token: "", event: "install")
+    }
+
+    static func track(base: String, token: String, event: String, screen: String = "") {
+        guard enabled, !base.isEmpty, let url = URL(string: base + "/api/mobile/events") else { return }
+        var row = ["event": event]
+        if !screen.isEmpty { row["screen"] = String(screen.lowercased().filter { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "-" }.prefix(32)) }
+        lock.lock()
+        queue.append(row)
+        // Important steps of the funnel leave at once; screens wait for ten or half a minute.
+        if event == "screen" && queue.count < 10 && Date().timeIntervalSince(lastFlush) < 30 { lock.unlock(); return }
+        let batch = queue
+        queue = []
+        lastFlush = Date()
+        lock.unlock()
+        let version = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? ""
+        var request = URLRequest(url: url, timeoutInterval: 10)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
+        request.setValue("CorgiLusi-iOS-User/3.1.0", forHTTPHeaderField: "User-Agent")
+        if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["install_id": installId, "platform": "ios", "app_version": version, "events": batch])
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            // Statistics never get in the way: a lost batch is not retried.
+            if let data, let answer = try? JSONSerialization.jsonObject(with: data) as? [String: Any], answer["enabled"] as? Bool == false { enabled = false }
+        }.resume()
+    }
+}
+
 func jsonInt(_ value: Any?) -> Int? {
     if value == nil || value is NSNull { return nil }
     if let number = value as? Int { return number }
@@ -136,7 +186,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(lang, forHTTPHeaderField: "Accept-Language")
-        request.setValue("CorgiLusi-iOS-User/3.0.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("CorgiLusi-iOS-User/3.1.0", forHTTPHeaderField: "User-Agent")
         // Historical compatibility marker: CorgiLusi-iOS-User/2.9.0
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
 

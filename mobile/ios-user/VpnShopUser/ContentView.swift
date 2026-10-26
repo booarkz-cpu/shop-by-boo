@@ -84,6 +84,10 @@ struct UserRootView: View {
             if DemoMode.enabled { loadDemo(); return }
             #endif
             loadLayout()
+            if let origin = try? normalizeBase(base) {
+                CorgiAnalytics.install(base: origin)
+                track(token.isEmpty ? "sign_in_view" : "open")
+            }
             if !token.isEmpty && !unlocked { unlockSavedSession() }
         }
         .onReceive(vpnTimer) { _ in
@@ -97,6 +101,7 @@ struct UserRootView: View {
             else if vpn == .connecting, let since = connectingSince, Date().timeIntervalSince(since) > 60 { vpn = .off; connectingSince = nil }
         }
         .onChange(of: token) { value in
+            if !value.isEmpty { track("sign_in") }
             if value.isEmpty { SessionKeychain.clear() }
             else if unlocked { refresh() }
         }
@@ -113,6 +118,8 @@ struct UserRootView: View {
             loadLayout()
             if !token.isEmpty && unlocked { refresh() }
         }
+        .onChange(of: tab) { value in track("screen", value) }
+        .onChange(of: vpn) { value in if value == .on { track("connected") } }
         .onChange(of: push.openNotifications) { open in
             if open, layout.section("notifications") != nil { tab = "notifications"; push.openNotifications = false }
         }
@@ -236,6 +243,7 @@ struct UserRootView: View {
             case "status": statusSection
             case "security": securityBody
             case "info": infoBody
+            case "giveaways": giveawaysBody
             default: EmptyView()
             }
             if !section.body.isEmpty { CardView(theme: theme) { Text(section.body).foregroundStyle(theme.text) } }
@@ -301,6 +309,23 @@ struct UserRootView: View {
             }
         }
         if layout.feature("vpn_plan_card") { planSummary }
+        // «Розыгрыш» banner like Lagom: shown while a giveaway is open and the customer has not joined.
+        if layout.feature("home_promo"), let promo = data.openGiveaway, let target = layout.sections.first(where: { $0.kind == "giveaways" }) {
+            Button { track("promo_tap"); tab = target.id } label: {
+                CardView(theme: theme) {
+                    HStack(spacing: 12) {
+                        Text("🎁").font(.system(size: 30))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(jsonText(promo["title"])).font(.system(size: 17, weight: .black)).foregroundStyle(theme.accent)
+                            Text(prizeLine(promo)).font(.footnote).foregroundStyle(theme.muted)
+                        }
+                        Spacer()
+                        Text(layout.text("giveaway_join")).bold().foregroundStyle(theme.accent)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+        }
         let showLocation = location != nil && layout.feature("vpn_location_card")
         if showLocation, let location {
             Button { run(location) } label: { locationCard }.buttonStyle(.plain)
@@ -682,6 +707,7 @@ struct UserRootView: View {
     private func run(_ button: LayoutButton) {
         switch button.action {
         case "connect", "auto_location":
+            track("connect_tap")
             #if DEBUG
             if DemoMode.enabled { vpn = vpn == .on ? .off : .on; return }
             #endif
@@ -721,6 +747,59 @@ struct UserRootView: View {
         case "sign_out": signOut()
         default: break  // widget_toggle: the iOS app has no home screen widget yet
         }
+    }
+
+    private func prizeLine(_ row: [String: Any]) -> String {
+        let best = (row["prizes"] as? [[String: Any]] ?? []).compactMap { Double(jsonText($0["amount"])) }.max() ?? 0
+        let until = String(jsonText(row["ends_at"]).prefix(10))
+        return [best > 0 ? "🏆 \(Int(best)) \(jsonText(row["currency"]))" : "", until.isEmpty ? "" : "\(layout.text("until")) \(until)"]
+            .filter { !$0.isEmpty }.joined(separator: " · ")
+    }
+
+    @ViewBuilder private var giveawaysBody: some View {
+        if data.giveaways.isEmpty { Text(layout.text("giveaway_none")).foregroundStyle(theme.muted) }
+        ForEach(Array(data.giveaways.enumerated()), id: \.offset) { _, row in
+            CardView(theme: theme) {
+                Text(jsonText(row["title"])).font(.system(size: 17, weight: .bold)).foregroundStyle(theme.text)
+                if !jsonText(row["description"]).isEmpty { Text(jsonText(row["description"])).font(.subheadline).foregroundStyle(theme.muted) }
+                Text(prizeLine(row)).font(.footnote).foregroundStyle(theme.accent2)
+                let mine = row["my_entry"] as? [String: Any]
+                let outcome = jsonText(mine?["outcome"])
+                if mine != nil && outcome == "won" {
+                    Text(layout.text("giveaway_won").replacingOccurrences(of: "{amount}", with: "\(jsonText(mine?["reward_amount"])) \(jsonText(row["currency"]))"))
+                        .bold().foregroundStyle(theme.success)
+                } else if mine != nil && (outcome == "lost" || outcome == "ineligible") {
+                    Text(layout.text("giveaway_lost")).foregroundStyle(theme.muted)
+                } else if mine != nil {
+                    Text(layout.text("giveaway_entered")).foregroundStyle(theme.muted)
+                } else if jsonText(row["phase"]) == "open" {
+                    ActionButtonView(button: LayoutButton(id: "giveaway_\(jsonInt(row["id"]) ?? 0)", label: layout.text("giveaway_join"), action: "refresh", target: "", style: "primary", icon: "trophy", audience: "any"), theme: theme, enabled: !busy) {
+                        enterGiveaway(jsonInt(row["id"]) ?? 0)
+                    }
+                } else {
+                    Text(layout.text("giveaway_closed")).foregroundStyle(theme.muted)
+                }
+            }
+        }
+    }
+
+    private func enterGiveaway(_ id: Int) {
+        guard id > 0 else { return }
+        track("giveaway_enter")
+        work {
+            let row = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/giveaways/\(id)/enter") as? [String: Any] ?? [:]
+            let mine = row["my_entry"] as? [String: Any]
+            let won = jsonText(mine?["outcome"]) == "won"
+            let text = won ? layout.text("giveaway_won").replacingOccurrences(of: "{amount}", with: "\(jsonText(mine?["reward_amount"])) \(jsonText(row["currency"]))") : layout.text("giveaway_entered")
+            DispatchQueue.main.async { notice = text; refresh() }
+        }
+    }
+
+    private func track(_ event: String, _ screen: String = "") {
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
+        CorgiAnalytics.track(base: base, token: token, event: event, screen: screen)
     }
 
     @ViewBuilder private var infoBody: some View {
@@ -878,7 +957,7 @@ struct UserRootView: View {
         let language = lang
         DispatchQueue.global(qos: .utility).async {
             if let next = LayoutStore.fetch(base: normalized, lang: language) {
-                DispatchQueue.main.async { if language == lang { layout = next } }
+                DispatchQueue.main.async { if language == lang { layout = next; CorgiAnalytics.enabled = next.feature("analytics") } }
             }
         }
     }
@@ -910,6 +989,7 @@ struct UserRootView: View {
                 next.passkeys = (try? ShopPasskeys.list(base: origin, session: session, lang: language)) ?? []
                 // Shops before v28.29.0 have no documents: the section stays empty.
                 next.docs = (try? api.call("GET", "/api/public/info-pages?lang=\(language)")) as? [[String: Any]] ?? []
+                next.giveaways = ((try? api.call("GET", "/api/me/giveaways")) as? [String: Any])?["items"] as? [[String: Any]] ?? []
                 // Re-bind a rotated APNs token, or the same token to a re-issued session.
                 if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
                     _ = try? PushCenter.register(base: origin, session: session, lang: language, token: current)
@@ -1018,6 +1098,7 @@ struct UserRootView: View {
     }
 
     private func buy(wallet: Bool) {
+        track("checkout_start")
         let id = planId
         work {
             let api = ShopClient(base: base, token: token, lang: lang)
@@ -1050,6 +1131,7 @@ struct UserRootView: View {
     }
 
     private func startTrial() {
+        track("trial_tap")
         let id = planId
         guard id > 0 else { return }
         let days = jsonInt(data.config["trial_days"]) ?? 3

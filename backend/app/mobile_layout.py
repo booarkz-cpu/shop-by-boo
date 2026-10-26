@@ -81,7 +81,7 @@ Style = Literal["primary", "accent", "secondary", "ghost", "danger"]
 
 # Section kinds the apps can draw. "custom" is an administrator page: a banner, a text and buttons.
 KINDS = ("vpn", "locations", "premium", "subscription", "support", "settings", "devices", "family", "referral",
-         "wallet", "gifts", "notifications", "status", "security", "info", "custom")
+         "wallet", "gifts", "giveaways", "notifications", "status", "security", "info", "custom")
 Kind = Literal[KINDS]  # type: ignore[valid-type]
 
 
@@ -207,6 +207,16 @@ DEFAULT_TEXTS: dict[str, dict[str, str]] = {
     "per_month": {"ru": "₽/мес", "en": "₽/mo", "uk": "₽/міс"},
     "offline": {"ru": "Нет связи — показаны сохранённые данные", "en": "Offline — showing saved data",
                 "uk": "Немає зв'язку — показано збережені дані"},
+    "giveaway_join": {"ru": "Участвовать", "en": "Join", "uk": "Взяти участь"},
+    "giveaway_entered": {"ru": "Вы участвуете — итоги после окончания", "en": "You are in — results after the end",
+                         "uk": "Ви берете участь — підсумки після завершення"},
+    "giveaway_won": {"ru": "🏆 Ваш приз: {amount} — уже на балансе", "en": "🏆 Your prize: {amount} — already on your balance",
+                     "uk": "🏆 Ваш приз: {amount} — вже на балансі"},
+    "giveaway_lost": {"ru": "В этот раз без приза — ждите следующий розыгрыш", "en": "No prize this time — wait for the next one",
+                      "uk": "Цього разу без призу — чекайте наступний розіграш"},
+    "giveaway_closed": {"ru": "Розыгрыш завершён", "en": "The giveaway has ended", "uk": "Розіграш завершено"},
+    "giveaway_none": {"ru": "Сейчас нет розыгрышей — загляните позже", "en": "No giveaways right now — check back later",
+                      "uk": "Зараз немає розіграшів — зазирніть пізніше"},
     "consent": {"ru": "Нажимая «Оплатить», вы принимаете оферту и условия автопродления",
                 "en": "By paying you accept the offer and the auto-renewal terms",
                 "uk": "Натискаючи «Оплатити», ви приймаєте оферту та умови автопродовження"},
@@ -237,6 +247,7 @@ DEFAULT_SECTIONS = [
         _b("family", "Семейная подписка", "Family plan", "Сімейна підписка", "open", "family", icon="heart"),
         _b("referral", "Пригласить друга", "Invite a friend", "Запросити друга", "open", "referral", icon="users"),
         _b("gifts", "Подарки и промокоды", "Gifts and promo codes", "Подарунки та промокоди", "open", "gifts", icon="gift"),
+        _b("giveaways", "Розыгрыши и бонусы", "Giveaways and bonuses", "Розіграші та бонуси", "open", "giveaways", icon="trophy"),
     ], tab=True),
     _s("premium", "premium", "Премиум", "Premium", "Преміум", "crown", "app-premium", [
         _b("buy", "Оплатить", "Pay", "Оплатити", "buy", style="primary", icon="card"),
@@ -297,6 +308,12 @@ DEFAULT_SECTIONS = [
     _s("gifts", "gifts", "Подарки", "Gifts", "Подарунки", "gift", "app-gifts", [
         _b("redeem", "Активировать код", "Redeem a code", "Активувати код", "redeem", style="primary", icon="gift"),
     ]),
+    _s("giveaways", "giveaways", "Розыгрыши и бонусы", "Giveaways and bonuses", "Розіграші та бонуси", "trophy", "app-giveaways", [
+        _b("gifts", "Подарки и промокоды", "Gifts and promo codes", "Подарунки та промокоди", "open", "gifts", icon="gift"),
+        _b("referral", "Пригласить друга", "Invite a friend", "Запросити друга", "open", "referral", icon="users"),
+    ], subtitle={"ru": "Участвуйте в розыгрышах и получайте бонусы на баланс",
+                 "en": "Join giveaways and get bonuses to your balance",
+                 "uk": "Беріть участь у розіграшах і отримуйте бонуси на баланс"}),
     _s("notifications", "notifications", "Уведомления", "Notifications", "Сповіщення", "bell", "app-notifications", [
         _b("push", "Push-уведомления", "Push notifications", "Push-сповіщення", "push_toggle", style="primary", icon="bell"),
     ]),
@@ -336,6 +353,8 @@ FEATURES: dict[str, str] = {
     "login_sign_up": "Экран входа: кнопка регистрации",
     "login_passkey": "Экран входа: вход по ключу (passkey)",
     "login_quick": "Экран входа: Telegram, Яндекс, VK и Google (если настроены)",
+    "home_promo": "Главный экран: баннер розыгрыша или бонуса (если есть открытая акция)",
+    "analytics": "Анонимная статистика приложения («Приложения: аналитика»)",
     "language_switch": "Экран входа: переключатель языка",
     "settings_version": "Настройки: версия приложения",
 }

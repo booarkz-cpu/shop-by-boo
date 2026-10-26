@@ -23,7 +23,7 @@ async def mobile_bootstrap(request: Request, db: AsyncSession = Depends(get_db))
         'user': {'id': user.id, 'email': user.email, 'username': user.username, 'wallet_balance': str(user.wallet_balance or 0), 'referral_code': user.referral_code},
         'devices': [{'id': d.id, 'name': d.name, 'platform': d.platform, 'status': d.status, 'last_seen_at': d.last_seen_at} for d in devices],
         'notifications': {'unread': int(unread)},
-        'mobile': {'biometric': True, 'quick_connect': True, 'qr_onboarding': True, 'deep_links': ['corgi://connect', 'corgi://support']},
+        'mobile': {'biometric': True, 'quick_connect': True, 'qr_onboarding': True, 'deep_links': ['corgi://connect', 'corgi://support', 'corgi://login']},
     }
 
 @router.get('/api/me/mobile/notifications')

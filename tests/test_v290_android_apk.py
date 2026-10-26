@@ -25,5 +25,5 @@ def test_v290_apk_script_notes_and_clients():
     for role in ("user", "admin"):
         gradle = (ROOT / f"mobile/android-{role}/app/build.gradle.kts").read_text()
         assert re.search(r'^\s*versionName = "3\.0\.0"$', gradle, re.M)
-        assert re.search(r'^\s*versionCode = 3000$', gradle, re.M)
+        assert re.search(r'^\s*versionCode = 3100$', gradle, re.M)
     assert "scripts/package-source.py" in (ROOT / "scripts/build-release.sh").read_text()

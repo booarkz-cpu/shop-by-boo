@@ -1815,3 +1815,31 @@ class CancellationFeedback(Base):
     reason: Mapped[str] = mapped_column(String(32), nullable=False)
     comment: Mapped[str] = mapped_column(Text, default="", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class AppEvent(Base):
+    """Anonymous app analytics event (backend/app/app_growth.py); no IP, no device identifiers."""
+    __tablename__ = "app_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    install_hash: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
+    user_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    platform: Mapped[str] = mapped_column(String(16), nullable=False)
+    app_version: Mapped[str] = mapped_column(String(32), default="", nullable=False)
+    event: Mapped[str] = mapped_column(String(32), index=True, nullable=False)
+    screen: Mapped[str] = mapped_column(String(32), default="", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class PushCampaign(Base):
+    """Push / in-app message to an audience segment, sent from «Приложения: push-кампании»."""
+    __tablename__ = "push_campaigns"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    segment: Mapped[str] = mapped_column(String(32), nullable=False)
+    days: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="sent", nullable=False)
+    recipients: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    with_push: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_by: Mapped[str] = mapped_column(String(320), default="", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)

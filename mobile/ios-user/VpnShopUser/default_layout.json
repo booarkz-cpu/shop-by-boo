@@ -1,11 +1,14 @@
 {
  "en": {
   "features": {
+   "analytics": true,
    "header_notifications": true,
    "header_support": true,
+   "home_promo": true,
    "language_switch": true,
    "login_banner": true,
    "login_passkey": true,
+   "login_quick": true,
    "login_sign_up": true,
    "settings_version": true,
    "vpn_location_card": true,
@@ -124,6 +127,15 @@
       "label": "Gifts and promo codes",
       "style": "secondary",
       "target": "gifts"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "trophy",
+      "id": "giveaways",
+      "label": "Giveaways and bonuses",
+      "style": "secondary",
+      "target": "giveaways"
      }
     ],
     "icon": "user",
@@ -574,6 +586,39 @@
    {
     "banner": {
      "link": "",
+     "url": "/api/bot/banners/default/app-giveaways.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "gift",
+      "id": "gifts",
+      "label": "Gifts and promo codes",
+      "style": "secondary",
+      "target": "gifts"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "users",
+      "id": "referral",
+      "label": "Invite a friend",
+      "style": "secondary",
+      "target": "referral"
+     }
+    ],
+    "icon": "trophy",
+    "id": "giveaways",
+    "kind": "giveaways",
+    "subtitle": "Join giveaways and get bonuses to your balance",
+    "tab": false,
+    "title": "Giveaways and bonuses"
+   },
+   {
+    "banner": {
+     "link": "",
      "url": "/api/bot/banners/default/app-notifications.jpg"
     },
     "body": "",
@@ -682,6 +727,12 @@
    "consent": "By paying you accept the offer and the auto-renewal terms",
    "days_left": "{n} days left",
    "devices": "Devices",
+   "giveaway_closed": "The giveaway has ended",
+   "giveaway_entered": "You are in — results after the end",
+   "giveaway_join": "Join",
+   "giveaway_lost": "No prize this time — wait for the next one",
+   "giveaway_none": "No giveaways right now — check back later",
+   "giveaway_won": "🏆 Your prize: {amount} — already on your balance",
    "no_subscription": "No active subscription",
    "offline": "Offline — showing saved data",
    "per_month": "₽/mo",
@@ -707,15 +758,18 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "21a5b29eb9707035"
+  "version": "3ab4a7cfc77b1a50"
  },
  "ru": {
   "features": {
+   "analytics": true,
    "header_notifications": true,
    "header_support": true,
+   "home_promo": true,
    "language_switch": true,
    "login_banner": true,
    "login_passkey": true,
+   "login_quick": true,
    "login_sign_up": true,
    "settings_version": true,
    "vpn_location_card": true,
@@ -834,6 +888,15 @@
       "label": "Подарки и промокоды",
       "style": "secondary",
       "target": "gifts"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "trophy",
+      "id": "giveaways",
+      "label": "Розыгрыши и бонусы",
+      "style": "secondary",
+      "target": "giveaways"
      }
     ],
     "icon": "user",
@@ -1284,6 +1347,39 @@
    {
     "banner": {
      "link": "",
+     "url": "/api/bot/banners/default/app-giveaways.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "gift",
+      "id": "gifts",
+      "label": "Подарки и промокоды",
+      "style": "secondary",
+      "target": "gifts"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "users",
+      "id": "referral",
+      "label": "Пригласить друга",
+      "style": "secondary",
+      "target": "referral"
+     }
+    ],
+    "icon": "trophy",
+    "id": "giveaways",
+    "kind": "giveaways",
+    "subtitle": "Участвуйте в розыгрышах и получайте бонусы на баланс",
+    "tab": false,
+    "title": "Розыгрыши и бонусы"
+   },
+   {
+    "banner": {
+     "link": "",
      "url": "/api/bot/banners/default/app-notifications.jpg"
     },
     "body": "",
@@ -1392,6 +1488,12 @@
    "consent": "Нажимая «Оплатить», вы принимаете оферту и условия автопродления",
    "days_left": "осталось {n} дн.",
    "devices": "Устройств",
+   "giveaway_closed": "Розыгрыш завершён",
+   "giveaway_entered": "Вы участвуете — итоги после окончания",
+   "giveaway_join": "Участвовать",
+   "giveaway_lost": "В этот раз без приза — ждите следующий розыгрыш",
+   "giveaway_none": "Сейчас нет розыгрышей — загляните позже",
+   "giveaway_won": "🏆 Ваш приз: {amount} — уже на балансе",
    "no_subscription": "Нет активной подписки",
    "offline": "Нет связи — показаны сохранённые данные",
    "per_month": "₽/мес",
@@ -1417,15 +1519,18 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "0deb04709abc53fb"
+  "version": "397d57d9969943e6"
  },
  "uk": {
   "features": {
+   "analytics": true,
    "header_notifications": true,
    "header_support": true,
+   "home_promo": true,
    "language_switch": true,
    "login_banner": true,
    "login_passkey": true,
+   "login_quick": true,
    "login_sign_up": true,
    "settings_version": true,
    "vpn_location_card": true,
@@ -1544,6 +1649,15 @@
       "label": "Подарунки та промокоди",
       "style": "secondary",
       "target": "gifts"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "trophy",
+      "id": "giveaways",
+      "label": "Розіграші та бонуси",
+      "style": "secondary",
+      "target": "giveaways"
      }
     ],
     "icon": "user",
@@ -1994,6 +2108,39 @@
    {
     "banner": {
      "link": "",
+     "url": "/api/bot/banners/default/app-giveaways.jpg"
+    },
+    "body": "",
+    "buttons": [
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "gift",
+      "id": "gifts",
+      "label": "Подарунки та промокоди",
+      "style": "secondary",
+      "target": "gifts"
+     },
+     {
+      "action": "open",
+      "audience": "any",
+      "icon": "users",
+      "id": "referral",
+      "label": "Запросити друга",
+      "style": "secondary",
+      "target": "referral"
+     }
+    ],
+    "icon": "trophy",
+    "id": "giveaways",
+    "kind": "giveaways",
+    "subtitle": "Беріть участь у розіграшах і отримуйте бонуси на баланс",
+    "tab": false,
+    "title": "Розіграші та бонуси"
+   },
+   {
+    "banner": {
+     "link": "",
      "url": "/api/bot/banners/default/app-notifications.jpg"
     },
     "body": "",
@@ -2102,6 +2249,12 @@
    "consent": "Натискаючи «Оплатити», ви приймаєте оферту та умови автопродовження",
    "days_left": "залишилось {n} дн.",
    "devices": "Пристроїв",
+   "giveaway_closed": "Розіграш завершено",
+   "giveaway_entered": "Ви берете участь — підсумки після завершення",
+   "giveaway_join": "Взяти участь",
+   "giveaway_lost": "Цього разу без призу — чекайте наступний розіграш",
+   "giveaway_none": "Зараз немає розіграшів — зазирніть пізніше",
+   "giveaway_won": "🏆 Ваш приз: {amount} — вже на балансі",
    "no_subscription": "Немає активної підписки",
    "offline": "Немає зв'язку — показано збережені дані",
    "per_month": "₽/міс",
@@ -2127,6 +2280,6 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "912ebdbdf3a3ddb2"
+  "version": "8570f5f53bc7c945"
  }
 }

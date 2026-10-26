@@ -410,6 +410,8 @@ async def push_scheduler():
                 await deliver_due(db)
                 if time.time() - last_cleanup > 3600:
                     await cleanup(db)
+                    from .app_growth import cleanup as cleanup_app_events
+                    await cleanup_app_events(db)
                     last_cleanup = time.time()
         except Exception as exc:
             logger.warning("Push queue unavailable; retrying: %s", type(exc).__name__)
