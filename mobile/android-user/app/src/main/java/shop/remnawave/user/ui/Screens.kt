@@ -87,6 +87,7 @@ fun SectionScreen(layout: AppLayout, section: LayoutSection, base: String, data:
                 "notifications" -> NotificationsBody(layout, data, actions)
                 "status" -> StatusBody(layout, data)
                 "security" -> SecurityBody(layout, data, actions)
+                "info" -> InfoBody(layout, base, data, actions)
                 else -> {}
             }
             if (section.body.isNotBlank()) Card(theme) { Text(section.body, color = theme.text, fontSize = 15.sp, lineHeight = 22.sp) }
@@ -96,7 +97,7 @@ fun SectionScreen(layout: AppLayout, section: LayoutSection, base: String, data:
             } else {
                 buttons.forEach { b -> ActionButton(b, theme, enabled = !ui.busy) { actions.run(b) } }
             }
-            if (section.kind == "settings" && ui.version.isNotBlank()) Muted(ui.version, theme, center = true)
+            if (section.kind == "settings" && layout.feature("settings_version") && ui.version.isNotBlank()) Muted(ui.version, theme, center = true)
         }
         Spacer(Modifier.height(24.dp))
     }
@@ -135,10 +136,10 @@ private fun VpnScreen(layout: AppLayout, section: LayoutSection, base: String, d
     val buttons = visibleButtons(section, data)
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         BrandTitle(layout.text("brand"), theme, Modifier.weight(1f))
-        if (layout.section("support") != null) IconButton(onClick = { actions.open("support") }) {
+        if (layout.feature("header_support") && layout.section("support") != null) IconButton(onClick = { actions.open("support") }) {
             Icon(Icons.Rounded.HeadsetMic, contentDescription = layout.section("support")?.title, tint = theme.text)
         }
-        if (layout.section("notifications") != null) IconButton(onClick = { actions.open("notifications") }) {
+        if (layout.feature("header_notifications") && layout.section("notifications") != null) IconButton(onClick = { actions.open("notifications") }) {
             Icon(Icons.Rounded.Notifications, contentDescription = layout.section("notifications")?.title, tint = theme.text)
         }
     }
@@ -152,16 +153,17 @@ private fun VpnScreen(layout: AppLayout, section: LayoutSection, base: String, d
             VpnState.CONNECTING -> layout.text("status_connecting") to theme.accent2
             VpnState.OFF -> layout.text("status_off") to theme.muted
         }
-        StatusPill(status, color, theme)
+        if (layout.feature("vpn_status")) StatusPill(status, color, theme)
         if (connect != null) {
             PowerButton(ui.vpn, theme, connect.label) { actions.run(connect) }
             Text(connect.label, color = theme.text, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
     }
-    PlanSummary(layout, data, actions)
+    if (layout.feature("vpn_plan_card")) PlanSummary(layout, data, actions)
     val location = buttons.firstOrNull { it.action == "open" && layout.section(it.target)?.kind == "locations" }
-    if (location != null) LocationCard(layout, data) { actions.run(location) }
-    buttons.filter { it != connect && it != location }.forEach { b -> ActionButton(b, theme, enabled = !ui.busy) { actions.run(b) } }
+    val locationCard = location != null && layout.feature("vpn_location_card")
+    if (locationCard) LocationCard(layout, data) { actions.run(location!!) }
+    buttons.filter { it != connect && (it != location || !locationCard) }.forEach { b -> ActionButton(b, theme, enabled = !ui.busy) { actions.run(b) } }
 }
 
 @Composable
@@ -501,5 +503,81 @@ fun QrCard(data: ShopData, theme: LayoutTheme) {
     val qr = data.qr ?: return
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Image(qr, contentDescription = "QR", modifier = Modifier.size(240.dp).clip(RoundedCornerShape(theme.radius.dp)).background(Color.White).padding(12.dp))
+    }
+}
+
+// ---------------------------------------------------------------- documents
+
+/** «Информация»: the documents the shop published in «Бот и кабинет → Документы». */
+@Composable
+private fun InfoBody(layout: AppLayout, base: String, data: ShopData, actions: ShopActions) {
+    val theme = layout.theme
+    if (data.docs.length() == 0) { Muted(layout.text("offline"), theme, center = true); return }
+    for (i in 0 until data.docs.length()) {
+        val doc = data.docs.optJSONObject(i) ?: continue
+        Card(theme, onClick = { actions.openDocument(doc.optString("kind")) }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(doc.optString("title"), color = theme.text, fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.weight(1f))
+                Text("›", color = theme.muted, fontSize = 22.sp)
+            }
+        }
+    }
+}
+
+/** One document with its banner: ``## heading``, ``- item``, ``**bold**``; FAQ as questions that open. */
+@Composable
+fun DocumentScreen(layout: AppLayout, base: String, doc: JSONObject, onBack: () -> Unit, onLink: (String) -> Unit) {
+    val theme = layout.theme
+    Column(
+        Modifier.fillMaxSize().background(theme.background).statusBarsPadding().verticalScroll(rememberScrollState())
+            .padding(horizontal = 18.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Text("←", color = theme.text, fontSize = 22.sp, modifier = Modifier.clip(CircleShape).clickable(onClick = onBack).padding(8.dp))
+        Text(doc.optString("title"), color = theme.text, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        val banner = doc.optString("banner")
+        if (banner.isNotBlank()) SectionBanner(base, LayoutBanner(banner, ""), theme, onLink)
+        val body = doc.optString("body")
+        if (body.isNotBlank()) Card(theme) { DocumentText(body, theme) }
+        val items = doc.optJSONArray("items")
+        if (items != null) for (i in 0 until items.length()) {
+            val item = items.optJSONObject(i) ?: continue
+            var open by remember(i) { mutableStateOf(false) }
+            Card(theme, onClick = { open = !open }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(item.optString("question"), color = theme.text, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text(if (open) "−" else "+", color = theme.accent, fontSize = 22.sp)
+                }
+                if (open) DocumentText(item.optString("answer"), theme)
+            }
+        }
+        Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun DocumentText(text: String, theme: LayoutTheme) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        text.split("\n").forEach { raw ->
+            val line = raw.trimEnd()
+            when {
+                line.isBlank() -> Spacer(Modifier.height(4.dp))
+                line.startsWith("## ") -> Text(rich(line.removePrefix("## "), theme), color = theme.text, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                line.startsWith("- ") -> Text(rich("•  " + line.removePrefix("- "), theme), color = theme.text, fontSize = 15.sp, lineHeight = 21.sp)
+                else -> Text(rich(line, theme), color = theme.text, fontSize = 15.sp, lineHeight = 21.sp)
+            }
+        }
+    }
+}
+
+private fun rich(text: String, theme: LayoutTheme) = buildAnnotatedString {
+    var rest = text
+    while (true) {
+        val start = rest.indexOf("**")
+        val end = if (start >= 0) rest.indexOf("**", start + 2) else -1
+        if (start < 0 || end < 0) { append(rest); break }
+        append(rest.substring(0, start))
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = theme.accent2)) { append(rest.substring(start + 2, end)) }
+        rest = rest.substring(end + 2)
     }
 }

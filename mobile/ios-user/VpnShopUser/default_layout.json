@@ -1,5 +1,17 @@
 {
  "en": {
+  "features": {
+   "header_notifications": true,
+   "header_support": true,
+   "language_switch": true,
+   "login_banner": true,
+   "login_passkey": true,
+   "login_sign_up": true,
+   "settings_version": true,
+   "vpn_location_card": true,
+   "vpn_plan_card": true,
+   "vpn_status": true
+  },
   "lang": "en",
   "links": {
    "cabinet": "",
@@ -154,6 +166,15 @@
       "label": "I have a promo code",
       "style": "ghost",
       "target": ""
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "offer",
+      "label": "Public offer",
+      "style": "ghost",
+      "target": "offer"
      }
     ],
     "icon": "crown",
@@ -318,6 +339,24 @@
       "target": "info"
      },
      {
+      "action": "document",
+      "audience": "any",
+      "icon": "lock",
+      "id": "privacy",
+      "label": "Privacy policy",
+      "style": "secondary",
+      "target": "privacy"
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "offer",
+      "label": "Public offer",
+      "style": "secondary",
+      "target": "offer"
+     },
+     {
       "action": "report_problem",
       "audience": "any",
       "icon": "bug",
@@ -360,13 +399,22 @@
       "target": ""
      },
      {
-      "action": "open",
+      "action": "document",
       "audience": "any",
       "icon": "help",
       "id": "faq",
       "label": "FAQ",
       "style": "secondary",
-      "target": "info"
+      "target": "faq"
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "rules",
+      "label": "Service rules",
+      "style": "secondary",
+      "target": "rules"
      },
      {
       "action": "open",
@@ -601,15 +649,26 @@
      "url": "/api/bot/banners/default/app-info.jpg"
     },
     "body": "",
-    "buttons": [],
+    "buttons": [
+     {
+      "action": "support_ticket",
+      "audience": "any",
+      "icon": "message",
+      "id": "support",
+      "label": "Message support",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
     "icon": "info",
     "id": "info",
     "kind": "info",
-    "subtitle": "",
+    "subtitle": "FAQ, rules, privacy policy and public offer",
     "tab": false,
     "title": "Information"
    }
   ],
+  "strings": {},
   "tabs": [
    "subscription",
    "premium",
@@ -648,9 +707,21 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "e9c5b69c024c383f"
+  "version": "21a5b29eb9707035"
  },
  "ru": {
+  "features": {
+   "header_notifications": true,
+   "header_support": true,
+   "language_switch": true,
+   "login_banner": true,
+   "login_passkey": true,
+   "login_sign_up": true,
+   "settings_version": true,
+   "vpn_location_card": true,
+   "vpn_plan_card": true,
+   "vpn_status": true
+  },
   "lang": "ru",
   "links": {
    "cabinet": "",
@@ -805,6 +876,15 @@
       "label": "У меня есть промокод",
       "style": "ghost",
       "target": ""
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "offer",
+      "label": "Договор оферты",
+      "style": "ghost",
+      "target": "offer"
      }
     ],
     "icon": "crown",
@@ -969,6 +1049,24 @@
       "target": "info"
      },
      {
+      "action": "document",
+      "audience": "any",
+      "icon": "lock",
+      "id": "privacy",
+      "label": "Политика конфиденциальности",
+      "style": "secondary",
+      "target": "privacy"
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "offer",
+      "label": "Договор оферты",
+      "style": "secondary",
+      "target": "offer"
+     },
+     {
       "action": "report_problem",
       "audience": "any",
       "icon": "bug",
@@ -1011,13 +1109,22 @@
       "target": ""
      },
      {
-      "action": "open",
+      "action": "document",
       "audience": "any",
       "icon": "help",
       "id": "faq",
       "label": "Частые вопросы",
       "style": "secondary",
-      "target": "info"
+      "target": "faq"
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "rules",
+      "label": "Правила сервиса",
+      "style": "secondary",
+      "target": "rules"
      },
      {
       "action": "open",
@@ -1252,15 +1359,26 @@
      "url": "/api/bot/banners/default/app-info.jpg"
     },
     "body": "",
-    "buttons": [],
+    "buttons": [
+     {
+      "action": "support_ticket",
+      "audience": "any",
+      "icon": "message",
+      "id": "support",
+      "label": "Написать в поддержку",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
     "icon": "info",
     "id": "info",
     "kind": "info",
-    "subtitle": "",
+    "subtitle": "Частые вопросы, правила, политика конфиденциальности и оферта",
     "tab": false,
     "title": "Информация"
    }
   ],
+  "strings": {},
   "tabs": [
    "subscription",
    "premium",
@@ -1299,9 +1417,21 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "5db8cd5ab4218d08"
+  "version": "0deb04709abc53fb"
  },
  "uk": {
+  "features": {
+   "header_notifications": true,
+   "header_support": true,
+   "language_switch": true,
+   "login_banner": true,
+   "login_passkey": true,
+   "login_sign_up": true,
+   "settings_version": true,
+   "vpn_location_card": true,
+   "vpn_plan_card": true,
+   "vpn_status": true
+  },
   "lang": "uk",
   "links": {
    "cabinet": "",
@@ -1456,6 +1586,15 @@
       "label": "У мене є промокод",
       "style": "ghost",
       "target": ""
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "offer",
+      "label": "Договір оферти",
+      "style": "ghost",
+      "target": "offer"
      }
     ],
     "icon": "crown",
@@ -1620,6 +1759,24 @@
       "target": "info"
      },
      {
+      "action": "document",
+      "audience": "any",
+      "icon": "lock",
+      "id": "privacy",
+      "label": "Політика конфіденційності",
+      "style": "secondary",
+      "target": "privacy"
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "offer",
+      "label": "Договір оферти",
+      "style": "secondary",
+      "target": "offer"
+     },
+     {
       "action": "report_problem",
       "audience": "any",
       "icon": "bug",
@@ -1662,13 +1819,22 @@
       "target": ""
      },
      {
-      "action": "open",
+      "action": "document",
       "audience": "any",
       "icon": "help",
       "id": "faq",
       "label": "Часті питання",
       "style": "secondary",
-      "target": "info"
+      "target": "faq"
+     },
+     {
+      "action": "document",
+      "audience": "any",
+      "icon": "file",
+      "id": "rules",
+      "label": "Правила сервісу",
+      "style": "secondary",
+      "target": "rules"
      },
      {
       "action": "open",
@@ -1903,15 +2069,26 @@
      "url": "/api/bot/banners/default/app-info.jpg"
     },
     "body": "",
-    "buttons": [],
+    "buttons": [
+     {
+      "action": "support_ticket",
+      "audience": "any",
+      "icon": "message",
+      "id": "support",
+      "label": "Написати в підтримку",
+      "style": "secondary",
+      "target": ""
+     }
+    ],
     "icon": "info",
     "id": "info",
     "kind": "info",
-    "subtitle": "",
+    "subtitle": "Часті питання, правила, політика конфіденційності та оферта",
     "tab": false,
     "title": "Інформація"
    }
   ],
+  "strings": {},
   "tabs": [
    "subscription",
    "premium",
@@ -1950,6 +2127,6 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "ffa4f8d2334ce318"
+  "version": "912ebdbdf3a3ddb2"
  }
 }

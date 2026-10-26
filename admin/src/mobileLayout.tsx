@@ -35,6 +35,7 @@ export function MobileLayoutEditor({data, request, reload, toast, assetBase}: {d
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [json, setJson] = useState("");
+  const [query, setQuery] = useState("");
   useEffect(() => { if (data?.layout) { setLayout(data.layout); setJson(JSON.stringify(data.layout, null, 2)); } }, [data?.layout]);
   const sectionIds = useMemo(() => (layout?.sections || []).map((s: Section) => s.id), [layout]);
   if (!layout) return <div className="card"><p className="muted">Загрузка…</p></div>;
@@ -140,12 +141,14 @@ export function MobileLayoutEditor({data, request, reload, toast, assetBase}: {d
                 <div className="inline">
                   <label className="field">Действие<select value={b.action} onChange={(e) => {
                     const action = e.target.value;
-                    setButton(i, bi, {action, target: action === "open" ? (sectionIds[0] || "") : action === "import_app" ? "happ" : action === "url" ? "https://" : ""});
+                    setButton(i, bi, {action, target: action === "open" ? (sectionIds[0] || "") : action === "import_app" ? "happ" : action === "document" ? "faq" : action === "url" ? "https://" : ""});
                   }}>{Object.entries(actions).map(([key, title]) => <option key={key} value={key}>{title}</option>)}</select></label>
                   {b.action === "open" && <label className="field">Открывает раздел<select value={b.target} onChange={(e) => setButton(i, bi, {target: e.target.value})}>
                     {sections.map((x) => <option key={x.id} value={x.id}>{x.title.ru}</option>)}</select></label>}
                   {b.action === "import_app" && <label className="field">Приложение<select value={b.target} onChange={(e) => setButton(i, bi, {target: e.target.value})}>
                     {(data.import_apps || []).map((x: string) => <option key={x}>{x}</option>)}</select></label>}
+                  {b.action === "document" && <label className="field">Документ<select value={b.target} onChange={(e) => setButton(i, bi, {target: e.target.value})}>
+                    {Object.entries(data.documents || {}).map(([k, v]) => <option key={k} value={k}>{String(v)}</option>)}</select></label>}
                   {b.action === "url" && <label className="field">Ссылка<input value={b.target} placeholder="https://… или tg://…" onChange={(e) => setButton(i, bi, {target: e.target.value})}/></label>}
                   <label className="field">Вид<select value={b.style} onChange={(e) => setButton(i, bi, {style: e.target.value})}>{STYLES.map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
                   <label className="field">Иконка<select value={b.icon} onChange={(e) => setButton(i, bi, {icon: e.target.value})}><option value="">—</option>{icons.map((x) => <option key={x}>{x}</option>)}</select></label>
@@ -180,6 +183,36 @@ export function MobileLayoutEditor({data, request, reload, toast, assetBase}: {d
               if (v.ru.trim() || v.en.trim() || v.uk.trim()) next[key] = {...v, ru: v.ru.trim() ? v.ru : def.ru}; else delete next[key];
               setLayout({...layout, texts: next});
             }}/>)}
+        </div>
+
+        <div className="card" data-features>
+          <h4>Блоки экранов</h4>
+          <p className="muted">Что показывать на главном экране, экране входа и в настройках.</p>
+          {Object.entries(data.features || {}).map(([key, title]) => <label className="inline" key={key}>
+            <input type="checkbox" checked={layout.features?.[key] !== false} onChange={(e) => setLayout({...layout, features: {...(layout.features || {}), [key]: e.target.checked}})}/>{String(title)}
+          </label>)}
+        </div>
+
+        <div className="card" data-strings>
+          <h4>Строки приложения</h4>
+          <p className="muted">Любая надпись приложения: экран входа, диалоги, уведомления, ошибки. Найдите строку по тексту или ключу и впишите свой вариант; пустое поле — текст приложения. Изменено строк: {Object.keys(layout.strings || {}).length}.</p>
+          <label className="field">Поиск строки<input value={query} placeholder="например: Войти, оплата, sign_in" onChange={(e) => setQuery(e.target.value)}/></label>
+          {Object.entries(data.strings || {} as Record<string, Label>)
+            .filter(([key, def]: [string, any]) => {
+              const q = query.trim().toLowerCase();
+              if (!q) return !!layout.strings?.[key];
+              return key.includes(q) || Object.values(def).some((v: any) => String(v).toLowerCase().includes(q));
+            })
+            .slice(0, 40)
+            .map(([key, def]: [string, any]) => <div className="ml-string" key={key} data-string={key}>
+              <b>{def.ru}</b> <span className="muted"><code>{key}</code></span>
+              <LabelFields name={`Строка ${key}`} max={300} value={{ru: "", en: "", uk: "", ...(layout.strings?.[key] || {})}} onChange={(v) => {
+                const next = {...(layout.strings || {})};
+                if (v.ru.trim() || v.en.trim() || v.uk.trim()) next[key] = v; else delete next[key];
+                setLayout({...layout, strings: next});
+              }}/>
+            </div>)}
+          {!query.trim() && !Object.keys(layout.strings || {}).length && <p className="muted">Начните вводить в поиске, чтобы найти строку.</p>}
         </div>
 
         <details className="card"><summary>Макет в JSON (для переноса между магазинами)</summary>

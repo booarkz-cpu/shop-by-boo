@@ -53,14 +53,19 @@ data class AppLayout(
     val tabs: List<String>,
     val sections: List<LayoutSection>,
     val links: Map<String, String>,
+    /** Replacements of the app strings (l10n.json keys) set in the admin panel. */
+    val strings: Map<String, String> = emptyMap(),
+    /** Screen blocks switched on or off in the admin panel; missing means on. */
+    val features: Map<String, Boolean> = emptyMap(),
 ) {
     fun section(id: String): LayoutSection? = sections.firstOrNull { it.id == id }
     fun text(key: String): String = texts[key] ?: key
+    fun feature(key: String): Boolean = features[key] ?: true
 }
 
 /** Actions the app implements; a button with anything else is not drawn. */
 val KNOWN_ACTIONS = setOf(
-    "connect", "open", "url", "cabinet", "telegram_channel", "import_app", "copy_subscription", "show_qr", "copy_id",
+    "connect", "open", "url", "document", "cabinet", "telegram_channel", "import_app", "copy_subscription", "show_qr", "copy_id",
     "buy", "pay_wallet", "trial", "topup", "redeem", "auto_location", "share_referral", "copy_referral", "family_invite",
     "support_ticket", "report_problem", "language", "push_toggle", "widget_toggle", "passkey_add", "refresh", "sign_out",
 )
@@ -91,6 +96,10 @@ fun parseLayout(doc: JSONObject): AppLayout {
     doc.optJSONObject("texts")?.let { obj -> obj.keys().forEach { texts[it] = obj.optString(it) } }
     val links = mutableMapOf<String, String>()
     doc.optJSONObject("links")?.let { obj -> obj.keys().forEach { links[it] = obj.optString(it) } }
+    val strings = mutableMapOf<String, String>()
+    doc.optJSONObject("strings")?.let { obj -> obj.keys().forEach { k -> obj.optString(k).takeIf { it.isNotBlank() }?.let { strings[k] = it } } }
+    val features = mutableMapOf<String, Boolean>()
+    doc.optJSONObject("features")?.let { obj -> obj.keys().forEach { features[it] = obj.optBoolean(it, true) } }
     val sections = mutableListOf<LayoutSection>()
     val rows = doc.optJSONArray("sections") ?: JSONArray()
     for (i in 0 until rows.length()) {
@@ -111,7 +120,7 @@ fun parseLayout(doc: JSONObject): AppLayout {
     val tabs = mutableListOf<String>()
     val tabRows = doc.optJSONArray("tabs") ?: JSONArray()
     for (i in 0 until tabRows.length()) tabRows.optString(i).takeIf { id -> sections.any { it.id == id } }?.let { tabs += it }
-    return AppLayout(doc.optString("lang", "ru"), doc.optString("version"), theme, texts, tabs, sections, links)
+    return AppLayout(doc.optString("lang", "ru"), doc.optString("version"), theme, texts, tabs, sections, links, strings, features)
 }
 
 /**

@@ -192,3 +192,39 @@ async def test_clients_always_revalidate_the_layout(database):
     resp = Resp()
     await mobile_layout.mobile_layout(Req(), resp, "ru", database)
     assert resp.headers["Cache-Control"] == "no-cache"
+
+
+def test_buttons_open_shop_documents():
+    data = mobile_layout.defaults().model_dump(mode="json")
+    targets = {b["target"] for s in data["sections"] for b in s["buttons"] if b["action"] == "document"}
+    assert targets == {"faq", "rules", "privacy", "offer"}
+    sec(data, "vpn")["buttons"][1].update(action="document", target="cookies")
+    with pytest.raises(ValidationError) as exc:
+        mobile_layout.MobileLayout.model_validate(data)
+    assert "документ" in str(exc.value)
+
+
+@pytest.mark.asyncio
+async def test_every_app_string_and_screen_block_is_editable(database):
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    # The backend copy of the app strings is the one the apps ship.
+    assert (root / "backend/app/assets/mobile_strings.json").read_text() == (root / "mobile/l10n/user.json").read_text()
+    strings = mobile_layout.app_strings()
+    assert strings["sign_in"]["ru"] and strings["sign_in"]["en"] and len(strings) > 100
+    data = edited(strings={"sign_in": {"ru": "Войти в Корги", "en": "", "uk": "Увійти до Коргі"}},
+                  features={"vpn_location_card": False, "login_sign_up": False})
+    await mobile_layout.admin_mobile_layout_save(mobile_layout.MobileLayout.model_validate(data), database, ADMIN)
+    ru, en, uk = [await mobile_layout.resolve_layout(database, lang) for lang in ("ru", "en", "uk")]
+    assert ru["strings"] == {"sign_in": "Войти в Корги"} and uk["strings"] == {"sign_in": "Увійти до Коргі"}
+    assert en["strings"] == {}, "an English app keeps its own text when only ru/uk were replaced"
+    assert ru["features"]["vpn_location_card"] is False and ru["features"]["login_sign_up"] is False
+    assert ru["features"]["header_support"] is True and set(ru["features"]) == set(mobile_layout.FEATURES)
+    with pytest.raises(ValidationError, match="Неизвестные строки"):
+        mobile_layout.MobileLayout.model_validate(edited(strings={"no_such_key": {"ru": "x"}}))
+    with pytest.raises(ValidationError, match="Неизвестные функции"):
+        mobile_layout.MobileLayout.model_validate(edited(features={"self_destruct": True}))
+    admin = await mobile_layout.admin_mobile_layout(database, ADMIN)
+    assert "sign_in" in admin["strings"] and "vpn_plan_card" in admin["features"]
+    assert json.loads(json.dumps(admin["layout"]))["features"]["vpn_location_card"] is False

@@ -296,10 +296,13 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     // The layout decides which sections exist; a push opens notifications, otherwise the VPN screen.
     var tab by remember { mutableStateOf(if (initialTab == "overview") "vpn" else initialTab) }
     var dialog by remember { mutableStateOf("") }
+    // A document opened from «Информация» or a «Открыть документ» button (GET /api/public/info-pages/{kind}).
+    var openDoc by remember { mutableStateOf<JSONObject?>(null) }
     var dialogText by remember { mutableStateOf("") }
     var dialogText2 by remember { mutableStateOf("") }
     val strings = remember(lang) { loadStrings(context, lang) }
-    fun t(key: String) = strings.optString(key, key)
+    // A string replaced in the admin panel («Строки приложения») wins over the bundled one.
+    fun t(key: String) = layout.strings[key] ?: strings.optString(key, key)
     fun notice(text: String) { ui = ui.copy(notice = text) }
 
     DisposableEffect(activity) {
@@ -391,6 +394,8 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     family = try { api.get("/api/me/family") as JSONObject } catch (_: Exception) { JSONObject() },
                     status = try { api.get("/api/public/service-status") as JSONObject } catch (_: Exception) { JSONObject() },
                     passkeys = try { CorgiPasskeys.list(base, token, lang) } catch (_: Exception) { JSONArray() },
+                    // Shops before v28.29.0 have no documents: the section stays empty.
+                    docs = try { api.get("/api/public/info-pages?lang=$lang") as JSONArray } catch (_: Exception) { JSONArray() },
                 )
                 activity.runOnUiThread { data = next; ui = ui.copy(offline = false) }
             } catch (exc: Exception) {
@@ -439,7 +444,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     fun selectedPlanId(): Int = ui.selectedPlan.takeIf { it > 0 } ?: data.plans.optJSONObject(0)?.optInt("id") ?: 0
 
     val actions = object : ShopActions {
-        override fun open(sectionId: String) { if (layout.section(sectionId) != null) { tab = sectionId; ui = ui.copy(notice = "") } }
+        override fun open(sectionId: String) { if (layout.section(sectionId) != null) { tab = sectionId; openDoc = null; ui = ui.copy(notice = "") } }
         override fun link(url: String) = openExternal(url)
         override fun selectPlan(planId: Int) { ui = ui.copy(selectedPlan = planId) }
         override fun setTopupAmount(amount: String) { ui = ui.copy(topupAmount = amount) }
@@ -464,12 +469,32 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
             activity.runOnUiThread { notice(t("family_joined")); refresh() }
         }
         override fun deletePasskey(passkeyId: Int) { dialog = "passkey_delete:$passkeyId"; dialogText = "" }
+        override fun openDocument(kind: String) {
+            if (kind !in setOf("faq", "rules", "privacy", "offer")) return
+            if (demo) {
+                openDoc = JSONObject().put("kind", kind).put("title", layout.sections.flatMap { it.buttons }.firstOrNull { it.action == "document" && it.target == kind }?.label ?: kind)
+                    .put("body", "## Корги Люси\n- Один аккаунт — до пяти устройств\n- Возврат в течение **30 дней**\n\nВопросы — в поддержку.")
+                    .put("banner", "/api/bot/banners/default/app-info.jpg")
+                return
+            }
+            work {
+                val page = ShopApi(base, token, lang).get("/api/public/info-pages/$kind?lang=$lang") as JSONObject
+                activity.runOnUiThread { openDoc = page }
+            }
+        }
         override fun run(button: LayoutButton) {
             when (button.action) {
                 "connect", "auto_location" -> {
                     if (demo) { ui = ui.copy(vpn = if (ui.vpn == VpnState.ON) VpnState.OFF else VpnState.ON); return }
                     when (VpnClients.connect(context, data.subscriptionUrl)) {
-                        VpnClients.Result.Imported -> ui = ui.copy(vpn = VpnState.CONNECTING, notice = t("vpn_imported"))
+                        VpnClients.Result.Imported -> {
+                            ui = ui.copy(vpn = VpnState.CONNECTING, notice = t("vpn_imported"))
+                            // The tunnel is switched on in the client; without it the status returns to «off» in a minute.
+                            thread {
+                                Thread.sleep(60_000)
+                                activity.runOnUiThread { if (ui.vpn == VpnState.CONNECTING) ui = ui.copy(vpn = VpnState.OFF) }
+                            }
+                        }
                         VpnClients.Result.Opened -> notice(t("vpn_opened"))
                         VpnClients.Result.NoClient -> dialog = "install"
                         VpnClients.Result.NoSubscription -> {
@@ -480,6 +505,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 }
                 "open" -> open(button.target)
                 "url" -> openExternal(button.target)
+                "document" -> openDocument(button.target)
                 "cabinet" -> openExternal(layout.links["cabinet"].orEmpty())
                 "telegram_channel" -> openExternal(layout.links["telegram_channel"].orEmpty())
                 "import_app" -> {
@@ -571,6 +597,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 family = JSONObject("""{"owned":[{"subscription_id":1,"name":"Год","seats":3,"used":2,"invite":{"code":"aB3x9Kq2","bot":"https://t.me/corgi_lusi_bot?start=family_aB3x9Kq2"},"members":[{"id":1,"name":"mama","synced":true}]}],"member_of":[]}"""),
                 status = JSONObject("""{"status":"ok","servers":{"online":5,"total":5},"countries":[{"country":"DE","online":2,"total":2},{"country":"NL","online":1,"total":1},{"country":"FI","online":2,"total":2}],"components":[],"incidents":[]}"""),
                 notifications = JSONArray("""[{"id":1,"title":"Подписка продлена","body":"Спасибо! Следующее списание — 28 мая 2027","read":false}]"""),
+                docs = JSONArray("""[{"kind":"faq","title":"Частые вопросы"},{"kind":"rules","title":"Правила"},{"kind":"privacy","title":"Политика конфиденциальности"},{"kind":"offer","title":"Публичная оферта"}]"""),
             )
             ui = ui.copy(vpn = if (intent(activity).getBooleanExtra("corgi_vpn_on", false)) VpnState.ON else VpnState.OFF)
         }
@@ -639,11 +666,13 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 else -> Column(Modifier.fillMaxSize()) {
                     val section = layout.section(tab) ?: layout.section(layout.tabs.firstOrNull { layout.section(it)?.kind == "vpn" } ?: "") ?: layout.sections.first()
                     Box(Modifier.weight(1f)) {
+                        val doc = openDoc
+                        if (doc != null) { DocumentScreen(layout, base, doc, onBack = { openDoc = null }, onLink = { openExternal(it) }); return@Box }
                         SectionScreen(layout, section, base, data, ui.copy(languageLabel = currentLanguageLabel(lang)), actions)
                         if (!section.tab) TextButton(onClick = { tab = layout.tabs.firstOrNull { layout.section(it)?.kind == "vpn" } ?: layout.tabs.first() },
                             modifier = Modifier.statusBarsPadding().padding(4.dp)) { Text("←", color = theme.text, fontSize = 22.sp) }
                     }
-                    BottomBar(layout, if (section.tab) section.id else "", onSelect = { tab = it; ui = ui.copy(notice = "") })
+                    BottomBar(layout, if (section.tab) section.id else "", onSelect = { tab = it; openDoc = null; ui = ui.copy(notice = "") })
                 }
             }
             ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
@@ -695,9 +724,9 @@ private fun LoginScreen(
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(layout.text("brand"), color = theme.accent, fontSize = 30.sp, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
-            TextButton(onClick = onLanguage) { Text(languageLabel(layout.lang), color = theme.muted) }
+            if (layout.feature("language_switch")) TextButton(onClick = onLanguage) { Text(languageLabel(layout.lang), color = theme.muted) }
         }
-        SectionBanner(base, layout.sections.firstOrNull { it.kind == "vpn" }?.banner, theme) { }
+        if (layout.feature("login_banner")) SectionBanner(base, layout.sections.firstOrNull { it.kind == "vpn" }?.banner, theme) { }
         Text(t("welcome"), color = theme.text, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         Muted(t("tagline"), theme)
         if (ui.notice.isNotBlank()) Text(ui.notice, color = theme.accent2)
@@ -705,8 +734,8 @@ private fun LoginScreen(
         TextInput(email, onEmail, t("email"), theme)
         TextInput(password, onPassword, t("password"), theme, secret = true)
         ActionButton(LayoutButton("sign_in", t("sign_in"), "refresh", "", "primary", "user", "any"), theme, enabled = !ui.busy) { onSignIn(false) }
-        ActionButton(LayoutButton("sign_up", t("sign_up"), "refresh", "", "secondary", "plus", "any"), theme, enabled = !ui.busy) { onSignIn(true) }
-        ActionButton(LayoutButton("passkey", t("passkey_sign_in"), "refresh", "", "ghost", "key", "any"), theme, enabled = !ui.busy) { onPasskey() }
+        if (layout.feature("login_sign_up")) ActionButton(LayoutButton("sign_up", t("sign_up"), "refresh", "", "secondary", "plus", "any"), theme, enabled = !ui.busy) { onSignIn(true) }
+        if (layout.feature("login_passkey")) ActionButton(LayoutButton("passkey", t("passkey_sign_in"), "refresh", "", "ghost", "key", "any"), theme, enabled = !ui.busy) { onPasskey() }
     }
 }
 

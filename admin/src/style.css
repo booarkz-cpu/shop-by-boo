@@ -420,3 +420,4 @@ html[data-theme="light"]{color-scheme:light}
 .ml-phone-btn.is-ghost{background:transparent!important;border:1px solid rgba(255,255,255,.12)}
 .ml-phone-tabs{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:10px 4px 14px}
 .ml-phone-tabs button{background:none;border:0;font-size:11px;cursor:pointer;padding:4px}
+.ml-string{border-top:1px solid var(--line,rgba(255,255,255,.08));padding:10px 0}

@@ -49,6 +49,7 @@ ACTIONS: dict[str, str] = {
     "connect": "Подключить / отключить VPN (импорт подписки во VPN-клиент)",
     "open": "Открыть раздел приложения (цель — id раздела)",
     "url": "Открыть ссылку (цель — https:// или tg://)",
+    "document": "Открыть документ (цель — faq, rules, privacy, offer из «Документов»)",
     "cabinet": "Открыть личный кабинет (ссылка из настроек макета)",
     "telegram_channel": "Открыть Telegram-канал (ссылка из настроек макета)",
     "import_app": "Добавить подписку в приложение (цель — happ, v2rayng, streisand, hiddify)",
@@ -75,6 +76,7 @@ ACTIONS: dict[str, str] = {
 }
 Action = Literal[tuple(ACTIONS)]  # type: ignore[valid-type]
 IMPORT_APPS = ("happ", "v2rayng", "streisand", "hiddify")
+DOCUMENTS = ("faq", "rules", "privacy", "offer")
 Style = Literal["primary", "accent", "secondary", "ghost", "danger"]
 
 # Section kinds the apps can draw. "custom" is an administrator page: a banner, a text and buttons.
@@ -135,6 +137,9 @@ class Button(_Strict):
         elif self.action == "import_app":
             if self.target not in IMPORT_APPS:
                 raise ValueError(f"Кнопка {self.id}: приложение — одно из {', '.join(IMPORT_APPS)}")
+        elif self.action == "document":
+            if self.target not in DOCUMENTS:
+                raise ValueError(f"Кнопка {self.id}: документ — один из {', '.join(DOCUMENTS)}")
         elif self.target:
             raise ValueError(f"Кнопка {self.id}: действие «{self.action}» не принимает цель")
         return self
@@ -237,6 +242,7 @@ DEFAULT_SECTIONS = [
         _b("buy", "Оплатить", "Pay", "Оплатити", "buy", style="primary", icon="card"),
         _b("pay_wallet", "Оплатить с баланса", "Pay from balance", "Оплатити з балансу", "pay_wallet", icon="wallet"),
         _b("redeem", "У меня есть промокод", "I have a promo code", "У мене є промокод", "redeem", style="ghost", icon="gift"),
+        _b("offer", "Договор оферты", "Public offer", "Договір оферти", "document", "offer", "ghost", "file"),
     ], tab=True, subtitle={"ru": "Безлимитный трафик, все локации и приоритетная поддержка",
                            "en": "Unlimited traffic, every location and priority support",
                            "uk": "Безлімітний трафік, усі локації та пріоритетна підтримка"}),
@@ -260,12 +266,15 @@ DEFAULT_SECTIONS = [
         _b("notifications", "Уведомления", "Notifications", "Сповіщення", "open", "notifications", icon="bell"),
         _b("security", "Вход и безопасность", "Sign-in and security", "Вхід і безпека", "open", "security", icon="key"),
         _b("documents", "Документы", "Documents", "Документи", "open", "info", icon="file"),
+        _b("privacy", "Политика конфиденциальности", "Privacy policy", "Політика конфіденційності", "document", "privacy", icon="lock"),
+        _b("offer", "Договор оферты", "Public offer", "Договір оферти", "document", "offer", icon="file"),
         _b("report", "Сообщить о проблеме", "Report a problem", "Повідомити про проблему", "report_problem", icon="bug"),
         _b("sign_out", "Выйти", "Sign out", "Вийти", "sign_out", style="danger", icon="logout"),
     ], tab=True),
     _s("support", "support", "Поддержка", "Support", "Підтримка", "headset", "app-support", [
         _b("chat", "Написать в поддержку", "Message support", "Написати в підтримку", "support_ticket", style="primary", icon="message"),
-        _b("faq", "Частые вопросы", "FAQ", "Часті питання", "open", "info", icon="help"),
+        _b("faq", "Частые вопросы", "FAQ", "Часті питання", "document", "faq", icon="help"),
+        _b("rules", "Правила сервиса", "Service rules", "Правила сервісу", "document", "rules", icon="file"),
         _b("status", "Состояние сервиса", "Service status", "Стан сервісу", "open", "status", icon="activity"),
         _b("channel", "Наш Telegram-канал", "Our Telegram channel", "Наш Telegram-канал", "telegram_channel", icon="send"),
     ]),
@@ -297,8 +306,38 @@ DEFAULT_SECTIONS = [
     _s("security", "security", "Вход и безопасность", "Sign-in and security", "Вхід і безпека", "key", "app-security", [
         _b("passkey", "Добавить ключ входа", "Add a passkey", "Додати ключ входу", "passkey_add", style="primary", icon="key"),
     ]),
-    _s("info", "info", "Информация", "Information", "Інформація", "info", "app-info", []),
+    _s("info", "info", "Информация", "Information", "Інформація", "info", "app-info", [
+        _b("support", "Написать в поддержку", "Message support", "Написати в підтримку", "support_ticket", style="secondary", icon="message"),
+    ], subtitle={"ru": "Частые вопросы, правила, политика конфиденциальности и оферта",
+                 "en": "FAQ, rules, privacy policy and public offer",
+                 "uk": "Часті питання, правила, політика конфіденційності та оферта"}),
 ]
+
+
+# Strings of the apps (mobile/l10n/user.json, copied to assets/mobile_strings.json): every one can be
+# replaced from the admin panel, per language. The apps use the replacement instead of their own text.
+STRINGS_FILE = __import__("pathlib").Path(__file__).resolve().parent / "assets" / "mobile_strings.json"
+
+
+def app_strings() -> dict[str, dict[str, str]]:
+    """key → {"ru": …, "en": …, "uk": …} of the strings bundled with the apps."""
+    raw = json.loads(STRINGS_FILE.read_text(encoding="utf-8"))
+    return {k: {lang: raw.get(lang, {}).get(k, "") for lang in LANGS} for k in raw["ru"]}
+
+
+# Blocks of the screens the administrator switches on and off.
+FEATURES: dict[str, str] = {
+    "header_support": "Главный экран: кнопка поддержки в шапке",
+    "header_notifications": "Главный экран: кнопка уведомлений в шапке",
+    "vpn_status": "Главный экран: статус VPN",
+    "vpn_plan_card": "Главный экран: карточка тарифа и трафика",
+    "vpn_location_card": "Главный экран: карточка локации",
+    "login_banner": "Экран входа: баннер",
+    "login_sign_up": "Экран входа: кнопка регистрации",
+    "login_passkey": "Экран входа: вход по ключу (passkey)",
+    "language_switch": "Экран входа: переключатель языка",
+    "settings_version": "Настройки: версия приложения",
+}
 
 
 class MobileLayout(_Strict):
@@ -308,6 +347,9 @@ class MobileLayout(_Strict):
     sections: list[Section] = Field(default_factory=lambda: [Section.model_validate(s) for s in DEFAULT_SECTIONS],
                                     min_length=1, max_length=40)
     texts: dict[str, Label] = Field(default_factory=dict)
+    # Replacements of the app strings (keys of mobile/l10n/user.json); an empty language keeps the app text.
+    strings: dict[str, LongText] = Field(default_factory=dict)
+    features: dict[str, bool] = Field(default_factory=lambda: {k: True for k in FEATURES})
     # Fixed links the actions use; empty values hide the buttons that need them.
     cabinet_url: str = Field(default="", max_length=1024)
     telegram_channel: str = Field(default="", max_length=1024)
@@ -320,6 +362,24 @@ class MobileLayout(_Strict):
         if unknown:
             raise ValueError("Неизвестные тексты: " + ", ".join(unknown[:5]))
         return value
+
+    @field_validator("strings")
+    @classmethod
+    def known_strings(cls, value):
+        unknown = sorted(set(value) - set(app_strings()))
+        if unknown:
+            raise ValueError("Неизвестные строки приложения: " + ", ".join(unknown[:5]))
+        if any(len(getattr(v, lang)) > 300 for v in value.values() for lang in LANGS):
+            raise ValueError("Строка приложения длиннее 300 символов")
+        return {k: v for k, v in value.items() if v.ru.strip() or v.en.strip() or v.uk.strip()}
+
+    @field_validator("features")
+    @classmethod
+    def known_features(cls, value):
+        unknown = sorted(set(value) - set(FEATURES))
+        if unknown:
+            raise ValueError("Неизвестные функции: " + ", ".join(unknown[:5]))
+        return {**{k: True for k in FEATURES}, **value}
 
     @model_validator(mode="after")
     def consistent(self):
@@ -398,7 +458,10 @@ def resolve_static(layout: MobileLayout, lang: str, urls: dict[str, str]) -> dic
         sections.append({"id": s.id, "kind": s.kind, "tab": s.tab, "title": s.title.pick(lang),
                          "subtitle": s.subtitle.pick(lang), "body": s.body.pick(lang), "icon": s.icon,
                          "banner": banner, "buttons": buttons})
-    doc = {"schema": 1, "lang": lang, "theme": layout.theme.model_dump(), "texts": texts,
+    # Only the language the administrator filled: an English app never shows a Russian replacement.
+    strings = {k: getattr(v, lang).strip() for k, v in layout.strings.items() if getattr(v, lang).strip()}
+    doc = {"schema": 1, "lang": lang, "theme": layout.theme.model_dump(), "texts": texts, "strings": strings,
+           "features": {**{k: True for k in FEATURES}, **layout.features},
            "tabs": [s["id"] for s in sections if s["tab"]], "sections": sections, "links": links}
     doc["version"] = hashlib.sha256(json.dumps(doc, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
     return doc
@@ -438,8 +501,8 @@ async def admin_mobile_layout(db: AsyncSession = Depends(get_db), admin=Depends(
     from .bot_banners import SECTIONS as BANNER_SECTIONS
     layout = await load(db)
     return {"layout": layout.model_dump(mode="json"), "defaults": defaults().model_dump(mode="json"),
-            "actions": ACTIONS, "import_apps": list(IMPORT_APPS), "icons": list(ICONS), "kinds": list(KINDS),
-            "texts": DEFAULT_TEXTS, "banner_keys": {k: v[0] for k, v in BANNER_SECTIONS.items()},
+            "actions": ACTIONS, "import_apps": list(IMPORT_APPS), "documents": {k: v for k, v in zip(DOCUMENTS, ("Частые вопросы", "Правила", "Политика конфиденциальности", "Публичная оферта"))}, "icons": list(ICONS), "kinds": list(KINDS),
+            "texts": DEFAULT_TEXTS, "strings": app_strings(), "features": FEATURES, "banner_keys": {k: v[0] for k, v in BANNER_SECTIONS.items()},
             "preview": {lang: await resolve_layout(db, lang) for lang in LANGS}}
 
 

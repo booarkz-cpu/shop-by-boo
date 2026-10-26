@@ -47,7 +47,7 @@ struct LayoutTheme {
 
 /// Actions the app implements; a button with anything else is not drawn.
 let knownActions: Set<String> = [
-    "connect", "open", "url", "cabinet", "telegram_channel", "import_app", "copy_subscription", "show_qr", "copy_id",
+    "connect", "open", "url", "document", "cabinet", "telegram_channel", "import_app", "copy_subscription", "show_qr", "copy_id",
     "buy", "pay_wallet", "trial", "topup", "redeem", "auto_location", "share_referral", "copy_referral", "family_invite",
     "support_ticket", "report_problem", "language", "push_toggle", "widget_toggle", "passkey_add", "refresh", "sign_out",
 ]
@@ -60,9 +60,14 @@ struct AppLayout {
     var tabs: [String] = []
     var sections: [LayoutSection] = []
     var links: [String: String] = [:]
+    /// Replacements of the app strings (l10n.json keys) set in the admin panel.
+    var strings: [String: String] = [:]
+    /// Screen blocks switched on or off in the admin panel; missing means on.
+    var features: [String: Bool] = [:]
 
     func section(_ id: String) -> LayoutSection? { sections.first { $0.id == id } }
     func text(_ key: String) -> String { texts[key] ?? key }
+    func feature(_ key: String) -> Bool { features[key] ?? true }
 
     init() {}
 
@@ -81,6 +86,8 @@ struct AppLayout {
                             radius: CGFloat(min(max(jsonInt(t["radius"]) ?? 22, 0), 40)))
         texts = (doc["texts"] as? [String: Any] ?? [:]).compactMapValues { $0 as? String }
         links = (doc["links"] as? [String: Any] ?? [:]).compactMapValues { $0 as? String }
+        strings = (doc["strings"] as? [String: Any] ?? [:]).compactMapValues { ($0 as? String).flatMap { $0.isEmpty ? nil : $0 } }
+        features = (doc["features"] as? [String: Any] ?? [:]).compactMapValues { $0 as? Bool }
         sections = (doc["sections"] as? [[String: Any]] ?? []).map { s in
             let buttons: [LayoutButton] = (s["buttons"] as? [[String: Any]] ?? []).compactMap { b in
                 let action = jsonText(b["action"])
@@ -250,6 +257,8 @@ struct ShopData {
     var passkeys: [[String: Any]] = []
     var config: [String: Any] = [:]
     var qr: UIImage?
+    /// Published shop documents (GET /api/public/info-pages): kind, title, banner.
+    var docs: [[String: Any]] = []
 
     var user: [String: Any] { dashboard["user"] as? [String: Any] ?? [:] }
     var subscription: [String: Any]? { dashboard["subscription"] as? [String: Any] }
@@ -532,5 +541,78 @@ struct InputField: View {
         .foregroundStyle(theme.text)
         .background(RoundedRectangle(cornerRadius: 16).fill(theme.surface))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(theme.surface2))
+    }
+}
+
+// MARK: - Documents («Бот и кабинет → Документы»)
+
+/// ``## heading``, ``- item``, ``**bold**`` and paragraphs, the same small format as the bot and the cabinet.
+struct DocumentText: View {
+    let text: String
+    let theme: LayoutTheme
+
+    private func rich(_ line: String) -> Text {
+        var out = Text("")
+        var rest = Substring(line)
+        while let start = rest.range(of: "**"), let end = rest[start.upperBound...].range(of: "**") {
+            out = out + Text(String(rest[..<start.lowerBound])).foregroundColor(theme.text)
+            out = out + Text(String(rest[start.upperBound..<end.lowerBound])).bold().foregroundColor(theme.accent2)
+            rest = rest[end.upperBound...]
+        }
+        return out + Text(String(rest)).foregroundColor(theme.text)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(Array(text.components(separatedBy: "\n").enumerated()), id: \.offset) { _, raw in
+                let line = raw.trimmingCharacters(in: .whitespaces)
+                if line.isEmpty { Spacer().frame(height: 4) }
+                else if line.hasPrefix("## ") { rich(String(line.dropFirst(3))).font(.system(size: 18, weight: .bold)) }
+                else if line.hasPrefix("- ") { rich("•  " + line.dropFirst(2)).font(.system(size: 15)) }
+                else { rich(line).font(.system(size: 15)) }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct DocumentView: View {
+    let layout: AppLayout
+    let base: String
+    let doc: [String: Any]
+    let onBack: () -> Void
+    let onLink: (String) -> Void
+    @State private var open: Set<Int> = []
+
+    var body: some View {
+        let theme = layout.theme
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                Button(action: onBack) { Image(systemName: "chevron.left").font(.system(size: 20, weight: .semibold)).foregroundStyle(theme.text) }
+                    .accessibilityLabel("Назад")
+                Text(jsonText(doc["title"])).font(.system(size: 26, weight: .bold)).foregroundStyle(theme.text)
+                let banner = jsonText(doc["banner"])
+                if !banner.isEmpty { SectionBannerView(base: base, banner: LayoutBanner(url: banner, link: ""), theme: theme, onLink: onLink) }
+                let text = jsonText(doc["body"])
+                if !text.isEmpty { CardView(theme: theme) { DocumentText(text: text, theme: theme) } }
+                ForEach(Array((doc["items"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { i, item in
+                    Button {
+                        if open.contains(i) { open.remove(i) } else { open.insert(i) }
+                    } label: {
+                        CardView(theme: theme) {
+                            HStack {
+                                Text(jsonText(item["question"])).fontWeight(.bold).foregroundStyle(theme.text).multilineTextAlignment(.leading)
+                                Spacer()
+                                Image(systemName: open.contains(i) ? "minus" : "plus").foregroundStyle(theme.accent)
+                            }
+                            if open.contains(i) { DocumentText(text: jsonText(item["answer"]), theme: theme) }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 18).padding(.vertical, 12).padding(.bottom, 24)
+        }
+        .background(theme.background.ignoresSafeArea())
     }
 }

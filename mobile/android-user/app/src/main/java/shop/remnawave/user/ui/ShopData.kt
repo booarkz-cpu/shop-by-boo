@@ -22,6 +22,8 @@ data class ShopData(
     val passkeys: JSONArray = JSONArray(),
     val config: JSONObject = JSONObject(),
     val qr: ImageBitmap? = null,
+    /** Published shop documents (GET /api/public/info-pages): kind, title, banner. */
+    val docs: JSONArray = JSONArray(),
 ) {
     val user: JSONObject get() = dashboard.optJSONObject("user") ?: JSONObject()
     val subscription: JSONObject? get() = dashboard.optJSONObject("subscription")
@@ -91,6 +93,7 @@ interface ShopActions {
     fun joinFamily(code: String)
     fun deletePasskey(passkeyId: Int)
     fun setTopupAmount(amount: String)
+    fun openDocument(kind: String)
 }
 
 fun formatBytes(bytes: Long): String {

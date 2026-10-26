@@ -22,12 +22,15 @@ struct UserRootView: View {
     @State private var layout = AppLayout()
     @State private var data = ShopData()
     @State private var vpn: VpnState = .off
+    @State private var connectingSince: Date?
     @State private var selectedPlan = 0
     @State private var topupAmount = "300"
     @State private var familyCode = ""
     @State private var sheet = ""
     @State private var sheetText = ""
     @State private var sheetText2 = ""
+    /// A document opened from «Информация» or a «Открыть документ» button.
+    @State private var openDoc: [String: Any]?
     @ObservedObject private var push = PushCenter.shared
     @State private var pushEnabled = PushCenter.shared.enabled
     private let vpnTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
@@ -49,7 +52,8 @@ struct UserRootView: View {
     }
 
     private var strings: [String: String] { loadStrings(lang) }
-    private func t(_ key: String) -> String { strings[key] ?? key }
+    // A string replaced in the admin panel («Строки приложения») wins over the bundled one.
+    private func t(_ key: String) -> String { layout.strings[key] ?? strings[key] ?? key }
     private var theme: LayoutTheme { layout.theme }
     private var appVersion: String { "Corgi Lusi " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "") }
 
@@ -74,7 +78,10 @@ struct UserRootView: View {
             if DemoMode.enabled { return }
             #endif
             let on = VpnClients.vpnActive()
-            if on { vpn = .on } else if vpn == .on { vpn = .off }
+            if on { vpn = .on; connectingSince = nil }
+            else if vpn == .on { vpn = .off }
+            // The tunnel is switched on in the client; without it the status returns to «off» in a minute.
+            else if vpn == .connecting, let since = connectingSince, Date().timeIntervalSince(since) > 60 { vpn = .off; connectingSince = nil }
         }
         .onChange(of: token) { value in
             if value.isEmpty { SessionKeychain.clear() }
@@ -106,9 +113,13 @@ struct UserRootView: View {
                 HStack {
                     Text(layout.text("brand")).font(.system(size: 30, weight: .black)).foregroundStyle(theme.accent)
                     Spacer()
-                    Button(Self.languageLabel(lang)) { lang = Self.nextLanguage(lang) }.foregroundStyle(theme.muted)
+                    if layout.feature("language_switch") {
+                        Button(Self.languageLabel(lang)) { lang = Self.nextLanguage(lang) }.foregroundStyle(theme.muted)
+                    }
                 }
-                SectionBannerView(base: base, banner: layout.sections.first { $0.kind == "vpn" }?.banner, theme: theme) { _ in }
+                if layout.feature("login_banner") {
+                    SectionBannerView(base: base, banner: layout.sections.first { $0.kind == "vpn" }?.banner, theme: theme) { _ in }
+                }
                 Text(t("welcome")).font(.system(size: 26, weight: .bold)).foregroundStyle(theme.text)
                 Text(t("tagline")).foregroundStyle(theme.muted)
                 if !notice.isEmpty { Text(notice).foregroundStyle(theme.accent2) }
@@ -116,9 +127,11 @@ struct UserRootView: View {
                 InputField(title: t("email"), text: $email, theme: theme)
                 InputField(title: t("password"), text: $password, theme: theme, secure: true)
                 ActionButtonView(button: LayoutButton(id: "sign_in", label: t("sign_in"), action: "refresh", target: "", style: "primary", icon: "user", audience: "any"), theme: theme, enabled: !busy) { authenticate("/api/auth/login") }
-                ActionButtonView(button: LayoutButton(id: "sign_up", label: t("sign_up"), action: "refresh", target: "", style: "secondary", icon: "plus", audience: "any"), theme: theme, enabled: !busy) { authenticate("/api/auth/register") }
+                if layout.feature("login_sign_up") { ActionButtonView(button: LayoutButton(id: "sign_up", label: t("sign_up"), action: "refresh", target: "", style: "secondary", icon: "plus", audience: "any"), theme: theme, enabled: !busy) { authenticate("/api/auth/register") } }
                 // Discoverable passkey: only the shop address is needed.
-                ActionButtonView(button: LayoutButton(id: "passkey", label: t("passkey_sign_in"), action: "refresh", target: "", style: "ghost", icon: "key", audience: "any"), theme: theme, enabled: !busy) { signInWithPasskey() }
+                if layout.feature("login_passkey") {
+                    ActionButtonView(button: LayoutButton(id: "passkey", label: t("passkey_sign_in"), action: "refresh", target: "", style: "ghost", icon: "key", audience: "any"), theme: theme, enabled: !busy) { signInWithPasskey() }
+                }
             }
             .padding(22)
         }
@@ -143,6 +156,9 @@ struct UserRootView: View {
 
     private var home: some View {
         VStack(spacing: 0) {
+            if let doc = openDoc {
+                DocumentView(layout: layout, base: base, doc: doc, onBack: { openDoc = nil }, onLink: { openExternal($0) })
+            } else {
             ZStack(alignment: .topLeading) {
                 ScrollView {
                     VStack(spacing: 14) {
@@ -158,7 +174,8 @@ struct UserRootView: View {
                     .accessibilityLabel("Назад")
                 }
             }
-            BottomBar(layout: layout, current: currentSection?.tab == true ? currentSection?.id ?? "" : "") { id in tab = id; notice = "" }
+            }
+            BottomBar(layout: layout, current: currentSection?.tab == true ? currentSection?.id ?? "" : "") { id in tab = id; openDoc = nil; notice = "" }
         }
     }
 
@@ -188,13 +205,14 @@ struct UserRootView: View {
             case "notifications": notificationsBody
             case "status": statusSection
             case "security": securityBody
+            case "info": infoBody
             default: EmptyView()
             }
             if !section.body.isEmpty { CardView(theme: theme) { Text(section.body).foregroundStyle(theme.text) } }
             let buttons = visible(section)
             if section.kind == "settings" || section.kind == "support" {
                 rows(buttons)
-                if section.kind == "settings" { Text(appVersion).font(.footnote).foregroundStyle(theme.muted) }
+                if section.kind == "settings" && layout.feature("settings_version") { Text(appVersion).font(.footnote).foregroundStyle(theme.muted) }
             } else {
                 ForEach(buttons) { b in ActionButtonView(button: b, theme: theme, enabled: !busy) { run(b) } }
             }
@@ -229,10 +247,10 @@ struct UserRootView: View {
         HStack {
             BrandTitle(brand: layout.text("brand"), theme: theme)
             Spacer()
-            if let support = layout.section("support") {
+            if layout.feature("header_support"), let support = layout.section("support") {
                 Button { tab = "support" } label: { Image(systemName: "headphones").font(.system(size: 22)).foregroundStyle(theme.text) }.accessibilityLabel(support.title)
             }
-            if let notifications = layout.section("notifications") {
+            if layout.feature("header_notifications"), let notifications = layout.section("notifications") {
                 Button { tab = "notifications" } label: { Image(systemName: "bell.fill").font(.system(size: 22)).foregroundStyle(theme.text) }.accessibilityLabel(notifications.title)
             }
         }
@@ -240,21 +258,24 @@ struct UserRootView: View {
         if !notice.isEmpty { noticeLine }
         SectionBannerView(base: base, banner: section.banner, theme: theme) { openExternal($0) }
         VStack(spacing: 10) {
+            if layout.feature("vpn_status") {
             switch vpn {
             case .on: StatusPill(text: layout.text("status_on"), color: theme.success, theme: theme)
             case .connecting: StatusPill(text: layout.text("status_connecting"), color: theme.accent2, theme: theme)
             case .off: StatusPill(text: layout.text("status_off"), color: theme.muted, theme: theme)
+            }
             }
             if let connect {
                 PowerButton(state: vpn, theme: theme, label: connect.label) { run(connect) }
                 Text(connect.label).font(.system(size: 18, weight: .bold)).foregroundStyle(theme.text)
             }
         }
-        planSummary
-        if let location {
+        if layout.feature("vpn_plan_card") { planSummary }
+        let showLocation = location != nil && layout.feature("vpn_location_card")
+        if showLocation, let location {
             Button { run(location) } label: { locationCard }.buttonStyle(.plain)
         }
-        ForEach(buttons.filter { $0 != connect && $0 != location }) { b in ActionButtonView(button: b, theme: theme, enabled: !busy) { run(b) } }
+        ForEach(buttons.filter { $0 != connect && ($0 != location || !showLocation) }) { b in ActionButtonView(button: b, theme: theme, enabled: !busy) { run(b) } }
     }
 
     private var trafficLeft: (String, Double?) {
@@ -635,14 +656,15 @@ struct UserRootView: View {
             if DemoMode.enabled { vpn = vpn == .on ? .off : .on; return }
             #endif
             switch VpnClients.connect(data.subscriptionUrl) {
-            case .imported: vpn = .connecting; notice = t("vpn_imported")
+            case .imported: vpn = .connecting; connectingSince = Date(); notice = t("vpn_imported")
             case .opened: notice = t("vpn_opened")
             case .noClient: sheet = "install"
             case .noSubscription:
                 notice = t("need_subscription")
                 if let premium = layout.sections.first(where: { $0.kind == "premium" }) { tab = premium.id }
             }
-        case "open": if layout.section(button.target) != nil { tab = button.target; notice = "" }
+        case "open": if layout.section(button.target) != nil { tab = button.target; openDoc = nil; notice = "" }
+        case "document": openDocument(button.target)
         case "url": openExternal(button.target)
         case "cabinet": openExternal(layout.links["cabinet"] ?? "")
         case "telegram_channel": openExternal(layout.links["telegram_channel"] ?? "")
@@ -668,6 +690,39 @@ struct UserRootView: View {
         case "refresh": refresh()
         case "sign_out": signOut()
         default: break  // widget_toggle: the iOS app has no home screen widget yet
+        }
+    }
+
+    @ViewBuilder private var infoBody: some View {
+        if data.docs.isEmpty { Text(layout.text("offline")).foregroundStyle(theme.muted) }
+        ForEach(Array(data.docs.enumerated()), id: \.offset) { _, doc in
+            Button { openDocument(jsonText(doc["kind"])) } label: {
+                CardView(theme: theme) {
+                    HStack {
+                        Text(jsonText(doc["title"])).font(.system(size: 17, weight: .bold)).foregroundStyle(theme.text)
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(theme.muted)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func openDocument(_ kind: String) {
+        guard ["faq", "rules", "privacy", "offer"].contains(kind) else { return }
+        #if DEBUG
+        if DemoMode.enabled {
+            let title = layout.sections.flatMap(\.buttons).first { $0.action == "document" && $0.target == kind }?.label ?? kind
+            openDoc = ["kind": kind, "title": title, "banner": "/api/bot/banners/default/app-info.jpg",
+                       "body": "## Корги Люси\n- Один аккаунт — до пяти устройств\n- Возврат в течение **30 дней**\n\nВопросы — в поддержку."]
+            return
+        }
+        #endif
+        let (origin, session, language) = (base, token, lang)
+        work {
+            let page = try ShopClient(base: origin, token: session, lang: language).call("GET", "/api/public/info-pages/\(kind)?lang=\(language)") as? [String: Any]
+            DispatchQueue.main.async { openDoc = page }
         }
     }
 
@@ -779,6 +834,8 @@ struct UserRootView: View {
                 next.family = (try? api.call("GET", "/api/me/family")) as? [String: Any] ?? [:]
                 next.status = (try? api.call("GET", "/api/public/service-status")) as? [String: Any] ?? [:]
                 next.passkeys = (try? ShopPasskeys.list(base: origin, session: session, lang: language)) ?? []
+                // Shops before v28.29.0 have no documents: the section stays empty.
+                next.docs = (try? api.call("GET", "/api/public/info-pages?lang=\(language)")) as? [[String: Any]] ?? []
                 // Re-bind a rotated APNs token, or the same token to a re-issued session.
                 if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
                     _ = try? PushCenter.register(base: origin, session: session, lang: language, token: current)
@@ -998,6 +1055,8 @@ extension UserRootView {
                        "countries": [["country": "DE", "online": 2, "total": 2], ["country": "NL", "online": 1, "total": 1], ["country": "FI", "online": 2, "total": 2]],
                        "components": [], "incidents": []]
         demo.notifications = [["id": 1, "title": "Подписка продлена", "body": "Спасибо! Следующее списание через 214 дней", "read": false]]
+        demo.docs = [["kind": "faq", "title": "Частые вопросы"], ["kind": "rules", "title": "Правила"],
+                     ["kind": "privacy", "title": "Политика конфиденциальности"], ["kind": "offer", "title": "Публичная оферта"]]
         data = demo
     }
 }

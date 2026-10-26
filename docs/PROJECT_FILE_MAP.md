@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1422**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1424**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -105,6 +105,7 @@
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
+| [admin/e2e/documents-banner.spec.ts](../admin/e2e/documents-banner.spec.ts) | Админ-панель |
 | [admin/e2e/fraud-decisions.spec.ts](../admin/e2e/fraud-decisions.spec.ts) | Админ-панель |
 | [admin/e2e/growth.spec.ts](../admin/e2e/growth.spec.ts) | Админ-панель |
 | [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
@@ -314,6 +315,7 @@
 | [backend/app/assets/bot_banners/surveys.jpg](../backend/app/assets/bot_banners/surveys.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/topup.jpg](../backend/app/assets/bot_banners/topup.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
+| [backend/app/assets/mobile_strings.json](../backend/app/assets/mobile_strings.json) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
