@@ -37,15 +37,6 @@ def test_provisioning_retries_reuse_persisted_target():
     assert 'await db.commit()' in MAIN[MAIN.index('persisted_before=op_row.expected_before_expires_at'):MAIN.index('extension=await rw.extend_idempotent', MAIN.index('persisted_before=op_row.expected_before_expires_at'))]
 
 
-def test_remote_extension_rejects_unexpected_advanced_expiry():
-    assert 'Remote expiry advanced unexpectedly; reconciliation is required' in RW
-
-
-def test_existing_remote_user_receives_purchased_traffic_and_profile_terms():
-    assert 'await rw.update_entitlements(sub.remnawave_uuid,traffic_limit_gb,profile_id,device_limit=payment.device_limit_snapshot)' in MAIN
-    assert 'async def update_entitlements' in RW
-
-
 def test_new_migration_is_current_head():
     assert 'revision = "0027_v44_5_10_financial_integrity"' in MIG
     assert 'down_revision = "0026_v44_5_9_retry_hardening"' in MIG
@@ -74,19 +65,6 @@ def test_payment_provider_id_is_nullable_for_durable_external_intents():
     assert 'provider_payment_id=None' in MAIN
 
 
-def test_auto_renew_persists_intent_before_external_charge():
-    marker = 'Persist the payment intent BEFORE the external charge.'
-    assert marker in MAIN
-    assert MAIN.index('db.add(payment); await db.flush()') < MAIN.index('result=await YooKassaProvider().charge_recurring', MAIN.index(marker))
-
-
-def test_auto_renew_retries_same_durable_order_id():
-    assert 'existing.status=="creating" and existing.provider_payment_id is None' in MAIN
-    # v28.27.0: the lost charge is adopted first; behaviour is tested in test_money_review.py.
-    assert 'adopted=await adopt_or_retry_recurring(existing,method,plan)' in MAIN
-    assert 'charge_recurring(Decimal(str(payment.amount)),payment.order_id' in MAIN
-
-
 def test_interactive_checkout_persists_intent_before_provider_call():
     marker = 'Durable payment intent BEFORE the external provider call.'
     assert marker in MAIN
@@ -103,3 +81,6 @@ def test_interactive_checkout_never_falls_back_after_ambiguous_creation():
 def test_existing_uncertain_non_yookassa_payment_is_not_automatically_recharged():
     assert 'if existing.provider != "yookassa":' in MAIN
     assert 'Повторное списание заблокировано' in MAIN
+
+
+# v28.30.0: the remote-extension, entitlement, auto-renew intent and retry checks now run the code: tests/test_behaviour_payments.py, tests/test_money_review.py.

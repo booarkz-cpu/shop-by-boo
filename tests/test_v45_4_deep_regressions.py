@@ -17,13 +17,6 @@ def test_admin_login_rate_limit_uses_real_client_ip_behind_proxy():
     assert 'client_ip=request.client.host' not in s
 
 
-def test_existing_remote_fulfillment_uses_entitlement_snapshot():
-    s = section('async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str|None = None):', 'async def payment_by_provider')
-    # v28.27.0: remaining days are kept (test_money_review.py checks the behaviour).
-    assert 'target_expiry=base_expiry+timedelta(days=duration_days)' in s
-    assert 'timedelta(days=plan.duration_days), remote_expiry' not in s
-
-
 def test_refund_reconciler_revokes_and_claws_back_referral_reward():
     s = section('async def refund_revoke_scheduler():', 'async def auto_renew_scheduler():')
     assert '_safe_revoke_for_refunded_payment' in s
@@ -36,3 +29,6 @@ def test_refund_paths_reverse_referral_reward_once():
     reconcile = section('@app.post("/api/admin/refunds/{refund_id}/reconcile")', '@app.get("/api/admin/v41/referrals")')
     assert '_reverse_referral_reward_for_refund(edb,pp,admin.email)' in execute
     assert '_reverse_referral_reward_for_refund(db,p,admin.email)' in reconcile
+
+
+# v28.30.0: remote-user recovery is tested by behaviour in tests/test_money_review.py (test_a_purchase_found_by_username_adds_all_paid_days).

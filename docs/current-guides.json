@@ -114,6 +114,7 @@
     "docs/ru/RELEASE_V28_27_0.md",
     "docs/ru/RELEASE_V28_28_0.md",
     "docs/ru/RELEASE_V28_29_0.md",
+    "docs/ru/RELEASE_V28_30_0.md",
     "docs/ru/RUNTIME_SETTINGS_CURRENT.md",
     "docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md",
     "docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md",
@@ -183,5 +184,5 @@
     "docs/ru/modules/29-fraud.md",
     "docs/ru/modules/30-backups-recovery.md"
   ],
-  "distribution_tag": "v28.29.0"
+  "distribution_tag": "v28.30.0"
 }

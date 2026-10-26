@@ -1,0 +1,87 @@
+name: Mobile screenshots
+
+# Screenshots of the customer apps for README and store listings. Debug builds start in
+# demo mode (fixed data, no network): Android with --ez corgi_demo true, iOS with -CorgiDemo.
+# The pictures are uploaded as the "mobile-screenshots" artifact of the run.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ['mobile/android-user/**', 'mobile/ios-user/**', 'mobile/l10n/**', '.github/workflows/mobile-screenshots.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android screenshots
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+      - name: Build debug application
+        working-directory: mobile/android-user
+        run: bash gradlew assembleDebug --no-daemon
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Take screenshots on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            adb install -r mobile/android-user/app/build/outputs/apk/debug/app-debug.apk
+            mkdir -p shots
+            for tab in overview plans family status; do adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab $tab --es corgi_lang ru; sleep 6; adb exec-out screencap -p > shots/android-$tab.png; done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: mobile-screenshots-android
+          path: shots/*.png
+          if-no-files-found: error
+
+  ios:
+    name: iOS screenshots
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build simulator application
+        working-directory: mobile/ios-user
+        run: xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Take screenshots in the simulator
+        run: |
+          set -eu
+          device=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
+          xcrun simctl boot "$device"
+          xcrun simctl bootstatus "$device" -b
+          xcrun simctl status_bar "$device" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          app=$(find mobile/ios-user/build/Build/Products -name 'VpnShopUser.app' -maxdepth 3 | head -1)
+          xcrun simctl install "$device" "$app"
+          bundle=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
+          mkdir -p shots
+          for tab in overview plans family status; do
+            xcrun simctl launch --terminate-running-process "$device" "$bundle" -CorgiDemo -CorgiTab "$tab" -shop_lang ru
+            sleep 6
+            xcrun simctl io "$device" screenshot "shots/ios-$tab.png"
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: mobile-screenshots-ios
+          path: shots/*.png
+          if-no-files-found: error
