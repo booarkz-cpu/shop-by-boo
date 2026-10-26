@@ -11,7 +11,7 @@
 - Админка и кабинет: React 19.3.1, TypeScript 7.0.2, lucide-react 1.61, Radix UI, Vitest 5.0.5, jsdom 30.1.3, Playwright 1.64.1.
 - GitHub Actions: setup-node 7, setup-java 6, github-script 9, upload-artifact 7, download-artifact 8.
 
-**Support Pro: один список версий.** Образ ставит `support-pro/app/requirements.txt`, а `support-pro/requirements.txt` теперь только подключает его. Раньше это были две копии: обновление одной оставляло образ на версиях, которые тесты не проверяли. Dependabot обновляет файл образа; `tests/test_dependency_locks.py` следит за правилом.
+**Support Pro: один список версий.** Рядом с `support-pro/requirements.txt` (его ставят тесты и образ, его обновляет Dependabot) лежала копия `support-pro/app/requirements.txt`, которую проверял только аудит уязвимостей. Копия удалена; `tests/test_dependency_locks.py` следит, чтобы образ ставил тот же файл, что и тесты.
 
 **Правила Dependabot:** мажорные версии `@types/node` не предлагаются (рантайм — Node 22), `pydantic` для Support Pro — ниже 2.14 до поддержки в `aiogram`. Порядок работы с обновлениями — [модуль 27](modules/27-releases-updates.md#обновления-зависимостей-dependabot).
 

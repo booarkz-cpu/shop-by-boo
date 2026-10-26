@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1293**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1292**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1088,7 +1088,6 @@
 | [support-pro/app/outbound.py](../support-pro/app/outbound.py) | Support Pro |
 | [support-pro/app/portal.py](../support-pro/app/portal.py) | Support Pro |
 | [support-pro/app/realtime.py](../support-pro/app/realtime.py) | Support Pro |
-| [support-pro/app/requirements.txt](../support-pro/app/requirements.txt) | Support Pro |
 | [support-pro/app/schema_v2.json](../support-pro/app/schema_v2.json) | Support Pro |
 | [support-pro/app/security.py](../support-pro/app/security.py) | Support Pro |
 | [support-pro/app/services.py](../support-pro/app/services.py) | Support Pro |

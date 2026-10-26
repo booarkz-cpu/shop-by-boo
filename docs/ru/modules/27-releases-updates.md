@@ -57,13 +57,13 @@ docker compose logs --tail=100 backend worker bot
 
 ## Обновления зависимостей (Dependabot)
 
-Раз в неделю (по понедельникам) Dependabot открывает PR с обновлениями: Python-пакеты магазина (`backend/requirements.txt`) и Support Pro (`support-pro/app/requirements.txt`), npm-пакеты админки и кабинета, базовый образ backend и GitHub Actions. Минорные и патч-обновления приходят одним PR на проект, мажорные — отдельными.
+Раз в неделю (по понедельникам) Dependabot открывает PR с обновлениями: Python-пакеты магазина (`backend/requirements.txt`) и Support Pro (`support-pro/requirements.txt`), npm-пакеты админки и кабинета, базовый образ backend и GitHub Actions. Минорные и патч-обновления приходят одним PR на проект, мажорные — отдельными.
 
 Каждый PR проходит полный CI: тесты магазина и Support Pro, сборки, e2e в Chromium и аудит уязвимостей. Мержить можно только зелёный PR; мажорные обновления дополнительно читайте в заметках пакета.
 
 Правила проекта:
 
-- **Support Pro — один список версий.** Образ ставит `support-pro/app/requirements.txt`, а `support-pro/requirements.txt` только подключает его (`-r app/requirements.txt`), поэтому тесты и образ всегда на одних версиях (`tests/test_dependency_locks.py`).
+- **Support Pro — один список версий** `support-pro/requirements.txt`: его ставят и тесты, и образ (контекст сборки — `support-pro`). Вторая копия `support-pro/app/requirements.txt` удалена, чтобы версии не расходились (`tests/test_dependency_locks.py`).
 - **SQLAlchemy 2.1+ ставится как `sqlalchemy[asyncio]`**: иначе не установится `greenlet` и асинхронный движок не запустится.
 - **`@types/node` — только мажорная версия рантайма** (образы и CI на Node 22); мажорные обновления типов Dependabot не предлагает.
 - **`pydantic` в Support Pro — ниже 2.14**, пока `aiogram` не поддержит новее.

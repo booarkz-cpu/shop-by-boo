@@ -9,8 +9,8 @@ updates:
     groups:
       backend-minor: {update-types: [minor, patch]}
   - package-ecosystem: pip
-    # The image installs support-pro/app/requirements.txt; support-pro/requirements.txt includes it.
-    directory: /support-pro/app
+    # support-pro/requirements.txt is the only Support Pro lock: tests and the image install it.
+    directory: /support-pro
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:
