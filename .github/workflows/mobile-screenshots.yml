@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       commit:
-        description: "Commit the screenshots (mobile, admin panel, cabinet) to the branch"
+        description: "Commit the screenshots (mobile, admin panel, cabinet) to a screenshots-<run> tag"
         type: boolean
         default: false
   pull_request:
@@ -171,7 +171,7 @@ jobs:
           if-no-files-found: error
 
   commit:
-    name: Commit screenshots to the branch
+    name: Commit screenshots to a tag
     if: github.event_name == 'workflow_dispatch' && inputs.commit
     needs: [android, ios, admin]
     runs-on: ubuntu-24.04
@@ -205,13 +205,9 @@ jobs:
             git commit -q -m "Скриншоты: приложения Android/iOS, админ-панель и кабинет (workflow Mobile screenshots)"
           }
           commit
-          # The branch may have moved while the screenshots were taken: replay on top of it and retry.
-          for attempt in 1 2 3; do
-            git push origin "HEAD:${{ github.ref_name }}" && exit 0
-            git fetch origin "${{ github.ref_name }}"
-            git reset -q --soft "origin/${{ github.ref_name }}"
-            git checkout -q "origin/${{ github.ref_name }}" -- README.md docs/PROJECT_FILE_MAP.md
-            git reset -q
-            commit
-          done
-          exit 1
+          # Branches accept pushes only from trusted apps (repository ruleset), so the pictures go to a
+          # tag; the maintainer takes them into the branch: git checkout screenshots-<run> -- screenshots README.md
+          tag="screenshots-${{ github.run_id }}"
+          git tag "$tag"
+          git push origin "refs/tags/$tag"
+          echo "::notice title=screenshots::git fetch origin tag $tag && git checkout $tag -- screenshots README.md docs/PROJECT_FILE_MAP.md"

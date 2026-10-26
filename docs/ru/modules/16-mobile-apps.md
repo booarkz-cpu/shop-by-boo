@@ -137,7 +137,7 @@ Workflow **Mobile screenshots** (`.github/workflows/mobile-screenshots.yml`) з�
 2. Запускает их в эмуляторе Android и симуляторе iPhone в демо-режиме.
 3. Снимает экраны всех вкладок, экраны «Устройства», «Семья» и «Состояние сервиса», главный экран с подключённым VPN и английскую версию.
 4. Выкладывает снимки как артефакты `mobile-screenshots-android` и `mobile-screenshots-ios` на странице запуска.
-5. При ручном запуске с отметкой «commit» снимает ещё все разделы админ-панели и кабинета, обновляет раздел «Скриншоты» в README и коммитит картинки в ветку (`screenshots/mobile`, `screenshots/admin_panel`, `screenshots/storefront_user`).
+5. При ручном запуске с отметкой «commit» снимает ещё все разделы админ-панели и кабинета, обновляет раздел «Скриншоты» в README и коммитит картинки в тег `screenshots-<номер запуска>` (`screenshots/mobile`, `screenshots/admin_panel`, `screenshots/storefront_user`, README); в ветку их переносит владелец: `git fetch origin tag screenshots-N && git checkout screenshots-N -- screenshots README.md`. Пушить в ветки напрямую workflow не может: так настроены правила репозитория.
 
 Демо-режим есть только в отладочных сборках. На Android его включает `--ez corgi_demo true` (раздел — `--es corgi_tab vpn|subscription|premium|…`, язык — `--es corgi_lang`, подключённый VPN — `--ez corgi_vpn_on true`), на iOS — `-CorgiDemo` (раздел — `-CorgiTab`, подключённый VPN — `-CorgiVpnOn`). В этом режиме данные фиксированы, сеть не используется, сессия не сохраняется. На Android в демо-режиме снят запрет снимков экрана (`FLAG_SECURE`), в рабочих сборках он действует как раньше.
 
