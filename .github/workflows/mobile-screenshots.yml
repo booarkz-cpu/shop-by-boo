@@ -48,7 +48,9 @@ jobs:
           script: |
             adb install -r mobile/android-user/app/build/outputs/apk/debug/app-debug.apk
             mkdir -p shots
-            for tab in overview plans family status; do adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab $tab --es corgi_lang ru; sleep 6; adb exec-out screencap -p > shots/android-$tab.png; done
+            for tab in vpn subscription premium locations settings support devices family status; do adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab $tab --es corgi_lang ru; sleep 6; adb exec-out screencap -p > shots/android-$tab.png; done
+            adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --ez corgi_vpn_on true --es corgi_tab vpn --es corgi_lang ru; sleep 6; adb exec-out screencap -p > shots/android-vpn-on.png
+            adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab vpn --es corgi_lang en; sleep 6; adb exec-out screencap -p > shots/android-vpn-en.png
       - uses: actions/upload-artifact@v7
         with:
           name: mobile-screenshots-android
@@ -75,7 +77,7 @@ jobs:
           xcrun simctl install "$device" "$app"
           bundle=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
           mkdir -p shots
-          for tab in overview plans family status; do
+          for tab in vpn subscription premium locations settings support devices family status; do
             xcrun simctl launch --terminate-running-process "$device" "$bundle" -CorgiDemo -CorgiTab "$tab" -shop_lang ru
             sleep 6
             xcrun simctl io "$device" screenshot "shots/ios-$tab.png"

@@ -11,8 +11,8 @@ android {
         applicationId = "shop.remnawave.user"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2160
-        versionName = "2.16.0"
+        versionCode = 3000
+        versionName = "3.0.0"
         // Historical compatibility marker: versionName = "2.9.0"
         // Firebase client identifiers for FCM push (public values, not secrets).
         // Empty values build the app without push; see docs/ru/PUSH_NOTIFICATIONS_CURRENT.md.
@@ -64,6 +64,8 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
+    // Icons of the layout buttons and tabs (backend/app/mobile_layout.py ICONS).
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.biometric:biometric:1.1.0")
     // FCM without the google-services plugin: FirebaseApp is initialised from BuildConfig.
