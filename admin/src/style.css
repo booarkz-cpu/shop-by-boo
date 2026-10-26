@@ -392,3 +392,5 @@ html[data-theme="light"]{color-scheme:light}
 .ops-ok{background:rgba(34,197,94,.18);color:#22c55e}.ops-bad{background:rgba(239,68,68,.18);color:#ef4444}.ops-warn{background:rgba(234,179,8,.18);color:#eab308}
 .ops-problem{padding:10px 0;border-top:1px solid var(--border, rgba(255,255,255,.08))}
 .ops-summary{white-space:pre-wrap;background:var(--panel-2,rgba(255,255,255,.04));padding:12px 14px;border-radius:10px;font:13px/1.5 ui-monospace,monospace}
+.doc-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.doc-faq{border:1px solid var(--line,rgba(255,255,255,.08));border-radius:12px;padding:12px;margin:10px 0}

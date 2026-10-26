@@ -96,6 +96,8 @@ from .remnawave_shop_api import router as remnawave_shop_router
 from .marketplace_api import router as marketplace_router
 from .runtime_settings import refresh_runtime_settings, router as runtime_settings_router, runtime_settings_scheduler
 app.include_router(cabinet_router)
+from .info_pages import router as info_pages_router
+app.include_router(info_pages_router)
 app.include_router(customer_workspace_router)
 app.include_router(customer_profile_router)
 app.include_router(history_import_router)

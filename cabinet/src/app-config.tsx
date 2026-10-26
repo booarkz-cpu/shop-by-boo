@@ -17,7 +17,7 @@ export type NavItem = {slug: string; title: string; kind: string; icon: string; 
 export type PromoCard = {id: string; title: string; text: string; discount: string; ends_at: string | null; button_text: string; link: string; image?: string};
 export type ServerCategory = {id: string; title: string; icon: string; countries: string[]; match: string[]};
 export type PaymentMethod = {id: string; title: string; icon: string; provider: string; yookassa_method: string; available: boolean};
-export type InfoPage = {slug: string; title: string; kind: string};
+export type InfoPage = {slug: string; title: string; kind: string; source?: "info"};
 export type AppConfig = {
   schema: number;
   version: string;

@@ -92,6 +92,15 @@ async function settle(page) {
     await api('/api/admin/promo-codes', 'POST', {code: 'SUMMER25', kind: 'percent', value: 25});
     await api('/api/admin/promo-codes', 'POST', {code: 'WELCOME10', kind: 'percent', value: 10});
     await api('/api/admin/promotions', 'POST', {name: 'Чёрная пятница', kind: 'percent', value: 30});
+    // Documents for «Информация» (demo texts, not legal advice).
+    await api('/api/admin/info-pages/faq', 'PUT', {enabled: true, ru: {title: '', body: 'Ответы на вопросы, которые нам задают чаще всего.', items: [
+      {question: 'Как подключиться после оплаты?', answer: 'Откройте раздел «Подключение», выберите своё устройство и нажмите **Добавить подписку** — приложение настроится само.'},
+      {question: 'Сколько устройств можно подключить?', answer: 'Столько, сколько указано в тарифе. Лишнее устройство можно отключить в разделе «Устройства».'},
+      {question: 'Как вернуть деньги?', answer: 'Напишите в поддержку в течение 14 дней после оплаты — вернём тем же способом.'},
+      {question: 'Можно ли поделиться подпиской с семьёй?', answer: 'Да, на тарифах с семейными местами: пригласите близких в разделе «Семья».'}]}});
+    await api('/api/admin/info-pages/rules', 'PUT', {enabled: true, ru: {title: '', body: '## Общие положения\nПользуясь сервисом, вы соглашаетесь с этими правилами.\n\n## Запрещено\n- рассылка спама и вредоносных программ;\n- передача доступа третьим лицам за плату;\n- действия, нарушающие закон.\n\n## Нарушения\nПри нарушении правил доступ может быть **приостановлен** до выяснения обстоятельств.', items: []}});
+    await api('/api/admin/info-pages/privacy', 'PUT', {enabled: true, ru: {title: '', body: '## Какие данные мы храним\n- email или Telegram ID для входа;\n- историю платежей;\n- список подключённых устройств.\n\n## Чего мы не храним\nМы не записываем посещённые сайты и содержимое трафика.\n\n## Удаление данных\nУдалить аккаунт и данные можно в разделе «Безопасность».', items: []}});
+    await api('/api/admin/info-pages/offer', 'PUT', {enabled: true, ru: {title: '', body: '## 1. Предмет оферты\nИсполнитель предоставляет доступ к сервису на срок оплаченного тарифа.\n\n## 2. Оплата\nОплата принимается картой, через СБП и Telegram Stars. Доступ открывается сразу после подтверждения оплаты.\n\n## 3. Возврат\nВозврат возможен в течение 14 дней по обращению в поддержку.', items: []}});
   });
   // Mail domain: two DMARC aggregate reports and a DNS check (the stand sets MAIL_DOMAIN;
   // without a reachable DNS-over-HTTPS resolver the check shows "not performed").
@@ -197,6 +206,19 @@ const cabinet = [
     await page.waitForTimeout(1200);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({path: path.join(userDir, `${name}.png`)});
+    if (name === '21_info') {
+      // Two documents from «Документы»: the FAQ with an opened answer and the public offer.
+      for (const [shot, title] of [['22_faq', 'Частые вопросы'], ['23_offer', 'Публичная оферта']]) {
+        await page.getByRole('button', {name: title}).first().click();
+        await page.waitForTimeout(1200);
+        if (shot === '22_faq') await page.locator('summary').first().click();
+        await page.waitForTimeout(300);
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await page.screenshot({path: path.join(userDir, `${shot}.png`)});
+        await page.getByRole('button', {name: '← Все документы'}).click();
+        await page.waitForTimeout(500);
+      }
+    }
     if (name === '04_plans') {
       // Checkout result: pay for the first plan from the plans page.
       await page.evaluate(csrfFetch);

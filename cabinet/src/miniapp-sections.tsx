@@ -347,6 +347,36 @@ export function SupportButtons({go}: {go: (slug: string) => void}) {
 
 const INFO_ICON: Record<string, string> = {faq: "help", rules: "list", privacy: "lock", offer: "file", other: "info"};
 
+/** Inline **bold** and https links of a document written in «Документы». */
+function Inline({text}: {text: string}) {
+  const parts = text.split(/(\*\*[^*]+\*\*|https:\/\/[^\s)]+)/g);
+  return <>{parts.map((part, i) => part.startsWith("**") && part.endsWith("**") && part.length > 4 ? <b key={i}>{part.slice(2, -2)}</b>
+    : part.startsWith("https://") ? <a key={i} href={part} target="_blank" rel="noreferrer noopener">{part}</a> : <React.Fragment key={i}>{part}</React.Fragment>)}</>;
+}
+
+/** Renders the small document format: "## " headings, "- " lists, paragraphs, FAQ items. */
+export function DocText({page}: {page: {body?: string; items?: {question: string; answer: string}[]}}) {
+  const blocks: React.ReactNode[] = [];
+  let list: string[] = [];
+  let para: string[] = [];
+  const flush = () => {
+    if (para.length) { blocks.push(<p key={`p${blocks.length}`}>{para.map((l, i) => <React.Fragment key={i}>{i > 0 && <br />}<Inline text={l} /></React.Fragment>)}</p>); para = []; }
+    if (list.length) { blocks.push(<ul key={`l${blocks.length}`}>{list.map((l, i) => <li key={i}><Inline text={l} /></li>)}</ul>); list = []; }
+  };
+  for (const raw of (page.body || "").split("\n")) {
+    const line = raw.trimEnd();
+    if (line.startsWith("## ")) { flush(); blocks.push(<h3 key={`h${blocks.length}`}>{line.slice(3)}</h3>); }
+    else if (/^[-*] /.test(line)) { if (para.length) { const keep = list; list = []; flush(); list = keep; } list.push(line.slice(2)); }
+    else if (!line.trim()) flush();
+    else { if (list.length) { const keep = para; para = []; flush(); para = keep; } para.push(line); }
+  }
+  flush();
+  return <div className="doc-text">
+    {blocks}
+    {(page.items || []).length > 0 && <div className="faq-list">{page.items!.map((item, i) => <details key={i} className="faq-item"><summary>{item.question}</summary><p><Inline text={item.answer} /></p></details>)}</div>}
+  </div>;
+}
+
 export function InfoSection({request, locale}: {request: Request; locale: string}) {
   const {config} = useAppConfig();
   const pages: InfoPage[] = config.info?.pages || [];
@@ -357,16 +387,23 @@ export function InfoSection({request, locale}: {request: Request; locale: string
     if (!open) return;
     let live = true;
     setPage(null); setError("");
-    request(`/api/public/pages/${encodeURIComponent(open.slug)}?locale=${locale === "en" ? "en" : "ru"}`)
+    const url = open.source === "info"
+      ? `/api/public/info-pages/${encodeURIComponent(open.kind)}?lang=${["en", "uk"].includes(locale) ? locale : "ru"}`
+      : `/api/public/pages/${encodeURIComponent(open.slug)}?locale=${locale === "en" ? "en" : "ru"}`;
+    request(url)
       .then((p) => live && setPage(p)).catch((e) => live && setError(e.message));
     return () => { live = false; };
   }, [open, locale, request]);
+  const top = React.useRef<HTMLElement>(null);
+  // The document's own banner replaces the «Информация» one at the top of the screen.
+  useEffect(() => { if (page && open?.source === "info") top.current?.scrollIntoView?.({block: "start"}); }, [page, open]);
   if (open) return (
-    <article className="info-page">
+    <article className="info-page" ref={top}>
       <button type="button" className="btn-link" onClick={() => setOpen(null)}>← Все документы</button>
       {error && <p role="alert" className="error">{error}</p>}
       {!page && !error && <Skeleton className="sk-card" />}
-      {page && <><h2 className="section-title">{page.title}</h2>{page.summary && <p className="section-sub">{page.summary}</p>}<ContentBlocks blocks={page.blocks || []} /></>}
+      {page && open.source === "info" && <><SectionBanner kind={open.kind} title={page.title} /><h2 className="section-title">{page.title}</h2><DocText page={page} /></>}
+      {page && open.source !== "info" && <><h2 className="section-title">{page.title}</h2>{page.summary && <p className="section-sub">{page.summary}</p>}<ContentBlocks blocks={page.blocks || []} /></>}
     </article>
   );
   return (

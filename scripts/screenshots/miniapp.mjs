@@ -37,6 +37,8 @@ const live = {...config, version: "screenshots", offline: false, viewer: {first_
     {id: "stars", title: "Telegram Stars", icon: "star", provider: "telegram_stars", yookassa_method: "", available: true}],
     stars: {enabled: true, rate: "1.5", min_stars: 50}},
   support: {ticket_form: true, buttons: [{title: "Написать в Telegram", icon: "send", link: "https://t.me/corgi_lusi_bot"}, {title: "Частые вопросы", icon: "help", link: "#info"}, {title: "Почта", icon: "mail", link: "https://example.com/support"}]},
+  info: {pages: [["faq", "Частые вопросы"], ["rules", "Правила"], ["privacy", "Политика конфиденциальности"], ["offer", "Публичная оферта"]]
+    .map(([kind, title]) => ({slug: kind, title, kind, source: "info"}))},
   navigation: [...config.navigation.filter((n) => n.kind !== "info"),
     {slug: "wallet", title: "Кошелёк", kind: "wallet", icon: "wallet", banner: "/assets/banners/topup.jpg"},
     {slug: "referral", title: "Пригласи друзей", kind: "referral", icon: "users", banner: "/assets/banners/referral.jpg"},
@@ -62,6 +64,11 @@ const api = {
   "/api/me/wallet/history": {balance: "350.00", items: []}, "/api/me/consent": {enabled: false, accepted: true, version: "1"},
   "/api/me/referral": {code: "LUSI42", referred_count: 7, reward_total: 640, balance: 120, reward_percent: 10, level_percentages: ["10", "3"]},
   "/api/me/referral/ledger": [], "/api/me/referral/withdrawals": [], "/api/me/referral/network": {nodes: [{id: "me", parent: null, level: 0}], truncated: false, level_counts: []},
+  "/api/public/info-pages/faq": {kind: "faq", title: "Частые вопросы", body: "Ответы на вопросы, которые нам задают чаще всего.", version: 3, items: [
+    {question: "Как подключиться после оплаты?", answer: "Откройте раздел «Подключение», выберите устройство и нажмите **Добавить подписку**."},
+    {question: "Сколько устройств можно подключить?", answer: "Столько, сколько указано в тарифе."},
+    {question: "Как вернуть деньги?", answer: "Напишите в поддержку в течение 14 дней после оплаты."},
+    {question: "Можно ли поделиться подпиской с семьёй?", answer: "Да, на тарифах с семейными местами — в разделе «Семья»."}]},
   "/api/me/support/tickets": [], "/api/me/offers": {items: [], next_offset: null}, "/api/me/billing-center": {payments: [], subscription: null}, "/api/me/auto-renew": {},
 };
 const types = {".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".json": "application/json", ".txt": "text/plain", ".webmanifest": "application/manifest+json"};
@@ -99,5 +106,15 @@ for (const section of sections) {
   await page.screenshot({path: join(out, `miniapp-${section}.png`)});
   console.log("saved", join(out, `miniapp-${section}.png`));
 }
+// A document from «Документы»: the FAQ with the first answer open.
+await page.goto(`${base}/?shot=faq#info`);
+await page.waitForSelector(".panel", {timeout: 20000});
+await page.getByRole("button", {name: "Частые вопросы"}).first().click();
+await page.waitForSelector(".faq-item", {timeout: 20000});
+await page.locator(".faq-item summary").first().click();
+await page.waitForFunction(() => [...document.querySelectorAll("img")].every((i) => i.complete), null, {timeout: 20000});
+await page.waitForTimeout(400);
+await page.screenshot({path: join(out, "miniapp-faq.png")});
+console.log("saved", join(out, "miniapp-faq.png"));
 await browser.close();
 server.close();

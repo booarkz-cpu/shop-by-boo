@@ -315,6 +315,67 @@ async def start(message:Message):
     # Banner: own image from the admin panel, the legacy /start image or the default corgi Lusi.
     await send_section(message,"start",text,markup)
 
+# ---------------------------------------------------------------- documents (v28.29.0)
+
+INFO_EMPTY = {"ru": "Документы пока не опубликованы.", "en": "No documents are published yet.", "uk": "Документи ще не опубліковані."}
+INFO_TITLE = {"ru": "ℹ️ <b>Информация</b>", "en": "ℹ️ <b>Information</b>", "uk": "ℹ️ <b>Інформація</b>"}
+
+
+async def show_info(message, kind: str, lang: str, *, edit: bool = False):
+    """A document from «Контент → Документы»: its banner, then the text (split to fit Telegram)."""
+    from .info_pages import load, localized, split_message, telegram_html
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        page = localized(kind, await load(db, kind), lang)
+    if not page:
+        await message.answer(INFO_EMPTY.get(lang, INFO_EMPTY["ru"]))
+        return
+    parts = split_message(telegram_html(page))
+    back = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="←", callback_data="info:menu")]])
+    await send_section(message, kind, parts[0], back if len(parts) == 1 else None, fallback="info", edit=edit)
+    for i, part in enumerate(parts[1:], start=2):
+        await message.answer(part, parse_mode="HTML", reply_markup=back if i == len(parts) else None)
+
+
+async def info_menu(message, lang: str, *, edit: bool = False):
+    from .info_pages import published
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        pages = await published(db, lang)
+    if not pages:
+        await message.answer(INFO_EMPTY.get(lang, INFO_EMPTY["ru"]))
+        return
+    icons = {"faq": "❓", "rules": "📋", "privacy": "🔒", "offer": "📄"}
+    markup = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=f"{icons[p['kind']]} {p['title']}", callback_data=f"info:{p['kind']}")] for p in pages])
+    await send_section(message, "info", INFO_TITLE.get(lang, INFO_TITLE["ru"]), markup, edit=edit)
+
+
+@router.message(Command("info"))
+async def info_command(message: Message):
+    await info_menu(message, _lang(message))
+
+
+@router.message(Command("faq", "rules", "privacy", "offer"))
+async def info_page_command(message: Message):
+    kind = (message.text or "/").split()[0].lstrip("/").split("@")[0].lower()
+    await show_info(message, kind, _lang(message))
+
+
+@router.callback_query(lambda query: bool(query.data and query.data.startswith("info:")))
+async def info_callback(query: CallbackQuery):
+    from .info_pages import KINDS
+    kind = query.data.split(":", 1)[1]
+    await query.answer()
+    if not query.message:
+        return
+    lang = _lang(None)
+    code = (query.from_user.language_code or "").lower() if query.from_user else ""
+    if code:
+        lang = "uk" if code.startswith(("uk", "ua")) else "en" if code.startswith("en") else "ru"
+    if kind == "menu":
+        await info_menu(query.message, lang, edit=True)
+    elif kind in KINDS:
+        await show_info(query.message, kind, lang, edit=True)
+
+
 @router.message(Command("buy"))
 async def buy(message: Message):
     if not _private(message):
