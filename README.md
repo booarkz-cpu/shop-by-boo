@@ -4,8 +4,9 @@
 
 # 🐶 VPN Shop by Corgi
 
-**Магазин VPN-подписок под ключ для собственной панели Remnawave:**
-Telegram-бот и Mini App, личный кабинет, админ-панель, поддержка, приложения Android и iOS.
+### Свой VPN-сервис под ключ поверх панели Remnawave
+
+Telegram-бот и Mini App · личный кабинет · приложения Android и iOS · админ-панель · поддержка · оплата
 
 [![CI](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/ci.yml)
 [![Docker](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/docker.yml)
@@ -24,17 +25,59 @@ Telegram-бот и Mini App, личный кабинет, админ-панел�
 ![Docker](https://img.shields.io/badge/Docker%20Compose-ready-2496ED?logo=docker&logoColor=white)
 ![Remnawave](https://img.shields.io/badge/Remnawave-3.x-7c3aed)
 
-[🚀 Быстрый старт](#-быстрый-старт) · [🏗 Архитектура](#-архитектура) · [⚙️ Переменные окружения](#️-переменные-окружения) · [📸 Скриншоты](#-скриншоты) · [📚 Документация](#-документация)
+
+[🚀 Установить](#-быстрый-старт) · [✨ Возможности](#-возможности) · [📲 Приложения](#-приложения-android-и-ios) · [🎛 Всё из админки](#-всё-настраивается-из-админ-панели) · [📸 Скриншоты](#-скриншоты) · [📚 Документация](#-документация)
 
 </div>
 
 ---
 
-> **v28.31.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0076_growth`, Support Pro `0008` / 3.8.
+> **v28.31.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0076_growth`, Support Pro `0008` / 3.8, приложения Android и iOS `3.0.0`.
 > Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.31.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
-**Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) и [инструкции по 30 модулям](docs/ru/modules/README.md).
+**Что это.** Магазин продаёт VPN-подписки и сам выдаёт доступ в вашей панели Remnawave: принимает оплату (СБП, карта, крипта, Telegram Stars), продлевает, считает трафик и устройства, отвечает клиентам. Клиент покупает в боте, Mini App, кабинете или приложении и подключается в одно касание. Владелец управляет всем из одной админ-панели — без программиста и без пересборки приложений.
+
+**Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md).
+
+## 🆕 Новое в v28.31.0
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**📲 Приложения Android и iOS 3.0.0**
+
+Новый интерфейс в стиле бренда: нижняя панель «Подписка · Премиум · VPN · Локации · Настройки», большая кнопка «Подключить» с импортом подписки в Happ, v2rayNG, Hiddify или v2RayTun и статусом VPN телефона.
+
+</td>
+<td width="50%" valign="top">
+
+**🎛 Приложения полностью из админ-панели**
+
+Разделы, нижняя панель, каждая кнопка, любая строка интерфейса на ru/en/uk, блоки экранов, баннеры, цвета и ссылки. Клиенты видят изменения при следующем открытии, без обновления в сторе.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+**📄 Документы везде одинаковые**
+
+Частые вопросы, правила, политика конфиденциальности и оферта со своим текстом и баннером — в боте, Mini App, кабинете и приложениях одновременно.
+
+</td>
+<td valign="top">
+
+**🐶 Баннеры Люси для каждого раздела**
+
+15 новых тёмных баннеров приложений и 25 баннеров бота и Mini App. Любой заменяется своей картинкой в один клик.
+
+</td>
+</tr>
+</table>
+
+[Заметки к выпуску](docs/ru/RELEASE_V28_31_0.md) · [полный список работ](docs/ru/WORKLIST_V28_31_0.md)
 
 ## ✨ Возможности
 
@@ -52,6 +95,48 @@ Telegram-бот и Mini App, личный кабинет, админ-панел�
 | 💬 **Поддержка** | Встроенный Support Pro: обращения из бота, кабинета и email, мост Zendesk/Freshdesk |
 | 📊 **Рост** | Когорты, LTV и причины отмены; партнёры с комиссией за автопродления и подарки; семейные подписки; подписанный каталог плагинов |
 | 📈 **Эксплуатация** | Prometheus-метрики, состояние системы, фоновые процессы, резервные копии с двойным подтверждением восстановления, обновление из GitHub |
+
+## 📲 Приложения Android и iOS
+
+| VPN | VPN подключён | Подписка | Премиум | Локации |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Android: главный экран](screenshots/mobile/android-vpn.png) | ![Android: VPN подключён](screenshots/mobile/android-vpn-on.png) | ![Android: подписка](screenshots/mobile/android-subscription.png) | ![Android: тарифы](screenshots/mobile/android-premium.png) | ![Android: локации](screenshots/mobile/android-locations.png) |
+| ![iOS: главный экран](screenshots/mobile/ios-vpn.png) | ![iOS: VPN подключён](screenshots/mobile/ios-vpn-on.png) | ![iOS: подписка](screenshots/mobile/ios-subscription.png) | ![iOS: тарифы](screenshots/mobile/ios-premium.png) | ![iOS: локации](screenshots/mobile/ios-locations.png) |
+| **Настройки** | **Поддержка** | **Устройства** | **Семья** | **Состояние сервиса** |
+| ![Android: настройки](screenshots/mobile/android-settings.png) | ![Android: поддержка](screenshots/mobile/android-support.png) | ![Android: устройства](screenshots/mobile/android-devices.png) | ![Android: семья](screenshots/mobile/android-family.png) | ![Android: состояние сервиса](screenshots/mobile/android-status.png) |
+
+- **Подключение в одно касание.** Первое нажатие добавляет подписку в установленный VPN-клиент, следующие открывают его. Без клиента приложение предложит установить Happ или v2rayNG.
+- **Всё, что нужно клиенту:** тарифы с ценой в месяц, ID и лимиты подписки, QR для другого устройства, семья, рефералы, баланс, уведомления, документы, обращение в поддержку и отчёт о проблеме.
+- **Безопасность:** сессия в Android Keystore и Keychain, PKCE, Face ID и отпечаток, запрет снимков экрана, вход по ключу доступа.
+- Исходники в `mobile/`. Подписываете и публикуете своими ключами — [модуль 16](docs/ru/modules/16-mobile-apps.md).
+
+## 🎛 Всё настраивается из админ-панели
+
+```mermaid
+flowchart LR
+    A["🛠 Админ-панель"] --> L["Приложения:<br/>экраны и кнопки"]
+    A --> D["Документы:<br/>FAQ, правила,<br/>политика, оферта"]
+    A --> B["Баннеры:<br/>бот, Mini App,<br/>приложения"]
+    A --> C["Конфигурация<br/>Mini App"]
+    L -->|"GET /api/mobile/layout"| APP["📲 Android и iOS"]
+    D --> APP
+    D --> BOT["🤖 Бот"]
+    D --> MA["📱 Mini App и кабинет"]
+    B --> APP
+    B --> BOT
+    B --> MA
+    C --> MA
+```
+
+| Что | Где в админке | Где меняется |
+| --- | --- | --- |
+| Разделы, нижняя панель, кнопки (27 действий), свои страницы | Бот и кабинет → Приложения: экраны и кнопки | Android, iOS |
+| Любая строка интерфейса на ru/en/uk, блоки экранов, цвета, ссылки | там же | Android, iOS |
+| Частые вопросы, правила, политика конфиденциальности, оферта + баннер | Бот и кабинет → Документы | бот, Mini App, кабинет, Android, iOS |
+| Баннеры всех разделов | Бот и кабинет → Баннеры бота | бот, Mini App, кабинет, Android, iOS |
+| Тема, акции, серверы, способы оплаты Mini App | Бот и кабинет → Конфигурация Mini App | Mini App, кабинет |
+
+![Баннеры разделов приложений](docs/img/app-banners-all.jpg)
 
 ## 🏗 Архитектура
 
@@ -198,26 +283,11 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ## 📸 Скриншоты
 
-### Баннеры разделов бота
+### Баннеры бота и Mini App
 
-Каждый раздел бота и Mini App приходит с баннером: свой стикер корги Люси (21 поза — от подарка и VIP-карты до ракеты пробного периода) и название раздела. Стандартные баннеры собирает `python3 scripts/bot-banners/render.py` из листов стикеров Люси; любой можно заменить своим в **Бот и кабинет → Баннеры бота** ([как настроить](docs/ru/modules/14-bot-miniapp.md#баннеры-бота)).
+Каждый раздел бота и Mini App приходит с баннером: свой стикер корги Люси и название раздела. Стандартные баннеры собирает `python3 scripts/bot-banners/render.py` (`--app` — баннеры приложений); любой можно заменить своим в **Бот и кабинет → Баннеры бота** ([как настроить](docs/ru/modules/14-bot-miniapp.md#баннеры-бота)).
 
 ![Стандартные баннеры бота с корги Люси](docs/img/bot-banners-all.jpg)
-
-### Приложения Android и iOS
-
-Клиентские приложения 3.0.0 в демо-режиме отладочной сборки. Каждый раздел, кнопка, баннер и цвет приходят из макета, который редактируется в **Бот и кабинет → Приложения: экраны и кнопки** ([как настроить](docs/ru/modules/16-mobile-apps.md#экраны-и-кнопки-приложений)). Снимки обновляет workflow «Mobile screenshots» (ручной запуск с отметкой «commit»).
-
-| VPN | VPN подключён | Подписка | Премиум | Локации |
-| :---: | :---: | :---: | :---: | :---: |
-| ![Android: главный экран](screenshots/mobile/android-vpn.png) | ![Android: VPN подключён](screenshots/mobile/android-vpn-on.png) | ![Android: подписка](screenshots/mobile/android-subscription.png) | ![Android: тарифы](screenshots/mobile/android-premium.png) | ![Android: локации](screenshots/mobile/android-locations.png) |
-| ![iOS: главный экран](screenshots/mobile/ios-vpn.png) | ![iOS: VPN подключён](screenshots/mobile/ios-vpn-on.png) | ![iOS: подписка](screenshots/mobile/ios-subscription.png) | ![iOS: тарифы](screenshots/mobile/ios-premium.png) | ![iOS: локации](screenshots/mobile/ios-locations.png) |
-| **Настройки** | **Поддержка** | **Устройства** | **Семья** | **Состояние сервиса** |
-| ![Android: настройки](screenshots/mobile/android-settings.png) | ![Android: поддержка](screenshots/mobile/android-support.png) | ![Android: устройства](screenshots/mobile/android-devices.png) | ![Android: семья](screenshots/mobile/android-family.png) | ![Android: состояние сервиса](screenshots/mobile/android-status.png) |
-
-Баннеры разделов приложений — тёмная серия с корги Люси, свой баннер у каждого раздела:
-
-![Баннеры разделов приложений](docs/img/app-banners-all.jpg)
 
 ### Mini App
 
@@ -698,8 +768,10 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 | Проверить кассы настоящими деньгами | [Живая проверка всех касс](docs/ru/PAYMENTS_LIVE_CHECKLIST.md) |
 | Резервные копии | [Модуль 30](docs/ru/modules/30-backups-recovery.md), [полная копия](docs/ru/BACKUP_CURRENT.md) |
 | API и права | [Каталог API](docs/API_ENDPOINTS.md), [архитектура](docs/ru/WORKSPACE_ARCHITECTURE.md), [карта проекта](docs/PROJECT_MAP_RU.md) |
-| Android и iOS | [Мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
-| Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md) |
+| Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
+| Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
+| Что вошло в выпуск | [Заметки v28.31.0](docs/ru/RELEASE_V28_31_0.md), [список работ](docs/ru/WORKLIST_V28_31_0.md), [CHANGELOG](CHANGELOG.md) |
+| Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |
 
 ## 🧪 Разработка и проверка
@@ -731,7 +803,9 @@ cd ../admin && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet && npx 
 
 ## 🗂 История выпусков
 
-Релиз v28.31.0 вынес из `main.py` ещё пять разделов, заменил проверки оплаты «по подстроке» поведенческими тестами и добавил workflow со скриншотами мобильных приложений ([заметки](docs/ru/RELEASE_V28_31_0.md)).
+Релиз **v28.31.0** — новые приложения Android и iOS 3.0.0, экраны, кнопки, строки, баннеры и документы которых редактируются в админ-панели ([заметки](docs/ru/RELEASE_V28_31_0.md), [полный список работ](docs/ru/WORKLIST_V28_31_0.md)).
+
+Релиз v28.30.0 вынес из `main.py` ещё пять разделов, заменил проверки оплаты «по подстроке» поведенческими тестами и добавил workflow со скриншотами мобильных приложений ([заметки](docs/ru/RELEASE_V28_30_0.md)).
 
 Релиз v28.29.0 добавил раздел «Документы»: частые вопросы, правила, политику конфиденциальности и публичную оферту администратор пишет в админке, а клиенты видят их в Mini App, кабинете и боте (`/faq`, `/rules`, `/privacy`, `/offer`) с новыми баннерами Люси; ещё — еженедельную сводку владельцу, проверку восстановления резервных копий и вкладку «Запуск» в админ-приложениях ([заметки](docs/ru/RELEASE_V28_29_0.md)).
 
