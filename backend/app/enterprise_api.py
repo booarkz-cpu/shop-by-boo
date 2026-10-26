@@ -210,61 +210,10 @@ async def v41_backup_verification_list(db:AsyncSession=Depends(get_db),admin=Dep
 
 @shop.app.post("/api/admin/v41/backups/{backup_id}/test-restore")
 async def v41_backup_test_restore(backup_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.backups.verify"))):
-    backup=await db.get(shop.BackupJob,backup_id)
-    if not backup or not backup.filename: raise shop.HTTPException(404,"Backup не найден")
-    path=shop._backup_path(backup.filename)
-    record=shop.BackupVerification(backup_id=backup_id,status="running",checksum_ok=None,archive_safe=None,restore_tested=False)
-    db.add(record); await db.commit(); await db.refresh(record)
-    temp_db=f"vpnshop_restore_test_{shop.secrets.token_hex(6)}"
-    work=shop.pathlib.Path(__import__("tempfile").mkdtemp(prefix="backup-test-"))
-    try:
-        if not path.is_file(): raise FileNotFoundError("Файл backup не найден")
-        h=shop.hashlib.sha256()
-        with path.open("rb") as fh:
-            for chunk in iter(lambda: fh.read(1024*1024),b""): h.update(chunk)
-        record.checksum_ok=(not backup.sha256 or h.hexdigest()==backup.sha256)
-        if not record.checksum_ok: raise ValueError("Checksum backup не совпадает")
-        source=path
-        if backup.encrypted:
-            password_enc=await shop.setting_value(db,"backup_password","")
-            if not password_enc: raise ValueError("Пароль backup не настроен")
-            from .security import decrypt_secret
-            dec=work/"backup.tar.gz"
-            proc=await shop.asyncio.create_subprocess_exec("openssl","enc","-d","-aes-256-cbc","-pbkdf2","-in",str(source),"-out",str(dec),"-pass","stdin",stdin=shop.asyncio.subprocess.PIPE,stdout=shop.asyncio.subprocess.PIPE,stderr=shop.asyncio.subprocess.PIPE)
-            _,err=await proc.communicate((decrypt_secret(password_enc)+"\n").encode())
-            if proc.returncode!=0: raise ValueError("Не удалось расшифровать backup")
-            source=dec
-        with shop.tarfile.open(source,"r:gz") as tf:
-            shop._validate_tar_safety(tf); member=next((m for m in tf.getmembers() if m.name=="database.sql"),None)
-            if not member or not member.isfile(): raise ValueError("Обычный файл database.sql отсутствует в backup")
-            shop._safe_extract_members(tf,{"database.sql"},work)
-        record.archive_safe=True; await db.commit()
-        # Restore into a disposable PostgreSQL database, never into production.
-        dbcli=shop._database_cli_config()
-        env={**shop.os.environ,"PGPASSWORD":dbcli["password"]}
-        create=await shop.asyncio.create_subprocess_exec("psql","-h",dbcli["host"],"-p",dbcli["port"],"-U",dbcli["user"],"-d",dbcli["database"],"-v","ON_ERROR_STOP=1","-c",f'CREATE DATABASE "{temp_db}"',env=env,stdout=shop.asyncio.subprocess.PIPE,stderr=shop.asyncio.subprocess.PIPE)
-        _,cerr=await create.communicate()
-        if create.returncode!=0: raise RuntimeError("Не удалось создать изолированную БД для test-restore: "+cerr.decode(errors="ignore")[-500:])
-        sql_file=work/"database.sql"
-        restore=await shop.asyncio.create_subprocess_exec("psql","-h",dbcli["host"],"-p",dbcli["port"],"-U",dbcli["user"],"-d",temp_db,"-v","ON_ERROR_STOP=1","-f",str(sql_file),env=env,stdout=shop.asyncio.subprocess.PIPE,stderr=shop.asyncio.subprocess.PIPE)
-        _,rerr=await restore.communicate()
-        if restore.returncode!=0: raise RuntimeError("Изолированный restore завершился ошибкой: "+rerr.decode(errors="ignore")[-1000:])
-        check=await shop.asyncio.create_subprocess_exec("psql","-h",dbcli["host"],"-p",dbcli["port"],"-U",dbcli["user"],"-d",temp_db,"-v","ON_ERROR_STOP=1","-tAc","SELECT 1",env=env,stdout=shop.asyncio.subprocess.PIPE,stderr=shop.asyncio.subprocess.PIPE)
-        out,err=await check.communicate()
-        if check.returncode!=0 or out.decode().strip()!="1": raise RuntimeError("Проверка восстановленной БД не пройдена")
-        record.restore_tested=True; record.status="passed"; record.finished_at=shop.datetime.utcnow(); await shop.audit(db,"backup.test_restore",admin.email,str(backup_id),{"status":"passed","restore_tested":True}); await db.commit()
-        return {"status":"passed","checksum_ok":True,"archive_safe":True,"restore_tested":True,"isolated_database":True}
-    except Exception as exc:
-        shop.logger.warning("Backup test-restore failed for %s: %s", backup_id, exc)
-        record.status="failed"; record.error="unavailable"; record.finished_at=shop.datetime.utcnow(); await shop.audit(db,"backup.test_restore",admin.email,str(backup_id),{"status":"failed"}); await db.commit()
-        return {"status":"failed","checksum_ok":record.checksum_ok,"archive_safe":record.archive_safe,"restore_tested":False,"error":"unavailable"}
-    finally:
-        try:
-            drop=await shop.asyncio.create_subprocess_exec("psql","-h",dbcli["host"],"-p",dbcli["port"],"-U",dbcli["user"],"-d",dbcli["database"],"-c",f'DROP DATABASE IF EXISTS "{temp_db}"',env={**shop.os.environ,"PGPASSWORD":dbcli["password"]},stdout=shop.asyncio.subprocess.DEVNULL,stderr=shop.asyncio.subprocess.DEVNULL)
-            await drop.communicate()
-        except Exception as cleanup_exc:
-            shop.logger.warning("Failed to remove isolated restore database %s: %s", temp_db, cleanup_exc)
-        shop.shutil.rmtree(work,ignore_errors=True)
+    # v28.29.0: the check lives in backup_verify (also run weekly by itself) and compares
+    # the restored customers, subscriptions and payments with the live database.
+    from .backup_verify import verify
+    return await verify(db,backup_id,admin.email)
 
 @shop.app.get("/api/admin/v41/referrals")
 async def v41_referrals(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("referrals.read"))):

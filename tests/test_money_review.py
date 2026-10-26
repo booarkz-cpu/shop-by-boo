@@ -318,3 +318,19 @@ def test_promotions_get_a_seasonal_lusi_sticker():
     assert season_sticker(datetime(2026, 12, 20)) == "holiday"
     assert season_sticker(datetime(2027, 1, 5)) == "holiday"
     assert season_sticker(datetime(2026, 7, 1)) == "gift"
+
+
+@pytest.mark.asyncio
+async def test_refund_of_a_payment_without_a_days_snapshot_uses_the_plan_term(database, monkeypatch):
+    db = database
+    sub = await db.get(Subscription, 1)
+    sub.expires_at = datetime.utcnow() + timedelta(days=50)
+    p = _payment("legacy-1", "refunded")
+    p.duration_days_snapshot = None
+    db.add(p)
+    await db.commit()
+    rw = FakeRW()
+    monkeypatch.setattr(shop, "RemnawaveClient", lambda: rw)
+    out = await shop._safe_revoke_for_refunded_payment(db, p, "admin", "x")
+    assert out["days_removed"] == 30 and ("disable", "remote-1") not in rw.calls
+    assert timedelta(days=19) < sub.expires_at - datetime.utcnow() <= timedelta(days=20)

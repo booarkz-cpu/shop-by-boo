@@ -99,6 +99,7 @@ def telegram_keyboard(rows,fields,parent_id=None):
         elif row.item_type=='field':
             if not any(field.key==row.action and field.enabled for field in fields):continue
             button=InlineKeyboardButton(**common,callback_data=f'menu-field:{row.id}')
+        elif row.item_type=='info' and row.action in ('faq','rules','privacy','offer','menu'):button=InlineKeyboardButton(**common,callback_data=f'info:{row.action}')
         elif row.item_type=='url' and row.action.startswith('https://'):button=InlineKeyboardButton(**common,url=row.action)
         elif row.item_type=='webapp' and (row.action or settings.mini_app_url).startswith('https://'):button=InlineKeyboardButton(**common,web_app=WebAppInfo(url=row.action or settings.mini_app_url))
         else:continue

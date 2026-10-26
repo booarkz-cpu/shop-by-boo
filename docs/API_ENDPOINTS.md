@@ -1,4 +1,4 @@
-# Каталог API — v28.28.0 / API v21.5.1
+# Каталог API — v28.29.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0076_growth`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -138,6 +138,8 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/images/{image_id}` | Admin Image Delete |
 | `GET` | `/api/admin/incident-mode` | Incident Mode Status |
 | `POST` | `/api/admin/incident-mode` | Incident Mode |
+| `GET` | `/api/admin/info-pages` | Admin List |
+| `PUT` | `/api/admin/info-pages/{kind}` | Admin Save |
 | `GET` | `/api/admin/jobs` | Admin Jobs |
 | `POST` | `/api/admin/jobs/{job_id}/retry` | Retry Job |
 | `POST` | `/api/admin/mail/dmarc/erase` | Admin Dmarc Erase |
@@ -172,6 +174,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/ops/alerts` | Alerts Status |
 | `POST` | `/api/admin/ops/alerts/test` | Alerts Test |
 | `GET` | `/api/admin/ops/readiness` | Readiness |
+| `GET` | `/api/admin/ops/summary` | Summary Preview |
+| `POST` | `/api/admin/ops/summary/send` | Summary Send Now |
 | `POST` | `/api/admin/ops/withdrawals/{withdrawal_id}/approve` | Admin Withdrawal Approve |
 | `POST` | `/api/admin/ops/withdrawals/{withdrawal_id}/paid` | Admin Withdrawal Paid |
 | `GET` | `/api/admin/overview` | Admin Overview |
@@ -541,6 +545,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/public/branding` | Public Branding |
 | `GET` | `/api/public/cabinet-menu` | Public Cabinet Menu |
 | `GET` | `/api/public/config` | Public Config |
+| `GET` | `/api/public/info-pages` | Public List |
+| `GET` | `/api/public/info-pages/{kind}` | Public Page |
 | `GET` | `/api/public/menu-emoji/{emoji_id}` | Menu Emoji |
 | `GET` | `/api/public/pages` | Catalog |
 | `GET` | `/api/public/pages/{slug}` | Public Page |

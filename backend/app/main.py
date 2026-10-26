@@ -96,6 +96,8 @@ from .remnawave_shop_api import router as remnawave_shop_router
 from .marketplace_api import router as marketplace_router
 from .runtime_settings import refresh_runtime_settings, router as runtime_settings_router, runtime_settings_scheduler
 app.include_router(cabinet_router)
+from .info_pages import router as info_pages_router
+app.include_router(info_pages_router)
 app.include_router(customer_workspace_router)
 app.include_router(customer_profile_router)
 app.include_router(history_import_router)
@@ -599,6 +601,8 @@ async def start_backup_scheduler():
     _track_task(family_scheduler())
     from .ops_alerts import ops_alert_scheduler
     _track_task(ops_alert_scheduler())
+    from .backup_verify import restore_check_scheduler
+    _track_task(restore_check_scheduler())
 
 @app.get("/health/live")
 async def health_live():
@@ -3043,7 +3047,12 @@ async def _safe_revoke_for_refunded_payment(db:AsyncSession, payment:Payment, ad
     if await db.get(AppSetting,marker_key):
         # Already taken back once (retries and reconcile calls must not subtract again).
         return {"revoked":True,"already_applied":True}
-    days=int(payment.duration_days_snapshot or 0)+int(payment.bonus_days or 0)
+    paid_days=int(payment.duration_days_snapshot or 0)
+    if not paid_days and payment.purpose=="subscription" and payment.plan_id:
+        # Payments from releases before the snapshot column: the plan's term is what was sold.
+        plan=await db.get(Plan,payment.plan_id)
+        paid_days=int(plan.duration_days or 0) if plan else 0
+    days=paid_days+int(payment.bonus_days or 0)
     if days>0 and sub.expires_at and sub.expires_at-timedelta(days=days)>now:
         # Only the refunded payment's days are taken back: time paid by earlier
         # payments, gifts and operator extensions stays with the customer.

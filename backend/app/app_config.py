@@ -50,6 +50,8 @@ SECTION_BANNERS = {
     "referral": "referral", "support": "support", "devices": "devices", "surveys": "surveys",
     "giveaways": "gifts", "security": "account", "notifications": "menu", "partner": "referral", "info": "info",
     "family": "family", "status": "status",
+    # Documents in «Информация» (info_pages): each has its own Lusi banner.
+    "faq": "faq", "rules": "rules", "privacy": "privacy", "offer": "offer",
 }
 NAV_ICONS = {
     "overview": "home", "plans": "zap", "trial": "sparkles", "connection": "plug", "servers": "server",
@@ -453,6 +455,11 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
         for row in await catalog(locale="ru", kind="legal", offset=0, limit=20, db=db):
             if row["slug"] not in known:
                 pages.append({"slug": row["slug"], "title": row["title"], "kind": _info_kind(row["slug"])})
+    # Documents edited in «Контент → Документы» come first and replace other pages of the same kind.
+    from .info_pages import published as info_published
+    doc_lang = pick_lang(request, _viewer(request) if request is not None else None)
+    docs = [{"slug": d["kind"], "title": d["title"], "kind": d["kind"], "source": "info"} for d in await info_published(db, doc_lang)]
+    pages = docs + [p for p in pages if p["kind"] not in {d["kind"] for d in docs}]
     support_buttons = [b.model_dump() for b in overrides.support.buttons]
     if not support_buttons and settings.bot_username:
         support_buttons = [{"title": "Написать в Telegram", "icon": "send", "link": f"https://t.me/{settings.bot_username}?start=support"}]

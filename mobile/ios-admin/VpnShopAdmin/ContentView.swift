@@ -33,6 +33,8 @@ struct AdminRootView: View {
     @State private var paymentDetail: [String: Any] = [:]
     @State private var logo: UIImage?
     @State private var ops: [String: Any] = [:]
+    @State private var readiness: [String: Any] = [:]
+    @State private var alerts: [String: Any] = [:]
 
     private func t(_ key: String) -> String { loadStrings(lang)[key] ?? key }
 
@@ -95,8 +97,40 @@ struct AdminRootView: View {
 
     private func profileTitle() -> String { ProfileVault.find(activeId)?.title ?? (URL(string: base)?.host ?? base) }
 
+    @ViewBuilder private var launchSection: some View {
+        if readiness.isEmpty {
+            Text(t("no_data")).foregroundStyle(.secondary)
+        } else {
+            let ready = jsonBool(readiness["ready"])
+            Text(ready ? t("launch_ready") : t("launch_missing")).font(.headline).foregroundStyle(ready ? Color.green : Color.orange)
+            ForEach(Array((readiness["checks"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, c in
+                let ok = jsonBool(c["ok"])
+                let required = jsonText(c["level"]) == "required"
+                Text("\(ok ? "✓" : required ? "✗" : "!") \(jsonText(c["title"]))\(required ? "" : " · " + t("recommended"))")
+                if !ok && !jsonText(c["hint"]).isEmpty { Text(jsonText(c["hint"])).foregroundStyle(.secondary) }
+            }
+        }
+        Text(t("alerts")).font(.headline)
+        let recipients = alerts["recipients"] as? [String: Any] ?? [:]
+        let telegram = jsonBool(recipients["telegram"]), email = jsonBool(recipients["email"])
+        Text("\(t("alerts_telegram")): \(telegram ? t("configured") : t("not_configured")) · \(t("alerts_email")): \(email ? t("configured") : t("not_configured"))")
+        Button(t("alerts_test")) {
+            work {
+                _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/admin/ops/alerts/test")
+                DispatchQueue.main.async { notice = t("alerts_sent") }
+            }
+        }.disabled(busy || !(telegram || email))
+        Text(t("problems_now")).font(.subheadline)
+        let problems = alerts["problems"] as? [[String: Any]] ?? []
+        if problems.isEmpty { Text(t("no_problems")).foregroundStyle(.secondary) }
+        ForEach(Array(problems.enumerated()), id: \.offset) { _, p in
+            Text(jsonText(p["title"])).foregroundStyle(.orange)
+            Text(jsonText(p["detail"])).foregroundStyle(.secondary)
+        }
+    }
+
     private func clearLoaded() {
-        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]
+        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; readiness = [:]; alerts = [:]
         tickets = []; broadcasts = []; paymentDetail = [:]; logo = nil; reply = ""; broadcastText = ""
     }
 
@@ -165,7 +199,7 @@ struct AdminRootView: View {
         VStack(alignment: .leading, spacing: 10) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(["overview", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast"], id: \.self) { key in
+                    ForEach(["overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast"], id: \.self) { key in
                         Button(t(key)) { tab = key }.buttonStyle(.bordered)
                     }
                 }
@@ -224,6 +258,8 @@ struct AdminRootView: View {
             ForEach(Array(countries.enumerated()), id: \.offset) { _, country in
                 Text("\(country["country"] as? String ?? ""): \(country["count"] ?? 0)")
             }
+        case "launch":
+            launchSection
         case "ops":
             Text(t("ops")).font(.headline)
             Text("\(t("critical")): \(ops["critical"] ?? 0)")
@@ -319,6 +355,9 @@ struct AdminRootView: View {
             let nextPlatform = try api.call("GET", "/api/admin/platform/summary") as? [String: Any] ?? [:]
             let nextOps = try api.call("GET", "/api/admin/mobile/ops") as? [String: Any] ?? [:]
             let nextTickets = try api.call("GET", "/api/admin/support/tickets") as? [[String: Any]] ?? []
+            // Shops before v28.27.0 have no launch checks: the other tabs keep working.
+            let nextReadiness = (try? api.call("GET", "/api/admin/ops/readiness")) as? [String: Any] ?? [:]
+            let nextAlerts = (try? api.call("GET", "/api/admin/ops/alerts")) as? [String: Any] ?? [:]
             let nextMarketing = try api.call("GET", "/api/admin/marketing") as? [String: Any] ?? [:]
             let nextBroadcasts = nextMarketing["broadcasts"] as? [[String: Any]] ?? []
             let nextLogo = logoImage(api, "/api/admin/apps")
@@ -331,6 +370,8 @@ struct AdminRootView: View {
                 monitoring = nextMonitoring
                 platform = nextPlatform
                 ops = nextOps
+                readiness = nextReadiness
+                alerts = nextAlerts
                 tickets = nextTickets
                 broadcasts = nextBroadcasts
                 logo = nextLogo

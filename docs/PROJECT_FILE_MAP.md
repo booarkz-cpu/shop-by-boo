@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.28.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.29.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1328**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1348**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -266,6 +266,7 @@
 | [admin/src/customer-operations.tsx](../admin/src/customer-operations.tsx) | Админ-панель |
 | [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
+| [admin/src/documents.tsx](../admin/src/documents.tsx) | Админ-панель |
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
 | [admin/src/growth.tsx](../admin/src/growth.tsx) | Админ-панель |
@@ -393,13 +394,17 @@
 | [backend/app/assets/bot_banners/connection.jpg](../backend/app/assets/bot_banners/connection.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/devices.jpg](../backend/app/assets/bot_banners/devices.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/family.jpg](../backend/app/assets/bot_banners/family.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/faq.jpg](../backend/app/assets/bot_banners/faq.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/gifts.jpg](../backend/app/assets/bot_banners/gifts.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/home.jpg](../backend/app/assets/bot_banners/home.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/info.jpg](../backend/app/assets/bot_banners/info.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/menu.jpg](../backend/app/assets/bot_banners/menu.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/offer.jpg](../backend/app/assets/bot_banners/offer.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/payments.jpg](../backend/app/assets/bot_banners/payments.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/privacy.jpg](../backend/app/assets/bot_banners/privacy.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/promo.jpg](../backend/app/assets/bot_banners/promo.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/referral.jpg](../backend/app/assets/bot_banners/referral.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/rules.jpg](../backend/app/assets/bot_banners/rules.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/servers.jpg](../backend/app/assets/bot_banners/servers.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/start.jpg](../backend/app/assets/bot_banners/start.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/status.jpg](../backend/app/assets/bot_banners/status.jpg) | API, бот и worker |
@@ -409,6 +414,7 @@
 | [backend/app/assets/bot_banners/topup.jpg](../backend/app/assets/bot_banners/topup.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
+| [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
@@ -428,6 +434,7 @@
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
 | [backend/app/growth.py](../backend/app/growth.py) | API, бот и worker |
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
+| [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
 | [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
 | [backend/app/mail_receiver.py](../backend/app/mail_receiver.py) | API, бот и worker |
@@ -505,13 +512,17 @@
 | [cabinet/public/assets/banners/connection.jpg](../cabinet/public/assets/banners/connection.jpg) | Кабинет |
 | [cabinet/public/assets/banners/devices.jpg](../cabinet/public/assets/banners/devices.jpg) | Кабинет |
 | [cabinet/public/assets/banners/family.jpg](../cabinet/public/assets/banners/family.jpg) | Кабинет |
+| [cabinet/public/assets/banners/faq.jpg](../cabinet/public/assets/banners/faq.jpg) | Кабинет |
 | [cabinet/public/assets/banners/gifts.jpg](../cabinet/public/assets/banners/gifts.jpg) | Кабинет |
 | [cabinet/public/assets/banners/home.jpg](../cabinet/public/assets/banners/home.jpg) | Кабинет |
 | [cabinet/public/assets/banners/info.jpg](../cabinet/public/assets/banners/info.jpg) | Кабинет |
 | [cabinet/public/assets/banners/menu.jpg](../cabinet/public/assets/banners/menu.jpg) | Кабинет |
+| [cabinet/public/assets/banners/offer.jpg](../cabinet/public/assets/banners/offer.jpg) | Кабинет |
 | [cabinet/public/assets/banners/payments.jpg](../cabinet/public/assets/banners/payments.jpg) | Кабинет |
+| [cabinet/public/assets/banners/privacy.jpg](../cabinet/public/assets/banners/privacy.jpg) | Кабинет |
 | [cabinet/public/assets/banners/promo.jpg](../cabinet/public/assets/banners/promo.jpg) | Кабинет |
 | [cabinet/public/assets/banners/referral.jpg](../cabinet/public/assets/banners/referral.jpg) | Кабинет |
+| [cabinet/public/assets/banners/rules.jpg](../cabinet/public/assets/banners/rules.jpg) | Кабинет |
 | [cabinet/public/assets/banners/servers.jpg](../cabinet/public/assets/banners/servers.jpg) | Кабинет |
 | [cabinet/public/assets/banners/start.jpg](../cabinet/public/assets/banners/start.jpg) | Кабинет |
 | [cabinet/public/assets/banners/status.jpg](../cabinet/public/assets/banners/status.jpg) | Кабинет |
@@ -543,6 +554,7 @@
 | [cabinet/src/app/page.tsx](../cabinet/src/app/page.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
 | [cabinet/src/connection.tsx](../cabinet/src/connection.tsx) | Кабинет |
+| [cabinet/src/documents.test.tsx](../cabinet/src/documents.test.tsx) | Кабинет |
 | [cabinet/src/giveaways.test.tsx](../cabinet/src/giveaways.test.tsx) | Кабинет |
 | [cabinet/src/giveaways.tsx](../cabinet/src/giveaways.tsx) | Кабинет |
 | [cabinet/src/growth.test.tsx](../cabinet/src/growth.test.tsx) | Кабинет |
@@ -671,6 +683,7 @@
 | [docs/img/bot-start.png](../docs/img/bot-start.png) | Документация |
 | [docs/img/bot-support.png](../docs/img/bot-support.png) | Документация |
 | [docs/img/hero.jpg](../docs/img/hero.jpg) | Документация |
+| [docs/img/miniapp-faq.png](../docs/img/miniapp-faq.png) | Документация |
 | [docs/img/miniapp-info.png](../docs/img/miniapp-info.png) | Документация |
 | [docs/img/miniapp-overview.png](../docs/img/miniapp-overview.png) | Документация |
 | [docs/img/miniapp-plans.png](../docs/img/miniapp-plans.png) | Документация |
@@ -758,6 +771,7 @@
 | [docs/ru/RELEASE_V28_26_0.md](../docs/ru/RELEASE_V28_26_0.md) | Документация |
 | [docs/ru/RELEASE_V28_27_0.md](../docs/ru/RELEASE_V28_27_0.md) | Документация |
 | [docs/ru/RELEASE_V28_28_0.md](../docs/ru/RELEASE_V28_28_0.md) | Документация |
+| [docs/ru/RELEASE_V28_29_0.md](../docs/ru/RELEASE_V28_29_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -970,41 +984,42 @@
 | [screenshots/admin_panel/31_pages.png](../screenshots/admin_panel/31_pages.png) | Корень проекта |
 | [screenshots/admin_panel/32_content.png](../screenshots/admin_panel/32_content.png) | Корень проекта |
 | [screenshots/admin_panel/33_menuTree.png](../screenshots/admin_panel/33_menuTree.png) | Корень проекта |
-| [screenshots/admin_panel/34_appConfig.png](../screenshots/admin_panel/34_appConfig.png) | Корень проекта |
-| [screenshots/admin_panel/35_botBanners.png](../screenshots/admin_panel/35_botBanners.png) | Корень проекта |
-| [screenshots/admin_panel/36_cabinet.png](../screenshots/admin_panel/36_cabinet.png) | Корень проекта |
-| [screenshots/admin_panel/37_apps.png](../screenshots/admin_panel/37_apps.png) | Корень проекта |
-| [screenshots/admin_panel/38_branding.png](../screenshots/admin_panel/38_branding.png) | Корень проекта |
-| [screenshots/admin_panel/39_nodes.png](../screenshots/admin_panel/39_nodes.png) | Корень проекта |
-| [screenshots/admin_panel/40_networkIntel.png](../screenshots/admin_panel/40_networkIntel.png) | Корень проекта |
-| [screenshots/admin_panel/41_nodeTerminal.png](../screenshots/admin_panel/41_nodeTerminal.png) | Корень проекта |
-| [screenshots/admin_panel/42_routing.png](../screenshots/admin_panel/42_routing.png) | Корень проекта |
-| [screenshots/admin_panel/43_capacity.png](../screenshots/admin_panel/43_capacity.png) | Корень проекта |
-| [screenshots/admin_panel/44_orchestrator.png](../screenshots/admin_panel/44_orchestrator.png) | Корень проекта |
-| [screenshots/admin_panel/45_torrents.png](../screenshots/admin_panel/45_torrents.png) | Корень проекта |
-| [screenshots/admin_panel/46_platform.png](../screenshots/admin_panel/46_platform.png) | Корень проекта |
-| [screenshots/admin_panel/47_monitoring.png](../screenshots/admin_panel/47_monitoring.png) | Корень проекта |
-| [screenshots/admin_panel/48_runtimeSettings.png](../screenshots/admin_panel/48_runtimeSettings.png) | Корень проекта |
-| [screenshots/admin_panel/49_features.png](../screenshots/admin_panel/49_features.png) | Корень проекта |
-| [screenshots/admin_panel/50_plugins.png](../screenshots/admin_panel/50_plugins.png) | Корень проекта |
-| [screenshots/admin_panel/51_automation.png](../screenshots/admin_panel/51_automation.png) | Корень проекта |
-| [screenshots/admin_panel/52_workers.png](../screenshots/admin_panel/52_workers.png) | Корень проекта |
-| [screenshots/admin_panel/53_jobs.png](../screenshots/admin_panel/53_jobs.png) | Корень проекта |
-| [screenshots/admin_panel/54_mailDomain.png](../screenshots/admin_panel/54_mailDomain.png) | Корень проекта |
-| [screenshots/admin_panel/55_operations.png](../screenshots/admin_panel/55_operations.png) | Корень проекта |
-| [screenshots/admin_panel/56_releases.png](../screenshots/admin_panel/56_releases.png) | Корень проекта |
-| [screenshots/admin_panel/57_deployments.png](../screenshots/admin_panel/57_deployments.png) | Корень проекта |
-| [screenshots/admin_panel/58_enterprise.png](../screenshots/admin_panel/58_enterprise.png) | Корень проекта |
-| [screenshots/admin_panel/59_intelligence.png](../screenshots/admin_panel/59_intelligence.png) | Корень проекта |
-| [screenshots/admin_panel/60_security.png](../screenshots/admin_panel/60_security.png) | Корень проекта |
-| [screenshots/admin_panel/61_passkeys.png](../screenshots/admin_panel/61_passkeys.png) | Корень проекта |
-| [screenshots/admin_panel/62_admins.png](../screenshots/admin_panel/62_admins.png) | Корень проекта |
-| [screenshots/admin_panel/63_sessions.png](../screenshots/admin_panel/63_sessions.png) | Корень проекта |
-| [screenshots/admin_panel/64_fraud.png](../screenshots/admin_panel/64_fraud.png) | Корень проекта |
-| [screenshots/admin_panel/65_audit.png](../screenshots/admin_panel/65_audit.png) | Корень проекта |
-| [screenshots/admin_panel/66_backups.png](../screenshots/admin_panel/66_backups.png) | Корень проекта |
-| [screenshots/admin_panel/67_recovery.png](../screenshots/admin_panel/67_recovery.png) | Корень проекта |
-| [screenshots/admin_panel/68_command_search.png](../screenshots/admin_panel/68_command_search.png) | Корень проекта |
+| [screenshots/admin_panel/34_documents.png](../screenshots/admin_panel/34_documents.png) | Корень проекта |
+| [screenshots/admin_panel/35_appConfig.png](../screenshots/admin_panel/35_appConfig.png) | Корень проекта |
+| [screenshots/admin_panel/36_botBanners.png](../screenshots/admin_panel/36_botBanners.png) | Корень проекта |
+| [screenshots/admin_panel/37_cabinet.png](../screenshots/admin_panel/37_cabinet.png) | Корень проекта |
+| [screenshots/admin_panel/38_apps.png](../screenshots/admin_panel/38_apps.png) | Корень проекта |
+| [screenshots/admin_panel/39_branding.png](../screenshots/admin_panel/39_branding.png) | Корень проекта |
+| [screenshots/admin_panel/40_nodes.png](../screenshots/admin_panel/40_nodes.png) | Корень проекта |
+| [screenshots/admin_panel/41_networkIntel.png](../screenshots/admin_panel/41_networkIntel.png) | Корень проекта |
+| [screenshots/admin_panel/42_nodeTerminal.png](../screenshots/admin_panel/42_nodeTerminal.png) | Корень проекта |
+| [screenshots/admin_panel/43_routing.png](../screenshots/admin_panel/43_routing.png) | Корень проекта |
+| [screenshots/admin_panel/44_capacity.png](../screenshots/admin_panel/44_capacity.png) | Корень проекта |
+| [screenshots/admin_panel/45_orchestrator.png](../screenshots/admin_panel/45_orchestrator.png) | Корень проекта |
+| [screenshots/admin_panel/46_torrents.png](../screenshots/admin_panel/46_torrents.png) | Корень проекта |
+| [screenshots/admin_panel/47_platform.png](../screenshots/admin_panel/47_platform.png) | Корень проекта |
+| [screenshots/admin_panel/48_monitoring.png](../screenshots/admin_panel/48_monitoring.png) | Корень проекта |
+| [screenshots/admin_panel/49_runtimeSettings.png](../screenshots/admin_panel/49_runtimeSettings.png) | Корень проекта |
+| [screenshots/admin_panel/50_features.png](../screenshots/admin_panel/50_features.png) | Корень проекта |
+| [screenshots/admin_panel/51_plugins.png](../screenshots/admin_panel/51_plugins.png) | Корень проекта |
+| [screenshots/admin_panel/52_automation.png](../screenshots/admin_panel/52_automation.png) | Корень проекта |
+| [screenshots/admin_panel/53_workers.png](../screenshots/admin_panel/53_workers.png) | Корень проекта |
+| [screenshots/admin_panel/54_jobs.png](../screenshots/admin_panel/54_jobs.png) | Корень проекта |
+| [screenshots/admin_panel/55_mailDomain.png](../screenshots/admin_panel/55_mailDomain.png) | Корень проекта |
+| [screenshots/admin_panel/56_operations.png](../screenshots/admin_panel/56_operations.png) | Корень проекта |
+| [screenshots/admin_panel/57_releases.png](../screenshots/admin_panel/57_releases.png) | Корень проекта |
+| [screenshots/admin_panel/58_deployments.png](../screenshots/admin_panel/58_deployments.png) | Корень проекта |
+| [screenshots/admin_panel/59_enterprise.png](../screenshots/admin_panel/59_enterprise.png) | Корень проекта |
+| [screenshots/admin_panel/60_intelligence.png](../screenshots/admin_panel/60_intelligence.png) | Корень проекта |
+| [screenshots/admin_panel/61_security.png](../screenshots/admin_panel/61_security.png) | Корень проекта |
+| [screenshots/admin_panel/62_passkeys.png](../screenshots/admin_panel/62_passkeys.png) | Корень проекта |
+| [screenshots/admin_panel/63_admins.png](../screenshots/admin_panel/63_admins.png) | Корень проекта |
+| [screenshots/admin_panel/64_sessions.png](../screenshots/admin_panel/64_sessions.png) | Корень проекта |
+| [screenshots/admin_panel/65_fraud.png](../screenshots/admin_panel/65_fraud.png) | Корень проекта |
+| [screenshots/admin_panel/66_audit.png](../screenshots/admin_panel/66_audit.png) | Корень проекта |
+| [screenshots/admin_panel/67_backups.png](../screenshots/admin_panel/67_backups.png) | Корень проекта |
+| [screenshots/admin_panel/68_recovery.png](../screenshots/admin_panel/68_recovery.png) | Корень проекта |
+| [screenshots/admin_panel/69_command_search.png](../screenshots/admin_panel/69_command_search.png) | Корень проекта |
 | [screenshots/storefront_user/01_login.png](../screenshots/storefront_user/01_login.png) | Корень проекта |
 | [screenshots/storefront_user/02_register.png](../screenshots/storefront_user/02_register.png) | Корень проекта |
 | [screenshots/storefront_user/03_overview.png](../screenshots/storefront_user/03_overview.png) | Корень проекта |
@@ -1026,6 +1041,8 @@
 | [screenshots/storefront_user/19_surveys.png](../screenshots/storefront_user/19_surveys.png) | Корень проекта |
 | [screenshots/storefront_user/20_giveaways.png](../screenshots/storefront_user/20_giveaways.png) | Корень проекта |
 | [screenshots/storefront_user/21_info.png](../screenshots/storefront_user/21_info.png) | Корень проекта |
+| [screenshots/storefront_user/22_faq.png](../screenshots/storefront_user/22_faq.png) | Корень проекта |
+| [screenshots/storefront_user/23_offer.png](../screenshots/storefront_user/23_offer.png) | Корень проекта |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/backup.sh](../scripts/backup.sh) | Эксплуатация и релиз |
 | [scripts/backup_bundle.py](../scripts/backup_bundle.py) | Эксплуатация и релиз |
@@ -1214,6 +1231,7 @@
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
+| [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
 | [tests/test_mail_receiver.py](../tests/test_mail_receiver.py) | Проверки |
@@ -1230,7 +1248,9 @@
 | [tests/test_node_terminal.py](../tests/test_node_terminal.py) | Проверки |
 | [tests/test_observability.py](../tests/test_observability.py) | Проверки |
 | [tests/test_ops_alerts.py](../tests/test_ops_alerts.py) | Проверки |
+| [tests/test_ops_weekly.py](../tests/test_ops_weekly.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
+| [tests/test_payment_load.py](../tests/test_payment_load.py) | Проверки |
 | [tests/test_personal_offers.py](../tests/test_personal_offers.py) | Проверки |
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |

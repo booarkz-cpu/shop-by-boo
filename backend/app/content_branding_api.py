@@ -110,7 +110,7 @@ class SettingIn(BaseModel): value:str=Field(max_length=100000)
 class MenuIn(BaseModel):
     title:str=Field(min_length=1,max_length=255)
     action:str=Field(default="",min_length=0,max_length=255)
-    item_type:str=Field(default="webapp",pattern="^(webapp|url|field|folder)$")
+    item_type:str=Field(default="webapp",pattern="^(webapp|url|field|folder|info)$")
     sort_order:int=Field(default=0,ge=-100000,le=100000)
     enabled:bool=True
     parent_id:int|None=Field(default=None,gt=0)
@@ -347,7 +347,7 @@ async def admin_miniapp_background_delete(db:AsyncSession=Depends(get_db),admin=
 async def admin_menu(payload:MenuIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_content"))):
     from .menu_tree import lock_menu,validate_bot_tree
     await lock_menu(db);await validate_bot_tree(db,payload)
-    if payload.item_type not in {"webapp","url","field","folder"}: raise shop.HTTPException(400,"Недопустимый тип кнопки")
+    if payload.item_type not in {"webapp","url","field","folder","info"} or (payload.item_type=="info" and payload.action not in {"faq","rules","privacy","offer","menu"}): raise shop.HTTPException(400,"Недопустимый тип кнопки")
     if payload.item_type=="url": shop.validate_public_url(payload.action,allow_empty=False)
     if payload.item_type=="webapp": shop.validate_public_url(payload.action or shop.settings.mini_app_url,allow_empty=False)
     if payload.item_type=="field":
@@ -364,7 +364,7 @@ async def admin_menu_update(item_id:int,payload:MenuIn,db:AsyncSession=Depends(g
     await lock_menu(db);await validate_bot_tree(db,payload,item_id)
     x=await db.get(shop.BotMenuItem,item_id);
     if not x: raise shop.HTTPException(404,"Menu item not found")
-    if payload.item_type not in {"webapp","url","field","folder"}: raise shop.HTTPException(400,"Недопустимый тип кнопки")
+    if payload.item_type not in {"webapp","url","field","folder","info"} or (payload.item_type=="info" and payload.action not in {"faq","rules","privacy","offer","menu"}): raise shop.HTTPException(400,"Недопустимый тип кнопки")
     if payload.item_type=="url": shop.validate_public_url(payload.action,allow_empty=False)
     if payload.item_type=="webapp": shop.validate_public_url(payload.action or shop.settings.mini_app_url,allow_empty=False)
     if payload.item_type=="field":

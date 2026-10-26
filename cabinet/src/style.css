@@ -579,3 +579,20 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 @media (prefers-reduced-motion:reduce){.sticker-state img{animation:none!important}}
 .promo-card.has-image{position:relative;padding-right:118px;min-height:132px}
 .promo-image{position:absolute;right:6px;bottom:6px;width:108px;height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));pointer-events:none}
+
+/* Documents from «Документы» (v28.29.0) */
+.doc-text h3{margin:18px 0 6px;font-size:1.05rem}
+.doc-text p,.doc-text li{line-height:1.55}
+.doc-text ul{padding-left:1.2em;margin:6px 0 12px}
+.faq-list{display:grid;gap:8px;margin-top:14px}
+.faq-item{border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;padding:12px 14px;background:var(--card,transparent)}
+.faq-item summary{cursor:pointer;font-weight:600;list-style:none}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"＋";float:right;opacity:.6}
+.faq-item[open] summary::after{content:"－"}
+.faq-item p{margin:10px 0 0;line-height:1.55}
+/* An opened document shows its own banner instead of the «Информация» one, and its title. */
+:has(> .info-page[data-doc]) > .section-banner,
+:has(> .info-page[data-doc]) > .section-title,
+.panel:has(.info-page[data-doc]) > .section-banner,
+.panel:has(.info-page[data-doc]) > .section-title { display: none; }

@@ -205,7 +205,7 @@ def test_generator_covers_every_banner_and_new_sections_have_their_own():
     tree = ast.parse(source)
     sections = next(n.value for n in tree.body if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "SECTIONS")
     rendered = {k.value for k in sections.keys}
-    assert rendered == set(bot_banners.SECTIONS) and len(rendered) == 21
+    assert rendered == set(bot_banners.SECTIONS) and len(rendered) == 25
     assert SECTION_BANNERS["family"] == "family" and SECTION_BANNERS["status"] == "status"
     # No picture carries the old slogan or the word VPN in its title or caption.
     for key in sections.values:
