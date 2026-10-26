@@ -71,6 +71,7 @@ import shop.remnawave.user.passkey.CorgiPasskeys
 import shop.remnawave.user.push.CorgiPush
 import shop.remnawave.user.widget.CorgiWidgetData
 import shop.remnawave.user.analytics.CorgiAnalytics
+import shop.remnawave.user.security.CorgiTrust
 import shop.remnawave.user.ui.*
 import shop.remnawave.user.vpn.CorgiVpnService
 import shop.remnawave.user.vpn.VpnClients
@@ -132,6 +133,7 @@ class MainActivity : FragmentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CorgiTrust.appContext = applicationContext
         LoginLink.parse(intent?.data)?.let { pendingLogin.value = it }
         // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true.
         val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && intent?.getBooleanExtra("corgi_demo", false) == true
@@ -285,16 +287,20 @@ class ShopApi(private val base: String, private val token: String, private val l
             if (body != null) {
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json")
-                outputStream.use { it.write(body.toString().toByteArray()) }
             }
         }
+        // The pinned shop must present a pinned key before the body or the session leaves the phone.
+        connection.connect()
+        CorgiTrust.verify(connection)
+        if (body != null) connection.outputStream.use { it.write(body.toString().toByteArray()) }
         val code = connection.responseCode
         val text = (if (code in 200..299) connection.inputStream else connection.errorStream)?.bufferedReader()?.use { it.readText() }.orEmpty()
         if (code !in 200..299) throw IllegalStateException(detailOf(text, code))
         val trimmed = text.trim()
         val result: Any = if (trimmed.startsWith("[")) JSONArray(trimmed) else JSONObject(if (trimmed.isBlank()) "{}" else trimmed)
         if (verifier != null && result is JSONObject && result.has("authorization_code")) {
-            val exchanged = post("/api/auth/mobile/token", JSONObject().put("code", result.getString("authorization_code")).put("code_verifier", verifier)) as JSONObject
+            val proof = CorgiTrust.integrityHeaders(base) { get(it) as JSONObject }
+            val exchanged = post("/api/auth/mobile/token", JSONObject().put("code", result.getString("authorization_code")).put("code_verifier", verifier), headers = proof) as JSONObject
             result.remove("authorization_code")
             result.put("access_token", exchanged.getString("access_token"))
             result.put("token_type", "bearer")

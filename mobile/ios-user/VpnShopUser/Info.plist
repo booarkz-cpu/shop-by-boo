@@ -14,6 +14,9 @@
         <true/>
     </dict>
     <!-- Shop address baked into the build (CORGI_SHOP_URL build setting); empty keeps the address field. -->
+    <!-- Certificate pins of the shop API (CORGI_PINS: base64 SHA-256 of SPKI, comma separated). -->
+    <key>CorgiPins</key>
+    <string>$(CORGI_PINS)</string>
     <key>CorgiShopURL</key>
     <string>$(CORGI_SHOP_URL)</string>
     <key>CFBundleURLTypes</key>

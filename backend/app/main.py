@@ -147,6 +147,8 @@ from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
 app.include_router(push_style_router)
+from .mobile_integrity import router as mobile_integrity_router
+app.include_router(mobile_integrity_router)
 from .telegram_stars import router as telegram_stars_router, TelegramStarsProvider
 app.include_router(telegram_stars_router)
 from .remnawave_events import router as remnawave_events_router
@@ -197,6 +199,7 @@ RATE_LIMITS = {
     "/api/auth/mobile/code": 20,
     "/api/mobile/events": 60,
     "/api/mobile/push-style": 60,
+    "/api/mobile/integrity/challenge": 30,
     "/api/me/app-login": 10,
     "/api/app/open": 30,
     "/api/auth/google": 20,

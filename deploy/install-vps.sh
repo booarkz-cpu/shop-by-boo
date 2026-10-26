@@ -400,6 +400,7 @@ umask 077
   env_line GOOGLE_CLIENT_SECRET "$GOOGLE_CLIENT_SECRET"
   env_line GOOGLE_REDIRECT_URI "https://${API_DOMAIN}/api/auth/google/callback"
   env_line MOBILE_APP_SCHEME "corgi"
+  env_line MOBILE_INTEGRITY_MODE "off"
   env_line PAYMENTS_SANDBOX "$PAYMENTS_SANDBOX"
   env_line TRIAL_MAX_DAYS "$TRIAL_MAX_DAYS"
   env_line MEDIA_DIR "/data/media"

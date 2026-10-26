@@ -1,5 +1,6 @@
 import AuthenticationServices
 import CryptoKit
+import DeviceCheck
 import Security
 import SwiftUI
 import UIKit
@@ -51,6 +52,49 @@ let bakedShopURL: String = {
     guard !raw.isEmpty, !raw.hasPrefix("$("), let value = try? normalizeBase(raw), value.hasPrefix("https://") else { return "" }
     return value
 }()
+
+/// Certificate pinning (Info.plist CorgiPins ← CORGI_PINS: base64 SHA-256 of SPKI, comma separated)
+/// for the baked shop host, and the DeviceCheck token of sign-ins when the shop asks for it.
+enum CorgiTrust {
+    static let pins: Set<String> = Set(((Bundle.main.object(forInfoDictionaryKey: "CorgiPins") as? String) ?? "")
+        .split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty && !$0.hasPrefix("$(") })
+    static let pinnedHost: String = URL(string: bakedShopURL)?.host?.lowercased() ?? ""
+    static var pinning: Bool { !pins.isEmpty && !pinnedHost.isEmpty }
+
+    // ASN.1 SubjectPublicKeyInfo headers: the key bytes iOS returns lack them.
+    private static let rsa2048: [UInt8] = [0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0f, 0x00]
+    private static let rsa4096: [UInt8] = [0x30, 0x82, 0x02, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x82, 0x02, 0x0f, 0x00]
+    private static let ec256: [UInt8] = [0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00]
+    private static let ec384: [UInt8] = [0x30, 0x76, 0x30, 0x10, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x22, 0x03, 0x62, 0x00]
+
+    static func spkiHash(_ certificate: SecCertificate) -> String? {
+        guard let key = SecCertificateCopyKey(certificate), let raw = SecKeyCopyExternalRepresentation(key, nil) as Data?,
+              let attributes = SecKeyCopyAttributes(key) as? [String: Any] else { return nil }
+        let type = attributes[kSecAttrKeyType as String] as? String
+        let bits = attributes[kSecAttrKeySizeInBits as String] as? Int ?? 0
+        let header: [UInt8]
+        if type == (kSecAttrKeyTypeRSA as String) { header = bits == 4096 ? rsa4096 : rsa2048 }
+        else if bits == 384 { header = ec384 } else { header = ec256 }
+        return Data(SHA256.hash(data: Data(header) + raw)).base64EncodedString()
+    }
+
+    static func accepts(_ trust: SecTrust) -> Bool {
+        guard SecTrustEvaluateWithError(trust, nil) else { return false }
+        let chain = (SecTrustCopyCertificateChain(trust) as? [SecCertificate]) ?? []
+        return chain.compactMap(spkiHash).contains { pins.contains($0) }
+    }
+
+    /// DeviceCheck token for the native token exchange; empty when the shop does not ask.
+    static func integrityHeaders(_ client: ShopClient) -> [String: String] {
+        guard let challenge = try? client.call("GET", "/api/mobile/integrity/challenge") as? [String: Any],
+              (challenge["mode"] as? String ?? "off") != "off", DCDevice.current.isSupported else { return [:] }
+        let semaphore = DispatchSemaphore(value: 0)
+        var token = ""
+        DCDevice.current.generateToken { data, _ in token = data?.base64EncodedString() ?? ""; semaphore.signal() }
+        _ = semaphore.wait(timeout: .now() + 15)
+        return token.isEmpty ? [:] : ["X-Shop-Integrity": token, "X-Shop-Integrity-Nonce": jsonText(challenge["nonce"])]
+    }
+}
 
 /// corgi://login?base=…&code=… — a one-use sign-in link (backend/app/app_login.py).
 struct LoginLink: Equatable {
@@ -177,6 +221,18 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         completionHandler(nil)
     }
 
+    /// Certificate pinning of the baked shop host (CorgiTrust); other hosts use the system trust.
+    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge,
+                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+              let trust = challenge.protectionSpace.serverTrust, CorgiTrust.pinning,
+              challenge.protectionSpace.host.lowercased() == CorgiTrust.pinnedHost else {
+            completionHandler(.performDefaultHandling, nil); return
+        }
+        if CorgiTrust.accepts(trust) { completionHandler(.useCredential, URLCredential(trust: trust)) }
+        else { completionHandler(.cancelAuthenticationChallenge, nil) }
+    }
+
     func call(_ method: String, _ path: String, body: [String: Any]? = nil, idempotency: String? = nil, headers: [String: String] = [:]) throws -> Any {
         // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
         let verifier: String? = try (["/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify", "/api/auth/mobile/code"].contains(path) ? pkceVerifier() : nil)
@@ -214,7 +270,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         if payload.isEmpty { return [String: Any]() }
         let decoded = try JSONSerialization.jsonObject(with: payload)
         if let verifier, var result = decoded as? [String: Any], let code = result["authorization_code"] as? String {
-            let exchanged = try call("POST", "/api/auth/mobile/token", body: ["code": code, "code_verifier": verifier]) as? [String: Any]
+            let exchanged = try call("POST", "/api/auth/mobile/token", body: ["code": code, "code_verifier": verifier], headers: CorgiTrust.integrityHeaders(self)) as? [String: Any]
             result.removeValue(forKey: "authorization_code")
             result["access_token"] = exchanged?["access_token"]
             result["token_type"] = "bearer"

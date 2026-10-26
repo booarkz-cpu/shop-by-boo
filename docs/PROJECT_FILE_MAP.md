@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1533**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1537**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -358,6 +358,7 @@
 | [backend/app/mobile_api.py](../backend/app/mobile_api.py) | API, бот и worker |
 | [backend/app/mobile_auth.py](../backend/app/mobile_auth.py) | API, бот и worker |
 | [backend/app/mobile_catalog.py](../backend/app/mobile_catalog.py) | API, бот и worker |
+| [backend/app/mobile_integrity.py](../backend/app/mobile_integrity.py) | API, бот и worker |
 | [backend/app/mobile_layout.py](../backend/app/mobile_layout.py) | API, бот и worker |
 | [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
@@ -740,6 +741,7 @@
 | [docs/ru/ADMIN_PANEL_CURRENT.md](../docs/ru/ADMIN_PANEL_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PASSKEYS.md](../docs/ru/ADMIN_PASSKEYS.md) | Документация |
 | [docs/ru/ALL_PAYMENT_PROVIDERS_BEGINNER_CHECKLIST.md](../docs/ru/ALL_PAYMENT_PROVIDERS_BEGINNER_CHECKLIST.md) | Документация |
+| [docs/ru/APP_PROTECTION.md](../docs/ru/APP_PROTECTION.md) | Документация |
 | [docs/ru/AUDIT_2026_09_28_REPOSITORY.md](../docs/ru/AUDIT_2026_09_28_REPOSITORY.md) | Документация |
 | [docs/ru/AUDIT_20_0_15.md](../docs/ru/AUDIT_20_0_15.md) | Документация |
 | [docs/ru/AUDIT_20_0_7.md](../docs/ru/AUDIT_20_0_7.md) | Документация |
@@ -995,6 +997,7 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt) | Мобильные приложения |
@@ -1422,6 +1425,7 @@
 | [tests/test_matrix_privacy.py](../tests/test_matrix_privacy.py) | Проверки |
 | [tests/test_menu_hierarchy.py](../tests/test_menu_hierarchy.py) | Проверки |
 | [tests/test_mobile_family_status.py](../tests/test_mobile_family_status.py) | Проверки |
+| [tests/test_mobile_integrity.py](../tests/test_mobile_integrity.py) | Проверки |
 | [tests/test_mobile_layout.py](../tests/test_mobile_layout.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
 | [tests/test_money_review.py](../tests/test_money_review.py) | Проверки |

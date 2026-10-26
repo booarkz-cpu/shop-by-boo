@@ -18,3 +18,4 @@
 | 15 | Аудит: лимит событий, https для чеков, напоминания всем клиентам | `app_growth.py`, `fiscal.py`, `main.py` | готово |
 | 3 | Встроенный VPN Android: Xray-core, автовыбор и переключение, выбор сервера, «Что работает без VPN» | `vpn/CorgiVpnService.kt`, `XrayEngine.kt`, `ShareLinks.kt`, `scripts/mobile/build-xray-aar.sh` | готово (Android; iOS — Network Extension позже) |
 | 9 | UI-тесты приложений: Compose (Android, оба приложения) и XCUITest (iOS) в CI | `app/src/androidTest`, `VpnShopUserUITests`, `ci.yml` | готово |
+| 10 | Защита приложений: привязка сертификата, Play Integrity, DeviceCheck | `security/CorgiTrust.kt`, `CorgiTrust` (iOS), `mobile_integrity.py`, `docs/ru/APP_PROTECTION.md` | готово (включается ключами владельца) |

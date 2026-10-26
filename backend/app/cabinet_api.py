@@ -309,6 +309,9 @@ class MobileTokenIn(BaseModel):
 async def mobile_token(payload: MobileTokenIn, request: Request, response: Response):
     from .main import redis_client
     from .mobile_auth import exchange_mobile_code
+    from .mobile_integrity import require_integrity
+    # Every native sign-in ends here: Play Integrity / DeviceCheck when MOBILE_INTEGRITY_MODE is on.
+    await require_integrity(request)
     result = await exchange_mobile_code(request, payload.code, payload.code_verifier, redis_client)
     response.headers["Cache-Control"] = "no-store"
     response.headers["Pragma"] = "no-cache"

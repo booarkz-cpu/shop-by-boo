@@ -30,6 +30,10 @@ android {
             .trim().trimEnd('/').replace("\\", "").replace("\"", "")
         require(shopUrl.isEmpty() || shopUrl.startsWith("https://")) { "corgi.shop_url must start with https://" }
         buildConfigField("String", "SHOP_URL", "\"$shopUrl\"")
+        // Certificate pins of the shop API (base64 SHA-256 of SPKI, comma separated); empty — no pinning.
+        val pins = ((project.findProperty("corgi.pins") as String?) ?: System.getenv("CORGI_PINS") ?: "").replace("\"", "").replace("\\", "")
+        require(pins.isEmpty() || shopUrl.isNotEmpty()) { "corgi.pins needs corgi.shop_url" }
+        buildConfigField("String", "CERT_PINS", "\"$pins\"")
     }
     buildFeatures {
         compose = true
@@ -81,6 +85,8 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    // Play Integrity of sign-ins (MOBILE_INTEGRITY_MODE on the shop); idle when the shop does not ask.
+    implementation("com.google.android.play:integrity:1.4.0")
     // Embedded VPN engine (Xray-core via libv2ray.aar, scripts/mobile/build-xray-aar.sh). Optional:
     // without it the app hands the subscription to Happ, v2rayNG or Hiddify.
     if (file("libs/libv2ray.aar").exists()) implementation(files("libs/libv2ray.aar"))

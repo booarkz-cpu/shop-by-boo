@@ -547,6 +547,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/wallet/topup` | Wallet Topup |
 | `GET` | `/api/me/widget` | Widget Summary |
 | `POST` | `/api/mobile/events` | Collect Events |
+| `POST` | `/api/mobile/integrity/challenge` | Integrity Challenge |
 | `GET` | `/api/mobile/layout` | Mobile Layout |
 | `GET` | `/api/mobile/push-style` | Public Push Style |
 | `POST` | `/api/payments/create` | Create Payment |
