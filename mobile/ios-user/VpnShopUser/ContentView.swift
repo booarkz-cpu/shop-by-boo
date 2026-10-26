@@ -39,6 +39,9 @@ struct UserRootView: View {
     @State private var pushEnabled = PushCenter.shared.enabled
     @State private var passkeys: [[String: Any]] = []
     @State private var passkeyPassword = ""
+    @State private var family: [String: Any] = [:]
+    @State private var familyCode = ""
+    @State private var serviceStatus: [String: Any] = [:]
 
     private static func detectLanguage() -> String {
         let code = Locale.preferredLanguages.first?.lowercased() ?? "ru"
@@ -119,7 +122,7 @@ struct UserRootView: View {
         VStack(alignment: .leading, spacing: 10) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(["overview", "plans", "builder", "servers", "connection", "devices", "notifications", "security", "diagnostics", "privacy", "support"], id: \.self) { key in
+                    ForEach(["overview", "plans", "builder", "servers", "connection", "family", "devices", "notifications", "status", "security", "diagnostics", "privacy", "support"], id: \.self) { key in
                         Button(t(key)) { tab = key }.buttonStyle(.bordered).tint(tab == key ? Color(red: 0.54, green: 0.47, blue: 1.0) : .gray)
                     }
                 }
@@ -244,6 +247,10 @@ struct UserRootView: View {
             Text("Protected traffic: \(jsonText(privacy["protected_traffic_bytes"]))")
             Text("Family Plan: available · Business VPN: available")
             Text("Referral & Rewards: available")
+        case "family":
+            familySection
+        case "status":
+            statusSection
         case "devices":
             if devices.isEmpty { Text(t("no_devices")) }
             ForEach(Array(devices.enumerated()), id: \.offset) { _, device in
@@ -256,6 +263,74 @@ struct UserRootView: View {
             field(t("subject"), text: $subject)
             field(t("message"), text: $message)
             Button(t("send")) { sendTicket() }.disabled(busy)
+        }
+    }
+
+    @ViewBuilder private var familySection: some View {
+        let owned = family["owned"] as? [[String: Any]] ?? []
+        let memberOf = family["member_of"] as? [[String: Any]] ?? []
+        if owned.isEmpty && memberOf.isEmpty { Text(t("family_none")).foregroundStyle(.secondary) }
+        ForEach(Array(owned.enumerated()), id: \.offset) { _, group in
+            Text("\(t("family_owned")): \(jsonText(group["name"]))").font(.headline)
+            Text("\(t("family_seats")): \(jsonInt(group["used"]) ?? 0) / \(jsonInt(group["seats"]) ?? 0)")
+            if let invite = group["invite"] as? [String: Any] {
+                Text("\(t("family_code")): \(jsonText(invite["code"]))").textSelection(.enabled)
+                if let link = URL(string: jsonText(invite["bot"])), !jsonText(invite["bot"]).isEmpty {
+                    ShareLink(item: link) { Text(t("family_invite")) }
+                }
+            } else {
+                Button(t("family_invite")) { familyAction("POST", "/api/me/family/\(jsonInt(group["subscription_id"]) ?? 0)/invite") }.disabled(busy)
+            }
+            ForEach(Array((group["members"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, member in
+                HStack {
+                    Text("\(jsonText(member["name"])) · \(jsonBool(member["synced"]) ? t("family_synced") : t("family_pending"))")
+                    Spacer()
+                    Button(t("family_remove")) { familyAction("DELETE", "/api/me/family/members/\(jsonInt(member["id"]) ?? 0)") }.disabled(busy)
+                }
+            }
+        }
+        ForEach(Array(memberOf.enumerated()), id: \.offset) { _, row in
+            Text("\(t("family_member_of")) · \(t("family_owner")): \(jsonText(row["owner"])) · \(t("expires")) \(jsonText(row["expires_at"]))")
+            Button(t("family_leave")) { familyAction("DELETE", "/api/me/family/members/\(jsonInt(row["id"]) ?? 0)") }.disabled(busy)
+        }
+        field(t("family_code"), text: $familyCode)
+        Button(t("family_join")) {
+            let code = familyCode.trimmingCharacters(in: .whitespaces)
+            guard !code.isEmpty else { return }
+            familyAction("POST", "/api/me/family/join", body: ["code": code], done: t("family_joined"))
+        }.disabled(busy)
+        Text(t("stars_hint")).foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder private var statusSection: some View {
+        let level = jsonText(serviceStatus["status"])
+        let known = ["ok", "degraded", "down"].contains(level)
+        Text(t("status_" + (known ? level : "unknown"))).font(.headline)
+            .foregroundStyle(level == "ok" ? Color.green : level == "degraded" ? Color.orange : level == "down" ? Color.red : Color.secondary)
+        let srv = serviceStatus["servers"] as? [String: Any] ?? [:]
+        Text("\(t("status_servers")): \(jsonInt(srv["online"]) ?? 0) / \(jsonInt(srv["total"]) ?? 0)")
+        ForEach(Array((serviceStatus["countries"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, c in
+            Text("\(jsonText(c["country"])) · \(jsonInt(c["online"]) ?? 0) / \(jsonInt(c["total"]) ?? 0)")
+        }
+        ForEach(Array((serviceStatus["components"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, c in
+            Text("\(jsonText(c["name"])) · \(jsonText(c["status"])) \(jsonText(c["message"]))")
+        }
+        Text(t("status_incidents")).font(.subheadline)
+        let incidents = serviceStatus["incidents"] as? [[String: Any]] ?? []
+        if incidents.isEmpty { Text(t("status_none")).foregroundStyle(.secondary) }
+        ForEach(Array(incidents.enumerated()), id: \.offset) { _, i in
+            Text("\(jsonText(i["title"])) · \(jsonText(i["since"]))").foregroundStyle(.orange)
+        }
+    }
+
+    private func familyAction(_ method: String, _ path: String, body: [String: Any]? = nil, done: String? = nil) {
+        work {
+            _ = try ShopClient(base: base, token: token, lang: lang).call(method, path, body: body)
+            DispatchQueue.main.async {
+                if let done { notice = done }
+                familyCode = ""
+                refresh()
+            }
         }
     }
 
@@ -357,6 +432,9 @@ struct UserRootView: View {
             let nextPrivacy = try api.call("GET", "/api/me/mobile/privacy") as? [String: Any] ?? [:]
             let nextLiveConnection = try api.call("GET", "/api/me/mobile/connection") as? [String: Any] ?? [:]
             let nextLogo = logoImage(api, "/api/public/apps")
+            // Shops on releases before v28.25.0 have no family or status page: keep the rest working.
+            let nextFamily = (try? api.call("GET", "/api/me/family")) as? [String: Any] ?? [:]
+            let nextStatus = (try? api.call("GET", "/api/public/service-status")) as? [String: Any] ?? [:]
             // Re-bind a rotated APNs token, or the same token to a re-issued session.
             if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
                 _ = try? PushCenter.register(base: base, session: token, lang: lang, token: current)
@@ -374,6 +452,8 @@ struct UserRootView: View {
                 notifications = nextNotifications
                 routing = nextRouting
                 logo = nextLogo
+                family = nextFamily
+                serviceStatus = nextStatus
             }
         }
     }
