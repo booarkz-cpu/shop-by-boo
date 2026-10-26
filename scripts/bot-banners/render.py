@@ -15,6 +15,7 @@ docs/img/bot-banners-all.jpg (all banners on one sheet).
     python3 scripts/bot-banners/render.py start buy    # selected ones
     python3 scripts/bot-banners/render.py --extras     # banners + README cover and sheet
     python3 scripts/bot-banners/render.py --stickers   # only dump the cut stickers to /tmp
+    python3 scripts/bot-banners/render.py --assets     # only the interface stickers (cabinet/public/assets/stickers)
 
 Needs Pillow, NumPy and Python Playwright with Chromium.
 """
@@ -32,6 +33,11 @@ ROOT = HERE.parents[1]
 STICKERS = HERE / "source/stickers"
 OUT = ROOT / "backend/app/assets/bot_banners"
 MINIAPP = ROOT / "cabinet/public/assets/banners"
+STICKER_ASSETS = ROOT / "cabinet/public/assets/stickers"
+# Stickers the cabinet and Mini App show on their own: result screens, empty and error states,
+# maintenance and the pictures of promo cards (app_config.PROMO_STICKERS).
+INTERFACE_STICKERS = ("waiting", "success", "error404", "bugs", "maintenance", "goodbye",
+                      "holiday", "gift", "vip", "payment", "delivery")
 DOCS = ROOT / "docs/img"
 W, H = 1280, 640
 INK = "#3a2416"
@@ -301,6 +307,14 @@ def hero_html() -> str:
 def main(argv):
     from playwright.sync_api import sync_playwright
     flags = {a for a in argv if a.startswith("--")}
+    if "--assets" in flags:
+        STICKER_ASSETS.mkdir(parents=True, exist_ok=True)
+        for name in INTERFACE_STICKERS:
+            img = sticker(name, outline=10)
+            img.thumbnail((420, 420), Image.LANCZOS)
+            img.save(STICKER_ASSETS / f"{name}.webp", "WEBP", quality=86, method=6)
+            print("saved", (STICKER_ASSETS / f"{name}.webp").relative_to(ROOT))
+        return
     if "--stickers" in flags:
         out = pathlib.Path("/tmp/lusi-stickers")
         out.mkdir(exist_ok=True)

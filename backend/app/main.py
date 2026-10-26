@@ -141,6 +141,8 @@ from .remnawave_events import router as remnawave_events_router
 app.include_router(remnawave_events_router)
 from .growth import router as growth_router
 app.include_router(growth_router)
+from .ops_alerts import router as ops_alerts_router
+app.include_router(ops_alerts_router)
 from .account_actions import router as account_actions_router
 app.include_router(account_actions_router)
 from .surveys import router as surveys_router
@@ -595,6 +597,8 @@ async def start_backup_scheduler():
     _track_task(automation_scheduler())
     from .growth import family_scheduler
     _track_task(family_scheduler())
+    from .ops_alerts import ops_alert_scheduler
+    _track_task(ops_alert_scheduler())
 
 @app.get("/health/live")
 async def health_live():
@@ -619,6 +623,31 @@ async def health():
     except Exception as exc:
         logger.warning("Non-critical operation failed: %s", exc)
     return {"ok":redis_ok and db_ok,"version":APP_VERSION,"redis":redis_ok,"database":db_ok,"worker_role":settings.worker_role}
+
+def _return_url(order_id:str, base:str|None=None)->str:
+    """Where the payment page sends the customer back: the cabinet (or Mini App) with ?order=<order id>,
+    so the result screen can show whether the payment went through."""
+    from urllib.parse import urlsplit,urlunsplit,parse_qsl,urlencode
+    raw=(base if base is not None else (settings.cabinet_url or settings.mini_app_url)) or ""
+    if not raw: return raw
+    parts=urlsplit(raw)
+    query=[(k,v) for k,v in parse_qsl(parts.query,keep_blank_values=True) if k!="order"]+[("order",order_id)]
+    return urlunsplit((parts.scheme,parts.netloc,parts.path or "/",urlencode(query),parts.fragment))
+
+
+@app.get("/api/me/payments/order/{order_id}")
+async def my_payment_by_order(order_id:str,request:Request,db:AsyncSession=Depends(get_db)):
+    """Status of the customer's own order for the after-payment screen."""
+    user=await user_from_token(request,db)
+    if len(order_id)>128: raise HTTPException(404,"Платёж не найден")
+    p=await db.scalar(select(Payment).where(Payment.order_id==order_id,Payment.user_id==user.id))
+    if not p: raise HTTPException(404,"Платёж не найден")
+    state="paid" if p.status in {"paid","fulfilled"} and p.fulfillment_status=="completed" else \
+          "failed" if p.status in {"failed","canceled","cancelled","expired"} else \
+          "refunded" if p.status=="refunded" else "processing" if p.status in {"paid","fulfilled"} else "pending"
+    return {"order_id":p.order_id,"state":state,"status":p.status,"fulfillment_status":p.fulfillment_status,"amount":str(p.amount),
+            "currency":p.currency,"purpose":p.purpose or "subscription"}
+
 
 async def send_alert(message:str):
     if settings.alert_telegram_chat_id and settings.bot_token:
@@ -1412,9 +1441,10 @@ async def create_payment(payload:dict, request:Request, db:AsyncSession=Depends(
             if reservation: reservation.payment_id=payment_row.id
             await db.commit()
             try:
-                meta={"order_id":canonical_order_id,"user_id":user.id,"email":user.email,"return_url":settings.cabinet_url or settings.mini_app_url,"cancel_url":settings.cabinet_url or settings.mini_app_url}
+                back=_return_url(canonical_order_id)
+                meta={"order_id":canonical_order_id,"user_id":user.id,"email":user.email,"return_url":back,"cancel_url":back}
                 if candidate in {"stripe","paypal","crypto"}: result=await candidate_provider.create(final_amount,settings.default_currency,f"VPN {plan.name}",meta)
-                else: result=await candidate_provider.create(final_amount,canonical_order_id,f"VPN {plan.name}",settings.cabinet_url or settings.mini_app_url)
+                else: result=await candidate_provider.create(final_amount,canonical_order_id,f"VPN {plan.name}",back)
                 if not result.get("id"):
                     raise RuntimeError("Payment provider returned no payment ID")
                 provider_name=candidate; provider=candidate_provider
@@ -2474,10 +2504,11 @@ async def wallet_topup(payload:dict, request:Request, db:AsyncSession=Depends(ge
     row=Payment(user_id=user.id,plan_id=0,provider=candidate,order_id=order_id,amount=amount,original_amount=amount,discount_amount=Decimal("0.00"),currency=settings.default_currency,status="creating",fulfillment_status="pending",idempotency_key=idem,purpose="topup",bonus_days=0)
     db.add(row); await db.commit(); await db.refresh(row)
     try:
-        meta={"order_id":order_id,"user_id":user.id,"email":user.email,"return_url":settings.cabinet_url or settings.mini_app_url,"cancel_url":settings.cabinet_url or settings.mini_app_url}
+        back=_return_url(order_id)
+        meta={"order_id":order_id,"user_id":user.id,"email":user.email,"return_url":back,"cancel_url":back}
         if candidate in {"stripe","paypal","crypto"}: result=await provider.create(amount,settings.default_currency,"Wallet top-up",meta)
-        elif candidate=="yookassa" and method: result=await provider.create(amount,order_id,"Wallet top-up",settings.mini_app_url,method=method)
-        else: result=await provider.create(amount,order_id,"Wallet top-up",settings.mini_app_url)
+        elif candidate=="yookassa" and method: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url),method=method)
+        else: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url))
         if not result.get("id"): raise RuntimeError("Payment provider returned no payment ID")
         row=(await db.execute(select(Payment).where(Payment.id==row.id).with_for_update())).scalar_one()
         row.provider_payment_id=result["id"]; row.checkout_url=result.get("url")

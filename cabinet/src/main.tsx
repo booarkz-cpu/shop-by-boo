@@ -21,6 +21,7 @@ import type {AccountLink} from "./account-recovery";
 import {DomLocalizer, LangProvider, detectLang, t, useLang} from "./i18n";
 import {AppConfigProvider, useAppConfig} from "./app-config";
 import {FamilySection, StarsSubscribe, StatusSection, familyCodeFromUrl} from "./growth";
+import {MAINTENANCE_EVENT, MaintenanceScreen, PaymentResult, StickerState, isMaintenance, orderFromUrl} from "./stickers";
 import {ConfigIcon, ConfigNotice, ConfigSkeleton, ConsentGate, Greeting, InfoSection, PromoCards, ReferralTerms, SectionBanner, SectionBoundary, ServerCatalog, SupportButtons, WalletTopup} from "./miniapp-sections";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "";
@@ -98,6 +99,7 @@ async function req(path: string, opts: RequestInit = {}) {
     try {
       d = await r.json();
     } catch {}
+    if (!r.ok && isMaintenance(r.status, d.detail)) window.dispatchEvent(new Event(MAINTENANCE_EVENT));
     if (!r.ok) throw Object.assign(
       Error(typeof d.detail==="string" ? d.detail : d.detail?.message || d.message || `HTTP ${r.status}`),
       {status:r.status, detail:d.detail},
@@ -198,6 +200,9 @@ function App() {
   const [needConsent, setNeedConsent] = useState(false);
   const [booting, setBooting] = useState(true);
   const [authed, setAuthed] = useState(false);
+  const [order, setOrder] = useState(() => orderFromUrl());
+  const [maintenance, setMaintenance] = useState(false);
+  useEffect(() => { const on = () => setMaintenance(true); window.addEventListener(MAINTENANCE_EVENT, on); return () => window.removeEventListener(MAINTENANCE_EVENT, on); }, []);
   const [accountFlow,setAccountFlow]=useState<AccountLink|null>(accountLink);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -583,7 +588,10 @@ function App() {
   const currency = cfg.currency || "₽";
   const sub = dash?.subscription;
   const subUrl = connection?.subscription_url || sub?.subscription_url || "";
-  const activeItem = menu.find((m) => m.slug === tab) || menu[0];
+  const known = menu.find((m) => m.slug === tab);
+  const activeItem = known || menu[0];
+  // A link to a section this shop does not have: say so instead of silently opening the first one.
+  const missingSection = Boolean(tab && !known && configStatus !== "loading" && menu.length > 1 && !["overview", "family", "status"].includes(tab));
   const platforms = connection?.platforms || {};
   const platformKeys: string[] = [
     ...PLATFORM_ORDER.filter((k) => k in platforms),
@@ -808,6 +816,10 @@ function App() {
               <ConfigNotice />
               <section className="panel" key={tab}>
                 <SectionBoundary resetKey={tab}>
+                {maintenance ? <MaintenanceScreen onRetry={() => { setMaintenance(false); loadSession(); }} />
+                : order ? <PaymentResult order={order} request={req} go={goKind} onDone={() => { setOrder(""); loadSession(); }} />
+                : missingSection ? <StickerState sticker="error404" title="Раздел не найден" text="Такого раздела нет в этом магазине — возможно, ссылка устарела."><button className="btn-primary" onClick={() => go("overview")}>На главную</button></StickerState>
+                : <>
                 {activeItem && !["custom", "partner"].includes(activeItem.kind) && <SectionBanner kind={activeItem.kind} title={activeItem.title} />}
                 {activeItem?.kind === "overview" && (
                   <>
@@ -903,6 +915,7 @@ function App() {
                     <div className="custom-body" style={{whiteSpace: "pre-wrap"}}>{activeItem.body || ""}</div>
                   </>
                 )}
+                </>}
                 </SectionBoundary>
               </section>
             </main>
