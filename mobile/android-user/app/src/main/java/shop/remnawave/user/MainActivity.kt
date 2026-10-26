@@ -10,7 +10,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -298,6 +300,18 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     var dialog by remember { mutableStateOf("") }
     // A document opened from «Информация» or a «Открыть документ» button (GET /api/public/info-pages/{kind}).
     var openDoc by remember { mutableStateOf<JSONObject?>(null) }
+    // Shop logo from «Android и iOS → логотип» (GET /api/public/apps), shown on sign-in and in the header.
+    var logo by remember { mutableStateOf<ImageBitmap?>(null) }
+    fun loadLogo(origin: String) {
+        if (demo || origin.isBlank()) return
+        thread {
+            try {
+                val catalog = ShopApi(origin, "", lang).get("/api/public/apps") as JSONObject
+                val image = loadLogoBitmap(origin, catalog.optString("logo_url"))?.asImageBitmap()
+                activity.runOnUiThread { logo = image }
+            } catch (_: Exception) { }
+        }
+    }
     var dialogText by remember { mutableStateOf("") }
     var dialogText2 by remember { mutableStateOf("") }
     val strings = remember(lang) { loadStrings(context, lang) }
@@ -365,6 +379,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     fun refresh() {
         val api = ShopApi(base, token, lang)
         loadLayout(base)
+        loadLogo(base)
         thread {
             // Re-bind the push token to the current session (tokens rotate, sessions are re-issued).
             if (CorgiPush.enabled(context) && CorgiPush.permissionGranted(context)) {
@@ -612,14 +627,14 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     }
     LaunchedEffect(base) {
         val normalized = try { normalizeBase(base) } catch (_: Exception) { return@LaunchedEffect }
-        if (token.isBlank()) loadLayout(normalized)
+        if (token.isBlank()) { loadLayout(normalized); loadLogo(normalized) }
     }
 
     val theme = layout.theme
     MaterialTheme(colorScheme = colorScheme(theme)) {
         Box(Modifier.fillMaxSize().background(theme.background)) {
             when {
-                token.isBlank() -> LoginScreen(layout, base, email, password, ui, ::t,
+                token.isBlank() -> LoginScreen(layout, base, email, password, ui, ::t, logo,
                     onBase = { base = it }, onEmail = { email = it }, onPassword = { password = it },
                     onSignIn = { register ->
                         val normalized = try { normalizeBase(base) } catch (_: Exception) { notice(t("https_required")); return@LoginScreen }
@@ -713,7 +728,7 @@ private fun currentLanguageLabel(lang: String): String = when (lang) { "en" -> "
 /** Sign-in screen in the brand colours of the layout. */
 @Composable
 private fun LoginScreen(
-    layout: AppLayout, base: String, email: String, password: String, ui: UiFlags, t: (String) -> String,
+    layout: AppLayout, base: String, email: String, password: String, ui: UiFlags, t: (String) -> String, logo: ImageBitmap?,
     onBase: (String) -> Unit, onEmail: (String) -> Unit, onPassword: (String) -> Unit,
     onSignIn: (Boolean) -> Unit, onPasskey: () -> Unit, onLanguage: () -> Unit,
 ) {
@@ -723,6 +738,7 @@ private fun LoginScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            if (logo != null) { Image(logo, contentDescription = null, modifier = Modifier.size(44.dp)); Spacer(Modifier.width(12.dp)) }
             Text(layout.text("brand"), color = theme.accent, fontSize = 30.sp, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
             if (layout.feature("language_switch")) TextButton(onClick = onLanguage) { Text(languageLabel(layout.lang), color = theme.muted) }
         }

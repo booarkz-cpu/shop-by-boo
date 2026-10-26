@@ -31,6 +31,8 @@ struct UserRootView: View {
     @State private var sheetText2 = ""
     /// A document opened from «Информация» or a «Открыть документ» button.
     @State private var openDoc: [String: Any]?
+    /// Shop logo from «Android и iOS → логотип» (GET /api/public/apps).
+    @State private var logo: UIImage?
     @ObservedObject private var push = PushCenter.shared
     @State private var pushEnabled = PushCenter.shared.enabled
     private let vpnTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
@@ -111,6 +113,7 @@ struct UserRootView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
+                    if let logo { Image(uiImage: logo).resizable().scaledToFit().frame(width: 44, height: 44) }
                     Text(layout.text("brand")).font(.system(size: 30, weight: .black)).foregroundStyle(theme.accent)
                     Spacer()
                     if layout.feature("language_switch") {
@@ -135,7 +138,8 @@ struct UserRootView: View {
             }
             .padding(22)
         }
-        .onChange(of: base) { _ in loadLayout() }
+        .onChange(of: base) { _ in loadLayout(); loadLogo() }
+        .onAppear { loadLogo() }
     }
 
     private var lock: some View {
@@ -794,6 +798,18 @@ struct UserRootView: View {
             } catch PasskeyError.noPasskey {
                 throw NSError(domain: "shop", code: 0, userInfo: [NSLocalizedDescriptionKey: t("passkey_none")])
             }
+        }
+    }
+
+    private func loadLogo() {
+        guard let normalized = try? normalizeBase(base) else { return }
+        let language = lang
+        DispatchQueue.global(qos: .utility).async {
+            let api = ShopClient(base: normalized, token: "", lang: language)
+            guard let catalog = try? api.call("GET", "/api/public/apps") as? [String: Any],
+                  let media = catalog["logo_url"] as? String, let path = safeMediaPath(media),
+                  let data = try? api.bytes(path), let image = UIImage(data: data) else { return }
+            DispatchQueue.main.async { logo = image }
         }
     }
 
