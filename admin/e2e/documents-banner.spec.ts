@@ -1,7 +1,15 @@
 import {test, expect} from '@playwright/test';
 
-// A tiny valid PNG (8×4) as the uploaded banner.
-const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAgAAAAECAIAAAAmkwkpAAAAEklEQVR4nGP4z8DAwMDAgA4AAEoAAZ8xU8EAAAAASUVORK5CYII=', 'base64');
+// A valid PNG generated in the test (same helper as bot-banners.spec.ts).
+import {deflateSync} from 'zlib';
+
+function png(width: number, height: number): Buffer {
+  const crc = (buf: Buffer) => { let c = ~0; for (const b of buf) { c ^= b; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1)); } return ~c >>> 0; };
+  const chunk = (type: string, data: Buffer) => { const len = Buffer.alloc(4); len.writeUInt32BE(data.length); const td = Buffer.concat([Buffer.from(type), data]); const c = Buffer.alloc(4); c.writeUInt32BE(crc(td)); return Buffer.concat([len, td, c]); };
+  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4); ihdr[8] = 8; ihdr[9] = 2;
+  const raw = Buffer.alloc((width * 3 + 1) * height, 0x80); for (let y = 0; y < height; y++) raw[y * (width * 3 + 1)] = 0;
+  return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]);
+}
 
 test('administrator sets the text and the banner of a document and both appear everywhere', async ({page}) => {
   await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
@@ -23,7 +31,7 @@ test('administrator sets the text and the banner of a document and both appear e
   await expect(banner.getByRole('img', {name: 'Баннер: Политика конфиденциальности'})).toHaveAttribute('src', /\/api\/bot\/banners\/default\/privacy\.jpg$/);
   await Promise.all([
     page.waitForResponse((r) => r.url().endsWith('/api/admin/bot/banners/privacy') && r.request().method() === 'POST' && r.ok()),
-    banner.getByLabel('Загрузить своё изображение', {exact: true}).setInputFiles({name: 'privacy.png', mimeType: 'image/png', buffer: PNG}),
+    banner.getByLabel('Загрузить своё изображение', {exact: true}).setInputFiles({name: 'privacy.png', mimeType: 'image/png', buffer: png(640, 320)}),
   ]);
   const doc = await page.evaluate(async () => (await (await fetch('/api/public/info-pages/privacy?lang=ru', {cache: 'no-store'})).json()));
   expect(doc.body).toContain('Храним только **email**');
