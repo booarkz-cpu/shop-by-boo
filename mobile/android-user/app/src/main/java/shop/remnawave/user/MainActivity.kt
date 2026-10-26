@@ -117,11 +117,14 @@ class MainActivity : FragmentActivity() {
     companion object {
         /** corgi://login?base=…&code=… waiting to be redeemed (cold start or onNewIntent). */
         val pendingLogin = androidx.compose.runtime.mutableStateOf<LoginLink?>(null)
+        /** Section a tapped push (or its button) opens. */
+        val pendingTab = androidx.compose.runtime.mutableStateOf<String?>(null)
     }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         LoginLink.parse(intent.data)?.let { pendingLogin.value = it }
+        intent.getStringExtra(CorgiPush.EXTRA_TAB)?.let { pendingTab.value = it }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,7 +134,8 @@ class MainActivity : FragmentActivity() {
         if (!demo) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
         // A tapped push opens the notification center (FCM puts the data payload into extras).
         val initialTab = if (demo) intent?.getStringExtra("corgi_tab") ?: "overview"
-            else if (intent?.hasExtra(CorgiPush.EXTRA_TAB) == true || intent?.hasExtra("notification_id") == true) "notifications" else "overview"
+            else if (intent?.hasExtra(CorgiPush.EXTRA_TAB) == true) intent?.getStringExtra(CorgiPush.EXTRA_TAB)?.takeIf { Regex("[a-z][a-z0-9_-]{0,31}").matches(it) } ?: "notifications"
+            else if (intent?.hasExtra("notification_id") == true) "notifications" else "overview"
         val demoLang = if (demo) intent?.getStringExtra("corgi_lang") else null
         setContent { MaterialTheme(colorScheme = shopColors()) { UserApp(initialTab, demo, demoLang) } }
     }
@@ -716,6 +720,11 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     LaunchedEffect(base) {
         val normalized = try { normalizeBase(base) } catch (_: Exception) { return@LaunchedEffect }
         if (token.isBlank()) { loadLayout(normalized); loadLogo(normalized); loadMethods(normalized) }
+    }
+    val pushTab by MainActivity.pendingTab
+    LaunchedEffect(pushTab, layout) {
+        val target = pushTab ?: return@LaunchedEffect
+        if (layout.section(target) != null) { tab = target; openDoc = null; MainActivity.pendingTab.value = null }
     }
     val pending by MainActivity.pendingLogin
     LaunchedEffect(pending) {

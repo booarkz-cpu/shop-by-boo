@@ -64,11 +64,22 @@ object CorgiPush {
         return true
     }
 
+    /** Groups of notifications in the Android settings («Приложения: стиль push-уведомлений» → группа). */
+    private val CHANNELS = mapOf(
+        "important" to Pair("Подписка и оплата", NotificationManager.IMPORTANCE_HIGH),
+        "service" to Pair("Сервис и поддержка", NotificationManager.IMPORTANCE_DEFAULT),
+        "promo" to Pair("Акции и розыгрыши", NotificationManager.IMPORTANCE_DEFAULT),
+    )
+
     fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT < 26) return
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
-        if (manager.getNotificationChannel(CHANNEL) != null) return
-        manager.createNotificationChannel(NotificationChannel(CHANNEL, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT))
+        if (manager.getNotificationChannel(CHANNEL) == null)
+            manager.createNotificationChannel(NotificationChannel(CHANNEL, context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT))
+        CHANNELS.forEach { (id, value) ->
+            if (manager.getNotificationChannel("corgi_$id") == null)
+                manager.createNotificationChannel(NotificationChannel("corgi_$id", value.first, value.second))
+        }
     }
 
     /** Blocking: registers the FCM token for the current session. Call off the main thread. */
@@ -102,25 +113,60 @@ object CorgiPush {
         }
     }
 
-    fun show(context: Context, title: String?, body: String?, notificationId: String?) {
-        if (!permissionGranted(context)) return
-        ensureChannel(context)
+    private fun openIntent(context: Context, section: String, requestCode: Int): PendingIntent {
         val open = Intent(context, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            .putExtra(EXTRA_TAB, "notifications")
-        val id = notificationId?.toIntOrNull() ?: (System.currentTimeMillis() and 0x7fffffff).toInt()
-        val pending = PendingIntent.getActivity(context, id, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        val notification = NotificationCompat.Builder(context, CHANNEL)
+            .putExtra(EXTRA_TAB, section.ifBlank { "notifications" })
+        return PendingIntent.getActivity(context, requestCode, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    /** A picture of the push: https only, at most 1 MB, a few seconds; without it the push still shows. */
+    private fun picture(url: String): android.graphics.Bitmap? {
+        if (!url.startsWith("https://")) return null
+        return try {
+            val connection = (java.net.URL(url).openConnection() as java.net.HttpURLConnection).apply {
+                instanceFollowRedirects = false; connectTimeout = 5000; readTimeout = 5000
+            }
+            if (connection.responseCode !in 200..299) return null
+            val bytes = connection.inputStream.use { it.readBytes() }
+            if (bytes.size > 1_000_000) null else android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        } catch (_: Exception) { null }
+    }
+
+    /** Styled push from the shop: data fields of push.py send_fcm (title, body, image, buttons, channel, accent…). */
+    fun show(context: Context, data: Map<String, String>) {
+        if (!permissionGranted(context)) return
+        ensureChannel(context)
+        val id = data["notification_id"]?.toIntOrNull() ?: (System.currentTimeMillis() and 0x7fffffff).toInt()
+        val body = data["body"].orEmpty()
+        val channel = data["channel"]?.takeIf { it in CHANNELS }?.let { "corgi_$it" } ?: CHANNEL
+        val builder = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.corgi_logo)
-            .setContentTitle(title ?: context.getString(R.string.app_name))
-            .setContentText(body.orEmpty())
-            .setStyle(NotificationCompat.BigTextStyle().bigText(body.orEmpty()))
+            .setContentTitle(data["title"] ?: context.getString(R.string.app_name))
+            .setContentText(body)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setAutoCancel(true)
-            .setContentIntent(pending)
-            .build()
-        try { NotificationManagerCompat.from(context).notify(id, notification) } catch (_: SecurityException) { }
+            .setContentIntent(openIntent(context, data["section"].orEmpty(), id))
+        try { data["accent"]?.takeIf { it.matches(Regex("#[0-9a-fA-F]{6}")) }?.let { builder.setColor(android.graphics.Color.parseColor(it)).setColorized(false) } } catch (_: Exception) { }
+        if (data["sound"] == "0") builder.setSilent(true)
+        if (data["large_icon"] != "0") android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.corgi_logo)?.let { builder.setLargeIcon(it) }
+        data["group"]?.takeIf { it.isNotBlank() }?.let { builder.setGroup("corgi_$it") }
+        val image = picture(data["image"].orEmpty())
+        if (image != null) builder.setStyle(NotificationCompat.BigPictureStyle().bigPicture(image).setSummaryText(body))
+        else builder.setStyle(NotificationCompat.BigTextStyle().bigText(body))
+        try {
+            val buttons = org.json.JSONArray(data["buttons"] ?: "[]")
+            for (i in 0 until minOf(2, buttons.length())) {
+                val button = buttons.optJSONObject(i) ?: continue
+                val label = button.optString("label").take(24)
+                if (label.isNotBlank()) builder.addAction(0, label, openIntent(context, button.optString("section"), id * 4 + i + 1))
+            }
+        } catch (_: Exception) { }
+        try { NotificationManagerCompat.from(context).notify(id, builder.build()) } catch (_: SecurityException) { }
     }
+
+    fun show(context: Context, title: String?, body: String?, notificationId: String?) =
+        show(context, mapOf("title" to (title ?: ""), "body" to body.orEmpty(), "notification_id" to (notificationId ?: "")).filterValues { it.isNotEmpty() })
 }
 
 class CorgiMessagingService : FirebaseMessagingService() {
@@ -134,9 +180,15 @@ class CorgiMessagingService : FirebaseMessagingService() {
         thread { try { CorgiPush.register(applicationContext, base, session, lang, token) } catch (_: Exception) { } }
     }
 
-    // Background notification messages are shown by the system; this handles the foreground case.
+    // Styled pushes are data messages drawn here, in the foreground and the background alike.
+    // An older shop sends a notification message: the system shows it in the background.
     override fun onMessageReceived(message: RemoteMessage) {
-        val notification = message.notification ?: return
-        CorgiPush.show(this, notification.title, notification.body, message.data["notification_id"])
+        val notification = message.notification
+        if (notification != null) {
+            CorgiPush.show(this, notification.title, notification.body, message.data["notification_id"])
+            return
+        }
+        if (message.data["title"].isNullOrBlank() && message.data["body"].isNullOrBlank()) return
+        CorgiPush.show(this, message.data)
     }
 }

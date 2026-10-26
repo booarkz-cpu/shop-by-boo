@@ -175,20 +175,29 @@ def _fcm_error_code(response: httpx.Response) -> str:
     return str(error.get("status") or "")
 
 
-async def send_fcm(token: str, title: str, body: str, data: dict[str, str], collapse: str) -> SendResult:
+async def send_fcm(token: str, title: str, body: str, data: dict[str, str], collapse: str, look: dict | None = None) -> SendResult:
     async with client_factory(False) as client:
         try:
             access = await _fcm_access_token(client)
         except PushConfigError as exc:
             return SendResult("config_error", str(exc))
-        message = {
-            "message": {
-                "token": token,
-                "notification": {"title": title, "body": body},
-                "data": data,
-                "android": {"priority": "HIGH", "collapse_key": collapse, "notification": {"channel_id": ANDROID_CHANNEL, "tag": collapse}},
+        if look is not None:
+            # Styled push («Приложения: стиль push-уведомлений»): a data message the app draws
+            # itself — brand colour, banner picture, buttons, channel — also in the background.
+            styled = {**data, "title": title, "body": body, "image": look.get("image", ""), "section": look.get("section", ""),
+                      "buttons": json.dumps(look.get("buttons", []), ensure_ascii=False), "channel": look.get("channel", "service"),
+                      "accent": look.get("accent", ""), "sound": "1" if look.get("sound", True) else "0",
+                      "large_icon": "1" if look.get("large_icon", True) else "0", "group": look.get("group", "")}
+            message = {"message": {"token": token, "data": styled, "android": {"priority": "HIGH", "collapse_key": collapse, "ttl": "86400s"}}}
+        else:
+            message = {
+                "message": {
+                    "token": token,
+                    "notification": {"title": title, "body": body},
+                    "data": data,
+                    "android": {"priority": "HIGH", "collapse_key": collapse, "notification": {"channel_id": ANDROID_CHANNEL, "tag": collapse}},
+                }
             }
-        }
         response = await client.post(
             f"https://fcm.googleapis.com/v1/projects/{settings.fcm_project_id.strip()}/messages:send",
             json=message,
@@ -222,12 +231,25 @@ def apns_host() -> str:
     return "api.sandbox.push.apple.com" if settings.apns_environment.strip().lower() == "sandbox" else "api.push.apple.com"
 
 
-async def send_apns(token: str, title: str, body: str, data: dict[str, str], collapse: str) -> SendResult:
+async def send_apns(token: str, title: str, body: str, data: dict[str, str], collapse: str, look: dict | None = None) -> SendResult:
     try:
         bearer = _apns_bearer()
     except (PushConfigError, ValueError, TypeError) as exc:
         return SendResult("config_error", f"APNs key: {exc}"[:200])
     payload = {"aps": {"alert": {"title": title, "body": body}, "sound": "default"}, **data}
+    if look is not None:
+        aps = payload["aps"]
+        if not look.get("sound", True):
+            aps.pop("sound")
+        # The category carries the buttons the app registered (GET /api/mobile/push-style);
+        # the service extension of the app downloads the picture (mutable-content).
+        aps["category"] = data.get("style", "default")
+        if look.get("group"):
+            aps["thread-id"] = look["group"]
+        if look.get("image"):
+            aps["mutable-content"] = 1
+            payload["image"] = look["image"]
+        payload["section"] = look.get("section", "")
     headers = {
         "authorization": f"bearer {bearer}",
         "apns-topic": settings.apns_bundle_id.strip(),
@@ -253,15 +275,19 @@ async def send_apns(token: str, title: str, body: str, data: dict[str, str], col
     return SendResult("retry", f"APNs {reason or response.status_code}")
 
 
-async def send(device: PushDevice, row: Notification) -> SendResult:
+async def send(device: PushDevice, row: Notification, look: dict | None = None) -> SendResult:
     title, body = push_content(row)
     data = {"notification_id": str(row.id), "kind": row.kind}
+    if look is not None:
+        from .push_style import style_kind
+        data["style"] = style_kind(row.kind)
+        title, body = _clip(look["title"], TITLE_LIMIT), (PRIVATE_KINDS.get(row.kind) or _clip(look["body"], BODY_LIMIT))
     collapse = f"n{row.id}"
     token = decrypt_secret(device.token_encrypted)
     if device.provider == "fcm":
-        return await send_fcm(token, title, body, data, collapse)
+        return await send_fcm(token, title, body, data, collapse, look)
     if device.provider == "apns":
-        return await send_apns(token, title, body, data, collapse)
+        return await send_apns(token, title, body, data, collapse, look)
     return SendResult("config_error", "unknown provider")
 
 
@@ -364,8 +390,16 @@ async def _deliver_one(db: AsyncSession, delivery_id: int, now: datetime) -> str
     elif row.created_at < now - DELIVERY_TTL:
         outcome = finish("expired", "older than 24h")
     else:
+        from . import push_style
+        from .app_login import api_base
+        title, body = push_content(row)
+        look = push_style.render(await push_style.load(db), row.kind, title, body, api_base())
+        if not look["enabled"]:
+            outcome = finish("skipped", "kind switched off")
+            await db.commit()
+            return outcome
         try:
-            result = await send(device, row)
+            result = await send(device, row, look)
         except (httpx.HTTPError, asyncio.TimeoutError) as exc:
             result = SendResult("retry", f"{type(exc).__name__}")
         except Exception as exc:  # malformed key material, decrypt failure

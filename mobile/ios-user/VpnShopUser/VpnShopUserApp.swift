@@ -307,6 +307,8 @@ final class PushCenter: ObservableObject {
     static let enabledKey = "push_enabled"
     static let tokenKey = "push_token"
     @Published var openNotifications = false
+    /// Section a tapped push or one of its buttons opens («Приложения: стиль push-уведомлений»).
+    @Published var openSection: String?
     @Published private(set) var latestToken: String?
     private var pending: ((Result<String, Error>) -> Void)?
 
@@ -351,6 +353,24 @@ final class PushCenter: ObservableObject {
         return response
     }
 
+    /// Buttons of every push type as notification categories (GET /api/mobile/push-style).
+    /// Blocking network call; run off the main queue. Failures keep the previous categories.
+    static func registerCategories(base: String, lang: String) {
+        guard let style = try? ShopClient(base: base, token: "", lang: lang).call("GET", "/api/mobile/push-style") as? [String: Any],
+              let categories = style["categories"] as? [String: Any] else { return }
+        var set = Set<UNNotificationCategory>()
+        for (kind, raw) in categories {
+            let buttons = (raw as? [[String: Any]] ?? []).prefix(2)
+            let actions = buttons.compactMap { button -> UNNotificationAction? in
+                let label = jsonText(button["label"]), section = jsonText(button["section"])
+                guard !label.isEmpty, section.range(of: "^[a-z][a-z0-9_-]{0,31}$", options: .regularExpression) != nil else { return nil }
+                return UNNotificationAction(identifier: "open:\(section)", title: String(label.prefix(24)), options: [.foreground])
+            }
+            set.insert(UNNotificationCategory(identifier: kind, actions: actions, intentIdentifiers: [], options: []))
+        }
+        UNUserNotificationCenter.current().setNotificationCategories(set)
+    }
+
     /// Blocking network call that never throws: revoke on the server, then stop APNs locally.
     static func unregister(base: String, session: String, lang: String) {
         let token = UserDefaults.standard.string(forKey: tokenKey)
@@ -384,7 +404,13 @@ final class PushAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        DispatchQueue.main.async { PushCenter.shared.openNotifications = true }
+        let action = response.actionIdentifier
+        let info = response.notification.request.content.userInfo
+        var section = action.hasPrefix("open:") ? String(action.dropFirst(5)) : (info["section"] as? String ?? "")
+        if section.range(of: "^[a-z][a-z0-9_-]{0,31}$", options: .regularExpression) == nil { section = "" }
+        DispatchQueue.main.async {
+            if section.isEmpty { PushCenter.shared.openNotifications = true } else { PushCenter.shared.openSection = section }
+        }
         completionHandler()
     }
 }

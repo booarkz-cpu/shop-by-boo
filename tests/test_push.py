@@ -169,9 +169,13 @@ async def test_fcm_delivery_signs_service_account_and_hides_support_text(databas
     assert sent[0].headers["authorization"] == "Bearer oauth-access"
     messages = [json.loads(call.content)["message"] for call in sent]
     assert messages[0]["token"] == FCM_TOKEN
-    assert messages[0]["data"] == {"notification_id": str(payment.id), "kind": "payment_success"}
-    assert messages[0]["android"]["notification"]["channel_id"] == push.ANDROID_CHANNEL
-    assert messages[1]["notification"]["body"] == push.PRIVATE_KINDS["support.reply"]
+    # Styled data messages (push_style.py): the app draws title, picture, buttons and channel itself.
+    data = messages[0]["data"]
+    assert (data["notification_id"], data["kind"], data["style"], data["channel"], data["section"]) == (str(payment.id), "payment_success", "payment", "important", "vpn")
+    assert data["title"].startswith("✅ ") and json.loads(data["buttons"]) == [{"label": "Подключить", "section": "vpn"}]
+    assert all(isinstance(v, str) for v in data.values()), "FCM data values are strings"
+    assert "notification" not in messages[0] and messages[0]["android"]["priority"] == "HIGH"
+    assert messages[1]["data"]["body"] == push.PRIVATE_KINDS["support.reply"]
     assert "1234" not in sent[1].content.decode()
     rows = (await database.execute(select(PushDelivery))).scalars().all()
     assert {row.status for row in rows} == {"sent"} and all(row.sent_at for row in rows)

@@ -260,6 +260,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/push-campaigns` | List Campaigns |
 | `POST` | `/api/admin/push-campaigns` | Create Campaign |
 | `POST` | `/api/admin/push-campaigns/preview` | Preview Campaign |
+| `DELETE` | `/api/admin/push-style` | Admin Push Style Reset |
+| `GET` | `/api/admin/push-style` | Admin Push Style |
+| `PUT` | `/api/admin/push-style` | Admin Push Style Save |
 | `GET` | `/api/admin/push/status` | Admin Push Status |
 | `GET` | `/api/admin/recovery` | Admin Recovery |
 | `GET` | `/api/admin/recovery/operations` | Recovery Operations |
@@ -545,6 +548,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/widget` | Widget Summary |
 | `POST` | `/api/mobile/events` | Collect Events |
 | `GET` | `/api/mobile/layout` | Mobile Layout |
+| `GET` | `/api/mobile/push-style` | Public Push Style |
 | `POST` | `/api/payments/create` | Create Payment |
 | `POST` | `/api/payments/mobile/verify` | Verify Mobile Purchase |
 | `GET` | `/api/payments/providers` | Payment Providers |

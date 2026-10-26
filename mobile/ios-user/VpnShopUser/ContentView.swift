@@ -120,6 +120,9 @@ struct UserRootView: View {
         }
         .onChange(of: tab) { value in track("screen", value) }
         .onChange(of: vpn) { value in if value == .on { track("connected") } }
+        .onChange(of: push.openSection) { section in
+            if let section, layout.section(section) != nil { tab = section; openDoc = nil; push.openSection = nil }
+        }
         .onChange(of: push.openNotifications) { open in
             if open, layout.section("notifications") != nil { tab = "notifications"; push.openNotifications = false }
         }
@@ -956,6 +959,7 @@ struct UserRootView: View {
         guard let normalized = try? normalizeBase(base) else { return }
         let language = lang
         DispatchQueue.global(qos: .utility).async {
+            PushCenter.registerCategories(base: normalized, lang: language)
             if let next = LayoutStore.fetch(base: normalized, lang: language) {
                 DispatchQueue.main.async { if language == lang { layout = next; CorgiAnalytics.enabled = next.feature("analytics") } }
             }
