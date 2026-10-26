@@ -1,4 +1,5 @@
 """3.1.3 installer reads answers from the terminal when stdin is a pipe."""
+from main_source import main_source
 import os
 import pty
 import select
@@ -9,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_313_is_first():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert main.index('APP_VERSION = "3.1.3"') < main.index('APP_VERSION = "3.1.2"')
     assert main.index('APP_VERSION = "3.1.2"') < main.index('APP_VERSION = "3.1.1"')
     build = (ROOT / "scripts/build-release.sh").read_text()

@@ -1,4 +1,5 @@
 """2.12.0 Telegram broadcast from the admin panel and the admin apps."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -6,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_broadcast_queue_resumes_and_is_exposed():
     bot = (ROOT / "backend/app/bot.py").read_text()
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     admin = (ROOT / "admin/src/main.tsx").read_text()
     android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
     ios = (ROOT / "mobile/ios-admin/VpnShopAdmin/ContentView.swift").read_text()

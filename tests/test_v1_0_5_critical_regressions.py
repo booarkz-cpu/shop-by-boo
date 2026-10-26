@@ -1,6 +1,7 @@
+from main_source import main_source
 from pathlib import Path
 
-MAIN = Path("backend/app/main.py").read_text()
+MAIN = main_source()
 
 
 def test_fulfillment_reloads_payment_after_payment_lock_before_remote_side_effects():

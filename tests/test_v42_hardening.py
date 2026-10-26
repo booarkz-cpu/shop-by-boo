@@ -1,3 +1,4 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT=Path(__file__).parents[1]
@@ -5,13 +6,13 @@ ROOT=Path(__file__).parents[1]
 def read(rel): return (ROOT/rel).read_text()
 
 def test_v42_version_and_migration():
-    main=read('backend/app/main.py')
+    main=main_source()
     mig=read('backend/alembic/versions/0021_v43_hardening_docs.py')
     assert 'APP_VERSION = "43.1.0-production"' in main
     assert 'down_revision="0020_v42_bot_miniapp"' in mig
 
 def test_payment_creation_does_not_ambiguous_fallback():
-    s=read('backend/app/main.py')
+    s=main_source()
     part=s[s.index('async def create_payment'):s.index('async def fulfill')]
     assert 'fallback_blocked' in part
     assert 'candidate=provider_order[0]' in part
@@ -24,13 +25,13 @@ def test_admin_session_persists_last_seen():
     assert 'await db.commit()' in part
 
 def test_staging_gate_requires_full_e2e_marker():
-    s=read('backend/app/main.py')
+    s=main_source()
     assert "full_pass = False" in s
     # Real payments are an administrator's switch, open by default.
     assert 'PRODUCTION_PAYMENTS_CLOSED_KEY="payments.real.closed"' in s
 
 def test_content_upload_endpoints_and_public_config():
-    s=read('backend/app/main.py')
+    s=main_source()
     assert '/api/admin/bot/start-image' in s
     assert '/api/admin/miniapp/image' in s
     assert 'bot_start_image' in s
@@ -54,14 +55,14 @@ def test_build_release_points_to_v42():
     assert '0021_v43_hardening_docs' in s
 
 def test_public_config_does_not_dump_private_app_settings():
-    s=read('backend/app/main.py')
+    s=main_source()
     assert 'AppSetting.key.in_({' in s
     assert 'staging_e2e.config' not in s[s.index('async def public_config'):s.index('async def api_me')]
     assert 'backup_password' not in s[s.index('async def public_config'):s.index('async def api_me')]
 
 
 def test_content_setting_endpoint_is_allowlisted():
-    s=read('backend/app/main.py')
+    s=main_source()
     start=s.index('async def admin_setting')
     end=s.index('@app.post("/api/admin/bot/start-image")')
     part=s[start:end]

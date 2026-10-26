@@ -1,10 +1,11 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_v250_constructor_checkout_and_monitoring_are_wired():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     tariff = (ROOT / "backend/app/tariff_api.py").read_text()
     models = (ROOT / "backend/app/models.py").read_text()
     migration = (ROOT / "backend/alembic/versions/0037_v2_5_0_tariff_constructor.py").read_text()

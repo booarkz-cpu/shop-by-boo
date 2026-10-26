@@ -1,3 +1,4 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,13 +29,13 @@ def test_settings_cover_paths_used_at_import_and_backup():
 
 
 def test_invalid_content_length_has_json_response_in_scope():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     dispatch = main[main.index("async def _dispatch"):main.index("response = await call_next(request)")]
     assert dispatch.index("from fastapi.responses import JSONResponse") < dispatch.index("Invalid Content-Length")
 
 
 def test_yookassa_webhook_ip_allowlist_fails_closed():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     payments = (ROOT / "backend/app/payments.py").read_text()
     assert 'if not settings.yookassa_webhook_ip_allowlist or not _ip_allowed(client_ip,settings.yookassa_webhook_ip_allowlist): raise HTTPException(403,"Webhook IP not allowed")' in main
     assert "YooKassa webhook IP allowlist is not configured" in payments
@@ -42,7 +43,7 @@ def test_yookassa_webhook_ip_allowlist_fails_closed():
 
 
 def test_media_deletion_uses_basename_only():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert 'pathlib.Path(old.removeprefix("/media/")).name' in main
     assert 'pathlib.Path(settings.media_dir,old.removeprefix("/media/"))' not in main
     assert 'pathlib.Path(settings.media_dir,row.value.removeprefix("/media/"))' not in main

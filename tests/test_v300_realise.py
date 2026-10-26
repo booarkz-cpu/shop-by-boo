@@ -1,11 +1,12 @@
 """3.0.0-realise production audit contracts."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_release_identity_and_docs():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     notes = (ROOT / "RELEASE_NOTES_V3_0_0.md").read_text()
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     checklist = (ROOT / "docs/archive/instructions_before_21_0_1/PRODUCTION_CHECKLIST.md").read_text()
@@ -21,7 +22,7 @@ def test_release_identity_and_docs():
 
 
 def test_package_upload_limit_and_auth_order():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     catalog = (ROOT / "backend/app/mobile_catalog.py").read_text()
     assert "PACKAGE_UPLOAD_BYTES = 80 * 1024 * 1024" in main
     assert "MAX_PACKAGE_BYTES = 80 * 1024 * 1024" in catalog
@@ -36,7 +37,7 @@ def test_package_upload_limit_and_auth_order():
 
 
 def test_proxy_and_forwarded_for_are_closed():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     remnawave = (ROOT / "backend/app/remnawave.py").read_text()
     sandbox = (ROOT / "scripts/sandbox-e2e.sh").read_text()
     assert "def _peer_is_trusted_proxy" in main
@@ -50,7 +51,7 @@ def test_proxy_and_forwarded_for_are_closed():
 
 
 def test_feature_flags_are_loaded_by_key():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert "FeatureFlag.key==key" in main
     assert "db.get(FeatureFlag, key)" not in main
     assert "db.get(FeatureFlag,key)" not in main
@@ -63,7 +64,7 @@ def test_audit_log_stores_request_id():
 
 
 def test_audit_serializes_decimal_plan_prices():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert "def _json_ready" in main
     assert "json.dumps(details, ensure_ascii=False, default=_json_ready)" in main
 

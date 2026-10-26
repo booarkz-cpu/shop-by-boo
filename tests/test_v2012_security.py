@@ -1,3 +1,4 @@
+from main_source import main_source
 """Regressions for reseller privileges, backup member types and mobile proof."""
 import io
 import ast
@@ -15,7 +16,7 @@ def _validate_tar_safety(tar):
     # Extract the real function and its limits without importing app.main, whose
     # module initialization creates /data/media (unavailable on CI runners).
     root = Path(__file__).resolve().parents[1] / "backend/app/main.py"
-    source = root.read_text()
+    source = main_source()
     tree = ast.parse(source)
     nodes = [node for node in tree.body if isinstance(node, ast.Assign)
              and any(isinstance(target, ast.Name) and target.id.startswith("MAX_BACKUP_") for target in node.targets)]

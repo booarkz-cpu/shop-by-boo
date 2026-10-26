@@ -13,7 +13,7 @@
 | Android для администраторов | `mobile/android-admin` |
 | iOS для администраторов | `mobile/ios-admin` |
 
-Клиентское приложение показывает подписку, тарифы, кошелёк, подарки и промокоды, поддержку, push-уведомления. На Android есть виджет со статусом подписки, вход возможен по ключу доступа (passkey). Сам VPN-туннель обеспечивает сторонний клиент (Happ, v2rayNG и другие) по ссылке подписки.
+Клиентское приложение показывает подписку, тарифы, кошелёк, подарки и промокоды, поддержку, push-уведомления, семейную подписку и статус сервиса. Языки — русский, английский и украинский (`mobile/l10n/user.json`, по умолчанию — язык телефона). На Android есть виджет со статусом подписки, вход возможен по ключу доступа (passkey). Сам VPN-туннель обеспечивает сторонний клиент (Happ, v2rayNG и другие) по ссылке подписки.
 
 Готовых подписанных APK/IPA в выпуске нет: каждый владелец собирает и подписывает приложения своими ключами. Файл `mobile-production-status.json` в выпуске GitHub показывает фактический статус сборок.
 
@@ -71,6 +71,20 @@ IOS_USER_APP_ID=TEAMID.shop.remnawave.user   # пусто — из APNS_TEAM_ID 
 
 После перезапуска backend кабинет отдаёт `/.well-known/assetlinks.json` и `/.well-known/apple-app-site-association`. Функция `passkeys` должна быть включена.
 
+## Семья и статус сервиса
+
+- Вкладка **«Семья»**:
+  - владелец видит занятые места, создаёт приглашение и делится ссылкой на бота, убирает участников;
+  - участник видит владельца и срок, может выйти;
+  - любой клиент присоединяется по коду приглашения.
+
+  Работает через те же `/api/me/family/*`, что и кабинет ([семейная подписка](06-plans.md#семейная-подписка)).
+- Вкладка **«Статус сервиса»**: общий статус, серверы онлайн по странам, компоненты и текущие проблемы (`GET /api/public/service-status`).
+- Подписка за Telegram Stars оформляется и отменяется только в Telegram, приложение лишь напоминает об этом. Встроенная оплата Apple и Google не используется.
+- Если магазин старше v28.25.0, эти вкладки пустые, остальные работают как раньше.
+
+В магазинах приложения называются «Corgi Lusi» и «Corgi Lusi Admin»; на телефоне название показывается на языке системы («Корги Люси», «Коргі Люсі»).
+
 ## Виджет Android
 
 Клиент добавляет виджет «VPN Shop» на рабочий стол и включает «Показывать подписку на виджете» во вкладке «Безопасность» приложения. На виджете видны:
@@ -102,7 +116,7 @@ IOS_USER_APP_ID=TEAMID.shop.remnawave.user   # пусто — из APNS_TEAM_ID 
 
 ## API
 
-`GET|PUT /api/admin/apps`, `POST|DELETE /api/admin/apps/{id}/file`, `POST|DELETE /api/admin/apps/logo`, `GET /api/admin/mobile/ops`. Клиент: `POST /api/auth/mobile/token`, `GET /api/me/widget`, `/.well-known/assetlinks.json`, `/.well-known/apple-app-site-association`.
+`GET|PUT /api/admin/apps`, `POST|DELETE /api/admin/apps/{id}/file`, `POST|DELETE /api/admin/apps/logo`, `GET /api/admin/mobile/ops`. Клиент: `POST /api/auth/mobile/token`, `GET /api/me/widget`, `GET /api/me/family`, `POST /api/me/family/join`, `POST /api/me/family/{subscription_id}/invite`, `DELETE /api/me/family/members/{id}`, `GET /api/public/service-status`, `/.well-known/assetlinks.json`, `/.well-known/apple-app-site-association`.
 
 ## Подробнее
 

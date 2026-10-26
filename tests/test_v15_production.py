@@ -1,8 +1,9 @@
+from main_source import main_source
 import ast
 from pathlib import Path
 import unittest
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "backend/app/main.py").read_text()
+MAIN = main_source()
 SEC = (ROOT / "backend/app/security.py").read_text()
 BOT = (ROOT / "backend/app/bot.py").read_text()
 class V15ProductionTests(unittest.TestCase):

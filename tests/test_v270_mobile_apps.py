@@ -1,3 +1,4 @@
+from main_source import main_source
 import json
 from pathlib import Path
 
@@ -58,7 +59,7 @@ def test_native_clients_keep_session_bounds():
     assert "publicNode" in user_android and "publicNode" in admin_ios
     auth = (ROOT / "backend/app/mobile_auth.py").read_text()
     cabinet = (ROOT / "backend/app/cabinet_api.py").read_text()
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert "android-user" in auth and "ios-admin" in auth
     assert "session_body" in cabinet and "session_body" in main
     assert 'APP_VERSION = "2.7.0"' in main

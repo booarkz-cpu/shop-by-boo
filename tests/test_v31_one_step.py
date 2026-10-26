@@ -1,3 +1,4 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,7 +25,7 @@ def test_pinned_images_are_written_to_compose_env():
 
 
 def test_money_inputs_use_decimal():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     models = (ROOT / "backend/app/models.py").read_text()
     payments = (ROOT / "backend/app/payments.py").read_text()
     assert "price: Decimal = Field" in main

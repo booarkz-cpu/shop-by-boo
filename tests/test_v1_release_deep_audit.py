@@ -1,7 +1,8 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-MAIN=(ROOT/'backend/app/main.py').read_text()
+MAIN=main_source()
 MODELS=(ROOT/'backend/app/models.py').read_text()
 BUILD=(ROOT/'scripts/build-release.sh').read_text()
 INSTALL=(ROOT/'deploy/install-vps.sh').read_text()

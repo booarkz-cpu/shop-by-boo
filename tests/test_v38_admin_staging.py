@@ -1,8 +1,9 @@
+from main_source import main_source
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 
 def test_admin_telegram_and_staging_routes():
-    s=(ROOT/'backend/app/main.py').read_text()
+    s=main_source()
     assert 'telegram_id:int|None' in s
     assert '/api/admin/auth/telegram' in s
     assert '/api/admin/staging-e2e/config' in s
@@ -25,7 +26,7 @@ def test_admin_ui_has_russian_staging_and_telegram_controls():
 
 
 def test_staging_isolation_and_runner_are_safe():
-    main=(ROOT/'backend/app/main.py').read_text(); pay=(ROOT/'backend/app/payments.py').read_text(); docker=(ROOT/'backend/Dockerfile').read_text(); sh=(ROOT/'scripts/staging-e2e.sh').read_text()
+    main=main_source(); pay=(ROOT/'backend/app/payments.py').read_text(); docker=(ROOT/'backend/Dockerfile').read_text(); sh=(ROOT/'scripts/staging-e2e.sh').read_text()
     assert 'staging_confirmed' in main and 'production-платёжные credentials' in main
     assert 'staging_create_payment' in pay and 'Production settings are deliberately never consulted' in pay
     assert 'COPY scripts/staging-e2e.sh ./staging-e2e.sh' in docker

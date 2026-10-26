@@ -1,7 +1,8 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / "backend/app/main.py").read_text()
+MAIN = main_source()
 MODELS = (ROOT / "backend/app/models.py").read_text()
 MIGRATIONS = ROOT / "backend/alembic/versions"
 
@@ -29,6 +30,6 @@ def test_v44_5_16_migration_preserves_previous_head():
 
 
 def test_release_is_44_5_15():
-    assert '1.0.0-realise' in (ROOT / 'backend/app/main.py').read_text()
+    assert '1.0.0-realise' in main_source()
     assert '1.0.0-realise' in (ROOT / 'scripts/build-release.sh').read_text()
     assert '1.0.0-realise' in (ROOT / 'deploy/install-vps.sh').read_text()

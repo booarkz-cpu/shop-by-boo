@@ -1,4 +1,5 @@
 """Contracts for gateway-free checkout and the production sandbox ban."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -6,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_sandbox_is_refused_in_production_and_works_without_gateways():
     mode = (ROOT / "backend/app/sandbox_mode.py").read_text()
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     payments = (ROOT / "backend/app/payments.py").read_text()
     cabinet = (ROOT / "backend/app/cabinet_api.py").read_text()
     bot = (ROOT / "backend/app/bot.py").read_text()

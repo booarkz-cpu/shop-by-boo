@@ -1,11 +1,12 @@
 """3.0.1 critical audit contracts."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_release_301_is_current_and_documented():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     notes = (ROOT / "RELEASE_NOTES_V3_0_1.md").read_text()
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     security = (ROOT / "docs/archive/SECURITY_BEFORE_ALPHA_6.md").read_text()
@@ -20,7 +21,7 @@ def test_release_301_is_current_and_documented():
 
 
 def test_wallet_spend_requires_a_client_key_and_blocks_a_second_debit():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     spend = main[main.index("async def wallet_spend"): main.index("async def purchase_gift")]
     assert 'if not idem or len(idem)>128: raise HTTPException(400,"Idempotency-Key is required")' in spend
     assert "uuid.uuid4()" not in spend

@@ -1,3 +1,4 @@
+from main_source import main_source
 import json
 """Source contracts for the 2.10.0 buyer and operator features."""
 import importlib.util
@@ -45,7 +46,7 @@ def test_subscription_links_and_stale_agents():
 
 
 def test_routes_and_release_scripts():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     devices = main[main.index("async def my_devices"):main.index("class DeviceRegisterIn")]
     assert "device_key" not in devices and "last_ip" not in devices
     assert '@app.post("/api/admin/plans/{plan_id}/enabled")' in main

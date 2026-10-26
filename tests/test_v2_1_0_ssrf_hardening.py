@@ -1,7 +1,8 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = (ROOT / 'backend/app/main.py').read_text()
+MAIN = main_source()
 PAYMENTS = (ROOT / 'backend/app/payments.py').read_text()
 STAGING = (ROOT / 'scripts/staging-e2e.sh').read_text()
 BUILD = (ROOT / 'scripts/build-release.sh').read_text()

@@ -1,4 +1,5 @@
 """3.1.0 audit, checksum and install-guide contracts."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -7,7 +8,7 @@ ADMIN_APK = "https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download
 
 
 def test_release_310_is_current_and_documented():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     notes = (ROOT / "RELEASE_NOTES_V3_1_0.md").read_text()
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     security = (ROOT / "docs/archive/SECURITY_BEFORE_ALPHA_6.md").read_text()
@@ -26,7 +27,7 @@ def test_release_310_is_current_and_documented():
 
 
 def test_public_plans_and_auto_renew_do_not_leak_internals():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     plans = main[main.index("async def plans"): main.index("async def validate_promo")]
     assert "remnawave_profile_id" not in plans
     admin = main[main.index("async def admin_list_plans"): main.index("async def create_plan")]

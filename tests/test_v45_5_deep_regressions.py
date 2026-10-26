@@ -1,6 +1,7 @@
+from main_source import main_source
 import ast
 from pathlib import Path
-SRC=Path('backend/app/main.py').read_text(); WORKER=Path('backend/worker.py').read_text()
+SRC=main_source(); WORKER=Path('backend/worker.py').read_text()
 def test_refund_creation_serializes_on_payment_row(): assert 'select(Payment).where(Payment.id==payment_id).execution_options(populate_existing=True).with_for_update()' in SRC
 def test_repurchase_reenables_disabled_remnawave_user(): assert 'await rw.enable_user(sub.remnawave_uuid)' in SRC and 'remote_status in {"disabled","blocked","inactive"}' in SRC
 def test_trial_reactivates_disabled_remote_user(): assert 'await rw.enable_user(remote_id)' in WORKER

@@ -1,7 +1,8 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT=Path(__file__).parents[1]
-MAIN=(ROOT/'backend/app/main.py').read_text()
+MAIN=main_source()
 WORKER=(ROOT/'backend/worker.py').read_text()
 MODELS=(ROOT/'backend/app/models.py').read_text()
 PAY=(ROOT/'backend/app/payments.py').read_text()

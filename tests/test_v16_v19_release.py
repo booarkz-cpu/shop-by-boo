@@ -1,5 +1,6 @@
 import ast, pathlib, re, yaml
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+from main_source import main_source
 MAIN=ROOT/'backend/app/main.py'
 SEC=ROOT/'backend/app/security.py'
 MODELS=ROOT/'backend/app/models.py'
@@ -12,7 +13,7 @@ def test_python_compiles():
         ast.parse(read(p))
 
 def test_main_has_v19_features():
-    s=read(MAIN)
+    s=main_source()
     for x in ['APP_VERSION = "43.1.0-production"','/api/admin/analytics','/api/admin/sessions','/api/admin/payments/{payment_id}/retry','/api/admin/backups/{backup_id}/verify','/api/admin/backups/{backup_id}/restore','/api/me/referral','/api/me/subscription','fulfillment_retry_scheduler','expiry_notification_scheduler']:
         assert x in s
     m=re.search(r'async def admin_menu_delete.*?(?=\n@app|\Z)',s,re.S); assert m and 'payload' not in m.group(0)
@@ -43,7 +44,7 @@ def test_compose_private_ports():
         assert not c['services'][name].get('ports')
 
 def test_no_float_money_in_discount_logic():
-    s=read(MAIN)
+    s=main_source()
     assert 'price * value / Decimal("100")' in s
 
 def test_env_s3():

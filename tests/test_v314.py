@@ -1,4 +1,5 @@
 """3.1.4: concurrent Alembic boot must not kill the API container."""
+from main_source import main_source
 import os
 import subprocess
 from pathlib import Path
@@ -9,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_314_is_first():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert main.index('APP_VERSION = "3.1.4"') < main.index('APP_VERSION = "3.1.3"')
     build = (ROOT / "scripts/build-release.sh").read_text()
     assert build.index('VERSION="3.1.4"') < build.index('VERSION="3.1.3"')
