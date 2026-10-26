@@ -1,0 +1,11 @@
+Corgi Lusi is the app of your VPN service: plan, connection and support in one place.
+
+• One-tap connect: the app hands your subscription to Happ, v2rayNG or Hiddify and shows when protection is on.
+• Automatic choice of the fastest server and a list of locations with their load.
+• Plans with a monthly price, card and wallet payments, promo codes and gifts.
+• Your plan at a glance: expiry, traffic, devices and a QR code for another device.
+• Family plan, invite friends for bonuses, giveaways.
+• In-app support, reminders before the plan ends and payment notifications.
+• Sign in with e-mail, Telegram, Yandex, VK, Google or a passkey; the session is protected by biometrics.
+
+No advertising identifiers. Anonymous statistics (no IP addresses, no device models) are enabled by the shop and described in the privacy policy.

@@ -13,3 +13,6 @@
 | 8 | `main.py`: оплата, вебхуки и выдача → `payments_api.py`; поведенческие тесты вместо проверок исходника | `payments_api.py`, `tests/test_behaviour_payments_v2.py` | готово |
 | 12 | Стиль push-уведомлений из админки, push с картинкой и кнопками | `push_style.py`, `push.py`, `admin/src/pushStyle.tsx`, `CorgiPush.kt`, `PushCenter` | готово |
 | 13 | Напоминание об окончании подписки в приложение и push всем клиентам | `main.py` `enqueue_expiry_notifications` | готово |
+| 14 | Админ-приложения Android и iOS в стиле веб-панели (Remna Dark), демо-режим | `RemnaUi.kt`, `ios-admin/ContentView.swift` | готово |
+| 4 | Подготовка к Google Play, RuStore и TestFlight: иконки, баннер, скриншоты, тексты, AAB | `mobile/store/`, `scripts/store/render.py`, `docs/ru/STORE_PUBLISHING.md` | готово (загрузка — владельцем) |
+| 15 | Аудит: лимит событий, https для чеков, напоминания всем клиентам | `app_growth.py`, `fiscal.py`, `main.py` | готово |

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1472**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1525**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -833,6 +833,7 @@
 | [docs/ru/STAGING_E2E_20_0_8.md](../docs/ru/STAGING_E2E_20_0_8.md) | Документация |
 | [docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md](../docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md) | Документация |
 | [docs/ru/STAGING_VDS_E2E_OPERATOR_20_0_18.md](../docs/ru/STAGING_VDS_E2E_OPERATOR_20_0_18.md) | Документация |
+| [docs/ru/STORE_PUBLISHING.md](../docs/ru/STORE_PUBLISHING.md) | Документация |
 | [docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md](../docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md) | Документация |
 | [docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md](../docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md) | Документация |
 | [docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md](../docs/ru/SUPPORT_REMOTE_HISTORY_CURRENT.md) | Документация |
@@ -951,6 +952,11 @@
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/RemnaUi.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/RemnaUi.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/values-en/strings.xml](../mobile/android-admin/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/values/strings.xml](../mobile/android-admin/app/src/main/res/values/strings.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/xml/network_security.xml](../mobile/android-admin/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
@@ -997,6 +1003,11 @@
 | [mobile/android-user/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-user/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/drawable/widget_background.xml](../mobile/android-user/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/layout/corgi_widget.xml](../mobile/android-user/app/src/main/res/layout/corgi_widget.xml) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/values-en/strings.xml](../mobile/android-user/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/values/strings.xml](../mobile/android-user/app/src/main/res/values/strings.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml](../mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml) | Мобильные приложения |
@@ -1010,11 +1021,17 @@
 | [mobile/android-user/settings.gradle.kts](../mobile/android-user/settings.gradle.kts) | Мобильные приложения |
 | [mobile/client_rules.py](../mobile/client_rules.py) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin.xcodeproj/project.pbxproj](../mobile/ios-admin/VpnShopAdmin.xcodeproj/project.pbxproj) | Мобильные приложения |
+| [mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/Contents.json](../mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/Contents.json) | Мобильные приложения |
+| [mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/icon-1024.png](../mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/icon-1024.png) | Мобильные приложения |
+| [mobile/ios-admin/VpnShopAdmin/Assets.xcassets/Contents.json](../mobile/ios-admin/VpnShopAdmin/Assets.xcassets/Contents.json) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin/ContentView.swift](../mobile/ios-admin/VpnShopAdmin/ContentView.swift) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin/Info.plist](../mobile/ios-admin/VpnShopAdmin/Info.plist) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift](../mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin/l10n.json](../mobile/ios-admin/VpnShopAdmin/l10n.json) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj](../mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj) | Мобильные приложения |
+| [mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json](../mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json) | Мобильные приложения |
+| [mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/icon-1024.png](../mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/icon-1024.png) | Мобильные приложения |
+| [mobile/ios-user/VpnShopUser/Assets.xcassets/Contents.json](../mobile/ios-user/VpnShopUser/Assets.xcassets/Contents.json) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/Banners/app-devices.jpg](../mobile/ios-user/VpnShopUser/Banners/app-devices.jpg) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/Banners/app-family.jpg](../mobile/ios-user/VpnShopUser/Banners/app-family.jpg) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/Banners/app-gifts.jpg](../mobile/ios-user/VpnShopUser/Banners/app-gifts.jpg) | Мобильные приложения |
@@ -1041,6 +1058,40 @@
 | [mobile/ios-user/VpnShopUser/l10n.json](../mobile/ios-user/VpnShopUser/l10n.json) | Мобильные приложения |
 | [mobile/l10n/admin.json](../mobile/l10n/admin.json) | Мобильные приложения |
 | [mobile/l10n/user.json](../mobile/l10n/user.json) | Мобильные приложения |
+| [mobile/store/app-store/en-US/description.txt](../mobile/store/app-store/en-US/description.txt) | Мобильные приложения |
+| [mobile/store/app-store/en-US/keywords.txt](../mobile/store/app-store/en-US/keywords.txt) | Мобильные приложения |
+| [mobile/store/app-store/en-US/name.txt](../mobile/store/app-store/en-US/name.txt) | Мобильные приложения |
+| [mobile/store/app-store/en-US/promotional_text.txt](../mobile/store/app-store/en-US/promotional_text.txt) | Мобильные приложения |
+| [mobile/store/app-store/en-US/release_notes.txt](../mobile/store/app-store/en-US/release_notes.txt) | Мобильные приложения |
+| [mobile/store/app-store/en-US/subtitle.txt](../mobile/store/app-store/en-US/subtitle.txt) | Мобильные приложения |
+| [mobile/store/app-store/ru/description.txt](../mobile/store/app-store/ru/description.txt) | Мобильные приложения |
+| [mobile/store/app-store/ru/keywords.txt](../mobile/store/app-store/ru/keywords.txt) | Мобильные приложения |
+| [mobile/store/app-store/ru/name.txt](../mobile/store/app-store/ru/name.txt) | Мобильные приложения |
+| [mobile/store/app-store/ru/promotional_text.txt](../mobile/store/app-store/ru/promotional_text.txt) | Мобильные приложения |
+| [mobile/store/app-store/ru/release_notes.txt](../mobile/store/app-store/ru/release_notes.txt) | Мобильные приложения |
+| [mobile/store/app-store/ru/subtitle.txt](../mobile/store/app-store/ru/subtitle.txt) | Мобильные приложения |
+| [mobile/store/google-play/en-US/full_description.txt](../mobile/store/google-play/en-US/full_description.txt) | Мобильные приложения |
+| [mobile/store/google-play/en-US/short_description.txt](../mobile/store/google-play/en-US/short_description.txt) | Мобильные приложения |
+| [mobile/store/google-play/en-US/title.txt](../mobile/store/google-play/en-US/title.txt) | Мобильные приложения |
+| [mobile/store/google-play/feature-graphic.png](../mobile/store/google-play/feature-graphic.png) | Мобильные приложения |
+| [mobile/store/google-play/ru-RU/full_description.txt](../mobile/store/google-play/ru-RU/full_description.txt) | Мобильные приложения |
+| [mobile/store/google-play/ru-RU/short_description.txt](../mobile/store/google-play/ru-RU/short_description.txt) | Мобильные приложения |
+| [mobile/store/google-play/ru-RU/title.txt](../mobile/store/google-play/ru-RU/title.txt) | Мобильные приложения |
+| [mobile/store/icons/admin-icon-1024.png](../mobile/store/icons/admin-icon-1024.png) | Мобильные приложения |
+| [mobile/store/icons/icon-1024.png](../mobile/store/icons/icon-1024.png) | Мобильные приложения |
+| [mobile/store/icons/icon-512.png](../mobile/store/icons/icon-512.png) | Мобильные приложения |
+| [mobile/store/rustore/description.txt](../mobile/store/rustore/description.txt) | Мобильные приложения |
+| [mobile/store/rustore/short_description.txt](../mobile/store/rustore/short_description.txt) | Мобильные приложения |
+| [mobile/store/screenshots/android/01-vpn.png](../mobile/store/screenshots/android/01-vpn.png) | Мобильные приложения |
+| [mobile/store/screenshots/android/02-locations.png](../mobile/store/screenshots/android/02-locations.png) | Мобильные приложения |
+| [mobile/store/screenshots/android/03-premium.png](../mobile/store/screenshots/android/03-premium.png) | Мобильные приложения |
+| [mobile/store/screenshots/android/04-subscription.png](../mobile/store/screenshots/android/04-subscription.png) | Мобильные приложения |
+| [mobile/store/screenshots/android/05-support.png](../mobile/store/screenshots/android/05-support.png) | Мобильные приложения |
+| [mobile/store/screenshots/ios/01-vpn.png](../mobile/store/screenshots/ios/01-vpn.png) | Мобильные приложения |
+| [mobile/store/screenshots/ios/02-locations.png](../mobile/store/screenshots/ios/02-locations.png) | Мобильные приложения |
+| [mobile/store/screenshots/ios/03-premium.png](../mobile/store/screenshots/ios/03-premium.png) | Мобильные приложения |
+| [mobile/store/screenshots/ios/04-subscription.png](../mobile/store/screenshots/ios/04-subscription.png) | Мобильные приложения |
+| [mobile/store/screenshots/ios/05-support.png](../mobile/store/screenshots/ios/05-support.png) | Мобильные приложения |
 | [release-manifest.template.json](../release-manifest.template.json) | Корень проекта |
 | [screenshots/admin_panel/00_all_sections.png](../screenshots/admin_panel/00_all_sections.png) | Корень проекта |
 | [screenshots/admin_panel/01_login.png](../screenshots/admin_panel/01_login.png) | Корень проекта |
@@ -1203,6 +1254,7 @@
 | [scripts/sign-plugin.py](../scripts/sign-plugin.py) | Эксплуатация и релиз |
 | [scripts/staging-e2e.sh](../scripts/staging-e2e.sh) | Эксплуатация и релиз |
 | [scripts/static_audit.py](../scripts/static_audit.py) | Эксплуатация и релиз |
+| [scripts/store/render.py](../scripts/store/render.py) | Эксплуатация и релиз |
 | [scripts/test-up.sh](../scripts/test-up.sh) | Эксплуатация и релиз |
 | [scripts/update-from-github.sh](../scripts/update-from-github.sh) | Эксплуатация и релиз |
 | [scripts/update.sh](../scripts/update.sh) | Эксплуатация и релиз |
@@ -1393,6 +1445,7 @@
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
+| [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |
 | [tests/test_subscription_commerce.py](../tests/test_subscription_commerce.py) | Проверки |
 | [tests/test_support_attachments.py](../tests/test_support_attachments.py) | Проверки |
 | [tests/test_support_bridge.py](../tests/test_support_bridge.py) | Проверки |
