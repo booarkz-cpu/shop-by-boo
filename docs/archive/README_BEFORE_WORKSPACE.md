@@ -8,32 +8,32 @@
 
 | Задача | Документация |
 | --- | --- |
-| Начать с простых шагов | [Пять последовательных инструкций](../ru/steps/README.md) |
-| Установить на VDS с нуля (Termius/SSH) | [Подробная установка v20.0.29](../ru/VDS_PRODUCTION_20_0_26.md) |
-| Запустить тестовый стенд | [Проверка без реальных платежей](../ru/TESTING.md) |
-| Обновить или восстановить сервер | [Обслуживание](../ru/steps/05-operations.md), [раздел в инструкции VDS](../ru/VDS_PRODUCTION_20_0_26.md) |
-| Настроить кассы | [Все провайдеры по шагам](../ru/ALL_PAYMENT_PROVIDERS_BEGINNER_CHECKLIST.md), [подготовка staging](../ru/STAGING_VDS_E2E_OPERATOR_20_0_18.md) |
-| Проверить допуск живых платежей | [Контракт staging E2E v2](../ru/STAGING_E2E_V2_IMPLEMENTATION.md), [аудит интеграций](../ru/PAYMENT_AUDIT_2026_09_28.md) |
-| Разобраться в функциях и API | [Руководство функций](../ru/FUNCTION_GUIDE.md), [API](../../API_REFERENCE_RU.md) |
-| Подготовить мобильные клиенты | [Мобильные приложения](../ru/MOBILE_GUIDE.md), [сборка и подпись](../ru/PRODUCTION_20_0_15.md) |
+| Начать с простых шагов | [Пять последовательных инструкций](../../docs/ru/steps/README.md) |
+| Установить на VDS с нуля (Termius/SSH) | [Подробная установка v20.0.29](../../docs/ru/VDS_PRODUCTION_20_0_26.md) |
+| Запустить тестовый стенд | [Проверка без реальных платежей](../../docs/ru/TESTING.md) |
+| Обновить или восстановить сервер | [Обслуживание](../../docs/ru/steps/05-operations.md), [раздел в инструкции VDS](../../docs/ru/VDS_PRODUCTION_20_0_26.md) |
+| Настроить кассы | [Все провайдеры по шагам](../../docs/ru/ALL_PAYMENT_PROVIDERS_BEGINNER_CHECKLIST.md), [подготовка staging](../../docs/ru/STAGING_VDS_E2E_OPERATOR_20_0_18.md) |
+| Проверить допуск живых платежей | [Контракт staging E2E v2](../../docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md), [аудит интеграций](../../docs/ru/PAYMENT_AUDIT_2026_09_28.md) |
+| Разобраться в функциях и API | [Руководство функций](../../docs/ru/FUNCTION_GUIDE.md), [API](../../API_REFERENCE_RU.md) |
+| Подготовить мобильные клиенты | [Мобильные приложения](../../docs/ru/MOBILE_GUIDE.md), [сборка и подпись](../../docs/ru/PRODUCTION_20_0_15.md) |
 | Эксплуатировать Support Pro | [Руководство компонента](../../support-pro/README.md) |
-| Ознакомиться с результатами проверки | [Отчёт 28 сентября](../ru/AUDIT_2026_09_28_REPOSITORY.md), [заметки v20.0.29](../../.github/release-v20.0.29.md) |
-| Найти другую документацию | [Общий указатель](../INDEX.md), [операционный регламент](../../OPERATIONS_RUNBOOK_RU.md) |
+| Ознакомиться с результатами проверки | [Отчёт 28 сентября](../../docs/ru/AUDIT_2026_09_28_REPOSITORY.md), [заметки v20.0.29](../../.github/release-v20.0.29.md) |
+| Найти другую документацию | [Общий указатель](../../docs/INDEX.md), [операционный регламент](../../OPERATIONS_RUNBOOK_RU.md) |
 
 | | Русский | English | Українська |
 | --- | --- | --- | --- |
-| Возможности | [Описание](../ru/README.md) | [Features](../en/README.md) | [Можливості](../uk/README.md) |
-| Развёртывание | [Руководство](../ru/DEPLOYMENT.md) | [Deployment](../en/DEPLOYMENT.md) | [Розгортання](../uk/DEPLOYMENT.md) |
-| Тестирование | [Инструкция](../ru/TESTING.md) | [Testing](../en/TESTING.md) | [Тестування](../uk/TESTING.md) |
-| Платежи | [Состояние](../ru/PAYMENTS.md) | [Payments](../en/PAYMENTS.md) | [Платежі](../uk/PAYMENTS.md) |
+| Возможности | [Описание](../../docs/ru/README.md) | [Features](../../docs/en/README.md) | [Можливості](../../docs/uk/README.md) |
+| Развёртывание | [Руководство](../../docs/ru/DEPLOYMENT.md) | [Deployment](../../docs/en/DEPLOYMENT.md) | [Розгортання](../../docs/uk/DEPLOYMENT.md) |
+| Тестирование | [Инструкция](../../docs/ru/TESTING.md) | [Testing](../../docs/en/TESTING.md) | [Тестування](../../docs/uk/TESTING.md) |
+| Платежи | [Состояние](../../docs/ru/PAYMENTS.md) | [Payments](../../docs/en/PAYMENTS.md) | [Платежі](../../docs/uk/PAYMENTS.md) |
 
 Магазин VPN-подписок включает кабинет, Mini App, админку, Telegram-бот, Android/iOS и интеграцию Remnawave. Лицензия и условия использования: [LICENSE](../../LICENSE). CI: [текущие запуски](https://github.com/booarkz-cpu/shop-by-boo/actions/workflows/ci.yml). Перед production проверьте результат на своём VDS и полный staging E2E v2. Исторические инструкции ниже относятся к указанным в них версиям.
 
 ## Предыдущие выпуски
 
-**Мобильные приложения 2.14.1:** [скачать сборки](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/mobile-v2.14.1) · [установка и подпись](../ru/MOBILE_RELEASE_2_14_1.md). Android preview APK устанавливаются рядом с основными приложениями; iOS unsigned IPA требует Apple-подписи.
+**Мобильные приложения 2.14.1:** [скачать сборки](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/mobile-v2.14.1) · [установка и подпись](../../docs/ru/MOBILE_RELEASE_2_14_1.md). Android preview APK устанавливаются рядом с основными приложениями; iOS unsigned IPA требует Apple-подписи.
 
-**Релиз 20.0.14 — исправления сводного аудита безопасности.** [Результаты по 19 пунктам](../ru/SECURITY_AUDIT_20_0_14.md) · [Обязательная инструкция обновления](../ru/SECURITY_UPGRADE_20_0_14.md) · [Changelog](../../CHANGELOG.md).
+**Релиз 20.0.14 — исправления сводного аудита безопасности.** [Результаты по 19 пунктам](../../docs/ru/SECURITY_AUDIT_20_0_14.md) · [Обязательная инструкция обновления](../../docs/ru/SECURITY_UPGRADE_20_0_14.md) · [Changelog](../../CHANGELOG.md).
 
 Перед обновлением подготовьте новые native-клиенты 2.14.1, пароли Redis и две MFA-учётные записи для restore. В production используются точные CORS origins и доверенный IP Caddy. Полный staging E2E v2 ещё не реализован: реальные платежи остаются закрытыми.
 
@@ -47,21 +47,21 @@ A VPN subscription shop: cabinet, Mini App, admin panel, Telegram bot, Android a
 
 | | Русский | English | Українська |
 | --- | --- | --- | --- |
-| Возможности | [docs/ru/README.md](../ru/README.md) | [docs/en/README.md](../en/README.md) | [docs/uk/README.md](../uk/README.md) |
-| Развёртывание | [docs/ru/DEPLOYMENT.md](../ru/DEPLOYMENT.md) | [docs/en/DEPLOYMENT.md](../en/DEPLOYMENT.md) | [docs/uk/DEPLOYMENT.md](../uk/DEPLOYMENT.md) |
-| Проверка без касс | [docs/ru/TESTING.md](../ru/TESTING.md) | [docs/en/TESTING.md](../en/TESTING.md) | [docs/uk/TESTING.md](../uk/TESTING.md) |
-| Живые платежи | [docs/ru/PAYMENTS.md](../ru/PAYMENTS.md) | [docs/en/PAYMENTS.md](../en/PAYMENTS.md) | [docs/uk/PAYMENTS.md](../uk/PAYMENTS.md) |
+| Возможности | [docs/ru/README.md](../../docs/ru/README.md) | [docs/en/README.md](../../docs/en/README.md) | [docs/uk/README.md](../../docs/uk/README.md) |
+| Развёртывание | [docs/ru/DEPLOYMENT.md](../../docs/ru/DEPLOYMENT.md) | [docs/en/DEPLOYMENT.md](../../docs/en/DEPLOYMENT.md) | [docs/uk/DEPLOYMENT.md](../../docs/uk/DEPLOYMENT.md) |
+| Проверка без касс | [docs/ru/TESTING.md](../../docs/ru/TESTING.md) | [docs/en/TESTING.md](../../docs/en/TESTING.md) | [docs/uk/TESTING.md](../../docs/uk/TESTING.md) |
+| Живые платежи | [docs/ru/PAYMENTS.md](../../docs/ru/PAYMENTS.md) | [docs/en/PAYMENTS.md](../../docs/en/PAYMENTS.md) | [docs/uk/PAYMENTS.md](../../docs/uk/PAYMENTS.md) |
 
 Песочница разрешена только при `APP_ENV=development`, `test` или `staging`. На `APP_ENV=production` процесс с `PAYMENTS_SANDBOX=true` не стартует. Пока не пройден staging E2E, живые платежи отвечают отказом.
 
 
 ## v20.0.13 — защита staging gate и план E2E v2
 
-Приём платежей перепроверяет срок staging-доказательства и его связь с текущей конфигурацией при каждом новом списании. Изменение staging-конфигурации закрывает gate и сбрасывает прежний результат; конкурирующие проверки резервируются через БД. [Подробный changelog](../../.github/release-v20.0.13.md) · [Пошаговая реализация staging E2E v2](../ru/STAGING_E2E_V2_IMPLEMENTATION.md). **Полный runner v2 ещё не реализован; реальные платежи остаются закрытыми.**
+Приём платежей перепроверяет срок staging-доказательства и его связь с текущей конфигурацией при каждом новом списании. Изменение staging-конфигурации закрывает gate и сбрасывает прежний результат; конкурирующие проверки резервируются через БД. [Подробный changelog](../../.github/release-v20.0.13.md) · [Пошаговая реализация staging E2E v2](../../docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md). **Полный runner v2 ещё не реализован; реальные платежи остаются закрытыми.**
 
 ## v20.0.12 — проверка безопасности и запуск на VDS
 
-Исправлены полномочия управления реселлерами, проверка содержимого архивов и конфигурация подписи мобильного клиента. [Подробный changelog](../../.github/release-v20.0.12.md) · [Пошаговая установка на VDS](../ru/VDS_PRODUCTION_V20_0_12.md). Production-приложение запускается с закрытым допуском живых платежей: текущий staging runner не подтверждает полный цикл E2E.
+Исправлены полномочия управления реселлерами, проверка содержимого архивов и конфигурация подписи мобильного клиента. [Подробный changelog](../../.github/release-v20.0.12.md) · [Пошаговая установка на VDS](../../docs/ru/VDS_PRODUCTION_V20_0_12.md). Production-приложение запускается с закрытым допуском живых платежей: текущий staging runner не подтверждает полный цикл E2E.
 
 ## v20.0.11 — исправления платежей и возвратов
 
@@ -86,7 +86,7 @@ A VPN subscription shop: cabinet, Mini App, admin panel, Telegram bot, Android a
 - После ожидания блокировок платежи перечитываются с обновлением ORM-кэша; поздний webhook не должен воскресить возвращённый платёж.
 - Админская сессия проверяется на принадлежность аккаунту; удалённым пользователям не выдаются новые сессии.
 
-[Подробный аудит и порядок обновления](../ru/AUDIT_20_0_9.md) · [Заметки релиза](../../.github/release-v20.0.9.md).
+[Подробный аудит и порядок обновления](../../docs/ru/AUDIT_20_0_9.md) · [Заметки релиза](../../.github/release-v20.0.9.md).
 
 Живые платежи по-прежнему закрыты до полной сквозной проверки. Этот релиз не является подтверждением готовности платёжных интеграций к production.
 
@@ -94,8 +94,8 @@ A VPN subscription shop: cabinet, Mini App, admin panel, Telegram bot, Android a
 
 | | Русский | English | Українська |
 | --- | --- | --- | --- |
-| Полный регламент staging E2E | [Пошаговая проверка](../ru/STAGING_E2E_20_0_8.md) | [Step-by-step check](../en/STAGING_E2E_20_0_8.md) | [Покрокова перевірка](../uk/STAGING_E2E_20_0_8.md) |
-| Установка, функции и эксплуатация | [Развёртывание](../ru/DEPLOYMENT.md), [функции](../ru/FUNCTION_GUIDE.md), [операции](../../OPERATIONS_RUNBOOK_RU.md) | [Deployment](../en/DEPLOYMENT.md), [features](../en/README.md), [payments](../en/PAYMENTS.md) | [Розгортання](../uk/DEPLOYMENT.md), [функції](../uk/README.md), [платежі](../uk/PAYMENTS.md) |
+| Полный регламент staging E2E | [Пошаговая проверка](../../docs/ru/STAGING_E2E_20_0_8.md) | [Step-by-step check](../../docs/en/STAGING_E2E_20_0_8.md) | [Покрокова перевірка](../../docs/uk/STAGING_E2E_20_0_8.md) |
+| Установка, функции и эксплуатация | [Развёртывание](../../docs/ru/DEPLOYMENT.md), [функции](../../docs/ru/FUNCTION_GUIDE.md), [операции](../../OPERATIONS_RUNBOOK_RU.md) | [Deployment](../../docs/en/DEPLOYMENT.md), [features](../../docs/en/README.md), [payments](../../docs/en/PAYMENTS.md) | [Розгортання](../../docs/uk/DEPLOYMENT.md), [функції](../../docs/uk/README.md), [платежі](../../docs/uk/PAYMENTS.md) |
 
 **Русский.** Образы закреплены digest; Python и JavaScript зависимости проверяются до публикации контейнеров. Пароль Support Pro передаётся отдельной переменной и безопасно собирается в URL. При `APP_ENV=production` значение `COOKIE_SECURE=false` останавливает backend. Для ручного `DATABASE_URL` кодируйте пароль: `urllib.parse.quote(password, safe='')`; `@` превращается в `%40`, `#` — в `%23`. Не вставляйте сырой пароль в URL. Текущий staging runner не проверяет webhook и выдачу; реальные платежи закрыты до реализации полного E2E. Старый допуск v20.0.7 сбрасывается новым ключом.
 
@@ -103,13 +103,13 @@ A VPN subscription shop: cabinet, Mini App, admin panel, Telegram bot, Android a
 
 **Українська.** Базові образи закріплені digest, а CI перевіряє залежності Python і JavaScript до публікації контейнерів. Support Pro складає URL бази з окремих параметрів. Backend зупиняється за `APP_ENV=production` та `COOKIE_SECURE=false`. Для ручного `DATABASE_URL` закодуйте пароль через `urllib.parse.quote(password, safe='')`. Поточний staging runner не перевіряє webhook і видачу; реальні платежі заблоковані до повного E2E. Старий допуск v20.0.7 скасовано.
 
-[Отчёт аудита v20.0.8](../ru/AUDIT_20_0_8.md) · [Заметки релиза](../../.github/release-v20.0.8.md)
+[Отчёт аудита v20.0.8](../../docs/ru/AUDIT_20_0_8.md) · [Заметки релиза](../../.github/release-v20.0.8.md)
 
 ## Аудит 20.0.7 и актуальные руководства
 
-- [Отчёт аудита и границы проверок](../ru/AUDIT_20_0_7.md)
-- [Пошаговое подключение Android и iOS](../ru/MOBILE_GUIDE.md)
-- [Функции магазина по разделам](../ru/FUNCTION_GUIDE.md)
+- [Отчёт аудита и границы проверок](../../docs/ru/AUDIT_20_0_7.md)
+- [Пошаговое подключение Android и iOS](../../docs/ru/MOBILE_GUIDE.md)
+- [Функции магазина по разделам](../../docs/ru/FUNCTION_GUIDE.md)
 - [Справочник API](../../API_REFERENCE_RU.md) · [Операционный регламент](../../OPERATIONS_RUNBOOK_RU.md)
 
 Мобильные приложения магазина показывают подписку, оплату и сведения аккаунта. Встроенного движка VPN в них нет: импортируйте ссылку подписки в совместимый внешний клиент. API не подтверждает Kill Switch или защиту DNS/IPv6 без реального туннеля.
@@ -266,16 +266,16 @@ curl -fsS https://API_DOMAIN/health
 5. PayPal. Укажите вебхук `POST /api/payments/webhooks/paypal` и `PAYPAL_WEBHOOK_ID`. Заказ проводится, когда заказ у PayPal в статусе `COMPLETED`, сумма и валюта совпали и есть завершённый захват.
 6. Криптошлюз. Вебхук `POST /api/webhooks/crypto` требует `X-Timestamp` (unix-секунды, окно 5 минут) и `X-Signature` = hex HMAC-SHA256 от `{timestamp}.{сырое тело}` ключом `CRYPTO_GATEWAY_KEY`. Затем магазин делает `GET {CRYPTO_GATEWAY_URL}/payments/{id}` и принимает статусы `paid`, `succeeded`, `success`, `confirmed` только при совпадении суммы, валюты и `order_id`.
 7. Apple и Google. `MOBILE_STORE_PRODUCTS` — JSON, где ключ это id продукта, а значение это id тарифа. Пример: `{"com.shop.month": 1}`. Пустая переменная отклоняет `POST /api/payments/mobile/verify`. Чек Apple без `transactionId` и без ключей App Store Server API отклоняется. Чек Google Play годится только при `SUBSCRIPTION_STATE_ACTIVE`, и продукт из ответа Google должен быть в этой карте.
-8. Открытие боевых платежей возможно только после внедрения [полного staging E2E v2](../ru/STAGING_E2E_V2_IMPLEMENTATION.md), нового релиза и свежего доказательства для текущей конфигурации. В **v20.0.13 это недоступно**: runner возвращает `full_e2e=false`, `contract_version=1`; `POST /api/admin/payments/production-gate` с `{"enabled":true}` отвечает `409`. Нельзя открывать приём прямым изменением БД или подменой статуса.
+8. Открытие боевых платежей возможно только после внедрения [полного staging E2E v2](../../docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md), нового релиза и свежего доказательства для текущей конфигурации. В **v20.0.13 это недоступно**: runner возвращает `full_e2e=false`, `contract_version=1`; `POST /api/admin/payments/production-gate` с `{"enabled":true}` отвечает `409`. Нельзя открывать приём прямым изменением БД или подменой статуса.
 9. После выпуска и успешного прохождения настоящего E2E v2 выполните контрольное списание и возврат по регламенту ниже. До этого проверяйте только отдельный staging и не обещайте покупателям приём живых платежей.
 
 `AUTO_RENEW_ENABLED=true` сохраняет способ оплаты ЮKassa для следующего периода. Не включайте автопродление, пока ручной возврат на staging не прошёл. Песочница рекуррентные списания не выполняет. Покупатель не может сам поставить `tax_exempt` или `reverse_charge`.
 
-Подробные таблицы переменных — в [docs/ru/PAYMENTS.md](../ru/PAYMENTS.md).
+Подробные таблицы переменных — в [docs/ru/PAYMENTS.md](../../docs/ru/PAYMENTS.md).
 
 ### Подробная проверка реальных платежей после внедрения E2E v2
 
-**Статус этой инструкции:** описан будущий приёмочный тест с настоящими деньгами на production после выпуска проверенного runner v2. На текущем v20.0.13 выполнить его нельзя: платёжный gate законно отказывает `409`, а покупательский checkout — `503`. Не выключайте защиту и не имитируйте результат проверки. Порядок внедрения v2, тестов с песочницей и получения доказательства приведён [отдельно](../ru/STAGING_E2E_V2_IMPLEMENTATION.md).
+**Статус этой инструкции:** описан будущий приёмочный тест с настоящими деньгами на production после выпуска проверенного runner v2. На текущем v20.0.13 выполнить его нельзя: платёжный gate законно отказывает `409`, а покупательский checkout — `503`. Не выключайте защиту и не имитируйте результат проверки. Порядок внедрения v2, тестов с песочницей и получения доказательства приведён [отдельно](../../docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md).
 
 #### 1. Допуск перед первым живым списанием
 
@@ -324,7 +324,7 @@ curl -fsS https://API_DOMAIN/health
 
 Сохраните короткий акт: версия и время, провайдер, внутренние и внешние ID, ожидаемая/фактическая сумма и валюта, время webhook, результат выдачи, повтор события, возврат, отзыв доступа и ответственный оператор. Личные данные и секреты удалите. Повторите **отдельный** цикл для каждого подключаемого провайдера; успешная YooKassa не подтверждает Stripe или RollyPay. После проверки следите за очередями webhook/выдачи, возвратами, `/health/ready`, сроком TLS и возрастом доказательства E2E. При расхождении немедленно выключите gate штатным `{"enabled":false}`, сохраните ID и журналы и сверьте операции с кассой до возобновления продаж.
 
-Этот раздел описывает проверку на будущей версии с настоящим E2E v2. На v20.0.13 применяйте только [изолированный staging-регламент](../ru/STAGING_E2E_V2_IMPLEMENTATION.md); ручное открытие платёжного шлюза для «пробного» живого списания недопустимо.
+Этот раздел описывает проверку на будущей версии с настоящим E2E v2. На v20.0.13 применяйте только [изолированный staging-регламент](../../docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md); ручное открытие платёжного шлюза для «пробного» живого списания недопустимо.
 
 ## English
 
@@ -481,7 +481,7 @@ Bring the shop up with the VDS section first. Use `APP_ENV=production`, `PAYMENT
 
 `AUTO_RENEW_ENABLED=true` stores a YooKassa payment method for the next period. Leave it off until a manual staging refund has passed. The sandbox does not run recurring charges. A buyer cannot set `tax_exempt` or `reverse_charge`.
 
-Variable tables are in [docs/en/PAYMENTS.md](../en/PAYMENTS.md).
+Variable tables are in [docs/en/PAYMENTS.md](../../docs/en/PAYMENTS.md).
 
 ## Українська
 
@@ -638,7 +638,7 @@ curl -fsS https://API_DOMAIN/health
 
 `AUTO_RENEW_ENABLED=true` зберігає спосіб оплати ЮKassa для наступного періоду. Не вмикайте автопродовження, доки ручне повернення на staging не пройшло. Пісочниця рекурентні списання не виконує. Покупець не може сам поставити `tax_exempt` або `reverse_charge`.
 
-Докладні таблиці змінних — у [docs/uk/PAYMENTS.md](../uk/PAYMENTS.md).
+Докладні таблиці змінних — у [docs/uk/PAYMENTS.md](../../docs/uk/PAYMENTS.md).
 
 ## Changelog
 
@@ -1142,8 +1142,8 @@ cd ../cabinet && npm install && npx vite build
 
 ### 20.0.7
 
-См. [отчёт аудита](../ru/AUDIT_20_0_7.md) и [заметки релиза](../../.github/release-v20.0.7.md).
+См. [отчёт аудита](../../docs/ru/AUDIT_20_0_7.md) и [заметки релиза](../../.github/release-v20.0.7.md).
 
 ### 20.0.6
 
-Ниже сохранена история релизов. Как пройти staging E2E — [PAYMENTS.md](../ru/PAYMENTS.md). How to pass staging E2E — [PAYMENTS.md](../en/PAYMENTS.md). Як пройти staging E2E — [PAYMENTS.md](../uk/PAYMENTS.md). Исторический маркер `FULL_E2E_PASS` больше не выдаётся текущим runner: см. раздел v20.0.8.
+Ниже сохранена история релизов. Как пройти staging E2E — [PAYMENTS.md](../../docs/ru/PAYMENTS.md). How to pass staging E2E — [PAYMENTS.md](../../docs/en/PAYMENTS.md). Як пройти staging E2E — [PAYMENTS.md](../../docs/uk/PAYMENTS.md). Исторический маркер `FULL_E2E_PASS` больше не выдаётся текущим runner: см. раздел v20.0.8.
