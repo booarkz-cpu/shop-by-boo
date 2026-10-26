@@ -41,91 +41,122 @@ struct AdminRootView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    if let logo { Image(uiImage: logo).resizable().frame(width: 48, height: 48) }
-                    Text(t("app_name")).font(.title2).foregroundStyle(Color(red: 0.54, green: 0.47, blue: 1.0))
+                HStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12).fill(Remna.primary.opacity(0.14)).frame(width: 40, height: 40)
+                        if let logo { Image(uiImage: logo).resizable().scaledToFit().frame(width: 30, height: 30) } else { Text("🐶").font(.title3) }
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(t("app_name")).font(.system(size: 19, weight: .bold)).foregroundStyle(Remna.textStrong)
+                        Text(!token.isEmpty && unlocked ? profileTitle() : t("tagline")).font(.footnote).foregroundStyle(Remna.muted).lineLimit(1)
+                    }
                     Spacer()
-                    Button(lang == "ru" ? "EN" : "RU") { lang = lang == "ru" ? "en" : "ru" }
+                    RemnaGhost(title: lang == "ru" ? "EN" : "RU") { lang = lang == "ru" ? "en" : "ru" }
                 }
-                Text(t("tagline")).foregroundStyle(.secondary)
-                if token.isEmpty || unlocked {
+                if !notice.isEmpty { RemnaNotice(text: notice) }
+                if (token.isEmpty || unlocked) && !AdminDemo.enabled {
                     HStack {
-                        Text(base.isEmpty ? t("add_profile") : profileTitle()).foregroundStyle(Color(red: 0.58, green: 0.77, blue: 0.99))
+                        Circle().fill(token.isEmpty ? Remna.muted : Remna.success).frame(width: 9, height: 9)
+                        Text(base.isEmpty ? t("add_profile") : profileTitle()).foregroundStyle(Remna.primaryInk)
                         Spacer()
-                        Button("\(t("profiles")) (\(profiles.count))") { reloadProfiles(); showProfiles.toggle() }
+                        RemnaGhost(title: "\(t("profiles")) (\(profiles.count))") { reloadProfiles(); showProfiles.toggle() }
                     }
                 }
-                if !notice.isEmpty { Text(notice).foregroundStyle(.orange) }
                 if showProfiles && (token.isEmpty || unlocked) { profilePanel }
                 if token.isEmpty { auth } else if !unlocked { lock } else { home }
-            }.padding()
+            }.padding(16)
         }
-        .background(Color(red: 0.047, green: 0.063, blue: 0.129))
+        .background(Remna.bg.ignoresSafeArea())
         .preferredColorScheme(.dark)
-        .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
+        .overlay { if scenePhase != .active && !AdminDemo.enabled { Color.black.ignoresSafeArea() } }
         .onAppear {
+            #if DEBUG
+            if AdminDemo.enabled { loadDemo(); return }
+            #endif
             if token.isEmpty { loadPublicLogo() }
             else if !unlocked { unlockSavedSession() }
         }
         .onChange(of: token) { value in
-            if !value.isEmpty && unlocked { refresh() }
+            if !value.isEmpty && unlocked && !AdminDemo.enabled { refresh() }
         }
         .onChange(of: scenePhase) { phase in
-            if phase == .background {
+            if phase == .background && !AdminDemo.enabled {
                 authenticationContext?.invalidate()
                 authenticationContext = nil
                 unlocked = false
             }
         }
-        .onChange(of: unlocked) { value in if value && !token.isEmpty { refresh() } }
-        .onChange(of: lang) { _ in if !token.isEmpty && unlocked { refresh() } }
+        .onChange(of: unlocked) { value in if value && !token.isEmpty && !AdminDemo.enabled { refresh() } }
+        .onChange(of: lang) { _ in if !token.isEmpty && unlocked && !AdminDemo.enabled { refresh() } }
     }
 
+    #if DEBUG
+    /// Fixed demo data for CI screenshots (-CorgiDemo -CorgiTab <tab>); nothing is requested.
+    private func loadDemo() {
+        func parse(_ text: String) -> Any { (try? JSONSerialization.jsonObject(with: Data(text.utf8))) ?? [:] }
+        base = "https://api.corgi-lusi.example"; token = "demo"; unlocked = true; tab = AdminDemo.tab
+        overview = parse(#"{"role":"admin","plans":4,"payments":1284,"users":5320,"active_subscriptions":2871,"revenue_today":"48 300","revenue_month":"1 214 900"}"#) as? [String: Any] ?? [:]
+        plans = parse(#"[{"id":1,"name":"1 месяц","price":"299.00","enabled":true},{"id":2,"name":"3 месяца","price":"549.00","enabled":true},{"id":3,"name":"12 месяцев","price":"1499.00","enabled":true},{"id":4,"name":"Семейный","price":"2490.00","enabled":false}]"#) as? [[String: Any]] ?? []
+        payments = parse(#"[{"id":1284,"amount":"1499.00","currency":"RUB","status":"fulfilled","provider":"yookassa"},{"id":1283,"amount":"299.00","currency":"RUB","status":"paid","provider":"platega"},{"id":1282,"amount":"549.00","currency":"RUB","status":"pending","provider":"rollypay"}]"#) as? [[String: Any]] ?? []
+        monitoring = parse(#"{"nodes":[{"name":"Амстердам","country":"NL","status":"online","users_online":412},{"name":"Франкфурт","country":"DE","status":"online","users_online":388},{"name":"Стамбул","country":"TR","status":"offline","users_online":0}]}"#) as? [String: Any] ?? [:]
+        platform = parse(#"{"violations":[{"id":17,"score":82,"recommendation":"Торрент-трафик: ограничить"}],"agents":[{"name":"nl-1","cpu":"23%"}],"countries":[{"country":"RU","count":4210},{"country":"KZ","count":512}]}"#) as? [String: Any] ?? [:]
+        ops = parse(#"{"critical":0,"stale_agents":1,"agents":[{"name":"nl-1","cpu":"23%","mem":"41%"}]}"#) as? [String: Any] ?? [:]
+        readiness = parse(#"{"ready":false,"checks":[{"title":"Платёжная система подключена","ok":true,"level":"required"},{"title":"Remnawave отвечает","ok":true,"level":"required"},{"title":"Чеки в налоговую","ok":false,"level":"recommended","hint":"Тарифы и оплата → Чеки в налоговую"}]}"#) as? [String: Any] ?? [:]
+        alerts = parse(#"{"recipients":{"telegram":true,"email":false},"problems":[]}"#) as? [String: Any] ?? [:]
+        tickets = parse(#"[{"id":311,"subject":"Не подключается на iPhone","status":"open","message":"После обновления iOS Happ не видит подписку."}]"#) as? [[String: Any]] ?? []
+        broadcasts = parse(#"[{"id":42,"target":"active","status":"sent","sent_count":2871,"failed_count":3}]"#) as? [[String: Any]] ?? []
+    }
+    #endif
+
     private var profilePanel: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        RemnaCard(title: t("profiles")) {
             ForEach(profiles) { profile in
                 let current = profile.id == activeId
-                Text("\(profile.title) · \(profile.host)\(profile.email.isEmpty ? "" : " · \(profile.email)") · \(signedInIds.contains(profile.id) ? t("signed_in") : t("signed_out"))\(current ? " · \(t("active_profile"))" : "")")
-                HStack {
-                    if !current { Button(t("switch_profile")) { switchTo(profile.id) }.disabled(busy) }
-                    Button(t("remove_profile"), role: .destructive) { removeProfile(profile) }.disabled(busy)
+                let signed = signedInIds.contains(profile.id)
+                RemnaRow(title: profile.title + (current ? " · \(t("active_profile"))" : ""), detail: profile.host + (profile.email.isEmpty ? "" : " · \(profile.email)"),
+                         badge: signed ? t("signed_in") : t("signed_out"), tone: signed ? .ok : .muted) {
+                    if !current { RemnaGhost(title: t("switch_profile")) { switchTo(profile.id) }.disabled(busy) }
+                    RemnaGhost(title: t("remove_profile"), danger: true) { removeProfile(profile) }.disabled(busy)
                 }
             }
-            Button(t("add_profile")) { addProfile() }.buttonStyle(.borderedProminent).disabled(busy)
+            RemnaPrimary(title: t("add_profile")) { addProfile() }.disabled(busy)
         }
     }
 
     private func profileTitle() -> String { ProfileVault.find(activeId)?.title ?? (URL(string: base)?.host ?? base) }
 
     @ViewBuilder private var launchSection: some View {
-        if readiness.isEmpty {
-            Text(t("no_data")).foregroundStyle(.secondary)
-        } else {
-            let ready = jsonBool(readiness["ready"])
-            Text(ready ? t("launch_ready") : t("launch_missing")).font(.headline).foregroundStyle(ready ? Color.green : Color.orange)
-            ForEach(Array((readiness["checks"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, c in
-                let ok = jsonBool(c["ok"])
-                let required = jsonText(c["level"]) == "required"
-                Text("\(ok ? "✓" : required ? "✗" : "!") \(jsonText(c["title"]))\(required ? "" : " · " + t("recommended"))")
-                if !ok && !jsonText(c["hint"]).isEmpty { Text(jsonText(c["hint"])).foregroundStyle(.secondary) }
+        RemnaCard(title: t("launch")) {
+            if readiness.isEmpty {
+                RemnaEmpty(text: t("no_data"))
+            } else {
+                let ready = jsonBool(readiness["ready"])
+                RemnaNotice(text: ready ? t("launch_ready") : t("launch_missing"), tone: ready ? .ok : .warn)
+                ForEach(Array((readiness["checks"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, c in
+                    let ok = jsonBool(c["ok"])
+                    let required = jsonText(c["level"]) == "required"
+                    RemnaRow(title: jsonText(c["title"]), detail: ok ? "" : jsonText(c["hint"]), badge: ok ? "✓" : required ? "✗" : t("recommended"),
+                             tone: ok ? .ok : required ? .bad : .warn)
+                }
             }
         }
-        Text(t("alerts")).font(.headline)
-        let recipients = alerts["recipients"] as? [String: Any] ?? [:]
-        let telegram = jsonBool(recipients["telegram"]), email = jsonBool(recipients["email"])
-        Text("\(t("alerts_telegram")): \(telegram ? t("configured") : t("not_configured")) · \(t("alerts_email")): \(email ? t("configured") : t("not_configured"))")
-        Button(t("alerts_test")) {
-            work {
-                _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/admin/ops/alerts/test")
-                DispatchQueue.main.async { notice = t("alerts_sent") }
+        RemnaCard(title: t("alerts")) {
+            let recipients = alerts["recipients"] as? [String: Any] ?? [:]
+            let telegram = jsonBool(recipients["telegram"]), email = jsonBool(recipients["email"])
+            RemnaRow(title: t("alerts_telegram"), badge: telegram ? t("configured") : t("not_configured"), tone: telegram ? .ok : .muted)
+            RemnaRow(title: t("alerts_email"), badge: email ? t("configured") : t("not_configured"), tone: email ? .ok : .muted)
+            RemnaPrimary(title: t("alerts_test")) {
+                work {
+                    _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/admin/ops/alerts/test")
+                    DispatchQueue.main.async { notice = t("alerts_sent") }
+                }
+            }.disabled(busy || !(telegram || email) || AdminDemo.enabled)
+            Text(t("problems_now")).font(.subheadline.weight(.semibold)).foregroundStyle(Remna.textStrong)
+            let problems = alerts["problems"] as? [[String: Any]] ?? []
+            if problems.isEmpty { RemnaEmpty(text: t("no_problems")) }
+            ForEach(Array(problems.enumerated()), id: \.offset) { _, p in
+                RemnaRow(title: jsonText(p["title"]), detail: jsonText(p["detail"]), badge: "!", tone: .warn)
             }
-        }.disabled(busy || !(telegram || email))
-        Text(t("problems_now")).font(.subheadline)
-        let problems = alerts["problems"] as? [[String: Any]] ?? []
-        if problems.isEmpty { Text(t("no_problems")).foregroundStyle(.secondary) }
-        ForEach(Array(problems.enumerated()), id: \.offset) { _, p in
-            Text(jsonText(p["title"])).foregroundStyle(.orange)
-            Text(jsonText(p["detail"])).foregroundStyle(.secondary)
         }
     }
 
@@ -178,121 +209,163 @@ struct AdminRootView: View {
     }
 
     private var auth: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            TextField(t("profile_label"), text: $profileLabel).textFieldStyle(.roundedBorder)
-            TextField(t("server"), text: $base).textFieldStyle(.roundedBorder)
-            TextField(t("email"), text: $email).textFieldStyle(.roundedBorder)
-            SecureField(t("password"), text: $password).textFieldStyle(.roundedBorder)
-            TextField(t("otp"), text: $otp).textFieldStyle(.roundedBorder)
-            Button(t("sign_in")) { signIn() }.disabled(busy)
+        RemnaCard(title: t("sign_in"), hint: t("tagline")) {
+            RemnaField(title: t("profile_label"), text: $profileLabel)
+            RemnaField(title: t("server"), text: $base)
+            RemnaField(title: t("email"), text: $email)
+            RemnaField(title: t("password"), text: $password, secure: true)
+            RemnaField(title: t("otp"), text: $otp)
+            RemnaPrimary(title: t("sign_in")) { signIn() }.disabled(busy)
         }
     }
 
     private var lock: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Button(t("unlock")) { unlockSavedSession() }.buttonStyle(.borderedProminent)
-            Button(t("sign_out")) { signOut() }
+        RemnaCard(title: t("unlock")) {
+            RemnaPrimary(title: t("unlock")) { unlockSavedSession() }
+            RemnaGhost(title: t("sign_out"), danger: true) { signOut() }
         }
     }
 
     private var home: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
+                HStack(spacing: 6) {
                     ForEach(["overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast"], id: \.self) { key in
-                        Button(t(key)) { tab = key }.buttonStyle(.bordered)
+                        RemnaPill(title: t(key), selected: tab == key) { tab = key }
                     }
                 }
             }
-            Button(t("refresh")) { refresh() }.disabled(busy)
-            Button(t("sign_out")) { signOut() }
+            HStack(spacing: 8) {
+                RemnaGhost(title: t("refresh")) { refresh() }.disabled(busy || AdminDemo.enabled)
+                RemnaGhost(title: t("sign_out"), danger: true) { signOut() }
+            }
             section
         }
     }
 
+    private func money(_ value: Any?) -> String { jsonText(value).replacingOccurrences(of: ".00", with: "") }
+
     @ViewBuilder private var section: some View {
         switch tab {
         case "overview":
-            Text("\(t("role")) \(overview["role"] as? String ?? "") · \(t("plans")) \(jsonInt(overview["plans"]) ?? 0) · \(t("payments")) \(jsonInt(overview["payments"]) ?? 0)")
-        case "plans":
-            if plans.isEmpty { Text(t("no_data")) }
-            ForEach(Array(plans.enumerated()), id: \.offset) { _, plan in
-                Text("\(plan["name"] as? String ?? "") · \(plan["price"] ?? "") · \(jsonBool(plan["enabled"]) ? t("enabled") : t("disabled"))")
-                Button(jsonBool(plan["enabled"]) ? t("disable_plan") : t("enable_plan")) { setPlan(plan, enabled: !jsonBool(plan["enabled"])) }
+            HStack(spacing: 10) {
+                RemnaKpi(label: t("plans"), value: "\(jsonInt(overview["plans"]) ?? 0)")
+                RemnaKpi(label: t("payments"), value: "\(jsonInt(overview["payments"]) ?? 0)")
             }
-        case "payments":
-            if payments.isEmpty { Text(t("no_data")) }
-            ForEach(Array(payments.enumerated()), id: \.offset) { _, payment in
-                Text("#\(payment["id"] ?? "") · \(payment["amount"] ?? "") \(payment["currency"] as? String ?? "") · \(payment["status"] as? String ?? "")")
-                Button(t("payment_detail")) { loadPayment(payment) }
-            }
-            if !paymentDetail.isEmpty {
-                Text("#\(paymentDetail["id"] ?? "") · \(jsonText(paymentDetail["order_id"])) · \(jsonText(paymentDetail["purpose"])) · \(jsonText(paymentDetail["fulfillment_status"]))")
-            }
-        case "monitoring":
-            if (monitoring["error"] as? String)?.isEmpty == false { Text(t("panel_down")) }
-            let nodes = monitoring["nodes"] as? [[String: Any]] ?? []
-            if nodes.isEmpty { Text(t("no_data")) }
-            ForEach(Array(nodes.enumerated()), id: \.offset) { _, row in
-                let node = publicNode(row)
-                Text("\(node["name"] as? String ?? "") · \(node["country"] as? String ?? "") · \(node["status"] as? String ?? "") · \(node["users_online"] as? Int ?? 0)")
-            }
-        case "platform":
-            Text(t("violations"))
-            let violations = platform["violations"] as? [[String: Any]] ?? []
-            if violations.isEmpty { Text(t("no_data")) }
-            ForEach(Array(violations.enumerated()), id: \.offset) { _, row in
-                Text("#\(row["id"] ?? "") · \(t("score")) \(row["score"] ?? "") · \(row["recommendation"] as? String ?? "")")
-                HStack {
-                    Button(t("restrict")) { review(row, "restrict") }
-                    Button(t("clear")) { review(row, "clear") }
+            if overview["users"] != nil {
+                HStack(spacing: 10) {
+                    RemnaKpi(label: "Клиенты", value: jsonText(overview["users"]))
+                    RemnaKpi(label: "Активные подписки", value: jsonText(overview["active_subscriptions"]))
                 }
             }
-            Text(t("agents"))
-            let agents = platform["agents"] as? [[String: Any]] ?? []
-            ForEach(Array(agents.enumerated()), id: \.offset) { _, agent in
-                Text("\(agent["name"] as? String ?? "") · CPU \(agent["cpu"] ?? "") · \(jsonBool(agent["stale"]) ? t("stale") : t("online"))")
+            if overview["revenue_today"] != nil {
+                HStack(spacing: 10) {
+                    RemnaKpi(label: "Выручка сегодня, ₽", value: jsonText(overview["revenue_today"]))
+                    RemnaKpi(label: "За месяц, ₽", value: jsonText(overview["revenue_month"]))
+                }
             }
-            Text(t("countries"))
-            let countries = platform["countries"] as? [[String: Any]] ?? []
-            ForEach(Array(countries.enumerated()), id: \.offset) { _, country in
-                Text("\(country["country"] as? String ?? ""): \(country["count"] ?? 0)")
+            RemnaCard(title: t("role")) { RemnaRow(title: overview["role"] as? String ?? "—", detail: profileTitle(), badge: t("online"), tone: .ok) }
+        case "plans":
+            RemnaCard(title: t("plans")) {
+                if plans.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(plans.enumerated()), id: \.offset) { _, plan in
+                    let on = jsonBool(plan["enabled"])
+                    RemnaRow(title: jsonText(plan["name"]), detail: "\(money(plan["price"])) ₽", badge: on ? t("enabled") : t("disabled"), tone: on ? .ok : .muted) {
+                        RemnaGhost(title: on ? t("disable_plan") : t("enable_plan")) { setPlan(plan, enabled: !on) }.disabled(AdminDemo.enabled)
+                    }
+                }
+            }
+        case "payments":
+            RemnaCard(title: t("payments")) {
+                if payments.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(payments.enumerated()), id: \.offset) { _, payment in
+                    RemnaRow(title: "#\(jsonText(payment["id"])) · \(money(payment["amount"])) \(jsonText(payment["currency"]))", detail: jsonText(payment["provider"]),
+                             badge: jsonText(payment["status"])) {
+                        RemnaGhost(title: t("payment_detail")) { loadPayment(payment) }.disabled(AdminDemo.enabled)
+                    }
+                }
+                if !paymentDetail.isEmpty {
+                    RemnaNotice(text: "#\(jsonText(paymentDetail["id"])) · \(jsonText(paymentDetail["order_id"])) · \(jsonText(paymentDetail["purpose"])) · \(jsonText(paymentDetail["fulfillment_status"]))", tone: .info)
+                }
+            }
+        case "monitoring":
+            RemnaCard(title: t("monitoring")) {
+                if (monitoring["error"] as? String)?.isEmpty == false { RemnaNotice(text: t("panel_down"), tone: .bad) }
+                let nodes = monitoring["nodes"] as? [[String: Any]] ?? []
+                if nodes.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(nodes.enumerated()), id: \.offset) { _, row in
+                    let node = publicNode(row)
+                    RemnaRow(title: jsonText(node["name"]), detail: "\(jsonText(node["country"])) · \(jsonInt(node["users_online"]) ?? 0) online", badge: jsonText(node["status"]))
+                }
+            }
+        case "platform":
+            RemnaCard(title: t("violations")) {
+                let violations = platform["violations"] as? [[String: Any]] ?? []
+                if violations.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(violations.enumerated()), id: \.offset) { _, row in
+                    let score = jsonInt(row["score"]) ?? 0
+                    RemnaRow(title: "#\(jsonText(row["id"])) · \(t("score")) \(score)", detail: jsonText(row["recommendation"]), badge: "\(score)", tone: score >= 70 ? .bad : .warn) {
+                        RemnaGhost(title: t("restrict"), danger: true) { review(row, "restrict") }.disabled(AdminDemo.enabled)
+                        RemnaGhost(title: t("clear")) { review(row, "clear") }.disabled(AdminDemo.enabled)
+                    }
+                }
+            }
+            RemnaCard(title: t("agents")) {
+                ForEach(Array((platform["agents"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, agent in
+                    let stale = jsonBool(agent["stale"])
+                    RemnaRow(title: jsonText(agent["name"]), detail: "CPU \(jsonText(agent["cpu"]))", badge: stale ? t("stale") : t("online"), tone: stale ? .warn : .ok)
+                }
+            }
+            RemnaCard(title: t("countries")) {
+                ForEach(Array((platform["countries"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, country in
+                    RemnaRow(title: jsonText(country["country"]), badge: jsonText(country["count"]), tone: .info)
+                }
             }
         case "launch":
             launchSection
         case "ops":
-            Text(t("ops")).font(.headline)
-            Text("\(t("critical")): \(ops["critical"] ?? 0)")
-            Text("\(t("stale_agents")): \(ops["stale_agents"] ?? 0)")
-            let agents = ops["agents"] as? [[String: Any]] ?? []
-            ForEach(Array(agents.enumerated()), id: \.offset) { _, agent in
-                Text("\(jsonText(agent["name"])) · CPU \(jsonText(agent["cpu"])) · RAM \(jsonText(agent["mem"]))")
+            HStack(spacing: 10) {
+                RemnaKpi(label: t("critical"), value: jsonText(ops["critical"]).isEmpty ? "0" : jsonText(ops["critical"]))
+                RemnaKpi(label: t("stale_agents"), value: jsonText(ops["stale_agents"]).isEmpty ? "0" : jsonText(ops["stale_agents"]))
+            }
+            RemnaCard(title: t("ops")) {
+                let agents = ops["agents"] as? [[String: Any]] ?? []
+                if agents.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(agents.enumerated()), id: \.offset) { _, agent in
+                    RemnaRow(title: jsonText(agent["name"]), detail: "CPU \(jsonText(agent["cpu"])) · RAM \(jsonText(agent["mem"]))", badge: t("online"), tone: .ok)
+                }
             }
         case "broadcast":
-            Text(t("broadcast_hint")).foregroundStyle(.secondary)
-            HStack {
-                Button(t("all_telegram")) { broadcastTarget = "all" }.buttonStyle(.bordered)
-                Button(t("active_subs")) { broadcastTarget = "active" }.buttonStyle(.bordered)
-                Button(t("inactive_subs")) { broadcastTarget = "inactive" }.buttonStyle(.bordered)
+            RemnaCard(title: t("broadcast"), hint: t("broadcast_hint")) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        RemnaPill(title: t("all_telegram"), selected: broadcastTarget == "all") { broadcastTarget = "all" }
+                        RemnaPill(title: t("active_subs"), selected: broadcastTarget == "active") { broadcastTarget = "active" }
+                        RemnaPill(title: t("inactive_subs"), selected: broadcastTarget == "inactive") { broadcastTarget = "inactive" }
+                    }
+                }
+                RemnaField(title: t("broadcast_text"), text: $broadcastText)
+                RemnaPrimary(title: t("queue_broadcast")) { queueBroadcast() }.disabled(busy || AdminDemo.enabled)
             }
-            Text(t(broadcastTarget == "active" ? "active_subs" : broadcastTarget == "inactive" ? "inactive_subs" : "all_telegram"))
-            TextField(t("broadcast_text"), text: $broadcastText).textFieldStyle(.roundedBorder)
-            Button(t("queue_broadcast")) { queueBroadcast() }.disabled(busy)
-            if broadcasts.isEmpty { Text(t("no_data")) }
-            ForEach(Array(broadcasts.enumerated()), id: \.offset) { _, row in
-                let audience = (row["target"] as? String) == "active" ? t("active_subs") : (row["target"] as? String) == "inactive" ? t("inactive_subs") : t("all_telegram")
-                Text("#\(row["id"] ?? "") · \(audience) · \(row["status"] as? String ?? "") · \(t("sent")) \(row["sent_count"] ?? 0) · \(t("failed")) \(row["failed_count"] ?? 0)")
-                if (row["status"] as? String) == "sending" || (row["status"] as? String) == "failed" {
-                    Button(t("retry_broadcast")) { retryBroadcast(row) }.disabled(busy)
+            RemnaCard(title: t("sent")) {
+                if broadcasts.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(broadcasts.enumerated()), id: \.offset) { _, row in
+                    let audience = (row["target"] as? String) == "active" ? t("active_subs") : (row["target"] as? String) == "inactive" ? t("inactive_subs") : t("all_telegram")
+                    let status = jsonText(row["status"])
+                    RemnaRow(title: "#\(jsonText(row["id"])) · \(audience)", detail: "\(t("sent")) \(jsonText(row["sent_count"])) · \(t("failed")) \(jsonText(row["failed_count"]))", badge: status) {
+                        if status == "sending" || status == "failed" { RemnaGhost(title: t("retry_broadcast")) { retryBroadcast(row) }.disabled(busy) }
+                    }
                 }
             }
         default:
-            TextField(t("reply"), text: $reply).textFieldStyle(.roundedBorder)
-            if tickets.isEmpty { Text(t("no_data")) }
-            ForEach(Array(tickets.enumerated()), id: \.offset) { _, ticket in
-                Text("#\(ticket["id"] ?? "") · \(ticket["subject"] as? String ?? "") · \(ticket["status"] as? String ?? "")")
-                Text(ticket["message"] as? String ?? "")
-                Button(t("send")) { send(ticket) }.disabled(busy)
+            RemnaCard(title: t("support")) {
+                RemnaField(title: t("reply"), text: $reply)
+                if tickets.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(tickets.enumerated()), id: \.offset) { _, ticket in
+                    RemnaRow(title: "#\(jsonText(ticket["id"])) · \(jsonText(ticket["subject"]))", detail: jsonText(ticket["message"]), badge: jsonText(ticket["status"])) {
+                        RemnaPrimary(title: t("send")) { send(ticket) }.disabled(busy || AdminDemo.enabled)
+                    }
+                }
             }
         }
     }
@@ -492,6 +565,191 @@ struct AdminRootView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+// MARK: - Remna Dark: the look of the web admin panel (admin/src/theme.css)
+
+enum AdminDemo {
+    static var enabled: Bool {
+        #if DEBUG
+        return ProcessInfo.processInfo.arguments.contains("-CorgiDemo")
+        #else
+        return false
+        #endif
+    }
+    static var tab: String {
+        let args = ProcessInfo.processInfo.arguments
+        guard let i = args.firstIndex(of: "-CorgiTab"), i + 1 < args.count else { return "overview" }
+        return args[i + 1]
+    }
+}
+
+enum Remna {
+    static let bg = Color(red: 0.035, green: 0.051, blue: 0.086)
+    static let surface = Color(red: 0.059, green: 0.090, blue: 0.165)
+    static let surface2 = Color(red: 0.075, green: 0.110, blue: 0.192)
+    static let input = Color(red: 0.043, green: 0.071, blue: 0.125)
+    static let line = Color(red: 0.118, green: 0.161, blue: 0.231)
+    static let lineStrong = Color(red: 0.173, green: 0.231, blue: 0.341)
+    static let text = Color(red: 0.886, green: 0.910, blue: 0.941)
+    static let textStrong = Color(red: 0.973, green: 0.980, blue: 0.988)
+    static let muted = Color(red: 0.580, green: 0.639, blue: 0.722)
+    static let subtle = Color(red: 0.392, green: 0.455, blue: 0.545)
+    static let primary = Color(red: 0.231, green: 0.510, blue: 0.965)
+    static let primaryInk = Color(red: 0.576, green: 0.773, blue: 0.992)
+    static let success = Color(red: 0.133, green: 0.773, blue: 0.369)
+    static let warning = Color(red: 0.961, green: 0.620, blue: 0.043)
+    static let danger = Color(red: 0.937, green: 0.267, blue: 0.267)
+}
+
+enum RemnaTone { case ok, warn, bad, info, muted
+    var color: Color {
+        switch self { case .ok: return Remna.success; case .warn: return Remna.warning; case .bad: return Remna.danger; case .info: return Remna.primaryInk; case .muted: return Remna.muted }
+    }
+    static func of(_ status: String) -> RemnaTone {
+        switch status.lowercased() {
+        case "paid", "fulfilled", "online", "active", "done", "completed", "sent", "enabled", "ok", "answered", "closed": return .ok
+        case "pending", "queued", "sending", "creating", "processing", "open", "waiting", "stale", "review": return .warn
+        case "failed", "offline", "error", "creation_unknown", "refunded", "disabled", "critical", "restricted": return .bad
+        default: return .muted
+        }
+    }
+}
+
+struct RemnaCard<Content: View>: View {
+    var title = ""
+    var hint = ""
+    @ViewBuilder var content: Content
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if !title.isEmpty { Text(title).font(.system(size: 16, weight: .semibold)).foregroundStyle(Remna.textStrong) }
+            if !hint.isEmpty { Text(hint).font(.footnote).foregroundStyle(Remna.muted) }
+            content
+        }
+        .padding(16).frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 14).fill(Remna.surface))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Remna.line, lineWidth: 1))
+    }
+}
+
+struct RemnaKpi: View {
+    let label: String
+    let value: String
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label).font(.caption).foregroundStyle(Remna.muted).lineLimit(1)
+            Text(value).font(.system(size: 24, weight: .bold, design: .monospaced)).foregroundStyle(Remna.primaryInk).lineLimit(1).minimumScaleFactor(0.6)
+        }
+        .padding(14).frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 14).fill(Remna.surface))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Remna.line, lineWidth: 1))
+    }
+}
+
+struct RemnaBadge: View {
+    let text: String
+    var tone: RemnaTone? = nil
+    var body: some View {
+        let color = (tone ?? RemnaTone.of(text)).color
+        Text(text).font(.caption.weight(.semibold)).foregroundStyle(color)
+            .padding(.horizontal, 9).padding(.vertical, 3).background(Capsule().fill(color.opacity(0.12)))
+    }
+}
+
+struct RemnaRow<Actions: View>: View {
+    let title: String
+    var detail = ""
+    var badge = ""
+    var tone: RemnaTone? = nil
+    @ViewBuilder var actions: Actions
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(title).font(.system(size: 15, weight: .medium)).foregroundStyle(Remna.text)
+                Spacer()
+                if !badge.isEmpty { RemnaBadge(text: badge, tone: tone) }
+            }
+            if !detail.isEmpty { Text(detail).font(.footnote).foregroundStyle(Remna.muted) }
+            HStack(spacing: 8) { actions }
+        }
+        .padding(12).frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Remna.surface2))
+    }
+}
+
+extension RemnaRow where Actions == EmptyView {
+    init(title: String, detail: String = "", badge: String = "", tone: RemnaTone? = nil) {
+        self.init(title: title, detail: detail, badge: badge, tone: tone) { EmptyView() }
+    }
+}
+
+struct RemnaEmpty: View {
+    let text: String
+    var body: some View { Text(text).foregroundStyle(Remna.subtle).padding(.vertical, 6) }
+}
+
+struct RemnaNotice: View {
+    let text: String
+    var tone: RemnaTone = .warn
+    var body: some View {
+        Text(text).font(.subheadline).foregroundStyle(tone.color).padding(12).frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 12).fill(tone.color.opacity(0.1)))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(tone.color.opacity(0.35), lineWidth: 1))
+    }
+}
+
+struct RemnaPrimary: View {
+    let title: String
+    let action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            Text(title).font(.system(size: 15, weight: .semibold)).foregroundStyle(.white).frame(maxWidth: .infinity).padding(.vertical, 12)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Remna.primary))
+        }.buttonStyle(.plain)
+    }
+}
+
+struct RemnaGhost: View {
+    let title: String
+    var danger = false
+    let action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            Text(title).font(.footnote).foregroundStyle(danger ? Remna.danger : Remna.text).padding(.horizontal, 12).padding(.vertical, 7)
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(danger ? Remna.danger.opacity(0.5) : Remna.lineStrong, lineWidth: 1))
+        }.buttonStyle(.plain)
+    }
+}
+
+struct RemnaPill: View {
+    let title: String
+    let selected: Bool
+    let action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            Text(title).font(.system(size: 14, weight: selected ? .semibold : .regular)).foregroundStyle(selected ? Remna.textStrong : Remna.muted)
+                .padding(.horizontal, 14).padding(.vertical, 9)
+                .background(RoundedRectangle(cornerRadius: 10).fill(selected ? Remna.primary.opacity(0.16) : Remna.surface))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(selected ? Remna.primary.opacity(0.5) : Remna.line, lineWidth: 1))
+        }.buttonStyle(.plain)
+    }
+}
+
+struct RemnaField: View {
+    let title: String
+    @Binding var text: String
+    var secure = false
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title).font(.caption).foregroundStyle(Remna.muted)
+            Group {
+                if secure { SecureField("", text: $text) } else { TextField("", text: $text).textInputAutocapitalization(.never).autocorrectionDisabled() }
+            }
+            .padding(12).foregroundStyle(Remna.text)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Remna.input))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Remna.line, lineWidth: 1))
         }
     }
 }

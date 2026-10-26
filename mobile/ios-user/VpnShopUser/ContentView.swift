@@ -1217,6 +1217,12 @@ extension UserRootView {
         demo.notifications = [["id": 1, "title": "Подписка продлена", "body": "Спасибо! Следующее списание через 214 дней", "read": false]]
         demo.docs = [["kind": "faq", "title": "Частые вопросы"], ["kind": "rules", "title": "Правила"],
                      ["kind": "privacy", "title": "Политика конфиденциальности"], ["kind": "offer", "title": "Публичная оферта"]]
+        demo.giveaways = [
+            ["id": 7, "title": "Новогоднее колесо", "description": "Крутите колесо — до 1000 ₽ на баланс", "kind": "wheel", "phase": "open",
+             "prizes": [["amount": "100", "weight": 5], ["amount": "1000", "weight": 1]], "currency": "RUB", "ends_at": "2026-12-31T21:00:00Z", "my_entry": NSNull()],
+            ["id": 6, "title": "Розыгрыш года подписки", "description": "Три победителя получат год Премиума", "kind": "contest", "phase": "ended",
+             "prizes": [["amount": "1499", "weight": 1]], "currency": "RUB", "ends_at": "2026-10-20T21:00:00Z", "my_entry": ["outcome": "won", "reward_amount": "1499.00"]],
+        ]
         data = demo
     }
 }

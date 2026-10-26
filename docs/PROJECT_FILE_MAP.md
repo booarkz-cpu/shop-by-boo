@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1471**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1472**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -949,6 +949,7 @@
 | [mobile/android-admin/app/src/main/assets/l10n.json](../mobile/android-admin/app/src/main/assets/l10n.json) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/java/shop/remnawave/admin/RemnaUi.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/RemnaUi.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/values-en/strings.xml](../mobile/android-admin/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/values/strings.xml](../mobile/android-admin/app/src/main/res/values/strings.xml) | Мобильные приложения |
