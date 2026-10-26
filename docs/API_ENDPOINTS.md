@@ -121,6 +121,10 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/fields/{field_id}` | Admin Field Delete |
 | `PUT` | `/api/admin/fields/{field_id}` | Admin Field Update |
 | `GET` | `/api/admin/financial-ledger` | Admin Financial Ledger |
+| `GET` | `/api/admin/fiscal` | Admin Fiscal |
+| `PUT` | `/api/admin/fiscal` | Admin Fiscal Save |
+| `POST` | `/api/admin/fiscal/receipts/{receipt_id}/retry` | Admin Fiscal Retry |
+| `POST` | `/api/admin/fiscal/test` | Admin Fiscal Test |
 | `GET` | `/api/admin/fraud` | Admin Fraud |
 | `POST` | `/api/admin/fraud/scan` | Fraud Scan |
 | `POST` | `/api/admin/fraud/{signal_id}` | Fraud Decision |
@@ -492,6 +496,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/push/devices/unregister` | Unregister Device |
 | `DELETE` | `/api/me/push/devices/{device_id}` | Delete Device |
 | `POST` | `/api/me/push/test` | Test Push |
+| `GET` | `/api/me/receipts` | My Receipts |
 | `GET` | `/api/me/referral` | My Referral |
 | `POST` | `/api/me/referral/apply` | Apply Referral |
 | `GET` | `/api/me/referral/ledger` | My Referral Ledger |

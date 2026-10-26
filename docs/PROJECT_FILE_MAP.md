@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1463**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1468**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -154,6 +154,7 @@
 | [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
 | [admin/src/documents.tsx](../admin/src/documents.tsx) | Админ-панель |
+| [admin/src/fiscal.tsx](../admin/src/fiscal.tsx) | Админ-панель |
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
 | [admin/src/growth.tsx](../admin/src/growth.tsx) | Админ-панель |
@@ -339,6 +340,7 @@
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
 | [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
+| [backend/app/fiscal.py](../backend/app/fiscal.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
 | [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
@@ -488,6 +490,8 @@
 | [cabinet/src/plans.tsx](../cabinet/src/plans.tsx) | Кабинет |
 | [cabinet/src/profile.tsx](../cabinet/src/profile.tsx) | Кабинет |
 | [cabinet/src/public-pages.tsx](../cabinet/src/public-pages.tsx) | Кабинет |
+| [cabinet/src/receipts.test.tsx](../cabinet/src/receipts.test.tsx) | Кабинет |
+| [cabinet/src/receipts.tsx](../cabinet/src/receipts.tsx) | Кабинет |
 | [cabinet/src/referral-network.test.tsx](../cabinet/src/referral-network.test.tsx) | Кабинет |
 | [cabinet/src/referral-network.tsx](../cabinet/src/referral-network.tsx) | Кабинет |
 | [cabinet/src/stickers.test.tsx](../cabinet/src/stickers.test.tsx) | Кабинет |
@@ -1340,6 +1344,7 @@
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
+| [tests/test_fiscal.py](../tests/test_fiscal.py) | Проверки |
 | [tests/test_fraud_signals.py](../tests/test_fraud_signals.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |

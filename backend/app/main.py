@@ -143,6 +143,8 @@ from .app_login import router as app_login_router
 app.include_router(app_login_router)
 from .app_growth import router as app_growth_router
 app.include_router(app_growth_router)
+from .fiscal import router as fiscal_router
+app.include_router(fiscal_router)
 from .telegram_stars import router as telegram_stars_router, TelegramStarsProvider
 app.include_router(telegram_stars_router)
 from .remnawave_events import router as remnawave_events_router

@@ -9,3 +9,5 @@
 | 5 | Push-кампании по сегментам | `app_growth.py`, `admin/src/appGrowth.tsx` | готово |
 | 6 | Аналитика приложений и воронка | `app_growth.py`, `CorgiAnalytics` (Android/iOS), `admin/src/appGrowth.tsx` | готово |
 | 7 | Розыгрыши и баннер акции в приложениях | `mobile_layout.py`, экраны Android/iOS, `app-giveaways.jpg` | готово |
+| 11 | Чеки в налоговую: «Мой налог», АТОЛ Онлайн, чеки ЮKassa | `fiscal.py`, `admin/src/fiscal.tsx`, `cabinet/src/receipts.tsx` | готово |
+| 8 | `main.py`: оплата, вебхуки и выдача → `payments_api.py`; поведенческие тесты вместо проверок исходника | `payments_api.py`, `tests/test_behaviour_payments_v2.py` | готово |
