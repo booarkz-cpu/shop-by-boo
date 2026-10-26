@@ -65,10 +65,18 @@ def test_provider_create_must_return_an_external_payment_id():
     assert 'Payment provider returned no payment ID' in block
 
 
+def _pin(name):
+    """Exact pinned version of a backend requirement as a tuple of ints (Dependabot moves pins forward)."""
+    import re
+    for line in (ROOT/"backend/requirements.txt").read_text().splitlines():
+        m=re.match(rf"^{re.escape(name)}(\[[^\]]*\])?==([0-9][0-9.]*)\s*$",line.strip(),re.I)
+        if m:
+            return tuple(int(x) for x in m.group(2).split("."))
+    raise AssertionError(f"{name} is not pinned exactly")
+
+
 def test_cryptography_is_pinned_to_a_security_fixed_release():
-    req=(ROOT/"backend/requirements.txt").read_text()
-    assert "cryptography==50.0.1" in req
-    assert "cryptography==46.0.4" not in req
+    assert _pin("cryptography")>=(50,0,1)
 
 def test_trial_treats_null_expiry_subscription_as_active():
     block=MAIN[MAIN.index('@app.post("/api/me/trial")'):MAIN.index('@app.get("/api/public/config")')]
@@ -88,8 +96,9 @@ def test_upload_endpoints_use_bounded_reads_for_chunked_requests():
 
 def test_security_sensitive_dependency_pins_are_current_fixed_lines():
     req=(ROOT/"backend/requirements.txt").read_text()
-    assert 'PyJWT==2.15.0' in req
-    assert 'python-multipart==0.0.31' in req
-    assert 'paramiko==5.0.0' in req
-    assert 'boto3==1.43.91' in req
+    # Floors are the security-fixed releases; newer pins are fine.
+    assert _pin("PyJWT")>=(2,15,0)
+    assert _pin("python-multipart")>=(0,0,31)
+    assert _pin("paramiko")>=(5,0,0)
+    assert _pin("boto3")>=(1,43,91)
     assert 'authlib==' not in req

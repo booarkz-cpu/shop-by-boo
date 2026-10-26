@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,7 +48,7 @@ def test_admin_retry_rejects_refunded_payment():
 def test_release_is_44_5_20_and_build_has_yaml_dependency():
     assert 'VERSION="1.0.0-realise"' in BUILD
     assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed.zip' in BUILD
-    assert 'PyYAML==6.0.3' in REQ
+    assert re.search(r'^PyYAML==\d', REQ, re.M), 'PyYAML must stay an exact pinned dependency'
 
 
 def test_auto_renew_serializes_paid_transition_with_payment_side_effect_lock():
