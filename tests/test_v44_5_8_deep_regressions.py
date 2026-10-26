@@ -81,7 +81,9 @@ def test_auto_renew_persists_intent_before_external_charge():
 
 def test_auto_renew_retries_same_durable_order_id():
     assert 'existing.status=="creating" and existing.provider_payment_id is None' in MAIN
-    assert 'charge_recurring(Decimal(str(existing.amount)),existing.order_id' in MAIN
+    # v28.27.0: the lost charge is adopted first; behaviour is tested in test_money_review.py.
+    assert 'adopted=await adopt_or_retry_recurring(existing,method,plan)' in MAIN
+    assert 'charge_recurring(Decimal(str(payment.amount)),payment.order_id' in MAIN
 
 
 def test_interactive_checkout_persists_intent_before_provider_call():

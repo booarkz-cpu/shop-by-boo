@@ -566,3 +566,16 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 .status-country{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:var(--radius);background:var(--surface)}
 .stars-subscribe{margin-top:12px}
 .cancel-survey{margin-top:10px}
+
+/* v28.27.0: corgi Lusi sticker screens and promo pictures */
+.sticker-state{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:28px 16px;max-width:520px;margin:12px auto}
+.sticker-state img{width:min(220px,60vw);height:auto;filter:drop-shadow(0 10px 18px rgba(0,0,0,.25));animation:lusi-pop .35s ease-out}
+.sticker-state[data-sticker="waiting"] img{animation:lusi-breathe 2.4s ease-in-out infinite}
+.sticker-state h2{margin:4px 0 0;font-size:1.35rem}
+.sticker-state p{margin:0;color:var(--muted)}
+.sticker-state .btn-row{justify-content:center;margin-top:8px}
+@keyframes lusi-pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes lusi-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){.sticker-state img{animation:none!important}}
+.promo-card.has-image{position:relative;padding-right:118px;min-height:132px}
+.promo-image{position:absolute;right:6px;bottom:6px;width:108px;height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));pointer-events:none}

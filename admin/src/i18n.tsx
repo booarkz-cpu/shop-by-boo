@@ -4,6 +4,12 @@ export type Lang = "ru" | "en";
 
 /** English equivalents of the Russian admin UI. Unknown strings stay unchanged. */
 export const EN: Record<string, string> = {
+  "Запуск и оповещения": "Launch and alerts",
+  "Магазин готов к приёму оплат": "The shop is ready to take payments",
+  "Перед запуском осталось": "Left before launch",
+  "Оповещения о сбоях": "Failure alerts",
+  "Отправить тестовое оповещение": "Send a test alert",
+  "Проблем нет.": "No problems.",
   "Удержание клиентов": "Retention",
   "Семейные подписки": "Family plans",
   "Готовые сценарии": "Ready-made scenarios",

@@ -83,6 +83,15 @@ async def purchase_gift(payload,request,db):
     finally:await main._release_payment_side_effect_lock(lock,token)
 
 
+def gift_unit_price(unit,before,after,now):
+    """Spread the value of the paid days still left over the whole term after the gift,
+    so an upgrade quote keeps crediting what the customer paid for."""
+    unit=Decimal(str(unit or 0)); total=(after-now).total_seconds()
+    paid=max(0.0,(before-now).total_seconds()) if before else 0.0
+    if unit<=0 or total<=0 or paid<=0:return Decimal(0)
+    return (unit*Decimal(paid)/Decimal(total)).quantize(Decimal('0.0001'))
+
+
 async def redeem_gift(payload,request,db):
     from . import main
     from .platform_api import reject_restricted
@@ -146,10 +155,16 @@ async def redeem_gift(payload,request,db):
                     if not data.get('id'):raise RuntimeError('Remnawave returned no user id')
                     remote_id=str(data['id']);sub.subscription_url=data.get('subscriptionUrl') or data.get('subscription_url')
                 redemption.remote_user_id=remote_id;await db.commit()
+            # The lifecycle scheduler and refunds disable the panel user when a
+            # subscription ends; a gift onto it must switch access back on.
+            remote_user=await rw.get_user(remote_id)
+            if str((remote_user or {}).get('status') or (remote_user or {}).get('state') or '').lower() in {'disabled','blocked','inactive'}:
+                await rw.enable_user(remote_id)
             await rw.update_entitlements(remote_id,terms['traffic_gb'],terms['profile_id'])
             await rw.extend_idempotent(remote_id,int(terms['days']),redemption.expected_before_expires_at,target)
             sub.remnawave_uuid=remote_id;sub.plan_id=code.plan_id;sub.expires_at=target;sub.lifecycle_status='active'
-            sub.scheduled_cancel_at=None;sub.grace_until=None;sub.unit_price_per_day=Decimal(0)
+            sub.scheduled_cancel_at=None;sub.grace_until=None
+            sub.unit_price_per_day=gift_unit_price(sub.unit_price_per_day,redemption.expected_before_expires_at,target,now)
             sub.traffic_limit_gb_snapshot=terms['traffic_gb'];sub.device_limit_snapshot=terms['devices'];sub.remnawave_profile_id_snapshot=terms['profile_id']
             from .tariff_api import linked_constructor_id
             sub.renewal_terms=({**terms,'amount':str(code.purchase_amount)}

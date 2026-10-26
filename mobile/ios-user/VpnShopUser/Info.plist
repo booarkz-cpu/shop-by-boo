@@ -5,7 +5,7 @@
     <key>NSFaceIDUsageDescription</key>
     <string>Unlock your VPN Shop session with Face ID.</string>
     <key>CFBundleDisplayName</key>
-    <string>VPN Shop by Corgi Lusi</string>
+    <string>Корги Люси</string>
     <key>CFBundleName</key>
     <string>VpnShopUser</string>
     <key>NSAppTransportSecurity</key>

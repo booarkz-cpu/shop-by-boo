@@ -293,7 +293,7 @@ async def start(message:Message):
     if not buttons: buttons=[[InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=shop_url))]]
     elif gift_code or family_code:
         buttons.append([InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=shop_url))])
-    name=escape(vals.get("bot_name") or "VPN Shop by Corgi Lusi"); text=_tr(lang,"welcome",name=name)
+    name=escape(vals.get("bot_name") or "Корги Люси"); text=_tr(lang,"welcome",name=name)
     pt=promo_text(promos,plans,lang)
     if gift_code: text += "\n\n"+_tr(lang,"gift_ready",code=escape(gift_code))
     if family_code: text += "\n\n"+("👨‍👩‍👧 Вас пригласили в семейную подписку. Откройте магазин, чтобы присоединиться." if lang!="en" else "👨‍👩‍👧 You are invited to a family subscription. Open the shop to join.")

@@ -6,6 +6,7 @@ import {Bell, CircleHelp, Clock, Copy, CreditCard, FileText, Flag, Gift, Globe2,
   Bitcoin, QrCode} from "lucide-react";
 import {assetUrl, bundledBanner, useAppConfig, useText, type InfoPage} from "./app-config";
 import {ContentBlocks} from "./public-pages";
+import {StickerState} from "./stickers";
 import {Skeleton, StatusBadge} from "./ui";
 import {haptic, isTelegram, openAnyLink, openExternal, openInvoice, telegramFirstName} from "./telegram";
 
@@ -116,7 +117,8 @@ export function PromoCards({go}: {go: (slug: string) => void}) {
         {visible.map((p) => {
           const left = countdown(p.ends_at, now);
           return (
-            <article className="promo-card" key={p.id} data-promo={p.id}>
+            <article className={`promo-card${p.image ? " has-image" : ""}`} key={p.id} data-promo={p.id}>
+              {p.image && <img className="promo-image" src={assetUrl(p.image)} alt="" loading="lazy" />}
               {p.discount && <span className="promo-discount">{p.discount}</span>}
               <h3>{p.title}</h3>
               {p.text && <p>{p.text}</p>}
@@ -386,9 +388,9 @@ export class SectionBoundary extends React.Component<{children: React.ReactNode;
   render() {
     if (!this.state.failed) return this.props.children;
     return (
-      <div className="workspace-alert error" role="alert">
-        Раздел временно не открывается. <button type="button" className="btn-ghost" onClick={() => this.setState({failed: false})}><RefreshCw aria-hidden="true" />Повторить</button>
-      </div>
+      <StickerState sticker="bugs" tone="error" title="Раздел не открылся" text="Люси уже ловит ошибку. Попробуйте ещё раз — остальные разделы работают.">
+        <button type="button" className="btn-ghost" onClick={() => this.setState({failed: false})}><RefreshCw aria-hidden="true" />Повторить</button>
+      </StickerState>
     );
   }
 }

@@ -18,7 +18,8 @@ def test_admin_login_rate_limit_uses_real_client_ip_behind_proxy():
 
 def test_existing_remote_fulfillment_uses_entitlement_snapshot():
     s = section('async def fulfill(payment_id:int, db:AsyncSession, existing_user_lock_token: str|None = None):', 'async def payment_by_provider')
-    assert 'target_expiry=max(now+timedelta(days=duration_days), remote_expiry or now)' in s
+    # v28.27.0: remaining days are kept (test_money_review.py checks the behaviour).
+    assert 'target_expiry=base_expiry+timedelta(days=duration_days)' in s
     assert 'timedelta(days=plan.duration_days), remote_expiry' not in s
 
 

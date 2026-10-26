@@ -30,8 +30,8 @@ Telegram-бот и Mini App, личный кабинет, админ-панел�
 
 ---
 
-> **v28.26.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0076_growth`, Support Pro `0008` / 3.8.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.26.0`, `/health` отвечает `21.5.1`.
+> **v28.27.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0076_growth`, Support Pro `0008` / 3.8.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.27.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 **Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) и [инструкции по 30 модулям](docs/ru/modules/README.md).
@@ -129,8 +129,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.26.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.26.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.27.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.27.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -147,7 +147,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.26.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.27.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -163,12 +163,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.26.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.27.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.26.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.27.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -228,7 +228,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 | Админ-панель | Личный кабинет |
 | --- | --- |
 | ![Все разделы админ-панели](screenshots/admin_panel/00_all_sections.png) | ![Обзор кабинета](screenshots/storefront_user/03_overview.png) |
-| ![Конструктор тарифов](screenshots/admin_panel/15_constructor.png) | ![Тарифы](screenshots/storefront_user/04_plans.png) |
+| ![Конструктор тарифов](screenshots/admin_panel/16_constructor.png) | ![Тарифы](screenshots/storefront_user/04_plans.png) |
 
 #### Админ-панель
 
@@ -253,7 +253,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 </details>
 
 <details>
-<summary><b>Аналитика</b> (6)</summary>
+<summary><b>Аналитика</b> (7)</summary>
 
 **Главная** — Сводка за сутки и месяц: клиенты, подписки, выручка, серверы и то, что требует внимания.
 
@@ -271,13 +271,17 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ![Финансовый журнал](screenshots/admin_panel/05_financial.png)
 
+**Запуск и оповещения** — Что осталось настроить перед приёмом оплат и куда приходят оповещения о сбоях.
+
+![Запуск и оповещения](screenshots/admin_panel/06_opsReadiness.png)
+
 **Состояние системы** — Работают ли API, база данных, Redis, Remnawave и фоновые процессы.
 
-![Состояние системы](screenshots/admin_panel/06_health.png)
+![Состояние системы](screenshots/admin_panel/07_health.png)
 
 **Инциденты** — Сбои и проблемы: открыть инцидент, отметить решение, посмотреть историю.
 
-![Инциденты](screenshots/admin_panel/07_incidents.png)
+![Инциденты](screenshots/admin_panel/08_incidents.png)
 
 </details>
 
@@ -286,27 +290,27 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Клиенты магазина** — Поиск клиента по ID, Telegram, имени или email и полная карточка: подписка, баланс, платежи, действия.
 
-![Клиенты магазина](screenshots/admin_panel/08_crm.png)
+![Клиенты магазина](screenshots/admin_panel/09_crm.png)
 
 **Пользователи VPN** — Учётные записи в Remnawave: статус, имя пользователя и дата создания.
 
-![Пользователи VPN](screenshots/admin_panel/09_users.png)
+![Пользователи VPN](screenshots/admin_panel/10_users.png)
 
 **Устройства** — Устройства клиентов (HWID): сколько подключено и какие можно отключить.
 
-![Устройства](screenshots/admin_panel/10_devices.png)
+![Устройства](screenshots/admin_panel/11_devices.png)
 
 **Импорт и массовые операции** — Перенос клиентов из другого бота и действия сразу над группой клиентов.
 
-![Импорт и массовые операции](screenshots/admin_panel/11_customerOperations.png)
+![Импорт и массовые операции](screenshots/admin_panel/12_customerOperations.png)
 
 **Обращения клиентов** — Вопросы клиентов из бота и кабинета: ответить, назначить, закрыть.
 
-![Обращения клиентов](screenshots/admin_panel/12_support.png)
+![Обращения клиентов](screenshots/admin_panel/13_support.png)
 
 **Support Pro** — Состояние отдельного центра поддержки: очереди, операторы, каналы и SLA.
 
-![Support Pro](screenshots/admin_panel/13_supportPro.png)
+![Support Pro](screenshots/admin_panel/14_supportPro.png)
 
 </details>
 
@@ -315,43 +319,43 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Тарифы** — Готовые тарифы: название, срок, цена, трафик и число устройств.
 
-![Тарифы](screenshots/admin_panel/14_plans.png)
+![Тарифы](screenshots/admin_panel/15_plans.png)
 
 **Конструктор тарифов** — Тариф, который клиент собирает сам: устройства, трафик и срок с ценой за каждый пункт.
 
-![Конструктор тарифов](screenshots/admin_panel/15_constructor.png)
+![Конструктор тарифов](screenshots/admin_panel/16_constructor.png)
 
 **Пакеты трафика** — Дополнительные гигабайты, которые клиент докупает к действующей подписке.
 
-![Пакеты трафика](screenshots/admin_panel/16_trafficPackages.png)
+![Пакеты трафика](screenshots/admin_panel/17_trafficPackages.png)
 
 **Изменения подписок** — Продления, смены тарифа и докупки: что запросил клиент и чем закончилось.
 
-![Изменения подписок](screenshots/admin_panel/17_subscriptionOperations.png)
+![Изменения подписок](screenshots/admin_panel/18_subscriptionOperations.png)
 
 **Платежи** — Все оплаты клиентов со статусом, суммой и платёжной системой.
 
-![Платежи](screenshots/admin_panel/18_payments.png)
+![Платежи](screenshots/admin_panel/19_payments.png)
 
 **Платёжные агенты** — Подключённые платёжные системы, их доступность и доля успешных оплат.
 
-![Платёжные агенты](screenshots/admin_panel/19_providers.png)
+![Платёжные агенты](screenshots/admin_panel/20_providers.png)
 
 **Возвраты** — Заявки на возврат денег: проверить, одобрить или отклонить.
 
-![Возвраты](screenshots/admin_panel/20_refunds.png)
+![Возвраты](screenshots/admin_panel/21_refunds.png)
 
 **Семейные подписки** — Семьи владельцев тарифов с местами: участники и их синхронизация с Remnawave.
 
-![Семейные подписки](screenshots/admin_panel/21_family.png)
+![Семейные подписки](screenshots/admin_panel/22_family.png)
 
 **Подарки** — Подарочные коды на подписку: создать код, задать срок и число активаций.
 
-![Подарки](screenshots/admin_panel/22_gifts.png)
+![Подарки](screenshots/admin_panel/23_gifts.png)
 
 **Проверка платежей** — Тестовые оплаты в sandbox платёжных систем перед запуском магазина.
 
-![Проверка платежей](screenshots/admin_panel/23_staging.png)
+![Проверка платежей](screenshots/admin_panel/24_staging.png)
 
 </details>
 
@@ -360,31 +364,31 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Акции и рассылки** — Скидочные акции, промокоды, рекламные блоки и рассылки в Telegram.
 
-![Акции и рассылки](screenshots/admin_panel/24_marketing.png)
+![Акции и рассылки](screenshots/admin_panel/25_marketing.png)
 
 **Группы и предложения** — Группы клиентов по условиям и персональные предложения для каждой группы.
 
-![Группы и предложения](screenshots/admin_panel/25_offers.png)
+![Группы и предложения](screenshots/admin_panel/26_offers.png)
 
 **Конкурсы и призы** — Розыгрыши и призы: условия участия, победители и выдача наград.
 
-![Конкурсы и призы](screenshots/admin_panel/26_giveaways.png)
+![Конкурсы и призы](screenshots/admin_panel/27_giveaways.png)
 
 **Опросы** — Вопросы клиентам в боте и кабинете и сводка ответов.
 
-![Опросы](screenshots/admin_panel/27_surveys.png)
+![Опросы](screenshots/admin_panel/28_surveys.png)
 
 **Рефералы и партнёры** — Реферальная программа (уровни и проценты), партнёры со своей ставкой, сверка балансов и заявки на вывод вознаграждения.
 
-![Рефералы и партнёры](screenshots/admin_panel/28_payouts.png)
+![Рефералы и партнёры](screenshots/admin_panel/29_payouts.png)
 
 **Уведомления** — Отправленные клиентам уведомления и состояние push для Android и iOS.
 
-![Уведомления](screenshots/admin_panel/29_notifications.png)
+![Уведомления](screenshots/admin_panel/30_notifications.png)
 
 **Новости и страницы** — Новости, инструкции и правовые страницы для бота и кабинета.
 
-![Новости и страницы](screenshots/admin_panel/30_pages.png)
+![Новости и страницы](screenshots/admin_panel/31_pages.png)
 
 </details>
 
@@ -393,31 +397,31 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Меню бота и Mini App** — Тексты бота, кнопки главного меню, экран Mini App и инструкции по подключению.
 
-![Меню бота и Mini App](screenshots/admin_panel/31_content.png)
+![Меню бота и Mini App](screenshots/admin_panel/32_content.png)
 
 **Дерево кнопок** — Вложенные меню бота: порядок кнопок, подменю и действия по нажатию.
 
-![Дерево кнопок](screenshots/admin_panel/32_menuTree.png)
+![Дерево кнопок](screenshots/admin_panel/33_menuTree.png)
 
 **Конфигурация Mini App** — Тема, акции, серверы, способы пополнения, рефералы, поддержка, документы и оферта Mini App.
 
-![Конфигурация Mini App](screenshots/admin_panel/33_appConfig.png)
+![Конфигурация Mini App](screenshots/admin_panel/34_appConfig.png)
 
 **Баннеры бота** — Картинки над разделами бота и Mini App: стандартные с корги Люси или свои.
 
-![Баннеры бота](screenshots/admin_panel/34_botBanners.png)
+![Баннеры бота](screenshots/admin_panel/35_botBanners.png)
 
 **Личный кабинет** — Вкладки веб-кабинета клиента: порядок, названия и собственные страницы.
 
-![Личный кабинет](screenshots/admin_panel/35_cabinet.png)
+![Личный кабинет](screenshots/admin_panel/36_cabinet.png)
 
 **Android и iOS** — Приложения магазина: версии, файлы для загрузки и ссылки на сторы.
 
-![Android и iOS](screenshots/admin_panel/36_apps.png)
+![Android и iOS](screenshots/admin_panel/37_apps.png)
 
 **Оформление** — Название магазина, логотип, иконка сайта, цвета и тема по умолчанию.
 
-![Оформление](screenshots/admin_panel/37_branding.png)
+![Оформление](screenshots/admin_panel/38_branding.png)
 
 </details>
 
@@ -426,39 +430,39 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Серверы** — Узлы Remnawave: онлайн, нагрузка, трафик и число подключённых клиентов.
 
-![Серверы](screenshots/admin_panel/38_nodes.png)
+![Серверы](screenshots/admin_panel/39_nodes.png)
 
 **Сеть узлов: ASN и репутация** — В чьих сетях стоят узлы и не попали ли их адреса в списки злоупотреблений.
 
-![Сеть узлов: ASN и репутация](screenshots/admin_panel/39_networkIntel.png)
+![Сеть узлов: ASN и репутация](screenshots/admin_panel/40_networkIntel.png)
 
 **Терминал узлов** — Командная оболочка на VPN-сервере через агент: с подтверждением 2FA и записью сессии.
 
-![Терминал узлов](screenshots/admin_panel/40_nodeTerminal.png)
+![Терминал узлов](screenshots/admin_panel/41_nodeTerminal.png)
 
 **Маршрутизация** — Выбор узла для клиента по задержке и нагрузке.
 
-![Маршрутизация](screenshots/admin_panel/41_routing.png)
+![Маршрутизация](screenshots/admin_panel/42_routing.png)
 
 **Планирование мощности** — Прогноз нагрузки: когда узлам не хватит ресурсов и сколько добавить.
 
-![Планирование мощности](screenshots/admin_panel/42_capacity.png)
+![Планирование мощности](screenshots/admin_panel/43_capacity.png)
 
 **Оркестратор** — Автоматическое включение и вывод узлов по правилам нагрузки.
 
-![Оркестратор](screenshots/admin_panel/43_orchestrator.png)
+![Оркестратор](screenshots/admin_panel/44_orchestrator.png)
 
 **Торренты на узлах** — Кто из клиентов качает торренты: счётчики срабатываний Xray без адресов, отметка в антиабузе и уведомление.
 
-![Торренты на узлах](screenshots/admin_panel/44_torrents.png)
+![Торренты на узлах](screenshots/admin_panel/45_torrents.png)
 
 **Антиабуз и агенты** — Агенты на узлах, блокировка устройств-нарушителей и вебхуки событий.
 
-![Антиабуз и агенты](screenshots/admin_panel/45_platform.png)
+![Антиабуз и агенты](screenshots/admin_panel/46_platform.png)
 
 **Мониторинг** — Проверки доступности, версии компонентов и рабочие процессы.
 
-![Мониторинг](screenshots/admin_panel/46_monitoring.png)
+![Мониторинг](screenshots/admin_panel/47_monitoring.png)
 
 </details>
 
@@ -467,51 +471,51 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Настройки без перезапуска** — Параметры магазина, платёжных систем и интеграций, которые применяются сразу.
 
-![Настройки без перезапуска](screenshots/admin_panel/47_runtimeSettings.png)
+![Настройки без перезапуска](screenshots/admin_panel/48_runtimeSettings.png)
 
 **Функции и модули** — Включение и выключение отдельных возможностей магазина.
 
-![Функции и модули](screenshots/admin_panel/48_features.png)
+![Функции и модули](screenshots/admin_panel/49_features.png)
 
 **Плагины** — Установка подписанных плагинов, их права и журнал работы.
 
-![Плагины](screenshots/admin_panel/49_plugins.png)
+![Плагины](screenshots/admin_panel/50_plugins.png)
 
 **Автоматизация** — Правила «событие → действие» и автоматические кампании.
 
-![Автоматизация](screenshots/admin_panel/50_automation.png)
+![Автоматизация](screenshots/admin_panel/51_automation.png)
 
 **Фоновые процессы** — Worker и планировщик: работают ли, когда последний раз отвечали.
 
-![Фоновые процессы](screenshots/admin_panel/51_workers.png)
+![Фоновые процессы](screenshots/admin_panel/52_workers.png)
 
 **Очередь задач** — Фоновые задачи: ожидают, выполняются, завершились ошибкой; повтор вручную.
 
-![Очередь задач](screenshots/admin_panel/52_jobs.png)
+![Очередь задач](screenshots/admin_panel/53_jobs.png)
 
 **Почтовый домен: SPF, DKIM, DMARC** — Доходят ли письма магазина: DNS-записи домена и отчёты DMARC о том, кто отправляет почту от его имени.
 
-![Почтовый домен: SPF, DKIM, DMARC](screenshots/admin_panel/53_mailDomain.png)
+![Почтовый домен: SPF, DKIM, DMARC](screenshots/admin_panel/54_mailDomain.png)
 
 **Диагностика** — Проверка конфигурации, подключений и готовности к работе с подсказками по исправлению.
 
-![Диагностика](screenshots/admin_panel/54_operations.png)
+![Диагностика](screenshots/admin_panel/55_operations.png)
 
 **Обновления** — Установленная версия, доступные выпуски и история обновлений.
 
-![Обновления](screenshots/admin_panel/55_releases.png)
+![Обновления](screenshots/admin_panel/56_releases.png)
 
 **Развёртывания** — Постепенный выпуск новой версии: доля трафика и ошибки.
 
-![Развёртывания](screenshots/admin_panel/56_deployments.png)
+![Развёртывания](screenshots/admin_panel/57_deployments.png)
 
 **Корпоративный контур** — Проверки, кампании и правила автоматизации для крупных установок.
 
-![Корпоративный контур](screenshots/admin_panel/57_enterprise.png)
+![Корпоративный контур](screenshots/admin_panel/58_enterprise.png)
 
 **Рекомендации** — Подсказки по росту продаж и снижению нагрузки на основе данных магазина.
 
-![Рекомендации](screenshots/admin_panel/58_intelligence.png)
+![Рекомендации](screenshots/admin_panel/59_intelligence.png)
 
 </details>
 
@@ -520,35 +524,35 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Защита и 2FA** — Двухфакторный вход, смена пароля и правила доступа к панели.
 
-![Защита и 2FA](screenshots/admin_panel/59_security.png)
+![Защита и 2FA](screenshots/admin_panel/60_security.png)
 
 **Ключи доступа** — Вход в панель по ключу доступа (passkey) вместо пароля.
 
-![Ключи доступа](screenshots/admin_panel/60_passkeys.png)
+![Ключи доступа](screenshots/admin_panel/61_passkeys.png)
 
 **Роли и администраторы** — Кто имеет доступ к панели и с какими правами.
 
-![Роли и администраторы](screenshots/admin_panel/61_admins.png)
+![Роли и администраторы](screenshots/admin_panel/62_admins.png)
 
 **Сессии** — Активные входы в панель; завершить чужую или все сессии.
 
-![Сессии](screenshots/admin_panel/62_sessions.png)
+![Сессии](screenshots/admin_panel/63_sessions.png)
 
 **Антифрод** — Подозрительные оплаты и аккаунты: проверить и принять решение.
 
-![Антифрод](screenshots/admin_panel/63_fraud.png)
+![Антифрод](screenshots/admin_panel/64_fraud.png)
 
 **Журнал действий** — Кто из администраторов, когда и что изменил.
 
-![Журнал действий](screenshots/admin_panel/64_audit.png)
+![Журнал действий](screenshots/admin_panel/65_audit.png)
 
 **Резервные копии** — Расписание и хранение копий базы, ручной запуск и проверка.
 
-![Резервные копии](screenshots/admin_panel/65_backups.png)
+![Резервные копии](screenshots/admin_panel/66_backups.png)
 
 **Восстановление** — Восстановление из копии и проверка готовности к аварии.
 
-![Восстановление](screenshots/admin_panel/66_recovery.png)
+![Восстановление](screenshots/admin_panel/67_recovery.png)
 
 </details>
 
@@ -557,7 +561,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 **Быстрый поиск** — Ctrl+K (⌘K) из любого раздела: поиск по названию, описанию и синонимам, переход клавишами.
 
-![Быстрый поиск](screenshots/admin_panel/67_command_search.png)
+![Быстрый поиск](screenshots/admin_panel/68_command_search.png)
 
 </details>
 
@@ -707,6 +711,8 @@ cd ../admin && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet && npx 
 
 ## 🗂 История выпусков
 
+Релиз v28.27.0 исправил найденные независимым ревью ошибки оплат (автопродление отменённых подписок, подарок на отключённого пользователя, возврат последнего платежа, повторное списание после сбоя, потерянные дни при восстановлении), добавил раздел «Запуск и оповещения» с оповещениями о сбоях в Telegram, экраны со стикерами Люси после оплаты, на технических работах и 404, бренд «Корги Люси» и автослияние патч-обновлений Dependabot ([заметки](docs/ru/RELEASE_V28_27_0.md)).
+
 Релиз v28.26.0 пересобрал все баннеры бота и Mini App из листов стикеров корги Люси — у каждого раздела своя поза, стикер виден целиком, без «Свободного Гава» и VPN на картинках, — переснял все скриншоты, исправил оплату семейной подписки участника, места и лимиты семьи и отзыв пробного периода на общем устройстве и добавил скрипт очистки веток ([заметки](docs/ru/RELEASE_V28_26_0.md)).
 
 Релиз v28.25.1 обновил зависимости магазина, Support Pro, админки, кабинета и GitHub Actions (FastAPI 0.161, SQLAlchemy 2.1, React 19.3, TypeScript 7), свёл версии Support Pro в один список и научил админку показывать причину отклонённой формы ([заметки](docs/ru/RELEASE_V28_25_1.md)).
@@ -727,7 +733,7 @@ cd ../admin && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet && npx 
 
 Релиз v28.18.0 полностью обновил инструкции: [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) от сервера до первой продажи и [30 инструкций по модулям](docs/ru/modules/README.md), проверенных по коду. В админке появился редактор тарифов (срок, трафик, устройства, профиль Remnawave из списка Internal Squads), реферальная программа и партнёры перенесены в «Маркетинг → Рефералы и партнёры», выключение аварийного режима снимает технический режим, агент узла может передавать антиабузу адреса подключений из журнала Xray (`AGENT_OBSERVE_ACCESS_LOG=1`).
 
-Релиз v28.17.0 добавил собственный приём почты (сервис `mail_receiver`, профиль `mail`): SMTP-сервер только для служебных адресов — отчёты DMARC попадают в раздел «Почтовый домен», письма на адрес поддержки становятся обращениями Support Pro; проверка SPF, DKIM и DMARC отправителя, грейлистинг, лимиты, ClamAV, STARTTLS, никаких писем о недоставке; чужие адреса отклоняются ([регламент](docs/ru/MAIL_RECEIVER_CURRENT.md)). Релиз v28.16.0 добавил глубокий анализ трафика на узлах (`AGENT_DPI=1`): nDPI, если установлен, иначе встроенный классификатор первых пакетов потоков — рукопожатие BitTorrent, DHT, uTP, трекеры и эвристика шифрованного BitTorrent; клиент определяется по журналу Xray в памяти узла, наружу уходят только счётчики, эвристика не влияет на антиабуз (миграция `0072_traffic_analysis`, [регламент](docs/ru/TRAFFIC_ANALYSIS_CURRENT.md)). Релиз v28.15.0 добавил раздел «Торренты на узлах»: Xray распознаёт BitTorrent, агент узла передаёт из access-журнала только число срабатываний по клиенту (без адресов и строк журнала), магазин хранит почасовые счётчики 30 дней, на 24 часа отмечает клиента в антиабузе и раз в сутки уведомляет его; шифрованный BitTorrent не распознаётся (миграция `0071_torrent_detection`, [регламент](docs/ru/TORRENT_DETECTION_CURRENT.md)). Релиз v28.14.0 добавил раздел «Терминал узлов»: полную командную оболочку на VPN-сервере прямо в панели через агент узла (без SSH и открытых портов на узле). Терминал включается и на сервере магазина (`TERMINAL_ENABLED`), и на узле (`AGENT_TERMINAL=1`), доступен только администратору с 2FA, каждая сессия подтверждается паролем и кодом, ограничена по времени и простою и записывается в зашифрованный журнал без паролей, набранных при выключенном эхо; сниппеты команд (миграция `0070_node_terminal`, [регламент](docs/ru/NODE_TERMINAL_CURRENT.md)). Релиз v28.13.0 добавил раздел «Почтовый домен: SPF, DKIM, DMARC»: проверку MX, SPF (лимит 10 DNS-запросов, покрытие адреса SMTP), DKIM (совпадение с ключом панели) и DMARC (политика, адреса отчётов) и приём отчётов DMARC из ящика только на чтение или загрузкой — без дублей, с защитой от архивов-бомб и XXE, только о своём домене, со сроком хранения и удалением (миграция `0069_mail_domain`, [регламент](docs/ru/MAIL_DOMAIN_CURRENT.md)). Релиз v28.12.0 добавил в Support Pro 3.8 мост Zendesk и Freshdesk: обращения и история внешнего helpdesk попадают в общую очередь без дублей, клиент объединяется по email, ответы операторов публикуются во внешнем обращении однократно, ограничение частоты (429) ставит синхронизацию на паузу, удаление данных клиента не даёт импортировать обращение снова ([регламент](docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md)). Релиз v28.11.0 добавил ключи доступа (passkeys) в приложения Android и iOS: вход отпечатком, лицом или PIN-кодом, добавление и удаление ключей в приложении, связь приложений с доменом кабинета через `assetlinks.json` и `apple-app-site-association`, PKCE-код после входа; ключи общие с веб-кабинетом ([инструкция](docs/ru/NATIVE_PASSKEYS_CURRENT.md)). Миграций нет. Релиз v28.10.0 переработал административную панель: стартовая страница «Все разделы» собирает все 58 функций в 8 групп (аналитика, пользователи, тарифы и оплата, маркетинг, бот и кабинет, серверы, система, безопасность) с описанием каждой и поиском по задаче; у каждого раздела есть путь «Админ-панель → группа», заголовок и описание; все поля форм подписаны, примеры перенесены в подсказки внутри полей; типографика и тексты приведены к стилю личного кабинета, английские заголовки заменены русскими; скриншоты документации пересняты ([руководство](docs/ru/ADMIN_PANEL_CURRENT.md)). Миграций нет. Релиз v28.9.0 добавил сетевую аналитику узлов (миграция `0068_network_intel`): для адресов узлов Remnawave показываются ASN, владелец сети, префикс и страна RIR (RIPEstat) и репутация IP (AbuseIPDB при наличии ключа) с кэшем, отметкой свежести, учётом лимитов источников и предупреждениями; внутренние адреса наружу не отправляются, IPv6 поддерживается — строка матрицы «Расширенная DNS/ASN/reputation карта» закрыта ([регламент](docs/ru/NETWORK_INTEL_CURRENT.md)). Релиз v28.8.0 добавил среду плагинов (миграция `0067_plugin_runtime`): плагин — внешний HTTPS-сервис с подписанным пакетом-манифестом; администратор доверяет ключу издателя и подтверждает права, плагин получает подписанные события и API только с разрешёнными правами, версии обновляются и откатываются без перезапуска, при сбоях плагин останавливается автоматически — строка матрицы «Plugin runtime/hotload» закрыта ([регламент](docs/ru/PLUGINS_CURRENT.md)). Релиз v28.7.0 добавил email-канал поддержки (Support Pro 3.7, миграция `0007`): письма клиентов по IMAP становятся обращениями без дублей, ответы операторов уходят письмом с сохранением цепочки, автоответы и возвраты не открывают обращений, есть удаление данных клиента и срок хранения — строка матрицы «Внешние helpdesk/email каналы» закрыта для email ([регламент](docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md)). Релиз v28.6.0 добавил виджет подписки на рабочий стол Android и несколько профилей магазинов в админ-приложениях Android и iOS — строка матрицы «Native push/widget/multiprofile» закрыта ([регламент](docs/ru/WIDGET_AND_PROFILES_CURRENT.md)). Релиз v28.5.0 добавил нативные push-уведомления в приложения Android (FCM) и iOS (APNs): включение по согласию клиента, токен привязан к сессии входа и отзывается при выходе, потерянные токены отключаются автоматически, в админке — состояние провайдеров и доставки ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Релиз v28.4.0 перевёл админ-панель, кабинет и Mini App на Next.js (static export, прежние nginx-образы) в дизайне Remna Dark и закрыл строку матрицы «Исторический импорт VPN/платежей»: версионированный адаптер, preview без записи, сверка с контрольными итогами, повтор без дублей и журнал отката ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)). Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0067_plugin_runtime`. Релиз v28.3.0 закрыл «70+ настроек с hot-reload и шифрованием». Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.26.0](docs/ru/RELEASE_V28_26_0.md).
+Релиз v28.17.0 добавил собственный приём почты (сервис `mail_receiver`, профиль `mail`): SMTP-сервер только для служебных адресов — отчёты DMARC попадают в раздел «Почтовый домен», письма на адрес поддержки становятся обращениями Support Pro; проверка SPF, DKIM и DMARC отправителя, грейлистинг, лимиты, ClamAV, STARTTLS, никаких писем о недоставке; чужие адреса отклоняются ([регламент](docs/ru/MAIL_RECEIVER_CURRENT.md)). Релиз v28.16.0 добавил глубокий анализ трафика на узлах (`AGENT_DPI=1`): nDPI, если установлен, иначе встроенный классификатор первых пакетов потоков — рукопожатие BitTorrent, DHT, uTP, трекеры и эвристика шифрованного BitTorrent; клиент определяется по журналу Xray в памяти узла, наружу уходят только счётчики, эвристика не влияет на антиабуз (миграция `0072_traffic_analysis`, [регламент](docs/ru/TRAFFIC_ANALYSIS_CURRENT.md)). Релиз v28.15.0 добавил раздел «Торренты на узлах»: Xray распознаёт BitTorrent, агент узла передаёт из access-журнала только число срабатываний по клиенту (без адресов и строк журнала), магазин хранит почасовые счётчики 30 дней, на 24 часа отмечает клиента в антиабузе и раз в сутки уведомляет его; шифрованный BitTorrent не распознаётся (миграция `0071_torrent_detection`, [регламент](docs/ru/TORRENT_DETECTION_CURRENT.md)). Релиз v28.14.0 добавил раздел «Терминал узлов»: полную командную оболочку на VPN-сервере прямо в панели через агент узла (без SSH и открытых портов на узле). Терминал включается и на сервере магазина (`TERMINAL_ENABLED`), и на узле (`AGENT_TERMINAL=1`), доступен только администратору с 2FA, каждая сессия подтверждается паролем и кодом, ограничена по времени и простою и записывается в зашифрованный журнал без паролей, набранных при выключенном эхо; сниппеты команд (миграция `0070_node_terminal`, [регламент](docs/ru/NODE_TERMINAL_CURRENT.md)). Релиз v28.13.0 добавил раздел «Почтовый домен: SPF, DKIM, DMARC»: проверку MX, SPF (лимит 10 DNS-запросов, покрытие адреса SMTP), DKIM (совпадение с ключом панели) и DMARC (политика, адреса отчётов) и приём отчётов DMARC из ящика только на чтение или загрузкой — без дублей, с защитой от архивов-бомб и XXE, только о своём домене, со сроком хранения и удалением (миграция `0069_mail_domain`, [регламент](docs/ru/MAIL_DOMAIN_CURRENT.md)). Релиз v28.12.0 добавил в Support Pro 3.8 мост Zendesk и Freshdesk: обращения и история внешнего helpdesk попадают в общую очередь без дублей, клиент объединяется по email, ответы операторов публикуются во внешнем обращении однократно, ограничение частоты (429) ставит синхронизацию на паузу, удаление данных клиента не даёт импортировать обращение снова ([регламент](docs/ru/SUPPORT_HELPDESK_BRIDGE_CURRENT.md)). Релиз v28.11.0 добавил ключи доступа (passkeys) в приложения Android и iOS: вход отпечатком, лицом или PIN-кодом, добавление и удаление ключей в приложении, связь приложений с доменом кабинета через `assetlinks.json` и `apple-app-site-association`, PKCE-код после входа; ключи общие с веб-кабинетом ([инструкция](docs/ru/NATIVE_PASSKEYS_CURRENT.md)). Миграций нет. Релиз v28.10.0 переработал административную панель: стартовая страница «Все разделы» собирает все 58 функций в 8 групп (аналитика, пользователи, тарифы и оплата, маркетинг, бот и кабинет, серверы, система, безопасность) с описанием каждой и поиском по задаче; у каждого раздела есть путь «Админ-панель → группа», заголовок и описание; все поля форм подписаны, примеры перенесены в подсказки внутри полей; типографика и тексты приведены к стилю личного кабинета, английские заголовки заменены русскими; скриншоты документации пересняты ([руководство](docs/ru/ADMIN_PANEL_CURRENT.md)). Миграций нет. Релиз v28.9.0 добавил сетевую аналитику узлов (миграция `0068_network_intel`): для адресов узлов Remnawave показываются ASN, владелец сети, префикс и страна RIR (RIPEstat) и репутация IP (AbuseIPDB при наличии ключа) с кэшем, отметкой свежести, учётом лимитов источников и предупреждениями; внутренние адреса наружу не отправляются, IPv6 поддерживается — строка матрицы «Расширенная DNS/ASN/reputation карта» закрыта ([регламент](docs/ru/NETWORK_INTEL_CURRENT.md)). Релиз v28.8.0 добавил среду плагинов (миграция `0067_plugin_runtime`): плагин — внешний HTTPS-сервис с подписанным пакетом-манифестом; администратор доверяет ключу издателя и подтверждает права, плагин получает подписанные события и API только с разрешёнными правами, версии обновляются и откатываются без перезапуска, при сбоях плагин останавливается автоматически — строка матрицы «Plugin runtime/hotload» закрыта ([регламент](docs/ru/PLUGINS_CURRENT.md)). Релиз v28.7.0 добавил email-канал поддержки (Support Pro 3.7, миграция `0007`): письма клиентов по IMAP становятся обращениями без дублей, ответы операторов уходят письмом с сохранением цепочки, автоответы и возвраты не открывают обращений, есть удаление данных клиента и срок хранения — строка матрицы «Внешние helpdesk/email каналы» закрыта для email ([регламент](docs/ru/SUPPORT_EMAIL_CHANNEL_CURRENT.md)). Релиз v28.6.0 добавил виджет подписки на рабочий стол Android и несколько профилей магазинов в админ-приложениях Android и iOS — строка матрицы «Native push/widget/multiprofile» закрыта ([регламент](docs/ru/WIDGET_AND_PROFILES_CURRENT.md)). Релиз v28.5.0 добавил нативные push-уведомления в приложения Android (FCM) и iOS (APNs): включение по согласию клиента, токен привязан к сессии входа и отзывается при выходе, потерянные токены отключаются автоматически, в админке — состояние провайдеров и доставки ([регламент](docs/ru/PUSH_NOTIFICATIONS_CURRENT.md)). Релиз v28.4.0 перевёл админ-панель, кабинет и Mini App на Next.js (static export, прежние nginx-образы) в дизайне Remna Dark и закрыл строку матрицы «Исторический импорт VPN/платежей»: версионированный адаптер, preview без записи, сверка с контрольными итогами, повтор без дублей и журнал отката ([регламент](docs/ru/HISTORY_IMPORT_CURRENT.md)). Runtime/API остаётся `21.5.1`, схема магазина обновляется до `0067_plugin_runtime`. Релиз v28.3.0 закрыл «70+ настроек с hot-reload и шифрованием». Внешние проверки и production gate остаются открытыми. [Заметки выпуска v28.27.0](docs/ru/RELEASE_V28_27_0.md).
 
 Импорт users.db и массовые операции доступны роли admin в «Пользователи → Импорт и массовые операции». Порядок mapping, preview, применения и границы переноса: [инструкция](docs/ru/CUSTOMER_OPERATIONS_CURRENT.md).
 

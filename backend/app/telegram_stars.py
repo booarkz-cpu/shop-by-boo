@@ -229,8 +229,8 @@ async def create_stars_subscription(payload: SubscriptionIn, request: Request, d
     target = await reserve_target(db, user, plan.id, payload.model_dump(exclude={"plan_id"}))
     order_id = f"starsub-{user.id}-{hashlib.sha256((str(user.id) + str(datetime.utcnow().timestamp()) + str(target.id)).encode()).hexdigest()[:20]}"
     # Partner attribution follows the subscription: the latest partner order of this profile.
-    previous = await db.scalar(select(Payment).where(Payment.subscription_id == target.id, Payment.reseller_id.is_not(None),
-                                                     Payment.status.in_(("paid", "fulfilled"))).order_by(Payment.id.desc()).limit(1))
+    from .partners import latest_partner_order
+    previous = await latest_partner_order(db, target.id)
     reseller = {"reseller_id": previous.reseller_id, "reseller_slug_snapshot": previous.reseller_slug_snapshot,
                 "reseller_percent_snapshot": previous.reseller_percent_snapshot} if previous else {}
     sub_row = StarsSubscription(order_id=order_id, user_id=user.id, plan_id=plan.id, subscription_id=target.id, stars_amount=stars,

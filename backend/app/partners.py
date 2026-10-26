@@ -28,13 +28,21 @@ async def checkout_terms(db, slug, plan_id, user_id):
     return {'reseller_id': partner.id, 'reseller_slug_snapshot': slug, 'reseller_percent_snapshot': partner.commission_percent}
 
 
+async def latest_partner_order(db, subscription_id):
+    """The latest paid order of the subscription, if it came through a partner.
+
+    A later direct purchase ends the attribution: renewals then pay no commission."""
+    latest = await db.scalar(select(Payment).where(Payment.subscription_id == subscription_id, Payment.purpose == 'subscription',
+                                                   Payment.status.in_(('paid', 'fulfilled'))).order_by(Payment.id.desc()).limit(1))
+    return latest if latest is not None and latest.reseller_id is not None else None
+
+
 async def renewal_terms(db, subscription_id):
     """Partner snapshot for an automatic renewal: the partner of the latest paid order of
     the same subscription keeps earning its percent while the partner stays enabled."""
     if not subscription_id:
         return {}
-    previous = await db.scalar(select(Payment).where(Payment.subscription_id == subscription_id, Payment.reseller_id.is_not(None),
-                                                     Payment.status.in_(('paid', 'fulfilled'))).order_by(Payment.id.desc()).limit(1))
+    previous = await latest_partner_order(db, subscription_id)
     if not previous:
         return {}
     partner = await db.get(Reseller, previous.reseller_id)

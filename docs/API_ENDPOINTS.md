@@ -1,4 +1,4 @@
-# Каталог API — v28.26.0 / API v21.5.1
+# Каталог API — v28.27.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0076_growth`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -169,6 +169,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/notifications` | Admin Notifications |
 | `POST` | `/api/admin/notifications` | Admin Notification Create |
 | `GET` | `/api/admin/openapi.json` | Admin Openapi |
+| `GET` | `/api/admin/ops/alerts` | Alerts Status |
+| `POST` | `/api/admin/ops/alerts/test` | Alerts Test |
+| `GET` | `/api/admin/ops/readiness` | Readiness |
 | `POST` | `/api/admin/ops/withdrawals/{withdrawal_id}/approve` | Admin Withdrawal Approve |
 | `POST` | `/api/admin/ops/withdrawals/{withdrawal_id}/paid` | Admin Withdrawal Paid |
 | `GET` | `/api/admin/overview` | Admin Overview |
@@ -461,6 +464,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/payment/gift-card/redeem` | Redeem Gift Card |
 | `PUT` | `/api/me/payment/tax-profile` | Set Tax Profile |
 | `GET` | `/api/me/payments` | My Payments |
+| `GET` | `/api/me/payments/order/{order_id}` | My Payment By Order |
 | `GET` | `/api/me/payments/{payment_id}/invoice` | Payment Invoice |
 | `PUT` | `/api/me/preferences/language` | Set Language |
 | `DELETE` | `/api/me/privacy/account` | Privacy Delete |

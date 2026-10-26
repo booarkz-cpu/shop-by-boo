@@ -388,7 +388,7 @@ async def test_mail(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
     message = EmailMessage()
     message["From"] = cfg["sender"]
     message["To"] = admin.email
-    message["Subject"] = "VPN Shop by Corgi Lusi SMTP"
+    message["Subject"] = "Corgi Lusi: проверка SMTP"
     message.set_content("Проверка исходящей почты. Письмо уходит только администратору, который нажал кнопку.")
     try:
         with smtplib.SMTP(cfg["host"], int(cfg.get("port") or 587), timeout=15) as smtp:

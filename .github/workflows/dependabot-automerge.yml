@@ -1,0 +1,63 @@
+name: Dependabot patch auto-merge
+
+# Patch updates from Dependabot are squash-merged once CI and Docker are green on the
+# exact head commit. Minor and major updates wait for a person. PR code is never run
+# here: the decision script comes from main and reads only GitHub metadata.
+on:
+  workflow_run:
+    workflows: ["Corgi Lusi CI", "Corgi Lusi Docker"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  actions: write
+
+concurrency:
+  group: dependabot-automerge-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    name: Merge green patch update
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'dependabot/')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the decision script from main
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          sparse-checkout: scripts/dependabot-automerge.cjs
+          sparse-checkout-cone-mode: false
+      - name: Decide and merge
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const {decide} = require(`${process.env.GITHUB_WORKSPACE}/scripts/dependabot-automerge.cjs`);
+            const {owner, repo} = context.repo;
+            const sha = context.payload.workflow_run.head_sha;
+            const {data: pulls} = await github.rest.repos.listPullRequestsAssociatedWithCommit({owner, repo, commit_sha: sha});
+            const pr = pulls.find((p) => p.state === 'open' && p.head.sha === sha);
+            if (!pr) { core.info('No open pull request for this commit.'); return; }
+            const {data: commit} = await github.rest.git.getCommit({owner, repo, commit_sha: sha});
+            const checkRuns = await github.paginate(github.rest.checks.listForRef, {owner, repo, ref: sha, per_page: 100});
+            const verdict = decide({author: pr.user.login, headRef: pr.head.ref, commitMessage: commit.message, checkRuns,
+                                    ownRunName: 'Merge green patch update'});
+            core.info(`PR #${pr.number}: ${verdict.reason}`);
+            if (!verdict.merge) return;
+            try {
+              await github.rest.pulls.merge({owner, repo, pull_number: pr.number, sha, merge_method: 'squash',
+                                             commit_title: `${pr.title} (#${pr.number})`});
+            } catch (error) {
+              // The repository ruleset lets only listed actors update branches. Add
+              // «GitHub Actions» to its bypass list to allow this merge (docs/BRANCHES.md).
+              core.warning(`PR #${pr.number} is ready but GitHub refused the merge: ${error.message}`);
+              return;
+            }
+            // A merge made with GITHUB_TOKEN starts no push workflows: run CI on main explicitly.
+            await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id: 'ci.yml', ref: 'main'});
+            core.notice(`Merged #${pr.number}: ${verdict.reason}`);

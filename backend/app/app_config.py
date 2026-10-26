@@ -165,7 +165,17 @@ class PromoCard(_Strict):
     ends_at: datetime | None = None
     button_text: str = Field(default="", max_length=40)
     link: str = Field(default="#plans", max_length=1024)
+    sticker: Literal["", "holiday", "gift", "success", "vip", "payment", "delivery", "goodbye"] = ""
     _link = field_validator("link")(classmethod(lambda cls, v: _safe_url(v)))
+
+
+# Corgi Lusi stickers bundled with the Mini App (cabinet/public/assets/stickers, scripts/bot-banners/render.py --assets).
+PROMO_STICKERS = ("holiday", "gift", "success", "vip", "payment", "delivery", "goodbye")
+
+
+def season_sticker(now: datetime | None = None) -> str:
+    """Promotions get a festive Lusi in December and January, a gift box the rest of the year."""
+    return "holiday" if (now or datetime.utcnow()).month in (12, 1) else "gift"
 
 
 class ServerCategory(_Strict):
@@ -374,7 +384,8 @@ def _promos(plans: list[dict], ads, overrides: Overrides, currency: str) -> list
         seen.add(promo["id"])
         discount = f"-{promo['value']:g}%" if promo["kind"] == "percent" else f"-{promo['value']:g} {currency}"
         cards.append({"id": f"promotion-{promo['id']}", "title": promo["name"], "text": promo.get("description") or "",
-                      "discount": discount, "ends_at": promo.get("ends_at"), "button_text": "Выбрать тариф", "link": "#plans"})
+                      "discount": discount, "ends_at": promo.get("ends_at"), "button_text": "Выбрать тариф", "link": "#plans",
+                      "image": f"/assets/stickers/{season_sticker()}.webp"})
     for ad in ads:
         link = ad.button_url if (ad.button_url or "").startswith("https://") else ""
         cards.append({"id": f"ad-{ad.id}", "title": ad.title, "text": ad.text or "", "discount": "",
@@ -384,6 +395,9 @@ def _promos(plans: list[dict], ads, overrides: Overrides, currency: str) -> list
         if card.ends_at and card.ends_at.replace(tzinfo=None) < datetime.utcnow():
             continue
         data = card.model_dump(mode="json")
+        sticker = data.pop("sticker", "")
+        if sticker:
+            data["image"] = f"/assets/stickers/{sticker}.webp"
         cards.append(data)
     return cards[:12]
 
@@ -453,7 +467,7 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
                 item["title"] = NAV_I18N[lang][item["kind"]]
     config = {
         "schema": 1,
-        "brand": {"name": public.get("app_name") or "VPN Shop by Corgi Lusi", "bot_username": settings.bot_username or "",
+        "brand": {"name": public.get("app_name") or "Корги Люси", "bot_username": settings.bot_username or "",
                   "currency": currency},
         "theme": {"vars": {"--cfg-accent": theme.accent, "--cfg-accent-2": theme.accent_2, "--cfg-bg": theme.background,
                            "--cfg-surface": theme.surface, "--cfg-text": theme.text, "--cfg-muted": theme.muted,

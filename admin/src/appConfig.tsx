@@ -6,6 +6,7 @@ type Field = {key: string; label: string; kind?: "text" | "select" | "list" | "d
 const PROVIDERS = ["yookassa", "platega", "rollypay", "sandbox", "telegram_stars"];
 const YK_METHODS = ["", "bank_card", "sbp", "yoo_money", "sberbank", "tinkoff_bank"];
 const INFO_KINDS = ["faq", "rules", "privacy", "offer", "other"];
+const STICKERS = ["", "holiday", "gift", "success", "vip", "payment", "delivery", "goodbye"];
 const COLORS: [string, string][] = [["accent", "Акцент (неоновый)"], ["accent_2", "Второй акцент"], ["background", "Фон"], ["surface", "Карточки"], ["text", "Текст"], ["muted", "Второстепенный текст"], ["danger", "Ошибки"]];
 
 /** Editor for an array of small objects (promo cards, payment methods, categories, buttons, pages). */
@@ -87,10 +88,11 @@ export function AppConfigEditor({data, request, reload, toast}: {data: any; requ
     <div className="grid2">
       <div className="card">
         <Rows title="Акция" max={10} rows={o.promo_cards} onChange={(promo_cards) => setO({...o, promo_cards})}
-          blank={{id: "promo", title: "", text: "", discount: "", ends_at: null, button_text: "Выбрать тариф", link: "#plans"}}
+          blank={{id: "promo", title: "", text: "", discount: "", ends_at: null, button_text: "Выбрать тариф", link: "#plans", sticker: ""}}
           fields={[{key: "id", label: "ID"}, {key: "title", label: "Заголовок"}, {key: "text", label: "Текст", kind: "textarea"}, {key: "discount", label: "Скидка", placeholder: "-30%"},
-            {key: "ends_at", label: "Действует до", kind: "datetime"}, {key: "button_text", label: "Текст кнопки"}, {key: "link", label: "Ссылка", placeholder: "#plans или https://…"}]}/>
-        <p className="muted">Активные акции на тарифы и рекламные блоки показываются автоматически.</p>
+            {key: "ends_at", label: "Действует до", kind: "datetime"}, {key: "button_text", label: "Текст кнопки"}, {key: "link", label: "Ссылка", placeholder: "#plans или https://…"},
+            {key: "sticker", label: "Стикер Люси", kind: "select", options: STICKERS}]}/>
+        <p className="muted">Активные акции на тарифы и рекламные блоки показываются автоматически; у акций на тарифы стикер подставляется сам — праздничный в декабре и январе, подарок в остальное время. Стикеры: holiday — праздник, gift — подарок, success — кубок, vip — VIP-карта, payment — оплата, delivery — письмо, goodbye — «пока-пока».</p>
       </div>
       <div className="card">
         <Rows title="Категория серверов" max={12} rows={o.servers.categories} onChange={(categories) => up("servers", {categories})}
