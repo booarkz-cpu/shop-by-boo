@@ -35,7 +35,9 @@ test('administrator configures the Mini App and the public config follows', asyn
   // A bad link is rejected with a readable error and nothing changes.
   await page.getByLabel('Кнопка поддержки: Ссылка 1', {exact: true}).fill('javascript:alert(1)');
   await page.getByRole('button', {name: 'Сохранить', exact: true}).click();
-  await expect(page.getByRole('alert')).toBeVisible();
+  const error = page.locator('.app-config-editor').getByRole('alert');
+  await expect(error).toBeVisible();
+  await expect(error).toContainText('Ссылка должна начинаться с https://');
   await Promise.all([
     page.waitForResponse((r) => r.url().endsWith('/api/admin/app-config') && r.request().method() === 'DELETE' && r.ok()),
     page.getByRole('button', {name: 'Сбросить к значениям по умолчанию', exact: true}).click(),
