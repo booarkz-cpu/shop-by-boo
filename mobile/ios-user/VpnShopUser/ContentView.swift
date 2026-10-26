@@ -78,6 +78,9 @@ struct UserRootView: View {
         .preferredColorScheme(.dark)
         .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
         .onAppear {
+            #if DEBUG
+            if DemoMode.enabled { loadDemo(); return }
+            #endif
             if token.isEmpty { loadPublicLogo() }
             else if !unlocked { unlockSavedSession() }
         }
@@ -414,6 +417,9 @@ struct UserRootView: View {
     }
 
     private func refresh() {
+        #if DEBUG
+        if DemoMode.enabled { return }  // screenshots: no network, fixed demo data
+        #endif
         work {
             let api = ShopClient(base: base, token: token, lang: lang)
             let nextDashboard = try api.call("GET", "/api/me/dashboard") as? [String: Any] ?? [:]
@@ -655,3 +661,42 @@ struct UserRootView: View {
         }
     }
 }
+
+#if DEBUG
+/// Screenshot mode for CI (Debug builds only): `-CorgiDemo -CorgiTab family` fills the screens
+/// with fixed demo data and never touches the network or the keychain.
+enum DemoMode {
+    static var enabled: Bool { ProcessInfo.processInfo.arguments.contains("-CorgiDemo") }
+    static var tab: String {
+        let args = ProcessInfo.processInfo.arguments
+        guard let i = args.firstIndex(of: "-CorgiTab"), i + 1 < args.count else { return "overview" }
+        return args[i + 1]
+    }
+}
+
+extension UserRootView {
+    fileprivate func loadDemo() {
+        let days: (Int) -> String = { ISO8601DateFormatter().string(from: Date().addingTimeInterval(Double($0) * 86400)) }
+        base = "https://shop.example"
+        token = "demo"
+        unlocked = true
+        tab = DemoMode.tab
+        dashboard = ["user": ["wallet_balance": "350.00", "referral_code": "LUSI42"],
+                     "subscription": ["id": 1, "name": "12 месяцев", "status": "active", "expires_at": days(214)]]
+        profiles = [["id": 1, "name": "Основная", "plan": "Год", "expires_at": days(214), "is_primary": true]]
+        plans = [["id": 1, "name": "Месяц", "price": "199.00"], ["id": 2, "name": "Три месяца", "price": "499.00"], ["id": 3, "name": "Год", "price": "1690.00"]]
+        traffic = ["available": true, "traffic_used_bytes": 38_000_000_000, "traffic_limit_bytes": NSNull()]
+        servers = ["nodes": [["name": "Frankfurt #1", "country": "DE", "status": "online", "users_online": 41],
+                             ["name": "Amsterdam", "country": "NL", "status": "online", "users_online": 33],
+                             ["name": "Helsinki", "country": "FI", "status": "online", "users_online": 12]]]
+        connection = ["subscription_url": "https://sub.example.com/s/demo", "platforms": [:]]
+        family = ["owned": [["subscription_id": 1, "name": "Год", "seats": 3, "used": 2,
+                             "invite": ["code": "aB3x9Kq2", "bot": "https://t.me/corgi_lusi_bot?start=family_aB3x9Kq2"],
+                             "members": [["id": 1, "name": "mama", "synced": true], ["id": 2, "name": "brother", "synced": false]]]],
+                  "member_of": []]
+        serviceStatus = ["status": "ok", "servers": ["online": 5, "total": 5],
+                         "countries": [["country": "DE", "online": 2, "total": 2], ["country": "NL", "online": 1, "total": 1], ["country": "FI", "online": 2, "total": 2]],
+                         "components": [["name": "Оплата", "status": "operational", "message": ""]], "incidents": []]
+    }
+}
+#endif

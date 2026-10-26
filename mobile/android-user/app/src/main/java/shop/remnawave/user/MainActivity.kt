@@ -104,10 +104,14 @@ class SecureTokenStore(private val prefs: android.content.SharedPreferences) {
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true.
+        val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && intent?.getBooleanExtra("corgi_demo", false) == true
+        if (!demo) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
         // A tapped push opens the notification center (FCM puts the data payload into extras).
-        val initialTab = if (intent?.hasExtra(CorgiPush.EXTRA_TAB) == true || intent?.hasExtra("notification_id") == true) "notifications" else "overview"
-        setContent { MaterialTheme(colorScheme = shopColors()) { UserApp(initialTab) } }
+        val initialTab = if (demo) intent?.getStringExtra("corgi_tab") ?: "overview"
+            else if (intent?.hasExtra(CorgiPush.EXTRA_TAB) == true || intent?.hasExtra("notification_id") == true) "notifications" else "overview"
+        val demoLang = if (demo) intent?.getStringExtra("corgi_lang") else null
+        setContent { MaterialTheme(colorScheme = shopColors()) { UserApp(initialTab, demo, demoLang) } }
     }
 }
 
@@ -263,14 +267,14 @@ private fun detailOf(payload: String, status: Int): String {
 }
 
 @Composable
-private fun UserApp(initialTab: String = "overview") {
+private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demoLang: String? = null) {
     val context = LocalContext.current
     val activity = context as FragmentActivity
     val prefs = remember { context.getSharedPreferences("shop_user", 0) }
     val tokenStore = remember { SecureTokenStore(prefs) }
-    var lang by remember { mutableStateOf(prefs.getString("lang", null) ?: autoLanguage()) }
+    var lang by remember { mutableStateOf(demoLang ?: prefs.getString("lang", null) ?: autoLanguage()) }
     var base by remember { mutableStateOf(prefs.getString("base", "") ?: "") }
-    var token by remember { mutableStateOf(tokenStore.read()) }
+    var token by remember { mutableStateOf(if (demo) "demo" else tokenStore.read()) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var tab by remember { mutableStateOf(initialTab) }
@@ -296,7 +300,7 @@ private fun UserApp(initialTab: String = "overview") {
     var giftCode by remember { mutableStateOf("") }
     var topupAmount by remember { mutableStateOf("100") }
     var qr by remember { mutableStateOf<ImageBitmap?>(null) }
-    var unlocked by remember { mutableStateOf(token.isBlank()) }
+    var unlocked by remember { mutableStateOf(demo || token.isBlank()) }
     var pushEnabled by remember { mutableStateOf(CorgiPush.enabled(context)) }
     var widgetEnabled by remember { mutableStateOf(CorgiWidgetData.enabled(context)) }
     var passkeys by remember { mutableStateOf(JSONArray()) }
@@ -424,10 +428,25 @@ private fun UserApp(initialTab: String = "overview") {
             }
         }
     }
+    LaunchedEffect(Unit) {
+        if (demo) {
+            // Fixed demo data for screenshots; nothing is requested from a server.
+            base = "https://shop.example"
+            dashboard = JSONObject("""{"user":{"wallet_balance":"350.00","referral_code":"LUSI42"},"subscription":{"id":1,"name":"12 месяцев","status":"active","expires_at":"2027-05-28"}}""")
+            profiles = JSONArray("""[{"id":1,"name":"Основная","plan":"Год","expires_at":"2027-05-28","is_primary":true}]""")
+            plans = JSONArray("""[{"id":1,"name":"Месяц","price":"199.00","duration_days":30},{"id":2,"name":"Три месяца","price":"499.00","duration_days":90},{"id":3,"name":"Год","price":"1690.00","duration_days":365}]""")
+            traffic = JSONObject("""{"available":true,"traffic_used_bytes":38000000000,"traffic_limit_bytes":null}""")
+            servers = JSONObject("""{"nodes":[{"name":"Frankfurt #1","country":"DE","status":"online","users_online":41},{"name":"Amsterdam","country":"NL","status":"online","users_online":33},{"name":"Helsinki","country":"FI","status":"online","users_online":12}]}""")
+            family = JSONObject("""{"owned":[{"subscription_id":1,"name":"Год","seats":3,"used":2,"invite":{"code":"aB3x9Kq2","bot":"https://t.me/corgi_lusi_bot?start=family_aB3x9Kq2"},"members":[{"id":1,"name":"mama","synced":true},{"id":2,"name":"brother","synced":false}]}],"member_of":[]}""")
+            serviceStatus = JSONObject("""{"status":"ok","servers":{"online":5,"total":5},"countries":[{"country":"DE","online":2,"total":2},{"country":"NL","online":1,"total":1},{"country":"FI","online":2,"total":2}],"components":[{"name":"Оплата","status":"operational","message":""}],"incidents":[]}""")
+        }
+    }
     LaunchedEffect(token) {
+        if (demo) return@LaunchedEffect
         if (token.isNotBlank() && !unlocked) promptUnlock(activity, t("unlock")) { unlocked = it }
     }
     LaunchedEffect(token, lang, unlocked) {
+        if (demo) return@LaunchedEffect
         if (token.isNotBlank() && unlocked) refresh()
     }
     LaunchedEffect(base) {
