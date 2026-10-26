@@ -12,6 +12,7 @@ their text whatever the template says.
 from __future__ import annotations
 
 import json
+import logging
 import re
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -23,6 +24,7 @@ from .models import AppSetting
 from .security import require_permission
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 SETTING_KEY = "push_style"
 COLOR = r"^#[0-9a-fA-F]{6}$"
 SECTION = r"^(|[a-z][a-z0-9_-]{0,31})$"
@@ -111,8 +113,8 @@ async def load(db: AsyncSession) -> PushStyle:
     if row and row.value:
         try:
             return PushStyle.model_validate(json.loads(row.value))
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("push style unreadable, using the default: %s", type(exc).__name__)
     return PushStyle()
 
 
