@@ -187,7 +187,9 @@ jobs:
       - name: Put the pictures in place and push
         run: |
           set -eu
+          trap 'echo "::error title=commit screenshots::line $LINENO: $BASH_COMMAND"' ERR
           shots="$RUNNER_TEMP/shots"
+          find "$shots" -maxdepth 3 | head -n 20
           mkdir -p screenshots/mobile
           cp "$shots"/mobile-screenshots-android/*.png "$shots"/mobile-screenshots-ios/*.png screenshots/mobile/
           rm -rf screenshots/admin_panel screenshots/storefront_user
