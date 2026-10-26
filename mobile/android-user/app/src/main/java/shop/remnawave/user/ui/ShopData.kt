@@ -89,6 +89,8 @@ data class UiFlags(
     val languageLabel: String = "RU",
     val version: String = "",
     val topupAmount: String = "300",
+    /** The embedded VPN engine is in use (Settings → «Режим VPN»). */
+    val engine: Boolean = false,
 )
 
 /** What the screens can ask the activity to do. */

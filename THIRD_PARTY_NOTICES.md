@@ -41,3 +41,13 @@
 ## UI дистрибутива v28.32.0
 
 shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `admin/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [admin/THIRD_PARTY_LICENSES.txt](admin/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
+
+## Встроенный VPN-движок Android (v28.32.0, приложение 3.1.0)
+
+Сборки клиентского приложения Android с встроенным VPN включают `libv2ray.aar`. Библиотеку собирает `scripts/mobile/build-xray-aar.sh` из закреплённой ревизии исходников:
+
+- [Xray-core](https://github.com/XTLS/Xray-core) — MPL-2.0;
+- [AndroidLibXrayLite](https://github.com/2dust/AndroidLibXrayLite) — LGPL-3.0, обвязка gomobile, ревизия `76a6e2172210613fcb4aa32b6de55bcd9452ce43`;
+- [golang.org/x/mobile](https://pkg.go.dev/golang.org/x/mobile) — BSD-3-Clause.
+
+Библиотека лежит в APK отдельным файлом (`libgojni.so`) и подключается к приложению без статической линковки, поэтому её можно заменить, как требует LGPL. При распространении APK приложите тексты MPL-2.0 и LGPL-3.0 и ссылку на исходники закреплённой ревизии. Код sing-box (GPL-3.0) в приложение не включается: GPL несовместима с коммерческой лицензией приложения. Сборка без `libv2ray.aar` подключается через Happ, v2rayNG или Hiddify и сторонних VPN-библиотек не содержит.

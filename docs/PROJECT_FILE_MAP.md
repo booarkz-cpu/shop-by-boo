@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1525**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1529**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -967,6 +967,7 @@
 | [mobile/android-admin/gradlew](../mobile/android-admin/gradlew) | Мобильные приложения |
 | [mobile/android-admin/gradlew.bat](../mobile/android-admin/gradlew.bat) | Мобильные приложения |
 | [mobile/android-admin/settings.gradle.kts](../mobile/android-admin/settings.gradle.kts) | Мобильные приложения |
+| [mobile/android-user/.gitignore](../mobile/android-user/.gitignore) | Мобильные приложения |
 | [mobile/android-user/app/build.gradle.kts](../mobile/android-user/app/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-user/app/src/debug/AndroidManifest.xml](../mobile/android-user/app/src/debug/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/AndroidManifest.xml](../mobile/android-user/app/src/main/AndroidManifest.xml) | Мобильные приложения |
@@ -998,7 +999,9 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Screens.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Screens.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/ShopData.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/ShopData.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/VpnClients.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/VpnClients.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/XrayEngine.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/XrayEngine.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-user/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/drawable/widget_background.xml](../mobile/android-user/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
@@ -1236,6 +1239,7 @@
 | [scripts/harden-env.py](../scripts/harden-env.py) | Эксплуатация и релиз |
 | [scripts/install.sh](../scripts/install.sh) | Эксплуатация и релиз |
 | [scripts/integration-test.sh](../scripts/integration-test.sh) | Эксплуатация и релиз |
+| [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
 | [scripts/node-agent.py](../scripts/node-agent.py) | Эксплуатация и релиз |
 | [scripts/open-ports.sh](../scripts/open-ports.sh) | Эксплуатация и релиз |

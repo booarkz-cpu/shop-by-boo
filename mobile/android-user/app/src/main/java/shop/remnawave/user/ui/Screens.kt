@@ -53,7 +53,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /** Buttons of a section visible to this customer (audience «с подпиской» / «без подписки»). */
+private val ENGINE_ACTIONS = setOf("vpn_mode", "vpn_server", "split_tunnel")
+
 fun visibleButtons(section: LayoutSection, data: ShopData): List<LayoutButton> = section.buttons.filter {
+    // Buttons of the embedded VPN exist only in builds that carry the engine (libv2ray.aar).
+    if (it.action in ENGINE_ACTIONS && !shop.remnawave.user.vpn.XrayEngine.available()) return@filter false
     when (it.audience) {
         "subscribed" -> data.subscribed
         "unsubscribed" -> !data.subscribed
@@ -122,7 +126,7 @@ private fun ButtonRows(layout: AppLayout, buttons: List<LayoutButton>, ui: UiFla
     if (rest.isEmpty()) return
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(theme.radius.dp)).background(theme.surface)) {
         rest.forEachIndexed { i, b ->
-            val toggled = when (b.action) { "push_toggle" -> ui.pushEnabled; "widget_toggle" -> ui.widgetEnabled; else -> null }
+            val toggled = when (b.action) { "push_toggle" -> ui.pushEnabled; "widget_toggle" -> ui.widgetEnabled; "vpn_mode" -> ui.engine; else -> null }
             val value = if (b.action == "language") ui.languageLabel else ""
             ActionRow(b, theme, value, toggled) { actions.run(b) }
             if (i < rest.lastIndex) HorizontalDivider(color = theme.surface2, modifier = Modifier.padding(start = 58.dp))

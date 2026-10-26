@@ -80,4 +80,7 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    // Embedded VPN engine (Xray-core via libv2ray.aar, scripts/mobile/build-xray-aar.sh). Optional:
+    // without it the app hands the subscription to Happ, v2rayNG or Hiddify.
+    if (file("libs/libv2ray.aar").exists()) implementation(files("libs/libv2ray.aar"))
 }

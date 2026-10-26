@@ -297,6 +297,33 @@
     "body": "",
     "buttons": [
      {
+      "action": "vpn_mode",
+      "audience": "any",
+      "icon": "shield",
+      "id": "vpn_mode",
+      "label": "Built-in VPN",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "vpn_server",
+      "audience": "any",
+      "icon": "server",
+      "id": "vpn_server",
+      "label": "VPN server",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "split_tunnel",
+      "audience": "any",
+      "icon": "sliders",
+      "id": "split_tunnel",
+      "label": "What works without VPN",
+      "style": "secondary",
+      "target": ""
+     },
+     {
       "action": "language",
       "audience": "any",
       "icon": "language",
@@ -758,7 +785,7 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "3ab4a7cfc77b1a50"
+  "version": "e32b7344024f4606"
  },
  "ru": {
   "features": {
@@ -1057,6 +1084,33 @@
     },
     "body": "",
     "buttons": [
+     {
+      "action": "vpn_mode",
+      "audience": "any",
+      "icon": "shield",
+      "id": "vpn_mode",
+      "label": "Встроенный VPN",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "vpn_server",
+      "audience": "any",
+      "icon": "server",
+      "id": "vpn_server",
+      "label": "Сервер VPN",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "split_tunnel",
+      "audience": "any",
+      "icon": "sliders",
+      "id": "split_tunnel",
+      "label": "Что работает без VPN",
+      "style": "secondary",
+      "target": ""
+     },
      {
       "action": "language",
       "audience": "any",
@@ -1519,7 +1573,7 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "397d57d9969943e6"
+  "version": "526a7905b44996b2"
  },
  "uk": {
   "features": {
@@ -1818,6 +1872,33 @@
     },
     "body": "",
     "buttons": [
+     {
+      "action": "vpn_mode",
+      "audience": "any",
+      "icon": "shield",
+      "id": "vpn_mode",
+      "label": "Вбудований VPN",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "vpn_server",
+      "audience": "any",
+      "icon": "server",
+      "id": "vpn_server",
+      "label": "Сервер VPN",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "split_tunnel",
+      "audience": "any",
+      "icon": "sliders",
+      "id": "split_tunnel",
+      "label": "Що працює без VPN",
+      "style": "secondary",
+      "target": ""
+     },
      {
       "action": "language",
       "audience": "any",
@@ -2280,6 +2361,6 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "8570f5f53bc7c945"
+  "version": "226a1e19a7db53f8"
  }
 }

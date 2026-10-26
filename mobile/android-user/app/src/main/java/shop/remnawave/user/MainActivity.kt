@@ -41,6 +41,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +72,9 @@ import shop.remnawave.user.push.CorgiPush
 import shop.remnawave.user.widget.CorgiWidgetData
 import shop.remnawave.user.analytics.CorgiAnalytics
 import shop.remnawave.user.ui.*
+import shop.remnawave.user.vpn.CorgiVpnService
 import shop.remnawave.user.vpn.VpnClients
+import shop.remnawave.user.vpn.XrayEngine
 
 
 
@@ -331,7 +335,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     var layout by remember { mutableStateOf(LayoutStore.cached(context, base, lang) ?: LayoutStore.bundled(context, lang)) }
     var data by remember { mutableStateOf(ShopData()) }
     var ui by remember {
-        mutableStateOf(UiFlags(pushEnabled = CorgiPush.enabled(context), widgetEnabled = CorgiWidgetData.enabled(context),
+        mutableStateOf(UiFlags(pushEnabled = CorgiPush.enabled(context), widgetEnabled = CorgiWidgetData.enabled(context), engine = CorgiVpnService.useEngine(context),
             version = "Corgi Lusi ${BuildConfig.VERSION_NAME}"))
     }
     // The layout decides which sections exist; a push opens notifications, otherwise the VPN screen.
@@ -368,7 +372,19 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         val stop = if (demo) ({}) else VpnClients.watch(context) { on ->
             activity.runOnUiThread { ui = ui.copy(vpn = if (on) VpnState.ON else if (ui.vpn == VpnState.CONNECTING) VpnState.CONNECTING else VpnState.OFF) }
         }
-        onDispose { activity.lifecycle.removeObserver(observer); stop() }
+        // State of the embedded engine: connected, connecting or stopped (with the reason, if any).
+        val engineListener: (String) -> Unit = { state ->
+            activity.runOnUiThread {
+                val error = vpnPrefs(context).getString(CorgiVpnService.KEY_ERROR, "").orEmpty()
+                ui = when (state) {
+                    CorgiVpnService.STATE_ON -> ui.copy(vpn = VpnState.ON)
+                    CorgiVpnService.STATE_CONNECTING -> ui.copy(vpn = VpnState.CONNECTING)
+                    else -> ui.copy(vpn = VpnState.OFF, notice = if (error.isNotBlank()) t("vpn_engine_error").replace("{error}", error) else ui.notice)
+                }
+            }
+        }
+        if (!demo) CorgiVpnService.listeners.add(engineListener)
+        onDispose { activity.lifecycle.removeObserver(observer); stop(); CorgiVpnService.listeners.remove(engineListener) }
     }
 
     fun saveSession(nextBase: String, nextToken: String) {
@@ -437,6 +453,31 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     }
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) enablePush() else notice(t("push_denied"))
+    }
+    // The embedded VPN asks the system once for the VPN permission (VpnService.prepare).
+    val vpnPermission = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK && data.subscriptionUrl.isNotBlank()) {
+            ui = ui.copy(vpn = VpnState.CONNECTING); CorgiVpnService.start(context, data.subscriptionUrl)
+        } else notice(t("vpn_permission_denied"))
+    }
+    fun engineConnect() {
+        if (data.subscriptionUrl.isBlank()) {
+            notice(t("need_subscription"))
+            layout.sections.firstOrNull { it.kind == "premium" }?.let { tab = it.id }
+            return
+        }
+        if (CorgiVpnService.current(context) != CorgiVpnService.STATE_OFF || ui.vpn == VpnState.ON) {
+            CorgiVpnService.stop(context); ui = ui.copy(vpn = VpnState.OFF); return
+        }
+        val ask = android.net.VpnService.prepare(context)
+        if (ask != null) vpnPermission.launch(ask)
+        else { ui = ui.copy(vpn = VpnState.CONNECTING); CorgiVpnService.start(context, data.subscriptionUrl) }
+    }
+    fun restartEngine() {
+        if (CorgiVpnService.current(context) == CorgiVpnService.STATE_ON && data.subscriptionUrl.isNotBlank()) {
+            CorgiVpnService.stop(context)
+            thread { Thread.sleep(800); activity.runOnUiThread { CorgiVpnService.start(context, data.subscriptionUrl) } }
+        }
     }
     fun refresh() {
         val api = ShopApi(base, token, lang)
@@ -581,6 +622,11 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 "connect", "auto_location" -> {
                     track("connect_tap")
                     if (demo) { ui = ui.copy(vpn = if (ui.vpn == VpnState.ON) VpnState.OFF else VpnState.ON); return }
+                    if (CorgiVpnService.useEngine(context)) {
+                        if (button.action == "auto_location") { vpnPrefs(context).edit().remove(CorgiVpnService.KEY_SERVER).apply(); restartEngine(); notice(t("vpn_server_auto")) }
+                        else engineConnect()
+                        return
+                    }
                     when (VpnClients.connect(context, data.subscriptionUrl)) {
                         VpnClients.Result.Imported -> {
                             ui = ui.copy(vpn = VpnState.CONNECTING, notice = t("vpn_imported"))
@@ -672,6 +718,15 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     if (next) work { CorgiWidgetData.refresh(context) }
                 }
                 "passkey_add" -> { dialog = "passkey_add"; dialogText = "" }
+                "vpn_mode" -> {
+                    if (!XrayEngine.available()) { notice(t("vpn_engine_missing")); return }
+                    val next = if (CorgiVpnService.useEngine(context)) "client" else "engine"
+                    if (next == "client") CorgiVpnService.stop(context)
+                    vpnPrefs(context).edit().putString(CorgiVpnService.KEY_MODE, next).apply()
+                    ui = ui.copy(engine = next == "engine", notice = if (next == "engine") t("vpn_mode_engine") else t("vpn_mode_client"))
+                }
+                "vpn_server" -> if (!CorgiVpnService.useEngine(context)) notice(t("vpn_engine_missing")) else dialog = "server"
+                "split_tunnel" -> if (!CorgiVpnService.useEngine(context)) notice(t("vpn_engine_missing")) else dialog = "split"
                 "refresh" -> refresh()
                 "sign_out" -> signOut()
             }
@@ -801,7 +856,12 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     BottomBar(layout, if (section.tab) section.id else "", onSelect = { tab = it; openDoc = null; ui = ui.copy(notice = "") })
                 }
             }
-            ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
+            if (dialog == "server") ServerDialog(layout, ::t, onClose = { dialog = "" }) { name ->
+                vpnPrefs(context).edit().apply { if (name.isBlank()) remove(CorgiVpnService.KEY_SERVER) else putString(CorgiVpnService.KEY_SERVER, name) }.apply()
+                dialog = ""; notice(if (name.isBlank()) t("vpn_server_auto") else name); restartEngine()
+            }
+            if (dialog == "split") SplitDialog(layout, ::t, onClose = { dialog = ""; restartEngine() })
+            if (dialog != "server" && dialog != "split") ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
                 when {
                     kind == "redeem" -> { val code = dialogText.trim().uppercase(); work {
                         ShopApi(base, token, lang).post("/api/me/gifts/redeem", JSONObject().put("code", code))
@@ -833,6 +893,66 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
 }
 
 private fun intent(activity: FragmentActivity): Intent = activity.intent ?: Intent()
+
+private fun vpnPrefs(context: android.content.Context) = context.getSharedPreferences(CorgiVpnService.PREFS, 0)
+
+/** «Сервер VPN» of the embedded engine: automatic (fastest) or one server of the subscription. */
+@Composable
+private fun ServerDialog(layout: AppLayout, t: (String) -> String, onClose: () -> Unit, onPick: (String) -> Unit) {
+    val theme = layout.theme
+    val context = LocalContext.current
+    val servers = remember { CorgiVpnService.servers(context) }
+    val current = remember { vpnPrefs(context).getString(CorgiVpnService.KEY_SERVER, "").orEmpty() }
+    AlertDialog(onDismissRequest = onClose, containerColor = theme.surface, titleContentColor = theme.text, textContentColor = theme.text,
+        title = { Text(t("vpn_server")) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionButton(LayoutButton("auto", (if (current.isBlank()) "✓ " else "") + t("vpn_server_auto"), "refresh", "", if (current.isBlank()) "primary" else "secondary", "rocket", "any"), theme) { onPick("") }
+                if (servers.isEmpty()) Muted(t("vpn_servers_empty"), theme)
+                servers.forEach { name ->
+                    ActionButton(LayoutButton("s", (if (name == current) "✓ " else "") + name, "refresh", "", if (name == current) "primary" else "secondary", "globe", "any"), theme) { onPick(name) }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(t("done"), color = theme.accent) } })
+}
+
+/** «Что работает без VPN»: apps and Russian sites that bypass the embedded VPN. */
+@Composable
+private fun SplitDialog(layout: AppLayout, t: (String) -> String, onClose: () -> Unit) {
+    val theme = layout.theme
+    val context = LocalContext.current
+    val prefs = remember { vpnPrefs(context) }
+    val apps = remember {
+        val pm = context.packageManager
+        val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+        pm.queryIntentActivities(launcher, 0).map { it.activityInfo.packageName to it.loadLabel(pm).toString() }
+            .filter { it.first != context.packageName }.distinctBy { it.first }.sortedBy { it.second.lowercase() }
+    }
+    var excluded by remember { mutableStateOf(CorgiVpnService.excludedApps(context)) }
+    var bypassRu by remember { mutableStateOf(prefs.getBoolean(CorgiVpnService.KEY_BYPASS_RU, false)) }
+    AlertDialog(onDismissRequest = onClose, containerColor = theme.surface, titleContentColor = theme.text, textContentColor = theme.text,
+        title = { Text(t("split_title")) },
+        text = {
+            Column(Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Muted(t("split_hint"), theme)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(bypassRu, { bypassRu = it; prefs.edit().putBoolean(CorgiVpnService.KEY_BYPASS_RU, it).apply() })
+                    Text(t("bypass_ru"), color = theme.text)
+                }
+                apps.forEach { (pkg, label) ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(pkg in excluded, { on ->
+                            excluded = if (on) excluded + pkg else excluded - pkg
+                            prefs.edit().putStringSet(CorgiVpnService.KEY_EXCLUDED, excluded).apply()
+                        })
+                        Text(label, color = theme.text)
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(t("done"), color = theme.accent) } })
+}
 
 private fun currentLanguageLabel(lang: String): String = when (lang) { "en" -> "English"; "uk" -> "Українська"; else -> "Русский" }
 

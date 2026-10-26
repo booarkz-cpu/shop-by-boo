@@ -28,6 +28,18 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+      - id: xray
+        uses: actions/cache@v4
+        with:
+          path: mobile/android-user/app/libs/libv2ray.aar
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+      - name: Build the embedded VPN engine (libv2ray.aar)
+        if: steps.xray.outputs.cache-hit != 'true'
+        run: bash scripts/mobile/build-xray-aar.sh
       - name: Build and verify release variant
         env:
           KEYSTORE_BASE64: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}

@@ -71,6 +71,9 @@ ACTIONS: dict[str, str] = {
     "push_toggle": "Включить / выключить push-уведомления",
     "widget_toggle": "Включить / выключить виджет",
     "passkey_add": "Добавить ключ входа (passkey)",
+    "vpn_mode": "Android: встроенный VPN или приложение-клиент",
+    "vpn_server": "Android: выбрать сервер встроенного VPN (или автовыбор)",
+    "split_tunnel": "Android: что работает без VPN (приложения и российские сайты)",
     "refresh": "Обновить данные",
     "sign_out": "Выйти из аккаунта",
 }
@@ -271,6 +274,9 @@ DEFAULT_SECTIONS = [
     _s("settings", "settings", "Настройки", "Settings", "Налаштування", "settings", "app-settings", [
         _b("cabinet", "Перейти в личный кабинет", "Open my account", "Перейти в особистий кабінет", "cabinet", style="primary", icon="user"),
         _b("channel", "Telegram-канал", "Telegram channel", "Telegram-канал", "telegram_channel", icon="send"),
+        _b("vpn_mode", "Встроенный VPN", "Built-in VPN", "Вбудований VPN", "vpn_mode", icon="shield"),
+        _b("vpn_server", "Сервер VPN", "VPN server", "Сервер VPN", "vpn_server", icon="server"),
+        _b("split_tunnel", "Что работает без VPN", "What works without VPN", "Що працює без VPN", "split_tunnel", icon="sliders"),
         _b("language", "Язык", "Language", "Мова", "language", icon="language"),
         _b("push", "Push-уведомления", "Push notifications", "Push-сповіщення", "push_toggle", icon="bell"),
         _b("widget", "Виджет на главный экран", "Home screen widget", "Віджет на головний екран", "widget_toggle", icon="smartphone"),

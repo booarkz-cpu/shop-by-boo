@@ -374,6 +374,39 @@ jobs:
         working-directory: mobile/${{ matrix.app }}
         run: bash gradlew assembleDebug --no-daemon
 
+  android-engine:
+    # The customer app with the embedded VPN engine (Xray-core via libv2ray.aar, built from the
+    # pinned AndroidLibXrayLite commit and cached by it).
+    name: Android • embedded VPN engine
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+      - id: xray
+        uses: actions/cache@v4
+        with:
+          path: mobile/android-user/app/libs/libv2ray.aar
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+      - name: Build libv2ray.aar
+        if: steps.xray.outputs.cache-hit != 'true'
+        run: bash scripts/mobile/build-xray-aar.sh
+      - name: Compile the app with the engine
+        working-directory: mobile/android-user
+        run: |
+          bash gradlew assembleDebug --no-daemon
+          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -q 'libgojni.so' || { echo "::error title=engine::libgojni.so is not in the APK"; exit 1; }
+
   ios:
     name: iOS • ${{ matrix.app }} PKCE build
     runs-on: macos-latest

@@ -16,3 +16,4 @@
 | 14 | Админ-приложения Android и iOS в стиле веб-панели (Remna Dark), демо-режим | `RemnaUi.kt`, `ios-admin/ContentView.swift` | готово |
 | 4 | Подготовка к Google Play, RuStore и TestFlight: иконки, баннер, скриншоты, тексты, AAB | `mobile/store/`, `scripts/store/render.py`, `docs/ru/STORE_PUBLISHING.md` | готово (загрузка — владельцем) |
 | 15 | Аудит: лимит событий, https для чеков, напоминания всем клиентам | `app_growth.py`, `fiscal.py`, `main.py` | готово |
+| 3 | Встроенный VPN Android: Xray-core, автовыбор и переключение, выбор сервера, «Что работает без VPN» | `vpn/CorgiVpnService.kt`, `XrayEngine.kt`, `ShareLinks.kt`, `scripts/mobile/build-xray-aar.sh` | готово (Android; iOS — Network Extension позже) |
