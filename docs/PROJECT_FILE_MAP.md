@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.26.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.27.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1297**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1319**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -58,6 +58,7 @@
 | [.github/release-v21.5.0.md](../.github/release-v21.5.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.1.md](../.github/release-v21.5.1.md) | GitHub CI/CD |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
+| [.github/workflows/dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) | GitHub CI/CD |
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
 | [.github/workflows/docker.yml](../.github/workflows/docker.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-release.yml](../.github/workflows/mobile-release.yml) | GitHub CI/CD |
@@ -276,6 +277,7 @@
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
 | [admin/src/network-intel.tsx](../admin/src/network-intel.tsx) | Админ-панель |
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
+| [admin/src/ops.tsx](../admin/src/ops.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
 | [admin/src/payment-admission.tsx](../admin/src/payment-admission.tsx) | Админ-панель |
@@ -436,6 +438,7 @@
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
 | [backend/app/node_terminal.py](../backend/app/node_terminal.py) | API, бот и worker |
 | [backend/app/observability.py](../backend/app/observability.py) | API, бот и worker |
+| [backend/app/ops_alerts.py](../backend/app/ops_alerts.py) | API, бот и worker |
 | [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
 | [backend/app/passkeys.py](../backend/app/passkeys.py) | API, бот и worker |
 | [backend/app/payment_platform.py](../backend/app/payment_platform.py) | API, бот и worker |
@@ -512,6 +515,17 @@
 | [cabinet/public/assets/banners/surveys.jpg](../cabinet/public/assets/banners/surveys.jpg) | Кабинет |
 | [cabinet/public/assets/banners/topup.jpg](../cabinet/public/assets/banners/topup.jpg) | Кабинет |
 | [cabinet/public/assets/banners/trial.jpg](../cabinet/public/assets/banners/trial.jpg) | Кабинет |
+| [cabinet/public/assets/stickers/bugs.webp](../cabinet/public/assets/stickers/bugs.webp) | Кабинет |
+| [cabinet/public/assets/stickers/delivery.webp](../cabinet/public/assets/stickers/delivery.webp) | Кабинет |
+| [cabinet/public/assets/stickers/error404.webp](../cabinet/public/assets/stickers/error404.webp) | Кабинет |
+| [cabinet/public/assets/stickers/gift.webp](../cabinet/public/assets/stickers/gift.webp) | Кабинет |
+| [cabinet/public/assets/stickers/goodbye.webp](../cabinet/public/assets/stickers/goodbye.webp) | Кабинет |
+| [cabinet/public/assets/stickers/holiday.webp](../cabinet/public/assets/stickers/holiday.webp) | Кабинет |
+| [cabinet/public/assets/stickers/maintenance.webp](../cabinet/public/assets/stickers/maintenance.webp) | Кабинет |
+| [cabinet/public/assets/stickers/payment.webp](../cabinet/public/assets/stickers/payment.webp) | Кабинет |
+| [cabinet/public/assets/stickers/success.webp](../cabinet/public/assets/stickers/success.webp) | Кабинет |
+| [cabinet/public/assets/stickers/vip.webp](../cabinet/public/assets/stickers/vip.webp) | Кабинет |
+| [cabinet/public/assets/stickers/waiting.webp](../cabinet/public/assets/stickers/waiting.webp) | Кабинет |
 | [cabinet/public/manifest.webmanifest](../cabinet/public/manifest.webmanifest) | Кабинет |
 | [cabinet/scripts/csp-externalize.mjs](../cabinet/scripts/csp-externalize.mjs) | Кабинет |
 | [cabinet/src/account-merge.test.tsx](../cabinet/src/account-merge.test.tsx) | Кабинет |
@@ -541,6 +555,8 @@
 | [cabinet/src/public-pages.tsx](../cabinet/src/public-pages.tsx) | Кабинет |
 | [cabinet/src/referral-network.test.tsx](../cabinet/src/referral-network.test.tsx) | Кабинет |
 | [cabinet/src/referral-network.tsx](../cabinet/src/referral-network.tsx) | Кабинет |
+| [cabinet/src/stickers.test.tsx](../cabinet/src/stickers.test.tsx) | Кабинет |
+| [cabinet/src/stickers.tsx](../cabinet/src/stickers.tsx) | Кабинет |
 | [cabinet/src/style.css](../cabinet/src/style.css) | Кабинет |
 | [cabinet/src/subscription-commerce.test.tsx](../cabinet/src/subscription-commerce.test.tsx) | Кабинет |
 | [cabinet/src/subscription-commerce.tsx](../cabinet/src/subscription-commerce.tsx) | Кабинет |
@@ -735,6 +751,7 @@
 | [docs/ru/RELEASE_V28_25_0.md](../docs/ru/RELEASE_V28_25_0.md) | Документация |
 | [docs/ru/RELEASE_V28_25_1.md](../docs/ru/RELEASE_V28_25_1.md) | Документация |
 | [docs/ru/RELEASE_V28_26_0.md](../docs/ru/RELEASE_V28_26_0.md) | Документация |
+| [docs/ru/RELEASE_V28_27_0.md](../docs/ru/RELEASE_V28_27_0.md) | Документация |
 | [docs/ru/RELEASE_V28_2_0.md](../docs/ru/RELEASE_V28_2_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
@@ -919,68 +936,69 @@
 | [screenshots/admin_panel/03_analytics.png](../screenshots/admin_panel/03_analytics.png) | Корень проекта |
 | [screenshots/admin_panel/04_retention.png](../screenshots/admin_panel/04_retention.png) | Корень проекта |
 | [screenshots/admin_panel/05_financial.png](../screenshots/admin_panel/05_financial.png) | Корень проекта |
-| [screenshots/admin_panel/06_health.png](../screenshots/admin_panel/06_health.png) | Корень проекта |
-| [screenshots/admin_panel/07_incidents.png](../screenshots/admin_panel/07_incidents.png) | Корень проекта |
-| [screenshots/admin_panel/08_crm.png](../screenshots/admin_panel/08_crm.png) | Корень проекта |
-| [screenshots/admin_panel/09_users.png](../screenshots/admin_panel/09_users.png) | Корень проекта |
-| [screenshots/admin_panel/10_devices.png](../screenshots/admin_panel/10_devices.png) | Корень проекта |
-| [screenshots/admin_panel/11_customerOperations.png](../screenshots/admin_panel/11_customerOperations.png) | Корень проекта |
-| [screenshots/admin_panel/12_support.png](../screenshots/admin_panel/12_support.png) | Корень проекта |
-| [screenshots/admin_panel/13_supportPro.png](../screenshots/admin_panel/13_supportPro.png) | Корень проекта |
-| [screenshots/admin_panel/14_plans.png](../screenshots/admin_panel/14_plans.png) | Корень проекта |
-| [screenshots/admin_panel/15_constructor.png](../screenshots/admin_panel/15_constructor.png) | Корень проекта |
-| [screenshots/admin_panel/16_trafficPackages.png](../screenshots/admin_panel/16_trafficPackages.png) | Корень проекта |
-| [screenshots/admin_panel/17_subscriptionOperations.png](../screenshots/admin_panel/17_subscriptionOperations.png) | Корень проекта |
-| [screenshots/admin_panel/18_payments.png](../screenshots/admin_panel/18_payments.png) | Корень проекта |
-| [screenshots/admin_panel/19_providers.png](../screenshots/admin_panel/19_providers.png) | Корень проекта |
-| [screenshots/admin_panel/20_refunds.png](../screenshots/admin_panel/20_refunds.png) | Корень проекта |
-| [screenshots/admin_panel/21_family.png](../screenshots/admin_panel/21_family.png) | Корень проекта |
-| [screenshots/admin_panel/22_gifts.png](../screenshots/admin_panel/22_gifts.png) | Корень проекта |
-| [screenshots/admin_panel/23_staging.png](../screenshots/admin_panel/23_staging.png) | Корень проекта |
-| [screenshots/admin_panel/24_marketing.png](../screenshots/admin_panel/24_marketing.png) | Корень проекта |
-| [screenshots/admin_panel/25_offers.png](../screenshots/admin_panel/25_offers.png) | Корень проекта |
-| [screenshots/admin_panel/26_giveaways.png](../screenshots/admin_panel/26_giveaways.png) | Корень проекта |
-| [screenshots/admin_panel/27_surveys.png](../screenshots/admin_panel/27_surveys.png) | Корень проекта |
-| [screenshots/admin_panel/28_payouts.png](../screenshots/admin_panel/28_payouts.png) | Корень проекта |
-| [screenshots/admin_panel/29_notifications.png](../screenshots/admin_panel/29_notifications.png) | Корень проекта |
-| [screenshots/admin_panel/30_pages.png](../screenshots/admin_panel/30_pages.png) | Корень проекта |
-| [screenshots/admin_panel/31_content.png](../screenshots/admin_panel/31_content.png) | Корень проекта |
-| [screenshots/admin_panel/32_menuTree.png](../screenshots/admin_panel/32_menuTree.png) | Корень проекта |
-| [screenshots/admin_panel/33_appConfig.png](../screenshots/admin_panel/33_appConfig.png) | Корень проекта |
-| [screenshots/admin_panel/34_botBanners.png](../screenshots/admin_panel/34_botBanners.png) | Корень проекта |
-| [screenshots/admin_panel/35_cabinet.png](../screenshots/admin_panel/35_cabinet.png) | Корень проекта |
-| [screenshots/admin_panel/36_apps.png](../screenshots/admin_panel/36_apps.png) | Корень проекта |
-| [screenshots/admin_panel/37_branding.png](../screenshots/admin_panel/37_branding.png) | Корень проекта |
-| [screenshots/admin_panel/38_nodes.png](../screenshots/admin_panel/38_nodes.png) | Корень проекта |
-| [screenshots/admin_panel/39_networkIntel.png](../screenshots/admin_panel/39_networkIntel.png) | Корень проекта |
-| [screenshots/admin_panel/40_nodeTerminal.png](../screenshots/admin_panel/40_nodeTerminal.png) | Корень проекта |
-| [screenshots/admin_panel/41_routing.png](../screenshots/admin_panel/41_routing.png) | Корень проекта |
-| [screenshots/admin_panel/42_capacity.png](../screenshots/admin_panel/42_capacity.png) | Корень проекта |
-| [screenshots/admin_panel/43_orchestrator.png](../screenshots/admin_panel/43_orchestrator.png) | Корень проекта |
-| [screenshots/admin_panel/44_torrents.png](../screenshots/admin_panel/44_torrents.png) | Корень проекта |
-| [screenshots/admin_panel/45_platform.png](../screenshots/admin_panel/45_platform.png) | Корень проекта |
-| [screenshots/admin_panel/46_monitoring.png](../screenshots/admin_panel/46_monitoring.png) | Корень проекта |
-| [screenshots/admin_panel/47_runtimeSettings.png](../screenshots/admin_panel/47_runtimeSettings.png) | Корень проекта |
-| [screenshots/admin_panel/48_features.png](../screenshots/admin_panel/48_features.png) | Корень проекта |
-| [screenshots/admin_panel/49_plugins.png](../screenshots/admin_panel/49_plugins.png) | Корень проекта |
-| [screenshots/admin_panel/50_automation.png](../screenshots/admin_panel/50_automation.png) | Корень проекта |
-| [screenshots/admin_panel/51_workers.png](../screenshots/admin_panel/51_workers.png) | Корень проекта |
-| [screenshots/admin_panel/52_jobs.png](../screenshots/admin_panel/52_jobs.png) | Корень проекта |
-| [screenshots/admin_panel/53_mailDomain.png](../screenshots/admin_panel/53_mailDomain.png) | Корень проекта |
-| [screenshots/admin_panel/54_operations.png](../screenshots/admin_panel/54_operations.png) | Корень проекта |
-| [screenshots/admin_panel/55_releases.png](../screenshots/admin_panel/55_releases.png) | Корень проекта |
-| [screenshots/admin_panel/56_deployments.png](../screenshots/admin_panel/56_deployments.png) | Корень проекта |
-| [screenshots/admin_panel/57_enterprise.png](../screenshots/admin_panel/57_enterprise.png) | Корень проекта |
-| [screenshots/admin_panel/58_intelligence.png](../screenshots/admin_panel/58_intelligence.png) | Корень проекта |
-| [screenshots/admin_panel/59_security.png](../screenshots/admin_panel/59_security.png) | Корень проекта |
-| [screenshots/admin_panel/60_passkeys.png](../screenshots/admin_panel/60_passkeys.png) | Корень проекта |
-| [screenshots/admin_panel/61_admins.png](../screenshots/admin_panel/61_admins.png) | Корень проекта |
-| [screenshots/admin_panel/62_sessions.png](../screenshots/admin_panel/62_sessions.png) | Корень проекта |
-| [screenshots/admin_panel/63_fraud.png](../screenshots/admin_panel/63_fraud.png) | Корень проекта |
-| [screenshots/admin_panel/64_audit.png](../screenshots/admin_panel/64_audit.png) | Корень проекта |
-| [screenshots/admin_panel/65_backups.png](../screenshots/admin_panel/65_backups.png) | Корень проекта |
-| [screenshots/admin_panel/66_recovery.png](../screenshots/admin_panel/66_recovery.png) | Корень проекта |
-| [screenshots/admin_panel/67_command_search.png](../screenshots/admin_panel/67_command_search.png) | Корень проекта |
+| [screenshots/admin_panel/06_opsReadiness.png](../screenshots/admin_panel/06_opsReadiness.png) | Корень проекта |
+| [screenshots/admin_panel/07_health.png](../screenshots/admin_panel/07_health.png) | Корень проекта |
+| [screenshots/admin_panel/08_incidents.png](../screenshots/admin_panel/08_incidents.png) | Корень проекта |
+| [screenshots/admin_panel/09_crm.png](../screenshots/admin_panel/09_crm.png) | Корень проекта |
+| [screenshots/admin_panel/10_users.png](../screenshots/admin_panel/10_users.png) | Корень проекта |
+| [screenshots/admin_panel/11_devices.png](../screenshots/admin_panel/11_devices.png) | Корень проекта |
+| [screenshots/admin_panel/12_customerOperations.png](../screenshots/admin_panel/12_customerOperations.png) | Корень проекта |
+| [screenshots/admin_panel/13_support.png](../screenshots/admin_panel/13_support.png) | Корень проекта |
+| [screenshots/admin_panel/14_supportPro.png](../screenshots/admin_panel/14_supportPro.png) | Корень проекта |
+| [screenshots/admin_panel/15_plans.png](../screenshots/admin_panel/15_plans.png) | Корень проекта |
+| [screenshots/admin_panel/16_constructor.png](../screenshots/admin_panel/16_constructor.png) | Корень проекта |
+| [screenshots/admin_panel/17_trafficPackages.png](../screenshots/admin_panel/17_trafficPackages.png) | Корень проекта |
+| [screenshots/admin_panel/18_subscriptionOperations.png](../screenshots/admin_panel/18_subscriptionOperations.png) | Корень проекта |
+| [screenshots/admin_panel/19_payments.png](../screenshots/admin_panel/19_payments.png) | Корень проекта |
+| [screenshots/admin_panel/20_providers.png](../screenshots/admin_panel/20_providers.png) | Корень проекта |
+| [screenshots/admin_panel/21_refunds.png](../screenshots/admin_panel/21_refunds.png) | Корень проекта |
+| [screenshots/admin_panel/22_family.png](../screenshots/admin_panel/22_family.png) | Корень проекта |
+| [screenshots/admin_panel/23_gifts.png](../screenshots/admin_panel/23_gifts.png) | Корень проекта |
+| [screenshots/admin_panel/24_staging.png](../screenshots/admin_panel/24_staging.png) | Корень проекта |
+| [screenshots/admin_panel/25_marketing.png](../screenshots/admin_panel/25_marketing.png) | Корень проекта |
+| [screenshots/admin_panel/26_offers.png](../screenshots/admin_panel/26_offers.png) | Корень проекта |
+| [screenshots/admin_panel/27_giveaways.png](../screenshots/admin_panel/27_giveaways.png) | Корень проекта |
+| [screenshots/admin_panel/28_surveys.png](../screenshots/admin_panel/28_surveys.png) | Корень проекта |
+| [screenshots/admin_panel/29_payouts.png](../screenshots/admin_panel/29_payouts.png) | Корень проекта |
+| [screenshots/admin_panel/30_notifications.png](../screenshots/admin_panel/30_notifications.png) | Корень проекта |
+| [screenshots/admin_panel/31_pages.png](../screenshots/admin_panel/31_pages.png) | Корень проекта |
+| [screenshots/admin_panel/32_content.png](../screenshots/admin_panel/32_content.png) | Корень проекта |
+| [screenshots/admin_panel/33_menuTree.png](../screenshots/admin_panel/33_menuTree.png) | Корень проекта |
+| [screenshots/admin_panel/34_appConfig.png](../screenshots/admin_panel/34_appConfig.png) | Корень проекта |
+| [screenshots/admin_panel/35_botBanners.png](../screenshots/admin_panel/35_botBanners.png) | Корень проекта |
+| [screenshots/admin_panel/36_cabinet.png](../screenshots/admin_panel/36_cabinet.png) | Корень проекта |
+| [screenshots/admin_panel/37_apps.png](../screenshots/admin_panel/37_apps.png) | Корень проекта |
+| [screenshots/admin_panel/38_branding.png](../screenshots/admin_panel/38_branding.png) | Корень проекта |
+| [screenshots/admin_panel/39_nodes.png](../screenshots/admin_panel/39_nodes.png) | Корень проекта |
+| [screenshots/admin_panel/40_networkIntel.png](../screenshots/admin_panel/40_networkIntel.png) | Корень проекта |
+| [screenshots/admin_panel/41_nodeTerminal.png](../screenshots/admin_panel/41_nodeTerminal.png) | Корень проекта |
+| [screenshots/admin_panel/42_routing.png](../screenshots/admin_panel/42_routing.png) | Корень проекта |
+| [screenshots/admin_panel/43_capacity.png](../screenshots/admin_panel/43_capacity.png) | Корень проекта |
+| [screenshots/admin_panel/44_orchestrator.png](../screenshots/admin_panel/44_orchestrator.png) | Корень проекта |
+| [screenshots/admin_panel/45_torrents.png](../screenshots/admin_panel/45_torrents.png) | Корень проекта |
+| [screenshots/admin_panel/46_platform.png](../screenshots/admin_panel/46_platform.png) | Корень проекта |
+| [screenshots/admin_panel/47_monitoring.png](../screenshots/admin_panel/47_monitoring.png) | Корень проекта |
+| [screenshots/admin_panel/48_runtimeSettings.png](../screenshots/admin_panel/48_runtimeSettings.png) | Корень проекта |
+| [screenshots/admin_panel/49_features.png](../screenshots/admin_panel/49_features.png) | Корень проекта |
+| [screenshots/admin_panel/50_plugins.png](../screenshots/admin_panel/50_plugins.png) | Корень проекта |
+| [screenshots/admin_panel/51_automation.png](../screenshots/admin_panel/51_automation.png) | Корень проекта |
+| [screenshots/admin_panel/52_workers.png](../screenshots/admin_panel/52_workers.png) | Корень проекта |
+| [screenshots/admin_panel/53_jobs.png](../screenshots/admin_panel/53_jobs.png) | Корень проекта |
+| [screenshots/admin_panel/54_mailDomain.png](../screenshots/admin_panel/54_mailDomain.png) | Корень проекта |
+| [screenshots/admin_panel/55_operations.png](../screenshots/admin_panel/55_operations.png) | Корень проекта |
+| [screenshots/admin_panel/56_releases.png](../screenshots/admin_panel/56_releases.png) | Корень проекта |
+| [screenshots/admin_panel/57_deployments.png](../screenshots/admin_panel/57_deployments.png) | Корень проекта |
+| [screenshots/admin_panel/58_enterprise.png](../screenshots/admin_panel/58_enterprise.png) | Корень проекта |
+| [screenshots/admin_panel/59_intelligence.png](../screenshots/admin_panel/59_intelligence.png) | Корень проекта |
+| [screenshots/admin_panel/60_security.png](../screenshots/admin_panel/60_security.png) | Корень проекта |
+| [screenshots/admin_panel/61_passkeys.png](../screenshots/admin_panel/61_passkeys.png) | Корень проекта |
+| [screenshots/admin_panel/62_admins.png](../screenshots/admin_panel/62_admins.png) | Корень проекта |
+| [screenshots/admin_panel/63_sessions.png](../screenshots/admin_panel/63_sessions.png) | Корень проекта |
+| [screenshots/admin_panel/64_fraud.png](../screenshots/admin_panel/64_fraud.png) | Корень проекта |
+| [screenshots/admin_panel/65_audit.png](../screenshots/admin_panel/65_audit.png) | Корень проекта |
+| [screenshots/admin_panel/66_backups.png](../screenshots/admin_panel/66_backups.png) | Корень проекта |
+| [screenshots/admin_panel/67_recovery.png](../screenshots/admin_panel/67_recovery.png) | Корень проекта |
+| [screenshots/admin_panel/68_command_search.png](../screenshots/admin_panel/68_command_search.png) | Корень проекта |
 | [screenshots/storefront_user/01_login.png](../screenshots/storefront_user/01_login.png) | Корень проекта |
 | [screenshots/storefront_user/02_register.png](../screenshots/storefront_user/02_register.png) | Корень проекта |
 | [screenshots/storefront_user/03_overview.png](../screenshots/storefront_user/03_overview.png) | Корень проекта |
@@ -1022,6 +1040,7 @@
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
 | [scripts/configure-support-bridge.py](../scripts/configure-support-bridge.py) | Эксплуатация и релиз |
+| [scripts/dependabot-automerge.cjs](../scripts/dependabot-automerge.cjs) | Эксплуатация и релиз |
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |
 | [scripts/generate-project-map.py](../scripts/generate-project-map.py) | Эксплуатация и релиз |
@@ -1149,6 +1168,7 @@
 | [support-pro/tests/test_security_audit.py](../support-pro/tests/test_security_audit.py) | Support Pro |
 | [support-pro/tests/test_shop_bridge.py](../support-pro/tests/test_shop_bridge.py) | Support Pro |
 | [terraform/corgi/main.tf](../terraform/corgi/main.tf) | Корень проекта |
+| [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
 | [tests/passkey_browser_server.py](../tests/passkey_browser_server.py) | Проверки |
 | [tests/release-publisher.test.cjs](../tests/release-publisher.test.cjs) | Проверки |
@@ -1194,11 +1214,13 @@
 | [tests/test_matrix_privacy.py](../tests/test_matrix_privacy.py) | Проверки |
 | [tests/test_menu_hierarchy.py](../tests/test_menu_hierarchy.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
+| [tests/test_money_review.py](../tests/test_money_review.py) | Проверки |
 | [tests/test_multiple_subscriptions.py](../tests/test_multiple_subscriptions.py) | Проверки |
 | [tests/test_native_passkeys.py](../tests/test_native_passkeys.py) | Проверки |
 | [tests/test_network_intel.py](../tests/test_network_intel.py) | Проверки |
 | [tests/test_node_terminal.py](../tests/test_node_terminal.py) | Проверки |
 | [tests/test_observability.py](../tests/test_observability.py) | Проверки |
+| [tests/test_ops_alerts.py](../tests/test_ops_alerts.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
 | [tests/test_personal_offers.py](../tests/test_personal_offers.py) | Проверки |
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |

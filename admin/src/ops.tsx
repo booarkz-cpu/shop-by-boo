@@ -37,7 +37,7 @@ export function OpsReadiness({request, toast}: {request: Request; toast: (m: str
     </div>
     <div className="card">
       <h3>Оповещения о сбоях</h3>
-      <p className="muted">Каждые 5 минут магазин ищет сбои: оплата без выдачи доступа, зависшая выдача, отключённая касса, молчащий фоновый процесс, недоступный Remnawave, упавшая проверка мониторинга или резервная копия. Каждая проблема приходит один раз и повторяется не чаще, чем раз в {alerts.repeat_hours} ч; когда она уходит — приходит «Решено».</p>
+      <p className="muted">Каждые 5 минут магазин ищет сбои: оплата без выдачи доступа, зависшая выдача, отключённая касса, молчащий фоновый процесс, недоступный Remnawave, упавшая проверка мониторинга или резервная копия, отрицательный баланс клиента. Каждая проблема приходит один раз и повторяется не чаще, чем раз в {alerts.repeat_hours} ч; когда она уходит — приходит «Решено».</p>
       <p>Telegram: <b>{alerts.recipients.telegram ? "настроен" : "не настроен"}</b> · почта: <b>{alerts.recipients.email ? "настроена" : "не настроена"}</b></p>
       {!alerts.recipients.telegram && !alerts.recipients.email && <p className="muted">Укажите в .env <code>ALERT_TELEGRAM_CHAT_ID</code> (группа или ваш ID; без него — <code>ADMIN_TELEGRAM_ID</code>) или <code>ALERT_EMAIL</code> с SMTP и перезапустите backend.</p>}
       <button className="primary" disabled={busy || (!alerts.recipients.telegram && !alerts.recipients.email)} onClick={test}>Отправить тестовое оповещение</button>
