@@ -73,7 +73,7 @@ PY
   app="$WORK/verify-$role/Payload/$project.app"
   codesign --verify --deep --strict "$app"
   test -f "$app/embedded.mobileprovision"
-  test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")" = 2.15.0
+  test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")" = 2.16.0
   name="corgi_lusi_ios_${role}_2_15_0_signed.ipa"
   cp "$ipa" "$OUT/$name"
   (cd "$OUT" && shasum -a 256 "$name" > "$name.sha256")

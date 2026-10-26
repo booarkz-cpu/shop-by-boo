@@ -8,6 +8,7 @@ export function OpsReadiness({request, toast}: {request: Request; toast: (m: str
   const [alerts, setAlerts] = useState<any>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [summary, setSummary] = useState("");
   async function load() {
     setError("");
     try {
@@ -37,10 +38,15 @@ export function OpsReadiness({request, toast}: {request: Request; toast: (m: str
     </div>
     <div className="card">
       <h3>Оповещения о сбоях</h3>
-      <p className="muted">Каждые 5 минут магазин ищет сбои: оплата без выдачи доступа, зависшая выдача, отключённая касса, молчащий фоновый процесс, недоступный Remnawave, упавшая проверка мониторинга или резервная копия, отрицательный баланс клиента. Каждая проблема приходит один раз и повторяется не чаще, чем раз в {alerts.repeat_hours} ч; когда она уходит — приходит «Решено».</p>
+      <p className="muted">Каждые 5 минут магазин ищет сбои: оплата без выдачи доступа, зависшая выдача, отключённая касса, молчащий фоновый процесс, недоступный Remnawave, упавшая проверка мониторинга, резервная копия, которая не создаётся или не восстанавливается, отрицательный баланс клиента. Каждая проблема приходит один раз и повторяется не чаще, чем раз в {alerts.repeat_hours} ч; когда она уходит — приходит «Решено».</p>
       <p>Telegram: <b>{alerts.recipients.telegram ? "настроен" : "не настроен"}</b> · почта: <b>{alerts.recipients.email ? "настроена" : "не настроена"}</b></p>
       {!alerts.recipients.telegram && !alerts.recipients.email && <p className="muted">Укажите в .env <code>ALERT_TELEGRAM_CHAT_ID</code> (группа или ваш ID; без него — <code>ADMIN_TELEGRAM_ID</code>) или <code>ALERT_EMAIL</code> с SMTP и перезапустите backend.</p>}
       <button className="primary" disabled={busy || (!alerts.recipients.telegram && !alerts.recipients.email)} onClick={test}>Отправить тестовое оповещение</button>
+      <h4>Сводка за неделю</h4>
+      <p className="muted">Каждый понедельник в 09:00 по Москве владельцу приходит сводка: выручка, оплаты, новые платящие клиенты, закончившиеся подписки, возвраты и открытые проблемы.</p>
+      {summary ? <pre className="ops-summary">{summary}</pre> : <button onClick={async () => { try { setSummary((await request("/api/admin/ops/summary")).text); } catch (e: any) { setError(e.message); } }}>Показать сводку</button>}
+      {summary && <button disabled={busy || (!alerts.recipients.telegram && !alerts.recipients.email)} onClick={async () => {
+        setBusy(true); try { const r = await request("/api/admin/ops/summary/send", {method: "POST"}); toast(r.ok ? "Сводка отправлена" : "Не удалось отправить"); } catch (e: any) { setError(e.message); } finally { setBusy(false); } }}>Отправить сейчас</button>}
       <h4>Сейчас</h4>
       {alerts.problems.length === 0 ? <p className="muted">Проблем нет.</p> : alerts.problems.map((p: any) => <div className="ops-problem" key={p.key} data-problem={p.key}>
         <b>{p.title}</b><p className="muted">{p.detail}</p></div>)}

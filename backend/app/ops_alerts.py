@@ -123,6 +123,12 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     backup = await db.scalar(select(BackupJob).order_by(BackupJob.id.desc()).limit(1))
     if backup and backup.status == "failed" and backup.created_at >= day:
         out.append(Problem(f"backup:{backup.id}", "Резервная копия не создана", (backup.error or "ошибка")[:300] + ". Безопасность → Резервные копии."))
+    from .models import BackupVerification
+    verification = await db.scalar(select(BackupVerification).where(BackupVerification.status.in_(("passed", "failed")))
+                                   .order_by(BackupVerification.id.desc()).limit(1))
+    if verification and verification.status == "failed" and verification.created_at >= now - timedelta(days=8):
+        out.append(Problem(f"restore:{verification.id}", "Резервная копия не восстанавливается",
+                           f"Проверка копии №{verification.backup_id}: {(verification.error or 'ошибка')[:300]}. Создайте новую копию и проверьте её."))
     if settings.remnawave_url and settings.remnawave_token:
         try:
             from .main import RemnawaveClient
@@ -173,6 +179,8 @@ async def ops_alert_scheduler(session_factory=None):
             if recipients()["telegram"] or recipients()["email"]:
                 async with factory() as db:
                     await dispatch(db, await collect(db))
+                async with factory() as db:
+                    await send_weekly_summary(db)
         except Exception:
             logger.exception("operator alert scheduler failed")
         await asyncio.sleep(TICK_SECONDS)
@@ -221,6 +229,12 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
     check("backup", "Резервная копия за сутки", backup and (backup.finished_at or backup.created_at) >= now - timedelta(days=1),
           "Создайте копию: bash scripts/backup.sh или Безопасность → Резервные копии.")
     target = recipients()
+    from .models import BackupVerification
+    checked = await db.scalar(select(BackupVerification).where(BackupVerification.status == "passed", BackupVerification.created_at >= now - timedelta(days=8))
+                              .order_by(BackupVerification.id.desc()).limit(1))
+    check("restore", "Проверка восстановления за неделю", checked,
+          "Магазин раз в неделю сам восстанавливает последнюю копию во временную базу; запустить вручную — Безопасность → Резервные копии → «Проверить восстановление».",
+          "recommended")
     check("alerts", "Оповещения о сбоях", target["telegram"] or target["email"], "Укажите ALERT_TELEGRAM_CHAT_ID (или ADMIN_TELEGRAM_ID) либо ALERT_EMAIL.", "recommended")
     required = [c for c in checks if c["level"] == "required"]
     return {"ready": all(c["ok"] for c in required), "agents": configured, "checks": checks}
@@ -230,3 +244,83 @@ def _agent_configured(provider: str) -> bool:
     keys = {"yookassa": ("yookassa_shop_id", "yookassa_secret_key"), "platega": ("platega_merchant_id", "platega_secret"),
             "rollypay": ("rollypay_api_key", "rollypay_signing_secret")}.get(provider, ())
     return bool(keys) and all(getattr(settings, k, "") for k in keys)
+
+
+# ================================================================ weekly summary
+
+SUMMARY_KEY = "ops_summary:last_week"
+
+
+async def weekly_summary(db: AsyncSession, now: datetime | None = None) -> dict:
+    """The last seven days in numbers: revenue, customers, churn, refunds, open problems."""
+    from sqlalchemy import func
+    from .models import RefundRequest, Subscription, User
+    now = now or datetime.utcnow()
+    since = now - timedelta(days=7)
+    paid = (Payment.status.in_(("paid", "fulfilled")), Payment.paid_at >= since, Payment.paid_at < now, Payment.provider != "wallet")
+    revenue = {cur: str(total) for cur, total in (await db.execute(
+        select(Payment.currency, func.coalesce(func.sum(Payment.amount), 0)).where(*paid).group_by(Payment.currency))).all()}
+    payments = int(await db.scalar(select(func.count()).select_from(Payment).where(*paid)) or 0)
+    first_paid = select(Payment.user_id, func.min(Payment.paid_at).label("first")).where(
+        Payment.status.in_(("paid", "fulfilled")), Payment.paid_at.is_not(None), Payment.purpose == "subscription").group_by(Payment.user_id).subquery()
+    new_paying = int(await db.scalar(select(func.count()).select_from(first_paid).where(first_paid.c.first >= since, first_paid.c.first < now)) or 0)
+    signups = int(await db.scalar(select(func.count()).select_from(User).where(User.created_at >= since, User.created_at < now)) or 0)
+    # Ended this week and not renewed: the subscription's expiry is still in the past.
+    ended = int(await db.scalar(select(func.count()).select_from(Subscription).where(
+        Subscription.expires_at >= since, Subscription.expires_at < now)) or 0)
+    active = int(await db.scalar(select(func.count()).select_from(Subscription).where(
+        Subscription.expires_at > now, Subscription.lifecycle_status.in_(("active", "grace", "cancel_scheduled")))) or 0)
+    refunds = (await db.execute(select(func.count(), func.coalesce(func.sum(RefundRequest.amount), 0)).where(
+        RefundRequest.status == "refunded", RefundRequest.updated_at >= since, RefundRequest.updated_at < now))).one()
+    problems = await collect(db, now)
+    return {"from": since, "to": now, "revenue": revenue, "payments": payments, "new_paying": new_paying, "signups": signups,
+            "ended": ended, "active": active, "refunds": {"count": int(refunds[0] or 0), "amount": str(refunds[1] or 0)},
+            "problems": [p.title for p in problems]}
+
+
+def summary_text(s: dict) -> str:
+    money = ", ".join(f"{amount} {cur}" for cur, amount in sorted(s["revenue"].items())) or "0"
+    lines = [f"📊 Неделя {s['from']:%d.%m}–{s['to']:%d.%m}",
+             f"Выручка: {money} · оплат: {s['payments']}",
+             f"Новые платящие: {s['new_paying']} · регистраций: {s['signups']}",
+             f"Активных подписок: {s['active']} · закончились за неделю: {s['ended']}",
+             f"Возвраты: {s['refunds']['count']} на {s['refunds']['amount']}"]
+    lines.append("Сейчас проблем нет ✅" if not s["problems"] else "Открытые проблемы: " + "; ".join(s["problems"][:5]))
+    return "\n".join(lines)
+
+
+def summary_due(now: datetime, last: str | None) -> bool:
+    """Monday from 09:00 Moscow time (06:00 UTC), once per ISO week."""
+    week = f"{now.isocalendar()[0]}-{now.isocalendar()[1]:02d}"
+    return now.weekday() == 0 and now.hour >= 6 and last != week
+
+
+async def send_weekly_summary(db: AsyncSession, now: datetime | None = None, sender=None) -> bool:
+    now = now or datetime.utcnow()
+    row = await db.get(AppSetting, SUMMARY_KEY)
+    if not summary_due(now, row.value if row else None):
+        return False
+    if not await (sender or send)(summary_text(await weekly_summary(db, now))):
+        return False
+    week = f"{now.isocalendar()[0]}-{now.isocalendar()[1]:02d}"
+    if row:
+        row.value = week
+    else:
+        db.add(AppSetting(key=SUMMARY_KEY, value=week))
+    await db.commit()
+    return True
+
+
+@router.get("/api/admin/ops/summary")
+async def summary_preview(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("ops.diagnostics"))):
+    data = await weekly_summary(db)
+    return {**data, "text": summary_text(data)}
+
+
+@router.post("/api/admin/ops/summary/send")
+async def summary_send_now(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("ops.diagnostics"))):
+    target = recipients()
+    if not (target["telegram"] or target["email"]):
+        from fastapi import HTTPException
+        raise HTTPException(409, "Получатель оповещений не настроен")
+    return {"ok": await send(summary_text(await weekly_summary(db)))}

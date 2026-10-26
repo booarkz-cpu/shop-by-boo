@@ -192,7 +192,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-Admin/2.15.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-Admin/2.16.0")
             // Historical compatibility marker: CorgiLusi-Android-Admin/2.10.0
             // Historical compatibility marker: CorgiLusi-Android-Admin/2.9.0
             setRequestProperty("X-Shop-Client", "android-admin")
@@ -270,6 +270,8 @@ private fun AdminApp() {
     var monitoring by remember { mutableStateOf(JSONObject()) }
     var platform by remember { mutableStateOf(JSONObject()) }
     var ops by remember { mutableStateOf(JSONObject()) }
+    var readiness by remember { mutableStateOf(JSONObject()) }
+    var alerts by remember { mutableStateOf(JSONObject()) }
     var tickets by remember { mutableStateOf(JSONArray()) }
     var broadcasts by remember { mutableStateOf(JSONArray()) }
     var broadcastText by remember { mutableStateOf("") }
@@ -281,7 +283,7 @@ private fun AdminApp() {
     fun profileTitle(): String = profileStore.find(activeId)?.title ?: (try { URI(base).host } catch (_: Exception) { null } ?: base)
     fun clearLoaded() {
         overview = JSONObject(); plans = JSONArray(); payments = JSONArray(); monitoring = JSONObject()
-        platform = JSONObject(); ops = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
+        platform = JSONObject(); ops = JSONObject(); readiness = JSONObject(); alerts = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
         paymentDetail = JSONObject(); logo = null; reply = ""; broadcastText = ""
     }
     fun reloadProfiles() {
@@ -362,6 +364,9 @@ private fun AdminApp() {
             val nextPlatform = api.get("/api/admin/platform/summary") as JSONObject
             val nextOps = api.get("/api/admin/mobile/ops") as JSONObject
             val nextTickets = api.get("/api/admin/support/tickets") as JSONArray
+            // Shops before v28.27.0 have no launch checks: the other tabs keep working.
+            val nextReadiness = try { api.get("/api/admin/ops/readiness") as JSONObject } catch (_: Exception) { JSONObject() }
+            val nextAlerts = try { api.get("/api/admin/ops/alerts") as JSONObject } catch (_: Exception) { JSONObject() }
             val nextMarketing = api.get("/api/admin/marketing") as JSONObject
             val nextBroadcasts = nextMarketing.optJSONArray("broadcasts") ?: JSONArray()
             val nextLogo = try {
@@ -377,6 +382,8 @@ private fun AdminApp() {
                 monitoring = nextMonitoring
                 platform = nextPlatform
                 ops = nextOps
+                readiness = nextReadiness
+                alerts = nextAlerts
                 tickets = nextTickets
                 broadcasts = nextBroadcasts
                 logo = nextLogo
@@ -485,7 +492,7 @@ private fun AdminApp() {
                 TextButton(onClick = { signOut() }) { Text(t("sign_out")) }
             } else {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf("overview", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast").forEach { key ->
+                    listOf("overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast").forEach { key ->
                         FilterChip(selected = tab == key, onClick = { tab = key }, label = { Text(t(key)) })
                     }
                 }
@@ -600,6 +607,37 @@ private fun AdminApp() {
                                     }
                                 }) { Text(t("retry_broadcast")) }
                             }
+                        }
+                    }
+                    "launch" -> {
+                        if (readiness.length() == 0) Text(t("no_data"))
+                        else {
+                            Text(if (readiness.optBoolean("ready")) t("launch_ready") else t("launch_missing"), style = MaterialTheme.typography.titleMedium,
+                                color = if (readiness.optBoolean("ready")) Color(0xFF2BD47D) else Color(0xFFFFB020))
+                            val checks = readiness.optJSONArray("checks") ?: JSONArray()
+                            for (index in 0 until checks.length()) {
+                                val c = checks.getJSONObject(index)
+                                val mark = if (c.optBoolean("ok")) "✓" else if (c.optString("level") == "required") "✗" else "!"
+                                Text("$mark ${c.optString("title")}${if (c.optString("level") != "required") " · " + t("recommended") else ""}")
+                                if (!c.optBoolean("ok") && c.optString("hint").isNotBlank()) Text(c.optString("hint"), color = Color(0xFFA4AFD0))
+                            }
+                        }
+                        Text(t("alerts"), style = MaterialTheme.typography.titleMedium)
+                        val recipients = alerts.optJSONObject("recipients") ?: JSONObject()
+                        Text("${t("alerts_telegram")}: ${if (recipients.optBoolean("telegram")) t("configured") else t("not_configured")} · ${t("alerts_email")}: ${if (recipients.optBoolean("email")) t("configured") else t("not_configured")}")
+                        Button(enabled = !busy && (recipients.optBoolean("telegram") || recipients.optBoolean("email")), onClick = {
+                            work {
+                                ShopApi(base, token, lang).post("/api/admin/ops/alerts/test", JSONObject())
+                                activity.runOnUiThread { notice = t("alerts_sent") }
+                            }
+                        }) { Text(t("alerts_test")) }
+                        Text(t("problems_now"), style = MaterialTheme.typography.titleSmall)
+                        val problems = alerts.optJSONArray("problems") ?: JSONArray()
+                        if (problems.length() == 0) Text(t("no_problems"))
+                        for (index in 0 until problems.length()) {
+                            val pr = problems.getJSONObject(index)
+                            Text(pr.optString("title"), color = Color(0xFFFFB020))
+                            Text(pr.optString("detail"), color = Color(0xFFA4AFD0))
                         }
                     }
                     "ops" -> {

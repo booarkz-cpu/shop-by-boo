@@ -79,7 +79,20 @@
     "profile_duplicate": "Такой профиль уже есть — переключитесь на него",
     "profile_removed": "Профиль удалён",
     "profile_switched": "Профиль: {profile}",
-    "forbidden": "У роли нет доступа к этому разделу"
+    "forbidden": "У роли нет доступа к этому разделу",
+    "launch": "Запуск",
+    "launch_ready": "Магазин готов к приёму оплат",
+    "launch_missing": "Перед запуском осталось",
+    "recommended": "рекомендуется",
+    "alerts": "Оповещения о сбоях",
+    "alerts_telegram": "Telegram",
+    "alerts_email": "Почта",
+    "configured": "настроено",
+    "not_configured": "не настроено",
+    "alerts_test": "Отправить тестовое оповещение",
+    "alerts_sent": "Тестовое оповещение отправлено",
+    "problems_now": "Сейчас",
+    "no_problems": "Проблем нет"
   },
   "en": {
     "app_name": "VPN admin",
@@ -161,7 +174,20 @@
     "profile_duplicate": "This profile already exists — switch to it",
     "profile_removed": "Profile removed",
     "profile_switched": "Profile: {profile}",
-    "forbidden": "Your role cannot open this section"
+    "forbidden": "Your role cannot open this section",
+    "launch": "Launch",
+    "launch_ready": "The shop is ready to take payments",
+    "launch_missing": "Left before launch",
+    "recommended": "recommended",
+    "alerts": "Failure alerts",
+    "alerts_telegram": "Telegram",
+    "alerts_email": "Email",
+    "configured": "configured",
+    "not_configured": "not configured",
+    "alerts_test": "Send a test alert",
+    "alerts_sent": "Test alert sent",
+    "problems_now": "Now",
+    "no_problems": "No problems"
   },
   "uk": {
     "app_name": "Коргі Люсі Адмін",
@@ -243,6 +269,19 @@
     "profile_duplicate": "Такий профіль уже є — перемкніться на нього",
     "profile_removed": "Профіль видалено",
     "profile_switched": "Профіль: {profile}",
-    "forbidden": "Ролі заборонено доступ до цього розділу"
+    "forbidden": "Ролі заборонено доступ до цього розділу",
+    "launch": "Запуск",
+    "launch_ready": "Магазин готовий приймати оплати",
+    "launch_missing": "Перед запуском залишилося",
+    "recommended": "рекомендовано",
+    "alerts": "Сповіщення про збої",
+    "alerts_telegram": "Telegram",
+    "alerts_email": "Пошта",
+    "configured": "налаштовано",
+    "not_configured": "не налаштовано",
+    "alerts_test": "Надіслати тестове сповіщення",
+    "alerts_sent": "Тестове сповіщення надіслано",
+    "problems_now": "Зараз",
+    "no_problems": "Проблем немає"
   }
 }
