@@ -1,7 +1,8 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-MAIN=(ROOT/"backend/app/main.py").read_text()
+MAIN=main_source()
 
 def test_menu_field_buttons_validate_existing_enabled_field():
     assert 'Кнопка field ссылается на неизвестное или отключённое поле' in MAIN

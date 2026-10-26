@@ -1,7 +1,8 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-MAIN=(ROOT/"backend/app/main.py").read_text()
+MAIN=main_source()
 RW=(ROOT/"backend/app/remnawave.py").read_text()
 MIG=(ROOT/"backend/alembic/versions/0028_v44_5_12_logic_integrity.py").read_text()
 BUILD=(ROOT/"scripts/build-release.sh").read_text()

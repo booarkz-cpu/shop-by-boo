@@ -1,11 +1,12 @@
 """20.0.4 version identity and unauthenticated control-plane routes."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_live_version_is_20_0_4_and_history_order_stays():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     installer = (ROOT / "deploy/install-vps.sh").read_text()
     builder = (ROOT / "scripts/build-release.sh").read_text()
     assert main.index('APP_VERSION = "20.0.4"') < main.index('APP_VERSION = "20.0.3"')
@@ -29,7 +30,7 @@ def test_node_control_and_public_release_are_closed():
     assert "agent_token" not in launch and "signature" not in launch
     assert '"release": APP_VERSION' in public
     assert "16.0.0" not in public
-    assert '"version":APP_VERSION' in (ROOT / "backend/app/main.py").read_text()
+    assert '"version":APP_VERSION' in main_source()
 
 
 def test_updater_points_at_this_repository():

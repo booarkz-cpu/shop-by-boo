@@ -1,11 +1,12 @@
 """3.1.1 staging gate instructions and secret-preservation contracts."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_311_is_first():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert main.index('APP_VERSION = "3.1.1"') < main.index('APP_VERSION = "3.1.0"')
     assert main.index('APP_VERSION = "3.1.0"') < main.index('APP_VERSION = "3.0.1"')
     assert main.index('APP_VERSION = "3.0.1"') < main.index('APP_VERSION = "3.0.0-realise"')
@@ -17,7 +18,7 @@ def test_version_311_is_first():
 
 
 def test_blank_staging_secrets_are_preserved_and_output_is_redacted():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     block = main[main.index("async def update_staging_e2e_config"): main.index("def _redact_staging_output")]
     assert "previous=await _staging_config(db) or {}" in block
     assert 'for key in ("remnawave_token","user_bearer_token","yookassa_shop_id","yookassa_secret_key","platega_merchant_id","platega_secret","rollypay_api_key","rollypay_signing_secret")' in block

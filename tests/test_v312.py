@@ -1,4 +1,5 @@
 """3.1.2 panel leak audit contracts."""
+from main_source import main_source
 import os
 import sys
 from pathlib import Path
@@ -10,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_312_is_first():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert main.index('APP_VERSION = "3.1.2"') < main.index('APP_VERSION = "3.1.1"')
     assert main.index('APP_VERSION = "3.1.1"') < main.index('APP_VERSION = "3.1.0"')
     assert main.index('APP_VERSION = "3.1.0"') < main.index('APP_VERSION = "3.0.1"')
@@ -64,7 +65,7 @@ def test_remote_payload_and_audit_are_redacted():
 
 
 def test_admin_routes_hide_credentials_and_stderr():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     subscription = main[main.index('"/api/admin/remnawave/users/{user_id}/subscription"'): main.index('"/api/admin/remnawave/users/{user_id}/keys"')]
     keys = main[main.index('"/api/admin/remnawave/users/{user_id}/keys"'): main.index('"/api/admin/remnawave/health"')]
     assert 'require_permission("users.keys")' in subscription

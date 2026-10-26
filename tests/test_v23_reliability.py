@@ -1,6 +1,7 @@
+from main_source import main_source
 from pathlib import Path
 ROOT=Path(__file__).parents[1]
-MAIN=(ROOT/'backend/app/main.py').read_text()
+MAIN=main_source()
 MODELS=(ROOT/'backend/app/models.py').read_text()
 MIG=(ROOT/'backend/alembic/versions/0027_v44_5_10_financial_integrity.py').read_text()
 

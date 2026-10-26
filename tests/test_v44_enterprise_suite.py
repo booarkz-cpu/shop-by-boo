@@ -1,6 +1,7 @@
+from main_source import main_source
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-MAIN=(ROOT/"backend/app/main.py").read_text(); MODELS=(ROOT/"backend/app/models.py").read_text(); MIG=(ROOT/"backend/alembic/versions/0022_enterprise_suite.py").read_text(); ADMIN=(ROOT/"admin/src/main.tsx").read_text()+(ROOT/"admin/src/sections.ts").read_text(); WORKER=(ROOT/"backend/worker.py").read_text()
+MAIN=main_source(); MODELS=(ROOT/"backend/app/models.py").read_text(); MIG=(ROOT/"backend/alembic/versions/0022_enterprise_suite.py").read_text(); ADMIN=(ROOT/"admin/src/main.tsx").read_text()+(ROOT/"admin/src/sections.ts").read_text(); WORKER=(ROOT/"backend/worker.py").read_text()
 
 def test_v44_contract_and_migration_chain():
     assert 'APP_VERSION = "44.5.5-enterprise"' in MAIN

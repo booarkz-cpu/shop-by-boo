@@ -1,11 +1,12 @@
 """3.1.6: admin, Mini App and cabinet nginx must serve HTTP on a read-only root."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_316_is_first():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert main.index('APP_VERSION = "3.1.6"') < main.index('APP_VERSION = "3.1.5"')
     build = (ROOT / "scripts/build-release.sh").read_text()
     assert build.index('VERSION="3.1.6"') < build.index('VERSION="3.1.5"')

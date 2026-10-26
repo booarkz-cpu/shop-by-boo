@@ -1,10 +1,11 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_current_release_identity_and_migration_head():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     build = (ROOT / "scripts/build-release.sh").read_text()
     installer = (ROOT / "deploy/install-vps.sh").read_text()
     manifest = (ROOT / "release-manifest.template.json").read_text()
@@ -85,7 +86,7 @@ def test_release_tooling_uses_current_artifact():
 def test_financial_ledger_is_immutable_and_idempotent_by_database_contract():
     migration = (ROOT / "backend/alembic/versions/0034_v2_2_0_platform_features.py").read_text()
     models = (ROOT / "backend/app/models.py").read_text()
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert 'notifications' in migration
     assert 'status_components' in migration
     assert 'deployments' in migration
@@ -96,7 +97,7 @@ def test_financial_ledger_is_immutable_and_idempotent_by_database_contract():
 
 
 def test_request_tracing_and_health_endpoints_exist():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert 'X-Request-ID' in main
     assert 'request_id' in main
     assert '@app.get("/health/live")' in main
@@ -105,7 +106,7 @@ def test_request_tracing_and_health_endpoints_exist():
 
 
 def test_v220_platform_features_are_present_and_guarded():
-    models=(ROOT/"backend/app/models.py").read_text(); main=(ROOT/"backend/app/main.py").read_text(); migration=(ROOT/"backend/alembic/versions/0034_v2_2_0_platform_features.py").read_text(); security=(ROOT/"backend/app/security.py").read_text()
+    models=(ROOT/"backend/app/models.py").read_text(); main=main_source(); migration=(ROOT/"backend/alembic/versions/0034_v2_2_0_platform_features.py").read_text(); security=(ROOT/"backend/app/security.py").read_text()
     assert "class Notification(Base):" in models
     assert "class StatusComponent(Base):" in models
     assert "class Deployment(Base):" in models

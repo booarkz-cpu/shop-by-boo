@@ -1,9 +1,10 @@
+from main_source import main_source
 from pathlib import Path
 import yaml
 ROOT=Path(__file__).parents[1]
 
 def test_v33_version_and_env_example():
-    assert 'APP_VERSION = "43.1.0-production"' in (ROOT/'backend/app/main.py').read_text()
+    assert 'APP_VERSION = "43.1.0-production"' in main_source()
     env=(ROOT/'.env.example').read_text()
     assert 'APP_SECRET_PREVIOUS=' in env
     assert 'BACKUP_S3_ENABLED=false' in env
@@ -23,12 +24,12 @@ def test_durable_job_worker_and_recovery():
     assert 'main.fulfill(payment_id,db)' in w
 
 def test_fulfillment_updates_job_on_failure():
-    m=(ROOT/'backend/app/main.py').read_text()
+    m=main_source()
     assert 'job.status="failed" if terminal else "queued"' in m
     assert 'job.worker_id=None' in m
 
 def test_refund_reconcile_calls_provider_adapter():
-    m=(ROOT/'backend/app/main.py').read_text()
+    m=main_source()
     assert 'provider.get_refund_status(r.provider_refund_id)' in m
     assert 'Provider refund status: {status}' in m
 

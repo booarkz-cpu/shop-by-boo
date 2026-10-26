@@ -1,3 +1,4 @@
+from main_source import main_source
 from pathlib import Path
 import ast
 
@@ -29,5 +30,5 @@ def test_release_verifier_is_not_hardcoded_to_historical_artifact():
 
 
 def test_auto_renew_advertises_only_implemented_provider():
-    text=(ROOT/"backend/app/main.py").read_text()
+    text=main_source()
     assert '"supported_providers":["yookassa"]' in text

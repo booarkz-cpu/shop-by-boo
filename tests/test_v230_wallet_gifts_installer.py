@@ -1,3 +1,4 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,7 +28,7 @@ def test_vps_installer_collects_operator_settings():
 
 
 def test_wallet_gifts_and_days_promo_are_wired():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     models = (ROOT / "backend/app/models.py").read_text()
     migration = (ROOT / "backend/alembic/versions/0035_v2_3_0_wallet_gifts.py").read_text()
     assert 'APP_VERSION = "2.3.0"' in main
@@ -43,6 +44,6 @@ def test_wallet_gifts_and_days_promo_are_wired():
 
 
 def test_v230_release_markers_remain_as_history():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     assert 'APP_VERSION = "2.4.0"' in main
     assert 'Historical compatibility marker: APP_VERSION = "2.3.0"' in main

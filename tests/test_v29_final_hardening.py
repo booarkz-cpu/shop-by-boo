@@ -1,6 +1,7 @@
+from main_source import main_source
 from pathlib import Path
 ROOT=Path(__file__).parents[1]
-MAIN=(ROOT/"backend/app/main.py").read_text()
+MAIN=main_source()
 PAY=(ROOT/"backend/app/payments.py").read_text()
 CFG=(ROOT/"backend/app/config.py").read_text()
 

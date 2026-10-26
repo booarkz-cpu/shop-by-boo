@@ -1,3 +1,4 @@
+from main_source import main_source
 import importlib.util
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -76,7 +77,7 @@ def test_cgnat_buffer_and_hosting_skip():
 
 
 def test_platform_routes_keep_secrets_and_bounds():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     platform = (ROOT / "backend/app/platform_api.py").read_text()
     models = (ROOT / "backend/app/models.py").read_text()
     migration = (ROOT / "backend/alembic/versions/0038_v2_6_0_platform.py").read_text()

@@ -1,3 +1,4 @@
+from main_source import main_source
 from pathlib import Path
 
 from backend.app.mobile_catalog import card_from_input, parse_catalog, public_cards, safe_media_path
@@ -28,7 +29,7 @@ def test_app_catalog_hides_admin_cards_and_rejects_unsafe_values():
 def test_admin_and_cabinet_expose_app_catalog():
     admin = (ROOT / "admin/src/main.tsx").read_text()
     cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     user_android = (ROOT / "mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
     admin_android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
     assert 'APP_VERSION = "2.8.0"' in main

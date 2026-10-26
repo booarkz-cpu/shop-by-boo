@@ -1,10 +1,11 @@
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_v240_cabinet_auth_menu_and_sandbox_are_wired():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     cabinet_api = (ROOT / "backend/app/cabinet_api.py").read_text()
     models = (ROOT / "backend/app/models.py").read_text()
     payments = (ROOT / "backend/app/payments.py").read_text()

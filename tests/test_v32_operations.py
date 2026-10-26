@@ -1,5 +1,6 @@
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
+from main_source import main_source
 
 def read(p): return p.read_text()
 
@@ -14,7 +15,7 @@ def test_current_manifest_and_migration():
     assert 'revision="0017_v39_staging_isolation"' in mig
 
 def test_current_ops_endpoints_and_rbac():
-    main=read(ROOT/'backend/app/main.py'); sec=read(ROOT/'backend/app/security.py')
+    main=main_source(); sec=read(ROOT/'backend/app/security.py')
     for x in ['/api/admin/monitoring','/api/admin/jobs','/api/admin/fraud','/api/admin/payouts','/api/me/privacy/export','/api/me/privacy/account','/api/me/traffic','/api/admin/refunds/{refund_id}/reconcile']:
         assert x in main
     for x in ['referrals.withdrawals.read','referrals.withdrawals.approve','referrals.withdrawals.pay','referrals.reconcile']:

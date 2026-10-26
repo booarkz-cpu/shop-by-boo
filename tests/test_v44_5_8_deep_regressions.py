@@ -1,8 +1,9 @@
+from main_source import main_source
 import ast
 from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
-MAIN = (ROOT / "backend/app/main.py").read_text()
+MAIN = main_source()
 MODELS = (ROOT / "backend/app/models.py").read_text()
 WORKER = (ROOT / "backend/worker.py").read_text()
 RW = (ROOT / "backend/app/remnawave.py").read_text()

@@ -1,11 +1,12 @@
 """20.0.6: a staging help line must not open the production payment gate."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_live_version_is_20_0_6():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     installer = (ROOT / "deploy/install-vps.sh").read_text()
     builder = (ROOT / "scripts/build-release.sh").read_text()
     assert main.index('APP_VERSION = "20.0.7"') < main.index('APP_VERSION = "20.0.6"')
@@ -26,7 +27,7 @@ def test_live_version_is_20_0_6():
 
 
 def test_full_pass_requires_its_own_line_and_localhost_checks():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     # The v1 sandbox runner never claims a full pass.
     assert "full_pass = False" in main
     assert 'client_host not in {"127.0.0.1","::1"}' in main

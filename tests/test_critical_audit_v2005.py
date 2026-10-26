@@ -1,11 +1,12 @@
 """20.0.5: a lost YooKassa response must not open a second charge."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_live_version_is_20_0_5():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     installer = (ROOT / "deploy/install-vps.sh").read_text()
     builder = (ROOT / "scripts/build-release.sh").read_text()
     assert main.index('APP_VERSION = "20.0.5"') < main.index('APP_VERSION = "20.0.4"')
@@ -18,7 +19,7 @@ def test_live_version_is_20_0_5():
 
 
 def test_reconciliation_looks_up_yookassa_instead_of_creating():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     payments = (ROOT / "backend/app/payments.py").read_text()
     assert main.count("find_by_order_id(p.order_id, p.created_at)") == 2
     assert 'provider.create(Decimal(str(p.amount)),p.order_id' not in main

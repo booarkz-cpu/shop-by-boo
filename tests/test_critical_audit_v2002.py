@@ -1,4 +1,5 @@
 """20.0.2 audit: store receipts and card webhooks cannot grant a free plan."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,7 +14,7 @@ def test_apple_receipt_is_not_accepted_from_the_client_alone():
     assert "return payload" not in verify
     assert "return data" not in verify
     assert "Apple transaction is revoked" in verify
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     mobile = main[main.index("async def verify_mobile_purchase"): main.index("async def admin_chargebacks")]
     assert "uuid.uuid4()" not in mobile
     assert "store_product_plan_id" in mobile
@@ -22,7 +23,7 @@ def test_apple_receipt_is_not_accepted_from_the_client_alone():
 
 
 def test_stripe_and_paypal_webhooks_require_the_paid_amount():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     stripe = main[main.index("async def stripe_webhook"): main.index("async def paypal_webhook")]
     paypal = main[main.index("async def paypal_webhook"): main.index("class MobilePurchaseIn")]
     assert "confirmed_amount" in stripe
@@ -34,7 +35,7 @@ def test_stripe_and_paypal_webhooks_require_the_paid_amount():
 
 
 def test_gift_card_cannot_credit_a_foreign_currency():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     redeem = main[main.index("async def redeem_gift_card"): main.index("async def list_gift_cards")]
     assert "Gift card currency does not match the shop currency" in redeem
     assert "with_for_update" in redeem

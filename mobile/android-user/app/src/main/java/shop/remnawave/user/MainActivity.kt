@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.ImageBitmap
@@ -206,6 +207,7 @@ class ShopApi(private val base: String, private val token: String, private val l
     fun get(path: String): Any = call("GET", path, null, null, emptyMap())
     fun post(path: String, body: JSONObject, idempotency: String? = null, headers: Map<String, String> = emptyMap()): Any =
         call("POST", path, body, idempotency, headers)
+    fun delete(path: String): Any = call("DELETE", path, null, null, emptyMap())
 
     private fun call(method: String, path: String, body: JSONObject?, idempotency: String?, headers: Map<String, String>): Any {
         // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
@@ -299,6 +301,9 @@ private fun UserApp(initialTab: String = "overview") {
     var widgetEnabled by remember { mutableStateOf(CorgiWidgetData.enabled(context)) }
     var passkeys by remember { mutableStateOf(JSONArray()) }
     var passkeyPassword by remember { mutableStateOf("") }
+    var family by remember { mutableStateOf(JSONObject()) }
+    var familyCode by remember { mutableStateOf("") }
+    var serviceStatus by remember { mutableStateOf(JSONObject()) }
     DisposableEffect(activity) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) unlocked = false
@@ -389,6 +394,9 @@ private fun UserApp(initialTab: String = "overview") {
             val nextPrivacy = api.get("/api/me/mobile/privacy") as JSONObject
             val nextConnectionLive = api.get("/api/me/mobile/connection") as JSONObject
             val nextQr = loadAuthedPng(base, "/api/me/connection-qr", token, lang)
+            // Shops on releases before v28.25.0 have no family or status page: keep the rest working.
+            val nextFamily = try { api.get("/api/me/family") as JSONObject } catch (_: Exception) { JSONObject() }
+            val nextStatus = try { api.get("/api/public/service-status") as JSONObject } catch (_: Exception) { JSONObject() }
             val nextLogo = try {
                 val catalog = api.get("/api/public/apps") as JSONObject
                 loadLogoBitmap(base, catalog.optString("logo_url"))?.asImageBitmap()
@@ -410,6 +418,8 @@ private fun UserApp(initialTab: String = "overview") {
                 privacy = nextPrivacy
                 mobileConnection = nextConnectionLive
                 qr = nextQr
+                family = nextFamily
+                serviceStatus = nextStatus
                 logo = nextLogo
             }
         }
@@ -497,7 +507,7 @@ private fun UserApp(initialTab: String = "overview") {
                 TextButton(onClick = { signOut() }) { Text(t("sign_out")) }
             } else {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf("overview", "plans", "builder", "servers", "connection", "devices", "notifications", "security", "diagnostics", "privacy", "support").forEach { key ->
+                    listOf("overview", "plans", "builder", "servers", "connection", "family", "devices", "notifications", "status", "security", "diagnostics", "privacy", "support").forEach { key ->
                         FilterChip(selected = tab == key, onClick = { tab = key }, label = { Text(t(key)) })
                     }
                 }
@@ -787,6 +797,88 @@ private fun UserApp(initialTab: String = "overview") {
                                     }
                                 }) { Text(t("revoke")) }
                             }
+                        }
+                    }
+                    "family" -> {
+                        val owned = family.optJSONArray("owned") ?: JSONArray()
+                        val memberOf = family.optJSONArray("member_of") ?: JSONArray()
+                        if (owned.length() == 0 && memberOf.length() == 0) Text(t("family_none"))
+                        for (index in 0 until owned.length()) {
+                            val group = owned.getJSONObject(index)
+                            Text("${t("family_owned")}: ${group.optString("name")}", style = MaterialTheme.typography.titleMedium)
+                            Text("${t("family_seats")}: ${group.optInt("used")} / ${group.optInt("seats")}")
+                            val invite = group.optJSONObject("invite")
+                            if (invite != null) {
+                                Text("${t("family_code")}: ${invite.optString("code")}")
+                                val link = invite.optString("bot")
+                                if (link.isNotBlank()) TextButton(onClick = {
+                                    context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, link), t("family_invite")))
+                                }) { Text(link) }
+                            } else Button(enabled = !busy, onClick = {
+                                val subId = group.optInt("subscription_id")
+                                work {
+                                    ShopApi(base, token, lang).post("/api/me/family/$subId/invite", JSONObject())
+                                    activity.runOnUiThread { refresh() }
+                                }
+                            }) { Text(t("family_invite")) }
+                            val members = group.optJSONArray("members") ?: JSONArray()
+                            for (m in 0 until members.length()) {
+                                val member = members.getJSONObject(m)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("${member.optString("name")} · ${if (member.optBoolean("synced")) t("family_synced") else t("family_pending")}")
+                                    TextButton(enabled = !busy, onClick = {
+                                        val memberId = member.optInt("id")
+                                        work {
+                                            ShopApi(base, token, lang).delete("/api/me/family/members/$memberId")
+                                            activity.runOnUiThread { refresh() }
+                                        }
+                                    }) { Text(t("family_remove")) }
+                                }
+                            }
+                        }
+                        for (index in 0 until memberOf.length()) {
+                            val row = memberOf.getJSONObject(index)
+                            Text("${t("family_member_of")} · ${t("family_owner")}: ${row.optString("owner")} · ${t("expires")} ${row.optString("expires_at")}")
+                            TextButton(enabled = !busy, onClick = {
+                                val memberId = row.optInt("id")
+                                work {
+                                    ShopApi(base, token, lang).delete("/api/me/family/members/$memberId")
+                                    activity.runOnUiThread { refresh() }
+                                }
+                            }) { Text(t("family_leave")) }
+                        }
+                        OutlinedTextField(familyCode, { familyCode = it }, label = { Text(t("family_code")) }, modifier = Modifier.fillMaxWidth())
+                        Button(enabled = !busy && familyCode.isNotBlank(), onClick = {
+                            val code = familyCode.trim()
+                            work {
+                                ShopApi(base, token, lang).post("/api/me/family/join", JSONObject().put("code", code))
+                                activity.runOnUiThread { notice = t("family_joined"); familyCode = ""; refresh() }
+                            }
+                        }) { Text(t("family_join")) }
+                        Text(t("stars_hint"), color = Color(0xFFA4AFD0))
+                    }
+                    "status" -> {
+                        val level = serviceStatus.optString("status", "unknown")
+                        Text(t("status_" + (if (level in setOf("ok", "degraded", "down")) level else "unknown")), style = MaterialTheme.typography.titleMedium,
+                            color = when (level) { "ok" -> Color(0xFF2BD47D); "degraded" -> Color(0xFFFFB020); "down" -> Color(0xFFFF5A6E); else -> Color(0xFFA4AFD0) })
+                        val srv = serviceStatus.optJSONObject("servers") ?: JSONObject()
+                        Text("${t("status_servers")}: ${srv.optInt("online")} / ${srv.optInt("total")}")
+                        val countries = serviceStatus.optJSONArray("countries") ?: JSONArray()
+                        for (index in 0 until countries.length()) {
+                            val c = countries.getJSONObject(index)
+                            Text("${c.optString("country")} · ${c.optInt("online")} / ${c.optInt("total")}")
+                        }
+                        val components = serviceStatus.optJSONArray("components") ?: JSONArray()
+                        for (index in 0 until components.length()) {
+                            val c = components.getJSONObject(index)
+                            Text("${c.optString("name")} · ${c.optString("status")}${if (c.optString("message").isNotBlank()) " · " + c.optString("message") else ""}")
+                        }
+                        Text(t("status_incidents"), style = MaterialTheme.typography.titleSmall)
+                        val incidents = serviceStatus.optJSONArray("incidents") ?: JSONArray()
+                        if (incidents.length() == 0) Text(t("status_none"))
+                        for (index in 0 until incidents.length()) {
+                            val i = incidents.getJSONObject(index)
+                            Text("${i.optString("title")} · ${i.optString("since")}", color = Color(0xFFFFB020))
                         }
                     }
                     "support" -> {

@@ -1,5 +1,6 @@
 import ast, pathlib, re, yaml
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+from main_source import main_source
 
 def read(p): return p.read_text(encoding="utf-8")
 
@@ -7,7 +8,7 @@ def test_all_python_parse():
     for p in (ROOT/"backend").rglob("*.py"): ast.parse(read(p))
 
 def test_v21_contracts():
-    main=read(ROOT/"backend/app/main.py"); sec=read(ROOT/"backend/app/security.py"); models=read(ROOT/"backend/app/models.py"); rem=read(ROOT/"backend/app/remnawave.py")
+    main=main_source(); sec=read(ROOT/"backend/app/security.py"); models=read(ROOT/"backend/app/models.py"); rem=read(ROOT/"backend/app/remnawave.py")
     for x in [
         'APP_VERSION = "43.1.0-production"','/metrics','/api/admin/payments/reconcile','/api/admin/sessions/revoke-all',
         '/api/me/connection-qr','/api/me/auto-renew','auto_renew_scheduler','reconciliation_scheduler','_safe_extract_members',
@@ -33,7 +34,7 @@ def test_miniapp_contracts():
     from frontend_sources import miniapp_sources; s=miniapp_sources(); assert '/api/me/connection-qr' in s; assert 'Автопродление' in s; assert 'Реферальная программа' in s
 
 def test_no_unsafe_restore_extract():
-    s=read(ROOT/"backend/app/main.py"); assert 'tar.extract(member,path=work)' not in s; assert '_safe_extract_members' in s
+    s=main_source(); assert 'tar.extract(member,path=work)' not in s; assert '_safe_extract_members' in s
 
 def test_migration_chain():
     versions=[]

@@ -1,4 +1,5 @@
 """20.0.3 audit: unpaid and zero-amount checkouts cannot grant a plan."""
+from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -10,14 +11,14 @@ def _slice(text: str, start: str, end: str) -> str:
 
 
 def test_zero_amount_checkout_is_refused_before_the_gateway():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     create = _slice(main, "async def create_payment", "async def _renew_redis_lock")
     assert 'if final_amount<=0: raise HTTPException(400,"Amount must be positive")' in create
     assert create.index("Amount must be positive") < create.index("candidate_provider.create")
 
 
 def test_stripe_paypal_and_crypto_are_confirmed_with_the_provider():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     platform = (ROOT / "backend/app/payment_platform.py").read_text()
     stripe = _slice(main, "async def stripe_webhook", "async def paypal_webhook")
     paypal = _slice(main, "async def paypal_webhook", "class MobilePurchaseIn")
@@ -33,13 +34,13 @@ def test_stripe_paypal_and_crypto_are_confirmed_with_the_provider():
 
 
 def test_admin_retry_refuses_an_unpaid_payment():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     retry = _slice(main, "async def retry_payment", "# ---------- V32 Operations")
     assert 'raise HTTPException(409,"Payment is not confirmed")' in retry
 
 
 def test_buyer_cannot_exempt_their_own_invoice():
-    main = (ROOT / "backend/app/main.py").read_text()
+    main = main_source()
     tax = _slice(main, "async def set_tax_profile", "async def payment_invoice")
     assert "row.tax_exempt=False" in tax
     assert "row.reverse_charge=False" in tax

@@ -5,8 +5,9 @@ import ipaddress
 import socket
 
 ROOT = Path(__file__).resolve().parents[1]
+from main_source import main_source
 MAIN_PATH = ROOT / 'backend/app/main.py'
-MAIN = MAIN_PATH.read_text()
+MAIN = main_source()
 
 
 def _security_helpers_namespace():
