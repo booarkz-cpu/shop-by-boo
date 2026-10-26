@@ -4,7 +4,9 @@ privacy policy and public offer.
 One text per document and language (Russian is required, English and Ukrainian fall back to
 it). Only administrators change them (permission ``legal.write``); every save is written to
 the audit log with a new version number. The same text is shown in the Mini App, the
-personal cabinet and the bot (/faq, /rules, /privacy, /offer, /info and menu buttons).
+personal cabinet, the bot (/faq, /rules, /privacy, /offer, /info and menu buttons) and the Android
+and iOS apps (section «Информация» and buttons «Открыть документ»). Each document has its banner
+(key = kind in «Баннеры бота»), edited right in the document editor.
 
 Text format, kept deliberately small so it renders the same everywhere:
   ``## Heading`` — a heading line;  ``- item`` — a list item;  ``**bold**``;
@@ -97,6 +99,20 @@ def localized(kind: str, stored: dict | None, lang: str) -> dict | None:
             "items": t.get("items", []), "version": stored.get("version", 1), "updated_at": stored.get("updated_at")}
 
 
+async def banners(db: AsyncSession) -> dict[str, dict]:
+    """Banner of each document (key = kind in «Баннеры бота»): the same picture in the bot, the Mini
+    App, the cabinet and the apps. ``url`` is empty when the banner is hidden."""
+    from .bot_banners import OFF_PREFIX, PREFIX as BANNER_PREFIX, _public_url, default_path, load_state, resolve
+    state = await load_state(db)
+    out = {}
+    for kind in KINDS:
+        source, _, url = resolve(kind, state)
+        out[kind] = {"url": _public_url(kind, source, url) if source in {"custom", "default"} else "", "source": source,
+                     "hidden": state.get(OFF_PREFIX + kind) == "1", "custom": bool(state.get(BANNER_PREFIX + kind)),
+                     "default_url": f"/api/bot/banners/default/{kind}.jpg" if default_path(kind) else ""}
+    return out
+
+
 async def published(db: AsyncSession, lang: str) -> list[dict]:
     """Filled documents in the shop's order: FAQ, rules, privacy, offer."""
     stored = await load_all(db)
@@ -160,7 +176,8 @@ def _lang(request: Request, lang: str | None) -> str:
 
 @router.get("/api/public/info-pages")
 async def public_list(request: Request, lang: str | None = None, db: AsyncSession = Depends(get_db)):
-    return [{"kind": p["kind"], "title": p["title"], "updated_at": p["updated_at"], "version": p["version"]}
+    art = await banners(db)
+    return [{"kind": p["kind"], "title": p["title"], "updated_at": p["updated_at"], "version": p["version"], "banner": art[p["kind"]]["url"]}
             for p in await published(db, _lang(request, lang))]
 
 
@@ -169,15 +186,17 @@ async def public_page(kind: Kind, request: Request, lang: str | None = None, db:
     page = localized(kind, await load(db, kind), _lang(request, lang))
     if not page:
         raise HTTPException(404, "Документ не опубликован")
-    return page
+    return {**page, "banner": (await banners(db))[kind]["url"]}
 
 
 @router.get("/api/admin/info-pages")
 async def admin_list(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
     from .security import PERMISSIONS
     stored = await load_all(db)
-    return {"can_edit": "legal.write" in PERMISSIONS.get(admin.role, set()),
-            "pages": [{"kind": k, "default_title": TITLES["ru"][k], "command": COMMANDS[k],
+    art = await banners(db)
+    role = PERMISSIONS.get(admin.role, set())
+    return {"can_edit": "legal.write" in role, "can_edit_banners": "manage_content" in role,
+            "pages": [{"kind": k, "default_title": TITLES["ru"][k], "command": COMMANDS[k], "banner": art[k],
                        **(stored.get(k) or {"enabled": True, "ru": {}, "en": {}, "uk": {}, "version": 0})} for k in KINDS]}
 
 

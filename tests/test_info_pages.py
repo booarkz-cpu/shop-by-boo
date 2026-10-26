@@ -144,3 +144,27 @@ async def test_bot_shows_the_document_with_its_banner(database, monkeypatch):
     msg2 = Message()
     await bot.show_info(msg2, "offer", "ru")  # not published
     assert msg2.sent[0][1] == bot.INFO_EMPTY["ru"]
+
+
+@pytest.mark.asyncio
+async def test_document_banner_is_the_same_everywhere_and_follows_the_editor(database):
+    """v28.31.0: the banner of a document comes with the document to the cabinet, Mini App and apps."""
+    from app import bot_banners
+    from app.models import AppSetting
+    db = database
+    await info_pages.admin_save("privacy", page(body="Мы храним только email."), db, ADMIN)
+    assert (await info_pages.public_page("privacy", Req(), "ru", db))["banner"] == "/api/bot/banners/default/privacy.jpg"
+    listed = await info_pages.public_list(Req(), "ru", db)
+    assert listed[0]["banner"] == "/api/bot/banners/default/privacy.jpg"
+    # An upload in the document editor (the same endpoint as «Баннеры бота») replaces it everywhere.
+    db.add(AppSetting(key=bot_banners.PREFIX + "privacy", value="/media/bot-banner-privacy-1.jpg"))
+    await db.commit()
+    assert (await info_pages.public_page("privacy", Req(), "en", db))["banner"] == "/media/bot-banner-privacy-1.jpg"
+    admin = await info_pages.admin_list(db, ADMIN)
+    row = next(p for p in admin["pages"] if p["kind"] == "privacy")
+    assert row["banner"]["custom"] is True and row["banner"]["default_url"].endswith("/privacy.jpg")
+    assert admin["can_edit_banners"] is True
+    # Hidden banner: the document is shown without a picture.
+    db.add(AppSetting(key=bot_banners.OFF_PREFIX + "privacy", value="1"))
+    await db.commit()
+    assert (await info_pages.public_page("privacy", Req(), "ru", db))["banner"] == ""

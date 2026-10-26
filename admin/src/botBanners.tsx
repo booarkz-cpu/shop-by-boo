@@ -42,7 +42,10 @@ export function BotBanners({data, request, reload, toast, assetBase}: {data: any
       <label className="inline"><input type="checkbox" checked={!!data.enabled} disabled={!!busy} onChange={e => toggleAll(e.target.checked)}/>Показывать баннеры в боте</label>
     </div>
     <h3>Разделы и команды</h3>
-    <div className="banner-grid">{data.sections.map(card)}</div>
+    <div className="banner-grid">{data.sections.filter((b: any) => !String(b.key).startsWith("app-")).map(card)}</div>
+    <h3>Приложения Android и iOS</h3>
+    <p className="muted">Тёмные баннеры разделов приложений (лучше 1280×512). Какой баннер у какого раздела — выбирается в «Приложения: экраны и кнопки». Общий выключатель выше на приложения не действует: у них свой в макете.</p>
+    <div className="banner-grid">{data.sections.filter((b: any) => String(b.key).startsWith("app-")).map(card)}</div>
     <h3>Кнопки меню</h3>
     {data.menu.length === 0
       ? <p className="muted">Кнопок-папок и кнопок-полей пока нет. Их можно добавить в «Дереве кнопок»; папки без своего баннера показывают баннер «Меню».</p>

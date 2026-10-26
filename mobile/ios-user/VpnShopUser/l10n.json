@@ -142,7 +142,20 @@
     "status_servers": "Серверы онлайн",
     "status_incidents": "Текущие проблемы",
     "status_none": "Проблем нет",
-    "stars_hint": "Подписка за Telegram Stars оформляется и отменяется в Telegram."
+    "stars_hint": "Подписка за Telegram Stars оформляется и отменяется в Telegram.",
+    "vpn_imported": "Подписка добавлена в VPN-клиент — включите в нём подключение",
+    "vpn_opened": "Открываем VPN-клиент",
+    "vpn_install": "Установите VPN-клиент",
+    "vpn_install_hint": "Приложение подключается через бесплатный клиент. Установите один из них и нажмите «Подключить» ещё раз.",
+    "need_subscription": "Сначала оформите подписку или пробный период",
+    "report_subject": "Проблема с подключением",
+    "report_hint": "Опишите, что случилось. Мы приложим версию приложения и состояние VPN.",
+    "cancel": "Отмена",
+    "done": "Готово",
+    "code": "Код",
+    "link_missing": "Ссылка ещё не настроена магазином",
+    "welcome": "Вход в аккаунт",
+    "version": "Версия"
   },
   "en": {
     "app_name": "VPN shop",
@@ -287,7 +300,20 @@
     "status_servers": "Servers online",
     "status_incidents": "Current issues",
     "status_none": "No issues",
-    "stars_hint": "A Telegram Stars subscription is managed and cancelled in Telegram."
+    "stars_hint": "A Telegram Stars subscription is managed and cancelled in Telegram.",
+    "vpn_imported": "The subscription is in your VPN client — switch it on there",
+    "vpn_opened": "Opening the VPN client",
+    "vpn_install": "Install a VPN client",
+    "vpn_install_hint": "The app connects through a free client. Install one of them and tap «Connect» again.",
+    "need_subscription": "Get a subscription or a free trial first",
+    "report_subject": "Connection problem",
+    "report_hint": "Describe what happened. We attach the app version and the VPN state.",
+    "cancel": "Cancel",
+    "done": "Done",
+    "code": "Code",
+    "link_missing": "The shop has not set this link yet",
+    "welcome": "Sign in",
+    "version": "Version"
   },
   "uk": {
     "app_name": "Коргі Люсі",
@@ -432,6 +458,19 @@
     "status_servers": "Серверів онлайн",
     "status_incidents": "Поточні проблеми",
     "status_none": "Проблем немає",
-    "stars_hint": "Підписка за Telegram Stars оформлюється й скасовується в Telegram."
+    "stars_hint": "Підписка за Telegram Stars оформлюється й скасовується в Telegram.",
+    "vpn_imported": "Підписку додано у VPN-клієнт — увімкніть у ньому підключення",
+    "vpn_opened": "Відкриваємо VPN-клієнт",
+    "vpn_install": "Встановіть VPN-клієнт",
+    "vpn_install_hint": "Застосунок підключається через безкоштовний клієнт. Встановіть один із них і натисніть «Підключити» ще раз.",
+    "need_subscription": "Спершу оформіть підписку або пробний період",
+    "report_subject": "Проблема з підключенням",
+    "report_hint": "Опишіть, що сталося. Ми додамо версію застосунку і стан VPN.",
+    "cancel": "Скасувати",
+    "done": "Готово",
+    "code": "Код",
+    "link_missing": "Посилання ще не налаштоване магазином",
+    "welcome": "Вхід в акаунт",
+    "version": "Версія"
   }
 }

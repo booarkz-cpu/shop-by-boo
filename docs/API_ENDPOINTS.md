@@ -1,4 +1,4 @@
-# Каталог API — v28.30.0 / API v21.5.1
+# Каталог API — v28.31.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0076_growth`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -164,6 +164,9 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/miniapp/image` | Admin Miniapp Image Delete |
 | `POST` | `/api/admin/miniapp/image` | Admin Miniapp Image |
 | `PUT` | `/api/admin/miniapp/menu` | Save Mini Tree |
+| `DELETE` | `/api/admin/mobile-layout` | Admin Mobile Layout Reset |
+| `GET` | `/api/admin/mobile-layout` | Admin Mobile Layout |
+| `PUT` | `/api/admin/mobile-layout` | Admin Mobile Layout Save |
 | `GET` | `/api/admin/mobile/ops` | Admin Mobile Ops |
 | `GET` | `/api/admin/monitoring` | Admin Monitoring |
 | `GET` | `/api/admin/network/intel` | Admin Network Intel |
@@ -526,6 +529,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/wallet/stars-invoice` | Stars Invoice |
 | `POST` | `/api/me/wallet/topup` | Wallet Topup |
 | `GET` | `/api/me/widget` | Widget Summary |
+| `GET` | `/api/mobile/layout` | Mobile Layout |
 | `POST` | `/api/payments/create` | Create Payment |
 | `POST` | `/api/payments/mobile/verify` | Verify Mobile Purchase |
 | `GET` | `/api/payments/providers` | Payment Providers |

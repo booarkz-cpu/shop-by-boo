@@ -19,7 +19,7 @@ ok('ios packet tunnel provider', (ROOT/'mobile/ios-user/VpnShopUser/VPN/CorgiPac
 ok('browser extension', (ROOT/'browser-extension/manifest.json').exists())
 ok('desktop contracts', all((ROOT/'desktop'/x/'README.md').exists() for x in ('windows','macos','linux')))
 ok('terraform contract', (ROOT/'terraform/corgi/main.tf').exists())
-ok('privacy launch policy', (ROOT/'PRODUCTION_LAUNCH_V15.md').exists())
+ok('privacy launch policy', (ROOT/'docs/archive/root/PRODUCTION_LAUNCH_V15.md').exists())
 failed=[n for n,v in checks if not v]
 print(f'v15 quality: {len(checks)-len(failed)}/{len(checks)} passed')
 if failed:

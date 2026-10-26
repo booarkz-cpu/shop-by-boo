@@ -126,9 +126,18 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          # Cached downloads: the job installs the same backend requirements on every run.
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-test.txt
       - uses: actions/setup-node@v7
         with:
           node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            admin/package-lock.json
+            cabinet/package-lock.json
       - name: Install runtime and browser
         run: |
           python -m pip install -r backend/requirements.txt -r backend/requirements-test.txt
@@ -142,7 +151,15 @@ jobs:
           npm run typecheck
           npm run build
           NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
-          npm run test:e2e
+          status=0
+          npx playwright test --reporter=line > "$RUNNER_TEMP/e2e.log" 2>&1 || status=$?
+          tail -n 200 "$RUNNER_TEMP/e2e.log"
+          if [ "$status" -ne 0 ]; then
+            # The failing specs and their first error lines, readable from the check annotations.
+            grep -E '^\s+[0-9]+\) |Error:|Expected|Received|Timeout|locator' "$RUNNER_TEMP/e2e.log" | head -n 40 > "$RUNNER_TEMP/e2e-summary.txt" || true
+            echo "::error title=e2e failure summary::$(sed ':a;N;$!ba;s/\n/%0A/g' "$RUNNER_TEMP/e2e-summary.txt")"
+            exit "$status"
+          fi
 
   support:
     name: Support Pro • runtime tests
@@ -190,6 +207,11 @@ jobs:
           for file in backend/requirements.txt support-pro/requirements.txt support-pro/requirements-dev.txt; do
             pip-audit -r "$file"
           done
+      - name: Python static security analysis
+        # High-severity, high-confidence findings only (bandit -lll -iii); anything it reports blocks the merge.
+        run: |
+          python -m pip install bandit
+          bandit -q -r backend/app support-pro/app -lll -iii
       - name: JavaScript dependencies
         run: |
           for dir in admin miniapp cabinet; do

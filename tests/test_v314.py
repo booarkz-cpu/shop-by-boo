@@ -55,7 +55,7 @@ def test_prompt_trims_prices_and_maps_moscow():
 def test_docs_describe_314_and_keep_313():
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
-    notes = (ROOT / "RELEASE_NOTES_V3_1_4.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_4.md").read_text()
     steps = (ROOT / "docs/archive/INSTALL_STEPS_BEFORE_ALPHA_6.md").read_text()
     assert "3.1.4" in readme and "3.1.3" in readme
     assert instruction.count("## 9.18.") == 2

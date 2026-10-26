@@ -16,6 +16,7 @@ docs/img/bot-banners-all.jpg (all banners on one sheet).
     python3 scripts/bot-banners/render.py --extras     # banners + README cover and sheet
     python3 scripts/bot-banners/render.py --stickers   # only dump the cut stickers to /tmp
     python3 scripts/bot-banners/render.py --assets     # only the interface stickers (cabinet/public/assets/stickers)
+    python3 scripts/bot-banners/render.py --app        # dark banners of the Android/iOS app sections (app-*.jpg)
 
 Needs Pillow, NumPy and Python Playwright with Chromium.
 """
@@ -93,6 +94,28 @@ SECTIONS = {
     "rules": ("Правила", "Как пользоваться сервисом", "rules", "#ffd45c"),
     "privacy": ("Конфиденциальность", "Как мы храним ваши данные", "security", "#7dd8a3"),
     "offer": ("Публичная оферта", "Условия покупки подписки", "delivery", "#c9a2ff"),
+}
+
+
+# Banners of the Android and iOS apps (mobile_layout): dark, wide (1280x512), orange brand glow.
+# key → (title, caption, sticker, accent colour)
+APP_W, APP_H = 1280, 512
+APP_SECTIONS = {
+    "app-vpn": ("Защита в одно касание", "Подключение без лишних шагов", "security", "#ff8a1f"),
+    "app-locations": ("Локации", "Выберите страну или доверьтесь автовыбору", "location", "#7cb7ff"),
+    "app-premium": ("Премиум", "Безлимит, все локации и поддержка без очереди", "vip", "#ffc069"),
+    "app-subscription": ("Подписка", "Срок, трафик и устройства — всё на виду", "renewal", "#7dd8a3"),
+    "app-support": ("Поддержка", "Ответим быстро и по-дружески", "support", "#6cc8ff"),
+    "app-settings": ("Настройки", "Язык, уведомления и вход", "settings", "#ffb84d"),
+    "app-devices": ("Устройства", "Подключите телефон, ноутбук или ТВ", "access", "#5fd3e6"),
+    "app-family": ("Семья", "Одна подписка на всех близких", "api", "#ff9db0"),
+    "app-referral": ("Пригласи друга", "Бонус за каждого друга с подпиской", "delivery", "#ff9db0"),
+    "app-wallet": ("Баланс", "СБП, карта и Telegram Stars", "payment", "#6fd6a8"),
+    "app-gifts": ("Подарки", "Подарите подписку или активируйте код", "gift", "#ff8a8a"),
+    "app-notifications": ("Уведомления", "Важное о подписке и сервисе", "telegram", "#7cb7ff"),
+    "app-status": ("Состояние сервиса", "Что работает прямо сейчас", "balancing", "#7dd8a3"),
+    "app-security": ("Вход и безопасность", "Ключи входа и защита аккаунта", "login", "#b49cff"),
+    "app-info": ("Информация", "Ответы, правила и документы", "search", "#c9a2ff"),
 }
 
 
@@ -284,6 +307,42 @@ def banner_html(key: str) -> str:
 </body></html>"""
 
 
+def app_banner_html(key: str) -> str:
+    title, caption, name, accent = APP_SECTIONS[key]
+    art = sticker(name)
+    scale = min(470 / art.width, 450 / art.height)
+    aw, ah = round(art.width * scale), round(art.height * scale)
+    seed = sum(map(ord, key))
+    tilt = (-4, -2, 2, 4)[seed % 4]
+    size = 96 if len(title) <= 10 else 80 if len(title) <= 15 else 68
+    rnd = np.random.default_rng(seed)
+    paws = "".join(f'<div class="paw" style="left:{rnd.integers(0, 1240)}px;top:{rnd.integers(0, 480)}px;--s:{rnd.integers(24, 44)}px;'
+                   f'--r:{rnd.integers(-40, 40)}deg">{PAW}</div>' for _ in range(8))
+    sparks = "".join(f'<div class="spark" style="left:{x}px;top:{y}px;--s:{s}px;--c:{c}">{SPARK}</div>' for x, y, s, c in
+                     ((rnd.integers(560, 700), rnd.integers(40, 120), 30, accent), (rnd.integers(1160, 1230), rnd.integers(30, 110), 26, "#ffc83d"),
+                      (rnd.integers(1100, 1220), rnd.integers(380, 450), 22, accent)))
+    return f"""<!doctype html><html><head><meta charset="utf-8"><style>{font_face()}
+*{{box-sizing:border-box;margin:0}}
+body{{width:{APP_W}px;height:{APP_H}px;overflow:hidden;font-family:Lusi,'Roboto Condensed',sans-serif;color:#f5f2ee;
+ background:radial-gradient(circle at 80% 55%,{accent}55 0,transparent 42%),radial-gradient(circle at 8% 0%,#ff8a1f33 0,transparent 40%),
+ linear-gradient(135deg,#17181f 0%,#0e0f14 100%)}}
+.paw{{position:absolute;width:var(--s);height:var(--s);color:#ffffff;opacity:.05;transform:rotate(var(--r))}}
+.spark{{position:absolute;width:var(--s);height:var(--s);color:var(--c)}}
+.brand{{position:absolute;left:60px;top:48px;display:flex;align-items:center;gap:12px;font-size:28px;letter-spacing:.02em;color:#ffc069}}
+.brand i{{display:block;width:32px;height:32px;color:#ff8a1f}}
+.bar{{position:absolute;left:60px;top:104px;width:110px;height:9px;border-radius:5px;background:{accent}}}
+.title{{position:absolute;left:60px;top:50%;transform:translateY(-50%);width:640px;font-size:{size}px;line-height:.98;font-weight:800;text-transform:uppercase}}
+.caption{{position:absolute;left:60px;bottom:52px;max-width:640px;font-size:28px;line-height:1.2;padding:12px 22px;border-radius:999px;
+ background:#ffffff14;color:#f5f2ee;border:2px solid {accent}aa}}
+.sticker{{position:absolute;display:block;filter:drop-shadow(0 18px 26px rgba(0,0,0,.55)) drop-shadow(0 0 30px {accent}44)}}
+</style></head><body>{paws}{sparks}
+<div class="brand"><i>{PAW}</i>Корги Люси</div><div class="bar"></div>
+<div class="title" id="title">{title}</div>
+<div class="caption">{caption}</div>
+<img class="sticker" src="{data_uri(art)}" width="{aw}" height="{ah}" style="left:{985 - aw // 2}px;top:{(APP_H - ah) // 2}px;transform:rotate({tilt}deg)">
+</body></html>"""
+
+
 def hero_html() -> str:
     names = ("miniapp", "support", "vip", "location")
     cards = []
@@ -325,6 +384,29 @@ def main(argv):
         for name in CATALOG:
             sticker(name).save(out / f"{name}.png")
         print("stickers in", out)
+        return
+    if "--app" in flags:
+        # Banners of the mobile apps; with key arguments only the named ones.
+        keys = [a for a in argv if not a.startswith("--")] or list(APP_SECTIONS)
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page(viewport={"width": APP_W, "height": APP_H})
+            for key in keys:
+                page.set_content(app_banner_html(key))
+                page.wait_for_function("document.fonts.ready.then(() => [...document.images].every(i => i.complete))")
+                page.evaluate("""() => { const t = document.getElementById('title'); let s = parseFloat(getComputedStyle(t).fontSize);
+                  while ((t.scrollWidth > t.clientWidth || t.getBoundingClientRect().height > 2.05 * s) && s > 44) { s -= 4; t.style.fontSize = s + 'px'; } }""")
+                target = OUT / f"{key}.jpg"
+                Image.open(io.BytesIO(page.screenshot(type="png"))).convert("RGB").save(target, "JPEG", quality=86, optimize=True, progressive=True)
+                print("saved", target.relative_to(ROOT))
+            browser.close()
+        tiles = [Image.open(OUT / f"{k}.jpg").resize((640, 256), Image.LANCZOS) for k in APP_SECTIONS]
+        cols = 3
+        sheet = Image.new("RGB", (cols * 640 + (cols + 1) * 16, ((len(tiles) + cols - 1) // cols) * 272 + 16), "#0e0f14")
+        for i, t in enumerate(tiles):
+            sheet.paste(t, (16 + (i % cols) * 656, 16 + (i // cols) * 272))
+        sheet.save(DOCS / "app-banners-all.jpg", "JPEG", quality=84, optimize=True)
+        print("saved docs/img/app-banners-all.jpg")
         return
     keys = [a for a in argv if not a.startswith("--")] or list(SECTIONS)
     OUT.mkdir(parents=True, exist_ok=True)

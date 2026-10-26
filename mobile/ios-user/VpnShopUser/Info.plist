@@ -15,6 +15,9 @@
     </dict>
     <key>CFBundleURLTypes</key>
     <array><dict><key>CFBundleURLSchemes</key><array><string>corgi</string></array></dict></array>
+    <!-- VPN clients the «Подключить» button hands the subscription to (canOpenURL). -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array><string>happ</string><string>v2raytun</string><string>streisand</string><string>hiddify</string></array>
     <key>NSUserActivityTypes</key><array><string>shop.corgi.connect</string><string>shop.corgi.support</string></array>
 </dict>
 </plist>

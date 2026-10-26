@@ -120,7 +120,7 @@ def test_license_and_bilingual_platform_docs():
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
     security = (ROOT / "docs/archive/SECURITY_BEFORE_ALPHA_6.md").read_text()
     modules = (ROOT / "docs/archive/MODULES_BEFORE_ALPHA_6.md").read_text()
-    notes = (ROOT / "RELEASE_NOTES_V2_6_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_6_0.md").read_text()
     index = (ROOT / "docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md").read_text()
     admin = (ROOT / "admin/src/main.tsx").read_text()
     i18n = (ROOT / "admin/src/i18n.tsx").read_text()

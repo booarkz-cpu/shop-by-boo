@@ -8,7 +8,7 @@ def test_v290_apk_script_notes_and_clients():
     script = (ROOT / "scripts/build-android-apk.sh").read_text()
     assert "android-user" in script and "android-admin" in script
     assert "2_9_0" in script
-    notes = (ROOT / "RELEASE_NOTES_V2_9_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_9_0.md").read_text()
     assert "2.9.0" in notes and "APK" in notes
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
     assert "9.8" in instruction and "9.7" in instruction and "9.6" in instruction
@@ -24,6 +24,6 @@ def test_v290_apk_script_notes_and_clients():
     assert "localHttpHosts" in (ROOT / "mobile/ios-user/VpnShopUser/ContentView.swift").read_text()
     for role in ("user", "admin"):
         gradle = (ROOT / f"mobile/android-{role}/app/build.gradle.kts").read_text()
-        assert re.search(r'^\s*versionName = "2\.16\.0"$', gradle, re.M)
-        assert re.search(r'^\s*versionCode = 2160$', gradle, re.M)
+        assert re.search(r'^\s*versionName = "3\.0\.0"$', gradle, re.M)
+        assert re.search(r'^\s*versionCode = 3000$', gradle, re.M)
     assert "scripts/package-source.py" in (ROOT / "scripts/build-release.sh").read_text()

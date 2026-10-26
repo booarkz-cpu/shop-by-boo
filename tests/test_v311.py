@@ -64,7 +64,7 @@ def test_docs_explain_gate_and_install_in_both_languages():
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     security = (ROOT / "docs/archive/SECURITY_BEFORE_ALPHA_6.md").read_text()
-    notes = (ROOT / "RELEASE_NOTES_V3_1_1.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_1.md").read_text()
     docs = (ROOT / "docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md").read_text()
     assert "## Русский" in steps and "## English" in steps
     assert "sudo bash install.sh" in steps

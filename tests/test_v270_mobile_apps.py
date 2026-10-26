@@ -74,7 +74,7 @@ def test_localization_covers_mobile_and_web_patterns():
     assert 'aria-label' in cabinet and 'aria-label' in mini and 'aria-label' in admin
     assert "Онлайн" in cabinet and "Online ${online[1]} of ${online[2]}" in cabinet
     assert "Online ${online[1]} of ${online[2]}" in mini
-    notes = (ROOT / "RELEASE_NOTES_V2_7_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_7_0.md").read_text()
     mobile = (ROOT / "docs/archive/MOBILE_BEFORE_ALPHA_6.md").read_text()
     assert "2.7.0" in notes and "Android" in notes and "iOS" in notes
     assert "Русский" in mobile and "English" in mobile

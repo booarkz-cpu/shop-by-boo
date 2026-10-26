@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_release_identity_and_docs():
     main = main_source()
-    notes = (ROOT / "RELEASE_NOTES_V3_0_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_0_0.md").read_text()
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     checklist = (ROOT / "docs/archive/instructions_before_21_0_1/PRODUCTION_CHECKLIST.md").read_text()
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()

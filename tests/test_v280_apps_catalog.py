@@ -42,6 +42,6 @@ def test_admin_and_cabinet_expose_app_catalog():
     assert "/api/admin/apps" in admin_android and "safeMediaPath" in admin_android
     assert "safeMediaPath" in (ROOT / "mobile/ios-user/VpnShopUser/VpnShopUserApp.swift").read_text()
     assert "/api/admin/apps" in (ROOT / "mobile/ios-admin/VpnShopAdmin/ContentView.swift").read_text()
-    notes = (ROOT / "RELEASE_NOTES_V2_8_0.md").read_text()
+    notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_8_0.md").read_text()
     assert "2.8.0" in notes and "логотип" in notes.lower()
     assert "9.7" in (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()

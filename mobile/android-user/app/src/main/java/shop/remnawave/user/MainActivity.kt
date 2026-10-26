@@ -11,6 +11,15 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -59,6 +68,8 @@ import kotlin.concurrent.thread
 import shop.remnawave.user.passkey.CorgiPasskeys
 import shop.remnawave.user.push.CorgiPush
 import shop.remnawave.user.widget.CorgiWidgetData
+import shop.remnawave.user.ui.*
+import shop.remnawave.user.vpn.VpnClients
 
 
 
@@ -224,7 +235,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/2.16.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.0.0")
             // Historical compatibility marker: CorgiLusi-Android-User/2.9.0
             setRequestProperty("X-Shop-Client", "android-user")
 
@@ -277,49 +288,47 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     var token by remember { mutableStateOf(if (demo) "demo" else tokenStore.read()) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var tab by remember { mutableStateOf(initialTab) }
-    var notice by remember { mutableStateOf("") }
-    var busy by remember { mutableStateOf(false) }
-    var dashboard by remember { mutableStateOf(JSONObject()) }
-    var profiles by remember { mutableStateOf(JSONArray()) }
-    var plans by remember { mutableStateOf(JSONArray()) }
-    var builders by remember { mutableStateOf(JSONArray()) }
-    var servers by remember { mutableStateOf(JSONObject()) }
-    var connection by remember { mutableStateOf(JSONObject()) }
-    var config by remember { mutableStateOf(JSONObject()) }
-    var logo by remember { mutableStateOf<ImageBitmap?>(null) }
-    var promo by remember { mutableStateOf("") }
-    var devices by remember { mutableStateOf(JSONArray()) }
-    var traffic by remember { mutableStateOf(JSONObject()) }
-    var notifications by remember { mutableStateOf(JSONArray()) }
-    var routing by remember { mutableStateOf(JSONObject()) }
-    var features by remember { mutableStateOf(JSONObject()) }
-    var diagnostics by remember { mutableStateOf(JSONObject()) }
-    var privacy by remember { mutableStateOf(JSONObject()) }
-    var mobileConnection by remember { mutableStateOf(JSONObject()) }
-    var giftCode by remember { mutableStateOf("") }
-    var topupAmount by remember { mutableStateOf("100") }
-    var qr by remember { mutableStateOf<ImageBitmap?>(null) }
     var unlocked by remember { mutableStateOf(demo || token.isBlank()) }
-    var pushEnabled by remember { mutableStateOf(CorgiPush.enabled(context)) }
-    var widgetEnabled by remember { mutableStateOf(CorgiWidgetData.enabled(context)) }
-    var passkeys by remember { mutableStateOf(JSONArray()) }
-    var passkeyPassword by remember { mutableStateOf("") }
-    var family by remember { mutableStateOf(JSONObject()) }
-    var familyCode by remember { mutableStateOf("") }
-    var serviceStatus by remember { mutableStateOf(JSONObject()) }
-    DisposableEffect(activity) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) unlocked = false
+    var layout by remember { mutableStateOf(LayoutStore.cached(context, base, lang) ?: LayoutStore.bundled(context, lang)) }
+    var data by remember { mutableStateOf(ShopData()) }
+    var ui by remember {
+        mutableStateOf(UiFlags(pushEnabled = CorgiPush.enabled(context), widgetEnabled = CorgiWidgetData.enabled(context),
+            version = "Corgi Lusi ${BuildConfig.VERSION_NAME}"))
+    }
+    // The layout decides which sections exist; a push opens notifications, otherwise the VPN screen.
+    var tab by remember { mutableStateOf(if (initialTab == "overview") "vpn" else initialTab) }
+    var dialog by remember { mutableStateOf("") }
+    // A document opened from «Информация» or a «Открыть документ» button (GET /api/public/info-pages/{kind}).
+    var openDoc by remember { mutableStateOf<JSONObject?>(null) }
+    // Shop logo from «Android и iOS → логотип» (GET /api/public/apps), shown on sign-in and in the header.
+    var logo by remember { mutableStateOf<ImageBitmap?>(null) }
+    fun loadLogo(origin: String) {
+        if (demo || origin.isBlank()) return
+        thread {
+            try {
+                val catalog = ShopApi(origin, "", lang).get("/api/public/apps") as JSONObject
+                val image = loadLogoBitmap(origin, catalog.optString("logo_url"))?.asImageBitmap()
+                activity.runOnUiThread { logo = image }
+            } catch (_: Exception) { }
         }
+    }
+    var dialogText by remember { mutableStateOf("") }
+    var dialogText2 by remember { mutableStateOf("") }
+    val strings = remember(lang) { loadStrings(context, lang) }
+    // A string replaced in the admin panel («Строки приложения») wins over the bundled one.
+    fun t(key: String) = layout.strings[key] ?: strings.optString(key, key)
+    fun notice(text: String) { ui = ui.copy(notice = text) }
+
+    DisposableEffect(activity) {
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) unlocked = demo }
         activity.lifecycle.addObserver(observer)
-        onDispose { activity.lifecycle.removeObserver(observer) }
+        // The VPN state of the phone: any VPN network (Happ, v2rayNG, Hiddify…) counts as «connected».
+        val stop = if (demo) ({}) else VpnClients.watch(context) { on ->
+            activity.runOnUiThread { ui = ui.copy(vpn = if (on) VpnState.ON else if (ui.vpn == VpnState.CONNECTING) VpnState.CONNECTING else VpnState.OFF) }
+        }
+        onDispose { activity.lifecycle.removeObserver(observer); stop() }
     }
 
-    var subject by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
-    val strings = remember(lang) { loadStrings(context, lang) }
-    fun t(key: String) = strings.optString(key, key)
     fun saveSession(nextBase: String, nextToken: String) {
         base = nextBase
         token = nextToken
@@ -333,8 +342,8 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         tokenStore.clear()
         token = ""
         unlocked = false
-        pushEnabled = false
-        widgetEnabled = false
+        data = ShopData()
+        ui = ui.copy(pushEnabled = false, widgetEnabled = false)
         CorgiWidgetData.clear(context)
         thread {
             // Revoke the push token while the session is still valid, then end the session.
@@ -342,103 +351,270 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
             try {
                 if (previous.isNotBlank()) ShopApi(origin, previous, lang).post("/api/auth/logout", JSONObject())
             } catch (_: Exception) {
-                activity.runOnUiThread { notice = "Signed out locally; server session revocation could not be confirmed." }
+                activity.runOnUiThread { notice("Signed out locally; server session revocation could not be confirmed.") }
             }
         }
     }
     fun work(block: () -> Unit) {
-        busy = true
-        notice = ""
+        ui = ui.copy(busy = true, notice = "")
         thread {
             val error = try { block(); null } catch (exc: Exception) { exc.message ?: "HTTP" }
-            activity.runOnUiThread {
-                busy = false
-                if (error != null) notice = error
-            }
+            activity.runOnUiThread { ui = ui.copy(busy = false, notice = error ?: ui.notice) }
         }
+    }
+    fun loadLayout(origin: String) {
+        if (demo || origin.isBlank()) return
+        thread { LayoutStore.fetch(context, origin, lang)?.let { next -> activity.runOnUiThread { layout = next } } }
     }
     fun enablePush() {
         work {
             if (!CorgiPush.buildSupportsPush()) throw IllegalStateException(t("push_unavailable"))
             val response = CorgiPush.register(context, base, token, lang)
-            activity.runOnUiThread {
-                pushEnabled = true
-                notice = if (response.optBoolean("push_available")) t("push_on") else t("push_server_off")
-            }
+            activity.runOnUiThread { ui = ui.copy(pushEnabled = true, notice = if (response.optBoolean("push_available")) t("push_on") else t("push_server_off")) }
         }
     }
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) {
-            enablePush()
-        } else {
-            notice = t("push_denied")
-        }
+        if (granted) enablePush() else notice(t("push_denied"))
     }
     fun refresh() {
         val api = ShopApi(base, token, lang)
-        work {
+        loadLayout(base)
+        loadLogo(base)
+        thread {
             // Re-bind the push token to the current session (tokens rotate, sessions are re-issued).
             if (CorgiPush.enabled(context) && CorgiPush.permissionGranted(context)) {
                 try { CorgiPush.register(context, base, token, lang) } catch (_: Exception) { }
             }
             if (CorgiWidgetData.enabled(context)) CorgiWidgetData.refresh(context)
-            val nextDashboard = api.get("/api/me/dashboard") as JSONObject
-            val nextProfiles = api.get("/api/me/subscriptions") as JSONArray
-            val nextPlans = api.get("/api/plans") as JSONArray
-            val nextBuilders = api.get("/api/tariff-constructors") as JSONArray
-            val nextServers = api.get("/api/me/servers") as JSONObject
-            val nextConnection = api.get("/api/me/connection-info") as JSONObject
-            val nextConfig = api.get("/api/public/config") as JSONObject
-            val nextTraffic = api.get("/api/me/traffic") as JSONObject
-            val nextDevices = api.get("/api/me/devices") as JSONArray
-            val nextNotifications = api.get("/api/me/mobile/notifications?unread_only=false") as JSONArray
-            val nextRouting = api.get("/api/me/routing/recommendation") as JSONObject
-            val nextFeatures = api.get("/api/me/mobile/features") as JSONObject
-            val nextDiagnostics = api.get("/api/me/mobile/diagnostics") as JSONObject
-            val nextPrivacy = api.get("/api/me/mobile/privacy") as JSONObject
-            val nextConnectionLive = api.get("/api/me/mobile/connection") as JSONObject
-            val nextQr = loadAuthedPng(base, "/api/me/connection-qr", token, lang)
-            // Shops on releases before v28.25.0 have no family or status page: keep the rest working.
-            val nextFamily = try { api.get("/api/me/family") as JSONObject } catch (_: Exception) { JSONObject() }
-            val nextStatus = try { api.get("/api/public/service-status") as JSONObject } catch (_: Exception) { JSONObject() }
-            val nextLogo = try {
-                val catalog = api.get("/api/public/apps") as JSONObject
-                loadLogoBitmap(base, catalog.optString("logo_url"))?.asImageBitmap()
-            } catch (_: Exception) { null }
-            activity.runOnUiThread {
-                dashboard = nextDashboard
-                profiles = nextProfiles
-                plans = nextPlans
-                builders = nextBuilders
-                servers = nextServers
-                connection = nextConnection
-                config = nextConfig
-                traffic = nextTraffic
-                devices = nextDevices
-                notifications = nextNotifications
-                routing = nextRouting
-                features = nextFeatures
-                diagnostics = nextDiagnostics
-                privacy = nextPrivacy
-                mobileConnection = nextConnectionLive
-                qr = nextQr
-                family = nextFamily
-                serviceStatus = nextStatus
-                logo = nextLogo
+            try {
+                val servers = api.get("/api/me/servers") as JSONObject
+                // Node names that look like addresses are never shown (publicNode).
+                val nodes = servers.optJSONArray("nodes") ?: JSONArray()
+                val safe = JSONArray()
+                for (i in 0 until nodes.length()) nodes.optJSONObject(i)?.let { safe.put(publicNode(it)) }
+                servers.put("nodes", safe)
+                val next = ShopData(
+                    dashboard = api.get("/api/me/dashboard") as JSONObject,
+                    profiles = api.get("/api/me/subscriptions") as JSONArray,
+                    plans = api.get("/api/plans") as JSONArray,
+                    servers = servers,
+                    connection = api.get("/api/me/connection-info") as JSONObject,
+                    traffic = api.get("/api/me/traffic") as JSONObject,
+                    devices = api.get("/api/me/devices") as JSONArray,
+                    notifications = api.get("/api/me/mobile/notifications?unread_only=false") as JSONArray,
+                    routing = api.get("/api/me/routing/recommendation") as JSONObject,
+                    config = api.get("/api/public/config") as JSONObject,
+                    qr = loadAuthedPng(base, "/api/me/connection-qr", token, lang),
+                    // Shops on releases before v28.25.0 have no family or status page: keep the rest working.
+                    family = try { api.get("/api/me/family") as JSONObject } catch (_: Exception) { JSONObject() },
+                    status = try { api.get("/api/public/service-status") as JSONObject } catch (_: Exception) { JSONObject() },
+                    passkeys = try { CorgiPasskeys.list(base, token, lang) } catch (_: Exception) { JSONArray() },
+                    // Shops before v28.29.0 have no documents: the section stays empty.
+                    docs = try { api.get("/api/public/info-pages?lang=$lang") as JSONArray } catch (_: Exception) { JSONArray() },
+                )
+                activity.runOnUiThread { data = next; ui = ui.copy(offline = false) }
+            } catch (exc: Exception) {
+                activity.runOnUiThread { ui = ui.copy(offline = true, notice = exc.message ?: "") }
             }
         }
     }
+    fun openExternal(url: String) {
+        if (!(externalUrlAllowed(url) || url.startsWith("tg://"))) { notice(t("link_missing")); return }
+        try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } catch (_: ActivityNotFoundException) { notice(url) }
+    }
+    fun copy(label: String, value: String) {
+        if (value.isBlank()) return
+        context.getSystemService(android.content.ClipboardManager::class.java)?.setPrimaryClip(android.content.ClipData.newPlainText(label, value))
+        notice(t("copied"))
+    }
+    fun referralLink(): String {
+        val code = data.user.optString("referral_code")
+        val bot = data.config.optString("bot_username")
+        return if (bot.isNotBlank() && code.isNotBlank()) "https://t.me/$bot?start=ref_$code" else code
+    }
+    fun share(text: String) {
+        if (text.isBlank()) return
+        context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
+    }
+    fun pay(planId: Int) {
+        work {
+            val body = JSONObject().put("provider", providerOf(data.config))
+            if (planId > 0) body.put("plan_id", planId) else {
+                // A shop that sells only through the tariff constructor: its first enabled options.
+                val builders = ShopApi(base, token, lang).get("/api/tariff-constructors") as JSONArray
+                val row = builders.optJSONObject(0) ?: throw IllegalStateException(t("nodes_empty"))
+                val picked = pickOptions(row.optJSONArray("options") ?: JSONArray())
+                body.put("constructor_id", row.getInt("id")).put("device_option_id", picked.optInt("devices"))
+                    .put("traffic_option_id", picked.optInt("traffic_gb")).put("days_option_id", picked.optInt("days"))
+            }
+            data.subscription?.optInt("id")?.takeIf { it > 0 }?.let { body.put("subscription_id", it) }
+            val response = ShopApi(base, token, lang).post("/api/payments/create", body, UUID.randomUUID().toString()) as JSONObject
+            val url = response.optString("url")
+            activity.runOnUiThread {
+                notice(t("payment_created"))
+                if (externalUrlAllowed(url)) context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            }
+        }
+    }
+    fun selectedPlanId(): Int = ui.selectedPlan.takeIf { it > 0 } ?: data.plans.optJSONObject(0)?.optInt("id") ?: 0
+
+    val actions = object : ShopActions {
+        override fun open(sectionId: String) { if (layout.section(sectionId) != null) { tab = sectionId; openDoc = null; ui = ui.copy(notice = "") } }
+        override fun link(url: String) = openExternal(url)
+        override fun selectPlan(planId: Int) { ui = ui.copy(selectedPlan = planId) }
+        override fun setTopupAmount(amount: String) { ui = ui.copy(topupAmount = amount) }
+        override fun selectSubscription(subscriptionId: Int) = work {
+            ShopApi(base, token, lang).post("/api/me/subscriptions/$subscriptionId/select", JSONObject())
+            activity.runOnUiThread { refresh() }
+        }
+        override fun revokeDevice(deviceId: Int) = work {
+            ShopApi(base, token, lang).post("/api/me/devices/$deviceId/revoke", JSONObject())
+            activity.runOnUiThread { notice(t("device_revoked")); refresh() }
+        }
+        override fun markRead(notificationId: Int) = work {
+            ShopApi(base, token, lang).post("/api/me/mobile/notifications/$notificationId/read", JSONObject())
+            activity.runOnUiThread { refresh() }
+        }
+        override fun removeFamilyMember(memberId: Int) = work {
+            ShopApi(base, token, lang).delete("/api/me/family/members/$memberId")
+            activity.runOnUiThread { refresh() }
+        }
+        override fun joinFamily(code: String) = work {
+            ShopApi(base, token, lang).post("/api/me/family/join", JSONObject().put("code", code))
+            activity.runOnUiThread { notice(t("family_joined")); refresh() }
+        }
+        override fun deletePasskey(passkeyId: Int) { dialog = "passkey_delete:$passkeyId"; dialogText = "" }
+        override fun openDocument(kind: String) {
+            if (kind !in setOf("faq", "rules", "privacy", "offer")) return
+            if (demo) {
+                openDoc = JSONObject().put("kind", kind).put("title", layout.sections.flatMap { it.buttons }.firstOrNull { it.action == "document" && it.target == kind }?.label ?: kind)
+                    .put("body", "## Корги Люси\n- Один аккаунт — до пяти устройств\n- Возврат в течение **30 дней**\n\nВопросы — в поддержку.")
+                    .put("banner", "/api/bot/banners/default/app-info.jpg")
+                return
+            }
+            work {
+                val page = ShopApi(base, token, lang).get("/api/public/info-pages/$kind?lang=$lang") as JSONObject
+                activity.runOnUiThread { openDoc = page }
+            }
+        }
+        override fun run(button: LayoutButton) {
+            when (button.action) {
+                "connect", "auto_location" -> {
+                    if (demo) { ui = ui.copy(vpn = if (ui.vpn == VpnState.ON) VpnState.OFF else VpnState.ON); return }
+                    when (VpnClients.connect(context, data.subscriptionUrl)) {
+                        VpnClients.Result.Imported -> {
+                            ui = ui.copy(vpn = VpnState.CONNECTING, notice = t("vpn_imported"))
+                            // The tunnel is switched on in the client; without it the status returns to «off» in a minute.
+                            thread {
+                                Thread.sleep(60_000)
+                                activity.runOnUiThread { if (ui.vpn == VpnState.CONNECTING) ui = ui.copy(vpn = VpnState.OFF) }
+                            }
+                        }
+                        VpnClients.Result.Opened -> notice(t("vpn_opened"))
+                        VpnClients.Result.NoClient -> dialog = "install"
+                        VpnClients.Result.NoSubscription -> {
+                            notice(t("need_subscription"))
+                            layout.sections.firstOrNull { it.kind == "premium" }?.let { tab = it.id }
+                        }
+                    }
+                }
+                "open" -> open(button.target)
+                "url" -> openExternal(button.target)
+                "document" -> openDocument(button.target)
+                "cabinet" -> openExternal(layout.links["cabinet"].orEmpty())
+                "telegram_channel" -> openExternal(layout.links["telegram_channel"].orEmpty())
+                "import_app" -> {
+                    if (data.subscriptionUrl.isBlank()) notice(t("need_subscription"))
+                    else if (!VpnClients.importInto(context, button.target, data.subscriptionUrl)) dialog = "install"
+                }
+                "copy_subscription" -> copy("subscription", data.subscriptionUrl)
+                "show_qr" -> dialog = "qr"
+                "copy_id" -> copy("id", data.customerId)
+                "buy" -> pay(selectedPlanId())
+                "pay_wallet" -> work {
+                    val body = JSONObject().put("plan_id", selectedPlanId())
+                    data.subscription?.optInt("id")?.takeIf { it > 0 }?.let { body.put("subscription_id", it) }
+                    ShopApi(base, token, lang).post("/api/me/wallet/spend", body, UUID.randomUUID().toString())
+                    activity.runOnUiThread { notice(t("paid_wallet")); refresh() }
+                }
+                "trial" -> work {
+                    val planId = selectedPlanId()
+                    if (planId == 0) throw IllegalStateException(t("nodes_empty"))
+                    ShopApi(base, token, lang).post("/api/me/trial", JSONObject().put("plan_id", planId).put("days", data.config.optInt("trial_days", 3)))
+                    activity.runOnUiThread { notice(t("trial_started")); refresh() }
+                }
+                "topup" -> {
+                    val amount = ui.topupAmount.trim()
+                    work {
+                        val body = JSONObject().put("amount", amount).put("provider", providerOf(data.config))
+                        val response = ShopApi(base, token, lang).post("/api/me/wallet/topup", body, UUID.randomUUID().toString()) as JSONObject
+                        val url = response.optString("url")
+                        activity.runOnUiThread {
+                            notice(t("topup_ok"))
+                            if (externalUrlAllowed(url)) context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                        }
+                    }
+                }
+                "redeem" -> { dialog = "redeem"; dialogText = "" }
+                "share_referral" -> share(referralLink())
+                "copy_referral" -> copy("referral", referralLink())
+                "family_invite" -> work {
+                    val owned = data.family.optJSONArray("owned")?.optJSONObject(0) ?: throw IllegalStateException(t("family_none"))
+                    val existing = owned.optJSONObject("invite")?.optString("bot").orEmpty()
+                    val link = existing.ifBlank {
+                        val created = ShopApi(base, token, lang).post("/api/me/family/${owned.optInt("subscription_id")}/invite", JSONObject()) as JSONObject
+                        created.optString("bot").ifBlank { created.optString("code") }
+                    }
+                    activity.runOnUiThread { share(link); refresh() }
+                }
+                "support_ticket" -> { dialog = "ticket"; dialogText = ""; dialogText2 = "" }
+                "report_problem" -> { dialog = "report"; dialogText = "" }
+                "language" -> {
+                    lang = nextLanguage(lang)
+                    prefs.edit().putString("lang", lang).apply()
+                    layout = LayoutStore.cached(context, base, lang) ?: LayoutStore.bundled(context, lang)
+                    loadLayout(base)
+                }
+                "push_toggle" -> if (ui.pushEnabled) {
+                    val session = token
+                    work {
+                        CorgiPush.unregister(context, base, session, lang)
+                        activity.runOnUiThread { ui = ui.copy(pushEnabled = false, notice = t("push_off")) }
+                    }
+                } else if (android.os.Build.VERSION.SDK_INT >= 33 && !CorgiPush.permissionGranted(context)) {
+                    notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                } else enablePush()
+                "widget_toggle" -> {
+                    val next = !ui.widgetEnabled
+                    CorgiWidgetData.setEnabled(context, next)
+                    ui = ui.copy(widgetEnabled = next)
+                    if (next) work { CorgiWidgetData.refresh(context) }
+                }
+                "passkey_add" -> { dialog = "passkey_add"; dialogText = "" }
+                "refresh" -> refresh()
+                "sign_out" -> signOut()
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (demo) {
             // Fixed demo data for screenshots; nothing is requested from a server.
-            base = "https://shop.example"
-            dashboard = JSONObject("""{"user":{"wallet_balance":"350.00","referral_code":"LUSI42"},"subscription":{"id":1,"name":"12 месяцев","status":"active","expires_at":"2027-05-28"}}""")
-            profiles = JSONArray("""[{"id":1,"name":"Основная","plan":"Год","expires_at":"2027-05-28","is_primary":true}]""")
-            plans = JSONArray("""[{"id":1,"name":"Месяц","price":"199.00","duration_days":30},{"id":2,"name":"Три месяца","price":"499.00","duration_days":90},{"id":3,"name":"Год","price":"1690.00","duration_days":365}]""")
-            traffic = JSONObject("""{"available":true,"traffic_used_bytes":38000000000,"traffic_limit_bytes":null}""")
-            servers = JSONObject("""{"nodes":[{"name":"Frankfurt #1","country":"DE","status":"online","users_online":41},{"name":"Amsterdam","country":"NL","status":"online","users_online":33},{"name":"Helsinki","country":"FI","status":"online","users_online":12}]}""")
-            family = JSONObject("""{"owned":[{"subscription_id":1,"name":"Год","seats":3,"used":2,"invite":{"code":"aB3x9Kq2","bot":"https://t.me/corgi_lusi_bot?start=family_aB3x9Kq2"},"members":[{"id":1,"name":"mama","synced":true},{"id":2,"name":"brother","synced":false}]}],"member_of":[]}""")
-            serviceStatus = JSONObject("""{"status":"ok","servers":{"online":5,"total":5},"countries":[{"country":"DE","online":2,"total":2},{"country":"NL","online":1,"total":1},{"country":"FI","online":2,"total":2}],"components":[{"name":"Оплата","status":"operational","message":""}],"incidents":[]}""")
+            base = ""
+            data = ShopData(
+                dashboard = JSONObject("""{"user":{"id":42,"wallet_balance":"350.00","referral_code":"LUSI42","referral_balance":"120.00"},"subscription":{"id":1,"name":"Премиум · 12 месяцев","plan_id":3,"status":"active","expires_at":"2027-05-28"}}"""),
+                profiles = JSONArray("""[{"id":1,"name":"Основная","plan":"Год","expires_at":"2027-05-28","is_primary":true}]"""),
+                plans = JSONArray("""[{"id":1,"name":"1 месяц","price":"299.00","duration_days":30,"device_limit":3,"traffic_limit_gb":null},{"id":2,"name":"3 месяца","price":"549.00","duration_days":90,"device_limit":3,"traffic_limit_gb":null},{"id":3,"name":"12 месяцев","price":"1499.00","duration_days":365,"device_limit":5,"traffic_limit_gb":null}]"""),
+                traffic = JSONObject("""{"available":true,"traffic_used_bytes":38000000000,"traffic_limit_bytes":null}"""),
+                servers = JSONObject("""{"nodes":[{"name":"Амстердам","country":"NL","status":"online","users_online":33},{"name":"Франкфурт","country":"DE","status":"online","users_online":41},{"name":"Хельсинки","country":"FI","status":"online","users_online":12},{"name":"Стокгольм","country":"SE","status":"online","users_online":8}]}"""),
+                routing = JSONObject("""{"recommendation":{"name":"Хельсинки","country":"FI"}}"""),
+                devices = JSONArray("""[{"id":1,"name":"Pixel 9","platform":"android","status":"active"},{"id":2,"name":"MacBook","platform":"macos","status":"active"}]"""),
+                family = JSONObject("""{"owned":[{"subscription_id":1,"name":"Год","seats":3,"used":2,"invite":{"code":"aB3x9Kq2","bot":"https://t.me/corgi_lusi_bot?start=family_aB3x9Kq2"},"members":[{"id":1,"name":"mama","synced":true}]}],"member_of":[]}"""),
+                status = JSONObject("""{"status":"ok","servers":{"online":5,"total":5},"countries":[{"country":"DE","online":2,"total":2},{"country":"NL","online":1,"total":1},{"country":"FI","online":2,"total":2}],"components":[],"incidents":[]}"""),
+                notifications = JSONArray("""[{"id":1,"title":"Подписка продлена","body":"Спасибо! Следующее списание — 28 мая 2027","read":false}]"""),
+                docs = JSONArray("""[{"kind":"faq","title":"Частые вопросы"},{"kind":"rules","title":"Правила"},{"kind":"privacy","title":"Политика конфиденциальности"},{"kind":"offer","title":"Публичная оферта"}]"""),
+            )
+            ui = ui.copy(vpn = if (intent(activity).getBooleanExtra("corgi_vpn_on", false)) VpnState.ON else VpnState.OFF)
         }
     }
     LaunchedEffect(token) {
@@ -451,470 +627,183 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     }
     LaunchedEffect(base) {
         val normalized = try { normalizeBase(base) } catch (_: Exception) { return@LaunchedEffect }
-        if (token.isNotBlank()) return@LaunchedEffect
-        thread {
-            try {
-                val catalog = ShopApi(normalized, "", lang).get("/api/public/apps") as JSONObject
-                val nextLogo = loadLogoBitmap(normalized, catalog.optString("logo_url"))?.asImageBitmap()
-                activity.runOnUiThread { logo = nextLogo }
-            } catch (_: Exception) {
-            }
-        }
+        if (token.isBlank()) { loadLayout(normalized); loadLogo(normalized) }
     }
-    Scaffold { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                if (logo != null) Image(logo!!, contentDescription = t("app_name"), modifier = Modifier.size(48.dp))
-                Text(t("app_name"), style = MaterialTheme.typography.headlineSmall, color = Color(0xFF8A79FF))
-                TextButton(onClick = {
-                    lang = nextLanguage(lang)
-                    prefs.edit().putString("lang", lang).apply()
-                }) { Text(languageLabel(lang)) }
+
+    val theme = layout.theme
+    MaterialTheme(colorScheme = colorScheme(theme)) {
+        Box(Modifier.fillMaxSize().background(theme.background)) {
+            when {
+                token.isBlank() -> LoginScreen(layout, base, email, password, ui, ::t, logo,
+                    onBase = { base = it }, onEmail = { email = it }, onPassword = { password = it },
+                    onSignIn = { register ->
+                        val normalized = try { normalizeBase(base) } catch (_: Exception) { notice(t("https_required")); return@LoginScreen }
+                        if (!email.contains("@") || !email.contains(".")) { notice(t("email_invalid")); return@LoginScreen }
+                        if (password.length < 8) { notice(t("password_short")); return@LoginScreen }
+                        work {
+                            val api = ShopApi(normalized, "", lang)
+                            val body = JSONObject().put("email", email.trim()).put("password", password)
+                            val response = api.post(if (register) "/api/auth/register" else "/api/auth/login", body) as JSONObject
+                            val issued = response.optString("access_token")
+                            if (issued.isBlank()) throw IllegalStateException("HTTP")
+                            tokenStore.write(issued, normalized)
+                            activity.runOnUiThread { saveSession(normalized, issued) }
+                        }
+                    },
+                    onPasskey = {
+                        // Discoverable passkey: no email or password needed, only the shop address.
+                        val normalized = try { normalizeBase(base) } catch (_: Exception) { notice(t("https_required")); return@LoginScreen }
+                        work {
+                            val issued = try {
+                                CorgiPasskeys.signIn(activity, normalized, lang)
+                            } catch (_: CorgiPasskeys.Cancelled) {
+                                activity.runOnUiThread { notice(t("passkey_cancelled")) }
+                                return@work
+                            } catch (_: CorgiPasskeys.NoPasskey) {
+                                throw IllegalStateException(t("passkey_none"))
+                            }
+                            tokenStore.write(issued, normalized)
+                            activity.runOnUiThread { saveSession(normalized, issued) }
+                        }
+                    },
+                    onLanguage = {
+                        lang = nextLanguage(lang)
+                        prefs.edit().putString("lang", lang).apply()
+                        layout = LayoutStore.cached(context, base, lang) ?: LayoutStore.bundled(context, lang)
+                    })
+                !unlocked -> Column(Modifier.fillMaxSize().padding(32.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(layout.text("brand"), color = theme.accent, fontSize = 34.sp, fontWeight = FontWeight.Black)
+                    Spacer(Modifier.height(24.dp))
+                    ActionButton(LayoutButton("unlock", t("unlock"), "refresh", "", "primary", "lock", "any"), theme) { promptUnlock(activity, t("unlock")) { unlocked = it } }
+                    Spacer(Modifier.height(12.dp))
+                    ActionButton(LayoutButton("sign_out", t("sign_out"), "sign_out", "", "ghost", "logout", "any"), theme) { signOut() }
+                }
+                else -> Column(Modifier.fillMaxSize()) {
+                    val section = layout.section(tab) ?: layout.section(layout.tabs.firstOrNull { layout.section(it)?.kind == "vpn" } ?: "") ?: layout.sections.first()
+                    Box(Modifier.weight(1f)) {
+                        val doc = openDoc
+                        if (doc != null) { DocumentScreen(layout, base, doc, onBack = { openDoc = null }, onLink = { openExternal(it) }); return@Box }
+                        SectionScreen(layout, section, base, data, ui.copy(languageLabel = currentLanguageLabel(lang)), actions)
+                        if (!section.tab) TextButton(onClick = { tab = layout.tabs.firstOrNull { layout.section(it)?.kind == "vpn" } ?: layout.tabs.first() },
+                            modifier = Modifier.statusBarsPadding().padding(4.dp)) { Text("←", color = theme.text, fontSize = 22.sp) }
+                    }
+                    BottomBar(layout, if (section.tab) section.id else "", onSelect = { tab = it; openDoc = null; ui = ui.copy(notice = "") })
+                }
             }
-            Text(t("tagline"), color = Color(0xFFA4AFD0))
-            if (notice.isNotBlank()) Text(notice, color = Color(0xFFFFB020))
-            if (token.isBlank()) {
-                OutlinedTextField(base, { base = it }, label = { Text(t("server")) }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(email, { email = it }, label = { Text(t("email")) }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(password, { password = it }, label = { Text(t("password")) }, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
-                Button(onClick = {
-                    val normalized = try { normalizeBase(base) } catch (_: Exception) { notice = t("https_required"); return@Button }
-                    if (!email.contains("@") || !email.contains(".")) { notice = t("email_invalid"); return@Button }
-                    if (password.length < 8) { notice = t("password_short"); return@Button }
-                    work {
-                        val api = ShopApi(normalized, "", lang)
-                        val body = JSONObject().put("email", email.trim()).put("password", password)
-                        val response = api.post("/api/auth/login", body) as JSONObject
-                        val issued = response.optString("access_token")
-                        if (issued.isBlank()) throw IllegalStateException("HTTP")
-                        tokenStore.write(issued, normalized)
-                        activity.runOnUiThread { saveSession(normalized, issued) }
+            ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
+                when {
+                    kind == "redeem" -> { val code = dialogText.trim().uppercase(); work {
+                        ShopApi(base, token, lang).post("/api/me/gifts/redeem", JSONObject().put("code", code))
+                        activity.runOnUiThread { notice(t("gift_ok")); refresh() } } }
+                    kind == "ticket" || kind == "report" -> {
+                        val subject = if (kind == "report") t("report_subject") else dialogText2.trim()
+                        val message = if (kind == "report") "${dialogText.trim()}\n\n— ${ui.version} · Android ${android.os.Build.VERSION.RELEASE} · VPN ${ui.vpn}" else dialogText.trim()
+                        if (subject.isNotBlank() && message.isNotBlank()) work {
+                            ShopApi(base, token, lang).post("/api/me/support/tickets", JSONObject().put("subject", subject).put("message", message))
+                            activity.runOnUiThread { notice(t("ticket_sent")) }
+                        }
                     }
-                }, enabled = !busy) { Text(t("sign_in")) }
-                TextButton(onClick = {
-                    val normalized = try { normalizeBase(base) } catch (_: Exception) { notice = t("https_required"); return@TextButton }
-                    if (!email.contains("@") || !email.contains(".")) { notice = t("email_invalid"); return@TextButton }
-                    if (password.length < 8) { notice = t("password_short"); return@TextButton }
-                    work {
-                        val api = ShopApi(normalized, "", lang)
-                        val body = JSONObject().put("email", email.trim()).put("password", password)
-                        val response = api.post("/api/auth/register", body) as JSONObject
-                        val issued = response.optString("access_token")
-                        if (issued.isBlank()) throw IllegalStateException("HTTP")
-                        tokenStore.write(issued, normalized)
-                        activity.runOnUiThread { saveSession(normalized, issued) }
-                    }
-                }, enabled = !busy) { Text(t("sign_up")) }
-                // Discoverable passkey: no email or password needed, only the shop address.
-                TextButton(onClick = {
-                    val normalized = try { normalizeBase(base) } catch (_: Exception) { notice = t("https_required"); return@TextButton }
-                    work {
-                        val issued = try {
-                            CorgiPasskeys.signIn(activity, normalized, lang)
+                    kind == "passkey_add" -> { val current = dialogText; work {
+                        try {
+                            CorgiPasskeys.register(activity, base, token, lang, current, android.os.Build.MODEL.take(60).ifBlank { "Android" })
                         } catch (_: CorgiPasskeys.Cancelled) {
-                            activity.runOnUiThread { notice = t("passkey_cancelled") }
+                            activity.runOnUiThread { notice(t("passkey_cancelled")) }
                             return@work
-                        } catch (_: CorgiPasskeys.NoPasskey) {
-                            throw IllegalStateException(t("passkey_none"))
                         }
-                        tokenStore.write(issued, normalized)
-                        activity.runOnUiThread { saveSession(normalized, issued) }
-                    }
-                }, enabled = !busy) { Text(t("passkey_sign_in")) }
-            } else if (!unlocked) {
-                Button(onClick = { promptUnlock(activity, t("unlock")) { unlocked = it } }) { Text(t("unlock")) }
-                TextButton(onClick = { signOut() }) { Text(t("sign_out")) }
-            } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf("overview", "plans", "builder", "servers", "connection", "family", "devices", "notifications", "status", "security", "diagnostics", "privacy", "support").forEach { key ->
-                        FilterChip(selected = tab == key, onClick = { tab = key }, label = { Text(t(key)) })
-                    }
+                        activity.runOnUiThread { notice(t("passkey_added")); refresh() } } }
+                    kind.startsWith("passkey_delete:") -> { val id = kind.substringAfter(":").toIntOrNull() ?: 0; val current = dialogText; work {
+                        CorgiPasskeys.delete(base, token, lang, id, current)
+                        activity.runOnUiThread { notice(t("passkey_deleted")); refresh() } } }
                 }
-                TextButton(onClick = { refresh() }, enabled = !busy) { Text(t("refresh")) }
-                TextButton(onClick = {
-                    signOut()
-                }) { Text(t("sign_out")) }
-                when (tab) {
-                    "overview" -> {
-                        val user = dashboard.optJSONObject("user") ?: JSONObject()
-                        val sub = dashboard.optJSONObject("subscription")
-                        Text(t("my_subscriptions"))
-                        for (profileIndex in 0 until profiles.length()) {
-                            val profile = profiles.getJSONObject(profileIndex)
-                            Text("${profile.optString("name")} · ${profile.optString("plan")} · ${profile.optString("expires_at")}")
-                            if (profile.optBoolean("is_primary")) Text(t("selected_subscription"))
-                            else Button(enabled = !busy, onClick = {
-                                val profileId = profile.getInt("id")
-                                work {
-                                    ShopApi(base, token, lang).post("/api/me/subscriptions/$profileId/select", JSONObject())
-                                    activity.runOnUiThread { refresh() }
-                                }
-                            }) { Text(t("select_subscription")) }
-                        }
-                        Text("${t("wallet")}: ${user.optString("wallet_balance", "0")}")
-                        Text("${t("referral")}: ${user.optString("referral_code")}")
-                        Text(if (sub == null) t("no_subscription") else "${t("subscription")}: ${t("active")} · ${t("expires")} ${sub.optString("expires_at")}")
-                        val used = traffic.opt("traffic_used_bytes")
-                        val limit = traffic.opt("traffic_limit_bytes")
-                        Text("${t("traffic_used")}: ${if (traffic.optBoolean("available")) used else t("usage_unavailable")}")
-                        Text("${t("traffic_limit")}: ${if (limit == null || limit == JSONObject.NULL) t("unlimited") else limit}")
-                        OutlinedTextField(topupAmount, { topupAmount = it }, label = { Text(t("topup_amount")) }, modifier = Modifier.fillMaxWidth())
-                        Button(onClick = {
-                            val amount = topupAmount.trim()
-                            work {
-                                val body = JSONObject().put("amount", amount).put("provider", providerOf(config))
-                                val response = ShopApi(base, token, lang).post("/api/me/wallet/topup", body, UUID.randomUUID().toString()) as JSONObject
-                                val url = response.optString("url")
-                                activity.runOnUiThread {
-                                    notice = t("topup_ok")
-                                    if (externalUrlAllowed(url)) context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                                }
-                            }
-                        }) { Text(t("topup")) }
-                        OutlinedTextField(giftCode, { giftCode = it }, label = { Text(t("gift_code")) }, modifier = Modifier.fillMaxWidth())
-                        Button(onClick = {
-                            if (giftCode.isBlank()) return@Button
-                            work {
-                                ShopApi(base, token, lang).post("/api/me/gifts/redeem", JSONObject().put("code", giftCode.trim().uppercase()))
-                                activity.runOnUiThread { notice = t("gift_ok"); giftCode = "" }
-                            }
-                        }) { Text(t("redeem")) }
-                    }
-                    "plans" -> {
-                        OutlinedTextField(promo, { promo = it }, label = { Text(t("promo")) }, modifier = Modifier.fillMaxWidth())
-                        for (index in 0 until plans.length()) {
-                            val plan = plans.getJSONObject(index)
-                            Text("${plan.optString("name")} · ${plan.opt("price")} · ${plan.opt("duration_days")} ${t("days")}")
-                            Row {
-                                Button(onClick = {
-                                    work {
-                                        val body = JSONObject().put("plan_id", plan.getInt("id")).put("provider", providerOf(config))
-                                        dashboard.optJSONObject("subscription")?.optInt("id")?.takeIf { it > 0 }?.let { body.put("subscription_id", it) }
-                                        if (promo.isNotBlank()) body.put("promo_code", promo.trim())
-                                        val response = ShopApi(base, token, lang).post("/api/payments/create", body, UUID.randomUUID().toString()) as JSONObject
-                                        val url = response.optString("url")
-                                        activity.runOnUiThread {
-                                            notice = t("payment_created")
-                                            if (externalUrlAllowed(url)) {
-                                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                                            }
-                                        }
-                                    }
-                                }) { Text(t("pay")) }
-                                TextButton(onClick = {
-                                    work {
-                                        val body = JSONObject().put("plan_id", plan.getInt("id"))
-                                        dashboard.optJSONObject("subscription")?.optInt("id")?.takeIf { it > 0 }?.let { body.put("subscription_id", it) }
-                                        if (promo.isNotBlank()) body.put("promo_code", promo.trim())
-                                        ShopApi(base, token, lang).post("/api/me/wallet/spend", body, UUID.randomUUID().toString())
-                                        activity.runOnUiThread { notice = t("paid_wallet") }
-                                    }
-                                }) { Text(t("pay_wallet")) }
-                            }
-                        }
-                    }
-                    "builder" -> {
-                        for (index in 0 until builders.length()) {
-                            val row = builders.getJSONObject(index)
-                            Text(row.optString("name"))
-                            val options = row.optJSONArray("options") ?: JSONArray()
-                            val picked = pickOptions(options)
-                            Text("${t("devices")} / ${t("traffic")} / ${t("days")}: ${picked.keys().asSequence().joinToString()}")
-                            Button(onClick = {
-                                work {
-                                    val body = JSONObject()
-                                        .put("constructor_id", row.getInt("id"))
-                                        .put("provider", providerOf(config))
-                                        .put("device_option_id", picked.optInt("devices"))
-                                        .put("traffic_option_id", picked.optInt("traffic_gb"))
-                                        .put("days_option_id", picked.optInt("days"))
-                                    dashboard.optJSONObject("subscription")?.optInt("id")?.takeIf { it > 0 }?.let { body.put("subscription_id", it) }
-                                    val response = ShopApi(base, token, lang).post("/api/payments/create", body, UUID.randomUUID().toString()) as JSONObject
-                                    val url = response.optString("url")
-                                    activity.runOnUiThread {
-                                        notice = t("payment_created")
-                                        if (externalUrlAllowed(url)) {
-                                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                                        }
-                                    }
-                                }
-                            }) { Text(t("pay")) }
-                        }
-                    }
-                    "servers" -> {
-                        if (servers.optString("error").isNotBlank()) Text(t("panel_down"))
-                        val nodes = servers.optJSONArray("nodes") ?: JSONArray()
-                        val rec = routing.optJSONObject("recommendation")
-                        if (rec != null) Text("${t("recommended")}: ${rec.optString("name")} · ${rec.optString("country")}")
-                        if (nodes.length() == 0) Text(t("nodes_empty"))
-                        for (index in 0 until nodes.length()) {
-                            val node = publicNode(nodes.getJSONObject(index))
-                            Text("${node.optString("name")} · ${node.optString("country")} · ${t(node.optString("status"))} · ${node.optInt("users_online")}")
-                        }
-                    }
-                    "connection" -> {
-                        val url = connection.optString("subscription_url")
-                        Text(if (url.isBlank()) t("no_subscription") else url)
-                        if (url.isNotBlank()) {
-                            if (qr != null) Image(qr!!, contentDescription = t("qr"), modifier = Modifier.size(180.dp))
-                            TextButton(onClick = {
-                                context.getSystemService(android.content.ClipboardManager::class.java)?.setPrimaryClip(android.content.ClipData.newPlainText("subscription", url))
-                                notice = t("copied")
-                            }) { Text(t("copy")) }
-                            subscriptionApps(url).forEach { (label, link) ->
-                                TextButton(onClick = {
-                                    try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link))) }
-                                    catch (_: ActivityNotFoundException) { notice = label }
-                                }) { Text(label) }
-                            }
-                        }
-                        Text(t("guides"))
-                        val platforms = connection.optJSONObject("platforms") ?: JSONObject()
-                        for (key in listOf("android", "ios", "tv", "windows", "macos", "linux")) Text("$key: ${platforms.optString(key)}")
-                        Button(onClick = {
-                            val planId = if (plans.length() > 0) plans.getJSONObject(0).optInt("id") else 0
-                            if (planId == 0) return@Button
-                            work {
-                                ShopApi(base, token, lang).post("/api/me/trial", JSONObject().put("plan_id", planId).put("days", config.optInt("trial_days", 3)))
-                                activity.runOnUiThread { notice = t("trial_started") }
-                            }
-                        }) { Text(t("trial")) }
-                    }
-                    "notifications" -> {
-                        Text(t("push_title"), style = MaterialTheme.typography.titleMedium)
-                        if (!CorgiPush.buildSupportsPush()) Text(t("push_unavailable"), color = Color(0xFFA4AFD0))
-                        else {
-                            Text(if (pushEnabled) t("push_on") else t("push_off"), color = Color(0xFFA4AFD0))
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                if (pushEnabled) {
-                                    TextButton(enabled = !busy, onClick = {
-                                        val session = token
-                                        work {
-                                            CorgiPush.unregister(context, base, session, lang)
-                                            activity.runOnUiThread { pushEnabled = false; notice = t("push_off") }
-                                        }
-                                    }) { Text(t("push_disable")) }
-                                    TextButton(enabled = !busy, onClick = {
-                                        work {
-                                            ShopApi(base, token, lang).post("/api/me/push/test", JSONObject())
-                                            activity.runOnUiThread { notice = t("push_test_sent") }
-                                        }
-                                    }) { Text(t("push_test")) }
-                                } else {
-                                    Button(enabled = !busy, onClick = {
-                                        if (android.os.Build.VERSION.SDK_INT >= 33 && !CorgiPush.permissionGranted(context)) {
-                                            notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                                        } else enablePush()
-                                    }) { Text(t("push_enable")) }
-                                }
-                            }
-                        }
-                        if (notifications.length() == 0) Text(t("no_notifications"))
-                        for (index in 0 until notifications.length()) {
-                            val n = notifications.getJSONObject(index)
-                            Text("${n.optString("title")} · ${n.optString("body")}")
-                            if (!n.optBoolean("read")) TextButton(onClick = { work { ShopApi(base, token, lang).post("/api/me/mobile/notifications/${n.optInt("id")}/read", JSONObject()); activity.runOnUiThread { notice = t("mark_read") ; refresh() } } }) { Text(t("mark_read")) }
-                        }
-                    }
-                    "security" -> {
-                        Text(t("widget_title"), style = MaterialTheme.typography.titleMedium)
-                        Text(if (widgetEnabled) t("widget_on") else t("widget_off"), color = Color(0xFFA4AFD0))
-                        if (widgetEnabled) {
-                            TextButton(onClick = {
-                                CorgiWidgetData.setEnabled(context, false)
-                                widgetEnabled = false
-                            }) { Text(t("widget_disable")) }
-                        } else {
-                            Button(enabled = !busy, onClick = {
-                                CorgiWidgetData.setEnabled(context, true)
-                                widgetEnabled = true
-                                work { CorgiWidgetData.refresh(context) }
-                            }) { Text(t("widget_enable")) }
-                        }
-                        Text(t("passkeys"), style = MaterialTheme.typography.titleMedium)
-                        Text(t("passkeys_hint"), color = Color(0xFFA4AFD0))
-                        LaunchedEffect(tab, token) {
-                            if (tab == "security" && token.isNotBlank()) work {
-                                val rows = CorgiPasskeys.list(base, token, lang)
-                                activity.runOnUiThread { passkeys = rows }
-                            }
-                        }
-                        for (i in 0 until passkeys.length()) {
-                            val key = passkeys.getJSONObject(i)
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(key.optString("name"))
-                                TextButton(enabled = !busy, onClick = {
-                                    work {
-                                        CorgiPasskeys.delete(base, token, lang, key.optInt("id"), passkeyPassword)
-                                        val rows = CorgiPasskeys.list(base, token, lang)
-                                        activity.runOnUiThread { passkeys = rows; passkeyPassword = ""; notice = t("passkey_deleted") }
-                                    }
-                                }) { Text(t("passkey_delete")) }
-                            }
-                        }
-                        if (passkeys.length() == 0) Text(t("passkeys_empty"), color = Color(0xFFA4AFD0))
-                        OutlinedTextField(passkeyPassword, { passkeyPassword = it }, label = { Text(t("current_password")) },
-                            visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
-                        Button(enabled = !busy, onClick = {
-                            work {
-                                try {
-                                    CorgiPasskeys.register(activity, base, token, lang, passkeyPassword, android.os.Build.MODEL.take(60).ifBlank { "Android" })
-                                } catch (_: CorgiPasskeys.Cancelled) {
-                                    activity.runOnUiThread { notice = t("passkey_cancelled") }
-                                    return@work
-                                }
-                                val rows = CorgiPasskeys.list(base, token, lang)
-                                activity.runOnUiThread { passkeys = rows; passkeyPassword = ""; notice = t("passkey_added") }
-                            }
-                        }) { Text(t("passkey_add")) }
-                        Text(t("security"))
-                        Text("Biometric unlock: ON")
-                        Text("Kill Switch: ON")
-                        Text("Always-On VPN: ON")
-                        Text("Auto Failover: ON")
-                        Text("Trusted Networks: available")
-                        Text("Split Tunneling: available")
-                        Text("${t("recommended")}: ${routing.optJSONObject("recommendation")?.optString("name") ?: t("no_subscription")}")
-                        Button(onClick = { promptUnlock(activity, t("unlock")) { unlocked = it } }) { Text(t("unlock")) }
-                        Text("Profiles: Fastest · Gaming · Streaming · Privacy · Work")
-                    }
-                    "diagnostics" -> {
-                        Text("Corgi Diagnostics", style = MaterialTheme.typography.titleLarge)
-                        Text("${diagnostics.optString("overall", "unknown").uppercase()}")
-                        val checks = diagnostics.optJSONArray("checks") ?: JSONArray()
-                        for (i in 0 until checks.length()) {
-                            val c = checks.getJSONObject(i)
-                            Text("${c.optString("name")}: ${c.optString("status")} — ${c.optString("detail")}")
-                        }
-                        val live = mobileConnection
-                        Text("Connection: ${live.optString("status")}")
-                        Text("Server: ${live.optJSONObject("server")?.optString("name") ?: "—"}")
-                        Text("Latency: ${live.opt("latency_ms") ?: "—"} ms")
-                        Text("Packet loss: ${live.opt("packet_loss_percent") ?: "—"}%")
-                    }
-                    "privacy" -> {
-                        Text("Privacy Dashboard", style = MaterialTheme.typography.titleLarge)
-                        Text("DNS protected: ${privacy.optBoolean("dns_protected")}")
-                        Text("IPv6 protected: ${privacy.optBoolean("ipv6_protected")}")
-                        Text("Kill Switch: ${privacy.optBoolean("kill_switch")}")
-                        Text("Protected traffic: ${privacy.opt("protected_traffic_bytes")}")
-                        Text("VPN time: ${privacy.opt("vpn_time_seconds")} sec")
-                        Text("Family Plan: available")
-                        Text("Business VPN: available")
-                        Text("Referral & Rewards: available")
-                    }
-                    "devices" -> {
-                        if (devices.length() == 0) Text(t("no_devices"))
-                        for (index in 0 until devices.length()) {
-                            val device = devices.getJSONObject(index)
-                            Text("${device.optString("name")} · ${device.optString("platform")} · ${device.optString("status")}")
-                            if (device.optString("status") == "active") {
-                                TextButton(onClick = {
-                                    work {
-                                        ShopApi(base, token, lang).post("/api/me/devices/${device.optInt("id")}/revoke", JSONObject())
-                                        activity.runOnUiThread { notice = t("device_revoked") }
-                                    }
-                                }) { Text(t("revoke")) }
-                            }
-                        }
-                    }
-                    "family" -> {
-                        val owned = family.optJSONArray("owned") ?: JSONArray()
-                        val memberOf = family.optJSONArray("member_of") ?: JSONArray()
-                        if (owned.length() == 0 && memberOf.length() == 0) Text(t("family_none"))
-                        for (index in 0 until owned.length()) {
-                            val group = owned.getJSONObject(index)
-                            Text("${t("family_owned")}: ${group.optString("name")}", style = MaterialTheme.typography.titleMedium)
-                            Text("${t("family_seats")}: ${group.optInt("used")} / ${group.optInt("seats")}")
-                            val invite = group.optJSONObject("invite")
-                            if (invite != null) {
-                                Text("${t("family_code")}: ${invite.optString("code")}")
-                                val link = invite.optString("bot")
-                                if (link.isNotBlank()) TextButton(onClick = {
-                                    context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, link), t("family_invite")))
-                                }) { Text(link) }
-                            } else Button(enabled = !busy, onClick = {
-                                val subId = group.optInt("subscription_id")
-                                work {
-                                    ShopApi(base, token, lang).post("/api/me/family/$subId/invite", JSONObject())
-                                    activity.runOnUiThread { refresh() }
-                                }
-                            }) { Text(t("family_invite")) }
-                            val members = group.optJSONArray("members") ?: JSONArray()
-                            for (m in 0 until members.length()) {
-                                val member = members.getJSONObject(m)
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("${member.optString("name")} · ${if (member.optBoolean("synced")) t("family_synced") else t("family_pending")}")
-                                    TextButton(enabled = !busy, onClick = {
-                                        val memberId = member.optInt("id")
-                                        work {
-                                            ShopApi(base, token, lang).delete("/api/me/family/members/$memberId")
-                                            activity.runOnUiThread { refresh() }
-                                        }
-                                    }) { Text(t("family_remove")) }
-                                }
-                            }
-                        }
-                        for (index in 0 until memberOf.length()) {
-                            val row = memberOf.getJSONObject(index)
-                            Text("${t("family_member_of")} · ${t("family_owner")}: ${row.optString("owner")} · ${t("expires")} ${row.optString("expires_at")}")
-                            TextButton(enabled = !busy, onClick = {
-                                val memberId = row.optInt("id")
-                                work {
-                                    ShopApi(base, token, lang).delete("/api/me/family/members/$memberId")
-                                    activity.runOnUiThread { refresh() }
-                                }
-                            }) { Text(t("family_leave")) }
-                        }
-                        OutlinedTextField(familyCode, { familyCode = it }, label = { Text(t("family_code")) }, modifier = Modifier.fillMaxWidth())
-                        Button(enabled = !busy && familyCode.isNotBlank(), onClick = {
-                            val code = familyCode.trim()
-                            work {
-                                ShopApi(base, token, lang).post("/api/me/family/join", JSONObject().put("code", code))
-                                activity.runOnUiThread { notice = t("family_joined"); familyCode = ""; refresh() }
-                            }
-                        }) { Text(t("family_join")) }
-                        Text(t("stars_hint"), color = Color(0xFFA4AFD0))
-                    }
-                    "status" -> {
-                        val level = serviceStatus.optString("status", "unknown")
-                        Text(t("status_" + (if (level in setOf("ok", "degraded", "down")) level else "unknown")), style = MaterialTheme.typography.titleMedium,
-                            color = when (level) { "ok" -> Color(0xFF2BD47D); "degraded" -> Color(0xFFFFB020); "down" -> Color(0xFFFF5A6E); else -> Color(0xFFA4AFD0) })
-                        val srv = serviceStatus.optJSONObject("servers") ?: JSONObject()
-                        Text("${t("status_servers")}: ${srv.optInt("online")} / ${srv.optInt("total")}")
-                        val countries = serviceStatus.optJSONArray("countries") ?: JSONArray()
-                        for (index in 0 until countries.length()) {
-                            val c = countries.getJSONObject(index)
-                            Text("${c.optString("country")} · ${c.optInt("online")} / ${c.optInt("total")}")
-                        }
-                        val components = serviceStatus.optJSONArray("components") ?: JSONArray()
-                        for (index in 0 until components.length()) {
-                            val c = components.getJSONObject(index)
-                            Text("${c.optString("name")} · ${c.optString("status")}${if (c.optString("message").isNotBlank()) " · " + c.optString("message") else ""}")
-                        }
-                        Text(t("status_incidents"), style = MaterialTheme.typography.titleSmall)
-                        val incidents = serviceStatus.optJSONArray("incidents") ?: JSONArray()
-                        if (incidents.length() == 0) Text(t("status_none"))
-                        for (index in 0 until incidents.length()) {
-                            val i = incidents.getJSONObject(index)
-                            Text("${i.optString("title")} · ${i.optString("since")}", color = Color(0xFFFFB020))
-                        }
-                    }
-                    "support" -> {
-                        OutlinedTextField(subject, { subject = it }, label = { Text(t("subject")) }, modifier = Modifier.fillMaxWidth())
-                        OutlinedTextField(message, { message = it }, label = { Text(t("message")) }, modifier = Modifier.fillMaxWidth())
-                        Button(onClick = {
-                            if (subject.isBlank() || message.isBlank()) return@Button
-                            work {
-                                ShopApi(base, token, lang).post("/api/me/support/tickets", JSONObject().put("subject", subject.trim()).put("message", message.trim()))
-                                activity.runOnUiThread { notice = t("ticket_sent"); subject = ""; message = "" }
-                            }
-                        }) { Text(t("send")) }
-                    }
-                }
+                dialog = ""
             }
         }
     }
+}
+
+private fun intent(activity: FragmentActivity): Intent = activity.intent ?: Intent()
+
+private fun currentLanguageLabel(lang: String): String = when (lang) { "en" -> "English"; "uk" -> "Українська"; else -> "Русский" }
+
+/** Sign-in screen in the brand colours of the layout. */
+@Composable
+private fun LoginScreen(
+    layout: AppLayout, base: String, email: String, password: String, ui: UiFlags, t: (String) -> String, logo: ImageBitmap?,
+    onBase: (String) -> Unit, onEmail: (String) -> Unit, onPassword: (String) -> Unit,
+    onSignIn: (Boolean) -> Unit, onPasskey: () -> Unit, onLanguage: () -> Unit,
+) {
+    val theme = layout.theme
+    Column(
+        Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState()).padding(22.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            if (logo != null) { Image(logo, contentDescription = null, modifier = Modifier.size(44.dp)); Spacer(Modifier.width(12.dp)) }
+            Text(layout.text("brand"), color = theme.accent, fontSize = 30.sp, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
+            if (layout.feature("language_switch")) TextButton(onClick = onLanguage) { Text(languageLabel(layout.lang), color = theme.muted) }
+        }
+        if (layout.feature("login_banner")) SectionBanner(base, layout.sections.firstOrNull { it.kind == "vpn" }?.banner, theme) { }
+        Text(t("welcome"), color = theme.text, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Muted(t("tagline"), theme)
+        if (ui.notice.isNotBlank()) Text(ui.notice, color = theme.accent2)
+        TextInput(base, onBase, t("server"), theme)
+        TextInput(email, onEmail, t("email"), theme)
+        TextInput(password, onPassword, t("password"), theme, secret = true)
+        ActionButton(LayoutButton("sign_in", t("sign_in"), "refresh", "", "primary", "user", "any"), theme, enabled = !ui.busy) { onSignIn(false) }
+        if (layout.feature("login_sign_up")) ActionButton(LayoutButton("sign_up", t("sign_up"), "refresh", "", "secondary", "plus", "any"), theme, enabled = !ui.busy) { onSignIn(true) }
+        if (layout.feature("login_passkey")) ActionButton(LayoutButton("passkey", t("passkey_sign_in"), "refresh", "", "ghost", "key", "any"), theme, enabled = !ui.busy) { onPasskey() }
+    }
+}
+
+/** Dialogs: QR code, VPN client install, promo code, support message, problem report, passkeys. */
+@Composable
+private fun ShopDialog(
+    kind: String, layout: AppLayout, data: ShopData, t: (String) -> String, text: String, text2: String,
+    onText: (String) -> Unit, onText2: (String) -> Unit, onClose: () -> Unit, onConfirm: (String) -> Unit,
+) {
+    if (kind.isBlank()) return
+    val theme = layout.theme
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = onClose,
+        containerColor = theme.surface,
+        titleContentColor = theme.text,
+        textContentColor = theme.text,
+        title = {
+            Text(when {
+                kind == "qr" -> t("qr")
+                kind == "install" -> t("vpn_install")
+                kind == "redeem" -> t("gift_code")
+                kind == "ticket" -> t("support")
+                kind == "report" -> t("report_subject")
+                kind == "passkey_add" -> t("passkey_add")
+                else -> t("passkey_delete")
+            })
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                when {
+                    kind == "qr" -> QrCard(data, theme)
+                    kind == "install" -> {
+                        Muted(t("vpn_install_hint"), theme)
+                        VpnClients.CLIENTS.forEach { client ->
+                            ActionButton(LayoutButton(client.id, client.title, "url", client.store, "secondary", "download", "any"), theme) {
+                                try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(client.store))) } catch (_: ActivityNotFoundException) { }
+                            }
+                        }
+                    }
+                    kind == "redeem" -> TextInput(text, onText, t("code"), theme)
+                    kind == "ticket" -> { TextInput(text2, onText2, t("subject"), theme); TextInput(text, onText, t("message"), theme, singleLine = false) }
+                    kind == "report" -> { Muted(t("report_hint"), theme); TextInput(text, onText, t("message"), theme, singleLine = false) }
+                    else -> TextInput(text, onText, t("current_password"), theme, secret = true)
+                }
+            }
+        },
+        confirmButton = {
+            if (kind != "qr" && kind != "install") TextButton(onClick = { onConfirm(kind) }) { Text(if (kind == "redeem") t("redeem") else t("send").takeIf { kind in setOf("ticket", "report") } ?: t("done"), color = theme.accent) }
+        },
+        dismissButton = { TextButton(onClick = onClose) { Text(if (kind == "qr" || kind == "install") t("done") else t("cancel"), color = theme.muted) } },
+    )
 }
 
 private fun loadAuthedPng(base: String, path: String, token: String, lang: String): ImageBitmap? {
@@ -925,7 +814,7 @@ private fun loadAuthedPng(base: String, path: String, token: String, lang: Strin
         readTimeout = 15000
         setRequestProperty("Accept", "image/png")
         setRequestProperty("Accept-Language", lang)
-        setRequestProperty("User-Agent", "CorgiLusi-Android-User/2.16.0")
+        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.0.0")
         setRequestProperty("X-Shop-Client", "android-user")
 
 
