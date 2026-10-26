@@ -121,3 +121,13 @@ async def test_cleanup_keeps_180_days(db):
                 AppEvent(install_hash="h" * 64, platform="ios", event="open", created_at=NOW - timedelta(days=10))])
     await db.commit()
     assert await growth.cleanup(db, NOW) == 1
+
+
+@pytest.mark.asyncio
+async def test_expiry_reminder_reaches_every_customer_once(db, monkeypatch):
+    from app import main as shop
+    monkeypatch.setattr(shop.settings, "notification_expiry_days", 3)
+    assert await shop.enqueue_expiry_notifications(db, NOW) == 2, "users 1 and 2: a profile expires in 2 days, no Telegram needed"
+    assert await shop.enqueue_expiry_notifications(db, NOW) == 0, "once per subscription and date"
+    row = (await db.execute(select(Notification).where(Notification.kind == "subscription_expiring", Notification.user_id == 1))).scalar_one()
+    assert row.user_id == 1 and "осталось 2 дн." in row.body and row.push_fanout_at is None
