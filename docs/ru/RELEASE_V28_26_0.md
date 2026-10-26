@@ -24,7 +24,7 @@
 
 **Прочее**
 
-- FastAPI 0.161.1 (патч) в магазине и Support Pro.
+- FastAPI 0.161.1 (патч) в магазине и Support Pro; образ `postgres:18.6-alpine` перезакреплён на свежую сборку того же тега (Docker Hub пересобрал образ, версия PostgreSQL прежняя).
 - `scripts/cleanup-branches.sh` — очистка веток GitHub: влитые в `main` удаляются, остальные сначала сохраняются тегом `archive/<ветка>` ([порядок](../BRANCHES.md)).
 
 ## Обновление
