@@ -97,6 +97,14 @@ enum CorgiTrust {
 }
 
 /// corgi://login?base=…&code=… — a one-use sign-in link (backend/app/app_login.py).
+/// Order of corgi://payment?order=… (back from the payment page, backend/app/app_login.py).
+func paymentOrder(_ url: URL) -> String? {
+    guard url.scheme == "corgi", url.host == "payment",
+          let order = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "order" })?.value,
+          order.range(of: "^[A-Za-z0-9_.:-]{6,128}$", options: .regularExpression) != nil else { return nil }
+    return order
+}
+
 struct LoginLink: Equatable {
     let base: String
     let code: String

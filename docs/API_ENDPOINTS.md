@@ -260,6 +260,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/push-campaigns` | List Campaigns |
 | `POST` | `/api/admin/push-campaigns` | Create Campaign |
 | `POST` | `/api/admin/push-campaigns/preview` | Preview Campaign |
+| `POST` | `/api/admin/push-campaigns/{campaign_id}/cancel` | Cancel |
+| `GET` | `/api/admin/push-campaigns/{campaign_id}/results` | Results |
 | `DELETE` | `/api/admin/push-style` | Admin Push Style Reset |
 | `GET` | `/api/admin/push-style` | Admin Push Style |
 | `PUT` | `/api/admin/push-style` | Admin Push Style Save |
@@ -399,6 +401,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/agent/torrent` | Agent Torrent |
 | `GET` | `/api/app-config` | App Config |
 | `GET` | `/api/app/open` | Open App |
+| `GET` | `/api/app/paid` | Paid Return |
 | `POST` | `/api/auth/email/verification/confirm` | Confirm Verification |
 | `POST` | `/api/auth/exchange` | Auth Exchange |
 | `GET` | `/api/auth/google` | Google Login |

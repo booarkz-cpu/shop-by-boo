@@ -180,7 +180,11 @@
     "battery_open": "Без ограничений батареи",
     "battery_autostart": "Автозапуск и работа в фоне",
     "battery_guide": "Инструкция для моего телефона",
-    "later": "Позже"
+    "later": "Позже",
+    "payment_done": "Оплата прошла — подписка обновлена",
+    "payment_failed": "Оплата не прошла. Попробуйте ещё раз или выберите другой способ",
+    "payment_refunded": "Платёж возвращён",
+    "payment_waiting": "Платёж ещё обрабатывается — статус обновится сам"
   },
   "en": {
     "app_name": "VPN shop",
@@ -363,7 +367,11 @@
     "battery_open": "Unrestricted battery",
     "battery_autostart": "Autostart and background",
     "battery_guide": "Guide for my phone",
-    "later": "Later"
+    "later": "Later",
+    "payment_done": "Payment received — your subscription is updated",
+    "payment_failed": "The payment did not go through. Try again or choose another method",
+    "payment_refunded": "The payment was refunded",
+    "payment_waiting": "The payment is still processing — the status will update itself"
   },
   "uk": {
     "app_name": "Коргі Люсі",
@@ -546,6 +554,10 @@
     "battery_open": "Без обмежень батареї",
     "battery_autostart": "Автозапуск і робота у фоні",
     "battery_guide": "Інструкція для мого телефона",
-    "later": "Пізніше"
+    "later": "Пізніше",
+    "payment_done": "Оплата пройшла — підписку оновлено",
+    "payment_failed": "Оплата не пройшла. Спробуйте ще раз або виберіть інший спосіб",
+    "payment_refunded": "Платіж повернуто",
+    "payment_waiting": "Платіж ще обробляється — статус оновиться сам"
   }
 }

@@ -204,6 +204,7 @@ RATE_LIMITS = {
     "/api/mobile/integrity/challenge": 30,
     "/api/me/app-login": 10,
     "/api/app/open": 30,
+    "/api/app/paid": 30,
     "/api/auth/google": 20,
     "/api/auth/google/callback": 20,
     "/api/auth/register": 8,
@@ -651,10 +652,14 @@ async def health():
         logger.warning("Non-critical operation failed: %s", exc)
     return {"ok":redis_ok and db_ok,"version":APP_VERSION,"redis":redis_ok,"database":db_ok,"worker_role":settings.worker_role}
 
-def _return_url(order_id:str, base:str|None=None)->str:
+def _return_url(order_id:str, base:str|None=None, request:Request|None=None)->str:
     """Where the payment page sends the customer back: the cabinet (or Mini App) with ?order=<order id>,
-    so the result screen can show whether the payment went through."""
+    so the result screen can show whether the payment went through; the Android/iOS app when it paid."""
     from urllib.parse import urlsplit,urlunsplit,parse_qsl,urlencode
+    from .mobile_auth import mobile_client_name
+    if request is not None and mobile_client_name(request) in ("android-user","ios-user"):
+        from .app_login import payment_return_url
+        return payment_return_url(order_id)
     raw=(base if base is not None else (settings.cabinet_url or settings.mini_app_url)) or ""
     if not raw: return raw
     parts=urlsplit(raw)
@@ -1443,11 +1448,11 @@ async def wallet_topup(payload:dict, request:Request, db:AsyncSession=Depends(ge
     row=Payment(user_id=user.id,plan_id=0,provider=candidate,order_id=order_id,amount=amount,original_amount=amount,discount_amount=Decimal("0.00"),currency=settings.default_currency,status="creating",fulfillment_status="pending",idempotency_key=idem,purpose="topup",bonus_days=0)
     db.add(row); await db.commit(); await db.refresh(row)
     try:
-        back=_return_url(order_id)
+        back=_return_url(order_id,request=request)
         meta={"order_id":order_id,"user_id":user.id,"email":user.email,"return_url":back,"cancel_url":back}
         if candidate in {"stripe","paypal","crypto"}: result=await provider.create(amount,settings.default_currency,"Wallet top-up",meta)
-        elif candidate=="yookassa" and method: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url),method=method)
-        else: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url))
+        elif candidate=="yookassa" and method: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url,request),method=method)
+        else: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url,request))
         if not result.get("id"): raise RuntimeError("Payment provider returned no payment ID")
         row=(await db.execute(select(Payment).where(Payment.id==row.id).with_for_update())).scalar_one()
         row.provider_payment_id=result["id"]; row.checkout_url=result.get("url")

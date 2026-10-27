@@ -70,6 +70,7 @@ struct UserRootView: View {
         .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
         .sheet(isPresented: Binding(get: { !sheet.isEmpty }, set: { if !$0 { sheet = "" } })) { sheetView }
         .onOpenURL { url in
+            if let order = paymentOrder(url) { checkPayment(order); return }
             guard let link = LoginLink.parse(url) else { return }
             #if DEBUG
             if DemoMode.enabled { return }
@@ -1119,6 +1120,30 @@ struct UserRootView: View {
         work {
             _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/subscriptions/\(id)/select")
             DispatchQueue.main.async { refresh() }
+        }
+    }
+
+    /// Back from the payment page: the webhook may still be on its way, so ask a few times.
+    private func checkPayment(_ order: String) {
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
+        guard !token.isEmpty, let encoded = order.addingPercentEncoding(withAllowedCharacters: .alphanumerics) else { return }
+        let (api, session, language) = (base, token, lang)
+        work {
+            var state = "pending"
+            for _ in 0..<6 {
+                let row = try ShopClient(base: api, token: session, lang: language).call("GET", "/api/me/payments/order/\(encoded)") as? [String: Any]
+                state = row?["state"] as? String ?? "pending"
+                if state != "pending" && state != "processing" { break }
+                Thread.sleep(forTimeInterval: 2.5)
+            }
+            let key = ["paid": "payment_done", "failed": "payment_failed", "refunded": "payment_refunded"][state] ?? "payment_waiting"
+            DispatchQueue.main.async {
+                notice = t(key)
+                if state == "paid" { track("checkout_done") }
+                refresh()
+            }
         }
     }
 

@@ -124,17 +124,21 @@ class MainActivity : FragmentActivity() {
         val pendingLogin = androidx.compose.runtime.mutableStateOf<LoginLink?>(null)
         /** Section a tapped push (or its button) opens. */
         val pendingTab = androidx.compose.runtime.mutableStateOf<String?>(null)
+        /** corgi://payment?order=… — back from the payment page: show how the order went. */
+        val pendingPayment = androidx.compose.runtime.mutableStateOf<String?>(null)
     }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         LoginLink.parse(intent.data)?.let { pendingLogin.value = it }
+        paymentOrder(intent.data)?.let { pendingPayment.value = it }
         intent.getStringExtra(CorgiPush.EXTRA_TAB)?.let { pendingTab.value = it }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CorgiTrust.appContext = applicationContext
         LoginLink.parse(intent?.data)?.let { pendingLogin.value = it }
+        paymentOrder(intent?.data)?.let { pendingPayment.value = it }
         // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true.
         val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && intent?.getBooleanExtra("corgi_demo", false) == true
         if (!demo) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
@@ -157,6 +161,14 @@ private fun shopColors() = darkColorScheme(
 )
 
 private val localHttpHosts = setOf("localhost", "127.0.0.1", "10.0.2.2")
+
+private val ORDER_ID = Regex("[A-Za-z0-9_.:-]{6,128}")
+
+/** Order of corgi://payment?order=… (backend/app/app_login.py payment_link); null for anything else. */
+fun paymentOrder(uri: Uri?): String? {
+    if (uri == null || uri.scheme != "corgi" || uri.host != "payment") return null
+    return uri.getQueryParameter("order")?.takeIf { ORDER_ID.matches(it) }
+}
 
 /** Sign-in link: the shop it belongs to and a one-use code (backend/app/app_login.py). */
 data class LoginLink(val base: String, val code: String) {
@@ -795,6 +807,27 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     LaunchedEffect(pushTab, layout) {
         val target = pushTab ?: return@LaunchedEffect
         if (layout.section(target) != null) { tab = target; openDoc = null; MainActivity.pendingTab.value = null }
+    }
+    val paidOrder by MainActivity.pendingPayment
+    LaunchedEffect(paidOrder, token) {
+        val order = paidOrder ?: return@LaunchedEffect
+        if (demo || token.isBlank()) return@LaunchedEffect
+        MainActivity.pendingPayment.value = null
+        // The payment page is behind us: the webhook may still be on its way, so ask a few times.
+        work {
+            var state = "pending"
+            for (attempt in 0 until 6) {
+                val row = ShopApi(base, token, lang).get("/api/me/payments/order/" + Uri.encode(order)) as JSONObject
+                state = row.optString("state", "pending")
+                if (state != "pending" && state != "processing") break
+                Thread.sleep(2500)
+            }
+            activity.runOnUiThread {
+                notice(t(when (state) { "paid" -> "payment_done"; "failed" -> "payment_failed"; "refunded" -> "payment_refunded"; else -> "payment_waiting" }))
+                if (state == "paid") track("checkout_done")
+                refresh()
+            }
+        }
     }
     val pending by MainActivity.pendingLogin
     LaunchedEffect(pending) {

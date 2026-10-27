@@ -287,7 +287,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
             if reservation: reservation.payment_id=payment_row.id
             await db.commit()
             try:
-                back=shop._return_url(canonical_order_id)
+                back=shop._return_url(canonical_order_id,request=request)
                 meta={"order_id":canonical_order_id,"user_id":user.id,"email":user.email,"return_url":back,"cancel_url":back}
                 if candidate in {"stripe","paypal","crypto"}: result=await candidate_provider.create(final_amount,shop.settings.default_currency,f"VPN {plan.name}",meta)
                 else: result=await candidate_provider.create(final_amount,canonical_order_id,f"VPN {plan.name}",back)

@@ -74,6 +74,8 @@
                 <data android:scheme="corgi" android:host="support" />
                 <!-- One-use sign-in link from the bot, the cabinet or Yandex/VK/Google: corgi://login?base=…&code=… -->
                 <data android:scheme="corgi" android:host="login" />
+                <!-- Back from the payment page: corgi://payment?order=… (via /api/app/paid). -->
+                <data android:scheme="corgi" android:host="payment" />
             </intent-filter>
         </activity>
     </application>
