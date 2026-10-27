@@ -128,7 +128,38 @@ def _iface() -> str | None:
     return name
 
 
+NODE_COMMANDS = {
+    # Remnawave node container managed by Docker Compose in AGENT_NODE_DIR (default /opt/remnanode).
+    "update_node": (["docker", "compose", "pull"], ["docker", "compose", "up", "-d", "--remove-orphans"]),
+    "restart_node": (["docker", "compose", "restart"],),
+}
+
+
+def _node_actions(actions: list) -> list[str]:
+    """update_node / restart_node from «Ноды → Мониторинг», only with AGENT_ALLOW_NODE_UPDATE=1.
+    Fixed argv lists in the node directory: nothing from the shop reaches a shell."""
+    done = []
+    if _env("AGENT_ALLOW_NODE_UPDATE") != "1":
+        return done
+    folder = _env("AGENT_NODE_DIR", "/opt/remnanode")
+    if not os.path.isfile(os.path.join(folder, "docker-compose.yml")):
+        print(f"node-agent: {folder}/docker-compose.yml not found, node update skipped", file=sys.stderr, flush=True)
+        return done
+    for action in actions:
+        kind = str(action.get("kind") or "")
+        for argv in NODE_COMMANDS.get(kind, ()):
+            result = subprocess.run(argv, cwd=folder, check=False, timeout=900)
+            if result.returncode != 0:
+                print(f"node-agent: {' '.join(argv)} exited {result.returncode}", file=sys.stderr, flush=True)
+                break
+        else:
+            if kind in NODE_COMMANDS:
+                done.append(kind)
+    return done
+
+
 def _apply(actions: list) -> None:
+    _node_actions(actions)
     if _env("AGENT_APPLY_TC") != "1":
         return
     iface = _iface()

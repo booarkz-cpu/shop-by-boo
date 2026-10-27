@@ -220,6 +220,12 @@ class RemnawaveClient:
     async def list_internal_squads(self):
         return await self._request("GET","/api/internal-squads")
 
+    async def restart_node(self,node_uuid:str):
+        return await self._request("POST",f"/api/nodes/{node_uuid}/actions/restart")
+
+    async def restart_all_nodes(self):
+        return await self._request("POST","/api/nodes/actions/restart-all")
+
     async def list_nodes(self,start=0,size=25):
         return await self._request("GET","/api/nodes",
                                    params={"start":start,"size":min(size,1000)})

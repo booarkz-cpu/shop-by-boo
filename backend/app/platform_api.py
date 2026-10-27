@@ -442,7 +442,7 @@ async def agent_heartbeat(payload: HeartbeatIn, db: AsyncSession = Depends(get_d
         select(AgentAction).where(AgentAction.agent_id == agent.id, AgentAction.status == "queued").order_by(AgentAction.id).limit(20)
     )).scalars().all()
     for action in actions:
-        if action.kind not in {"throttle", "clear"}:
+        if action.kind not in {"throttle", "clear", "update_node", "restart_node"}:
             action.status = "rejected"
         else:
             action.status = "delivered"

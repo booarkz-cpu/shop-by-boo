@@ -19,7 +19,7 @@ from sqlalchemy import text as sql_text
 from .config import settings
 from .db import engine, get_db
 from .models import User, Plan, Payment, Subscription, AuditLog, FinancialLedger, AdminUser, AdminSession, AppSetting, BotMenuItem, CustomField, MenuImage, Promotion, PromoCode, PromoRedemption, Advertisement, Broadcast, Reseller, BackupJob, AuthExchangeCode, ReferralReward, PaymentProviderEvent, ReferralLedger, AutoRenewMethod, ProvisioningOperation, RefundRequest, SupportTicket, WithdrawalRequest, WorkerState, ReleaseRecord, SecurityIncident, Job, FraudSignal, PayoutTransaction, FeatureFlag, PaymentProviderHealth, SecurityIncidentEvent, BackupVerification, WebAuthnCredential, UserDevice, Campaign, AutomationRule, MonitoringCheck, TrialGrant, PromoReservation, GiftCode, GiftRedemption, UserSession, Notification, StatusComponent, Deployment, CabinetMenuItem, TariffConstructor, PaymentTaxProfile, PaymentInvoice, PaymentChargeback, PaymentRiskAssessment, PaymentProviderMetric, GiftCard, CorporateAccount, PaymentPriceExperiment
-from .payments import YooKassaProvider, PlategaProvider, RollyPayProvider, PLATEGA_REFUNDED, ROLLYPAY_REFUNDED, SandboxProvider, verify_rollypay, verify_platega_headers, staging_create_payment, staging_read_payment, staging_refund_payment, staging_refund_read
+from .payments import YooKassaProvider, PlategaProvider, RollyPayProvider, CryptoBotProvider, PLATEGA_REFUNDED, ROLLYPAY_REFUNDED, SandboxProvider, verify_rollypay, verify_platega_headers, staging_create_payment, staging_read_payment, staging_refund_payment, staging_refund_read
 from .sandbox_mode import payments_sandbox_allowed, sandbox_checkout_requested, sandbox_local_vpn
 from .referral_program import snapshot as referral_snapshot
 from .payment_platform import StripePlatform, PayPalPlatform, CryptoGatewayPlatform, AppleStorePlatform, GooglePlayPlatform, PlatformProviderError
@@ -109,6 +109,10 @@ from .push_campaigns import router as push_campaigns_router
 app.include_router(push_campaigns_router)
 from .auto_update_api import router as auto_update_router
 app.include_router(auto_update_router)
+from .node_health import router as node_health_router
+app.include_router(node_health_router)
+from .bonus_days import router as bonus_days_router
+app.include_router(bonus_days_router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
@@ -593,6 +597,8 @@ async def start_backup_scheduler():
     _track_task(ops_alert_scheduler())
     from .backup_verify import restore_check_scheduler
     _track_task(restore_check_scheduler())
+    from .node_health import node_monitor_scheduler
+    _track_task(node_monitor_scheduler())
 
 @app.get("/health/live")
 async def health_live():
