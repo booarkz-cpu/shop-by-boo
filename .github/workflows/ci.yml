@@ -531,7 +531,12 @@ jobs:
           /usr/libexec/PlistBuddy -c 'Print :CorgiTunnelEnabled' "$app/Info.plist" | grep -qx YES
           binary="$app/PlugIns/CorgiTunnel.appex/CorgiTunnel"
           grep -E "warning: .*(LibXray|HevSocks5Tunnel|canImport)|error:" "$RUNNER_TEMP/ext.log" | head -10 | sed 's/^/::notice title=build::/' || true
-          nm "$binary" 2>/dev/null | grep -ciE "hev_socks5|LibXray" | sed 's/^/::notice title=engine symbols::/'
-          strings "$binary" | grep -q "Встроенный VPN не собран" && echo "::error title=extensions::CorgiTunnel was compiled without LibXray/HevSocks5Tunnel" && exit 1
-          nm "$binary" | grep -qE "hev_socks5_tunnel_main_from_str|LibXrayInvoke" \
+          # Files, not `nm | grep -q`: under pipefail an early-exiting grep fails the pipeline.
+          nm "$binary" > "$RUNNER_TEMP/symbols.txt" 2>/dev/null || true
+          strings "$binary" > "$RUNNER_TEMP/strings.txt" || true
+          grep -ciE "hev_socks5|LibXray" "$RUNNER_TEMP/symbols.txt" | sed 's/^/::notice title=engine symbols::/' || true
+          if grep -q "Встроенный VPN не собран" "$RUNNER_TEMP/strings.txt"; then
+            echo "::error title=extensions::CorgiTunnel was compiled without LibXray/HevSocks5Tunnel"; exit 1
+          fi
+          grep -qE "hev_socks5_tunnel_main_from_str" "$RUNNER_TEMP/symbols.txt" && grep -qE "LibXrayInvoke|libXray" "$RUNNER_TEMP/symbols.txt" \
             || { echo "::error title=extensions::the tunnel engine is not linked"; exit 1; }
