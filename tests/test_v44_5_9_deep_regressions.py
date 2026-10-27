@@ -78,28 +78,32 @@ async def test_auto_renew_tries_three_times_with_new_keys_then_stops(database, m
     monkeypatch.setattr(shop.YooKassaProvider, "charge_recurring", charge)
     await _renewable(database)
 
+    async def next_pass():
+        sub = await database.get(shop.Subscription, 1)
+        sub.next_renewal_at = datetime.utcnow() - timedelta(minutes=1)  # the pause has passed
+        await database.commit()
+        await shop.run_auto_renew_pass(database)
+        return await database.scalar(select(AutoRenewMethod).execution_options(populate_existing=True))
+
     await shop.run_auto_renew_pass(database)
     method = await database.scalar(select(AutoRenewMethod).execution_options(populate_existing=True))
-    assert len(charges) == 1 and (method.failure_count, method.status) == (1, "past_due")
-    assert timedelta(hours=1) < method.next_attempt_at - datetime.utcnow() <= timedelta(hours=2), "backoff 2 h"
+    assert len(charges) == 1 and (method.failure_count, method.status) == (0, "active"), "«pending» right after the charge is no failure"
+    assert method.next_attempt_at - datetime.utcnow() <= timedelta(minutes=16), "the same charge is re-checked soon"
     payment = await database.scalar(select(Payment).where(Payment.order_id == charges[0][1]))
     assert (payment.duration_days_snapshot, payment.traffic_limit_gb_snapshot, payment.device_limit_snapshot) == (30, 100, 2)
 
-    sub = await database.get(shop.Subscription, 1)
-    sub.next_renewal_at = datetime.utcnow() - timedelta(minutes=1)
-    await database.commit()
-    await shop.run_auto_renew_pass(database)  # the bank declined: the attempt fails, a new key is used
-    method = await database.scalar(select(AutoRenewMethod).execution_options(populate_existing=True))
+    method = await next_pass()  # the bank declined the first charge: a new key is used for the second
     orders = [o for _, o in charges]
     assert len(orders) == 2 and orders[1] == orders[0] + "-retry-2", "a failed attempt is retried under a new idempotency key"
+    assert (method.failure_count, method.status) == (1, "past_due")
+
+    method = await next_pass()
+    assert len(charges) == 3 and charges[2][1] == orders[0] + "-retry-3" and method.failure_count == 2
+
+    method = await next_pass()  # the third charge is declined too
     assert (method.failure_count, method.status, method.enabled) == (3, "payment_failed", False)
     assert (await database.get(User, 1, populate_existing=True)).auto_renew_enabled is False, "after three failures the customer pays by hand"
-
-    sub = await database.get(shop.Subscription, 1)
-    sub.next_renewal_at = datetime.utcnow() - timedelta(minutes=1)
-    await database.commit()
-    await shop.run_auto_renew_pass(database)
-    assert len(charges) == 2, "no fourth charge"
+    assert len(charges) == 3, "no fourth charge"
 
 
 @pytest.mark.asyncio
