@@ -60,6 +60,23 @@ jobs:
                 throw new Error(`Release asset missing: ${name}`);
               }
             }
+      - name: Check deployment secrets
+        if: steps.release.outputs.skip != 'true'
+        env:
+          HAS_HOST: ${{ secrets.DEPLOY_HOST != '' }}
+          HAS_USER: ${{ secrets.DEPLOY_USER != '' }}
+          HAS_KEY: ${{ secrets.DEPLOY_SSH_KEY != '' }}
+          HAS_PATH: ${{ secrets.DEPLOY_PATH != '' }}
+        run: |
+          missing=""
+          [ "$HAS_HOST" = true ] || missing="$missing DEPLOY_HOST"
+          [ "$HAS_USER" = true ] || missing="$missing DEPLOY_USER"
+          [ "$HAS_KEY" = true ] || missing="$missing DEPLOY_SSH_KEY"
+          [ "$HAS_PATH" = true ] || missing="$missing DEPLOY_PATH"
+          if [ -n "$missing" ]; then
+            echo "::error title=Deployment secrets missing::Add${missing} in Settings → Secrets and variables → Actions (environment «production» or repository), or turn AUTO_DEPLOY off. Nothing was deployed."
+            exit 1
+          fi
       - name: Install exact release with backup and health checks
         if: steps.release.outputs.skip != 'true'
         uses: appleboy/ssh-action@v1.2.2
