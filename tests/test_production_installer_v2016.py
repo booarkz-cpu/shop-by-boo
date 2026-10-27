@@ -68,7 +68,7 @@ cd "$ROOT"
 
 def test_installer_produces_both_env_files_without_corrupting_secrets(tmp_path):
     script = (ROOT / "deploy/install-vps.sh").read_text()
-    functions = script[script.index("env_line() {"):script.index("# Previous release contract:")]
+    functions = script[script.index("env_line() {"):script.index("\nINSTALLER_VERSION=")]
     writer = script[script.index("umask 077\n{"):script.index("# Strict production firewall:")]
     # The writer runs in a disposable directory, before any apt, Docker, or UFW step.
     inputs = {name: "value" for name in (

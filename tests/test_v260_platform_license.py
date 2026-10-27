@@ -83,7 +83,6 @@ def test_platform_routes_keep_secrets_and_bounds():
     migration = (ROOT / "backend/alembic/versions/0038_v2_6_0_platform.py").read_text()
     bot = (ROOT / "backend/app/bot.py").read_text()
     agent = (ROOT / "scripts/node-agent.py").read_text()
-    assert 'APP_VERSION = "2.6.0"' in main
     assert "from .platform_api import router as platform_router" in main
     assert "app.include_router(platform_router)" in main
     assert "reject_restricted" in main

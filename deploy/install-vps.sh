@@ -98,58 +98,8 @@ env_line() {
   printf "%s='%s'\n" "$key" "$escaped"
 }
 
-# Previous release contract: INSTALLER_VERSION="1.0.0-realise"
 INSTALLER_VERSION="21.5.1"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.8"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.7"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.6"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.5"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.4"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.6"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.5"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.4"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.3"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.2"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.1"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.0"
-# Historical compatibility marker: INSTALLER_VERSION="3.0.1"
-# Historical compatibility marker: INSTALLER_VERSION="3.0.0-realise"
-# Historical compatibility marker: INSTALLER_VERSION="2.13.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.12.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.11.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.10.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.9.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.8.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.7.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.6.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.5.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.4.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.3.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.2.1"
-# Historical compatibility marker: INSTALLER_VERSION="2.2.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.1.0"
-# Historical banner compatibility marker: Remnawave VPN Shop — 2.1.0
-# Legacy regression marker: INSTALLER_VERSION="2.0.3-audited"
-# Legacy regression marker: INSTALLER_VERSION="2.0.0-realise"
-# Previous release contract: INSTALLER_VERSION="45.0.0-enterprise"
-# V44.5 Enterprise legacy contract marker
-# INSTALLER_VERSION="43.1.0-production" legacy regression marker
 log "Remnawave VPN Shop — 21.5.1 stable core installer"
-# Historical compatibility marker: 3.1.3 русскоязычный production installer
-# Historical compatibility marker: 3.1.2 русскоязычный production installer
-# Historical compatibility marker: 3.1.1 русскоязычный production installer
-# Historical compatibility marker: 3.1.0 русскоязычный production installer
-# Historical compatibility marker: 3.0.1 русскоязычный production installer
-# Historical compatibility marker: 3.0.0-realise русскоязычный production installer
-# Historical compatibility marker: 2.13.0 русскоязычный production installer
-# Historical compatibility marker: 2.12.0 русскоязычный production installer
-# Historical compatibility marker: 2.11.0 русскоязычный production installer
-# Historical compatibility marker: 2.10.0 русскоязычный production installer
-# Historical compatibility marker: 2.9.0 русскоязычный production installer
-# Historical compatibility marker: 2.8.0 русскоязычный production installer
-# Historical compatibility marker: 2.7.0 русскоязычный production installer
-# Historical compatibility marker: Remnawave VPN Shop — 2.6.0 русскоязычный production installer
-# Historical compatibility marker: Remnawave VPN Shop — 2.5.0 русскоязычный production installer
 echo
 echo "Все основные настройки будут введены сейчас. После установки редактировать .env вручную не требуется."
 echo "Для HTTPS DNS-записи доменов должны уже указывать на этот VDS."

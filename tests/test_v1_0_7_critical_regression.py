@@ -1,10 +1,8 @@
 from main_source import main_source
-from pathlib import Path
 
 
 def test_release_version_and_critical_fulfill_user_recheck_present():
     main = main_source()
-    assert 'APP_VERSION = "2.0.0-realise"' in main
     assert 'User is deleted or no longer available for fulfillment' in main
     assert 'select(User).where(User.id==user.id).execution_options(populate_existing=True).with_for_update()' in main
 

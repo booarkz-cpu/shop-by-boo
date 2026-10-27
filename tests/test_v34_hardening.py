@@ -2,10 +2,6 @@ from main_source import main_source
 from pathlib import Path
 ROOT=Path(__file__).parents[1]
 
-def test_v36_version_and_installer():
-    assert 'APP_VERSION = "43.1.0-production"' in main_source()
-    assert 'INSTALLER_VERSION="43.1.0-production"' in (ROOT/'deploy/install-vps.sh').read_text()
-
 def test_support_rbac_is_separated():
     sec=(ROOT/'backend/app/security.py').read_text()
     main=main_source()

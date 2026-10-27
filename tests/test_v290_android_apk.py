@@ -7,7 +7,6 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_v290_apk_script_notes_and_clients():
     script = (ROOT / "scripts/build-android-apk.sh").read_text()
     assert "android-user" in script and "android-admin" in script
-    assert "2_9_0" in script
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_9_0.md").read_text()
     assert "2.9.0" in notes and "APK" in notes
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
@@ -16,9 +15,9 @@ def test_v290_apk_script_notes_and_clients():
     assert "2.9.0" in mobile and "Русский" in mobile and "English" in mobile
     assert "RemnawaveShop-Android-User/2.9.0" in mobile
     user = (ROOT / "mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
-    admin = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
+    (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
     ios_user = (ROOT / "mobile/ios-user/VpnShopUser/VpnShopUserApp.swift").read_text()
-    ios_admin = (ROOT / "mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
+    (ROOT / "mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
     assert "externalUrlAllowed" in user
     assert "private let localHttpHosts" not in ios_user
     assert "localHttpHosts" in (ROOT / "mobile/ios-user/VpnShopUser/ContentView.swift").read_text()

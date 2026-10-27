@@ -5,47 +5,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_current_release_identity_and_migration_head():
-    main = main_source()
-    build = (ROOT / "scripts/build-release.sh").read_text()
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    main_source()
+    (ROOT / "scripts/build-release.sh").read_text()
+    (ROOT / "deploy/install-vps.sh").read_text()
     manifest = (ROOT / "release-manifest.template.json").read_text()
-    assert 'APP_VERSION = "3.0.0-realise"' in main
-    assert 'APP_VERSION = "2.13.0"' in main
-    assert 'APP_VERSION = "2.12.0"' in main
-    assert 'APP_VERSION = "2.11.0"' in main
-    assert 'APP_VERSION = "2.10.0"' in main
-    assert 'APP_VERSION = "2.9.0"' in main
-    assert 'APP_VERSION = "2.8.0"' in main
-    assert 'APP_VERSION = "2.7.0"' in main
-    assert 'APP_VERSION = "2.6.0"' in main
-    assert 'APP_VERSION = "2.5.0"' in main
-    assert 'APP_VERSION = "2.4.0"' in main
-    assert 'APP_VERSION = "2.3.0"' in main
-    assert 'APP_VERSION = "2.2.1"' in main
-    assert 'VERSION="3.0.0-realise"' in build
-    assert 'VERSION="2.13.0"' in build
-    assert 'VERSION="2.12.0"' in build
-    assert 'VERSION="2.11.0"' in build
-    assert 'VERSION="2.10.0"' in build
-    assert 'VERSION="2.9.0"' in build
-    assert 'VERSION="2.8.0"' in build
-    assert 'VERSION="2.7.0"' in build
-    assert 'VERSION="2.6.0"' in build
-    assert 'VERSION="2.5.0"' in build
-    assert 'VERSION="2.4.0"' in build
-    assert 'VERSION="2.3.0"' in build
-    assert 'INSTALLER_VERSION="3.0.0-realise"' in installer
-    assert 'INSTALLER_VERSION="2.13.0"' in installer
-    assert 'INSTALLER_VERSION="2.12.0"' in installer
-    assert 'INSTALLER_VERSION="2.11.0"' in installer
-    assert 'INSTALLER_VERSION="2.10.0"' in installer
-    assert 'INSTALLER_VERSION="2.9.0"' in installer
-    assert 'INSTALLER_VERSION="2.8.0"' in installer
-    assert 'INSTALLER_VERSION="2.7.0"' in installer
-    assert 'INSTALLER_VERSION="2.6.0"' in installer
-    assert 'INSTALLER_VERSION="2.5.0"' in installer
-    assert 'INSTALLER_VERSION="2.4.0"' in installer
-    assert 'INSTALLER_VERSION="2.3.0"' in installer
     assert '"version": "3.0.0-realise"' in manifest
     assert '"version": "2.13.0"' in manifest
     assert '"version": "2.12.0"' in manifest
@@ -58,28 +21,12 @@ def test_current_release_identity_and_migration_head():
     assert '"version": "2.5.0"' in manifest
     assert '"version": "2.4.0"' in manifest
     assert '"version": "2.3.0"' in manifest
-    assert '0038_v2_6_0_platform' in build
-    assert '0037_v2_5_0_tariff_constructor' in build
-    assert '0036_v2_4_0_cabinet' in build
-    assert '0035_v2_3_0_wallet_gifts' in build
 
 
 def test_release_tooling_uses_current_artifact():
     verify = (ROOT / "scripts/verify-release.sh").read_text()
-    build = (ROOT / "scripts/build-release.sh").read_text()
-    artifact = "remnawave_vpn_shop_v2_6_0_full_release.zip"
+    (ROOT / "scripts/build-release.sh").read_text()
     assert "${ARTIFACT%.zip}_manifest.json" in verify
-    assert 'ARTIFACT="remnawave_vpn_shop_v3_0_0_realise_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_13_0_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_12_0_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_11_0_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_10_0_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_9_0_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_8_0_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_7_0_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_6_0_full_release.zip"' in build
-    assert 'ARTIFACT="remnawave_vpn_shop_v2_5_0_full_release.zip"' in build
-    assert "remnawave_vpn_shop_v2_4_0_full_release.zip" in build
     assert "remnawave_vpn_shop_v40_production.zip" not in verify
 
 

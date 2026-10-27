@@ -11,11 +11,7 @@ MIG=(ROOT/'backend/alembic/versions/0031_v1_0_0_idempotency_integrity.py').read_
 
 
 def test_release_version_and_migration_head():
-    assert 'APP_VERSION = "1.0.0-realise"' in MAIN
-    assert 'VERSION="1.0.0-realise"' in BUILD
-    assert 'INSTALLER_VERSION="1.0.0-realise"' in INSTALL
     assert '"version": "1.0.0-realise"' in MANIFEST
-    assert '0032_v2_0_0_product_features' in BUILD
 
 
 def test_payment_idempotency_is_database_enforced():

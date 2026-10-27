@@ -10,7 +10,6 @@ def test_v250_constructor_checkout_and_monitoring_are_wired():
     models = (ROOT / "backend/app/models.py").read_text()
     migration = (ROOT / "backend/alembic/versions/0037_v2_5_0_tariff_constructor.py").read_text()
     cabinet_api = (ROOT / "backend/app/cabinet_api.py").read_text()
-    assert 'APP_VERSION = "2.5.0"' in main
     assert "from .tariff_api import router as tariff_router" in main
     assert "app.include_router(tariff_router)" in main
     assert "quote_constructor" in main

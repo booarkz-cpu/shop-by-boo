@@ -14,7 +14,7 @@ def test_python_compiles():
 
 def test_main_has_v19_features():
     s=main_source()
-    for x in ['APP_VERSION = "43.1.0-production"','/api/admin/analytics','/api/admin/sessions','/api/admin/payments/{payment_id}/retry','/api/admin/backups/{backup_id}/verify','/api/admin/backups/{backup_id}/restore','/api/me/referral','/api/me/subscription','fulfillment_retry_scheduler','expiry_notification_scheduler']:
+    for x in ['/api/admin/analytics','/api/admin/sessions','/api/admin/payments/{payment_id}/retry','/api/admin/backups/{backup_id}/verify','/api/admin/backups/{backup_id}/restore','/api/me/referral','/api/me/subscription','fulfillment_retry_scheduler','expiry_notification_scheduler']:
         assert x in s
     m=re.search(r'async def admin_menu_delete.*?(?=\n@app|\Z)',s,re.S); assert m and 'payload' not in m.group(0)
 

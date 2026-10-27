@@ -62,7 +62,6 @@ def test_native_clients_keep_session_bounds():
     main = main_source()
     assert "android-user" in auth and "ios-admin" in auth
     assert "session_body" in cabinet and "session_body" in main
-    assert 'APP_VERSION = "2.7.0"' in main
     assert "LicenseRef-CorgiLusi-Commercial-Use" in (ROOT / "mobile/LICENSE").read_text()
     assert "Android и iOS" in (ROOT / "LICENSE").read_text()
 

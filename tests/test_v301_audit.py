@@ -11,8 +11,6 @@ def test_release_301_is_current_and_documented():
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     security = (ROOT / "docs/archive/SECURITY_BEFORE_ALPHA_6.md").read_text()
     instruction = (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()
-    assert main.index('APP_VERSION = "3.0.1"') < main.index('APP_VERSION = "3.0.0-realise"')
-    assert main.index('APP_VERSION = "3.0.0-realise"') < main.index('APP_VERSION = "2.13.0"')
     assert "3.0.1" in notes and "Русский" in notes and "English" in notes
     assert "3.0.1" in readme and "3.0.0-realise" in readme
     assert "3.0.1" in security and "decrypt_secret" in security

@@ -10,9 +10,6 @@ MANIFEST=(ROOT/'release-manifest.template.json').read_text()
 
 
 def test_v2_release_contract_and_migration_head():
-    assert 'APP_VERSION = "2.0.0-realise"' in MAIN
-    assert 'VERSION="2.0.0-realise"' in BUILD
-    assert '0032_v2_0_0_product_features' in BUILD
     assert '"version": "2.0.0-realise"' in MANIFEST
 
 

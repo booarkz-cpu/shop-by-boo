@@ -251,7 +251,6 @@ async def rw_extend(user_id:str,payload:dict,db:AsyncSession=Depends(get_db),adm
 @shop.app.get("/api/admin/remnawave/users/{user_id}/subscription")
 async def rw_subscription(user_id:str,admin=Depends(require_permission("users.keys"))): return await shop.RemnawaveClient().get_subscription(shop._remote_user_id(user_id))
 @shop.app.get("/api/admin/remnawave/users/{user_id}/keys")
-# Historical compatibility marker: async def rw_keys(user_id:int,admin=Depends(require_permission("manage_users")))
 async def rw_keys(user_id:str,admin=Depends(require_permission("users.keys"))): return await shop.RemnawaveClient().get_connection_keys(shop._remote_user_id(user_id))
 
 @shop.app.get("/api/admin/remnawave/health")

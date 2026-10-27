@@ -1,6 +1,6 @@
 # Установка: от нуля до продакшена
 
-Пошаговая инструкция для дистрибутива `v28.33.0` (runtime/API `21.5.1`, миграция магазина `0078_campaign_ab`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
+Пошаговая инструкция для дистрибутива `v28.34.0` (runtime/API `21.5.1`, миграция магазина `0078_campaign_ab`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
 
 ## Содержание
 
@@ -74,8 +74,8 @@ AAAA добавляйте только если IPv6 действительно 
 ## 4. Установка одной командой
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.33.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.33.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.34.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.34.0 bash /root/shop-install.sh
 ```
 
 Что делает установщик (`install.sh` → `deploy/install-vps.sh`):
@@ -90,7 +90,7 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.33.0/in
 Ручная установка без установщика:
 
 ```bash
-git clone --branch v28.33.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.34.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env            # заполните (раздел 5)
 python3 scripts/harden-env.py   # сгенерирует недостающие секреты (значения не печатаются)
@@ -167,12 +167,20 @@ bash scripts/doctor.sh                       # здоровье API и отве�
 
 ```bash
 bash /opt/vpn-shop/scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.33.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.34.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 Скрипт скачивает архив выпуска, сверяет SHA-256 и манифест, делает копию, собирает образы, применяет миграции и проверяет здоровье ([регламент](ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
-**Из GitHub Actions** («Corgi Lusi Production Deploy»). Workflow подключается к серверу по SSH и запускает то же обновление. Настройка:
+**Автообновление с сервера (рекомендуется, без секретов).** Установщик спрашивает «Включить автообновление» (по умолчанию — да) и ставит агент: systemd-таймер `vpn-shop-update` проверяет GitHub каждую ночь в 03:00 по Москве (±15 минут) и запускает то же `update-from-github.sh`, а таймер `vpn-shop-update-agent` раз в минуту читает команды админ-панели. Сервер сам обращается к GitHub, поэтому SSH-ключи и секреты GitHub не нужны.
+
+- Управление — **админ-панель → Выпуски → Автообновление**: включить или выключить, время проверки, «Проверить и обновить сейчас», установленная и последняя версии, итог и журнал последнего запуска. Смотреть может оператор, менять — только администратор; каждое действие пишется в журнал аудита.
+- Панель и агент обмениваются файлами в `/opt/vpn-shop/.control` (в контейнере `/data/control`); backend не выполняет команд на сервере.
+- Выпуск, который не установился (откат выполнен автоматически), ночью повторно не ставится; «Обновить сейчас» пробует снова. В режиме восстановления (`.rollback/RECOVERY_MODE`) автообновление останавливается до ручной проверки.
+- Итог приходит в Telegram (`ALERT_TELEGRAM_CHAT_ID`, иначе `ADMIN_TELEGRAM_ID`). Хранятся 5 последних снимков.
+- На уже установленном сервере включить один раз: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`. Команды `status`, `run` (обновить сейчас) и `disable`.
+
+**Из GitHub Actions** (альтернатива: push-деплой по SSH) («Corgi Lusi Production Deploy»). Workflow подключается к серверу по SSH и запускает то же обновление. Настройка:
 
 1. На сервере: `sudo bash /opt/vpn-shop/scripts/setup-auto-deploy.sh`. Скрипт создаст отдельный ключ `/root/.ssh/github_deploy`, разрешит его для root и напечатает значения секретов.
 2. В GitHub: **Settings → Environments → production** (создайте окружение, если его нет) → **Environment secrets → Add environment secret**:
@@ -189,7 +197,7 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.33.0 bash /opt/vpn-shop/scripts/u
 
 Отозвать доступ: удалите строку `github-deploy@…` из `/root/.ssh/authorized_keys`.
 
-**Автодеплой**: переменная репозитория `AUTO_DEPLOY=true` (Settings → Secrets and variables → Actions → Variables). Тогда каждый новый стабильный выпуск, опубликованный после зелёного CI на `main`, ставится на сервер автоматически тем же путём. Если окружению `production` назначен обязательный проверяющий, деплой ждёт его одобрения.
+**Автодеплой**: переменная репозитория `AUTO_DEPLOY=true` (Settings → Secrets and variables → Actions → Variables). Тогда каждый новый стабильный выпуск, опубликованный после зелёного CI на `main`, ставится на сервер автоматически тем же путём. Если окружению `production` назначен обязательный проверяющий, деплой ждёт его одобрения. Если секреты `DEPLOY_*` не заданы, автоматический запуск пропускается с пояснением (выпуск поставит агент на сервере); ручной запуск называет недостающие секреты и завершается ошибкой.
 
 **Откат**: `bash scripts/rollback.sh` — возвращает архив предыдущего выпуска и снимок базы из `.rollback/`, которые сохраняет обновление; без снимка базы откат отказывается работать.
 

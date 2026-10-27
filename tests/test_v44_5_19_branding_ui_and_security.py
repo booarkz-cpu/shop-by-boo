@@ -56,10 +56,7 @@ def test_frontend_supports_light_dark_theme_and_custom_branding():
 
 
 def test_release_is_44_5_20_and_pillow_is_pinned():
-    assert '1.0.0-realise' in BUILD
-    assert '1.0.0-realise' in INSTALL
     assert '1.0.0-realise' in MANIFEST
-    assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed.zip' in BUILD
     assert re.search(r'^Pillow==\d', REQ, re.M), 'Pillow must stay an exact pinned dependency'
 
 

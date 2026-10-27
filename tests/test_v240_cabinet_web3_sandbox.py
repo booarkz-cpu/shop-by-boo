@@ -11,7 +11,6 @@ def test_v240_cabinet_auth_menu_and_sandbox_are_wired():
     payments = (ROOT / "backend/app/payments.py").read_text()
     cfg = (ROOT / "backend/app/config.py").read_text()
     migration = (ROOT / "backend/alembic/versions/0036_v2_4_0_cabinet.py").read_text()
-    assert 'APP_VERSION = "2.4.0"' in main
     assert "from .cabinet_api import router as cabinet_router" in main
     assert "app.include_router(cabinet_router)" in main
     assert 'class SandboxProvider' in payments
@@ -70,4 +69,3 @@ def test_v240_docs_and_installer_cover_cabinet():
     assert "Sandbox" in notes or "sandbox" in notes
     assert "CABINET_DOMAIN" in installer
     assert "PAYMENTS_SANDBOX" in installer
-    assert 'INSTALLER_VERSION="2.4.0"' in installer

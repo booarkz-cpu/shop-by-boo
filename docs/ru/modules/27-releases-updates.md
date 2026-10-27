@@ -1,11 +1,11 @@
-> Актуальная инструкция дистрибутива v28.33.0. Runtime/API `21.5.1`, head магазина `0078_campaign_ab`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.34.0. Runtime/API `21.5.1`, head магазина `0078_campaign_ab`, Support Pro `0008`.
 
 # 27. Диагностика и обновления
 
 ## Для чего
 
 - **Диагностика** — проверка подключений к базе, Redis и Remnawave.
-- **Обновления** — установленная версия, последний выпуск на GitHub, команда обновления.
+- **Обновления** — установленная версия, последний выпуск на GitHub, автообновление по расписанию и «Обновить сейчас».
 - **Развёртывания** — журнал поэтапного выпуска: версия, доля трафика, ошибки, продвижение и откат.
 
 ## Где и кто
@@ -14,15 +14,34 @@
 | --- | --- | --- |
 | **Система → Диагностика** | Общий статус и проверки PostgreSQL, Redis, Remnawave; «Проверить снова»; блок «Готовность production» | `ops.diagnostics` (оператор, администратор) |
 | **Система → Обновления** | Текущая версия, релиз GitHub, «Обновление доступно» или «Актуальная версия», команда на сервере, история | `ops.releases` |
+| **Система → Обновления → Автообновление** | Включить/выключить, время проверки (МСК), «Проверить и обновить сейчас», итог и журнал последнего запуска | смотреть — `ops.releases`; менять и запускать — `settings.runtime.write` (только администратор) |
 | **Система → Развёртывания** | Записи поэтапного выпуска | `ops.releases` |
 
-Панель только показывает статус. Само обновление выполняется командой на сервере: она сверяет SHA-256 архива, сохраняет `.env` и запускает `scripts/update.sh` со снимком для отката.
+Само обновление выполняет сервер: команда сверяет SHA-256 архива, сохраняет `.env` и запускает `scripts/update.sh` со снимком для отката.
+
+## Автообновление
+
+Установщик (с v28.34.0) ставит агент `scripts/auto_update.py` и два systemd-таймера:
+
+- `vpn-shop-update` — каждую ночь в выбранное время по Москве (по умолчанию 03:00, ±15 минут) проверяет GitHub и ставит новый стабильный выпуск через `update-from-github.sh`;
+- `vpn-shop-update-agent` — раз в минуту читает запрос админ-панели и пишет состояние для неё.
+
+Панель и агент обмениваются двумя файлами в `/opt/vpn-shop/.control` (в контейнере backend — `/data/control`): `auto-update.request.json` (панель: включено, время, «Обновить сейчас») и `auto-update.status.json` (агент: версии, итог, журнал). Агент принимает только эти поля и проверяет их формат; backend не выполняет команд на сервере.
+
+| Ситуация | Что происходит |
+| --- | --- |
+| Новый выпуск установлен | Итог «Обновлено», сообщение в Telegram |
+| Ошибка установки | `update.sh` откатывает файлы и базу, итог «Ошибка, выполнен откат»; этот выпуск ночью больше не ставится, «Обновить сейчас» пробует снова |
+| Режим восстановления (`.rollback/RECOVERY_MODE`) | Автообновление остановлено до ручной проверки |
+| Агент не отвечает дольше 5 минут | Карточка показывает команду установки агента |
+
+На сервере, установленном до v28.34.0, включите один раз: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`. Другие команды: `status`, `run`, `disable`.
 
 ## Версии
 
 | Что | Где смотреть |
 | --- | --- |
-| Тег дистрибутива (например `v28.33.0`) | Выпуски GitHub, **Обновления** |
+| Тег дистрибутива (например `v28.34.0`) | Выпуски GitHub, **Обновления** |
 | Версия runtime/API (`21.5.1`) | **Все разделы**, `/health/ready`, `docker compose exec -T backend python -c 'from app.main import APP_VERSION; print(APP_VERSION)'` |
 | Миграции магазина | `docker compose exec -T backend alembic current` |
 | Миграции Support Pro | `docker compose exec -T support_db psql -U support -d support -Atc 'SELECT version_num FROM alembic_version'` |
@@ -36,7 +55,7 @@
 3. Обновите:
 
 ```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.33.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.34.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 Без `RELEASE_TAG` берётся последний стабильный выпуск. Если сервер ставился до появления `update-from-github.sh`, используйте первый способ из [регламента обновления](../DISTRIBUTION_UPGRADE_CURRENT.md).
@@ -97,7 +116,7 @@ docker compose logs --tail=100 backend worker bot
 
 ## API
 
-`GET /api/admin/v41/diagnostics`, `GET /api/admin/releases`, `POST /api/admin/releases/check`, `GET /api/admin/github-update`, `/api/admin/deployments`.
+`GET /api/admin/v41/diagnostics`, `GET /api/admin/releases`, `POST /api/admin/releases/check`, `GET /api/admin/github-update`, `GET`/`PUT /api/admin/auto-update`, `POST /api/admin/auto-update/run`, `/api/admin/deployments`.
 
 ## Подробнее
 

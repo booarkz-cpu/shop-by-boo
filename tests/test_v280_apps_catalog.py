@@ -32,7 +32,6 @@ def test_admin_and_cabinet_expose_app_catalog():
     main = main_source()
     user_android = (ROOT / "mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
     admin_android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
-    assert 'APP_VERSION = "2.8.0"' in main
     assert "from __future__ import annotations" in main
     assert "apps_router" in main
     assert "/api/admin/apps" in admin and "Приложения" in admin and "client-logo" not in admin

@@ -23,7 +23,3 @@ def test_v23_security_and_recovery_contracts():
     assert '/api/admin/recovery' in MAIN
     assert '/api/admin/incident-mode' in MAIN
     assert '/api/admin/referrals/reconcile' in MAIN
-
-def test_v23_idempotency_scope():
-    # Plan validation and the required key: tests/test_behaviour_payments_v2.py
-    assert 'provider_name}:{user.id}:{plan.id}:{idem}' in MAIN

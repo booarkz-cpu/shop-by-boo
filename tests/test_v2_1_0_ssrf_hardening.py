@@ -9,13 +9,6 @@ BUILD = (ROOT / 'scripts/build-release.sh').read_text()
 INSTALLER = (ROOT / 'deploy/install-vps.sh').read_text()
 
 
-def test_release_identity_is_204():
-    assert 'APP_VERSION = "2.1.0"' in MAIN
-    assert 'VERSION="2.1.0"' in BUILD
-    assert 'INSTALLER_VERSION="2.1.0"' in INSTALLER
-    assert 'Remnawave VPN Shop — 2.1.0' in INSTALLER
-
-
 def test_staging_urls_are_public_https_validated_before_persistence():
     block = MAIN[MAIN.index('async def update_staging_e2e_config'):MAIN.index('async def _run_staging_e2e')]
     assert 'validate_public_url(payload.public_base_url, allow_empty=False)' in block

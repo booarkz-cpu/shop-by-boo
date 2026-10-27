@@ -28,8 +28,3 @@ def test_v44_5_16_migration_preserves_previous_head():
     assert '0030_v44_5_16_privacy_and_refund_integrity' in text
     assert '0029_v44_5_15_safety_integrity' in text
 
-
-def test_release_is_44_5_15():
-    assert '1.0.0-realise' in main_source()
-    assert '1.0.0-realise' in (ROOT / 'scripts/build-release.sh').read_text()
-    assert '1.0.0-realise' in (ROOT / 'deploy/install-vps.sh').read_text()
