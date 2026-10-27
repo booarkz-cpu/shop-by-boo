@@ -112,7 +112,7 @@ app.include_router(auto_update_router)
 # v28.35–36 modules, each with its own APIRouter (same order as before: route matching is unchanged).
 import importlib as _importlib
 for _module in ("node_health", "bonus_days", "promo_generator", "telegram_backup", "anti_sharing", "support_ai", "admin_web_ticket",
-                "economics", "block_monitor", "provider_report", "mobile_mirrors", "account_sync"):
+                "economics", "block_monitor", "provider_report", "mobile_mirrors", "account_sync", "diagnostics"):
     app.include_router(_importlib.import_module(f".{_module}", __package__).router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
@@ -205,6 +205,7 @@ RATE_LIMITS = {
     "/api/me/sync": 300,
     "/api/probe/report": 30,
     "/api/me/source": 10,
+    "/api/me/diagnostics": 5,
     "/api/probe/targets": 30,
     "/api/tariff-constructors": 60,
     "/api/agent/heartbeat": 120,

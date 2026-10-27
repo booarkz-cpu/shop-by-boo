@@ -690,6 +690,17 @@ struct UserRootView: View {
                 _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/gifts/redeem", body: ["code": text.uppercased()])
                 DispatchQueue.main.async { notice = t("gift_ok"); refresh() }
             }
+        case "report" where data.subscriptionUrl.hasPrefix("https://"):
+            // The report carries the phone's own checks; the shop answers with the likely cause at once.
+            let (api, session, language, words, subscription, version, state) = (base, token, lang, text, data.subscriptionUrl, appVersion, "\(vpn)")
+            let system = UIDevice.current.systemVersion
+            work {
+                let checks = CorgiDiagnostics.run(base: api, subscription: subscription)
+                let body: [String: Any] = ["message": words, "platform": "ios", "app_version": version, "os_version": system, "vpn_state": state, "checks": checks]
+                let out = try ShopClient(base: api, token: session, lang: language).call("POST", "/api/me/diagnostics", body: body) as? [String: Any] ?? [:]
+                let hints = (out["hints"] as? [String] ?? []).joined(separator: "\n")
+                DispatchQueue.main.async { notice = hints.isEmpty ? t("ticket_sent") : hints }
+            }
         case "ticket", "report":
             let subject = kind == "report" ? t("report_subject") : text2
             let message = kind == "report" ? "\(text)\n\n— \(appVersion) · iOS \(UIDevice.current.systemVersion) · VPN \(vpn)" : text

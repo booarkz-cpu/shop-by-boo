@@ -492,6 +492,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/devices` | Register Device |
 | `POST` | `/api/me/devices/transfer` | Device Transfer |
 | `POST` | `/api/me/devices/{device_id}/revoke` | Revoke Device |
+| `POST` | `/api/me/diagnostics` | My Diagnostics |
 | `GET` | `/api/me/email` | Email Status |
 | `POST` | `/api/me/email/verification/request` | Request Verification |
 | `GET` | `/api/me/family` | My Family |

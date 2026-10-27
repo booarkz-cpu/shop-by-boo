@@ -957,6 +957,20 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     kind == "redeem" -> { val code = dialogText.trim().uppercase(); work {
                         ShopApi(base, token, lang).post("/api/me/gifts/redeem", JSONObject().put("code", code))
                         activity.runOnUiThread { notice(t("gift_ok")); refresh() } } }
+                    kind == "report" && data.subscriptionUrl.isNotBlank() -> {
+                        // The report carries the phone's own checks; the shop answers with the likely cause at once.
+                        val words = dialogText.trim()
+                        val subscription = data.subscriptionUrl
+                        work {
+                            val checks = shop.remnawave.user.support.CorgiDiagnostics.run(base, subscription)
+                            val body = JSONObject().put("message", words).put("platform", "android").put("app_version", ui.version)
+                                .put("os_version", android.os.Build.VERSION.RELEASE).put("vpn_state", ui.vpn.toString()).put("checks", checks)
+                            val out = ShopApi(base, token, lang).post("/api/me/diagnostics", body) as JSONObject
+                            val hints = out.optJSONArray("hints") ?: JSONArray()
+                            val text = (0 until hints.length()).joinToString("\n") { hints.optString(it) }
+                            activity.runOnUiThread { notice(text.ifBlank { t("ticket_sent") }) }
+                        }
+                    }
                     kind == "ticket" || kind == "report" -> {
                         val subject = if (kind == "report") t("report_subject") else dialogText2.trim()
                         val message = if (kind == "report") "${dialogText.trim()}\n\n— ${ui.version} · Android ${android.os.Build.VERSION.RELEASE} · VPN ${ui.vpn}" else dialogText.trim()

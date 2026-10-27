@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1700**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1704**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -358,6 +358,7 @@
 | [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
 | [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
+| [backend/app/diagnostics.py](../backend/app/diagnostics.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
 | [backend/app/economics.py](../backend/app/economics.py) | API, бот и worker |
 | [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
@@ -810,6 +811,7 @@
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
 | [docs/modules/i18n.md](../docs/modules/i18n.md) | Документация |
+| [docs/modules/in_app_diagnostics.md](../docs/modules/in_app_diagnostics.md) | Документация |
 | [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
 | [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
@@ -1084,6 +1086,7 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/support/CorgiDiagnostics.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/support/CorgiDiagnostics.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt) | Мобильные приложения |
@@ -1552,6 +1555,7 @@
 | [tests/test_customer_passkeys.py](../tests/test_customer_passkeys.py) | Проверки |
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
 | [tests/test_dependency_locks.py](../tests/test_dependency_locks.py) | Проверки |
+| [tests/test_diagnostics.py](../tests/test_diagnostics.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
 | [tests/test_e2e_journeys.py](../tests/test_e2e_journeys.py) | Проверки |
