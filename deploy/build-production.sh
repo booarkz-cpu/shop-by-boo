@@ -8,6 +8,10 @@ bash scripts/preflight.sh
 if command -v docker >/dev/null 2>&1; then
   if [[ -f .env.images ]]; then set -a; . ./.env.images; set +a; fi
   docker compose config >/dev/null
+  # Auto-update agent (scripts/auto_update.py): the .control dir shared with the admin panel must exist before
+  # Docker mounts it; a server updated from an older release gets nightly auto-update once (this script is run
+  # from the new release, unlike update.sh); an owner's «disable» or the installer's «no» is kept.
+  APP_DIR="$ROOT" python3 scripts/auto_update.py ensure || echo "WARNING: auto-update agent not refreshed" >&2
   # Each Dockerfile is built once (scripts/compose-build.sh): backend, worker and mail_receiver share one.
   if [[ "${FULL_REBUILD:-1}" == "1" ]]; then bash scripts/compose-build.sh fresh; else bash scripts/compose-build.sh cached; fi
   docker compose up -d --remove-orphans

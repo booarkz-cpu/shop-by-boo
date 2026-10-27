@@ -24,6 +24,7 @@ import datetime as dt
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import urllib.parse
@@ -274,6 +275,22 @@ def cmd_install() -> None:
     print(f"Журнал: journalctl -u {UNIT}. Выключить: sudo bash {APP_DIR}/scripts/auto-update.sh disable")
 
 
+def cmd_ensure() -> None:
+    """Called by update.sh before the containers start: the control dir exists with the right owner (or Docker
+    would create it root-only), a server updated from an older release gets auto-update once, and units of a
+    newer release are refreshed. An owner's «disable» is kept."""
+    prepare_control_dir()
+    if os.environ.get("CI") or os.geteuid() != 0 or not SYSTEMD_DIR.is_dir() or not shutil.which("systemctl"):
+        return  # CI images, unprivileged builds and hosts without systemd only get the directory
+    if not CONFIG.exists():
+        cmd_install()
+        return
+    config = load_config()
+    installed = (SYSTEMD_DIR / f"{AGENT}.timer").exists()
+    if installed and any(not (SYSTEMD_DIR / n).exists() or (SYSTEMD_DIR / n).read_text() != t for n, t in units(config).items()):
+        apply_schedule(config)
+
+
 def cmd_agent() -> None:
     config = load_config()
     request = read_request()
@@ -323,6 +340,8 @@ def main(argv: list[str]) -> int:
     command = argv[1] if len(argv) > 1 else ""
     if command in {"install", "enable"}:
         cmd_install()
+    elif command == "ensure":
+        cmd_ensure()
     elif command == "run":
         return 0 if run_update() in {"updated", "current", "skipped"} else 1
     elif command == "agent":

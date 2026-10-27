@@ -35,7 +35,7 @@
 | Режим восстановления (`.rollback/RECOVERY_MODE`) | Автообновление остановлено до ручной проверки |
 | Агент не отвечает дольше 5 минут | Карточка показывает команду установки агента |
 
-На сервере, установленном до v28.34.0, включите один раз: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`. Другие команды: `status`, `run`, `disable`.
+Сервер, установленный до v28.34.0, получает агент сам при обновлении: сборка выпуска (`deploy/build-production.sh`) вызывает `auto_update.py ensure`. Ответ «нет» в установщике и команда `disable` сохраняются. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, `status`, `run`, `disable`.
 
 ## Версии
 

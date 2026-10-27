@@ -146,3 +146,41 @@ def test_disable_removes_the_units(agent):
     agent.cmd_disable()
     assert not list(agent.SYSTEMD_DIR.iterdir())
     assert json.loads(agent.CONFIG.read_text())["enabled"] is False
+
+
+@pytest.fixture
+def as_root(agent, monkeypatch):
+    monkeypatch.delenv("CI", raising=False)
+    monkeypatch.setattr(agent.os, "geteuid", lambda: 0)
+    monkeypatch.setattr(agent.shutil, "which", lambda name: "/usr/bin/" + name)
+    monkeypatch.setattr(agent, "prepare_control_dir", lambda: agent.CONTROL_DIR.mkdir(parents=True, exist_ok=True))
+    return agent
+
+
+def test_an_updated_older_server_gets_auto_update_once(as_root):
+    as_root.cmd_ensure()
+    assert (as_root.SYSTEMD_DIR / "vpn-shop-update.timer").exists()
+    assert json.loads(as_root.CONFIG.read_text())["enabled"] is True
+
+
+def test_the_owners_no_is_kept_on_later_updates(as_root):
+    as_root.CONF_DIR.mkdir()
+    as_root.CONFIG.write_text('{"enabled": false, "time": "03:00"}\n')
+    as_root.cmd_ensure()
+    assert not (as_root.SYSTEMD_DIR / "vpn-shop-update.timer").exists()
+    assert as_root.CONTROL_DIR.is_dir(), "the panel's directory still exists for Docker to mount"
+
+
+def test_units_of_a_new_release_are_refreshed(as_root):
+    as_root.cmd_install()
+    timer = as_root.SYSTEMD_DIR / "vpn-shop-update.timer"
+    timer.write_text("[Timer]\nOnCalendar=old\n")
+    as_root.cmd_ensure()
+    assert "Europe/Moscow" in timer.read_text()
+
+
+def test_ci_and_unprivileged_builds_only_get_the_directory(agent, monkeypatch):
+    monkeypatch.setenv("CI", "true")
+    monkeypatch.setattr(agent, "prepare_control_dir", lambda: agent.CONTROL_DIR.mkdir(parents=True, exist_ok=True))
+    agent.cmd_ensure()
+    assert agent.CONTROL_DIR.is_dir() and not agent.CONFIG.exists()

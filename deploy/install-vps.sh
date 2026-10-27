@@ -489,6 +489,8 @@ if [[ -w /proc/sys/vm/overcommit_memory ]]; then
 fi
 log "Собираю production-образы с актуальными базовыми образами..."
 bash scripts/compose-build.sh fresh
+# Shared with the auto-update agent: root owns it, the backend (uid 10001) writes the panel's requests.
+install -d -m 0770 -o 0 -g 10001 "$ROOT/.control"
 if ! docker compose up -d; then
   docker compose ps >&2 || true
   docker compose logs --tail=180 backend worker admin miniapp cabinet >&2 || true
@@ -542,7 +544,11 @@ case "${AUTO_UPDATE:-yes}" in
     log "Включаю автообновление с GitHub (управление — админ-панель → «Обновления»)..."
     APP_DIR="$ROOT" bash "$ROOT/scripts/auto-update.sh" install || warn "Автообновление не включилось. Включите позже: sudo bash $ROOT/scripts/auto-update.sh install"
     ;;
-  *) warn "Автообновление выключено. Включить: sudo bash $ROOT/scripts/auto-update.sh install" ;;
+  *)
+    # Remember the choice: deploy/build-production.sh does not switch auto-update on later.
+    install -d -m 0750 /etc/vpn-shop
+    printf '{"enabled": false, "time": "03:00"}\n' > /etc/vpn-shop/auto-update.json
+    warn "Автообновление выключено. Включить: sudo bash $ROOT/scripts/auto-update.sh install" ;;
 esac
 
 echo
