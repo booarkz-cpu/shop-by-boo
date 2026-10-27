@@ -56,6 +56,12 @@ Telegram-бот и Mini App · личный кабинет · приложени
 | 📱 **Вся панель в телефоне** | Вкладка «Вся панель» в Android- и iOS-админке открывает полную веб-панель по одноразовой ссылке |
 | 🚀 **Обновление без простоя** | Новая версия backend заменяет старую только после ответа 200; APK, AAB и IPA прикладываются к каждому [выпуску](https://github.com/booarkz-cpu/shop-by-boo/releases/latest). [zero_downtime.md](docs/modules/zero_downtime.md) |
 
+| Мониторинг нод (веб) | Ноды в Android-админке | Ноды в iOS-админке | «Вся панель» в телефоне |
+| :---: | :---: | :---: | :---: |
+| ![Мониторинг и автовосстановление нод](docs/assets/screens/admin-nodes.png) | ![Android admin: ноды](docs/assets/screens/android-admin-ops.png) | ![iOS admin: ноды](docs/assets/screens/ios-admin-ops.png) | ![Android admin: вся панель](docs/assets/screens/android-admin-panel.png) |
+| **Резервные адреса API и сайты напрямую** | **Анти-шеринг** | **Копия базы в Telegram** | **ИИ-черновики поддержки** |
+| ![Приложения: резервные адреса](docs/assets/screens/admin-apps.png) | ![Фрод: анти-шеринг](docs/assets/screens/admin-fraud.png) | ![Резервные копии: Telegram](docs/assets/screens/admin-backups.png) | ![Поддержка: база знаний](docs/assets/screens/admin-support.png) |
+
 ## 🆕 Новое в v28.34.0
 
 <table>

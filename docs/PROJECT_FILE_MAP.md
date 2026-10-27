@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1639**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1669**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -736,6 +736,32 @@
 | [docs/archive/root/V4_NODE_PROVISIONING.md](../docs/archive/root/V4_NODE_PROVISIONING.md) | Документация |
 | [docs/archive/root/V4_RELEASE_NOTES.md](../docs/archive/root/V4_RELEASE_NOTES.md) | Документация |
 | [docs/archive/root/V6_PLATFORM_RELEASE_RU.md](../docs/archive/root/V6_PLATFORM_RELEASE_RU.md) | Документация |
+| [docs/assets/screens/admin-apps.png](../docs/assets/screens/admin-apps.png) | Документация |
+| [docs/assets/screens/admin-backups.png](../docs/assets/screens/admin-backups.png) | Документация |
+| [docs/assets/screens/admin-dashboard.png](../docs/assets/screens/admin-dashboard.png) | Документация |
+| [docs/assets/screens/admin-fraud.png](../docs/assets/screens/admin-fraud.png) | Документация |
+| [docs/assets/screens/admin-nodes.png](../docs/assets/screens/admin-nodes.png) | Документация |
+| [docs/assets/screens/admin-support.png](../docs/assets/screens/admin-support.png) | Документация |
+| [docs/assets/screens/android-admin-launch.png](../docs/assets/screens/android-admin-launch.png) | Документация |
+| [docs/assets/screens/android-admin-monitoring.png](../docs/assets/screens/android-admin-monitoring.png) | Документация |
+| [docs/assets/screens/android-admin-ops.png](../docs/assets/screens/android-admin-ops.png) | Документация |
+| [docs/assets/screens/android-admin-overview.png](../docs/assets/screens/android-admin-overview.png) | Документация |
+| [docs/assets/screens/android-admin-panel.png](../docs/assets/screens/android-admin-panel.png) | Документация |
+| [docs/assets/screens/android-admin-payments.png](../docs/assets/screens/android-admin-payments.png) | Документация |
+| [docs/assets/screens/android-admin-support.png](../docs/assets/screens/android-admin-support.png) | Документация |
+| [docs/assets/screens/android-locations.png](../docs/assets/screens/android-locations.png) | Документация |
+| [docs/assets/screens/android-settings.png](../docs/assets/screens/android-settings.png) | Документация |
+| [docs/assets/screens/android-vpn-on.png](../docs/assets/screens/android-vpn-on.png) | Документация |
+| [docs/assets/screens/android-vpn.png](../docs/assets/screens/android-vpn.png) | Документация |
+| [docs/assets/screens/ios-admin-launch.png](../docs/assets/screens/ios-admin-launch.png) | Документация |
+| [docs/assets/screens/ios-admin-monitoring.png](../docs/assets/screens/ios-admin-monitoring.png) | Документация |
+| [docs/assets/screens/ios-admin-ops.png](../docs/assets/screens/ios-admin-ops.png) | Документация |
+| [docs/assets/screens/ios-admin-overview.png](../docs/assets/screens/ios-admin-overview.png) | Документация |
+| [docs/assets/screens/ios-admin-panel.png](../docs/assets/screens/ios-admin-panel.png) | Документация |
+| [docs/assets/screens/ios-admin-payments.png](../docs/assets/screens/ios-admin-payments.png) | Документация |
+| [docs/assets/screens/ios-admin-support.png](../docs/assets/screens/ios-admin-support.png) | Документация |
+| [docs/assets/screens/ios-subscription.png](../docs/assets/screens/ios-subscription.png) | Документация |
+| [docs/assets/screens/ios-vpn.png](../docs/assets/screens/ios-vpn.png) | Документация |
 | [docs/current-guides.json](../docs/current-guides.json) | Документация |
 | [docs/en/DEPLOYMENT.md](../docs/en/DEPLOYMENT.md) | Документация |
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
@@ -1239,7 +1265,9 @@
 | [screenshots/admin_panel/74_command_search.png](../screenshots/admin_panel/74_command_search.png) | Корень проекта |
 | [screenshots/mobile/android-admin-launch.png](../screenshots/mobile/android-admin-launch.png) | Корень проекта |
 | [screenshots/mobile/android-admin-monitoring.png](../screenshots/mobile/android-admin-monitoring.png) | Корень проекта |
+| [screenshots/mobile/android-admin-ops.png](../screenshots/mobile/android-admin-ops.png) | Корень проекта |
 | [screenshots/mobile/android-admin-overview.png](../screenshots/mobile/android-admin-overview.png) | Корень проекта |
+| [screenshots/mobile/android-admin-panel.png](../screenshots/mobile/android-admin-panel.png) | Корень проекта |
 | [screenshots/mobile/android-admin-payments.png](../screenshots/mobile/android-admin-payments.png) | Корень проекта |
 | [screenshots/mobile/android-admin-support.png](../screenshots/mobile/android-admin-support.png) | Корень проекта |
 | [screenshots/mobile/android-devices.png](../screenshots/mobile/android-devices.png) | Корень проекта |
@@ -1256,7 +1284,9 @@
 | [screenshots/mobile/android-vpn.png](../screenshots/mobile/android-vpn.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-launch.png](../screenshots/mobile/ios-admin-launch.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-monitoring.png](../screenshots/mobile/ios-admin-monitoring.png) | Корень проекта |
+| [screenshots/mobile/ios-admin-ops.png](../screenshots/mobile/ios-admin-ops.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-overview.png](../screenshots/mobile/ios-admin-overview.png) | Корень проекта |
+| [screenshots/mobile/ios-admin-panel.png](../screenshots/mobile/ios-admin-panel.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-payments.png](../screenshots/mobile/ios-admin-payments.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-support.png](../screenshots/mobile/ios-admin-support.png) | Корень проекта |
 | [screenshots/mobile/ios-devices.png](../screenshots/mobile/ios-devices.png) | Корень проекта |
