@@ -1,4 +1,4 @@
-# Не выпущено (ветка feature/ai-global-update)
+# v28.35.0
 
 - Мониторинг нод: автоперезапуск упавшей ноды после 3 проверок, алерт в Telegram, если нода или агент молчат дольше 10 минут, плановый перезапуск и обновление нод; кеш состояния нод в Redis; `GET /api/admin/nodes/health`, `PUT /api/admin/nodes/health/config`, `POST /api/admin/nodes/{uuid}/restart`, `POST /api/admin/nodes/update`.
 - Резервные кассы: Freekassa (подписанная ссылка, оповещения с адресов Freekassa с секретным словом 2, проверка заказа через API v1, `/api/webhooks/freekassa`) и CryptoBot (`/api/webhooks/cryptobot`, подпись HMAC-SHA256); исправлено: заказ падал, когда CryptoBot был первым в очереди. Автоплатёж ЮKassa: «ожидает подтверждения» больше не считается отказом, после третьего отказа нового списания нет.
