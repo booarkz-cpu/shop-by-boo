@@ -109,7 +109,8 @@
     }
 }
 
-{$API_DOMAIN} {
+# API_MIRROR_DOMAINS: reserve API domains for the apps (anti_blocking.md), space separated; empty by default.
+{$API_DOMAIN} {$API_MIRROR_DOMAINS} {
     header {
         -Server
         X-Content-Type-Options "nosniff"

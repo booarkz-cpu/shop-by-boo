@@ -61,7 +61,7 @@ def require_native_transport(request):
     from .config import settings
     if request.headers.get("origin") is not None or request.headers.get("sec-fetch-site") is not None:
         raise HTTPException(403, "Native token exchange is unavailable to browser origins")
-    if settings.app_env.lower() == "production" and request.url.hostname != settings.api_domain:
+    if settings.app_env.lower() == "production" and request.url.hostname not in settings.api_domains():
         raise HTTPException(403, "Use the configured API domain for native authentication")
 
 

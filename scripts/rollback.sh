@@ -13,7 +13,7 @@ STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$ROLLBACK_DIR"
 tar --exclude='./.rollback' --exclude='./.git' --exclude='./.env' --exclude='./.env.*' --exclude='*/.env' --exclude='*/.env.*' --exclude='*/node_modules' -czf "$ROLLBACK_DIR/pre-rollback-$STAMP.tar.gz" .
 touch "$ROLLBACK_DIR/RECOVERY_MODE"
-docker compose down --remove-orphans || true
+docker compose --profile standby down --remove-orphans || true
 tmp="$(mktemp -d)"
 tar -xzf "$ARCHIVE" -C "$tmp"
 # Snapshots exclude every nested environment file; carry the installed copies

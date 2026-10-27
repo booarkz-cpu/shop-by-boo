@@ -10,6 +10,14 @@
 | [android_architecture.md](android_architecture.md) | Клиентское приложение Android: макет из админки, встроенный VPN, батарея, push, вход, оплата |
 | [ios_architecture.md](ios_architecture.md) | Клиентское приложение iOS: Network Extension, push с картинками, подпись и встраивание расширений |
 | [analytics.md](analytics.md) | События приложений, воронка, push-кампании по расписанию и A/B-тесты |
+| [auto_update_and_rollback.md](auto_update_and_rollback.md) | Автообновление с GitHub: агент на сервере, связь с админкой, снимки, откат, правила повторов |
+| [zero_downtime.md](zero_downtime.md) | Обновление backend без простоя: standby-контейнер, Caddy `lb_policy first`, ограничения миграций |
+| [redis_and_postgres.md](redis_and_postgres.md) | Что хранится в PostgreSQL и в Redis: очередь заданий, блокировки, кеш нод, FSM бота, лимиты |
+| [account_sync.md](account_sync.md) | Единое состояние аккаунта для бота, Mini App, кабинета и приложений (`/api/me/sync`) |
+| [anti_blocking.md](anti_blocking.md) | Ротация адресов API: подписанный список зеркал, доверие при первом входе, Gist |
+| [split_tunneling.md](split_tunneling.md) | Российские сайты и приложения мимо VPN, управляемый список доменов, «Авто» по пингу |
+| [i18n.md](i18n.md) | Языки бота, кабинета, админки и приложений; где строки и как выбирается язык |
+| [ai_support.md](ai_support.md) | ИИ-черновики ответов поддержки по базе знаний: модель, запасной режим, API |
 
 Общая схема:
 

@@ -71,3 +71,24 @@ async def test_direct_domains_are_normalised_and_signed_into_the_list(database, 
     assert payload["direct"] == ["online.sberbank.com", "esia.gosuslugi.ru"] and payload["mirrors"] == [], "no public address on a development stand"
     with pytest.raises(ValidationError):
         mm.MirrorsIn(direct_domains=["regexp:.*"])
+
+
+@pytest.mark.asyncio
+async def test_reserve_domains_served_by_caddy_are_listed_and_accepted(database, monkeypatch):
+    from types import SimpleNamespace
+
+    from fastapi import HTTPException
+
+    from app import mobile_auth
+    monkeypatch.setattr(settings, "api_domain", "api.corgi.test")
+    monkeypatch.setattr(settings, "api_mirror_domains", "API2.corgi.test, api3.corgi.test")
+    assert settings.api_domains() == ["api.corgi.test", "api2.corgi.test", "api3.corgi.test"]
+    doc = await mm.public_mirrors(Response(), database)
+    assert mm.verify(doc, doc["key"])["mirrors"] == ["https://api.corgi.test", "https://api2.corgi.test", "https://api3.corgi.test"]
+    monkeypatch.setattr(settings, "app_env", "production")
+
+    def native(host):
+        return SimpleNamespace(headers={}, url=SimpleNamespace(hostname=host))
+    mobile_auth.require_native_transport(native("api2.corgi.test"))
+    with pytest.raises(HTTPException):
+        mobile_auth.require_native_transport(native("evil.example"))

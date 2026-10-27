@@ -118,7 +118,8 @@ async def signed_document(db: AsyncSession, now: datetime | None = None) -> dict
     primary = f"https://{settings.api_domain}" if settings.api_domain not in {"", "localhost"} else ""
     payload = json.dumps({
         "shop": primary,
-        "mirrors": [u for u in [primary, *cfg["mirrors"]] if u],
+        # Domains Caddy already serves (API_MIRROR_DOMAINS) are reserve addresses without any extra setup.
+        "mirrors": list(dict.fromkeys(u for u in [primary, *[f"https://{d}" for d in settings.api_domains()[1:]], *cfg["mirrors"]] if u)),
         "bootstrap": cfg["bootstrap"],
         "direct": cfg.get("direct_domains", []),
         "issued_at": now.replace(microsecond=0).isoformat(),

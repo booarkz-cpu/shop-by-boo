@@ -43,6 +43,19 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 **Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md).
 
+## 🆕 В следующем выпуске
+
+| | |
+| --- | --- |
+| 🩺 **Мониторинг нод** | Упавшая нода перезапускается сама после 3 неудачных проверок; если она или агент молчат дольше 10 минут — сообщение в Telegram. Плановый перезапуск и обновление нод по расписанию. [Модуль 18](docs/ru/modules/18-nodes-routing.md) |
+| 💳 **Резервная касса** | CryptoBot принимает заказы, пока основной шлюз остывает после сбоев; автоплатёж ЮKassa — ровно 3 попытки. [Оплата](docs/modules/billing_and_taxes.md) |
+| 🔄 **Одно состояние везде** | Оплатили в боте — кабинет, Mini App и приложения обновятся сами за секунды. [account_sync.md](docs/modules/account_sync.md) |
+| 🛡 **Защита от блокировок** | Приложения сами переходят на резервный домен API по подписанному списку (Gist); российские сайты и банки — мимо VPN, список правится в админке. [anti_blocking.md](docs/modules/anti_blocking.md), [split_tunneling.md](docs/modules/split_tunneling.md) |
+| 🤖 **ИИ-черновики поддержки** | Ответ по базе знаний одной кнопкой в веб- и мобильной админке. [ai_support.md](docs/modules/ai_support.md) |
+| 🎁 **Рост и безопасность** | +10 дней за приглашённого друга, генератор промокодов с выгрузкой CSV, анти-шеринг по числу устройств, ежедневная зашифрованная копия базы в Telegram |
+| 📱 **Вся панель в телефоне** | Вкладка «Вся панель» в Android- и iOS-админке открывает полную веб-панель по одноразовой ссылке |
+| 🚀 **Обновление без простоя** | Новая версия backend заменяет старую только после ответа 200; APK, AAB и IPA прикладываются к каждому [выпуску](https://github.com/booarkz-cpu/shop-by-boo/releases/latest). [zero_downtime.md](docs/modules/zero_downtime.md) |
+
 ## 🆕 Новое в v28.34.0
 
 <table>
@@ -232,6 +245,7 @@ Network Extension на Xray-core и уведомления с картинкам
 - **Всё, что нужно клиенту:** тарифы с ценой в месяц, подписка, QR для другого устройства, розыгрыши и бонусы, семья, рефералы, баланс, уведомления, документы, поддержка.
 - **Безопасность:** сессия в Android Keystore и Keychain, PKCE, Face ID и отпечаток, запрет снимков экрана, привязка сертификата, Play Integrity и DeviceCheck по ключам владельца.
 - **Публикация:** иконки, скриншоты и тексты для Google Play, RuStore и App Store лежат в `mobile/store/`, порядок действий — в [STORE_PUBLISHING.md](docs/ru/STORE_PUBLISHING.md).
+- **Готовые сборки:** APK и AAB для Android и IPA для iOS собираются в GitHub Actions и лежат на странице [Releases](https://github.com/booarkz-cpu/shop-by-boo/releases/latest) (подписанные — если в репозитории заданы ключи, иначе для подписи своими ключами).
 
 **Админ-приложения** в стиле веб-панели (Remna Dark):
 
@@ -942,6 +956,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 | API и права | [Каталог API](docs/API_ENDPOINTS.md), [архитектура](docs/ru/WORKSPACE_ARCHITECTURE.md), [карта проекта](docs/PROJECT_MAP_RU.md) |
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
+| Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
 | Что вошло в выпуск | [Заметки v28.34.0](docs/ru/RELEASE_V28_34_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |

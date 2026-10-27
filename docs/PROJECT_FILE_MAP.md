@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1631**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1639**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -761,12 +761,20 @@
 | [docs/img/miniapp-support.png](../docs/img/miniapp-support.png) | Документация |
 | [docs/img/miniapp-wallet.png](../docs/img/miniapp-wallet.png) | Документация |
 | [docs/modules/README.md](../docs/modules/README.md) | Документация |
+| [docs/modules/account_sync.md](../docs/modules/account_sync.md) | Документация |
+| [docs/modules/ai_support.md](../docs/modules/ai_support.md) | Документация |
 | [docs/modules/analytics.md](../docs/modules/analytics.md) | Документация |
 | [docs/modules/android_architecture.md](../docs/modules/android_architecture.md) | Документация |
+| [docs/modules/anti_blocking.md](../docs/modules/anti_blocking.md) | Документация |
+| [docs/modules/auto_update_and_rollback.md](../docs/modules/auto_update_and_rollback.md) | Документация |
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
+| [docs/modules/i18n.md](../docs/modules/i18n.md) | Документация |
 | [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
+| [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
+| [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
+| [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PANEL_CURRENT.md](../docs/ru/ADMIN_PANEL_CURRENT.md) | Документация |

@@ -214,7 +214,8 @@ RATE_LIMITS = {
     "/api/me/family/join": 10,
     "/api/public/service-status": 60,
     "/api/me/servers": 30,
-    "/api/me/sync": 60,
+    # Long-poll from every open cabinet, Mini App and app; customers behind one carrier NAT share an IP.
+    "/api/me/sync": 300,
     "/api/tariff-constructors": 60,
     "/api/agent/heartbeat": 120,
     "/api/agent/observations": 60,
@@ -373,7 +374,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 app.add_middleware(SecurityHeadersMiddleware)
-allowed_hosts = [x.strip() for x in [settings.api_domain, settings.admin_domain, settings.app_domain, settings.cabinet_domain] if x.strip()] + ["localhost", "127.0.0.1"]
+allowed_hosts = [x.strip() for x in [*settings.api_domains(), settings.admin_domain, settings.app_domain, settings.cabinet_domain] if x.strip()] + ["localhost", "127.0.0.1"]
 if allowed_hosts:
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 pathlib.Path(settings.media_dir).mkdir(parents=True, exist_ok=True)

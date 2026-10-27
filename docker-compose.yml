@@ -464,6 +464,7 @@ services:
       # The backend and its zero-downtime standby (deploy/Caddyfile → backend_lb prefers the first).
       BACKEND_UPSTREAM: ${BACKEND_INGRESS_IP:-172.30.84.3}:8000 ${BACKEND_STANDBY_INGRESS_IP:-172.30.84.5}:8000
       API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in .env}
+      API_MIRROR_DOMAINS: ${API_MIRROR_DOMAINS:-}
       ADMIN_DOMAIN: ${ADMIN_DOMAIN:?set ADMIN_DOMAIN in .env}
       APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN in .env}
       CABINET_DOMAIN: ${CABINET_DOMAIN:?set CABINET_DOMAIN in .env}

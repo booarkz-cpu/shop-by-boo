@@ -87,6 +87,12 @@ class Settings(BaseSettings):
     admin_domain: str = Field(default="localhost", alias="ADMIN_DOMAIN")
     app_domain: str = Field(default="localhost", alias="APP_DOMAIN")
     api_domain: str = Field(default="localhost", alias="API_DOMAIN")
+    # Reserve API domains served by the same backend (mobile domain rotation, docs/modules/anti_blocking.md).
+    api_mirror_domains: str = Field(default="", alias="API_MIRROR_DOMAINS")
+
+    def api_domains(self) -> list[str]:
+        """The API domain and its reserve domains, as the apps may reach them."""
+        return [self.api_domain, *[d.strip().lower() for d in self.api_mirror_domains.replace(",", " ").split() if d.strip()]]
     miniapp_domain: str = Field(default="localhost", alias="MINIAPP_DOMAIN")
     cabinet_domain: str = Field(default="localhost", alias="CABINET_DOMAIN")
     bot_domain: str = Field(default="localhost", alias="BOT_DOMAIN")
