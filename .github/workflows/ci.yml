@@ -492,3 +492,39 @@ jobs:
         working-directory: mobile/${{ matrix.app }}
         run: xcodebuild -project ${{ matrix.project }}.xcodeproj -scheme ${{ matrix.project }} -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
 
+  ios-extensions:
+    # The customer app with both app extensions embedded (scripts/ios/enable-extensions.py) and the
+    # tunnel engine linked: LibXray and HevSocks5Tunnel built from pinned commits and cached by them.
+    name: iOS • tunnel and rich push extensions
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+      - id: frameworks
+        uses: actions/cache@v4
+        with:
+          path: mobile/ios-user/Frameworks
+          key: ios-tunnel-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh') }}
+      - name: Build LibXray and HevSocks5Tunnel
+        if: steps.frameworks.outputs.cache-hit != 'true'
+        run: bash scripts/ios/build-tunnel-frameworks.sh
+      - name: Embed the extensions
+        run: python3 scripts/ios/enable-extensions.py --tunnel --push
+      - name: Compile app + CorgiTunnel + CorgiNotificationService
+        working-directory: mobile/ios-user
+        run: |
+          set -o pipefail
+          xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build 2>&1 | tee "$RUNNER_TEMP/ext.log" | tail -n 40 \
+            || { grep -E "error:" "$RUNNER_TEMP/ext.log" | head -20 | sed 's/^/::error title=extensions::/'; exit 1; }
+          app=$(find build/Build/Products -name VpnShopUser.app -maxdepth 3 | head -1)
+          for ext in CorgiTunnel CorgiNotificationService; do
+            [ -d "$app/PlugIns/$ext.appex" ] || { echo "::error title=extensions::$ext.appex is not embedded"; exit 1; }
+          done
+          /usr/libexec/PlistBuddy -c 'Print :CorgiTunnelEnabled' "$app/Info.plist" | grep -qx YES
+          nm "$app/PlugIns/CorgiTunnel.appex/CorgiTunnel" | grep -q hev_socks5_tunnel_main_from_str \
+            || { echo "::error title=extensions::the tunnel engine is not linked"; exit 1; }

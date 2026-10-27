@@ -78,6 +78,7 @@ struct UserRootView: View {
             redeem(link)
         }
         .onAppear {
+            CorgiTunnelManager.shared.load()
             if !bakedShopURL.isEmpty { base = bakedShopURL }
             layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
             #if DEBUG
@@ -94,6 +95,16 @@ struct UserRootView: View {
             #if DEBUG
             if DemoMode.enabled { return }
             #endif
+            if CorgiTunnelManager.available {
+                switch CorgiTunnelManager.shared.status {
+                case .connected: vpn = .on; connectingSince = nil
+                case .connecting, .reasserting: vpn = .connecting
+                default:
+                    if vpn == .connecting, let problem = CorgiTunnelManager.shared.lastError { notice = problem }
+                    vpn = .off; connectingSince = nil
+                }
+                return
+            }
             let on = VpnClients.vpnActive()
             if on { vpn = .on; connectingSince = nil }
             else if vpn == .on { vpn = .off }
@@ -420,7 +431,7 @@ struct UserRootView: View {
             let perMonth = monthlyPrice(plan)
             let discount = base > 0 && perMonth < base ? Int((1 - perMonth / base) * 100) : 0
             let price = (jsonText(plan["final_price"]).isEmpty ? jsonText(plan["price"]) : jsonText(plan["final_price"])).replacingOccurrences(of: ".00", with: "")
-            Button { selectedPlan = id } label: {
+            Button { selectedPlan = id; track("plan_select") } label: {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(jsonText(plan["name"])).font(.system(size: 18, weight: .bold)).foregroundStyle(theme.text)
@@ -714,6 +725,16 @@ struct UserRootView: View {
             #if DEBUG
             if DemoMode.enabled { vpn = vpn == .on ? .off : .on; return }
             #endif
+            if CorgiTunnelManager.available {
+                // Embedded tunnel (Network Extension): no client app is needed.
+                if vpn == .on || vpn == .connecting { CorgiTunnelManager.shared.disconnect(); vpn = .off; return }
+                guard data.subscriptionUrl.hasPrefix("https://") else { notice = t("need_subscription"); return }
+                vpn = .connecting; connectingSince = Date()
+                CorgiTunnelManager.shared.connect(subscription: data.subscriptionUrl) { error in
+                    if let error { vpn = .off; notice = error.localizedDescription }
+                }
+                return
+            }
             switch VpnClients.connect(data.subscriptionUrl) {
             case .imported: vpn = .connecting; connectingSince = Date(); notice = t("vpn_imported")
             case .opened: notice = t("vpn_opened")

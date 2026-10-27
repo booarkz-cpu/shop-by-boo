@@ -19,6 +19,9 @@
     <string>$(CORGI_PINS)</string>
     <key>CorgiShopURL</key>
     <string>$(CORGI_SHOP_URL)</string>
+    <!-- YES when the build embeds the CorgiTunnel packet tunnel (scripts/ios/enable-extensions.py). -->
+    <key>CorgiTunnelEnabled</key>
+    <string>$(CORGI_TUNNEL)</string>
     <key>CFBundleURLTypes</key>
     <array><dict><key>CFBundleURLSchemes</key><array><string>corgi</string></array></dict></array>
     <!-- VPN clients the «Подключить» button hands the subscription to (canOpenURL). -->
