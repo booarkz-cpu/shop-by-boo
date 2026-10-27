@@ -66,3 +66,31 @@ export function PaymentQueue({request, toast}: {request: Request; toast: (text: 
     </div>
   );
 }
+
+/** «Кассы за период»: конверсия, выручка и время до оплаты по каждой кассе. */
+export function ProviderReport({request}: {request: Request}) {
+  const [days, setDays] = useState(30);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState("");
+  useEffect(() => { request(`/api/admin/payments/providers-report?days=${days}`).then(setData).catch(e => setError(e.message)); }, [request, days]);
+  return (
+    <div className="card">
+      <div className="toolbar"><h3>Кассы за период</h3>
+        <select value={days} onChange={e => setDays(Number(e.target.value))} aria-label="Период">
+          {[7, 30, 90].map(d => <option key={d} value={d}>{d} дней</option>)}
+        </select>
+      </div>
+      {error ? <p className="error">{error}</p> : null}
+      {!data ? <p>Загрузка…</p> : data.providers.length === 0 ? <p className="muted">За период заказов не было.</p> : (
+        <table className="table">
+          <thead><tr><th>Касса</th><th>Заказов</th><th>Оплачено</th><th>Конверсия</th><th>Выручка</th><th>До оплаты, мин (медиана)</th></tr></thead>
+          <tbody>{data.providers.map((p: any) => (
+            <tr key={p.provider}><td><b>{NAMES[p.provider] || p.provider}</b>{data.best === p.provider ? " · лучшая" : ""}</td>
+              <td>{p.orders}</td><td>{p.paid}</td><td>{p.conversion}%</td><td>{p.revenue}</td><td>{p.median_minutes_to_pay ?? "—"}</td></tr>
+          ))}</tbody>
+        </table>
+      )}
+      {data?.best ? <p className="muted">Лучшая конверсия — {NAMES[data.best] || data.best}. Если она не первая в очереди, поднимите её выше.</p> : null}
+    </div>
+  );
+}

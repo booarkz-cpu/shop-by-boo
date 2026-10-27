@@ -239,6 +239,19 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
           "Магазин раз в неделю сам восстанавливает последнюю копию во временную базу; запустить вручную — Безопасность → Резервные копии → «Проверить восстановление».",
           "recommended")
     check("alerts", "Оповещения о сбоях", target["telegram"] or target["email"], "Укажите ALERT_TELEGRAM_CHAT_ID (или ADMIN_TELEGRAM_ID) либо ALERT_EMAIL.", "recommended")
+    from . import mobile_mirrors, telegram_backup
+    tg_backup = await telegram_backup.load(db)
+    check("telegram_backup", "Ежедневная копия базы в Telegram", tg_backup.get("enabled") and tg_backup.get("chat_id"),
+          "Резервные копии → «Копия базы в Telegram»: закрытый канал с ботом и пароль шифрования. Копия вне сервера переживёт его потерю.",
+          "recommended")
+    mirrors = await mobile_mirrors.load(db)
+    check("api_mirrors", "Резервный адрес API для приложений", settings.api_domains()[1:] or mirrors.get("mirrors"),
+          "Купите второй домен на этот сервер и впишите его в API_MIRROR_DOMAINS (.env): приложения запомнят его заранее и перейдут сами, "
+          "если основной домен заблокируют (Приложения → Резервные адреса API).", "recommended")
+    from .support_ai import faq as support_faq
+    faq_items = await support_faq(db)  # the knowledge base and the published FAQ page
+    check("support_ai", "База знаний для ИИ-черновиков", len(faq_items) >= 5,
+          "Поддержка → «База знаний ИИ-ассистента»: добавьте хотя бы 5 частых вопросов с ответами — черновики станут точнее.", "recommended")
     required = [c for c in checks if c["level"] == "required"]
     return {"ready": all(c["ok"] for c in required), "agents": configured, "checks": checks}
 

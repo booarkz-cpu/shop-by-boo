@@ -222,6 +222,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/payments/pricing/experiments` | List Price Experiments |
 | `PUT` | `/api/admin/payments/pricing/experiments/{key}` | Upsert Price Experiment |
 | `POST` | `/api/admin/payments/production-gate` | Production Payment Gate |
+| `GET` | `/api/admin/payments/providers-report` | Providers Report |
 | `POST` | `/api/admin/payments/reconcile` | Reconcile Payments |
 | `GET` | `/api/admin/payments/{payment_id}` | Admin Payment Detail |
 | `POST` | `/api/admin/payments/{payment_id}/refund-request` | Request Refund |

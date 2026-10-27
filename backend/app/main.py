@@ -123,6 +123,8 @@ from .support_ai import router as support_ai_router
 app.include_router(support_ai_router)
 from .admin_web_ticket import router as admin_web_ticket_router
 app.include_router(admin_web_ticket_router)
+from .provider_report import router as provider_report_router
+app.include_router(provider_report_router)
 from .mobile_mirrors import router as mobile_mirrors_router
 app.include_router(mobile_mirrors_router)
 from .account_sync import router as account_sync_router

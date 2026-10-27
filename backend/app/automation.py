@@ -53,6 +53,11 @@ EVENTS: dict[str, dict[str, Any]] = {
                          "hint": "Через N дней после регистрации, если не было ни одной оплаты."},
     "trial.ended": {"label": "Пробный период закончился без покупки", "days": (1, 0, 30),
                     "hint": "Через N дней после конца пробного периода, если клиент ничего не купил."},
+    # «days» of this event counts minutes (unit «мин.»): a forgotten checkout is worth a nudge within the hour.
+    "payment.abandoned": {"label": "Начал оплату и не заплатил", "days": (15, 5, 4320), "unit": "мин.",
+                          "hint": "Через N минут после открытия оплаты, если ни этот, ни другой платёж клиента не прошёл."},
+    "auto_renew.failed": {"label": "Автопродление не прошло", "days": (0, 0, 14),
+                          "hint": "Через N дней после третьего отказа банка, если клиент не оплатил подписку сам."},
 }
 # Remnawave webhook events (see remnawave_events.py): each received event triggers once.
 for _event, _label in (("remnawave.traffic_threshold", "Remnawave: трафик заканчивается"), ("remnawave.limited", "Remnawave: трафик закончился"),
@@ -74,6 +79,20 @@ PRESETS = {
     "no_purchase_week": {"name": "Возврат: зарегистрировался, но не купил за 7 дней", "event": "user.no_purchase", "conditions": {"days": 7, "daily_limit": 300},
                          "actions": {"notify": {"title": "Первый месяц со скидкой 10%", "body": "Промокод {promo} на первую покупку действует 3 дня.", "telegram": True},
                                      "promo_code": {"percent": 10, "days": 3}}},
+    "checkout_nudge": {"name": "Возврат оплаты: начал и не заплатил 15 минут", "event": "payment.abandoned", "conditions": {"days": 15, "daily_limit": 500},
+                       "actions": {"notify": {"title": "Оплата не прошла?", "body": "Если карта не подошла, выберите другой способ — СБП или другую кассу — в разделе «Тарифы». Подписка включится сразу после оплаты.", "telegram": True}}},
+    "checkout_promo": {"name": "Возврат оплаты: не заплатил за сутки — промокод", "event": "payment.abandoned", "conditions": {"days": 1440, "daily_limit": 300},
+                       "actions": {"notify": {"title": "−10% на подписку", "body": "Вы начали оформлять подписку, но не закончили. Промокод {promo} даёт скидку 10% на 48 часов.", "telegram": True},
+                                   "promo_code": {"percent": 10, "days": 2}}},
+    "renew_failed_now": {"name": "Автопродление не прошло: сразу", "event": "auto_renew.failed", "conditions": {"days": 0, "daily_limit": 500},
+                         "actions": {"notify": {"title": "Не удалось продлить подписку", "body": "Банк трижды отклонил автоплатёж. Продлите подписку в разделе «Тарифы» любым способом оплаты, чтобы VPN не отключился.", "telegram": True}}},
+    "renew_failed_day1": {"name": "Автопродление не прошло: через день", "event": "auto_renew.failed", "conditions": {"days": 1, "daily_limit": 500},
+                          "actions": {"notify": {"title": "Подписку ещё можно продлить", "body": "Продлите подписку в разделе «Тарифы»: СБП, карта или криптовалюта.", "telegram": True}}},
+    "renew_failed_day3": {"name": "Автопродление не прошло: через 3 дня — скидка", "event": "auto_renew.failed", "conditions": {"days": 3, "daily_limit": 300},
+                          "actions": {"notify": {"title": "−15% на продление", "body": "Промокод {promo} даёт скидку 15% на продление в течение 3 дней.", "telegram": True},
+                                      "promo_code": {"percent": 15, "days": 3}}},
+    "traffic_limited": {"name": "Допродажа: трафик закончился", "event": "remnawave.limited", "conditions": {"daily_limit": 500},
+                        "actions": {"notify": {"title": "Трафик закончился", "body": "VPN приостановлен до конца периода. Докупите пакет трафика в разделе «Моя подписка» — доступ вернётся сразу.", "telegram": True}}},
     "traffic_upsell": {"name": "Допродажа: трафик заканчивается", "event": "remnawave.traffic_threshold", "conditions": {"daily_limit": 500},
                        "actions": {"notify": {"title": "Трафик заканчивается", "body": "Докупите пакет трафика в разделе «Моя подписка» — VPN продолжит работать без перерыва.", "telegram": True}}},
 }
@@ -215,6 +234,36 @@ async def candidates(db: AsyncSession, rule: AutomationRule, now: datetime, limi
                                      TrialGrant.expires_at >= max(now - timedelta(days=days + 7), rule.created_at - timedelta(days=days)), ~paid)
         for grant in (await db.execute(q.order_by(TrialGrant.expires_at).limit(limit * 3))).scalars():
             rows.append((grant.user_id, f"trial:{grant.id}:ended:{days}", {"expires_at": grant.expires_at}))
+    elif rule.event == "payment.abandoned":
+        minutes = int(cond.get("days", 15))
+        cutoff = now - timedelta(minutes=minutes)
+        later = Payment.__table__.alias("later")
+        paid_after = exists().where(later.c.user_id == Payment.user_id, later.c.status.in_(("paid", "fulfilled")),
+                                    later.c.created_at >= Payment.created_at)
+        q = select(Payment).join(User, User.id == Payment.user_id).where(
+            Payment.purpose == "subscription", Payment.status.in_(("pending", "failed", "canceled", "cancelled", "expired")),
+            Payment.created_at <= cutoff, Payment.created_at >= max(rule.created_at - timedelta(minutes=minutes), now - timedelta(minutes=minutes) - timedelta(days=2)),
+            User.deleted_at.is_(None), ~paid_after)
+        if plans:
+            q = q.where(Payment.plan_id.in_(plans))
+        seen: set[int] = set()
+        for p in (await db.execute(q.order_by(Payment.created_at.desc()).limit(limit * 3))).scalars():
+            if p.user_id in seen:
+                continue  # several attempts of one customer: one message
+            seen.add(p.user_id)
+            rows.append((p.user_id, f"abandoned:{p.user_id}:{p.plan_id}:{p.created_at:%Y%m%d}:{minutes}", {"payment_id": p.id, "amount": p.amount}))
+    elif rule.event == "auto_renew.failed":
+        from .models import AutoRenewMethod
+        days = int(cond.get("days", 0))
+        paid_after = exists().where(Payment.user_id == AutoRenewMethod.user_id, Payment.status.in_(("paid", "fulfilled")),
+                                    Payment.paid_at >= AutoRenewMethod.last_attempt_at)
+        q = select(AutoRenewMethod).join(User, User.id == AutoRenewMethod.user_id).where(
+            AutoRenewMethod.status == "payment_failed", AutoRenewMethod.last_attempt_at.is_not(None),
+            AutoRenewMethod.last_attempt_at <= now - timedelta(days=days),
+            AutoRenewMethod.last_attempt_at >= max(rule.created_at - timedelta(days=days), now - timedelta(days=days + 7)),
+            User.deleted_at.is_(None), ~paid_after)
+        for m in (await db.execute(q.order_by(AutoRenewMethod.last_attempt_at).limit(limit * 3))).scalars():
+            rows.append((m.user_id, f"renew_failed:{m.id}:{m.last_attempt_at:%Y%m%d%H%M}:{days}", {}))
     elif rule.event == "user.no_purchase":
         days = int(cond.get("days", 3))
         cutoff = now - timedelta(days=days)
@@ -401,7 +450,7 @@ async def _paused(factory) -> bool:
 
 @router.get("/api/admin/automation/catalog")
 async def catalog(admin=Depends(require_permission("read"))):
-    return {"events": [{"id": k, "label": v["label"], "hint": v["hint"], "days": v["days"]} for k, v in EVENTS.items()],
+    return {"events": [{"id": k, "label": v["label"], "hint": v["hint"], "days": v["days"], "unit": v.get("unit", "дн.")} for k, v in EVENTS.items()],
             "segments": [{"id": k, "label": v} for k, v in SEGMENTS.items()], "max_bonus": str(MAX_BONUS),
             "placeholders": ["{name}", "{expires_at}", "{amount}", "{promo}"], "tick_seconds": TICK_SECONDS,
             "max_promo_percent": MAX_PROMO_PERCENT,

@@ -130,3 +130,17 @@ async def test_launch_checks_ask_for_a_second_gateway(database, monkeypatch):
     monkeypatch.setattr(shop.settings, "cryptobot_token", TOKEN)
     checks = {c["key"]: c for c in (await ops_alerts.readiness(database, None))["checks"]}
     assert checks["reserve_payments"]["ok"]
+
+
+@pytest.mark.asyncio
+async def test_launch_checks_cover_the_new_safety_nets(database, monkeypatch):
+    from app import ops_alerts, telegram_backup
+    monkeypatch.setattr(shop.settings, "api_mirror_domains", "")
+    checks = {c["key"]: c for c in (await ops_alerts.readiness(database, None))["checks"]}
+    for key in ("telegram_backup", "api_mirrors", "support_ai"):
+        assert not checks[key]["ok"] and checks[key]["level"] == "recommended" and checks[key]["hint"]
+    await telegram_backup.save(database, {**telegram_backup.DEFAULT, "enabled": True, "chat_id": "-1001234567890"})
+    await database.commit()
+    monkeypatch.setattr(shop.settings, "api_mirror_domains", "api2.corgi.test")
+    checks = {c["key"]: c for c in (await ops_alerts.readiness(database, None))["checks"]}
+    assert checks["telegram_backup"]["ok"] and checks["api_mirrors"]["ok"]

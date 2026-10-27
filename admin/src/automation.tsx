@@ -22,7 +22,7 @@ function summary(rule: any, catalog: any) {
   const ev = catalog.events.find((e: any) => e.id === rule.event);
   const c = rule.conditions || {};
   const parts = [ev ? ev.label : rule.event];
-  if (c.days !== undefined) parts.push(`${c.days} дн.`);
+  if (c.days !== undefined) parts.push(`${c.days} ${ev?.unit || "дн."}`);
   if (c.plan_ids?.length) parts.push(`тарифы ${c.plan_ids.join(", ")}`);
   if (c.min_amount) parts.push(`от ${c.min_amount}`);
   if (c.max_amount) parts.push(`до ${c.max_amount}`);
@@ -101,7 +101,7 @@ function Rules({rules, catalog, request, reload, toast}: any) {
       <label className="field">Название правила<input required maxLength={255} value={f.name} onChange={set("name")}/></label>
       <label className="field">Событие<select value={f.event} onChange={set("event")}>{catalog.events.map((e: any) => <option key={e.id} value={e.id}>{e.label}</option>)}</select></label>
       {ev && <p className="muted">{ev.hint}</p>}
-      {ev?.days && <label className="field">{`Дни (по умолчанию ${ev.days[0]})`}<input type="number" min={ev.days[1]} max={ev.days[2]} value={f.days} onChange={set("days")}/></label>}
+      {ev?.days && <label className="field">{`${ev.unit === "мин." ? "Минуты" : "Дни"} (по умолчанию ${ev.days[0]})`}<input type="number" min={ev.days[1]} max={ev.days[2]} value={f.days} onChange={set("days")}/></label>}
       <label className="field">Только тарифы (ID через запятую, пусто — все)<input value={f.plan_ids} onChange={set("plan_ids")}/></label>
       {f.event === "payment.paid" && <>
         <label className="field">Сумма оплаты от<input type="number" min="0" step="0.01" value={f.min_amount} onChange={set("min_amount")}/></label>

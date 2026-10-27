@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1687**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1690**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -397,6 +397,7 @@
 | [backend/app/production_api.py](../backend/app/production_api.py) | API, бот и worker |
 | [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
 | [backend/app/promo_generator.py](../backend/app/promo_generator.py) | API, бот и worker |
+| [backend/app/provider_report.py](../backend/app/provider_report.py) | API, бот и worker |
 | [backend/app/provisioner.py](../backend/app/provisioner.py) | API, бот и worker |
 | [backend/app/push.py](../backend/app/push.py) | API, бот и worker |
 | [backend/app/push_campaigns.py](../backend/app/push_campaigns.py) | API, бот и worker |
@@ -1569,6 +1570,7 @@
 | [tests/test_mobile_layout.py](../tests/test_mobile_layout.py) | Проверки |
 | [tests/test_mobile_mirrors.py](../tests/test_mobile_mirrors.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
+| [tests/test_money_recovery.py](../tests/test_money_recovery.py) | Проверки |
 | [tests/test_money_review.py](../tests/test_money_review.py) | Проверки |
 | [tests/test_multiple_subscriptions.py](../tests/test_multiple_subscriptions.py) | Проверки |
 | [tests/test_native_passkeys.py](../tests/test_native_passkeys.py) | Проверки |
@@ -1590,6 +1592,7 @@
 | [tests/test_promo_generator_and_tg_backup.py](../tests/test_promo_generator_and_tg_backup.py) | Проверки |
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
 | [tests/test_provider_metric_counters.py](../tests/test_provider_metric_counters.py) | Проверки |
+| [tests/test_provider_report.py](../tests/test_provider_report.py) | Проверки |
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_push_campaigns.py](../tests/test_push_campaigns.py) | Проверки |
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |

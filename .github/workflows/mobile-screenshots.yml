@@ -103,8 +103,16 @@ jobs:
           target: google_apis
           profile: pixel_6
           disable-animations: true
+          cores: 4
+          ram-size: 4096M
           script: |
             adb install -r mobile/android-user/app/build/outputs/apk/debug/app-debug.apk
+            # The CI emulator starts a freshly installed debug build slowly («failed to attach»): compile it ahead
+            # of time and open it once, so every flow's cold start fits Maestro's wait.
+            adb shell cmd package compile -m speed -f shop.remnawave.user.preview || true
+            adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true || true
+            sleep 8
+            adb shell am force-stop shop.remnawave.user.preview || true
             bash scripts/mobile/maestro-screens.sh
       - uses: actions/upload-artifact@v7
         if: always()
