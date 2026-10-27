@@ -122,6 +122,19 @@ async def run_next_job(worker_id: str) -> bool:
                         if j and j.status=="processing":
                             j.status="failed" if j.attempts>=j.max_attempts else "queued"; j.error=str(exc)[:2000]; j.locked_at=None; j.worker_id=None; j.next_retry_at=datetime.utcnow()+timedelta(seconds=min(3600,60*(2**max(0,j.attempts-1))))
                             await edb.commit()
+            elif job.kind=="bonus_days":
+                from app.bonus_days import apply_bonus_days
+                payload=job.payload or {}
+                try:
+                    async with AsyncSession(main.engine,expire_on_commit=False) as edb:
+                        await apply_bonus_days(edb,job.job_key,int(payload["user_id"]),int(payload["days"]),str(payload.get("reason") or "referral"))
+                    async with AsyncSession(main.engine,expire_on_commit=False) as edb:
+                        j=await edb.get(Job,job.id); j.status="completed"; j.completed_at=datetime.utcnow(); j.locked_at=None; j.worker_id=None; j.error=None; await edb.commit()
+                except Exception as exc:
+                    logger.exception("bonus days job %s failed",job.id)
+                    async with AsyncSession(main.engine,expire_on_commit=False) as edb:
+                        j=await edb.get(Job,job.id)
+                        if j: j.status="failed" if j.attempts>=j.max_attempts else "queued"; j.error=str(exc)[:2000]; j.locked_at=None; j.worker_id=None; j.next_retry_at=datetime.utcnow()+timedelta(seconds=min(3600,60*(2**max(0,j.attempts-1)))); await edb.commit()
             else:
                 async with AsyncSession(main.engine,expire_on_commit=False) as edb:
                     j=await edb.get(Job,job.id)

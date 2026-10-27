@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1605**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1610**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -168,6 +168,7 @@
 | [admin/src/mobileLayout.tsx](../admin/src/mobileLayout.tsx) | Админ-панель |
 | [admin/src/network-intel.tsx](../admin/src/network-intel.tsx) | Админ-панель |
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
+| [admin/src/nodeMonitor.tsx](../admin/src/nodeMonitor.tsx) | Админ-панель |
 | [admin/src/ops.tsx](../admin/src/ops.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
@@ -333,6 +334,7 @@
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
+| [backend/app/bonus_days.py](../backend/app/bonus_days.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
@@ -1465,6 +1467,7 @@
 | [tests/test_critical_audit_v2005.py](../tests/test_critical_audit_v2005.py) | Проверки |
 | [tests/test_critical_audit_v2006.py](../tests/test_critical_audit_v2006.py) | Проверки |
 | [tests/test_critical_startup_and_i18n.py](../tests/test_critical_startup_and_i18n.py) | Проверки |
+| [tests/test_cryptobot.py](../tests/test_cryptobot.py) | Проверки |
 | [tests/test_current_documentation.py](../tests/test_current_documentation.py) | Проверки |
 | [tests/test_customer_passkeys.py](../tests/test_customer_passkeys.py) | Проверки |
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
@@ -1498,6 +1501,7 @@
 | [tests/test_native_passkeys.py](../tests/test_native_passkeys.py) | Проверки |
 | [tests/test_network_intel.py](../tests/test_network_intel.py) | Проверки |
 | [tests/test_node_cache.py](../tests/test_node_cache.py) | Проверки |
+| [tests/test_node_monitor.py](../tests/test_node_monitor.py) | Проверки |
 | [tests/test_node_terminal.py](../tests/test_node_terminal.py) | Проверки |
 | [tests/test_observability.py](../tests/test_observability.py) | Проверки |
 | [tests/test_ops_alerts.py](../tests/test_ops_alerts.py) | Проверки |
@@ -1514,6 +1518,7 @@
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_push_campaigns.py](../tests/test_push_campaigns.py) | Проверки |
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |
+| [tests/test_referral_bonus_days.py](../tests/test_referral_bonus_days.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
 | [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |

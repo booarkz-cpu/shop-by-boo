@@ -661,6 +661,65 @@ class RollyPayProvider(BasePaymentProvider):
         return data
 
 
+class CryptoBotProvider(BasePaymentProvider):
+    """Crypto Pay (@CryptoBot): a reserve gateway. The invoice is in RUB (fiat), the customer pays in crypto.
+    No recurring charges and no refunds through the API; the payload carries the shop order id."""
+
+    @staticmethod
+    def api_url() -> str:
+        return "https://testnet-pay.crypt.bot/api" if settings.cryptobot_network == "testnet" else "https://pay.crypt.bot/api"
+
+    def _headers(self) -> Dict[str, str]:
+        return {"Crypto-Pay-API-Token": settings.cryptobot_token}
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        body = {"currency_type": "fiat", "fiat": currency or "RUB", "amount": _money(amount), "description": description[:1024],
+                "payload": order_id, "allow_anonymous": False, "expires_in": 3600}
+        if metadata.get("return_url"):
+            body.update({"paid_btn_name": "callback", "paid_btn_url": str(metadata["return_url"])})
+        async with _public_client(20) as client:
+            response = await client.post(f"{self.api_url()}/createInvoice", json=body, headers=self._headers())
+        response.raise_for_status()
+        data = response.json()
+        if not data.get("ok"):
+            raise PaymentError(f"CryptoBot: {str(data.get('error'))[:200]}")
+        invoice = data.get("result") or {}
+        return {"id": str(invoice.get("invoice_id") or ""), "url": invoice.get("bot_invoice_url") or invoice.get("pay_url"),
+                "status": invoice.get("status") or "active"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url})
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        async with _public_client(10) as client:
+            response = await client.get(f"{self.api_url()}/getInvoices", params={"invoice_ids": str(payment_id)}, headers=self._headers())
+        response.raise_for_status()
+        items = ((response.json().get("result") or {}).get("items") or [])
+        return items[0] if items else {}
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        invoice = await self.get_payment_status(payment_id)
+        if str(invoice.get("status") or "").lower() != "paid":
+            return False
+        if expected_order_id and str(invoice.get("payload") or "") != expected_order_id:
+            return False
+        if str(invoice.get("currency_type") or "fiat") == "fiat" and str(invoice.get("fiat") or "").upper() != str(currency).upper():
+            return False
+        return Decimal(str(invoice.get("amount") or "0")) == Decimal(str(expected_amount))
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: Optional[str] = None) -> Dict[str, Any]:
+        lowered = {k.lower(): v for k, v in headers.items()}
+        signature = lowered.get("crypto-pay-api-signature") or ""
+        if not settings.cryptobot_token or not signature:
+            raise SignatureVerificationError("CryptoBot webhook is not signed")
+        secret = hashlib.sha256(settings.cryptobot_token.encode()).digest()
+        expected = hmac.new(secret, body, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected, signature):
+            raise SignatureVerificationError("Invalid CryptoBot signature")
+        return json.loads(body)
+
+
 class SandboxProvider:
     """Local payment provider for tests without live gateways."""
 
