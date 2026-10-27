@@ -274,6 +274,8 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         }.resume()
         semaphore.wait()
         if let failure { throw failure }
+        // /api/me/sync answers 304 when the account did not change.
+        if status == 304 { return [String: Any]() }
         if !(200...299).contains(status) { throw NSError(domain: "shop", code: status, userInfo: [NSLocalizedDescriptionKey: detailOf(payload, status)]) }
         if payload.isEmpty { return [String: Any]() }
         let decoded = try JSONSerialization.jsonObject(with: payload)

@@ -123,6 +123,8 @@ from .support_ai import router as support_ai_router
 app.include_router(support_ai_router)
 from .admin_web_ticket import router as admin_web_ticket_router
 app.include_router(admin_web_ticket_router)
+from .account_sync import router as account_sync_router
+app.include_router(account_sync_router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
@@ -209,6 +211,7 @@ RATE_LIMITS = {
     "/api/me/family/join": 10,
     "/api/public/service-status": 60,
     "/api/me/servers": 30,
+    "/api/me/sync": 60,
     "/api/tariff-constructors": 60,
     "/api/agent/heartbeat": 120,
     "/api/agent/observations": 60,

@@ -125,6 +125,9 @@ struct UserRootView: View {
             }
         }
         .onChange(of: unlocked) { value in if value && !token.isEmpty { refresh() } }
+        // One account state with the bot, the cabinet and the Mini App: a payment, renewal or admin change
+        // made anywhere re-reads the screens here within seconds. Only while the app is open and unlocked.
+        .task(id: "\(token)|\(unlocked)|\(scenePhase == .active)") { await watchAccount() }
         .onChange(of: lang) { _ in
             layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
             loadLayout()
@@ -985,6 +988,23 @@ struct UserRootView: View {
             if let next = LayoutStore.fetch(base: normalized, lang: language) {
                 DispatchQueue.main.async { if language == lang { layout = next; CorgiAnalytics.enabled = next.feature("analytics") } }
             }
+        }
+    }
+
+    private func watchAccount() async {
+        if DemoMode.enabled || token.isEmpty || !unlocked || scenePhase != .active { return }
+        let client = ShopClient(base: base, token: token, lang: lang)
+        var version = ""
+        while !Task.isCancelled {
+            let since = version
+            let next: String? = await Task.detached {
+                let query = since.isEmpty ? "" : "?since=\(since.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&wait=10"
+                return (try? client.call("GET", "/api/me/sync\(query)") as? [String: Any]).map { $0["version"] as? String ?? "" }
+            }.value
+            guard let next else { try? await Task.sleep(nanoseconds: 20_000_000_000); continue }
+            if next.isEmpty { continue }
+            if !version.isEmpty && next != version { refresh() }
+            version = next
         }
     }
 

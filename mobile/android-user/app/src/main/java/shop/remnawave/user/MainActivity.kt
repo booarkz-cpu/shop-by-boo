@@ -40,6 +40,10 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Checkbox
@@ -306,6 +310,8 @@ class ShopApi(private val base: String, private val token: String, private val l
         CorgiTrust.verify(connection)
         if (body != null) connection.outputStream.use { it.write(body.toString().toByteArray()) }
         val code = connection.responseCode
+        // /api/me/sync answers 304 when the account did not change.
+        if (code == 304) return JSONObject()
         val text = (if (code in 200..299) connection.inputStream else connection.errorStream)?.bufferedReader()?.use { it.readText() }.orEmpty()
         if (code !in 200..299) throw IllegalStateException(detailOf(text, code))
         val trimmed = text.trim()
@@ -798,6 +804,26 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     LaunchedEffect(token, lang, unlocked) {
         if (demo) return@LaunchedEffect
         if (token.isNotBlank() && unlocked) refresh()
+    }
+    // One account state with the bot, the cabinet and the Mini App: a payment, renewal or admin change
+    // made anywhere re-reads the screens here within seconds. Paused while the app is in the background.
+    LaunchedEffect(token, unlocked, base) {
+        if (demo || token.isBlank() || !unlocked) return@LaunchedEffect
+        var version = ""
+        while (isActive) {
+            if (!activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) { delay(5000); continue }
+            val next = withContext(Dispatchers.IO) {
+                try {
+                    val query = if (version.isEmpty()) "" else "?since=" + Uri.encode(version) + "&wait=10"
+                    (ShopApi(base, token, lang).get("/api/me/sync$query") as JSONObject).optString("version")
+                } catch (_: Exception) { null }
+            }
+            when {
+                next == null -> delay(20000)
+                next.isEmpty() -> Unit
+                else -> { if (version.isNotEmpty() && next != version) refresh(); version = next }
+            }
+        }
     }
     LaunchedEffect(base) {
         val normalized = try { normalizeBase(base) } catch (_: Exception) { return@LaunchedEffect }
