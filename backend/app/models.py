@@ -1843,6 +1843,24 @@ class PushCampaign(Base):
     with_push: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_by: Mapped[str] = mapped_column(String(320), default="", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+    # v28.33.0: sending later (UTC; entered in Moscow time) and an A/B test of two texts.
+    scheduled_at: Mapped[datetime|None] = mapped_column(DateTime, index=True)
+    sent_at: Mapped[datetime|None] = mapped_column(DateTime)
+    title_b: Mapped[str|None] = mapped_column(String(120))
+    body_b: Mapped[str|None] = mapped_column(Text)
+    b_percent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    conversion_days: Mapped[int] = mapped_column(Integer, default=7, nullable=False)
+
+
+class PushCampaignRecipient(Base):
+    """Who received which variant of a push campaign: the base of its A/B results."""
+    __tablename__ = "push_campaign_recipients"
+    __table_args__ = (UniqueConstraint("campaign_id", "user_id", name="uq_push_campaign_recipient"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("push_campaigns.id", ondelete="CASCADE"), index=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    variant: Mapped[str] = mapped_column(String(1), default="a", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
 
 class FiscalReceipt(Base):

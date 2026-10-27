@@ -143,6 +143,8 @@ from .app_login import router as app_login_router
 app.include_router(app_login_router)
 from .app_growth import router as app_growth_router
 app.include_router(app_growth_router)
+from .push_campaigns import router as push_campaigns_router
+app.include_router(push_campaigns_router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
@@ -202,6 +204,7 @@ RATE_LIMITS = {
     "/api/mobile/integrity/challenge": 30,
     "/api/me/app-login": 10,
     "/api/app/open": 30,
+    "/api/app/paid": 30,
     "/api/auth/google": 20,
     "/api/auth/google/callback": 20,
     "/api/auth/register": 8,
@@ -649,10 +652,14 @@ async def health():
         logger.warning("Non-critical operation failed: %s", exc)
     return {"ok":redis_ok and db_ok,"version":APP_VERSION,"redis":redis_ok,"database":db_ok,"worker_role":settings.worker_role}
 
-def _return_url(order_id:str, base:str|None=None)->str:
+def _return_url(order_id:str, base:str|None=None, request:Request|None=None)->str:
     """Where the payment page sends the customer back: the cabinet (or Mini App) with ?order=<order id>,
-    so the result screen can show whether the payment went through."""
+    so the result screen can show whether the payment went through; the Android/iOS app when it paid."""
     from urllib.parse import urlsplit,urlunsplit,parse_qsl,urlencode
+    from .mobile_auth import mobile_client_name
+    if request is not None and mobile_client_name(request) in ("android-user","ios-user"):
+        from .app_login import payment_return_url
+        return payment_return_url(order_id)
     raw=(base if base is not None else (settings.cabinet_url or settings.mini_app_url)) or ""
     if not raw: return raw
     parts=urlsplit(raw)
@@ -729,182 +736,9 @@ async def metrics(request:Request):
     body="\n".join(f"vpnshop_{k} {v}" for k,v in _METRICS.items())+"\n"+extra
     return Response(content=body, media_type="text/plain; version=0.0.4")
 
-# ---------- Telegram auth ----------
-def telegram_user_from_init_data(init_data:str):
-    pairs=dict(urllib.parse.parse_qsl(init_data,keep_blank_values=True))
-    received=pairs.pop("hash",None)
-    if not received or not settings.bot_token: raise HTTPException(401,"Invalid Telegram initData")
-    try:
-        auth_date=int(pairs.get("auth_date", "0"))
-    except (TypeError,ValueError):
-        raise HTTPException(401,"Invalid Telegram auth date")
-    if abs(int(datetime.now(timezone.utc).timestamp())-auth_date)>600: raise HTTPException(401,"Expired Telegram initData")
-    secret=hmac.new(b"WebAppData",settings.bot_token.encode(),hashlib.sha256).digest()
-    check=hmac.new(secret,"\n".join(f"{k}={pairs[k]}" for k in sorted(pairs)).encode(),hashlib.sha256).hexdigest()
-    if not hmac.compare_digest(check,received): raise HTTPException(401,"Invalid Telegram initData")
-    try:
-        user=json.loads(pairs["user"])
-        if not isinstance(user,dict) or not user.get("id"):
-            raise ValueError("missing Telegram user id")
-        int(user["id"])
-        return user
-    except (KeyError,TypeError,ValueError,json.JSONDecodeError):
-        raise HTTPException(401,"Invalid Telegram user data")
+# ---------- Telegram auth: moved to auth_api.py (imported at the end of this file) ----------
 
-@app.post("/api/auth/telegram")
-async def telegram_auth(payload:dict, request:Request, response: Response, db:AsyncSession=Depends(get_db)):
-    u=telegram_user_from_init_data(payload.get("initData",""))
-    telegram_id=int(u["id"])
-    await _advisory_lock(db, 1000000000 + int(hashlib.sha256(str(telegram_id).encode()).hexdigest()[:8],16) % 900000000)
-    from .account_merge import identity_user
-    user=await identity_user(db,"telegram",telegram_id)
-    if not user:
-        user=User(telegram_id=telegram_id,username=u.get("username"),referral_code=secrets.token_urlsafe(8).upper()); db.add(user)
-    elif user.telegram_id == telegram_id:
-        user.username=u.get("username")
-    await db.commit(); await db.refresh(user)
-    token=await create_user_session(db,user,request)
-    await audit(db,"auth.user.login",f"user:{user.id}",None,{"method":"telegram","ip":_client_ip(request)})
-    await db.commit()
-    response.set_cookie("rw_user", token, httponly=True, secure=settings.cookie_secure, samesite=settings.cookie_samesite, max_age=3600)
-    _set_auth_cookies(response, token)
-    return {"id":user.id,"telegram_id":user.telegram_id,"username":user.username}
-
-def issue_user_token(user:User, ttl_minutes:int=60, jti:str|None=None):
-    now=datetime.now(timezone.utc)
-    jti=jti or secrets.token_urlsafe(24)
-    return __import__("jwt").encode({"sub":str(user.id),"type":"user","jti":jti,"iat":int(now.timestamp()),"exp":int((now+timedelta(minutes=ttl_minutes)).timestamp())},settings.app_secret,algorithm="HS256")
-
-async def create_user_session(db:AsyncSession,user:User,request:Request,ttl_minutes:int=60):
-    if user.deleted_at is not None and not getattr(user,"merged_into_user_id",None):raise HTTPException(401,"User account deleted")
-    from .account_merge import canonical_user
-    user=await canonical_user(db,user)
-    if user.deleted_at is not None:raise HTTPException(401,"User account deleted")
-    user=(await db.execute(select(User).where(User.id==user.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
-    from .platform_api import reject_restricted
-    reject_restricted(user)
-    if user.deleted_at is not None:
-        raise HTTPException(401,"User account deleted")
-    jti=secrets.token_urlsafe(24); now=datetime.utcnow(); expires=now+timedelta(minutes=ttl_minutes)
-    db.add(UserSession(user_id=user.id,jti_hash=hashlib.sha256(jti.encode()).hexdigest(),ip=_client_ip(request),user_agent=(request.headers.get("user-agent") or "")[:512],expires_at=expires))
-    await db.commit()
-    return issue_user_token(user,ttl_minutes,jti)
-
-async def user_from_token(request:Request, db:AsyncSession):
-    from .mobile_auth import require_mobile_proof
-    require_mobile_proof(request)
-    auth=request.headers.get("Authorization","")
-    token=auth[7:] if auth.startswith("Bearer ") else request.cookies.get("rw_user")
-    if not token: raise HTTPException(401,"User authentication required")
-    claims=decode_token(token)
-    if claims.get("type")!="user": raise HTTPException(401,"Invalid user token")
-    try: user_id=int(claims["sub"])
-    except (KeyError,TypeError,ValueError): raise HTTPException(401,"Invalid user token")
-    subject_user=await db.get(User,user_id)
-    if not subject_user: raise HTTPException(401,"User not found")
-    jti=claims.get("jti")
-    if not jti: raise HTTPException(401,"User session is not registered")
-    session=(await db.execute(select(UserSession).where(UserSession.jti_hash==hashlib.sha256(jti.encode()).hexdigest(),UserSession.revoked_at.is_(None)))).scalar_one_or_none()
-    now=datetime.utcnow()
-    if not session or session.expires_at<now or session.user_id!=subject_user.id: raise HTTPException(401,"User session expired or revoked")
-    current_ua=(request.headers.get("user-agent") or "")[:512]
-    if session.user_agent and current_ua and session.user_agent!=current_ua:
-        session.revoked_at=now; await db.commit(); raise HTTPException(401,"User session device changed")
-    session.last_seen_at=now
-    await db.commit()
-    from .account_merge import canonical_user
-    user=await canonical_user(db,subject_user)
-    if user.deleted_at is not None: raise HTTPException(401,"User not found")
-    from .platform_api import reject_restricted
-    reject_restricted(user)
-    return user
-
-@app.post("/api/auth/logout")
-async def user_logout(request:Request,response: Response,db:AsyncSession=Depends(get_db)):
-    token=request.headers.get("Authorization","")
-    token=token[7:] if token.startswith("Bearer ") else request.cookies.get("rw_user")
-    if token:
-        try:
-            claims=decode_token(token)
-        except HTTPException as exc:
-            if exc.status_code != 401: raise
-            claims={}
-        try:
-            jti=claims.get("jti")
-            if jti: await db.execute(__import__('sqlalchemy').update(UserSession).where(UserSession.jti_hash==hashlib.sha256(jti.encode()).hexdigest()).values(revoked_at=datetime.utcnow())); await db.commit()
-        except Exception as exc:
-            await db.rollback()
-            raise HTTPException(503, "Could not revoke user session") from exc
-    response.delete_cookie("rw_user"); response.delete_cookie("rw_csrf"); return {"ok":True}
-
-@app.post("/api/me/security/revoke-all")
-async def revoke_all_user_sessions(request:Request,db:AsyncSession=Depends(get_db)):
-    user=await user_from_token(request,db)
-    await db.execute(__import__('sqlalchemy').update(UserSession).where(UserSession.user_id==user.id,UserSession.revoked_at.is_(None)).values(revoked_at=datetime.utcnow()))
-    await audit(db,"auth.user.sessions.revoked_all",f"user:{user.id}")
-    await db.commit(); return {"ok":True}
-
-@app.get("/api/auth/yandex")
-async def yandex_login(request:Request, app:int=0):
-    if not settings.yandex_client_id or not settings.yandex_redirect_uri: raise HTTPException(503,"Yandex ID is not configured")
-    state=secrets.token_urlsafe(24)
-    # State is signed so it is stateless and cannot be forged; app=1 returns to the native app.
-    signed=__import__("jwt").encode({"state":state,"app":bool(app),"exp":int((datetime.now(timezone.utc)+timedelta(minutes=10)).timestamp())},settings.app_secret,algorithm="HS256")
-    params=urllib.parse.urlencode({"response_type":"code","client_id":settings.yandex_client_id,"redirect_uri":settings.yandex_redirect_uri,"state":signed})
-    resp=RedirectResponse("https://oauth.yandex.ru/authorize?"+params)
-    resp.set_cookie("yandex_oauth_state",signed,httponly=True,secure=True,samesite="lax",max_age=600)
-    return resp
-
-@app.get("/api/auth/yandex/callback")
-async def yandex_callback(code:str,state:str,request:Request,db:AsyncSession=Depends(get_db)):
-    try:
-        if not request.cookies.get("yandex_oauth_state") or not hmac.compare_digest(request.cookies["yandex_oauth_state"],state): raise ValueError()
-        state_claims=__import__("jwt").decode(state,settings.app_secret,algorithms=["HS256"])
-    except Exception: raise HTTPException(400,"Invalid OAuth state")
-    if not settings.yandex_client_secret: raise HTTPException(503,"Yandex ID secret is not configured")
-    import httpx
-    async with httpx.AsyncClient(timeout=10, trust_env=False) as client:
-        token_r=await client.post("https://oauth.yandex.ru/token",data={"grant_type":"authorization_code","code":code,"client_id":settings.yandex_client_id,"client_secret":settings.yandex_client_secret})
-        if token_r.status_code!=200: raise HTTPException(401,"Yandex authorization failed")
-        access=token_r.json().get("access_token")
-        me_r=await client.get("https://login.yandex.ru/info",params={"format":"json"},headers={"Authorization":f"OAuth {access}"})
-    if me_r.status_code!=200: raise HTTPException(401,"Could not read Yandex profile")
-    info=me_r.json(); yid=str(info.get("id"))
-    if not yid or yid == "None": raise HTTPException(401,"Yandex profile has no stable identifier")
-    yandex_lock_key=int(hashlib.sha256(yid.encode()).hexdigest()[:8],16) % 900000000
-    await _advisory_lock(db, 1100000000 + yandex_lock_key)
-    from .account_merge import identity_user
-    user=await identity_user(db,"yandex",yid)
-    if not user:
-        user=User(yandex_id=yid,username=info.get("login") or info.get("display_name"),referral_code=secrets.token_urlsafe(8).upper()); db.add(user)
-    elif user.yandex_id == yid:
-        user.username=info.get("login") or info.get("display_name") or user.username
-    await db.commit(); await db.refresh(user)
-    raw=secrets.token_urlsafe(32); code_hash=hashlib.sha256(raw.encode()).hexdigest()
-    to_app=bool(state_claims.get("app"))
-    db.add(AuthExchangeCode(code_hash=code_hash,user_id=user.id,expires_at=datetime.utcnow()+timedelta(minutes=5 if to_app else 1)))
-    await db.commit()
-    from .app_login import deep_link
-    resp=RedirectResponse(deep_link(raw) if to_app else settings.mini_app_url.rstrip("/")+"/?code="+urllib.parse.quote(raw))
-    resp.delete_cookie("yandex_oauth_state")
-    return resp
-
-class ExchangeIn(BaseModel):
-    code:str=Field(min_length=20,max_length=128)
-
-@app.post("/api/auth/exchange")
-async def auth_exchange(payload:ExchangeIn,request:Request,response: Response,db:AsyncSession=Depends(get_db)):
-    h=hashlib.sha256(payload.code.encode()).hexdigest()
-    row=(await db.execute(select(AuthExchangeCode).where(AuthExchangeCode.code_hash==h).with_for_update())).scalar_one_or_none()
-    if not row or row.used_at or row.expires_at < datetime.utcnow(): raise HTTPException(400,"Invalid or expired authorization code")
-    user=await db.get(User,row.user_id)
-    if not user: raise HTTPException(404,"User not found")
-    from .account_merge import canonical_user
-    user=await canonical_user(db,user)
-    row.used_at=datetime.utcnow(); await db.commit()
-    token=await create_user_session(db,user,request); await audit(db,"auth.user.login",f"user:{user.id}",None,{"method":"yandex","ip":_client_ip(request)}); await db.commit(); response.set_cookie("rw_user",token,httponly=True,secure=settings.cookie_secure,samesite=settings.cookie_samesite,max_age=3600); _set_auth_cookies(response,token)
-    return {"id":user.id,"telegram_id":user.telegram_id,"yandex_id":user.yandex_id,"username":user.username,"referral_code":user.referral_code,"auto_renew_enabled":user.auto_renew_enabled}
-
+# ---------- Promotions, devices, trial, catalog ----------
 async def active_promotion(db, plan_id:int, now=None):
     now=now or datetime.utcnow()
     rows=(await db.execute(select(Promotion).where(Promotion.enabled.is_(True)).order_by(Promotion.priority.desc(),Promotion.id.desc()))).scalars().all()
@@ -1103,79 +937,7 @@ class MonitoringCheckIn(BaseModel):
     timeout_seconds: int = Field(default=10, ge=1, le=60)
     enabled: bool = True
 
-# ---------- Admin authentication / MFA ----------
-@app.post("/api/admin/auth/telegram")
-async def admin_telegram_login(payload:dict,request:Request,response:Response,db:AsyncSession=Depends(get_db)):
-    u=telegram_user_from_init_data(payload.get("initData",""))
-    admin=(await db.execute(select(AdminUser).where(AdminUser.telegram_id==int(u["id"]),AdminUser.disabled.is_(False)))).scalar_one_or_none()
-    if not admin: raise HTTPException(403,"Telegram ID не привязан к администратору")
-    if admin.mfa_enabled: raise HTTPException(403,"Для этого администратора требуется вход по email и 2FA")
-    jti=secrets.token_urlsafe(32); token=issue_token(admin,False,jti=jti)
-    db.add(AdminSession(admin_id=admin.id,jti_hash=hashlib.sha256(jti.encode()).hexdigest(),ip=_client_ip(request),user_agent=request.headers.get("user-agent",""),created_at=datetime.utcnow(),last_seen_at=datetime.utcnow(),expires_at=datetime.utcnow()+timedelta(minutes=30)))
-    admin.last_login_at=datetime.utcnow(); await audit(db,"admin.telegram_login",str(admin.telegram_id),admin.email); await db.commit()
-    response.set_cookie("rw_admin",token,httponly=True,secure=settings.cookie_secure,samesite=settings.cookie_samesite,max_age=1800)
-    _set_auth_cookies(response,token)
-    return {"ok":True,"admin_id":admin.id}
-
-@app.post("/api/admin/auth/login")
-async def admin_login(payload:LoginIn, request:Request, response:Response, db:AsyncSession=Depends(get_db)):
-    from .mobile_auth import require_mobile_proof
-    require_mobile_proof(request)
-    # Behind Caddy, request.client is the proxy container. Use the trusted
-    # proxy-normalized client IP so one remote address cannot throttle every
-    # administrator through the shared reverse-proxy address.
-    client_ip=_client_ip(request)
-    limiter_key=f"login:{client_ip}:{payload.email.lower().strip()}"
-    if not await _redis_allowed(limiter_key,8,900): raise HTTPException(429,"Too many login attempts. Try again later.", headers={"Retry-After":"900"})
-    admin=(await db.execute(select(AdminUser).where(AdminUser.email==payload.email.lower().strip()).with_for_update())).scalar_one_or_none()
-    if not admin or admin.disabled or not verify_password(payload.password, admin.password_hash):
-        raise HTTPException(401,"Invalid credentials")
-    if admin.mfa_enabled:
-        if not payload.otp: raise HTTPException(401,"MFA code required or invalid")
-        if not verify_totp(admin,payload.otp) and not consume_recovery_code(admin,payload.otp):
-            raise HTTPException(401,"MFA code required or invalid")
-    admin.last_login_at=datetime.utcnow();
-    from .runtime_security import reset_login_attempts
-    await reset_login_attempts(redis_client, limiter_key)
-    await db.commit()
-    jti=secrets.token_urlsafe(32)
-    expires=datetime.utcnow()+timedelta(minutes=30)
-    db.add(AdminSession(admin_id=admin.id,jti_hash=hashlib.sha256(jti.encode()).hexdigest(),ip=_client_ip(request),user_agent=(request.headers.get("user-agent") or "")[:512],expires_at=expires))
-    token=issue_token(admin,admin.mfa_enabled,30,jti=jti)
-    await db.commit()
-    from .mobile_auth import mobile_client_name, session_body
-    body={"mfa_enabled":bool(admin.mfa_enabled),"role":admin.role,"email":admin.email}
-    if mobile_client_name(request):
-        return session_body(request, token, body)
-    response.set_cookie("rw_admin",token,httponly=True,secure=settings.cookie_secure,samesite=settings.cookie_samesite,max_age=1800)
-    _set_auth_cookies(response,token)
-    return body
-
-@app.post("/api/admin/auth/mfa/setup")
-async def mfa_setup(db:AsyncSession=Depends(get_db), admin=Depends(require_permission("manage_own_mfa"))):
-    if admin.mfa_enabled: raise HTTPException(409,"MFA is already enabled")
-    secret=random_base32(); admin.totp_secret_encrypted=encrypt_secret(secret); codes=generate_recovery_codes(); set_recovery_codes(admin,codes); await db.commit()
-    return {"secret":secret,"otpauth_url":provisioning_uri(secret,admin.email,"Corgi Lusi"),"recovery_codes":codes}
-
-@app.post("/api/admin/auth/mfa/enable")
-async def mfa_enable(payload:OtpIn, db:AsyncSession=Depends(get_db), admin=Depends(require_permission("manage_own_mfa"))):
-    if admin.mfa_enabled: raise HTTPException(409,"MFA is already enabled")
-    if not admin.totp_secret_encrypted or not verify_totp(admin,payload.otp): raise HTTPException(401,"Invalid MFA code")
-    admin.mfa_enabled=True; await audit(db,"mfa.enabled",admin.email,admin.email); await db.commit()
-    return {"ok":True,"mfa_enabled":True}
-
-class PasswordConfirm(BaseModel):
-    password: str = Field(min_length=8, max_length=256)
-
-@app.post("/api/admin/auth/mfa/disable")
-async def mfa_disable(payload:PasswordConfirm, db:AsyncSession=Depends(get_db), admin=Depends(require_permission("manage_own_mfa"))):
-    if not admin.mfa_enabled: return {"ok":True,"mfa_enabled":False}
-    if not verify_password(payload.password, admin.password_hash): raise HTTPException(401,"Invalid password")
-    admin.mfa_enabled=False; admin.totp_secret_encrypted=None; admin.recovery_codes_encrypted=None; await audit(db,"mfa.disabled",admin.email,admin.email); await db.commit()
-    return {"ok":True,"mfa_enabled":False}
-
-@app.get("/api/admin/auth/mfa/status")
-async def mfa_status(admin=Depends(require_permission("read"))): return {"enabled":bool(admin.mfa_enabled)}
+# ---------- Admin authentication / MFA: moved to admin_auth_api.py (imported at the end of this file) ----------
 
 # ---------- Feature flags ----------
 async def _feature_flag(db: AsyncSession, key: str):
@@ -1686,11 +1448,11 @@ async def wallet_topup(payload:dict, request:Request, db:AsyncSession=Depends(ge
     row=Payment(user_id=user.id,plan_id=0,provider=candidate,order_id=order_id,amount=amount,original_amount=amount,discount_amount=Decimal("0.00"),currency=settings.default_currency,status="creating",fulfillment_status="pending",idempotency_key=idem,purpose="topup",bonus_days=0)
     db.add(row); await db.commit(); await db.refresh(row)
     try:
-        back=_return_url(order_id)
+        back=_return_url(order_id,request=request)
         meta={"order_id":order_id,"user_id":user.id,"email":user.email,"return_url":back,"cancel_url":back}
         if candidate in {"stripe","paypal","crypto"}: result=await provider.create(amount,settings.default_currency,"Wallet top-up",meta)
-        elif candidate=="yookassa" and method: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url),method=method)
-        else: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url))
+        elif candidate=="yookassa" and method: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url,request),method=method)
+        else: result=await provider.create(amount,order_id,"Wallet top-up",_return_url(order_id,settings.mini_app_url,request))
         if not result.get("id"): raise RuntimeError("Payment provider returned no payment ID")
         row=(await db.execute(select(Payment).where(Payment.id==row.id).with_for_update())).scalar_one()
         row.provider_payment_id=result["id"]; row.checkout_url=result.get("url")
@@ -1995,3 +1757,5 @@ from .admin_api import *  # noqa: E402,F401,F403
 from .payment_platform_api import *  # noqa: E402,F401,F403
 from .recovery_api import *  # noqa: E402,F401,F403
 from .payments_api import *  # noqa: E402,F401,F403
+from .auth_api import *  # noqa: E402,F401,F403
+from .admin_auth_api import *  # noqa: E402,F401,F403

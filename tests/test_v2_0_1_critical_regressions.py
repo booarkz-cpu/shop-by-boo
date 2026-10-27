@@ -1,29 +1,21 @@
 from pathlib import Path
-import ast
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN_PATH = ROOT / "backend/app/main.py"
-MAIN = MAIN_PATH.read_text()
 
 
-def _function(name: str):
-    tree = ast.parse(MAIN)
-    for node in tree.body:
-        if isinstance(node, ast.AsyncFunctionDef) and node.name == name:
-            return node
-    raise AssertionError(f"function not found: {name}")
+def _route(path: str):
+    from app import main as shop
+
+    return next(r for r in shop.app.routes if getattr(r, "path", "") == path and "POST" in getattr(r, "methods", set()))
 
 
 def test_telegram_login_declares_request_dependency():
-    fn = _function("telegram_auth")
-    assert "request" in {a.arg for a in fn.args.args}
-    assert any(isinstance(n, ast.Name) and n.id == "request" and isinstance(n.ctx, ast.Load) for n in ast.walk(fn))
+    # FastAPI injects the Request (client IP and user agent of the session) into the handler.
+    assert _route("/api/auth/telegram").dependant.request_param_name == "request"
 
 
 def test_yandex_exchange_declares_request_dependency():
-    fn = _function("auth_exchange")
-    assert "request" in {a.arg for a in fn.args.args}
-    assert any(isinstance(n, ast.Name) and n.id == "request" and isinstance(n.ctx, ast.Load) for n in ast.walk(fn))
+    assert _route("/api/auth/exchange").dependant.request_param_name == "request"
 
 
 def test_release_scripts_are_executable():

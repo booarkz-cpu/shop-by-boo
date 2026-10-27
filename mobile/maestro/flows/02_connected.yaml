@@ -1,0 +1,12 @@
+appId: shop.remnawave.user.preview
+name: Connected state
+---
+- launchApp:
+    clearState: true
+    arguments:
+      corgi_demo: true
+      corgi_tab: vpn
+      corgi_lang: ru
+      corgi_vpn_on: true
+- assertVisible: "VPN подключён"
+- takeScreenshot: android-03-connected

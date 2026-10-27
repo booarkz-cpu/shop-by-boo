@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const when = (v?: string | null) => (v ? new Date(v).toLocaleString() : "—");
-const STATUS: Record<string, string> = {queued: "в очереди", sent: "отправлен, ждём ответ", retry: "повтор", failed: "ошибка", done: "сформирован"};
+const STATUS: Record<string, string> = {queued: "в очереди", sent: "отправлен, ждём ответ", retry: "повтор", check: "сверяем с «Мой налог»", failed: "ошибка", done: "сформирован"};
 
 /** «Тарифы и оплата → Чеки в налоговую»: «Мой налог», АТОЛ Онлайн or ЮKassa receipts for every payment. */
 export function FiscalReceipts({d, request, reload, toast}: {d: any; request: Request; reload: () => void; toast: (m: string) => void}) {
@@ -38,7 +38,7 @@ export function FiscalReceipts({d, request, reload, toast}: {d: any; request: Re
   const mode = form.mode;
   return <div className="stack" data-fiscal>
     <div className="kpis">
-      {["done", "sent", "retry", "failed"].map((k) => <div className="card kpi" key={k}><span>{STATUS[k]}</span><b>{d.counts?.[k] || 0}</b></div>)}
+      {["done", "sent", "check", "retry", "failed"].map((k) => <div className="card kpi" key={k}><span>{STATUS[k]}</span><b>{d.counts?.[k] || 0}</b></div>)}
     </div>
     <form className="card stack" onSubmit={save}>
       <h3>Чеки в налоговую</h3>

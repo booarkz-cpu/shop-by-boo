@@ -174,7 +174,17 @@
     "split_title": "Что работает без VPN",
     "split_hint": "Отмеченные приложения ходят в интернет напрямую. Изменения применяются при следующем подключении.",
     "bypass_ru": "Российские сайты (.ru, .рф, .su) без VPN",
-    "vpn_engine_error": "Встроенный VPN не подключился: {error}"
+    "vpn_engine_error": "Встроенный VPN не подключился: {error}",
+    "battery_title": "VPN может отключаться в фоне",
+    "battery_body": "Прошивка {vendor} экономит батарею и останавливает VPN, когда приложение свёрнуто. Чтобы туннель не пропадал, разрешите приложению работать без ограничений батареи и включите автозапуск.",
+    "battery_open": "Без ограничений батареи",
+    "battery_autostart": "Автозапуск и работа в фоне",
+    "battery_guide": "Инструкция для моего телефона",
+    "later": "Позже",
+    "payment_done": "Оплата прошла — подписка обновлена",
+    "payment_failed": "Оплата не прошла. Попробуйте ещё раз или выберите другой способ",
+    "payment_refunded": "Платёж возвращён",
+    "payment_waiting": "Платёж ещё обрабатывается — статус обновится сам"
   },
   "en": {
     "app_name": "VPN shop",
@@ -351,7 +361,17 @@
     "split_title": "What works without VPN",
     "split_hint": "Checked apps go online directly. Changes apply on the next connection.",
     "bypass_ru": "Russian sites (.ru, .рф, .su) without VPN",
-    "vpn_engine_error": "The built-in VPN did not connect: {error}"
+    "vpn_engine_error": "The built-in VPN did not connect: {error}",
+    "battery_title": "VPN may stop in the background",
+    "battery_body": "{vendor} firmware saves battery by stopping the VPN when the app is in the background. To keep the tunnel on, allow unrestricted battery use for the app and turn on autostart.",
+    "battery_open": "Unrestricted battery",
+    "battery_autostart": "Autostart and background",
+    "battery_guide": "Guide for my phone",
+    "later": "Later",
+    "payment_done": "Payment received — your subscription is updated",
+    "payment_failed": "The payment did not go through. Try again or choose another method",
+    "payment_refunded": "The payment was refunded",
+    "payment_waiting": "The payment is still processing — the status will update itself"
   },
   "uk": {
     "app_name": "Коргі Люсі",
@@ -528,6 +548,16 @@
     "split_title": "Що працює без VPN",
     "split_hint": "Позначені застосунки ходять в інтернет напряму. Зміни діють з наступного підключення.",
     "bypass_ru": "Російські сайти (.ru, .рф, .su) без VPN",
-    "vpn_engine_error": "Вбудований VPN не підключився: {error}"
+    "vpn_engine_error": "Вбудований VPN не підключився: {error}",
+    "battery_title": "VPN може вимикатися у фоні",
+    "battery_body": "Прошивка {vendor} економить батарею й зупиняє VPN, коли застосунок згорнуто. Щоб тунель не зникав, дозвольте застосунку працювати без обмежень батареї та увімкніть автозапуск.",
+    "battery_open": "Без обмежень батареї",
+    "battery_autostart": "Автозапуск і робота у фоні",
+    "battery_guide": "Інструкція для мого телефона",
+    "later": "Пізніше",
+    "payment_done": "Оплата пройшла — підписку оновлено",
+    "payment_failed": "Оплата не пройшла. Спробуйте ще раз або виберіть інший спосіб",
+    "payment_refunded": "Платіж повернуто",
+    "payment_waiting": "Платіж ще обробляється — статус оновиться сам"
   }
 }

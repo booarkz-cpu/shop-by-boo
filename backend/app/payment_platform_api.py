@@ -367,3 +367,6 @@ async def list_price_experiments(db:AsyncSession=Depends(get_db),admin=Depends(r
 
 
 __all__ = ['ChargebackUpdateIn', 'CorporateIn', 'GiftCardCreateIn', 'GiftCardRedeemIn', 'MobilePurchaseIn', 'PriceExperimentIn', 'TaxProfileIn', '_issue_invoice', '_payment_platform_provider', '_record_provider_metric', '_risk_score', 'admin_chargebacks', 'admin_payment_platform_capabilities', 'create_corporate', 'create_gift_card', 'crypto_webhook', 'list_corporate', 'list_gift_cards', 'list_price_experiments', 'payment_analytics', 'payment_invoice', 'payment_providers', 'payment_risk_recheck', 'paypal_webhook', 'redeem_gift_card', 'set_tax_profile', 'stripe_webhook', 'update_chargeback', 'upsert_price_experiment', 'verify_mobile_purchase']
+# Imported before main finished (``from app import payment_platform_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

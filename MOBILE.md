@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.32.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.33.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Android и iOS
 
@@ -8,13 +8,21 @@
 
 Что нового в 3.1.0:
 
-- **Встроенный VPN на Android** (Xray-core). Туннель поднимается прямо в приложении: «Авто» с переключением при сбое, выбор сервера, «Что работает без VPN». Сборка без `libv2ray.aar` и iOS передают подписку в Happ, v2rayNG, Hiddify, v2RayTun или Streisand.
+- **Встроенный VPN на Android** (Xray-core). Туннель поднимается прямо в приложении: «Авто» с переключением при сбое, выбор сервера, «Что работает без VPN». Сборка без `libv2ray.aar` и iOS без расширения `CorgiTunnel` передают подписку в Happ, v2rayNG, Hiddify, v2RayTun или Streisand.
 - **Вход без адреса и пароля.** Адрес вшивается в сборку (`corgi.shop_url` / `CORGI_SHOP_URL`). Войти можно по ссылке `corgi://login` из бота или кабинета, через Telegram, Яндекс, VK или Google.
 - **Push в стиле приложения.** Картинка, кнопки, раздел, группа и звук настраиваются в админке. Push-кампании по сегментам.
 - **Анонимная аналитика.** Раздел «Розыгрыши и бонусы» и баннер акции на главном экране.
 - **Админ-приложения** в стиле веб-панели (Remna Dark).
 - **Подготовка к сторам** — [STORE_PUBLISHING.md](docs/ru/STORE_PUBLISHING.md); **защита** — [APP_PROTECTION.md](docs/ru/APP_PROTECTION.md).
 - **UI-тесты** в CI: Compose и XCUITest.
+
+Дистрибутив v28.33.0 добавил к приложениям 3.1.0:
+
+- **Встроенный VPN на iOS** (Network Extension `CorgiTunnel`) и **push с картинками** (`CorgiNotificationService`) — включаются в сборке владельца с разрешением Apple, обычная подпись не меняется ([модуль 16](docs/ru/modules/16-mobile-apps.md#сборка), [архитектура iOS](docs/modules/ios_architecture.md)).
+- **VPN в фоне на Android:** подсказка для Xiaomi, Samsung, Huawei и других прошивок ([архитектура Android](docs/modules/android_architecture.md)).
+- **Возврат в приложение после оплаты** и итог платежа.
+- **Воронка** «установка → вход → тариф → оплата → подключение» и событие `plan_select` ([аналитика](docs/modules/analytics.md)).
+- **Сценарии Maestro** для основных экранов (`mobile/maestro`, `scripts/mobile/maestro-screens.sh`).
 
 ![Стандартные баннеры разделов приложений](docs/img/app-banners-all.jpg)
 

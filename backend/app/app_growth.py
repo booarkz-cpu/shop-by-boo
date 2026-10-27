@@ -1,11 +1,11 @@
 """App growth tools: segmented push campaigns and anonymous app analytics.
 
-Push campaigns («Приложения: push-кампании») create one in-app notification per user of a
-segment; the push worker (push.py) delivers it to every app installation of that user that has
-push switched on. Segments are computed on the server at send time, the preview shows the reach.
+Segments for push campaigns («Приложения: push-кампании») are computed here at send time; the
+campaigns themselves — now or at a Moscow time, with an A/B test — are in push_campaigns.py.
 
 App analytics («Приложения: аналитика») counts what happens in the Android/iOS apps: first
-launch, sign-in, «Подключить», screens, checkout. Events carry a random installation id that the
+launch, sign-in, «Подключить», screens, checkout; the funnel установка → вход → тариф → оплата →
+подключение is computed in app_funnel.py. Events carry a random installation id that the
 server stores only as a keyed hash, the platform, the app version and the screen — no IP, no
 device model, no advertising identifiers. The administrator switches collection off with the
 layout feature «analytics»; the apps then send nothing and the server drops what arrives.
@@ -18,12 +18,12 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, Field
-from sqlalchemy import and_, distinct, exists, func, select
+from sqlalchemy import distinct, exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
 from .db import get_db
-from .models import AppEvent, Notification, Payment, PushCampaign, PushDevice, Subscription, User, UserSession
+from .models import AppEvent, Notification, PushDevice, Subscription, User, UserSession
 from .security import require_permission
 
 router = APIRouter()
@@ -39,7 +39,7 @@ SEGMENTS: dict[str, str] = {
     "inactive": "Не открывали приложение N дней",
 }
 EVENTS = ("install", "open", "sign_in_view", "sign_in", "screen", "connect_tap", "connected", "trial_tap",
-          "checkout_start", "checkout_done", "promo_tap", "giveaway_enter")
+          "plan_select", "checkout_start", "checkout_done", "promo_tap", "giveaway_enter")
 PLATFORMS = ("android", "ios")
 ACTIVE = ("active", "cancel_scheduled")
 RETENTION_DAYS = 180
@@ -89,77 +89,7 @@ async def _with_push(db: AsyncSession, user_ids: list[int]) -> int:
     return total
 
 
-class CampaignIn(BaseModel):
-    segment: str = Field(pattern=r"^(all|app_users|expiring|expired|no_subscription|inactive)$")
-    days: int = Field(default=3, ge=1, le=90)
-    title: str = Field(default="", max_length=120)
-    body: str = Field(default="", max_length=1000)
-
-
-class CampaignPreviewIn(BaseModel):
-    segment: str = Field(pattern=r"^(all|app_users|expiring|expired|no_subscription|inactive)$")
-    days: int = Field(default=3, ge=1, le=90)
-
-
-REPEAT_GUARD_MINUTES = 10  # a second click on «Отправить» does not message everyone twice
-
-
-async def send_campaign(db: AsyncSession, payload: CampaignIn, actor: str, now: datetime | None = None) -> PushCampaign:
-    now = now or datetime.utcnow()
-    title, body = " ".join(payload.title.split()), payload.body.strip()
-    if not title or not body:
-        raise HTTPException(422, "Заголовок и текст обязательны")
-    twin = (await db.execute(select(PushCampaign.id).where(
-        PushCampaign.title == title, PushCampaign.body == body, PushCampaign.segment == payload.segment,
-        PushCampaign.created_at >= now - timedelta(minutes=REPEAT_GUARD_MINUTES)).limit(1))).scalar_one_or_none()
-    if twin:
-        raise HTTPException(409, "Такая рассылка уже отправлена несколько минут назад")
-    users = await segment_users(db, payload.segment, payload.days, now)
-    campaign = PushCampaign(title=title, body=body, segment=payload.segment, days=payload.days, status="sending",
-                            recipients=len(users), with_push=await _with_push(db, users), created_by=actor[:320], created_at=now)
-    db.add(campaign)
-    await db.flush()
-    key = f"campaign:{campaign.id}"
-    for user_id in users:
-        # push_fanout_at stays empty: the push worker fans it out to the devices of the user.
-        db.add(Notification(user_id=user_id, channel="in_app", kind="campaign", title=title, body=body,
-                            dedupe_key=key, status="sent", sent_at=now, created_at=now))
-    campaign.status = "sent"
-    return campaign
-
-
-def _campaign(row: PushCampaign) -> dict:
-    return {"id": row.id, "title": row.title, "body": row.body, "segment": row.segment, "days": row.days,
-            "status": row.status, "recipients": row.recipients, "with_push": row.with_push,
-            "created_by": row.created_by, "created_at": row.created_at}
-
-
-@router.get("/api/admin/push-campaigns")
-async def list_campaigns(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("marketing.read"))):
-    from .push import provider_ready
-
-    rows = (await db.execute(select(PushCampaign).order_by(PushCampaign.id.desc()).limit(50))).scalars().all()
-    return {"segments": SEGMENTS, "push_ready": {p: provider_ready(p) for p in ("fcm", "apns")},
-            "items": [_campaign(r) for r in rows]}
-
-
-@router.post("/api/admin/push-campaigns/preview")
-async def preview_campaign(payload: CampaignPreviewIn, db: AsyncSession = Depends(get_db),
-                           admin=Depends(require_permission("marketing.read"))):
-    users = await segment_users(db, payload.segment, payload.days)
-    return {"recipients": len(users), "with_push": await _with_push(db, users)}
-
-
-@router.post("/api/admin/push-campaigns")
-async def create_campaign(payload: CampaignIn, db: AsyncSession = Depends(get_db),
-                          admin=Depends(require_permission("manage_broadcasts"))):
-    from .main import audit
-
-    row = await send_campaign(db, payload, admin.email)
-    await audit(db, "push_campaign.sent", admin.email, str(row.id),
-                {"segment": row.segment, "days": row.days, "recipients": row.recipients, "with_push": row.with_push})
-    await db.commit()
-    return _campaign(row)
+# CampaignIn, send_campaign and the campaign endpoints live in push_campaigns.py (sending later, A/B).
 
 
 # ------------------------------------------------------------------ expiry reminders
@@ -260,16 +190,9 @@ async def summary(db: AsyncSession, days: int, platform: str = "", now: datetime
 
     counts = dict((await db.execute(select(AppEvent.event, func.count(AppEvent.id)).where(*scope).group_by(AppEvent.event))).all())
     active = int(await db.scalar(select(func.count(distinct(AppEvent.install_hash))).where(*scope)) or 0)
-    app_users = select(distinct(AppEvent.user_id)).where(*scope, AppEvent.user_id.is_not(None))
-    paid_users = int(await db.scalar(select(func.count(distinct(Payment.user_id))).where(
-        Payment.user_id.in_(app_users), Payment.status == "paid", Payment.created_at >= since)) or 0)
-    funnel = [
-        {"step": "install", "title": "Установка", "count": await installs_with("install")},
-        {"step": "sign_in", "title": "Вход", "count": await installs_with("sign_in")},
-        {"step": "connect_tap", "title": "Нажали «Подключить»", "count": await installs_with("connect_tap")},
-        {"step": "checkout_start", "title": "Открыли оплату", "count": await installs_with("checkout_start")},
-        {"step": "paid", "title": "Оплатили (по платежам магазина)", "count": paid_users},
-    ]
+    from .app_funnel import funnel as product_funnel
+
+    funnel = await product_funnel(db, days, platform, now)
     screens = (await db.execute(select(AppEvent.screen, func.count(AppEvent.id), func.count(distinct(AppEvent.install_hash)))
                                 .where(*scope, AppEvent.event == "screen").group_by(AppEvent.screen)
                                 .order_by(func.count(AppEvent.id).desc()).limit(30))).all()
@@ -308,3 +231,7 @@ async def cleanup(db: AsyncSession, now: datetime | None = None) -> int:
     result = await db.execute(delete(AppEvent).where(AppEvent.created_at < now - timedelta(days=RETENTION_DAYS)))
     await db.commit()
     return int(result.rowcount or 0)
+
+
+# Campaigns moved to push_campaigns.py; kept importable from here for older callers.
+from .push_campaigns import CampaignIn, CampaignPreviewIn, REPEAT_GUARD_MINUTES, send_campaign  # noqa: E402,F401

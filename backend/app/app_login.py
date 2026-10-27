@@ -39,6 +39,7 @@ router = APIRouter()
 
 APP_CODE_MINUTES = 5
 CODE_RE = re.compile(r"[A-Za-z0-9_-]{20,128}")
+ORDER_RE = re.compile(r"[A-Za-z0-9_.:-]{6,128}")
 
 __all__ = [
     "router", "api_base", "app_scheme", "issue_app_code", "deep_link", "open_url",
@@ -74,6 +75,16 @@ def deep_link(code: str) -> str:
 
 def open_url(code: str) -> str:
     return f"{api_base()}/api/app/open?" + urllib.parse.urlencode({"code": code})
+
+
+def payment_link(order_id: str) -> str:
+    """corgi://payment?order=… — the app refreshes and shows the result of this order."""
+    return f"{app_scheme()}://payment?" + urllib.parse.urlencode({"base": api_base(), "order": order_id})
+
+
+def payment_return_url(order_id: str) -> str:
+    """https return address for payment pages that refuse custom schemes; it forwards to the app."""
+    return f"{api_base()}/api/app/paid?" + urllib.parse.urlencode({"order": order_id})
 
 
 def oauth_finish_url(code: str, app: bool) -> str:
@@ -137,6 +148,33 @@ async def open_app(code: str = ""):
     import json
 
     body = _OPEN_PAGE.format(minutes=APP_CODE_MINUTES, link=html.escape(link, quote=True), js=json.dumps(link))
+    return HTMLResponse(body, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
+                                       "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"})
+
+
+_PAID_PAGE = """<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Корги Люси</title>
+<style>body{{margin:0;min-height:100vh;display:grid;place-items:center;background:#0F1115;color:#F4F5F7;
+font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}}main{{max-width:420px;padding:32px;text-align:center}}
+a.btn{{display:block;margin:24px 0 12px;padding:16px;border-radius:16px;background:#FF8A1F;color:#111;
+font-weight:700;text-decoration:none}}p{{color:#A9AFBC;line-height:1.5}}</style></head>
+<body><main><h1>Возвращаемся в приложение…</h1>
+<p>Приложение покажет, прошла ли оплата. Если оно не открылось само, нажмите кнопку.</p>
+<a class="btn" href="{link}">Открыть приложение</a>
+</main><script>setTimeout(function(){{location.href={js}}},50)</script></body></html>"""
+
+
+@router.get("/api/app/paid")
+async def paid_return(order: str = ""):
+    """Return address of payments made in the app: back to the app with the order to check.
+    The order id is not a secret: the app reads its status only with the customer's session."""
+    if not ORDER_RE.fullmatch(order or ""):
+        raise HTTPException(400, "Invalid order")
+    import json
+
+    link = payment_link(order)
+    body = _PAID_PAGE.format(link=html.escape(link, quote=True), js=json.dumps(link))
     return HTMLResponse(body, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
                                        "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"})
 

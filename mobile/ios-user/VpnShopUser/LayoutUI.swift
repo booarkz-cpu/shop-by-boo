@@ -178,8 +178,8 @@ func flagEmoji(_ country: String) -> String {
 
 // MARK: - VPN clients and VPN state
 
-/// The «Подключить» button hands the subscription to a VPN client (no packet engine is bundled,
-/// see CorgiPacketTunnelProvider) and reads whether a VPN tunnel is up on the phone.
+/// Without the embedded tunnel (CorgiTunnelManager.available is false) the «Подключить» button
+/// hands the subscription to a VPN client and reads whether a VPN tunnel is up on the phone.
 enum VpnClients {
     struct Client { let id: String; let title: String; let scheme: String; let store: String }
     static let all = [

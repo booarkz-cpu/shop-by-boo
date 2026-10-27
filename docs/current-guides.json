@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0077_app_growth",
+  "migration_head": "0078_campaign_ab",
   "guides": [
     ".env.example",
     "ADMIN_GUIDE_RU.md",
@@ -39,6 +39,7 @@
     "desktop/windows/README.md",
     "docs/API_ENDPOINTS.md",
     "docs/INDEX.md",
+    "docs/INSTALLATION.md",
     "docs/PROJECT_FILE_MAP.md",
     "docs/PROJECT_MAP_RU.md",
     "docs/en/DEPLOYMENT.md",
@@ -46,6 +47,13 @@
     "docs/en/PAYMENTS.md",
     "docs/en/README.md",
     "docs/en/TESTING.md",
+    "docs/modules/README.md",
+    "docs/modules/analytics.md",
+    "docs/modules/android_architecture.md",
+    "docs/modules/billing_and_taxes.md",
+    "docs/modules/bot_auth_and_routing.md",
+    "docs/modules/ios_architecture.md",
+    "docs/modules/remnawave_integration.md",
     "docs/ru/ACCOUNT_MERGE_CURRENT.md",
     "docs/ru/ADMIN_PANEL_CURRENT.md",
     "docs/ru/ADMIN_PASSKEYS.md",
@@ -112,6 +120,7 @@
     "docs/ru/RELEASE_V28_2_0.md",
     "docs/ru/RELEASE_V28_31_0.md",
     "docs/ru/RELEASE_V28_32_0.md",
+    "docs/ru/RELEASE_V28_33_0.md",
     "docs/ru/RELEASE_V28_4_0.md",
     "docs/ru/RELEASE_V28_5_0.md",
     "docs/ru/RELEASE_V28_6_0.md",
@@ -188,5 +197,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.32.0"
+  "distribution_tag": "v28.33.0"
 }

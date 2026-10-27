@@ -8,7 +8,8 @@ bash scripts/preflight.sh
 if command -v docker >/dev/null 2>&1; then
   if [[ -f .env.images ]]; then set -a; . ./.env.images; set +a; fi
   docker compose config >/dev/null
-  if [[ "${FULL_REBUILD:-1}" == "1" ]]; then docker compose build --pull --no-cache; else docker compose build --pull; fi
+  # Each Dockerfile is built once (scripts/compose-build.sh): backend, worker and mail_receiver share one.
+  if [[ "${FULL_REBUILD:-1}" == "1" ]]; then bash scripts/compose-build.sh fresh; else bash scripts/compose-build.sh cached; fi
   docker compose up -d --remove-orphans
   for i in {1..80}; do
     if docker compose exec -T backend python -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8000/health/ready", timeout=3)' >/dev/null 2>&1; then

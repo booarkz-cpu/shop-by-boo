@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.32.0. Runtime/API `21.5.1`, head магазина `0077_app_growth`, Support Pro `0008` / 3.8.
+> Актуальная инструкция дистрибутива v28.33.0. Runtime/API `21.5.1`, head магазина `0078_campaign_ab`, Support Pro `0008` / 3.8.
 
 # Email-канал поддержки (Support Pro 3.7)
 

@@ -7,6 +7,14 @@ on:
         description: Exact published stable tag (for example v21.0.0)
         required: true
         type: string
+  # Automatic deployment after a stable release is published, when the owner turns it on with the
+  # repository variable AUTO_DEPLOY=true (Settings → Secrets and variables → Actions → Variables).
+  # Releases are published with GITHUB_TOKEN, which raises no «release» event: follow the
+  # publishing workflow instead. The «production» environment can still require a reviewer.
+  workflow_run:
+    workflows: ["Publish GitHub release"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -18,16 +26,31 @@ concurrency:
 jobs:
   deploy:
     name: Deploy verified release over SSH
+    if: github.event_name == 'workflow_dispatch' || (vars.AUTO_DEPLOY == 'true' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-24.04
     environment: production
     steps:
       - name: Validate published stable release
+        id: release
         uses: actions/github-script@v9
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}
         with:
           script: |
-            const tag = process.env.RELEASE_TAG;
+            let tag = process.env.RELEASE_TAG;
+            if (!tag) {
+              // Automatic run: only a stable release that the publishing run just created; a run that
+              // published nothing new (same version) deploys nothing.
+              const latest = (await github.rest.repos.getLatestRelease({owner: context.repo.owner, repo: context.repo.repo})).data;
+              const started = new Date(context.payload.workflow_run.run_started_at || context.payload.workflow_run.created_at);
+              if (new Date(latest.published_at) < started) {
+                core.notice(`No new release published by this run (latest is ${latest.tag_name}); nothing to deploy.`);
+                core.setOutput('skip', 'true');
+                return;
+              }
+              tag = latest.tag_name;
+            }
+            core.setOutput('tag', tag);
             if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('An exact stable release tag is required');
             const release = (await github.rest.repos.getReleaseByTag({owner: context.repo.owner, repo: context.repo.repo, tag})).data;
             if (release.draft || release.prerelease) throw new Error('Production refuses draft and prerelease releases');
@@ -38,9 +61,10 @@ jobs:
               }
             }
       - name: Install exact release with backup and health checks
+        if: steps.release.outputs.skip != 'true'
         uses: appleboy/ssh-action@v1.2.2
         env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
           APP_DIR: ${{ secrets.DEPLOY_PATH }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}

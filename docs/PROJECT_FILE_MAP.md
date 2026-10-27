@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.32.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.33.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1555**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1591**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -273,13 +273,16 @@
 | [backend/alembic/versions/0075_app_config.py](../backend/alembic/versions/0075_app_config.py) | API, бот и worker |
 | [backend/alembic/versions/0076_growth.py](../backend/alembic/versions/0076_growth.py) | API, бот и worker |
 | [backend/alembic/versions/0077_app_growth.py](../backend/alembic/versions/0077_app_growth.py) | API, бот и worker |
+| [backend/alembic/versions/0078_campaign_ab.py](../backend/alembic/versions/0078_campaign_ab.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
 | [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
 | [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
+| [backend/app/admin_auth_api.py](../backend/app/admin_auth_api.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
 | [backend/app/app_config.py](../backend/app/app_config.py) | API, бот и worker |
+| [backend/app/app_funnel.py](../backend/app/app_funnel.py) | API, бот и worker |
 | [backend/app/app_growth.py](../backend/app/app_growth.py) | API, бот и worker |
 | [backend/app/app_login.py](../backend/app/app_login.py) | API, бот и worker |
 | [backend/app/assets/bot_banners/account.jpg](../backend/app/assets/bot_banners/account.jpg) | API, бот и worker |
@@ -324,6 +327,7 @@
 | [backend/app/assets/bot_banners/topup.jpg](../backend/app/assets/bot_banners/topup.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
 | [backend/app/assets/mobile_strings.json](../backend/app/assets/mobile_strings.json) | API, бот и worker |
+| [backend/app/auth_api.py](../backend/app/auth_api.py) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
@@ -381,6 +385,7 @@
 | [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
 | [backend/app/provisioner.py](../backend/app/provisioner.py) | API, бот и worker |
 | [backend/app/push.py](../backend/app/push.py) | API, бот и worker |
+| [backend/app/push_campaigns.py](../backend/app/push_campaigns.py) | API, бот и worker |
 | [backend/app/push_style.py](../backend/app/push_style.py) | API, бот и worker |
 | [backend/app/recovery_api.py](../backend/app/recovery_api.py) | API, бот и worker |
 | [backend/app/referral_program.py](../backend/app/referral_program.py) | API, бот и worker |
@@ -545,6 +550,7 @@
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
 | [docs/BRANCHES.md](../docs/BRANCHES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
+| [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_MAP_RU.md](../docs/PROJECT_MAP_RU.md) | Документация |
@@ -736,6 +742,13 @@
 | [docs/img/miniapp-servers.png](../docs/img/miniapp-servers.png) | Документация |
 | [docs/img/miniapp-support.png](../docs/img/miniapp-support.png) | Документация |
 | [docs/img/miniapp-wallet.png](../docs/img/miniapp-wallet.png) | Документация |
+| [docs/modules/README.md](../docs/modules/README.md) | Документация |
+| [docs/modules/analytics.md](../docs/modules/analytics.md) | Документация |
+| [docs/modules/android_architecture.md](../docs/modules/android_architecture.md) | Документация |
+| [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
+| [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
+| [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
+| [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PANEL_CURRENT.md](../docs/ru/ADMIN_PANEL_CURRENT.md) | Документация |
@@ -822,6 +835,7 @@
 | [docs/ru/RELEASE_V28_30_0.md](../docs/ru/RELEASE_V28_30_0.md) | Документация |
 | [docs/ru/RELEASE_V28_31_0.md](../docs/ru/RELEASE_V28_31_0.md) | Документация |
 | [docs/ru/RELEASE_V28_32_0.md](../docs/ru/RELEASE_V28_32_0.md) | Документация |
+| [docs/ru/RELEASE_V28_33_0.md](../docs/ru/RELEASE_V28_33_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
@@ -973,6 +987,7 @@
 | [mobile/android-user/.gitignore](../mobile/android-user/.gitignore) | Мобильные приложения |
 | [mobile/android-user/app/build.gradle.kts](../mobile/android-user/app/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-user/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt](../mobile/android-user/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/androidTest/java/shop/remnawave/user/BatteryGuardTest.kt](../mobile/android-user/app/src/androidTest/java/shop/remnawave/user/BatteryGuardTest.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/debug/AndroidManifest.xml](../mobile/android-user/app/src/debug/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/AndroidManifest.xml](../mobile/android-user/app/src/main/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/assets/banners/app-devices.jpg](../mobile/android-user/app/src/main/assets/banners/app-devices.jpg) | Мобильные приложения |
@@ -1003,6 +1018,7 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Screens.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Screens.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/ShopData.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/ShopData.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/BatteryGuard.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/BatteryGuard.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/VpnClients.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/VpnClients.kt) | Мобильные приложения |
@@ -1036,6 +1052,13 @@
 | [mobile/ios-admin/VpnShopAdmin/Info.plist](../mobile/ios-admin/VpnShopAdmin/Info.plist) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift](../mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin/l10n.json](../mobile/ios-admin/VpnShopAdmin/l10n.json) | Мобильные приложения |
+| [mobile/ios-user/.gitignore](../mobile/ios-user/.gitignore) | Мобильные приложения |
+| [mobile/ios-user/CorgiNotificationService/Info.plist](../mobile/ios-user/CorgiNotificationService/Info.plist) | Мобильные приложения |
+| [mobile/ios-user/CorgiNotificationService/NotificationService.swift](../mobile/ios-user/CorgiNotificationService/NotificationService.swift) | Мобильные приложения |
+| [mobile/ios-user/CorgiTunnel/CorgiTunnel.entitlements](../mobile/ios-user/CorgiTunnel/CorgiTunnel.entitlements) | Мобильные приложения |
+| [mobile/ios-user/CorgiTunnel/Info.plist](../mobile/ios-user/CorgiTunnel/Info.plist) | Мобильные приложения |
+| [mobile/ios-user/CorgiTunnel/PacketTunnelProvider.swift](../mobile/ios-user/CorgiTunnel/PacketTunnelProvider.swift) | Мобильные приложения |
+| [mobile/ios-user/Shared/CorgiXray.swift](../mobile/ios-user/Shared/CorgiXray.swift) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj](../mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser.xcodeproj/xcshareddata/xcschemes/VpnShopUser.xcscheme](../mobile/ios-user/VpnShopUser.xcodeproj/xcshareddata/xcschemes/VpnShopUser.xcscheme) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json](../mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json) | Мобильные приложения |
@@ -1060,7 +1083,7 @@
 | [mobile/ios-user/VpnShopUser/ContentView.swift](../mobile/ios-user/VpnShopUser/ContentView.swift) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/Info.plist](../mobile/ios-user/VpnShopUser/Info.plist) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/LayoutUI.swift](../mobile/ios-user/VpnShopUser/LayoutUI.swift) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/VPN/CorgiPacketTunnelProvider.swift](../mobile/ios-user/VpnShopUser/VPN/CorgiPacketTunnelProvider.swift) | Мобильные приложения |
+| [mobile/ios-user/VpnShopUser/VPN/CorgiTunnelManager.swift](../mobile/ios-user/VpnShopUser/VPN/CorgiTunnelManager.swift) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/VpnShopUser.entitlements](../mobile/ios-user/VpnShopUser/VpnShopUser.entitlements) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/VpnShopUserApp.swift](../mobile/ios-user/VpnShopUser/VpnShopUserApp.swift) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/default_layout.json](../mobile/ios-user/VpnShopUser/default_layout.json) | Мобильные приложения |
@@ -1068,6 +1091,11 @@
 | [mobile/ios-user/VpnShopUserUITests/VpnShopUserUITests.swift](../mobile/ios-user/VpnShopUserUITests/VpnShopUserUITests.swift) | Мобильные приложения |
 | [mobile/l10n/admin.json](../mobile/l10n/admin.json) | Мобильные приложения |
 | [mobile/l10n/user.json](../mobile/l10n/user.json) | Мобильные приложения |
+| [mobile/maestro/config.yaml](../mobile/maestro/config.yaml) | Мобильные приложения |
+| [mobile/maestro/flows/01_vpn_and_premium.yaml](../mobile/maestro/flows/01_vpn_and_premium.yaml) | Мобильные приложения |
+| [mobile/maestro/flows/02_connected.yaml](../mobile/maestro/flows/02_connected.yaml) | Мобильные приложения |
+| [mobile/maestro/flows/03_giveaways.yaml](../mobile/maestro/flows/03_giveaways.yaml) | Мобильные приложения |
+| [mobile/maestro/flows/04_settings.yaml](../mobile/maestro/flows/04_settings.yaml) | Мобильные приложения |
 | [mobile/store/app-store/en-US/description.txt](../mobile/store/app-store/en-US/description.txt) | Мобильные приложения |
 | [mobile/store/app-store/en-US/keywords.txt](../mobile/store/app-store/en-US/keywords.txt) | Мобильные приложения |
 | [mobile/store/app-store/en-US/name.txt](../mobile/store/app-store/en-US/name.txt) | Мобильные приложения |
@@ -1105,6 +1133,7 @@
 | [mobile/store/screenshots/ios/05-giveaways.png](../mobile/store/screenshots/ios/05-giveaways.png) | Мобильные приложения |
 | [mobile/store/screenshots/ios/06-support.png](../mobile/store/screenshots/ios/06-support.png) | Мобильные приложения |
 | [release-manifest.template.json](../release-manifest.template.json) | Корень проекта |
+| [ruff.toml](../ruff.toml) | Корень проекта |
 | [screenshots/admin_panel/00_all_sections.png](../screenshots/admin_panel/00_all_sections.png) | Корень проекта |
 | [screenshots/admin_panel/01_login.png](../screenshots/admin_panel/01_login.png) | Корень проекта |
 | [screenshots/admin_panel/02_dashboard.png](../screenshots/admin_panel/02_dashboard.png) | Корень проекта |
@@ -1255,6 +1284,7 @@
 | [scripts/check-current-docs.py](../scripts/check-current-docs.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
+| [scripts/compose-build.sh](../scripts/compose-build.sh) | Эксплуатация и релиз |
 | [scripts/configure-support-bridge.py](../scripts/configure-support-bridge.py) | Эксплуатация и релиз |
 | [scripts/dependabot-automerge.cjs](../scripts/dependabot-automerge.cjs) | Эксплуатация и релиз |
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
@@ -1264,8 +1294,11 @@
 | [scripts/harden-env.py](../scripts/harden-env.py) | Эксплуатация и релиз |
 | [scripts/install.sh](../scripts/install.sh) | Эксплуатация и релиз |
 | [scripts/integration-test.sh](../scripts/integration-test.sh) | Эксплуатация и релиз |
+| [scripts/ios/build-tunnel-frameworks.sh](../scripts/ios/build-tunnel-frameworks.sh) | Эксплуатация и релиз |
+| [scripts/ios/enable-extensions.py](../scripts/ios/enable-extensions.py) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
+| [scripts/mobile/maestro-screens.sh](../scripts/mobile/maestro-screens.sh) | Эксплуатация и релиз |
 | [scripts/node-agent.py](../scripts/node-agent.py) | Эксплуатация и релиз |
 | [scripts/open-ports.sh](../scripts/open-ports.sh) | Эксплуатация и релиз |
 | [scripts/package-distribution.py](../scripts/package-distribution.py) | Эксплуатация и релиз |
@@ -1406,6 +1439,7 @@
 | [tests/test_automation_engine.py](../tests/test_automation_engine.py) | Проверки |
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
+| [tests/test_behaviour_auth.py](../tests/test_behaviour_auth.py) | Проверки |
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
 | [tests/test_behaviour_payments_v2.py](../tests/test_behaviour_payments_v2.py) | Проверки |
 | [tests/test_behaviour_store_and_webhooks.py](../tests/test_behaviour_store_and_webhooks.py) | Проверки |
@@ -1435,6 +1469,7 @@
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
+| [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
 | [tests/test_mail_receiver.py](../tests/test_mail_receiver.py) | Проверки |
@@ -1464,6 +1499,7 @@
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
 | [tests/test_provider_metric_counters.py](../tests/test_provider_metric_counters.py) | Проверки |
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
+| [tests/test_push_campaigns.py](../tests/test_push_campaigns.py) | Проверки |
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |

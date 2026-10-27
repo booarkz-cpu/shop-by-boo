@@ -450,3 +450,6 @@ async def admin_image_delete(image_id:int,db:AsyncSession=Depends(get_db),admin=
 
 
 __all__ = ['BRANDING_KEYS', 'FieldIn', 'MenuIn', 'MiniAppConfigIn', 'SettingIn', '_PinnedPublicDNSBackend', '_pinned_public_http_client', '_read_upload_limited', '_replace_branding_file', '_resolve_public_host', '_store_branding_image', '_valid_image_signature', 'admin_bot_start_image', 'admin_bot_start_image_delete', 'admin_branding_delete', 'admin_branding_favicon', 'admin_branding_logo', 'admin_content', 'admin_field', 'admin_field_delete', 'admin_field_update', 'admin_image', 'admin_image_delete', 'admin_menu', 'admin_menu_delete', 'admin_menu_update', 'admin_miniapp_background', 'admin_miniapp_background_delete', 'admin_miniapp_config', 'admin_miniapp_image', 'admin_miniapp_image_delete', 'admin_setting', 'public_branding', 'validate_public_url']
+# Imported before main finished (``from app import content_branding_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

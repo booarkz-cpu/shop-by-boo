@@ -239,3 +239,6 @@ async def v41_passkey_delete(credential_id:int,db:AsyncSession=Depends(get_db),a
 
 
 __all__ = ['FeatureFlagIn', 'IncidentCreateIn', 'ProviderHealthIn', 'V41_FEATURE_DEFAULTS', '_ensure_v41_defaults', 'enterprise_campaign_create', 'enterprise_campaign_update', 'enterprise_campaigns', 'enterprise_monitoring', 'enterprise_monitoring_create', 'enterprise_monitoring_delete', 'enterprise_rule_create', 'enterprise_rule_update', 'enterprise_rules', 'enterprise_summary', 'v41_analytics', 'v41_backup_test_restore', 'v41_backup_verification_list', 'v41_crm_users', 'v41_diagnostics', 'v41_feature_update', 'v41_features', 'v41_incident_create', 'v41_incident_resolve', 'v41_incidents', 'v41_passkey_delete', 'v41_passkeys', 'v41_promotions', 'v41_provider_update', 'v41_providers', 'v41_referrals']
+# Imported before main finished (``from app import enterprise_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

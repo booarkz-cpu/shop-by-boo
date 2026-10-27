@@ -118,6 +118,26 @@ jobs:
           } | sed 's/%/%25/g' > "$RUNNER_TEMP/tail.txt" || true
           echo "::error title=pytest failure summary::$(sed ':a;N;$!ba;s/\n/%0A/g' "$RUNNER_TEMP/tail.txt")"
 
+  lint:
+    name: Lint • Python (ruff) and shell syntax
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: ruff (ruff.toml)
+        run: |
+          pip install ruff==0.14.2
+          ruff check backend scripts tests --output-format github
+      - name: Shell scripts parse
+        run: |
+          status=0
+          while IFS= read -r -d '' file; do bash -n "$file" || { echo "::error file=$file::bash -n failed"; status=1; }; done \
+            < <(git ls-files -z '*.sh')
+          exit $status
+
   passkey-browser:
     name: Content, customer operations and passkeys • Chromium end-to-end
     runs-on: ubuntu-24.04
@@ -471,3 +491,52 @@ jobs:
       - name: Compile simulator application
         working-directory: mobile/${{ matrix.app }}
         run: xcodebuild -project ${{ matrix.project }}.xcodeproj -scheme ${{ matrix.project }} -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
+
+  ios-extensions:
+    # The customer app with both app extensions embedded (scripts/ios/enable-extensions.py) and the
+    # tunnel engine linked: LibXray and HevSocks5Tunnel built from pinned commits and cached by them.
+    name: iOS • tunnel and rich push extensions
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+      - id: frameworks
+        uses: actions/cache@v4
+        with:
+          path: mobile/ios-user/Frameworks
+          key: ios-tunnel-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh') }}
+      - name: Build LibXray and HevSocks5Tunnel
+        if: steps.frameworks.outputs.cache-hit != 'true'
+        run: bash scripts/ios/build-tunnel-frameworks.sh
+      - name: Embed the extensions
+        run: |
+          ls mobile/ios-user/Frameworks 2>/dev/null | sed 's/^/::notice title=frameworks::/' || echo "::warning title=frameworks::none built"
+          python3 scripts/ios/enable-extensions.py --tunnel --push | sed 's/^/::notice title=enable::/'
+          grep -c "xcframework in Frameworks" mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj | sed 's/^/::notice title=linked frameworks::/' 
+      - name: Compile app + CorgiTunnel + CorgiNotificationService
+        working-directory: mobile/ios-user
+        run: |
+          set -o pipefail
+          xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build 2>&1 | tee "$RUNNER_TEMP/ext.log" | tail -n 40 \
+            || { grep -E "error:" "$RUNNER_TEMP/ext.log" | head -20 | sed 's/^/::error title=extensions::/'; exit 1; }
+          app=$(find build/Build/Products -name VpnShopUser.app -maxdepth 3 | head -1)
+          for ext in CorgiTunnel CorgiNotificationService; do
+            [ -d "$app/PlugIns/$ext.appex" ] || { echo "::error title=extensions::$ext.appex is not embedded"; exit 1; }
+          done
+          /usr/libexec/PlistBuddy -c 'Print :CorgiTunnelEnabled' "$app/Info.plist" | grep -qx YES
+          binary="$app/PlugIns/CorgiTunnel.appex/CorgiTunnel"
+          grep -E "warning: .*(LibXray|HevSocks5Tunnel|canImport)|error:" "$RUNNER_TEMP/ext.log" | head -10 | sed 's/^/::notice title=build::/' || true
+          # Files, not `nm | grep -q`: under pipefail an early-exiting grep fails the pipeline.
+          nm "$binary" > "$RUNNER_TEMP/symbols.txt" 2>/dev/null || true
+          strings "$binary" > "$RUNNER_TEMP/strings.txt" || true
+          grep -ciE "hev_socks5|LibXray" "$RUNNER_TEMP/symbols.txt" | sed 's/^/::notice title=engine symbols::/' || true
+          if grep -q "Встроенный VPN не собран" "$RUNNER_TEMP/strings.txt"; then
+            echo "::error title=extensions::CorgiTunnel was compiled without LibXray/HevSocks5Tunnel"; exit 1
+          fi
+          grep -qE "hev_socks5_tunnel_main_from_str" "$RUNNER_TEMP/symbols.txt" && grep -qE "LibXrayInvoke|libXray" "$RUNNER_TEMP/symbols.txt" \
+            || { echo "::error title=extensions::the tunnel engine is not linked"; exit 1; }

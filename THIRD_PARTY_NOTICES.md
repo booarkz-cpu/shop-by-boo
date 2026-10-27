@@ -38,11 +38,11 @@
 
 Сервер WebAuthn использует `webauthn==3.0.1` (py_webauthn, BSD-3-Clause); браузерные тесты — `@playwright/test==1.63.0` (Apache-2.0). Сохраните их полные license/copyright notices при распространении зависимостей. Эти библиотеки не перелицензируются лицензией магазина. Нативный WebAuthn API браузера используется без копирования стороннего JS verifier. Новые модули интеграции и мониторинга написаны в этом репозитории.
 
-## UI дистрибутива v28.32.0
+## UI дистрибутива v28.33.0
 
 shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `admin/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [admin/THIRD_PARTY_LICENSES.txt](admin/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
 
-## Встроенный VPN-движок Android (v28.32.0, приложение 3.1.0)
+## Встроенный VPN-движок Android (с v28.32.0, приложение 3.1.0)
 
 Сборки клиентского приложения Android с встроенным VPN включают `libv2ray.aar`. Библиотеку собирает `scripts/mobile/build-xray-aar.sh` из закреплённой ревизии исходников:
 
@@ -51,3 +51,13 @@ shadcn-совместимые компоненты используют Radix To
 - [golang.org/x/mobile](https://pkg.go.dev/golang.org/x/mobile) — BSD-3-Clause.
 
 Библиотека лежит в APK отдельным файлом (`libgojni.so`) и подключается к приложению без статической линковки, поэтому её можно заменить, как требует LGPL. При распространении APK приложите тексты MPL-2.0 и LGPL-3.0 и ссылку на исходники закреплённой ревизии. Код sing-box (GPL-3.0) в приложение не включается: GPL несовместима с коммерческой лицензией приложения. Сборка без `libv2ray.aar` подключается через Happ, v2rayNG или Hiddify и сторонних VPN-библиотек не содержит.
+
+## Встроенный VPN-движок iOS (v28.33.0)
+
+Сборки клиентского приложения iOS со встроенным VPN (расширение `CorgiTunnel`, включается `scripts/ios/enable-extensions.py`) связывают две библиотеки, собранные `scripts/ios/build-tunnel-frameworks.sh` из закреплённых ревизий:
+
+- [libXray](https://github.com/XTLS/libXray) — MIT, ревизия `756ef80f41903eaf7bbeeb38a0a1f802ec204464`, обвязка gomobile над [Xray-core](https://github.com/XTLS/Xray-core) — MPL-2.0;
+- [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel) — MIT, ревизия `55cc2efc280f3a72ffc60ce856772b57f5122e9c` (вместе с lwIP — BSD-3-Clause, libyaml — MIT, hev-task-system — MIT).
+
+Файлы MPL-2.0 Xray-core остаются под MPL-2.0: при распространении приложения приложите текст MPL-2.0 и ссылку на исходники ревизии. Сборка без расширения передаёт подписку в Happ или v2RayTun и этих библиотек не содержит.
+

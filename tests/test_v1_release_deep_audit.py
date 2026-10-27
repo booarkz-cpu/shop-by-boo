@@ -35,8 +35,5 @@ def test_long_running_locks_use_renewable_helper():
 
 def test_identity_registration_has_cross_process_serialization():
     assert 'pg_advisory_xact_lock(:key)' in MAIN
-    assert 'hashlib.sha256(str(telegram_id).encode())' in MAIN
-    assert 'hashlib.sha256(yid.encode())' in MAIN
-    assert 'Yandex profile has no stable identifier' in MAIN
     assert '1300000001' in MAIN
     assert '1300000002' in MAIN

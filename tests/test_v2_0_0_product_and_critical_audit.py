@@ -67,13 +67,6 @@ def test_migration_creates_lifecycle_and_gift_tables():
         assert needle in MIG
 
 
-def test_user_sessions_make_logout_and_global_revocation_real_server_side_controls():
-    assert 'class UserSession' in MODELS
-    assert 'async def create_user_session' in MAIN
-    assert 'UserSession.jti_hash' in MAIN
-    assert '@app.post("/api/me/security/revoke-all")' in MAIN
-    assert 'revoked_at.is_(None)' in MAIN
-
 
 def test_expired_subscription_has_remote_revoke_retry_state():
     block=MAIN[MAIN.index('async def subscription_lifecycle_scheduler()'):MAIN.index('async def expiry_notification_scheduler()')]

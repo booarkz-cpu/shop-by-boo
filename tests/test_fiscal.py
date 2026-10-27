@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app import fiscal
-from app.models import AppSetting, Base, FiscalReceipt, Payment, Plan, RefundRequest, User
+from app.models import AppSetting, Base, FiscalReceipt, Payment, Plan, User
 from app.security import decrypt_secret, encrypt_secret
 
 NOW = datetime(2026, 10, 26, 20, 0)
@@ -153,10 +153,10 @@ async def test_failures_retry_with_backoff_and_wrong_password_stops(db, monkeypa
 
 
 @pytest.mark.asyncio
-async def test_npd_lost_answer_is_not_sent_twice(db, monkeypatch):
+async def test_npd_lost_answer_is_reconciled_with_the_list_of_incomes(db, monkeypatch):
     import httpx
 
-    db.add(pay(1))
+    db.add_all([pay(1), pay(2)])
     await db.commit()
     fiscal._NPD_TOKENS.clear()
 
@@ -165,17 +165,59 @@ async def test_npd_lost_answer_is_not_sent_twice(db, monkeypatch):
             raise exc
         return answer
 
-    http = FakeHTTP({"/auth/lkfl": Resp(200, {"token": "t1"}), "/income": raises(httpx.ConnectError("refused"))})
+    http = FakeHTTP({"/auth/lkfl": Resp(200, {"token": "t1"}), "/income": raises(httpx.ConnectError("refused")),
+                     "/incomes": Resp(200, {"content": [], "hasMore": False})})
+    monkeypatch.setattr(fiscal, "_client", lambda: http)
+    c = config()
+    await fiscal.enqueue_due(db, c, NOW)
+    await fiscal.process_due(db, c, NOW)
+    first, second = (await db.execute(select(FiscalReceipt).order_by(FiscalReceipt.payment_id))).scalars().all()
+    assert first.status == "retry", "nothing reached the tax service: an ordinary retry"
+
+    # The answer is lost after the request left: never resend blindly.
+    http.routes["/income"] = raises(httpx.ReadTimeout("lost"))
+    await fiscal.process_due(db, c, NOW + timedelta(minutes=5))
+    assert (first.status, second.status) == ("check", "check")
+    assert first.next_attempt_at == NOW + timedelta(minutes=7)
+    posts = sum(1 for call in http.calls if call[1].endswith("/income"))
+
+    # Payment 1 did get registered; payment 2 did not.
+    name, sold = first.name, "2026-10-26T23:00:00+03:00"  # NOW in Moscow time, as sent
+    http.routes["/incomes"] = Resp(200, {"hasMore": False, "content": [
+        {"approvedReceiptUuid": "cancelled1", "name": name, "totalAmount": 1499, "operationTime": sold, "cancellationInfo": {"comment": "x"}},
+        {"approvedReceiptUuid": "other", "name": name, "totalAmount": "100.00", "operationTime": sold},
+        {"approvedReceiptUuid": "later", "name": name, "totalAmount": "1499.00", "operationTime": "2026-10-26T23:00:07+03:00"},
+        {"approvedReceiptUuid": "200lost", "name": name, "totalAmount": "1499.00", "operationTime": sold, "cancellationInfo": None}]})
+    http.routes["/income"] = Resp(200, {"approvedReceiptUuid": "200new"})
+    await fiscal.process_due(db, c, NOW + timedelta(minutes=8))
+    assert (first.status, first.external_id) == ("done", "200lost"), "found in «Мой налог»: no second income"
+    lookups = [call for call in http.calls if call[1].endswith("/incomes")]
+    assert lookups, "the list is read before sending again"
+    assert sum(1 for call in http.calls if call[1].endswith("/income")) == posts + 1, "only payment 2 is sent again"
+    assert (second.status, second.external_id) == ("done", "200new"), "one registered income is matched to one receipt only"
+
+
+@pytest.mark.asyncio
+async def test_npd_unreadable_list_keeps_checking_instead_of_sending(db, monkeypatch):
+    import httpx
+
+    db.add(pay(1))
+    await db.commit()
+    fiscal._NPD_TOKENS.clear()
+
+    def lost(kw):
+        raise httpx.ReadTimeout("lost")
+
+    http = FakeHTTP({"/auth/lkfl": Resp(200, {"token": "t1"}), "/income": lost, "/incomes": Resp(503, {})})
     monkeypatch.setattr(fiscal, "_client", lambda: http)
     c = config()
     await fiscal.enqueue_due(db, c, NOW)
     await fiscal.process_due(db, c, NOW)
     row = (await db.execute(select(FiscalReceipt))).scalar_one()
-    assert row.status == "retry", "nothing reached the tax service: safe to retry"
-    http.routes["/income"] = raises(httpx.ReadTimeout("lost"))
-    await fiscal.process_due(db, c, NOW + timedelta(minutes=5))
-    assert (row.status, row.next_attempt_at) == ("failed", None), "the income may exist: the owner checks first"
-    assert "Мой налог" in row.last_error
+    assert row.status == "check"
+    await fiscal.process_due(db, c, NOW + timedelta(minutes=3))
+    assert row.status == "check" and "список доходов" in row.last_error
+    assert sum(1 for call in http.calls if call[1].endswith("/income")) == 1, "not sent a second time"
 
 
 @pytest.mark.asyncio

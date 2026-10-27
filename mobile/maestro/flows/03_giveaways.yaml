@@ -1,0 +1,12 @@
+appId: shop.remnawave.user.preview
+name: Giveaways and the home promo
+---
+- launchApp:
+    clearState: true
+    arguments:
+      corgi_demo: true
+      corgi_tab: giveaways
+      corgi_lang: ru
+- assertVisible: "Новогоднее колесо"
+- assertVisible: "Участвовать"
+- takeScreenshot: android-04-giveaways

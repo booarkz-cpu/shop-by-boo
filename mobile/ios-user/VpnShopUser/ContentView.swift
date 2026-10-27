@@ -70,6 +70,7 @@ struct UserRootView: View {
         .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
         .sheet(isPresented: Binding(get: { !sheet.isEmpty }, set: { if !$0 { sheet = "" } })) { sheetView }
         .onOpenURL { url in
+            if let order = paymentOrder(url) { checkPayment(order); return }
             guard let link = LoginLink.parse(url) else { return }
             #if DEBUG
             if DemoMode.enabled { return }
@@ -78,6 +79,7 @@ struct UserRootView: View {
             redeem(link)
         }
         .onAppear {
+            CorgiTunnelManager.shared.load()
             if !bakedShopURL.isEmpty { base = bakedShopURL }
             layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
             #if DEBUG
@@ -94,6 +96,16 @@ struct UserRootView: View {
             #if DEBUG
             if DemoMode.enabled { return }
             #endif
+            if CorgiTunnelManager.available {
+                switch CorgiTunnelManager.shared.status {
+                case .connected: vpn = .on; connectingSince = nil
+                case .connecting, .reasserting: vpn = .connecting
+                default:
+                    if vpn == .connecting, let problem = CorgiTunnelManager.shared.lastError { notice = problem }
+                    vpn = .off; connectingSince = nil
+                }
+                return
+            }
             let on = VpnClients.vpnActive()
             if on { vpn = .on; connectingSince = nil }
             else if vpn == .on { vpn = .off }
@@ -420,7 +432,7 @@ struct UserRootView: View {
             let perMonth = monthlyPrice(plan)
             let discount = base > 0 && perMonth < base ? Int((1 - perMonth / base) * 100) : 0
             let price = (jsonText(plan["final_price"]).isEmpty ? jsonText(plan["price"]) : jsonText(plan["final_price"])).replacingOccurrences(of: ".00", with: "")
-            Button { selectedPlan = id } label: {
+            Button { selectedPlan = id; track("plan_select") } label: {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(jsonText(plan["name"])).font(.system(size: 18, weight: .bold)).foregroundStyle(theme.text)
@@ -714,6 +726,16 @@ struct UserRootView: View {
             #if DEBUG
             if DemoMode.enabled { vpn = vpn == .on ? .off : .on; return }
             #endif
+            if CorgiTunnelManager.available {
+                // Embedded tunnel (Network Extension): no client app is needed.
+                if vpn == .on || vpn == .connecting { CorgiTunnelManager.shared.disconnect(); vpn = .off; return }
+                guard data.subscriptionUrl.hasPrefix("https://") else { notice = t("need_subscription"); return }
+                vpn = .connecting; connectingSince = Date()
+                CorgiTunnelManager.shared.connect(subscription: data.subscriptionUrl) { error in
+                    if let error { vpn = .off; notice = error.localizedDescription }
+                }
+                return
+            }
             switch VpnClients.connect(data.subscriptionUrl) {
             case .imported: vpn = .connecting; connectingSince = Date(); notice = t("vpn_imported")
             case .opened: notice = t("vpn_opened")
@@ -1098,6 +1120,30 @@ struct UserRootView: View {
         work {
             _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/subscriptions/\(id)/select")
             DispatchQueue.main.async { refresh() }
+        }
+    }
+
+    /// Back from the payment page: the webhook may still be on its way, so ask a few times.
+    private func checkPayment(_ order: String) {
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
+        guard !token.isEmpty, let encoded = order.addingPercentEncoding(withAllowedCharacters: .alphanumerics) else { return }
+        let (api, session, language) = (base, token, lang)
+        work {
+            var state = "pending"
+            for _ in 0..<6 {
+                let row = try ShopClient(base: api, token: session, lang: language).call("GET", "/api/me/payments/order/\(encoded)") as? [String: Any]
+                state = row?["state"] as? String ?? "pending"
+                if state != "pending" && state != "processing" { break }
+                Thread.sleep(forTimeInterval: 2.5)
+            }
+            let key = ["paid": "payment_done", "failed": "payment_failed", "refunded": "payment_refunded"][state] ?? "payment_waiting"
+            DispatchQueue.main.async {
+                notice = t(key)
+                if state == "paid" { track("checkout_done") }
+                refresh()
+            }
         }
     }
 

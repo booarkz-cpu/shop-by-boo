@@ -124,19 +124,23 @@ class MainActivity : FragmentActivity() {
         val pendingLogin = androidx.compose.runtime.mutableStateOf<LoginLink?>(null)
         /** Section a tapped push (or its button) opens. */
         val pendingTab = androidx.compose.runtime.mutableStateOf<String?>(null)
+        /** corgi://payment?order=… — back from the payment page: show how the order went. */
+        val pendingPayment = androidx.compose.runtime.mutableStateOf<String?>(null)
     }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         LoginLink.parse(intent.data)?.let { pendingLogin.value = it }
+        paymentOrder(intent.data)?.let { pendingPayment.value = it }
         intent.getStringExtra(CorgiPush.EXTRA_TAB)?.let { pendingTab.value = it }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CorgiTrust.appContext = applicationContext
         LoginLink.parse(intent?.data)?.let { pendingLogin.value = it }
+        paymentOrder(intent?.data)?.let { pendingPayment.value = it }
         // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true.
-        val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && intent?.getBooleanExtra("corgi_demo", false) == true
+        val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && flag(intent, "corgi_demo")
         if (!demo) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
         // A tapped push opens the notification center (FCM puts the data payload into extras).
         val initialTab = if (demo) intent?.getStringExtra("corgi_tab") ?: "overview"
@@ -157,6 +161,14 @@ private fun shopColors() = darkColorScheme(
 )
 
 private val localHttpHosts = setOf("localhost", "127.0.0.1", "10.0.2.2")
+
+private val ORDER_ID = Regex("[A-Za-z0-9_.:-]{6,128}")
+
+/** Order of corgi://payment?order=… (backend/app/app_login.py payment_link); null for anything else. */
+fun paymentOrder(uri: Uri?): String? {
+    if (uri == null || uri.scheme != "corgi" || uri.host != "payment") return null
+    return uri.getQueryParameter("order")?.takeIf { ORDER_ID.matches(it) }
+}
 
 /** Sign-in link: the shop it belongs to and a one-use code (backend/app/app_login.py). */
 data class LoginLink(val base: String, val code: String) {
@@ -577,7 +589,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     val actions = object : ShopActions {
         override fun open(sectionId: String) { if (layout.section(sectionId) != null) { tab = sectionId; openDoc = null; ui = ui.copy(notice = "") } }
         override fun link(url: String) = openExternal(url)
-        override fun selectPlan(planId: Int) { ui = ui.copy(selectedPlan = planId) }
+        override fun selectPlan(planId: Int) { ui = ui.copy(selectedPlan = planId); track("plan_select") }
         override fun setTopupAmount(amount: String) { ui = ui.copy(topupAmount = amount) }
         override fun selectSubscription(subscriptionId: Int) = work {
             ShopApi(base, token, lang).post("/api/me/subscriptions/$subscriptionId/select", JSONObject())
@@ -757,7 +769,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 docs = JSONArray("""[{"kind":"faq","title":"Частые вопросы"},{"kind":"rules","title":"Правила"},{"kind":"privacy","title":"Политика конфиденциальности"},{"kind":"offer","title":"Публичная оферта"}]"""),
                 giveaways = JSONArray("""[{"id":7,"title":"Новогоднее колесо","description":"Крутите колесо — до 1000 ₽ на баланс","kind":"wheel","phase":"open","prizes":[{"amount":"100","weight":5},{"amount":"1000","weight":1}],"currency":"RUB","ends_at":"2026-12-31T21:00:00Z","my_entry":null},{"id":6,"title":"Розыгрыш года подписки","description":"Три победителя получат год Премиума","kind":"contest","phase":"ended","prizes":[{"amount":"1499","weight":1}],"currency":"RUB","ends_at":"2026-10-20T21:00:00Z","my_entry":{"outcome":"won","reward_amount":"1499.00"}}]"""),
             )
-            ui = ui.copy(vpn = if (intent(activity).getBooleanExtra("corgi_vpn_on", false)) VpnState.ON else VpnState.OFF)
+            ui = ui.copy(vpn = if (flag(intent(activity), "corgi_vpn_on")) VpnState.ON else VpnState.OFF)
         }
     }
     LaunchedEffect(token) {
@@ -774,7 +786,15 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     LaunchedEffect(tab, token) {
         if (token.isBlank()) track("sign_in_view") else track("screen", tab)
     }
-    LaunchedEffect(ui.vpn) { if (ui.vpn == VpnState.ON) track("connected") }
+    LaunchedEffect(ui.vpn) {
+        if (ui.vpn != VpnState.ON) return@LaunchedEffect
+        track("connected")
+        // Xiaomi, Samsung, Huawei… stop background VPNs: once per version, explain how to keep it on.
+        if (!demo && ui.engine && dialog.isEmpty() && shop.remnawave.user.vpn.BatteryGuard.shouldHint(context, ui.version)) {
+            shop.remnawave.user.vpn.BatteryGuard.markShown(context, ui.version)
+            dialog = "battery"
+        }
+    }
     LaunchedEffect(token, lang, unlocked) {
         if (demo) return@LaunchedEffect
         if (token.isNotBlank() && unlocked) refresh()
@@ -787,6 +807,27 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     LaunchedEffect(pushTab, layout) {
         val target = pushTab ?: return@LaunchedEffect
         if (layout.section(target) != null) { tab = target; openDoc = null; MainActivity.pendingTab.value = null }
+    }
+    val paidOrder by MainActivity.pendingPayment
+    LaunchedEffect(paidOrder, token) {
+        val order = paidOrder ?: return@LaunchedEffect
+        if (demo || token.isBlank()) return@LaunchedEffect
+        MainActivity.pendingPayment.value = null
+        // The payment page is behind us: the webhook may still be on its way, so ask a few times.
+        work {
+            var state = "pending"
+            for (attempt in 0 until 6) {
+                val row = ShopApi(base, token, lang).get("/api/me/payments/order/" + Uri.encode(order)) as JSONObject
+                state = row.optString("state", "pending")
+                if (state != "pending" && state != "processing") break
+                Thread.sleep(2500)
+            }
+            activity.runOnUiThread {
+                notice(t(when (state) { "paid" -> "payment_done"; "failed" -> "payment_failed"; "refunded" -> "payment_refunded"; else -> "payment_waiting" }))
+                if (state == "paid") track("checkout_done")
+                refresh()
+            }
+        }
     }
     val pending by MainActivity.pendingLogin
     LaunchedEffect(pending) {
@@ -867,7 +908,8 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 dialog = ""; notice(if (name.isBlank()) t("vpn_server_auto") else name); restartEngine()
             }
             if (dialog == "split") SplitDialog(layout, ::t, onClose = { dialog = ""; restartEngine() })
-            if (dialog != "server" && dialog != "split") ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
+            if (dialog == "battery") BatteryDialog(layout, ::t, onClose = { dialog = "" })
+            if (dialog != "server" && dialog != "split" && dialog != "battery") ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
                 when {
                     kind == "redeem" -> { val code = dialogText.trim().uppercase(); work {
                         ShopApi(base, token, lang).post("/api/me/gifts/redeem", JSONObject().put("code", code))
@@ -900,6 +942,16 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
 
 private fun intent(activity: FragmentActivity): Intent = activity.intent ?: Intent()
 
+/** A demo/test switch: `--ez name true` from adb, or the string "true" that Maestro launch arguments pass. */
+internal fun flag(intent: Intent?, name: String): Boolean {
+    val extras = intent?.extras ?: return false
+    return when (val value = extras.get(name)) {
+        is Boolean -> value
+        is String -> value.equals("true", ignoreCase = true)
+        else -> false
+    }
+}
+
 private fun vpnPrefs(context: android.content.Context) = context.getSharedPreferences(CorgiVpnService.PREFS, 0)
 
 /** «Сервер VPN» of the embedded engine: automatic (fastest) or one server of the subscription. */
@@ -921,6 +973,32 @@ private fun ServerDialog(layout: AppLayout, t: (String) -> String, onClose: () -
             }
         },
         confirmButton = { TextButton(onClick = onClose) { Text(t("done"), color = theme.accent) } })
+}
+
+/** «VPN отключается в фоне»: on Xiaomi/Samsung/Huawei… firmware, how to keep the tunnel on. */
+@Composable
+private fun BatteryDialog(layout: AppLayout, t: (String) -> String, onClose: () -> Unit) {
+    val theme = layout.theme
+    val context = LocalContext.current
+    val guard = shop.remnawave.user.vpn.BatteryGuard
+    val vendorScreens = remember { guard.vendorIntents(context) }
+    AlertDialog(onDismissRequest = onClose, containerColor = theme.surface, titleContentColor = theme.text, textContentColor = theme.text,
+        title = { Text(t("battery_title")) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(t("battery_body").replace("{vendor}", android.os.Build.MANUFACTURER.replaceFirstChar { it.uppercase() }))
+                ActionButton(LayoutButton("battery", t("battery_open"), "refresh", "", "primary", "power", "any"), theme) {
+                    guard.open(context, guard.batteryIntents(context)); onClose()
+                }
+                if (vendorScreens.isNotEmpty()) ActionButton(LayoutButton("autostart", t("battery_autostart"), "refresh", "", "secondary", "rocket", "any"), theme) {
+                    if (!guard.open(context, vendorScreens)) guard.open(context, guard.batteryIntents(context)); onClose()
+                }
+                ActionButton(LayoutButton("guide", t("battery_guide"), "refresh", "", "secondary", "globe", "any"), theme) {
+                    guard.open(context, listOf(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(guard.GUIDE + guard.vendor())))); onClose()
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(t("later"), color = theme.accent) } })
 }
 
 /** «Что работает без VPN»: apps and Russian sites that bypass the embedded VPN. */

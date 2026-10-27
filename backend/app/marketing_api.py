@@ -133,3 +133,6 @@ async def monitor_checks_scheduler():
 
 
 __all__ = ['AdIn', 'BroadcastIn', 'PromoCodeIn', 'PromotionIn', 'admin_marketing', 'create_ad', 'create_broadcast', 'create_promo_code', 'create_promotion', 'delete_ad', 'delete_promo_code', 'delete_promotion', 'monitor_checks_scheduler', 'retry_broadcast', 'update_ad', 'update_promo_code', 'update_promotion']
+# Imported before main finished (``from app import marketing_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

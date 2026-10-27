@@ -22,7 +22,9 @@ test('app analytics counts the funnel and a push campaign reaches its segment', 
   ]);
   const analytics = page.locator('[data-app-analytics]');
   await expect(analytics.locator('[data-step="install"]')).toContainText(/[1-9]/);
-  await expect(analytics.locator('[data-step="checkout_start"]')).toContainText(/[1-9]/);
+  // Ordered funnel: this anonymous installation never signed in, so it stops after «Установка».
+  await expect(analytics.locator('[data-step="plan"]')).toBeVisible();
+  await expect(analytics.locator('[data-funnel-worst]')).toContainText('Вход');
   await expect(analytics.locator('[data-screen="premium"]')).toContainText('Премиум');
 
   await Promise.all([

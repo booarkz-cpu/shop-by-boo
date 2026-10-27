@@ -68,7 +68,7 @@ test('signed plugin is trusted, approved, configured, enabled and disabled', asy
   await expect(credentials.locator('code').first()).toHaveText(/^cpl_/);
   await credentials.getByRole('button', {name: 'Я сохранил данные'}).click();
   await expect(credentials).toBeHidden();
-  await expect(card.getByText('Включён')).toBeVisible();
+  await expect(card.getByText('Включён', {exact: true})).toBeVisible();  // exact: «не включён» matches too until the card reloads
   await expect(page.locator('body')).not.toContainText('crm-secret-value');
 
   await card.getByRole('button', {name: 'Выключить'}).click();
