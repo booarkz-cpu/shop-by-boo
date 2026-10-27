@@ -59,8 +59,8 @@ Telegram-бот и Mini App · личный кабинет · приложени
 | Мониторинг нод (веб) | Ноды в Android-админке | Ноды в iOS-админке | «Вся панель» в телефоне |
 | :---: | :---: | :---: | :---: |
 | ![Мониторинг и автовосстановление нод](docs/assets/screens/admin-nodes.png) | ![Android admin: ноды](docs/assets/screens/android-admin-ops.png) | ![iOS admin: ноды](docs/assets/screens/ios-admin-ops.png) | ![Android admin: вся панель](docs/assets/screens/android-admin-panel.png) |
-| **Резервные адреса API и сайты напрямую** | **Анти-шеринг** | **Копия базы в Telegram** | **ИИ-черновики поддержки** |
-| ![Приложения: резервные адреса](docs/assets/screens/admin-apps.png) | ![Фрод: анти-шеринг](docs/assets/screens/admin-fraud.png) | ![Резервные копии: Telegram](docs/assets/screens/admin-backups.png) | ![Поддержка: база знаний](docs/assets/screens/admin-support.png) |
+| **Приложения Android и iOS** | **Анти-шеринг** | **Резервные копии** | **ИИ-черновики поддержки** |
+| ![Приложения Android и iOS](docs/assets/screens/admin-apps.png) | ![Фрод: анти-шеринг](docs/assets/screens/admin-fraud.png) | ![Резервные копии](docs/assets/screens/admin-backups.png) | ![Поддержка: база знаний](docs/assets/screens/admin-support.png) |
 
 ## 🆕 Новое в v28.34.0
 
