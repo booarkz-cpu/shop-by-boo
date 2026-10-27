@@ -38,11 +38,11 @@ class AppScreensTest {
         compose.onNodeWithText("Премиум · 12 месяцев").assertExists()
     }
 
-    @Test fun connectTogglesTheStatus() {
+    @Test fun statusFollowsTheTunnel() {
         launch()
         compose.onNodeWithText("VPN отключён").assertExists()
-        compose.onAllNodesWithText("Подключить")[0].performClick()
-        compose.waitForIdle()
+        scenario?.close()
+        launch(vpnOn = true)
         compose.onNodeWithText("VPN подключён").assertExists()
     }
 

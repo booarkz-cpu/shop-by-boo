@@ -28,7 +28,7 @@ from .security import require_permission
 
 router = APIRouter()
 
-__all__ = ["router", "SEGMENTS", "EVENTS", "segment_users", "send_campaign", "record_events", "summary", "install_hash"]
+__all__ = ["router", "enqueue_expiry_notifications", "SEGMENTS", "EVENTS", "segment_users", "send_campaign", "record_events", "summary", "install_hash"]
 
 SEGMENTS: dict[str, str] = {
     "all": "Все пользователи",
@@ -152,6 +152,29 @@ async def create_campaign(payload: CampaignIn, db: AsyncSession = Depends(get_db
                 {"segment": row.segment, "days": row.days, "recipients": row.recipients, "with_push": row.with_push})
     await db.commit()
     return _campaign(row)
+
+
+# ------------------------------------------------------------------ expiry reminders
+
+async def enqueue_expiry_notifications(db: AsyncSession, now: datetime | None = None) -> int:
+    from . import main as shop
+    """One «подписка заканчивается» notification per subscription and expiry date."""
+    now=now or datetime.utcnow()
+    until=now+timedelta(days=settings.notification_expiry_days)
+    rows=(await db.execute(select(Subscription).join(User,User.id==Subscription.user_id).where(
+        User.deleted_at.is_(None),Subscription.lifecycle_status.in_(("active","cancel_scheduled")),
+        Subscription.expires_at>now,Subscription.expires_at<=until).limit(1000))).scalars().all()
+    created=0
+    for sub in rows:
+        days=max(1,(sub.expires_at-now).days+(1 if (sub.expires_at-now).seconds else 0))
+        key=f"expiry:{sub.id}:{sub.expires_at.date()}"
+        before=await db.scalar(select(Notification.id).where(Notification.user_id==sub.user_id,Notification.dedupe_key==key))
+        if before: continue
+        await shop.enqueue_notification(db,user_id=sub.user_id,channel="in_app",kind="subscription_expiring",
+            title="Подписка заканчивается",body=f"VPN работает до {sub.expires_at:%d.%m.%Y} — осталось {days} дн. Продлите, чтобы не потерять доступ.",dedupe_key=key)
+        created+=1
+    await db.commit()
+    return created
 
 
 # ------------------------------------------------------------------ analytics

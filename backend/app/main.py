@@ -1567,31 +1567,13 @@ async def notify_user_telegram(chat_id, text: str) -> None:
     except Exception as exc:
         logger.warning("Telegram notify failed: %s", exc)
 
-async def enqueue_expiry_notifications(db: AsyncSession, now: datetime | None = None) -> int:
-    """One «подписка заканчивается» notification per subscription and expiry date."""
-    now=now or datetime.utcnow()
-    until=now+timedelta(days=settings.notification_expiry_days)
-    rows=(await db.execute(select(Subscription).join(User,User.id==Subscription.user_id).where(
-        User.deleted_at.is_(None),Subscription.lifecycle_status.in_(("active","cancel_scheduled")),
-        Subscription.expires_at>now,Subscription.expires_at<=until).limit(1000))).scalars().all()
-    created=0
-    for sub in rows:
-        days=max(1,(sub.expires_at-now).days+(1 if (sub.expires_at-now).seconds else 0))
-        key=f"expiry:{sub.id}:{sub.expires_at.date()}"
-        before=await db.scalar(select(Notification.id).where(Notification.user_id==sub.user_id,Notification.dedupe_key==key))
-        if before: continue
-        await enqueue_notification(db,user_id=sub.user_id,channel="in_app",kind="subscription_expiring",
-            title="Подписка заканчивается",body=f"VPN работает до {sub.expires_at:%d.%m.%Y} — осталось {days} дн. Продлите, чтобы не потерять доступ.",dedupe_key=key)
-        created+=1
-    await db.commit()
-    return created
-
 async def expiry_notification_scheduler():
     # Notifications are sent at most once per day via Redis markers.
     while True:
         try:
             # In-app notification and push for every customer, with or without Telegram
             # (app-only and e-mail customers got no reminder before v28.32.0).
+            from .app_growth import enqueue_expiry_notifications
             async with AsyncSession(engine,expire_on_commit=False) as db:
                 await enqueue_expiry_notifications(db)
             if settings.bot_token and redis_client is not None:
