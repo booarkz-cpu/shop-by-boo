@@ -513,7 +513,10 @@ jobs:
         if: steps.frameworks.outputs.cache-hit != 'true'
         run: bash scripts/ios/build-tunnel-frameworks.sh
       - name: Embed the extensions
-        run: python3 scripts/ios/enable-extensions.py --tunnel --push
+        run: |
+          ls mobile/ios-user/Frameworks 2>/dev/null | sed 's/^/::notice title=frameworks::/' || echo "::warning title=frameworks::none built"
+          python3 scripts/ios/enable-extensions.py --tunnel --push | sed 's/^/::notice title=enable::/'
+          grep -c "xcframework in Frameworks" mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj | sed 's/^/::notice title=linked frameworks::/' 
       - name: Compile app + CorgiTunnel + CorgiNotificationService
         working-directory: mobile/ios-user
         run: |
@@ -526,5 +529,9 @@ jobs:
             [ -d "$app/PlugIns/$ext.appex" ] || { echo "::error title=extensions::$ext.appex is not embedded"; exit 1; }
           done
           /usr/libexec/PlistBuddy -c 'Print :CorgiTunnelEnabled' "$app/Info.plist" | grep -qx YES
-          nm "$app/PlugIns/CorgiTunnel.appex/CorgiTunnel" | grep -q hev_socks5_tunnel_main_from_str \
+          binary="$app/PlugIns/CorgiTunnel.appex/CorgiTunnel"
+          grep -E "warning: .*(LibXray|HevSocks5Tunnel|canImport)|error:" "$RUNNER_TEMP/ext.log" | head -10 | sed 's/^/::notice title=build::/' || true
+          nm "$binary" 2>/dev/null | grep -ciE "hev_socks5|LibXray" | sed 's/^/::notice title=engine symbols::/'
+          strings "$binary" | grep -q "Встроенный VPN не собран" && echo "::error title=extensions::CorgiTunnel was compiled without LibXray/HevSocks5Tunnel" && exit 1
+          nm "$binary" | grep -qE "hev_socks5_tunnel_main_from_str|LibXrayInvoke" \
             || { echo "::error title=extensions::the tunnel engine is not linked"; exit 1; }
