@@ -13,6 +13,11 @@ async def _advisory_lock(db: shop.AsyncSession, key: int) -> None:
     if bind is not None and bind.dialect.name == "postgresql":
         await db.execute(shop.sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": key})
 
+def _checkout_provider(name: str):
+    """One map for every routable gateway: a reserve gateway first in line (main one in cooldown) must work."""
+    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"sandbox":shop.SandboxProvider}
+    return factories[name]()
+
 async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
     names=shop.routing_names(shop.payments_sandbox_allowed())
     # Provider health rows are lazily bootstrapped. Serialize that bootstrap so
@@ -252,7 +257,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         provider_order=await shop._payment_provider_order(db,requested_provider)
         if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
         provider_name=provider_order[0]
-        provider={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"sandbox":shop.SandboxProvider()}[provider_name]
+        provider=_checkout_provider(provider_name)
         order_id=canonical_order_id
         lock_key=f"lock:payment-create:{shop.hashlib.sha256(canonical_order_id.encode()).hexdigest()}"
         try:
@@ -268,7 +273,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         reservation=None; payment_row=None
         try:
             candidate=provider_order[0]
-            candidate_provider={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"sandbox":shop.SandboxProvider()}[candidate]
+            candidate_provider=_checkout_provider(candidate)
             # Re-check after acquiring the distributed lock so two first-time callers cannot
             # create two durable intents for the same idempotency key.
             existing=(await db.execute(shop.select(shop.Payment).where(shop.Payment.order_id==order_id).execution_options(populate_existing=True).with_for_update())).scalar_one_or_none()

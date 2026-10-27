@@ -213,6 +213,10 @@ async def run_auto_renew_pass(db) -> None:
                                 await db.commit()
                     except Exception as exc:
                         shop.logger.warning("Non-critical operation failed: %s", exc)
+                # The third declined charge switched auto-renew off: no new charge in this pass or later.
+                if method.failure_count>=3 or not method.enabled:
+                    method.status="payment_failed"; method.enabled=False; user.auto_renew_enabled=False
+                    await db.commit(); continue
                 # Never create a second charge while the newest provider attempt
                 # is unresolved or already succeeded. Failed/cancelled attempts are
                 # the only safe state from which a new idempotency key may be used.
@@ -266,9 +270,10 @@ async def run_auto_renew_pass(db) -> None:
                 except Exception as exc:
                     method.last_error=str(exc)[:1000]; await db.commit()
             else:
-                method.failure_count=(method.failure_count or 0)+1; method.status="past_due"; method.last_error="Recurring payment not confirmed as succeeded"
-                method.next_attempt_at=shop.datetime.utcnow()+shop.timedelta(hours=min(72,2**min(method.failure_count,6))); sub.next_renewal_at=method.next_attempt_at
-                if method.failure_count>=3: method.status="payment_failed"; user.auto_renew_enabled=False; method.enabled=False
+                # Not confirmed yet is not a failure: YooKassa often answers «pending» first. The next pass
+                # re-checks this same charge; only a cancelled/failed charge counts towards the three attempts.
+                method.last_error="Recurring payment is waiting for confirmation"
+                method.next_attempt_at=shop.datetime.utcnow()+shop.timedelta(minutes=15); sub.next_renewal_at=method.next_attempt_at
                 await db.commit()
         except Exception as exc:
             # The rollback expires every loaded row; reload by id (an attribute read here would need

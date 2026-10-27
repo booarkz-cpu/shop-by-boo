@@ -22,6 +22,8 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/advertisements/{item_id}` | Update Ad |
 | `GET` | `/api/admin/analytics` | Admin Analytics |
 | `GET` | `/api/admin/analytics/retention` | Retention |
+| `GET` | `/api/admin/anti-sharing` | Get Anti Sharing |
+| `PUT` | `/api/admin/anti-sharing` | Put Anti Sharing |
 | `GET` | `/api/admin/app-analytics` | Admin Analytics |
 | `DELETE` | `/api/admin/app-config` | Admin App Config Reset |
 | `GET` | `/api/admin/app-config` | Admin App Config |
@@ -45,6 +47,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/auth/passkeys/registration/options` | Registration Options |
 | `POST` | `/api/admin/auth/passkeys/registration/verify` | Registration Verify |
 | `POST` | `/api/admin/auth/telegram` | Admin Telegram Login |
+| `POST` | `/api/admin/auth/ticket` | Redeem Web Ticket |
+| `POST` | `/api/admin/auth/web-ticket` | Issue Web Ticket |
 | `GET` | `/api/admin/auto-update` | Get Auto Update |
 | `PUT` | `/api/admin/auto-update` | Put Auto Update |
 | `POST` | `/api/admin/auto-update/run` | Run Auto Update |
@@ -57,6 +61,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/backups/config` | Backup Config |
 | `PUT` | `/api/admin/backups/config` | Update Backup Config |
 | `POST` | `/api/admin/backups/run` | Run Backup |
+| `GET` | `/api/admin/backups/telegram` | Get Telegram Backup |
+| `PUT` | `/api/admin/backups/telegram` | Put Telegram Backup |
+| `POST` | `/api/admin/backups/telegram/send-now` | Send Now |
 | `DELETE` | `/api/admin/backups/{backup_id}` | Delete Backup |
 | `GET` | `/api/admin/backups/{backup_id}/download` | Download Backup |
 | `POST` | `/api/admin/backups/{backup_id}/restore` | Restore Backup |
@@ -175,10 +182,17 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/mobile-layout` | Admin Mobile Layout Reset |
 | `GET` | `/api/admin/mobile-layout` | Admin Mobile Layout |
 | `PUT` | `/api/admin/mobile-layout` | Admin Mobile Layout Save |
+| `GET` | `/api/admin/mobile/mirrors` | Get Mirrors |
+| `PUT` | `/api/admin/mobile/mirrors` | Put Mirrors |
+| `POST` | `/api/admin/mobile/mirrors/publish` | Publish Now |
 | `GET` | `/api/admin/mobile/ops` | Admin Mobile Ops |
 | `GET` | `/api/admin/monitoring` | Admin Monitoring |
 | `GET` | `/api/admin/network/intel` | Admin Network Intel |
 | `POST` | `/api/admin/network/intel/refresh` | Admin Network Refresh |
+| `GET` | `/api/admin/nodes/health` | Nodes Health |
+| `PUT` | `/api/admin/nodes/health/config` | Nodes Health Config |
+| `POST` | `/api/admin/nodes/update` | Update Nodes |
+| `POST` | `/api/admin/nodes/{node_uuid}/restart` | Restart Node |
 | `GET` | `/api/admin/notifications` | Admin Notifications |
 | `POST` | `/api/admin/notifications` | Admin Notification Create |
 | `GET` | `/api/admin/openapi.json` | Admin Openapi |
@@ -251,6 +265,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/promo-audiences` | Audiences |
 | `PUT` | `/api/admin/promo-audiences/{promo_id}` | Set Audience |
 | `POST` | `/api/admin/promo-codes` | Create Promo Code |
+| `GET` | `/api/admin/promo-codes/export.csv` | Export Promo Codes |
+| `POST` | `/api/admin/promo-codes/generate` | Generate Promo Codes |
 | `DELETE` | `/api/admin/promo-codes/{item_id}` | Delete Promo Code |
 | `PUT` | `/api/admin/promo-codes/{item_id}` | Update Promo Code |
 | `GET` | `/api/admin/promo-groups` | Groups |
@@ -272,6 +288,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/recovery` | Admin Recovery |
 | `GET` | `/api/admin/recovery/operations` | Recovery Operations |
 | `POST` | `/api/admin/recovery/operations/{operation_id}/retry` | Retry Operation |
+| `GET` | `/api/admin/referrals/bonus` | Get Bonus |
+| `PUT` | `/api/admin/referrals/bonus` | Set Bonus |
 | `GET` | `/api/admin/referrals/program` | Get Program |
 | `PUT` | `/api/admin/referrals/program` | Set Program |
 | `POST` | `/api/admin/referrals/reconcile` | Reconcile Referrals |
@@ -326,11 +344,14 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/subscription-operations/{operation_id}/refund` | Refund Change |
 | `POST` | `/api/admin/support-pro/sso` | Support Pro Sso |
 | `GET` | `/api/admin/support-pro/status` | Support Pro Status |
+| `GET` | `/api/admin/support/ai` | Support Ai Settings |
+| `PUT` | `/api/admin/support/ai` | Save Support Ai |
 | `DELETE` | `/api/admin/support/attachments/{attachment_id}` | Admin Remove |
 | `GET` | `/api/admin/support/attachments/{attachment_id}` | Admin Download |
 | `GET` | `/api/admin/support/tickets` | Admin Tickets |
 | `POST` | `/api/admin/support/tickets/{ticket_id}/attachments` | Admin Upload |
 | `GET` | `/api/admin/support/tickets/{ticket_id}/attachments/drafts` | Admin Drafts |
+| `POST` | `/api/admin/support/tickets/{ticket_id}/draft` | Support Draft |
 | `GET` | `/api/admin/support/tickets/{ticket_id}/messages` | Admin Support Messages |
 | `POST` | `/api/admin/support/tickets/{ticket_id}/reply` | Admin Ticket Reply |
 | `POST` | `/api/admin/support/topology/apply` | Apply |
@@ -542,6 +563,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/surveys` | Customer List |
 | `GET` | `/api/me/surveys/{survey_id}` | Customer Detail |
 | `POST` | `/api/me/surveys/{survey_id}/submit` | Submit |
+| `GET` | `/api/me/sync` | My Sync |
 | `GET` | `/api/me/traffic` | My Traffic |
 | `POST` | `/api/me/trial` | Claim Trial |
 | `GET` | `/api/me/v15/bootstrap` | V15 Bootstrap |
@@ -579,6 +601,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/public/info-pages` | Public List |
 | `GET` | `/api/public/info-pages/{kind}` | Public Page |
 | `GET` | `/api/public/menu-emoji/{emoji_id}` | Menu Emoji |
+| `GET` | `/api/public/mirrors` | Public Mirrors |
 | `GET` | `/api/public/pages` | Catalog |
 | `GET` | `/api/public/pages/{slug}` | Public Page |
 | `GET` | `/api/public/servers` | Public Servers |
@@ -593,6 +616,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/tariff-constructors` | Public Constructors |
 | `GET` | `/api/v3/status` | V3 Status |
 | `POST` | `/api/webhooks/crypto` | Crypto Webhook |
+| `POST` | `/api/webhooks/cryptobot` | Cryptobot Webhook |
 | `POST` | `/api/webhooks/platega` | Platega Webhook |
 | `POST` | `/api/webhooks/remnawave` | Remnawave Webhook |
 | `POST` | `/api/webhooks/rollypay` | Rollypay Webhook |
