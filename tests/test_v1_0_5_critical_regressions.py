@@ -1,23 +1,26 @@
-from main_source import main_source
-from pathlib import Path
+"""1.0.5: fulfillment acts only on a confirmed payment (was: code lines searched in main.py).
+The shared payment lock and owner-only release run in test_v1_release_deep_audit.py; a refund during
+fulfillment in test_v44_5_16_deep_regressions.py."""
+from decimal import Decimal
 
-MAIN = main_source()
+import pytest
 
-
-def test_fulfillment_reloads_payment_after_payment_lock_before_remote_side_effects():
-    lock = 'payment_lock, token = await _acquire_payment_side_effect_lock(payment_id)'
-    reload_marker = 'payment=(await db.execute(select(Payment).where(Payment.id==payment_id).execution_options(populate_existing=True).with_for_update())).scalar_one_or_none()'
-    remote_marker = 'rw=RemnawaveClient()'
-    assert MAIN.index(lock) < MAIN.index(reload_marker) < MAIN.index(remote_marker)
-    assert 'if payment.status in {"refunded", "refunded_pending_revoke", "creation_unknown"}:' in MAIN
-    assert 'if payment.status != "paid":\n            raise RuntimeError("Payment is not confirmed")' in MAIN
+from app import main as shop
+from app.models import Payment
+from test_integration_billing_vpn import panel  # noqa: F401
+from test_subscription_commerce import database  # noqa: F401
 
 
-def test_refund_and_fulfillment_share_payment_lock():
-    assert 'await _acquire_payment_side_effect_lock(p.id)' in MAIN
-    assert 'await _acquire_payment_side_effect_lock(payment_id)' in MAIN
-
-
-def test_release_keeps_token_safe_cleanup():
-    marker = 'if redis.call(\'get\', KEYS[1]) == ARGV[1] then return redis.call(\'del\', KEYS[1]) else return 0 end'
-    assert marker in MAIN
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", ["refunded", "refunded_pending_revoke", "creation_unknown", "pending"])
+async def test_fulfillment_never_runs_for_an_unconfirmed_payment(database, panel, monkeypatch, status):  # noqa: F811
+    monkeypatch.setattr(shop, "redis_client", object())
+    database.add(Payment(id=98, user_id=1, subscription_id=1, plan_id=1, provider="yookassa", order_id="o-98", amount=Decimal("100"),
+                         currency="RUB", status=status, fulfillment_status="pending", idempotency_key="k-98", duration_days_snapshot=30))
+    await database.commit()
+    try:
+        await shop.fulfill(98, database)
+    except Exception:
+        pass  # refusing is fine; acting is not
+    assert panel.calls == [], f"no panel call for a {status} payment"
+    assert (await database.get(Payment, 98, populate_existing=True)).fulfillment_status != "completed"

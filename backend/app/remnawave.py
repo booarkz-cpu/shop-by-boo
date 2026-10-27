@@ -220,6 +220,23 @@ class RemnawaveClient:
     async def list_internal_squads(self):
         return await self._request("GET","/api/internal-squads")
 
+    async def hwid_devices(self,user_id:int|str)->list[dict]:
+        """Devices (HWID) the panel has seen for this user; empty when the panel's HWID limit is off."""
+        data=await self._request("GET",f"/api/hwid/devices/{user_id}")
+        if isinstance(data,dict):
+            data=data.get("devices") if isinstance(data.get("devices"),list) else data.get("response",data)
+            if isinstance(data,dict): data=data.get("devices") or []
+        return [x for x in (data or []) if isinstance(x,dict)]
+
+    async def reset_hwid_devices(self,user_id:int|str):
+        return await self._request("POST","/api/hwid/devices/delete-all",json={"userUuid":str(user_id)})
+
+    async def restart_node(self,node_uuid:str):
+        return await self._request("POST",f"/api/nodes/{node_uuid}/actions/restart")
+
+    async def restart_all_nodes(self):
+        return await self._request("POST","/api/nodes/actions/restart-all")
+
     async def list_nodes(self,start=0,size=25):
         return await self._request("GET","/api/nodes",
                                    params={"start":start,"size":min(size,1000)})

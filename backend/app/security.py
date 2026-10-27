@@ -140,6 +140,7 @@ def require_permission(permission: str):
         if permission not in PERMISSIONS.get(admin.role, set()):
             raise HTTPException(403, "Insufficient permissions")
         return admin
+    dependency.required_permission = permission  # read by route-table checks (tests/app_contract.py)
     return dependency
 
 

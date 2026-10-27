@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1599**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1684**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -57,6 +57,7 @@
 | [.github/release-v21.4.0.md](../.github/release-v21.4.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.0.md](../.github/release-v21.5.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.1.md](../.github/release-v21.5.1.md) | GitHub CI/CD |
+| [.github/workflows/build-mobile.yml](../.github/workflows/build-mobile.yml) | GitHub CI/CD |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
 | [.github/workflows/dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) | GitHub CI/CD |
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
@@ -159,6 +160,7 @@
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
 | [admin/src/growth.tsx](../admin/src/growth.tsx) | Админ-панель |
+| [admin/src/growthTools.tsx](../admin/src/growthTools.tsx) | Админ-панель |
 | [admin/src/history-import.tsx](../admin/src/history-import.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
@@ -168,6 +170,7 @@
 | [admin/src/mobileLayout.tsx](../admin/src/mobileLayout.tsx) | Админ-панель |
 | [admin/src/network-intel.tsx](../admin/src/network-intel.tsx) | Админ-панель |
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
+| [admin/src/nodeMonitor.tsx](../admin/src/nodeMonitor.tsx) | Админ-панель |
 | [admin/src/ops.tsx](../admin/src/ops.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
@@ -279,9 +282,12 @@
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
 | [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
+| [backend/app/account_sync.py](../backend/app/account_sync.py) | API, бот и worker |
 | [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
 | [backend/app/admin_auth_api.py](../backend/app/admin_auth_api.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
+| [backend/app/admin_web_ticket.py](../backend/app/admin_web_ticket.py) | API, бот и worker |
+| [backend/app/anti_sharing.py](../backend/app/anti_sharing.py) | API, бот и worker |
 | [backend/app/app_config.py](../backend/app/app_config.py) | API, бот и worker |
 | [backend/app/app_funnel.py](../backend/app/app_funnel.py) | API, бот и worker |
 | [backend/app/app_growth.py](../backend/app/app_growth.py) | API, бот и worker |
@@ -333,6 +339,7 @@
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
+| [backend/app/bonus_days.py](../backend/app/bonus_days.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
@@ -340,6 +347,7 @@
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
 | [backend/app/content_branding_api.py](../backend/app/content_branding_api.py) | API, бот и worker |
 | [backend/app/content_publishing.py](../backend/app/content_publishing.py) | API, бот и worker |
+| [backend/app/customer_api.py](../backend/app/customer_api.py) | API, бот и worker |
 | [backend/app/customer_ops_api.py](../backend/app/customer_ops_api.py) | API, бот и worker |
 | [backend/app/customer_passkeys.py](../backend/app/customer_passkeys.py) | API, бот и worker |
 | [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
@@ -366,8 +374,10 @@
 | [backend/app/mobile_catalog.py](../backend/app/mobile_catalog.py) | API, бот и worker |
 | [backend/app/mobile_integrity.py](../backend/app/mobile_integrity.py) | API, бот и worker |
 | [backend/app/mobile_layout.py](../backend/app/mobile_layout.py) | API, бот и worker |
+| [backend/app/mobile_mirrors.py](../backend/app/mobile_mirrors.py) | API, бот и worker |
 | [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
+| [backend/app/node_health.py](../backend/app/node_health.py) | API, бот и worker |
 | [backend/app/node_terminal.py](../backend/app/node_terminal.py) | API, бот и worker |
 | [backend/app/notifications_status_api.py](../backend/app/notifications_status_api.py) | API, бот и worker |
 | [backend/app/observability.py](../backend/app/observability.py) | API, бот и worker |
@@ -385,6 +395,7 @@
 | [backend/app/plugins.py](../backend/app/plugins.py) | API, бот и worker |
 | [backend/app/production_api.py](../backend/app/production_api.py) | API, бот и worker |
 | [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
+| [backend/app/promo_generator.py](../backend/app/promo_generator.py) | API, бот и worker |
 | [backend/app/provisioner.py](../backend/app/provisioner.py) | API, бот и worker |
 | [backend/app/push.py](../backend/app/push.py) | API, бот и worker |
 | [backend/app/push_campaigns.py](../backend/app/push_campaigns.py) | API, бот и worker |
@@ -401,18 +412,21 @@
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
+| [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
 | [backend/app/security.py](../backend/app/security.py) | API, бот и worker |
 | [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
 | [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
 | [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
 | [backend/app/subscriptions.py](../backend/app/subscriptions.py) | API, бот и worker |
+| [backend/app/support_ai.py](../backend/app/support_ai.py) | API, бот и worker |
 | [backend/app/support_attachments.py](../backend/app/support_attachments.py) | API, бот и worker |
 | [backend/app/support_bridge.py](../backend/app/support_bridge.py) | API, бот и worker |
 | [backend/app/support_threads.py](../backend/app/support_threads.py) | API, бот и worker |
 | [backend/app/support_topology.py](../backend/app/support_topology.py) | API, бот и worker |
 | [backend/app/surveys.py](../backend/app/surveys.py) | API, бот и worker |
 | [backend/app/tariff_api.py](../backend/app/tariff_api.py) | API, бот и worker |
+| [backend/app/telegram_backup.py](../backend/app/telegram_backup.py) | API, бот и worker |
 | [backend/app/telegram_stars.py](../backend/app/telegram_stars.py) | API, бот и worker |
 | [backend/app/torrent_detection.py](../backend/app/torrent_detection.py) | API, бот и worker |
 | [backend/app/totp.py](../backend/app/totp.py) | API, бот и worker |
@@ -476,6 +490,8 @@
 | [cabinet/src/account-merge.tsx](../cabinet/src/account-merge.tsx) | Кабинет |
 | [cabinet/src/account-recovery.test.tsx](../cabinet/src/account-recovery.test.tsx) | Кабинет |
 | [cabinet/src/account-recovery.tsx](../cabinet/src/account-recovery.tsx) | Кабинет |
+| [cabinet/src/account-sync.test.tsx](../cabinet/src/account-sync.test.tsx) | Кабинет |
+| [cabinet/src/account-sync.ts](../cabinet/src/account-sync.ts) | Кабинет |
 | [cabinet/src/app-config.test.tsx](../cabinet/src/app-config.test.tsx) | Кабинет |
 | [cabinet/src/app-config.tsx](../cabinet/src/app-config.tsx) | Кабинет |
 | [cabinet/src/app-login.test.tsx](../cabinet/src/app-login.test.tsx) | Кабинет |
@@ -720,6 +736,39 @@
 | [docs/archive/root/V4_NODE_PROVISIONING.md](../docs/archive/root/V4_NODE_PROVISIONING.md) | Документация |
 | [docs/archive/root/V4_RELEASE_NOTES.md](../docs/archive/root/V4_RELEASE_NOTES.md) | Документация |
 | [docs/archive/root/V6_PLATFORM_RELEASE_RU.md](../docs/archive/root/V6_PLATFORM_RELEASE_RU.md) | Документация |
+| [docs/assets/screens/admin-apps.png](../docs/assets/screens/admin-apps.png) | Документация |
+| [docs/assets/screens/admin-backups.png](../docs/assets/screens/admin-backups.png) | Документация |
+| [docs/assets/screens/admin-dashboard.png](../docs/assets/screens/admin-dashboard.png) | Документация |
+| [docs/assets/screens/admin-fraud.png](../docs/assets/screens/admin-fraud.png) | Документация |
+| [docs/assets/screens/admin-nodes.png](../docs/assets/screens/admin-nodes.png) | Документация |
+| [docs/assets/screens/admin-support.png](../docs/assets/screens/admin-support.png) | Документация |
+| [docs/assets/screens/ai-knowledge.png](../docs/assets/screens/ai-knowledge.png) | Документация |
+| [docs/assets/screens/android-admin-launch.png](../docs/assets/screens/android-admin-launch.png) | Документация |
+| [docs/assets/screens/android-admin-monitoring.png](../docs/assets/screens/android-admin-monitoring.png) | Документация |
+| [docs/assets/screens/android-admin-ops.png](../docs/assets/screens/android-admin-ops.png) | Документация |
+| [docs/assets/screens/android-admin-overview.png](../docs/assets/screens/android-admin-overview.png) | Документация |
+| [docs/assets/screens/android-admin-panel.png](../docs/assets/screens/android-admin-panel.png) | Документация |
+| [docs/assets/screens/android-admin-payments.png](../docs/assets/screens/android-admin-payments.png) | Документация |
+| [docs/assets/screens/android-admin-support.png](../docs/assets/screens/android-admin-support.png) | Документация |
+| [docs/assets/screens/android-locations.png](../docs/assets/screens/android-locations.png) | Документация |
+| [docs/assets/screens/android-settings.png](../docs/assets/screens/android-settings.png) | Документация |
+| [docs/assets/screens/android-vpn-on.png](../docs/assets/screens/android-vpn-on.png) | Документация |
+| [docs/assets/screens/android-vpn.png](../docs/assets/screens/android-vpn.png) | Документация |
+| [docs/assets/screens/anti-sharing.png](../docs/assets/screens/anti-sharing.png) | Документация |
+| [docs/assets/screens/api-mirrors.png](../docs/assets/screens/api-mirrors.png) | Документация |
+| [docs/assets/screens/ios-admin-launch.png](../docs/assets/screens/ios-admin-launch.png) | Документация |
+| [docs/assets/screens/ios-admin-monitoring.png](../docs/assets/screens/ios-admin-monitoring.png) | Документация |
+| [docs/assets/screens/ios-admin-ops.png](../docs/assets/screens/ios-admin-ops.png) | Документация |
+| [docs/assets/screens/ios-admin-overview.png](../docs/assets/screens/ios-admin-overview.png) | Документация |
+| [docs/assets/screens/ios-admin-panel.png](../docs/assets/screens/ios-admin-panel.png) | Документация |
+| [docs/assets/screens/ios-admin-payments.png](../docs/assets/screens/ios-admin-payments.png) | Документация |
+| [docs/assets/screens/ios-admin-support.png](../docs/assets/screens/ios-admin-support.png) | Документация |
+| [docs/assets/screens/ios-subscription.png](../docs/assets/screens/ios-subscription.png) | Документация |
+| [docs/assets/screens/ios-vpn.png](../docs/assets/screens/ios-vpn.png) | Документация |
+| [docs/assets/screens/node-monitor.png](../docs/assets/screens/node-monitor.png) | Документация |
+| [docs/assets/screens/promo-generator.png](../docs/assets/screens/promo-generator.png) | Документация |
+| [docs/assets/screens/referral-bonus.png](../docs/assets/screens/referral-bonus.png) | Документация |
+| [docs/assets/screens/telegram-backup.png](../docs/assets/screens/telegram-backup.png) | Документация |
 | [docs/current-guides.json](../docs/current-guides.json) | Документация |
 | [docs/en/DEPLOYMENT.md](../docs/en/DEPLOYMENT.md) | Документация |
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
@@ -745,12 +794,20 @@
 | [docs/img/miniapp-support.png](../docs/img/miniapp-support.png) | Документация |
 | [docs/img/miniapp-wallet.png](../docs/img/miniapp-wallet.png) | Документация |
 | [docs/modules/README.md](../docs/modules/README.md) | Документация |
+| [docs/modules/account_sync.md](../docs/modules/account_sync.md) | Документация |
+| [docs/modules/ai_support.md](../docs/modules/ai_support.md) | Документация |
 | [docs/modules/analytics.md](../docs/modules/analytics.md) | Документация |
 | [docs/modules/android_architecture.md](../docs/modules/android_architecture.md) | Документация |
+| [docs/modules/anti_blocking.md](../docs/modules/anti_blocking.md) | Документация |
+| [docs/modules/auto_update_and_rollback.md](../docs/modules/auto_update_and_rollback.md) | Документация |
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
+| [docs/modules/i18n.md](../docs/modules/i18n.md) | Документация |
 | [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
+| [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
+| [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
+| [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PANEL_CURRENT.md](../docs/ru/ADMIN_PANEL_CURRENT.md) | Документация |
@@ -1015,6 +1072,7 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt) | Мобильные приложения |
@@ -1212,9 +1270,18 @@
 | [screenshots/admin_panel/72_backups.png](../screenshots/admin_panel/72_backups.png) | Корень проекта |
 | [screenshots/admin_panel/73_recovery.png](../screenshots/admin_panel/73_recovery.png) | Корень проекта |
 | [screenshots/admin_panel/74_command_search.png](../screenshots/admin_panel/74_command_search.png) | Корень проекта |
+| [screenshots/admin_panel/features/ai-knowledge.png](../screenshots/admin_panel/features/ai-knowledge.png) | Корень проекта |
+| [screenshots/admin_panel/features/anti-sharing.png](../screenshots/admin_panel/features/anti-sharing.png) | Корень проекта |
+| [screenshots/admin_panel/features/api-mirrors.png](../screenshots/admin_panel/features/api-mirrors.png) | Корень проекта |
+| [screenshots/admin_panel/features/node-monitor.png](../screenshots/admin_panel/features/node-monitor.png) | Корень проекта |
+| [screenshots/admin_panel/features/promo-generator.png](../screenshots/admin_panel/features/promo-generator.png) | Корень проекта |
+| [screenshots/admin_panel/features/referral-bonus.png](../screenshots/admin_panel/features/referral-bonus.png) | Корень проекта |
+| [screenshots/admin_panel/features/telegram-backup.png](../screenshots/admin_panel/features/telegram-backup.png) | Корень проекта |
 | [screenshots/mobile/android-admin-launch.png](../screenshots/mobile/android-admin-launch.png) | Корень проекта |
 | [screenshots/mobile/android-admin-monitoring.png](../screenshots/mobile/android-admin-monitoring.png) | Корень проекта |
+| [screenshots/mobile/android-admin-ops.png](../screenshots/mobile/android-admin-ops.png) | Корень проекта |
 | [screenshots/mobile/android-admin-overview.png](../screenshots/mobile/android-admin-overview.png) | Корень проекта |
+| [screenshots/mobile/android-admin-panel.png](../screenshots/mobile/android-admin-panel.png) | Корень проекта |
 | [screenshots/mobile/android-admin-payments.png](../screenshots/mobile/android-admin-payments.png) | Корень проекта |
 | [screenshots/mobile/android-admin-support.png](../screenshots/mobile/android-admin-support.png) | Корень проекта |
 | [screenshots/mobile/android-devices.png](../screenshots/mobile/android-devices.png) | Корень проекта |
@@ -1231,7 +1298,9 @@
 | [screenshots/mobile/android-vpn.png](../screenshots/mobile/android-vpn.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-launch.png](../screenshots/mobile/ios-admin-launch.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-monitoring.png](../screenshots/mobile/ios-admin-monitoring.png) | Корень проекта |
+| [screenshots/mobile/ios-admin-ops.png](../screenshots/mobile/ios-admin-ops.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-overview.png](../screenshots/mobile/ios-admin-overview.png) | Корень проекта |
+| [screenshots/mobile/ios-admin-panel.png](../screenshots/mobile/ios-admin-panel.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-payments.png](../screenshots/mobile/ios-admin-payments.png) | Корень проекта |
 | [screenshots/mobile/ios-admin-support.png](../screenshots/mobile/ios-admin-support.png) | Корень проекта |
 | [screenshots/mobile/ios-devices.png](../screenshots/mobile/ios-devices.png) | Корень проекта |
@@ -1333,6 +1402,7 @@
 | [scripts/v20_payment_platform_gate.py](../scripts/v20_payment_platform_gate.py) | Эксплуатация и релиз |
 | [scripts/validate-rollback-archive.py](../scripts/validate-rollback-archive.py) | Эксплуатация и релиз |
 | [scripts/verify-release.sh](../scripts/verify-release.sh) | Эксплуатация и релиз |
+| [scripts/zero-downtime-backend.sh](../scripts/zero-downtime-backend.sh) | Эксплуатация и релиз |
 | [support-pro/.dockerignore](../support-pro/.dockerignore) | Support Pro |
 | [support-pro/.env.example](../support-pro/.env.example) | Support Pro |
 | [support-pro/README.md](../support-pro/README.md) | Support Pro |
@@ -1427,6 +1497,7 @@
 | [support-pro/tests/test_security_audit.py](../support-pro/tests/test_security_audit.py) | Support Pro |
 | [support-pro/tests/test_shop_bridge.py](../support-pro/tests/test_shop_bridge.py) | Support Pro |
 | [terraform/corgi/main.tf](../terraform/corgi/main.tf) | Корень проекта |
+| [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
 | [tests/main_source.py](../tests/main_source.py) | Проверки |
@@ -1436,8 +1507,11 @@
 | [tests/test_abuse_suspension.py](../tests/test_abuse_suspension.py) | Проверки |
 | [tests/test_account_actions.py](../tests/test_account_actions.py) | Проверки |
 | [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
+| [tests/test_account_sync.py](../tests/test_account_sync.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
+| [tests/test_admin_web_ticket.py](../tests/test_admin_web_ticket.py) | Проверки |
+| [tests/test_anti_sharing.py](../tests/test_anti_sharing.py) | Проверки |
 | [tests/test_app_config.py](../tests/test_app_config.py) | Проверки |
 | [tests/test_app_growth.py](../tests/test_app_growth.py) | Проверки |
 | [tests/test_app_login.py](../tests/test_app_login.py) | Проверки |
@@ -1461,17 +1535,20 @@
 | [tests/test_critical_audit_v2005.py](../tests/test_critical_audit_v2005.py) | Проверки |
 | [tests/test_critical_audit_v2006.py](../tests/test_critical_audit_v2006.py) | Проверки |
 | [tests/test_critical_startup_and_i18n.py](../tests/test_critical_startup_and_i18n.py) | Проверки |
+| [tests/test_cryptobot.py](../tests/test_cryptobot.py) | Проверки |
 | [tests/test_current_documentation.py](../tests/test_current_documentation.py) | Проверки |
 | [tests/test_customer_passkeys.py](../tests/test_customer_passkeys.py) | Проверки |
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
 | [tests/test_dependency_locks.py](../tests/test_dependency_locks.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
+| [tests/test_e2e_journeys.py](../tests/test_e2e_journeys.py) | Проверки |
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
 | [tests/test_fiscal.py](../tests/test_fiscal.py) | Проверки |
 | [tests/test_fraud_signals.py](../tests/test_fraud_signals.py) | Проверки |
+| [tests/test_freekassa.py](../tests/test_freekassa.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
@@ -1488,11 +1565,14 @@
 | [tests/test_mobile_family_status.py](../tests/test_mobile_family_status.py) | Проверки |
 | [tests/test_mobile_integrity.py](../tests/test_mobile_integrity.py) | Проверки |
 | [tests/test_mobile_layout.py](../tests/test_mobile_layout.py) | Проверки |
+| [tests/test_mobile_mirrors.py](../tests/test_mobile_mirrors.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
 | [tests/test_money_review.py](../tests/test_money_review.py) | Проверки |
 | [tests/test_multiple_subscriptions.py](../tests/test_multiple_subscriptions.py) | Проверки |
 | [tests/test_native_passkeys.py](../tests/test_native_passkeys.py) | Проверки |
 | [tests/test_network_intel.py](../tests/test_network_intel.py) | Проверки |
+| [tests/test_node_cache.py](../tests/test_node_cache.py) | Проверки |
+| [tests/test_node_monitor.py](../tests/test_node_monitor.py) | Проверки |
 | [tests/test_node_terminal.py](../tests/test_node_terminal.py) | Проверки |
 | [tests/test_observability.py](../tests/test_observability.py) | Проверки |
 | [tests/test_ops_alerts.py](../tests/test_ops_alerts.py) | Проверки |
@@ -1504,13 +1584,16 @@
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |
 | [tests/test_postgres18.py](../tests/test_postgres18.py) | Проверки |
 | [tests/test_production_installer_v2016.py](../tests/test_production_installer_v2016.py) | Проверки |
+| [tests/test_promo_generator_and_tg_backup.py](../tests/test_promo_generator_and_tg_backup.py) | Проверки |
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
 | [tests/test_provider_metric_counters.py](../tests/test_provider_metric_counters.py) | Проверки |
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_push_campaigns.py](../tests/test_push_campaigns.py) | Проверки |
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |
+| [tests/test_referral_bonus_days.py](../tests/test_referral_bonus_days.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
+| [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |
 | [tests/test_remnawave_contract.py](../tests/test_remnawave_contract.py) | Проверки |
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
@@ -1521,6 +1604,7 @@
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |
 | [tests/test_subscription_commerce.py](../tests/test_subscription_commerce.py) | Проверки |
+| [tests/test_support_ai.py](../tests/test_support_ai.py) | Проверки |
 | [tests/test_support_attachments.py](../tests/test_support_attachments.py) | Проверки |
 | [tests/test_support_bridge.py](../tests/test_support_bridge.py) | Проверки |
 | [tests/test_support_postgres.py](../tests/test_support_postgres.py) | Проверки |
@@ -1607,3 +1691,4 @@
 | [tests/test_v45_5_deep_regressions.py](../tests/test_v45_5_deep_regressions.py) | Проверки |
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |
+| [tests/test_zero_downtime_deploy.py](../tests/test_zero_downtime_deploy.py) | Проверки |

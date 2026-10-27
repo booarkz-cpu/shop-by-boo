@@ -1,32 +1,49 @@
-from main_source import main_source
 from pathlib import Path
+
+import pytest
+from fastapi import HTTPException
+
+from app import main as shop
+from app.models import TariffConstructor
+from app_contract import missing_routes, revision, tables
+from test_behaviour_payments_v2 import checkout
+from test_subscription_commerce import database  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_v250_constructor_checkout_and_monitoring_are_wired():
-    main = main_source()
-    tariff = (ROOT / "backend/app/tariff_api.py").read_text()
-    models = (ROOT / "backend/app/models.py").read_text()
-    migration = (ROOT / "backend/alembic/versions/0037_v2_5_0_tariff_constructor.py").read_text()
-    cabinet_api = (ROOT / "backend/app/cabinet_api.py").read_text()
-    assert "from .tariff_api import router as tariff_router" in main
-    assert "app.include_router(tariff_router)" in main
-    assert "quote_constructor" in main
-    assert "Этот тариф собирается в конструкторе" in main
-    assert "duration_days_snapshot=snap_days" in main
-    assert "class TariffConstructor" in models
-    assert "class TariffConstructorOption" in models
-    assert 'revision = "0037_v2_5_0_tariff_constructor"' in migration
-    assert 'down_revision = "0036_v2_4_0_cabinet"' in migration
-    assert '@router.get("/api/tariff-constructors")' in tariff
-    assert '@router.get("/api/public/servers")' in tariff
-    assert '@router.get("/api/me/servers")' in tariff
-    assert '@router.get("/api/admin/remnawave/monitoring")' in tariff
-    assert "def public_node" in tariff
-    assert '"address"' not in tariff.split("def public_node", 1)[1].split("return safe", 1)[0]
-    assert "servers|custom" in cabinet_api
-    assert '"/api/public/servers": 30' in main
+def test_v250_constructor_and_server_routes_are_served():
+    assert not missing_routes("GET /api/tariff-constructors", "GET /api/public/servers", "GET /api/me/servers",
+                              "GET /api/admin/remnawave/monitoring")
+    assert {"tariff_constructors", "tariff_constructor_options"} <= set(tables())
+    rev = revision("0037_v2_5_0_tariff_constructor")
+    assert rev.down_revision == "0036_v2_4_0_cabinet"
+    assert shop.RATE_LIMITS["/api/public/servers"] == 30
+    from app.cabinet_api import CabinetMenuIn
+    assert CabinetMenuIn(title="Серверы", slug="servers", kind="servers").kind == "servers", "the cabinet can show a servers page"
+
+
+def test_public_servers_never_show_node_addresses():
+    from app.tariff_api import public_node
+    node = {"name": "Frankfurt", "address": "203.0.113.7", "port": 443, "countryCode": "DE", "isConnected": True, "usersOnline": 4}
+    shown = public_node(node)
+    assert shown["status"] == "online" and shown["country"] == "DE" and shown["users_online"] == 4
+    assert "203.0.113.7" not in str(shown) and "address" not in shown and "port" not in shown
+    assert public_node({"name": "10.0.0.5", "isConnected": False})["name"] == "node", "a host-like name is hidden too"
+
+
+@pytest.mark.asyncio
+async def test_a_constructor_plan_is_not_sold_as_a_plain_plan(database, monkeypatch):
+    database.add(TariffConstructor(name="Свой тариф", plan_id=1, enabled=True))
+    await database.commit()
+
+    async def yes(*a, **k):
+        return True
+    monkeypatch.setattr(shop, "production_payments_allowed", yes)
+    monkeypatch.setattr(shop, "e2e_checkout_allowed", yes)
+    with pytest.raises(HTTPException) as refused:
+        await shop.create_payment({"plan_id": 1, "provider": "yookassa"}, checkout([(b"idempotency-key", b"k-constructor")]), database)
+    assert (refused.value.status_code, refused.value.detail) == (400, "Этот тариф собирается в конструкторе")
 
 
 def test_v250_frontends_expose_builder_and_servers():

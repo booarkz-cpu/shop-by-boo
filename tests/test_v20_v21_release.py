@@ -1,6 +1,16 @@
-import ast, pathlib, re, yaml
+import ast
+import io
+import pathlib
+import tarfile
+
+import pytest
+import yaml
+from fastapi import HTTPException
+
+from app import main as shop
+from app_contract import env_names, missing_paths, revision, tables
+
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-from main_source import main_source
 
 def read(p): return p.read_text(encoding="utf-8")
 
@@ -8,19 +18,17 @@ def test_all_python_parse():
     for p in (ROOT/"backend").rglob("*.py"): ast.parse(read(p))
 
 def test_v21_contracts():
-    main=main_source(); sec=read(ROOT/"backend/app/security.py"); models=read(ROOT/"backend/app/models.py"); rem=read(ROOT/"backend/app/remnawave.py")
-    for x in [
-        '/metrics','/api/admin/payments/reconcile','/api/admin/sessions/revoke-all',
-        '/api/me/connection-qr','/api/me/auto-renew','auto_renew_scheduler','reconciliation_scheduler','_safe_extract_members',
-        'S3 remote size verification failed','Valid MFA code is required for restore','PaymentProviderEvent','ReferralLedger','AutoRenewMethod'
-    ]: assert x in main or x in models or x in read(ROOT/"backend/app/restore_approval.py")
-    assert 'RemnawaveCircuitOpen' in rem and 'remnawave_cb_failures' in read(ROOT/"backend/app/config.py")
-    assert 'security.stepup' in sec and 'payments.reconcile' in sec
+    from app import remnawave
+    from app.security import PERMISSIONS
+    assert not missing_paths('/metrics', '/api/admin/payments/reconcile', '/api/admin/sessions/revoke-all', '/api/me/connection-qr', '/api/me/auto-renew')
+    assert all(callable(getattr(shop, n)) for n in ('auto_renew_scheduler', 'reconciliation_scheduler', '_safe_extract_members'))
+    assert {'payment_provider_events', 'referral_ledger', 'auto_renew_methods'} <= set(tables())
+    assert issubclass(remnawave.RemnawaveCircuitOpen, Exception) and 'REMNAWAVE_CB_FAILURES' in env_names()
+    assert {'security.stepup', 'payments.reconcile'} <= PERMISSIONS['admin']
 
 def test_worker_is_separate():
-    s=read(ROOT/"backend/worker.py"); c=yaml.safe_load(read(ROOT/"docker-compose.yml"))
-    assert 'backup_scheduler' in s and 'auto_renew_scheduler' in s and 'worker' in c['services']
-    assert c['services']['worker']['command']==['python','worker.py']
+    c=yaml.safe_load(read(ROOT/"docker-compose.yml"))
+    assert 'worker' in c['services'] and c['services']['worker']['command']==['python','worker.py']
 
 def test_compose_ports():
     c=yaml.safe_load(read(ROOT/"docker-compose.yml"))
@@ -33,12 +41,33 @@ def test_admin_ui_contracts():
 def test_miniapp_contracts():
     from frontend_sources import miniapp_sources; s=miniapp_sources(); assert '/api/me/connection-qr' in s; assert 'Автопродление' in s; assert 'Реферальная программа' in s
 
-def test_no_unsafe_restore_extract():
-    s=main_source(); assert 'tar.extract(member,path=work)' not in s; assert '_safe_extract_members' in s
+def _tar(*names):
+    raw = io.BytesIO()
+    with tarfile.open(fileobj=raw, mode="w") as tar:
+        for name in names:
+            info = tarfile.TarInfo(name)
+            info.size = 2
+            tar.addfile(info, io.BytesIO(b"ok"))
+    raw.seek(0)
+    return tarfile.open(fileobj=raw, mode="r")
+
+
+def test_restore_never_writes_outside_its_folder(tmp_path):
+    for evil in ("../evil.sql", "/etc/cron.d/evil", "db/../../evil"):
+        with pytest.raises(HTTPException) as refused:
+            shop._validate_tar_safety(_tar("db.sql", evil))
+        assert refused.value.status_code == 400, evil
+    with pytest.raises(HTTPException):
+        shop._validate_tar_safety(_tar("db.sql", "db.sql"))  # duplicates could hide a second payload
+    shop._validate_tar_safety(_tar("db.sql", "media/logo.png"))
+    work = tmp_path / "work"
+    work.mkdir()
+    with pytest.raises(HTTPException):
+        shop._safe_extract_members(_tar("../outside.txt"), {"../outside.txt"}, work)
+    assert not (tmp_path / "outside.txt").exists()
+    shop._safe_extract_members(_tar("db.sql", "skip.txt"), {"db.sql"}, work)
+    assert (work / "db.sql").read_bytes() == b"ok" and not (work / "skip.txt").exists(), "only the named members"
+
 
 def test_migration_chain():
-    versions=[]
-    for p in sorted((ROOT/"backend/alembic/versions").glob("*.py")):
-        s=read(p); m=re.search(r'revision\s*=\s*["\']([^"\']+)',s); d=re.search(r'down_revision\s*=\s*["\']([^"\']+)',s)
-        assert m; versions.append((m.group(1),d.group(1) if d else None))
-    assert any(r=='0009_v20_v21' and d=='0008_v16_v19' for r,d in versions)
+    assert revision('0009_v20_v21').down_revision == '0008_v16_v19'

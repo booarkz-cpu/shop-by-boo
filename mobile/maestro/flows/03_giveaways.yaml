@@ -7,6 +7,9 @@ name: Giveaways and the home promo
       corgi_demo: true
       corgi_tab: giveaways
       corgi_lang: ru
-- assertVisible: "Новогоднее колесо"
+# A cold start of a cleared debug build on a CI emulator can take longer than the default wait.
+- extendedWaitUntil:
+    visible: "Новогоднее колесо"
+    timeout: 30000
 - assertVisible: "Участвовать"
 - takeScreenshot: android-04-giveaways

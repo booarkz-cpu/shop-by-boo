@@ -661,6 +661,155 @@ class RollyPayProvider(BasePaymentProvider):
         return data
 
 
+class CryptoBotProvider(BasePaymentProvider):
+    """Crypto Pay (@CryptoBot): a reserve gateway. The invoice is in RUB (fiat), the customer pays in crypto.
+    No recurring charges and no refunds through the API; the payload carries the shop order id."""
+
+    @staticmethod
+    def api_url() -> str:
+        return "https://testnet-pay.crypt.bot/api" if settings.cryptobot_network == "testnet" else "https://pay.crypt.bot/api"
+
+    def _headers(self) -> Dict[str, str]:
+        return {"Crypto-Pay-API-Token": settings.cryptobot_token}
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        body = {"currency_type": "fiat", "fiat": currency or "RUB", "amount": _money(amount), "description": description[:1024],
+                "payload": order_id, "allow_anonymous": False, "expires_in": 3600}
+        if metadata.get("return_url"):
+            body.update({"paid_btn_name": "callback", "paid_btn_url": str(metadata["return_url"])})
+        async with _public_client(20) as client:
+            response = await client.post(f"{self.api_url()}/createInvoice", json=body, headers=self._headers())
+        response.raise_for_status()
+        data = response.json()
+        if not data.get("ok"):
+            raise PaymentError(f"CryptoBot: {str(data.get('error'))[:200]}")
+        invoice = data.get("result") or {}
+        return {"id": str(invoice.get("invoice_id") or ""), "url": invoice.get("bot_invoice_url") or invoice.get("pay_url"),
+                "status": invoice.get("status") or "active"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url})
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        async with _public_client(10) as client:
+            response = await client.get(f"{self.api_url()}/getInvoices", params={"invoice_ids": str(payment_id)}, headers=self._headers())
+        response.raise_for_status()
+        items = ((response.json().get("result") or {}).get("items") or [])
+        return items[0] if items else {}
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        invoice = await self.get_payment_status(payment_id)
+        if str(invoice.get("status") or "").lower() != "paid":
+            return False
+        if expected_order_id and str(invoice.get("payload") or "") != expected_order_id:
+            return False
+        if str(invoice.get("currency_type") or "fiat") == "fiat" and str(invoice.get("fiat") or "").upper() != str(currency).upper():
+            return False
+        return Decimal(str(invoice.get("amount") or "0")) == Decimal(str(expected_amount))
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: Optional[str] = None) -> Dict[str, Any]:
+        lowered = {k.lower(): v for k, v in headers.items()}
+        signature = lowered.get("crypto-pay-api-signature") or ""
+        if not settings.cryptobot_token or not signature:
+            raise SignatureVerificationError("CryptoBot webhook is not signed")
+        secret = hashlib.sha256(settings.cryptobot_token.encode()).digest()
+        expected = hmac.new(secret, body, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected, signature):
+            raise SignatureVerificationError("Invalid CryptoBot signature")
+        return json.loads(body)
+
+
+FREEKASSA_PAID = 1
+
+
+class FreekassaProvider(BasePaymentProvider):
+    """Freekassa: a reserve gateway for cards, SBP and wallets.
+
+    The payment page is the signed form link (pay.fk.money, MD5 with secret word 1), so creating a payment needs no
+    network call; the shop order id travels as ``o`` / ``MERCHANT_ORDER_ID``. A notification is signed with secret
+    word 2 and comes from Freekassa's addresses; before fulfillment the order is re-read through API v1 (HMAC-SHA256
+    with the API key): status «paid», amount and currency. No recurring charges and no refunds through the API."""
+
+    PAY_URL = "https://pay.fk.money/"
+    API_URL = "https://api.fk.life/v1"
+    _nonce = 0
+
+    @staticmethod
+    def configured() -> bool:
+        return bool(settings.freekassa_shop_id and settings.freekassa_secret1 and settings.freekassa_secret2 and settings.freekassa_api_key)
+
+    # MD5 is what the Freekassa protocol prescribes for both signatures; the notification is trusted only together with
+    # Freekassa's addresses and the order re-read through the HMAC-SHA256 API.
+    @staticmethod
+    def form_signature(shop_id: str, amount: str, secret: str, currency: str, order_id: str) -> str:
+        return hashlib.md5(f"{shop_id}:{amount}:{secret}:{currency}:{order_id}".encode(), usedforsecurity=False).hexdigest()
+
+    @staticmethod
+    def api_signature(body: Dict[str, Any], api_key: str) -> str:
+        text = "|".join(str(body[key]) for key in sorted(body))
+        return hmac.new(api_key.encode(), text.encode(), hashlib.sha256).hexdigest()
+
+    def checkout_url(self, amount, order_id: str, currency: str) -> str:
+        from urllib.parse import urlencode
+        oa = _money(amount)
+        sign = self.form_signature(settings.freekassa_shop_id, oa, settings.freekassa_secret1, currency, order_id)
+        return self.PAY_URL + "?" + urlencode({"m": settings.freekassa_shop_id, "oa": oa, "currency": currency, "o": order_id, "s": sign, "lang": "ru"})
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        if not order_id or not self.configured():
+            raise PaymentError("Freekassa is not configured")
+        # Freekassa assigns its own number only after payment; the shop order id identifies the payment until then.
+        return {"id": order_id, "url": self.checkout_url(amount, order_id, currency or "RUB"), "status": "pending"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id})
+
+    def _nonce_value(self) -> int:
+        # Freekassa requires a nonce that grows with every request of the shop.
+        FreekassaProvider._nonce = max(FreekassaProvider._nonce + 1, time.time_ns() // 1000)
+        return FreekassaProvider._nonce
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        body: Dict[str, Any] = {"shopId": int(settings.freekassa_shop_id), "nonce": self._nonce_value(), "paymentId": str(payment_id)}
+        body["signature"] = self.api_signature(body, settings.freekassa_api_key)
+        async with _public_client(15) as client:
+            response = await client.post(f"{self.API_URL}/orders", json=body)
+        response.raise_for_status()
+        orders = response.json().get("orders") or []
+        return next((o for o in orders if str(o.get("merchant_order_id")) == str(payment_id)), {})
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        order = await self.get_payment_status(expected_order_id or payment_id)
+        if int(order.get("status") if order.get("status") is not None else -1) != FREEKASSA_PAID:
+            return False
+        if str(order.get("currency") or currency).upper() != str(currency).upper():
+            return False
+        return Decimal(str(order.get("amount") or "0")) == Decimal(str(expected_amount))
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: Optional[str] = None) -> Dict[str, Any]:
+        from urllib.parse import parse_qsl
+        return self.verify_notification(dict(parse_qsl(body.decode("utf-8", "replace"))), remote_addr)
+
+    def verify_notification(self, params: Dict[str, Any], remote_addr: Optional[str]) -> Dict[str, Any]:
+        import ipaddress
+        allowed = [x.strip() for x in settings.freekassa_webhook_ip_allowlist.split(",") if x.strip()]
+        try:
+            ip = ipaddress.ip_address(remote_addr or "")
+        except ValueError:
+            raise SignatureVerificationError("Freekassa notification from an unknown address")
+        if not allowed or not any(ip in ipaddress.ip_network(net, strict=False) for net in allowed):
+            raise SignatureVerificationError("Freekassa notification from a foreign address")
+        if not settings.freekassa_secret2 or str(params.get("MERCHANT_ID") or "") != str(settings.freekassa_shop_id):
+            raise SignatureVerificationError("Freekassa notification for another shop")
+        expected = hashlib.md5(f"{params.get('MERCHANT_ID')}:{params.get('AMOUNT')}:{settings.freekassa_secret2}:{params.get('MERCHANT_ORDER_ID')}".encode(),
+                               usedforsecurity=False).hexdigest()
+        if not hmac.compare_digest(expected, str(params.get("SIGN") or "").lower()):
+            raise SignatureVerificationError("Invalid Freekassa signature")
+        return dict(params)
+
+
 class SandboxProvider:
     """Local payment provider for tests without live gateways."""
 

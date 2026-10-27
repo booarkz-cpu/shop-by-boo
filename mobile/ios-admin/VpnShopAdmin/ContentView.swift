@@ -12,6 +12,7 @@ struct AdminRootView: View {
     @State private var showProfiles = false
     @State private var signedInIds: Set<String> = []
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.openURL) private var openURL
     @State private var authenticationContext: LAContext?
     @State private var email = ProfileVault.find(ProfileVault.activeId())?.email ?? ""
     @State private var password = ""
@@ -33,6 +34,7 @@ struct AdminRootView: View {
     @State private var paymentDetail: [String: Any] = [:]
     @State private var logo: UIImage?
     @State private var ops: [String: Any] = [:]
+    @State private var nodeHealth: [String: Any] = [:]
     @State private var readiness: [String: Any] = [:]
     @State private var alerts: [String: Any] = [:]
 
@@ -101,6 +103,7 @@ struct AdminRootView: View {
         monitoring = parse(#"{"nodes":[{"name":"Амстердам","country":"NL","status":"online","users_online":412},{"name":"Франкфурт","country":"DE","status":"online","users_online":388},{"name":"Стамбул","country":"TR","status":"offline","users_online":0}]}"#) as? [String: Any] ?? [:]
         platform = parse(#"{"violations":[{"id":17,"score":82,"recommendation":"Торрент-трафик: ограничить"}],"agents":[{"name":"nl-1","cpu":"23%"}],"countries":[{"country":"RU","count":4210},{"country":"KZ","count":512}]}"#) as? [String: Any] ?? [:]
         ops = parse(#"{"critical":0,"stale_agents":1,"agents":[{"name":"nl-1","cpu":"23%","mem":"41%"}]}"#) as? [String: Any] ?? [:]
+        nodeHealth = parse(#"{"nodes":[{"uuid":"n1","name":"Нидерланды","status":"online","users_online":184,"down_minutes":0},{"uuid":"n2","name":"Германия","status":"offline","users_online":0,"down_minutes":4}]}"#) as? [String: Any] ?? [:]
         readiness = parse(#"{"ready":false,"checks":[{"title":"Платёжная система подключена","ok":true,"level":"required"},{"title":"Remnawave отвечает","ok":true,"level":"required"},{"title":"Чеки в налоговую","ok":false,"level":"recommended","hint":"Тарифы и оплата → Чеки в налоговую"}]}"#) as? [String: Any] ?? [:]
         alerts = parse(#"{"recipients":{"telegram":true,"email":false},"problems":[]}"#) as? [String: Any] ?? [:]
         tickets = parse(#"[{"id":311,"subject":"Не подключается на iPhone","status":"open","message":"После обновления iOS Happ не видит подписку."}]"#) as? [[String: Any]] ?? []
@@ -161,7 +164,7 @@ struct AdminRootView: View {
     }
 
     private func clearLoaded() {
-        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; readiness = [:]; alerts = [:]
+        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; nodeHealth = [:]; readiness = [:]; alerts = [:]
         tickets = []; broadcasts = []; paymentDetail = [:]; logo = nil; reply = ""; broadcastText = ""
     }
 
@@ -230,7 +233,7 @@ struct AdminRootView: View {
         VStack(alignment: .leading, spacing: 12) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
-                    ForEach(["overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast"], id: \.self) { key in
+                    ForEach(["overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast", "panel"], id: \.self) { key in
                         RemnaPill(title: t(key), selected: tab == key) { tab = key }
                     }
                 }
@@ -335,6 +338,23 @@ struct AdminRootView: View {
                     RemnaRow(title: jsonText(agent["name"]), detail: "CPU \(jsonText(agent["cpu"])) · RAM \(jsonText(agent["mem"]))", badge: t("online"), tone: .ok)
                 }
             }
+            RemnaCard(title: t("nodes")) {
+                let nodes = nodeHealth["nodes"] as? [[String: Any]] ?? []
+                if let error = nodeHealth["error"] as? String, !error.isEmpty { RemnaEmpty(text: error) }
+                if nodes.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(nodes.enumerated()), id: \.offset) { _, node in
+                    let status = jsonText(node["status"])
+                    let detail = status == "online" ? "\(jsonText(node["users_online"])) online" : "\(t("node_down")) \(jsonText(node["down_minutes"])) мин"
+                    RemnaRow(title: jsonText(node["name"]), detail: detail, badge: status) {
+                        RemnaGhost(title: t("node_restart")) { restartNode(node) }.disabled(busy || AdminDemo.enabled)
+                    }
+                }
+            }
+        case "panel":
+            // Everything the native tabs do not cover lives in the web panel; the ticket is single-use and lives 60 s.
+            RemnaCard(title: t("panel"), hint: t("panel_hint")) {
+                RemnaPrimary(title: t("panel_open")) { openFullPanel() }.disabled(busy || AdminDemo.enabled)
+            }
         case "broadcast":
             RemnaCard(title: t("broadcast"), hint: t("broadcast_hint")) {
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -363,6 +383,7 @@ struct AdminRootView: View {
                 if tickets.isEmpty { RemnaEmpty(text: t("no_data")) }
                 ForEach(Array(tickets.enumerated()), id: \.offset) { _, ticket in
                     RemnaRow(title: "#\(jsonText(ticket["id"])) · \(jsonText(ticket["subject"]))", detail: jsonText(ticket["message"]), badge: jsonText(ticket["status"])) {
+                        RemnaGhost(title: t("ai_draft")) { aiDraft(ticket) }.disabled(busy || AdminDemo.enabled)
                         RemnaPrimary(title: t("send")) { send(ticket) }.disabled(busy || AdminDemo.enabled)
                     }
                 }
@@ -431,6 +452,8 @@ struct AdminRootView: View {
             // Shops before v28.27.0 have no launch checks: the other tabs keep working.
             let nextReadiness = (try? api.call("GET", "/api/admin/ops/readiness")) as? [String: Any] ?? [:]
             let nextAlerts = (try? api.call("GET", "/api/admin/ops/alerts")) as? [String: Any] ?? [:]
+            // Node health appeared in v28.35: older shops simply show no node card.
+            let nextNodeHealth = (try? api.call("GET", "/api/admin/nodes/health")) as? [String: Any] ?? [:]
             let nextMarketing = try api.call("GET", "/api/admin/marketing") as? [String: Any] ?? [:]
             let nextBroadcasts = nextMarketing["broadcasts"] as? [[String: Any]] ?? []
             let nextLogo = logoImage(api, "/api/admin/apps")
@@ -443,6 +466,7 @@ struct AdminRootView: View {
                 monitoring = nextMonitoring
                 platform = nextPlatform
                 ops = nextOps
+                nodeHealth = nextNodeHealth
                 readiness = nextReadiness
                 alerts = nextAlerts
                 tickets = nextTickets
@@ -532,6 +556,31 @@ struct AdminRootView: View {
         work {
             _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/admin/support/tickets/\(id)/reply", body: ["reply": text])
             DispatchQueue.main.async { notice = t("reply_sent"); reply = "" }
+        }
+    }
+
+    private func aiDraft(_ ticket: [String: Any]) {
+        guard let id = jsonInt(ticket["id"]) else { return }
+        work {
+            let out = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/admin/support/tickets/\(id)/draft") as? [String: Any] ?? [:]
+            DispatchQueue.main.async { reply = jsonText(out["draft"]) }
+        }
+    }
+
+    private func restartNode(_ node: [String: Any]) {
+        let uuid = jsonText(node["uuid"])
+        if uuid.isEmpty { return }
+        work {
+            _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/admin/nodes/\(uuid)/restart")
+            DispatchQueue.main.async { notice = t("node_restarted") }
+        }
+    }
+
+    private func openFullPanel() {
+        work {
+            let out = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/admin/auth/web-ticket") as? [String: Any] ?? [:]
+            guard let raw = out["url"] as? String, raw.hasPrefix("https://"), let url = URL(string: raw) else { return }
+            DispatchQueue.main.async { openURL(url) }
         }
     }
 

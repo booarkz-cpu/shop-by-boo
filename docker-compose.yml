@@ -106,6 +106,17 @@ services:
     mem_limit: 768m
     cpus: 1.50
 
+  # Zero-downtime updates (scripts/zero-downtime-backend.sh): the new release starts here and must answer
+  # /health/ready before `backend` is recreated; meanwhile Caddy sends traffic here. Started only by that script.
+  backend_standby:
+    extends:
+      service: backend
+    profiles: ["standby"]
+    networks:
+      default: {}
+      ingress:
+        ipv4_address: ${BACKEND_STANDBY_INGRESS_IP:-172.30.84.5}
+
   worker:
     build:
       context: ./backend
@@ -189,6 +200,8 @@ services:
     env_file: .env
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     security_opt:
       - no-new-privileges:true
@@ -448,8 +461,10 @@ services:
     restart: unless-stopped
     environment:
       SUPPORT_UPSTREAM: ${SUPPORT_INGRESS_IP:-172.30.84.4}:8000
-      BACKEND_UPSTREAM: ${BACKEND_INGRESS_IP:-172.30.84.3}:8000
+      # The backend and its zero-downtime standby (deploy/Caddyfile → backend_lb prefers the first).
+      BACKEND_UPSTREAM: ${BACKEND_INGRESS_IP:-172.30.84.3}:8000 ${BACKEND_STANDBY_INGRESS_IP:-172.30.84.5}:8000
       API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in .env}
+      API_MIRROR_DOMAINS: ${API_MIRROR_DOMAINS:-}
       ADMIN_DOMAIN: ${ADMIN_DOMAIN:?set ADMIN_DOMAIN in .env}
       APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN in .env}
       CABINET_DOMAIN: ${CABINET_DOMAIN:?set CABINET_DOMAIN in .env}

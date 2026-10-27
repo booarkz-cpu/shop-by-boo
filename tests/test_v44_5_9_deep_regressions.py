@@ -1,54 +1,133 @@
-from main_source import main_source
-from pathlib import Path
+"""v44.5.9: frozen trial terms, device re-activation, provider-event leases and auto-renew retries, checked by
+running the code (was: code lines searched in main.py, worker.py and payments.py).
+The retry of a lost trial extension is covered by test_integration_billing_vpn.py."""
+from datetime import datetime, timedelta
 
-ROOT=Path(__file__).parents[1]
-MAIN=main_source()
-WORKER=(ROOT/'backend/worker.py').read_text()
-MODELS=(ROOT/'backend/app/models.py').read_text()
-PAY=(ROOT/'backend/app/payments.py').read_text()
+import pytest
+from fastapi import HTTPException
+from sqlalchemy import select, text
+from starlette.requests import Request
 
-
-def test_trial_grant_freezes_entitlements_and_has_fixed_retry_target():
-    assert 'traffic_limit_gb_snapshot=plan.traffic_limit_gb' in MAIN
-    assert 'device_limit_snapshot=plan.device_limit' in MAIN
-    assert 'remnawave_profile_id_snapshot=plan.remnawave_profile_id' in MAIN
-    assert 'expected_before_expires_at' in MODELS
-    assert 'expected_after_expires_at' in MODELS
-    assert 'trial.expected_before_expires_at' in WORKER
-    assert 'trial.expected_after_expires_at' in WORKER
-
-
-def test_trial_retry_does_not_recalculate_target_after_remote_success():
-    assert 'extension=await rw.extend_idempotent(sub.remnawave_uuid,trial.days,before,after)' in WORKER
-    assert 'expected=trial.expires_at or (now+timedelta(days=trial.days))' in WORKER
+import worker
+from app import main as shop
+from app.models import AutoRenewMethod, Payment, Plan, TrialGrant, User
+from app_contract import columns
+from test_integration_billing_vpn import customer, give_trial, panel  # noqa: F401
+from test_money_review import _renewable, _scheduler_env
+from test_subscription_commerce import database  # noqa: F401
 
 
-def test_reviving_a_revoked_device_rechecks_limit():
-    assert 'if device_limit is not None and (not x or x.status != "active" or x.subscription_id!=sub.id):' in MAIN
+@pytest.mark.asyncio
+async def test_a_trial_keeps_the_terms_it_was_granted_with(customer, panel):  # noqa: F811
+    db = customer
+    await give_trial(db)
+    trial = await db.scalar(select(TrialGrant))
+    assert (trial.traffic_limit_gb_snapshot, trial.device_limit_snapshot) == (100, 2)
+    plan = await db.get(Plan, 1)
+    plan.traffic_limit_gb, plan.device_limit = 500, 9  # the plan changes before the worker runs
+    await db.commit()
+    await worker.run_next_job("test-worker")
+    remote = next(iter(panel.users.values()))
+    assert remote["trafficLimitBytes"] == 100 * 1024 ** 3, "the panel gets the terms frozen at the claim"
+    assert {"expected_before_expires_at", "expected_after_expires_at"} <= columns("trial_grants")
 
 
-def test_webhook_processing_event_can_be_reclaimed_after_stale_lease():
-    assert "payment_provider_events.status='processing'" in MAIN
-    assert "INTERVAL '10 minutes'" in MAIN
-    assert 'received_at=NOW()' in MAIN
+def device_request():
+    return Request({"type": "http", "method": "POST", "path": "/api/me/devices", "client": ("10.0.0.2", 1), "query_string": b"", "headers": []})
 
 
-def test_auto_renew_retries_provider_failed_attempt_with_new_idempotency_key():
-    assert 'get_payment_status' in PAY
-    assert 'order_id=f"{prefix}-retry-{failed_count+1}"' in MAIN
-    assert 'existing.status not in {"failed","canceled","cancelled"}' in MAIN
+@pytest.mark.asyncio
+async def test_a_revoked_device_counts_again_only_within_the_limit(database):
+    register = lambda key: shop.register_device(shop.DeviceRegisterIn(device_key=key * 16, subscription_id=1), device_request(), database)  # noqa: E731
+    phone = await register("a")
+    await register("b")
+    with pytest.raises(HTTPException) as third:
+        await register("c")
+    assert third.value.detail == "Достигнут лимит устройств тарифа", "plan limit: 2 devices"
+    await shop.revoke_device(phone["id"], None, database)
+    await register("c")
+    with pytest.raises(HTTPException) as revived:
+        await register("a")
+    assert revived.value.status_code == 409, "bringing a revoked device back checks the limit again"
+    assert (await register("b"))["status"] == "active", "an active device re-registers freely"
 
 
-def test_auto_renew_stores_immutable_payment_terms():
-    for x in ('duration_days_snapshot=plan.duration_days','traffic_limit_gb_snapshot=plan.traffic_limit_gb','device_limit_snapshot=plan.device_limit','remnawave_profile_id_snapshot=plan.remnawave_profile_id'):
-        assert x in MAIN
+@pytest.mark.asyncio
+async def test_a_stale_provider_event_lease_can_be_reclaimed(database):
+    if database.bind.dialect.name != "postgresql":
+        pytest.skip("provider event claims use PostgreSQL upserts")
+    assert await shop.register_provider_event(database, "yookassa", "evt-lease", None) is True
+    assert await shop.register_provider_event(database, "yookassa", "evt-lease", None) is False, "a fresh lease is respected"
+    await database.execute(text("UPDATE payment_provider_events SET received_at = NOW() - INTERVAL '11 minutes' WHERE event_id = 'evt-lease'"))
+    await database.commit()
+    assert await shop.register_provider_event(database, "yookassa", "evt-lease", None) is True, "a crashed worker's event is taken over"
 
 
-def test_existing_trial_subscription_applies_frozen_entitlements_remotely():
-    assert 'await rw.update_entitlements(sub.remnawave_uuid,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot)' in WORKER
+@pytest.mark.asyncio
+async def test_auto_renew_tries_three_times_with_new_keys_then_stops(database, monkeypatch):
+    charges = []
+    _scheduler_env(monkeypatch, database, charges)
+
+    async def cancelled(self, payment_id):
+        return "canceled"
+
+    async def charge(self, amount, order_id, desc, token):
+        charges.append((amount, order_id))
+        return {"id": f"yk-{len(charges)}"}
+    monkeypatch.setattr(shop.YooKassaProvider, "get_payment_status", cancelled)
+    monkeypatch.setattr(shop.YooKassaProvider, "charge_recurring", charge)
+    await _renewable(database)
+
+    async def next_pass():
+        sub = await database.get(shop.Subscription, 1)
+        sub.next_renewal_at = datetime.utcnow() - timedelta(minutes=1)  # the pause has passed
+        await database.commit()
+        await shop.run_auto_renew_pass(database)
+        return await database.scalar(select(AutoRenewMethod).execution_options(populate_existing=True))
+
+    await shop.run_auto_renew_pass(database)
+    method = await database.scalar(select(AutoRenewMethod).execution_options(populate_existing=True))
+    assert len(charges) == 1 and (method.failure_count, method.status) == (0, "active"), "«pending» right after the charge is no failure"
+    assert method.next_attempt_at - datetime.utcnow() <= timedelta(minutes=16), "the same charge is re-checked soon"
+    payment = await database.scalar(select(Payment).where(Payment.order_id == charges[0][1]))
+    assert (payment.duration_days_snapshot, payment.traffic_limit_gb_snapshot, payment.device_limit_snapshot) == (30, 100, 2)
+
+    method = await next_pass()  # the bank declined the first charge: a new key is used for the second
+    orders = [o for _, o in charges]
+    assert len(orders) == 2 and orders[1] == orders[0] + "-retry-2", "a failed attempt is retried under a new idempotency key"
+    assert (method.failure_count, method.status) == (1, "past_due")
+
+    method = await next_pass()
+    assert len(charges) == 3 and charges[2][1] == orders[0] + "-retry-3" and method.failure_count == 2
+
+    method = await next_pass()  # the third charge is declined too
+    assert (method.failure_count, method.status, method.enabled) == (3, "payment_failed", False)
+    assert (await database.get(User, 1, populate_existing=True)).auto_renew_enabled is False, "after three failures the customer pays by hand"
+    assert len(charges) == 3, "no fourth charge"
 
 
-def test_auto_renew_searches_all_attempts_before_new_charge():
-    assert 'Payment.order_id.like(prefix+"%")' in MAIN
-    assert 'Never create a second charge while the newest provider attempt' in MAIN
-    assert 'failed_count=sum(1 for item in attempts' in MAIN
+@pytest.mark.asyncio
+async def test_auto_renew_does_nothing_while_payments_are_closed(database, monkeypatch):
+    charges = []
+    _scheduler_env(monkeypatch, database, charges)
+
+    async def closed(*a):
+        return False
+    monkeypatch.setattr(shop, "production_payments_allowed", closed)
+    await _renewable(database)
+    await shop.run_auto_renew_pass(database)
+    assert charges == []
+
+
+@pytest.mark.asyncio
+async def test_an_error_for_one_customer_is_recorded_and_the_pass_goes_on(database, monkeypatch):
+    charges = []
+    _scheduler_env(monkeypatch, database, charges)
+
+    async def broken(self, *a):
+        raise RuntimeError("bank gateway 500")
+    monkeypatch.setattr(shop.YooKassaProvider, "charge_recurring", broken)
+    await _renewable(database)
+    await shop.run_auto_renew_pass(database)  # must not raise
+    method = await database.scalar(select(AutoRenewMethod).execution_options(populate_existing=True))
+    assert (method.failure_count, method.status) == (1, "past_due") and "bank gateway 500" in method.last_error

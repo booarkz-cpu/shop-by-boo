@@ -21,7 +21,7 @@ object XrayEngine {
     } catch (_: Throwable) { "" }
 
     /** Xray config: TUN inbound, the servers, automatic choice of the fastest, and what goes around the VPN. */
-    fun config(servers: List<VpnServer>, selected: String, bypassRussian: Boolean): String {
+    fun config(servers: List<VpnServer>, selected: String, bypassRussian: Boolean, extraDirect: List<String> = emptyList()): String {
         val outbounds = JSONArray()
         servers.forEach { outbounds.put(it.outbound) }
         outbounds.put(JSONObject().put("tag", "direct").put("protocol", "freedom"))
@@ -30,7 +30,8 @@ object XrayEngine {
         rules.put(JSONObject().put("type", "field").put("ip", JSONArray(listOf("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8",
             "169.254.0.0/16", "100.64.0.0/10", "fc00::/7", "fe80::/10"))).put("outboundTag", "direct"))
         if (bypassRussian) rules.put(JSONObject().put("type", "field")
-            .put("domain", JSONArray(listOf("regexp:\\.ru$", "regexp:\\.su$", "regexp:\\.xn--p1ai$", "domain:gosuslugi.ru", "domain:nalog.gov.ru")))
+            .put("domain", JSONArray(listOf("regexp:\\.ru$", "regexp:\\.su$", "regexp:\\.xn--p1ai$", "domain:gosuslugi.ru", "domain:nalog.gov.ru",
+                "domain:sberbank.com", "domain:vk.com", "domain:vk.me", "domain:userapi.com", "domain:yandex.net", "domain:yandex.com", "domain:yastatic.net") + extraDirect.map { "domain:$it" }))
             .put("outboundTag", "direct"))
         val chosen = servers.firstOrNull { it.name == selected }
         val routing = JSONObject().put("domainStrategy", "AsIs")

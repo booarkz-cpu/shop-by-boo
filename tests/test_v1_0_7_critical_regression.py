@@ -1,15 +1,23 @@
-from main_source import main_source
+"""1.0.7: fulfillment re-reads the customer under the lock; a deleted account gets nothing.
+Runs in test_integration_billing_vpn.py («a deleted customer gets no trial») and here for a paid order."""
+from datetime import datetime
+from decimal import Decimal
+
+import pytest
+
+from app import main as shop
+from app.models import Payment, User
+from test_integration_billing_vpn import panel  # noqa: F401
+from test_subscription_commerce import database  # noqa: F401
 
 
-def test_release_version_and_critical_fulfill_user_recheck_present():
-    main = main_source()
-    assert 'User is deleted or no longer available for fulfillment' in main
-    assert 'select(User).where(User.id==user.id).execution_options(populate_existing=True).with_for_update()' in main
-
-
-def test_fulfill_rechecks_user_after_user_lock_before_payment_lock():
-    main = main_source()
-    lock_pos = main.index('user_lock,user_token=await _acquire_user_fulfillment_lock(user.id,ttl=300)')
-    recheck_pos = main.index('select(User).where(User.id==user.id).execution_options(populate_existing=True).with_for_update()', lock_pos)
-    payment_pos = main.index('payment_lock, token = await _acquire_payment_side_effect_lock(payment_id)', recheck_pos)
-    assert lock_pos < recheck_pos < payment_pos
+@pytest.mark.asyncio
+async def test_a_paid_order_of_a_deleted_account_is_not_provisioned(database, panel, monkeypatch):  # noqa: F811
+    monkeypatch.setattr(shop, "redis_client", object())
+    database.add(Payment(id=99, user_id=1, subscription_id=1, plan_id=1, provider="yookassa", order_id="o-99", amount=Decimal("100"),
+                         currency="RUB", status="paid", fulfillment_status="pending", idempotency_key="k-99", duration_days_snapshot=30))
+    (await database.get(User, 1)).deleted_at = datetime.utcnow()
+    await database.commit()
+    with pytest.raises(Exception, match="deleted"):
+        await shop.fulfill(99, database)
+    assert panel.calls == []

@@ -1,3 +1,4 @@
+import pytest
 from main_source import main_source
 import re
 from pathlib import Path
@@ -33,11 +34,27 @@ def test_all_webhooks_ignore_late_success_for_refunded_payments():
         assert 'payment_already_refunded' in block
 
 
-def test_provider_verification_can_validate_immutable_order_id():
-    assert 'expected_order_id: str|None = None' in PAYMENTS
-    assert 'metadata") or {}).get("order_id")' in PAYMENTS
-    assert 'd.get("payload") or d.get("Payload")' in PAYMENTS
-    assert 'd.get("order_id") or ""' in PAYMENTS
+@pytest.mark.asyncio
+async def test_provider_verification_checks_the_stored_order_id(monkeypatch):
+    from decimal import Decimal
+
+    from app import payments
+    answer = {"id": "yk-1", "status": "succeeded", "paid": True, "amount": {"value": "100.00", "currency": "RUB"}, "metadata": {"order_id": "o-1"}}
+
+    from contextlib import asynccontextmanager
+
+    class Client:
+        async def get(self, url, auth=None):
+            return type("R", (), {"status_code": 200, "json": lambda self: answer})()
+
+    @asynccontextmanager
+    async def client(timeout):
+        yield Client()
+    monkeypatch.setattr(payments, "_public_client", client)
+    provider = payments.YooKassaProvider()
+    assert await provider.verify_succeeded("yk-1", Decimal("100"), "RUB", "o-1") is True
+    assert await provider.verify_succeeded("yk-1", Decimal("100"), "RUB", "o-2") is False, "another order's payment does not count"
+    assert await provider.verify_succeeded("yk-1", Decimal("99"), "RUB", "o-1") is False
 
 
 def test_admin_retry_rejects_refunded_payment():
@@ -50,11 +67,7 @@ def test_release_is_44_5_20_and_build_has_yaml_dependency():
     assert re.search(r'^PyYAML==\d', REQ, re.M), 'PyYAML must stay an exact pinned dependency'
 
 
-def test_auto_renew_serializes_paid_transition_with_payment_side_effect_lock():
-    block = _block('async def auto_renew_scheduler():', 'async def reconciliation_scheduler():')
-    assert block.count('payment_lock, payment_token = await _acquire_payment_side_effect_lock') >= 2
-    assert 'existing.status in {"refunded", "refunded_pending_revoke"}' in block
-    assert 'p.status in {"refunded", "refunded_pending_revoke"}' in block
+# The paid transition of auto-renew takes the payment lock: test_v1_0_9_critical_regressions.py.
 
 
 def test_reconciliation_passes_immutable_order_to_provider_verification():

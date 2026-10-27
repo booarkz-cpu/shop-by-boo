@@ -1,4 +1,3 @@
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,10 +24,12 @@ def test_pinned_images_are_written_to_compose_env():
 
 
 def test_money_inputs_use_decimal():
-    main = main_source()
-    models = (ROOT / "backend/app/models.py").read_text()
-    payments = (ROOT / "backend/app/payments.py").read_text()
-    assert "price: Decimal = Field" in main
-    assert "price: Mapped[Decimal]" in models
-    assert "expected_amount: Decimal" in payments
+    from decimal import Decimal
+
+    from sqlalchemy import Numeric
+
+    from app import main as shop
+    from app_contract import tables
+    assert shop.PlanIn.model_fields["price"].annotation is Decimal
+    assert isinstance(tables()["plans"].c.price.type, Numeric) and isinstance(tables()["payments"].c.amount.type, Numeric)
 

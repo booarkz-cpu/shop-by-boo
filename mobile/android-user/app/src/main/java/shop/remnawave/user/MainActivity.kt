@@ -40,6 +40,10 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Checkbox
@@ -137,6 +141,7 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CorgiTrust.appContext = applicationContext
+        shop.remnawave.user.security.CorgiMirrors.init(applicationContext)
         LoginLink.parse(intent?.data)?.let { pendingLogin.value = it }
         paymentOrder(intent?.data)?.let { pendingPayment.value = it }
         // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true.
@@ -251,7 +256,7 @@ fun safeMediaPath(path: String): String? {
 
 fun loadLogoBitmap(base: String, path: String): android.graphics.Bitmap? {
     val safe = safeMediaPath(path) ?: return null
-    val connection = (URL(base + safe).openConnection() as HttpURLConnection).apply {
+    val connection = (URL(shop.remnawave.user.security.CorgiMirrors.resolve(base) + safe).openConnection() as HttpURLConnection).apply {
         instanceFollowRedirects = false
         connectTimeout = 15000
         readTimeout = 15000
@@ -278,9 +283,23 @@ class ShopApi(private val base: String, private val token: String, private val l
     fun delete(path: String): Any = call("DELETE", path, null, null, emptyMap())
 
     private fun call(method: String, path: String, body: JSONObject?, idempotency: String?, headers: Map<String, String>): Any {
+        val origin = shop.remnawave.user.security.CorgiMirrors.resolve(base)
+        return try {
+            send(origin, method, path, body, idempotency, headers)
+        } catch (exc: java.io.IOException) {
+            // Blocked or unreachable address: move to a signed reserve address. A request is repeated there
+            // only when it surely never reached the server (or is a GET), so nothing is paid or sent twice.
+            val next = shop.remnawave.user.security.CorgiMirrors.failover(base, origin) ?: throw exc
+            val unsent = exc is java.net.UnknownHostException || exc is java.net.ConnectException || exc is javax.net.ssl.SSLHandshakeException
+            if (method != "GET" && !unsent) throw exc
+            send(next, method, path, body, idempotency, headers)
+        }
+    }
+
+    private fun send(origin: String, method: String, path: String, body: JSONObject?, idempotency: String?, headers: Map<String, String>): Any {
         // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
         val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify", "/api/auth/mobile/code")) pkceVerifier() else null
-        val connection = (URL(base + path).openConnection() as HttpURLConnection).apply {
+        val connection = (URL(origin + path).openConnection() as HttpURLConnection).apply {
             requestMethod = method
             instanceFollowRedirects = false
             connectTimeout = 15000
@@ -306,6 +325,8 @@ class ShopApi(private val base: String, private val token: String, private val l
         CorgiTrust.verify(connection)
         if (body != null) connection.outputStream.use { it.write(body.toString().toByteArray()) }
         val code = connection.responseCode
+        // /api/me/sync answers 304 when the account did not change.
+        if (code == 304) return JSONObject()
         val text = (if (code in 200..299) connection.inputStream else connection.errorStream)?.bufferedReader()?.use { it.readText() }.orEmpty()
         if (code !in 200..299) throw IllegalStateException(detailOf(text, code))
         val trimmed = text.trim()
@@ -507,6 +528,8 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 try { CorgiPush.register(context, base, token, lang) } catch (_: Exception) { }
             }
             if (CorgiWidgetData.enabled(context)) CorgiWidgetData.refresh(context)
+            // Keep the signed reserve-address list fresh while the main address works.
+            if (!demo) shop.remnawave.user.security.CorgiMirrors.learn(base)
             try {
                 val servers = api.get("/api/me/servers") as JSONObject
                 // Node names that look like addresses are never shown (publicNode).
@@ -798,6 +821,26 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     LaunchedEffect(token, lang, unlocked) {
         if (demo) return@LaunchedEffect
         if (token.isNotBlank() && unlocked) refresh()
+    }
+    // One account state with the bot, the cabinet and the Mini App: a payment, renewal or admin change
+    // made anywhere re-reads the screens here within seconds. Paused while the app is in the background.
+    LaunchedEffect(token, unlocked, base) {
+        if (demo || token.isBlank() || !unlocked) return@LaunchedEffect
+        var version = ""
+        while (isActive) {
+            if (!activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) { delay(5000); continue }
+            val next = withContext(Dispatchers.IO) {
+                try {
+                    val query = if (version.isEmpty()) "" else "?since=" + Uri.encode(version) + "&wait=10"
+                    (ShopApi(base, token, lang).get("/api/me/sync$query") as JSONObject).optString("version")
+                } catch (_: Exception) { null }
+            }
+            when {
+                next == null -> delay(20000)
+                next.isEmpty() -> Unit
+                else -> { if (version.isNotEmpty() && next != version) refresh(); version = next }
+            }
+        }
     }
     LaunchedEffect(base) {
         val normalized = try { normalizeBase(base) } catch (_: Exception) { return@LaunchedEffect }
@@ -1132,7 +1175,7 @@ private fun ShopDialog(
 
 private fun loadAuthedPng(base: String, path: String, token: String, lang: String): ImageBitmap? {
 
-    val connection = (URL(base + path).openConnection() as HttpURLConnection).apply {
+    val connection = (URL(shop.remnawave.user.security.CorgiMirrors.resolve(base) + path).openConnection() as HttpURLConnection).apply {
         instanceFollowRedirects = false
         connectTimeout = 15000
         readTimeout = 15000

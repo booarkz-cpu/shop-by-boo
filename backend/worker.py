@@ -59,7 +59,7 @@ async def run_next_job(worker_id: str) -> bool:
                                         after=before+timedelta(days=trial.days)
                                         trial.expected_before_expires_at=before; trial.expected_after_expires_at=after
                                         await edb.commit()
-                                    await rw.update_entitlements(sub.remnawave_uuid,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot)
+                                    await rw.update_entitlements(sub.remnawave_uuid,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot,device_limit=trial.device_limit_snapshot)
                                     extension=await rw.extend_idempotent(sub.remnawave_uuid,trial.days,before,after)
                                     verified_expiry=extension.get("expires_at") if isinstance(extension,dict) else None
                                     sub.expires_at=max(after,verified_expiry or after); sub.plan_id=plan.id; sub.traffic_limit_gb_snapshot=trial.traffic_limit_gb_snapshot; sub.device_limit_snapshot=trial.device_limit_snapshot; sub.remnawave_profile_id_snapshot=trial.remnawave_profile_id_snapshot
@@ -77,7 +77,7 @@ async def run_next_job(worker_id: str) -> bool:
                                         # Trial entitlements are immutable snapshots. Do not let a
                                         # later admin edit to Plan change the traffic/profile of a
                                         # trial that was already granted.
-                                        await rw.update_entitlements(remote_id,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot)
+                                        await rw.update_entitlements(remote_id,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot,device_limit=trial.device_limit_snapshot)
                                         remote_expiry=await rw.get_expiry(remote_id)
                                         target_expiry=max(expected, remote_expiry or expected)
                                         if not remote_expiry or remote_expiry < target_expiry:
@@ -88,7 +88,7 @@ async def run_next_job(worker_id: str) -> bool:
                                             data=await rw.get_user(remote_id)
                                     else:
                                         traffic=trial.traffic_limit_gb_snapshot*1024**3 if trial.traffic_limit_gb_snapshot else 0
-                                        data=await rw.create_user(username,expected,traffic,active_internal_squads=[trial.remnawave_profile_id_snapshot] if trial.remnawave_profile_id_snapshot else None,telegram_id=user.telegram_id)
+                                        data=await rw.create_user(username,expected,traffic,active_internal_squads=[trial.remnawave_profile_id_snapshot] if trial.remnawave_profile_id_snapshot else None,telegram_id=user.telegram_id,device_limit=trial.device_limit_snapshot)
                                     if not sub: sub=Subscription(user_id=user.id,plan_id=plan.id); edb.add(sub)
                                     sub.plan_id=plan.id; sub.remnawave_uuid=str(data.get("id"))
                                     # Never move the local expiry backwards if a prior
@@ -122,14 +122,31 @@ async def run_next_job(worker_id: str) -> bool:
                         if j and j.status=="processing":
                             j.status="failed" if j.attempts>=j.max_attempts else "queued"; j.error=str(exc)[:2000]; j.locked_at=None; j.worker_id=None; j.next_retry_at=datetime.utcnow()+timedelta(seconds=min(3600,60*(2**max(0,j.attempts-1))))
                             await edb.commit()
+            elif job.kind=="bonus_days":
+                from app.bonus_days import apply_bonus_days
+                payload=job.payload or {}
+                try:
+                    async with AsyncSession(main.engine,expire_on_commit=False) as edb:
+                        await apply_bonus_days(edb,job.job_key,int(payload["user_id"]),int(payload["days"]),str(payload.get("reason") or "referral"))
+                    async with AsyncSession(main.engine,expire_on_commit=False) as edb:
+                        j=await edb.get(Job,job.id); j.status="completed"; j.completed_at=datetime.utcnow(); j.locked_at=None; j.worker_id=None; j.error=None; await edb.commit()
+                except Exception as exc:
+                    logger.exception("bonus days job %s failed",job.id)
+                    async with AsyncSession(main.engine,expire_on_commit=False) as edb:
+                        j=await edb.get(Job,job.id)
+                        if j: j.status="failed" if j.attempts>=j.max_attempts else "queued"; j.error=str(exc)[:2000]; j.locked_at=None; j.worker_id=None; j.next_retry_at=datetime.utcnow()+timedelta(seconds=min(3600,60*(2**max(0,j.attempts-1)))); await edb.commit()
             else:
                 async with AsyncSession(main.engine,expire_on_commit=False) as edb:
                     j=await edb.get(Job,job.id)
                     if j: j.status="failed"; j.error=f"Unsupported job kind: {job.kind}"; j.locked_at=None; j.worker_id=None; await edb.commit()
     return True
 
+def worker_identity() -> str:
+    """Unique per process: role, host and pid (two workers on one host never share a lease)."""
+    return os.getenv("WORKER_ID") or f"{settings.worker_role}:{socket.gethostname()}:{os.getpid()}"
+
 async def job_worker():
-    worker_id=os.getenv("WORKER_ID") or f"{settings.worker_role}:{socket.gethostname()}:{os.getpid()}"
+    worker_id=worker_identity()
     while True:
         try:
             await run_next_job(worker_id)
@@ -155,7 +172,7 @@ async def health_alert_worker():
         await asyncio.sleep(300)
 
 async def worker_heartbeat():
-    worker_id=os.getenv("WORKER_ID") or f"{settings.worker_role}:{socket.gethostname()}:{os.getpid()}"
+    worker_id=worker_identity()
     while True:
         try:
             now=datetime.utcnow()

@@ -1,7 +1,15 @@
-from main_source import main_source
+import ast
 import importlib.util
 from datetime import datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+from fastapi import HTTPException
+
+from app import main as shop
+from app_contract import columns, missing_routes, revision, tables
+from test_subscription_commerce import database  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -76,40 +84,68 @@ def test_cgnat_buffer_and_hosting_skip():
     assert any(hit["name"] == "geo" for hit in far["analyzers"])
 
 
-def test_platform_routes_keep_secrets_and_bounds():
-    main = main_source()
-    platform = (ROOT / "backend/app/platform_api.py").read_text()
-    models = (ROOT / "backend/app/models.py").read_text()
-    migration = (ROOT / "backend/alembic/versions/0038_v2_6_0_platform.py").read_text()
-    bot = (ROOT / "backend/app/bot.py").read_text()
-    agent = (ROOT / "scripts/node-agent.py").read_text()
-    assert "from .platform_api import router as platform_router" in main
-    assert "app.include_router(platform_router)" in main
-    assert "reject_restricted" in main
-    assert "Доступ ограничен" in platform
-    assert "Устройство в чёрном списке" in main
-    assert '"/api/agent/heartbeat": 120' in main
-    assert "prometheus_lines" in main
-    summary = platform.split("async def platform_summary", 1)[1].split("@router.put", 1)[0]
-    assert "token_hash" not in summary
-    assert "secret_hash" not in summary
-    assert "secret_encrypted" not in summary
-    assert '"auto_hard_block": False' in platform
-    assert "message[\"To\"] = admin.email" in platform
-    assert "X-Shop-Signature" in platform
-    assert '@router.get("/api/v3/status")' in platform
-    assert "rw_" in platform
-    assert 'revision = "0038_v2_6_0_platform"' in migration
-    assert 'down_revision = "0037_v2_5_0_tariff_constructor"' in migration
-    assert "class ConnectionObservation" in models
-    assert "restricted_at" in models
-    assert 'Command("ops")' in bot
-    assert "admin_telegram_id" in bot
-    assert "shell=True" not in agent
-    assert "os.system" not in agent
-    assert "AGENT_APPLY_TC" in agent
-    assert "X-Agent-Token" in agent
-    assert '"throttle", "clear"' in agent
+def test_platform_routes_and_schema():
+    assert not missing_routes("GET /api/admin/platform/summary", "PUT /api/admin/platform/policy", "GET /api/v3/status")
+    assert shop.RATE_LIMITS["/api/agent/heartbeat"] == 120
+    assert revision("0038_v2_6_0_platform").down_revision == "0037_v2_5_0_tariff_constructor"
+    assert "connection_observations" in tables() and "restricted_at" in columns("users")
+    from app import platform_api
+    assert platform_api.DEFAULT_POLICY["auto_hard_block"] is False, "hard blocking is the owner's decision"
+
+
+@pytest.mark.asyncio
+async def test_platform_summary_never_returns_secrets(database):
+    from app.models import NodeAgent, OutboundWebhook, ShopApiKey
+    from app.platform_api import platform_summary
+    database.add_all([ShopApiKey(name="crm", prefix="sk_live", secret_hash="HASH-OF-KEY"),
+                      OutboundWebhook(url="https://crm.example/hook", secret_encrypted="ENCRYPTED-SECRET"),
+                      NodeAgent(name="de-1", token_hash="AGENT-TOKEN-HASH")])
+    await database.commit()
+    out = await platform_summary(database, SimpleNamespace(email="a@b.c"))
+    text = str(out)
+    assert out["api_keys"][0]["prefix"] == "sk_live" and out["agents"][0]["name"] == "de-1"
+    for secret in ("HASH-OF-KEY", "ENCRYPTED-SECRET", "AGENT-TOKEN-HASH"):
+        assert secret not in text
+
+
+def test_a_restricted_customer_is_refused():
+    from app.platform_api import reject_restricted
+    reject_restricted(SimpleNamespace(restricted_at=None))
+    with pytest.raises(HTTPException) as refused:
+        reject_restricted(SimpleNamespace(restricted_at=datetime(2026, 1, 1)))
+    assert (refused.value.status_code, refused.value.detail) == (403, "Доступ ограничен")
+
+
+@pytest.mark.asyncio
+async def test_a_blacklisted_device_cannot_be_registered(database):
+    from app.models import DeviceBlacklist
+    database.add(DeviceBlacklist(hwid="h" * 20, action="block"))
+    await database.commit()
+    with pytest.raises(HTTPException) as refused:
+        await shop.register_device(shop.DeviceRegisterIn(device_key="h" * 20), None, database)
+    assert (refused.value.status_code, refused.value.detail) == (403, "Устройство в чёрном списке")
+
+
+def test_node_agent_runs_no_shell():
+    tree = ast.parse((ROOT / "scripts/node-agent.py").read_text())
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
+    assert not any(k.arg == "shell" and getattr(k.value, "value", False) is True for c in calls for k in c.keywords)
+    assert not any(isinstance(c.func, ast.Attribute) and c.func.attr == "system" for c in calls)
+    strings = {n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+    assert {"AGENT_APPLY_TC", "X-Agent-Token", "throttle", "clear"} <= strings
+
+
+@pytest.mark.asyncio
+async def test_ops_command_is_for_the_owner_only(monkeypatch):
+    from app import bot
+    monkeypatch.setattr(bot.settings, "admin_telegram_id", 111)
+    answers = []
+
+    async def answer(text, **kw):
+        answers.append(text)
+    stranger = SimpleNamespace(from_user=SimpleNamespace(id=222, language_code="ru"), answer=answer, text="/ops")
+    await bot.ops(stranger)
+    assert answers == [bot._tr("ru", "ops_denied")], "anyone but the owner gets a refusal and no figures"
 
 
 def test_license_and_bilingual_platform_docs():

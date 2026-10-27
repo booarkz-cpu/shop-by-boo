@@ -1,46 +1,77 @@
-from main_source import main_source
+import io
 import re
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+from fastapi import HTTPException
+
+from app import main as shop
+from app.models import AppSetting
+from app_contract import permissions
+from test_subscription_commerce import database  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = main_source()
 REQ = (ROOT / "backend/requirements.txt").read_text()
-BUILD = (ROOT / "scripts/build-release.sh").read_text()
-INSTALL = (ROOT / "deploy/install-vps.sh").read_text()
 MANIFEST = (ROOT / "release-manifest.template.json").read_text()
 UI = (ROOT / "admin/src/main.tsx").read_text()
 CSS = (ROOT / "admin/src/style.css").read_text()
 
 
-def test_public_branding_has_safe_defaults_and_no_secret_settings():
-    assert '/api/public/branding' in MAIN
-    assert '/api/public/branding' in MAIN
-    assert 'app_secret' not in MAIN[MAIN.index('/api/public/branding'):MAIN.index('@app.get("/api/admin/content")')]
+@pytest.mark.asyncio
+async def test_public_branding_has_safe_defaults_and_no_secret_settings(database):
+    assert await shop.public_branding(database) == {"name": "Корги Люси", "logo_url": "", "favicon_url": "", "theme_default": "dark"}
+    database.add_all([AppSetting(key="app_name", value="VPN Корги"), AppSetting(key="theme_default", value="neon"),
+                      AppSetting(key="yookassa_secret_key", value="live_SECRET")])
+    await database.commit()
+    out = await shop.public_branding(database)
+    assert out["name"] == "VPN Корги" and out["theme_default"] == "dark", "an unknown theme falls back"
+    assert "live_SECRET" not in str(out)
 
 
-def test_branding_assets_are_server_generated_and_reencoded():
-    assert '_store_branding_image' in MAIN
-    assert 'ImageOps.exif_transpose' in MAIN
-    assert 'im.save(out,"PNG",optimize=True)' in MAIN
-    assert 'pathlib.Path(old.removeprefix("/media/")).name' in MAIN
-    assert 'app_logo' in MAIN and 'app_favicon' in MAIN
+def _upload(data: bytes, content_type="image/png"):
+    from starlette.datastructures import Headers, UploadFile
+    return UploadFile(file=io.BytesIO(data), filename="logo", headers=Headers({"content-type": content_type}))
 
 
-def test_branding_uploads_are_authenticated_and_permission_gated():
-    assert '@app.post("/api/admin/branding/logo")' in MAIN
-    assert '@app.post("/api/admin/branding/favicon")' in MAIN
-    assert 'Depends(require_permission("manage_content"))' in MAIN
+@pytest.mark.asyncio
+async def test_branding_images_are_re_encoded_and_old_files_removed(database, monkeypatch, tmp_path):
+    from PIL import Image
+    monkeypatch.setattr(shop.settings, "media_dir", str(tmp_path))
+    raw = io.BytesIO()
+    Image.new("RGB", (1200, 800), "orange").save(raw, "JPEG")
+    url = await shop._store_branding_image(_upload(raw.getvalue(), "image/jpeg"), "favicon", 512 * 1024)
+    stored = tmp_path / url.removeprefix("/media/")
+    with Image.open(stored) as im:
+        assert im.format == "PNG" and max(im.size) == 512, "a favicon is re-encoded to PNG and scaled down"
+    for bad, kind in ((b"<svg onload=alert(1)>", "image/svg+xml"), (b"not an image", "image/png")):
+        with pytest.raises(HTTPException) as refused:
+            await shop._store_branding_image(_upload(bad, kind), "logo")
+        assert refused.value.status_code == 400
+    await shop._replace_branding_file(database, "app_favicon", url)
+    await database.commit()
+    second = await shop._store_branding_image(_upload(raw.getvalue(), "image/jpeg"), "favicon", 512 * 1024)
+    await shop._replace_branding_file(database, "app_favicon", second)
+    await database.commit()
+    assert not stored.exists() and (tmp_path / second.removeprefix("/media/")).exists(), "the replaced file is deleted"
 
 
-def test_app_name_has_reasonable_business_limit():
-    segment = MAIN[MAIN.index('@app.put("/api/admin/settings/{key}")'):MAIN.index('@app.post("/api/admin/branding/logo")')]
-    assert "len(payload.value.strip())>255" in segment
+def test_branding_uploads_are_permission_gated():
+    for path in ("/api/admin/branding/logo", "/api/admin/branding/favicon"):
+        assert permissions("POST", path) == {"manage_content"}
+    assert permissions("PUT", "/api/admin/settings/{key}") == {"manage_content"}
 
 
-def test_branding_setting_allowlist_does_not_expose_secrets():
-    segment = MAIN[MAIN.index('@app.put("/api/admin/settings/{key}")'):MAIN.index('@app.post("/api/admin/branding/logo")')]
-    assert 'app_name' in segment and 'theme_default' in segment
-    assert 'app_secret' not in segment and 'yookassa_secret_key' not in segment
+@pytest.mark.asyncio
+async def test_content_managers_change_only_public_branding_settings(database):
+    admin = SimpleNamespace(email="a@b.c")
+    for key, value, status in (("yookassa_secret_key", "x", 403), ("app_secret", "x", 403), ("app_name", "x" * 256, 400),
+                               ("app_name", "   ", 400), ("theme_default", "neon", 400)):
+        with pytest.raises(HTTPException) as refused:
+            await shop.admin_setting(key, shop.SettingIn(value=value), database, admin)
+        assert refused.value.status_code == status, key
+    await shop.admin_setting("app_name", shop.SettingIn(value="Корги VPN"), database, admin)
+    assert (await database.get(AppSetting, "app_name")).value == "Корги VPN"
 
 
 def test_frontend_supports_light_dark_theme_and_custom_branding():

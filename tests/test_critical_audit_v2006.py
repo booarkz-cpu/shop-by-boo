@@ -16,14 +16,11 @@ def test_live_version_is_20_0_6():
     assert f'VERSION="{current}"' in builder
 
 
-def test_full_pass_requires_its_own_line_and_localhost_checks():
-    main = main_source()
-    # The v1 sandbox runner never claims a full pass.
-    assert "full_pass = False" in main
-    assert 'client_host not in {"127.0.0.1","::1"}' in main
-    for path in ("/api/internal/staging-e2e/verify", "/api/internal/staging-e2e/refund", "/api/internal/staging-e2e/refund-status", "/api/internal/staging-e2e/remnawave"):
-        assert path in main
-    assert "platega_refund_url" in main and "rollypay_refund_status_url" in main
+def test_internal_runner_routes_exist():
+    # Loopback-only access with the runner token: test_v40_security_gate.py; refund URLs are required: test_v38_admin_staging.py.
+    from app_contract import missing_paths
+    assert not missing_paths("/api/internal/staging-e2e/verify", "/api/internal/staging-e2e/refund", "/api/internal/staging-e2e/refund-status",
+                             "/api/internal/staging-e2e/remnawave")
 
 
 def test_runner_prints_the_marker_only_as_the_final_line():

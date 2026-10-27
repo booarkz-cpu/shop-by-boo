@@ -13,6 +13,11 @@ async def _advisory_lock(db: shop.AsyncSession, key: int) -> None:
     if bind is not None and bind.dialect.name == "postgresql":
         await db.execute(shop.sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": key})
 
+def _checkout_provider(name: str):
+    """One map for every routable gateway: a reserve gateway first in line (main one in cooldown) must work."""
+    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"sandbox":shop.SandboxProvider}
+    return factories[name]()
+
 async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
     names=shop.routing_names(shop.payments_sandbox_allowed())
     # Provider health rows are lazily bootstrapped. Serialize that bootstrap so
@@ -43,6 +48,8 @@ async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
         "yookassa": bool(shop.settings.yookassa_shop_id and shop.settings.yookassa_secret_key and shop.settings.yookassa_webhook_ip_allowlist),
         "platega": bool(shop.settings.platega_merchant_id and shop.settings.platega_secret),
         "rollypay": bool(shop.settings.rollypay_api_key and shop.settings.rollypay_signing_secret),
+        "cryptobot": bool(shop.settings.cryptobot_token),
+        "freekassa": shop.FreekassaProvider.configured(),
         "sandbox": shop.payments_sandbox_allowed(),
     }
     enabled=[x.provider for x in rows
@@ -251,7 +258,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         provider_order=await shop._payment_provider_order(db,requested_provider)
         if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
         provider_name=provider_order[0]
-        provider={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"sandbox":shop.SandboxProvider()}[provider_name]
+        provider=_checkout_provider(provider_name)
         order_id=canonical_order_id
         lock_key=f"lock:payment-create:{shop.hashlib.sha256(canonical_order_id.encode()).hexdigest()}"
         try:
@@ -267,7 +274,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         reservation=None; payment_row=None
         try:
             candidate=provider_order[0]
-            candidate_provider={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"sandbox":shop.SandboxProvider()}[candidate]
+            candidate_provider=_checkout_provider(candidate)
             # Re-check after acquiring the distributed lock so two first-time callers cannot
             # create two durable intents for the same idempotency key.
             existing=(await db.execute(shop.select(shop.Payment).where(shop.Payment.order_id==order_id).execution_options(populate_existing=True).with_for_update())).scalar_one_or_none()
@@ -686,6 +693,8 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
                 db.add(shop.PromoRedemption(promo_code_id=promo_row.id,user_id=user.id,payment_id=payment.id))
         from .referral_program import credit as credit_referrals
         await credit_referrals(db, payment, user.id)
+        from .bonus_days import queue_referral_bonus
+        await queue_referral_bonus(db, payment)
         from .partners import credit as credit_partner
         await credit_partner(db, payment)
         await shop.audit(db,"payment.fulfilled","system",str(payment.id),{"provider":payment.provider,"attempt":payment.fulfillment_attempts})
@@ -902,7 +911,66 @@ async def rollypay_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depend
     return {"ok":True}
 
 
-__all__ = ['_LOCK_RENEW_TASKS', '_SAFE_LOCK_MESSAGES', '_acquire_payment_side_effect_lock', '_acquire_redis_lock', '_acquire_user_fulfillment_lock', '_advisory_lock', '_confirm_and_fulfill_payment', '_external_refund', '_ip_allowed', '_lock_conflict', '_payment_provider_order', '_release_payment_side_effect_lock', '_renew_redis_lock', 'bind_provider_payment_id', 'create_payment', 'ensure_required_channel', 'finish_provider_event', 'fulfill', 'payment_by_provider', 'payment_by_provider_or_order', 'platega_webhook', 'register_provider_event', 'release_promo_reservation', 'reserve_promo', 'rollypay_webhook', 'yookassa_webhook']
+
+@shop.app.post("/api/webhooks/cryptobot")
+async def cryptobot_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depends(shop.get_db)):
+    """Crypto Pay «invoice_paid»: signature (HMAC-SHA256 with SHA-256 of the token), then the invoice is re-read
+    from Crypto Pay (status, RUB amount and the order id in its payload) before fulfillment."""
+    raw=await request.body()
+    try: d=shop.CryptoBotProvider().verify_webhook(dict(request.headers),raw)
+    except Exception: raise shop.HTTPException(403,"Invalid signature")
+    if str(d.get("update_type") or "")!="invoice_paid": return {"ok":True}
+    invoice=d.get("payload") or {}
+    pid=str(invoice.get("invoice_id") or ""); order_id=str(invoice.get("payload") or "")
+    if not pid: return {"ok":True}
+    event_id=f"invoice_paid:{pid}"
+    p=await shop.payment_by_provider_or_order(db,"cryptobot",pid,order_id or None)
+    if not p: return {"ok":True}
+    if order_id and order_id != p.order_id: raise shop.HTTPException(403,"Order mismatch")
+    if not await shop.CryptoBotProvider().verify_succeeded(pid,shop.Decimal(str(p.amount)),p.currency,p.order_id): raise shop.HTTPException(503,"Payment verification unavailable")
+    if not p.provider_payment_id:
+        await shop.bind_provider_payment_id(db,p,pid)
+    if not await shop.register_provider_event(db,"cryptobot",event_id,p.id): await db.rollback(); return {"ok":True,"duplicate":True}
+    await db.commit()
+    try:
+        result=await shop._confirm_and_fulfill_payment(p.id,db)
+        async with shop.AsyncSession(shop.engine,expire_on_commit=False) as edb: await shop.finish_provider_event(edb,"cryptobot",event_id,ok=True); await edb.commit()
+        if result.get("ignored"): return {"ok":True,"ignored":True,"reason":"payment_already_refunded"}
+    except Exception as exc:
+        async with shop.AsyncSession(shop.engine,expire_on_commit=False) as edb: await shop.finish_provider_event(edb,"cryptobot",event_id,ok=False,error=str(exc)); await edb.commit()
+        raise
+    return {"ok":True}
+
+@shop.app.api_route("/api/webhooks/freekassa", methods=["GET","POST"])
+async def freekassa_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depends(shop.get_db)):
+    """Freekassa payment notification (GET or form POST): Freekassa's address and SIGN (secret word 2), then the order
+    is re-read through API v1 (paid, amount, currency) before fulfillment. Freekassa repeats the call until it reads «YES»."""
+    from fastapi.responses import PlainTextResponse
+    params=dict(request.query_params)
+    if request.method=="POST":
+        try: params.update({k:str(v) for k,v in (await request.form()).items()})
+        except Exception: raise shop.HTTPException(400,"Invalid form")
+    try: shop.FreekassaProvider().verify_notification(params,shop._client_ip(request))
+    except Exception: raise shop.HTTPException(403,"Invalid signature")
+    order_id=str(params.get("MERCHANT_ORDER_ID") or ""); intid=str(params.get("intid") or "")
+    if not order_id: return PlainTextResponse("YES")
+    event_id=f"paid:{intid or order_id}"
+    p=await shop.payment_by_provider_or_order(db,"freekassa",order_id,order_id)
+    if not p: return PlainTextResponse("YES")
+    if p.provider!="freekassa": raise shop.HTTPException(403,"Order mismatch")
+    if shop.Decimal(str(params.get("AMOUNT") or "0"))!=shop.Decimal(str(p.amount)): raise shop.HTTPException(403,"Amount mismatch")
+    if not await shop.FreekassaProvider().verify_succeeded(order_id,shop.Decimal(str(p.amount)),p.currency,p.order_id): raise shop.HTTPException(503,"Payment verification unavailable")
+    if not await shop.register_provider_event(db,"freekassa",event_id,p.id): await db.rollback(); return PlainTextResponse("YES")
+    await db.commit()
+    try:
+        await shop._confirm_and_fulfill_payment(p.id,db)
+        async with shop.AsyncSession(shop.engine,expire_on_commit=False) as edb: await shop.finish_provider_event(edb,"freekassa",event_id,ok=True); await edb.commit()
+    except Exception as exc:
+        async with shop.AsyncSession(shop.engine,expire_on_commit=False) as edb: await shop.finish_provider_event(edb,"freekassa",event_id,ok=False,error=str(exc)); await edb.commit()
+        raise
+    return PlainTextResponse("YES")
+
+__all__ = ['_LOCK_RENEW_TASKS', '_SAFE_LOCK_MESSAGES', '_acquire_payment_side_effect_lock', '_acquire_redis_lock', '_acquire_user_fulfillment_lock', '_advisory_lock', '_confirm_and_fulfill_payment', '_external_refund', '_ip_allowed', '_lock_conflict', '_payment_provider_order', '_release_payment_side_effect_lock', '_renew_redis_lock', 'bind_provider_payment_id', 'create_payment', 'ensure_required_channel', 'finish_provider_event', 'fulfill', 'payment_by_provider', 'payment_by_provider_or_order', 'cryptobot_webhook', 'freekassa_webhook', 'platega_webhook', 'register_provider_event', 'release_promo_reservation', 'reserve_promo', 'rollypay_webhook', 'yookassa_webhook']
 # Imported before main finished (``from app import payments_api`` first)? Then main's star
 # import saw a half-loaded module; hand the names over now that they exist.
 shop.__dict__.update({_n: globals()[_n] for _n in __all__})

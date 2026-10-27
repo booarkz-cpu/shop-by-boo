@@ -8,8 +8,7 @@ from app import main as shop
 
 
 def test_moved_sections_are_imported_by_main_and_keep_their_routes():
-    assert MODULES == ["auth_api", "admin_auth_api", "payments_api", "customer_ops_api", "notifications_status_api", "recovery_api", "operations_api", "admin_api", "staging_e2e_api",
-                       "backups_api", "content_branding_api", "marketing_api", "enterprise_api", "payment_platform_api"]
+    assert MODULES == ["auth_api", "admin_auth_api", "payments_api", "schedulers", "customer_api", "customer_ops_api", "notifications_status_api", "recovery_api", "operations_api", "admin_api", "staging_e2e_api", "backups_api", "content_branding_api", "marketing_api", "enterprise_api", "payment_platform_api"]
     names = {getattr(r, "endpoint", None).__name__ for r in shop.app.routes if getattr(r, "endpoint", None)}
     for name in MODULES:
         module = importlib.import_module(f"app.{name}")
@@ -18,7 +17,7 @@ def test_moved_sections_are_imported_by_main_and_keep_their_routes():
             # main re-exports every moved name, so app.main.<name> and patches on it keep working
             assert getattr(shop, exported) is getattr(module, exported), (name, exported)
         endpoints = [n for n in module.__all__ if getattr(getattr(module, n), "__module__", "") == module.__name__ and n in names]
-        assert endpoints, f"{name} registers no routes"
+        assert endpoints or name == "schedulers", f"{name} registers no routes"
     assert len(shop.app.routes) >= 291  # 291 at the split; later releases add routers
 
 
@@ -32,7 +31,8 @@ def test_main_source_is_one_parseable_text_again():
     # v28.31.0: recovery, refunds and withdrawals moved to recovery_api.py;
     # v28.32.0: checkout, webhooks, fulfillment and provisioning moved to payments_api.py
     # v28.33.0: customer and admin sign-in moved to auth_api.py and admin_auth_api.py
-    assert len((APP / "main.py").read_text().splitlines()) < 1800
+    # v28.35.0: background schedulers and the customer account API moved to schedulers.py and customer_api.py
+    assert len((APP / "main.py").read_text().splitlines()) < 1000
 
 
 def test_a_moved_module_imported_before_main_still_fills_main():

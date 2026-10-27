@@ -8,5 +8,8 @@ name: Connected state
       corgi_tab: vpn
       corgi_lang: ru
       corgi_vpn_on: true
-- assertVisible: "VPN подключён"
+# A cold start of a cleared debug build on a CI emulator can take longer than the default wait.
+- extendedWaitUntil:
+    visible: "VPN подключён"
+    timeout: 30000
 - takeScreenshot: android-03-connected

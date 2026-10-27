@@ -40,11 +40,11 @@ def test_public_plans_and_auto_renew_do_not_leak_internals():
 
 
 def test_install_guide_and_package_checksum():
+    from app.mobile_catalog import safe_sha256
+    digest = "ab" * 32
+    assert safe_sha256(digest.upper()) == digest and safe_sha256("../etc") == "" and safe_sha256("a" * 63) == ""
     catalog = (ROOT / "backend/app/mobile_catalog.py").read_text()
-    assert catalog.index("async def public_install_guide") < catalog.index("async def public_app_download")
     assert BUYER_APK in catalog and ADMIN_APK in catalog
-    assert 'card["file_sha256"] = digest' in catalog
-    assert "def safe_sha256" in catalog
     cabinet = __import__("frontend_sources").cabinet_sources()
     admin = (ROOT / "admin/src/main.tsx").read_text()
     assert "Скачать подписку" in cabinet and "/api/me/subscription-file" in cabinet

@@ -3,11 +3,11 @@ from pathlib import Path
 ROOT=Path(__file__).parents[1]
 
 def test_support_rbac_is_separated():
-    sec=(ROOT/'backend/app/security.py').read_text()
-    main=main_source()
-    assert '"support.read"' in sec and '"support.write"' in sec
-    assert 'require_permission("support.read")' in main
-    assert 'require_permission("support.write")' in main
+    from app.security import PERMISSIONS
+    from app_contract import all_routes, permissions
+    needed = {perm for path, route in all_routes() for method in (getattr(route, "methods", None) or ()) for perm in permissions(method, path)}
+    assert {"support.read", "support.write"} <= needed, "support routes have their own read and write rights"
+    assert {"support.read", "support.write"} <= PERMISSIONS["operator"]
 
 def test_traffic_endpoint_is_user_scoped():
     m=main_source()

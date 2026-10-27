@@ -2,6 +2,7 @@ import {ButtonTree} from "./button-tree";
 import {PersonalOffers} from "./personal-offers";
 import {PublicPages} from "./public-pages";
 import React, {useEffect, useState, useRef, useCallback} from "react";
+import {watchAccount} from "./account-sync";
 import {Bell, CircleHelp, CreditCard, Gift, Handshake, Home, KeyRound, LayoutGrid, ListChecks, LogOut, Menu, Moon, Server, Smartphone, Sparkles, Sun, Trophy, UserRound, Users, Wallet, X, Zap, Plug, Receipt, FileText, Heart, Activity} from "lucide-react";
 import {Overview, type Traffic} from "./overview";
 import {Connection} from "./connection";
@@ -375,6 +376,11 @@ function App() {
       setConnection(null);
     }
   }
+
+  // Payment, renewal or an admin change made in the bot, an app or another tab shows up here too.
+  const reloadSession = useRef<() => void>(() => {});
+  reloadSession.current = () => { loadSession().catch(() => {}); };
+  useEffect(() => authed ? watchAccount(API, () => reloadSession.current()) : undefined, [authed]);
 
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;

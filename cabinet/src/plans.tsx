@@ -25,7 +25,7 @@ type Props = {
   offers: React.ReactNode;
 };
 
-const AGENTS: Record<string, string> = {yookassa: "YooKassa", rollypay: "RollyPay", platega: "Platega", sandbox: "Тестовый платёж"};
+const AGENTS: Record<string, string> = {yookassa: "YooKassa", rollypay: "RollyPay", platega: "Platega", cryptobot: "Криптовалюта (CryptoBot)",freekassa:"Карта или СБП (Freekassa)", sandbox: "Тестовый платёж"};
 
 function features(plan: any): string[] {
   const out: string[] = [];

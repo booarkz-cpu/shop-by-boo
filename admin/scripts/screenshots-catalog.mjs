@@ -166,6 +166,32 @@ const index = [];
       number += 1;
     }
   }
+  // Cards of newer features sit below the fold: each is captured on its own (screenshots/admin_panel/features/).
+  const featureDir = path.join(adminDir, 'features');
+  fs.mkdirSync(featureDir, {recursive: true});
+  const features = [
+    ['nodes', 'Мониторинг и автовосстановление нод', 'node-monitor'],
+    ['apps', 'Резервные адреса API и сайты напрямую', 'api-mirrors'],
+    ['fraud', 'Анти-шеринг: лимит устройств', 'anti-sharing'],
+    ['backups', 'Копия базы в Telegram', 'telegram-backup'],
+    ['payouts', 'Бонус днями за друга', 'referral-bonus'],
+    ['marketing', 'Генератор промокодов', 'promo-generator'],
+    ['support', 'База знаний ИИ-ассистента', 'ai-knowledge'],
+  ];
+  for (const [tab, heading, name] of features) {
+    try {
+      await page.evaluate((target) => { location.hash = target; }, tab);
+      const card = page.locator('.card', {has: page.locator('h3, summary', {hasText: heading})}).first();
+      await card.waitFor({timeout: 15000});
+      // Collapsible cards (<details>) are opened so the picture shows their content.
+      await card.evaluate((element) => { if (element.tagName === 'DETAILS') element.open = true; });
+      await settle(page);
+      await card.scrollIntoViewIfNeeded();
+      await card.screenshot({path: path.join(featureDir, `${name}.png`)});
+    } catch (error) {
+      console.warn(`feature card ${name} not captured: ${error.message.split('\n')[0]}`);
+    }
+  }
   await page.keyboard.press('Control+K');
   await page.getByRole('dialog', {name: 'Быстрый поиск'}).getByRole('textbox').fill('возврат');
   await page.waitForTimeout(300);

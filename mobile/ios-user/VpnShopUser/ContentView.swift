@@ -125,6 +125,9 @@ struct UserRootView: View {
             }
         }
         .onChange(of: unlocked) { value in if value && !token.isEmpty { refresh() } }
+        // One account state with the bot, the cabinet and the Mini App: a payment, renewal or admin change
+        // made anywhere re-reads the screens here within seconds. Only while the app is open and unlocked.
+        .task(id: "\(token)|\(unlocked)|\(scenePhase == .active)") { await watchAccount() }
         .onChange(of: lang) { _ in
             layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
             loadLayout()
@@ -988,6 +991,26 @@ struct UserRootView: View {
         }
     }
 
+    private func watchAccount() async {
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
+        if token.isEmpty || !unlocked || scenePhase != .active { return }
+        let client = ShopClient(base: base, token: token, lang: lang)
+        var version = ""
+        while !Task.isCancelled {
+            let since = version
+            let next: String? = await Task.detached {
+                let query = since.isEmpty ? "" : "?since=\(since.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&wait=10"
+                return (try? client.call("GET", "/api/me/sync\(query)") as? [String: Any]).map { $0["version"] as? String ?? "" }
+            }.value
+            guard let next else { try? await Task.sleep(nanoseconds: 20_000_000_000); continue }
+            if next.isEmpty { continue }
+            if !version.isEmpty && next != version { refresh() }
+            version = next
+        }
+    }
+
     private func refresh() {
         #if DEBUG
         if DemoMode.enabled { return }  // screenshots: no network, fixed demo data
@@ -1012,6 +1035,8 @@ struct UserRootView: View {
                 // Shops on releases before v28.25.0 have no family or status page: keep the rest working.
                 next.family = (try? api.call("GET", "/api/me/family")) as? [String: Any] ?? [:]
                 next.status = (try? api.call("GET", "/api/public/service-status")) as? [String: Any] ?? [:]
+                // Keep the signed reserve-address list fresh while the main address works.
+                CorgiMirrors.learn(origin)
                 next.passkeys = (try? ShopPasskeys.list(base: origin, session: session, lang: language)) ?? []
                 // Shops before v28.29.0 have no documents: the section stays empty.
                 next.docs = (try? api.call("GET", "/api/public/info-pages?lang=\(language)")) as? [[String: Any]] ?? []

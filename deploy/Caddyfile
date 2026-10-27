@@ -1,3 +1,16 @@
+# Zero-downtime updates: BACKEND_UPSTREAM lists the backend and its standby (scripts/zero-downtime-backend.sh).
+# The backend is always preferred; while it is being recreated, requests go to the standby that already
+# runs the new release. Only requests that could not reach any upstream are retried, so nothing runs twice.
+(backend_lb) {
+    lb_policy first
+    lb_try_duration 20s
+    lb_try_interval 250ms
+    fail_duration 10s
+    health_uri /health/live
+    health_interval 3s
+    health_timeout 2s
+}
+
 {$ADMIN_DOMAIN} {
     header {
         -Server
@@ -12,11 +25,13 @@
     encode zstd gzip
     handle /api/* {
         reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
             header_up X-Forwarded-For {remote_host}
         }
     }
     handle /media/* {
         reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
             header_up X-Forwarded-For {remote_host}
         }
     }
@@ -39,11 +54,13 @@
     encode zstd gzip
     handle /api/* {
         reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
             header_up X-Forwarded-For {remote_host}
         }
     }
     handle /media/* {
         reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
             header_up X-Forwarded-For {remote_host}
         }
     }
@@ -66,18 +83,24 @@
     encode zstd gzip
     # App association for native passkeys (Android assetlinks, iOS webcredentials).
     handle /.well-known/assetlinks.json {
-        reverse_proxy {$BACKEND_UPSTREAM:backend:8000}
+        reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
+        }
     }
     handle /.well-known/apple-app-site-association {
-        reverse_proxy {$BACKEND_UPSTREAM:backend:8000}
+        reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
+        }
     }
     handle /api/* {
         reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
             header_up X-Forwarded-For {remote_host}
         }
     }
     handle /media/* {
         reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
             header_up X-Forwarded-For {remote_host}
         }
     }
@@ -86,7 +109,8 @@
     }
 }
 
-{$API_DOMAIN} {
+# API_MIRROR_DOMAINS: reserve API domains for the apps (anti_blocking.md), space separated; empty by default.
+{$API_DOMAIN} {$API_MIRROR_DOMAINS} {
     header {
         -Server
         X-Content-Type-Options "nosniff"
@@ -99,6 +123,7 @@
 
     encode zstd gzip
     reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+            import backend_lb
             header_up X-Forwarded-For {remote_host}
         }
 }

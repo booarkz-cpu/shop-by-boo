@@ -223,7 +223,7 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
           "Задайте REMNAWAVE_WEBHOOK_SECRET и включите WEBHOOK_ENABLED в панели (модуль 18)" if not settings.remnawave_webhook_secret
           else "Секрет задан, но событий от панели ещё не было: проверьте WEBHOOK_URL и WEBHOOK_SECRET_HEADER в панели.", "recommended")
     configured = [p for p in PAYMENT_AGENTS if _agent_configured(p)]
-    check("payments", "Платёжные агенты", configured, "Задайте ключи хотя бы одного агента: YooKassa, Platega или RollyPay (модуль 07).")
+    check("payments", "Платёжные агенты", configured, "Задайте ключи хотя бы одного агента: YooKassa, Platega, RollyPay, CryptoBot или Freekassa (модуль 07).")
     check("plans", "Тарифы в продаже", await db.scalar(select(Plan.id).where(Plan.enabled.is_(True)).limit(1)), "Создайте и включите тариф (модуль 06).")
     backup = await db.scalar(select(BackupJob).where(BackupJob.status.in_(("completed", "done", "succeeded", "ok"))).order_by(BackupJob.id.desc()).limit(1))
     check("backup", "Резервная копия за сутки", backup and (backup.finished_at or backup.created_at) >= now - timedelta(days=1),
@@ -242,7 +242,8 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
 
 def _agent_configured(provider: str) -> bool:
     keys = {"yookassa": ("yookassa_shop_id", "yookassa_secret_key"), "platega": ("platega_merchant_id", "platega_secret"),
-            "rollypay": ("rollypay_api_key", "rollypay_signing_secret")}.get(provider, ())
+            "rollypay": ("rollypay_api_key", "rollypay_signing_secret"), "cryptobot": ("cryptobot_token",),
+            "freekassa": ("freekassa_shop_id", "freekassa_secret1", "freekassa_secret2", "freekassa_api_key")}.get(provider, ())
     return bool(keys) and all(getattr(settings, k, "") for k in keys)
 
 

@@ -87,6 +87,12 @@ class Settings(BaseSettings):
     admin_domain: str = Field(default="localhost", alias="ADMIN_DOMAIN")
     app_domain: str = Field(default="localhost", alias="APP_DOMAIN")
     api_domain: str = Field(default="localhost", alias="API_DOMAIN")
+    # Reserve API domains served by the same backend (mobile domain rotation, docs/modules/anti_blocking.md).
+    api_mirror_domains: str = Field(default="", alias="API_MIRROR_DOMAINS")
+
+    def api_domains(self) -> list[str]:
+        """The API domain and its reserve domains, as the apps may reach them."""
+        return [self.api_domain, *[d.strip().lower() for d in self.api_mirror_domains.replace(",", " ").split() if d.strip()]]
     miniapp_domain: str = Field(default="localhost", alias="MINIAPP_DOMAIN")
     cabinet_domain: str = Field(default="localhost", alias="CABINET_DOMAIN")
     bot_domain: str = Field(default="localhost", alias="BOT_DOMAIN")
@@ -150,10 +156,24 @@ class Settings(BaseSettings):
         default="", alias="ROLLYPAY_REFUND_STATUS_URL"
     )
 
+    # ---------- AI support assistant (drafts only, never sent by itself) ----------
+    support_ai_url: str = Field(default="", alias="SUPPORT_AI_URL")
+    support_ai_key: str = Field(default="", alias="SUPPORT_AI_KEY")
+    support_ai_model: str = Field(default="", alias="SUPPORT_AI_MODEL")
+
     # ---------- CryptoBot ----------
     cryptobot_token: str = Field(default="", alias="CRYPTOBOT_TOKEN")
     cryptobot_network: str = Field(
         default="mainnet", alias="CRYPTOBOT_NETWORK"
+    )
+
+    # ---------- Freekassa (reserve gateway: cards, SBP, wallets) ----------
+    freekassa_shop_id: str = Field(default="", alias="FREEKASSA_SHOP_ID")
+    freekassa_secret1: str = Field(default="", alias="FREEKASSA_SECRET1")
+    freekassa_secret2: str = Field(default="", alias="FREEKASSA_SECRET2")
+    freekassa_api_key: str = Field(default="", alias="FREEKASSA_API_KEY")
+    freekassa_webhook_ip_allowlist: str = Field(
+        default="168.119.157.136,168.119.60.227,178.154.197.79,51.250.54.238", alias="FREEKASSA_WEBHOOK_IP_ALLOWLIST"
     )
 
     # ---------- Stripe ----------

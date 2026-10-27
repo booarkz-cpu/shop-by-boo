@@ -1,7 +1,8 @@
 """2.13.0 app package uploads and download links."""
-from main_source import main_source
 import json
 from pathlib import Path
+
+import pytest
 
 from backend.app.mobile_catalog import (
     card_from_input,
@@ -10,6 +11,8 @@ from backend.app.mobile_catalog import (
     safe_package_name,
     view_card,
 )
+
+from app_contract import missing_routes, permissions
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = "a" * 32 + ".apk"
@@ -46,16 +49,29 @@ def attach_roundtrip():
 def test_panel_and_cabinet_expose_download_links():
     admin = (ROOT / "admin/src/main.tsx").read_text()
     cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
-    catalog = (ROOT / "backend/app/mobile_catalog.py").read_text()
     assert "Скачать приложение администратора" in admin
     assert "/api/admin/apps/" in admin and "/file" in admin
     assert "client-logo" not in admin
     assert "android-user|ios-user" in cabinet and "download_url" in cabinet
     assert "Скачать" in cabinet
-    assert '@router.post("/api/admin/apps/{app_id}/file")' in catalog
-    assert '@router.get("/api/public/apps/{app_id}/download")' in catalog
-    assert '@router.get("/api/admin/apps/{app_id}/download")' in catalog
-    assert 'audience") != "user"' in catalog
-    assert "app-packages" in main_source()
+    assert not missing_routes("POST /api/admin/apps/{app_id}/file", "GET /api/public/apps/{app_id}/download",
+                              "GET /api/admin/apps/{app_id}/download")
+    assert permissions("GET", "/api/admin/apps/{app_id}/download") and not permissions("GET", "/api/public/apps/{app_id}/download")
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_13_0.md").read_text()
     assert "2.13.0" in notes and "Русский" in notes and "English" in notes
+
+
+@pytest.mark.asyncio
+async def test_the_public_link_never_serves_an_admin_package(monkeypatch):
+    from fastapi import HTTPException
+
+    from app import mobile_catalog
+    raw = [{"id": "android-admin", "enabled": True, "file": "b" * 32 + ".apk"}, {"id": "android-user", "enabled": False, "file": PACKAGE}]
+
+    async def settings(db):
+        return {mobile_catalog.CATALOG_KEY: json.dumps(raw)}
+    monkeypatch.setattr(mobile_catalog, "_settings", settings)
+    for app_id in ("android-admin", "android-user", "unknown"):
+        with pytest.raises(HTTPException) as hidden:
+            await mobile_catalog.public_app_download(app_id, None)
+        assert hidden.value.status_code == 404, app_id
