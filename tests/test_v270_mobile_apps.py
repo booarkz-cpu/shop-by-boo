@@ -1,4 +1,3 @@
-from main_source import main_source
 import json
 from pathlib import Path
 
@@ -57,11 +56,16 @@ def test_native_clients_keep_session_bounds():
     assert "device_option_id" in user_android
     assert "/api/admin/platform/summary" in admin_android
     assert "publicNode" in user_android and "publicNode" in admin_ios
-    auth = (ROOT / "backend/app/mobile_auth.py").read_text()
-    cabinet = (ROOT / "backend/app/cabinet_api.py").read_text()
-    main = main_source()
-    assert "android-user" in auth and "ios-admin" in auth
-    assert "session_body" in cabinet and "session_body" in main
+    from starlette.requests import Request
+
+    from app.mobile_auth import MOBILE_CLIENTS, mobile_client_name, session_body
+    assert MOBILE_CLIENTS == {"android-user", "android-admin", "ios-user", "ios-admin"}
+
+    def req(client):
+        return Request({"type": "http", "method": "POST", "path": "/api/auth/login", "client": ("10.0.0.1", 1), "query_string": b"",
+                        "headers": [(b"x-shop-client", client.encode())]})
+    assert mobile_client_name(req("iOS-User ")) == "ios-user" and mobile_client_name(req("desktop")) == ""
+    assert session_body(req("browser"), "jwt-token", {"ok": True}) == {"ok": True}, "a browser gets cookies, never a bearer token in the body"
     assert "LicenseRef-CorgiLusi-Commercial-Use" in (ROOT / "mobile/LICENSE").read_text()
     assert "Android и iOS" in (ROOT / "LICENSE").read_text()
 
