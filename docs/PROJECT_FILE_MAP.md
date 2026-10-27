@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1624**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1627**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -373,6 +373,7 @@
 | [backend/app/mobile_catalog.py](../backend/app/mobile_catalog.py) | API, бот и worker |
 | [backend/app/mobile_integrity.py](../backend/app/mobile_integrity.py) | API, бот и worker |
 | [backend/app/mobile_layout.py](../backend/app/mobile_layout.py) | API, бот и worker |
+| [backend/app/mobile_mirrors.py](../backend/app/mobile_mirrors.py) | API, бот и worker |
 | [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
 | [backend/app/node_health.py](../backend/app/node_health.py) | API, бот и worker |
@@ -1029,6 +1030,7 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt) | Мобильные приложения |
@@ -1507,6 +1509,7 @@
 | [tests/test_mobile_family_status.py](../tests/test_mobile_family_status.py) | Проверки |
 | [tests/test_mobile_integrity.py](../tests/test_mobile_integrity.py) | Проверки |
 | [tests/test_mobile_layout.py](../tests/test_mobile_layout.py) | Проверки |
+| [tests/test_mobile_mirrors.py](../tests/test_mobile_mirrors.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
 | [tests/test_money_review.py](../tests/test_money_review.py) | Проверки |
 | [tests/test_multiple_subscriptions.py](../tests/test_multiple_subscriptions.py) | Проверки |
