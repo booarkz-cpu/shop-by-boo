@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.32.0. Runtime/API `21.5.1`, head магазина `0077_app_growth`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.33.0. Runtime/API `21.5.1`, head магазина `0078_campaign_ab`, Support Pro `0008`.
 
 # 27. Диагностика и обновления
 
@@ -22,7 +22,7 @@
 
 | Что | Где смотреть |
 | --- | --- |
-| Тег дистрибутива (например `v28.32.0`) | Выпуски GitHub, **Обновления** |
+| Тег дистрибутива (например `v28.33.0`) | Выпуски GitHub, **Обновления** |
 | Версия runtime/API (`21.5.1`) | **Все разделы**, `/health/ready`, `docker compose exec -T backend python -c 'from app.main import APP_VERSION; print(APP_VERSION)'` |
 | Миграции магазина | `docker compose exec -T backend alembic current` |
 | Миграции Support Pro | `docker compose exec -T support_db psql -U support -d support -Atc 'SELECT version_num FROM alembic_version'` |
@@ -36,7 +36,7 @@
 3. Обновите:
 
 ```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.32.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.33.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 Без `RELEASE_TAG` берётся последний стабильный выпуск. Если сервер ставился до появления `update-from-github.sh`, используйте первый способ из [регламента обновления](../DISTRIBUTION_UPGRADE_CURRENT.md).
