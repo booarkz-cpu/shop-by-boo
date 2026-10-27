@@ -110,3 +110,32 @@ export function TelegramBackup({request, toast}: {request: Request; toast: (text
     </div>
   );
 }
+
+/** «Фрод → Анти-шеринг»: подписка на большем числе устройств, чем разрешает тариф. */
+export function AntiSharing({request, toast}: {request: Request; toast: (text: string) => void}) {
+  const [cfg, setCfg] = useState<any>(null);
+  const [error, setError] = useState("");
+  useEffect(() => { request("/api/admin/anti-sharing").then(setCfg).catch(e => setError(e.message)); }, [request]);
+  async function save() {
+    try {
+      setCfg({...cfg, ...(await request("/api/admin/anti-sharing", {method: "PUT", body: JSON.stringify({enabled: cfg.enabled, action: cfg.action, tolerance: Number(cfg.tolerance)})}))});
+      toast("Анти-шеринг сохранён");
+    } catch (e: any) { setError(e.message); }
+  }
+  if (!cfg) return <div className="card"><h3>Анти-шеринг</h3>{error ? <p className="error">{error}</p> : <p>Загрузка…</p>}</div>;
+  return (
+    <div className="card">
+      <h3>Анти-шеринг: лимит устройств</h3>
+      {error ? <p className="error">{error}</p> : null}
+      <label className="check"><input type="checkbox" checked={cfg.enabled} onChange={e => setCfg({...cfg, enabled: e.target.checked})}/> Проверять каждые 15 минут</label>
+      <label>При превышении<select value={cfg.action} onChange={e => setCfg({...cfg, action: e.target.value})}>
+        <option value="reset">Сбросить устройства и предупредить клиента</option>
+        <option value="block">Отключить конфиг до проверки оператором</option>
+      </select></label>
+      <label>Допуск сверх лимита<input type="number" min={0} max={5} value={cfg.tolerance} onChange={e => setCfg({...cfg, tolerance: e.target.value})}/></label>
+      <button className="primary" onClick={save}>Сохранить</button>
+      <p className="muted">Устройства берутся из Remnawave (HWID). Включите в панели HWID_DEVICE_LIMIT_ENABLED — тогда лишние устройства не подключатся вовсе. Снять блокировку: «Платформа → Нарушения».</p>
+      {cfg.recent?.length ? <ul>{cfg.recent.map((v: any) => <li key={v.id}>{new Date(v.created_at).toLocaleString("ru-RU")} — {v.summary} ({v.status})</li>)}</ul> : null}
+    </div>
+  );
+}

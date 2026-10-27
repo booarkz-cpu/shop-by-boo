@@ -117,6 +117,8 @@ from .promo_generator import router as promo_generator_router
 app.include_router(promo_generator_router)
 from .telegram_backup import router as telegram_backup_router
 app.include_router(telegram_backup_router)
+from .anti_sharing import router as anti_sharing_router
+app.include_router(anti_sharing_router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
@@ -605,6 +607,8 @@ async def start_backup_scheduler():
     _track_task(node_monitor_scheduler())
     from .telegram_backup import telegram_backup_scheduler
     _track_task(telegram_backup_scheduler())
+    from .anti_sharing import anti_sharing_scheduler
+    _track_task(anti_sharing_scheduler())
 
 @app.get("/health/live")
 async def health_live():

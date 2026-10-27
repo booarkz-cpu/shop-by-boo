@@ -151,7 +151,7 @@ async def redeem_gift(payload,request,db):
                     await _validate_reduction(db,sub,{'traffic_gb':terms['traffic_gb'],'devices':terms['devices']},force_traffic=True,remote_id=remote_id,remote_client=rw)
                 else:
                     data=await rw.create_user(remote_username(user.id,sub),target,terms['traffic_gb']*1024**3 if terms['traffic_gb'] else 0,
-                        active_internal_squads=[terms['profile_id']] if terms['profile_id'] else None,telegram_id=user.telegram_id)
+                        active_internal_squads=[terms['profile_id']] if terms['profile_id'] else None,telegram_id=user.telegram_id,device_limit=terms.get('devices'))
                     if not data.get('id'):raise RuntimeError('Remnawave returned no user id')
                     remote_id=str(data['id']);sub.subscription_url=data.get('subscriptionUrl') or data.get('subscription_url')
                 redemption.remote_user_id=remote_id;await db.commit()
@@ -160,7 +160,7 @@ async def redeem_gift(payload,request,db):
             remote_user=await rw.get_user(remote_id)
             if str((remote_user or {}).get('status') or (remote_user or {}).get('state') or '').lower() in {'disabled','blocked','inactive'}:
                 await rw.enable_user(remote_id)
-            await rw.update_entitlements(remote_id,terms['traffic_gb'],terms['profile_id'])
+            await rw.update_entitlements(remote_id,terms['traffic_gb'],terms['profile_id'],device_limit=terms.get('devices'))
             await rw.extend_idempotent(remote_id,int(terms['days']),redemption.expected_before_expires_at,target)
             sub.remnawave_uuid=remote_id;sub.plan_id=code.plan_id;sub.expires_at=target;sub.lifecycle_status='active'
             sub.scheduled_cancel_at=None;sub.grace_until=None

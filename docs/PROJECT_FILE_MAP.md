@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1614**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1616**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -284,6 +284,7 @@
 | [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
 | [backend/app/admin_auth_api.py](../backend/app/admin_auth_api.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
+| [backend/app/anti_sharing.py](../backend/app/anti_sharing.py) | API, бот и worker |
 | [backend/app/app_config.py](../backend/app/app_config.py) | API, бот и worker |
 | [backend/app/app_funnel.py](../backend/app/app_funnel.py) | API, бот и worker |
 | [backend/app/app_growth.py](../backend/app/app_growth.py) | API, бот и worker |
@@ -1447,6 +1448,7 @@
 | [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
+| [tests/test_anti_sharing.py](../tests/test_anti_sharing.py) | Проверки |
 | [tests/test_app_config.py](../tests/test_app_config.py) | Проверки |
 | [tests/test_app_growth.py](../tests/test_app_growth.py) | Проверки |
 | [tests/test_app_login.py](../tests/test_app_login.py) | Проверки |

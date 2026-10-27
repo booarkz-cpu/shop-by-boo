@@ -59,7 +59,7 @@ async def run_next_job(worker_id: str) -> bool:
                                         after=before+timedelta(days=trial.days)
                                         trial.expected_before_expires_at=before; trial.expected_after_expires_at=after
                                         await edb.commit()
-                                    await rw.update_entitlements(sub.remnawave_uuid,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot)
+                                    await rw.update_entitlements(sub.remnawave_uuid,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot,device_limit=trial.device_limit_snapshot)
                                     extension=await rw.extend_idempotent(sub.remnawave_uuid,trial.days,before,after)
                                     verified_expiry=extension.get("expires_at") if isinstance(extension,dict) else None
                                     sub.expires_at=max(after,verified_expiry or after); sub.plan_id=plan.id; sub.traffic_limit_gb_snapshot=trial.traffic_limit_gb_snapshot; sub.device_limit_snapshot=trial.device_limit_snapshot; sub.remnawave_profile_id_snapshot=trial.remnawave_profile_id_snapshot
@@ -77,7 +77,7 @@ async def run_next_job(worker_id: str) -> bool:
                                         # Trial entitlements are immutable snapshots. Do not let a
                                         # later admin edit to Plan change the traffic/profile of a
                                         # trial that was already granted.
-                                        await rw.update_entitlements(remote_id,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot)
+                                        await rw.update_entitlements(remote_id,trial.traffic_limit_gb_snapshot,trial.remnawave_profile_id_snapshot,device_limit=trial.device_limit_snapshot)
                                         remote_expiry=await rw.get_expiry(remote_id)
                                         target_expiry=max(expected, remote_expiry or expected)
                                         if not remote_expiry or remote_expiry < target_expiry:
@@ -88,7 +88,7 @@ async def run_next_job(worker_id: str) -> bool:
                                             data=await rw.get_user(remote_id)
                                     else:
                                         traffic=trial.traffic_limit_gb_snapshot*1024**3 if trial.traffic_limit_gb_snapshot else 0
-                                        data=await rw.create_user(username,expected,traffic,active_internal_squads=[trial.remnawave_profile_id_snapshot] if trial.remnawave_profile_id_snapshot else None,telegram_id=user.telegram_id)
+                                        data=await rw.create_user(username,expected,traffic,active_internal_squads=[trial.remnawave_profile_id_snapshot] if trial.remnawave_profile_id_snapshot else None,telegram_id=user.telegram_id,device_limit=trial.device_limit_snapshot)
                                     if not sub: sub=Subscription(user_id=user.id,plan_id=plan.id); edb.add(sub)
                                     sub.plan_id=plan.id; sub.remnawave_uuid=str(data.get("id"))
                                     # Never move the local expiry backwards if a prior
