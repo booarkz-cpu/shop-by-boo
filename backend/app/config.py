@@ -167,6 +167,15 @@ class Settings(BaseSettings):
         default="mainnet", alias="CRYPTOBOT_NETWORK"
     )
 
+    # ---------- Freekassa (reserve gateway: cards, SBP, wallets) ----------
+    freekassa_shop_id: str = Field(default="", alias="FREEKASSA_SHOP_ID")
+    freekassa_secret1: str = Field(default="", alias="FREEKASSA_SECRET1")
+    freekassa_secret2: str = Field(default="", alias="FREEKASSA_SECRET2")
+    freekassa_api_key: str = Field(default="", alias="FREEKASSA_API_KEY")
+    freekassa_webhook_ip_allowlist: str = Field(
+        default="168.119.157.136,168.119.60.227,178.154.197.79,51.250.54.238", alias="FREEKASSA_WEBHOOK_IP_ALLOWLIST"
+    )
+
     # ---------- Stripe ----------
     stripe_secret_key: str = Field(
         default="", alias="STRIPE_SECRET_KEY"

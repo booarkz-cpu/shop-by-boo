@@ -122,6 +122,7 @@ docker compose up -d
 | Push в приложения | `FCM_PROJECT_ID`, `FCM_SERVICE_ACCOUNT_JSON`, `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_BUNDLE_ID`, `APNS_PRIVATE_KEY`, `APNS_ENVIRONMENT` | для push |
 | Приложения | `MOBILE_APP_SCHEME` (по умолчанию `corgi`), `MOBILE_INTEGRITY_MODE` (`off`, `report`, `enforce`), `DEVICECHECK_*` | по желанию |
 | Резерв платежей | `CRYPTOBOT_TOKEN` (Crypto Pay API), `CRYPTOBOT_NETWORK` (`mainnet`/`testnet`) — принимает заказы, пока основной шлюз в остывании после сбоев | рекомендуется |
+| Резерв: Freekassa | `FREEKASSA_SHOP_ID`, `FREEKASSA_SECRET1`, `FREEKASSA_SECRET2`, `FREEKASSA_API_KEY` (можно задать и в админке); URL оповещения в кабинете Freekassa — `https://api.vpn.example.com/api/webhooks/freekassa` | по желанию |
 | ИИ-поддержка | `SUPPORT_AI_URL` (полный адрес эндпоинта модели), `SUPPORT_AI_KEY`, `SUPPORT_AI_MODEL` | по желанию |
 | Обновление без простоя | `BACKEND_STANDBY_INGRESS_IP` (по умолчанию `172.30.84.5`, внутри `INGRESS_SUBNET`) | нет |
 
@@ -253,7 +254,7 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.34.0 bash /opt/vpn-shop/scripts/u
 | После оплаты в приложении открылся браузер | — | Приложение старой версии; обновите его. Страница `/api/app/paid` тоже ведёт в приложение по кнопке |
 | Сборка на сервере заняла весь диск | `docker system df` | `docker builder prune` удаляет старый кэш сборки |
 | Обновление: «the new release did not answer /health/ready» | `docker compose --profile standby logs backend_standby` | Новый выпуск не поднялся; работающий backend не тронут, откат выполнен. Причину покажет лог standby |
-| Оплаты уходят в CryptoBot | Флаги функций в админке, `docker compose logs backend` | Основной шлюз трижды подряд не ответил и остывает 5 минут; проверьте его ключи и доступность |
+| Оплаты уходят в Freekassa или CryptoBot | Флаги функций в админке, `docker compose logs backend` | Основной шлюз трижды подряд не ответил и остывает 5 минут; проверьте его ключи и доступность |
 | Нода упала | «Узлы → Мониторинг» | Магазин сам перезапускает ноду после 3 неудачных проверок и пишет в Telegram, если она недоступна дольше 10 минут |
 
 Аварийная остановка продаж — «Безопасность → Восстановление → Аварийный режим → Включить» в админке ([модуль 2](ru/modules/02-health-incidents-monitoring.md)). Подробнее — [сбой и восстановление](ru/PRODUCTION_CURRENT.md#15-сбой-и-восстановление).

@@ -15,7 +15,7 @@ async def _advisory_lock(db: shop.AsyncSession, key: int) -> None:
 
 def _checkout_provider(name: str):
     """One map for every routable gateway: a reserve gateway first in line (main one in cooldown) must work."""
-    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"sandbox":shop.SandboxProvider}
+    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"sandbox":shop.SandboxProvider}
     return factories[name]()
 
 async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
@@ -49,6 +49,7 @@ async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
         "platega": bool(shop.settings.platega_merchant_id and shop.settings.platega_secret),
         "rollypay": bool(shop.settings.rollypay_api_key and shop.settings.rollypay_signing_secret),
         "cryptobot": bool(shop.settings.cryptobot_token),
+        "freekassa": shop.FreekassaProvider.configured(),
         "sandbox": shop.payments_sandbox_allowed(),
     }
     enabled=[x.provider for x in rows
@@ -940,7 +941,36 @@ async def cryptobot_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depen
         raise
     return {"ok":True}
 
-__all__ = ['_LOCK_RENEW_TASKS', '_SAFE_LOCK_MESSAGES', '_acquire_payment_side_effect_lock', '_acquire_redis_lock', '_acquire_user_fulfillment_lock', '_advisory_lock', '_confirm_and_fulfill_payment', '_external_refund', '_ip_allowed', '_lock_conflict', '_payment_provider_order', '_release_payment_side_effect_lock', '_renew_redis_lock', 'bind_provider_payment_id', 'create_payment', 'ensure_required_channel', 'finish_provider_event', 'fulfill', 'payment_by_provider', 'payment_by_provider_or_order', 'cryptobot_webhook', 'platega_webhook', 'register_provider_event', 'release_promo_reservation', 'reserve_promo', 'rollypay_webhook', 'yookassa_webhook']
+@shop.app.api_route("/api/webhooks/freekassa", methods=["GET","POST"])
+async def freekassa_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depends(shop.get_db)):
+    """Freekassa payment notification (GET or form POST): Freekassa's address and SIGN (secret word 2), then the order
+    is re-read through API v1 (paid, amount, currency) before fulfillment. Freekassa repeats the call until it reads «YES»."""
+    from fastapi.responses import PlainTextResponse
+    params=dict(request.query_params)
+    if request.method=="POST":
+        try: params.update({k:str(v) for k,v in (await request.form()).items()})
+        except Exception: raise shop.HTTPException(400,"Invalid form")
+    try: shop.FreekassaProvider().verify_notification(params,shop._client_ip(request))
+    except Exception: raise shop.HTTPException(403,"Invalid signature")
+    order_id=str(params.get("MERCHANT_ORDER_ID") or ""); intid=str(params.get("intid") or "")
+    if not order_id: return PlainTextResponse("YES")
+    event_id=f"paid:{intid or order_id}"
+    p=await shop.payment_by_provider_or_order(db,"freekassa",order_id,order_id)
+    if not p: return PlainTextResponse("YES")
+    if p.provider!="freekassa": raise shop.HTTPException(403,"Order mismatch")
+    if shop.Decimal(str(params.get("AMOUNT") or "0"))!=shop.Decimal(str(p.amount)): raise shop.HTTPException(403,"Amount mismatch")
+    if not await shop.FreekassaProvider().verify_succeeded(order_id,shop.Decimal(str(p.amount)),p.currency,p.order_id): raise shop.HTTPException(503,"Payment verification unavailable")
+    if not await shop.register_provider_event(db,"freekassa",event_id,p.id): await db.rollback(); return PlainTextResponse("YES")
+    await db.commit()
+    try:
+        await shop._confirm_and_fulfill_payment(p.id,db)
+        async with shop.AsyncSession(shop.engine,expire_on_commit=False) as edb: await shop.finish_provider_event(edb,"freekassa",event_id,ok=True); await edb.commit()
+    except Exception as exc:
+        async with shop.AsyncSession(shop.engine,expire_on_commit=False) as edb: await shop.finish_provider_event(edb,"freekassa",event_id,ok=False,error=str(exc)); await edb.commit()
+        raise
+    return PlainTextResponse("YES")
+
+__all__ = ['_LOCK_RENEW_TASKS', '_SAFE_LOCK_MESSAGES', '_acquire_payment_side_effect_lock', '_acquire_redis_lock', '_acquire_user_fulfillment_lock', '_advisory_lock', '_confirm_and_fulfill_payment', '_external_refund', '_ip_allowed', '_lock_conflict', '_payment_provider_order', '_release_payment_side_effect_lock', '_renew_redis_lock', 'bind_provider_payment_id', 'create_payment', 'ensure_required_channel', 'finish_provider_event', 'fulfill', 'payment_by_provider', 'payment_by_provider_or_order', 'cryptobot_webhook', 'freekassa_webhook', 'platega_webhook', 'register_provider_event', 'release_promo_reservation', 'reserve_promo', 'rollypay_webhook', 'yookassa_webhook']
 # Imported before main finished (``from app import payments_api`` first)? Then main's star
 # import saw a half-loaded module; hand the names over now that they exist.
 shop.__dict__.update({_n: globals()[_n] for _n in __all__})
