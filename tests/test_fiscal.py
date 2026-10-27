@@ -153,6 +153,32 @@ async def test_failures_retry_with_backoff_and_wrong_password_stops(db, monkeypa
 
 
 @pytest.mark.asyncio
+async def test_npd_lost_answer_is_not_sent_twice(db, monkeypatch):
+    import httpx
+
+    db.add(pay(1))
+    await db.commit()
+    fiscal._NPD_TOKENS.clear()
+
+    def raises(exc):
+        def answer(kw):
+            raise exc
+        return answer
+
+    http = FakeHTTP({"/auth/lkfl": Resp(200, {"token": "t1"}), "/income": raises(httpx.ConnectError("refused"))})
+    monkeypatch.setattr(fiscal, "_client", lambda: http)
+    c = config()
+    await fiscal.enqueue_due(db, c, NOW)
+    await fiscal.process_due(db, c, NOW)
+    row = (await db.execute(select(FiscalReceipt))).scalar_one()
+    assert row.status == "retry", "nothing reached the tax service: safe to retry"
+    http.routes["/income"] = raises(httpx.ReadTimeout("lost"))
+    await fiscal.process_due(db, c, NOW + timedelta(minutes=5))
+    assert (row.status, row.next_attempt_at) == ("failed", None), "the income may exist: the owner checks first"
+    assert "Мой налог" in row.last_error
+
+
+@pytest.mark.asyncio
 async def test_atol_waits_for_the_report_then_stores_fiscal_data(db, monkeypatch):
     db.add(pay(1))
     await db.commit()

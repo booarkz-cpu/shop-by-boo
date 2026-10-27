@@ -160,8 +160,8 @@ async def redeem_app_code(payload: AppCodeIn, request: Request, response: Respon
     if not row or row.used_at or row.expires_at < datetime.utcnow():
         raise HTTPException(400, "Invalid or expired sign-in link")
     user = await db.get(User, row.user_id)
-    if not user:
-        raise HTTPException(404, "User not found")
+    if not user or user.deleted_at is not None:
+        raise HTTPException(400, "Invalid or expired sign-in link")
     row.used_at = datetime.utcnow()
     await db.flush()
     token = await create_user_session(db, user, request)

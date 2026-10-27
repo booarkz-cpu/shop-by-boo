@@ -288,6 +288,21 @@ async def _email(db: AsyncSession, config: FiscalConfig, payment: Payment) -> st
     return (user.email if user and user.email and user.email_verified_at else "") or config.fallback_email or config.company_email
 
 
+async def _npd_income_once(client, auth: dict, body: dict):
+    """«Мой налог» has no idempotency key: an answer lost after the request left
+    may already be a registered income, so only a refused connection is retried
+    automatically; anything later waits for the owner to check and retry."""
+    import httpx
+
+    try:
+        return await client.post(f"{NPD_API}/income", headers=auth, json=body)
+    except (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout):
+        raise
+    except httpx.TransportError as exc:
+        raise FiscalError("«Мой налог» не ответил после отправки: проверьте чек в приложении «Мой налог»; "
+                          "если его нет — нажмите «Повторить»", final=True) from exc
+
+
 async def send_receipt(db: AsyncSession, receipt: FiscalReceipt, config: FiscalConfig, now: datetime | None = None) -> FiscalReceipt:
     """Send (or poll) one receipt and record the outcome."""
     now = now or datetime.utcnow()
@@ -305,7 +320,7 @@ async def send_receipt(db: AsyncSession, receipt: FiscalReceipt, config: FiscalC
                 token = await _npd_token(client, config)
                 auth = {"Authorization": f"Bearer {token}"}
                 if receipt.kind == "income":
-                    r = await client.post(f"{NPD_API}/income", headers=auth, json=npd_income_payload(name, payment.amount, payment.paid_at or payment.created_at, now))
+                    r = await _npd_income_once(client, auth, npd_income_payload(name, payment.amount, payment.paid_at or payment.created_at, now))
                     if r.status_code >= 400:
                         raise FiscalError(f"«Мой налог»: {(r.json() or {}).get('message') if r.content else r.status_code}", final=r.status_code == 422)
                     uuid_ = r.json().get("approvedReceiptUuid")

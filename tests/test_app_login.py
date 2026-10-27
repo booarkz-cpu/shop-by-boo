@@ -136,6 +136,18 @@ async def test_browsers_old_codes_and_missing_pkce_are_refused(db):
     assert expired.value.status_code == 400
 
 
+@pytest.mark.asyncio
+async def test_a_deleted_account_cannot_use_its_link(db):
+    code = await app_login.issue_app_code(db, 1)
+    user = await db.get(User, 1)
+    user.deleted_at = datetime.utcnow()
+    await db.commit()
+    with pytest.raises(HTTPException) as refused:
+        await app_login.redeem_app_code(app_login.AppCodeIn(code=code), native(), Response(), db)
+    assert refused.value.status_code == 400
+    assert (await db.execute(select(UserSession).where(UserSession.user_id == 1))).scalar_one_or_none() is None
+
+
 class FakeGoogle:
     def __init__(self, profile):
         self.profile = profile
