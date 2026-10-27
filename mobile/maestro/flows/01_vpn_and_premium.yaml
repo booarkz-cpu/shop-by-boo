@@ -1,0 +1,18 @@
+appId: shop.remnawave.user.preview
+name: VPN screen, tab bar and the plans
+---
+- launchApp:
+    clearState: true
+    arguments:
+      corgi_demo: true
+      corgi_tab: vpn
+      corgi_lang: ru
+- assertVisible: "Подключить"
+- assertVisible: "VPN отключён"
+- takeScreenshot: ../../screenshots/mobile/maestro/android-01-vpn
+- tapOn:
+    text: "Премиум"
+    index: 0
+- assertVisible: "12 месяцев"
+- assertVisible: "Оплатить"
+- takeScreenshot: ../../screenshots/mobile/maestro/android-02-premium

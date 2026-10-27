@@ -1,0 +1,12 @@
+appId: shop.remnawave.user.preview
+name: Settings, documents and sign-out
+---
+- launchApp:
+    clearState: true
+    arguments:
+      corgi_demo: true
+      corgi_tab: settings
+      corgi_lang: ru
+- assertVisible: "Документы"
+- assertVisible: "Выйти"
+- takeScreenshot: ../../screenshots/mobile/maestro/android-05-settings
