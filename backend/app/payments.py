@@ -739,9 +739,11 @@ class FreekassaProvider(BasePaymentProvider):
     def configured() -> bool:
         return bool(settings.freekassa_shop_id and settings.freekassa_secret1 and settings.freekassa_secret2 and settings.freekassa_api_key)
 
+    # MD5 is what the Freekassa protocol prescribes for both signatures; the notification is trusted only together with
+    # Freekassa's addresses and the order re-read through the HMAC-SHA256 API.
     @staticmethod
     def form_signature(shop_id: str, amount: str, secret: str, currency: str, order_id: str) -> str:
-        return hashlib.md5(f"{shop_id}:{amount}:{secret}:{currency}:{order_id}".encode()).hexdigest()
+        return hashlib.md5(f"{shop_id}:{amount}:{secret}:{currency}:{order_id}".encode(), usedforsecurity=False).hexdigest()
 
     @staticmethod
     def api_signature(body: Dict[str, Any], api_key: str) -> str:
@@ -801,7 +803,8 @@ class FreekassaProvider(BasePaymentProvider):
             raise SignatureVerificationError("Freekassa notification from a foreign address")
         if not settings.freekassa_secret2 or str(params.get("MERCHANT_ID") or "") != str(settings.freekassa_shop_id):
             raise SignatureVerificationError("Freekassa notification for another shop")
-        expected = hashlib.md5(f"{params.get('MERCHANT_ID')}:{params.get('AMOUNT')}:{settings.freekassa_secret2}:{params.get('MERCHANT_ORDER_ID')}".encode()).hexdigest()
+        expected = hashlib.md5(f"{params.get('MERCHANT_ID')}:{params.get('AMOUNT')}:{settings.freekassa_secret2}:{params.get('MERCHANT_ORDER_ID')}".encode(),
+                               usedforsecurity=False).hexdigest()
         if not hmac.compare_digest(expected, str(params.get("SIGN") or "").lower()):
             raise SignatureVerificationError("Invalid Freekassa signature")
         return dict(params)
