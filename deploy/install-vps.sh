@@ -176,6 +176,11 @@ prompt_required REMNAWAVE_URL "Remnawave Panel URL (например https://pan
 prompt_required REMNAWAVE_TOKEN "Remnawave API token" 1
 
 echo
+echo "Автообновление: сервер сам ставит новые стабильные выпуски с GitHub ночью (03:00 МСК) с копией и откатом."
+prompt AUTO_UPDATE "Включить автообновление (yes / no)" "yes"
+AUTO_UPDATE="$(printf '%s' "$AUTO_UPDATE" | tr '[:upper:]' '[:lower:]')"
+
+echo
 echo "Платежи: выберите провайдер для первичной настройки."
 prompt PAYMENT_PROVIDER "Провайдер (yookassa / platega / rollypay / none)" "none"
 PAYMENT_PROVIDER="$(printf '%s' "$PAYMENT_PROVIDER" | tr '[:upper:]' '[:lower:]')"
@@ -581,6 +586,14 @@ log "Создаю первого оператора Support Pro и показы�
 docker compose exec -T support_pro python -m app.cli init || die "Не удалось создать оператора Support Pro"
 
 docker compose ps
+
+case "${AUTO_UPDATE:-yes}" in
+  y|yes|д|да|1|true)
+    log "Включаю автообновление с GitHub (управление — админ-панель → «Обновления»)..."
+    APP_DIR="$ROOT" bash "$ROOT/scripts/auto-update.sh" install || warn "Автообновление не включилось. Включите позже: sudo bash $ROOT/scripts/auto-update.sh install"
+    ;;
+  *) warn "Автообновление выключено. Включить: sudo bash $ROOT/scripts/auto-update.sh install" ;;
+esac
 
 echo
 printf '%s\n' '============================================================'

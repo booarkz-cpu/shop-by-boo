@@ -81,3 +81,4 @@ DerivedData/
 next-env.d.ts
 *.tsbuildinfo
 screenshots/mobile/maestro/
+.control/

@@ -70,6 +70,7 @@ services:
       MEDIA_DIR: /data/media
       BACKUPS_DIR: /data/backups
       PROJECT_DIR: /project
+      AUTO_UPDATE_CONTROL_DIR: /data/control
       TRUSTED_PROXY_CIDRS: ${CADDY_INGRESS_IP:-172.30.84.2}/32
       SUPPORT_PRO_URL: ${SUPPORT_PRO_URL:-}
       SUPPORT_PRO_SSO_SECRET: ${SUPPORT_PRO_SSO_SECRET:-}
@@ -85,6 +86,8 @@ services:
       - app_packages:/data/app-packages
       - .:/project:ro
       - backup_data:/data/backups
+      # Admin panel ↔ auto-update agent on the host (scripts/auto_update.py): requests and status only.
+      - ./.control:/data/control
     expose:
       - "8000"
     healthcheck:
