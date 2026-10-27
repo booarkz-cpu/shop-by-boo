@@ -992,7 +992,10 @@ struct UserRootView: View {
     }
 
     private func watchAccount() async {
-        if DemoMode.enabled || token.isEmpty || !unlocked || scenePhase != .active { return }
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
+        if token.isEmpty || !unlocked || scenePhase != .active { return }
         let client = ShopClient(base: base, token: token, lang: lang)
         var version = ""
         while !Task.isCancelled {
