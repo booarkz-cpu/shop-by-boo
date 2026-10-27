@@ -128,8 +128,12 @@ async def run_next_job(worker_id: str) -> bool:
                     if j: j.status="failed"; j.error=f"Unsupported job kind: {job.kind}"; j.locked_at=None; j.worker_id=None; await edb.commit()
     return True
 
+def worker_identity() -> str:
+    """Unique per process: role, host and pid (two workers on one host never share a lease)."""
+    return os.getenv("WORKER_ID") or f"{settings.worker_role}:{socket.gethostname()}:{os.getpid()}"
+
 async def job_worker():
-    worker_id=os.getenv("WORKER_ID") or f"{settings.worker_role}:{socket.gethostname()}:{os.getpid()}"
+    worker_id=worker_identity()
     while True:
         try:
             await run_next_job(worker_id)
@@ -155,7 +159,7 @@ async def health_alert_worker():
         await asyncio.sleep(300)
 
 async def worker_heartbeat():
-    worker_id=os.getenv("WORKER_ID") or f"{settings.worker_role}:{socket.gethostname()}:{os.getpid()}"
+    worker_id=worker_identity()
     while True:
         try:
             now=datetime.utcnow()

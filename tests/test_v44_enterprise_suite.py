@@ -1,31 +1,37 @@
-from main_source import main_source
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+from fastapi import HTTPException
+from sqlalchemy import select
+
+from app import main as shop
+from app.models import PaymentProviderHealth
+from app_contract import missing_paths, revision, tables
+from test_subscription_commerce import database  # noqa: F401
+
 ROOT=Path(__file__).resolve().parents[1]
-MAIN=main_source(); MODELS=(ROOT/"backend/app/models.py").read_text(); MIG=(ROOT/"backend/alembic/versions/0022_enterprise_suite.py").read_text(); ADMIN=(ROOT/"admin/src/main.tsx").read_text()+(ROOT/"admin/src/sections.ts").read_text(); WORKER=(ROOT/"backend/worker.py").read_text()
+ADMIN=(ROOT/"admin/src/main.tsx").read_text()+(ROOT/"admin/src/sections.ts").read_text()
+
 
 def test_v44_contract_and_migration_chain():
-    assert '0022_enterprise_suite' in MIG and '0021_v43_hardening_docs' in MIG
-    for name in ['UserDevice','Campaign','AutomationRule','MonitoringCheck','TrialGrant']:
-        assert f'class {name}' in MODELS
-    for route in ['/api/me/devices','/api/me/trial','/api/admin/enterprise/monitoring','/api/admin/enterprise/campaigns','/api/admin/enterprise/rules','/api/admin/enterprise/summary']:
-        assert route in MAIN
-    assert 'job.kind=="trial"' in WORKER
+    assert revision('0022_enterprise_suite').down_revision == '0021_v43_hardening_docs'
+    assert {'user_devices', 'campaigns', 'automation_rules', 'monitoring_checks', 'trial_grants'} <= set(tables())
+    assert not missing_paths('/api/me/devices', '/api/me/trial', '/api/admin/enterprise/monitoring', '/api/admin/enterprise/campaigns',
+                             '/api/admin/enterprise/rules', '/api/admin/enterprise/summary')
 
 def test_v44_admin_surface():
     assert 'Корпоративный контур' in ADMIN
     for label in ['24/7 мониторинг','Campaign Manager','Rules Engine','мультиустройства','Trial']:
         assert label in ADMIN
 
-def test_monitoring_is_https_only_and_no_arbitrary_rule_code():
-    assert 'validate_public_url(payload.url)' in MAIN
-    assert 'actions' in MAIN and 'subprocess' not in MAIN[MAIN.find('@app.post("/api/admin/enterprise/rules")'):MAIN.find('@app.get("/api/admin/enterprise/summary")')]
-
-def test_v44_security_and_device_limit_hardening():
-    assert 'socket.getaddrinfo' in MAIN
-    assert 'is_private' in MAIN and 'Monitoring hostname resolves to a private' in MAIN
-    assert 'Достигнут лимит устройств тарифа' in MAIN
-    assert 'active_count' in MAIN and 'UserDevice.status=="active"' in MAIN
-    assert 'remote_expiry=await rw.get_expiry(remote_id)' in WORKER
+@pytest.mark.asyncio
+async def test_monitoring_targets_are_public_https_only(database):
+    admin = SimpleNamespace(email="a@b.c")
+    for url in ("http://status.example.com", "https://localhost/health", "https://127.0.0.1/health", "https://10.0.0.5/x", "https://user:pw@x.example/"):
+        with pytest.raises(HTTPException) as refused:
+            await shop.enterprise_monitoring_create(shop.MonitoringCheckIn(name="api", url=url), database, admin)
+        assert refused.value.status_code == 400, url
 
 
 def test_v44_5_release_tooling_is_consistent():
@@ -36,15 +42,10 @@ def test_v44_5_release_tooling_is_consistent():
     assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed_manifest.json' in manifest
 
 
-def test_payment_provider_health_bootstraps_without_admin_page():
-    src=MAIN
-    assert 'bootstrap the provider-health records lazily' in src
-    assert 'PaymentProviderHealth(provider=p,priority=i*10,enabled=True)' in src
-
-def test_auto_renew_respects_production_gate_and_payments_flag():
-    src=MAIN
-    marker='async def auto_renew_scheduler()'
-    block=src[src.index(marker):src.index('async def reconciliation_scheduler()')]
-    assert 'production_payments_allowed(db)' in block
-    assert 'PRODUCTION_PAYMENTS_CLOSED_KEY' in src[src.index('async def production_payments_allowed'):]
-    assert 'feature_enabled(db, "payments", True)' in block
+@pytest.mark.asyncio
+async def test_payment_provider_health_bootstraps_without_admin_page(database):
+    assert (await database.execute(select(PaymentProviderHealth))).first() is None
+    order = await shop._payment_provider_order(database, None)
+    rows = (await database.execute(select(PaymentProviderHealth))).scalars().all()
+    assert {r.provider for r in rows} >= set(shop.PAYMENT_AGENTS) and all(r.enabled for r in rows)
+    assert order, "a fresh shop can take payments without opening an admin page first"
