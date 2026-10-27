@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1620**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1624**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -281,6 +281,7 @@
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
 | [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
+| [backend/app/account_sync.py](../backend/app/account_sync.py) | API, бот и worker |
 | [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
 | [backend/app/admin_auth_api.py](../backend/app/admin_auth_api.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
@@ -487,6 +488,8 @@
 | [cabinet/src/account-merge.tsx](../cabinet/src/account-merge.tsx) | Кабинет |
 | [cabinet/src/account-recovery.test.tsx](../cabinet/src/account-recovery.test.tsx) | Кабинет |
 | [cabinet/src/account-recovery.tsx](../cabinet/src/account-recovery.tsx) | Кабинет |
+| [cabinet/src/account-sync.test.tsx](../cabinet/src/account-sync.test.tsx) | Кабинет |
+| [cabinet/src/account-sync.ts](../cabinet/src/account-sync.ts) | Кабинет |
 | [cabinet/src/app-config.test.tsx](../cabinet/src/app-config.test.tsx) | Кабинет |
 | [cabinet/src/app-config.tsx](../cabinet/src/app-config.tsx) | Кабинет |
 | [cabinet/src/app-login.test.tsx](../cabinet/src/app-login.test.tsx) | Кабинет |
@@ -1448,6 +1451,7 @@
 | [tests/test_abuse_suspension.py](../tests/test_abuse_suspension.py) | Проверки |
 | [tests/test_account_actions.py](../tests/test_account_actions.py) | Проверки |
 | [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
+| [tests/test_account_sync.py](../tests/test_account_sync.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
 | [tests/test_admin_web_ticket.py](../tests/test_admin_web_ticket.py) | Проверки |

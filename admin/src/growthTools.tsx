@@ -169,3 +169,48 @@ export function SupportKnowledge({request, toast}: {request: Request; toast: (te
     </details>
   );
 }
+
+/** «Мобильные приложения → Резервные адреса»: ротация домена API и сайты в обход VPN. */
+export function MobileMirrors({request, toast}: {request: Request; toast: (text: string) => void}) {
+  const [cfg, setCfg] = useState<any>(null);
+  const [text, setText] = useState({mirrors: "", bootstrap: "", direct: "", token: ""});
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const lines = (value: string) => value.split(/[\s,]+/).map(x => x.trim()).filter(Boolean);
+  function show(next: any) {
+    setCfg(next);
+    setText({mirrors: (next.mirrors || []).join("\n"), bootstrap: (next.bootstrap || []).join("\n"), direct: (next.direct_domains || []).join("\n"), token: ""});
+  }
+  useEffect(() => { request("/api/admin/mobile/mirrors").then(show).catch(e => setError(e.message)); }, [request]);
+  async function save() {
+    setError("");
+    try {
+      const body: any = {mirrors: lines(text.mirrors), bootstrap: lines(text.bootstrap), direct_domains: lines(text.direct), gist_id: (cfg.gist_id || "").trim()};
+      if (text.token) body.gist_token = text.token;
+      show(await request("/api/admin/mobile/mirrors", {method: "PUT", body: JSON.stringify(body)}));
+      toast("Резервные адреса сохранены и подписаны");
+    } catch (e: any) { setError(e.message); }
+  }
+  async function publish() {
+    setBusy(true); setError("");
+    try { await request("/api/admin/mobile/mirrors/publish", {method: "POST"}); show(await request("/api/admin/mobile/mirrors")); toast("Список опубликован в Gist"); }
+    catch (e: any) { setError(e.message); } finally { setBusy(false); }
+  }
+  if (!cfg) return <div className="card"><h3>Резервные адреса API</h3>{error ? <p className="error">{error}</p> : <p>Загрузка…</p>}</div>;
+  return (
+    <div className="card">
+      <h3>Резервные адреса API и сайты напрямую</h3>
+      <p className="muted">Если основной домен заблокируют, приложения сами перейдут на резервный адрес. Список подписан ключом магазина: подменить его через Gist или DNS нельзя.</p>
+      {error ? <p className="error">{error}</p> : null}
+      {cfg.publish_error ? <div className="alert">{cfg.publish_error}</div> : null}
+      <label>Резервные адреса API (по одному в строке, https)<textarea rows={3} value={text.mirrors} onChange={e => setText({...text, mirrors: e.target.value})} placeholder="https://api2.example.com"/></label>
+      <label>Источники списка вне магазина (Gist raw, Firebase Hosting…)<textarea rows={2} value={text.bootstrap} onChange={e => setText({...text, bootstrap: e.target.value})}/></label>
+      <label>ID GitHub Gist для автопубликации<input value={cfg.gist_id || ""} onChange={e => setCfg({...cfg, gist_id: e.target.value.trim()})}/></label>
+      <label>Токен GitHub (только gist){cfg.gist_token_set ? " — сохранён" : ""}<input type="password" value={text.token} onChange={e => setText({...text, token: e.target.value})} placeholder={cfg.gist_token_set ? "оставьте пустым, чтобы не менять" : "ghp_…"}/></label>
+      <label>Дополнительные сайты в обход VPN (режим «Российские сайты напрямую»)<textarea rows={3} value={text.direct} onChange={e => setText({...text, direct: e.target.value})} placeholder="online.sberbank.com"/></label>
+      {cfg.published_at ? <p className="muted">Gist обновлён: {new Date(cfg.published_at).toLocaleString("ru-RU")}</p> : null}
+      <div className="toolbar"><button className="primary" onClick={save}>Сохранить</button><button disabled={busy || !cfg.gist_id} onClick={publish}>Опубликовать сейчас</button></div>
+      <p className="muted">Ключ подписи (приложения запоминают его при первом входе): <code>{String(cfg.public_key || "").slice(0, 32)}…</code></p>
+    </div>
+  );
+}

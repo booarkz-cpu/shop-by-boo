@@ -242,9 +242,24 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
     }
 
     func call(_ method: String, _ path: String, body: [String: Any]? = nil, idempotency: String? = nil, headers: [String: String] = [:]) throws -> Any {
+        let origin = CorgiMirrors.resolve(base)
+        do {
+            return try send(origin, method, path, body: body, idempotency: idempotency, headers: headers)
+        } catch let error as URLError {
+            // Blocked or unreachable address: move to a signed reserve address. A request is repeated there
+            // only when it surely never reached the server (or is a GET), so nothing is paid or sent twice.
+            guard let next = CorgiMirrors.failover(home: base, failed: origin) else { throw error }
+            let unsent: Set<URLError.Code> = [.cannotFindHost, .cannotConnectToHost, .dnsLookupFailed, .secureConnectionFailed, .serverCertificateUntrusted]
+            if method != "GET" && !unsent.contains(error.code) { throw error }
+            return try send(next, method, path, body: body, idempotency: idempotency, headers: headers)
+        }
+    }
+
+    private func send(_ origin: String, _ method: String, _ path: String, body: [String: Any]?, idempotency: String?, headers: [String: String]) throws -> Any {
         // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
         let verifier: String? = try (["/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify", "/api/auth/mobile/code"].contains(path) ? pkceVerifier() : nil)
-        var request = URLRequest(url: URL(string: base + path)!)
+        guard let url = URL(string: origin + path) else { throw URLError(.badURL) }
+        var request = URLRequest(url: url)
         if let verifier { request.setValue(pkceChallenge(verifier), forHTTPHeaderField: "X-Shop-Code-Challenge") }
         request.httpMethod = method
         request.timeoutInterval = 15
@@ -290,7 +305,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
     }
 
     func bytes(_ path: String) throws -> Data {
-        guard let safe = safeMediaPath(path), let url = URL(string: base + safe) else { throw URLError(.badURL) }
+        guard let safe = safeMediaPath(path), let url = URL(string: CorgiMirrors.resolve(base) + safe) else { throw URLError(.badURL) }
         var request = URLRequest(url: url)
         request.timeoutInterval = 15
         request.setValue("image/png,image/jpeg,image/webp", forHTTPHeaderField: "Accept")
@@ -620,5 +635,108 @@ enum ShopPasskeys {
         var body: [String: Any] = [:]
         if !password.isEmpty { body["password"] = password }
         _ = try ShopClient(base: base, token: session, lang: lang).call("POST", "/api/auth/passkeys/\(id)/delete", body: body)
+    }
+}
+
+
+/// Domain rotation: when the shop's API address is blocked the app moves to a reserve address by itself.
+///
+/// The shop publishes a signed list (GET /api/public/mirrors, ECDSA P-256). The app remembers the shop's key
+/// from the address the customer signed in to (trust on first use) and from then on accepts reserve addresses
+/// — from the shop or from bootstrap copies such as a GitHub Gist — only with a valid signature. The session
+/// token stays bound to the home address: only the network origin changes.
+enum CorgiMirrors {
+    private static let store = UserDefaults(suiteName: "corgi_mirrors") ?? .standard
+    private static let lock = NSLock()
+    private static var lastFailover = Date.distantPast
+
+    private static func get(_ home: String, _ name: String) -> String { store.string(forKey: "\(name)|\(home)") ?? "" }
+    private static func put(_ home: String, _ values: [String: String]) { for (name, value) in values { store.set(value, forKey: "\(name)|\(home)") } }
+
+    /// Origin to send requests for `home` to: the home address or the reserve one in use.
+    static func resolve(_ home: String) -> String { let active = get(home, "active"); return active.isEmpty ? home : active }
+
+    /// Verified payload of a signed document, or nil. `expected` is the remembered shop key, if any.
+    static func verify(_ document: [String: Any], expected: String?) -> [String: Any]? {
+        guard let keyText = document["key"] as? String, let payloadText = document["payload"] as? String,
+              let signatureText = document["signature"] as? String,
+              expected == nil || expected == "" || expected == keyText,
+              let keyData = Data(base64Encoded: keyText), let signatureData = Data(base64Encoded: signatureText),
+              let key = try? P256.Signing.PublicKey(derRepresentation: keyData),
+              let signature = try? P256.Signing.ECDSASignature(derRepresentation: signatureData),
+              key.isValidSignature(signature, for: Data(payloadText.utf8)),
+              let payload = (try? JSONSerialization.jsonObject(with: Data(payloadText.utf8))) as? [String: Any],
+              let expires = (payload["expires_at"] as? String).flatMap({ ISO8601DateFormatter().date(from: $0) }), expires > Date() else { return nil }
+        return payload
+    }
+
+    private static func fetch(_ url: String) -> [String: Any]? {
+        guard let target = URL(string: url) else { return nil }
+        var request = URLRequest(url: target)
+        request.timeoutInterval = 7
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        let semaphore = DispatchSemaphore(value: 0)
+        var result: [String: Any]?
+        URLSession(configuration: .ephemeral).dataTask(with: request) { data, response, _ in
+            if let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode), let data, data.count < 64 * 1024 {
+                result = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+            }
+            semaphore.signal()
+        }.resume()
+        semaphore.wait()
+        return result
+    }
+
+    private static func remember(_ home: String, _ payload: [String: Any]) {
+        UserDefaults(suiteName: CorgiXray.appGroup)?.set(payload["direct"] as? [String] ?? [], forKey: CorgiXray.keyDirectExtra)
+        let list = { (key: String) -> String in
+            String(data: (try? JSONSerialization.data(withJSONObject: payload[key] as? [String] ?? [])) ?? Data("[]".utf8), encoding: .utf8) ?? "[]"
+        }
+        put(home, ["mirrors": list("mirrors"), "bootstrap": list("bootstrap"), "shop": payload["shop"] as? String ?? ""])
+    }
+
+    private static func list(_ home: String, _ name: String) -> [String] {
+        (try? JSONSerialization.jsonObject(with: Data(get(home, name).utf8))) as? [String] ?? []
+    }
+
+    /// After a successful answer: refresh the reserve list and return home once home works again.
+    static func learn(_ home: String) {
+        if home.isEmpty { return }
+        let known = get(home, "key")
+        if let doc = fetch(home + "/api/public/mirrors") {
+            guard let payload = verify(doc, expected: known) else { return }
+            if known.isEmpty, let key = doc["key"] as? String { put(home, ["key": key]) }
+            remember(home, payload)
+            put(home, ["active": ""])
+            return
+        }
+        let active = get(home, "active")
+        if !active.isEmpty, !known.isEmpty, let doc = fetch(active + "/api/public/mirrors"), let payload = verify(doc, expected: known) { remember(home, payload) }
+    }
+
+    /// The current origin does not answer: find a reserve address that proves it is this shop.
+    static func failover(home: String, failed: String) -> String? {
+        lock.lock(); defer { lock.unlock() }
+        let known = get(home, "key")
+        if known.isEmpty { return nil }
+        let current = resolve(home)
+        if current != failed { return current }
+        if Date().timeIntervalSince(lastFailover) < 30 { return nil }
+        lastFailover = Date()
+        var candidates = list(home, "mirrors").map { $0.hasSuffix("/") ? String($0.dropLast()) : $0 }
+        candidates.append(home)
+        for source in list(home, "bootstrap") {
+            guard let doc = fetch(source), let payload = verify(doc, expected: known) else { continue }
+            remember(home, payload)
+            candidates.append(contentsOf: payload["mirrors"] as? [String] ?? [])
+        }
+        var seen = Set<String>()
+        for candidate in candidates where candidate != failed && candidate.hasPrefix("https://") && seen.insert(candidate).inserted {
+            guard let doc = fetch(candidate + "/api/public/mirrors"), let payload = verify(doc, expected: known) else { continue }
+            remember(home, payload)
+            put(home, ["active": candidate == home ? "" : candidate])
+            return candidate
+        }
+        return nil
     }
 }

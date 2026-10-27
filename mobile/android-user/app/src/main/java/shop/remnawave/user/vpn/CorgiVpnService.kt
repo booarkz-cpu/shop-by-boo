@@ -38,7 +38,8 @@ class CorgiVpnService : VpnService() {
                 if (servers.isEmpty()) throw IllegalStateException("no servers")
                 val prefs = getSharedPreferences(PREFS, 0)
                 prefs.edit().putString(KEY_SERVERS, servers.joinToString("\n") { it.name }).apply()
-                val config = XrayEngine.config(servers, prefs.getString(KEY_SERVER, "").orEmpty(), prefs.getBoolean(KEY_BYPASS_RU, false))
+                val config = XrayEngine.config(servers, prefs.getString(KEY_SERVER, "").orEmpty(), prefs.getBoolean(KEY_BYPASS_RU, false),
+                    shop.remnawave.user.security.CorgiMirrors.direct(this))
                 val builder = Builder().setSession(getString(R.string.app_name)).setMtu(MTU)
                     .addAddress("172.19.0.1", 30).addRoute("0.0.0.0", 0)
                     .addAddress("fdfe:dcba:9876::1", 126).addRoute("::", 0)

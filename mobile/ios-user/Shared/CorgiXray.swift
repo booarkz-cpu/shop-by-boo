@@ -14,6 +14,8 @@ enum CorgiXray {
     static let appGroup = "group.shop.remnawave.user"
     static let keyServer = "vpn_server"
     static let keyBypassRu = "vpn_bypass_ru"
+    /// Extra sites around the VPN from the shop's signed list (CorgiMirrors).
+    static let keyDirectExtra = "vpn_direct_extra"
     static let keyServers = "vpn_servers"
     static let keyError = "vpn_error"
 
@@ -155,7 +157,7 @@ enum CorgiXray {
 
     /// Xray config: SOCKS inbound for the packet tunnel, the servers, «Авто» (fastest answer) or one
     /// chosen server, and what goes around the VPN (local networks; Russian sites when asked).
-    static func config(_ servers: [CorgiServer], selected: String, bypassRussian: Bool) -> String {
+    static func config(_ servers: [CorgiServer], selected: String, bypassRussian: Bool, extraDirect: [String] = []) -> String {
         var outbounds: [[String: Any]] = servers.map { $0.outbound }
         outbounds.append(["tag": "direct", "protocol": "freedom"])
         outbounds.append(["tag": "block", "protocol": "blackhole"])
@@ -163,7 +165,8 @@ enum CorgiXray {
                                        "ip": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "169.254.0.0/16", "100.64.0.0/10", "fc00::/7", "fe80::/10"]]]
         if bypassRussian {
             rules.append(["type": "field", "outboundTag": "direct",
-                          "domain": ["regexp:\\.ru$", "regexp:\\.su$", "regexp:\\.xn--p1ai$", "domain:gosuslugi.ru", "domain:nalog.gov.ru"]])
+                          "domain": ["regexp:\\.ru$", "regexp:\\.su$", "regexp:\\.xn--p1ai$", "domain:gosuslugi.ru", "domain:nalog.gov.ru",
+                                     "domain:sberbank.com", "domain:vk.com", "domain:vk.me", "domain:userapi.com", "domain:yandex.net", "domain:yandex.com", "domain:yastatic.net"] + extraDirect.map { "domain:\($0)" }])
         }
         var routing: [String: Any] = ["domainStrategy": "AsIs"]
         var config: [String: Any] = [

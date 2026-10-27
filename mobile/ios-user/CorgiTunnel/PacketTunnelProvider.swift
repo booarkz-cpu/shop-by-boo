@@ -42,7 +42,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             guard !servers.isEmpty else { return self.fail("В подписке нет серверов", completionHandler) }
             self.shared?.set(servers.map(\.name), forKey: CorgiXray.keyServers)
             let xray = CorgiXray.config(servers, selected: self.shared?.string(forKey: CorgiXray.keyServer) ?? "",
-                                         bypassRussian: self.shared?.bool(forKey: CorgiXray.keyBypassRu) ?? false)
+                                         bypassRussian: self.shared?.bool(forKey: CorgiXray.keyBypassRu) ?? false,
+                                         extraDirect: (self.shared?.stringArray(forKey: CorgiXray.keyDirectExtra) ?? []).filter { $0.range(of: "^[a-z0-9.-]{3,253}$", options: .regularExpression) != nil })
             self.setTunnelNetworkSettings(Self.networkSettings()) { error in
                 if let error { return self.fail(error.localizedDescription, completionHandler) }
                 if let problem = Self.runXray(xray) { return self.fail(problem, completionHandler) }

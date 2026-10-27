@@ -123,6 +123,8 @@ from .support_ai import router as support_ai_router
 app.include_router(support_ai_router)
 from .admin_web_ticket import router as admin_web_ticket_router
 app.include_router(admin_web_ticket_router)
+from .mobile_mirrors import router as mobile_mirrors_router
+app.include_router(mobile_mirrors_router)
 from .account_sync import router as account_sync_router
 app.include_router(account_sync_router)
 from .fiscal import router as fiscal_router
@@ -202,6 +204,7 @@ RATE_LIMITS = {
     "/api/payments/create": 20,
     "/api/payments/sandbox/complete": 30,
     "/api/public/servers": 30,
+    "/api/public/mirrors": 30,
     "/api/app-config": 120,
     "/api/mobile/layout": 120,
     "/api/me/wallet/stars-invoice": 10,
@@ -617,6 +620,8 @@ async def start_backup_scheduler():
     _track_task(telegram_backup_scheduler())
     from .anti_sharing import anti_sharing_scheduler
     _track_task(anti_sharing_scheduler())
+    from .mobile_mirrors import mirrors_scheduler
+    _track_task(mirrors_scheduler())
 
 @app.get("/health/live")
 async def health_live():

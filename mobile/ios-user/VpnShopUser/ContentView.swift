@@ -1032,6 +1032,8 @@ struct UserRootView: View {
                 // Shops on releases before v28.25.0 have no family or status page: keep the rest working.
                 next.family = (try? api.call("GET", "/api/me/family")) as? [String: Any] ?? [:]
                 next.status = (try? api.call("GET", "/api/public/service-status")) as? [String: Any] ?? [:]
+                // Keep the signed reserve-address list fresh while the main address works.
+                CorgiMirrors.learn(origin)
                 next.passkeys = (try? ShopPasskeys.list(base: origin, session: session, lang: language)) ?? []
                 // Shops before v28.29.0 have no documents: the section stays empty.
                 next.docs = (try? api.call("GET", "/api/public/info-pages?lang=\(language)")) as? [[String: Any]] ?? []
