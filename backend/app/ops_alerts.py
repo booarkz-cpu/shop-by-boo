@@ -120,6 +120,9 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     for u in (await db.execute(select(User).where(User.wallet_balance < 0, User.deleted_at.is_(None)).order_by(User.id).limit(20))).scalars():
         out.append(Problem(f"wallet_debt:{u.id}", f"Отрицательный баланс клиента №{u.id}",
                            f"Баланс {u.wallet_balance}: возвращённое пополнение уже потрачено. Клиенты → №{u.id}: ограничьте доступ или договоритесь о погашении.", "warning"))
+    from .block_monitor import problems as block_problems
+    for key, title, detail in await block_problems(db):
+        out.append(Problem(key, title, detail, "critical"))
     backup = await db.scalar(select(BackupJob).order_by(BackupJob.id.desc()).limit(1))
     if backup and backup.status == "failed" and backup.created_at >= day:
         out.append(Problem(f"backup:{backup.id}", "Резервная копия не создана", (backup.error or "ошибка")[:300] + ". Безопасность → Резервные копии."))

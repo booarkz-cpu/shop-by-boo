@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1690**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1694**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -138,6 +138,7 @@
 | [admin/src/appGrowth.tsx](../admin/src/appGrowth.tsx) | Админ-панель |
 | [admin/src/autoUpdate.tsx](../admin/src/autoUpdate.tsx) | Админ-панель |
 | [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
+| [admin/src/blockMonitor.tsx](../admin/src/blockMonitor.tsx) | Админ-панель |
 | [admin/src/botBanners.tsx](../admin/src/botBanners.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
 | [admin/src/components/preferences-menu.tsx](../admin/src/components/preferences-menu.tsx) | Админ-панель |
@@ -340,6 +341,7 @@
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
+| [backend/app/block_monitor.py](../backend/app/block_monitor.py) | API, бот и worker |
 | [backend/app/bonus_days.py](../backend/app/bonus_days.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
@@ -1345,6 +1347,7 @@
 | [scripts/auto_update.py](../scripts/auto_update.py) | Эксплуатация и релиз |
 | [scripts/backup.sh](../scripts/backup.sh) | Эксплуатация и релиз |
 | [scripts/backup_bundle.py](../scripts/backup_bundle.py) | Эксплуатация и релиз |
+| [scripts/block-probe.py](../scripts/block-probe.py) | Эксплуатация и релиз |
 | [scripts/bot-banners/fonts/OFL-RobotoCondensed.txt](../scripts/bot-banners/fonts/OFL-RobotoCondensed.txt) | Эксплуатация и релиз |
 | [scripts/bot-banners/fonts/roboto-condensed-cyrillic-800-normal.woff2](../scripts/bot-banners/fonts/roboto-condensed-cyrillic-800-normal.woff2) | Эксплуатация и релиз |
 | [scripts/bot-banners/fonts/roboto-condensed-latin-800-normal.woff2](../scripts/bot-banners/fonts/roboto-condensed-latin-800-normal.woff2) | Эксплуатация и релиз |
@@ -1528,6 +1531,7 @@
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
 | [tests/test_behaviour_payments_v2.py](../tests/test_behaviour_payments_v2.py) | Проверки |
 | [tests/test_behaviour_store_and_webhooks.py](../tests/test_behaviour_store_and_webhooks.py) | Проверки |
+| [tests/test_block_monitor.py](../tests/test_block_monitor.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |

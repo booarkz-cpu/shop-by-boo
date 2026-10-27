@@ -16,6 +16,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import logging
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Request, Response
@@ -25,6 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .db import get_db
 
 router = APIRouter()
+logger = logging.getLogger("vpnshop.account_sync")
 
 MAX_WAIT = 25
 POLL_SECONDS = 3.0      # without Redis: how often a waiting request re-reads the database
@@ -91,8 +93,8 @@ def notify(user_ids) -> None:
 async def _publish_safely(redis, uid: int) -> None:
     try:
         await redis.publish(f"{CHANNEL}{uid}", "1")
-    except Exception:  # noqa: BLE001 — a lost notice only delays the update to the next re-read
-        pass
+    except Exception as exc:  # noqa: BLE001 — a lost notice only delays the update to the next re-read
+        logger.debug("Sync notice not published: %s", exc)
 
 
 async def _listen() -> None:
@@ -133,7 +135,7 @@ async def _wait_for_change(user_id: int, timeout: float) -> None:
     try:
         await asyncio.wait_for(event.wait(), timeout)
     except asyncio.TimeoutError:
-        pass
+        logger.debug("No change for user %s within %.0f s", user_id, timeout)
     finally:
         _waiters.get(user_id, set()).discard(event)
         if not _waiters.get(user_id):

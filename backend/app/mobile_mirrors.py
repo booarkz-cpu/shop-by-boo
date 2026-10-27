@@ -110,6 +110,16 @@ def public_key_b64(key: ec.EllipticCurvePrivateKey) -> str:
     return base64.b64encode(key.public_key().public_bytes(serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo)).decode()
 
 
+async def _ordered_mirrors(db: AsyncSession, mirrors: list[str]) -> list[str]:
+    """Addresses the block monitor found blocked go last: apps try the open ones first (stable order otherwise)."""
+    from .block_monitor import blocked_hosts
+    try:
+        blocked = await blocked_hosts(db)
+    except Exception:  # noqa: BLE001 — the list is still valid without the monitor
+        blocked = set()
+    return sorted(mirrors, key=lambda u: urlsplit(u).hostname in blocked)
+
+
 async def signed_document(db: AsyncSession, now: datetime | None = None) -> dict:
     from .config import settings
     cfg = await load(db)
@@ -119,7 +129,7 @@ async def signed_document(db: AsyncSession, now: datetime | None = None) -> dict
     payload = json.dumps({
         "shop": primary,
         # Domains Caddy already serves (API_MIRROR_DOMAINS) are reserve addresses without any extra setup.
-        "mirrors": list(dict.fromkeys(u for u in [primary, *[f"https://{d}" for d in settings.api_domains()[1:]], *cfg["mirrors"]] if u)),
+        "mirrors": await _ordered_mirrors(db, list(dict.fromkeys(u for u in [primary, *[f"https://{d}" for d in settings.api_domains()[1:]], *cfg["mirrors"]] if u))),
         "bootstrap": cfg["bootstrap"],
         "direct": cfg.get("direct_domains", []),
         "issued_at": now.replace(microsecond=0).isoformat(),

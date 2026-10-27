@@ -71,6 +71,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/backups/{backup_id}/restore/request` | Request Restore |
 | `POST` | `/api/admin/backups/{backup_id}/validate` | Validate Backup Archive |
 | `POST` | `/api/admin/backups/{backup_id}/verify` | Verify Backup |
+| `GET` | `/api/admin/block-monitor` | Get Monitor |
+| `PUT` | `/api/admin/block-monitor` | Put Monitor |
+| `POST` | `/api/admin/block-monitor/probes` | Add Probe |
+| `DELETE` | `/api/admin/block-monitor/probes/{probe_id}` | Delete Probe |
 | `GET` | `/api/admin/bot/banners` | List Banners |
 | `PUT` | `/api/admin/bot/banners-enabled` | Banners Enabled |
 | `DELETE` | `/api/admin/bot/banners/{key}` | Reset Banner |
@@ -592,6 +596,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/plugin/v1/payments/{payment_id}` | Plugin Payment |
 | `GET` | `/api/plugin/v1/users/{user_id}` | Plugin User |
 | `GET` | `/api/plugin/v1/users/{user_id}/subscriptions` | Plugin Subscriptions |
+| `POST` | `/api/probe/report` | Probe Report |
+| `GET` | `/api/probe/targets` | Probe Targets |
 | `GET` | `/api/promo/validate` | Validate Promo |
 | `GET` | `/api/public/app-login/methods` | Public Login Methods |
 | `GET` | `/api/public/apps` | Public Apps |

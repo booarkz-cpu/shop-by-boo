@@ -123,6 +123,8 @@ from .support_ai import router as support_ai_router
 app.include_router(support_ai_router)
 from .admin_web_ticket import router as admin_web_ticket_router
 app.include_router(admin_web_ticket_router)
+from .block_monitor import router as block_monitor_router
+app.include_router(block_monitor_router)
 from .provider_report import router as provider_report_router
 app.include_router(provider_report_router)
 from .mobile_mirrors import router as mobile_mirrors_router
@@ -218,6 +220,8 @@ RATE_LIMITS = {
     "/api/me/servers": 30,
     # Long-poll from every open cabinet, Mini App and app; customers behind one carrier NAT share an IP.
     "/api/me/sync": 300,
+    "/api/probe/report": 30,
+    "/api/probe/targets": 30,
     "/api/tariff-constructors": 60,
     "/api/agent/heartbeat": 120,
     "/api/agent/observations": 60,
