@@ -45,6 +45,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/auth/passkeys/registration/options` | Registration Options |
 | `POST` | `/api/admin/auth/passkeys/registration/verify` | Registration Verify |
 | `POST` | `/api/admin/auth/telegram` | Admin Telegram Login |
+| `GET` | `/api/admin/auto-update` | Get Auto Update |
+| `PUT` | `/api/admin/auto-update` | Put Auto Update |
+| `POST` | `/api/admin/auto-update/run` | Run Auto Update |
 | `DELETE` | `/api/admin/automation/campaigns/{campaign_id}` | Delete Campaign |
 | `GET` | `/api/admin/automation/catalog` | Catalog |
 | `POST` | `/api/admin/automation/presets/{preset_id}` | Create Preset |

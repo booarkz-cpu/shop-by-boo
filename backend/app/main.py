@@ -145,6 +145,8 @@ from .app_growth import router as app_growth_router
 app.include_router(app_growth_router)
 from .push_campaigns import router as push_campaigns_router
 app.include_router(push_campaigns_router)
+from .auto_update_api import router as auto_update_router
+app.include_router(auto_update_router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1592**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1598**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -135,6 +135,7 @@
 | [admin/src/app/page.tsx](../admin/src/app/page.tsx) | Админ-панель |
 | [admin/src/appConfig.tsx](../admin/src/appConfig.tsx) | Админ-панель |
 | [admin/src/appGrowth.tsx](../admin/src/appGrowth.tsx) | Админ-панель |
+| [admin/src/autoUpdate.tsx](../admin/src/autoUpdate.tsx) | Админ-панель |
 | [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
 | [admin/src/botBanners.tsx](../admin/src/botBanners.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
@@ -328,6 +329,7 @@
 | [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
 | [backend/app/assets/mobile_strings.json](../backend/app/assets/mobile_strings.json) | API, бот и worker |
 | [backend/app/auth_api.py](../backend/app/auth_api.py) | API, бот и worker |
+| [backend/app/auto_update_api.py](../backend/app/auto_update_api.py) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
@@ -1266,6 +1268,8 @@
 | [screenshots/storefront_user/22_faq.png](../screenshots/storefront_user/22_faq.png) | Корень проекта |
 | [screenshots/storefront_user/23_offer.png](../screenshots/storefront_user/23_offer.png) | Корень проекта |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
+| [scripts/auto-update.sh](../scripts/auto-update.sh) | Эксплуатация и релиз |
+| [scripts/auto_update.py](../scripts/auto_update.py) | Эксплуатация и релиз |
 | [scripts/backup.sh](../scripts/backup.sh) | Эксплуатация и релиз |
 | [scripts/backup_bundle.py](../scripts/backup_bundle.py) | Эксплуатация и релиз |
 | [scripts/bot-banners/fonts/OFL-RobotoCondensed.txt](../scripts/bot-banners/fonts/OFL-RobotoCondensed.txt) | Эксплуатация и релиз |
@@ -1437,6 +1441,8 @@
 | [tests/test_app_growth.py](../tests/test_app_growth.py) | Проверки |
 | [tests/test_app_login.py](../tests/test_app_login.py) | Проверки |
 | [tests/test_audit_v2009_runtime.py](../tests/test_audit_v2009_runtime.py) | Проверки |
+| [tests/test_auto_update_agent.py](../tests/test_auto_update_agent.py) | Проверки |
+| [tests/test_auto_update_api.py](../tests/test_auto_update_api.py) | Проверки |
 | [tests/test_automation_engine.py](../tests/test_automation_engine.py) | Проверки |
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
