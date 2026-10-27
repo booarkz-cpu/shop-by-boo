@@ -48,7 +48,9 @@ async def test_reserve_gateway_takes_over_and_the_paid_order_reaches_every_clien
     async def risk(*a):
         return 0, "allow", {}
     for name, value in {"_risk_score": risk, "production_payments_allowed": yes, "e2e_checkout_allowed": yes,
-                        "redis_client": FakeRedis(), "YooKassaProvider": Down, "notify_user_telegram": quiet}.items():
+                        "redis_client": FakeRedis(), "YooKassaProvider": Down, "notify_user_telegram": quiet,
+                        # Side sessions (provider events, audit) must use this test's database, not the app engine.
+                        "engine": db.bind}.items():
         monkeypatch.setattr(shop, name, value)
     for name, value in {"yookassa_shop_id": "shop", "yookassa_secret_key": "key", "yookassa_webhook_ip_allowlist": "185.71.76.0/27",
                         "cryptobot_token": TOKEN}.items():
