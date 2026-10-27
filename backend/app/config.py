@@ -150,6 +150,11 @@ class Settings(BaseSettings):
         default="", alias="ROLLYPAY_REFUND_STATUS_URL"
     )
 
+    # ---------- AI support assistant (drafts only, never sent by itself) ----------
+    support_ai_url: str = Field(default="", alias="SUPPORT_AI_URL")
+    support_ai_key: str = Field(default="", alias="SUPPORT_AI_KEY")
+    support_ai_model: str = Field(default="", alias="SUPPORT_AI_MODEL")
+
     # ---------- CryptoBot ----------
     cryptobot_token: str = Field(default="", alias="CRYPTOBOT_TOKEN")
     cryptobot_network: str = Field(

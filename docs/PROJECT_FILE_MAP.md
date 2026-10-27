@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1616**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1618**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -415,6 +415,7 @@
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
 | [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
 | [backend/app/subscriptions.py](../backend/app/subscriptions.py) | API, бот и worker |
+| [backend/app/support_ai.py](../backend/app/support_ai.py) | API, бот и worker |
 | [backend/app/support_attachments.py](../backend/app/support_attachments.py) | API, бот и worker |
 | [backend/app/support_bridge.py](../backend/app/support_bridge.py) | API, бот и worker |
 | [backend/app/support_threads.py](../backend/app/support_threads.py) | API, бот и worker |
@@ -1538,6 +1539,7 @@
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |
 | [tests/test_subscription_commerce.py](../tests/test_subscription_commerce.py) | Проверки |
+| [tests/test_support_ai.py](../tests/test_support_ai.py) | Проверки |
 | [tests/test_support_attachments.py](../tests/test_support_attachments.py) | Проверки |
 | [tests/test_support_bridge.py](../tests/test_support_bridge.py) | Проверки |
 | [tests/test_support_postgres.py](../tests/test_support_postgres.py) | Проверки |

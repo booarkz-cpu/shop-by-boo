@@ -119,6 +119,8 @@ from .telegram_backup import router as telegram_backup_router
 app.include_router(telegram_backup_router)
 from .anti_sharing import router as anti_sharing_router
 app.include_router(anti_sharing_router)
+from .support_ai import router as support_ai_router
+app.include_router(support_ai_router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
