@@ -279,6 +279,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     var monitoring by remember { mutableStateOf(JSONObject()) }
     var platform by remember { mutableStateOf(JSONObject()) }
     var ops by remember { mutableStateOf(JSONObject()) }
+    var nodeHealth by remember { mutableStateOf(JSONObject()) }
     var readiness by remember { mutableStateOf(JSONObject()) }
     var alerts by remember { mutableStateOf(JSONObject()) }
     var tickets by remember { mutableStateOf(JSONArray()) }
@@ -376,6 +377,8 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
             // Shops before v28.27.0 have no launch checks: the other tabs keep working.
             val nextReadiness = try { api.get("/api/admin/ops/readiness") as JSONObject } catch (_: Exception) { JSONObject() }
             val nextAlerts = try { api.get("/api/admin/ops/alerts") as JSONObject } catch (_: Exception) { JSONObject() }
+            // Node health appeared in v28.35: older shops simply show no node card.
+            val nextNodeHealth = try { api.get("/api/admin/nodes/health") as JSONObject } catch (_: Exception) { JSONObject() }
             val nextMarketing = api.get("/api/admin/marketing") as JSONObject
             val nextBroadcasts = nextMarketing.optJSONArray("broadcasts") ?: JSONArray()
             val nextLogo = try {
@@ -391,6 +394,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
                 monitoring = nextMonitoring
                 platform = nextPlatform
                 ops = nextOps
+                nodeHealth = nextNodeHealth
                 readiness = nextReadiness
                 alerts = nextAlerts
                 tickets = nextTickets
@@ -436,7 +440,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
         }
     }
     fun money(value: Any?) = value?.toString()?.removeSuffix(".00").orEmpty()
-    val navItems = listOf("overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast")
+    val navItems = listOf("overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast", "panel")
     Box(Modifier.fillMaxSize().background(Remna.bg)) {
         Column(Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             RemnaHeader(t("app_name"), if (token.isNotBlank() && unlocked) profileTitle() else t("tagline"), logo, if (lang == "ru") "EN" else "RU") {
@@ -690,6 +694,24 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
                                 RemnaRow(agent.optString("name"), "CPU ${agent.optString("cpu")} · RAM ${agent.optString("mem")}", t("online"), Tone.OK)
                             }
                         }
+                        RemnaCard(t("nodes")) {
+                            val nodes = nodeHealth.optJSONArray("nodes") ?: JSONArray()
+                            if (nodeHealth.optString("error").isNotBlank() && !nodeHealth.isNull("error")) RemnaNotice(nodeHealth.optString("error"), Tone.BAD)
+                            if (nodes.length() == 0) RemnaEmpty(t("no_data"))
+                            for (index in 0 until nodes.length()) {
+                                val node = nodes.getJSONObject(index)
+                                val online = node.optString("status") == "online"
+                                val detail = if (online) "${node.optString("users_online")} online" else "${t("node_down")} ${node.optInt("down_minutes")} мин"
+                                RemnaRow(node.optString("name"), detail, node.optString("status"), if (online) Tone.OK else Tone.BAD) {
+                                    RemnaGhost(t("node_restart"), enabled = !busy && !demo) {
+                                        work {
+                                            ShopApi(base, token, lang).post("/api/admin/nodes/${node.optString("uuid")}/restart", JSONObject())
+                                            activity.runOnUiThread { notice = t("node_restarted") }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     "support" -> RemnaCard(t("support")) {
                         RemnaField(reply, { reply = it }, t("reply"), singleLine = false)
@@ -697,12 +719,31 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
                         for (index in 0 until tickets.length()) {
                             val ticket = tickets.getJSONObject(index)
                             RemnaRow("#${ticket.optInt("id")} · ${ticket.optString("subject")}", ticket.optString("message"), ticket.optString("status")) {
+                                RemnaGhost(t("ai_draft"), enabled = !busy && !demo) {
+                                    work {
+                                        val out = ShopApi(base, token, lang).post("/api/admin/support/tickets/${ticket.optInt("id")}/draft", JSONObject()) as JSONObject
+                                        activity.runOnUiThread { reply = out.optString("draft") }
+                                    }
+                                }
                                 RemnaPrimary(t("send"), enabled = !busy && !demo, modifier = Modifier) {
                                     if (reply.isBlank()) return@RemnaPrimary
                                     work {
                                         ShopApi(base, token, lang).post("/api/admin/support/tickets/${ticket.optInt("id")}/reply", JSONObject().put("reply", reply.trim()))
                                         activity.runOnUiThread { notice = t("reply_sent"); reply = "" }
                                     }
+                                }
+                            }
+                        }
+                    }
+                    "panel" -> RemnaCard(t("panel")) {
+                        // Everything the native tabs do not cover lives in the web panel; the ticket is single-use and lives 60 s.
+                        Text(t("panel_hint"), color = Remna.text)
+                        RemnaPrimary(t("panel_open"), enabled = !busy && !demo) {
+                            work {
+                                val out = ShopApi(base, token, lang).post("/api/admin/auth/web-ticket", JSONObject()) as JSONObject
+                                val url = out.optString("url")
+                                if (url.startsWith("https://")) activity.runOnUiThread {
+                                    activity.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
                                 }
                             }
                         }

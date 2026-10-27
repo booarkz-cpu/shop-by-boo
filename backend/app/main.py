@@ -121,6 +121,8 @@ from .anti_sharing import router as anti_sharing_router
 app.include_router(anti_sharing_router)
 from .support_ai import router as support_ai_router
 app.include_router(support_ai_router)
+from .admin_web_ticket import router as admin_web_ticket_router
+app.include_router(admin_web_ticket_router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
@@ -224,6 +226,7 @@ RATE_LIMITS = {
     "/api/admin/auth/passkeys/registration/options": 5,
     "/api/admin/auth/passkeys/registration/verify": 5,
     "/api/admin/auth/telegram": 8,
+    "/api/admin/auth/ticket": 20,
 }
 
 try:
@@ -272,7 +275,7 @@ def _csrf_cookie_value(request: Request) -> str:
 
 def _require_csrf(request: Request):
     if request.method not in {"POST", "PUT", "PATCH", "DELETE"}: return
-    if request.url.path in {"/api/auth/telegram", "/api/auth/yandex", "/api/auth/yandex/callback", "/api/auth/vk", "/api/auth/vk/callback", "/api/auth/google", "/api/auth/google/callback", "/api/auth/exchange", "/api/auth/login", "/api/auth/register", "/api/admin/auth/login"}: return
+    if request.url.path in {"/api/auth/telegram", "/api/auth/yandex", "/api/auth/yandex/callback", "/api/auth/vk", "/api/auth/vk/callback", "/api/auth/google", "/api/auth/google/callback", "/api/auth/exchange", "/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/admin/auth/ticket"}: return
     if request.url.path.startswith("/api/webhooks/"): return
     if request.cookies.get("rw_admin") or request.cookies.get("rw_user"):
         supplied=request.headers.get("X-CSRF-Token", "")

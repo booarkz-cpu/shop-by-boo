@@ -92,7 +92,15 @@
     "alerts_test": "Отправить тестовое оповещение",
     "alerts_sent": "Тестовое оповещение отправлено",
     "problems_now": "Сейчас",
-    "no_problems": "Проблем нет"
+    "no_problems": "Проблем нет",
+    "panel": "Вся панель",
+    "panel_hint": "Откроет полную веб-панель в браузере по одноразовой ссылке (60 секунд). Пароль вводить не нужно.",
+    "panel_open": "Открыть полную панель",
+    "nodes": "Ноды",
+    "node_restart": "Перезапустить",
+    "node_restarted": "Команда перезапуска отправлена",
+    "node_down": "недоступна",
+    "ai_draft": "Черновик ИИ"
   },
   "en": {
     "app_name": "VPN admin",
@@ -187,7 +195,15 @@
     "alerts_test": "Send a test alert",
     "alerts_sent": "Test alert sent",
     "problems_now": "Now",
-    "no_problems": "No problems"
+    "no_problems": "No problems",
+    "panel": "Full panel",
+    "panel_hint": "Opens the full web panel in the browser with a one-time link (60 seconds). No password needed.",
+    "panel_open": "Open full panel",
+    "nodes": "Nodes",
+    "node_restart": "Restart",
+    "node_restarted": "Restart command sent",
+    "node_down": "down",
+    "ai_draft": "AI draft"
   },
   "uk": {
     "app_name": "Коргі Люсі Адмін",
@@ -282,6 +298,14 @@
     "alerts_test": "Надіслати тестове сповіщення",
     "alerts_sent": "Тестове сповіщення надіслано",
     "problems_now": "Зараз",
-    "no_problems": "Проблем немає"
+    "no_problems": "Проблем немає",
+    "panel": "Вся панель",
+    "panel_hint": "Відкриє повну веб-панель у браузері за одноразовим посиланням (60 секунд).",
+    "panel_open": "Відкрити повну панель",
+    "nodes": "Ноди",
+    "node_restart": "Перезапустити",
+    "node_restarted": "Команду перезапуску надіслано",
+    "node_down": "недоступна",
+    "ai_draft": "Чернетка ШІ"
   }
 }

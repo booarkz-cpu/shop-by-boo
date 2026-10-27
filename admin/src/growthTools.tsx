@@ -139,3 +139,33 @@ export function AntiSharing({request, toast}: {request: Request; toast: (text: s
     </div>
   );
 }
+
+/** «Поддержка → База знаний ИИ-ассистента»: вопросы и ответы, по которым готовятся черновики. */
+export function SupportKnowledge({request, toast}: {request: Request; toast: (text: string) => void}) {
+  const [items, setItems] = useState<{question: string; answer: string}[]>([]);
+  const [info, setInfo] = useState<any>(null);
+  const [error, setError] = useState("");
+  useEffect(() => { request("/api/admin/support/ai").then(d => { setItems(d.items || []); setInfo(d); }).catch(e => setError(e.message)); }, [request]);
+  const change = (index: number, patch: any) => setItems(items.map((x, i) => (i === index ? {...x, ...patch} : x)));
+  async function save() {
+    try {
+      await request("/api/admin/support/ai", {method: "PUT", body: JSON.stringify({items: items.filter(x => x.question.trim() && x.answer.trim())})});
+      toast("База знаний сохранена");
+    } catch (e: any) { setError(e.message); }
+  }
+  return (
+    <details className="card">
+      <summary><b>База знаний ИИ-ассистента</b> · {info?.llm_configured ? `модель ${info.model}` : "модель не подключена — черновики из базы знаний"}</summary>
+      {error ? <p className="error">{error}</p> : null}
+      {items.map((item, i) => (
+        <div className="grid2" key={i}>
+          <label>Вопрос<input value={item.question} onChange={e => change(i, {question: e.target.value})}/></label>
+          <label>Ответ<textarea rows={2} value={item.answer} onChange={e => change(i, {answer: e.target.value})}/></label>
+          <button onClick={() => setItems(items.filter((_, j) => j !== i))}>Удалить</button>
+        </div>
+      ))}
+      <div className="toolbar"><button onClick={() => setItems([...items, {question: "", answer: ""}])}>Добавить вопрос</button><button className="primary" onClick={save}>Сохранить</button></div>
+      <p className="muted">Подключение модели: «Настройки без перезапуска → Поддержка» (адрес API, ключ, модель). Страница FAQ тоже используется.</p>
+    </details>
+  );
+}
