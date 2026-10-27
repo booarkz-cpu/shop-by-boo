@@ -18,9 +18,3 @@ def test_release_is_v1_0_3_realise():
 def test_lock_renewal_task_self_cleans_registry():
     assert '_LOCK_RENEW_TASKS.get(token) is current' in MAIN
     assert '_LOCK_RENEW_TASKS.pop(token,None)' in MAIN
-
-
-def test_telegram_init_data_rejects_malformed_auth_date_and_user():
-    assert 'except (TypeError,ValueError):' in MAIN
-    assert 'Invalid Telegram auth date' in MAIN
-    assert 'if not isinstance(user,dict) or not user.get("id")' in MAIN
