@@ -1,0 +1,11 @@
+# Python lint of the backend, scripts and tests (CI job «Lint»).
+# The rules catch real defects: undefined names, syntax errors, mutable defaults, late-bound loop
+# variables. Star re-exports of main.py (F403/F405) are by design (tests/main_source.py); unused
+# imports (F401) are reported separately and cleaned file by file.
+line-length = 200
+target-version = "py312"
+extend-exclude = ["**/node_modules", "backend/alembic/versions"]
+
+[lint]
+select = ["F", "E9", "B006", "B023"]
+ignore = ["F401", "F403", "F405", "F811", "F841"]

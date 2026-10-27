@@ -118,6 +118,26 @@ jobs:
           } | sed 's/%/%25/g' > "$RUNNER_TEMP/tail.txt" || true
           echo "::error title=pytest failure summary::$(sed ':a;N;$!ba;s/\n/%0A/g' "$RUNNER_TEMP/tail.txt")"
 
+  lint:
+    name: Lint • Python (ruff) and shell syntax
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: ruff (ruff.toml)
+        run: |
+          pip install ruff==0.14.2
+          ruff check backend scripts tests --output-format github
+      - name: Shell scripts parse
+        run: |
+          status=0
+          while IFS= read -r -d '' file; do bash -n "$file" || { echo "::error file=$file::bash -n failed"; status=1; }; done \
+            < <(git ls-files -z '*.sh')
+          exit $status
+
   passkey-browser:
     name: Content, customer operations and passkeys • Chromium end-to-end
     runs-on: ubuntu-24.04
@@ -471,3 +491,4 @@ jobs:
       - name: Compile simulator application
         working-directory: mobile/${{ matrix.app }}
         run: xcodebuild -project ${{ matrix.project }}.xcodeproj -scheme ${{ matrix.project }} -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
+

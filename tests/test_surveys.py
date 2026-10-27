@@ -18,8 +18,8 @@ def payload(**changes):
 async def seed(db,**changes):
     row=Survey(**payload(**changes).model_dump(),state='published',currency=polls.settings.default_currency);db.add(row)
     user=await db.get(User,1);user.email='owner@example.test';user.email_verified_at=datetime.utcnow();await db.commit();return row
-async def vote(db,row,choices=[0]):
-    return await polls.submit(row.id,polls.SubmitIn(answers=[{'choices':choices}]),request(),Response(),db)
+async def vote(db,row,choices=(0,)):
+    return await polls.submit(row.id,polls.SubmitIn(answers=[{'choices':list(choices)}]),request(),Response(),db)
 
 def test_question_and_budget_validation():
     for changes in ({'reward_amount':'5','require_verified_email':False},{'reward_amount':'10000','max_responses':101},{'starts_at':datetime.utcnow()},{'questions':[{'text':'x','options':['A','a']}]}):

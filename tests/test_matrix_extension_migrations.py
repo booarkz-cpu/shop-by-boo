@@ -75,7 +75,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     for name in guarded_names:
         module=migration(name)
         async with database.bind.begin() as conn:
-            def guarded(sync):
+            def guarded(sync, module=module):
                 with Operations.context(MigrationContext.configure(sync)):
                     with pytest.raises(RuntimeError):module.downgrade()
             await conn.run_sync(guarded)
