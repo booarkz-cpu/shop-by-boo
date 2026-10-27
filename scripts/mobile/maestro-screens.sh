@@ -21,6 +21,12 @@ if [[ $status -ne 0 ]]; then
   maestro test --format junit --output "$REPORT" --test-output-dir "$ROOT/screenshots/mobile/maestro" flows/ || status=$?
 fi
 ls -1 "$ROOT/screenshots/mobile/maestro"
+if [[ $status -ne 0 ]] && command -v adb >/dev/null; then
+  # What the emulator showed and why: the top activity and crashes reach the run's annotations.
+  adb shell dumpsys activity activities 2>/dev/null | grep -m3 -E "mResumedActivity|topResumedActivity" | sed 's/^ */::error title=Maestro top activity::/' || true
+  adb logcat -d -b crash 2>/dev/null | head -30 | tr '\n' ' ' | cut -c1-900 | sed 's/^/::error title=Maestro crash log::/' || true
+  adb logcat -d 2>/dev/null | grep -E "AndroidRuntime|FATAL|ANR in|shop.remnawave" | tail -15 | sed 's/^/::warning title=Maestro logcat::/' || true
+fi
 if [[ $status -ne 0 && -f "$REPORT" ]]; then
   # CI logs are not always readable: surface each failing flow as an annotation.
   python3 - "$REPORT" <<'PY'
