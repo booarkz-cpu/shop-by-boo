@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.35.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.36.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1694**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1700**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -157,6 +157,7 @@
 | [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
 | [admin/src/documents.tsx](../admin/src/documents.tsx) | Админ-панель |
+| [admin/src/economics.tsx](../admin/src/economics.tsx) | Админ-панель |
 | [admin/src/fiscal.tsx](../admin/src/fiscal.tsx) | Админ-панель |
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
@@ -280,6 +281,7 @@
 | [backend/alembic/versions/0076_growth.py](../backend/alembic/versions/0076_growth.py) | API, бот и worker |
 | [backend/alembic/versions/0077_app_growth.py](../backend/alembic/versions/0077_app_growth.py) | API, бот и worker |
 | [backend/alembic/versions/0078_campaign_ab.py](../backend/alembic/versions/0078_campaign_ab.py) | API, бот и worker |
+| [backend/alembic/versions/0079_acquisition.py](../backend/alembic/versions/0079_acquisition.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -357,6 +359,7 @@
 | [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
+| [backend/app/economics.py](../backend/app/economics.py) | API, бот и worker |
 | [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
 | [backend/app/fiscal.py](../backend/app/fiscal.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
@@ -811,6 +814,7 @@
 | [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
 | [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
+| [docs/modules/unit_economics.md](../docs/modules/unit_economics.md) | Документация |
 | [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
@@ -901,6 +905,7 @@
 | [docs/ru/RELEASE_V28_33_0.md](../docs/ru/RELEASE_V28_33_0.md) | Документация |
 | [docs/ru/RELEASE_V28_34_0.md](../docs/ru/RELEASE_V28_34_0.md) | Документация |
 | [docs/ru/RELEASE_V28_35_0.md](../docs/ru/RELEASE_V28_35_0.md) | Документация |
+| [docs/ru/RELEASE_V28_36_0.md](../docs/ru/RELEASE_V28_36_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
@@ -1551,6 +1556,7 @@
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
 | [tests/test_e2e_journeys.py](../tests/test_e2e_journeys.py) | Проверки |
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
+| [tests/test_economics.py](../tests/test_economics.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
 | [tests/test_fiscal.py](../tests/test_fiscal.py) | Проверки |

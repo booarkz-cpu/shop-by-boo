@@ -366,6 +366,17 @@ function App() {
     setDash(dashboard);
     setPlans(Array.isArray(planList) ? planList : []);
     setAuthed(true);
+    // Where the customer came from (first touch, the server keeps only the first): ?utm_source=… or a Mini App
+    // link t.me/<bot>/<app>?startapp=src_<name>.
+    try {
+      const startParam = String((window as any).Telegram?.WebApp?.initDataUnsafe?.start_param || "");
+      const fromStart = startParam.split("__").find((part: string) => part.toLowerCase().startsWith("src_"))?.slice(4);
+      const source = new URLSearchParams(location.search).get("utm_source") || fromStart;
+      if (source && !sessionStorage.getItem("corgi_source_sent")) {
+        sessionStorage.setItem("corgi_source_sent", "1");
+        req("/api/me/source", {method: "POST", body: JSON.stringify({source})}).catch(() => {});
+      }
+    } catch { /* storage may be unavailable in some webviews */ }
     await Promise.all([loadConstructors(), loadServers(true), (async()=>{try{setTraffic(await req("/api/me/traffic"))}catch{setTraffic(null)}})(), (async()=>{try{setDevices(await req("/api/me/devices"))}catch{setDevices([])}})(), (async()=>{try{setRouting(await req("/api/me/routing/recommendation"))}catch{setRouting(null)}})()]);
     try {
       const info = await req("/api/me/connection-info");

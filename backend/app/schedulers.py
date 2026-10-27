@@ -1,4 +1,4 @@
-"""Background schedulers (moved from main.py in v28.35.0): fulfillment retries, refund revocation, auto-renew with saved YooKassa cards, reconciliation, subscription lifecycle and expiry reminders.
+"""Background schedulers (moved from main.py in v28.36.0): fulfillment retries, refund revocation, auto-renew with saved YooKassa cards, reconciliation, subscription lifecycle and expiry reminders.
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""

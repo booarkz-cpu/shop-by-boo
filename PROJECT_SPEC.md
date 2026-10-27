@@ -1,6 +1,6 @@
 # Shop by Boo — проектная спецификация
 
-> Актуальный дистрибутив: `v28.35.0`; runtime/API: `21.5.1`; migration head: `0078_campaign_ab`.
+> Актуальный дистрибутив: `v28.36.0`; runtime/API: `21.5.1`; migration head: `0079_acquisition`.
 
 ## Назначение
 
@@ -42,6 +42,6 @@ bash scripts/test-up.sh
 ```
 
 
-## Контракт дистрибутива v28.35.0
+## Контракт дистрибутива v28.36.0
 
-Runtime/API сохраняет `21.5.1`; магазин — `0078_campaign_ab`, Support Pro — `0008`. Миграция 0078 добавляет расписание и A/B-варианты push-кампаний (`push_campaigns.scheduled_at`, `sent_at`, `title_b`, `body_b`, `b_percent`, `conversion_days`, таблица `push_campaign_recipients`); её downgrade удаляет только маркетинговую статистику. Защищённая история runtime-конфигурации (миграция 0064) блокирует свой downgrade после появления истории. Реестр классифицирует все 196 полей: 104 live, 90 deployment и 2 специализированных workflow. `backend/app/release_identity.py` задаёт тег дистрибутива независимо от API. `release-manifest.template.json` — канонический источник имён релизных файлов. Загрузчик требует совпадения тега, версии API, SHA-256 и коммита; publisher проверяет CI и Docker на текущем `main`, не перемещает существующий тег и не заменяет несовпадающие assets. Матрица остаётся открытой для неперенесённых подсистем и внешней приёмки.
+Runtime/API сохраняет `21.5.1`; магазин — `0079_acquisition`, Support Pro — `0008`. Миграция 0078 добавляет расписание и A/B-варианты push-кампаний (`push_campaigns.scheduled_at`, `sent_at`, `title_b`, `body_b`, `b_percent`, `conversion_days`, таблица `push_campaign_recipients`); её downgrade удаляет только маркетинговую статистику. Защищённая история runtime-конфигурации (миграция 0064) блокирует свой downgrade после появления истории. Реестр классифицирует все 196 полей: 104 live, 90 deployment и 2 специализированных workflow. `backend/app/release_identity.py` задаёт тег дистрибутива независимо от API. `release-manifest.template.json` — канонический источник имён релизных файлов. Загрузчик требует совпадения тега, версии API, SHA-256 и коммита; publisher проверяет CI и Docker на текущем `main`, не перемещает существующий тег и не заменяет несовпадающие assets. Матрица остаётся открытой для неперенесённых подсистем и внешней приёмки.

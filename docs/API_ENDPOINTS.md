@@ -1,6 +1,6 @@
-# Каталог API — v28.35.0 / API v21.5.1
+# Каталог API — v28.36.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0078_campaign_ab`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0079_acquisition`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -21,6 +21,8 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/advertisements/{item_id}` | Delete Ad |
 | `PUT` | `/api/admin/advertisements/{item_id}` | Update Ad |
 | `GET` | `/api/admin/analytics` | Admin Analytics |
+| `GET` | `/api/admin/analytics/economics` | Economics |
+| `PUT` | `/api/admin/analytics/economics/spend` | Put Spend |
 | `GET` | `/api/admin/analytics/retention` | Retention |
 | `GET` | `/api/admin/anti-sharing` | Get Anti Sharing |
 | `PUT` | `/api/admin/anti-sharing` | Put Anti Sharing |
@@ -545,6 +547,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/security-center` | Security Center |
 | `POST` | `/api/me/security/revoke-all` | Revoke All User Sessions |
 | `GET` | `/api/me/servers` | My Servers |
+| `POST` | `/api/me/source` | My Source |
 | `GET` | `/api/me/stars-subscriptions` | My Stars Subscriptions |
 | `POST` | `/api/me/stars-subscriptions` | Create Stars Subscription |
 | `POST` | `/api/me/stars-subscriptions/{row_id}/cancel` | Cancel Stars Subscription |

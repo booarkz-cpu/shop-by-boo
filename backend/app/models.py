@@ -24,6 +24,8 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     deleted_at: Mapped[datetime|None] = mapped_column(DateTime)
     restricted_at: Mapped[datetime|None] = mapped_column(DateTime)
+    # First touch only: bot /start src_<name>, cabinet ?utm_source=<name> (economics.py).
+    acquisition_source: Mapped[str|None] = mapped_column(String(48), index=True)
     passkey_user_handle: Mapped[str|None] = mapped_column(String(64))
     merged_into_user_id: Mapped[int|None] = mapped_column(
         ForeignKey("users.id", name="fk_users_merged_into", ondelete="RESTRICT"),

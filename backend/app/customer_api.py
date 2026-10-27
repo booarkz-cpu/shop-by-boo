@@ -1,4 +1,4 @@
-"""Customer account API (moved from main.py in v28.35.0): subscription, billing and security centres, wallet, gifts, referral, auto-renew and connection info.
+"""Customer account API (moved from main.py in v28.36.0): subscription, billing and security centres, wallet, gifts, referral, auto-renew and connection info.
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
