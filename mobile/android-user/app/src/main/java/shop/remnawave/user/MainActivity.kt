@@ -140,7 +140,7 @@ class MainActivity : FragmentActivity() {
         LoginLink.parse(intent?.data)?.let { pendingLogin.value = it }
         paymentOrder(intent?.data)?.let { pendingPayment.value = it }
         // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true.
-        val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && intent?.getBooleanExtra("corgi_demo", false) == true
+        val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && flag(intent, "corgi_demo")
         if (!demo) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
         // A tapped push opens the notification center (FCM puts the data payload into extras).
         val initialTab = if (demo) intent?.getStringExtra("corgi_tab") ?: "overview"
@@ -769,7 +769,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 docs = JSONArray("""[{"kind":"faq","title":"Частые вопросы"},{"kind":"rules","title":"Правила"},{"kind":"privacy","title":"Политика конфиденциальности"},{"kind":"offer","title":"Публичная оферта"}]"""),
                 giveaways = JSONArray("""[{"id":7,"title":"Новогоднее колесо","description":"Крутите колесо — до 1000 ₽ на баланс","kind":"wheel","phase":"open","prizes":[{"amount":"100","weight":5},{"amount":"1000","weight":1}],"currency":"RUB","ends_at":"2026-12-31T21:00:00Z","my_entry":null},{"id":6,"title":"Розыгрыш года подписки","description":"Три победителя получат год Премиума","kind":"contest","phase":"ended","prizes":[{"amount":"1499","weight":1}],"currency":"RUB","ends_at":"2026-10-20T21:00:00Z","my_entry":{"outcome":"won","reward_amount":"1499.00"}}]"""),
             )
-            ui = ui.copy(vpn = if (intent(activity).getBooleanExtra("corgi_vpn_on", false)) VpnState.ON else VpnState.OFF)
+            ui = ui.copy(vpn = if (flag(intent(activity), "corgi_vpn_on")) VpnState.ON else VpnState.OFF)
         }
     }
     LaunchedEffect(token) {
@@ -941,6 +941,16 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
 }
 
 private fun intent(activity: FragmentActivity): Intent = activity.intent ?: Intent()
+
+/** A demo/test switch: `--ez name true` from adb, or the string "true" that Maestro launch arguments pass. */
+internal fun flag(intent: Intent?, name: String): Boolean {
+    val extras = intent?.extras ?: return false
+    return when (val value = extras.get(name)) {
+        is Boolean -> value
+        is String -> value.equals("true", ignoreCase = true)
+        else -> false
+    }
+}
 
 private fun vpnPrefs(context: android.content.Context) = context.getSharedPreferences(CorgiVpnService.PREFS, 0)
 
