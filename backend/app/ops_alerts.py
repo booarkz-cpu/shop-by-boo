@@ -224,6 +224,9 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
           else "Секрет задан, но событий от панели ещё не было: проверьте WEBHOOK_URL и WEBHOOK_SECRET_HEADER в панели.", "recommended")
     configured = [p for p in PAYMENT_AGENTS if _agent_configured(p)]
     check("payments", "Платёжные агенты", configured, "Задайте ключи хотя бы одного агента: YooKassa, Platega, RollyPay, CryptoBot или Freekassa (модуль 07).")
+    check("reserve_payments", "Резервная касса", len(configured) >= 2,
+          "Сейчас касса одна: при её сбое оплаты встанут. Добавьте ключи второй (RollyPay, Platega, Freekassa или CryptoBot) — "
+          "заказы перейдут в неё сами; порядок — «Платёжные агенты → Очередь касс».", "recommended")
     check("plans", "Тарифы в продаже", await db.scalar(select(Plan.id).where(Plan.enabled.is_(True)).limit(1)), "Создайте и включите тариф (модуль 06).")
     backup = await db.scalar(select(BackupJob).where(BackupJob.status.in_(("completed", "done", "succeeded", "ok"))).order_by(BackupJob.id.desc()).limit(1))
     check("backup", "Резервная копия за сутки", backup and (backup.finished_at or backup.created_at) >= now - timedelta(days=1),

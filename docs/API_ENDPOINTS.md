@@ -404,6 +404,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/v41/promotions` | V41 Promotions |
 | `GET` | `/api/admin/v41/providers` | V41 Providers |
 | `PUT` | `/api/admin/v41/providers/{provider}` | V41 Provider Update |
+| `POST` | `/api/admin/v41/providers/{provider}/reset` | V41 Provider Reset |
 | `GET` | `/api/admin/v41/referrals` | V41 Referrals |
 | `GET` | `/api/admin/v6/capacity` | Capacity |
 | `GET` | `/api/admin/v6/command-center` | Command Center |

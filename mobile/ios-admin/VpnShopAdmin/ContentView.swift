@@ -35,6 +35,7 @@ struct AdminRootView: View {
     @State private var logo: UIImage?
     @State private var ops: [String: Any] = [:]
     @State private var nodeHealth: [String: Any] = [:]
+    @State private var cashQueue: [[String: Any]] = []
     @State private var readiness: [String: Any] = [:]
     @State private var alerts: [String: Any] = [:]
 
@@ -103,6 +104,7 @@ struct AdminRootView: View {
         monitoring = parse(#"{"nodes":[{"name":"Амстердам","country":"NL","status":"online","users_online":412},{"name":"Франкфурт","country":"DE","status":"online","users_online":388},{"name":"Стамбул","country":"TR","status":"offline","users_online":0}]}"#) as? [String: Any] ?? [:]
         platform = parse(#"{"violations":[{"id":17,"score":82,"recommendation":"Торрент-трафик: ограничить"}],"agents":[{"name":"nl-1","cpu":"23%"}],"countries":[{"country":"RU","count":4210},{"country":"KZ","count":512}]}"#) as? [String: Any] ?? [:]
         ops = parse(#"{"critical":0,"stale_agents":1,"agents":[{"name":"nl-1","cpu":"23%","mem":"41%"}]}"#) as? [String: Any] ?? [:]
+        cashQueue = parse(#"[{"provider":"yookassa","enabled":true,"configured":true,"cooling":true,"success_count":1284,"failure_count":3},{"provider":"rollypay","enabled":true,"configured":true,"cooling":false,"success_count":212,"failure_count":0},{"provider":"freekassa","enabled":true,"configured":false,"cooling":false,"success_count":0,"failure_count":0}]"#) as? [[String: Any]] ?? []
         nodeHealth = parse(#"{"nodes":[{"uuid":"n1","name":"Нидерланды","status":"online","users_online":184,"down_minutes":0},{"uuid":"n2","name":"Германия","status":"offline","users_online":0,"down_minutes":4}]}"#) as? [String: Any] ?? [:]
         readiness = parse(#"{"ready":false,"checks":[{"title":"Платёжная система подключена","ok":true,"level":"required"},{"title":"Remnawave отвечает","ok":true,"level":"required"},{"title":"Чеки в налоговую","ok":false,"level":"recommended","hint":"Тарифы и оплата → Чеки в налоговую"}]}"#) as? [String: Any] ?? [:]
         alerts = parse(#"{"recipients":{"telegram":true,"email":false},"problems":[]}"#) as? [String: Any] ?? [:]
@@ -164,7 +166,7 @@ struct AdminRootView: View {
     }
 
     private func clearLoaded() {
-        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; nodeHealth = [:]; readiness = [:]; alerts = [:]
+        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; nodeHealth = [:]; cashQueue = []; readiness = [:]; alerts = [:]
         tickets = []; broadcasts = []; paymentDetail = [:]; logo = nil; reply = ""; broadcastText = ""
     }
 
@@ -279,6 +281,21 @@ struct AdminRootView: View {
                 }
             }
         case "payments":
+            // The order of gateways: an order goes to the first enabled, configured one that is not cooling down.
+            RemnaCard(title: t("cash_queue")) {
+                if cashQueue.isEmpty { RemnaEmpty(text: t("no_data")) }
+                ForEach(Array(cashQueue.enumerated()), id: \.offset) { index, row in
+                    let enabled = (row["enabled"] as? Bool) ?? false
+                    let cooling = (row["cooling"] as? Bool) ?? false
+                    let configured = (row["configured"] as? Bool) ?? false
+                    let state = !enabled ? t("disabled") : cooling ? t("cash_cooling") : configured ? t("cash_ready") : t("cash_no_keys")
+                    RemnaRow(title: "\(index + 1). \(jsonText(row["provider"]))", detail: "\(jsonText(row["success_count"])) / \(jsonText(row["failure_count"]))", badge: state) {
+                        RemnaGhost(title: enabled ? t("cash_off") : t("cash_on")) { setCash(index, enabled: !enabled) }.disabled(busy || AdminDemo.enabled)
+                        if index > 0 { RemnaGhost(title: t("cash_up")) { moveCashUp(index) }.disabled(busy || AdminDemo.enabled) }
+                        if cooling { RemnaPrimary(title: t("cash_reset")) { resetCash(row) }.disabled(busy || AdminDemo.enabled) }
+                    }
+                }
+            }
             RemnaCard(title: t("payments")) {
                 if payments.isEmpty { RemnaEmpty(text: t("no_data")) }
                 ForEach(Array(payments.enumerated()), id: \.offset) { _, payment in
@@ -454,6 +471,7 @@ struct AdminRootView: View {
             let nextAlerts = (try? api.call("GET", "/api/admin/ops/alerts")) as? [String: Any] ?? [:]
             // Node health appeared in v28.35: older shops simply show no node card.
             let nextNodeHealth = (try? api.call("GET", "/api/admin/nodes/health")) as? [String: Any] ?? [:]
+            let nextCash = (try? api.call("GET", "/api/admin/v41/providers")) as? [[String: Any]] ?? []
             let nextMarketing = try api.call("GET", "/api/admin/marketing") as? [String: Any] ?? [:]
             let nextBroadcasts = nextMarketing["broadcasts"] as? [[String: Any]] ?? []
             let nextLogo = logoImage(api, "/api/admin/apps")
@@ -467,6 +485,7 @@ struct AdminRootView: View {
                 platform = nextPlatform
                 ops = nextOps
                 nodeHealth = nextNodeHealth
+                cashQueue = nextCash
                 readiness = nextReadiness
                 alerts = nextAlerts
                 tickets = nextTickets
@@ -504,6 +523,36 @@ struct AdminRootView: View {
             DispatchQueue.main.async {
                 if ok && scenePhase == .active { unlocked = true; refresh() }
             }
+        }
+    }
+
+    private func putCash(_ row: [String: Any], enabled: Bool, priority: Int) throws {
+        let name = jsonText(row["provider"])
+        _ = try ShopClient(base: base, token: token, lang: lang).call("PUT", "/api/admin/v41/providers/\(name)", body: ["enabled": enabled, "priority": priority])
+    }
+
+    private func setCash(_ index: Int, enabled: Bool) {
+        let row = cashQueue[index]
+        work {
+            try putCash(row, enabled: enabled, priority: (index + 1) * 10)
+            DispatchQueue.main.async { notice = t("cash_saved"); refresh() }
+        }
+    }
+
+    private func moveCashUp(_ index: Int) {
+        let row = cashQueue[index], above = cashQueue[index - 1]
+        work {
+            try putCash(row, enabled: (row["enabled"] as? Bool) ?? false, priority: index * 10)
+            try putCash(above, enabled: (above["enabled"] as? Bool) ?? false, priority: (index + 1) * 10)
+            DispatchQueue.main.async { notice = t("cash_saved"); refresh() }
+        }
+    }
+
+    private func resetCash(_ row: [String: Any]) {
+        let name = jsonText(row["provider"])
+        work {
+            _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/admin/v41/providers/\(name)/reset")
+            DispatchQueue.main.async { refresh() }
         }
     }
 

@@ -146,7 +146,11 @@ async def v41_crm_users(q:str="",page:int=1,page_size:int=50,db:AsyncSession=Dep
 async def v41_providers(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.providers"))):
     await shop._ensure_v41_defaults(db)
     rows=(await db.execute(shop.select(shop.PaymentProviderHealth).order_by(shop.PaymentProviderHealth.priority,shop.PaymentProviderHealth.provider))).scalars().all()
-    return [{"provider":x.provider,"enabled":x.enabled,"priority":x.priority,"success_count":x.success_count,"failure_count":x.failure_count,"last_latency_ms":x.last_latency_ms,"last_error":"unavailable" if x.last_error else None,"circuit_open_until":str(x.circuit_open_until) if x.circuit_open_until else None} for x in rows if x.provider in shop.PAYMENT_AGENTS]
+    from .payments_api import provider_configured
+    configured=provider_configured(); now=shop.datetime.utcnow()
+    return [{"provider":x.provider,"enabled":x.enabled,"priority":x.priority,"configured":configured.get(x.provider,False),
+             "cooling":bool(x.circuit_open_until and x.circuit_open_until>now),
+             "success_count":x.success_count,"failure_count":x.failure_count,"last_latency_ms":x.last_latency_ms,"last_error":"unavailable" if x.last_error else None,"circuit_open_until":str(x.circuit_open_until) if x.circuit_open_until else None} for x in rows if x.provider in shop.PAYMENT_AGENTS]
 
 class ProviderHealthIn(BaseModel):
     enabled: bool
@@ -154,11 +158,20 @@ class ProviderHealthIn(BaseModel):
 
 @shop.app.put("/api/admin/v41/providers/{provider}")
 async def v41_provider_update(provider:str,payload:ProviderHealthIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.providers"))):
-    if provider not in {"yookassa","platega","rollypay"}: raise shop.HTTPException(404,"Провайдер не найден")
+    if provider not in shop.PAYMENT_AGENTS: raise shop.HTTPException(404,"Провайдер не найден")
     row=(await db.execute(shop.select(shop.PaymentProviderHealth).where(shop.PaymentProviderHealth.provider==provider))).scalar_one_or_none()
     if not row: row=shop.PaymentProviderHealth(provider=provider); db.add(row)
     row.enabled=payload.enabled; row.priority=payload.priority; row.updated_at=shop.datetime.utcnow()
     await shop.audit(db,"payment_provider.updated",admin.email,provider,payload.model_dump()); await db.commit(); return {"ok":True}
+
+@shop.app.post("/api/admin/v41/providers/{provider}/reset")
+async def v41_provider_reset(provider:str,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.providers"))):
+    """«Вернуть в работу»: the operator ends the cooldown after fixing the gateway; counters start again."""
+    if provider not in shop.PAYMENT_AGENTS: raise shop.HTTPException(404,"Провайдер не найден")
+    row=(await db.execute(shop.select(shop.PaymentProviderHealth).where(shop.PaymentProviderHealth.provider==provider).with_for_update())).scalar_one_or_none()
+    if not row: raise shop.HTTPException(404,"Провайдер не найден")
+    row.circuit_open_until=None; row.failure_count=0; row.last_error=None; row.updated_at=shop.datetime.utcnow()
+    await shop.audit(db,"payment_provider.reset",admin.email,provider,None); await db.commit(); return {"ok":True}
 
 @shop.app.get("/api/admin/v41/diagnostics")
 async def v41_diagnostics(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.diagnostics"))):
@@ -238,7 +251,7 @@ async def v41_passkey_delete(credential_id:int,db:AsyncSession=Depends(get_db),a
     await db.delete(x); await shop.audit(db,"passkey.deleted",admin.email,str(credential_id)); await db.commit(); return {"ok":True}
 
 
-__all__ = ['FeatureFlagIn', 'IncidentCreateIn', 'ProviderHealthIn', 'V41_FEATURE_DEFAULTS', '_ensure_v41_defaults', 'enterprise_campaign_create', 'enterprise_campaign_update', 'enterprise_campaigns', 'enterprise_monitoring', 'enterprise_monitoring_create', 'enterprise_monitoring_delete', 'enterprise_rule_create', 'enterprise_rule_update', 'enterprise_rules', 'enterprise_summary', 'v41_analytics', 'v41_backup_test_restore', 'v41_backup_verification_list', 'v41_crm_users', 'v41_diagnostics', 'v41_feature_update', 'v41_features', 'v41_incident_create', 'v41_incident_resolve', 'v41_incidents', 'v41_passkey_delete', 'v41_passkeys', 'v41_promotions', 'v41_provider_update', 'v41_providers', 'v41_referrals']
+__all__ = ['FeatureFlagIn', 'IncidentCreateIn', 'ProviderHealthIn', 'V41_FEATURE_DEFAULTS', '_ensure_v41_defaults', 'enterprise_campaign_create', 'enterprise_campaign_update', 'enterprise_campaigns', 'enterprise_monitoring', 'enterprise_monitoring_create', 'enterprise_monitoring_delete', 'enterprise_rule_create', 'enterprise_rule_update', 'enterprise_rules', 'enterprise_summary', 'v41_analytics', 'v41_backup_test_restore', 'v41_backup_verification_list', 'v41_crm_users', 'v41_diagnostics', 'v41_feature_update', 'v41_features', 'v41_incident_create', 'v41_incident_resolve', 'v41_incidents', 'v41_passkey_delete', 'v41_passkeys', 'v41_promotions', 'v41_provider_reset', 'v41_provider_update', 'v41_providers', 'v41_referrals']
 # Imported before main finished (``from app import enterprise_api`` first)? Then main's star
 # import saw a half-loaded module; hand the names over now that they exist.
 shop.__dict__.update({_n: globals()[_n] for _n in __all__})

@@ -190,6 +190,7 @@ fun publicNode(row: JSONObject): JSONObject {
 class ShopApi(private val base: String, private val token: String, private val lang: String) {
     fun get(path: String): Any = call("GET", path, null)
     fun post(path: String, body: JSONObject): Any = call("POST", path, body)
+    fun put(path: String, body: JSONObject): Any = call("PUT", path, body)
 
     private fun call(method: String, path: String, body: JSONObject?): Any {
         val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login")) pkceVerifier() else null
@@ -280,6 +281,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     var platform by remember { mutableStateOf(JSONObject()) }
     var ops by remember { mutableStateOf(JSONObject()) }
     var nodeHealth by remember { mutableStateOf(JSONObject()) }
+    var cashQueue by remember { mutableStateOf(JSONArray()) }
     var readiness by remember { mutableStateOf(JSONObject()) }
     var alerts by remember { mutableStateOf(JSONObject()) }
     var tickets by remember { mutableStateOf(JSONArray()) }
@@ -293,7 +295,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     fun profileTitle(): String = profileStore.find(activeId)?.title ?: (try { URI(base).host } catch (_: Exception) { null } ?: base)
     fun clearLoaded() {
         overview = JSONObject(); plans = JSONArray(); payments = JSONArray(); monitoring = JSONObject()
-        platform = JSONObject(); ops = JSONObject(); nodeHealth = JSONObject(); readiness = JSONObject(); alerts = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
+        platform = JSONObject(); ops = JSONObject(); nodeHealth = JSONObject(); cashQueue = JSONArray(); readiness = JSONObject(); alerts = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
         paymentDetail = JSONObject(); logo = null; reply = ""; broadcastText = ""
     }
     fun reloadProfiles() {
@@ -379,6 +381,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
             val nextAlerts = try { api.get("/api/admin/ops/alerts") as JSONObject } catch (_: Exception) { JSONObject() }
             // Node health appeared in v28.35: older shops simply show no node card.
             val nextNodeHealth = try { api.get("/api/admin/nodes/health") as JSONObject } catch (_: Exception) { JSONObject() }
+            val nextCash = try { api.get("/api/admin/v41/providers") as JSONArray } catch (_: Exception) { JSONArray() }
             val nextMarketing = api.get("/api/admin/marketing") as JSONObject
             val nextBroadcasts = nextMarketing.optJSONArray("broadcasts") ?: JSONArray()
             val nextLogo = try {
@@ -395,6 +398,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
                 platform = nextPlatform
                 ops = nextOps
                 nodeHealth = nextNodeHealth
+                cashQueue = nextCash
                 readiness = nextReadiness
                 alerts = nextAlerts
                 tickets = nextTickets
@@ -413,6 +417,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
         monitoring = JSONObject("""{"nodes":[{"name":"Амстердам","country":"NL","status":"online","users_online":412},{"name":"Франкфурт","country":"DE","status":"online","users_online":388},{"name":"Хельсинки","country":"FI","status":"online","users_online":201},{"name":"Стамбул","country":"TR","status":"offline","users_online":0}]}""")
         platform = JSONObject("""{"violations":[{"id":17,"score":82,"recommendation":"Торрент-трафик: ограничить"}],"agents":[{"name":"nl-1","cpu":"23%","last_seen_at":"2026-10-26T20:00:00"},{"name":"de-1","cpu":"41%","last_seen_at":"2026-10-26T20:00:00"}],"countries":[{"country":"RU","count":4210},{"country":"KZ","count":512},{"country":"BY","count":318}]}""")
         ops = JSONObject("""{"critical":0,"stale_agents":1,"agents":[{"name":"nl-1","cpu":"23%","mem":"41%"},{"name":"de-1","cpu":"41%","mem":"55%"}]}""")
+        cashQueue = JSONArray("""[{"provider":"yookassa","enabled":true,"configured":true,"cooling":true,"success_count":1284,"failure_count":3},{"provider":"rollypay","enabled":true,"configured":true,"cooling":false,"success_count":212,"failure_count":0},{"provider":"freekassa","enabled":true,"configured":false,"cooling":false,"success_count":0,"failure_count":0}]""")
         nodeHealth = JSONObject("""{"nodes":[{"uuid":"n1","name":"Нидерланды","status":"online","users_online":184,"down_minutes":0},{"uuid":"n2","name":"Германия","status":"offline","users_online":0,"down_minutes":4}]}""")
         readiness = JSONObject("""{"ready":false,"checks":[{"title":"Платёжная система подключена","ok":true,"level":"required"},{"title":"Remnawave отвечает","ok":true,"level":"required"},{"title":"Резервные копии по расписанию","ok":true,"level":"required"},{"title":"Чеки в налоговую","ok":false,"level":"recommended","hint":"Тарифы и оплата → Чеки в налоговую"}]}""")
         alerts = JSONObject("""{"recipients":{"telegram":true,"email":false},"problems":[]}""")
@@ -554,7 +559,40 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
                             }
                         }
                     }
-                    "payments" -> RemnaCard(t("payments")) {
+                    "payments" -> { RemnaCard(t("cash_queue")) {
+                        // The order of gateways: an order goes to the first enabled, configured one that is not cooling down.
+                        if (cashQueue.length() == 0) RemnaEmpty(t("no_data"))
+                        for (index in 0 until cashQueue.length()) {
+                            val row = cashQueue.getJSONObject(index)
+                            val name = row.optString("provider")
+                            val enabled = row.optBoolean("enabled")
+                            val state = if (!enabled) t("disabled") else if (row.optBoolean("cooling")) t("cash_cooling") else if (row.optBoolean("configured")) t("cash_ready") else t("cash_no_keys")
+                            RemnaRow("${index + 1}. $name", "${row.optInt("success_count")} / ${row.optInt("failure_count")}", state,
+                                if (enabled && row.optBoolean("configured") && !row.optBoolean("cooling")) Tone.OK else Tone.WARN) {
+                                RemnaGhost(if (enabled) t("cash_off") else t("cash_on"), enabled = !busy && !demo) {
+                                    work {
+                                        ShopApi(base, token, lang).put("/api/admin/v41/providers/$name", JSONObject().put("enabled", !enabled).put("priority", (index + 1) * 10))
+                                        activity.runOnUiThread { notice = t("cash_saved"); refresh() }
+                                    }
+                                }
+                                if (index > 0) RemnaGhost(t("cash_up"), enabled = !busy && !demo) {
+                                    work {
+                                        val above = cashQueue.getJSONObject(index - 1)
+                                        ShopApi(base, token, lang).put("/api/admin/v41/providers/$name", JSONObject().put("enabled", enabled).put("priority", index * 10))
+                                        ShopApi(base, token, lang).put("/api/admin/v41/providers/${above.optString("provider")}", JSONObject().put("enabled", above.optBoolean("enabled")).put("priority", (index + 1) * 10))
+                                        activity.runOnUiThread { notice = t("cash_saved"); refresh() }
+                                    }
+                                }
+                                if (row.optBoolean("cooling")) RemnaPrimary(t("cash_reset"), enabled = !busy && !demo) {
+                                    work {
+                                        ShopApi(base, token, lang).post("/api/admin/v41/providers/$name/reset", JSONObject())
+                                        activity.runOnUiThread { refresh() }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    RemnaCard(t("payments")) {
                         if (payments.length() == 0) RemnaEmpty(t("no_data"))
                         for (index in 0 until payments.length()) {
                             val payment = payments.getJSONObject(index)
@@ -568,6 +606,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
                             }
                         }
                         if (paymentDetail.length() > 0) RemnaNotice("#${paymentDetail.optInt("id")} · ${paymentDetail.optString("order_id")} · ${paymentDetail.optString("purpose")} · ${paymentDetail.optString("fulfillment_status")}", Tone.INFO)
+                    }
                     }
                     "monitoring" -> RemnaCard(t("monitoring")) {
                         if (monitoring.optString("error").isNotBlank()) RemnaNotice(t("panel_down"), Tone.BAD)

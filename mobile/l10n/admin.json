@@ -100,7 +100,16 @@
     "node_restart": "Перезапустить",
     "node_restarted": "Команда перезапуска отправлена",
     "node_down": "недоступна",
-    "ai_draft": "Черновик ИИ"
+    "ai_draft": "Черновик ИИ",
+    "cash_queue": "Очередь касс",
+    "cash_on": "Включить",
+    "cash_off": "Выключить",
+    "cash_reset": "Вернуть в работу",
+    "cash_cooling": "остывает",
+    "cash_ready": "принимает",
+    "cash_no_keys": "нет ключей",
+    "cash_saved": "Очередь касс сохранена",
+    "cash_up": "Выше"
   },
   "en": {
     "app_name": "VPN admin",
@@ -203,7 +212,16 @@
     "node_restart": "Restart",
     "node_restarted": "Restart command sent",
     "node_down": "down",
-    "ai_draft": "AI draft"
+    "ai_draft": "AI draft",
+    "cash_queue": "Payment queue",
+    "cash_on": "Enable",
+    "cash_off": "Disable",
+    "cash_reset": "Back to work",
+    "cash_cooling": "cooling down",
+    "cash_ready": "accepting",
+    "cash_no_keys": "no keys",
+    "cash_saved": "Payment queue saved",
+    "cash_up": "Up"
   },
   "uk": {
     "app_name": "Коргі Люсі Адмін",
@@ -306,6 +324,15 @@
     "node_restart": "Перезапустити",
     "node_restarted": "Команду перезапуску надіслано",
     "node_down": "недоступна",
-    "ai_draft": "Чернетка ШІ"
+    "ai_draft": "Чернетка ШІ",
+    "cash_queue": "Черга кас",
+    "cash_on": "Увімкнути",
+    "cash_off": "Вимкнути",
+    "cash_reset": "Повернути в роботу",
+    "cash_cooling": "охолоджується",
+    "cash_ready": "приймає",
+    "cash_no_keys": "немає ключів",
+    "cash_saved": "Чергу кас збережено",
+    "cash_up": "Вище"
   }
 }
