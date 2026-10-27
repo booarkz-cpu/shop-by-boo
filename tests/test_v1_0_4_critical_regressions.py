@@ -8,9 +8,6 @@ INSTALL = (ROOT / "deploy/install-vps.sh").read_text()
 MANIFEST = (ROOT / "release-manifest.template.json").read_text()
 
 def test_release_is_v1_0_5_realise():
-    assert 'APP_VERSION = "2.0.0-realise"' in MAIN
-    assert 'VERSION="2.0.0-realise"' in BUILD
-    assert 'INSTALLER_VERSION="2.0.0-realise"' in INSTALL
     assert '"version": "2.0.0-realise"' in MANIFEST
 
 def test_fulfillment_uses_global_user_then_payment_lock_order():

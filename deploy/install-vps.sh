@@ -98,58 +98,8 @@ env_line() {
   printf "%s='%s'\n" "$key" "$escaped"
 }
 
-# Previous release contract: INSTALLER_VERSION="1.0.0-realise"
 INSTALLER_VERSION="21.5.1"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.8"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.7"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.6"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.5"
-# Historical compatibility marker: INSTALLER_VERSION="20.0.4"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.6"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.5"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.4"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.3"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.2"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.1"
-# Historical compatibility marker: INSTALLER_VERSION="3.1.0"
-# Historical compatibility marker: INSTALLER_VERSION="3.0.1"
-# Historical compatibility marker: INSTALLER_VERSION="3.0.0-realise"
-# Historical compatibility marker: INSTALLER_VERSION="2.13.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.12.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.11.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.10.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.9.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.8.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.7.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.6.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.5.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.4.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.3.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.2.1"
-# Historical compatibility marker: INSTALLER_VERSION="2.2.0"
-# Historical compatibility marker: INSTALLER_VERSION="2.1.0"
-# Historical banner compatibility marker: Remnawave VPN Shop — 2.1.0
-# Legacy regression marker: INSTALLER_VERSION="2.0.3-audited"
-# Legacy regression marker: INSTALLER_VERSION="2.0.0-realise"
-# Previous release contract: INSTALLER_VERSION="45.0.0-enterprise"
-# V44.5 Enterprise legacy contract marker
-# INSTALLER_VERSION="43.1.0-production" legacy regression marker
 log "Remnawave VPN Shop — 21.5.1 stable core installer"
-# Historical compatibility marker: 3.1.3 русскоязычный production installer
-# Historical compatibility marker: 3.1.2 русскоязычный production installer
-# Historical compatibility marker: 3.1.1 русскоязычный production installer
-# Historical compatibility marker: 3.1.0 русскоязычный production installer
-# Historical compatibility marker: 3.0.1 русскоязычный production installer
-# Historical compatibility marker: 3.0.0-realise русскоязычный production installer
-# Historical compatibility marker: 2.13.0 русскоязычный production installer
-# Historical compatibility marker: 2.12.0 русскоязычный production installer
-# Historical compatibility marker: 2.11.0 русскоязычный production installer
-# Historical compatibility marker: 2.10.0 русскоязычный production installer
-# Historical compatibility marker: 2.9.0 русскоязычный production installer
-# Historical compatibility marker: 2.8.0 русскоязычный production installer
-# Historical compatibility marker: 2.7.0 русскоязычный production installer
-# Historical compatibility marker: Remnawave VPN Shop — 2.6.0 русскоязычный production installer
-# Historical compatibility marker: Remnawave VPN Shop — 2.5.0 русскоязычный production installer
 echo
 echo "Все основные настройки будут введены сейчас. После установки редактировать .env вручную не требуется."
 echo "Для HTTPS DNS-записи доменов должны уже указывать на этот VDS."
@@ -174,6 +124,11 @@ prompt_required BOT_TOKEN "Telegram BOT_TOKEN от @BotFather" 1
 prompt_required REMNAWAVE_URL "Remnawave Panel URL (например https://panel.example.com)"
 [[ "$REMNAWAVE_URL" =~ ^https://[^[:space:]]+$ ]] || die "Remnawave Panel URL должен начинаться с https:// и не содержать пробелов"
 prompt_required REMNAWAVE_TOKEN "Remnawave API token" 1
+
+echo
+echo "Автообновление: сервер сам ставит новые стабильные выпуски с GitHub ночью (03:00 МСК) с копией и откатом."
+prompt AUTO_UPDATE "Включить автообновление (yes / no)" "yes"
+AUTO_UPDATE="$(printf '%s' "$AUTO_UPDATE" | tr '[:upper:]' '[:lower:]')"
 
 echo
 echo "Платежи: выберите провайдер для первичной настройки."
@@ -534,6 +489,8 @@ if [[ -w /proc/sys/vm/overcommit_memory ]]; then
 fi
 log "Собираю production-образы с актуальными базовыми образами..."
 bash scripts/compose-build.sh fresh
+# Shared with the auto-update agent: root owns it, the backend (uid 10001) writes the panel's requests.
+install -d -m 0770 -o 0 -g 10001 "$ROOT/.control"
 if ! docker compose up -d; then
   docker compose ps >&2 || true
   docker compose logs --tail=180 backend worker admin miniapp cabinet >&2 || true
@@ -581,6 +538,18 @@ log "Создаю первого оператора Support Pro и показы�
 docker compose exec -T support_pro python -m app.cli init || die "Не удалось создать оператора Support Pro"
 
 docker compose ps
+
+case "${AUTO_UPDATE:-yes}" in
+  y|yes|д|да|1|true)
+    log "Включаю автообновление с GitHub (управление — админ-панель → «Обновления»)..."
+    APP_DIR="$ROOT" bash "$ROOT/scripts/auto-update.sh" install || warn "Автообновление не включилось. Включите позже: sudo bash $ROOT/scripts/auto-update.sh install"
+    ;;
+  *)
+    # Remember the choice: deploy/build-production.sh does not switch auto-update on later.
+    install -d -m 0750 /etc/vpn-shop
+    printf '{"enabled": false, "time": "03:00"}\n' > /etc/vpn-shop/auto-update.json
+    warn "Автообновление выключено. Включить: sudo bash $ROOT/scripts/auto-update.sh install" ;;
+esac
 
 echo
 printf '%s\n' '============================================================'

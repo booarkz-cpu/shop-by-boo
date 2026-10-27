@@ -61,8 +61,10 @@ jobs:
               }
             }
       - name: Check deployment secrets
+        id: secrets
         if: steps.release.outputs.skip != 'true'
         env:
+          EVENT: ${{ github.event_name }}
           HAS_HOST: ${{ secrets.DEPLOY_HOST != '' }}
           HAS_USER: ${{ secrets.DEPLOY_USER != '' }}
           HAS_KEY: ${{ secrets.DEPLOY_SSH_KEY != '' }}
@@ -73,12 +75,18 @@ jobs:
           [ "$HAS_USER" = true ] || missing="$missing DEPLOY_USER"
           [ "$HAS_KEY" = true ] || missing="$missing DEPLOY_SSH_KEY"
           [ "$HAS_PATH" = true ] || missing="$missing DEPLOY_PATH"
+          if [ -n "$missing" ] && [ "$EVENT" = workflow_run ]; then
+            # Automatic run: the server updates itself (scripts/auto_update.py, «Выпуски → Автообновление»).
+            echo "::notice title=Push deploy skipped::No${missing}. The server's own auto-update agent installs this release (nightly or «Проверить и обновить сейчас» in the admin panel)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ -n "$missing" ]; then
-            echo "::error title=Deployment secrets missing::Add${missing} in Settings → Secrets and variables → Actions (environment «production» or repository), or turn AUTO_DEPLOY off. Nothing was deployed."
+            echo "::error title=Deployment secrets missing::Add${missing} in Settings → Environments → production → Environment secrets (values: run sudo bash scripts/setup-auto-deploy.sh on the server, docs/INSTALLATION.md §9), or turn AUTO_DEPLOY off. Nothing was deployed."
             exit 1
           fi
       - name: Install exact release with backup and health checks
-        if: steps.release.outputs.skip != 'true'
+        if: steps.release.outputs.skip != 'true' && steps.secrets.outputs.skip != 'true'
         uses: appleboy/ssh-action@v1.2.2
         env:
           RELEASE_TAG: ${{ steps.release.outputs.tag }}

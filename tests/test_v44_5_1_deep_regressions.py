@@ -5,10 +5,6 @@ ROOT = Path(__file__).resolve().parents[1]
 MAIN = main_source()
 
 
-def test_release_version_bumped():
-    assert 'APP_VERSION = "44.5.5-enterprise"' in MAIN
-
-
 def test_provider_routing_honors_admin_enabled_flag():
     start = MAIN.index('async def _payment_provider_order')
     end = MAIN.index('@app.post("/api/payments/create")', start)

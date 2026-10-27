@@ -50,7 +50,6 @@ def test_sources_parse():
 def test_release_artifact_and_migration_head_are_current():
     build = (ROOT / 'scripts/build-release.sh').read_text()
     manifest = (ROOT / 'release-manifest.template.json').read_text()
-    assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed.zip' in build
     assert '0030_v44_5_16_privacy_and_refund_integrity' in build
     assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed.zip' in manifest
 

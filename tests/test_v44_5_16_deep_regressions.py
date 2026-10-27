@@ -37,6 +37,4 @@ def test_v44_5_16_migration_adds_deleted_at():
     assert 'add_column("users"' in MIG
 
 def test_release_tooling_is_44_5_16():
-    assert 'VERSION="1.0.0-realise"' in BUILD
-    assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed.zip' in BUILD
     assert '0030_v44_5_16_privacy_and_refund_integrity' in BUILD

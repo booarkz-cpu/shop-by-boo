@@ -10,11 +10,7 @@ MANIFEST=(ROOT/'release-manifest.template.json').read_text()
 
 
 def test_release_is_v45():
-    assert 'APP_VERSION = "1.0.0-realise"' in MAIN
-    assert 'VERSION="1.0.0-realise"' in BUILD
-    assert 'INSTALLER_VERSION="1.0.0-realise"' in INSTALL
     assert '"version": "1.0.0-realise"' in MANIFEST
-    assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed.zip' in BUILD
 
 
 def test_distributed_locks_are_renewed_until_release():

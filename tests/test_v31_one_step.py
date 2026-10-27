@@ -32,7 +32,3 @@ def test_money_inputs_use_decimal():
     assert "price: Mapped[Decimal]" in models
     assert "expected_amount: Decimal" in payments
 
-
-def test_installer_version_is_v33():
-    text = (ROOT / "deploy/install-vps.sh").read_text()
-    assert "43.1.0-production" in text

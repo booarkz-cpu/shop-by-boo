@@ -4,7 +4,6 @@ import yaml
 ROOT=Path(__file__).parents[1]
 
 def test_v33_version_and_env_example():
-    assert 'APP_VERSION = "43.1.0-production"' in main_source()
     env=(ROOT/'.env.example').read_text()
     assert 'APP_SECRET_PREVIOUS=' in env
     assert 'BACKUP_S3_ENABLED=false' in env

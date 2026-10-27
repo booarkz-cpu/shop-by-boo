@@ -3,80 +3,10 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 # Historical release: VERSION="39.0.0-production" artifact=remnawave_vpn_shop_v39_production.zip migration=0017_v39_staging_isolation
-# Previous release contract: VERSION="1.0.1-realise" artifact=remnawave_vpn_shop_v1_0_1_realise_deep_audited_fixed.zip
-# Legacy regression markers: VERSION="1.0.0-realise" artifact=remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed.zip
 VERSION="21.5.1"
-# Historical compatibility marker: VERSION="20.0.12"
-# Historical compatibility marker: VERSION="20.0.11"
-# Historical compatibility marker: VERSION="20.0.10"
-# Historical compatibility marker: VERSION="20.0.9"
-# Historical compatibility marker: VERSION="20.0.8"
-# Historical compatibility marker: VERSION="20.0.7"
-# Historical compatibility marker: VERSION="20.0.6"
-# Historical compatibility marker: VERSION="20.0.5"
-# Historical compatibility marker: VERSION="20.0.4"
-# Historical compatibility marker: VERSION="3.1.6"
-# Historical compatibility marker: VERSION="3.1.5"
-# Historical compatibility marker: VERSION="3.1.4"
-# Historical compatibility marker: VERSION="3.1.3"
-# Historical compatibility marker: VERSION="3.1.2"
-# Historical compatibility marker: VERSION="3.1.1"
-# Historical compatibility marker: VERSION="3.1.0"
-# Historical compatibility marker: VERSION="3.0.1"
-# Historical compatibility marker: VERSION="3.0.0-realise"
-# Historical compatibility marker: VERSION="2.13.0"
-# Historical compatibility marker: VERSION="2.12.0"
-# Historical compatibility marker: VERSION="2.11.0"
-# Historical compatibility marker: VERSION="2.10.0"
-# Historical compatibility marker: VERSION="2.9.0"
-# Historical compatibility marker: VERSION="2.8.0"
-# Historical compatibility marker: VERSION="2.7.0"
-# Historical compatibility marker: VERSION="2.6.0"
-# Historical compatibility marker: VERSION="2.5.0"
-# Historical compatibility marker: VERSION="2.4.0"
-# Historical compatibility marker: VERSION="2.3.0"
-# Historical compatibility marker: VERSION="2.2.1"
-# Historical compatibility marker: VERSION="2.2.0"
-# Historical compatibility marker: VERSION="2.1.0"
-# Legacy regression marker: VERSION="2.0.3-audited"
-# Legacy regression marker: VERSION="2.0.2-audited"
-# Legacy regression contract marker: VERSION="2.0.0-realise"
-# Legacy regression contract marker: VERSION="1.0.0-realise"
-# Previous release contract: VERSION="45.0.0-enterprise" artifact=remnawave_vpn_shop_v44_5_9_enterprise_deep_audited_fixed.zip
 # Previous migration head retained for compatibility: 0030_v44_5_16_privacy_and_refund_integrity
 # Current migration head: 0077_app_growth
-# Historical compatibility marker: 2.9.0 keeps migration 0038_v2_6_0_platform
-# Historical compatibility marker: 2.8.0 keeps migration 0038_v2_6_0_platform
-# Historical compatibility marker: 2.7.0 keeps migration 0038_v2_6_0_platform
-# Historical compatibility marker: 0037_v2_5_0_tariff_constructor
-# Historical compatibility marker: 0036_v2_4_0_cabinet
-# Historical compatibility marker: 0035_v2_3_0_wallet_gifts
-# Historical compatibility marker: 0034_v2_2_0_platform_features
-# Historical compatibility marker: 0032_v2_0_0_product_features
-# VERSION="43.1.0-production" legacy regression marker
-# migration_head="0021_v43_hardening_docs" legacy regression marker
 ARTIFACT="$(python3 -c 'import json; print(json.load(open("release-manifest.template.json"))["artifact"])')"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_6_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_5_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_4_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_3_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_2_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_1_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_1_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_0_1_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v3_0_0_realise_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_13_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_12_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_11_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_10_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_9_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_8_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_7_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_6_0_full_release.zip"
-# Historical compatibility marker: ARTIFACT="remnawave_vpn_shop_v2_5_0_full_release.zip"
-# Historical compatibility marker: remnawave_vpn_shop_v2_4_0_full_release.zip
-# Historical compatibility marker: remnawave_vpn_shop_v2_3_0_full_release.zip
-# Historical compatibility marker: remnawave_vpn_shop_v2_2_1_full_release.zip
 python -m pytest -q tests
 python -m compileall -q backend
 python -m pytest -q tests/test_release_quality_v2_2.py

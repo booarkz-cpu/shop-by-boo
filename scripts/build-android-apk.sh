@@ -21,8 +21,6 @@ if [[ -z "$GRADLE" ]]; then
 fi
 OUT="${1:-$ROOT}"
 mkdir -p "$OUT"
-# Historical compatibility marker: remnawave_vpn_shop_android_user_2_9_0.apk
-# Historical compatibility marker: name="remnawave_vpn_shop_${app//-/_}_2_10_0.apk"
 MODE="${ANDROID_BUILD_MODE:-auto}"
 TASK=":app:assembleDebug"
 KIND=debug

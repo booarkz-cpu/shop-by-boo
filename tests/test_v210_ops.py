@@ -52,11 +52,6 @@ def test_routes_and_release_scripts():
     assert '@app.post("/api/admin/plans/{plan_id}/enabled")' in main
     assert '@app.get("/api/admin/payments/{payment_id}")' in main
     assert '@app.get("/api/admin/github-update")' in main
-    assert 'APP_VERSION = "3.0.0-realise"' in main
-    assert 'APP_VERSION = "2.13.0"' in main
-    assert 'APP_VERSION = "2.12.0"' in main
-    assert 'APP_VERSION = "2.11.0"' in main
-    assert 'APP_VERSION = "2.10.0"' in main
     config = (ROOT / "backend/app/config.py").read_text()
     assert "MOBILE_REQUIRE_PROOF" in config and "MOBILE_CLIENT_KEY" in config
     platform = (ROOT / "backend/app/platform_api.py").read_text()

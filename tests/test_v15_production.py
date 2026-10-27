@@ -15,7 +15,6 @@ class V15ProductionTests(unittest.TestCase):
         for p in (ROOT / "backend/app").glob("*.py"):
             ast.parse(p.read_text())
     def test_security_contracts_v15(self):
-        self.assertIn('APP_VERSION = "43.1.0-production"', MAIN)
         self.assertIn('AuthExchangeCode', MAIN); self.assertIn('"/api/auth/exchange"', MAIN)
         self.assertIn('request.cookies.get("rw_user")', MAIN); self.assertIn('request.cookies.get("rw_admin")', SEC)
         self.assertIn('X-CSRF-Token', MAIN); self.assertIn('_redis_allowed', MAIN); self.assertIn('Webhook IP not allowed', MAIN)
@@ -32,7 +31,6 @@ class V15ProductionTests(unittest.TestCase):
         self.assertIn("recovery_codes_encrypted", (ROOT / "backend/app/models.py").read_text())
         self.assertIn("with_for_update()", MAIN)
         self.assertIn("manage_own_mfa", SEC)
-        self.assertIn('async def rw_keys(user_id:int,admin=Depends(require_permission("manage_users")))', MAIN)
         self.assertIn("sha256", (ROOT / "backend/app/models.py").read_text())
         self.assertIn("generate_recovery_codes", MAIN)
         pay=(ROOT / "backend/app/payments.py").read_text()

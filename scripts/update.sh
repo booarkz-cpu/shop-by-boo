@@ -10,7 +10,7 @@ mkdir -p "$ROLLBACK_DIR"
 SNAPSHOT="$ROLLBACK_DIR/pre-update-$STAMP.tar.gz"
 DB_DUMP="$ROLLBACK_DIR/pre-update-$STAMP.sql"
 # Never copy environment secrets into rollback archives.
-tar --exclude='./.rollback' --exclude='./.git' --exclude='./.env' --exclude='./.env.*' --exclude='*/.env' --exclude='*/.env.*' --exclude='*/node_modules' -czf "$SNAPSHOT" .
+tar --exclude='./.rollback' --exclude='./.control' --exclude='./.git' --exclude='./.env' --exclude='./.env.*' --exclude='*/.env' --exclude='*/.env.*' --exclude='*/node_modules' -czf "$SNAPSHOT" .
 if docker compose up -d db >/dev/null 2>&1; then
   docker compose exec -T db pg_dump -U vpnshop -d vpnshop --clean --if-exists --no-owner --no-privileges > "$DB_DUMP" || { rm -f "$DB_DUMP"; echo 'Pre-update DB dump failed; update cancelled' >&2; exit 1; }
 else
@@ -29,7 +29,8 @@ rollback(){
   # Snapshots omit nested secrets, so carry every installed environment file.
   find . -path './.rollback' -prune -o -path './.git' -prune -o \
     -type f \( -name '.env' -o -name '.env.*' \) -exec cp --parents -p -- {} "$tmp" \;
-  find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' ! -name '.env.*' ! -name '.git' ! -name '.rollback' -exec rm -rf {} +
+  # .control holds the auto-update requests and status of the admin panel: kept as is.
+  find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' ! -name '.env.*' ! -name '.git' ! -name '.rollback' ! -name '.control' -exec rm -rf {} +
   cp -a "$tmp"/. "$APP_DIR"/
   rm -rf "$tmp"
   if [[ -s "$DB_DUMP" ]]; then
@@ -48,7 +49,7 @@ trap rollback ERR
 # previous install. Copy only after that snapshot exists.
 if [[ -n "${UPDATE_STAGE:-}" ]]; then
   [[ -d "$UPDATE_STAGE" && -f "$UPDATE_STAGE/backend/app/main.py" ]] || { echo "UPDATE_STAGE is not a shop release" >&2; exit 1; }
-  tar --exclude='./.env' --exclude='./.env.*' --exclude='*/.env' --exclude='*/.env.*' --exclude='./.rollback' --exclude='*/.rollback' --exclude='./.git' --exclude='*/.git' -C "$UPDATE_STAGE" -cf - . | tar -C "$APP_DIR" -xf -
+  tar --exclude='./.env' --exclude='./.env.*' --exclude='*/.env' --exclude='*/.env.*' --exclude='./.rollback' --exclude='*/.rollback' --exclude='./.control' --exclude='./.git' --exclude='*/.git' -C "$UPDATE_STAGE" -cf - . | tar -C "$APP_DIR" -xf -
 fi
 # v28.23.0+: move PostgreSQL 16 data to the PostgreSQL 18 volumes once (no-op afterwards).
 bash scripts/upgrade-postgres.sh

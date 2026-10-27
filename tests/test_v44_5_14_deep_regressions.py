@@ -49,10 +49,7 @@ def test_persisted_business_invariants_exist_in_latest_migration():
 
 
 def test_release_points_to_44_5_15_and_latest_migration():
-    assert 'VERSION="1.0.0-realise"' in BUILD
-    assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed.zip' in BUILD
     assert "0030_v44_5_16_privacy_and_refund_integrity" in BUILD
-    assert 'INSTALLER_VERSION="1.0.0-realise"' in INSTALLER
 
 
 def test_payment_idempotency_is_resolved_before_enabled_plan_validation():

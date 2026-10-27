@@ -28,7 +28,6 @@ def test_broadcast_queue_resumes_and_is_exposed():
     assert "/api/admin/broadcasts" in android and "/api/admin/marketing" in android
     assert "broadcastTarget" in android
     assert "/api/admin/broadcasts" in ios and "broadcastTarget" in ios
-    assert 'APP_VERSION = "2.12.0"' in main
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_12_0.md").read_text()
     assert "2.12.0" in notes and "Русский" in notes and "English" in notes
     assert "manage_broadcasts" in notes
