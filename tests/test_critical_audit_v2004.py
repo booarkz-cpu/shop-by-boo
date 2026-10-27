@@ -1,40 +1,40 @@
 """20.0.4 version identity and unauthenticated control-plane routes."""
-from main_source import main_source
 from pathlib import Path
+
+import pytest
+
+from app_contract import permissions
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_live_version_is_20_0_4_and_history_order_stays():
-    main_source()
-    (ROOT / "deploy/install-vps.sh").read_text()
-    (ROOT / "scripts/build-release.sh").read_text()
+@pytest.mark.asyncio
+async def test_node_control_and_public_release_are_closed():
+    from fastapi import HTTPException
 
-
-def test_node_control_and_public_release_are_closed():
-    launch = (ROOT / "backend/app/production_launch_api.py").read_text()
-    register = launch[launch.index("async def register_node"): launch.index("async def node_failover")]
-    failover = launch[launch.index("async def node_failover"): launch.index("async def release")]
-    public = launch[launch.index("async def release"):]
-    assert 'require_permission("provision_nodes")' in register
-    assert 'require_permission("provision_nodes")' in failover
-    # The old routes returned invented data; they now say where the real mechanism is.
-    assert "raise HTTPException(410, GONE_NODES)" in register and "raise HTTPException(410, GONE_NODES)" in failover
-    assert "agent_token" not in launch and "signature" not in launch
-    assert '"release": APP_VERSION' in public
-    assert "16.0.0" not in public
-    assert '"version":APP_VERSION' in main_source()
+    from app import main as shop
+    from app import production_launch_api as launch
+    for path in ("/api/admin/v16/nodes/register", "/api/admin/v16/nodes/{node_name}/failover"):
+        assert permissions("POST", path) == {"provision_nodes"}
+    for call in (launch.register_node(None), launch.node_failover("de-1", None)):
+        with pytest.raises(HTTPException) as gone:
+            await call
+        assert gone.value.status_code == 410, "the old routes say where the real mechanism is"
+    public = await launch.release()
+    assert public["release"] == shop.APP_VERSION and "token" not in str(public).lower()
+    assert (await shop.health_live())["version"] == shop.APP_VERSION
 
 
 def test_updater_points_at_this_repository():
-    update = (ROOT / "backend/app/github_update.py").read_text()
-    fetch = (ROOT / "scripts/github_release_fetch.py").read_text()
-    installer = (ROOT / "install.sh").read_text()
-    assert 'GITHUB_REPO = "booarkz-cpu/shop-by-boo"' in update
-    assert 'REPO = "booarkz-cpu/shop-by-boo"' in fetch
-    assert "https://github.com/booarkz-cpu/shop-by-boo.git" in installer
-    assert "remnawave-vpn-shop" not in update
-    assert "remnawave-vpn-shop" not in fetch.split("DOWNLOAD_PREFIX", 1)[0]
+    import importlib.util
+
+    from app import github_update
+    spec = importlib.util.spec_from_file_location("release_fetch_2004", ROOT / "scripts/github_release_fetch.py")
+    fetch = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fetch)
+    assert github_update.GITHUB_REPO == fetch.REPO == "booarkz-cpu/shop-by-boo"
+    assert github_update.DOWNLOAD_PREFIX.startswith("https://github.com/booarkz-cpu/shop-by-boo/releases/download/")
+    assert "https://github.com/booarkz-cpu/shop-by-boo.git" in (ROOT / "install.sh").read_text()
 
 
 def test_readme_describes_features_and_live_payments_in_three_languages():

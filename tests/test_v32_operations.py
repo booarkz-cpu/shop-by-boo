@@ -1,26 +1,29 @@
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-from main_source import main_source
+import pytest
 
 def read(p): return p.read_text()
 
 def test_current_manifest_and_migration():
     m=read(ROOT/'release-manifest.template.json')
-    mig=read(ROOT/'backend/alembic/versions/0017_v39_staging_isolation.py')
-    assert '43.1.0-production' in m
-    assert '0017_v39_staging_isolation' in m
-    assert 'class Job' in read(ROOT/'backend/app/models.py')
-    assert 'class FraudSignal' in read(ROOT/'backend/app/models.py')
-    assert 'class PayoutTransaction' in read(ROOT/'backend/app/models.py')
-    assert 'revision="0017_v39_staging_isolation"' in mig
+    from app_contract import revision, tables
+    assert '43.1.0-production' in m and '0017_v39_staging_isolation' in m
+    assert {'jobs', 'fraud_signals', 'payout_transactions'} <= set(tables())
+    assert revision('0017_v39_staging_isolation') is not None
 
-def test_current_ops_endpoints_and_rbac():
-    main=main_source(); sec=read(ROOT/'backend/app/security.py')
-    for x in ['/api/admin/monitoring','/api/admin/jobs','/api/admin/fraud','/api/admin/payouts','/api/me/privacy/export','/api/me/privacy/account','/api/me/traffic','/api/admin/refunds/{refund_id}/reconcile']:
-        assert x in main
-    for x in ['referrals.withdrawals.read','referrals.withdrawals.approve','referrals.withdrawals.pay','referrals.reconcile']:
-        assert x in sec
-    assert 'Manual mark-refunded is disabled' in main
+@pytest.mark.asyncio
+async def test_current_ops_endpoints_and_rbac():
+    from fastapi import HTTPException
+
+    from app import main as shop
+    from app.security import PERMISSIONS
+    from app_contract import missing_paths
+    assert not missing_paths('/api/admin/monitoring', '/api/admin/jobs', '/api/admin/fraud', '/api/admin/payouts', '/api/me/privacy/export',
+                             '/api/me/privacy/account', '/api/me/traffic', '/api/admin/refunds/{refund_id}/reconcile')
+    assert {'referrals.withdrawals.read', 'referrals.withdrawals.approve', 'referrals.withdrawals.pay', 'referrals.reconcile'} <= PERMISSIONS['admin']
+    with pytest.raises(HTTPException) as gone:
+        await shop.mark_refunded(1, None)
+    assert gone.value.status_code == 410, "a refund is executed or reconciled with the provider, never just marked"
 
 def test_build_stage_images_are_pinnable():
     compose=read(ROOT/'docker-compose.yml')

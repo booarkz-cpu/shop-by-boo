@@ -28,18 +28,19 @@ def test_vps_installer_collects_operator_settings():
 
 
 def test_wallet_gifts_and_days_promo_are_wired():
-    main = main_source()
-    models = (ROOT / "backend/app/models.py").read_text()
-    migration = (ROOT / "backend/alembic/versions/0035_v2_3_0_wallet_gifts.py").read_text()
-    assert "async def wallet_topup" in main
-    assert "async def wallet_spend" in main
-    assert "async def purchase_gift" in main
-    assert "Gift purchaser cannot redeem their own gift" in (ROOT / "backend/app/gift_orders.py").read_text()
-    assert 'if kind == "days"' in main
-    assert "wallet_balance" in models
-    assert "purchaser_user_id" in models
-    assert 'revision = "0035_v2_3_0_wallet_gifts"' in migration
-    assert 'down_revision = "0034_v2_2_0_platform_features"' in migration
+    from decimal import Decimal
+
+    from app import main as shop
+    from app_contract import columns, missing_routes, revision
+    assert not missing_routes("POST /api/me/wallet/topup", "POST /api/me/wallet/spend", "POST /api/me/gifts/purchase", "POST /api/me/gifts/redeem")
+    assert "wallet_balance" in columns("users") and "purchaser_user_id" in columns("gift_codes")
+    assert revision("0035_v2_3_0_wallet_gifts").down_revision == "0034_v2_2_0_platform_features"
+    # A «days» promo adds time, it is never a cash discount; percent and fixed are capped by the price.
+    assert shop.discounted_amount(100, "days", 7) == Decimal("0.00")
+    assert shop.discounted_amount(199, "percent", 15) == Decimal("29.85")
+    assert shop.discounted_amount(100, "fixed", 500) == Decimal("100.00")
+    assert shop.discounted_amount(100, "fixed", -5) == Decimal("0.00")
+    # The purchaser cannot redeem their own gift: test_v2_0_0_product_and_critical_audit.py.
 
 
 def test_v230_release_markers_remain_as_history():

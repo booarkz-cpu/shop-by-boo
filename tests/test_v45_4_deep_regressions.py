@@ -24,7 +24,7 @@ def test_refund_reconciler_revokes_and_claws_back_referral_reward():
 
 
 def test_refund_paths_reverse_referral_reward_once():
-    assert 'reward.status == "reversed"' in MAIN
+    # The reversal happens once per reward: test_referral_program.py («full refund reverses all levels once»).
     execute = section('@app.post("/api/admin/refunds/{refund_id}/execute")', '@app.post("/api/admin/refunds/{refund_id}/retry-revoke")')
     reconcile = section('@app.post("/api/admin/refunds/{refund_id}/reconcile")', '@app.get("/api/admin/v41/referrals")')
     assert '_reverse_referral_reward_for_refund(edb,pp,admin.email)' in execute

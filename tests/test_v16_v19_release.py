@@ -19,9 +19,10 @@ def test_main_has_v19_features():
     m=re.search(r'async def admin_menu_delete.*?(?=\n@app|\Z)',s,re.S); assert m and 'payload' not in m.group(0)
 
 def test_security_session_and_permissions():
-    s=read(SEC)
-    assert 'AdminSession' in s and 'claims.get("jti")' in s
-    assert 'users.keys' in s and 'sessions.manage' in s and 'backups.write' in s
+    # Admin sessions are registered by jti and revocable: test_v42_hardening.py.
+    from app.security import PERMISSIONS
+    assert {'users.keys', 'sessions.manage', 'backups.write'} <= PERMISSIONS['admin']
+    assert 'users.keys' in PERMISSIONS['operator'] and 'backups.write' not in PERMISSIONS['operator']
 
 def test_models():
     s=read(MODELS)
@@ -44,8 +45,11 @@ def test_compose_private_ports():
         assert not c['services'][name].get('ports')
 
 def test_no_float_money_in_discount_logic():
-    s=main_source()
-    assert 'price * value / Decimal("100")' in s
+    from decimal import Decimal
+
+    from app import main as shop
+    assert shop.discounted_amount("0.10", "percent", "33.3333") == Decimal("0.03"), "Decimal maths, rounded half up"
+    assert shop.discounted_amount(Decimal("99.99"), "percent", 10) == Decimal("10.00")
 
 def test_env_s3():
     s=read(ROOT/'.env.example')
