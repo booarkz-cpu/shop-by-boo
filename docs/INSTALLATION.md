@@ -172,7 +172,22 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.33.0 bash /opt/vpn-shop/scripts/u
 
 Скрипт скачивает архив выпуска, сверяет SHA-256 и манифест, делает копию, собирает образы, применяет миграции и проверяет здоровье ([регламент](ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
-**Из GitHub Actions** («Corgi Lusi Production Deploy»): секреты `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PATH` (и `DEPLOY_PORT`), окружение `production`. Ручной запуск — с точным тегом.
+**Из GitHub Actions** («Corgi Lusi Production Deploy»). Workflow подключается к серверу по SSH и запускает то же обновление. Настройка:
+
+1. На сервере: `sudo bash /opt/vpn-shop/scripts/setup-auto-deploy.sh`. Скрипт создаст отдельный ключ `/root/.ssh/github_deploy`, разрешит его для root и напечатает значения секретов.
+2. В GitHub: **Settings → Environments → production** (создайте окружение, если его нет) → **Environment secrets → Add environment secret**:
+
+   | Секрет | Значение |
+   | --- | --- |
+   | `DEPLOY_HOST` | IP-адрес или домен сервера |
+   | `DEPLOY_USER` | `root` |
+   | `DEPLOY_SSH_KEY` | приватный ключ целиком, от `-----BEGIN` до `-----END … KEY-----` |
+   | `DEPLOY_PATH` | `/opt/vpn-shop` |
+   | `DEPLOY_PORT` | только если SSH не на 22 |
+
+3. Проверка: **Actions → Corgi Lusi Production Deploy → Run workflow** с тегом текущего выпуска. Первым шагом workflow проверяет, что все секреты заданы, и называет недостающие.
+
+Отозвать доступ: удалите строку `github-deploy@…` из `/root/.ssh/authorized_keys`.
 
 **Автодеплой**: переменная репозитория `AUTO_DEPLOY=true` (Settings → Secrets and variables → Actions → Variables). Тогда каждый новый стабильный выпуск, опубликованный после зелёного CI на `main`, ставится на сервер автоматически тем же путём. Если окружению `production` назначен обязательный проверяющий, деплой ждёт его одобрения.
 

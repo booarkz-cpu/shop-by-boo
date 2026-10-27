@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1591**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1592**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1313,6 +1313,7 @@
 | [scripts/screenshots/miniapp.mjs](../scripts/screenshots/miniapp.mjs) | Эксплуатация и релиз |
 | [scripts/screenshots/readme_admin.py](../scripts/screenshots/readme_admin.py) | Эксплуатация и релиз |
 | [scripts/security-scan.sh](../scripts/security-scan.sh) | Эксплуатация и релиз |
+| [scripts/setup-auto-deploy.sh](../scripts/setup-auto-deploy.sh) | Эксплуатация и релиз |
 | [scripts/sign-plugin.py](../scripts/sign-plugin.py) | Эксплуатация и релиз |
 | [scripts/staging-e2e.sh](../scripts/staging-e2e.sh) | Эксплуатация и релиз |
 | [scripts/static_audit.py](../scripts/static_audit.py) | Эксплуатация и релиз |

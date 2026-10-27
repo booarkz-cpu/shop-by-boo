@@ -74,7 +74,7 @@ jobs:
           [ "$HAS_KEY" = true ] || missing="$missing DEPLOY_SSH_KEY"
           [ "$HAS_PATH" = true ] || missing="$missing DEPLOY_PATH"
           if [ -n "$missing" ]; then
-            echo "::error title=Deployment secrets missing::Add${missing} in Settings → Secrets and variables → Actions (environment «production» or repository), or turn AUTO_DEPLOY off. Nothing was deployed."
+            echo "::error title=Deployment secrets missing::Add${missing} in Settings → Environments → production → Environment secrets (values: run sudo bash scripts/setup-auto-deploy.sh on the server, docs/INSTALLATION.md §9), or turn AUTO_DEPLOY off. Nothing was deployed."
             exit 1
           fi
       - name: Install exact release with backup and health checks
