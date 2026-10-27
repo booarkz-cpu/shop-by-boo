@@ -21,7 +21,7 @@ async def refund_revoke_scheduler():
     while True:
         try:
             async with shop.AsyncSession(shop.engine,expire_on_commit=False) as db:
-                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"telegram_stars":shop.TelegramStarsProvider()}
+                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"telegram_stars":shop.TelegramStarsProvider()}
                 pending=(await db.execute(shop.select(shop.RefundRequest).where(shop.RefundRequest.status=="processing",shop.RefundRequest.provider_refund_id.is_not(None)).order_by(shop.RefundRequest.updated_at).limit(50))).scalars().all()
                 for r in pending:
                     p=await db.get(shop.Payment,r.payment_id); provider=providers.get(p.provider) if p else None
@@ -318,7 +318,7 @@ async def reconciliation_scheduler():
                 await shop.cleanup_expired_promo_reservations(db,now)
                 cutoff=now-shop.timedelta(hours=24)
                 rows=(await db.execute(shop.select(shop.Payment).where(shop.Payment.created_at>=cutoff,shop.Payment.status.in_(["pending","creation_unknown"])).order_by(shop.Payment.id).limit(50))).scalars().all()
-                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}
+                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}
                 for p in rows:
                     provider=providers.get(p.provider)
                     if not provider or not hasattr(provider,"verify_succeeded"): continue
@@ -406,6 +406,36 @@ async def notify_user_telegram(chat_id, text: str) -> None:
     except Exception as exc:
         shop.logger.warning("Telegram notify failed: %s", exc)
 
+async def send_expiry_reminders(db, client) -> int:
+    """Telegram reminder before a subscription ends, at most once per subscription and end date.
+    The «sent» marker is written only after Telegram accepted the message; a failed send is retried next hour."""
+    until=shop.datetime.utcnow()+shop.timedelta(days=shop.settings.notification_expiry_days)
+    rows=(await db.execute(shop.select(shop.User,shop.Subscription).join(shop.Subscription,shop.Subscription.user_id==shop.User.id).where(shop.User.telegram_id.is_not(None),shop.Subscription.expires_at>shop.datetime.utcnow(),shop.Subscription.expires_at<=until).limit(500))).all()
+    sent=0
+    for u,sub in rows:
+        key=f"expiry-notify:{u.id}:sub:{sub.id}:{sub.expires_at.date()}"
+        if await shop.redis_client.get(key):
+            continue
+        sending_key=key+":sending"
+        if not await shop.redis_client.set(sending_key,"1",nx=True,ex=300):
+            continue
+        try:
+            resp=await client.post(
+                f"https://api.telegram.org/bot{shop.settings.bot_token}/sendMessage",
+                json={"chat_id":u.telegram_id,"text":f"⚠️ Ваша VPN-подписка истекает {sub.expires_at:%d.%m.%Y}. Откройте магазин для продления.\nYour VPN subscription expires on {sub.expires_at:%d.%m.%Y}. Open the shop to renew."},
+            )
+            if resp.status_code >= 400:
+                raise RuntimeError(f"Telegram notification failed: HTTP {resp.status_code}")
+            await shop.redis_client.set(key,"1",ex=86400*7)
+            sent+=1
+        except Exception as exc:
+            try: await shop.redis_client.delete(sending_key)
+            except Exception as cleanup_exc:
+                shop.logger.warning("Failed to clear notification delivery lock: %s", cleanup_exc)
+            shop.logger.warning("Expiry notification failed for user %s: %s",u.id,exc)
+    return sent
+
+
 async def expiry_notification_scheduler():
     # Notifications are sent at most once per day via Redis markers.
     while True:
@@ -416,34 +446,14 @@ async def expiry_notification_scheduler():
             async with shop.AsyncSession(shop.engine,expire_on_commit=False) as db:
                 await enqueue_expiry_notifications(db)
             if shop.settings.bot_token and shop.redis_client is not None:
-                async with shop.AsyncSession(shop.engine,expire_on_commit=False) as db:
-                    until=shop.datetime.utcnow()+shop.timedelta(days=shop.settings.notification_expiry_days)
-                    rows=(await db.execute(shop.select(shop.User,shop.Subscription).join(shop.Subscription,shop.Subscription.user_id==shop.User.id).where(shop.User.telegram_id.is_not(None),shop.Subscription.expires_at>shop.datetime.utcnow(),shop.Subscription.expires_at<=until).limit(500))).all()
-                    import httpx
-                    async with httpx.AsyncClient(timeout=10, trust_env=False) as client:
-                        for u,sub in rows:
-                            key=f"expiry-notify:{u.id}:sub:{sub.id}:{sub.expires_at.date()}"
-                            sending_key=key+":sending"
-                            if not await shop.redis_client.set(sending_key,"1",nx=True,ex=300):
-                                continue
-                            try:
-                                resp=await client.post(
-                                    f"https://api.telegram.org/bot{shop.settings.bot_token}/sendMessage",
-                                    json={"chat_id":u.telegram_id,"text":f"⚠️ Ваша VPN-подписка истекает {sub.expires_at:%d.%m.%Y}. Откройте магазин для продления.\nYour VPN subscription expires on {sub.expires_at:%d.%m.%Y}. Open the shop to renew."},
-                                )
-                                if resp.status_code >= 400:
-                                    raise RuntimeError(f"Telegram notification failed: HTTP {resp.status_code}")
-                                await shop.redis_client.set(key,"1",ex=86400*7)
-                            except Exception as exc:
-                                try: await shop.redis_client.delete(sending_key)
-                                except Exception as cleanup_exc:
-                                    shop.logger.warning("Failed to clear notification delivery lock: %s", cleanup_exc)
-                                shop.logger.warning("Expiry notification failed for user %s: %s",u.id,exc)
+                import httpx
+                async with shop.AsyncSession(shop.engine,expire_on_commit=False) as db, httpx.AsyncClient(timeout=10, trust_env=False) as client:
+                    await send_expiry_reminders(db, client)
             await shop.asyncio.sleep(3600)
         except Exception: await shop.asyncio.sleep(3600)
 
 
-__all__ = ['RECURRING_IDEMPOTENCE_WINDOW', '_record_paid', 'adopt_or_retry_recurring', 'auto_renew_chargeable', 'auto_renew_scheduler', 'cleanup_expired_promo_reservations', 'expiry_notification_scheduler', 'fulfillment_retry_scheduler', 'notify_user_telegram', 'reconciliation_scheduler', 'refund_revoke_scheduler', 'subscription_lifecycle_scheduler', 'run_lifecycle_pass', 'run_auto_renew_pass']
+__all__ = ['RECURRING_IDEMPOTENCE_WINDOW', '_record_paid', 'adopt_or_retry_recurring', 'auto_renew_chargeable', 'auto_renew_scheduler', 'cleanup_expired_promo_reservations', 'expiry_notification_scheduler', 'fulfillment_retry_scheduler', 'notify_user_telegram', 'reconciliation_scheduler', 'refund_revoke_scheduler', 'subscription_lifecycle_scheduler', 'run_lifecycle_pass', 'run_auto_renew_pass', 'send_expiry_reminders']
 # Imported before main finished (``from app import schedulers`` first)? Then main's star
 # import saw a half-loaded module; hand the names over now that they exist.
 shop.__dict__.update({_n: globals()[_n] for _n in __all__})
