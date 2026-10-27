@@ -293,7 +293,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     fun profileTitle(): String = profileStore.find(activeId)?.title ?: (try { URI(base).host } catch (_: Exception) { null } ?: base)
     fun clearLoaded() {
         overview = JSONObject(); plans = JSONArray(); payments = JSONArray(); monitoring = JSONObject()
-        platform = JSONObject(); ops = JSONObject(); readiness = JSONObject(); alerts = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
+        platform = JSONObject(); ops = JSONObject(); nodeHealth = JSONObject(); readiness = JSONObject(); alerts = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
         paymentDetail = JSONObject(); logo = null; reply = ""; broadcastText = ""
     }
     fun reloadProfiles() {
@@ -413,6 +413,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
         monitoring = JSONObject("""{"nodes":[{"name":"Амстердам","country":"NL","status":"online","users_online":412},{"name":"Франкфурт","country":"DE","status":"online","users_online":388},{"name":"Хельсинки","country":"FI","status":"online","users_online":201},{"name":"Стамбул","country":"TR","status":"offline","users_online":0}]}""")
         platform = JSONObject("""{"violations":[{"id":17,"score":82,"recommendation":"Торрент-трафик: ограничить"}],"agents":[{"name":"nl-1","cpu":"23%","last_seen_at":"2026-10-26T20:00:00"},{"name":"de-1","cpu":"41%","last_seen_at":"2026-10-26T20:00:00"}],"countries":[{"country":"RU","count":4210},{"country":"KZ","count":512},{"country":"BY","count":318}]}""")
         ops = JSONObject("""{"critical":0,"stale_agents":1,"agents":[{"name":"nl-1","cpu":"23%","mem":"41%"},{"name":"de-1","cpu":"41%","mem":"55%"}]}""")
+        nodeHealth = JSONObject("""{"nodes":[{"uuid":"n1","name":"Нидерланды","status":"online","users_online":184,"down_minutes":0},{"uuid":"n2","name":"Германия","status":"offline","users_online":0,"down_minutes":4}]}""")
         readiness = JSONObject("""{"ready":false,"checks":[{"title":"Платёжная система подключена","ok":true,"level":"required"},{"title":"Remnawave отвечает","ok":true,"level":"required"},{"title":"Резервные копии по расписанию","ok":true,"level":"required"},{"title":"Чеки в налоговую","ok":false,"level":"recommended","hint":"Тарифы и оплата → Чеки в налоговую"}]}""")
         alerts = JSONObject("""{"recipients":{"telegram":true,"email":false},"problems":[]}""")
         tickets = JSONArray("""[{"id":311,"subject":"Не подключается на iPhone","status":"open","message":"После обновления iOS Happ не видит подписку."},{"id":310,"subject":"Чек об оплате","status":"answered","message":"Пришлите, пожалуйста, чек за октябрь."}]""")

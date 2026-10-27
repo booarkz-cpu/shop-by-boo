@@ -103,6 +103,7 @@ struct AdminRootView: View {
         monitoring = parse(#"{"nodes":[{"name":"Амстердам","country":"NL","status":"online","users_online":412},{"name":"Франкфурт","country":"DE","status":"online","users_online":388},{"name":"Стамбул","country":"TR","status":"offline","users_online":0}]}"#) as? [String: Any] ?? [:]
         platform = parse(#"{"violations":[{"id":17,"score":82,"recommendation":"Торрент-трафик: ограничить"}],"agents":[{"name":"nl-1","cpu":"23%"}],"countries":[{"country":"RU","count":4210},{"country":"KZ","count":512}]}"#) as? [String: Any] ?? [:]
         ops = parse(#"{"critical":0,"stale_agents":1,"agents":[{"name":"nl-1","cpu":"23%","mem":"41%"}]}"#) as? [String: Any] ?? [:]
+        nodeHealth = parse(#"{"nodes":[{"uuid":"n1","name":"Нидерланды","status":"online","users_online":184,"down_minutes":0},{"uuid":"n2","name":"Германия","status":"offline","users_online":0,"down_minutes":4}]}"#) as? [String: Any] ?? [:]
         readiness = parse(#"{"ready":false,"checks":[{"title":"Платёжная система подключена","ok":true,"level":"required"},{"title":"Remnawave отвечает","ok":true,"level":"required"},{"title":"Чеки в налоговую","ok":false,"level":"recommended","hint":"Тарифы и оплата → Чеки в налоговую"}]}"#) as? [String: Any] ?? [:]
         alerts = parse(#"{"recipients":{"telegram":true,"email":false},"problems":[]}"#) as? [String: Any] ?? [:]
         tickets = parse(#"[{"id":311,"subject":"Не подключается на iPhone","status":"open","message":"После обновления iOS Happ не видит подписку."}]"#) as? [[String: Any]] ?? []
@@ -163,7 +164,7 @@ struct AdminRootView: View {
     }
 
     private func clearLoaded() {
-        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; readiness = [:]; alerts = [:]
+        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; nodeHealth = [:]; readiness = [:]; alerts = [:]
         tickets = []; broadcasts = []; paymentDetail = [:]; logo = nil; reply = ""; broadcastText = ""
     }
 
