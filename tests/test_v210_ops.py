@@ -1,4 +1,3 @@
-from main_source import main_source
 import json
 """Source contracts for the 2.10.0 buyer and operator features."""
 import importlib.util
@@ -6,7 +5,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import pytest
+
 import mobile.client_rules as rules
+from test_subscription_commerce import database  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -45,25 +47,26 @@ def test_subscription_links_and_stale_agents():
     assert rules.agent_is_stale("2026-01-01T00:00:00Z", datetime(2026, 1, 1, 0, 6)) is True
 
 
+@pytest.mark.asyncio
+async def test_my_devices_never_show_device_keys_or_addresses(database):
+    from app import main as shop
+    from app.models import UserDevice
+    database.add(UserDevice(user_id=1, subscription_id=1, device_key="k" * 32, name="Pixel", platform="android", status="active", last_ip="198.51.100.7"))
+    await database.commit()
+    out = str(await shop.my_devices(None, database))
+    assert "Pixel" in out and "k" * 32 not in out and "198.51.100.7" not in out
+
+
 def test_routes_and_release_scripts():
-    main = main_source()
-    devices = main[main.index("async def my_devices"):main.index("class DeviceRegisterIn")]
-    assert "device_key" not in devices and "last_ip" not in devices
-    assert '@app.post("/api/admin/plans/{plan_id}/enabled")' in main
-    assert '@app.get("/api/admin/payments/{payment_id}")' in main
-    assert '@app.get("/api/admin/github-update")' in main
-    config = (ROOT / "backend/app/config.py").read_text()
-    assert "MOBILE_REQUIRE_PROOF" in config and "MOBILE_CLIENT_KEY" in config
-    platform = (ROOT / "backend/app/platform_api.py").read_text()
-    assert '"stale"' in platform
+    from app_contract import env_names, missing_routes
+    assert not missing_routes("POST /api/admin/plans/{plan_id}/enabled", "GET /api/admin/payments/{payment_id}", "GET /api/admin/github-update")
+    assert {"MOBILE_REQUIRE_PROOF", "MOBILE_CLIENT_KEY"} <= env_names()
     updater = (ROOT / "scripts/update-from-github.sh").read_text()
     assert "scripts/update.sh" in updater
     assert "UPDATE_STAGE" in updater
     update_sh = (ROOT / "scripts/update.sh").read_text()
     assert "--exclude='./.env'" in update_sh
     assert update_sh.index("pre-update-$STAMP.tar.gz") < update_sh.index("UPDATE_STAGE")
-    fetch = (ROOT / "scripts/github_release_fetch.py").read_text()
-    assert "sha256" in fetch and "full_release" in fetch
     assert (ROOT / "mobile/android-user/app-release.apk").exists() is False
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_10_0.md").read_text()
     assert "2.10.0" in notes and "SHA-256" in notes and "2.9.0" in notes

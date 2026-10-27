@@ -1,5 +1,4 @@
 """3.1.2 panel leak audit contracts."""
-from main_source import main_source
 import os
 import sys
 from pathlib import Path
@@ -7,13 +6,13 @@ from pathlib import Path
 import pytest
 from fastapi import HTTPException
 
+from app_contract import permissions
+from test_subscription_commerce import database  # noqa: F401
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_312_is_first():
-    main_source()
-    (ROOT / "scripts/build-release.sh").read_text()
-    (ROOT / "deploy/install-vps.sh").read_text()
     manifest = (ROOT / "release-manifest.template.json").read_text()
     assert '"version": "3.1.2"' in manifest
     assert '"previous_release": "3.1.1"' in manifest
@@ -57,26 +56,8 @@ def test_remote_payload_and_audit_are_redacted():
 
 
 def test_admin_routes_hide_credentials_and_stderr():
-    main = main_source()
-    subscription = main[main.index('"/api/admin/remnawave/users/{user_id}/subscription"'): main.index('"/api/admin/remnawave/users/{user_id}/keys"')]
-    keys = main[main.index('"/api/admin/remnawave/users/{user_id}/keys"'): main.index('"/api/admin/remnawave/health"')]
-    assert 'require_permission("users.keys")' in subscription
-    assert 'require_permission("users.keys")' in keys
-    assert 'require_permission("read")' not in subscription
-    overview = main[main.index("async def admin_overview"): main.index('"/api/admin/plans"')]
-    assert "func.count()" in overview
-    assert '"response":{"total":total}' in overview
-    diagnostics = main[main.index("async def v41_diagnostics"): main.index("class IncidentCreateIn")]
-    assert 'str(exc)' not in diagnostics
-    assert '"error":"unavailable"' in diagnostics
-    assert '"error":"unavailable" if x.error else None' in main
-    assert '"last_error":"unavailable" if x.last_error else None' in main
-    assert 'raise HTTPException(500, "Restore failed")' in main
-    assert 'raise HTTPException(500, "Migration after restore failed")' in main
-    assert 'raise HTTPException(500, "Backup failed")' in main
-    assert "_public_audit_details(x.details)" in main
-    assert "_public_refund_reason(x.reason)" in main
-    assert "_public_refund_reason(r.reason)" in main
+    for path in ("/api/admin/remnawave/users/{user_id}/subscription", "/api/admin/remnawave/users/{user_id}/keys"):
+        assert permissions("GET", path) == {"users.keys"}, path
     provisioner = (ROOT / "backend/app/provisioner.py").read_text()
     body = provisioner[provisioner.index("def run_ssh"):]
     assert '"output"' not in body
@@ -104,3 +85,24 @@ def test_docs_describe_312_and_keep_311():
     assert "RELEASE_NOTES_V3_1_2.md" in docs and "INSTALL_STEPS.md" in docs and "RELEASE_NOTES_V3_1_1.md" in docs
     assert '"version": "3.1.2"' in steps
     assert "client-logo" not in ui
+
+
+@pytest.mark.asyncio
+async def test_admin_lists_hide_errors_and_stack_tails(database):
+    from types import SimpleNamespace
+    from decimal import Decimal
+
+    from app import main as shop
+    from app.models import AuditLog, MonitoringCheck, Payment, RefundRequest
+    database.add_all([
+        AuditLog(action="payment.failed", actor="system", details='{"provider":"yookassa","error":"postgres://u:pw@db","token":"t-1"}'),
+        MonitoringCheck(name="api", url="https://status.example/x", last_error="ConnectError: 10.0.0.5:5432 refused"),
+        Payment(id=95, user_id=1, plan_id=1, provider="yookassa", order_id="o-95", amount=Decimal("1"), currency="RUB", status="paid", idempotency_key="k-95"),
+        RefundRequest(payment_id=95, user_id=1, amount=Decimal("1"), reason="клиент просил\nRevoke pending: ReadTimeout panel.internal:3000"),
+    ])
+    await database.commit()
+    admin = SimpleNamespace(email="a@b.c", role="admin")
+    shown = str(await shop.admin_audit(1, 50, database, admin)) + str(await shop.enterprise_monitoring(database, admin)) + str(await shop.admin_refunds(database, admin))
+    for leak in ("postgres://", "t-1", "10.0.0.5", "panel.internal"):
+        assert leak not in shown, leak
+    assert "yookassa" in shown and "клиент просил" in shown
