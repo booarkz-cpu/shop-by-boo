@@ -27,7 +27,7 @@ from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import and_, exists, func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_db
@@ -288,10 +288,14 @@ async def _email(db: AsyncSession, config: FiscalConfig, payment: Payment) -> st
     return (user.email if user and user.email and user.email_verified_at else "") or config.fallback_email or config.company_email
 
 
+class _NpdAnswerLost(Exception):
+    """The income request left but no answer came back: it may already be registered."""
+
+
 async def _npd_income_once(client, auth: dict, body: dict):
-    """«Мой налог» has no idempotency key: an answer lost after the request left
-    may already be a registered income, so only a refused connection is retried
-    automatically; anything later waits for the owner to check and retry."""
+    """«Мой налог» has no idempotency key. Only a refused connection is retried blindly; an answer
+    lost after the request left turns the receipt to «check», and the next pass looks the income
+    up in the list of incomes before sending anything again."""
     import httpx
 
     try:
@@ -299,8 +303,48 @@ async def _npd_income_once(client, auth: dict, body: dict):
     except (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout):
         raise
     except httpx.TransportError as exc:
-        raise FiscalError("«Мой налог» не ответил после отправки: проверьте чек в приложении «Мой налог»; "
-                          "если его нет — нажмите «Повторить»", final=True) from exc
+        raise _NpdAnswerLost() from exc
+
+
+def _npd_time(value: datetime) -> str:
+    return value.isoformat(timespec="milliseconds")
+
+
+def _same_second(value, moment: datetime) -> bool:
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=MSK)
+    return abs((parsed - moment).total_seconds()) < 1
+
+
+async def npd_find_income(client, auth: dict, name: str, amount: Decimal, operation_time: datetime,
+                          taken: set[str] = frozenset()) -> str | None:
+    """UUID of a registered (not cancelled) income with this name, amount and sale second that no
+    other receipt of the shop already owns. Raises FiscalError when the list cannot be read."""
+    moment = _ts(operation_time).replace(microsecond=0)
+    total = Decimal(amount).quantize(Decimal("0.01"))
+    for offset in range(0, 500, 100):
+        r = await client.get(f"{NPD_API}/incomes", headers=auth, params={
+            "from": _npd_time(moment - timedelta(minutes=1)), "to": _npd_time(moment + timedelta(minutes=1)),
+            "offset": offset, "limit": 100, "sortBy": "operation_time:desc"})
+        if r.status_code >= 400:
+            raise FiscalError(f"«Мой налог»: список доходов недоступен (HTTP {r.status_code})")
+        data = r.json() or {}
+        for item in data.get("content") or []:
+            try:
+                same_amount = Decimal(str(item.get("totalAmount"))).quantize(Decimal("0.01")) == total
+            except (ArithmeticError, ValueError):
+                continue
+            uuid_ = item.get("approvedReceiptUuid")
+            if (same_amount and uuid_ and uuid_ not in taken and item.get("name") == name and not item.get("cancellationInfo")
+                    and _same_second(item.get("operationTime"), moment)):
+                return uuid_
+        if not data.get("hasMore"):
+            return None
+    return None
 
 
 async def send_receipt(db: AsyncSession, receipt: FiscalReceipt, config: FiscalConfig, now: datetime | None = None) -> FiscalReceipt:
@@ -310,6 +354,7 @@ async def send_receipt(db: AsyncSession, receipt: FiscalReceipt, config: FiscalC
     plan = await db.get(Plan, payment.plan_id) if payment and payment.plan_id else None
     receipt.attempts += 1
     receipt.updated_at = now
+    was_checking = receipt.status == "check"
     try:
         if not payment:
             raise FiscalError("Платёж не найден", final=True)
@@ -320,7 +365,27 @@ async def send_receipt(db: AsyncSession, receipt: FiscalReceipt, config: FiscalC
                 token = await _npd_token(client, config)
                 auth = {"Authorization": f"Bearer {token}"}
                 if receipt.kind == "income":
-                    r = await _npd_income_once(client, auth, npd_income_payload(name, payment.amount, payment.paid_at or payment.created_at, now))
+                    sold_at = payment.paid_at or payment.created_at
+                    if was_checking or receipt.attempts > 1 or receipt.last_error:
+                        # Any earlier attempt may have reached the tax service: look before sending.
+                        taken = set((await db.execute(select(FiscalReceipt.external_id).where(
+                            FiscalReceipt.provider == "npd", FiscalReceipt.kind == "income", FiscalReceipt.id != receipt.id,
+                            FiscalReceipt.external_id.is_not(None)))).scalars().all())
+                        found = await npd_find_income(client, auth, name, payment.amount, sold_at, taken)
+                        if found:
+                            receipt.external_id = found
+                            receipt.receipt_url = f"{NPD_API}/receipt/{config.npd_inn}/{found}/print"
+                            receipt.status = "done"
+                            receipt.last_error = None
+                            receipt.next_attempt_at = None
+                            return receipt
+                    try:
+                        r = await _npd_income_once(client, auth, npd_income_payload(name, payment.amount, sold_at, now))
+                    except _NpdAnswerLost:
+                        receipt.status = "check"
+                        receipt.last_error = "«Мой налог» не ответил после отправки: магазин проверит список доходов и отправит чек, только если его там нет"
+                        receipt.next_attempt_at = now + timedelta(minutes=2)
+                        return receipt
                     if r.status_code >= 400:
                         raise FiscalError(f"«Мой налог»: {(r.json() or {}).get('message') if r.content else r.status_code}", final=r.status_code == 422)
                     uuid_ = r.json().get("approvedReceiptUuid")
@@ -392,9 +457,13 @@ async def send_receipt(db: AsyncSession, receipt: FiscalReceipt, config: FiscalC
     except FiscalError as exc:
         receipt.last_error = str(exc)[:500]
         _fail(receipt, now, exc.final)
+        if receipt.status == "retry" and was_checking:
+            receipt.status = "check"  # still unknown whether the income exists: never send blindly
     except Exception as exc:  # network, JSON
         receipt.last_error = f"{type(exc).__name__}: {exc}"[:500]
         _fail(receipt, now, False)
+        if receipt.status == "retry" and was_checking:
+            receipt.status = "check"
     return receipt
 
 
@@ -443,7 +512,7 @@ async def enqueue_due(db: AsyncSession, config: FiscalConfig, now: datetime | No
 
 async def process_due(db: AsyncSession, config: FiscalConfig, now: datetime | None = None, limit: int = 20) -> dict[str, int]:
     now = now or datetime.utcnow()
-    due = (await db.execute(select(FiscalReceipt).where(FiscalReceipt.status.in_(("queued", "retry", "sent")), FiscalReceipt.next_attempt_at <= now)
+    due = (await db.execute(select(FiscalReceipt).where(FiscalReceipt.status.in_(("queued", "retry", "sent", "check")), FiscalReceipt.next_attempt_at <= now)
                             .order_by(FiscalReceipt.next_attempt_at, FiscalReceipt.id).limit(limit).with_for_update(skip_locked=True))).scalars().all()
     stats: dict[str, int] = {}
     for receipt in due:
