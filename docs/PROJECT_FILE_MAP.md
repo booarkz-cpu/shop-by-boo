@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1628**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1631**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -57,6 +57,7 @@
 | [.github/release-v21.4.0.md](../.github/release-v21.4.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.0.md](../.github/release-v21.5.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.1.md](../.github/release-v21.5.1.md) | GitHub CI/CD |
+| [.github/workflows/build-mobile.yml](../.github/workflows/build-mobile.yml) | GitHub CI/CD |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
 | [.github/workflows/dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) | GitHub CI/CD |
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
@@ -1349,6 +1350,7 @@
 | [scripts/v20_payment_platform_gate.py](../scripts/v20_payment_platform_gate.py) | Эксплуатация и релиз |
 | [scripts/validate-rollback-archive.py](../scripts/validate-rollback-archive.py) | Эксплуатация и релиз |
 | [scripts/verify-release.sh](../scripts/verify-release.sh) | Эксплуатация и релиз |
+| [scripts/zero-downtime-backend.sh](../scripts/zero-downtime-backend.sh) | Эксплуатация и релиз |
 | [support-pro/.dockerignore](../support-pro/.dockerignore) | Support Pro |
 | [support-pro/.env.example](../support-pro/.env.example) | Support Pro |
 | [support-pro/README.md](../support-pro/README.md) | Support Pro |
@@ -1636,3 +1638,4 @@
 | [tests/test_v45_5_deep_regressions.py](../tests/test_v45_5_deep_regressions.py) | Проверки |
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |
+| [tests/test_zero_downtime_deploy.py](../tests/test_zero_downtime_deploy.py) | Проверки |

@@ -23,7 +23,8 @@ ln -sfn "$(basename "$DB_DUMP")" "$ROLLBACK_DIR/latest.sql" 2>/dev/null || true
 rollback(){
   echo "Update failed; entering recovery mode and restoring pre-update snapshots..." >&2
   touch "$ROLLBACK_DIR/RECOVERY_MODE"
-  docker compose down --remove-orphans || true
+  # --profile standby: a zero-downtime standby of the failed release goes too.
+  docker compose --profile standby down --remove-orphans || true
   tmp="$(mktemp -d)"
   tar -xzf "$SNAPSHOT" -C "$tmp"
   # Snapshots omit nested secrets, so carry every installed environment file.

@@ -51,14 +51,15 @@ for app in android-user android-admin; do
   cp "$src" "$OUT/$name"
   (cd "$OUT" && sha256sum "$name" > "$name.sha256")
   echo "APK: $OUT/$name"
-  # Google Play takes an Android App Bundle: a signed release also produces the .aab.
-  if [[ "$KIND" == release && "$SUFFIX" == release ]]; then
+  # Google Play takes an Android App Bundle: every release build also produces the .aab
+  # (signed with the release key, or unsigned for signing later in Play Console / by the owner).
+  if [[ "$KIND" == release ]]; then
     if [[ "$GRADLE" == "$ROOT/mobile/android-user/gradlew" ]]; then
       (cd "$dir" && bash "$dir/gradlew" ":app:bundleRelease" --no-daemon)
     else
       (cd "$dir" && "$GRADLE" ":app:bundleRelease" --no-daemon)
     fi
-    aab="corgi_lusi_${app//-/_}_${version//./_}_release.aab"
+    aab="corgi_lusi_${app//-/_}_${version//./_}_${SUFFIX}.aab"
     cp "$dir/app/build/outputs/bundle/release/app-release.aab" "$OUT/$aab"
     (cd "$OUT" && sha256sum "$aab" > "$aab.sha256")
     echo "AAB: $OUT/$aab"
