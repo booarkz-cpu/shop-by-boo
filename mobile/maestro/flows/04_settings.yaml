@@ -7,7 +7,10 @@ name: Settings, documents and sign-out
       corgi_demo: true
       corgi_tab: settings
       corgi_lang: ru
-- assertVisible: "Документы"
+# A cold start of a cleared debug build on a CI emulator can take longer than the default wait.
+- extendedWaitUntil:
+    visible: "Документы"
+    timeout: 30000
 - scrollUntilVisible:
     element:
       text: "Выйти"

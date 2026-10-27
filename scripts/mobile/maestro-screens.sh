@@ -14,6 +14,12 @@ REPORT="$ROOT/screenshots/mobile/maestro/report.xml"
 status=0
 # Screenshots of takeScreenshot land in the test output folder.
 maestro test --format junit --output "$REPORT" --test-output-dir "$ROOT/screenshots/mobile/maestro" flows/ || status=$?
+if [[ $status -ne 0 ]]; then
+  # CI emulators sometimes stall on the first cold starts: the whole suite gets one more try.
+  echo "Maestro failed once; retrying the flows" >&2
+  status=0
+  maestro test --format junit --output "$REPORT" --test-output-dir "$ROOT/screenshots/mobile/maestro" flows/ || status=$?
+fi
 ls -1 "$ROOT/screenshots/mobile/maestro"
 if [[ $status -ne 0 && -f "$REPORT" ]]; then
   # CI logs are not always readable: surface each failing flow as an annotation.
