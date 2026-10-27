@@ -191,35 +191,30 @@ async def linked_constructor_id(db: AsyncSession, plan_id: int) -> int | None:
     return await db.scalar(select(TariffConstructor.id).where(TariffConstructor.plan_id == plan_id))
 
 
+PUBLIC_NODE_FIELDS = ("name", "country", "status", "users_online")
+
+
 async def remnawave_server_status(scope: str) -> dict:
-    from .remnawave import RemnawaveClient
+    """Server list for customers and the admin panel, from the node snapshot shared through Redis (node_health)."""
+    from .node_health import node_snapshot
 
     started = time.perf_counter()
-    try:
-        raw = await RemnawaveClient().list_nodes(start=0, size=200)
-        nodes = [public_node(n) for n in _iter_nodes(raw)]
-        return {
-            "ok": True,
-            "scope": scope,
-            "latency_ms": round((time.perf_counter() - started) * 1000, 1),
-            "total": len(nodes),
-            "online": sum(n["status"] == "online" for n in nodes),
-            "offline": sum(n["status"] == "offline" for n in nodes),
-            "disabled": sum(n["status"] == "disabled" for n in nodes),
-            "nodes": nodes,
-        }
-    except Exception:
-        return {
-            "ok": False,
-            "scope": scope,
-            "latency_ms": None,
-            "total": 0,
-            "online": 0,
-            "offline": 0,
-            "disabled": 0,
-            "nodes": [],
-            "error": "Remnawave недоступен",
-        }
+    snap = await node_snapshot()
+    if snap.get("error"):
+        return {"ok": False, "scope": scope, "latency_ms": None, "total": 0, "online": 0, "offline": 0, "disabled": 0,
+                "nodes": [], "error": "Remnawave недоступен"}
+    nodes = [{k: n.get(k) for k in PUBLIC_NODE_FIELDS} for n in snap["nodes"]]
+    return {
+        "ok": True,
+        "scope": scope,
+        "latency_ms": round((time.perf_counter() - started) * 1000, 1),
+        "total": len(nodes),
+        "online": sum(n["status"] == "online" for n in nodes),
+        "offline": sum(n["status"] == "offline" for n in nodes),
+        "disabled": sum(n["status"] == "disabled" for n in nodes),
+        "nodes": nodes,
+        "fetched_at": snap.get("fetched_at"),
+    }
 
 
 @router.get("/api/tariff-constructors")
