@@ -1,6 +1,7 @@
 # Maestro flows of the customer app (https://maestro.mobile.dev), run by
 # scripts/mobile/maestro-screens.sh and the «Mobile screenshots» workflow.
 # Every flow starts the debug build in its demo mode (fixed data, no network) and saves
-# screenshots of the screens it walks through into screenshots/mobile/maestro/.
+# screenshots of the screens it walks through (scripts/mobile/maestro-screens.sh puts them
+# into screenshots/mobile/maestro/).
 flows:
   - "flows/*.yaml"

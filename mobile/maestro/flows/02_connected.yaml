@@ -9,4 +9,4 @@ name: Connected state
       corgi_lang: ru
       corgi_vpn_on: true
 - assertVisible: "VPN подключён"
-- takeScreenshot: ../../screenshots/mobile/maestro/android-03-connected
+- takeScreenshot: android-03-connected

@@ -8,5 +8,8 @@ name: Settings, documents and sign-out
       corgi_tab: settings
       corgi_lang: ru
 - assertVisible: "Документы"
-- assertVisible: "Выйти"
-- takeScreenshot: ../../screenshots/mobile/maestro/android-05-settings
+- scrollUntilVisible:
+    element:
+      text: "Выйти"
+    direction: DOWN
+- takeScreenshot: android-05-settings

@@ -9,4 +9,4 @@ name: Giveaways and the home promo
       corgi_lang: ru
 - assertVisible: "Новогоднее колесо"
 - assertVisible: "Участвовать"
-- takeScreenshot: ../../screenshots/mobile/maestro/android-04-giveaways
+- takeScreenshot: android-04-giveaways

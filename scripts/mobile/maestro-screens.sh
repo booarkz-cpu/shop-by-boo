@@ -12,7 +12,8 @@ mkdir -p "$ROOT/screenshots/mobile/maestro"
 cd "$ROOT/mobile/maestro"
 REPORT="$ROOT/screenshots/mobile/maestro/report.xml"
 status=0
-maestro test --format junit --output "$REPORT" flows/ || status=$?
+# Screenshots of takeScreenshot land in the test output folder.
+maestro test --format junit --output "$REPORT" --test-output-dir "$ROOT/screenshots/mobile/maestro" flows/ || status=$?
 ls -1 "$ROOT/screenshots/mobile/maestro"
 if [[ $status -ne 0 && -f "$REPORT" ]]; then
   # CI logs are not always readable: surface each failing flow as an annotation.
