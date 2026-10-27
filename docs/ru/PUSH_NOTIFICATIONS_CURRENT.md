@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.34.0. Runtime/API `21.5.1`, head магазина `0078_campaign_ab`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.35.0. Runtime/API `21.5.1`, head магазина `0078_campaign_ab`, Support Pro `0008`.
 
 # Push-уведомления в приложениях Android и iOS
 

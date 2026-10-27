@@ -120,7 +120,7 @@
     "docs/ru/RELEASE_V28_2_0.md",
     "docs/ru/RELEASE_V28_31_0.md",
     "docs/ru/RELEASE_V28_32_0.md",
-    "docs/ru/RELEASE_V28_34_0.md",
+    "docs/ru/RELEASE_V28_35_0.md",
     "docs/ru/RELEASE_V28_4_0.md",
     "docs/ru/RELEASE_V28_5_0.md",
     "docs/ru/RELEASE_V28_6_0.md",
@@ -197,5 +197,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.34.0"
+  "distribution_tag": "v28.35.0"
 }
