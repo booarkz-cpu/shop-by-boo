@@ -259,6 +259,13 @@ struct ShopData {
     var qr: UIImage?
     /// Published shop documents (GET /api/public/info-pages): kind, title, banner.
     var docs: [[String: Any]] = []
+    /// Giveaways and wheel campaigns (GET /api/me/giveaways → items).
+    var giveaways: [[String: Any]] = []
+
+    /// The first giveaway the customer can still join: the home screen promo banner.
+    var openGiveaway: [String: Any]? {
+        giveaways.first { jsonText($0["phase"]) == "open" && ($0["my_entry"] == nil || $0["my_entry"] is NSNull) }
+    }
 
     var user: [String: Any] { dashboard["user"] as? [String: Any] ?? [:] }
     var subscription: [String: Any]? { dashboard["subscription"] as? [String: Any] }

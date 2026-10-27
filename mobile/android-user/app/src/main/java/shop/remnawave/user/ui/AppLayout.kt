@@ -67,7 +67,7 @@ data class AppLayout(
 val KNOWN_ACTIONS = setOf(
     "connect", "open", "url", "document", "cabinet", "telegram_channel", "import_app", "copy_subscription", "show_qr", "copy_id",
     "buy", "pay_wallet", "trial", "topup", "redeem", "auto_location", "share_referral", "copy_referral", "family_invite",
-    "support_ticket", "report_problem", "language", "push_toggle", "widget_toggle", "passkey_add", "refresh", "sign_out",
+    "support_ticket", "report_problem", "language", "push_toggle", "widget_toggle", "passkey_add", "vpn_mode", "vpn_server", "split_tunnel", "refresh", "sign_out",
 )
 
 private fun color(raw: String?, fallback: Long): Color {

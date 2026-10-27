@@ -41,6 +41,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,8 +70,12 @@ import kotlin.concurrent.thread
 import shop.remnawave.user.passkey.CorgiPasskeys
 import shop.remnawave.user.push.CorgiPush
 import shop.remnawave.user.widget.CorgiWidgetData
+import shop.remnawave.user.analytics.CorgiAnalytics
+import shop.remnawave.user.security.CorgiTrust
 import shop.remnawave.user.ui.*
+import shop.remnawave.user.vpn.CorgiVpnService
 import shop.remnawave.user.vpn.VpnClients
+import shop.remnawave.user.vpn.XrayEngine
 
 
 
@@ -113,14 +119,29 @@ class SecureTokenStore(private val prefs: android.content.SharedPreferences) {
 }
 
 class MainActivity : FragmentActivity() {
+    companion object {
+        /** corgi://login?base=…&code=… waiting to be redeemed (cold start or onNewIntent). */
+        val pendingLogin = androidx.compose.runtime.mutableStateOf<LoginLink?>(null)
+        /** Section a tapped push (or its button) opens. */
+        val pendingTab = androidx.compose.runtime.mutableStateOf<String?>(null)
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        LoginLink.parse(intent.data)?.let { pendingLogin.value = it }
+        intent.getStringExtra(CorgiPush.EXTRA_TAB)?.let { pendingTab.value = it }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CorgiTrust.appContext = applicationContext
+        LoginLink.parse(intent?.data)?.let { pendingLogin.value = it }
         // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true.
         val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && intent?.getBooleanExtra("corgi_demo", false) == true
         if (!demo) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
         // A tapped push opens the notification center (FCM puts the data payload into extras).
         val initialTab = if (demo) intent?.getStringExtra("corgi_tab") ?: "overview"
-            else if (intent?.hasExtra(CorgiPush.EXTRA_TAB) == true || intent?.hasExtra("notification_id") == true) "notifications" else "overview"
+            else if (intent?.hasExtra(CorgiPush.EXTRA_TAB) == true) intent?.getStringExtra(CorgiPush.EXTRA_TAB)?.takeIf { Regex("[a-z][a-z0-9_-]{0,31}").matches(it) } ?: "notifications"
+            else if (intent?.hasExtra("notification_id") == true) "notifications" else "overview"
         val demoLang = if (demo) intent?.getStringExtra("corgi_lang") else null
         setContent { MaterialTheme(colorScheme = shopColors()) { UserApp(initialTab, demo, demoLang) } }
     }
@@ -136,6 +157,26 @@ private fun shopColors() = darkColorScheme(
 )
 
 private val localHttpHosts = setOf("localhost", "127.0.0.1", "10.0.2.2")
+
+/** Sign-in link: the shop it belongs to and a one-use code (backend/app/app_login.py). */
+data class LoginLink(val base: String, val code: String) {
+    companion object {
+        private val CODE = Regex("[A-Za-z0-9_-]{20,128}")
+        fun parse(uri: Uri?): LoginLink? {
+            if (uri == null || uri.scheme != "corgi" || uri.host != "login") return null
+            val code = uri.getQueryParameter("code").orEmpty()
+            if (!CODE.matches(code)) return null
+            val base = try { normalizeBase(uri.getQueryParameter("base").orEmpty()) } catch (_: Exception) { "" }
+            return LoginLink(base, code)
+        }
+        /** The shop the link may sign in to: a baked address wins, a foreign one is refused. */
+        fun target(link: LoginLink, baked: String, current: String): String? {
+            if (baked.isNotBlank()) return if (link.base.isBlank() || link.base == baked) baked else null
+            if (link.base.isNotBlank()) return link.base
+            return current.ifBlank { null }
+        }
+    }
+}
 
 fun pkceVerifier(): String {
     val bytes = ByteArray(32)
@@ -226,7 +267,7 @@ class ShopApi(private val base: String, private val token: String, private val l
 
     private fun call(method: String, path: String, body: JSONObject?, idempotency: String?, headers: Map<String, String>): Any {
         // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
-        val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify")) pkceVerifier() else null
+        val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify", "/api/auth/mobile/code")) pkceVerifier() else null
         val connection = (URL(base + path).openConnection() as HttpURLConnection).apply {
             requestMethod = method
             instanceFollowRedirects = false
@@ -235,7 +276,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.0.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.1.0")
             // Historical compatibility marker: CorgiLusi-Android-User/2.9.0
             setRequestProperty("X-Shop-Client", "android-user")
 
@@ -246,16 +287,20 @@ class ShopApi(private val base: String, private val token: String, private val l
             if (body != null) {
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json")
-                outputStream.use { it.write(body.toString().toByteArray()) }
             }
         }
+        // The pinned shop must present a pinned key before the body or the session leaves the phone.
+        connection.connect()
+        CorgiTrust.verify(connection)
+        if (body != null) connection.outputStream.use { it.write(body.toString().toByteArray()) }
         val code = connection.responseCode
         val text = (if (code in 200..299) connection.inputStream else connection.errorStream)?.bufferedReader()?.use { it.readText() }.orEmpty()
         if (code !in 200..299) throw IllegalStateException(detailOf(text, code))
         val trimmed = text.trim()
         val result: Any = if (trimmed.startsWith("[")) JSONArray(trimmed) else JSONObject(if (trimmed.isBlank()) "{}" else trimmed)
         if (verifier != null && result is JSONObject && result.has("authorization_code")) {
-            val exchanged = post("/api/auth/mobile/token", JSONObject().put("code", result.getString("authorization_code")).put("code_verifier", verifier)) as JSONObject
+            val proof = CorgiTrust.integrityHeaders(base) { get(it) as JSONObject }
+            val exchanged = post("/api/auth/mobile/token", JSONObject().put("code", result.getString("authorization_code")).put("code_verifier", verifier), headers = proof) as JSONObject
             result.remove("authorization_code")
             result.put("access_token", exchanged.getString("access_token"))
             result.put("token_type", "bearer")
@@ -284,7 +329,11 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     val prefs = remember { context.getSharedPreferences("shop_user", 0) }
     val tokenStore = remember { SecureTokenStore(prefs) }
     var lang by remember { mutableStateOf(demoLang ?: prefs.getString("lang", null) ?: autoLanguage()) }
-    var base by remember { mutableStateOf(prefs.getString("base", "") ?: "") }
+    // A shop address baked into the build (corgi.shop_url) replaces the address field.
+    val bakedBase = BuildConfig.SHOP_URL
+    var base by remember { mutableStateOf(bakedBase.ifBlank { prefs.getString("base", "") ?: "" }) }
+    // Sign-in methods the shop has configured (GET /api/public/app-login/methods).
+    var methods by remember { mutableStateOf(JSONObject()) }
     var token by remember { mutableStateOf(if (demo) "demo" else tokenStore.read()) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -292,7 +341,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     var layout by remember { mutableStateOf(LayoutStore.cached(context, base, lang) ?: LayoutStore.bundled(context, lang)) }
     var data by remember { mutableStateOf(ShopData()) }
     var ui by remember {
-        mutableStateOf(UiFlags(pushEnabled = CorgiPush.enabled(context), widgetEnabled = CorgiWidgetData.enabled(context),
+        mutableStateOf(UiFlags(pushEnabled = CorgiPush.enabled(context), widgetEnabled = CorgiWidgetData.enabled(context), engine = CorgiVpnService.useEngine(context),
             version = "Corgi Lusi ${BuildConfig.VERSION_NAME}"))
     }
     // The layout decides which sections exist; a push opens notifications, otherwise the VPN screen.
@@ -318,6 +367,9 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     // A string replaced in the admin panel («Строки приложения») wins over the bundled one.
     fun t(key: String) = layout.strings[key] ?: strings.optString(key, key)
     fun notice(text: String) { ui = ui.copy(notice = text) }
+    fun track(event: String, screen: String = "") {
+        if (!demo) CorgiAnalytics.track(context, base, token, event, screen)
+    }
 
     DisposableEffect(activity) {
         val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) unlocked = demo }
@@ -326,12 +378,25 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         val stop = if (demo) ({}) else VpnClients.watch(context) { on ->
             activity.runOnUiThread { ui = ui.copy(vpn = if (on) VpnState.ON else if (ui.vpn == VpnState.CONNECTING) VpnState.CONNECTING else VpnState.OFF) }
         }
-        onDispose { activity.lifecycle.removeObserver(observer); stop() }
+        // State of the embedded engine: connected, connecting or stopped (with the reason, if any).
+        val engineListener: (String) -> Unit = { state ->
+            activity.runOnUiThread {
+                val error = vpnPrefs(context).getString(CorgiVpnService.KEY_ERROR, "").orEmpty()
+                ui = when (state) {
+                    CorgiVpnService.STATE_ON -> ui.copy(vpn = VpnState.ON)
+                    CorgiVpnService.STATE_CONNECTING -> ui.copy(vpn = VpnState.CONNECTING)
+                    else -> ui.copy(vpn = VpnState.OFF, notice = if (error.isNotBlank()) t("vpn_engine_error").replace("{error}", error) else ui.notice)
+                }
+            }
+        }
+        if (!demo) CorgiVpnService.listeners.add(engineListener)
+        onDispose { activity.lifecycle.removeObserver(observer); stop(); CorgiVpnService.listeners.remove(engineListener) }
     }
 
     fun saveSession(nextBase: String, nextToken: String) {
         base = nextBase
         token = nextToken
+        if (!demo) CorgiAnalytics.track(context, nextBase, nextToken, "sign_in")
         password = ""
         unlocked = activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         prefs.edit().putString("lang", lang).apply()
@@ -362,6 +427,25 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
             activity.runOnUiThread { ui = ui.copy(busy = false, notice = error ?: ui.notice) }
         }
     }
+    fun loadMethods(origin: String) {
+        if (demo || origin.isBlank()) return
+        thread {
+            try {
+                val next = ShopApi(origin, "", lang).get("/api/public/app-login/methods") as JSONObject
+                activity.runOnUiThread { methods = next }
+            } catch (_: Exception) { }
+        }
+    }
+    fun redeemLink(link: LoginLink) {
+        val origin = LoginLink.target(link, bakedBase, base) ?: run { notice(t("login_link_foreign")); return }
+        work {
+            val response = ShopApi(origin, "", lang).post("/api/auth/mobile/code", JSONObject().put("code", link.code)) as JSONObject
+            val issued = response.optString("access_token")
+            if (issued.isBlank()) throw IllegalStateException(t("login_link_invalid"))
+            tokenStore.write(issued, origin)
+            activity.runOnUiThread { prefs.edit().putString("base", origin).apply(); saveSession(origin, issued) }
+        }
+    }
     fun loadLayout(origin: String) {
         if (demo || origin.isBlank()) return
         thread { LayoutStore.fetch(context, origin, lang)?.let { next -> activity.runOnUiThread { layout = next } } }
@@ -375,6 +459,31 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     }
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) enablePush() else notice(t("push_denied"))
+    }
+    // The embedded VPN asks the system once for the VPN permission (VpnService.prepare).
+    val vpnPermission = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK && data.subscriptionUrl.isNotBlank()) {
+            ui = ui.copy(vpn = VpnState.CONNECTING); CorgiVpnService.start(context, data.subscriptionUrl)
+        } else notice(t("vpn_permission_denied"))
+    }
+    fun engineConnect() {
+        if (data.subscriptionUrl.isBlank()) {
+            notice(t("need_subscription"))
+            layout.sections.firstOrNull { it.kind == "premium" }?.let { tab = it.id }
+            return
+        }
+        if (CorgiVpnService.current(context) != CorgiVpnService.STATE_OFF || ui.vpn == VpnState.ON) {
+            CorgiVpnService.stop(context); ui = ui.copy(vpn = VpnState.OFF); return
+        }
+        val ask = android.net.VpnService.prepare(context)
+        if (ask != null) vpnPermission.launch(ask)
+        else { ui = ui.copy(vpn = VpnState.CONNECTING); CorgiVpnService.start(context, data.subscriptionUrl) }
+    }
+    fun restartEngine() {
+        if (CorgiVpnService.current(context) == CorgiVpnService.STATE_ON && data.subscriptionUrl.isNotBlank()) {
+            CorgiVpnService.stop(context)
+            thread { Thread.sleep(800); activity.runOnUiThread { CorgiVpnService.start(context, data.subscriptionUrl) } }
+        }
     }
     fun refresh() {
         val api = ShopApi(base, token, lang)
@@ -411,6 +520,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     passkeys = try { CorgiPasskeys.list(base, token, lang) } catch (_: Exception) { JSONArray() },
                     // Shops before v28.29.0 have no documents: the section stays empty.
                     docs = try { api.get("/api/public/info-pages?lang=$lang") as JSONArray } catch (_: Exception) { JSONArray() },
+                    giveaways = try { (api.get("/api/me/giveaways") as JSONObject).optJSONArray("items") ?: JSONArray() } catch (_: Exception) { JSONArray() },
                 )
                 activity.runOnUiThread { data = next; ui = ui.copy(offline = false) }
             } catch (exc: Exception) {
@@ -421,6 +531,11 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     fun openExternal(url: String) {
         if (!(externalUrlAllowed(url) || url.startsWith("tg://"))) { notice(t("link_missing")); return }
         try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } catch (_: ActivityNotFoundException) { notice(url) }
+    }
+    fun openOAuth(provider: String) {
+        val origin = try { normalizeBase(base) } catch (_: Exception) { notice(t("https_required")); return }
+        // The browser comes back with corgi://login?code=… (app=1 in the OAuth state).
+        openExternal("$origin/api/auth/$provider?app=1")
     }
     fun copy(label: String, value: String) {
         if (value.isBlank()) return
@@ -437,6 +552,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
     }
     fun pay(planId: Int) {
+        track("checkout_start")
         work {
             val body = JSONObject().put("provider", providerOf(data.config))
             if (planId > 0) body.put("plan_id", planId) else {
@@ -483,6 +599,16 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
             ShopApi(base, token, lang).post("/api/me/family/join", JSONObject().put("code", code))
             activity.runOnUiThread { notice(t("family_joined")); refresh() }
         }
+        override fun enterGiveaway(giveawayId: Int) = work {
+            track("giveaway_enter")
+            val row = ShopApi(base, token, lang).post("/api/me/giveaways/$giveawayId/enter", JSONObject()) as JSONObject
+            val mine = row.optJSONObject("my_entry")
+            activity.runOnUiThread {
+                notice(if (mine?.optString("outcome") == "won") layout.text("giveaway_won").replace("{amount}", "${mine.optString("reward_amount")} ${row.optString("currency")}")
+                    else layout.text("giveaway_entered"))
+                refresh()
+            }
+        }
         override fun deletePasskey(passkeyId: Int) { dialog = "passkey_delete:$passkeyId"; dialogText = "" }
         override fun openDocument(kind: String) {
             if (kind !in setOf("faq", "rules", "privacy", "offer")) return
@@ -500,7 +626,13 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         override fun run(button: LayoutButton) {
             when (button.action) {
                 "connect", "auto_location" -> {
+                    track("connect_tap")
                     if (demo) { ui = ui.copy(vpn = if (ui.vpn == VpnState.ON) VpnState.OFF else VpnState.ON); return }
+                    if (CorgiVpnService.useEngine(context)) {
+                        if (button.action == "auto_location") { vpnPrefs(context).edit().remove(CorgiVpnService.KEY_SERVER).apply(); restartEngine(); notice(t("vpn_server_auto")) }
+                        else engineConnect()
+                        return
+                    }
                     when (VpnClients.connect(context, data.subscriptionUrl)) {
                         VpnClients.Result.Imported -> {
                             ui = ui.copy(vpn = VpnState.CONNECTING, notice = t("vpn_imported"))
@@ -538,6 +670,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     activity.runOnUiThread { notice(t("paid_wallet")); refresh() }
                 }
                 "trial" -> work {
+                    track("trial_tap")
                     val planId = selectedPlanId()
                     if (planId == 0) throw IllegalStateException(t("nodes_empty"))
                     ShopApi(base, token, lang).post("/api/me/trial", JSONObject().put("plan_id", planId).put("days", data.config.optInt("trial_days", 3)))
@@ -591,6 +724,15 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     if (next) work { CorgiWidgetData.refresh(context) }
                 }
                 "passkey_add" -> { dialog = "passkey_add"; dialogText = "" }
+                "vpn_mode" -> {
+                    if (!XrayEngine.available()) { notice(t("vpn_engine_missing")); return }
+                    val next = if (CorgiVpnService.useEngine(context)) "client" else "engine"
+                    if (next == "client") CorgiVpnService.stop(context)
+                    vpnPrefs(context).edit().putString(CorgiVpnService.KEY_MODE, next).apply()
+                    ui = ui.copy(engine = next == "engine", notice = if (next == "engine") t("vpn_mode_engine") else t("vpn_mode_client"))
+                }
+                "vpn_server" -> if (!CorgiVpnService.useEngine(context)) notice(t("vpn_engine_missing")) else dialog = "server"
+                "split_tunnel" -> if (!CorgiVpnService.useEngine(context)) notice(t("vpn_engine_missing")) else dialog = "split"
                 "refresh" -> refresh()
                 "sign_out" -> signOut()
             }
@@ -613,6 +755,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 status = JSONObject("""{"status":"ok","servers":{"online":5,"total":5},"countries":[{"country":"DE","online":2,"total":2},{"country":"NL","online":1,"total":1},{"country":"FI","online":2,"total":2}],"components":[],"incidents":[]}"""),
                 notifications = JSONArray("""[{"id":1,"title":"Подписка продлена","body":"Спасибо! Следующее списание — 28 мая 2027","read":false}]"""),
                 docs = JSONArray("""[{"kind":"faq","title":"Частые вопросы"},{"kind":"rules","title":"Правила"},{"kind":"privacy","title":"Политика конфиденциальности"},{"kind":"offer","title":"Публичная оферта"}]"""),
+                giveaways = JSONArray("""[{"id":7,"title":"Новогоднее колесо","description":"Крутите колесо — до 1000 ₽ на баланс","kind":"wheel","phase":"open","prizes":[{"amount":"100","weight":5},{"amount":"1000","weight":1}],"currency":"RUB","ends_at":"2026-12-31T21:00:00Z","my_entry":null},{"id":6,"title":"Розыгрыш года подписки","description":"Три победителя получат год Премиума","kind":"contest","phase":"ended","prizes":[{"amount":"1499","weight":1}],"currency":"RUB","ends_at":"2026-10-20T21:00:00Z","my_entry":{"outcome":"won","reward_amount":"1499.00"}}]"""),
             )
             ui = ui.copy(vpn = if (intent(activity).getBooleanExtra("corgi_vpn_on", false)) VpnState.ON else VpnState.OFF)
         }
@@ -621,13 +764,37 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         if (demo) return@LaunchedEffect
         if (token.isNotBlank() && !unlocked) promptUnlock(activity, t("unlock")) { unlocked = it }
     }
+    // Analytics follow the «analytics» layout feature; the first launch and every screen are counted.
+    LaunchedEffect(layout) { CorgiAnalytics.enabled = layout.feature("analytics") }
+    LaunchedEffect(base) {
+        if (demo || base.isBlank()) return@LaunchedEffect
+        CorgiAnalytics.install(context, base)
+        track("open")
+    }
+    LaunchedEffect(tab, token) {
+        if (token.isBlank()) track("sign_in_view") else track("screen", tab)
+    }
+    LaunchedEffect(ui.vpn) { if (ui.vpn == VpnState.ON) track("connected") }
     LaunchedEffect(token, lang, unlocked) {
         if (demo) return@LaunchedEffect
         if (token.isNotBlank() && unlocked) refresh()
     }
     LaunchedEffect(base) {
         val normalized = try { normalizeBase(base) } catch (_: Exception) { return@LaunchedEffect }
-        if (token.isBlank()) { loadLayout(normalized); loadLogo(normalized) }
+        if (token.isBlank()) { loadLayout(normalized); loadLogo(normalized); loadMethods(normalized) }
+    }
+    val pushTab by MainActivity.pendingTab
+    LaunchedEffect(pushTab, layout) {
+        val target = pushTab ?: return@LaunchedEffect
+        if (layout.section(target) != null) { tab = target; openDoc = null; MainActivity.pendingTab.value = null }
+    }
+    val pending by MainActivity.pendingLogin
+    LaunchedEffect(pending) {
+        val link = pending ?: return@LaunchedEffect
+        MainActivity.pendingLogin.value = null
+        if (demo) return@LaunchedEffect
+        if (token.isNotBlank()) { notice(t("login_link_signed_in")); return@LaunchedEffect }
+        redeemLink(link)
     }
 
     val theme = layout.theme
@@ -635,6 +802,11 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         Box(Modifier.fillMaxSize().background(theme.background)) {
             when {
                 token.isBlank() -> LoginScreen(layout, base, email, password, ui, ::t, logo,
+                    showBase = bakedBase.isBlank(), methods = methods,
+                    onProvider = { provider ->
+                        if (provider == "telegram") methods.optString("telegram_url").takeIf { it.startsWith("https://t.me/") }?.let { openExternal(it) }
+                        else openOAuth(provider)
+                    },
                     onBase = { base = it }, onEmail = { email = it }, onPassword = { password = it },
                     onSignIn = { register ->
                         val normalized = try { normalizeBase(base) } catch (_: Exception) { notice(t("https_required")); return@LoginScreen }
@@ -690,7 +862,12 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     BottomBar(layout, if (section.tab) section.id else "", onSelect = { tab = it; openDoc = null; ui = ui.copy(notice = "") })
                 }
             }
-            ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
+            if (dialog == "server") ServerDialog(layout, ::t, onClose = { dialog = "" }) { name ->
+                vpnPrefs(context).edit().apply { if (name.isBlank()) remove(CorgiVpnService.KEY_SERVER) else putString(CorgiVpnService.KEY_SERVER, name) }.apply()
+                dialog = ""; notice(if (name.isBlank()) t("vpn_server_auto") else name); restartEngine()
+            }
+            if (dialog == "split") SplitDialog(layout, ::t, onClose = { dialog = ""; restartEngine() })
+            if (dialog != "server" && dialog != "split") ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
                 when {
                     kind == "redeem" -> { val code = dialogText.trim().uppercase(); work {
                         ShopApi(base, token, lang).post("/api/me/gifts/redeem", JSONObject().put("code", code))
@@ -723,12 +900,73 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
 
 private fun intent(activity: FragmentActivity): Intent = activity.intent ?: Intent()
 
+private fun vpnPrefs(context: android.content.Context) = context.getSharedPreferences(CorgiVpnService.PREFS, 0)
+
+/** «Сервер VPN» of the embedded engine: automatic (fastest) or one server of the subscription. */
+@Composable
+private fun ServerDialog(layout: AppLayout, t: (String) -> String, onClose: () -> Unit, onPick: (String) -> Unit) {
+    val theme = layout.theme
+    val context = LocalContext.current
+    val servers = remember { CorgiVpnService.servers(context) }
+    val current = remember { vpnPrefs(context).getString(CorgiVpnService.KEY_SERVER, "").orEmpty() }
+    AlertDialog(onDismissRequest = onClose, containerColor = theme.surface, titleContentColor = theme.text, textContentColor = theme.text,
+        title = { Text(t("vpn_server")) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionButton(LayoutButton("auto", (if (current.isBlank()) "✓ " else "") + t("vpn_server_auto"), "refresh", "", if (current.isBlank()) "primary" else "secondary", "rocket", "any"), theme) { onPick("") }
+                if (servers.isEmpty()) Muted(t("vpn_servers_empty"), theme)
+                servers.forEach { name ->
+                    ActionButton(LayoutButton("s", (if (name == current) "✓ " else "") + name, "refresh", "", if (name == current) "primary" else "secondary", "globe", "any"), theme) { onPick(name) }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(t("done"), color = theme.accent) } })
+}
+
+/** «Что работает без VPN»: apps and Russian sites that bypass the embedded VPN. */
+@Composable
+private fun SplitDialog(layout: AppLayout, t: (String) -> String, onClose: () -> Unit) {
+    val theme = layout.theme
+    val context = LocalContext.current
+    val prefs = remember { vpnPrefs(context) }
+    val apps = remember {
+        val pm = context.packageManager
+        val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+        pm.queryIntentActivities(launcher, 0).map { it.activityInfo.packageName to it.loadLabel(pm).toString() }
+            .filter { it.first != context.packageName }.distinctBy { it.first }.sortedBy { it.second.lowercase() }
+    }
+    var excluded by remember { mutableStateOf(CorgiVpnService.excludedApps(context)) }
+    var bypassRu by remember { mutableStateOf(prefs.getBoolean(CorgiVpnService.KEY_BYPASS_RU, false)) }
+    AlertDialog(onDismissRequest = onClose, containerColor = theme.surface, titleContentColor = theme.text, textContentColor = theme.text,
+        title = { Text(t("split_title")) },
+        text = {
+            Column(Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Muted(t("split_hint"), theme)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(bypassRu, { bypassRu = it; prefs.edit().putBoolean(CorgiVpnService.KEY_BYPASS_RU, it).apply() })
+                    Text(t("bypass_ru"), color = theme.text)
+                }
+                apps.forEach { (pkg, label) ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(pkg in excluded, { on ->
+                            excluded = if (on) excluded + pkg else excluded - pkg
+                            prefs.edit().putStringSet(CorgiVpnService.KEY_EXCLUDED, excluded).apply()
+                        })
+                        Text(label, color = theme.text)
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(t("done"), color = theme.accent) } })
+}
+
 private fun currentLanguageLabel(lang: String): String = when (lang) { "en" -> "English"; "uk" -> "Українська"; else -> "Русский" }
 
 /** Sign-in screen in the brand colours of the layout. */
 @Composable
 private fun LoginScreen(
     layout: AppLayout, base: String, email: String, password: String, ui: UiFlags, t: (String) -> String, logo: ImageBitmap?,
+    showBase: Boolean, methods: JSONObject, onProvider: (String) -> Unit,
     onBase: (String) -> Unit, onEmail: (String) -> Unit, onPassword: (String) -> Unit,
     onSignIn: (Boolean) -> Unit, onPasskey: () -> Unit, onLanguage: () -> Unit,
 ) {
@@ -746,7 +984,15 @@ private fun LoginScreen(
         Text(t("welcome"), color = theme.text, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         Muted(t("tagline"), theme)
         if (ui.notice.isNotBlank()) Text(ui.notice, color = theme.accent2)
-        TextInput(base, onBase, t("server"), theme)
+        if (showBase) TextInput(base, onBase, t("server"), theme)
+        // Quick sign-in: Telegram bot link and OAuth providers enabled on the shop.
+        if (layout.feature("login_quick")) {
+            if (methods.optBoolean("telegram")) ActionButton(LayoutButton("login_telegram", t("login_telegram"), "refresh", "", "primary", "send", "any"), theme, enabled = !ui.busy) { onProvider("telegram") }
+            listOf("yandex", "vk", "google").filter { methods.optBoolean(it) }.forEach { provider ->
+                ActionButton(LayoutButton("login_$provider", t("login_$provider"), "refresh", "", "secondary", "user", "any"), theme, enabled = !ui.busy) { onProvider(provider) }
+            }
+            if (methods.optBoolean("telegram") || methods.optBoolean("yandex") || methods.optBoolean("vk") || methods.optBoolean("google")) Muted(t("login_or_email"), theme)
+        }
         TextInput(email, onEmail, t("email"), theme)
         TextInput(password, onPassword, t("password"), theme, secret = true)
         ActionButton(LayoutButton("sign_in", t("sign_in"), "refresh", "", "primary", "user", "any"), theme, enabled = !ui.busy) { onSignIn(false) }
@@ -814,7 +1060,7 @@ private fun loadAuthedPng(base: String, path: String, token: String, lang: Strin
         readTimeout = 15000
         setRequestProperty("Accept", "image/png")
         setRequestProperty("Accept-Language", lang)
-        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.0.0")
+        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.1.0")
         setRequestProperty("X-Shop-Client", "android-user")
 
 

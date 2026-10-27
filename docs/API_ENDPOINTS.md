@@ -1,6 +1,6 @@
-# Каталог API — v28.31.0 / API v21.5.1
+# Каталог API — v28.32.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0076_growth`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0077_app_growth`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -22,6 +22,7 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/advertisements/{item_id}` | Update Ad |
 | `GET` | `/api/admin/analytics` | Admin Analytics |
 | `GET` | `/api/admin/analytics/retention` | Retention |
+| `GET` | `/api/admin/app-analytics` | Admin Analytics |
 | `DELETE` | `/api/admin/app-config` | Admin App Config Reset |
 | `GET` | `/api/admin/app-config` | Admin App Config |
 | `PUT` | `/api/admin/app-config` | Admin App Config Save |
@@ -120,6 +121,10 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/fields/{field_id}` | Admin Field Delete |
 | `PUT` | `/api/admin/fields/{field_id}` | Admin Field Update |
 | `GET` | `/api/admin/financial-ledger` | Admin Financial Ledger |
+| `GET` | `/api/admin/fiscal` | Admin Fiscal |
+| `PUT` | `/api/admin/fiscal` | Admin Fiscal Save |
+| `POST` | `/api/admin/fiscal/receipts/{receipt_id}/retry` | Admin Fiscal Retry |
+| `POST` | `/api/admin/fiscal/test` | Admin Fiscal Test |
 | `GET` | `/api/admin/fraud` | Admin Fraud |
 | `POST` | `/api/admin/fraud/scan` | Fraud Scan |
 | `POST` | `/api/admin/fraud/{signal_id}` | Fraud Decision |
@@ -252,6 +257,12 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/promotions/{item_id}` | Delete Promotion |
 | `PUT` | `/api/admin/promotions/{item_id}` | Update Promotion |
 | `POST` | `/api/admin/provision-node` | Provision Node |
+| `GET` | `/api/admin/push-campaigns` | List Campaigns |
+| `POST` | `/api/admin/push-campaigns` | Create Campaign |
+| `POST` | `/api/admin/push-campaigns/preview` | Preview Campaign |
+| `DELETE` | `/api/admin/push-style` | Admin Push Style Reset |
+| `GET` | `/api/admin/push-style` | Admin Push Style |
+| `PUT` | `/api/admin/push-style` | Admin Push Style Save |
 | `GET` | `/api/admin/push/status` | Admin Push Status |
 | `GET` | `/api/admin/recovery` | Admin Recovery |
 | `GET` | `/api/admin/recovery/operations` | Recovery Operations |
@@ -387,10 +398,14 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/agent/terminal/{sid}/output` | Agent Terminal Output |
 | `POST` | `/api/agent/torrent` | Agent Torrent |
 | `GET` | `/api/app-config` | App Config |
+| `GET` | `/api/app/open` | Open App |
 | `POST` | `/api/auth/email/verification/confirm` | Confirm Verification |
 | `POST` | `/api/auth/exchange` | Auth Exchange |
+| `GET` | `/api/auth/google` | Google Login |
+| `GET` | `/api/auth/google/callback` | Google Callback |
 | `POST` | `/api/auth/login` | Auth Login |
 | `POST` | `/api/auth/logout` | User Logout |
+| `POST` | `/api/auth/mobile/code` | Redeem App Code |
 | `POST` | `/api/auth/mobile/token` | Mobile Token |
 | `GET` | `/api/auth/passkeys` | Inventory |
 | `POST` | `/api/auth/passkeys/login/options` | Login Options |
@@ -428,6 +443,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/account-merge/authorization` | Create Authorization |
 | `POST` | `/api/me/account-merge/confirm` | Confirm Merge |
 | `POST` | `/api/me/account-merge/preview` | Preview Merge |
+| `POST` | `/api/me/app-login` | Create App Login |
 | `GET` | `/api/me/auto-renew` | Auto Renew Status |
 | `PUT` | `/api/me/auto-renew` | Set Auto Renew |
 | `DELETE` | `/api/me/auto-renew/method` | Remove Auto Renew Method |
@@ -483,6 +499,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/push/devices/unregister` | Unregister Device |
 | `DELETE` | `/api/me/push/devices/{device_id}` | Delete Device |
 | `POST` | `/api/me/push/test` | Test Push |
+| `GET` | `/api/me/receipts` | My Receipts |
 | `GET` | `/api/me/referral` | My Referral |
 | `POST` | `/api/me/referral/apply` | Apply Referral |
 | `GET` | `/api/me/referral/ledger` | My Referral Ledger |
@@ -529,7 +546,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/wallet/stars-invoice` | Stars Invoice |
 | `POST` | `/api/me/wallet/topup` | Wallet Topup |
 | `GET` | `/api/me/widget` | Widget Summary |
+| `POST` | `/api/mobile/events` | Collect Events |
+| `POST` | `/api/mobile/integrity/challenge` | Integrity Challenge |
 | `GET` | `/api/mobile/layout` | Mobile Layout |
+| `GET` | `/api/mobile/push-style` | Public Push Style |
 | `POST` | `/api/payments/create` | Create Payment |
 | `POST` | `/api/payments/mobile/verify` | Verify Mobile Purchase |
 | `GET` | `/api/payments/providers` | Payment Providers |
@@ -543,6 +563,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/plugin/v1/users/{user_id}` | Plugin User |
 | `GET` | `/api/plugin/v1/users/{user_id}/subscriptions` | Plugin Subscriptions |
 | `GET` | `/api/promo/validate` | Validate Promo |
+| `GET` | `/api/public/app-login/methods` | Public Login Methods |
 | `GET` | `/api/public/apps` | Public Apps |
 | `GET` | `/api/public/apps/install` | Public Install Guide |
 | `GET` | `/api/public/apps/{app_id}/download` | Public App Download |

@@ -3,12 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- The embedded VPN (CorgiVpnService) runs as a foreground service while the tunnel is up. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Shows «VPN подключён» when a VPN client has the tunnel up (NetworkCapabilities.TRANSPORT_VPN). -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- VPN clients the «Подключить» button hands the subscription to (Android 11+ package visibility). -->
     <queries>
+        <!-- «Что работает без VPN»: the list of launcher apps the customer can leave outside the tunnel. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
         <package android:name="com.happproxy" />
         <package android:name="com.v2ray.ang" />
         <package android:name="app.hiddify.com" />
@@ -19,7 +26,7 @@
     </queries>
     <application
         android:allowBackup="false"
-        android:icon="@drawable/corgi_logo"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security"
         android:supportsRtl="true"
@@ -44,10 +51,16 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/corgi_widget_info" />
         </receiver>
-        <service android:name=".vpn.CorgiVpnService" android:permission="android.permission.BIND_VPN_SERVICE" android:exported="false" />
+        <service android:name=".vpn.CorgiVpnService" android:permission="android.permission.BIND_VPN_SERVICE" android:exported="false"
+            android:foregroundServiceType="systemExempted">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -59,6 +72,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="corgi" android:host="connect" />
                 <data android:scheme="corgi" android:host="support" />
+                <!-- One-use sign-in link from the bot, the cabinet or Yandex/VK/Google: corgi://login?base=…&code=… -->
+                <data android:scheme="corgi" android:host="login" />
             </intent-filter>
         </activity>
     </application>

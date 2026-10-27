@@ -112,11 +112,11 @@ async def auth_login(payload: EmailAuthIn, request: Request, response: Response,
 
 
 @router.get("/api/auth/vk")
-async def vk_login(request: Request):
+async def vk_login(request: Request, app: int = 0):
     if not settings.vk_client_id or not settings.vk_redirect_uri:
         raise HTTPException(503, "VK ID is not configured")
     state = __import__("jwt").encode(
-        {"typ": "vk_oauth", "nonce": secrets.token_urlsafe(12), "exp": int((datetime.now(timezone.utc) + timedelta(minutes=10)).timestamp())},
+        {"typ": "vk_oauth", "app": bool(app), "nonce": secrets.token_urlsafe(12), "exp": int((datetime.now(timezone.utc) + timedelta(minutes=10)).timestamp())},
         settings.app_secret,
         algorithm="HS256",
     )
@@ -135,7 +135,7 @@ async def vk_callback(code: str, state: str, request: Request, db: AsyncSession 
     try:
         if not request.cookies.get("vk_oauth_state") or not hmac.compare_digest(request.cookies["vk_oauth_state"], state):
             raise ValueError()
-        __import__("jwt").decode(state, settings.app_secret, algorithms=["HS256"])
+        state_claims = __import__("jwt").decode(state, settings.app_secret, algorithms=["HS256"])
     except Exception:
         raise HTTPException(400, "Invalid OAuth state")
     if not settings.vk_client_secret:
@@ -171,8 +171,8 @@ async def vk_callback(code: str, state: str, request: Request, db: AsyncSession 
     db.add(AuthExchangeCode(code_hash=hashlib.sha256(raw.encode()).hexdigest(), user_id=user.id, expires_at=datetime.utcnow() + timedelta(minutes=5)))
     await audit(db, "auth.user.login", f"user:{user.id}", None, {"method": "vk", "ip": _client_ip(request)})
     await db.commit()
-    dest = (settings.cabinet_url or settings.mini_app_url or "/").rstrip("/")
-    resp = RedirectResponse(f"{dest}/?code=" + urllib.parse.quote(raw))
+    from .app_login import oauth_finish_url
+    resp = RedirectResponse(oauth_finish_url(raw, bool(state_claims.get("app"))))
     resp.delete_cookie("vk_oauth_state")
     return resp
 
@@ -309,6 +309,9 @@ class MobileTokenIn(BaseModel):
 async def mobile_token(payload: MobileTokenIn, request: Request, response: Response):
     from .main import redis_client
     from .mobile_auth import exchange_mobile_code
+    from .mobile_integrity import require_integrity
+    # Every native sign-in ends here: Play Integrity / DeviceCheck when MOBILE_INTEGRITY_MODE is on.
+    await require_integrity(request)
     result = await exchange_mobile_code(request, payload.code, payload.code_verifier, redis_client)
     response.headers["Cache-Control"] = "no-store"
     response.headers["Pragma"] = "no-cache"

@@ -12,7 +12,7 @@ const AUDIENCES: [string, string][] = [["any", "Всем"], ["subscribed", "С �
 const COLORS: [string, string][] = [["accent", "Акцент бренда"], ["accent_2", "Второй акцент"], ["background", "Фон"], ["surface", "Карточки"],
   ["surface_2", "Карточки 2"], ["text", "Текст"], ["muted", "Второстепенный текст"], ["success", "Подключено"], ["danger", "Ошибки"]];
 const KIND_TITLES: Record<string, string> = {vpn: "Главный экран VPN", locations: "Локации", premium: "Тарифы", subscription: "Подписка", support: "Поддержка",
-  settings: "Настройки", devices: "Устройства", family: "Семья", referral: "Рефералы", wallet: "Баланс", gifts: "Подарки", notifications: "Уведомления",
+  settings: "Настройки", devices: "Устройства", family: "Семья", referral: "Рефералы", wallet: "Баланс", gifts: "Подарки", giveaways: "Розыгрыши", notifications: "Уведомления",
   status: "Состояние сервиса", security: "Безопасность", info: "Документы", custom: "Своя страница"};
 const blankLabel = (ru = ""): Label => ({ru, en: "", uk: ""});
 

@@ -1,5 +1,6 @@
 import AuthenticationServices
 import CryptoKit
+import DeviceCheck
 import Security
 import SwiftUI
 import UIKit
@@ -43,6 +44,128 @@ func normalizeBase(_ raw: String) throws -> String {
     if url.scheme == "https" { return value }
     if url.scheme == "http", localHttpHosts.contains(host) { return value }
     throw URLError(.badURL)
+}
+
+/// Shop address baked into the build (Info.plist CorgiShopURL ← CORGI_SHOP_URL); "" when not set.
+let bakedShopURL: String = {
+    let raw = (Bundle.main.object(forInfoDictionaryKey: "CorgiShopURL") as? String) ?? ""
+    guard !raw.isEmpty, !raw.hasPrefix("$("), let value = try? normalizeBase(raw), value.hasPrefix("https://") else { return "" }
+    return value
+}()
+
+/// Certificate pinning (Info.plist CorgiPins ← CORGI_PINS: base64 SHA-256 of SPKI, comma separated)
+/// for the baked shop host, and the DeviceCheck token of sign-ins when the shop asks for it.
+enum CorgiTrust {
+    static let pins: Set<String> = Set(((Bundle.main.object(forInfoDictionaryKey: "CorgiPins") as? String) ?? "")
+        .split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty && !$0.hasPrefix("$(") })
+    static let pinnedHost: String = URL(string: bakedShopURL)?.host?.lowercased() ?? ""
+    static var pinning: Bool { !pins.isEmpty && !pinnedHost.isEmpty }
+
+    // ASN.1 SubjectPublicKeyInfo headers: the key bytes iOS returns lack them.
+    private static let rsa2048: [UInt8] = [0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0f, 0x00]
+    private static let rsa4096: [UInt8] = [0x30, 0x82, 0x02, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x82, 0x02, 0x0f, 0x00]
+    private static let ec256: [UInt8] = [0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00]
+    private static let ec384: [UInt8] = [0x30, 0x76, 0x30, 0x10, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x22, 0x03, 0x62, 0x00]
+
+    static func spkiHash(_ certificate: SecCertificate) -> String? {
+        guard let key = SecCertificateCopyKey(certificate), let raw = SecKeyCopyExternalRepresentation(key, nil) as Data?,
+              let attributes = SecKeyCopyAttributes(key) as? [String: Any] else { return nil }
+        let type = attributes[kSecAttrKeyType as String] as? String
+        let bits = attributes[kSecAttrKeySizeInBits as String] as? Int ?? 0
+        let header: [UInt8]
+        if type == (kSecAttrKeyTypeRSA as String) { header = bits == 4096 ? rsa4096 : rsa2048 }
+        else if bits == 384 { header = ec384 } else { header = ec256 }
+        return Data(SHA256.hash(data: Data(header) + raw)).base64EncodedString()
+    }
+
+    static func accepts(_ trust: SecTrust) -> Bool {
+        guard SecTrustEvaluateWithError(trust, nil) else { return false }
+        let chain = (SecTrustCopyCertificateChain(trust) as? [SecCertificate]) ?? []
+        return chain.compactMap(spkiHash).contains { pins.contains($0) }
+    }
+
+    /// DeviceCheck token for the native token exchange; empty when the shop does not ask.
+    static func integrityHeaders(_ client: ShopClient) -> [String: String] {
+        guard let challenge = try? client.call("GET", "/api/mobile/integrity/challenge") as? [String: Any],
+              (challenge["mode"] as? String ?? "off") != "off", DCDevice.current.isSupported else { return [:] }
+        let semaphore = DispatchSemaphore(value: 0)
+        var token = ""
+        DCDevice.current.generateToken { data, _ in token = data?.base64EncodedString() ?? ""; semaphore.signal() }
+        _ = semaphore.wait(timeout: .now() + 15)
+        return token.isEmpty ? [:] : ["X-Shop-Integrity": token, "X-Shop-Integrity-Nonce": jsonText(challenge["nonce"])]
+    }
+}
+
+/// corgi://login?base=…&code=… — a one-use sign-in link (backend/app/app_login.py).
+struct LoginLink: Equatable {
+    let base: String
+    let code: String
+
+    static func parse(_ url: URL) -> LoginLink? {
+        guard url.scheme == "corgi", url.host == "login",
+              let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems else { return nil }
+        let code = items.first { $0.name == "code" }?.value ?? ""
+        guard code.range(of: "^[A-Za-z0-9_-]{20,128}$", options: .regularExpression) != nil else { return nil }
+        let base = (try? normalizeBase(items.first { $0.name == "base" }?.value ?? "")) ?? ""
+        return LoginLink(base: base, code: code)
+    }
+
+    /// The shop the link may sign in to: a baked address wins, a foreign one is refused.
+    static func target(_ link: LoginLink, baked: String, current: String) -> String? {
+        if !baked.isEmpty { return link.base.isEmpty || link.base == baked ? baked : nil }
+        if !link.base.isEmpty { return link.base }
+        return current.isEmpty ? nil : current
+    }
+}
+
+/// Anonymous app statistics («Приложения: аналитика», backend/app/app_growth.py): a random
+/// installation id (never a device identifier), platform, app version, event and screen.
+enum CorgiAnalytics {
+    static var enabled = true
+    private static var queue: [[String: String]] = []
+    private static var lastFlush = Date.distantPast
+    private static let lock = NSLock()
+
+    static var installId: String {
+        if let id = UserDefaults.standard.string(forKey: "install_id") { return id }
+        let id = UUID().uuidString
+        UserDefaults.standard.set(id, forKey: "install_id")
+        UserDefaults.standard.set(false, forKey: "install_reported")
+        return id
+    }
+
+    static func install(base: String) {
+        _ = installId
+        if UserDefaults.standard.bool(forKey: "install_reported") { return }
+        UserDefaults.standard.set(true, forKey: "install_reported")
+        track(base: base, token: "", event: "install")
+    }
+
+    static func track(base: String, token: String, event: String, screen: String = "") {
+        guard enabled, !base.isEmpty, let url = URL(string: base + "/api/mobile/events") else { return }
+        var row = ["event": event]
+        if !screen.isEmpty { row["screen"] = String(screen.lowercased().filter { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "-" }.prefix(32)) }
+        lock.lock()
+        queue.append(row)
+        // Important steps of the funnel leave at once; screens wait for ten or half a minute.
+        if event == "screen" && queue.count < 10 && Date().timeIntervalSince(lastFlush) < 30 { lock.unlock(); return }
+        let batch = queue
+        queue = []
+        lastFlush = Date()
+        lock.unlock()
+        let version = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? ""
+        var request = URLRequest(url: url, timeoutInterval: 10)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
+        request.setValue("CorgiLusi-iOS-User/3.1.0", forHTTPHeaderField: "User-Agent")
+        if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["install_id": installId, "platform": "ios", "app_version": version, "events": batch])
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            // Statistics never get in the way: a lost batch is not retried.
+            if let data, let answer = try? JSONSerialization.jsonObject(with: data) as? [String: Any], answer["enabled"] as? Bool == false { enabled = false }
+        }.resume()
+    }
 }
 
 func jsonInt(_ value: Any?) -> Int? {
@@ -98,16 +221,28 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         completionHandler(nil)
     }
 
+    /// Certificate pinning of the baked shop host (CorgiTrust); other hosts use the system trust.
+    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge,
+                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+              let trust = challenge.protectionSpace.serverTrust, CorgiTrust.pinning,
+              challenge.protectionSpace.host.lowercased() == CorgiTrust.pinnedHost else {
+            completionHandler(.performDefaultHandling, nil); return
+        }
+        if CorgiTrust.accepts(trust) { completionHandler(.useCredential, URLCredential(trust: trust)) }
+        else { completionHandler(.cancelAuthenticationChallenge, nil) }
+    }
+
     func call(_ method: String, _ path: String, body: [String: Any]? = nil, idempotency: String? = nil, headers: [String: String] = [:]) throws -> Any {
         // Every sign-in that issues a session (password or passkey) is bound to a fresh PKCE verifier.
-        let verifier: String? = try (["/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify"].contains(path) ? pkceVerifier() : nil)
+        let verifier: String? = try (["/api/auth/login", "/api/auth/register", "/api/admin/auth/login", "/api/auth/passkeys/login/verify", "/api/auth/mobile/code"].contains(path) ? pkceVerifier() : nil)
         var request = URLRequest(url: URL(string: base + path)!)
         if let verifier { request.setValue(pkceChallenge(verifier), forHTTPHeaderField: "X-Shop-Code-Challenge") }
         request.httpMethod = method
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(lang, forHTTPHeaderField: "Accept-Language")
-        request.setValue("CorgiLusi-iOS-User/3.0.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("CorgiLusi-iOS-User/3.1.0", forHTTPHeaderField: "User-Agent")
         // Historical compatibility marker: CorgiLusi-iOS-User/2.9.0
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
 
@@ -135,7 +270,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         if payload.isEmpty { return [String: Any]() }
         let decoded = try JSONSerialization.jsonObject(with: payload)
         if let verifier, var result = decoded as? [String: Any], let code = result["authorization_code"] as? String {
-            let exchanged = try call("POST", "/api/auth/mobile/token", body: ["code": code, "code_verifier": verifier]) as? [String: Any]
+            let exchanged = try call("POST", "/api/auth/mobile/token", body: ["code": code, "code_verifier": verifier], headers: CorgiTrust.integrityHeaders(self)) as? [String: Any]
             result.removeValue(forKey: "authorization_code")
             result["access_token"] = exchanged?["access_token"]
             result["token_type"] = "bearer"
@@ -228,6 +363,8 @@ final class PushCenter: ObservableObject {
     static let enabledKey = "push_enabled"
     static let tokenKey = "push_token"
     @Published var openNotifications = false
+    /// Section a tapped push or one of its buttons opens («Приложения: стиль push-уведомлений»).
+    @Published var openSection: String?
     @Published private(set) var latestToken: String?
     private var pending: ((Result<String, Error>) -> Void)?
 
@@ -272,6 +409,24 @@ final class PushCenter: ObservableObject {
         return response
     }
 
+    /// Buttons of every push type as notification categories (GET /api/mobile/push-style).
+    /// Blocking network call; run off the main queue. Failures keep the previous categories.
+    static func registerCategories(base: String, lang: String) {
+        guard let style = try? ShopClient(base: base, token: "", lang: lang).call("GET", "/api/mobile/push-style") as? [String: Any],
+              let categories = style["categories"] as? [String: Any] else { return }
+        var set = Set<UNNotificationCategory>()
+        for (kind, raw) in categories {
+            let buttons = (raw as? [[String: Any]] ?? []).prefix(2)
+            let actions = buttons.compactMap { button -> UNNotificationAction? in
+                let label = jsonText(button["label"]), section = jsonText(button["section"])
+                guard !label.isEmpty, section.range(of: "^[a-z][a-z0-9_-]{0,31}$", options: .regularExpression) != nil else { return nil }
+                return UNNotificationAction(identifier: "open:\(section)", title: String(label.prefix(24)), options: [.foreground])
+            }
+            set.insert(UNNotificationCategory(identifier: kind, actions: actions, intentIdentifiers: [], options: []))
+        }
+        UNUserNotificationCenter.current().setNotificationCategories(set)
+    }
+
     /// Blocking network call that never throws: revoke on the server, then stop APNs locally.
     static func unregister(base: String, session: String, lang: String) {
         let token = UserDefaults.standard.string(forKey: tokenKey)
@@ -305,7 +460,13 @@ final class PushAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        DispatchQueue.main.async { PushCenter.shared.openNotifications = true }
+        let action = response.actionIdentifier
+        let info = response.notification.request.content.userInfo
+        var section = action.hasPrefix("open:") ? String(action.dropFirst(5)) : (info["section"] as? String ?? "")
+        if section.range(of: "^[a-z][a-z0-9_-]{0,31}$", options: .regularExpression) == nil { section = "" }
+        DispatchQueue.main.async {
+            if section.isEmpty { PushCenter.shared.openNotifications = true } else { PushCenter.shared.openSection = section }
+        }
         completionHandler()
     }
 }

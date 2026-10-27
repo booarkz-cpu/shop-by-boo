@@ -1815,3 +1815,52 @@ class CancellationFeedback(Base):
     reason: Mapped[str] = mapped_column(String(32), nullable=False)
     comment: Mapped[str] = mapped_column(Text, default="", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class AppEvent(Base):
+    """Anonymous app analytics event (backend/app/app_growth.py); no IP, no device identifiers."""
+    __tablename__ = "app_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    install_hash: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
+    user_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    platform: Mapped[str] = mapped_column(String(16), nullable=False)
+    app_version: Mapped[str] = mapped_column(String(32), default="", nullable=False)
+    event: Mapped[str] = mapped_column(String(32), index=True, nullable=False)
+    screen: Mapped[str] = mapped_column(String(32), default="", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class PushCampaign(Base):
+    """Push / in-app message to an audience segment, sent from «Приложения: push-кампании»."""
+    __tablename__ = "push_campaigns"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    segment: Mapped[str] = mapped_column(String(32), nullable=False)
+    days: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="sent", nullable=False)
+    recipients: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    with_push: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_by: Mapped[str] = mapped_column(String(320), default="", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class FiscalReceipt(Base):
+    """A receipt sent to the tax service for a payment (backend/app/fiscal.py): «Мой налог», АТОЛ Онлайн or ЮKassa."""
+    __tablename__ = "fiscal_receipts"
+    __table_args__ = (UniqueConstraint("payment_id", "kind", name="uq_fiscal_receipts_payment_kind"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    payment_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    kind: Mapped[str] = mapped_column(String(16), nullable=False)  # income | refund
+    provider: Mapped[str] = mapped_column(String(16), nullable=False)  # npd | atol | yookassa
+    status: Mapped[str] = mapped_column(String(16), default="queued", index=True, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    name: Mapped[str] = mapped_column(String(128), default="", nullable=False)
+    external_id: Mapped[str|None] = mapped_column(String(128))
+    receipt_url: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    fiscal_data: Mapped[dict|None] = mapped_column(JSON)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_error: Mapped[str|None] = mapped_column(String(500))
+    next_attempt_at: Mapped[datetime|None] = mapped_column(DateTime, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

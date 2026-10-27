@@ -216,6 +216,10 @@ def _restart_reason(key: str) -> str:
         return "Ключ провайдера push — секрет сервера; меняется через .env и restart worker, не хранится в БД."
     if key == "remnawave_webhook_secret":
         return "Секрет подписи вебхуков Remnawave совпадает с WEBHOOK_SECRET_HEADER панели; меняется в .env вместе с панелью и restart backend."
+    if key in {"google_client_id", "google_client_secret", "google_redirect_uri", "mobile_app_scheme"}:
+        return "Вход в приложения (Google, ссылки corgi://) настраивается в .env вместе с консолью Google и сборками приложений; применяется после restart backend."
+    if key in {"mobile_integrity_mode", "devicecheck_key_id", "devicecheck_private_key"}:
+        return "Проверка подлинности приложений (Play Integrity, DeviceCheck) — граница безопасности: ключи только в .env, режим меняется через restart backend."
     if key == "default_currency":
         return "Смена расчётной валюты требует миграции тарифов и финансовых снимков, затем контролируемого restart."
     return "Параметр инициализируется до обработки запросов и требует контролируемого restart."

@@ -11,8 +11,9 @@ android {
         applicationId = "shop.remnawave.user"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3000
-        versionName = "3.0.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        versionCode = 3100
+        versionName = "3.1.0"
         // Historical compatibility marker: versionName = "2.9.0"
         // Firebase client identifiers for FCM push (public values, not secrets).
         // Empty values build the app without push; see docs/ru/PUSH_NOTIFICATIONS_CURRENT.md.
@@ -23,6 +24,16 @@ android {
         buildConfigField("String", "FIREBASE_API_KEY", "\"${firebase("api_key")}\"")
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${firebase("project_id")}\"")
         buildConfigField("String", "FIREBASE_SENDER_ID", "\"${firebase("sender_id")}\"")
+        // Shop address baked into the build: the sign-in screen then has no «Адрес магазина» field.
+        // -Pcorgi.shop_url=https://api.example.com or CORGI_SHOP_URL; empty keeps the field.
+        val shopUrl = ((project.findProperty("corgi.shop_url") as String?) ?: System.getenv("CORGI_SHOP_URL") ?: "")
+            .trim().trimEnd('/').replace("\\", "").replace("\"", "")
+        require(shopUrl.isEmpty() || shopUrl.startsWith("https://")) { "corgi.shop_url must start with https://" }
+        buildConfigField("String", "SHOP_URL", "\"$shopUrl\"")
+        // Certificate pins of the shop API (base64 SHA-256 of SPKI, comma separated); empty — no pinning.
+        val pins = ((project.findProperty("corgi.pins") as String?) ?: System.getenv("CORGI_PINS") ?: "").replace("\"", "").replace("\\", "")
+        require(pins.isEmpty() || shopUrl.isNotEmpty()) { "corgi.pins needs corgi.shop_url" }
+        buildConfigField("String", "CERT_PINS", "\"$pins\"")
     }
     buildFeatures {
         compose = true
@@ -74,4 +85,16 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    // Play Integrity of sign-ins (MOBILE_INTEGRITY_MODE on the shop); idle when the shop does not ask.
+    implementation("com.google.android.play:integrity:1.4.0")
+    // Embedded VPN engine (Xray-core via libv2ray.aar, scripts/mobile/build-xray-aar.sh). Optional:
+    // without it the app hands the subscription to Happ, v2rayNG or Hiddify.
+    if (file("libs/libv2ray.aar").exists()) implementation(files("libs/libv2ray.aar"))
+    // UI tests (app/src/androidTest): Compose testing on the demo mode of the debug build.
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

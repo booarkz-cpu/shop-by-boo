@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.31.0. Runtime/API `21.5.1`, head магазина `0076_growth`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.32.0. Runtime/API `21.5.1`, head магазина `0077_app_growth`, Support Pro `0008`.
 
 # Карта функционального покрытия
 
@@ -90,7 +90,7 @@
 | Marketplace внешних плагинов/hotload | Реализовано | Плагины — внешние HTTPS-сервисы с подписанным Ed25519 пакетом-манифестом от доверенного издателя; явное подтверждение прав, API `/api/plugin/v1` только с подтверждёнными правами, HMAC-подписанные события с повтором и автоостановкой, обновление и откат версий без перезапуска, изоляция настроек и секретов. Подписанные каталоги по HTTPS: подпись издателя и SHA-256 пакета проверяются до установки ([модуль 24](modules/24-plugins.md#каталог-плагинов)). [Инструкция](PLUGINS_CURRENT.md). Проверка/границы: (runtime); встроенного общего каталога нет — каталоги подключает владелец. |
 | Массовые операции и импорт users.db другого бота | Реализовано | SQLite mapping/preview, постоянные связи, начальные остатки только новых профилей, атомарный журнал/retry; revoke sessions, disable renew, in-app notice, restrict/restore shop access. Исторические подписки/платежи переносятся отдельным адаптером (строка ниже). [Инструкция](CUSTOMER_OPERATIONS_CURRENT.md). Проверка/границы: для профилей/остатков и пяти batch-действий. |
 | Перенос истории VPN-подписок и платежей | Реализовано | Версионированный адаптер `generic-sqlite-v1`, зашифрованный снимок сверки, контрольные итоги блокируют apply при расхождении, повтор без дублей, конфликт изменённых строк, журнал и защищённый откат; платежи — только история. Произвольные не-SQLite форматы требуют нового адаптера. [Инструкция](HISTORY_IMPORT_CURRENT.md). Проверка/границы: внешний E2E нужен. |
-| 70+ настроек с hot-reload и шифрованием | Реализовано | 96 typed live-полей, AES-GCM секретов и staged payload, dependency validation, optimistic lock, audit, rollback и сходимость API/worker/bot ≤5 секунд; все 180 полей классифицированы. [Инструкция](RUNTIME_SETTINGS_CURRENT.md) |
+| 70+ настроек с hot-reload и шифрованием | Реализовано | 96 typed live-полей, AES-GCM секретов и staged payload, dependency validation, optimistic lock, audit, rollback и сходимость API/worker/bot ≤5 секунд; все 187 полей классифицированы. [Инструкция](RUNTIME_SETTINGS_CURRENT.md) |
 | Резервное копирование и восстановление | Реализовано | Административные копии и согласованный зашифрованный CLI bundle двух баз/файлов. [Регламент CLI](BACKUP_CURRENT.md). Проверка/границы: внешний restore drill нужен. |
 | PostgreSQL 18 | Реализовано | `postgres:18.6-alpine` с закреплённым digest для магазина, Support Pro и CI; клиент `postgresql-client-18` в backend; одноразовый перенос данных PostgreSQL 16 (`scripts/upgrade-postgres.sh`) со сверкой строк, старый том остаётся для отката. |
 | Android/iOS клиента и администратора | Реализовано | Палитра в исходниках, новые бинарники ещё не опубликованы |
@@ -128,7 +128,7 @@
 
 В v28.17.0 закрыта последняя продуктовая строка: собственный приём почты (MX) для служебных адресов. В v28.16.0 закрыта строка nDPI: глубокий анализ трафика встроенным классификатором или nDPI. В v28.15.0 закрыта часть строки nDPI: распознавание BitTorrent по журналу Xray со счётчиками без адресов. В v28.14.0 закрыта строка «Терминал/snippets/shaping»: терминал узлов с подтверждением 2FA и записью сессий. В v28.13.0 закрыта часть строки MX/SPF/DMARC: проверка DNS почтового домена и отчёты DMARC. В v28.12.0 закрыта строка «Внешние helpdesk-системы»: мост Zendesk и Freshdesk в Support Pro 3.8. В v28.11.0 закрыта часть «native» строки WebAuthn: ключи доступа в приложениях Android и iOS. В v28.10.0 переработана админ-панель (страница «Все разделы», подписанные поля, новые скриншоты); строки матрицы не менялись. В v28.9.0 закрыта строка «DNS/ASN/reputation/расширенная геокарта». В v28.8.0 закрыта строка «Marketplace внешних плагинов/hotload» в части runtime: подписанные пакеты, права, hotload и откат. В v28.7.0 добавлен email-канал поддержки (строка «Email-канал поддержки»). В v28.6.0 строка «Виджет Android, push, мультипрофиль внешней админки» закрыта: виджет подписки на рабочем столе Android и несколько профилей в админ-приложениях дополнили push-уведомления из v28.5.0. В v28.4.0 закрыт перенос истории подписок и платежей, а админка, кабинет и Mini App переведены на Next.js в дизайне Remna Dark с интеграцией Telegram WebApp SDK. Остальные «частично/нет» не переименованы в «есть». [Заметки выпуска](RELEASE_V28_9_0.md).
 
-## Закрытые изменения дистрибутивов v28.1.0–v28.31.0
+## Закрытые изменения дистрибутивов v28.1.0–v28.32.0
 
 | Область | Реализация | Проверка |
 | --- | --- | --- |
@@ -137,7 +137,7 @@
 | Локальный лимит входа | `runtime_security.reset_login_attempts` после проверки пароля/MFA | Сброс только verified login bucket при отказе Redis |
 | Дистрибутив и публикация | `release_identity.py`, `github_release_fetch.py`, package/publisher | Манифест/commit/SHA, неизменность тега, черновик при ошибке |
 | Объединение аккаунтов | `account_merge.py`, `0063_account_merge`, кабинет безопасности | Две авторизации, self/cycle, rollback, reconciliation, aliases, passkeys, retry и PostgreSQL race |
-| Настройки без перезапуска | `runtime_settings.py`, `0064_runtime_settings`, `runtime-settings.tsx` | 96 live / 82 deployment / 2 workflow, secrets, staged apply, race, rollback, migration roundtrip и UI build |
+| Настройки без перезапуска | `runtime_settings.py`, `0064_runtime_settings`, `runtime-settings.tsx` | 96 live / 89 deployment / 2 workflow, secrets, staged apply, race, rollback, migration roundtrip и UI build |
 | Перенос истории подписок/платежей | `history_import.py`, `0065_history_import`, `history-import.tsx` | SQLite/PostgreSQL: сверка без записи, расхождение итогов, повтор без дублей, конфликт, блокировки, устаревший preview, откат и его отказ; Chromium-сценарий |
 | Next.js и Remna Dark | `admin/src/app`, `admin-shell.tsx`, `dashboard.tsx`, `cabinet/src/app`, `telegram.ts`, `csp-externalize.mjs` | Chromium под production CSP: sidebar/drawer, сетка 2×2/4×1, фильтр и меню, 390 px без прокрутки, Telegram SDK mock (тема, haptics, BackButton/MainButton) |
 | Native push Android/iOS | `push.py`, `0066_push_notifications`, `push/CorgiPush.kt`, `PushCenter` в iOS, `push-status.tsx` | SQLite/PostgreSQL: hash-индекс токена, привязка к сессии, подписи FCM/APNs, backoff, потерянный токен, logout, удалённый аккаунт; Chromium: карточка состояния; CI-сборка Android/iOS |

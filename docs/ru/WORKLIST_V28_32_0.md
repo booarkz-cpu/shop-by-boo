@@ -1,0 +1,21 @@
+# Список работ v28.32.0
+
+Дистрибутив `v28.32.0`, runtime/API `21.5.1`, миграция магазина `0077_app_growth`, Support Pro `0008`. Заметки: [RELEASE_V28_32_0.md](RELEASE_V28_32_0.md).
+
+| № | Работа | Где | Статус |
+| --- | --- | --- | --- |
+| 1 | Адрес магазина в сборке, одноразовые ссылки входа из бота и кабинета | `app_login.py`, `bot.py`, `cabinet/src/app-login.tsx`, приложения | готово |
+| 2 | Вход через Telegram, Яндекс, VK и Google в приложениях | `app_login.py`, `main.py`, `cabinet_api.py`, приложения | готово |
+| 5 | Push-кампании по сегментам | `app_growth.py`, `admin/src/appGrowth.tsx` | готово |
+| 6 | Аналитика приложений и воронка | `app_growth.py`, `CorgiAnalytics` (Android/iOS), `admin/src/appGrowth.tsx` | готово |
+| 7 | Розыгрыши и баннер акции в приложениях | `mobile_layout.py`, экраны Android/iOS, `app-giveaways.jpg` | готово |
+| 11 | Чеки в налоговую: «Мой налог», АТОЛ Онлайн, чеки ЮKassa | `fiscal.py`, `admin/src/fiscal.tsx`, `cabinet/src/receipts.tsx` | готово |
+| 8 | `main.py`: оплата, вебхуки и выдача → `payments_api.py`; поведенческие тесты вместо проверок исходника | `payments_api.py`, `tests/test_behaviour_payments_v2.py` | готово |
+| 12 | Стиль push-уведомлений из админки, push с картинкой и кнопками | `push_style.py`, `push.py`, `admin/src/pushStyle.tsx`, `CorgiPush.kt`, `PushCenter` | готово |
+| 13 | Напоминание об окончании подписки в приложение и push всем клиентам | `main.py` `enqueue_expiry_notifications` | готово |
+| 14 | Админ-приложения Android и iOS в стиле веб-панели (Remna Dark), демо-режим | `RemnaUi.kt`, `ios-admin/ContentView.swift` | готово |
+| 4 | Подготовка к Google Play, RuStore и TestFlight: иконки, баннер, скриншоты, тексты, AAB | `mobile/store/`, `scripts/store/render.py`, `docs/ru/STORE_PUBLISHING.md` | готово (загрузка — владельцем) |
+| 15 | Аудит: лимит событий, https для чеков, напоминания всем клиентам | `app_growth.py`, `fiscal.py`, `main.py` | готово |
+| 3 | Встроенный VPN Android: Xray-core, автовыбор и переключение, выбор сервера, «Что работает без VPN» | `vpn/CorgiVpnService.kt`, `XrayEngine.kt`, `ShareLinks.kt`, `scripts/mobile/build-xray-aar.sh` | готово (Android; iOS — Network Extension позже) |
+| 9 | UI-тесты приложений: Compose (Android, оба приложения) и XCUITest (iOS) в CI | `app/src/androidTest`, `VpnShopUserUITests`, `ci.yml` | готово |
+| 10 | Защита приложений: привязка сертификата, Play Integrity, DeviceCheck | `security/CorgiTrust.kt`, `CorgiTrust` (iOS), `mobile_integrity.py`, `docs/ru/APP_PROTECTION.md` | готово (включается ключами владельца) |

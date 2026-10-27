@@ -6,6 +6,12 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -96,8 +102,11 @@ class SecureTokenStore(private val prefs: android.content.SharedPreferences, slo
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
-        setContent { MaterialTheme(colorScheme = shopColors()) { AdminApp() } }
+        // Screenshot mode for CI: debuggable builds only, started with --ez corgi_demo true --es corgi_tab <tab>.
+        val demo = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && intent?.getBooleanExtra("corgi_demo", false) == true
+        if (!demo) window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        val demoTab = if (demo) intent?.getStringExtra("corgi_tab") ?: "overview" else "overview"
+        setContent { MaterialTheme(colorScheme = remnaColors()) { AdminApp(demo, demoTab) } }
     }
 }
 
@@ -192,7 +201,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-Admin/3.0.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-Admin/3.1.0")
             // Historical compatibility marker: CorgiLusi-Android-Admin/2.10.0
             // Historical compatibility marker: CorgiLusi-Android-Admin/2.9.0
             setRequestProperty("X-Shop-Client", "android-admin")
@@ -234,7 +243,7 @@ private fun detailOf(payload: String, status: Int): String {
 }
 
 @Composable
-private fun AdminApp() {
+private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     val context = LocalContext.current
     val activity = context as FragmentActivity
     val prefs = remember { context.getSharedPreferences("shop_admin", 0) }
@@ -244,11 +253,11 @@ private fun AdminApp() {
     val tokenStore = remember(activeId) { profileStore.tokens(activeId) }
     var lang by remember { mutableStateOf(prefs.getString("lang", "ru") ?: "ru") }
     var base by remember { mutableStateOf(profileStore.find(activeId)?.base ?: "") }
-    var token by remember { mutableStateOf(tokenStore.read()) }
+    var token by remember { mutableStateOf(if (demo) "demo" else tokenStore.read()) }
     var profileLabel by remember { mutableStateOf(profileStore.find(activeId)?.label ?: "") }
     var showProfiles by remember { mutableStateOf(false) }
     var signedInIds by remember { mutableStateOf(setOf<String>()) }
-    var unlocked by remember { mutableStateOf(token.isBlank()) }
+    var unlocked by remember { mutableStateOf(demo || token.isBlank()) }
     DisposableEffect(activity) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) unlocked = false
@@ -261,7 +270,7 @@ private fun AdminApp() {
     var email by remember { mutableStateOf(profileStore.find(activeId)?.email ?: "") }
     var password by remember { mutableStateOf("") }
     var otp by remember { mutableStateOf("") }
-    var tab by remember { mutableStateOf("overview") }
+    var tab by remember { mutableStateOf(demoTab) }
     var notice by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var overview by remember { mutableStateOf(JSONObject()) }
@@ -390,13 +399,31 @@ private fun AdminApp() {
             }
         }
     }
+    LaunchedEffect(Unit) {
+        if (!demo) return@LaunchedEffect
+        // Fixed demo data for screenshots; nothing is requested from a server.
+        base = "https://api.corgi-lusi.example"; profileLabel = "Корги Люси"
+        overview = JSONObject("""{"role":"admin","plans":4,"payments":1284,"users":5320,"active_subscriptions":2871,"revenue_today":"48 300","revenue_month":"1 214 900"}""")
+        plans = JSONArray("""[{"id":1,"name":"1 месяц","price":"299.00","enabled":true},{"id":2,"name":"3 месяца","price":"549.00","enabled":true},{"id":3,"name":"12 месяцев","price":"1499.00","enabled":true},{"id":4,"name":"Семейный","price":"2490.00","enabled":false}]""")
+        payments = JSONArray("""[{"id":1284,"amount":"1499.00","currency":"RUB","status":"fulfilled","provider":"yookassa"},{"id":1283,"amount":"299.00","currency":"RUB","status":"paid","provider":"platega"},{"id":1282,"amount":"549.00","currency":"RUB","status":"pending","provider":"rollypay"},{"id":1281,"amount":"299.00","currency":"RUB","status":"refunded","provider":"yookassa"}]""")
+        monitoring = JSONObject("""{"nodes":[{"name":"Амстердам","country":"NL","status":"online","users_online":412},{"name":"Франкфурт","country":"DE","status":"online","users_online":388},{"name":"Хельсинки","country":"FI","status":"online","users_online":201},{"name":"Стамбул","country":"TR","status":"offline","users_online":0}]}""")
+        platform = JSONObject("""{"violations":[{"id":17,"score":82,"recommendation":"Торрент-трафик: ограничить"}],"agents":[{"name":"nl-1","cpu":"23%","last_seen_at":"2026-10-26T20:00:00"},{"name":"de-1","cpu":"41%","last_seen_at":"2026-10-26T20:00:00"}],"countries":[{"country":"RU","count":4210},{"country":"KZ","count":512},{"country":"BY","count":318}]}""")
+        ops = JSONObject("""{"critical":0,"stale_agents":1,"agents":[{"name":"nl-1","cpu":"23%","mem":"41%"},{"name":"de-1","cpu":"41%","mem":"55%"}]}""")
+        readiness = JSONObject("""{"ready":false,"checks":[{"title":"Платёжная система подключена","ok":true,"level":"required"},{"title":"Remnawave отвечает","ok":true,"level":"required"},{"title":"Резервные копии по расписанию","ok":true,"level":"required"},{"title":"Чеки в налоговую","ok":false,"level":"recommended","hint":"Тарифы и оплата → Чеки в налоговую"}]}""")
+        alerts = JSONObject("""{"recipients":{"telegram":true,"email":false},"problems":[]}""")
+        tickets = JSONArray("""[{"id":311,"subject":"Не подключается на iPhone","status":"open","message":"После обновления iOS Happ не видит подписку."},{"id":310,"subject":"Чек об оплате","status":"answered","message":"Пришлите, пожалуйста, чек за октябрь."}]""")
+        broadcasts = JSONArray("""[{"id":42,"target":"active","status":"sent","sent_count":2871,"failed_count":3}]""")
+    }
     LaunchedEffect(token) {
+        if (demo) return@LaunchedEffect
         if (token.isNotBlank() && !unlocked) promptUnlock(activity, t("unlock")) { unlocked = it }
     }
     LaunchedEffect(token, lang, unlocked) {
+        if (demo) return@LaunchedEffect
         if (token.isNotBlank() && unlocked) refresh()
     }
     LaunchedEffect(base) {
+        if (demo) return@LaunchedEffect
         val normalized = try { normalizeBase(base) } catch (_: Exception) { return@LaunchedEffect }
         if (token.isNotBlank()) return@LaunchedEffect
         thread {
@@ -408,32 +435,32 @@ private fun AdminApp() {
             }
         }
     }
-    Scaffold { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                if (logo != null) Image(logo!!, contentDescription = t("app_name"), modifier = Modifier.size(48.dp))
-                Text(t("app_name"), style = MaterialTheme.typography.headlineSmall, color = Color(0xFF8A79FF))
-                TextButton(onClick = {
-                    lang = if (lang == "ru") "en" else "ru"
-                    prefs.edit().putString("lang", lang).apply()
-                }) { Text(if (lang == "ru") "EN" else "RU") }
+    fun money(value: Any?) = value?.toString()?.removeSuffix(".00").orEmpty()
+    val navItems = listOf("overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast")
+    Box(Modifier.fillMaxSize().background(Remna.bg)) {
+        Column(Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            RemnaHeader(t("app_name"), if (token.isNotBlank() && unlocked) profileTitle() else t("tagline"), logo, if (lang == "ru") "EN" else "RU") {
+                lang = if (lang == "ru") "en" else "ru"
+                prefs.edit().putString("lang", lang).apply()
             }
-            Text(t("tagline"), color = Color(0xFFA4AFD0))
-            if (token.isBlank() || unlocked) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(if (base.isBlank()) t("add_profile") else profileTitle(), color = Color(0xFF93C5FD))
-                    TextButton(onClick = { reloadProfiles(); showProfiles = !showProfiles }) { Text("${t("profiles")} (${profiles.size})") }
+            if (notice.isNotBlank()) RemnaNotice(notice)
+            if ((token.isBlank() || unlocked) && !demo) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    RemnaDot(if (token.isNotBlank()) Tone.OK else Tone.MUTED)
+                    Spacer(Modifier.width(8.dp))
+                    Text(if (base.isBlank()) t("add_profile") else profileTitle(), color = Remna.primaryInk, modifier = Modifier.weight(1f))
+                    RemnaGhost("${t("profiles")} (${profiles.size})") { reloadProfiles(); showProfiles = !showProfiles }
                 }
             }
-            if (notice.isNotBlank()) Text(notice, color = Color(0xFFFFB020))
-            if (showProfiles && (token.isBlank() || unlocked)) {
+            if (showProfiles && (token.isBlank() || unlocked)) RemnaCard(t("profiles")) {
                 for (profile in profiles) {
                     val current = profile.id == activeId
-                    val state = if (profile.id in signedInIds) t("signed_in") else t("signed_out")
-                    Text("${profile.title} · ${profile.host}${if (profile.email.isNotBlank()) " · ${profile.email}" else ""} · $state${if (current) " · ${t("active_profile")}" else ""}")
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        if (!current) TextButton(enabled = !busy, onClick = { switchTo(profile.id) }) { Text(t("switch_profile")) }
-                        TextButton(enabled = !busy, onClick = {
+                    val signed = profile.id in signedInIds
+                    RemnaRow("${profile.title}${if (current) " · ${t("active_profile")}" else ""}",
+                        "${profile.host}${if (profile.email.isNotBlank()) " · ${profile.email}" else ""}",
+                        if (signed) t("signed_in") else t("signed_out"), if (signed) Tone.OK else Tone.MUTED) {
+                        if (!current) RemnaGhost(t("switch_profile"), enabled = !busy) { switchTo(profile.id) }
+                        RemnaGhost(t("remove_profile"), enabled = !busy, danger = true) {
                             val removed = profile
                             val removedToken = profileStore.tokens(removed.id).read()
                             profileStore.remove(removed.id)
@@ -446,227 +473,242 @@ private fun AdminApp() {
                                 if (next != null) switchTo(next.id) else addProfile()
                             }
                             notice = t("profile_removed")
-                        }) { Text(t("remove_profile")) }
+                        }
                     }
                 }
-                Button(enabled = !busy, onClick = { addProfile() }) { Text(t("add_profile")) }
+                RemnaPrimary(t("add_profile"), enabled = !busy) { addProfile() }
             }
             if (token.isBlank()) {
-                OutlinedTextField(profileLabel, { profileLabel = it.take(40) }, label = { Text(t("profile_label")) }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(base, { base = it }, label = { Text(t("server")) }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(email, { email = it }, label = { Text(t("email")) }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(password, { password = it }, label = { Text(t("password")) }, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(otp, { otp = it }, label = { Text(t("otp")) }, modifier = Modifier.fillMaxWidth())
-                Button(onClick = {
-                    val normalized = try { normalizeBase(base) } catch (_: Exception) { notice = t("https_required"); return@Button }
-                    if (!email.contains("@") || !email.contains(".")) { notice = t("email_invalid"); return@Button }
-                    if (password.length < 8) { notice = t("password_short"); return@Button }
-                    val profileId = activeId
-                    val duplicate = profileStore.duplicateOf(profileId, normalized, email.trim())
-                    if (duplicate != null) { notice = t("profile_duplicate"); reloadProfiles(); showProfiles = true; return@Button }
-                    if (profileStore.find(profileId) == null && profileStore.all().size >= ProfileStore.MAX_PROFILES) { notice = t("profile_limit"); return@Button }
-                    val label = profileLabel.trim()
-                    work {
-                        val body = JSONObject().put("email", email.trim()).put("password", password)
-                        if (otp.isNotBlank()) body.put("otp", otp.trim())
-                        val response = ShopApi(normalized, "", lang).post("/api/admin/auth/login", body) as JSONObject
-                        val issued = response.optString("access_token")
-                        if (issued.isBlank()) throw IllegalStateException("HTTP")
-                        profileStore.tokens(profileId).write(issued, normalized)
-                        profileStore.upsert(AdminProfile(profileId, label, normalized, email.trim()))
-                        profileStore.setActive(profileId)
-                        activity.runOnUiThread {
-                            reloadProfiles()
-                            base = normalized
-                            token = issued
-                            password = ""
-                            otp = ""
-                            unlocked = activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
-                            prefs.edit().putString("lang", lang).apply()
-                            notice = "${t("role")}: ${response.optString("role")}"
+                RemnaCard(t("sign_in"), t("tagline")) {
+                    RemnaField(profileLabel, { profileLabel = it.take(40) }, t("profile_label"))
+                    RemnaField(base, { base = it }, t("server"))
+                    RemnaField(email, { email = it }, t("email"))
+                    RemnaField(password, { password = it }, t("password"), secret = true)
+                    RemnaField(otp, { otp = it }, t("otp"))
+                    RemnaPrimary(t("sign_in"), enabled = !busy) {
+                        val normalized = try { normalizeBase(base) } catch (_: Exception) { notice = t("https_required"); return@RemnaPrimary }
+                        if (!email.contains("@") || !email.contains(".")) { notice = t("email_invalid"); return@RemnaPrimary }
+                        if (password.length < 8) { notice = t("password_short"); return@RemnaPrimary }
+                        val profileId = activeId
+                        val duplicate = profileStore.duplicateOf(profileId, normalized, email.trim())
+                        if (duplicate != null) { notice = t("profile_duplicate"); reloadProfiles(); showProfiles = true; return@RemnaPrimary }
+                        if (profileStore.find(profileId) == null && profileStore.all().size >= ProfileStore.MAX_PROFILES) { notice = t("profile_limit"); return@RemnaPrimary }
+                        val label = profileLabel.trim()
+                        work {
+                            val body = JSONObject().put("email", email.trim()).put("password", password)
+                            if (otp.isNotBlank()) body.put("otp", otp.trim())
+                            val response = ShopApi(normalized, "", lang).post("/api/admin/auth/login", body) as JSONObject
+                            val issued = response.optString("access_token")
+                            if (issued.isBlank()) throw IllegalStateException("HTTP")
+                            profileStore.tokens(profileId).write(issued, normalized)
+                            profileStore.upsert(AdminProfile(profileId, label, normalized, email.trim()))
+                            profileStore.setActive(profileId)
+                            activity.runOnUiThread {
+                                reloadProfiles()
+                                base = normalized
+                                token = issued
+                                password = ""
+                                otp = ""
+                                unlocked = activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                                prefs.edit().putString("lang", lang).apply()
+                                notice = "${t("role")}: ${response.optString("role")}"
+                            }
                         }
-                    }
-                }, enabled = !busy) { Text(t("sign_in")) }
-            } else if (!unlocked) {
-                Button(onClick = { promptUnlock(activity, t("unlock")) { unlocked = it } }) { Text(t("unlock")) }
-                TextButton(onClick = { signOut() }) { Text(t("sign_out")) }
-            } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf("overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast").forEach { key ->
-                        FilterChip(selected = tab == key, onClick = { tab = key }, label = { Text(t(key)) })
                     }
                 }
-                TextButton(onClick = { refresh() }, enabled = !busy) { Text(t("refresh")) }
-                TextButton(onClick = {
-                    signOut()
-                }) { Text(t("sign_out")) }
+            } else if (!unlocked) {
+                RemnaCard(t("unlock")) {
+                    RemnaPrimary(t("unlock")) { promptUnlock(activity, t("unlock")) { unlocked = it } }
+                    RemnaGhost(t("sign_out"), danger = true) { signOut() }
+                }
+            } else {
+                RemnaNav(navItems.map { it to t(it) }, tab) { tab = it }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    RemnaGhost(t("refresh"), enabled = !busy && !demo) { refresh() }
+                    RemnaGhost(t("sign_out"), danger = true) { signOut() }
+                }
                 when (tab) {
-                    "overview" -> Text("${t("role")} ${overview.optString("role")} · ${t("plans")} ${overview.optInt("plans")} · ${t("payments")} ${overview.optInt("payments")}")
-                    "plans" -> {
-                        if (plans.length() == 0) Text(t("no_data"))
+                    "overview" -> {
+                        RemnaKpiRow(t("plans") to overview.optInt("plans").toString(), t("payments") to overview.optInt("payments").toString())
+                        if (overview.has("users")) RemnaKpiRow("Клиенты" to overview.optString("users"), "Активные подписки" to overview.optString("active_subscriptions"))
+                        if (overview.has("revenue_today")) RemnaKpiRow("Выручка сегодня, ₽" to overview.optString("revenue_today"), "За месяц, ₽" to overview.optString("revenue_month"))
+                        RemnaCard(t("role")) { RemnaRow(overview.optString("role").ifBlank { "—" }, profileTitle(), t("online"), Tone.OK) }
+                    }
+                    "plans" -> RemnaCard(t("plans")) {
+                        if (plans.length() == 0) RemnaEmpty(t("no_data"))
                         for (index in 0 until plans.length()) {
                             val plan = plans.getJSONObject(index)
-                            Text("${plan.optString("name")} · ${plan.opt("price")} · ${if (plan.optBoolean("enabled")) t("enabled") else t("disabled")}")
-                            TextButton(onClick = {
-                                val enabled = !plan.optBoolean("enabled")
-                                work {
-                                    ShopApi(base, token, lang).post("/api/admin/plans/${plan.optInt("id")}/enabled", JSONObject().put("enabled", enabled))
-                                    activity.runOnUiThread { notice = t("plan_saved") }
+                            val on = plan.optBoolean("enabled")
+                            RemnaRow(plan.optString("name"), "${money(plan.opt("price"))} ₽", if (on) t("enabled") else t("disabled"), if (on) Tone.OK else Tone.MUTED) {
+                                RemnaGhost(if (on) t("disable_plan") else t("enable_plan"), enabled = !demo) {
+                                    work {
+                                        ShopApi(base, token, lang).post("/api/admin/plans/${plan.optInt("id")}/enabled", JSONObject().put("enabled", !on))
+                                        activity.runOnUiThread { notice = t("plan_saved") }
+                                    }
                                 }
-                            }) { Text(if (plan.optBoolean("enabled")) t("disable_plan") else t("enable_plan")) }
+                            }
                         }
                     }
-                    "payments" -> {
-                        if (payments.length() == 0) Text(t("no_data"))
+                    "payments" -> RemnaCard(t("payments")) {
+                        if (payments.length() == 0) RemnaEmpty(t("no_data"))
                         for (index in 0 until payments.length()) {
                             val payment = payments.getJSONObject(index)
-                            Text("#${payment.optInt("id")} · ${payment.opt("amount")} ${payment.optString("currency")} · ${payment.optString("status")}")
-                            TextButton(onClick = {
-                                work {
-                                    val detail = ShopApi(base, token, lang).get("/api/admin/payments/${payment.optInt("id")}") as JSONObject
-                                    activity.runOnUiThread { paymentDetail = detail }
+                            RemnaRow("#${payment.optInt("id")} · ${money(payment.opt("amount"))} ${payment.optString("currency")}", payment.optString("provider"), payment.optString("status")) {
+                                RemnaGhost(t("payment_detail"), enabled = !demo) {
+                                    work {
+                                        val detail = ShopApi(base, token, lang).get("/api/admin/payments/${payment.optInt("id")}") as JSONObject
+                                        activity.runOnUiThread { paymentDetail = detail }
+                                    }
                                 }
-                            }) { Text(t("payment_detail")) }
+                            }
                         }
-                        if (paymentDetail.length() > 0) Text("#${paymentDetail.optInt("id")} · ${paymentDetail.optString("order_id")} · ${paymentDetail.optString("purpose")} · ${paymentDetail.optString("fulfillment_status")}")
+                        if (paymentDetail.length() > 0) RemnaNotice("#${paymentDetail.optInt("id")} · ${paymentDetail.optString("order_id")} · ${paymentDetail.optString("purpose")} · ${paymentDetail.optString("fulfillment_status")}", Tone.INFO)
                     }
-                    "monitoring" -> {
-                        if (monitoring.optString("error").isNotBlank()) Text(t("panel_down"))
+                    "monitoring" -> RemnaCard(t("monitoring")) {
+                        if (monitoring.optString("error").isNotBlank()) RemnaNotice(t("panel_down"), Tone.BAD)
                         val nodes = monitoring.optJSONArray("nodes") ?: JSONArray()
-                        if (nodes.length() == 0) Text(t("no_data"))
+                        if (nodes.length() == 0) RemnaEmpty(t("no_data"))
                         for (index in 0 until nodes.length()) {
                             val node = publicNode(nodes.getJSONObject(index))
-                            Text("${node.optString("name")} · ${node.optString("country")} · ${node.optString("status")} · ${node.optInt("users_online")}")
+                            RemnaRow(node.optString("name"), "${node.optString("country")} · ${node.optInt("users_online")} online", node.optString("status"))
                         }
                     }
                     "platform" -> {
-                        Text(t("violations"))
-                        val violations = platform.optJSONArray("violations") ?: JSONArray()
-                        if (violations.length() == 0) Text(t("no_data"))
-                        for (index in 0 until violations.length()) {
-                            val row = violations.getJSONObject(index)
-                            Text("#${row.optInt("id")} · ${t("score")} ${row.optInt("score")} · ${row.optString("recommendation")}")
-                            Row {
-                                TextButton(onClick = {
-                                    work {
-                                        ShopApi(base, token, lang).post("/api/admin/platform/violations/${row.optInt("id")}/review", JSONObject().put("action", "restrict"))
-                                        activity.runOnUiThread { notice = t("restricted") }
+                        RemnaCard(t("violations")) {
+                            val violations = platform.optJSONArray("violations") ?: JSONArray()
+                            if (violations.length() == 0) RemnaEmpty(t("no_data"))
+                            for (index in 0 until violations.length()) {
+                                val row = violations.getJSONObject(index)
+                                val score = row.optInt("score")
+                                RemnaRow("#${row.optInt("id")} · ${t("score")} $score", row.optString("recommendation"), "$score", if (score >= 70) Tone.BAD else Tone.WARN) {
+                                    RemnaGhost(t("restrict"), enabled = !demo, danger = true) {
+                                        work {
+                                            ShopApi(base, token, lang).post("/api/admin/platform/violations/${row.optInt("id")}/review", JSONObject().put("action", "restrict"))
+                                            activity.runOnUiThread { notice = t("restricted") }
+                                        }
                                     }
-                                }) { Text(t("restrict")) }
-                                TextButton(onClick = {
-                                    work {
-                                        ShopApi(base, token, lang).post("/api/admin/platform/violations/${row.optInt("id")}/review", JSONObject().put("action", "clear"))
-                                        activity.runOnUiThread { notice = t("cleared") }
+                                    RemnaGhost(t("clear"), enabled = !demo) {
+                                        work {
+                                            ShopApi(base, token, lang).post("/api/admin/platform/violations/${row.optInt("id")}/review", JSONObject().put("action", "clear"))
+                                            activity.runOnUiThread { notice = t("cleared") }
+                                        }
                                     }
-                                }) { Text(t("clear")) }
+                                }
                             }
                         }
-                        Text(t("agents"))
-                        val agents = platform.optJSONArray("agents") ?: JSONArray()
-                        for (index in 0 until agents.length()) {
-                            val agent = agents.getJSONObject(index)
-                            Text("${agent.optString("name")} · CPU ${agent.optString("cpu")} · ${if (agent.optBoolean("stale") || agent.optString("last_seen_at").isBlank()) t("stale") else t("online")}")
+                        RemnaCard(t("agents")) {
+                            val agents = platform.optJSONArray("agents") ?: JSONArray()
+                            if (agents.length() == 0) RemnaEmpty(t("no_data"))
+                            for (index in 0 until agents.length()) {
+                                val agent = agents.getJSONObject(index)
+                                val stale = agent.optBoolean("stale") || agent.optString("last_seen_at").isBlank()
+                                RemnaRow(agent.optString("name"), "CPU ${agent.optString("cpu")}", if (stale) t("stale") else t("online"), if (stale) Tone.WARN else Tone.OK)
+                            }
                         }
-                        Text(t("countries"))
-                        val countries = platform.optJSONArray("countries") ?: JSONArray()
-                        for (index in 0 until countries.length()) {
-                            val country = countries.getJSONObject(index)
-                            Text("${country.optString("country")}: ${country.optInt("count")}")
+                        RemnaCard(t("countries")) {
+                            val countries = platform.optJSONArray("countries") ?: JSONArray()
+                            for (index in 0 until countries.length()) {
+                                val country = countries.getJSONObject(index)
+                                RemnaRow(country.optString("country"), "", country.optInt("count").toString(), Tone.INFO)
+                            }
                         }
                     }
                     "broadcast" -> {
-                        Text(t("broadcast_hint"), color = Color(0xFFA4AFD0))
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("all" to "all_telegram", "active" to "active_subs", "inactive" to "inactive_subs").forEach { (value, key) ->
-                                FilterChip(selected = broadcastTarget == value, onClick = { broadcastTarget = value }, label = { Text(t(key)) })
+                        RemnaCard(t("broadcast"), t("broadcast_hint")) {
+                            RemnaNav(listOf("all" to t("all_telegram"), "active" to t("active_subs"), "inactive" to t("inactive_subs")), broadcastTarget) { broadcastTarget = it }
+                            RemnaField(broadcastText, { broadcastText = it }, t("broadcast_text"), singleLine = false)
+                            RemnaPrimary(t("queue_broadcast"), enabled = !busy && !demo) {
+                                if (broadcastText.isBlank()) return@RemnaPrimary
+                                work {
+                                    ShopApi(base, token, lang).post("/api/admin/broadcasts", JSONObject().put("text", broadcastText.trim()).put("target", broadcastTarget))
+                                    activity.runOnUiThread { notice = t("broadcast_queued"); broadcastText = "" }
+                                }
                             }
                         }
-                        OutlinedTextField(broadcastText, { broadcastText = it }, label = { Text(t("broadcast_text")) }, modifier = Modifier.fillMaxWidth())
-                        Button(onClick = {
-                            if (broadcastText.isBlank()) return@Button
-                            work {
-                                ShopApi(base, token, lang).post("/api/admin/broadcasts", JSONObject().put("text", broadcastText.trim()).put("target", broadcastTarget))
-                                activity.runOnUiThread { notice = t("broadcast_queued"); broadcastText = "" }
-                            }
-                        }, enabled = !busy) { Text(t("queue_broadcast")) }
-                        if (broadcasts.length() == 0) Text(t("no_data"))
-                        for (index in 0 until broadcasts.length()) {
-                            val row = broadcasts.getJSONObject(index)
-                            val audience = when (row.optString("target")) {
-                                "active" -> t("active_subs")
-                                "inactive" -> t("inactive_subs")
-                                else -> t("all_telegram")
-                            }
-                            Text("#${row.optInt("id")} · $audience · ${row.optString("status")} · ${t("sent")} ${row.optInt("sent_count")} · ${t("failed")} ${row.optInt("failed_count")}")
-                            val status = row.optString("status")
-                            if (status == "sending" || status == "failed") {
-                                TextButton(onClick = {
-                                    work {
-                                        ShopApi(base, token, lang).post("/api/admin/broadcasts/${row.optInt("id")}/retry", JSONObject())
-                                        activity.runOnUiThread { notice = t("broadcast_retried") }
+                        RemnaCard(t("sent")) {
+                            if (broadcasts.length() == 0) RemnaEmpty(t("no_data"))
+                            for (index in 0 until broadcasts.length()) {
+                                val row = broadcasts.getJSONObject(index)
+                                val audience = when (row.optString("target")) {
+                                    "active" -> t("active_subs")
+                                    "inactive" -> t("inactive_subs")
+                                    else -> t("all_telegram")
+                                }
+                                val status = row.optString("status")
+                                RemnaRow("#${row.optInt("id")} · $audience", "${t("sent")} ${row.optInt("sent_count")} · ${t("failed")} ${row.optInt("failed_count")}", status) {
+                                    if (status == "sending" || status == "failed") RemnaGhost(t("retry_broadcast")) {
+                                        work {
+                                            ShopApi(base, token, lang).post("/api/admin/broadcasts/${row.optInt("id")}/retry", JSONObject())
+                                            activity.runOnUiThread { notice = t("broadcast_retried") }
+                                        }
                                     }
-                                }) { Text(t("retry_broadcast")) }
+                                }
                             }
                         }
                     }
                     "launch" -> {
-                        if (readiness.length() == 0) Text(t("no_data"))
-                        else {
-                            Text(if (readiness.optBoolean("ready")) t("launch_ready") else t("launch_missing"), style = MaterialTheme.typography.titleMedium,
-                                color = if (readiness.optBoolean("ready")) Color(0xFF2BD47D) else Color(0xFFFFB020))
-                            val checks = readiness.optJSONArray("checks") ?: JSONArray()
-                            for (index in 0 until checks.length()) {
-                                val c = checks.getJSONObject(index)
-                                val mark = if (c.optBoolean("ok")) "✓" else if (c.optString("level") == "required") "✗" else "!"
-                                Text("$mark ${c.optString("title")}${if (c.optString("level") != "required") " · " + t("recommended") else ""}")
-                                if (!c.optBoolean("ok") && c.optString("hint").isNotBlank()) Text(c.optString("hint"), color = Color(0xFFA4AFD0))
+                        RemnaCard(t("launch")) {
+                            if (readiness.length() == 0) RemnaEmpty(t("no_data"))
+                            else {
+                                RemnaNotice(if (readiness.optBoolean("ready")) t("launch_ready") else t("launch_missing"), if (readiness.optBoolean("ready")) Tone.OK else Tone.WARN)
+                                val checks = readiness.optJSONArray("checks") ?: JSONArray()
+                                for (index in 0 until checks.length()) {
+                                    val c = checks.getJSONObject(index)
+                                    val ok = c.optBoolean("ok")
+                                    val required = c.optString("level") == "required"
+                                    RemnaRow(c.optString("title"), if (!ok) c.optString("hint") else "", if (ok) "✓" else if (required) "✗" else t("recommended"),
+                                        if (ok) Tone.OK else if (required) Tone.BAD else Tone.WARN)
+                                }
                             }
                         }
-                        Text(t("alerts"), style = MaterialTheme.typography.titleMedium)
-                        val recipients = alerts.optJSONObject("recipients") ?: JSONObject()
-                        Text("${t("alerts_telegram")}: ${if (recipients.optBoolean("telegram")) t("configured") else t("not_configured")} · ${t("alerts_email")}: ${if (recipients.optBoolean("email")) t("configured") else t("not_configured")}")
-                        Button(enabled = !busy && (recipients.optBoolean("telegram") || recipients.optBoolean("email")), onClick = {
-                            work {
-                                ShopApi(base, token, lang).post("/api/admin/ops/alerts/test", JSONObject())
-                                activity.runOnUiThread { notice = t("alerts_sent") }
+                        RemnaCard(t("alerts")) {
+                            val recipients = alerts.optJSONObject("recipients") ?: JSONObject()
+                            RemnaRow(t("alerts_telegram"), "", if (recipients.optBoolean("telegram")) t("configured") else t("not_configured"), if (recipients.optBoolean("telegram")) Tone.OK else Tone.MUTED)
+                            RemnaRow(t("alerts_email"), "", if (recipients.optBoolean("email")) t("configured") else t("not_configured"), if (recipients.optBoolean("email")) Tone.OK else Tone.MUTED)
+                            RemnaPrimary(t("alerts_test"), enabled = !busy && !demo && (recipients.optBoolean("telegram") || recipients.optBoolean("email"))) {
+                                work {
+                                    ShopApi(base, token, lang).post("/api/admin/ops/alerts/test", JSONObject())
+                                    activity.runOnUiThread { notice = t("alerts_sent") }
+                                }
                             }
-                        }) { Text(t("alerts_test")) }
-                        Text(t("problems_now"), style = MaterialTheme.typography.titleSmall)
-                        val problems = alerts.optJSONArray("problems") ?: JSONArray()
-                        if (problems.length() == 0) Text(t("no_problems"))
-                        for (index in 0 until problems.length()) {
-                            val pr = problems.getJSONObject(index)
-                            Text(pr.optString("title"), color = Color(0xFFFFB020))
-                            Text(pr.optString("detail"), color = Color(0xFFA4AFD0))
+                            Text(t("problems_now"), color = Remna.textStrong)
+                            val problems = alerts.optJSONArray("problems") ?: JSONArray()
+                            if (problems.length() == 0) RemnaEmpty(t("no_problems"))
+                            for (index in 0 until problems.length()) {
+                                val pr = problems.getJSONObject(index)
+                                RemnaRow(pr.optString("title"), pr.optString("detail"), "!", Tone.WARN)
+                            }
                         }
                     }
                     "ops" -> {
-                        Text(t("ops"))
-                        Text("${t("critical")}: ${ops.optInt("critical")}")
-                        Text("${t("stale_agents")}: ${ops.optInt("stale_agents")}")
-                        val agents = ops.optJSONArray("agents") ?: JSONArray()
-                        for (index in 0 until agents.length()) {
-                            val agent = agents.getJSONObject(index)
-                            Text("${agent.optString("name")} · CPU ${agent.optString("cpu")} · RAM ${agent.optString("mem")}")
+                        RemnaKpiRow(t("critical") to ops.optInt("critical").toString(), t("stale_agents") to ops.optInt("stale_agents").toString())
+                        RemnaCard(t("ops")) {
+                            val agents = ops.optJSONArray("agents") ?: JSONArray()
+                            if (agents.length() == 0) RemnaEmpty(t("no_data"))
+                            for (index in 0 until agents.length()) {
+                                val agent = agents.getJSONObject(index)
+                                RemnaRow(agent.optString("name"), "CPU ${agent.optString("cpu")} · RAM ${agent.optString("mem")}", t("online"), Tone.OK)
+                            }
                         }
                     }
-                    "support" -> {
-                        OutlinedTextField(reply, { reply = it }, label = { Text(t("reply")) }, modifier = Modifier.fillMaxWidth())
-                        if (tickets.length() == 0) Text(t("no_data"))
+                    "support" -> RemnaCard(t("support")) {
+                        RemnaField(reply, { reply = it }, t("reply"), singleLine = false)
+                        if (tickets.length() == 0) RemnaEmpty(t("no_data"))
                         for (index in 0 until tickets.length()) {
                             val ticket = tickets.getJSONObject(index)
-                            Text("#${ticket.optInt("id")} · ${ticket.optString("subject")} · ${ticket.optString("status")}")
-                            Text(ticket.optString("message"))
-                            Button(onClick = {
-                                if (reply.isBlank()) return@Button
-                                work {
-                                    ShopApi(base, token, lang).post("/api/admin/support/tickets/${ticket.optInt("id")}/reply", JSONObject().put("reply", reply.trim()))
-                                    activity.runOnUiThread { notice = t("reply_sent"); reply = "" }
+                            RemnaRow("#${ticket.optInt("id")} · ${ticket.optString("subject")}", ticket.optString("message"), ticket.optString("status")) {
+                                RemnaPrimary(t("send"), enabled = !busy && !demo, modifier = Modifier) {
+                                    if (reply.isBlank()) return@RemnaPrimary
+                                    work {
+                                        ShopApi(base, token, lang).post("/api/admin/support/tickets/${ticket.optInt("id")}/reply", JSONObject().put("reply", reply.trim()))
+                                        activity.runOnUiThread { notice = t("reply_sent"); reply = "" }
+                                    }
                                 }
-                            }) { Text(t("send")) }
+                            }
                         }
                     }
                 }
+                Spacer(Modifier.height(24.dp))
             }
         }
     }

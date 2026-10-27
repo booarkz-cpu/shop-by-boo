@@ -28,6 +28,18 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+      - id: xray
+        uses: actions/cache@v4
+        with:
+          path: mobile/android-user/app/libs/libv2ray.aar
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+      - name: Build the embedded VPN engine (libv2ray.aar)
+        if: steps.xray.outputs.cache-hit != 'true'
+        run: bash scripts/mobile/build-xray-aar.sh
       - name: Build and verify release variant
         env:
           KEYSTORE_BASE64: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
@@ -52,8 +64,8 @@ jobs:
           bash scripts/build-android-apk.sh "$PWD/dist/mobile"
           for apk in dist/mobile/*.apk; do
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$apk.package.txt"
-            grep -q "versionCode='3000'" "$apk.package.txt"
-            grep -q "versionName='3.0.0'" "$apk.package.txt"
+            grep -q "versionCode='3100'" "$apk.package.txt"
+            grep -q "versionName='3.1.0'" "$apk.package.txt"
             if grep -q 'application-debuggable' "$apk.package.txt"; then echo 'Debuggable release rejected'; exit 1; fi
             if [[ "$state" == signed ]]; then
               "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > "$apk.certificate.txt"
@@ -166,7 +178,7 @@ jobs:
             if (!release || release.draft) throw new Error('Verified source release is not available.');
             const android = fs.readFileSync('dist/mobile/android-status.txt','utf8').trim();
             const ios = fs.readFileSync('dist/mobile/ios-status.txt','utf8').trim();
-            const status = {version:'3.0.0', source_commit:context.sha, workflow_run:context.runId,
+            const status = {version:'3.1.0', source_commit:context.sha, workflow_run:context.runId,
               android, ios, note:'Unsigned and preview packages are never production release assets.'};
             fs.writeFileSync('dist/mobile/mobile-production-status.json', JSON.stringify(status,null,2)+'\n');
             const names = fs.readdirSync('dist/mobile').filter(name =>
@@ -187,6 +199,6 @@ jobs:
             }
             const marker = '\n<!-- mobile-production-status -->';
             const body = release.body.split(marker)[0] + marker +
-              `\n\nMobile 3.0.0: Android **${android}**, iOS **${ios}**.\n`;
+              `\n\nMobile 3.1.0: Android **${android}**, iOS **${ios}**.\n`;
             await github.rest.repos.updateRelease({...args, release_id:release.id, body});
             core.summary.addRaw(`Android: ${android}; iOS: ${ios}`).write();

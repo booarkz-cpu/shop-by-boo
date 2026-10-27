@@ -35,6 +35,8 @@ struct UserRootView: View {
     @State private var logo: UIImage?
     @ObservedObject private var push = PushCenter.shared
     @State private var pushEnabled = PushCenter.shared.enabled
+    /// Sign-in methods the shop has configured (GET /api/public/app-login/methods).
+    @State private var methods: [String: Any] = [:]
     private let vpnTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
     private static func detectLanguage() -> String {
@@ -67,12 +69,25 @@ struct UserRootView: View {
         .preferredColorScheme(.dark)
         .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
         .sheet(isPresented: Binding(get: { !sheet.isEmpty }, set: { if !$0 { sheet = "" } })) { sheetView }
+        .onOpenURL { url in
+            guard let link = LoginLink.parse(url) else { return }
+            #if DEBUG
+            if DemoMode.enabled { return }
+            #endif
+            if !token.isEmpty { notice = t("login_link_signed_in"); return }
+            redeem(link)
+        }
         .onAppear {
+            if !bakedShopURL.isEmpty { base = bakedShopURL }
             layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
             #if DEBUG
             if DemoMode.enabled { loadDemo(); return }
             #endif
             loadLayout()
+            if let origin = try? normalizeBase(base) {
+                CorgiAnalytics.install(base: origin)
+                track(token.isEmpty ? "sign_in_view" : "open")
+            }
             if !token.isEmpty && !unlocked { unlockSavedSession() }
         }
         .onReceive(vpnTimer) { _ in
@@ -86,6 +101,7 @@ struct UserRootView: View {
             else if vpn == .connecting, let since = connectingSince, Date().timeIntervalSince(since) > 60 { vpn = .off; connectingSince = nil }
         }
         .onChange(of: token) { value in
+            if !value.isEmpty { track("sign_in") }
             if value.isEmpty { SessionKeychain.clear() }
             else if unlocked { refresh() }
         }
@@ -101,6 +117,11 @@ struct UserRootView: View {
             layout = LayoutStore.cached(base: base, lang: lang) ?? LayoutStore.bundled(lang)
             loadLayout()
             if !token.isEmpty && unlocked { refresh() }
+        }
+        .onChange(of: tab) { value in track("screen", value) }
+        .onChange(of: vpn) { value in if value == .on { track("connected") } }
+        .onChange(of: push.openSection) { section in
+            if let section, layout.section(section) != nil { tab = section; openDoc = nil; push.openSection = nil }
         }
         .onChange(of: push.openNotifications) { open in
             if open, layout.section("notifications") != nil { tab = "notifications"; push.openNotifications = false }
@@ -126,7 +147,21 @@ struct UserRootView: View {
                 Text(t("welcome")).font(.system(size: 26, weight: .bold)).foregroundStyle(theme.text)
                 Text(t("tagline")).foregroundStyle(theme.muted)
                 if !notice.isEmpty { Text(notice).foregroundStyle(theme.accent2) }
-                InputField(title: t("server"), text: $base, theme: theme)
+                if bakedShopURL.isEmpty { InputField(title: t("server"), text: $base, theme: theme) }
+                // Quick sign-in: Telegram bot link and OAuth providers enabled on the shop.
+                if layout.feature("login_quick") {
+                    if methods["telegram"] as? Bool == true {
+                        ActionButtonView(button: LayoutButton(id: "login_telegram", label: t("login_telegram"), action: "refresh", target: "", style: "primary", icon: "send", audience: "any"), theme: theme, enabled: !busy) {
+                            if let link = methods["telegram_url"] as? String, link.hasPrefix("https://t.me/") { openExternal(link) }
+                        }
+                    }
+                    ForEach(["yandex", "vk", "google"].filter { methods[$0] as? Bool == true }, id: \.self) { provider in
+                        ActionButtonView(button: LayoutButton(id: "login_\(provider)", label: t("login_\(provider)"), action: "refresh", target: "", style: "secondary", icon: "user", audience: "any"), theme: theme, enabled: !busy) { openOAuth(provider) }
+                    }
+                    if ["telegram", "yandex", "vk", "google"].contains(where: { methods[$0] as? Bool == true }) {
+                        Text(t("login_or_email")).foregroundStyle(theme.muted)
+                    }
+                }
                 InputField(title: t("email"), text: $email, theme: theme)
                 InputField(title: t("password"), text: $password, theme: theme, secure: true)
                 ActionButtonView(button: LayoutButton(id: "sign_in", label: t("sign_in"), action: "refresh", target: "", style: "primary", icon: "user", audience: "any"), theme: theme, enabled: !busy) { authenticate("/api/auth/login") }
@@ -138,8 +173,8 @@ struct UserRootView: View {
             }
             .padding(22)
         }
-        .onChange(of: base) { _ in loadLayout(); loadLogo() }
-        .onAppear { loadLogo() }
+        .onChange(of: base) { _ in loadLayout(); loadLogo(); loadMethods() }
+        .onAppear { loadLogo(); loadMethods() }
     }
 
     private var lock: some View {
@@ -211,6 +246,7 @@ struct UserRootView: View {
             case "status": statusSection
             case "security": securityBody
             case "info": infoBody
+            case "giveaways": giveawaysBody
             default: EmptyView()
             }
             if !section.body.isEmpty { CardView(theme: theme) { Text(section.body).foregroundStyle(theme.text) } }
@@ -276,6 +312,23 @@ struct UserRootView: View {
             }
         }
         if layout.feature("vpn_plan_card") { planSummary }
+        // «Розыгрыш» banner like Lagom: shown while a giveaway is open and the customer has not joined.
+        if layout.feature("home_promo"), let promo = data.openGiveaway, let target = layout.sections.first(where: { $0.kind == "giveaways" }) {
+            Button { track("promo_tap"); tab = target.id } label: {
+                CardView(theme: theme) {
+                    HStack(spacing: 12) {
+                        Text("🎁").font(.system(size: 30))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(jsonText(promo["title"])).font(.system(size: 17, weight: .black)).foregroundStyle(theme.accent)
+                            Text(prizeLine(promo)).font(.footnote).foregroundStyle(theme.muted)
+                        }
+                        Spacer()
+                        Text(layout.text("giveaway_join")).bold().foregroundStyle(theme.accent)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+        }
         let showLocation = location != nil && layout.feature("vpn_location_card")
         if showLocation, let location {
             Button { run(location) } label: { locationCard }.buttonStyle(.plain)
@@ -657,6 +710,7 @@ struct UserRootView: View {
     private func run(_ button: LayoutButton) {
         switch button.action {
         case "connect", "auto_location":
+            track("connect_tap")
             #if DEBUG
             if DemoMode.enabled { vpn = vpn == .on ? .off : .on; return }
             #endif
@@ -696,6 +750,59 @@ struct UserRootView: View {
         case "sign_out": signOut()
         default: break  // widget_toggle: the iOS app has no home screen widget yet
         }
+    }
+
+    private func prizeLine(_ row: [String: Any]) -> String {
+        let best = (row["prizes"] as? [[String: Any]] ?? []).compactMap { Double(jsonText($0["amount"])) }.max() ?? 0
+        let until = String(jsonText(row["ends_at"]).prefix(10))
+        return [best > 0 ? "🏆 \(Int(best)) \(jsonText(row["currency"]))" : "", until.isEmpty ? "" : "\(layout.text("until")) \(until)"]
+            .filter { !$0.isEmpty }.joined(separator: " · ")
+    }
+
+    @ViewBuilder private var giveawaysBody: some View {
+        if data.giveaways.isEmpty { Text(layout.text("giveaway_none")).foregroundStyle(theme.muted) }
+        ForEach(Array(data.giveaways.enumerated()), id: \.offset) { _, row in
+            CardView(theme: theme) {
+                Text(jsonText(row["title"])).font(.system(size: 17, weight: .bold)).foregroundStyle(theme.text)
+                if !jsonText(row["description"]).isEmpty { Text(jsonText(row["description"])).font(.subheadline).foregroundStyle(theme.muted) }
+                Text(prizeLine(row)).font(.footnote).foregroundStyle(theme.accent2)
+                let mine = row["my_entry"] as? [String: Any]
+                let outcome = jsonText(mine?["outcome"])
+                if mine != nil && outcome == "won" {
+                    Text(layout.text("giveaway_won").replacingOccurrences(of: "{amount}", with: "\(jsonText(mine?["reward_amount"])) \(jsonText(row["currency"]))"))
+                        .bold().foregroundStyle(theme.success)
+                } else if mine != nil && (outcome == "lost" || outcome == "ineligible") {
+                    Text(layout.text("giveaway_lost")).foregroundStyle(theme.muted)
+                } else if mine != nil {
+                    Text(layout.text("giveaway_entered")).foregroundStyle(theme.muted)
+                } else if jsonText(row["phase"]) == "open" {
+                    ActionButtonView(button: LayoutButton(id: "giveaway_\(jsonInt(row["id"]) ?? 0)", label: layout.text("giveaway_join"), action: "refresh", target: "", style: "primary", icon: "trophy", audience: "any"), theme: theme, enabled: !busy) {
+                        enterGiveaway(jsonInt(row["id"]) ?? 0)
+                    }
+                } else {
+                    Text(layout.text("giveaway_closed")).foregroundStyle(theme.muted)
+                }
+            }
+        }
+    }
+
+    private func enterGiveaway(_ id: Int) {
+        guard id > 0 else { return }
+        track("giveaway_enter")
+        work {
+            let row = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/giveaways/\(id)/enter") as? [String: Any] ?? [:]
+            let mine = row["my_entry"] as? [String: Any]
+            let won = jsonText(mine?["outcome"]) == "won"
+            let text = won ? layout.text("giveaway_won").replacingOccurrences(of: "{amount}", with: "\(jsonText(mine?["reward_amount"])) \(jsonText(row["currency"]))") : layout.text("giveaway_entered")
+            DispatchQueue.main.async { notice = text; refresh() }
+        }
+    }
+
+    private func track(_ event: String, _ screen: String = "") {
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
+        CorgiAnalytics.track(base: base, token: token, event: event, screen: screen)
     }
 
     @ViewBuilder private var infoBody: some View {
@@ -786,6 +893,38 @@ struct UserRootView: View {
         }
     }
 
+    private func loadMethods() {
+        #if DEBUG
+        if DemoMode.enabled { return }
+        #endif
+        guard let normalized = try? normalizeBase(base) else { return }
+        let language = lang
+        DispatchQueue.global(qos: .utility).async {
+            guard let next = try? ShopClient(base: normalized, token: "", lang: language).call("GET", "/api/public/app-login/methods") as? [String: Any] else { return }
+            DispatchQueue.main.async { methods = next }
+        }
+    }
+
+    /// Redeems a one-use link from the bot, the cabinet or Yandex/VK/Google (POST /api/auth/mobile/code).
+    private func redeem(_ link: LoginLink) {
+        guard let origin = LoginLink.target(link, baked: bakedShopURL, current: (try? normalizeBase(base)) ?? "") else {
+            notice = t("login_link_foreign"); return
+        }
+        work {
+            let response = try ShopClient(base: origin, token: "", lang: lang).call("POST", "/api/auth/mobile/code", body: ["code": link.code]) as? [String: Any]
+            let issued = response?["access_token"] as? String ?? ""
+            guard !issued.isEmpty else { throw NSError(domain: "shop", code: 0, userInfo: [NSLocalizedDescriptionKey: t("login_link_invalid")]) }
+            try SessionKeychain.save(issued, base: origin)
+            DispatchQueue.main.async { base = origin; token = issued; password = ""; unlocked = scenePhase == .active }
+        }
+    }
+
+    private func openOAuth(_ provider: String) {
+        guard let origin = try? normalizeBase(base) else { notice = t("https_required"); return }
+        // Safari comes back with corgi://login?code=… (app=1 in the OAuth state).
+        openExternal("\(origin)/api/auth/\(provider)?app=1")
+    }
+
     private func signInWithPasskey() {
         guard let normalized = try? normalizeBase(base) else { notice = t("https_required"); return }
         work {
@@ -820,8 +959,9 @@ struct UserRootView: View {
         guard let normalized = try? normalizeBase(base) else { return }
         let language = lang
         DispatchQueue.global(qos: .utility).async {
+            PushCenter.registerCategories(base: normalized, lang: language)
             if let next = LayoutStore.fetch(base: normalized, lang: language) {
-                DispatchQueue.main.async { if language == lang { layout = next } }
+                DispatchQueue.main.async { if language == lang { layout = next; CorgiAnalytics.enabled = next.feature("analytics") } }
             }
         }
     }
@@ -853,6 +993,7 @@ struct UserRootView: View {
                 next.passkeys = (try? ShopPasskeys.list(base: origin, session: session, lang: language)) ?? []
                 // Shops before v28.29.0 have no documents: the section stays empty.
                 next.docs = (try? api.call("GET", "/api/public/info-pages?lang=\(language)")) as? [[String: Any]] ?? []
+                next.giveaways = ((try? api.call("GET", "/api/me/giveaways")) as? [String: Any])?["items"] as? [[String: Any]] ?? []
                 // Re-bind a rotated APNs token, or the same token to a re-issued session.
                 if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
                     _ = try? PushCenter.register(base: origin, session: session, lang: language, token: current)
@@ -961,6 +1102,7 @@ struct UserRootView: View {
     }
 
     private func buy(wallet: Bool) {
+        track("checkout_start")
         let id = planId
         work {
             let api = ShopClient(base: base, token: token, lang: lang)
@@ -993,6 +1135,7 @@ struct UserRootView: View {
     }
 
     private func startTrial() {
+        track("trial_tap")
         let id = planId
         guard id > 0 else { return }
         let days = jsonInt(data.config["trial_days"]) ?? 3
@@ -1074,6 +1217,12 @@ extension UserRootView {
         demo.notifications = [["id": 1, "title": "Подписка продлена", "body": "Спасибо! Следующее списание через 214 дней", "read": false]]
         demo.docs = [["kind": "faq", "title": "Частые вопросы"], ["kind": "rules", "title": "Правила"],
                      ["kind": "privacy", "title": "Политика конфиденциальности"], ["kind": "offer", "title": "Публичная оферта"]]
+        demo.giveaways = [
+            ["id": 7, "title": "Новогоднее колесо", "description": "Крутите колесо — до 1000 ₽ на баланс", "kind": "wheel", "phase": "open",
+             "prizes": [["amount": "100", "weight": 5], ["amount": "1000", "weight": 1]], "currency": "RUB", "ends_at": "2026-12-31T21:00:00Z", "my_entry": NSNull()],
+            ["id": 6, "title": "Розыгрыш года подписки", "description": "Три победителя получат год Премиума", "kind": "contest", "phase": "ended",
+             "prizes": [["amount": "1499", "weight": 1]], "currency": "RUB", "ends_at": "2026-10-20T21:00:00Z", "my_entry": ["outcome": "won", "reward_amount": "1499.00"]],
+        ]
         data = demo
     }
 }

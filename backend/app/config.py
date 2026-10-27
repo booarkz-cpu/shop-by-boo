@@ -322,6 +322,17 @@ class Settings(BaseSettings):
     yandex_client_secret: str = Field(default="", alias="YANDEX_CLIENT_SECRET")
     yandex_redirect_uri: str = Field(default="", alias="YANDEX_REDIRECT_URI")
 
+    # ---------- Google sign-in (OpenID Connect) ----------
+    google_client_id: str = Field(default="", alias="GOOGLE_CLIENT_ID")
+    google_client_secret: str = Field(default="", alias="GOOGLE_CLIENT_SECRET")
+    google_redirect_uri: str = Field(default="", alias="GOOGLE_REDIRECT_URI")
+    # Custom URL scheme of the native apps (corgi://login?...)
+    mobile_app_scheme: str = Field(default="corgi", alias="MOBILE_APP_SCHEME")
+    # Genuine app / device check of native sign-ins: off | report | enforce (mobile_integrity.py)
+    mobile_integrity_mode: str = Field(default="off", alias="MOBILE_INTEGRITY_MODE")
+    devicecheck_key_id: str = Field(default="", alias="DEVICECHECK_KEY_ID")
+    devicecheck_private_key: str = Field(default="", alias="DEVICECHECK_PRIVATE_KEY")
+
     # ---------- VK ID ----------
     vk_client_id: str = Field(default="", alias="VK_CLIENT_ID")
     vk_client_secret: str = Field(default="", alias="VK_CLIENT_SECRET")

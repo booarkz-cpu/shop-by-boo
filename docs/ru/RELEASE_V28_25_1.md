@@ -1,6 +1,6 @@
 # Выпуск v28.25.1 — обновление зависимостей и понятные ошибки в админке
 
-Дистрибутив: `v28.25.1`. Runtime/API: `21.5.1`. Head магазина: `0076_growth` (без новых миграций). Support Pro: `0008` / 3.8. Дата и commit фиксируются тегом выпуска.
+Дистрибутив: `v28.25.1`. Runtime/API: `21.5.1`. Head магазина: `0077_app_growth` (без новых миграций). Support Pro: `0008` / 3.8. Дата и commit фиксируются тегом выпуска.
 
 ## Что изменилось
 
@@ -26,7 +26,7 @@ cd /opt/vpn-shop && bash scripts/backup.sh
 sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.25.1 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
-Ожидаемые head: магазин `0076_growth`, Support Pro `0008`.
+Ожидаемые head: магазин `0077_app_growth`, Support Pro `0008`.
 
 ## Проверка
 

@@ -24,6 +24,8 @@ data class ShopData(
     val qr: ImageBitmap? = null,
     /** Published shop documents (GET /api/public/info-pages): kind, title, banner. */
     val docs: JSONArray = JSONArray(),
+    /** Giveaways and wheel campaigns (GET /api/me/giveaways → items). */
+    val giveaways: JSONArray = JSONArray(),
 ) {
     val user: JSONObject get() = dashboard.optJSONObject("user") ?: JSONObject()
     val subscription: JSONObject? get() = dashboard.optJSONObject("subscription")
@@ -49,6 +51,15 @@ data class ShopData(
         ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(expiresDate()))
     } catch (_: Exception) {
         null
+    }
+
+    /** The first giveaway the customer can still join: the home screen promo banner. */
+    fun openGiveaway(): JSONObject? {
+        for (i in 0 until giveaways.length()) {
+            val row = giveaways.optJSONObject(i) ?: continue
+            if (row.optString("phase") == "open" && row.isNull("my_entry")) return row
+        }
+        return null
     }
 
     /** Matching plan of the active subscription (devices and traffic limits). */
@@ -78,6 +89,8 @@ data class UiFlags(
     val languageLabel: String = "RU",
     val version: String = "",
     val topupAmount: String = "300",
+    /** The embedded VPN engine is in use (Settings → «Режим VPN»). */
+    val engine: Boolean = false,
 )
 
 /** What the screens can ask the activity to do. */
@@ -94,6 +107,7 @@ interface ShopActions {
     fun deletePasskey(passkeyId: Int)
     fun setTopupAmount(amount: String)
     fun openDocument(kind: String)
+    fun enterGiveaway(giveawayId: Int)
 }
 
 fun formatBytes(bytes: Long): String {
