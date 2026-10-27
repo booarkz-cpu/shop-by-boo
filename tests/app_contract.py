@@ -103,3 +103,9 @@ def env_names() -> set[str]:
     from app.config import Settings
 
     return {f.alias or name.upper() for name, f in Settings.model_fields.items()}
+
+
+def missing_paths(*paths: str) -> list[str]:
+    """Paths the app serves under no method at all."""
+    served = {p for _, p in routes()}
+    return [p for p in paths if p not in served]
