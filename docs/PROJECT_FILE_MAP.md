@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1670**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1684**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -742,6 +742,7 @@
 | [docs/assets/screens/admin-fraud.png](../docs/assets/screens/admin-fraud.png) | Документация |
 | [docs/assets/screens/admin-nodes.png](../docs/assets/screens/admin-nodes.png) | Документация |
 | [docs/assets/screens/admin-support.png](../docs/assets/screens/admin-support.png) | Документация |
+| [docs/assets/screens/ai-knowledge.png](../docs/assets/screens/ai-knowledge.png) | Документация |
 | [docs/assets/screens/android-admin-launch.png](../docs/assets/screens/android-admin-launch.png) | Документация |
 | [docs/assets/screens/android-admin-monitoring.png](../docs/assets/screens/android-admin-monitoring.png) | Документация |
 | [docs/assets/screens/android-admin-ops.png](../docs/assets/screens/android-admin-ops.png) | Документация |
@@ -753,6 +754,8 @@
 | [docs/assets/screens/android-settings.png](../docs/assets/screens/android-settings.png) | Документация |
 | [docs/assets/screens/android-vpn-on.png](../docs/assets/screens/android-vpn-on.png) | Документация |
 | [docs/assets/screens/android-vpn.png](../docs/assets/screens/android-vpn.png) | Документация |
+| [docs/assets/screens/anti-sharing.png](../docs/assets/screens/anti-sharing.png) | Документация |
+| [docs/assets/screens/api-mirrors.png](../docs/assets/screens/api-mirrors.png) | Документация |
 | [docs/assets/screens/ios-admin-launch.png](../docs/assets/screens/ios-admin-launch.png) | Документация |
 | [docs/assets/screens/ios-admin-monitoring.png](../docs/assets/screens/ios-admin-monitoring.png) | Документация |
 | [docs/assets/screens/ios-admin-ops.png](../docs/assets/screens/ios-admin-ops.png) | Документация |
@@ -762,6 +765,10 @@
 | [docs/assets/screens/ios-admin-support.png](../docs/assets/screens/ios-admin-support.png) | Документация |
 | [docs/assets/screens/ios-subscription.png](../docs/assets/screens/ios-subscription.png) | Документация |
 | [docs/assets/screens/ios-vpn.png](../docs/assets/screens/ios-vpn.png) | Документация |
+| [docs/assets/screens/node-monitor.png](../docs/assets/screens/node-monitor.png) | Документация |
+| [docs/assets/screens/promo-generator.png](../docs/assets/screens/promo-generator.png) | Документация |
+| [docs/assets/screens/referral-bonus.png](../docs/assets/screens/referral-bonus.png) | Документация |
+| [docs/assets/screens/telegram-backup.png](../docs/assets/screens/telegram-backup.png) | Документация |
 | [docs/current-guides.json](../docs/current-guides.json) | Документация |
 | [docs/en/DEPLOYMENT.md](../docs/en/DEPLOYMENT.md) | Документация |
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
@@ -1263,6 +1270,13 @@
 | [screenshots/admin_panel/72_backups.png](../screenshots/admin_panel/72_backups.png) | Корень проекта |
 | [screenshots/admin_panel/73_recovery.png](../screenshots/admin_panel/73_recovery.png) | Корень проекта |
 | [screenshots/admin_panel/74_command_search.png](../screenshots/admin_panel/74_command_search.png) | Корень проекта |
+| [screenshots/admin_panel/features/ai-knowledge.png](../screenshots/admin_panel/features/ai-knowledge.png) | Корень проекта |
+| [screenshots/admin_panel/features/anti-sharing.png](../screenshots/admin_panel/features/anti-sharing.png) | Корень проекта |
+| [screenshots/admin_panel/features/api-mirrors.png](../screenshots/admin_panel/features/api-mirrors.png) | Корень проекта |
+| [screenshots/admin_panel/features/node-monitor.png](../screenshots/admin_panel/features/node-monitor.png) | Корень проекта |
+| [screenshots/admin_panel/features/promo-generator.png](../screenshots/admin_panel/features/promo-generator.png) | Корень проекта |
+| [screenshots/admin_panel/features/referral-bonus.png](../screenshots/admin_panel/features/referral-bonus.png) | Корень проекта |
+| [screenshots/admin_panel/features/telegram-backup.png](../screenshots/admin_panel/features/telegram-backup.png) | Корень проекта |
 | [screenshots/mobile/android-admin-launch.png](../screenshots/mobile/android-admin-launch.png) | Корень проекта |
 | [screenshots/mobile/android-admin-monitoring.png](../screenshots/mobile/android-admin-monitoring.png) | Корень проекта |
 | [screenshots/mobile/android-admin-ops.png](../screenshots/mobile/android-admin-ops.png) | Корень проекта |
