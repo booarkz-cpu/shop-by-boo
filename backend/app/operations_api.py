@@ -241,3 +241,6 @@ async def reconcile_refund(refund_id:int,db:AsyncSession=Depends(get_db),admin=D
 
 
 __all__ = ['admin_financial_ledger', 'admin_fraud', 'admin_jobs', 'admin_monitoring', 'admin_payouts', 'admin_withdrawal_approve', 'admin_withdrawal_paid', 'fraud_decision', 'fraud_scan', 'my_traffic', 'privacy_delete', 'privacy_export', 'reconcile_refund', 'retry_job']
+# Imported before main finished (``from app import operations_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

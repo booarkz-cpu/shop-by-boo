@@ -275,3 +275,6 @@ async def staging_e2e_status(db:AsyncSession=Depends(get_db),admin=Depends(requi
 
 
 __all__ = ['PRODUCTION_GATE_MAX_AGE_HOURS', 'PRODUCTION_PAYMENTS_CLOSED_KEY', 'STAGING_E2E_CONFIG_KEY', 'STAGING_E2E_LOCK', 'STAGING_E2E_STATUS_KEY', 'StagingE2EConfigIn', '_publish_staging_running', '_redact_staging_output', '_require_staging_runner', '_run_staging_e2e', '_staging_config', '_staging_config_is_current', '_staging_provider_creds', 'internal_staging_payment', 'internal_staging_refund', 'internal_staging_refund_status', 'internal_staging_remnawave', 'internal_staging_verify', 'production_payments_allowed', 'run_staging_e2e', 'staging_e2e_config', 'staging_e2e_status', 'update_staging_e2e_config']
+# Imported before main finished (``from app import staging_e2e_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

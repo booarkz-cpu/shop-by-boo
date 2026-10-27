@@ -903,3 +903,6 @@ async def rollypay_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depend
 
 
 __all__ = ['_LOCK_RENEW_TASKS', '_SAFE_LOCK_MESSAGES', '_acquire_payment_side_effect_lock', '_acquire_redis_lock', '_acquire_user_fulfillment_lock', '_advisory_lock', '_confirm_and_fulfill_payment', '_external_refund', '_ip_allowed', '_lock_conflict', '_payment_provider_order', '_release_payment_side_effect_lock', '_renew_redis_lock', 'bind_provider_payment_id', 'create_payment', 'ensure_required_channel', 'finish_provider_event', 'fulfill', 'payment_by_provider', 'payment_by_provider_or_order', 'platega_webhook', 'register_provider_event', 'release_promo_reservation', 'reserve_promo', 'rollypay_webhook', 'yookassa_webhook']
+# Imported before main finished (``from app import payments_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

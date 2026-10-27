@@ -68,3 +68,6 @@ async def customer_dashboard(request:Request,db:AsyncSession=Depends(get_db)):
 
 
 __all__ = ['create_support_ticket', 'customer_dashboard', 'my_support_tickets', 'my_withdrawals', 'request_withdrawal']
+# Imported before main finished (``from app import customer_ops_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

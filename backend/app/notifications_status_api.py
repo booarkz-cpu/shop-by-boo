@@ -92,3 +92,6 @@ async def deployment_list(db:AsyncSession=Depends(get_db),admin=Depends(require_
 
 
 __all__ = ['admin_notification_create', 'admin_notifications', 'admin_status_component_create', 'admin_status_component_update', 'admin_status_components', 'deployment_create', 'deployment_list', 'deployment_promote', 'deployment_rollback', 'my_notifications', 'public_status', 'read_notification']
+# Imported before main finished (``from app import notifications_status_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

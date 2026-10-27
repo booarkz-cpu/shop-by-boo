@@ -462,3 +462,6 @@ async def retry_payment(payment_id:int,db:shop.AsyncSession=shop.Depends(shop.ge
 
 
 __all__ = ['_reverse_referral_reward_for_refund', '_safe_revoke_for_refunded_payment', 'admin_analytics', 'admin_openapi', 'admin_recovery', 'admin_refunds', 'admin_releases', 'admin_sessions', 'admin_support_messages', 'admin_ticket_reply', 'admin_tickets', 'admin_withdrawals', 'admin_workers', 'approve_refund', 'approve_withdrawal', 'check_release', 'execute_refund', 'incident_mode', 'incident_mode_status', 'mark_refunded', 'paid_withdrawal', 'reconcile_payments', 'reconcile_referrals', 'recovery_operations', 'reject_withdrawal', 'request_refund', 'retry_operation', 'retry_payment', 'retry_refund_revoke', 'revoke_admin_session', 'revoke_all_sessions', 'secret_status', 'security_incident', 'security_incidents', 'system_health']
+# Imported before main finished (``from app import recovery_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

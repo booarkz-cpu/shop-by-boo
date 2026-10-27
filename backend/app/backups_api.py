@@ -392,3 +392,6 @@ async def restore_backup(backup_id:int,payload:RestoreApprovalIn,db:AsyncSession
 
 
 __all__ = ['BACKUP_INTERVALS', 'BACKUP_LOCK', 'BackupConfigIn', 'MAX_BACKUP_ARCHIVE_BYTES', 'MAX_BACKUP_EXTRACTED_BYTES', 'MAX_BACKUP_FILE_BYTES', 'MAX_BACKUP_MEMBERS', 'MAX_BACKUP_PATH_DEPTH', 'RestoreApprovalIn', '_backup_path', '_database_cli_config', '_safe_extract_members', '_validate_tar_safety', 'approve_restore', 'backup_config', 'backup_scheduler', 'create_project_backup', 'delete_backup', 'download_backup', 'enforce_backup_retention', 'list_backups', 'request_restore', 'restore_backup', 'run_backup', 'set_setting', 'setting_value', 'update_backup_config', 'validate_backup_archive', 'verify_backup']
+# Imported before main finished (``from app import backups_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})

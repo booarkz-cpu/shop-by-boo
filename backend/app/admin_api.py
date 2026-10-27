@@ -350,3 +350,6 @@ async def production_payment_gate(payload:ProductionGateIn, db:AsyncSession=Depe
 
 
 __all__ = ['AdminUserIn', 'PlanEnabledIn', 'ProductionGateIn', '_AUDIT_SECRET_KEYS', '_REFUND_EXCEPTION_TAILS', '_public_audit_details', '_public_refund_reason', '_redact_audit_value', '_remnawave_total', '_remote_user_id', 'admin_audit', 'admin_delete_plan', 'admin_gift_create', 'admin_gifts', 'admin_github_update', 'admin_list_plans', 'admin_logout', 'admin_overview', 'admin_payment_detail', 'admin_payments', 'admin_security', 'admin_set_plan_enabled', 'admin_update_plan', 'create_admin', 'create_plan', 'customer_360', 'delete_admin', 'health_summary', 'list_admins', 'production_payment_gate', 'provision_node', 'refund_dry_run', 'remnawave_health', 'risk_summary', 'rw_extend', 'rw_keys', 'rw_nodes', 'rw_subscription', 'rw_user', 'rw_user_stream', 'rw_users', 'update_admin']
+# Imported before main finished (``from app import admin_api`` first)? Then main's star
+# import saw a half-loaded module; hand the names over now that they exist.
+shop.__dict__.update({_n: globals()[_n] for _n in __all__})
