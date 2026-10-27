@@ -577,7 +577,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     val actions = object : ShopActions {
         override fun open(sectionId: String) { if (layout.section(sectionId) != null) { tab = sectionId; openDoc = null; ui = ui.copy(notice = "") } }
         override fun link(url: String) = openExternal(url)
-        override fun selectPlan(planId: Int) { ui = ui.copy(selectedPlan = planId) }
+        override fun selectPlan(planId: Int) { ui = ui.copy(selectedPlan = planId); track("plan_select") }
         override fun setTopupAmount(amount: String) { ui = ui.copy(topupAmount = amount) }
         override fun selectSubscription(subscriptionId: Int) = work {
             ShopApi(base, token, lang).post("/api/me/subscriptions/$subscriptionId/select", JSONObject())
@@ -774,7 +774,15 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     LaunchedEffect(tab, token) {
         if (token.isBlank()) track("sign_in_view") else track("screen", tab)
     }
-    LaunchedEffect(ui.vpn) { if (ui.vpn == VpnState.ON) track("connected") }
+    LaunchedEffect(ui.vpn) {
+        if (ui.vpn != VpnState.ON) return@LaunchedEffect
+        track("connected")
+        // Xiaomi, Samsung, Huawei… stop background VPNs: once per version, explain how to keep it on.
+        if (!demo && ui.engine && dialog.isEmpty() && shop.remnawave.user.vpn.BatteryGuard.shouldHint(context, ui.version)) {
+            shop.remnawave.user.vpn.BatteryGuard.markShown(context, ui.version)
+            dialog = "battery"
+        }
+    }
     LaunchedEffect(token, lang, unlocked) {
         if (demo) return@LaunchedEffect
         if (token.isNotBlank() && unlocked) refresh()
@@ -867,7 +875,8 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 dialog = ""; notice(if (name.isBlank()) t("vpn_server_auto") else name); restartEngine()
             }
             if (dialog == "split") SplitDialog(layout, ::t, onClose = { dialog = ""; restartEngine() })
-            if (dialog != "server" && dialog != "split") ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
+            if (dialog == "battery") BatteryDialog(layout, ::t, onClose = { dialog = "" })
+            if (dialog != "server" && dialog != "split" && dialog != "battery") ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
                 when {
                     kind == "redeem" -> { val code = dialogText.trim().uppercase(); work {
                         ShopApi(base, token, lang).post("/api/me/gifts/redeem", JSONObject().put("code", code))
@@ -921,6 +930,32 @@ private fun ServerDialog(layout: AppLayout, t: (String) -> String, onClose: () -
             }
         },
         confirmButton = { TextButton(onClick = onClose) { Text(t("done"), color = theme.accent) } })
+}
+
+/** «VPN отключается в фоне»: on Xiaomi/Samsung/Huawei… firmware, how to keep the tunnel on. */
+@Composable
+private fun BatteryDialog(layout: AppLayout, t: (String) -> String, onClose: () -> Unit) {
+    val theme = layout.theme
+    val context = LocalContext.current
+    val guard = shop.remnawave.user.vpn.BatteryGuard
+    val vendorScreens = remember { guard.vendorIntents(context) }
+    AlertDialog(onDismissRequest = onClose, containerColor = theme.surface, titleContentColor = theme.text, textContentColor = theme.text,
+        title = { Text(t("battery_title")) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(t("battery_body").replace("{vendor}", android.os.Build.MANUFACTURER.replaceFirstChar { it.uppercase() }))
+                ActionButton(LayoutButton("battery", t("battery_open"), "refresh", "", "primary", "power", "any"), theme) {
+                    guard.open(context, guard.batteryIntents(context)); onClose()
+                }
+                if (vendorScreens.isNotEmpty()) ActionButton(LayoutButton("autostart", t("battery_autostart"), "refresh", "", "secondary", "rocket", "any"), theme) {
+                    if (!guard.open(context, vendorScreens)) guard.open(context, guard.batteryIntents(context)); onClose()
+                }
+                ActionButton(LayoutButton("guide", t("battery_guide"), "refresh", "", "secondary", "globe", "any"), theme) {
+                    guard.open(context, listOf(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(guard.GUIDE + guard.vendor())))); onClose()
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(t("later"), color = theme.accent) } })
 }
 
 /** «Что работает без VPN»: apps and Russian sites that bypass the embedded VPN. */
