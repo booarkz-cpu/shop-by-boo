@@ -525,7 +525,7 @@ async def main():
             await asyncio.gather(runtime_task, return_exceptions=True)
     from . import bot_workspace  # Registers account commands on the shared router.
     bot = Bot(settings.bot_token)
-    dp = Dispatcher()
+    dp = Dispatcher(storage=fsm_storage())
     dp.include_router(router)
     dp.include_router(bot_workspace.router)
 
@@ -541,4 +541,20 @@ async def main():
         runtime_task.cancel()
         await asyncio.gather(runtime_task, return_exceptions=True)
         await bot.session.close()
+def fsm_storage():
+    """aiogram FSM state in Redis: survives a bot restart and is shared if the bot is moved to another host.
+    Without Redis (local runs, tests) the in-memory storage is used."""
+    from aiogram.fsm.storage.memory import MemoryStorage
+    if not settings.redis_url:
+        return MemoryStorage()
+    try:
+        from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
+        return RedisStorage.from_url(settings.redis_url, connection_kwargs=settings.redis_connection_kwargs(),
+                                     key_builder=DefaultKeyBuilder(prefix="corgi_fsm", with_bot_id=True),
+                                     state_ttl=86400, data_ttl=86400)
+    except Exception as exc:  # noqa: BLE001 — the bot must start even if Redis is misconfigured
+        logger.warning("Redis FSM storage unavailable, using memory: %s", exc)
+        return MemoryStorage()
+
+
 if __name__=="__main__": asyncio.run(main())
