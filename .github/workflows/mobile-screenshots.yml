@@ -260,6 +260,7 @@ jobs:
             cp screenshots/mobile/android-vpn.png screenshots/mobile/android-vpn-on.png screenshots/mobile/android-locations.png \
                screenshots/mobile/android-settings.png screenshots/mobile/ios-vpn.png screenshots/mobile/ios-subscription.png \
                screenshots/mobile/android-admin-*.png screenshots/mobile/ios-admin-*.png docs/assets/screens/ 2>/dev/null || true
+            cp screenshots/admin_panel/features/*.png docs/assets/screens/ 2>/dev/null || true
             for section in dashboard nodes apps fraud backups support referrals; do
               for f in screenshots/admin_panel/*_"$section".png; do [ -f "$f" ] && cp "$f" "docs/assets/screens/admin-$section.png"; done
             done
