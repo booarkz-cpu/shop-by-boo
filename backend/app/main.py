@@ -113,6 +113,10 @@ from .node_health import router as node_health_router
 app.include_router(node_health_router)
 from .bonus_days import router as bonus_days_router
 app.include_router(bonus_days_router)
+from .promo_generator import router as promo_generator_router
+app.include_router(promo_generator_router)
+from .telegram_backup import router as telegram_backup_router
+app.include_router(telegram_backup_router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
@@ -599,6 +603,8 @@ async def start_backup_scheduler():
     _track_task(restore_check_scheduler())
     from .node_health import node_monitor_scheduler
     _track_task(node_monitor_scheduler())
+    from .telegram_backup import telegram_backup_scheduler
+    _track_task(telegram_backup_scheduler())
 
 @app.get("/health/live")
 async def health_live():

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1610**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1614**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -159,6 +159,7 @@
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
 | [admin/src/growth.tsx](../admin/src/growth.tsx) | Админ-панель |
+| [admin/src/growthTools.tsx](../admin/src/growthTools.tsx) | Админ-панель |
 | [admin/src/history-import.tsx](../admin/src/history-import.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
@@ -389,6 +390,7 @@
 | [backend/app/plugins.py](../backend/app/plugins.py) | API, бот и worker |
 | [backend/app/production_api.py](../backend/app/production_api.py) | API, бот и worker |
 | [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
+| [backend/app/promo_generator.py](../backend/app/promo_generator.py) | API, бот и worker |
 | [backend/app/provisioner.py](../backend/app/provisioner.py) | API, бот и worker |
 | [backend/app/push.py](../backend/app/push.py) | API, бот и worker |
 | [backend/app/push_campaigns.py](../backend/app/push_campaigns.py) | API, бот и worker |
@@ -418,6 +420,7 @@
 | [backend/app/support_topology.py](../backend/app/support_topology.py) | API, бот и worker |
 | [backend/app/surveys.py](../backend/app/surveys.py) | API, бот и worker |
 | [backend/app/tariff_api.py](../backend/app/tariff_api.py) | API, бот и worker |
+| [backend/app/telegram_backup.py](../backend/app/telegram_backup.py) | API, бот и worker |
 | [backend/app/telegram_stars.py](../backend/app/telegram_stars.py) | API, бот и worker |
 | [backend/app/torrent_detection.py](../backend/app/torrent_detection.py) | API, бот и worker |
 | [backend/app/totp.py](../backend/app/totp.py) | API, бот и worker |
@@ -1513,6 +1516,7 @@
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |
 | [tests/test_postgres18.py](../tests/test_postgres18.py) | Проверки |
 | [tests/test_production_installer_v2016.py](../tests/test_production_installer_v2016.py) | Проверки |
+| [tests/test_promo_generator_and_tg_backup.py](../tests/test_promo_generator_and_tg_backup.py) | Проверки |
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
 | [tests/test_provider_metric_counters.py](../tests/test_provider_metric_counters.py) | Проверки |
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
