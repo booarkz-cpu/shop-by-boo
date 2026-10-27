@@ -166,7 +166,7 @@ enum CorgiAnalytics {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
-        request.setValue("CorgiLusi-iOS-User/3.1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("CorgiLusi-iOS-User/3.2.0", forHTTPHeaderField: "User-Agent")
         if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
         request.httpBody = try? JSONSerialization.data(withJSONObject: ["install_id": installId, "platform": "ios", "app_version": version, "events": batch])
         URLSession.shared.dataTask(with: request) { data, _, _ in
@@ -265,7 +265,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(lang, forHTTPHeaderField: "Accept-Language")
-        request.setValue("CorgiLusi-iOS-User/3.1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("CorgiLusi-iOS-User/3.2.0", forHTTPHeaderField: "User-Agent")
         // Historical compatibility marker: CorgiLusi-iOS-User/2.9.0
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
 
