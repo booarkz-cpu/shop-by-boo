@@ -92,19 +92,50 @@ async def test_events_and_funnel(db):
     await db.commit()
     stored = (await db.execute(select(AppEvent.install_hash).distinct())).scalars().all()
     assert len(stored) == 2 and all(len(h) == 64 and "install-" not in h for h in stored), "only a keyed hash is stored"
-    db.add(Payment(user_id=1, plan_id=1, provider="sandbox", order_id="o1", amount=Decimal("100"), currency="RUB", status="paid",
-                   idempotency_key="k1", created_at=NOW))
-    await db.commit()
     data = await growth.summary(db, 30, now=NOW + timedelta(hours=1))
-    funnel = {f["step"]: f["count"] for f in data["funnel"]}
-    assert funnel == {"install": 2, "sign_in": 1, "connect_tap": 1, "checkout_start": 1, "paid": 1}
+    funnel = {f["step"]: f["count"] for f in data["funnel"]["steps"]}
+    assert funnel == {"install": 2, "sign_in": 1, "plan": 0, "paid": 0, "connected": 0}, \
+        "the anonymous checkout never signed in: the funnel counts steps in order"
     assert data["active_installs"] == 2 and data["platforms"] == {"android": 1, "ios": 1}
     screens = {s["screen"]: s for s in data["screens"]}
     assert screens["premium"]["to_checkout"] == 100.0 and screens["vpn"]["to_checkout"] == 0.0
     ios = await growth.summary(db, 30, "ios", now=NOW + timedelta(hours=1))
-    assert {f["step"]: f["count"] for f in ios["funnel"]}["install"] == 1
+    assert ios["funnel"]["cohort"] == 1
     old = await growth.summary(db, 1, now=NOW + timedelta(days=3))
     assert old["active_installs"] == 0
+
+
+def pay(uid, at, status="paid", n=1):
+    return Payment(user_id=uid, plan_id=1, provider="sandbox", order_id=f"o{uid}-{n}", amount=Decimal("100"), currency="RUB",
+                   status=status, idempotency_key=f"k{uid}-{n}", created_at=at, paid_at=at)
+
+
+@pytest.mark.asyncio
+async def test_funnel_follows_each_installation_in_order(db):
+    from app.app_funnel import funnel
+
+    t = NOW
+    install = lambda n, user, *steps: [growth.record_events(db, events(f"install-00000000{n:02d}", "android", (e, "")), user, t + timedelta(minutes=m))
+                                       for e, m in steps]
+    for coro in [*install(1, None, ("install", 0)),                                    # left after installing
+                 *install(2, 1, ("install", 0), ("sign_in", 2)),                         # signed in, no plan
+                 *install(3, 5, ("install", 0), ("sign_in", 1), ("plan_select", 3)),     # chose a plan, did not pay
+                 *install(4, 6, ("install", 0), ("sign_in", 1), ("checkout_start", 4), ("connected", 30)),  # paid, connected
+                 *install(5, 3, ("plan_select", 1), ("install", 2), ("sign_in", 3))]:    # chose a plan before installing: no
+        await coro
+    db.add_all([pay(6, t + timedelta(minutes=10)), pay(5, t - timedelta(days=1)), pay(1, t + timedelta(minutes=5), status="pending")])
+    await db.commit()
+    data = await funnel(db, 30, now=t + timedelta(hours=1))
+    steps = {s["step"]: s for s in data["steps"]}
+    assert data["cohort"] == 5
+    assert [steps[k]["count"] for k in ("install", "sign_in", "plan", "paid", "connected")] == [5, 4, 2, 1, 1]
+    assert steps["sign_in"]["drop_off"] == 20.0 and steps["plan"]["from_previous"] == 50.0
+    assert steps["paid"]["of_installs"] == 20.0 and steps["paid"]["median_minutes"] == 10.0
+    assert steps["connected"]["median_minutes"] == 30.0
+    assert data["biggest_drop"] in ("plan", "paid"), "50% leave at both; the earlier step is named"
+    assert data["biggest_drop"] == "plan"
+    empty = await funnel(db, 30, "ios", now=t + timedelta(hours=1))
+    assert empty["cohort"] == 0 and empty["biggest_drop"] is None
 
 
 @pytest.mark.asyncio

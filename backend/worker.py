@@ -4,7 +4,7 @@ from app import main
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from datetime import datetime, timedelta
-from app.models import BackupJob, Payment, WorkerState, Job, TrialGrant, User, Subscription, Plan, ProvisioningOperation
+from app.models import BackupJob, Payment, WorkerState, Job, TrialGrant, User, Subscription, Plan
 from redis.asyncio import Redis
 
 logger=logging.getLogger("vpnshop.worker")
@@ -166,6 +166,7 @@ async def main_worker():
     from app.account_merge import account_merge_cleanup_scheduler
     from app.push import push_scheduler
     from app.fiscal import fiscal_scheduler
+    from app.push_campaigns import campaign_scheduler
     from app.plugins import plugin_scheduler
     from app.network_intel import network_intel_scheduler
     from app.mail_domain import mail_domain_scheduler
@@ -188,6 +189,7 @@ async def main_worker():
         account_merge_cleanup_scheduler(),
         push_scheduler(),
         fiscal_scheduler(),
+        campaign_scheduler(),
         plugin_scheduler(),
         network_intel_scheduler(),
         mail_domain_scheduler(),
