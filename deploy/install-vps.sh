@@ -533,7 +533,7 @@ if [[ -w /proc/sys/vm/overcommit_memory ]]; then
   fi
 fi
 log "Собираю production-образы с актуальными базовыми образами..."
-docker compose build --pull --no-cache
+bash scripts/compose-build.sh fresh
 if ! docker compose up -d; then
   docker compose ps >&2 || true
   docker compose logs --tail=180 backend worker admin miniapp cabinet >&2 || true

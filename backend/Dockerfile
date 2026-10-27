@@ -17,14 +17,18 @@ RUN set -eux; \
     apt-get purge -y --auto-remove gnupg; \
     rm -rf /var/lib/apt/lists/*; \
     pg_dump --version | grep -q "PostgreSQL) ${PG_CLIENT_MAJOR}\."
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /app
 RUN addgroup --system --gid 10001 app && adduser --system --uid 10001 --ingroup app app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# The pip download cache lives in a BuildKit cache mount: rebuilds (also --no-cache ones) reuse the
+# wheels, and the image itself carries no cache.
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 COPY alembic.ini ./alembic.ini
 COPY alembic ./alembic
 COPY app ./app
+# Bytecode compiled at build time: the read-only containers start without compiling.
+RUN python -m compileall -q app
 COPY worker.py ./worker.py
 COPY scripts/staging-e2e.sh ./staging-e2e.sh
 COPY entrypoint.sh ./entrypoint.sh
