@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1599**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1603**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -340,6 +340,7 @@
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
 | [backend/app/content_branding_api.py](../backend/app/content_branding_api.py) | API, бот и worker |
 | [backend/app/content_publishing.py](../backend/app/content_publishing.py) | API, бот и worker |
+| [backend/app/customer_api.py](../backend/app/customer_api.py) | API, бот и worker |
 | [backend/app/customer_ops_api.py](../backend/app/customer_ops_api.py) | API, бот и worker |
 | [backend/app/customer_passkeys.py](../backend/app/customer_passkeys.py) | API, бот и worker |
 | [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
@@ -401,6 +402,7 @@
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
+| [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
 | [backend/app/security.py](../backend/app/security.py) | API, бот и worker |
 | [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
 | [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
@@ -1427,6 +1429,7 @@
 | [support-pro/tests/test_security_audit.py](../support-pro/tests/test_security_audit.py) | Support Pro |
 | [support-pro/tests/test_shop_bridge.py](../support-pro/tests/test_shop_bridge.py) | Support Pro |
 | [terraform/corgi/main.tf](../terraform/corgi/main.tf) | Корень проекта |
+| [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
 | [tests/main_source.py](../tests/main_source.py) | Проверки |
@@ -1511,6 +1514,7 @@
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
+| [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |
 | [tests/test_remnawave_contract.py](../tests/test_remnawave_contract.py) | Проверки |
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
