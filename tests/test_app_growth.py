@@ -71,6 +71,11 @@ async def test_campaign_creates_one_notification_per_recipient(db):
     assert all(n.push_fanout_at is None for n in notes), "the push worker fans them out"
     with pytest.raises(HTTPException):
         await growth.send_campaign(db, growth.CampaignIn(segment="all", title=" ", body="x"), "admin", NOW)
+    with pytest.raises(HTTPException) as twice:
+        await growth.send_campaign(db, payload, "admin@example.test", NOW + timedelta(minutes=1))
+    assert twice.value.status_code == 409, "a second click does not message everyone again"
+    later = await growth.send_campaign(db, payload, "admin@example.test", NOW + timedelta(minutes=growth.REPEAT_GUARD_MINUTES + 1))
+    assert later.recipients == 2
 
 
 def events(install="install-0000000001", platform="android", *items):

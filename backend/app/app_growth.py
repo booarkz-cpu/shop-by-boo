@@ -101,11 +101,19 @@ class CampaignPreviewIn(BaseModel):
     days: int = Field(default=3, ge=1, le=90)
 
 
+REPEAT_GUARD_MINUTES = 10  # a second click on «Отправить» does not message everyone twice
+
+
 async def send_campaign(db: AsyncSession, payload: CampaignIn, actor: str, now: datetime | None = None) -> PushCampaign:
     now = now or datetime.utcnow()
     title, body = " ".join(payload.title.split()), payload.body.strip()
     if not title or not body:
         raise HTTPException(422, "Заголовок и текст обязательны")
+    twin = (await db.execute(select(PushCampaign.id).where(
+        PushCampaign.title == title, PushCampaign.body == body, PushCampaign.segment == payload.segment,
+        PushCampaign.created_at >= now - timedelta(minutes=REPEAT_GUARD_MINUTES)).limit(1))).scalar_one_or_none()
+    if twin:
+        raise HTTPException(409, "Такая рассылка уже отправлена несколько минут назад")
     users = await segment_users(db, payload.segment, payload.days, now)
     campaign = PushCampaign(title=title, body=body, segment=payload.segment, days=payload.days, status="sending",
                             recipients=len(users), with_push=await _with_push(db, users), created_by=actor[:320], created_at=now)
@@ -157,8 +165,9 @@ async def create_campaign(payload: CampaignIn, db: AsyncSession = Depends(get_db
 # ------------------------------------------------------------------ expiry reminders
 
 async def enqueue_expiry_notifications(db: AsyncSession, now: datetime | None = None) -> int:
-    from . import main as shop
     """One «подписка заканчивается» notification per subscription and expiry date."""
+    from . import main as shop
+
     now=now or datetime.utcnow()
     until=now+timedelta(days=settings.notification_expiry_days)
     rows=(await db.execute(select(Subscription).join(User,User.id==Subscription.user_id).where(
