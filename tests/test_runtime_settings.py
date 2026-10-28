@@ -42,7 +42,7 @@ def test_every_configuration_field_has_one_explicit_runtime_classification():
     assert hot.isdisjoint(workflows)
     assert deployment.isdisjoint(workflows)
     assert hot | deployment | workflows == set(Settings.model_fields)
-    assert len(hot) == 104  # v28.35.0: three settings of the AI support assistant and five of Freekassa
+    assert len(hot) == 109  # v28.38.0: two settings of CloudPayments and three of Lava
 
 
 def test_integer_limits_are_checked_without_float_rounding():

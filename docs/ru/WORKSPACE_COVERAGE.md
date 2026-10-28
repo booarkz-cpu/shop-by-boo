@@ -117,7 +117,7 @@
 | Прогноз оттока, качество связи по операторам | Реализовано | v28.37.0, `churn.py`, `connection_quality.py`; оператор передаёт только Android |
 | P&L с расходами на инфраструктуру, оптовые заказы реселлеров | Реализовано | v28.37.0, `pnl.py`, `reseller_orders.py`. [Модуль](../modules/pnl.md) |
 | Хосты и сквады Remnawave из админки магазина | Реализовано частично | v28.37.0, `panel_admin.py`: просмотр, включение хостов, массовые операции сквадов; полный редактор — в панели Remnawave |
-| Дополнительные кассы (Antilopay, Aurapay, Cashera, CloudPayments, Lava, MulenPay, Pal24, Tribute, WATA, Anore и др.) | Не реализовано | Нужны договор и тестовые ключи для каждой; очередь касс и выбор способа оплаты готовы их принять |
+| Дополнительные кассы (Antilopay, Aurapay, Cashera, CloudPayments, Lava, MulenPay, Pal24, Tribute, WATA, Anore и др.) | Реализовано частично | v28.38.0: CloudPayments и Lava (`payments_extra.py`, тесты на моках). Остальные — следующими выпусками; боевая проверка требует договора и ключей |
 
 ### Перенесено из remnawave-subscription-middleware (v28.38.0)
 

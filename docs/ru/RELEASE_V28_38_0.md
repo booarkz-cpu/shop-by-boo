@@ -28,6 +28,10 @@
 - Трафик по дням и серверам в карточке клиента, кабинете, Mini App и приложениях.
 - Пул WireGuard / AmneziaWG и ключи подключения с QR; команда бота `/keys`.
 
+**Кассы**
+
+- CloudPayments и Lava (карты, СБП): уведомление принимается только с правильной подписью и после повторной проверки статуса через API кассы; обе встают в очередь касс и способы оплаты. Ключи — в «Настройках» или `.env` (`CLOUDPAYMENTS_*`, `LAVA_*`), подробно — [оплата](../modules/billing_and_taxes.md#cloudpayments-и-lava-v2838).
+
 **Серверы и эксплуатация**
 
 - Полный редактор хостов (адрес, порт, инбаунд, SNI, Host, путь, тег) и Internal Squads (название, инбаунды).
@@ -45,6 +49,6 @@ bash /opt/vpn-shop/scripts/backup.sh
 sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.38.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
-Миграция `0081_subscription_proxy` только создаёт новые таблицы — обновление без простоя работает. Новый необязательный ключ `.env`: `SUB_PROXY_DOMAINS` (домены зеркала подписки для Caddy). Остальное включается в админке и выключено по умолчанию. Для сессий, срока с первого подключения и журнала изменений нужен вебхук панели и токен API с доступом к `connections` и `bandwidth-stats`.
+Миграция `0081_subscription_proxy` только создаёт новые таблицы — обновление без простоя работает. Новые необязательные ключи `.env`: `SUB_PROXY_DOMAINS` (домены зеркала подписки для Caddy), `CLOUDPAYMENTS_PUBLIC_ID`, `CLOUDPAYMENTS_API_SECRET`, `LAVA_SHOP_ID`, `LAVA_SECRET_KEY`, `LAVA_WEBHOOK_SECRET`. Остальное включается в админке и выключено по умолчанию. Для сессий, срока с первого подключения и журнала изменений нужен вебхук панели и токен API с доступом к `connections` и `bandwidth-stats`.
 
 Документация на английском и украинском: [docs/en/NEW_IN_V28_38.md](../en/NEW_IN_V28_38.md), [docs/uk/NEW_IN_V28_38.md](../uk/NEW_IN_V28_38.md).

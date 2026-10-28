@@ -311,7 +311,9 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
 def _agent_configured(provider: str) -> bool:
     keys = {"yookassa": ("yookassa_shop_id", "yookassa_secret_key"), "platega": ("platega_merchant_id", "platega_secret"),
             "rollypay": ("rollypay_api_key", "rollypay_signing_secret"), "cryptobot": ("cryptobot_token",),
-            "freekassa": ("freekassa_shop_id", "freekassa_secret1", "freekassa_secret2", "freekassa_api_key")}.get(provider, ())
+            "freekassa": ("freekassa_shop_id", "freekassa_secret1", "freekassa_secret2", "freekassa_api_key"),
+            "cloudpayments": ("cloudpayments_public_id", "cloudpayments_api_secret"),
+            "lava": ("lava_shop_id", "lava_secret_key", "lava_webhook_secret")}.get(provider, ())
     return bool(keys) and all(getattr(settings, k, "") for k in keys)
 
 

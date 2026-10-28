@@ -750,10 +750,12 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/standby/heartbeat` | Heartbeat |
 | `GET` | `/api/tariff-constructors` | Public Constructors |
 | `GET` | `/api/v3/status` | V3 Status |
+| `POST` | `/api/webhooks/cloudpayments` | Cloudpayments Webhook |
 | `POST` | `/api/webhooks/crypto` | Crypto Webhook |
 | `POST` | `/api/webhooks/cryptobot` | Cryptobot Webhook |
 | `GET` | `/api/webhooks/freekassa` | Freekassa Webhook |
 | `POST` | `/api/webhooks/freekassa` | Freekassa Webhook |
+| `POST` | `/api/webhooks/lava` | Lava Webhook |
 | `POST` | `/api/webhooks/platega` | Platega Webhook |
 | `POST` | `/api/webhooks/remnawave` | Remnawave Webhook |
 | `POST` | `/api/webhooks/rollypay` | Rollypay Webhook |

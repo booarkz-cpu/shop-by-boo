@@ -27,3 +27,6 @@ Panel webhooks are forwarded to several receivers, each re-signed with its own s
 - A torrent events-per-hour threshold.
 - The iOS carrier taken from the ASN of the public IP.
 - Production security headers on the test stack for the ZAP scan.
+
+## Gateways
+CloudPayments and Lava (cards, SBP): a notification counts only with a valid signature and after the order is re-read through the gateway API; both join the gateway queue and payment methods. Keys: `CLOUDPAYMENTS_*`, `LAVA_*`.

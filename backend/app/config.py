@@ -176,6 +176,13 @@ class Settings(BaseSettings):
         default="168.119.157.136,168.119.60.227,178.154.197.79,51.250.54.238", alias="FREEKASSA_WEBHOOK_IP_ALLOWLIST"
     )
 
+    # ---------- CloudPayments and Lava (more gateways, payments_extra.py) ----------
+    cloudpayments_public_id: str = Field(default="", alias="CLOUDPAYMENTS_PUBLIC_ID")
+    cloudpayments_api_secret: str = Field(default="", alias="CLOUDPAYMENTS_API_SECRET")
+    lava_shop_id: str = Field(default="", alias="LAVA_SHOP_ID")
+    lava_secret_key: str = Field(default="", alias="LAVA_SECRET_KEY")
+    lava_webhook_secret: str = Field(default="", alias="LAVA_WEBHOOK_SECRET")
+
     # ---------- Stripe ----------
     stripe_secret_key: str = Field(
         default="", alias="STRIPE_SECRET_KEY"

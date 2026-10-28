@@ -45,7 +45,7 @@ def main() -> None:
     require("docs/ru/RUNTIME_SETTINGS_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
     require("docs/ru/RELEASE_V28_38_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md", DISTRIBUTION_TAG, SHOP_HEAD, "admission/attestation")
-    require("PROJECT_SPEC.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "104")
+    require("PROJECT_SPEC.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "109")
     require("PROJECT_STRUCTURE.md", DISTRIBUTION_TAG, SHOP_HEAD, "runtime_settings.py")
     require("docs/PROJECT_MAP_RU.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "Remna Dark", "history_import.py", "push.py", "widget.py", "email_channel.py", "plugins.py", "network_intel.py", "mail_domain.py", "node_terminal.py", "torrent_detection.py", "mail_receiver.py", "e2e_v2.py")
     require(".github/workflows/publish-release.yml", "package-distribution.py", "publish-github-release.cjs", "['ci.yml', 'docker.yml']")

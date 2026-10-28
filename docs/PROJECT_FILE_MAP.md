@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1793**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1795**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -173,7 +173,6 @@
 | [admin/src/mail-domain.tsx](../admin/src/mail-domain.tsx) | Админ-панель |
 | [admin/src/main.tsx](../admin/src/main.tsx) | Админ-панель |
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
-| [admin/src/middleware.tsx](../admin/src/middleware.tsx) | Админ-панель |
 | [admin/src/mobileLayout.tsx](../admin/src/mobileLayout.tsx) | Админ-панель |
 | [admin/src/network-intel.tsx](../admin/src/network-intel.tsx) | Админ-панель |
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
@@ -196,6 +195,7 @@
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
 | [admin/src/style.css](../admin/src/style.css) | Админ-панель |
 | [admin/src/subscription-commerce.tsx](../admin/src/subscription-commerce.tsx) | Админ-панель |
+| [admin/src/subscriptionTools.tsx](../admin/src/subscriptionTools.tsx) | Админ-панель |
 | [admin/src/support-desk.tsx](../admin/src/support-desk.tsx) | Админ-панель |
 | [admin/src/support-topology.tsx](../admin/src/support-topology.tsx) | Админ-панель |
 | [admin/src/surveys.tsx](../admin/src/surveys.tsx) | Админ-панель |
@@ -435,6 +435,7 @@
 | [backend/app/payment_policy.py](../backend/app/payment_policy.py) | API, бот и worker |
 | [backend/app/payments.py](../backend/app/payments.py) | API, бот и worker |
 | [backend/app/payments_api.py](../backend/app/payments_api.py) | API, бот и worker |
+| [backend/app/payments_extra.py](../backend/app/payments_extra.py) | API, бот и worker |
 | [backend/app/personal_offers.py](../backend/app/personal_offers.py) | API, бот и worker |
 | [backend/app/pinned_message.py](../backend/app/pinned_message.py) | API, бот и worker |
 | [backend/app/platform_api.py](../backend/app/platform_api.py) | API, бот и worker |
@@ -1685,6 +1686,7 @@
 | [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |
 | [tests/test_payment_load.py](../tests/test_payment_load.py) | Проверки |
 | [tests/test_payment_methods.py](../tests/test_payment_methods.py) | Проверки |
+| [tests/test_payments_extra.py](../tests/test_payments_extra.py) | Проверки |
 | [tests/test_personal_offers.py](../tests/test_personal_offers.py) | Проверки |
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |
