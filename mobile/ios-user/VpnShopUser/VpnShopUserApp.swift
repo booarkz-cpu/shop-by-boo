@@ -1,3 +1,4 @@
+import Network
 import AuthenticationServices
 import CryptoKit
 import DeviceCheck
@@ -166,7 +167,7 @@ enum CorgiAnalytics {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
-        request.setValue("CorgiLusi-iOS-User/3.1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("CorgiLusi-iOS-User/3.2.0", forHTTPHeaderField: "User-Agent")
         if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
         request.httpBody = try? JSONSerialization.data(withJSONObject: ["install_id": installId, "platform": "ios", "app_version": version, "events": batch])
         URLSession.shared.dataTask(with: request) { data, _, _ in
@@ -265,7 +266,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(lang, forHTTPHeaderField: "Accept-Language")
-        request.setValue("CorgiLusi-iOS-User/3.1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("CorgiLusi-iOS-User/3.2.0", forHTTPHeaderField: "User-Agent")
         // Historical compatibility marker: CorgiLusi-iOS-User/2.9.0
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
 
@@ -738,5 +739,93 @@ enum CorgiMirrors {
             return candidate
         }
         return nil
+    }
+}
+
+/// «Не работает VPN»: what the phone sees from its own network, sent to POST /api/me/diagnostics with the customer's
+/// words; the shop adds subscription, device limit and node state and answers with the likely cause.
+/// Blocking, call it off the main thread (inside `work`).
+enum CorgiDiagnostics {
+    private static func timed(_ name: String, _ target: String, _ block: () throws -> String) -> [String: Any] {
+        let started = Date()
+        do {
+            let detail = try block()
+            return ["name": name, "target": String(target.prefix(200)), "ok": true, "ms": Int(Date().timeIntervalSince(started) * 1000), "detail": String(detail.prefix(300))]
+        } catch {
+            return ["name": name, "target": String(target.prefix(200)), "ok": false, "detail": String(String(describing: error).prefix(300))]
+        }
+    }
+
+    private struct Failed: Error, CustomStringConvertible { let description: String }
+
+    private static func get(_ url: String, _ agent: String) throws -> String {
+        guard let target = URL(string: url) else { throw Failed(description: "bad url") }
+        var request = URLRequest(url: target, timeoutInterval: 8)
+        request.setValue(agent, forHTTPHeaderField: "User-Agent")
+        let done = DispatchSemaphore(value: 0)
+        var result: Result<String, Error> = .failure(Failed(description: "timeout"))
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error { result = .failure(error) }
+            else if let code = (response as? HTTPURLResponse)?.statusCode, !(200...299).contains(code) { result = .failure(Failed(description: "HTTP \(code)")) }
+            else { result = .success(String(data: data ?? Data(), encoding: .utf8) ?? "") }
+            done.signal()
+        }.resume()
+        _ = done.wait(timeout: .now() + 10)
+        return try result.get()
+    }
+
+    private static func resolveHost(_ host: String) throws -> String {
+        var hints = addrinfo(ai_flags: 0, ai_family: AF_UNSPEC, ai_socktype: SOCK_STREAM, ai_protocol: 0, ai_addrlen: 0, ai_canonname: nil, ai_addr: nil, ai_next: nil)
+        var list: UnsafeMutablePointer<addrinfo>?
+        let status = getaddrinfo(host, nil, &hints, &list)
+        defer { if list != nil { freeaddrinfo(list) } }
+        if status != 0 { throw Failed(description: String(cString: gai_strerror(status))) }
+        return "ok"
+    }
+
+    private static func connect(_ host: String, _ port: Int) throws -> String {
+        guard let endpointPort = NWEndpoint.Port(rawValue: UInt16(port)) else { throw Failed(description: "bad port") }
+        let connection = NWConnection(host: NWEndpoint.Host(host), port: endpointPort, using: .tcp)
+        let done = DispatchSemaphore(value: 0)
+        var outcome: String?
+        connection.stateUpdateHandler = { state in
+            switch state {
+            case .ready: outcome = "tcp"; done.signal()
+            case .failed(let error), .waiting(let error): if outcome == nil { outcome = "!\(error)" }; done.signal()
+            default: break
+            }
+        }
+        connection.start(queue: .global())
+        _ = done.wait(timeout: .now() + 5)
+        connection.cancel()
+        guard let outcome, !outcome.hasPrefix("!") else { throw Failed(description: outcome.map { String($0.dropFirst()) } ?? "timeout") }
+        return outcome
+    }
+
+    /// host:port of every server (vless/vmess: vnext, trojan/shadowsocks: servers).
+    private static func endpoints(_ body: String) -> [(String, Int)] {
+        var seen = Set<String>(); var out: [(String, Int)] = []
+        for server in CorgiXray.parseAll(body) {
+            let settings = server.outbound["settings"] as? [String: Any] ?? [:]
+            let first = ((settings["vnext"] ?? settings["servers"]) as? [[String: Any]])?.first ?? [:]
+            guard let host = first["address"] as? String, let port = first["port"] as? Int, !host.isEmpty, (1...65535).contains(port) else { continue }
+            if seen.insert("\(host):\(port)").inserted { out.append((host, port)) }
+            if out.count >= 12 { break }
+        }
+        return out
+    }
+
+    static func run(base: String, subscription: String) -> [[String: Any]] {
+        var checks: [[String: Any]] = []
+        let origin = CorgiMirrors.resolve(base)
+        let host = URL(string: origin)?.host ?? ""
+        checks.append(timed("dns", host) { try resolveHost(host) })
+        checks.append(timed("api", "\(origin)/health/live") { _ = try get("\(origin)/health/live", "CorgiLusi-iOS-User/3.2.0"); return "ok" })
+        var body = ""
+        checks.append(timed("subscription", "") { body = try get(subscription, "v2rayNG/1.10.0 CorgiLusi"); return "\(CorgiXray.parseAll(body).count) серверов" })
+        for (address, port) in body.isEmpty ? [] : endpoints(body) {
+            checks.append(timed("server", "\(address):\(port)") { try connect(address, port) })
+        }
+        return checks
     }
 }

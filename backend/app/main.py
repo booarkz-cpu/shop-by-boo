@@ -109,24 +109,12 @@ from .push_campaigns import router as push_campaigns_router
 app.include_router(push_campaigns_router)
 from .auto_update_api import router as auto_update_router
 app.include_router(auto_update_router)
-from .node_health import router as node_health_router
-app.include_router(node_health_router)
-from .bonus_days import router as bonus_days_router
-app.include_router(bonus_days_router)
-from .promo_generator import router as promo_generator_router
-app.include_router(promo_generator_router)
-from .telegram_backup import router as telegram_backup_router
-app.include_router(telegram_backup_router)
-from .anti_sharing import router as anti_sharing_router
-app.include_router(anti_sharing_router)
-from .support_ai import router as support_ai_router
-app.include_router(support_ai_router)
-from .admin_web_ticket import router as admin_web_ticket_router
-app.include_router(admin_web_ticket_router)
-from .mobile_mirrors import router as mobile_mirrors_router
-app.include_router(mobile_mirrors_router)
-from .account_sync import router as account_sync_router
-app.include_router(account_sync_router)
+# v28.35–36 modules, each with its own APIRouter (same order as before: route matching is unchanged).
+import importlib as _importlib
+for _module in ("node_health", "bonus_days", "promo_generator", "telegram_backup", "anti_sharing", "support_ai", "admin_web_ticket",
+                "economics", "block_monitor", "provider_report", "mobile_mirrors", "account_sync", "diagnostics",
+                "hot_standby", "node_autoscale"):
+    app.include_router(_importlib.import_module(f".{_module}", __package__).router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
@@ -216,6 +204,10 @@ RATE_LIMITS = {
     "/api/me/servers": 30,
     # Long-poll from every open cabinet, Mini App and app; customers behind one carrier NAT share an IP.
     "/api/me/sync": 300,
+    "/api/probe/report": 30,
+    "/api/me/source": 10,
+    "/api/me/diagnostics": 5,
+    "/api/probe/targets": 30,
     "/api/tariff-constructors": 60,
     "/api/agent/heartbeat": 120,
     "/api/agent/observations": 60,

@@ -120,6 +120,12 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     for u in (await db.execute(select(User).where(User.wallet_balance < 0, User.deleted_at.is_(None)).order_by(User.id).limit(20))).scalars():
         out.append(Problem(f"wallet_debt:{u.id}", f"Отрицательный баланс клиента №{u.id}",
                            f"Баланс {u.wallet_balance}: возвращённое пополнение уже потрачено. Клиенты → №{u.id}: ограничьте доступ или договоритесь о погашении.", "warning"))
+    from .block_monitor import problems as block_problems
+    for key, title, detail in await block_problems(db):
+        out.append(Problem(key, title, detail, "critical"))
+    from .hot_standby import problems as standby_problems
+    for key, title, detail, severity in await standby_problems(db, now):
+        out.append(Problem(key, title, detail, severity))
     backup = await db.scalar(select(BackupJob).order_by(BackupJob.id.desc()).limit(1))
     if backup and backup.status == "failed" and backup.created_at >= day:
         out.append(Problem(f"backup:{backup.id}", "Резервная копия не создана", (backup.error or "ошибка")[:300] + ". Безопасность → Резервные копии."))
@@ -224,6 +230,9 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
           else "Секрет задан, но событий от панели ещё не было: проверьте WEBHOOK_URL и WEBHOOK_SECRET_HEADER в панели.", "recommended")
     configured = [p for p in PAYMENT_AGENTS if _agent_configured(p)]
     check("payments", "Платёжные агенты", configured, "Задайте ключи хотя бы одного агента: YooKassa, Platega, RollyPay, CryptoBot или Freekassa (модуль 07).")
+    check("reserve_payments", "Резервная касса", len(configured) >= 2,
+          "Сейчас касса одна: при её сбое оплаты встанут. Добавьте ключи второй (RollyPay, Platega, Freekassa или CryptoBot) — "
+          "заказы перейдут в неё сами; порядок — «Платёжные агенты → Очередь касс».", "recommended")
     check("plans", "Тарифы в продаже", await db.scalar(select(Plan.id).where(Plan.enabled.is_(True)).limit(1)), "Создайте и включите тариф (модуль 06).")
     backup = await db.scalar(select(BackupJob).where(BackupJob.status.in_(("completed", "done", "succeeded", "ok"))).order_by(BackupJob.id.desc()).limit(1))
     check("backup", "Резервная копия за сутки", backup and (backup.finished_at or backup.created_at) >= now - timedelta(days=1),
@@ -236,6 +245,29 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
           "Магазин раз в неделю сам восстанавливает последнюю копию во временную базу; запустить вручную — Безопасность → Резервные копии → «Проверить восстановление».",
           "recommended")
     check("alerts", "Оповещения о сбоях", target["telegram"] or target["email"], "Укажите ALERT_TELEGRAM_CHAT_ID (или ADMIN_TELEGRAM_ID) либо ALERT_EMAIL.", "recommended")
+    from . import mobile_mirrors, telegram_backup
+    tg_backup = await telegram_backup.load(db)
+    check("telegram_backup", "Ежедневная копия базы в Telegram", tg_backup.get("enabled") and tg_backup.get("chat_id"),
+          "Резервные копии → «Копия базы в Telegram»: закрытый канал с ботом и пароль шифрования. Копия вне сервера переживёт его потерю.",
+          "recommended")
+    mirrors = await mobile_mirrors.load(db)
+    check("api_mirrors", "Резервный адрес API для приложений", settings.api_domains()[1:] or mirrors.get("mirrors"),
+          "Купите второй домен на этот сервер и впишите его в API_MIRROR_DOMAINS (.env): приложения запомнят его заранее и перейдут сами, "
+          "если основной домен заблокируют (Приложения → Резервные адреса API).", "recommended")
+    from .hot_standby import CONFIG_KEY as STANDBY_KEY, _load as standby_load, replication as standby_replication
+    standby = await standby_load(db, STANDBY_KEY, {})
+    try:
+        replicas = [r for r in (await standby_replication(db))["replicas"] if r["state"] == "streaming"]
+    except Exception:  # noqa: BLE001 — a managed database may hide pg_stat_replication
+        await db.rollback()
+        replicas = []
+    check("hot_standby", "Горячий резерв базы", standby.get("enabled") and replicas,
+          "Второй сервер с потоковой копией базы: при потере основного данные не теряются, переключение — одной командой "
+          "(Резервные копии → Горячий резерв, bash scripts/hot-standby.sh).", "recommended")
+    from .support_ai import faq as support_faq
+    faq_items = await support_faq(db)  # the knowledge base and the published FAQ page
+    check("support_ai", "База знаний для ИИ-черновиков", len(faq_items) >= 5,
+          "Поддержка → «База знаний ИИ-ассистента»: добавьте хотя бы 5 частых вопросов с ответами — черновики станут точнее.", "recommended")
     required = [c for c in checks if c["level"] == "required"]
     return {"ready": all(c["ok"] for c in required), "agents": configured, "checks": checks}
 

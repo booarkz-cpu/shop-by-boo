@@ -219,6 +219,11 @@ class RemnawaveClient:
 
     async def list_internal_squads(self):
         return await self._request("GET","/api/internal-squads")
+    async def squad_add_all_users(self,squad_uuid:str):
+        """Every user joins the Internal Squad (its inbounds appear in their subscriptions); the panel runs it as a job."""
+        return await self._request("POST",f"/api/internal-squads/{squad_uuid}/bulk-actions/add-users")
+    async def squad_remove_all_users(self,squad_uuid:str):
+        return await self._request("DELETE",f"/api/internal-squads/{squad_uuid}/bulk-actions/remove-users")
 
     async def hwid_devices(self,user_id:int|str)->list[dict]:
         """Devices (HWID) the panel has seen for this user; empty when the panel's HWID limit is off."""
@@ -236,6 +241,12 @@ class RemnawaveClient:
 
     async def restart_all_nodes(self):
         return await self._request("POST","/api/nodes/actions/restart-all")
+
+    async def create_node(self,payload:dict):
+        return await self._request("POST","/api/nodes",json=payload)
+
+    async def delete_node(self,node_uuid:str):
+        return await self._request("DELETE",f"/api/nodes/{node_uuid}")
 
     async def list_nodes(self,start=0,size=25):
         return await self._request("GET","/api/nodes",

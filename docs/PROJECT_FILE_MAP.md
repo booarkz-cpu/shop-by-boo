@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.35.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.36.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1685**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1716**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -138,6 +138,7 @@
 | [admin/src/appGrowth.tsx](../admin/src/appGrowth.tsx) | Админ-панель |
 | [admin/src/autoUpdate.tsx](../admin/src/autoUpdate.tsx) | Админ-панель |
 | [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
+| [admin/src/blockMonitor.tsx](../admin/src/blockMonitor.tsx) | Админ-панель |
 | [admin/src/botBanners.tsx](../admin/src/botBanners.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
 | [admin/src/components/preferences-menu.tsx](../admin/src/components/preferences-menu.tsx) | Админ-панель |
@@ -156,12 +157,14 @@
 | [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
 | [admin/src/documents.tsx](../admin/src/documents.tsx) | Админ-панель |
+| [admin/src/economics.tsx](../admin/src/economics.tsx) | Админ-панель |
 | [admin/src/fiscal.tsx](../admin/src/fiscal.tsx) | Админ-панель |
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
 | [admin/src/growth.tsx](../admin/src/growth.tsx) | Админ-панель |
 | [admin/src/growthTools.tsx](../admin/src/growthTools.tsx) | Админ-панель |
 | [admin/src/history-import.tsx](../admin/src/history-import.tsx) | Админ-панель |
+| [admin/src/hotStandby.tsx](../admin/src/hotStandby.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
 | [admin/src/mail-domain.tsx](../admin/src/mail-domain.tsx) | Админ-панель |
@@ -170,11 +173,13 @@
 | [admin/src/mobileLayout.tsx](../admin/src/mobileLayout.tsx) | Админ-панель |
 | [admin/src/network-intel.tsx](../admin/src/network-intel.tsx) | Админ-панель |
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
+| [admin/src/nodeAutoscale.tsx](../admin/src/nodeAutoscale.tsx) | Админ-панель |
 | [admin/src/nodeMonitor.tsx](../admin/src/nodeMonitor.tsx) | Админ-панель |
 | [admin/src/ops.tsx](../admin/src/ops.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
 | [admin/src/payment-admission.tsx](../admin/src/payment-admission.tsx) | Админ-панель |
+| [admin/src/paymentQueue.tsx](../admin/src/paymentQueue.tsx) | Админ-панель |
 | [admin/src/plans-editor.tsx](../admin/src/plans-editor.tsx) | Админ-панель |
 | [admin/src/plugins.tsx](../admin/src/plugins.tsx) | Админ-панель |
 | [admin/src/promo-audiences.tsx](../admin/src/promo-audiences.tsx) | Админ-панель |
@@ -278,6 +283,7 @@
 | [backend/alembic/versions/0076_growth.py](../backend/alembic/versions/0076_growth.py) | API, бот и worker |
 | [backend/alembic/versions/0077_app_growth.py](../backend/alembic/versions/0077_app_growth.py) | API, бот и worker |
 | [backend/alembic/versions/0078_campaign_ab.py](../backend/alembic/versions/0078_campaign_ab.py) | API, бот и worker |
+| [backend/alembic/versions/0079_acquisition.py](../backend/alembic/versions/0079_acquisition.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -339,6 +345,7 @@
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
+| [backend/app/block_monitor.py](../backend/app/block_monitor.py) | API, бот и worker |
 | [backend/app/bonus_days.py](../backend/app/bonus_days.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
@@ -353,7 +360,9 @@
 | [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
 | [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
+| [backend/app/diagnostics.py](../backend/app/diagnostics.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
+| [backend/app/economics.py](../backend/app/economics.py) | API, бот и worker |
 | [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
 | [backend/app/fiscal.py](../backend/app/fiscal.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
@@ -361,6 +370,7 @@
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
 | [backend/app/growth.py](../backend/app/growth.py) | API, бот и worker |
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
+| [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
 | [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
@@ -377,6 +387,7 @@
 | [backend/app/mobile_mirrors.py](../backend/app/mobile_mirrors.py) | API, бот и worker |
 | [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
+| [backend/app/node_autoscale.py](../backend/app/node_autoscale.py) | API, бот и worker |
 | [backend/app/node_health.py](../backend/app/node_health.py) | API, бот и worker |
 | [backend/app/node_terminal.py](../backend/app/node_terminal.py) | API, бот и worker |
 | [backend/app/notifications_status_api.py](../backend/app/notifications_status_api.py) | API, бот и worker |
@@ -396,6 +407,7 @@
 | [backend/app/production_api.py](../backend/app/production_api.py) | API, бот и worker |
 | [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
 | [backend/app/promo_generator.py](../backend/app/promo_generator.py) | API, бот и worker |
+| [backend/app/provider_report.py](../backend/app/provider_report.py) | API, бот и worker |
 | [backend/app/provisioner.py](../backend/app/provisioner.py) | API, бот и worker |
 | [backend/app/push.py](../backend/app/push.py) | API, бот и worker |
 | [backend/app/push_campaigns.py](../backend/app/push_campaigns.py) | API, бот и worker |
@@ -772,6 +784,7 @@
 | [docs/current-guides.json](../docs/current-guides.json) | Документация |
 | [docs/en/DEPLOYMENT.md](../docs/en/DEPLOYMENT.md) | Документация |
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
+| [docs/en/NEW_IN_V28_36.md](../docs/en/NEW_IN_V28_36.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -802,11 +815,15 @@
 | [docs/modules/auto_update_and_rollback.md](../docs/modules/auto_update_and_rollback.md) | Документация |
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
+| [docs/modules/hot_standby.md](../docs/modules/hot_standby.md) | Документация |
 | [docs/modules/i18n.md](../docs/modules/i18n.md) | Документация |
+| [docs/modules/in_app_diagnostics.md](../docs/modules/in_app_diagnostics.md) | Документация |
 | [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
+| [docs/modules/node_autoscale.md](../docs/modules/node_autoscale.md) | Документация |
 | [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
 | [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
+| [docs/modules/unit_economics.md](../docs/modules/unit_economics.md) | Документация |
 | [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
@@ -897,6 +914,7 @@
 | [docs/ru/RELEASE_V28_33_0.md](../docs/ru/RELEASE_V28_33_0.md) | Документация |
 | [docs/ru/RELEASE_V28_34_0.md](../docs/ru/RELEASE_V28_34_0.md) | Документация |
 | [docs/ru/RELEASE_V28_35_0.md](../docs/ru/RELEASE_V28_35_0.md) | Документация |
+| [docs/ru/RELEASE_V28_36_0.md](../docs/ru/RELEASE_V28_36_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
@@ -1007,6 +1025,7 @@
 | [docs/screenshots/miniapp-light-v28-10-0.png](../docs/screenshots/miniapp-light-v28-10-0.png) | Документация |
 | [docs/uk/DEPLOYMENT.md](../docs/uk/DEPLOYMENT.md) | Документация |
 | [docs/uk/DOCUMENTATION.md](../docs/uk/DOCUMENTATION.md) | Документация |
+| [docs/uk/NEW_IN_V28_36.md](../docs/uk/NEW_IN_V28_36.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1075,6 +1094,7 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/support/CorgiDiagnostics.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/support/CorgiDiagnostics.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt) | Мобильные приложения |
@@ -1343,6 +1363,7 @@
 | [scripts/auto_update.py](../scripts/auto_update.py) | Эксплуатация и релиз |
 | [scripts/backup.sh](../scripts/backup.sh) | Эксплуатация и релиз |
 | [scripts/backup_bundle.py](../scripts/backup_bundle.py) | Эксплуатация и релиз |
+| [scripts/block-probe.py](../scripts/block-probe.py) | Эксплуатация и релиз |
 | [scripts/bot-banners/fonts/OFL-RobotoCondensed.txt](../scripts/bot-banners/fonts/OFL-RobotoCondensed.txt) | Эксплуатация и релиз |
 | [scripts/bot-banners/fonts/roboto-condensed-cyrillic-800-normal.woff2](../scripts/bot-banners/fonts/roboto-condensed-cyrillic-800-normal.woff2) | Эксплуатация и релиз |
 | [scripts/bot-banners/fonts/roboto-condensed-latin-800-normal.woff2](../scripts/bot-banners/fonts/roboto-condensed-latin-800-normal.woff2) | Эксплуатация и релиз |
@@ -1367,6 +1388,7 @@
 | [scripts/generate-project-map.py](../scripts/generate-project-map.py) | Эксплуатация и релиз |
 | [scripts/github_release_fetch.py](../scripts/github_release_fetch.py) | Эксплуатация и релиз |
 | [scripts/harden-env.py](../scripts/harden-env.py) | Эксплуатация и релиз |
+| [scripts/hot-standby.sh](../scripts/hot-standby.sh) | Эксплуатация и релиз |
 | [scripts/install.sh](../scripts/install.sh) | Эксплуатация и релиз |
 | [scripts/integration-test.sh](../scripts/integration-test.sh) | Эксплуатация и релиз |
 | [scripts/ios/build-tunnel-frameworks.sh](../scripts/ios/build-tunnel-frameworks.sh) | Эксплуатация и релиз |
@@ -1391,6 +1413,7 @@
 | [scripts/setup-auto-deploy.sh](../scripts/setup-auto-deploy.sh) | Эксплуатация и релиз |
 | [scripts/sign-plugin.py](../scripts/sign-plugin.py) | Эксплуатация и релиз |
 | [scripts/staging-e2e.sh](../scripts/staging-e2e.sh) | Эксплуатация и релиз |
+| [scripts/standby-agent.py](../scripts/standby-agent.py) | Эксплуатация и релиз |
 | [scripts/static_audit.py](../scripts/static_audit.py) | Эксплуатация и релиз |
 | [scripts/store/render.py](../scripts/store/render.py) | Эксплуатация и релиз |
 | [scripts/test-up.sh](../scripts/test-up.sh) | Эксплуатация и релиз |
@@ -1526,6 +1549,7 @@
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
 | [tests/test_behaviour_payments_v2.py](../tests/test_behaviour_payments_v2.py) | Проверки |
 | [tests/test_behaviour_store_and_webhooks.py](../tests/test_behaviour_store_and_webhooks.py) | Проверки |
+| [tests/test_block_monitor.py](../tests/test_block_monitor.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |
@@ -1541,10 +1565,12 @@
 | [tests/test_customer_passkeys.py](../tests/test_customer_passkeys.py) | Проверки |
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
 | [tests/test_dependency_locks.py](../tests/test_dependency_locks.py) | Проверки |
+| [tests/test_diagnostics.py](../tests/test_diagnostics.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
 | [tests/test_e2e_journeys.py](../tests/test_e2e_journeys.py) | Проверки |
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
+| [tests/test_economics.py](../tests/test_economics.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
 | [tests/test_fiscal.py](../tests/test_fiscal.py) | Проверки |
@@ -1553,6 +1579,7 @@
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
+| [tests/test_hot_standby.py](../tests/test_hot_standby.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
@@ -1568,10 +1595,12 @@
 | [tests/test_mobile_layout.py](../tests/test_mobile_layout.py) | Проверки |
 | [tests/test_mobile_mirrors.py](../tests/test_mobile_mirrors.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
+| [tests/test_money_recovery.py](../tests/test_money_recovery.py) | Проверки |
 | [tests/test_money_review.py](../tests/test_money_review.py) | Проверки |
 | [tests/test_multiple_subscriptions.py](../tests/test_multiple_subscriptions.py) | Проверки |
 | [tests/test_native_passkeys.py](../tests/test_native_passkeys.py) | Проверки |
 | [tests/test_network_intel.py](../tests/test_network_intel.py) | Проверки |
+| [tests/test_node_autoscale.py](../tests/test_node_autoscale.py) | Проверки |
 | [tests/test_node_cache.py](../tests/test_node_cache.py) | Проверки |
 | [tests/test_node_monitor.py](../tests/test_node_monitor.py) | Проверки |
 | [tests/test_node_terminal.py](../tests/test_node_terminal.py) | Проверки |
@@ -1579,6 +1608,7 @@
 | [tests/test_ops_alerts.py](../tests/test_ops_alerts.py) | Проверки |
 | [tests/test_ops_weekly.py](../tests/test_ops_weekly.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
+| [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |
 | [tests/test_payment_load.py](../tests/test_payment_load.py) | Проверки |
 | [tests/test_personal_offers.py](../tests/test_personal_offers.py) | Проверки |
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
@@ -1588,6 +1618,7 @@
 | [tests/test_promo_generator_and_tg_backup.py](../tests/test_promo_generator_and_tg_backup.py) | Проверки |
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
 | [tests/test_provider_metric_counters.py](../tests/test_provider_metric_counters.py) | Проверки |
+| [tests/test_provider_report.py](../tests/test_provider_report.py) | Проверки |
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_push_campaigns.py](../tests/test_push_campaigns.py) | Проверки |
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |

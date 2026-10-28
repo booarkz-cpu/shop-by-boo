@@ -263,6 +263,8 @@ async def start(message:Message):
         return
     parts=(message.text or "").split(maxsplit=1)
     incoming=parts[1].strip().split()[0] if len(parts)>1 else ""
+    # A payload may combine parts with «__»: ref_<code>__src_<source> (referral and ad source in one link).
+    ref_part=next((p for p in incoming.split("__") if p.lower().startswith("ref_")),"")
 
     # /start is also the canonical Telegram-to-shop binding point. Without this,
     # a user can interact with the bot but remain invisible to broadcasts and
@@ -288,12 +290,15 @@ async def start(message:Message):
                 )
                 db.add(user)
                 await db.commit()
-            if incoming.lower().startswith("ref_") and not user.referred_by_id:
+            from .economics import remember_source, source_from_start
+            if await remember_source(db, user, source_from_start(incoming)):
+                await db.commit()
+            if ref_part and not user.referred_by_id:
                 from .referrals import bind_referrer
                 from fastapi import HTTPException
                 user=(await db.execute(select(User).where(User.id==user.id).with_for_update())).scalar_one()
                 try:
-                    await bind_referrer(db,user,incoming[4:])
+                    await bind_referrer(db,user,ref_part[4:])
                     await db.commit()
                 except HTTPException:
                     await db.rollback()

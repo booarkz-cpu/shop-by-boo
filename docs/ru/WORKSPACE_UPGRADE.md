@@ -1,4 +1,4 @@
-> Актуальная инструкция для дистрибутива v28.35.0. Runtime/API `21.5.1`. Head магазина `0078_campaign_ab`, Support Pro `0008`/3.8.
+> Актуальная инструкция для дистрибутива v28.36.0. Runtime/API `21.5.1`. Head магазина `0079_acquisition`, Support Pro `0008`/3.8.
 
 # Обновление существующего магазина
 
@@ -30,7 +30,7 @@ CLI создаёт зашифрованный bundle обеих баз, файл
 
 ```bash
 git fetch origin
-git switch --detach v28.35.0
+git switch --detach v28.36.0
 docker compose build backend worker bot admin cabinet miniapp support_migrate support_pro support_worker
 docker compose up -d db redis support_db support_redis
 docker compose run --rm backend alembic upgrade head
@@ -39,7 +39,7 @@ docker compose run --rm support_migrate
 
 Не используйте `git reset --hard`, удаление volumes или обнуление migration history. Если checkout конфликтует с собственными файлами, остановитесь и перенесите их в проверенную ветку; работающий production не должен быть местом для разрешения такого конфликта.
 
-Для standalone Support Pro примените его `python -m app.migrate` в существующем compose-проекте, сохранив его credentials/volumes. Ожидаются head магазина `0078_campaign_ab` и Support Pro `0008`. До запуска нового worker обязателен обновлённый API магазина.
+Для standalone Support Pro примените его `python -m app.migrate` в существующем compose-проекте, сохранив его credentials/volumes. Ожидаются head магазина `0079_acquisition` и Support Pro `0008`. До запуска нового worker обязателен обновлённый API магазина.
 
 ## Запуск и проверка
 
@@ -80,4 +80,4 @@ docker compose logs --tail=80 support_worker
 
 Миграции применяются всей цепочкой через `upgrade head`, не выборочным запуском файлов. Downgrade использованной истории/структуры блокируется. При ошибке исправление вперёд предпочтительно; полный возврат требует остановки writers и восстановления **обеих БД, файлов и соответствующих исходников**. Не обнуляйте защитные поля SQL-командами. [Восстановление](BACKUP_CURRENT.md) · [Production](PRODUCTION_CURRENT.md) · [Матрица](WORKSPACE_COVERAGE.md).
 
-Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.35.0](DISTRIBUTION_UPGRADE_CURRENT.md).
+Для установок со старым загрузчиком используйте [первое обновление дистрибутива v28.36.0](DISTRIBUTION_UPGRADE_CURRENT.md).

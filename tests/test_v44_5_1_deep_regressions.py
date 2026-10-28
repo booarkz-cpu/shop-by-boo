@@ -16,8 +16,10 @@ def test_provider_routing_requires_creation_credentials():
     start = MAIN.index('async def _payment_provider_order')
     end = MAIN.index('@app.post("/api/payments/create")', start)
     section = MAIN[start:end]
-    assert 'configured = {' in section
-    assert '"yookassa": bool(settings.yookassa_shop_id and settings.yookassa_secret_key and settings.yookassa_webhook_ip_allowlist)' in section
-    assert '"platega": bool(settings.platega_merchant_id and settings.platega_secret)' in section
-    assert '"rollypay": bool(settings.rollypay_api_key and settings.rollypay_signing_secret)' in section
+    # The credential map is shared with the admin gateway queue (provider_configured), the routing uses it.
+    assert 'configured = provider_configured()' in section
+    shared = MAIN[MAIN.index('def provider_configured'):start]
+    assert '"yookassa": bool(settings.yookassa_shop_id and settings.yookassa_secret_key and settings.yookassa_webhook_ip_allowlist)' in shared
+    assert '"platega": bool(settings.platega_merchant_id and settings.platega_secret)' in shared
+    assert '"rollypay": bool(settings.rollypay_api_key and settings.rollypay_signing_secret)' in shared
     assert 'and configured.get(x.provider, False)' in section

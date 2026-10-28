@@ -75,3 +75,31 @@ async def test_a_wait_without_changes_ends_with_304(signed_in, monkeypatch):
     monkeypatch.setattr(account_sync, "MAX_WAIT", 0)
     first = json.loads((await account_sync.my_sync(req(), db=signed_in)).body)
     assert (await account_sync.my_sync(req(), since=first["version"], wait=25, db=signed_in)).status_code == 304
+
+
+@pytest.mark.asyncio
+async def test_a_committed_change_wakes_the_waiting_client_at_once(signed_in, monkeypatch):
+    """No 3-second polling: the commit itself wakes the request and is published for the other processes."""
+    published = []
+
+    class Redis:
+        async def publish(self, channel, message):
+            published.append(channel)
+    monkeypatch.setattr(shop, "redis_client", Redis())
+    monkeypatch.setattr(account_sync, "POLL_SECONDS", 30)
+    db = signed_in
+    first = json.loads((await account_sync.my_sync(req(), db=db)).body)
+
+    async def top_up():
+        await asyncio.sleep(0.1)
+        user = await db.get(User, 1)
+        user.wallet_balance = 700
+        await db.commit()
+    task = asyncio.create_task(top_up())
+    started = asyncio.get_running_loop().time()
+    answer = await asyncio.wait_for(account_sync.my_sync(req(), since=first["version"], wait=25, db=db), timeout=10)
+    await task
+    await asyncio.sleep(0)
+    assert asyncio.get_running_loop().time() - started < 5, "woken by the commit, not by a poll"
+    assert json.loads(answer.body)["wallet"]["balance"] in {"700", "700.00"}
+    assert "sync:user:1" in published

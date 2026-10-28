@@ -52,6 +52,6 @@ def test_admin_apps_show_launch_readiness_and_alerts():
 def test_apps_are_version_3_1_0():
     for gradle in ("mobile/android-user/app/build.gradle.kts", "mobile/android-admin/app/build.gradle.kts"):
         text = (ROOT / gradle).read_text()
-        assert "versionCode = 3100" in text and 'versionName = "3.1.0"' in text
+        assert "versionCode = 3200" in text and 'versionName = "3.2.0"' in text
     for project in ("ios-user/VpnShopUser.xcodeproj", "ios-admin/VpnShopAdmin.xcodeproj"):
-        assert "MARKETING_VERSION = 3.1.0" in (ROOT / "mobile" / project / "project.pbxproj").read_text()
+        assert "MARKETING_VERSION = 3.2.0" in (ROOT / "mobile" / project / "project.pbxproj").read_text()

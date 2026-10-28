@@ -1,6 +1,6 @@
-# Каталог API — v28.35.0 / API v21.5.1
+# Каталог API — v28.36.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0078_campaign_ab`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0079_acquisition`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -21,6 +21,8 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/advertisements/{item_id}` | Delete Ad |
 | `PUT` | `/api/admin/advertisements/{item_id}` | Update Ad |
 | `GET` | `/api/admin/analytics` | Admin Analytics |
+| `GET` | `/api/admin/analytics/economics` | Economics |
+| `PUT` | `/api/admin/analytics/economics/spend` | Put Spend |
 | `GET` | `/api/admin/analytics/retention` | Retention |
 | `GET` | `/api/admin/anti-sharing` | Get Anti Sharing |
 | `PUT` | `/api/admin/anti-sharing` | Put Anti Sharing |
@@ -71,6 +73,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/backups/{backup_id}/restore/request` | Request Restore |
 | `POST` | `/api/admin/backups/{backup_id}/validate` | Validate Backup Archive |
 | `POST` | `/api/admin/backups/{backup_id}/verify` | Verify Backup |
+| `GET` | `/api/admin/block-monitor` | Get Monitor |
+| `PUT` | `/api/admin/block-monitor` | Put Monitor |
+| `POST` | `/api/admin/block-monitor/probes` | Add Probe |
+| `DELETE` | `/api/admin/block-monitor/probes/{probe_id}` | Delete Probe |
 | `GET` | `/api/admin/bot/banners` | List Banners |
 | `PUT` | `/api/admin/bot/banners-enabled` | Banners Enabled |
 | `DELETE` | `/api/admin/bot/banners/{key}` | Reset Banner |
@@ -189,6 +195,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/monitoring` | Admin Monitoring |
 | `GET` | `/api/admin/network/intel` | Admin Network Intel |
 | `POST` | `/api/admin/network/intel/refresh` | Admin Network Refresh |
+| `GET` | `/api/admin/nodes/autoscale` | Get Autoscale |
+| `PUT` | `/api/admin/nodes/autoscale` | Put Autoscale |
 | `GET` | `/api/admin/nodes/health` | Nodes Health |
 | `PUT` | `/api/admin/nodes/health/config` | Nodes Health Config |
 | `POST` | `/api/admin/nodes/update` | Update Nodes |
@@ -222,6 +230,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/payments/pricing/experiments` | List Price Experiments |
 | `PUT` | `/api/admin/payments/pricing/experiments/{key}` | Upsert Price Experiment |
 | `POST` | `/api/admin/payments/production-gate` | Production Payment Gate |
+| `GET` | `/api/admin/payments/providers-report` | Providers Report |
 | `POST` | `/api/admin/payments/reconcile` | Reconcile Payments |
 | `GET` | `/api/admin/payments/{payment_id}` | Admin Payment Detail |
 | `POST` | `/api/admin/payments/{payment_id}/refund-request` | Request Refund |
@@ -337,6 +346,9 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/staging-e2e/config` | Update Staging E2E Config |
 | `POST` | `/api/admin/staging-e2e/run` | Run Staging E2E |
 | `GET` | `/api/admin/staging-e2e/status` | Staging E2E Status |
+| `GET` | `/api/admin/standby` | Get Standby |
+| `PUT` | `/api/admin/standby` | Put Standby |
+| `POST` | `/api/admin/standby/token` | New Token |
 | `GET` | `/api/admin/status/components` | Admin Status Components |
 | `POST` | `/api/admin/status/components` | Admin Status Component Create |
 | `PUT` | `/api/admin/status/components/{component_id}` | Admin Status Component Update |
@@ -404,6 +416,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/v41/promotions` | V41 Promotions |
 | `GET` | `/api/admin/v41/providers` | V41 Providers |
 | `PUT` | `/api/admin/v41/providers/{provider}` | V41 Provider Update |
+| `POST` | `/api/admin/v41/providers/{provider}/reset` | V41 Provider Reset |
 | `GET` | `/api/admin/v41/referrals` | V41 Referrals |
 | `GET` | `/api/admin/v6/capacity` | Capacity |
 | `GET` | `/api/admin/v6/command-center` | Command Center |
@@ -484,6 +497,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/devices` | Register Device |
 | `POST` | `/api/me/devices/transfer` | Device Transfer |
 | `POST` | `/api/me/devices/{device_id}/revoke` | Revoke Device |
+| `POST` | `/api/me/diagnostics` | My Diagnostics |
 | `GET` | `/api/me/email` | Email Status |
 | `POST` | `/api/me/email/verification/request` | Request Verification |
 | `GET` | `/api/me/family` | My Family |
@@ -539,6 +553,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/security-center` | Security Center |
 | `POST` | `/api/me/security/revoke-all` | Revoke All User Sessions |
 | `GET` | `/api/me/servers` | My Servers |
+| `POST` | `/api/me/source` | My Source |
 | `GET` | `/api/me/stars-subscriptions` | My Stars Subscriptions |
 | `POST` | `/api/me/stars-subscriptions` | Create Stars Subscription |
 | `POST` | `/api/me/stars-subscriptions/{row_id}/cancel` | Cancel Stars Subscription |
@@ -590,6 +605,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/plugin/v1/payments/{payment_id}` | Plugin Payment |
 | `GET` | `/api/plugin/v1/users/{user_id}` | Plugin User |
 | `GET` | `/api/plugin/v1/users/{user_id}/subscriptions` | Plugin Subscriptions |
+| `POST` | `/api/probe/report` | Probe Report |
+| `GET` | `/api/probe/targets` | Probe Targets |
 | `GET` | `/api/promo/validate` | Validate Promo |
 | `GET` | `/api/public/app-login/methods` | Public Login Methods |
 | `GET` | `/api/public/apps` | Public Apps |
@@ -613,6 +630,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/reseller/branding` | Reseller Branding |
 | `GET` | `/api/reseller/catalog` | Reseller Catalog |
 | `GET` | `/api/reseller/stats` | Reseller Stats |
+| `POST` | `/api/standby/heartbeat` | Heartbeat |
 | `GET` | `/api/tariff-constructors` | Public Constructors |
 | `GET` | `/api/v3/status` | V3 Status |
 | `POST` | `/api/webhooks/crypto` | Crypto Webhook |

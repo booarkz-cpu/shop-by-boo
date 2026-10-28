@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.35.0. Runtime/API `21.5.1`, head магазина `0078_campaign_ab`, Support Pro `0008` / 3.8.
+> Актуальная инструкция дистрибутива v28.36.0. Runtime/API `21.5.1`, head магазина `0079_acquisition`, Support Pro `0008` / 3.8.
 
 # Мост Zendesk и Freshdesk (Support Pro 3.8)
 

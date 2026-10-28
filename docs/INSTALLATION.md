@@ -1,6 +1,6 @@
 # Установка: от нуля до продакшена
 
-Пошаговая инструкция для дистрибутива `v28.35.0` (runtime/API `21.5.1`, миграция магазина `0078_campaign_ab`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
+Пошаговая инструкция для дистрибутива `v28.36.0` (runtime/API `21.5.1`, миграция магазина `0079_acquisition`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
 
 ## Содержание
 
@@ -74,8 +74,8 @@ AAAA добавляйте только если IPv6 действительно 
 ## 4. Установка одной командой
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.35.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.35.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.36.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.36.0 bash /root/shop-install.sh
 ```
 
 Что делает установщик (`install.sh` → `deploy/install-vps.sh`):
@@ -90,7 +90,7 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.35.0/in
 Ручная установка без установщика:
 
 ```bash
-git clone --branch v28.35.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.36.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env            # заполните (раздел 5)
 python3 scripts/harden-env.py   # сгенерирует недостающие секреты (значения не печатаются)
@@ -135,11 +135,11 @@ docker compose up -d
 Миграции применяются сами: каждый запуск контейнера backend выполняет `alembic upgrade head` до старта API (`backend/entrypoint.sh`). Проверить текущую версию схемы:
 
 ```bash
-docker compose exec -T backend alembic current     # ожидается 0078_campaign_ab (head)
+docker compose exec -T backend alembic current     # ожидается 0079_acquisition (head)
 docker compose exec -T backend alembic heads
 ```
 
-Миграция `0078_campaign_ab` добавляет расписание и A/B-варианты push-кампаний. Её откат (`alembic downgrade 0077_app_growth`) удаляет только маркетинговую статистику; откаты миграций с деньгами и историей защищены и отказываются работать при наличии данных. Support Pro применяет свои миграции командой `python -m app.migrate` в своём контейнере (head `0008`).
+Миграция `0079_acquisition` добавляет источник привлечения клиента (`users.acquisition_source`), `0078_campaign_ab` — расписание и A/B-варианты push-кампаний. Откат маркетинговых миграций (`alembic downgrade 0077_app_growth`) удаляет только маркетинговую статистику; откаты миграций с деньгами и историей защищены и отказываются работать при наличии данных. Support Pro применяет свои миграции командой `python -m app.migrate` в своём контейнере (head `0008`).
 
 Переход на PostgreSQL 18 со старых установок выполняет `scripts/upgrade-postgres.sh` при обновлении: дамп старой базы, восстановление в PostgreSQL 18, сверка строк; старый том остаётся для отката.
 
@@ -171,7 +171,7 @@ bash scripts/doctor.sh                       # здоровье API и отве�
 
 ```bash
 bash /opt/vpn-shop/scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.35.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.36.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 Скрипт скачивает архив выпуска, сверяет SHA-256 и манифест, делает копию, собирает образы, применяет миграции и проверяет здоровье ([регламент](ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
@@ -235,6 +235,8 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.35.0 bash /opt/vpn-shop/scripts/u
 5. Ключ APNs (`.p8`) → `APNS_*` в `.env` магазина.
 
 Адрес магазина можно вшить в сборку (`corgi.shop_url` / `CORGI_SHOP_URL`), тогда клиенту не нужно его вводить.
+
+**Монитор блокировок.** Поставьте пробу на любой сервер в регионе клиентов (например, недорогой VPS в России): «Серверы → Монитор блокировок → Добавить пробу» покажет одну команду установки. Магазин сам заметит блокировку домена или ноды и среагирует ([anti_blocking.md](modules/anti_blocking.md#монитор-блокировок)).
 
 **Резервные адреса API (защита от блокировок).** В «Приложения → Резервные адреса API и сайты напрямую» укажите запасные домены API (каждый — ещё одна A-запись на этот же сервер; перечислите их в `API_MIRROR_DOMAINS` в `.env`, Caddy сам выпустит для них сертификаты) и, по желанию, ID GitHub Gist и токен GitHub с правом `gist`. Магазин подписывает список своим ключом и сам публикует его в Gist; приложения переходят на резервный адрес, если основной недоступен. Подробно — [anti_blocking.md](modules/anti_blocking.md).
 

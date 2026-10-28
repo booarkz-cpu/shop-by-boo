@@ -473,8 +473,21 @@ jobs:
         run: |
           set -o pipefail
           device=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
-          xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser -destination "id=$device" -configuration Debug CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/xcuitest.log" | tail -n 80 \
-            || { grep -E "error:|failed|XCTAssert" "$RUNNER_TEMP/xcuitest.log" | head -30 | sed 's/^/::error title=XCUITest::/'; exit 1; }
+          xcrun simctl boot "$device" || true
+          xcrun simctl bootstatus "$device" -b
+          run_tests() { xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser -destination "id=$device" -configuration Debug CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/xcuitest.log" | tail -n 80; }
+          if ! run_tests; then
+            # A busy macOS runner sometimes cannot launch the app at all («does not have a process ID», «Failed to launch»).
+            # Only that infrastructure failure gets one more try on a freshly erased simulator; a failed assertion does not.
+            if grep -qE "does not have a process ID|Failed to launch|Failed to get background assertion" "$RUNNER_TEMP/xcuitest.log" \
+               && ! grep -qE "XCTAssert" "$RUNNER_TEMP/xcuitest.log"; then
+              echo "::warning title=XCUITest::the simulator could not launch the app; retrying once"
+              xcrun simctl shutdown "$device" || true; xcrun simctl erase "$device"; xcrun simctl boot "$device"; xcrun simctl bootstatus "$device" -b
+              run_tests || { grep -E "error:|failed|XCTAssert" "$RUNNER_TEMP/xcuitest.log" | head -30 | sed 's/^/::error title=XCUITest::/'; exit 1; }
+            else
+              grep -E "error:|failed|XCTAssert" "$RUNNER_TEMP/xcuitest.log" | head -30 | sed 's/^/::error title=XCUITest::/'; exit 1
+            fi
+          fi
 
   ios:
     name: iOS • ${{ matrix.app }} PKCE build

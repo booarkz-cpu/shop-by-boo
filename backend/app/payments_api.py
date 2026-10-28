@@ -13,6 +13,17 @@ async def _advisory_lock(db: shop.AsyncSession, key: int) -> None:
     if bind is not None and bind.dialect.name == "postgresql":
         await db.execute(shop.sql_text("SELECT pg_advisory_xact_lock(:key)"), {"key": key})
 
+def provider_configured() -> dict[str, bool]:
+    """Which gateways have the credentials needed to create a payment (shared by checkout and the admin queue)."""
+    return {
+        "yookassa": bool(shop.settings.yookassa_shop_id and shop.settings.yookassa_secret_key and shop.settings.yookassa_webhook_ip_allowlist),
+        "platega": bool(shop.settings.platega_merchant_id and shop.settings.platega_secret),
+        "rollypay": bool(shop.settings.rollypay_api_key and shop.settings.rollypay_signing_secret),
+        "cryptobot": bool(shop.settings.cryptobot_token),
+        "freekassa": shop.FreekassaProvider.configured(),
+        "sandbox": shop.payments_sandbox_allowed(),
+    }
+
 def _checkout_provider(name: str):
     """One map for every routable gateway: a reserve gateway first in line (main one in cooldown) must work."""
     factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"sandbox":shop.SandboxProvider}
@@ -44,14 +55,7 @@ async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
     # operator could disable a provider in the admin panel and checkout would
     # still select it.  Empty credentials also caused a late failure after the
     # customer had already started checkout.
-    configured = {
-        "yookassa": bool(shop.settings.yookassa_shop_id and shop.settings.yookassa_secret_key and shop.settings.yookassa_webhook_ip_allowlist),
-        "platega": bool(shop.settings.platega_merchant_id and shop.settings.platega_secret),
-        "rollypay": bool(shop.settings.rollypay_api_key and shop.settings.rollypay_signing_secret),
-        "cryptobot": bool(shop.settings.cryptobot_token),
-        "freekassa": shop.FreekassaProvider.configured(),
-        "sandbox": shop.payments_sandbox_allowed(),
-    }
+    configured = provider_configured()
     enabled=[x.provider for x in rows
              if x.provider in names
              and x.enabled
@@ -970,7 +974,7 @@ async def freekassa_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depen
         raise
     return PlainTextResponse("YES")
 
-__all__ = ['_LOCK_RENEW_TASKS', '_SAFE_LOCK_MESSAGES', '_acquire_payment_side_effect_lock', '_acquire_redis_lock', '_acquire_user_fulfillment_lock', '_advisory_lock', '_confirm_and_fulfill_payment', '_external_refund', '_ip_allowed', '_lock_conflict', '_payment_provider_order', '_release_payment_side_effect_lock', '_renew_redis_lock', 'bind_provider_payment_id', 'create_payment', 'ensure_required_channel', 'finish_provider_event', 'fulfill', 'payment_by_provider', 'payment_by_provider_or_order', 'cryptobot_webhook', 'freekassa_webhook', 'platega_webhook', 'register_provider_event', 'release_promo_reservation', 'reserve_promo', 'rollypay_webhook', 'yookassa_webhook']
+__all__ = ['provider_configured', '_LOCK_RENEW_TASKS', '_SAFE_LOCK_MESSAGES', '_acquire_payment_side_effect_lock', '_acquire_redis_lock', '_acquire_user_fulfillment_lock', '_advisory_lock', '_confirm_and_fulfill_payment', '_external_refund', '_ip_allowed', '_lock_conflict', '_payment_provider_order', '_release_payment_side_effect_lock', '_renew_redis_lock', 'bind_provider_payment_id', 'create_payment', 'ensure_required_channel', 'finish_provider_event', 'fulfill', 'payment_by_provider', 'payment_by_provider_or_order', 'cryptobot_webhook', 'freekassa_webhook', 'platega_webhook', 'register_provider_event', 'release_promo_reservation', 'reserve_promo', 'rollypay_webhook', 'yookassa_webhook']
 # Imported before main finished (``from app import payments_api`` first)? Then main's star
 # import saw a half-loaded module; hand the names over now that they exist.
 shop.__dict__.update({_n: globals()[_n] for _n in __all__})
