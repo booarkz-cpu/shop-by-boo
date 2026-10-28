@@ -380,6 +380,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
     // The layout decides which sections exist; a push opens notifications, otherwise the VPN screen.
     var tab by remember { mutableStateOf(if (initialTab == "overview") "vpn" else initialTab) }
     var dialog by remember { mutableStateOf("") }
+    var pendingPlan by remember { mutableStateOf(0) }
     // A document opened from «Информация» or a «Открыть документ» button (GET /api/public/info-pages/{kind}).
     var openDoc by remember { mutableStateOf<JSONObject?>(null) }
     // Shop logo from «Android и iOS → логотип» (GET /api/public/apps), shown on sign-in and in the header.
@@ -586,10 +587,14 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         if (text.isBlank()) return
         context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
     }
-    fun pay(planId: Int) {
+    fun pay(planId: Int, method: String = "") {
+        val methods = data.config.optJSONArray("payment_methods") ?: JSONArray()
+        // With payment methods set up in the admin the customer picks СБП / card / crypto; one method is used at once.
+        if (method.isBlank() && methods.length() > 1) { pendingPlan = planId; dialog = "pay_method"; return }
+        val chosen = method.ifBlank { methods.optJSONObject(0)?.optString("key").orEmpty() }
         track("checkout_start")
         work {
-            val body = JSONObject().put("provider", providerOf(data.config))
+            val body = if (chosen.isNotBlank()) JSONObject().put("method", chosen) else JSONObject().put("provider", providerOf(data.config))
             if (planId > 0) body.put("plan_id", planId) else {
                 // A shop that sells only through the tariff constructor: its first enabled options.
                 val builders = ShopApi(base, token, lang).get("/api/tariff-constructors") as JSONArray
@@ -952,7 +957,10 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
             }
             if (dialog == "split") SplitDialog(layout, ::t, onClose = { dialog = ""; restartEngine() })
             if (dialog == "battery") BatteryDialog(layout, ::t, onClose = { dialog = "" })
-            if (dialog != "server" && dialog != "split" && dialog != "battery") ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
+            if (dialog == "pay_method") PayMethodDialog(layout, data.config.optJSONArray("payment_methods") ?: JSONArray(), ::t, onClose = { dialog = "" }) { key ->
+                dialog = ""; pay(pendingPlan, key)
+            }
+            if (dialog != "server" && dialog != "split" && dialog != "battery" && dialog != "pay_method") ShopDialog(dialog, layout, data, ::t, dialogText, dialogText2, { dialogText = it }, { dialogText2 = it }, onClose = { dialog = "" }) { kind ->
                 when {
                     kind == "redeem" -> { val code = dialogText.trim().uppercase(); work {
                         ShopApi(base, token, lang).post("/api/me/gifts/redeem", JSONObject().put("code", code))
@@ -1052,6 +1060,25 @@ private fun BatteryDialog(layout: AppLayout, t: (String) -> String, onClose: () 
                 }
                 ActionButton(LayoutButton("guide", t("battery_guide"), "refresh", "", "secondary", "globe", "any"), theme) {
                     guard.open(context, listOf(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(guard.GUIDE + guard.vendor())))); onClose()
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(t("later"), color = theme.accent) } })
+}
+
+/** «Способ оплаты»: СБП, карта, криптовалюта — only those with a working gateway right now (public config). */
+@Composable
+private fun PayMethodDialog(layout: AppLayout, methods: JSONArray, t: (String) -> String, onClose: () -> Unit, onPick: (String) -> Unit) {
+    val theme = layout.theme
+    AlertDialog(onDismissRequest = onClose, containerColor = theme.surface, titleContentColor = theme.text, textContentColor = theme.text,
+        title = { Text(t("pay_method_title")) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                for (index in 0 until methods.length()) {
+                    val row = methods.optJSONObject(index) ?: continue
+                    ActionButton(LayoutButton("pay_${row.optString("key")}", row.optString("title"), "refresh", "", if (index == 0) "primary" else "secondary", "wallet", "any"), theme) {
+                        onPick(row.optString("key"))
+                    }
                 }
             }
         },

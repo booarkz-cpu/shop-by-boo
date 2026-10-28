@@ -99,7 +99,8 @@ PY
   codesign --verify --deep --strict "$app"
   test -f "$app/embedded.mobileprovision"
   test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")" = 3.2.0
-  name="corgi_lusi_ios_${role}_2_15_0_signed.ipa"
+  version="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")"
+  name="corgi_lusi_ios_${role}_${version//./_}_signed.ipa"
   cp "$ipa" "$OUT/$name"
   (cd "$OUT" && shasum -a 256 "$name" > "$name.sha256")
 done

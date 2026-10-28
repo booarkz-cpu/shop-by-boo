@@ -29,7 +29,7 @@ def _checkout_provider(name: str):
     factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"sandbox":shop.SandboxProvider}
     return factories[name]()
 
-async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
+async def _payment_provider_order(db: shop.AsyncSession, requested: str|None, method: str|None=None):
     names=shop.routing_names(shop.payments_sandbox_allowed())
     # Provider health rows are lazily bootstrapped. Serialize that bootstrap so
     # concurrent first requests cannot race into a unique-constraint failure.
@@ -61,6 +61,14 @@ async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
              and x.enabled
              and configured.get(x.provider, False)
              and (not x.circuit_open_until or x.circuit_open_until <= now)]
+    if method:
+        # The customer chose СБП / card / crypto: that method's own chain (payment_methods.py), when routing is on.
+        from .payment_methods import load as load_routing, order_for
+        routing=await load_routing(db)
+        if routing["enabled"]:
+            enabled=order_for(routing, method, enabled)
+            if not enabled: raise shop.HTTPException(503,"Этот способ оплаты сейчас недоступен — выберите другой")
+            if requested not in enabled: requested=None
     if requested:
         if requested not in enabled: raise shop.HTTPException(503,"Выбранный платёжный провайдер отключён или временно недоступен")
         return [requested]+[x for x in enabled if x!=requested]
@@ -259,7 +267,10 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         # Idempotency lookup already happened above. The order lock below protects the
         # first-time intent creation from concurrent callers using the same key.
         requested_provider=payload.get("provider")
-        provider_order=await shop._payment_provider_order(db,requested_provider)
+        from .payment_methods import YOOKASSA_TYPES, load as load_routing
+        pay_method=str(payload.get("method") or "") or None
+        method_hint=YOOKASSA_TYPES.get(pay_method or "") if pay_method and (await load_routing(db))["enabled"] else None
+        provider_order=await shop._payment_provider_order(db,requested_provider,pay_method)
         if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
         provider_name=provider_order[0]
         provider=_checkout_provider(provider_name)
@@ -301,6 +312,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
                 back=shop._return_url(canonical_order_id,request=request)
                 meta={"order_id":canonical_order_id,"user_id":user.id,"email":user.email,"return_url":back,"cancel_url":back}
                 if candidate in {"stripe","paypal","crypto"}: result=await candidate_provider.create(final_amount,shop.settings.default_currency,f"VPN {plan.name}",meta)
+                elif candidate=="yookassa" and method_hint: result=await candidate_provider.create(final_amount,canonical_order_id,f"VPN {plan.name}",back,method=method_hint)
                 else: result=await candidate_provider.create(final_amount,canonical_order_id,f"VPN {plan.name}",back)
                 if not result.get("id"):
                     raise RuntimeError("Payment provider returned no payment ID")

@@ -192,6 +192,7 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/mobile/mirrors` | Put Mirrors |
 | `POST` | `/api/admin/mobile/mirrors/publish` | Publish Now |
 | `GET` | `/api/admin/mobile/ops` | Admin Mobile Ops |
+| `GET` | `/api/admin/mobile/panels` | Mobile Panels |
 | `GET` | `/api/admin/monitoring` | Admin Monitoring |
 | `GET` | `/api/admin/network/intel` | Admin Network Intel |
 | `POST` | `/api/admin/network/intel/refresh` | Admin Network Refresh |
@@ -226,6 +227,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/payments/chargebacks` | Admin Chargebacks |
 | `PATCH` | `/api/admin/payments/chargebacks/{chargeback_id}` | Update Chargeback |
 | `GET` | `/api/admin/payments/gift-cards` | List Gift Cards |
+| `GET` | `/api/admin/payments/methods` | Get Routing |
+| `PUT` | `/api/admin/payments/methods` | Put Routing |
 | `GET` | `/api/admin/payments/platform/capabilities` | Admin Payment Platform Capabilities |
 | `GET` | `/api/admin/payments/pricing/experiments` | List Price Experiments |
 | `PUT` | `/api/admin/payments/pricing/experiments/{key}` | Upsert Price Experiment |

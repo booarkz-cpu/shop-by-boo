@@ -80,10 +80,13 @@ async def wallet_topup(payload:dict, request:shop.Request, db:shop.AsyncSession=
             raise shop.HTTPException(409,"Idempotency-Key уже использован для другого платежа")
         return {"id":existing.provider_payment_id,"url":existing.checkout_url,"provider":existing.provider,"status":existing.status,"purpose":"topup"}
     await shop.ensure_required_channel(user)
-    provider_order=await shop._payment_provider_order(db,payload.get("provider"))
+    routed={"bank_card":"card","sbp":"sbp"}.get(method) or (str(payload.get("pay_method") or "") or None)
+    provider_order=await shop._payment_provider_order(db,payload.get("provider"),routed)
     if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
     candidate=provider_order[0]
-    provider={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"sandbox":shop.SandboxProvider()}[candidate]
+    # Every routable gateway (a reserve one may be first in line while the main one cools down).
+    from .payments_api import _checkout_provider
+    provider=_checkout_provider(candidate)
     order_id=f"topup-{user.id}-{shop.hashlib.sha256(idem.encode()).hexdigest()[:24]}"
     row=shop.Payment(user_id=user.id,plan_id=0,provider=candidate,order_id=order_id,amount=amount,original_amount=amount,discount_amount=shop.Decimal("0.00"),currency=shop.settings.default_currency,status="creating",fulfillment_status="pending",idempotency_key=idem,purpose="topup",bonus_days=0)
     db.add(row); await db.commit(); await db.refresh(row)

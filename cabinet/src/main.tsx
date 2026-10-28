@@ -227,6 +227,7 @@ function App() {
   const [pick, setPick] = useState<Record<number, Record<string, number>>>({});
   const [servers, setServers] = useState<any>();
   const [provider, setProvider] = useState("");
+  const [payMethod, setPayMethod] = useState("");
   const [promo, setPromo] = useState(new URLSearchParams(location.search).get("promo")||"");
   const [connection, setConnection] = useState<any>();
   const [platform, setPlatform] = useState<string>("android");
@@ -289,6 +290,7 @@ function App() {
       const conf = await req("/api/public/config");
       setCfg(conf);
       setProvider(pickProvider(conf.payment_providers));
+      setPayMethod((conf.payment_methods || [])[0]?.key || "");
       if (!localStorage.getItem("rw_lang")) setLang(detectLang(conf.default_language));
       document.title = conf.app_name ? `${conf.app_name} · ${t("Личный кабинет")}` : t("Личный кабинет");
     } catch {
@@ -487,7 +489,7 @@ function App() {
     if(!gift)body={...body,...(profileTarget==="new"?{new_subscription:true}:selected?{subscription_id:selected}:{})};
     const partner=new URLSearchParams(location.search).get("partner");
     if(partner)body={...body,reseller_slug:partner};
-    const fingerprint=JSON.stringify({body,wallet,gift,provider:wallet?"wallet":provider});
+    const fingerprint=JSON.stringify({body,wallet,gift,provider:wallet?"wallet":provider,method:payMethod});
     purchaseKeys.current[fingerprint]??=crypto.randomUUID();
     const key=purchaseKeys.current[fingerprint];
     setBusy(true);
@@ -509,7 +511,8 @@ function App() {
         const r = await req("/api/payments/create", {
           method: "POST",
           headers: {"Idempotency-Key": key},
-          body: JSON.stringify({...body, provider: provider || undefined}),
+          // With payment methods the shop picks the gateway of the chosen method (СБП, card, crypto) itself.
+          body: JSON.stringify(payMethod ? {...body, method: payMethod} : {...body, provider: provider || undefined}),
         });
         if (r.url) {
           const target=new URL(r.url,location.origin);
@@ -852,7 +855,7 @@ function App() {
 
                 {activeItem?.kind === "plans" && <ConsentGate request={req} force={needConsent} onAccepted={() => setNeedConsent(false)} />}
                 {activeItem?.kind === "plans" && (
-                  <Plans plans={plans} constructors={constructors} pick={pick} setPick={setPick} defaultPick={defaultPick} constructorTotal={constructorTotal} promo={promo} setPromo={setPromo} providers={cfg.payment_providers || []} provider={provider} setProvider={setProvider} profiles={profiles} profileTarget={profileTarget} setProfileTarget={setProfileTarget} busy={busy} currency={currency} buy={buy} buyWallet={buyWallet} buyConstructor={buyConstructor} offers={<PersonalOffers request={req} onSelect={setPromo}/>} />
+                  <Plans plans={plans} constructors={constructors} pick={pick} setPick={setPick} defaultPick={defaultPick} constructorTotal={constructorTotal} promo={promo} setPromo={setPromo} providers={cfg.payment_providers || []} methods={cfg.payment_methods || []} method={payMethod} setMethod={setPayMethod} provider={provider} setProvider={setProvider} profiles={profiles} profileTarget={profileTarget} setProfileTarget={setProfileTarget} busy={busy} currency={currency} buy={buy} buyWallet={buyWallet} buyConstructor={buyConstructor} offers={<PersonalOffers request={req} onSelect={setPromo}/>} />
                 )}
 
                 {activeItem?.kind === "plans" && <StarsSubscribe plans={plans} request={req} flash={flash} subscriptionId={profileTarget==="current"?dash?.subscription?.id:profileTarget==="new"?null:Number(profileTarget)||null} />}

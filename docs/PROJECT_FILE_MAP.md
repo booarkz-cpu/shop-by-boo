@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1716**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1721**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -179,6 +179,7 @@
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
 | [admin/src/payment-admission.tsx](../admin/src/payment-admission.tsx) | Админ-панель |
+| [admin/src/paymentMethods.tsx](../admin/src/paymentMethods.tsx) | Админ-панель |
 | [admin/src/paymentQueue.tsx](../admin/src/paymentQueue.tsx) | Админ-панель |
 | [admin/src/plans-editor.tsx](../admin/src/plans-editor.tsx) | Админ-панель |
 | [admin/src/plugins.tsx](../admin/src/plugins.tsx) | Админ-панель |
@@ -385,6 +386,7 @@
 | [backend/app/mobile_integrity.py](../backend/app/mobile_integrity.py) | API, бот и worker |
 | [backend/app/mobile_layout.py](../backend/app/mobile_layout.py) | API, бот и worker |
 | [backend/app/mobile_mirrors.py](../backend/app/mobile_mirrors.py) | API, бот и worker |
+| [backend/app/mobile_panels.py](../backend/app/mobile_panels.py) | API, бот и worker |
 | [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
 | [backend/app/node_autoscale.py](../backend/app/node_autoscale.py) | API, бот и worker |
@@ -396,6 +398,7 @@
 | [backend/app/ops_alerts.py](../backend/app/ops_alerts.py) | API, бот и worker |
 | [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
 | [backend/app/passkeys.py](../backend/app/passkeys.py) | API, бот и worker |
+| [backend/app/payment_methods.py](../backend/app/payment_methods.py) | API, бот и worker |
 | [backend/app/payment_platform.py](../backend/app/payment_platform.py) | API, бот и worker |
 | [backend/app/payment_platform_api.py](../backend/app/payment_platform_api.py) | API, бот и worker |
 | [backend/app/payment_policy.py](../backend/app/payment_policy.py) | API, бот и worker |
@@ -819,6 +822,7 @@
 | [docs/modules/i18n.md](../docs/modules/i18n.md) | Документация |
 | [docs/modules/in_app_diagnostics.md](../docs/modules/in_app_diagnostics.md) | Документация |
 | [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
+| [docs/modules/mobile_admin_panels.md](../docs/modules/mobile_admin_panels.md) | Документация |
 | [docs/modules/node_autoscale.md](../docs/modules/node_autoscale.md) | Документация |
 | [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
@@ -1610,6 +1614,7 @@
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
 | [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |
 | [tests/test_payment_load.py](../tests/test_payment_load.py) | Проверки |
+| [tests/test_payment_methods.py](../tests/test_payment_methods.py) | Проверки |
 | [tests/test_personal_offers.py](../tests/test_personal_offers.py) | Проверки |
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |

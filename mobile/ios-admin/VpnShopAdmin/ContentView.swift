@@ -36,6 +36,8 @@ struct AdminRootView: View {
     @State private var ops: [String: Any] = [:]
     @State private var nodeHealth: [String: Any] = [:]
     @State private var cashQueue: [[String: Any]] = []
+    @State private var panels: [[String: Any]] = []
+    @State private var pendingAction: [String: Any]?
     @State private var readiness: [String: Any] = [:]
     @State private var alerts: [String: Any] = [:]
 
@@ -166,7 +168,7 @@ struct AdminRootView: View {
     }
 
     private func clearLoaded() {
-        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; nodeHealth = [:]; cashQueue = []; readiness = [:]; alerts = [:]
+        overview = [:]; plans = []; payments = []; monitoring = [:]; platform = [:]; ops = [:]; nodeHealth = [:]; cashQueue = []; panels = []; readiness = [:]; alerts = [:]
         tickets = []; broadcasts = []; paymentDetail = [:]; logo = nil; reply = ""; broadcastText = ""
     }
 
@@ -367,6 +369,26 @@ struct AdminRootView: View {
                     }
                 }
             }
+            // Module panels (mobile_panels.py): rows and actions described by the shop itself.
+            ForEach(Array(panels.enumerated()), id: \.offset) { _, panel in
+                RemnaCard(title: jsonText(panel["title"])) {
+                    let rows = panel["rows"] as? [[String: Any]] ?? []
+                    ForEach(Array(rows.enumerated()), id: \.offset) { _, line in
+                        let tone: RemnaTone? = ["ok": .ok, "warn": .warn, "bad": .bad][jsonText(line["tone"])]
+                        RemnaRow(title: jsonText(line["label"]), detail: jsonText(line["value"]), tone: tone)
+                    }
+                    let actions = panel["actions"] as? [[String: Any]] ?? []
+                    ForEach(Array(actions.enumerated()), id: \.offset) { _, act in
+                        RemnaGhost(title: jsonText(act["label"])) {
+                            if jsonText(act["confirm"]).isEmpty { runPanelAction(act) } else { pendingAction = act }
+                        }.disabled(busy || AdminDemo.enabled)
+                    }
+                }
+            }
+            .alert(jsonText(pendingAction?["confirm"]), isPresented: Binding(get: { pendingAction != nil }, set: { if !$0 { pendingAction = nil } })) {
+                Button(jsonText(pendingAction?["label"])) { if let act = pendingAction { runPanelAction(act) }; pendingAction = nil }
+                Button(t("panel_cancel"), role: .cancel) { pendingAction = nil }
+            }
         case "panel":
             // Everything the native tabs do not cover lives in the web panel; the ticket is single-use and lives 60 s.
             RemnaCard(title: t("panel"), hint: t("panel_hint")) {
@@ -455,6 +477,17 @@ struct AdminRootView: View {
         }
     }
 
+    private func runPanelAction(_ act: [String: Any]) {
+        let method = jsonText(act["method"]), path = jsonText(act["path"])
+        // Only admin API paths; the shop checks the permission of every action as in the web admin.
+        guard path.hasPrefix("/api/admin/"), ["POST", "PUT", "DELETE"].contains(method) else { return }
+        let body = act["body"] as? [String: Any] ?? [:]
+        work {
+            _ = try ShopClient(base: base, token: token, lang: lang).call(method, path, body: method == "DELETE" ? nil : body)
+            DispatchQueue.main.async { notice = t("panel_done"); refresh() }
+        }
+    }
+
     private func refresh() {
         let refreshedFor = activeId
         work {
@@ -472,6 +505,8 @@ struct AdminRootView: View {
             // Node health appeared in v28.35: older shops simply show no node card.
             let nextNodeHealth = (try? api.call("GET", "/api/admin/nodes/health")) as? [String: Any] ?? [:]
             let nextCash = (try? api.call("GET", "/api/admin/v41/providers")) as? [[String: Any]] ?? []
+            // Module panels appeared in v28.37: older shops simply show none.
+            let nextPanels = ((try? api.call("GET", "/api/admin/mobile/panels")) as? [String: Any])?["panels"] as? [[String: Any]] ?? []
             let nextMarketing = try api.call("GET", "/api/admin/marketing") as? [String: Any] ?? [:]
             let nextBroadcasts = nextMarketing["broadcasts"] as? [[String: Any]] ?? []
             let nextLogo = logoImage(api, "/api/admin/apps")
@@ -486,6 +521,7 @@ struct AdminRootView: View {
                 ops = nextOps
                 nodeHealth = nextNodeHealth
                 cashQueue = nextCash
+                panels = nextPanels
                 readiness = nextReadiness
                 alerts = nextAlerts
                 tickets = nextTickets

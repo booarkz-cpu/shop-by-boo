@@ -109,7 +109,9 @@
     "cash_ready": "принимает",
     "cash_no_keys": "нет ключей",
     "cash_saved": "Очередь касс сохранена",
-    "cash_up": "Выше"
+    "cash_up": "Выше",
+    "panel_cancel": "Отмена",
+    "panel_done": "Готово"
   },
   "en": {
     "app_name": "VPN admin",
@@ -221,7 +223,9 @@
     "cash_ready": "accepting",
     "cash_no_keys": "no keys",
     "cash_saved": "Payment queue saved",
-    "cash_up": "Up"
+    "cash_up": "Up",
+    "panel_cancel": "Cancel",
+    "panel_done": "Done"
   },
   "uk": {
     "app_name": "Коргі Люсі Адмін",
@@ -333,6 +337,8 @@
     "cash_ready": "приймає",
     "cash_no_keys": "немає ключів",
     "cash_saved": "Чергу кас збережено",
-    "cash_up": "Вище"
+    "cash_up": "Вище",
+    "panel_cancel": "Скасувати",
+    "panel_done": "Готово"
   }
 }

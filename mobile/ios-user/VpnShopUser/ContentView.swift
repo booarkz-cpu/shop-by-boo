@@ -27,6 +27,7 @@ struct UserRootView: View {
     @State private var topupAmount = "300"
     @State private var familyCode = ""
     @State private var sheet = ""
+    @State private var payMethodAsk = false
     @State private var sheetText = ""
     @State private var sheetText2 = ""
     /// A document opened from «Информация» or a «Открыть документ» button.
@@ -69,6 +70,12 @@ struct UserRootView: View {
         .preferredColorScheme(.dark)
         .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
         .sheet(isPresented: Binding(get: { !sheet.isEmpty }, set: { if !$0 { sheet = "" } })) { sheetView }
+        .confirmationDialog(t("pay_method_title"), isPresented: $payMethodAsk, titleVisibility: .visible) {
+            ForEach(Array(payMethods().enumerated()), id: \.offset) { _, method in
+                Button(method.title) { buy(wallet: false, method: method.key) }
+            }
+            Button(t("later"), role: .cancel) {}
+        }
         .onOpenURL { url in
             if let order = paymentOrder(url) { checkPayment(order); return }
             guard let link = LoginLink.parse(url) else { return }
@@ -769,7 +776,9 @@ struct UserRootView: View {
         case "copy_subscription": copy(data.subscriptionUrl)
         case "show_qr": sheet = "qr"
         case "copy_id": copy(data.customerId)
-        case "buy": buy(wallet: false)
+        case "buy":
+            // With payment methods set up in the admin the customer picks СБП / card / crypto first.
+            if payMethods().count > 1 { payMethodAsk = true } else { buy(wallet: false, method: payMethods().first?.key ?? "") }
         case "pay_wallet": buy(wallet: true)
         case "trial": startTrial()
         case "topup": topUp()
@@ -1183,7 +1192,7 @@ struct UserRootView: View {
         }
     }
 
-    private func buy(wallet: Bool) {
+    private func buy(wallet: Bool, method: String = "") {
         track("checkout_start")
         let id = planId
         work {
@@ -1206,7 +1215,7 @@ struct UserRootView: View {
                 _ = try api.call("POST", "/api/me/wallet/spend", body: body, idempotency: UUID().uuidString)
                 DispatchQueue.main.async { notice = t("paid_wallet"); refresh() }
             } else {
-                body["provider"] = providerName()
+                if method.isEmpty { body["provider"] = providerName() } else { body["method"] = method }
                 let response = try api.call("POST", "/api/payments/create", body: body, idempotency: UUID().uuidString) as? [String: Any]
                 DispatchQueue.main.async {
                     notice = t("payment_created")
@@ -1224,6 +1233,13 @@ struct UserRootView: View {
         work {
             _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/trial", body: ["plan_id": id, "days": days])
             DispatchQueue.main.async { notice = t("trial_started"); refresh() }
+        }
+    }
+
+    private func payMethods() -> [(key: String, title: String)] {
+        (data.config["payment_methods"] as? [[String: Any]] ?? []).compactMap { row in
+            guard let key = row["key"] as? String, let title = row["title"] as? String else { return nil }
+            return (key: key, title: title)
         }
     }
 
