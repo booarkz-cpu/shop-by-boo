@@ -148,6 +148,8 @@ DEFINITIONS = (
     SettingDefinition("paritypay_shop_id", "paritypay", "ParityPay: ID кассы", "Заголовок X-ShopId (UUID кассы).", "string", "paritypay_shop_id", optional=True),
     SettingDefinition("paritypay_secret_key", "paritypay", "ParityPay: секретный ключ №1", "Заголовок X-SecretKey запросов к API; хранится зашифрованно.", "secret", "paritypay_secret_key", secret=True, optional=True),
     SettingDefinition("paritypay_callback_secret", "paritypay", "ParityPay: секретный ключ №2", "Проверка подписи уведомлений X-SIGNATURE; хранится зашифрованно.", "secret", "paritypay_callback_secret", secret=True, optional=True),
+    SettingDefinition("tribute_donate_link", "tribute", "Tribute: ссылка на донат", "Ссылка доната Tribute для пополнения кошелька (https://t.me/tribute/app?startapp=…).", "string", "tribute_donate_link", optional=True),
+    SettingDefinition("tribute_api_key", "tribute", "Tribute: API-ключ", "Проверка подписи уведомлений trbt-signature; хранится зашифрованно.", "secret", "tribute_api_key", secret=True, optional=True),
     SettingDefinition("stripe_api_url", "stripe", "Stripe API URL", "HTTPS endpoint Stripe.", "string", "stripe_api_url"),
     SettingDefinition("stripe_secret_key", "stripe", "Stripe secret key", "Секрет API Stripe.", "secret", "stripe_secret_key", secret=True, optional=True),
     SettingDefinition("stripe_webhook_secret", "stripe", "Stripe webhook secret", "Секрет подписи Stripe webhook.", "secret", "stripe_webhook_secret", secret=True, optional=True),

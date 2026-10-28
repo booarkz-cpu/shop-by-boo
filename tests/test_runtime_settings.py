@@ -42,7 +42,7 @@ def test_every_configuration_field_has_one_explicit_runtime_classification():
     assert hot.isdisjoint(workflows)
     assert deployment.isdisjoint(workflows)
     assert hot | deployment | workflows == set(Settings.model_fields)
-    assert len(hot) == 132  # v28.43.0: two settings of Cashera and three of ParityPay
+    assert len(hot) == 134  # v28.44.0: two settings of Tribute
 
 
 def test_integer_limits_are_checked_without_float_rounding():

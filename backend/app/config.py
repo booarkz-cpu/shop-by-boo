@@ -205,6 +205,8 @@ class Settings(BaseSettings):
     paritypay_shop_id: str = Field(default="", alias="PARITYPAY_SHOP_ID")
     paritypay_secret_key: str = Field(default="", alias="PARITYPAY_SECRET_KEY")
     paritypay_callback_secret: str = Field(default="", alias="PARITYPAY_CALLBACK_SECRET")
+    tribute_api_key: str = Field(default="", alias="TRIBUTE_API_KEY")
+    tribute_donate_link: str = Field(default="", alias="TRIBUTE_DONATE_LINK")
 
     # ---------- Stripe ----------
     stripe_secret_key: str = Field(

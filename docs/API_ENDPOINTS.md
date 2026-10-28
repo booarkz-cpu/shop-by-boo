@@ -1,4 +1,4 @@
-# Каталог API — v28.43.0 / API v21.5.1
+# Каталог API — v28.44.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0081_subscription_proxy`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -698,6 +698,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/wallet/spend` | Wallet Spend |
 | `POST` | `/api/me/wallet/stars-invoice` | Stars Invoice |
 | `POST` | `/api/me/wallet/topup` | Wallet Topup |
+| `GET` | `/api/me/wallet/tribute` | My Tribute Link |
 | `GET` | `/api/me/wg-config` | My Wg |
 | `GET` | `/api/me/wg-config/qr` | My Wg Qr |
 | `GET` | `/api/me/wg-configs` | My Wg List |
@@ -766,6 +767,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/webhooks/platega` | Platega Webhook |
 | `POST` | `/api/webhooks/remnawave` | Remnawave Webhook |
 | `POST` | `/api/webhooks/rollypay` | Rollypay Webhook |
+| `POST` | `/api/webhooks/tribute` | Tribute Webhook |
 | `POST` | `/api/webhooks/wata` | Wata Webhook |
 | `POST` | `/api/webhooks/yookassa` | Yookassa Webhook |
 | `GET` | `/health` | Health |

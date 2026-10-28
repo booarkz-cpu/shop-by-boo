@@ -51,5 +51,9 @@ async def workspace(message: Message):
             if not rows: lines.append("Платежей пока нет.")
     keys = list(PAGES) if command == "account" else [command]
     buttons = [[InlineKeyboardButton(text=TITLES[key], web_app=WebAppInfo(url=page_url(PAGES[key])))] for key in keys if page_url(PAGES[key])]
+    from .tribute import configured as tribute_ready
+    if command == "balance" and tribute_ready() and settings.tribute_donate_link.startswith("https://"):
+        # v28.44: a donation through Tribute tops up this wallet (the payer is matched by this Telegram account).
+        buttons.append([InlineKeyboardButton(text="💝 Пополнить донатом (Tribute)", url=settings.tribute_donate_link)])
     from .bot_banners import send_section
     await send_section(message, command if command in PAGES else "account", "\n".join(lines), InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None)

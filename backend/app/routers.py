@@ -1,6 +1,7 @@
 """Feature modules with their own APIRouter, included by main.py in this order (route matching follows it).
 A new module adds its name here; v28.35+ modules live in this list instead of growing main.py."""
 MODULES = (
+    "tribute",
     "node_health",
     "bonus_days",
     "promo_generator",

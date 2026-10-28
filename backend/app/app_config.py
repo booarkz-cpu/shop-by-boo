@@ -128,6 +128,12 @@ NAV_I18N = {
 }
 
 
+
+def _tribute() -> dict | None:
+    """v28.44: the Tribute donation link for the wallet, when the owner set it up (tribute.py)."""
+    from .tribute import configured
+    return {"url": settings.tribute_donate_link} if configured() else None
+
 def pick_lang(request: Request | None, viewer: dict | None) -> str:
     """Language of the response: ?lang=, then the Telegram user's language, then Russian."""
     raw = ""
@@ -490,7 +496,8 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
         "servers": {"categories": [c.model_dump() for c in overrides.servers.categories], "show_load": overrides.servers.show_load},
         "wallet": {"currency": currency, "amounts": overrides.wallet.amounts, "min": 50, "max": 100000, "methods": methods,
                    "stars": {"enabled": stars_ready, "rate": str(stars.rate), "min_stars": stars.min_stars,
-                             "subscriptions": stars_ready and stars.subscriptions}},
+                             "subscriptions": stars_ready and stars.subscriptions},
+                   "tribute": _tribute()},
         "referral": {"conditions": overrides.referral.conditions, "levels": levels, "withdraw_enabled": overrides.referral.withdraw_enabled,
                      "link_template": f"https://t.me/{settings.bot_username}?start=ref_{{code}}" if settings.bot_username else ""},
         "support": {"buttons": support_buttons, "ticket_form": overrides.support.ticket_form},
