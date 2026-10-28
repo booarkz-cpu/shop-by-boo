@@ -1,3 +1,12 @@
+# v28.44.0
+
+- Tribute (`tribute.py`): пополнение кошелька донатом в Telegram.
+  - Подпись `trbt-signature` — HMAC-SHA256 тела API-ключом.
+  - Клиент определяется по `telegram_user_id`.
+  - Зачисляются только `new_donation` и `recurrent_donation` в валюте магазина, каждый донат один раз.
+- Кнопка «Пополнить донатом в Telegram» в кошельке кабинета и Mini App. Ссылку отдают `GET /api/me/wallet/tribute`, конфигурация приложения и история кошелька.
+- Реестр настроек: 226 полей, 134 live.
+
 # v28.43.0
 
 - Кассы Cashera и ParityPay (карты, СБП) в `payments_extra.py`.

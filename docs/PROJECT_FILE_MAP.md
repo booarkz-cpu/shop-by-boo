@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.43.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.44.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1820**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1826**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -491,6 +491,7 @@
 | [backend/app/torrent_detection.py](../backend/app/torrent_detection.py) | API, бот и worker |
 | [backend/app/totp.py](../backend/app/totp.py) | API, бот и worker |
 | [backend/app/traffic_report.py](../backend/app/traffic_report.py) | API, бот и worker |
+| [backend/app/tribute.py](../backend/app/tribute.py) | API, бот и worker |
 | [backend/app/v3_api.py](../backend/app/v3_api.py) | API, бот и worker |
 | [backend/app/v6_api.py](../backend/app/v6_api.py) | API, бот и worker |
 | [backend/app/vpn_sessions.py](../backend/app/vpn_sessions.py) | API, бот и worker |
@@ -603,6 +604,7 @@
 | [cabinet/src/surveys.test.tsx](../cabinet/src/surveys.test.tsx) | Кабинет |
 | [cabinet/src/surveys.tsx](../cabinet/src/surveys.tsx) | Кабинет |
 | [cabinet/src/telegram.ts](../cabinet/src/telegram.ts) | Кабинет |
+| [cabinet/src/tribute.tsx](../cabinet/src/tribute.tsx) | Кабинет |
 | [cabinet/src/ui.tsx](../cabinet/src/ui.tsx) | Кабинет |
 | [cabinet/src/workspace.test.tsx](../cabinet/src/workspace.test.tsx) | Кабинет |
 | [cabinet/src/workspace.tsx](../cabinet/src/workspace.tsx) | Кабинет |
@@ -850,6 +852,7 @@
 | [docs/en/NEW_IN_V28_41.md](../docs/en/NEW_IN_V28_41.md) | Документация |
 | [docs/en/NEW_IN_V28_42.md](../docs/en/NEW_IN_V28_42.md) | Документация |
 | [docs/en/NEW_IN_V28_43.md](../docs/en/NEW_IN_V28_43.md) | Документация |
+| [docs/en/NEW_IN_V28_44.md](../docs/en/NEW_IN_V28_44.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -996,6 +999,7 @@
 | [docs/ru/RELEASE_V28_41_0.md](../docs/ru/RELEASE_V28_41_0.md) | Документация |
 | [docs/ru/RELEASE_V28_42_0.md](../docs/ru/RELEASE_V28_42_0.md) | Документация |
 | [docs/ru/RELEASE_V28_43_0.md](../docs/ru/RELEASE_V28_43_0.md) | Документация |
+| [docs/ru/RELEASE_V28_44_0.md](../docs/ru/RELEASE_V28_44_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
@@ -1114,6 +1118,7 @@
 | [docs/uk/NEW_IN_V28_41.md](../docs/uk/NEW_IN_V28_41.md) | Документация |
 | [docs/uk/NEW_IN_V28_42.md](../docs/uk/NEW_IN_V28_42.md) | Документация |
 | [docs/uk/NEW_IN_V28_43.md](../docs/uk/NEW_IN_V28_43.md) | Документация |
+| [docs/uk/NEW_IN_V28_44.md](../docs/uk/NEW_IN_V28_44.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1748,6 +1753,7 @@
 | [tests/test_surveys.py](../tests/test_surveys.py) | Проверки |
 | [tests/test_torrent_detection.py](../tests/test_torrent_detection.py) | Проверки |
 | [tests/test_traffic_analysis.py](../tests/test_traffic_analysis.py) | Проверки |
+| [tests/test_tribute.py](../tests/test_tribute.py) | Проверки |
 | [tests/test_unified_workspace.py](../tests/test_unified_workspace.py) | Проверки |
 | [tests/test_v15_production.py](../tests/test_v15_production.py) | Проверки |
 | [tests/test_v16_v19_release.py](../tests/test_v16_v19_release.py) | Проверки |

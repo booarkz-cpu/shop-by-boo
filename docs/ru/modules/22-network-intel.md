@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.43.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.44.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008`.
 
 # 22. Сеть узлов: ASN и репутация
 

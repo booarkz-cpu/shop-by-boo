@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.43.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.44.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008`.
 
 # Терминал узлов
 
@@ -44,7 +44,7 @@ TERMINAL_TRANSCRIPT_DAYS=90
 1. Примените миграцию `0070_node_terminal` и перезапустите backend и worker: `docker compose up -d backend worker`.
 2. Для нескольких процессов backend нужен Redis из стандартного `docker-compose.yml`: через него ввод и вывод передаются между процессами.
 
-Переменные — настройки развёртывания: панель их не меняет. Реестр настроек — 224 поля: 132 live, 90 deployment, 2 workflow.
+Переменные — настройки развёртывания: панель их не меняет. Реестр настроек — 226 полей: 134 live, 90 deployment, 2 workflow.
 
 ### 2. Узел
 

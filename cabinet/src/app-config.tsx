@@ -32,7 +32,7 @@ export type AppConfig = {
   promos: PromoCard[];
   plans: any[];
   servers: {categories: ServerCategory[]; show_load: boolean};
-  wallet: {currency: string; amounts: number[]; min: number; max: number; methods: PaymentMethod[]; stars: {enabled: boolean; rate: string; min_stars: number; subscriptions?: boolean}};
+  wallet: {currency: string; amounts: number[]; min: number; max: number; methods: PaymentMethod[]; stars: {enabled: boolean; rate: string; min_stars: number; subscriptions?: boolean}; tribute?: {url: string} | null};
   referral: {conditions: string; levels: string[]; withdraw_enabled: boolean; link_template: string};
   support: {buttons: {title: string; icon: string; link: string}[]; ticket_form: boolean};
   info: {pages: InfoPage[]};

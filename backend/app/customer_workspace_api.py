@@ -52,7 +52,10 @@ async def wallet_history(request: Request, db: AsyncSession = Depends(get_db)):
             FinancialLedger.kind.in_(("wallet_topup", "wallet_spend", "gift_purchase", "wallet_topup_refund", "wallet_purchase_refund", "gift_card", "survey_reward", "giveaway_reward", "wallet_import")),
         ).order_by(FinancialLedger.id.desc()).limit(100)
     )).scalars().all()
-    return {"balance": str(user.wallet_balance or 0), "items": [
+    from .tribute import configured as tribute_ready
+    from .config import settings as _settings
+    tribute = {"url": _settings.tribute_donate_link, "telegram_linked": bool(user.telegram_id)} if tribute_ready() else None
+    return {"balance": str(user.wallet_balance or 0), "tribute": tribute, "items": [
         {"id": x.id, "kind": x.kind, "direction": x.direction, "amount": str(x.amount),
          "currency": x.currency, "payment_id": x.payment_id, "created_at": x.created_at}
         for x in rows

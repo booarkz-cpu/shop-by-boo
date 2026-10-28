@@ -8,6 +8,7 @@ import {assetUrl, bundledBanner, useAppConfig, useText, type InfoPage} from "./a
 import {ContentBlocks} from "./public-pages";
 import {StickerState} from "./stickers";
 import {Skeleton, StatusBadge} from "./ui";
+import {TributeTopUp} from "./tribute";
 import {haptic, isTelegram, openAnyLink, openExternal, openInvoice, telegramFirstName} from "./telegram";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
@@ -292,6 +293,7 @@ export function WalletTopup({request, balance, reload, flash, onConsentRequired}
       </div>
       {stars > 0 && <p className="section-sub">К оплате: ⭐ {stars} Stars</p>}
       <button type="button" className="btn-primary" disabled={!selected || !valid || busy} onClick={pay}>{t("wallet_pay")}{valid ? ` · ${value} ${wallet.currency}` : ""}</button>
+      <TributeTopUp url={wallet.tribute?.url} />
       <form className="workspace-form" onSubmit={redeem}>
         <label className="field">{t("wallet_code")}<input value={code} maxLength={128} onChange={(e) => setCode(e.target.value)} /></label>
         <button className="btn-ghost" disabled={busy || !code.trim()}>{t("wallet_code_apply")}</button>
