@@ -1,4 +1,4 @@
-# Каталог API — v28.39.0 / API v21.5.1
+# Каталог API — v28.40.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0081_subscription_proxy`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -750,6 +750,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/standby/heartbeat` | Heartbeat |
 | `GET` | `/api/tariff-constructors` | Public Constructors |
 | `GET` | `/api/v3/status` | V3 Status |
+| `POST` | `/api/webhooks/antilopay` | Antilopay Webhook |
 | `POST` | `/api/webhooks/cloudpayments` | Cloudpayments Webhook |
 | `POST` | `/api/webhooks/crypto` | Crypto Webhook |
 | `POST` | `/api/webhooks/cryptobot` | Cryptobot Webhook |
@@ -761,6 +762,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/webhooks/platega` | Platega Webhook |
 | `POST` | `/api/webhooks/remnawave` | Remnawave Webhook |
 | `POST` | `/api/webhooks/rollypay` | Rollypay Webhook |
+| `POST` | `/api/webhooks/wata` | Wata Webhook |
 | `POST` | `/api/webhooks/yookassa` | Yookassa Webhook |
 | `GET` | `/health` | Health |
 | `GET` | `/health/live` | Health Live |

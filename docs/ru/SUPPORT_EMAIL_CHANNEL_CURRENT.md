@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.39.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008` / 3.8.
+> Актуальная инструкция дистрибутива v28.40.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008` / 3.8.
 
 # Email-канал поддержки (Support Pro 3.7)
 

@@ -310,7 +310,7 @@ export function Pnl({request, toast}: Props) {
       <p>Активных клиентов: {d.active_customers}; прибыль на клиента за месяц: {d.profit_per_customer ?? "—"} ₽.</p>
       {d.nodes.length ? <p className="muted">Ноды (текущий месяц): {d.nodes.map((n: any) => `${n.node} — ${n.cost} ₽ (${n.per_customer ?? "—"} ₽ на клиента)`).join("; ")}</p> : null}
       <h4>Комиссии касс, %</h4>
-      <div className="toolbar">{["yookassa", "platega", "rollypay", "cryptobot", "freekassa", "cloudpayments", "lava", "pal24", "mulenpay", "stars"].map((p) => <label key={p}>{p}<input type="number" step="0.1" min={0} max={30} value={f[p] ?? ""} onChange={(e) => setFees({...f, [p]: e.target.value})}/></label>)}
+      <div className="toolbar">{["yookassa", "platega", "rollypay", "cryptobot", "freekassa", "cloudpayments", "lava", "pal24", "mulenpay", "wata", "antilopay", "stars"].map((p) => <label key={p}>{p}<input type="number" step="0.1" min={0} max={30} value={f[p] ?? ""} onChange={(e) => setFees({...f, [p]: e.target.value})}/></label>)}
         <button onClick={() => act(() => request("/api/admin/pnl/fees", put(Object.fromEntries(Object.entries(f).filter(([, v]) => v !== "").map(([k, v]) => [k, Number(v)])))), toast, "Комиссии сохранены", setError, () => { setFees(null); load(); })}>Сохранить</button></div>
       <h4>Расходы</h4>
       <div className="toolbar">

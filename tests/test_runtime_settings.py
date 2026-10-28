@@ -42,7 +42,7 @@ def test_every_configuration_field_has_one_explicit_runtime_classification():
     assert hot.isdisjoint(workflows)
     assert deployment.isdisjoint(workflows)
     assert hot | deployment | workflows == set(Settings.model_fields)
-    assert len(hot) == 115  # v28.39.0: three settings of Pal24 and three of Mulen Pay
+    assert len(hot) == 121  # v28.40.0: one setting of WATA and five of Antilopay
 
 
 def test_integer_limits_are_checked_without_float_rounding():
