@@ -1,4 +1,4 @@
-# Каталог API — v28.38.0 / API v21.5.1
+# Каталог API — v28.39.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0081_subscription_proxy`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -756,6 +756,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/webhooks/freekassa` | Freekassa Webhook |
 | `POST` | `/api/webhooks/freekassa` | Freekassa Webhook |
 | `POST` | `/api/webhooks/lava` | Lava Webhook |
+| `POST` | `/api/webhooks/mulenpay` | Mulenpay Webhook |
+| `POST` | `/api/webhooks/pal24` | Pal24 Webhook |
 | `POST` | `/api/webhooks/platega` | Platega Webhook |
 | `POST` | `/api/webhooks/remnawave` | Remnawave Webhook |
 | `POST` | `/api/webhooks/rollypay` | Rollypay Webhook |

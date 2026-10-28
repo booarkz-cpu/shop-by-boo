@@ -1,3 +1,9 @@
+# v28.39.0
+
+- Кассы Pal24 (PayPalych) и Mulen Pay (карты, СБП) в `payments_extra.py`. Подпись уведомлений: Pal24 — MD5 `SignatureValue`, Mulen Pay — SHA-1 `sign`. Перед выдачей платёж повторно читается из API кассы: `bill/status` или `v2/payments/{id}`. Кассы подключены к очереди касс, способам оплаты, сверке и восстановлению платежей, веб- и мобильным админкам и кабинету. Реестр настроек: 207 полей, 115 live.
+- Общий хвост уведомлений касс сверяет оплату по номеру платежа кассы, если он известен.
+- Матрица покрытия: редактор хостов и сквадов отмечен как реализованный (v28.38.0).
+
 # v28.38.0
 
 - Функции remnawave-subscription-middleware своей реализацией (у проекта нет лицензии — код не копировался), сверка в `docs/ru/MIDDLEWARE_RECONCILIATION.md`. Миграция `0081_subscription_proxy` (sub_requests, panel_user_changes, panel_api_stats, vpn_sessions, wg_configs, first_connect_waits, grace_squads).

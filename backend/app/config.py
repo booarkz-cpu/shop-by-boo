@@ -176,12 +176,18 @@ class Settings(BaseSettings):
         default="168.119.157.136,168.119.60.227,178.154.197.79,51.250.54.238", alias="FREEKASSA_WEBHOOK_IP_ALLOWLIST"
     )
 
-    # ---------- CloudPayments and Lava (more gateways, payments_extra.py) ----------
+    # ---------- CloudPayments, Lava, Pal24, Mulen Pay (more gateways, payments_extra.py) ----------
     cloudpayments_public_id: str = Field(default="", alias="CLOUDPAYMENTS_PUBLIC_ID")
     cloudpayments_api_secret: str = Field(default="", alias="CLOUDPAYMENTS_API_SECRET")
     lava_shop_id: str = Field(default="", alias="LAVA_SHOP_ID")
     lava_secret_key: str = Field(default="", alias="LAVA_SECRET_KEY")
     lava_webhook_secret: str = Field(default="", alias="LAVA_WEBHOOK_SECRET")
+    pal24_api_token: str = Field(default="", alias="PAL24_API_TOKEN")
+    pal24_shop_id: str = Field(default="", alias="PAL24_SHOP_ID")
+    pal24_signature_token: str = Field(default="", alias="PAL24_SIGNATURE_TOKEN")
+    mulenpay_api_key: str = Field(default="", alias="MULENPAY_API_KEY")
+    mulenpay_secret_key: str = Field(default="", alias="MULENPAY_SECRET_KEY")
+    mulenpay_shop_id: str = Field(default="", alias="MULENPAY_SHOP_ID")
 
     # ---------- Stripe ----------
     stripe_secret_key: str = Field(

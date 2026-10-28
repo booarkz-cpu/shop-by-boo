@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 type Field = {key: string; label: string; kind?: "text" | "select" | "list" | "datetime" | "textarea"; options?: string[]; placeholder?: string};
 
-const PROVIDERS = ["yookassa", "platega", "rollypay", "cryptobot", "freekassa", "cloudpayments", "lava", "sandbox", "telegram_stars"];
+const PROVIDERS = ["yookassa", "platega", "rollypay", "cryptobot", "freekassa", "cloudpayments", "lava", "pal24", "mulenpay", "sandbox", "telegram_stars"];
 const YK_METHODS = ["", "bank_card", "sbp", "yoo_money", "sberbank", "tinkoff_bank"];
 const INFO_KINDS = ["faq", "rules", "privacy", "offer", "other"];
 const STICKERS = ["", "holiday", "gift", "success", "vip", "payment", "delivery", "goodbye"];

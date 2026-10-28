@@ -1,11 +1,11 @@
-# Обновление дистрибутива до v28.38.0
+# Обновление дистрибутива до v28.39.0
 
-Актуальный дистрибутив — `v28.38.0`, runtime/API — `21.5.1`. Миграции: магазин `0081_subscription_proxy`, Support Pro `0008`. В этом выпуске магазин получает миграцию `0081_subscription_proxy` (вид срабатывания), с v28.14.0 и раньше — также `0071_torrent_detection` (счётчики торрентов), с v28.13.0 и раньше — также `0070_node_terminal` (терминал узлов), с v28.12.0 и раньше — `0069_mail_domain` (отчёты DMARC). При обновлении с v28.11.0 и раньше Support Pro получает `0008` (мост Zendesk/Freshdesk), с v28.8.0 и раньше магазин получает также `0068_network_intel` (сетевая аналитика узлов), с v28.7.0 и раньше — также `0067_plugin_runtime`, с v28.4.0 и раньше — `0066_push_notifications`; при обновлении с v28.6.0 и раньше Support Pro получает `0007` (email-канал). До обновления обязателен согласованный backup обеих баз.
+Актуальный дистрибутив — `v28.39.0`, runtime/API — `21.5.1`. Миграции: магазин `0081_subscription_proxy`, Support Pro `0008`. В этом выпуске магазин получает миграцию `0081_subscription_proxy` (вид срабатывания), с v28.14.0 и раньше — также `0071_torrent_detection` (счётчики торрентов), с v28.13.0 и раньше — также `0070_node_terminal` (терминал узлов), с v28.12.0 и раньше — `0069_mail_domain` (отчёты DMARC). При обновлении с v28.11.0 и раньше Support Pro получает `0008` (мост Zendesk/Freshdesk), с v28.8.0 и раньше магазин получает также `0068_network_intel` (сетевая аналитика узлов), с v28.7.0 и раньше — также `0067_plugin_runtime`, с v28.4.0 и раньше — `0066_push_notifications`; при обновлении с v28.6.0 и раньше Support Pro получает `0007` (email-канал). До обновления обязателен согласованный backup обеих баз.
 
 ## Новая установка
 
 ```bash
-git clone --branch v28.38.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.39.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 sudo bash deploy/install-vps.sh
 ```
@@ -25,23 +25,23 @@ upgrade_stage=$(mktemp -d)
 upgrade_checker=$(mktemp)
 trap 'rm -rf -- "$upgrade_stage"; rm -f -- "$upgrade_checker"' EXIT
 curl --fail --show-error --silent --proto '=https' --max-time 60 \
-  https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.38.0/scripts/github_release_fetch.py \
+  https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.39.0/scripts/github_release_fetch.py \
   -o "$upgrade_checker"
-RELEASE_TAG=v28.38.0 python3 "$upgrade_checker" "$shop_dir" "$upgrade_stage"
+RELEASE_TAG=v28.39.0 python3 "$upgrade_checker" "$shop_dir" "$upgrade_stage"
 if [ -f "$upgrade_stage/backend/app/main.py" ]; then
   APP_DIR="$shop_dir" UPDATE_STAGE="$upgrade_stage" bash "$shop_dir/scripts/update.sh"
 fi
 APP_DIR="$shop_dir" bash "$shop_dir/scripts/doctor.sh"
 ```
 
-Загрузчик отказывается применять draft/prerelease, более старую версию, архив с небезопасными путями, неправильной суммой или несовпадающим коммитом. При уже установленном `v28.38.0` он завершится без применения файлов. Не удаляйте `.env`, `support-pro/.env`, volumes и backups.
+Загрузчик отказывается применять draft/prerelease, более старую версию, архив с небезопасными путями, неправильной суммой или несовпадающим коммитом. При уже установленном `v28.39.0` он завершится без применения файлов. Не удаляйте `.env`, `support-pro/.env`, volumes и backups.
 
 ## Последующие обновления
 
 После первого обновления установленный загрузчик знает тег дистрибутива:
 
 ```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.38.0 \
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.39.0 \
   bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
