@@ -23,7 +23,11 @@ def main(folder: str) -> int:
     for report in sorted(Path(folder).glob("*.json")):
         for site in json.loads(report.read_text()).get("site", []):
             for alert in site.get("alerts", []):
-                counts[RISK.get(str(alert.get("riskcode")), "Info")] += 1
+                risk = RISK.get(str(alert.get("riskcode")), "Info")
+                counts[risk] += 1
+                if risk in {"High", "Medium"}:
+                    print(f"::warning title=ZAP {risk}::{site.get('@name')}: {alert.get('alert')} "
+                          f"({alert.get('count', len(alert.get('instances', [])))})", file=sys.stderr)
     # Annotations go to stderr so the Markdown above stays clean in the step summary.
     print(f"::notice title=OWASP ZAP baseline::High {counts['High']}, Medium {counts['Medium']}, "
           f"Low {counts['Low']}, Info {counts['Info']}", file=sys.stderr)

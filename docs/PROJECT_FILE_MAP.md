@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1775**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1776**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1449,6 +1449,7 @@
 | [scripts/ios/build-tunnel-frameworks.sh](../scripts/ios/build-tunnel-frameworks.sh) | Эксплуатация и релиз |
 | [scripts/ios/enable-extensions.py](../scripts/ios/enable-extensions.py) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
+| [scripts/mobile/emulator-quiet.sh](../scripts/mobile/emulator-quiet.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
 | [scripts/mobile/maestro-screens.sh](../scripts/mobile/maestro-screens.sh) | Эксплуатация и релиз |
 | [scripts/node-agent.py](../scripts/node-agent.py) | Эксплуатация и релиз |

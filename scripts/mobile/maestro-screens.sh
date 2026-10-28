@@ -20,6 +20,7 @@ for attempt in 2 3; do
   # suite another try (two at most), so a slow emulator does not fail the job while a real regression still does.
   echo "Maestro failed; warm-up and attempt $attempt" >&2
   if command -v adb >/dev/null; then
+    bash "$ROOT/scripts/mobile/emulator-quiet.sh" dismiss
     adb shell am force-stop shop.remnawave.user.preview || true
     adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true >/dev/null 2>&1 || true
     sleep 10

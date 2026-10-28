@@ -2,6 +2,8 @@ name: Load and security baseline
 
 # k6 load profile (catalogue, sync, sandbox checkout) and the OWASP ZAP baseline scan against the local test stack.
 # Separate from «Corgi Lusi CI» on purpose: numbers and scanner rules drift; this reports without blocking releases.
+# The test stack has no Caddy in front: CSP, HSTS and frame headers that production gets from deploy/Caddyfile are
+# missing here, so ZAP may report them (Medium) for the cabinet; High alerts fail the scan step.
 on:
   pull_request:
     paths: ['backend/**', 'tests/load/**', '.zap/**', 'docker-compose.test.yml', '.github/workflows/load-security.yml']
