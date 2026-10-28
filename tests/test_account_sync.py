@@ -60,10 +60,14 @@ async def test_a_waiting_client_is_answered_as_soon_as_the_state_changes(signed_
     first = json.loads((await account_sync.my_sync(req(), db=db)).body)
 
     async def top_up():
+        # Another request (its own session and connection) changes the balance while this one waits; one session
+        # shared by two tasks would run two statements on one asyncpg connection at once.
+        from sqlalchemy.ext.asyncio import AsyncSession
         await asyncio.sleep(0.1)
-        user = await db.get(User, 1)
-        user.wallet_balance = 500
-        await db.commit()
+        async with AsyncSession(db.bind, expire_on_commit=False) as other:
+            user = await other.get(User, 1)
+            user.wallet_balance = 500
+            await other.commit()
     task = asyncio.create_task(top_up())
     answer = await asyncio.wait_for(account_sync.my_sync(req(), since=first["version"], wait=10, db=db), timeout=5)
     await task
