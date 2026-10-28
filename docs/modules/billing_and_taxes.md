@@ -80,6 +80,17 @@ sequenceDiagram
 
 Страница оплаты: CloudPayments — `POST https://api.cloudpayments.ru/orders/create` (HTTP Basic, Public ID и пароль API); Lava — `POST https://api.lava.ru/business/invoice/create` (заголовок `Signature`: HMAC-SHA256 hex тела секретным ключом). Номер заказа магазина передаётся как `InvoiceId` или `orderId`. Повтор уведомления не выдаёт подписку второй раз. Боевая проверка — на ваших договорах и ключах; в CI запросы к кассам проверяются на моках (`tests/test_payments_extra.py`).
 
+## Pal24 и Mulen Pay (v28.39)
+
+Ещё две кассы для карт и СБП в том же модуле `payments_extra.py` и по тем же правилам: в очереди касс и в выборе способа оплаты — как только в «Настройках без перезапуска» заданы ключи; автоплатежей и возвратов через API нет; подписка выдаётся только после повторной проверки платежа в API кассы.
+
+| Касса | Ключи | Адрес уведомлений | Как магазин проверяет оплату |
+| --- | --- | --- | --- |
+| Pal24 (PayPalych) | `PAL24_SHOP_ID`, `PAL24_API_TOKEN`, `PAL24_SIGNATURE_TOKEN` (необязательно) | `https://<API_DOMAIN>/api/webhooks/pal24` — укажите как Result URL магазина | `SignatureValue` = MD5 `OutSum:InvId:токен` в верхнем регистре (токен подписи, иначе API-токен), затем `GET /bill/status?id=<bill_id>`: статус SUCCESS или OVERPAID, тот же заказ, сумма не меньше цены |
+| Mulen Pay | `MULENPAY_SHOP_ID`, `MULENPAY_API_KEY`, `MULENPAY_SECRET_KEY` | `https://<API_DOMAIN>/api/webhooks/mulenpay` — укажите в настройках магазина | поле `sign` (SHA-1 всех значений по порядку и секретного ключа) — неверное отклоняется, отсутствующее допустимо; затем `GET /v2/payments/<id>`: статус 3 (оплачен), тот же `uuid` и сумма |
+
+Страница оплаты: Pal24 — `POST https://pal24.pro/api/v1/bill/create` (Bearer API-токен; для СБП и карты передаётся `payment_method` SBP или BANK_CARD), магазин запоминает `bill_id`; Mulen Pay — `POST https://mulenpay.ru/api/v2/payments` (Bearer API-ключ, `sign` = SHA-1 `валюта + сумма + shopId + секретный ключ`, позиция чека с НДС «без НДС»), магазин запоминает номер платежа. Номер заказа магазина передаётся как `order_id` или `uuid`. Тесты на моках: `tests/test_payments_pal24_mulenpay.py`.
+
 ## Возврат денег, которые почти пришли
 
 * **Брошенная оплата** и **неудачное автопродление** — события движка автоматизации `payment.abandoned` и

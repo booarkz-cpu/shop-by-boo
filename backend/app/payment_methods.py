@@ -27,7 +27,7 @@ CONFIG_KEY = "payments.method_routing"
 METHODS = {"sbp": "СБП", "card": "Банковская карта", "crypto": "Криптовалюта"}
 CAPABILITIES = {
     "yookassa": {"sbp", "card"}, "rollypay": {"sbp", "card"}, "platega": {"sbp", "card"},
-    "freekassa": {"sbp", "card"}, "cloudpayments": {"sbp", "card"}, "lava": {"sbp", "card"}, "cryptobot": {"crypto"}, "sandbox": {"sbp", "card", "crypto"},
+    "freekassa": {"sbp", "card"}, "cloudpayments": {"sbp", "card"}, "lava": {"sbp", "card"}, "pal24": {"sbp", "card"}, "mulenpay": {"sbp", "card"}, "cryptobot": {"crypto"}, "sandbox": {"sbp", "card", "crypto"},
 }
 YOOKASSA_TYPES = {"sbp": "sbp", "card": "bank_card"}
 

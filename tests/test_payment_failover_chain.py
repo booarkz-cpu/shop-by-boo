@@ -91,8 +91,8 @@ async def test_orders_walk_down_the_whole_chain_and_the_operator_steers_it(shop_
         assert provider == following and "error" not in out, f"after {current} the order goes to {following}"
     queue = {row["provider"]: row for row in await enterprise_api.v41_providers(db, ADMIN)}
     assert [p for p, r in queue.items() if r["cooling"]] == ["yookassa", "rollypay", "platega"]
-    assert all(r["configured"] for p, r in queue.items() if p not in {"cloudpayments", "lava"})
-    assert not queue["cloudpayments"]["configured"] and not queue["lava"]["configured"], "v28.38 gateways without keys stay out of routing"
+    assert all(r["configured"] for p, r in queue.items() if p not in {"cloudpayments", "lava", "pal24", "mulenpay"})
+    assert not any(queue[p]["configured"] for p in ("cloudpayments", "lava", "pal24", "mulenpay")), "v28.38+ gateways without keys stay out of routing"
 
     # The operator puts Freekassa above CryptoBot: the next order goes there.
     await enterprise_api.v41_provider_update("freekassa", enterprise_api.ProviderHealthIn(enabled=True, priority=35), db, ADMIN)

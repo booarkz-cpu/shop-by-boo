@@ -24,7 +24,7 @@ from .security import require_permission
 logger = logging.getLogger("vpnshop.mobile_panels")
 router = APIRouter()
 
-NAMES = {"yookassa": "ЮKassa", "rollypay": "RollyPay", "platega": "Platega", "cryptobot": "CryptoBot", "freekassa": "Freekassa", "cloudpayments": "CloudPayments", "lava": "Lava"}
+NAMES = {"yookassa": "ЮKassa", "rollypay": "RollyPay", "platega": "Platega", "cryptobot": "CryptoBot", "freekassa": "Freekassa", "cloudpayments": "CloudPayments", "lava": "Lava", "pal24": "Pal24", "mulenpay": "Mulen Pay"}
 
 
 def row(label: str, value, tone: str = "") -> dict:

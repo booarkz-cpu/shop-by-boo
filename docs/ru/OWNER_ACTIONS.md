@@ -46,9 +46,9 @@ sudo bash /opt/vpn-shop/scripts/hot-standby.sh demote
 
 Перед `promote` прочитайте [hot_standby.md](../modules/hot_standby.md): два основных сервера одновременно теряют данные.
 
-## 4. Новые кассы (CloudPayments, Lava и следующие)
+## 4. Новые кассы (CloudPayments, Lava, Pal24, Mulen Pay и следующие)
 
-Заключите договор, получите ключи и впишите их в «Настройки → Платёжные агенты» или в `.env`. Адреса уведомлений — в [billing_and_taxes.md](../modules/billing_and_taxes.md#cloudpayments-и-lava-v2838).
+Заключите договор, получите ключи и впишите их в «Настройки → Платёжные агенты» или в `.env`. Адреса уведомлений — в [billing_and_taxes.md](../modules/billing_and_taxes.md#cloudpayments-и-lava-v2838) и [Pal24 и Mulen Pay](../modules/billing_and_taxes.md#pal24-и-mulen-pay-v2839).
 
 **Проверка:** «Платёжные агенты → Очередь касс» показывает кассу как «принимает». Затем пробная оплата на минимальную сумму и возврат в кабинете кассы.
 
