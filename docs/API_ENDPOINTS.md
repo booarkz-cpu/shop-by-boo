@@ -1,6 +1,6 @@
-# Каталог API — v28.36.0 / API v21.5.1
+# Каталог API — v28.37.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0079_acquisition`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0080_reconciliation`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -17,6 +17,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/admins` | Create Admin |
 | `DELETE` | `/api/admin/admins/{admin_id}` | Delete Admin |
 | `PUT` | `/api/admin/admins/{admin_id}` | Update Admin |
+| `GET` | `/api/admin/ads/postbacks` | Get Postbacks |
+| `PUT` | `/api/admin/ads/postbacks` | Put Postbacks |
 | `POST` | `/api/admin/advertisements` | Create Ad |
 | `DELETE` | `/api/admin/advertisements/{item_id}` | Delete Ad |
 | `PUT` | `/api/admin/advertisements/{item_id}` | Update Ad |
@@ -24,12 +26,14 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/analytics/economics` | Economics |
 | `PUT` | `/api/admin/analytics/economics/spend` | Put Spend |
 | `GET` | `/api/admin/analytics/retention` | Retention |
+| `GET` | `/api/admin/analytics/traffic` | Traffic |
 | `GET` | `/api/admin/anti-sharing` | Get Anti Sharing |
 | `PUT` | `/api/admin/anti-sharing` | Put Anti Sharing |
 | `GET` | `/api/admin/app-analytics` | Admin Analytics |
 | `DELETE` | `/api/admin/app-config` | Admin App Config Reset |
 | `GET` | `/api/admin/app-config` | Admin App Config |
 | `PUT` | `/api/admin/app-config` | Admin App Config Save |
+| `GET` | `/api/admin/app-config/themes` | Themes |
 | `GET` | `/api/admin/apps` | Admin Apps |
 | `PUT` | `/api/admin/apps` | Save Apps |
 | `DELETE` | `/api/admin/apps/logo` | Delete Client Logo |
@@ -95,6 +99,12 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/cabinet/menu` | Admin Cabinet Menu Create |
 | `DELETE` | `/api/admin/cabinet/menu/{item_id}` | Admin Cabinet Menu Delete |
 | `PUT` | `/api/admin/cabinet/menu/{item_id}` | Admin Cabinet Menu Update |
+| `GET` | `/api/admin/channels` | Get Gate |
+| `PUT` | `/api/admin/channels` | Put Gate |
+| `GET` | `/api/admin/churn` | Churn |
+| `PUT` | `/api/admin/churn` | Put Churn |
+| `POST` | `/api/admin/churn/{user_id}/offer` | Offer |
+| `GET` | `/api/admin/connection-quality` | Admin Quality |
 | `GET` | `/api/admin/content` | Admin Content |
 | `GET` | `/api/admin/corporate-accounts` | List Corporate |
 | `POST` | `/api/admin/corporate-accounts` | Create Corporate |
@@ -112,6 +122,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/customer-operations/import/{job_id}/apply` | Import Apply |
 | `POST` | `/api/admin/customer-operations/import/{job_id}/cancel` | Cancel Import |
 | `GET` | `/api/admin/customers/{user_id}/360` | Customer 360 |
+| `GET` | `/api/admin/daily-billing` | Get Daily |
+| `PUT` | `/api/admin/daily-billing` | Put Daily |
 | `GET` | `/api/admin/deployments` | Deployment List |
 | `POST` | `/api/admin/deployments` | Deployment Create |
 | `POST` | `/api/admin/deployments/{deployment_id}/promote` | Deployment Promote |
@@ -122,6 +134,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/e2e-v2/overview` | Overview |
 | `POST` | `/api/admin/e2e-v2/runs` | Start Run |
 | `POST` | `/api/admin/e2e-v2/runs/{run_id}/cancel` | Cancel Run |
+| `GET` | `/api/admin/email-templates` | Get Templates |
+| `DELETE` | `/api/admin/email-templates/{purpose}` | Reset Template |
+| `PUT` | `/api/admin/email-templates/{purpose}` | Put Template |
 | `GET` | `/api/admin/enterprise/campaigns` | Enterprise Campaigns |
 | `POST` | `/api/admin/enterprise/campaigns` | Enterprise Campaign Create |
 | `PUT` | `/api/admin/enterprise/campaigns/{campaign_id}` | Enterprise Campaign Update |
@@ -132,6 +147,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/enterprise/rules` | Enterprise Rule Create |
 | `PUT` | `/api/admin/enterprise/rules/{rule_id}` | Enterprise Rule Update |
 | `GET` | `/api/admin/enterprise/summary` | Enterprise Summary |
+| `GET` | `/api/admin/errors` | List Errors |
+| `POST` | `/api/admin/errors/resolve-all` | Resolve All |
+| `POST` | `/api/admin/errors/{error_id}/resolve` | Resolve Error |
 | `GET` | `/api/admin/family` | Admin Family |
 | `POST` | `/api/admin/fields` | Admin Field |
 | `DELETE` | `/api/admin/fields/{field_id}` | Admin Field Delete |
@@ -144,6 +162,10 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/fraud` | Admin Fraud |
 | `POST` | `/api/admin/fraud/scan` | Fraud Scan |
 | `POST` | `/api/admin/fraud/{signal_id}` | Fraud Decision |
+| `GET` | `/api/admin/gift-batches` | List Batches |
+| `POST` | `/api/admin/gift-batches` | Create Batch |
+| `DELETE` | `/api/admin/gift-batches/{tag}` | Disable Batch |
+| `GET` | `/api/admin/gift-batches/{tag}.csv` | Export Batch |
 | `GET` | `/api/admin/gifts` | Admin Gifts |
 | `POST` | `/api/admin/gifts` | Admin Gift Create |
 | `GET` | `/api/admin/github-update` | Admin Github Update |
@@ -154,6 +176,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/giveaways/{giveaway_id}/draw` | Draw |
 | `GET` | `/api/admin/giveaways/{giveaway_id}/entries` | Entries |
 | `POST` | `/api/admin/giveaways/{giveaway_id}/publish` | Publish |
+| `GET` | `/api/admin/grace` | Get Grace |
+| `PUT` | `/api/admin/grace` | Put Grace |
+| `GET` | `/api/admin/guest-checkout` | Get Guest |
+| `PUT` | `/api/admin/guest-checkout` | Put Guest |
 | `GET` | `/api/admin/health/summary` | Health Summary |
 | `POST` | `/api/admin/images` | Admin Image |
 | `DELETE` | `/api/admin/images/{image_id}` | Admin Image Delete |
@@ -173,6 +199,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/marketplace/resellers` | List Resellers |
 | `POST` | `/api/admin/marketplace/resellers` | Create Reseller |
 | `PATCH` | `/api/admin/marketplace/resellers/{reseller_id}` | Update Reseller |
+| `POST` | `/api/admin/marketplace/resellers/{reseller_id}/deposit` | Deposit |
 | `POST` | `/api/admin/marketplace/resellers/{reseller_id}/rotate-key` | Rotate Reseller Key |
 | `GET` | `/api/admin/marketplace/withdrawals` | Withdrawals |
 | `POST` | `/api/admin/marketplace/withdrawals/{withdrawal_id}/decision` | Decide |
@@ -192,6 +219,15 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/mobile/mirrors` | Put Mirrors |
 | `POST` | `/api/admin/mobile/mirrors/publish` | Publish Now |
 | `GET` | `/api/admin/mobile/ops` | Admin Mobile Ops |
+| `GET` | `/api/admin/mobile/panels` | Mobile Panels |
+| `GET` | `/api/admin/moderation` | Get Moderation |
+| `PUT` | `/api/admin/moderation` | Put Moderation |
+| `POST` | `/api/admin/moderation/ban` | Bulk Ban |
+| `PUT` | `/api/admin/moderation/blacklist` | Put Blacklist |
+| `POST` | `/api/admin/moderation/blocked-cleanup` | Blocked Cleanup |
+| `POST` | `/api/admin/moderation/blocked-scan` | Start Scan |
+| `POST` | `/api/admin/moderation/invites` | Create Invite |
+| `DELETE` | `/api/admin/moderation/invites/{invite_id}` | Disable Invite |
 | `GET` | `/api/admin/monitoring` | Admin Monitoring |
 | `GET` | `/api/admin/network/intel` | Admin Network Intel |
 | `POST` | `/api/admin/network/intel/refresh` | Admin Network Refresh |
@@ -220,12 +256,19 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/pages/{page_id}/publish` | Publish |
 | `POST` | `/api/admin/pages/{page_id}/restore` | Restore |
 | `GET` | `/api/admin/pages/{page_id}/revisions` | Revisions |
+| `GET` | `/api/admin/panel-guard` | Get Guard |
+| `PUT` | `/api/admin/panel-guard` | Put Guard |
+| `PUT` | `/api/admin/panel/hosts/{host_uuid}` | Set Host |
+| `GET` | `/api/admin/panel/overview` | Panel Overview |
+| `POST` | `/api/admin/panel/squads/{squad_uuid}/{action}` | Squad Bulk |
 | `POST` | `/api/admin/payment/gift-cards` | Create Gift Card |
 | `GET` | `/api/admin/payments` | Admin Payments |
 | `GET` | `/api/admin/payments/analytics` | Payment Analytics |
 | `GET` | `/api/admin/payments/chargebacks` | Admin Chargebacks |
 | `PATCH` | `/api/admin/payments/chargebacks/{chargeback_id}` | Update Chargeback |
 | `GET` | `/api/admin/payments/gift-cards` | List Gift Cards |
+| `GET` | `/api/admin/payments/methods` | Get Routing |
+| `PUT` | `/api/admin/payments/methods` | Put Routing |
 | `GET` | `/api/admin/payments/platform/capabilities` | Admin Payment Platform Capabilities |
 | `GET` | `/api/admin/payments/pricing/experiments` | List Price Experiments |
 | `PUT` | `/api/admin/payments/pricing/experiments/{key}` | Upsert Price Experiment |
@@ -238,6 +281,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/payments/{payment_id}/risk/recheck` | Payment Risk Recheck |
 | `GET` | `/api/admin/payouts` | Admin Payouts |
 | `POST` | `/api/admin/personal-offers` | Create Offer |
+| `DELETE` | `/api/admin/pinned-message` | Remove |
+| `GET` | `/api/admin/pinned-message` | Get Pinned |
+| `POST` | `/api/admin/pinned-message` | Publish |
 | `GET` | `/api/admin/plans` | Admin List Plans |
 | `POST` | `/api/admin/plans` | Create Plan |
 | `DELETE` | `/api/admin/plans/{plan_id}` | Admin Delete Plan |
@@ -271,6 +317,11 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/plugins/{plugin_id}/rollback` | Rollback |
 | `POST` | `/api/admin/plugins/{plugin_id}/rotate` | Rotate |
 | `POST` | `/api/admin/plugins/{plugin_id}/settings` | Save Settings |
+| `GET` | `/api/admin/pnl` | Pnl |
+| `GET` | `/api/admin/pnl/costs` | List Costs |
+| `POST` | `/api/admin/pnl/costs` | Add Cost |
+| `DELETE` | `/api/admin/pnl/costs/{cost_id}` | Delete Cost |
+| `PUT` | `/api/admin/pnl/fees` | Put Fees |
 | `GET` | `/api/admin/promo-audiences` | Audiences |
 | `PUT` | `/api/admin/promo-audiences/{promo_id}` | Set Audience |
 | `POST` | `/api/admin/promo-codes` | Create Promo Code |
@@ -297,6 +348,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/recovery` | Admin Recovery |
 | `GET` | `/api/admin/recovery/operations` | Recovery Operations |
 | `POST` | `/api/admin/recovery/operations/{operation_id}/retry` | Retry Operation |
+| `GET` | `/api/admin/referral-contests` | List Contests |
+| `POST` | `/api/admin/referral-contests` | Create Contest |
+| `DELETE` | `/api/admin/referral-contests/{contest_id}` | Cancel Contest |
 | `GET` | `/api/admin/referrals/bonus` | Get Bonus |
 | `PUT` | `/api/admin/referrals/bonus` | Set Bonus |
 | `GET` | `/api/admin/referrals/program` | Get Program |
@@ -360,6 +414,8 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/support/ai` | Save Support Ai |
 | `DELETE` | `/api/admin/support/attachments/{attachment_id}` | Admin Remove |
 | `GET` | `/api/admin/support/attachments/{attachment_id}` | Admin Download |
+| `GET` | `/api/admin/support/autoreply` | Get Autoreply |
+| `PUT` | `/api/admin/support/autoreply` | Put Autoreply |
 | `GET` | `/api/admin/support/tickets` | Admin Tickets |
 | `POST` | `/api/admin/support/tickets/{ticket_id}/attachments` | Admin Upload |
 | `GET` | `/api/admin/support/tickets/{ticket_id}/attachments/drafts` | Admin Drafts |
@@ -391,6 +447,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/traffic-packages` | Admin Packages |
 | `POST` | `/api/admin/traffic-packages` | Create Package |
 | `PUT` | `/api/admin/traffic-packages/{package_id}` | Edit Package |
+| `GET` | `/api/admin/users/{user_id}/activity` | User Activity |
 | `POST` | `/api/admin/v15/deployments/{deployment_id}/rollback` | Rollback |
 | `GET` | `/api/admin/v15/operations` | Operations |
 | `POST` | `/api/admin/v16/nodes/register` | Register Node |
@@ -443,6 +500,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/auth/exchange` | Auth Exchange |
 | `GET` | `/api/auth/google` | Google Login |
 | `GET` | `/api/auth/google/callback` | Google Callback |
+| `POST` | `/api/auth/guest` | Guest Start |
+| `POST` | `/api/auth/guest/setup` | Guest Setup |
 | `POST` | `/api/auth/login` | Auth Login |
 | `POST` | `/api/auth/logout` | User Logout |
 | `POST` | `/api/auth/mobile/code` | Redeem App Code |
@@ -483,13 +542,20 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/account-merge/authorization` | Create Authorization |
 | `POST` | `/api/me/account-merge/confirm` | Confirm Merge |
 | `POST` | `/api/me/account-merge/preview` | Preview Merge |
+| `POST` | `/api/me/activity` | My Activity |
 | `POST` | `/api/me/app-login` | Create App Login |
 | `GET` | `/api/me/auto-renew` | Auto Renew Status |
 | `PUT` | `/api/me/auto-renew` | Set Auto Renew |
 | `DELETE` | `/api/me/auto-renew/method` | Remove Auto Renew Method |
+| `GET` | `/api/me/avatar` | My Avatar |
 | `GET` | `/api/me/billing-center` | Billing Center |
+| `DELETE` | `/api/me/cart` | Delete Cart |
+| `GET` | `/api/me/cart` | Get Cart |
+| `POST` | `/api/me/cart` | Put Cart |
+| `GET` | `/api/me/channels` | My Channels |
 | `GET` | `/api/me/connection-info` | Connection Info |
 | `GET` | `/api/me/connection-qr` | Connection Qr |
+| `POST` | `/api/me/connection-reports` | Report |
 | `GET` | `/api/me/consent` | My Consent |
 | `POST` | `/api/me/consent` | Accept Consent |
 | `GET` | `/api/me/dashboard` | Customer Dashboard |
@@ -541,7 +607,9 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/me/push/devices/{device_id}` | Delete Device |
 | `POST` | `/api/me/push/test` | Test Push |
 | `GET` | `/api/me/receipts` | My Receipts |
+| `GET` | `/api/me/recommended-server` | Recommended |
 | `GET` | `/api/me/referral` | My Referral |
+| `GET` | `/api/me/referral-contest` | My Contest |
 | `POST` | `/api/me/referral/apply` | Apply Referral |
 | `GET` | `/api/me/referral/ledger` | My Referral Ledger |
 | `GET` | `/api/me/referral/network` | My Network |
@@ -557,6 +625,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/stars-subscriptions` | My Stars Subscriptions |
 | `POST` | `/api/me/stars-subscriptions` | Create Stars Subscription |
 | `POST` | `/api/me/stars-subscriptions/{row_id}/cancel` | Cancel Stars Subscription |
+| `GET` | `/api/me/stats` | My Stats |
 | `GET` | `/api/me/subscription` | My Subscription |
 | `GET` | `/api/me/subscription-file` | Subscription File |
 | `GET` | `/api/me/subscription/commerce` | Commerce Catalog |
@@ -581,6 +650,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/sync` | My Sync |
 | `GET` | `/api/me/traffic` | My Traffic |
 | `POST` | `/api/me/trial` | Claim Trial |
+| `GET` | `/api/me/upsell` | My Upsell |
 | `GET` | `/api/me/v15/bootstrap` | V15 Bootstrap |
 | `POST` | `/api/me/v16/roaming` | Roaming |
 | `POST` | `/api/me/v16/tunnel-profile` | Tunnel Profile |
@@ -615,6 +685,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/public/branding` | Public Branding |
 | `GET` | `/api/public/cabinet-menu` | Public Cabinet Menu |
 | `GET` | `/api/public/config` | Public Config |
+| `GET` | `/api/public/guest-checkout` | Public Guest |
 | `GET` | `/api/public/info-pages` | Public List |
 | `GET` | `/api/public/info-pages/{kind}` | Public Page |
 | `GET` | `/api/public/menu-emoji/{emoji_id}` | Menu Emoji |
@@ -629,6 +700,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/public/v6/status` | Public Status |
 | `GET` | `/api/reseller/branding` | Reseller Branding |
 | `GET` | `/api/reseller/catalog` | Reseller Catalog |
+| `POST` | `/api/reseller/orders` | Create Order |
+| `GET` | `/api/reseller/orders/{order_id}` | Get Order |
 | `GET` | `/api/reseller/stats` | Reseller Stats |
 | `POST` | `/api/standby/heartbeat` | Heartbeat |
 | `GET` | `/api/tariff-constructors` | Public Constructors |

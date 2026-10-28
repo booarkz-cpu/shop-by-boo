@@ -138,6 +138,11 @@ async def my_source(payload: dict, request: Request, db: AsyncSession = Depends(
     from .main import user_from_token
     user = await user_from_token(request, db)
     changed = await remember_source(db, user, clean_source(str(payload.get("source") or "")))
-    if changed:
+    from .ad_postbacks import remember_click
+    clicked = await remember_click(db, user.id, str(payload.get("click_id") or "") or None, str(payload.get("ym_uid") or "") or None)
+    if changed or clicked:
         await db.commit()
+    if clicked and user.created_at and (datetime.utcnow() - user.created_at).total_seconds() < 86400:
+        from .ad_postbacks import fire
+        fire(user.id, "registration")
     return {"source": user.acquisition_source}

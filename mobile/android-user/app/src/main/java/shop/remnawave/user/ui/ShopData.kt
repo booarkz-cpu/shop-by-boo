@@ -26,6 +26,10 @@ data class ShopData(
     val docs: JSONArray = JSONArray(),
     /** Giveaways and wheel campaigns (GET /api/me/giveaways → items). */
     val giveaways: JSONArray = JSONArray(),
+    /** «Моя статистика» (GET /api/me/stats), one-click offers (GET /api/me/upsell → offers), referral contest. */
+    val stats: JSONObject = JSONObject(),
+    val upsell: JSONArray = JSONArray(),
+    val contest: JSONObject = JSONObject(),
 ) {
     val user: JSONObject get() = dashboard.optJSONObject("user") ?: JSONObject()
     val subscription: JSONObject? get() = dashboard.optJSONObject("subscription")
@@ -108,6 +112,7 @@ interface ShopActions {
     fun setTopupAmount(amount: String)
     fun openDocument(kind: String)
     fun enterGiveaway(giveawayId: Int)
+    fun buyOffer(offer: JSONObject)
 }
 
 fun formatBytes(bytes: Long): String {

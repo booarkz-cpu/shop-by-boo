@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.DisposableEffect
@@ -191,6 +192,11 @@ class ShopApi(private val base: String, private val token: String, private val l
     fun get(path: String): Any = call("GET", path, null)
     fun post(path: String, body: JSONObject): Any = call("POST", path, body)
     fun put(path: String, body: JSONObject): Any = call("PUT", path, body)
+    /** A module panel action (mobile_panels.py): only admin API paths, the server checks the permission. */
+    fun panelAction(method: String, path: String, body: JSONObject): Any {
+        require(path.startsWith("/api/admin/") && method in setOf("POST", "PUT", "DELETE")) { "Unsupported action" }
+        return call(method, path, if (method == "DELETE") null else body)
+    }
 
     private fun call(method: String, path: String, body: JSONObject?): Any {
         val verifier = if (path in setOf("/api/auth/login", "/api/auth/register", "/api/admin/auth/login")) pkceVerifier() else null
@@ -202,7 +208,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-Admin/3.2.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-Admin/3.3.0")
             // Historical compatibility marker: CorgiLusi-Android-Admin/2.10.0
             // Historical compatibility marker: CorgiLusi-Android-Admin/2.9.0
             setRequestProperty("X-Shop-Client", "android-admin")
@@ -282,6 +288,8 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     var ops by remember { mutableStateOf(JSONObject()) }
     var nodeHealth by remember { mutableStateOf(JSONObject()) }
     var cashQueue by remember { mutableStateOf(JSONArray()) }
+    var panels by remember { mutableStateOf(JSONArray()) }
+    var pendingAction by remember { mutableStateOf<JSONObject?>(null) }
     var readiness by remember { mutableStateOf(JSONObject()) }
     var alerts by remember { mutableStateOf(JSONObject()) }
     var tickets by remember { mutableStateOf(JSONArray()) }
@@ -295,7 +303,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     fun profileTitle(): String = profileStore.find(activeId)?.title ?: (try { URI(base).host } catch (_: Exception) { null } ?: base)
     fun clearLoaded() {
         overview = JSONObject(); plans = JSONArray(); payments = JSONArray(); monitoring = JSONObject()
-        platform = JSONObject(); ops = JSONObject(); nodeHealth = JSONObject(); cashQueue = JSONArray(); readiness = JSONObject(); alerts = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
+        platform = JSONObject(); ops = JSONObject(); nodeHealth = JSONObject(); cashQueue = JSONArray(); panels = JSONArray(); readiness = JSONObject(); alerts = JSONObject(); tickets = JSONArray(); broadcasts = JSONArray()
         paymentDetail = JSONObject(); logo = null; reply = ""; broadcastText = ""
     }
     fun reloadProfiles() {
@@ -382,6 +390,8 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
             // Node health appeared in v28.35: older shops simply show no node card.
             val nextNodeHealth = try { api.get("/api/admin/nodes/health") as JSONObject } catch (_: Exception) { JSONObject() }
             val nextCash = try { api.get("/api/admin/v41/providers") as JSONArray } catch (_: Exception) { JSONArray() }
+            // Module panels appeared in v28.37: older shops simply show none.
+            val nextPanels = try { (api.get("/api/admin/mobile/panels") as JSONObject).optJSONArray("panels") ?: JSONArray() } catch (_: Exception) { JSONArray() }
             val nextMarketing = api.get("/api/admin/marketing") as JSONObject
             val nextBroadcasts = nextMarketing.optJSONArray("broadcasts") ?: JSONArray()
             val nextLogo = try {
@@ -399,6 +409,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
                 ops = nextOps
                 nodeHealth = nextNodeHealth
                 cashQueue = nextCash
+                panels = nextPanels
                 readiness = nextReadiness
                 alerts = nextAlerts
                 tickets = nextTickets
@@ -418,6 +429,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
         platform = JSONObject("""{"violations":[{"id":17,"score":82,"recommendation":"Торрент-трафик: ограничить"}],"agents":[{"name":"nl-1","cpu":"23%","last_seen_at":"2026-10-26T20:00:00"},{"name":"de-1","cpu":"41%","last_seen_at":"2026-10-26T20:00:00"}],"countries":[{"country":"RU","count":4210},{"country":"KZ","count":512},{"country":"BY","count":318}]}""")
         ops = JSONObject("""{"critical":0,"stale_agents":1,"agents":[{"name":"nl-1","cpu":"23%","mem":"41%"},{"name":"de-1","cpu":"41%","mem":"55%"}]}""")
         cashQueue = JSONArray("""[{"provider":"yookassa","enabled":true,"configured":true,"cooling":true,"success_count":1284,"failure_count":3},{"provider":"rollypay","enabled":true,"configured":true,"cooling":false,"success_count":212,"failure_count":0},{"provider":"freekassa","enabled":true,"configured":false,"cooling":false,"success_count":0,"failure_count":0}]""")
+        panels = JSONArray("""[{"id":"payment_methods","title":"Способы оплаты","rows":[{"label":"Выбор способа клиентом","value":"включён","tone":"ok"},{"label":"СБП","value":"ЮKassa → RollyPay → Platega","tone":"ok"},{"label":"Криптовалюта","value":"CryptoBot","tone":"ok"}],"actions":[{"label":"Выключить выбор способа","method":"PUT","path":"/api/admin/payments/methods","body":{},"confirm":""}]}]""")
         nodeHealth = JSONObject("""{"nodes":[{"uuid":"n1","name":"Нидерланды","status":"online","users_online":184,"down_minutes":0},{"uuid":"n2","name":"Германия","status":"offline","users_online":0,"down_minutes":4}]}""")
         readiness = JSONObject("""{"ready":false,"checks":[{"title":"Платёжная система подключена","ok":true,"level":"required"},{"title":"Remnawave отвечает","ok":true,"level":"required"},{"title":"Резервные копии по расписанию","ok":true,"level":"required"},{"title":"Чеки в налоговую","ok":false,"level":"recommended","hint":"Тарифы и оплата → Чеки в налоговую"}]}""")
         alerts = JSONObject("""{"recipients":{"telegram":true,"email":false},"problems":[]}""")
@@ -751,6 +763,38 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
                                     }
                                 }
                             }
+                        }
+                        for (p in 0 until panels.length()) {
+                            val panel = panels.getJSONObject(p)
+                            RemnaCard(panel.optString("title")) {
+                                val rows = panel.optJSONArray("rows") ?: JSONArray()
+                                for (r in 0 until rows.length()) {
+                                    val line = rows.getJSONObject(r)
+                                    val tone = when (line.optString("tone")) { "ok" -> Tone.OK; "warn" -> Tone.WARN; "bad" -> Tone.BAD; else -> null }
+                                    RemnaRow(line.optString("label"), line.optString("value"), "", tone)
+                                }
+                                val actions = panel.optJSONArray("actions") ?: JSONArray()
+                                for (a in 0 until actions.length()) {
+                                    val act = actions.getJSONObject(a)
+                                    RemnaGhost(act.optString("label"), enabled = !busy && !demo) {
+                                        if (act.optString("confirm").isNotBlank()) pendingAction = act else work {
+                                            ShopApi(base, token, lang).panelAction(act.optString("method"), act.optString("path"), act.optJSONObject("body") ?: JSONObject())
+                                            activity.runOnUiThread { notice = t("panel_done"); refresh() }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        pendingAction?.let { act ->
+                            AlertDialog(onDismissRequest = { pendingAction = null }, text = { Text(act.optString("confirm")) },
+                                confirmButton = { TextButton(onClick = {
+                                    pendingAction = null
+                                    work {
+                                        ShopApi(base, token, lang).panelAction(act.optString("method"), act.optString("path"), act.optJSONObject("body") ?: JSONObject())
+                                        activity.runOnUiThread { notice = t("panel_done"); refresh() }
+                                    }
+                                }) { Text(act.optString("label")) } },
+                                dismissButton = { TextButton(onClick = { pendingAction = null }) { Text(t("panel_cancel")) } })
                         }
                     }
                     "support" -> RemnaCard(t("support")) {

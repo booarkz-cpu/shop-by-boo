@@ -271,6 +271,8 @@ async def google_callback(code: str, state: str, request: Request, db: AsyncSess
         # its password and sessions to whoever owns the Google account, or back.
         raise HTTPException(409, "Email already registered; confirm it in the cabinet first")
     if not user:
+        from .moderation import registration_check
+        await registration_check(db, email=email)
         user = User(email=email, email_verified_at=datetime.utcnow(), username=(info.get("name") or email.split("@")[0])[:255],
                     referral_code=secrets.token_urlsafe(8).upper())
         db.add(user)

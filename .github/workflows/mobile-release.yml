@@ -64,8 +64,8 @@ jobs:
           bash scripts/build-android-apk.sh "$PWD/dist/mobile"
           for apk in dist/mobile/*.apk; do
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$apk.package.txt"
-            grep -q "versionCode='3200'" "$apk.package.txt"
-            grep -q "versionName='3.2.0'" "$apk.package.txt"
+            grep -q "versionCode='3300'" "$apk.package.txt"
+            grep -q "versionName='3.3.0'" "$apk.package.txt"
             if grep -q 'application-debuggable' "$apk.package.txt"; then echo 'Debuggable release rejected'; exit 1; fi
             if [[ "$state" == signed ]]; then
               "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > "$apk.certificate.txt"
@@ -138,7 +138,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [android, ios]
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 80
     permissions:
       contents: write
       actions: read
@@ -171,7 +171,8 @@ jobs:
               return;
             }
             let release;
-            for (let i = 0; i < 90; i++) {
+            // The release appears only after CI, Docker and «Publish GitHub release» finish (about 30–50 minutes).
+            for (let i = 0; i < 420; i++) {
               const main = await github.rest.repos.getBranch({...args, branch: 'main'});
               if (main.data.commit.sha !== context.sha) {
                 core.notice('Main moved; packages remain as workflow artifacts.');
@@ -195,16 +196,27 @@ jobs:
               }
               await new Promise(resolve => setTimeout(resolve, 10000));
             }
-            if (!release || release.draft) throw new Error('Verified source release is not available.');
+            if (!release || release.draft) {
+              // A commit that does not raise the version publishes no release: nothing to attach, not an error.
+              const pub = await github.rest.actions.listWorkflowRuns({...args, workflow_id:'publish-release.yml', head_sha:context.sha, per_page:10});
+              if (pub.data.workflow_runs.some(r => r.status === 'completed' && r.conclusion === 'success')) {
+                core.notice('No release for this commit; packages remain available as workflow artifacts.');
+                return;
+              }
+              throw new Error('Verified source release is not available.');
+            }
             const android = fs.readFileSync('dist/mobile/android-status.txt','utf8').trim();
             const ios = fs.readFileSync('dist/mobile/ios-status.txt','utf8').trim();
-            const status = {version:'3.2.0', source_commit:context.sha, workflow_run:context.runId,
+            const gradle = fs.readFileSync('mobile/android-user/app/build.gradle.kts','utf8');
+            const mobileVersion = gradle.match(/versionName = "([0-9.]+)"/)[1];
+            const v = mobileVersion.replace(/\./g, '_');
+            const status = {version:mobileVersion, source_commit:context.sha, workflow_run:context.runId,
               android, ios, note:'Unsigned and preview packages are never production release assets.'};
             fs.writeFileSync('dist/mobile/mobile-production-status.json', JSON.stringify(status,null,2)+'\n');
             const names = fs.readdirSync('dist/mobile').filter(name =>
               name === 'mobile-production-status.json' ||
-              (android === 'signed' && /^corgi_lusi_android_(user|admin)_2_15_0_release\.apk(?:\.(?:sha256|certificate\.txt|package\.txt))?$/.test(name)) ||
-              (ios === 'signed' && /^corgi_lusi_ios_(user|admin)_2_15_0_signed\.ipa(?:\.sha256)?$/.test(name)));
+              (android === 'signed' && new RegExp(`^corgi_lusi_android_(user|admin)_${v}_release\\.(?:apk|aab)(?:\\.(?:sha256|certificate\\.txt|package\\.txt))?$`).test(name)) ||
+              (ios === 'signed' && new RegExp(`^corgi_lusi_ios_(user|admin)_${v}_signed\\.ipa(?:\\.sha256)?$`).test(name)));
             const existing = (await github.rest.repos.listReleaseAssets({...args, release_id:release.id, per_page:100})).data;
             for (const name of names) {
               const old = existing.find(a => a.name === name);
@@ -219,6 +231,6 @@ jobs:
             }
             const marker = '\n<!-- mobile-production-status -->';
             const body = release.body.split(marker)[0] + marker +
-              `\n\nMobile 3.2.0: Android **${android}**, iOS **${ios}**.\n`;
+              `\n\nMobile ${mobileVersion}: Android **${android}**, iOS **${ios}**.\n`;
             await github.rest.repos.updateRelease({...args, release_id:release.id, body});
             core.summary.addRaw(`Android: ${android}; iOS: ${ios}`).write();

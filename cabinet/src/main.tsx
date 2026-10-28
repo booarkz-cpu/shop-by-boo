@@ -6,6 +6,7 @@ import {watchAccount} from "./account-sync";
 import {Bell, CircleHelp, CreditCard, Gift, Handshake, Home, KeyRound, LayoutGrid, ListChecks, LogOut, Menu, Moon, Server, Smartphone, Sparkles, Sun, Trophy, UserRound, Users, Wallet, X, Zap, Plug, Receipt, FileText, Heart, Activity} from "lucide-react";
 import {Overview, type Traffic} from "./overview";
 import {Connection} from "./connection";
+import {Avatar, GuestPurchase, MyStats, UpsellOffers, reportScreen, topUpAndBuy, RequiredChannels} from "./insights";
 import {Plans} from "./plans";
 import {ProfileCard} from "./profile";
 import {Skeleton, StatusBadge} from "./ui";
@@ -110,6 +111,13 @@ async function req(path: string, opts: RequestInit = {}) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+/** Invite-only registration (moderation.py): ?invite=CODE or a Mini App link startapp=inv_CODE. */
+function inviteCode(): string | undefined {
+  const fromQuery = new URLSearchParams(location.search).get("invite");
+  const start = String((window as any).Telegram?.WebApp?.initDataUnsafe?.start_param || "");
+  return fromQuery || start.split("__").find((p: string) => p.startsWith("inv_"))?.slice(4) || undefined;
 }
 
 function pickProvider(providers: string[] | undefined): string {
@@ -227,6 +235,9 @@ function App() {
   const [pick, setPick] = useState<Record<number, Record<string, number>>>({});
   const [servers, setServers] = useState<any>();
   const [provider, setProvider] = useState("");
+  const [payMethod, setPayMethod] = useState("");
+  const [guestCheckout, setGuestCheckout] = useState(false);
+  useEffect(() => { fetch(`${API}/api/public/guest-checkout`).then((r) => r.json()).then((d) => setGuestCheckout(!!d.enabled)).catch(() => setGuestCheckout(false)); }, []);
   const [promo, setPromo] = useState(new URLSearchParams(location.search).get("promo")||"");
   const [connection, setConnection] = useState<any>();
   const [platform, setPlatform] = useState<string>("android");
@@ -289,6 +300,7 @@ function App() {
       const conf = await req("/api/public/config");
       setCfg(conf);
       setProvider(pickProvider(conf.payment_providers));
+      setPayMethod((conf.payment_methods || [])[0]?.key || "");
       if (!localStorage.getItem("rw_lang")) setLang(detectLang(conf.default_language));
       document.title = conf.app_name ? `${conf.app_name} · ${t("Личный кабинет")}` : t("Личный кабинет");
     } catch {
@@ -371,10 +383,14 @@ function App() {
     try {
       const startParam = String((window as any).Telegram?.WebApp?.initDataUnsafe?.start_param || "");
       const fromStart = startParam.split("__").find((part: string) => part.toLowerCase().startsWith("src_"))?.slice(4);
-      const source = new URLSearchParams(location.search).get("utm_source") || fromStart;
-      if (source && !sessionStorage.getItem("corgi_source_sent")) {
+      const query = new URLSearchParams(location.search);
+      const source = query.get("utm_source") || fromStart;
+      // Ad conversions (ad_postbacks.py): the network's click id and the Yandex Metrika visitor id.
+      const clickId = query.get("click_id") || query.get("cid") || startParam.split("__").find((p: string) => p.startsWith("cid_"))?.slice(4) || "";
+      const ymUid = (document.cookie.match(/(?:^|; )_ym_uid=(\d+)/) || [])[1] || "";
+      if ((source || clickId || ymUid) && !sessionStorage.getItem("corgi_source_sent")) {
         sessionStorage.setItem("corgi_source_sent", "1");
-        req("/api/me/source", {method: "POST", body: JSON.stringify({source})}).catch(() => {});
+        req("/api/me/source", {method: "POST", body: JSON.stringify({source, click_id: clickId, ym_uid: ymUid})}).catch(() => {});
       }
     } catch { /* storage may be unavailable in some webviews */ }
     await Promise.all([loadConstructors(), loadServers(true), (async()=>{try{setTraffic(await req("/api/me/traffic"))}catch{setTraffic(null)}})(), (async()=>{try{setDevices(await req("/api/me/devices"))}catch{setDevices([])}})(), (async()=>{try{setRouting(await req("/api/me/routing/recommendation"))}catch{setRouting(null)}})()]);
@@ -406,7 +422,7 @@ function App() {
       await loadServers(false);
       try {
         if (tg?.initData) {
-          await req("/api/auth/telegram", {method: "POST", body: JSON.stringify({initData: tg.initData})});
+          await req("/api/auth/telegram", {method: "POST", body: JSON.stringify({initData: tg.initData, invite: inviteCode()})});
         } else if (code) {
           await req("/api/auth/exchange", {method: "POST", body: JSON.stringify({code})});
           const url = new URL(location.href);
@@ -450,7 +466,7 @@ function App() {
     flash("");
     try {
       const path = authMode === "login" ? "/api/auth/login" : "/api/auth/register";
-      await req(path, {method: "POST", body: JSON.stringify({email: email.trim(), password, username: username.trim() || undefined})});
+      await req(path, {method: "POST", body: JSON.stringify({email: email.trim(), password, username: username.trim() || undefined, invite: inviteCode()})});
       await loadSession();
       flash(authMode === "login" ? t("Добро пожаловать") : t("Создать аккаунт"));
     } catch (err: any) {
@@ -466,7 +482,7 @@ function App() {
     try {
       const initData = (window as any).Telegram?.WebApp?.initData;
       if (!initData) throw Error("Telegram WebApp initData недоступен");
-      await req("/api/auth/telegram", {method: "POST", body: JSON.stringify({initData})});
+      await req("/api/auth/telegram", {method: "POST", body: JSON.stringify({initData, invite: inviteCode()})});
       await loadSession();
     } catch (err: any) {
       flash(err.message || t("Ошибка"), true);
@@ -487,7 +503,7 @@ function App() {
     if(!gift)body={...body,...(profileTarget==="new"?{new_subscription:true}:selected?{subscription_id:selected}:{})};
     const partner=new URLSearchParams(location.search).get("partner");
     if(partner)body={...body,reseller_slug:partner};
-    const fingerprint=JSON.stringify({body,wallet,gift,provider:wallet?"wallet":provider});
+    const fingerprint=JSON.stringify({body,wallet,gift,provider:wallet?"wallet":provider,method:payMethod});
     purchaseKeys.current[fingerprint]??=crypto.randomUUID();
     const key=purchaseKeys.current[fingerprint];
     setBusy(true);
@@ -498,18 +514,29 @@ function App() {
         await loadSession();
         flash("Подарочный код: " + issued.code);
       } else if (wallet) {
-        await req("/api/me/wallet/spend", {
-          method: "POST",
-          headers: {"Idempotency-Key": key},
-          body: JSON.stringify(body),
-        });
-        flash(t("Оплачено с баланса"));
+        try {
+          await req("/api/me/wallet/spend", {
+            method: "POST",
+            headers: {"Idempotency-Key": key},
+            body: JSON.stringify(body),
+          });
+          flash(t("Оплачено с баланса"));
+        } catch (err: any) {
+          // Not enough on the wallet: the smart cart keeps the purchase and buys it right after the top-up.
+          if (!/Недостаточно средств/.test(String(err?.message || "")) || !window.confirm("На балансе не хватает. Пополнить разницу — и покупка пройдёт сама?")) throw err;
+          flash(await topUpAndBuy(req, body, async (amount) => {
+            const r = await req("/api/me/wallet/topup", {method: "POST", headers: {"Idempotency-Key": crypto.randomUUID()},
+              body: JSON.stringify(payMethod ? {amount: Number(amount), pay_method: payMethod} : {amount: Number(amount), provider: provider || undefined})});
+            if (r.url) location.href = r.url;
+          }));
+        }
         await loadSession();
       } else {
         const r = await req("/api/payments/create", {
           method: "POST",
           headers: {"Idempotency-Key": key},
-          body: JSON.stringify({...body, provider: provider || undefined}),
+          // With payment methods the shop picks the gateway of the chosen method (СБП, card, crypto) itself.
+          body: JSON.stringify(payMethod ? {...body, method: payMethod} : {...body, provider: provider || undefined}),
         });
         if (r.url) {
           const target=new URL(r.url,location.origin);
@@ -608,6 +635,11 @@ function App() {
   const subUrl = connection?.subscription_url || sub?.subscription_url || "";
   const known = menu.find((m) => m.slug === tab);
   const activeItem = known || menu[0];
+  const reportedScreen = useRef("");
+  useEffect(() => {
+    const screen = activeItem?.kind || "";
+    if (authed && screen && reportedScreen.current !== screen) { reportedScreen.current = screen; reportScreen(req, screen); }
+  }, [authed, activeItem?.kind]);
   // A link to a section this shop does not have: say so instead of silently opening the first one.
   const missingSection = Boolean(tab && !known && configStatus !== "loading" && menu.length > 1 && !["overview", "family", "status"].includes(tab));
   const platforms = connection?.platforms || {};
@@ -715,6 +747,7 @@ function App() {
 
         {accountFlow ? <AccountRecovery link={accountFlow} request={req} onClose={reset=>{setAccountFlow(null);if(reset)setAuthed(false)}}/> : !authed ? (
           <section className="auth-layout">
+            {guestCheckout && <GuestPurchase request={req} onReady={() => loadSession()} />}
             <div className="form-card">
               <div className="auth-switch" role="tablist">
                 <button type="button" role="tab" aria-selected={authMode === "login"} className={`tab ${authMode === "login" ? "active" : ""}`} onClick={() => setAuthMode("login")}>
@@ -799,7 +832,7 @@ function App() {
             <div className={`drawer-backdrop ${drawerOpen ? "open" : ""}`} onClick={() => setDrawerOpen(false)} aria-hidden="true" />
             <aside className={`user-sidebar ${drawerOpen ? "drawer-open" : ""}`} aria-label="Навигация кабинета">
               <div className="sidebar-heading">
-                <span className="profile-avatar" aria-hidden="true">{String(userName).slice(0, 1).toUpperCase()}</span>
+                <Avatar api={API} name={String(userName)}/>
                 <div>
                   <span className="sidebar-kicker">ЛИЧНЫЙ КАБИНЕТ</span>
                   <strong>{userName}</strong>
@@ -844,6 +877,9 @@ function App() {
                     <Greeting fallbackName={dash?.user?.username || ""} />
                     <PromoCards go={goLink} />
                     <Overview sub={sub} user={dash?.user} traffic={traffic} subUrl={subUrl} currency={currency} api={API} copied={copied} onCopy={copyLink} go={goKind} formatDate={formatDate} />
+                    <RequiredChannels request={req} />
+                    <UpsellOffers request={req} onChanged={() => { loadSession(); }} onCheckout={(body: any) => buySelection(body, false)} />
+                    <MyStats request={req} />
                     <h3 className="section-title section-title-sm">{config.texts?.servers_title || "Серверы"}</h3>
                     <ServerCatalog servers={servers} />
                     <AppsNotice apps={shopApps} lang={lang} />
@@ -852,7 +888,7 @@ function App() {
 
                 {activeItem?.kind === "plans" && <ConsentGate request={req} force={needConsent} onAccepted={() => setNeedConsent(false)} />}
                 {activeItem?.kind === "plans" && (
-                  <Plans plans={plans} constructors={constructors} pick={pick} setPick={setPick} defaultPick={defaultPick} constructorTotal={constructorTotal} promo={promo} setPromo={setPromo} providers={cfg.payment_providers || []} provider={provider} setProvider={setProvider} profiles={profiles} profileTarget={profileTarget} setProfileTarget={setProfileTarget} busy={busy} currency={currency} buy={buy} buyWallet={buyWallet} buyConstructor={buyConstructor} offers={<PersonalOffers request={req} onSelect={setPromo}/>} />
+                  <Plans plans={plans} constructors={constructors} pick={pick} setPick={setPick} defaultPick={defaultPick} constructorTotal={constructorTotal} promo={promo} setPromo={setPromo} providers={cfg.payment_providers || []} methods={cfg.payment_methods || []} method={payMethod} setMethod={setPayMethod} provider={provider} setProvider={setProvider} profiles={profiles} profileTarget={profileTarget} setProfileTarget={setProfileTarget} busy={busy} currency={currency} buy={buy} buyWallet={buyWallet} buyConstructor={buyConstructor} offers={<PersonalOffers request={req} onSelect={setPromo}/>} />
                 )}
 
                 {activeItem?.kind === "plans" && <StarsSubscribe plans={plans} request={req} flash={flash} subscriptionId={profileTarget==="current"?dash?.subscription?.id:profileTarget==="new"?null:Number(profileTarget)||null} />}

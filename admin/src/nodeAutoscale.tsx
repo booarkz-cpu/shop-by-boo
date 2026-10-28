@@ -31,7 +31,7 @@ export function NodeAutoscale({request, toast}: {request: Request; toast: (text:
         а убирает только ноды, которые создал сам.</p>
       {error ? <p className="error">{error}</p> : null}
       {last ? <p>Сейчас: {last.online} нод онлайн, {last.users} пользователей, {last.load} на ноду{last.action ? ` — ${last.action === "up" ? "нужна ещё нода" : "одна нода лишняя"}` : ""}{last.reason ? ` (${last.reason})` : ""}.</p> : <p className="muted">Ещё не считалось.</p>}
-      {cfg.mode === "auto" && !(ready.hetzner_token && ready.node_secret) ? <p className="error">Для режима «Авто» добавьте в .env HETZNER_API_TOKEN и REMNANODE_SECRET_KEY — пока будут только рекомендации.</p> : null}
+      {cfg.mode === "auto" && !ready.hetzner_token ? <p className="error">Для режима «Авто» добавьте в .env HETZNER_API_TOKEN — пока будут только рекомендации. Ключ ноды магазин берёт из панели сам.</p> : null}
       <label className="check"><input type="checkbox" checked={cfg.enabled} onChange={e => setCfg({...cfg, enabled: e.target.checked})}/> Включено</label>
       <label>Режим<select value={cfg.mode} onChange={e => setCfg({...cfg, mode: e.target.value})}><option value="recommend">Рекомендации</option><option value="auto">Авто (Hetzner)</option></select></label>
       <label>Добавлять ноду выше, польз./ноду<input type="number" value={cfg.up_at} onChange={num("up_at")}/></label>

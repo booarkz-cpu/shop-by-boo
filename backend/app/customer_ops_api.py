@@ -17,6 +17,10 @@ async def create_support_ticket(payload:shop.TicketIn, request:Request, db:Async
     if not payload.subject.strip() or not payload.message.strip(): raise shop.HTTPException(400,"Укажите тему и сообщение")
     t=shop.SupportTicket(user_id=user.id, subject=payload.subject.strip(), message=payload.message.strip())
     db.add(t); await db.commit(); await db.refresh(t)
+    from .node_health import _load
+    from .support_autoreply import DEFAULT as AUTOREPLY, KEY as AUTOREPLY_KEY, after_ticket
+    if (await _load(db, AUTOREPLY_KEY, AUTOREPLY))["enabled"]:
+        shop._track_task(after_ticket(t.id))  # an answer from the knowledge base when it clearly fits
     return {"id":t.id,"status":t.status}
 
 # Store support is canonical; Support Pro uses the scoped bridge API.

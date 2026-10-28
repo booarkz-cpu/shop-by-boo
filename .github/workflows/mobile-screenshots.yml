@@ -54,13 +54,14 @@ jobs:
           profile: pixel_6
           disable-animations: true
           script: |
+            bash scripts/mobile/emulator-quiet.sh
             adb install -r mobile/android-user/app/build/outputs/apk/debug/app-debug.apk
             mkdir -p shots
-            for tab in vpn subscription premium locations settings support devices family status giveaways; do adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab $tab --es corgi_lang ru; sleep 6; adb exec-out screencap -p > shots/android-$tab.png; done
-            adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --ez corgi_vpn_on true --es corgi_tab vpn --es corgi_lang ru; sleep 6; adb exec-out screencap -p > shots/android-vpn-on.png
-            adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab vpn --es corgi_lang en; sleep 6; adb exec-out screencap -p > shots/android-vpn-en.png
+            for tab in vpn subscription premium locations settings support devices family status giveaways; do adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab $tab --es corgi_lang ru; sleep 6; bash scripts/mobile/emulator-quiet.sh dismiss; adb exec-out screencap -p > shots/android-$tab.png; done
+            adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --ez corgi_vpn_on true --es corgi_tab vpn --es corgi_lang ru; sleep 6; bash scripts/mobile/emulator-quiet.sh dismiss; adb exec-out screencap -p > shots/android-vpn-on.png
+            adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab vpn --es corgi_lang en; sleep 6; bash scripts/mobile/emulator-quiet.sh dismiss; adb exec-out screencap -p > shots/android-vpn-en.png
             adb install -r mobile/android-admin/app/build/outputs/apk/debug/app-debug.apk
-            for tab in overview launch payments monitoring ops support panel; do adb shell am force-stop shop.remnawave.admin.preview; adb shell am start -W -n shop.remnawave.admin.preview/shop.remnawave.admin.MainActivity --ez corgi_demo true --es corgi_tab $tab; sleep 6; adb exec-out screencap -p > shots/android-admin-$tab.png; done
+            for tab in overview launch payments monitoring ops support panel; do adb shell am force-stop shop.remnawave.admin.preview; adb shell am start -W -n shop.remnawave.admin.preview/shop.remnawave.admin.MainActivity --ez corgi_demo true --es corgi_tab $tab; sleep 6; bash scripts/mobile/emulator-quiet.sh dismiss; adb exec-out screencap -p > shots/android-admin-$tab.png; done
       - uses: actions/upload-artifact@v7
         with:
           name: mobile-screenshots-android
@@ -106,6 +107,7 @@ jobs:
           cores: 4
           ram-size: 4096M
           script: |
+            bash scripts/mobile/emulator-quiet.sh
             adb install -r mobile/android-user/app/build/outputs/apk/debug/app-debug.apk
             # The CI emulator starts a freshly installed debug build slowly («failed to attach»): compile it ahead
             # of time and open it once, so every flow's cold start fits Maestro's wait.

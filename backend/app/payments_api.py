@@ -29,7 +29,7 @@ def _checkout_provider(name: str):
     factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"sandbox":shop.SandboxProvider}
     return factories[name]()
 
-async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
+async def _payment_provider_order(db: shop.AsyncSession, requested: str|None, method: str|None=None):
     names=shop.routing_names(shop.payments_sandbox_allowed())
     # Provider health rows are lazily bootstrapped. Serialize that bootstrap so
     # concurrent first requests cannot race into a unique-constraint failure.
@@ -61,6 +61,14 @@ async def _payment_provider_order(db: shop.AsyncSession, requested: str|None):
              and x.enabled
              and configured.get(x.provider, False)
              and (not x.circuit_open_until or x.circuit_open_until <= now)]
+    if method:
+        # The customer chose СБП / card / crypto: that method's own chain (payment_methods.py), when routing is on.
+        from .payment_methods import load as load_routing, order_for
+        routing=await load_routing(db)
+        if routing["enabled"]:
+            enabled=order_for(routing, method, enabled)
+            if not enabled: raise shop.HTTPException(503,"Этот способ оплаты сейчас недоступен — выберите другой")
+            if requested not in enabled: requested=None
     if requested:
         if requested not in enabled: raise shop.HTTPException(503,"Выбранный платёжный провайдер отключён или временно недоступен")
         return [requested]+[x for x in enabled if x!=requested]
@@ -97,24 +105,10 @@ async def release_promo_reservation(db:shop.AsyncSession, reservation_id:int):
     return True
 
 
-async def ensure_required_channel(user:shop.User):
-    channel=(shop.settings.required_telegram_channel or "").strip()
-    if not channel:
-        return
-    if not user.telegram_id or not shop.settings.bot_token:
-        raise shop.HTTPException(403,"Подпишитесь на обязательный канал")
-    try:
-        async with shop._pinned_public_http_client(10) as client:
-            response=await client.get(
-                f"https://api.telegram.org/bot{shop.settings.bot_token}/getChatMember",
-                params={"chat_id":channel,"user_id":user.telegram_id},
-            )
-        data=response.json()
-    except Exception as exc:
-        raise shop.HTTPException(503,"Не удалось проверить подписку на канал") from exc
-    status=((data.get("result") or {}).get("status") if isinstance(data,dict) and data.get("ok") else None)
-    if status not in {"member","administrator","creator"}:
-        raise shop.HTTPException(403,"Подпишитесь на обязательный канал")
+async def ensure_required_channel(user:shop.User, scope:str="buy"):
+    """Required channels of the scope (channel_gate.py: several channels, «везде / пробный / покупки»)."""
+    from .channel_gate import ensure
+    await ensure(user, scope)
 
 @shop.app.post("/api/payments/create")
 async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSession=shop.Depends(shop.get_db)):
@@ -259,7 +253,10 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         # Idempotency lookup already happened above. The order lock below protects the
         # first-time intent creation from concurrent callers using the same key.
         requested_provider=payload.get("provider")
-        provider_order=await shop._payment_provider_order(db,requested_provider)
+        from .payment_methods import YOOKASSA_TYPES, load as load_routing
+        pay_method=str(payload.get("method") or "") or None
+        method_hint=YOOKASSA_TYPES.get(pay_method or "") if pay_method and (await load_routing(db))["enabled"] else None
+        provider_order=await shop._payment_provider_order(db,requested_provider,*([pay_method] if pay_method else []))
         if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
         provider_name=provider_order[0]
         provider=_checkout_provider(provider_name)
@@ -301,6 +298,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
                 back=shop._return_url(canonical_order_id,request=request)
                 meta={"order_id":canonical_order_id,"user_id":user.id,"email":user.email,"return_url":back,"cancel_url":back}
                 if candidate in {"stripe","paypal","crypto"}: result=await candidate_provider.create(final_amount,shop.settings.default_currency,f"VPN {plan.name}",meta)
+                elif candidate=="yookassa" and method_hint: result=await candidate_provider.create(final_amount,canonical_order_id,f"VPN {plan.name}",back,method=method_hint)
                 else: result=await candidate_provider.create(final_amount,canonical_order_id,f"VPN {plan.name}",back)
                 if not result.get("id"):
                     raise RuntimeError("Payment provider returned no payment ID")
@@ -537,6 +535,11 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
             payment.fulfillment_status="completed"; payment.fulfillment_terminal=True; payment.fulfillment_attempts=(payment.fulfillment_attempts or 0)+1
             await shop.audit(db,"wallet.topup",f"user:{user.id}",str(payment.id),{"amount":str(amount)}); await db.commit()
             await shop.notify_user_telegram(user.telegram_id, f"Баланс пополнен на {amount} {payment.currency}. Wallet topped up by {amount} {payment.currency}.")
+            # The smart cart (smart_cart.py) buys what did not fit the wallet before, once this lock is released.
+            from .models import ShopCart
+            if await db.get(ShopCart, user.id):
+                from .smart_cart import after_topup
+                shop._track_task(after_topup(user.id))
             return
         from .subscriptions import pending_absolute_write
         target=await shop.payment_target(db,payment,lock=True)
@@ -617,6 +620,10 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
                 # otherwise a plan upgrade can pay for more traffic while the old remote
                 # quota remains in force (or a downgrade can leave excess quota active).
                 await rw.update_entitlements(sub.remnawave_uuid,traffic_limit_gb,profile_id,device_limit=payment.device_limit_snapshot)
+                from .grace_access import reset_traffic_on_payment
+                if await reset_traffic_on_payment(db):
+                    # «Сбрасывать трафик при оплате»: a renewal starts the traffic limit from zero (a retry resets again, harmless).
+                    await rw.reset_traffic(sub.remnawave_uuid)
                 extension=await rw.extend_idempotent(sub.remnawave_uuid,duration_days,before_local,expected_after)
                 rw_sub=await rw.get_subscription(sub.remnawave_uuid)
                 verified_expiry=extension.get("expires_at") if isinstance(extension,dict) else None
@@ -704,7 +711,11 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
         await shop.audit(db,"payment.fulfilled","system",str(payment.id),{"provider":payment.provider,"attempt":payment.fulfillment_attempts})
         await shop.enqueue_notification(db,user_id=user.id,channel="in_app",kind="payment_success",title="Оплата подтверждена",body=f"Заказ {payment.order_id} оплачен. Подписка готовится или уже активирована.",dedupe_key=f"payment:{payment.id}:success")
         await shop.enqueue_notification(db,user_id=user.id,channel="in_app",kind="subscription_ready",title="Подписка активирована",body="Ваша VPN-подписка активирована. Откройте раздел подключения, чтобы получить ссылку.",dedupe_key=f"payment:{payment.id}:ready")
+        from .activity_log import record as record_activity
+        record_activity(db, user.id, "system", "payment.fulfilled", {"id": payment.id, "amount": payment.amount})
         await db.commit()
+        from .ad_postbacks import fire as fire_conversion
+        fire_conversion(user.id, "purchase", amount=str(payment.amount), currency=payment.currency, order_id=payment.order_id)
         await shop.notify_user_telegram(user.telegram_id, "Оплата подтверждена. Подписка активирована. Откройте раздел «Подключение».\nPayment confirmed. The subscription is active. Open Connection.")
     except Exception as exc:
         try:

@@ -27,6 +27,7 @@ struct UserRootView: View {
     @State private var topupAmount = "300"
     @State private var familyCode = ""
     @State private var sheet = ""
+    @State private var payMethodAsk = false
     @State private var sheetText = ""
     @State private var sheetText2 = ""
     /// A document opened from «Информация» or a «Открыть документ» button.
@@ -69,6 +70,12 @@ struct UserRootView: View {
         .preferredColorScheme(.dark)
         .overlay { if scenePhase != .active { Color.black.ignoresSafeArea() } }
         .sheet(isPresented: Binding(get: { !sheet.isEmpty }, set: { if !$0 { sheet = "" } })) { sheetView }
+        .confirmationDialog(t("pay_method_title"), isPresented: $payMethodAsk, titleVisibility: .visible) {
+            ForEach(Array(payMethods().enumerated()), id: \.offset) { _, method in
+                Button(method.title) { buy(wallet: false, method: method.key) }
+            }
+            Button(t("later"), role: .cancel) {}
+        }
         .onOpenURL { url in
             if let order = paymentOrder(url) { checkPayment(order); return }
             guard let link = LoginLink.parse(url) else { return }
@@ -252,7 +259,9 @@ struct UserRootView: View {
             switch section.kind {
             case "locations": locationsBody
             case "premium": premiumBody
-            case "subscription": subscriptionBody
+            case "subscription":
+                subscriptionBody
+                insightsCards
             case "devices": devicesBody
             case "family": familySection
             case "referral": referralBody
@@ -558,11 +567,68 @@ struct UserRootView: View {
         }
     }
 
-    private var referralBody: some View {
+    @ViewBuilder private var referralBody: some View {
         CardView(theme: theme) {
             Text(jsonText(data.user["referral_code"])).font(.system(size: 24, weight: .bold)).foregroundStyle(theme.accent2)
             let earned = jsonText(data.user["referral_balance"])
             if !earned.isEmpty && earned != "0" && earned != "0.00" { Text("+\(earned) ₽").foregroundStyle(theme.success) }
+        }
+        if !jsonText(data.contest["title"]).isEmpty {
+            CardView(theme: theme) {
+                Text("🏆 \(jsonText(data.contest["title"]))").font(.system(size: 20, weight: .bold)).foregroundStyle(theme.text)
+                Text("\(t("contest_until")) \(String(jsonText(data.contest["ends_at"]).prefix(10)))").foregroundStyle(theme.muted)
+                ForEach(Array((data.contest["top"] as? [[String: Any]] ?? []).enumerated()), id: \.offset) { _, row in
+                    infoLine("\(jsonText(row["place"])). \(jsonText(row["name"]))", jsonText(row["score"]))
+                }
+                if let me = data.contest["me"] as? [String: Any] {
+                    Text(t("contest_me").replacingOccurrences(of: "{place}", with: jsonText(me["place"])).replacingOccurrences(of: "{score}", with: jsonText(me["score"])))
+                        .fontWeight(.bold).foregroundStyle(theme.success)
+                } else {
+                    Text(t("contest_join")).foregroundStyle(theme.success)
+                }
+            }
+        }
+    }
+
+    /// «Моя статистика» and one-click offers under the subscription card (v28.37).
+    @ViewBuilder private var insightsCards: some View {
+        if !data.stats.isEmpty {
+            CardView(theme: theme) {
+                Text(t("stats_title")).font(.system(size: 20, weight: .bold)).foregroundStyle(theme.text)
+                infoLine(t("stats_days"), "\(jsonText(data.stats["days_with_us"])) \(t("days_short"))")
+                infoLine(t("stats_paid"), "\(jsonText(data.stats["days_paid"])) \(t("days_short"))")
+                if !(data.stats["traffic_used_gb"] is NSNull), data.stats["traffic_used_gb"] != nil {
+                    infoLine(t("stats_traffic"), "\(jsonText(data.stats["traffic_used_gb"])) GB")
+                }
+                infoLine(t("stats_avoided"), jsonText(data.stats["blocked_servers_avoided"]))
+            }
+        }
+        if !data.upsell.isEmpty {
+            CardView(theme: theme) {
+                Text(t("upsell_title")).font(.system(size: 20, weight: .bold)).foregroundStyle(theme.text)
+                ForEach(Array(data.upsell.enumerated()), id: \.offset) { index, offer in
+                    Text(jsonText(offer["title"])).fontWeight(.bold).foregroundStyle(theme.text)
+                    Text(jsonText(offer["reason"])).foregroundStyle(theme.muted)
+                    ActionButtonView(button: LayoutButton(id: "upsell_\(index)", label: "\(jsonText(offer["price"])) ₽", action: "refresh", target: "", style: "primary", icon: "wallet", audience: "any"),
+                                     theme: theme, enabled: !busy) { buyOffer(offer) }
+                }
+            }
+        }
+    }
+
+    private func buyOffer(_ offer: [String: Any]) {
+        if let checkout = offer["checkout"] as? [String: Any], let plan = jsonInt(checkout["plan_id"]) {
+            selectedPlan = plan
+            buy(wallet: false, method: payMethods().first?.key ?? "")
+            return
+        }
+        guard let quoteBody = offer["quote"] as? [String: Any] else { return }
+        let (api, session, language) = (base, token, lang)
+        work {
+            let client = ShopClient(base: api, token: session, lang: language)
+            let quote = try client.call("POST", "/api/me/subscription/quote", body: quoteBody) as? [String: Any] ?? [:]
+            _ = try client.call("POST", "/api/me/subscription/purchase", body: ["quote_id": jsonText(quote["id"])], idempotency: UUID().uuidString)
+            DispatchQueue.main.async { notice = t("upsell_done"); refresh() }
         }
     }
 
@@ -769,7 +835,9 @@ struct UserRootView: View {
         case "copy_subscription": copy(data.subscriptionUrl)
         case "show_qr": sheet = "qr"
         case "copy_id": copy(data.customerId)
-        case "buy": buy(wallet: false)
+        case "buy":
+            // With payment methods set up in the admin the customer picks СБП / card / crypto first.
+            if payMethods().count > 1 { payMethodAsk = true } else { buy(wallet: false, method: payMethods().first?.key ?? "") }
         case "pay_wallet": buy(wallet: true)
         case "trial": startTrial()
         case "topup": topUp()
@@ -1052,6 +1120,23 @@ struct UserRootView: View {
                 // Shops before v28.29.0 have no documents: the section stays empty.
                 next.docs = (try? api.call("GET", "/api/public/info-pages?lang=\(language)")) as? [[String: Any]] ?? []
                 next.giveaways = ((try? api.call("GET", "/api/me/giveaways")) as? [String: Any])?["items"] as? [[String: Any]] ?? []
+                next.stats = (try? api.call("GET", "/api/me/stats")) as? [String: Any] ?? [:]
+                next.upsell = ((try? api.call("GET", "/api/me/upsell")) as? [String: Any])?["offers"] as? [[String: Any]] ?? []
+                next.contest = ((try? api.call("GET", "/api/me/referral-contest")) as? [String: Any])?["contest"] as? [String: Any] ?? [:]
+                // Connection quality (connection_quality.py): server checks with the network type, at most every 6 hours.
+                let qualityAt = UserDefaults.standard.double(forKey: "corgi_quality_at")
+                if !next.subscriptionUrl.isEmpty && Date().timeIntervalSince1970 - qualityAt > 6 * 3600 {
+                    UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: "corgi_quality_at")
+                    let checks = CorgiDiagnostics.run(base: origin, subscription: next.subscriptionUrl).filter { jsonText($0["name"]) == "server" }
+                    let results: [[String: Any]] = checks.map { c in
+                        var r: [String: Any] = ["server": jsonText(c["target"]), "ok": (c["ok"] as? Bool) ?? false]
+                        if let ms = c["ms"] as? Int { r["ms"] = ms }
+                        return r
+                    }
+                    if !results.isEmpty {
+                        _ = try? api.call("POST", "/api/me/connection-reports", body: ["platform": "ios", "carrier": "", "network": "", "results": results])
+                    }
+                }
                 // Re-bind a rotated APNs token, or the same token to a re-issued session.
                 if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
                     _ = try? PushCenter.register(base: origin, session: session, lang: language, token: current)
@@ -1183,7 +1268,7 @@ struct UserRootView: View {
         }
     }
 
-    private func buy(wallet: Bool) {
+    private func buy(wallet: Bool, method: String = "") {
         track("checkout_start")
         let id = planId
         work {
@@ -1206,7 +1291,7 @@ struct UserRootView: View {
                 _ = try api.call("POST", "/api/me/wallet/spend", body: body, idempotency: UUID().uuidString)
                 DispatchQueue.main.async { notice = t("paid_wallet"); refresh() }
             } else {
-                body["provider"] = providerName()
+                if method.isEmpty { body["provider"] = providerName() } else { body["method"] = method }
                 let response = try api.call("POST", "/api/payments/create", body: body, idempotency: UUID().uuidString) as? [String: Any]
                 DispatchQueue.main.async {
                     notice = t("payment_created")
@@ -1224,6 +1309,13 @@ struct UserRootView: View {
         work {
             _ = try ShopClient(base: base, token: token, lang: lang).call("POST", "/api/me/trial", body: ["plan_id": id, "days": days])
             DispatchQueue.main.async { notice = t("trial_started"); refresh() }
+        }
+    }
+
+    private func payMethods() -> [(key: String, title: String)] {
+        (data.config["payment_methods"] as? [[String: Any]] ?? []).compactMap { row in
+            guard let key = row["key"] as? String, let title = row["title"] as? String else { return nil }
+            return (key: key, title: title)
         }
     }
 
@@ -1305,6 +1397,13 @@ extension UserRootView {
             ["id": 6, "title": "Розыгрыш года подписки", "description": "Три победителя получат год Премиума", "kind": "contest", "phase": "ended",
              "prizes": [["amount": "1499", "weight": 1]], "currency": "RUB", "ends_at": "2026-10-20T21:00:00Z", "my_entry": ["outcome": "won", "reward_amount": "1499.00"]],
         ]
+        demo.stats = ["days_with_us": 360, "days_paid": 395, "traffic_used_gb": 84.2, "traffic_lifetime_gb": 1210.5, "traffic_limit_gb": 100.0,
+                      "devices": 3, "device_limit": 3, "blocked_servers_avoided": 7]
+        demo.upsell = [["kind": "traffic", "title": "+50 ГБ трафика", "price": "149.00", "reason": "израсходовано 84 % трафика",
+                        "quote": ["kind": "traffic_addon", "package_id": 1, "subscription_id": 1]]]
+        demo.contest = ["id": 1, "title": "Кто больше пригласит — ноябрь", "ends_at": "2026-11-30T21:00:00", "metric": "paid",
+                        "top": [["place": 1, "name": "ал•••", "score": 12], ["place": 2, "name": "ма•••", "score": 9], ["place": 3, "name": "Лю•••", "score": 7]],
+                        "me": ["place": 3, "score": 7]]
         data = demo
     }
 }

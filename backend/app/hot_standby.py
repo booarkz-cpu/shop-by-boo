@@ -55,6 +55,8 @@ class HeartbeatIn(BaseModel):
     fail_streak: int = Field(0, ge=0, le=100000)
     host: str = Field("", max_length=120)
     version: str = Field("", max_length=40)
+    files: dict | None = None  # {"at", "ok", "error"} — media, Support Pro uploads, app packages copied
+    drill: dict | None = None  # {"at", "ok", "users", "payments", "migration", "error"} — weekly promotion drill
 
 
 async def _load(db, key, default):
@@ -112,6 +114,16 @@ def assess(config: dict, repl: dict, beat: dict | None, now: datetime) -> list[t
             out.append((f"standby:slot:{s['name']}", "WAL копится для отключённого резерва",
                         f"Слот {s['name']} держит {s['retained_bytes'] // 1024 ** 2} МБ журнала, реплика не читает его — диск заполнится. "
                         "Верните резерв или удалите слот: bash scripts/hot-standby.sh drop-slot.", "high"))
+    drill = (beat or {}).get("drill") or {}
+    if drill and not drill.get("ok"):
+        out.append(("standby:drill", "Учебное повышение резерва не прошло",
+                    f"Копия базы резерва не запустилась как основная: {str(drill.get('error') or '')[:200]}. "
+                    "Проверьте место на диске резерва и выполните: python3 /usr/local/bin/corgi-standby drill.", "high"))
+    files = (beat or {}).get("files") or {}
+    if files and not files.get("ok"):
+        out.append(("standby:files", "Файлы на резерв не копируются",
+                    f"{str(files.get('error') or '')[:200]}. Медиа и вложения поддержки на резерве устаревают: "
+                    "hot-standby.sh files-key на резерве и files-allow на основном.", "medium"))
     seen = datetime.fromisoformat(beat["at"]) if beat and beat.get("at") else None
     if not seen or now - seen > STALE_HEARTBEAT:
         out.append(("standby:agent", "Агент горячего резерва молчит",

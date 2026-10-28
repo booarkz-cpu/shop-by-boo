@@ -1,0 +1,4 @@
+10049	IGNORE	(Non-storable content: API answers are private on purpose)
+10027	IGNORE	(Information disclosure - suspicious comments in bundled JS)
+10109	IGNORE	(Modern web application: informational)
+90004	WARN	(Insufficient site isolation against Spectre)

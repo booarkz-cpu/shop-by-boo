@@ -5,7 +5,7 @@ cd "$ROOT"
 # Historical release: VERSION="39.0.0-production" artifact=remnawave_vpn_shop_v39_production.zip migration=0017_v39_staging_isolation
 VERSION="21.5.1"
 # Previous migration head retained for compatibility: 0030_v44_5_16_privacy_and_refund_integrity
-# Current migration head: 0079_acquisition (the manifest reads it from Alembic below)
+# Current migration head: 0080_reconciliation (the manifest reads it from Alembic below)
 ARTIFACT="$(python3 -c 'import json; print(json.load(open("release-manifest.template.json"))["artifact"])')"
 python -m pytest -q tests
 python -m compileall -q backend

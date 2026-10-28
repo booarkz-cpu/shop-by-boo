@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from "react";
 type RequestFn=(path:string,options?:RequestInit)=>Promise<any>;
-export type AccountLink={kind:"request"|"password-reset"|"verify-email";token:string};
+export type AccountLink={kind:"request"|"password-reset"|"verify-email";token:string;guest?:boolean};
 export function accountLink():AccountLink|null {
  const [kind,query]=location.hash.slice(1).split("?");
  if(kind!=="password-reset"&&kind!=="verify-email")return null;
- return {kind,token:new URLSearchParams(query||"").get("token")||""};
+ const params=new URLSearchParams(query||"");
+ return {kind,token:params.get("token")||"",...(params.get("guest")==="1"?{guest:true}:{})};
 }
 export function AccountRecovery({link,request,onClose}:{link:AccountLink;request:RequestFn;onClose:(reset?:boolean)=>void}) {
  const [email,setEmail]=useState(""),[password,setPassword]=useState(""),[repeat,setRepeat]=useState(""),[busy,setBusy]=useState(false),[message,setMessage]=useState(""),[error,setError]=useState("");
@@ -15,7 +16,8 @@ export function AccountRecovery({link,request,onClose}:{link:AccountLink;request
   if((reset||verify)&&!link.token){setError("В ссылке нет кода. Запросите новое письмо.");return;}
   setBusy(true);
   try{
-   const result=await request(verify?"/api/auth/email/verification/confirm":reset?"/api/auth/password/reset/confirm":"/api/auth/password/reset/request",
+   // A guest purchase (guest_checkout.py) sets the first password through the same page.
+   const result=await request(verify?"/api/auth/email/verification/confirm":reset?(link.guest?"/api/auth/guest/setup":"/api/auth/password/reset/confirm"):"/api/auth/password/reset/request",
     {method:"POST",body:JSON.stringify(verify?{token:link.token}:reset?{token:link.token,password}:{email})});
    setPassword("");setRepeat("");setMessage(result.message||"Готово");
   }catch(e:any){setError(e.message||"Не удалось выполнить действие");}finally{setBusy(false);}

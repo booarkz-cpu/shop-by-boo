@@ -12,6 +12,9 @@ type Props = {
   promo: string;
   setPromo: (value: string) => void;
   providers: string[];
+  methods?: {key: string; title: string}[];
+  method?: string;
+  setMethod?: (value: string) => void;
   provider: string;
   setProvider: (value: string) => void;
   profiles: any[];
@@ -38,7 +41,7 @@ function features(plan: any): string[] {
 
 /** Tariff catalogue: fixed plans, constructor and the purchase/renewal target. */
 export function Plans(props: Props) {
-  const {plans, constructors, pick, setPick, defaultPick, constructorTotal, promo, setPromo, providers, provider, setProvider, profiles, profileTarget, setProfileTarget, busy, currency, buy, buyWallet, buyConstructor, offers} = props;
+  const {plans, constructors, pick, setPick, defaultPick, constructorTotal, promo, setPromo, providers, methods = [], method = "", setMethod, provider, setProvider, profiles, profileTarget, setProfileTarget, busy, currency, buy, buyWallet, buyConstructor, offers} = props;
   const cheapestPerDay = plans.length ? Math.min(...plans.map((p) => Number(p.final_price ?? p.price) / Math.max(1, Number(p.duration_days) || 1))) : 0;
   return (
     <div className="plans">
@@ -63,7 +66,17 @@ export function Plans(props: Props) {
           Промокод
           <input value={promo} onChange={(e) => setPromo(e.target.value.toUpperCase())} placeholder="Промокод" autoCapitalize="characters" />
         </label>
-        {providers.length > 0 && (
+        {methods.length > 0 && (
+          <fieldset className="field pay-methods">
+            <legend>Способ оплаты</legend>
+            {methods.map((m) => (
+              <label key={m.key} className="check">
+                <input type="radio" name="pay-method" checked={method === m.key} onChange={() => setMethod?.(m.key)} /> {m.title}
+              </label>
+            ))}
+          </fieldset>
+        )}
+        {methods.length === 0 && providers.length > 0 && (
           <label className="field">
             Провайдер оплаты
             <select value={provider} onChange={(e) => setProvider(e.target.value)}>

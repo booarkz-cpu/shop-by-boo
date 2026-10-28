@@ -111,9 +111,8 @@ from .auto_update_api import router as auto_update_router
 app.include_router(auto_update_router)
 # v28.35–36 modules, each with its own APIRouter (same order as before: route matching is unchanged).
 import importlib as _importlib
-for _module in ("node_health", "bonus_days", "promo_generator", "telegram_backup", "anti_sharing", "support_ai", "admin_web_ticket",
-                "economics", "block_monitor", "provider_report", "mobile_mirrors", "account_sync", "diagnostics",
-                "hot_standby", "node_autoscale"):
+from .routers import MODULES as _ROUTER_MODULES
+for _module in _ROUTER_MODULES:
     app.include_router(_importlib.import_module(f".{_module}", __package__).router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
@@ -206,7 +205,7 @@ RATE_LIMITS = {
     "/api/me/sync": 300,
     "/api/probe/report": 30,
     "/api/me/source": 10,
-    "/api/me/diagnostics": 5,
+    "/api/me/diagnostics": 5, "/api/me/activity": 30, "/api/me/cart": 20, "/api/me/channels": 20, "/api/me/connection-reports": 6,
     "/api/probe/targets": 30,
     "/api/tariff-constructors": 60,
     "/api/agent/heartbeat": 120,
@@ -829,7 +828,7 @@ class TrialIn(BaseModel):
 async def claim_trial(payload:TrialIn,request:Request,db:AsyncSession=Depends(get_db)):
     user=await user_from_token(request,db)
     from .platform_api import reject_restricted
-    reject_restricted(user)
+    reject_restricted(user); await ensure_required_channel(user, "trial")
     # Serialize trial claims per user; the UNIQUE constraint remains the final
     # database invariant, while this prevents duplicate grants under concurrency.
     await _advisory_lock(db, 720000000 + int(user.id))
@@ -852,6 +851,7 @@ async def claim_trial(payload:TrialIn,request:Request,db:AsyncSession=Depends(ge
         traffic_limit_gb_snapshot=plan.traffic_limit_gb,device_limit_snapshot=plan.device_limit,
         remnawave_profile_id_snapshot=plan.remnawave_profile_id,expires_at=now+timedelta(days=days),ip_hash=trial_ip_hash);
     db.add(grant); await db.flush(); db.add(Job(job_key=f"trial:{grant.id}",kind="trial",status="queued",attempts=0,max_attempts=5,payload={"trial_id":grant.id})); await audit(db,"trial.granted",str(user.id),str(plan.id),{"days":days}); await db.commit()
+    from .ad_postbacks import fire; fire(user.id, "trial")  # ad conversions (ad_postbacks.py)
     return {"ok":True,"status":"queued","expires_at":grant.expires_at,"plan_id":grant.plan_id,"days":grant.days}
 
 @app.get("/api/public/config")
@@ -872,9 +872,11 @@ async def public_config(db:AsyncSession=Depends(get_db)):
     except Exception: mini_buttons=[]
     try:
         payment_providers=await _payment_provider_order(db,None)
+        from .payment_methods import available_methods
+        payment_methods=await available_methods(db,payment_providers)
     except HTTPException:
-        payment_providers=[]
-    return {"default_language": settings.default_language if settings.default_language in {"ru","en"} else "ru","required_channel":settings.required_telegram_channel,"app_name":values.get("app_name","Корги Люси"),"bot_name":values.get("bot_name","Корги Люси"),"bot_start_image":values.get("bot_start_image",""),"menu":[{"title":m.title,"action":m.action,"type":m.item_type,"id":m.id,"parent_id":m.parent_id,"style":m.style,"icon_custom_emoji_id":m.icon_custom_emoji_id,"icon":m.icon} for m in menus],"fields":[{"key":f.key,"label":f.label,"type":f.field_type,"value":f.value} for f in fields],"images":[{"title":i.title,"url":"/media/"+i.filename} for i in images],"yandex_enabled":bool(settings.yandex_client_id and settings.yandex_redirect_uri),"vk_enabled":bool(settings.vk_client_id and settings.vk_redirect_uri),"email_auth_enabled":True,"trial_days":max(1,min(int(settings.trial_max_days or 3),30)),"payments_sandbox":bool(settings.payments_sandbox),"cabinet_url":settings.cabinet_url or settings.mini_app_url,"bot_username":settings.bot_username,"advertisements":[{"title":a.title,"text":a.text,"image_url":a.image_url,"button_text":a.button_text,"button_url":a.button_url} for a in ads],"promotions":[{"id":p.id,"name":p.name,"kind":p.kind,"value":float(p.value),"description":p.description,"plan_ids":p.plan_ids} for p in promos],"miniapp":{"title":values.get("miniapp_title",values.get("app_name","Корги Люси")),"subtitle":values.get("miniapp_subtitle",""),"background_color":values.get("miniapp_background_color","#f5f7fb"),"background_image":values.get("miniapp_background_image",""),"image":values.get("miniapp_image",""),"instructions":values.get("miniapp_instructions",""),"buttons":mini_buttons},"payment_providers":payment_providers}
+        payment_providers=[]; payment_methods=[]
+    return {"default_language": settings.default_language if settings.default_language in {"ru","en"} else "ru","required_channel":settings.required_telegram_channel,"app_name":values.get("app_name","Корги Люси"),"bot_name":values.get("bot_name","Корги Люси"),"bot_start_image":values.get("bot_start_image",""),"menu":[{"title":m.title,"action":m.action,"type":m.item_type,"id":m.id,"parent_id":m.parent_id,"style":m.style,"icon_custom_emoji_id":m.icon_custom_emoji_id,"icon":m.icon} for m in menus],"fields":[{"key":f.key,"label":f.label,"type":f.field_type,"value":f.value} for f in fields],"images":[{"title":i.title,"url":"/media/"+i.filename} for i in images],"yandex_enabled":bool(settings.yandex_client_id and settings.yandex_redirect_uri),"vk_enabled":bool(settings.vk_client_id and settings.vk_redirect_uri),"email_auth_enabled":True,"trial_days":max(1,min(int(settings.trial_max_days or 3),30)),"payments_sandbox":bool(settings.payments_sandbox),"cabinet_url":settings.cabinet_url or settings.mini_app_url,"bot_username":settings.bot_username,"advertisements":[{"title":a.title,"text":a.text,"image_url":a.image_url,"button_text":a.button_text,"button_url":a.button_url} for a in ads],"promotions":[{"id":p.id,"name":p.name,"kind":p.kind,"value":float(p.value),"description":p.description,"plan_ids":p.plan_ids} for p in promos],"miniapp":{"title":values.get("miniapp_title",values.get("app_name","Корги Люси")),"subtitle":values.get("miniapp_subtitle",""),"background_color":values.get("miniapp_background_color","#f5f7fb"),"background_image":values.get("miniapp_background_image",""),"image":values.get("miniapp_image",""),"instructions":values.get("miniapp_instructions",""),"buttons":mini_buttons},"payment_providers":payment_providers,"payment_methods":payment_methods}
 
 @app.get("/api/me")
 async def api_me(request:Request,db:AsyncSession=Depends(get_db)):

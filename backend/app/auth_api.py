@@ -34,6 +34,8 @@ async def telegram_auth(payload:dict, request:shop.Request, response: shop.Respo
     from .account_merge import identity_user
     user=await identity_user(db,"telegram",telegram_id)
     if not user:
+        from .moderation import registration_check
+        await registration_check(db, telegram_id=telegram_id, invite=payload.get("invite"))
         user=shop.User(telegram_id=telegram_id,username=u.get("username"),referral_code=shop.secrets.token_urlsafe(8).upper()); db.add(user)
     elif user.telegram_id == telegram_id:
         user.username=u.get("username")
@@ -151,6 +153,8 @@ async def yandex_callback(code:str,state:str,request:shop.Request,db:shop.AsyncS
     from .account_merge import identity_user
     user=await identity_user(db,"yandex",yid)
     if not user:
+        from .moderation import registration_check
+        await registration_check(db, email=info.get("default_email"))
         user=shop.User(yandex_id=yid,username=info.get("login") or info.get("display_name"),referral_code=shop.secrets.token_urlsafe(8).upper()); db.add(user)
     elif user.yandex_id == yid:
         user.username=info.get("login") or info.get("display_name") or user.username

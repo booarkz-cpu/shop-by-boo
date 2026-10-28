@@ -84,7 +84,7 @@ fun SectionScreen(layout: AppLayout, section: LayoutSection, base: String, data:
             when (section.kind) {
                 "locations" -> LocationsBody(layout, data)
                 "premium" -> PremiumBody(layout, data, ui, actions)
-                "subscription" -> SubscriptionBody(layout, data, actions)
+                "subscription" -> { SubscriptionBody(layout, data, actions); InsightsCards(layout, data, actions) }
                 "devices" -> DevicesBody(layout, data, actions)
                 "family" -> FamilyBody(layout, data, actions)
                 "referral" -> ReferralBody(layout, data)
@@ -418,6 +418,44 @@ private fun ReferralBody(layout: AppLayout, data: ShopData) {
     Card(theme) {
         Text(data.user.optString("referral_code"), color = theme.accent2, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Text(data.user.optString("referral_balance").takeIf { it.isNotBlank() && it != "0" && it != "0.00" }?.let { "+$it ₽" }.orEmpty(), color = theme.success)
+    }
+    val contest = data.contest
+    if (contest.optString("title").isNotBlank()) Card(theme) {
+        Text("🏆 ${contest.optString("title")}", color = theme.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text("${layout.text("contest_until")} ${contest.optString("ends_at").take(10)}", color = theme.muted)
+        val top = contest.optJSONArray("top") ?: JSONArray()
+        for (i in 0 until top.length()) {
+            val row = top.optJSONObject(i) ?: continue
+            InfoLine("${row.optInt("place")}. ${row.optString("name")}", row.optInt("score").toString(), theme)
+        }
+        val me = contest.optJSONObject("me")
+        Text(if (me != null) layout.text("contest_me").replace("{place}", me.optInt("place").toString()).replace("{score}", me.optInt("score").toString())
+             else layout.text("contest_join"), color = theme.success, fontWeight = FontWeight.Bold)
+    }
+}
+
+/** «Моя статистика» and one-click offers under the subscription card (v28.37). */
+@Composable
+private fun InsightsCards(layout: AppLayout, data: ShopData, actions: ShopActions) {
+    val theme = layout.theme
+    val s = data.stats
+    if (s.length() > 0) Card(theme) {
+        Text(layout.text("stats_title"), color = theme.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        InfoLine(layout.text("stats_days"), "${s.optInt("days_with_us")} ${layout.text("days_short")}", theme)
+        InfoLine(layout.text("stats_paid"), "${s.optInt("days_paid")} ${layout.text("days_short")}", theme)
+        if (!s.isNull("traffic_used_gb")) InfoLine(layout.text("stats_traffic"), "${s.optDouble("traffic_used_gb")} GB" +
+            (if (s.isNull("traffic_limit_gb")) "" else " / ${s.optDouble("traffic_limit_gb")} GB"), theme)
+        if (!s.isNull("traffic_lifetime_gb")) InfoLine(layout.text("stats_lifetime"), "${s.optDouble("traffic_lifetime_gb")} GB", theme)
+        InfoLine(layout.text("stats_avoided"), s.optInt("blocked_servers_avoided").toString(), theme)
+    }
+    if (data.upsell.length() > 0) Card(theme) {
+        Text(layout.text("upsell_title"), color = theme.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        for (i in 0 until data.upsell.length()) {
+            val offer = data.upsell.optJSONObject(i) ?: continue
+            Text(offer.optString("title"), color = theme.text, fontWeight = FontWeight.Bold)
+            Muted(offer.optString("reason"), theme)
+            ActionButton(LayoutButton("upsell_$i", "${offer.optString("price")} ₽", "refresh", "", "primary", "wallet", "any"), theme) { actions.buyOffer(offer) }
+        }
     }
 }
 

@@ -37,6 +37,10 @@ def test_assess_rules():
     assert found == {"standby:lag:10.0.0.2": "high", "standby:slot:old": "high", "standby:agent": "medium"}
     healthy = {**repl, "replicas": [{**repl["replicas"][0], "lag_seconds": 2.0}], "slots": []}
     assert hs.assess(on, healthy, fresh, NOW) == []
+    failed = {**fresh, "drill": {"ok": False, "error": "no-space"}, "files": {"ok": False, "error": "ключ не настроен"}}
+    assert {k for k, *_ in hs.assess(on, healthy, failed, NOW)} == {"standby:drill", "standby:files"}
+    passed = {**fresh, "drill": {"ok": True, "users": 10}, "files": {"ok": True}}
+    assert hs.assess(on, healthy, passed, NOW) == []
     # On the standby itself (in recovery) there are no replicas to expect.
     assert hs.assess(on, {"supported": True, "in_recovery": True, "replicas": [], "slots": []}, fresh, NOW) == []
 
@@ -80,7 +84,9 @@ def test_scripts_are_valid_and_keep_secrets_out():
     agent = (ROOT / "scripts/standby-agent.py").read_text()
     compile(agent, "standby-agent.py", "exec")
     assert "import requests" not in agent, "standard library only"
+    assert "pg_basebackup" in agent and "5499" in agent and "rm -rf" in agent, "the drill uses a throwaway copy on a side port"
     script = (ROOT / "scripts/hot-standby.sh").read_text()
-    for needed in ("hostssl replication", "DOCKER-USER", "pg_basebackup", "pg_promote", "sslmode=require", "/root/corgi-standby.secret"):
+    for needed in ("hostssl replication", "DOCKER-USER", "pg_basebackup", "pg_promote", "sslmode=require", "/root/corgi-standby.secret",
+                   "support_db", "rrsync -ro", "restrict", "files-sync"):
         assert needed in script
     assert "docker-compose.override.yml" in (ROOT / ".gitignore").read_text()

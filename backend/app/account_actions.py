@@ -158,12 +158,13 @@ async def change_password(payload:PasswordIn,request:Request,response:Response,d
     return {'ok':True,'message':'Пароль изменён. Войдите снова.'}
 
 def send_mail(email,purpose,raw):
-    route='password-reset' if purpose=='password_reset' else 'verify-email'
-    link=mail_origin()+'#'+route+'?token='+quote(raw,safe='')
+    route={'password_reset':'password-reset','guest_setup':'password-reset'}.get(purpose,'verify-email')
+    link=mail_origin()+'#'+route+'?token='+quote(raw,safe='')+('&guest=1' if purpose=='guest_setup' else '')
+    from .email_templates import render
+    subject,body=render(purpose,link,'30 минут' if purpose=='password_reset' else '24 часа')
     msg=EmailMessage();msg['From']=settings.smtp_from or settings.smtp_user;msg['To']=email
-    msg['Subject']='Восстановление пароля' if purpose=='password_reset' else 'Подтверждение email'
-    msg.set_content(('Изменить пароль' if purpose=='password_reset' else 'Подтвердить почту')+':\n'+link+
-        '\n\nЕсли вы не запрашивали это действие, проигнорируйте письмо. Ссылка действует '+('30 минут.' if purpose=='password_reset' else '24 часа.'))
+    msg['Subject']=subject
+    msg.set_content(body)
     context=ssl.create_default_context()
     cls=smtplib.SMTP_SSL if settings.smtp_port==465 else smtplib.SMTP
     kwargs={'context':context} if settings.smtp_port==465 else {}

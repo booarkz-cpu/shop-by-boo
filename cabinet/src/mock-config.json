@@ -157,7 +157,11 @@
     "faq": "faq",
     "rules": "rules",
     "privacy": "privacy",
-    "offer": "offer"
+    "offer": "offer",
+    "contest": "contest",
+    "stats": "stats",
+    "channels": "channels",
+    "guest": "guest"
   },
   "promos": [
     {

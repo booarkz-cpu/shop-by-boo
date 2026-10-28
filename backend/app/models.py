@@ -1884,3 +1884,84 @@ class FiscalReceipt(Base):
     next_attempt_at: Mapped[datetime|None] = mapped_column(DateTime, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class SystemErrorLog(Base):
+    """An application error, grouped by fingerprint (error_log.py): «Журнал ошибок» in the admin."""
+    __tablename__ = "system_errors"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    fingerprint: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    level: Mapped[str] = mapped_column(String(16), nullable=False)
+    logger: Mapped[str] = mapped_column(String(120), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    traceback: Mapped[str] = mapped_column(Text, default="", server_default="", nullable=False)
+    process: Mapped[str] = mapped_column(String(32), default="", server_default="", nullable=False)
+    count: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
+    resolved: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"), nullable=False)
+    first_seen: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    last_seen: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class UserActivity(Base):
+    """What a customer did, on which surface (activity_log.py): the timeline in the customer card."""
+    __tablename__ = "user_activity"
+    __table_args__ = (Index("ix_user_activity_user_created", "user_id", "created_at"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    surface: Mapped[str] = mapped_column(String(16), nullable=False)  # bot | cabinet | miniapp | android | ios | admin | system
+    action: Mapped[str] = mapped_column(String(64), nullable=False)
+    detail: Mapped[dict|None] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class ShopCart(Base):
+    """A purchase the wallet could not cover yet (smart_cart.py): bought by itself after the top-up."""
+    __tablename__ = "shop_carts"
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class ReferralContest(Base):
+    """«Кто больше пригласит» (referral_contests.py): a period, a metric, prizes in days or balance."""
+    __tablename__ = "referral_contests"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    starts_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    metric: Mapped[str] = mapped_column(String(16), default="paid", server_default="paid", nullable=False)  # paid | invited
+    prizes: Mapped[list] = mapped_column(JSON, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="active", server_default="active", nullable=False)
+    results: Mapped[list|None] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class ConnectionReport(Base):
+    """One connection attempt reported by an app (connection_quality.py): carrier × server → success and latency."""
+    __tablename__ = "connection_reports"
+    __table_args__ = (Index("ix_connection_reports_carrier_server", "carrier", "server"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    platform: Mapped[str] = mapped_column(String(16), nullable=False)
+    carrier: Mapped[str] = mapped_column(String(64), default="", server_default="", nullable=False)
+    network: Mapped[str] = mapped_column(String(16), default="", server_default="", nullable=False)
+    country: Mapped[str] = mapped_column(String(2), default="", server_default="", nullable=False)
+    server: Mapped[str] = mapped_column(String(255), nullable=False)
+    ok: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    ms: Mapped[int|None] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+class InfraCost(Base):
+    """A monthly infrastructure cost (pnl.py): servers, domains, panel, other — for the P&L."""
+    __tablename__ = "infra_costs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    month: Mapped[str] = mapped_column(String(7), index=True, nullable=False)  # YYYY-MM
+    category: Mapped[str] = mapped_column(String(24), nullable=False)  # servers | domains | software | ads | staff | other
+    vendor: Mapped[str] = mapped_column(String(80), default="", server_default="", nullable=False)
+    node: Mapped[str] = mapped_column(String(120), default="", server_default="", nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    note: Mapped[str] = mapped_column(String(200), default="", server_default="", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

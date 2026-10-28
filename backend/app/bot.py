@@ -274,6 +274,7 @@ async def start(message:Message):
             tg_id = int(message.from_user.id)
             from .account_merge import identity_user
             user = await identity_user(db, "telegram", tg_id)
+            created_now = not user
             if user:
                 changed = False
                 username = message.from_user.username or user.username
@@ -283,6 +284,13 @@ async def start(message:Message):
                 if changed:
                     await db.commit()
             else:
+                from fastapi import HTTPException as _Refused
+                from .moderation import invite_from_start, registration_check
+                try:
+                    await registration_check(db, telegram_id=tg_id, invite=invite_from_start(incoming))
+                except _Refused as refused:
+                    await message.answer(str(refused.detail))
+                    return
                 user=User(
                     telegram_id=tg_id,
                     username=message.from_user.username,
@@ -290,9 +298,25 @@ async def start(message:Message):
                 )
                 db.add(user)
                 await db.commit()
+            from .channel_gate import missing as missing_channels
+            lacking = await missing_channels(tg_id, "all")
+            if lacking:
+                rows = [[InlineKeyboardButton(text=c["title"], url=c["url"])] for c in lacking if c.get("url")]
+                await send_section(message, "channels", "Чтобы пользоваться ботом, подпишитесь: " + ", ".join(escape(c["title"]) for c in lacking)
+                                   + ". Затем снова нажмите /start.", InlineKeyboardMarkup(inline_keyboard=rows) if rows else None, fallback="start")
+                return
             from .economics import remember_source, source_from_start
-            if await remember_source(db, user, source_from_start(incoming)):
-                await db.commit()
+            from .ad_postbacks import click_from_start, remember_click
+            from .activity_log import record as record_activity
+            record_activity(db, user.id, "bot", "start", {"payload": incoming[:60]} if incoming else None)
+            await remember_click(db, user.id, click_from_start(incoming))
+            await remember_source(db, user, source_from_start(incoming))
+            await db.commit()
+            if created_now:
+                from .ad_postbacks import fire as fire_conversion
+                fire_conversion(user.id, "registration")
+                from .pinned_message import on_start as pinned_on_start
+                await pinned_on_start(db, user.id, tg_id)
             if ref_part and not user.referred_by_id:
                 from .referrals import bind_referrer
                 from fastapi import HTTPException
@@ -447,6 +471,44 @@ async def subscription(message: Message):
         await send_section(message, "subscription", "Активной подписки нет. Откройте магазин." if lang == "ru" else "No active subscription. Open the shop.", InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"), web_app=WebAppInfo(url=settings.mini_app_url))]]))
         return
     await send_section(message, "subscription", ("Ваша подписка:\n" if lang == "ru" else "Your subscription:\n") + escape(sub.subscription_url))
+
+@router.message(Command("contest"))
+async def contest_command(message: Message):
+    """Referral contest: the leaderboard and the customer's own place (referral_contests.py)."""
+    if not message.from_user or getattr(getattr(message, "chat", None), "type", "private") != "private":
+        return
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        from .referral_contests import current, leaderboard, public
+        user = await identity_user(db, "telegram", int(message.from_user.id))
+        contest = await current(db)
+        view = public(contest, await leaderboard(db, contest, 100), user.id if user else None) if contest else None
+    if not view:
+        await send_section(message, "contest", "Сейчас конкурса нет — следите за новостями.", fallback="referral")
+        return
+    lines = [f"🏆 <b>{escape(view['title'])}</b> — до {view['ends_at'][:10]}", ""]
+    lines += [f"{r['place']}. {escape(r['name'])} — {r['score']}" for r in view["top"]]
+    lines += ["", f"Вы на {view['me']['place']} месте ({view['me']['score']})" if view["me"] else "Пригласите друга по своей ссылке, чтобы попасть в таблицу: /referral"]
+    await send_section(message, "contest", "\n".join(lines), fallback="referral")
+
+
+@router.message(Command("stats"))
+async def stats_command(message: Message):
+    """«Моя статистика» (customer_insights.py)."""
+    if not message.from_user or getattr(getattr(message, "chat", None), "type", "private") != "private":
+        return
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        from .customer_insights import stats
+        user = await identity_user(db, "telegram", int(message.from_user.id))
+        data = await stats(db, user) if user else None
+    if not data:
+        await message.answer("Откройте магазин, чтобы начать: /start")
+        return
+    traffic = f"{data['traffic_used_gb']} ГБ" + (f" из {data['traffic_limit_gb']}" if data["traffic_limit_gb"] else "") if data["traffic_used_gb"] is not None else "—"
+    await send_section(message, "stats", f"📊 <b>Моя статистика</b>\nС нами {data['days_with_us']} дн., оплачено {data['days_paid']} дн. VPN\n"
+                                          f"Трафик за период: {traffic}\nУстройства: {data['devices']}" + (f" из {data['device_limit']}" if data["device_limit"] else ""), fallback="account")
+
 
 @router.message(Command("promo"))
 async def promo(message:Message):
