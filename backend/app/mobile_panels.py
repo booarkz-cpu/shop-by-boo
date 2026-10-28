@@ -251,6 +251,10 @@ async def sessions_panel(db: AsyncSession) -> dict:
             row("Аномалий сейчас", len(items), "bad" if any(a["level"] == "red" for a in items) else ("warn" if items else "ok"))]
     for a in items[:6]:
         rows.append(row(f"#{a.get('user_id') or a.get('panel_user')}", "; ".join(f"{h['name']}: {h['value']}" for h in a["hits"]), "bad" if a["level"] == "red" else "warn"))
+    from .vpn_sessions import geography
+    geo = await geography(7, db, None)
+    if geo["countries"]:
+        rows.append(row("Страны за 7 дней", ", ".join(f"{c['country']} {c['users']}" for c in geo["countries"][:6])))
     actions = [toggle("Включить сбор сессий", "Выключить сбор сессий", cfg["enabled"], "PUT", "/api/admin/sessions/config",
                       {**cfg, "enabled": True}, {**cfg, "enabled": False})]
     actions += [action(f"Сбросить соединения #{a['user_id']}", "POST", f"/api/admin/users/{a['user_id']}/drop-connections", None,

@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.41.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.42.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Production: установка, настройка и эксплуатация v21.5.1
 
@@ -58,7 +58,7 @@ ss -ltnp
 На свежем VDS от root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.41.0/install.sh -o /root/shop-install.sh && BRANCH=v28.41.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.42.0/install.sh -o /root/shop-install.sh && BRANCH=v28.42.0 bash /root/shop-install.sh
 ```
 
 Установщик сам клонирует точный тег, устанавливает зависимости, собирает и запускает сервисы. Ручная распаковка ZIP не нужна. Source-каталог по умолчанию `/opt/vpn-shop-src`, рабочий каталог `/opt/vpn-shop`. Для иных каталогов задайте `SOURCE_DIR` и `APP_DIR` перед `bash`.
@@ -181,14 +181,14 @@ df -h
 
 Логи перед передачей другим людям обезличьте. Не выполняйте `docker compose down -v` или `docker volume prune` на рабочей установке: это может удалить данные.
 
-## 14. Обновление до v28.41.0 (runtime v21.5.1)
+## 14. Обновление до v28.42.0 (runtime v21.5.1)
 
 Сначала проверьте изолированный стенд, создайте полную согласованную копию и сохраните предыдущие исходники/окружение. Затем:
 
 ```bash
 cd /opt/vpn-shop
 bash scripts/backup.sh            # полная копия обеих баз до обновления
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.41.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.42.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 docker compose exec -T backend alembic current
 bash scripts/doctor.sh
 ```
