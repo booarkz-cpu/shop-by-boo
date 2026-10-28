@@ -183,7 +183,8 @@ class Pal24Provider(BasePaymentProvider):
     @staticmethod
     def signature(out_sum: str, inv_id: str) -> str:
         token = settings.pal24_signature_token or settings.pal24_api_token
-        return hashlib.md5(f"{out_sum}:{inv_id}:{token}".encode()).hexdigest().upper()
+        # MD5 and SHA-1 here are fixed by the gateways' protocols, not chosen by the shop.
+        return hashlib.md5(f"{out_sum}:{inv_id}:{token}".encode(), usedforsecurity=False).hexdigest().upper()
 
     async def _call(self, method: str, path: str, **kwargs) -> dict:
         headers = {"Authorization": f"Bearer {settings.pal24_api_token}", "Accept": "application/json"}
@@ -247,12 +248,12 @@ class MulenPayProvider(BasePaymentProvider):
 
     @staticmethod
     def create_sign(currency: str, amount: str) -> str:
-        return hashlib.sha1(f"{currency}{amount}{settings.mulenpay_shop_id}{settings.mulenpay_secret_key}".encode()).hexdigest()
+        return hashlib.sha1(f"{currency}{amount}{settings.mulenpay_shop_id}{settings.mulenpay_secret_key}".encode(), usedforsecurity=False).hexdigest()
 
     @staticmethod
     def notification_sign(data: dict) -> str:
         joined = "".join(str(v) for k, v in data.items() if k != "sign")
-        return hashlib.sha1((joined + settings.mulenpay_secret_key).encode()).hexdigest()
+        return hashlib.sha1((joined + settings.mulenpay_secret_key).encode(), usedforsecurity=False).hexdigest()
 
     async def _call(self, method: str, path: str, **kwargs) -> dict:
         headers = {"Authorization": f"Bearer {settings.mulenpay_api_key}", "Accept": "application/json"}
