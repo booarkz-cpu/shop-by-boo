@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.40.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.41.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1806**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1810**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -845,6 +845,7 @@
 | [docs/en/NEW_IN_V28_38.md](../docs/en/NEW_IN_V28_38.md) | Документация |
 | [docs/en/NEW_IN_V28_39.md](../docs/en/NEW_IN_V28_39.md) | Документация |
 | [docs/en/NEW_IN_V28_40.md](../docs/en/NEW_IN_V28_40.md) | Документация |
+| [docs/en/NEW_IN_V28_41.md](../docs/en/NEW_IN_V28_41.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -988,6 +989,7 @@
 | [docs/ru/RELEASE_V28_39_0.md](../docs/ru/RELEASE_V28_39_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_40_0.md](../docs/ru/RELEASE_V28_40_0.md) | Документация |
+| [docs/ru/RELEASE_V28_41_0.md](../docs/ru/RELEASE_V28_41_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
@@ -1103,6 +1105,7 @@
 | [docs/uk/NEW_IN_V28_38.md](../docs/uk/NEW_IN_V28_38.md) | Документация |
 | [docs/uk/NEW_IN_V28_39.md](../docs/uk/NEW_IN_V28_39.md) | Документация |
 | [docs/uk/NEW_IN_V28_40.md](../docs/uk/NEW_IN_V28_40.md) | Документация |
+| [docs/uk/NEW_IN_V28_41.md](../docs/uk/NEW_IN_V28_41.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1695,6 +1698,7 @@
 | [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |
 | [tests/test_payment_load.py](../tests/test_payment_load.py) | Проверки |
 | [tests/test_payment_methods.py](../tests/test_payment_methods.py) | Проверки |
+| [tests/test_payments_aurapay_anore.py](../tests/test_payments_aurapay_anore.py) | Проверки |
 | [tests/test_payments_extra.py](../tests/test_payments_extra.py) | Проверки |
 | [tests/test_payments_pal24_mulenpay.py](../tests/test_payments_pal24_mulenpay.py) | Проверки |
 | [tests/test_payments_wata_antilopay.py](../tests/test_payments_wata_antilopay.py) | Проверки |

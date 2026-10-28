@@ -2,7 +2,7 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
-from .payments_extra import AntilopayProvider, CloudPaymentsProvider, LavaProvider, MulenPayProvider, Pal24Provider, WataProvider
+from .payments_extra import AnoreProvider, AntilopayProvider, AuraPayProvider, CloudPaymentsProvider, LavaProvider, MulenPayProvider, Pal24Provider, WataProvider
 from . import main as shop
 
 # ---------- Background schedulers: retries, refunds, auto-renew, reconciliation, lifecycle, reminders ----------
@@ -22,7 +22,7 @@ async def refund_revoke_scheduler():
     while True:
         try:
             async with shop.AsyncSession(shop.engine,expire_on_commit=False) as db:
-                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),"cloudpayments":CloudPaymentsProvider(),"lava":LavaProvider(),"pal24":Pal24Provider(),"mulenpay":MulenPayProvider(),"wata":WataProvider(),"antilopay":AntilopayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"telegram_stars":shop.TelegramStarsProvider()}
+                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),"cloudpayments":CloudPaymentsProvider(),"lava":LavaProvider(),"pal24":Pal24Provider(),"mulenpay":MulenPayProvider(),"wata":WataProvider(),"antilopay":AntilopayProvider(),"aurapay":AuraPayProvider(),"anore":AnoreProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"telegram_stars":shop.TelegramStarsProvider()}
                 pending=(await db.execute(shop.select(shop.RefundRequest).where(shop.RefundRequest.status=="processing",shop.RefundRequest.provider_refund_id.is_not(None)).order_by(shop.RefundRequest.updated_at).limit(50))).scalars().all()
                 for r in pending:
                     p=await db.get(shop.Payment,r.payment_id); provider=providers.get(p.provider) if p else None
@@ -324,7 +324,7 @@ async def reconciliation_scheduler():
                 await shop.cleanup_expired_promo_reservations(db,now)
                 cutoff=now-shop.timedelta(hours=24)
                 rows=(await db.execute(shop.select(shop.Payment).where(shop.Payment.created_at>=cutoff,shop.Payment.status.in_(["pending","creation_unknown"])).order_by(shop.Payment.id).limit(50))).scalars().all()
-                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),"cloudpayments":CloudPaymentsProvider(),"lava":LavaProvider(),"pal24":Pal24Provider(),"mulenpay":MulenPayProvider(),"wata":WataProvider(),"antilopay":AntilopayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}
+                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),"cloudpayments":CloudPaymentsProvider(),"lava":LavaProvider(),"pal24":Pal24Provider(),"mulenpay":MulenPayProvider(),"wata":WataProvider(),"antilopay":AntilopayProvider(),"aurapay":AuraPayProvider(),"anore":AnoreProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}
                 for p in rows:
                     provider=providers.get(p.provider)
                     if not provider or not hasattr(provider,"verify_succeeded"): continue

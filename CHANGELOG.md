@@ -1,3 +1,11 @@
+# v28.41.0
+
+- Кассы AuraPay и Anore (карты, СБП) в `payments_extra.py`.
+  - AuraPay: счёт `POST /invoice/create` (`X-ApiKey`, `X-ShopId`). Подпись уведомлений `X-SIGNATURE` — HMAC-SHA256 значений по алфавиту ключей. Перед выдачей — `POST /invoice/status` по заказу.
+  - Anore: платёж `POST /payments` с подписью тела `Anore-Signature`. Уведомление проверяется по той же подписи и совпадению `Anore-Event` с полем `event`. Перед выдачей — `GET /payments/{id}` со сверкой заказа, валюты, `amount` и `rubAmount`.
+- Обе кассы подключены к очереди касс, способам оплаты, сверке и восстановлению платежей, админкам и кабинету.
+- Реестр настроек: 219 полей, 127 live.
+
 # v28.40.0
 
 - Кассы WATA и Antilopay (карты, СБП) в `payments_extra.py`.

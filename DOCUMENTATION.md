@@ -1,6 +1,6 @@
 # Документация VPN Shop by Corgi
 
-Текущий тег дистрибутива: **v28.40.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0081_subscription_proxy**, Support Pro **0008** / 3.8. Реальные платежи открыты сразу после установки; незавершённые внешние проверки описаны отдельно.
+Текущий тег дистрибутива: **v28.41.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0081_subscription_proxy**, Support Pro **0008** / 3.8. Реальные платежи открыты сразу после установки; незавершённые внешние проверки описаны отдельно.
 
 | Задача | Инструкция |
 | --- | --- |
@@ -42,7 +42,7 @@
 | HTTP API | [API_REFERENCE_RU.md](API_REFERENCE_RU.md) |
 | Карта проекта и дизайн | [PROJECT_MAP_RU.md](docs/PROJECT_MAP_RU.md) |
 | Дерево каталогов и архитектурные границы | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) |
-| Проверки этого выпуска | [Отчёт v28.40.0](docs/ru/RELEASE_V28_40_0.md) |
+| Проверки этого выпуска | [Отчёт v28.41.0](docs/ru/RELEASE_V28_41_0.md) |
 | Живая проверка всех касс | [Чек-лист](docs/ru/PAYMENTS_LIVE_CHECKLIST.md) |
 | Что ещё не реализовано | [Матрица покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) |
 
@@ -50,7 +50,10 @@
 
 Справочники: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 
-## Выпуск v28.40.0
+## Выпуск v28.41.0
+
+Тег v28.41.0 добавил:
+- кассы AuraPay и Anore: карта и СБП, подписанные уведомления и повторная проверка платежа перед выдачей ([оплата](docs/modules/billing_and_taxes.md), [заметки](docs/ru/RELEASE_V28_41_0.md)).
 
 Тег v28.40.0 добавил:
 - кассы WATA и Antilopay: карта и СБП, уведомления с подписью RSA и повторная проверка платежа перед выдачей ([оплата](docs/modules/billing_and_taxes.md), [заметки](docs/ru/RELEASE_V28_40_0.md)).
