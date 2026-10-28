@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1774**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1775**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1431,6 +1431,7 @@
 | [scripts/cabinet_audit.py](../scripts/cabinet_audit.py) | Эксплуатация и релиз |
 | [scripts/check-current-docs.py](../scripts/check-current-docs.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
+| [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/zap-summary.py](../scripts/ci/zap-summary.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |

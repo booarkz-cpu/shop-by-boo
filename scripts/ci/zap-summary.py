@@ -19,6 +19,14 @@ def main(folder: str) -> int:
                 high += risk == "High"
                 print(f"| {site.get('@name')} | {risk} | {alert.get('alert')} | {alert.get('count', len(alert.get('instances', [])))} |")
     print(f"\nHigh: {high}")
+    counts = {k: 0 for k in RISK.values()}
+    for report in sorted(Path(folder).glob("*.json")):
+        for site in json.loads(report.read_text()).get("site", []):
+            for alert in site.get("alerts", []):
+                counts[RISK.get(str(alert.get("riskcode")), "Info")] += 1
+    # Annotations go to stderr so the Markdown above stays clean in the step summary.
+    print(f"::notice title=OWASP ZAP baseline::High {counts['High']}, Medium {counts['Medium']}, "
+          f"Low {counts['Low']}, Info {counts['Info']}", file=sys.stderr)
     return 1 if high else 0
 
 

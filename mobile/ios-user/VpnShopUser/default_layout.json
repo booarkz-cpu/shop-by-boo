@@ -752,7 +752,11 @@
    "auto_location": "Auto — the fastest",
    "brand": "Corgi VPN",
    "consent": "By paying you accept the offer and the auto-renewal terms",
+   "contest_join": "Invite a friend with your link to get on the board",
+   "contest_me": "You are #{place} ({score})",
+   "contest_until": "until",
    "days_left": "{n} days left",
+   "days_short": "d",
    "devices": "Devices",
    "giveaway_closed": "The giveaway has ended",
    "giveaway_entered": "You are in — results after the end",
@@ -764,6 +768,12 @@
    "offline": "Offline — showing saved data",
    "per_month": "₽/mo",
    "servers": "Servers",
+   "stats_avoided": "Blocks avoided",
+   "stats_days": "With us",
+   "stats_lifetime": "Traffic in total",
+   "stats_paid": "VPN paid",
+   "stats_title": "My statistics",
+   "stats_traffic": "Traffic this period",
    "status_connecting": "Connecting…",
    "status_no_client": "Install a VPN client to connect",
    "status_off": "VPN is off",
@@ -771,6 +781,7 @@
    "traffic_left": "Traffic left",
    "unlimited": "Unlimited",
    "until": "until",
+   "upsell_title": "For you",
    "your_id": "Your ID"
   },
   "theme": {
@@ -785,7 +796,7 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "e32b7344024f4606"
+  "version": "d882237ea01d0ae5"
  },
  "ru": {
   "features": {
@@ -1540,7 +1551,11 @@
    "auto_location": "Автовыбор — самый быстрый",
    "brand": "Корги VPN",
    "consent": "Нажимая «Оплатить», вы принимаете оферту и условия автопродления",
+   "contest_join": "Пригласите друга по своей ссылке, чтобы попасть в таблицу",
+   "contest_me": "Вы на {place} месте ({score})",
+   "contest_until": "до",
    "days_left": "осталось {n} дн.",
+   "days_short": "дн.",
    "devices": "Устройств",
    "giveaway_closed": "Розыгрыш завершён",
    "giveaway_entered": "Вы участвуете — итоги после окончания",
@@ -1552,6 +1567,12 @@
    "offline": "Нет связи — показаны сохранённые данные",
    "per_month": "₽/мес",
    "servers": "Серверы",
+   "stats_avoided": "Обходов блокировок",
+   "stats_days": "С нами",
+   "stats_lifetime": "Трафик всего",
+   "stats_paid": "Оплачено VPN",
+   "stats_title": "Моя статистика",
+   "stats_traffic": "Трафик за период",
    "status_connecting": "Подключаем…",
    "status_no_client": "Установите VPN-клиент, чтобы подключиться",
    "status_off": "VPN отключён",
@@ -1559,6 +1580,7 @@
    "traffic_left": "Осталось трафика",
    "unlimited": "Безлимит",
    "until": "до",
+   "upsell_title": "Для вас",
    "your_id": "Ваш ID"
   },
   "theme": {
@@ -1573,7 +1595,7 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "526a7905b44996b2"
+  "version": "10b8c4d5487d0a88"
  },
  "uk": {
   "features": {
@@ -2328,7 +2350,11 @@
    "auto_location": "Автовибір — найшвидший",
    "brand": "Коргі VPN",
    "consent": "Натискаючи «Оплатити», ви приймаєте оферту та умови автопродовження",
+   "contest_join": "Запросіть друга за своїм посиланням, щоб потрапити до таблиці",
+   "contest_me": "Ви на {place} місці ({score})",
+   "contest_until": "до",
    "days_left": "залишилось {n} дн.",
+   "days_short": "дн.",
    "devices": "Пристроїв",
    "giveaway_closed": "Розіграш завершено",
    "giveaway_entered": "Ви берете участь — підсумки після завершення",
@@ -2340,6 +2366,12 @@
    "offline": "Немає зв'язку — показано збережені дані",
    "per_month": "₽/міс",
    "servers": "Сервери",
+   "stats_avoided": "Обходів блокувань",
+   "stats_days": "З нами",
+   "stats_lifetime": "Трафік загалом",
+   "stats_paid": "Оплачено VPN",
+   "stats_title": "Моя статистика",
+   "stats_traffic": "Трафік за період",
    "status_connecting": "Підключаємо…",
    "status_no_client": "Встановіть VPN-клієнт, щоб підключитися",
    "status_off": "VPN вимкнено",
@@ -2347,6 +2379,7 @@
    "traffic_left": "Залишилось трафіку",
    "unlimited": "Безліміт",
    "until": "до",
+   "upsell_title": "Для вас",
    "your_id": "Ваш ID"
   },
   "theme": {
@@ -2361,6 +2394,6 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "226a1e19a7db53f8"
+  "version": "af5371185eb3b017"
  }
 }

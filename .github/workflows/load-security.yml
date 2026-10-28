@@ -27,6 +27,9 @@ jobs:
       - run: k6 run --summary-export k6-summary.json tests/load/shop.js
         env:
           API_BASE: http://127.0.0.1:18080
+      - name: k6 numbers as annotations
+        if: always()
+        run: python3 scripts/ci/k6-summary.py k6-summary.json
       - name: OWASP ZAP baseline (API and cabinet)
         if: always()
         run: |
