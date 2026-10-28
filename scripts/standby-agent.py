@@ -8,7 +8,13 @@ sends a Telegram alert from here (the primary cannot) and, only with AUTO_PROMOT
 
   sudo SHOP_URL=https://api.example.com STANDBY_TOKEN=… PRIMARY_IP=198.51.100.5 python3 corgi-standby install
   python3 corgi-standby run          # one round now, prints what it saw
+  python3 corgi-standby drill        # the promotion drill now
   sudo python3 corgi-standby uninstall
+
+Every hour it also copies the file volumes (media, Support Pro uploads, app packages; hot-standby.sh files-key /
+files-allow) and once a week runs a **drill**: a throwaway copy of the standby database is started as a primary on a
+side port, checked (users, payments, migration) and removed — proof that a promotion would work, without touching
+the standby. Both results go to the primary with the heartbeat.
 
 /etc/corgi-standby.env (root only) also takes: FAIL_LIMIT (5), AUTO_PROMOTE (0), APP_DIR (/opt/vpn-shop),
 TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (alerts), CF_API_TOKEN + CF_ZONE_ID + CF_RECORDS (comma-separated names) and
@@ -18,6 +24,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import socket
 import subprocess
 import sys
@@ -29,7 +36,7 @@ from pathlib import Path
 ENV_FILE = Path("/etc/corgi-standby.env")
 STATE_FILE = Path("/var/lib/corgi-standby.json")
 UNIT = "corgi-standby"
-VERSION = "1"
+VERSION = "2"
 
 
 def settings() -> dict:
@@ -94,6 +101,55 @@ def database(cfg: dict) -> tuple[bool, float | None, bool]:
     return recovery == "true", (round(float(lag), 1) if lag else None), receiver == "streaming"
 
 
+DRILL = r"""
+set -e
+D=/var/lib/postgresql/corgi-drill
+need=$(du -sk /var/lib/postgresql/18/docker | cut -f1); free=$(df -Pk /var/lib/postgresql | tail -1 | awk '{print $4}')
+[ "$free" -gt $((need * 3 / 2)) ] || { echo "no-space need=${need}K free=${free}K"; exit 3; }
+rm -rf "$D"
+pg_basebackup -U vpnshop -D "$D" -X fetch -c fast
+rm -f "$D/standby.signal" "$D/recovery.signal"
+printf "port = 5499\nlisten_addresses = ''\nprimary_conninfo = ''\nprimary_slot_name = ''\n" >> "$D/postgresql.auto.conf"
+chown -R postgres:postgres "$D"; chmod 700 "$D"
+trap 'su-exec postgres pg_ctl -D "$D" -m immediate stop >/dev/null 2>&1; rm -rf "$D"' EXIT
+su-exec postgres pg_ctl -D "$D" -w -t 180 -o "-k /tmp" start >/dev/null
+psql -h /tmp -p 5499 -U vpnshop -d vpnshop -At -c "SELECT (SELECT count(*) FROM users) || '|' || (SELECT count(*) FROM payments) || '|' || COALESCE((SELECT max(created_at)::text FROM payments), '') || '|' || (SELECT version_num FROM alembic_version) || '|' || (NOT pg_is_in_recovery())::text"
+"""
+
+
+def drill(cfg: dict) -> dict:
+    """A throwaway copy of the standby database must start as a primary and answer: the promotion would work."""
+    started = time.time()
+    result = subprocess.run(["docker", "compose", "exec", "-T", "db", "sh", "-c", DRILL], cwd=cfg["APP_DIR"],
+                            capture_output=True, text=True, timeout=3600, check=False)
+    out = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
+    parts = out.split("|")
+    ok = result.returncode == 0 and len(parts) == 5 and parts[4] == "true"
+    return {"at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()), "ok": ok, "seconds": int(time.time() - started),
+            "users": int(parts[0]) if ok else None, "payments": int(parts[1]) if ok else None,
+            "last_payment": parts[2] if ok else None, "migration": parts[3] if ok else None,
+            "error": "" if ok else (result.stderr.strip() or out)[-300:]}
+
+
+def files_sync(cfg: dict) -> dict:
+    """Media, Support Pro uploads and app packages from the primary (hot-standby.sh files-sync, read-only key)."""
+    if not Path("/root/.ssh/corgi_standby_files").exists():
+        return {"at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()), "ok": False, "error": "ключ не настроен (hot-standby.sh files-key)"}
+    result = subprocess.run(["bash", "scripts/hot-standby.sh", "files-sync", cfg["PRIMARY_IP"]], cwd=cfg["APP_DIR"],
+                            capture_output=True, text=True, timeout=3000, check=False)
+    return {"at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()), "ok": result.returncode == 0,
+            "error": "" if result.returncode == 0 else (result.stderr or result.stdout)[-300:]}
+
+
+def due(stamp: str | None, seconds: int) -> bool:
+    if not stamp:
+        return True
+    try:
+        return time.time() - time.mktime(time.strptime(stamp, "%Y-%m-%dT%H:%M:%S")) + time.timezone >= seconds
+    except ValueError:
+        return True
+
+
 def telegram(cfg: dict, text: str) -> None:
     if not (cfg["TELEGRAM_BOT_TOKEN"] and cfg["TELEGRAM_CHAT_ID"]):
         return
@@ -128,8 +184,15 @@ def run_once(cfg: dict) -> dict:
         print(f"database: {exc}", file=sys.stderr)
     alive = primary_alive(cfg, streaming)
     state["fails"] = 0 if alive else int(state.get("fails", 0)) + 1
+    if alive and in_recovery and due((state.get("files") or {}).get("at"), 3600):
+        state["files"] = files_sync(cfg)
+    if alive and in_recovery and due((state.get("drill") or {}).get("at"), 7 * 86400):
+        state["drill"] = drill(cfg)
+        if not state["drill"]["ok"]:
+            telegram(cfg, f"⚠️ Учебное повышение резерва не прошло: {state['drill']['error']}")
     report = {"in_recovery": in_recovery, "lag_seconds": lag, "primary_ok": alive, "auto_promote": cfg["AUTO_PROMOTE"],
-              "fail_streak": state["fails"], "host": os.uname().nodename[:120], "version": VERSION}
+              "fail_streak": state["fails"], "host": os.uname().nodename[:120], "version": VERSION,
+              "files": state.get("files"), "drill": state.get("drill")}
     if alive:
         try:
             http(cfg["SHOP_URL"] + "/api/standby/heartbeat", data=report, headers={"Authorization": f"Bearer {cfg['STANDBY_TOKEN']}"})
@@ -193,7 +256,9 @@ def uninstall() -> None:
 
 if __name__ == "__main__":
     command = sys.argv[1] if len(sys.argv) > 1 else ""
-    if command == "run":
+    if command == "drill":
+        print(json.dumps(drill(settings()), ensure_ascii=False))
+    elif command == "run":
         print(json.dumps(run_once(settings()), ensure_ascii=False))
     elif command == "install":
         install()

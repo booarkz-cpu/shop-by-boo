@@ -1,0 +1,35 @@
+name: Remnawave live contract
+
+# The shop's Remnawave client against a real panel of the newest version (official compose, random secrets).
+# Separate from «Corgi Lusi CI» on purpose: a change upstream shows up here (and weekly) without blocking releases.
+on:
+  pull_request:
+    paths: ['backend/app/remnawave.py', 'backend/app/node_autoscale.py', 'backend/app/block_monitor.py', 'backend/app/node_health.py',
+            'tests/live/**', 'scripts/ci/remnawave-live.sh', '.github/workflows/remnawave-live.yml']
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  panel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      APP_SECRET: ci-only-secret
+      APP_ENV: test
+      DATABASE_URL: sqlite+aiosqlite:///./live.db
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r backend/requirements.txt -r backend/requirements-test.txt
+      - name: Newest Remnawave panel and the shop's live contract tests
+        run: bash scripts/ci/remnawave-live.sh

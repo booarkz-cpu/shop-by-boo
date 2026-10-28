@@ -65,6 +65,10 @@ class RemnawaveClient:
             "Accept":"application/json",
             "Content-Type":"application/json",
         }
+        if self.base.startswith("http://"):
+            # A panel reached over the internal Docker network (http://remnawave:3000) refuses requests that do not
+            # look proxied («Reverse proxy and HTTPS are required»): the shop says it is behind its own HTTPS proxy.
+            self.headers.update({"X-Forwarded-Proto":"https","X-Forwarded-For":"127.0.0.1"})
 
     @classmethod
     async def _get_shared_client(cls) -> httpx.AsyncClient:
@@ -237,10 +241,16 @@ class RemnawaveClient:
         return await self._request("POST","/api/hwid/devices/delete-all",json={"userUuid":str(user_id)})
 
     async def restart_node(self,node_uuid:str):
-        return await self._request("POST",f"/api/nodes/{node_uuid}/actions/restart")
+        # The panel validates the body: {"forceRestart": bool} is required (no body → 400; checked live in CI).
+        return await self._request("POST",f"/api/nodes/{node_uuid}/actions/restart",json={"forceRestart":False})
 
     async def restart_all_nodes(self):
-        return await self._request("POST","/api/nodes/actions/restart-all")
+        return await self._request("POST","/api/nodes/actions/restart-all",json={"forceRestart":False})
+
+    async def node_secret_key(self)->str:
+        """The SECRET_KEY a new node container starts with (panel «Создать ноду» dialog, GET /api/keygen)."""
+        out=await self._request("GET","/api/keygen")
+        return str((out or {}).get("secretKey") or (out or {}).get("pubKey") or "")
 
     async def create_node(self,payload:dict):
         return await self._request("POST","/api/nodes",json=payload)

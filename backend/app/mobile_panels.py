@@ -67,6 +67,13 @@ async def hot_standby_panel(db: AsyncSession) -> dict:
             rows.append(row(f"Реплика {r['address']}", f"{r['state']}, отставание {r['lag_seconds']} с", "ok" if r["state"] == "streaming" else "warn"))
     rows.append(row("Агент резерва", ("на связи" if data["heartbeat_fresh"] else "молчит") if beat.get("at") else "не установлен",
                     "ok" if data["heartbeat_fresh"] else "warn"))
+    if beat.get("drill"):
+        d = beat["drill"]
+        rows.append(row("Учебное повышение", f"прошло {str(d.get('at'))[:10]}" if d.get("ok") else f"не прошло: {str(d.get('error'))[:120]}",
+                        "ok" if d.get("ok") else "bad"))
+    if beat.get("files"):
+        rows.append(row("Файлы на резерве", f"скопированы {str(beat['files'].get('at'))[:16]}" if beat["files"].get("ok") else "ошибка копирования",
+                        "ok" if beat["files"].get("ok") else "warn"))
     for p in data["problems"]:
         rows.append(row(p["title"], p["detail"], "bad" if p["severity"] == "critical" else "warn"))
     return {"id": "hot_standby", "title": "Горячий резерв", "rows": rows, "actions": [

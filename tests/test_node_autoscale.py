@@ -68,7 +68,7 @@ async def test_recommend_mode_messages_once(database, monkeypatch):
     await na.tick(db, NOW + timedelta(minutes=2), nodes=crowded, sender=sender)
     assert len(sent) == 1 and "добавить ноду" in sent[0]
     view = await na.get_autoscale(db, ADMIN)
-    assert view["last"]["load"] == 300.0 and view["created"] == [] and view["provider"] == {"hetzner_token": False, "node_secret": False}
+    assert view["last"]["load"] == 300.0 and view["created"] == [] and view["provider"] == {"hetzner_token": False, "node_secret": True}
 
 
 @pytest.mark.asyncio
@@ -128,6 +128,7 @@ async def test_auto_mode_creates_and_removes_through_hetzner_and_panel(database,
 @pytest.mark.asyncio
 async def test_a_panel_failure_removes_the_new_server(monkeypatch):
     monkeypatch.setenv("HETZNER_API_TOKEN", "h-token")
+    monkeypatch.setenv("REMNANODE_SECRET_KEY", "node-secret")
     seen = []
 
     def handler(request):

@@ -10,11 +10,11 @@ The load is the number of users online per online node (Remnawave reports it). E
 Mode ``recommend`` (the default) only sends the owner a Telegram message with what to do and why. Mode ``auto``
 creates the server at Hetzner Cloud with a cloud-init that starts Remnawave Node, registers it in the panel with the
 chosen config profile and inbounds, and does the reverse when removing. Secrets stay in ``.env``:
-``HETZNER_API_TOKEN`` and ``REMNANODE_SECRET_KEY`` (the key from the panel's «Создать ноду» dialog).
+``HETZNER_API_TOKEN``; the node key is taken from the panel (``GET /api/keygen``) unless ``REMNANODE_SECRET_KEY``
+overrides it.
 
-The Hetzner Cloud API calls follow its public reference; the Remnawave node create/delete calls and the node
-container's variables differ between panel versions and were not tried against a live panel — check one manual
-run in ``auto`` before leaving it unattended.
+The Remnawave calls (keygen, node create with a config profile, node delete) are checked against a real panel in CI
+(tests/live/test_remnawave_live.py); the Hetzner Cloud calls follow its public reference and are tested with a mock.
 """
 from __future__ import annotations
 
@@ -76,7 +76,8 @@ async def _save(db, key, value):
 
 
 def provider_ready() -> dict:
-    return {"hetzner_token": bool(os.getenv("HETZNER_API_TOKEN")), "node_secret": bool(os.getenv("REMNANODE_SECRET_KEY"))}
+    # The node key comes from REMNANODE_SECRET_KEY or, without it, from the panel itself (GET /api/keygen).
+    return {"hetzner_token": bool(os.getenv("HETZNER_API_TOKEN")), "node_secret": True}
 
 
 def decide(config: dict, nodes: list[dict], state: dict, now: datetime) -> tuple[dict, dict]:
@@ -115,8 +116,8 @@ def decide(config: dict, nodes: list[dict], state: dict, now: datetime) -> tuple
     return info, state
 
 
-def cloud_init(config: dict) -> str:
-    secret = os.getenv("REMNANODE_SECRET_KEY", "").replace("'", "")
+def cloud_init(config: dict, secret: str) -> str:
+    secret = secret.replace("'", "")
     return "\n".join([
         "#cloud-config",
         "runcmd:",
@@ -142,8 +143,12 @@ async def _hetzner(method: str, path: str, client: httpx.AsyncClient | None = No
 async def scale_up(config: dict, now: datetime, panel=None, client=None) -> dict:
     from .remnawave import RemnawaveClient
     name = f"{config['name_prefix']}-{now:%m%d-%H%M}"
+    panel = panel or RemnawaveClient()
+    secret = os.getenv("REMNANODE_SECRET_KEY") or await panel.node_secret_key()
+    if not secret:
+        raise RuntimeError("панель не выдала ключ ноды (GET /api/keygen)")
     body = {"name": name, "server_type": config["server_type"], "location": config["location"], "image": config["image"],
-            "user_data": cloud_init(config), "labels": {"corgi": "autoscale"}}
+            "user_data": cloud_init(config, secret), "labels": {"corgi": "autoscale"}}
     if config.get("ssh_key"):
         body["ssh_keys"] = [config["ssh_key"]]
     server = (await _hetzner("POST", "/servers", client, json=body))["server"]
@@ -152,7 +157,7 @@ async def scale_up(config: dict, now: datetime, panel=None, client=None) -> dict
     if config.get("config_profile_uuid"):
         node["configProfile"] = {"activeConfigProfileUuid": config["config_profile_uuid"], "activeInbounds": config.get("inbound_uuids") or []}
     try:
-        created = await (panel or RemnawaveClient()).create_node(node) or {}
+        created = await panel.create_node(node) or {}
     except Exception:
         # A server the panel does not know would only cost money: remove it and report the panel error.
         await _hetzner("DELETE", f"/servers/{server['id']}", client)
@@ -213,7 +218,7 @@ async def tick(db: AsyncSession, now: datetime | None = None, *, nodes=None, sen
             when = datetime.fromisoformat(last["at"]) if last.get("at") else None
             if last.get("action") != action or not when or now - when >= REPEAT_RECOMMENDATION:
                 what = "добавить ноду" if action == "up" else f"убрать ноду {info['node'].get('name')}"
-                missing = "" if config["mode"] == "recommend" else " (режим «авто» ждёт HETZNER_API_TOKEN и REMNANODE_SECRET_KEY в .env)"
+                missing = "" if config["mode"] == "recommend" else " (режим «авто» ждёт HETZNER_API_TOKEN в .env)"
                 await sender(f"📈 Рекомендация: {what} — {info['reason']}{missing}. Серверы → Автомасштабирование.")
                 state["recommended"] = {"action": action, "at": now.isoformat()}
     else:

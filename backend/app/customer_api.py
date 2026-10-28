@@ -81,7 +81,7 @@ async def wallet_topup(payload:dict, request:shop.Request, db:shop.AsyncSession=
         return {"id":existing.provider_payment_id,"url":existing.checkout_url,"provider":existing.provider,"status":existing.status,"purpose":"topup"}
     await shop.ensure_required_channel(user)
     routed={"bank_card":"card","sbp":"sbp"}.get(method) or (str(payload.get("pay_method") or "") or None)
-    provider_order=await shop._payment_provider_order(db,payload.get("provider"),routed)
+    provider_order=await shop._payment_provider_order(db,payload.get("provider"),*([routed] if routed else []))
     if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
     candidate=provider_order[0]
     # Every routable gateway (a reserve one may be first in line while the main one cools down).

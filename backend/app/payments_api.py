@@ -270,7 +270,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         from .payment_methods import YOOKASSA_TYPES, load as load_routing
         pay_method=str(payload.get("method") or "") or None
         method_hint=YOOKASSA_TYPES.get(pay_method or "") if pay_method and (await load_routing(db))["enabled"] else None
-        provider_order=await shop._payment_provider_order(db,requested_provider,pay_method)
+        provider_order=await shop._payment_provider_order(db,requested_provider,*([pay_method] if pay_method else []))
         if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
         provider_name=provider_order[0]
         provider=_checkout_provider(provider_name)
