@@ -176,7 +176,7 @@ class Settings(BaseSettings):
         default="168.119.157.136,168.119.60.227,178.154.197.79,51.250.54.238", alias="FREEKASSA_WEBHOOK_IP_ALLOWLIST"
     )
 
-    # ---------- CloudPayments, Lava, Pal24, Mulen Pay, WATA, Antilopay, AuraPay, Anore (more gateways, payments_extra.py) ----------
+    # ---------- CloudPayments, Lava, Pal24, Mulen Pay, WATA, Antilopay, AuraPay, Anore, Cashera, ParityPay (more gateways, payments_extra.py) ----------
     cloudpayments_public_id: str = Field(default="", alias="CLOUDPAYMENTS_PUBLIC_ID")
     cloudpayments_api_secret: str = Field(default="", alias="CLOUDPAYMENTS_API_SECRET")
     lava_shop_id: str = Field(default="", alias="LAVA_SHOP_ID")
@@ -200,6 +200,11 @@ class Settings(BaseSettings):
     anore_api_key: str = Field(default="", alias="ANORE_API_KEY")
     anore_secret_key: str = Field(default="", alias="ANORE_SECRET_KEY")
     anore_shop_id: str = Field(default="", alias="ANORE_SHOP_ID")
+    cashera_api_key: str = Field(default="", alias="CASHERA_API_KEY")
+    cashera_api_secret: str = Field(default="", alias="CASHERA_API_SECRET")
+    paritypay_shop_id: str = Field(default="", alias="PARITYPAY_SHOP_ID")
+    paritypay_secret_key: str = Field(default="", alias="PARITYPAY_SECRET_KEY")
+    paritypay_callback_secret: str = Field(default="", alias="PARITYPAY_CALLBACK_SECRET")
 
     # ---------- Stripe ----------
     stripe_secret_key: str = Field(

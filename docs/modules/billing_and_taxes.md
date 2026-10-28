@@ -124,6 +124,25 @@ sequenceDiagram
 
 Тесты на моках: `tests/test_payments_aurapay_anore.py`.
 
+## Cashera и ParityPay (v28.43)
+
+Ещё две кассы для карт и СБП в `payments_extra.py`, правила те же, что у остальных резервных касс:
+- касса встаёт в очередь касс и в выбор способа оплаты, как только заданы её ключи;
+- только разовые платежи: подписки Cashera и ParityPay не используются;
+- возвратов через API нет;
+- подписка выдаётся только после повторной проверки платежа в API кассы.
+
+| Касса | Ключи | Адрес уведомлений | Как магазин проверяет оплату |
+| --- | --- | --- | --- |
+| Cashera | `CASHERA_API_KEY`, `CASHERA_API_SECRET` | `https://<API_DOMAIN>/api/webhooks/cashera` — передаётся в каждой транзакции | Заголовки `X-Api-Key` и `X-Secret` сверяются в постоянном времени, неверные — ответ 401. Затем `GET /integration/transactions/{uuid}`: статус paid, тот же `external_id`, валюта и сумма в копейках |
+| ParityPay | `PARITYPAY_SHOP_ID`, `PARITYPAY_SECRET_KEY` (ключ №1), `PARITYPAY_CALLBACK_SECRET` (ключ №2) | `https://<API_DOMAIN>/api/webhooks/paritypay` — передаётся в каждом счёте | `X-SIGNATURE`: HMAC-SHA256 значений по алфавиту ключей (ключ №2). Затем `GET /v2/invoice/status?order_id=`: статус PAID, тот же заказ и сумма |
+
+Страница оплаты:
+- Cashera — `POST https://api.cashera.cash/api/v1/integration/transactions`, сумма в копейках, `external_id` равен номеру заказа магазина. Если ссылка пришла без схемы, магазин добавляет `https://`.
+- ParityPay — `POST https://api.paritypay.net/v2/invoice/create` с заголовками `X-ShopId` и `X-SecretKey`. Ссылка на оплату приходит в поле `link`.
+
+Подписи AuraPay и ParityPay считаются по значениям тела ровно в том виде, в каком их прислала касса. Магазин разбирает тело, не переписывая числа (`1200` не превращается в `1200.0`), а логические значения записывает как `true` и `false`. Тесты на моках: `tests/test_payments_cashera_paritypay.py`.
+
 ## Возврат денег, которые почти пришли
 
 * **Брошенная оплата** и **неудачное автопродление** — события движка автоматизации `payment.abandoned` и

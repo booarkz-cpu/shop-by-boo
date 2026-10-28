@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.42.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008` / 3.8.
+> Актуальная инструкция дистрибутива v28.43.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008` / 3.8.
 
 # Мост Zendesk и Freshdesk (Support Pro 3.8)
 
