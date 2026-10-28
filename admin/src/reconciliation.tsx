@@ -301,7 +301,7 @@ export function Pnl({request, toast}: Props) {
   return (
     <Card title="Прибыль и расходы (P&L)" error={error} hint="Выручка за вычетом возвратов, комиссий касс, расходов на серверы, домены и софт и рекламы (из юнит-экономики).">
       <table className="table"><thead><tr><th>Месяц</th><th>Выручка</th><th>Возвраты</th><th>Комиссии</th><th>Расходы</th><th>Реклама</th><th>Прибыль</th><th>Маржа</th></tr></thead>
-        <tbody>{d.months.map((m: any) => <tr key={m.month}><td>{m.month}</td><td>{m.revenue}</td><td>{m.refunds}</td><td>{m.fees}</td><td>{Object.values(m.costs).reduce((a: number, b: any) => a + Number(b), 0)}</td><td>{m.ads}</td><td><b>{m.profit}</b></td><td>{m.margin ?? "—"} %</td></tr>)}</tbody></table>
+        <tbody>{d.months.map((m: any) => <tr key={m.month}><td>{m.month}</td><td>{m.revenue}</td><td>{m.refunds}</td><td>{m.fees}</td><td>{String(Object.values(m.costs as Record<string, string>).reduce((a: number, b: string) => a + Number(b), 0))}</td><td>{m.ads}</td><td><b>{m.profit}</b></td><td>{m.margin ?? "—"} %</td></tr>)}</tbody></table>
       <p>Активных клиентов: {d.active_customers}; прибыль на клиента за месяц: {d.profit_per_customer ?? "—"} ₽.</p>
       {d.nodes.length ? <p className="muted">Ноды (текущий месяц): {d.nodes.map((n: any) => `${n.node} — ${n.cost} ₽ (${n.per_customer ?? "—"} ₽ на клиента)`).join("; ")}</p> : null}
       <h4>Комиссии касс, %</h4>

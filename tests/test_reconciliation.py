@@ -214,7 +214,7 @@ async def test_grace_access_once_per_cooldown(env):
     await ga.put_grace(ga.GraceIn(enabled=True, hours=12, cooldown_days=30, reset_traffic_on_payment=True), db, ADMIN)
     assert await ga.reset_traffic_on_payment(db)
     granted = await ga.tick(db, NOW, Panel(), lambda *a: _none())
-    assert granted == [1] and patched[0]["expireAt"].startswith("2026-10-29T00:05")
+    assert granted == [1] and patched[0] == {"expireAt": "2026-10-29T00:05:00.000Z"}
     sub = await db.get(Subscription, 1)
     assert sub.lifecycle_status == "grace" and sub.grace_until == NOW + timedelta(minutes=5, hours=12)
     sub.lifecycle_status, sub.grace_until, sub.expires_at = "active", None, NOW + timedelta(days=10, minutes=5)

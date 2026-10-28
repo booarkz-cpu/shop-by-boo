@@ -53,6 +53,11 @@ async def _save(db, key, value):
     await save(db, key, value)
 
 
+def panel_expiry_patch(until: datetime) -> dict:
+    """Body for ``RemnawaveClient.patch_user`` (which adds the user id): checked against a live panel in CI."""
+    return {"expireAt": until.isoformat(timespec="seconds") + ".000Z"}
+
+
 async def tick(db: AsyncSession, now: datetime | None = None, panel=None, notify=None) -> list[int]:
     from .models import Subscription, User
     config = await _load(db, CONFIG_KEY, DEFAULT)
@@ -79,7 +84,7 @@ async def tick(db: AsyncSession, now: datetime | None = None, panel=None, notify
         until = sub.expires_at + timedelta(hours=int(config["hours"]))
         if sub.remnawave_uuid:
             try:
-                await panel.patch_user(sub.remnawave_uuid, {"uuid": sub.remnawave_uuid, "expireAt": until.isoformat() + "Z"})
+                await panel.patch_user(sub.remnawave_uuid, panel_expiry_patch(until))
             except Exception as exc:  # noqa: BLE001 — no grace this time; the subscription simply ends
                 logger.warning("grace for subscription %s failed: %s", sub.id, exc)
                 continue

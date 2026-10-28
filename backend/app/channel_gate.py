@@ -7,6 +7,7 @@ a minute per customer. «Маркетинг → Обязательные кан�
 """
 from __future__ import annotations
 
+import logging
 import time
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -16,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .db import get_db
 from .security import require_permission
 
+logger = logging.getLogger("vpnshop.channels")
 router = APIRouter()
 CONFIG_KEY = "channels.gate"
 SCOPES = ("all", "trial", "buy")
@@ -48,8 +50,14 @@ async def load(db: AsyncSession) -> list[dict]:
 async def _channels() -> list[dict]:
     if _cache["channels"] is None or time.monotonic() - _cache["at"] > 60:
         from .db import SessionLocal
-        async with SessionLocal() as db:
-            _cache["channels"] = await load(db)
+        try:
+            async with SessionLocal() as db:
+                _cache["channels"] = await load(db)
+        except Exception as exc:  # noqa: BLE001 — a settings read must not break a purchase: the legacy channel only
+            logger.warning("required channels unavailable: %s", exc)
+            from .config import settings
+            legacy = (settings.required_telegram_channel or "").strip()
+            return [{"chat": legacy, "title": "Канал", "url": "", "scope": "buy"}] if legacy else []
         _cache["at"] = time.monotonic()
     return _cache["channels"]
 

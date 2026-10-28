@@ -63,3 +63,31 @@ async def test_users_and_reserve_squad(panel):
     await panel.squad_remove_all_users(squad)
     stream = await panel.stream_users(size=5)
     assert stream.get("users"), "user stream answers"
+
+
+@pytest.mark.asyncio
+async def test_panel_overview_hosts_and_grace_expiry(panel):
+    from app import panel_admin, traffic_report
+    view = await panel_admin.overview(panel)
+    assert view["profiles"] and view["squads"], "profiles and squads are listed"
+    profile = view["profiles"][0]
+    host = await panel._request("POST", "/api/hosts", json={
+        "remark": "ci-host", "address": "ci.example.test", "port": 443,
+        "inbound": {"configProfileUuid": profile["uuid"], "configProfileInboundUuid": profile["inbounds"][0]["uuid"]}})
+    assert isinstance(host, dict) and "uuid" in host, str(host)[:600]
+    uuid = host["uuid"]
+    for action, expected in (("disable", True), ("enable", False)):
+        await panel._request("POST", f"/api/hosts/bulk/{action}", json={"uuids": [uuid]})
+        hosts = (await panel_admin.overview(panel))["hosts"]
+        assert next(h for h in hosts if h["uuid"] == uuid)["disabled"] is expected
+    await panel._request("DELETE", f"/api/hosts/{uuid}")
+    # Grace access moves expireAt with PATCH /api/users (uuid in the body).
+    expire = (datetime.utcnow() + timedelta(days=3)).replace(microsecond=0)
+    user = await panel.create_user(f"ci_grace_{int(datetime.utcnow().timestamp())}", expire)
+    until = expire + timedelta(hours=12)
+    from app.grace_access import panel_expiry_patch
+    await panel.patch_user(user["id"], panel_expiry_patch(until))  # the shop keeps the panel «id» as remnawave_uuid
+    fresh = await panel.get_user(user["id"])
+    assert fresh["expireAt"].startswith(until.isoformat()[:16])
+    rows = await traffic_report.collect(panel, max_users=50)
+    assert rows and "used" in rows[0], "traffic report reads the users stream"
