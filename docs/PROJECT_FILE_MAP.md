@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1704**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1714**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -164,6 +164,7 @@
 | [admin/src/growth.tsx](../admin/src/growth.tsx) | Админ-панель |
 | [admin/src/growthTools.tsx](../admin/src/growthTools.tsx) | Админ-панель |
 | [admin/src/history-import.tsx](../admin/src/history-import.tsx) | Админ-панель |
+| [admin/src/hotStandby.tsx](../admin/src/hotStandby.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
 | [admin/src/mail-domain.tsx](../admin/src/mail-domain.tsx) | Админ-панель |
@@ -172,6 +173,7 @@
 | [admin/src/mobileLayout.tsx](../admin/src/mobileLayout.tsx) | Админ-панель |
 | [admin/src/network-intel.tsx](../admin/src/network-intel.tsx) | Админ-панель |
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
+| [admin/src/nodeAutoscale.tsx](../admin/src/nodeAutoscale.tsx) | Админ-панель |
 | [admin/src/nodeMonitor.tsx](../admin/src/nodeMonitor.tsx) | Админ-панель |
 | [admin/src/ops.tsx](../admin/src/ops.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
@@ -368,6 +370,7 @@
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
 | [backend/app/growth.py](../backend/app/growth.py) | API, бот и worker |
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
+| [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
 | [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
@@ -384,6 +387,7 @@
 | [backend/app/mobile_mirrors.py](../backend/app/mobile_mirrors.py) | API, бот и worker |
 | [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
+| [backend/app/node_autoscale.py](../backend/app/node_autoscale.py) | API, бот и worker |
 | [backend/app/node_health.py](../backend/app/node_health.py) | API, бот и worker |
 | [backend/app/node_terminal.py](../backend/app/node_terminal.py) | API, бот и worker |
 | [backend/app/notifications_status_api.py](../backend/app/notifications_status_api.py) | API, бот и worker |
@@ -810,9 +814,11 @@
 | [docs/modules/auto_update_and_rollback.md](../docs/modules/auto_update_and_rollback.md) | Документация |
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
+| [docs/modules/hot_standby.md](../docs/modules/hot_standby.md) | Документация |
 | [docs/modules/i18n.md](../docs/modules/i18n.md) | Документация |
 | [docs/modules/in_app_diagnostics.md](../docs/modules/in_app_diagnostics.md) | Документация |
 | [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
+| [docs/modules/node_autoscale.md](../docs/modules/node_autoscale.md) | Документация |
 | [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
 | [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
@@ -1380,6 +1386,7 @@
 | [scripts/generate-project-map.py](../scripts/generate-project-map.py) | Эксплуатация и релиз |
 | [scripts/github_release_fetch.py](../scripts/github_release_fetch.py) | Эксплуатация и релиз |
 | [scripts/harden-env.py](../scripts/harden-env.py) | Эксплуатация и релиз |
+| [scripts/hot-standby.sh](../scripts/hot-standby.sh) | Эксплуатация и релиз |
 | [scripts/install.sh](../scripts/install.sh) | Эксплуатация и релиз |
 | [scripts/integration-test.sh](../scripts/integration-test.sh) | Эксплуатация и релиз |
 | [scripts/ios/build-tunnel-frameworks.sh](../scripts/ios/build-tunnel-frameworks.sh) | Эксплуатация и релиз |
@@ -1404,6 +1411,7 @@
 | [scripts/setup-auto-deploy.sh](../scripts/setup-auto-deploy.sh) | Эксплуатация и релиз |
 | [scripts/sign-plugin.py](../scripts/sign-plugin.py) | Эксплуатация и релиз |
 | [scripts/staging-e2e.sh](../scripts/staging-e2e.sh) | Эксплуатация и релиз |
+| [scripts/standby-agent.py](../scripts/standby-agent.py) | Эксплуатация и релиз |
 | [scripts/static_audit.py](../scripts/static_audit.py) | Эксплуатация и релиз |
 | [scripts/store/render.py](../scripts/store/render.py) | Эксплуатация и релиз |
 | [scripts/test-up.sh](../scripts/test-up.sh) | Эксплуатация и релиз |
@@ -1569,6 +1577,7 @@
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
+| [tests/test_hot_standby.py](../tests/test_hot_standby.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
@@ -1589,6 +1598,7 @@
 | [tests/test_multiple_subscriptions.py](../tests/test_multiple_subscriptions.py) | Проверки |
 | [tests/test_native_passkeys.py](../tests/test_native_passkeys.py) | Проверки |
 | [tests/test_network_intel.py](../tests/test_network_intel.py) | Проверки |
+| [tests/test_node_autoscale.py](../tests/test_node_autoscale.py) | Проверки |
 | [tests/test_node_cache.py](../tests/test_node_cache.py) | Проверки |
 | [tests/test_node_monitor.py](../tests/test_node_monitor.py) | Проверки |
 | [tests/test_node_terminal.py](../tests/test_node_terminal.py) | Проверки |

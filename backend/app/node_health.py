@@ -259,6 +259,9 @@ async def node_monitor_scheduler(session_factory=None):
                 from .db import SessionLocal
                 async with (session_factory or SessionLocal)() as db:
                     await monitor_pass(db)
+                async with (session_factory or SessionLocal)() as db:
+                    from .node_autoscale import tick as autoscale_tick
+                    await autoscale_tick(db)
         except Exception as exc:  # noqa: BLE001
             logger.warning("Node monitor failed: %s", exc)
         await asyncio.sleep(60)

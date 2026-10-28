@@ -242,6 +242,12 @@ class RemnawaveClient:
     async def restart_all_nodes(self):
         return await self._request("POST","/api/nodes/actions/restart-all")
 
+    async def create_node(self,payload:dict):
+        return await self._request("POST","/api/nodes",json=payload)
+
+    async def delete_node(self,node_uuid:str):
+        return await self._request("DELETE",f"/api/nodes/{node_uuid}")
+
     async def list_nodes(self,start=0,size=25):
         return await self._request("GET","/api/nodes",
                                    params={"start":start,"size":min(size,1000)})

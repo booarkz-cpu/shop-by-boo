@@ -123,6 +123,9 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     from .block_monitor import problems as block_problems
     for key, title, detail in await block_problems(db):
         out.append(Problem(key, title, detail, "critical"))
+    from .hot_standby import problems as standby_problems
+    for key, title, detail, severity in await standby_problems(db, now):
+        out.append(Problem(key, title, detail, severity))
     backup = await db.scalar(select(BackupJob).order_by(BackupJob.id.desc()).limit(1))
     if backup and backup.status == "failed" and backup.created_at >= day:
         out.append(Problem(f"backup:{backup.id}", "Резервная копия не создана", (backup.error or "ошибка")[:300] + ". Безопасность → Резервные копии."))
@@ -251,6 +254,16 @@ async def readiness(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
     check("api_mirrors", "Резервный адрес API для приложений", settings.api_domains()[1:] or mirrors.get("mirrors"),
           "Купите второй домен на этот сервер и впишите его в API_MIRROR_DOMAINS (.env): приложения запомнят его заранее и перейдут сами, "
           "если основной домен заблокируют (Приложения → Резервные адреса API).", "recommended")
+    from .hot_standby import CONFIG_KEY as STANDBY_KEY, _load as standby_load, replication as standby_replication
+    standby = await standby_load(db, STANDBY_KEY, {})
+    try:
+        replicas = [r for r in (await standby_replication(db))["replicas"] if r["state"] == "streaming"]
+    except Exception:  # noqa: BLE001 — a managed database may hide pg_stat_replication
+        await db.rollback()
+        replicas = []
+    check("hot_standby", "Горячий резерв базы", standby.get("enabled") and replicas,
+          "Второй сервер с потоковой копией базы: при потере основного данные не теряются, переключение — одной командой "
+          "(Резервные копии → Горячий резерв, bash scripts/hot-standby.sh).", "recommended")
     from .support_ai import faq as support_faq
     faq_items = await support_faq(db)  # the knowledge base and the published FAQ page
     check("support_ai", "База знаний для ИИ-черновиков", len(faq_items) >= 5,

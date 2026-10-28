@@ -195,6 +195,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/monitoring` | Admin Monitoring |
 | `GET` | `/api/admin/network/intel` | Admin Network Intel |
 | `POST` | `/api/admin/network/intel/refresh` | Admin Network Refresh |
+| `GET` | `/api/admin/nodes/autoscale` | Get Autoscale |
+| `PUT` | `/api/admin/nodes/autoscale` | Put Autoscale |
 | `GET` | `/api/admin/nodes/health` | Nodes Health |
 | `PUT` | `/api/admin/nodes/health/config` | Nodes Health Config |
 | `POST` | `/api/admin/nodes/update` | Update Nodes |
@@ -344,6 +346,9 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/staging-e2e/config` | Update Staging E2E Config |
 | `POST` | `/api/admin/staging-e2e/run` | Run Staging E2E |
 | `GET` | `/api/admin/staging-e2e/status` | Staging E2E Status |
+| `GET` | `/api/admin/standby` | Get Standby |
+| `PUT` | `/api/admin/standby` | Put Standby |
+| `POST` | `/api/admin/standby/token` | New Token |
 | `GET` | `/api/admin/status/components` | Admin Status Components |
 | `POST` | `/api/admin/status/components` | Admin Status Component Create |
 | `PUT` | `/api/admin/status/components/{component_id}` | Admin Status Component Update |
@@ -625,6 +630,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/reseller/branding` | Reseller Branding |
 | `GET` | `/api/reseller/catalog` | Reseller Catalog |
 | `GET` | `/api/reseller/stats` | Reseller Stats |
+| `POST` | `/api/standby/heartbeat` | Heartbeat |
 | `GET` | `/api/tariff-constructors` | Public Constructors |
 | `GET` | `/api/v3/status` | V3 Status |
 | `POST` | `/api/webhooks/crypto` | Crypto Webhook |

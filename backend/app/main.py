@@ -112,7 +112,8 @@ app.include_router(auto_update_router)
 # v28.35–36 modules, each with its own APIRouter (same order as before: route matching is unchanged).
 import importlib as _importlib
 for _module in ("node_health", "bonus_days", "promo_generator", "telegram_backup", "anti_sharing", "support_ai", "admin_web_ticket",
-                "economics", "block_monitor", "provider_report", "mobile_mirrors", "account_sync", "diagnostics"):
+                "economics", "block_monitor", "provider_report", "mobile_mirrors", "account_sync", "diagnostics",
+                "hot_standby", "node_autoscale"):
     app.include_router(_importlib.import_module(f".{_module}", __package__).router)
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
