@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import httpx
+import time
 from datetime import datetime
 from .config import settings
 
@@ -101,17 +102,25 @@ class RemnawaveClient:
             except RemnawaveCircuitOpen: raise
             except Exception as exc:
                 logger.warning("Non-critical operation failed: %s", exc)
+        from . import panel_api_stats
+        started=time.monotonic(); status=599
         try:
             c=await self._get_shared_client()
             r=await c.request(method,f"{self.base}{path}",headers=self.headers,**kwargs)
+            status=r.status_code
+            if not r.is_error:
+                ref=panel_api_stats.user_ref(method,path,kwargs)
+                if ref: await panel_api_stats.remember_write(ref)
             if r.is_error:
                 raise RemnawaveError(f"{method} {path}: {r.status_code}: {r.text[:1000]}")
             if redis_client is not None:
                 try: await redis_client.delete(fail_key)
                 except Exception as exc:
                     logger.warning("Redis circuit-breaker reset failed: %s", exc)
+            panel_api_stats.record(None,method,path,status,(time.monotonic()-started)*1000)
             return unwrap(r.json()) if r.content else {}
         except Exception:
+            panel_api_stats.record(None,method,path,status,(time.monotonic()-started)*1000)
             if redis_client is not None:
                 try:
                     n=int(await redis_client.incr(fail_key)); await redis_client.expire(fail_key,300)

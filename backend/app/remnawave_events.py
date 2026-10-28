@@ -238,9 +238,22 @@ async def remnawave_webhook(request: Request, db: AsyncSession = Depends(get_db)
         raise HTTPException(400, "Invalid event")
     event, scope = str(body.get("event") or "")[:64], str(body.get("scope") or "")[:32]
     data = body.get("data") if isinstance(body.get("data"), dict) else {}
+    from . import webhook_tee
+    tee = await webhook_tee._config(db)
+    webhook_tee.forward(tee, raw, dict(request.headers))  # every event, also the ones the shop itself ignores
     if scope not in {"user", "user_hwid_devices"} and not event.startswith(("user.", "user_hwid_devices.")):
         return {"ok": True, "ignored": True}
     user_id, sub, remote_id = await _match(db, data)
+    if tee.get("journal", True):
+        try:
+            panel_user = str((data.get("user") if isinstance(data.get("user"), dict) else data).get("id") or remote_id or "")
+            await webhook_tee.journal(db, event, data, panel_user, user_id)
+        except Exception as exc:  # noqa: BLE001 — the journal never loses the event itself
+            logger.warning("Change journal failed: %s", exc)
+            await db.rollback()
+    if event == "user.first_connected" and sub:
+        from .first_connect import on_first_connect
+        await on_first_connect(db, sub)
     row = RemnawaveEvent(event_key=hashlib.sha256(raw).hexdigest(), scope=scope or event.split(".")[0], event=event, user_id=user_id,
                          subscription_id=sub.id if sub else None, remote_id=remote_id, data=data)
     db.add(row)

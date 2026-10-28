@@ -446,6 +446,7 @@ private fun InsightsCards(layout: AppLayout, data: ShopData, actions: ShopAction
         if (!s.isNull("traffic_used_gb")) InfoLine(layout.text("stats_traffic"), "${s.optDouble("traffic_used_gb")} GB" +
             (if (s.isNull("traffic_limit_gb")) "" else " / ${s.optDouble("traffic_limit_gb")} GB"), theme)
         if (!s.isNull("traffic_lifetime_gb")) InfoLine(layout.text("stats_lifetime"), "${s.optDouble("traffic_lifetime_gb")} GB", theme)
+        if (!s.isNull("traffic_30d_gb") && s.has("traffic_30d_gb")) InfoLine(layout.text("stats_month"), "${s.optDouble("traffic_30d_gb")} GB", theme)
         InfoLine(layout.text("stats_avoided"), s.optInt("blocked_servers_avoided").toString(), theme)
     }
     if (data.upsell.length() > 0) Card(theme) {

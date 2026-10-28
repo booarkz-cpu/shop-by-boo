@@ -61,6 +61,10 @@ export function Torrents({data, request, toast}: {data: View; request: RequestFn
               {view.notify ? "Выключить уведомления" : "Включить уведомления"}
             </button>
           </li>
+          <li>
+            Нарушение — от <input type="number" min={1} max={100000} defaultValue={(view as any).min_events || 1} style={{width: 90}}
+              onBlur={async (e) => { try { const r = await request("/api/admin/platform/torrents/threshold", {method: "POST", body: JSON.stringify({min_events: Number(e.target.value) || 1})}); setView({...view, min_events: r.min_events} as any); toast("Порог сохранён"); } catch (err: any) { toast(err.message || "Не удалось сохранить"); } }}/> срабатываний за час: меньше — это обычно игры или опрос DHT, такие клиенты не отмечаются и не уведомляются.
+          </li>
           <li className="muted">Счётчики хранятся {view.retention_days} дней и удаляются вместе с аккаунтом клиента.</li>
         </ul>
         <p className="muted">

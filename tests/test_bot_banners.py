@@ -208,7 +208,7 @@ def test_generator_covers_every_banner_and_new_sections_have_their_own():
     app_sections = next(n.value for n in tree.body if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "APP_SECTIONS")
     rendered = {k.value for k in sections.keys}
     rendered_app = {k.value for k in app_sections.keys}
-    # 29 bot and Mini App banners (v28.37.0: contest, stats, channels, guest) plus 16 banners of the app sections.
+    # 29 bot and Mini App banners (v28.38.0: contest, stats, channels, guest) plus 16 banners of the app sections.
     assert rendered | rendered_app == set(bot_banners.SECTIONS) and len(rendered) == 29 and len(rendered_app) == 16
     assert all(k.startswith("app-") for k in rendered_app) and not any(k.startswith("app-") for k in rendered)
     # Every app section has its own sticker.

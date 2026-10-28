@@ -51,6 +51,36 @@ def recipients() -> dict:
             "email": bool(settings.alert_email and settings.smtp_host)}
 
 
+def rich_card(text: str) -> dict:
+    """A Telegram «rich card» for an operator alert: the title in bold, the details as a quote, «key: value» lines as
+    an aligned table and buttons into the admin panel (sections named in the text) — plain text stays the e-mail."""
+    from html import escape
+    lines = [x for x in text.splitlines()]
+    title, rest = (lines[0] if lines else ""), [x for x in lines[1:] if x.strip()]
+    pairs = [x.split(":", 1) for x in rest if ":" in x and len(x.split(":", 1)[0]) <= 28 and not x.startswith("http")]
+    prose = [x for x in rest if not (":" in x and len(x.split(":", 1)[0]) <= 28 and not x.startswith("http"))]
+    parts = [f"<b>{escape(title)}</b>"]
+    if prose:
+        parts.append("<blockquote>" + escape("\n".join(prose))[:2500] + "</blockquote>")
+    if pairs:
+        width = min(28, max(len(k.strip()) for k, _ in pairs))
+        table = "\n".join(f"{k.strip()[:width].ljust(width)}  {v.strip()}" for k, v in pairs[:15])
+        parts.append("<pre>" + escape(table)[:1200] + "</pre>")
+    admin = f"https://{settings.admin_domain}" if settings.admin_domain and settings.admin_domain != "localhost" else ""
+    buttons = []
+    if admin:
+        low = text.lower()
+        for token, label, tab in (("нод", "Ноды", "nodes"), ("касс", "Кассы", "providers"), ("резерв", "Резервные копии", "backups"),
+                                  ("платеж", "Платежи", "payments"), ("подписк", "Прослойка подписки", "nodes")):
+            if token in low and not any(b["text"] == label for b in buttons):
+                buttons.append({"text": label, "url": f"{admin}/#{tab}"})
+        buttons = buttons[:2] + [{"text": "Админ-панель", "url": admin}]
+    body = {"text": "\n\n".join(parts)[:4096], "parse_mode": "HTML", "disable_web_page_preview": True}
+    if buttons:
+        body["reply_markup"] = {"inline_keyboard": [buttons[i:i + 2] for i in range(0, len(buttons), 2)]}
+    return body
+
+
 async def send(text: str) -> bool:
     """Telegram (alert chat, else the owner) and e-mail; never raises."""
     sent = False
@@ -60,7 +90,10 @@ async def send(text: str) -> bool:
             import httpx
             async with httpx.AsyncClient(timeout=10, trust_env=False) as client:
                 r = await client.post(f"https://api.telegram.org/bot{settings.bot_token}/sendMessage",
-                                      json={"chat_id": target["telegram_chat"], "text": text[:4096]})
+                                      json={"chat_id": target["telegram_chat"], **rich_card(text)})
+                if not r.is_success:  # an HTML detail Telegram refuses: the plain text still arrives
+                    r = await client.post(f"https://api.telegram.org/bot{settings.bot_token}/sendMessage",
+                                          json={"chat_id": target["telegram_chat"], "text": text[:4096]})
             sent = r.is_success
         except Exception as exc:
             logger.warning("Operator alert was not sent to Telegram: %s", exc)

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .sub_proxy import client_url
 from .config import settings
 from .db import get_db
 from .models import Plan, Subscription, User
@@ -32,7 +33,7 @@ def _subscription_out(sub: Subscription | None, remote: dict | None = None) -> d
     return {
         "active": bool(sub and sub.lifecycle_status == "active" and (sub.expires_at is None or sub.expires_at > datetime.utcnow())),
         "remnawave_user_id": str(sub.remnawave_uuid) if sub and sub.remnawave_uuid else None,
-        "subscription_url": (remote.get("subscriptionUrl") or remote.get("subscription_url") or (sub.subscription_url if sub else None)),
+        "subscription_url": client_url(remote.get("subscriptionUrl") or remote.get("subscription_url") or (sub.subscription_url if sub else None)),
         "expires_at": remote.get("expireAt") or remote.get("expiresAt") or (sub.expires_at.isoformat() if sub and sub.expires_at else None),
         "traffic_limit_gb": sub.traffic_limit_gb_snapshot if sub else None,
         "device_limit": sub.device_limit_snapshot if sub else None,

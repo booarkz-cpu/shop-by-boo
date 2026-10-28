@@ -2,13 +2,14 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
+from .sub_proxy import client_url
 from . import main as shop
 
 # ---------- Customer account: subscription, wallet, gifts, referral, auto-renew ----------
 @shop.app.get("/api/me/subscription")
 async def my_subscription(request:shop.Request,db:shop.AsyncSession=shop.Depends(shop.get_db)):
     user=await shop.user_from_token(request,db); sub=(await db.execute(shop.select(shop.Subscription).where(shop.Subscription.user_id==user.id,shop.Subscription.is_primary.is_(True)))).scalar_one_or_none()
-    return {"subscription":None if not sub else {"id":sub.id,"plan_id":sub.plan_id,"expires_at":sub.expires_at,"subscription_url":sub.subscription_url,"remnawave_uuid":sub.remnawave_uuid},"auto_renew_enabled":user.auto_renew_enabled}
+    return {"subscription":None if not sub else {"id":sub.id,"plan_id":sub.plan_id,"expires_at":sub.expires_at,"subscription_url":client_url(sub.subscription_url),"remnawave_uuid":sub.remnawave_uuid},"auto_renew_enabled":user.auto_renew_enabled}
 
 @shop.app.get("/api/me/billing-center")
 async def billing_center(request:shop.Request,db:shop.AsyncSession=shop.Depends(shop.get_db)):
@@ -260,7 +261,7 @@ async def auto_renew_status(request:shop.Request,db:shop.AsyncSession=shop.Depen
 @shop.app.get("/api/me/connection-qr")
 async def connection_qr(request:shop.Request,db:shop.AsyncSession=shop.Depends(shop.get_db)):
     user=await shop.user_from_token(request,db); sub=(await db.execute(shop.select(shop.Subscription).where(shop.Subscription.user_id==user.id,shop.Subscription.is_primary.is_(True)))).scalar_one_or_none()
-    url=(sub.subscription_url or "").strip() if sub else ""
+    url=(client_url(sub.subscription_url) or "").strip() if sub else ""
     if not url or any(ch in url for ch in "\r\n\x00"): raise shop.HTTPException(404,"Subscription is not available")
     import io, qrcode
     img=qrcode.make(url); buf=io.BytesIO(); img.save(buf,format="PNG")
@@ -269,7 +270,7 @@ async def connection_qr(request:shop.Request,db:shop.AsyncSession=shop.Depends(s
 @shop.app.get("/api/me/subscription-file")
 async def subscription_file(request:shop.Request,db:shop.AsyncSession=shop.Depends(shop.get_db)):
     user=await shop.user_from_token(request,db); sub=(await db.execute(shop.select(shop.Subscription).where(shop.Subscription.user_id==user.id,shop.Subscription.is_primary.is_(True)))).scalar_one_or_none()
-    url=(sub.subscription_url or "").strip() if sub else ""
+    url=(client_url(sub.subscription_url) or "").strip() if sub else ""
     if not url or any(ch in url for ch in "\r\n\x00"): raise shop.HTTPException(404,"Subscription is not available")
     return shop.Response(content=(url+"\n").encode(),media_type="text/plain; charset=utf-8",headers={"Cache-Control":"private, no-store","Content-Disposition":'attachment; filename="remnawave-subscription.txt"'})
 
@@ -300,7 +301,7 @@ async def connection_info(request:shop.Request,db:shop.AsyncSession=shop.Depends
     for key in ("android","ios","tv","windows","macos","linux"):
         row=(await db.execute(shop.select(shop.AppSetting).where(shop.AppSetting.key==f"guide_{key}"))).scalar_one_or_none()
         guides[key]=row.value if row and row.value else defaults[key]
-    raw=(sub.subscription_url or "").strip() if sub else ""
+    raw=(client_url(sub.subscription_url) or "").strip() if sub else ""
     safe_url=raw if raw and not any(ch in raw for ch in "\r\n\x00") else None
     return shop.Response(content=shop.json.dumps({"subscription_url":safe_url,"expires_at":sub.expires_at.isoformat() if sub and sub.expires_at else None,"platforms":guides},ensure_ascii=False),media_type="application/json",headers={"Cache-Control":"private, no-store"})
 

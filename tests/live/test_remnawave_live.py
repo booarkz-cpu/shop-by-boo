@@ -91,3 +91,68 @@ async def test_panel_overview_hosts_and_grace_expiry(panel):
     assert fresh["expireAt"].startswith(until.isoformat()[:16])
     rows = await traffic_report.collect(panel, max_users=50)
     assert rows and "used" in rows[0], "traffic report reads the users stream"
+
+
+@pytest.mark.asyncio
+async def test_host_and_squad_editor(panel):
+    from app import panel_admin as pa
+    view = await pa.overview(panel)
+    profile = view["profiles"][0]
+    inbound = profile["inbounds"][0]["uuid"]
+    host = await pa.create_host(panel, pa.HostEdit(remark="ci-edit", address="edit.example.test", port=443, profile=profile["uuid"],
+                                                    inbound=inbound, sni="edit.example.test", path="/ws", tag="CI"))
+    await pa.update_host(panel, host["uuid"], pa.HostEdit(remark="ci-edit-2", address="edit2.example.test", port=8443,
+                                                          profile=profile["uuid"], inbound=inbound))
+    edited = next(h for h in (await pa.overview(panel))["hosts"] if h["uuid"] == host["uuid"])
+    assert (edited["remark"], edited["address"], edited["port"], edited["inbound"]) == ("ci-edit-2", "edit2.example.test", 8443, inbound)
+    await pa.delete_host(panel, host["uuid"])
+    squad = await pa.create_squad(panel, pa.SquadEdit(name="ci-squad", inbounds=[inbound]))
+    await pa.update_squad(panel, squad["uuid"], pa.SquadEdit(name="ci-squad-2", inbounds=[]))
+    found = next(s for s in (await pa.overview(panel))["squads"] if s["uuid"] == squad["uuid"])
+    assert found["name"] == "ci-squad-2" and found["inbound_uuids"] == []
+    await pa.delete_squad(panel, squad["uuid"])
+
+
+@pytest.mark.asyncio
+async def test_connections_bandwidth_keys_and_subscription_proxy(panel, monkeypatch):
+    """v28.38 (remnawave-subscription-middleware functions): the calls the shop makes, against the real panel."""
+    import base64
+    from types import SimpleNamespace
+
+    from starlette.requests import Request
+
+    from app import panel_usage, sub_proxy, vpn_sessions
+    expire = (datetime.utcnow() + timedelta(days=5)).replace(microsecond=0)
+    user = await panel.create_user(f"ci_mw_{int(datetime.utcnow().timestamp())}", expire)
+    result = await vpn_sessions.run_job(panel, "by-user", str(user["id"]))
+    assert result is not None and result.get("nodes") == [], "a user without nodes is online nowhere"
+    assert (await vpn_sessions.snapshot(panel)) == {}, "no nodes, no sessions"
+    assert await vpn_sessions.drop(panel, str(user["id"])) is False, "no connected node: nothing to drop (A219)"
+    traffic = await panel_usage.usage(str(user["id"]), 7, panel)
+    assert len(traffic["days"]) == 7 and traffic["total_bytes"] == 0
+    info = await panel._request("GET", f"/api/subscriptions/by-short-uuid/{user['shortUuid']}")
+    assert isinstance(info.get("links"), list)
+    # The proxy fetches the real subscription from the panel's /api/sub.
+    cfg = {**sub_proxy.DEFAULT, "enabled": True, "public_base": "https://sub.ci.test", "origin": URL.rstrip("/") + "/api/sub"}
+    sub_proxy._state.update(cfg=cfg, at=10 ** 12)
+
+    async def nothing(*a, **k):
+        return None
+
+    async def no_sub(db, short):
+        return None
+    monkeypatch.setattr(sub_proxy, "_log", nothing)
+    monkeypatch.setattr(sub_proxy, "lookup", no_sub)
+    monkeypatch.setattr("app.client_versions.is_outdated", lambda *a: _false())
+    request = Request({"type": "http", "method": "GET", "path": "/sub/x", "query_string": b"", "client": ("127.0.0.1", 1),
+                       "headers": [(b"user-agent", b"v2rayNG/1.9.30"), (b"x-hwid", b"ci-device")]})
+    monkeypatch.setattr(sub_proxy, "_client_ip", lambda r: "127.0.0.1")
+    answer = await sub_proxy.serve(request, user["shortUuid"], SimpleNamespace())
+    assert answer.status_code == 200 and "vless://" in base64.b64decode(answer.body).decode()
+    assert answer.headers["profile-web-page-url"] == f"https://sub.ci.test/{user['shortUuid']}"
+    clash = await sub_proxy.serve(request, f"{user['shortUuid']}/clash", SimpleNamespace())
+    assert clash.status_code == 200 and b"proxies" in clash.body or b"mixed-port" in clash.body
+
+
+async def _false():
+    return False

@@ -148,7 +148,7 @@ async def guard_panel(db: AsyncSession) -> dict:
             row("Льготный доступ после окончания", f"{c['hours']} ч" if c["enabled"] else "выключен"),
             row("Сейчас в льготном доступе", grace["in_grace"]),
             row("Сброс трафика при оплате", "да" if c.get("reset_traffic_on_payment") else "нет")]
-    grace_body = {k: c[k] for k in ("enabled", "hours", "cooldown_days", "reset_traffic_on_payment")}
+    grace_body = {k: c.get(k) for k in ("enabled", "hours", "cooldown_days", "reset_traffic_on_payment", "mode", "squad")}
     return {"id": "access_guard", "title": "Доступ и защита", "rows": rows, "actions": [
         toggle("Включить техработы при падении панели", "Выключить техработы при падении панели", g["enabled"], "PUT", "/api/admin/panel-guard",
                {**g, "enabled": True}, {**g, "enabled": False}),
@@ -226,8 +226,51 @@ async def pnl_panel(db: AsyncSession) -> dict:
     return {"id": "pnl", "title": "Прибыль и расходы", "rows": rows, "actions": []}
 
 
+async def sub_proxy_panel(db: AsyncSession) -> dict:
+    from .sub_proxy import get_proxy
+    data = await get_proxy(db, None)
+    cfg = data["config"]
+    day = data["last_24h"]
+    rows = [row("Прослойка подписки", "включена" if cfg["enabled"] else "выключена", "ok" if cfg["enabled"] else ""),
+            row("Адрес зеркала", cfg.get("public_base") or "не задан"),
+            row("Запросов за сутки", sum(day.values())), row("Заглушек устройствам", day.get("blocked", 0)),
+            row("Ошибок панели", day.get("error", 0), "bad" if day.get("error") else "ok"),
+            row("Заблокировано устройств", len(cfg.get("blocked_hwids") or []))]
+    body = {k: v for k, v in cfg.items() if k != "blocked_hwids"}
+    actions = [] if not cfg.get("public_base") else [toggle("Включить прослойку", "Выключить прослойку", cfg["enabled"], "PUT", "/api/admin/sub-proxy",
+                                                            {**body, "enabled": True}, {**body, "enabled": False},
+                                                            "Клиенты начнут получать ссылку подписки на домене зеркала. Включить?")]
+    return {"id": "sub_proxy", "title": "Прослойка подписки", "rows": rows, "actions": actions}
+
+
+async def sessions_panel(db: AsyncSession) -> dict:
+    from .vpn_sessions import CONFIG_KEY, DEFAULT, _load, get_anomalies
+    cfg = await _load(db, CONFIG_KEY, DEFAULT)
+    items = (await get_anomalies(db, None))["anomalies"]
+    rows = [row("Сбор сессий", f"каждые {cfg['interval_min']} мин" if cfg["enabled"] else "выключен"),
+            row("Аномалий сейчас", len(items), "bad" if any(a["level"] == "red" for a in items) else ("warn" if items else "ok"))]
+    for a in items[:6]:
+        rows.append(row(f"#{a.get('user_id') or a.get('panel_user')}", "; ".join(f"{h['name']}: {h['value']}" for h in a["hits"]), "bad" if a["level"] == "red" else "warn"))
+    actions = [toggle("Включить сбор сессий", "Выключить сбор сессий", cfg["enabled"], "PUT", "/api/admin/sessions/config",
+                      {**cfg, "enabled": True}, {**cfg, "enabled": False})]
+    actions += [action(f"Сбросить соединения #{a['user_id']}", "POST", f"/api/admin/users/{a['user_id']}/drop-connections", None,
+                       "Все соединения клиента будут разорваны. Продолжить?") for a in items[:3] if a.get("user_id")]
+    return {"id": "sessions", "title": "Сессии и аномалии", "rows": rows, "actions": actions}
+
+
+async def panel_api_panel(db: AsyncSession) -> dict:
+    from .panel_api_stats import flush, report
+    await flush(db)
+    data = await report(db, 24)
+    rows = [row("Запросов к панели за сутки", data["total"]),
+            row("Ошибок", data["errors"], "bad" if data["total"] and data["errors"] * 20 > data["total"] else "ok"),
+            row("Пиковый час", f"{data['peak_hour'][11:16] or '—'} — {data['peak_calls']}")]
+    rows += [row(s["source"], f"{s['calls']} · {s['avg_ms']} мс") for s in data["sources"][:5]]
+    return {"id": "panel_api", "title": "Запросы к панели", "rows": rows, "actions": []}
+
+
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel]
 
 
 @router.get("/api/admin/mobile/panels")

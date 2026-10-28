@@ -110,7 +110,11 @@
 }
 
 # API_MIRROR_DOMAINS: reserve API domains for the apps (anti_blocking.md), space separated; empty by default.
-{$API_DOMAIN} {$API_MIRROR_DOMAINS} {
+# SUB_PROXY_DOMAINS: domains of the subscription proxy (docs/modules/subscription_proxy.md): https://<domain>/<shortUuid>
+# is served as /sub/<shortUuid>; empty by default (then the proxy answers at https://<API_DOMAIN>/sub/<shortUuid>).
+{$API_DOMAIN} {$API_MIRROR_DOMAINS} {$SUB_PROXY_DOMAINS} {
+    @subproxy not host {$API_DOMAIN} {$API_MIRROR_DOMAINS}
+    rewrite @subproxy /sub{uri}
     header {
         -Server
         X-Content-Type-Options "nosniff"

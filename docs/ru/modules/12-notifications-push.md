@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.37.0. Runtime/API `21.5.1`, head магазина `0080_reconciliation`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.38.0. Runtime/API `21.5.1`, head магазина `0081_subscription_proxy`, Support Pro `0008`.
 
 # 12. Уведомления и push
 

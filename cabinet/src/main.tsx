@@ -6,6 +6,7 @@ import {watchAccount} from "./account-sync";
 import {Bell, CircleHelp, CreditCard, Gift, Handshake, Home, KeyRound, LayoutGrid, ListChecks, LogOut, Menu, Moon, Server, Smartphone, Sparkles, Sun, Trophy, UserRound, Users, Wallet, X, Zap, Plug, Receipt, FileText, Heart, Activity} from "lucide-react";
 import {Overview, type Traffic} from "./overview";
 import {Connection} from "./connection";
+import {ConnectionKeys, MyTraffic} from "./keys";
 import {Avatar, GuestPurchase, MyStats, UpsellOffers, reportScreen, topUpAndBuy, RequiredChannels} from "./insights";
 import {Plans} from "./plans";
 import {ProfileCard} from "./profile";
@@ -880,6 +881,7 @@ function App() {
                     <RequiredChannels request={req} />
                     <UpsellOffers request={req} onChanged={() => { loadSession(); }} onCheckout={(body: any) => buySelection(body, false)} />
                     <MyStats request={req} />
+                    <MyTraffic request={req} />
                     <h3 className="section-title section-title-sm">{config.texts?.servers_title || "Серверы"}</h3>
                     <ServerCatalog servers={servers} />
                     <AppsNotice apps={shopApps} lang={lang} />
@@ -920,6 +922,7 @@ function App() {
                 {activeItem?.kind === "connection" && (
                   <Connection subUrl={subUrl} api={API} copied={copied} onCopy={copyLink} platform={platform} platformKeys={platformKeys.length ? platformKeys : PLATFORM_ORDER} labels={PLATFORM_LABELS} onPlatform={setPlatform} guideText={guideText || apiGuide} goPlans={() => goKind("plans")} />
                 )}
+                {activeItem?.kind === "connection" && sub && <ConnectionKeys request={req} />}
 
                 {activeItem?.kind === "devices" && (
                   <>
