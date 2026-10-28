@@ -74,7 +74,7 @@ SECTIONS: dict[str, tuple[str, str]] = {
     "rules": ("Правила", "/rules и Mini App: документы"),
     "privacy": ("Политика конфиденциальности", "/privacy и Mini App: документы"),
     "offer": ("Публичная оферта", "/offer и Mini App: документы"),
-    # v28.37.0 (modules from the comparison snapshots).
+    # v28.38.0 (modules from the comparison snapshots).
     "contest": ("Конкурс рефералов", "/contest и Mini App: пригласить друзей"),
     "stats": ("Моя статистика", "/stats и Mini App: главная"),
     "channels": ("Обязательный канал", "проверка подписки на канал"),

@@ -198,7 +198,8 @@
     "contest_title": "Конкурс друзей",
     "contest_until": "до",
     "contest_me": "Вы на {place} месте ({score})",
-    "contest_join": "Пригласите друга по своей ссылке, чтобы попасть в таблицу"
+    "contest_join": "Пригласите друга по своей ссылке, чтобы попасть в таблицу",
+    "stats_month": "Трафик за 30 дней"
   },
   "en": {
     "app_name": "VPN shop",
@@ -399,7 +400,8 @@
     "contest_title": "Friends contest",
     "contest_until": "until",
     "contest_me": "You are #{place} ({score})",
-    "contest_join": "Invite a friend with your link to get on the board"
+    "contest_join": "Invite a friend with your link to get on the board",
+    "stats_month": "Traffic, 30 days"
   },
   "uk": {
     "app_name": "Коргі Люсі",
@@ -600,6 +602,7 @@
     "contest_title": "Конкурс друзів",
     "contest_until": "до",
     "contest_me": "Ви на {place} місці ({score})",
-    "contest_join": "Запросіть друга за своїм посиланням, щоб потрапити до таблиці"
+    "contest_join": "Запросіть друга за своїм посиланням, щоб потрапити до таблиці",
+    "stats_month": "Трафік за 30 днів"
   }
 }

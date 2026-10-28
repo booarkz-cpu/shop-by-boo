@@ -12,7 +12,7 @@ const label = (v:string) => /^reward_level_[2-5]$/.test(v)?`Награда, ур
 const date = (v:string) => v ? new Date(v).toLocaleString() : "—";
 const CANCEL_REASONS:[string,string][]=[["price","Дорого"],["speed","Низкая скорость"],["stability","Нестабильно работает"],["not_needed","Больше не нужен VPN"],["other_service","Перешёл к другому сервису"],["other","Другое"]];
 const partnerSlug=()=>typeof location==="undefined"?"":new URLSearchParams(location.search).get("partner")||"";
-const AGENTS:Record<string,string>={yookassa:"YooKassa",rollypay:"RollyPay",platega:"Platega",cryptobot:"Криптовалюта (CryptoBot)",freekassa:"Карта или СБП (Freekassa)",sandbox:"Тестовый платёж"};
+const AGENTS:Record<string,string>={yookassa:"YooKassa",rollypay:"RollyPay",platega:"Platega",cryptobot:"Криптовалюта (CryptoBot)",freekassa:"Карта или СБП (Freekassa)",cloudpayments:"Карта или СБП (CloudPayments)",lava:"Карта или СБП (Lava)",sandbox:"Тестовый платёж"};
 const PATHS:Record<string,string[]>={wallet:["/api/me/wallet/history"],payments:["/api/me/billing-center"],subscription:["/api/me/billing-center","/api/me/auto-renew"],gifts:["/api/me/gifts"],referral:["/api/me/referral","/api/me/referral/ledger","/api/me/referral/withdrawals","/api/me/referral/network"],security:["/api/me/security-center"],notifications:["/api/me/notifications"],support:["/api/me/support/tickets"]};
 
 export function Workspace({compact,withdraw=true,ticketForm=true,kind,request,reload,plans,provider,providers,currency,api,botUsername}:Props) {

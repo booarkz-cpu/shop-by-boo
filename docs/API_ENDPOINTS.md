@@ -1,6 +1,6 @@
-# Каталог API — v28.37.0 / API v21.5.1
+# Каталог API — v28.38.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0080_reconciliation`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0081_subscription_proxy`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -155,6 +155,8 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/fields/{field_id}` | Admin Field Delete |
 | `PUT` | `/api/admin/fields/{field_id}` | Admin Field Update |
 | `GET` | `/api/admin/financial-ledger` | Admin Financial Ledger |
+| `GET` | `/api/admin/first-connect` | Get Cfg |
+| `PUT` | `/api/admin/first-connect` | Put Cfg |
 | `GET` | `/api/admin/fiscal` | Admin Fiscal |
 | `PUT` | `/api/admin/fiscal` | Admin Fiscal Save |
 | `POST` | `/api/admin/fiscal/receipts/{receipt_id}/retry` | Admin Fiscal Retry |
@@ -178,6 +180,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/giveaways/{giveaway_id}/publish` | Publish |
 | `GET` | `/api/admin/grace` | Get Grace |
 | `PUT` | `/api/admin/grace` | Put Grace |
+| `POST` | `/api/admin/grace/{subscription_id}/restore-squads` | Restore |
 | `GET` | `/api/admin/guest-checkout` | Get Guest |
 | `PUT` | `/api/admin/guest-checkout` | Put Guest |
 | `GET` | `/api/admin/health/summary` | Health Summary |
@@ -256,10 +259,19 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/pages/{page_id}/publish` | Publish |
 | `POST` | `/api/admin/pages/{page_id}/restore` | Restore |
 | `GET` | `/api/admin/pages/{page_id}/revisions` | Revisions |
+| `GET` | `/api/admin/panel-api-stats` | Get Stats |
+| `GET` | `/api/admin/panel-changes` | Changes |
+| `GET` | `/api/admin/panel-changes.csv` | Changes Csv |
 | `GET` | `/api/admin/panel-guard` | Get Guard |
 | `PUT` | `/api/admin/panel-guard` | Put Guard |
+| `POST` | `/api/admin/panel/hosts` | Host Create |
+| `DELETE` | `/api/admin/panel/hosts/{host_uuid}` | Host Delete |
+| `PATCH` | `/api/admin/panel/hosts/{host_uuid}` | Host Update |
 | `PUT` | `/api/admin/panel/hosts/{host_uuid}` | Set Host |
 | `GET` | `/api/admin/panel/overview` | Panel Overview |
+| `POST` | `/api/admin/panel/squads` | Squad Create |
+| `DELETE` | `/api/admin/panel/squads/{squad_uuid}` | Squad Delete |
+| `PATCH` | `/api/admin/panel/squads/{squad_uuid}` | Squad Update |
 | `POST` | `/api/admin/panel/squads/{squad_uuid}/{action}` | Squad Bulk |
 | `POST` | `/api/admin/payment/gift-cards` | Create Gift Card |
 | `GET` | `/api/admin/payments` | Admin Payments |
@@ -301,6 +313,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/platform/summary` | Platform Summary |
 | `GET` | `/api/admin/platform/torrents` | Admin Torrents |
 | `POST` | `/api/admin/platform/torrents/notify` | Admin Torrents Notify |
+| `POST` | `/api/admin/platform/torrents/threshold` | Admin Torrents Threshold |
 | `POST` | `/api/admin/platform/violations/{violation_id}/review` | Review Violation |
 | `POST` | `/api/admin/platform/webhooks` | Create Webhook |
 | `GET` | `/api/admin/plugins` | Admin Plugins |
@@ -393,6 +406,10 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/security/risk-summary` | Risk Summary |
 | `GET` | `/api/admin/security/secrets/status` | Secret Status |
 | `GET` | `/api/admin/sessions` | Admin Sessions |
+| `GET` | `/api/admin/sessions/anomalies` | Get Anomalies |
+| `GET` | `/api/admin/sessions/config` | Get Config |
+| `PUT` | `/api/admin/sessions/config` | Put Config |
+| `GET` | `/api/admin/sessions/geo` | Geography |
 | `POST` | `/api/admin/sessions/revoke-all` | Revoke All Sessions |
 | `DELETE` | `/api/admin/sessions/{session_id}` | Revoke Admin Session |
 | `PUT` | `/api/admin/settings/{key}` | Admin Setting |
@@ -406,6 +423,16 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/status/components` | Admin Status Components |
 | `POST` | `/api/admin/status/components` | Admin Status Component Create |
 | `PUT` | `/api/admin/status/components/{component_id}` | Admin Status Component Update |
+| `GET` | `/api/admin/sub-proxy` | Get Proxy |
+| `PUT` | `/api/admin/sub-proxy` | Put Proxy |
+| `GET` | `/api/admin/sub-proxy/apps` | Apps Seen |
+| `POST` | `/api/admin/sub-proxy/blocked` | Block Device |
+| `DELETE` | `/api/admin/sub-proxy/blocked/{hwid}` | Unblock Device |
+| `GET` | `/api/admin/sub-proxy/clients` | Get Clients |
+| `PUT` | `/api/admin/sub-proxy/clients` | Put Clients |
+| `POST` | `/api/admin/sub-proxy/clients/refresh` | Refresh Clients |
+| `GET` | `/api/admin/sub-proxy/log` | Request Log |
+| `GET` | `/api/admin/subscription-feed` | Subscription Feed |
 | `GET` | `/api/admin/subscription-operations` | Admin Operations |
 | `POST` | `/api/admin/subscription-operations/{operation_id}/refund` | Refund Change |
 | `POST` | `/api/admin/support-pro/sso` | Support Pro Sso |
@@ -448,6 +475,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/traffic-packages` | Create Package |
 | `PUT` | `/api/admin/traffic-packages/{package_id}` | Edit Package |
 | `GET` | `/api/admin/users/{user_id}/activity` | User Activity |
+| `POST` | `/api/admin/users/{user_id}/drop-connections` | Drop Connections |
+| `GET` | `/api/admin/users/{user_id}/online` | Online Now |
+| `GET` | `/api/admin/users/{user_id}/sessions` | User Sessions |
+| `GET` | `/api/admin/users/{user_id}/traffic` | Admin Traffic |
 | `POST` | `/api/admin/v15/deployments/{deployment_id}/rollback` | Rollback |
 | `GET` | `/api/admin/v15/operations` | Operations |
 | `POST` | `/api/admin/v16/nodes/register` | Register Node |
@@ -486,6 +517,13 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/v6/orchestrator/evaluate` | Orchestrate |
 | `POST` | `/api/admin/v6/provision` | Provision |
 | `GET` | `/api/admin/v6/security-center` | Security Center |
+| `GET` | `/api/admin/webhooks/tee` | Get Tee |
+| `PUT` | `/api/admin/webhooks/tee` | Put Tee |
+| `POST` | `/api/admin/webhooks/tee/test` | Test Tee |
+| `GET` | `/api/admin/wg-pool` | Get Pool |
+| `PUT` | `/api/admin/wg-pool` | Put Pool |
+| `DELETE` | `/api/admin/wg-pool/free` | Drop Free |
+| `POST` | `/api/admin/wg-pool/upload` | Upload |
 | `GET` | `/api/admin/workers` | Admin Workers |
 | `POST` | `/api/agent/heartbeat` | Agent Heartbeat |
 | `POST` | `/api/agent/observations` | Agent Observations |
@@ -629,6 +667,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/subscription` | My Subscription |
 | `GET` | `/api/me/subscription-file` | Subscription File |
 | `GET` | `/api/me/subscription/commerce` | Commerce Catalog |
+| `GET` | `/api/me/subscription/keys` | My Keys |
+| `GET` | `/api/me/subscription/keys/{index}/qr` | My Key Qr |
 | `POST` | `/api/me/subscription/lifecycle` | Subscription Lifecycle |
 | `GET` | `/api/me/subscription/operations` | Commerce History |
 | `POST` | `/api/me/subscription/purchase` | Purchase Change |
@@ -658,6 +698,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/wallet/spend` | Wallet Spend |
 | `POST` | `/api/me/wallet/stars-invoice` | Stars Invoice |
 | `POST` | `/api/me/wallet/topup` | Wallet Topup |
+| `GET` | `/api/me/wg-config` | My Wg |
+| `GET` | `/api/me/wg-config/qr` | My Wg Qr |
+| `GET` | `/api/me/wg-configs` | My Wg List |
+| `DELETE` | `/api/me/wg-configs/{config_id}` | My Wg Release |
 | `GET` | `/api/me/widget` | Widget Summary |
 | `POST` | `/api/mobile/events` | Collect Events |
 | `POST` | `/api/mobile/integrity/challenge` | Integrity Challenge |
@@ -706,10 +750,12 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/standby/heartbeat` | Heartbeat |
 | `GET` | `/api/tariff-constructors` | Public Constructors |
 | `GET` | `/api/v3/status` | V3 Status |
+| `POST` | `/api/webhooks/cloudpayments` | Cloudpayments Webhook |
 | `POST` | `/api/webhooks/crypto` | Crypto Webhook |
 | `POST` | `/api/webhooks/cryptobot` | Cryptobot Webhook |
 | `GET` | `/api/webhooks/freekassa` | Freekassa Webhook |
 | `POST` | `/api/webhooks/freekassa` | Freekassa Webhook |
+| `POST` | `/api/webhooks/lava` | Lava Webhook |
 | `POST` | `/api/webhooks/platega` | Platega Webhook |
 | `POST` | `/api/webhooks/remnawave` | Remnawave Webhook |
 | `POST` | `/api/webhooks/rollypay` | Rollypay Webhook |

@@ -22,6 +22,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .db import get_db
 from .security import require_permission
 
+import logging
+
+logger = logging.getLogger("vpnshop.connection_quality")
 router = APIRouter()
 WINDOW = timedelta(days=7)
 RETENTION = timedelta(days=30)
@@ -45,6 +48,38 @@ class ReportIn(BaseModel):
 
 def carrier_name(value: str) -> str:
     return " ".join((value or "").split())[:64] or "неизвестно"
+
+
+# Holders of the big Russian networks as RIPEstat names them → the name customers know.
+PROVIDERS = (("mobile telesystems", "МТС"), ("mts", "МТС"), ("megafon", "МегаФон"), ("vimpelcom", "Билайн"), ("beeline", "Билайн"),
+             ("tele2", "Tele2"), ("t2 mobile", "Tele2"), ("rostelecom", "Ростелеком"), ("yota", "Yota"), ("er-telecom", "Дом.ру"),
+             ("mgts", "МГТС"), ("kazakhtelecom", "Казахтелеком"), ("kcell", "Kcell"), ("beltelecom", "Белтелеком"))
+
+
+async def provider_by_ip(db: AsyncSession, ip: str) -> str:
+    """The provider of the customer's public IP (ASN holder from RIPEstat, cached for a week): iOS gives apps no carrier
+    name, so the shop names the network itself. Empty for private IPs, for the shop's own nodes (the report came through
+    the VPN) and when the lookup budget is spent."""
+    from .models import NetworkIntel
+    from .network_intel import public_ip, refresh_one
+    if not ip or not public_ip(ip):
+        return ""
+    try:
+        from .node_health import node_snapshot
+        nodes = (await node_snapshot()).get("nodes") or []
+        if any(ip == str(n.get("address") or "") for n in nodes):
+            return ""
+    except Exception:  # noqa: BLE001 — without the node list the IP is still worth a lookup
+        logger.debug("Node list unavailable; looking the IP up anyway")
+    row = await db.scalar(select(NetworkIntel).where(NetworkIntel.ip == ip, NetworkIntel.source == "ripestat"))
+    if row is None or not row.data:
+        if await refresh_one(db, ip, "ripestat") != "fetched":
+            return ""
+        row = await db.scalar(select(NetworkIntel).where(NetworkIntel.ip == ip, NetworkIntel.source == "ripestat")
+                              .execution_options(populate_existing=True))
+    holder = str(((row.data if row else None) or {}).get("holder") or "")
+    low = holder.lower()
+    return next((name for token, name in PROVIDERS if token in low), holder.split(",")[0].split(" - ")[-1].strip()[:64])
 
 
 async def matrix(db: AsyncSession, now: datetime | None = None) -> list[dict]:
@@ -81,8 +116,16 @@ async def report(payload: ReportIn, request: Request, db: AsyncSession = Depends
     from .models import ConnectionReport
     user = await user_from_token(request, db)
     now = datetime.utcnow()
+    carrier = payload.carrier
+    if not carrier.strip() and payload.network != "wifi":
+        from .main import _client_ip
+        try:
+            carrier = await provider_by_ip(db, _client_ip(request))
+        except Exception as exc:  # noqa: BLE001 — the report itself still counts
+            logger.info("Provider of the report is unknown: %s", exc)
+            carrier = ""
     for r in payload.results:
-        db.add(ConnectionReport(user_id=user.id, platform=payload.platform, carrier=carrier_name(payload.carrier),
+        db.add(ConnectionReport(user_id=user.id, platform=payload.platform, carrier=carrier_name(carrier),
                                 network=payload.network, country=payload.country.upper(), server=r.server, ok=r.ok, ms=r.ms, created_at=now))
     await db.execute(delete(ConnectionReport).where(ConnectionReport.created_at < now - RETENTION))
     await db.commit()

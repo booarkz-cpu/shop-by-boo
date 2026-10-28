@@ -52,7 +52,7 @@ SECTION_BANNERS = {
     "family": "family", "status": "status",
     # Documents in «Информация» (info_pages): each has its own Lusi banner.
     "faq": "faq", "rules": "rules", "privacy": "privacy", "offer": "offer",
-    # v28.37.0: blocks of the modules from the comparison snapshots.
+    # v28.38.0: blocks of the modules from the comparison snapshots.
     "contest": "contest", "stats": "stats", "channels": "channels", "guest": "guest",
 }
 NAV_ICONS = {

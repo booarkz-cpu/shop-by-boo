@@ -69,6 +69,17 @@ sequenceDiagram
 где клиент подтверждает способ. Выключенный режим — прежняя общая «Очередь касс». API: `GET/PUT /api/admin/payments/methods`.
 Тесты: `tests/test_payment_methods.py`.
 
+## CloudPayments и Lava (v28.38)
+
+Ещё две кассы для карт и СБП (`payments_extra.py`). Они встают в очередь касс и в маршрутизацию способов оплаты, как только в «Настройках» заданы ключи (секреты хранятся зашифрованно). Автоплатежей и возвратов через API у них нет: возврат делается в кабинете кассы.
+
+| Касса | Ключи | Адрес уведомлений | Как магазин проверяет оплату |
+| --- | --- | --- | --- |
+| CloudPayments | `CLOUDPAYMENTS_PUBLIC_ID`, `CLOUDPAYMENTS_API_SECRET` | `https://<API_DOMAIN>/api/webhooks/cloudpayments` (уведомление «Pay») | подпись `Content-HMAC` (base64 HMAC-SHA256 тела паролем API) или `X-Content-HMAC`, затем `POST /payments/find` по `InvoiceId`: статус Completed, та же сумма и валюта |
+| Lava Business | `LAVA_SHOP_ID`, `LAVA_SECRET_KEY`, `LAVA_WEBHOOK_SECRET` | `https://<API_DOMAIN>/api/webhooks/lava` (передаётся в каждом счёте) | подпись `Authorization` дополнительным ключом (тела как пришло или JSON с отсортированными ключами), затем `POST /business/invoice/status`: статус success и та же сумма |
+
+Страница оплаты: CloudPayments — `POST https://api.cloudpayments.ru/orders/create` (HTTP Basic, Public ID и пароль API); Lava — `POST https://api.lava.ru/business/invoice/create` (заголовок `Signature`: HMAC-SHA256 hex тела секретным ключом). Номер заказа магазина передаётся как `InvoiceId` или `orderId`. Повтор уведомления не выдаёт подписку второй раз. Боевая проверка — на ваших договорах и ключах; в CI запросы к кассам проверяются на моках (`tests/test_payments_extra.py`).
+
 ## Возврат денег, которые почти пришли
 
 * **Брошенная оплата** и **неудачное автопродление** — события движка автоматизации `payment.abandoned` и

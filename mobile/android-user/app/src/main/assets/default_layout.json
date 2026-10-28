@@ -771,6 +771,7 @@
    "stats_avoided": "Blocks avoided",
    "stats_days": "With us",
    "stats_lifetime": "Traffic in total",
+   "stats_month": "Traffic, 30 days",
    "stats_paid": "VPN paid",
    "stats_title": "My statistics",
    "stats_traffic": "Traffic this period",
@@ -796,7 +797,7 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "d882237ea01d0ae5"
+  "version": "b2af5d69d665724d"
  },
  "ru": {
   "features": {
@@ -1570,6 +1571,7 @@
    "stats_avoided": "Обходов блокировок",
    "stats_days": "С нами",
    "stats_lifetime": "Трафик всего",
+   "stats_month": "Трафик за 30 дней",
    "stats_paid": "Оплачено VPN",
    "stats_title": "Моя статистика",
    "stats_traffic": "Трафик за период",
@@ -1595,7 +1597,7 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "10b8c4d5487d0a88"
+  "version": "b8e435f5e50cf8d7"
  },
  "uk": {
   "features": {
@@ -2369,6 +2371,7 @@
    "stats_avoided": "Обходів блокувань",
    "stats_days": "З нами",
    "stats_lifetime": "Трафік загалом",
+   "stats_month": "Трафік за 30 днів",
    "stats_paid": "Оплачено VPN",
    "stats_title": "Моя статистика",
    "stats_traffic": "Трафік за період",
@@ -2394,6 +2397,6 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "af5371185eb3b017"
+  "version": "e7423dbf43dd82e5"
  }
 }

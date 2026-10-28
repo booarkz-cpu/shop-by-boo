@@ -177,6 +177,7 @@ RATE_LIMITS = {
     "/api/auth/google": 20,
     "/api/auth/google/callback": 20,
     "/api/auth/register": 8,
+    "/sub": 240, "/api/me/traffic": 20, "/api/me/wg-config": 10, "/api/me/subscription/keys": 20,
     "/api/auth/password/reset/request": 5,
     "/api/auth/password/reset/confirm": 5,
     "/api/auth/email/verification/confirm": 8,
@@ -300,7 +301,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
     async def _dispatch(self, request, call_next):
         from fastapi.responses import JSONResponse
-        rate_path = request.url.path
+        rate_path = "/sub" if request.url.path.startswith("/sub") else request.url.path
         if request.method == "POST" and rate_path.startswith("/api/me/support/tickets/"):
             rate_path = "/api/me/support/tickets"
         if request.method == 'POST' and re.fullmatch(r'/api/me/surveys/\d+/submit',rate_path):
@@ -690,6 +691,8 @@ async def send_alert(message:str):
 _METRICS = {"requests_total":0,"errors_total":0,"payment_fulfillment_total":0,"payment_fulfillment_failures":0,"backup_total":0,"backup_failures":0}
 @app.middleware("http")
 async def metrics_middleware(request: Request, call_next):
+    from .panel_api_stats import SOURCE, source_for_path
+    SOURCE.set(source_for_path(request.url.path))
     if settings.metrics_enabled:
         _METRICS["requests_total"] += 1
     try:

@@ -2,6 +2,7 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
+from .payments_extra import CloudPaymentsProvider, LavaProvider
 from . import main as shop
 
 # ---------- Payments ----------
@@ -21,12 +22,14 @@ def provider_configured() -> dict[str, bool]:
         "rollypay": bool(shop.settings.rollypay_api_key and shop.settings.rollypay_signing_secret),
         "cryptobot": bool(shop.settings.cryptobot_token),
         "freekassa": shop.FreekassaProvider.configured(),
+        "cloudpayments": CloudPaymentsProvider.configured(),
+        "lava": LavaProvider.configured(),
         "sandbox": shop.payments_sandbox_allowed(),
     }
 
 def _checkout_provider(name: str):
     """One map for every routable gateway: a reserve gateway first in line (main one in cooldown) must work."""
-    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"sandbox":shop.SandboxProvider}
+    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"cloudpayments":CloudPaymentsProvider,"lava":LavaProvider,"sandbox":shop.SandboxProvider}
     return factories[name]()
 
 async def _payment_provider_order(db: shop.AsyncSession, requested: str|None, method: str|None=None):
@@ -635,7 +638,7 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
                 sub.subscription_url=rw_sub.get("subscriptionUrl") or rw_sub.get("subscription_url") or sub.subscription_url
                 op_row.remote_user_id=str(sub.remnawave_uuid)
             else:
-                username=shop.remote_username(user.id,sub)
+                username=shop.remote_username(user.id,sub); first_wait=0
                 # Recover a successful create whose response was lost before the shop received it.
                 existing_remote=None
                 try: existing_remote=await rw.get_user_by_username(username)
@@ -663,7 +666,9 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
                         data=await rw.get_user(str(data.get("id")))
                     final_remote_expiry=await rw.get_expiry(str(data.get("id"))) or target_expiry
                 else:
-                    expires=now+shop.timedelta(days=duration_days); traffic=traffic_limit_gb*1024**3 if traffic_limit_gb else 0
+                    from .first_connect import wait_days
+                    first_wait=await wait_days(db,plan.id,duration_days)  # «срок с первого подключения»: the wait is added up front
+                    expires=now+shop.timedelta(days=duration_days+first_wait); traffic=traffic_limit_gb*1024**3 if traffic_limit_gb else 0
                     data=await rw.create_user(username,expires,traffic,active_internal_squads=[profile_id] if profile_id else None,telegram_id=user.telegram_id,device_limit=payment.device_limit_snapshot)
                     if not isinstance(data,dict) or not data.get("id"): raise RuntimeError("Remnawave returned no user id")
                     op_row.remote_user_id=str(data.get("id")); final_remote_expiry=expires
@@ -676,6 +681,9 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
                 sub.device_limit_snapshot=payment.device_limit_snapshot
                 sub.remnawave_profile_id_snapshot=profile_id
                 sub.subscription_url=data.get("subscriptionUrl") or data.get("subscription_url")
+                if first_wait:
+                    from .first_connect import start_waiting
+                    await start_waiting(db,sub,duration_days,now+shop.timedelta(days=first_wait))
             sub.lifecycle_status="active";sub.scheduled_cancel_at=None;sub.cancelled_at=None;sub.grace_until=None
             from .tariff_api import linked_constructor_id
             sub.renewal_terms=({'amount':str(payment.original_amount if payment.original_amount is not None else payment.amount),

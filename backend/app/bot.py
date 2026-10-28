@@ -8,6 +8,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import CallbackQuery,Message,InlineKeyboardMarkup,InlineKeyboardButton,PreCheckoutQuery,WebAppInfo
 from sqlalchemy import select, text as sql_text
 from sqlalchemy.ext.asyncio import AsyncSession
+from .sub_proxy import client_url
 from .config import settings
 from .db import engine
 from .bot_banners import send_section
@@ -467,10 +468,12 @@ async def subscription(message: Message):
         from .account_merge import identity_user
         user = await identity_user(db, "telegram", int(message.from_user.id))
         sub = (await db.execute(select(Subscription).where(Subscription.user_id == user.id,Subscription.is_primary.is_(True)))).scalar_one_or_none() if user else None
+        from .sub_proxy import config as proxy_config
+        await proxy_config(db)  # the bot runs in its own process: read the proxy settings for client_url
     if not sub or not sub.subscription_url:
         await send_section(message, "subscription", "Активной подписки нет. Откройте магазин." if lang == "ru" else "No active subscription. Open the shop.", InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"), web_app=WebAppInfo(url=settings.mini_app_url))]]))
         return
-    await send_section(message, "subscription", ("Ваша подписка:\n" if lang == "ru" else "Your subscription:\n") + escape(sub.subscription_url))
+    await send_section(message, "subscription", ("Ваша подписка:\n" if lang == "ru" else "Your subscription:\n") + escape(client_url(sub.subscription_url) or ""))
 
 @router.message(Command("contest"))
 async def contest_command(message: Message):
@@ -490,6 +493,41 @@ async def contest_command(message: Message):
     lines += [f"{r['place']}. {escape(r['name'])} — {r['score']}" for r in view["top"]]
     lines += ["", f"Вы на {view['me']['place']} месте ({view['me']['score']})" if view["me"] else "Пригласите друга по своей ссылке, чтобы попасть в таблицу: /referral"]
     await send_section(message, "contest", "\n".join(lines), fallback="referral")
+
+
+@router.message(Command("keys"))
+async def keys_command(message: Message):
+    """«Ключи подключения» (wg_pool.py): every server of the subscription as its own link."""
+    if not message.from_user or getattr(getattr(message, "chat", None), "type", "private") != "private":
+        return
+    from urllib.parse import unquote
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        from .sub_proxy import short_uuid_of
+        user = await identity_user(db, "telegram", int(message.from_user.id))
+        sub = (await db.execute(select(Subscription).where(Subscription.user_id == user.id, Subscription.is_primary.is_(True)))).scalar_one_or_none() if user else None
+    short = short_uuid_of(sub.subscription_url) if sub and sub.expires_at and sub.expires_at > datetime.utcnow() else ""
+    if not short:
+        await message.answer("Активной подписки нет. Откройте магазин: /start")
+        return
+    try:
+        from .remnawave import RemnawaveClient
+        info = await RemnawaveClient()._request("GET", f"/api/subscriptions/by-short-uuid/{short}")
+    except Exception:  # noqa: BLE001 — the panel is unavailable
+        await message.answer("Сейчас не получилось получить ключи — попробуйте чуть позже или откройте кабинет.")
+        return
+    links = [x for x in (info or {}).get("links") or [] if isinstance(x, str) and "://" in x and "@0.0.0.0:1" not in x][:8]
+    if not links:
+        await message.answer("В подписке пока нет серверов.")
+        return
+    lines = ["🔑 <b>Ключи подключения</b> — нажмите, чтобы скопировать:"]
+    lines += [f"{escape(unquote(x.split('#', 1)[1]) if '#' in x else x.split('://')[0])}\n<code>{escape(x)}</code>" for x in links]
+    text = "\n\n".join(lines)
+    # A photo caption holds 1024 characters: long key lists go as a plain message.
+    if len(text) > 1000:
+        await message.answer(text[:4000], parse_mode="HTML")
+    else:
+        await send_section(message, "connection", text, fallback="subscription")
 
 
 @router.message(Command("stats"))

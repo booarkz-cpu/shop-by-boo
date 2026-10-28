@@ -64,8 +64,8 @@ jobs:
           bash scripts/build-android-apk.sh "$PWD/dist/mobile"
           for apk in dist/mobile/*.apk; do
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$apk.package.txt"
-            grep -q "versionCode='3300'" "$apk.package.txt"
-            grep -q "versionName='3.3.0'" "$apk.package.txt"
+            grep -q "versionCode='3400'" "$apk.package.txt"
+            grep -q "versionName='3.4.0'" "$apk.package.txt"
             if grep -q 'application-debuggable' "$apk.package.txt"; then echo 'Debuggable release rejected'; exit 1; fi
             if [[ "$state" == signed ]]; then
               "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > "$apk.certificate.txt"

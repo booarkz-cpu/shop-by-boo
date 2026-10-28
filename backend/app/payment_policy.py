@@ -1,5 +1,5 @@
 """One catalog for public checkout; old adapters are settlement-only."""
-PAYMENT_AGENTS = ("yookassa", "rollypay", "platega", "cryptobot", "freekassa")
+PAYMENT_AGENTS = ("yookassa", "rollypay", "platega", "cryptobot", "freekassa", "cloudpayments", "lava")
 
 PROVIDER_CAPABILITIES = {
     "yookassa": {"cards": True, "recurring": True, "refunds": True},
@@ -7,6 +7,8 @@ PROVIDER_CAPABILITIES = {
     "platega": {"cards": True, "recurring": False, "refunds": True},
     "cryptobot": {"cards": False, "recurring": False, "refunds": False},
     "freekassa": {"cards": True, "recurring": False, "refunds": False},
+    "cloudpayments": {"cards": True, "recurring": False, "refunds": False},
+    "lava": {"cards": True, "recurring": False, "refunds": False},
 }
 
 

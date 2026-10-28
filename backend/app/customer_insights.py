@@ -106,7 +106,16 @@ async def upsell(db: AsyncSession, user, panel=None) -> list[dict]:
 @router.get("/api/me/stats")
 async def my_stats(request: Request, db: AsyncSession = Depends(get_db)):
     from .main import user_from_token
-    return await stats(db, await user_from_token(request, db))
+    user = await user_from_token(request, db)
+    data = await stats(db, user)
+    try:  # v28.38: traffic of the last 30 days from the panel statistics (panel_usage.py); best effort
+        from .panel_usage import _panel_user, usage
+        month = await usage(await _panel_user(db, user.id), 30)
+        data["traffic_30d_gb"] = round(month["total_bytes"] / 1024 ** 3, 2)
+        data["traffic_peak_day"] = month["peak"]["day"] if month["peak"] and month["peak"]["bytes"] else None
+    except Exception:  # noqa: BLE001 — older panels, no subscription yet
+        data["traffic_30d_gb"] = None
+    return data
 
 
 @router.get("/api/me/upsell")

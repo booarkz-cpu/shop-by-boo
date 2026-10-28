@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .sub_proxy import client_url
 from .db import get_db
 from .security import require_permission
 
@@ -42,7 +43,7 @@ def wholesale(price: Decimal, commission_percent: Decimal) -> Decimal:
 
 def _order_view(payment, sub) -> dict:
     return {"order_id": payment.order_id, "status": payment.fulfillment_status, "amount": str(payment.amount),
-            "subscription_url": getattr(sub, "subscription_url", None),
+            "subscription_url": client_url(getattr(sub, "subscription_url", None)),
             "expires_at": sub.expires_at.isoformat() if sub and sub.expires_at else None}
 
 

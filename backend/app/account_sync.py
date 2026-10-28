@@ -23,6 +23,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .sub_proxy import client_url
 from .db import get_db
 
 router = APIRouter()
@@ -175,7 +176,7 @@ async def account_state(db: AsyncSession, user_id: int) -> dict:
         status = sub.lifecycle_status or "active"
         if status == "active" and sub.expires_at and sub.expires_at <= now:
             status = "expired"
-        url = (sub.subscription_url or "").strip()
+        url = (client_url(sub.subscription_url) or "").strip()
         subscriptions.append({
             "id": sub.id, "name": sub.name, "primary": bool(sub.is_primary), "plan_id": sub.plan_id, "status": status,
             "expires_at": _iso(sub.expires_at), "device_limit": sub.device_limit_snapshot, "traffic_limit_gb": sub.traffic_limit_gb_snapshot,

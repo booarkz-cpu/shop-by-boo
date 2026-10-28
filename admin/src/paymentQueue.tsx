@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 
-const NAMES: Record<string, string> = {yookassa: "ЮKassa", rollypay: "RollyPay", platega: "Platega", cryptobot: "CryptoBot", freekassa: "Freekassa"};
+const NAMES: Record<string, string> = {yookassa: "ЮKassa", rollypay: "RollyPay", platega: "Platega", cryptobot: "CryptoBot", freekassa: "Freekassa", cloudpayments: "CloudPayments", lava: "Lava"};
 
 /** «Платёжные агенты»: очередь касс. Заказ уходит в первую включённую, настроенную и не остывающую кассу. */
 export function PaymentQueue({request, toast}: {request: Request; toast: (text: string) => void}) {

@@ -600,6 +600,9 @@ struct UserRootView: View {
                 if !(data.stats["traffic_used_gb"] is NSNull), data.stats["traffic_used_gb"] != nil {
                     infoLine(t("stats_traffic"), "\(jsonText(data.stats["traffic_used_gb"])) GB")
                 }
+                if let month = data.stats["traffic_30d_gb"], !(month is NSNull) {
+                    infoLine(t("stats_month"), "\(jsonText(month)) GB")
+                }
                 infoLine(t("stats_avoided"), jsonText(data.stats["blocked_servers_avoided"]))
             }
         }
@@ -1397,7 +1400,7 @@ extension UserRootView {
             ["id": 6, "title": "Розыгрыш года подписки", "description": "Три победителя получат год Премиума", "kind": "contest", "phase": "ended",
              "prizes": [["amount": "1499", "weight": 1]], "currency": "RUB", "ends_at": "2026-10-20T21:00:00Z", "my_entry": ["outcome": "won", "reward_amount": "1499.00"]],
         ]
-        demo.stats = ["days_with_us": 360, "days_paid": 395, "traffic_used_gb": 84.2, "traffic_lifetime_gb": 1210.5, "traffic_limit_gb": 100.0,
+        demo.stats = ["traffic_30d_gb": 42.7, "days_with_us": 360, "days_paid": 395, "traffic_used_gb": 84.2, "traffic_lifetime_gb": 1210.5, "traffic_limit_gb": 100.0,
                       "devices": 3, "device_limit": 3, "blocked_servers_avoided": 7]
         demo.upsell = [["kind": "traffic", "title": "+50 ГБ трафика", "price": "149.00", "reason": "израсходовано 84 % трафика",
                         "quote": ["kind": "traffic_addon", "package_id": 1, "subscription_id": 1]]]

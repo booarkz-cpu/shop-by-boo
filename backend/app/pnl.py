@@ -23,7 +23,7 @@ from .security import require_permission
 router = APIRouter()
 FEES_KEY = "pnl.fees"
 CATEGORIES = ("servers", "domains", "software", "staff", "other")
-EXTERNAL = ("yookassa", "platega", "rollypay", "cryptobot", "freekassa", "stars", "telegram_stars")
+EXTERNAL = ("yookassa", "platega", "rollypay", "cryptobot", "freekassa", "cloudpayments", "lava", "stars", "telegram_stars")
 
 
 class CostIn(BaseModel):

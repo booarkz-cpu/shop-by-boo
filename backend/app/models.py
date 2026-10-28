@@ -1965,3 +1965,103 @@ class InfraCost(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     note: Mapped[str] = mapped_column(String(200), default="", server_default="", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class SubRequest(Base):
+    """One subscription request that passed through the shop's subscription proxy (sub_proxy.py)."""
+    __tablename__ = "sub_requests"
+    __table_args__ = (Index("ix_sub_requests_short_created", "short_uuid", "created_at"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+    short_uuid: Mapped[str] = mapped_column(String(64), default="", server_default="", nullable=False)
+    user_id: Mapped[int|None] = mapped_column(Integer)
+    app: Mapped[str] = mapped_column(String(40), default="", server_default="", nullable=False)
+    app_version: Mapped[str] = mapped_column(String(40), default="", server_default="", nullable=False)
+    os: Mapped[str] = mapped_column(String(40), default="", server_default="", nullable=False)
+    model: Mapped[str] = mapped_column(String(80), default="", server_default="", nullable=False)
+    hwid: Mapped[str] = mapped_column(String(128), default="", server_default="", nullable=False)
+    ip: Mapped[str] = mapped_column(String(64), default="", server_default="", nullable=False)
+    user_agent: Mapped[str] = mapped_column(String(255), default="", server_default="", nullable=False)
+    decision: Mapped[str] = mapped_column(String(24), nullable=False)  # proxied | blocked | stub | not_found | error | mask
+    status: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    bytes: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    ms: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    outdated: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"), nullable=False)
+
+
+class PanelUserChange(Base):
+    """A change of a Remnawave user seen in a panel webhook (webhook_tee.py), with the fields that changed and who did it."""
+    __tablename__ = "panel_user_changes"
+    __table_args__ = (Index("ix_panel_user_changes_user_created", "panel_user", "created_at"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+    panel_user: Mapped[str] = mapped_column(String(64), nullable=False)
+    user_id: Mapped[int|None] = mapped_column(Integer)
+    event: Mapped[str] = mapped_column(String(64), nullable=False)
+    source: Mapped[str] = mapped_column(String(16), nullable=False)  # shop | external | first
+    changed: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    snapshot: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+
+
+class PanelApiStat(Base):
+    """Hourly sums of the shop's calls to the Remnawave API (panel_api_stats.py)."""
+    __tablename__ = "panel_api_stats"
+    __table_args__ = (UniqueConstraint("hour", "source", "method", "path", name="uq_panel_api_stats"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    hour: Mapped[datetime] = mapped_column(DateTime, index=True, nullable=False)
+    source: Mapped[str] = mapped_column(String(40), nullable=False)
+    method: Mapped[str] = mapped_column(String(8), nullable=False)
+    path: Mapped[str] = mapped_column(String(160), nullable=False)
+    calls: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    errors: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_ms: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+
+class VpnSession(Base):
+    """A customer's connection from one IP to one node, glued from the panel's online snapshots (vpn_sessions.py)."""
+    __tablename__ = "vpn_sessions"
+    __table_args__ = (Index("ix_vpn_sessions_user_last", "panel_user", "last_seen"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    panel_user: Mapped[str] = mapped_column(String(64), nullable=False)
+    user_id: Mapped[int|None] = mapped_column(Integer)
+    node: Mapped[str] = mapped_column(String(120), default="", server_default="", nullable=False)
+    ip: Mapped[str] = mapped_column(String(64), nullable=False)
+    asn: Mapped[str] = mapped_column(String(16), default="", server_default="", nullable=False)
+    isp: Mapped[str] = mapped_column(String(120), default="", server_default="", nullable=False)
+    country: Mapped[str] = mapped_column(String(2), default="", server_default="", nullable=False)
+    first_seen: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    last_seen: Mapped[datetime] = mapped_column(DateTime, index=True, nullable=False)
+
+
+class WgConfig(Base):
+    """A ready WireGuard / AmneziaWG config from the uploaded pool (wg_pool.py); one config per subscription and device."""
+    __tablename__ = "wg_configs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(8), nullable=False)  # wg | awg
+    name: Mapped[str] = mapped_column(String(80), nullable=False)
+    config: Mapped[str] = mapped_column(Text, nullable=False)  # encrypted with APP_SECRET (security.encrypt_secret)
+    subscription_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    hwid: Mapped[str] = mapped_column(String(128), default="", server_default="", nullable=False)
+    assigned_at: Mapped[datetime|None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class FirstConnectWait(Base):
+    """A subscription whose term starts at the first connection (first_connect.py)."""
+    __tablename__ = "first_connect_waits"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    subscription_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
+    days: Mapped[int] = mapped_column(Integer, nullable=False)
+    deadline: Mapped[datetime] = mapped_column(DateTime, index=True, nullable=False)
+    started_at: Mapped[datetime|None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class GraceSquad(Base):
+    """Squads of a subscription moved to the grace squad (grace_access.py, «ограниченный сквад»), to restore on payment."""
+    __tablename__ = "grace_squads"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    subscription_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
+    squads: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    until: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

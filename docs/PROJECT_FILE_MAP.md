@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.37.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.38.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1776**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1798**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -62,6 +62,7 @@
 | [.github/workflows/dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) | GitHub CI/CD |
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
 | [.github/workflows/docker.yml](../.github/workflows/docker.yml) | GitHub CI/CD |
+| [.github/workflows/hetzner-live.yml](../.github/workflows/hetzner-live.yml) | GitHub CI/CD |
 | [.github/workflows/load-security.yml](../.github/workflows/load-security.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-release.yml](../.github/workflows/mobile-release.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-screenshots.yml](../.github/workflows/mobile-screenshots.yml) | GitHub CI/CD |
@@ -195,6 +196,7 @@
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
 | [admin/src/style.css](../admin/src/style.css) | Админ-панель |
 | [admin/src/subscription-commerce.tsx](../admin/src/subscription-commerce.tsx) | Админ-панель |
+| [admin/src/subscriptionTools.tsx](../admin/src/subscriptionTools.tsx) | Админ-панель |
 | [admin/src/support-desk.tsx](../admin/src/support-desk.tsx) | Админ-панель |
 | [admin/src/support-topology.tsx](../admin/src/support-topology.tsx) | Админ-панель |
 | [admin/src/surveys.tsx](../admin/src/surveys.tsx) | Админ-панель |
@@ -290,6 +292,7 @@
 | [backend/alembic/versions/0078_campaign_ab.py](../backend/alembic/versions/0078_campaign_ab.py) | API, бот и worker |
 | [backend/alembic/versions/0079_acquisition.py](../backend/alembic/versions/0079_acquisition.py) | API, бот и worker |
 | [backend/alembic/versions/0080_reconciliation.py](../backend/alembic/versions/0080_reconciliation.py) | API, бот и worker |
+| [backend/alembic/versions/0081_subscription_proxy.py](../backend/alembic/versions/0081_subscription_proxy.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -366,6 +369,7 @@
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
 | [backend/app/channel_gate.py](../backend/app/channel_gate.py) | API, бот и worker |
 | [backend/app/churn.py](../backend/app/churn.py) | API, бот и worker |
+| [backend/app/client_versions.py](../backend/app/client_versions.py) | API, бот и worker |
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
 | [backend/app/connection_quality.py](../backend/app/connection_quality.py) | API, бот и worker |
 | [backend/app/content_branding_api.py](../backend/app/content_branding_api.py) | API, бот и worker |
@@ -384,6 +388,7 @@
 | [backend/app/email_templates.py](../backend/app/email_templates.py) | API, бот и worker |
 | [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
 | [backend/app/error_log.py](../backend/app/error_log.py) | API, бот и worker |
+| [backend/app/first_connect.py](../backend/app/first_connect.py) | API, бот и worker |
 | [backend/app/fiscal.py](../backend/app/fiscal.py) | API, бот и worker |
 | [backend/app/gift_batches.py](../backend/app/gift_batches.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
@@ -420,7 +425,9 @@
 | [backend/app/operations_api.py](../backend/app/operations_api.py) | API, бот и worker |
 | [backend/app/ops_alerts.py](../backend/app/ops_alerts.py) | API, бот и worker |
 | [backend/app/panel_admin.py](../backend/app/panel_admin.py) | API, бот и worker |
+| [backend/app/panel_api_stats.py](../backend/app/panel_api_stats.py) | API, бот и worker |
 | [backend/app/panel_guard.py](../backend/app/panel_guard.py) | API, бот и worker |
+| [backend/app/panel_usage.py](../backend/app/panel_usage.py) | API, бот и worker |
 | [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
 | [backend/app/passkeys.py](../backend/app/passkeys.py) | API, бот и worker |
 | [backend/app/payment_methods.py](../backend/app/payment_methods.py) | API, бот и worker |
@@ -429,6 +436,7 @@
 | [backend/app/payment_policy.py](../backend/app/payment_policy.py) | API, бот и worker |
 | [backend/app/payments.py](../backend/app/payments.py) | API, бот и worker |
 | [backend/app/payments_api.py](../backend/app/payments_api.py) | API, бот и worker |
+| [backend/app/payments_extra.py](../backend/app/payments_extra.py) | API, бот и worker |
 | [backend/app/personal_offers.py](../backend/app/personal_offers.py) | API, бот и worker |
 | [backend/app/pinned_message.py](../backend/app/pinned_message.py) | API, бот и worker |
 | [backend/app/platform_api.py](../backend/app/platform_api.py) | API, бот и worker |
@@ -463,6 +471,7 @@
 | [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
 | [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
+| [backend/app/sub_proxy.py](../backend/app/sub_proxy.py) | API, бот и worker |
 | [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
 | [backend/app/subscriptions.py](../backend/app/subscriptions.py) | API, бот и worker |
 | [backend/app/support_ai.py](../backend/app/support_ai.py) | API, бот и worker |
@@ -482,6 +491,9 @@
 | [backend/app/traffic_report.py](../backend/app/traffic_report.py) | API, бот и worker |
 | [backend/app/v3_api.py](../backend/app/v3_api.py) | API, бот и worker |
 | [backend/app/v6_api.py](../backend/app/v6_api.py) | API, бот и worker |
+| [backend/app/vpn_sessions.py](../backend/app/vpn_sessions.py) | API, бот и worker |
+| [backend/app/webhook_tee.py](../backend/app/webhook_tee.py) | API, бот и worker |
+| [backend/app/wg_pool.py](../backend/app/wg_pool.py) | API, бот и worker |
 | [backend/app/widget.py](../backend/app/widget.py) | API, бот и worker |
 | [backend/bot-entrypoint.sh](../backend/bot-entrypoint.sh) | API, бот и worker |
 | [backend/entrypoint.sh](../backend/entrypoint.sh) | API, бот и worker |
@@ -561,6 +573,7 @@
 | [cabinet/src/growth.tsx](../cabinet/src/growth.tsx) | Кабинет |
 | [cabinet/src/i18n.tsx](../cabinet/src/i18n.tsx) | Кабинет |
 | [cabinet/src/insights.tsx](../cabinet/src/insights.tsx) | Кабинет |
+| [cabinet/src/keys.tsx](../cabinet/src/keys.tsx) | Кабинет |
 | [cabinet/src/main.tsx](../cabinet/src/main.tsx) | Кабинет |
 | [cabinet/src/miniapp-sections.tsx](../cabinet/src/miniapp-sections.tsx) | Кабинет |
 | [cabinet/src/mock-config.json](../cabinet/src/mock-config.json) | Кабинет |
@@ -829,6 +842,7 @@
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
 | [docs/en/NEW_IN_V28_36.md](../docs/en/NEW_IN_V28_36.md) | Документация |
 | [docs/en/NEW_IN_V28_37.md](../docs/en/NEW_IN_V28_37.md) | Документация |
+| [docs/en/NEW_IN_V28_38.md](../docs/en/NEW_IN_V28_38.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -872,6 +886,7 @@
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
 | [docs/modules/sales_flows.md](../docs/modules/sales_flows.md) | Документация |
 | [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
+| [docs/modules/subscription_proxy.md](../docs/modules/subscription_proxy.md) | Документация |
 | [docs/modules/unit_economics.md](../docs/modules/unit_economics.md) | Документация |
 | [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
@@ -902,12 +917,14 @@
 | [docs/ru/MAIL_RECEIVER_CURRENT.md](../docs/ru/MAIL_RECEIVER_CURRENT.md) | Документация |
 | [docs/ru/MATRIX_COMPLETION_21_5_1.md](../docs/ru/MATRIX_COMPLETION_21_5_1.md) | Документация |
 | [docs/ru/MENU_TREE_CURRENT.md](../docs/ru/MENU_TREE_CURRENT.md) | Документация |
+| [docs/ru/MIDDLEWARE_RECONCILIATION.md](../docs/ru/MIDDLEWARE_RECONCILIATION.md) | Документация |
 | [docs/ru/MOBILE_GUIDE.md](../docs/ru/MOBILE_GUIDE.md) | Документация |
 | [docs/ru/MOBILE_RELEASE_2_14_1.md](../docs/ru/MOBILE_RELEASE_2_14_1.md) | Документация |
 | [docs/ru/NATIVE_PASSKEYS_CURRENT.md](../docs/ru/NATIVE_PASSKEYS_CURRENT.md) | Документация |
 | [docs/ru/NETWORK_INTEL_CURRENT.md](../docs/ru/NETWORK_INTEL_CURRENT.md) | Документация |
 | [docs/ru/NODE_TERMINAL_CURRENT.md](../docs/ru/NODE_TERMINAL_CURRENT.md) | Документация |
 | [docs/ru/OPERATIONS_MONITORING.md](../docs/ru/OPERATIONS_MONITORING.md) | Документация |
+| [docs/ru/OWNER_ACTIONS.md](../docs/ru/OWNER_ACTIONS.md) | Документация |
 | [docs/ru/PARTNERS_CURRENT.md](../docs/ru/PARTNERS_CURRENT.md) | Документация |
 | [docs/ru/PAYMENTS.md](../docs/ru/PAYMENTS.md) | Документация |
 | [docs/ru/PAYMENTS_LIVE_CHECKLIST.md](../docs/ru/PAYMENTS_LIVE_CHECKLIST.md) | Документация |
@@ -965,6 +982,7 @@
 | [docs/ru/RELEASE_V28_35_0.md](../docs/ru/RELEASE_V28_35_0.md) | Документация |
 | [docs/ru/RELEASE_V28_36_0.md](../docs/ru/RELEASE_V28_36_0.md) | Документация |
 | [docs/ru/RELEASE_V28_37_0.md](../docs/ru/RELEASE_V28_37_0.md) | Документация |
+| [docs/ru/RELEASE_V28_38_0.md](../docs/ru/RELEASE_V28_38_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
@@ -1078,6 +1096,7 @@
 | [docs/uk/DOCUMENTATION.md](../docs/uk/DOCUMENTATION.md) | Документация |
 | [docs/uk/NEW_IN_V28_36.md](../docs/uk/NEW_IN_V28_36.md) | Документация |
 | [docs/uk/NEW_IN_V28_37.md](../docs/uk/NEW_IN_V28_37.md) | Документация |
+| [docs/uk/NEW_IN_V28_38.md](../docs/uk/NEW_IN_V28_38.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1580,6 +1599,7 @@
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
+| [tests/live/test_hetzner_live.py](../tests/live/test_hetzner_live.py) | Проверки |
 | [tests/live/test_remnawave_live.py](../tests/live/test_remnawave_live.py) | Проверки |
 | [tests/load/shop.js](../tests/load/shop.js) | Проверки |
 | [tests/main_source.py](../tests/main_source.py) | Проверки |
@@ -1669,6 +1689,7 @@
 | [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |
 | [tests/test_payment_load.py](../tests/test_payment_load.py) | Проверки |
 | [tests/test_payment_methods.py](../tests/test_payment_methods.py) | Проверки |
+| [tests/test_payments_extra.py](../tests/test_payments_extra.py) | Проверки |
 | [tests/test_personal_offers.py](../tests/test_personal_offers.py) | Проверки |
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |
@@ -1696,6 +1717,7 @@
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |
 | [tests/test_subscription_commerce.py](../tests/test_subscription_commerce.py) | Проверки |
+| [tests/test_subscription_middleware.py](../tests/test_subscription_middleware.py) | Проверки |
 | [tests/test_support_ai.py](../tests/test_support_ai.py) | Проверки |
 | [tests/test_support_attachments.py](../tests/test_support_attachments.py) | Проверки |
 | [tests/test_support_bridge.py](../tests/test_support_bridge.py) | Проверки |

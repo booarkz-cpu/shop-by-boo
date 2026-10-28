@@ -210,7 +210,7 @@ DEFAULT_TEXTS: dict[str, dict[str, str]] = {
     "per_month": {"ru": "₽/мес", "en": "₽/mo", "uk": "₽/міс"},
     "offline": {"ru": "Нет связи — показаны сохранённые данные", "en": "Offline — showing saved data",
                 "uk": "Немає зв'язку — показано збережені дані"},
-    # v28.37.0: «Моя статистика», предложения и конкурс рефералов on the Android screens.
+    # v28.38.0: «Моя статистика», предложения и конкурс рефералов on the Android screens.
     "stats_title": {"ru": "Моя статистика", "en": "My statistics", "uk": "Моя статистика"},
     "stats_days": {"ru": "С нами", "en": "With us", "uk": "З нами"},
     "stats_paid": {"ru": "Оплачено VPN", "en": "VPN paid", "uk": "Оплачено VPN"},
@@ -221,6 +221,7 @@ DEFAULT_TEXTS: dict[str, dict[str, str]] = {
     "upsell_title": {"ru": "Для вас", "en": "For you", "uk": "Для вас"},
     "contest_until": {"ru": "до", "en": "until", "uk": "до"},
     "contest_me": {"ru": "Вы на {place} месте ({score})", "en": "You are #{place} ({score})", "uk": "Ви на {place} місці ({score})"},
+    "stats_month": {"ru": "Трафик за 30 дней", "en": "Traffic, 30 days", "uk": "Трафік за 30 днів"},
     "contest_join": {"ru": "Пригласите друга по своей ссылке, чтобы попасть в таблицу", "en": "Invite a friend with your link to get on the board", "uk": "Запросіть друга за своїм посиланням, щоб потрапити до таблиці"},
     "giveaway_join": {"ru": "Участвовать", "en": "Join", "uk": "Взяти участь"},
     "giveaway_entered": {"ru": "Вы участвуете — итоги после окончания", "en": "You are in — results after the end",

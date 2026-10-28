@@ -24,7 +24,7 @@ logger = logging.getLogger("vpnshop.grace")
 router = APIRouter()
 CONFIG_KEY = "grace.config"
 HISTORY_KEY = "grace.history"
-DEFAULT = {"enabled": False, "hours": 24, "cooldown_days": 30}
+DEFAULT = {"enabled": False, "hours": 24, "cooldown_days": 30, "mode": "expiry", "squad": ""}
 
 
 RESET_KEY = "fulfillment.reset_traffic"
@@ -41,6 +41,10 @@ class GraceIn(BaseModel):
     reset_traffic_on_payment: bool = False
     hours: int = Field(24, ge=1, le=168)
     cooldown_days: int = Field(30, ge=0, le=365)
+    # «expiry»: VPN keeps the same servers a few hours longer; «squad»: the customer moves to a limited Internal Squad
+    # (for example a slow server or one that opens only the payment pages) until the grace ends or a payment comes.
+    mode: str = Field("expiry", pattern=r"^(expiry|squad)$")
+    squad: str = Field("", max_length=64)
 
 
 async def _load(db, key, default):
@@ -83,11 +87,18 @@ async def tick(db: AsyncSession, now: datetime | None = None, panel=None, notify
             continue
         until = sub.expires_at + timedelta(hours=int(config["hours"]))
         if sub.remnawave_uuid:
+            patch = panel_expiry_patch(until)
+            squad_mode = config.get("mode") == "squad" and config.get("squad")
+            if squad_mode:
+                # The plan's squad comes back by itself with the next payment (fulfillment sets the plan entitlements).
+                patch["activeInternalSquads"] = [config["squad"]]
             try:
-                await panel.patch_user(sub.remnawave_uuid, panel_expiry_patch(until))
+                await panel.patch_user(sub.remnawave_uuid, patch)
             except Exception as exc:  # noqa: BLE001 — no grace this time; the subscription simply ends
                 logger.warning("grace for subscription %s failed: %s", sub.id, exc)
                 continue
+            if squad_mode:
+                await remember_squads(db, sub, until)
         sub.grace_until = until
         sub.lifecycle_status = "grace"
         history[str(user.id)] = now.isoformat()
@@ -100,6 +111,32 @@ async def tick(db: AsyncSession, now: datetime | None = None, panel=None, notify
         await _save(db, HISTORY_KEY, {k: v for k, v in history.items() if now - datetime.fromisoformat(v) < timedelta(days=366)})
     await db.commit()
     return granted
+
+
+async def remember_squads(db: AsyncSession, sub, until: datetime) -> None:
+    """Keep the squads the subscription had before the grace squad (to return them by hand from the admin)."""
+    from .models import GraceSquad
+    squads = [sub.remnawave_profile_id_snapshot] if sub.remnawave_profile_id_snapshot else []
+    row = (await db.execute(select(GraceSquad).where(GraceSquad.subscription_id == sub.id))).scalar_one_or_none()
+    if row:
+        row.squads, row.until = squads, until
+    else:
+        db.add(GraceSquad(subscription_id=sub.id, squads=squads, until=until))
+
+
+async def restore_squads(db: AsyncSession, subscription_id: int, panel=None) -> bool:
+    from .models import GraceSquad, Subscription
+    row = (await db.execute(select(GraceSquad).where(GraceSquad.subscription_id == subscription_id))).scalar_one_or_none()
+    sub = await db.get(Subscription, subscription_id)
+    if not row or not sub or not sub.remnawave_uuid:
+        return False
+    if panel is None:
+        from .remnawave import RemnawaveClient
+        panel = RemnawaveClient()
+    await panel.patch_user(sub.remnawave_uuid, {"activeInternalSquads": list(row.squads or [])})
+    await db.delete(row)
+    await db.commit()
+    return True
 
 
 async def _loop():
@@ -142,4 +179,13 @@ async def put_grace(payload: GraceIn, db: AsyncSession = Depends(get_db), admin=
     await set_setting(db, RESET_KEY, "1" if payload.reset_traffic_on_payment else "0")
     await audit(db, "grace.config", admin.email, None, payload.model_dump())
     await db.commit()
+    return {"ok": True}
+
+
+@router.post("/api/admin/grace/{subscription_id}/restore-squads")
+async def restore(subscription_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("users.write"))):
+    """Give the customer in the grace squad the plan's squads back right away (without a payment)."""
+    from fastapi import HTTPException
+    if not await restore_squads(db, subscription_id):
+        raise HTTPException(404, "Подписка не в грейс-скваде")
     return {"ok": True}

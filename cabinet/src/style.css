@@ -596,3 +596,9 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 :has(> .info-page[data-doc]) > .section-title,
 .panel:has(.info-page[data-doc]) > .section-banner,
 .panel:has(.info-page[data-doc]) > .section-title { display: none; }
+
+/* v28.38: connection keys and traffic by day */
+.key-list{list-style:none;margin:8px 0;padding:0;display:grid;gap:6px}
+.key-list li{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--surface-2,rgba(127,127,127,.08));flex-wrap:wrap}
+.traffic-bars{display:flex;align-items:flex-end;gap:2px;height:90px;margin:8px 0}
+.traffic-bars span{flex:1;min-width:2px;border-radius:2px 2px 0 0;background:var(--accent,#f97316)}

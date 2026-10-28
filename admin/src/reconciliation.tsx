@@ -156,7 +156,12 @@ export function AccessPolicies({request, toast}: Props) {
       <label className="check"><input type="checkbox" checked={cfg.enabled} onChange={(e) => save({enabled: e.target.checked})}/> Льготный доступ: после окончания подписки VPN работает ещё несколько часов, клиент получает сообщение со ссылкой на продление</label>
       <label>Часов<input type="number" min={1} max={168} defaultValue={cfg.hours} onBlur={(e) => save({hours: Number(e.target.value)})}/></label>
       <label>Не чаще чем раз в (дней)<input type="number" min={0} max={365} defaultValue={cfg.cooldown_days} onBlur={(e) => save({cooldown_days: Number(e.target.value)})}/></label>
-      <p className="muted">Сейчас в льготном доступе: {g.in_grace}.</p>
+      <label>Как работает льготный доступ<select value={cfg.mode || "expiry"} onChange={(e) => save({mode: e.target.value})}>
+        <option value="expiry">Те же серверы, срок продлевается на эти часы</option>
+        <option value="squad">Перевести в ограниченный сквад (например, медленный сервер или только сайты оплаты)</option>
+      </select></label>
+      {cfg.mode === "squad" ? <label>UUID ограниченного сквада Remnawave<input defaultValue={cfg.squad || ""} placeholder="internal squad uuid" onBlur={(e) => save({squad: e.target.value.trim()})}/></label> : null}
+      <p className="muted">Сейчас в льготном доступе: {g.in_grace}. Сквад тарифа возвращается сам после оплаты.</p>
       <label className="check"><input type="checkbox" checked={!!cfg.reset_traffic_on_payment} onChange={(e) => save({reset_traffic_on_payment: e.target.checked})}/> Сбрасывать израсходованный трафик при оплате продления</label>
       <h4>Суточные тарифы</h4>
       <label className="check"><input type="checkbox" checked={daily.enabled} onChange={(e) => act(() => request("/api/admin/daily-billing", put({enabled: e.target.checked})), toast, "Сохранено", setError, loadD)}/> Тарифы на 1 день продлеваются сами каждый день с баланса (у клиентов с включённым автопродлением)</label>
@@ -305,7 +310,7 @@ export function Pnl({request, toast}: Props) {
       <p>Активных клиентов: {d.active_customers}; прибыль на клиента за месяц: {d.profit_per_customer ?? "—"} ₽.</p>
       {d.nodes.length ? <p className="muted">Ноды (текущий месяц): {d.nodes.map((n: any) => `${n.node} — ${n.cost} ₽ (${n.per_customer ?? "—"} ₽ на клиента)`).join("; ")}</p> : null}
       <h4>Комиссии касс, %</h4>
-      <div className="toolbar">{["yookassa", "platega", "rollypay", "cryptobot", "freekassa", "stars"].map((p) => <label key={p}>{p}<input type="number" step="0.1" min={0} max={30} value={f[p] ?? ""} onChange={(e) => setFees({...f, [p]: e.target.value})}/></label>)}
+      <div className="toolbar">{["yookassa", "platega", "rollypay", "cryptobot", "freekassa", "cloudpayments", "lava", "stars"].map((p) => <label key={p}>{p}<input type="number" step="0.1" min={0} max={30} value={f[p] ?? ""} onChange={(e) => setFees({...f, [p]: e.target.value})}/></label>)}
         <button onClick={() => act(() => request("/api/admin/pnl/fees", put(Object.fromEntries(Object.entries(f).filter(([, v]) => v !== "").map(([k, v]) => [k, Number(v)])))), toast, "Комиссии сохранены", setError, () => { setFees(null); load(); })}>Сохранить</button></div>
       <h4>Расходы</h4>
       <div className="toolbar">
@@ -338,17 +343,50 @@ export function TrafficUsage({request}: {request: Request}) {
 /** «Серверы → Панель Remnawave». */
 export function PanelAdmin({request, toast}: Props) {
   const [d, load, error, setError] = useData(request, "/api/admin/panel/overview");
+  const [host, setHost] = useState<any>(null);
+  const [squad, setSquad] = useState<any>(null);
   if (!d) return <Card title="Панель Remnawave" error={error}><p>{error ? null : "Загрузка…"}</p></Card>;
+  const inbounds = d.profiles.flatMap((p: any) => p.inbounds.map((i: any) => ({...i, profile: p.uuid, profileName: p.name})));
+  const blankHost = {uuid: "", remark: "", address: "", port: 443, profile: d.profiles[0]?.uuid || "", inbound: inbounds[0]?.uuid || "", sni: "", host: "", path: "", tag: ""};
+  const saveHost = () => {
+    const {uuid, ...body} = host;
+    return act(() => request(uuid ? `/api/admin/panel/hosts/${uuid}` : "/api/admin/panel/hosts", {method: uuid ? "PATCH" : "POST", body: JSON.stringify({...body, port: Number(body.port)})}),
+      toast, uuid ? "Хост сохранён" : "Хост создан", setError, () => { setHost(null); load(); });
+  };
+  const saveSquad = () => act(() => request(squad.uuid ? `/api/admin/panel/squads/${squad.uuid}` : "/api/admin/panel/squads", {method: squad.uuid ? "PATCH" : "POST", body: JSON.stringify({name: squad.name, inbounds: squad.inbounds})}),
+    toast, squad.uuid ? "Сквад сохранён" : "Сквад создан", setError, () => { setSquad(null); load(); });
   return (
-    <Card title="Панель Remnawave" error={error} hint="Профили конфигурации, Internal Squads и хосты панели с повседневными действиями. Редактор конфигурации Xray остаётся в самой панели.">
+    <Card title="Панель Remnawave" error={error} hint="Профили конфигурации, Internal Squads и хосты панели: создание, правка, удаление и повседневные действия. Редактор конфигурации Xray остаётся в самой панели.">
       <h4>Профили</h4><ul>{d.profiles.map((p: any) => <li key={p.uuid}>{p.name}: {p.inbounds.map((i: any) => `${i.tag} (${i.type}:${i.port})`).join(", ")} <span className="muted">{p.uuid}</span></li>)}</ul>
       <h4>Internal Squads</h4>
-      <table className="table"><tbody>{d.squads.map((s: any) => <tr key={s.uuid}><td>{s.name}</td><td>{s.members ?? "?"} участн.</td><td>{s.inbounds.join(", ")}</td>
-        <td><button onClick={() => window.confirm(`Добавить всех клиентов в «${s.name}»?`) && act(() => request(`/api/admin/panel/squads/${s.uuid}/add-all`, post()), toast, "Задание запущено", setError, load)}>Добавить всех</button>
-          <button onClick={() => window.confirm(`Убрать всех клиентов из «${s.name}»?`) && act(() => request(`/api/admin/panel/squads/${s.uuid}/remove-all`, post()), toast, "Задание запущено", setError, load)}>Убрать всех</button></td></tr>)}</tbody></table>
+      <table className="table"><tbody>{d.squads.map((s: any) => <tr key={s.uuid}><td>{s.name}<br/><small className="muted">{s.uuid}</small></td><td>{s.members ?? "?"} участн.</td><td>{s.inbounds.join(", ")}</td>
+        <td><button onClick={() => setSquad({uuid: s.uuid, name: s.name, inbounds: s.inbound_uuids || []})}>Изменить</button>
+          <button onClick={() => window.confirm(`Добавить всех клиентов в «${s.name}»?`) && act(() => request(`/api/admin/panel/squads/${s.uuid}/add-all`, post()), toast, "Задание запущено", setError, load)}>Добавить всех</button>
+          <button onClick={() => window.confirm(`Убрать всех клиентов из «${s.name}»?`) && act(() => request(`/api/admin/panel/squads/${s.uuid}/remove-all`, post()), toast, "Задание запущено", setError, load)}>Убрать всех</button>
+          <button className="danger" onClick={() => window.confirm(`Удалить сквад «${s.name}»? Клиенты потеряют его серверы.`) && act(() => request(`/api/admin/panel/squads/${s.uuid}`, {method: "DELETE"}), toast, "Сквад удалён", setError, load)}>Удалить</button></td></tr>)}</tbody></table>
+      {squad ? <div className="card">
+        <label>Название (латиница, цифры, _ и -)<input value={squad.name} onChange={(e) => setSquad({...squad, name: e.target.value})}/></label>
+        <p>Инбаунды:</p>{inbounds.map((i: any) => <label className="check" key={i.uuid}><input type="checkbox" checked={squad.inbounds.includes(i.uuid)} onChange={(e) => setSquad({...squad, inbounds: e.target.checked ? [...squad.inbounds, i.uuid] : squad.inbounds.filter((x: string) => x !== i.uuid)})}/> {i.profileName} · {i.tag} ({i.type}:{i.port})</label>)}
+        <div className="toolbar"><button onClick={saveSquad}>Сохранить сквад</button><button onClick={() => setSquad(null)}>Отмена</button></div>
+      </div> : <button onClick={() => setSquad({uuid: "", name: "", inbounds: []})}>Новый сквад</button>}
       <h4>Хосты</h4>
-      <table className="table"><tbody>{d.hosts.map((h: any) => <tr key={h.uuid}><td>{h.remark}</td><td>{h.address}:{h.port}</td><td>{h.disabled ? "выключен" : "включён"}</td>
-        <td><button onClick={() => act(() => request(`/api/admin/panel/hosts/${h.uuid}`, put({disabled: !h.disabled})), toast, "Сохранено", setError, load)}>{h.disabled ? "Включить" : "Выключить"}</button></td></tr>)}</tbody></table>
+      <table className="table"><tbody>{d.hosts.map((h: any) => <tr key={h.uuid}><td>{h.remark}{h.tag ? <small className="muted"> {h.tag}</small> : null}</td><td>{h.address}:{h.port}{h.sni ? <small className="muted"> SNI {h.sni}</small> : null}</td><td>{h.disabled ? "выключен" : "включён"}</td>
+        <td><button onClick={() => setHost({...blankHost, ...h})}>Изменить</button>
+          <button onClick={() => act(() => request(`/api/admin/panel/hosts/${h.uuid}`, put({disabled: !h.disabled})), toast, "Сохранено", setError, load)}>{h.disabled ? "Включить" : "Выключить"}</button>
+          <button className="danger" onClick={() => window.confirm(`Удалить хост «${h.remark}»?`) && act(() => request(`/api/admin/panel/hosts/${h.uuid}`, {method: "DELETE"}), toast, "Хост удалён", setError, load)}>Удалить</button></td></tr>)}</tbody></table>
+      {host ? <div className="card">
+        <div className="grid3">
+          <label>Название<input value={host.remark} maxLength={40} onChange={(e) => setHost({...host, remark: e.target.value})}/></label>
+          <label>Адрес<input value={host.address} onChange={(e) => setHost({...host, address: e.target.value.trim()})}/></label>
+          <label>Порт<input type="number" min={1} max={65535} value={host.port} onChange={(e) => setHost({...host, port: e.target.value})}/></label>
+          <label>Инбаунд<select value={host.inbound} onChange={(e) => { const i = inbounds.find((x: any) => x.uuid === e.target.value); setHost({...host, inbound: e.target.value, profile: i?.profile || host.profile}); }}>{inbounds.map((i: any) => <option key={i.uuid} value={i.uuid}>{i.profileName} · {i.tag}</option>)}</select></label>
+          <label>SNI<input value={host.sni} onChange={(e) => setHost({...host, sni: e.target.value.trim()})}/></label>
+          <label>Заголовок Host<input value={host.host} onChange={(e) => setHost({...host, host: e.target.value.trim()})}/></label>
+          <label>Путь<input value={host.path} placeholder="/ws" onChange={(e) => setHost({...host, path: e.target.value.trim()})}/></label>
+          <label>Тег (A-Z, 0-9, _)<input value={host.tag} onChange={(e) => setHost({...host, tag: e.target.value.toUpperCase().replace(/[^A-Z0-9_:]/g, "")})}/></label>
+        </div>
+        <div className="toolbar"><button disabled={!host.remark || !host.address || !host.inbound} onClick={saveHost}>Сохранить хост</button><button onClick={() => setHost(null)}>Отмена</button></div>
+      </div> : <button disabled={!inbounds.length} onClick={() => setHost(blankHost)}>Новый хост</button>}
     </Card>
   );
 }

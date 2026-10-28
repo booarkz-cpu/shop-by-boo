@@ -4,6 +4,7 @@ from fastapi import APIRouter,Depends,HTTPException,Request
 from pydantic import BaseModel,Field
 from sqlalchemy import select,func,update
 from sqlalchemy.ext.asyncio import AsyncSession
+from .sub_proxy import client_url
 from .db import get_db
 from .models import User,Subscription,Payment,Plan,UserDevice,GiftRedemption,EntitlementOperation
 router=APIRouter()
@@ -136,7 +137,7 @@ def output(sub,plan=None):
     return {'id':sub.id,'name':sub.name,'is_primary':sub.is_primary,'plan_id':sub.plan_id,
             'plan':plan.name if plan else None,'status':sub.lifecycle_status,'expires_at':sub.expires_at,
             'traffic_gb':sub.traffic_limit_gb_snapshot,'devices':sub.device_limit_snapshot,
-            'subscription_url':sub.subscription_url,'auto_renew_enabled':sub.auto_renew_enabled}
+            'subscription_url':client_url(sub.subscription_url),'auto_renew_enabled':sub.auto_renew_enabled}
 
 
 async def user(request,db):
