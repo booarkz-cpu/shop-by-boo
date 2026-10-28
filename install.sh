@@ -15,7 +15,7 @@
 set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/booarkz-cpu/shop-by-boo.git}"
-BRANCH="${BRANCH:-v28.39.0}"
+BRANCH="${BRANCH:-v28.40.0}"
 SOURCE_DIR="${SOURCE_DIR:-/opt/vpn-shop-src}"
 
 if [[ $EUID -ne 0 ]]; then

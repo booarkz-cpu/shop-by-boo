@@ -1,4 +1,4 @@
-"""More payment gateways: CloudPayments and Lava (v28.38), Pal24 and Mulen Pay (v28.39).
+"""More payment gateways: CloudPayments and Lava (v28.38), Pal24 and Mulen Pay (v28.39), WATA and Antilopay (v28.40).
 
 Both follow the shop's rule for reserve gateways: a notification is trusted only when its signature is right **and**
 the gateway's own API, asked again, says the order is paid with the same amount and currency — only then is the
@@ -26,6 +26,16 @@ re-read with ``GET /bill/status?id=``.
 (``/api/webhooks/mulenpay``, JSON) may carry ``sign`` (SHA-1 of all values in order + secret key): a wrong one is
 refused, a missing one is allowed because the payment is always re-read with ``GET /v2/payments/{id}`` (status 3 —
 paid) before anything is delivered.
+
+**WATA** (cards, SBP; api.wata.pro H2H): ``POST /links`` with ``Authorization: Bearer`` (access token) gives a payment
+link. The notification (``/api/webhooks/wata``, JSON) is signed in ``X-Signature`` — base64 RSA SHA-512 (PKCS#1 v1.5)
+of the raw body; the public key comes from ``GET /public-key`` (cached for an hour). The payment is re-read with
+``GET /transactions?orderId=&statuses=Paid``.
+
+**Antilopay** (cards, SBP; lk.antilopay.com API v2): every request body is signed with the shop's RSA private key
+(``X-Apay-Sign``, SHA-256, with ``X-Apay-Secret-Id``); ``POST /payment/create`` gives the payment page. The callback
+(``/api/webhooks/antilopay``) is signed in ``X-Apay-Callback`` with Antilopay's RSA key (the public key from the
+project settings); the payment is re-read with ``POST /payment/check``.
 """
 from __future__ import annotations
 
@@ -34,6 +44,7 @@ import hashlib
 import hmac
 import json
 import logging
+import time
 from decimal import Decimal
 from typing import Any, Dict
 from urllib.parse import parse_qsl, unquote_plus
@@ -311,6 +322,174 @@ class MulenPayProvider(BasePaymentProvider):
         return data
 
 
+def _rsa_key(text: str, private: bool):
+    """A key from the dashboard: PEM, or base64 of DER (Antilopay gives the latter)."""
+    from cryptography.hazmat.primitives import serialization
+    raw = (text or "").strip().replace("\\n", "\n")
+    if "BEGIN" in raw:
+        data = raw.encode()
+        return serialization.load_pem_private_key(data, None) if private else serialization.load_pem_public_key(data)
+    der = base64.b64decode("".join(raw.split()))
+    return serialization.load_der_private_key(der, None) if private else serialization.load_der_public_key(der)
+
+
+def _rsa_verify(key_text: str, body: bytes, signature_b64: str, sha512: bool) -> bool:
+    from cryptography.exceptions import InvalidSignature
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import padding
+    try:
+        _rsa_key(key_text, False).verify(base64.b64decode(signature_b64), body, padding.PKCS1v15(), hashes.SHA512() if sha512 else hashes.SHA256())
+        return True
+    except (InvalidSignature, ValueError, TypeError):
+        return False
+
+
+class WataProvider(BasePaymentProvider):
+    API_URL = "https://api.wata.pro/api/h2h"
+    KEY_TTL = 3600
+    _key: tuple[float, str] | None = None
+
+    @staticmethod
+    def configured() -> bool:
+        return bool(settings.wata_access_token)
+
+    async def _call(self, method: str, path: str, auth: bool = True, **kwargs) -> dict:
+        headers = {"Accept": "application/json"}
+        if auth:
+            headers["Authorization"] = f"Bearer {settings.wata_access_token}"
+        async with _public_client(20) as client:
+            r = await client.request(method, self.API_URL + path, headers=headers, **kwargs)
+        r.raise_for_status()
+        return r.json()
+
+    async def public_key(self) -> str:
+        cached = WataProvider._key
+        if cached and time.monotonic() - cached[0] < self.KEY_TTL:
+            return cached[1]
+        out = await self._call("GET", "/public-key", auth=False)
+        value = str(out.get("value") or "")
+        if value:
+            WataProvider._key = (time.monotonic(), value)
+        return value
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        if not order_id or not self.configured():
+            raise PaymentError("WATA is not configured")
+        body = {"amount": float(_money(amount)), "currency": currency or "RUB", "description": description[:200] or "Подписка",
+                "orderId": order_id, "type": "OneTime"}
+        if metadata.get("return_url"):
+            body["successRedirectUrl"] = body["failRedirectUrl"] = metadata["return_url"]
+        out = await self._call("POST", "/links", json=body)
+        if not out.get("id") or not out.get("url"):
+            raise PaymentError(f"WATA: {str(out.get('message') or out.get('error') or 'no payment link')[:200]}")
+        return {"id": str(out["id"]), "url": out["url"], "status": "pending"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url})
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        return await self._call("GET", f"/links/{payment_id}")
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        if not expected_order_id:
+            return False
+        out = await self._call("GET", "/transactions", params={"orderId": expected_order_id, "statuses": "Paid", "skipCount": 0, "maxResultCount": 20})
+        want = Decimal(str(expected_amount)).quantize(Decimal("0.01"))
+        for item in out.get("items") or []:
+            if str(item.get("status")) != "Paid" or str(item.get("orderId") or expected_order_id) != expected_order_id:
+                continue
+            if str(item.get("currency") or currency).upper() != str(currency).upper():
+                continue
+            if Decimal(str(item.get("amount") or "0")).quantize(Decimal("0.01")) == want:
+                return True
+        return False
+
+    async def verify_webhook_async(self, headers, body: bytes) -> Dict[str, Any]:
+        got = {k.lower(): v for k, v in dict(headers).items()}.get("x-signature", "").strip()
+        if not self.configured() or not got:
+            raise SignatureVerificationError("Invalid WATA signature")
+        key = await self.public_key()
+        if not key or not _rsa_verify(key, body, got, sha512=True):
+            raise SignatureVerificationError("Invalid WATA signature")
+        try:
+            return json.loads(body)
+        except ValueError as exc:
+            raise SignatureVerificationError("Invalid WATA body") from exc
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: str | None = None) -> Dict[str, Any]:
+        cached = WataProvider._key
+        got = {k.lower(): v for k, v in dict(headers).items()}.get("x-signature", "").strip()
+        if not cached or not got or not _rsa_verify(cached[1], body, got, sha512=True):
+            raise SignatureVerificationError("Invalid WATA signature")
+        return json.loads(body)
+
+
+class AntilopayProvider(BasePaymentProvider):
+    API_URL = "https://lk.antilopay.com/api/v2"
+    METHODS = {"sbp": ["SBP"], "card": ["CARD_RU"]}
+
+    @staticmethod
+    def configured() -> bool:
+        return bool(settings.antilopay_secret_id and settings.antilopay_private_key and settings.antilopay_public_key and settings.antilopay_project_id)
+
+    @staticmethod
+    def sign(body: bytes) -> str:
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import padding
+        return base64.b64encode(_rsa_key(settings.antilopay_private_key, True).sign(body, padding.PKCS1v15(), hashes.SHA256())).decode()
+
+    async def _post(self, path: str, payload: dict) -> dict:
+        body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode()
+        headers = {"Content-Type": "application/json", "Accept": "application/json", "X-Apay-Secret-Id": settings.antilopay_secret_id,
+                   "X-Apay-Sign": self.sign(body), "X-Apay-Sign-Version": "1"}
+        async with _public_client(20) as client:
+            r = await client.post(self.API_URL + path, content=body, headers=headers)
+        r.raise_for_status()
+        return r.json()
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        if not order_id or not self.configured():
+            raise PaymentError("Antilopay is not configured")
+        text = description[:200] or "Подписка"
+        payload = {"project_identificator": settings.antilopay_project_id, "amount": float(_money(amount)), "order_id": order_id,
+                   "currency": (currency or "RUB").upper(), "product_name": text, "product_type": "services", "description": text,
+                   "customer": {"email": str(metadata.get("email") or settings.antilopay_customer_email or "customer@example.com")}}
+        if self.METHODS.get(str(metadata.get("method") or "")):
+            payload["prefer_methods"] = self.METHODS[str(metadata["method"])]
+        if metadata.get("return_url"):
+            payload["success_url"] = payload["fail_url"] = metadata["return_url"]
+        out = await self._post("/payment/create", payload)
+        if out.get("code") not in (0, "0") or not out.get("payment_url"):
+            raise PaymentError(f"Antilopay: {str(out.get('error') or out.get('message') or 'no payment page')[:200]}")
+        return {"id": str(out.get("payment_id") or order_id), "url": out["payment_url"], "status": "pending"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url, "method": method})
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        return await self._post("/payment/check", {"project_identificator": settings.antilopay_project_id, "order_id": str(payment_id)})
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        data = await self.get_payment_status(expected_order_id or payment_id)
+        if str(data.get("status") or "").upper() != "SUCCESS":
+            return False
+        if expected_order_id and data.get("order_id") not in (None, "", expected_order_id):
+            return False
+        paid = data.get("original_amount") if data.get("original_amount") is not None else data.get("amount")
+        return Decimal(str(paid or "0")).quantize(Decimal("0.01")) == Decimal(str(expected_amount)).quantize(Decimal("0.01"))
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: str | None = None) -> Dict[str, Any]:
+        got = {k.lower(): v for k, v in dict(headers).items()}.get("x-apay-callback", "").strip()
+        if not self.configured() or not got or not _rsa_verify(settings.antilopay_public_key, body, got, sha512=False):
+            raise SignatureVerificationError("Invalid Antilopay signature")
+        try:
+            return json.loads(body)
+        except ValueError as exc:
+            raise SignatureVerificationError("Invalid Antilopay body") from exc
+
+
 async def _settle(db: AsyncSession, provider_name: str, provider, order_id: str, event_id: str, amount: str | None) -> str:
     """The common tail of a verified notification: find the order, check the amount, re-read the gateway, fulfil once."""
     from . import main as shop
@@ -407,4 +586,38 @@ async def mulenpay_webhook(request: Request, db: AsyncSession = Depends(get_db))
     if state not in {"success", "3"} or not order_id:
         return {"ok": True}
     await _settle(db, "mulenpay", provider, order_id, f"paid:{data.get('id') or order_id}", data.get("amount"))
+    return {"ok": True}
+
+
+@router.post("/api/webhooks/wata")
+async def wata_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    raw = await request.body()
+    if len(raw) > 64 * 1024:
+        raise HTTPException(413, "Payload too large")
+    provider = WataProvider()
+    try:
+        data = await provider.verify_webhook_async(request.headers, raw)
+    except SignatureVerificationError:
+        raise HTTPException(403, "Invalid signature")
+    order_id = str(data.get("orderId") or "")
+    if str(data.get("transactionStatus") or "") != "Paid" or not order_id:
+        return {"status": "ok"}
+    await _settle(db, "wata", provider, order_id, f"paid:{data.get('transactionId') or order_id}", data.get("amount"))
+    return {"status": "ok"}
+
+
+@router.post("/api/webhooks/antilopay")
+async def antilopay_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    raw = await request.body()
+    if len(raw) > 64 * 1024:
+        raise HTTPException(413, "Payload too large")
+    provider = AntilopayProvider()
+    try:
+        data = provider.verify_webhook(request.headers, raw)
+    except SignatureVerificationError:
+        raise HTTPException(403, "Invalid signature")
+    order_id = str(data.get("order_id") or "")
+    if data.get("type") != "payment" or str(data.get("status") or "").upper() != "SUCCESS" or not order_id:
+        return {"ok": True}
+    await _settle(db, "antilopay", provider, order_id, f"paid:{data.get('payment_id') or order_id}", data.get("original_amount"))
     return {"ok": True}

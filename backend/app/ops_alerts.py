@@ -314,7 +314,8 @@ def _agent_configured(provider: str) -> bool:
             "freekassa": ("freekassa_shop_id", "freekassa_secret1", "freekassa_secret2", "freekassa_api_key"),
             "cloudpayments": ("cloudpayments_public_id", "cloudpayments_api_secret"),
             "lava": ("lava_shop_id", "lava_secret_key", "lava_webhook_secret"),
-            "pal24": ("pal24_shop_id", "pal24_api_token"), "mulenpay": ("mulenpay_shop_id", "mulenpay_api_key", "mulenpay_secret_key")}.get(provider, ())
+            "pal24": ("pal24_shop_id", "pal24_api_token"), "mulenpay": ("mulenpay_shop_id", "mulenpay_api_key", "mulenpay_secret_key"),
+            "wata": ("wata_access_token",), "antilopay": ("antilopay_project_id", "antilopay_secret_id", "antilopay_private_key", "antilopay_public_key")}.get(provider, ())
     return bool(keys) and all(getattr(settings, k, "") for k in keys)
 
 

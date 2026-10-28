@@ -91,6 +91,21 @@ sequenceDiagram
 
 Страница оплаты: Pal24 — `POST https://pal24.pro/api/v1/bill/create` (Bearer API-токен; для СБП и карты передаётся `payment_method` SBP или BANK_CARD), магазин запоминает `bill_id`; Mulen Pay — `POST https://mulenpay.ru/api/v2/payments` (Bearer API-ключ, `sign` = SHA-1 `валюта + сумма + shopId + секретный ключ`, позиция чека с НДС «без НДС»), магазин запоминает номер платежа. Номер заказа магазина передаётся как `order_id` или `uuid`. Тесты на моках: `tests/test_payments_pal24_mulenpay.py`.
 
+## WATA и Antilopay (v28.40)
+
+Ещё две кассы для карт и СБП в `payments_extra.py`, правила те же: касса встаёт в очередь касс и в выбор способа оплаты, как только заданы ключи. Автоплатежей и возвратов через API нет. Подписка выдаётся только после повторной проверки платежа в API кассы. Подписи — RSA, поэтому ключи можно вставить как base64 (DER) или PEM; переводы строк в `.env` допустимы как `\n`.
+
+| Касса | Ключи | Адрес уведомлений | Как магазин проверяет оплату |
+| --- | --- | --- | --- |
+| WATA | `WATA_ACCESS_TOKEN` | `https://<API_DOMAIN>/api/webhooks/wata` — укажите в настройках терминала | `X-Signature`: base64 RSA SHA-512 (PKCS#1 v1.5) тела. Открытый ключ магазин берёт из `GET /public-key` и хранит час. Затем `GET /transactions?orderId=…&statuses=Paid`: транзакция Paid с той же суммой и валютой |
+| Antilopay | `ANTILOPAY_PROJECT_ID`, `ANTILOPAY_SECRET_ID`, `ANTILOPAY_PRIVATE_KEY`, `ANTILOPAY_PUBLIC_KEY`, `ANTILOPAY_CUSTOMER_EMAIL` (необязательно) | `https://<API_DOMAIN>/api/webhooks/antilopay` — укажите как callback проекта | `X-Apay-Callback`: RSA SHA-256 тела ключом Antilopay (открытый ключ из кабинета). Затем `POST /payment/check`: статус SUCCESS, тот же заказ, `original_amount` равен цене |
+
+Страница оплаты:
+- WATA — `POST https://api.wata.pro/api/h2h/links` (Bearer токен, тип OneTime, возврат на страницу кабинета).
+- Antilopay — `POST https://lk.antilopay.com/api/v2/payment/create`. Каждое тело запроса подписано закрытым ключом магазина: заголовки `X-Apay-Sign` (RSA SHA-256), `X-Apay-Secret-Id` и `X-Apay-Sign-Version: 1`. Поле `customer` у Antilopay обязательно: подставляется e-mail по умолчанию. Для СБП и карты передаётся `prefer_methods`.
+
+Тесты на моках с настоящими RSA-подписями: `tests/test_payments_wata_antilopay.py`.
+
 ## Возврат денег, которые почти пришли
 
 * **Брошенная оплата** и **неудачное автопродление** — события движка автоматизации `payment.abandoned` и
