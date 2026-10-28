@@ -31,7 +31,7 @@ def row(label: str, value, tone: str = "") -> dict:
     return {"label": label, "value": str(value), "tone": tone}
 
 
-def action(label: str, method: str, path: str, body: dict | None = None, confirm: str = "") -> dict:
+def action(label: str, method: str, path: str, body: dict | None = None, confirm: str = "") -> dict:  # noqa: D401
     assert path.startswith("/api/admin/")
     return {"label": label, "method": method, "path": path, "body": body or {}, "confirm": confirm}
 
@@ -111,7 +111,123 @@ async def block_monitor_panel(db: AsyncSession) -> dict:
     return {"id": "block_monitor", "title": "Монитор блокировок", "rows": rows, "actions": []}
 
 
-BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel]
+def toggle(label_on: str, label_off: str, on: bool, method: str, path: str, body_on: dict, body_off: dict, confirm: str = "") -> dict:
+    return action(label_off if on else label_on, method, path, body_off if on else body_on, "" if on else confirm)
+
+
+async def moderation_panel(db: AsyncSession) -> dict:
+    from .moderation import get_moderation
+    data = await get_moderation(db, None)
+    cfg, scan = data["config"], data["scan"]
+    rows = [row("Регистрация по приглашениям", "да" if cfg.get("invite_only") else "нет"),
+            row("Временные почтовые ящики", "запрещены" if cfg.get("block_disposable", True) else "разрешены"),
+            row("Чёрный список", f"Telegram ID {data['blacklist'].get('telegram_ids', 0)}, email {data['blacklist'].get('emails', 0)}, "
+                                 f"доменов {data['blacklist'].get('domains', 0)}"),
+            row("Заблокировали бота", f"{scan.get('blocked', 0)} (проверено {scan.get('checked', 0)} из {scan.get('total', 0)})"
+                if scan else "проверка не запускалась"),
+            row("Можно удалить неактивных", data["cleanup_candidates"])]
+    base = {"block_disposable": cfg.get("block_disposable", True), "disposable_extra": cfg.get("disposable_extra", []),
+            "invite_only": cfg.get("invite_only", False)}
+    return {"id": "moderation", "title": "Модерация", "rows": rows, "actions": [
+        toggle("Включить регистрацию по приглашениям", "Выключить регистрацию по приглашениям", cfg.get("invite_only", False),
+               "PUT", "/api/admin/moderation", {**base, "invite_only": True}, {**base, "invite_only": False},
+               "Новые клиенты смогут зарегистрироваться только по приглашению. Включить?"),
+        action("Проверить, кто заблокировал бота", "POST", "/api/admin/moderation/blocked-scan"),
+        action("Удалить неактивных, заблокировавших бота", "POST", "/api/admin/moderation/blocked-cleanup", None,
+               f"Будут закрыты аккаунты: {data['cleanup_candidates']}. Это необратимо. Продолжить?")]}
+
+
+async def guard_panel(db: AsyncSession) -> dict:
+    from .grace_access import get_grace
+    from .panel_guard import get_guard
+    guard = await get_guard(db, None)
+    grace = await get_grace(db, None)
+    g, c = guard["config"], grace["config"]
+    rows = [row("Техработы при падении панели", "включено" if g["enabled"] else "выключено"),
+            row("Сейчас", "техработы включены защитой" if guard["state"].get("active") else "панель отвечает", "bad" if guard["state"].get("active") else "ok"),
+            row("Льготный доступ после окончания", f"{c['hours']} ч" if c["enabled"] else "выключен"),
+            row("Сейчас в льготном доступе", grace["in_grace"]),
+            row("Сброс трафика при оплате", "да" if c.get("reset_traffic_on_payment") else "нет")]
+    grace_body = {k: c[k] for k in ("enabled", "hours", "cooldown_days", "reset_traffic_on_payment")}
+    return {"id": "access_guard", "title": "Доступ и защита", "rows": rows, "actions": [
+        toggle("Включить техработы при падении панели", "Выключить техработы при падении панели", g["enabled"], "PUT", "/api/admin/panel-guard",
+               {**g, "enabled": True}, {**g, "enabled": False}),
+        toggle("Включить льготный доступ", "Выключить льготный доступ", c["enabled"], "PUT", "/api/admin/grace",
+               {**grace_body, "enabled": True}, {**grace_body, "enabled": False}),
+        toggle("Сбрасывать трафик при оплате", "Не сбрасывать трафик при оплате", bool(c.get("reset_traffic_on_payment")), "PUT", "/api/admin/grace",
+               {**grace_body, "reset_traffic_on_payment": True}, {**grace_body, "reset_traffic_on_payment": False})]}
+
+
+async def errors_panel(db: AsyncSession) -> dict:
+    from .error_log import list_errors
+    data = await list_errors(False, db, None)
+    rows = [row("Открытых ошибок", data["open"], "bad" if data["open"] else "ok")]
+    for e in data["items"][:5]:
+        rows.append(row(f"{e['logger']} ×{e['count']}", e["message"][:160], "warn"))
+    return {"id": "errors", "title": "Журнал ошибок", "rows": rows,
+            "actions": [action("Отметить все решёнными", "POST", "/api/admin/errors/resolve-all")] if data["open"] else []}
+
+
+async def growth_panel(db: AsyncSession) -> dict:
+    from .daily_billing import enabled as daily_on
+    from .guest_checkout import enabled as guest_on
+    from .pinned_message import get_pinned
+    from .referral_contests import current
+    from .support_autoreply import get_autoreply
+    contest = await current(db)
+    pinned = (await get_pinned(db, None))["message"]
+    auto = await get_autoreply(db, None)
+    daily, guest = await daily_on(db), await guest_on(db)
+    rows = [row("Конкурс рефералов", contest.title if contest else "нет активного"),
+            row("Закреплённое сообщение", (pinned.get("progress") or {}).get("sent", 0) if pinned.get("active") else "нет"),
+            row("Автоответы поддержки", f"включены, отправлено {auto.get('sent', 0)}" if auto["enabled"] else "выключены"),
+            row("Суточные тарифы", "включены" if daily else "выключены"),
+            row("Покупка по email без Telegram", "включена" if guest else "выключена")]
+    auto_body = {k: auto[k] for k in ("min_score", "use_llm")}
+    return {"id": "growth", "title": "Продажи и поддержка", "rows": rows, "actions": [
+        toggle("Включить автоответы", "Выключить автоответы", auto["enabled"], "PUT", "/api/admin/support/autoreply",
+               {**auto_body, "enabled": True}, {**auto_body, "enabled": False}),
+        toggle("Включить суточные тарифы", "Выключить суточные тарифы", daily, "PUT", "/api/admin/daily-billing", {"enabled": True}, {"enabled": False}),
+        toggle("Включить покупку по email", "Выключить покупку по email", guest, "PUT", "/api/admin/guest-checkout", {"enabled": True}, {"enabled": False})]
+        + ([action("Снять закреплённое сообщение", "DELETE", "/api/admin/pinned-message", None, "Сообщение открепится у всех клиентов. Продолжить?")]
+           if pinned.get("active") else [])}
+
+
+async def quality_panel(db: AsyncSession) -> dict:
+    from .connection_quality import admin_quality
+    data = await admin_quality(db, None)
+    rows = [row("Операторов в отчётах", len(data["carriers"])), row("Проблемных пар", len(data["flagged"]), "bad" if data["flagged"] else "ok")]
+    for c in data["flagged"][:6]:
+        rows.append(row(f"{c['carrier']} → {c['server']}", f"успешно {int(c['success'] * 100)} % из {c['attempts']}", "bad"))
+    return {"id": "connection_quality", "title": "Качество связи", "rows": rows, "actions": []}
+
+
+async def churn_panel(db: AsyncSession) -> dict:
+    from .churn import churn
+    data = await churn(db, None)
+    rows = [row("Под угрозой ухода", len(data["at_risk"]), "warn" if data["at_risk"] else "ok"),
+            row("Автопредложение", f"{data['config']['percent']} %, порог {data['config']['threshold']}" if data["config"]["auto"] else "выключено")]
+    actions = []
+    for r in data["at_risk"][:5]:
+        rows.append(row(f"{r['name']} — {r['score']}", "; ".join(r["reasons"])[:160], "warn"))
+        actions.append(action(f"Скидка: {r['name']}", "POST", f"/api/admin/churn/{r['user_id']}/offer", None,
+                              f"Отправить персональную скидку {data['config']['percent']} %?"))
+    return {"id": "churn", "title": "Риск оттока", "rows": rows, "actions": actions}
+
+
+async def pnl_panel(db: AsyncSession) -> dict:
+    from .pnl import report
+    data = await report(db, 2)
+    last = data["months"][-1]
+    rows = [row("Месяц", last["month"]), row("Выручка", last["revenue"]), row("Комиссии касс", last["fees"]),
+            row("Расходы", sum(float(v) for v in last["costs"].values())), row("Реклама", last["ads"]),
+            row("Прибыль", last["profit"], "ok" if float(last["profit"]) >= 0 else "bad"),
+            row("Прибыль на клиента", data["profit_per_customer"] or "—")]
+    return {"id": "pnl", "title": "Прибыль и расходы", "rows": rows, "actions": []}
+
+
+BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel]
 
 
 @router.get("/api/admin/mobile/panels")

@@ -185,7 +185,20 @@
     "payment_failed": "Оплата не прошла. Попробуйте ещё раз или выберите другой способ",
     "payment_refunded": "Платёж возвращён",
     "payment_waiting": "Платёж ещё обрабатывается — статус обновится сам",
-    "pay_method_title": "Способ оплаты"
+    "pay_method_title": "Способ оплаты",
+    "stats_title": "Моя статистика",
+    "stats_days": "С нами",
+    "stats_paid": "Оплачено VPN",
+    "stats_traffic": "Трафик за период",
+    "stats_lifetime": "Трафик всего",
+    "stats_avoided": "Обходов блокировок",
+    "days_short": "дн.",
+    "upsell_title": "Для вас",
+    "upsell_done": "Готово: условия подписки обновлены",
+    "contest_title": "Конкурс друзей",
+    "contest_until": "до",
+    "contest_me": "Вы на {place} месте ({score})",
+    "contest_join": "Пригласите друга по своей ссылке, чтобы попасть в таблицу"
   },
   "en": {
     "app_name": "VPN shop",
@@ -373,7 +386,20 @@
     "payment_failed": "The payment did not go through. Try again or choose another method",
     "payment_refunded": "The payment was refunded",
     "payment_waiting": "The payment is still processing — the status will update itself",
-    "pay_method_title": "Payment method"
+    "pay_method_title": "Payment method",
+    "stats_title": "My statistics",
+    "stats_days": "With us",
+    "stats_paid": "VPN paid",
+    "stats_traffic": "Traffic this period",
+    "stats_lifetime": "Traffic in total",
+    "stats_avoided": "Blocks avoided",
+    "days_short": "d",
+    "upsell_title": "For you",
+    "upsell_done": "Done: your subscription is updated",
+    "contest_title": "Friends contest",
+    "contest_until": "until",
+    "contest_me": "You are #{place} ({score})",
+    "contest_join": "Invite a friend with your link to get on the board"
   },
   "uk": {
     "app_name": "Коргі Люсі",
@@ -561,6 +587,19 @@
     "payment_failed": "Оплата не пройшла. Спробуйте ще раз або виберіть інший спосіб",
     "payment_refunded": "Платіж повернуто",
     "payment_waiting": "Платіж ще обробляється — статус оновиться сам",
-    "pay_method_title": "Спосіб оплати"
+    "pay_method_title": "Спосіб оплати",
+    "stats_title": "Моя статистика",
+    "stats_days": "З нами",
+    "stats_paid": "Оплачено VPN",
+    "stats_traffic": "Трафік за період",
+    "stats_lifetime": "Трафік загалом",
+    "stats_avoided": "Обходів блокувань",
+    "days_short": "дн.",
+    "upsell_title": "Для вас",
+    "upsell_done": "Готово: умови підписки оновлено",
+    "contest_title": "Конкурс друзів",
+    "contest_until": "до",
+    "contest_me": "Ви на {place} місці ({score})",
+    "contest_join": "Запросіть друга за своїм посиланням, щоб потрапити до таблиці"
   }
 }

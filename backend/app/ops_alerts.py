@@ -123,6 +123,9 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     from .block_monitor import problems as block_problems
     for key, title, detail in await block_problems(db):
         out.append(Problem(key, title, detail, "critical"))
+    from .connection_quality import problems as quality_problems
+    for key, title, detail in await quality_problems(db):
+        out.append(Problem(key, title, detail, "medium"))
     from .hot_standby import problems as standby_problems
     for key, title, detail, severity in await standby_problems(db, now):
         out.append(Problem(key, title, detail, severity))

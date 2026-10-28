@@ -557,8 +557,22 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     // Shops before v28.29.0 have no documents: the section stays empty.
                     docs = try { api.get("/api/public/info-pages?lang=$lang") as JSONArray } catch (_: Exception) { JSONArray() },
                     giveaways = try { (api.get("/api/me/giveaways") as JSONObject).optJSONArray("items") ?: JSONArray() } catch (_: Exception) { JSONArray() },
+                    // v28.37 (customer_insights.py, referral_contests.py): older shops simply show none.
+                    stats = try { api.get("/api/me/stats") as JSONObject } catch (_: Exception) { JSONObject() },
+                    upsell = try { (api.get("/api/me/upsell") as JSONObject).optJSONArray("offers") ?: JSONArray() } catch (_: Exception) { JSONArray() },
+                    contest = try { (api.get("/api/me/referral-contest") as JSONObject).optJSONObject("contest") ?: JSONObject() } catch (_: Exception) { JSONObject() },
                 )
                 activity.runOnUiThread { data = next; ui = ui.copy(offline = false) }
+                // Connection quality: the server checks with the carrier, at most every 6 hours (connection_quality.py).
+                val prefs = context.getSharedPreferences("corgi_quality", android.content.Context.MODE_PRIVATE)
+                val subscriptionUrl = next.subscriptionUrl
+                if (subscriptionUrl.isNotBlank() && System.currentTimeMillis() - prefs.getLong("at", 0) > 6 * 3600_000L) {
+                    prefs.edit().putLong("at", System.currentTimeMillis()).apply()
+                    try {
+                        val report = shop.remnawave.user.support.CorgiDiagnostics.quality(context, base, subscriptionUrl)
+                        if ((report.optJSONArray("results")?.length() ?: 0) > 0) api.post("/api/me/connection-reports", report)
+                    } catch (_: Exception) { /* best effort: older shops answer 404 */ }
+                }
             } catch (exc: Exception) {
                 activity.runOnUiThread { ui = ui.copy(offline = true, notice = exc.message ?: "") }
             }
@@ -638,6 +652,18 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         override fun joinFamily(code: String) = work {
             ShopApi(base, token, lang).post("/api/me/family/join", JSONObject().put("code", code))
             activity.runOnUiThread { notice(t("family_joined")); refresh() }
+        }
+        override fun buyOffer(offer: JSONObject) {
+            val checkout = offer.optJSONObject("checkout")
+            if (checkout != null) { pay(checkout.optInt("plan_id")); return }
+            val quoteBody = offer.optJSONObject("quote") ?: return
+            work {
+                track("upsell_buy")
+                val api = ShopApi(base, token, lang)
+                val quote = api.post("/api/me/subscription/quote", quoteBody) as JSONObject
+                api.post("/api/me/subscription/purchase", JSONObject().put("quote_id", quote.optString("id")), UUID.randomUUID().toString())
+                activity.runOnUiThread { notice(t("upsell_done")); refresh() }
+            }
         }
         override fun enterGiveaway(giveawayId: Int) = work {
             track("giveaway_enter")
@@ -796,6 +822,9 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                 notifications = JSONArray("""[{"id":1,"title":"Подписка продлена","body":"Спасибо! Следующее списание — 28 мая 2027","read":false}]"""),
                 docs = JSONArray("""[{"kind":"faq","title":"Частые вопросы"},{"kind":"rules","title":"Правила"},{"kind":"privacy","title":"Политика конфиденциальности"},{"kind":"offer","title":"Публичная оферта"}]"""),
                 giveaways = JSONArray("""[{"id":7,"title":"Новогоднее колесо","description":"Крутите колесо — до 1000 ₽ на баланс","kind":"wheel","phase":"open","prizes":[{"amount":"100","weight":5},{"amount":"1000","weight":1}],"currency":"RUB","ends_at":"2026-12-31T21:00:00Z","my_entry":null},{"id":6,"title":"Розыгрыш года подписки","description":"Три победителя получат год Премиума","kind":"contest","phase":"ended","prizes":[{"amount":"1499","weight":1}],"currency":"RUB","ends_at":"2026-10-20T21:00:00Z","my_entry":{"outcome":"won","reward_amount":"1499.00"}}]"""),
+                stats = JSONObject("""{"member_since":"2025-11-02T10:00:00","days_with_us":360,"days_paid":395,"traffic_used_gb":84.2,"traffic_lifetime_gb":1210.5,"traffic_limit_gb":100.0,"devices":3,"device_limit":3,"renews_at":"2026-11-12T10:00:00","auto_renew":true,"referral_earned":"450.00","blocked_servers_avoided":7}"""),
+                upsell = JSONArray("""[{"kind":"traffic","title":"+50 ГБ трафика","price":"149.00","reason":"израсходовано 84 % трафика","quote":{"kind":"traffic_addon","package_id":1,"subscription_id":1}}]"""),
+                contest = JSONObject("""{"id":1,"title":"Кто больше пригласит — ноябрь","ends_at":"2026-11-30T21:00:00","metric":"paid","prizes":[{"place":1,"days":90,"amount":"0"}],"top":[{"place":1,"name":"ал•••","score":12},{"place":2,"name":"ма•••","score":9},{"place":3,"name":"Лю•••","score":7}],"me":{"place":3,"score":7}}"""),
             )
             ui = ui.copy(vpn = if (flag(intent(activity), "corgi_vpn_on")) VpnState.ON else VpnState.OFF)
         }

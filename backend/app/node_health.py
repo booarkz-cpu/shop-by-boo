@@ -262,6 +262,11 @@ async def node_monitor_scheduler(session_factory=None):
                 async with (session_factory or SessionLocal)() as db:
                     from .node_autoscale import tick as autoscale_tick
                     await autoscale_tick(db)
+                from .config import settings as cfg
+                if cfg.remnawave_url and cfg.remnawave_token:
+                    async with (session_factory or SessionLocal)() as db:
+                        from .panel_guard import tick as guard_tick
+                        await guard_tick(db, not (await node_snapshot()).get("error"))
         except Exception as exc:  # noqa: BLE001
             logger.warning("Node monitor failed: %s", exc)
         await asyncio.sleep(60)

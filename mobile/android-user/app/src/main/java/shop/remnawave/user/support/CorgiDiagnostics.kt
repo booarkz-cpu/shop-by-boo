@@ -46,6 +46,29 @@ object CorgiDiagnostics {
         if (host.isBlank() || port !in 1..65535) null else host to port
     }.distinct().take(12)
 
+    /** Connection quality (connection_quality.py): only the server checks, with the carrier and the network type. */
+    fun quality(context: android.content.Context, base: String, subscriptionUrl: String): JSONObject {
+        val checks = run(base, subscriptionUrl)
+        val results = JSONArray()
+        for (i in 0 until checks.length()) {
+            val c = checks.optJSONObject(i) ?: continue
+            if (c.optString("name") == "server") results.put(JSONObject().put("server", c.optString("target")).put("ok", c.optBoolean("ok"))
+                .apply { if (c.has("ms")) put("ms", c.optInt("ms")) })
+        }
+        val telephony = context.getSystemService(android.content.Context.TELEPHONY_SERVICE) as? android.telephony.TelephonyManager
+        val connectivity = context.getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+        val caps = connectivity?.getNetworkCapabilities(connectivity.activeNetwork)
+        val network = when {
+            caps == null -> "other"
+            caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+            caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
+            caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET) -> "ethernet"
+            else -> "other"
+        }
+        return JSONObject().put("platform", "android").put("carrier", telephony?.networkOperatorName.orEmpty().take(64))
+            .put("network", network).put("country", telephony?.networkCountryIso.orEmpty().take(2)).put("results", results)
+    }
+
     fun run(base: String, subscriptionUrl: String): JSONArray {
         val checks = JSONArray()
         val origin = CorgiMirrors.resolve(base)

@@ -39,7 +39,7 @@ HETZNER = "https://api.hetzner.cloud/v1"
 REPEAT_RECOMMENDATION = timedelta(hours=6)
 DEFAULT_CONFIG = {
     "enabled": False, "mode": "recommend", "up_at": 150, "down_at": 40, "min_nodes": 1, "max_nodes": 10,
-    "sustain_minutes": 15, "cooldown_minutes": 60,
+    "sustain_minutes": 15, "cooldown_minutes": 60, "cpu_up_at": 0, "cpu_down_at": 0,
     "server_type": "cx22", "location": "hel1", "image": "ubuntu-24.04", "ssh_key": "",
     "node_port": 2222, "country_code": "FI", "config_profile_uuid": "", "inbound_uuids": [], "name_prefix": "auto",
 }
@@ -54,6 +54,8 @@ class ConfigIn(BaseModel):
     max_nodes: int = Field(10, ge=1, le=500)
     sustain_minutes: int = Field(15, ge=1, le=1440)
     cooldown_minutes: int = Field(60, ge=5, le=10080)
+    cpu_up_at: int = Field(0, ge=0, le=100)  # node agents' average CPU, %: 0 → not used
+    cpu_down_at: int = Field(0, ge=0, le=100)
     server_type: str = Field("cx22", max_length=40, pattern=r"^[a-z0-9-]+$")
     location: str = Field("hel1", max_length=40, pattern=r"^[a-z0-9-]+$")
     image: str = Field("ubuntu-24.04", max_length=60, pattern=r"^[a-z0-9.-]+$")
@@ -80,23 +82,46 @@ def provider_ready() -> dict:
     return {"hetzner_token": bool(os.getenv("HETZNER_API_TOKEN")), "node_secret": True}
 
 
-def decide(config: dict, nodes: list[dict], state: dict, now: datetime) -> tuple[dict, dict]:
-    """Pure decision: ({action, reason, load, online}, new state). ``action`` is "up", "down" or None."""
+def parse_cpu(value) -> float | None:
+    try:
+        number = float(str(value).strip().rstrip("%"))
+    except (TypeError, ValueError):
+        return None
+    return number * 100 if number <= 1 else number
+
+
+async def fleet_cpu(db: AsyncSession, now: datetime) -> float | None:
+    """Average CPU of node agents that reported in the last 5 minutes (node_agents.cpu, «23%» or «0.23»)."""
+    from sqlalchemy import select
+
+    from .models import NodeAgent
+    values = [parse_cpu(a.cpu) for a in (await db.execute(select(NodeAgent).where(
+        NodeAgent.enabled.is_(True), NodeAgent.last_seen_at >= now - timedelta(minutes=5)))).scalars()]
+    values = [v for v in values if v is not None]
+    return round(sum(values) / len(values), 1) if values else None
+
+
+def decide(config: dict, nodes: list[dict], state: dict, now: datetime, cpu: float | None = None) -> tuple[dict, dict]:
+    """Pure decision: ({action, reason, load, online, cpu}, new state). ``action`` is "up", "down" or None.
+    Crowded = users per node above ``up_at`` or agents' CPU above ``cpu_up_at``; quiet = both below their lower marks."""
     state = dict(state)
     online = [n for n in nodes if n.get("status") == "online"]
     users = sum(int(n.get("users_online") or 0) for n in online)
     load = round(users / len(online), 1) if online else 0.0
-    info = {"action": None, "reason": "", "load": load, "online": len(online), "users": users}
+    info = {"action": None, "reason": "", "load": load, "online": len(online), "users": users, "cpu": cpu}
+    cpu_up, cpu_down = int(config.get("cpu_up_at") or 0), int(config.get("cpu_down_at") or 0)
+    hot_cpu = bool(cpu_up and cpu is not None and cpu > cpu_up)
+    cool_cpu = not cpu_down or cpu is None or cpu < cpu_down
     last = datetime.fromisoformat(state["last_action_at"]) if state.get("last_action_at") else None
     cooled = not last or now - last >= timedelta(minutes=int(config["cooldown_minutes"]))
     sustain = timedelta(minutes=int(config["sustain_minutes"]))
     mine = {c["node_uuid"] for c in state.get("created", []) if c.get("node_uuid")}
 
-    if load > config["up_at"]:
+    if load > config["up_at"] or hot_cpu:
         state.setdefault("high_since", now.isoformat())
     else:
         state.pop("high_since", None)
-    if load < config["down_at"]:
+    if load < config["down_at"] and cool_cpu and not hot_cpu:
         state.setdefault("low_since", now.isoformat())
     else:
         state.pop("low_since", None)
@@ -107,7 +132,8 @@ def decide(config: dict, nodes: list[dict], state: dict, now: datetime) -> tuple
         if len(online) >= int(config["max_nodes"]):
             info["reason"] = f"нагрузка {load} на ноду, но уже максимум {config['max_nodes']} нод"
         elif cooled:
-            info.update(action="up", reason=f"{load} пользователей на ноду дольше {config['sustain_minutes']} мин (порог {config['up_at']})")
+            why = f"CPU нод {cpu}% (порог {cpu_up}%)" if hot_cpu and load <= config["up_at"] else f"{load} пользователей на ноду (порог {config['up_at']})"
+            info.update(action="up", reason=f"{why} дольше {config['sustain_minutes']} мин")
     elif state.get("low_since") and now - datetime.fromisoformat(state["low_since"]) >= sustain and len(online) > int(config["min_nodes"]):
         candidates = sorted((n for n in online if n.get("uuid") in mine), key=lambda n: int(n.get("users_online") or 0))
         if candidates and cooled:
@@ -187,7 +213,8 @@ async def tick(db: AsyncSession, now: datetime | None = None, *, nodes=None, sen
     if sender is None:
         from .ops_alerts import send as sender
     state = await _load(db, STATE_KEY, {})
-    info, state = decide(config, [n for n in nodes if n.get("status") != "disabled"], state, now)
+    cpu = await fleet_cpu(db, now) if (config.get("cpu_up_at") or config.get("cpu_down_at")) else None
+    info, state = decide(config, [n for n in nodes if n.get("status") != "disabled"], state, now, cpu)
     action = info["action"]
     if action:
         ready = provider_ready()

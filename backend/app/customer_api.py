@@ -120,6 +120,11 @@ async def wallet_topup(payload:dict, request:shop.Request, db:shop.AsyncSession=
 async def wallet_spend(payload:dict, request:shop.Request, db:shop.AsyncSession=shop.Depends(shop.get_db)):
     if await shop.maintenance_enabled(db): raise shop.HTTPException(503,"Service is in maintenance mode")
     user=await shop.user_from_token(request,db)
+    return await spend_from_wallet(db,user,payload,request.headers.get("Idempotency-Key"))
+
+
+async def spend_from_wallet(db:shop.AsyncSession,user:shop.User,payload:dict,idem:str|None):
+    """A purchase paid from the wallet; also used by the smart cart and daily plans (the same checks and ledger)."""
     from .platform_api import reject_restricted
     reject_restricted(user)
     from .app_config import require_consent
@@ -140,7 +145,6 @@ async def wallet_spend(payload:dict, request:shop.Request, db:shop.AsyncSession=
             plan_id=int(payload.get("plan_id"))
         except (TypeError, ValueError):
             raise shop.HTTPException(400,"Invalid plan_id")
-    idem=request.headers.get("Idempotency-Key")
     if not idem or len(idem)>128: raise shop.HTTPException(400,"Idempotency-Key is required")
     existing=(await db.execute(shop.select(shop.Payment).where(shop.Payment.user_id==user.id,shop.Payment.idempotency_key==idem))).scalar_one_or_none()
     if existing:
@@ -362,7 +366,7 @@ async def my_referral(request:shop.Request,db:shop.AsyncSession=shop.Depends(sho
     return {"code":user.referral_code,"referred_count":count,"reward_total":float(direct+extra),"balance":float(user.referral_balance or 0),"reward_percent":float(rates[0]),"level_percentages":rates}
 
 
-__all__ = ['YOOKASSA_METHODS', '_money', 'apply_referral', 'auto_renew_status', 'billing_center', 'connection_info', 'connection_qr', 'my_payments', 'my_referral', 'my_referral_ledger', 'my_subscription', 'purchase_gift', 'redeem_gift', 'remove_auto_renew_method', 'security_center', 'set_auto_renew', 'subscription_file', 'subscription_lifecycle', 'wallet_spend', 'wallet_topup']
+__all__ = ['YOOKASSA_METHODS', 'spend_from_wallet', '_money', 'apply_referral', 'auto_renew_status', 'billing_center', 'connection_info', 'connection_qr', 'my_payments', 'my_referral', 'my_referral_ledger', 'my_subscription', 'purchase_gift', 'redeem_gift', 'remove_auto_renew_method', 'security_center', 'set_auto_renew', 'subscription_file', 'subscription_lifecycle', 'wallet_spend', 'wallet_topup']
 # Imported before main finished (``from app import customer_api`` first)? Then main's star
 # import saw a half-loaded module; hand the names over now that they exist.
 shop.__dict__.update({_n: globals()[_n] for _n in __all__})

@@ -261,6 +261,10 @@ struct ShopData {
     var docs: [[String: Any]] = []
     /// Giveaways and wheel campaigns (GET /api/me/giveaways → items).
     var giveaways: [[String: Any]] = []
+    /// «Моя статистика» (GET /api/me/stats), one-click offers (GET /api/me/upsell), the referral contest (v28.37).
+    var stats: [String: Any] = [:]
+    var upsell: [[String: Any]] = []
+    var contest: [String: Any] = [:]
 
     /// The first giveaway the customer can still join: the home screen promo banner.
     var openGiveaway: [String: Any]? {

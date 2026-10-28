@@ -21,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0080_reconciliation',
         '0079_acquisition',
         '0078_campaign_ab',
         '0077_app_growth',
@@ -47,11 +48,12 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
+    # 0080 (error log, activity, carts, contests, connection reports, cost entries: re-enterable working data) is unguarded.
     # 0079 (acquisition source: marketing attribution), 0078 (scheduled campaigns and A/B recipients: marketing statistics) and 0077 (re-collected app
     # analytics and a campaign send log; it refuses only while tax receipts exist) are intentionally unguarded.
     # 0076 is guarded by Telegram Stars subscriptions, family members and gift commissions. 0075 is guarded by stored offer consents. 0074 (automation executions; downgrade restores suspended lifecycles), 0073 (staging run evidence, re-creatable by a new run), 0072/0071 (30-day counters), 0068 (cache)
     # and 0066 (re-registrable push tokens) are intentionally unguarded.
-    guarded_names = [roundtrip_names[3], roundtrip_names[4], roundtrip_names[9], roundtrip_names[10], roundtrip_names[14], roundtrip_names[15], *roundtrip_names[19:]]
+    guarded_names = [roundtrip_names[4], roundtrip_names[5], roundtrip_names[10], roundtrip_names[11], roundtrip_names[15], roundtrip_names[16], *roundtrip_names[20:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1724**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1754**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -187,6 +187,7 @@
 | [admin/src/promo-audiences.tsx](../admin/src/promo-audiences.tsx) | Админ-панель |
 | [admin/src/push-status.tsx](../admin/src/push-status.tsx) | Админ-панель |
 | [admin/src/pushStyle.tsx](../admin/src/pushStyle.tsx) | Админ-панель |
+| [admin/src/reconciliation.tsx](../admin/src/reconciliation.tsx) | Админ-панель |
 | [admin/src/referral-program.tsx](../admin/src/referral-program.tsx) | Админ-панель |
 | [admin/src/runtime-settings.tsx](../admin/src/runtime-settings.tsx) | Админ-панель |
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
@@ -286,11 +287,14 @@
 | [backend/alembic/versions/0077_app_growth.py](../backend/alembic/versions/0077_app_growth.py) | API, бот и worker |
 | [backend/alembic/versions/0078_campaign_ab.py](../backend/alembic/versions/0078_campaign_ab.py) | API, бот и worker |
 | [backend/alembic/versions/0079_acquisition.py](../backend/alembic/versions/0079_acquisition.py) | API, бот и worker |
+| [backend/alembic/versions/0080_reconciliation.py](../backend/alembic/versions/0080_reconciliation.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
 | [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
 | [backend/app/account_sync.py](../backend/app/account_sync.py) | API, бот и worker |
+| [backend/app/activity_log.py](../backend/app/activity_log.py) | API, бот и worker |
+| [backend/app/ad_postbacks.py](../backend/app/ad_postbacks.py) | API, бот и worker |
 | [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
 | [backend/app/admin_auth_api.py](../backend/app/admin_auth_api.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
@@ -345,6 +349,7 @@
 | [backend/app/auth_api.py](../backend/app/auth_api.py) | API, бот и worker |
 | [backend/app/auto_update_api.py](../backend/app/auto_update_api.py) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
+| [backend/app/avatar.py](../backend/app/avatar.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
 | [backend/app/block_monitor.py](../backend/app/block_monitor.py) | API, бот и worker |
@@ -353,24 +358,34 @@
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
+| [backend/app/channel_gate.py](../backend/app/channel_gate.py) | API, бот и worker |
+| [backend/app/churn.py](../backend/app/churn.py) | API, бот и worker |
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
+| [backend/app/connection_quality.py](../backend/app/connection_quality.py) | API, бот и worker |
 | [backend/app/content_branding_api.py](../backend/app/content_branding_api.py) | API, бот и worker |
 | [backend/app/content_publishing.py](../backend/app/content_publishing.py) | API, бот и worker |
 | [backend/app/customer_api.py](../backend/app/customer_api.py) | API, бот и worker |
+| [backend/app/customer_insights.py](../backend/app/customer_insights.py) | API, бот и worker |
 | [backend/app/customer_ops_api.py](../backend/app/customer_ops_api.py) | API, бот и worker |
 | [backend/app/customer_passkeys.py](../backend/app/customer_passkeys.py) | API, бот и worker |
 | [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
 | [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
+| [backend/app/daily_billing.py](../backend/app/daily_billing.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
 | [backend/app/diagnostics.py](../backend/app/diagnostics.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
 | [backend/app/economics.py](../backend/app/economics.py) | API, бот и worker |
+| [backend/app/email_templates.py](../backend/app/email_templates.py) | API, бот и worker |
 | [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
+| [backend/app/error_log.py](../backend/app/error_log.py) | API, бот и worker |
 | [backend/app/fiscal.py](../backend/app/fiscal.py) | API, бот и worker |
+| [backend/app/gift_batches.py](../backend/app/gift_batches.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
 | [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
 | [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
+| [backend/app/grace_access.py](../backend/app/grace_access.py) | API, бот и worker |
 | [backend/app/growth.py](../backend/app/growth.py) | API, бот и worker |
+| [backend/app/guest_checkout.py](../backend/app/guest_checkout.py) | API, бот и worker |
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
 | [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
@@ -389,6 +404,7 @@
 | [backend/app/mobile_mirrors.py](../backend/app/mobile_mirrors.py) | API, бот и worker |
 | [backend/app/mobile_panels.py](../backend/app/mobile_panels.py) | API, бот и worker |
 | [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
+| [backend/app/moderation.py](../backend/app/moderation.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
 | [backend/app/node_autoscale.py](../backend/app/node_autoscale.py) | API, бот и worker |
 | [backend/app/node_health.py](../backend/app/node_health.py) | API, бот и worker |
@@ -397,6 +413,8 @@
 | [backend/app/observability.py](../backend/app/observability.py) | API, бот и worker |
 | [backend/app/operations_api.py](../backend/app/operations_api.py) | API, бот и worker |
 | [backend/app/ops_alerts.py](../backend/app/ops_alerts.py) | API, бот и worker |
+| [backend/app/panel_admin.py](../backend/app/panel_admin.py) | API, бот и worker |
+| [backend/app/panel_guard.py](../backend/app/panel_guard.py) | API, бот и worker |
 | [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
 | [backend/app/passkeys.py](../backend/app/passkeys.py) | API, бот и worker |
 | [backend/app/payment_methods.py](../backend/app/payment_methods.py) | API, бот и worker |
@@ -406,8 +424,10 @@
 | [backend/app/payments.py](../backend/app/payments.py) | API, бот и worker |
 | [backend/app/payments_api.py](../backend/app/payments_api.py) | API, бот и worker |
 | [backend/app/personal_offers.py](../backend/app/personal_offers.py) | API, бот и worker |
+| [backend/app/pinned_message.py](../backend/app/pinned_message.py) | API, бот и worker |
 | [backend/app/platform_api.py](../backend/app/platform_api.py) | API, бот и worker |
 | [backend/app/plugins.py](../backend/app/plugins.py) | API, бот и worker |
+| [backend/app/pnl.py](../backend/app/pnl.py) | API, бот и worker |
 | [backend/app/production_api.py](../backend/app/production_api.py) | API, бот и worker |
 | [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
 | [backend/app/promo_generator.py](../backend/app/promo_generator.py) | API, бот и worker |
@@ -417,6 +437,7 @@
 | [backend/app/push_campaigns.py](../backend/app/push_campaigns.py) | API, бот и worker |
 | [backend/app/push_style.py](../backend/app/push_style.py) | API, бот и worker |
 | [backend/app/recovery_api.py](../backend/app/recovery_api.py) | API, бот и worker |
+| [backend/app/referral_contests.py](../backend/app/referral_contests.py) | API, бот и worker |
 | [backend/app/referral_program.py](../backend/app/referral_program.py) | API, бот и worker |
 | [backend/app/referrals.py](../backend/app/referrals.py) | API, бот и worker |
 | [backend/app/refund_accounting.py](../backend/app/refund_accounting.py) | API, бот и worker |
@@ -424,12 +445,15 @@
 | [backend/app/remnawave.py](../backend/app/remnawave.py) | API, бот и worker |
 | [backend/app/remnawave_events.py](../backend/app/remnawave_events.py) | API, бот и worker |
 | [backend/app/remnawave_shop_api.py](../backend/app/remnawave_shop_api.py) | API, бот и worker |
+| [backend/app/reseller_orders.py](../backend/app/reseller_orders.py) | API, бот и worker |
 | [backend/app/restore_approval.py](../backend/app/restore_approval.py) | API, бот и worker |
+| [backend/app/routers.py](../backend/app/routers.py) | API, бот и worker |
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
 | [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
 | [backend/app/security.py](../backend/app/security.py) | API, бот и worker |
+| [backend/app/smart_cart.py](../backend/app/smart_cart.py) | API, бот и worker |
 | [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
 | [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
@@ -437,6 +461,7 @@
 | [backend/app/subscriptions.py](../backend/app/subscriptions.py) | API, бот и worker |
 | [backend/app/support_ai.py](../backend/app/support_ai.py) | API, бот и worker |
 | [backend/app/support_attachments.py](../backend/app/support_attachments.py) | API, бот и worker |
+| [backend/app/support_autoreply.py](../backend/app/support_autoreply.py) | API, бот и worker |
 | [backend/app/support_bridge.py](../backend/app/support_bridge.py) | API, бот и worker |
 | [backend/app/support_threads.py](../backend/app/support_threads.py) | API, бот и worker |
 | [backend/app/support_topology.py](../backend/app/support_topology.py) | API, бот и worker |
@@ -444,8 +469,11 @@
 | [backend/app/tariff_api.py](../backend/app/tariff_api.py) | API, бот и worker |
 | [backend/app/telegram_backup.py](../backend/app/telegram_backup.py) | API, бот и worker |
 | [backend/app/telegram_stars.py](../backend/app/telegram_stars.py) | API, бот и worker |
+| [backend/app/tg.py](../backend/app/tg.py) | API, бот и worker |
+| [backend/app/themes.py](../backend/app/themes.py) | API, бот и worker |
 | [backend/app/torrent_detection.py](../backend/app/torrent_detection.py) | API, бот и worker |
 | [backend/app/totp.py](../backend/app/totp.py) | API, бот и worker |
+| [backend/app/traffic_report.py](../backend/app/traffic_report.py) | API, бот и worker |
 | [backend/app/v3_api.py](../backend/app/v3_api.py) | API, бот и worker |
 | [backend/app/v6_api.py](../backend/app/v6_api.py) | API, бот и worker |
 | [backend/app/widget.py](../backend/app/widget.py) | API, бот и worker |
@@ -522,6 +550,7 @@
 | [cabinet/src/growth.test.tsx](../cabinet/src/growth.test.tsx) | Кабинет |
 | [cabinet/src/growth.tsx](../cabinet/src/growth.tsx) | Кабинет |
 | [cabinet/src/i18n.tsx](../cabinet/src/i18n.tsx) | Кабинет |
+| [cabinet/src/insights.tsx](../cabinet/src/insights.tsx) | Кабинет |
 | [cabinet/src/main.tsx](../cabinet/src/main.tsx) | Кабинет |
 | [cabinet/src/miniapp-sections.tsx](../cabinet/src/miniapp-sections.tsx) | Кабинет |
 | [cabinet/src/mock-config.json](../cabinet/src/mock-config.json) | Кабинет |
@@ -1630,6 +1659,7 @@
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_push_campaigns.py](../tests/test_push_campaigns.py) | Проверки |
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |
+| [tests/test_reconciliation.py](../tests/test_reconciliation.py) | Проверки |
 | [tests/test_referral_bonus_days.py](../tests/test_referral_bonus_days.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |

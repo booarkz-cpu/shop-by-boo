@@ -26,6 +26,7 @@ class EmailAuthIn(BaseModel):
     email: str = Field(min_length=5, max_length=320)
     password: str = Field(min_length=8, max_length=128)
     username: str | None = Field(default=None, max_length=255)
+    invite: str | None = Field(default=None, max_length=40)  # invite-only registration (moderation.py)
 
 
 class CabinetMenuIn(BaseModel):
@@ -66,6 +67,8 @@ async def auth_register(payload: EmailAuthIn, request: Request, response: Respon
     from .account_merge import email_registered
     if await email_registered(db, email):
         raise HTTPException(409, "Email already registered")
+    from .moderation import registration_check
+    await registration_check(db, email=email, invite=getattr(payload, "invite", None))
     user = User(
         email=email,
         email_password_hash=hash_password(payload.password),
@@ -160,6 +163,8 @@ async def vk_callback(code: str, state: str, request: Request, db: AsyncSession 
             # preserve an attacker's password and sessions on the victim's VK account.
             raise HTTPException(409, "Email already registered; automatic account linking is disabled")
     if not user:
+        from .moderation import registration_check
+        await registration_check(db, email=email)
         user = User(vk_id=vk_user_id, email=email, username=f"vk_{vk_user_id}", referral_code=secrets.token_urlsafe(8).upper())
         db.add(user)
         await db.flush()

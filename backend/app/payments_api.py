@@ -105,24 +105,10 @@ async def release_promo_reservation(db:shop.AsyncSession, reservation_id:int):
     return True
 
 
-async def ensure_required_channel(user:shop.User):
-    channel=(shop.settings.required_telegram_channel or "").strip()
-    if not channel:
-        return
-    if not user.telegram_id or not shop.settings.bot_token:
-        raise shop.HTTPException(403,"Подпишитесь на обязательный канал")
-    try:
-        async with shop._pinned_public_http_client(10) as client:
-            response=await client.get(
-                f"https://api.telegram.org/bot{shop.settings.bot_token}/getChatMember",
-                params={"chat_id":channel,"user_id":user.telegram_id},
-            )
-        data=response.json()
-    except Exception as exc:
-        raise shop.HTTPException(503,"Не удалось проверить подписку на канал") from exc
-    status=((data.get("result") or {}).get("status") if isinstance(data,dict) and data.get("ok") else None)
-    if status not in {"member","administrator","creator"}:
-        raise shop.HTTPException(403,"Подпишитесь на обязательный канал")
+async def ensure_required_channel(user:shop.User, scope:str="buy"):
+    """Required channels of the scope (channel_gate.py: several channels, «везде / пробный / покупки»)."""
+    from .channel_gate import ensure
+    await ensure(user, scope)
 
 @shop.app.post("/api/payments/create")
 async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSession=shop.Depends(shop.get_db)):
@@ -549,6 +535,11 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
             payment.fulfillment_status="completed"; payment.fulfillment_terminal=True; payment.fulfillment_attempts=(payment.fulfillment_attempts or 0)+1
             await shop.audit(db,"wallet.topup",f"user:{user.id}",str(payment.id),{"amount":str(amount)}); await db.commit()
             await shop.notify_user_telegram(user.telegram_id, f"Баланс пополнен на {amount} {payment.currency}. Wallet topped up by {amount} {payment.currency}.")
+            # The smart cart (smart_cart.py) buys what did not fit the wallet before, once this lock is released.
+            from .models import ShopCart
+            if await db.get(ShopCart, user.id):
+                from .smart_cart import after_topup
+                shop._track_task(after_topup(user.id))
             return
         from .subscriptions import pending_absolute_write
         target=await shop.payment_target(db,payment,lock=True)
@@ -629,6 +620,10 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
                 # otherwise a plan upgrade can pay for more traffic while the old remote
                 # quota remains in force (or a downgrade can leave excess quota active).
                 await rw.update_entitlements(sub.remnawave_uuid,traffic_limit_gb,profile_id,device_limit=payment.device_limit_snapshot)
+                from .grace_access import reset_traffic_on_payment
+                if await reset_traffic_on_payment(db):
+                    # «Сбрасывать трафик при оплате»: a renewal starts the traffic limit from zero (a retry resets again, harmless).
+                    await rw.reset_traffic(sub.remnawave_uuid)
                 extension=await rw.extend_idempotent(sub.remnawave_uuid,duration_days,before_local,expected_after)
                 rw_sub=await rw.get_subscription(sub.remnawave_uuid)
                 verified_expiry=extension.get("expires_at") if isinstance(extension,dict) else None
@@ -716,7 +711,11 @@ async def fulfill(payment_id:int, db:shop.AsyncSession, existing_user_lock_token
         await shop.audit(db,"payment.fulfilled","system",str(payment.id),{"provider":payment.provider,"attempt":payment.fulfillment_attempts})
         await shop.enqueue_notification(db,user_id=user.id,channel="in_app",kind="payment_success",title="Оплата подтверждена",body=f"Заказ {payment.order_id} оплачен. Подписка готовится или уже активирована.",dedupe_key=f"payment:{payment.id}:success")
         await shop.enqueue_notification(db,user_id=user.id,channel="in_app",kind="subscription_ready",title="Подписка активирована",body="Ваша VPN-подписка активирована. Откройте раздел подключения, чтобы получить ссылку.",dedupe_key=f"payment:{payment.id}:ready")
+        from .activity_log import record as record_activity
+        record_activity(db, user.id, "system", "payment.fulfilled", {"id": payment.id, "amount": payment.amount})
         await db.commit()
+        from .ad_postbacks import fire as fire_conversion
+        fire_conversion(user.id, "purchase", amount=str(payment.amount), currency=payment.currency, order_id=payment.order_id)
         await shop.notify_user_telegram(user.telegram_id, "Оплата подтверждена. Подписка активирована. Откройте раздел «Подключение».\nPayment confirmed. The subscription is active. Open Connection.")
     except Exception as exc:
         try:
