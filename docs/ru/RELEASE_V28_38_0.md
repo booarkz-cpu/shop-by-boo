@@ -51,4 +51,6 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.38.0 bash /opt/vpn-shop/scripts/u
 
 Миграция `0081_subscription_proxy` только создаёт новые таблицы — обновление без простоя работает. Новые необязательные ключи `.env`: `SUB_PROXY_DOMAINS` (домены зеркала подписки для Caddy), `CLOUDPAYMENTS_PUBLIC_ID`, `CLOUDPAYMENTS_API_SECRET`, `LAVA_SHOP_ID`, `LAVA_SECRET_KEY`, `LAVA_WEBHOOK_SECRET`. Остальное включается в админке и выключено по умолчанию. Для сессий, срока с первого подключения и журнала изменений нужен вебхук панели и токен API с доступом к `connections` и `bandwidth-stats`.
 
+Что можете сделать только вы (подпись приложений, Hetzner, переключение, кассы, домен зеркала) — [OWNER_ACTIONS.md](OWNER_ACTIONS.md).
+
 Документация на английском и украинском: [docs/en/NEW_IN_V28_38.md](../en/NEW_IN_V28_38.md), [docs/uk/NEW_IN_V28_38.md](../uk/NEW_IN_V28_38.md).
