@@ -106,6 +106,24 @@ sequenceDiagram
 
 Тесты на моках с настоящими RSA-подписями: `tests/test_payments_wata_antilopay.py`.
 
+## AuraPay и Anore (v28.41)
+
+Ещё две кассы для карт и СБП в `payments_extra.py`, правила те же:
+- касса встаёт в очередь касс и в выбор способа оплаты, как только заданы её ключи;
+- автоплатежей и возвратов через API нет;
+- подписка выдаётся только после повторной проверки платежа в API кассы.
+
+| Касса | Ключи | Адрес уведомлений | Как магазин проверяет оплату |
+| --- | --- | --- | --- |
+| AuraPay | `AURAPAY_SHOP_ID`, `AURAPAY_API_KEY`, `AURAPAY_SECRET_KEY` (секретный ключ №2) | `https://<API_DOMAIN>/api/webhooks/aurapay` — передаётся в каждом счёте | `X-SIGNATURE`: HMAC-SHA256 hex значений по алфавиту ключей (null — пустая строка). Затем `POST /invoice/status` по заказу: статус PAID, тот же заказ и сумма |
+| Anore | `ANORE_API_KEY`, `ANORE_SECRET_KEY`, `ANORE_SHOP_ID` (для ключа аккаунта `an_…`) | `https://<API_DOMAIN>/api/webhooks/anore` — передаётся в каждом платеже | `Anore-Signature`: HMAC-SHA256 hex тела; `Anore-Event` совпадает с полем `event`. Затем `GET /payments/{id}`: статус paid, тот же заказ, валюта, `amount` и `rubAmount` |
+
+Страница оплаты:
+- AuraPay — `POST https://app.aurapay.tech/invoice/create` с заголовками `X-ApiKey` и `X-ShopId`. Ссылка — `payment_data.url`. Для СБП и карты передаётся `service`.
+- Anore — `POST https://api.anore.cc/v1/payments` с Bearer-ключом. Тело подписано в `Anore-Signature`. Для СБП и карты передаётся `methods`. Ссылка принимается только по HTTPS и только для того же заказа.
+
+Тесты на моках: `tests/test_payments_aurapay_anore.py`.
+
 ## Возврат денег, которые почти пришли
 
 * **Брошенная оплата** и **неудачное автопродление** — события движка автоматизации `payment.abandoned` и

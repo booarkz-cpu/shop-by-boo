@@ -1,4 +1,4 @@
-"""More payment gateways: CloudPayments and Lava (v28.38), Pal24 and Mulen Pay (v28.39), WATA and Antilopay (v28.40).
+"""More payment gateways: CloudPayments and Lava (v28.38), Pal24 and Mulen Pay (v28.39), WATA and Antilopay (v28.40), AuraPay and Anore (v28.41).
 
 Both follow the shop's rule for reserve gateways: a notification is trusted only when its signature is right **and**
 the gateway's own API, asked again, says the order is paid with the same amount and currency — only then is the
@@ -36,6 +36,15 @@ of the raw body; the public key comes from ``GET /public-key`` (cached for an ho
 (``X-Apay-Sign``, SHA-256, with ``X-Apay-Secret-Id``); ``POST /payment/create`` gives the payment page. The callback
 (``/api/webhooks/antilopay``) is signed in ``X-Apay-Callback`` with Antilopay's RSA key (the public key from the
 project settings); the payment is re-read with ``POST /payment/check``.
+
+**AuraPay** (cards, SBP; app.aurapay.tech): ``POST /invoice/create`` with ``X-ApiKey`` and ``X-ShopId`` gives the
+payment page. The notification (``/api/webhooks/aurapay``, JSON) is signed in ``X-SIGNATURE`` — HMAC-SHA256 hex with
+secret key #2 of all values in alphabetical order of the keys (null as an empty string); the invoice is re-read with
+``POST /invoice/status``. The answer is ``{"status": true}``.
+
+**Anore** (cards, SBP; api.anore.cc v1): ``POST /payments`` with ``Authorization: Bearer`` and the body signed in
+``Anore-Signature`` (HMAC-SHA256 hex with the secret key). The notification (``/api/webhooks/anore``) is signed the same
+way, with ``Anore-Event`` equal to the body's ``event``; the payment is re-read with ``GET /payments/{id}``.
 """
 from __future__ import annotations
 
@@ -44,6 +53,7 @@ import hashlib
 import hmac
 import json
 import logging
+import re
 import time
 from decimal import Decimal
 from typing import Any, Dict
@@ -490,6 +500,146 @@ class AntilopayProvider(BasePaymentProvider):
             raise SignatureVerificationError("Invalid Antilopay body") from exc
 
 
+class AuraPayProvider(BasePaymentProvider):
+    API_URL = "https://app.aurapay.tech"
+    METHODS = {"sbp": "sbp", "card": "card"}
+
+    @staticmethod
+    def configured() -> bool:
+        return bool(settings.aurapay_api_key and settings.aurapay_shop_id and settings.aurapay_secret_key)
+
+    @staticmethod
+    def signature(data: dict) -> str:
+        joined = "".join("" if data[k] is None else str(data[k]) for k in sorted(data))
+        return hmac.new(settings.aurapay_secret_key.encode(), joined.encode(), hashlib.sha256).hexdigest()
+
+    async def _post(self, path: str, body: dict) -> dict:
+        headers = {"X-ApiKey": settings.aurapay_api_key, "X-ShopId": settings.aurapay_shop_id, "Accept": "application/json"}
+        async with _public_client(20) as client:
+            r = await client.post(self.API_URL + path, json=body, headers=headers)
+        r.raise_for_status()
+        return r.json()
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        if not order_id or not self.configured():
+            raise PaymentError("AuraPay is not configured")
+        body = {"amount": float(_money(amount)), "order_id": order_id, "comment": description[:200] or "Подписка"}
+        if self.METHODS.get(str(metadata.get("method") or "")):
+            body["service"] = self.METHODS[str(metadata["method"])]
+        if metadata.get("return_url"):
+            body["success_url"] = body["fail_url"] = metadata["return_url"]
+        if settings.webhook_base_url:
+            body["callback_url"] = f"{settings.webhook_base_url.rstrip('/')}/api/webhooks/aurapay"
+        out = await self._post("/invoice/create", body)
+        page = out.get("payment_data") if isinstance(out.get("payment_data"), dict) else {}
+        url = page.get("url") or out.get("url")
+        if not out.get("id") or not url:
+            raise PaymentError(f"AuraPay: {str(out.get('message') or out.get('error') or 'no payment page')[:200]}")
+        return {"id": str(out["id"]), "url": url, "status": "pending"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url, "method": method})
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        return await self._post("/invoice/status", {"id": str(payment_id)})
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        data = await (self._post("/invoice/status", {"order_id": expected_order_id}) if expected_order_id else self.get_payment_status(payment_id))
+        if str(data.get("status") or "").upper() != "PAID":
+            return False
+        if expected_order_id and data.get("order_id") not in (None, "", expected_order_id):
+            return False
+        return Decimal(str(data.get("amount") or "0")).quantize(Decimal("0.01")) == Decimal(str(expected_amount)).quantize(Decimal("0.01"))
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: str | None = None) -> Dict[str, Any]:
+        got = {k.lower(): v for k, v in dict(headers).items()}.get("x-signature", "").strip().lower()
+        try:
+            data = json.loads(body)
+        except ValueError as exc:
+            raise SignatureVerificationError("Invalid AuraPay body") from exc
+        if not isinstance(data, dict) or not self.configured() or not got or not hmac.compare_digest(self.signature(data), got):
+            raise SignatureVerificationError("Invalid AuraPay signature")
+        return data
+
+
+class AnoreProvider(BasePaymentProvider):
+    API_URL = "https://api.anore.cc/v1"
+    METHODS = {"sbp": ["sbp"], "card": ["card"]}
+
+    @staticmethod
+    def configured() -> bool:
+        return bool(settings.anore_api_key and settings.anore_secret_key)
+
+    @staticmethod
+    def signature(body: bytes) -> str:
+        return hmac.new(settings.anore_secret_key.encode(), body, hashlib.sha256).hexdigest()
+
+    async def _call(self, method: str, path: str, payload: dict | None = None) -> dict:
+        body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode() if payload is not None else None
+        headers = {"Authorization": f"Bearer {settings.anore_api_key}", "Content-Type": "application/json", "Accept": "application/json"}
+        if body is not None:
+            headers["Anore-Signature"] = self.signature(body)
+        async with _public_client(20) as client:
+            r = await client.request(method, self.API_URL + path, content=body, headers=headers)
+        r.raise_for_status()
+        out = r.json()
+        return out.get("data") if isinstance(out.get("data"), dict) else out
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        if not order_id or not self.configured():
+            raise PaymentError("Anore is not configured")
+        payload: Dict[str, Any] = {"amount": float(_money(amount)), "currency": (currency or "RUB").upper(), "description": description[:200] or "Подписка", "orderId": order_id}
+        if str(settings.anore_shop_id).isdigit():
+            payload["shopId"] = int(settings.anore_shop_id)
+        if self.METHODS.get(str(metadata.get("method") or "")):
+            payload["methods"] = self.METHODS[str(metadata["method"])]
+        if metadata.get("return_url"):
+            payload["successurl"] = payload["failurl"] = metadata["return_url"]
+        if settings.webhook_base_url:
+            payload["callbackUrl"] = f"{settings.webhook_base_url.rstrip('/')}/api/webhooks/anore"
+        out = await self._call("POST", "/payments", payload)
+        url = str(out.get("paymentUrl") or "")
+        if not out.get("id") or not url.startswith("https://") or (out.get("orderId") not in (None, order_id)):
+            raise PaymentError(f"Anore: {str(out.get('message') or out.get('error') or 'no payment page')[:200]}")
+        return {"id": str(out["id"]), "url": url, "status": "pending"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url, "method": method})
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", str(payment_id)):
+            return {}
+        return await self._call("GET", f"/payments/{payment_id}")
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        data = await self.get_payment_status(payment_id)
+        if data.get("status") != "paid" or data.get("paid") is False:
+            return False
+        if expected_order_id and data.get("orderId") not in (None, "", expected_order_id):
+            return False
+        if str(data.get("currency") or currency).upper() != str(currency).upper():
+            return False
+        want = Decimal(str(expected_amount)).quantize(Decimal("0.01"))
+        if "rubAmount" in data and Decimal(str(data["rubAmount"])).quantize(Decimal("0.01")) != want:
+            return False
+        return Decimal(str(data.get("amount") or "0")).quantize(Decimal("0.01")) == want
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: str | None = None) -> Dict[str, Any]:
+        got = {k.lower(): v for k, v in dict(headers).items()}
+        sig = str(got.get("anore-signature", "")).strip().lower()
+        if not self.configured() or not re.fullmatch(r"[0-9a-f]{64}", sig) or not hmac.compare_digest(self.signature(body), sig):
+            raise SignatureVerificationError("Invalid Anore signature")
+        try:
+            data = json.loads(body)
+        except ValueError as exc:
+            raise SignatureVerificationError("Invalid Anore body") from exc
+        if not isinstance(data, dict) or str(got.get("anore-event", "")) != str(data.get("event") or ""):
+            raise SignatureVerificationError("Anore event mismatch")
+        return data
+
+
 async def _settle(db: AsyncSession, provider_name: str, provider, order_id: str, event_id: str, amount: str | None) -> str:
     """The common tail of a verified notification: find the order, check the amount, re-read the gateway, fulfil once."""
     from . import main as shop
@@ -621,3 +771,37 @@ async def antilopay_webhook(request: Request, db: AsyncSession = Depends(get_db)
         return {"ok": True}
     await _settle(db, "antilopay", provider, order_id, f"paid:{data.get('payment_id') or order_id}", data.get("original_amount"))
     return {"ok": True}
+
+
+@router.post("/api/webhooks/aurapay")
+async def aurapay_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    raw = await request.body()
+    if len(raw) > 64 * 1024:
+        raise HTTPException(413, "Payload too large")
+    provider = AuraPayProvider()
+    try:
+        data = provider.verify_webhook(request.headers, raw)
+    except SignatureVerificationError:
+        raise HTTPException(403, "Invalid signature")
+    order_id = str(data.get("order_id") or "")
+    if str(data.get("status") or "").upper() != "PAID" or not order_id:
+        return {"status": True}
+    await _settle(db, "aurapay", provider, order_id, f"paid:{data.get('id') or order_id}", data.get("amount"))
+    return {"status": True}
+
+
+@router.post("/api/webhooks/anore")
+async def anore_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    raw = await request.body()
+    if len(raw) > 64 * 1024:
+        raise HTTPException(413, "Payload too large")
+    provider = AnoreProvider()
+    try:
+        data = provider.verify_webhook(request.headers, raw)
+    except SignatureVerificationError:
+        raise HTTPException(403, "Invalid signature")
+    order_id = str(data.get("orderId") or "")
+    if data.get("event") != "payment.succeeded" or data.get("status") != "paid" or not order_id:
+        return {"success": True}
+    await _settle(db, "anore", provider, order_id, f"paid:{str(data.get('id') or order_id)[:120]}", data.get("amount"))
+    return {"success": True}

@@ -2,7 +2,7 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
-from .payments_extra import AntilopayProvider, CloudPaymentsProvider, LavaProvider, MulenPayProvider, Pal24Provider, WataProvider
+from .payments_extra import AnoreProvider, AntilopayProvider, AuraPayProvider, CloudPaymentsProvider, LavaProvider, MulenPayProvider, Pal24Provider, WataProvider
 from . import main as shop
 
 # ---------- Admin Recovery / Reconciliation ----------
@@ -420,7 +420,7 @@ async def revoke_admin_session(session_id:int,db:shop.AsyncSession=shop.Depends(
 async def reconcile_payments(db:shop.AsyncSession=shop.Depends(shop.get_db),admin=shop.Depends(shop.require_permission("payments.reconcile"))):
     cutoff=shop.datetime.utcnow()-shop.timedelta(hours=72)
     rows=(await db.execute(shop.select(shop.Payment).where(shop.Payment.created_at>=cutoff,((shop.Payment.status=="pending") | (shop.Payment.status=="creation_unknown") | ((shop.Payment.status=="paid") & (shop.Payment.fulfillment_status!="completed")))).order_by(shop.Payment.id).limit(500))).scalars().all()
-    providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),"cloudpayments":CloudPaymentsProvider(),"lava":LavaProvider(),"pal24":Pal24Provider(),"mulenpay":MulenPayProvider(),"wata":WataProvider(),"antilopay":AntilopayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}; changed=0; retried=0; recovered=0
+    providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),"cloudpayments":CloudPaymentsProvider(),"lava":LavaProvider(),"pal24":Pal24Provider(),"mulenpay":MulenPayProvider(),"wata":WataProvider(),"antilopay":AntilopayProvider(),"aurapay":AuraPayProvider(),"anore":AnoreProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}; changed=0; retried=0; recovered=0
     for p in rows:
         provider=providers.get(p.provider)
         if not provider or not hasattr(provider,"verify_succeeded"): continue
