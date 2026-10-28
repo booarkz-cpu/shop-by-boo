@@ -10,10 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: |
+          trap 'echo "::error title=fail::line $LINENO: $BASH_COMMAND"' ERR
+          set -eE
           curl -fsSL -o /tmp/ne.geojson https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson
           sha256sum /tmp/ne.geojson
           python3 .geo/convert.py /tmp/ne.geojson /tmp/worldMap.json
-          ls -la /tmp/worldMap.json
+          echo "::notice title=size::$(stat -c %s /tmp/worldMap.json) $(python3 -c 'import json;print(len(json.load(open("/tmp/worldMap.json"))["countries"]))')"
           git config user.name geo; git config user.email geo@example.test
           git checkout --orphan scratch/geo-out
           git rm -rfq . ; cp /tmp/worldMap.json worldMap.json
