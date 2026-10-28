@@ -46,9 +46,9 @@ sudo bash /opt/vpn-shop/scripts/hot-standby.sh demote
 
 Перед `promote` прочитайте [hot_standby.md](../modules/hot_standby.md): два основных сервера одновременно теряют данные.
 
-## 4. Новые кассы (CloudPayments, Lava, Pal24, Mulen Pay, WATA, Antilopay, AuraPay, Anore и следующие)
+## 4. Новые кассы (CloudPayments, Lava, Pal24, Mulen Pay, WATA, Antilopay, AuraPay, Anore, Cashera, ParityPay и следующие)
 
-Заключите договор, получите ключи и впишите их в «Настройки → Платёжные агенты» или в `.env`. Адреса уведомлений — в [billing_and_taxes.md](../modules/billing_and_taxes.md#cloudpayments-и-lava-v2838) [Pal24 и Mulen Pay](../modules/billing_and_taxes.md#pal24-и-mulen-pay-v2839), [WATA и Antilopay](../modules/billing_and_taxes.md#wata-и-antilopay-v2840) и [AuraPay и Anore](../modules/billing_and_taxes.md#aurapay-и-anore-v2841). Для Antilopay сгенерируйте пару RSA-ключей в кабинете: закрытый ключ магазина — в `ANTILOPAY_PRIVATE_KEY`, открытый ключ Antilopay — в `ANTILOPAY_PUBLIC_KEY`.
+Заключите договор, получите ключи и впишите их в «Настройки → Платёжные агенты» или в `.env`. Адреса уведомлений — в [billing_and_taxes.md](../modules/billing_and_taxes.md#cloudpayments-и-lava-v2838) [Pal24 и Mulen Pay](../modules/billing_and_taxes.md#pal24-и-mulen-pay-v2839), [WATA и Antilopay](../modules/billing_and_taxes.md#wata-и-antilopay-v2840), [AuraPay и Anore](../modules/billing_and_taxes.md#aurapay-и-anore-v2841) и [Cashera и ParityPay](../modules/billing_and_taxes.md#cashera-и-paritypay-v2843). Для Antilopay сгенерируйте пару RSA-ключей в кабинете: закрытый ключ магазина — в `ANTILOPAY_PRIVATE_KEY`, открытый ключ Antilopay — в `ANTILOPAY_PUBLIC_KEY`.
 
 **Проверка:** «Платёжные агенты → Очередь касс» показывает кассу как «принимает». Затем пробная оплата на минимальную сумму и возврат в кабинете кассы.
 

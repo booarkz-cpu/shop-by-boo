@@ -28,7 +28,7 @@ type Props = {
   offers: React.ReactNode;
 };
 
-const AGENTS: Record<string, string> = {yookassa: "YooKassa", rollypay: "RollyPay", platega: "Platega", cryptobot: "Криптовалюта (CryptoBot)",freekassa:"Карта или СБП (Freekassa)",cloudpayments:"Карта или СБП (CloudPayments)",lava:"Карта или СБП (Lava)",pal24:"Карта или СБП (Pal24)",mulenpay:"Карта или СБП (Mulen Pay)",wata:"Карта или СБП (WATA)",antilopay:"Карта или СБП (Antilopay)",aurapay:"Карта или СБП (AuraPay)",anore:"Карта или СБП (Anore)", sandbox: "Тестовый платёж"};
+const AGENTS: Record<string, string> = {yookassa: "YooKassa", rollypay: "RollyPay", platega: "Platega", cryptobot: "Криптовалюта (CryptoBot)",freekassa:"Карта или СБП (Freekassa)",cloudpayments:"Карта или СБП (CloudPayments)",lava:"Карта или СБП (Lava)",pal24:"Карта или СБП (Pal24)",mulenpay:"Карта или СБП (Mulen Pay)",wata:"Карта или СБП (WATA)",antilopay:"Карта или СБП (Antilopay)",aurapay:"Карта или СБП (AuraPay)",anore:"Карта или СБП (Anore)",cashera:"Карта или СБП (Cashera)",paritypay:"Карта или СБП (ParityPay)", sandbox: "Тестовый платёж"};
 
 function features(plan: any): string[] {
   const out: string[] = [];

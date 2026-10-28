@@ -1,4 +1,4 @@
-"""More payment gateways: CloudPayments and Lava (v28.38), Pal24 and Mulen Pay (v28.39), WATA and Antilopay (v28.40), AuraPay and Anore (v28.41).
+"""More payment gateways: CloudPayments and Lava (v28.38), Pal24 and Mulen Pay (v28.39), WATA and Antilopay (v28.40), AuraPay and Anore (v28.41), Cashera and ParityPay (v28.43).
 
 Both follow the shop's rule for reserve gateways: a notification is trusted only when its signature is right **and**
 the gateway's own API, asked again, says the order is paid with the same amount and currency — only then is the
@@ -45,6 +45,18 @@ secret key #2 of all values in alphabetical order of the keys (null as an empty 
 **Anore** (cards, SBP; api.anore.cc v1): ``POST /payments`` with ``Authorization: Bearer`` and the body signed in
 ``Anore-Signature`` (HMAC-SHA256 hex with the secret key). The notification (``/api/webhooks/anore``) is signed the same
 way, with ``Anore-Event`` equal to the body's ``event``; the payment is re-read with ``GET /payments/{id}``.
+
+**Cashera** (cards, SBP; api.cashera.cash v1): ``POST /integration/transactions`` with ``X-Api-Key`` (amounts in kopecks)
+gives the payment page. The notification (``/api/webhooks/cashera``) carries the static ``X-Api-Key`` and ``X-Secret``,
+compared in constant time; the transaction is re-read with ``GET /integration/transactions/{uuid}``. One-time payments
+only: Cashera subscriptions are not used.
+
+**ParityPay** (cards, SBP; api.paritypay.net v2): ``POST /v2/invoice/create`` with ``X-ShopId`` and ``X-SecretKey``
+(key #1) gives the payment link. The notification (``/api/webhooks/paritypay``) is signed in ``X-SIGNATURE`` like
+AuraPay's (key #2); the invoice is re-read with ``GET /v2/invoice/status?order_id=``.
+
+AuraPay and ParityPay sign the values as the sender wrote them, so the body is parsed with numbers kept as text and
+booleans written as ``true``/``false`` (``199`` must not become ``199.0``).
 """
 from __future__ import annotations
 
@@ -500,6 +512,22 @@ class AntilopayProvider(BasePaymentProvider):
             raise SignatureVerificationError("Invalid Antilopay body") from exc
 
 
+def _text_value(value) -> str:
+    """A body value as the sender wrote it, for value-concatenation signatures (AuraPay, ParityPay)."""
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, separators=(",", ":"), ensure_ascii=False)
+    return str(value)
+
+
+def _sorted_values_hmac(data: dict, key: str) -> str:
+    joined = "".join(_text_value(data[k]) for k in sorted(data))
+    return hmac.new(key.encode(), joined.encode(), hashlib.sha256).hexdigest()
+
+
 class AuraPayProvider(BasePaymentProvider):
     API_URL = "https://app.aurapay.tech"
     METHODS = {"sbp": "sbp", "card": "card"}
@@ -510,8 +538,7 @@ class AuraPayProvider(BasePaymentProvider):
 
     @staticmethod
     def signature(data: dict) -> str:
-        joined = "".join("" if data[k] is None else str(data[k]) for k in sorted(data))
-        return hmac.new(settings.aurapay_secret_key.encode(), joined.encode(), hashlib.sha256).hexdigest()
+        return _sorted_values_hmac(data, settings.aurapay_secret_key)
 
     async def _post(self, path: str, body: dict) -> dict:
         headers = {"X-ApiKey": settings.aurapay_api_key, "X-ShopId": settings.aurapay_shop_id, "Accept": "application/json"}
@@ -555,7 +582,7 @@ class AuraPayProvider(BasePaymentProvider):
     def verify_webhook(self, headers, body: bytes, remote_addr: str | None = None) -> Dict[str, Any]:
         got = {k.lower(): v for k, v in dict(headers).items()}.get("x-signature", "").strip().lower()
         try:
-            data = json.loads(body)
+            data = json.loads(body, parse_float=str, parse_int=str)
         except ValueError as exc:
             raise SignatureVerificationError("Invalid AuraPay body") from exc
         if not isinstance(data, dict) or not self.configured() or not got or not hmac.compare_digest(self.signature(data), got):
@@ -637,6 +664,135 @@ class AnoreProvider(BasePaymentProvider):
             raise SignatureVerificationError("Invalid Anore body") from exc
         if not isinstance(data, dict) or str(got.get("anore-event", "")) != str(data.get("event") or ""):
             raise SignatureVerificationError("Anore event mismatch")
+        return data
+
+
+class CasheraProvider(BasePaymentProvider):
+    API_URL = "https://api.cashera.cash/api/v1"
+    METHODS = {"sbp": "sbp", "card": "card"}
+
+    @staticmethod
+    def configured() -> bool:
+        return bool(settings.cashera_api_key and settings.cashera_api_secret)
+
+    async def _call(self, method: str, path: str, body: dict | None = None) -> dict:
+        headers = {"X-Api-Key": settings.cashera_api_key, "Accept": "application/json"}
+        async with _public_client(20) as client:
+            r = await client.request(method, self.API_URL + path, json=body, headers=headers)
+        r.raise_for_status()
+        out = r.json()
+        return out.get("data") if isinstance(out.get("data"), dict) else out
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        if not order_id or not self.configured():
+            raise PaymentError("Cashera is not configured")
+        body: Dict[str, Any] = {"amount": int(Decimal(_money(amount)) * 100), "currency": (currency or "RUB").upper(),
+                                "external_id": order_id, "description": description[:255] or "Подписка"}
+        if self.METHODS.get(str(metadata.get("method") or "")):
+            body["payment_method"] = self.METHODS[str(metadata["method"])]
+        if metadata.get("return_url"):
+            body["success_url"] = body["fail_url"] = metadata["return_url"]
+        if settings.webhook_base_url:
+            body["callback_url"] = f"{settings.webhook_base_url.rstrip('/')}/api/webhooks/cashera"
+        out = await self._call("POST", "/integration/transactions", body)
+        url = str(out.get("payment_url") or "")
+        if url and not url.startswith(("https://", "http://")):
+            url = "https://" + url.lstrip("/")  # Cashera sometimes answers without the scheme
+        if not out.get("uuid") or not url:
+            raise PaymentError(f"Cashera: {str(out.get('message') or 'no payment page')[:200]}")
+        return {"id": str(out["uuid"]), "url": url, "status": "pending"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url, "method": method})
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        if not re.fullmatch(r"[A-Za-z0-9-]{1,64}", str(payment_id)):
+            return {}
+        return await self._call("GET", f"/integration/transactions/{payment_id}")
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        data = await self.get_payment_status(payment_id)
+        if str(data.get("status") or "").lower() != "paid":
+            return False
+        if expected_order_id and data.get("external_id") not in (None, "", expected_order_id):
+            return False
+        if str(data.get("currency") or currency).upper() != str(currency).upper():
+            return False
+        return int(data.get("amount") or 0) == int((Decimal(str(expected_amount)) * 100).to_integral_value())
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: str | None = None) -> Dict[str, Any]:
+        got = {k.lower(): v for k, v in dict(headers).items()}
+        if not self.configured():
+            raise SignatureVerificationError("Cashera is not configured")
+        key_ok = hmac.compare_digest(str(got.get("x-api-key", "")).encode(), settings.cashera_api_key.encode())
+        secret_ok = hmac.compare_digest(str(got.get("x-secret", "")).encode(), settings.cashera_api_secret.encode())
+        if not (key_ok and secret_ok):
+            raise SignatureVerificationError("Invalid Cashera credentials")
+        try:
+            data = json.loads(body)
+        except ValueError as exc:
+            raise SignatureVerificationError("Invalid Cashera body") from exc
+        if not isinstance(data, dict):
+            raise SignatureVerificationError("Invalid Cashera body")
+        return data.get("transaction") if isinstance(data.get("transaction"), dict) else data
+
+
+class ParityPayProvider(BasePaymentProvider):
+    API_URL = "https://api.paritypay.net"
+    METHODS = {"sbp": "sbp", "card": "card"}
+
+    @staticmethod
+    def configured() -> bool:
+        return bool(settings.paritypay_shop_id and settings.paritypay_secret_key and settings.paritypay_callback_secret)
+
+    async def _call(self, method: str, path: str, **kwargs) -> dict:
+        headers = {"X-ShopId": settings.paritypay_shop_id, "X-SecretKey": settings.paritypay_secret_key, "Accept": "application/json"}
+        async with _public_client(20) as client:
+            r = await client.request(method, self.API_URL + path, headers=headers, **kwargs)
+        if r.status_code == 404:
+            return {}
+        r.raise_for_status()
+        return r.json()
+
+    async def create_payment(self, amount: float, currency: str, description: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        order_id = str(metadata.get("order_id") or "")
+        if not order_id or not self.configured():
+            raise PaymentError("ParityPay is not configured")
+        body: Dict[str, Any] = {"order_id": order_id[:64], "amount": float(_money(amount)), "comment": description[:255] or "Подписка"}
+        if self.METHODS.get(str(metadata.get("method") or "")):
+            body["service"] = self.METHODS[str(metadata["method"])]
+        if metadata.get("return_url"):
+            body["success_url"] = body["fail_url"] = metadata["return_url"]
+        if settings.webhook_base_url:
+            body["callback_url"] = f"{settings.webhook_base_url.rstrip('/')}/api/webhooks/paritypay"
+        out = await self._call("POST", "/v2/invoice/create", json=body)
+        if not out.get("id") or not out.get("link"):
+            raise PaymentError(f"ParityPay: {str(out.get('message') or out.get('error') or 'no payment link')[:200]}")
+        return {"id": str(out["id"]), "url": out["link"], "status": "pending"}
+
+    async def create(self, amount: Decimal, order_id: str, description: str, return_url: str, method: str = "") -> Dict[str, Any]:
+        return await self.create_payment(float(amount), settings.default_currency, description, {"order_id": order_id, "return_url": return_url, "method": method})
+
+    async def get_payment_status(self, payment_id: str) -> Dict[str, Any]:
+        return await self._call("GET", "/v2/invoice/status", params={"id": str(payment_id)})
+
+    async def verify_succeeded(self, payment_id: str, expected_amount: Decimal, currency: str, expected_order_id: str | None = None) -> bool:
+        data = await (self._call("GET", "/v2/invoice/status", params={"order_id": expected_order_id}) if expected_order_id else self.get_payment_status(payment_id))
+        if str(data.get("status") or "").upper() != "PAID":
+            return False
+        if expected_order_id and data.get("order_id") not in (None, "", expected_order_id):
+            return False
+        return Decimal(str(data.get("amount") or "0")).quantize(Decimal("0.01")) == Decimal(str(expected_amount)).quantize(Decimal("0.01"))
+
+    def verify_webhook(self, headers, body: bytes, remote_addr: str | None = None) -> Dict[str, Any]:
+        got = {k.lower(): v for k, v in dict(headers).items()}.get("x-signature", "").strip().lower()
+        try:
+            data = json.loads(body, parse_float=str, parse_int=str)
+        except ValueError as exc:
+            raise SignatureVerificationError("Invalid ParityPay body") from exc
+        if not isinstance(data, dict) or not self.configured() or not got or not hmac.compare_digest(_sorted_values_hmac(data, settings.paritypay_callback_secret), got):
+            raise SignatureVerificationError("Invalid ParityPay signature")
         return data
 
 
@@ -805,3 +961,38 @@ async def anore_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         return {"success": True}
     await _settle(db, "anore", provider, order_id, f"paid:{str(data.get('id') or order_id)[:120]}", data.get("amount"))
     return {"success": True}
+
+
+@router.post("/api/webhooks/cashera")
+async def cashera_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    raw = await request.body()
+    if len(raw) > 64 * 1024:
+        raise HTTPException(413, "Payload too large")
+    provider = CasheraProvider()
+    try:
+        data = provider.verify_webhook(request.headers, raw)
+    except SignatureVerificationError:
+        raise HTTPException(401, "Invalid credentials")
+    order_id = str(data.get("external_id") or "")
+    if str(data.get("status") or "").lower() != "paid" or not order_id:
+        return {"status": "ok"}
+    amount = Decimal(int(data["amount"])) / 100 if str(data.get("amount") or "").isdigit() else None
+    await _settle(db, "cashera", provider, order_id, f"paid:{data.get('uuid') or order_id}", None if amount is None else str(amount))
+    return {"status": "ok"}
+
+
+@router.post("/api/webhooks/paritypay")
+async def paritypay_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    raw = await request.body()
+    if len(raw) > 64 * 1024:
+        raise HTTPException(413, "Payload too large")
+    provider = ParityPayProvider()
+    try:
+        data = provider.verify_webhook(request.headers, raw)
+    except SignatureVerificationError:
+        raise HTTPException(403, "Invalid signature")
+    order_id = str(data.get("order_id") or "")
+    if str(data.get("status") or "").upper() != "PAID" or not order_id:
+        return {"status": True}
+    await _settle(db, "paritypay", provider, order_id, f"paid:{data.get('id') or order_id}", data.get("amount"))
+    return {"status": True}

@@ -2,7 +2,7 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
-from .payments_extra import AnoreProvider, AntilopayProvider, AuraPayProvider, CloudPaymentsProvider, LavaProvider, MulenPayProvider, Pal24Provider, WataProvider
+from .payments_extra import AnoreProvider, AntilopayProvider, AuraPayProvider, CasheraProvider, CloudPaymentsProvider, LavaProvider, MulenPayProvider, Pal24Provider, ParityPayProvider, WataProvider
 from . import main as shop
 
 # ---------- Payments ----------
@@ -30,12 +30,14 @@ def provider_configured() -> dict[str, bool]:
         "antilopay": AntilopayProvider.configured(),
         "aurapay": AuraPayProvider.configured(),
         "anore": AnoreProvider.configured(),
+        "cashera": CasheraProvider.configured(),
+        "paritypay": ParityPayProvider.configured(),
         "sandbox": shop.payments_sandbox_allowed(),
     }
 
 def _checkout_provider(name: str):
     """One map for every routable gateway: a reserve gateway first in line (main one in cooldown) must work."""
-    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"cloudpayments":CloudPaymentsProvider,"lava":LavaProvider,"pal24":Pal24Provider,"mulenpay":MulenPayProvider,"wata":WataProvider,"antilopay":AntilopayProvider,"aurapay":AuraPayProvider,"anore":AnoreProvider,"sandbox":shop.SandboxProvider}
+    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"cloudpayments":CloudPaymentsProvider,"lava":LavaProvider,"pal24":Pal24Provider,"mulenpay":MulenPayProvider,"wata":WataProvider,"antilopay":AntilopayProvider,"aurapay":AuraPayProvider,"anore":AnoreProvider,"cashera":CasheraProvider,"paritypay":ParityPayProvider,"sandbox":shop.SandboxProvider}
     return factories[name]()
 
 async def _payment_provider_order(db: shop.AsyncSession, requested: str|None, method: str|None=None):
