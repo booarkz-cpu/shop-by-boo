@@ -2,21 +2,18 @@ name: zz geo data (scratch, never merged)
 on:
   push:
     branches: ['scratch/geo']
-permissions:
-  contents: write
 jobs:
   geo:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
       - run: |
-          trap 'echo "::error title=fail::line $LINENO: $BASH_COMMAND"' ERR
-          set -eE
+          set -e
           curl -fsSL -o /tmp/ne.geojson https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson
-          sha256sum /tmp/ne.geojson
           python3 .geo/convert.py /tmp/ne.geojson /tmp/worldMap.json
-          echo "::notice title=size::$(stat -c %s /tmp/worldMap.json) $(python3 -c 'import json;print(len(json.load(open("/tmp/worldMap.json"))["countries"]))')"
-          git config user.name geo; git config user.email geo@example.test
-          git checkout --orphan scratch/geo-out
-          git rm -rfq . ; cp /tmp/worldMap.json worldMap.json
-          git add worldMap.json; git commit -qm "geo out"; git push -f origin HEAD:refs/heads/scratch/geo-out
+          gzip -9c /tmp/worldMap.json | base64 -w0 > /tmp/b64
+          echo "::notice title=meta::$(sha256sum /tmp/worldMap.json | cut -c1-64) $(stat -c %s /tmp/b64)"
+          split -b 3000 -d -a 2 /tmp/b64 /tmp/part_
+          ls /tmp/part_* | wc -l
+      - run: i=0; for f in /tmp/part_0* /tmp/part_1*; do [ -f "$f" ] || continue; k=$([ $i -lt 9 ] && echo notice || echo warning); [ $i -ge 18 ] && break; echo "::$k title=P$(basename $f)::$(cat $f)"; i=$((i+1)); done
+      - run: i=0; for f in /tmp/part_*; do n=$(basename $f | cut -c6-); [ $((10#$n)) -lt 18 ] && continue; k=$([ $i -lt 9 ] && echo notice || echo warning); echo "::$k title=P$(basename $f)::$(cat $f)"; i=$((i+1)); done
