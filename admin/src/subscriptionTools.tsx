@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {WorldMap} from "./worldMap";
 
 /** v28.38: subscription proxy and the other functions taken over from remnawave-subscription-middleware. */
 type Request = (path: string, options?: RequestInit) => Promise<any>;
@@ -315,8 +316,9 @@ export function Geography({request}: {request: Request}) {
   const [days, setDays] = useState(7);
   const [d, , error] = useData(request, `/api/admin/sessions/geo?days=${days}`);
   return (
-    <Card title="География клиентов" error={error} hint="Страны и провайдеры, откуда клиенты подключаются (по сессиям; нужен включённый сбор сессий).">
+    <Card title="География клиентов" error={error} hint="Карта и список стран и провайдеров, откуда клиенты подключаются (по сессиям; нужен включённый сбор сессий).">
       <div className="toolbar">{[1, 7, 30].map((x) => <button key={x} className={x === days ? "primary" : ""} onClick={() => setDays(x)}>{x === 1 ? "Сутки" : `${x} дней`}</button>)}</div>
+      {d && d.countries.length ? <WorldMap values={Object.fromEntries(d.countries.filter((c: any) => c.country.length === 2).map((c: any) => [c.country.toUpperCase(), c.users]))}/> : null}
       {d && d.countries.length ? <div className="grid3">
         <div>{d.countries.map((c: any) => <div key={c.country} style={{margin: "4px 0"}}>{flag(c.country)} {c.country} — {c.users}
           <div style={{height: 6, borderRadius: 3, background: "var(--accent, #f97316)", width: `${Math.max(2, c.share)}%`}}/></div>)}</div>

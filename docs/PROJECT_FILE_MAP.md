@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.41.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.42.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1810**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1816**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -204,6 +204,8 @@
 | [admin/src/terminal-screen.ts](../admin/src/terminal-screen.ts) | Админ-панель |
 | [admin/src/theme.css](../admin/src/theme.css) | Админ-панель |
 | [admin/src/torrents.tsx](../admin/src/torrents.tsx) | Админ-панель |
+| [admin/src/worldMap.json](../admin/src/worldMap.json) | Админ-панель |
+| [admin/src/worldMap.tsx](../admin/src/worldMap.tsx) | Админ-панель |
 | [admin/tsconfig.json](../admin/tsconfig.json) | Админ-панель |
 | [admin/tsconfig.ui.json](../admin/tsconfig.ui.json) | Админ-панель |
 | [backend/.dockerignore](../backend/.dockerignore) | API, бот и worker |
@@ -846,6 +848,7 @@
 | [docs/en/NEW_IN_V28_39.md](../docs/en/NEW_IN_V28_39.md) | Документация |
 | [docs/en/NEW_IN_V28_40.md](../docs/en/NEW_IN_V28_40.md) | Документация |
 | [docs/en/NEW_IN_V28_41.md](../docs/en/NEW_IN_V28_41.md) | Документация |
+| [docs/en/NEW_IN_V28_42.md](../docs/en/NEW_IN_V28_42.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -990,6 +993,7 @@
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_40_0.md](../docs/ru/RELEASE_V28_40_0.md) | Документация |
 | [docs/ru/RELEASE_V28_41_0.md](../docs/ru/RELEASE_V28_41_0.md) | Документация |
+| [docs/ru/RELEASE_V28_42_0.md](../docs/ru/RELEASE_V28_42_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
@@ -1106,6 +1110,7 @@
 | [docs/uk/NEW_IN_V28_39.md](../docs/uk/NEW_IN_V28_39.md) | Документация |
 | [docs/uk/NEW_IN_V28_40.md](../docs/uk/NEW_IN_V28_40.md) | Документация |
 | [docs/uk/NEW_IN_V28_41.md](../docs/uk/NEW_IN_V28_41.md) | Документация |
+| [docs/uk/NEW_IN_V28_42.md](../docs/uk/NEW_IN_V28_42.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1469,6 +1474,7 @@
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |
 | [scripts/generate-project-map.py](../scripts/generate-project-map.py) | Эксплуатация и релиз |
+| [scripts/geo/natural-earth-to-svg.py](../scripts/geo/natural-earth-to-svg.py) | Эксплуатация и релиз |
 | [scripts/github_release_fetch.py](../scripts/github_release_fetch.py) | Эксплуатация и релиз |
 | [scripts/harden-env.py](../scripts/harden-env.py) | Эксплуатация и релиз |
 | [scripts/hot-standby.sh](../scripts/hot-standby.sh) | Эксплуатация и релиз |

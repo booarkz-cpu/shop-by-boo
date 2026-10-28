@@ -305,6 +305,11 @@ async def test_sessions_glue_snapshots_and_open_anomalies(env, monkeypatch):
     view = await vs.user_sessions(901, 30, db, ADMIN)
     assert {g["isp"] for g in view["groups"]} == {"Beeline", "Rostelecom"} and view["week"]["countries"] == 2
     assert vs._ips([{"ip": "1.1.1.1", "lastSeen": "x"}, "2.2.2.2", 5]) == ["1.1.1.1", "2.2.2.2"]
+    geo_view = await vs.geography(7, db, ADMIN)
+    assert {c["country"]: c["users"] for c in geo_view["countries"]} == {"RU": 1, "KZ": 1}, "the map colours these countries"
+    from app.mobile_panels import sessions_panel
+    panel = await sessions_panel(db)
+    assert any(r["label"] == "Страны за 7 дней" and "RU 1" in str(r["value"]) for r in panel["rows"]), "the mobile admin lists the countries"
 
 
 def test_traffic_shape_from_bandwidth_stats():
