@@ -1,0 +1,50 @@
+name: Load and security baseline
+
+# k6 load profile (catalogue, sync, sandbox checkout) and the OWASP ZAP baseline scan against the local test stack.
+# Separate from «Corgi Lusi CI» on purpose: numbers and scanner rules drift; this reports without blocking releases.
+on:
+  pull_request:
+    paths: ['backend/**', 'tests/load/**', '.zap/**', 'docker-compose.test.yml', '.github/workflows/load-security.yml']
+  push:
+    branches: [main]
+  schedule:
+    - cron: '41 2 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stack:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - name: Test stack (sandbox payments, no gateways)
+        run: bash scripts/test-up.sh
+      - name: k6 load profile
+        uses: grafana/setup-k6-action@v1
+      - run: k6 run --summary-export k6-summary.json tests/load/shop.js
+        env:
+          API_BASE: http://127.0.0.1:18080
+      - name: OWASP ZAP baseline (API and cabinet)
+        if: always()
+        run: |
+          mkdir -p zap && chmod 777 zap && cp .zap/rules.tsv zap/
+          for target in http://127.0.0.1:18080/api/public/config http://127.0.0.1:18082; do
+            name=$(echo "$target" | tr -c 'a-z0-9' '_')
+            docker run --rm --network host -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable \
+              zap-baseline.py -t "$target" -c rules.tsv -r "$name.html" -J "$name.json" -I || true
+          done
+          python3 scripts/ci/zap-summary.py zap >> "$GITHUB_STEP_SUMMARY"
+      - name: Stack logs on failure
+        if: failure()
+        run: docker compose --env-file .env.test -f docker-compose.test.yml logs --tail 120 backend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: load-security-reports
+          path: |
+            k6-summary.json
+            zap/*.html
+            zap/*.json

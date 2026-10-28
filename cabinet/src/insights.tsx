@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {SectionBanner} from "./miniapp-sections";
 
 /** v28.37 customer surfaces: avatar, «Моя статистика», one-click offers, referral contest, smart cart, guest purchase. */
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
@@ -24,7 +25,7 @@ export function MyStats({request}: {request: RequestFn}) {
     ["Устройства", `${s.devices}${s.device_limit ? ` из ${s.device_limit}` : ""}`],
     ["Обходов блокировок", String(s.blocked_servers_avoided)],
   ];
-  return <section className="form-card"><h3>Моя статистика</h3><div className="metrics">{items.map(([k, v]) =>
+  return <section className="form-card"><SectionBanner kind="stats" title="Моя статистика" /><h3>Моя статистика</h3><div className="metrics">{items.map(([k, v]) =>
     <div className="metric" key={k}><span className="label">{k}</span><strong className="value">{v}</strong></div>)}</div></section>;
 }
 
@@ -54,7 +55,7 @@ export function ReferralContest({request}: {request: RequestFn}) {
   const [c, setC] = useState<any>(null);
   useEffect(() => { request("/api/me/referral-contest").then((r: any) => setC(r.contest)).catch(() => setC(null)); }, [request]);
   if (!c) return null;
-  return <section className="form-card"><h3>🏆 {c.title}</h3>
+  return <section className="form-card"><SectionBanner kind="contest" title={c.title} /><h3>🏆 {c.title}</h3>
     <p>До {new Date(c.ends_at).toLocaleDateString()} · считаются друзья, которые {c.metric === "paid" ? "оплатили подписку" : "пришли по вашей ссылке"}.</p>
     <p>Призы: {c.prizes.map((p: any) => `${p.place} место — ${p.days ? `${p.days} дн.` : ""}${p.days && Number(p.amount) ? " и " : ""}${Number(p.amount) ? `${p.amount} ₽` : ""}`).join("; ")}</p>
     <ol>{c.top.map((r: any) => <li key={r.place}>{r.name} — {r.score}</li>)}</ol>
@@ -84,7 +85,7 @@ export function GuestPurchase({request, onReady}: {request: RequestFn; onReady: 
     } catch (err: any) { setError(err.message || "Не получилось"); } finally { setBusy(false); }
   }
   return <form className="form-card stack" onSubmit={start} aria-label="Покупка по email">
-    <h3>Купить без Telegram</h3><p className="muted">Укажите почту — подписка и инструкции будут в кабинете, а письмо поможет задать пароль.</p>
+    <SectionBanner kind="guest" title="Покупка без регистрации" /><h3>Купить без Telegram</h3><p className="muted">Укажите почту — подписка и инструкции будут в кабинете, а письмо поможет задать пароль.</p>
     {error && <p className="workspace-alert" role="alert">{error}</p>}
     <label className="field">Email<input type="email" required maxLength={320} value={email} onChange={(e) => setEmail(e.target.value)}/></label>
     <label className="check"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)}/> Принимаю условия публичной оферты</label>
@@ -95,4 +96,18 @@ export function GuestPurchase({request, onReady}: {request: RequestFn; onReady: 
 export function reportScreen(request: RequestFn, screen: string) {
   const surface = (window as any).Telegram?.WebApp?.initData ? "miniapp" : "cabinet";
   request("/api/me/activity", {method: "POST", body: JSON.stringify({surface, action: "screen", screen: screen.slice(0, 48)})}).catch(() => undefined);
+}
+
+/** Required channels (channel_gate.py): what to join before buying, with links. Hidden when nothing is missing. */
+export function RequiredChannels({request}: {request: RequestFn}) {
+  const [rows, setRows] = useState<{title: string; url: string}[]>([]);
+  const load = () => request("/api/me/channels?scope=buy").then((r: any) => setRows(r.missing || [])).catch(() => setRows([]));
+  useEffect(() => { load(); }, [request]);
+  if (!rows.length) return null;
+  return <section className="form-card" aria-label="Обязательные каналы"><SectionBanner kind="channels" title="Наш канал" />
+    <h3>Подпишитесь на канал</h3><p className="muted">Покупка станет доступна после подписки.</p>
+    <div className="btn-row">{rows.map(c => c.url
+      ? <a key={c.title} className="btn-primary" href={c.url} target="_blank" rel="noreferrer">{c.title}</a>
+      : <span key={c.title}>{c.title}</span>)}
+      <button className="btn-ghost" onClick={load}>Я подписался</button></div></section>;
 }

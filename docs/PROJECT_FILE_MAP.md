@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.36.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.37.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1754**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1774**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -62,11 +62,13 @@
 | [.github/workflows/dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) | GitHub CI/CD |
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
 | [.github/workflows/docker.yml](../.github/workflows/docker.yml) | GitHub CI/CD |
+| [.github/workflows/load-security.yml](../.github/workflows/load-security.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-release.yml](../.github/workflows/mobile-release.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-screenshots.yml](../.github/workflows/mobile-screenshots.yml) | GitHub CI/CD |
 | [.github/workflows/publish-release.yml](../.github/workflows/publish-release.yml) | GitHub CI/CD |
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
 | [CHANGELOG.md](../CHANGELOG.md) | Корень проекта |
@@ -323,11 +325,14 @@
 | [backend/app/assets/bot_banners/app-wallet.jpg](../backend/app/assets/bot_banners/app-wallet.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/balance.jpg](../backend/app/assets/bot_banners/balance.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/buy.jpg](../backend/app/assets/bot_banners/buy.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/channels.jpg](../backend/app/assets/bot_banners/channels.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/connection.jpg](../backend/app/assets/bot_banners/connection.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/contest.jpg](../backend/app/assets/bot_banners/contest.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/devices.jpg](../backend/app/assets/bot_banners/devices.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/family.jpg](../backend/app/assets/bot_banners/family.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/faq.jpg](../backend/app/assets/bot_banners/faq.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/gifts.jpg](../backend/app/assets/bot_banners/gifts.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/guest.jpg](../backend/app/assets/bot_banners/guest.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/home.jpg](../backend/app/assets/bot_banners/home.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/info.jpg](../backend/app/assets/bot_banners/info.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/menu.jpg](../backend/app/assets/bot_banners/menu.jpg) | API, бот и worker |
@@ -339,6 +344,7 @@
 | [backend/app/assets/bot_banners/rules.jpg](../backend/app/assets/bot_banners/rules.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/servers.jpg](../backend/app/assets/bot_banners/servers.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/start.jpg](../backend/app/assets/bot_banners/start.jpg) | API, бот и worker |
+| [backend/app/assets/bot_banners/stats.jpg](../backend/app/assets/bot_banners/stats.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/status.jpg](../backend/app/assets/bot_banners/status.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/subscription.jpg](../backend/app/assets/bot_banners/subscription.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/support.jpg](../backend/app/assets/bot_banners/support.jpg) | API, бот и worker |
@@ -495,11 +501,14 @@
 | [cabinet/public/assets/banners/account.jpg](../cabinet/public/assets/banners/account.jpg) | Кабинет |
 | [cabinet/public/assets/banners/balance.jpg](../cabinet/public/assets/banners/balance.jpg) | Кабинет |
 | [cabinet/public/assets/banners/buy.jpg](../cabinet/public/assets/banners/buy.jpg) | Кабинет |
+| [cabinet/public/assets/banners/channels.jpg](../cabinet/public/assets/banners/channels.jpg) | Кабинет |
 | [cabinet/public/assets/banners/connection.jpg](../cabinet/public/assets/banners/connection.jpg) | Кабинет |
+| [cabinet/public/assets/banners/contest.jpg](../cabinet/public/assets/banners/contest.jpg) | Кабинет |
 | [cabinet/public/assets/banners/devices.jpg](../cabinet/public/assets/banners/devices.jpg) | Кабинет |
 | [cabinet/public/assets/banners/family.jpg](../cabinet/public/assets/banners/family.jpg) | Кабинет |
 | [cabinet/public/assets/banners/faq.jpg](../cabinet/public/assets/banners/faq.jpg) | Кабинет |
 | [cabinet/public/assets/banners/gifts.jpg](../cabinet/public/assets/banners/gifts.jpg) | Кабинет |
+| [cabinet/public/assets/banners/guest.jpg](../cabinet/public/assets/banners/guest.jpg) | Кабинет |
 | [cabinet/public/assets/banners/home.jpg](../cabinet/public/assets/banners/home.jpg) | Кабинет |
 | [cabinet/public/assets/banners/info.jpg](../cabinet/public/assets/banners/info.jpg) | Кабинет |
 | [cabinet/public/assets/banners/menu.jpg](../cabinet/public/assets/banners/menu.jpg) | Кабинет |
@@ -511,6 +520,7 @@
 | [cabinet/public/assets/banners/rules.jpg](../cabinet/public/assets/banners/rules.jpg) | Кабинет |
 | [cabinet/public/assets/banners/servers.jpg](../cabinet/public/assets/banners/servers.jpg) | Кабинет |
 | [cabinet/public/assets/banners/start.jpg](../cabinet/public/assets/banners/start.jpg) | Кабинет |
+| [cabinet/public/assets/banners/stats.jpg](../cabinet/public/assets/banners/stats.jpg) | Кабинет |
 | [cabinet/public/assets/banners/status.jpg](../cabinet/public/assets/banners/status.jpg) | Кабинет |
 | [cabinet/public/assets/banners/subscription.jpg](../cabinet/public/assets/banners/subscription.jpg) | Кабинет |
 | [cabinet/public/assets/banners/support.jpg](../cabinet/public/assets/banners/support.jpg) | Кабинет |
@@ -818,6 +828,7 @@
 | [docs/en/DEPLOYMENT.md](../docs/en/DEPLOYMENT.md) | Документация |
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
 | [docs/en/NEW_IN_V28_36.md](../docs/en/NEW_IN_V28_36.md) | Документация |
+| [docs/en/NEW_IN_V28_37.md](../docs/en/NEW_IN_V28_37.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -848,14 +859,18 @@
 | [docs/modules/auto_update_and_rollback.md](../docs/modules/auto_update_and_rollback.md) | Документация |
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
+| [docs/modules/growth_tools.md](../docs/modules/growth_tools.md) | Документация |
 | [docs/modules/hot_standby.md](../docs/modules/hot_standby.md) | Документация |
 | [docs/modules/i18n.md](../docs/modules/i18n.md) | Документация |
 | [docs/modules/in_app_diagnostics.md](../docs/modules/in_app_diagnostics.md) | Документация |
 | [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
 | [docs/modules/mobile_admin_panels.md](../docs/modules/mobile_admin_panels.md) | Документация |
+| [docs/modules/moderation.md](../docs/modules/moderation.md) | Документация |
 | [docs/modules/node_autoscale.md](../docs/modules/node_autoscale.md) | Документация |
+| [docs/modules/pnl.md](../docs/modules/pnl.md) | Документация |
 | [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
+| [docs/modules/sales_flows.md](../docs/modules/sales_flows.md) | Документация |
 | [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
 | [docs/modules/unit_economics.md](../docs/modules/unit_economics.md) | Документация |
 | [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
@@ -949,6 +964,7 @@
 | [docs/ru/RELEASE_V28_34_0.md](../docs/ru/RELEASE_V28_34_0.md) | Документация |
 | [docs/ru/RELEASE_V28_35_0.md](../docs/ru/RELEASE_V28_35_0.md) | Документация |
 | [docs/ru/RELEASE_V28_36_0.md](../docs/ru/RELEASE_V28_36_0.md) | Документация |
+| [docs/ru/RELEASE_V28_37_0.md](../docs/ru/RELEASE_V28_37_0.md) | Документация |
 | [docs/ru/RELEASE_V28_3_0.md](../docs/ru/RELEASE_V28_3_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
@@ -959,6 +975,7 @@
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
 | [docs/ru/SECURITY_UPGRADE_20_0_14.md](../docs/ru/SECURITY_UPGRADE_20_0_14.md) | Документация |
+| [docs/ru/SNAPSHOT_RECONCILIATION.md](../docs/ru/SNAPSHOT_RECONCILIATION.md) | Документация |
 | [docs/ru/STAGING_E2E_20_0_8.md](../docs/ru/STAGING_E2E_20_0_8.md) | Документация |
 | [docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md](../docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md) | Документация |
 | [docs/ru/STAGING_VDS_E2E_OPERATOR_20_0_18.md](../docs/ru/STAGING_VDS_E2E_OPERATOR_20_0_18.md) | Документация |
@@ -1060,6 +1077,7 @@
 | [docs/uk/DEPLOYMENT.md](../docs/uk/DEPLOYMENT.md) | Документация |
 | [docs/uk/DOCUMENTATION.md](../docs/uk/DOCUMENTATION.md) | Документация |
 | [docs/uk/NEW_IN_V28_36.md](../docs/uk/NEW_IN_V28_36.md) | Документация |
+| [docs/uk/NEW_IN_V28_37.md](../docs/uk/NEW_IN_V28_37.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1414,6 +1432,7 @@
 | [scripts/check-current-docs.py](../scripts/check-current-docs.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/zap-summary.py](../scripts/ci/zap-summary.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
 | [scripts/compose-build.sh](../scripts/compose-build.sh) | Эксплуатация и релиз |
 | [scripts/configure-support-bridge.py](../scripts/configure-support-bridge.py) | Эксплуатация и релиз |
@@ -1560,6 +1579,7 @@
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
 | [tests/live/test_remnawave_live.py](../tests/live/test_remnawave_live.py) | Проверки |
+| [tests/load/shop.js](../tests/load/shop.js) | Проверки |
 | [tests/main_source.py](../tests/main_source.py) | Проверки |
 | [tests/passkey_browser_server.py](../tests/passkey_browser_server.py) | Проверки |
 | [tests/release-publisher.test.cjs](../tests/release-publisher.test.cjs) | Проверки |

@@ -12,8 +12,8 @@ android {
         minSdk = 26
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 3200
-        versionName = "3.2.0"
+        versionCode = 3300
+        versionName = "3.3.0"
         // Historical compatibility marker: versionName = "2.9.0"
         // Firebase client identifiers for FCM push (public values, not secrets).
         // Empty values build the app without push; see docs/ru/PUSH_NOTIFICATIONS_CURRENT.md.

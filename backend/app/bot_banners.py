@@ -74,6 +74,11 @@ SECTIONS: dict[str, tuple[str, str]] = {
     "rules": ("Правила", "/rules и Mini App: документы"),
     "privacy": ("Политика конфиденциальности", "/privacy и Mini App: документы"),
     "offer": ("Публичная оферта", "/offer и Mini App: документы"),
+    # v28.37.0 (modules from the comparison snapshots).
+    "contest": ("Конкурс рефералов", "/contest и Mini App: пригласить друзей"),
+    "stats": ("Моя статистика", "/stats и Mini App: главная"),
+    "channels": ("Обязательный канал", "проверка подписки на канал"),
+    "guest": ("Покупка без регистрации", "кабинет и Mini App: гостевая покупка"),
     # Sections of the Android and iOS apps (mobile_layout): dark banners in the app style.
     "app-vpn": ("Приложение: VPN", "Android/iOS: главный экран"),
     "app-locations": ("Приложение: локации", "Android/iOS: выбор сервера"),

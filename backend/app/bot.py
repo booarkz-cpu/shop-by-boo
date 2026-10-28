@@ -302,8 +302,8 @@ async def start(message:Message):
             lacking = await missing_channels(tg_id, "all")
             if lacking:
                 rows = [[InlineKeyboardButton(text=c["title"], url=c["url"])] for c in lacking if c.get("url")]
-                await message.answer("Чтобы пользоваться ботом, подпишитесь: " + ", ".join(c["title"] for c in lacking)
-                                     + ". Затем снова нажмите /start.", reply_markup=InlineKeyboardMarkup(inline_keyboard=rows) if rows else None)
+                await send_section(message, "channels", "Чтобы пользоваться ботом, подпишитесь: " + ", ".join(escape(c["title"]) for c in lacking)
+                                   + ". Затем снова нажмите /start.", InlineKeyboardMarkup(inline_keyboard=rows) if rows else None, fallback="start")
                 return
             from .economics import remember_source, source_from_start
             from .ad_postbacks import click_from_start, remember_click
@@ -484,12 +484,12 @@ async def contest_command(message: Message):
         contest = await current(db)
         view = public(contest, await leaderboard(db, contest, 100), user.id if user else None) if contest else None
     if not view:
-        await send_section(message, "referral", "Сейчас конкурса нет — следите за новостями.")
+        await send_section(message, "contest", "Сейчас конкурса нет — следите за новостями.", fallback="referral")
         return
     lines = [f"🏆 <b>{escape(view['title'])}</b> — до {view['ends_at'][:10]}", ""]
     lines += [f"{r['place']}. {escape(r['name'])} — {r['score']}" for r in view["top"]]
     lines += ["", f"Вы на {view['me']['place']} месте ({view['me']['score']})" if view["me"] else "Пригласите друга по своей ссылке, чтобы попасть в таблицу: /referral"]
-    await send_section(message, "referral", "\n".join(lines))
+    await send_section(message, "contest", "\n".join(lines), fallback="referral")
 
 
 @router.message(Command("stats"))
@@ -506,8 +506,8 @@ async def stats_command(message: Message):
         await message.answer("Откройте магазин, чтобы начать: /start")
         return
     traffic = f"{data['traffic_used_gb']} ГБ" + (f" из {data['traffic_limit_gb']}" if data["traffic_limit_gb"] else "") if data["traffic_used_gb"] is not None else "—"
-    await send_section(message, "account", f"📊 <b>Моя статистика</b>\nС нами {data['days_with_us']} дн., оплачено {data['days_paid']} дн. VPN\n"
-                                          f"Трафик за период: {traffic}\nУстройства: {data['devices']}" + (f" из {data['device_limit']}" if data["device_limit"] else ""))
+    await send_section(message, "stats", f"📊 <b>Моя статистика</b>\nС нами {data['days_with_us']} дн., оплачено {data['days_paid']} дн. VPN\n"
+                                          f"Трафик за период: {traffic}\nУстройства: {data['devices']}" + (f" из {data['device_limit']}" if data["device_limit"] else ""), fallback="account")
 
 
 @router.message(Command("promo"))

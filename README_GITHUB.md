@@ -1,8 +1,8 @@
-> Актуальный дистрибутив: `v28.36.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.37.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # VPN Shop by Corgi
 
-Актуальное описание проекта, команды запуска, функциональные ограничения и разрешения: [README.md](README.md). Все инструкции: [DOCUMENTATION.md](DOCUMENTATION.md). Дистрибутив v28.36.0 сохраняет runtime/API v21.5.1 и добавляет безопасные live-настройки; [отчёт](docs/ru/RELEASE_V28_20_0.md), [регламент](docs/ru/RUNTIME_SETTINGS_CURRENT.md), [критерии завершения матрицы](docs/ru/MATRIX_COMPLETION_21_5_1.md).
+Актуальное описание проекта, команды запуска, функциональные ограничения и разрешения: [README.md](README.md). Все инструкции: [DOCUMENTATION.md](DOCUMENTATION.md). Дистрибутив v28.37.0 сохраняет runtime/API v21.5.1 и добавляет безопасные live-настройки; [отчёт](docs/ru/RELEASE_V28_20_0.md), [регламент](docs/ru/RUNTIME_SETTINGS_CURRENT.md), [критерии завершения матрицы](docs/ru/MATRIX_COMPLETION_21_5_1.md).
 
 Справочники: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 

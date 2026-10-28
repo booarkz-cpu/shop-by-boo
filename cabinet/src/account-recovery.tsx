@@ -5,7 +5,7 @@ export function accountLink():AccountLink|null {
  const [kind,query]=location.hash.slice(1).split("?");
  if(kind!=="password-reset"&&kind!=="verify-email")return null;
  const params=new URLSearchParams(query||"");
- return {kind,token:params.get("token")||"",guest:params.get("guest")==="1"};
+ return {kind,token:params.get("token")||"",...(params.get("guest")==="1"?{guest:true}:{})};
 }
 export function AccountRecovery({link,request,onClose}:{link:AccountLink;request:RequestFn;onClose:(reset?:boolean)=>void}) {
  const [email,setEmail]=useState(""),[password,setPassword]=useState(""),[repeat,setRepeat]=useState(""),[busy,setBusy]=useState(false),[message,setMessage]=useState(""),[error,setError]=useState("");

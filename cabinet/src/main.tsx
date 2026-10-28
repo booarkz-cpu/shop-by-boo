@@ -6,7 +6,7 @@ import {watchAccount} from "./account-sync";
 import {Bell, CircleHelp, CreditCard, Gift, Handshake, Home, KeyRound, LayoutGrid, ListChecks, LogOut, Menu, Moon, Server, Smartphone, Sparkles, Sun, Trophy, UserRound, Users, Wallet, X, Zap, Plug, Receipt, FileText, Heart, Activity} from "lucide-react";
 import {Overview, type Traffic} from "./overview";
 import {Connection} from "./connection";
-import {Avatar, GuestPurchase, MyStats, UpsellOffers, reportScreen, topUpAndBuy} from "./insights";
+import {Avatar, GuestPurchase, MyStats, UpsellOffers, reportScreen, topUpAndBuy, RequiredChannels} from "./insights";
 import {Plans} from "./plans";
 import {ProfileCard} from "./profile";
 import {Skeleton, StatusBadge} from "./ui";
@@ -877,6 +877,7 @@ function App() {
                     <Greeting fallbackName={dash?.user?.username || ""} />
                     <PromoCards go={goLink} />
                     <Overview sub={sub} user={dash?.user} traffic={traffic} subUrl={subUrl} currency={currency} api={API} copied={copied} onCopy={copyLink} go={goKind} formatDate={formatDate} />
+                    <RequiredChannels request={req} />
                     <UpsellOffers request={req} onChanged={() => { loadSession(); }} onCheckout={(body: any) => buySelection(body, false)} />
                     <MyStats request={req} />
                     <h3 className="section-title section-title-sm">{config.texts?.servers_title || "Серверы"}</h3>
