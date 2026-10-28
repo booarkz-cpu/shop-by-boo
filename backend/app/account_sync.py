@@ -129,17 +129,29 @@ def _redis_ready() -> bool:
     return True
 
 
-async def _wait_for_change(user_id: int, timeout: float) -> None:
+def _subscribe(user_id: int) -> asyncio.Event:
+    """Register a waiter before the state is read, so a commit between the read and the wait still wakes it."""
     event = asyncio.Event()
     _waiters.setdefault(user_id, set()).add(event)
+    return event
+
+
+def _unsubscribe(user_id: int, event: asyncio.Event) -> None:
+    _waiters.get(user_id, set()).discard(event)
+    if not _waiters.get(user_id):
+        _waiters.pop(user_id, None)
+
+
+async def _wait_for_change(user_id: int, timeout: float, event: asyncio.Event | None = None) -> None:
+    own = event is None
+    event = event or _subscribe(user_id)
     try:
         await asyncio.wait_for(event.wait(), timeout)
     except asyncio.TimeoutError:
         logger.debug("No change for user %s within %.0f s", user_id, timeout)
     finally:
-        _waiters.get(user_id, set()).discard(event)
-        if not _waiters.get(user_id):
-            _waiters.pop(user_id, None)
+        if own:
+            _unsubscribe(user_id, event)
 
 
 _install_session_hooks()
@@ -200,17 +212,22 @@ async def my_sync(request: Request, since: str = "", wait: int = 0, db: AsyncSes
     since = since or (request.headers.get("If-None-Match") or "").strip('"')
     deadline = asyncio.get_running_loop().time() + max(0, min(MAX_WAIT, wait))
     while True:
-        state = await account_state(db, user_id)
-        version = state_version(state)
-        # The connection goes back to the pool while the client waits.
-        await db.rollback()
-        left = deadline - asyncio.get_running_loop().time()
-        if version != since or left <= 0:
-            break
-        if _redis_ready():
-            await _wait_for_change(user_id, min(left, RECHECK_SECONDS))
-        else:
-            await _wait_for_change(user_id, min(left, POLL_SECONDS))
+        # Subscribed before reading: a change committed while the state is read wakes the wait below at once.
+        event = _subscribe(user_id)
+        try:
+            state = await account_state(db, user_id)
+            version = state_version(state)
+            # The connection goes back to the pool while the client waits.
+            await db.rollback()
+            left = deadline - asyncio.get_running_loop().time()
+            if version != since or left <= 0:
+                break
+            if _redis_ready():
+                await _wait_for_change(user_id, min(left, RECHECK_SECONDS), event)
+            else:
+                await _wait_for_change(user_id, min(left, POLL_SECONDS), event)
+        finally:
+            _unsubscribe(user_id, event)
     headers = {"ETag": f'"{version}"', "Cache-Control": "private, no-store"}
     if version == since:
         return Response(status_code=304, headers=headers)
