@@ -119,7 +119,8 @@ async def execute_refund(refund_id:int,db:shop.AsyncSession=shop.Depends(shop.ge
     if r.status not in {"requested","approved","review"}: raise shop.HTTPException(400,"Refund must be requested, approved, or retried from review")
     p=await db.get(shop.Payment,r.payment_id)
     if not p: raise shop.HTTPException(404,"Payment not found")
-    provider={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"telegram_stars":shop.TelegramStarsProvider()}.get(p.provider)
+    from .gateways import refunders
+    provider={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"telegram_stars":shop.TelegramStarsProvider(),**refunders()}.get(p.provider)
     if not provider or not hasattr(provider,"refund"): raise shop.HTTPException(409,"Automatic refund is not supported by this provider adapter")
     # Claim the refund before calling the external provider. The state transition is
     # committed separately so a second admin request cannot issue a second refund.

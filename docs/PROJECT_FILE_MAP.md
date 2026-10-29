@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.45.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.46.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1847**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1851**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -869,6 +869,7 @@
 | [docs/en/NEW_IN_V28_43.md](../docs/en/NEW_IN_V28_43.md) | Документация |
 | [docs/en/NEW_IN_V28_44.md](../docs/en/NEW_IN_V28_44.md) | Документация |
 | [docs/en/NEW_IN_V28_45.md](../docs/en/NEW_IN_V28_45.md) | Документация |
+| [docs/en/NEW_IN_V28_46.md](../docs/en/NEW_IN_V28_46.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -1018,6 +1019,7 @@
 | [docs/ru/RELEASE_V28_43_0.md](../docs/ru/RELEASE_V28_43_0.md) | Документация |
 | [docs/ru/RELEASE_V28_44_0.md](../docs/ru/RELEASE_V28_44_0.md) | Документация |
 | [docs/ru/RELEASE_V28_45_0.md](../docs/ru/RELEASE_V28_45_0.md) | Документация |
+| [docs/ru/RELEASE_V28_46_0.md](../docs/ru/RELEASE_V28_46_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
@@ -1138,6 +1140,7 @@
 | [docs/uk/NEW_IN_V28_43.md](../docs/uk/NEW_IN_V28_43.md) | Документация |
 | [docs/uk/NEW_IN_V28_44.md](../docs/uk/NEW_IN_V28_44.md) | Документация |
 | [docs/uk/NEW_IN_V28_45.md](../docs/uk/NEW_IN_V28_45.md) | Документация |
+| [docs/uk/NEW_IN_V28_46.md](../docs/uk/NEW_IN_V28_46.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1673,6 +1676,7 @@
 | [tests/test_block_monitor.py](../tests/test_block_monitor.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
+| [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |
 | [tests/test_content_publishing.py](../tests/test_content_publishing.py) | Проверки |
 | [tests/test_critical_audit_v2002.py](../tests/test_critical_audit_v2002.py) | Проверки |

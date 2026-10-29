@@ -49,7 +49,7 @@ class Gateway:
 
 GATEWAYS: dict[str, Gateway] = {g.name: g for g in (
     Gateway("cloudpayments", "CloudPayments", CloudPaymentsProvider, ("cloudpayments_public_id", "cloudpayments_api_secret"),
-            "Content-HMAC (HMAC-SHA256, base64)", "POST /payments/find", since="v28.38"),
+            "Content-HMAC (HMAC-SHA256, base64)", "POST /payments/find", refunds=True, recurring=True, since="v28.38"),
     Gateway("lava", "Lava", LavaProvider, ("lava_shop_id", "lava_secret_key", "lava_webhook_secret"),
             "Authorization (HMAC-SHA256)", "POST /business/invoice/status", since="v28.38"),
     Gateway("pal24", "Pal24", Pal24Provider, ("pal24_shop_id", "pal24_api_token"),
@@ -79,9 +79,14 @@ def instances() -> dict:
     return {g.name: g.cls() for g in GATEWAYS.values()}
 
 
+def refunders() -> dict:
+    """Gateways that return money through their API (``refund`` + ``get_refund_status``)."""
+    return {g.name: g.cls() for g in GATEWAYS.values() if g.refunds}
+
+
 def configured_map() -> dict[str, bool]:
     return {g.name: g.configured() for g in GATEWAYS.values()}
 
 
-__all__ = ["GATEWAYS", "Gateway", "factories", "instances", "configured_map", "AnoreProvider", "AntilopayProvider", "AuraPayProvider",
+__all__ = ["GATEWAYS", "Gateway", "factories", "instances", "configured_map", "refunders", "AnoreProvider", "AntilopayProvider", "AuraPayProvider",
            "CasheraProvider", "CloudPaymentsProvider", "LavaProvider", "MulenPayProvider", "Pal24Provider", "ParityPayProvider", "WataProvider"]

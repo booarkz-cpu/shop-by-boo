@@ -100,7 +100,7 @@ RECURRING_IDEMPOTENCE_WINDOW=shop.timedelta(hours=23)
 
 async def adopt_or_retry_recurring(payment:shop.Payment,method:shop.AutoRenewMethod,plan:shop.Plan)->str:
     """Resolve a recurring intent left in «creating»: adopt / retry / unknown."""
-    provider=shop.YooKassaProvider()
+    provider=recurring_provider(getattr(method,"provider",None) or "yookassa")
     created=payment.created_at or shop.datetime.utcnow()
     found=await provider.find_by_order_id(payment.order_id,created-shop.timedelta(hours=1))
     if found and found.get("id"):
@@ -116,12 +116,26 @@ async def adopt_or_retry_recurring(payment:shop.Payment,method:shop.AutoRenewMet
     return "retried"
 
 
+def recurring_provider(name:str):
+    """The gateway that charges a saved card (v28.46: YooKassa and CloudPayments). Looked up at call time."""
+    from .gateways import CloudPaymentsProvider
+    return {"yookassa":shop.YooKassaProvider,"cloudpayments":CloudPaymentsProvider}[name]()
+
+
+RECURRING_PROVIDERS=("yookassa","cloudpayments")
+
+
+async def _recurring_status(provider,payment_id:str)->str:
+    reader=getattr(provider,"recurring_status",None)
+    return str(await (reader(payment_id) if reader else provider.get_payment_status(payment_id)))
+
+
 async def _record_paid(db:shop.AsyncSession,payment:shop.Payment):
     await shop.record_financial_event(db, operation_key=f"payment:{payment.id}:paid", user_id=payment.user_id, payment_id=payment.id, kind="payment", direction="credit", amount=shop.Decimal(str(payment.amount)), currency=payment.currency, metadata={"provider": payment.provider, "order_id": payment.order_id})
 
 
 async def run_auto_renew_pass(db) -> None:
-    """One pass of auto-renew: charge saved YooKassa cards of subscriptions that end within the lead time.
+    """One pass of auto-renew: charge saved cards (YooKassa, CloudPayments) of subscriptions that end within the lead time.
     A failed charge is retried with a new idempotency key (backoff 2, 4 … 72 h); after three failures the
     saved card is switched off and the customer pays by hand."""
     # Auto-renew is a real payment operation and must obey the same
@@ -134,7 +148,7 @@ async def run_auto_renew_pass(db) -> None:
     for user,sub,plan,method in rows:
         candidate_subscription_id=sub.id
         customer_id=user.id
-        if method.provider != "yookassa": continue
+        if method.provider not in RECURRING_PROVIDERS: continue
         # Account deletion shares this user-level lock. Re-load the user after
         # acquiring it so a row selected by the scheduler cannot become a charge
         # after the account has been anonymized.
@@ -151,7 +165,7 @@ async def run_auto_renew_pass(db) -> None:
             method=(await db.execute(shop.select(shop.AutoRenewMethod).where(shop.AutoRenewMethod.user_id==user.id).with_for_update())).scalar_one_or_none()
             sub=(await db.execute(shop.select(shop.Subscription).where(shop.Subscription.user_id==user.id,shop.Subscription.id==candidate_subscription_id).execution_options(populate_existing=True).with_for_update())).scalar_one_or_none()
             plan=await db.get(shop.Plan,sub.plan_id) if sub else None
-            if not method or not sub or not sub.auto_renew_enabled or not plan or not method.enabled or method.status not in {"active","past_due"} or method.provider != "yookassa":
+            if not method or not sub or not sub.auto_renew_enabled or not plan or not method.enabled or method.status not in {"active","past_due"} or method.provider not in RECURRING_PROVIDERS:
                 continue
             if not sub.expires_at or sub.expires_at <= shop.datetime.utcnow() or sub.expires_at > cutoff:
                 continue
@@ -171,7 +185,7 @@ async def run_auto_renew_pass(db) -> None:
             except RuntimeError:
                 continue
             prefix=f"auto-renew-{user.id}-sub-{sub.id}-{plan.id}-{date_key}"
-            attempts=(await db.execute(shop.select(shop.Payment).where(shop.Payment.user_id==user.id,shop.Payment.subscription_id==sub.id,shop.or_(shop.Payment.order_id.like(prefix+"%"),shop.Payment.order_id.like(f"auto-renew-{user.id}-{plan.id}-{date_key}%")),shop.Payment.provider=="yookassa").order_by(shop.Payment.id.desc()))).scalars().all()
+            attempts=(await db.execute(shop.select(shop.Payment).where(shop.Payment.user_id==user.id,shop.Payment.subscription_id==sub.id,shop.or_(shop.Payment.order_id.like(prefix+"%"),shop.Payment.order_id.like(f"auto-renew-{user.id}-{plan.id}-{date_key}%")),shop.Payment.provider==method.provider).order_by(shop.Payment.id.desc()))).scalars().all()
             existing=attempts[0] if attempts else None
             if existing:
                 if existing.currency!=shop.settings.default_currency:
@@ -187,7 +201,7 @@ async def run_auto_renew_pass(db) -> None:
                     if adopted=="unknown": continue
                 if existing.status=="pending":
                     try:
-                        provider=shop.YooKassaProvider()
+                        provider=recurring_provider(method.provider)
                         verified=await provider.verify_succeeded(existing.provider_payment_id,shop.Decimal(str(existing.amount)),existing.currency,existing.order_id)
                         if verified:
                             payment_lock, payment_token = await shop._acquire_payment_side_effect_lock(existing.id)
@@ -207,7 +221,7 @@ async def run_auto_renew_pass(db) -> None:
                             except Exception as exc:
                                 method.last_error=str(exc)[:1000]; await db.commit()
                         else:
-                            provider_status=await provider.get_payment_status(existing.provider_payment_id)
+                            provider_status=await _recurring_status(provider,existing.provider_payment_id)
                             if provider_status in {"canceled","cancelled","failed","rejected"}:
                                 existing.status="failed"; existing.fulfillment_terminal=True; method.failure_count=(method.failure_count or 0)+1; method.status="past_due"; method.last_error=f"Recurring payment {provider_status}"; method.next_attempt_at=shop.datetime.utcnow()+shop.timedelta(hours=min(72,2**min(method.failure_count,6))); sub.next_renewal_at=method.next_attempt_at; sub.lifecycle_status="grace"; sub.grace_until=(sub.expires_at or shop.datetime.utcnow())+shop.timedelta(hours=72); sub.last_renewal_failure_at=shop.datetime.utcnow()
                                 if method.failure_count>=3: method.status="payment_failed"; method.enabled=False; user.auto_renew_enabled=False
@@ -246,14 +260,15 @@ async def run_auto_renew_pass(db) -> None:
             if not payment:
                 from .partners import renewal_terms as partner_renewal_terms
                 renewal_partner=await partner_renewal_terms(db,sub.id)
-                payment=shop.Payment(**renewal_partner,user_id=user.id,subscription_id=sub.id,plan_id=plan.id,provider="yookassa",provider_payment_id=None,order_id=order_id,amount=renewal_amount,original_amount=renewal_amount,discount_amount=shop.Decimal("0"),duration_days_snapshot=int(terms['days']),traffic_limit_gb_snapshot=terms['traffic_gb'],device_limit_snapshot=terms['devices'],remnawave_profile_id_snapshot=terms['profile_id'],referrer_id_snapshot=user.referred_by_id,referral_terms_snapshot=await shop.referral_snapshot(db,user),currency=shop.settings.default_currency,status="creating",fulfillment_status="pending",paid_at=None)
+                payment=shop.Payment(**renewal_partner,user_id=user.id,subscription_id=sub.id,plan_id=plan.id,provider=method.provider,provider_payment_id=None,order_id=order_id,amount=renewal_amount,original_amount=renewal_amount,discount_amount=shop.Decimal("0"),duration_days_snapshot=int(terms['days']),traffic_limit_gb_snapshot=terms['traffic_gb'],device_limit_snapshot=terms['devices'],remnawave_profile_id_snapshot=terms['profile_id'],referrer_id_snapshot=user.referred_by_id,referral_terms_snapshot=await shop.referral_snapshot(db,user),currency=shop.settings.default_currency,status="creating",fulfillment_status="pending",paid_at=None)
                 db.add(payment); await db.flush()
             method.last_attempt_at=shop.datetime.utcnow(); method.next_attempt_at=shop.datetime.utcnow()+shop.timedelta(hours=24); sub.next_renewal_at=method.next_attempt_at; await db.commit()
-            result=await shop.YooKassaProvider().charge_recurring(shop.Decimal(str(payment.amount)),order_id,f"Auto-renew {plan.name}",token)
+            charger=recurring_provider(method.provider)
+            result=await charger.charge_recurring(shop.Decimal(str(payment.amount)),order_id,f"Auto-renew {plan.name}",token)
             payment=(await db.execute(shop.select(shop.Payment).where(shop.Payment.order_id==order_id).execution_options(populate_existing=True).with_for_update())).scalar_one()
             payment.provider_payment_id=result["id"]; payment.status="pending"; payment.fulfillment_status="pending"; await db.commit()
             # Never fulfill until YooKassa confirms succeeded + amount/currency.
-            if await shop.YooKassaProvider().verify_succeeded(result["id"],shop.Decimal(str(payment.amount)),payment.currency,payment.order_id):
+            if await charger.verify_succeeded(result["id"],shop.Decimal(str(payment.amount)),payment.currency,payment.order_id):
                 payment_lock, payment_token = await shop._acquire_payment_side_effect_lock(payment.id)
                 try:
                     p=(await db.execute(shop.select(shop.Payment).where(shop.Payment.provider_payment_id==result["id"]).execution_options(populate_existing=True).with_for_update())).scalar_one()
