@@ -1172,6 +1172,7 @@ class GiftCard(Base):
 
 class CorporateAccount(Base):
     __tablename__ = "corporate_accounts"
+    __table_args__ = (UniqueConstraint("invite_code", name="uq_corporate_accounts_invite_code"),)
     id: Mapped[int] = mapped_column(primary_key=True)
     owner_user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -1181,6 +1182,45 @@ class CorporateAccount(Base):
     credit_limit: Mapped[Decimal] = mapped_column(Numeric(14,2), default=0, nullable=False)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    # v28.48 corporate plans: seats on one plan, a device pool, members, invoices to the company.
+    plan_id: Mapped[int|None] = mapped_column(Integer)
+    seats: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    devices_per_seat: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    seat_price: Mapped[Decimal] = mapped_column(Numeric(12,2), default=0, nullable=False)
+    paid_until: Mapped[datetime|None] = mapped_column(DateTime)
+    invite_code: Mapped[str|None] = mapped_column(String(32))
+    contact_email: Mapped[str|None] = mapped_column(String(255))
+    kpp: Mapped[str|None] = mapped_column(String(16))
+    legal_address: Mapped[str|None] = mapped_column(Text)
+
+class CorporateMember(Base):
+    __tablename__ = "corporate_members"
+    __table_args__ = (UniqueConstraint("account_id", "user_id", name="uq_corporate_members_account_user"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    account_id: Mapped[int] = mapped_column(ForeignKey("corporate_accounts.id", ondelete="CASCADE"), index=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    subscription_id: Mapped[int|None] = mapped_column(Integer, index=True)
+    role: Mapped[str] = mapped_column(String(16), default="member", nullable=False)  # admin, member
+    devices: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    label: Mapped[str] = mapped_column(String(120), default="", nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)  # active, removed
+    joined_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    removed_at: Mapped[datetime|None] = mapped_column(DateTime)
+    synced_at: Mapped[datetime|None] = mapped_column(DateTime)
+    sync_error: Mapped[str|None] = mapped_column(Text)
+
+class CorporateInvoice(Base):
+    __tablename__ = "corporate_invoices"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    account_id: Mapped[int] = mapped_column(ForeignKey("corporate_accounts.id", ondelete="CASCADE"), index=True, nullable=False)
+    number: Mapped[str] = mapped_column(String(40), unique=True, nullable=False)
+    months: Mapped[int] = mapped_column(Integer, nullable=False)
+    seats: Mapped[int] = mapped_column(Integer, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(14,2), nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="issued", nullable=False)  # issued, paid, cancelled
+    issued_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    paid_at: Mapped[datetime|None] = mapped_column(DateTime)
 
 class PaymentPriceExperiment(Base):
     __tablename__ = "payment_price_experiments"

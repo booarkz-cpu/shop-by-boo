@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.47.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.48.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1860**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1869**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -157,6 +157,7 @@
 | [admin/src/components/ui/status.tsx](../admin/src/components/ui/status.tsx) | Админ-панель |
 | [admin/src/components/ui/tooltip.tsx](../admin/src/components/ui/tooltip.tsx) | Админ-панель |
 | [admin/src/content-publishing.tsx](../admin/src/content-publishing.tsx) | Админ-панель |
+| [admin/src/corporate.tsx](../admin/src/corporate.tsx) | Админ-панель |
 | [admin/src/customer-desk.tsx](../admin/src/customer-desk.tsx) | Админ-панель |
 | [admin/src/customer-operations.tsx](../admin/src/customer-operations.tsx) | Админ-панель |
 | [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
@@ -299,6 +300,7 @@
 | [backend/alembic/versions/0080_reconciliation.py](../backend/alembic/versions/0080_reconciliation.py) | API, бот и worker |
 | [backend/alembic/versions/0081_subscription_proxy.py](../backend/alembic/versions/0081_subscription_proxy.py) | API, бот и worker |
 | [backend/alembic/versions/0082_status_subscribers.py](../backend/alembic/versions/0082_status_subscribers.py) | API, бот и worker |
+| [backend/alembic/versions/0083_corporate_seats.py](../backend/alembic/versions/0083_corporate_seats.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -380,6 +382,7 @@
 | [backend/app/connection_quality.py](../backend/app/connection_quality.py) | API, бот и worker |
 | [backend/app/content_branding_api.py](../backend/app/content_branding_api.py) | API, бот и worker |
 | [backend/app/content_publishing.py](../backend/app/content_publishing.py) | API, бот и worker |
+| [backend/app/corporate.py](../backend/app/corporate.py) | API, бот и worker |
 | [backend/app/customer_api.py](../backend/app/customer_api.py) | API, бот и worker |
 | [backend/app/customer_insights.py](../backend/app/customer_insights.py) | API, бот и worker |
 | [backend/app/customer_ops_api.py](../backend/app/customer_ops_api.py) | API, бот и worker |
@@ -587,6 +590,7 @@
 | [cabinet/src/app/layout.tsx](../cabinet/src/app/layout.tsx) | Кабинет |
 | [cabinet/src/app/page.tsx](../cabinet/src/app/page.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
+| [cabinet/src/company.tsx](../cabinet/src/company.tsx) | Кабинет |
 | [cabinet/src/connection.tsx](../cabinet/src/connection.tsx) | Кабинет |
 | [cabinet/src/documents.test.tsx](../cabinet/src/documents.test.tsx) | Кабинет |
 | [cabinet/src/giveaways.test.tsx](../cabinet/src/giveaways.test.tsx) | Кабинет |
@@ -875,6 +879,7 @@
 | [docs/en/NEW_IN_V28_45.md](../docs/en/NEW_IN_V28_45.md) | Документация |
 | [docs/en/NEW_IN_V28_46.md](../docs/en/NEW_IN_V28_46.md) | Документация |
 | [docs/en/NEW_IN_V28_47.md](../docs/en/NEW_IN_V28_47.md) | Документация |
+| [docs/en/NEW_IN_V28_48.md](../docs/en/NEW_IN_V28_48.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -905,6 +910,7 @@
 | [docs/modules/auto_update_and_rollback.md](../docs/modules/auto_update_and_rollback.md) | Документация |
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
+| [docs/modules/corporate.md](../docs/modules/corporate.md) | Документация |
 | [docs/modules/gateway_health.md](../docs/modules/gateway_health.md) | Документация |
 | [docs/modules/growth_tools.md](../docs/modules/growth_tools.md) | Документация |
 | [docs/modules/hot_standby.md](../docs/modules/hot_standby.md) | Документация |
@@ -1027,6 +1033,7 @@
 | [docs/ru/RELEASE_V28_45_0.md](../docs/ru/RELEASE_V28_45_0.md) | Документация |
 | [docs/ru/RELEASE_V28_46_0.md](../docs/ru/RELEASE_V28_46_0.md) | Документация |
 | [docs/ru/RELEASE_V28_47_0.md](../docs/ru/RELEASE_V28_47_0.md) | Документация |
+| [docs/ru/RELEASE_V28_48_0.md](../docs/ru/RELEASE_V28_48_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
@@ -1149,6 +1156,7 @@
 | [docs/uk/NEW_IN_V28_45.md](../docs/uk/NEW_IN_V28_45.md) | Документация |
 | [docs/uk/NEW_IN_V28_46.md](../docs/uk/NEW_IN_V28_46.md) | Документация |
 | [docs/uk/NEW_IN_V28_47.md](../docs/uk/NEW_IN_V28_47.md) | Документация |
+| [docs/uk/NEW_IN_V28_48.md](../docs/uk/NEW_IN_V28_48.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1687,6 +1695,7 @@
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |
 | [tests/test_content_publishing.py](../tests/test_content_publishing.py) | Проверки |
+| [tests/test_corporate.py](../tests/test_corporate.py) | Проверки |
 | [tests/test_critical_audit_v2002.py](../tests/test_critical_audit_v2002.py) | Проверки |
 | [tests/test_critical_audit_v2003.py](../tests/test_critical_audit_v2003.py) | Проверки |
 | [tests/test_critical_audit_v2004.py](../tests/test_critical_audit_v2004.py) | Проверки |

@@ -304,6 +304,24 @@ async def status_page_panel(db: AsyncSession) -> dict:
     return {"id": "status_page", "title": "Страница статуса", "rows": rows, "actions": actions}
 
 
+async def corporate_panel(db: AsyncSession) -> dict:
+    """v28.48 «Компании»: seats in use, companies awaiting payment, invoices to mark paid."""
+    from sqlalchemy import select
+    from .corporate import paid, users_of
+    from .models import CorporateAccount, CorporateInvoice
+    companies = (await db.execute(select(CorporateAccount).where(CorporateAccount.plan_id.is_not(None)).order_by(CorporateAccount.id))).scalars().all()
+    rows = [row("Компаний", len(companies))]
+    for c in companies[:8]:
+        used = len(await users_of(db, c))
+        rows.append(row(c.name, f"{used}/{c.seats} мест · {'до ' + c.paid_until.strftime('%d.%m') if c.paid_until else 'не оплачено'}", "ok" if paid(c) else "warn"))
+    issued = (await db.execute(select(CorporateInvoice).where(CorporateInvoice.status == "issued").order_by(CorporateInvoice.id))).scalars().all()
+    actions = [action(f"Счёт № {i.number} оплачен ({i.amount})", "POST", f"/api/admin/corporate/invoices/{i.id}/paid", None,
+                      f"Деньги по счёту № {i.number} пришли? Доступ сотрудников продлится.") for i in issued[:4]]
+    if issued:
+        rows.append(row("Счетов ждут оплаты", len(issued), "warn"))
+    return {"id": "corporate", "title": "Компании", "rows": rows, "actions": actions}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -316,7 +334,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel]
 
 
 @router.get("/api/admin/mobile/panels")

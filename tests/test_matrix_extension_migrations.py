@@ -21,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0083_corporate_seats',
         '0082_status_subscribers',
         '0081_subscription_proxy',
         '0080_reconciliation',
@@ -50,14 +51,14 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
-    # 0082 (status page subscribers: re-creatable) is unguarded.
+    # 0083 (corporate seats, members and invoices) and 0082 (status page subscribers: re-creatable) are unguarded.
     # 0081 (subscription log, change journal, API stats, sessions, WireGuard pool, waits and grace squads: working data) is unguarded.
     # 0080 (error log, activity, carts, contests, connection reports, cost entries: re-enterable working data) is unguarded.
     # 0079 (acquisition source: marketing attribution), 0078 (scheduled campaigns and A/B recipients: marketing statistics) and 0077 (re-collected app
     # analytics and a campaign send log; it refuses only while tax receipts exist) are intentionally unguarded.
     # 0076 is guarded by Telegram Stars subscriptions, family members and gift commissions. 0075 is guarded by stored offer consents. 0074 (automation executions; downgrade restores suspended lifecycles), 0073 (staging run evidence, re-creatable by a new run), 0072/0071 (30-day counters), 0068 (cache)
     # and 0066 (re-registrable push tokens) are intentionally unguarded.
-    guarded_names = [roundtrip_names[6], roundtrip_names[7], roundtrip_names[12], roundtrip_names[13], roundtrip_names[17], roundtrip_names[18], *roundtrip_names[22:]]
+    guarded_names = [roundtrip_names[7], roundtrip_names[8], roundtrip_names[13], roundtrip_names[14], roundtrip_names[18], roundtrip_names[19], *roundtrip_names[23:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):

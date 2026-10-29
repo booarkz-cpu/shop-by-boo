@@ -1,6 +1,6 @@
-# Каталог API — v28.47.0 / API v21.5.1
+# Каталог API — v28.48.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0082_status_subscribers`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0083_corporate_seats`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -106,8 +106,16 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/churn/{user_id}/offer` | Offer |
 | `GET` | `/api/admin/connection-quality` | Admin Quality |
 | `GET` | `/api/admin/content` | Admin Content |
+| `GET` | `/api/admin/corporate` | Admin List |
+| `POST` | `/api/admin/corporate` | Admin Create |
 | `GET` | `/api/admin/corporate-accounts` | List Corporate |
 | `POST` | `/api/admin/corporate-accounts` | Create Corporate |
+| `PUT` | `/api/admin/corporate-seller` | Admin Seller |
+| `GET` | `/api/admin/corporate/invoices/{invoice_id}.html` | Admin Invoice Html |
+| `POST` | `/api/admin/corporate/invoices/{invoice_id}/cancel` | Admin Invoice Cancel |
+| `POST` | `/api/admin/corporate/invoices/{invoice_id}/paid` | Admin Invoice Paid |
+| `PUT` | `/api/admin/corporate/{company_id}` | Admin Update |
+| `POST` | `/api/admin/corporate/{company_id}/invoices` | Admin Invoice |
 | `POST` | `/api/admin/customer-operations/bulk/apply` | Bulk Apply |
 | `POST` | `/api/admin/customer-operations/bulk/preview` | Bulk Preview |
 | `GET` | `/api/admin/customer-operations/history` | History Jobs |
@@ -601,6 +609,12 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/cart` | Get Cart |
 | `POST` | `/api/me/cart` | Put Cart |
 | `GET` | `/api/me/channels` | My Channels |
+| `GET` | `/api/me/company` | My Company |
+| `POST` | `/api/me/company/invite` | Rotate Invite |
+| `GET` | `/api/me/company/invoices/{invoice_id}.html` | My Invoice |
+| `POST` | `/api/me/company/join` | Join |
+| `DELETE` | `/api/me/company/members/{member_id}` | Remove |
+| `PUT` | `/api/me/company/members/{member_id}` | Set Devices |
 | `GET` | `/api/me/connection-info` | Connection Info |
 | `GET` | `/api/me/connection-qr` | Connection Qr |
 | `POST` | `/api/me/connection-reports` | Report |
