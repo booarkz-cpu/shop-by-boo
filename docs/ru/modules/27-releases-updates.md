@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.48.0. Runtime/API `21.5.1`, head магазина `0083_corporate_seats`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.49.0. Runtime/API `21.5.1`, head магазина `0083_corporate_seats`, Support Pro `0008`.
 
 # 27. Диагностика и обновления
 
@@ -21,7 +21,7 @@
 
 ## Автообновление
 
-Установщик (с v28.48.0) ставит агент `scripts/auto_update.py` и два systemd-таймера:
+Установщик (с v28.49.0) ставит агент `scripts/auto_update.py` и два systemd-таймера:
 
 - `vpn-shop-update` — каждую ночь в выбранное время по Москве (по умолчанию 03:00, ±15 минут) проверяет GitHub и ставит новый стабильный выпуск через `update-from-github.sh`;
 - `vpn-shop-update-agent` — раз в минуту читает запрос админ-панели и пишет состояние для неё.
@@ -35,13 +35,13 @@
 | Режим восстановления (`.rollback/RECOVERY_MODE`) | Автообновление остановлено до ручной проверки |
 | Агент не отвечает дольше 5 минут | Карточка показывает команду установки агента |
 
-Сервер, установленный до v28.48.0, получает агент сам при обновлении: сборка выпуска (`deploy/build-production.sh`) вызывает `auto_update.py ensure`. Ответ «нет» в установщике и команда `disable` сохраняются. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, `status`, `run`, `disable`.
+Сервер, установленный до v28.49.0, получает агент сам при обновлении: сборка выпуска (`deploy/build-production.sh`) вызывает `auto_update.py ensure`. Ответ «нет» в установщике и команда `disable` сохраняются. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, `status`, `run`, `disable`.
 
 ## Версии
 
 | Что | Где смотреть |
 | --- | --- |
-| Тег дистрибутива (например `v28.48.0`) | Выпуски GitHub, **Обновления** |
+| Тег дистрибутива (например `v28.49.0`) | Выпуски GitHub, **Обновления** |
 | Версия runtime/API (`21.5.1`) | **Все разделы**, `/health/ready`, `docker compose exec -T backend python -c 'from app.main import APP_VERSION; print(APP_VERSION)'` |
 | Миграции магазина | `docker compose exec -T backend alembic current` |
 | Миграции Support Pro | `docker compose exec -T support_db psql -U support -d support -Atc 'SELECT version_num FROM alembic_version'` |
@@ -55,7 +55,7 @@
 3. Обновите:
 
 ```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.48.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.49.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 Без `RELEASE_TAG` берётся последний стабильный выпуск. Если сервер ставился до появления `update-from-github.sh`, используйте первый способ из [регламента обновления](../DISTRIBUTION_UPGRADE_CURRENT.md).

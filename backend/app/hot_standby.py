@@ -152,10 +152,38 @@ async def heartbeat(payload: HeartbeatIn, request: Request, db: AsyncSession = D
     config = await _load(db, CONFIG_KEY, DEFAULT_CONFIG)
     if not token or not config.get("token_sha") or not secrets.compare_digest(config["token_sha"], _hash(token)):
         raise HTTPException(401, "Standby token required")
+    previous = await _load(db, HEARTBEAT_KEY, {})
     await _save(db, HEARTBEAT_KEY, {**payload.model_dump(), "at": datetime.utcnow().isoformat(),
                                     "from": request.client.host if request.client else None})
     await db.commit()
+    drill = payload.drill or {}
+    if drill.get("at") and drill.get("at") != ((previous or {}).get("drill") or {}).get("at"):
+        try:
+            await drill_report(db, drill, payload.lag_seconds)
+        except Exception as exc:  # noqa: BLE001 — the report never breaks the heartbeat
+            logger.warning("Drill report was not sent: %s", exc)
     return {"ok": True}
+
+
+async def drill_report(db: AsyncSession, drill: dict, lag: float | None, sender=None) -> str:
+    """v28.49: every weekly promotion drill of the standby ends with a Telegram card — passed or not — with the
+    replication lag and the last verified backup, so a silent standby is never mistaken for a ready one."""
+    from sqlalchemy import select
+    from .models import BackupVerification
+    if sender is None:
+        from .ops_alerts import send as sender
+    last = (await db.execute(select(BackupVerification).order_by(BackupVerification.id.desc()).limit(1))).scalar_one_or_none()
+    backup = "нет проверенных копий" if not last else f"последняя проверка копии: {'успешно' if last.status in {'ok', 'verified', 'passed'} else last.status}, {last.created_at:%d.%m %H:%M}"
+    if drill.get("ok"):
+        text = (f"🟢 <b>Учения резерва пройдены</b>\n<blockquote>Копия базы поднялась как основная: клиентов {drill.get('users', '—')}, "
+                f"платежей {drill.get('payments', '—')}, миграция {drill.get('migration', '—')}. Отставание репликации: "
+                f"{'—' if lag is None else f'{lag:.0f} с'}; {backup}.</blockquote>")
+    else:
+        text = (f"🔴 <b>Учения резерва не прошли</b>\n<blockquote>{str(drill.get('error') or 'причина не передана')[:300]}. "
+                f"Отставание репликации: {'—' if lag is None else f'{lag:.0f} с'}; {backup}. Проверьте место на диске резерва и выполните "
+                f"python3 /usr/local/bin/corgi-standby drill.</blockquote>")
+    await sender(text)
+    return text
 
 
 @router.get("/api/admin/standby")

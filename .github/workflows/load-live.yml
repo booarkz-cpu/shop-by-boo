@@ -1,0 +1,38 @@
+name: Load live
+
+# k6 against a real server: read-only public endpoints with a step-up profile (¼, ½, full, full of PEAK_VUS).
+# Shows p95 and the failure rate at each load; no accounts are created and nothing is bought. Run by hand against a
+# staging or production API after adding the LOAD_TARGET_URL secret (e.g. https://api.example.com) or giving a target.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "API base URL (empty = the LOAD_TARGET_URL secret)"
+        default: ""
+      peak_vus:
+        description: "Peak virtual users"
+        default: "50"
+      step:
+        description: "Duration of each step"
+        default: "30s"
+
+permissions:
+  contents: read
+
+jobs:
+  load:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      TARGET: ${{ inputs.target || secrets.LOAD_TARGET_URL }}
+      PEAK_VUS: ${{ inputs.peak_vus }}
+      STEP: ${{ inputs.step }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Target is set
+        run: test -n "$TARGET" || { echo "::error title=Load live::Add the LOAD_TARGET_URL secret or give a target"; exit 1; }
+      - uses: grafana/setup-k6-action@v1
+      - run: k6 run --summary-export k6-live.json tests/load/live.js
+      - name: k6 numbers as annotations
+        if: always()
+        run: python3 scripts/ci/k6-summary.py k6-live.json

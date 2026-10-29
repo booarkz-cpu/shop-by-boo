@@ -42,5 +42,5 @@ MODULES = (
     "connection_quality",
     "churn",
     "customer_insights",
-    "pnl", "sub_proxy", "client_versions", "panel_api_stats", "webhook_tee", "first_connect", "vpn_sessions", "panel_usage", "wg_pool", "payments_extra", "gateway_ops", "status_page", "regional_pricing", "corporate",
+    "pnl", "sub_proxy", "client_versions", "panel_api_stats", "webhook_tee", "first_connect", "vpn_sessions", "panel_usage", "wg_pool", "payments_extra", "gateway_ops", "status_page", "regional_pricing", "corporate", "payment_fraud",
 )

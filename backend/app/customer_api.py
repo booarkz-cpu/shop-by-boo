@@ -75,6 +75,8 @@ async def wallet_topup(payload:dict, request:shop.Request, db:shop.AsyncSession=
         raise shop.HTTPException(400,"Invalid amount")
     if amount < shop.Decimal("50") or amount > shop.Decimal("100000"):
         raise shop.HTTPException(400,"Amount is outside the allowed top-up range")
+    _risk,risk_decision,_signals=await shop._risk_score(db,user,amount,request)  # v28.49: top-ups pass the same antifraud rules
+    if risk_decision=="block": raise shop.HTTPException(403,"Платёж отклонён системой защиты от мошенничества")
     existing=(await db.execute(shop.select(shop.Payment).where(shop.Payment.user_id==user.id,shop.Payment.idempotency_key==idem).order_by(shop.Payment.id.desc()))).scalar_one_or_none()
     if existing:
         if (existing.purpose or "subscription") != "topup":
