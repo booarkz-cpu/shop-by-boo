@@ -602,3 +602,7 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 .key-list li{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--surface-2,rgba(127,127,127,.08));flex-wrap:wrap}
 .traffic-bars{display:flex;align-items:flex-end;gap:2px;height:90px;margin:8px 0}
 .traffic-bars span{flex:1;min-width:2px;border-radius:2px 2px 0 0;background:var(--accent,#f97316)}
+/* v28.51 loyalty levels */
+.loyalty-levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.loyalty-level { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--border, rgba(127,127,127,.25)); border-radius: 12px; font-size: 13px; }
+.loyalty-level.current { border-color: var(--accent, #4f8cff); box-shadow: 0 0 0 1px var(--accent, #4f8cff) inset; }

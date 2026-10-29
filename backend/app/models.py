@@ -2125,3 +2125,10 @@ class SubscriptionFreeze(Base):
     days: Mapped[int] = mapped_column(Integer, nullable=False)
     expires_before: Mapped[datetime|None] = mapped_column(DateTime)
     ended_at: Mapped[datetime|None] = mapped_column(DateTime)
+
+class LoyaltyMember(Base):
+    """v28.51: the loyalty level a customer has reached (loyalty.py)."""
+    __tablename__ = "loyalty_members"
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
+    level: Mapped[str] = mapped_column(String(24), nullable=False)
+    reached_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

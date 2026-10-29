@@ -1,6 +1,6 @@
 {
   "version": "21.5.1",
-  "migration_head": "0084_subscription_freeze",
+  "migration_head": "0085_loyalty",
   "guides": [
     ".env.example",
     "ADMIN_GUIDE_RU.md",
@@ -120,7 +120,7 @@
     "docs/ru/RELEASE_V28_2_0.md",
     "docs/ru/RELEASE_V28_31_0.md",
     "docs/ru/RELEASE_V28_32_0.md",
-    "docs/ru/RELEASE_V28_50_0.md",
+    "docs/ru/RELEASE_V28_51_0.md",
     "docs/ru/RELEASE_V28_4_0.md",
     "docs/ru/RELEASE_V28_5_0.md",
     "docs/ru/RELEASE_V28_6_0.md",
@@ -197,5 +197,5 @@
     "support-pro/README.md",
     "support-pro/UPGRADE.md"
   ],
-  "distribution_tag": "v28.50.0"
+  "distribution_tag": "v28.51.0"
 }

@@ -113,6 +113,9 @@ interface ShopActions {
     fun openDocument(kind: String)
     fun enterGiveaway(giveawayId: Int)
     fun buyOffer(offer: JSONObject)
+    /** v28.50 «Заморозка подписки»: pause the paid subscription for [days] days / resume it. */
+    fun freeze(days: Int)
+    fun thaw()
 }
 
 fun formatBytes(bytes: Long): String {

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.50.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.51.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1888**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1897**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -176,6 +176,7 @@
 | [admin/src/hotStandby.tsx](../admin/src/hotStandby.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
+| [admin/src/loyalty.tsx](../admin/src/loyalty.tsx) | Админ-панель |
 | [admin/src/mail-domain.tsx](../admin/src/mail-domain.tsx) | Админ-панель |
 | [admin/src/main.tsx](../admin/src/main.tsx) | Админ-панель |
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
@@ -305,6 +306,7 @@
 | [backend/alembic/versions/0082_status_subscribers.py](../backend/alembic/versions/0082_status_subscribers.py) | API, бот и worker |
 | [backend/alembic/versions/0083_corporate_seats.py](../backend/alembic/versions/0083_corporate_seats.py) | API, бот и worker |
 | [backend/alembic/versions/0084_subscription_freeze.py](../backend/alembic/versions/0084_subscription_freeze.py) | API, бот и worker |
+| [backend/alembic/versions/0085_loyalty.py](../backend/alembic/versions/0085_loyalty.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -427,6 +429,7 @@
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
 | [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
+| [backend/app/loyalty.py](../backend/app/loyalty.py) | API, бот и worker |
 | [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
 | [backend/app/mail_receiver.py](../backend/app/mail_receiver.py) | API, бот и worker |
@@ -608,6 +611,7 @@
 | [cabinet/src/i18n.tsx](../cabinet/src/i18n.tsx) | Кабинет |
 | [cabinet/src/insights.tsx](../cabinet/src/insights.tsx) | Кабинет |
 | [cabinet/src/keys.tsx](../cabinet/src/keys.tsx) | Кабинет |
+| [cabinet/src/loyalty.tsx](../cabinet/src/loyalty.tsx) | Кабинет |
 | [cabinet/src/main.tsx](../cabinet/src/main.tsx) | Кабинет |
 | [cabinet/src/miniapp-sections.tsx](../cabinet/src/miniapp-sections.tsx) | Кабинет |
 | [cabinet/src/mock-config.json](../cabinet/src/mock-config.json) | Кабинет |
@@ -890,6 +894,7 @@
 | [docs/en/NEW_IN_V28_48.md](../docs/en/NEW_IN_V28_48.md) | Документация |
 | [docs/en/NEW_IN_V28_49.md](../docs/en/NEW_IN_V28_49.md) | Документация |
 | [docs/en/NEW_IN_V28_50.md](../docs/en/NEW_IN_V28_50.md) | Документация |
+| [docs/en/NEW_IN_V28_51.md](../docs/en/NEW_IN_V28_51.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -928,6 +933,7 @@
 | [docs/modules/i18n.md](../docs/modules/i18n.md) | Документация |
 | [docs/modules/in_app_diagnostics.md](../docs/modules/in_app_diagnostics.md) | Документация |
 | [docs/modules/ios_architecture.md](../docs/modules/ios_architecture.md) | Документация |
+| [docs/modules/loyalty.md](../docs/modules/loyalty.md) | Документация |
 | [docs/modules/mobile_admin_panels.md](../docs/modules/mobile_admin_panels.md) | Документация |
 | [docs/modules/moderation.md](../docs/modules/moderation.md) | Документация |
 | [docs/modules/node_autoscale.md](../docs/modules/node_autoscale.md) | Документация |
@@ -1049,6 +1055,7 @@
 | [docs/ru/RELEASE_V28_49_0.md](../docs/ru/RELEASE_V28_49_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_50_0.md](../docs/ru/RELEASE_V28_50_0.md) | Документация |
+| [docs/ru/RELEASE_V28_51_0.md](../docs/ru/RELEASE_V28_51_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
@@ -1173,6 +1180,7 @@
 | [docs/uk/NEW_IN_V28_48.md](../docs/uk/NEW_IN_V28_48.md) | Документация |
 | [docs/uk/NEW_IN_V28_49.md](../docs/uk/NEW_IN_V28_49.md) | Документация |
 | [docs/uk/NEW_IN_V28_50.md](../docs/uk/NEW_IN_V28_50.md) | Документация |
+| [docs/uk/NEW_IN_V28_51.md](../docs/uk/NEW_IN_V28_51.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1745,6 +1753,7 @@
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
+| [tests/test_loyalty.py](../tests/test_loyalty.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
 | [tests/test_mail_receiver.py](../tests/test_mail_receiver.py) | Проверки |
 | [tests/test_main_split.py](../tests/test_main_split.py) | Проверки |

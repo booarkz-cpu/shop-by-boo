@@ -604,8 +604,16 @@ struct UserRootView: View {
                     infoLine(t("stats_month"), "\(jsonText(month)) GB")
                 }
                 infoLine(t("stats_avoided"), jsonText(data.stats["blocked_servers_avoided"]))
+                // v28.51: the loyalty level and what is left to the next one.
+                if let level = data.stats["loyalty"] as? [String: Any] {
+                    infoLine(t("loyalty_level"), jsonText(level["title"]))
+                    if let next = level["next"] as? [String: Any], !jsonText(next["need"]).isEmpty {
+                        Text(t("loyalty_next").replacingOccurrences(of: "{title}", with: jsonText(next["title"])) + ": " + jsonText(next["need"])).foregroundStyle(theme.muted)
+                    }
+                }
             }
         }
+        if let pause = data.stats["freeze"] as? [String: Any] { freezeCard(pause) }
         if !data.upsell.isEmpty {
             CardView(theme: theme) {
                 Text(t("upsell_title")).font(.system(size: 20, weight: .bold)).foregroundStyle(theme.text)
@@ -616,6 +624,43 @@ struct UserRootView: View {
                                      theme: theme, enabled: !busy) { buyOffer(offer) }
                 }
             }
+        }
+    }
+
+    /// v28.50 «Заморозка подписки»: the paid subscription on pause (VPN off, paid days kept) or the buttons to pause it.
+    @ViewBuilder private func freezeCard(_ pause: [String: Any]) -> some View {
+        let frozen = pause["frozen"] as? [String: Any]
+        if frozen != nil || jsonText(pause["reason"]).isEmpty {
+            CardView(theme: theme) {
+                Text(t("freeze_title")).font(.system(size: 20, weight: .bold)).foregroundStyle(theme.text)
+                if let frozen = frozen {
+                    Text(t("freeze_until").replacingOccurrences(of: "{date}", with: String(jsonText(frozen["until"]).prefix(10)))).foregroundStyle(theme.muted)
+                    ActionButtonView(button: LayoutButton(id: "freeze_thaw", label: t("freeze_thaw"), action: "refresh", target: "", style: "primary", icon: "power", audience: "any"),
+                                     theme: theme, enabled: !busy) { freezeAction(path: "/api/me/freeze/thaw", body: [:], done: "thaw_done") }
+                } else {
+                    Text(t("freeze_hint")).foregroundStyle(theme.muted)
+                    ForEach(freezeOptions(pause), id: \.self) { days in
+                        ActionButtonView(button: LayoutButton(id: "freeze_\(days)", label: t("freeze_days").replacingOccurrences(of: "{days}", with: String(days)), action: "refresh", target: "", style: "secondary", icon: "clock", audience: "any"),
+                                         theme: theme, enabled: !busy) { freezeAction(path: "/api/me/freeze", body: ["days": days], done: "freeze_done") }
+                    }
+                }
+            }
+        }
+    }
+
+    private func freezeOptions(_ pause: [String: Any]) -> [Int] {
+        let low = jsonInt(pause["min_days"]) ?? 3
+        let high = min(jsonInt(pause["max_days"]) ?? 30, jsonInt(pause["days_left"]) ?? 30)
+        var seen: [Int] = []
+        for days in [low, 7, 14, 30] where days >= low && days <= high && !seen.contains(days) { seen.append(days) }
+        return Array(seen.prefix(3))
+    }
+
+    private func freezeAction(path: String, body: [String: Any], done: String) {
+        let (api, session, language) = (base, token, lang)
+        work {
+            _ = try ShopClient(base: api, token: session, lang: language).call("POST", path, body: body)
+            DispatchQueue.main.async { notice = t(done); refresh() }
         }
     }
 
@@ -1401,7 +1446,8 @@ extension UserRootView {
              "prizes": [["amount": "1499", "weight": 1]], "currency": "RUB", "ends_at": "2026-10-20T21:00:00Z", "my_entry": ["outcome": "won", "reward_amount": "1499.00"]],
         ]
         demo.stats = ["traffic_30d_gb": 42.7, "days_with_us": 360, "days_paid": 395, "traffic_used_gb": 84.2, "traffic_lifetime_gb": 1210.5, "traffic_limit_gb": 100.0,
-                      "devices": 3, "device_limit": 3, "blocked_servers_avoided": 7]
+                      "devices": 3, "device_limit": 3, "blocked_servers_avoided": 7,
+                      "loyalty": ["title": "Серебро", "next": ["title": "Золото", "need": "4 мес. с нами или оплат на 1800.00 ₽"] as [String: Any]] as [String: Any]]
         demo.upsell = [["kind": "traffic", "title": "+50 ГБ трафика", "price": "149.00", "reason": "израсходовано 84 % трафика",
                         "quote": ["kind": "traffic_addon", "package_id": 1, "subscription_id": 1]]]
         demo.contest = ["id": 1, "title": "Кто больше пригласит — ноябрь", "ends_at": "2026-11-30T21:00:00", "metric": "paid",

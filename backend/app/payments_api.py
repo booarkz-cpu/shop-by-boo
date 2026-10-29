@@ -222,6 +222,8 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         discount_amount=shop.discounted_amount(base_amount,promotion.kind,promotion.value) if promotion else shop.Decimal("0.00")
     else:
         promotion=None; discount_amount=promo_discount_amount
+    from .loyalty import renewal_discount
+    discount_amount=max(discount_amount,await renewal_discount(db,user,base_amount))  # v28.51: the level's discount (the larger one wins)
     final_amount=(base_amount-discount_amount).quantize(shop.Decimal("0.01"),rounding=shop.ROUND_HALF_UP)
     if final_amount<=0: raise shop.HTTPException(400,"Amount must be positive")
     risk_score,risk_decision,risk_signals=await shop._risk_score(db,user,final_amount,request)

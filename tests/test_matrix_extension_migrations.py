@@ -21,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0085_loyalty',
         '0084_subscription_freeze',
         '0083_corporate_seats',
         '0082_status_subscribers',
@@ -52,6 +53,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
+    # 0085 (loyalty levels: re-computed by the next pass) is unguarded.
     # 0084 refuses a downgrade itself while a freeze runs (no guard row needed here).
     # 0083 (corporate seats, members and invoices) and 0082 (status page subscribers: re-creatable) are unguarded.
     # 0081 (subscription log, change journal, API stats, sessions, WireGuard pool, waits and grace squads: working data) is unguarded.
@@ -60,7 +62,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     # analytics and a campaign send log; it refuses only while tax receipts exist) are intentionally unguarded.
     # 0076 is guarded by Telegram Stars subscriptions, family members and gift commissions. 0075 is guarded by stored offer consents. 0074 (automation executions; downgrade restores suspended lifecycles), 0073 (staging run evidence, re-creatable by a new run), 0072/0071 (30-day counters), 0068 (cache)
     # and 0066 (re-registrable push tokens) are intentionally unguarded.
-    guarded_names = [roundtrip_names[8], roundtrip_names[9], roundtrip_names[14], roundtrip_names[15], roundtrip_names[19], roundtrip_names[20], *roundtrip_names[24:]]
+    guarded_names = [roundtrip_names[9], roundtrip_names[10], roundtrip_names[15], roundtrip_names[16], roundtrip_names[20], roundtrip_names[21], *roundtrip_names[25:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):

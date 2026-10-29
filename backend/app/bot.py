@@ -538,6 +538,32 @@ async def status_toggle(query: CallbackQuery):
     await query.answer("Буду сообщать о сбоях и восстановлении" if query.data == "status:on" else "Больше не сообщаю о сбоях")
 
 
+@router.message(Command("level"))
+async def level_command(message: Message):
+    """v28.51 «Уровни лояльности»: the customer's level, its perks and what is left to the next one."""
+    if not message.from_user or getattr(getattr(message, "chat", None), "type", "private") != "private":
+        return
+    from .loyalty import current
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(message.from_user.id))
+        lv = await current(db, user.id) if user else None
+    if not lv:
+        await message.answer("Уровни лояльности сейчас не действуют.")
+        return
+
+    def perks(x):
+        items = [f"кешбэк {x['cashback_percent']}%" if x.get("cashback_percent") else "", f"скидка {x['discount_percent']}%" if x.get("discount_percent") else ""]
+        return ", ".join(i for i in items if i) or "—"
+    lines = [f"🏅 <b>Ваш уровень: {escape(lv['title'])}</b>", perks(lv)]
+    if lv["next"]:
+        lines.append(f"\nДо уровня «{escape(lv['next']['title'])}»: {escape(lv['next']['need'] or 'совсем немного')}. Там: {perks(lv['next'])}"
+                     + (f", +{lv['next']['bonus_days']} дн. в подарок" if lv["next"].get("bonus_days") else "") + ".")
+    else:
+        lines.append("\nУ вас высший уровень — спасибо, что вы с нами!")
+    await message.answer("\n".join(lines), parse_mode="HTML")
+
+
 @router.message(Command("freeze"))
 async def freeze_command(message: Message):
     """v28.50 «Заморозка подписки»: pause the paid subscription (VPN off, paid days kept) or thaw it."""

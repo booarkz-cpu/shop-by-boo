@@ -193,6 +193,8 @@ async def spend_from_wallet(db:shop.AsyncSession,user:shop.User,payload:dict,ide
         discount_amount=shop.discounted_amount(base_amount,promotion.kind,promotion.value) if promotion else shop.Decimal("0.00")
     else:
         promotion=None; discount_amount=promo_discount_amount
+    from .loyalty import renewal_discount
+    discount_amount=max(discount_amount,await renewal_discount(db,user,base_amount))  # v28.51: the level's discount (the larger one wins)
     final_amount=shop._money(base_amount-discount_amount)
     bonus_days=int(shop.Decimal(str(promo.value))) if promo is not None and promo.kind=="days" else (int(shop.Decimal(str(promotion.value))) if promotion is not None and promotion.kind=="days" else 0)
     if final_amount <= 0: raise shop.HTTPException(400,"Amount must be positive")
