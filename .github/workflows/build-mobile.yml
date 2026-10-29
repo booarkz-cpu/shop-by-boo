@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag to attach the apps to (e.g. v28.49.0); empty = latest release"
+        description: "Release tag to attach the apps to (e.g. v28.50.0); empty = latest release"
         type: string
         default: ""
 

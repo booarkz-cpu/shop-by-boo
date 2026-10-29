@@ -1,6 +1,6 @@
-# Каталог API — v28.49.0 / API v21.5.1
+# Каталог API — v28.50.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0083_corporate_seats`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0084_subscription_freeze`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -136,6 +136,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/deployments` | Deployment Create |
 | `POST` | `/api/admin/deployments/{deployment_id}/promote` | Deployment Promote |
 | `POST` | `/api/admin/deployments/{deployment_id}/rollback` | Deployment Rollback |
+| `GET` | `/api/admin/dunning` | Повторные попытки автопродления |
+| `PUT` | `/api/admin/dunning` | Правила повторных попыток |
 | `POST` | `/api/admin/e2e-v2/admission/attestation` | Accept Attestation |
 | `PUT` | `/api/admin/e2e-v2/admission/config` | Save Admission Config |
 | `POST` | `/api/admin/e2e-v2/admission/nonce` | Issue Nonce |
@@ -175,6 +177,9 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/fraud/payment-rules` | Put Rules |
 | `POST` | `/api/admin/fraud/scan` | Fraud Scan |
 | `POST` | `/api/admin/fraud/{signal_id}` | Fraud Decision |
+| `GET` | `/api/admin/freeze` | Заморозки и правила |
+| `PUT` | `/api/admin/freeze` | Правила заморозки |
+| `POST` | `/api/admin/freeze/{subscription_id}/thaw` | Разморозить подписку клиента |
 | `GET` | `/api/admin/gateways` | Gateways Table |
 | `POST` | `/api/admin/gateways/auto-priority` | Auto Priority Now |
 | `PUT` | `/api/admin/gateways/config` | Put Config |
@@ -635,6 +640,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/family/join` | Family Join |
 | `DELETE` | `/api/me/family/members/{member_id}` | Family Remove |
 | `POST` | `/api/me/family/{subscription_id}/invite` | Family Invite |
+| `GET` | `/api/me/freeze` | Статус заморозки подписки |
+| `POST` | `/api/me/freeze` | Заморозить подписку |
+| `POST` | `/api/me/freeze/thaw` | Разморозить подписку |
 | `GET` | `/api/me/gifts` | Purchased Gifts |
 | `POST` | `/api/me/gifts/purchase` | Purchase Gift |
 | `POST` | `/api/me/gifts/redeem` | Redeem Gift |

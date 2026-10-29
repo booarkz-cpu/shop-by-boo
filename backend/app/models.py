@@ -2113,3 +2113,15 @@ class StatusSubscriber(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+class SubscriptionFreeze(Base):
+    """v28.50: a pause of a paid subscription (subscription_freeze.py)."""
+    __tablename__ = "subscription_freezes"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    subscription_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    until: Mapped[datetime] = mapped_column(DateTime, index=True, nullable=False)
+    days: Mapped[int] = mapped_column(Integer, nullable=False)
+    expires_before: Mapped[datetime|None] = mapped_column(DateTime)
+    ended_at: Mapped[datetime|None] = mapped_column(DateTime)

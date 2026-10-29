@@ -144,6 +144,8 @@ async def run_auto_renew_pass(db) -> None:
     if await shop.feature_enabled(db, "payments", True) is False: return
     if not await shop.production_payments_allowed(db): return
     cutoff=shop.datetime.utcnow()+shop.timedelta(days=max(1,min(int(shop.settings.auto_renew_lead_days or 3),14)))
+    from .dunning import grace as dunning_grace, load as dunning_config, max_failures, next_attempt, on_failure
+    dcfg=await dunning_config(db)  # v28.50: retry schedule, grace and customer messages after a decline
     rows=(await db.execute(shop.select(shop.User,shop.Subscription,shop.Plan,shop.AutoRenewMethod).join(shop.Subscription,shop.Subscription.user_id==shop.User.id).join(shop.Plan,shop.Plan.id==shop.Subscription.plan_id).join(shop.AutoRenewMethod,shop.AutoRenewMethod.user_id==shop.User.id).where(shop.User.auto_renew_enabled.is_(True),shop.Subscription.auto_renew_enabled.is_(True),shop.AutoRenewMethod.enabled.is_(True),shop.AutoRenewMethod.status.in_(["active","past_due"]),shop.Subscription.expires_at.is_not(None),shop.Subscription.expires_at<=cutoff,shop.Subscription.expires_at>shop.datetime.utcnow(),((shop.Subscription.next_renewal_at.is_(None))|(shop.Subscription.next_renewal_at<=shop.datetime.utcnow()))).limit(25))).all()
     for user,sub,plan,method in rows:
         candidate_subscription_id=sub.id
@@ -223,13 +225,14 @@ async def run_auto_renew_pass(db) -> None:
                         else:
                             provider_status=await _recurring_status(provider,existing.provider_payment_id)
                             if provider_status in {"canceled","cancelled","failed","rejected"}:
-                                existing.status="failed"; existing.fulfillment_terminal=True; method.failure_count=(method.failure_count or 0)+1; method.status="past_due"; method.last_error=f"Recurring payment {provider_status}"; method.next_attempt_at=shop.datetime.utcnow()+shop.timedelta(hours=min(72,2**min(method.failure_count,6))); sub.next_renewal_at=method.next_attempt_at; sub.lifecycle_status="grace"; sub.grace_until=(sub.expires_at or shop.datetime.utcnow())+shop.timedelta(hours=72); sub.last_renewal_failure_at=shop.datetime.utcnow()
-                                if method.failure_count>=3: method.status="payment_failed"; method.enabled=False; user.auto_renew_enabled=False
+                                existing.status="failed"; existing.fulfillment_terminal=True; method.failure_count=(method.failure_count or 0)+1; method.status="past_due"; method.last_error=f"Recurring payment {provider_status}"; method.next_attempt_at=shop.datetime.utcnow()+next_attempt(method.failure_count,dcfg); sub.next_renewal_at=method.next_attempt_at; sub.lifecycle_status="grace"; sub.grace_until=(sub.expires_at or shop.datetime.utcnow())+dunning_grace(dcfg); sub.last_renewal_failure_at=shop.datetime.utcnow()
+                                if method.failure_count>=max_failures(dcfg): method.status="payment_failed"; method.enabled=False; user.auto_renew_enabled=False
                                 await db.commit()
+                                await on_failure(db,user,sub,method,dcfg)
                     except Exception as exc:
                         shop.logger.warning("Non-critical operation failed: %s", exc)
-                # The third declined charge switched auto-renew off: no new charge in this pass or later.
-                if method.failure_count>=3 or not method.enabled:
+                # The last declined charge (third by default, «Повторные попытки» in v28.50) switched auto-renew off.
+                if method.failure_count>=max_failures(dcfg) or not method.enabled:
                     method.status="payment_failed"; method.enabled=False; user.auto_renew_enabled=False
                     await db.commit(); continue
                 # Never create a second charge while the newest provider attempt
@@ -300,12 +303,15 @@ async def run_auto_renew_pass(db) -> None:
                 sub=await db.get(shop.Subscription,candidate_subscription_id)
                 user=await db.get(shop.User,customer_id)
                 method.last_attempt_at=shop.datetime.utcnow(); method.failure_count=(method.failure_count or 0)+1; method.status="past_due"; method.last_error=str(exc)[:1000]
-                method.next_attempt_at=shop.datetime.utcnow()+shop.timedelta(hours=min(72,2**min(method.failure_count,6)))
+                method.next_attempt_at=shop.datetime.utcnow()+next_attempt(method.failure_count,dcfg)
                 if sub: sub.next_renewal_at=method.next_attempt_at
-                if method.failure_count>=3:
+                if method.failure_count>=max_failures(dcfg):
                     method.status="payment_failed"; method.enabled=False
                     if user: user.auto_renew_enabled=False
                 await db.commit()
+                if sub and user:
+                    try: await on_failure(db,user,sub,method,dcfg)
+                    except Exception as notice_exc: shop.logger.warning("Renewal notice failed: %s", notice_exc)
         finally:
             if renew_lock and renew_token:
                 await shop._release_payment_side_effect_lock(renew_lock,renew_token)
