@@ -2132,3 +2132,18 @@ class LoyaltyMember(Base):
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
     level: Mapped[str] = mapped_column(String(24), nullable=False)
     reached_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+class FeedbackRating(Base):
+    """v28.52: a support rating (CSAT, 1–5, per ticket) or an NPS answer (0–10, per wave) — feedback.py."""
+    __tablename__ = "feedback_ratings"
+    __table_args__ = (UniqueConstraint("kind", "ticket_id", name="uq_feedback_ticket"),
+                      UniqueConstraint("kind", "user_id", "period", name="uq_feedback_wave"))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    kind: Mapped[str] = mapped_column(String(8), nullable=False)
+    ticket_id: Mapped[int|None] = mapped_column(Integer)
+    period: Mapped[str|None] = mapped_column(String(16))
+    operator: Mapped[str|None] = mapped_column(String(320))
+    score: Mapped[int] = mapped_column(Integer, nullable=False)
+    comment: Mapped[str|None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)

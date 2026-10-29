@@ -538,6 +538,32 @@ async def status_toggle(query: CallbackQuery):
     await query.answer("Буду сообщать о сбоях и восстановлении" if query.data == "status:on" else "Больше не сообщаю о сбоях")
 
 
+@router.callback_query(lambda query: bool(query.data and (query.data.startswith("csat:") or query.data.startswith("nps:"))))
+async def feedback_answer(query: CallbackQuery):
+    """v28.52: a support rating (csat:<ticket>:<1-5>) or an NPS answer (nps:<wave>:<0-10>) from the inline buttons."""
+    from fastapi import HTTPException
+    from .feedback import record
+    kind, ref, score = (query.data.split(":") + ["", ""])[:3]
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(query.from_user.id))
+        if not user:
+            await query.answer("Начните с /start")
+            return
+        try:
+            if kind == "csat":
+                await record(db, user.id, "csat", int(score), ticket_id=int(ref))
+            else:
+                await record(db, user.id, "nps", int(score), wave=ref)
+        except (HTTPException, ValueError):
+            await query.answer("Не получилось сохранить оценку")
+            return
+    await query.answer("Спасибо за оценку!")
+    if query.message:
+        low = (kind == "csat" and int(score) <= 3) or (kind == "nps" and int(score) <= 6)
+        await query.message.answer("Спасибо! Расскажите, что можно сделать лучше, — просто напишите в поддержку." if low else "Спасибо, что помогаете нам стать лучше!")
+
+
 @router.message(Command("level"))
 async def level_command(message: Message):
     """v28.51 «Уровни лояльности»: the customer's level, its perks and what is left to the next one."""

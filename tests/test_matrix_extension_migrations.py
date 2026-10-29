@@ -6,7 +6,7 @@ import pytest
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
-from app.models import DmarcReport, TerminalSession, HistoryImportJob, CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange, UserConsent, StarsSubscription
+from app.models import FeedbackRating, DmarcReport, TerminalSession, HistoryImportJob, CustomerPasskey, SupportTopologyOperation, PartnerWithdrawal, Reseller, CustomerBatchOperation, ContentPage, PromoGroup, RuntimeSettingChange, UserConsent, StarsSubscription
 from test_subscription_commerce import database
 
 
@@ -21,6 +21,7 @@ def migration(name):
 async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
+        '0086_feedback',
         '0085_loyalty',
         '0084_subscription_freeze',
         '0083_corporate_seats',
@@ -53,6 +54,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
         '0056_support_topology',
         '0055_customer_passkeys',
     ]
+    # 0086 (customer ratings) refuses a downgrade while ratings exist.
     # 0085 (loyalty levels: re-computed by the next pass) is unguarded.
     # 0084 refuses a downgrade itself while a freeze runs (no guard row needed here).
     # 0083 (corporate seats, members and invoices) and 0082 (status page subscribers: re-creatable) are unguarded.
@@ -62,7 +64,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     # analytics and a campaign send log; it refuses only while tax receipts exist) are intentionally unguarded.
     # 0076 is guarded by Telegram Stars subscriptions, family members and gift commissions. 0075 is guarded by stored offer consents. 0074 (automation executions; downgrade restores suspended lifecycles), 0073 (staging run evidence, re-creatable by a new run), 0072/0071 (30-day counters), 0068 (cache)
     # and 0066 (re-registrable push tokens) are intentionally unguarded.
-    guarded_names = [roundtrip_names[9], roundtrip_names[10], roundtrip_names[15], roundtrip_names[16], roundtrip_names[20], roundtrip_names[21], *roundtrip_names[25:]]
+    guarded_names = [roundtrip_names[0], roundtrip_names[10], roundtrip_names[11], roundtrip_names[16], roundtrip_names[17], roundtrip_names[21], roundtrip_names[22], *roundtrip_names[26:]]
     async with database.bind.begin() as conn:
         def cycle(sync):
             with Operations.context(MigrationContext.configure(sync)):
@@ -84,6 +86,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     database.add(ContentPage(slug='terms',locale='ru',kind='legal',draft={}))
     database.add(TerminalSession(id='retain-terminal', agent_id=1, agent_name='n', admin_id=1, admin_email='a@example.test', reason='audit', status='closed', created_at=datetime.utcnow(), expires_at=datetime.utcnow()))
     database.add(DmarcReport(org_name='Retain', report_id='r-1', domain='shop.example', date_begin=datetime.utcnow(), date_end=datetime.utcnow(), received_at=datetime.utcnow(), source='upload'))
+    database.add(FeedbackRating(user_id=1,kind='nps',period='2026Q4',score=9))
     database.add(RuntimeSettingChange(id='retain-runtime-history',base_version=0,target_version=1,status='applied',keys=['trial_max_days'],payload_encrypted='encrypted',fingerprint='f'*64,actor='test',reason='retain history'))
     await database.commit()
     for name in guarded_names:

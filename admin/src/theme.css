@@ -1030,3 +1030,4 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
 .e2e-run:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
 .e2e-case { margin: 8px 0 12px; }
 .workspace .form-grid.stoplists>label.field:has(> textarea),.workspace .form-grid.stoplists>label:has(> textarea) { grid-column: auto; }
+.digest-preview { white-space: pre-wrap; font: inherit; background: var(--surface-2, rgba(127,127,127,.08)); padding: 12px; border-radius: 10px; }

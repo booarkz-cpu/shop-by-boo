@@ -1,6 +1,6 @@
-# Каталог API — v28.51.0 / API v21.5.1
+# Каталог API — v28.52.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0085_loyalty`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0086_feedback`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -104,6 +104,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/churn` | Churn |
 | `PUT` | `/api/admin/churn` | Put Churn |
 | `POST` | `/api/admin/churn/{user_id}/offer` | Offer |
+| `GET` | `/api/admin/cohorts` | Admin Cohorts |
 | `GET` | `/api/admin/connection-quality` | Admin Quality |
 | `GET` | `/api/admin/content` | Admin Content |
 | `GET` | `/api/admin/corporate` | Admin List |
@@ -136,6 +137,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/deployments` | Deployment Create |
 | `POST` | `/api/admin/deployments/{deployment_id}/promote` | Deployment Promote |
 | `POST` | `/api/admin/deployments/{deployment_id}/rollback` | Deployment Rollback |
+| `GET` | `/api/admin/digest` | Get Digest |
+| `PUT` | `/api/admin/digest` | Put Digest |
+| `POST` | `/api/admin/digest/send` | Send Digest |
 | `GET` | `/api/admin/dunning` | Get Dunning |
 | `PUT` | `/api/admin/dunning` | Put Dunning |
 | `POST` | `/api/admin/e2e-v2/admission/attestation` | Accept Attestation |
@@ -161,6 +165,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/errors/resolve-all` | Resolve All |
 | `POST` | `/api/admin/errors/{error_id}/resolve` | Resolve Error |
 | `GET` | `/api/admin/family` | Admin Family |
+| `GET` | `/api/admin/feedback` | Admin Feedback |
+| `PUT` | `/api/admin/feedback` | Admin Feedback Config |
 | `POST` | `/api/admin/fields` | Admin Field |
 | `DELETE` | `/api/admin/fields/{field_id}` | Admin Field Delete |
 | `PUT` | `/api/admin/fields/{field_id}` | Admin Field Update |
@@ -642,6 +648,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/family/join` | Family Join |
 | `DELETE` | `/api/me/family/members/{member_id}` | Family Remove |
 | `POST` | `/api/me/family/{subscription_id}/invite` | Family Invite |
+| `GET` | `/api/me/feedback` | My Feedback |
+| `POST` | `/api/me/feedback/csat` | Rate Ticket |
+| `POST` | `/api/me/feedback/nps` | Rate Shop |
 | `GET` | `/api/me/freeze` | My Freeze |
 | `POST` | `/api/me/freeze` | Freeze Mine |
 | `POST` | `/api/me/freeze/thaw` | Thaw Mine |
