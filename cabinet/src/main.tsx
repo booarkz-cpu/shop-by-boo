@@ -25,6 +25,7 @@ import type {AccountLink} from "./account-recovery";
 import {DomLocalizer, LangProvider, detectLang, t, useLang} from "./i18n";
 import {AppConfigProvider, useAppConfig} from "./app-config";
 import {FamilySection, StarsSubscribe, StatusSection, familyCodeFromUrl} from "./growth";
+import {CompanySection, companyCodeFromUrl} from "./company";
 import {MAINTENANCE_EVENT, MaintenanceScreen, PaymentResult, StickerState, isMaintenance, orderFromUrl} from "./stickers";
 import {ConfigIcon, ConfigNotice, ConfigSkeleton, ConsentGate, Greeting, InfoSection, PromoCards, ReferralTerms, SectionBanner, SectionBoundary, ServerCatalog, SupportButtons, WalletTopup} from "./miniapp-sections";
 
@@ -42,7 +43,7 @@ const NAV_ICON: Record<string, React.ReactNode> = {
 };
 const BOTTOM_KINDS = ["overview", "plans", "connection", "wallet"];
 
-type MenuKind = "info" | "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "family" | "status" | "custom";
+type MenuKind = "info" | "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "family" | "status" | "company" | "custom";
 type MenuItem = {slug: string; title: string; kind: MenuKind; body?: string; icon?: string};
 
 const FALLBACK_MENU: MenuItem[] = [
@@ -437,6 +438,7 @@ function App() {
           const url=new URL(location.href);url.searchParams.delete("gift");history.replaceState(null,"",url.pathname+url.search+url.hash);
         }
         if(familyCodeFromUrl())location.hash="family";
+        if(companyCodeFromUrl())location.hash="company";
         if (sandboxPayment) {
           try {
             await req("/api/payments/sandbox/complete", {
@@ -962,6 +964,7 @@ function App() {
                 </>}
 
                 {activeItem?.kind === "family" && <FamilySection request={req} flash={flash} reload={loadSession} />}
+                {activeItem?.kind === "company" && <CompanySection request={req} flash={flash} api={API} reload={loadSession} />}
                 {activeItem?.kind === "status" && <StatusSection api={API} request={authed ? req : undefined} />}
                 {activeItem?.kind === "info" && <><h2 className="section-title">{activeItem.title}</h2><InfoSection request={req} locale={lang} /></>}
                 {activeItem?.kind === "surveys" && <Surveys request={req} reload={loadSession}/>}

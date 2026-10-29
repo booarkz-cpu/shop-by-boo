@@ -49,7 +49,7 @@ SECTION_BANNERS = {
     "wallet": "topup", "subscription": "subscription", "payments": "payments", "gifts": "gifts",
     "referral": "referral", "support": "support", "devices": "devices", "surveys": "surveys",
     "giveaways": "gifts", "security": "account", "notifications": "menu", "partner": "referral", "info": "info",
-    "family": "family", "status": "status",
+    "family": "family", "status": "status", "company": "account",
     # Documents in «Информация» (info_pages): each has its own Lusi banner.
     "faq": "faq", "rules": "rules", "privacy": "privacy", "offer": "offer",
     # v28.38.0: blocks of the modules from the comparison snapshots.
@@ -59,7 +59,7 @@ NAV_ICONS = {
     "overview": "home", "plans": "zap", "trial": "sparkles", "connection": "plug", "servers": "server",
     "wallet": "wallet", "subscription": "shield", "payments": "receipt", "gifts": "gift", "referral": "users",
     "support": "help", "devices": "smartphone", "surveys": "list", "giveaways": "trophy", "security": "key",
-    "notifications": "bell", "partner": "users", "info": "info", "custom": "file", "family": "heart", "status": "server",
+    "notifications": "bell", "partner": "users", "info": "info", "custom": "file", "family": "heart", "status": "server", "company": "users",
 }
 
 DEFAULT_TEXTS = {
@@ -120,11 +120,11 @@ NAV_I18N = {
     "en": {"overview": "Home", "plans": "Plans", "trial": "Free trial", "connection": "Connect", "servers": "Servers", "wallet": "Wallet",
            "subscription": "My subscription", "payments": "Payments", "gifts": "Gifts", "referral": "Invite friends", "support": "Support",
            "devices": "Devices", "surveys": "Surveys", "giveaways": "Giveaways", "security": "Security", "notifications": "Notifications",
-           "partner": "Partner portal", "info": "Information", "family": "Family", "status": "Service status"},
+           "partner": "Partner portal", "info": "Information", "family": "Family", "status": "Service status", "company": "Company"},
     "uk": {"overview": "Огляд", "plans": "Тарифи", "trial": "Пробний період", "connection": "Підключення", "servers": "Сервери", "wallet": "Гаманець",
            "subscription": "Моя підписка", "payments": "Платежі", "gifts": "Подарунки", "referral": "Запроси друзів", "support": "Підтримка",
            "devices": "Пристрої", "surveys": "Опитування", "giveaways": "Конкурси", "security": "Безпека", "notifications": "Сповіщення",
-           "partner": "Партнерський кабінет", "info": "Інформація", "family": "Родина", "status": "Стан сервісу"},
+           "partner": "Партнерський кабінет", "info": "Інформація", "family": "Родина", "status": "Стан сервісу", "company": "Компанія"},
 }
 
 
@@ -436,6 +436,11 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
     family_plans = await db.scalar(select(Plan.id).where(Plan.enabled.is_(True), Plan.family_seats > 0).limit(1))
     if family_plans and not any(n["kind"] == "family" for n in navigation):
         navigation.append({"slug": "family", "title": "Семья", "kind": "family", "icon": "heart", "banner": banners.get("family", ""), "body": ""})
+    from .models import CorporateAccount
+    companies = await db.scalar(select(CorporateAccount.id).where(CorporateAccount.enabled.is_(True), CorporateAccount.plan_id.is_not(None)).limit(1))
+    if companies and not any(n["kind"] == "company" for n in navigation):
+        # v28.48: «Компания» — the section answers «not in a company» for others and joins by a ?company= link.
+        navigation.append({"slug": "company", "title": "Компания", "kind": "company", "icon": "users", "banner": banners.get("company", ""), "body": ""})
     if not any(n["kind"] == "status" for n in navigation):
         navigation.append({"slug": "status", "title": "Состояние сервиса", "kind": "status", "icon": "server", "banner": banners.get("status", ""), "body": ""})
     if not any(n["kind"] == "info" for n in navigation):
