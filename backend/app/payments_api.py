@@ -2,7 +2,7 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
-from .payments_extra import AnoreProvider, AntilopayProvider, AuraPayProvider, CasheraProvider, CloudPaymentsProvider, LavaProvider, MulenPayProvider, Pal24Provider, ParityPayProvider, WataProvider
+from .gateways import configured_map as extra_configured, factories as extra_factories
 from . import main as shop
 
 # ---------- Payments ----------
@@ -22,22 +22,13 @@ def provider_configured() -> dict[str, bool]:
         "rollypay": bool(shop.settings.rollypay_api_key and shop.settings.rollypay_signing_secret),
         "cryptobot": bool(shop.settings.cryptobot_token),
         "freekassa": shop.FreekassaProvider.configured(),
-        "cloudpayments": CloudPaymentsProvider.configured(),
-        "lava": LavaProvider.configured(),
-        "pal24": Pal24Provider.configured(),
-        "mulenpay": MulenPayProvider.configured(),
-        "wata": WataProvider.configured(),
-        "antilopay": AntilopayProvider.configured(),
-        "aurapay": AuraPayProvider.configured(),
-        "anore": AnoreProvider.configured(),
-        "cashera": CasheraProvider.configured(),
-        "paritypay": ParityPayProvider.configured(),
+        **extra_configured(),  # the extra gateways (gateways/__init__.py)
         "sandbox": shop.payments_sandbox_allowed(),
     }
 
 def _checkout_provider(name: str):
     """One map for every routable gateway: a reserve gateway first in line (main one in cooldown) must work."""
-    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,"cloudpayments":CloudPaymentsProvider,"lava":LavaProvider,"pal24":Pal24Provider,"mulenpay":MulenPayProvider,"wata":WataProvider,"antilopay":AntilopayProvider,"aurapay":AuraPayProvider,"anore":AnoreProvider,"cashera":CasheraProvider,"paritypay":ParityPayProvider,"sandbox":shop.SandboxProvider}
+    factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,**extra_factories(),"sandbox":shop.SandboxProvider}
     return factories[name]()
 
 async def _payment_provider_order(db: shop.AsyncSession, requested: str|None, method: str|None=None):

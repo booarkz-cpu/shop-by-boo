@@ -50,7 +50,7 @@ sudo bash /opt/vpn-shop/scripts/hot-standby.sh demote
 
 Заключите договор, получите ключи и впишите их в «Настройки → Платёжные агенты» или в `.env`. Адреса уведомлений — в [billing_and_taxes.md](../modules/billing_and_taxes.md#cloudpayments-и-lava-v2838) [Pal24 и Mulen Pay](../modules/billing_and_taxes.md#pal24-и-mulen-pay-v2839), [WATA и Antilopay](../modules/billing_and_taxes.md#wata-и-antilopay-v2840), [AuraPay и Anore](../modules/billing_and_taxes.md#aurapay-и-anore-v2841), [Cashera и ParityPay](../modules/billing_and_taxes.md#cashera-и-paritypay-v2843) и [Tribute](../modules/billing_and_taxes.md#tribute-пополнение-кошелька-донатом-в-telegram-v2844) (донат-ссылка и API-ключ; пополняет кошелёк клиента по его Telegram). Для Antilopay сгенерируйте пару RSA-ключей в кабинете: закрытый ключ магазина — в `ANTILOPAY_PRIVATE_KEY`, открытый ключ Antilopay — в `ANTILOPAY_PUBLIC_KEY`.
 
-**Проверка:** «Платёжные агенты → Очередь касс» показывает кассу как «принимает». Затем пробная оплата на минимальную сумму и возврат в кабинете кассы.
+**Проверка:** добавьте те же ключи в секреты репозитория и запустите в Actions workflow «Payments acceptance»: он проверит ключи и создание страницы оплаты без движения денег. Затем «Платёжные агенты → Здоровье касс → Проверить кассы сейчас»; «Очередь касс» должна показывать кассу как «принимает». Затем пробная оплата на минимальную сумму и возврат в кабинете кассы.
 
 ## 5. Домен зеркала подписки
 

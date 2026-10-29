@@ -34,7 +34,7 @@ def cp(monkeypatch):
     @asynccontextmanager
     async def client(timeout):
         yield api
-    monkeypatch.setattr(px, "_public_client", client)
+    monkeypatch.setattr(px.common, "_public_client", client)
     monkeypatch.setattr(px.settings, "cloudpayments_public_id", "pk_test")
     monkeypatch.setattr(px.settings, "cloudpayments_api_secret", "api-secret")
     return api
@@ -48,7 +48,7 @@ def lava(monkeypatch):
     @asynccontextmanager
     async def client(timeout):
         yield api
-    monkeypatch.setattr(px, "_public_client", client)
+    monkeypatch.setattr(px.common, "_public_client", client)
     for k, v in {"lava_shop_id": "shop-uuid", "lava_secret_key": "secret-key", "lava_webhook_secret": "add-key",
                  "webhook_base_url": "https://api.corgi.test"}.items():
         monkeypatch.setattr(px.settings, k, v)

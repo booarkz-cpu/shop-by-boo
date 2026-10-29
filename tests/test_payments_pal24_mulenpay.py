@@ -31,7 +31,7 @@ def _patch(monkeypatch, api, values):
     @asynccontextmanager
     async def client(timeout):
         yield api
-    monkeypatch.setattr(px, "_public_client", client)
+    monkeypatch.setattr(px.common, "_public_client", client)
     for k, v in values.items():
         monkeypatch.setattr(px.settings, k, v)
 
