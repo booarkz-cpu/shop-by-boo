@@ -136,8 +136,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/deployments` | Deployment Create |
 | `POST` | `/api/admin/deployments/{deployment_id}/promote` | Deployment Promote |
 | `POST` | `/api/admin/deployments/{deployment_id}/rollback` | Deployment Rollback |
-| `GET` | `/api/admin/dunning` | Повторные попытки автопродления |
-| `PUT` | `/api/admin/dunning` | Правила повторных попыток |
+| `GET` | `/api/admin/dunning` | Get Dunning |
+| `PUT` | `/api/admin/dunning` | Put Dunning |
 | `POST` | `/api/admin/e2e-v2/admission/attestation` | Accept Attestation |
 | `PUT` | `/api/admin/e2e-v2/admission/config` | Save Admission Config |
 | `POST` | `/api/admin/e2e-v2/admission/nonce` | Issue Nonce |
@@ -177,9 +177,9 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/fraud/payment-rules` | Put Rules |
 | `POST` | `/api/admin/fraud/scan` | Fraud Scan |
 | `POST` | `/api/admin/fraud/{signal_id}` | Fraud Decision |
-| `GET` | `/api/admin/freeze` | Заморозки и правила |
-| `PUT` | `/api/admin/freeze` | Правила заморозки |
-| `POST` | `/api/admin/freeze/{subscription_id}/thaw` | Разморозить подписку клиента |
+| `GET` | `/api/admin/freeze` | Admin Freeze |
+| `PUT` | `/api/admin/freeze` | Admin Freeze Config |
+| `POST` | `/api/admin/freeze/{subscription_id}/thaw` | Admin Thaw |
 | `GET` | `/api/admin/gateways` | Gateways Table |
 | `POST` | `/api/admin/gateways/auto-priority` | Auto Priority Now |
 | `PUT` | `/api/admin/gateways/config` | Put Config |
@@ -640,9 +640,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/family/join` | Family Join |
 | `DELETE` | `/api/me/family/members/{member_id}` | Family Remove |
 | `POST` | `/api/me/family/{subscription_id}/invite` | Family Invite |
-| `GET` | `/api/me/freeze` | Статус заморозки подписки |
-| `POST` | `/api/me/freeze` | Заморозить подписку |
-| `POST` | `/api/me/freeze/thaw` | Разморозить подписку |
+| `GET` | `/api/me/freeze` | My Freeze |
+| `POST` | `/api/me/freeze` | Freeze Mine |
+| `POST` | `/api/me/freeze/thaw` | Thaw Mine |
 | `GET` | `/api/me/gifts` | Purchased Gifts |
 | `POST` | `/api/me/gifts/purchase` | Purchase Gift |
 | `POST` | `/api/me/gifts/redeem` | Redeem Gift |
