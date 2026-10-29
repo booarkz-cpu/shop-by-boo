@@ -2147,3 +2147,16 @@ class FeedbackRating(Base):
     score: Mapped[int] = mapped_column(Integer, nullable=False)
     comment: Mapped[str|None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+class SpeedTest(Base):
+    """v28.53: a speed measurement from an app through the VPN (speed_test.py); kept 30 days, no IP addresses."""
+    __tablename__ = "speed_tests"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    server: Mapped[str] = mapped_column(String(120), nullable=False)
+    vpn: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    download_mbps: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
+    ping_ms: Mapped[int|None] = mapped_column(Integer)
+    network: Mapped[str|None] = mapped_column(String(16))
+    platform: Mapped[str|None] = mapped_column(String(16))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)

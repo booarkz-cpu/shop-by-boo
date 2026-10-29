@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.52.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.53.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1908**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1917**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -186,6 +186,7 @@
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
 | [admin/src/nodeAutoscale.tsx](../admin/src/nodeAutoscale.tsx) | Админ-панель |
 | [admin/src/nodeMonitor.tsx](../admin/src/nodeMonitor.tsx) | Админ-панель |
+| [admin/src/nodesV53.tsx](../admin/src/nodesV53.tsx) | Админ-панель |
 | [admin/src/ops.tsx](../admin/src/ops.tsx) | Админ-панель |
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
@@ -309,6 +310,7 @@
 | [backend/alembic/versions/0084_subscription_freeze.py](../backend/alembic/versions/0084_subscription_freeze.py) | API, бот и worker |
 | [backend/alembic/versions/0085_loyalty.py](../backend/alembic/versions/0085_loyalty.py) | API, бот и worker |
 | [backend/alembic/versions/0086_feedback.py](../backend/alembic/versions/0086_feedback.py) | API, бот и worker |
+| [backend/alembic/versions/0087_speed_tests.py](../backend/alembic/versions/0087_speed_tests.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -452,6 +454,7 @@
 | [backend/app/moderation.py](../backend/app/moderation.py) | API, бот и worker |
 | [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
 | [backend/app/node_autoscale.py](../backend/app/node_autoscale.py) | API, бот и worker |
+| [backend/app/node_forecast.py](../backend/app/node_forecast.py) | API, бот и worker |
 | [backend/app/node_health.py](../backend/app/node_health.py) | API, бот и worker |
 | [backend/app/node_terminal.py](../backend/app/node_terminal.py) | API, бот и worker |
 | [backend/app/notifications_status_api.py](../backend/app/notifications_status_api.py) | API, бот и worker |
@@ -504,6 +507,7 @@
 | [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
 | [backend/app/security.py](../backend/app/security.py) | API, бот и worker |
 | [backend/app/smart_cart.py](../backend/app/smart_cart.py) | API, бот и worker |
+| [backend/app/speed_test.py](../backend/app/speed_test.py) | API, бот и worker |
 | [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
 | [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
@@ -902,6 +906,7 @@
 | [docs/en/NEW_IN_V28_50.md](../docs/en/NEW_IN_V28_50.md) | Документация |
 | [docs/en/NEW_IN_V28_51.md](../docs/en/NEW_IN_V28_51.md) | Документация |
 | [docs/en/NEW_IN_V28_52.md](../docs/en/NEW_IN_V28_52.md) | Документация |
+| [docs/en/NEW_IN_V28_53.md](../docs/en/NEW_IN_V28_53.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -950,6 +955,7 @@
 | [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
 | [docs/modules/sales_flows.md](../docs/modules/sales_flows.md) | Документация |
+| [docs/modules/speed_and_forecast.md](../docs/modules/speed_and_forecast.md) | Документация |
 | [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
 | [docs/modules/status_and_regional_pricing.md](../docs/modules/status_and_regional_pricing.md) | Документация |
 | [docs/modules/subscription_proxy.md](../docs/modules/subscription_proxy.md) | Документация |
@@ -1065,6 +1071,7 @@
 | [docs/ru/RELEASE_V28_50_0.md](../docs/ru/RELEASE_V28_50_0.md) | Документация |
 | [docs/ru/RELEASE_V28_51_0.md](../docs/ru/RELEASE_V28_51_0.md) | Документация |
 | [docs/ru/RELEASE_V28_52_0.md](../docs/ru/RELEASE_V28_52_0.md) | Документация |
+| [docs/ru/RELEASE_V28_53_0.md](../docs/ru/RELEASE_V28_53_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
@@ -1191,6 +1198,7 @@
 | [docs/uk/NEW_IN_V28_50.md](../docs/uk/NEW_IN_V28_50.md) | Документация |
 | [docs/uk/NEW_IN_V28_51.md](../docs/uk/NEW_IN_V28_51.md) | Документация |
 | [docs/uk/NEW_IN_V28_52.md](../docs/uk/NEW_IN_V28_52.md) | Документация |
+| [docs/uk/NEW_IN_V28_53.md](../docs/uk/NEW_IN_V28_53.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1822,6 +1830,7 @@
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
+| [tests/test_speed_forecast.py](../tests/test_speed_forecast.py) | Проверки |
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_status_and_regional_pricing.py](../tests/test_status_and_regional_pricing.py) | Проверки |
 | [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |

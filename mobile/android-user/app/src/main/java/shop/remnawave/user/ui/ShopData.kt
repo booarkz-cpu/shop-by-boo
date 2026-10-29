@@ -116,6 +116,8 @@ interface ShopActions {
     /** v28.50 «Заморозка подписки»: pause the paid subscription for [days] days / resume it. */
     fun freeze(days: Int)
     fun thaw()
+    /** v28.53 «Проверка скорости»: download through the current connection, time the response, report it. */
+    fun speedTest()
 }
 
 fun formatBytes(bytes: Long): String {

@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.52.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.53.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Единая переписка магазина и Support Pro
 
@@ -13,14 +13,14 @@
 ```bash
 cd /opt/vpn-shop
 git fetch origin
-git switch --detach v28.52.0
+git switch --detach v28.53.0
 docker compose stop backend worker support_pro support_worker
 docker compose build backend worker support_migrate support_pro support_worker
 docker compose run --rm backend alembic upgrade head
 docker compose run --rm support_migrate
 ```
 
-После обновления нужны head `0086_feedback` в магазине и `0008` в Support Pro. Схема интеграции была добавлена миграцией 0048. Корневой Compose читает существующий `support-pro/.env`. Сохраните его BOT_TOKEN, SESSION_SECRET, имя базы и настройки SSO. Для новой установки общие ключи создаёт установщик.
+После обновления нужны head `0087_speed_tests` в магазине и `0008` в Support Pro. Схема интеграции была добавлена миграцией 0048. Корневой Compose читает существующий `support-pro/.env`. Сохраните его BOT_TOKEN, SESSION_SECRET, имя базы и настройки SSO. Для новой установки общие ключи создаёт установщик.
 
 Настройте обе стороны одной командой, подставив **API-домен** магазина, а не домен кабинета:
 

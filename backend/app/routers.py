@@ -42,5 +42,5 @@ MODULES = (
     "connection_quality",
     "churn",
     "customer_insights",
-    "pnl", "sub_proxy", "client_versions", "panel_api_stats", "webhook_tee", "first_connect", "vpn_sessions", "panel_usage", "wg_pool", "payments_extra", "gateway_ops", "status_page", "regional_pricing", "corporate", "payment_fraud", "subscription_freeze", "dunning", "loyalty", "feedback", "cohorts", "weekly_digest",
+    "pnl", "sub_proxy", "client_versions", "panel_api_stats", "webhook_tee", "first_connect", "vpn_sessions", "panel_usage", "wg_pool", "payments_extra", "gateway_ops", "status_page", "regional_pricing", "corporate", "payment_fraud", "subscription_freeze", "dunning", "loyalty", "feedback", "cohorts", "weekly_digest", "speed_test", "node_forecast",
 )

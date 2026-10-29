@@ -305,6 +305,33 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         return decoded
     }
 
+    /// v28.53: read a speed-test blob through the pinned session; returns the bytes read and the seconds it took.
+    func download(_ path: String) throws -> (Int, Double) {
+        guard let url = URL(string: CorgiMirrors.resolve(base) + path) else { throw URLError(.badURL) }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 30
+        request.setValue("application/octet-stream", forHTTPHeaderField: "Accept")
+        request.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
+        request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
+        if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        let semaphore = DispatchSemaphore(value: 0)
+        var size = 0
+        var status = 0
+        var failure: Error?
+        let started = Date()
+        session.dataTask(with: request) { data, response, error in
+            size = data?.count ?? 0
+            status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            failure = error
+            semaphore.signal()
+        }.resume()
+        semaphore.wait()
+        let seconds = Date().timeIntervalSince(started)
+        if let failure = failure { throw failure }
+        if !(200...299).contains(status) { throw URLError(.badServerResponse) }
+        return (size, seconds)
+    }
+
     func bytes(_ path: String) throws -> Data {
         guard let safe = safeMediaPath(path), let url = URL(string: CorgiMirrors.resolve(base) + safe) else { throw URLError(.badURL) }
         var request = URLRequest(url: url)

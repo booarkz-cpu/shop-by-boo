@@ -1,6 +1,6 @@
-# Каталог API — v28.52.0 / API v21.5.1
+# Каталог API — v28.53.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0086_feedback`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0087_speed_tests`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -265,6 +265,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/network/intel/refresh` | Admin Network Refresh |
 | `GET` | `/api/admin/nodes/autoscale` | Get Autoscale |
 | `PUT` | `/api/admin/nodes/autoscale` | Put Autoscale |
+| `GET` | `/api/admin/nodes/forecast` | Get Forecast |
+| `PUT` | `/api/admin/nodes/forecast` | Put Forecast |
 | `GET` | `/api/admin/nodes/health` | Nodes Health |
 | `PUT` | `/api/admin/nodes/health/config` | Nodes Health Config |
 | `POST` | `/api/admin/nodes/update` | Update Nodes |
@@ -445,6 +447,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/sessions/revoke-all` | Revoke All Sessions |
 | `DELETE` | `/api/admin/sessions/{session_id}` | Revoke Admin Session |
 | `PUT` | `/api/admin/settings/{key}` | Admin Setting |
+| `GET` | `/api/admin/speedtest` | Admin Speed |
+| `PUT` | `/api/admin/speedtest` | Admin Speed Config |
 | `GET` | `/api/admin/staging-e2e/config` | Staging E2E Config |
 | `PUT` | `/api/admin/staging-e2e/config` | Update Staging E2E Config |
 | `POST` | `/api/admin/staging-e2e/run` | Run Staging E2E |
@@ -708,6 +712,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/security/revoke-all` | Revoke All User Sessions |
 | `GET` | `/api/me/servers` | My Servers |
 | `POST` | `/api/me/source` | My Source |
+| `POST` | `/api/me/speedtest` | Speed Report |
+| `GET` | `/api/me/speedtest/blob` | Speed Blob |
+| `GET` | `/api/me/speedtest/ping` | Speed Ping |
 | `GET` | `/api/me/stars-subscriptions` | My Stars Subscriptions |
 | `POST` | `/api/me/stars-subscriptions` | Create Stars Subscription |
 | `POST` | `/api/me/stars-subscriptions/{row_id}/cancel` | Cancel Stars Subscription |
