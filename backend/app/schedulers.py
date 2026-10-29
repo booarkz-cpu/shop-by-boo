@@ -254,6 +254,8 @@ async def run_auto_renew_pass(db) -> None:
                 method.last_error='Renewal currency differs from configured currency; explicit purchase required'
                 await db.commit();continue
             renewal_amount=shop.Decimal(terms['amount'])
+            from .loyalty import renewal_discount
+            renewal_cut=await renewal_discount(db,user,renewal_amount)  # v28.51: the loyalty level's discount on auto-renewal
             if renewal_amount<=0 or int(terms['days'])<=0:continue
             # Persist the payment intent BEFORE the external charge. If the
             # process dies after YooKassa accepts the charge but before the
@@ -263,7 +265,7 @@ async def run_auto_renew_pass(db) -> None:
             if not payment:
                 from .partners import renewal_terms as partner_renewal_terms
                 renewal_partner=await partner_renewal_terms(db,sub.id)
-                payment=shop.Payment(**renewal_partner,user_id=user.id,subscription_id=sub.id,plan_id=plan.id,provider=method.provider,provider_payment_id=None,order_id=order_id,amount=renewal_amount,original_amount=renewal_amount,discount_amount=shop.Decimal("0"),duration_days_snapshot=int(terms['days']),traffic_limit_gb_snapshot=terms['traffic_gb'],device_limit_snapshot=terms['devices'],remnawave_profile_id_snapshot=terms['profile_id'],referrer_id_snapshot=user.referred_by_id,referral_terms_snapshot=await shop.referral_snapshot(db,user),currency=shop.settings.default_currency,status="creating",fulfillment_status="pending",paid_at=None)
+                payment=shop.Payment(**renewal_partner,user_id=user.id,subscription_id=sub.id,plan_id=plan.id,provider=method.provider,provider_payment_id=None,order_id=order_id,amount=renewal_amount-renewal_cut,original_amount=renewal_amount,discount_amount=renewal_cut,duration_days_snapshot=int(terms['days']),traffic_limit_gb_snapshot=terms['traffic_gb'],device_limit_snapshot=terms['devices'],remnawave_profile_id_snapshot=terms['profile_id'],referrer_id_snapshot=user.referred_by_id,referral_terms_snapshot=await shop.referral_snapshot(db,user),currency=shop.settings.default_currency,status="creating",fulfillment_status="pending",paid_at=None)
                 db.add(payment); await db.flush()
             method.last_attempt_at=shop.datetime.utcnow(); method.next_attempt_at=shop.datetime.utcnow()+shop.timedelta(hours=24); sub.next_renewal_at=method.next_attempt_at; await db.commit()
             charger=recurring_provider(method.provider)

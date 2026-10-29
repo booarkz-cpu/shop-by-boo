@@ -115,6 +115,13 @@ async def my_stats(request: Request, db: AsyncSession = Depends(get_db)):
         data["traffic_peak_day"] = month["peak"]["day"] if month["peak"] and month["peak"]["bytes"] else None
     except Exception:  # noqa: BLE001 — older panels, no subscription yet
         data["traffic_30d_gb"] = None
+    # v28.51: the apps show the loyalty level and the freeze controls inside «Моя статистика».
+    from .loyalty import current
+    from .subscription_freeze import status_for
+    from .subscriptions import owned
+    data["loyalty"] = await current(db, user.id)
+    freeze = await status_for(db, user, await owned(db, user.id))
+    data["freeze"] = freeze if freeze["enabled"] else None
     return data
 
 

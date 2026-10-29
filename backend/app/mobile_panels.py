@@ -372,6 +372,20 @@ async def dunning_panel(db: AsyncSession) -> dict:
 
 
 
+async def loyalty_panel(db: AsyncSession) -> dict:
+    """v28.51 «Уровни лояльности»: customers per level, cashback of the month, on/off."""
+    from .loyalty import admin_loyalty, load
+    cfg = await load(db)
+    d = await admin_loyalty(db, None)
+    rows = [row("Уровни", "включены" if cfg.get("enabled") else "выключены", "ok" if cfg.get("enabled") else "")]
+    rows += [row(lv["title"], f"{d['members'].get(lv['key'], 0)} клиентов · кешбэк {lv.get('cashback_percent', 0)}% · скидка {lv.get('discount_percent', 0)}%") for lv in cfg["levels"]]
+    rows.append(row("Кешбэк за 30 дней", f"{d['cashback_30d']} ₽"))
+    body = {"enabled": True, "hold_days": cfg["hold_days"], "levels": cfg["levels"]}
+    return {"id": "loyalty", "title": "Уровни лояльности", "rows": rows,
+            "actions": [toggle("Включить уровни", "Выключить уровни", bool(cfg.get("enabled")), "PUT", "/api/admin/loyalty",
+                               body, {**body, "enabled": False}, "Кешбэк и скидки уровней перестанут действовать. Выключить?")]}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -384,7 +398,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel]
 
 
 @router.get("/api/admin/mobile/panels")

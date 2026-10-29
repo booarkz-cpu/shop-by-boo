@@ -203,7 +203,7 @@ async def status_for(db: AsyncSession, user, sub) -> dict:
             "days_left": max(0, int(cfg["year_days"]) - used["days"]), "times_left": max(0, int(cfg["year_times"]) - used["times"]),
             "subscription_id": sub.id if sub else None,
             "frozen": {"since": row.started_at.isoformat(), "until": row.until.isoformat()} if row and sub.lifecycle_status == "frozen" else None,
-            "reason": "" if not sub or sub.lifecycle_status == "frozen" else await check(db, user, sub, int(cfg["min_days"]), cfg)}
+            "reason": "Подписка не найдена" if not sub else ("" if sub.lifecycle_status == "frozen" else await check(db, user, sub, int(cfg["min_days"]), cfg))}
 
 
 async def _target(db, user, subscription_id):

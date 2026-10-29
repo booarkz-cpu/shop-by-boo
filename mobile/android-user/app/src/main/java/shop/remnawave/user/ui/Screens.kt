@@ -448,7 +448,15 @@ private fun InsightsCards(layout: AppLayout, data: ShopData, actions: ShopAction
         if (!s.isNull("traffic_lifetime_gb")) InfoLine(layout.text("stats_lifetime"), "${s.optDouble("traffic_lifetime_gb")} GB", theme)
         if (!s.isNull("traffic_30d_gb") && s.has("traffic_30d_gb")) InfoLine(layout.text("stats_month"), "${s.optDouble("traffic_30d_gb")} GB", theme)
         InfoLine(layout.text("stats_avoided"), s.optInt("blocked_servers_avoided").toString(), theme)
+        // v28.51: the loyalty level and what is left to the next one.
+        s.optJSONObject("loyalty")?.let { lv ->
+            InfoLine(layout.text("loyalty_level"), lv.optString("title"), theme)
+            lv.optJSONObject("next")?.let { nx ->
+                if (nx.optString("need").isNotBlank()) Muted(layout.text("loyalty_next").replace("{title}", nx.optString("title")) + ": " + nx.optString("need"), theme)
+            }
+        }
     }
+    s.optJSONObject("freeze")?.let { fz -> FreezeCard(layout, fz, actions) }
     if (data.upsell.length() > 0) Card(theme) {
         Text(layout.text("upsell_title"), color = theme.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         for (i in 0 until data.upsell.length()) {
@@ -456,6 +464,29 @@ private fun InsightsCards(layout: AppLayout, data: ShopData, actions: ShopAction
             Text(offer.optString("title"), color = theme.text, fontWeight = FontWeight.Bold)
             Muted(offer.optString("reason"), theme)
             ActionButton(LayoutButton("upsell_$i", "${offer.optString("price")} ₽", "refresh", "", "primary", "wallet", "any"), theme) { actions.buyOffer(offer) }
+        }
+    }
+}
+
+/** v28.50 «Заморозка подписки»: the paid subscription on pause (VPN off, paid days kept) or the buttons to pause it. */
+@Composable
+private fun FreezeCard(layout: AppLayout, fz: JSONObject, actions: ShopActions) {
+    val theme = layout.theme
+    val frozen = fz.optJSONObject("frozen")
+    val reason = fz.optString("reason")
+    if (frozen == null && reason.isNotBlank()) return
+    Card(theme) {
+        Text(layout.text("freeze_title"), color = theme.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        if (frozen != null) {
+            Muted(layout.text("freeze_until").replace("{date}", frozen.optString("until").take(10)), theme)
+            ActionButton(LayoutButton("freeze_thaw", layout.text("freeze_thaw"), "refresh", "", "primary", "power", "any"), theme) { actions.thaw() }
+        } else {
+            Muted(layout.text("freeze_hint"), theme)
+            val min = fz.optInt("min_days", 3)
+            val max = minOf(fz.optInt("max_days", 30), fz.optInt("days_left", 30))
+            listOf(min, 7, 14, 30).filter { it in min..max }.distinct().take(3).forEach { days ->
+                ActionButton(LayoutButton("freeze_$days", layout.text("freeze_days").replace("{days}", days.toString()), "refresh", "", "secondary", "clock", "any"), theme) { actions.freeze(days) }
+            }
         }
     }
 }
