@@ -122,7 +122,16 @@ async def my_stats(request: Request, db: AsyncSession = Depends(get_db)):
     data["loyalty"] = await current(db, user.id)
     freeze = await status_for(db, user, await owned(db, user.id))
     data["freeze"] = freeze if freeze["enabled"] else None
+    from .dns_filter import view as filter_view
+    own = await owned(db, user.id)
+    filt = await filter_view(db, own) if own and not await _family(db, own.id) else {"enabled": False}
+    data["filter"] = filt if filt["enabled"] else None  # v28.54: ad / children's filter in the apps
     return data
+
+
+async def _family(db, subscription_id):
+    from .subscriptions import is_family_subscription
+    return await is_family_subscription(db, subscription_id)
 
 
 @router.get("/api/me/upsell")

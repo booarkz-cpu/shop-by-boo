@@ -126,7 +126,9 @@ def evaluate(state: dict, probes: dict, known: list[dict], fail_streak: int, now
     regions: dict[str, list[str]] = {}
     for pid, probe in probes.items():
         seen = probe.get("last_seen_at")
-        if seen and datetime.fromisoformat(seen) >= now - STALE_PROBE:
+        # A virtual probe that reports every few hours (RIPE Atlas, ripe_atlas.py) stays fresh for its own period.
+        stale = timedelta(minutes=int(probe["stale_minutes"])) if probe.get("stale_minutes") else STALE_PROBE
+        if seen and datetime.fromisoformat(seen) >= now - stale:
             regions.setdefault(probe["region"], []).append(pid)
     blocked: dict[str, dict] = {}
     for item in known:
@@ -260,7 +262,8 @@ async def get_monitor(db: AsyncSession = Depends(get_db), admin=Depends(require_
     return {
         "config": config,
         "probes": [{"id": pid, "name": p["name"], "region": p["region"], "last_seen_at": p.get("last_seen_at"),
-                    "fresh": bool(p.get("last_seen_at") and datetime.fromisoformat(p["last_seen_at"]) >= now - STALE_PROBE)}
+                    "fresh": bool(p.get("last_seen_at") and datetime.fromisoformat(p["last_seen_at"])
+                                  >= now - (timedelta(minutes=int(p["stale_minutes"])) if p.get("stale_minutes") else STALE_PROBE))}
                    for pid, p in probes.items()],
         "targets": [{**t, "results": {pid: {k: v for k, v in r.items()} for pid, r in state.get("targets", {}).get(t["target"], {}).items()}}
                     for t in await targets(db, config)],

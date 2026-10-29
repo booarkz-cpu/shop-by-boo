@@ -55,6 +55,10 @@ export function FamilySection({request, flash, reload}: {request: Request; flash
       {g.members.length > 0 && <ul className="family-members">{g.members.map((m: any) => <li key={m.id}>
         <span>{m.name || "Участник"}</span>
         <StatusBadge tone={m.error ? "danger" : m.synced ? "ok" : "warn"}>{m.error ? "Ошибка подключения" : m.synced ? "Подключён" : "Подключается"}</StatusBadge>
+        {g.filter_modes?.length > 0 && <select aria-label={`Фильтр для ${m.name || "участника"}`} value={m.filter || ""} disabled={busy}
+          onChange={e => act(() => request(`/api/me/family/members/${m.id}/filter`, {method: "PUT", body: JSON.stringify({mode: e.target.value})}), "Фильтр изменён")}>
+          <option value="">Без фильтра</option>{g.filter_modes.includes("ads") && <option value="ads">Без рекламы</option>}{g.filter_modes.includes("kids") && <option value="kids">Детский режим</option>}
+        </select>}
         <button className="btn-ghost" disabled={busy} onClick={() => confirm(`Убрать ${m.name || "участника"} из семьи? Его VPN отключится.`) && act(() => request(`/api/me/family/members/${m.id}`, {method: "DELETE"}), "Участник удалён")}>Убрать</button>
       </li>)}</ul>}
     </article>)}

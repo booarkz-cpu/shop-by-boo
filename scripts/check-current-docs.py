@@ -11,8 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
-DISTRIBUTION_TAG = "v28.53.0"
-SHOP_HEAD = "0087_speed_tests"
+DISTRIBUTION_TAG = "v28.54.0"
+SHOP_HEAD = "0088_filter_and_regions"
 SUPPORT_HEAD = "0008"
 
 
@@ -37,13 +37,13 @@ def main() -> None:
     require("DOCUMENTATION.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("INSTALL_STEPS.md", DISTRIBUTION_TAG, VERSION)
     require("RELEASE_DOCUMENTATION_INDEX_RU.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "RUNTIME_SETTINGS_CURRENT.md")
-    require("install.sh", 'BRANCH="${BRANCH:-v28.53.0}"')
+    require("install.sh", 'BRANCH="${BRANCH:-v28.54.0}"')
     require("docs/ru/DEPLOYMENT_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/PRODUCTION_CURRENT.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/WORKSPACE_COVERAGE.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/ACCOUNT_MERGE_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
     require("docs/ru/RUNTIME_SETTINGS_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
-    require("docs/ru/RELEASE_V28_53_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
+    require("docs/ru/RELEASE_V28_54_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md", DISTRIBUTION_TAG, SHOP_HEAD, "admission/attestation")
     require("PROJECT_SPEC.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "134")
     require("PROJECT_STRUCTURE.md", DISTRIBUTION_TAG, SHOP_HEAD, "runtime_settings.py")
@@ -55,12 +55,12 @@ def main() -> None:
     expected = {
         "version": VERSION,
         "distribution_tag": DISTRIBUTION_TAG,
-        "artifact": "remnawave_vpn_shop_v28_53_0_full_release.zip",
-        "detached_manifest": "remnawave_vpn_shop_v28_53_0_full_release_manifest.json",
+        "artifact": "remnawave_vpn_shop_v28_54_0_full_release.zip",
+        "detached_manifest": "remnawave_vpn_shop_v28_54_0_full_release_manifest.json",
         "migration_head": SHOP_HEAD,
         "support_migration_head": SUPPORT_HEAD,
         "upgrade_from": "21.5.0",
-        "release_notes": "docs/ru/RELEASE_V28_53_0.md",
+        "release_notes": "docs/ru/RELEASE_V28_54_0.md",
     }
     mismatches = {key: (manifest.get(key), value) for key, value in expected.items() if manifest.get(key) != value}
     if mismatches:

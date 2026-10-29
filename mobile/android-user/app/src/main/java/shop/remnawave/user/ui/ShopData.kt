@@ -118,6 +118,8 @@ interface ShopActions {
     fun thaw()
     /** v28.53 «Проверка скорости»: download through the current connection, time the response, report it. */
     fun speedTest()
+    /** v28.54 «Фильтр»: "" (off), "ads" or "kids". */
+    fun setFilter(mode: String)
 }
 
 fun formatBytes(bytes: Long): String {

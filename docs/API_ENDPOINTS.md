@@ -1,6 +1,6 @@
-# Каталог API — v28.53.0 / API v21.5.1
+# Каталог API — v28.54.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0087_speed_tests`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0088_filter_and_regions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -140,6 +140,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/digest` | Get Digest |
 | `PUT` | `/api/admin/digest` | Put Digest |
 | `POST` | `/api/admin/digest/send` | Send Digest |
+| `GET` | `/api/admin/dns-filter` | Admin Filter |
+| `PUT` | `/api/admin/dns-filter` | Admin Filter Config |
 | `GET` | `/api/admin/dunning` | Get Dunning |
 | `PUT` | `/api/admin/dunning` | Put Dunning |
 | `POST` | `/api/admin/e2e-v2/admission/attestation` | Accept Attestation |
@@ -191,6 +193,9 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/gateways/config` | Put Config |
 | `GET` | `/api/admin/gateways/notifications` | Notifications |
 | `POST` | `/api/admin/gateways/probe` | Probe Now |
+| `GET` | `/api/admin/geoip` | Get Geoip |
+| `PUT` | `/api/admin/geoip` | Put Geoip |
+| `POST` | `/api/admin/geoip/update` | Update Geoip |
 | `GET` | `/api/admin/gift-batches` | List Batches |
 | `POST` | `/api/admin/gift-batches` | Create Batch |
 | `DELETE` | `/api/admin/gift-batches/{tag}` | Disable Batch |
@@ -429,6 +434,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/remnawave/users/{user_id}/extend` | Rw Extend |
 | `GET` | `/api/admin/remnawave/users/{user_id}/keys` | Rw Keys |
 | `GET` | `/api/admin/remnawave/users/{user_id}/subscription` | Rw Subscription |
+| `GET` | `/api/admin/ripe-atlas` | Get Ripe |
+| `PUT` | `/api/admin/ripe-atlas` | Put Ripe |
+| `POST` | `/api/admin/ripe-atlas/run` | Run Ripe |
 | `GET` | `/api/admin/runtime-settings` | Admin Runtime Settings |
 | `DELETE` | `/api/admin/runtime-settings/changes/{change_id}` | Admin Discard Runtime Settings |
 | `POST` | `/api/admin/runtime-settings/changes/{change_id}/apply` | Admin Apply Runtime Settings |
@@ -651,10 +659,13 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/family` | My Family |
 | `POST` | `/api/me/family/join` | Family Join |
 | `DELETE` | `/api/me/family/members/{member_id}` | Family Remove |
+| `PUT` | `/api/me/family/members/{member_id}/filter` | Put Member Filter |
 | `POST` | `/api/me/family/{subscription_id}/invite` | Family Invite |
 | `GET` | `/api/me/feedback` | My Feedback |
 | `POST` | `/api/me/feedback/csat` | Rate Ticket |
 | `POST` | `/api/me/feedback/nps` | Rate Shop |
+| `GET` | `/api/me/filter` | My Filter |
+| `PUT` | `/api/me/filter` | Put My Filter |
 | `GET` | `/api/me/freeze` | My Freeze |
 | `POST` | `/api/me/freeze` | Freeze Mine |
 | `POST` | `/api/me/freeze/thaw` | Thaw Mine |

@@ -85,10 +85,16 @@ async def my_family(request: Request, db: AsyncSession = Depends(get_db)):
         group = await db.scalar(select(FamilyGroup).where(FamilyGroup.owner_subscription_id == sub.id))
         members = await _members(db, group) if group else []
         names = {u.id: (u.username or u.email or f"#{u.id}") for u in (await db.execute(select(User).where(User.id.in_([m.user_id for m in members] or [0])))).scalars()}
+        # v28.54: the filter of each member's subscription (the owner switches the children's mode, dns_filter.py).
+        from .dns_filter import load as filter_config, modes as filter_modes
+        fcfg = await filter_config(db)
+        filters = {x.id: x.dns_filter for x in (await db.execute(select(Subscription).where(
+            Subscription.id.in_([m.subscription_id for m in members if m.subscription_id] or [0])))).scalars()}
         owned.append({"subscription_id": sub.id, "name": sub.name, "seats": seats, "used": len(members), "expires_at": sub.expires_at,
                       "invite": _links(group.invite_code) if group else None,
+                      "filter_modes": filter_modes(fcfg, sub.remnawave_profile_id_snapshot),
                       "members": [{"id": m.id, "name": names.get(m.user_id, ""), "joined_at": m.joined_at,
-                                   "synced": bool(m.synced_at), "error": bool(m.sync_error)} for m in members]})
+                                   "synced": bool(m.synced_at), "error": bool(m.sync_error), "filter": filters.get(m.subscription_id)} for m in members]})
     member_rows = (await db.execute(select(FamilyMember).where(FamilyMember.user_id == user.id, FamilyMember.status == "active"))).scalars().all()
     member_of = []
     for m in member_rows:

@@ -448,6 +448,49 @@ async def forecast_panel(db: AsyncSession) -> dict:
                                {**cfg, "enabled": True}, {**cfg, "enabled": False})]}
 
 
+async def dns_filter_panel(db: AsyncSession) -> dict:
+    """v28.54 «Фильтр рекламы и детский режим»: squads set, customers per filter."""
+    from sqlalchemy import func, select
+    from .dns_filter import MODES, load
+    from .models import Subscription
+    cfg = await load(db)
+    counts = dict((await db.execute(select(Subscription.dns_filter, func.count()).where(Subscription.dns_filter.is_not(None))
+                                    .group_by(Subscription.dns_filter))).all())
+    rows = [row("Фильтры", "доступны клиентам" if cfg.get("enabled") else "выключены", "ok" if cfg.get("enabled") else ""),
+            row("Сквадов настроено", len(cfg.get("squads") or {}), "" if cfg.get("squads") else "warn")]
+    rows += [row(title, f"{int(counts.get(key, 0))} подписок") for key, title in MODES.items()]
+    return {"id": "dns_filter", "title": "Фильтр рекламы и детский режим", "rows": rows,
+            "actions": [toggle("Открыть фильтры клиентам", "Скрыть фильтры", bool(cfg.get("enabled")), "PUT", "/api/admin/dns-filter",
+                               {**cfg, "enabled": True}, {**cfg, "enabled": False})]}
+
+
+async def geoip_panel(db: AsyncSession) -> dict:
+    """v28.54 «Регионы клиентов» (GeoLite2): the database and the top regions of the week."""
+    from .geoip import load, status
+    from .vpn_sessions import geography
+    st = status(await load(db))
+    geo = await geography(7, db, None)
+    rows = [row("База GeoLite2", f"от {st['updated_at'][:10]}, {st['size_mb']} МБ" if st["database"] and st["updated_at"] else ("загружена" if st["database"] else "не загружена"),
+                "ok" if st["database"] else "warn")]
+    if st["error"]:
+        rows.append(row("Ошибка", st["error"], "bad"))
+    rows += [row(f"{r['country']} · {r['region']}", r["users"]) for r in geo.get("regions", [])[:6]]
+    return {"id": "geoip", "title": "Регионы клиентов", "rows": rows,
+            "actions": [action("Обновить базу регионов", "POST", "/api/admin/geoip/update")] if st["key_set"] else []}
+
+
+async def ripe_panel(db: AsyncSession) -> dict:
+    """v28.54 «RIPE Atlas — доступность из России»: last verdicts and «Проверить сейчас»."""
+    from .ripe_atlas import CONFIG_KEY, DEFAULT, _load, public
+    cfg = public(await _load(db, CONFIG_KEY, DEFAULT))
+    rows = [row("Автопроверка", f"раз в {cfg['interval_hours']} ч, {cfg['probes']} зондов {cfg['country']}" if cfg["enabled"] else "выключена",
+                "ok" if cfg["enabled"] else ""),
+            row("Последний запуск", (cfg.get("last_run") or "—")[:16].replace("T", " "), "bad" if cfg.get("last_error") else "")]
+    rows += [row(r.get("label") or t, f"{r['ok']} из {r['total']}", "ok" if r["reachable"] else "bad") for t, r in list((cfg.get("last_results") or {}).items())[:6]]
+    return {"id": "ripe_atlas", "title": "RIPE Atlas — доступность из России", "rows": rows,
+            "actions": [action("Проверить сейчас", "POST", "/api/admin/ripe-atlas/run")] if cfg["key_set"] else []}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -460,7 +503,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel, feedback_panel, cohorts_panel, digest_panel, speed_panel, forecast_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel, feedback_panel, cohorts_panel, digest_panel, speed_panel, forecast_panel, dns_filter_panel, geoip_panel, ripe_panel]
 
 
 @router.get("/api/admin/mobile/panels")
