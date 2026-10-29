@@ -22,7 +22,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('PostgreSQL DDL')
     roundtrip_names = [
         '0084_subscription_freeze',
-        '0084_subscription_freeze',
+        '0083_corporate_seats',
         '0082_status_subscribers',
         '0081_subscription_proxy',
         '0080_reconciliation',

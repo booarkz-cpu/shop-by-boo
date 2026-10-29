@@ -125,7 +125,7 @@ async def test_weekly_standby_drill_ends_with_a_report(database):  # noqa: F811
 
     async def sender(text):
         sent.append(text)
-    ok = await drill_report(database, {"at": "2026-10-29T03:00", "ok": True, "users": 120, "payments": 340, "migration": "0084_subscription_freeze"}, 2.0, sender)
+    ok = await drill_report(database, {"at": "2026-10-29T03:00", "ok": True, "users": 120, "payments": 340, "migration": "0083_corporate_seats"}, 2.0, sender)
     assert "пройдены" in ok and "клиентов 120" in ok and "2 с" in ok and "нет проверенных копий" in ok
     bad = await drill_report(database, {"at": "2026-11-05T03:00", "ok": False, "error": "no space left on device"}, None, sender)
     assert "не прошли" in bad and "no space left" in bad and len(sent) == 2
