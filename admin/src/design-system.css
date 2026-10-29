@@ -111,3 +111,85 @@ input:focus, select:focus, textarea:focus{ border-color: var(--aurora-blue) !imp
 .config-rows{display:grid;gap:10px;margin:8px 0}
 .config-row{display:grid;gap:8px;margin:0}
 .app-config-editor{display:grid;gap:16px}
+
+/* Brand quality pass: consistent spacing and readable helper/tooltip copy. */
+:root {
+  --corgi-space-1: 4px;
+  --corgi-space-2: 8px;
+  --corgi-space-3: 12px;
+  --corgi-space-4: 16px;
+  --corgi-space-5: 20px;
+  --corgi-space-6: 24px;
+  --corgi-copy-line-height: 1.55;
+}
+.workspace :is(.page-description, .section-description, .description, .muted, .help-text, .field-hint, .form-hint, .hint, .helper-text, .field-help) {
+  line-height: var(--corgi-copy-line-height);
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.workspace :is(.page-description, .section-description, .description) {
+  margin-block: var(--corgi-space-2) var(--corgi-space-4);
+}
+.workspace :is(.field, .form-field, .form-group, .field-row) {
+  min-width: 0;
+}
+.workspace :is(.field label, .form-field label, .form-group label) {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--corgi-space-2);
+  line-height: 1.4;
+  margin-bottom: var(--corgi-space-2);
+}
+.workspace :is(.field-hint, .form-hint, .hint, .helper-text, .field-help, [data-field-hint]) {
+  display: block;
+  margin-block: var(--corgi-space-2) 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.workspace :is(.field-error, .form-error, [role="alert"]) {
+  margin-block: var(--corgi-space-2) 0;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.ui-tooltip,
+[data-radix-popper-content-wrapper] [role="tooltip"] {
+  box-sizing: border-box;
+  max-width: min(22rem, calc(100vw - 24px));
+  padding: 10px 12px;
+  line-height: 1.55;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-align: left;
+}
+.workspace :is(.card, .panel, .form-card, .section-card) > :last-child {
+  margin-bottom: 0;
+}
+.workspace :is(.card, .panel, .form-card, .section-card) :is(h1, h2, h3, p) {
+  overflow-wrap: anywhere;
+}
+.workspace :is(.form-grid, .fields-grid, .grid2, .grid3, .grid4) {
+  min-width: 0;
+  align-items: start;
+}
+.workspace :is(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .workspace :is(.page-description, .section-description, .description) {
+    font-size: 13px;
+    margin-bottom: var(--corgi-space-3);
+  }
+  .workspace :is(.field-hint, .form-hint, .hint, .helper-text, .field-help, [data-field-hint]) {
+    font-size: 12px;
+  }
+  .ui-tooltip,
+  [data-radix-popper-content-wrapper] [role="tooltip"] {
+    max-width: calc(100vw - 24px);
+  }
+}
