@@ -1,4 +1,4 @@
-# Установка v28.44.0 на VDS через SSH и Termius
+# Установка v28.45.0 на VDS через SSH и Termius
 
 Для новой установки используйте отдельный Ubuntu 24.04 / Debian 12 сервер. Стабильный канал содержит проверенное ядро; приём настоящих платежей пока закрыт. [Границы готовности](FINAL_RELEASE_READINESS.md).
 
@@ -17,7 +17,7 @@ ssh -t root@SERVER_IP
 На новом сервере от root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.44.0/install.sh -o /root/shop-install.sh && BRANCH=v28.44.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.45.0/install.sh -o /root/shop-install.sh && BRANCH=v28.45.0 bash /root/shop-install.sh
 ```
 
 Загрузка файла и клонирование тега выполняются автоматически; вручную распаковывать архив не нужно. Установщик ставит необходимые пакеты/Docker, запрашивает домены, email сертификата, параметры администратора и подключений, создаёт окружение и собирает сервисы. Пароли вводите в терминале и храните отдельно от GitHub/чатов. Лицензия: [LICENSE](../../LICENSE).
@@ -25,12 +25,12 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.44.0/in
 Из уже полученного исходного тега:
 
 ```bash
-git clone --branch v28.44.0 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.45.0 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 sudo bash deploy/install-vps.sh
 ```
 
-Wrapper по умолчанию закреплён за `v28.44.0` и не заменяет другой существующий source checkout. Для нового source-каталога задайте `SOURCE_DIR`; для действующего магазина используйте обновление, а не повторную установку.
+Wrapper по умолчанию закреплён за `v28.45.0` и не заменяет другой существующий source checkout. Для нового source-каталога задайте `SOURCE_DIR`; для действующего магазина используйте обновление, а не повторную установку.
 
 ## Контроль после запуска
 
@@ -72,6 +72,6 @@ ssh -L 18081:127.0.0.1:18081 -L 18082:127.0.0.1:18082 root@SERVER_IP
 
 [Администратор](WORKSPACE_ADMIN_GUIDE.md), [настройки без перезапуска](RUNTIME_SETTINGS_CURRENT.md), [клиент](WORKSPACE_USER_GUIDE.md), [account merge](ACCOUNT_MERGE_CURRENT.md), [рефералы](REFERRALS_CURRENT.md), [backup](BACKUP_CURRENT.md), [обновление](WORKSPACE_UPGRADE.md), [эксплуатация](../../OPERATIONS_RUNBOOK_RU.md).
 
-## Состав v28.44.0
+## Состав v28.45.0
 
 [Полный регламент production](PRODUCTION_CURRENT.md) · [live-config](RUNTIME_SETTINGS_CURRENT.md) · [партнёры](PARTNERS_CURRENT.md) · [клиентские ключи доступа](CUSTOMER_PASSKEYS_CURRENT.md) · [объединение аккаунтов](ACCOUNT_MERGE_CURRENT.md) · [merge/split обращений](SUPPORT_TOPOLOGY_CURRENT.md).

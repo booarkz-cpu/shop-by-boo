@@ -1,0 +1,62 @@
+name: Payments acceptance
+
+# The extra gateways against their real APIs: probe, a payment page for a small amount, the payment read back as
+# unpaid. Only gateways whose keys are added as repository secrets (same names as in .env) run; nobody pays, no money
+# moves. Weekly, and by hand after adding or changing keys.
+on:
+  workflow_dispatch:
+    inputs:
+      amount:
+        description: "Amount of the test page"
+        default: "10"
+  schedule:
+    - cron: "17 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      APP_SECRET: ci-only-secret
+      APP_ENV: test
+      DATABASE_URL: sqlite+aiosqlite:///./acceptance.db
+      ACCEPTANCE_AMOUNT: ${{ inputs.amount || '10' }}
+      WEBHOOK_BASE_URL: ${{ secrets.WEBHOOK_BASE_URL }}
+      CLOUDPAYMENTS_PUBLIC_ID: ${{ secrets.CLOUDPAYMENTS_PUBLIC_ID }}
+      CLOUDPAYMENTS_API_SECRET: ${{ secrets.CLOUDPAYMENTS_API_SECRET }}
+      LAVA_SHOP_ID: ${{ secrets.LAVA_SHOP_ID }}
+      LAVA_SECRET_KEY: ${{ secrets.LAVA_SECRET_KEY }}
+      LAVA_WEBHOOK_SECRET: ${{ secrets.LAVA_WEBHOOK_SECRET }}
+      PAL24_SHOP_ID: ${{ secrets.PAL24_SHOP_ID }}
+      PAL24_API_TOKEN: ${{ secrets.PAL24_API_TOKEN }}
+      MULENPAY_SHOP_ID: ${{ secrets.MULENPAY_SHOP_ID }}
+      MULENPAY_API_KEY: ${{ secrets.MULENPAY_API_KEY }}
+      MULENPAY_SECRET_KEY: ${{ secrets.MULENPAY_SECRET_KEY }}
+      WATA_ACCESS_TOKEN: ${{ secrets.WATA_ACCESS_TOKEN }}
+      ANTILOPAY_PROJECT_ID: ${{ secrets.ANTILOPAY_PROJECT_ID }}
+      ANTILOPAY_SECRET_ID: ${{ secrets.ANTILOPAY_SECRET_ID }}
+      ANTILOPAY_PRIVATE_KEY: ${{ secrets.ANTILOPAY_PRIVATE_KEY }}
+      ANTILOPAY_PUBLIC_KEY: ${{ secrets.ANTILOPAY_PUBLIC_KEY }}
+      AURAPAY_SHOP_ID: ${{ secrets.AURAPAY_SHOP_ID }}
+      AURAPAY_API_KEY: ${{ secrets.AURAPAY_API_KEY }}
+      AURAPAY_SECRET_KEY: ${{ secrets.AURAPAY_SECRET_KEY }}
+      ANORE_API_KEY: ${{ secrets.ANORE_API_KEY }}
+      ANORE_SECRET_KEY: ${{ secrets.ANORE_SECRET_KEY }}
+      ANORE_SHOP_ID: ${{ secrets.ANORE_SHOP_ID }}
+      CASHERA_API_KEY: ${{ secrets.CASHERA_API_KEY }}
+      CASHERA_API_SECRET: ${{ secrets.CASHERA_API_SECRET }}
+      PARITYPAY_SHOP_ID: ${{ secrets.PARITYPAY_SHOP_ID }}
+      PARITYPAY_SECRET_KEY: ${{ secrets.PARITYPAY_SECRET_KEY }}
+      PARITYPAY_CALLBACK_SECRET: ${{ secrets.PARITYPAY_CALLBACK_SECRET }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r backend/requirements.txt -r backend/requirements-test.txt
+      - run: python -m pytest -q -rfEs tests/live/test_payments_live.py -p no:cacheprovider

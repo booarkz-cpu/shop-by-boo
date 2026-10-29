@@ -262,6 +262,32 @@ async def sessions_panel(db: AsyncSession) -> dict:
     return {"id": "sessions", "title": "Сессии и аномалии", "rows": rows, "actions": actions}
 
 
+async def gateways_panel(db: AsyncSession) -> dict:
+    """v28.45 «Здоровье касс»: the last probe of every configured extra gateway and the notifications that never came."""
+    from .gateway_ops import DEFAULT, STATE_KEY, _load, notifications_report
+    from .gateways import GATEWAYS
+    state = await _load(db, STATE_KEY, {})
+    rows = []
+    for g in GATEWAYS.values():
+        if not g.configured():
+            continue
+        p = state.get(g.name)
+        if not p:
+            rows.append(row(g.title, "ещё не проверялась"))
+        elif p.get("ok"):
+            rows.append(row(g.title, f"работает · {p.get('latency_ms')} мс", "ok"))
+        else:
+            rows.append(row(g.title, f"{p.get('error')}{' · вне очереди' if p.get('taken_out') else ''}", "bad"))
+    if not rows:
+        rows.append(row("Дополнительные кассы", "не настроены"))
+    notes = await notifications_report(db, 7, notify_minutes=int(DEFAULT["notify_minutes"]))
+    for n in notes["providers"]:
+        if n["without_notification"]:
+            rows.append(row(f"{n['provider']}: без уведомления", f"{n['without_notification']} из {n['paid']}", "warn"))
+    return {"id": "gateways", "title": "Здоровье касс", "rows": rows,
+            "actions": [action("Проверить кассы сейчас", "POST", "/api/admin/gateways/probe")]}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -274,7 +300,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel]
 
 
 @router.get("/api/admin/mobile/panels")

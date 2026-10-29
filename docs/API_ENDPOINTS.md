@@ -1,4 +1,4 @@
-# Каталог API — v28.44.0 / API v21.5.1
+# Каталог API — v28.45.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0081_subscription_proxy`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -164,6 +164,11 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/fraud` | Admin Fraud |
 | `POST` | `/api/admin/fraud/scan` | Fraud Scan |
 | `POST` | `/api/admin/fraud/{signal_id}` | Fraud Decision |
+| `GET` | `/api/admin/gateways` | Gateways Table |
+| `POST` | `/api/admin/gateways/auto-priority` | Auto Priority Now |
+| `PUT` | `/api/admin/gateways/config` | Put Config |
+| `GET` | `/api/admin/gateways/notifications` | Notifications |
+| `POST` | `/api/admin/gateways/probe` | Probe Now |
 | `GET` | `/api/admin/gift-batches` | List Batches |
 | `POST` | `/api/admin/gift-batches` | Create Batch |
 | `DELETE` | `/api/admin/gift-batches/{tag}` | Disable Batch |
