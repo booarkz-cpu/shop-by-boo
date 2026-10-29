@@ -538,6 +538,64 @@ async def status_toggle(query: CallbackQuery):
     await query.answer("Буду сообщать о сбоях и восстановлении" if query.data == "status:on" else "Больше не сообщаю о сбоях")
 
 
+@router.message(Command("freeze"))
+async def freeze_command(message: Message):
+    """v28.50 «Заморозка подписки»: pause the paid subscription (VPN off, paid days kept) or thaw it."""
+    if not message.from_user or getattr(getattr(message, "chat", None), "type", "private") != "private":
+        return
+    from .subscription_freeze import status_for
+    from .subscriptions import owned
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(message.from_user.id))
+        sub = await owned(db, user.id) if user else None
+        s = await status_for(db, user, sub) if user else None
+    if not s or not s["enabled"] or not sub:
+        await message.answer("Заморозка подписки сейчас недоступна.")
+        return
+    if s["frozen"]:
+        await message.answer(f"Подписка заморожена до {s['frozen']['until'][:10]}. Разморозить сейчас? Неиспользованные дни заморозки вычтутся из срока.",
+                             reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="▶️ Разморозить", callback_data="freeze:thaw")]]))
+        return
+    if s["reason"]:
+        await message.answer(s["reason"])
+        return
+    options = sorted({d for d in (s["min_days"], 7, 14, 30, s["max_days"]) if s["min_days"] <= d <= min(s["max_days"], s["days_left"])})
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=f"{d} дн.", callback_data=f"freeze:{d}") for d in options[:5]]])
+    await message.answer(f"Поставить подписку на паузу? VPN выключится, оплаченные дни сохранятся, срок сдвинется. В этом году доступно ещё {s['days_left']} дн.",
+                         reply_markup=keyboard)
+
+
+@router.callback_query(lambda query: bool(query.data and query.data.startswith("freeze:")))
+async def freeze_action(query: CallbackQuery):
+    from fastapi import HTTPException
+    from .subscription_freeze import freeze, thaw
+    from .subscriptions import owned
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(query.from_user.id))
+        sub = await owned(db, user.id, lock=True) if user else None
+        if not sub:
+            await query.answer("Подписка не найдена")
+            return
+        value = query.data.split(":", 1)[1]
+        try:
+            if value == "thaw":
+                if not await thaw(db, sub, commit=True):
+                    await query.answer("Подписка не заморожена")
+                    return
+                text = f"VPN снова работает. Подписка действует до {sub.expires_at:%d.%m.%Y}."
+            else:
+                result = await freeze(db, user, sub, int(value))
+                text = f"Подписка заморожена до {result['until'][:10]}. Разморозить раньше: /freeze"
+        except HTTPException as exc:
+            await query.answer(str(exc.detail)[:190], show_alert=True)
+            return
+    await query.answer()
+    if query.message:
+        await query.message.answer(text)
+
+
 @router.message(Command("keys"))
 async def keys_command(message: Message):
     """«Ключи подключения» (wg_pool.py): every server of the subscription as its own link."""

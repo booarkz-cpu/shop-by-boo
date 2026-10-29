@@ -72,7 +72,8 @@ async def _marker(db: AsyncSession, key: str) -> tuple[AppSetting, dict]:
         return row, {}
 
 
-async def apply_bonus_days(db: AsyncSession, job_key: str, user_id: int, days: int, reason: str = "referral") -> dict:
+async def apply_bonus_days(db: AsyncSession, job_key: str, user_id: int, days: int, reason: str = "referral",
+                           title: str | None = None, body: str | None = None) -> dict:
     """Run by the worker for a «bonus_days» job. Safe to repeat: the stored target expiry decides."""
     from . import main
     from .remnawave import RemnawaveClient
@@ -107,6 +108,8 @@ async def apply_bonus_days(db: AsyncSession, job_key: str, user_id: int, days: i
             return state
         rw = RemnawaveClient()
         if state.get("expected_after") is None:
+            from .subscription_freeze import thaw
+            await thaw(db, sub, rw)  # v28.50: bonus days onto a frozen subscription end the freeze first
             remote = await rw.get_expiry(sub.remnawave_uuid)
             before = max(sub.expires_at or now, remote or now, now)
             state = {"status": "processing", "expected_before": before.isoformat(), "expected_after": (before + timedelta(days=days)).isoformat()}
@@ -124,8 +127,9 @@ async def apply_bonus_days(db: AsyncSession, job_key: str, user_id: int, days: i
         state = {**state, "status": "completed", "expires_at": sub.expires_at.isoformat()}
         row.value = json.dumps(state)
         await main.audit(db, f"bonus_days.{reason}", "system", str(user_id), {"days": days, "job": job_key})
-        await main.enqueue_notification(db, user_id=user_id, channel="in_app", kind="referral_bonus", title=f"+{days} дней за друга",
-                                        body=f"Друг оплатил подписку: ваша подписка продлена на {days} дней.", dedupe_key=job_key)
+        await main.enqueue_notification(db, user_id=user_id, channel="in_app", kind="referral_bonus" if reason == "referral" else f"{reason}_bonus",
+                                        title=title or f"+{days} дней за друга",
+                                        body=body or f"Друг оплатил подписку: ваша подписка продлена на {days} дней.", dedupe_key=job_key)
         await db.commit()
         return state
     finally:

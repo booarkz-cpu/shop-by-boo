@@ -41,7 +41,7 @@ SEGMENTS: dict[str, str] = {
 EVENTS = ("install", "open", "sign_in_view", "sign_in", "screen", "connect_tap", "connected", "trial_tap",
           "plan_select", "checkout_start", "checkout_done", "promo_tap", "giveaway_enter")
 PLATFORMS = ("android", "ios")
-ACTIVE = ("active", "cancel_scheduled")
+ACTIVE = ("active", "cancel_scheduled", "frozen")  # a frozen subscription is still a customer (v28.50)
 RETENTION_DAYS = 180
 DAILY_LIMIT = 500
 

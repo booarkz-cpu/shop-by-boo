@@ -37,6 +37,7 @@ async def subscription_lifecycle(payload:shop.SubscriptionActionIn,request:shop.
         now=shop.datetime.utcnow()
         if payload.action=="cancel":
             if sub.lifecycle_status in {"expired","cancelled"}: raise shop.HTTPException(409,"Subscription is already inactive")
+            if sub.lifecycle_status=="frozen": raise shop.HTTPException(409,"Подписка заморожена: сначала разморозьте её")
             sub.scheduled_cancel_at=sub.expires_at or now; sub.lifecycle_status="cancel_scheduled"
             if payload.reason:
                 from .models import CancellationFeedback

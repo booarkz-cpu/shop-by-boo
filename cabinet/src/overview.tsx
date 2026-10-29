@@ -22,6 +22,7 @@ function subscriptionState(sub: any): {tone: Tone; label: string} {
   if (!sub || left === null) return {tone: "idle", label: "Нет подписки"};
   if (left <= 0) return {tone: "danger", label: "Истекла"};
   if (sub.status === "cancel_scheduled") return {tone: "warn", label: "Отмена запланирована"};
+  if (sub.status === "frozen") return {tone: "warn", label: "Заморожена"};
   if (left <= 3) return {tone: "warn", label: "Скоро истечёт"};
   return {tone: "ok", label: "Активна"};
 }

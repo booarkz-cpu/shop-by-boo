@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.49.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.50.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1878**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1888**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -167,6 +167,7 @@
 | [admin/src/economics.tsx](../admin/src/economics.tsx) | Админ-панель |
 | [admin/src/fiscal.tsx](../admin/src/fiscal.tsx) | Админ-панель |
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
+| [admin/src/freezeDunning.tsx](../admin/src/freezeDunning.tsx) | Админ-панель |
 | [admin/src/gatewayHealth.tsx](../admin/src/gatewayHealth.tsx) | Админ-панель |
 | [admin/src/giveaways.tsx](../admin/src/giveaways.tsx) | Админ-панель |
 | [admin/src/growth.tsx](../admin/src/growth.tsx) | Админ-панель |
@@ -303,6 +304,7 @@
 | [backend/alembic/versions/0081_subscription_proxy.py](../backend/alembic/versions/0081_subscription_proxy.py) | API, бот и worker |
 | [backend/alembic/versions/0082_status_subscribers.py](../backend/alembic/versions/0082_status_subscribers.py) | API, бот и worker |
 | [backend/alembic/versions/0083_corporate_seats.py](../backend/alembic/versions/0083_corporate_seats.py) | API, бот и worker |
+| [backend/alembic/versions/0084_subscription_freeze.py](../backend/alembic/versions/0084_subscription_freeze.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -394,6 +396,7 @@
 | [backend/app/daily_billing.py](../backend/app/daily_billing.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
 | [backend/app/diagnostics.py](../backend/app/diagnostics.py) | API, бот и worker |
+| [backend/app/dunning.py](../backend/app/dunning.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
 | [backend/app/economics.py](../backend/app/economics.py) | API, бот и worker |
 | [backend/app/email_templates.py](../backend/app/email_templates.py) | API, бот и worker |
@@ -500,6 +503,7 @@
 | [backend/app/status_page.py](../backend/app/status_page.py) | API, бот и worker |
 | [backend/app/sub_proxy.py](../backend/app/sub_proxy.py) | API, бот и worker |
 | [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
+| [backend/app/subscription_freeze.py](../backend/app/subscription_freeze.py) | API, бот и worker |
 | [backend/app/subscriptions.py](../backend/app/subscriptions.py) | API, бот и worker |
 | [backend/app/support_ai.py](../backend/app/support_ai.py) | API, бот и worker |
 | [backend/app/support_attachments.py](../backend/app/support_attachments.py) | API, бот и worker |
@@ -596,6 +600,7 @@
 | [cabinet/src/company.tsx](../cabinet/src/company.tsx) | Кабинет |
 | [cabinet/src/connection.tsx](../cabinet/src/connection.tsx) | Кабинет |
 | [cabinet/src/documents.test.tsx](../cabinet/src/documents.test.tsx) | Кабинет |
+| [cabinet/src/freeze.tsx](../cabinet/src/freeze.tsx) | Кабинет |
 | [cabinet/src/giveaways.test.tsx](../cabinet/src/giveaways.test.tsx) | Кабинет |
 | [cabinet/src/giveaways.tsx](../cabinet/src/giveaways.tsx) | Кабинет |
 | [cabinet/src/growth.test.tsx](../cabinet/src/growth.test.tsx) | Кабинет |
@@ -884,6 +889,7 @@
 | [docs/en/NEW_IN_V28_47.md](../docs/en/NEW_IN_V28_47.md) | Документация |
 | [docs/en/NEW_IN_V28_48.md](../docs/en/NEW_IN_V28_48.md) | Документация |
 | [docs/en/NEW_IN_V28_49.md](../docs/en/NEW_IN_V28_49.md) | Документация |
+| [docs/en/NEW_IN_V28_50.md](../docs/en/NEW_IN_V28_50.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -915,6 +921,7 @@
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
 | [docs/modules/corporate.md](../docs/modules/corporate.md) | Документация |
+| [docs/modules/freeze_and_dunning.md](../docs/modules/freeze_and_dunning.md) | Документация |
 | [docs/modules/gateway_health.md](../docs/modules/gateway_health.md) | Документация |
 | [docs/modules/growth_tools.md](../docs/modules/growth_tools.md) | Документация |
 | [docs/modules/hot_standby.md](../docs/modules/hot_standby.md) | Документация |
@@ -1041,6 +1048,7 @@
 | [docs/ru/RELEASE_V28_48_0.md](../docs/ru/RELEASE_V28_48_0.md) | Документация |
 | [docs/ru/RELEASE_V28_49_0.md](../docs/ru/RELEASE_V28_49_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
+| [docs/ru/RELEASE_V28_50_0.md](../docs/ru/RELEASE_V28_50_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
@@ -1164,6 +1172,7 @@
 | [docs/uk/NEW_IN_V28_47.md](../docs/uk/NEW_IN_V28_47.md) | Документация |
 | [docs/uk/NEW_IN_V28_48.md](../docs/uk/NEW_IN_V28_48.md) | Документация |
 | [docs/uk/NEW_IN_V28_49.md](../docs/uk/NEW_IN_V28_49.md) | Документация |
+| [docs/uk/NEW_IN_V28_50.md](../docs/uk/NEW_IN_V28_50.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1726,6 +1735,7 @@
 | [tests/test_fiscal.py](../tests/test_fiscal.py) | Проверки |
 | [tests/test_fraud_signals.py](../tests/test_fraud_signals.py) | Проверки |
 | [tests/test_freekassa.py](../tests/test_freekassa.py) | Проверки |
+| [tests/test_freeze_dunning.py](../tests/test_freeze_dunning.py) | Проверки |
 | [tests/test_gateway_ops.py](../tests/test_gateway_ops.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |

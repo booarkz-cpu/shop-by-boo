@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.49.0. Runtime/API `21.5.1`, head магазина `0083_corporate_seats`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.50.0. Runtime/API `21.5.1`, head магазина `0084_subscription_freeze`, Support Pro `0008`.
 
 # 01. Аналитика и финансы
 

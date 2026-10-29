@@ -336,6 +336,41 @@ async def payment_fraud_panel(db: AsyncSession) -> dict:
             "actions": [toggle("Включить правила", "Выключить правила", bool(cfg.get("enabled")), "PUT", "/api/admin/fraud/payment-rules",
                                {**body, "enabled": True}, {**body, "enabled": False}, "Без правил платежи проверяются только базовой оценкой. Выключить?")]}
 
+async def freeze_panel(db: AsyncSession) -> dict:
+    """v28.50 «Заморозка подписки»: frozen now, rules on/off, thaw of the nearest ones."""
+    from datetime import datetime
+    from .subscription_freeze import load
+    from .models import SubscriptionFreeze
+    from sqlalchemy import select
+    cfg = await load(db)
+    current = (await db.execute(select(SubscriptionFreeze).where(SubscriptionFreeze.ended_at.is_(None)).order_by(SubscriptionFreeze.until).limit(50))).scalars().all()
+    rows = [row("Заморозка", "доступна клиентам" if cfg.get("enabled") else "выключена", "ok" if cfg.get("enabled") else ""),
+            row("Правила", f"{cfg['min_days']}–{cfg['max_days']} дн. за раз, {cfg['year_days']} дн. и {cfg['year_times']} раз в год"),
+            row("Заморожено сейчас", len(current))]
+    now = datetime.utcnow()
+    rows += [row(f"Подписка #{f.subscription_id}", f"до {f.until:%d.%m} ({max(0, (f.until - now).days)} дн.)") for f in current[:5]]
+    actions = [toggle("Разрешить заморозку", "Запретить заморозку", bool(cfg.get("enabled")), "PUT", "/api/admin/freeze",
+                      {**cfg, "enabled": True}, {**cfg, "enabled": False}, "Новые заморозки станут недоступны (текущие доработают). Выключить?")]
+    actions += [action(f"Разморозить #{f.subscription_id}", "POST", f"/api/admin/freeze/{f.subscription_id}/thaw", None,
+                       "Разморозить сейчас? Неиспользованные дни заморозки вычтутся из срока.") for f in current[:3]]
+    return {"id": "freeze", "title": "Заморозка подписки", "rows": rows, "actions": actions}
+
+
+async def dunning_panel(db: AsyncSession) -> dict:
+    """v28.50 «Повторные попытки автопродления»: declined renewals and the rules."""
+    from .dunning import load, stats
+    cfg = await load(db)
+    st = await stats(db)
+    rows = [row("Правила", "включены" if cfg.get("enabled") else "прежняя схема", "ok" if cfg.get("enabled") else "warn"),
+            row("Повторы через, ч", ", ".join(str(h) for h in cfg.get("retry_hours") or [])),
+            row("Ждут повторного списания", st["past_due"], "warn" if st["past_due"] else "ok"),
+            row("Автопродление выключено после отказов", st["switched_off"], "warn" if st["switched_off"] else "ok"),
+            row("Продлено с баланса за 30 дней", st["wallet_30d"])]
+    return {"id": "dunning", "title": "Повторные попытки автопродления", "rows": rows,
+            "actions": [toggle("Включить правила", "Выключить правила", bool(cfg.get("enabled")), "PUT", "/api/admin/dunning",
+                               {**cfg, "enabled": True}, {**cfg, "enabled": False}, "Вернуть прежнюю схему без сообщений клиентам?")]}
+
+
 
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
@@ -349,7 +384,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel]
 
 
 @router.get("/api/admin/mobile/panels")

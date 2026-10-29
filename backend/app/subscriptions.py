@@ -56,6 +56,10 @@ async def reserve_target(db,user,plan_id,payload):
         if primary is None:
             await db.execute(update(UserDevice).where(UserDevice.user_id==user.id,UserDevice.subscription_id.is_(None)).values(subscription_id=sub.id))
     await ensure_no_pending_purchase(db,sub.id)
+    if sub.lifecycle_status=='frozen':
+        # v28.50: a purchase or a gift onto a frozen subscription ends the freeze first (unused frozen days are taken back).
+        from .subscription_freeze import thaw
+        await thaw(db,sub)
     return sub
 
 
