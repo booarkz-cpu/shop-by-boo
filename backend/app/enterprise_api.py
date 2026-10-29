@@ -208,13 +208,25 @@ async def v41_incidents(db:AsyncSession=Depends(get_db),admin=Depends(require_pe
 
 @shop.app.post("/api/admin/v41/incidents")
 async def v41_incident_create(payload:IncidentCreateIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.incidents"))):
-    x=shop.SecurityIncidentEvent(**payload.model_dump()); db.add(x); await shop.audit(db,"incident.created",admin.email,None,payload.model_dump()); await db.commit(); await db.refresh(x); return {"id":x.id,"status":x.status}
+    x=shop.SecurityIncidentEvent(**payload.model_dump()); db.add(x); await shop.audit(db,"incident.created",admin.email,None,payload.model_dump()); await db.commit(); await db.refresh(x)
+    notified=0
+    if x.category=="service":  # v28.47: subscribers of the status page hear about service incidents
+        from .status_page import notify
+        try: notified=await notify(db,x,True)
+        except Exception as exc: shop.logger.warning("Status news was not sent: %s", exc)
+    return {"id":x.id,"status":x.status,"notified":notified}
 
 @shop.app.post("/api/admin/v41/incidents/{incident_id}/resolve")
 async def v41_incident_resolve(incident_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.incidents"))):
     x=await db.get(shop.SecurityIncidentEvent,incident_id)
     if not x: raise shop.HTTPException(404,"Инцидент не найден")
-    x.status="resolved"; x.resolved_at=shop.datetime.utcnow(); await shop.audit(db,"incident.resolved",admin.email,str(incident_id)); await db.commit(); return {"ok":True}
+    was_open=x.status!="resolved"
+    x.status="resolved"; x.resolved_at=shop.datetime.utcnow(); await shop.audit(db,"incident.resolved",admin.email,str(incident_id)); await db.commit()
+    if was_open and x.category=="service":
+        from .status_page import notify
+        try: await notify(db,x,False)
+        except Exception as exc: shop.logger.warning("Status news was not sent: %s", exc)
+    return {"ok":True}
 
 @shop.app.get("/api/admin/v41/backups/verification")
 async def v41_backup_verification_list(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.backups.verify"))):

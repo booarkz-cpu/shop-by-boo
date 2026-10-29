@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.46.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.47.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1851**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1860**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -196,6 +196,7 @@
 | [admin/src/referral-program.tsx](../admin/src/referral-program.tsx) | Админ-панель |
 | [admin/src/runtime-settings.tsx](../admin/src/runtime-settings.tsx) | Админ-панель |
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
+| [admin/src/statusPricing.tsx](../admin/src/statusPricing.tsx) | Админ-панель |
 | [admin/src/style.css](../admin/src/style.css) | Админ-панель |
 | [admin/src/subscription-commerce.tsx](../admin/src/subscription-commerce.tsx) | Админ-панель |
 | [admin/src/subscriptionTools.tsx](../admin/src/subscriptionTools.tsx) | Админ-панель |
@@ -297,6 +298,7 @@
 | [backend/alembic/versions/0079_acquisition.py](../backend/alembic/versions/0079_acquisition.py) | API, бот и worker |
 | [backend/alembic/versions/0080_reconciliation.py](../backend/alembic/versions/0080_reconciliation.py) | API, бот и worker |
 | [backend/alembic/versions/0081_subscription_proxy.py](../backend/alembic/versions/0081_subscription_proxy.py) | API, бот и worker |
+| [backend/alembic/versions/0082_status_subscribers.py](../backend/alembic/versions/0082_status_subscribers.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -472,6 +474,7 @@
 | [backend/app/referral_program.py](../backend/app/referral_program.py) | API, бот и worker |
 | [backend/app/referrals.py](../backend/app/referrals.py) | API, бот и worker |
 | [backend/app/refund_accounting.py](../backend/app/refund_accounting.py) | API, бот и worker |
+| [backend/app/regional_pricing.py](../backend/app/regional_pricing.py) | API, бот и worker |
 | [backend/app/release_identity.py](../backend/app/release_identity.py) | API, бот и worker |
 | [backend/app/remnawave.py](../backend/app/remnawave.py) | API, бот и worker |
 | [backend/app/remnawave_events.py](../backend/app/remnawave_events.py) | API, бот и worker |
@@ -488,6 +491,7 @@
 | [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
 | [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
+| [backend/app/status_page.py](../backend/app/status_page.py) | API, бот и worker |
 | [backend/app/sub_proxy.py](../backend/app/sub_proxy.py) | API, бот и worker |
 | [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
 | [backend/app/subscriptions.py](../backend/app/subscriptions.py) | API, бот и worker |
@@ -870,6 +874,7 @@
 | [docs/en/NEW_IN_V28_44.md](../docs/en/NEW_IN_V28_44.md) | Документация |
 | [docs/en/NEW_IN_V28_45.md](../docs/en/NEW_IN_V28_45.md) | Документация |
 | [docs/en/NEW_IN_V28_46.md](../docs/en/NEW_IN_V28_46.md) | Документация |
+| [docs/en/NEW_IN_V28_47.md](../docs/en/NEW_IN_V28_47.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -914,6 +919,7 @@
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
 | [docs/modules/sales_flows.md](../docs/modules/sales_flows.md) | Документация |
 | [docs/modules/split_tunneling.md](../docs/modules/split_tunneling.md) | Документация |
+| [docs/modules/status_and_regional_pricing.md](../docs/modules/status_and_regional_pricing.md) | Документация |
 | [docs/modules/subscription_proxy.md](../docs/modules/subscription_proxy.md) | Документация |
 | [docs/modules/unit_economics.md](../docs/modules/unit_economics.md) | Документация |
 | [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
@@ -1020,6 +1026,7 @@
 | [docs/ru/RELEASE_V28_44_0.md](../docs/ru/RELEASE_V28_44_0.md) | Документация |
 | [docs/ru/RELEASE_V28_45_0.md](../docs/ru/RELEASE_V28_45_0.md) | Документация |
 | [docs/ru/RELEASE_V28_46_0.md](../docs/ru/RELEASE_V28_46_0.md) | Документация |
+| [docs/ru/RELEASE_V28_47_0.md](../docs/ru/RELEASE_V28_47_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
@@ -1141,6 +1148,7 @@
 | [docs/uk/NEW_IN_V28_44.md](../docs/uk/NEW_IN_V28_44.md) | Документация |
 | [docs/uk/NEW_IN_V28_45.md](../docs/uk/NEW_IN_V28_45.md) | Документация |
 | [docs/uk/NEW_IN_V28_46.md](../docs/uk/NEW_IN_V28_46.md) | Документация |
+| [docs/uk/NEW_IN_V28_47.md](../docs/uk/NEW_IN_V28_47.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1767,6 +1775,7 @@
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
+| [tests/test_status_and_regional_pricing.py](../tests/test_status_and_regional_pricing.py) | Проверки |
 | [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |
 | [tests/test_subscription_commerce.py](../tests/test_subscription_commerce.py) | Проверки |
 | [tests/test_subscription_middleware.py](../tests/test_subscription_middleware.py) | Проверки |

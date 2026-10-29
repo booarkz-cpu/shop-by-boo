@@ -72,9 +72,15 @@ export function FamilySection({request, flash, reload}: {request: Request; flash
 
 const LEVEL: Record<string, [any, string]> = {ok: ["ok", "Все серверы работают"], degraded: ["warn", "Часть серверов недоступна"], down: ["danger", "Серверы недоступны"], unknown: ["warn", "Статус уточняется"]};
 
-export function StatusSection({api}: {api: string}) {
+export function StatusSection({api, request}: {api: string; request?: Request}) {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState(false);
+  const [sub, setSub] = useState<boolean | null>(null);
+  useEffect(() => { if (request) request("/api/me/status/subscription").then((r: any) => setSub(!!r.subscribed)).catch(() => setSub(null)); }, [request]);
+  async function toggle() {
+    if (!request || sub === null) return;
+    try { const r = await request("/api/me/status/subscription", {method: sub ? "DELETE" : "POST"}); setSub(!!r.subscribed); } catch { /* the button stays as it was */ }
+  }
   async function load() {
     try { const r = await fetch(api + "/api/public/service-status", {headers: {Accept: "application/json"}}); if (!r.ok) throw Error(); setData(await r.json()); setError(false); } catch { setError(true); }
   }
@@ -89,6 +95,10 @@ export function StatusSection({api}: {api: string}) {
     {data.incidents.length > 0 && <div className="form-card"><h3>Известные проблемы</h3>{data.incidents.map((i: any, n: number) => <p key={n}><b>{i.title}</b> · с {date(i.since)}</p>)}</div>}
     <div className="status-countries">{data.countries.map((c: any) => <div className="status-country" key={c.country}>
       <span>{c.country}</span><StatusBadge tone={c.online === c.total ? "ok" : c.online ? "warn" : "danger"}>{`${c.online}/${c.total}`}</StatusBadge></div>)}</div>
+    <div className="form-card status-subscribe">
+      {request && sub !== null && <button type="button" className="btn-ghost" onClick={toggle}>{sub ? "🔕 Не сообщать о сбоях" : "🔔 Сообщать о сбоях и восстановлении"}</button>}
+      <a className="btn-ghost" href={`${api}/status`} target="_blank" rel="noopener">Страница статуса</a>
+    </div>
   </div>;
 }
 

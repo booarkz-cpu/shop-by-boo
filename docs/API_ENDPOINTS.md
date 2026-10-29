@@ -1,6 +1,6 @@
-# Каталог API — v28.46.0 / API v21.5.1
+# Каталог API — v28.47.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0081_subscription_proxy`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0082_status_subscribers`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -340,6 +340,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/pnl/costs` | Add Cost |
 | `DELETE` | `/api/admin/pnl/costs/{cost_id}` | Delete Cost |
 | `PUT` | `/api/admin/pnl/fees` | Put Fees |
+| `GET` | `/api/admin/pricing/regions` | Get Regions |
+| `PUT` | `/api/admin/pricing/regions` | Put Regions |
+| `GET` | `/api/admin/pricing/regions/preview` | Preview |
 | `GET` | `/api/admin/promo-audiences` | Audiences |
 | `PUT` | `/api/admin/promo-audiences/{promo_id}` | Set Audience |
 | `POST` | `/api/admin/promo-codes` | Create Promo Code |
@@ -425,6 +428,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/standby` | Get Standby |
 | `PUT` | `/api/admin/standby` | Put Standby |
 | `POST` | `/api/admin/standby/token` | New Token |
+| `GET` | `/api/admin/status-page` | Admin View |
+| `PUT` | `/api/admin/status-page/config` | Admin Config |
 | `GET` | `/api/admin/status/components` | Admin Status Components |
 | `POST` | `/api/admin/status/components` | Admin Status Component Create |
 | `PUT` | `/api/admin/status/components/{component_id}` | Admin Status Component Update |
@@ -658,6 +663,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/referral/network` | My Network |
 | `GET` | `/api/me/referral/withdrawals` | My Withdrawals |
 | `POST` | `/api/me/referral/withdrawals` | Request Withdrawal |
+| `GET` | `/api/me/region` | My Region |
 | `GET` | `/api/me/remnawave/subscription` | My Remnawave Subscription |
 | `POST` | `/api/me/remnawave/subscription/refresh` | Refresh My Remnawave Subscription |
 | `GET` | `/api/me/routing/recommendation` | Routing Recommendation |
@@ -669,6 +675,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/stars-subscriptions` | Create Stars Subscription |
 | `POST` | `/api/me/stars-subscriptions/{row_id}/cancel` | Cancel Stars Subscription |
 | `GET` | `/api/me/stats` | My Stats |
+| `DELETE` | `/api/me/status/subscription` | Unsubscribe |
+| `GET` | `/api/me/status/subscription` | My Subscription |
+| `POST` | `/api/me/status/subscription` | Subscribe |
 | `GET` | `/api/me/subscription` | My Subscription |
 | `GET` | `/api/me/subscription-file` | Subscription File |
 | `GET` | `/api/me/subscription/commerce` | Commerce Catalog |
@@ -745,6 +754,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/public/servers` | Public Servers |
 | `GET` | `/api/public/service-status` | Public Status |
 | `GET` | `/api/public/status` | Public Status |
+| `GET` | `/api/public/status-page` | Public Status Page |
 | `GET` | `/api/public/v15/privacy` | Public Privacy |
 | `GET` | `/api/public/v16/release` | Release |
 | `GET` | `/api/public/v6/status` | Public Status |
@@ -779,3 +789,4 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/health/live` | Health Live |
 | `GET` | `/health/ready` | Health Ready |
 | `GET` | `/metrics` | Metrics |
+| `GET` | `/status` | Status Html |

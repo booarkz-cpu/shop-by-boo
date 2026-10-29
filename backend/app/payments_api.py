@@ -209,7 +209,9 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         snap_devices=int(constructor_quote["devices"])
         snap_profile=constructor_quote["profile_id"]
     else:
-        base_amount=shop.Decimal(str(plan.price))
+        from .regional_pricing import for_request, price_for
+        region,_country=await for_request(request,db)  # v28.47: the price of the customer's country, as the plans list shows it
+        base_amount=price_for(region,plan.id,plan.price)
         snap_days=plan.duration_days
         snap_traffic=plan.traffic_limit_gb
         snap_devices=plan.device_limit
@@ -260,6 +262,9 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
         method_hint=YOOKASSA_TYPES.get(pay_method or "") if pay_method and (await load_routing(db))["enabled"] else None
         provider_order=await shop._payment_provider_order(db,requested_provider,*([pay_method] if pay_method else []))
         if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
+        if not requested_provider and not constructor_quote:
+            from .regional_pricing import order_providers
+            provider_order=order_providers(region,provider_order)  # the region's gateways first
         provider_name=provider_order[0]
         provider=_checkout_provider(provider_name)
         order_id=canonical_order_id

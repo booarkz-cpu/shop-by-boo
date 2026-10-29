@@ -418,7 +418,7 @@ async def build_config(db: AsyncSession, request: Request | None = None) -> dict
     from .content_publishing import catalog
     overrides = await load_overrides(db)
     public = await main.public_config(db)
-    plans = await main.plans(db)
+    plans = await main.plans(db, request)
     currency = settings.default_currency or "RUB"
     now = datetime.utcnow()
     from .models import Advertisement, Promotion

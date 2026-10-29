@@ -35,13 +35,20 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 ---
 
-> **v28.46.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0081_subscription_proxy`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.46.0`, `/health` отвечает `21.5.1`.
+> **v28.47.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0082_status_subscribers`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.47.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 **Что это.** Магазин продаёт VPN-подписки и сам выдаёт доступ в вашей панели Remnawave: принимает оплату (СБП, карта, крипта, Telegram Stars), продлевает, считает трафик и устройства, отвечает клиентам. Клиент покупает в боте, Mini App, кабинете или приложении и подключается в одно касание. Владелец управляет всем из одной админ-панели — без программиста и без пересборки приложений.
 
 **Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md).
+
+## 🆕 Новое в v28.47.0
+
+| | |
+| --- | --- |
+| 📡 **Страница статуса** | Публичная страница `/status`: регионы, оплата и события. Если все серверы страны недоступны, событие открывается автоматически, и подписчики получают новости о сбое и восстановлении в Telegram и push. Подписаться можно в кабинете, Mini App или командой `/status` |
+| 🌍 **Цены по странам** | Скидка или наценка либо точная цена тарифа для выбранных стран, и кассы региона первыми в очереди. Цена в списке тарифов совпадает с ценой при оплате. [Подробнее](docs/modules/status_and_regional_pricing.md) |
 
 ## 🆕 Новое в v28.46.0
 
@@ -179,7 +186,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 </tr>
 </table>
 
-[Заметки к выпуску](docs/ru/RELEASE_V28_46_0.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
+[Заметки к выпуску](docs/ru/RELEASE_V28_47_0.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
 
 <details>
 <summary><b>Что было в v28.33.0</b></summary>
@@ -422,7 +429,7 @@ flowchart LR
 | Каталог | Что внутри |
 | --- | --- |
 | `backend/app` | FastAPI: `main.py` (ядро) и модули разделов — `auth_api.py`, `admin_auth_api.py`, `payments_api.py`, `push_campaigns.py`, `app_funnel.py`, `fiscal.py`, `remnawave.py`, `bot.py` и другие ([карта](docs/PROJECT_MAP_RU.md)) |
-| `backend/alembic` | Миграции PostgreSQL, head `0081_subscription_proxy` |
+| `backend/alembic` | Миграции PostgreSQL, head `0082_status_subscribers` |
 | `backend/worker.py` | Фоновые процессы: очередь выдачи (`run_next_job`), чеки, кампании, push, автопродление |
 | `admin`, `cabinet`, `miniapp` | Next.js: админ-панель, личный кабинет, Mini App |
 | `mobile/android-user`, `mobile/ios-user` | Клиентские приложения (Kotlin Compose, SwiftUI); `mobile/ios-user/CorgiTunnel` — Network Extension, `CorgiNotificationService` — push с картинками |
@@ -467,8 +474,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.46.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.46.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.47.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.47.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -485,7 +492,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.46.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.47.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -501,12 +508,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.46.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.47.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.46.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.47.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -1043,7 +1050,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
 | Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
-| Что вошло в выпуск | [Заметки v28.46.0](docs/ru/RELEASE_V28_46_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
+| Что вошло в выпуск | [Заметки v28.47.0](docs/ru/RELEASE_V28_47_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |
 

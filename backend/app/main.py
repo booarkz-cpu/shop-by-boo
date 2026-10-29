@@ -200,7 +200,7 @@ RATE_LIMITS = {
     "/api/webhooks/remnawave": 600,
     "/api/me/stars-subscriptions": 20,
     "/api/me/family/join": 10,
-    "/api/public/service-status": 60,
+    "/api/public/service-status": 60, "/api/public/status-page": 60, "/status": 30,
     "/api/me/servers": 30,
     # Long-poll from every open cabinet, Mini App and app; customers behind one carrier NAT share an IP.
     "/api/me/sync": 300,
@@ -887,13 +887,14 @@ async def api_me(request:Request,db:AsyncSession=Depends(get_db)):
     return {"id":user.id,"telegram_id":user.telegram_id,"yandex_id":user.yandex_id,"username":user.username,"referral_code":user.referral_code,"auto_renew_enabled":user.auto_renew_enabled}
 
 @app.get("/api/plans")
-async def plans(db:AsyncSession=Depends(get_db)):
-    rows=(await db.execute(select(Plan).where(Plan.enabled.is_(True)).order_by(Plan.id))).scalars().all()
+async def plans(db:AsyncSession=Depends(get_db),request:Request=None):
+    from .regional_pricing import for_request, price_for
+    region,_=await for_request(request,db); rows=(await db.execute(select(Plan).where(Plan.enabled.is_(True)).order_by(Plan.id))).scalars().all()
     anchor_ids=set((await db.execute(select(TariffConstructor.plan_id).where(TariffConstructor.plan_id.is_not(None)))).scalars().all())
     out=[]
     for p in rows:
         if p.id in anchor_ids: continue
-        price=Decimal(str(p.price)); promo=await active_promotion(db,p.id); discount=discounted_amount(price,promo.kind,promo.value) if promo else Decimal("0.00")
+        price=price_for(region,p.id,p.price); promo=await active_promotion(db,p.id); discount=discounted_amount(price,promo.kind,promo.value) if promo else Decimal("0.00")
         final_price=(price-discount).quantize(Decimal("0.01"),rounding=ROUND_HALF_UP)
         out.append({"id":p.id,"name":p.name,"price":float(price),"final_price":float(final_price),"discount":float(discount),"discount_percent":float((discount/price*Decimal("100")).quantize(Decimal("0.01"))) if price else 0,"promotion":({"id":promo.id,"name":promo.name,"kind":promo.kind,"value":float(promo.value),"description":promo.description} if promo else None),"duration_days":p.duration_days,"traffic_limit_gb":p.traffic_limit_gb,"device_limit":p.device_limit,"family_seats":int(p.family_seats or 0)})
     return out

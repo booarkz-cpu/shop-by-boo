@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.46.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.47.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -77,7 +77,7 @@ shop-by-boo/
 | `backend/app/app_config.py` | Конфигурация Mini App `GET /api/app-config`, согласие с офертой, редактор в админке |
 | `backend/alembic/versions/0076_growth.py` | Места в семье, хеш IP пробных периодов, комиссия за подарок, события Remnawave, подписки Stars, семьи, причины отмены |
 | `backend/alembic/versions/0078_campaign_ab.py` | Аналитика приложений (`app_events`) и push-кампании по сегментам (`push_campaigns`) |
-| `backend/alembic/versions/0081_subscription_proxy.py` | Источник привлечения клиента (`users.acquisition_source`) для юнит-экономики |
+| `backend/alembic/versions/0082_status_subscribers.py` | Источник привлечения клиента (`users.acquisition_source`) для юнит-экономики |
 | `backend/app/telegram_stars.py` | Telegram Stars: пополнение кошелька, подписка с автопродлением каждые 30 дней, проверка, зачисление, возврат |
 | `backend/app/remnawave_events.py` | Подписанные вебхуки Remnawave: уведомления клиентам, события автоматизации, защита пробного периода (IP, Telegram, HWID) |
 | `backend/app/growth.py` | Семейная подписка, аналитика удержания, публичный статус сервиса |
