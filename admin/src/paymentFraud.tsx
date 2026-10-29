@@ -20,14 +20,19 @@ export function PaymentFraud({request, toast}: {request: Request; toast: (t: str
       <h3>Правила платежей</h3>
       <p className="muted">Баллы правил прибавляются к базовой оценке риска. При пороге «проверка» платёж проходит, но вы получаете сообщение. При пороге «отказ» платёж отклоняется. Правила действуют на покупку тарифов и на пополнение кошелька.</p>
       {error ? <p className="error">{error}</p> : null}
-      <div className="toolbar">
+      <div className="inline">
         <label><input type="checkbox" checked={!!c.enabled} onChange={e => setC({...c, enabled: e.target.checked})}/> Включено</label>
         <label><input type="checkbox" checked={!!c.alert} onChange={e => setC({...c, alert: e.target.checked})}/> Сообщать в Telegram</label>
       </div>
-      <div className="toolbar">{n("failed_24h", "Неудачных оплат за сутки")}{n("failed_points", "баллов")}</div>
-      <div className="toolbar">{n("new_account_hours", "Аккаунт моложе, ч")}{n("new_account_amount", "и сумма от")}{n("new_account_points", "баллов")}</div>
-      <div className="toolbar">{n("accounts_per_ip", "Аккаунтов с одного адреса за сутки")}{n("accounts_points", "баллов")}{n("chargeback_points", "За чарджбэк, баллов")}</div>
-      <div className="toolbar">{list("block_ips", "Стоп-лист адресов")}{list("block_emails", "Стоп-лист e-mail")}{list("block_telegram_ids", "Стоп-лист Telegram ID", true)}{list("block_user_ids", "Стоп-лист ID клиентов", true)}</div>
+      <h4>Подбор карт</h4>
+      <div className="form-grid">{n("failed_24h", "Неудачных оплат за сутки, от")}{n("failed_points", "Баллов за подбор карт")}</div>
+      <h4>Новый аккаунт</h4>
+      <div className="form-grid">{n("new_account_hours", "Аккаунт моложе, часов")}{n("new_account_amount", "Сумма оплаты от, ₽")}{n("new_account_points", "Баллов за новый аккаунт")}</div>
+      <h4>Общий адрес и чарджбэки</h4>
+      <div className="form-grid">{n("accounts_per_ip", "Аккаунтов с одного адреса за сутки, от")}{n("accounts_points", "Баллов за общий адрес")}{n("chargeback_points", "Баллов за каждый чарджбэк")}</div>
+      <h4>Стоп-листы</h4>
+      <p className="muted">По одному значению в строке. Платёж из стоп-листа отклоняется сразу.</p>
+      <div className="form-grid stoplists">{list("block_ips", "Адреса (IP)")}{list("block_emails", "E-mail")}{list("block_telegram_ids", "Telegram ID", true)}{list("block_user_ids", "ID клиентов", true)}</div>
       <button className="primary" onClick={save}>Сохранить</button>
       <h4>За 7 дней</h4>
       {!r ? null : <>
