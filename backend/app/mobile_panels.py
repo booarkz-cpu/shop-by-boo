@@ -386,6 +386,44 @@ async def loyalty_panel(db: AsyncSession) -> dict:
                                body, {**body, "enabled": False}, "Кешбэк и скидки уровней перестанут действовать. Выключить?")]}
 
 
+async def feedback_panel(db: AsyncSession) -> dict:
+    """v28.52 «Оценки и NPS»: support rating and NPS of 90 days, by operator."""
+    from .feedback import load, report
+    cfg = await load(db)
+    r = await report(db, 90)
+    rows = [row("Оценка поддержки", f"{r['csat']['average']} из 5 ({r['csat']['count']})" if r["csat"]["count"] else "оценок нет",
+                "warn" if r["csat"]["average"] is not None and r["csat"]["average"] < 4 else "ok"),
+            row("NPS", f"{r['nps']['score']} ({r['nps']['count']} ответов)" if r["nps"]["count"] else "ответов нет",
+                "warn" if r["nps"]["score"] is not None and r["nps"]["score"] < 0 else "ok")]
+    rows += [row(o["operator"], f"{o['average']} из 5 · {o['count']}") for o in r["csat"]["operators"][:5]]
+    return {"id": "feedback", "title": "Оценки поддержки и NPS", "rows": rows,
+            "actions": [toggle("Просить оценку ответа", "Не просить оценку ответа", bool(cfg["csat_enabled"]), "PUT", "/api/admin/feedback",
+                               {**cfg, "csat_enabled": True}, {**cfg, "csat_enabled": False}),
+                        toggle("Включить опрос NPS", "Выключить опрос NPS", bool(cfg["nps_enabled"]), "PUT", "/api/admin/feedback",
+                               {**cfg, "nps_enabled": True}, {**cfg, "nps_enabled": False})]}
+
+
+async def cohorts_panel(db: AsyncSession) -> dict:
+    """v28.52 «Когорты»: the last six months of first payments, still with us after 1 and 3 months."""
+    from .cohorts import build
+    data = await build(db, 6)
+    cell = lambda v: "—" if v is None else f"{v}%"  # noqa: E731
+    rows = [row(c["month"], f"{c['size']} кл. · 1 мес. {cell(c['m1'])} · 3 мес. {cell(c['m3'])} · {c['revenue']} ₽") for c in data["cohorts"][-6:]]
+    return {"id": "cohorts", "title": "Когорты", "rows": rows or [row("Когорт", "оплат пока нет")], "actions": []}
+
+
+async def digest_panel(db: AsyncSession) -> dict:
+    """v28.52 «Еженедельная сводка»: on/off and «Отправить сейчас»."""
+    from .weekly_digest import DAYS, load
+    cfg = await load(db)
+    body = {"enabled": True, "weekday": cfg["weekday"], "time": cfg["time"]}
+    return {"id": "digest", "title": "Еженедельная сводка",
+            "rows": [row("Сводка", f"{DAYS[int(cfg['weekday'])]}, {cfg['time']} МСК" if cfg["enabled"] else "выключена", "ok" if cfg["enabled"] else ""),
+                     row("Последняя", cfg.get("last_day") or "—")],
+            "actions": [toggle("Присылать каждую неделю", "Не присылать сводку", bool(cfg["enabled"]), "PUT", "/api/admin/digest", body, {**body, "enabled": False}),
+                        action("Отправить сводку сейчас", "POST", "/api/admin/digest/send")]}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -398,7 +436,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel, feedback_panel, cohorts_panel, digest_panel]
 
 
 @router.get("/api/admin/mobile/panels")
