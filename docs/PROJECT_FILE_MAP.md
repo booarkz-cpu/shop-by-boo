@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.48.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.49.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1869**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1878**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -63,6 +63,7 @@
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
 | [.github/workflows/docker.yml](../.github/workflows/docker.yml) | GitHub CI/CD |
 | [.github/workflows/hetzner-live.yml](../.github/workflows/hetzner-live.yml) | GitHub CI/CD |
+| [.github/workflows/load-live.yml](../.github/workflows/load-live.yml) | GitHub CI/CD |
 | [.github/workflows/load-security.yml](../.github/workflows/load-security.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-release.yml](../.github/workflows/mobile-release.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-screenshots.yml](../.github/workflows/mobile-screenshots.yml) | GitHub CI/CD |
@@ -186,6 +187,7 @@
 | [admin/src/partners.tsx](../admin/src/partners.tsx) | Админ-панель |
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
 | [admin/src/payment-admission.tsx](../admin/src/payment-admission.tsx) | Админ-панель |
+| [admin/src/paymentFraud.tsx](../admin/src/paymentFraud.tsx) | Админ-панель |
 | [admin/src/paymentMethods.tsx](../admin/src/paymentMethods.tsx) | Админ-панель |
 | [admin/src/paymentQueue.tsx](../admin/src/paymentQueue.tsx) | Админ-панель |
 | [admin/src/plans-editor.tsx](../admin/src/plans-editor.tsx) | Админ-панель |
@@ -452,6 +454,7 @@
 | [backend/app/panel_usage.py](../backend/app/panel_usage.py) | API, бот и worker |
 | [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
 | [backend/app/passkeys.py](../backend/app/passkeys.py) | API, бот и worker |
+| [backend/app/payment_fraud.py](../backend/app/payment_fraud.py) | API, бот и worker |
 | [backend/app/payment_methods.py](../backend/app/payment_methods.py) | API, бот и worker |
 | [backend/app/payment_platform.py](../backend/app/payment_platform.py) | API, бот и worker |
 | [backend/app/payment_platform_api.py](../backend/app/payment_platform_api.py) | API, бот и worker |
@@ -880,6 +883,7 @@
 | [docs/en/NEW_IN_V28_46.md](../docs/en/NEW_IN_V28_46.md) | Документация |
 | [docs/en/NEW_IN_V28_47.md](../docs/en/NEW_IN_V28_47.md) | Документация |
 | [docs/en/NEW_IN_V28_48.md](../docs/en/NEW_IN_V28_48.md) | Документация |
+| [docs/en/NEW_IN_V28_49.md](../docs/en/NEW_IN_V28_49.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -920,6 +924,7 @@
 | [docs/modules/mobile_admin_panels.md](../docs/modules/mobile_admin_panels.md) | Документация |
 | [docs/modules/moderation.md](../docs/modules/moderation.md) | Документация |
 | [docs/modules/node_autoscale.md](../docs/modules/node_autoscale.md) | Документация |
+| [docs/modules/payment_fraud.md](../docs/modules/payment_fraud.md) | Документация |
 | [docs/modules/pnl.md](../docs/modules/pnl.md) | Документация |
 | [docs/modules/redis_and_postgres.md](../docs/modules/redis_and_postgres.md) | Документация |
 | [docs/modules/remnawave_integration.md](../docs/modules/remnawave_integration.md) | Документация |
@@ -1034,6 +1039,7 @@
 | [docs/ru/RELEASE_V28_46_0.md](../docs/ru/RELEASE_V28_46_0.md) | Документация |
 | [docs/ru/RELEASE_V28_47_0.md](../docs/ru/RELEASE_V28_47_0.md) | Документация |
 | [docs/ru/RELEASE_V28_48_0.md](../docs/ru/RELEASE_V28_48_0.md) | Документация |
+| [docs/ru/RELEASE_V28_49_0.md](../docs/ru/RELEASE_V28_49_0.md) | Документация |
 | [docs/ru/RELEASE_V28_4_0.md](../docs/ru/RELEASE_V28_4_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
@@ -1157,6 +1163,7 @@
 | [docs/uk/NEW_IN_V28_46.md](../docs/uk/NEW_IN_V28_46.md) | Документация |
 | [docs/uk/NEW_IN_V28_47.md](../docs/uk/NEW_IN_V28_47.md) | Документация |
 | [docs/uk/NEW_IN_V28_48.md](../docs/uk/NEW_IN_V28_48.md) | Документация |
+| [docs/uk/NEW_IN_V28_49.md](../docs/uk/NEW_IN_V28_49.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1663,6 +1670,7 @@
 | [tests/live/test_hetzner_live.py](../tests/live/test_hetzner_live.py) | Проверки |
 | [tests/live/test_payments_live.py](../tests/live/test_payments_live.py) | Проверки |
 | [tests/live/test_remnawave_live.py](../tests/live/test_remnawave_live.py) | Проверки |
+| [tests/load/live.js](../tests/load/live.js) | Проверки |
 | [tests/load/shop.js](../tests/load/shop.js) | Проверки |
 | [tests/main_source.py](../tests/main_source.py) | Проверки |
 | [tests/passkey_browser_server.py](../tests/passkey_browser_server.py) | Проверки |
@@ -1752,6 +1760,7 @@
 | [tests/test_ops_weekly.py](../tests/test_ops_weekly.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
 | [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |
+| [tests/test_payment_fraud.py](../tests/test_payment_fraud.py) | Проверки |
 | [tests/test_payment_load.py](../tests/test_payment_load.py) | Проверки |
 | [tests/test_payment_methods.py](../tests/test_payment_methods.py) | Проверки |
 | [tests/test_payments_aurapay_anore.py](../tests/test_payments_aurapay_anore.py) | Проверки |

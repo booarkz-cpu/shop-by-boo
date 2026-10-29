@@ -322,6 +322,21 @@ async def corporate_panel(db: AsyncSession) -> dict:
     return {"id": "corporate", "title": "Компании", "rows": rows, "actions": actions}
 
 
+async def payment_fraud_panel(db: AsyncSession) -> dict:
+    """v28.49 «Антифрод платежей»: reviews and refusals of the week, rules on/off."""
+    from .payment_fraud import load, reviews
+    cfg = await load(db)
+    r = await reviews(7, db, None)
+    rows = [row("Правила", "включены" if cfg.get("enabled") else "выключены", "ok" if cfg.get("enabled") else "warn"),
+            row("На проверке за 7 дней", len(r["reviews"]), "warn" if r["reviews"] else "ok"),
+            row("Отклонено за 7 дней", len(r["blocked"]), "warn" if r["blocked"] else "ok")]
+    rows += [row(f"#{x['user_id']} · риск {x['score']}", ", ".join(sorted((x.get("signals") or {}).keys())) or "—", "warn") for x in r["reviews"][:4]]
+    body = {k: v for k, v in cfg.items()}
+    return {"id": "payment_fraud", "title": "Антифрод платежей", "rows": rows,
+            "actions": [toggle("Включить правила", "Выключить правила", bool(cfg.get("enabled")), "PUT", "/api/admin/fraud/payment-rules",
+                               {**body, "enabled": True}, {**body, "enabled": False}, "Без правил платежи проверяются только базовой оценкой. Выключить?")]}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -334,7 +349,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel]
 
 
 @router.get("/api/admin/mobile/panels")

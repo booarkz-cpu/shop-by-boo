@@ -29,11 +29,20 @@ async def _risk_score(db, user: User, amount: Decimal, request: Request|None=Non
     if attempts>=8: score+=35; signals["velocity_24h"]=attempts
     if amount>shop.Decimal("1000"): score+=20; signals["high_amount"]=str(amount)
     if user.deleted_at: score=100; signals["deleted_account"]=True
+    ip=None
     if request:
         ip=shop._client_ip(request)
         prior=int((await db.execute(shop.select(shop.func.count()).select_from(shop.FraudSignal).where(shop.FraudSignal.ip==ip,shop.FraudSignal.created_at>=since))).scalar() or 0)
         if prior>=10: score+=40; signals["ip_velocity"]=prior
+    from .payment_fraud import alert, extra, record_refusal  # v28.49: configurable rules and the blocklist
+    more,more_signals=await extra(db,user,amount,ip)
+    score+=more; signals.update(more_signals)
     decision="block" if score>=shop.settings.payment_risk_block_score else "review" if score>=shop.settings.payment_risk_review_score else "allow"
+    if decision=="block":
+        await record_refusal(db,user,ip,min(score,100),signals,amount)
+    if decision!="allow":
+        try: await alert(db,user,decision,min(score,100),signals,amount)
+        except Exception as exc: shop.logger.warning("Fraud alert was not sent: %s", exc)
     return min(score,100),decision,signals
 
 async def _record_provider_metric(db, provider, *, attempt=0, success=0, failed=0, refunded=0, gross=Decimal("0"), fee=Decimal("0")):

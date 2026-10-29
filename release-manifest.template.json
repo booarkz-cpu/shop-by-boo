@@ -68,7 +68,7 @@
   "legacy_v2_0_2_contract": {
     "version": "2.0.2-audited"
   },
-  "artifact": "remnawave_vpn_shop_v28_48_0_full_release.zip",
+  "artifact": "remnawave_vpn_shop_v28_49_0_full_release.zip",
   "legacy_v3_1_5_artifact": "remnawave_vpn_shop_v3_1_5_full_release.zip",
   "legacy_v3_1_4_artifact": "remnawave_vpn_shop_v3_1_4_full_release.zip",
   "legacy_v3_1_3_artifact": "remnawave_vpn_shop_v3_1_3_full_release.zip",
@@ -98,7 +98,7 @@
   "previous_migration_head_legacy_marker": "0021_v43_hardening_docs",
   "tests": null,
   "signed": false,
-  "detached_manifest": "remnawave_vpn_shop_v28_48_0_full_release_manifest.json",
+  "detached_manifest": "remnawave_vpn_shop_v28_49_0_full_release_manifest.json",
   "legacy_v3_1_5_detached_manifest": "remnawave_vpn_shop_v3_1_5_full_release_manifest.json",
   "legacy_v3_1_4_detached_manifest": "remnawave_vpn_shop_v3_1_4_full_release_manifest.json",
   "legacy_v3_1_3_detached_manifest": "remnawave_vpn_shop_v3_1_3_full_release_manifest.json",
@@ -165,7 +165,7 @@
   "release_channel": "stable",
   "production_ready": false,
   "upgrade_from": "21.5.0",
-  "distribution_tag": "v28.48.0",
-  "release_title": "v28.48.0 — корпоративные тарифы",
-  "release_notes": "docs/ru/RELEASE_V28_48_0.md"
+  "distribution_tag": "v28.49.0",
+  "release_title": "v28.49.0 — антифрод платежей, нагрузка на реальном сервере, отчёт об учениях",
+  "release_notes": "docs/ru/RELEASE_V28_49_0.md"
 }

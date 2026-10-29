@@ -1,4 +1,4 @@
-# Каталог API — v28.48.0 / API v21.5.1
+# Каталог API — v28.49.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0083_corporate_seats`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -170,6 +170,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/fiscal/receipts/{receipt_id}/retry` | Admin Fiscal Retry |
 | `POST` | `/api/admin/fiscal/test` | Admin Fiscal Test |
 | `GET` | `/api/admin/fraud` | Admin Fraud |
+| `GET` | `/api/admin/fraud/payment-reviews` | Reviews |
+| `GET` | `/api/admin/fraud/payment-rules` | Get Rules |
+| `PUT` | `/api/admin/fraud/payment-rules` | Put Rules |
 | `POST` | `/api/admin/fraud/scan` | Fraud Scan |
 | `POST` | `/api/admin/fraud/{signal_id}` | Fraud Decision |
 | `GET` | `/api/admin/gateways` | Gateways Table |
