@@ -432,6 +432,33 @@ struct UserRootView: View {
                 }
             }
         }
+        // v28.53 «Проверка скорости»: the result comes back as a notice.
+        CardView(theme: theme) {
+            Text(t("speed_title")).font(.system(size: 20, weight: .bold)).foregroundStyle(theme.text)
+            Text(t("speed_hint")).foregroundStyle(theme.muted)
+            ActionButtonView(button: LayoutButton(id: "speed_test", label: t("speed_run"), action: "refresh", target: "", style: "secondary", icon: "zap", audience: "any"),
+                             theme: theme, enabled: !busy) { speedTest() }
+        }
+    }
+
+    private func speedTest() {
+        let (api, session, language, on) = (base, token, lang, vpn == .on)
+        work {
+            let client = ShopClient(base: api, token: session, lang: language)
+            var ping = Int.max
+            for _ in 0..<3 {
+                let started = Date()
+                _ = try client.call("GET", "/api/me/speedtest/ping")
+                ping = min(ping, Int(Date().timeIntervalSince(started) * 1000))
+            }
+            let (size, seconds) = try client.download("/api/me/speedtest/blob?mb=10")
+            let mbps = seconds > 0 ? Double(size) * 8 / 1_000_000 / seconds : 0
+            _ = try? client.call("POST", "/api/me/speedtest", body: ["server": on ? "auto" : "direct", "vpn": on, "download_mbps": (mbps * 100).rounded() / 100,
+                                                                     "ping_ms": ping, "platform": "ios"])
+            DispatchQueue.main.async {
+                notice = t("speed_result").replacingOccurrences(of: "{mbps}", with: String(format: "%.1f", mbps)).replacingOccurrences(of: "{ms}", with: String(ping))
+            }
+        }
     }
 
     private var planId: Int { selectedPlan > 0 ? selectedPlan : (data.plans.first.flatMap { jsonInt($0["id"]) } ?? 0) }

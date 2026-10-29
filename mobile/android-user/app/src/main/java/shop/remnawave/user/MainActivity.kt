@@ -282,6 +282,36 @@ class ShopApi(private val base: String, private val token: String, private val l
         call("POST", path, body, idempotency, headers)
     fun delete(path: String): Any = call("DELETE", path, null, null, emptyMap())
 
+    /** v28.53: read a speed-test blob through the pinned connection; returns the bytes read and the milliseconds it took. */
+    fun download(path: String): Pair<Long, Long> {
+        val origin = shop.remnawave.user.security.CorgiMirrors.resolve(base)
+        val connection = (URL(origin + path).openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            instanceFollowRedirects = false
+            connectTimeout = 15000
+            readTimeout = 30000
+            setRequestProperty("Accept", "application/octet-stream")
+            setRequestProperty("Accept-Encoding", "identity")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.4.0")
+            setRequestProperty("X-Shop-Client", "android-user")
+            if (token.isNotBlank()) setRequestProperty("Authorization", "Bearer $token")
+        }
+        connection.connect()
+        CorgiTrust.verify(connection)
+        if (connection.responseCode !in 200..299) throw java.io.IOException("HTTP ${connection.responseCode}")
+        val started = System.nanoTime()
+        var total = 0L
+        connection.inputStream.use { input ->
+            val buffer = ByteArray(64 * 1024)
+            while (true) {
+                val n = input.read(buffer)
+                if (n < 0) break
+                total += n
+            }
+        }
+        return total to (System.nanoTime() - started) / 1_000_000
+    }
+
     private fun call(method: String, path: String, body: JSONObject?, idempotency: String?, headers: Map<String, String>): Any {
         val origin = shop.remnawave.user.security.CorgiMirrors.resolve(base)
         return try {
@@ -673,6 +703,21 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
         override fun thaw() = work {
             ShopApi(base, token, lang).post("/api/me/freeze/thaw", JSONObject())
             activity.runOnUiThread { notice(t("thaw_done")); refresh() }
+        }
+        override fun speedTest() = work {
+            track("speed_test")
+            val api = ShopApi(base, token, lang)
+            val ping = (1..3).minOf { _ -> val started = System.nanoTime(); api.get("/api/me/speedtest/ping"); (System.nanoTime() - started) / 1_000_000 }
+            val (bytes, ms) = api.download("/api/me/speedtest/blob?mb=10")
+            val mbps = if (ms > 0) bytes * 8.0 / 1000.0 / ms else 0.0
+            val prefs = context.getSharedPreferences(shop.remnawave.user.vpn.CorgiVpnService.PREFS, 0)
+            val on = shop.remnawave.user.vpn.CorgiVpnService.current(context) == shop.remnawave.user.vpn.CorgiVpnService.STATE_ON
+            val server = if (on) prefs.getString(shop.remnawave.user.vpn.CorgiVpnService.KEY_SERVER, "").orEmpty().ifBlank { "auto" } else "direct"
+            try {
+                api.post("/api/me/speedtest", JSONObject().put("server", server).put("vpn", on).put("download_mbps", Math.round(mbps * 100) / 100.0)
+                    .put("ping_ms", ping).put("platform", "android"))
+            } catch (_: Exception) { /* the result is still shown */ }
+            activity.runOnUiThread { notice(t("speed_result").replace("{mbps}", "%.1f".format(mbps)).replace("{ms}", ping.toString())) }
         }
         override fun enterGiveaway(giveawayId: Int) = work {
             track("giveaway_enter")

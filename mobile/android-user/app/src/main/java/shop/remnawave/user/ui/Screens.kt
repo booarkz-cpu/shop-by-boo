@@ -82,7 +82,7 @@ fun SectionScreen(layout: AppLayout, section: LayoutSection, base: String, data:
             SectionBanner(base, section.banner, theme) { actions.link(it) }
             Muted(section.subtitle, theme)
             when (section.kind) {
-                "locations" -> LocationsBody(layout, data)
+                "locations" -> { LocationsBody(layout, data); SpeedCard(layout, ui, actions) }
                 "premium" -> PremiumBody(layout, data, ui, actions)
                 "subscription" -> { SubscriptionBody(layout, data, actions); InsightsCards(layout, data, actions) }
                 "devices" -> DevicesBody(layout, data, actions)
@@ -465,6 +465,17 @@ private fun InsightsCards(layout: AppLayout, data: ShopData, actions: ShopAction
             Muted(offer.optString("reason"), theme)
             ActionButton(LayoutButton("upsell_$i", "${offer.optString("price")} ₽", "refresh", "", "primary", "wallet", "any"), theme) { actions.buyOffer(offer) }
         }
+    }
+}
+
+/** v28.53 «Проверка скорости» under the locations: the result comes back as a notice. */
+@Composable
+private fun SpeedCard(layout: AppLayout, ui: UiFlags, actions: ShopActions) {
+    val theme = layout.theme
+    Card(theme) {
+        Text(layout.text("speed_title"), color = theme.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Muted(layout.text("speed_hint"), theme)
+        ActionButton(LayoutButton("speed_test", layout.text("speed_run"), "refresh", "", "secondary", "zap", "any"), theme, enabled = !ui.busy) { actions.speedTest() }
     }
 }
 

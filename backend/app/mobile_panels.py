@@ -424,6 +424,30 @@ async def digest_panel(db: AsyncSession) -> dict:
                         action("Отправить сводку сейчас", "POST", "/api/admin/digest/send")]}
 
 
+async def speed_panel(db: AsyncSession) -> dict:
+    """v28.53 «Скорость у клиентов»: median speed per server from the apps (7 days), slow ones first."""
+    from .speed_test import load, quality
+    cfg = await load(db)
+    servers = await quality(db, cfg=cfg)
+    rows = [row(s["server"], f"{s['median_mbps']} Мбит/с · {s['runs']} замеров" + (f" · {s['median_ping_ms']} мс" if s["median_ping_ms"] is not None else ""),
+                "warn" if s["slow"] else "ok") for s in servers[:8]]
+    return {"id": "speedtest", "title": "Скорость у клиентов", "rows": rows or [row("Замеров", "пока нет")],
+            "actions": [toggle("Включить проверку скорости", "Выключить проверку скорости", bool(cfg["enabled"]), "PUT", "/api/admin/speedtest",
+                               {**cfg, "enabled": True}, {**cfg, "enabled": False})]}
+
+
+async def forecast_panel(db: AsyncSession) -> dict:
+    """v28.53 «Прогноз нагрузки нод»: days to the limit, flagged nodes first."""
+    from .node_forecast import report
+    r = await report(db)
+    rows = [row(n["name"], f"{n['peak']}/{n['capacity']} ({n['load_percent']}%) · " + (f"~{n['days_left']} дн. до лимита" if n["days_left"] is not None else "рост не виден"),
+                "warn" if n["flagged"] else "ok") for n in r["nodes"][:8]]
+    cfg = r["config"]
+    return {"id": "forecast", "title": "Прогноз нагрузки нод", "rows": rows or [row("Данных", "пока нет")],
+            "actions": [toggle("Включить прогноз", "Выключить прогноз", bool(cfg["enabled"]), "PUT", "/api/admin/nodes/forecast",
+                               {**cfg, "enabled": True}, {**cfg, "enabled": False})]}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -436,7 +460,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel, feedback_panel, cohorts_panel, digest_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel, feedback_panel, cohorts_panel, digest_panel, speed_panel, forecast_panel]
 
 
 @router.get("/api/admin/mobile/panels")
