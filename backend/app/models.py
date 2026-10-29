@@ -194,6 +194,8 @@ class Subscription(Base):
     scheduled_cancel_at: Mapped[datetime|None] = mapped_column(DateTime)
     cancelled_at: Mapped[datetime|None] = mapped_column(DateTime)
     last_renewal_failure_at: Mapped[datetime|None] = mapped_column(DateTime)
+    # v28.54: «Без рекламы» (ads) or «Детский режим» (kids): the panel user sits in the filtered squad (dns_filter.py).
+    dns_filter: Mapped[str|None] = mapped_column(String(8))
 
 class TrafficPackage(Base):
     __tablename__ = "traffic_packages"
@@ -2069,6 +2071,8 @@ class VpnSession(Base):
     asn: Mapped[str] = mapped_column(String(16), default="", server_default="", nullable=False)
     isp: Mapped[str] = mapped_column(String(120), default="", server_default="", nullable=False)
     country: Mapped[str] = mapped_column(String(2), default="", server_default="", nullable=False)
+    # v28.54: the region inside the country from GeoLite2 (geoip.py), empty without the database.
+    region: Mapped[str] = mapped_column(String(64), default="", server_default="", nullable=False)
     first_seen: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     last_seen: Mapped[datetime] = mapped_column(DateTime, index=True, nullable=False)
 

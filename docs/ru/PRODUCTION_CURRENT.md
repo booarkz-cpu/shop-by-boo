@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.53.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.54.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Production: установка, настройка и эксплуатация v21.5.1
 
@@ -58,7 +58,7 @@ ss -ltnp
 На свежем VDS от root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.53.0/install.sh -o /root/shop-install.sh && BRANCH=v28.53.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.54.0/install.sh -o /root/shop-install.sh && BRANCH=v28.54.0 bash /root/shop-install.sh
 ```
 
 Установщик сам клонирует точный тег, устанавливает зависимости, собирает и запускает сервисы. Ручная распаковка ZIP не нужна. Source-каталог по умолчанию `/opt/vpn-shop-src`, рабочий каталог `/opt/vpn-shop`. Для иных каталогов задайте `SOURCE_DIR` и `APP_DIR` перед `bash`.
@@ -81,7 +81,7 @@ docker compose exec -T backend alembic current
 docker compose exec -T support_db psql -U support -d support -Atc 'SELECT version_num FROM alembic_version'
 ```
 
-Ожидается API `21.5.1`, head магазина `0087_speed_tests`, Support Pro `0008`. Одноразовые init/migration контейнеры могут завершиться с кодом 0 — это штатно. Постоянные сервисы должны работать; healthcheck смотрите там, где он определён.
+Ожидается API `21.5.1`, head магазина `0088_filter_and_regions`, Support Pro `0008`. Одноразовые init/migration контейнеры могут завершиться с кодом 0 — это штатно. Постоянные сервисы должны работать; healthcheck смотрите там, где он определён.
 
 С другого устройства проверьте HTTPS админки, кабинета, Mini App и Support Pro. На API:
 
@@ -146,7 +146,7 @@ docker compose up -d --force-recreate backend worker bot
 
 Для новой синхронизации после merge/split обязательны магазинная 0062 и Support Pro 0007. Обновляйте обе стороны вместе, сначала API, затем worker; дождитесь полного обхода старой истории и проверьте очередь объединённого источника. [Подробный регламент](SUPPORT_REMOTE_HISTORY_CURRENT.md).
 
-Объединение **клиентских аккаунтов** — отдельная операция кабинета, не merge обращений поддержки. Оно требует миграцию `0063_account_merge`, подтверждение обоих владельцев и разрешённый conflict preview. Текущий head — `0087_speed_tests`. После тестового объединения проверьте reconciliation балансов, владельцев подписок/платежей, вход через прежние идентичности и audit. [Полный регламент](ACCOUNT_MERGE_CURRENT.md).
+Объединение **клиентских аккаунтов** — отдельная операция кабинета, не merge обращений поддержки. Оно требует миграцию `0063_account_merge`, подтверждение обоих владельцев и разрешённый conflict preview. Текущий head — `0088_filter_and_regions`. После тестового объединения проверьте reconciliation балансов, владельцев подписок/платежей, вход через прежние идентичности и audit. [Полный регламент](ACCOUNT_MERGE_CURRENT.md).
 
 ## 12. Резервирование и restore drill
 
@@ -181,14 +181,14 @@ df -h
 
 Логи перед передачей другим людям обезличьте. Не выполняйте `docker compose down -v` или `docker volume prune` на рабочей установке: это может удалить данные.
 
-## 14. Обновление до v28.53.0 (runtime v21.5.1)
+## 14. Обновление до v28.54.0 (runtime v21.5.1)
 
 Сначала проверьте изолированный стенд, создайте полную согласованную копию и сохраните предыдущие исходники/окружение. Затем:
 
 ```bash
 cd /opt/vpn-shop
 bash scripts/backup.sh            # полная копия обеих баз до обновления
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.53.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.54.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 docker compose exec -T backend alembic current
 bash scripts/doctor.sh
 ```
@@ -197,7 +197,7 @@ bash scripts/doctor.sh
 
 Updater загружает проверенный GitHub архив и SHA256, сохраняет окружение и выполняет свои health/recovery проверки. Его собственный rollback snapshot включает основную базу; он не заменяет согласованный откат Support Pro. [Подробности обновления](WORKSPACE_UPGRADE.md).
 
-Миграции текущей ветки: от `0055_customer_passkeys` до `0087_speed_tests` (клиентские ключи, топология поддержки, объединение аккаунтов, live-настройки, почтовый домен, терминал узлов, торренты и анализ трафика); Support Pro — до `0008`. Миграции не начисляют исторические комиссии. Downgrade блокируется при зарегистрированных клиентских ключах, истории объединений, runtime-ревизиях или финансовых партнёрских строках; используйте исправление вперёд либо согласованное восстановление исходного выпуска. После обновления повторите проверки версии/head, кабинета, поддержки, ключей, [live-config](RUNTIME_SETTINGS_CURRENT.md) и фоновых задач.
+Миграции текущей ветки: от `0055_customer_passkeys` до `0088_filter_and_regions` (клиентские ключи, топология поддержки, объединение аккаунтов, live-настройки, почтовый домен, терминал узлов, торренты и анализ трафика); Support Pro — до `0008`. Миграции не начисляют исторические комиссии. Downgrade блокируется при зарегистрированных клиентских ключах, истории объединений, runtime-ревизиях или финансовых партнёрских строках; используйте исправление вперёд либо согласованное восстановление исходного выпуска. После обновления повторите проверки версии/head, кабинета, поддержки, ключей, [live-config](RUNTIME_SETTINGS_CURRENT.md) и фоновых задач.
 
 ## 15. Сбой и восстановление
 

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.53.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.54.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1917**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1928**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -183,6 +183,7 @@
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
 | [admin/src/mobileLayout.tsx](../admin/src/mobileLayout.tsx) | Админ-панель |
 | [admin/src/network-intel.tsx](../admin/src/network-intel.tsx) | Админ-панель |
+| [admin/src/networkV54.tsx](../admin/src/networkV54.tsx) | Админ-панель |
 | [admin/src/node-terminal.tsx](../admin/src/node-terminal.tsx) | Админ-панель |
 | [admin/src/nodeAutoscale.tsx](../admin/src/nodeAutoscale.tsx) | Админ-панель |
 | [admin/src/nodeMonitor.tsx](../admin/src/nodeMonitor.tsx) | Админ-панель |
@@ -311,6 +312,7 @@
 | [backend/alembic/versions/0085_loyalty.py](../backend/alembic/versions/0085_loyalty.py) | API, бот и worker |
 | [backend/alembic/versions/0086_feedback.py](../backend/alembic/versions/0086_feedback.py) | API, бот и worker |
 | [backend/alembic/versions/0087_speed_tests.py](../backend/alembic/versions/0087_speed_tests.py) | API, бот и worker |
+| [backend/alembic/versions/0088_filter_and_regions.py](../backend/alembic/versions/0088_filter_and_regions.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -403,6 +405,7 @@
 | [backend/app/daily_billing.py](../backend/app/daily_billing.py) | API, бот и worker |
 | [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
 | [backend/app/diagnostics.py](../backend/app/diagnostics.py) | API, бот и worker |
+| [backend/app/dns_filter.py](../backend/app/dns_filter.py) | API, бот и worker |
 | [backend/app/dunning.py](../backend/app/dunning.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
 | [backend/app/economics.py](../backend/app/economics.py) | API, бот и worker |
@@ -425,6 +428,7 @@
 | [backend/app/gateways/pal24.py](../backend/app/gateways/pal24.py) | API, бот и worker |
 | [backend/app/gateways/paritypay.py](../backend/app/gateways/paritypay.py) | API, бот и worker |
 | [backend/app/gateways/wata.py](../backend/app/gateways/wata.py) | API, бот и worker |
+| [backend/app/geoip.py](../backend/app/geoip.py) | API, бот и worker |
 | [backend/app/gift_batches.py](../backend/app/gift_batches.py) | API, бот и worker |
 | [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
 | [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
@@ -500,6 +504,7 @@
 | [backend/app/remnawave_shop_api.py](../backend/app/remnawave_shop_api.py) | API, бот и worker |
 | [backend/app/reseller_orders.py](../backend/app/reseller_orders.py) | API, бот и worker |
 | [backend/app/restore_approval.py](../backend/app/restore_approval.py) | API, бот и worker |
+| [backend/app/ripe_atlas.py](../backend/app/ripe_atlas.py) | API, бот и worker |
 | [backend/app/routers.py](../backend/app/routers.py) | API, бот и worker |
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
@@ -613,6 +618,7 @@
 | [cabinet/src/connection.tsx](../cabinet/src/connection.tsx) | Кабинет |
 | [cabinet/src/documents.test.tsx](../cabinet/src/documents.test.tsx) | Кабинет |
 | [cabinet/src/feedback.tsx](../cabinet/src/feedback.tsx) | Кабинет |
+| [cabinet/src/filter.tsx](../cabinet/src/filter.tsx) | Кабинет |
 | [cabinet/src/freeze.tsx](../cabinet/src/freeze.tsx) | Кабинет |
 | [cabinet/src/giveaways.test.tsx](../cabinet/src/giveaways.test.tsx) | Кабинет |
 | [cabinet/src/giveaways.tsx](../cabinet/src/giveaways.tsx) | Кабинет |
@@ -907,6 +913,7 @@
 | [docs/en/NEW_IN_V28_51.md](../docs/en/NEW_IN_V28_51.md) | Документация |
 | [docs/en/NEW_IN_V28_52.md](../docs/en/NEW_IN_V28_52.md) | Документация |
 | [docs/en/NEW_IN_V28_53.md](../docs/en/NEW_IN_V28_53.md) | Документация |
+| [docs/en/NEW_IN_V28_54.md](../docs/en/NEW_IN_V28_54.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -938,6 +945,7 @@
 | [docs/modules/billing_and_taxes.md](../docs/modules/billing_and_taxes.md) | Документация |
 | [docs/modules/bot_auth_and_routing.md](../docs/modules/bot_auth_and_routing.md) | Документация |
 | [docs/modules/corporate.md](../docs/modules/corporate.md) | Документация |
+| [docs/modules/dns_filter_geoip_ripe.md](../docs/modules/dns_filter_geoip_ripe.md) | Документация |
 | [docs/modules/feedback_digest_cohorts.md](../docs/modules/feedback_digest_cohorts.md) | Документация |
 | [docs/modules/freeze_and_dunning.md](../docs/modules/freeze_and_dunning.md) | Документация |
 | [docs/modules/gateway_health.md](../docs/modules/gateway_health.md) | Документация |
@@ -1072,6 +1080,7 @@
 | [docs/ru/RELEASE_V28_51_0.md](../docs/ru/RELEASE_V28_51_0.md) | Документация |
 | [docs/ru/RELEASE_V28_52_0.md](../docs/ru/RELEASE_V28_52_0.md) | Документация |
 | [docs/ru/RELEASE_V28_53_0.md](../docs/ru/RELEASE_V28_53_0.md) | Документация |
+| [docs/ru/RELEASE_V28_54_0.md](../docs/ru/RELEASE_V28_54_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
@@ -1199,6 +1208,7 @@
 | [docs/uk/NEW_IN_V28_51.md](../docs/uk/NEW_IN_V28_51.md) | Документация |
 | [docs/uk/NEW_IN_V28_52.md](../docs/uk/NEW_IN_V28_52.md) | Документация |
 | [docs/uk/NEW_IN_V28_53.md](../docs/uk/NEW_IN_V28_53.md) | Документация |
+| [docs/uk/NEW_IN_V28_54.md](../docs/uk/NEW_IN_V28_54.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1759,6 +1769,7 @@
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
 | [tests/test_feedback_digest_cohorts.py](../tests/test_feedback_digest_cohorts.py) | Проверки |
+| [tests/test_filter_geo_ripe.py](../tests/test_filter_geo_ripe.py) | Проверки |
 | [tests/test_fiscal.py](../tests/test_fiscal.py) | Проверки |
 | [tests/test_fraud_signals.py](../tests/test_fraud_signals.py) | Проверки |
 | [tests/test_freekassa.py](../tests/test_freekassa.py) | Проверки |

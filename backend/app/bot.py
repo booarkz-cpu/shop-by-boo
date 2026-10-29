@@ -564,6 +564,48 @@ async def feedback_answer(query: CallbackQuery):
         await query.message.answer("Спасибо! Расскажите, что можно сделать лучше, — просто напишите в поддержку." if low else "Спасибо, что помогаете нам стать лучше!")
 
 
+@router.message(Command("filter"))
+async def filter_command(message: Message):
+    """v28.54 «Фильтр»: ad blocking or the children's mode on the subscription."""
+    if not message.from_user or getattr(getattr(message, "chat", None), "type", "private") != "private":
+        return
+    from .dns_filter import view
+    from .subscriptions import owned
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(message.from_user.id))
+        v = await view(db, await owned(db, user.id)) if user else None
+    if not v or not v["enabled"]:
+        await message.answer("Фильтр сейчас недоступен.")
+        return
+    current = next((m["title"] for m in v["modes"] if m["key"] == v["mode"]), "без фильтра")
+    rows = [[InlineKeyboardButton(text=("✅ " if not v["mode"] else "") + "Без фильтра", callback_data="filter:off")]]
+    rows += [[InlineKeyboardButton(text=("✅ " if v["mode"] == m["key"] else "") + m["title"], callback_data=f"filter:{m['key']}")] for m in v["modes"]]
+    await message.answer(f"Сейчас: {current}. Фильтр работает на сервере — на всех ваших устройствах.", reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
+
+
+@router.callback_query(lambda query: bool(query.data and query.data.startswith("filter:")))
+async def filter_choose(query: CallbackQuery):
+    from fastapi import HTTPException
+    from .dns_filter import set_filter
+    from .subscriptions import is_family_subscription, owned
+    mode = query.data.split(":", 1)[1]
+    mode = "" if mode == "off" else mode
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(query.from_user.id))
+        sub = await owned(db, user.id, lock=True) if user else None
+        if not sub or await is_family_subscription(db, sub.id):
+            await query.answer("Фильтр этой подписки включает владелец семьи" if sub else "Подписка не найдена", show_alert=True)
+            return
+        try:
+            await set_filter(db, sub, mode, "bot")
+        except HTTPException as exc:
+            await query.answer(str(exc.detail)[:190], show_alert=True)
+            return
+    await query.answer("Готово — фильтр включится в течение минуты" if mode else "Фильтр выключен")
+
+
 @router.message(Command("level"))
 async def level_command(message: Message):
     """v28.51 «Уровни лояльности»: the customer's level, its perks and what is left to the next one."""

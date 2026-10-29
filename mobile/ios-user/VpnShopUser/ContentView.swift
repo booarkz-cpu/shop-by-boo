@@ -640,6 +640,7 @@ struct UserRootView: View {
                 }
             }
         }
+        if let filter = data.stats["filter"] as? [String: Any] { filterCard(filter) }
         if let pause = data.stats["freeze"] as? [String: Any] { freezeCard(pause) }
         if !data.upsell.isEmpty {
             CardView(theme: theme) {
@@ -672,6 +673,31 @@ struct UserRootView: View {
                     }
                 }
             }
+        }
+    }
+
+    /// v28.54 «Фильтр»: ad blocking or the children's mode, applied on the server.
+    @ViewBuilder private func filterCard(_ filter: [String: Any]) -> some View {
+        let current = jsonText(filter["mode"])
+        let modes = (filter["modes"] as? [[String: Any]]) ?? []
+        CardView(theme: theme) {
+            Text(t("filter_title")).font(.system(size: 20, weight: .bold)).foregroundStyle(theme.text)
+            Text(t("filter_hint")).foregroundStyle(theme.muted)
+            ActionButtonView(button: LayoutButton(id: "filter_off", label: (current.isEmpty ? "✓ " : "") + t("filter_off"), action: "refresh", target: "", style: current.isEmpty ? "primary" : "secondary", icon: "shield", audience: "any"),
+                             theme: theme, enabled: !busy) { setFilter("") }
+            ForEach(Array(modes.enumerated()), id: \.offset) { _, mode in
+                let key = jsonText(mode["key"])
+                ActionButtonView(button: LayoutButton(id: "filter_\(key)", label: (current == key ? "✓ " : "") + jsonText(mode["title"]), action: "refresh", target: "", style: current == key ? "primary" : "secondary", icon: "shield", audience: "any"),
+                                 theme: theme, enabled: !busy) { setFilter(key) }
+            }
+        }
+    }
+
+    private func setFilter(_ mode: String) {
+        let (api, session, language) = (base, token, lang)
+        work {
+            _ = try ShopClient(base: api, token: session, lang: language).call("PUT", "/api/me/filter", body: ["mode": mode])
+            DispatchQueue.main.async { notice = t("filter_done"); refresh() }
         }
     }
 

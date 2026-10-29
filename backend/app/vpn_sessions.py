@@ -153,8 +153,9 @@ async def collect(db: AsyncSession, panel=None, now: datetime | None = None) -> 
                     row.asn, row.isp, row.country = await _geo(db, ip, budget)
             else:
                 asn, isp, country = await _geo(db, ip, budget)
+                from .geoip import region as geo_region
                 row = VpnSession(panel_user=panel_user, user_id=sub.user_id if sub else None, node=node, ip=ip,
-                                 asn=asn, isp=isp, country=country, first_seen=now, last_seen=now)
+                                 asn=asn, isp=isp, country=country, region=geo_region(ip), first_seen=now, last_seen=now)
                 db.add(row)
             current.append({"ip": ip, "asn": row.asn, "isp": row.isp, "country": row.country, "node": node})
         hits = evaluate(cfg.get("rules") or [], current, int(getattr(sub, "device_limit_snapshot", 0) or 0)) if sub else []
@@ -322,4 +323,9 @@ async def geography(days: int = 7, db: AsyncSession = Depends(get_db), admin=Dep
     total = sum(n for _, n in by_country) or 1
     return {"days": days,
             "countries": sorted(({"country": c or "—", "users": n, "share": round(n * 100 / total, 1)} for c, n in by_country), key=lambda x: -x["users"]),
-            "providers": sorted(({"isp": i or "—", "country": c or "", "users": n} for i, c, n in by_isp), key=lambda x: -x["users"])[:30]}
+            "providers": sorted(({"isp": i or "—", "country": c or "", "users": n} for i, c, n in by_isp), key=lambda x: -x["users"])[:30],
+            # v28.54: regions inside the countries (GeoLite2, geoip.py); empty without the database.
+            "regions": sorted(({"country": c or "", "region": r, "users": n} for c, r, n in (await db.execute(
+                select(VpnSession.country, VpnSession.region, func.count(func.distinct(VpnSession.panel_user)))
+                .where(VpnSession.last_seen >= since, VpnSession.region != "").group_by(VpnSession.country, VpnSession.region))).all()),
+                key=lambda x: -x["users"])[:50]}

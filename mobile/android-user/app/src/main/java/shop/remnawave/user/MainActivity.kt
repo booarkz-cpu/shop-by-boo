@@ -281,6 +281,7 @@ class ShopApi(private val base: String, private val token: String, private val l
     fun post(path: String, body: JSONObject, idempotency: String? = null, headers: Map<String, String> = emptyMap()): Any =
         call("POST", path, body, idempotency, headers)
     fun delete(path: String): Any = call("DELETE", path, null, null, emptyMap())
+    fun put(path: String, body: JSONObject): Any = call("PUT", path, body, null, emptyMap())
 
     /** v28.53: read a speed-test blob through the pinned connection; returns the bytes read and the milliseconds it took. */
     fun download(path: String): Pair<Long, Long> {
@@ -718,6 +719,12 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     .put("ping_ms", ping).put("platform", "android"))
             } catch (_: Exception) { /* the result is still shown */ }
             activity.runOnUiThread { notice(t("speed_result").replace("{mbps}", "%.1f".format(mbps)).replace("{ms}", ping.toString())) }
+        }
+        override fun setFilter(mode: String) = work {
+            track("filter")
+            val api = ShopApi(base, token, lang)
+            api.put("/api/me/filter", JSONObject().put("mode", mode))
+            activity.runOnUiThread { notice(t("filter_done")); refresh() }
         }
         override fun enterGiveaway(giveawayId: Int) = work {
             track("giveaway_enter")

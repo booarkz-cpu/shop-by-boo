@@ -456,6 +456,7 @@ private fun InsightsCards(layout: AppLayout, data: ShopData, actions: ShopAction
             }
         }
     }
+    s.optJSONObject("filter")?.let { f -> FilterCard(layout, f, actions) }
     s.optJSONObject("freeze")?.let { fz -> FreezeCard(layout, fz, actions) }
     if (data.upsell.length() > 0) Card(theme) {
         Text(layout.text("upsell_title"), color = theme.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -464,6 +465,24 @@ private fun InsightsCards(layout: AppLayout, data: ShopData, actions: ShopAction
             Text(offer.optString("title"), color = theme.text, fontWeight = FontWeight.Bold)
             Muted(offer.optString("reason"), theme)
             ActionButton(LayoutButton("upsell_$i", "${offer.optString("price")} ₽", "refresh", "", "primary", "wallet", "any"), theme) { actions.buyOffer(offer) }
+        }
+    }
+}
+
+/** v28.54 «Фильтр»: ad blocking or the children's mode, applied on the server. */
+@Composable
+private fun FilterCard(layout: AppLayout, f: JSONObject, actions: ShopActions) {
+    val theme = layout.theme
+    val current = f.optString("mode")
+    Card(theme) {
+        Text(layout.text("filter_title"), color = theme.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Muted(layout.text("filter_hint"), theme)
+        ActionButton(LayoutButton("filter_off", (if (current.isBlank()) "✓ " else "") + layout.text("filter_off"), "refresh", "", if (current.isBlank()) "primary" else "secondary", "shield", "any"), theme) { actions.setFilter("") }
+        val modes = f.optJSONArray("modes") ?: JSONArray()
+        for (i in 0 until modes.length()) {
+            val m = modes.optJSONObject(i) ?: continue
+            val key = m.optString("key")
+            ActionButton(LayoutButton("filter_$key", (if (current == key) "✓ " else "") + m.optString("title"), "refresh", "", if (current == key) "primary" else "secondary", "shield", "any"), theme) { actions.setFilter(key) }
         }
     }
 }
