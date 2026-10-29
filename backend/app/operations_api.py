@@ -198,7 +198,8 @@ async def reconcile_refund(refund_id:int,db:AsyncSession=Depends(get_db),admin=D
     if not r.provider_refund_id: raise shop.HTTPException(409,"Provider refund ID is missing")
     p=await db.get(shop.Payment,r.payment_id)
     if not p: raise shop.HTTPException(404,"Payment not found")
-    providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"telegram_stars":shop.TelegramStarsProvider()}
+    from .gateways import refunders
+    providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"telegram_stars":shop.TelegramStarsProvider(),**refunders()}
     provider=providers.get(p.provider)
     if not provider or not hasattr(provider,"get_refund_status"): raise shop.HTTPException(409,"Refund status adapter is unavailable")
     try:

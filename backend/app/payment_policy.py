@@ -7,7 +7,7 @@ PROVIDER_CAPABILITIES = {
     "platega": {"cards": True, "recurring": False, "refunds": True},
     "cryptobot": {"cards": False, "recurring": False, "refunds": False},
     "freekassa": {"cards": True, "recurring": False, "refunds": False},
-    "cloudpayments": {"cards": True, "recurring": False, "refunds": False},
+    "cloudpayments": {"cards": True, "recurring": True, "refunds": True},
     "lava": {"cards": True, "recurring": False, "refunds": False},
     "pal24": {"cards": True, "recurring": False, "refunds": False},
     "mulenpay": {"cards": True, "recurring": False, "refunds": False},
