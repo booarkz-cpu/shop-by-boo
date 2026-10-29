@@ -43,7 +43,7 @@ const NAV_ICON: Record<string, React.ReactNode> = {
 };
 const BOTTOM_KINDS = ["overview", "plans", "connection", "wallet"];
 
-type MenuKind = "info" | "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "family" | "status" | "custom";
+type MenuKind = "info" | "partner" | "giveaways" | "surveys" | "overview" | "plans" | "trial" | "connection" | "support" | "servers" | "devices" | "wallet" | "payments" | "gifts" | "referral" | "security" | "notifications" | "subscription" | "family" | "status" | "company" | "custom";
 type MenuItem = {slug: string; title: string; kind: MenuKind; body?: string; icon?: string};
 
 const FALLBACK_MENU: MenuItem[] = [
