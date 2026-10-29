@@ -2065,3 +2065,11 @@ class GraceSquad(Base):
     squads: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     until: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class StatusSubscriber(Base):
+    """A customer who gets outage and recovery news (Telegram and the notification center / push)."""
+    __tablename__ = "status_subscribers"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

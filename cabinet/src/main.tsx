@@ -962,7 +962,7 @@ function App() {
                 </>}
 
                 {activeItem?.kind === "family" && <FamilySection request={req} flash={flash} reload={loadSession} />}
-                {activeItem?.kind === "status" && <StatusSection api={API} />}
+                {activeItem?.kind === "status" && <StatusSection api={API} request={authed ? req : undefined} />}
                 {activeItem?.kind === "info" && <><h2 className="section-title">{activeItem.title}</h2><InfoSection request={req} locale={lang} /></>}
                 {activeItem?.kind === "surveys" && <Surveys request={req} reload={loadSession}/>}
                 {activeItem?.kind === "giveaways" && <Giveaways request={req} reload={loadSession}/>}

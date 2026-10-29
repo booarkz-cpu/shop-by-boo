@@ -288,6 +288,22 @@ async def gateways_panel(db: AsyncSession) -> dict:
             "actions": [action("Проверить кассы сейчас", "POST", "/api/admin/gateways/probe")]}
 
 
+async def status_page_panel(db: AsyncSession) -> dict:
+    """v28.47 «Страница статуса»: what customers see now, subscribers, outage news on/off."""
+    from sqlalchemy import func, select
+    from .models import StatusSubscriber
+    from .status_page import CONFIG_KEY, DEFAULT, _load, build
+    cfg = {**DEFAULT, **(await _load(db, CONFIG_KEY, DEFAULT))}
+    page = await build(db)
+    subs = int(await db.scalar(select(func.count()).select_from(StatusSubscriber)) or 0)
+    tone = {"operational": "ok", "degraded": "warn", "outage": "bad"}.get(page["overall"], "")
+    rows = [row("Сейчас", page["overall_label"], tone), row("Подписчиков на новости о сбоях", subs)]
+    rows += [row(r["country"], f"{r['label']} · {r['online']}/{r['total']}", "bad" if r["status"] == "outage" else "warn") for r in page["regions"] if r["status"] != "operational"][:6]
+    actions = [toggle("Сообщать подписчикам о сбоях", "Не сообщать подписчикам", cfg["notify"], "PUT", "/api/admin/status-page/config",
+                      {**cfg, "notify": True}, {**cfg, "notify": False})]
+    return {"id": "status_page", "title": "Страница статуса", "rows": rows, "actions": actions}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -300,7 +316,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel]
 
 
 @router.get("/api/admin/mobile/panels")

@@ -495,6 +495,49 @@ async def contest_command(message: Message):
     await send_section(message, "contest", "\n".join(lines), fallback="referral")
 
 
+@router.message(Command("status"))
+async def status_command(message: Message):
+    """v28.47 «Состояние сервиса»: regions and payments now, and a button to get outage news."""
+    if not message.from_user or getattr(getattr(message, "chat", None), "type", "private") != "private":
+        return
+    from .models import StatusSubscriber
+    from .status_page import build
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(message.from_user.id))
+        page = await build(db)
+        on = bool(user and await db.scalar(select(StatusSubscriber.id).where(StatusSubscriber.user_id == user.id)))
+    head = {"operational": "🟢 Всё работает", "degraded": "🟡 Часть сервиса работает с перебоями", "outage": "🔴 Серьёзный сбой"}.get(page["overall"], "⚪️ Нет данных")
+    lines = [f"<b>{head}</b>"]
+    lines += [f"{r['country']}: {r['label']} ({r['online']}/{r['total']})" for r in page["regions"][:12]]
+    lines += [f"{c['name']}: {c['label']}" for c in page["components"][:6]]
+    opened = [i for i in page["incidents"] if i["status"] == "open"][:3]
+    if opened:
+        lines.append("\n<b>Сейчас:</b> " + "; ".join(escape(i["title"]) for i in opened))
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🔕 Не сообщать о сбоях" if on else "🔔 Сообщать о сбоях",
+                                                                           callback_data="status:off" if on else "status:on")]]) if user else None
+    await message.answer("\n".join(lines), parse_mode="HTML", reply_markup=keyboard)
+
+
+@router.callback_query(lambda query: bool(query.data and query.data in ("status:on", "status:off")))
+async def status_toggle(query: CallbackQuery):
+    from sqlalchemy import delete
+    from .models import StatusSubscriber
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        from .account_merge import identity_user
+        user = await identity_user(db, "telegram", int(query.from_user.id))
+        if not user:
+            await query.answer("Начните с /start")
+            return
+        if query.data == "status:on":
+            if not await db.scalar(select(StatusSubscriber.id).where(StatusSubscriber.user_id == user.id)):
+                db.add(StatusSubscriber(user_id=user.id))
+        else:
+            await db.execute(delete(StatusSubscriber).where(StatusSubscriber.user_id == user.id))
+        await db.commit()
+    await query.answer("Буду сообщать о сбоях и восстановлении" if query.data == "status:on" else "Больше не сообщаю о сбоях")
+
+
 @router.message(Command("keys"))
 async def keys_command(message: Message):
     """«Ключи подключения» (wg_pool.py): every server of the subscription as its own link."""
