@@ -41,7 +41,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 **Что это.** Магазин продаёт VPN-подписки и сам выдаёт доступ в вашей панели Remnawave: принимает оплату (СБП, карта, крипта, Telegram Stars), продлевает, считает трафик и устройства, отвечает клиентам. Клиент покупает в боте, Mini App, кабинете или приложении и подключается в одно касание. Владелец управляет всем из одной админ-панели — без программиста и без пересборки приложений.
 
-**Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md).
+**Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md) · [дорожная карта визуального аудита и скриншотов](docs/ROADMAP_UI_AND_SCREENSHOTS.md).
 
 ## 🆕 Новое в v28.54.0
 
@@ -615,6 +615,17 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 | `/start` | `/balance` | `/buy` | `/support` |
 | :---: | :---: | :---: | :---: |
 | ![Бот: приветствие, цены и меню](docs/img/bot-start.png) | ![Бот: кошелёк](docs/img/bot-balance.png) | ![Бот: тарифы](docs/img/bot-buy.png) | ![Бот: поддержка](docs/img/bot-support.png) |
+
+### Мобильные приложения Android и iOS
+
+Скриншоты клиентских и административных приложений: состояния подключения, подписка, локации, устройства, поддержка, настройки, мониторинг, платежи и экран запуска. Снимки хранятся в каталоге [screenshots/mobile](screenshots/mobile/). Они должны быть пересняты из актуальных сборок перед каждым крупным обновлением интерфейса.
+
+| Клиент Android | Клиент iOS | Администратор Android | Администратор iOS |
+| :---: | :---: | :---: | :---: |
+| ![Android: состояние VPN](screenshots/mobile/android-vpn-on.png) | ![iOS: состояние VPN](screenshots/mobile/ios-vpn-on.png) | ![Android: обзор администратора](screenshots/mobile/android-admin-overview.png) | ![iOS: обзор администратора](screenshots/mobile/ios-admin-overview.png) |
+| ![Android: подписка](screenshots/mobile/android-subscription.png) | ![iOS: подписка](screenshots/mobile/ios-subscription.png) | ![Android: мониторинг](screenshots/mobile/android-admin-monitoring.png) | ![iOS: мониторинг](screenshots/mobile/ios-admin-monitoring.png) |
+
+Полный список экранов и порядок выпуска: [дорожная карта визуального аудита и скриншотов](docs/ROADMAP_UI_AND_SCREENSHOTS.md).
 
 ### Админ-панель и личный кабинет
 
