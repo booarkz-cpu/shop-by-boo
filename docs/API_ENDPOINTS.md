@@ -213,8 +213,8 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/info-pages/{kind}` | Admin Save |
 | `GET` | `/api/admin/jobs` | Admin Jobs |
 | `POST` | `/api/admin/jobs/{job_id}/retry` | Retry Job |
-| `GET` | `/api/admin/loyalty` | Уровни лояльности и клиенты по уровням |
-| `PUT` | `/api/admin/loyalty` | Настройки уровней лояльности |
+| `GET` | `/api/admin/loyalty` | Admin Loyalty |
+| `PUT` | `/api/admin/loyalty` | Admin Loyalty Config |
 | `POST` | `/api/admin/mail/dmarc/erase` | Admin Dmarc Erase |
 | `GET` | `/api/admin/mail/dmarc/reports/{report_id}` | Admin Dmarc Report |
 | `POST` | `/api/admin/mail/dmarc/sync` | Admin Dmarc Sync |
@@ -651,7 +651,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/giveaways` | Customer List |
 | `POST` | `/api/me/giveaways/{giveaway_id}/enter` | Enter |
 | `GET` | `/api/me/identity` | Identity |
-| `GET` | `/api/me/loyalty` | Уровень лояльности клиента |
+| `GET` | `/api/me/loyalty` | My Loyalty |
 | `POST` | `/api/me/lusi/action` | Lusi Action |
 | `GET` | `/api/me/mobile/alerts` | Mobile Alerts |
 | `GET` | `/api/me/mobile/bootstrap` | Mobile Bootstrap |
