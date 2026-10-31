@@ -50,14 +50,11 @@ jobs:
         run: ruff check backend scripts tests
 
       - name: Single migration head
-        working-directory: backend
-        run: |
-          heads="$(alembic heads 2>/dev/null | wc -l)"
-          alembic heads
-          if [ "$heads" -ne 1 ]; then
-            echo "::error title=Migration heads::expected exactly 1 head, found $heads"
-            exit 1
-          fi
+        # Reads the revision graph straight from the migration sources. Running
+        # `alembic heads` would need the whole backend requirements installed
+        # (asyncpg, aiogram, Pillow…) just to count heads, which dominated this job
+        # and failed outright when the interpreter had no alembic on PATH.
+        run: python3 scripts/check-migration-heads.py
 
       - name: Automation log has an entry for this month
         run: |
