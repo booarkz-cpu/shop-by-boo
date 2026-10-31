@@ -31,7 +31,7 @@
 
 | Источник | Что даёт | Ключ | Срок хранения | Лимит магазина |
 | --- | --- | --- | --- | --- |
-| [RIPEstat Data API](https://stat.ripe.net/docs/data-api) (RIPE NCC) | ASN, владелец, префикс, анонс, страна RIR | не нужен | 7 дней | 60 запросов за 10 минут |
+| [RIPEstat Data API](https://stat.ripe.net/docs/) (RIPE NCC) | ASN, владелец, префикс, анонс, страна RIR | не нужен | 7 дней | 60 запросов за 10 минут |
 | [AbuseIPDB API v2](https://docs.abuseipdb.com/) | Репутация, жалобы, тип адреса, Tor | `ABUSEIPDB_API_KEY` | 24 часа | 40 запросов в час |
 
 - RIPEstat бесплатен; магазин передаёт параметр `sourceapp=corgi-vpn-shop`, как просит RIPE NCC, и указывает источник в интерфейсе.

@@ -20,7 +20,7 @@
 ## Основание для форматов API
 
 - YooKassa: https://yookassa.ru/developers/using-api/webhooks и https://yookassa.ru/developers/payment-acceptance/testing-and-going-live/testing
-- Platega: https://docs.platega.io/создание-платежной-ссылки-без-заданного-метода-33845703e0 , https://docs.platega.io/отмена-транзакции-38225949e0
+- Platega: [документация](https://docs.platega.io/) — разделы «создание платёжной ссылки без заданного метода» и «отмена транзакции» (глубокие ссылки на разделы меняются при обновлении справки, поэтому приведена точка входа)
 - RollyPay: https://docs.rollypay.io/api/authentication/ , https://docs.rollypay.io/api/payments/ , https://docs.rollypay.io/api/callbacks/ , https://docs.rollypay.io/api/testing/
 
 Пути в этом списке сверяйте с актуальной официальной документацией перед работой с деньгами; они не являются доказательством доступности конкретного тестового терминала. Пошаговые действия владельца: [PAYMENTS_VDS_BEGINNER_2026_09_28.md](PAYMENTS_VDS_BEGINNER_2026_09_28.md).

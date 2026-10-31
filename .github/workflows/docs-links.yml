@@ -1,0 +1,45 @@
+name: Documentation links
+
+# Checks the URLs the documentation points at. Kept out of ci.yml on purpose: a third-party outage must
+# never block a pull request or a release, so this runs nightly and on demand. Relative links, images and
+# Markdown anchors are already enforced on every push by `check-doc-links.py` inside ci.yml — this job
+# adds the network half (HTTP status, redirects, DNS).
+on:
+  schedule:
+    # 04:30 UTC — after the nightly update window (03:00 Europe/Moscow) has finished.
+    - cron: "30 4 * * *"
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Check only URLs containing this substring (empty = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-links
+  cancel-in-progress: true
+
+jobs:
+  external:
+    name: External links of README and docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install HTTP client
+        run: pip install --quiet "httpx==0.28.1"
+      - name: Relative links, images and anchors
+        # The same script ci.yml runs; repeated here so a nightly report is complete on its own.
+        run: python scripts/check-doc-links.py
+      - name: External links over the network
+        run: |
+          python scripts/check-external-links.py --timeout 15 --retries 3 \
+            ${{ inputs.only && format('--only "{0}"', inputs.only) || '' }}
