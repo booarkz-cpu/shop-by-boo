@@ -199,3 +199,44 @@ line 2: alembic: command not found
 - Секретов в репозитории ноль (`GET /actions/secrets` → 0). Переменная `AUTO_DEPLOY=true`,
   но `deploy.yml` пропускается, так как `DEPLOY_HOST`/`DEPLOY_USER`/`DEPLOY_SSH_KEY`/
   `DEPLOY_PATH` пусты. Автодеплой не выполнялся и не мог выполниться.
+
+## 2026-10-31 — локализация: украинский язык в кабинете
+
+Закрыт разрыв между заявленной и фактической поддержкой языков. До правки `ru/en/uk`
+принимали бот (`_BOT_TEXT`), страницы информации (`info_pages.LANGS`), мобильная
+раскладка (`mobile_layout.LANGS`), production API (`SUPPORTED_LANGS`) и документация
+(`docs/uk/`) — а кабинет умел только `ru` и `en`, и админ не мог выбрать украинский
+язык по умолчанию.
+
+| Проблема | Первопричина | Исправление | Файл |
+| --- | --- | --- | --- |
+| Кабинет не поддерживал `uk` | `Lang = "ru" \| "en"`, таблица переводов одна | Добавлена таблица `UK` на 95 записей (полное покрытие `EN`), `Lang` расширен до `ru/en/uk`, `translate()` и `detectLang()` научились `uk` | `cabinet/src/i18n.tsx` |
+| Переключатель языков зациклен на двух | `lang === "ru" ? "en" : "ru"` | Цикл `ru → en → uk → ru` через `LANG_NEXT`; кнопка показывает язык, на который переключит | `cabinet/src/main.tsx` |
+| Админ не мог выбрать `uk` по умолчанию | `choices=("ru", "en")` | `choices=("ru", "en", "uk")` | `backend/app/runtime_settings.py` |
+| `/api/public/config` отбрасывал `uk` | Проверка `in {"ru","en"}` | `in {"ru","en","uk"}` | `backend/app/main.py` |
+
+Особенности реализации:
+
+- украинский не наследует русский: при отсутствии записи в `UK` берётся английская
+  строка, чтобы непереведённая подпись не рендерилась по-русски;
+- `detectLang()` проверяет `uk`/`ua` **до** `en`: украинская локаль браузера
+  (`uk-UA`) не должна сваливаться в русский;
+- `sourceOf()` в `DomLocalizer` узнаёт uk-рендеринг, иначе при переключении языка
+  узел повторно переводился бы из неверного исходника.
+
+Проверено:
+
+- `tsc --noEmit` кабинета — чисто; `next build` кабинета — успешно;
+- `tsc --noEmit` и `tsc -p tsconfig.ui.json` админки — чисто;
+- покрытие словарей: 95 ключей в `EN`, 95 в `UK`, расхождений нет,
+  ни одна запись не осталась идентичной английской;
+- backend: 1809 passed, 0 failed (полный набор по частям);
+- профильные: `test_runtime_settings.py`, `test_critical_startup_and_i18n.py`,
+  `test_v240_cabinet_web3_sandbox.py` — 25 passed;
+- `ruff`, `check-current-docs`, `check-runtime-placeholders`,
+  `generate-project-map --check`, `check-migration-heads` — чисто.
+
+`npm test` (vitest) кабинета в песочнице не запускается: падение в модуле `undici`
+(`Cannot read properties of undefined (reading 'bind')`) на Node 20. Воспроизведено
+на чистом дереве без этих правок — это дефект окружения, а не изменение кода.
+В CI job «cabinet» на ubuntu-24.04 vitest проходит.

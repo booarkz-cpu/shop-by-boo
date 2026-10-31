@@ -58,7 +58,7 @@ class SettingDefinition:
 
 
 DEFINITIONS = (
-    SettingDefinition("default_language", "general", "Язык по умолчанию", "Язык бота и кабинета, если клиент не передал предпочтение.", "select", "default_language", choices=("ru", "en")),
+    SettingDefinition("default_language", "general", "Язык по умолчанию", "Язык бота и кабинета, если клиент не передал предпочтение.", "select", "default_language", choices=("ru", "en", "uk")),
     SettingDefinition("log_level", "general", "Уровень журналирования", "Минимальный уровень сообщений Python-приложения.", "select", "log_level", choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")),
     SettingDefinition("notification_expiry_days", "general", "Предупреждать до окончания", "За сколько дней создать уведомление об окончании подписки.", "integer", "notification_expiry_days", minimum=1, maximum=30, unit="дн."),
     SettingDefinition("trial_max_days", "general", "Максимальный пробный период", "Верхняя граница пробной подписки для новых клиентов.", "integer", "trial_max_days", minimum=1, maximum=30, unit="дн."),

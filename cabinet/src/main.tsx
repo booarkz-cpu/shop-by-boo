@@ -23,6 +23,14 @@ import {AccountRecovery, AccountSecurity, accountLink} from "./account-recovery"
 import {AccountMerge} from "./account-merge";
 import type {AccountLink} from "./account-recovery";
 import {DomLocalizer, LangProvider, detectLang, t, useLang} from "./i18n";
+
+// The cabinet ships three locales (ru/en/uk). The topbar button steps through them in
+// order and shows the language it will switch to, not the one that is active.
+const LANG_NEXT: Record<"ru" | "en" | "uk", {code: "ru" | "en" | "uk"; short: string; label: string}> = {
+  ru: {code: "en", short: "EN", label: "English"},
+  en: {code: "uk", short: "UK", label: "Українська"},
+  uk: {code: "ru", short: "RU", label: "Русский"},
+};
 import {AppConfigProvider, useAppConfig} from "./app-config";
 import {FamilySection, StarsSubscribe, StatusSection, familyCodeFromUrl} from "./growth";
 import {CompanySection, companyCodeFromUrl} from "./company";
@@ -722,8 +730,8 @@ function App() {
                 {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
               </button>
             )}
-            <button type="button" className="icon-btn lang-btn" aria-label="Сменить язык" onClick={() => setLang(lang === "ru" ? "en" : "ru")}>
-              {lang === "ru" ? "EN" : "RU"}
+            <button type="button" className="icon-btn lang-btn" aria-label="Сменить язык" title={LANG_NEXT[lang].label} onClick={() => setLang(LANG_NEXT[lang].code)}>
+              {LANG_NEXT[lang].short}
             </button>
             {authed && !MINI_APP && (
               <button type="button" className="icon-btn topbar-logout" aria-label="Выйти" title="Выйти" onClick={logout}>
