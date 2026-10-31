@@ -1,6 +1,6 @@
 # Автообновление: устранение неполадок
 
-Дистрибутив `v28.54.0`, runtime/API `21.5.1`. Механизм: [AUTO_UPDATE.md](AUTO_UPDATE.md).
+Дистрибутив `v28.55.0`, runtime/API `21.5.1`. Механизм: [AUTO_UPDATE.md](AUTO_UPDATE.md).
 Безопасность: [AUTO_UPDATE_SECURITY.md](AUTO_UPDATE_SECURITY.md).
 
 Все команды ниже — от root на сервере, если не указано иное. `APP_DIR` по умолчанию `/opt/vpn-shop`.
@@ -129,7 +129,7 @@ curl -sS -o /dev/null -w '%{http_code}\n' https://api.github.com/repos/booarkz-c
 Проверьте вручную:
 
 ```bash
-TAG=v28.54.0
+TAG=v28.55.0
 cd /tmp && rm -rf verify && mkdir verify && cd verify
 BASE="https://github.com/booarkz-cpu/shop-by-boo/releases/download/$TAG"
 ZIP="remnawave_vpn_shop_v${TAG#v}_full_release.zip"

@@ -1,3 +1,23 @@
+# v28.55.0
+
+- Раздел «Выпуски → Обновления» показывает фактическую установленную версию вместо заглушки
+  «корпоративный контур» (`admin/src/main.tsx`). Миграций нет; head `0088_filter_and_regions`;
+  runtime/API остаётся 21.5.1.
+- Документация ночного автообновления: архитектура, безопасность, диагностика и матрица из 19
+  сценариев (`docs/AUTO_UPDATE*.md`).
+- Гайд по тестированию внешних зависимостей: Remnawave, reverse proxy, Telegram, Mini App,
+  15 платёжных провайдеров, OAuth, GitHub Actions, Docker, установщик, мобильные приложения
+  (`docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md`).
+- Чек-лист релиза, ограничения релиза, перечень внешних зависимостей, журнал автоматизации и
+  дорожные карты (`docs/RELEASE_CHECKLIST.md`, `docs/RELEASE_LIMITATIONS.md`,
+  `docs/EXTERNAL_DEPENDENCIES.md`, `docs/AUTOMATION_LOG.md`,
+  `docs/MASTER_ROADMAP_VPN_SHOP.md`, `docs/ROADMAP_UI_AND_SCREENSHOTS.md`).
+- Ночная проверка контрактов репозитория: `.github/workflows/claude-roadmap.yml`
+  (`contents: read`, без вызова LLM API, без коммитов).
+- Проверено: ruff, `bash -n`, compileall, 2507 backend-тестов, typecheck и build admin,
+  typecheck + vitest + build cabinet, контракты документации, один head миграций.
+- Отчёт выпуска: [docs/ru/RELEASE_V28_55_0.md](docs/ru/RELEASE_V28_55_0.md).
+
 # v28.54.0
 
 - Фильтр рекламы и детский режим (`dns_filter.py`, миграция `0088_filter_and_regions`).
