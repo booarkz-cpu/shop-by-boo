@@ -1,3 +1,24 @@
+# v28.56.0
+
+- `GET /api/me/traffic` больше не затенён вторым обработчиком: кабинет, Mini App и мобильные приложения
+  снова получают и счётчики (`traffic_used_bytes`, `traffic_limit_bytes`, `devices`), и разбивку по дням
+  (`days`, `nodes`). Раздел «Моя статистика» падал на `data.days.length` — это была ошибка
+  `Cannot read properties of undefined (reading 'length')`. Если панель не отдаёт `bandwidth-stats`,
+  `days` остаётся пустым списком (`backend/app/panel_usage.py`, `backend/app/operations_api.py`).
+- Кнопка «Трафик» в карточке клиента снова отвечает: маршрут `GET /api/admin/users/{user_id}/traffic`
+  виден в таблице маршрутов после устранения дубликата.
+- Чёрные экраны панели и кабинета: добавлены `admin/src/app/error.tsx` и `cabinet/src/app/error.tsx`
+  с причиной, повтором и перезагрузкой, а корень обоих приложений обёрнут в собственный boundary —
+  сбой отрисовки больше не размонтирует всё дерево React (`admin/src/main.tsx`, `cabinet/src/main.tsx`).
+- Уникальные `operationId` OpenAPI: `/api/webhooks/freekassa` разведён на `freekassa_webhook_get` и
+  `freekassa_webhook_post`; логика подписи и подтверждения платежа не менялась
+  (`backend/app/payments_api.py`).
+- Регрессионные тесты: дублирование маршрутов, уникальность `operationId`, оба контракта
+  `/api/me/traffic`, работа без статистики панели, наличие экрана ошибки в обоих фронтендах.
+- Миграций нет: head `0088_filter_and_regions`; runtime/API остаётся 21.5.1. Совместимо с `v28.55.0`
+  в обе стороны.
+- Отчёт выпуска: [docs/ru/RELEASE_V28_56_0.md](docs/ru/RELEASE_V28_56_0.md).
+
 # v28.55.0
 
 - Раздел «Выпуски → Обновления» показывает фактическую установленную версию вместо заглушки

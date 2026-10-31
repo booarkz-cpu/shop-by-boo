@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.55.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.56.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1943**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1946**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -139,6 +139,7 @@
 | [admin/scripts/screenshots.mjs](../admin/scripts/screenshots.mjs) | Админ-панель |
 | [admin/src/admin-hub.tsx](../admin/src/admin-hub.tsx) | Админ-панель |
 | [admin/src/admin-shell.tsx](../admin/src/admin-shell.tsx) | Админ-панель |
+| [admin/src/app/error.tsx](../admin/src/app/error.tsx) | Админ-панель |
 | [admin/src/app/layout.tsx](../admin/src/app/layout.tsx) | Админ-панель |
 | [admin/src/app/page.tsx](../admin/src/app/page.tsx) | Админ-панель |
 | [admin/src/appConfig.tsx](../admin/src/appConfig.tsx) | Админ-панель |
@@ -612,6 +613,7 @@
 | [cabinet/src/app-config.tsx](../cabinet/src/app-config.tsx) | Кабинет |
 | [cabinet/src/app-login.test.tsx](../cabinet/src/app-login.test.tsx) | Кабинет |
 | [cabinet/src/app-login.tsx](../cabinet/src/app-login.tsx) | Кабинет |
+| [cabinet/src/app/error.tsx](../cabinet/src/app/error.tsx) | Кабинет |
 | [cabinet/src/app/layout.tsx](../cabinet/src/app/layout.tsx) | Кабинет |
 | [cabinet/src/app/page.tsx](../cabinet/src/app/page.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
@@ -1095,6 +1097,7 @@
 | [docs/ru/RELEASE_V28_53_0.md](../docs/ru/RELEASE_V28_53_0.md) | Документация |
 | [docs/ru/RELEASE_V28_54_0.md](../docs/ru/RELEASE_V28_54_0.md) | Документация |
 | [docs/ru/RELEASE_V28_55_0.md](../docs/ru/RELEASE_V28_55_0.md) | Документация |
+| [docs/ru/RELEASE_V28_56_0.md](../docs/ru/RELEASE_V28_56_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |

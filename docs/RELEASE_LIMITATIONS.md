@@ -1,6 +1,6 @@
 # Ограничения релиза
 
-Дистрибутив `v28.55.0`, runtime/API `21.5.1`, миграция магазина `0088_filter_and_regions`.
+Дистрибутив `v28.56.0`, runtime/API `21.5.1`, миграция магазина `0088_filter_and_regions`.
 
 Документ существует, чтобы продукт не считался полностью проверенным там, где проверки не было.
 Каждое ограничение имеет статус и указание, что нужно для его снятия.
@@ -64,17 +64,17 @@ lint, shell-синтаксис, компиляция, 2507 backend-тестов,
 
 | Что проверено | Результат |
 | --- | --- |
-| Тег `v28.55.0` существует и указывает на `b87d20acadd1` | PASS |
+| Тег `v28.56.0` существует и указывает на `b87d20acadd1` | PASS |
 | Релиз опубликован (`draft: false`, `prerelease: false`) | PASS, `2026-10-31T18:51:22Z` |
 | Ассеты: архив, `.sha256`, `_manifest.json` | PASS, 3 файла |
 | `sha256sum -c` на скачанном архиве | PASS — `OK` |
 | Манифест привязан к коммиту релиза | PASS, `commit = b87d20acadd1…` |
 | В архиве нет `.env` (только `.env.example`) | PASS |
 | `release_status()` видит обновление с `v28.54.0` | PASS, `update_available: true` |
-| `release_status()` на `v28.55.0` не предлагает обновиться | PASS, `update_available: false` |
+| `release_status()` на `v28.56.0` не предлагает обновиться | PASS, `update_available: false` |
 | Ночной workflow `claude-roadmap.yml` | PASS после исправления, run `41232234392` |
 
-Ссылка: https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.55.0
+Ссылка: https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.56.0
 
 ## 4. Что было исправлено в этом релизе
 
