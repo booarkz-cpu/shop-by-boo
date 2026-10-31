@@ -234,7 +234,9 @@ function Table({title,cols,rows}:any){
  return <div className="card table-card"><div className="table-head"><h3>{title}</h3><span>{filtered.length} записей</span><input aria-label={`Поиск: ${title}`} placeholder="Поиск…" value={query} onChange={e=>{setQuery(e.target.value);setPage(0)}}/></div><div className="table-wrap"><table><thead><tr>{cols.map((c:string,i:number)=><th key={i}>{c}</th>)}</tr></thead><tbody>{filtered.slice(current*size,(current+1)*size).map((r:any[],i:number)=><tr key={i}>{r.map((v:any,j:number)=><td key={j}>{v}</td>)}</tr>)}{!filtered.length&&<tr><td colSpan={cols.length} className="empty-state">{query?"По вашему запросу ничего не найдено":"Здесь пока нет записей"}</td></tr>}</tbody></table></div>{pages>1&&<div className="table-pagination"><button disabled={!current} onClick={()=>setPage(current-1)}>Назад</button><span>{current+1} / {pages}</span><button disabled={current+1>=pages} onClick={()=>setPage(current+1)}>Далее</button></div>}</div>
 }
 function Row({k,v}:any){return <div className="security-row"><span>{k}</span><b>{v}</b></div>}
-export default function AdminRoot(){return <LangProvider><TooltipProvider delayDuration={200}><FieldHints/><App/></TooltipProvider></LangProvider>}
+/** Providers and App render outside every other boundary: without this, a throw there unmounted the tree
+ *  and the operator got a black page. */
+export default function AdminRoot(){return <AdminErrorBoundary><LangProvider><TooltipProvider delayDuration={200}><FieldHints/><App/></TooltipProvider></LangProvider></AdminErrorBoundary>}
 
 function SupportProDesk({d,toast}:any){
  const[loading,setLoading]=useState(false); const[url,setUrl]=useState("");

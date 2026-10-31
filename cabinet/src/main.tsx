@@ -1009,12 +1009,45 @@ function App() {
   );
 }
 
+/**
+ * Last line of defence of the cabinet: the providers and ``App`` render outside every other
+ * boundary, so a throw there used to unmount the whole tree and leave a black page. This keeps
+ * a readable screen with a retry in its place.
+ */
+class CabinetRootBoundary extends React.Component<{children: React.ReactNode}, {error: string | null}> {
+  state = {error: null as string | null};
+  static getDerivedStateFromError(error: any) {
+    return {error: String(error?.message || error || "Неизвестная ошибка интерфейса")};
+  }
+  componentDidCatch(error: unknown) { console.error("cabinet root failed", error); }
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <main className="boot" role="alert" aria-label="Ошибка кабинета">
+        <div className="boot-body">
+          <div className="form-card">
+            <h2>Кабинет не открылся</h2>
+            <p className="muted">Подписка и платежи не затронуты — это ошибка отрисовки интерфейса.</p>
+            <p className="error">{this.state.error}</p>
+            <div className="btn-row">
+              <button type="button" className="btn-primary" onClick={() => this.setState({error: null})}>Попробовать снова</button>
+              <button type="button" className="btn-ghost" onClick={() => window.location.reload()}>Перезагрузить кабинет</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+}
+
 export default function CabinetRoot() {
   return (
-    <LangProvider>
-      <AppConfigProvider>
-        <App />
-      </AppConfigProvider>
-    </LangProvider>
+    <CabinetRootBoundary>
+      <LangProvider>
+        <AppConfigProvider>
+          <App />
+        </AppConfigProvider>
+      </LangProvider>
+    </CabinetRootBoundary>
   );
 }

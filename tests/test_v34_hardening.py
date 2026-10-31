@@ -104,6 +104,27 @@ async def test_me_traffic_still_answers_when_the_panel_has_no_statistics(databas
     assert out["traffic_limit_bytes"] == 100 * 1024**3
 
 
+def test_both_frontends_render_an_error_screen_instead_of_a_black_page():
+    """A throw during render must not leave the operator or the customer with a blank document.
+
+    Next.js swaps a failed render for ``app/error.tsx``; a throw above the page — in the providers the
+    root component mounts — is caught by the boundary both roots wrap around themselves.
+    """
+    for surface, boundary in (("admin", "AdminErrorBoundary"), ("cabinet", "CabinetRootBoundary")):
+        error_page = ROOT / f"{surface}/src/app/error.tsx"
+        assert error_page.is_file(), f"{surface}: app/error.tsx is what Next.js renders on a failed render"
+        text = error_page.read_text(encoding="utf-8")
+        assert "reset" in text and "reload" in text, f"{surface}: the screen offers a retry and a reload"
+        assert '"use client"' in text, f"{surface}: error boundaries run in the browser"
+
+        main = (ROOT / f"{surface}/src/main.tsx").read_text(encoding="utf-8")
+        assert f"class {boundary}" in main, f"{surface}: the root wraps the providers in its own boundary"
+        assert f"<{boundary}>" in main and main.count(f"<{boundary}>") == 1, f"{surface}: the boundary is mounted once"
+        root_start = main.index("export default function")
+        assert f"<{boundary}>" in main[root_start:], f"{surface}: the boundary is what the root returns"
+        assert "getDerivedStateFromError" in main, f"{surface}: the boundary catches render errors"
+
+
 def test_worker_health_uses_worker_state_not_role_heartbeat_key():
     m=main_source()
     start=m.index('@app.get("/api/admin/system/health")')
