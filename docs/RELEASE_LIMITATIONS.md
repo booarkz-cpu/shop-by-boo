@@ -38,6 +38,7 @@ lint, shell-синтаксис, компиляция, 2507 backend-тестов,
 | 16 | Автомасштабирование узлов Hetzner | `BLOCKED_SECRETS` | `HETZNER_API_TOKEN` |
 | 17 | Деплой на production через CI | `BLOCKED_SECRETS` | `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PATH` |
 | 18 | Запись в сторонние репозитории | `BLOCKED_ACCESS` | Права владельца |
+| 19 | Деплой на production: секретов в репозитории ноль, `deploy.yml` пропускается | `BLOCKED_SECRETS` | `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PATH` |
 
 ## 3. Функциональные ограничения, не связанные с секретами
 
@@ -56,6 +57,24 @@ lint, shell-синтаксис, компиляция, 2507 backend-тестов,
 | Локализация кабинета: `ru` и `en` | `Lang = "ru" | "en"` в `cabinet/src/i18n.tsx`; украинский для кабинета не заявлен |
 | Мобильная локализация: `mobile/l10n/{admin,user}.json` | Отдельный набор, не общий с вебом |
 | Тест платежей требует переменных как в CI | Без `PAYMENTS_SANDBOX=true` и `APP_ENV=test` один тест падает |
+
+## 3а. Подтверждённые результаты публикации
+
+Релиз не просто объявлен — проверено его фактическое содержимое:
+
+| Что проверено | Результат |
+| --- | --- |
+| Тег `v28.55.0` существует и указывает на `b87d20acadd1` | PASS |
+| Релиз опубликован (`draft: false`, `prerelease: false`) | PASS, `2026-10-31T18:51:22Z` |
+| Ассеты: архив, `.sha256`, `_manifest.json` | PASS, 3 файла |
+| `sha256sum -c` на скачанном архиве | PASS — `OK` |
+| Манифест привязан к коммиту релиза | PASS, `commit = b87d20acadd1…` |
+| В архиве нет `.env` (только `.env.example`) | PASS |
+| `release_status()` видит обновление с `v28.54.0` | PASS, `update_available: true` |
+| `release_status()` на `v28.55.0` не предлагает обновиться | PASS, `update_available: false` |
+| Ночной workflow `claude-roadmap.yml` | PASS после исправления, run `41232234392` |
+
+Ссылка: https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.55.0
 
 ## 4. Что было исправлено в этом релизе
 
