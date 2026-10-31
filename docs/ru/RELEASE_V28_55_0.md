@@ -18,23 +18,23 @@ Support Pro: `0008` / 3.8. Мобильные приложения: 3.4.0.
 **Документация автообновления.** Механизм ночного обновления существовал и раньше, но не был описан
 для оператора. Добавлены:
 
-- [AUTO_UPDATE.md](AUTO_UPDATE.md) — архитектура: источник только стабильные GitHub Releases,
+- [AUTO_UPDATE.md](../AUTO_UPDATE.md) — архитектура: источник только стабильные GitHub Releases,
   systemd-расписание, обмен между панелью и агентом через два JSON-файла;
-- [AUTO_UPDATE_SECURITY.md](AUTO_UPDATE_SECURITY.md) — модель угроз, разделение полномочий
+- [AUTO_UPDATE_SECURITY.md](../AUTO_UPDATE_SECURITY.md) — модель угроз, разделение полномочий
   непривилегированной панели и root-агента, перечень того, чего механизм **не** делает;
-- [AUTO_UPDATE_TROUBLESHOOTING.md](AUTO_UPDATE_TROUBLESHOOTING.md) — симптом, причина, команда;
-- [AUTO_UPDATE_TESTING.md](AUTO_UPDATE_TESTING.md) — 19 сценариев с фактическими статусами.
+- [AUTO_UPDATE_TROUBLESHOOTING.md](../AUTO_UPDATE_TROUBLESHOOTING.md) — симптом, причина, команда;
+- [AUTO_UPDATE_TESTING.md](../AUTO_UPDATE_TESTING.md) — 19 сценариев с фактическими статусами.
 
 **Документация тестирования и релиза.**
 
-- [TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) — пошаговое
+- [TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) — пошаговое
   тестирование Remnawave, reverse proxy, Telegram, Mini App, 15 платёжных провайдеров, OAuth,
   GitHub Actions, Docker, установщика, обновления, Android/iOS;
-- [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md), [RELEASE_LIMITATIONS.md](RELEASE_LIMITATIONS.md),
-  [EXTERNAL_DEPENDENCIES.md](EXTERNAL_DEPENDENCIES.md);
-- [CLAUDE_GITHUB_AUTOMATION.md](CLAUDE_GITHUB_AUTOMATION.md), [AUTOMATION_LOG.md](AUTOMATION_LOG.md);
-- [MASTER_ROADMAP_VPN_SHOP.md](MASTER_ROADMAP_VPN_SHOP.md),
-  [ROADMAP_UI_AND_SCREENSHOTS.md](ROADMAP_UI_AND_SCREENSHOTS.md).
+- [RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md), [RELEASE_LIMITATIONS.md](../RELEASE_LIMITATIONS.md),
+  [EXTERNAL_DEPENDENCIES.md](../EXTERNAL_DEPENDENCIES.md);
+- [CLAUDE_GITHUB_AUTOMATION.md](../CLAUDE_GITHUB_AUTOMATION.md), [AUTOMATION_LOG.md](../AUTOMATION_LOG.md);
+- [MASTER_ROADMAP_VPN_SHOP.md](../MASTER_ROADMAP_VPN_SHOP.md),
+  [ROADMAP_UI_AND_SCREENSHOTS.md](../ROADMAP_UI_AND_SCREENSHOTS.md).
 
 **Ночная проверка контрактов.** Добавлен `.github/workflows/claude-roadmap.yml`: ежедневно в 02:20 UTC
 проверяет контракт документации, отсутствие заглушек в production-коде, актуальность карты файлов,
@@ -68,7 +68,7 @@ lint и единственность head миграций. Права `contents
   (`BLOCKED_ACCESS`);
 - сборка и подпись мобильных приложений — нет Android SDK, Xcode и ключей.
 
-Подробно: [RELEASE_LIMITATIONS.md](RELEASE_LIMITATIONS.md).
+Подробно: [RELEASE_LIMITATIONS.md](../RELEASE_LIMITATIONS.md).
 
 ## Обновление
 

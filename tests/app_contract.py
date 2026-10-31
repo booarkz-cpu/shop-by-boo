@@ -109,3 +109,44 @@ def missing_paths(*paths: str) -> list[str]:
     """Paths the app serves under no method at all."""
     served = {p for _, p in routes()}
     return [p for p in paths if p not in served]
+
+
+@lru_cache(maxsize=1)
+def _path_matchers():
+    """One regular expression per served path, with ``{param}`` turned into a single segment."""
+    import re
+
+    return tuple(re.compile("^" + re.sub(r"\{[^}]+\}", "[^/]+", path) + "$") for path in {p for _, p in routes()})
+
+
+def serves_path(path: str) -> bool:
+    """True when *path* — a concrete URL a client would call — is answered by a route, parameter or not.
+
+    ``serves_path("/api/admin/payments/42")`` is True because ``/api/admin/payments/{payment_id}`` exists.
+    Frontend tests use it to prove that a URL the panel or the apps call is not a dead end.
+    """
+    path = path.split("?", 1)[0].split("#", 1)[0]
+    return any(matcher.match(path) for matcher in _path_matchers())
+
+
+def client_api_paths(*sources: str) -> set[str]:
+    """``/api/…`` URLs that appear in frontend or app sources, with template holes removed.
+
+    Client code interpolates ids (``/api/me/devices/${id}/revoke``); everything up to the first
+    interpolation or query mark is kept, and the rest is matched by :func:`serves_path` against the
+    route templates.
+    """
+    import re
+
+    found: set[str] = set()
+    for text in sources:
+        # ``const ROOT = "/api/admin/x"`` is a base the client concatenates onto, not a request target.
+        text = re.sub(r"\b(?:const|let|var)\s+[A-Za-z_$][\w$]*\s*=\s*[\"'][^\"']*[\"']", "", text)
+        for literal in re.findall(r"""["'`](/api/[^"'`]*)""", text):
+            head = re.split(r"[$`?\"']", literal, maxsplit=1)[0]
+            # A literal ending in ``/`` is a prefix the client completes at runtime (``/api/admin/`` + id);
+            # there is no URL to check until the id is known, so it is skipped rather than reported.
+            if not head.startswith("/api/") or head.endswith("/") or {"(", ")", "["}.intersection(head):
+                continue
+            found.add(head)
+    return found

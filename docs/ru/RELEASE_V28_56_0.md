@@ -72,8 +72,8 @@ boundary `AdminErrorBoundary` / `CabinetRootBoundary`, которые ловят
 - ночное автообновление на реальном VPS (нужен хост с systemd и установленным магазином);
 - сборка мобильных приложений на устройстве (нужны Android SDK и Xcode).
 
-Пошаговые сценарии для каждого пункта — в [TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md).
-Полный перечень ограничений — в [RELEASE_LIMITATIONS.md](RELEASE_LIMITATIONS.md).
+Пошаговые сценарии для каждого пункта — в [TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md).
+Полный перечень ограничений — в [RELEASE_LIMITATIONS.md](../RELEASE_LIMITATIONS.md).
 
 ## Обновление
 
