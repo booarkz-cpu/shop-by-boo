@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1928**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1941**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -59,6 +59,7 @@
 | [.github/release-v21.5.1.md](../.github/release-v21.5.1.md) | GitHub CI/CD |
 | [.github/workflows/build-mobile.yml](../.github/workflows/build-mobile.yml) | GitHub CI/CD |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
+| [.github/workflows/claude-roadmap.yml](../.github/workflows/claude-roadmap.yml) | GitHub CI/CD |
 | [.github/workflows/dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) | GitHub CI/CD |
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
 | [.github/workflows/docker.yml](../.github/workflows/docker.yml) | GitHub CI/CD |
@@ -689,12 +690,24 @@
 | [docker-compose.test.yml](../docker-compose.test.yml) | Корень проекта |
 | [docker-compose.yml](../docker-compose.yml) | Корень проекта |
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
+| [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
+| [docs/AUTO_UPDATE.md](../docs/AUTO_UPDATE.md) | Документация |
+| [docs/AUTO_UPDATE_SECURITY.md](../docs/AUTO_UPDATE_SECURITY.md) | Документация |
+| [docs/AUTO_UPDATE_TESTING.md](../docs/AUTO_UPDATE_TESTING.md) | Документация |
+| [docs/AUTO_UPDATE_TROUBLESHOOTING.md](../docs/AUTO_UPDATE_TROUBLESHOOTING.md) | Документация |
 | [docs/BRANCHES.md](../docs/BRANCHES.md) | Документация |
+| [docs/CLAUDE_GITHUB_AUTOMATION.md](../docs/CLAUDE_GITHUB_AUTOMATION.md) | Документация |
+| [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
+| [docs/MASTER_ROADMAP_VPN_SHOP.md](../docs/MASTER_ROADMAP_VPN_SHOP.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_MAP_RU.md](../docs/PROJECT_MAP_RU.md) | Документация |
+| [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md) | Документация |
+| [docs/RELEASE_LIMITATIONS.md](../docs/RELEASE_LIMITATIONS.md) | Документация |
+| [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
+| [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md](../docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md) | Документация |
 | [docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md](../docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md) | Документация |
 | [docs/archive/DOCUMENTATION_RU_BEFORE_ALPHA_6.md](../docs/archive/DOCUMENTATION_RU_BEFORE_ALPHA_6.md) | Документация |

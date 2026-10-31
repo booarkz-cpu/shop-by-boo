@@ -1,0 +1,94 @@
+name: Claude roadmap checks
+
+# Nightly deterministic repository checks.
+#
+# This workflow deliberately does NOT call any external LLM API and does NOT commit,
+# push or open pull requests. It has read-only permissions, so it cannot change the
+# repository even if a step misbehaves. Automatic commits of generated code would be
+# unverified changes reaching the stable channel, which the release policy forbids.
+
+on:
+  schedule:
+    # 02:20 UTC — one hour before the nightly auto-update window (03:00 Europe/Moscow).
+    - cron: "20 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claude-roadmap
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    name: Roadmap and documentation contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install lint tooling
+        run: pip install ruff==0.14.2
+
+      - name: Current release documentation contract
+        run: python3 scripts/check-current-docs.py
+
+      - name: No placeholders in production sources
+        run: python3 scripts/check-runtime-placeholders.py
+
+      - name: Project file map is current
+        run: python3 scripts/generate-project-map.py --check
+
+      - name: Python lint
+        run: ruff check backend scripts tests
+
+      - name: Single migration head
+        working-directory: backend
+        run: |
+          heads="$(alembic heads 2>/dev/null | wc -l)"
+          alembic heads
+          if [ "$heads" -ne 1 ]; then
+            echo "::error title=Migration heads::expected exactly 1 head, found $heads"
+            exit 1
+          fi
+
+      - name: Automation log has an entry for this month
+        run: |
+          month="$(date -u +%Y-%m)"
+          if ! grep -q "$month" docs/AUTOMATION_LOG.md; then
+            echo "::error title=Automation log::docs/AUTOMATION_LOG.md has no entry for $month"
+            exit 1
+          fi
+
+      - name: Required operator documents exist
+        run: |
+          status=0
+          for doc in \
+            docs/AUTO_UPDATE.md \
+            docs/AUTO_UPDATE_SECURITY.md \
+            docs/AUTO_UPDATE_TROUBLESHOOTING.md \
+            docs/AUTO_UPDATE_TESTING.md \
+            docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md \
+            docs/RELEASE_CHECKLIST.md \
+            docs/RELEASE_LIMITATIONS.md \
+            docs/EXTERNAL_DEPENDENCIES.md \
+            docs/CLAUDE_GITHUB_AUTOMATION.md \
+            docs/AUTOMATION_LOG.md \
+            docs/MASTER_ROADMAP_VPN_SHOP.md \
+            docs/ROADMAP_UI_AND_SCREENSHOTS.md
+          do
+            if [ -f "$doc" ]; then
+              echo "ok: $doc"
+            else
+              echo "::error file=$doc::required operator document is missing"
+              status=1
+            fi
+          done
+          exit "$status"
