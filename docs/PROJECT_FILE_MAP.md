@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1981**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1983**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -63,6 +63,7 @@
 | [.github/workflows/dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) | GitHub CI/CD |
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
 | [.github/workflows/docker.yml](../.github/workflows/docker.yml) | GitHub CI/CD |
+| [.github/workflows/docs-links.yml](../.github/workflows/docs-links.yml) | GitHub CI/CD |
 | [.github/workflows/hetzner-live.yml](../.github/workflows/hetzner-live.yml) | GitHub CI/CD |
 | [.github/workflows/load-live.yml](../.github/workflows/load-live.yml) | GitHub CI/CD |
 | [.github/workflows/load-security.yml](../.github/workflows/load-security.yml) | GitHub CI/CD |
@@ -1612,6 +1613,7 @@
 | [scripts/cabinet_audit.py](../scripts/cabinet_audit.py) | Эксплуатация и релиз |
 | [scripts/check-current-docs.py](../scripts/check-current-docs.py) | Эксплуатация и релиз |
 | [scripts/check-doc-links.py](../scripts/check-doc-links.py) | Эксплуатация и релиз |
+| [scripts/check-external-links.py](../scripts/check-external-links.py) | Эксплуатация и релиз |
 | [scripts/check-migration-heads.py](../scripts/check-migration-heads.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
