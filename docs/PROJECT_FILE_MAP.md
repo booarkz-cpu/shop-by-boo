@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1946**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1951**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -702,6 +702,11 @@
 | [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
+| [docs/MASTER_EXECUTION_BLOCKERS.md](../docs/MASTER_EXECUTION_BLOCKERS.md) | Документация |
+| [docs/MASTER_EXECUTION_HANDOFF.md](../docs/MASTER_EXECUTION_HANDOFF.md) | Документация |
+| [docs/MASTER_EXECUTION_PLAN.md](../docs/MASTER_EXECUTION_PLAN.md) | Документация |
+| [docs/MASTER_EXECUTION_PROGRESS.md](../docs/MASTER_EXECUTION_PROGRESS.md) | Документация |
+| [docs/MASTER_EXECUTION_REPORTS.md](../docs/MASTER_EXECUTION_REPORTS.md) | Документация |
 | [docs/MASTER_ROADMAP_VPN_SHOP.md](../docs/MASTER_ROADMAP_VPN_SHOP.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
