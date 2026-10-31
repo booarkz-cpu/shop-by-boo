@@ -265,3 +265,68 @@ python -m alembic heads                        → 0088_filter_and_regions (head
 ```
 
 ### Статус: **IMPLEMENTED** (публикация — B-07)
+
+---
+
+## REP-07. CI-перезапуск отменял прогон нового коммита и блокировал публикацию релиза
+
+**ID:** GHA-03 · **Исходный раздел:** 31, 40 · **Дата:** 2026-10-31
+
+### Исходное состояние
+
+Версия `v28.56.0` была синхронизирована по 63 файлам, документация и тесты проходили локально,
+коммит `a8f22a7` ушёл в `main`. GitHub показывал по нему «Publish GitHub release — completed / success»,
+но релиза `v28.56.0` не появлялось: тега нет, страница релизов заканчивалась на `v28.55.0`.
+
+### Обнаруженная проблема
+
+В прогоне публикации шаги «Package deterministic distribution» и «Publish verified files» были
+**skipped**, то есть gate не выдал `ready=true`, а сам workflow отчитался успехом — красного прогона
+в истории не было.
+
+Цепочка причин:
+
+1. `ci.yml` и `docker.yml` имели `concurrency.group: ci-${github.ref}` / `docker-${github.ref}`.
+2. В 21:57 был перезапущен CI на **старом** коммите `81c0a51` (attempt 2).
+3. В 22:00 стартовал CI **нового** коммита `a8f22a7`; обе группы совпали, и
+   `cancel-in-progress: true` отменил новый прогон в 22:00:15.
+4. Прогон `a8f22a7` получил `conclusion: cancelled`, а не `success`.
+5. Gate в `publish-release.yml` требует success и для `ci.yml`, и для `docker.yml` на том же SHA,
+   поэтому вернул `ready=false`.
+
+Первый коммит `a8f22a7` при этом **прошёл** шаг контракта документации — предыдущее падение на
+«Project map is stale» относилось к `81c0a51` и уже было исправлено этим коммитом.
+
+### Реализованное исправление
+
+* `.github/workflows/ci.yml` — группа `ci-${{ github.ref }}-${{ github.sha }}`;
+* `.github/workflows/docker.yml` — группа `docker-${{ github.ref }}-${{ github.sha }}`.
+
+Повторный запуск того же коммита по-прежнему вытесняет предыдущий (сохранено `cancel-in-progress: true`),
+но прогон другого коммита больше ничего не отменяет.
+
+### Тестирование
+
+| Проверка | Команда | Результат |
+| --- | --- | --- |
+| Новый тест правила | `pytest tests/test_production_installer_v2016.py` | 6 passed |
+| Lint | `ruff check backend scripts tests` | All checks passed |
+| Контракт документации | `python scripts/check-current-docs.py` | OK, v28.56.0 |
+| Карта проекта | `python scripts/generate-project-map.py --check` | project file map OK |
+| Node-инварианты | `node --test tests/release-publisher.test.cjs tests/dependabot-automerge.test.cjs` | 9 pass, 0 fail |
+| Alembic | `alembic heads` | один head `0088_filter_and_regions` |
+
+### Изменённые файлы
+
+* `.github/workflows/ci.yml` — группа concurrency;
+* `.github/workflows/docker.yml` — группа concurrency;
+* `tests/test_production_installer_v2016.py` — `test_ci_concurrency_is_scoped_to_one_commit`.
+
+### Git
+
+Коммит `3eb9fbf` в `main`, отправлен в `booarkz-cpu/shop-by-boo`.
+
+### Ограничения
+
+Публикация тега становится возможной только после зелёных `ci.yml` **и** `docker.yml` на `3eb9fbf`;
+полный прогон CI занимает около 30 минут, поэтому статус на момент отчёта — `IN_PROGRESS`.
