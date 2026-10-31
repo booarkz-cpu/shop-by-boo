@@ -11,17 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from . import main as shop
 
 # ---------- V32 Operations / Monitoring / Fraud / Privacy ----------
-@shop.app.get("/api/me/traffic")
-async def my_traffic(request:Request,db:AsyncSession=Depends(get_db)):
-    user=await shop.user_from_token(request,db); sub=(await db.execute(shop.select(shop.Subscription).where(shop.Subscription.user_id==user.id,shop.Subscription.is_primary.is_(True)))).scalar_one_or_none()
-    limit_bytes=int(sub.traffic_limit_gb_snapshot)*1024**3 if sub and sub.traffic_limit_gb_snapshot else None
-    if not sub or not sub.remnawave_uuid: return {"available":False,"traffic_used_bytes":None,"traffic_limit_bytes":limit_bytes,"devices":None}
-    try:
-        data=await shop.RemnawaveClient().get_user(sub.remnawave_uuid)
-        remote_limit=data.get("trafficLimitBytes")
-        return {"available":True,"traffic_used_bytes":data.get("trafficUsedBytes") or data.get("usedTrafficBytes"),"traffic_limit_bytes":remote_limit if remote_limit is not None else limit_bytes,"devices":data.get("devices") or data.get("deviceCount"),"status":data.get("status"),"expires_at":data.get("expireAt") or data.get("expiresAt")}
-    except Exception:
-        return {"available":False,"traffic_used_bytes":None,"traffic_limit_bytes":limit_bytes,"devices":None}
+# GET /api/me/traffic lives in panel_usage.py: it answers both the counters the cabinet hero and apps read
+# and the per-day breakdown of «Моя статистика». A second handler for the same path here used to shadow it,
+# so the cabinet received an answer without ``days``/``nodes`` and crashed reading ``data.days.length``.
 
 @shop.app.get("/api/me/privacy/export")
 async def privacy_export(request:Request,db:AsyncSession=Depends(get_db)):
@@ -241,7 +233,7 @@ async def reconcile_refund(refund_id:int,db:AsyncSession=Depends(get_db),admin=D
     return {"ok":True,"status":"processing","verified":False,"provider_status":status}
 
 
-__all__ = ['admin_financial_ledger', 'admin_fraud', 'admin_jobs', 'admin_monitoring', 'admin_payouts', 'admin_withdrawal_approve', 'admin_withdrawal_paid', 'fraud_decision', 'fraud_scan', 'my_traffic', 'privacy_delete', 'privacy_export', 'reconcile_refund', 'retry_job']
+__all__ = ['admin_financial_ledger', 'admin_fraud', 'admin_jobs', 'admin_monitoring', 'admin_payouts', 'admin_withdrawal_approve', 'admin_withdrawal_paid', 'fraud_decision', 'fraud_scan', 'privacy_delete', 'privacy_export', 'reconcile_refund', 'retry_job']
 # Imported before main finished (``from app import operations_api`` first)? Then main's star
 # import saw a half-loaded module; hand the names over now that they exist.
 shop.__dict__.update({_n: globals()[_n] for _n in __all__})

@@ -79,11 +79,49 @@ async def admin_traffic(user_id: int, days: int = 30, db: AsyncSession = Depends
     return await usage(await _panel_user(db, user_id), days)
 
 
+async def _subscription_traffic(db: AsyncSession, user_id: int) -> dict:
+    """The counters the cabinet hero, Mini App and mobile apps read: used, limit and devices.
+
+    The panel statistics above answer the per-day breakdown; these three fields come from the subscription
+    itself and the panel user, so a shop whose panel has no bandwidth statistics still shows the gauge.
+    """
+    from .models import Subscription
+    sub = await db.scalar(select(Subscription).where(Subscription.user_id == user_id, Subscription.is_primary.is_(True)))
+    limit_bytes = int(sub.traffic_limit_gb_snapshot) * 1024**3 if sub and sub.traffic_limit_gb_snapshot else None
+    if not sub or not sub.remnawave_uuid:
+        return {"available": False, "traffic_used_bytes": None, "traffic_limit_bytes": limit_bytes, "devices": None}
+    try:
+        from .main import RemnawaveClient
+        data = await RemnawaveClient().get_user(sub.remnawave_uuid)
+    except Exception:
+        return {"available": False, "traffic_used_bytes": None, "traffic_limit_bytes": limit_bytes, "devices": None}
+    data = data if isinstance(data, dict) else {}
+    remote_limit = data.get("trafficLimitBytes")
+    return {"available": True,
+            "traffic_used_bytes": data.get("trafficUsedBytes") or data.get("usedTrafficBytes"),
+            "traffic_limit_bytes": remote_limit if remote_limit is not None else limit_bytes,
+            "devices": data.get("devices") or data.get("deviceCount"),
+            "status": data.get("status"),
+            "expires_at": data.get("expireAt") or data.get("expiresAt")}
+
+
 @router.get("/api/me/traffic")
 async def my_traffic(request: Request, days: int = 30, db: AsyncSession = Depends(get_db)):
+    """One answer for every customer client: the counters (``traffic_used_bytes``, ``traffic_limit_bytes``,
+    ``devices``) plus the per-day breakdown (``days``, ``nodes``) the cabinet and apps draw as bars.
+
+    ``days`` is always a list — an empty one when the panel has no statistics — so clients that read
+    ``data.days.length`` never meet ``undefined``.
+    """
     from .main import user_from_token
     user = await user_from_token(request, db)
-    data = await usage(await _panel_user(db, user.id), days)
-    for n in data["nodes"]:
+    counters = await _subscription_traffic(db, user.id)
+    try:
+        breakdown = await usage(await _panel_user(db, user.id), days)
+    except Exception:
+        breakdown = {"range_days": 7 if days not in (7, 30, 90) else days,
+                     **shape({})}
+    for n in breakdown["nodes"]:
         n.pop("country", None)
-    return data
+    return {**counters, **breakdown}
+

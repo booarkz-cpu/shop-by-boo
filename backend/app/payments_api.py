@@ -970,7 +970,11 @@ async def cryptobot_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depen
         raise
     return {"ok":True}
 
-@shop.app.api_route("/api/webhooks/freekassa", methods=["GET","POST"])
+# One path, both methods, one handler. Each method gets its own route and its own ``operation_id``:
+# a single ``api_route`` with two methods gives both the same id in the OpenAPI schema, which breaks clients
+# generated from it.
+@shop.app.get("/api/webhooks/freekassa", operation_id="freekassa_webhook_get")
+@shop.app.post("/api/webhooks/freekassa", operation_id="freekassa_webhook_post")
 async def freekassa_webhook(request:shop.Request,db:shop.AsyncSession=shop.Depends(shop.get_db)):
     """Freekassa payment notification (GET or form POST): Freekassa's address and SIGN (secret word 2), then the order
     is re-read through API v1 (paid, amount, currency) before fulfillment. Freekassa repeats the call until it reads «YES»."""
