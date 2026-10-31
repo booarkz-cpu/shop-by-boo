@@ -10,8 +10,11 @@ permissions:
   contents: read
   packages: write
 
+# Same rule as ci.yml: only a retry of the same commit supersedes an earlier run. The release gate
+# needs a successful Docker run on the exact release commit, so a re-run of another commit must not
+# cancel it.
 concurrency:
-  group: docker-${{ github.ref }}
+  group: docker-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 
 env:

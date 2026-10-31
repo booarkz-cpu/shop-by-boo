@@ -138,6 +138,27 @@ def test_failed_database_dump_cancels_update_before_copy(tmp_path):
     assert (tmp_path / "marker").read_text() == "unchanged"
 
 
+def test_ci_concurrency_is_scoped_to_one_commit():
+    """A CI run may cancel only an earlier attempt of the same commit.
+
+    The release gate in publish-release.yml demands a *successful* ci.yml and docker.yml run on the
+    exact commit it publishes. Keying the concurrency group on the ref alone let a re-run of an older
+    commit cancel the newer commit's check, the gate never saw a success, and the release stayed
+    unpublished while the workflow itself reported success.
+    """
+    import yaml
+
+    for name in ("ci.yml", "docker.yml"):
+        workflow = yaml.safe_load((ROOT / ".github/workflows" / name).read_text())
+        group = workflow["concurrency"]["group"]
+        assert "github.sha" in group, f"{name}: the concurrency group must include the commit ({group})"
+        assert workflow["concurrency"]["cancel-in-progress"] is True, f"{name}: retries of one commit still supersede each other"
+
+    gate = (ROOT / ".github/workflows/publish-release.yml").read_text()
+    assert "head_sha === sha" in gate, "the gate matches the check runs to the release commit itself"
+    assert "conclusion !== 'success'" in gate, "the gate refuses anything but a green run"
+
+
 def test_release_asset_names_match_distribution_manifest():
     import json
     manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
