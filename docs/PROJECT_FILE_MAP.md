@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1951**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1953**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1583,6 +1583,7 @@
 | [scripts/build-release.sh](../scripts/build-release.sh) | Эксплуатация и релиз |
 | [scripts/cabinet_audit.py](../scripts/cabinet_audit.py) | Эксплуатация и релиз |
 | [scripts/check-current-docs.py](../scripts/check-current-docs.py) | Эксплуатация и релиз |
+| [scripts/check-doc-links.py](../scripts/check-doc-links.py) | Эксплуатация и релиз |
 | [scripts/check-migration-heads.py](../scripts/check-migration-heads.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
@@ -1768,6 +1769,7 @@
 | [tests/test_block_monitor.py](../tests/test_block_monitor.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
+| [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |
 | [tests/test_content_publishing.py](../tests/test_content_publishing.py) | Проверки |
