@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1953**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1981**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1235,6 +1235,34 @@
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
 | [docs/uk/TESTING.md](../docs/uk/TESTING.md) | Документация |
+| [docs/wiki/README.md](../docs/wiki/README.md) | Документация |
+| [docs/wiki/en/Admin.md](../docs/wiki/en/Admin.md) | Документация |
+| [docs/wiki/en/Backup.md](../docs/wiki/en/Backup.md) | Документация |
+| [docs/wiki/en/Home.md](../docs/wiki/en/Home.md) | Документация |
+| [docs/wiki/en/Installation.md](../docs/wiki/en/Installation.md) | Документация |
+| [docs/wiki/en/Payments.md](../docs/wiki/en/Payments.md) | Документация |
+| [docs/wiki/en/Telegram.md](../docs/wiki/en/Telegram.md) | Документация |
+| [docs/wiki/en/Troubleshooting.md](../docs/wiki/en/Troubleshooting.md) | Документация |
+| [docs/wiki/en/Updates.md](../docs/wiki/en/Updates.md) | Документация |
+| [docs/wiki/en/_Sidebar.md](../docs/wiki/en/_Sidebar.md) | Документация |
+| [docs/wiki/ru/Admin.md](../docs/wiki/ru/Admin.md) | Документация |
+| [docs/wiki/ru/Backup.md](../docs/wiki/ru/Backup.md) | Документация |
+| [docs/wiki/ru/Home.md](../docs/wiki/ru/Home.md) | Документация |
+| [docs/wiki/ru/Installation.md](../docs/wiki/ru/Installation.md) | Документация |
+| [docs/wiki/ru/Payments.md](../docs/wiki/ru/Payments.md) | Документация |
+| [docs/wiki/ru/Telegram.md](../docs/wiki/ru/Telegram.md) | Документация |
+| [docs/wiki/ru/Troubleshooting.md](../docs/wiki/ru/Troubleshooting.md) | Документация |
+| [docs/wiki/ru/Updates.md](../docs/wiki/ru/Updates.md) | Документация |
+| [docs/wiki/ru/_Sidebar.md](../docs/wiki/ru/_Sidebar.md) | Документация |
+| [docs/wiki/uk/Admin.md](../docs/wiki/uk/Admin.md) | Документация |
+| [docs/wiki/uk/Backup.md](../docs/wiki/uk/Backup.md) | Документация |
+| [docs/wiki/uk/Home.md](../docs/wiki/uk/Home.md) | Документация |
+| [docs/wiki/uk/Installation.md](../docs/wiki/uk/Installation.md) | Документация |
+| [docs/wiki/uk/Payments.md](../docs/wiki/uk/Payments.md) | Документация |
+| [docs/wiki/uk/Telegram.md](../docs/wiki/uk/Telegram.md) | Документация |
+| [docs/wiki/uk/Troubleshooting.md](../docs/wiki/uk/Troubleshooting.md) | Документация |
+| [docs/wiki/uk/Updates.md](../docs/wiki/uk/Updates.md) | Документация |
+| [docs/wiki/uk/_Sidebar.md](../docs/wiki/uk/_Sidebar.md) | Документация |
 | [docs_API.md](../docs_API.md) | Корень проекта |
 | [install.sh](../install.sh) | Корень проекта |
 | [miniapp/.dockerignore](../miniapp/.dockerignore) | Telegram Mini App |
