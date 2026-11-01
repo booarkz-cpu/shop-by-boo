@@ -243,6 +243,8 @@ flowchart LR
 * [PROJECT_INVENTORY.md](PROJECT_INVENTORY.md) — что физически есть в репозитории;
 * [TECH_STACK.md](TECH_STACK.md) — версии и назначение каждой зависимости;
 * [REPOSITORY_AUDIT.md](REPOSITORY_AUDIT.md) — исследование внешних репозиториев;
+* [REFERENCE_REPOSITORIES.md](REFERENCE_REPOSITORIES.md) — пять проектов и сравнение архитектур;
+* [CODE_REUSE_REGISTER.md](CODE_REUSE_REGISTER.md) — реестр переиспользования кода;
 * [PROJECT_MAP_RU.md](PROJECT_MAP_RU.md) — карта компонентов и границ;
 * [PROJECT_FILE_MAP.md](PROJECT_FILE_MAP.md) — полный список файлов;
 * [API_ENDPOINTS.md](API_ENDPOINTS.md) — каталог маршрутов;

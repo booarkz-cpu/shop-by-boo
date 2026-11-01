@@ -14,7 +14,7 @@ Support Pro `0008`, мобильные приложения 3.4.0.
 | Ветка | `main` (единственная; `remotes/origin/main` — та же) |
 | Последний коммит | `e3b9387` — `docs(log): фактическое состояние публикации v28.57.0` |
 | Рабочее дерево | чистое |
-| Файлов под контролем версий | **1988** |
+| Файлов под контролем версий | **1991** |
 | Каталог `.git` | 244 МБ |
 | Рабочее дерево без `.git` | 107 МБ |
 | Тегов | **51** (`v28.1.0` … `v28.57.0`) |
@@ -187,3 +187,12 @@ hot-standby, zero-downtime, миграция PostgreSQL.
 
 Эти пункты перечислены в `docs/current-guides.json` как существующие файлы (README есть),
 но функциональности за ними нет. Упоминать их как готовые нельзя.
+
+## 11. Связанные документы
+
+* [PROJECT_ARCHITECTURE.md](PROJECT_ARCHITECTURE.md) — как компоненты связаны между собой
+* [TECH_STACK.md](TECH_STACK.md) — версии зависимостей и что НЕ используется
+* [REPOSITORY_AUDIT.md](REPOSITORY_AUDIT.md) — внешние репозитории первого этапа
+* [REFERENCE_REPOSITORIES.md](REFERENCE_REPOSITORIES.md) — пять проектов, склонированных и разобранных
+* [CODE_REUSE_REGISTER.md](CODE_REUSE_REGISTER.md) — что берём из них, а что пишем сами
+* [PROJECT_FILE_MAP.md](PROJECT_FILE_MAP.md) — полный список файлов

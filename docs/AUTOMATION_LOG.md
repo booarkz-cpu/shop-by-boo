@@ -2,6 +2,70 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-01 — этап 1: клонирование и разбор пяти референсных репозиториев
+
+**Контекст.** После публикации `v28.57.0` и аудита безопасности перешли к этапу исследования
+референсных проектов. Основной репозиторий чистый, ветка `main`, коммит `7ac7985`.
+
+**Что сделано.**
+
+* Пять репозиториев склонированы в `/tmp/vpn-shop-references` (вне основного проекта, оригиналы не
+  изменялись): `remnawave-admin` (1397 файлов), `remnawave-reverse-proxy` (252),
+  `remnawave-bedolaga-telegram-bot` (2008), `bedolaga-cabinet` (1104),
+  `remnawave-subscription-middleware` (146). Все пять доступны, ни один не пришлось брать иначе.
+* Для каждого прочитаны `LICENSE`, структура, зависимости, ветки, последний коммит, число тестов,
+  workflows; изучены backend, frontend, API, БД, кассы, OAuth.
+* Созданы `docs/REFERENCE_REPOSITORIES.md` и `docs/CODE_REUSE_REGISTER.md`; обновлены
+  `REPOSITORY_AUDIT.md`, `PROJECT_INVENTORY.md`, `PROJECT_ARCHITECTURE.md`, дорожная карта.
+
+**Лицензии — главный результат этапа.**
+
+| Репозиторий | Лицензия | Перенос |
+| --- | --- | --- |
+| remnawave-admin | AGPL-3.0 + §7 plugin exception | запрещён |
+| remnawave-reverse-proxy | MIT | разрешён, но не нужен |
+| remnawave-bedolaga-telegram-bot | **Commons Clause** поверх MIT | запрещён |
+| bedolaga-cabinet | AGPL-3.0 | запрещён |
+| remnawave-subscription-middleware | **файла лицензии НЕТ** | запрещён: полное авторское право |
+
+Два уточнения к прошлому этапу, где данные брались из GitHub API:
+
+* `remnawave-bedolaga-telegram-bot` показывался как «NOASSERTION / Other». Фактическое чтение `LICENSE`
+  дало точный ответ: Commons Clause v1.0 поверх MIT, Licensor Fr1ngg. Commons Clause отзывает право
+  продажи, то есть запрет строже, чем «лицензия не определена».
+* `Case211/remnawave-admin` стал **платным**: в репозитории осталась последняя бесплатная версия 5.2.0,
+  она не обновляется. Даже при совместимой лицензии это замороженная кодовая база.
+
+**Новая находка.** У `Mrvibecodic/remnawave-subscription-middleware` **нет файла лицензии** — проверены
+`LICENSE`, `COPYING`, `NOTICE` в корне и на глубине двух уровней, а также README и INSTALL.md. При этом
+в `admin/assets/` лежат лицензии сторонних ассетов (qr-код, флаги, шрифт) — то есть автор лицензирует
+ассеты, но не свой код. Перенос запрещён по умолчанию.
+
+**Главный содержательный вывод.** Ключевая функциональность прослойки подписки у нас **уже есть**, и не
+потому, что мы её копировали, а потому что задача решалась самостоятельно: зеркало подписки на своём
+домене (`sub_proxy.py`, 537 строк), грейс-доступ (`grace_access.py`), блок устройства по HWID, правила
+заголовков по User-Agent, склейка двух подписок, журнал запросов за 14 дней, доп. конфиги WireGuard
+(`wg_pool.py`). Из референсов **33 функции** уже реализованы у нас — перенос был бы дублированием.
+
+Apple IAP и Google Play Billing, которые есть у `bedolaga-bot`, у нас тоже реализованы — в
+`payment_platform.py` через App Store Server API (ES256) и androidpublisher (RS256).
+
+**Чего нет.** Восемь касс (Cispay, Etoplatezhi, Jupiter, RioPay, SeverPay, TabPay, OverPay, Kassa AI) —
+все под Commons Clause, писать самим при спросе; запуск не блокируют, у нас 17 внешних касс с webhook
+плюс Telegram Stars и Tribute. Плюс пять идей для бэклога (`api_key_usage`, `fail2ban_logger`, `retention`,
+`webhook_security`, разделение guard по типу угрозы) — как направления, не как код.
+
+**Строк перенесённого кода: 0.** Подтверждено: `THIRD_PARTY_NOTICES.md` содержит только библиотеки,
+сторонних исходников в дереве нет.
+
+**Проверено.** `check-doc-links.py` — 385 живых файлов без битых ссылок; `check-current-docs.py` и
+`check-runtime-placeholders.py` — OK; `generate-project-map.py --check` — OK; ruff — All checks passed;
+`test_current_documentation.py` — 390 passed.
+
+**Осталось.** Живые проверки по-прежнему требуют секретов: Remnawave, платежи, бот, OAuth, установщик,
+ночное обновление. Условия снятия — в `docs/MASTER_EXECUTION_BLOCKERS.md`, порядок — в разделе 7
+дорожной карты.
+
 ## 2026-11-01 — полное исследование проекта и внешних репозиториев
 
 **Контекст.** После публикации `v28.57.0` проведён этап исследования: инвентаризация репозитория,

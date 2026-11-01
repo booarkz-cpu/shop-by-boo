@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1989**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1991**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -700,6 +700,7 @@
 | [docs/AUTO_UPDATE_TROUBLESHOOTING.md](../docs/AUTO_UPDATE_TROUBLESHOOTING.md) | Документация |
 | [docs/BRANCHES.md](../docs/BRANCHES.md) | Документация |
 | [docs/CLAUDE_GITHUB_AUTOMATION.md](../docs/CLAUDE_GITHUB_AUTOMATION.md) | Документация |
+| [docs/CODE_REUSE_REGISTER.md](../docs/CODE_REUSE_REGISTER.md) | Документация |
 | [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
@@ -714,6 +715,7 @@
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_INVENTORY.md](../docs/PROJECT_INVENTORY.md) | Документация |
 | [docs/PROJECT_MAP_RU.md](../docs/PROJECT_MAP_RU.md) | Документация |
+| [docs/REFERENCE_REPOSITORIES.md](../docs/REFERENCE_REPOSITORIES.md) | Документация |
 | [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md) | Документация |
 | [docs/RELEASE_LIMITATIONS.md](../docs/RELEASE_LIMITATIONS.md) | Документация |
 | [docs/REPOSITORY_AUDIT.md](../docs/REPOSITORY_AUDIT.md) | Документация |
