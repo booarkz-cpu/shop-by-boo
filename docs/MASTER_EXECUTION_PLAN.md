@@ -1,6 +1,6 @@
 # Полный план исполнения — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.56.0`, runtime/API `21.5.1`, миграция магазина `0088_filter_and_regions`, Support Pro `0008`.
+Дистрибутив `v28.57.0`, runtime/API `21.5.1`, миграция магазина `0088_filter_and_regions`, Support Pro `0008`.
 
 Документ составлен по master prompt V3. Каждая задача имеет ID, исходный раздел, критерии приёмки и
 фактический статус. Статус задачи хранится в
@@ -194,7 +194,7 @@
 
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
-| DOC-01 | Release notes выпуска | `docs/ru/RELEASE_V28_56_0.md` соответствует коду |
+| DOC-01 | Release notes выпуска | `docs/ru/RELEASE_V28_57_0.md` соответствует коду |
 | DOC-02 | Ограничения выпуска | `docs/RELEASE_LIMITATIONS.md` |
 | DOC-03 | Гайд внешних зависимостей | `docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md` покрывает 13 групп |
 | DOC-04 | Журнал автоматизации | `docs/AUTOMATION_LOG.md` |

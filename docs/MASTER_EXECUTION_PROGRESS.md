@@ -1,6 +1,6 @@
 # Реестр исполнения — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.56.0`, runtime/API `21.5.1`, миграция магазина `0088_filter_and_regions`, Support Pro `0008`.
+Дистрибутив `v28.57.0`, runtime/API `21.5.1`, миграция магазина `0088_filter_and_regions`, Support Pro `0008`.
 
 Обновляется вместе с кодом. Статусы: `NOT_STARTED`, `IN_PROGRESS`, `IMPLEMENTED`, `TESTING`, `PASS`, `FAIL`,
 `BLOCKED_SECRETS`, `BLOCKED_ACCESS`, `BLOCKED_PERMISSIONS`, `NOT_APPLICABLE`.
@@ -23,7 +23,7 @@
 | Реализация | 100 % (все доступные задачи выполнены) |
 | Проверено фактически | 50 % (23 из 46) |
 
-Публикация релиза проверена по факту: тег `v28.56.0` создан, релиз опубликован `2026-10-31T23:42:20Z`,
+Публикация релиза проверена по факту: тег `v28.57.0` создан, релиз опубликован `2026-10-31T23:42:20Z`,
 скачанный дистрибутив прошёл `sha256sum -c`. Оставшиеся `IMPLEMENTED` — ночное автообновление и центр
 автоматизации: код и документация готовы, живой прогон требует VPS (блокировка B-05).
 
@@ -84,9 +84,9 @@
 | L10N-01 | ru / en / uk | 34 | Кабинет, Mini App, бот, письма | Тесты документации | PASS |
 | DOC-01 | Реестры и отчёты | 2 | 5 файлов в docs/ | Проверка контракта | PASS |
 | DOC-02 | Гайд внешних зависимостей | 36 | docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md | 421 строка, 13 групп | PASS |
-| REL-01 | Релиз v28.56.0 | 40 | Версия синхронизирована в 63 файлах | `check-current-docs` — OK | PASS |
+| REL-01 | Релиз v28.57.0 | 40 | Версия синхронизирована в 63 файлах | `check-current-docs` — OK | PASS |
 | GHA-03 | Concurrency CI привязана к коммиту | 31, 40 | `ci.yml`, `docker.yml`: `ci-${ref}-${sha}` | `test_ci_concurrency_is_scoped_to_one_commit` | PASS |
-| REL-02 | Публикация тега v28.56.0 | 40 | Тег на `18afbcd`, релиз с 19 ассетами | `GET /releases/tags/v28.56.0` → 200, `sha256sum -c` → OK | PASS |
+| REL-02 | Публикация тега v28.57.0 | 40 | Тег на `18afbcd`, релиз с 19 ассетами | `GET /releases/tags/v28.57.0` → 200, `sha256sum -c` → OK | PASS |
 
 ## Что означает BLOCKED
 

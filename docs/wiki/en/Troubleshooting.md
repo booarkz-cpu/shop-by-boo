@@ -10,10 +10,10 @@ Symptom → cause → how to check → how to fix.
 
 **Check:** open the browser console (F12 → Console), find the failed request and inspect the field shape.
 
-**Fix:** as of v28.56.0 the shape is enforced by a server-side test. On an older build, update:
+**Fix:** as of v28.57.0 the shape is enforced by a server-side test. On an older build, update:
 
 ```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.56.0 bash scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.57.0 bash scripts/update-from-github.sh
 ```
 
 ### `(s || []).map is not a function`
@@ -31,7 +31,7 @@ backend: check `NEXT_PUBLIC_API_URL` and `PUBLIC_BASE_URL`.
 
 **Check:** the browser console shows the message before the fall.
 
-**Fix:** as of v28.56.0 `app/error.tsx` and root boundaries are in place — an error screen with the reason and a
+**Fix:** as of v28.57.0 `app/error.tsx` and root boundaries are in place — an error screen with the reason and a
 retry appears instead of an empty page.
 
 ### A section does not load
