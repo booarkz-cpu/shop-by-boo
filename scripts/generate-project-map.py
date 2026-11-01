@@ -15,7 +15,12 @@ AREAS = {"admin": "Админ-панель", "backend": "API, бот и worker",
 
 def render() -> str:
     manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
-    paths = sorted(p.decode() for p in subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).split(b"\0") if p)
+    # ``--cached --others --exclude-standard`` = tracked files plus new files that are not ignored yet.
+    # Plain ``ls-files`` lists only the index, so a file created but not yet ``git add``-ed was missing
+    # from the map; the map then differed from the committed tree as soon as the file was staged, and
+    # ``--check`` failed in CI for a reason that had nothing to do with the content of any document.
+    paths = sorted(p.decode() for p in subprocess.check_output(
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=ROOT).split(b"\0") if p)
     rows = ["# Полная карта файлов проекта", "",
             f"Дистрибутив `{manifest['distribution_tag']}`; runtime/API `{manifest['version']}`.", "",
             "Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.", "",
