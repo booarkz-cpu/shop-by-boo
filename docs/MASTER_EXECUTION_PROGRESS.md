@@ -13,15 +13,19 @@
 | Показатель | Значение |
 | --- | --- |
 | Всего задач | 46 |
-| PASS | 21 |
-| IMPLEMENTED | 4 |
+| PASS | 23 |
+| IMPLEMENTED | 2 |
 | BLOCKED_SECRETS | 14 |
 | BLOCKED_ACCESS | 5 |
 | NOT_APPLICABLE | 2 |
 | FAIL | 0 |
 | NOT_STARTED | 0 |
 | Реализация | 100 % (все доступные задачи выполнены) |
-| Проверено фактически | 46 % (21 из 46) |
+| Проверено фактически | 50 % (23 из 46) |
+
+Публикация релиза проверена по факту: тег `v28.56.0` создан, релиз опубликован `2026-10-31T23:42:20Z`,
+скачанный дистрибутив прошёл `sha256sum -c`. Оставшиеся `IMPLEMENTED` — ночное автообновление и центр
+автоматизации: код и документация готовы, живой прогон требует VPS (блокировка B-05).
 
 Проверено — значит воспроизведено локально или в CI с полученным результатом. Заблокированные задачи
 реализованы в коде и покрыты локальными тестами; их end-to-end проверка ждёт секретов и внешних сервисов.
@@ -70,7 +74,7 @@
 | PAY-02 | Реальный платёжный цикл | 17 | Код готов | Нужны ключи магазина | BLOCKED_SECRETS |
 | OAU-01 | Email / VK / Яндекс OAuth | 15 | Реализовано в коде | Нужны client id/secret | BLOCKED_SECRETS |
 | GHA-01 | ci.yml, claude-roadmap.yml | 31 | Существуют, не дублированы | Прогоны в GitHub | PASS |
-| GHA-02 | Публикация релиза | 40 | `publish-release.yml`; исправлена группа concurrency в `ci.yml`/`docker.yml` | Gate публикации снова находит зелёный CI (см. REP-07) | IN_PROGRESS |
+| GHA-02 | Публикация релиза | 40 | `publish-release.yml`; исправлена группа concurrency в `ci.yml`/`docker.yml` | Прогон `41253605668`: упаковка и публикация выполнены | PASS |
 | SEC-01 | Аудит секретов в репозитории | 32 | Секретов в коде нет | Поиск по дереву | PASS |
 | SEC-02 | RBAC на сервере | 12 | `require_permission` на маршрутах | `test_support_rbac_is_separated` | PASS |
 | DKR-01 | Compose и health checks | 33 | 17 сервисов, healthcheck у 9 | Разбор YAML | PASS |
@@ -80,9 +84,9 @@
 | L10N-01 | ru / en / uk | 34 | Кабинет, Mini App, бот, письма | Тесты документации | PASS |
 | DOC-01 | Реестры и отчёты | 2 | 5 файлов в docs/ | Проверка контракта | PASS |
 | DOC-02 | Гайд внешних зависимостей | 36 | docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md | 421 строка, 13 групп | PASS |
-| REL-01 | Релиз v28.56.0 | 40 | Версия синхронизирована в 63 файлах | `check-current-docs` | IMPLEMENTED |
+| REL-01 | Релиз v28.56.0 | 40 | Версия синхронизирована в 63 файлах | `check-current-docs` — OK | PASS |
 | GHA-03 | Concurrency CI привязана к коммиту | 31, 40 | `ci.yml`, `docker.yml`: `ci-${ref}-${sha}` | `test_ci_concurrency_is_scoped_to_one_commit` | PASS |
-| REL-02 | Публикация тега v28.56.0 | 40 | Ждёт зелёных ci.yml и docker.yml на `3eb9fbf` | Прогон publish-release | IN_PROGRESS |
+| REL-02 | Публикация тега v28.56.0 | 40 | Тег на `18afbcd`, релиз с 19 ассетами | `GET /releases/tags/v28.56.0` → 200, `sha256sum -c` → OK | PASS |
 
 ## Что означает BLOCKED
 
