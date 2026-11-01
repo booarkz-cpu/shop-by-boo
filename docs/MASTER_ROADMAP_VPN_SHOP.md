@@ -96,7 +96,78 @@
 `support_ai.SYSTEM`, `push_style.brand`, `wg_pool.name_prefix`, `status_page`. Лозунг
 «Свободный интернет без лишнего Гав!» задаётся через контент админки (`app_config`).
 
-## 5. Порядок дальнейших работ
+## 5. Реестр функций по фактическому коду
+
+Состояние на `2026-11-01`, коммит `e3b9387`. Статусы:
+`IMPLEMENTED` — код есть и покрыт тестами; `PARTIAL` — работает не всё из заявленного;
+`NOT_VERIFIED` — код есть, живой прогон не выполнен (нет секретов или доступа); `MISSING` — кода нет;
+`BLOCKED` — требует внешнего ресурса, который недоступен.
+
+| Компонент | Функция | Состояние | Файлы | Зависимости |
+| --- | --- | --- | --- | --- |
+| Backend | REST API, 836 маршрутов на 718 путях | IMPLEMENTED | `backend/app/main.py`, 173 модуля | PostgreSQL, Redis |
+| Backend | health `/health`, `/health/live`, `/health/ready` | IMPLEMENTED | `main.py` | PostgreSQL, Redis |
+| Backend | RBAC на каждом админ-маршруте | IMPLEMENTED | `security.py`, `require_permission` | — |
+| Backend | идемпотентность платежей и webhook | IMPLEMENTED | `payments_api.py` (`register_provider_event`) | PostgreSQL |
+| Backend | 88 миграций, единственный head | IMPLEMENTED | `backend/alembic/versions` | PostgreSQL |
+| Backend | фоновые задачи и планировщики | IMPLEMENTED | `schedulers.py`, `worker.py` | Redis |
+| Backend | интеграция Remnawave (доступ, срок, трафик) | NOT_VERIFIED | `remnawave*`, `panel_usage.py` | `REMNAWAVE_URL`, `REMNAWAVE_TOKEN` |
+| Backend | 17 платёжных касс и Telegram Stars | PARTIAL | `payments.py`, `payments_api.py`, `gateways/` | ключи касс |
+| Backend | 22 webhook-пути (кассы + Remnawave) | IMPLEMENTED | `payments_api.py` | подписи провайдеров |
+| Backend | OAuth: VK, Яндекс, Google, email | NOT_VERIFIED | `auth_api.py` | client id/secret |
+| Backend | passkeys (WebAuthn) | IMPLEMENTED | `passkeys`, `webauthn==3.0.1` | — |
+| Backend | резервные копии и проверка целостности | IMPLEMENTED | `backup_verify.py`, `scripts/backup.sh` | S3 (опц.) |
+| Backend | ночное автообновление | IMPLEMENTED | `auto_update_api.py`, `scripts/auto_update.py` | systemd, root |
+| Backend | терминал узлов по SSH | NOT_VERIFIED | `node_terminal.py` | `paramiko`, доступ к узлам |
+| Backend | почтовый домен и приём почты | NOT_VERIFIED | `mail_domain.py`, профиль `mail` | домен, DNS |
+| Backend | push FCM/APNs | NOT_VERIFIED | `push.py` | ключи FCM/APNs |
+| Backend | география, доступность, репутация | PARTIAL | `geoip.py`, `ripe_atlas.py`, `network_intel` | MaxMind, RIPE, AbuseIPDB |
+| Backend | анти-абьюз и анти-шеринг | IMPLEMENTED | `abuse_suspension.py`, `anti_sharing.py` | — |
+| Бот | `/start`, меню, покупка, поддержка | NOT_VERIFIED | `bot.py` (860 строк) | `BOT_TOKEN` |
+| Бот | меню и баннеры из админки | IMPLEMENTED | `bot_banners.py`, `menu-tree.tsx` | — |
+| Mini App | серверная проверка `initData` | IMPLEMENTED | `auth_api.telegram_user_from_init_data` | `BOT_TOKEN` |
+| Кабинет | подписки, устройства, платежи, поддержка | IMPLEMENTED | `cabinet/` 52 компонента | API |
+| Кабинет | 55 vitest-тестов | IMPLEMENTED | `cabinet/src/*.test.tsx` | — |
+| Админ-панель | 458 маршрутов, 60 компонентов | IMPLEMENTED | `admin/src` | API |
+| Админ-панель | экран ошибки вместо чёрной страницы | IMPLEMENTED | `admin/src/app/error.tsx` | — |
+| Админ-панель | центр автоматизации | IMPLEMENTED | `automation.py`, `automation.tsx` | — |
+| Админ-панель | раздел «Обновления» | IMPLEMENTED | `autoUpdate.tsx` | update agent |
+| Мобильные | Android user с встроенным Xray | PARTIAL | `mobile/android-user` | SDK, сборка |
+| Мобильные | iOS user и admin | PARTIAL | `mobile/ios-user`, `mobile/ios-admin` | Xcode |
+| Мобильные | Android admin | PARTIAL | `mobile/android-admin` | SDK |
+| Инфраструктура | 17 сервисов Compose, образы по digest | IMPLEMENTED | `docker-compose.yml` | Docker |
+| Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `deploy/Caddyfile` | домены |
+| Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `deploy/install-vps.sh` | чистый VPS |
+| Инфраструктура | откат и горячий резерв | IMPLEMENTED | `rollback.sh`, `hot-standby.sh` | снимок |
+| CI/CD | 14 workflows, gate публикации | IMPLEMENTED | `.github/workflows` | GitHub |
+| CI/CD | публикация релиза | IMPLEMENTED | `publish-release.yml` | зелёные CI и Docker |
+| CI/CD | ночная проверка внешних ссылок | IMPLEMENTED | `docs-links.yml`, `check-external-links.py` | сеть |
+| Документация | 3 языка, 383 живых файла | IMPLEMENTED | `docs/{ru,en,uk}`, `docs/wiki` | — |
+| Документация | контракты версии, карты, ссылок | IMPLEMENTED | `scripts/check-*.py` | — |
+| Десктоп | приложения Linux/macOS/Windows | MISSING | `desktop/*` — только README | — |
+| Расширение браузера | — | MISSING | `browser-extension` — 2 файла | — |
+| Terraform | инфраструктура как код | MISSING | `terraform/` — 1 файл | — |
+| `corgi-cli` | CLI | MISSING | `corgi-cli/README.md` | — |
+
+Итог: 33 функции `IMPLEMENTED`, 5 `PARTIAL`, 9 `NOT_VERIFIED`, 4 `MISSING`.
+Ни одна `NOT_VERIFIED` не выдаётся за проверенную — для каждой указано, чего не хватает.
+
+## 6. Точка начала следующего этапа
+
+Исследование завершено, документы созданы. Дальше — по порядку:
+
+1. **Секреты.** Выдать по [TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md):
+   `REMNAWAVE_URL` + `REMNAWAVE_TOKEN`, `BOT_TOKEN`, ключи одной кассы. Это снимает 8 из 9
+   `NOT_VERIFIED`.
+2. **Remnawave.** Полный цикл: создание пользователя, выдача, продление, отключение, лимит устройств,
+   чтение трафика. Это первый `NOT_VERIFIED`, потому что без него магазин не выдаёт доступ.
+3. **Платежи.** Один провайдер от создания заказа до выдачи подписки на реальные деньги.
+4. **Бот и Mini App.** `/start`, меню, покупка, `initData` на боевом домене.
+5. **Docker и установщик** на чистом VPS, затем матрица [AUTO_UPDATE_TESTING.md](AUTO_UPDATE_TESTING.md).
+
+Блокировки и условие снятия каждой — в [MASTER_EXECUTION_BLOCKERS.md](MASTER_EXECUTION_BLOCKERS.md).
+
+## 7. Порядок дальнейших работ
 
 1. Выдать секреты по [TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md).
 2. Пройти P0 на тестовом сервере.
