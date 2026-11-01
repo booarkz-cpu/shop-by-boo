@@ -14,10 +14,10 @@ Support Pro `0008`, мобильные приложения 3.4.0.
 | Ветка | `main` (единственная; `remotes/origin/main` — та же) |
 | Последний коммит | `e3b9387` — `docs(log): фактическое состояние публикации v28.57.0` |
 | Рабочее дерево | чистое |
-| Файлов под контролем версий | **1984** |
+| Файлов под контролем версий | **1988** |
 | Каталог `.git` | 244 МБ |
 | Рабочее дерево без `.git` | 107 МБ |
-| Тегов | 38 (`v28.32.0` … `v28.57.0`) |
+| Тегов | **51** (`v28.1.0` … `v28.57.0`) |
 | Опубликованных релизов | 100 страниц по API, последний — `v28.57.0` (`2026-11-01`) |
 
 ## 2. Состав по типам файлов
@@ -50,7 +50,7 @@ Support Pro `0008`, мобильные приложения 3.4.0.
 | `cabinet/` | 110 | личный кабинет и Mini App (Next.js) |
 | `support-pro/` | 93 | отдельный сервис поддержки |
 | `scripts/` | 77 | эксплуатация и релиз |
-| `.github/` | 61 | 14 workflows, соглашения |
+| `.github/` | 61 | 15 workflows, соглашения |
 | `deploy/` | 18 | Caddy, nginx, prometheus, grafana, wireguard, mail-tls |
 | `miniapp/` | 6 | nginx-конфигурация Mini App |
 | `desktop/` | 4 | README-заготовки для трёх ОС |
@@ -137,7 +137,7 @@ Support Pro `0008`, мобильные приложения 3.4.0.
 
 Все образы закреплены по digest (`@sha256:`), кроме собственных сборок.
 
-### GitHub Actions — 14 workflows
+### GitHub Actions — 15 workflows
 
 `ci.yml`, `docker.yml`, `publish-release.yml`, `deploy.yml`, `docs-links.yml`,
 `claude-roadmap.yml`, `dependabot-automerge.yml`, `build-mobile.yml`, `mobile-release.yml`,

@@ -47,7 +47,7 @@ flowchart TD
   end
 
   subgraph CI["Автоматизация"]
-    GH["GitHub Actions<br/>14 workflows"]
+    GH["GitHub Actions<br/>15 workflows"]
     Rel["GitHub Releases<br/>тег + артефакты"]
     Upd["Ночной update agent<br/>systemd 03:00 MSK"]
   end
@@ -197,7 +197,7 @@ flowchart LR
 ```
 
 17 сервисов; образы закреплены по digest. Профили: `standby` (горячий резерв backend),
-`mail` (приём почты). Healthchecks у 9 сервисов, включая `backend`, `db`, `redis`, оба фронтенда,
+`mail` (приём почты). Healthchecks у 10 сервисов, включая `backend`, `db`, `redis`, оба фронтенда,
 `support_pro` и `caddy`.
 
 ## 6. CI/CD и обновления

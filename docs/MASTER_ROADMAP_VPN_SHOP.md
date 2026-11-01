@@ -139,7 +139,7 @@
 | Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `deploy/Caddyfile` | домены |
 | Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `deploy/install-vps.sh` | чистый VPS |
 | Инфраструктура | откат и горячий резерв | IMPLEMENTED | `rollback.sh`, `hot-standby.sh` | снимок |
-| CI/CD | 14 workflows, gate публикации | IMPLEMENTED | `.github/workflows` | GitHub |
+| CI/CD | 15 workflows, gate публикации | IMPLEMENTED | `.github/workflows` | GitHub |
 | CI/CD | публикация релиза | IMPLEMENTED | `publish-release.yml` | зелёные CI и Docker |
 | CI/CD | ночная проверка внешних ссылок | IMPLEMENTED | `docs-links.yml`, `check-external-links.py` | сеть |
 | Документация | 3 языка, 383 живых файла | IMPLEMENTED | `docs/{ru,en,uk}`, `docs/wiki` | — |
@@ -149,8 +149,11 @@
 | Terraform | инфраструктура как код | MISSING | `terraform/` — 1 файл | — |
 | `corgi-cli` | CLI | MISSING | `corgi-cli/README.md` | — |
 
-Итог: 33 функции `IMPLEMENTED`, 5 `PARTIAL`, 9 `NOT_VERIFIED`, 4 `MISSING`.
-Ни одна `NOT_VERIFIED` не выдаётся за проверенную — для каждой указано, чего не хватает.
+Итог по таблице: **27 `IMPLEMENTED`**, 5 `PARTIAL`, 7 `NOT_VERIFIED`, 4 `MISSING` — всего 43 функции.
+Ни одна `NOT_VERIFIED` не выдаётся за проверенную: для каждой указано, чего не хватает.
+`BLOCKED` не присвоен ни одной строке намеренно: у каждой заблокированной функции есть код,
+поэтому честнее `NOT_VERIFIED` с названным условием снятия, а не `BLOCKED`, за которым легко
+скрыть неработающую реализацию.
 
 ## 6. Точка начала следующего этапа
 

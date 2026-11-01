@@ -89,7 +89,7 @@
 
 | Компонент | Что делает |
 | --- | --- |
-| GitHub Actions | 14 workflows: CI, Docker, публикация релиза, деплой, мобильные сборки, нагрузка, security, ночные контракты |
+| GitHub Actions | 15 workflows: CI, Docker, публикация релиза, деплой, мобильные сборки, нагрузка, security, ночные контракты |
 | `actions/checkout@v5`, `setup-python@v6`, `setup-node@v7`, `github-script@v9` | актуальные мажоры |
 | concurrency | группы привязаны к коммиту: `ci-${ref}-${sha}`, `docker-${ref}-${sha}` |
 | permissions | минимальные: `contents: read`, `packages: write` только в Docker |

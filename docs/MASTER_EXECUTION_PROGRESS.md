@@ -79,7 +79,7 @@
 | GHA-02 | Публикация релиза | 40 | `publish-release.yml`; исправлена группа concurrency в `ci.yml`/`docker.yml` | Прогон `41253605668`: упаковка и публикация выполнены | PASS |
 | SEC-01 | Аудит секретов в репозитории | 32 | Секретов в коде нет | Поиск по дереву | PASS |
 | SEC-02 | RBAC на сервере | 12 | `require_permission` на маршрутах | `test_support_rbac_is_separated` | PASS |
-| DKR-01 | Compose и health checks | 33 | 17 сервисов, healthcheck у 9 | Разбор YAML | PASS |
+| DKR-01 | Compose и health checks | 33 | 17 сервисов, healthcheck у 10 | Разбор YAML | PASS |
 | UPD-01 | Ночное автообновление | 20–29 | systemd-таймер 03:00 MSK + агент | docs/AUTO_UPDATE*.md | IMPLEMENTED |
 | UPD-02 | Проверка сценариев обновления | 28 | 19 сценариев документированы | Матрица в docs | BLOCKED_ACCESS |
 | AUT-01 | Центр автоматизации | 30 | Раздел в панели, реальные операции | Сборка панели | IMPLEMENTED |
