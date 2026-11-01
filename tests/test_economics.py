@@ -14,6 +14,23 @@ from test_subscription_commerce import database  # noqa: F401
 ADMIN = SimpleNamespace(email="owner@corgi.test")
 
 
+def test_window_start_counts_calendar_months_not_thirty_day_blocks():
+    """«3 months» means this month and the two before it, whatever their length.
+
+    cohorts.py and growth.py used to subtract ``31 * (months - 1)`` days, which overshoots across a 30- or
+    28-day month: asking for 3 months in March started the window in December, so the cohort table and the
+    growth report silently included one month more than requested.
+    """
+    from datetime import datetime as dt
+
+    assert economics.window_start(dt(2026, 3, 15), 3) == dt(2026, 1, 1), "March + 2 months back = January"
+    assert economics.window_start(dt(2026, 5, 31), 3) == dt(2026, 3, 1), "a May 31st request does not skip April"
+    assert economics.window_start(dt(2026, 1, 31), 2) == dt(2025, 12, 1), "the year boundary rolls over"
+    assert economics.window_start(dt(2026, 11, 1), 1) == dt(2026, 11, 1), "one month is the current month alone"
+    assert economics.window_start(dt(2026, 1, 15), 12) == dt(2025, 2, 1), "twelve months spans the year"
+    assert economics.window_start(dt(2026, 11, 1), 0) == dt(2026, 11, 1), "a zero count is clamped to one month"
+
+
 @pytest.mark.asyncio
 async def test_report_counts_a_customer_created_in_the_same_month_on_its_first_day(database):  # noqa: F811
     """A report for one calendar month must include a customer created inside that month, even on day 1.

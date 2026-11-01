@@ -16,6 +16,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_db
+from .economics import window_start
 from .security import require_permission
 
 router = APIRouter()
@@ -28,7 +29,9 @@ async def build(db: AsyncSession, months: int = 12, by_source: bool = False, now
     now = now or datetime.utcnow()
     first = dict((await db.execute(select(Payment.user_id, func.min(Payment.paid_at)).where(Payment.status.in_(PAID), Payment.purpose == "subscription",
                                                                                           Payment.paid_at.is_not(None)).group_by(Payment.user_id))).all())
-    start = (now.replace(day=1) - timedelta(days=31 * (months - 1))).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    # Calendar months, not 30-day blocks: a 31-day step overshoots across a 30- or 28-day month and the
+    # cohort table then shows one month more than asked for.
+    start = window_start(now, months)
     users = {uid: at for uid, at in first.items() if at >= start}
     if not users:
         return {"months": months, "points": list(POINTS), "cohorts": []}

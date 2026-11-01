@@ -35,6 +35,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
+from .economics import window_start
 from .db import get_db
 from .models import CancellationFeedback, FamilyGroup, FamilyMember, Payment, Plan, Subscription, User
 from .security import require_permission
@@ -303,7 +304,9 @@ async def retention(months: int = 12, db: AsyncSession = Depends(get_db), admin=
         .group_by(Payment.user_id))).all()
     active = set((await db.execute(select(Subscription.user_id).where(Subscription.lifecycle_status.in_(LIVE), Subscription.expires_at > now).distinct())).scalars())
     cohorts: dict[str, dict] = {}
-    start = (now.replace(day=1) - timedelta(days=31 * (months - 1))).replace(day=1)
+    # Calendar months, not 30-day blocks: a 31-day step overshoots across a 30- or 28-day month and the
+    # table then shows one month more than asked for.
+    start = window_start(now, months)
     customers = len(per_user)
     total = Decimal("0")
     repeat = 0

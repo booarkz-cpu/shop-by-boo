@@ -79,6 +79,21 @@ def _months(now: datetime, count: int) -> list[str]:
     return out
 
 
+def window_start(now: datetime, months: int) -> datetime:
+    """First moment of the earliest calendar month in a ``months``-month window ending at ``now``.
+
+    Calendar months, not 30-day blocks: ad spend is entered per ``YYYY-MM``, so «3 months» must mean this
+    month and the two before it. Subtracting ``31 * (months - 1)`` days — what cohorts.py and growth.py
+    used to do — overshoots whenever the window crosses a 30- or 28-day month, so the report silently
+    included an extra month of customers.
+    """
+    months = max(1, int(months))
+    year, month = now.year, now.month
+    for _ in range(months - 1):
+        year, month = (year - 1, 12) if month == 1 else (year, month - 1)
+    return datetime(year, month, 1)
+
+
 async def report(db: AsyncSession, months: int = 3, now: datetime | None = None) -> dict:
     from .models import Payment, User
     now = now or datetime.utcnow()
