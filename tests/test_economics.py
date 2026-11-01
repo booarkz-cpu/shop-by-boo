@@ -14,6 +14,23 @@ from test_subscription_commerce import database  # noqa: F401
 ADMIN = SimpleNamespace(email="owner@corgi.test")
 
 
+@pytest.mark.asyncio
+async def test_report_counts_a_customer_created_in_the_same_month_on_its_first_day(database):  # noqa: F811
+    """A report for one calendar month must include a customer created inside that month, even on day 1.
+
+    The report buckets by calendar month because ad spend is entered per ``YYYY-MM``. A customer created
+    «a day ago» on the 1st belongs to the previous month — that is correct — but a customer created on
+    the 1st itself must be counted; before the fix the test only passed from the 3rd of the month.
+    """
+    first = datetime(2026, 11, 1, 9, 0, 0)
+    database.add(User(email="dayone@corgi.test", referral_code="DAYONE1", acquisition_source="vk_ads", created_at=first))
+    await database.commit()
+    out = await economics.report(database, 1, first)
+    vk = next((s for s in out["sources"] if s["source"] == "vk_ads"), None)
+    assert vk is not None, "a customer created on the first day of the month is counted"
+    assert vk["new_customers"] >= 1
+
+
 def test_sources_are_read_from_start_links_and_cleaned():
     assert economics.source_from_start("src_VK_Ads") == "vk_ads"
     assert economics.source_from_start("ref_AB12__src_tg-channel") == "tg-channel"
@@ -37,7 +54,11 @@ async def test_first_touch_wins_and_old_customers_are_not_reattributed(database)
 
 @pytest.mark.asyncio
 async def test_cac_and_romi_per_source(database):  # noqa: F811
-    now = datetime.utcnow()
+    # «Now» is pinned to the middle of the current month: the report counts calendar months (ad spend is
+    # entered per YYYY-MM), so a customer created «two days ago» falls into the *previous* month when the
+    # test runs on the 1st–2nd and the whole report comes back empty. The window is what is under test
+    # here, not the day the suite happens to run.
+    now = datetime.utcnow().replace(day=15, hour=12, minute=0, second=0, microsecond=0)
     month = f"{now:%Y-%m}"
     for i in range(4):
         u = User(email=f"vk{i}@corgi.test", referral_code=f"VK{i}", acquisition_source="vk_ads", created_at=now - timedelta(days=2))
