@@ -508,8 +508,13 @@ async def serve(host: str = "0.0.0.0", port: int = 2525):
     receiver = Receiver(state, tls_context())
     server = await asyncio.start_server(receiver.handle, host, port, limit=MAX_LINE)
     logger.warning("mail receiver on %s:%s for %s", host, port, ", ".join(routes()) or "no addresses (set MAIL_RECEIVER_ROUTES)")
+    from .heartbeat import keep_beating
+    beating = asyncio.create_task(keep_beating("mail_receiver"))  # container healthcheck
     async with server:
-        await server.serve_forever()
+        try:
+            await server.serve_forever()
+        finally:
+            beating.cancel()
 
 
 if __name__ == "__main__":

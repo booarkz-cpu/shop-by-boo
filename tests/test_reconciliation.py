@@ -240,8 +240,10 @@ async def test_gift_batches_and_csv(env):
 
 
 @pytest.mark.asyncio
-async def test_ad_conversions(env):
+async def test_ad_conversions(env, monkeypatch):
     from app import ad_postbacks as ap
+    from app import main as shop
+    monkeypatch.setattr(shop, "_resolve_public_host", lambda host, port=443: ["93.184.216.34"])  # tracker.test is not in DNS
     db = env.db
     assert ap.click_from_start("ref_X__cid_abc123") == "abc123"
     await ap.remember_click(db, 1, "abc123", "1234567890123")
@@ -466,3 +468,16 @@ async def test_mobile_cards_cover_new_modules(env):
     for needed in ("moderation", "access_guard", "errors", "growth", "connection_quality", "churn", "pnl"):
         assert needed in ids
     assert not [p for p in out["panels"] if p["rows"] and p["rows"][0]["label"] == "Ошибка"], [p for p in out["panels"] if p["rows"][0]["label"] == "Ошибка"]
+
+
+@pytest.mark.asyncio
+async def test_postback_addresses_must_be_public(env):
+    """v28.58.0 (SEC-01): an internal address is refused when the postbacks are saved."""
+    from fastapi import HTTPException
+
+    from app import ad_postbacks as ap
+    for url in ("https://127.0.0.1/pb?cid={click_id}", "https://10.0.0.5/pb", "https://localhost/pb", "https://[::1]/pb"):
+        with pytest.raises(HTTPException) as refused:
+            await ap.put_postbacks(ap.PostbacksIn(enabled=True, urls={"purchase": url}), env.db, ADMIN)
+        assert refused.value.status_code == 400 and "публичный" in refused.value.detail
+

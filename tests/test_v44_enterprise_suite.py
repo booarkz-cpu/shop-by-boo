@@ -43,7 +43,11 @@ def test_v44_5_release_tooling_is_consistent():
 
 
 @pytest.mark.asyncio
-async def test_payment_provider_health_bootstraps_without_admin_page(database):
+async def test_payment_provider_health_bootstraps_without_admin_page(database, monkeypatch):
+    # v28.58.0 (BUG-T1): without provider keys only the sandbox can take a payment. CI sets PAYMENTS_SANDBOX=true
+    # for the whole job, so the test passed there and failed on a developer machine; it now sets it itself.
+    from app.config import settings
+    monkeypatch.setattr(settings, "payments_sandbox", True)
     assert (await database.execute(select(PaymentProviderHealth))).first() is None
     order = await shop._payment_provider_order(database, None)
     rows = (await database.execute(select(PaymentProviderHealth))).scalars().all()

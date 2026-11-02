@@ -51,13 +51,16 @@ def sign(raw: bytes, secret: str) -> str:
 
 async def _send(url: str, raw: bytes, secret: str, headers: dict) -> bool:
     body_headers = {"Content-Type": "application/json", "X-Remnawave-Signature": sign(raw, secret), **headers}
+    from .content_branding_api import _pinned_public_http_client
     for attempt in range(3):
         try:
-            async with httpx.AsyncClient(timeout=10, follow_redirects=False) as client:
+            # v28.58.0 (SEC-01): the connection goes only to a public address that DNS returned at that moment,
+            # so a receiver name cannot point the shop at its own internal network.
+            async with _pinned_public_http_client(10) as client:
                 r = await client.post(url, content=raw, headers=body_headers)
             if r.status_code < 500:
                 return r.status_code < 400
-        except httpx.HTTPError as exc:
+        except (httpx.HTTPError, OSError) as exc:
             logger.info("Webhook forward to %s failed: %s", url, exc)
         await asyncio.sleep(2 ** attempt)
     return False
@@ -147,7 +150,12 @@ async def put_tee(payload: TeeIn, db: AsyncSession = Depends(get_db), admin=Depe
     from .node_health import _save
     old = {t.get("name"): t for t in (await _config(db)).get("targets") or []}
     targets = []
+    from .content_branding_api import validate_public_url
     for t in payload.targets:
+        try:
+            validate_public_url(t.url, allow_empty=False)
+        except HTTPException as exc:
+            raise HTTPException(400, f"«{t.name}»: адрес должен быть публичным https:// — {exc.detail}") from exc
         secret = encrypt_secret(t.secret) if t.secret else (old.get(t.name) or {}).get("secret", "")
         if not secret:
             raise HTTPException(422, f"«{t.name}»: задайте секрет подписи — получатель проверяет им вебхуки")

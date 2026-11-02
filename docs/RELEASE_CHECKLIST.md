@@ -1,6 +1,6 @@
 # Чек-лист релиза
 
-Дистрибутив `v28.57.0`, runtime/API `21.5.1`, миграция магазина `0088_filter_and_regions`,
+Дистрибутив `v28.58.0`, runtime/API `21.5.1`, миграция магазина `0089_index_cleanup`,
 Support Pro `0008`.
 
 Отмечайте пункт только при наличии подтверждения. Правило простое: то, что не проверено, остаётся
@@ -58,7 +58,7 @@ cd cabinet && npm ci && npm run typecheck && npm test && npm run build
 
 ```bash
 cd backend
-alembic heads     # один head: 0088_filter_and_regions
+alembic heads     # один head: 0089_index_cleanup
 alembic upgrade head
 ```
 

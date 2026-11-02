@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.57.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.58.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2002**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2015**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -316,6 +316,7 @@
 | [backend/alembic/versions/0086_feedback.py](../backend/alembic/versions/0086_feedback.py) | API, бот и worker |
 | [backend/alembic/versions/0087_speed_tests.py](../backend/alembic/versions/0087_speed_tests.py) | API, бот и worker |
 | [backend/alembic/versions/0088_filter_and_regions.py](../backend/alembic/versions/0088_filter_and_regions.py) | API, бот и worker |
+| [backend/alembic/versions/0089_index_cleanup.py](../backend/alembic/versions/0089_index_cleanup.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -439,6 +440,7 @@
 | [backend/app/grace_access.py](../backend/app/grace_access.py) | API, бот и worker |
 | [backend/app/growth.py](../backend/app/growth.py) | API, бот и worker |
 | [backend/app/guest_checkout.py](../backend/app/guest_checkout.py) | API, бот и worker |
+| [backend/app/heartbeat.py](../backend/app/heartbeat.py) | API, бот и worker |
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
 | [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
@@ -628,6 +630,8 @@
 | [cabinet/src/giveaways.tsx](../cabinet/src/giveaways.tsx) | Кабинет |
 | [cabinet/src/growth.test.tsx](../cabinet/src/growth.test.tsx) | Кабинет |
 | [cabinet/src/growth.tsx](../cabinet/src/growth.tsx) | Кабинет |
+| [cabinet/src/http-json.test.tsx](../cabinet/src/http-json.test.tsx) | Кабинет |
+| [cabinet/src/http-json.ts](../cabinet/src/http-json.ts) | Кабинет |
 | [cabinet/src/i18n.tsx](../cabinet/src/i18n.tsx) | Кабинет |
 | [cabinet/src/insights.tsx](../cabinet/src/insights.tsx) | Кабинет |
 | [cabinet/src/keys.tsx](../cabinet/src/keys.tsx) | Кабинет |
@@ -1111,6 +1115,7 @@
 | [docs/ru/RELEASE_V28_55_0.md](../docs/ru/RELEASE_V28_55_0.md) | Документация |
 | [docs/ru/RELEASE_V28_56_0.md](../docs/ru/RELEASE_V28_56_0.md) | Документация |
 | [docs/ru/RELEASE_V28_57_0.md](../docs/ru/RELEASE_V28_57_0.md) | Документация |
+| [docs/ru/RELEASE_V28_58_0.md](../docs/ru/RELEASE_V28_58_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
@@ -1193,6 +1198,7 @@
 | [docs/ru/modules/30-backups-recovery.md](../docs/ru/modules/30-backups-recovery.md) | Документация |
 | [docs/ru/modules/README.md](../docs/ru/modules/README.md) | Документация |
 | [docs/ru/new/ADMIN_CONTROL_MATRIX.md](../docs/ru/new/ADMIN_CONTROL_MATRIX.md) | Документация |
+| [docs/ru/new/BUGFIX_LOG.md](../docs/ru/new/BUGFIX_LOG.md) | Документация |
 | [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
 | [docs/ru/new/FEATURE_COMPARISON_MATRIX.md](../docs/ru/new/FEATURE_COMPARISON_MATRIX.md) | Документация |
 | [docs/ru/new/FULL_TECHNICAL_AUDIT.md](../docs/ru/new/FULL_TECHNICAL_AUDIT.md) | Документация |
@@ -1200,6 +1206,7 @@
 | [docs/ru/new/KNOWN_LIMITATIONS.md](../docs/ru/new/KNOWN_LIMITATIONS.md) | Документация |
 | [docs/ru/new/PERFORMANCE_AUDIT.md](../docs/ru/new/PERFORMANCE_AUDIT.md) | Документация |
 | [docs/ru/new/README.md](../docs/ru/new/README.md) | Документация |
+| [docs/ru/new/REGRESSION_TESTS.md](../docs/ru/new/REGRESSION_TESTS.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
 | [docs/ru/new/SECURITY_AUDIT.md](../docs/ru/new/SECURITY_AUDIT.md) | Документация |
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
@@ -1820,6 +1827,7 @@
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |
+| [tests/test_code_entry_rate_limits.py](../tests/test_code_entry_rate_limits.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |
 | [tests/test_content_publishing.py](../tests/test_content_publishing.py) | Проверки |
 | [tests/test_corporate.py](../tests/test_corporate.py) | Проверки |
@@ -1848,9 +1856,11 @@
 | [tests/test_fraud_signals.py](../tests/test_fraud_signals.py) | Проверки |
 | [tests/test_freekassa.py](../tests/test_freekassa.py) | Проверки |
 | [tests/test_freeze_dunning.py](../tests/test_freeze_dunning.py) | Проверки |
+| [tests/test_frontend_regressions.py](../tests/test_frontend_regressions.py) | Проверки |
 | [tests/test_gateway_ops.py](../tests/test_gateway_ops.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |
+| [tests/test_heartbeat.py](../tests/test_heartbeat.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_hot_standby.py](../tests/test_hot_standby.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
@@ -1900,6 +1910,7 @@
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
 | [tests/test_provider_metric_counters.py](../tests/test_provider_metric_counters.py) | Проверки |
 | [tests/test_provider_report.py](../tests/test_provider_report.py) | Проверки |
+| [tests/test_provisioner.py](../tests/test_provisioner.py) | Проверки |
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_push_campaigns.py](../tests/test_push_campaigns.py) | Проверки |
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |
@@ -1911,10 +1922,12 @@
 | [tests/test_remnawave_contract.py](../tests/test_remnawave_contract.py) | Проверки |
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
+| [tests/test_route_authorization.py](../tests/test_route_authorization.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
+| [tests/test_schema_matches_migrations.py](../tests/test_schema_matches_migrations.py) | Проверки |
 | [tests/test_speed_forecast.py](../tests/test_speed_forecast.py) | Проверки |
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_status_and_regional_pricing.py](../tests/test_status_and_regional_pricing.py) | Проверки |

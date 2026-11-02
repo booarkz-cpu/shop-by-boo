@@ -15,7 +15,7 @@
 | TECH-05 | средний | Remnawave | Версия панели в проекте не зафиксирована; проверка совместимости с живой панелью не проводилась | 9 |
 | TECH-06 | средний | Frontend | `admin/src/main.tsx` — 126 КБ, 60 строк длиннее 400 символов; повтор кода в `documents.tsx` (BUG-H3) | 4, 6 |
 | TECH-07 | низкий | Backend | Три отдельные реализации защиты от SSRF (`content_branding_api.py`, `payments.py` `_public_client`, `plugins.py`), а два модуля ей не пользуются (SEC-01) | 4 |
-| TECH-08 | низкий | Infrastructure | Нет healthcheck у `worker`, `bot`, `mail_receiver`, `support_worker`, `backend_standby`; нет лимита памяти у `bot` и сервисов Support Pro | 4 |
+| TECH-08 | низкий | Infrastructure | Нет healthcheck у `worker`, `bot`, `mail_receiver`, `support_worker` (`backend_standby` наследует его у backend через `extends` — уточнено на этапе 4); нет лимита памяти у `bot` и сервисов Support Pro | 4 |
 | TECH-09 | низкий | Backend | У `provisioner.py` нет поведенческого теста, только проверки по тексту кода | 4 |
 
 ## Backend
@@ -71,7 +71,7 @@
 | --- | --- |
 | Compose | 17 сервисов, одна сеть `ingress`, 12 томов. Наружу — только Caddy (80, 443, 443/udp) и приём почты (25) |
 | Образы | Базовые образы закреплены по digest; приложения не от root; `read_only`, `cap_drop: ALL` |
-| Healthchecks | Есть у redis, db, backend, admin, miniapp, cabinet, support_db, support_redis, support_pro, caddy. Нет — TECH-08 |
+| Healthchecks | Есть у redis, db, backend (и `backend_standby` через `extends`), admin, miniapp, cabinet, support_db, support_redis, support_pro, caddy. Нет — TECH-08 (исправлено в v28.58.0) |
 | Caddy | Один набор блоков для всех доменов; подписки идут через `SUB_PROXY_DOMAINS` в общий блок; балансировка backend → standby для обновления без простоя; строгие заголовки безопасности |
 | TLS | Выпускает Caddy автоматически; проверка на реальном домене — `BLOCKED_EXTERNAL` |
 | Установщик | `install.sh` запускается через `curl … \| sudo bash` с тега репозитория; `deploy/install-vps.sh` читает ответы с терминала. Запуск на чистом VPS — этап 10, `BLOCKED_EXTERNAL` |

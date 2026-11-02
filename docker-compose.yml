@@ -124,6 +124,12 @@ services:
       args:
         PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.heartbeat", "worker", "120"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     command: ["python", "worker.py"]
     env_file: .env
     environment:
@@ -165,6 +171,12 @@ services:
       args:
         PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.heartbeat", "mail_receiver", "120"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     command: ["python", "-m", "app.mail_receiver"]
     env_file: .env
     environment:
@@ -197,6 +209,12 @@ services:
       args:
         PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.heartbeat", "bot", "120"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     env_file: .env
     depends_on:
       db:
@@ -421,6 +439,12 @@ services:
       context: ./support-pro
       dockerfile: app/Dockerfile
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os, sys, time; sys.exit(0 if time.time() - os.path.getmtime('/tmp/support-worker.alive') < 180 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     env_file: ./support-pro/.env
     environment:
       POSTGRES_HOST: support_db

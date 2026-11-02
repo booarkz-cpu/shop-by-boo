@@ -9,14 +9,14 @@ class User(Base):
     __tablename__ = "users"
     __table_args__ = (UniqueConstraint("passkey_user_handle", name="uq_users_passkey_user_handle"),)
     id: Mapped[int] = mapped_column(primary_key=True)
-    telegram_id: Mapped[int|None] = mapped_column(BigInteger, unique=True, index=True)
-    yandex_id: Mapped[str|None] = mapped_column(String(255), unique=True, index=True)
+    telegram_id: Mapped[int|None] = mapped_column(BigInteger, unique=True)
+    yandex_id: Mapped[str|None] = mapped_column(String(255))
     vk_id: Mapped[str|None] = mapped_column(String(255), unique=True, index=True)
     email: Mapped[str|None] = mapped_column(String(320), unique=True, index=True)
     email_password_hash: Mapped[str|None] = mapped_column(String(512))
     email_verified_at: Mapped[datetime|None] = mapped_column(DateTime)
     username: Mapped[str|None] = mapped_column(String(255))
-    referral_code: Mapped[str] = mapped_column(String(32), unique=True, index=True, default=lambda: secrets.token_urlsafe(8).upper())
+    referral_code: Mapped[str] = mapped_column(String(32), unique=True, default=lambda: secrets.token_urlsafe(8).upper())
     referred_by_id: Mapped[int|None] = mapped_column(Integer, index=True)
     auto_renew_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     referral_balance: Mapped[Decimal] = mapped_column(Numeric(12,2), default=0, nullable=False)
@@ -131,8 +131,8 @@ class Payment(Base):
     new_subscription: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     plan_id: Mapped[int] = mapped_column(Integer, nullable=False)
     provider: Mapped[str] = mapped_column(String(32), nullable=False)
-    provider_payment_id: Mapped[str|None] = mapped_column(String(255), unique=True, index=True, nullable=True)
-    order_id: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    provider_payment_id: Mapped[str|None] = mapped_column(String(255), unique=True, nullable=True)
+    order_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(12,2), nullable=False)
     original_amount: Mapped[Decimal|None] = mapped_column(Numeric(12,2))
     discount_amount: Mapped[Decimal] = mapped_column(Numeric(12,2), default=0, nullable=False)
@@ -239,8 +239,8 @@ class AdminUser(Base):
     __tablename__ = "admin_users"
     __table_args__ = (UniqueConstraint("passkey_user_handle", name="uq_admin_passkey_user_handle"),)
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(320), unique=True, index=True, nullable=False)
-    telegram_id: Mapped[int|None] = mapped_column(BigInteger, unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(320), unique=True, nullable=False)
+    telegram_id: Mapped[int|None] = mapped_column(BigInteger, unique=True)
     password_hash: Mapped[str] = mapped_column(String(512), nullable=False)
     role: Mapped[str] = mapped_column(String(32), default="viewer", nullable=False)
     passkey_user_handle: Mapped[str|None] = mapped_column(String(64))
@@ -254,7 +254,7 @@ class AdminUser(Base):
 class FinancialLedger(Base):
     __tablename__ = "financial_ledger"
     id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
-    operation_key: Mapped[str] = mapped_column(String(160), unique=True, index=True, nullable=False)
+    operation_key: Mapped[str] = mapped_column(String(160), unique=True, nullable=False)
     user_id: Mapped[int|None] = mapped_column(Integer, index=True)
     payment_id: Mapped[int|None] = mapped_column(Integer, index=True)
     kind: Mapped[str] = mapped_column(String(40), nullable=False)
@@ -306,7 +306,8 @@ class RuntimeSettingChange(Base):
             "runtime_setting_changes.id",
             name="fk_runtime_setting_change_source",
             ondelete="RESTRICT",
-        )
+        ),
+        index=True,
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     applied_at: Mapped[datetime | None] = mapped_column(DateTime)
@@ -352,7 +353,7 @@ class CabinetMenuItem(Base):
     __tablename__ = "cabinet_menu_items"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    slug: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     kind: Mapped[str] = mapped_column(String(32), default="custom", nullable=False)
     body: Mapped[str] = mapped_column(Text, default="", nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -394,7 +395,7 @@ class Promotion(Base):
 class PromoCode(Base):
     __tablename__ = "promo_codes"
     id: Mapped[int] = mapped_column(primary_key=True)
-    code: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    code: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     kind: Mapped[str] = mapped_column(String(16), default="percent", nullable=False)
     value: Mapped[Decimal] = mapped_column(Numeric(12,2), nullable=False)
     plan_ids: Mapped[list|None] = mapped_column(JSON, nullable=True)
@@ -413,7 +414,7 @@ class PromoCode(Base):
 class GiftCode(Base):
     __tablename__ = "gift_codes"
     id: Mapped[int] = mapped_column(primary_key=True)
-    code: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    code: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     plan_id: Mapped[int] = mapped_column(Integer, nullable=False)
     duration_days: Mapped[int|None] = mapped_column(Integer)
     entitlements_snapshot: Mapped[dict|None] = mapped_column(JSON)
@@ -434,7 +435,7 @@ class GiftRedemption(Base):
     gift_code_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     subscription_id: Mapped[int|None] = mapped_column(Integer, index=True)
-    operation_key: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
+    operation_key: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="processing", nullable=False)
     remote_user_id: Mapped[str|None] = mapped_column(String(255))
     before_snapshot: Mapped[dict|None] = mapped_column(JSON)
@@ -473,7 +474,7 @@ class Broadcast(Base):
 class AuthExchangeCode(Base):
     __tablename__ = "auth_exchange_codes"
     id: Mapped[int] = mapped_column(primary_key=True)
-    code_hash: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
+    code_hash: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     used_at: Mapped[datetime|None] = mapped_column(DateTime)
@@ -497,7 +498,7 @@ class AdminSession(Base):
     __tablename__ = "admin_sessions"
     id: Mapped[int] = mapped_column(primary_key=True)
     admin_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    jti_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    jti_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     ip: Mapped[str|None] = mapped_column(String(64))
     user_agent: Mapped[str|None] = mapped_column(String(512))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
@@ -510,7 +511,7 @@ class UserSession(Base):
     __tablename__ = "user_sessions"
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    jti_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    jti_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     ip: Mapped[str|None] = mapped_column(String(64))
     user_agent: Mapped[str|None] = mapped_column(String(512))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
@@ -523,7 +524,7 @@ class PromoRedemption(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     promo_code_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    payment_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    payment_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
 class PromoReservation(Base):
@@ -531,8 +532,8 @@ class PromoReservation(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     promo_code_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    order_id: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
-    payment_id: Mapped[int|None] = mapped_column(Integer, unique=True, index=True)
+    order_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    payment_id: Mapped[int|None] = mapped_column(Integer, unique=True)
     status: Mapped[str] = mapped_column(String(16), default="reserved", nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
@@ -543,7 +544,7 @@ class ReferralReward(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     referrer_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     referred_user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    payment_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    payment_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(12,2), nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="credited", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
@@ -566,9 +567,9 @@ class ReferralLevelReward(Base):
 class ProvisioningOperation(Base):
     __tablename__ = "provisioning_operations"
     id: Mapped[int] = mapped_column(primary_key=True)
-    payment_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    payment_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    operation_key: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
+    operation_key: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     action: Mapped[str] = mapped_column(String(32), nullable=False, default="provision")
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
     remote_user_id: Mapped[str|None] = mapped_column(String(255))
@@ -601,7 +602,7 @@ class ReferralLedger(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     source_user_id: Mapped[int|None] = mapped_column(Integer, index=True)
-    payment_id: Mapped[int|None] = mapped_column(Integer, unique=True, index=True)
+    payment_id: Mapped[int|None] = mapped_column(Integer, unique=True)
     amount: Mapped[Decimal] = mapped_column(Numeric(12,2), nullable=False)
     kind: Mapped[str] = mapped_column(String(32), nullable=False, default="reward")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
@@ -610,7 +611,7 @@ class ReferralLedger(Base):
 class AutoRenewMethod(Base):
     __tablename__ = "auto_renew_methods"
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     provider: Mapped[str] = mapped_column(String(32), nullable=False)
     external_token_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
@@ -626,7 +627,7 @@ class AutoRenewMethod(Base):
 class RefundRequest(Base):
     __tablename__ = "refund_requests"
     id: Mapped[int] = mapped_column(primary_key=True)
-    payment_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    payment_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(12,2), nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="requested", nullable=False)
@@ -691,7 +692,7 @@ class WithdrawalRequest(Base):
 class WorkerState(Base):
     __tablename__ = "worker_states"
     id: Mapped[int] = mapped_column(primary_key=True)
-    worker_id: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
+    worker_id: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     role: Mapped[str] = mapped_column(String(64), nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="online", nullable=False)
     current_job: Mapped[str|None] = mapped_column(String(255))
@@ -720,7 +721,7 @@ class SecurityIncident(Base):
 class Job(Base):
     __tablename__ = "jobs"
     id: Mapped[int] = mapped_column(primary_key=True)
-    job_key: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
+    job_key: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     kind: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="queued", index=True, nullable=False)
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -749,9 +750,9 @@ class FraudSignal(Base):
 class PayoutTransaction(Base):
     __tablename__ = "payout_transactions"
     id: Mapped[int] = mapped_column(primary_key=True)
-    withdrawal_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    withdrawal_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     provider: Mapped[str] = mapped_column(String(32), default="manual", nullable=False)
-    external_id: Mapped[str|None] = mapped_column(String(255), unique=True, index=True)
+    external_id: Mapped[str|None] = mapped_column(String(255), unique=True)
     amount: Mapped[Decimal] = mapped_column(Numeric(12,2), nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="processing", index=True, nullable=False)
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -763,7 +764,7 @@ class PayoutTransaction(Base):
 class FeatureFlag(Base):
     __tablename__ = "feature_flags"
     id: Mapped[int] = mapped_column(primary_key=True)
-    key: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    key: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     description: Mapped[str] = mapped_column(Text, default="", nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
@@ -828,7 +829,7 @@ class PushDelivery(Base):
 class StatusComponent(Base):
     __tablename__ = "status_components"
     id: Mapped[int] = mapped_column(primary_key=True)
-    slug: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    slug: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(String(24), default="operational", nullable=False)
     message: Mapped[str] = mapped_column(Text, default="", nullable=False)
@@ -854,7 +855,7 @@ class Deployment(Base):
 class PaymentProviderHealth(Base):
     __tablename__ = "payment_provider_health"
     id: Mapped[int] = mapped_column(primary_key=True)
-    provider: Mapped[str] = mapped_column(String(32), unique=True, index=True, nullable=False)
+    provider: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     priority: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
     failure_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -891,7 +892,7 @@ class WebAuthnCredential(Base):
     __tablename__ = "webauthn_credentials"
     id: Mapped[int] = mapped_column(primary_key=True)
     admin_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    credential_id: Mapped[str] = mapped_column(String(1024), unique=True, index=True, nullable=False)
+    credential_id: Mapped[str] = mapped_column(String(1024), unique=True, nullable=False)
     public_key: Mapped[str] = mapped_column(Text, nullable=False)
     sign_count: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     transports: Mapped[str|None] = mapped_column(String(255))
@@ -1264,15 +1265,15 @@ class AccountMail(Base):
 class AccountMergeAlias(Base):
     __tablename__ = 'account_merge_aliases'
     id: Mapped[int] = mapped_column(primary_key=True)
-    source_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), unique=True, index=True)
+    source_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), unique=True)
     target_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
-    telegram_id: Mapped[int|None] = mapped_column(BigInteger, unique=True, index=True)
-    yandex_id: Mapped[str|None] = mapped_column(String(255), unique=True, index=True)
-    vk_id: Mapped[str|None] = mapped_column(String(255), unique=True, index=True)
-    email: Mapped[str|None] = mapped_column(String(320), unique=True, index=True)
+    telegram_id: Mapped[int|None] = mapped_column(BigInteger, unique=True)
+    yandex_id: Mapped[str|None] = mapped_column(String(255), unique=True)
+    vk_id: Mapped[str|None] = mapped_column(String(255), unique=True)
+    email: Mapped[str|None] = mapped_column(String(320), unique=True)
     email_password_hash: Mapped[str|None] = mapped_column(String(512))
     email_verified_at: Mapped[datetime|None] = mapped_column(DateTime)
-    referral_code: Mapped[str] = mapped_column(String(32), unique=True, index=True)
+    referral_code: Mapped[str] = mapped_column(String(32), unique=True)
     merged_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
 
@@ -1280,10 +1281,10 @@ class AccountMergeAuthorization(Base):
     __tablename__ = 'account_merge_authorizations'
     id: Mapped[int] = mapped_column(primary_key=True)
     source_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
-    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, index=True)
     used_at: Mapped[datetime|None] = mapped_column(DateTime)
-    target_user_id: Mapped[int|None] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'))
+    target_user_id: Mapped[int|None] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
 
@@ -1291,7 +1292,7 @@ class AccountMergeOperation(Base):
     __tablename__ = 'account_merge_operations'
     key: Mapped[str] = mapped_column(String(64), primary_key=True)
     fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
-    authorization_id: Mapped[int] = mapped_column(ForeignKey('account_merge_authorizations.id', ondelete='RESTRICT'))
+    authorization_id: Mapped[int] = mapped_column(ForeignKey('account_merge_authorizations.id', ondelete='RESTRICT'), index=True)
     source_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
     target_user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='RESTRICT'), index=True)
     result: Mapped[dict] = mapped_column(JSON, nullable=False)
@@ -1366,7 +1367,7 @@ class WebAuthnChallenge(Base):
     ticket_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
     binding_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     purpose: Mapped[str] = mapped_column(String(24), nullable=False)
-    admin_id: Mapped[int|None] = mapped_column(Integer, ForeignKey("admin_users.id", ondelete="CASCADE"))
+    admin_id: Mapped[int|None] = mapped_column(Integer, ForeignKey("admin_users.id", ondelete="CASCADE"), index=True)
     challenge: Mapped[str] = mapped_column(String(128), nullable=False)
     context: Mapped[dict] = mapped_column(JSON, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, index=True, nullable=False)
@@ -1388,7 +1389,7 @@ class CustomerPasskeyChallenge(Base):
     __tablename__ = "customer_passkey_challenges"
     ticket_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
     binding_hash: Mapped[str] = mapped_column(String(64))
-    user_id: Mapped[int|None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped[int|None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     purpose: Mapped[str] = mapped_column(String(24))
     challenge: Mapped[str] = mapped_column(String(128))
     context: Mapped[dict] = mapped_column(JSON)
@@ -1480,7 +1481,7 @@ class PromoAudience(Base):
     promo_id: Mapped[int]=mapped_column(ForeignKey('promo_codes.id',ondelete='RESTRICT'),primary_key=True)
     title: Mapped[str]=mapped_column(String(200))
     description: Mapped[str]=mapped_column(Text,default='')
-    group_id: Mapped[int|None]=mapped_column(ForeignKey('promo_groups.id',ondelete='RESTRICT'))
+    group_id: Mapped[int|None]=mapped_column(ForeignKey('promo_groups.id',ondelete='RESTRICT'), index=True)
     user_ids: Mapped[list]=mapped_column(JSON,default=list)
     enabled: Mapped[bool]=mapped_column(Boolean,default=True)
     version: Mapped[int]=mapped_column(Integer,default=1)
@@ -2164,3 +2165,21 @@ class SpeedTest(Base):
     network: Mapped[str|None] = mapped_column(String(16))
     platform: Mapped[str|None] = mapped_column(String(16))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+
+
+# Indexes that migrations create on hot paths (worker retry queues, audit search, renewals) but the
+# classes above did not declare, so databases built from the models lacked them (v28.58.0, BUG-A2).
+# Declared here with the migration names; ``alembic`` autogenerate now sees no difference.
+Index("ix_audit_logs_created_at", AuditLog.created_at)
+Index("ix_audit_logs_request_id", AuditLog.request_id)
+Index("ix_auto_renew_due", AutoRenewMethod.status, AutoRenewMethod.next_attempt_at)
+Index("ix_automation_rules_event_enabled", AutomationRule.event, AutomationRule.enabled)
+Index("ix_financial_ledger_created_at", FinancialLedger.created_at)
+Index("ix_payment_provider_events_status", PaymentProviderEvent.status)
+Index("ix_payments_fulfillment_retry", Payment.fulfillment_status, Payment.next_retry_at)
+Index("ix_payments_fulfillment_status", Payment.fulfillment_status)
+Index("ix_payments_next_retry_at", Payment.next_retry_at)
+Index("ix_provisioning_operations_status", ProvisioningOperation.status)
+Index("ix_user_devices_user_status", UserDevice.user_id, UserDevice.status)
+Index("uq_users_yandex_id", User.yandex_id, unique=True,
+      postgresql_where=User.yandex_id.isnot(None), sqlite_where=User.yandex_id.isnot(None))

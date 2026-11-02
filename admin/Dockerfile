@@ -12,6 +12,7 @@ COPY admin/ .
 COPY cabinet/src/support-attachments.tsx /src/cabinet/src/support-attachments.tsx
 COPY cabinet/src/public-pages.tsx /src/cabinet/src/public-pages.tsx
 COPY cabinet/src/button-tree.tsx /src/cabinet/src/button-tree.tsx
+COPY cabinet/src/http-json.ts /src/cabinet/src/http-json.ts
 COPY cabinet/scripts/csp-externalize.mjs /src/cabinet/scripts/csp-externalize.mjs
 RUN ln -s /src/admin/node_modules /src/cabinet/node_modules
 RUN npm run build

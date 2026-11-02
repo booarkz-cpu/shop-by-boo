@@ -811,6 +811,8 @@ async def main():
     async with AsyncSession(engine, expire_on_commit=False) as db:
         await refresh_runtime_settings(db, force=True)
     runtime_task = asyncio.create_task(runtime_settings_scheduler())
+    from .heartbeat import keep_beating
+    beating = asyncio.create_task(keep_beating("bot"))  # container healthcheck: the event loop is alive (kept referenced)
     if not settings.bot_token:
         if (settings.app_env or "").strip().lower() == "production":
             runtime_task.cancel()

@@ -209,6 +209,7 @@ async def test_webhook_journal_marks_shop_and_external_changes_and_forwards(env,
     csv = (await tee.changes_csv(anonymize=True, days=30, db=db, admin=ADMIN)).body.decode()
     assert "id1" in csv and "user_1" not in csv
     # Forwarding: re-signed per receiver.
+    monkeypatch.setattr(shop, "_resolve_public_host", lambda host, port=443: ["93.184.216.34"])  # bot.example is not in DNS
     await tee.put_tee(tee.TeeIn(targets=[tee.TargetIn(name="bot", url="https://bot.example/hook", secret="s3cret")]), db, ADMIN)
     sent = []
 
@@ -379,3 +380,21 @@ def test_routers_and_main_stay_small():
         assert f'"{name}"' in routers
     assert len(Path("backend/app/main.py").read_text().splitlines()) < 1000
     assert json.loads(json.dumps({"ok": True}))
+
+
+@pytest.mark.asyncio
+async def test_webhook_receivers_must_be_public(database, monkeypatch):
+    """v28.58.0 (SEC-01): a receiver on the shop's own network is refused on save and never connected to."""
+    from fastapi import HTTPException
+
+    from app import webhook_tee as tee
+    for url in ("https://127.0.0.1/hook", "https://192.168.1.10/hook", "https://localhost/hook", "https://metadata.localhost/x"):
+        with pytest.raises(HTTPException) as refused:
+            await tee.put_tee(tee.TeeIn(targets=[tee.TargetIn(name="bot", url=url, secret="s3cret")]), database, ADMIN)
+        assert refused.value.status_code == 400 and "публичным" in refused.value.detail
+    # A target stored by an older release is not contacted either: the pinned client refuses the address.
+    async def no_wait(_seconds):
+        return None
+    monkeypatch.setattr(tee.asyncio, "sleep", no_wait)
+    assert await tee._send("https://127.0.0.1:9/hook", b"{}", "s3cret", {}) is False
+

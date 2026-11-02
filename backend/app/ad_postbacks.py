@@ -90,7 +90,10 @@ async def send_event(user_id: int, event: str, amount: str = "", currency: str =
         found = await clicks(db, user_id)
     sent = []
     own = client is None
-    client = client or httpx.AsyncClient(timeout=10)
+    if client is None:
+        # v28.58.0 (SEC-01): only public addresses, pinned to the DNS answer (no internal network).
+        from .content_branding_api import _pinned_public_http_client
+        client = _pinned_public_http_client(10)
     try:
         template = (config.get("urls") or {}).get(event) or ""
         if template.startswith("https://") and found.get("click_id"):
@@ -147,9 +150,15 @@ async def put_postbacks(payload: PostbacksIn, db: AsyncSession = Depends(get_db)
     from .main import audit
     from .node_health import _save
     config = await _load(db)
+    from .content_branding_api import validate_public_url
     for event, url in payload.urls.items():
         if event not in EVENTS or (url and not url.startswith("https://")):
             raise HTTPException(400, f"Адрес для «{event}» должен начинаться с https://")
+        if url:
+            try:  # placeholders such as {click_id} are filled in later; the host is checked now
+                validate_public_url(re.sub(r"\{\w+\}", "x", url), allow_empty=False)
+            except HTTPException as exc:
+                raise HTTPException(400, f"Адрес для «{event}» должен вести на публичный сервер: {exc.detail}") from exc
     value = payload.model_dump()
     if value["metrika_secret"] in ("", "***"):
         value["metrika_secret"] = config.get("metrika_secret", "") if value["metrika_secret"] == "***" else ""

@@ -221,8 +221,10 @@ def extract(data: bytes, mapping: HistoryMappingIn) -> dict:
         seen = set()
         for index, row in enumerate(rows, 1):
             uuid = _text(row[position[s.remnawave_uuid]], 64, index, "remnawave_uuid")
-            if not re.fullmatch(r"[0-9A-Fa-f-]{8,64}", uuid):
-                raise HTTPException(422, f"Строка {index}: неверный UUID Remnawave")
+            # Remnawave 3.x addresses a user by the numeric id; a UUID is still read so that its row can be
+            # shown as blocked with the reason (v28.58.0, BUG-A7). Short ids such as «41» were refused before.
+            if not (re.fullmatch(r"[0-9]{1,18}", uuid) or re.fullmatch(r"[0-9A-Fa-f-]{8,64}", uuid)):
+                raise HTTPException(422, f"Строка {index}: неверный идентификатор пользователя Remnawave")
             if uuid.lower() in seen:
                 raise HTTPException(422, f"Строка {index}: повтор UUID Remnawave")
             seen.add(uuid.lower())
@@ -320,6 +322,10 @@ async def evaluate(db: AsyncSession, payload: dict, lock=False):
             status, reason = "blocked", "Клиент не найден: сначала перенесите профили этого источника"
         elif user.deleted_at:
             status, reason = "blocked", "Клиент удалён"
+        elif not row["remnawave_uuid"].isdigit():
+            # The shop calls /api/users/{id} with this value; Remnawave 3.x accepts only the numeric id and has
+            # no lookup by UUID, so an imported UUID would break renewal and blocking of this customer.
+            status, reason = "blocked", "Нужен числовой id пользователя из панели Remnawave 3.x, а не UUID"
         elif row["remnawave_uuid"] in occupied:
             status, reason = "blocked", "UUID Remnawave уже привязан к подписке магазина"
         elif not plan:
