@@ -156,7 +156,7 @@ hot-standby, zero-downtime, миграция PostgreSQL.
 
 | Уровень | Количество | Команда |
 | --- | --- | --- |
-| Backend pytest | **216 файлов**, 1825 тестов проходит | `pytest -q tests --timeout=180` |
+| Backend pytest | **220 файлов**, 2534 теста собирается (`pytest --collect-only`, 2026-11-02) | `pytest -q tests --timeout=180` |
 | Кабинет vitest | 16 файлов, 55 тестов | `npm test` в `cabinet` |
 | E2E Playwright | 8+ спецификаций в `admin/e2e` | `npx playwright test` |
 | Мобильные UI | Android эмулятор, iOS симулятор | workflows `ci.yml` |

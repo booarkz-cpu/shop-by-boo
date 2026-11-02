@@ -13,6 +13,7 @@
 | Референсные репозитории | [docs/REFERENCE_REPOSITORIES.md](../../REFERENCE_REPOSITORIES.md) |
 | Реестр переиспользования кода | [docs/CODE_REUSE_REGISTER.md](../../CODE_REUSE_REGISTER.md) |
 | Технологический стек | [docs/TECH_STACK.md](../../TECH_STACK.md) |
+| Перепроверка этапа 1 | [STAGE_1_VERIFICATION.md](STAGE_1_VERIFICATION.md) |
 | Статус реализации по этапам | [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) |
 | Сравнение функций с референсами | [FEATURE_COMPARISON_MATRIX.md](FEATURE_COMPARISON_MATRIX.md) |
 | Управляемость из админки | [ADMIN_CONTROL_MATRIX.md](ADMIN_CONTROL_MATRIX.md) |
