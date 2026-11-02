@@ -18,6 +18,9 @@ set -Eeuo pipefail
 APP_DIR="${APP_DIR:-/opt/vpn-shop}"
 cd "$APP_DIR"
 command -v docker >/dev/null || { echo "Docker is required" >&2; exit 2; }
+# v28.64.0: pinned Redis/Caddy images follow the release. It runs from here because update.sh of the
+# installed (previous) release calls this script after copying the new files, and not repin-images.sh.
+if [[ -f scripts/repin-images.sh ]]; then bash scripts/repin-images.sh; fi
 umask 077
 OLD_IMAGE="${PG_OLD_IMAGE:-postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea}"
 MARKER=/var/lib/postgresql/.migrated-from-postgres16

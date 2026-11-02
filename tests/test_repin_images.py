@@ -52,5 +52,9 @@ def test_current_pins_bare_digests_and_owner_choice_are_kept(tmp_path):
 
 
 def test_update_runs_it_before_the_build():
+    # update.sh of the installed release (the previous one) copies the new files, then runs upgrade-postgres.sh
+    # and builds: so the repin step lives in upgrade-postgres.sh and works on the very update to v28.64.0.
     update = (ROOT / "scripts/update.sh").read_text()
-    assert update.index("bash scripts/repin-images.sh") < update.index("bash deploy/build-production.sh")
+    assert update.index("bash scripts/upgrade-postgres.sh") < update.index("bash deploy/build-production.sh")
+    upgrade = (ROOT / "scripts/upgrade-postgres.sh").read_text()
+    assert upgrade.index("bash scripts/repin-images.sh") < upgrade.index("repin_postgres\n")

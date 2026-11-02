@@ -42,7 +42,7 @@ cd /opt/vpn-shop && bash scripts/backup.sh
 sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.64.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
-**Закреплённые образы.** `scripts/pin-images.sh` записывает в `.env` закреплённые образы, и они важнее значений из `docker-compose.yml`. Новый шаг обновления `scripts/repin-images.sh` переводит `REDIS_IMAGE` и `CADDY_IMAGE` на версии выпуска:
+**Закреплённые образы.** `scripts/pin-images.sh` записывает в `.env` закреплённые образы, и они важнее значений из `docker-compose.yml`. Новый шаг обновления `scripts/repin-images.sh` переводит `REDIS_IMAGE` и `CADDY_IMAGE` на версии выпуска. Он запускается из `scripts/upgrade-postgres.sh`: этот скрипт вызывает установленный `update.sh` предыдущего выпуска уже после копирования новых файлов, поэтому перевод срабатывает при обновлении прямо на v28.64.0:
 - если тег уже совпадает с выпуском, ничего не меняется;
 - если образ выбран вручную, его можно оставить: `KEEP_PINNED_IMAGES=1`.
 
