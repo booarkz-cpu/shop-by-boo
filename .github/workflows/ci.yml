@@ -421,7 +421,7 @@ jobs:
           go-version: stable
           cache: false
       - id: xray
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: mobile/android-user/app/libs/libv2ray.aar
           key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
@@ -525,7 +525,7 @@ jobs:
           go-version: stable
           cache: false
       - id: frameworks
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: mobile/ios-user/Frameworks
           key: ios-tunnel-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh') }}

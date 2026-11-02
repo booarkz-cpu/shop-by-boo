@@ -81,7 +81,7 @@ jobs:
           go-version: stable
           cache: false
       - id: xray
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: mobile/android-user/app/libs/libv2ray.aar
           key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
