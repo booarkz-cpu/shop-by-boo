@@ -1036,3 +1036,10 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
 .card.state-card { display: grid; gap: 12px; justify-items: start; }
 .success { padding: 10px 14px; border: 1px solid rgb(var(--success-rgb) / .32); border-radius: 10px; background: var(--success-bg); color: var(--success); }
 div.empty-state[data-state="empty"] { padding: 24px 16px; }
+
+/* v28.62.0 — System Control Center: status label and the link to the section of each check. */
+.health-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+@media (max-width: 560px) {
+  .health-row { grid-template-columns: 10px minmax(0, 1fr); }
+  .health-actions { grid-column: 2; justify-content: flex-start; }
+}

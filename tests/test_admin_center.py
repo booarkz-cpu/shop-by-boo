@@ -70,6 +70,9 @@ def test_generated_matrix_document_is_current():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     assert (ROOT / "docs/ru/new/ADMIN_CONTROL_MATRIX.md").read_text() == module.render(), "run: python scripts/generate-admin-matrix.py"
+    assert (ROOT / "docs/ru/new/ADMIN_MODULES.md").read_text() == module.render_modules(), "run: python scripts/generate-admin-matrix.py"
+    described = module.tab_descriptions()
+    assert all(tab in described for m in admin_center.matrix() for tab in m["tabs"]), "every module section has a description"
 
 
 @pytest.mark.asyncio

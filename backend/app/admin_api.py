@@ -58,22 +58,13 @@ async def risk_summary(db:AsyncSession=Depends(get_db),admin=Depends(require_per
 
 @shop.app.get("/api/admin/health/summary")
 async def health_summary(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.diagnostics"))):
-    checks=[]
-    try:
-        await db.execute(shop.sql_text("SELECT 1")); checks.append({"name":"PostgreSQL","status":"ok"})
-    except Exception as exc:
-        shop.logger.warning("Health summary PostgreSQL check failed: %s", exc)
-        checks.append({"name":"PostgreSQL","status":"error","error":"unavailable"})
-    if shop.redis_client:
-        try:
-            start=shop.asyncio.get_running_loop().time(); await shop.redis_client.ping(); checks.append({"name":"Redis","status":"ok","latency_ms":round((shop.asyncio.get_running_loop().time()-start)*1000,1)})
-        except Exception as exc:
-            shop.logger.warning("Health summary Redis check failed: %s", exc)
-            checks.append({"name":"Redis","status":"error","error":"unavailable"})
-    try:
-        start=shop.asyncio.get_running_loop().time(); await shop.RemnawaveClient().list_nodes(start=0,size=1); checks.append({"name":"Remnawave","status":"ok","latency_ms":round((shop.asyncio.get_running_loop().time()-start)*1000,1)})
-    except Exception: checks.append({"name":"Remnawave","status":"error","error":"unavailable"})
-    return {"status":"ok" if all(x["status"]=="ok" for x in checks) else "degraded","checks":checks,"incident_mode":(await shop.setting_value(db,"incident_mode","0"))=="1","payments_paused":not await shop.production_payments_allowed(db)}
+    """System Control Center (v28.62.0): typed read-only checks of every part of the installation (app/system_status.py)."""
+    from . import system_status
+    from .release_identity import DISTRIBUTION_TAG
+    paused=not await shop.production_payments_allowed(db)
+    incident=(await shop.setting_value(db,"incident_mode","0"))=="1"
+    checks=await system_status.collect(db,version=shop.APP_VERSION,distribution=DISTRIBUTION_TAG,redis_client=shop.redis_client,remnawave_factory=shop.RemnawaveClient,payments_paused=paused)
+    return {"status":system_status.overall(checks),"checks":checks,"incident_mode":incident,"payments_paused":paused,"checked_at":shop.datetime.utcnow()}
 
 @shop.app.get("/api/admin/gifts")
 async def admin_gifts(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("marketing.read"))):
