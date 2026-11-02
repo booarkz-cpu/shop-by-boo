@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.63.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.64.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2061**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2062**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1141,6 +1141,7 @@
 | [docs/ru/RELEASE_V28_61_0.md](../docs/ru/RELEASE_V28_61_0.md) | Документация |
 | [docs/ru/RELEASE_V28_62_0.md](../docs/ru/RELEASE_V28_62_0.md) | Документация |
 | [docs/ru/RELEASE_V28_63_0.md](../docs/ru/RELEASE_V28_63_0.md) | Документация |
+| [docs/ru/RELEASE_V28_64_0.md](../docs/ru/RELEASE_V28_64_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |

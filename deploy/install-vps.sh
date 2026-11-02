@@ -458,7 +458,7 @@ resolve_build(){
   [[ "$digest" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]] || die "Не получен immutable digest для $image"
   printf '%s\n' "$digest"
 }
-PYTHON_BASE_IMAGE="$(resolve_build python:3.15-slim)"
+PYTHON_BASE_IMAGE="$(resolve_build python:3.14-slim)"
 NODE_BASE_IMAGE="$(resolve_build node:26-alpine)"
 NGINX_BASE_IMAGE="$(resolve_build nginx:1.30-alpine)"
 log "Генерирую frontend lock-файлы автоматически (ручное редактирование не требуется)..."

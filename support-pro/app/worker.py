@@ -240,7 +240,7 @@ async def main():
         while True:
             try:
                 await r.set('worker:heartbeat', str(time.time()), ex=180)
-                # v28.63.0: liveness file for the container healthcheck (after Redis answered).
+                # v28.64.0: liveness file for the container healthcheck (after Redis answered).
                 try:
                     with open('/tmp/support-worker.alive', 'w') as alive:
                         alive.write(str(int(time.time())))

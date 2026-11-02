@@ -24,7 +24,7 @@ jobs:
             version="$(docker run --rm --entrypoint sh "$image" -c "$cmd" 2>&1 | head -1)"
             echo "IMAGE $image | $digest | $version" | tee -a "$GITHUB_STEP_SUMMARY"
           }
-          check python:3.15-slim 'python3 --version'
+          check python:3.14-slim 'python3 --version'
           check node:26-alpine 'node --version'
           check nginx:1.30-alpine 'nginx -v'
           check caddy:2.11-alpine 'caddy version'

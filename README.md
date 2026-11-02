@@ -13,7 +13,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 [![Release](https://img.shields.io/github/v/release/booarkz-cpu/shop-by-boo?display_name=tag&color=3b82f6)](https://github.com/booarkz-cpu/shop-by-boo/releases/latest)
 [![License](https://img.shields.io/badge/license-Corgi%20Lusi%20Source%202.8-FF8A1F)](LICENSE)
 
-![Python](https://img.shields.io/badge/Python-3.15-3776AB?logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.162-009688?logo=fastapi&logoColor=white)
 ![aiogram](https://img.shields.io/badge/aiogram-3.31-2CA5E0?logo=telegram&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.1.6-D71F00)
@@ -55,22 +55,21 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 ---
 
-> **v28.63.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0089_index_cleanup`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.63.0`, `/health` отвечает `21.5.1`.
+> **v28.64.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0089_index_cleanup`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.64.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 **Что это.** Магазин продаёт VPN-подписки и сам выдаёт доступ в вашей панели Remnawave: принимает оплату (СБП, карта, крипта, Telegram Stars), продлевает, считает трафик и устройства, отвечает клиентам. Клиент покупает в боте, Mini App, кабинете или приложении и подключается в одно касание. Владелец управляет всем из одной админ-панели — без программиста и без пересборки приложений.
 
 **Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md).
 
-## 🆕 Новое в v28.63.0
+## 🆕 Новое в v28.64.0
 
 | | |
 | --- | --- |
-| 🐾 **Тарифы Lucy** | Lucy Mini — пробный на 1 устройство, Lucy Max — 2 устройства, Lucy Ultra — 4 и дешевле за устройство; безлимитный трафик. Создаются кнопкой в «Тарифы», лимиты выполняет Remnawave. [Подробнее](docs/ru/RELEASE_V28_63_0.md) |
-| 📱 **Устройства под лимитом** | Клиент видит устройства, которые засчитала панель, и сам освобождает место: одно или все. |
-| 🔐 **Сессии и вход через Google** | Каждый вход в кабинет можно завершить отдельно; Google включается в «Настройки без перезапуска». |
-| 📗 **Руководство по кабинету** | [USER_CABINET_GUIDE](docs/ru/new/USER_CABINET_GUIDE.md): вход, разделы, устройства, тарифы Lucy. |
+| ⬆️ **Актуальные версии** | Python 3.14, Node.js 26 LTS, Redis 8.10, Caddy 2.11, nginx 1.30; PostgreSQL 18.6 — последняя стабильная. [Подробнее](docs/ru/RELEASE_V28_64_0.md) |
+| 📱 **Мобильные сборки** | Android: AGP 9.5, Kotlin 2.4, Gradle 9.8, compileSdk 37; iOS: компилятор Swift 6 (код — в режиме Swift 5 до этапа 17). |
+| 🔁 **Обновление без ручных правок** | `scripts/repin-images.sh` при обновлении переводит закреплённые в `.env` образы Redis и Caddy на версии выпуска. |
 
 ## 🆕 Новое в v28.55.0
 
@@ -272,7 +271,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 </tr>
 </table>
 
-[Заметки к выпуску](docs/ru/RELEASE_V28_63_0.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
+[Заметки к выпуску](docs/ru/RELEASE_V28_64_0.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
 
 <details>
 <summary><b>Что было в v28.33.0</b></summary>
@@ -413,14 +412,14 @@ Remnawave. Вы устанавливаете его на свой сервер, 
 
 | Компонент | Технология | Назначение |
 | --- | --- | --- |
-| API и backend | Python 3.15, FastAPI 0.162.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
+| API и backend | Python 3.14, FastAPI 0.162.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
 | ORM и БД | SQLAlchemy 2.1.6, Alembic 1.20.1, PostgreSQL 18.6 | модели, миграции, транзакции |
 | Очереди и кэш | Redis 8.10 | блокировки, идемпотентность, кэш статусов |
 | Telegram-бот | aiogram 3.31.0 | `/start`, меню, покупка, поддержка, уведомления |
 | Админ-панель | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 (strict), Node.js 26 LTS | управление магазином |
 | Кабинет и Mini App | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 | личный кабинет клиента и Telegram Mini App |
 | Стили и шрифты | Tailwind CSS 4.3, Inter, JetBrains Mono | тёмная тема, типографика |
-| Мобильные приложения | Kotlin 2.4 + Compose, AGP 9.5, Gradle 9.8 (Android); Swift 6 + SwiftUI (iOS) | клиентские и админские приложения |
+| Мобильные приложения | Kotlin 2.4 + Compose, AGP 9.5, Gradle 9.8 (Android); Swift + SwiftUI (iOS) | клиентские и админские приложения |
 | VPN-ядро | Xray-core | встроенный VPN на Android |
 | Панель доступа | Remnawave 3.x API | пользователи, срок, трафик, устройства |
 | Контейнеры | Docker Compose, Caddy 2.11, nginx 1.30 | 17 сервисов, TLS, reverse proxy |
@@ -557,7 +556,7 @@ flowchart LR
 | `mail_receiver` (профиль `mail`) | Необязательный приём почты для служебных адресов |
 
 **Стек.**
-- Backend: Python 3.15, FastAPI 0.162, SQLAlchemy 2.1 (async, asyncpg), Alembic 1.20, Pydantic 2, httpx, aiogram 3.31.
+- Backend: Python 3.14, FastAPI 0.162, SQLAlchemy 2.1 (async, asyncpg), Alembic 1.20, Pydantic 2, httpx, aiogram 3.31.
 - Frontend: Next.js 16, React 19, TypeScript 7 strict, Tailwind CSS 4, shadcn/Radix; сборка на Node.js 26 LTS.
 - Мобильные приложения: Kotlin (Android) и Swift (iOS).
 - База данных: PostgreSQL 18.6 (магазин и Support Pro), Redis 8.10.
@@ -613,8 +612,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.63.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.63.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.64.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.64.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -631,7 +630,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.63.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.64.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -647,12 +646,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.63.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.64.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.63.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.64.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -1238,7 +1237,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Задача | Команда |
 | --- | --- |
 | Проверить сервер до установки | `bash scripts/preflight.sh` |
-| Установить магазин | `bash install.sh` или `curl -fsSL …/v28.63.0/install.sh \| sudo bash` |
+| Установить магазин | `bash install.sh` или `curl -fsSL …/v28.64.0/install.sh \| sudo bash` |
 | Полная диагностика | `bash scripts/doctor.sh` |
 | Статус контейнеров | `docker compose ps` |
 | Логи всех сервисов | `docker compose logs -f` |
@@ -1248,7 +1247,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Проверить конфигурацию Compose | `docker compose config` |
 | Health-check API | `curl -s localhost:8000/health` |
 | Резервная копия | `bash scripts/backup.sh` |
-| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.63.0 bash scripts/update-from-github.sh` |
+| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.64.0 bash scripts/update-from-github.sh` |
 | Откатить версию | `bash scripts/rollback.sh` |
 | Включить ночные обновления | `sudo bash scripts/auto-update.sh install` |
 | Состояние автообновления | `sudo bash scripts/auto-update.sh status` |
@@ -1262,9 +1261,9 @@ bash scripts/doctor.sh                                   # 3. проверка �
 
 | Ошибка | Возможная причина | Как проверить | Как исправить |
 | --- | --- | --- | --- |
-| `Cannot read properties of undefined (reading 'trim')` | в ответе API поле-метка пришло не объектом `{ru, en, uk}` | в консоли браузера открыть упавший запрос и посмотреть форму поля | в v28.63.0 форма закреплена тестом; на старых сборках обновиться |
+| `Cannot read properties of undefined (reading 'trim')` | в ответе API поле-метка пришло не объектом `{ru, en, uk}` | в консоли браузера открыть упавший запрос и посмотреть форму поля | в v28.64.0 форма закреплена тестом; на старых сборках обновиться |
 | `(s \|\| []).map is not a function` | API вернул объект вместо списка | посмотреть ответ эндпоинта | панель нормализует `items` / `results` / `data`; проверить, что запрос идёт к своему backend |
-| Чёрная страница админки или кабинета | сбой отрисовки без границы ошибок | консоль браузера | в v28.63.0 показывается экран ошибки с причиной и кнопкой повтора |
+| Чёрная страница админки или кабинета | сбой отрисовки без границы ошибок | консоль браузера | в v28.64.0 показывается экран ошибки с причиной и кнопкой повтора |
 | `API недоступен` в панели | backend не прошёл health-check | `curl -s localhost:8000/health` | `docker compose logs backend`, проверить `.env` и `DATABASE_URL` |
 | `docker compose` не запускается | нет `.env` или неверный синтаксис | `docker compose config` | скопировать `.env.example` в `.env` и заполнить обязательные поля |
 | Контейнер перезапускается | падение на старте или нехватка памяти | `docker compose logs <сервис>` | исправить причину в логах; проверить `free -h` |
@@ -1293,7 +1292,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
 | Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
-| Что вошло в выпуск | [Заметки v28.63.0](docs/ru/RELEASE_V28_63_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
+| Что вошло в выпуск | [Заметки v28.64.0](docs/ru/RELEASE_V28_64_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | Wiki на трёх языках | [русский](docs/wiki/ru/Home.md), [English](docs/wiki/en/Home.md), [українська](docs/wiki/uk/Home.md) — готовые страницы для GitHub Wiki |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |
@@ -1333,6 +1332,7 @@ Performance / Documentation / Removed / Migration. Даты взяты из Git-
 
 | Версия | Дата | Категория | Изменения | Подробности |
 | --- | --- | --- | --- | --- |
+| `v28.64.0` | 2026-11-02 | Changed | Актуальные версии: Python 3.14, Node.js 26 LTS, Redis 8.10, Caddy 2.11, nginx 1.30, Android AGP 9.5 / Kotlin 2.4 / Gradle 9.8 / compileSdk 37, обновлённые библиотеки; перевод закреплённых образов при обновлении | [заметки](docs/ru/RELEASE_V28_64_0.md) |
 | `v28.63.0` | 2026-11-02 | Added | Личный кабинет: сессии по одной, устройства под лимитом подписки (HWID Remnawave) с удалением, вход через Google без перезапуска, тарифы Lucy Mini/Max/Ultra и пробный период только на Lucy Mini; исправлено тело сброса устройств для Remnawave 3.x | [заметки](docs/ru/RELEASE_V28_63_0.md) |
 | `v28.62.0` | 2026-11-02 | Added | System Control Center: «Состояние системы» показывает backend, интерфейсы, базу и миграции, Redis, Remnawave, узлы, Caddy и сертификаты TLS, платежи, бота, фоновые задачи, резервные копии и обновления со ссылкой на раздел; документы ADMIN_PANEL_GUIDE, ADMIN_MODULES, RBAC | [заметки](docs/ru/RELEASE_V28_62_0.md) |
 | `v28.61.0` | 2026-11-02 | Changed | Интерфейс: разделы «Remnawave: панель», «Портал подписки», «Доступность и качество»; общие состояния блоков; ответы 503/502 при ненастроенном или недоступном Remnawave; правила интерфейса; проверка всех разделов на телефоне | [заметки](docs/ru/RELEASE_V28_61_0.md) |

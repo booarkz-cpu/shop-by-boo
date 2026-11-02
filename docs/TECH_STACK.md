@@ -8,7 +8,7 @@
 
 | Компонент | Версия | Файл | Назначение |
 | --- | --- | --- | --- |
-| Python | 3.15-slim (pinned digest) | `backend/Dockerfile` | язык исполнения |
+| Python | 3.14-slim (pinned digest) | `backend/Dockerfile` | язык исполнения |
 | FastAPI | 0.162.0 | `requirements.txt` | REST API, зависимости, OpenAPI |
 | Starlette | 1.10.0 | `requirements.txt` | ASGI-основа FastAPI |
 | Uvicorn | 0.54.0 (`[standard]`) | `requirements.txt` | ASGI-сервер |
@@ -65,8 +65,8 @@
 | --- | --- | --- |
 | Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `mobile/android-user` |
 | Android admin | Kotlin 2.4, Compose, AGP 9.5 | `mobile/android-admin` |
-| iOS user | Swift 6, SwiftUI, **LibXray** + HevSocks5Tunnel | `mobile/ios-user` |
-| iOS admin | Swift 6, SwiftUI | `mobile/ios-admin` |
+| iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `mobile/ios-user` |
+| iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `mobile/ios-admin` |
 
 Версия приложений — **3.4.0** (`versionName`, `MARKETING_VERSION`).
 Тесты: XCUITest на симуляторе, UI-тесты на эмуляторе Android, Maestro (`mobile/maestro`).
