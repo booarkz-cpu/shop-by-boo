@@ -14,3 +14,4 @@
 | BUG-A5 | `main.py` `RATE_LIMITS` | Нет лимита частоты у погашения подарков, подарочных карт, реферальных и корпоративных кодов, гостевого входа (SEC-03) | Маршруты не добавлены в таблицу | — | — | NOT_STARTED |
 | BUG-A6 | `docker-compose.yml` | Нет healthcheck у worker, bot, mail_receiver, support_worker, backend_standby (TECH-08) | — | — | — | NOT_STARTED |
 | BUG-A7 | `subscriptions.remnawave_uuid`, `history_import.py` | В колонке числовой `id` панели; импорт может записать UUID, который API 3.4 не принимает (TECH-04) | Название колонки осталось от старого API | — | — | NOT_STARTED |
+| BUG-T1 | `tests/test_v44_enterprise_suite.py` | `test_payment_provider_health_bootstraps_without_admin_page` падает вне CI | Тест зависит от `PAYMENTS_SANDBOX=true` из окружения CI и сам его не задаёт | — | — | NOT_STARTED |

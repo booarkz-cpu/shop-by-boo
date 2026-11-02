@@ -78,7 +78,7 @@
 
 ## Тесты
 
-Полный набор backend на PostgreSQL 16 и Redis 7 (без `test_parallel_alembic_upgrade_survives_the_race`, который запускается в CI): результат записан в [журнале](../../AUTOMATION_LOG.md). В CI на PR #164 прошли 18 проверок: backend, admin/cabinet/miniapp, Support Pro, lint, Docker Compose, контейнеры, Chromium e2e, сборки Android и iOS.
+Полный набор backend на PostgreSQL 16 и Redis 7 (без `test_parallel_alembic_upgrade_survives_the_race`, который запускается в CI): 2469 passed, 62 skipped, 2 failed за 27 мин 38 с. Оба падения — один тест, зависящий от `PAYMENTS_SANDBOX=true` из окружения CI (BUG-T1); с этой переменной он проходит. В CI на PR #164 прошли 18 проверок: backend, admin/cabinet/miniapp, Support Pro, lint, Docker Compose, контейнеры, Chromium e2e, сборки Android и iOS.
 
 ## Что дальше
 
