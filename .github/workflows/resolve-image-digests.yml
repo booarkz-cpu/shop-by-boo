@@ -17,10 +17,16 @@ jobs:
     steps:
       - name: Resolve
         run: |
-          for image in python:3.15-slim python:3.14-slim node:26-alpine nginx:stable-alpine nginx:mainline-alpine \
-                       caddy:2-alpine redis:8-alpine valkey/valkey:9-alpine postgres:18-alpine; do
+          check(){
+            local image="$1" cmd="$2" digest version
             docker pull -q "$image" >/dev/null
             digest="$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')"
-            version="$(docker run --rm --entrypoint sh "$image" -c 'python3 --version 2>/dev/null || node --version 2>/dev/null || nginx -v 2>&1 || caddy version 2>/dev/null || redis-server --version 2>/dev/null || valkey-server --version 2>/dev/null || postgres --version 2>/dev/null' | head -1)"
+            version="$(docker run --rm --entrypoint sh "$image" -c "$cmd" 2>&1 | head -1)"
             echo "IMAGE $image | $digest | $version" | tee -a "$GITHUB_STEP_SUMMARY"
-          done
+          }
+          check python:3.15-slim 'python3 --version'
+          check node:26-alpine 'node --version'
+          check nginx:1.30-alpine 'nginx -v'
+          check caddy:2.11-alpine 'caddy version'
+          check redis:8.10-alpine 'redis-server --version'
+          check postgres:18.6-alpine 'postgres --version'
