@@ -1,10 +1,10 @@
 # Статус реализации по этапам
 
-Состояние на 2026-11-02. База: `main` @ `8e81a8a6`, дистрибутив `v28.57.0`, миграция магазина `0088_filter_and_regions`. Этапы выполняются по одному, следующий начинается по команде владельца.
+Состояние на 2026-11-02. База: `main` @ `161e9b4d`, дистрибутив `v28.57.0`, миграция магазина `0088_filter_and_regions`. Этапы выполняются по одному, следующий начинается по команде владельца.
 
 | № | Этап | Статус | Подтверждение / что осталось |
 | --- | --- | --- | --- |
-| 1 | Инвентаризация и клонирование референсов | IMPLEMENTED | Выполнен 2026-11-01 (коммиты `864f7ffb`, `d70d71c1`, `8e81a8a6`): [REFERENCE_REPOSITORIES](../../REFERENCE_REPOSITORIES.md), [CODE_REUSE_REGISTER](../../CODE_REUSE_REGISTER.md), [TECH_STACK](../../TECH_STACK.md). Перепроверка этой сессией — при старте этапа 1 |
+| 1 | Инвентаризация и клонирование референсов | PASS | Выполнен 2026-11-01, перепроверен 2026-11-02 по исходникам: [STAGE_1_VERIFICATION](STAGE_1_VERIFICATION.md); исправлены 10 неточностей в числах и путях, выводы о лицензиях подтверждены |
 | 2 | Feature gap analysis | NOT_STARTED | [FEATURE_COMPARISON_MATRIX](FEATURE_COMPARISON_MATRIX.md), [REMNAWAVE_FEATURE_MATRIX](REMNAWAVE_FEATURE_MATRIX.md) |
 | 3 | Полный технический аудит | NOT_STARTED | FULL_TECHNICAL_AUDIT, SECURITY_AUDIT, PERFORMANCE_AUDIT, [BUG_REGISTRY](BUG_REGISTRY.md) |
 | 4 | Исправление ошибок | NOT_STARTED | BUGFIX_LOG, REGRESSION_TESTS |

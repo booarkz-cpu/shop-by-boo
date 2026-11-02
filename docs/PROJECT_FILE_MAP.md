@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1998**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1999**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1199,6 +1199,7 @@
 | [docs/ru/new/KNOWN_LIMITATIONS.md](../docs/ru/new/KNOWN_LIMITATIONS.md) | Документация |
 | [docs/ru/new/README.md](../docs/ru/new/README.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
+| [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
 | [docs/ru/steps/01-project.md](../docs/ru/steps/01-project.md) | Документация |
 | [docs/ru/steps/02-local-test.md](../docs/ru/steps/02-local-test.md) | Документация |
 | [docs/ru/steps/03-vds.md](../docs/ru/steps/03-vds.md) | Документация |

@@ -32,9 +32,11 @@
 Для нашего проекта это означает: **перенос кода невозможен** без перевода всего магазина на AGPL, что
 несовместимо с лицензией Corgi Lusi Source 2.8.
 
+Уточнение этапа 1 (перепроверка 2026-11-02): по README «версии до 2.15.x включительно остаются под MIT». Код этих версий формально можно взять с сохранением MIT-уведомления, но он устарел на три мажорные версии, а нужные функции у нас уже есть — поэтому переноса нет и здесь.
+
 **Стек и структура.** Backend: FastAPI 0.115, SQLAlchemy 2.0.36, asyncpg, alembic, aiogram 3.12,
 webauthn, pyotp. Frontend: React + TypeScript (194 `.tsx`, 112 `.ts`). 709 `.py`, 79 `.md`, 11 workflows,
-**267 тестовых файлов**. Compose: `bot`, `remnawave-admin-db`, `web-backend`, `web-collector`,
+**270 тестовых файлов** (215 `test_*.py` и 55 `*.test/spec.ts(x)`; прежняя цифра 267 считалась другим фильтром). Compose: `bot`, `remnawave-admin-db`, `web-backend`, `web-collector`,
 `web-frontend`, `prometheus`, `redis`.
 
 **Архитектурно интересное** (`web/backend/core/`, 60+ модулей): `hwid_guard`, `ip_guard`, `login_guard`,
@@ -101,7 +103,7 @@ riopay, severpay, tabpay, overpay, kassa_ai** (8 касс, которых у н�
 **Назначение.** Веб-кабинет для бота из п.3: личный кабинет, OAuth, лендинги, аналитика продаж, RBAC,
 подарочные подписки.
 
-**Лицензия.** **AGPL-3.0** (Version 1, 14 January 2025), Copyright BEDOLAGA DEV. Есть `NOTICE` со
+**Лицензия.** **AGPL-3.0**: тело файла — стандартный текст GNU AGPL v3 («This License refers to version 3»), `package.json` — `AGPL-3.0`; но заголовок файла изменён автором («Version 1, 14 January 2025», Copyright BEDOLAGA DEV), что формально некорректно для текста FSF. Неоднозначность не расширяет права — считаем AGPL-3.0. Есть `NOTICE` со
 сторонними материалами (карта регионов России, CC0). AGPL требует открыть исходники производной работы при
 сетевом доступе — **перенос запрещён**.
 
@@ -132,8 +134,8 @@ backend бота. У нас кабинет — самостоятельное Ne
 `LICENSE.txt` для шрифта) — то есть автор лицензирует ассеты, но не свой код.
 
 **Стек.** PHP 8.1+ без фреймворков и сторонних зависимостей, SQLite по умолчанию (MySQL/MariaDB по выбору),
-96 `.php`, nginx + PHP-FPM в Docker (`ghcr.io/mrvibecodic/remnawave-subscription-middleware`), 2 workflow,
-**тестов нет**. Статус — beta, в README предупреждение делать бэкап панели.
+96 `.php`, nginx + PHP-FPM в Docker (`ghcr.io/mrvibecodic/remnawave-subscription-middleware`), 2 workflow.
+**Тесты есть, но не в CI**: 11 сценариев `tools/tests/t_*.php` (включая e2e админки и подписки) и самотесты `tools/*_selftest.php`, запуск `php tools/test.php` в копии проекта; workflows только собирают образ и релиз (прежняя запись «тестов нет» неверна). Статус — beta, в README предупреждение делать бэкап панели.
 
 **Структура.** `lib/` — 24 модуля: `grace.php`, `overrides.php` (заглушки для заблокированных),
 `geoip.php`, `metrics.php`, `cron.php`, `addsub.php` (склейка двух подписок), `clientver.php`,
@@ -164,18 +166,18 @@ backend бота. У нас кабинет — самостоятельное Ne
 | Backend | FastAPI, 173 модуля | FastAPI + 60 core | FastAPI + 180 сервисов | нет своего | PHP без фреймворков |
 | Frontend | Next.js 16 (admin + cabinet) | React + Vite | нет | React + Vite | PHP + jQuery-подобный |
 | БД | PostgreSQL 18 | PostgreSQL | PostgreSQL | — | SQLite / MySQL |
-| Тесты | 216 файлов, 1833 теста | 267 файлов | 783 файла | 281 файл | **0** |
+| Тесты | 220 файлов, 2534 теста (pytest collect, 2026-11-02) | 270 файлов | 783 файла | 281 файл | 11 сценариев, вне CI |
 | Workflows | 15 | 7 | 10 | 7 | 2 |
 | Лицензия | Corgi Lusi Source 2.8 | AGPL-3.0 | Commons Clause | AGPL-3.0 | **нет** |
 | Языков | 3 (ru/en/uk) | 2 | 2+ | 4 | 1 |
 
 ## Вывод по переносу
 
-**Ни одна строка стороннего кода в проект не переносилась и не может быть перенесена.**
+**Ни одна строка стороннего кода в проект не переносилась.** Юридически перенос возможен только из `remnawave-reverse-proxy` (MIT) и из старых версий `remnawave-admin` ≤ 2.15.x (MIT), но ни то, ни другое не нужно.
 
 | Репозиторий | Перенос | Причина |
 | --- | --- | --- |
-| remnawave-admin | запрещён | AGPL-3.0: требует открыть весь магазин |
+| remnawave-admin | запрещён (текущая версия) | AGPL-3.0: требует открыть весь магазин; версии ≤ 2.15.x под MIT устарели |
 | remnawave-reverse-proxy | разрешён, но не нужен | MIT; у нас свой Caddy, автор против production |
 | bedolaga-bot | **запрещён** | Commons Clause: нельзя продавать производное |
 | bedolaga-cabinet | **запрещён** | AGPL-3.0 |

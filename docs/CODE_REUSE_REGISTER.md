@@ -34,7 +34,7 @@
 | Нейтральная страница для сканеров | middleware `landing.php` | `sub_proxy.py` | есть |
 | Reverse proxy с автоматическим TLS | reverse-proxy целиком | `deploy/Caddyfile` + сервис `caddy` | есть, TLS и HTTP/3 |
 | Анти-абьюз по HWID/IP/UA | admin `hwid_guard`, `ip_guard` | `anti_sharing.py`, `abuse.py` | есть |
-| Мониторинг нод и алерты | admin `attack_detector`, `metrics` | `monitoring`, `deploy/prometheus`, `deploy/grafana` | есть |
+| Мониторинг нод и алерты | admin `attack_detector`, `metrics` | `operations_api.py` (`/api/admin/monitoring`), `ops_alerts.py`, `deploy/prometheus`, `deploy/grafana` | есть |
 | Почтовый домен: свой MX, SPF/DKIM/DMARC | admin `mail/` | `mail_domain.py` (1052 строки), `mail_receiver.py` | есть |
 | Терминал узлов | admin `terminal_sessions` | `node_terminal.py` (617 строк) | есть |
 | Анти-торрент | admin `torrent_p2p_whitelist` | `torrent_detection.py`, `platform_api.py` | есть |
@@ -50,9 +50,9 @@
 | Push-уведомления | admin `push_service` | `push.py` (642 строки), `push_campaigns.py` | есть |
 | Плагины | admin `plugin_installer` | `plugins.py` (889 строк), `admin/plugins` | есть |
 | Автоматизация по правилам | admin `automation_engine` | `automation.py` (520 строк), `admin/automation` | есть |
-| Резервные копии в S3 | admin `backup_s3` | `backup_verify.py`, `boto3`, `scripts/backup.sh` | есть |
-| Ограничение скорости на ноде | admin `throttle_sync`, `shaper_rollout` | `node_terminal.py`, агент узла | есть |
-| OAuth: Яндекс, VK, Google | cabinet | `auth_api.py`: `/api/auth/{yandex,vk,google}` | есть |
+| Резервные копии в S3 | admin `backup_s3` | `backups_api.py` (`boto3`), `backup_verify.py`, `scripts/backup.sh` | есть |
+| Ограничение скорости на ноде | admin `throttle_sync`, `shaper_rollout` | `scripts/node-agent.py` (действия `throttle`/`clear` через `tc`, только при `AGENT_APPLY_TC=1`) | есть |
+| OAuth: Яндекс, VK, Google | cabinet | `main.py` (Яндекс), `cabinet_api.py` (VK), `app_login.py` (Google): `/api/auth/{yandex,vk,google}` | есть |
 | Passkeys (WebAuthn) | admin `webauthn_svc` | `passkeys`, 8 маршрутов | есть |
 | 2FA (TOTP) | admin `totp` | `security.py` (`verify_totp`) | есть |
 | RBAC | admin `rbac` | `security.py` (`PERMISSIONS`, `require_permission`) | есть |
