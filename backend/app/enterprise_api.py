@@ -2,6 +2,7 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
+from .pagination import Page, page_params, set_total
 from .db import get_db
 from .security import require_permission
 from fastapi import Depends
@@ -29,8 +30,9 @@ async def enterprise_monitoring_delete(check_id:int,db:AsyncSession=Depends(get_
     await db.delete(x); await shop.audit(db,"monitoring.check.deleted",admin.email,str(check_id)); await db.commit(); return {"ok":True}
 
 @shop.app.get("/api/admin/enterprise/campaigns")
-async def enterprise_campaigns(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("marketing.read"))):
-    rows=(await db.execute(shop.select(shop.Campaign).order_by(shop.Campaign.id.desc()))).scalars().all(); return [{"id":x.id,"name":x.name,"kind":x.kind,"status":x.status,"audience":x.audience,"content":x.content,"starts_at":x.starts_at,"ends_at":x.ends_at,"sent_count":x.sent_count,"failed_count":x.failed_count} for x in rows]
+async def enterprise_campaigns(response:shop.Response,page:Page=Depends(page_params),db:AsyncSession=Depends(get_db),admin=Depends(require_permission("marketing.read"))):
+    stmt=shop.select(shop.Campaign).order_by(shop.Campaign.id.desc()); await set_total(response,db,stmt)
+    rows=(await db.execute(page.apply(stmt))).scalars().all(); return [{"id":x.id,"name":x.name,"kind":x.kind,"status":x.status,"audience":x.audience,"content":x.content,"starts_at":x.starts_at,"ends_at":x.ends_at,"sent_count":x.sent_count,"failed_count":x.failed_count} for x in rows]
 
 @shop.app.post("/api/admin/enterprise/campaigns")
 async def enterprise_campaign_create(payload:shop.CampaignIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_marketing"))):

@@ -21,6 +21,9 @@
 | Технический аудит | [FULL_TECHNICAL_AUDIT.md](FULL_TECHNICAL_AUDIT.md) |
 | Аудит безопасности | [SECURITY_AUDIT.md](SECURITY_AUDIT.md) |
 | Аудит производительности | [PERFORMANCE_AUDIT.md](PERFORMANCE_AUDIT.md) |
+| Правила API | [API.md](API.md) |
+| Устройство backend | [BACKEND_ARCHITECTURE.md](BACKEND_ARCHITECTURE.md) |
+| Схема базы | [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) |
 | Реестр ошибок | [BUG_REGISTRY.md](BUG_REGISTRY.md) |
 | Журнал исправлений | [BUGFIX_LOG.md](BUGFIX_LOG.md) |
 | Regression-тесты | [REGRESSION_TESTS.md](REGRESSION_TESTS.md) |

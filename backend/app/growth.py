@@ -35,6 +35,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
+from .seat_access import end_seat, grant_seat
 from .economics import window_start
 from .db import get_db
 from .models import CancellationFeedback, FamilyGroup, FamilyMember, Payment, Plan, Subscription, User
@@ -212,37 +213,15 @@ async def sync_member(db: AsyncSession, member_id: int, rw=None) -> str:
         if member.status != "active" or not _live(owner_sub, now) or member.id not in seated:
             # Ended, owner not live, or the owner moved to a plan with fewer family seats:
             # the oldest members keep their seats, the rest lose access until seats return.
-            if sub.remnawave_uuid and sub.lifecycle_status != "expired":
-                await rw.disable_user(sub.remnawave_uuid)
-            sub.lifecycle_status, sub.expires_at = "expired", min(sub.expires_at or now, now)
+            await end_seat(rw, sub, now)
             result = "ended" if member.status != "active" or not _live(owner_sub, now) else "no_seat"
         else:
             plan = await db.get(Plan, owner_sub.plan_id)
-            target = owner_sub.expires_at
             traffic = owner_sub.traffic_limit_gb_snapshot if owner_sub.traffic_limit_gb_snapshot is not None else (plan.traffic_limit_gb if plan else None)
             devices = owner_sub.device_limit_snapshot if owner_sub.device_limit_snapshot is not None else (plan.device_limit if plan else None)
             profile = owner_sub.remnawave_profile_id_snapshot or (plan.remnawave_profile_id if plan else None)
-            if not sub.remnawave_uuid:
-                user = await db.get(User, member.user_id)
-                data = await rw.create_user(f"user_{member.user_id}_sub_{sub.id}", target, int(traffic) * 1024 ** 3 if traffic else 0,
-                                            active_internal_squads=[profile] if profile else None,
-                                            telegram_id=user.telegram_id if user else None, device_limit=devices)
-                if not data or not data.get("id"):
-                    raise RuntimeError("Remnawave returned no user id")
-                sub.remnawave_uuid = str(data["id"])
-                sub.subscription_url = data.get("subscriptionUrl") or data.get("subscription_url")
-                result = "created"
-            else:
-                if sub.lifecycle_status == "expired":
-                    await rw.enable_user(sub.remnawave_uuid)
-                if not sub.expires_at or abs((sub.expires_at - target).total_seconds()) > 60:
-                    await rw.patch_user(sub.remnawave_uuid, {"expireAt": target.isoformat()})
-                if (sub.traffic_limit_gb_snapshot, sub.device_limit_snapshot, sub.remnawave_profile_id_snapshot) != (traffic, devices, profile):
-                    # The owner changed plan: traffic, devices and squad follow, not only the expiry.
-                    await rw.update_entitlements(sub.remnawave_uuid, traffic, profile, device_limit=devices)
-                result = "updated"
-            sub.expires_at, sub.lifecycle_status, sub.plan_id = target, "active", owner_sub.plan_id
-            sub.traffic_limit_gb_snapshot, sub.device_limit_snapshot, sub.remnawave_profile_id_snapshot = traffic, devices, profile
+            result = await grant_seat(db, rw, sub, user_id=member.user_id, plan_id=owner_sub.plan_id, target=owner_sub.expires_at,
+                                      traffic_gb=traffic, devices=devices, profile=profile)
         member.synced_at, member.sync_error = now, None
     except Exception as exc:
         member.sync_error = str(exc)[:500]

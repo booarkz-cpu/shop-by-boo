@@ -152,6 +152,8 @@ from .menu_tree import emoji_router
 app.include_router(emoji_router)
 from .account_merge import router as account_merge_router
 app.include_router(account_merge_router)
+from .integrity import router as integrity_router
+app.include_router(integrity_router)
 
 MAX_REQUEST_BYTES = 12 * 1024 * 1024
 PACKAGE_UPLOAD_BYTES = 80 * 1024 * 1024
@@ -227,12 +229,7 @@ RATE_LIMITS = {
     "/api/admin/auth/telegram": 8,
     "/api/admin/auth/ticket": 20,
     # v28.58.0 (SEC-03): codes a customer types in — gift codes, gift cards, referral, company and guest access.
-    "/api/me/gifts/redeem": 10,
-    "/api/me/payment/gift-card/redeem": 10,
-    "/api/me/referral/apply": 10,
-    "/api/me/company/join": 10,
-    "/api/auth/guest": 10,
-    "/api/auth/guest/setup": 10,
+    "/api/me/gifts/redeem": 10, "/api/me/payment/gift-card/redeem": 10, "/api/me/referral/apply": 10, "/api/me/company/join": 10, "/api/auth/guest": 10, "/api/auth/guest/setup": 10,
 }
 
 try:
@@ -373,6 +370,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 app.add_middleware(SecurityHeadersMiddleware)
+
+from .errors import register_error_handlers
+register_error_handlers(app)
 allowed_hosts = [x.strip() for x in [*settings.api_domains(), settings.admin_domain, settings.app_domain, settings.cabinet_domain] if x.strip()] + ["localhost", "127.0.0.1"]
 if allowed_hosts:
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)

@@ -2,6 +2,7 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
+from .pagination import Page, page_params, set_total
 from .db import get_db
 from .models import Payment
 from .models import User
@@ -111,10 +112,14 @@ async def payment_invoice(payment_id:int,request:Request,db:AsyncSession=Depends
     return shop.Response(content=buf.getvalue(),media_type="application/pdf",headers={"Content-Disposition":f'attachment; filename="{invoice.invoice_number}.pdf"'})
 
 @shop.app.get("/api/admin/payments/analytics")
-async def payment_analytics(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):
-    rows=(await db.execute(shop.select(shop.PaymentProviderMetric).order_by(shop.PaymentProviderMetric.day.desc(),shop.PaymentProviderMetric.provider))).scalars().all()
-    total=shop.Decimal("0"); succeeded=0; failed=0
-    for r in rows: total+=r.gross_amount; succeeded+=r.succeeded; failed+=r.failed
+async def payment_analytics(days:int|None=shop.Query(None,ge=1,le=3650,description="За сколько последних дней; без значения — за всё время"),db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):
+    # v28.59.0 (PERF-03): totals are summed by the database; the per-day rows are limited to the period
+    # (or the latest 1000 rows), instead of loading every daily metric ever recorded.
+    metric=shop.PaymentProviderMetric; period=[]
+    if days: period=[metric.day>=(shop.datetime.utcnow()-shop.timedelta(days=days)).date().isoformat()]
+    sums=(await db.execute(shop.select(shop.func.coalesce(shop.func.sum(metric.gross_amount),0),shop.func.coalesce(shop.func.sum(metric.succeeded),0),shop.func.coalesce(shop.func.sum(metric.failed),0)).where(*period))).one()
+    rows=(await db.execute(shop.select(metric).where(*period).order_by(metric.day.desc(),metric.provider).limit(1000))).scalars().all()
+    total=shop.Decimal(str(sums[0])); succeeded=int(sums[1]); failed=int(sums[2])
     return {"total_gross":str(total),"succeeded":succeeded,"failed":failed,"conversion_rate":round(succeeded/max(1,succeeded+failed),4),"providers":[{"provider":r.provider,"day":r.day,"attempts":r.attempts,"succeeded":r.succeeded,"failed":r.failed,"refunded":r.refunded,"gross":str(r.gross_amount),"fees":str(r.fees_amount),"net":str(r.net_amount)} for r in rows]}
 
 @shop.app.post("/api/admin/payments/{payment_id}/risk/recheck")
@@ -358,8 +363,9 @@ async def create_corporate(payload:CorporateIn,db:AsyncSession=Depends(get_db),a
     row=shop.CorporateAccount(owner_user_id=admin.id,name=payload.name,country=payload.country.upper(),vat_id=payload.vat_id,payment_terms_days=payload.payment_terms_days,credit_limit=payload.credit_limit); db.add(row); await db.commit(); await db.refresh(row); return {"id":row.id,"name":row.name,"vat_id":row.vat_id}
 
 @shop.app.get("/api/admin/corporate-accounts")
-async def list_corporate(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):
-    rows=(await db.execute(shop.select(shop.CorporateAccount).order_by(shop.CorporateAccount.id.desc()))).scalars().all(); return [{"id":x.id,"owner_user_id":x.owner_user_id,"name":x.name,"country":x.country,"vat_id":x.vat_id,"terms_days":x.payment_terms_days,"credit_limit":str(x.credit_limit),"enabled":x.enabled} for x in rows]
+async def list_corporate(response:shop.Response,page:Page=Depends(page_params),db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):
+    stmt=shop.select(shop.CorporateAccount).order_by(shop.CorporateAccount.id.desc()); await set_total(response,db,stmt)
+    rows=(await db.execute(page.apply(stmt))).scalars().all(); return [{"id":x.id,"owner_user_id":x.owner_user_id,"name":x.name,"country":x.country,"vat_id":x.vat_id,"terms_days":x.payment_terms_days,"credit_limit":str(x.credit_limit),"enabled":x.enabled} for x in rows]
 
 class PriceExperimentIn(BaseModel):
     key:str=Field(min_length=2,max_length=64); rules:dict; enabled:bool=False

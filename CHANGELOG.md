@@ -1,3 +1,20 @@
+# v28.59.0
+
+- Единая бизнес-логика (этап 5): места в семейной и корпоративной подписке выдаёт `seat_access.py`
+  (`grant_seat`, `end_seat`) вместо двух одинаковых блоков в `growth.py` и `corporate.py`. Тест
+  `tests/test_single_business_logic.py` закрепляет, какие модули создают и продлевают пользователей Remnawave,
+  и что каждая оплата подтверждается одной функцией `_confirm_and_fulfill_payment`.
+- Непредвиденная ошибка отвечает JSON `{"detail", "request_id"}` вместо текста «Internal Server Error»; причина
+  пишется в журнал с тем же `request_id`.
+- Страницы списков (`backend/app/pagination.py`): `limit`, `offset`, `X-Total-Count` у `/api/admin/corporate-accounts`
+  и `/api/admin/enterprise/campaigns`. `/api/admin/payments/analytics` считает суммы в базе и принимает `?days=`.
+- Отчёт «Целостность данных» (`GET /api/admin/integrity`, «Аналитика → Запуск и оповещения»): записи без клиента, подписки,
+  платежа или тарифа по 16 связям.
+- Разбор отчётов DMARC через `defusedxml`. Синоним `Subscription.remnawave_user_id` для колонки `remnawave_uuid`.
+- Документация: `docs/ru/new/API.md`, `BACKEND_ARCHITECTURE.md`, `DATABASE_SCHEMA.md` (генерируется
+  `scripts/generate-db-schema.py`); в `docs/API_ENDPOINTS.md` добавлена колонка «Доступ».
+- Миграций нет: head `0089_index_cleanup`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_59_0.md](docs/ru/RELEASE_V28_59_0.md).
+
 # v28.58.0
 
 - Админ-панель, кабинет и Mini App: успешный ответ API, который не JSON (обычно `index.html` при неверно
