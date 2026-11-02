@@ -1,3 +1,18 @@
+# v28.62.0
+
+- System Control Center (дополнение к этапу 6 по новой редакции задания): «Аналитика → Состояние системы»
+  (`GET /api/admin/health/summary`, `backend/app/system_status.py`) показывает 14 проверок — backend, интерфейсы
+  (админка, кабинет, Mini App), PostgreSQL, миграции, Redis, Remnawave, узлы, Caddy, сертификаты TLS (проверка
+  цепочки, предупреждение за 14 дней), платежи, фоновые задачи, резервные копии, Telegram-бот, обновления.
+  У каждой проверки статус `ok`/`warn`/`error`/`off`, причина, раздел панели и свой предел времени; секреты и
+  ответы внешних сервисов в ответ не попадают. Ответ GitHub о выпусках хранится час.
+- Документы: `docs/ru/new/ADMIN_PANEL_GUIDE.md`, `docs/ru/new/ADMIN_MODULES.md` (генерируется
+  `scripts/generate-admin-matrix.py`), `docs/ru/new/RBAC.md` (таблица прав сверяется с кодом
+  `tests/test_rbac_doc.py`).
+- Тесты: `tests/test_system_status.py` (включая настоящую TLS-проверку самоподписанного сертификата),
+  `admin/e2e/system-status.spec.ts`.
+- Миграций нет: head `0089_index_cleanup`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_62_0.md](docs/ru/RELEASE_V28_62_0.md).
+
 # v28.61.0
 
 - Интерфейс (этап 7): раздел «Серверы» с 11 блоками разделён на «Серверы», «Remnawave: панель» (профили, хосты,

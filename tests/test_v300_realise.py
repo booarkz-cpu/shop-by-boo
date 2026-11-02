@@ -60,7 +60,9 @@ async def test_health_summary_does_not_show_internal_errors(database, monkeypatc
     monkeypatch.setattr(shop, "RemnawaveClient", Down)
     monkeypatch.setattr(shop, "redis_client", None)
     out = await shop.health_summary(database, SimpleNamespace(email="a@b.c"))
-    assert {"name": "Remnawave", "status": "error", "error": "unavailable"} in out["checks"]
+    remnawave = next(c for c in out["checks"] if c["name"] == "Remnawave")
+    # v28.62.0: a check also carries key, detail and tab (System Control Center); the reason stays generic.
+    assert {"name": "Remnawave", "status": "error", "error": "unavailable"}.items() <= remnawave.items()
     assert "SECRET" not in str(out) and "10.0.0.5" not in str(out)
 
 

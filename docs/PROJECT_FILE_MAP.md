@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.61.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.62.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2041**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2050**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -131,6 +131,7 @@
 | [admin/e2e/plugins.spec.ts](../admin/e2e/plugins.spec.ts) | Админ-панель |
 | [admin/e2e/preferences-help.spec.ts](../admin/e2e/preferences-help.spec.ts) | Админ-панель |
 | [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
+| [admin/e2e/system-status.spec.ts](../admin/e2e/system-status.spec.ts) | Админ-панель |
 | [admin/index.html](../admin/index.html) | Админ-панель |
 | [admin/next.config.mjs](../admin/next.config.mjs) | Админ-панель |
 | [admin/nginx.conf](../admin/nginx.conf) | Админ-панель |
@@ -219,6 +220,7 @@
 | [admin/src/support-desk.tsx](../admin/src/support-desk.tsx) | Админ-панель |
 | [admin/src/support-topology.tsx](../admin/src/support-topology.tsx) | Админ-панель |
 | [admin/src/surveys.tsx](../admin/src/surveys.tsx) | Админ-панель |
+| [admin/src/system-status.tsx](../admin/src/system-status.tsx) | Админ-панель |
 | [admin/src/tailwind.css](../admin/src/tailwind.css) | Админ-панель |
 | [admin/src/terminal-screen.ts](../admin/src/terminal-screen.ts) | Админ-панель |
 | [admin/src/theme.css](../admin/src/theme.css) | Админ-панель |
@@ -543,6 +545,7 @@
 | [backend/app/support_threads.py](../backend/app/support_threads.py) | API, бот и worker |
 | [backend/app/support_topology.py](../backend/app/support_topology.py) | API, бот и worker |
 | [backend/app/surveys.py](../backend/app/surveys.py) | API, бот и worker |
+| [backend/app/system_status.py](../backend/app/system_status.py) | API, бот и worker |
 | [backend/app/tariff_api.py](../backend/app/tariff_api.py) | API, бот и worker |
 | [backend/app/telegram_backup.py](../backend/app/telegram_backup.py) | API, бот и worker |
 | [backend/app/telegram_stars.py](../backend/app/telegram_stars.py) | API, бот и worker |
@@ -1130,6 +1133,7 @@
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_60_0.md](../docs/ru/RELEASE_V28_60_0.md) | Документация |
 | [docs/ru/RELEASE_V28_61_0.md](../docs/ru/RELEASE_V28_61_0.md) | Документация |
+| [docs/ru/RELEASE_V28_62_0.md](../docs/ru/RELEASE_V28_62_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1211,6 +1215,8 @@
 | [docs/ru/modules/30-backups-recovery.md](../docs/ru/modules/30-backups-recovery.md) | Документация |
 | [docs/ru/modules/README.md](../docs/ru/modules/README.md) | Документация |
 | [docs/ru/new/ADMIN_CONTROL_MATRIX.md](../docs/ru/new/ADMIN_CONTROL_MATRIX.md) | Документация |
+| [docs/ru/new/ADMIN_MODULES.md](../docs/ru/new/ADMIN_MODULES.md) | Документация |
+| [docs/ru/new/ADMIN_PANEL_GUIDE.md](../docs/ru/new/ADMIN_PANEL_GUIDE.md) | Документация |
 | [docs/ru/new/API.md](../docs/ru/new/API.md) | Документация |
 | [docs/ru/new/BACKEND_ARCHITECTURE.md](../docs/ru/new/BACKEND_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/BUGFIX_LOG.md](../docs/ru/new/BUGFIX_LOG.md) | Документация |
@@ -1221,6 +1227,7 @@
 | [docs/ru/new/IMPLEMENTATION_STATUS.md](../docs/ru/new/IMPLEMENTATION_STATUS.md) | Документация |
 | [docs/ru/new/KNOWN_LIMITATIONS.md](../docs/ru/new/KNOWN_LIMITATIONS.md) | Документация |
 | [docs/ru/new/PERFORMANCE_AUDIT.md](../docs/ru/new/PERFORMANCE_AUDIT.md) | Документация |
+| [docs/ru/new/RBAC.md](../docs/ru/new/RBAC.md) | Документация |
 | [docs/ru/new/README.md](../docs/ru/new/README.md) | Документация |
 | [docs/ru/new/REGRESSION_TESTS.md](../docs/ru/new/REGRESSION_TESTS.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
@@ -1939,6 +1946,7 @@
 | [tests/test_push.py](../tests/test_push.py) | Проверки |
 | [tests/test_push_campaigns.py](../tests/test_push_campaigns.py) | Проверки |
 | [tests/test_push_style.py](../tests/test_push_style.py) | Проверки |
+| [tests/test_rbac_doc.py](../tests/test_rbac_doc.py) | Проверки |
 | [tests/test_reconciliation.py](../tests/test_reconciliation.py) | Проверки |
 | [tests/test_referral_bonus_days.py](../tests/test_referral_bonus_days.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
@@ -1966,6 +1974,7 @@
 | [tests/test_support_postgres.py](../tests/test_support_postgres.py) | Проверки |
 | [tests/test_support_topology.py](../tests/test_support_topology.py) | Проверки |
 | [tests/test_surveys.py](../tests/test_surveys.py) | Проверки |
+| [tests/test_system_status.py](../tests/test_system_status.py) | Проверки |
 | [tests/test_torrent_detection.py](../tests/test_torrent_detection.py) | Проверки |
 | [tests/test_traffic_analysis.py](../tests/test_traffic_analysis.py) | Проверки |
 | [tests/test_tribute.py](../tests/test_tribute.py) | Проверки |

@@ -34,7 +34,7 @@ export const SECTION_GROUPS = [
       {tab: "retention", label: "Удержание клиентов", description: "Когорты по месяцу первой оплаты, повторные покупки, LTV и причины отмены подписки.", keywords: "ltv когорты отток churn retention"},
       {tab: "financial", label: "Финансовый журнал", description: "Неизменяемый журнал всех денежных операций: оплаты, возвраты, бонусы и выплаты.", keywords: "ledger бухгалтерия"},
       {tab: "opsReadiness", label: "Запуск и оповещения", description: "Что осталось настроить перед приёмом оплат и куда приходят оповещения о сбоях.", keywords: "готовность запуск алерты оповещения telegram"},
-      {tab: "health", label: "Состояние системы", description: "Работают ли API, база данных, Redis, Remnawave и фоновые процессы.", keywords: "health здоровье"},
+      {tab: "health", label: "Состояние системы", description: "Состояние всех частей: backend, интерфейсы, база и миграции, Redis, Remnawave, узлы, Caddy и сертификаты, платежи, бот, фоновые задачи, резервные копии и обновления.", keywords: "health здоровье system control center tls caddy сертификаты"},
       {tab: "incidents", label: "Инциденты", description: "Сбои и проблемы: открыть инцидент, отметить решение, посмотреть историю.", keywords: "аварии"},
     ],
   },
