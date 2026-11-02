@@ -1,3 +1,17 @@
+# v28.64.0
+
+- Актуальные версии (задача владельца): Python 3.12 → 3.14.10, Node.js 22 → 26.13 LTS, Redis 7.4 → 8.10.3
+  (магазин и Support Pro), Caddy 2.10 → 2.11.7, nginx 1.29 → 1.30.6 (теперь закреплён по digest);
+  PostgreSQL 18.6 — последняя стабильная.
+- Библиотеки Python: FastAPI 0.162, Starlette 1.10, redis 8.1, reportlab 5.1, maxminddb 3.2, boto3,
+  pydantic-settings, python-multipart, pytest 9.2. npm: Next.js 16.4.4, vitest 5.1, lucide-react, `@types/node` 26.
+- Android: AGP 9.5 (встроенный Kotlin), Kotlin 2.4.21, Gradle 9.8.2, JDK сборки 21, compileSdk 37 / targetSdk 36,
+  Compose BOM 2026.09 и библиотеки AndroidX/Firebase. iOS: сборка компилятором Swift 6, режим языка Swift 5 — перевод кода на Swift 6 на этапе 17.
+- `scripts/repin-images.sh` в обновлении: закреплённые в `.env` образы Redis и Caddy переходят на версии выпуска
+  (`KEEP_PINNED_IMAGES=1` — оставить свои). `.github/workflows/resolve-image-digests.yml` печатает digest образов
+  и версии инструментов Android.
+- Миграций нет: head `0089_index_cleanup`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_64_0.md](docs/ru/RELEASE_V28_64_0.md).
+
 # v28.63.0
 
 - Личный кабинет (этап 8):

@@ -28,7 +28,7 @@ updates:
     groups:
       admin-minor: {update-types: [minor, patch]}
     ignore:
-      # Types must match the runtime: images and CI use Node 22.
+      # Types must match the runtime: images and CI use Node 26.
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
   - package-ecosystem: npm
@@ -38,7 +38,7 @@ updates:
     groups:
       cabinet-minor: {update-types: [minor, patch]}
     ignore:
-      # Types must match the runtime: images and CI use Node 22.
+      # Types must match the runtime: images and CI use Node 26.
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
   - package-ecosystem: docker

@@ -1,6 +1,6 @@
 services:
   volume_init:
-    image: ${REDIS_IMAGE:-redis:7.4-alpine@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499}
+    image: ${REDIS_IMAGE:-redis:8.10-alpine@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537}
     user: "0:0"
     restart: "no"
     entrypoint: ["sh", "-c", "chown -R 10001:10001 /owned"]
@@ -17,7 +17,7 @@ services:
       - caddy_config:/owned/caddy-config
 
   redis:
-    image: ${REDIS_IMAGE:-redis:7.4-alpine@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499}
+    image: ${REDIS_IMAGE:-redis:8.10-alpine@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537}
     restart: unless-stopped
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
@@ -59,7 +59,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9}
+        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966}
     networks:
       default: {}
       ingress:
@@ -122,7 +122,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9}
+        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-m", "app.heartbeat", "worker", "120"]
@@ -169,7 +169,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9}
+        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-m", "app.heartbeat", "mail_receiver", "120"]
@@ -207,7 +207,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.bot
       args:
-        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9}
+        PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-m", "app.heartbeat", "bot", "120"]
@@ -237,8 +237,8 @@ services:
       context: .
       dockerfile: admin/Dockerfile
       args:
-        NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402}
-        NGINX_BASE_IMAGE: ${NGINX_BASE_IMAGE:-nginx:1.29-alpine}
+        NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94}
+        NGINX_BASE_IMAGE: ${NGINX_BASE_IMAGE:-nginx:1.30-alpine@sha256:0e52bd054126cdc040b1276c0af347aeb02a41b9cfe305d6094767ac30e97949}
         VITE_API_URL: ""
     user: "101:101"
     cap_drop: [ALL]
@@ -273,8 +273,8 @@ services:
       context: .
       dockerfile: miniapp/Dockerfile
       args:
-        NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402}
-        NGINX_BASE_IMAGE: ${NGINX_BASE_IMAGE:-nginx:1.29-alpine}
+        NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94}
+        NGINX_BASE_IMAGE: ${NGINX_BASE_IMAGE:-nginx:1.30-alpine@sha256:0e52bd054126cdc040b1276c0af347aeb02a41b9cfe305d6094767ac30e97949}
         VITE_API_URL: ""
     user: "101:101"
     cap_drop: [ALL]
@@ -308,8 +308,8 @@ services:
     build:
       context: ./cabinet
       args:
-        NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402}
-        NGINX_BASE_IMAGE: ${NGINX_BASE_IMAGE:-nginx:1.29-alpine}
+        NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94}
+        NGINX_BASE_IMAGE: ${NGINX_BASE_IMAGE:-nginx:1.30-alpine@sha256:0e52bd054126cdc040b1276c0af347aeb02a41b9cfe305d6094767ac30e97949}
         VITE_API_URL: ""
     user: "101:101"
     cap_drop: [ALL]
@@ -357,7 +357,7 @@ services:
       - no-new-privileges:true
 
   support_redis:
-    image: redis:7-alpine@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
+    image: redis:8.10-alpine@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537
     restart: unless-stopped
     environment:
       REDIS_PASSWORD: ${SUPPORT_REDIS_PASSWORD:?set SUPPORT_REDIS_PASSWORD in .env}
@@ -473,7 +473,7 @@ services:
     build:
       context: ./deploy/caddy
       args:
-        CADDY_BASE_IMAGE: ${CADDY_IMAGE:-caddy:2.10-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d}
+        CADDY_BASE_IMAGE: ${CADDY_IMAGE:-caddy:2.11-alpine@sha256:e70b164da81ef698b3ad19af799ea6086ce6d9e48ed4079eb9fe26f6fbf14ee5}
     networks:
       default: {}
       ingress:

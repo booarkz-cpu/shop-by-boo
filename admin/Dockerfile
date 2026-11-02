@@ -1,5 +1,5 @@
-ARG NODE_BASE_IMAGE=node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
-ARG NGINX_BASE_IMAGE=nginx:1.29-alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
+ARG NODE_BASE_IMAGE=node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94
+ARG NGINX_BASE_IMAGE=nginx:1.30-alpine@sha256:0e52bd054126cdc040b1276c0af347aeb02a41b9cfe305d6094767ac30e97949
 FROM ${NODE_BASE_IMAGE} AS build
 # VITE_API_URL is the historical Compose build argument; Next.js reads NEXT_PUBLIC_API_URL.
 ARG VITE_API_URL=""

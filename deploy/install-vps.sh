@@ -458,9 +458,9 @@ resolve_build(){
   [[ "$digest" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]] || die "Не получен immutable digest для $image"
   printf '%s\n' "$digest"
 }
-PYTHON_BASE_IMAGE="$(resolve_build python:3.12-slim)"
-NODE_BASE_IMAGE="$(resolve_build node:22-alpine)"
-NGINX_BASE_IMAGE="$(resolve_build nginx:1.29-alpine)"
+PYTHON_BASE_IMAGE="$(resolve_build python:3.14-slim)"
+NODE_BASE_IMAGE="$(resolve_build node:26-alpine)"
+NGINX_BASE_IMAGE="$(resolve_build nginx:1.30-alpine)"
 log "Генерирую frontend lock-файлы автоматически (ручное редактирование не требуется)..."
 for app in admin miniapp cabinet; do
   [[ -f "$app/package.json" ]] || die "Не найден $app/package.json"

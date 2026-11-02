@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.63.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.64.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2058**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2062**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -72,6 +72,7 @@
 | [.github/workflows/payments-acceptance.yml](../.github/workflows/payments-acceptance.yml) | GitHub CI/CD |
 | [.github/workflows/publish-release.yml](../.github/workflows/publish-release.yml) | GitHub CI/CD |
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
+| [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -1140,6 +1141,7 @@
 | [docs/ru/RELEASE_V28_61_0.md](../docs/ru/RELEASE_V28_61_0.md) | Документация |
 | [docs/ru/RELEASE_V28_62_0.md](../docs/ru/RELEASE_V28_62_0.md) | Документация |
 | [docs/ru/RELEASE_V28_63_0.md](../docs/ru/RELEASE_V28_63_0.md) | Документация |
+| [docs/ru/RELEASE_V28_64_0.md](../docs/ru/RELEASE_V28_64_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1703,6 +1705,7 @@
 | [scripts/pin-images.sh](../scripts/pin-images.sh) | Эксплуатация и релиз |
 | [scripts/preflight.sh](../scripts/preflight.sh) | Эксплуатация и релиз |
 | [scripts/publish-github-release.cjs](../scripts/publish-github-release.cjs) | Эксплуатация и релиз |
+| [scripts/repin-images.sh](../scripts/repin-images.sh) | Эксплуатация и релиз |
 | [scripts/rollback.sh](../scripts/rollback.sh) | Эксплуатация и релиз |
 | [scripts/rotate-secrets.sh](../scripts/rotate-secrets.sh) | Эксплуатация и релиз |
 | [scripts/sandbox-e2e.sh](../scripts/sandbox-e2e.sh) | Эксплуатация и релиз |
@@ -1963,6 +1966,7 @@
 | [tests/test_remnawave_contract.py](../tests/test_remnawave_contract.py) | Проверки |
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
+| [tests/test_repin_images.py](../tests/test_repin_images.py) | Проверки |
 | [tests/test_route_authorization.py](../tests/test_route_authorization.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |

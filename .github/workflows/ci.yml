@@ -37,7 +37,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis:
-        image: redis:7.4-alpine
+        image: redis:8.10-alpine
         ports:
           - 6379:6379
         options: >-
@@ -67,7 +67,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.14"
           cache: pip
           cache-dependency-path: backend/requirements.txt
       - name: Install dependencies
@@ -91,7 +91,7 @@ jobs:
       - name: Setup Node for release publisher checks
         uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version: "26"
       - name: Release publisher invariants
         run: node --test tests/release-publisher.test.cjs tests/dependabot-automerge.test.cjs
       - name: Terminal screen model
@@ -133,10 +133,10 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.14"
       - name: ruff (ruff.toml)
         run: |
-          pip install ruff==0.14.2
+          pip install ruff==0.17.3
           ruff check backend scripts tests --output-format github
       - name: Shell scripts parse
         run: |
@@ -152,7 +152,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.14"
           # Cached downloads: the job installs the same backend requirements on every run.
           cache: pip
           cache-dependency-path: |
@@ -160,7 +160,7 @@ jobs:
             backend/requirements-test.txt
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version: "26"
           cache: npm
           cache-dependency-path: |
             admin/package-lock.json
@@ -210,7 +210,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.14"
       - name: Install and test
         working-directory: support-pro
         run: |
@@ -224,10 +224,10 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.14"
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version: "26"
       - name: Python dependencies
         run: |
           python -m pip install pip-audit
@@ -260,7 +260,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version: "26"
           cache: npm
           cache-dependency-path: ${{ matrix.app }}/package-lock.json
       - name: Install
@@ -393,7 +393,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - uses: android-actions/setup-android@v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
@@ -412,7 +412,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - uses: android-actions/setup-android@v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
@@ -444,7 +444,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - uses: android-actions/setup-android@v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
