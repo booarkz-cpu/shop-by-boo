@@ -55,6 +55,10 @@ def unwrap(body):
 class RemnawaveCircuitOpen(RemnawaveError):
     """Remote calls are temporarily blocked after repeated failures."""
 
+class RemnawaveNotConfigured(RemnawaveError):
+    """REMNAWAVE_URL is empty or not an http(s) address: nothing was sent (v28.61.0)."""
+
+
 class RemnawaveClient:
     _shared_client: httpx.AsyncClient | None = None
     _client_lock: asyncio.Lock | None = None
@@ -93,6 +97,10 @@ class RemnawaveClient:
         cls._shared_client = None
 
     async def _request(self,method,path,**kwargs):
+        # v28.61.0: without an address the request used to fail inside httpx («missing an 'http://' protocol»)
+        # and reached the admin panel as an internal error; now it is a clear «not configured» answer.
+        if not self.base.startswith(("http://","https://")):
+            raise RemnawaveNotConfigured("Remnawave is not configured: set REMNAWAVE_URL and REMNAWAVE_TOKEN")
         # Redis-backed circuit breaker prevents retry storms when Remnawave is unavailable.
         from .main import redis_client
         fail_key="rw:cb:fail"; open_key="rw:cb:open"

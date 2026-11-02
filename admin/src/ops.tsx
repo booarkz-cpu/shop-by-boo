@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {LoadState} from "./components/ui/state";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 
@@ -22,7 +23,7 @@ export function OpsReadiness({request, toast}: {request: Request; toast: (m: str
     try { const r = await request("/api/admin/ops/alerts/test", {method: "POST"}); toast(r.ok ? "Тестовое оповещение отправлено" : "Не удалось отправить: проверьте бота и chat ID"); }
     catch (e: any) { setError(e.message); } finally { setBusy(false); }
   }
-  if (!ready || !alerts) return <div className="card">{error ? <div role="alert" className="error">{error}</div> : <p className="muted">Загрузка…</p>}</div>;
+  if (!ready || !alerts) return <LoadState error={error} onRetry={load}/>;
   return <div className="ops">
     <div className="card">
       <h3>{ready.ready ? "Магазин готов к приёму оплат" : "Перед запуском осталось"}</h3>

@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {EmptyState, LoadState} from "./components/ui/state";
 import {sectionInfo} from "./sections";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
@@ -13,8 +14,9 @@ const OPS: [string, string][] = [
 export function ControlCenter({request, navigate}: {request: Request; navigate: (tab: string) => void}) {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState("");
-  useEffect(() => { request("/api/admin/control-center").then(setData).catch((e: any) => setError(e.message)); }, []);
-  if (!data) return <div className="card">{error ? <div role="alert" className="error">{error}</div> : <p className="muted">Загрузка…</p>}</div>;
+  const load = () => { setError(""); request("/api/admin/control-center").then(setData).catch((e: any) => setError(e.message)); };
+  useEffect(load, []);
+  if (!data) return <LoadState error={error} onRetry={load}/>;
   const ready = data.modules.filter((m: any) => !m.missing).length;
   return <div className="card table-card" data-control-center>
     <h3>Админ-центр</h3>
@@ -40,8 +42,9 @@ export function ControlCenter({request, navigate}: {request: Request; navigate: 
 export function RolesMatrix({request}: {request: Request}) {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState("");
-  useEffect(() => { request("/api/admin/roles").then(setData).catch((e: any) => setError(e.message)); }, []);
-  if (!data) return error ? <div className="card"><div role="alert" className="error">{error}</div></div> : null;
+  const load = () => { setError(""); request("/api/admin/roles").then(setData).catch((e: any) => setError(e.message)); };
+  useEffect(load, []);
+  if (!data) return <LoadState error={error} onRetry={load} label="Загрузка прав ролей…"/>;
   return <div className="card table-card" data-roles-matrix>
     <h3>Права ролей</h3>
     <p className="muted">Роль администратора выбирается выше, в списке администраторов. Набор прав каждой роли задан в коде магазина и одинаков на всех установках. Ваша роль: <b>{data.your_role}</b>.</p>
@@ -97,7 +100,7 @@ export function AuditLog({request}: {request: Request}) {
         <tbody>{rows.map((x: any) => <tr key={x.id}><td>{x.created_at}</td><td>{x.actor}</td><td><code>{x.action}</code></td><td>{x.target || "—"}</td></tr>)}</tbody>
       </table>
     </div>
-    {!rows.length && !error && <p className="muted">Ничего не найдено.</p>}
+    {!rows.length && !error && <EmptyState title="Ничего не найдено." hint="Измените условия поиска или очистите поля."/>}
     <div className="btn-row">
       <button disabled={page <= 1} onClick={() => load(page - 1)}>Назад</button>
       <span className="muted">Страница {page}</span>

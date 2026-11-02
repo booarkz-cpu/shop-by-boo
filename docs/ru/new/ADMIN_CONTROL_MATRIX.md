@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.60.0
+# Управляемость из админки — v28.61.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -18,16 +18,16 @@
 | 8 | Promo Codes | Акции и рассылки, Группы и предложения | 14 | ✓ | ✓ | ✓ | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
 | 9 | Gifts | Подарки | 6 | ✓ | ✓ | · | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
 | 10 | Referrals | Рефералы и партнёры | 13 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `referrals.read`, `referrals.reconcile`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `referrals.withdrawals.read` | IMPLEMENTED |
-| 11 | Remnawave | Серверы | 27 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `manage_users`, `ops.diagnostics`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | IMPLEMENTED |
+| 11 | Remnawave | Remnawave: панель, Серверы | 27 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `manage_users`, `ops.diagnostics`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | IMPLEMENTED |
 | 12 | Installation | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 10: Installation Wizard) |
 | 13 | Servers | Серверы, Планирование мощности, Оркестратор | 9 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | `ops.diagnostics`, `provision_nodes`, `settings.runtime.write` | IMPLEMENTED |
 | 14 | Nodes | Серверы, Терминал узлов, Торренты на узлах | 31 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
 | 15 | Domains | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 11: менеджер доменов) |
 | 16 | Certificates | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 11: сертификаты) |
 | 17 | Reverse Proxy | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 11: Reverse Proxy (общий Caddy)) |
-| 18 | Subscription Portal | Серверы | 9 | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | IMPLEMENTED |
+| 18 | Subscription Portal | Портал подписки | 9 | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | IMPLEMENTED |
 | 19 | Node Extensions | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 12: менеджер расширений Remnawave) |
-| 20 | Monitoring | Мониторинг, Состояние системы, Запуск и оповещения, Инциденты | 17 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `ops.diagnostics`, `read`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `settings.runtime.write` | IMPLEMENTED |
+| 20 | Monitoring | Мониторинг, Состояние системы, Запуск и оповещения, Инциденты, Доступность и качество | 17 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `ops.diagnostics`, `read`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `settings.runtime.write` | IMPLEMENTED |
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | IMPLEMENTED |
 | 22 | Updates | Обновления, Развёртывания | 9 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `ops.releases`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 23 | Automation | Автоматизация, Очередь задач, Фоновые процессы | 8 | ✓ | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | `feature_flags.manage`, `manage_marketing`, `payments.retry`, `read` | IMPLEMENTED |
