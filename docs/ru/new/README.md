@@ -22,6 +22,8 @@
 | Аудит безопасности | [SECURITY_AUDIT.md](SECURITY_AUDIT.md) |
 | Аудит производительности | [PERFORMANCE_AUDIT.md](PERFORMANCE_AUDIT.md) |
 | Реестр ошибок | [BUG_REGISTRY.md](BUG_REGISTRY.md) |
+| Журнал исправлений | [BUGFIX_LOG.md](BUGFIX_LOG.md) |
+| Regression-тесты | [REGRESSION_TESTS.md](REGRESSION_TESTS.md) |
 | Известные ограничения | [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) |
 
 Передача смены — [docs/MASTER_EXECUTION_HANDOFF.md](../../MASTER_EXECUTION_HANDOFF.md).

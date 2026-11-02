@@ -1,4 +1,5 @@
 import {Button} from "./components/ui/button";
+import {readJsonBody} from "../../cabinet/src/http-json";
 import {FieldHints} from "./components/field-hints";
 import {PreferencesMenu,LanguageMenu} from "./components/preferences-menu";
 import {TooltipProvider} from "./components/ui/tooltip";
@@ -76,7 +77,7 @@ const STATUS_RU:any={pending:"ожидает",processing:"обрабатывае
 function csrf(){return decodeURIComponent(document.cookie.split('; ').find(x=>x.startsWith('rw_csrf='))?.split('=')[1]||'')}
 /** Server error as a readable sentence: FastAPI validation lists become "field: reason; …". */
 export function errorText(d:any,status:number):string{if(typeof d?.detail==="string")return d.detail;if(typeof d?.detail?.message==="string")return d.detail.message;if(Array.isArray(d?.detail)&&d.detail.length){return d.detail.slice(0,3).map((e:any)=>{const msg=String(e?.msg||"").replace(/^Value error, /,"").replace(/^Assertion failed, /,"");const field=(e?.loc||[]).filter((x:any)=>x!=="body"&&typeof x!=="number").slice(-1)[0];return field&&!msg.includes(String(field))?`${field}: ${msg}`:msg}).filter(Boolean).join("; ")||`HTTP ${status}`}return `HTTP ${status}`}
-async function req(path:string,opts:RequestInit={},token?:string){const method=(opts.method||'GET').toString().toUpperCase();const h:any={...(opts.headers||{})};if(!(opts.body instanceof FormData))h["Content-Type"]="application/json";if(token)h.Authorization=`Bearer ${token}`;if(method!=="GET")h["X-CSRF-Token"]=csrf();const r=await fetch(API+path,{...opts,headers:h,credentials:"include"});let d:any={};try{d=await r.json()}catch{}if(!r.ok)throw Object.assign(Error(errorText(d,r.status)),{status:r.status});return d}
+async function req(path:string,opts:RequestInit={},token?:string){const method=(opts.method||'GET').toString().toUpperCase();const h:any={...(opts.headers||{})};if(!(opts.body instanceof FormData))h["Content-Type"]="application/json";if(token)h.Authorization=`Bearer ${token}`;if(method!=="GET")h["X-CSRF-Token"]=csrf();const r=await fetch(API+path,{...opts,headers:h,credentials:"include"});const d:any=await readJsonBody(r,path);if(!r.ok)throw Object.assign(Error(errorText(d,r.status)),{status:r.status});return d}
 type Branding={name:string;logo_url:string;favicon_url:string;theme_default:"light"|"dark"};
 const DEFAULT_BRANDING:Branding={name:"VPN Shop by Corgi",logo_url:"",favicon_url:"",theme_default:"light"};
 function normalizeBranding(v:any):Branding{const x=v&&typeof v==="object"?v:{};return{name:typeof x.name==="string"?x.name:DEFAULT_BRANDING.name,logo_url:typeof x.logo_url==="string"?x.logo_url:"",favicon_url:typeof x.favicon_url==="string"?x.favicon_url:"",theme_default:x.theme_default==="dark"?"dark":"light"}}

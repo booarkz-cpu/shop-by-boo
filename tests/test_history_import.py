@@ -28,8 +28,8 @@ PAYMENTS = (
     ("p-4", 8, "199.00", "pending", "2025-03-03T00:00:00"),
 )
 SUBSCRIPTIONS = (
-    (7, FUTURE.isoformat(), "11111111-aaaa-4bbb-8ccc-000000000001", "https://sub.example/a", "Plus"),
-    (8, PAST.isoformat(), "11111111-aaaa-4bbb-8ccc-000000000002", None, "Legacy"),
+    (7, FUTURE.isoformat(), "110001", "https://sub.example/a", "Plus"),
+    (8, PAST.isoformat(), "110002", None, "Legacy"),
 )
 
 
@@ -127,10 +127,10 @@ async def test_apply_creates_history_and_subscriptions_without_revenue(database,
     assert result["paid_total"] == "698.00"
     assert await count(database, Payment) == payments_before
     anna = users[9001]
-    active = await database.scalar(select(Subscription).where(Subscription.remnawave_uuid == "11111111-aaaa-4bbb-8ccc-000000000001"))
+    active = await database.scalar(select(Subscription).where(Subscription.remnawave_uuid == "110001"))
     assert active.user_id == anna.id and active.is_primary is True and active.lifecycle_status == "active"
     assert active.plan_id == 2 and active.traffic_limit_gb_snapshot == 200 and active.subscription_url == "https://sub.example/a"
-    expired = await database.scalar(select(Subscription).where(Subscription.remnawave_uuid == "11111111-aaaa-4bbb-8ccc-000000000002"))
+    expired = await database.scalar(select(Subscription).where(Subscription.remnawave_uuid == "110002"))
     assert expired.lifecycle_status == "expired" and expired.plan_id == 1  # unknown tariff -> default plan
     paid = await database.scalar(select(ImportedPayment).where(ImportedPayment.source_payment_id == "p-2"))
     assert paid.paid_at == datetime(2025, 3, 1, 10, 0, 0) and paid.amount == Decimal("499.00")
@@ -161,14 +161,14 @@ async def test_repeat_snapshot_never_duplicates_and_changed_rows_conflict(databa
 
 @pytest.mark.asyncio
 async def test_unknown_customers_and_occupied_remnawave_profiles_block(database, tmp_path):
-    data = snapshot(tmp_path, subscriptions=SUBSCRIPTIONS + ((99, FUTURE.isoformat(), "11111111-aaaa-4bbb-8ccc-0000000000ff", None, "Plus"),))
+    data = snapshot(tmp_path, subscriptions=SUBSCRIPTIONS + ((99, FUTURE.isoformat(), "110255", None, "Plus"),))
     await import_profiles(database, data)
-    database.add(Subscription(user_id=2, plan_id=1, is_primary=True, remnawave_uuid="11111111-AAAA-4bbb-8ccc-000000000002"))
+    database.add(Subscription(user_id=2, plan_id=1, is_primary=True, remnawave_uuid="110002"))
     await database.commit()
     result = await preview(database, data, mapping(control={"payments_count": 3, "payments_total": "698.00", "subscriptions_count": 3}))
     reasons = {row["remnawave_uuid"]: row["reason"] for row in result["subscriptions"]["rows"] if row["status_import"] == "blocked"}
-    assert "Клиент не найден" in reasons["11111111-aaaa-4bbb-8ccc-0000000000ff"]
-    assert "уже привязан" in reasons["11111111-aaaa-4bbb-8ccc-000000000002"]
+    assert "Клиент не найден" in reasons["110255"]
+    assert "уже привязан" in reasons["110002"]
     assert result["can_apply"] is False
 
 
@@ -196,7 +196,7 @@ async def test_rollback_removes_job_rows_and_is_idempotent(database, tmp_path):
     assert rolled["payments_removed"] == 3 and rolled["subscriptions_removed"] == 2
     assert await count(database, ImportedPayment) == 0
     assert await count(database, ImportedSubscriptionLink) == 0
-    assert await database.scalar(select(Subscription).where(Subscription.remnawave_uuid.like("11111111-%"))) is None
+    assert await database.scalar(select(Subscription).where(Subscription.remnawave_uuid.like("1100%"))) is None
     assert (await history.rollback(result["id"], history.RollbackIn(reason="again"), database, ADMIN))["rolled_back"] is True
     # The same snapshot can be imported again after a rollback.
     reimport = await preview(database, data)
@@ -209,7 +209,7 @@ async def test_rollback_refuses_changed_or_used_subscriptions(database, tmp_path
     await import_profiles(database, data)
     result = await preview(database, data)
     await apply(database, result)
-    active = await database.scalar(select(Subscription).where(Subscription.remnawave_uuid == "11111111-aaaa-4bbb-8ccc-000000000001"))
+    active = await database.scalar(select(Subscription).where(Subscription.remnawave_uuid == "110001"))
     active.expires_at = active.expires_at + timedelta(days=30)
     await database.commit()
     with pytest.raises(HTTPException) as error:
@@ -223,9 +223,9 @@ async def test_rollback_refuses_changed_or_used_subscriptions(database, tmp_path
     ((("p-1", 7, "-5", "succeeded", None),), ()),
     ((("p-1", 7, "10", "succeeded", "yesterday"),), ()),
     ((("p-1", 7, "10", "succeeded", None), ("p-1", 7, "10", "succeeded", None)), ()),
-    ((), ((7, "2031-01-01", "11111111-aaaa-4bbb-8ccc-000000000009", "http://insecure", None),)),
+    ((), ((7, "2031-01-01", "110009", "http://insecure", None),)),
     ((), ((7, "2031-01-01", "x'; DROP", None, None),)),
-    ((), ((7, "2031-01-01", "11111111-aaaa-4bbb-8ccc-000000000009", None, None), (8, "2031-01-01", "11111111-AAAA-4bbb-8ccc-000000000009", None, None))),
+    ((), ((7, "2031-01-01", "110009", None, None), (8, "2031-01-01", "110009", None, None))),
 ])
 def test_invalid_rows_reject_the_whole_snapshot(tmp_path, payments, subscriptions):
     data = snapshot(tmp_path, payments=payments, subscriptions=subscriptions)
@@ -247,3 +247,18 @@ def test_migration_chain_points_to_runtime_settings():
     from test_matrix_extension_migrations import migration
     module = migration("0065_history_import")
     assert module.down_revision == "0064_runtime_settings"
+
+
+@pytest.mark.asyncio
+async def test_uuid_of_remnawave_2_is_blocked_with_the_reason(database, tmp_path):
+    """v28.58.0 (BUG-A7): Remnawave 3.x has no lookup by UUID and /api/users/{id} takes a number, so a UUID
+    from an old export is blocked in the preview instead of breaking the subscription after import."""
+    uuid = "11111111-aaaa-4bbb-8ccc-000000000001"
+    data = snapshot(tmp_path, subscriptions=((7, FUTURE.isoformat(), uuid, None, "Plus"), SUBSCRIPTIONS[1]))
+    await import_profiles(database, data)
+    result = await preview(database, data)
+    rows = {row["remnawave_uuid"]: row for row in result["subscriptions"]["rows"]}
+    assert rows[uuid]["status_import"] == "blocked" and "числовой id" in rows[uuid]["reason"]
+    assert rows["110002"]["status_import"] == "new"
+    assert result["can_apply"] is False
+

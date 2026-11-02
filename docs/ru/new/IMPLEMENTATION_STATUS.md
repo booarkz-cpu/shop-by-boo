@@ -1,13 +1,13 @@
 # Статус реализации по этапам
 
-Состояние на 2026-11-02. База: `main` @ `161e9b4d`, дистрибутив `v28.57.0`, миграция магазина `0088_filter_and_regions`. Этапы выполняются по одному, следующий начинается по команде владельца.
+Состояние на 2026-11-02. База: дистрибутив `v28.58.0`, миграция магазина `0089_index_cleanup` (после этапа 4). Этапы выполняются по одному, следующий начинается по команде владельца.
 
 | № | Этап | Статус | Подтверждение / что осталось |
 | --- | --- | --- | --- |
 | 1 | Инвентаризация и клонирование референсов | PASS | Выполнен 2026-11-01, перепроверен 2026-11-02 по исходникам: [STAGE_1_VERIFICATION](STAGE_1_VERIFICATION.md); исправлены 10 неточностей в числах и путях, выводы о лицензиях подтверждены |
 | 2 | Feature gap analysis | PASS | Выполнен 2026-11-02 по исходникам: [FEATURE_COMPARISON_MATRIX](FEATURE_COMPARISON_MATRIX.md) (45 функций в трёх группах), [REMNAWAVE_FEATURE_MATRIX](REMNAWAVE_FEATURE_MATRIX.md). Нет 11 функций, частично — 5; дубликатов не планируется. PASS относится к анализу, а не к функциям |
 | 3 | Полный технический аудит | PASS | Выполнен 2026-11-02: [FULL_TECHNICAL_AUDIT](FULL_TECHNICAL_AUDIT.md), [SECURITY_AUDIT](SECURITY_AUDIT.md), [PERFORMANCE_AUDIT](PERFORMANCE_AUDIT.md), [BUG_REGISTRY](BUG_REGISTRY.md). Высоких уязвимостей нет; 9 технических находок, 6 по безопасности (2 средних), 4 по производительности; 7 новых записей в реестре ошибок. Вызовы Remnawave сверены с контрактом 3.4.15 (последний backend 3.4.7). Проверки со стендом, доменом и ключами — `BLOCKED_*` |
-| 4 | Исправление ошибок | NOT_STARTED | BUGFIX_LOG, REGRESSION_TESTS |
+| 4 | Исправление ошибок | PASS | Выпуск v28.58.0 (2026-11-02): [BUGFIX_LOG](BUGFIX_LOG.md), [REGRESSION_TESTS](REGRESSION_TESTS.md). Исправлено 11 записей реестра (BUG-H1–H3, A1–A7, T1) и добавлен тест проверки вызывающего (SEC-05); миграция `0089_index_cleanup`; 11 новых или изменённых наборов тестов. Перенесено на этапы 5, 6, 13: внешние ключи, переименование `remnawave_uuid`, пагинация, `defusedxml`, лимиты памяти, разбиение `admin/src/main.tsx` |
 | 5 | Backend и единая бизнес-логика | NOT_STARTED | API, BACKEND_ARCHITECTURE, DATABASE_SCHEMA |
 | 6 | Единая административная панель | NOT_STARTED | [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), ADMIN_PANEL_GUIDE, ADMIN_MODULES, RBAC |
 | 7 | UI/UX redesign | NOT_STARTED | UI_UX_GUIDE |

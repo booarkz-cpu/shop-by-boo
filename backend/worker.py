@@ -1,6 +1,6 @@
 import asyncio, os, socket, logging
 from app.config import settings
-from app import main
+from app import heartbeat, main
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from datetime import datetime, timedelta
@@ -184,6 +184,7 @@ async def worker_heartbeat():
                 else:
                     row.status="online"; row.role=settings.worker_role; row.last_seen_at=now
                 await db.commit()
+            heartbeat.beat("worker")  # only after Redis and PostgreSQL answered (container healthcheck)
         except Exception:
             logger.exception("worker heartbeat failure")
         await asyncio.sleep(30)

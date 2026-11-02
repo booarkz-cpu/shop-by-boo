@@ -8,8 +8,8 @@ db.execute('CREATE TABLE users(id INTEGER, telegram_id INTEGER, username TEXT, b
 db.execute("INSERT INTO users VALUES (501, 9005001, 'History A', '0'), (502, 9005002, 'History B', '0')")
 db.execute('CREATE TABLE payments(id TEXT, user_id INTEGER, amount TEXT, status TEXT, paid_at TEXT)')
 db.execute("INSERT INTO payments VALUES ('h-1', 501, '199.00', 'succeeded', '2025-02-01T10:00:00Z'), ('h-2', 502, '299.00', 'succeeded', '2025-02-02T10:00:00Z'), ('h-3', 502, '50.00', 'canceled', '2025-02-03T10:00:00Z')")
-db.execute('CREATE TABLE subscriptions(user_id INTEGER, expires_at TEXT, uuid TEXT, tariff TEXT)')
-db.execute("INSERT INTO subscriptions VALUES (501, '2031-01-01T00:00:00', 'aaaaaaaa-1111-4222-8333-000000000501', 'Browser history plan')")
+db.execute('CREATE TABLE subscriptions(user_id INTEGER, expires_at TEXT, panel_id TEXT, tariff TEXT)')
+db.execute("INSERT INTO subscriptions VALUES (501, '2031-01-01T00:00:00', '501', 'Browser history plan')")
 db.commit()
 sys.stdout.buffer.write(db.serialize())
 `;
@@ -45,7 +45,7 @@ test('administrator reconciles, applies and rolls back a historical import', asy
   await page.getByRole('button', {name: 'Загрузить колонки платежей'}).click();
   await expect(page.getByRole('combobox', {name: 'ID платежа', exact: true})).toContainText('id');
   await page.getByRole('button', {name: 'Загрузить колонки подписок'}).click();
-  await expect(page.getByRole('combobox', {name: 'UUID пользователя Remnawave', exact: true})).toContainText('uuid');
+  await expect(page.getByRole('combobox', {name: 'ID пользователя Remnawave', exact: true})).toContainText('panel_id');
 
   // A wrong control total is shown as a mismatch and keeps apply disabled.
   await page.getByLabel('Количество успешных и возвращённых платежей', {exact: true}).fill('2');

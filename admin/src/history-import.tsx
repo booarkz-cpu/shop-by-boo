@@ -68,7 +68,7 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
         setPayments((old) => ({...old, id: guess(cols, "id", "payment_id"), user: guess(cols, "user_id", "customer_id", "telegram_id"), amount: guess(cols, "amount", "sum", "price"), status: guess(cols, "status", "state"), paid_at: guess(cols, "paid_at", "created_at", "created", "date"), currency: guess(cols, "currency")}));
       } else {
         setSubscriptionColumns(cols);
-        setSubscriptions((old) => ({...old, user: guess(cols, "user_id", "customer_id", "telegram_id"), expires_at: guess(cols, "expires_at", "expire_at", "end_date", "expires"), remnawave_uuid: guess(cols, "remnawave_uuid", "uuid", "panel_uuid"), subscription_url: guess(cols, "subscription_url", "sub_url", "url"), plan: guess(cols, "plan", "tariff", "plan_name"), traffic_gb: guess(cols, "traffic_gb", "traffic_limit_gb"), devices: guess(cols, "devices", "device_limit")}));
+        setSubscriptions((old) => ({...old, user: guess(cols, "user_id", "customer_id", "telegram_id"), expires_at: guess(cols, "expires_at", "expire_at", "end_date", "expires"), remnawave_uuid: guess(cols, "remnawave_id", "panel_id", "remnawave_uuid", "uuid", "panel_uuid"), subscription_url: guess(cols, "subscription_url", "sub_url", "url"), plan: guess(cols, "plan", "tariff", "plan_name"), traffic_gb: guess(cols, "traffic_gb", "traffic_limit_gb"), devices: guess(cols, "devices", "device_limit")}));
       }
     } catch (e) {
       failure(e);
@@ -181,7 +181,7 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
   return (
     <section className="card history-import">
       <h2>Перенос подписок и платежей</h2>
-      <p className="muted">Адаптер <code>generic-sqlite-v1</code>. Сначала перенесите профили с тем же именем источника. Платежи сохраняются как история: они не выдают доступ, не участвуют в выручке и возвратах. Подписки привязываются к существующим пользователям Remnawave по UUID.</p>
+      <p className="muted">Адаптер <code>generic-sqlite-v1</code>. Сначала перенесите профили с тем же именем источника. Платежи сохраняются как история: они не выдают доступ, не участвуют в выручке и возвратах. Подписки привязываются к существующим пользователям Remnawave по числовому id: в Remnawave 3.x нет поиска пользователя по UUID, поэтому строки с UUID будут заблокированы.</p>
       {error && <p className="error" role="alert">{error}</p>}
       {notice && <p role="status">{notice}</p>}
       <div className="grid2">
@@ -224,7 +224,7 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
             {!!subscriptionColumns.length && <>
               {select("subscriptions", "user", "ID клиента в источнике")}
               {select("subscriptions", "expires_at", "Окончание подписки")}
-              {select("subscriptions", "remnawave_uuid", "UUID пользователя Remnawave")}
+              {select("subscriptions", "remnawave_uuid", "ID пользователя Remnawave")}
               {select("subscriptions", "subscription_url", "Ссылка подписки", true)}
               {select("subscriptions", "plan", "Название тарифа", true)}
               {select("subscriptions", "traffic_gb", "Лимит трафика, ГБ", true)}

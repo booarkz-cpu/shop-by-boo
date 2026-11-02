@@ -226,6 +226,13 @@ RATE_LIMITS = {
     "/api/admin/auth/passkeys/registration/verify": 5,
     "/api/admin/auth/telegram": 8,
     "/api/admin/auth/ticket": 20,
+    # v28.58.0 (SEC-03): codes a customer types in — gift codes, gift cards, referral, company and guest access.
+    "/api/me/gifts/redeem": 10,
+    "/api/me/payment/gift-card/redeem": 10,
+    "/api/me/referral/apply": 10,
+    "/api/me/company/join": 10,
+    "/api/auth/guest": 10,
+    "/api/auth/guest/setup": 10,
 }
 
 try:

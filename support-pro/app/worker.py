@@ -240,6 +240,12 @@ async def main():
         while True:
             try:
                 await r.set('worker:heartbeat', str(time.time()), ex=180)
+                # v28.58.0: liveness file for the container healthcheck (after Redis answered).
+                try:
+                    with open('/tmp/support-worker.alive', 'w') as alive:
+                        alive.write(str(int(time.time())))
+                except OSError as exc:  # a read-only /tmp only fails the healthcheck, which is the signal
+                    log.debug('liveness file not written: %s', exc)
                 if time.monotonic() - last_maintenance > 30:
                     await maintenance()
                     last_maintenance = time.monotonic()

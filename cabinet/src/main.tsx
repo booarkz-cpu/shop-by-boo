@@ -1,4 +1,5 @@
 import {ButtonTree} from "./button-tree";
+import {readJsonBody} from "./http-json";
 import {PersonalOffers} from "./personal-offers";
 import {PublicPages} from "./public-pages";
 import React, {useEffect, useState, useRef, useCallback} from "react";
@@ -108,10 +109,7 @@ async function req(path: string, opts: RequestInit = {}) {
   const timer = setTimeout(() => ctrl.abort(), 12000);
   try {
     const r = await fetch(API + path, {...opts, headers, credentials:"include", signal: ctrl.signal});
-    let d: any = {};
-    try {
-      d = await r.json();
-    } catch {}
+    const d: any = await readJsonBody(r, path);
     if (!r.ok && isMaintenance(r.status, d.detail)) window.dispatchEvent(new Event(MAINTENANCE_EVENT));
     if (!r.ok) throw Object.assign(
       Error(typeof d.detail==="string" ? d.detail : d.detail?.message || d.message || `HTTP ${r.status}`),
