@@ -1,6 +1,6 @@
 # Документация VPN Shop by Corgi
 
-Текущий тег дистрибутива: **v28.62.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0089_index_cleanup**, Support Pro **0008** / 3.8. Реальные платежи открыты сразу после установки; незавершённые внешние проверки описаны отдельно.
+Текущий тег дистрибутива: **v28.63.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0089_index_cleanup**, Support Pro **0008** / 3.8. Реальные платежи открыты сразу после установки; незавершённые внешние проверки описаны отдельно.
 
 | Задача | Инструкция |
 | --- | --- |
@@ -42,7 +42,7 @@
 | HTTP API | [API_REFERENCE_RU.md](API_REFERENCE_RU.md) |
 | Карта проекта и дизайн | [PROJECT_MAP_RU.md](docs/PROJECT_MAP_RU.md) |
 | Дерево каталогов и архитектурные границы | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) |
-| Проверки этого выпуска | [Отчёт v28.62.0](docs/ru/RELEASE_V28_62_0.md) |
+| Проверки этого выпуска | [Отчёт v28.63.0](docs/ru/RELEASE_V28_63_0.md) |
 | Живая проверка всех касс | [Чек-лист](docs/ru/PAYMENTS_LIVE_CHECKLIST.md) |
 | Что ещё не реализовано | [Матрица покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) |
 
@@ -50,7 +50,10 @@
 
 Справочники: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 
-## Выпуск v28.62.0
+## Выпуск v28.63.0
+
+Тег v28.63.0 добавил:
+- личный кабинет (этап 8): сессии по одной, устройства под лимитом подписки, вход через Google, тарифы Lucy Mini/Max/Ultra; [руководство по кабинету](docs/ru/new/USER_CABINET_GUIDE.md).
 
 Тег v28.62.0 добавил:
 - «Состояние системы» (System Control Center): 14 проверок частей установки со ссылкой на раздел; [руководство по админ-панели](docs/ru/new/ADMIN_PANEL_GUIDE.md), [модули](docs/ru/new/ADMIN_MODULES.md), [роли и права](docs/ru/new/RBAC.md).

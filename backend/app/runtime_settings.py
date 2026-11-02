@@ -186,6 +186,9 @@ DEFINITIONS = (
     SettingDefinition("vk_client_id", "oauth", "VK client ID", "Client ID приложения VK ID.", "string", "vk_client_id", optional=True),
     SettingDefinition("vk_client_secret", "oauth", "VK client secret", "Client secret VK ID.", "secret", "vk_client_secret", secret=True, optional=True),
     SettingDefinition("vk_redirect_uri", "oauth", "VK redirect URI", "Точный HTTPS callback VK ID.", "string", "vk_redirect_uri", optional=True),
+    SettingDefinition("google_client_id", "oauth", "Google client ID", "Client ID OAuth-клиента Google.", "string", "google_client_id", optional=True),
+    SettingDefinition("google_client_secret", "oauth", "Google client secret", "Client secret OAuth-клиента Google.", "secret", "google_client_secret", secret=True, optional=True),
+    SettingDefinition("google_redirect_uri", "oauth", "Google redirect URI", "Точный HTTPS callback: https://<API_DOMAIN>/api/auth/google/callback.", "string", "google_redirect_uri", optional=True),
     SettingDefinition("support_ai_url", "support", "ИИ-ассистент: адрес API", "OpenAI-совместимый /v1/chat/completions или Anthropic /v1/messages. Пусто — черновики из базы знаний.", "string", "support_ai_url", optional=True),
     SettingDefinition("support_ai_key", "support", "ИИ-ассистент: ключ API", "Ключ модели для черновиков ответов; хранится зашифрованно.", "secret", "support_ai_key", secret=True, optional=True),
     SettingDefinition("support_ai_model", "support", "ИИ-ассистент: модель", "Имя модели, например gpt-4o-mini или claude-haiku-5-5.", "string", "support_ai_model", optional=True),
@@ -254,8 +257,8 @@ def _restart_reason(key: str) -> str:
         return "Ключ провайдера push — секрет сервера; меняется через .env и restart worker, не хранится в БД."
     if key == "remnawave_webhook_secret":
         return "Секрет подписи вебхуков Remnawave совпадает с WEBHOOK_SECRET_HEADER панели; меняется в .env вместе с панелью и restart backend."
-    if key in {"google_client_id", "google_client_secret", "google_redirect_uri", "mobile_app_scheme"}:
-        return "Вход в приложения (Google, ссылки corgi://) настраивается в .env вместе с консолью Google и сборками приложений; применяется после restart backend."
+    if key == "mobile_app_scheme":
+        return "Схема ссылок приложений (corgi://) зашита в сборки Android и iOS; меняется в .env вместе с ними, применяется после restart backend."
     if key in {"mobile_integrity_mode", "devicecheck_key_id", "devicecheck_private_key"}:
         return "Проверка подлинности приложений (Play Integrity, DeviceCheck) — граница безопасности: ключи только в .env, режим меняется через restart backend."
     if key == "default_currency":
@@ -449,6 +452,7 @@ def _dependency_errors(values: dict[str, bool | int | float | str]) -> tuple[lis
     for title, keys in (
         ("Yandex ID", ("yandex_client_id", "yandex_client_secret", "yandex_redirect_uri")),
         ("VK ID", ("vk_client_id", "vk_client_secret", "vk_redirect_uri")),
+        ("Google", ("google_client_id", "google_client_secret", "google_redirect_uri")),
         ("Apple Store", ("apple_issuer_id", "apple_key_id", "apple_private_key", "apple_bundle_id")),
         ("Google Play", ("google_play_package", "google_service_account_json")),
     ):

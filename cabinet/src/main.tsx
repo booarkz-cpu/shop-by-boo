@@ -20,6 +20,7 @@ import {PartnerPortal} from "./partner";
 import {CustomerPasskeys, loginWithPasskey} from "./passkeys";
 import {AppLogin} from "./app-login";
 import {Workspace} from "./workspace";
+import {HwidDevices, useTrialPlan} from "./cabinet-security";
 import {AccountRecovery, AccountSecurity, accountLink} from "./account-recovery";
 import {AccountMerge} from "./account-merge";
 import type {AccountLink} from "./account-recovery";
@@ -231,6 +232,7 @@ function App() {
   const [msgError, setMsgError] = useState(false);
 
   const [cfg, setCfg] = useState<any>({});
+  const trialPlan = useTrialPlan(req);
   const [menu, setMenu] = useState<MenuItem[]>(FALLBACK_MENU);
   const [tab, setTab] = useState(accountFlow?"overview":location.hash.slice(1)||"overview");
   const [dash, setDash] = useState<any>();
@@ -831,8 +833,14 @@ function App() {
                   <span>Продолжить с VK ID</span>
                 </button>
               )}
-              {!cfg.yandex_enabled && !cfg.vk_enabled && (
-                <p className="oauth-note">VK ID и Яндекс ID подключаются администратором через переменные окружения OAuth.</p>
+              {cfg.google_enabled && (
+                <button type="button" className="btn-oauth google" disabled={busy} onClick={() => oauthRedirect("/api/auth/google")}>
+                  <span className="oauth-icon">G</span>
+                  <span>Продолжить с Google</span>
+                </button>
+              )}
+              {!cfg.yandex_enabled && !cfg.vk_enabled && !cfg.google_enabled && (
+                <p className="oauth-note">Вход через Яндекс ID, VK ID и Google включает администратор в «Настройки без перезапуска».</p>
               )}
             </div>
           </section>
@@ -905,6 +913,19 @@ function App() {
                 {activeItem?.kind === "trial" && (
                   <>
                     <h2 className="section-title">Пробный период</h2>
+                    {trialPlan ? <div className="plan-list" data-trial-plan={trialPlan.id}>
+                      <article className="plan-item">
+                        <div>
+                          <h3>{trialPlan.name}</h3>
+                          <p className="section-sub" style={{margin: 0}}>
+                            {Math.min(trialPlan.days, Number(cfg.trial_days || trialPlan.days))} дн. бесплатно · {trialPlan.device_limit || 1} устр. · {trialPlan.traffic_limit_gb ? `${trialPlan.traffic_limit_gb} ГБ` : "без лимита трафика"}
+                          </p>
+                        </div>
+                        <button type="button" className="btn-primary" disabled={busy} onClick={() => claimTrial(trialPlan.id)}>
+                          Активировать пробный период
+                        </button>
+                      </article>
+                    </div> : <>
                     <p className="section-sub">
                       Пробный период · {cfg.trial_days || 3} дней
                     </p>
@@ -923,7 +944,7 @@ function App() {
                         </article>
                       ))}
                       {!plans.length && <p className="section-sub">Выберите тариф для пробного периода</p>}
-                    </div>
+                    </div></>}
                   </>
                 )}
 
@@ -937,10 +958,11 @@ function App() {
                     <h2 className="section-title">Мои устройства</h2>
                     <p className="section-sub">Управляйте устройствами, которым разрешён доступ к VPN.</p>
                     <div className="plan-list">
-                      <p className="section-sub">Устройства выбранной подписки. Выбрать другой профиль можно в «Моей подписке».</p>
-                      {devices.map((device:any)=><article className="plan-item" key={device.id}><div><h3>{device.name}</h3><p className="section-sub">{device.platform || "unknown"} · {device.last_seen_at ? formatDate(device.last_seen_at) : "ещё не подключалось"}</p></div><StatusBadge tone={device.status === "active" ? "ok" : "warn"}>{device.status === "active" ? "Активно" : device.status}</StatusBadge></article>)}
+                      <p className="section-sub">Приложения магазина, в которых вы вошли, для выбранной подписки. Выбрать другой профиль можно в «Моей подписке».</p>
+                      {devices.map((device:any)=><article className="plan-item" key={device.id}><div><h3>{device.name}</h3><p className="section-sub">{device.platform || "unknown"} · {device.last_seen_at ? formatDate(device.last_seen_at) : "ещё не подключалось"}</p></div><StatusBadge tone={device.status === "active" ? "ok" : "warn"}>{device.status === "active" ? "Активно" : device.status === "revoked" ? "Отключено" : device.status}</StatusBadge>{device.status === "active" && <button type="button" className="btn-ghost" disabled={busy} onClick={async()=>{if(!window.confirm("Отключить приложение на этом устройстве?"))return;try{await req(`/api/me/devices/${device.id}/revoke`,{method:"POST"});setDevices(await req("/api/me/devices"))}catch(e:any){flash(e.message||t("Ошибка"),true)}}}>Отключить</button>}</article>)}
                       {!devices.length && <p className="section-sub">Устройства появятся после первого подключения.</p>}
                     </div>
+                    <HwidDevices request={req}/>
                     <div className="form-card stack" style={{marginTop:14}}>
                       <h3>Рекомендованный сервер</h3>
                       <p className="section-sub">Smart Routing выбирает доступную ноду по здоровью и нагрузке.</p>

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.62.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.63.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2050**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2058**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -114,6 +114,7 @@
 | [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
 | [admin/e2e/bot-banners.spec.ts](../admin/e2e/bot-banners.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
+| [admin/e2e/cabinet-stage8.spec.ts](../admin/e2e/cabinet-stage8.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
 | [admin/e2e/control-center.spec.ts](../admin/e2e/control-center.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
@@ -187,6 +188,7 @@
 | [admin/src/insightsV52.tsx](../admin/src/insightsV52.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
 | [admin/src/loyalty.tsx](../admin/src/loyalty.tsx) | Админ-панель |
+| [admin/src/lucy-plans.tsx](../admin/src/lucy-plans.tsx) | Админ-панель |
 | [admin/src/mail-domain.tsx](../admin/src/mail-domain.tsx) | Админ-панель |
 | [admin/src/main.tsx](../admin/src/main.tsx) | Админ-панель |
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
@@ -399,6 +401,7 @@
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
+| [backend/app/cabinet_security.py](../backend/app/cabinet_security.py) | API, бот и worker |
 | [backend/app/channel_gate.py](../backend/app/channel_gate.py) | API, бот и worker |
 | [backend/app/churn.py](../backend/app/churn.py) | API, бот и worker |
 | [backend/app/client_versions.py](../backend/app/client_versions.py) | API, бот и worker |
@@ -455,6 +458,7 @@
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
 | [backend/app/integrity.py](../backend/app/integrity.py) | API, бот и worker |
 | [backend/app/loyalty.py](../backend/app/loyalty.py) | API, бот и worker |
+| [backend/app/lucy_plans.py](../backend/app/lucy_plans.py) | API, бот и worker |
 | [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
 | [backend/app/mail_receiver.py](../backend/app/mail_receiver.py) | API, бот и worker |
@@ -633,6 +637,7 @@
 | [cabinet/src/app/layout.tsx](../cabinet/src/app/layout.tsx) | Кабинет |
 | [cabinet/src/app/page.tsx](../cabinet/src/app/page.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
+| [cabinet/src/cabinet-security.tsx](../cabinet/src/cabinet-security.tsx) | Кабинет |
 | [cabinet/src/company.tsx](../cabinet/src/company.tsx) | Кабинет |
 | [cabinet/src/connection.tsx](../cabinet/src/connection.tsx) | Кабинет |
 | [cabinet/src/documents.test.tsx](../cabinet/src/documents.test.tsx) | Кабинет |
@@ -1134,6 +1139,7 @@
 | [docs/ru/RELEASE_V28_60_0.md](../docs/ru/RELEASE_V28_60_0.md) | Документация |
 | [docs/ru/RELEASE_V28_61_0.md](../docs/ru/RELEASE_V28_61_0.md) | Документация |
 | [docs/ru/RELEASE_V28_62_0.md](../docs/ru/RELEASE_V28_62_0.md) | Документация |
+| [docs/ru/RELEASE_V28_63_0.md](../docs/ru/RELEASE_V28_63_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1234,6 +1240,7 @@
 | [docs/ru/new/SECURITY_AUDIT.md](../docs/ru/new/SECURITY_AUDIT.md) | Документация |
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
+| [docs/ru/new/USER_CABINET_GUIDE.md](../docs/ru/new/USER_CABINET_GUIDE.md) | Документация |
 | [docs/ru/steps/01-project.md](../docs/ru/steps/01-project.md) | Документация |
 | [docs/ru/steps/02-local-test.md](../docs/ru/steps/02-local-test.md) | Документация |
 | [docs/ru/steps/03-vds.md](../docs/ru/steps/03-vds.md) | Документация |
@@ -1852,6 +1859,7 @@
 | [tests/test_block_monitor.py](../tests/test_block_monitor.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
+| [tests/test_cabinet_stage8.py](../tests/test_cabinet_stage8.py) | Проверки |
 | [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |
 | [tests/test_code_entry_rate_limits.py](../tests/test_code_entry_rate_limits.py) | Проверки |

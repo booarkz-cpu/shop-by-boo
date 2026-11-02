@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.62.0
+# Модули админ-панели — v28.63.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -39,7 +39,7 @@ API: `/api/admin/subscription-operations`, `/api/admin/freeze`, `/api/admin/grac
 
 ## 4. Tariffs
 
-Статус: `IMPLEMENTED`. Маршрутов API: 15. Операции: просмотр, создание, изменение, удаление, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 18. Операции: просмотр, создание, изменение, удаление, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
@@ -47,7 +47,7 @@ API: `/api/admin/subscription-operations`, `/api/admin/freeze`, `/api/admin/grac
 | Конструктор тарифов | Тариф, который клиент собирает сам: устройства, трафик и срок с ценой за каждый пункт. |
 | Пакеты трафика | Дополнительные гигабайты, которые клиент докупает к действующей подписке. |
 
-API: `/api/admin/plans`, `/api/admin/tariff-constructors`, `/api/admin/traffic-packages`, `/api/admin/pricing`. Права: `manage_plans`, `read`.
+API: `/api/admin/plans`, `/api/admin/tariff-constructors`, `/api/admin/traffic-packages`, `/api/admin/pricing`, `/api/admin/lucy-plans`. Права: `manage_plans`, `read`.
 
 ## 5. Devices
 

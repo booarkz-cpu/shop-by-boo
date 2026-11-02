@@ -1,4 +1,4 @@
-# Каталог API — v28.62.0 / API v21.5.1
+# Каталог API — v28.63.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0089_index_cleanup`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -230,6 +230,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/jobs/{job_id}/retry` | Retry Job | право `payments.retry` |
 | `GET` | `/api/admin/loyalty` | Admin Loyalty | право `read` |
 | `PUT` | `/api/admin/loyalty` | Admin Loyalty Config | право `manage_plans` |
+| `GET` | `/api/admin/lucy-plans` | Lucy State | право `read` |
+| `POST` | `/api/admin/lucy-plans` | Lucy Apply | право `manage_plans` |
+| `DELETE` | `/api/admin/lucy-plans/trial` | Lucy Trial Off | право `manage_plans` |
 | `POST` | `/api/admin/mail/dmarc/erase` | Admin Dmarc Erase | право `security.manage` |
 | `GET` | `/api/admin/mail/dmarc/reports/{report_id}` | Admin Dmarc Report | право `ops.diagnostics` |
 | `POST` | `/api/admin/mail/dmarc/sync` | Admin Dmarc Sync | право `ops.diagnostics` |
@@ -679,6 +682,9 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/me/gifts/redeem` | Redeem Gift | сессия клиента |
 | `GET` | `/api/me/giveaways` | Customer List | сессия клиента |
 | `POST` | `/api/me/giveaways/{giveaway_id}/enter` | Enter | сессия клиента |
+| `GET` | `/api/me/hwid-devices` | My Hwid Devices | сессия клиента |
+| `POST` | `/api/me/hwid-devices/reset` | Reset My Hwid Devices | сессия клиента |
+| `POST` | `/api/me/hwid-devices/{dev}/delete` | Delete My Hwid Device | сессия клиента |
 | `GET` | `/api/me/identity` | Identity | сессия клиента |
 | `GET` | `/api/me/loyalty` | My Loyalty | сессия клиента |
 | `POST` | `/api/me/lusi/action` | Lusi Action | сессия клиента |
@@ -727,6 +733,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/security-center` | Security Center | сессия клиента |
 | `POST` | `/api/me/security/revoke-all` | Revoke All User Sessions | сессия клиента |
 | `GET` | `/api/me/servers` | My Servers | сессия клиента |
+| `GET` | `/api/me/sessions` | My Sessions | сессия клиента |
+| `POST` | `/api/me/sessions/{session_id}/revoke` | Revoke Session | сессия клиента |
 | `POST` | `/api/me/source` | My Source | сессия клиента |
 | `POST` | `/api/me/speedtest` | Speed Report | сессия клиента |
 | `GET` | `/api/me/speedtest/blob` | Speed Blob | сессия клиента |
@@ -815,6 +823,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/public/service-status` | Public Status | открытый |
 | `GET` | `/api/public/status` | Public Status | открытый |
 | `GET` | `/api/public/status-page` | Public Status Page | открытый |
+| `GET` | `/api/public/trial` | Public Trial | открытый |
 | `GET` | `/api/public/v15/privacy` | Public Privacy | открытый |
 | `GET` | `/api/public/v16/release` | Release | открытый |
 | `GET` | `/api/public/v6/status` | Public Status | открытый |
