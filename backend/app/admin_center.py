@@ -28,7 +28,7 @@ MODULES: tuple[tuple[int, str, tuple[str, ...], tuple[str, ...], str], ...] = (
     (1, "Dashboard", ("dashboard", "command360"), ("overview", "v6", "analytics"), ""),
     (2, "Users", ("crm", "customer360", "users"), ("users", "customers", "remnawave", "customer-operations"), ""),
     (3, "Subscriptions", ("subscriptionOperations",), ("subscription-operations", "freeze", "grace", "dunning", "first-connect"), ""),
-    (4, "Tariffs", ("plans", "constructor", "trafficPackages"), ("plans", "tariff-constructors", "traffic-packages", "pricing"), ""),
+    (4, "Tariffs", ("plans", "constructor", "trafficPackages"), ("plans", "tariff-constructors", "traffic-packages", "pricing", "lucy-plans"), ""),
     (5, "Devices", ("devices",), ("anti-sharing", "wg-pool"), ""),
     (6, "Payments", ("payments", "providers", "refunds", "staging"), ("payments", "refunds", "gateways", "payment", "staging-e2e"), ""),
     (7, "Finance", ("financial", "fiscal"), ("financial-ledger", "fiscal", "pnl", "daily-billing"), ""),

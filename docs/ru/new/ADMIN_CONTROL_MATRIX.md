@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.62.0
+# Управляемость из админки — v28.63.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -11,7 +11,7 @@
 | 1 | Dashboard | Главная, Командный центр | 17 | ✓ | ✓ | ✓ | · | · | ✓ | · | ✓ | `analytics.read`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
 | 2 | Users | Клиенты магазина, Карточка клиента, Пользователи VPN | 32 | ✓ | ✓ | · | · | ✓ | · | ✓ | ✓ | `manage_users`, `read`, `users.bulk`, `users.import`, `users.keys`, `users.read`, `users.write` | IMPLEMENTED |
 | 3 | Subscriptions | Изменения подписок | 12 | ✓ | ✓ | ✓ | · | · | · | · | ✓ | `manage_plans`, `payments.read`, `payments.refund`, `read`, `users.write` | IMPLEMENTED |
-| 4 | Tariffs | Тарифы, Конструктор тарифов, Пакеты трафика | 15 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `manage_plans`, `read` | IMPLEMENTED |
+| 4 | Tariffs | Тарифы, Конструктор тарифов, Пакеты трафика | 18 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `manage_plans`, `read` | IMPLEMENTED |
 | 5 | Devices | Устройства | 6 | ✓ | ✓ | ✓ | ✓ | · | · | · | ✓ | `provision_nodes`, `security.manage` | IMPLEMENTED |
 | 6 | Payments | Платежи, Платёжные агенты, Возвраты, Проверка платежей | 34 | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | `ops.diagnostics`, `ops.providers`, `payments.read`, `payments.reconcile`, `payments.refund`, `payments.retry`, `read`, `security.manage`, `settings.runtime.write`, `staging_e2e.manage` | IMPLEMENTED |
 | 7 | Finance | Финансовый журнал, Чеки в налоговую | 12 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `analytics.read`, `manage_plans`, `payments.read`, `payments.reconcile`, `payments.write`, `read` | IMPLEMENTED |

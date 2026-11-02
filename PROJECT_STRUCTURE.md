@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.62.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.63.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -90,6 +90,8 @@ shop-by-boo/
 | `backend/app/integrity.py` | Отчёт целостности: записи без клиента, подписки, платежа или тарифа |
 | `backend/app/admin_center.py` | Админ-центр: 30 модулей с операциями из маршрутов API, права ролей |
 | `backend/app/system_status.py` | «Состояние системы» (System Control Center): 14 типизированных проверок частей установки (v28.62.0) |
+| `backend/app/cabinet_security.py` | Кабинет: сессии по одной, устройства под лимитом подписки (HWID Remnawave) (v28.63.0) |
+| `backend/app/lucy_plans.py` | Тарифы Lucy Mini/Max/Ultra и пробный период только на Lucy Mini (v28.63.0) |
 | `backend/app/telegram_stars.py` | Telegram Stars: пополнение кошелька, подписка с автопродлением каждые 30 дней, проверка, зачисление, возврат |
 | `backend/app/remnawave_events.py` | Подписанные вебхуки Remnawave: уведомления клиентам, события автоматизации, защита пробного периода (IP, Telegram, HWID) |
 | `backend/app/growth.py` | Семейная подписка, аналитика удержания, публичный статус сервиса |

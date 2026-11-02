@@ -242,6 +242,7 @@ label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: 1
 .btn-oauth.telegram .oauth-icon { background: #229ed9; color: #fff; }
 .btn-oauth.yandex .oauth-icon { background: #fc3f1d; color: #fff; }
 .btn-oauth.vk .oauth-icon { background: #0077ff; color: #fff; }
+.btn-oauth.google .oauth-icon { background: #fff; color: #1a73e8; border: 1px solid var(--border); }
 .oauth-note { margin: 0; color: var(--subtle); font-size: 13px; }
 
 /* Layout: mobile = single column + bottom nav; sidebar slides in as a drawer. */

@@ -255,7 +255,12 @@ class RemnawaveClient:
         return [x for x in (data or []) if isinstance(x,dict)]
 
     async def reset_hwid_devices(self,user_id:int|str):
-        return await self._request("POST","/api/hwid/devices/delete-all",json={"userUuid":str(user_id)})
+        # Panel 3.x: {"userId": <number>} (DeleteAllUserHwidDevicesCommand); «userUuid» was the 2.x body and is rejected.
+        return await self._request("POST","/api/hwid/devices/delete-all",json={"userId":int(user_id)})
+
+    async def delete_hwid_device(self,user_id:int|str,hwid:str):
+        """Forget one device of the user: its slot under the HWID limit is free again (DeleteUserHwidDeviceCommand)."""
+        return await self._request("POST","/api/hwid/devices/delete",json={"userId":int(user_id),"hwid":str(hwid)})
 
     async def restart_node(self,node_uuid:str):
         # The panel validates the body: {"forceRestart": bool} is required (no body → 400; checked live in CI).

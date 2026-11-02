@@ -156,3 +156,23 @@ async def test_connections_bandwidth_keys_and_subscription_proxy(panel, monkeypa
 
 async def _false():
     return False
+
+
+@pytest.mark.asyncio
+async def test_lucy_limits_and_customer_devices(panel):
+    """v28.63.0: the panel itself holds the Lucy limits (devices, unlimited traffic), and the cabinet's device
+    calls (list, delete one, delete all) use the panel 3.x bodies."""
+    expire = (datetime.utcnow() + timedelta(days=30)).replace(microsecond=0)
+    user = await panel.create_user(f"ci_lucy_{int(datetime.utcnow().timestamp())}", expire, traffic_limit_bytes=0, device_limit=2)
+    uid = int(user["id"])
+    fresh = await panel.get_user(uid)
+    assert fresh["hwidDeviceLimit"] == 2 and fresh["trafficLimitBytes"] == 0, "Lucy Max: 2 devices, no traffic limit"
+    await panel.update_entitlements(uid, None, None, device_limit=4)
+    assert (await panel.get_user(uid))["hwidDeviceLimit"] == 4, "Lucy Ultra: 4 devices"
+    for hwid in ("ci-device-aaaa-1", "ci-device-bbbb-2"):
+        await panel._request("POST", "/api/hwid/devices", json={"hwid": hwid, "userId": uid, "platform": "Android"})
+    assert {d["hwid"] for d in await panel.hwid_devices(uid)} == {"ci-device-aaaa-1", "ci-device-bbbb-2"}
+    await panel.delete_hwid_device(uid, "ci-device-aaaa-1")
+    assert [d["hwid"] for d in await panel.hwid_devices(uid)] == ["ci-device-bbbb-2"]
+    await panel.reset_hwid_devices(uid)
+    assert await panel.hwid_devices(uid) == []

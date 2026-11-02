@@ -42,7 +42,7 @@ def test_every_configuration_field_has_one_explicit_runtime_classification():
     assert hot.isdisjoint(workflows)
     assert deployment.isdisjoint(workflows)
     assert hot | deployment | workflows == set(Settings.model_fields)
-    assert len(hot) == 134  # v28.44.0: two settings of Tribute
+    assert len(hot) == 137  # v28.63.0: Google sign-in (client id, secret, redirect URI) without restart
 
 
 def test_integer_limits_are_checked_without_float_rounding():
