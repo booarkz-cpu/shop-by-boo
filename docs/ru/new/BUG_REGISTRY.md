@@ -6,3 +6,4 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | BUG-H1 | фронтенды | `Cannot read properties of undefined (reading 'trim')` | — | — | — | NOT_STARTED |
 | BUG-H2 | фронтенды | `(s \|\| []).map is not a function` | — | — | — | NOT_STARTED |
+| BUG-H3 | `admin/src/documents.tsx` | Внутри `edit` вложена вторая копия функции `banner`; работает, но код дублируется, и правка одной копии не меняет другую | Ошибка слияния | — | — | NOT_STARTED |
