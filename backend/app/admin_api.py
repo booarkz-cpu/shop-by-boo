@@ -2,6 +2,7 @@
 
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
+from typing import Annotated
 from .db import get_db
 from .security import require_permission
 from fastapi import Depends
@@ -218,10 +219,25 @@ def _public_refund_reason(reason):
             cut = min(cut, idx)
     return reason[:cut]
 
+def _escape_like(value:str)->str:
+    """Text typed into a search box matches literally: % and _ are not wildcards."""
+    return value.replace("\\","\\\\").replace("%","\\%").replace("_","\\_")
+
 @shop.app.get("/api/admin/audit")
-async def admin_audit(page:int=1,page_size:int=50,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):
-    page=max(1,page); page_size=max(1,min(page_size,100)); offset=(page-1)*page_size
-    rows=(await db.execute(shop.select(shop.AuditLog).order_by(shop.AuditLog.id.desc()).offset(offset).limit(page_size))).scalars().all()
+async def admin_audit(page:int=1,page_size:int=50,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read")),
+                      response:shop.Response=None,actor:Annotated[str|None,shop.Query(max_length=255)]=None,
+                      action:Annotated[str|None,shop.Query(max_length=128)]=None,target:Annotated[str|None,shop.Query(max_length=255)]=None,
+                      since:shop.datetime|None=None,until:shop.datetime|None=None):
+    # v28.60.0 (stage 6): search by administrator, action (prefix, e.g. «payment.»), target and period; total in X-Total-Count.
+    page=max(1,page); page_size=max(1,min(page_size,100)); offset=(page-1)*page_size; log=shop.AuditLog; where=[]
+    if actor: where.append(log.actor.ilike(f"%{_escape_like(actor)}%",escape="\\"))
+    if action: where.append(log.action.like(f"{_escape_like(action)}%",escape="\\"))
+    if target: where.append(log.target==target)
+    if since: where.append(log.created_at>=since.replace(tzinfo=None))
+    if until: where.append(log.created_at<until.replace(tzinfo=None))
+    if response is not None:  # also called directly by older code and tests with (page, page_size, db, admin)
+        response.headers["X-Total-Count"]=str(await db.scalar(shop.select(shop.func.count()).select_from(log).where(*where)) or 0)
+    rows=(await db.execute(shop.select(log).where(*where).order_by(log.id.desc()).offset(offset).limit(page_size))).scalars().all()
     return [{"id":x.id,"action":x.action,"actor":x.actor,"target":x.target,"details":shop._public_audit_details(x.details),"created_at":str(x.created_at)} for x in rows]
 
 @shop.app.get("/api/admin/remnawave/users")

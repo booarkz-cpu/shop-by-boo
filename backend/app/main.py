@@ -152,8 +152,8 @@ from .menu_tree import emoji_router
 app.include_router(emoji_router)
 from .account_merge import router as account_merge_router
 app.include_router(account_merge_router)
-from .integrity import router as integrity_router
-app.include_router(integrity_router)
+from . import admin_center, integrity  # noqa: E402
+for _module in (integrity, admin_center): app.include_router(_module.router)
 
 MAX_REQUEST_BYTES = 12 * 1024 * 1024
 PACKAGE_UPLOAD_BYTES = 80 * 1024 * 1024

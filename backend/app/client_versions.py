@@ -128,8 +128,10 @@ async def put_clients(payload: list[ClientIn], db: AsyncSession = Depends(get_db
     if len(payload) > 100:
         raise HTTPException(422, "Не больше 100 приложений")
     old = {r.get("app"): r for r in await catalog(db)}
+    from .main import audit
     rows = [{**x.model_dump(), "checked_at": old.get(x.app, {}).get("checked_at", "") if not x.manual else ""} for x in payload]
     await save(db, rows)
+    await audit(db, "sub_proxy.clients.saved", admin.email, None, {"apps": [x.app for x in payload][:100]})
     await db.commit()
     return {"clients": rows}
 

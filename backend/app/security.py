@@ -21,6 +21,33 @@ PERMISSIONS = {
     "admin": {"users.import", "users.bulk", "read", "manage_plans", "manage_users", "manage_payments", "manage_content", "manage_marketing", "manage_broadcasts", "provision_nodes", "manage_admins", "manage_backups", "staging_e2e.manage", "manage_own_mfa", "users.read", "users.write", "users.keys", "payments.read", "payments.write", "payments.retry", "payments.refund", "marketing.read", "backups.read", "backups.write", "backups.restore", "security.manage", "analytics.read", "sessions.manage", "security.stepup", "payments.reconcile", "referrals.read", "referrals.reconcile", "referrals.withdrawals.read", "referrals.withdrawals.approve", "referrals.withdrawals.pay", "security.manage", "support.read", "support.write", "ops.diagnostics", "ops.incidents", "ops.providers", "ops.backups.verify", "ops.releases", "security.passkeys", "feature_flags.manage", "settings.runtime.read", "settings.runtime.write", "nodes.terminal", "legal.write"},
 }
 
+# What each permission allows, for «Роли и администраторы» (v28.60.0).
+PERMISSION_LABELS = {
+    "read": "Просмотр разделов панели",
+    "analytics.read": "Аналитика и отчёты",
+    "users.read": "Просмотр клиентов", "users.write": "Изменение клиентов", "users.keys": "Ключи и ссылки подписки клиента",
+    "users.bulk": "Массовые операции с клиентами", "users.import": "Импорт клиентов и истории",
+    "manage_users": "Управление клиентами (старое право)", "manage_plans": "Тарифы", "manage_content": "Тексты, меню, баннеры, оформление",
+    "manage_marketing": "Акции, промокоды, кампании", "manage_broadcasts": "Рассылки", "marketing.read": "Просмотр маркетинга",
+    "manage_payments": "Платежи (старое право)", "payments.read": "Просмотр платежей", "payments.write": "Изменение платежей",
+    "payments.retry": "Повтор выдачи после оплаты", "payments.refund": "Возвраты денег", "payments.reconcile": "Сверка платежей и цены",
+    "referrals.read": "Просмотр рефералов", "referrals.reconcile": "Сверка рефералов",
+    "referrals.withdrawals.read": "Просмотр заявок на вывод", "referrals.withdrawals.approve": "Одобрение вывода",
+    "referrals.withdrawals.pay": "Выплата вывода",
+    "support.read": "Просмотр обращений", "support.write": "Ответы на обращения",
+    "provision_nodes": "Серверы и ноды: установка, обновление, перезапуск", "nodes.terminal": "Терминал на нодах",
+    "ops.diagnostics": "Диагностика и мониторинг", "ops.incidents": "Инциденты", "ops.providers": "Платёжные агенты: включение и проверка",
+    "ops.backups.verify": "Проверка резервных копий", "ops.releases": "Обновления и выпуски",
+    "manage_backups": "Резервные копии (старое право)", "backups.read": "Просмотр резервных копий", "backups.write": "Создание резервных копий",
+    "backups.restore": "Восстановление из копии",
+    "manage_admins": "Администраторы и роли", "security.manage": "Настройки безопасности", "security.passkeys": "Ключи доступа (passkeys)",
+    "security.stepup": "Повторное подтверждение опасных действий", "sessions.manage": "Сессии всех администраторов",
+    "sessions.self": "Свои сессии", "manage_own_mfa": "Своя двухфакторная защита",
+    "feature_flags.manage": "Включение функций", "settings.runtime.read": "Просмотр настроек",
+    "settings.runtime.write": "Изменение настроек без перезапуска", "staging_e2e.manage": "Проверка платежей на тестовом стенде",
+    "legal.write": "Документы: правила, политика, оферта, FAQ",
+}
+
 
 def _key(secret: str|None = None) -> bytes:
     return hashlib.sha256((secret or settings.app_secret).encode()).digest()
