@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | 1 | Инвентаризация и клонирование референсов | PASS | Выполнен 2026-11-01, перепроверен 2026-11-02 по исходникам: [STAGE_1_VERIFICATION](STAGE_1_VERIFICATION.md); исправлены 10 неточностей в числах и путях, выводы о лицензиях подтверждены |
 | 2 | Feature gap analysis | PASS | Выполнен 2026-11-02 по исходникам: [FEATURE_COMPARISON_MATRIX](FEATURE_COMPARISON_MATRIX.md) (45 функций в трёх группах), [REMNAWAVE_FEATURE_MATRIX](REMNAWAVE_FEATURE_MATRIX.md). Нет 11 функций, частично — 5; дубликатов не планируется. PASS относится к анализу, а не к функциям |
-| 3 | Полный технический аудит | NOT_STARTED | FULL_TECHNICAL_AUDIT, SECURITY_AUDIT, PERFORMANCE_AUDIT, [BUG_REGISTRY](BUG_REGISTRY.md) |
+| 3 | Полный технический аудит | PASS | Выполнен 2026-11-02: [FULL_TECHNICAL_AUDIT](FULL_TECHNICAL_AUDIT.md), [SECURITY_AUDIT](SECURITY_AUDIT.md), [PERFORMANCE_AUDIT](PERFORMANCE_AUDIT.md), [BUG_REGISTRY](BUG_REGISTRY.md). Высоких уязвимостей нет; 9 технических находок, 6 по безопасности (2 средних), 4 по производительности; 7 новых записей в реестре ошибок. Вызовы Remnawave сверены с контрактом 3.4.15 (последний backend 3.4.7). Проверки со стендом, доменом и ключами — `BLOCKED_*` |
 | 4 | Исправление ошибок | NOT_STARTED | BUGFIX_LOG, REGRESSION_TESTS |
 | 5 | Backend и единая бизнес-логика | NOT_STARTED | API, BACKEND_ARCHITECTURE, DATABASE_SCHEMA |
 | 6 | Единая административная панель | NOT_STARTED | [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), ADMIN_PANEL_GUIDE, ADMIN_MODULES, RBAC |
