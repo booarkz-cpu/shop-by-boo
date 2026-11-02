@@ -1,0 +1,26 @@
+name: Resolve image digests
+
+# Prints the immutable digests (and the program versions inside) of the base images this project pins.
+# Used when the pinned images are updated; the sandbox that prepares the change cannot reach Docker Hub.
+on:
+  pull_request:
+    paths: ['.github/workflows/resolve-image-digests.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  digests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Resolve
+        run: |
+          for image in python:3.15-slim python:3.14-slim node:26-alpine nginx:stable-alpine nginx:mainline-alpine \
+                       caddy:2-alpine redis:8-alpine valkey/valkey:9-alpine postgres:18-alpine; do
+            docker pull -q "$image" >/dev/null
+            digest="$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')"
+            version="$(docker run --rm --entrypoint sh "$image" -c 'python3 --version 2>/dev/null || node --version 2>/dev/null || nginx -v 2>&1 || caddy version 2>/dev/null || redis-server --version 2>/dev/null || valkey-server --version 2>/dev/null || postgres --version 2>/dev/null' | head -1)"
+            echo "IMAGE $image | $digest | $version" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
