@@ -32,7 +32,7 @@ jobs:
           check postgres:18.6-alpine 'postgres --version'
       - name: Android toolchain versions
         run: |
-          meta(){ curl -fsS "$1" | grep -oE "<(release|latest)>[^<]+" | head -1 | sed 's/<[a-z]*>//'; }
+          meta(){ curl -fsS "$1" | grep -oE "<version>[^<]+" | sed 's/<version>//' | grep -viE "alpha|beta|rc|dev|eap|snapshot|-m[0-9]" | sort -V | tail -1; }
           echo "TOOL AGP $(meta https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "TOOL Kotlin $(meta https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "TOOL ComposeBOM $(meta https://dl.google.com/dl/android/maven2/androidx/compose/compose-bom/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
@@ -42,4 +42,4 @@ jobs:
           done
           echo "TOOL kotlinx-coroutines-android $(meta https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-android/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "TOOL compose-compiler-plugin $(meta https://repo1.maven.org/maven2/org/jetbrains/kotlin/plugin/compose/org.jetbrains.kotlin.plugin.compose.gradle.plugin/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
-          ls /usr/local/lib/android/sdk/platforms | tail -3 | sed 's/^/TOOL sdk-platform /'
+          ls /usr/local/lib/android/sdk/platforms | sed 's/^/TOOL sdk-platform /'
