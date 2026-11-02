@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **1991**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **1998**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1192,6 +1192,13 @@
 | [docs/ru/modules/29-fraud.md](../docs/ru/modules/29-fraud.md) | Документация |
 | [docs/ru/modules/30-backups-recovery.md](../docs/ru/modules/30-backups-recovery.md) | Документация |
 | [docs/ru/modules/README.md](../docs/ru/modules/README.md) | Документация |
+| [docs/ru/new/ADMIN_CONTROL_MATRIX.md](../docs/ru/new/ADMIN_CONTROL_MATRIX.md) | Документация |
+| [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
+| [docs/ru/new/FEATURE_COMPARISON_MATRIX.md](../docs/ru/new/FEATURE_COMPARISON_MATRIX.md) | Документация |
+| [docs/ru/new/IMPLEMENTATION_STATUS.md](../docs/ru/new/IMPLEMENTATION_STATUS.md) | Документация |
+| [docs/ru/new/KNOWN_LIMITATIONS.md](../docs/ru/new/KNOWN_LIMITATIONS.md) | Документация |
+| [docs/ru/new/README.md](../docs/ru/new/README.md) | Документация |
+| [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
 | [docs/ru/steps/01-project.md](../docs/ru/steps/01-project.md) | Документация |
 | [docs/ru/steps/02-local-test.md](../docs/ru/steps/02-local-test.md) | Документация |
 | [docs/ru/steps/03-vds.md](../docs/ru/steps/03-vds.md) | Документация |
