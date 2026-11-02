@@ -39,6 +39,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Callable
 from xml.etree import ElementTree
 
+from defusedxml import DefusedXmlException
+from defusedxml import ElementTree as SafeElementTree
+
 import httpx
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile
 from pydantic import BaseModel, ConfigDict, Field
@@ -593,7 +596,10 @@ def parse_report(xml: bytes, domain: str) -> dict:
     if re.search(rb"<!\s*(doctype|entity)", xml, re.I):
         raise ReportError("XML с DOCTYPE/ENTITY не принимается")
     try:
-        root = ElementTree.fromstring(xml)
+        # v28.59.0 (SEC-04): defusedxml refuses DTDs, entities and external references on top of the check above.
+        root = SafeElementTree.fromstring(xml, forbid_dtd=True)
+    except DefusedXmlException as exc:
+        raise ReportError("XML с DOCTYPE/ENTITY не принимается") from exc
     except ElementTree.ParseError as exc:
         raise ReportError("Файл не является XML") from exc
     if _local(root.tag) != "feedback":

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.58.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.59.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2015**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2030**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -119,6 +119,7 @@
 | [admin/e2e/fraud-decisions.spec.ts](../admin/e2e/fraud-decisions.spec.ts) | Админ-панель |
 | [admin/e2e/growth.spec.ts](../admin/e2e/growth.spec.ts) | Админ-панель |
 | [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
+| [admin/e2e/integrity.spec.ts](../admin/e2e/integrity.spec.ts) | Админ-панель |
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
 | [admin/e2e/mobile-layout.spec.ts](../admin/e2e/mobile-layout.spec.ts) | Админ-панель |
 | [admin/e2e/passkeys.spec.ts](../admin/e2e/passkeys.spec.ts) | Админ-панель |
@@ -416,6 +417,7 @@
 | [backend/app/email_templates.py](../backend/app/email_templates.py) | API, бот и worker |
 | [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
 | [backend/app/error_log.py](../backend/app/error_log.py) | API, бот и worker |
+| [backend/app/errors.py](../backend/app/errors.py) | API, бот и worker |
 | [backend/app/feedback.py](../backend/app/feedback.py) | API, бот и worker |
 | [backend/app/first_connect.py](../backend/app/first_connect.py) | API, бот и worker |
 | [backend/app/fiscal.py](../backend/app/fiscal.py) | API, бот и worker |
@@ -444,6 +446,7 @@
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
 | [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
+| [backend/app/integrity.py](../backend/app/integrity.py) | API, бот и worker |
 | [backend/app/loyalty.py](../backend/app/loyalty.py) | API, бот и worker |
 | [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
 | [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
@@ -470,6 +473,7 @@
 | [backend/app/observability.py](../backend/app/observability.py) | API, бот и worker |
 | [backend/app/operations_api.py](../backend/app/operations_api.py) | API, бот и worker |
 | [backend/app/ops_alerts.py](../backend/app/ops_alerts.py) | API, бот и worker |
+| [backend/app/pagination.py](../backend/app/pagination.py) | API, бот и worker |
 | [backend/app/panel_admin.py](../backend/app/panel_admin.py) | API, бот и worker |
 | [backend/app/panel_api_stats.py](../backend/app/panel_api_stats.py) | API, бот и worker |
 | [backend/app/panel_guard.py](../backend/app/panel_guard.py) | API, бот и worker |
@@ -515,6 +519,7 @@
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
 | [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
+| [backend/app/seat_access.py](../backend/app/seat_access.py) | API, бот и worker |
 | [backend/app/security.py](../backend/app/security.py) | API, бот и worker |
 | [backend/app/smart_cart.py](../backend/app/smart_cart.py) | API, бот и worker |
 | [backend/app/speed_test.py](../backend/app/speed_test.py) | API, бот и worker |
@@ -1116,6 +1121,7 @@
 | [docs/ru/RELEASE_V28_56_0.md](../docs/ru/RELEASE_V28_56_0.md) | Документация |
 | [docs/ru/RELEASE_V28_57_0.md](../docs/ru/RELEASE_V28_57_0.md) | Документация |
 | [docs/ru/RELEASE_V28_58_0.md](../docs/ru/RELEASE_V28_58_0.md) | Документация |
+| [docs/ru/RELEASE_V28_59_0.md](../docs/ru/RELEASE_V28_59_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
@@ -1198,8 +1204,11 @@
 | [docs/ru/modules/30-backups-recovery.md](../docs/ru/modules/30-backups-recovery.md) | Документация |
 | [docs/ru/modules/README.md](../docs/ru/modules/README.md) | Документация |
 | [docs/ru/new/ADMIN_CONTROL_MATRIX.md](../docs/ru/new/ADMIN_CONTROL_MATRIX.md) | Документация |
+| [docs/ru/new/API.md](../docs/ru/new/API.md) | Документация |
+| [docs/ru/new/BACKEND_ARCHITECTURE.md](../docs/ru/new/BACKEND_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/BUGFIX_LOG.md](../docs/ru/new/BUGFIX_LOG.md) | Документация |
 | [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
+| [docs/ru/new/DATABASE_SCHEMA.md](../docs/ru/new/DATABASE_SCHEMA.md) | Документация |
 | [docs/ru/new/FEATURE_COMPARISON_MATRIX.md](../docs/ru/new/FEATURE_COMPARISON_MATRIX.md) | Документация |
 | [docs/ru/new/FULL_TECHNICAL_AUDIT.md](../docs/ru/new/FULL_TECHNICAL_AUDIT.md) | Документация |
 | [docs/ru/new/IMPLEMENTATION_STATUS.md](../docs/ru/new/IMPLEMENTATION_STATUS.md) | Документация |
@@ -1650,6 +1659,7 @@
 | [scripts/dependabot-automerge.cjs](../scripts/dependabot-automerge.cjs) | Эксплуатация и релиз |
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |
+| [scripts/generate-db-schema.py](../scripts/generate-db-schema.py) | Эксплуатация и релиз |
 | [scripts/generate-project-map.py](../scripts/generate-project-map.py) | Эксплуатация и релиз |
 | [scripts/geo/natural-earth-to-svg.py](../scripts/geo/natural-earth-to-svg.py) | Эксплуатация и релиз |
 | [scripts/github_release_fetch.py](../scripts/github_release_fetch.py) | Эксплуатация и релиз |
@@ -1841,6 +1851,7 @@
 | [tests/test_current_documentation.py](../tests/test_current_documentation.py) | Проверки |
 | [tests/test_customer_passkeys.py](../tests/test_customer_passkeys.py) | Проверки |
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
+| [tests/test_database_schema_doc.py](../tests/test_database_schema_doc.py) | Проверки |
 | [tests/test_dependency_locks.py](../tests/test_dependency_locks.py) | Проверки |
 | [tests/test_diagnostics.py](../tests/test_diagnostics.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
@@ -1848,6 +1859,7 @@
 | [tests/test_e2e_journeys.py](../tests/test_e2e_journeys.py) | Проверки |
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
 | [tests/test_economics.py](../tests/test_economics.py) | Проверки |
+| [tests/test_error_format.py](../tests/test_error_format.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
 | [tests/test_feedback_digest_cohorts.py](../tests/test_feedback_digest_cohorts.py) | Проверки |
@@ -1866,6 +1878,7 @@
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
+| [tests/test_integrity_report.py](../tests/test_integrity_report.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_loyalty.py](../tests/test_loyalty.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
@@ -1891,6 +1904,7 @@
 | [tests/test_observability.py](../tests/test_observability.py) | Проверки |
 | [tests/test_ops_alerts.py](../tests/test_ops_alerts.py) | Проверки |
 | [tests/test_ops_weekly.py](../tests/test_ops_weekly.py) | Проверки |
+| [tests/test_pagination.py](../tests/test_pagination.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
 | [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |
 | [tests/test_payment_fraud.py](../tests/test_payment_fraud.py) | Проверки |
@@ -1928,6 +1942,7 @@
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
 | [tests/test_schema_matches_migrations.py](../tests/test_schema_matches_migrations.py) | Проверки |
+| [tests/test_single_business_logic.py](../tests/test_single_business_logic.py) | Проверки |
 | [tests/test_speed_forecast.py](../tests/test_speed_forecast.py) | Проверки |
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_status_and_regional_pricing.py](../tests/test_status_and_regional_pricing.py) | Проверки |

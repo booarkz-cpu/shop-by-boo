@@ -51,5 +51,33 @@ export function OpsReadiness({request, toast}: {request: Request; toast: (m: str
       {alerts.problems.length === 0 ? <p className="muted">Проблем нет.</p> : alerts.problems.map((p: any) => <div className="ops-problem" key={p.key} data-problem={p.key}>
         <b>{p.title}</b><p className="muted">{p.detail}</p></div>)}
     </div>
+    <Integrity request={request}/>
+  </div>;
+}
+
+/** «Целостность данных» (v28.59.0): rows that point at a customer, subscription, payment or plan that is gone. Read-only. */
+function Integrity({request}: {request: Request}) {
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function check() {
+    setBusy(true); setError("");
+    try { setData(await request("/api/admin/integrity")); } catch (e: any) { setError(e.message); } finally { setBusy(false); }
+  }
+  return <div className="card" data-integrity>
+    <h3>Целостность данных</h3>
+    <p className="muted">Ищет записи, которые ссылаются на удалённого клиента, подписку, платёж или тариф. Ничего не меняет. Пустой результат нужен перед тем, как включать в базе внешние ключи.</p>
+    {error && <div role="alert" className="error">{error}</div>}
+    <button disabled={busy} onClick={check}>{busy ? "Проверка…" : data ? "Проверить снова" : "Проверить"}</button>
+    {data && <>
+      <p><b>{data.ok ? "Нарушений нет" : `Найдено записей без связи: ${data.orphans}`}</b></p>
+      <ul className="ops-checks">
+        {(Array.isArray(data.checks) ? data.checks : []).map((c: any) => <li key={`${c.table}.${c.column}`} data-ok={c.orphans ? "0" : "1"}>
+          <span className={c.orphans ? "ops-bad" : "ops-ok"}>{c.orphans ? "✗" : "✓"}</span>
+          <div><b>{c.table}.{c.column} → {c.references}</b><span className="muted"> · {c.meaning}</span>
+            {c.orphans > 0 && <p className="muted">{c.orphans} шт., например id {c.sample_ids.join(", ")}</p>}</div>
+        </li>)}
+      </ul>
+    </>}
   </div>;
 }

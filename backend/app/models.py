@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 import secrets
 from sqlalchemy import String, Integer, BigInteger, DateTime, Boolean, Numeric, Text, UniqueConstraint, JSON, ForeignKey, Index, text, LargeBinary
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, synonym
 from .db import Base
 
 class User(Base):
@@ -176,7 +176,10 @@ class Subscription(Base):
     auto_renew_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     next_renewal_at: Mapped[datetime|None] = mapped_column(DateTime)
     plan_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # The numeric id of the user in Remnawave 3.x (``/api/users/{id}``). The column keeps its historical
+    # name so that installations, backups and exports stay compatible; new code reads remnawave_user_id.
     remnawave_uuid: Mapped[str|None] = mapped_column(String(255))
+    remnawave_user_id = synonym("remnawave_uuid")
     subscription_url: Mapped[str|None] = mapped_column(Text)
     # Lifecycle before an anti-abuse restriction paused the subscription; restored when it is lifted.
     suspended_from: Mapped[str|None] = mapped_column(String(32))
