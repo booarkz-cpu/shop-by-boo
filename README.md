@@ -13,8 +13,8 @@ Telegram-бот и Mini App · личный кабинет · приложени
 [![Release](https://img.shields.io/github/v/release/booarkz-cpu/shop-by-boo?display_name=tag&color=3b82f6)](https://github.com/booarkz-cpu/shop-by-boo/releases/latest)
 [![License](https://img.shields.io/badge/license-Corgi%20Lusi%20Source%202.8-FF8A1F)](LICENSE)
 
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.161.1-009688?logo=fastapi&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.15-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.162-009688?logo=fastapi&logoColor=white)
 ![aiogram](https://img.shields.io/badge/aiogram-3.31-2CA5E0?logo=telegram&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.1.6-D71F00)
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
@@ -413,18 +413,18 @@ Remnawave. Вы устанавливаете его на свой сервер, 
 
 | Компонент | Технология | Назначение |
 | --- | --- | --- |
-| API и backend | Python 3.12, FastAPI 0.161.1, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
+| API и backend | Python 3.15, FastAPI 0.162.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
 | ORM и БД | SQLAlchemy 2.1.6, Alembic 1.20.1, PostgreSQL 18.6 | модели, миграции, транзакции |
-| Очереди и кэш | Redis 7.4 | блокировки, идемпотентность, кэш статусов |
+| Очереди и кэш | Redis 8.10 | блокировки, идемпотентность, кэш статусов |
 | Telegram-бот | aiogram 3.31.0 | `/start`, меню, покупка, поддержка, уведомления |
-| Админ-панель | Next.js 16.4.2, React 19.3.1, TypeScript 7.0.2 (strict) | управление магазином |
-| Кабинет и Mini App | Next.js 16.4.2, React 19.3.1, TypeScript 7.0.2 | личный кабинет клиента и Telegram Mini App |
+| Админ-панель | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 (strict), Node.js 26 LTS | управление магазином |
+| Кабинет и Mini App | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 | личный кабинет клиента и Telegram Mini App |
 | Стили и шрифты | Tailwind CSS 4.3, Inter, JetBrains Mono | тёмная тема, типографика |
-| Мобильные приложения | Kotlin + Compose (Android), Swift + SwiftUI (iOS) | клиентские и админские приложения |
+| Мобильные приложения | Kotlin 2.4 + Compose, AGP 9.5, Gradle 9.8 (Android); Swift 6 + SwiftUI (iOS) | клиентские и админские приложения |
 | VPN-ядро | Xray-core | встроенный VPN на Android |
 | Панель доступа | Remnawave 3.x API | пользователи, срок, трафик, устройства |
-| Контейнеры | Docker Compose, Caddy | 17 сервисов, TLS, reverse proxy |
-| Тесты | pytest 9.1.1, Vitest 5.0.5, Playwright | backend, кабинет, сценарии в браузере |
+| Контейнеры | Docker Compose, Caddy 2.11, nginx 1.30 | 17 сервисов, TLS, reverse proxy |
+| Тесты | pytest 9.2.0, Vitest 5.1.0, Playwright 1.64 | backend, кабинет, сценарии в браузере |
 
 ## 💻 Системные требования
 
@@ -557,10 +557,10 @@ flowchart LR
 | `mail_receiver` (профиль `mail`) | Необязательный приём почты для служебных адресов |
 
 **Стек.**
-- Backend: Python 3.12, FastAPI 0.141, SQLAlchemy 2.0 (async, asyncpg), Alembic 1.18, Pydantic 2, httpx, aiogram 3.31.
-- Frontend: Next.js 16, React 19, TypeScript 5.9 strict, Tailwind CSS 4, shadcn/Radix.
+- Backend: Python 3.15, FastAPI 0.162, SQLAlchemy 2.1 (async, asyncpg), Alembic 1.20, Pydantic 2, httpx, aiogram 3.31.
+- Frontend: Next.js 16, React 19, TypeScript 7 strict, Tailwind CSS 4, shadcn/Radix; сборка на Node.js 26 LTS.
 - Мобильные приложения: Kotlin (Android) и Swift (iOS).
-- База данных: PostgreSQL 18.6 (магазин и Support Pro), Redis 7.4.
+- База данных: PostgreSQL 18.6 (магазин и Support Pro), Redis 8.10.
 - Инфраструктура: Docker Compose, Caddy, GitHub Actions (CI, Docker, выпуски, мобильные сборки).
 
 ### 📂 Структура репозитория

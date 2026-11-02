@@ -11,9 +11,9 @@ resolve(){
   [[ "$digest" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]] || { echo "No immutable digest for $image" >&2; return 1; }
   printf '%s\n' "$digest"
 }
-REDIS_IMAGE="$(resolve redis:7.4-alpine)"
+REDIS_IMAGE="$(resolve redis:8.10-alpine)"
 POSTGRES_IMAGE="$(resolve postgres:18.6-alpine)"
-CADDY_IMAGE="$(resolve caddy:2.10-alpine)"
+CADDY_IMAGE="$(resolve caddy:2.11-alpine)"
 {
   echo "REDIS_IMAGE=$REDIS_IMAGE"
   echo "POSTGRES_IMAGE=$POSTGRES_IMAGE"

@@ -20,9 +20,9 @@ resolve_build() {
   [[ "$digest" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]] || { echo "No digest for $image" >&2; exit 1; }
   printf '%s' "$digest"
 }
-PYTHON_BASE_IMAGE="$(resolve_build python:3.12-slim)"
-NODE_BASE_IMAGE="$(resolve_build node:22-alpine)"
-NGINX_BASE_IMAGE="$(resolve_build nginx:1.29-alpine)"
+PYTHON_BASE_IMAGE="$(resolve_build python:3.15-slim)"
+NODE_BASE_IMAGE="$(resolve_build node:26-alpine)"
+NGINX_BASE_IMAGE="$(resolve_build nginx:1.30-alpine)"
 temp_env="$(mktemp "$ROOT/.env.resume.XXXXXX")"
 trap 'rm -f "$temp_env"' EXIT
 awk '!/^(PYTHON_BASE_IMAGE|NODE_BASE_IMAGE|NGINX_BASE_IMAGE)=/' .env > "$temp_env"
