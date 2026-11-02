@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.59.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.60.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2030**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2036**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -114,6 +114,7 @@
 | [admin/e2e/bot-banners.spec.ts](../admin/e2e/bot-banners.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
+| [admin/e2e/control-center.spec.ts](../admin/e2e/control-center.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
 | [admin/e2e/documents-banner.spec.ts](../admin/e2e/documents-banner.spec.ts) | Админ-панель |
 | [admin/e2e/fraud-decisions.spec.ts](../admin/e2e/fraud-decisions.spec.ts) | Админ-панель |
@@ -162,6 +163,7 @@
 | [admin/src/components/ui/status.tsx](../admin/src/components/ui/status.tsx) | Админ-панель |
 | [admin/src/components/ui/tooltip.tsx](../admin/src/components/ui/tooltip.tsx) | Админ-панель |
 | [admin/src/content-publishing.tsx](../admin/src/content-publishing.tsx) | Админ-панель |
+| [admin/src/control-center.tsx](../admin/src/control-center.tsx) | Админ-панель |
 | [admin/src/corporate.tsx](../admin/src/corporate.tsx) | Админ-панель |
 | [admin/src/customer-desk.tsx](../admin/src/customer-desk.tsx) | Админ-панель |
 | [admin/src/customer-operations.tsx](../admin/src/customer-operations.tsx) | Админ-панель |
@@ -327,6 +329,7 @@
 | [backend/app/ad_postbacks.py](../backend/app/ad_postbacks.py) | API, бот и worker |
 | [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
 | [backend/app/admin_auth_api.py](../backend/app/admin_auth_api.py) | API, бот и worker |
+| [backend/app/admin_center.py](../backend/app/admin_center.py) | API, бот и worker |
 | [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
 | [backend/app/admin_web_ticket.py](../backend/app/admin_web_ticket.py) | API, бот и worker |
 | [backend/app/anti_sharing.py](../backend/app/anti_sharing.py) | API, бот и worker |
@@ -1123,6 +1126,7 @@
 | [docs/ru/RELEASE_V28_58_0.md](../docs/ru/RELEASE_V28_58_0.md) | Документация |
 | [docs/ru/RELEASE_V28_59_0.md](../docs/ru/RELEASE_V28_59_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
+| [docs/ru/RELEASE_V28_60_0.md](../docs/ru/RELEASE_V28_60_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1658,6 +1662,7 @@
 | [scripts/configure-support-bridge.py](../scripts/configure-support-bridge.py) | Эксплуатация и релиз |
 | [scripts/dependabot-automerge.cjs](../scripts/dependabot-automerge.cjs) | Эксплуатация и релиз |
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
+| [scripts/generate-admin-matrix.py](../scripts/generate-admin-matrix.py) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |
 | [scripts/generate-db-schema.py](../scripts/generate-db-schema.py) | Эксплуатация и релиз |
 | [scripts/generate-project-map.py](../scripts/generate-project-map.py) | Эксплуатация и релиз |
@@ -1814,6 +1819,7 @@
 | [tests/test_account_actions.py](../tests/test_account_actions.py) | Проверки |
 | [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
 | [tests/test_account_sync.py](../tests/test_account_sync.py) | Проверки |
+| [tests/test_admin_center.py](../tests/test_admin_center.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
 | [tests/test_admin_route_permissions.py](../tests/test_admin_route_permissions.py) | Проверки |

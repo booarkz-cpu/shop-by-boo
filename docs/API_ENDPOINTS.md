@@ -1,4 +1,4 @@
-# Каталог API — v28.59.0 / API v21.5.1
+# Каталог API — v28.60.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0089_index_cleanup`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -109,6 +109,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/cohorts` | Admin Cohorts | право `analytics.read` |
 | `GET` | `/api/admin/connection-quality` | Admin Quality | право `ops.diagnostics` |
 | `GET` | `/api/admin/content` | Admin Content | право `read` |
+| `GET` | `/api/admin/control-center` | Control Center | право `read` |
 | `GET` | `/api/admin/corporate` | Admin List | право `read` |
 | `POST` | `/api/admin/corporate` | Admin Create | право `manage_users` |
 | `GET` | `/api/admin/corporate-accounts` | List Corporate | право `read` |
@@ -440,6 +441,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/ripe-atlas` | Get Ripe | право `ops.diagnostics` |
 | `PUT` | `/api/admin/ripe-atlas` | Put Ripe | право `settings.runtime.write` |
 | `POST` | `/api/admin/ripe-atlas/run` | Run Ripe | право `ops.diagnostics` |
+| `GET` | `/api/admin/roles` | Roles | право `read` |
 | `GET` | `/api/admin/runtime-settings` | Admin Runtime Settings | право `settings.runtime.read` |
 | `DELETE` | `/api/admin/runtime-settings/changes/{change_id}` | Admin Discard Runtime Settings | право `settings.runtime.write` |
 | `POST` | `/api/admin/runtime-settings/changes/{change_id}/apply` | Admin Apply Runtime Settings | право `settings.runtime.write` |

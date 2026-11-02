@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.59.0 (stage 5): the read-only integrity report is reachable from the admin panel and shows every relation.
+// v28.60.0 (stage 5): the read-only integrity report is reachable from the admin panel and shows every relation.
 test('administrator checks data integrity from «Запуск и оповещения»', async ({page}) => {
   await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
   await page.goto('/');

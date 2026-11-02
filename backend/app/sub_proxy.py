@@ -441,8 +441,12 @@ async def put_proxy(payload: ProxyIn, db: AsyncSession = Depends(get_db), admin=
             raise HTTPException(422, f"Доп. ключи «{extra.name}»: каждая строка — одна ссылка вида scheme://…")
     if payload.enabled and payload.rewrite_links and not payload.public_base:
         raise HTTPException(422, "Укажите адрес зеркала, чтобы выдавать клиентам ссылки прослойки")
+    from .main import audit
     new = {**cfg, **payload.model_dump()}
     await _save(db, CONFIG_KEY, new)
+    # v28.60.0 (stage 6): proxy settings decide what every client receives, so the change is in the audit log.
+    await audit(db, "sub_proxy.config.saved", admin.email, None, {"enabled": payload.enabled, "rewrite_links": payload.rewrite_links,
+                                                               "rules": len(payload.rules), "extras": len(payload.extras)})
     await db.commit()
     _state.update(cfg=new, at=time.monotonic())
     _index.clear()
@@ -457,6 +461,8 @@ async def block_device(payload: BlockIn, db: AsyncSession = Depends(get_db), adm
     rows.append({"hwid": payload.hwid, "note": payload.note, "at": datetime.utcnow().isoformat(timespec="seconds")})
     cfg["blocked_hwids"] = rows[-2000:]
     await _save(db, CONFIG_KEY, cfg)
+    from .main import audit
+    await audit(db, "sub_proxy.device.blocked", admin.email, payload.hwid, {"note": payload.note})
     await db.commit()
     _state.update(cfg=cfg, at=time.monotonic())
     return {"ok": True, "blocked": len(cfg["blocked_hwids"])}
@@ -468,6 +474,8 @@ async def unblock_device(hwid: str, db: AsyncSession = Depends(get_db), admin=De
     cfg = await load_config(db)
     cfg["blocked_hwids"] = [x for x in cfg.get("blocked_hwids") or [] if x.get("hwid") != hwid]
     await _save(db, CONFIG_KEY, cfg)
+    from .main import audit
+    await audit(db, "sub_proxy.device.unblocked", admin.email, hwid, {})
     await db.commit()
     _state.update(cfg=cfg, at=time.monotonic())
     return {"ok": True}
