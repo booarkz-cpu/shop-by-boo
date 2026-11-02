@@ -1,9 +1,78 @@
-# Сравнение функций с референсами
+# Сравнение функций с референсами (этап 2)
 
-Заполняется на этапе 2. Колонки: функция; источник; текущее состояние; полнота; нужна ли доработка; возможность переноса; лицензия; файлы; API; UI; тесты.
+База сравнения: `main` после PR #154 (`12834876`), миграция `0088_filter_and_regions`. Референсы — клоны из этапа 1 ([REFERENCE_REPOSITORIES](../../REFERENCE_REPOSITORIES.md)). Все выводы получены чтением исходников и поиском по коду; ни одна функция здесь не запускалась на живой панели, поэтому ни у одной строки нет статуса `PASS`.
 
-Лицензионные ограничения уже установлены на этапе 1 ([CODE_REUSE_REGISTER](../../CODE_REUSE_REGISTER.md)): перенос кода разрешён только из `remnawave-reverse-proxy` (MIT), из остальных четырёх — нет.
+## Как читать таблицу
+
+- **Текущее состояние** — статус из [README](README.md): `IMPLEMENTED` — код и тесты есть в репозитории, но нет проверки на живой Remnawave; `NOT_STARTED` — в коде ничего нет. Частичная реализация отмечена `IMPLEMENTED` с пометкой в колонке «Полнота».
+- **Перенос**. Код можно переносить только из `remnawave-reverse-proxy` (MIT, с сохранением copyright). Из `remnawave-admin` (AGPL-3.0 + CLA; с версии 5.2.0 платный), `remnawave-bedolaga-telegram-bot` (Commons Clause) и `bedolaga-cabinet` (AGPL) код не переносится: берётся только идея и описание поведения, реализация пишется заново. У `remnawave-subscription-middleware` нет лицензии на собственный код, поэтому из него тоже ничего не копируется.
+- **Reverse-proxy** — набор bash-скриптов для установки на сервер. Скрипты ставят и настраивают софт по SSH с правами root, автор пометил их «NOT FOR PRODUCTION», тестов в них нет. Для магазина из них берётся только порядок действий и список вызовов API Remnawave, а не сами скрипты.
+- **Дубликаты**. Там, где функция уже есть, в колонке «Доработка» указано расширение существующего модуля, а не новый модуль. Это касается правил задания о `sub_proxy.py` и `deploy/Caddyfile`: второго прокси подписок и второго обработчика портов 80/443 не будет.
+
+## 1. Remnawave и инфраструктура нод
 
 | Функция | Источник | Текущее состояние | Полнота | Доработка | Перенос | Лицензия | Файлы | API | UI | Тесты |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| — | — | NOT_STARTED | — | — | — | — | — | — | — | — |
+| Профили конфигурации, инбаунды, хосты | admin, reverse-proxy `manage_panel.sh` | IMPLEMENTED | Просмотр и изменение хостов, обзор профилей. Клонирования хостов (`api/hosts/actions/clone`) нет | Добавить клонирование хоста и массовую смену профиля (`api/nodes/bulk-actions/profile-modification`) в `panel_admin.py` | Идея из MIT | MIT / AGPL | `backend/app/panel_admin.py` | `/api/admin/panel/overview`, `/api/admin/panel/hosts[/{uuid}]` | `admin/src/reconciliation.tsx` | `test_remnawave_contract.py`, `test_e2e_v2.py` (контракт); отдельного теста `panel_admin` нет |
+| Internal Squads | admin, reverse-proxy | IMPLEMENTED | Список, включение и выключение, массовое добавление и удаление пользователей | Нет | — | — | `panel_admin.py`, `remnawave.py` | `/api/admin/panel/squads[/{uuid}[/{action}]]` | `reconciliation.tsx` | `test_remnawave_squads.py` (2) |
+| Здоровье нод, перезапуск | admin (агент на нодах) | IMPLEMENTED | Состояние, пороги, перезапуск, очередь обновления образа `remnawave/node` через агента | Нет | — | — | `node_health.py`, `scripts/node-agent.py` | `/api/admin/nodes/health`, `/health/config`, `/{uuid}/restart`, `/nodes/update` | `nodeMonitor.tsx` | `test_node_monitor.py` и ещё 6 файлов |
+| Прогноз загрузки нод | admin | IMPLEMENTED | Прогноз по истории | Нет | — | — | `node_forecast.py` | `/api/admin/nodes/forecast` | `nodesV53.tsx` | не найден отдельный тест |
+| Автомасштабирование нод (Hetzner) | собственная функция | IMPLEMENTED | Создание сервера в Hetzner, ключ из `api/keygen`, нода с профилем | Нет. Живая проверка — workflow `hetzner-live.yml`, нужен токен | — | — | `node_autoscale.py` | `/api/admin/nodes/autoscale` | `nodeAutoscale.tsx` | `test_node_autoscale.py` (5) |
+| Добавление ноды к существующей панели | reverse-proxy `add_node.sh` | IMPLEMENTED (частично) | Только установка Docker и `remnawave/node` по SSH с проверкой отпечатка хоста. Сертификатов, SelfSteal, ufw-профилей и DNS нет | Расширить `provisioner.py` шагами этапа 12; новый установщик не нужен | Идея из MIT | MIT | `provisioner.py`, `admin_api.py` | `POST /api/admin/provision-node` | Нет страницы: только API | Только проверки по тексту кода (`test_v312.py`) и прав доступа; поведенческого теста нет |
+| Установка самой панели Remnawave (Panel+Node, Panel Only, Subscription Page) | reverse-proxy `manage_panel.sh` | NOT_STARTED | Магазин подключается к готовой панели по `REMNAWAVE_URL`; установщика панели нет | Решение на этапе 12: мастер установки или только инструкция | Идея из MIT | MIT | — | — | — | — |
+| Прокси страницы подписки | middleware, reverse-proxy | IMPLEMENTED | `/sub/{path}`: блок HWID, журнал, список приложений, домены `SUB_PROXY_DOMAINS` в общем блоке Caddy | Расширять только этот модуль (правила подписки — ниже) | Нет: у middleware нет лицензии | нет / MIT | `sub_proxy.py`, `deploy/Caddyfile` | `/sub/{path}`, `/api/admin/sub-proxy*` | `subscriptionTools.tsx` | `test_subscription_middleware.py` (13) |
+| Subscription Rules (`api/subscription-settings`) | reverse-proxy `subscription_rules.sh` | NOT_STARTED | Эндпоинт встречается только в статистике вызовов API (`panel_api_stats.py`) | Редактор правил в `panel_admin.py` + `reconciliation.tsx` | Идея из MIT | MIT | — | — | — | — |
+| Node Plugins (`api/node-plugins`, torrent-blocker) | reverse-proxy `node_plugins.sh` | NOT_STARTED | Есть собственное распознавание торрентов по логу Xray (`torrent_detection.py`), но не через плагины нод Remnawave. `plugins.py` — плагины магазина, к нодам отношения не имеет | Новый клиент `api/node-plugins` поверх `remnawave.py`; учёт торрентов объединить с `torrent_detection.py` | Идея из MIT | MIT | — | — | — | — |
+| SelfSteal (маскировочный сайт для Reality) | reverse-proxy `selfsteal_templates.sh` | NOT_STARTED | — | Этап 12, через `provisioner.py`; на ноде, не в Caddy магазина | Шаблоны — MIT, нужна проверка содержимого | MIT | — | — | — | — |
+| WARP Native | reverse-proxy `warp.sh` | NOT_STARTED | — | Этап 12: outbound в профиле конфигурации | Идея из MIT | MIT | — | — | — | — |
+| NetBird | reverse-proxy `netbird.sh` | NOT_STARTED | — | Этап 12; отдельная сеть управления нодами | Идея из MIT | MIT | — | — | — | — |
+| IPv6 на нодах | reverse-proxy `ipv6.sh` | NOT_STARTED | В `mobile_api.py` есть только поле `ipv6_protected: False` в ответе для приложения | Этап 12 | Идея из MIT | MIT | — | — | — | — |
+| Server Routing (правила маршрутизации на нодах) | reverse-proxy `server_routing.sh` | NOT_STARTED | `smart_routing` в `v3_api.py` — настройки для клиента, не правила на сервере | Этап 12, через профили конфигурации | Идея из MIT | MIT | — | — | — | — |
+| Client Balancer | reverse-proxy `client_balancer.sh` | NOT_STARTED | — | Этап 12 | Идея из MIT | MIT | — | — | — | — |
+| Xray Checker | reverse-proxy `xray_checker.sh` | IMPLEMENTED (частично) | Есть внешние пробы доступности (`block_monitor.py`, `/api/probe/*`), но не проверка каждого хоста через Xray | Расширить `block_monitor.py`, не делать второй монитор | Идея из MIT | MIT | `block_monitor.py` | `/api/probe/*`, `/api/admin/block-monitor*` | `blockMonitor.tsx` | `test_block_monitor.py` (4) и ещё 2 файла |
+| Сертификаты и DNS-записи | reverse-proxy `certificates.sh`, `dns_records.sh` | IMPLEMENTED (только магазин) | Сертификаты магазина выпускает Caddy; для нод выпуска нет | Для нод — этап 12; для магазина ничего не менять | Идея из MIT | MIT | `deploy/Caddyfile`, `deploy/mail-tls` | — | — | `docs-links`, CI-проверка Caddyfile |
+| TinyAuth перед панелью | reverse-proxy `tinyauth.sh` | NOT_STARTED | Вход в админку магазина защищён своими средствами (passkeys, 2FA); TinyAuth не нужен для магазина | Решение на этапе 12, только для панели Remnawave | Идея из MIT | MIT | — | — | — | — |
+| Удалённый терминал и скрипты на нодах | admin | IMPLEMENTED | Терминал через агента | Нет | Нет (AGPL) | AGPL | `node_terminal.py`, `scripts/node-agent.py` | `/api/admin/terminal`, `/api/admin/terminal/sessions*` | `node-terminal.tsx` | `test_node_terminal.py` |
+| Торренты | admin | IMPLEMENTED | Подсчёт по логу Xray на ноде, без адресов назначения | Нет | Нет (AGPL) | AGPL | `torrent_detection.py` | `/api/admin/platform/torrents*`, `/api/agent/torrent` | `torrents.tsx` | 5 файлов |
+| Анти-абуз (разделение подписки, накрутка пробных) | admin | IMPLEMENTED | Анализаторы, оценка риска | Нет | Нет (AGPL) | AGPL | `abuse.py`, `anti_sharing.py`, `payment_fraud.py` | `/api/admin/anti-sharing`, `/api/admin/fraud*` | `fraud.tsx`, `paymentFraud.tsx` | есть |
+| Детектор DDoS на ноды | admin | NOT_STARTED | Поиск `ddos` в `backend/app` ничего не находит | Решить на этапе 12 или 13, нужны метрики агента | Нет (AGPL) | AGPL | — | — | — | — |
+| Статистика вызовов API панели | собственная | IMPLEMENTED | — | Нет | — | — | `panel_api_stats.py` | `/api/admin/panel-api-stats` | `subscriptionTools.tsx` | 1 файл |
+| Обслуживание при недоступной панели | собственная | IMPLEMENTED | Автоматический режим обслуживания | Нет | — | — | `panel_guard.py` | `/api/admin/panel-guard` | `reconciliation.tsx` | 1 файл |
+
+## 2. Telegram, кабинет, платежи
+
+| Функция | Источник | Текущее состояние | Полнота | Доработка | Перенос | Лицензия | Файлы | API | UI | Тесты |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Telegram-бот: меню, разделы, баннеры, документы | bedolaga-bot | IMPLEMENTED | Дерево кнопок из админки, баннеры, команды документов | Ошибки фронтенда — этап 3–4 | Нет (Commons Clause) | Commons Clause | `bot.py`, `menu_tree.py`, `bot_banners.py`, `info_pages.py` | `/api/admin/bot/*`, `/api/admin/info-pages*` | `menu-tree.tsx`, `botBanners.tsx`, `documents.tsx` | `test_bot_banners.py`, `test_info_pages.py`, `test_bot_api_rules.py` |
+| Telegram-бот для администратора (управление и уведомления в чате) | admin | IMPLEMENTED (частично) | Уведомления и тревоги есть (`ops_alerts.py`); команд управления в боте нет | Этап 13 | Нет (AGPL) | AGPL | `ops_alerts.py` | — | `ops.tsx` | `ops_alerts`: 7 файлов |
+| Подарочные подписки | bedolaga-bot | IMPLEMENTED | Подарки и коды | Сверить сценарии «Мои подарки» на этапе 8 | Нет | Commons Clause | модули с `gift` (31 файл) | `/api/admin/gift-batches*` и клиентские маршруты | кабинет, Mini App | есть |
+| Розыгрыши, конкурсы, опросы | bedolaga-bot | IMPLEMENTED | — | Нет | Нет | Commons Clause | `giveaways.py`, `surveys.py` | `/api/admin/giveaways*`, `/api/admin/surveys*` | `giveaways.tsx`, `surveys.tsx` | `giveaways.test.tsx` и др. |
+| Рефералы, промокоды, кампании | bedolaga-bot | IMPLEMENTED | — | Нет | Нет | Commons Clause | `referrals.py`, `referral_program.py`, `referral_contests.py`, `promo_generator.py`, `marketing_api.py` | `/api/admin/referral*`, `/api/admin/promo*` | `referral-program.tsx`, `promo-audiences.tsx` | есть |
+| Чёрный список пользователей | bedolaga-bot | IMPLEMENTED | — | Нет | Нет | Commons Clause | 5 модулей с `blacklist` | отдельного маршрута нет | — | 2 файла |
+| Фискализация (NaloGO, чеки) | bedolaga-bot | IMPLEMENTED (частично) | Есть раздел фискализации; NaloGO упомянут в одном модуле | Проверить на этапе 7 без реальных платежей | Нет | Commons Clause | `fiscal.py` | `/api/admin/fiscal*` | `fiscal.tsx` | есть |
+| Личный кабинет (web) | bedolaga-cabinet | IMPLEMENTED | Подписка, ключи, рефералы, семья, документы, вход по OAuth и passkeys | Ошибки `trim`/`map` — этап 3–4 | Нет (AGPL) | AGPL | `cabinet/src/*`, `cabinet_api.py` | `/api/cabinet*` | `cabinet` | vitest в `cabinet/src/*.test.tsx`, pytest |
+| Mini App | bedolaga-cabinet | IMPLEMENTED | Разделы из админки | Этап 3–4 | Нет | AGPL | `miniapp/*`, `app_config.py` | `/api/app-config` | `miniapp` | `test_info_pages.py` и др. |
+| Приложения Android и iOS | собственная | IMPLEMENTED (частично) | Вход через Telegram, Yandex, VK, Google и редактор настроек приложений — только в ветке `feat/v28.31.0-mobile`, не в `main` | Перенос на этапах 8 и 17 (миграция 0077 → 0089) | — | — | `android/`, `ios/`, ветка | `/api/mobile/*` | `mobileLayout.tsx` | сборка в CI, `test_mobile_layout.py` |
+| Платёжные провайдеры | bedolaga-bot | IMPLEMENTED | Вебхуки: YooKassa, CryptoBot, Crypto, FreeKassa, Platega, RollyPay, Tribute. Ещё есть CloudPayments, Lava, Pal24, WATA, MulenPay, Antilopay, AuraPay, Anore, Cashera, ParityPay, Telegram Stars, Apple IAP, Google Play. У Bedolaga есть RioPay, SeverPay, TabPay, CISPay, которых у нас нет | Новые провайдеры — только по запросу владельца, этап 7. Без ключей проверка не выше `IMPLEMENTED` | Нет | Commons Clause | `main.py`, `gateway_ops.py`, `customer_api.py` и модули провайдеров | `/api/webhooks/*` | `paymentMethods.tsx`, `gatewayHealth.tsx` | у каждого провайдера свой тест; нагрузочный `test_payment_load.py` |
+| Автопродление и повторные платежи | bedolaga-bot | IMPLEMENTED | Автопродление, напоминания, работа с должниками | Нет | Нет | Commons Clause | `dunning.py`, `schedulers.py` | — | `freezeDunning.tsx` | есть |
+| Поддержка (тикеты) | bedolaga-bot | IMPLEMENTED | Отдельный сервис Support Pro | Нет | Нет | Commons Clause | `support-pro/` | `/api/admin/support/*` | `support-desk.tsx` | свой набор в `support-pro/` |
+
+## 3. Автоматизация, мониторинг, резервные копии
+
+| Функция | Источник | Текущее состояние | Полнота | Доработка | Перенос | Лицензия | Файлы | API | UI | Тесты |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Конструктор автоматизаций | admin | IMPLEMENTED | — | Нет | Нет (AGPL) | AGPL | `automation.py` | `/api/admin/automation*` | `automation.tsx` | есть |
+| Мониторинг: Prometheus, Grafana, алерты | admin | IMPLEMENTED | 2 дашборда, правила алертов с тестом | Нет | Нет | AGPL | `operations_api.py`, `ops_alerts.py`, `deploy/prometheus`, `deploy/grafana` | `/api/admin/monitoring`, `/metrics` | `ops.tsx` | `ops_alerts`: 7 файлов, `vpnshop-alerts.test.yml` |
+| Гео-карта подключений | admin | IMPLEMENTED | — | Нет | Нет | AGPL | `network_intel.py` | `/api/admin/network*` | `worldMap.tsx`, `network-intel.tsx` | есть |
+| Почтовый сервер (MX, DKIM, проверки) | admin | IMPLEMENTED | — | Нет | Нет | AGPL | `mail_domain.py`, `mail_receiver.py`, `mail_auth.py` | `/api/admin/mail*` | `mail-domain.tsx` | есть |
+| Свой API с ключами и подписанными вебхуками | admin | IMPLEMENTED | Плагины магазина с подписью Ed25519 и разрешениями | Нет | Нет | AGPL | `plugins.py` | `/api/admin/plugins*` | `plugins.tsx` | есть |
+| Резервные копии: создание, проверка, восстановление с подтверждением, S3, Telegram | admin | IMPLEMENTED | Создание, проверка, двухэтапное восстановление, выгрузка в S3 и в Telegram | Проверка восстановления на живой базе — этап 14 | Нет | AGPL | `backups_api.py`, `backup_verify.py`, `telegram_backup.py`, `scripts/backup.sh` | `/api/admin/backups*` (10 маршрутов) | `main.tsx`, `growthTools.tsx` | `test_backup_bundle.py`, `test_backup_cli.py`, `test_promo_generator_and_tg_backup.py` |
+| Горячий резерв backend | собственная | IMPLEMENTED | `backend_standby` в compose | Нет | — | — | `hot_standby.py`, `docker-compose.yml` | `/api/admin/standby*`, `/api/standby/heartbeat` | `hotStandby.tsx` | есть |
+
+## Итог
+
+- Уже есть и дублировать не нужно: работа с панелью (хосты, Internal Squads), здоровье и обновление нод, автомасштабирование, прокси подписки, торренты, анти-абуз, терминал, мониторинг, резервные копии, бот, кабинет, Mini App, платежи, автоматизация.
+- Нет совсем (этап 12, «менеджер расширений Remnawave»): Subscription Rules, Node Plugins, SelfSteal, WARP, NetBird, IPv6 на нодах, Server Routing, Client Balancer, установка панели, сертификаты для нод, детектор DDoS.
+- Есть частично: добавление ноды (без сертификатов и SelfSteal), Xray Checker (только внешние пробы), бот для администратора (только уведомления), фискализация (NaloGO упомянут в одном модуле), приложения (вход и редактор настроек не в `main`).
+- Все 17 модулей reverse-proxy, нужные этапу 12, — bash-скрипты, которые выполняются с правами root. Их нельзя запускать на серверах как есть. Сначала аудит каждого модуля (этап 12), затем реализация на Python через `provisioner.py` и API Remnawave.
+- Найдена ошибка в коде: в `admin/src/documents.tsx` внутри `edit` вложена вторая копия функции `banner`. Записана в [BUG_REGISTRY](BUG_REGISTRY.md) как BUG-H3; исправление — этап 3–4.
