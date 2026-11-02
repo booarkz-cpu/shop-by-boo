@@ -108,6 +108,9 @@ export const SECTION_GROUPS = [
     description: "Узлы Remnawave, сеть и нагрузка",
     items: [
       {tab: "nodes", label: "Серверы", description: "Узлы Remnawave: онлайн, нагрузка, трафик и число подключённых клиентов.", keywords: "ноды узлы remnawave"},
+      {tab: "remnawave", label: "Remnawave: панель", description: "Профили конфигурации, хосты и внутренние сквады панели, режим обслуживания при её недоступности и статистика вызовов API.", keywords: "хосты сквады профили inbounds панель api"},
+      {tab: "subscriptionPortal", label: "Портал подписки", description: "Прослойка подписок на своём домене: правила для приложений, блокировка устройств, каталог клиентов и журнал выдачи ссылок.", keywords: "sub proxy зеркало hwid ссылка подписки"},
+      {tab: "availability", label: "Доступность и качество", description: "Проверки доступности из разных сетей и провайдеров, измерения RIPE Atlas, качество подключений и скорость у клиентов.", keywords: "блокировки ркн ripe скорость качество"},
       {tab: "networkIntel", label: "Сеть узлов: ASN и репутация", description: "В чьих сетях стоят узлы и не попали ли их адреса в списки злоупотреблений.", keywords: "asn abuseipdb ripestat ip"},
       {tab: "nodeTerminal", label: "Терминал узлов", description: "Командная оболочка на VPN-сервере через агент: с подтверждением 2FA и записью сессии.", keywords: "ssh shell консоль терминал сниппеты"},
       {tab: "routing", label: "Маршрутизация", description: "Выбор узла для клиента по задержке и нагрузке.", keywords: "smart routing балансировка"},

@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {LoadState} from "./components/ui/state";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 type Lang = "ru" | "en" | "uk";
@@ -68,7 +69,7 @@ export function Documents({request, toast, assetBase = ""}: {request: Request; t
     } catch (e: any) { setError(e.message); } finally { setBusy(false); }
   }
 
-  if (!draft) return <div className="card">{error ? <div role="alert" className="error">{error}</div> : <p className="muted">Загрузка…</p>}</div>;
+  if (!draft) return <LoadState error={error} onRetry={() => load()}/>;
   const t = draft[lang];
   const filled = (p: Page) => !!(p.ru.body || p.ru.items.length);
   return <div className="documents">

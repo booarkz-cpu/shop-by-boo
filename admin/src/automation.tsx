@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {LoadState} from "./components/ui/state";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 
@@ -10,8 +11,9 @@ const when = (v?: string | null) => v ? new Date(v).toLocaleString() : "—";
 export function Automation({data, request, reload, toast}: {data: any; request: Request; reload: () => void; toast: (m: string) => void}) {
   const [catalog, setCatalog] = useState<any>(null);
   const [error, setError] = useState("");
-  useEffect(() => { request("/api/admin/automation/catalog").then(setCatalog).catch((e: any) => setError(e.message)); }, [request]);
-  if (!catalog) return <div className="card">{error ? <div role="alert" className="error">{error}</div> : <p className="muted">Загрузка…</p>}</div>;
+  const loadCatalog = () => { setError(""); request("/api/admin/automation/catalog").then(setCatalog).catch((e: any) => setError(e.message)); };
+  useEffect(loadCatalog, [request]);
+  if (!catalog) return <LoadState error={error} onRetry={loadCatalog}/>;
   return <div className="grid2">
     <Rules rules={data?.rules || []} catalog={catalog} request={request} reload={reload} toast={toast}/>
     <Campaigns campaigns={data?.campaigns || []} catalog={catalog} request={request} reload={reload} toast={toast}/>

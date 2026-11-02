@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.60.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.61.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2036**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2041**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -108,6 +108,7 @@
 | [admin/THIRD_PARTY_LICENSES.txt](../admin/THIRD_PARTY_LICENSES.txt) | Админ-панель |
 | [admin/components.json](../admin/components.json) | Админ-панель |
 | [admin/default.conf](../admin/default.conf) | Админ-панель |
+| [admin/e2e/all-sections.spec.ts](../admin/e2e/all-sections.spec.ts) | Админ-панель |
 | [admin/e2e/app-config.spec.ts](../admin/e2e/app-config.spec.ts) | Админ-панель |
 | [admin/e2e/app-growth.spec.ts](../admin/e2e/app-growth.spec.ts) | Админ-панель |
 | [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
@@ -160,6 +161,7 @@
 | [admin/src/components/ui/segmented.tsx](../admin/src/components/ui/segmented.tsx) | Админ-панель |
 | [admin/src/components/ui/select.tsx](../admin/src/components/ui/select.tsx) | Админ-панель |
 | [admin/src/components/ui/skeleton.tsx](../admin/src/components/ui/skeleton.tsx) | Админ-панель |
+| [admin/src/components/ui/state.tsx](../admin/src/components/ui/state.tsx) | Админ-панель |
 | [admin/src/components/ui/status.tsx](../admin/src/components/ui/status.tsx) | Админ-панель |
 | [admin/src/components/ui/tooltip.tsx](../admin/src/components/ui/tooltip.tsx) | Админ-панель |
 | [admin/src/content-publishing.tsx](../admin/src/content-publishing.tsx) | Админ-панель |
@@ -1127,6 +1129,7 @@
 | [docs/ru/RELEASE_V28_59_0.md](../docs/ru/RELEASE_V28_59_0.md) | Документация |
 | [docs/ru/RELEASE_V28_5_0.md](../docs/ru/RELEASE_V28_5_0.md) | Документация |
 | [docs/ru/RELEASE_V28_60_0.md](../docs/ru/RELEASE_V28_60_0.md) | Документация |
+| [docs/ru/RELEASE_V28_61_0.md](../docs/ru/RELEASE_V28_61_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1223,6 +1226,7 @@
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
 | [docs/ru/new/SECURITY_AUDIT.md](../docs/ru/new/SECURITY_AUDIT.md) | Документация |
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
+| [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
 | [docs/ru/steps/01-project.md](../docs/ru/steps/01-project.md) | Документация |
 | [docs/ru/steps/02-local-test.md](../docs/ru/steps/02-local-test.md) | Документация |
 | [docs/ru/steps/03-vds.md](../docs/ru/steps/03-vds.md) | Документация |
@@ -1859,6 +1863,7 @@
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
 | [tests/test_database_schema_doc.py](../tests/test_database_schema_doc.py) | Проверки |
 | [tests/test_dependency_locks.py](../tests/test_dependency_locks.py) | Проверки |
+| [tests/test_design_tokens.py](../tests/test_design_tokens.py) | Проверки |
 | [tests/test_diagnostics.py](../tests/test_diagnostics.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |

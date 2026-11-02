@@ -1031,3 +1031,8 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
 .e2e-case { margin: 8px 0 12px; }
 .workspace .form-grid.stoplists>label.field:has(> textarea),.workspace .form-grid.stoplists>label:has(> textarea) { grid-column: auto; }
 .digest-preview { white-space: pre-wrap; font: inherit; background: var(--surface-2, rgba(127,127,127,.08)); padding: 12px; border-radius: 10px; }
+
+/* v28.61.0 (stage 7): shared states of a block — components/ui/state.tsx, docs/ru/new/UI_UX_GUIDE.md */
+.card.state-card { display: grid; gap: 12px; justify-items: start; }
+.success { padding: 10px 14px; border: 1px solid rgb(var(--success-rgb) / .32); border-radius: 10px; background: var(--success-bg); color: var(--success); }
+div.empty-state[data-state="empty"] { padding: 24px 16px; }

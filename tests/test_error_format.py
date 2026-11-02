@@ -31,3 +31,19 @@ async def test_expected_errors_keep_their_status_and_detail(monkeypatch):
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=shop.app), base_url="http://localhost") as client:
         response = await client.get("/api/public/config")
     assert response.status_code == 409 and response.json() == {"detail": "Тариф уже используется"}
+
+
+@pytest.mark.asyncio
+async def test_remnawave_not_configured_is_a_clear_503(monkeypatch):
+    """v28.61.0: an empty REMNAWAVE_URL used to reach the panel as an internal error from httpx."""
+    from app import remnawave
+    from app.config import settings
+    monkeypatch.setattr(settings, "remnawave_url", "")
+    with pytest.raises(remnawave.RemnawaveNotConfigured):
+        await remnawave.RemnawaveClient().list_users(0, 25)
+    request = type("R", (), {"state": type("S", (), {"request_id": "rid-1"})(), "headers": {}, "url": type("U", (), {"path": "/x"})()})()
+    from app.errors import remnawave_error
+    answer = await remnawave_error(request, remnawave.RemnawaveNotConfigured("x"))
+    assert answer.status_code == 503 and "REMNAWAVE_URL" in answer.body.decode()
+    failed = await remnawave_error(request, remnawave.RemnawaveError("GET /api/users: 500: secret user data"))
+    assert failed.status_code == 502 and "secret" not in failed.body.decode()
