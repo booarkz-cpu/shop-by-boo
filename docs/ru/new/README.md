@@ -18,6 +18,9 @@
 | Сравнение функций с референсами | [FEATURE_COMPARISON_MATRIX.md](FEATURE_COMPARISON_MATRIX.md) |
 | Управляемость из админки | [ADMIN_CONTROL_MATRIX.md](ADMIN_CONTROL_MATRIX.md) |
 | Функции Remnawave | [REMNAWAVE_FEATURE_MATRIX.md](REMNAWAVE_FEATURE_MATRIX.md) |
+| Технический аудит | [FULL_TECHNICAL_AUDIT.md](FULL_TECHNICAL_AUDIT.md) |
+| Аудит безопасности | [SECURITY_AUDIT.md](SECURITY_AUDIT.md) |
+| Аудит производительности | [PERFORMANCE_AUDIT.md](PERFORMANCE_AUDIT.md) |
 | Реестр ошибок | [BUG_REGISTRY.md](BUG_REGISTRY.md) |
 | Известные ограничения | [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) |
 
