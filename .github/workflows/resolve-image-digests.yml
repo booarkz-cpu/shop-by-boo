@@ -30,3 +30,16 @@ jobs:
           check caddy:2.11-alpine 'caddy version'
           check redis:8.10-alpine 'redis-server --version'
           check postgres:18.6-alpine 'postgres --version'
+      - name: Android toolchain versions
+        run: |
+          meta(){ curl -fsS "$1" | grep -oE "<(release|latest)>[^<]+" | head -1 | sed 's/<[a-z]*>//'; }
+          echo "TOOL AGP $(meta https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "TOOL Kotlin $(meta https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "TOOL ComposeBOM $(meta https://dl.google.com/dl/android/maven2/androidx/compose/compose-bom/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "TOOL Gradle $(curl -fsS https://services.gradle.org/versions/current | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["version"], d["downloadUrl"], d.get("checksumUrl",""))')" | tee -a "$GITHUB_STEP_SUMMARY"
+          for a in androidx.activity/activity-compose androidx.biometric/biometric androidx.credentials/credentials androidx.credentials/credentials-play-services-auth androidx.test.ext/junit androidx.test/core-ktx androidx.test/runner com.google.android.play/integrity com.google.firebase/firebase-messaging; do
+            g=${a%%/*}; n=${a##*/}; echo "TOOL $a $(meta https://dl.google.com/dl/android/maven2/${g//.//}/$n/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
+          echo "TOOL kotlinx-coroutines-android $(meta https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-android/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "TOOL compose-compiler-plugin $(meta https://repo1.maven.org/maven2/org/jetbrains/kotlin/plugin/compose/org.jetbrains.kotlin.plugin.compose.gradle.plugin/maven-metadata.xml)" | tee -a "$GITHUB_STEP_SUMMARY"
+          ls /usr/local/lib/android/sdk/platforms | tail -3 | sed 's/^/TOOL sdk-platform /'
