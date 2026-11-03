@@ -136,8 +136,8 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
 
   await expect(page.getByRole('heading', {name: 'Настройки без перезапуска', level: 1})).toBeVisible();
   const registryCounts = page.locator('.runtime-registry-counts');
-  await expect(registryCounts).toContainText('138 live');
-  await expect(registryCounts).toContainText('87 deployment');
+  await expect(registryCounts).toContainText('139 live');  // v28.71.0: BOT_TOKEN without restart
+  await expect(registryCounts).toContainText('86 deployment');
   await expect(registryCounts).toContainText('2 workflow');
   await expect(page.getByText('RW доступ')).toBeVisible();
 
