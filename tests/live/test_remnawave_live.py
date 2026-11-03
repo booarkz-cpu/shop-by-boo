@@ -230,3 +230,89 @@ async def test_mode_panel_plus_subscription_page(panel):
         sub = await client.get(f"{SUBPAGE_URL}/{user['shortUuid']}", headers={**proxy, "user-agent": "v2rayNG/1.9.30"})
     assert sub.status_code == 200 and "text/html" not in sub.headers.get("content-type", ""), (sub.status_code, sub.text[:300])
     assert sub.content, "a subscription body"
+
+
+class _Db:
+    """Audit rows of the extension manager are not the point here."""
+    def add(self, row):
+        pass
+
+    async def commit(self):
+        pass
+
+
+@pytest.mark.asyncio
+async def test_extensions_profiles_reality_and_nodes(panel):
+    """v28.69.0 (stage 12): config profiles from the shop — a VLESS + REALITY profile built from typed values with keys
+    from the panel, edited, bound to a node with a host for its inbound, then removed."""
+    from types import SimpleNamespace
+
+    from app import rw_extensions as ext
+    admin, db = SimpleNamespace(email="ci@corgi.test"), _Db()
+    keys = await ext.x25519(admin)
+    assert len(keys["public_key"]) > 30 and len(keys["private_key"]) > 30
+    made = await ext.create_reality(ext.RealityIn(name=f"ci-reality-{int(datetime.utcnow().timestamp()) % 100000}", server_names=["ci.example.com"],
+                                                  dest="site", target="www.example.com:443", min_client_ver="25.1.1"), db, admin)
+    assert made["uuid"] and made["public_key"] and len(made["short_ids"][0]) == 16
+    raw = await ext.get_profile(made["uuid"], admin)
+    reality = raw["config"]["inbounds"][0]["streamSettings"]["realitySettings"]
+    assert reality["serverNames"] == ["ci.example.com"] and reality["dest"] == "www.example.com:443" and reality["minClientVer"] == "25.1.1"
+    inbound = raw["inbounds"][0]["uuid"]
+    renamed = await ext.patch_profile(made["uuid"], ext.ProfilePatch(name="ci-reality-renamed"), db, admin)
+    assert renamed["name"] == "ci-reality-renamed"
+    node = await panel.create_node({"name": f"ci-ext-{int(datetime.utcnow().timestamp()) % 100000}", "address": "203.0.113.8", "port": 2222,
+                                    "configProfile": {"activeConfigProfileUuid": made["uuid"], "activeInbounds": [inbound]}})
+    bound = await ext.node_profile(node["uuid"], ext.NodeProfileIn(profile_uuid=made["uuid"], inbounds=[inbound]), db, admin)
+    assert bound["profile"] == made["uuid"] and bound["inbounds"] == [inbound]
+    host = await ext.profile_host(made["uuid"], ext.ProfileHostIn(inbound_uuid=inbound, remark="ci-reality", address="ci.example.com",
+                                                                  sni="ci.example.com"), db, admin)
+    assert host["uuid"]
+    overview = await ext.overview(admin)
+    assert any(p["uuid"] == made["uuid"] and node["name"] in p["nodes"] for p in overview["profiles"])
+    await panel._request("DELETE", f"/api/hosts/{host['uuid']}")
+    await panel.delete_node(node["uuid"])
+    assert (await ext.delete_profile(made["uuid"], db, admin))["deleted"]
+
+
+@pytest.mark.asyncio
+async def test_extensions_plugins_srr_pages_and_templates(panel):
+    """v28.69.0 (stage 12): node plugins (TorrentBlocker on, bound to a node), subscription response rules and the
+    panel's matcher, subscription page configs and an Xray JSON template with the client balancer."""
+    from types import SimpleNamespace
+
+    from app import rw_extensions as ext
+    admin, db = SimpleNamespace(email="ci@corgi.test"), _Db()
+    stamp = int(datetime.utcnow().timestamp()) % 100000
+    plugin = await ext.create_plugin(ext.PluginIn(name=f"ci-plugin-{stamp}"), db, admin)
+    assert plugin["uuid"] and "torrentBlocker" in plugin["config"]
+    config = {**plugin["config"], "torrentBlocker": (await ext.presets(admin))["plugins"]["torrentBlocker"]}
+    edited = await ext.patch_plugin(plugin["uuid"], ext.PluginPatch(config=config), db, admin)
+    assert edited["config"]["torrentBlocker"]["enabled"] is True
+    with pytest.raises(Exception):  # the panel validates the config
+        await ext.patch_plugin(plugin["uuid"], ext.PluginPatch(config={"torrentBlocker": {"enabled": "yes"}}), db, admin)
+    profile = (await panel._request("GET", "/api/config-profiles"))["configProfiles"][0]
+    node = await panel.create_node({"name": f"ci-plug-{stamp}", "address": "203.0.113.9", "port": 2222,
+                                    "configProfile": {"activeConfigProfileUuid": profile["uuid"], "activeInbounds": [profile["inbounds"][0]["uuid"]]}})
+    assert (await ext.node_plugin(node["uuid"], ext.NodePluginIn(plugin_uuid=plugin["uuid"]), db, admin))["plugin"] == plugin["uuid"]
+    assert (await ext.node_plugin(node["uuid"], ext.NodePluginIn(plugin_uuid=None), db, admin))["plugin"] is None
+    await panel.delete_node(node["uuid"])
+    assert (await ext.delete_plugin(plugin["uuid"], db, admin))["deleted"]
+
+    settings_ = await ext.subscription_settings(admin)
+    assert settings_["uuid"]
+    saved = await ext.patch_subscription_settings(ext.SubscriptionSettingsIn(custom_response_headers={"x-corgi-ci": "1"}), db, admin)
+    assert saved["customResponseHeaders"]["x-corgi-ci"] == "1"
+    rules = settings_.get("responseRules") or {"version": "1", "settings": {"disableSubscriptionAccessByPath": False}, "rules": []}
+    tested = await ext.srr_test(ext.SrrTestIn(response_rules=rules, user_agent="Mozilla/5.0 (CI) Chrome/150"), admin)
+    assert "matched" in tested and tested["inputHeaders"].get("user-agent", "").startswith("Mozilla")
+
+    page = await ext.create_subpage_config(ext.NamedJsonIn(name=f"ci-page-{stamp}"), db, admin)
+    assert page["uuid"] and (await ext.subpage_config(page["uuid"], admin))["uuid"] == page["uuid"]
+    assert any(c["uuid"] == page["uuid"] for c in (await ext.subpage_configs(admin))["configs"])
+    assert (await ext.delete_subpage_config(page["uuid"], db, admin))["deleted"]
+
+    template = await ext.create_template(ext.TemplateIn(name=f"ci-balancer-{stamp}", template_type="XRAY_JSON"), db, admin)
+    body = (await ext.template(template["uuid"], admin)).get("templateJson") or {}
+    balanced = await ext.patch_template(template["uuid"], ext.TemplatePatch(template_json={**body, **ext.BALANCER_TEMPLATE}), db, admin)
+    assert balanced["templateJson"]["routing"]["balancers"][0]["strategy"]["type"] == "leastPing"
+    assert (await ext.delete_template(template["uuid"], db, admin))["deleted"]

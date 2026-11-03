@@ -15,10 +15,9 @@ test('admin center lists the 30 modules and opens a section from the table', asy
   await page.locator('.sidebar').getByRole('button', {name: /Админ-центр/}).click();
   const center = page.locator('[data-control-center]');
   await expect(center.locator('tbody tr')).toHaveCount(30);
-  // v28.67.0: Node Extensions is the only module still waiting for its stage.
-  await expect(center.locator('tr[data-module="Node Extensions"]')).toContainText('этап 12');
-  await expect(center.locator('tr[data-module="Node Extensions"][data-status="NOT_STARTED"]')).toHaveCount(1);
-  await expect(center.locator('tr[data-status="NOT_STARTED"]')).toHaveCount(1);
+  // v28.69.0: every module of the master task has its section.
+  await expect(center.locator('tr[data-status="NOT_STARTED"]')).toHaveCount(0);
+  await expect(center.locator('tr[data-module="Node Extensions"]')).toContainText('Расширения Remnawave');
   await expect(center.locator('tr[data-module="Domains"]')).toContainText('Домены и сертификаты');
   await center.locator('tr[data-module="Tariffs"]').getByRole('button', {name: 'Тарифы', exact: true}).click();
   await expect(page.getByRole('heading', {level: 1, name: 'Тарифы'})).toBeVisible();
