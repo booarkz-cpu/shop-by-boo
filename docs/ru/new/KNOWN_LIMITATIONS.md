@@ -5,7 +5,7 @@
 | Ограничение | Причина | Статус | Что нужно |
 | --- | --- | --- | --- |
 | Живой Remnawave | нет `REMNAWAVE_URL` / `REMNAWAVE_TOKEN` | BLOCKED_SECRETS | Доступ к панели |
-| Установка Remnawave на VPS | нет VPS и SSH-доступа | BLOCKED_EXTERNAL | VPS с SSH-ключом |
+| Установка Remnawave на VPS | нет VPS и SSH-доступа. Мастер (v28.66.0) проверен на поддельном SSH-сервере и на сервере CI | BLOCKED_EXTERNAL | VPS с SSH-ключом и домен |
 | Домены и TLS | нет домена и DNS | BLOCKED_EXTERNAL | Домен с управлением DNS |
 | Telegram-бот и Mini App вживую | нет `BOT_TOKEN` | BLOCKED_SECRETS | Токен тестового бота |
 | Живые платежи | нет ключей провайдеров; реальные деньги — только с разрешения владельца | BLOCKED_SECRETS | Ключи и разрешение |

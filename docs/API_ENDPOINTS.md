@@ -1,6 +1,6 @@
-# Каталог API — v28.65.0 / API v21.5.1
+# Каталог API — v28.66.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0089_index_cleanup`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0090_remnawave_installer`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -450,6 +450,21 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/runtime-settings/changes/{change_id}/apply` | Admin Apply Runtime Settings | право `settings.runtime.write` |
 | `POST` | `/api/admin/runtime-settings/changes/{change_id}/rollback` | Admin Rollback Runtime Settings | право `settings.runtime.write` |
 | `POST` | `/api/admin/runtime-settings/stage` | Admin Stage Runtime Settings | право `settings.runtime.write` |
+| `GET` | `/api/admin/rw/installations` | List Installations | право `read` |
+| `POST` | `/api/admin/rw/installations/plan` | Plan Installation | право `provision_nodes` |
+| `GET` | `/api/admin/rw/installations/{installation_id}` | Get Installation | право `read` |
+| `POST` | `/api/admin/rw/installations/{installation_id}/actions` | Action | право `provision_nodes` |
+| `POST` | `/api/admin/rw/installations/{installation_id}/approve` | Approve | право `provision_nodes` |
+| `POST` | `/api/admin/rw/installations/{installation_id}/cancel` | Cancel | право `provision_nodes` |
+| `POST` | `/api/admin/rw/installations/{installation_id}/connect-shop` | Connect Shop | право `provision_nodes`, право `settings.runtime.write` |
+| `POST` | `/api/admin/rw/installations/{installation_id}/credentials` | Credentials | право `provision_nodes` |
+| `GET` | `/api/admin/rw/meta` | Meta | право `read` |
+| `GET` | `/api/admin/rw/servers` | List Servers | право `read` |
+| `POST` | `/api/admin/rw/servers` | Create Server | право `provision_nodes` |
+| `POST` | `/api/admin/rw/servers/scan` | Scan | право `provision_nodes` |
+| `DELETE` | `/api/admin/rw/servers/{server_id}` | Delete Server | право `provision_nodes` |
+| `PATCH` | `/api/admin/rw/servers/{server_id}` | Patch Server | право `provision_nodes` |
+| `POST` | `/api/admin/rw/servers/{server_id}/check` | Check Server | право `provision_nodes` |
 | `GET` | `/api/admin/security` | Admin Security | право `read` |
 | `POST` | `/api/admin/security/incident` | Security Incident | право `manage_admins` |
 | `GET` | `/api/admin/security/incidents` | Security Incidents | право `read` |

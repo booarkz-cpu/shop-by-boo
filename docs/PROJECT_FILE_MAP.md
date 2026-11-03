@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.65.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.66.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2068**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2084**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -133,6 +133,7 @@
 | [admin/e2e/plugins.spec.ts](../admin/e2e/plugins.spec.ts) | Админ-панель |
 | [admin/e2e/preferences-help.spec.ts](../admin/e2e/preferences-help.spec.ts) | Админ-панель |
 | [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
+| [admin/e2e/rw-installer.spec.ts](../admin/e2e/rw-installer.spec.ts) | Админ-панель |
 | [admin/e2e/system-status.spec.ts](../admin/e2e/system-status.spec.ts) | Админ-панель |
 | [admin/index.html](../admin/index.html) | Админ-панель |
 | [admin/next.config.mjs](../admin/next.config.mjs) | Админ-панель |
@@ -215,6 +216,7 @@
 | [admin/src/reconciliation.tsx](../admin/src/reconciliation.tsx) | Админ-панель |
 | [admin/src/referral-program.tsx](../admin/src/referral-program.tsx) | Админ-панель |
 | [admin/src/runtime-settings.tsx](../admin/src/runtime-settings.tsx) | Админ-панель |
+| [admin/src/rw-installer.tsx](../admin/src/rw-installer.tsx) | Админ-панель |
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
 | [admin/src/statusPricing.tsx](../admin/src/statusPricing.tsx) | Админ-панель |
 | [admin/src/style.css](../admin/src/style.css) | Админ-панель |
@@ -327,6 +329,7 @@
 | [backend/alembic/versions/0087_speed_tests.py](../backend/alembic/versions/0087_speed_tests.py) | API, бот и worker |
 | [backend/alembic/versions/0088_filter_and_regions.py](../backend/alembic/versions/0088_filter_and_regions.py) | API, бот и worker |
 | [backend/alembic/versions/0089_index_cleanup.py](../backend/alembic/versions/0089_index_cleanup.py) | API, бот и worker |
+| [backend/alembic/versions/0090_remnawave_installer.py](../backend/alembic/versions/0090_remnawave_installer.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -529,6 +532,11 @@
 | [backend/app/routers.py](../backend/app/routers.py) | API, бот и worker |
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
+| [backend/app/rw_api.py](../backend/app/rw_api.py) | API, бот и worker |
+| [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
+| [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
+| [backend/app/rw_remote.py](../backend/app/rw_remote.py) | API, бот и worker |
+| [backend/app/rw_steps.py](../backend/app/rw_steps.py) | API, бот и worker |
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
 | [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
 | [backend/app/seat_access.py](../backend/app/seat_access.py) | API, бот и worker |
@@ -1143,6 +1151,7 @@
 | [docs/ru/RELEASE_V28_63_0.md](../docs/ru/RELEASE_V28_63_0.md) | Документация |
 | [docs/ru/RELEASE_V28_64_0.md](../docs/ru/RELEASE_V28_64_0.md) | Документация |
 | [docs/ru/RELEASE_V28_65_0.md](../docs/ru/RELEASE_V28_65_0.md) | Документация |
+| [docs/ru/RELEASE_V28_66_0.md](../docs/ru/RELEASE_V28_66_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1231,6 +1240,7 @@
 | [docs/ru/new/BUGFIX_LOG.md](../docs/ru/new/BUGFIX_LOG.md) | Документация |
 | [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
 | [docs/ru/new/DATABASE_SCHEMA.md](../docs/ru/new/DATABASE_SCHEMA.md) | Документация |
+| [docs/ru/new/DEPLOYMENT_AGENT.md](../docs/ru/new/DEPLOYMENT_AGENT.md) | Документация |
 | [docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md](../docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/FEATURE_COMPARISON_MATRIX.md](../docs/ru/new/FEATURE_COMPARISON_MATRIX.md) | Документация |
 | [docs/ru/new/FULL_TECHNICAL_AUDIT.md](../docs/ru/new/FULL_TECHNICAL_AUDIT.md) | Документация |
@@ -1244,6 +1254,9 @@
 | [docs/ru/new/REMNAWAVE_ARCHITECTURE.md](../docs/ru/new/REMNAWAVE_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/REMNAWAVE_DATA_MODEL.md](../docs/ru/new/REMNAWAVE_DATA_MODEL.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
+| [docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md](../docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md) | Документация |
+| [docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md](../docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md) | Документация |
+| [docs/ru/new/REMNAWAVE_PREFLIGHT.md](../docs/ru/new/REMNAWAVE_PREFLIGHT.md) | Документация |
 | [docs/ru/new/SECURITY_AUDIT.md](../docs/ru/new/SECURITY_AUDIT.md) | Документация |
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
@@ -1681,6 +1694,7 @@
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/zap-summary.py](../scripts/ci/zap-summary.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
 | [scripts/compose-build.sh](../scripts/compose-build.sh) | Эксплуатация и релиз |
@@ -1833,6 +1847,7 @@
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
 | [tests/live/test_hetzner_live.py](../tests/live/test_hetzner_live.py) | Проверки |
+| [tests/live/test_install_live.py](../tests/live/test_install_live.py) | Проверки |
 | [tests/live/test_payments_live.py](../tests/live/test_payments_live.py) | Проверки |
 | [tests/live/test_remnawave_live.py](../tests/live/test_remnawave_live.py) | Проверки |
 | [tests/load/live.js](../tests/load/live.js) | Проверки |
@@ -1975,6 +1990,7 @@
 | [tests/test_repin_images.py](../tests/test_repin_images.py) | Проверки |
 | [tests/test_route_authorization.py](../tests/test_route_authorization.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
+| [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |

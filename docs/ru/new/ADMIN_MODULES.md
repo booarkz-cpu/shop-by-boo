@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.65.0
+# Модули админ-панели — v28.66.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -127,7 +127,13 @@ API: `/api/admin/panel`, `/api/admin/panel-guard`, `/api/admin/panel-changes`, `
 
 ## 12. Installation
 
-**Не реализован** — этап 10: Installation Wizard. В панели нет его раздела и кнопок: функция появится вместе с работающим backend.
+Статус: `IMPLEMENTED`. Маршрутов API: 15. Операции: просмотр, создание, изменение, удаление, проверка, запись в журнал действий.
+
+| Раздел панели | Что в нём |
+| --- | --- |
+| Установка Remnawave | Мастер установки панели, нод и страницы подписки на свои VPS по SSH: проверка сервера, план, запуск, журнал, обновление и удаление. |
+
+API: `/api/admin/rw`. Права: `provision_nodes`, `read`, `settings.runtime.write`.
 
 ## 13. Servers
 

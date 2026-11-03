@@ -2170,6 +2170,77 @@ class SpeedTest(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True, nullable=False)
 
 
+
+class RemnawaveServer(Base):
+    """v28.66: Server Registry — a VPS the shop installs Remnawave on (docs/ru/new/REMNAWAVE_DATA_MODEL.md).
+
+    ``ssh_secret`` is the private key or the password, encrypted (security.encrypt_secret), never returned by the API.
+    ``os``/``arch``/``cpu_cores``/``ram_mb``/``disk_gb`` come from the preflight, not from the form."""
+    __tablename__ = "remnawave_servers"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
+    host: Mapped[str] = mapped_column(String(255), nullable=False)
+    ssh_port: Mapped[int] = mapped_column(Integer, default=22, nullable=False)
+    ssh_user: Mapped[str] = mapped_column(String(64), nullable=False)
+    auth_method: Mapped[str] = mapped_column(String(16), nullable=False)
+    ssh_secret: Mapped[str] = mapped_column(Text, nullable=False)
+    host_key_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    roles: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    status: Mapped[str] = mapped_column(String(24), default="new", nullable=False)
+    os: Mapped[str|None] = mapped_column(String(64))
+    arch: Mapped[str|None] = mapped_column(String(32))
+    cpu_cores: Mapped[int|None] = mapped_column(Integer)
+    ram_mb: Mapped[int|None] = mapped_column(Integer)
+    disk_gb: Mapped[int|None] = mapped_column(Integer)
+    preflight: Mapped[dict|None] = mapped_column(JSON)
+    last_checked_at: Mapped[datetime|None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class RemnawaveInstallation(Base):
+    """v28.66: one run of the installation wizard (or update / removal) over one or more servers.
+
+    ``plan`` is exactly what the administrator saw; ``plan_sha256`` must match on approval. ``secrets`` holds the
+    generated panel secrets (database password, admin password, API token) as encrypted JSON."""
+    __tablename__ = "remnawave_installations"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    action: Mapped[str] = mapped_column(String(16), default="install", nullable=False)
+    mode: Mapped[str] = mapped_column(String(32), nullable=False)
+    server_ids: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    params: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    plan: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    plan_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(24), default="planned", index=True, nullable=False)
+    secrets: Mapped[str|None] = mapped_column(Text)
+    result: Mapped[dict|None] = mapped_column(JSON)
+    error: Mapped[str|None] = mapped_column(Text)
+    created_by: Mapped[str] = mapped_column(String(320), nullable=False)
+    approved_by: Mapped[str|None] = mapped_column(String(320))
+    cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"), nullable=False)
+    source_installation_id: Mapped[int|None] = mapped_column(Integer)
+    worker_id: Mapped[str|None] = mapped_column(String(128))
+    heartbeat_at: Mapped[datetime|None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    started_at: Mapped[datetime|None] = mapped_column(DateTime)
+    finished_at: Mapped[datetime|None] = mapped_column(DateTime)
+
+
+class RemnawaveDeploymentStep(Base):
+    """v28.66: one step of an installation; ``kind`` is one of the closed list (rw_steps.STEP_KINDS)."""
+    __tablename__ = "remnawave_deployment_steps"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    installation_id: Mapped[int] = mapped_column(Integer, ForeignKey("remnawave_installations.id", ondelete="CASCADE"), index=True, nullable=False)
+    server_id: Mapped[int|None] = mapped_column(Integer)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    kind: Mapped[str] = mapped_column(String(48), nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    params: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="pending", nullable=False)
+    log_tail: Mapped[str|None] = mapped_column(Text)
+    started_at: Mapped[datetime|None] = mapped_column(DateTime)
+    finished_at: Mapped[datetime|None] = mapped_column(DateTime)
+
 # Indexes that migrations create on hot paths (worker retry queues, audit search, renewals) but the
 # classes above did not declare, so databases built from the models lacked them (v28.58.0, BUG-A2).
 # Declared here with the migration names; ``alembic`` autogenerate now sees no difference.

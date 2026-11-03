@@ -1,6 +1,6 @@
 # Статус реализации по этапам
 
-Состояние на 2026-11-02. База: дистрибутив `v28.65.0`, миграция магазина `0089_index_cleanup` (после этапа 9). Этапы выполняются по одному, следующий начинается по команде владельца.
+Состояние на 2026-11-03. База: дистрибутив `v28.66.0`, миграция магазина `0090_remnawave_installer` (после этапа 10). Этапы выполняются по одному, следующий начинается по команде владельца.
 
 | № | Этап | Статус | Подтверждение / что осталось |
 | --- | --- | --- | --- |
@@ -13,7 +13,7 @@
 | 7 | Полный UI/UX redesign | PASS | Выпуск v28.61.0 (2026-11-02): [UI_UX_GUIDE](UI_UX_GUIDE.md). Палитра `#090D16`/`#0F172A`/синий, Inter и JetBrains Mono закреплены тестом; новые разделы «Remnawave: панель», «Портал подписки», «Доступность и качество»; общие состояния блоков; 503/502 вместо внутренней ошибки без Remnawave; e2e открывает все разделы на 1440 и 390 px. Мастер установки и менеджер доменов — вместе с их backend на этапах 10–11 |
 | 8 | Личный кабинет | PASS | Выпуск v28.63.0 (2026-11-02): [USER_CABINET_GUIDE](USER_CABINET_GUIDE.md). Вход по email с подтверждением и восстановлением, Telegram, Яндекс ID, VK ID, Google (теперь без перезапуска), passkeys; сессии завершаются по одной; устройства под лимитом подписки с удалением; тарифы Lucy Mini/Max/Ultra с лимитами в Remnawave (живой тест в CI); пробный период только на Lucy Mini. Исправлено тело сброса устройств для Remnawave 3.x. Вход в Android/iOS через Яндекс, VK и Google — этап 17 |
 | 9 | Архитектура Remnawave | PASS | Выпуск v28.65.0 (2026-11-03): [REMNAWAVE_ARCHITECTURE](REMNAWAVE_ARCHITECTURE.md), [REMNAWAVE_DATA_MODEL](REMNAWAVE_DATA_MODEL.md), [REMNAWAVE_API_DESIGN](REMNAWAVE_API_DESIGN.md), [DEPLOYMENT_AGENT_ARCHITECTURE](DEPLOYMENT_AGENT_ARCHITECTURE.md). Факты сверены с репозиториями Remnawave (панель 3.4.8, нода 3.4.4, страница подписки 8.0.1, контракт 3.4.15); режимы «панель + нода» и «панель + страница подписки» проверяются на последнем выпуске в CI. Найдено и исправлено: установка ноды принимала compose-файл из запроса. PASS относится к архитектуре; установка, домены и расширения — этапы 10–12 |
-| 10 | Установка Remnawave через админку | NOT_STARTED | Нужен VPS для живой проверки (иначе BLOCKED_EXTERNAL) |
+| 10 | Установка Remnawave через админку | PASS / BLOCKED_EXTERNAL | Выпуск v28.66.0 (2026-11-03): [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md), [REMNAWAVE_INSTALLATION_MODES](REMNAWAVE_INSTALLATION_MODES.md), [REMNAWAVE_PREFLIGHT](REMNAWAVE_PREFLIGHT.md), [DEPLOYMENT_AGENT](DEPLOYMENT_AGENT.md). Реестр серверов, проверка по SSH, семь режимов, план с SHA-256, установка по шагам с откатом, обновление, диагностика, восстановление, переустановка, удаление; миграция `0090_remnawave_installer`. PASS: mock-тесты на поддельном SSH-сервере, e2e раздела, установка «панель + нода» по SSH на сервере CI. BLOCKED_EXTERNAL: настоящий VPS, Let's Encrypt, сеть между серверами. Агент на сервере и копия панели в хранилище магазина — этап 15 |
 | 11 | Отдельный домен и Subscription Portal | NOT_STARTED | Расширение `backend/app/sub_proxy.py` и `deploy/Caddyfile`, без второго proxy |
 | 12 | Менеджер расширений Remnawave | NOT_STARTED | SelfSteal, Node Plugins, Xray, WARP, NetBird, IPv6, Routing, Balancer, Rules, Checker |
 | 13 | Telegram-бот и Mini App | NOT_STARTED | Нужен `BOT_TOKEN` для живой проверки |

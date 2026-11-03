@@ -36,7 +36,7 @@ MODULES: tuple[tuple[int, str, tuple[str, ...], tuple[str, ...], str], ...] = (
     (9, "Gifts", ("gifts",), ("gifts", "gift-batches"), ""),
     (10, "Referrals", ("payouts",), ("referrals", "referral-contests", "payouts"), ""),
     (11, "Remnawave", ("remnawave", "nodes"), ("panel", "panel-guard", "panel-changes", "panel-api-stats", "remnawave"), ""),
-    (12, "Installation", (), (), "этап 10: Installation Wizard"),
+    (12, "Installation", ("rwInstaller",), ("rw",), ""),
     (13, "Servers", ("nodes", "capacity", "orchestrator"), ("nodes", "provision-node"), ""),
     (14, "Nodes", ("nodes", "nodeTerminal", "torrents"), ("nodes", "terminal", "platform"), ""),
     (15, "Domains", (), (), "этап 11: менеджер доменов"),

@@ -32,54 +32,64 @@
 | `monitoring_checks`, `status_components` | Health Manager | Внешние проверки и публичный статус |
 | Конфигурация `sub_proxy` в `app_settings` | Subscription Manager | Свой домен подписки, правила приложений, заблокированные устройства |
 
-## 3. Новые таблицы (этапы 10–12)
+## 3. Таблицы мастера установки (этап 10, v28.66.0) и будущие (этапы 11–12)
 
-Таблиц ниже ещё нет. Они появятся миграциями вместе с работающими функциями. Пустых таблиц заранее не будет.
+Таблицы этапа 10 созданы миграцией `0090_remnawave_installer`. Таблиц этапов 11–12 ещё нет: они появятся вместе с работающими функциями.
 
-### `remnawave_servers` — реестр серверов (этап 10)
+### `remnawave_servers` — реестр серверов
 
 | Поле | Тип | Примечание |
 | --- | --- | --- |
 | `id` | integer, PK | |
 | `name` | varchar(80), уникально | Имя в панели магазина |
-| `host` | varchar(255) | IP или имя хоста; проверка формата |
+| `host` | varchar(255) | IP или имя хоста; адреса loopback, link-local и multicast отклоняются |
 | `ssh_port` | integer | 1–65535 |
-| `ssh_user` | varchar(64) | |
-| `auth_method` | varchar(16) | `key` или `password` (пароль — только для первичной установки) |
-| `ssh_secret` | text | Ключ или пароль, зашифрован `security.encrypt_secret`; в API не отдаётся |
+| `ssh_user` | varchar(64) | root или пользователь с `sudo` без пароля |
+| `auth_method` | varchar(16) | `key` или `password` |
+| `ssh_secret` | text | Ключ или пароль, зашифрован `security.encrypt_secret`; в API не отдаётся. Хранится после установки: обновление и удаление идут по SSH |
 | `host_key_fingerprint` | varchar(64) | `SHA256:…`, обязателен: без него подключения нет |
+| `roles` | JSON-массив | Установленные компоненты: `panel`, `node`, `subscription_page` |
+| `status` | varchar(24) | `new`, `ready`, `check_failed`, `unreachable`, `installed`, `removed` |
 | `os`, `arch`, `cpu_cores`, `ram_mb`, `disk_gb` | | Из preflight, не из ввода |
-| `roles` | JSON-массив | `panel`, `node`, `subscription_page` |
-| `status` | varchar(24) | `new`, `checked`, `installing`, `ready`, `failed`, `retired` |
+| `preflight` | JSON | Последний отчёт проверки и назначение сервера (`purpose`) |
 | `last_checked_at`, `created_at`, `updated_at` | timestamp | |
 
-### `remnawave_installations` — установки (этап 10)
+### `remnawave_installations` — задачи мастера
 
 | Поле | Тип | Примечание |
 | --- | --- | --- |
-| `id` | integer, PK | |
+| `id` | integer, PK | Номер задачи |
+| `action` | varchar(16) | `install`, `update`, `diagnose`, `restore`, `reinstall`, `remove` |
 | `mode` | varchar(32) | `panel_node`, `panel`, `node`, `panel_subpage`, `subpage`, `distributed`, `add_node` |
-| `plan` | JSON | Шаги, файлы, порты, последствия — то, что показано администратору до подтверждения |
-| `plan_sha256` | varchar(64) | Выполняется только подтверждённый план: хэш сверяется перед запуском |
-| `versions` | JSON | Закреплённые образы (тег и digest), проверенные в CI |
-| `status` | varchar(24) | `planned`, `approved`, `running`, `succeeded`, `failed`, `rolled_back` |
-| `created_by`, `approved_by` | varchar(255) | Email администраторов |
-| `job_id` | integer | Задача в `jobs` |
-| `created_at`, `finished_at` | timestamp | |
+| `server_ids` | JSON-массив | Серверы задачи |
+| `params` | JSON | Проверенный ввод мастера (`PlanIn`) |
+| `plan` | JSON | Шаги, последствия, закреплённые образы — то, что показано до подтверждения |
+| `plan_sha256` | varchar(64) | Запуск только с этим хэшем; при запуске план строится заново и сверяется |
+| `status` | varchar(24), индекс | `planned`, `queued`, `running`, `succeeded`, `failed`, `cancelled` |
+| `secrets` | text | Зашифрованный JSON: пароли базы и администратора панели, токен API, ключи. Наружу — только вход администратора по отдельной кнопке с записью в журнал |
+| `result` | JSON | Адрес панели и страницы подписки, ноды в панели, служебное состояние шагов |
+| `error` | text | Причина остановки без секретов |
+| `created_by`, `approved_by` | varchar(320) | Email администраторов |
+| `cancel_requested` | boolean | Остановить после текущего шага |
+| `source_installation_id` | integer | Для действий — установка, над которой они выполняются |
+| `worker_id`, `heartbeat_at` | | Кто выполняет и последний «пульс» (без пульса 5 минут — `failed`) |
+| `created_at`, `started_at`, `finished_at` | timestamp | |
 
-Связь «многие ко многим» с серверами — через `remnawave_installation_servers` (`installation_id`, `server_id`, `roles`).
+Отдельной таблицы связи с серверами нет: серверы задачи — в `server_ids`, их роли — в `plan.servers`. Общая очередь `jobs` не используется: у мастера свой исполнитель ([DEPLOYMENT_AGENT](DEPLOYMENT_AGENT.md)).
 
-### `remnawave_deployment_steps` — шаги установки (этап 10)
+### `remnawave_deployment_steps` — шаги задачи
 
 | Поле | Тип | Примечание |
 | --- | --- | --- |
 | `id` | integer, PK | |
-| `installation_id`, `server_id` | integer | |
+| `installation_id` | integer, FK, индекс | Удаление задачи удаляет шаги |
+| `server_id` | integer | Пусто у шага `verify` |
 | `position` | integer | Порядок выполнения |
-| `kind` | varchar(48) | Тип шага из закрытого списка ([DEPLOYMENT_AGENT_ARCHITECTURE](DEPLOYMENT_AGENT_ARCHITECTURE.md)) |
-| `params` | JSON | Только значения схемы шага, без секретов: секреты подставляются при выполнении |
+| `kind` | varchar(48) | Тип шага из закрытого списка `rw_steps.STEP_KINDS` |
+| `title` | varchar(200) | Как шаг показан в плане |
+| `params` | JSON | Только значения схемы шага, без секретов |
 | `status` | varchar(16) | `pending`, `running`, `done`, `failed`, `skipped`, `rolled_back` |
-| `log_tail` | text | Последние строки вывода, секреты вырезаются |
+| `log_tail` | text | Последние 4000 символов вывода, секреты заменены на `***` |
 | `started_at`, `finished_at` | timestamp | |
 
 ### `remnawave_domains` — домены (этап 11)

@@ -189,6 +189,11 @@ async def worker_heartbeat():
             logger.exception("worker heartbeat failure")
         await asyncio.sleep(30)
 
+async def installer_worker():
+    """v28.66: the Remnawave wizard's installations (app.rw_jobs) — a loop of its own, apart from the job queue."""
+    from app.rw_jobs import installer_worker as loop
+    await loop(main.engine, worker_identity())
+
 async def main_worker():
     from app.account_actions import mail_scheduler
     from app.account_merge import account_merge_cleanup_scheduler
@@ -206,7 +211,7 @@ async def main_worker():
     settings.validate_security()
     main.redis_client = Redis.from_url(settings.redis_url, decode_responses=True, **settings.redis_connection_kwargs())
     await main.redis_client.ping()
-    await asyncio.gather(runtime_settings_scheduler(), worker_heartbeat(), health_alert_worker(), job_worker(),
+    await asyncio.gather(runtime_settings_scheduler(), worker_heartbeat(), health_alert_worker(), job_worker(), installer_worker(),
         main.backup_scheduler(),
         main.fulfillment_retry_scheduler(),
         main.expiry_notification_scheduler(),

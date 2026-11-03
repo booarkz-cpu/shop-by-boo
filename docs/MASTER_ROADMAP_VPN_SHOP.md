@@ -1,6 +1,6 @@
 # Мастер-дорожная карта VPN Shop
 
-Дистрибутив `v28.65.0`, runtime/API `21.5.1`, миграция магазина `0089_index_cleanup`.
+Дистрибутив `v28.66.0`, runtime/API `21.5.1`, миграция магазина `0090_remnawave_installer`.
 
 Состояние на `2026-10-31`. Отметка «сделано» означает, что есть подтверждение в коде или в
 результате проверки; «не проверено» — что функциональность существует, но живой прогон не выполнен.
@@ -196,7 +196,7 @@ Billing через `payment_platform.py`.
 
 ## 7. Точка начала следующего этапа
 
-**Ход мастер-задания из 18 этапов** — в [docs/ru/new/IMPLEMENTATION_STATUS.md](ru/new/IMPLEMENTATION_STATUS.md). На 2026-11-02 выполнены этапы 1–9: инвентаризация, сравнение с референсами, технический аудит, исправления в v28.58.0 ([журнал исправлений](ru/new/BUGFIX_LOG.md)), единая бизнес-логика в v28.59.0 ([устройство backend](ru/new/BACKEND_ARCHITECTURE.md)), Админ-центр в v28.60.0 ([управляемость из админки](ru/new/ADMIN_CONTROL_MATRIX.md)), интерфейс в v28.61.0 ([правила интерфейса](ru/new/UI_UX_GUIDE.md)), System Control Center с руководством по панели в v28.62.0 ([руководство](ru/new/ADMIN_PANEL_GUIDE.md), [роли и права](ru/new/RBAC.md)), личный кабинет в v28.63.0 ([руководство по кабинету](ru/new/USER_CABINET_GUIDE.md)), обновление языков, баз и компонентов в v28.64.0 ([стек](TECH_STACK.md)) и архитектура Remnawave Manager в v28.65.0 ([архитектура](ru/new/REMNAWAVE_ARCHITECTURE.md)). Следующий — этап 10 (установка Remnawave через админку) по команде владельца.
+**Ход мастер-задания из 18 этапов** — в [docs/ru/new/IMPLEMENTATION_STATUS.md](ru/new/IMPLEMENTATION_STATUS.md). На 2026-11-03 выполнены этапы 1–10: инвентаризация, сравнение с референсами, технический аудит, исправления в v28.58.0 ([журнал исправлений](ru/new/BUGFIX_LOG.md)), единая бизнес-логика в v28.59.0 ([устройство backend](ru/new/BACKEND_ARCHITECTURE.md)), Админ-центр в v28.60.0 ([управляемость из админки](ru/new/ADMIN_CONTROL_MATRIX.md)), интерфейс в v28.61.0 ([правила интерфейса](ru/new/UI_UX_GUIDE.md)), System Control Center с руководством по панели в v28.62.0 ([руководство](ru/new/ADMIN_PANEL_GUIDE.md), [роли и права](ru/new/RBAC.md)), личный кабинет в v28.63.0 ([руководство по кабинету](ru/new/USER_CABINET_GUIDE.md)), обновление языков, баз и компонентов в v28.64.0 ([стек](TECH_STACK.md)) архитектура Remnawave Manager в v28.65.0 ([архитектура](ru/new/REMNAWAVE_ARCHITECTURE.md)) и мастер установки Remnawave в v28.66.0 ([мастер установки](ru/new/REMNAWAVE_INSTALLATION_WIZARD.md); проверка на настоящем VPS — BLOCKED_EXTERNAL). Следующий — этап 11 (отдельный домен и Subscription Portal) по команде владельца.
 
 Исследование завершено, документы созданы. Дальше — по порядку:
 
