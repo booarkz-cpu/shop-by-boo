@@ -45,11 +45,10 @@ def test_existing_shop_routes_in_the_api_design_are_real():
     for path in set(re.findall(r"`(?:GET|POST|PUT|PATCH|DELETE)?[ /]*(/api/(?:admin|agent)/[\w/{}.-]+)", existing)):
         path = path.rstrip(".")
         assert any(p == path or p.startswith(path.rstrip("/") + "/") for p in paths) or path.endswith("…"), path
-    # v28.66.0-v28.67.0: the wizard's (stage 10) and the Domain Manager's (stage 11) routes exist; those planned for
-    # stage 12 must not yet — no empty buttons ahead of the function.
+    # The wizard's (stage 10), the Domain Manager's (stage 11) and the extension manager's (stage 12) routes exist.
     assert {"/api/admin/rw/servers", "/api/admin/rw/installations/plan", "/api/admin/rw/installations/{installation_id}/approve",
-            "/api/admin/rw/domains", "/api/admin/rw/certificates", "/api/admin/rw/proxy-routes"} <= paths
-    assert not any(p.startswith(("/api/admin/rw/modules", "/api/admin/rw/nodes")) for p in paths)
+            "/api/admin/rw/domains", "/api/admin/rw/certificates", "/api/admin/rw/proxy-routes",
+            "/api/admin/rw/extensions", "/api/admin/rw/extensions/profiles/reality"} <= paths  # v28.69.0, stage 12
 
 
 def test_used_panel_routes_have_a_client_method_and_a_live_test():

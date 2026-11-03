@@ -490,7 +490,7 @@ services:
       API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in .env}
       API_MIRROR_DOMAINS: ${API_MIRROR_DOMAINS:-}
       SUB_PROXY_DOMAINS: ${SUB_PROXY_DOMAINS:-}
-      # v28.68.0: on-demand certificates of the Domain Manager's portal domains (deploy/Caddyfile).
+      # v28.69.0: on-demand certificates of the Domain Manager's portal domains (deploy/Caddyfile).
       CADDY_ASK_URL: http://${BACKEND_INGRESS_IP:-172.30.84.3}:8000/caddy/ask
       ADMIN_DOMAIN: ${ADMIN_DOMAIN:?set ADMIN_DOMAIN in .env}
       APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN in .env}

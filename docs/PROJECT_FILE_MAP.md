@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.68.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.69.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2098**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2107**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -134,6 +134,7 @@
 | [admin/e2e/plugins.spec.ts](../admin/e2e/plugins.spec.ts) | Админ-панель |
 | [admin/e2e/preferences-help.spec.ts](../admin/e2e/preferences-help.spec.ts) | Админ-панель |
 | [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
+| [admin/e2e/rw-extensions.spec.ts](../admin/e2e/rw-extensions.spec.ts) | Админ-панель |
 | [admin/e2e/rw-installer.spec.ts](../admin/e2e/rw-installer.spec.ts) | Админ-панель |
 | [admin/e2e/system-status.spec.ts](../admin/e2e/system-status.spec.ts) | Админ-панель |
 | [admin/index.html](../admin/index.html) | Админ-панель |
@@ -218,6 +219,7 @@
 | [admin/src/reconciliation.tsx](../admin/src/reconciliation.tsx) | Админ-панель |
 | [admin/src/referral-program.tsx](../admin/src/referral-program.tsx) | Админ-панель |
 | [admin/src/runtime-settings.tsx](../admin/src/runtime-settings.tsx) | Админ-панель |
+| [admin/src/rw-extensions.tsx](../admin/src/rw-extensions.tsx) | Админ-панель |
 | [admin/src/rw-installer.tsx](../admin/src/rw-installer.tsx) | Админ-панель |
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
 | [admin/src/statusPricing.tsx](../admin/src/statusPricing.tsx) | Админ-панель |
@@ -537,6 +539,7 @@
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
 | [backend/app/rw_api.py](../backend/app/rw_api.py) | API, бот и worker |
 | [backend/app/rw_domains.py](../backend/app/rw_domains.py) | API, бот и worker |
+| [backend/app/rw_extensions.py](../backend/app/rw_extensions.py) | API, бот и worker |
 | [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
 | [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
 | [backend/app/rw_remote.py](../backend/app/rw_remote.py) | API, бот и worker |
@@ -1159,6 +1162,7 @@
 | [docs/ru/RELEASE_V28_66_0.md](../docs/ru/RELEASE_V28_66_0.md) | Документация |
 | [docs/ru/RELEASE_V28_67_0.md](../docs/ru/RELEASE_V28_67_0.md) | Документация |
 | [docs/ru/RELEASE_V28_68_0.md](../docs/ru/RELEASE_V28_68_0.md) | Документация |
+| [docs/ru/RELEASE_V28_69_0.md](../docs/ru/RELEASE_V28_69_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1246,6 +1250,7 @@
 | [docs/ru/new/BACKEND_ARCHITECTURE.md](../docs/ru/new/BACKEND_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/BUGFIX_LOG.md](../docs/ru/new/BUGFIX_LOG.md) | Документация |
 | [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
+| [docs/ru/new/CLIENT_BALANCER.md](../docs/ru/new/CLIENT_BALANCER.md) | Документация |
 | [docs/ru/new/DATABASE_SCHEMA.md](../docs/ru/new/DATABASE_SCHEMA.md) | Документация |
 | [docs/ru/new/DEPLOYMENT_AGENT.md](../docs/ru/new/DEPLOYMENT_AGENT.md) | Документация |
 | [docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md](../docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md) | Документация |
@@ -1253,6 +1258,7 @@
 | [docs/ru/new/FULL_TECHNICAL_AUDIT.md](../docs/ru/new/FULL_TECHNICAL_AUDIT.md) | Документация |
 | [docs/ru/new/IMPLEMENTATION_STATUS.md](../docs/ru/new/IMPLEMENTATION_STATUS.md) | Документация |
 | [docs/ru/new/KNOWN_LIMITATIONS.md](../docs/ru/new/KNOWN_LIMITATIONS.md) | Документация |
+| [docs/ru/new/NODE_PLUGINS.md](../docs/ru/new/NODE_PLUGINS.md) | Документация |
 | [docs/ru/new/PERFORMANCE_AUDIT.md](../docs/ru/new/PERFORMANCE_AUDIT.md) | Документация |
 | [docs/ru/new/RBAC.md](../docs/ru/new/RBAC.md) | Документация |
 | [docs/ru/new/README.md](../docs/ru/new/README.md) | Документация |
@@ -1260,6 +1266,7 @@
 | [docs/ru/new/REMNAWAVE_API_DESIGN.md](../docs/ru/new/REMNAWAVE_API_DESIGN.md) | Документация |
 | [docs/ru/new/REMNAWAVE_ARCHITECTURE.md](../docs/ru/new/REMNAWAVE_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/REMNAWAVE_DATA_MODEL.md](../docs/ru/new/REMNAWAVE_DATA_MODEL.md) | Документация |
+| [docs/ru/new/REMNAWAVE_EXTENSIONS.md](../docs/ru/new/REMNAWAVE_EXTENSIONS.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
 | [docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md](../docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md) | Документация |
 | [docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md](../docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md) | Документация |
@@ -1268,6 +1275,7 @@
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_DOMAIN.md](../docs/ru/new/SUBSCRIPTION_DOMAIN.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_PORTAL.md](../docs/ru/new/SUBSCRIPTION_PORTAL.md) | Документация |
+| [docs/ru/new/SUBSCRIPTION_RULES.md](../docs/ru/new/SUBSCRIPTION_RULES.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_SECURITY.md](../docs/ru/new/SUBSCRIPTION_SECURITY.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_TEMPLATES.md](../docs/ru/new/SUBSCRIPTION_TEMPLATES.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
@@ -2003,6 +2011,7 @@
 | [tests/test_repin_images.py](../tests/test_repin_images.py) | Проверки |
 | [tests/test_route_authorization.py](../tests/test_route_authorization.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
+| [tests/test_rw_extensions.py](../tests/test_rw_extensions.py) | Проверки |
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |

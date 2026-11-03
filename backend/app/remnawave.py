@@ -114,7 +114,8 @@ class RemnawaveClient:
         started=time.monotonic(); status=599
         try:
             c=await self._get_shared_client()
-            r=await c.request(method,f"{self.base}{path}",headers=self.headers,**kwargs)
+            extra=kwargs.pop("extra_headers",None) or {}
+            r=await c.request(method,f"{self.base}{path}",headers={**self.headers,**extra},**kwargs)
             status=r.status_code
             if not r.is_error:
                 ref=panel_api_stats.user_ref(method,path,kwargs)

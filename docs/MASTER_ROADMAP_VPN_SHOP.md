@@ -1,6 +1,6 @@
 # Мастер-дорожная карта VPN Shop
 
-Дистрибутив `v28.68.0`, runtime/API `21.5.1`, миграция магазина `0091_remnawave_domains`.
+Дистрибутив `v28.69.0`, runtime/API `21.5.1`, миграция магазина `0091_remnawave_domains`.
 
 Состояние на `2026-10-31`. Отметка «сделано» означает, что есть подтверждение в коде или в
 результате проверки; «не проверено» — что функциональность существует, но живой прогон не выполнен.
@@ -196,7 +196,7 @@ Billing через `payment_platform.py`.
 
 ## 7. Точка начала следующего этапа
 
-**Ход мастер-задания из 18 этапов** — в [docs/ru/new/IMPLEMENTATION_STATUS.md](ru/new/IMPLEMENTATION_STATUS.md). На 2026-11-03 выполнены этапы 1–11: инвентаризация, сравнение с референсами, технический аудит, исправления в v28.58.0 ([журнал исправлений](ru/new/BUGFIX_LOG.md)), единая бизнес-логика в v28.59.0 ([устройство backend](ru/new/BACKEND_ARCHITECTURE.md)), Админ-центр в v28.60.0 ([управляемость из админки](ru/new/ADMIN_CONTROL_MATRIX.md)), интерфейс в v28.61.0 ([правила интерфейса](ru/new/UI_UX_GUIDE.md)), System Control Center с руководством по панели в v28.62.0 ([руководство](ru/new/ADMIN_PANEL_GUIDE.md), [роли и права](ru/new/RBAC.md)), личный кабинет в v28.63.0 ([руководство по кабинету](ru/new/USER_CABINET_GUIDE.md)), обновление языков, баз и компонентов в v28.64.0 ([стек](TECH_STACK.md)) архитектура Remnawave Manager в v28.65.0 ([архитектура](ru/new/REMNAWAVE_ARCHITECTURE.md)) мастер установки Remnawave в v28.66.0 ([мастер установки](ru/new/REMNAWAVE_INSTALLATION_WIZARD.md); проверка на настоящем VPS — BLOCKED_EXTERNAL) и портал подписки с менеджером доменов в v28.67.0 ([портал](ru/new/SUBSCRIPTION_PORTAL.md); настоящий домен — BLOCKED_EXTERNAL), все тексты и цвета портала из админки — в v28.68.0. Следующий — этап 12 (менеджер расширений Remnawave) по команде владельца.
+**Ход мастер-задания из 18 этапов** — в [docs/ru/new/IMPLEMENTATION_STATUS.md](ru/new/IMPLEMENTATION_STATUS.md). На 2026-11-03 выполнены этапы 1–11: инвентаризация, сравнение с референсами, технический аудит, исправления в v28.58.0 ([журнал исправлений](ru/new/BUGFIX_LOG.md)), единая бизнес-логика в v28.59.0 ([устройство backend](ru/new/BACKEND_ARCHITECTURE.md)), Админ-центр в v28.60.0 ([управляемость из админки](ru/new/ADMIN_CONTROL_MATRIX.md)), интерфейс в v28.61.0 ([правила интерфейса](ru/new/UI_UX_GUIDE.md)), System Control Center с руководством по панели в v28.62.0 ([руководство](ru/new/ADMIN_PANEL_GUIDE.md), [роли и права](ru/new/RBAC.md)), личный кабинет в v28.63.0 ([руководство по кабинету](ru/new/USER_CABINET_GUIDE.md)), обновление языков, баз и компонентов в v28.64.0 ([стек](TECH_STACK.md)) архитектура Remnawave Manager в v28.65.0 ([архитектура](ru/new/REMNAWAVE_ARCHITECTURE.md)) мастер установки Remnawave в v28.66.0 ([мастер установки](ru/new/REMNAWAVE_INSTALLATION_WIZARD.md); проверка на настоящем VPS — BLOCKED_EXTERNAL) и портал подписки с менеджером доменов в v28.67.0 ([портал](ru/new/SUBSCRIPTION_PORTAL.md); настоящий домен — BLOCKED_EXTERNAL), все тексты и цвета портала из админки — в v28.68.0; этап 12 идёт: менеджер расширений через API панели — в v28.69.0. Дальше — этап 12, часть Б: модули на серверах нод (SelfSteal, IPv6, ядро Xray, WARP, NetBird, Xray Checker).
 
 Исследование завершено, документы созданы. Дальше — по порядку:
 
