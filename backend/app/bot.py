@@ -806,43 +806,141 @@ async def ops(message: Message):
     buttons = [[InlineKeyboardButton(text="Панель" if lang == "ru" else "Panel", url=url)]]
     await message.answer(_tr(lang, "ops_status", violations=violations, agents=agents, url=escape(url)), reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons), parse_mode="HTML")
 
+POLL_CHECK = 60   # seconds between getMe calls (the connection check «Состояние системы» shows)
+TOKEN_CHECK = 15  # seconds between looks at the runtime setting BOT_TOKEN
+
+
+async def _report(**fields) -> None:
+    from .telegram_bot import report
+    try:
+        async with AsyncSession(engine, expire_on_commit=False) as db:
+            await report(db, **fields)
+    except Exception as exc:  # noqa: BLE001 — a database outage must not stop the bot
+        logger.warning("bot state not saved: %s", exc)
+
+
+class _Updates:
+    """Counts updates between state writes (one write a minute, not one per message)."""
+    def __init__(self):
+        self.count, self.last = 0, None
+
+    async def __call__(self, handler, event, data):
+        self.count += 1
+        self.last = datetime.utcnow()
+        return await handler(event, data)
+
+    def take(self) -> tuple[int, datetime | None]:
+        count, self.count = self.count, 0
+        return count, self.last
+
+
+async def run_with_token(token: str, *, bot_factory=None, poll=True) -> str:
+    """One session with one token: until the token changes in the runtime settings (returns "changed") or Telegram
+    refuses it (raises). The supervisor starts the next session."""
+    from .telegram_bot import fingerprint
+    from . import bot_workspace  # Registers account commands on the shared router.
+    bot = (bot_factory or Bot)(token)
+    counter = _Updates()
+    dp = Dispatcher(storage=fsm_storage())
+    dp.update.outer_middleware(counter)
+    if router.parent_router is None:
+        dp.include_router(router)
+    if bot_workspace.router.parent_router is None:
+        dp.include_router(bot_workspace.router)
+    try:
+        me = await bot.get_me()
+        now = datetime.utcnow()
+        await _report(state="running", bot_id=me.id, username=me.username, first_name=me.first_name, token_fingerprint=fingerprint(token),
+                      started_at=now, last_ok_at=now, last_error=None)
+        logger.info("bot @%s connected (token %s)", me.username, fingerprint(token))
+        # This service uses long polling. Remove a stale webhook left by a previous deployment so Telegram does not
+        # route updates somewhere else.
+        await bot.delete_webhook(drop_pending_updates=False)
+        broadcasts = asyncio.create_task(broadcast_worker(bot))
+        polling = asyncio.create_task(dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), handle_signals=False)) if poll else None
+        try:
+            waited = 0
+            while True:
+                await asyncio.sleep(TOKEN_CHECK)
+                waited += TOKEN_CHECK
+                if polling is not None and polling.done():
+                    polling.result()  # re-raises what stopped it
+                    return "stopped"
+                if settings.bot_token != token:
+                    logger.info("BOT_TOKEN changed in the runtime settings: reconnecting")
+                    return "changed"
+                if waited >= POLL_CHECK:
+                    waited = 0
+                    await bot.get_me()
+                    count, last = counter.take()
+                    await _report(last_ok_at=datetime.utcnow(), updates=count, **({"last_update_at": last} if last else {}))
+        finally:
+            if polling is not None and not polling.done():
+                try:
+                    await dp.stop_polling()
+                except RuntimeError:  # not started yet: cancel instead
+                    polling.cancel()
+                await asyncio.gather(polling, return_exceptions=True)
+            broadcasts.cancel()
+            await asyncio.gather(broadcasts, return_exceptions=True)
+            count, last = counter.take()
+            if count:
+                await _report(updates=count, last_update_at=last)
+    finally:
+        await bot.session.close()
+        for r in (router, bot_workspace.router):
+            if r.parent_router is not None:
+                r._parent_router = None
+
+
+async def supervise(*, bot_factory=None, poll=True, sessions: int | None = None) -> None:
+    """The bot process: runs a session with the current token, reconnects when it changes, waits while it is empty,
+    retries after errors. The state goes to telegram_bot_state for the admin panel."""
+    done = 0
+    while sessions is None or done < sessions:
+        token = settings.bot_token
+        if not token:
+            await _report(state="idle", last_error="BOT_TOKEN не задан")
+            while not settings.bot_token:
+                await asyncio.sleep(TOKEN_CHECK)
+            continue
+        done += 1
+        try:
+            await run_with_token(token, bot_factory=bot_factory, poll=poll)
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:  # noqa: BLE001 — a refused token or a network outage: report, wait, try again
+            text = str(exc).replace(token, "***")[:500]
+            logger.error("bot session failed: %s: %s", type(exc).__name__, text)
+            await _report(state="error", last_error=f"{type(exc).__name__}: {text}", last_error_at=datetime.utcnow())
+            waited = 0
+            while settings.bot_token == token and waited < 60:  # a new token is tried at once
+                await asyncio.sleep(TOKEN_CHECK)
+                waited += TOKEN_CHECK
+
+
 async def main():
+    import os
+    os.environ.setdefault("APP_PROCESS", "bot")
     from .runtime_settings import refresh_runtime_settings, runtime_settings_scheduler
+    from . import error_log
+    error_log.install()  # the bot's errors reach «Журнал ошибок» (process «bot»)
     async with AsyncSession(engine, expire_on_commit=False) as db:
         await refresh_runtime_settings(db, force=True)
     runtime_task = asyncio.create_task(runtime_settings_scheduler())
     from .heartbeat import keep_beating
     beating = asyncio.create_task(keep_beating("bot"))  # container healthcheck: the event loop is alive (kept referenced)
     if not settings.bot_token:
-        if (settings.app_env or "").strip().lower() == "production":
-            runtime_task.cancel()
-            await asyncio.gather(runtime_task, return_exceptions=True)
-            raise RuntimeError("BOT_TOKEN is empty")
-        logger.warning("BOT_TOKEN is empty; Telegram polling stays idle outside production")
-        try:
-            while True:
-                await asyncio.sleep(3600)
-        finally:
-            runtime_task.cancel()
-            await asyncio.gather(runtime_task, return_exceptions=True)
-    from . import bot_workspace  # Registers account commands on the shared router.
-    bot = Bot(settings.bot_token)
-    dp = Dispatcher(storage=fsm_storage())
-    dp.include_router(router)
-    dp.include_router(bot_workspace.router)
-
-    # This service uses long polling. Remove a stale webhook left by a previous
-    # deployment so Telegram does not route updates somewhere else.
-    await bot.delete_webhook(drop_pending_updates=False)
-
-    asyncio.create_task(broadcast_worker(bot))
+        # v28.71.0: the token is a runtime setting now — the process waits for it instead of stopping.
+        logger.warning("BOT_TOKEN is empty; the bot waits for it in the runtime settings")
     try:
-        # Explicit update types: Telegram Stars needs pre_checkout_query and the payment messages.
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+        await supervise()
     finally:
-        runtime_task.cancel()
-        await asyncio.gather(runtime_task, return_exceptions=True)
-        await bot.session.close()
+        for task in (runtime_task, beating):
+            task.cancel()
+        await asyncio.gather(runtime_task, beating, return_exceptions=True)
+
+
 def fsm_storage():
     """aiogram FSM state in Redis: survives a bot restart and is shared if the bot is moved to another host.
     Without Redis (local runs, tests) the in-memory storage is used."""

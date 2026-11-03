@@ -207,15 +207,23 @@ async def test_backups(database):
 
 
 def test_telegram(monkeypatch):
+    """v28.71.0: «ok» only when the bot process recently talked to Telegram, not when a token is merely set."""
+    from datetime import datetime, timedelta
     s = system_status.settings
     monkeypatch.setattr(s, "bot_token", "")
     assert system_status.telegram_check()["status"] == "off"
     monkeypatch.setattr(s, "bot_token", "123:SECRET")
-    monkeypatch.setattr(s, "bot_username", "")
-    assert system_status.telegram_check()["status"] == "warn"
     monkeypatch.setattr(s, "bot_username", "corgi_bot")
-    row = system_status.telegram_check()
-    assert row["status"] == "ok" and "@corgi_bot" in row["detail"] and "SECRET" not in json.dumps(row)
+    assert system_status.telegram_check()["status"] == "warn", "a token alone proves nothing"
+    now = datetime.utcnow()
+    fresh = {"state": "running", "connected": True, "username": "corgi_bot", "last_ok_at": now.isoformat() + "Z"}
+    row = system_status.telegram_check(fresh)
+    assert row["status"] == "ok" and "@corgi_bot" in row["detail"] and "SECRET" not in json.dumps(row) and row["tab"] == "telegramBot"
+    stale = {"state": "running", "connected": False, "last_ok_at": (now - timedelta(minutes=10)).isoformat() + "Z"}
+    assert system_status.telegram_check(stale)["status"] == "error"
+    refused = {"state": "error", "connected": False, "last_error": "TelegramUnauthorizedError: Unauthorized"}
+    row = system_status.telegram_check(refused)
+    assert row["status"] == "error" and "Unauthorized" in row["detail"]
 
 
 @pytest.mark.asyncio

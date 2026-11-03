@@ -1,3 +1,19 @@
+# v28.71.0
+
+- Telegram-бот из админки, часть А (этап 13; `backend/app/telegram_bot.py`, «Бот и кабинет → Telegram-бот»):
+  - `BOT_TOKEN` — настройка без перезапуска (секрет, проверка формата); `bot.supervise` переподключает бота при смене
+    токена, ждёт токен вместо падения, повторяет после ошибок;
+  - таблица `telegram_bot_state` (миграция `0092_telegram_bot`): `getMe` раз в минуту, обновления, последняя ошибка
+    (токен маскируется), отпечаток токена; «Состояние системы» — «ok» только при свежем ответе Telegram;
+  - `/api/admin/telegram`: состояние, проверка (`getMe`, `getWebhookInfo`), удаление webhook, меню команд на ru/en/uk
+    (`setMyCommands`), тестовое сообщение, ошибки процесса бота;
+  - ошибки процесса бота пишутся в «Журнал ошибок» (`APP_PROCESS=bot`).
+- CI: задание `telegram` в «Remnawave live contract» — настоящий Bot API с секретом `TELEGRAM_TEST_BOT_TOKEN`
+  (без него — BLOCKED_SECRETS).
+- Тесты: `tests/test_telegram_bot.py`, `tests/live/test_telegram_live.py`, `admin/e2e/telegram-bot.spec.ts`.
+- Документ: `docs/ru/new/TELEGRAM_GUIDE.md`. Отчёт: [docs/ru/RELEASE_V28_71_0.md](docs/ru/RELEASE_V28_71_0.md).
+- Head магазина `0092_telegram_bot`; runtime/API остаётся 21.5.1.
+
 # v28.70.0
 
 - Модули серверов Remnawave, часть Б (этап 12) — шагами мастера установки из закрытого списка, с планом и откатом:

@@ -1,6 +1,6 @@
 # Статус реализации по этапам
 
-Состояние на 2026-11-03. База: дистрибутив `v28.70.0`, миграция магазина `0091_remnawave_domains`. Этапы выполняются по одному, следующий начинается по команде владельца.
+Состояние на 2026-11-03. База: дистрибутив `v28.70.0`, миграция магазина `0092_telegram_bot`. Этапы выполняются по одному, следующий начинается по команде владельца.
 
 | № | Этап | Статус | Подтверждение / что осталось |
 | --- | --- | --- | --- |
@@ -16,7 +16,7 @@
 | 10 | Установка Remnawave через админку | PASS / BLOCKED_EXTERNAL | Выпуск v28.66.0 (2026-11-03): [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md), [REMNAWAVE_INSTALLATION_MODES](REMNAWAVE_INSTALLATION_MODES.md), [REMNAWAVE_PREFLIGHT](REMNAWAVE_PREFLIGHT.md), [DEPLOYMENT_AGENT](DEPLOYMENT_AGENT.md). Реестр серверов, проверка по SSH, семь режимов, план с SHA-256, установка по шагам с откатом, обновление, диагностика, восстановление, переустановка, удаление; миграция `0090_remnawave_installer`. PASS: mock-тесты на поддельном SSH-сервере, e2e раздела, установка «панель + нода» по SSH на сервере CI. BLOCKED_EXTERNAL: настоящий VPS, Let's Encrypt, сеть между серверами. Агент на сервере и копия панели в хранилище магазина — этап 15 |
 | 11 | Отдельный домен и Subscription Portal | PASS / BLOCKED_EXTERNAL | Выпуск v28.67.0 (2026-11-03): [SUBSCRIPTION_PORTAL](SUBSCRIPTION_PORTAL.md), [SUBSCRIPTION_DOMAIN](SUBSCRIPTION_DOMAIN.md), [SUBSCRIPTION_TEMPLATES](SUBSCRIPTION_TEMPLATES.md), [SUBSCRIPTION_SECURITY](SUBSCRIPTION_SECURITY.md). Портал подписки в браузере, менеджер доменов с on-demand TLS в общем Caddy, проверки DNS и сертификатов, Cloudflare, маршруты Caddy, пауза при переборе, смена ссылки, закрытие доступа к панели; миграция `0091_remnawave_domains`; 29 из 30 модулей с разделом. PASS: unit, e2e, on-demand TLS с настоящим Caddyfile в CI. BLOCKED_EXTERNAL: Let's Encrypt на настоящем домене. DNS-01 — этап 15 |
 | 12 | Менеджер расширений Remnawave | DONE | Часть А — v28.69.0: [REMNAWAVE_EXTENSIONS](REMNAWAVE_EXTENSIONS.md), [NODE_PLUGINS](NODE_PLUGINS.md), [SUBSCRIPTION_RULES](SUBSCRIPTION_RULES.md), [CLIENT_BALANCER](CLIENT_BALANCER.md) — PASS (живые тесты на панели). Часть Б — v28.70.0 (2026-11-03): SelfSteal (TLS + REALITY), IPv6, ядро Xray с SHA-256, WARP Native, NetBird, Xray Checker шагами мастера; серверный роутинг и WARP в профиле через API панели ([WARP_NETBIRD](WARP_NETBIRD.md), [SERVER_ROUTING](SERVER_ROUTING.md), [XRAY_CHECKER](XRAY_CHECKER.md)) — PASS в mock и e2e; живой SelfSteal, IPv6 и ядро Xray на раннере — PASS (CI); клиент REALITY с публичным доменом, мост двух нод, WARP — BLOCKED_EXTERNAL; NetBird — BLOCKED_SECRETS |
-| 13 | Telegram-бот и Mini App | NOT_STARTED | Нужен `BOT_TOKEN` для живой проверки |
+| 13 | Telegram-бот и Mini App | IN_PROGRESS | Часть А — v28.71.0 (2026-11-03): [TELEGRAM_GUIDE](TELEGRAM_GUIDE.md): токен бота без перезапуска, связь с Telegram в «Состоянии системы», меню команд ru/en/uk, тестовое сообщение, ошибки бота — PASS (mock, e2e); живой Bot API — BLOCKED_SECRETS (нужен секрет `TELEGRAM_TEST_BOT_TOKEN` в Actions). Часть Б — функции бота и Mini App |
 | 14 | Платёжная система | NOT_STARTED | Нужны ключи провайдеров (иначе BLOCKED_SECRETS) |
 | 15 | Docker, установщик, автообновление, Automation Center | NOT_STARTED | |
 | 16 | Безопасность и мониторинг | NOT_STARTED | |
