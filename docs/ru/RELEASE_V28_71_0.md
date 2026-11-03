@@ -23,7 +23,7 @@
 | Переподключение с новым токеном без перезапуска, ожидание токена, отклонённый токен | `tests/test_telegram_bot.py` | PASS |
 | «Состояние системы» | `tests/test_system_status.py`, `admin/e2e/system-status.spec.ts` | PASS |
 | Раздел админки | `admin/e2e/telegram-bot.spec.ts` | PASS |
-| Настоящий Bot API с тестовым ботом владельца | `tests/live/test_telegram_live.py` (задание CI `telegram`) | BLOCKED_SECRETS: нужен секрет `TELEGRAM_TEST_BOT_TOKEN` в GitHub Actions |
+| Настоящий Bot API с тестовым ботом владельца: подключение, long polling, меню на трёх языках | `tests/live/test_telegram_live.py` (задание CI `telegram`) | PASS (CI) |
 
 ## Дальше
 

@@ -8,8 +8,8 @@
   - `/api/admin/telegram`: состояние, проверка (`getMe`, `getWebhookInfo`), удаление webhook, меню команд на ru/en/uk
     (`setMyCommands`), тестовое сообщение, ошибки процесса бота;
   - ошибки процесса бота пишутся в «Журнал ошибок» (`APP_PROCESS=bot`).
-- CI: задание `telegram` в «Remnawave live contract» — настоящий Bot API с секретом `TELEGRAM_TEST_BOT_TOKEN`
-  (без него — BLOCKED_SECRETS).
+- CI: задание `telegram` в «Remnawave live contract» — настоящий Bot API с тестовым ботом владельца
+  (секрет `TELEGRAM_TEST_BOT_TOKEN`): PASS.
 - Тесты: `tests/test_telegram_bot.py`, `tests/live/test_telegram_live.py`, `admin/e2e/telegram-bot.spec.ts`.
 - Документ: `docs/ru/new/TELEGRAM_GUIDE.md`. Отчёт: [docs/ru/RELEASE_V28_71_0.md](docs/ru/RELEASE_V28_71_0.md).
 - Head магазина `0092_telegram_bot`; runtime/API остаётся 21.5.1.

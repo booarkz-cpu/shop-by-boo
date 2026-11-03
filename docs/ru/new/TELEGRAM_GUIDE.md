@@ -69,4 +69,4 @@
 | Переподключение с новым токеном без перезапуска, ожидание без токена, отклонённый токен (маскируется) | `tests/test_telegram_bot.py::test_supervisor_reconnects_on_a_new_token` | PASS |
 | Строка «Telegram-бот» в «Состоянии системы» | `tests/test_system_status.py::test_telegram` | PASS |
 | Раздел админки | `admin/e2e/telegram-bot.spec.ts` | PASS |
-| Настоящий Bot API: подключение, опрос, меню на трёх языках | `tests/live/test_telegram_live.py` (задание `telegram`) | BLOCKED_SECRETS до секрета `TELEGRAM_TEST_BOT_TOKEN` в GitHub Actions |
+| Настоящий Bot API с тестовым ботом владельца: подключение, опрос, меню на трёх языках | `tests/live/test_telegram_live.py` (задание `telegram`, секрет `TELEGRAM_TEST_BOT_TOKEN`) | PASS (CI) |

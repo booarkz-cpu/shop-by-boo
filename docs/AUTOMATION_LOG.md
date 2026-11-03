@@ -10,7 +10,9 @@
 
 **Проверено.** `tests/test_telegram_bot.py`, `tests/test_system_status.py`, e2e `telegram-bot.spec.ts`, `system-status.spec.ts`, `control-center.spec.ts`, `all-sections.spec.ts`.
 
-**Осталось.** Живой Bot API — токен получен от владельца, но из среды агента Telegram недоступен, а записать секрет GitHub Actions агенту не дают права прокси: BLOCKED_SECRETS до секрета `TELEGRAM_TEST_BOT_TOKEN`. Часть Б — функции бота и Mini App.
+**Живая проверка.** Владелец добавил секрет `TELEGRAM_TEST_BOT_TOKEN`; задание CI `telegram` — PASS: тестовый бот подключился, long polling, меню на трёх языках применено и прочитано из Telegram.
+
+**Осталось.** Часть Б — функции бота и Mini App.
 
 ## 2026-11-03 — этап 12, часть Б: модули серверов Remnawave, выпуск v28.70.0
 
