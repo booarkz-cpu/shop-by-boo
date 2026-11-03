@@ -26,7 +26,18 @@ IMAGES = {
     "valkey": "valkey/valkey:9-alpine@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b",
     "caddy": "caddy:2.11-alpine@sha256:e70b164da81ef698b3ad19af799ea6086ce6d9e48ed4079eb9fe26f6fbf14ee5",
 }
-DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page": "/opt/remnawave-subpage", "proxy": "/opt/remnawave-caddy"}
+DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page": "/opt/remnawave-subpage", "proxy": "/opt/remnawave-caddy",
+        "selfsteal": "/opt/remnawave-selfsteal", "xray_checker": "/opt/remnawave-xray-checker"}
+# v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
+# (tests/live/test_node_modules_live.py prints it on every run).
+CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
+MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker")
+MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker"}
+# Release files by the server's architecture (uname -m; the preflight allows only these two).
+XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
+WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
+SELFSTEAL_SOCKET = "/dev/shm/selfsteal.sock"
+SELFSTEAL_TEMPLATES = {"cloud": "Облачное хранилище", "docs": "Документация", "corgi": "Блог о корги"}
 MODES = ("panel_node", "panel", "node", "panel_subpage", "subpage", "distributed", "add_node")
 MODE_TITLES = {
     "panel_node": "Панель и нода на одном сервере", "panel": "Только панель", "node": "Только нода",
@@ -56,10 +67,21 @@ class PlanIn(BaseModel):
     firewall: bool = True
     # v28.67.0: «закрыть доступ к панели» — the panel's pages answer only with the access cookie (rw_plan.caddyfile).
     panel_access: Literal["open", "cookie"] = "open"
+    # v28.70.0: SelfSteal on the node — Caddy serves a template site for this domain on a unix socket and Xray
+    # REALITY on port 443 uses it as its «dest» (the node looks like an ordinary site).
+    selfsteal_domain: str | None = Field(default=None, max_length=253)
+    selfsteal_template: Literal["cloud", "docs", "corgi"] = "cloud"
+    # v28.70.0: node modules that change the files the wizard writes, so updates keep them:
+    # an Xray core of the chosen release mounted into the node, and Xray Checker on one of the servers.
+    xray_core: str | None = Field(default=None, pattern=r"^v\d{1,3}\.\d{1,3}\.\d{1,3}$")
+    xray_checker_server_id: int | None = None
+    xray_checker_interval: int = Field(default=300, ge=60, le=86400)
+    # The module action being planned (rw_api.action fills it; it is not kept after the run).
+    module: "ModuleRun | None" = None
 
     @model_validator(mode="after")
     def check(self):
-        for field in ("panel_domain", "sub_domain", "node_domain"):
+        for field in ("panel_domain", "sub_domain", "node_domain", "selfsteal_domain"):
             value = getattr(self, field)
             if value is not None:
                 value = value.strip().lower().rstrip(".")
@@ -94,11 +116,37 @@ class PlanIn(BaseModel):
             raise ValueError("В этом режиме страница подписки не ставится")
         if self.subpage_server_id and not self.sub_domain:
             raise ValueError("Нужен домен страницы подписки")
+        if self.selfsteal_domain:
+            if len(self.node_server_ids) != 1:
+                raise ValueError("SelfSteal — для одной ноды: у каждой ноды свой домен")
+            if self.node_server_ids[0] in (self.panel_server_id, self.subpage_server_id):
+                raise ValueError("SelfSteal занимает порт 443 ноды: ставьте ноду на сервер без панели и страницы подписки")
+            if self.node_domain and self.node_domain != self.selfsteal_domain:
+                raise ValueError("Домен ноды и домен SelfSteal должны совпадать")
+            if self.tls == "acme" and not self.acme_email:
+                raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
+        if self.xray_checker_server_id and self.xray_checker_server_id not in roles_of(self):
+            raise ValueError("Xray Checker ставится на один из серверов этой установки")
         if self.panel_access == "cookie" and not self.panel_server_id:
             raise ValueError("Закрыть доступ можно к панели, которую ставит мастер")
         if self.tls == "acme" and (self.panel_domain or self.sub_domain) and not self.acme_email:
             raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
         return self
+
+
+class ModuleRun(BaseModel):
+    """One module action: what to do on which servers. ``release`` — the files GitHub published for the chosen
+    version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
+    model_config = ConfigDict(extra="forbid")
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker"]
+    enabled: bool = True
+    server_ids: list[int] = Field(default_factory=list, max_length=20)
+    version: str | None = Field(default=None, max_length=40)
+    release: dict[str, dict[str, str]] = Field(default_factory=dict)
+    management_url: str | None = Field(default=None, max_length=200, pattern=r"^https://[A-Za-z0-9.-]+(:\d{1,5})?(/[A-Za-z0-9._~/-]*)?$")
+
+
+PlanIn.model_rebuild()
 
 
 def roles_of(plan: PlanIn) -> dict[int, list[str]]:
@@ -129,9 +177,11 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
     changes: dict[int, list[str]] = {}
     for sid, rs in roles.items():
         name = servers[sid]["name"]
-        steps.append(step("preflight", sid, f"{name}: проверка перед установкой", roles=rs,
+        steal = bool(plan.selfsteal_domain and "node" in rs)
+        steps.append(step("preflight", sid, f"{name}: проверка перед установкой", roles=rs + (["selfsteal"] if steal else []),
                           domains=[d for d in (plan.panel_domain if "panel" in rs else None,
-                                               plan.sub_domain if "subscription_page" in rs else None) if d],
+                                               plan.sub_domain if "subscription_page" in rs else None,
+                                               plan.selfsteal_domain if steal else None) if d],
                           node_port=plan.node_port if "node" in rs else None))
         steps.append(step("install_docker", sid, f"{name}: Docker и compose из подписанного репозитория"))
         changes[sid] = ["Docker Engine и плагин compose, если их нет (официальный репозиторий Docker)"]
@@ -162,14 +212,23 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
             changes[sid].append("Доступ к страницам панели закрыт: открывается только по секретной ссылке (API с токеном и подписки работают)")
     for n in plan.node_server_ids:
         name = servers[n]["name"]
+        if plan.selfsteal_domain:
+            steps += [step("write_files", n, f"{name}: SelfSteal — Caddy и сайт «{SELFSTEAL_TEMPLATES[plan.selfsteal_template]}»", component="selfsteal"),
+                      step("compose_up", n, f"{name}: запуск Caddy SelfSteal (сертификат {plan.selfsteal_domain})", component="selfsteal")]
+            changes[n] += [f"Каталог {DIRS['selfsteal']}: Caddy на порту 80 и сокете {SELFSTEAL_SOCKET}, сайт-шаблон для {plan.selfsteal_domain}",
+                           "Порт 443 занимает Xray (REALITY), чужие запросы видят сайт-шаблон"]
         steps += [step("write_files", n, f"{name}: файлы ноды", component="node"),
                   step("compose_up", n, f"{name}: запуск ноды", component="node")]
         changes[n].append(f"Каталог {DIRS['node']}; контейнер remnanode (сеть хоста), порт {plan.node_port}")
         if plan.firewall:
             steps.append(step("firewall_node_port", n, f"{name}: порт {plan.node_port} только для адреса панели"))
-            changes[n].append(f"Если есть ufw: правило «разрешить {plan.node_port}/tcp только с адреса панели»")
+            changes[n].append(f"Если есть ufw: правило «разрешить {plan.node_port}/tcp только с адреса панели»"
+                              + ("; порты 80 и 443 открыты для всех" if plan.selfsteal_domain else ""))
+        if plan.selfsteal_domain:
+            steps.append(step("selfsteal_profile", n, f"{name}: профиль VLESS + REALITY с SelfSteal и хост {plan.selfsteal_domain}"))
+            changes.setdefault(n, []).append("В панели: профиль конфигурации REALITY (ключи от панели) и хост для клиентов")
         steps.append(step("register_node", n, f"{name}: нода в панели"))
-    steps.append(step("verify", None, "Проверка: HTTPS панели, связь нод, страница подписки"))
+    steps.append(step("verify", None, "Проверка: HTTPS панели, связь нод, страница подписки" + (", сайт SelfSteal" if plan.selfsteal_domain else "")))
     return {
         "mode": plan.mode, "title": MODE_TITLES[plan.mode], "images": IMAGES,
         "panel": "новая" if p else f"подключённая к магазину ({shop_panel})",
@@ -344,14 +403,184 @@ volumes:
 """
 
 
-def node_compose(secret_key: str, node_port: int) -> str:
+def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_core: bool = False) -> str:
     from .provisioner import node_compose as official
-    return official(secret_key, node_port).replace("image: remnawave/node:latest", f"image: {IMAGES['node']}")
+    text = official(secret_key, node_port).replace("image: remnawave/node:latest", f"image: {IMAGES['node']}")
+    volumes = []
+    if selfsteal:
+        # Xray reaches the SelfSteal site through the socket in /dev/shm (shared with the Caddy container).
+        volumes.append("      - /dev/shm:/dev/shm:rw\n")
+    if xray_core:
+        # The core of the chosen release (checked by SHA-256 when downloaded) instead of the bundled one;
+        # the node's rw-core starts /usr/local/bin/xray unless a panel profile points it at another core.
+        volumes.append("      - ./xray-core/xray:/usr/local/bin/xray:ro\n")
+    if volumes:
+        text = text.replace("    cap_add:\n", "    volumes:\n" + "".join(volumes) + "    cap_add:\n", 1)
+    return text
 
 
-ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove")
+def checker_compose() -> str:
+    return f"""services:
+  xray-checker:
+    image: {CHECKER_IMAGE}
+    container_name: remnawave-xray-checker
+    restart: unless-stopped
+    network_mode: host
+    env_file: .env
+    logging:
+      driver: json-file
+      options: {{max-size: "10m", max-file: "3"}}
+"""
+
+
+def checker_env(subscription_url: str, interval: int, user: str, password: str) -> str:
+    """Metrics and the API only on 127.0.0.1:2112 behind Basic Auth; the shop reads them over SSH."""
+    for value in (subscription_url, user, password):
+        if any(c in value for c in "\n\r\"'$`\\ "):
+            raise ValueError("Недопустимые символы в настройках Xray Checker")
+    return "\n".join([f"SUBSCRIPTION_URL={subscription_url}", "SUBSCRIPTION_UPDATE=true", "SUBSCRIPTION_UPDATE_INTERVAL=300",
+                      f"PROXY_CHECK_INTERVAL={int(interval)}", "PROXY_CHECK_METHOD=ip", "PROXY_TIMEOUT=30",
+                      "METRICS_HOST=127.0.0.1", "METRICS_PORT=2112", "METRICS_PROTECTED=true",
+                      f"METRICS_USERNAME={user}", f"METRICS_PASSWORD={password}", ""])
+
+
+def selfsteal_caddyfile(domain: str, tls: str, email: str | None) -> str:
+    """Caddy of the node: the HTTP-01 challenge and a redirect on port 80; the template site over TLS on the unix
+    socket that Xray REALITY passes foreign connections to, with the PROXY protocol (xver 1) so the site sees the
+    real client address. After eGamesAPI/remnawave-reverse-proxy (MIT, (c) 2025 eGames), src/caddy/install_node.sh."""
+    if not DOMAIN.match(domain):
+        raise ValueError("Некорректный домен")
+    opts = ["\tadmin off", "\tservers {", "\t\tlistener_wrappers {", "\t\t\tproxy_protocol", "\t\t\ttls", "\t\t}", "\t}",
+            "\tauto_https disable_redirects"]
+    if tls == "internal":
+        opts.append("\tlocal_certs")
+    elif email:
+        opts.append(f"\temail {email}")
+    return "\n".join(["{", *opts, "}", "",
+                      f"http://{domain} {{", "\tbind 0.0.0.0", f"\tredir https://{domain}{{uri}} permanent", "}", "",
+                      f"https://{domain} {{", f"\tbind unix/{SELFSTEAL_SOCKET}", "\troot * /srv", "\ttry_files {path} /index.html",
+                      "\tfile_server", "}", "",
+                      ":80 {", "\tbind 0.0.0.0", "\trespond 204", "}", ""])
+
+
+def selfsteal_compose() -> str:
+    return f"""services:
+  caddy:
+    image: {IMAGES['caddy']}
+    container_name: remnawave-selfsteal
+    restart: always
+    network_mode: host
+    command: sh -c 'rm -f {SELFSTEAL_SOCKET} && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "./index.html:/srv/index.html:ro", "/dev/shm:/dev/shm:rw", "caddy-data:/data", "caddy-config:/config"]
+    healthcheck:
+      test: ["CMD", "test", "-S", "{SELFSTEAL_SOCKET}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  caddy-data: {{}}
+  caddy-config: {{}}
+"""
+
+
+def selfsteal_page(template: str, domain: str) -> str:
+    """A small, self-contained site (no outside requests): what anyone who opens the node's domain sees."""
+    import html as _html
+    d = _html.escape(domain)
+    pages = {
+        "cloud": ("Хранилище файлов", "Синхронизация и резервные копии для команд", ["Шифрование на устройстве", "Версии файлов 30 дней", "Доступ по ссылке"], "#2563EB"),
+        "docs": ("Документация", "Руководства, справочник API и заметки к выпускам", ["Быстрый старт", "Справочник API", "Заметки к выпускам"], "#0F766E"),
+        "corgi": ("Дневник корги", "Прогулки, рецепты лакомств и советы по уходу", ["Осенние прогулки", "Печенье из тыквы", "Как вычёсывать подшёрсток"], "#C2410C"),
+    }
+    title, lead, items, color = pages.get(template, pages["cloud"])
+    lis = "".join(f"<li>{_html.escape(x)}</li>" for x in items)
+    return (f"<!doctype html><html lang=ru><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
+            f"<title>{_html.escape(title)} — {d}</title><style>body{{margin:0;font:16px/1.6 system-ui,sans-serif;color:#1f2937;background:#f8fafc}}"
+            f"header{{background:{color};color:#fff;padding:48px 24px}}main{{max-width:760px;margin:0 auto;padding:24px}}h1{{margin:0 0 8px}}"
+            f"li{{margin:8px 0}}footer{{color:#64748b;text-align:center;padding:24px}}</style></head><body><header><div style='max-width:760px;margin:0 auto'><h1>{_html.escape(title)}</h1>"
+            f"<p>{_html.escape(lead)}</p></div></header><main><ul>{lis}</ul></main><footer>© {d}</footer></body></html>")
+
+
+ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module")
 ACTION_TITLES = {"install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
-                 "reinstall": "Переустановка", "remove": "Удаление"}
+                 "reinstall": "Переустановка", "remove": "Удаление", "module": "Модуль"}
+
+
+def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[str]]) -> tuple[list[dict], str]:
+    """Steps of one module action. Each server-side change is a ``node_module`` step (a closed script of rw_steps)
+    with its own rollback; a new Xray core is then written into the node's compose file and the node restarted."""
+    mod = plan.module
+    if not mod:
+        raise ValueError("Не выбран модуль")
+    nodes = [sid for sid, rs in roles.items() if "node" in rs]
+    targets = mod.server_ids or (nodes if mod.name != "xray_checker" else [])
+    if any(sid not in roles for sid in targets):
+        raise ValueError("Модуль ставится на серверы этой установки")
+    steps: list[dict] = []
+    name = mod.name
+    state = "включить" if mod.enabled else "выключить"
+    if name == "ipv6":
+        if not targets:
+            raise ValueError("Выберите серверы")
+        for sid in targets:
+            steps.append(step("node_module", sid, f"{servers[sid]['name']}: IPv6 — {state}", module="ipv6", enabled=mod.enabled))
+        title = f"IPv6: {state}"
+    elif name == "xray_core":
+        if not nodes:
+            raise ValueError("В этой установке нет нод")
+        for sid in nodes:
+            n = servers[sid]["name"]
+            if mod.enabled:
+                arch = servers[sid].get("arch")
+                asset = mod.release.get(arch or "")
+                if not asset:
+                    raise ValueError(f"{n}: нет файла ядра для архитектуры {arch or 'неизвестно'} (проверьте сервер)")
+                steps.append(step("node_module", sid, f"{n}: ядро Xray {mod.version} (SHA-256 {asset['sha256'][:12]}…)",
+                                  module="xray_core", enabled=True, version=mod.version, url=asset["url"], sha256=asset["sha256"]))
+            else:
+                steps.append(step("node_module", sid, f"{n}: вернуть ядро Xray из образа ноды", module="xray_core", enabled=False))
+            steps += [step("write_files", sid, f"{n}: файлы ({DIRS['node']})", component="node"),
+                      step("compose_up", sid, f"{n}: перезапуск ноды", component="node")]
+        steps.append(step("verify", None, "Проверка: ноды на связи, версия ядра"))
+        title = f"Ядро Xray: {mod.version}" if mod.enabled else "Ядро Xray из образа ноды"
+    elif name == "warp":
+        if not targets:
+            raise ValueError("Выберите серверы")
+        for sid in targets:
+            n = servers[sid]["name"]
+            if mod.enabled:
+                arch = servers[sid].get("arch")
+                asset = mod.release.get(arch or "")
+                if not asset:
+                    raise ValueError(f"{n}: нет файла wgcf для архитектуры {arch or 'неизвестно'}")
+                steps.append(step("node_module", sid, f"{n}: WARP — интерфейс warp (wgcf {mod.version}, SHA-256 {asset['sha256'][:12]}…)",
+                                  module="warp", enabled=True, url=asset["url"], sha256=asset["sha256"]))
+            else:
+                steps.append(step("node_module", sid, f"{n}: WARP — выключить интерфейс warp", module="warp", enabled=False))
+        title = f"WARP Native: {state}"
+    elif name == "netbird":
+        if not targets:
+            raise ValueError("Выберите серверы")
+        for sid in targets:
+            steps.append(step("node_module", sid, f"{servers[sid]['name']}: NetBird — {'подключить' if mod.enabled else 'отключить'}",
+                              module="netbird", enabled=mod.enabled, management_url=mod.management_url))
+        title = f"NetBird: {state}"
+    else:  # xray_checker
+        sid = plan.xray_checker_server_id
+        if mod.enabled and not sid:
+            raise ValueError("Выберите сервер для Xray Checker")
+        if mod.enabled:
+            n = servers[sid]["name"]
+            steps += [step("write_files", sid, f"{n}: файлы ({DIRS['xray_checker']})", component="xray_checker"),
+                      step("compose_up", sid, f"{n}: запуск Xray Checker", component="xray_checker"),
+                      step("node_module", sid, f"{n}: Xray Checker отвечает (127.0.0.1:2112)", module="xray_checker", enabled=True)]
+        else:
+            old = mod.server_ids[0] if mod.server_ids else None
+            if not old:
+                raise ValueError("Xray Checker не установлен")
+            steps.append(step("compose_down", old, f"{servers[old]['name']}: остановка Xray Checker", component="xray_checker"))
+        title = f"Xray Checker: {state}"
+    return steps, title
 
 
 def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
@@ -371,6 +600,12 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
         raise ValueError(f"Серверы не найдены в реестре: {missing}")
     steps: list[dict] = []
     p = plan.panel_server_id
+    if action == "module":
+        steps, title = module_steps(plan, servers, roles)
+        return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {title}", "images": IMAGES,
+                "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": rs, "changes": []}
+                            for sid, rs in roles.items()},
+                "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
 
     def components(sid: int) -> list[str]:
         rs = roles[sid]
@@ -378,7 +613,11 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
         if {"panel", "subscription_page"} & set(rs):
             out.append("proxy")
         if "node" in rs:
+            if plan.selfsteal_domain:
+                out.append("selfsteal")
             out.append("node")
+        if sid == plan.xray_checker_server_id:
+            out.append("xray_checker")
         return out
 
     if action == "diagnose":

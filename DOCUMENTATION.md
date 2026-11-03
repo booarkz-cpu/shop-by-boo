@@ -1,6 +1,6 @@
 # Документация VPN Shop by Corgi
 
-Текущий тег дистрибутива: **v28.69.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0091_remnawave_domains**, Support Pro **0008** / 3.8. Реальные платежи открыты сразу после установки; незавершённые внешние проверки описаны отдельно.
+Текущий тег дистрибутива: **v28.70.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0091_remnawave_domains**, Support Pro **0008** / 3.8. Реальные платежи открыты сразу после установки; незавершённые внешние проверки описаны отдельно.
 
 | Задача | Инструкция |
 | --- | --- |
@@ -42,7 +42,7 @@
 | HTTP API | [API_REFERENCE_RU.md](API_REFERENCE_RU.md) |
 | Карта проекта и дизайн | [PROJECT_MAP_RU.md](docs/PROJECT_MAP_RU.md) |
 | Дерево каталогов и архитектурные границы | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) |
-| Проверки этого выпуска | [Отчёт v28.69.0](docs/ru/RELEASE_V28_69_0.md) |
+| Проверки этого выпуска | [Отчёт v28.70.0](docs/ru/RELEASE_V28_70_0.md) |
 | Живая проверка всех касс | [Чек-лист](docs/ru/PAYMENTS_LIVE_CHECKLIST.md) |
 | Что ещё не реализовано | [Матрица покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) |
 
@@ -50,7 +50,10 @@
 
 Справочники: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 
-## Выпуск v28.69.0
+## Выпуск v28.70.0
+
+Тег v28.70.0 добавил:
+- модули серверов в мастере установки (этап 12, часть Б): маскировка ноды SelfSteal (TLS + REALITY, сайт-шаблон на сокете ноды, профиль и хост в панели), IPv6, ядро Xray выбранного релиза с проверкой SHA-256, WARP Native и NetBird, Xray Checker с результатами и уведомлениями; серверный роутинг (мост между нодами) и WARP в профиле — через API панели: [менеджер расширений](docs/ru/new/REMNAWAVE_EXTENSIONS.md), [WARP и NetBird](docs/ru/new/WARP_NETBIRD.md), [серверный роутинг](docs/ru/new/SERVER_ROUTING.md), [Xray Checker](docs/ru/new/XRAY_CHECKER.md).
 
 Тег v28.69.0 добавил:
 - менеджер расширений Remnawave (этап 12, часть А, «Серверы → Расширения Remnawave»): профили конфигурации с конструктором VLESS + REALITY и маскировкой SelfSteal, плагины нод (TorrentBlocker, фильтры, сброс соединений), правила ответов подписки, лимит устройств, страница и шаблоны подписки, клиентский балансировщик — через API панели: [менеджер расширений](docs/ru/new/REMNAWAVE_EXTENSIONS.md), [плагины](docs/ru/new/NODE_PLUGINS.md), [правила подписки](docs/ru/new/SUBSCRIPTION_RULES.md), [балансировщик](docs/ru/new/CLIENT_BALANCER.md).

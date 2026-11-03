@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.69.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.70.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2107**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2114**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -542,6 +542,7 @@
 | [backend/app/rw_extensions.py](../backend/app/rw_extensions.py) | API, бот и worker |
 | [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
 | [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
+| [backend/app/rw_releases.py](../backend/app/rw_releases.py) | API, бот и worker |
 | [backend/app/rw_remote.py](../backend/app/rw_remote.py) | API, бот и worker |
 | [backend/app/rw_steps.py](../backend/app/rw_steps.py) | API, бот и worker |
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
@@ -1164,6 +1165,7 @@
 | [docs/ru/RELEASE_V28_68_0.md](../docs/ru/RELEASE_V28_68_0.md) | Документация |
 | [docs/ru/RELEASE_V28_69_0.md](../docs/ru/RELEASE_V28_69_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
+| [docs/ru/RELEASE_V28_70_0.md](../docs/ru/RELEASE_V28_70_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
@@ -1272,6 +1274,7 @@
 | [docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md](../docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md) | Документация |
 | [docs/ru/new/REMNAWAVE_PREFLIGHT.md](../docs/ru/new/REMNAWAVE_PREFLIGHT.md) | Документация |
 | [docs/ru/new/SECURITY_AUDIT.md](../docs/ru/new/SECURITY_AUDIT.md) | Документация |
+| [docs/ru/new/SERVER_ROUTING.md](../docs/ru/new/SERVER_ROUTING.md) | Документация |
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_DOMAIN.md](../docs/ru/new/SUBSCRIPTION_DOMAIN.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_PORTAL.md](../docs/ru/new/SUBSCRIPTION_PORTAL.md) | Документация |
@@ -1280,6 +1283,8 @@
 | [docs/ru/new/SUBSCRIPTION_TEMPLATES.md](../docs/ru/new/SUBSCRIPTION_TEMPLATES.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
 | [docs/ru/new/USER_CABINET_GUIDE.md](../docs/ru/new/USER_CABINET_GUIDE.md) | Документация |
+| [docs/ru/new/WARP_NETBIRD.md](../docs/ru/new/WARP_NETBIRD.md) | Документация |
+| [docs/ru/new/XRAY_CHECKER.md](../docs/ru/new/XRAY_CHECKER.md) | Документация |
 | [docs/ru/steps/01-project.md](../docs/ru/steps/01-project.md) | Документация |
 | [docs/ru/steps/02-local-test.md](../docs/ru/steps/02-local-test.md) | Документация |
 | [docs/ru/steps/03-vds.md](../docs/ru/steps/03-vds.md) | Документация |
@@ -1869,6 +1874,7 @@
 | [tests/live/test_caddy_on_demand.py](../tests/live/test_caddy_on_demand.py) | Проверки |
 | [tests/live/test_hetzner_live.py](../tests/live/test_hetzner_live.py) | Проверки |
 | [tests/live/test_install_live.py](../tests/live/test_install_live.py) | Проверки |
+| [tests/live/test_node_modules_live.py](../tests/live/test_node_modules_live.py) | Проверки |
 | [tests/live/test_payments_live.py](../tests/live/test_payments_live.py) | Проверки |
 | [tests/live/test_remnawave_live.py](../tests/live/test_remnawave_live.py) | Проверки |
 | [tests/load/live.js](../tests/load/live.js) | Проверки |
@@ -2013,6 +2019,7 @@
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
 | [tests/test_rw_extensions.py](../tests/test_rw_extensions.py) | Проверки |
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
+| [tests/test_rw_node_modules.py](../tests/test_rw_node_modules.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |

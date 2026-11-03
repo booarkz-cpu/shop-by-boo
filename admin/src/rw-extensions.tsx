@@ -37,6 +37,8 @@ export function RwExtensions({request, toast}: Props) {
   return <div data-rw-extensions>
     <Profiles d={d} request={request} toast={toast} reload={load}/>
     <Plugins d={d} request={request} toast={toast} reload={load}/>
+    <WarpProfile d={d} request={request} toast={toast}/>
+    <ServerRouting d={d} request={request} toast={toast}/>
     <SubscriptionRules request={request} toast={toast}/>
     <PagesAndTemplates request={request} toast={toast}/>
   </div>;
@@ -190,4 +192,66 @@ function PagesAndTemplates({request, toast}: Props) {
       <select value={type} onChange={e => setType(e.target.value)} aria-label="Тип шаблона">{["XRAY_JSON", "XRAY_BASE64", "MIHOMO", "STASH", "CLASH", "SINGBOX"].map(x => <option key={x}>{x}</option>)}</select>
       <button disabled={name.length < 2} onClick={() => act(() => request(`${API}/templates`, body("POST", {name, template_type: type})), "Шаблон создан")}>Новый шаблон</button></div>
   </div>;
+}
+
+/** v28.70.0: the outbound warp-out (interface «warp» raised by the wizard's WARP Native module) and its domains. */
+function WarpProfile({d, request, toast}: any) {
+  const [profile, setProfile] = useState(d.profiles[0]?.uuid || "");
+  const [domains, setDomains] = useState("whoer.net, browserleaks.com, 2ip.io, 2ip.ru");
+  const [error, setError] = useState("");
+  async function apply(enabled: boolean) {
+    setError("");
+    try {
+      const out = await request(`${API}/profiles/${profile}/warp`, body("POST", {enabled, domains: domains.split(/[\s,]+/).filter(Boolean)}));
+      toast(enabled ? `WARP в профиле: ${out.domains.length} доменов` : "WARP убран из профиля");
+    } catch (e: any) { setError(e.message); }
+  }
+  return <section className="card" data-rw-warp>
+    <h3>WARP в профиле</h3>
+    <p className="muted">Исходящий <code>warp-out</code> идёт через интерфейс <code>warp</code> ноды. Сначала включите модуль «WARP Native» на серверах нод (Серверы → Мастер установки → задача установки → Модули), затем выберите домены, которые пойдут через WARP.</p>
+    {error && <div role="alert" className="error">{error}</div>}
+    {d.profiles.length === 0 ? <EmptyState title="Нет профилей" hint="Создайте профиль выше."/> : <div className="grid-form">
+      <label>Профиль<select value={profile} onChange={e => setProfile(e.target.value)}>{d.profiles.map((p: any) => <option key={p.uuid} value={p.uuid}>{p.name}</option>)}</select></label>
+      <label className="wide">Домены через WARP<input value={domains} onChange={e => setDomains(e.target.value)} placeholder="example.com, geosite:openai"/></label>
+      <div className="wide toolbar"><button className="primary" onClick={() => apply(true)}>Включить WARP для доменов</button><button onClick={() => apply(false)}>Убрать WARP</button></div>
+    </div>}
+  </section>;
+}
+
+/** v28.70.0: a bridge from an entry node to an exit node (Shadowsocks), with rules for Russian addresses. */
+function ServerRouting({d, request, toast}: any) {
+  const [list, setList] = useState<any[] | null>(null);
+  const [f, setF] = useState({entry: d.profiles[0]?.uuid || "", exit: d.nodes[0]?.uuid || "", port: "8443", mode: "direct"});
+  const [error, setError] = useState("");
+  const [note, setNote] = useState("");
+  const load = () => request(`${API}/routing`).then((x: any) => setList(x.bridges)).catch((e: any) => setError(e.message));
+  useEffect(() => { load(); }, []);
+  const set = (k: string) => (e: any) => setF({...f, [k]: e.target.value});
+  async function create(e: React.FormEvent) {
+    e.preventDefault(); setError(""); setNote("");
+    try {
+      const out = await request(`${API}/routing`, body("POST", {entry_profile_uuid: f.entry, exit_node_uuid: f.exit, port: Number(f.port), mode: f.mode}));
+      setNote(out.note); toast(`Мост: ${out.profile} → ${out.exit}`); load();
+    } catch (err: any) { setError(err.message); }
+  }
+  async function remove(uuid: string) {
+    setError("");
+    try { await request(`${API}/routing/${uuid}`, body("DELETE")); toast("Мост удалён"); load(); } catch (err: any) { setError(err.message); }
+  }
+  return <section className="card" data-rw-routing>
+    <h3>Серверный роутинг</h3>
+    <p className="muted">Мост с ноды входа на ноду выхода (Shadowsocks). «Прямо»: российские адреса выходят с ноды входа, остальное — через ноду выхода. «Через мост»: только российские адреса идут через ноду выхода. Частные адреса и BitTorrent блокируются.</p>
+    {error && <div role="alert" className="error">{error}</div>}
+    {note && <p className="muted" data-rw-routing-note>{note}</p>}
+    {list && list.length > 0 && <div className="table-wrap"><table><thead><tr><th>Профиль входа</th><th>Нода выхода</th><th>Режим</th><th></th></tr></thead>
+      <tbody>{list.map(b => <tr key={b.profile_uuid} data-bridge={b.profile}><td>{b.profile}</td><td>{b.exit}</td><td>{b.mode === "bridge" ? "через мост" : "прямо"}</td>
+        <td><button className="danger" onClick={() => remove(b.profile_uuid)}>Удалить мост</button></td></tr>)}</tbody></table></div>}
+    <form onSubmit={create} className="grid-form">
+      <label>Профиль входа<select value={f.entry} onChange={set("entry")}>{d.profiles.map((p: any) => <option key={p.uuid} value={p.uuid}>{p.name}</option>)}</select></label>
+      <label>Нода выхода<select value={f.exit} onChange={set("exit")}>{d.nodes.map((n: any) => <option key={n.uuid} value={n.uuid}>{n.name}</option>)}</select></label>
+      <label>Порт моста<input type="number" min={1024} max={65535} value={f.port} onChange={set("port")}/></label>
+      <label>Режим<select value={f.mode} onChange={set("mode")}><option value="direct">Прямо (РФ с ноды входа)</option><option value="bridge">Через мост (только РФ)</option></select></label>
+      <div className="wide"><button className="primary" disabled={!f.entry || !f.exit}>Создать мост</button></div>
+    </form>
+  </section>;
 }

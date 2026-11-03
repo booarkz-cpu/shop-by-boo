@@ -37,6 +37,7 @@ test('REALITY profile builder, plugins on a node and the SRR tester', async ({pa
   await page.route('**/api/admin/rw/extensions/srr-test', (r: any) => r.fulfill({json: {matched: false, responseType: 'XRAY_BASE64', matchedRule: null, inputHeaders: {}, outputHeaders: {}}}));
   await page.route('**/api/admin/rw/extensions/subpage-configs', (r: any) => r.fulfill({json: {configs: []}}));
   await page.route('**/api/admin/rw/extensions/templates', (r: any) => r.fulfill({json: {templates: []}}));
+  await page.route('**/api/admin/rw/extensions/routing', (r: any) => r.fulfill({json: {bridges: []}}));
   await signIn(page);
   await page.locator('.sidebar').getByRole('button', {name: /Расширения Remnawave/}).click();
 
@@ -61,4 +62,40 @@ test('REALITY profile builder, plugins on a node and the SRR tester', async ({pa
   await srr.getByRole('textbox', {name: 'User-Agent для проверки'}).fill('Happ/2.0');
   await srr.getByRole('button', {name: 'Проверить правило'}).click();
   await expect(srr.locator('[data-srr-result]')).toContainText('XRAY_BASE64');
+});
+
+test('WARP in a profile and a server routing bridge', async ({page}) => {
+  test.setTimeout(60_000);
+  const overview = {profiles: [{uuid: P, name: 'RU-entry', inbounds: [], nodes: []}], plugins: [], plugin_kinds: [], template_types: [],
+    nodes: [{uuid: N, name: 'fi-exit', profile: P, inbounds: [], plugin: null}], selfsteal_socket: '/dev/shm/selfsteal.sock'};
+  let bridges: any[] = [];
+  let warp: any = null, made: any = null;
+  await page.route('**/api/admin/rw/extensions', (r: any) => r.fulfill({json: overview}));
+  await page.route(`**/api/admin/rw/extensions/profiles/${P}/warp`, (r: any) => { warp = r.request().postDataJSON(); return r.fulfill({json: {enabled: warp.enabled, domains: warp.domains}}); });
+  await page.route('**/api/admin/rw/extensions/routing', (r: any) => {
+    if (r.request().method() === 'GET') return r.fulfill({json: {bridges}});
+    made = r.request().postDataJSON();
+    bridges = [{profile_uuid: P, profile: 'RU-entry', exit: 'fi.example.com:8443', mode: made.mode}];
+    return r.fulfill({json: {profile: 'RU-entry', exit: 'fi.example.com:8443', mode: made.mode, note: 'Откройте TCP и UDP порт 8443 на сервере выхода'}});
+  });
+  await page.route(`**/api/admin/rw/extensions/routing/${P}`, (r: any) => { bridges = []; return r.fulfill({json: {deleted: true}}); });
+  for (const path of ['subscription-settings', 'subpage-configs', 'templates']) {
+    await page.route(`**/api/admin/rw/extensions/${path}`, (r: any) => r.fulfill({json: path === 'subscription-settings' ? {uuid: N, responseRules: {}, hwidSettings: {}, customResponseHeaders: {}} : {configs: [], templates: []}}));
+  }
+  await signIn(page);
+  await page.locator('.sidebar').getByRole('button', {name: /Расширения Remnawave/}).click();
+
+  const w = page.locator('[data-rw-warp]');
+  await w.getByLabel('Домены через WARP', {exact: true}).fill('whoer.net, geosite:openai');
+  await w.getByRole('button', {name: 'Включить WARP для доменов'}).click();
+  await expect.poll(() => warp).toEqual({enabled: true, domains: ['whoer.net', 'geosite:openai']});
+
+  const sr = page.locator('[data-rw-routing]');
+  await sr.getByLabel('Режим', {exact: true}).selectOption('bridge');
+  await sr.getByRole('button', {name: 'Создать мост'}).click();
+  await expect(sr.locator('[data-rw-routing-note]')).toContainText('8443');
+  expect(made).toEqual({entry_profile_uuid: P, exit_node_uuid: N, port: 8443, mode: 'bridge'});
+  await expect(sr.locator('[data-bridge="RU-entry"]')).toContainText('через мост');
+  await sr.getByRole('button', {name: 'Удалить мост'}).click();
+  await expect(sr.locator('[data-bridge="RU-entry"]')).toHaveCount(0);
 });
