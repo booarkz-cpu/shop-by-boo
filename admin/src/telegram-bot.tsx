@@ -20,6 +20,7 @@ export function TelegramBot({request, toast}: Props) {
   return <div data-telegram-bot>
     <BotStatus d={d} request={request} toast={toast} reload={load}/>
     <Commands request={request} toast={toast} disabled={!d.token_set}/>
+    <BotTexts request={request} toast={toast}/>
     <TestMessage request={request} toast={toast} disabled={!d.token_set}/>
     <BotErrors request={request}/>
   </div>;
@@ -130,5 +131,47 @@ function BotErrors({request}: {request: Request}) {
     {rows && rows.length === 0 && <EmptyState title="Ошибок нет" hint="Ошибки процесса бота попадают сюда и в «Журнал ошибок»."/>}
     {rows && rows.length > 0 && <div className="table-wrap"><table><thead><tr><th>Когда</th><th>Уровень</th><th>Сообщение</th><th>Раз</th></tr></thead>
       <tbody>{rows.map(r => <tr key={r.id} data-resolved={r.resolved}><td>{when(r.last_seen)}</td><td>{r.level}</td><td>{r.message}</td><td>{r.count}</td></tr>)}</tbody></table></div>}
+  </section>;
+}
+
+/** v28.72.0: every text the bot sends, on three languages; the bot picks a change up within a minute. */
+function BotTexts({request, toast}: {request: Request; toast: (t: string) => void}) {
+  const [data, setData] = useState<any>(null);
+  const [lang, setLang] = useState("ru");
+  const [query, setQuery] = useState("");
+  const [draft, setDraft] = useState<Record<string, string>>({});
+  const [error, setError] = useState("");
+  const load = () => request(`${API}/texts`).then((x: any) => { setData(x); setDraft({}); }).catch((e: any) => setError(e.message));
+  useEffect(() => { load(); }, []);
+  if (!data) return <section className="card"><LoadState error={error} label="Загрузка текстов бота…"/></section>;
+  const value = (item: any) => draft[item.key] ?? item.custom[lang] ?? item.default[lang];
+  const q = query.trim().toLowerCase();
+  const shown = data.texts.filter((item: any) => !q || item.key.includes(q) || item.group.toLowerCase().includes(q) || value(item).toLowerCase().includes(q));
+  const groups: string[] = Array.from(new Set(shown.map((item: any) => item.group)));
+  const changed = Object.keys(draft).length;
+  async function save() {
+    setError("");
+    try { const out = await request(`${API}/texts`, json("PUT", {lang, texts: draft})); toast(`Тексты сохранены: своих ${out.custom}. Бот применит их в течение минуты.`); await load(); }
+    catch (e: any) { setError(e.message); }
+  }
+  return <section className="card" data-bot-texts>
+    <h3>Тексты бота</h3>
+    <p className="muted">Все сообщения и кнопки бота на трёх языках. Язык клиента берётся из его Telegram: украинский, английский, остальным — русский. Подстановки в фигурных скобках (<code>{"{name}"}</code>) сохраняйте; можно теги &lt;b&gt;, &lt;i&gt;, &lt;u&gt;, &lt;s&gt;, &lt;code&gt;, &lt;a href&gt;. Пустое поле — стандартный текст.</p>
+    {error && <div role="alert" className="error">{error}</div>}
+    <div className="toolbar">
+      <label>Язык<select value={lang} onChange={e => { setLang(e.target.value); setDraft({}); }}>{Object.entries(LANG_NAMES).map(([k, v]) => <option key={k} value={k}>{v.replace(" (по умолчанию)", "")}</option>)}</select></label>
+      <label>Поиск<input value={query} onChange={e => setQuery(e.target.value)} placeholder="текст, ключ или раздел"/></label>
+    </div>
+    {groups.map(group => <details key={group} open={!!q}>
+      <summary>{group}</summary>
+      {shown.filter((item: any) => item.group === group).map((item: any) => <label key={item.key} className="wide" data-text={item.key}>
+        <span><code>{item.key}</code>{item.custom[lang] && !(item.key in draft) ? " · свой" : ""}{item.placeholders.length ? ` · подстановки: ${item.placeholders.map((p: string) => `{${p}}`).join(" ")}` : ""}</span>
+        <textarea aria-label={item.key} rows={Math.min(5, Math.max(1, Math.ceil(value(item).length / 90)))} value={value(item)}
+          onChange={e => setDraft({...draft, [item.key]: e.target.value})}/>
+        {(item.custom[lang] || item.key in draft) && <button type="button" onClick={() => setDraft({...draft, [item.key]: ""})}>Стандартный текст</button>}
+      </label>)}
+    </details>)}
+    <div className="toolbar"><button className="primary" onClick={save} disabled={!changed}>Сохранить{changed ? ` (${changed})` : ""}</button>
+      {changed > 0 && <button onClick={() => setDraft({})}>Отменить</button>}</div>
   </section>;
 }

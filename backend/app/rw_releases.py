@@ -5,6 +5,7 @@ The shop asks GitHub's releases API for the version and takes the SHA-256 GitHub
 the server refuses a file with another checksum. A release without a published digest is refused."""
 from __future__ import annotations
 
+import asyncio
 import os
 import re
 
@@ -21,16 +22,24 @@ class ReleaseError(RuntimeError):
     """Shown to the administrator."""
 
 
-async def _release(repo: str, tag: str | None) -> dict:
+async def _release(repo: str, tag: str | None, attempts: int = 3) -> dict:
     url = f"{API}/{repo}/releases/" + (f"tags/{tag}" if tag else "latest")
-    try:
-        headers = {"Accept": "application/vnd.github+json"}
-        if os.environ.get("GH_API_TOKEN"):  # optional: a higher rate limit (CI passes its job token)
-            headers["Authorization"] = f"Bearer {os.environ['GH_API_TOKEN']}"
-        async with httpx.AsyncClient(timeout=20, headers=headers) as client:
-            answer = await client.get(url)
-    except httpx.HTTPError as exc:
-        raise ReleaseError(f"GitHub недоступен: {type(exc).__name__}") from exc
+    headers = {"Accept": "application/vnd.github+json"}
+    if os.environ.get("GH_API_TOKEN"):  # optional: a higher rate limit (CI passes its job token)
+        headers["Authorization"] = f"Bearer {os.environ['GH_API_TOKEN']}"
+    answer = None
+    for attempt in range(attempts):  # a dropped TLS handshake or a 5xx is retried, a 404 is not
+        try:
+            async with httpx.AsyncClient(timeout=20, headers=headers) as client:
+                answer = await client.get(url)
+        except httpx.HTTPError as exc:
+            if attempt == attempts - 1:
+                raise ReleaseError(f"GitHub недоступен: {type(exc).__name__}") from exc
+            await asyncio.sleep(2 * (attempt + 1))
+            continue
+        if answer.status_code < 500 or attempt == attempts - 1:
+            break
+        await asyncio.sleep(2 * (attempt + 1))
     if answer.status_code == 404:
         raise ReleaseError(f"В {repo} нет релиза {tag or 'latest'}")
     if answer.status_code != 200:
