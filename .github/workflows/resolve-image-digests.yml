@@ -30,9 +30,10 @@ jobs:
           check caddy:2.11-alpine 'caddy version'
           check redis:8.10-alpine 'redis-server --version'
           check postgres:18.6-alpine 'postgres --version'
-          check remnawave/backend:3 'cat /opt/app/package.json 2>/dev/null | grep -m1 version || node -e "console.log(require(\'/opt/app/package.json\').version)"'
-          check remnawave/node:latest 'grep -m1 version /opt/app/package.json 2>/dev/null || ls /opt'
-          check remnawave/subscription-page:latest 'ls /opt/app 2>/dev/null | head -3'
+          label(){ docker pull -q "$1" >/dev/null; echo "IMAGE $1 | $(docker image inspect "$1" --format '{{index .RepoDigests 0}}') | $(docker image inspect "$1" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" | tee -a "$GITHUB_STEP_SUMMARY"; }
+          label remnawave/backend:3
+          label remnawave/node:latest
+          label remnawave/subscription-page:latest
           check postgres:18.4 'postgres --version'
           check valkey/valkey:9-alpine 'valkey-server --version'
       - name: Android toolchain versions
