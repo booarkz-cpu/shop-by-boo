@@ -1,3 +1,27 @@
+# v28.66.0
+
+- Мастер установки Remnawave (этап 10), «Серверы → Установка Remnawave» (`admin/src/rw-installer.tsx`):
+  - реестр серверов `remnawave_servers`: адрес, порт и пользователь SSH, ключ или пароль (зашифрованы, наружу не
+    отдаются), обязательный отпечаток ключа сервера — «Получить отпечаток» читает его без входа;
+  - проверка сервера (preflight) по SSH: ОС, архитектура, CPU, память, диск, Docker, порты, веб-серверы, ufw, DNS;
+  - семь режимов (панель + нода, только панель, только нода, панель + страница подписки, только страница подписки,
+    распределённая, добавить ноду); план с последствиями и SHA-256, запуск только этого плана;
+  - установка по шагам закрытого списка (`backend/app/rw_steps.py`) с журналом, откатом и отменой: Docker из
+    подписанного репозитория, файлы по официальным compose и `.env.sample`, образы по digest (панель 3.4.8, нода
+    3.4.4, страница подписки 8.0.1, PostgreSQL 18.4, Valkey 9.1.3, Caddy 2.11), первый администратор и токен API
+    панели, регистрация нод, Caddy с Let's Encrypt или внутренним сертификатом, проверка HTTPS и связи нод;
+  - обновление (с копией базы панели), диагностика, восстановление базы, переустановка, удаление;
+  - подключение магазина к новой панели через двухшаговые настройки без перезапуска.
+- Исполнитель (`backend/app/rw_jobs.py`): свой цикл в worker, `FOR UPDATE SKIP LOCKED`, одна задача на сервер,
+  «пульс»; задача остановленного worker становится `failed`, а не перезапускается молча.
+- Маршруты `/api/admin/rw/...` (`backend/app/rw_api.py`), права `read`, `provision_nodes`, `settings.runtime.write`.
+- Тесты: `tests/test_rw_installer.py` (поддельный SSH-сервер, SQLite и PostgreSQL), `admin/e2e/rw-installer.spec.ts`,
+  живая установка «панель + нода» по SSH на сервере CI (`tests/live/test_install_live.py`, `scripts/ci/rw-install-live.sh`).
+  Настоящий VPS — BLOCKED_EXTERNAL.
+- Документы: `docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md`, `REMNAWAVE_INSTALLATION_MODES.md`,
+  `REMNAWAVE_PREFLIGHT.md`, `DEPLOYMENT_AGENT.md`.
+- Миграция `0090_remnawave_installer` (три новые таблицы); runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_66_0.md](docs/ru/RELEASE_V28_66_0.md).
+
 # v28.65.0
 
 - Архитектура Remnawave Manager (этап 9): `docs/ru/new/REMNAWAVE_ARCHITECTURE.md`, `REMNAWAVE_DATA_MODEL.md`,

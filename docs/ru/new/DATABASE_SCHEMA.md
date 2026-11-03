@@ -1,6 +1,6 @@
-# Схема базы данных — v28.65.0
+# Схема базы данных — v28.66.0
 
-Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0089_index_cleanup`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
+Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0090_remnawave_installer`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
 ## Сущности задания
 
@@ -30,7 +30,7 @@
 
 ## Таблицы
 
-Всего таблиц: 155, внешних ключей: 56. Связи без внешнего ключа держит код; записи без связи показывает «Аналитика → Запуск и оповещения → Целостность данных» (`GET /api/admin/integrity`).
+Всего таблиц: 158, внешних ключей: 57. Связи без внешнего ключа держит код; записи без связи показывает «Аналитика → Запуск и оповещения → Целостность данных» (`GET /api/admin/integrity`).
 
 | Таблица | Модель | Колонок | Уникальные | Индексы | Внешние ключи |
 | --- | --- | --- | --- | --- | --- |
@@ -147,7 +147,10 @@
 | `referral_rewards` | `ReferralReward` | 7 | payment_id | referred_user_id, referrer_id | — |
 | `refund_requests` | `RefundRequest` | 9 | payment_id | user_id | — |
 | `release_records` | `ReleaseRecord` | 7 | — | — | — |
+| `remnawave_deployment_steps` | `RemnawaveDeploymentStep` | 11 | — | installation_id | installation_id → remnawave_installations |
 | `remnawave_events` | `RemnawaveEvent` | 10 | event_key | created_at, event, subscription_id, user_id | — |
+| `remnawave_installations` | `RemnawaveInstallation` | 20 | — | status | — |
+| `remnawave_servers` | `RemnawaveServer` | 19 | name | — | — |
 | `resellers` | `Reseller` | 13 | api_key_hash, owner_user_id, slug | — | owner_user_id → users |
 | `runtime_setting_changes` | `RuntimeSettingChange` | 12 | fingerprint | source_change_id, status | source_change_id → runtime_setting_changes |
 | `runtime_setting_state` | `RuntimeSettingState` | 3 | — | — | — |

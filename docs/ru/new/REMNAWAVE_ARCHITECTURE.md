@@ -80,37 +80,37 @@ flowchart LR
 | № | Компонент | За что отвечает | Что уже есть в коде | Чего нет и когда появится |
 | --- | --- | --- | --- | --- |
 | 1 | Remnawave Manager | Связь с панелью: адрес, токен, проверка совместимости, профили, хосты, сквады | `backend/app/remnawave.py` (клиент 3.x, обрыв цепи при сбоях), `backend/app/panel_admin.py`, `backend/app/panel_guard.py`, `backend/app/panel_api_stats.py`, вебхуки `backend/app/remnawave_events.py` | Проверка версии панели против проверенной в CI — этап 10 |
-| 2 | Deployment Manager | План установки по режиму, его выполнение по шагам, откат | `backend/app/provisioner.py`: установка ноды по SSH с проверкой отпечатка, Docker из подписанного репозитория. `POST /api/admin/provision-node` с v28.65.0 принимает только типизированные значения | Мастер установки, preflight, план и выполнение через очередь — этап 10 |
-| 3 | Server Registry | Список серверов: адрес, порт SSH, отпечаток, назначение, ресурсы, состояние | Частично: агенты узлов `node_agents` (`backend/app/platform_api.py`), серверы автомасштабирования Hetzner (`backend/app/node_autoscale.py`) | Таблица серверов и раздел панели — этап 10 |
-| 4 | Node Manager | Ноды панели: создание, перезапуск, обновление, нагрузка, терминал | `backend/app/node_health.py`, `backend/app/node_autoscale.py`, `backend/app/node_forecast.py`, `backend/app/node_terminal.py`, `scripts/node-agent.py` | Добавление ноды к существующей панели из мастера — этап 10 |
+| 2 | Deployment Manager | План установки по режиму, его выполнение по шагам, откат | `backend/app/provisioner.py`: установка ноды по SSH с проверкой отпечатка, Docker из подписанного репозитория. `POST /api/admin/provision-node` с v28.65.0 принимает только типизированные значения | Сделано в v28.66.0: мастер `backend/app/rw_api.py`, план `backend/app/rw_plan.py`, шаги `backend/app/rw_steps.py`, исполнитель `backend/app/rw_jobs.py` ([REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md)) |
+| 3 | Server Registry | Список серверов: адрес, порт SSH, отпечаток, назначение, ресурсы, состояние | Частично: агенты узлов `node_agents` (`backend/app/platform_api.py`), серверы автомасштабирования Hetzner (`backend/app/node_autoscale.py`) | Сделано в v28.66.0: таблица `remnawave_servers`, раздел «Установка Remnawave» (`admin/src/rw-installer.tsx`) |
+| 4 | Node Manager | Ноды панели: создание, перезапуск, обновление, нагрузка, терминал | `backend/app/node_health.py`, `backend/app/node_autoscale.py`, `backend/app/node_forecast.py`, `backend/app/node_terminal.py`, `scripts/node-agent.py` | Сделано в v28.66.0: режимы «Только нода» и «Добавить ноду» |
 | 5 | Domain Manager | Домены панели, подписки, нод; DNS-проверка | Нет. Домены магазина задаются в `.env` | Этап 11 |
 | 6 | Certificate Manager | Сертификаты доменов, сроки, продление | Сертификаты сервера магазина выпускает Caddy; срок и проверку цепочки показывает «Состояние системы» (`backend/app/system_status.py`) | Сертификаты серверов Remnawave и управление ими — этап 11 |
 | 7 | Proxy Manager | Маршруты обратного прокси | `deploy/Caddyfile` (общий Caddy магазина) | Маршруты доменов из админки через общий Caddy — этап 11 |
 | 8 | Subscription Manager | Выдача подписки: свой домен, правила приложений, блокировка устройств | `backend/app/sub_proxy.py`, `backend/app/client_versions.py`, `backend/app/subscriptions.py` | Официальная страница подписки на сервере Remnawave (режимы 4 и 5) — этапы 10–11 |
 | 9 | Module Manager | Расширения нод: SelfSteal, WARP, IPv6, маршрутизация и др. | Нет | Этап 12, через плагины нод панели (`node-plugins`) |
-| 10 | Backup Manager | Копии магазина и Remnawave | Копии магазина: `backend/app/backups_api.py`, `backend/app/backup_verify.py`, `backend/app/telegram_backup.py`, `backend/app/hot_standby.py` | Копия базы панели Remnawave — этап 10 (шаг агента `backup_panel`) |
-| 11 | Update Manager | Обновления магазина, панели и нод | Магазин: `backend/app/auto_update_api.py`, `backend/app/github_update.py`, `scripts/update.sh`. Ноды: `POST /api/admin/nodes/update` | Обновление панели и страницы подписки из админки — этап 10 |
+| 10 | Backup Manager | Копии магазина и Remnawave | Копии магазина: `backend/app/backups_api.py`, `backend/app/backup_verify.py`, `backend/app/telegram_backup.py`, `backend/app/hot_standby.py` | v28.66.0: шаг `backup_panel` — копия на сервере панели перед обновлением и удалением. Передача в хранилище магазина — этап 15 |
+| 11 | Update Manager | Обновления магазина, панели и нод | Магазин: `backend/app/auto_update_api.py`, `backend/app/github_update.py`, `scripts/update.sh`. Ноды: `POST /api/admin/nodes/update` | v28.66.0: «Обновить» в мастере (закреплённые образы). Автообновление по расписанию — этап 15 |
 | 12 | Health Manager | Состояние всех частей | `backend/app/system_status.py` (14 проверок), `backend/app/node_health.py`, `backend/app/ops_alerts.py`, `backend/app/block_monitor.py` | Проверки серверов Remnawave (TLS, ресурсы) — этапы 10–11 |
-| 13 | Job Manager | Очередь, повторы, состояние шагов | `jobs` и `backend/worker.py`; раздел «Очередь задач» | Задачи установки с шагами — этап 10 |
+| 13 | Job Manager | Очередь, повторы, состояние шагов | `jobs` и `backend/worker.py`; раздел «Очередь задач» | Сделано в v28.66.0: `remnawave_installations` и `remnawave_deployment_steps`, свой цикл в worker |
 | 14 | Audit Manager | Кто, что и когда изменил | `audit()` в `backend/app/main.py`, `GET /api/admin/audit` с фильтрами | — (используется всеми компонентами) |
 
 ## 5. Семь режимов
 
 | Режим | Где что работает | Что вводит администратор | Проверено на последнем выпуске |
 | --- | --- | --- | --- |
-| Panel + Node | Один VPS: панель, нода, обратный прокси с TLS | VPS, домен панели, домен подписки | Связь панели и ноды — да, в CI с v28.65.0. Установка на VPS — этап 10 |
-| Panel Only | VPS с панелью; ноды добавляются позже | VPS, домены | Панель — да (каждый прогон CI). Установка — этап 10 |
+| Panel + Node | Один VPS: панель, нода, обратный прокси с TLS | VPS, домен панели, домен подписки | Связь панели и ноды — да, в CI с v28.65.0. Установка мастером по SSH — да, в CI с v28.66.0 (сервер CI вместо VPS). Настоящий VPS — BLOCKED_EXTERNAL |
+| Panel Only | VPS с панелью; ноды добавляются позже | VPS, домены | Панель — да (каждый прогон CI). Установка мастером — mock-тест; на VPS — BLOCKED_EXTERNAL |
 | Node Only | VPS с нодой для существующей панели | VPS, панель (из настроек магазина) | Связь с панелью — да. Установка: `backend/app/provisioner.py` уже ставит ноду по SSH; на настоящем VPS не проверена |
 | Panel + Subscription Page | Панель и официальная страница подписки на одном VPS | VPS, домен панели, домен страницы | Страница отдаёт подписку VPN-клиенту — да, в CI с v28.65.0. Веб-страница для браузера — по правилам SRR панели (этап 11) |
 | Subscription Page Only | Только страница подписки | VPS или сервер магазина. На сервере магазина эту роль играет `sub_proxy` за общим Caddy, второго сервиса нет | Страница — да; `sub_proxy` — да |
-| Distributed Deployment | Панель, страница подписки и ноды на разных VPS | Несколько VPS и назначение каждого | По частям — да. Как целое — этап 10 |
+| Distributed Deployment | Панель, страница подписки и ноды на разных VPS | Несколько VPS и назначение каждого | По частям — да. Как целое — mock-тест v28.66.0; на нескольких VPS — BLOCKED_EXTERNAL |
 | Add Node to Existing Panel | Новая нода к уже работающей панели | VPS | Как Node Only. Ключ ноды выдаёт панель (`GET /api/keygen`) |
 
 Режим — это не отдельный код, а набор ролей на серверах: `panel`, `node`, `subscription_page`. Deployment Manager превращает выбранные роли в план шагов. Каждый шаг выполняет агент развёртывания ([DEPLOYMENT_AGENT_ARCHITECTURE](DEPLOYMENT_AGENT_ARCHITECTURE.md)).
 
 ## 6. Основные потоки
 
-**Установка (этап 10).**
+**Установка (v28.66.0, [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md)).**
 1. Администратор добавляет сервер: адрес, порт SSH, способ входа, отпечаток ключа хоста.
 2. Preflight по SSH: ОС, архитектура, ресурсы, Docker, занятые порты, DNS. Сервер получает отчёт, а не текст в браузер.
 3. Администратор выбирает режим и домены. Сервер строит план: шаги, файлы, какие порты займутся, что изменится.
@@ -124,7 +124,7 @@ flowchart LR
 
 **Обновление.** Версии образов закрепляются. Сначала обновление проверяется в CI на последнем выпуске Remnawave, затем доступно в админке. Перед обновлением панели — копия её базы.
 
-**Копии.** Копия магазина — как сейчас. Копия панели (этап 10): `pg_dump` базы `remnawave-db` на сервере панели, затем шифрование. Копия передаётся в хранилище магазина: S3 или Telegram, как копии магазина.
+**Копии.** Копия магазина — как сейчас. Копия панели (v28.66.0): `pg_dump` базы `remnawave-db` на сервере панели перед обновлением и удалением, хранятся 5 последних. Шифрование и передача в хранилище магазина (S3 или Telegram) — этап 15.
 
 ## 7. Границы безопасности
 
@@ -135,9 +135,9 @@ flowchart LR
   - изменение настроек — `settings.runtime.write`.
 - **SSH.**
   - только с проверенным отпечатком ключа хоста (`_FingerprintPolicy`), без доверия при первом подключении;
-  - сейчас магазин не хранит ключи и пароли SSH: они передаются на одну установку;
-  - с этапа 10, когда появится реестр серверов, ключи будут храниться зашифрованными (`security.encrypt_secret`) и наружу не отдаваться;
-  - вход по паролю — только для первичной установки, после неё — ключ.
+  - `POST /api/admin/provision-node` ключи не хранит: они передаются на одну установку;
+  - реестр мастера (v28.66.0) хранит ключ или пароль зашифрованным (`security.encrypt_secret`) и наружу не отдаёт: обновление и удаление идут по SSH;
+  - рекомендуется вход по ключу.
 - **Агент.** Принимает только действия из списка (`throttle`, `clear`, `update_node`, `restart_node` и новые типы этапа 10). Неизвестное действие отклоняется на стороне магазина (`backend/app/platform_api.py`).
 - **Секреты Remnawave** не попадают в браузер и журнал: токен API, `SECRET_KEY` нод, пароли баз. Ответы панели клиенту не передаются (`backend/app/errors.py`).
 
@@ -155,6 +155,6 @@ flowchart LR
 
 ## 9. Что не проверено
 
-- **Установка на настоящий VPS** не проверялась: в CI нет VPS. Это делает этап 10 вместе с мастером установки; без VPS результат будет `BLOCKED_EXTERNAL`.
+- **Установка на настоящий VPS** не проверялась: тестового VPS нет. С v28.66.0 мастер ставит «панель + ноду» по SSH на сервер CI (`tests/live/test_install_live.py`); настоящий VPS, Let's Encrypt и сеть между серверами — `BLOCKED_EXTERNAL`.
 - **Выпуск TLS-сертификатов** для серверов Remnawave требует настоящих доменов — этап 11.
 - **Обновление панели между мажорными версиями** (3.x → 4.x) не проверялось: такой версии ещё нет.

@@ -48,6 +48,7 @@
 | Health Manager | `GET /api/admin/health/summary`, `GET /api/admin/system/health`, `GET /api/admin/ops/readiness` | `ops.diagnostics`, `read` |
 | Job Manager | `GET /api/admin/jobs`, `POST /api/admin/jobs/{job_id}/retry`, `GET /api/admin/workers` | `read`, `payments.retry` |
 | Audit Manager | `GET /api/admin/audit` (фильтры `actor`, `action`, `target`, `since`, `until`) | `read` |
+| Мастер установки (v28.66.0) | `GET /api/admin/rw/meta`; реестр: `GET`, `POST /api/admin/rw/servers`, `POST /api/admin/rw/servers/scan`, `PATCH`, `DELETE /api/admin/rw/servers/{server_id}`, `POST /api/admin/rw/servers/{server_id}/check`; задачи: `GET /api/admin/rw/installations`, `GET /api/admin/rw/installations/{installation_id}`, `POST /api/admin/rw/installations/plan`, `POST /api/admin/rw/installations/{installation_id}/approve`, `/cancel`, `/actions`, `/credentials`, `/connect-shop` — подробно в [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md) | `read`, `provision_nodes`, `settings.runtime.write` |
 | Агент узла | `POST /api/agent/heartbeat`, `POST /api/agent/observations`, терминал `/api/agent/terminal…` | токен агента в заголовке |
 
 ## 3. Маршруты магазина: что появится
@@ -59,24 +60,11 @@
 - изменения пишутся в журнал действий;
 - права — существующие, новых ролей нет.
 
-### Server Registry и preflight (этап 10)
-
-| Метод и путь | Тело или ответ | Право |
-| --- | --- | --- |
-| `GET /api/admin/rw/servers` | Список серверов без секретов; фильтры `role`, `status` | `read` |
-| `POST /api/admin/rw/servers` | `ServerIn`: `name`, `host`, `ssh_port`, `ssh_user`, `auth_method`, `ssh_secret`, `host_key_fingerprint`, `roles` | `provision_nodes` |
-| `PATCH`/`DELETE /api/admin/rw/servers/{id}` | Изменение без секрета или с новым секретом; удаление — перевод в `retired` | `provision_nodes` |
-| `POST /api/admin/rw/servers/{id}/fingerprint` | Получить отпечаток ключа хоста для сверки администратором; без входа | `provision_nodes` |
-| `POST /api/admin/rw/servers/{id}/preflight` | `202 {job_id}`. Результат — отчёт: ОС, архитектура, CPU, RAM, диск, Docker, порты, DNS, найденные службы | `provision_nodes` |
-
-### Установки (этап 10)
-
-| Метод и путь | Тело или ответ | Право |
-| --- | --- | --- |
-| `POST /api/admin/rw/installations/plan` | `PlanIn`: `mode`, серверы и роли, домены, параметры Remnawave. Ответ — план: шаги, файлы, порты, последствия, `plan_sha256` | `provision_nodes` |
-| `POST /api/admin/rw/installations/{id}/approve` | `{plan_sha256}` — подтверждение именно показанного плана; затем `202 {job_id}` | `provision_nodes` |
-| `GET /api/admin/rw/installations/{id}` | Состояние и шаги с хвостами журналов | `read` |
-| `POST /api/admin/rw/installations/{id}/cancel` | Остановить после текущего шага и выполнить откат выполненных | `provision_nodes` |
+Маршруты этапа 10 сделаны в v28.66.0 и перечислены в разделе 2. Отличия от замысла:
+- отпечаток читается до сохранения сервера: `POST /api/admin/rw/servers/scan` с адресом и портом;
+- проверка сервера (`/check`) выполняется в запросе (до 2 минут), а не задачей: она только читает;
+- запуск плана (`/approve`) ставит задачу в очередь мастера и сразу возвращает её; состояние — `GET /api/admin/rw/installations/{installation_id}`;
+- обновление, диагностика, восстановление, переустановка и удаление — `POST /api/admin/rw/installations/{installation_id}/actions`, это новый план над успешной установкой.
 
 ### Домены и сертификаты (этап 11)
 
@@ -88,7 +76,8 @@
 
 ## 4. Повторы и параллельность
 
-- **Повторный запрос.** Задача установки получает `job_key` = `rw-install:{installation_id}`. Уникальный ключ в `jobs` не даёт запустить её дважды.
-- **Один сервер — одна установка.** Перед запуском backend берёт блокировку сервера в Redis.
-- **Повтор шага.** Шаги идемпотентны: агент проверяет, выполнен ли шаг, прежде чем выполнять его (например, контейнер уже запущен с нужным образом).
-- **Устаревший план.** Подтверждение с другим `plan_sha256` отклоняется: план изменился после показа администратору.
+- **Повторный запуск.** Задачу берёт один worker (`FOR UPDATE SKIP LOCKED`); запуск возможен только из состояния `planned`.
+- **Один сервер — одна задача.** Запуск отклоняется (409), если у сервера есть задача `queued` или `running`.
+- **Повтор шага.** Шаги идемпотентны: запись тех же файлов, `compose up`, вход вместо повторной регистрации администратора, повторная регистрация ноды не создаёт вторую.
+- **Устаревший план.** Подтверждение с другим `plan_sha256` отклоняется; при запуске план строится заново и сверяется с показанным.
+- **Остановленный worker.** Задача без «пульса» 5 минут становится `failed` («Прервано»), а не запускается снова.
