@@ -137,3 +137,58 @@ def test_install_script_stops_on_other_systems_and_skips_ready_docker(tmp_path):
     ready.mkdir()
     code, _, log = _run(ready, "ID=alpine\n", None, docker_ready=True)
     assert code == 0 and "apt-get" not in log
+
+
+def test_node_compose_is_the_official_one_and_the_key_cannot_escape():
+    import yaml
+    text = provisioner.node_compose("key: with\" quotes' and $vars", 2223)
+    service = yaml.safe_load(text)["services"]["remnanode"]
+    assert service["image"] == provisioner.NODE_IMAGE and service["network_mode"] == "host" and service["cap_add"] == ["NET_ADMIN"]
+    assert service["environment"] == {"NODE_PORT": "2223", "SECRET_KEY": "key: with\" quotes' and $vars"}
+    assert set(service) == {"image", "container_name", "hostname", "network_mode", "restart", "cap_add", "ulimits", "environment"}
+    for bad in ("", "a\nb", "x" * 9000):
+        with pytest.raises(provisioner.ProvisionError):
+            provisioner.node_compose(bad)
+
+
+@pytest.mark.asyncio
+async def test_admin_api_takes_typed_values_not_a_compose_file(monkeypatch):
+    from types import SimpleNamespace
+
+    from pydantic import ValidationError
+
+    from app import admin_api, main as shop
+    fingerprint = "SHA256:" + "A" * 43
+    with pytest.raises(ValidationError):  # a compose text from the browser is refused
+        admin_api.NodeProvisionIn(host="203.0.113.7", ssh_username="root", ssh_password="pw", ssh_host_key=fingerprint,
+                                  compose_yaml="services: {evil: {image: alpine, privileged: true}}")
+    with pytest.raises(ValidationError):  # no host key, no connection
+        admin_api.NodeProvisionIn(host="203.0.113.7", ssh_username="root", ssh_password="pw")
+    seen = {}
+
+    class Panel:
+        async def node_secret_key(self):
+            return "panel-secret"
+
+    def fake_ssh(**kw):
+        seen.update(kw)
+        return {"ok": True, "host": kw["host"], "directory": "/opt/remnanode"}
+
+    class Db:
+        def add(self, row):
+            seen["audit"] = row.action
+
+        async def commit(self):
+            return None
+
+    monkeypatch.setattr(shop, "RemnawaveClient", Panel)
+    monkeypatch.setattr(shop, "run_ssh", fake_ssh)
+    payload = admin_api.NodeProvisionIn(host="203.0.113.7", ssh_username="root", ssh_private_key="k", ssh_host_key=fingerprint,
+                                        panel_ip="198.51.100.1")
+    out = await admin_api.provision_node(payload, Db(), SimpleNamespace(email="root@example.test"))
+    assert out["ok"] and seen["host_key_fingerprint"] == fingerprint and seen["audit"] == "node.provisioned"
+    assert 'SECRET_KEY: "panel-secret"' in seen["compose_yaml"] and provisioner.NODE_IMAGE in seen["compose_yaml"]
+    bad = admin_api.NodeProvisionIn(host="203.0.113.7", ssh_username="root", ssh_password="pw", ssh_host_key=fingerprint, panel_ip="x; reboot")
+    with pytest.raises(Exception) as err:
+        await admin_api.provision_node(bad, Db(), SimpleNamespace(email="a"))
+    assert getattr(err.value, "status_code", None) == 400

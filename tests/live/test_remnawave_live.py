@@ -176,3 +176,47 @@ async def test_lucy_limits_and_customer_devices(panel):
     assert [d["hwid"] for d in await panel.hwid_devices(uid)] == ["ci-device-bbbb-2"]
     await panel.reset_hwid_devices(uid)
     assert await panel.hwid_devices(uid) == []
+
+
+NODE_ADDRESS = os.environ.get("REMNAWAVE_LIVE_NODE_ADDRESS")
+SUBPAGE_URL = os.environ.get("REMNAWAVE_LIVE_SUBPAGE_URL")
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(not NODE_ADDRESS, reason="no node container")
+async def test_mode_panel_plus_node(panel):
+    """v28.65.0 (stage 9, mode «Panel + Node»): a node of the latest release, started with the SECRET_KEY the
+    panel hands out, connects to the panel once the panel knows its address and port."""
+    import asyncio
+    from app.node_health import fetch_nodes
+    profile = (await panel._request("GET", "/api/config-profiles"))["configProfiles"][0]
+    node = await panel.create_node({"name": "ci-mode-node", "address": NODE_ADDRESS, "port": 2222, "countryCode": "FI",
+                                    "configProfile": {"activeConfigProfileUuid": profile["uuid"],
+                                                      "activeInbounds": [profile["inbounds"][0]["uuid"]]}})
+    try:
+        for _ in range(60):
+            row = next((r for r in await fetch_nodes(panel) if r["uuid"] == node["uuid"]), {})
+            if row.get("is_connected") or row.get("isConnected") or row.get("status") == "online":
+                break
+            await asyncio.sleep(3)
+        else:
+            pytest.fail(f"the node did not connect in 180 s: {row}")
+    finally:
+        await panel.delete_node(node["uuid"])
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(not SUBPAGE_URL, reason="no subscription page container")
+async def test_mode_panel_plus_subscription_page(panel):
+    """v28.65.0 (stage 9, mode «Panel + Subscription Page»): the official subscription page of the latest release
+    serves a panel user's subscription to a VPN client. Whether it also shows a web page to a browser is decided by
+    the panel's subscription response rules (SRR); with the defaults of a fresh panel it does not."""
+    import httpx
+    expire = (datetime.utcnow() + timedelta(days=5)).replace(microsecond=0)
+    user = await panel.create_user(f"ci_sp_{int(datetime.utcnow().timestamp())}", expire)
+    # Like the panel, the page drops connections without a TLS reverse proxy in front: send what the proxy adds.
+    proxy = {"x-forwarded-for": "203.0.113.9", "x-forwarded-proto": "https"}
+    async with httpx.AsyncClient(timeout=20, trust_env=False) as client:
+        sub = await client.get(f"{SUBPAGE_URL}/{user['shortUuid']}", headers={**proxy, "user-agent": "v2rayNG/1.9.30"})
+    assert sub.status_code == 200 and "text/html" not in sub.headers.get("content-type", ""), (sub.status_code, sub.text[:300])
+    assert sub.content, "a subscription body"

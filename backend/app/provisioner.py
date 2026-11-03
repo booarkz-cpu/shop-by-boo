@@ -82,6 +82,25 @@ def install_commands(compose_yaml: str, panel_ip: str | None, node_port: int) ->
     return cmds
 
 
+# The official node compose (remnawave/node docker-compose-prod.yml, checked against the latest release in CI:
+# tests/live/test_remnawave_live.py::test_mode_panel_plus_node). v28.65.0: the shop writes it from typed values;
+# the admin API no longer accepts a compose file from the browser (it could start any container as root).
+NODE_IMAGE = "remnawave/node:latest"
+
+
+def node_compose(secret_key: str, node_port: int = 2222) -> str:
+    import json
+    if not secret_key or len(secret_key) > 8192 or any(c in secret_key for c in "\r\n\x00"):
+        raise ProvisionError("Invalid node secret key")
+    if not (1 <= int(node_port) <= 65535):
+        raise ProvisionError("Invalid node port")
+    # JSON strings are valid YAML scalars: the key cannot break out of its value.
+    return ("services:\n  remnanode:\n    image: " + NODE_IMAGE + "\n    container_name: remnanode\n    hostname: remnanode\n"
+            "    network_mode: host\n    restart: always\n    cap_add:\n      - NET_ADMIN\n    ulimits:\n      nofile:\n"
+            "        soft: 1048576\n        hard: 1048576\n    environment:\n"
+            f"      NODE_PORT: {json.dumps(str(int(node_port)))}\n      SECRET_KEY: {json.dumps(secret_key)}\n")
+
+
 def run_ssh(host,port,username,password,private_key,compose_yaml,panel_ip,node_port=2222,host_key_fingerprint=None):
     if not compose_yaml.strip(): raise ProvisionError("compose_yaml is empty")
     if len(compose_yaml)>200_000: raise ProvisionError("compose_yaml too large")
