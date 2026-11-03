@@ -25,6 +25,9 @@
 | Устройство backend | [BACKEND_ARCHITECTURE.md](BACKEND_ARCHITECTURE.md) |
 | Схема базы | [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) |
 | Правила интерфейса | [UI_UX_GUIDE.md](UI_UX_GUIDE.md) |
+| Руководство по админ-панели, модули, роли | [ADMIN_PANEL_GUIDE.md](ADMIN_PANEL_GUIDE.md), [ADMIN_MODULES.md](ADMIN_MODULES.md), [RBAC.md](RBAC.md) |
+| Личный кабинет | [USER_CABINET_GUIDE.md](USER_CABINET_GUIDE.md) |
+| Архитектура Remnawave Manager | [REMNAWAVE_ARCHITECTURE.md](REMNAWAVE_ARCHITECTURE.md), [REMNAWAVE_DATA_MODEL.md](REMNAWAVE_DATA_MODEL.md), [REMNAWAVE_API_DESIGN.md](REMNAWAVE_API_DESIGN.md), [DEPLOYMENT_AGENT_ARCHITECTURE.md](DEPLOYMENT_AGENT_ARCHITECTURE.md) |
 | Реестр ошибок | [BUG_REGISTRY.md](BUG_REGISTRY.md) |
 | Журнал исправлений | [BUGFIX_LOG.md](BUGFIX_LOG.md) |
 | Regression-тесты | [REGRESSION_TESTS.md](REGRESSION_TESTS.md) |

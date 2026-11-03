@@ -18,7 +18,7 @@ set -Eeuo pipefail
 APP_DIR="${APP_DIR:-/opt/vpn-shop}"
 cd "$APP_DIR"
 command -v docker >/dev/null || { echo "Docker is required" >&2; exit 2; }
-# v28.64.0: pinned Redis/Caddy images follow the release. It runs from here because update.sh of the
+# v28.65.0: pinned Redis/Caddy images follow the release. It runs from here because update.sh of the
 # installed (previous) release calls this script after copying the new files, and not repin-images.sh.
 if [[ -f scripts/repin-images.sh ]]; then bash scripts/repin-images.sh; fi
 umask 077

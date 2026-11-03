@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.64.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.65.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2062**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2068**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1142,6 +1142,7 @@
 | [docs/ru/RELEASE_V28_62_0.md](../docs/ru/RELEASE_V28_62_0.md) | Документация |
 | [docs/ru/RELEASE_V28_63_0.md](../docs/ru/RELEASE_V28_63_0.md) | Документация |
 | [docs/ru/RELEASE_V28_64_0.md](../docs/ru/RELEASE_V28_64_0.md) | Документация |
+| [docs/ru/RELEASE_V28_65_0.md](../docs/ru/RELEASE_V28_65_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1230,6 +1231,7 @@
 | [docs/ru/new/BUGFIX_LOG.md](../docs/ru/new/BUGFIX_LOG.md) | Документация |
 | [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
 | [docs/ru/new/DATABASE_SCHEMA.md](../docs/ru/new/DATABASE_SCHEMA.md) | Документация |
+| [docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md](../docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/FEATURE_COMPARISON_MATRIX.md](../docs/ru/new/FEATURE_COMPARISON_MATRIX.md) | Документация |
 | [docs/ru/new/FULL_TECHNICAL_AUDIT.md](../docs/ru/new/FULL_TECHNICAL_AUDIT.md) | Документация |
 | [docs/ru/new/IMPLEMENTATION_STATUS.md](../docs/ru/new/IMPLEMENTATION_STATUS.md) | Документация |
@@ -1238,6 +1240,9 @@
 | [docs/ru/new/RBAC.md](../docs/ru/new/RBAC.md) | Документация |
 | [docs/ru/new/README.md](../docs/ru/new/README.md) | Документация |
 | [docs/ru/new/REGRESSION_TESTS.md](../docs/ru/new/REGRESSION_TESTS.md) | Документация |
+| [docs/ru/new/REMNAWAVE_API_DESIGN.md](../docs/ru/new/REMNAWAVE_API_DESIGN.md) | Документация |
+| [docs/ru/new/REMNAWAVE_ARCHITECTURE.md](../docs/ru/new/REMNAWAVE_ARCHITECTURE.md) | Документация |
+| [docs/ru/new/REMNAWAVE_DATA_MODEL.md](../docs/ru/new/REMNAWAVE_DATA_MODEL.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
 | [docs/ru/new/SECURITY_AUDIT.md](../docs/ru/new/SECURITY_AUDIT.md) | Документация |
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
@@ -1963,6 +1968,7 @@
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
 | [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |
+| [tests/test_remnawave_architecture.py](../tests/test_remnawave_architecture.py) | Проверки |
 | [tests/test_remnawave_contract.py](../tests/test_remnawave_contract.py) | Проверки |
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |

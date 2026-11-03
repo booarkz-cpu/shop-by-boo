@@ -1,3 +1,17 @@
+# v28.65.0
+
+- Архитектура Remnawave Manager (этап 9): `docs/ru/new/REMNAWAVE_ARCHITECTURE.md`, `REMNAWAVE_DATA_MODEL.md`,
+  `REMNAWAVE_API_DESIGN.md`, `DEPLOYMENT_AGENT_ARCHITECTURE.md`. 14 компонентов и 7 режимов: что есть в коде
+  и что появится на этапах 10–12. Факты сверены с официальными репозиториями Remnawave (панель 3.4.8,
+  нода 3.4.4, страница подписки 8.0.1, контракт 3.4.15).
+- Живой тест CI запускает рядом с панелью ноду и страницу подписки последних версий: режимы «панель + нода» и
+  «панель + страница подписки» (`scripts/ci/remnawave-live.sh`, `tests/live/test_remnawave_live.py`).
+- Безопасность: `POST /api/admin/provision-node` больше не принимает compose-файл из запроса — только
+  `NodeProvisionIn` (лишние поля — 422), обязательный отпечаток ключа SSH; compose ноды строит магазин
+  (`provisioner.node_compose`), SSH выполняется вне цикла событий.
+- `tests/test_remnawave_architecture.py`: документы сверяются с кодом; агент получает только действия закрытого списка.
+- Миграций нет: head `0089_index_cleanup`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_65_0.md](docs/ru/RELEASE_V28_65_0.md).
+
 # v28.64.0
 
 - Актуальные версии (задача владельца): Python 3.12 → 3.14.10, Node.js 22 → 26.13 LTS, Redis 7.4 → 8.10.3
