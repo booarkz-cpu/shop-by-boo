@@ -24,6 +24,11 @@ jwt=$(curl -fsS "${PROXY[@]}" -X POST "$URL/api/auth/register" -d "{\"username\"
 token=$(curl -fsS "${PROXY[@]}" -H "Authorization: Bearer $jwt" -H "X-Remnawave-Client-Type: browser" -X POST "$URL/api/tokens" \
   -d '{"name":"corgi-ci","expiresInDays":1}' | python3 -c 'import json,sys; print(json.load(sys.stdin)["response"]["token"])')
 echo "::add-mask::$token"
+# v28.70.0: only the panel, for the SelfSteal node job (the wizard installs the node over SSH).
+if [[ -n "${PANEL_ONLY_ENV:-}" ]]; then
+  printf 'REMNAWAVE_URL=%s\nREMNAWAVE_TOKEN=%s\n' "$URL" "$token" > "$PANEL_ONLY_ENV"
+  exit 0
+fi
 # v28.65.0 (stage 9): the node and the subscription page of the latest release, started the way their official
 # docker-compose-prod.yml files run them (node: host network, NODE_PORT, SECRET_KEY from the panel's keygen;
 # subscription page: on remnawave-network, REMNAWAVE_PANEL_URL + REMNAWAVE_API_TOKEN).

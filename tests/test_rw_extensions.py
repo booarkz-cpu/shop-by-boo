@@ -128,3 +128,114 @@ async def test_panel_errors_reach_the_admin(monkeypatch):
     with pytest.raises(HTTPException) as err:
         await ext._panel("GET", "/api/config-profiles")
     assert err.value.status_code == 503
+
+
+# ---------------------------------------------------------------- v28.70.0: WARP in a profile and server routing
+
+ENTRY, EXIT, NODE, SS_IN = U1, U2, U3, "44444444-4444-4444-4444-444444444444"
+
+
+@pytest.fixture
+def routing_panel(monkeypatch):
+    state = {"profiles": {
+        ENTRY: {"name": "RU-entry", "config": {"inbounds": [{"tag": "VLESS_REALITY", "port": 443}],
+                                               "outbounds": [{"tag": "DIRECT", "protocol": "freedom"}],
+                                               "routing": {"rules": [{"ip": ["geoip:ru"], "outboundTag": "MY_DETOUR"},
+                                                                     {"domain": ["example.org"], "outboundTag": "DIRECT"}]}}},
+        EXIT: {"name": "FI-exit", "config": {"inbounds": [{"tag": "VLESS_FI", "port": 443}], "outbounds": []}}},
+        "squads": [], "users": {}, "patches": [], "deleted": []}
+
+    async def fake(method, path, **kw):
+        body = kw.get("json")
+        if path.startswith("/api/config-profiles/") and method == "GET":
+            uuid = path.rsplit("/", 1)[1]
+            p = state["profiles"][uuid]
+            inbounds = [{"uuid": SS_IN if i["tag"] == ext.SR_IN else NODE, "tag": i["tag"]} for i in p["config"]["inbounds"]]
+            return {"uuid": uuid, "name": p["name"], "config": p["config"], "inbounds": inbounds}
+        if path == "/api/config-profiles" and method == "PATCH":
+            state["profiles"][body["uuid"]]["config"] = body["config"]
+            return {"uuid": body["uuid"]}
+        if path == "/api/config-profiles" and method == "GET":
+            return {"configProfiles": [{"uuid": u, "name": p["name"]} for u, p in state["profiles"].items()]}
+        if path == f"/api/nodes/{NODE}":
+            return {"uuid": NODE, "address": "fi.example.com", "configProfile": {"activeConfigProfileUuid": EXIT, "activeInbounds": [NODE]}}
+        if path == "/api/nodes" and method == "PATCH":
+            state["patches"].append(body)
+            return body
+        if path == "/api/internal-squads" and method == "GET":
+            return {"internalSquads": state["squads"]}
+        if path == "/api/internal-squads" and method == "PATCH":
+            next(q for q in state["squads"] if q["uuid"] == body["uuid"])["inbounds"] = body["inbounds"]
+            return body
+        if path == "/api/internal-squads" and method == "POST":
+            state["squads"].append({"uuid": "squad-1", **body})
+            return state["squads"][-1]
+        if path.startswith("/api/users/by-username/"):
+            name = path.rsplit("/", 1)[1]
+            if name not in state["users"]:
+                raise HTTPException(502, "Remnawave: User not found")
+            return state["users"][name]
+        if path == "/api/users" and method == "POST":
+            state["users"][body["username"]] = {**body, "id": 77}
+            return state["users"][body["username"]]
+        if method == "DELETE":
+            state["deleted"].append(path)
+            return {}
+        raise AssertionError((method, path))
+    monkeypatch.setattr(ext, "_panel", fake)
+    return state
+
+
+@pytest.mark.asyncio
+async def test_warp_outbound_in_a_profile(routing_panel):
+    db = Db()
+    out = await ext.profile_warp(ENTRY, ext.WarpIn(domains=["Whoer.net", "geosite:openai"]), db, ADMIN)
+    config = routing_panel["profiles"][ENTRY]["config"]
+    warp = next(o for o in config["outbounds"] if o["tag"] == "warp-out")
+    assert warp["streamSettings"]["sockopt"]["interface"] == "warp" and out["domains"] == ["whoer.net", "geosite:openai"]
+    await ext.profile_warp(ENTRY, ext.WarpIn(domains=["2ip.ru"]), db, ADMIN)  # replaced, not duplicated
+    config = routing_panel["profiles"][ENTRY]["config"]
+    assert [r["domain"] for r in config["routing"]["rules"] if r.get("outboundTag") == "warp-out"] == [["2ip.ru"]]
+    await ext.profile_warp(ENTRY, ext.WarpIn(enabled=False), db, ADMIN)
+    config = routing_panel["profiles"][ENTRY]["config"]
+    assert not any(o["tag"] == "warp-out" for o in config["outbounds"]) and len(config["routing"]["rules"]) == 2
+    with pytest.raises(ValidationError):
+        ext.WarpIn(domains=["bad domain; rm"])
+
+
+@pytest.mark.asyncio
+async def test_server_routing_bridge(routing_panel):
+    db = Db()
+    out = await ext.create_routing(ext.RoutingIn(entry_profile_uuid=ENTRY, exit_node_uuid=NODE, port=8443), db, ADMIN)
+    assert out["exit"] == "fi.example.com:8443" and "8443" in out["note"]
+    exit_in = next(i for i in routing_panel["profiles"][EXIT]["config"]["inbounds"] if i["tag"] == ext.SR_IN)
+    assert exit_in["protocol"] == "shadowsocks" and exit_in["settings"]["method"] == ext.SR_METHOD
+    assert routing_panel["patches"][-1]["configProfile"]["activeInbounds"] == [NODE, SS_IN], "the exit node keeps its inbounds"
+    assert routing_panel["squads"][0]["inbounds"] == [SS_IN]
+    user = next(iter(routing_panel["users"].values()))
+    assert user["activeInternalSquads"] == ["squad-1"] and 8 <= len(user["ssPassword"]) <= 32
+    config = routing_panel["profiles"][ENTRY]["config"]
+    bridge = next(o for o in config["outbounds"] if o["tag"] == ext.SR_OUT)
+    assert bridge["settings"]["servers"][0] == {"address": "fi.example.com", "port": 8443, "method": ext.SR_METHOD,
+                                                "password": user["ssPassword"], "level": 0}
+    rules = config["routing"]["rules"]
+    assert {"ip": ["geoip:ru"], "outboundTag": "DIRECT"} in rules and {"inboundTag": ["VLESS_REALITY"], "outboundTag": ext.SR_OUT} in rules
+    assert {"domain": ["example.org"], "outboundTag": "DIRECT"} in rules, "the administrator's own rules stay"
+    assert any(r.get("protocol") == ["bittorrent"] for r in rules)
+
+    # Bridge mode: Russian addresses through the exit node, no catch-all; the same user and password are reused.
+    await ext.create_routing(ext.RoutingIn(entry_profile_uuid=ENTRY, exit_node_uuid=NODE, port=8443, mode="bridge"), db, ADMIN)
+    rules = routing_panel["profiles"][ENTRY]["config"]["routing"]["rules"]
+    assert {"ip": ["geoip:ru"], "outboundTag": ext.SR_OUT} in rules and not any("inboundTag" in r for r in rules)
+    assert sum(1 for r in rules if r.get("ip") == ["geoip:ru"]) == 1 and len(routing_panel["users"]) == 1
+    listed = await ext.list_routing(ADMIN)
+    assert listed["bridges"] == [{"profile_uuid": ENTRY, "profile": "RU-entry", "exit": "fi.example.com:8443", "mode": "bridge"}]
+
+    await ext.delete_routing(ENTRY, db, ADMIN)
+    config = routing_panel["profiles"][ENTRY]["config"]
+    assert not any(o["tag"] == ext.SR_OUT for o in config["outbounds"])
+    assert not any(r.get("outboundTag") == ext.SR_OUT for r in config["routing"]["rules"])
+    assert "/api/users/77" in routing_panel["deleted"] and "/api/internal-squads/squad-1" in routing_panel["deleted"]
+    with pytest.raises(HTTPException):  # an exit node running the entry profile would route into itself
+        routing_panel["profiles"][ENTRY]["config"]["inbounds"].append({"tag": "x"})
+        await ext.create_routing(ext.RoutingIn(entry_profile_uuid=EXIT, exit_node_uuid=NODE), db, ADMIN)

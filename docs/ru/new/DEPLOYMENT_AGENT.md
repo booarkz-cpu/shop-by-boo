@@ -42,7 +42,7 @@
 | --- | --- | --- |
 | `preflight` | Только читает ([REMNAWAVE_PREFLIGHT](REMNAWAVE_PREFLIGHT.md)) | — |
 | `install_docker` | Docker из подписанного репозитория, отпечаток ключа apt сверяется (`provisioner.DOCKER_INSTALL`) | Docker не удаляется |
-| `write_files` | Файл через stdin в один из четырёх каталогов (`/opt/remnawave`, `/opt/remnanode`, `/opt/remnawave-subpage`, `/opt/remnawave-caddy`), имена — только `docker-compose.yml`, `.env`, `Caddyfile`; SHA-256 сверяется на сервере; прежний файл сохраняется как `.rw-prev` | Прежний файл возвращается, новый удаляется |
+| `write_files` | Файл через stdin в один из каталогов (`/opt/remnawave`, `/opt/remnanode`, `/opt/remnawave-subpage`, `/opt/remnawave-caddy`, `/opt/remnawave-selfsteal`, `/opt/remnawave-xray-checker`), имена — только `docker-compose.yml`, `.env`, `Caddyfile`, `index.html`; SHA-256 сверяется на сервере; прежний файл сохраняется как `.rw-prev` | Прежний файл возвращается, новый удаляется |
 | `compose_up` | `docker compose pull` и `up -d` закреплённых образов | `docker compose down`, volumes остаются |
 | `wait_panel` | Панель отвечает на `127.0.0.1:3001/health` (до 3 минут) | — |
 | `panel_bootstrap` | Первый администратор (`POST /api/auth/register`, при повторе — вход) и токен API `corgi-shop` (`POST /api/tokens`) | — |
@@ -52,8 +52,12 @@
 | `backup_panel` | `pg_dump` базы панели на её сервере; хранятся 5 последних копий | — |
 | `restore_panel` | Восстановление базы панели из последней копии | — |
 | `compose_down` | Остановка контейнеров компонента | — |
+| `selfsteal_profile` | v28.70.0: профиль VLESS + REALITY с `dest` на сокете SelfSteal и хост домена ноды в панели ([REMNAWAVE_EXTENSIONS](REMNAWAVE_EXTENSIONS.md)) | Хост и профиль удаляются |
+| `node_module` | v28.70.0: модуль сервера — IPv6, ядро Xray (SHA-256 из GitHub), WARP Native, NetBird (ключ через stdin), проверка Xray Checker ([WARP_NETBIRD](WARP_NETBIRD.md), [XRAY_CHECKER](XRAY_CHECKER.md)) | Прежняя настройка или файл возвращается |
 
 Пока панель только ставится, её API вызывается по SSH на `127.0.0.1:3000` с заголовками прокси; токен передаётся через stdin и временный файл с правами 600, не в аргументах. Для панели, подключённой к магазину, — обычный клиент магазина.
+
+Действие «Модуль» (v28.70.0) — план над успешной установкой, как «Обновить»: при ошибке откатываются его шаги `node_module`, прежние файлы возвращаются, контейнеры запускаются с ними (не останавливаются). Выбранное ядро Xray и Xray Checker сохраняются в установке и переживают «Обновить».
 
 При ошибке шага у «Обновить» и «Переустановить» откат возвращает прежние файлы и запускает контейнеры с ними. У «Диагностики», «Восстановления» и «Удаления» отката нет: ошибка показывается как есть.
 

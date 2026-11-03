@@ -1,3 +1,23 @@
+# v28.70.0
+
+- Модули серверов Remnawave, часть Б (этап 12) — шагами мастера установки из закрытого списка, с планом и откатом:
+  - SelfSteal (TLS + REALITY): Caddy ноды с сертификатом её домена и сайтом-шаблоном на `/dev/shm/selfsteal.sock`,
+    профиль VLESS + REALITY (`dest` — сокет, `xver: 1`) и хост в панели, проверка сайта на сокете;
+  - действие «module» над успешной установкой (`ActionIn.module`), шаг `node_module`: IPv6 (sysctl), ядро Xray
+    (`rw_releases`: SHA-256 из GitHub в плане, проверка на сервере и `.dgst`), WARP Native (wgcf с проверкой SHA-256,
+    интерфейс `warp` с `Table = off`), NetBird (подписанный репозиторий, ключ через stdin), Xray Checker
+    (`/opt/remnawave-xray-checker`, API на 127.0.0.1:2112, `GET /api/admin/rw/installations/{id}/xray-checker`,
+    уведомления раз в час);
+  - откат действия «module» возвращает настройки и файлы и запускает контейнеры с ними.
+- `rw_extensions`: WARP в профиле (`warp-out`) и серверный роутинг — мост Shadowsocks между нодами, служебный
+  пользователь и сквад, правила для российских адресов (`/api/admin/rw/extensions/routing`).
+- `rw_jobs.run_next` ждёт остановки задачи пульса.
+- CI: задание `node-modules` в «Remnawave live contract» — настоящая панель и SelfSteal-нода на раннере.
+- Тесты: `tests/test_rw_node_modules.py`, `tests/test_rw_extensions.py`, `tests/live/test_node_modules_live.py`, e2e.
+- Документы: `docs/ru/new/WARP_NETBIRD.md`, `SERVER_ROUTING.md`, `XRAY_CHECKER.md`; обновлены `REMNAWAVE_EXTENSIONS.md`,
+  `DEPLOYMENT_AGENT.md`.
+- Миграций нет: head `0091_remnawave_domains`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_70_0.md](docs/ru/RELEASE_V28_70_0.md).
+
 # v28.69.0
 
 - Менеджер расширений Remnawave, часть А (этап 12, `backend/app/rw_extensions.py`, «Серверы → Расширения Remnawave»),

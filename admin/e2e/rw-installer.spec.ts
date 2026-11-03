@@ -94,3 +94,53 @@ test('add a server, check it, review the plan, run it and read the step log', as
   await expect(detail.locator('[data-kind="compose_up"]')).toHaveAttribute('data-status', 'running');
   await expect(detail.getByRole('button', {name: 'Остановить и откатить'})).toBeVisible();
 });
+
+// v28.70.0 (stage 12): SelfSteal in the wizard and the node modules of a finished installation.
+test('SelfSteal fields, node modules plan and Xray Checker results', async ({page}) => {
+  test.setTimeout(60_000);
+  const server = (id: number, name: string) => ({id, name, host: `198.51.100.${id}`, ssh_port: 22, ssh_user: 'root', auth_method: 'key', has_secret: true,
+    host_key_fingerprint: FP, purpose: ['node'], roles: ['node'], status: 'installed', arch: 'x86_64', checks: [], check_ok: true});
+  const job = {id: 9, action: 'install', mode: 'node', title: 'Только нода', server_ids: [2], status: 'succeeded', progress: 100,
+    params: {mode: 'node', node_server_ids: [2], selfsteal_domain: 'node.example.com', xray_checker_server_id: 2},
+    plan: {servers: {'2': {name: 'fi-1', host: '198.51.100.2', roles: ['node', 'selfsteal'], changes: []}}, steps: []},
+    result: {state: {modules: {'2': {ipv6: 'off', xray_core: 'v25.10.15'}}}}, steps: [{id: 1, position: 1, kind: 'verify', title: 'Проверка', server_id: null, status: 'done', log: 'ok'}]};
+  await signIn(page);
+  await page.route('**/api/admin/rw/servers', (r: any) => r.fulfill({json: {servers: [server(2, 'fi-1'), server(3, 'de-1')]}}));
+  await page.route('**/api/admin/rw/installations', (r: any) => r.fulfill({json: {installations: [{...job, steps: undefined}]}}));
+  await page.route('**/api/admin/rw/installations/9', (r: any) => r.fulfill({json: job}));
+  let sent: any = null;
+  await page.route('**/api/admin/rw/installations/9/actions', (r: any) => {
+    sent = r.request().postDataJSON();
+    return r.fulfill({json: {id: 10, plan_sha256: 'b'.repeat(64), plan: {title: 'Модуль: NetBird: включить',
+      steps: [{position: 1, kind: 'node_module', title: 'fi-1: NetBird — подключить'}]}}});
+  });
+  await page.route('**/api/admin/rw/installations/9/xray-checker', (r: any) => r.fulfill({json: {server_id: 2, total: 2, online: 1, proxies: [
+    {name: 'fi-1', server: '198.51.100.2', port: 443, protocol: 'vless', online: true, latency_ms: 41},
+    {name: 'de-1', server: '198.51.100.3', port: 443, protocol: 'vless', online: false, latency_ms: 0}]}}));
+  await page.locator('.sidebar').getByRole('button', {name: /Установка Remnawave/}).click();
+
+  const wizard = page.locator('[data-rw-wizard]');
+  await wizard.getByLabel('Режим', {exact: true}).selectOption('node');
+  await wizard.getByLabel('Серверы нод', {exact: true}).selectOption(['2']);
+  const ss = wizard.locator('[data-rw-selfsteal]');
+  await expect(ss).toContainText('TLS + REALITY');
+  await ss.getByLabel('Домен ноды', {exact: true}).fill('node.example.com');
+  await expect(ss.getByLabel('Сайт-шаблон', {exact: true}).locator('option')).toHaveCount(3);
+  await wizard.getByLabel('Серверы нод', {exact: true}).selectOption(['2', '3']);
+  await expect(ss).toHaveCount(0);  // one domain — one node
+
+  await page.locator('[data-rw-job="9"]').getByRole('button', {name: 'Журнал'}).click();
+  const mods = page.locator('[data-rw-modules]');
+  await expect(mods.locator('[data-rw-module-state]')).toContainText('IPv6 выключен, ядро v25.10.15');
+  await mods.getByLabel('Модуль', {exact: true}).selectOption('netbird');
+  await mods.getByLabel('Действие', {exact: true}).selectOption('on');
+  await mods.getByLabel('Ключ установки (Setup key)', {exact: true}).fill('ABCDEF12-3456-7890');
+  await mods.getByRole('button', {name: 'Составить план'}).click();
+  await expect(page.locator('[data-rw-action-plan]')).toContainText('fi-1: NetBird — подключить');
+  expect(sent).toMatchObject({action: 'module', module: {name: 'netbird', enabled: true, setup_key: 'ABCDEF12-3456-7890', server_ids: [2]}});
+  await expect(mods.getByLabel('Ключ установки (Setup key)', {exact: true})).toHaveValue('');
+
+  await mods.getByRole('button', {name: 'Результаты Xray Checker'}).click();
+  await expect(mods.locator('[data-rw-checker]')).toContainText('На связи 1 из 2');
+  await expect(mods.locator('[data-online="false"]')).toContainText('недоступен');
+});

@@ -1,4 +1,4 @@
-# Каталог API — v28.69.0 / API v21.5.1
+# Каталог API — v28.70.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0091_remnawave_domains`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -472,6 +472,10 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/rw/extensions/profiles/{profile_uuid}` | Get Profile | право `read` |
 | `PATCH` | `/api/admin/rw/extensions/profiles/{profile_uuid}` | Patch Profile | право `provision_nodes` |
 | `POST` | `/api/admin/rw/extensions/profiles/{profile_uuid}/host` | Profile Host | право `provision_nodes` |
+| `POST` | `/api/admin/rw/extensions/profiles/{profile_uuid}/warp` | Profile Warp | право `provision_nodes` |
+| `GET` | `/api/admin/rw/extensions/routing` | List Routing | право `read` |
+| `POST` | `/api/admin/rw/extensions/routing` | Create Routing | право `provision_nodes` |
+| `DELETE` | `/api/admin/rw/extensions/routing/{profile_uuid}` | Delete Routing | право `provision_nodes` |
 | `POST` | `/api/admin/rw/extensions/srr-test` | Srr Test | право `read` |
 | `GET` | `/api/admin/rw/extensions/subpage-configs` | Subpage Configs | право `read` |
 | `POST` | `/api/admin/rw/extensions/subpage-configs` | Create Subpage Config | право `settings.runtime.write` |
@@ -494,6 +498,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/rw/installations/{installation_id}/cancel` | Cancel | право `provision_nodes` |
 | `POST` | `/api/admin/rw/installations/{installation_id}/connect-shop` | Connect Shop | право `provision_nodes`, право `settings.runtime.write` |
 | `POST` | `/api/admin/rw/installations/{installation_id}/credentials` | Credentials | право `provision_nodes` |
+| `GET` | `/api/admin/rw/installations/{installation_id}/xray-checker` | Xray Checker | право `read` |
 | `GET` | `/api/admin/rw/meta` | Meta | право `read` |
 | `GET` | `/api/admin/rw/proxy-routes` | Proxy Routes | право `read` |
 | `GET` | `/api/admin/rw/servers` | List Servers | право `read` |

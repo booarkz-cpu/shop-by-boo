@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, ValidationError, field_validator, model_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -104,11 +104,26 @@ class ApproveIn(BaseModel):
     plan_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
 
 
+class ModuleIn(BaseModel):
+    """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
+    model_config = ConfigDict(extra="forbid")
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker"]
+    enabled: bool = True
+    server_ids: list[int] = Field(default_factory=list, max_length=20)
+    version: str | None = Field(default=None, pattern=r"^(latest|v\d{1,3}\.\d{1,3}\.\d{1,3})$")  # Xray core
+    accept_warp_tos: bool = False
+    setup_key: SecretStr | None = Field(default=None, max_length=200)          # NetBird
+    management_url: str | None = Field(default=None, max_length=200)           # NetBird, self-hosted
+    subscription_url: SecretStr | None = Field(default=None, max_length=2000)  # Xray Checker
+    interval: int = Field(default=300, ge=60, le=86400)                        # Xray Checker
+
+
 class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    action: Literal["update", "diagnose", "restore", "reinstall", "remove"]
+    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module"]
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
     panel_access: Literal["open", "cookie"] | None = None
+    module: ModuleIn | None = None
 
 
 def server_out(row: RemnawaveServer) -> dict:
@@ -273,7 +288,7 @@ async def check_server(server_id: int, db: AsyncSession = Depends(get_db), admin
 
 async def _servers_for(db: AsyncSession, ids: list[int]) -> dict[int, dict]:
     rows = (await db.execute(select(RemnawaveServer).where(RemnawaveServer.id.in_(ids)))).scalars().all()
-    return {r.id: {"name": r.name, "host": r.host, "status": r.status} for r in rows}
+    return {r.id: {"name": r.name, "host": r.host, "status": r.status, "arch": r.arch} for r in rows}
 
 
 def _shop_panel() -> str | None:
@@ -396,19 +411,94 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
         if payload.action != "update" or not params.get("panel_server_id"):
             raise HTTPException(422, "Доступ к панели меняется действием «Обновить» установки с панелью")
         params["panel_access"] = payload.panel_access
+    secrets = None
+    if payload.action == "module":
+        if not payload.module:
+            raise HTTPException(422, "Выберите модуль")
+        secrets = rw_jobs.load_secrets(source)
+        params["module"] = await _module_params(payload.module, params, secrets)
+    elif payload.module:
+        raise HTTPException(422, "Модуль задаётся действием «module»")
     try:
         plan = rw_plan.build_action(payload.action, rw_plan.PlanIn(**params), servers)
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
+    except ValidationError as exc:
+        raise HTTPException(422, "; ".join(e["msg"] for e in exc.errors())) from exc
     row = RemnawaveInstallation(action=payload.action, mode=source.mode, server_ids=source.server_ids, params=params,
                                 plan=plan, plan_sha256=rw_plan.plan_hash(plan, params), status="planned",
                                 secrets=source.secrets, result={"state": (source.result or {}).get("state") or {}},
                                 source_installation_id=source.id, created_by=admin.email)
+    if secrets is not None:
+        rw_jobs.store_secrets(row, secrets)
     db.add(row)
     await db.flush()
     await _audit(db, "rw.installation.planned", admin.email, str(row.id), {"action": payload.action, "source": source.id})
     await db.commit()
     return installation_out(row, [])
+
+
+async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
+    """What the module plan needs: release files with their SHA-256 (looked up now, so the approved plan fixes
+    them), and the settings that change the files the wizard writes. Secrets go to the installation's encrypted
+    secrets, never into the plan."""
+    from . import rw_releases
+    run = {"name": mod.name, "enabled": mod.enabled, "server_ids": mod.server_ids}
+    try:
+        if mod.name == "xray_core":
+            if mod.enabled:
+                version, release = await rw_releases.xray_core(None if mod.version in (None, "latest") else mod.version)
+                run.update(version=version, release=release)
+            params["xray_core"] = run.get("version")
+        elif mod.name == "warp" and mod.enabled:
+            if not mod.accept_warp_tos:
+                raise HTTPException(422, "Подтвердите условия Cloudflare WARP: wgcf регистрирует учётную запись WARP")
+            version, release = await rw_releases.wgcf()
+            run.update(version=version, release=release)
+    except rw_releases.ReleaseError as exc:
+        raise HTTPException(502, str(exc)) from exc
+    if mod.name == "netbird":
+        if mod.enabled:
+            key = mod.setup_key.get_secret_value().strip() if mod.setup_key else ""
+            if not re.fullmatch(r"[A-Za-z0-9-]{8,200}", key):
+                raise HTTPException(422, "Ключ установки NetBird (Setup key) из консоли NetBird")
+            secrets["netbird_setup_key"] = key
+        run["management_url"] = mod.management_url or None
+    if mod.name == "xray_checker":
+        if mod.enabled:
+            url = mod.subscription_url.get_secret_value().strip() if mod.subscription_url else secrets.get("checker_subscription_url", "")
+            if not re.fullmatch(r"https://[^\s\"'$`\\]{8,2000}", url or ""):
+                raise HTTPException(422, "Адрес подписки для проверки: https://…")
+            secrets["checker_subscription_url"] = url
+            if len(mod.server_ids) != 1:
+                raise HTTPException(422, "Выберите один сервер для Xray Checker")
+            params["xray_checker_server_id"] = mod.server_ids[0]
+            params["xray_checker_interval"] = mod.interval
+            run["server_ids"] = []
+        else:
+            run["server_ids"] = [params["xray_checker_server_id"]] if params.get("xray_checker_server_id") else []
+            params["xray_checker_server_id"] = None
+    return run
+
+
+@router.get("/installations/{installation_id}/xray-checker")
+async def xray_checker(installation_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
+    """The servers of the subscription as Xray Checker sees them (its API on 127.0.0.1:2112, read over SSH)."""
+    row = await _installation(db, installation_id)
+    sid = (row.params or {}).get("xray_checker_server_id")
+    if row.action != "install" or not sid:
+        raise HTTPException(404, "Xray Checker не установлен для этой установки")
+    ctx = await rw_jobs._context(db, row)
+    try:
+        data = await rw_steps.checker_status(ctx, sid)
+    except rw_steps.StepError as exc:
+        raise HTTPException(502, f"Сервер недоступен: {exc}") from exc
+    if not data.get("success"):
+        raise HTTPException(502, "Xray Checker не ответил")
+    proxies = [{"name": p.get("name"), "server": p.get("server"), "port": p.get("port"), "protocol": p.get("protocol"),
+                "online": bool(p.get("online")), "latency_ms": p.get("latencyMs"), "last_check": p.get("lastCheck")}
+               for p in data.get("data") or [] if isinstance(p, dict)]
+    return {"server_id": sid, "total": len(proxies), "online": sum(p["online"] for p in proxies), "proxies": proxies}
 
 
 @router.post("/installations/{installation_id}/credentials")
@@ -448,3 +538,58 @@ async def connect_shop(installation_id: int, db: AsyncSession = Depends(get_db),
         "remnawave_url": f"https://{row.params['panel_domain']}", "remnawave_token": token},
         reason=f"Мастер Remnawave: панель установки #{row.id}"), db, admin.email)
     return staged
+
+
+# ---------------------------------------------------------------- v28.70.0: Xray Checker alerts
+
+async def check_xray_checkers() -> list[str]:
+    """Every installation with Xray Checker: servers of the subscription that went offline since the last check are
+    sent to the owner's alerts once (and again only after they came back)."""
+    import logging
+
+    from .db import SessionLocal
+    from .main import send_alert
+    sent = []
+    async with SessionLocal() as db:
+        rows = (await db.execute(select(RemnawaveInstallation).where(RemnawaveInstallation.action == "install",
+                                                                     RemnawaveInstallation.status == "succeeded"))).scalars().all()
+        for row in rows:
+            sid = (row.params or {}).get("xray_checker_server_id")
+            if not sid:
+                continue
+            try:
+                data = await rw_steps.checker_status(await rw_jobs._context(db, row), sid)
+            except Exception as exc:  # noqa: BLE001 — one server never stops the others
+                logging.getLogger(__name__).warning("Xray Checker of installation %s unreachable: %s", row.id, exc)
+                continue
+            if not data.get("success"):
+                continue
+            down = sorted(str(p.get("name")) for p in data.get("data") or [] if isinstance(p, dict) and not p.get("online"))
+            result = dict(row.result or {})
+            if down and down != result.get("checker_down"):
+                text = f"Xray Checker (установка №{row.id}): недоступны {len(down)} — " + ", ".join(down[:10])
+                await send_alert(text)
+                sent.append(text)
+            result["checker_down"] = down
+            row.result = result
+        await db.commit()
+    return sent
+
+
+async def _checker_loop() -> None:
+    await asyncio.sleep(600)
+    while True:
+        try:
+            await check_xray_checkers()
+        except Exception as exc:  # noqa: BLE001
+            import logging
+            logging.getLogger(__name__).warning("Xray Checker alerts failed: %s", exc)
+        await asyncio.sleep(3600)
+
+
+async def _start_checker() -> None:
+    from . import main
+    main._track_task(_checker_loop())
+
+
+router.add_event_handler("startup", _start_checker)

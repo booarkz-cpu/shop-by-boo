@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.69.0
+# Управляемость из админки — v28.70.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -19,14 +19,14 @@
 | 9 | Gifts | Подарки | 6 | ✓ | ✓ | · | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
 | 10 | Referrals | Рефералы и партнёры | 13 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `referrals.read`, `referrals.reconcile`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `referrals.withdrawals.read` | IMPLEMENTED |
 | 11 | Remnawave | Remnawave: панель, Серверы | 27 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `manage_users`, `ops.diagnostics`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | IMPLEMENTED |
-| 12 | Installation | Установка Remnawave | 52 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
+| 12 | Installation | Установка Remnawave | 57 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 13 | Servers | Серверы, Планирование мощности, Оркестратор | 9 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | `ops.diagnostics`, `provision_nodes`, `settings.runtime.write` | IMPLEMENTED |
 | 14 | Nodes | Серверы, Терминал узлов, Торренты на узлах | 31 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
 | 15 | Domains | Домены и сертификаты | 7 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `read`, `settings.runtime.write` | IMPLEMENTED |
 | 16 | Certificates | Домены и сертификаты | 2 | ✓ | ✓ | · | · | · | · | ✓ | · | `read` | IMPLEMENTED |
 | 17 | Reverse Proxy | Домены и сертификаты | 1 | ✓ | · | · | · | · | · | · | · | `read` | IMPLEMENTED |
 | 18 | Subscription Portal | Портал подписки | 12 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | IMPLEMENTED |
-| 19 | Node Extensions | Расширения Remnawave | 27 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
+| 19 | Node Extensions | Расширения Remnawave | 31 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 20 | Monitoring | Мониторинг, Состояние системы, Запуск и оповещения, Инциденты, Доступность и качество | 17 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `ops.diagnostics`, `read`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `settings.runtime.write` | IMPLEMENTED |
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | IMPLEMENTED |
 | 22 | Updates | Обновления, Развёртывания | 9 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `ops.releases`, `read`, `settings.runtime.write` | IMPLEMENTED |

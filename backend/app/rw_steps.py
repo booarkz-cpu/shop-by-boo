@@ -19,9 +19,9 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile")
+              "selfsteal_profile", "node_module")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
-COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal")
+COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
 SUPPORTED_OS = {("debian", "12"), ("debian", "13"), ("ubuntu", "22.04"), ("ubuntu", "24.04"), ("ubuntu", "26.04")}
 
@@ -239,7 +239,7 @@ async def run_install_docker(ctx: Context, st: dict) -> None:
 
 WRITE = r"""set -eu
 dir="$1"; name="$2"; sum="$3"
-case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal) ;; *) echo "bad dir" >&2; exit 2 ;; esac
+case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal|/opt/remnawave-xray-checker) ;; *) echo "bad dir" >&2; exit 2 ;; esac
 case "$name" in docker-compose.yml|.env|Caddyfile|index.html) ;; *) echo "bad name" >&2; exit 2 ;; esac
 install -d -m 0750 "$dir"
 umask 077
@@ -251,7 +251,7 @@ mv "$dir/$name.rw-new" "$dir/$name"
 
 UNWRITE = r"""set -eu
 dir="$1"; name="$2"
-case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal) ;; *) exit 2 ;; esac
+case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal|/opt/remnawave-xray-checker) ;; *) exit 2 ;; esac
 case "$name" in docker-compose.yml|.env|Caddyfile|index.html) ;; *) exit 2 ;; esac
 if [ -f "$dir/$name.rw-prev" ]; then mv "$dir/$name.rw-prev" "$dir/$name"; else rm -f "$dir/$name"; fi
 """
@@ -288,7 +288,17 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
         return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect), "docker-compose.yml": rw_plan.caddy_compose()}
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
-        return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain))}
+        return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain),
+                                                           xray_core=bool(plan.xray_core))}
+    if component == "xray_checker":
+        url = ctx.secrets.get("checker_subscription_url")
+        if not url:
+            raise StepError("Не задан адрес подписки для Xray Checker")
+        if not ctx.secrets.get("checker_password"):
+            ctx.secrets["checker_user"] = "checker"
+            ctx.secrets["checker_password"] = pysecrets.token_hex(16)
+        return {"docker-compose.yml": rw_plan.checker_compose(),
+                ".env": rw_plan.checker_env(url, plan.xray_checker_interval, ctx.secrets["checker_user"], ctx.secrets["checker_password"])}
     if component == "selfsteal":
         return {"Caddyfile": rw_plan.selfsteal_caddyfile(plan.selfsteal_domain, plan.tls, plan.acme_email),
                 "index.html": rw_plan.selfsteal_page(plan.selfsteal_template, plan.selfsteal_domain),
@@ -321,7 +331,7 @@ async def undo_write_files(ctx: Context, st: dict) -> None:
 
 COMPOSE = r"""set -eu
 dir="$1"; action="$2"
-case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal) ;; *) exit 2 ;; esac
+case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal|/opt/remnawave-xray-checker) ;; *) exit 2 ;; esac
 cd "$dir"
 case "$action" in
   up) if [ "$dir" = /opt/remnawave-subpage ]; then docker network inspect remnawave-network >/dev/null 2>&1 || docker network create remnawave-network >/dev/null; fi
@@ -556,6 +566,224 @@ curl -sk --max-time 10 --haproxy-protocol --unix-socket /dev/shm/selfsteal.sock 
 """
 
 
+# ---------- node modules (v28.70.0) ----------
+# Fixed scripts with typed arguments; secrets reach them on stdin, never in argv. Each «apply» keeps what it
+# replaces (*.rw-prev), and «undo» puts it back — the runner calls it after a failure of a later step.
+
+IPV6 = r"""set -eu
+f=/etc/sysctl.d/99-remnawave-ipv6.conf
+[ -d /proc/sys/net/ipv6 ] || { echo "kernel"; exit 3; }
+case "$1" in
+  on|off)
+    rm -f "$f.rw-prev" "$f.rw-none"
+    if [ -f "$f" ]; then cp -p "$f" "$f.rw-prev"; else : > "$f.rw-none"; fi
+    v=0; [ "$1" = off ] && v=1
+    printf 'net.ipv6.conf.all.disable_ipv6 = %s\nnet.ipv6.conf.default.disable_ipv6 = %s\n' "$v" "$v" > "$f"
+    sysctl -q -p "$f" ;;
+  undo)
+    if [ -f "$f.rw-prev" ]; then mv "$f.rw-prev" "$f"; sysctl -q -p "$f";
+    elif [ -f "$f.rw-none" ]; then rm -f "$f" "$f.rw-none"; sysctl -q -w net.ipv6.conf.all.disable_ipv6=0 net.ipv6.conf.default.disable_ipv6=0; fi ;;
+  *) exit 2 ;;
+esac
+echo "disable_ipv6=$(sysctl -n net.ipv6.conf.all.disable_ipv6)"
+"""
+
+APT_GET = r"""apt_get() { DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=--force-confold -y -q "$@"; }"""
+
+XRAY_CORE = APT_GET + r"""
+set -eu
+d=/opt/remnanode/xray-core
+case "$1" in
+  install)
+    url="$2"; sum="$3"
+    case "$url" in https://github.com/XTLS/Xray-core/releases/download/v*/Xray-linux-*.zip) ;; *) echo "bad url" >&2; exit 2 ;; esac
+    echo "$sum" | grep -Eq '^[0-9a-f]{64}$' || exit 2
+    command -v unzip >/dev/null 2>&1 || { apt_get update >/dev/null; apt_get install unzip >/dev/null; }
+    tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+    curl -fsSL --max-time 300 -o "$tmp/core.zip" "$url"
+    echo "$sum  $tmp/core.zip" | sha256sum -c --status || { echo "sha256 mismatch"; exit 4; }
+    # XTLS also publishes a .dgst file next to the archive: when it is served, it must agree too.
+    if curl -fsSL --max-time 60 -o "$tmp/core.dgst" "$url.dgst" 2>/dev/null; then
+      want="$(sed -n 's/^SHA2-256= *//p' "$tmp/core.dgst" | head -n1 | tr -d ' \r')"
+      [ -z "$want" ] || [ "$want" = "$sum" ] || { echo "dgst mismatch"; exit 4; }
+    fi
+    unzip -q -o "$tmp/core.zip" xray -d "$tmp/x"
+    head -c 4 "$tmp/x/xray" | grep -q ELF || { echo "not an ELF binary"; exit 4; }
+    install -d -m 0755 "$d"
+    if [ -f "$d/xray" ]; then cp -p "$d/xray" "$d/xray.rw-prev"; else rm -f "$d/xray.rw-prev"; fi
+    install -m 0755 "$tmp/x/xray" "$d/xray"
+    "$d/xray" version | head -n1 ;;
+  remove)
+    if [ -f "$d/xray" ]; then mv "$d/xray" "$d/xray.rw-prev"; fi
+    echo "removed" ;;
+  undo)
+    if [ -f "$d/xray.rw-prev" ]; then mv "$d/xray.rw-prev" "$d/xray"; else rm -f "$d/xray"; fi ;;
+  *) exit 2 ;;
+esac
+"""
+
+XRAY_VERSION = r"""docker exec remnanode sh -c '[ -x /usr/local/bin/rw-core ] && /usr/local/bin/rw-core version || xray version' 2>/dev/null | head -n1"""
+
+# WARP Native: a WireGuard interface «warp» to Cloudflare WARP, without routes (Table = off) — only the Xray
+# outbound with sockopt.interface = warp uses it (rw_extensions.profile_warp). wgcf (ViRb3/wgcf, MIT) registers
+# the WARP account; the binary comes from GitHub and is checked by the SHA-256 GitHub published for it.
+WARP = APT_GET + r"""
+set -eu
+d=/opt/remnawave-warp
+case "$1" in
+  install)
+    url="$2"; sum="$3"
+    case "$url" in https://github.com/ViRb3/wgcf/releases/download/v*/wgcf_*_linux_*) ;; *) echo "bad url" >&2; exit 2 ;; esac
+    echo "$sum" | grep -Eq '^[0-9a-f]{64}$' || exit 2
+    command -v wg-quick >/dev/null 2>&1 || { apt_get update >/dev/null; apt_get install wireguard-tools >/dev/null; }
+    install -d -m 0700 "$d" /etc/wireguard
+    curl -fsSL --max-time 300 -o "$d/wgcf.new" "$url"
+    echo "$sum  $d/wgcf.new" | sha256sum -c --status || { rm -f "$d/wgcf.new"; echo "sha256 mismatch"; exit 4; }
+    chmod 0755 "$d/wgcf.new"; mv "$d/wgcf.new" "$d/wgcf"
+    cd "$d"
+    [ -f wgcf-account.toml ] || ./wgcf register --accept-tos >/dev/null
+    ./wgcf generate >/dev/null
+    v6=1; [ "$(sysctl -n net.ipv6.conf.all.disable_ipv6 2>/dev/null || echo 1)" = 0 ] || v6=0
+    awk -v v6="$v6" '
+      /^DNS *=/ {next}
+      /^Address *=/ && v6 == 0 { n = split(substr($0, index($0, "=") + 1), a, ","); out = "";
+        for (i = 1; i <= n; i++) { gsub(/ /, "", a[i]); if (a[i] !~ /:/) out = out (out ? ", " : "") a[i] }
+        print "Address = " out; next }
+      /^AllowedIPs *=/ && v6 == 0 { print "AllowedIPs = 0.0.0.0/0"; next }
+      { print }
+      /^\[Interface\]/ { print "Table = off" }' wgcf-profile.conf > /etc/wireguard/warp.conf.new
+    chmod 0600 /etc/wireguard/warp.conf.new
+    if [ -f /etc/wireguard/warp.conf ]; then cp -p /etc/wireguard/warp.conf /etc/wireguard/warp.conf.rw-prev; fi
+    mv /etc/wireguard/warp.conf.new /etc/wireguard/warp.conf
+    systemctl enable wg-quick@warp >/dev/null 2>&1
+    systemctl restart wg-quick@warp
+    sleep 2
+    curl -fsS --max-time 15 --interface warp https://www.cloudflare.com/cdn-cgi/trace | grep '^warp=' ;;
+  remove|undo)
+    systemctl disable --now wg-quick@warp >/dev/null 2>&1 || true
+    if [ "$1" = undo ] && [ -f /etc/wireguard/warp.conf.rw-prev ]; then
+      mv /etc/wireguard/warp.conf.rw-prev /etc/wireguard/warp.conf; systemctl enable --now wg-quick@warp >/dev/null 2>&1 || true
+    else rm -f /etc/wireguard/warp.conf; fi
+    echo "warp off" ;;
+  *) exit 2 ;;
+esac
+"""
+
+# NetBird from its signed apt repository (pkgs.netbird.io, as the official documentation installs it); the setup
+# key comes on stdin and reaches netbird through NB_SETUP_KEY, so it is never in a process list or a file.
+NETBIRD = APT_GET + r"""
+set -eu
+case "$1" in
+  install)
+    mgmt="${2:-}"
+    case "$mgmt" in ""|https://*) ;; *) exit 2 ;; esac
+    key="$(cat)"
+    [ -n "$key" ] || { echo "no key"; exit 2; }
+    if ! command -v netbird >/dev/null 2>&1; then
+      apt_get update >/dev/null; apt_get install ca-certificates curl gnupg >/dev/null
+      curl -fsSL --max-time 60 https://pkgs.netbird.io/debian/public.key | gpg --dearmor --yes -o /usr/share/keyrings/netbird-archive-keyring.gpg
+      echo 'deb [signed-by=/usr/share/keyrings/netbird-archive-keyring.gpg] https://pkgs.netbird.io/debian stable main' > /etc/apt/sources.list.d/netbird.list
+      apt_get update >/dev/null; apt_get install netbird >/dev/null
+      : > /etc/netbird.rw-installed
+    fi
+    netbird service install >/dev/null 2>&1 || true
+    netbird service start >/dev/null 2>&1 || true
+    if [ -n "$mgmt" ]; then NB_SETUP_KEY="$key" netbird up --management-url "$mgmt" >/dev/null
+    else NB_SETUP_KEY="$key" netbird up >/dev/null; fi
+    netbird status | grep -E '^(Management|NetBird IP):' ;;
+  remove|undo)
+    netbird down >/dev/null 2>&1 || true
+    echo "netbird down" ;;
+  *) exit 2 ;;
+esac
+"""
+
+CHECKER_STATUS = r"""set -u
+creds="$(cat)"
+curl -fsS --max-time 15 -u "$creds" http://127.0.0.1:2112/api/v1/proxies 2>/dev/null || echo '{"success": false}'
+"""
+
+
+def _modules(ctx: Context, sid: int) -> dict:
+    return ctx.state.setdefault("modules", {}).setdefault(str(sid), {})
+
+
+async def run_node_module(ctx: Context, st: dict) -> None:
+    p, sid = st["params"], st["server_id"]
+    name, enabled = p["module"], p.get("enabled", True)
+    mods = _modules(ctx, sid)
+    if name == "ipv6":
+        result = await _run(ctx, sid, IPV6, "on" if enabled else "off", timeout=60)
+        _note(ctx, result.out + result.err)
+        if result.code == 3:
+            raise StepError("IPv6 выключен в ядре (ipv6.disable=1 в параметрах загрузки): sysctl его не включит")
+        if result.code != 0:
+            raise StepError("Настройка IPv6 не применилась")
+        mods["ipv6"] = "on" if enabled else "off"
+    elif name == "xray_core":
+        args = ("install", p["url"], p["sha256"]) if enabled else ("remove",)
+        result = await _run(ctx, sid, XRAY_CORE, *args, timeout=600)
+        _note(ctx, result.out + result.err)
+        if result.code == 4:
+            raise StepError("Файл ядра Xray не прошёл проверку (SHA-256 или формат): ничего не заменено")
+        if result.code != 0:
+            raise StepError("Ядро Xray не установлено")
+        mods["xray_core"] = p.get("version") if enabled else None
+    elif name == "warp":
+        args = ("install", p["url"], p["sha256"]) if enabled else ("remove",)
+        result = await _run(ctx, sid, WARP, *args, timeout=600)
+        _note(ctx, result.out + result.err)
+        if result.code == 4:
+            raise StepError("Файл wgcf не прошёл проверку SHA-256")
+        if result.code != 0 or (enabled and "warp=" not in result.out):
+            raise StepError("Интерфейс warp не поднялся (журнал шага)")
+        mods["warp"] = enabled
+    elif name == "netbird":
+        if enabled:
+            key = ctx.secrets.pop("netbird_setup_key", None)
+            if not key:
+                raise StepError("Нет ключа установки NetBird: составьте план заново и введите ключ")
+            result = await _run(ctx, sid, NETBIRD, "install", p.get("management_url") or "", stdin=key.encode(), timeout=900)
+        else:
+            result = await _run(ctx, sid, NETBIRD, "remove", timeout=120)
+        _note(ctx, result.out + result.err)
+        if result.code != 0 or (enabled and "Connected" not in result.out):
+            raise StepError("NetBird не подключился к серверу управления (журнал шага)")
+        mods["netbird"] = enabled
+    elif name == "xray_checker":
+        data = {}
+        for _ in range(15):
+            data = await checker_status(ctx, sid)
+            if data.get("success"):
+                break
+            await _sleep(4)
+        if not data.get("success"):
+            raise StepError("Xray Checker не отвечает на 127.0.0.1:2112")
+        _note(ctx, f"Xray Checker: проверяет {len(data.get('data') or [])} серверов подписки")
+    else:
+        raise StepError(f"Неизвестный модуль {name}")
+    ctx.state.setdefault("applied_modules", []).append([sid, name, enabled])
+
+
+async def checker_status(ctx: Context, sid: int) -> dict:
+    creds = f"{ctx.secrets.get('checker_user', '')}:{ctx.secrets.get('checker_password', '')}"
+    out = await _run(ctx, sid, CHECKER_STATUS, stdin=creds.encode(), timeout=30)
+    try:
+        data = json.loads(out.out or "{}")
+    except ValueError:
+        return {"success": False}
+    return data if isinstance(data, dict) else {"success": False}
+
+
+async def undo_node_module(ctx: Context, st: dict) -> None:
+    p, sid = st["params"], st["server_id"]
+    script = {"ipv6": IPV6, "xray_core": XRAY_CORE, "warp": WARP, "netbird": NETBIRD}.get(p["module"])
+    if p["module"] in ("warp", "netbird") and not p.get("enabled", True):
+        return  # switching off is not undone: the interface or the connection stays off, which is safe
+    if script and [sid, p["module"], p.get("enabled", True)] in ctx.state.get("applied_modules", []):
+        await _run(ctx, sid, script, "undo", timeout=300)
+
+
 # ---------- verify ----------
 
 HTTPS_CHECK = r"""set -u
@@ -615,6 +843,13 @@ async def run_verify(ctx: Context, st: dict) -> None:
         _note(ctx, f"Сайт SelfSteal через {rw_plan.SELFSTEAL_SOCKET}: {code or 'нет ответа'}")
         if code != "200":
             problems.append(f"сайт SelfSteal не отвечает на сокете ({code or 'нет ответа'})")
+    if plan.module and plan.module.name == "xray_core":
+        want = (plan.xray_core or "").lstrip("v")
+        for sid in plan.node_server_ids:
+            got = (await _run(ctx, sid, XRAY_VERSION, timeout=30)).out.strip()
+            _note(ctx, f"{ctx.servers[sid]['name']}: {got or 'версия ядра не прочитана'}")
+            if want and want not in got:
+                problems.append(f"на ноде {ctx.servers[sid]['name']} работает не то ядро ({got or 'нет ответа'})")
     if problems:
         raise StepError("Проверка не пройдена: " + "; ".join(problems))
 
@@ -663,7 +898,7 @@ RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
        "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "compose_down": run_compose_down,
-       "selfsteal_profile": run_selfsteal_profile}
+       "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module}
 UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
-        "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile}
+        "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile, "node_module": undo_node_module}
 assert set(RUN) == set(STEP_KINDS)

@@ -2,6 +2,16 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-03 — этап 12, часть Б: модули серверов Remnawave, выпуск v28.70.0
+
+**Источники.** Модули `eGamesAPI/remnawave-reverse-proxy` (MIT): `selfsteal_templates`, `ipv6`, `node_core`, `warp`, `netbird`, `xray_checker`, `server_routing` — как устроены и какие API панели вызывают; контракт панели 3.4.15 (internal squads, users `ssPassword`); документация NetBird (apt) и Xray Checker (API `/api/v1/proxies`).
+
+**Что сделано.** SelfSteal в мастере (Caddy ноды на сокете, профиль REALITY и хост). Действие «module» и шаг `node_module`: IPv6, ядро Xray (`rw_releases`, SHA-256 из GitHub), WARP Native (wgcf), NetBird (ключ через stdin), Xray Checker с результатами и уведомлениями. `rw_extensions`: WARP в профиле, серверный роутинг. Раздел «Модули серверов», поля SelfSteal в мастере, секции WARP и роутинга. Исполнитель ждёт остановки пульса.
+
+**Проверено.** `tests/test_rw_node_modules.py`, `tests/test_rw_extensions.py`, `tests/test_rw_installer.py` (SQLite и PostgreSQL), e2e `rw-installer.spec.ts` и `rw-extensions.spec.ts`; живое задание CI `node-modules`.
+
+**Осталось.** Клиент REALITY с публичным доменом, мост двух нод, WARP на настоящем сервере — BLOCKED_EXTERNAL; NetBird — BLOCKED_SECRETS; закрепить образ Xray Checker по digest из живого теста.
+
 ## 2026-11-03 — этап 12, часть А: менеджер расширений через API панели, выпуск v28.69.0
 
 **Источники.** Контракт `@remnawave/backend-contract` 3.4.15 и исходники remnawave/backend (схемы плагинов нод `NodePluginEditorSchema`, правил ответов SRR); меню `eGamesAPI/remnawave-reverse-proxy` (MIT) — список функций.

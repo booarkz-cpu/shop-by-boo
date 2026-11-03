@@ -94,6 +94,8 @@ async def run_next(engine, worker_id: str) -> bool:
             await db.commit()
     finally:
         beat.cancel()
+        # Wait for it: a heartbeat in the middle of its write must not outlive the run (or the engine).
+        await asyncio.gather(beat, return_exceptions=True)
     return True
 
 
@@ -192,6 +194,23 @@ async def _rollback(db: AsyncSession, row: RemnawaveInstallation, ctx: rw_steps.
             except Exception as exc:
                 ctx.log.append(f"Отменить не удалось: {type(exc).__name__}: {exc}")
                 await _save(db, row, ctx, st)
+    elif row.action == "module":
+        # A module action changes running servers: its own changes are undone, and files it rewrote come back
+        # with their containers started again (never stopped, as an installation's rollback would do).
+        for st in reversed(done):
+            try:
+                if st.kind == "node_module":
+                    await rw_steps.UNDO["node_module"](ctx, _step_dict(st))
+                elif st.kind == "write_files":
+                    await rw_steps.UNDO["write_files"](ctx, _step_dict(st))
+                    await rw_steps.run_compose_up(ctx, {**_step_dict(st), "kind": "compose_up"})
+                else:
+                    continue
+                ctx.log.append("Отменено")
+                await _save(db, row, ctx, st, "rolled_back")
+            except Exception as exc:
+                ctx.log.append(f"Отменить не удалось: {type(exc).__name__}: {exc}")
+                await _save(db, row, ctx, st)
     elif row.action in ("update", "reinstall"):
         written = [st for st in reversed(done) if st.kind == "write_files"]
         for st in written:
@@ -235,12 +254,16 @@ async def _finish(db: AsyncSession, row: RemnawaveInstallation, ctx: rw_steps.Co
                   "panel_url": f"https://{plan.panel_domain}" if plan.panel_domain and plan.panel_server_id else None,
                   "subscription_url": f"https://{plan.sub_domain}" if plan.sub_domain and plan.subpage_server_id else None,
                   "nodes": ctx.state.get("nodes", {})}
-    if row.action == "update" and row.source_installation_id:
-        # Settings changed by an update (panel access) and new secrets stay with the installation they belong to.
+    if row.action in ("update", "module") and row.source_installation_id:
+        # Settings changed by an update (panel access) or a module (Xray core, Xray Checker), new secrets and the
+        # modules' state stay with the installation they belong to.
         source = await db.get(RemnawaveInstallation, row.source_installation_id)
         if source:
-            source.params = dict(row.params)
+            source.params = {k: v for k, v in row.params.items() if k != "module"}
             store_secrets(source, ctx.secrets)
+            if row.action == "module":
+                source.result = {**(source.result or {}), "state": {**((source.result or {}).get("state") or {}),
+                                                                    "modules": ctx.state.get("modules", {})}}
     row.status = "succeeded"; row.error = None; row.finished_at = datetime.utcnow(); row.worker_id = None
     await _save(db, row, ctx)
 

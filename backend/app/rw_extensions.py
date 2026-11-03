@@ -270,6 +270,221 @@ async def profile_host(profile_uuid: str, payload: ProfileHostIn, db: AsyncSessi
     return {"uuid": out.get("uuid"), "remark": out.get("remark")}
 
 
+# ---------------------------------------------------------------- WARP in a profile (v28.70.0)
+
+WARP_TAG = "warp-out"
+WARP_DEFAULT = ["whoer.net", "browserleaks.com", "2ip.io", "2ip.ru"]
+RULE_VALUE = re.compile(r"^(?:(?:geosite|geoip|domain|full|regexp|keyword):[A-Za-z0-9_.!@:-]{1,120}|(?!-)[a-z0-9.-]{3,253})$")
+
+
+class WarpIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    enabled: bool = True
+    domains: list[str] = Field(default_factory=lambda: list(WARP_DEFAULT), max_length=100)
+
+    @field_validator("domains")
+    @classmethod
+    def domains_ok(cls, value: list[str]) -> list[str]:
+        out = [v.strip().lower() if ":" not in v else v.strip() for v in value if v.strip()]
+        if not all(RULE_VALUE.match(v) for v in out):
+            raise ValueError("Домены: example.com или geosite:имя")
+        return list(dict.fromkeys(out))
+
+
+async def _profile_config(profile_uuid: str) -> tuple[dict, dict]:
+    if not re.match(UUID, profile_uuid):
+        raise HTTPException(422, "Неверный UUID")
+    profile = await _panel("GET", f"/api/config-profiles/{profile_uuid}")
+    config = profile.get("config")
+    if not isinstance(config, dict):
+        raise HTTPException(502, "Панель не вернула конфигурацию профиля")
+    return profile, json.loads(json.dumps(config))
+
+
+async def _save_config(profile_uuid: str, config: dict) -> dict:
+    return await _panel("PATCH", "/api/config-profiles", json={"uuid": profile_uuid, "config": config})
+
+
+@router.post("/profiles/{profile_uuid}/warp")
+async def profile_warp(profile_uuid: str, payload: WarpIn, db: AsyncSession = Depends(get_db),
+                       admin=Depends(require_permission("provision_nodes"))):
+    """The outbound ``warp-out`` (freedom through the WireGuard interface ``warp`` the wizard raises on the node —
+    module WARP Native) and the rule sending the chosen domains there. Run again, it replaces its own outbound and
+    rule; switched off, it removes them. Nothing else in the profile changes."""
+    _, config = await _profile_config(profile_uuid)
+    outbounds = [o for o in config.get("outbounds") or [] if o.get("tag") != WARP_TAG]
+    routing = config.get("routing") if isinstance(config.get("routing"), dict) else {}
+    rules = [r for r in routing.get("rules") or [] if r.get("outboundTag") != WARP_TAG]
+    if payload.enabled:
+        if not payload.domains:
+            raise HTTPException(422, "Укажите домены, которые пойдут через WARP")
+        outbounds.append({"tag": WARP_TAG, "protocol": "freedom", "settings": {"domainStrategy": "UseIP"},
+                          "streamSettings": {"sockopt": {"interface": "warp", "tcpFastOpen": True}}})
+        rules.append({"domain": payload.domains, "outboundTag": WARP_TAG})
+    config["outbounds"] = outbounds
+    config["routing"] = {**routing, "rules": rules}
+    await _save_config(profile_uuid, config)
+    await _audit(db, "rw.profile.warp", admin.email, profile_uuid, {"enabled": payload.enabled, "domains": len(payload.domains)})
+    return {"enabled": payload.enabled, "domains": payload.domains if payload.enabled else []}
+
+
+# ---------------------------------------------------------------- server routing (v28.70.0)
+# A bridge from an entry node (for example in Russia) to an exit node: the exit node gets a Shadowsocks inbound,
+# a service user of the panel holds its password (an internal squad gives the user that inbound), and the entry
+# profile gets a Shadowsocks outbound to the exit node with rules for Russian addresses — as server_routing of
+# eGamesAPI/remnawave-reverse-proxy (MIT, (c) 2025 eGames), built here on the panel's API.
+
+SR_OUT = "SR_BRIDGE_SS"
+SR_IN = "SR_BRIDGE_SS_IN"
+SR_METHOD = "chacha20-ietf-poly1305"
+
+
+def _sr_ours(rule: dict) -> bool:
+    return rule.get("ip") == ["geoip:ru"] or rule.get("domain") == ["geosite:category-ru"]
+
+
+def routing_config(config: dict, host: str, port: int, password: str, mode: str) -> dict:
+    """The entry profile with our outbound and rules; run again (another exit node or mode), it replaces them."""
+    tags = [i.get("tag") for i in config.get("inbounds") or [] if i.get("tag")]
+    if not tags:
+        raise HTTPException(422, "В профиле входа нет inbound")
+    outbounds = [o for o in config.get("outbounds") or [] if o.get("tag") != SR_OUT]
+    outbounds.append({"tag": SR_OUT, "protocol": "shadowsocks",
+                      "settings": {"servers": [{"address": host, "port": port, "method": SR_METHOD, "password": password, "level": 0}]}})
+    for tag, protocol in (("DIRECT", "freedom"), ("BLOCK", "blackhole")):
+        if not any(o.get("tag") == tag for o in outbounds):
+            outbounds.append({"tag": tag, "protocol": protocol})
+    routing = config.get("routing") if isinstance(config.get("routing"), dict) else {}
+    keep = [r for r in routing.get("rules") or [] if r.get("outboundTag") != SR_OUT and not _sr_ours(r)]
+    rules = list(keep)
+    if not any("geoip:private" in (r.get("ip") or []) for r in keep):
+        rules.append({"ip": ["geoip:private"], "outboundTag": "BLOCK"})
+    if not any("geosite:private" in (r.get("domain") or []) for r in keep):
+        rules.append({"domain": ["geosite:private"], "outboundTag": "BLOCK"})
+    if not any("bittorrent" in (r.get("protocol") or []) for r in keep):
+        rules.append({"protocol": ["bittorrent"], "outboundTag": "BLOCK"})
+    ru = SR_OUT if mode == "bridge" else "DIRECT"
+    rules += [{"ip": ["geoip:ru"], "outboundTag": ru}, {"domain": ["geosite:category-ru"], "outboundTag": ru}]
+    if mode == "direct":
+        rules.append({"inboundTag": tags, "outboundTag": SR_OUT})
+    return {**config, "outbounds": outbounds, "routing": {**routing, "rules": rules}}
+
+
+def unrouting_config(config: dict) -> dict:
+    outbounds = [o for o in config.get("outbounds") or [] if o.get("tag") != SR_OUT]
+    routing = config.get("routing") if isinstance(config.get("routing"), dict) else {}
+    rules = [r for r in routing.get("rules") or []
+             if r.get("outboundTag") != SR_OUT and not (_sr_ours(r) and r.get("outboundTag") == "DIRECT")]
+    return {**config, "outbounds": outbounds, "routing": {**routing, "rules": rules}}
+
+
+class RoutingIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    entry_profile_uuid: str = Field(pattern=UUID)
+    exit_node_uuid: str = Field(pattern=UUID)
+    port: int = Field(default=8443, ge=1024, le=65535)
+    # direct — Russian addresses straight from the entry node, everything else through the exit node;
+    # bridge — only Russian addresses through the exit node, the rest as the profile had it.
+    mode: Literal["direct", "bridge"] = "direct"
+
+
+def _names(entry: str) -> tuple[str, str]:
+    short = entry.replace("-", "")[:8]
+    return f"SR Bridge {short}", f"srbridge{short}"
+
+
+async def _user_by_name(username: str) -> dict | None:
+    try:
+        out = await _panel("GET", f"/api/users/by-username/{username}")
+    except HTTPException:
+        return None
+    return out if isinstance(out, dict) and out.get("username") == username else None
+
+
+@router.get("/routing")
+async def list_routing(admin=Depends(require_permission("read"))):
+    out = []
+    for p in _list(await _panel("GET", "/api/config-profiles"), "configProfiles"):
+        config = p.get("config") if isinstance(p.get("config"), dict) else None
+        if config is None and p.get("uuid"):
+            config = (await _panel("GET", f"/api/config-profiles/{p['uuid']}")).get("config") or {}
+        bridge = next((o for o in (config or {}).get("outbounds") or [] if o.get("tag") == SR_OUT), None)
+        if not bridge:
+            continue
+        server = ((bridge.get("settings") or {}).get("servers") or [{}])[0]
+        rules = ((config or {}).get("routing") or {}).get("rules") or []
+        mode = "bridge" if any(r.get("ip") == ["geoip:ru"] and r.get("outboundTag") == SR_OUT for r in rules) else "direct"
+        out.append({"profile_uuid": p.get("uuid"), "profile": p.get("name"), "exit": f"{server.get('address')}:{server.get('port')}", "mode": mode})
+    return {"bridges": out}
+
+
+@router.post("/routing")
+async def create_routing(payload: RoutingIn, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+    entry, entry_config = await _profile_config(payload.entry_profile_uuid)
+    node = await _panel("GET", f"/api/nodes/{payload.exit_node_uuid}")
+    current = node.get("configProfile") or {}
+    exit_uuid = current.get("activeConfigProfileUuid")
+    if not exit_uuid:
+        raise HTTPException(422, "У ноды выхода нет профиля конфигурации")
+    if exit_uuid == payload.entry_profile_uuid:
+        raise HTTPException(422, "Нода выхода работает на профиле входа: выберите ноду с другим профилем")
+    # 1. Shadowsocks inbound on the exit node's profile (added once; the node keeps serving its customers).
+    _, exit_config = await _profile_config(exit_uuid)
+    inbounds = [i for i in exit_config.get("inbounds") or [] if i.get("tag") != SR_IN]
+    inbounds.append({"tag": SR_IN, "port": payload.port, "listen": "0.0.0.0", "protocol": "shadowsocks",
+                     "settings": {"method": SR_METHOD, "network": "tcp,udp", "clients": []},
+                     "sniffing": {"enabled": True, "destOverride": ["http", "tls", "quic"]}})
+    await _save_config(exit_uuid, {**exit_config, "inbounds": inbounds})
+    exit_profile = await _panel("GET", f"/api/config-profiles/{exit_uuid}")
+    inbound = next((i.get("uuid") for i in exit_profile.get("inbounds") or [] if i.get("tag") == SR_IN), None)
+    if not inbound:
+        raise HTTPException(502, "Панель не создала inbound моста на профиле выхода")
+    active = [i.get("uuid") if isinstance(i, dict) else i for i in current.get("activeInbounds") or []]
+    if inbound not in active:
+        await _panel("PATCH", "/api/nodes", json={"uuid": payload.exit_node_uuid, "configProfile": {
+            "activeConfigProfileUuid": exit_uuid, "activeInbounds": [*active, inbound]}})
+    # 2. Internal squad with that inbound and the service user whose password the bridge uses.
+    squad_name, username = _names(payload.entry_profile_uuid)
+    squads = _list(await _panel("GET", "/api/internal-squads"), "internalSquads")
+    squad = next((s for s in squads if s.get("name") == squad_name), None)
+    if squad:
+        await _panel("PATCH", "/api/internal-squads", json={"uuid": squad["uuid"], "inbounds": [inbound]})
+    else:
+        squad = await _panel("POST", "/api/internal-squads", json={"name": squad_name, "inbounds": [inbound]})
+    user = await _user_by_name(username)
+    if user and user.get("ssPassword"):
+        password = user["ssPassword"]
+    else:
+        password = secrets.token_urlsafe(18)[:24]
+        await _panel("POST", "/api/users", json={
+            "username": username, "status": "ACTIVE", "expireAt": "2099-12-31T23:59:59.000Z", "trafficLimitBytes": 0,
+            "activeInternalSquads": [squad["uuid"]], "ssPassword": password,
+            "description": "Lucy: служебный пользователь моста серверного роутинга"})
+    # 3. The entry profile: outbound to the exit node and the rules of the chosen mode.
+    await _save_config(payload.entry_profile_uuid, routing_config(entry_config, node.get("address"), payload.port, password, payload.mode))
+    await _audit(db, "rw.routing.created", admin.email, payload.entry_profile_uuid,
+                 {"exit_node": payload.exit_node_uuid, "port": payload.port, "mode": payload.mode})
+    return {"profile": entry.get("name"), "exit": f"{node.get('address')}:{payload.port}", "mode": payload.mode,
+            "note": f"Откройте TCP и UDP порт {payload.port} на сервере выхода для адреса ноды входа (если включён файрвол)."}
+
+
+@router.delete("/routing/{profile_uuid}")
+async def delete_routing(profile_uuid: str, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+    """Removes our outbound and rules from the entry profile, the service user and the squad. The inbound on the exit
+    node stays: other bridges may use it (it is removed in the exit profile's JSON when no longer needed)."""
+    _, config = await _profile_config(profile_uuid)
+    await _save_config(profile_uuid, unrouting_config(config))
+    squad_name, username = _names(profile_uuid)
+    user = await _user_by_name(username)
+    if user and user.get("id") is not None:
+        await _panel("DELETE", f"/api/users/{user['id']}")
+    squad = next((s for s in _list(await _panel("GET", "/api/internal-squads"), "internalSquads") if s.get("name") == squad_name), None)
+    if squad:
+        await _panel("DELETE", f"/api/internal-squads/{squad['uuid']}")
+    await _audit(db, "rw.routing.deleted", admin.email, profile_uuid)
+    return {"deleted": True}
+
+
 # ---------------------------------------------------------------- node plugins
 
 class PluginIn(BaseModel):

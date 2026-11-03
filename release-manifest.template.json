@@ -165,7 +165,7 @@
   "release_channel": "stable",
   "production_ready": false,
   "upgrade_from": "21.5.0",
-  "distribution_tag": "v28.69.0",
-  "release_title": "v28.69.0 — менеджер расширений Remnawave (этап 12, часть А)",
-  "release_notes": "docs/ru/RELEASE_V28_69_0.md"
+  "distribution_tag": "v28.70.0",
+  "release_title": "v28.70.0 — модули серверов Remnawave: SelfSteal, IPv6, ядро Xray, WARP, NetBird, Xray Checker, серверный роутинг (этап 12, часть Б)",
+  "release_notes": "docs/ru/RELEASE_V28_70_0.md"
 }

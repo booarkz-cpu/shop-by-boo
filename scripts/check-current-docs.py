@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
-DISTRIBUTION_TAG = "v28.69.0"
+DISTRIBUTION_TAG = "v28.70.0"
 SHOP_HEAD = "0091_remnawave_domains"
 SUPPORT_HEAD = "0008"
 
@@ -43,7 +43,7 @@ def main() -> None:
     require("docs/ru/WORKSPACE_COVERAGE.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/ACCOUNT_MERGE_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
     require("docs/ru/RUNTIME_SETTINGS_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
-    require("docs/ru/RELEASE_V28_69_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
+    require("docs/ru/RELEASE_V28_70_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md", DISTRIBUTION_TAG, SHOP_HEAD, "admission/attestation")
     require("PROJECT_SPEC.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "134")
     require("PROJECT_STRUCTURE.md", DISTRIBUTION_TAG, SHOP_HEAD, "runtime_settings.py")
@@ -60,7 +60,7 @@ def main() -> None:
         "migration_head": SHOP_HEAD,
         "support_migration_head": SUPPORT_HEAD,
         "upgrade_from": "21.5.0",
-        "release_notes": "docs/ru/RELEASE_V28_69_0.md",
+        "release_notes": "docs/ru/RELEASE_V28_70_0.md",
     }
     mismatches = {key: (manifest.get(key), value) for key, value in expected.items() if manifest.get(key) != value}
     if mismatches:

@@ -154,7 +154,8 @@ def fleet(monkeypatch):
         return FakeRemote(hosts[server["host"]])
     monkeypatch.setattr(rw_jobs, "CONNECT", connect)
     monkeypatch.setattr(rw_api, "CONNECT", connect)
-    monkeypatch.setattr(rw_jobs, "HEARTBEAT_SECONDS", 0.05)
+    # The heartbeat would open a second connection — to an empty database with sqlite :memory: — so it never fires here.
+    monkeypatch.setattr(rw_jobs, "HEARTBEAT_SECONDS", 3600)
     monkeypatch.setattr(settings, "remnawave_url", "")
     monkeypatch.setattr(settings, "remnawave_token", "")
 
