@@ -1,4 +1,4 @@
-# Каталог API — v28.68.0 / API v21.5.1
+# Каталог API — v28.69.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0091_remnawave_domains`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -459,6 +459,33 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/rw/domains/{domain_id}/check` | Check Domain | право `read` |
 | `POST` | `/api/admin/rw/domains/{domain_id}/dns-record` | Upsert Dns Record | право `settings.runtime.write` |
 | `POST` | `/api/admin/rw/domains/{domain_id}/primary` | Make Primary | право `settings.runtime.write` |
+| `GET` | `/api/admin/rw/extensions` | Overview | право `read` |
+| `POST` | `/api/admin/rw/extensions/nodes/{node_uuid}/plugin` | Node Plugin | право `provision_nodes` |
+| `POST` | `/api/admin/rw/extensions/nodes/{node_uuid}/profile` | Node Profile | право `provision_nodes` |
+| `POST` | `/api/admin/rw/extensions/plugins` | Create Plugin | право `provision_nodes` |
+| `DELETE` | `/api/admin/rw/extensions/plugins/{plugin_uuid}` | Delete Plugin | право `provision_nodes` |
+| `PATCH` | `/api/admin/rw/extensions/plugins/{plugin_uuid}` | Patch Plugin | право `provision_nodes` |
+| `GET` | `/api/admin/rw/extensions/presets` | Presets | право `read` |
+| `POST` | `/api/admin/rw/extensions/profiles` | Create Profile | право `provision_nodes` |
+| `POST` | `/api/admin/rw/extensions/profiles/reality` | Create Reality | право `provision_nodes` |
+| `DELETE` | `/api/admin/rw/extensions/profiles/{profile_uuid}` | Delete Profile | право `provision_nodes` |
+| `GET` | `/api/admin/rw/extensions/profiles/{profile_uuid}` | Get Profile | право `read` |
+| `PATCH` | `/api/admin/rw/extensions/profiles/{profile_uuid}` | Patch Profile | право `provision_nodes` |
+| `POST` | `/api/admin/rw/extensions/profiles/{profile_uuid}/host` | Profile Host | право `provision_nodes` |
+| `POST` | `/api/admin/rw/extensions/srr-test` | Srr Test | право `read` |
+| `GET` | `/api/admin/rw/extensions/subpage-configs` | Subpage Configs | право `read` |
+| `POST` | `/api/admin/rw/extensions/subpage-configs` | Create Subpage Config | право `settings.runtime.write` |
+| `DELETE` | `/api/admin/rw/extensions/subpage-configs/{config_uuid}` | Delete Subpage Config | право `settings.runtime.write` |
+| `GET` | `/api/admin/rw/extensions/subpage-configs/{config_uuid}` | Subpage Config | право `read` |
+| `PATCH` | `/api/admin/rw/extensions/subpage-configs/{config_uuid}` | Patch Subpage Config | право `settings.runtime.write` |
+| `GET` | `/api/admin/rw/extensions/subscription-settings` | Subscription Settings | право `read` |
+| `PATCH` | `/api/admin/rw/extensions/subscription-settings` | Patch Subscription Settings | право `settings.runtime.write` |
+| `GET` | `/api/admin/rw/extensions/templates` | Templates | право `read` |
+| `POST` | `/api/admin/rw/extensions/templates` | Create Template | право `settings.runtime.write` |
+| `DELETE` | `/api/admin/rw/extensions/templates/{template_uuid}` | Delete Template | право `settings.runtime.write` |
+| `GET` | `/api/admin/rw/extensions/templates/{template_uuid}` | Template | право `read` |
+| `PATCH` | `/api/admin/rw/extensions/templates/{template_uuid}` | Patch Template | право `settings.runtime.write` |
+| `GET` | `/api/admin/rw/extensions/x25519` | X25519 | право `provision_nodes` |
 | `GET` | `/api/admin/rw/installations` | List Installations | право `read` |
 | `POST` | `/api/admin/rw/installations/plan` | Plan Installation | право `provision_nodes` |
 | `GET` | `/api/admin/rw/installations/{installation_id}` | Get Installation | право `read` |

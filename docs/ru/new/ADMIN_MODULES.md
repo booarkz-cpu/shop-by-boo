@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.68.0
+# Модули админ-панели — v28.69.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -127,7 +127,7 @@ API: `/api/admin/panel`, `/api/admin/panel-guard`, `/api/admin/panel-changes`, `
 
 ## 12. Installation
 
-Статус: `IMPLEMENTED`. Маршрутов API: 25. Операции: просмотр, создание, изменение, удаление, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 52. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
@@ -201,7 +201,13 @@ API: `/api/admin/sub-proxy`. Права: `ops.diagnostics`, `settings.runtime.wr
 
 ## 19. Node Extensions
 
-**Не реализован** — этап 12: менеджер расширений Remnawave. В панели нет его раздела и кнопок: функция появится вместе с работающим backend.
+Статус: `IMPLEMENTED`. Маршрутов API: 27. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
+
+| Раздел панели | Что в нём |
+| --- | --- |
+| Расширения Remnawave | Профили конфигурации нод с конструктором VLESS + REALITY и SelfSteal, плагины нод (TorrentBlocker, фильтры), правила ответов подписки, лимит устройств, страница и шаблоны подписки, клиентский балансировщик. |
+
+API: `/api/admin/rw/extensions`. Права: `provision_nodes`, `read`, `settings.runtime.write`.
 
 ## 20. Monitoring
 

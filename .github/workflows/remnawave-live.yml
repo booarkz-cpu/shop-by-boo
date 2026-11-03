@@ -36,7 +36,7 @@ jobs:
       - name: Newest Remnawave panel and the shop's live contract tests
         run: bash scripts/ci/remnawave-live.sh
 
-  # v28.68.0 (stage 10): the installation wizard installs «panel + node» on the runner over SSH (pinned images).
+  # v28.69.0 (stage 10): the installation wizard installs «panel + node» on the runner over SSH (pinned images).
   installer:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -55,7 +55,7 @@ jobs:
       - name: Install panel and node through the wizard
         run: bash scripts/ci/rw-install-live.sh
 
-  # v28.68.0 (stage 11): the shop's Caddyfile issues on-demand certificates only for Domain Manager portal domains.
+  # v28.69.0 (stage 11): the shop's Caddyfile issues on-demand certificates only for Domain Manager portal domains.
   caddy:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

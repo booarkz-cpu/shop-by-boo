@@ -22,6 +22,8 @@
 | `GET /api/hwid/devices/{userId}`, `POST /api/hwid/devices/delete`, `POST /api/hwid/devices/delete-all` | `hwid_devices`, `delete_hwid_device`, `reset_hwid_devices` | Устройства в кабинете, антишаринг | `test_lucy_limits_and_customer_devices` |
 | `GET /api/subscriptions/by-short-uuid/{shortUuid}`, `GET /api/sub/{shortUuid}` | `_request`, `sub_proxy` | Прослойка подписки | `test_connections_bandwidth_keys_and_subscription_proxy` |
 | `POST /api/users/{id}/actions/revoke` | `revoke_subscription` | Смена ссылки подписки: кабинет и «Портал подписки» (v28.67.0) | `test_revoke_subscription_link` |
+| `GET /api/system/tools/x25519/generate`, `POST`, `PATCH`, `DELETE /api/config-profiles`, `GET /api/config-profiles/{uuid}`, `PATCH /api/nodes` (профиль), `POST /api/hosts` | `_request` | Менеджер расширений: профили, REALITY, назначение нодам (v28.69.0) | `test_extensions_profiles_reality_and_nodes` |
+| `/api/node-plugins`, `PATCH /api/nodes` (`activePluginUuid`), `/api/subscription-settings`, `POST /api/system/testers/srr-matcher`, `/api/subscription-page-configs`, `/api/subscription-templates` | `_request` | Плагины нод, правила подписки, страница и шаблоны подписки (v28.69.0) | `test_extensions_plugins_srr_pages_and_templates` |
 | Страница подписки `GET /{shortUuid}` (отдельный сервис) | — | Режимы 4 и 5 | `test_mode_panel_plus_subscription_page` |
 
 Ошибки:
@@ -30,7 +32,7 @@
 - После серии сбоев включается обрыв цепи. Счётчик хранится в Redis, порог задаётся `REMNAWAVE_CB_FAILURES`.
 
 Маршруты контракта, которые магазин пока не вызывает и которые нужны на следующих этапах:
-- `node-plugins` (плагины нод, общие списки, отчёты TorrentBlocker) — этап 12, менеджер расширений;
+- общие списки плагинов и отчёты TorrentBlocker (`/api/node-plugins/shared-lists`, `/torrent-blocker`) — этап 16, мониторинг;
 - `system` (`GET /api/system/health`, `/metadata`, `/nodes/metrics`) — этап 10, проверка панели после установки;
 - `subscription-page-configs` — не нужен: портал подписки магазина (v28.67.0) строит страницу сам, по каталогу клиентов владельца.
 
@@ -52,6 +54,7 @@
 | Мастер установки (v28.66.0) | `GET /api/admin/rw/meta`; реестр: `GET`, `POST /api/admin/rw/servers`, `POST /api/admin/rw/servers/scan`, `PATCH`, `DELETE /api/admin/rw/servers/{server_id}`, `POST /api/admin/rw/servers/{server_id}/check`; задачи: `GET /api/admin/rw/installations`, `GET /api/admin/rw/installations/{installation_id}`, `POST /api/admin/rw/installations/plan`, `POST /api/admin/rw/installations/{installation_id}/approve`, `/cancel`, `/actions`, `/credentials`, `/connect-shop` — подробно в [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md) | `read`, `provision_nodes`, `settings.runtime.write` |
 | Домены, сертификаты, маршруты (v28.67.0) | `GET`, `POST /api/admin/rw/domains`, `PATCH`, `DELETE /api/admin/rw/domains/{domain_id}`, `POST /api/admin/rw/domains/{domain_id}/check`, `/primary`, `/dns-record`; `GET /api/admin/rw/certificates`, `POST /api/admin/rw/certificates/check`; `GET /api/admin/rw/proxy-routes`; для Caddy — `GET /caddy/ask` ([SUBSCRIPTION_DOMAIN](SUBSCRIPTION_DOMAIN.md)) | `read`, `settings.runtime.write` |
 | Портал подписки (v28.67.0) | `POST /api/admin/sub-proxy/reset-link/{subscription_id}`; клиент — `POST /api/me/subscription/reset-link`; страница — `GET /sub/{shortUuid}` в браузере ([SUBSCRIPTION_PORTAL](SUBSCRIPTION_PORTAL.md)) | `users.write` |
+| Менеджер расширений (v28.69.0) | `GET /api/admin/rw/extensions`; профили: `GET`, `POST /api/admin/rw/extensions/profiles…`, `POST /api/admin/rw/extensions/profiles/reality`, `GET /api/admin/rw/extensions/x25519`, `POST /api/admin/rw/extensions/nodes/{node_uuid}/profile`; плагины: `/api/admin/rw/extensions/plugins…`, `POST /api/admin/rw/extensions/nodes/{node_uuid}/plugin`; `GET`, `PATCH /api/admin/rw/extensions/subscription-settings`, `POST /api/admin/rw/extensions/srr-test`; `/api/admin/rw/extensions/subpage-configs…`, `/api/admin/rw/extensions/templates…`, `GET /api/admin/rw/extensions/presets` ([REMNAWAVE_EXTENSIONS](REMNAWAVE_EXTENSIONS.md)) | `read`, `provision_nodes`, `settings.runtime.write` |
 | Агент узла | `POST /api/agent/heartbeat`, `POST /api/agent/observations`, терминал `/api/agent/terminal…` | токен агента в заголовке |
 
 ## 3. Маршруты магазина: что появится

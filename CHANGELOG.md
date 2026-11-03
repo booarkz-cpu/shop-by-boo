@@ -1,3 +1,20 @@
+# v28.69.0
+
+- Менеджер расширений Remnawave, часть А (этап 12, `backend/app/rw_extensions.py`, «Серверы → Расширения Remnawave»),
+  всё через API панели 3.x:
+  - профили конфигурации: список с inbound и нодами, JSON, создание, удаление, назначение нодам, хост для inbound;
+  - конструктор VLESS + REALITY: ключи x25519 от панели, shortIds, serverNames, `minClientVer`, маскировка SelfSteal
+    (`dest` — сокет сайта-шаблона ноды, `xver: 1`) или чужим сайтом, блокировка частных адресов и BitTorrent, DoH;
+  - плагины нод: TorrentBlocker, Ingress/Egress Filter, Connection Drop — создание, настройка, привязка к нодам;
+  - правила ответов подписки (SRR) и тестер панели, лимит устройств (HWID), свои заголовки, перемешивание хостов;
+  - конфиги официальной страницы подписки и шаблоны подписки; клиентский балансировщик для Xray JSON.
+- `RemnawaveClient._request` принимает `extra_headers` (тестер SRR получает User-Agent проверяемого клиента).
+- Модуль 19 Node Extensions получил раздел: все 30 модулей Админ-центра управляются из панели.
+- Тесты: `tests/test_rw_extensions.py`, живые `test_extensions_profiles_reality_and_nodes` и
+  `test_extensions_plugins_srr_pages_and_templates` на настоящей панели, `admin/e2e/rw-extensions.spec.ts`.
+- Документы: `docs/ru/new/REMNAWAVE_EXTENSIONS.md`, `NODE_PLUGINS.md`, `SUBSCRIPTION_RULES.md`, `CLIENT_BALANCER.md`.
+- Миграций нет: head `0091_remnawave_domains`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_69_0.md](docs/ru/RELEASE_V28_69_0.md).
+
 # v28.68.0
 
 - Портал подписки: все надписи страницы настраиваются в «Серверы → Портал подписки → Тексты страницы» для русского,

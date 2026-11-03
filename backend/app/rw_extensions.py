@@ -56,9 +56,10 @@ async def _panel(method: str, path: str, **kw):
         detail = text.split(": ", 2)[-1] if ": " in text else text
         try:
             body = json.loads(detail)
+        except ValueError:
+            body = None
+        if isinstance(body, dict):
             detail = body.get("message") or body.get("errors") or detail
-        except (ValueError, AttributeError):
-            pass
         raise HTTPException(502, f"Remnawave: {str(detail)[:500]}") from exc
 
 
