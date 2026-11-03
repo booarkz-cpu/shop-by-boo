@@ -1,6 +1,6 @@
-# Схема базы данных — v28.66.0
+# Схема базы данных — v28.67.0
 
-Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0090_remnawave_installer`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
+Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0091_remnawave_domains`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
 ## Сущности задания
 
@@ -30,7 +30,7 @@
 
 ## Таблицы
 
-Всего таблиц: 158, внешних ключей: 57. Связи без внешнего ключа держит код; записи без связи показывает «Аналитика → Запуск и оповещения → Целостность данных» (`GET /api/admin/integrity`).
+Всего таблиц: 159, внешних ключей: 57. Связи без внешнего ключа держит код; записи без связи показывает «Аналитика → Запуск и оповещения → Целостность данных» (`GET /api/admin/integrity`).
 
 | Таблица | Модель | Колонок | Уникальные | Индексы | Внешние ключи |
 | --- | --- | --- | --- | --- | --- |
@@ -148,6 +148,7 @@
 | `refund_requests` | `RefundRequest` | 9 | payment_id | user_id | — |
 | `release_records` | `ReleaseRecord` | 7 | — | — | — |
 | `remnawave_deployment_steps` | `RemnawaveDeploymentStep` | 11 | — | installation_id | installation_id → remnawave_installations |
+| `remnawave_domains` | `RemnawaveDomain` | 19 | domain | — | — |
 | `remnawave_events` | `RemnawaveEvent` | 10 | event_key | created_at, event, subscription_id, user_id | — |
 | `remnawave_installations` | `RemnawaveInstallation` | 20 | — | status | — |
 | `remnawave_servers` | `RemnawaveServer` | 19 | name | — | — |

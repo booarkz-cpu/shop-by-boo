@@ -235,6 +235,12 @@ async def _finish(db: AsyncSession, row: RemnawaveInstallation, ctx: rw_steps.Co
                   "panel_url": f"https://{plan.panel_domain}" if plan.panel_domain and plan.panel_server_id else None,
                   "subscription_url": f"https://{plan.sub_domain}" if plan.sub_domain and plan.subpage_server_id else None,
                   "nodes": ctx.state.get("nodes", {})}
+    if row.action == "update" and row.source_installation_id:
+        # Settings changed by an update (panel access) and new secrets stay with the installation they belong to.
+        source = await db.get(RemnawaveInstallation, row.source_installation_id)
+        if source:
+            source.params = dict(row.params)
+            store_secrets(source, ctx.secrets)
     row.status = "succeeded"; row.error = None; row.finished_at = datetime.utcnow(); row.worker_id = None
     await _save(db, row, ctx)
 

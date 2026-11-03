@@ -1,10 +1,10 @@
-# Управляемость из админки — v28.66.0
+# Управляемость из админки — v28.67.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
 Операции определяются по маршрутам API: GET → чтение, POST → создание, PUT/PATCH → изменение, DELETE → удаление; поиск/фильтр — параметры запроса (`status`, `q`, `actor`, `since`…); настройки и проверка — по путям (`config`, `test`, `health`…); журнал — изменяющий обработчик пишет в `audit_logs`. Статус `IMPLEMENTED` значит: раздел и API есть. Работа каждой кнопки в интерфейсе проверяется на этапе 18, после этого статус станет `PASS` или `FAIL`.
 
-Модулей с разделом в панели: **26 из 30**.
+Модулей с разделом в панели: **29 из 30**.
 
 | № | Модуль | Разделы панели | Маршрутов API | Чтение | Создание | Изменение | Удаление | Поиск/фильтр | Настройки | Проверка | Журнал | Права | Статус |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -19,13 +19,13 @@
 | 9 | Gifts | Подарки | 6 | ✓ | ✓ | · | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
 | 10 | Referrals | Рефералы и партнёры | 13 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `referrals.read`, `referrals.reconcile`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `referrals.withdrawals.read` | IMPLEMENTED |
 | 11 | Remnawave | Remnawave: панель, Серверы | 27 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `manage_users`, `ops.diagnostics`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | IMPLEMENTED |
-| 12 | Installation | Установка Remnawave | 15 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
+| 12 | Installation | Установка Remnawave | 25 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 13 | Servers | Серверы, Планирование мощности, Оркестратор | 9 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | `ops.diagnostics`, `provision_nodes`, `settings.runtime.write` | IMPLEMENTED |
 | 14 | Nodes | Серверы, Терминал узлов, Торренты на узлах | 31 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
-| 15 | Domains | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 11: менеджер доменов) |
-| 16 | Certificates | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 11: сертификаты) |
-| 17 | Reverse Proxy | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 11: Reverse Proxy (общий Caddy)) |
-| 18 | Subscription Portal | Портал подписки | 9 | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | IMPLEMENTED |
+| 15 | Domains | Домены и сертификаты | 7 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `read`, `settings.runtime.write` | IMPLEMENTED |
+| 16 | Certificates | Домены и сертификаты | 2 | ✓ | ✓ | · | · | · | · | ✓ | · | `read` | IMPLEMENTED |
+| 17 | Reverse Proxy | Домены и сертификаты | 1 | ✓ | · | · | · | · | · | · | · | `read` | IMPLEMENTED |
+| 18 | Subscription Portal | Портал подписки | 10 | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | IMPLEMENTED |
 | 19 | Node Extensions | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 12: менеджер расширений Remnawave) |
 | 20 | Monitoring | Мониторинг, Состояние системы, Запуск и оповещения, Инциденты, Доступность и качество | 17 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `ops.diagnostics`, `read`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `settings.runtime.write` | IMPLEMENTED |
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | IMPLEMENTED |

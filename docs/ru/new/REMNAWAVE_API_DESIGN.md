@@ -21,6 +21,7 @@
 | `POST /api/users`, `PATCH /api/users`, `GET /api/users/{id}` | `create_user`, `patch_user`, `get_user`, `update_entitlements` | Выдача и изменение подписки | `test_users_and_reserve_squad`, `test_lucy_limits_and_customer_devices` |
 | `GET /api/hwid/devices/{userId}`, `POST /api/hwid/devices/delete`, `POST /api/hwid/devices/delete-all` | `hwid_devices`, `delete_hwid_device`, `reset_hwid_devices` | Устройства в кабинете, антишаринг | `test_lucy_limits_and_customer_devices` |
 | `GET /api/subscriptions/by-short-uuid/{shortUuid}`, `GET /api/sub/{shortUuid}` | `_request`, `sub_proxy` | Прослойка подписки | `test_connections_bandwidth_keys_and_subscription_proxy` |
+| `POST /api/users/{id}/actions/revoke` | `revoke_subscription` | Смена ссылки подписки: кабинет и «Портал подписки» (v28.67.0) | `test_revoke_subscription_link` |
 | Страница подписки `GET /{shortUuid}` (отдельный сервис) | — | Режимы 4 и 5 | `test_mode_panel_plus_subscription_page` |
 
 Ошибки:
@@ -31,7 +32,7 @@
 Маршруты контракта, которые магазин пока не вызывает и которые нужны на следующих этапах:
 - `node-plugins` (плагины нод, общие списки, отчёты TorrentBlocker) — этап 12, менеджер расширений;
 - `system` (`GET /api/system/health`, `/metadata`, `/nodes/metrics`) — этап 10, проверка панели после установки;
-- `subscription-page-configs` — этап 11, страница подписки на своём домене.
+- `subscription-page-configs` — не нужен: портал подписки магазина (v28.67.0) строит страницу сам, по каталогу клиентов владельца.
 
 Каждый новый вызов добавляется вместе с живым тестом в `tests/live/test_remnawave_live.py`.
 
@@ -49,6 +50,8 @@
 | Job Manager | `GET /api/admin/jobs`, `POST /api/admin/jobs/{job_id}/retry`, `GET /api/admin/workers` | `read`, `payments.retry` |
 | Audit Manager | `GET /api/admin/audit` (фильтры `actor`, `action`, `target`, `since`, `until`) | `read` |
 | Мастер установки (v28.66.0) | `GET /api/admin/rw/meta`; реестр: `GET`, `POST /api/admin/rw/servers`, `POST /api/admin/rw/servers/scan`, `PATCH`, `DELETE /api/admin/rw/servers/{server_id}`, `POST /api/admin/rw/servers/{server_id}/check`; задачи: `GET /api/admin/rw/installations`, `GET /api/admin/rw/installations/{installation_id}`, `POST /api/admin/rw/installations/plan`, `POST /api/admin/rw/installations/{installation_id}/approve`, `/cancel`, `/actions`, `/credentials`, `/connect-shop` — подробно в [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md) | `read`, `provision_nodes`, `settings.runtime.write` |
+| Домены, сертификаты, маршруты (v28.67.0) | `GET`, `POST /api/admin/rw/domains`, `PATCH`, `DELETE /api/admin/rw/domains/{domain_id}`, `POST /api/admin/rw/domains/{domain_id}/check`, `/primary`, `/dns-record`; `GET /api/admin/rw/certificates`, `POST /api/admin/rw/certificates/check`; `GET /api/admin/rw/proxy-routes`; для Caddy — `GET /caddy/ask` ([SUBSCRIPTION_DOMAIN](SUBSCRIPTION_DOMAIN.md)) | `read`, `settings.runtime.write` |
+| Портал подписки (v28.67.0) | `POST /api/admin/sub-proxy/reset-link/{subscription_id}`; клиент — `POST /api/me/subscription/reset-link`; страница — `GET /sub/{shortUuid}` в браузере ([SUBSCRIPTION_PORTAL](SUBSCRIPTION_PORTAL.md)) | `users.write` |
 | Агент узла | `POST /api/agent/heartbeat`, `POST /api/agent/observations`, терминал `/api/agent/terminal…` | токен агента в заголовке |
 
 ## 3. Маршруты магазина: что появится
@@ -66,9 +69,7 @@
 - запуск плана (`/approve`) ставит задачу в очередь мастера и сразу возвращает её; состояние — `GET /api/admin/rw/installations/{installation_id}`;
 - обновление, диагностика, восстановление, переустановка и удаление — `POST /api/admin/rw/installations/{installation_id}/actions`, это новый план над успешной установкой.
 
-### Домены и сертификаты (этап 11)
-
-`GET`/`POST`/`DELETE /api/admin/rw/domains`, `POST /api/admin/rw/domains/{id}/check`. Проверка DNS выполняется с сервера магазина. Маршруты на сервере магазина добавляются в общий Caddy (`deploy/Caddyfile`), второго прокси нет.
+Домены и сертификаты (этап 11) сделаны в v28.67.0 и перечислены в разделе 2.
 
 ### Расширения нод (этап 12)
 

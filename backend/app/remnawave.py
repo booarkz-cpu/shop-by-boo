@@ -258,6 +258,11 @@ class RemnawaveClient:
         # Panel 3.x: {"userId": <number>} (DeleteAllUserHwidDevicesCommand); «userUuid» was the 2.x body and is rejected.
         return await self._request("POST","/api/hwid/devices/delete-all",json={"userId":int(user_id)})
 
+    async def revoke_subscription(self,user_id:int|str)->dict:
+        """A new subscription link: the panel generates a new shortUuid and new passwords (RevokeUserSubscriptionCommand,
+        POST /api/users/{id}/actions/revoke); the old link stops working. Returns the user with the new subscriptionUrl."""
+        return await self._request("POST",f"/api/users/{int(user_id)}/actions/revoke",json={})
+
     async def delete_hwid_device(self,user_id:int|str,hwid:str):
         """Forget one device of the user: its slot under the HWID limit is free again (DeleteUserHwidDeviceCommand)."""
         return await self._request("POST","/api/hwid/devices/delete",json={"userId":int(user_id),"hwid":str(hwid)})

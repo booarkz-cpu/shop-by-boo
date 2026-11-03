@@ -111,7 +111,7 @@ def organizational(domain: str) -> str:
 
 # ---------------------------------------------------------------- DNS over HTTPS
 
-TYPES = {"A": 1, "MX": 15, "TXT": 16, "AAAA": 28}
+TYPES = {"A": 1, "CNAME": 5, "MX": 15, "TXT": 16, "AAAA": 28, "CAA": 257}
 
 
 class DnsError(Exception):

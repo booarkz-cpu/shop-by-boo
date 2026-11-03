@@ -178,6 +178,16 @@ async def test_lucy_limits_and_customer_devices(panel):
     assert await panel.hwid_devices(uid) == []
 
 
+@pytest.mark.asyncio
+async def test_revoke_subscription_link(panel):
+    """v28.67.0 (stage 11): «Сменить ссылку подписки» — the panel issues a new shortUuid, the old link stops working."""
+    expire = (datetime.utcnow() + timedelta(days=5)).replace(microsecond=0)
+    user = await panel.create_user(f"ci_rv_{int(datetime.utcnow().timestamp())}", expire)
+    fresh = await panel.revoke_subscription(int(user["id"]))
+    assert fresh["shortUuid"] and fresh["shortUuid"] != user["shortUuid"]
+    assert fresh["subscriptionUrl"].rstrip("/").endswith(fresh["shortUuid"])
+
+
 NODE_ADDRESS = os.environ.get("REMNAWAVE_LIVE_NODE_ADDRESS")
 SUBPAGE_URL = os.environ.get("REMNAWAVE_LIVE_SUBPAGE_URL")
 

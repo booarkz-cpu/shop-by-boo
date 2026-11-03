@@ -145,7 +145,7 @@ function Registry({servers, request, toast, reload}: {servers: any[]; request: R
 
 function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: any[]; request: Request; toast: (t: string) => void; onQueued: (id: number) => void}) {
   const [f, setF] = useState<any>({mode: "panel_node", panel_server_id: "", node_server_ids: [] as string[], subpage_server_id: "", panel_domain: "",
-    sub_domain: "", node_domain: "", tls: "acme", acme_email: "", node_port: "2222", node_name: "node", country_code: "XX", firewall: true});
+    sub_domain: "", node_domain: "", tls: "acme", acme_email: "", node_port: "2222", node_name: "node", country_code: "XX", firewall: true, panel_access: "open"});
   const [plan, setPlan] = useState<any>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -164,7 +164,8 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
       subpage_server_id: m === "panel_subpage" ? null : needSub ? n(f.subpage_server_id) : null,
       panel_domain: needPanel ? f.panel_domain || null : null, sub_domain: needSub ? f.sub_domain || null : null,
       node_domain: f.node_domain || null, tls: f.tls, acme_email: f.acme_email || null, node_port: Number(f.node_port),
-      node_name: f.node_name, country_code: f.country_code.toUpperCase(), firewall: f.firewall};
+      node_name: f.node_name, country_code: f.country_code.toUpperCase(), firewall: f.firewall,
+      panel_access: needPanel ? f.panel_access : "open"};
   }
   async function makePlan(e: React.FormEvent) {
     e.preventDefault(); setError(""); setBusy(true);
@@ -197,6 +198,8 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
         {usable.map(s => <option key={s.id} value={s.id}>{s.name} ({s.host})</option>)}</select></label>}
       {needSub && m !== "panel_subpage" && pick("subpage_server_id", "Сервер страницы подписки", m === "subpage")}
       {needSub && <label>Домен страницы подписки<input value={f.sub_domain} onChange={set("sub_domain")} required={m !== "distributed" || !!f.subpage_server_id} placeholder="sub.example.com"/></label>}
+      {needPanel && <label>Доступ к панели<select value={f.panel_access} onChange={set("panel_access")}>
+        <option value="open">Открыт по адресу панели</option><option value="cookie">Только по секретной ссылке (страницы панели скрыты)</option></select></label>}
       {(needPanel || needSub) && <label>Сертификат<select value={f.tls} onChange={set("tls")}>
         <option value="acme">Let's Encrypt (домены уже указывают на сервер)</option><option value="internal">Внутренний Caddy (проверка, без публичного DNS)</option></select></label>}
       {(needPanel || needSub) && f.tls === "acme" && <label>Email для Let's Encrypt<input type="email" value={f.acme_email} onChange={set("acme_email")} required/></label>}
@@ -261,7 +264,7 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
   if (!job) return <LoadState error={error} onRetry={load} label="Загрузка журнала…"/>;
   const act = async (fn: () => Promise<void>) => { setError(""); try { await fn(); } catch (e: any) { setError(e.message); } };
   const cancel = () => act(async () => { setJob(await request(`${API}/installations/${id}/cancel`, post())); reload(); });
-  const action = (a: string) => act(async () => { setPlanned(await request(`${API}/installations/${id}/actions`, post({action: a}))); setConfirm(""); });
+  const action = (a: string, extra: Record<string, string> = {}) => act(async () => { setPlanned(await request(`${API}/installations/${id}/actions`, post({action: a, ...extra}))); setConfirm(""); });
   const runPlanned = () => act(async () => {
     const out = await request(`${API}/installations/${planned.id}/approve`, post({plan_sha256: planned.plan_sha256}));
     toast(`Задача №${out.id} запущена`); setPlanned(null); reload();
@@ -284,11 +287,14 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
       {job.result?.panel_url && <a href={job.result.panel_url} target="_blank" rel="noreferrer">{job.result.panel_url}</a>}
       {job.params?.panel_server_id && <button onClick={showCreds}>Показать вход в панель</button>}
       {job.params?.panel_server_id && job.params?.tls === "acme" && <button onClick={connect}>Подключить магазин к этой панели</button>}
+      {job.params?.panel_server_id && <button onClick={() => action("update", {panel_access: job.params?.panel_access === "cookie" ? "open" : "cookie"})}>
+        {job.params?.panel_access === "cookie" ? "Открыть доступ к панели" : "Закрыть доступ к панели"}</button>}
       {ACTIONS.filter(([a]) => a !== "restore" || job.params?.panel_server_id).map(([a, label, risky]) =>
         risky && confirm !== a ? <button key={a} onClick={() => setConfirm(a)}>{label}</button>
           : <button key={a} className={risky ? "danger" : ""} onClick={() => action(a)}>{risky ? `Составить план: ${label.toLowerCase()}` : label}</button>)}
     </div>}
-    {creds && <SuccessNote>Панель {creds.panel_url}: администратор <code>{creds.username}</code>, пароль <code>{creds.password}</code>. Просмотр записан в журнал действий.</SuccessNote>}
+    {creds && <SuccessNote>Панель {creds.panel_url}: администратор <code>{creds.username}</code>, пароль <code>{creds.password}</code>.
+      {creds.access_url ? <> Вход только по секретной ссылке: <code>{creds.access_url}</code> (откройте один раз — браузер запомнит доступ на 30 дней).</> : null} Просмотр записан в журнал действий.</SuccessNote>}
     {staged && <div data-rw-staged><p>Подготовлено изменение настроек: REMNAWAVE_URL и REMNAWAVE_TOKEN (токен не показывается).</p>
       <button className="primary" onClick={apply}>Применить</button> <button onClick={() => setStaged(null)}>Позже (в «Настройки → Параметры»)</button></div>}
     {planned && <div className="plan" data-rw-action-plan><h4>{planned.plan.title}</h4>

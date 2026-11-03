@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.66.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.67.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -85,6 +85,7 @@ shop-by-boo/
 | `backend/alembic/versions/0088_filter_and_regions.py` | Фильтр подписки (`subscriptions.dns_filter`) и регион сессии (`vpn_sessions.region`) |
 | `backend/alembic/versions/0089_index_cleanup.py` | Без повторяющихся индексов, недостающие индексы, `gift_redemptions.operation_key NOT NULL` (v28.58.0) |
 | `backend/alembic/versions/0090_remnawave_installer.py` | v28.66.0: таблицы `remnawave_servers`, `remnawave_installations`, `remnawave_deployment_steps` мастера установки Remnawave |
+| `backend/alembic/versions/0091_remnawave_domains.py` | v28.67.0: таблица `remnawave_domains` менеджера доменов |
 | `backend/app/heartbeat.py` | Файл жизни для healthcheck worker, бота и приёма почты |
 | `backend/app/seat_access.py` | Выдача доступа месту в семейной и корпоративной подписке |
 | `backend/app/pagination.py` | Страницы списков: `limit`, `offset`, `X-Total-Count` |
@@ -96,6 +97,8 @@ shop-by-boo/
 | `backend/app/lucy_plans.py` | Тарифы Lucy Mini/Max/Ultra и пробный период только на Lucy Mini (v28.63.0) |
 | `backend/app/rw_api.py`, `rw_plan.py`, `rw_steps.py`, `rw_remote.py`, `rw_jobs.py` | Мастер установки Remnawave: реестр серверов, план по режиму, закрытый список шагов по SSH, исполнитель с откатом (v28.66.0) |
 | `admin/src/rw-installer.tsx` | Раздел «Установка Remnawave»: серверы, мастер, план, задачи и журналы (v28.66.0) |
+| `backend/app/rw_domains.py`, `sub_portal.py` | Домены, сертификаты, маршруты Caddy и вопрос on-demand TLS; портал подписки в браузере (v28.67.0) |
+| `admin/src/domains.tsx` | Раздел «Домены и сертификаты» (v28.67.0) |
 | `backend/app/telegram_stars.py` | Telegram Stars: пополнение кошелька, подписка с автопродлением каждые 30 дней, проверка, зачисление, возврат |
 | `backend/app/remnawave_events.py` | Подписанные вебхуки Remnawave: уведомления клиентам, события автоматизации, защита пробного периода (IP, Telegram, HWID) |
 | `backend/app/growth.py` | Семейная подписка, аналитика удержания, публичный статус сервиса |

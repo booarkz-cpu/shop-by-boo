@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.66.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.67.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2084**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2097**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -120,6 +120,7 @@
 | [admin/e2e/control-center.spec.ts](../admin/e2e/control-center.spec.ts) | Админ-панель |
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
 | [admin/e2e/documents-banner.spec.ts](../admin/e2e/documents-banner.spec.ts) | Админ-панель |
+| [admin/e2e/domains-portal.spec.ts](../admin/e2e/domains-portal.spec.ts) | Админ-панель |
 | [admin/e2e/fraud-decisions.spec.ts](../admin/e2e/fraud-decisions.spec.ts) | Админ-панель |
 | [admin/e2e/growth.spec.ts](../admin/e2e/growth.spec.ts) | Админ-панель |
 | [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
@@ -176,6 +177,7 @@
 | [admin/src/dashboard.tsx](../admin/src/dashboard.tsx) | Админ-панель |
 | [admin/src/design-system.css](../admin/src/design-system.css) | Админ-панель |
 | [admin/src/documents.tsx](../admin/src/documents.tsx) | Админ-панель |
+| [admin/src/domains.tsx](../admin/src/domains.tsx) | Админ-панель |
 | [admin/src/economics.tsx](../admin/src/economics.tsx) | Админ-панель |
 | [admin/src/fiscal.tsx](../admin/src/fiscal.tsx) | Админ-панель |
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
@@ -330,6 +332,7 @@
 | [backend/alembic/versions/0088_filter_and_regions.py](../backend/alembic/versions/0088_filter_and_regions.py) | API, бот и worker |
 | [backend/alembic/versions/0089_index_cleanup.py](../backend/alembic/versions/0089_index_cleanup.py) | API, бот и worker |
 | [backend/alembic/versions/0090_remnawave_installer.py](../backend/alembic/versions/0090_remnawave_installer.py) | API, бот и worker |
+| [backend/alembic/versions/0091_remnawave_domains.py](../backend/alembic/versions/0091_remnawave_domains.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -533,6 +536,7 @@
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
 | [backend/app/rw_api.py](../backend/app/rw_api.py) | API, бот и worker |
+| [backend/app/rw_domains.py](../backend/app/rw_domains.py) | API, бот и worker |
 | [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
 | [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
 | [backend/app/rw_remote.py](../backend/app/rw_remote.py) | API, бот и worker |
@@ -547,6 +551,7 @@
 | [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
 | [backend/app/status_page.py](../backend/app/status_page.py) | API, бот и worker |
+| [backend/app/sub_portal.py](../backend/app/sub_portal.py) | API, бот и worker |
 | [backend/app/sub_proxy.py](../backend/app/sub_proxy.py) | API, бот и worker |
 | [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
 | [backend/app/subscription_freeze.py](../backend/app/subscription_freeze.py) | API, бот и worker |
@@ -1152,6 +1157,7 @@
 | [docs/ru/RELEASE_V28_64_0.md](../docs/ru/RELEASE_V28_64_0.md) | Документация |
 | [docs/ru/RELEASE_V28_65_0.md](../docs/ru/RELEASE_V28_65_0.md) | Документация |
 | [docs/ru/RELEASE_V28_66_0.md](../docs/ru/RELEASE_V28_66_0.md) | Документация |
+| [docs/ru/RELEASE_V28_67_0.md](../docs/ru/RELEASE_V28_67_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
@@ -1259,6 +1265,10 @@
 | [docs/ru/new/REMNAWAVE_PREFLIGHT.md](../docs/ru/new/REMNAWAVE_PREFLIGHT.md) | Документация |
 | [docs/ru/new/SECURITY_AUDIT.md](../docs/ru/new/SECURITY_AUDIT.md) | Документация |
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
+| [docs/ru/new/SUBSCRIPTION_DOMAIN.md](../docs/ru/new/SUBSCRIPTION_DOMAIN.md) | Документация |
+| [docs/ru/new/SUBSCRIPTION_PORTAL.md](../docs/ru/new/SUBSCRIPTION_PORTAL.md) | Документация |
+| [docs/ru/new/SUBSCRIPTION_SECURITY.md](../docs/ru/new/SUBSCRIPTION_SECURITY.md) | Документация |
+| [docs/ru/new/SUBSCRIPTION_TEMPLATES.md](../docs/ru/new/SUBSCRIPTION_TEMPLATES.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
 | [docs/ru/new/USER_CABINET_GUIDE.md](../docs/ru/new/USER_CABINET_GUIDE.md) | Документация |
 | [docs/ru/steps/01-project.md](../docs/ru/steps/01-project.md) | Документация |
@@ -1692,6 +1702,7 @@
 | [scripts/check-external-links.py](../scripts/check-external-links.py) | Эксплуатация и релиз |
 | [scripts/check-migration-heads.py](../scripts/check-migration-heads.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
+| [scripts/ci/caddy-on-demand-live.sh](../scripts/ci/caddy-on-demand-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
@@ -1846,6 +1857,7 @@
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
+| [tests/live/test_caddy_on_demand.py](../tests/live/test_caddy_on_demand.py) | Проверки |
 | [tests/live/test_hetzner_live.py](../tests/live/test_hetzner_live.py) | Проверки |
 | [tests/live/test_install_live.py](../tests/live/test_install_live.py) | Проверки |
 | [tests/live/test_payments_live.py](../tests/live/test_payments_live.py) | Проверки |
@@ -2002,6 +2014,7 @@
 | [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |
 | [tests/test_subscription_commerce.py](../tests/test_subscription_commerce.py) | Проверки |
 | [tests/test_subscription_middleware.py](../tests/test_subscription_middleware.py) | Проверки |
+| [tests/test_subscription_portal.py](../tests/test_subscription_portal.py) | Проверки |
 | [tests/test_support_ai.py](../tests/test_support_ai.py) | Проверки |
 | [tests/test_support_attachments.py](../tests/test_support_attachments.py) | Проверки |
 | [tests/test_support_bridge.py](../tests/test_support_bridge.py) | Проверки |
