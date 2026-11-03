@@ -2,6 +2,18 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-03 — этап 13, часть А: Telegram-бот из админки, выпуск v28.71.0
+
+**Источники.** Код бота (`bot.py`, aiogram 3.31, long polling), «Настройки без перезапуска», «Состояние системы»; Bot API: `getMe`, `getWebhookInfo`, `deleteWebhook`, `setMyCommands`, `deleteMyCommands`, `sendMessage`.
+
+**Что сделано.** `BOT_TOKEN` без перезапуска (`bot.supervise`), таблица `telegram_bot_state` (миграция `0092_telegram_bot`), проверка связи в «Состоянии системы», раздел «Telegram-бот», ошибки бота в журнале.
+
+**Проверено.** `tests/test_telegram_bot.py`, `tests/test_system_status.py`, e2e `telegram-bot.spec.ts`, `system-status.spec.ts`, `control-center.spec.ts`, `all-sections.spec.ts`.
+
+**Живая проверка.** Владелец добавил секрет `TELEGRAM_TEST_BOT_TOKEN`; задание CI `telegram` — PASS: тестовый бот подключился, long polling, меню на трёх языках применено и прочитано из Telegram.
+
+**Осталось.** Часть Б — функции бота и Mini App.
+
 ## 2026-11-03 — этап 12, часть Б: модули серверов Remnawave, выпуск v28.70.0
 
 **Источники.** Модули `eGamesAPI/remnawave-reverse-proxy` (MIT): `selfsteal_templates`, `ipv6`, `node_core`, `warp`, `netbird`, `xray_checker`, `server_routing` — как устроены и какие API панели вызывают; контракт панели 3.4.15 (internal squads, users `ssPassword`); документация NetBird (apt) и Xray Checker (API `/api/v1/proxies`).

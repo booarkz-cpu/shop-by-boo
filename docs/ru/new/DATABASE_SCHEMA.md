@@ -1,6 +1,6 @@
-# Схема базы данных — v28.70.0
+# Схема базы данных — v28.71.0
 
-Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0091_remnawave_domains`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
+Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0092_telegram_bot`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
 ## Сущности задания
 
@@ -30,7 +30,7 @@
 
 ## Таблицы
 
-Всего таблиц: 159, внешних ключей: 57. Связи без внешнего ключа держит код; записи без связи показывает «Аналитика → Запуск и оповещения → Целостность данных» (`GET /api/admin/integrity`).
+Всего таблиц: 160, внешних ключей: 57. Связи без внешнего ключа держит код; записи без связи показывает «Аналитика → Запуск и оповещения → Целостность данных» (`GET /api/admin/integrity`).
 
 | Таблица | Модель | Колонок | Уникальные | Индексы | Внешние ключи |
 | --- | --- | --- | --- | --- | --- |
@@ -176,6 +176,7 @@
 | `system_errors` | `SystemErrorLog` | 11 | fingerprint | last_seen | — |
 | `tariff_constructor_options` | `TariffConstructorOption` | 8 | — | constructor_id | — |
 | `tariff_constructors` | `TariffConstructor` | 8 | — | plan_id | — |
+| `telegram_bot_state` | `TelegramBotState` | 15 | — | — | — |
 | `terminal_chunks` | `TerminalChunk` | 6 | — | session_id | session_id → terminal_sessions |
 | `terminal_sessions` | `TerminalSession` | 23 | — | admin_id, agent_id, created_at, status | — |
 | `terminal_snippets` | `TerminalSnippet` | 5 | — | — | — |

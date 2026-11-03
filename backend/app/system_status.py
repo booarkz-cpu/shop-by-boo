@@ -246,12 +246,16 @@ async def payments_check(db: AsyncSession, paused: bool) -> dict:
     return check("payments", "Платежи", "ok", detail, "providers")
 
 
-def telegram_check() -> dict:
-    if not settings.bot_token:
-        return check("telegram", "Telegram-бот", "off", "Бот не настроен: укажите BOT_TOKEN и BOT_USERNAME.", "content")
-    if not settings.bot_username:
-        return check("telegram", "Telegram-бот", "warn", "Токен задан, но нет BOT_USERNAME (вводится в «Настройки без перезапуска»): ссылки на бота не построятся.", "content")
-    return check("telegram", "Telegram-бот", "ok", f"Токен и имя заданы: @{settings.bot_username.lstrip('@')}. Связь бота с Telegram проверяет healthcheck его контейнера.", "content")
+def telegram_check(state: dict | None = None) -> dict:
+    """v28.71.0: whether the bot process talks to Telegram (telegram_bot_state, written by bot.py every minute)."""
+    from .telegram_bot import status_check
+    level, detail = status_check(state or {}, bool(settings.bot_token), settings.bot_username or "")
+    return check("telegram", "Telegram-бот", level, detail, "telegramBot")
+
+
+async def telegram_db_check(db: AsyncSession) -> dict:
+    from .telegram_bot import current_state
+    return telegram_check(await current_state(db))
 
 
 async def jobs_check(db: AsyncSession) -> dict:
@@ -325,7 +329,8 @@ async def collect(db: AsyncSession, *, version: str, distribution: str, redis_cl
     db_rows: list[dict] = []
     steps = (("payments", "Платежи", "providers", lambda: payments_check(db, payments_paused)),
              ("jobs", "Фоновые задачи", "jobs", lambda: jobs_check(db)),
-             ("backup", "Резервные копии", "backups", lambda: backup_check(db)))
+             ("backup", "Резервные копии", "backups", lambda: backup_check(db)),
+             ("telegram", "Telegram-бот", "telegramBot", lambda: telegram_db_check(db)))
     for key, title, tab, step in steps:
         try:
             db_rows.append(await step())
@@ -334,4 +339,4 @@ async def collect(db: AsyncSession, *, version: str, distribution: str, redis_cl
             await db.rollback()
             db_rows.append(check(key, title, "error", "Проверка не выполнена: база не ответила.", tab, error="unavailable"))
     frontend_row, redis_row, remnawave_rows, proxy_rows, update_row = await network
-    return [rows[0], frontend_row, *rows[1:], redis_row, *remnawave_rows, *proxy_rows, *db_rows, telegram_check(), update_row]
+    return [rows[0], frontend_row, *rows[1:], redis_row, *remnawave_rows, *proxy_rows, *db_rows, update_row]

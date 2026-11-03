@@ -48,7 +48,7 @@ surveys - Опросы
 
 | Переменная | Значение |
 | --- | --- |
-| `BOT_TOKEN`, `BOT_USERNAME` | Из BotFather |
+| `BOT_TOKEN`, `BOT_USERNAME` | Из BotFather. С v28.71.0 оба меняются в «Настройки без перезапуска → Telegram», бот переподключается сам ([Telegram-бот](../new/TELEGRAM_GUIDE.md)) |
 | `MINI_APP_URL` | HTTPS-адрес Mini App |
 | `ADMIN_TELEGRAM_ID` | Ваш ID: только вам отвечает `/ops` |
 | `DEFAULT_LANGUAGE` | `ru` или `en`, пока клиент не выбрал язык |
@@ -185,7 +185,7 @@ Telegram Web открывает Mini App во фрейме — это разре
 
 | Симптом | Причина | Что делать |
 | --- | --- | --- |
-| Бот не отвечает | Неверный `BOT_TOKEN` или тот же токен запущен в другом месте | `docker compose logs --tail=100 bot`; остановите второй экземпляр |
+| Бот не отвечает | Неверный `BOT_TOKEN` или тот же токен запущен в другом месте | «Бот и кабинет → Telegram-бот → Проверить сейчас»: ошибка Telegram и webhook другого сервера; остановите второй экземпляр |
 | Mini App: «ошибка входа» | Открыт в браузере, а не из Telegram; неверный `BOT_TOKEN` у backend | Открывайте из Telegram; проверьте `.env` |
 | Mini App не открывается в Telegram Web | Старая настройка домена | Обновитесь; в Caddy для домена Mini App разрешён `frame-ancestors https://web.telegram.org` |
 | «Подпишитесь на обязательный канал» | Включён `REQUIRED_TELEGRAM_CHANNEL` | Клиент подписывается; бот должен быть администратором канала |

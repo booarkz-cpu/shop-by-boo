@@ -42,7 +42,7 @@ def test_every_configuration_field_has_one_explicit_runtime_classification():
     assert hot.isdisjoint(workflows)
     assert deployment.isdisjoint(workflows)
     assert hot | deployment | workflows == set(Settings.model_fields)
-    assert len(hot) == 138  # v28.67.0: the Cloudflare API token of the Domain Manager without restart
+    assert len(hot) == 139  # v28.71.0: the Telegram bot token without restart (the bot reconnects itself)
 
 
 def test_integer_limits_are_checked_without_float_rounding():

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.70.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.71.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2114**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2122**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -137,6 +137,7 @@
 | [admin/e2e/rw-extensions.spec.ts](../admin/e2e/rw-extensions.spec.ts) | Админ-панель |
 | [admin/e2e/rw-installer.spec.ts](../admin/e2e/rw-installer.spec.ts) | Админ-панель |
 | [admin/e2e/system-status.spec.ts](../admin/e2e/system-status.spec.ts) | Админ-панель |
+| [admin/e2e/telegram-bot.spec.ts](../admin/e2e/telegram-bot.spec.ts) | Админ-панель |
 | [admin/index.html](../admin/index.html) | Админ-панель |
 | [admin/next.config.mjs](../admin/next.config.mjs) | Админ-панель |
 | [admin/nginx.conf](../admin/nginx.conf) | Админ-панель |
@@ -231,6 +232,7 @@
 | [admin/src/surveys.tsx](../admin/src/surveys.tsx) | Админ-панель |
 | [admin/src/system-status.tsx](../admin/src/system-status.tsx) | Админ-панель |
 | [admin/src/tailwind.css](../admin/src/tailwind.css) | Админ-панель |
+| [admin/src/telegram-bot.tsx](../admin/src/telegram-bot.tsx) | Админ-панель |
 | [admin/src/terminal-screen.ts](../admin/src/terminal-screen.ts) | Админ-панель |
 | [admin/src/theme.css](../admin/src/theme.css) | Админ-панель |
 | [admin/src/torrents.tsx](../admin/src/torrents.tsx) | Админ-панель |
@@ -335,6 +337,7 @@
 | [backend/alembic/versions/0089_index_cleanup.py](../backend/alembic/versions/0089_index_cleanup.py) | API, бот и worker |
 | [backend/alembic/versions/0090_remnawave_installer.py](../backend/alembic/versions/0090_remnawave_installer.py) | API, бот и worker |
 | [backend/alembic/versions/0091_remnawave_domains.py](../backend/alembic/versions/0091_remnawave_domains.py) | API, бот и worker |
+| [backend/alembic/versions/0092_telegram_bot.py](../backend/alembic/versions/0092_telegram_bot.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -570,6 +573,7 @@
 | [backend/app/system_status.py](../backend/app/system_status.py) | API, бот и worker |
 | [backend/app/tariff_api.py](../backend/app/tariff_api.py) | API, бот и worker |
 | [backend/app/telegram_backup.py](../backend/app/telegram_backup.py) | API, бот и worker |
+| [backend/app/telegram_bot.py](../backend/app/telegram_bot.py) | API, бот и worker |
 | [backend/app/telegram_stars.py](../backend/app/telegram_stars.py) | API, бот и worker |
 | [backend/app/tg.py](../backend/app/tg.py) | API, бот и worker |
 | [backend/app/themes.py](../backend/app/themes.py) | API, бот и worker |
@@ -1166,6 +1170,7 @@
 | [docs/ru/RELEASE_V28_69_0.md](../docs/ru/RELEASE_V28_69_0.md) | Документация |
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_70_0.md](../docs/ru/RELEASE_V28_70_0.md) | Документация |
+| [docs/ru/RELEASE_V28_71_0.md](../docs/ru/RELEASE_V28_71_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
@@ -1281,6 +1286,7 @@
 | [docs/ru/new/SUBSCRIPTION_RULES.md](../docs/ru/new/SUBSCRIPTION_RULES.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_SECURITY.md](../docs/ru/new/SUBSCRIPTION_SECURITY.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_TEMPLATES.md](../docs/ru/new/SUBSCRIPTION_TEMPLATES.md) | Документация |
+| [docs/ru/new/TELEGRAM_GUIDE.md](../docs/ru/new/TELEGRAM_GUIDE.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
 | [docs/ru/new/USER_CABINET_GUIDE.md](../docs/ru/new/USER_CABINET_GUIDE.md) | Документация |
 | [docs/ru/new/WARP_NETBIRD.md](../docs/ru/new/WARP_NETBIRD.md) | Документация |
@@ -1877,6 +1883,7 @@
 | [tests/live/test_node_modules_live.py](../tests/live/test_node_modules_live.py) | Проверки |
 | [tests/live/test_payments_live.py](../tests/live/test_payments_live.py) | Проверки |
 | [tests/live/test_remnawave_live.py](../tests/live/test_remnawave_live.py) | Проверки |
+| [tests/live/test_telegram_live.py](../tests/live/test_telegram_live.py) | Проверки |
 | [tests/load/live.js](../tests/load/live.js) | Проверки |
 | [tests/load/shop.js](../tests/load/shop.js) | Проверки |
 | [tests/main_source.py](../tests/main_source.py) | Проверки |
@@ -2039,6 +2046,7 @@
 | [tests/test_support_topology.py](../tests/test_support_topology.py) | Проверки |
 | [tests/test_surveys.py](../tests/test_surveys.py) | Проверки |
 | [tests/test_system_status.py](../tests/test_system_status.py) | Проверки |
+| [tests/test_telegram_bot.py](../tests/test_telegram_bot.py) | Проверки |
 | [tests/test_torrent_detection.py](../tests/test_torrent_detection.py) | Проверки |
 | [tests/test_traffic_analysis.py](../tests/test_traffic_analysis.py) | Проверки |
 | [tests/test_tribute.py](../tests/test_tribute.py) | Проверки |

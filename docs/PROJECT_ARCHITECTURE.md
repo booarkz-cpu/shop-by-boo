@@ -1,6 +1,6 @@
 # Архитектура проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.70.0`, runtime/API `21.5.1`, миграция `0091_remnawave_domains`.
+Дистрибутив `v28.71.0`, runtime/API `21.5.1`, миграция `0092_telegram_bot`.
 Схема построена по фактическому коду (`backend/app`, `docker-compose.yml`, таблица маршрутов),
 а не по проектным описаниям.
 

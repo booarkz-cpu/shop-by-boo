@@ -1,6 +1,6 @@
 # Внешние зависимости
 
-Дистрибутив `v28.70.0`, runtime/API `21.5.1`.
+Дистрибутив `v28.71.0`, runtime/API `21.5.1`.
 
 Перечень всего, без чего часть функций не работает. Для каждой зависимости: зачем нужна, что
 происходит без неё, где брать. Пошаговое тестирование — в
@@ -50,7 +50,7 @@
 | Node.js | 26 LTS (CI и образы) | admin, cabinet, miniapp |
 | ruff | 0.17.3 | lint |
 | pytest | 9.1.1 | тесты |
-| alembic | 1.20.1 | 91 миграция, head `0091_remnawave_domains` |
+| alembic | 1.20.1 | 91 миграция, head `0092_telegram_bot` |
 | Gradle / Android SDK | `mobile/android-*` | сборка APK/AAB |
 | Xcode | `mobile/ios-*` | сборка IPA |
 

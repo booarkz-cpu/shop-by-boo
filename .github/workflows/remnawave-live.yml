@@ -7,7 +7,8 @@ on:
     paths: ['backend/app/remnawave.py', 'backend/app/node_autoscale.py', 'backend/app/block_monitor.py', 'backend/app/node_health.py',
             'backend/app/rw_*.py', 'backend/app/provisioner.py', 'tests/live/**', 'scripts/ci/remnawave-live.sh',
             'scripts/ci/rw-install-live.sh', 'scripts/ci/caddy-on-demand-live.sh', 'deploy/Caddyfile', 'deploy/caddy/**',
-            'backend/app/sub_proxy.py', 'backend/app/sub_portal.py', '.github/workflows/remnawave-live.yml']
+            'backend/app/sub_proxy.py', 'backend/app/sub_portal.py', 'backend/app/bot.py', 'backend/app/telegram_bot.py',
+            '.github/workflows/remnawave-live.yml']
   push:
     branches: [main]
   schedule:
@@ -98,3 +99,26 @@ jobs:
         run: |
           set -a; . "$RUNNER_TEMP/panel.env"; set +a
           RW_LIVE_TEST=tests/live/test_node_modules_live.py bash scripts/ci/rw-install-live.sh
+
+  # v28.71.0 (stage 13): the shop's bot against the real Telegram Bot API with the owner's test bot
+  # (Actions secret TELEGRAM_TEST_BOT_TOKEN; without it the test is skipped — BLOCKED_SECRETS).
+  telegram:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      APP_SECRET: ci-only-secret
+      APP_ENV: test
+      DATABASE_URL: sqlite+aiosqlite:///./live.db
+      TELEGRAM_TEST_BOT_TOKEN: ${{ secrets.TELEGRAM_TEST_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r backend/requirements.txt -r backend/requirements-test.txt
+      - name: Bot against the Telegram Bot API
+        run: |
+          python -m pytest -q -s -rs tests/live/test_telegram_live.py -p no:cacheprovider
+          if [ -z "$TELEGRAM_TEST_BOT_TOKEN" ]; then echo "Telegram: BLOCKED_SECRETS (no TELEGRAM_TEST_BOT_TOKEN)" >> "$GITHUB_STEP_SUMMARY"; fi

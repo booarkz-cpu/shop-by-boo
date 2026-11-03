@@ -2241,6 +2241,26 @@ class RemnawaveDeploymentStep(Base):
     started_at: Mapped[datetime|None] = mapped_column(DateTime)
     finished_at: Mapped[datetime|None] = mapped_column(DateTime)
 
+class TelegramBotState(Base):
+    """v28.71 (stage 13): one row — the bot process's connection to Telegram and the commands set from the admin panel."""
+    __tablename__ = "telegram_bot_state"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    bot_id: Mapped[int|None] = mapped_column(BigInteger)
+    username: Mapped[str|None] = mapped_column(String(64))
+    first_name: Mapped[str|None] = mapped_column(String(128))
+    token_fingerprint: Mapped[str|None] = mapped_column(String(16))
+    state: Mapped[str] = mapped_column(String(16), default="idle", server_default="idle", nullable=False)
+    started_at: Mapped[datetime|None] = mapped_column(DateTime)
+    last_ok_at: Mapped[datetime|None] = mapped_column(DateTime)
+    last_update_at: Mapped[datetime|None] = mapped_column(DateTime)
+    updates_total: Mapped[int] = mapped_column(BigInteger, default=0, server_default="0", nullable=False)
+    last_error: Mapped[str|None] = mapped_column(Text)
+    last_error_at: Mapped[datetime|None] = mapped_column(DateTime)
+    commands: Mapped[dict|None] = mapped_column(JSON)
+    commands_applied_at: Mapped[datetime|None] = mapped_column(DateTime)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+
 class RemnawaveDomain(Base):
     """v28.67: Domain Manager — a domain of the subscription portal, a Remnawave panel or a node
     (docs/ru/new/SUBSCRIPTION_DOMAIN.md). ``served_by``: ``shop`` — the shop's Caddy issues the certificate on demand

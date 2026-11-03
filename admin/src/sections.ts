@@ -88,6 +88,7 @@ export const SECTION_GROUPS = [
     title: "Бот и кабинет",
     description: "Что видит клиент в Telegram, кабинете и приложениях",
     items: [
+      {tab: "telegramBot", label: "Telegram-бот", description: "Связь бота с Telegram, токен без перезапуска, меню команд на трёх языках, тестовое сообщение, статистика и ошибки бота.", keywords: "telegram бот токен botfather команды webhook polling связь"},
       {tab: "content", label: "Меню бота и Mini App", description: "Тексты бота, кнопки главного меню, экран Mini App и инструкции по подключению.", keywords: "тексты кнопки telegram"},
       {tab: "menuTree", label: "Дерево кнопок", description: "Вложенные меню бота: порядок кнопок, подменю и действия по нажатию.", keywords: "меню"},
       {tab: "documents", label: "Документы", description: "Частые вопросы, правила, политика конфиденциальности и публичная оферта: свой текст и баннер для Mini App, кабинета, бота и приложений Android и iOS.", keywords: "faq вопросы правила политика конфиденциальность оферта документы"},

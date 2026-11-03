@@ -1,6 +1,6 @@
-# Каталог API — v28.70.0 / API v21.5.1
+# Каталог API — v28.71.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0091_remnawave_domains`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0092_telegram_bot`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -577,6 +577,13 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/tariff-constructors` | Admin Constructor Create | право `manage_plans` |
 | `DELETE` | `/api/admin/tariff-constructors/{constructor_id}` | Admin Constructor Delete | право `manage_plans` |
 | `PUT` | `/api/admin/tariff-constructors/{constructor_id}` | Admin Constructor Update | право `manage_plans` |
+| `POST` | `/api/admin/telegram/check` | Check | право `settings.runtime.read` |
+| `GET` | `/api/admin/telegram/commands` | Get Commands | право `settings.runtime.read` |
+| `PUT` | `/api/admin/telegram/commands` | Put Commands | право `manage_content` |
+| `GET` | `/api/admin/telegram/errors` | Errors | право `ops.diagnostics` |
+| `GET` | `/api/admin/telegram/status` | Status | право `settings.runtime.read` |
+| `POST` | `/api/admin/telegram/test-message` | Test Message | право `manage_broadcasts` |
+| `POST` | `/api/admin/telegram/webhook/delete` | Delete Webhook | право `manage_content` |
 | `GET` | `/api/admin/terminal` | Admin Terminal | право `nodes.terminal` |
 | `POST` | `/api/admin/terminal/sessions` | Admin Terminal Start | право `nodes.terminal` |
 | `POST` | `/api/admin/terminal/sessions/{sid}/close` | Admin Terminal Close | право `nodes.terminal` |

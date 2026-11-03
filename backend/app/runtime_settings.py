@@ -76,7 +76,7 @@ DEFINITIONS = (
     SettingDefinition("remnawave_cb_cooldown", "remnawave", "Пауза circuit breaker", "Пауза перед пробным запросом к Remnawave после серии ошибок.", "integer", "remnawave_cb_cooldown", minimum=1, maximum=3600, unit="сек."),
     SettingDefinition("metrics_enabled", "monitoring", "Prometheus-метрики", "Включает защищённую точку /metrics.", "boolean", "metrics_enabled"),
     SettingDefinition("metrics_token", "monitoring", "Токен метрик", "Секрет заголовка X-Metrics-Token. Значение никогда не возвращается из API.", "secret", "metrics_token", secret=True, optional=True),
-    SettingDefinition("alert_telegram_chat_id", "monitoring", "Telegram chat ID алертов", "Числовой chat ID для системных предупреждений; требует BOT_TOKEN в окружении.", "string", "alert_telegram_chat_id", optional=True),
+    SettingDefinition("alert_telegram_chat_id", "monitoring", "Telegram chat ID алертов", "Числовой chat ID для системных предупреждений; нужен токен бота (группа «Telegram»).", "string", "alert_telegram_chat_id", optional=True),
     SettingDefinition("alert_email", "monitoring", "Email алертов", "Адрес получателя системных предупреждений.", "string", "alert_email", optional=True),
     SettingDefinition("smtp_host", "mail", "SMTP-сервер", "DNS-имя или IP SMTP-сервера без схемы и пути.", "string", "smtp_host", optional=True),
     SettingDefinition("smtp_port", "mail", "SMTP-порт", "Порт 465 использует TLS сразу, остальные порты — STARTTLS.", "integer", "smtp_port", minimum=1, maximum=65535),
@@ -86,7 +86,8 @@ DEFINITIONS = (
     SettingDefinition("tz", "general", "Часовой пояс", "Часовой пояс для расписаний и операторского интерфейса.", "string", "tz"),
     SettingDefinition("trusted_proxy_cidrs", "security", "Доверенные proxy CIDR", "Сети reverse proxy, от которых принимаются forwarded-заголовки.", "string", "trusted_proxy_cidrs", optional=True),
     SettingDefinition("support_bridge_token", "support", "Токен моста поддержки", "Секрет аутентификации двустороннего моста Support Pro.", "secret", "support_bridge_token", secret=True, optional=True),
-    SettingDefinition("bot_username", "telegram", "Username Telegram-бота", "Публичное имя бота без URL; токен polling остаётся restart-bound.", "string", "bot_username", optional=True),
+    SettingDefinition("bot_token", "telegram", "Токен Telegram-бота", "Токен от @BotFather; хранится зашифрованно. Бот переподключается с новым токеном сам, за 15 секунд, без перезапуска (v28.71.0).", "secret", "bot_token", secret=True, optional=True),
+    SettingDefinition("bot_username", "telegram", "Username Telegram-бота", "Публичное имя бота без URL (раздел «Telegram-бот» сверяет его с ответом Telegram).", "string", "bot_username", optional=True),
     SettingDefinition("admin_telegram_id", "telegram", "Telegram ID владельца", "Числовой ID, которому разрешена операторская команда бота.", "integer", "admin_telegram_id", minimum=0, maximum=9_223_372_036_854_775_807),
     SettingDefinition("remnawave_url", "remnawave", "URL Remnawave", "Публичный HTTPS URL панели Remnawave.", "string", "remnawave_url", optional=True),
     SettingDefinition("remnawave_token", "remnawave", "Токен Remnawave", "Bearer-токен API Remnawave; хранится зашифрованно.", "secret", "remnawave_token", secret=True, optional=True),
@@ -242,7 +243,7 @@ def _restart_reason(key: str) -> str:
         return "Путь связан с volume/static mount и не может безопасно меняться внутри процесса."
     if key.endswith("_image") or key in {"require_pinned_images", "firewall_mode"}:
         return "Параметр относится к deployment policy, а не к runtime приложения."
-    if key in {"bot_token", "worker_role", "app_env", "admin_email", "admin_password", "payments_sandbox"}:
+    if key in {"worker_role", "app_env", "admin_email", "admin_password", "payments_sandbox"}:
         return "Параметр определяет идентичность или режим процесса и проверяется до запуска."
     if key in {"network_intel_enabled", "abuseipdb_api_key"}:
         return "Источник сетевой аналитики настраивается в .env и применяется после restart worker; ключ AbuseIPDB не хранится в БД."
@@ -376,6 +377,10 @@ def _parse_value(definition: SettingDefinition, value: object) -> bool | int | f
     if definition.key == "required_telegram_channel" and normalized:
         if not re.fullmatch(r"@?[A-Za-z0-9_]{5,32}", normalized):
             raise HTTPException(422, "required_telegram_channel: некорректный username")
+    if definition.key == "bot_token" and normalized:
+        normalized = normalized.strip()
+        if not re.fullmatch(r"\d{5,16}:[A-Za-z0-9_-]{30,64}", normalized):
+            raise HTTPException(422, "bot_token: токен вида 123456789:AA… из @BotFather")
     if definition.key == "metrics_token" and normalized and len(normalized) < 24:
         raise HTTPException(422, "metrics_token: минимум 24 символа")
     if definition.key in {"support_bridge_token", "support_pro_sso_secret", "mobile_client_key"} and normalized and len(normalized) < 32:

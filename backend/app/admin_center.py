@@ -48,7 +48,7 @@ MODULES: tuple[tuple[int, str, tuple[str, ...], tuple[str, ...], str], ...] = (
     (21, "Backups", ("backups", "recovery"), ("backups", "recovery"), ""),
     (22, "Updates", ("releases", "deployments"), ("releases", "auto-update", "deployments"), ""),
     (23, "Automation", ("automation", "jobs", "workers"), ("automation", "jobs", "workers"), ""),
-    (24, "Telegram", ("content", "menuTree", "botBanners", "documents"), ("bot", "menu", "info-pages", "broadcasts", "channels", "pinned-message"), ""),
+    (24, "Telegram", ("telegramBot", "content", "menuTree", "botBanners", "documents"), ("telegram", "bot", "menu", "info-pages", "broadcasts", "channels", "pinned-message"), ""),
     (25, "Integrations", ("integrations", "mailDomain"), ("webhooks", "mail", "ads", "ripe-atlas", "geoip"), ""),
     (26, "Plugins", ("plugins",), ("plugins",), ""),
     (27, "Security", ("security", "passkeys", "admins", "sessions", "fraud"), ("security", "admins", "sessions", "fraud", "roles"), ""),
