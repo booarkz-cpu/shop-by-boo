@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.71.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.72.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2122**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2126**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -411,6 +411,7 @@
 | [backend/app/bonus_days.py](../backend/app/bonus_days.py) | API, бот и worker |
 | [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
+| [backend/app/bot_texts.py](../backend/app/bot_texts.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
 | [backend/app/cabinet_security.py](../backend/app/cabinet_security.py) | API, бот и worker |
@@ -1171,6 +1172,7 @@
 | [docs/ru/RELEASE_V28_6_0.md](../docs/ru/RELEASE_V28_6_0.md) | Документация |
 | [docs/ru/RELEASE_V28_70_0.md](../docs/ru/RELEASE_V28_70_0.md) | Документация |
 | [docs/ru/RELEASE_V28_71_0.md](../docs/ru/RELEASE_V28_71_0.md) | Документация |
+| [docs/ru/RELEASE_V28_72_0.md](../docs/ru/RELEASE_V28_72_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
@@ -1287,6 +1289,7 @@
 | [docs/ru/new/SUBSCRIPTION_SECURITY.md](../docs/ru/new/SUBSCRIPTION_SECURITY.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_TEMPLATES.md](../docs/ru/new/SUBSCRIPTION_TEMPLATES.md) | Документация |
 | [docs/ru/new/TELEGRAM_GUIDE.md](../docs/ru/new/TELEGRAM_GUIDE.md) | Документация |
+| [docs/ru/new/TELEGRAM_MINI_APP.md](../docs/ru/new/TELEGRAM_MINI_APP.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
 | [docs/ru/new/USER_CABINET_GUIDE.md](../docs/ru/new/USER_CABINET_GUIDE.md) | Документация |
 | [docs/ru/new/WARP_NETBIRD.md](../docs/ru/new/WARP_NETBIRD.md) | Документация |
@@ -1916,6 +1919,7 @@
 | [tests/test_block_monitor.py](../tests/test_block_monitor.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
+| [tests/test_bot_texts.py](../tests/test_bot_texts.py) | Проверки |
 | [tests/test_cabinet_stage8.py](../tests/test_cabinet_stage8.py) | Проверки |
 | [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |

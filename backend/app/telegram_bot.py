@@ -250,3 +250,64 @@ async def errors(db: AsyncSession = Depends(get_db), admin=Depends(require_permi
                              .limit(50))).scalars().all()
     return {"errors": [{"id": r.id, "level": r.level, "logger": r.logger, "message": r.message[:500], "count": r.count,
                         "resolved": r.resolved, "last_seen": r.last_seen.isoformat() + "Z"} for r in rows]}
+
+
+# ---------------------------------------------------------------- texts (v28.72.0)
+
+class TextsIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    lang: str = Field(pattern=r"^(ru|en|uk)$")
+    # key → text; an empty string returns the default
+    texts: dict[str, str] = Field(max_length=500)
+
+
+@router.get("/texts")
+async def get_texts(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("settings.runtime.read"))):
+    """Every text the bot sends: default and the owner's version per language, grouped as in the admin."""
+    from . import bot_texts
+    from .models import AppSetting
+    row = await db.get(AppSetting, bot_texts.SETTING)
+    overrides = bot_texts.load(row.value if row else None)
+    items = []
+    for key, (group, *_rest) in bot_texts.DEFAULTS.items():
+        items.append({"key": key, "group": group, "placeholders": sorted(bot_texts.placeholders(key)),
+                      "default": {lang: bot_texts.default(lang, key) for lang in bot_texts.LANGS},
+                      "custom": {lang: overrides.get(lang, {}).get(key) for lang in bot_texts.LANGS if overrides.get(lang, {}).get(key)}})
+    return {"languages": list(bot_texts.LANGS), "texts": items}
+
+
+@router.put("/texts")
+async def put_texts(payload: TextsIn, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("manage_content"))):
+    """Saves one language's texts; the bot picks them up within a minute, without a restart."""
+    import json as _json
+
+    from . import bot_texts
+    from .main import audit
+    from .models import AppSetting
+    row = await db.get(AppSetting, bot_texts.SETTING)
+    overrides = bot_texts.load(row.value if row else None)
+    current = dict(overrides.get(payload.lang) or {})
+    errors = []
+    for key, text in payload.texts.items():
+        if key not in bot_texts.DEFAULTS:
+            errors.append(f"Нет текста {key}")
+            continue
+        if not text.strip() or text.strip() == bot_texts.default(payload.lang, key):
+            current.pop(key, None)
+            continue
+        try:
+            current[key] = bot_texts.check_override(key, text)
+        except ValueError as exc:
+            errors.append(str(exc))
+    if errors:
+        raise HTTPException(422, "; ".join(errors[:10]))
+    overrides[payload.lang] = current
+    value = _json.dumps(overrides, ensure_ascii=False)
+    if row:
+        row.value = value
+    else:
+        db.add(AppSetting(key=bot_texts.SETTING, value=value))
+    await audit(db, "telegram.texts.updated", admin.email, payload.lang, {"changed": sorted(payload.texts), "custom": len(current)})
+    await db.commit()
+    await bot_texts.refresh(db, force=True)
+    return {"lang": payload.lang, "custom": len(current)}

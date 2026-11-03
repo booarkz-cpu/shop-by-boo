@@ -19,6 +19,23 @@ test('without a token the section says how to connect the bot', async ({page}) =
   await expect(page.locator('[data-bot-status]')).toHaveAttribute('data-level', 'off');
   await expect(page.locator('[data-bot-commands] [data-command="start"]')).toBeVisible();
   await expect(page.locator('[data-bot-commands]').getByRole('button', {name: 'Сохранить и применить'})).toBeDisabled();
+
+  // v28.72.0: the bot's texts are saved by the real backend (no token is needed for them).
+  const texts = page.locator('[data-bot-texts]');
+  await texts.getByLabel('Язык', {exact: true}).selectOption('en');
+  await texts.getByLabel('Поиск', {exact: true}).fill('welcome');
+  const welcome = texts.getByRole('textbox', {name: 'welcome', exact: true});
+  await expect(welcome).toHaveValue('Welcome to {name}!');
+  await welcome.fill('Hi from {name}!');
+  await texts.getByRole('button', {name: 'Сохранить (1)'}).click();
+  await expect(texts.locator('[data-text="welcome"]')).toContainText('свой');
+  await welcome.fill('Hi {user}!');
+  await texts.getByRole('button', {name: 'Сохранить (1)'}).click();
+  await expect(texts.getByRole('alert')).toContainText('{user}');
+  await texts.getByRole('button', {name: 'Стандартный текст'}).click();
+  await texts.getByRole('button', {name: 'Сохранить (1)'}).click();
+  await expect(texts.locator('[data-text="welcome"]')).not.toContainText('свой');
+  await expect(welcome).toHaveValue('Welcome to {name}!');
 });
 
 test('connected bot: live check, stale webhook, commands and a test message', async ({page}) => {
@@ -37,6 +54,7 @@ test('connected bot: live check, stale webhook, commands and a test message', as
       en: [{command: 'start', description: 'Main menu'}], uk: [{command: 'start', description: 'Головне меню'}]}}});
   });
   await page.route('**/api/admin/telegram/test-message', (r: any) => { message = r.request().postDataJSON(); return r.fulfill({json: {sent: true, message_id: 7}}); });
+  await page.route('**/api/admin/telegram/texts', (r: any) => r.fulfill({json: {languages: ['ru', 'en', 'uk'], texts: []}}));
   await page.route('**/api/admin/telegram/errors', (r: any) => r.fulfill({json: {errors: [{id: 1, level: 'ERROR', message: 'bot session failed: TelegramNetworkError', count: 2, resolved: false, last_seen: new Date().toISOString()}]}}));
   await signIn(page);
   await page.locator('.sidebar').getByRole('button', {name: /Telegram-бот/}).click();

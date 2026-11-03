@@ -1,4 +1,4 @@
-# Каталог API — v28.71.0 / API v21.5.1
+# Каталог API — v28.72.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0092_telegram_bot`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -583,6 +583,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/telegram/errors` | Errors | право `ops.diagnostics` |
 | `GET` | `/api/admin/telegram/status` | Status | право `settings.runtime.read` |
 | `POST` | `/api/admin/telegram/test-message` | Test Message | право `manage_broadcasts` |
+| `GET` | `/api/admin/telegram/texts` | Get Texts | право `settings.runtime.read` |
+| `PUT` | `/api/admin/telegram/texts` | Put Texts | право `manage_content` |
 | `POST` | `/api/admin/telegram/webhook/delete` | Delete Webhook | право `manage_content` |
 | `GET` | `/api/admin/terminal` | Admin Terminal | право `nodes.terminal` |
 | `POST` | `/api/admin/terminal/sessions` | Admin Terminal Start | право `nodes.terminal` |

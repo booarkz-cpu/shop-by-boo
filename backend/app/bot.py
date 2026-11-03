@@ -18,48 +18,28 @@ logger = logging.getLogger("remnawave.broadcast")
 
 router=Router()
 
-_BOT_TEXT = {
-    "ru": {
-        "welcome": "Добро пожаловать в {name}!",
-        "prices": "Актуальные цены",
-        "scope": " для выбранных тарифов",
-        "open": "🛒 Открыть магазин",
-        "promo_usage": "Использование: /promo КОД",
-        "promo_ready": "Промокод <b>{code}</b>. Откройте магазин и примените его к тарифу.",
-        "gift_ready": "Подарок <b>{code}</b>. Откройте магазин, чтобы активировать его.",
-        "ops_denied": "Команда только для владельца магазина.",
-        "ops_status": "Открытых нарушений: {violations}. Агентов за 5 минут: {agents}. Панель: {url}",
-    },
-    "uk": {
-        "welcome": "Ласкаво просимо до {name}!", "prices": "Актуальні ціни", "scope": " для вибраних тарифів", "open": "🛒 Відкрити магазин", "promo_usage": "Використання: /promo КОД", "promo_ready": "Промокод <b>{code}</b>. Відкрийте магазин і застосуйте його до тарифу.", "gift_ready": "Подарунок <b>{code}</b>. Відкрийте магазин, щоб активувати його.", "ops_denied": "Команда доступна лише власнику магазину.", "ops_status": "Відкритих порушень: {violations}. Агентів за 5 хвилин: {agents}. Панель: {url}",
-    },
-    "en": {
-        "welcome": "Welcome to {name}!",
-        "prices": "Current prices",
-        "scope": " for selected plans",
-        "open": "🛒 Open shop",
-        "promo_usage": "Usage: /promo CODE",
-        "promo_ready": "Promo code <b>{code}</b>. Open the shop and apply it to a plan.",
-        "gift_ready": "Gift <b>{code}</b>. Open the shop to activate it.",
-        "ops_denied": "This command is only for the shop owner.",
-        "ops_status": "Open violations: {violations}. Agents seen in 5 minutes: {agents}. Panel: {url}",
-    },
-}
+from .bot_texts import t as _t
+
+# v28.72.0: every text is in bot_texts (ru / en / uk, editable in «Telegram-бот → Тексты бота»).
+_ALIASES = {"open": "open_shop", "scope": "promo_scope"}
+
 
 def _lang(message: Message | None = None) -> str:
     code = ""
-    if message is not None and message.from_user and message.from_user.language_code:
-        code = message.from_user.language_code
+    author = getattr(message, "from_user", None) if message is not None else None
+    if author is not None and getattr(author, "language_code", None):
+        code = author.language_code
     code = (code or settings.default_language or "ru").lower()
     if code.startswith("uk") or code.startswith("ua"): return "uk"
     return "en" if code.startswith("en") else "ru"
 
 def _tr(lang: str, key: str, **kwargs) -> str:
-    table = _BOT_TEXT.get(lang) or _BOT_TEXT["ru"]
-    text = table[key]
-    for name, value in kwargs.items():
-        text = text.replace("{" + name + "}", str(value))
-    return text
+    return _t(lang, _ALIASES.get(key, key), **kwargs)
+
+
+def _qlang(query) -> str:
+    """The language of a callback's author (CallbackQuery has from_user like Message)."""
+    return _lang(query)
 
 async def get_bot_config():
     async with AsyncSession(engine,expire_on_commit=False) as db:
@@ -82,7 +62,7 @@ async def get_bot_config():
 
 def promo_text(promos,plans,lang="ru"):
     chunks=[]
-    discount_word = "скидка" if lang != "en" else "off"
+    discount_word = _tr(lang, "promo_off")
     for p in promos:
         scope="" if not p.plan_ids else _tr(lang, "scope")
         chunks.append(f"🎁 <b>{escape(p.name)}</b> — {discount_word} {p.value:g}{'%' if p.kind=='percent' else ' ₽'}{scope}.\n{escape(p.description)}".strip())
@@ -216,15 +196,15 @@ async def menu_callback(query:CallbackQuery):
     except (ValueError,IndexError):await query.answer();return
     row=next((r for r in menu if r.id==item_id),None)
     if query.data.startswith('menu-field:'):
-        if not row or row.item_type!='field' or row not in visible_children(menu,row.parent_id):await query.answer('Кнопка больше не доступна');return
+        if not row or row.item_type!='field' or row not in visible_children(menu,row.parent_id):await query.answer(_tr(_qlang(query),'menu_button_gone'));return
         field=next((f for f in fields if f.key==row.action and f.enabled),None)
-        if not field:await query.answer('Поле больше не доступно');return
+        if not field:await query.answer(_tr(_qlang(query),'menu_field_gone'));return
         await query.answer();await send_section(query.message,f'menu-{row.id}',f'<b>{escape(field.label)}</b>\n{escape(field.value)}');return
     if item_id and (not row or row.item_type!='folder' or not visible_children(menu,item_id)):
-        await query.answer('Меню пусто или больше не доступно');return
+        await query.answer(_tr(_qlang(query),'menu_empty'));return
     markup=telegram_keyboard(menu,fields,item_id or None)
     # Navigation edits the same message (banner + text + buttons) instead of posting new ones.
-    await query.answer();await send_section(query.message,f'menu-{row.id}' if row else 'menu',escape(row.title) if row else 'Меню',markup,fallback='menu',edit=True)
+    await query.answer();await send_section(query.message,f'menu-{row.id}' if row else 'menu',escape(row.title) if row else _tr(_qlang(query),'menu_title'),markup,fallback='menu',edit=True)
 
 
 async def send_app_login(message:Message):
@@ -236,23 +216,20 @@ async def send_app_login(message:Message):
     async with AsyncSession(engine, expire_on_commit=False) as db:
         user=await identity_user(db,"telegram",int(message.from_user.id))
         if not user:
-            await message.answer("Сначала отправьте /start, чтобы создать аккаунт.")
+            await message.answer(_tr(_lang(message), "start_first"))
             return
         code=await issue_app_code(db,user.id)
         await db.commit()
     lang=_lang(message)
-    text=("📱 <b>Вход в приложение</b>\nНажмите кнопку на телефоне, где установлено приложение. "
-          f"Ссылка работает один раз и действует {APP_CODE_MINUTES} минут. Никому её не пересылайте.") if lang!="en" else \
-         ("📱 <b>Sign in to the app</b>\nTap the button on the phone with the app installed. "
-          f"The link works once and expires in {APP_CODE_MINUTES} minutes. Do not forward it.")
-    markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Открыть приложение" if lang!="en" else "Open the app",url=open_url(code))]])
+    text=_tr(lang,"app_login",minutes=APP_CODE_MINUTES)
+    markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"app_open"),url=open_url(code))]])
     await message.answer(text,reply_markup=markup,parse_mode="HTML")
 
 
 @router.message(Command("app"))
 async def app_command(message:Message):
     if not _private(message):
-        await message.answer("Откройте личный чат с ботом, чтобы войти в приложение.")
+        await message.answer(_tr(_lang(message), "private_only"))
         return
     await send_app_login(message)
 
@@ -260,7 +237,7 @@ async def app_command(message:Message):
 @router.message(CommandStart())
 async def start(message:Message):
     if getattr(getattr(message,"chat",None),"type","private")!="private":
-        await message.answer("Откройте личный чат с ботом для управления аккаунтом.")
+        await message.answer(_tr(_lang(message), "private_only"))
         return
     parts=(message.text or "").split(maxsplit=1)
     incoming=parts[1].strip().split()[0] if len(parts)>1 else ""
@@ -303,8 +280,8 @@ async def start(message:Message):
             lacking = await missing_channels(tg_id, "all")
             if lacking:
                 rows = [[InlineKeyboardButton(text=c["title"], url=c["url"])] for c in lacking if c.get("url")]
-                await send_section(message, "channels", "Чтобы пользоваться ботом, подпишитесь: " + ", ".join(escape(c["title"]) for c in lacking)
-                                   + ". Затем снова нажмите /start.", InlineKeyboardMarkup(inline_keyboard=rows) if rows else None, fallback="start")
+                await send_section(message, "channels", _tr(_lang(message), "channels_required", channels=", ".join(escape(c["title"]) for c in lacking)),
+                                   InlineKeyboardMarkup(inline_keyboard=rows) if rows else None, fallback="start")
                 return
             from .economics import remember_source, source_from_start
             from .ad_postbacks import click_from_start, remember_click
@@ -357,10 +334,10 @@ async def start(message:Message):
     if not buttons: buttons=[[InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=shop_url))]]
     elif gift_code or family_code:
         buttons.append([InlineKeyboardButton(text=_tr(lang,"open"),web_app=WebAppInfo(url=shop_url))])
-    name=escape(vals.get("bot_name") or "Корги Люси"); text=_tr(lang,"welcome",name=name)
+    name=escape(vals.get("bot_name") or _tr(lang,"shop_name")); text=_tr(lang,"welcome",name=name)
     pt=promo_text(promos,plans,lang)
     if gift_code: text += "\n\n"+_tr(lang,"gift_ready",code=escape(gift_code))
-    if family_code: text += "\n\n"+("👨‍👩‍👧 Вас пригласили в семейную подписку. Откройте магазин, чтобы присоединиться." if lang!="en" else "👨‍👩‍👧 You are invited to a family subscription. Open the shop to join.")
+    if family_code: text += "\n\n"+_tr(lang,"family_invite")
     if pt: text += "\n\n"+pt
     price_lines=[]
     for plan in plans:
@@ -381,8 +358,21 @@ async def start(message:Message):
 
 # ---------------------------------------------------------------- documents (v28.29.0)
 
-INFO_EMPTY = {"ru": "Документы пока не опубликованы.", "en": "No documents are published yet.", "uk": "Документи ще не опубліковані."}
-INFO_TITLE = {"ru": "ℹ️ <b>Информация</b>", "en": "ℹ️ <b>Information</b>", "uk": "ℹ️ <b>Інформація</b>"}
+class _Texts(dict):
+    """INFO_EMPTY / INFO_TITLE by language, from the texts registry."""
+    def __init__(self, key):
+        super().__init__()
+        self.key = key
+
+    def __getitem__(self, lang):
+        return _tr(lang, self.key)
+
+    def get(self, lang, default=None):
+        return _tr(lang, self.key)
+
+
+INFO_EMPTY = _Texts("info_empty")
+INFO_TITLE = _Texts("info_title")
 
 
 async def show_info(message, kind: str, lang: str, *, edit: bool = False):
@@ -443,23 +433,22 @@ async def info_callback(query: CallbackQuery):
 @router.message(Command("buy"))
 async def buy(message: Message):
     if not _private(message):
-        await message.answer("Откройте личный чат с ботом, чтобы выбрать тариф.")
+        await message.answer(_tr(_lang(message), "private_only"))
         return
     lang = _lang(message)
     _, _, _, _, _, plans = await get_bot_config()
     if not plans:
-        await message.answer("Магазин временно не содержит тарифов." if lang == "ru" else "The shop has no plans configured.")
+        await message.answer(_tr(lang, "plans_empty"))
         return
     currency = escape(settings.default_currency or "RUB")
-    unit = "дн." if lang == "ru" else "days"
-    lines = [f"• {escape(p.name)} — {p.price:.2f} {currency} / {p.duration_days} {unit}" for p in plans]
+    lines = [_tr(lang, "plan_line", plan=escape(p.name), price=f"{p.price:.2f}", currency=currency, days=p.duration_days) for p in plans]
     url = settings.mini_app_url
-    await send_section(message, "buy", ("🛒 <b>Тарифы</b>\n" if lang == "ru" else "🛒 <b>Plans</b>\n") + "\n".join(lines), InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang, "open"), web_app=WebAppInfo(url=url))]]))
+    await send_section(message, "buy", _tr(lang, "plans_title") + "\n" + "\n".join(lines), InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang, "open"), web_app=WebAppInfo(url=url))]]))
 
 @router.message(Command("subscription"))
 async def subscription(message: Message):
     if getattr(getattr(message,"chat",None),"type","private")!="private":
-        await message.answer("Откройте личный чат с ботом для просмотра подписки.")
+        await message.answer(_tr(_lang(message), "private_only"))
         return
     lang = _lang(message)
     if not message.from_user:
@@ -471,9 +460,9 @@ async def subscription(message: Message):
         from .sub_proxy import config as proxy_config
         await proxy_config(db)  # the bot runs in its own process: read the proxy settings for client_url
     if not sub or not sub.subscription_url:
-        await send_section(message, "subscription", "Активной подписки нет. Откройте магазин." if lang == "ru" else "No active subscription. Open the shop.", InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"), web_app=WebAppInfo(url=settings.mini_app_url))]]))
+        await send_section(message, "subscription", _tr(lang, "no_subscription"), InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang,"open"), web_app=WebAppInfo(url=settings.mini_app_url))]]))
         return
-    await send_section(message, "subscription", ("Ваша подписка:\n" if lang == "ru" else "Your subscription:\n") + escape(client_url(sub.subscription_url) or ""))
+    await send_section(message, "subscription", _tr(lang, "your_subscription") + "\n" + escape(client_url(sub.subscription_url) or ""))
 
 @router.message(Command("contest"))
 async def contest_command(message: Message):
@@ -486,12 +475,13 @@ async def contest_command(message: Message):
         user = await identity_user(db, "telegram", int(message.from_user.id))
         contest = await current(db)
         view = public(contest, await leaderboard(db, contest, 100), user.id if user else None) if contest else None
+    lang = _lang(message)
     if not view:
-        await send_section(message, "contest", "Сейчас конкурса нет — следите за новостями.", fallback="referral")
+        await send_section(message, "contest", _tr(lang, "contest_none"), fallback="referral")
         return
-    lines = [f"🏆 <b>{escape(view['title'])}</b> — до {view['ends_at'][:10]}", ""]
+    lines = [_tr(lang, "contest_title", title=escape(view["title"]), date=view["ends_at"][:10]), ""]
     lines += [f"{r['place']}. {escape(r['name'])} — {r['score']}" for r in view["top"]]
-    lines += ["", f"Вы на {view['me']['place']} месте ({view['me']['score']})" if view["me"] else "Пригласите друга по своей ссылке, чтобы попасть в таблицу: /referral"]
+    lines += ["", _tr(lang, "contest_place", place=view["me"]["place"], score=view["me"]["score"]) if view["me"] else _tr(lang, "contest_join")]
     await send_section(message, "contest", "\n".join(lines), fallback="referral")
 
 
@@ -507,14 +497,15 @@ async def status_command(message: Message):
         user = await identity_user(db, "telegram", int(message.from_user.id))
         page = await build(db)
         on = bool(user and await db.scalar(select(StatusSubscriber.id).where(StatusSubscriber.user_id == user.id)))
-    head = {"operational": "🟢 Всё работает", "degraded": "🟡 Часть сервиса работает с перебоями", "outage": "🔴 Серьёзный сбой"}.get(page["overall"], "⚪️ Нет данных")
+    lang = _lang(message)
+    head = _tr(lang, {"operational": "status_operational", "degraded": "status_degraded", "outage": "status_outage"}.get(page["overall"], "status_unknown"))
     lines = [f"<b>{head}</b>"]
     lines += [f"{r['country']}: {r['label']} ({r['online']}/{r['total']})" for r in page["regions"][:12]]
     lines += [f"{c['name']}: {c['label']}" for c in page["components"][:6]]
     opened = [i for i in page["incidents"] if i["status"] == "open"][:3]
     if opened:
-        lines.append("\n<b>Сейчас:</b> " + "; ".join(escape(i["title"]) for i in opened))
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🔕 Не сообщать о сбоях" if on else "🔔 Сообщать о сбоях",
+        lines.append("\n" + _tr(lang, "status_now", incidents="; ".join(escape(i["title"]) for i in opened)))
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang, "status_notify_off") if on else _tr(lang, "status_notify_on"),
                                                                            callback_data="status:off" if on else "status:on")]]) if user else None
     await message.answer("\n".join(lines), parse_mode="HTML", reply_markup=keyboard)
 
@@ -527,7 +518,7 @@ async def status_toggle(query: CallbackQuery):
         from .account_merge import identity_user
         user = await identity_user(db, "telegram", int(query.from_user.id))
         if not user:
-            await query.answer("Начните с /start")
+            await query.answer(_tr(_qlang(query), "start_first"))
             return
         if query.data == "status:on":
             if not await db.scalar(select(StatusSubscriber.id).where(StatusSubscriber.user_id == user.id)):
@@ -535,7 +526,7 @@ async def status_toggle(query: CallbackQuery):
         else:
             await db.execute(delete(StatusSubscriber).where(StatusSubscriber.user_id == user.id))
         await db.commit()
-    await query.answer("Буду сообщать о сбоях и восстановлении" if query.data == "status:on" else "Больше не сообщаю о сбоях")
+    await query.answer(_tr(_qlang(query), "status_subscribed" if query.data == "status:on" else "status_unsubscribed"))
 
 
 @router.callback_query(lambda query: bool(query.data and (query.data.startswith("csat:") or query.data.startswith("nps:"))))
@@ -548,7 +539,7 @@ async def feedback_answer(query: CallbackQuery):
         from .account_merge import identity_user
         user = await identity_user(db, "telegram", int(query.from_user.id))
         if not user:
-            await query.answer("Начните с /start")
+            await query.answer(_tr(_qlang(query), "start_first"))
             return
         try:
             if kind == "csat":
@@ -556,12 +547,12 @@ async def feedback_answer(query: CallbackQuery):
             else:
                 await record(db, user.id, "nps", int(score), wave=ref)
         except (HTTPException, ValueError):
-            await query.answer("Не получилось сохранить оценку")
+            await query.answer(_tr(_qlang(query), "feedback_failed"))
             return
-    await query.answer("Спасибо за оценку!")
+    await query.answer(_tr(_qlang(query), "feedback_thanks"))
     if query.message:
         low = (kind == "csat" and int(score) <= 3) or (kind == "nps" and int(score) <= 6)
-        await query.message.answer("Спасибо! Расскажите, что можно сделать лучше, — просто напишите в поддержку." if low else "Спасибо, что помогаете нам стать лучше!")
+        await query.message.answer(_tr(_qlang(query), "feedback_low" if low else "feedback_high"))
 
 
 @router.message(Command("filter"))
@@ -575,13 +566,14 @@ async def filter_command(message: Message):
         from .account_merge import identity_user
         user = await identity_user(db, "telegram", int(message.from_user.id))
         v = await view(db, await owned(db, user.id)) if user else None
+    lang = _lang(message)
     if not v or not v["enabled"]:
-        await message.answer("Фильтр сейчас недоступен.")
+        await message.answer(_tr(lang, "filter_unavailable"))
         return
-    current = next((m["title"] for m in v["modes"] if m["key"] == v["mode"]), "без фильтра")
-    rows = [[InlineKeyboardButton(text=("✅ " if not v["mode"] else "") + "Без фильтра", callback_data="filter:off")]]
+    current = next((m["title"] for m in v["modes"] if m["key"] == v["mode"]), _tr(lang, "filter_none"))
+    rows = [[InlineKeyboardButton(text=("✅ " if not v["mode"] else "") + _tr(lang, "filter_none"), callback_data="filter:off")]]
     rows += [[InlineKeyboardButton(text=("✅ " if v["mode"] == m["key"] else "") + m["title"], callback_data=f"filter:{m['key']}")] for m in v["modes"]]
-    await message.answer(f"Сейчас: {current}. Фильтр работает на сервере — на всех ваших устройствах.", reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
+    await message.answer(_tr(lang, "filter_current", mode=current), reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
 
 
 @router.callback_query(lambda query: bool(query.data and query.data.startswith("filter:")))
@@ -596,14 +588,14 @@ async def filter_choose(query: CallbackQuery):
         user = await identity_user(db, "telegram", int(query.from_user.id))
         sub = await owned(db, user.id, lock=True) if user else None
         if not sub or await is_family_subscription(db, sub.id):
-            await query.answer("Фильтр этой подписки включает владелец семьи" if sub else "Подписка не найдена", show_alert=True)
+            await query.answer(_tr(_qlang(query), "filter_family" if sub else "subscription_not_found"), show_alert=True)
             return
         try:
             await set_filter(db, sub, mode, "bot")
         except HTTPException as exc:
             await query.answer(str(exc.detail)[:190], show_alert=True)
             return
-    await query.answer("Готово — фильтр включится в течение минуты" if mode else "Фильтр выключен")
+    await query.answer(_tr(_qlang(query), "filter_on" if mode else "filter_off"))
 
 
 @router.message(Command("level"))
@@ -616,19 +608,22 @@ async def level_command(message: Message):
         from .account_merge import identity_user
         user = await identity_user(db, "telegram", int(message.from_user.id))
         lv = await current(db, user.id) if user else None
+    lang = _lang(message)
     if not lv:
-        await message.answer("Уровни лояльности сейчас не действуют.")
+        await message.answer(_tr(lang, "level_off"))
         return
 
     def perks(x):
-        items = [f"кешбэк {x['cashback_percent']}%" if x.get("cashback_percent") else "", f"скидка {x['discount_percent']}%" if x.get("discount_percent") else ""]
+        items = [_tr(lang, "level_cashback", percent=x["cashback_percent"]) if x.get("cashback_percent") else "",
+                 _tr(lang, "level_discount", percent=x["discount_percent"]) if x.get("discount_percent") else ""]
         return ", ".join(i for i in items if i) or "—"
-    lines = [f"🏅 <b>Ваш уровень: {escape(lv['title'])}</b>", perks(lv)]
+    lines = [_tr(lang, "level_current", level=escape(lv["title"])), perks(lv)]
     if lv["next"]:
-        lines.append(f"\nДо уровня «{escape(lv['next']['title'])}»: {escape(lv['next']['need'] or 'совсем немного')}. Там: {perks(lv['next'])}"
-                     + (f", +{lv['next']['bonus_days']} дн. в подарок" if lv["next"].get("bonus_days") else "") + ".")
+        lines.append("\n" + _tr(lang, "level_next", level=escape(lv["next"]["title"]), need=escape(lv["next"]["need"] or _tr(lang, "level_need_little")),
+                                 perks=perks(lv["next"]))
+                     + (_tr(lang, "level_bonus_days", days=lv["next"]["bonus_days"]) if lv["next"].get("bonus_days") else "") + ".")
     else:
-        lines.append("\nУ вас высший уровень — спасибо, что вы с нами!")
+        lines.append("\n" + _tr(lang, "level_top"))
     await message.answer("\n".join(lines), parse_mode="HTML")
 
 
@@ -644,20 +639,20 @@ async def freeze_command(message: Message):
         user = await identity_user(db, "telegram", int(message.from_user.id))
         sub = await owned(db, user.id) if user else None
         s = await status_for(db, user, sub) if user else None
+    lang = _lang(message)
     if not s or not s["enabled"] or not sub:
-        await message.answer("Заморозка подписки сейчас недоступна.")
+        await message.answer(_tr(lang, "freeze_unavailable"))
         return
     if s["frozen"]:
-        await message.answer(f"Подписка заморожена до {s['frozen']['until'][:10]}. Разморозить сейчас? Неиспользованные дни заморозки вычтутся из срока.",
-                             reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="▶️ Разморозить", callback_data="freeze:thaw")]]))
+        await message.answer(_tr(lang, "freeze_frozen", date=s["frozen"]["until"][:10]),
+                             reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang, "freeze_thaw_button"), callback_data="freeze:thaw")]]))
         return
     if s["reason"]:
         await message.answer(s["reason"])
         return
     options = sorted({d for d in (s["min_days"], 7, 14, 30, s["max_days"]) if s["min_days"] <= d <= min(s["max_days"], s["days_left"])})
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=f"{d} дн.", callback_data=f"freeze:{d}") for d in options[:5]]])
-    await message.answer(f"Поставить подписку на паузу? VPN выключится, оплаченные дни сохранятся, срок сдвинется. В этом году доступно ещё {s['days_left']} дн.",
-                         reply_markup=keyboard)
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=_tr(lang, "freeze_days_button", days=d), callback_data=f"freeze:{d}") for d in options[:5]]])
+    await message.answer(_tr(lang, "freeze_offer", days=s["days_left"]), reply_markup=keyboard)
 
 
 @router.callback_query(lambda query: bool(query.data and query.data.startswith("freeze:")))
@@ -669,19 +664,20 @@ async def freeze_action(query: CallbackQuery):
         from .account_merge import identity_user
         user = await identity_user(db, "telegram", int(query.from_user.id))
         sub = await owned(db, user.id, lock=True) if user else None
+        lang = _qlang(query)
         if not sub:
-            await query.answer("Подписка не найдена")
+            await query.answer(_tr(lang, "subscription_not_found"))
             return
         value = query.data.split(":", 1)[1]
         try:
             if value == "thaw":
                 if not await thaw(db, sub, commit=True):
-                    await query.answer("Подписка не заморожена")
+                    await query.answer(_tr(lang, "freeze_not_frozen"))
                     return
-                text = f"VPN снова работает. Подписка действует до {sub.expires_at:%d.%m.%Y}."
+                text = _tr(lang, "freeze_thawed", date=f"{sub.expires_at:%d.%m.%Y}")
             else:
                 result = await freeze(db, user, sub, int(value))
-                text = f"Подписка заморожена до {result['until'][:10]}. Разморозить раньше: /freeze"
+                text = _tr(lang, "freeze_done", date=result["until"][:10])
         except HTTPException as exc:
             await query.answer(str(exc.detail)[:190], show_alert=True)
             return
@@ -702,20 +698,21 @@ async def keys_command(message: Message):
         user = await identity_user(db, "telegram", int(message.from_user.id))
         sub = (await db.execute(select(Subscription).where(Subscription.user_id == user.id, Subscription.is_primary.is_(True)))).scalar_one_or_none() if user else None
     short = short_uuid_of(sub.subscription_url) if sub and sub.expires_at and sub.expires_at > datetime.utcnow() else ""
+    lang = _lang(message)
     if not short:
-        await message.answer("Активной подписки нет. Откройте магазин: /start")
+        await message.answer(_tr(lang, "no_subscription"))
         return
     try:
         from .remnawave import RemnawaveClient
         info = await RemnawaveClient()._request("GET", f"/api/subscriptions/by-short-uuid/{short}")
     except Exception:  # noqa: BLE001 — the panel is unavailable
-        await message.answer("Сейчас не получилось получить ключи — попробуйте чуть позже или откройте кабинет.")
+        await message.answer(_tr(lang, "keys_unavailable"))
         return
     links = [x for x in (info or {}).get("links") or [] if isinstance(x, str) and "://" in x and "@0.0.0.0:1" not in x][:8]
     if not links:
-        await message.answer("В подписке пока нет серверов.")
+        await message.answer(_tr(lang, "keys_empty"))
         return
-    lines = ["🔑 <b>Ключи подключения</b> — нажмите, чтобы скопировать:"]
+    lines = [_tr(lang, "keys_title")]
     lines += [f"{escape(unquote(x.split('#', 1)[1]) if '#' in x else x.split('://')[0])}\n<code>{escape(x)}</code>" for x in links]
     text = "\n\n".join(lines)
     # A photo caption holds 1024 characters: long key lists go as a plain message.
@@ -735,18 +732,21 @@ async def stats_command(message: Message):
         from .customer_insights import stats
         user = await identity_user(db, "telegram", int(message.from_user.id))
         data = await stats(db, user) if user else None
+    lang = _lang(message)
     if not data:
-        await message.answer("Откройте магазин, чтобы начать: /start")
+        await message.answer(_tr(lang, "start_first"))
         return
-    traffic = f"{data['traffic_used_gb']} ГБ" + (f" из {data['traffic_limit_gb']}" if data["traffic_limit_gb"] else "") if data["traffic_used_gb"] is not None else "—"
-    await send_section(message, "stats", f"📊 <b>Моя статистика</b>\nС нами {data['days_with_us']} дн., оплачено {data['days_paid']} дн. VPN\n"
-                                          f"Трафик за период: {traffic}\nУстройства: {data['devices']}" + (f" из {data['device_limit']}" if data["device_limit"] else ""), fallback="account")
+    of, gb = _tr(lang, "of"), _tr(lang, "gb")
+    traffic = f"{data['traffic_used_gb']} {gb}" + (f" {of} {data['traffic_limit_gb']}" if data["traffic_limit_gb"] else "") if data["traffic_used_gb"] is not None else "—"
+    devices = f"{data['devices']}" + (f" {of} {data['device_limit']}" if data["device_limit"] else "")
+    await send_section(message, "stats", _tr(lang, "stats", days_with_us=data["days_with_us"], days_paid=data["days_paid"], traffic=traffic, devices=devices),
+                       fallback="account")
 
 
 @router.message(Command("promo"))
 async def promo(message:Message):
     if not _private(message):
-        await message.answer("Откройте личный чат с ботом, чтобы применить промокод.")
+        await message.answer(_tr(_lang(message), "private_only"))
         return
     lang=_lang(message)
     code=(message.text or "").split(maxsplit=1)
@@ -767,7 +767,7 @@ async def stars_pre_checkout(query: PreCheckoutQuery):
             error = await check_pre_checkout(db, order_id=query.invoice_payload, currency=query.currency, total=query.total_amount, telegram_id=query.from_user.id)
     except Exception:
         logger.exception("Stars pre-checkout check failed")
-        error = "Не удалось проверить счёт. Попробуйте ещё раз."
+        error = _tr(_lang(query), "stars_check_failed")
     await query.answer(ok=error is None, error_message=error)
 
 
@@ -783,11 +783,11 @@ async def stars_paid(message: Message):
                                             is_recurring=bool(getattr(paid, "is_recurring", False)),
                                             is_first_recurring=bool(getattr(paid, "is_first_recurring", False)),
                                             period_end=datetime.utcfromtimestamp(expires) if isinstance(expires, int) else None)
-        await message.answer("⭐ Оплата получена: подписка продлена." if paid.invoice_payload.startswith("starsub-") else "⭐ Оплата получена, баланс пополнен.")
+        await message.answer(_tr(_lang(message), "stars_paid_subscription" if paid.invoice_payload.startswith("starsub-") else "stars_paid_balance"))
     except Exception:
         # The charge id is in the update log; reconciliation by an operator uses it.
         logger.exception("Stars payment %s was not recorded", paid.telegram_payment_charge_id)
-        await message.answer("Оплата получена. Зачисление на баланс задерживается — поддержка уже видит платёж.")
+        await message.answer(_tr(_lang(message), "stars_delayed"))
 
 
 @router.message(Command("ops"))
@@ -803,7 +803,7 @@ async def ops(message: Message):
         cutoff = datetime.utcnow() - timedelta(minutes=5)
         agents = int(await db.scalar(select(func.count()).select_from(NodeAgent).where(NodeAgent.last_seen_at.is_not(None), NodeAgent.last_seen_at >= cutoff)) or 0)
     url = f"https://{settings.admin_domain}" if settings.admin_domain and settings.admin_domain != "localhost" else settings.public_base_url
-    buttons = [[InlineKeyboardButton(text="Панель" if lang == "ru" else "Panel", url=url)]]
+    buttons = [[InlineKeyboardButton(text=_tr(lang, "ops_panel"), url=url)]]
     await message.answer(_tr(lang, "ops_status", violations=violations, agents=agents, url=escape(url)), reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons), parse_mode="HTML")
 
 POLL_CHECK = 60   # seconds between getMe calls (the connection check «Состояние системы» shows)
@@ -819,6 +819,16 @@ async def _report(**fields) -> None:
         logger.warning("bot state not saved: %s", exc)
 
 
+async def _refresh_texts() -> None:
+    """The owner's text overrides, at most once a minute (bot_texts.refresh)."""
+    from .bot_texts import refresh
+    try:
+        async with AsyncSession(engine, expire_on_commit=False) as db:
+            await refresh(db)
+    except Exception as exc:  # noqa: BLE001 — the defaults keep working without the database
+        logger.warning("bot texts not refreshed: %s", exc)
+
+
 class _Updates:
     """Counts updates between state writes (one write a minute, not one per message)."""
     def __init__(self):
@@ -827,6 +837,7 @@ class _Updates:
     async def __call__(self, handler, event, data):
         self.count += 1
         self.last = datetime.utcnow()
+        await _refresh_texts()
         return await handler(event, data)
 
     def take(self) -> tuple[int, datetime | None]:
