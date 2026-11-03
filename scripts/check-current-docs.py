@@ -55,8 +55,8 @@ def main() -> None:
     expected = {
         "version": VERSION,
         "distribution_tag": DISTRIBUTION_TAG,
-        "artifact": "remnawave_vpn_shop_v28_69_0_full_release.zip",
-        "detached_manifest": "remnawave_vpn_shop_v28_69_0_full_release_manifest.json",
+        "artifact": "remnawave_vpn_shop_v28_70_0_full_release.zip",
+        "detached_manifest": "remnawave_vpn_shop_v28_70_0_full_release_manifest.json",
         "migration_head": SHOP_HEAD,
         "support_migration_head": SUPPORT_HEAD,
         "upgrade_from": "21.5.0",
