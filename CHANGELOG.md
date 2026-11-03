@@ -1,3 +1,13 @@
+# v28.72.0
+
+- Тексты Telegram-бота, часть Б этапа 13: реестр `backend/app/bot_texts.py` — около 100 текстов на ru/en/uk, бот
+  отвечает на языке Telegram клиента; правка в «Telegram-бот → Тексты бота» (`GET/PUT /api/admin/telegram/texts`,
+  проверка подстановок и HTML-тегов, применение в течение минуты, журнал `telegram.texts.updated`).
+- Тест не пропускает русские строки в обработчиках бота мимо реестра.
+- `rw_releases`: повторные попытки при сбое соединения с GitHub и ответах 5xx.
+- Документ `docs/ru/new/TELEGRAM_MINI_APP.md`: вход в Mini App по `initData`, функции бота и Mini App по списку этапа.
+- Миграций нет: head `0092_telegram_bot`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_72_0.md](docs/ru/RELEASE_V28_72_0.md).
+
 # v28.71.0
 
 - Telegram-бот из админки, часть А (этап 13; `backend/app/telegram_bot.py`, «Бот и кабинет → Telegram-бот»):

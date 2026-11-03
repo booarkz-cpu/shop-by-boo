@@ -2,6 +2,14 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-03 — этап 13, часть Б: тексты бота на трёх языках, выпуск v28.72.0
+
+**Что сделано.** Реестр `bot_texts.py` (ru/en/uk) вместо строк в обработчиках `bot.py` и `bot_workspace.py`; раздел «Тексты бота»; сверка функций бота и Mini App (`TELEGRAM_MINI_APP.md`); повторы в `rw_releases`.
+
+**Проверено.** `tests/test_bot_texts.py`, все тесты, импортирующие бот (`test_menu_hierarchy` выявил автора без `language_code` — исправлено), e2e `telegram-bot.spec.ts`.
+
+**Осталось.** Покупка через Mini App с настоящей кассой — этап 14.
+
 ## 2026-11-03 — этап 13, часть А: Telegram-бот из админки, выпуск v28.71.0
 
 **Источники.** Код бота (`bot.py`, aiogram 3.31, long polling), «Настройки без перезапуска», «Состояние системы»; Bot API: `getMe`, `getWebhookInfo`, `deleteWebhook`, `setMyCommands`, `deleteMyCommands`, `sendMessage`.

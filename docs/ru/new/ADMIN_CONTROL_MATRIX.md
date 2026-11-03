@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.71.0
+# Управляемость из админки — v28.72.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -31,7 +31,7 @@
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | IMPLEMENTED |
 | 22 | Updates | Обновления, Развёртывания | 9 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `ops.releases`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 23 | Automation | Автоматизация, Очередь задач, Фоновые процессы | 8 | ✓ | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | `feature_flags.manage`, `manage_marketing`, `payments.retry`, `read` | IMPLEMENTED |
-| 24 | Telegram | Telegram-бот, Меню бота и Mini App, Дерево кнопок, Баннеры бота, Документы | 26 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `legal.write`, `manage_broadcasts`, `manage_content`, `manage_marketing`, `marketing.read`, `ops.diagnostics`, `read`, `settings.runtime.read` | IMPLEMENTED |
+| 24 | Telegram | Telegram-бот, Меню бота и Mini App, Дерево кнопок, Баннеры бота, Документы | 28 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `legal.write`, `manage_broadcasts`, `manage_content`, `manage_marketing`, `marketing.read`, `ops.diagnostics`, `read`, `settings.runtime.read` | IMPLEMENTED |
 | 25 | Integrations | Интеграции, Почтовый домен: SPF, DKIM, DMARC | 17 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `analytics.read`, `ops.diagnostics`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
 | 26 | Plugins | Плагины | 14 | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | `ops.diagnostics`, `security.manage` | IMPLEMENTED |
 | 27 | Security | Защита и 2FA, Ключи доступа, Роли и администраторы, Сессии, Антифрод | 23 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `analytics.read`, `manage_admins`, `ops.diagnostics`, `read`, `security.manage`, `sessions.manage`, `settings.runtime.write`, `users.read` | IMPLEMENTED |
