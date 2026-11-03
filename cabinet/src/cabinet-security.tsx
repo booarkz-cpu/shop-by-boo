@@ -41,6 +41,25 @@ export function HwidDevices({request}: {request: RequestFn}) {
   </div>;
 }
 
+/** «Сменить ссылку подписки» (v28.67.0): for a link that leaked — the VPN panel issues a new one, the old one stops
+ *  working. Once per 10 minutes (the server enforces it). */
+export function ResetSubscriptionLink({request}: {request: RequestFn}) {
+  const [state, setState] = useState<{busy?: boolean; error?: string; url?: string}>({});
+  async function reset() {
+    if (!window.confirm("Сменить ссылку подписки? Старая перестанет работать: в VPN-приложении подписку нужно будет добавить заново.")) return;
+    setState({busy: true});
+    try { const out = await request("/api/me/subscription/reset-link", {method: "POST"}); setState({url: out.subscription_url}); }
+    catch (e: any) { setState({error: e.message || "Не удалось сменить ссылку"}); }
+  }
+  return <div className="form-card stack" data-reset-subscription-link>
+    <h3>Ссылка подписки</h3>
+    <p className="section-sub">Если ссылкой мог воспользоваться кто-то другой, замените её: старая сразу перестанет работать.</p>
+    {state.error && <p className="section-sub" role="alert">{state.error}</p>}
+    {state.url && <p className="section-sub" role="status">Новая ссылка: <code>{state.url}</code>. Добавьте её в VPN-приложение заново.</p>}
+    <button type="button" className="btn-ghost" disabled={state.busy} onClick={reset}>{state.busy ? "Меняем…" : "Сменить ссылку подписки"}</button>
+  </div>;
+}
+
 /** «Безопасность»: every sign-in with its own «Завершить», the current one marked (v28.63.0). */
 export function SessionsList({request, onCurrentRevoked}: {request: RequestFn; onCurrentRevoked: () => void}) {
   const [rows, setRows] = useState<any[] | null>(null);

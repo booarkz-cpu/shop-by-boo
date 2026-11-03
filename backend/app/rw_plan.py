@@ -54,6 +54,8 @@ class PlanIn(BaseModel):
     node_name: str = Field(default="node", min_length=3, max_length=24, pattern=r"^[A-Za-z0-9_-]+$")
     country_code: str = Field(default="XX", pattern=r"^[A-Z]{2}$")
     firewall: bool = True
+    # v28.67.0: «закрыть доступ к панели» — the panel's pages answer only with the access cookie (rw_plan.caddyfile).
+    panel_access: Literal["open", "cookie"] = "open"
 
     @model_validator(mode="after")
     def check(self):
@@ -92,6 +94,8 @@ class PlanIn(BaseModel):
             raise ValueError("В этом режиме страница подписки не ставится")
         if self.subpage_server_id and not self.sub_domain:
             raise ValueError("Нужен домен страницы подписки")
+        if self.panel_access == "cookie" and not self.panel_server_id:
+            raise ValueError("Закрыть доступ можно к панели, которую ставит мастер")
         if self.tls == "acme" and (self.panel_domain or self.sub_domain) and not self.acme_email:
             raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
         return self
@@ -154,6 +158,8 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
         steps += [step("write_files", sid, f"{name}: Caddy для {', '.join(sites)}", component="proxy"),
                   step("compose_up", sid, f"{name}: запуск Caddy (HTTPS)", component="proxy")]
         changes[sid].append(f"Caddy занимает порты 80 и 443; сертификаты: {'Let’s Encrypt (HTTP-01)' if plan.tls == 'acme' else 'внутренний центр Caddy'}")
+        if sid == p and plan.panel_access == "cookie":
+            changes[sid].append("Доступ к страницам панели закрыт: открывается только по секретной ссылке (API с токеном и подписки работают)")
     for n in plan.node_server_ids:
         name = servers[n]["name"]
         steps += [step("write_files", n, f"{name}: файлы ноды", component="node"),
@@ -290,16 +296,37 @@ def subpage_network_compose_needed(local: bool) -> str:
     return "" if local else "docker network inspect remnawave-network >/dev/null 2>&1 || docker network create remnawave-network"
 
 
-def caddyfile(sites: dict[str, int], tls: str, email: str | None) -> str:
+COOKIE_PART = re.compile(r"^[A-Za-z0-9]{8,64}$")
+
+
+def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[str, tuple[str, str]] | None = None) -> str:
     """``sites`` — domain → local port. Caddy terminates TLS and adds X-Forwarded-For/-Proto, which the panel and
-    the subscription page require."""
+    the subscription page require.
+
+    ``protect`` — domain → (cookie name, value): the idea of ``manage_panel_access`` in eGamesAPI/remnawave-reverse-proxy
+    (MIT, Copyright (c) 2025 eGames), written for this builder. Opening ``https://<domain>/?<name>=<value>`` once sets
+    the cookie; without it the connection is closed, as if nothing listened. Requests with a bearer token to ``/api/``
+    (the shop, the panel's own pages after login) and subscriptions ``/api/sub/`` stay open: they are authorized by the
+    panel itself."""
+    protect = protect or {}
     lines = []
     if email:
         lines += ["{", f"\temail {email}", "}", ""]
     for domain, port in sites.items():
         if not DOMAIN.match(domain):
             raise ValueError("Некорректный домен")
-        lines += [f"{domain} {{", *(["\ttls internal"] if tls == "internal" else []), f"\treverse_proxy 127.0.0.1:{int(port)}", "}", ""]
+        body = [*(["\ttls internal"] if tls == "internal" else [])]
+        if domain in protect:
+            name, value = protect[domain]
+            if not (COOKIE_PART.match(name) and COOKIE_PART.match(value)):
+                raise ValueError("Некорректный ключ доступа")
+            body += [f"\t@key query {name}={value}",
+                     f'\theader @key +Set-Cookie "{name}={value}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=2592000"',
+                     "\t@locked {", f"\t\tnot header Cookie *{name}={value}*", f"\t\tnot query {name}={value}",
+                     "\t\tnot path /api/sub/*", "\t\tnot {", "\t\t\tpath /api/*", '\t\t\theader Authorization "Bearer *"', "\t\t}", "\t}",
+                     "\tabort @locked"]
+        body.append(f"\treverse_proxy 127.0.0.1:{int(port)}")
+        lines += [f"{domain} {{", *body, "}", ""]
     return "\n".join(lines)
 
 

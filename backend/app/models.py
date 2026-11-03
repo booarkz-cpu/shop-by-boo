@@ -2241,6 +2241,31 @@ class RemnawaveDeploymentStep(Base):
     started_at: Mapped[datetime|None] = mapped_column(DateTime)
     finished_at: Mapped[datetime|None] = mapped_column(DateTime)
 
+class RemnawaveDomain(Base):
+    """v28.67: Domain Manager — a domain of the subscription portal, a Remnawave panel or a node
+    (docs/ru/new/SUBSCRIPTION_DOMAIN.md). ``served_by``: ``shop`` — the shop's Caddy issues the certificate on demand
+    (it asks ``/caddy/ask``); ``remnawave`` — Caddy of a wizard server; ``external`` — only checked."""
+    __tablename__ = "remnawave_domains"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    domain: Mapped[str] = mapped_column(String(253), unique=True, nullable=False)
+    purpose: Mapped[str] = mapped_column(String(24), nullable=False)
+    served_by: Mapped[str] = mapped_column(String(16), nullable=False)
+    server_id: Mapped[int|None] = mapped_column(Integer)
+    expected_ip: Mapped[str|None] = mapped_column(String(64))
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"), nullable=False)
+    dns_status: Mapped[str] = mapped_column(String(16), default="unknown", nullable=False)
+    dns_records: Mapped[dict|None] = mapped_column(JSON)
+    dns_checked_at: Mapped[datetime|None] = mapped_column(DateTime)
+    cert_status: Mapped[str] = mapped_column(String(16), default="unknown", nullable=False)
+    cert_issuer: Mapped[str|None] = mapped_column(String(200))
+    cert_expires_at: Mapped[datetime|None] = mapped_column(DateTime)
+    cert_checked_at: Mapped[datetime|None] = mapped_column(DateTime)
+    http_status: Mapped[int|None] = mapped_column(Integer)
+    last_error: Mapped[str|None] = mapped_column(Text)
+    created_by: Mapped[str] = mapped_column(String(320), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
 # Indexes that migrations create on hot paths (worker retry queues, audit search, renewals) but the
 # classes above did not declare, so databases built from the models lacked them (v28.58.0, BUG-A2).
 # Declared here with the migration names; ``alembic`` autogenerate now sees no difference.

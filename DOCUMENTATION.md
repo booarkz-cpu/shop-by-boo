@@ -1,6 +1,6 @@
 # Документация VPN Shop by Corgi
 
-Текущий тег дистрибутива: **v28.66.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0090_remnawave_installer**, Support Pro **0008** / 3.8. Реальные платежи открыты сразу после установки; незавершённые внешние проверки описаны отдельно.
+Текущий тег дистрибутива: **v28.67.0**. Внутренняя версия runtime/API: **21.5.1**, миграция магазина **0091_remnawave_domains**, Support Pro **0008** / 3.8. Реальные платежи открыты сразу после установки; незавершённые внешние проверки описаны отдельно.
 
 | Задача | Инструкция |
 | --- | --- |
@@ -42,7 +42,7 @@
 | HTTP API | [API_REFERENCE_RU.md](API_REFERENCE_RU.md) |
 | Карта проекта и дизайн | [PROJECT_MAP_RU.md](docs/PROJECT_MAP_RU.md) |
 | Дерево каталогов и архитектурные границы | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) |
-| Проверки этого выпуска | [Отчёт v28.66.0](docs/ru/RELEASE_V28_66_0.md) |
+| Проверки этого выпуска | [Отчёт v28.67.0](docs/ru/RELEASE_V28_67_0.md) |
 | Живая проверка всех касс | [Чек-лист](docs/ru/PAYMENTS_LIVE_CHECKLIST.md) |
 | Что ещё не реализовано | [Матрица покрытия](docs/ru/WORKSPACE_COVERAGE.md), [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) |
 
@@ -50,7 +50,10 @@
 
 Справочники: [ключи доступа администратора](docs/ru/ADMIN_PASSKEYS.md), [метрики, dashboard и alerts](docs/ru/OPERATIONS_MONITORING.md). Мобильный workflow использует версию текущего манифеста; без owner signing secrets APK/IPA не объявляются подписанными production assets.
 
-## Выпуск v28.66.0
+## Выпуск v28.67.0
+
+Тег v28.67.0 добавил:
+- отдельный домен и портал подписки (этап 11): страница клиента по ссылке подписки — статус, срок, трафик, устройства, QR-код, кнопки «Добавить в приложение»; домены портала без перезапуска (Caddy выпускает сертификат on demand), проверки DNS и сертификатов, записи A в Cloudflare, маршруты Caddy, защита от перебора ссылок, смена ссылки, закрытие доступа к панели Remnawave: [портал подписки](docs/ru/new/SUBSCRIPTION_PORTAL.md), [домены](docs/ru/new/SUBSCRIPTION_DOMAIN.md), [шаблоны](docs/ru/new/SUBSCRIPTION_TEMPLATES.md), [безопасность](docs/ru/new/SUBSCRIPTION_SECURITY.md); миграция `0091_remnawave_domains`.
 
 Тег v28.66.0 добавил:
 - мастер установки Remnawave в админке (этап 10, «Серверы → Установка Remnawave»): реестр серверов с закреплённым ключом SSH, проверка сервера, семь режимов, план с подтверждением, установка по шагам с журналом и откатом, обновление, диагностика, восстановление, переустановка и удаление: [мастер установки](docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md), [режимы](docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md), [проверка сервера](docs/ru/new/REMNAWAVE_PREFLIGHT.md), [исполнитель](docs/ru/new/DEPLOYMENT_AGENT.md); миграция `0090_remnawave_installer`.

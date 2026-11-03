@@ -58,7 +58,15 @@ DEFAULT: dict = {
     "extras": [],                # [{"name", "squad", "links": [...]}]
     "merge_url": "",             # second subscription: https://.../{short_uuid}
     "log_days": 14,
+    # v28.67.0 (stage 11): limits and the portal (sub_portal.py) for browsers.
+    "miss_limit": 30,            # unknown links from one address in 10 minutes before it is paused
+    "miss_block_minutes": 15,
+    "block_outdated": False,     # an app older than the catalogue's latest gets a stub asking to update
+    "outdated_text": "Обновите приложение VPN до последней версии",
+    "portal": {},                # sub_portal.DEFAULT is used for missing keys
 }
+MISS_WINDOW = 600
+_local_blocks: dict[str, float] = {}
 TOKEN = re.compile(r"^[A-Za-z0-9_-]{6,64}$")
 FORWARD_REQUEST = ("user-agent", "accept", "accept-language", "x-hwid", "x-device-os", "x-ver-os", "x-device-model",
                    "x-app-version", "x-device-locale")
@@ -240,6 +248,12 @@ async def lookup(db: AsyncSession, short: str) -> dict | None:
     return info
 
 
+async def _panel_link(db: AsyncSession, info: dict) -> str:
+    from .models import Subscription
+    sub = await db.get(Subscription, info["subscription_id"])
+    return (sub.subscription_url or "") if sub else ""
+
+
 def forget(short: str) -> None:
     _index.pop(short, None)
 
@@ -280,11 +294,50 @@ def _origin(cfg: dict) -> tuple[str, dict]:
     return origin, headers
 
 
+async def _paused(ip: str) -> bool:
+    from . import main
+    redis = main.redis_client
+    if redis is not None:
+        try:
+            return bool(await redis.get(f"sub:pause:{ip}"))
+        except Exception as exc:  # noqa: BLE001 — Redis down: the local copy decides
+            logger.debug("Subscription pause lookup in Redis failed: %s", exc)
+    until = _local_blocks.get(ip)
+    return bool(until and until > time.monotonic())
+
+
+async def _miss(ip: str, cfg: dict) -> None:
+    """An unknown link: counted per address; past the limit the address is paused (guessing links is pointless)."""
+    from . import main
+    from .runtime_security import rate_allowed
+    if await rate_allowed(main.redis_client, f"sub:miss:{ip}", int(cfg.get("miss_limit") or 30), MISS_WINDOW):
+        return
+    seconds = int(cfg.get("miss_block_minutes") or 15) * 60
+    _local_blocks[ip] = time.monotonic() + seconds
+    if len(_local_blocks) > 50000:
+        _local_blocks.clear()
+    if main.redis_client is not None:
+        try:
+            await main.redis_client.set(f"sub:pause:{ip}", "1", ex=seconds)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Subscription pause not stored in Redis: %s", exc)
+    logger.warning("Subscription link guessing from %s: paused for %s s", ip, seconds)
+
+
 async def serve(request: Request, path: str, db: AsyncSession) -> Response:
     cfg = await config(db)
     if not cfg.get("enabled"):
         raise HTTPException(404)
     parts = [p for p in path.split("/") if p]
+    if len(parts) == 2 and parts[0] == "-":
+        from .sub_portal import asset
+        found = asset(parts[1])
+        if found:
+            return found
+        raise HTTPException(404)
+    ip = _client_ip(request)
+    if await _paused(ip):
+        return Response("Too many requests", status_code=429, headers={"Retry-After": str(int(cfg.get("miss_block_minutes") or 15) * 60)})
     prefix = str(cfg.get("prefix") or "").strip("/")
     if prefix and parts and parts[0] == prefix:
         parts = parts[1:]
@@ -304,7 +357,26 @@ async def serve(request: Request, path: str, db: AsyncSession) -> Response:
     outdated = await is_outdated(db, app, version)
     info = await lookup(db, short)
     base = {"short_uuid": short, "user_id": info["user_id"] if info else None, "app": app[:40], "app_version": version[:40],
-            "os": os_name, "model": model, "hwid": hwid, "ip": _client_ip(request), "user_agent": ua, "outdated": outdated}
+            "os": os_name, "model": model, "hwid": hwid, "ip": ip, "user_agent": ua, "outdated": outdated}
+    from . import sub_portal
+    if sub_portal.is_browser(request, app):
+        if not info:
+            await _miss(ip, cfg)
+            await _log(db, decision="not_found", status=404, bytes=0, ms=int((time.monotonic() - started) * 1000), **base)
+            if cfg.get("mask"):
+                return mask_page(cfg)
+            raise HTTPException(404)
+        link = proxy_url(short, cfg) or (await _panel_link(db, info)) or ""
+        shown = await sub_portal.page(request, db, cfg, short, info, link) if link else None
+        if shown is not None:
+            await _log(db, decision="portal", status=200, bytes=len(shown.body), ms=int((time.monotonic() - started) * 1000), **base)
+            return shown
+    if outdated and cfg.get("block_outdated") and app:
+        text = str(cfg.get("outdated_text") or DEFAULT["outdated_text"])
+        body = stub_body(text)
+        await _log(db, decision="outdated", status=200, bytes=len(body), ms=int((time.monotonic() - started) * 1000), **base)
+        return Response(body, media_type="text/plain; charset=utf-8",
+                        headers={"announce": header_value(text), "profile-update-interval": "1", "Cache-Control": "no-store"})
     blocked = {str(x.get("hwid")) for x in cfg.get("blocked_hwids") or [] if isinstance(x, dict)}
     if hwid and hwid in blocked:
         body = stub_body(cfg.get("block_text") or DEFAULT["block_text"])
@@ -346,6 +418,8 @@ async def serve(request: Request, path: str, db: AsyncSession) -> Response:
         await _log(db, decision="error", status=502, bytes=0, ms=int((time.monotonic() - started) * 1000), **base)
         logger.warning("Subscription origin is unavailable: %s", exc)
         raise HTTPException(502, "Subscription origin is unavailable") from exc
+    if upstream.status_code == 404:
+        await _miss(ip, cfg)
     if upstream.status_code == 404 and cfg.get("mask"):
         await _log(db, decision="not_found", status=404, bytes=0, ms=int((time.monotonic() - started) * 1000), **base)
         return mask_page(cfg)
@@ -408,6 +482,33 @@ class ProxyIn(BaseModel):
     extras: list[ExtraIn] = Field(default_factory=list, max_length=30)
     merge_url: str = Field("", max_length=300, pattern=r"^$|^https://\S+$")
     log_days: int = Field(14, ge=1, le=90)
+    miss_limit: int = Field(30, ge=5, le=1000)
+    miss_block_minutes: int = Field(15, ge=1, le=1440)
+    block_outdated: bool = False
+    outdated_text: str = Field(DEFAULT["outdated_text"], max_length=120)
+    portal: "PortalIn | None" = None
+
+
+class PortalAppIn(BaseModel):
+    name: str = Field(min_length=1, max_length=40)
+    platforms: str = Field("", max_length=80)
+    deeplink: str = Field("", max_length=200, pattern=r"^$|^[a-z][a-z0-9+.-]{1,30}://\S*\{url\}\S*$")
+    download: str = Field("", max_length=300, pattern=r"^$|^https://\S+$")
+
+
+class PortalIn(BaseModel):
+    enabled: bool = True
+    template: str = Field("corgi", pattern=r"^(corgi|minimal|panel)$")
+    title: str = Field("Ваша подписка", max_length=80)
+    notice: str = Field("", max_length=300)
+    support_url: str = Field("", max_length=300, pattern=r"^$|^https://\S+$")
+    show_traffic: bool = True
+    show_devices: bool = True
+    expiry_warning_days: int = Field(3, ge=0, le=30)
+    apps: list[PortalAppIn] = Field(default_factory=list, max_length=20)
+
+
+ProxyIn.model_rebuild()
 
 
 class BlockIn(BaseModel):
@@ -423,7 +524,8 @@ async def get_proxy(db: AsyncSession = Depends(get_db), admin=Depends(require_pe
     rows = (await db.execute(select(SubRequest.decision, func.count()).where(SubRequest.created_at >= since)
                              .group_by(SubRequest.decision))).all()
     origin, _ = _origin(cfg)
-    return {"config": cfg, "origin_effective": origin, "example": proxy_url("AbCdEfGh12345678", cfg),
+    from .sub_portal import settings_of
+    return {"config": {**cfg, "portal": settings_of(cfg)}, "origin_effective": origin, "example": proxy_url("AbCdEfGh12345678", cfg),
             "last_24h": {d: n for d, n in rows}}
 
 
@@ -442,7 +544,9 @@ async def put_proxy(payload: ProxyIn, db: AsyncSession = Depends(get_db), admin=
     if payload.enabled and payload.rewrite_links and not payload.public_base:
         raise HTTPException(422, "Укажите адрес зеркала, чтобы выдавать клиентам ссылки прослойки")
     from .main import audit
-    new = {**cfg, **payload.model_dump()}
+    new = {**cfg, **payload.model_dump(exclude={"portal"})}
+    if payload.portal is not None:
+        new["portal"] = payload.portal.model_dump()
     await _save(db, CONFIG_KEY, new)
     # v28.60.0 (stage 6): proxy settings decide what every client receives, so the change is in the audit log.
     await audit(db, "sub_proxy.config.saved", admin.email, None, {"enabled": payload.enabled, "rewrite_links": payload.rewrite_links,
@@ -479,6 +583,27 @@ async def unblock_device(hwid: str, db: AsyncSession = Depends(get_db), admin=De
     await db.commit()
     _state.update(cfg=cfg, at=time.monotonic())
     return {"ok": True}
+
+
+@router.post("/api/admin/sub-proxy/reset-link/{subscription_id}")
+async def reset_link(subscription_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("users.write"))):
+    """v28.67.0: a new subscription link for a customer whose link leaked; the old one stops working."""
+    from .cabinet_security import _panel_error, apply_new_link
+    from .main import audit
+    from .models import Subscription
+    from .remnawave import RemnawaveClient
+    sub = await db.get(Subscription, subscription_id)
+    if not sub or not sub.remnawave_user_id:
+        raise HTTPException(404, "Подписка не найдена или ещё не создана в Remnawave")
+    try:
+        fresh = await RemnawaveClient().revoke_subscription(int(str(sub.remnawave_user_id)))
+    except Exception as exc:  # noqa: BLE001
+        _panel_error(exc)
+    old = sub.subscription_url
+    await apply_new_link(db, sub, old, fresh)
+    await audit(db, "sub_proxy.link.reset", admin.email, str(sub.id), {"user_id": sub.user_id})
+    await db.commit()
+    return {"ok": True, "subscription_url": client_url(sub.subscription_url)}
 
 
 @router.get("/api/admin/sub-proxy/log")

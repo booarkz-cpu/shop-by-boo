@@ -1,6 +1,6 @@
 # Чек-лист релиза
 
-Дистрибутив `v28.66.0`, runtime/API `21.5.1`, миграция магазина `0090_remnawave_installer`,
+Дистрибутив `v28.67.0`, runtime/API `21.5.1`, миграция магазина `0091_remnawave_domains`,
 Support Pro `0008`.
 
 Отмечайте пункт только при наличии подтверждения. Правило простое: то, что не проверено, остаётся
@@ -58,7 +58,7 @@ cd cabinet && npm ci && npm run typecheck && npm test && npm run build
 
 ```bash
 cd backend
-alembic heads     # один head: 0090_remnawave_installer
+alembic heads     # один head: 0091_remnawave_domains
 alembic upgrade head
 ```
 

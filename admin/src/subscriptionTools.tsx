@@ -8,7 +8,8 @@ const put = (body: any): RequestInit => ({method: "PUT", body: JSON.stringify(bo
 const post = (body?: any): RequestInit => ({method: "POST", body: JSON.stringify(body ?? {})});
 const day = (v?: string | null) => (v ? String(v).slice(0, 16).replace("T", " ") : "—");
 const gb = (b: number) => `${(Number(b || 0) / 1024 ** 3).toFixed(2)} ГБ`;
-const DECISION: Record<string, string> = {proxied: "отдано", extended: "отдано + доп. ключи", blocked: "заглушка", not_found: "нет такой", error: "ошибка панели"};
+const DECISION: Record<string, string> = {proxied: "отдано", extended: "отдано + доп. ключи", blocked: "заглушка", not_found: "нет такой", error: "ошибка панели",
+  portal: "страница портала", outdated: "устаревший клиент"};
 
 function useData(request: Request, path: string): [any, () => void, string, (e: string) => void] {
   const [data, setData] = useState<any>(null);
@@ -73,6 +74,15 @@ export function SubProxy({request, toast}: Props) {
           <button className="danger" onClick={() => set({extras: cfg.extras.filter((_: any, j: number) => j !== i)})}>Удалить</button>
         </div>))}
       <button onClick={() => set({extras: [...(cfg.extras || []), {name: "", squad: "", links: ""}]})}>Добавить ключи</button>
+      <h4>Защита и ограничения</h4>
+      <p className="muted">Ссылка подписки — ключ доступа. Адрес, который за 10 минут запросил больше неизвестных ссылок, чем задано, ставится на паузу: подбирать ссылки бесполезно.</p>
+      <div className="grid3">
+        <label>Неизвестных ссылок за 10 минут<input type="number" min={5} max={1000} value={cfg.miss_limit ?? 30} onChange={(e) => set({miss_limit: Number(e.target.value)})}/></label>
+        <label>Пауза, минут<input type="number" min={1} max={1440} value={cfg.miss_block_minutes ?? 15} onChange={(e) => set({miss_block_minutes: Number(e.target.value)})}/></label>
+        <label>Текст для устаревших приложений<input value={cfg.outdated_text ?? ""} maxLength={120} onChange={(e) => set({outdated_text: e.target.value})}/></label>
+      </div>
+      <label className="check"><input type="checkbox" checked={!!cfg.block_outdated} onChange={(e) => set({block_outdated: e.target.checked})}/> Устаревшим версиям приложений (по каталогу версий) вместо серверов — заглушка с просьбой обновиться</label>
+      <ResetLink request={request} toast={toast}/>
       <h4>Заблокированные устройства</h4>
       <label>Текст заглушки (виден в приложении как имя сервера)<input value={cfg.block_text} maxLength={120} onChange={(e) => set({block_text: e.target.value})}/></label>
       <div className="toolbar"><button onClick={save}>Сохранить настройки</button>{form ? <button onClick={() => setForm(null)}>Отменить</button> : null}</div>
@@ -84,6 +94,64 @@ export function SubProxy({request, toast}: Props) {
       {(d.config.blocked_hwids || []).length ? <table className="table"><tbody>{d.config.blocked_hwids.map((b: any) => <tr key={b.hwid}><td><code>{b.hwid}</code></td><td>{b.note}</td><td>{day(b.at)}</td>
         <td><button onClick={() => act(() => request(`/api/admin/sub-proxy/blocked/${encodeURIComponent(b.hwid)}`, {method: "DELETE"}), toast, "Разблокировано", setError, load)}>Разблокировать</button></td></tr>)}</tbody></table> : <p className="muted">Нет заблокированных устройств.</p>}
       <p className="muted">За сутки: {Object.entries(stats).map(([k, v]) => `${DECISION[k] || k} — ${v}`).join(", ") || "запросов не было"}.</p>
+    </Card>
+  );
+}
+
+function ResetLink({request, toast}: Props) {
+  const [id, setId] = useState("");
+  const [error, setError] = useState("");
+  const [done, setDone] = useState("");
+  return <div data-reset-link><h4>Сменить ссылку подписки клиента</h4>
+    <p className="muted">Если ссылка попала к чужим: панель выдаёт новую, старая перестаёт работать. Клиент увидит новую ссылку в кабинете, боте и приложениях; в VPN-приложении подписку нужно добавить заново.</p>
+    {error ? <p className="error">{error}</p> : null}
+    <div className="toolbar"><input placeholder="Номер подписки" inputMode="numeric" value={id} onChange={(e) => setId(e.target.value.replace(/\D/g, ""))}/>
+      <button className="danger" disabled={!id} onClick={() => act(async () => { const r = await request(`/api/admin/sub-proxy/reset-link/${id}`, post()); setDone(r.subscription_url); }, toast, "Ссылка подписки заменена", setError)}>Сменить ссылку</button></div>
+    {done ? <p>Новая ссылка: <code>{done}</code></p> : null}
+  </div>;
+}
+
+const TEMPLATES: Record<string, string> = {corgi: "Корги Люси (полная страница)", minimal: "Короткая: статус и ссылка", panel: "Стандартная страница панели Remnawave"};
+
+/** «Серверы → Портал подписки»: what a customer sees opening the subscription link in a browser (v28.67.0). */
+export function SubPortal({request, toast}: Props) {
+  const [d, load, error, setError] = useData(request, "/api/admin/sub-proxy");
+  const [form, setForm] = useState<any>(null);
+  if (!d) return <Card title="Портал подписки" error={error}><p>Загрузка…</p></Card>;
+  const p = form ?? d.config.portal;
+  const set = (patch: any) => setForm({...p, ...patch});
+  const setApp = (i: number, patch: any) => set({apps: p.apps.map((a: any, j: number) => j === i ? {...a, ...patch} : a)});
+  const save = () => act(() => request("/api/admin/sub-proxy", put({...d.config, portal: p})), toast, "Портал сохранён", setError, () => { setForm(null); load(); });
+  return (
+    <Card title="Портал подписки" error={error} hint="Клиент открывает свою ссылку подписки в браузере и видит эту страницу: статус, срок, трафик, устройства, ссылку с QR-кодом, кнопки «Добавить в приложение» и поддержку. VPN-приложения по той же ссылке получают подписку. Работает, когда включена прослойка подписки.">
+      <div data-sub-portal>
+        <label className="check"><input type="checkbox" checked={p.enabled} onChange={(e) => set({enabled: e.target.checked})}/> Показывать портал в браузере</label>
+        <div className="grid3">
+          <label>Шаблон<select value={p.template} onChange={(e) => set({template: e.target.value})}>{Object.entries(TEMPLATES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+          <label>Заголовок<input value={p.title} maxLength={80} onChange={(e) => set({title: e.target.value})}/></label>
+          <label>Ссылка поддержки<input value={p.support_url} placeholder="пусто — личный кабинет" onChange={(e) => set({support_url: e.target.value.trim()})}/></label>
+        </div>
+        <label>Объявление для всех клиентов<input value={p.notice} maxLength={300} placeholder="Например: плановые работы в субботу с 02:00 до 03:00" onChange={(e) => set({notice: e.target.value})}/></label>
+        <div className="grid3">
+          <label className="check"><input type="checkbox" checked={p.show_traffic} onChange={(e) => set({show_traffic: e.target.checked})}/> Трафик</label>
+          <label className="check"><input type="checkbox" checked={p.show_devices} onChange={(e) => set({show_devices: e.target.checked})}/> Устройства</label>
+          <label>Предупреждать за, дней<input type="number" min={0} max={30} value={p.expiry_warning_days} onChange={(e) => set({expiry_warning_days: Number(e.target.value)})}/></label>
+        </div>
+        <h4>Приложения и инструкции</h4>
+        <p className="muted">Кнопка «Добавить» открывает приложение по ссылке-шаблону: <code>{"{url}"}</code> заменяется ссылкой подписки. «Скачать» — только https-адреса.</p>
+        {(p.apps || []).map((a: any, i: number) => <div className="grid3" key={i} data-portal-app={i}>
+          <label>Приложение<input value={a.name} onChange={(e) => setApp(i, {name: e.target.value})}/></label>
+          <label>Платформы<input value={a.platforms} onChange={(e) => setApp(i, {platforms: e.target.value})}/></label>
+          <label>Ссылка добавления<input value={a.deeplink} placeholder="happ://add/{url}" onChange={(e) => setApp(i, {deeplink: e.target.value.trim()})}/></label>
+          <label>Где скачать<input value={a.download} placeholder="https://…" onChange={(e) => setApp(i, {download: e.target.value.trim()})}/></label>
+          <button className="danger" onClick={() => set({apps: p.apps.filter((_: any, j: number) => j !== i)})}>Убрать</button>
+        </div>)}
+        <div className="toolbar">
+          <button onClick={() => set({apps: [...(p.apps || []), {name: "", platforms: "", deeplink: "", download: ""}]})}>Добавить приложение</button>
+          <button className="primary" onClick={save}>Сохранить портал</button>{form ? <button onClick={() => setForm(null)}>Отменить</button> : null}
+        </div>
+        <p className="muted">Проверить: откройте в браузере ссылку подписки любого клиента{d.example ? <> (вида <code>{d.example}</code>)</> : null}.</p>
+      </div>
     </Card>
   );
 }

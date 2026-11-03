@@ -1,3 +1,12 @@
+# v28.67.0 (stage 11): domains of the subscription portal are added in «Серверы → Домены и сертификаты» without
+# editing this file. Caddy issues their certificates on demand (HTTP-01 / TLS-ALPN-01) only after the backend
+# answers 200 at /caddy/ask (an enabled portal domain of the Domain Manager); any other name gets no certificate.
+{
+    on_demand_tls {
+        ask {$CADDY_ASK_URL:http://backend:8000/caddy/ask}
+    }
+}
+
 # Zero-downtime updates: BACKEND_UPSTREAM lists the backend and its standby (scripts/zero-downtime-backend.sh).
 # The backend is always preferred; while it is being recreated, requests go to the standby that already
 # runs the new release. Only requests that could not reach any upstream are retried, so nothing runs twice.
@@ -115,6 +124,8 @@
 {$API_DOMAIN} {$API_MIRROR_DOMAINS} {$SUB_PROXY_DOMAINS} {
     @subproxy not host {$API_DOMAIN} {$API_MIRROR_DOMAINS}
     rewrite @subproxy /sub{uri}
+    # The on-demand question is for Caddy only (the backend also refuses it when X-Forwarded-For is present).
+    respond /caddy/* 404
     header {
         -Server
         X-Content-Type-Options "nosniff"
@@ -144,6 +155,30 @@
     }
     encode zstd gzip
     reverse_proxy {$SUPPORT_UPSTREAM:support_pro:8000} {
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+
+# Portal domains of the Domain Manager: any host not named above, served as /sub/… by the backend once
+# /caddy/ask allowed its certificate.
+https:// {
+    tls {
+        on_demand
+    }
+    header {
+        -Server
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        Strict-Transport-Security "max-age=31536000"
+        Content-Security-Policy "default-src 'self'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data:; connect-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    }
+    # Every path becomes /sub/…: the backend's /caddy/ask is not reachable from here.
+    rewrite * /sub{uri}
+    encode zstd gzip
+    reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {
+        import backend_lb
         header_up X-Forwarded-For {remote_host}
     }
 }

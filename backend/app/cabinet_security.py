@@ -147,3 +147,36 @@ async def reset_my_hwid_devices(request: Request, db: AsyncSession = Depends(get
     await audit(db, "cabinet.hwid_devices.reset", f"user:{user.id}", str(remote))
     await db.commit()
     return {"ok": True}
+
+
+@router.post("/api/me/subscription/reset-link")
+async def reset_my_subscription_link(request: Request, db: AsyncSession = Depends(get_db)):
+    """v28.67.0: a new subscription link (the old one stops working: for a link that leaked). Once per 10 minutes."""
+    from . import main
+    from .main import RemnawaveClient, audit, user_from_token
+    from .runtime_security import rate_allowed
+    user = await user_from_token(request, db)
+    sub, remote = await _remote(db, user.id)
+    if not await rate_allowed(main.redis_client, f"sub:reset:{user.id}", 1, 600):
+        raise HTTPException(429, "Ссылку можно менять не чаще раза в 10 минут")
+    old = sub.subscription_url
+    try:
+        fresh = await RemnawaveClient().revoke_subscription(remote)
+    except Exception as exc:  # noqa: BLE001
+        _panel_error(exc)
+    await apply_new_link(db, sub, old, fresh)
+    await audit(db, "cabinet.subscription.link_reset", f"user:{user.id}", str(sub.id), {})
+    await db.commit()
+    from .sub_proxy import client_url
+    return {"ok": True, "subscription_url": client_url(sub.subscription_url)}
+
+
+async def apply_new_link(db: AsyncSession, sub, old: str | None, fresh: dict) -> None:
+    from .sub_proxy import forget, short_uuid_of
+    url = (fresh or {}).get("subscriptionUrl") or (fresh or {}).get("subscription_url")
+    if not url:
+        raise HTTPException(502, "Сервис VPN не вернул новую ссылку")
+    sub.subscription_url = url
+    for link in (old, url):
+        if short_uuid_of(link):
+            forget(short_uuid_of(link))

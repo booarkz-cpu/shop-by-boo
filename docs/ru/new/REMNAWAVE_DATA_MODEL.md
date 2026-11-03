@@ -32,9 +32,9 @@
 | `monitoring_checks`, `status_components` | Health Manager | Внешние проверки и публичный статус |
 | Конфигурация `sub_proxy` в `app_settings` | Subscription Manager | Свой домен подписки, правила приложений, заблокированные устройства |
 
-## 3. Таблицы мастера установки (этап 10, v28.66.0) и будущие (этапы 11–12)
+## 3. Таблицы мастера установки (этап 10, v28.66.0), доменов (этап 11, v28.67.0) и будущие (этап 12)
 
-Таблицы этапа 10 созданы миграцией `0090_remnawave_installer`. Таблиц этапов 11–12 ещё нет: они появятся вместе с работающими функциями.
+Таблицы этапа 10 созданы миграцией `0090_remnawave_installer`, этапа 11 — `0091_remnawave_domains`. Таблиц этапа 12 ещё нет: они появятся вместе с работающими функциями.
 
 ### `remnawave_servers` — реестр серверов
 
@@ -92,9 +92,23 @@
 | `log_tail` | text | Последние 4000 символов вывода, секреты заменены на `***` |
 | `started_at`, `finished_at` | timestamp | |
 
-### `remnawave_domains` — домены (этап 11)
+### `remnawave_domains` — домены (этап 11, v28.67.0, миграция `0091_remnawave_domains`)
 
-`id`, `domain` (уникально), `purpose` (`panel`, `subscription`, `node_sni`, `shop_sub_proxy`), `server_id`, `dns_status`, `dns_checked_at`, `cert_status`, `cert_expires_at`. Домены сервера магазина обслуживает общий Caddy; для них `server_id` пуст.
+| Поле | Тип | Примечание |
+| --- | --- | --- |
+| `id` | integer, PK | |
+| `domain` | varchar(253), уникально | Проверяется по шаблону имени хоста, хранится в нижнем регистре |
+| `purpose` | varchar(24) | `subscription`, `panel`, `subscription_page`, `node`, `other` |
+| `served_by` | varchar(16) | `shop` (Caddy магазина, сертификат on demand), `remnawave` (Caddy сервера мастера), `external` |
+| `server_id` | integer | Сервер реестра для `remnawave` |
+| `expected_ip` | varchar(64) | Куда должен указывать домен; только публичный адрес |
+| `enabled` | boolean | Выключенный домен не получает сертификат |
+| `dns_status`, `dns_records`, `dns_checked_at` | | Результат проверки DNS: `ok`, `missing`, `mismatch`, `caa`, `error`; записи A, AAAA, CNAME, TXT, CAA и ожидаемые адреса |
+| `cert_status`, `cert_issuer`, `cert_expires_at`, `cert_checked_at` | | `valid`, `expiring`, `expired`, `invalid`, `missing` |
+| `http_status`, `last_error` | | Ответ HTTPS и причина проблем |
+| `created_by`, `created_at`, `updated_at` | | |
+
+Сами сертификаты хранит Caddy, таблица — только результаты проверок ([SUBSCRIPTION_DOMAIN](SUBSCRIPTION_DOMAIN.md)).
 
 ### `remnawave_node_modules` — расширения нод (этап 12)
 

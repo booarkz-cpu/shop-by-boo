@@ -75,6 +75,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
                 # 0089 (v28.58.0) changes only indexes and a NOT NULL: undone first, so the older downgrades
                 # find the indexes they created, and redone last.
                 # 0090 (v28.66.0, the installer's registry and tasks) goes first and comes back last.
+                migration('0091_remnawave_domains').downgrade()
                 migration('0090_remnawave_installer').downgrade()
                 migration('0089_index_cleanup').downgrade()
                 for name in roundtrip_names:
@@ -83,6 +84,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
                     migration(name).upgrade()
                 migration('0089_index_cleanup').upgrade()
                 migration('0090_remnawave_installer').upgrade()
+                migration('0091_remnawave_domains').upgrade()
         await conn.run_sync(cycle)
     partner=Reseller(name='Test',slug='test',api_key_hash='hash',owner_user_id=1)
     database.add(partner);await database.flush()

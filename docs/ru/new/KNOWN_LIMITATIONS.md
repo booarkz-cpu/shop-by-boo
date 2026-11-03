@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | Живой Remnawave | нет `REMNAWAVE_URL` / `REMNAWAVE_TOKEN` | BLOCKED_SECRETS | Доступ к панели |
 | Установка Remnawave на VPS | нет VPS и SSH-доступа. Мастер (v28.66.0) проверен на поддельном SSH-сервере и на сервере CI | BLOCKED_EXTERNAL | VPS с SSH-ключом и домен |
-| Домены и TLS | нет домена и DNS | BLOCKED_EXTERNAL | Домен с управлением DNS |
+| Домены и TLS | нет домена и DNS. On-demand TLS (v28.67.0) проверен в CI с внутренним CA Caddy; DNS-01 не поддерживается стандартным образом Caddy | BLOCKED_EXTERNAL | Домен с управлением DNS (лучше Cloudflare с токеном) |
 | Telegram-бот и Mini App вживую | нет `BOT_TOKEN` | BLOCKED_SECRETS | Токен тестового бота |
 | Живые платежи | нет ключей провайдеров; реальные деньги — только с разрешения владельца | BLOCKED_SECRETS | Ключи и разрешение |
 | OAuth (Яндекс, VK, Google) вживую | нет client id / secret | BLOCKED_SECRETS | Ключи приложений |

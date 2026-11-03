@@ -1,6 +1,6 @@
-# Каталог API — v28.66.0 / API v21.5.1
+# Каталог API — v28.67.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0090_remnawave_installer`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0091_remnawave_domains`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -450,6 +450,15 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/runtime-settings/changes/{change_id}/apply` | Admin Apply Runtime Settings | право `settings.runtime.write` |
 | `POST` | `/api/admin/runtime-settings/changes/{change_id}/rollback` | Admin Rollback Runtime Settings | право `settings.runtime.write` |
 | `POST` | `/api/admin/runtime-settings/stage` | Admin Stage Runtime Settings | право `settings.runtime.write` |
+| `GET` | `/api/admin/rw/certificates` | Certificates | право `read` |
+| `POST` | `/api/admin/rw/certificates/check` | Check All | право `read` |
+| `GET` | `/api/admin/rw/domains` | List Domains | право `read` |
+| `POST` | `/api/admin/rw/domains` | Add Domain | право `settings.runtime.write` |
+| `DELETE` | `/api/admin/rw/domains/{domain_id}` | Delete Domain | право `settings.runtime.write` |
+| `PATCH` | `/api/admin/rw/domains/{domain_id}` | Patch Domain | право `settings.runtime.write` |
+| `POST` | `/api/admin/rw/domains/{domain_id}/check` | Check Domain | право `read` |
+| `POST` | `/api/admin/rw/domains/{domain_id}/dns-record` | Upsert Dns Record | право `settings.runtime.write` |
+| `POST` | `/api/admin/rw/domains/{domain_id}/primary` | Make Primary | право `settings.runtime.write` |
 | `GET` | `/api/admin/rw/installations` | List Installations | право `read` |
 | `POST` | `/api/admin/rw/installations/plan` | Plan Installation | право `provision_nodes` |
 | `GET` | `/api/admin/rw/installations/{installation_id}` | Get Installation | право `read` |
@@ -459,6 +468,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/rw/installations/{installation_id}/connect-shop` | Connect Shop | право `provision_nodes`, право `settings.runtime.write` |
 | `POST` | `/api/admin/rw/installations/{installation_id}/credentials` | Credentials | право `provision_nodes` |
 | `GET` | `/api/admin/rw/meta` | Meta | право `read` |
+| `GET` | `/api/admin/rw/proxy-routes` | Proxy Routes | право `read` |
 | `GET` | `/api/admin/rw/servers` | List Servers | право `read` |
 | `POST` | `/api/admin/rw/servers` | Create Server | право `provision_nodes` |
 | `POST` | `/api/admin/rw/servers/scan` | Scan | право `provision_nodes` |
@@ -501,6 +511,7 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/sub-proxy/clients` | Put Clients | право `settings.runtime.write` |
 | `POST` | `/api/admin/sub-proxy/clients/refresh` | Refresh Clients | право `settings.runtime.write` |
 | `GET` | `/api/admin/sub-proxy/log` | Request Log | право `ops.diagnostics` |
+| `POST` | `/api/admin/sub-proxy/reset-link/{subscription_id}` | Reset Link | право `users.write` |
 | `GET` | `/api/admin/subscription-feed` | Subscription Feed | право `read` |
 | `GET` | `/api/admin/subscription-operations` | Admin Operations | право `payments.read` |
 | `POST` | `/api/admin/subscription-operations/{operation_id}/refund` | Refund Change | право `payments.refund` |
@@ -770,6 +781,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/subscription/operations` | Commerce History | сессия клиента |
 | `POST` | `/api/me/subscription/purchase` | Purchase Change | сессия клиента |
 | `POST` | `/api/me/subscription/quote` | Quote Change | сессия клиента |
+| `POST` | `/api/me/subscription/reset-link` | Reset My Subscription Link | сессия клиента |
 | `GET` | `/api/me/subscriptions` | List Subscriptions | сессия клиента |
 | `PUT` | `/api/me/subscriptions/{subscription_id}` | Rename Subscription | сессия клиента |
 | `POST` | `/api/me/subscriptions/{subscription_id}/select` | Select Subscription | сессия клиента |

@@ -52,6 +52,14 @@ class Context:
         return [v for v in self.secrets.values() if isinstance(v, str)] + [self.shop_panel_token or ""]
 
 
+def access_cookie(ctx: "Context") -> tuple[str, str]:
+    """The panel's access key; made once and kept with the installation's secrets (it survives updates)."""
+    if not ctx.secrets.get("panel_cookie_name"):
+        ctx.secrets["panel_cookie_name"] = "rw" + pysecrets.token_hex(6)
+        ctx.secrets["panel_cookie_value"] = pysecrets.token_hex(16)
+    return ctx.secrets["panel_cookie_name"], ctx.secrets["panel_cookie_value"]
+
+
 def new_secrets() -> dict:
     alphabet = string.ascii_letters + string.digits
     # The panel requires 24+ characters with upper and lower case letters and digits.
@@ -271,7 +279,10 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
             sites[plan.panel_domain] = 3000
         if server_id == plan.subpage_server_id:
             sites[plan.sub_domain] = 3010
-        return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email), "docker-compose.yml": rw_plan.caddy_compose()}
+        protect = {}
+        if plan.panel_access == "cookie" and plan.panel_domain in sites:
+            protect[plan.panel_domain] = access_cookie(ctx)
+        return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect), "docker-compose.yml": rw_plan.caddy_compose()}
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
         return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port)}
@@ -495,8 +506,8 @@ async def undo_register_node(ctx: Context, st: dict) -> None:
 # ---------- verify ----------
 
 HTTPS_CHECK = r"""set -u
-domain="$1"; ua="$2"
-code="$(curl -sk -o /dev/null -w '%{http_code}' --max-time 15 --resolve "$domain:443:127.0.0.1" -A "$ua" "https://$domain/$3")"
+domain="$1"; ua="$2"; cookie="${4:-}"
+code="$(curl -sk -o /dev/null -w '%{http_code}' --max-time 15 --resolve "$domain:443:127.0.0.1" -A "$ua" ${cookie:+-H "Cookie: $cookie"} "https://$domain/$3")"
 echo "$code"
 """
 
@@ -506,7 +517,9 @@ async def run_verify(ctx: Context, st: dict) -> None:
     problems = []
     if plan.panel_server_id:
         for _ in range(20):
-            code = (await _run(ctx, plan.panel_server_id, HTTPS_CHECK, plan.panel_domain, "corgi-verify", "api/auth/status", timeout=30)).out.strip()
+            cookie = "=".join(access_cookie(ctx)) if plan.panel_access == "cookie" else ""
+            code = (await _run(ctx, plan.panel_server_id, HTTPS_CHECK, plan.panel_domain, "corgi-verify", "api/auth/status", cookie,
+                               timeout=30)).out.strip()
             if code == "200":
                 break
             await _sleep(6)
@@ -517,7 +530,8 @@ async def run_verify(ctx: Context, st: dict) -> None:
             import httpx
             try:
                 async with httpx.AsyncClient(timeout=15) as client:
-                    answer = await client.get(f"https://{plan.panel_domain}/api/auth/status")
+                    answer = await client.get(f"https://{plan.panel_domain}/api/auth/status",
+                                              headers={"Cookie": cookie} if cookie else None)
                 _note(ctx, f"С сервера магазина, с проверкой сертификата: {answer.status_code}")
             except httpx.HTTPError as exc:
                 problems.append(f"с сервера магазина https://{plan.panel_domain} недоступен: {type(exc).__name__}")

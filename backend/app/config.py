@@ -312,6 +312,8 @@ class Settings(BaseSettings):
     abuseipdb_api_key: str = Field(default="", alias="ABUSEIPDB_API_KEY")
     mail_domain: str = Field(default="", alias="MAIL_DOMAIN")
     mail_dns_doh_url: str = Field(default="https://cloudflare-dns.com/dns-query", alias="MAIL_DNS_DOH_URL")
+    # v28.67.0: DNS records of the Domain Manager (Zone:DNS:Edit for the zones of the shop's domains).
+    cloudflare_api_token: str = Field(default="", alias="CLOUDFLARE_API_TOKEN")
     dmarc_imap_host: str = Field(default="", alias="DMARC_IMAP_HOST")
     dmarc_imap_port: int = Field(default=993, alias="DMARC_IMAP_PORT")
     dmarc_imap_user: str = Field(default="", alias="DMARC_IMAP_USER")

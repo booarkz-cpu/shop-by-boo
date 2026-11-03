@@ -20,7 +20,7 @@ import {PartnerPortal} from "./partner";
 import {CustomerPasskeys, loginWithPasskey} from "./passkeys";
 import {AppLogin} from "./app-login";
 import {Workspace} from "./workspace";
-import {HwidDevices, useTrialPlan} from "./cabinet-security";
+import {HwidDevices, ResetSubscriptionLink, useTrialPlan} from "./cabinet-security";
 import {AccountRecovery, AccountSecurity, accountLink} from "./account-recovery";
 import {AccountMerge} from "./account-merge";
 import type {AccountLink} from "./account-recovery";
@@ -963,6 +963,7 @@ function App() {
                       {!devices.length && <p className="section-sub">Устройства появятся после первого подключения.</p>}
                     </div>
                     <HwidDevices request={req}/>
+                    <ResetSubscriptionLink request={req}/>
                     <div className="form-card stack" style={{marginTop:14}}>
                       <h3>Рекомендованный сервер</h3>
                       <p className="section-sub">Smart Routing выбирает доступную ноду по здоровью и нагрузке.</p>

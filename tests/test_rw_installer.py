@@ -306,7 +306,7 @@ async def test_panel_and_node_install_end_to_end(database, fleet, monkeypatch):
         async def __aexit__(self, *_):
             pass
 
-        async def get(self, url):
+        async def get(self, url, headers=None):
             assert url == "https://panel.example.com/api/auth/status"
             return Shop()
     monkeypatch.setattr(httpx, "AsyncClient", Client)

@@ -107,6 +107,8 @@ class ApproveIn(BaseModel):
 class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     action: Literal["update", "diagnose", "restore", "reinstall", "remove"]
+    # v28.67.0: with «update» — close or open the panel's pages (secret access link).
+    panel_access: Literal["open", "cookie"] | None = None
 
 
 def server_out(row: RemnawaveServer) -> dict:
@@ -389,12 +391,17 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
     if source.action != "install" or source.status != "succeeded":
         raise HTTPException(409, "Действие доступно для успешно завершённой установки")
     servers = await _servers_for(db, source.server_ids)
+    params = dict(source.params)
+    if payload.panel_access:
+        if payload.action != "update" or not params.get("panel_server_id"):
+            raise HTTPException(422, "Доступ к панели меняется действием «Обновить» установки с панелью")
+        params["panel_access"] = payload.panel_access
     try:
-        plan = rw_plan.build_action(payload.action, rw_plan.PlanIn(**source.params), servers)
+        plan = rw_plan.build_action(payload.action, rw_plan.PlanIn(**params), servers)
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
-    row = RemnawaveInstallation(action=payload.action, mode=source.mode, server_ids=source.server_ids, params=source.params,
-                                plan=plan, plan_sha256=rw_plan.plan_hash(plan, source.params), status="planned",
+    row = RemnawaveInstallation(action=payload.action, mode=source.mode, server_ids=source.server_ids, params=params,
+                                plan=plan, plan_sha256=rw_plan.plan_hash(plan, params), status="planned",
                                 secrets=source.secrets, result={"state": (source.result or {}).get("state") or {}},
                                 source_installation_id=source.id, created_by=admin.email)
     db.add(row)
@@ -415,8 +422,11 @@ async def credentials(installation_id: int, db: AsyncSession = Depends(get_db), 
         raise HTTPException(409, "Администратор панели ещё не создан")
     await _audit(db, "rw.installation.credentials_viewed", admin.email, str(row.id), {})
     await db.commit()
-    return {"panel_url": f"https://{row.params['panel_domain']}", "username": secrets["panel_admin_username"],
-            "password": secrets["panel_admin_password"]}
+    out = {"panel_url": f"https://{row.params['panel_domain']}", "username": secrets["panel_admin_username"],
+           "password": secrets["panel_admin_password"], "access_url": None}
+    if row.params.get("panel_access") == "cookie" and secrets.get("panel_cookie_name"):
+        out["access_url"] = f"https://{row.params['panel_domain']}/?{secrets['panel_cookie_name']}={secrets['panel_cookie_value']}"
+    return out
 
 
 @router.post("/installations/{installation_id}/connect-shop")

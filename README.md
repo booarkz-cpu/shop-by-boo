@@ -55,22 +55,21 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 ---
 
-> **v28.66.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0090_remnawave_installer`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.66.0`, `/health` отвечает `21.5.1`.
+> **v28.67.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0091_remnawave_domains`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.67.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 **Что это.** Магазин продаёт VPN-подписки и сам выдаёт доступ в вашей панели Remnawave: принимает оплату (СБП, карта, крипта, Telegram Stars), продлевает, считает трафик и устройства, отвечает клиентам. Клиент покупает в боте, Mini App, кабинете или приложении и подключается в одно касание. Владелец управляет всем из одной админ-панели — без программиста и без пересборки приложений.
 
 **Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md).
 
-## 🆕 Новое в v28.66.0
+## 🆕 Новое в v28.67.0
 
 | | |
 | --- | --- |
-| 🧙 **Мастер установки Remnawave** | «Серверы → Установка Remnawave»: панель, ноды и страница подписки на свои VPS по SSH без ручных команд. Семь режимов, план с подтверждением, журнал шагов и откат. [Подробнее](docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md) |
-| 🔍 **Проверка сервера** | ОС, архитектура, CPU, память, диск, Docker, занятые порты, веб-серверы и DNS — до любых изменений. [Подробнее](docs/ru/new/REMNAWAVE_PREFLIGHT.md) |
-| 🛠 **Обслуживание из админки** | Обновление закреплённых образов с копией базы панели, диагностика, восстановление, переустановка и удаление; подключение магазина к новой панели без перезапуска. |
-| 🔒 **Без команд из браузера** | Только закрытый список шагов, ключ сервера сверяется по отпечатку, секреты зашифрованы и не попадают в журналы. [Заметки к выпуску](docs/ru/RELEASE_V28_66_0.md) |
+| 🐾 **Портал подписки** | Клиент открывает свою ссылку в браузере и видит статус, срок, трафик, устройства, QR-код и кнопки «Добавить в Happ / v2RayTun / Hiddify…»; VPN-приложения по той же ссылке получают подписку. [Подробнее](docs/ru/new/SUBSCRIPTION_PORTAL.md) |
+| 🌐 **Домены и сертификаты** | Домен портала добавляется в админке без перезапуска: Caddy сам выпускает сертификат. Проверка DNS и сертификатов, записи A в Cloudflare, маршруты Caddy. [Подробнее](docs/ru/new/SUBSCRIPTION_DOMAIN.md) |
+| 🔐 **Защита подписки** | Перебор ссылок ставит адрес на паузу, утёкшую ссылку меняют клиент и администратор, страницы панели Remnawave можно закрыть секретной ссылкой. [Заметки к выпуску](docs/ru/RELEASE_V28_67_0.md) |
 
 ## 🆕 Новое в v28.55.0
 
@@ -272,7 +271,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 </tr>
 </table>
 
-[Заметки к выпуску](docs/ru/RELEASE_V28_66_0.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
+[Заметки к выпуску](docs/ru/RELEASE_V28_67_0.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
 
 <details>
 <summary><b>Что было в v28.33.0</b></summary>
@@ -568,7 +567,7 @@ flowchart LR
 | Каталог | Что внутри |
 | --- | --- |
 | `backend/app` | FastAPI: `main.py` (ядро) и модули разделов — `auth_api.py`, `admin_auth_api.py`, `payments_api.py`, `push_campaigns.py`, `app_funnel.py`, `fiscal.py`, `remnawave.py`, `bot.py` и другие ([карта](docs/PROJECT_MAP_RU.md)) |
-| `backend/alembic` | Миграции PostgreSQL, head `0090_remnawave_installer` |
+| `backend/alembic` | Миграции PostgreSQL, head `0091_remnawave_domains` |
 | `backend/worker.py` | Фоновые процессы: очередь выдачи (`run_next_job`), чеки, кампании, push, автопродление |
 | `admin`, `cabinet`, `miniapp` | Next.js: админ-панель, личный кабинет, Mini App |
 | `mobile/android-user`, `mobile/ios-user` | Клиентские приложения (Kotlin Compose, SwiftUI); `mobile/ios-user/CorgiTunnel` — Network Extension, `CorgiNotificationService` — push с картинками |
@@ -613,8 +612,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.66.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.66.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.67.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.67.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -631,7 +630,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.66.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.67.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -647,12 +646,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.66.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.67.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.66.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.67.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -1238,7 +1237,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Задача | Команда |
 | --- | --- |
 | Проверить сервер до установки | `bash scripts/preflight.sh` |
-| Установить магазин | `bash install.sh` или `curl -fsSL …/v28.66.0/install.sh \| sudo bash` |
+| Установить магазин | `bash install.sh` или `curl -fsSL …/v28.67.0/install.sh \| sudo bash` |
 | Полная диагностика | `bash scripts/doctor.sh` |
 | Статус контейнеров | `docker compose ps` |
 | Логи всех сервисов | `docker compose logs -f` |
@@ -1248,7 +1247,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Проверить конфигурацию Compose | `docker compose config` |
 | Health-check API | `curl -s localhost:8000/health` |
 | Резервная копия | `bash scripts/backup.sh` |
-| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.66.0 bash scripts/update-from-github.sh` |
+| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.67.0 bash scripts/update-from-github.sh` |
 | Откатить версию | `bash scripts/rollback.sh` |
 | Включить ночные обновления | `sudo bash scripts/auto-update.sh install` |
 | Состояние автообновления | `sudo bash scripts/auto-update.sh status` |
@@ -1262,9 +1261,9 @@ bash scripts/doctor.sh                                   # 3. проверка �
 
 | Ошибка | Возможная причина | Как проверить | Как исправить |
 | --- | --- | --- | --- |
-| `Cannot read properties of undefined (reading 'trim')` | в ответе API поле-метка пришло не объектом `{ru, en, uk}` | в консоли браузера открыть упавший запрос и посмотреть форму поля | в v28.66.0 форма закреплена тестом; на старых сборках обновиться |
+| `Cannot read properties of undefined (reading 'trim')` | в ответе API поле-метка пришло не объектом `{ru, en, uk}` | в консоли браузера открыть упавший запрос и посмотреть форму поля | в v28.67.0 форма закреплена тестом; на старых сборках обновиться |
 | `(s \|\| []).map is not a function` | API вернул объект вместо списка | посмотреть ответ эндпоинта | панель нормализует `items` / `results` / `data`; проверить, что запрос идёт к своему backend |
-| Чёрная страница админки или кабинета | сбой отрисовки без границы ошибок | консоль браузера | в v28.66.0 показывается экран ошибки с причиной и кнопкой повтора |
+| Чёрная страница админки или кабинета | сбой отрисовки без границы ошибок | консоль браузера | в v28.67.0 показывается экран ошибки с причиной и кнопкой повтора |
 | `API недоступен` в панели | backend не прошёл health-check | `curl -s localhost:8000/health` | `docker compose logs backend`, проверить `.env` и `DATABASE_URL` |
 | `docker compose` не запускается | нет `.env` или неверный синтаксис | `docker compose config` | скопировать `.env.example` в `.env` и заполнить обязательные поля |
 | Контейнер перезапускается | падение на старте или нехватка памяти | `docker compose logs <сервис>` | исправить причину в логах; проверить `free -h` |
@@ -1293,7 +1292,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
 | Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
-| Что вошло в выпуск | [Заметки v28.66.0](docs/ru/RELEASE_V28_66_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
+| Что вошло в выпуск | [Заметки v28.67.0](docs/ru/RELEASE_V28_67_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | Wiki на трёх языках | [русский](docs/wiki/ru/Home.md), [English](docs/wiki/en/Home.md), [українська](docs/wiki/uk/Home.md) — готовые страницы для GitHub Wiki |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |
@@ -1333,6 +1332,7 @@ Performance / Documentation / Removed / Migration. Даты взяты из Git-
 
 | Версия | Дата | Категория | Изменения | Подробности |
 | --- | --- | --- | --- | --- |
+| `v28.67.0` | 2026-11-03 | Added | Портал подписки и домены (этап 11): страница клиента по ссылке подписки, домены портала с on-demand TLS, проверки DNS и сертификатов, Cloudflare, маршруты Caddy, защита от перебора, смена ссылки, закрытие доступа к панели; миграция `0091_remnawave_domains` |
 | `v28.66.0` | 2026-11-03 | Added | Мастер установки Remnawave (этап 10): реестр серверов, проверка сервера по SSH, семь режимов, план с SHA-256, установка по шагам с откатом, обновление, диагностика, восстановление, переустановка, удаление; миграция `0090_remnawave_installer`; установка «панель + нода» по SSH в CI |
 | `v28.65.0` | 2026-11-03 | Added | Архитектура Remnawave Manager (этап 9): 14 компонентов, 7 режимов, модель данных, API, агент развёртывания; живая проверка режимов «панель + нода» и «панель + страница подписки»; установка ноды только по типизированным полям | [заметки](docs/ru/RELEASE_V28_65_0.md) |
 | `v28.64.0` | 2026-11-02 | Changed | Актуальные версии: Python 3.14, Node.js 26 LTS, Redis 8.10, Caddy 2.11, nginx 1.30, Android AGP 9.5 / Kotlin 2.4 / Gradle 9.8 / compileSdk 37, обновлённые библиотеки; перевод закреплённых образов при обновлении | [заметки](docs/ru/RELEASE_V28_64_0.md) |
