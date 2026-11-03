@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.67.0
+# Модули админ-панели — v28.68.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -191,7 +191,7 @@ API: `/api/admin/rw/proxy-routes`. Права: `read`.
 
 ## 18. Subscription Portal
 
-Статус: `IMPLEMENTED`. Маршрутов API: 10. Операции: просмотр, создание, изменение, удаление, поиск и фильтры, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 12. Операции: просмотр, создание, изменение, удаление, поиск и фильтры, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |

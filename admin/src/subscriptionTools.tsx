@@ -52,6 +52,12 @@ export function SubProxy({request, toast}: Props) {
       <p className="muted">Ссылка клиента: <code>{d.example || "укажите адрес зеркала"}</code>. Домен зеркала направьте на сервер магазина (Caddy: блок <code>SUB_PROXY_DOMAIN</code>).</p>
       <label className="check"><input type="checkbox" checked={cfg.rewrite_links} onChange={(e) => set({rewrite_links: e.target.checked})}/> Выдавать клиентам ссылку зеркала в кабинете, Mini App, боте и приложениях</label>
       <label className="check"><input type="checkbox" checked={cfg.mask} onChange={(e) => set({mask: e.target.checked})}/> Нейтральная страница входа для всего, что не похоже на подписку</label>
+      <div className="grid3" data-mask-texts>
+        <label>Заголовок нейтральной страницы<input value={cfg.mask_title ?? ""} maxLength={60} onChange={(e) => set({mask_title: e.target.value})}/></label>
+        <label>Поле «логин»<input value={cfg.mask_login ?? ""} maxLength={40} onChange={(e) => set({mask_login: e.target.value})}/></label>
+        <label>Поле «пароль»<input value={cfg.mask_password ?? ""} maxLength={40} onChange={(e) => set({mask_password: e.target.value})}/></label>
+        <label>Кнопка<input value={cfg.mask_button ?? ""} maxLength={40} onChange={(e) => set({mask_button: e.target.value})}/></label>
+      </div>
       <label className="check"><input type="checkbox" checked={cfg.ua_hwid} onChange={(e) => set({ua_hwid: e.target.checked})}/> Брать HWID из User-Agent (<code>x-hwid=…</code>) для клиентов без своих заголовков</label>
       <label>Вторая подписка (её серверы добавляются в ту же ссылку)<input value={cfg.merge_url} placeholder="https://other.example/sub/{short_uuid}" onChange={(e) => set({merge_url: e.target.value.trim()})}/></label>
       <h4>Правила по приложению</h4>
@@ -112,6 +118,47 @@ function ResetLink({request, toast}: Props) {
 }
 
 const TEMPLATES: Record<string, string> = {corgi: "Корги Люси (полная страница)", minimal: "Короткая: статус и ссылка", panel: "Стандартная страница панели Remnawave"};
+const LANG_NAMES: Record<string, string> = {ru: "Русский", en: "English", uk: "Українська"};
+const COLOR_NAMES: Record<string, string> = {bg: "Фон", card: "Карточки", line: "Рамки", text: "Текст", muted: "Второстепенный текст", accent: "Кнопки и ссылки"};
+const TEXT_NAMES: Record<string, string> = {active: "Статус: активна", inactive: "Статус: не активна", until: "Срок", no_expiry: "Без срока", plan_fallback: "Название без тарифа",
+  traffic: "Трафик", unlimited: "Без лимита", gb: "Единица ГБ", days_left: "Скоро окончание", expired: "Подписка закончилась", renew: "Кнопка «Продлить»",
+  link_title: "Заголовок ссылки", copy: "Кнопка «Копировать»", copied: "После копирования", link_hint: "Подсказка под QR-кодом", apps_title: "Заголовок инструкции",
+  step1: "Шаг 1", step2: "Шаг 2", step3: "Шаг 3", add_to: "Кнопка «Добавить в …»", download: "Кнопка «Скачать»", devices_title: "Заголовок устройств",
+  devices_of: "«из N» устройств", no_devices: "Нет устройств", device_fallback: "Устройство без названия", devices_hint: "Подсказка об удалении",
+  help_title: "Заголовок помощи", support: "Кнопка поддержки", cabinet: "Кнопка кабинета", footer: "Подвал (пусто — название магазина)"};
+
+/** «Тексты, цвета и предпросмотр» of the portal (v28.68.0): every text per language, the template's colours. */
+function PortalLook({request, p, set}: {request: Request; p: any; set: (patch: any) => void}) {
+  const [meta, setMeta] = useState<any>(null);
+  const [lang, setLang] = useState("ru");
+  const [html, setHtml] = useState("");
+  const [error, setError] = useState("");
+  useEffect(() => { request("/api/admin/sub-proxy/portal-texts").then(setMeta).catch((e: any) => setError(e.message)); }, [request]);
+  if (!meta) return error ? <p className="error">{error}</p> : <p className="muted">Загрузка текстов…</p>;
+  const own = (p.texts || {})[lang] || {};
+  const setText = (key: string, value: string) => set({texts: {...(p.texts || {}), [lang]: {...own, [key]: value}}});
+  const reset = (key: string) => { const next = {...own}; delete next[key]; set({texts: {...(p.texts || {}), [lang]: next}}); };
+  const show = () => { setError(""); request("/api/admin/sub-proxy/portal-preview", post({portal: p, language: lang})).then((r: any) => setHtml(r.html)).catch((e: any) => setError(e.message)); };
+  return <div data-portal-look>
+    <h4>Цвета шаблона</h4>
+    <div className="grid3">{Object.entries(meta.colors).map(([k, def]: any) => <label key={k}>{COLOR_NAMES[k] || k}
+      <input type="color" value={(p.colors || {})[k] || def} onChange={(e) => set({colors: {...(p.colors || {}), [k]: e.target.value.toUpperCase()}})}/></label>)}</div>
+    <button onClick={() => set({colors: {}})}>Цвета по умолчанию</button>
+    <h4>Тексты страницы</h4>
+    <p className="muted">Язык страницы выбирается по браузеру клиента (русский, английский, украинский); если браузер просит другой — язык по умолчанию. Пустое поле — текст по умолчанию. В фигурных скобках — подстановки сервера.</p>
+    <div className="grid3">
+      <label>Язык по умолчанию<select value={p.language || "ru"} onChange={(e) => set({language: e.target.value})}>{meta.languages.map((l: string) => <option key={l} value={l}>{LANG_NAMES[l]}</option>)}</select></label>
+      <label>Редактировать язык<select value={lang} data-text-lang onChange={(e) => setLang(e.target.value)}>{meta.languages.map((l: string) => <option key={l} value={l}>{LANG_NAMES[l]}</option>)}</select></label>
+    </div>
+    <div className="grid3" data-portal-texts>{Object.entries(meta.defaults[lang]).map(([k, def]: any) => <label key={k} data-text-key={k}>
+      {TEXT_NAMES[k] || k}{meta.placeholders[k] ? <small className="muted"> {meta.placeholders[k].map((x: string) => `{${x}}`).join(" ")}</small> : null}
+      <input value={own[k] ?? ""} placeholder={def || "—"} maxLength={300} onChange={(e) => e.target.value ? setText(k, e.target.value) : reset(k)}/></label>)}</div>
+    <div className="toolbar"><button onClick={() => set({texts: {...(p.texts || {}), [lang]: {}}})}>Все тексты языка по умолчанию</button>
+      <button onClick={show}>Предпросмотр</button></div>
+    {error ? <p className="error">{error}</p> : null}
+    {html ? <iframe title="Предпросмотр портала" data-portal-preview sandbox="" srcDoc={html} style={{width: "100%", height: 640, border: "1px solid var(--line, #1E293B)", borderRadius: 12}}/> : null}
+  </div>;
+}
 
 /** «Серверы → Портал подписки»: what a customer sees opening the subscription link in a browser (v28.67.0). */
 export function SubPortal({request, toast}: Props) {
@@ -146,8 +193,9 @@ export function SubPortal({request, toast}: Props) {
           <label>Где скачать<input value={a.download} placeholder="https://…" onChange={(e) => setApp(i, {download: e.target.value.trim()})}/></label>
           <button className="danger" onClick={() => set({apps: p.apps.filter((_: any, j: number) => j !== i)})}>Убрать</button>
         </div>)}
+        <button onClick={() => set({apps: [...(p.apps || []), {name: "", platforms: "", deeplink: "", download: ""}]})}>Добавить приложение</button>
+        <PortalLook request={request} p={p} set={set}/>
         <div className="toolbar">
-          <button onClick={() => set({apps: [...(p.apps || []), {name: "", platforms: "", deeplink: "", download: ""}]})}>Добавить приложение</button>
           <button className="primary" onClick={save}>Сохранить портал</button>{form ? <button onClick={() => setForm(null)}>Отменить</button> : null}
         </div>
         <p className="muted">Проверить: откройте в браузере ссылку подписки любого клиента{d.example ? <> (вида <code>{d.example}</code>)</> : null}.</p>

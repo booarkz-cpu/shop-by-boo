@@ -33,7 +33,7 @@ test('add, switch off and remove a portal domain; routes and certificates are li
   await expect(list.getByText('Доменов пока нет')).toBeVisible();
 });
 
-test('the portal page settings are saved', async ({page}) => {
+test('the portal page settings, texts and colours are saved and previewed', async ({page}) => {
   test.setTimeout(60_000);
   await signIn(page);
   await page.locator('.sidebar').getByRole('button', {name: /Портал подписки/}).click();
@@ -41,10 +41,18 @@ test('the portal page settings are saved', async ({page}) => {
   await expect(portal.locator('[data-portal-app]').first()).toBeVisible();
   await portal.getByLabel('Заголовок', {exact: true}).fill('Подписка Корги Люси');
   await portal.getByLabel('Шаблон', {exact: true}).selectOption('minimal');
+  await portal.locator('[data-text-key="copy"] input').fill('Скопировать ссылку');
+  await portal.getByLabel('Кнопки и ссылки', {exact: true}).fill('#ff8800');
+  await portal.getByRole('button', {name: 'Предпросмотр'}).click();
+  const preview = page.frameLocator('[data-portal-preview]');
+  await expect(preview.getByRole('button', {name: 'Скопировать ссылку'})).toBeVisible();
+  await portal.locator('[data-text-lang]').selectOption('en');
+  await expect(portal.locator('[data-text-key="copy"] input')).toHaveAttribute('placeholder', 'Copy');
   await portal.getByRole('button', {name: 'Сохранить портал'}).click();
   await page.reload();
   await page.locator('.sidebar').getByRole('button', {name: /Портал подписки/}).click();
   await expect(page.locator('[data-sub-portal]').getByLabel('Заголовок', {exact: true})).toHaveValue('Подписка Корги Люси');
   await expect(page.locator('[data-sub-portal]').getByLabel('Шаблон', {exact: true})).toHaveValue('minimal');
+  await expect(page.locator('[data-sub-portal] [data-text-key="copy"] input')).toHaveValue('Скопировать ссылку');
   await expect(page.locator('[data-reset-link]')).toContainText('Сменить ссылку подписки клиента');
 });

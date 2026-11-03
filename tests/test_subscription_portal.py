@@ -320,3 +320,58 @@ def test_panel_access_behind_a_secret_link():
                                              panel_access="cookie"), {1: {"name": "s1", "host": "93.184.216.34"}}, None)
     assert any("секретной ссылке" in c for c in plan["servers"]["1"]["changes"])
     assert json.dumps(plan)  # the plan stays serialisable for its SHA-256
+
+
+@pytest.mark.asyncio
+async def test_every_text_language_and_colour_is_the_owners(database, portal):
+    """v28.68.0: every text of the portal per language, the template's colours and the neutral page are set in the
+    admin panel; the browser's language picks ru / en / uk."""
+    db = database
+    sub = await db.get(Subscription, 1)
+    sub.subscription_url = f"https://panel.example.com/api/sub/{SHORT}"
+    await db.commit()
+    portal["portal"] = {"apps": sub_portal.DEFAULT_APPS[:1], "colors": {"accent": "#FF8800"},
+                        "texts": {"ru": {"copy": "Скопировать ссылку", "traffic": "Израсходовано {used} (лимит {limit})", "footer": "Корги Люси ♥"}}}
+    ru = (await sub_proxy.serve(browser(), SHORT, db)).body.decode()
+    assert "Скопировать ссылку" in ru and "Израсходовано 3.0 ГБ (лимит без лимита)" in ru and "Корги Люси ♥" in ru and "--accent:#FF8800" in ru
+    assert "data-copied='Скопировано'" in ru and "<html lang=ru>" in ru
+    en_request = Request({**browser().scope, "headers": [*browser().scope["headers"], (b"accept-language", b"en-US,en;q=0.9")]})
+    en = await sub_proxy.serve(en_request, SHORT, db)
+    assert "Active" in en.body.decode() and "Copy" in en.body.decode() and en.headers["content-language"] == "en"
+    uk_request = Request({**browser().scope, "headers": [*browser().scope["headers"], (b"accept-language", b"uk-UA")]})
+    assert "Посилання підписки" in (await sub_proxy.serve(uk_request, SHORT, db)).body.decode()
+    de_request = Request({**browser().scope, "headers": [*browser().scope["headers"], (b"accept-language", b"de-DE")]})
+    portal["portal"]["language"] = "en"
+    assert "Subscription link" in (await sub_proxy.serve(de_request, SHORT, db)).body.decode()
+    js = (await sub_proxy.serve(browser(), "-/portal.js", db)).body
+    assert b"data-copied" in js and "Скопировано".encode() not in js
+    # the neutral page
+    portal.update(mask_title="Добро пожаловать", mask_login="Email", mask_password="Код", mask_button="Далее")
+    masked = (await sub_proxy.serve(browser(), "x", db)).body.decode()
+    assert all(x in masked for x in ("Добро пожаловать", "placeholder='Email'", "placeholder='Код'", ">Далее<"))
+
+
+def test_texts_are_validated_and_previewed():
+    with pytest.raises(ValidationError):  # an unknown placeholder
+        sub_proxy.PortalIn(texts={"ru": {"traffic": "{password}"}})
+    with pytest.raises(ValidationError):  # an unknown key
+        sub_proxy.PortalIn(texts={"ru": {"script": "<b>"}})
+    with pytest.raises(ValidationError):
+        sub_proxy.PortalIn(texts={"de": {"copy": "Kopieren"}})
+    with pytest.raises(ValidationError):
+        sub_proxy.PortalIn(colors={"accent": "red;}body{display:none"})
+    same = sub_proxy.PortalIn(texts={"ru": {"copy": "Копировать"}}, colors={"accent": "#3b82f6"})
+    assert same.texts == {} and same.colors == {}, "values equal to the defaults are not stored"
+    html_text = sub_portal.preview(sub_proxy.PortalIn(texts={"ru": {"step1": "<script>alert(1)</script>"}},
+                                                     apps=[{"name": "Happ", "deeplink": "happ://add/{url}"}]).model_dump(),
+                                   {"name": "Корги Люси", "logo_url": ""}, "ru")
+    assert "&lt;script&gt;" in html_text and "<script>alert" not in html_text and "Lucy Max" in html_text
+    assert set(sub_portal.TEXTS["ru"]) == set(sub_portal.TEXTS["en"]) == set(sub_portal.TEXTS["uk"])
+
+
+@pytest.mark.asyncio
+async def test_preview_endpoint(database):
+    out = await sub_proxy.portal_preview(sub_proxy.PreviewIn(portal={"title": "Проверка"}, language="en"), database, ADMIN)
+    assert "Проверка" in out["html"] and "Subscription link" in out["html"]
+    meta = await sub_proxy.portal_texts(ADMIN)
+    assert meta["languages"] == ["ru", "en", "uk"] and "copy" in meta["defaults"]["ru"] and meta["placeholders"]["traffic"] == ["limit", "used"]

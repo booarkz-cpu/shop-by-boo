@@ -1,4 +1,4 @@
-# Каталог API — v28.67.0 / API v21.5.1
+# Каталог API — v28.68.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0091_remnawave_domains`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -511,6 +511,8 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/sub-proxy/clients` | Put Clients | право `settings.runtime.write` |
 | `POST` | `/api/admin/sub-proxy/clients/refresh` | Refresh Clients | право `settings.runtime.write` |
 | `GET` | `/api/admin/sub-proxy/log` | Request Log | право `ops.diagnostics` |
+| `POST` | `/api/admin/sub-proxy/portal-preview` | Portal Preview | право `ops.diagnostics` |
+| `GET` | `/api/admin/sub-proxy/portal-texts` | Portal Texts | право `ops.diagnostics` |
 | `POST` | `/api/admin/sub-proxy/reset-link/{subscription_id}` | Reset Link | право `users.write` |
 | `GET` | `/api/admin/subscription-feed` | Subscription Feed | право `read` |
 | `GET` | `/api/admin/subscription-operations` | Admin Operations | право `payments.read` |
