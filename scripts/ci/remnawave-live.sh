@@ -35,7 +35,7 @@ docker run -d -q --name remnawave-subscription-page --network remnawave-network 
   -e APP_PORT=3010 -e REMNAWAVE_PANEL_URL=http://remnawave:3000 -e REMNAWAVE_API_TOKEN="$token" \
   -e INTERNAL_JWT_SECRET="$(openssl rand -hex 32)" -e MARZBAN_LEGACY_LINK_ENABLED=false \
   -e MARZBAN_LEGACY_DROP_REVOKED_SUBSCRIPTIONS=false remnawave/subscription-page:latest >/dev/null
-for _ in $(seq 1 40); do curl -s -o /dev/null "http://127.0.0.1:3010/" && break; sleep 3; done
+for _ in $(seq 1 40); do curl -s -o /dev/null -H "X-Forwarded-For: 127.0.0.1" -H "X-Forwarded-Proto: https" "http://127.0.0.1:3010/" && break; sleep 3; done
 node_version=$(docker inspect remnawave/node:latest -f '{{index .Config.Labels "org.opencontainers.image.version"}}' 2>/dev/null || echo "?")
 subpage_version=$(docker inspect remnawave/subscription-page:latest -f '{{index .Config.Labels "org.opencontainers.image.version"}}' 2>/dev/null || echo "?")
 echo "Remnawave node ${node_version:-?}, subscription page ${subpage_version:-?}" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"

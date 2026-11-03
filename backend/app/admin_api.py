@@ -265,14 +265,36 @@ async def remnawave_health(admin=Depends(require_permission("read"))):
     from .tariff_api import remnawave_server_status
     return await remnawave_server_status("admin")
 
+class NodeProvisionIn(BaseModel):
+    """v28.65.0: typed node installation. The compose file is written by the shop (provisioner.node_compose);
+    a compose text from the browser is not accepted any more — it could run any container as root."""
+    model_config = {"extra": "forbid"}
+    host: str = Field(min_length=1, max_length=255, pattern=r"^[A-Za-z0-9.:\-\[\]]+$")
+    ssh_port: int = Field(default=22, ge=1, le=65535)
+    ssh_username: str = Field(min_length=1, max_length=64, pattern=r"^[a-z_][a-z0-9_.-]*$")
+    ssh_password: str | None = Field(default=None, max_length=1024)
+    ssh_private_key: str | None = Field(default=None, max_length=16384)
+    ssh_host_key: str = Field(pattern=r"^SHA256:[A-Za-z0-9+/]{43}$")
+    panel_ip: str | None = Field(default=None, max_length=64)
+    node_port: int = Field(default=2222, ge=1, le=65535)
+
 @shop.app.post("/api/admin/provision-node")
-async def provision_node(payload:dict,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("provision_nodes"))):
-    required=["host","ssh_username","compose_yaml"]
-    if any(not payload.get(k) for k in required): raise shop.HTTPException(400,"host, ssh_username and compose_yaml are required")
+async def provision_node(payload:NodeProvisionIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("provision_nodes"))):
+    if not (payload.ssh_password or payload.ssh_private_key): raise shop.HTTPException(400,"SSH password or private key is required")
+    if payload.panel_ip:
+        import ipaddress
+        try: ipaddress.ip_address(payload.panel_ip)
+        except ValueError: raise shop.HTTPException(400,"panel_ip must be an IP address")
+    from starlette.concurrency import run_in_threadpool
+    from .provisioner import node_compose
+    from .remnawave import RemnawaveError
     try:
-        result=shop.run_ssh(host=payload["host"],port=int(payload.get("ssh_port",22)),username=payload["ssh_username"],password=payload.get("ssh_password"),private_key=payload.get("ssh_private_key"),compose_yaml=payload["compose_yaml"],panel_ip=payload.get("panel_ip",""),node_port=int(payload.get("node_port",2222)),host_key_fingerprint=payload.get("ssh_host_key"))
-        await shop.audit(db,"node.provisioned",admin.email,payload["host"]); await db.commit(); return result
+        compose=node_compose(await shop.RemnawaveClient().node_secret_key(),payload.node_port)
+        # SSH and apt take minutes: off the event loop.
+        result=await run_in_threadpool(shop.run_ssh,host=payload.host,port=payload.ssh_port,username=payload.ssh_username,password=payload.ssh_password,private_key=payload.ssh_private_key,compose_yaml=compose,panel_ip=payload.panel_ip or "",node_port=payload.node_port,host_key_fingerprint=payload.ssh_host_key)
+        await shop.audit(db,"node.provisioned",admin.email,payload.host,{"node_port":payload.node_port}); await db.commit(); return result
     except shop.ProvisionError as e: raise shop.HTTPException(400,str(e))
+    except RemnawaveError: raise  # 503/502 from the error handlers: the node key comes from the panel
     except Exception as e: raise shop.HTTPException(502,"SSH provisioning failed") from e
 
 class AdminUserIn(BaseModel):

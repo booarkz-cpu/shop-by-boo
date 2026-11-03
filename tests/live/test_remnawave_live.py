@@ -213,8 +213,10 @@ async def test_mode_panel_plus_subscription_page(panel):
     import httpx
     expire = (datetime.utcnow() + timedelta(days=5)).replace(microsecond=0)
     user = await panel.create_user(f"ci_sp_{int(datetime.utcnow().timestamp())}", expire)
+    # Like the panel, the page drops connections without a TLS reverse proxy in front: send what the proxy adds.
+    proxy = {"x-forwarded-for": "203.0.113.9", "x-forwarded-proto": "https"}
     async with httpx.AsyncClient(timeout=20, trust_env=False) as client:
-        page = await client.get(f"{SUBPAGE_URL}/{user['shortUuid']}", headers={"user-agent": "Mozilla/5.0 Firefox/140.0"})
-        sub = await client.get(f"{SUBPAGE_URL}/{user['shortUuid']}", headers={"user-agent": "v2rayNG/1.9.30"})
+        page = await client.get(f"{SUBPAGE_URL}/{user['shortUuid']}", headers={**proxy, "user-agent": "Mozilla/5.0 Firefox/140.0"})
+        sub = await client.get(f"{SUBPAGE_URL}/{user['shortUuid']}", headers={**proxy, "user-agent": "v2rayNG/1.9.30"})
     assert page.status_code == 200 and "text/html" in page.headers.get("content-type", ""), (page.status_code, page.text[:300])
     assert sub.status_code == 200 and "text/html" not in sub.headers.get("content-type", ""), (sub.status_code, sub.text[:300])
