@@ -52,21 +52,34 @@
 
 Бот пишет владельцу («Telegram ID владельца» в настройках) или в указанный chat ID. Telegram не даёт боту писать первым: сначала отправьте боту `/start`.
 
-## 6. Права и журнал
+## 6. Тексты бота
+
+С v28.72.0. «Telegram-бот → Тексты бота»: каждое сообщение и кнопка бота (около 100 текстов, по разделам) на русском, английском и украинском. Реестр — `backend/app/bot_texts.py`, правки владельца хранятся в `app_settings.bot_texts`.
+
+- **Язык клиента** берётся из его Telegram (`language_code`): украинский, английский, остальным русский (или «Язык по умолчанию» магазина).
+- **Подстановки** в фигурных скобках (`{name}`, `{date}`) сохраняются. Неизвестная подстановка отклоняется при сохранении.
+- **HTML:** можно только теги Telegram `<b> <i> <u> <s> <code> <pre> <a href>`.
+- **Сброс:** пустое поле или стандартный текст возвращают стандартный вариант.
+- **Применение:** бот берёт новые тексты в течение минуты, без перезапуска.
+
+Функции бота и Mini App по списку этапа: [TELEGRAM_MINI_APP](TELEGRAM_MINI_APP.md).
+
+## 7. Права и журнал
 
 | Действие | Право | Журнал |
 | --- | --- | --- |
 | Состояние, проверка, меню (чтение) | `settings.runtime.read` | — |
-| Меню команд, удаление webhook | `manage_content` | `telegram.commands.updated`, `telegram.webhook.deleted` |
+| Меню команд, удаление webhook, тексты бота | `manage_content` | `telegram.commands.updated`, `telegram.webhook.deleted`, `telegram.texts.updated` |
 | Тестовое сообщение | `manage_broadcasts` | `telegram.test_message` |
 | Ошибки бота | `ops.diagnostics` | — |
 
-## 7. Проверено
+## 8. Проверено
 
 | Что | Тест | Статус |
 | --- | --- | --- |
 | Состояние, проверка, меню на трёх языках, тестовое сообщение, ошибки, журнал | `tests/test_telegram_bot.py` | PASS |
 | Переподключение с новым токеном без перезапуска, ожидание без токена, отклонённый токен (маскируется) | `tests/test_telegram_bot.py::test_supervisor_reconnects_on_a_new_token` | PASS |
 | Строка «Telegram-бот» в «Состоянии системы» | `tests/test_system_status.py::test_telegram` | PASS |
-| Раздел админки | `admin/e2e/telegram-bot.spec.ts` | PASS |
+| Тексты: три языка, одинаковые подстановки, правила правки, ответ на языке клиента, нет строк мимо реестра | `tests/test_bot_texts.py` | PASS |
+| Раздел админки, тексты на настоящем backend | `admin/e2e/telegram-bot.spec.ts` | PASS |
 | Настоящий Bot API с тестовым ботом владельца: подключение, опрос, меню на трёх языках | `tests/live/test_telegram_live.py` (задание `telegram`, секрет `TELEGRAM_TEST_BOT_TOKEN`) | PASS (CI) |

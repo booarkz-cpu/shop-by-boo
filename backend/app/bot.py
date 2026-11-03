@@ -26,8 +26,9 @@ _ALIASES = {"open": "open_shop", "scope": "promo_scope"}
 
 def _lang(message: Message | None = None) -> str:
     code = ""
-    if message is not None and message.from_user and message.from_user.language_code:
-        code = message.from_user.language_code
+    author = getattr(message, "from_user", None) if message is not None else None
+    if author is not None and getattr(author, "language_code", None):
+        code = author.language_code
     code = (code or settings.default_language or "ru").lower()
     if code.startswith("uk") or code.startswith("ua"): return "uk"
     return "en" if code.startswith("en") else "ru"
