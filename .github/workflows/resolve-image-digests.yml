@@ -30,6 +30,11 @@ jobs:
           check caddy:2.11-alpine 'caddy version'
           check redis:8.10-alpine 'redis-server --version'
           check postgres:18.6-alpine 'postgres --version'
+          check remnawave/backend:3 'cat /opt/app/package.json 2>/dev/null | grep -m1 version || node -e "console.log(require(\'/opt/app/package.json\').version)"'
+          check remnawave/node:latest 'grep -m1 version /opt/app/package.json 2>/dev/null || ls /opt'
+          check remnawave/subscription-page:latest 'ls /opt/app 2>/dev/null | head -3'
+          check postgres:18.4 'postgres --version'
+          check valkey/valkey:9-alpine 'valkey-server --version'
       - name: Android toolchain versions
         run: |
           meta(){ curl -fsS "$1" | grep -oE "<version>[^<]+" | sed 's/<version>//' | grep -viE "alpha|beta|rc|dev|eap|snapshot|-m[0-9]" | sort -V | tail -1; }
