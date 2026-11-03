@@ -15,6 +15,7 @@ from . import rw_plan
 
 API = "https://api.github.com/repos"
 TAG = re.compile(r"^v\d{1,3}\.\d{1,3}\.\d{1,3}$")
+PAUSES = (2, 5, 10, 0)  # between attempts: a dropped TLS handshake right after a network change clears in seconds
 SHA = re.compile(r"^sha256:([0-9a-f]{64})$")
 
 
@@ -22,7 +23,7 @@ class ReleaseError(RuntimeError):
     """Shown to the administrator."""
 
 
-async def _release(repo: str, tag: str | None, attempts: int = 3) -> dict:
+async def _release(repo: str, tag: str | None, attempts: int = 4) -> dict:
     url = f"{API}/{repo}/releases/" + (f"tags/{tag}" if tag else "latest")
     headers = {"Accept": "application/vnd.github+json"}
     if os.environ.get("GH_API_TOKEN"):  # optional: a higher rate limit (CI passes its job token)
@@ -35,11 +36,11 @@ async def _release(repo: str, tag: str | None, attempts: int = 3) -> dict:
         except httpx.HTTPError as exc:
             if attempt == attempts - 1:
                 raise ReleaseError(f"GitHub недоступен: {type(exc).__name__}") from exc
-            await asyncio.sleep(2 * (attempt + 1))
+            await asyncio.sleep(PAUSES[attempt])
             continue
         if answer.status_code < 500 or attempt == attempts - 1:
             break
-        await asyncio.sleep(2 * (attempt + 1))
+        await asyncio.sleep(PAUSES[attempt])
     if answer.status_code == 404:
         raise ReleaseError(f"В {repo} нет релиза {tag or 'latest'}")
     if answer.status_code != 200:

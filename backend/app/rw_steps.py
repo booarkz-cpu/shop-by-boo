@@ -593,6 +593,9 @@ refresh() {
   echo "noaddr"
 }
 had() { [ -f "$f.rw-had" ] && echo had; }
+# After a switch the interface re-runs duplicate address detection: wait until no address is «tentative»,
+# so the next step does not start on a network that is still settling.
+settle() { for _ in $(seq 1 10); do ip -6 addr show 2>/dev/null | grep -q tentative || return 0; sleep 1; done; }
 case "$1" in
   on|off)
     rm -f "$f.rw-prev" "$f.rw-none"
@@ -604,6 +607,7 @@ case "$1" in
     else
       write 0
       refresh "$(had)"
+      settle
     fi ;;
   undo)
     if [ -f "$f.rw-prev" ]; then mv "$f.rw-prev" "$f"; sysctl -q -p "$f";
