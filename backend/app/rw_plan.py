@@ -26,7 +26,10 @@ IMAGES = {
     "valkey": "valkey/valkey:9-alpine@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b",
     "caddy": "caddy:2.11-alpine@sha256:e70b164da81ef698b3ad19af799ea6086ce6d9e48ed4079eb9fe26f6fbf14ee5",
 }
-DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page": "/opt/remnawave-subpage", "proxy": "/opt/remnawave-caddy"}
+DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page": "/opt/remnawave-subpage", "proxy": "/opt/remnawave-caddy",
+        "selfsteal": "/opt/remnawave-selfsteal"}
+SELFSTEAL_SOCKET = "/dev/shm/selfsteal.sock"
+SELFSTEAL_TEMPLATES = {"cloud": "Облачное хранилище", "docs": "Документация", "corgi": "Блог о корги"}
 MODES = ("panel_node", "panel", "node", "panel_subpage", "subpage", "distributed", "add_node")
 MODE_TITLES = {
     "panel_node": "Панель и нода на одном сервере", "panel": "Только панель", "node": "Только нода",
@@ -56,10 +59,14 @@ class PlanIn(BaseModel):
     firewall: bool = True
     # v28.67.0: «закрыть доступ к панели» — the panel's pages answer only with the access cookie (rw_plan.caddyfile).
     panel_access: Literal["open", "cookie"] = "open"
+    # v28.70.0: SelfSteal on the node — Caddy serves a template site for this domain on a unix socket and Xray
+    # REALITY on port 443 uses it as its «dest» (the node looks like an ordinary site).
+    selfsteal_domain: str | None = Field(default=None, max_length=253)
+    selfsteal_template: Literal["cloud", "docs", "corgi"] = "cloud"
 
     @model_validator(mode="after")
     def check(self):
-        for field in ("panel_domain", "sub_domain", "node_domain"):
+        for field in ("panel_domain", "sub_domain", "node_domain", "selfsteal_domain"):
             value = getattr(self, field)
             if value is not None:
                 value = value.strip().lower().rstrip(".")
@@ -94,6 +101,15 @@ class PlanIn(BaseModel):
             raise ValueError("В этом режиме страница подписки не ставится")
         if self.subpage_server_id and not self.sub_domain:
             raise ValueError("Нужен домен страницы подписки")
+        if self.selfsteal_domain:
+            if len(self.node_server_ids) != 1:
+                raise ValueError("SelfSteal — для одной ноды: у каждой ноды свой домен")
+            if self.node_server_ids[0] in (self.panel_server_id, self.subpage_server_id):
+                raise ValueError("SelfSteal занимает порт 443 ноды: ставьте ноду на сервер без панели и страницы подписки")
+            if self.node_domain and self.node_domain != self.selfsteal_domain:
+                raise ValueError("Домен ноды и домен SelfSteal должны совпадать")
+            if self.tls == "acme" and not self.acme_email:
+                raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
         if self.panel_access == "cookie" and not self.panel_server_id:
             raise ValueError("Закрыть доступ можно к панели, которую ставит мастер")
         if self.tls == "acme" and (self.panel_domain or self.sub_domain) and not self.acme_email:
@@ -129,9 +145,11 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
     changes: dict[int, list[str]] = {}
     for sid, rs in roles.items():
         name = servers[sid]["name"]
-        steps.append(step("preflight", sid, f"{name}: проверка перед установкой", roles=rs,
+        steal = bool(plan.selfsteal_domain and "node" in rs)
+        steps.append(step("preflight", sid, f"{name}: проверка перед установкой", roles=rs + (["selfsteal"] if steal else []),
                           domains=[d for d in (plan.panel_domain if "panel" in rs else None,
-                                               plan.sub_domain if "subscription_page" in rs else None) if d],
+                                               plan.sub_domain if "subscription_page" in rs else None,
+                                               plan.selfsteal_domain if steal else None) if d],
                           node_port=plan.node_port if "node" in rs else None))
         steps.append(step("install_docker", sid, f"{name}: Docker и compose из подписанного репозитория"))
         changes[sid] = ["Docker Engine и плагин compose, если их нет (официальный репозиторий Docker)"]
@@ -162,14 +180,23 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
             changes[sid].append("Доступ к страницам панели закрыт: открывается только по секретной ссылке (API с токеном и подписки работают)")
     for n in plan.node_server_ids:
         name = servers[n]["name"]
+        if plan.selfsteal_domain:
+            steps += [step("write_files", n, f"{name}: SelfSteal — Caddy и сайт «{SELFSTEAL_TEMPLATES[plan.selfsteal_template]}»", component="selfsteal"),
+                      step("compose_up", n, f"{name}: запуск Caddy SelfSteal (сертификат {plan.selfsteal_domain})", component="selfsteal")]
+            changes[n] += [f"Каталог {DIRS['selfsteal']}: Caddy на порту 80 и сокете {SELFSTEAL_SOCKET}, сайт-шаблон для {plan.selfsteal_domain}",
+                           "Порт 443 занимает Xray (REALITY), чужие запросы видят сайт-шаблон"]
         steps += [step("write_files", n, f"{name}: файлы ноды", component="node"),
                   step("compose_up", n, f"{name}: запуск ноды", component="node")]
         changes[n].append(f"Каталог {DIRS['node']}; контейнер remnanode (сеть хоста), порт {plan.node_port}")
         if plan.firewall:
             steps.append(step("firewall_node_port", n, f"{name}: порт {plan.node_port} только для адреса панели"))
-            changes[n].append(f"Если есть ufw: правило «разрешить {plan.node_port}/tcp только с адреса панели»")
+            changes[n].append(f"Если есть ufw: правило «разрешить {plan.node_port}/tcp только с адреса панели»"
+                              + ("; порты 80 и 443 открыты для всех" if plan.selfsteal_domain else ""))
+        if plan.selfsteal_domain:
+            steps.append(step("selfsteal_profile", n, f"{name}: профиль VLESS + REALITY с SelfSteal и хост {plan.selfsteal_domain}"))
+            changes.setdefault(n, []).append("В панели: профиль конфигурации REALITY (ключи от панели) и хост для клиентов")
         steps.append(step("register_node", n, f"{name}: нода в панели"))
-    steps.append(step("verify", None, "Проверка: HTTPS панели, связь нод, страница подписки"))
+    steps.append(step("verify", None, "Проверка: HTTPS панели, связь нод, страница подписки" + (", сайт SelfSteal" if plan.selfsteal_domain else "")))
     return {
         "mode": plan.mode, "title": MODE_TITLES[plan.mode], "images": IMAGES,
         "panel": "новая" if p else f"подключённая к магазину ({shop_panel})",
@@ -344,9 +371,70 @@ volumes:
 """
 
 
-def node_compose(secret_key: str, node_port: int) -> str:
+def node_compose(secret_key: str, node_port: int, selfsteal: bool = False) -> str:
     from .provisioner import node_compose as official
-    return official(secret_key, node_port).replace("image: remnawave/node:latest", f"image: {IMAGES['node']}")
+    text = official(secret_key, node_port).replace("image: remnawave/node:latest", f"image: {IMAGES['node']}")
+    if selfsteal:
+        # Xray reaches the SelfSteal site through the socket in /dev/shm (shared with the Caddy container).
+        text = text.replace("    cap_add:\n", "    volumes:\n      - /dev/shm:/dev/shm:rw\n    cap_add:\n", 1)
+    return text
+
+
+def selfsteal_caddyfile(domain: str, tls: str, email: str | None) -> str:
+    """Caddy of the node: the HTTP-01 challenge and a redirect on port 80; the template site over TLS on the unix
+    socket that Xray REALITY passes foreign connections to, with the PROXY protocol (xver 1) so the site sees the
+    real client address. After eGamesAPI/remnawave-reverse-proxy (MIT, (c) 2025 eGames), src/caddy/install_node.sh."""
+    if not DOMAIN.match(domain):
+        raise ValueError("Некорректный домен")
+    opts = ["\tadmin off", "\tservers {", "\t\tlistener_wrappers {", "\t\t\tproxy_protocol", "\t\t\ttls", "\t\t}", "\t}",
+            "\tauto_https disable_redirects"]
+    if tls == "internal":
+        opts.append("\tlocal_certs")
+    elif email:
+        opts.append(f"\temail {email}")
+    return "\n".join(["{", *opts, "}", "",
+                      f"http://{domain} {{", "\tbind 0.0.0.0", f"\tredir https://{domain}{{uri}} permanent", "}", "",
+                      f"https://{domain} {{", f"\tbind unix/{SELFSTEAL_SOCKET}", "\troot * /srv", "\ttry_files {path} /index.html",
+                      "\tfile_server", "}", "",
+                      ":80 {", "\tbind 0.0.0.0", "\trespond 204", "}", ""])
+
+
+def selfsteal_compose() -> str:
+    return f"""services:
+  caddy:
+    image: {IMAGES['caddy']}
+    container_name: remnawave-selfsteal
+    restart: always
+    network_mode: host
+    command: sh -c 'rm -f {SELFSTEAL_SOCKET} && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "./index.html:/srv/index.html:ro", "/dev/shm:/dev/shm:rw", "caddy-data:/data", "caddy-config:/config"]
+    healthcheck:
+      test: ["CMD", "test", "-S", "{SELFSTEAL_SOCKET}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  caddy-data: {{}}
+  caddy-config: {{}}
+"""
+
+
+def selfsteal_page(template: str, domain: str) -> str:
+    """A small, self-contained site (no outside requests): what anyone who opens the node's domain sees."""
+    import html as _html
+    d = _html.escape(domain)
+    pages = {
+        "cloud": ("Хранилище файлов", "Синхронизация и резервные копии для команд", ["Шифрование на устройстве", "Версии файлов 30 дней", "Доступ по ссылке"], "#2563EB"),
+        "docs": ("Документация", "Руководства, справочник API и заметки к выпускам", ["Быстрый старт", "Справочник API", "Заметки к выпускам"], "#0F766E"),
+        "corgi": ("Дневник корги", "Прогулки, рецепты лакомств и советы по уходу", ["Осенние прогулки", "Печенье из тыквы", "Как вычёсывать подшёрсток"], "#C2410C"),
+    }
+    title, lead, items, color = pages.get(template, pages["cloud"])
+    lis = "".join(f"<li>{_html.escape(x)}</li>" for x in items)
+    return (f"<!doctype html><html lang=ru><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
+            f"<title>{_html.escape(title)} — {d}</title><style>body{{margin:0;font:16px/1.6 system-ui,sans-serif;color:#1f2937;background:#f8fafc}}"
+            f"header{{background:{color};color:#fff;padding:48px 24px}}main{{max-width:760px;margin:0 auto;padding:24px}}h1{{margin:0 0 8px}}"
+            f"li{{margin:8px 0}}footer{{color:#64748b;text-align:center;padding:24px}}</style></head><body><header><div style='max-width:760px;margin:0 auto'><h1>{_html.escape(title)}</h1>"
+            f"<p>{_html.escape(lead)}</p></div></header><main><ul>{lis}</ul></main><footer>© {d}</footer></body></html>")
 
 
 ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove")
@@ -378,6 +466,8 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
         if {"panel", "subscription_page"} & set(rs):
             out.append("proxy")
         if "node" in rs:
+            if plan.selfsteal_domain:
+                out.append("selfsteal")
             out.append("node")
         return out
 

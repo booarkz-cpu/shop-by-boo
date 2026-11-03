@@ -136,7 +136,7 @@ class FakeRemote:
             return Result(0, "Rule added\n", "")
         if name == "gateway":
             return Result(0, "172.18.0.1\n", "")
-        if name == "https":
+        if name in ("https", "selfsteal_check"):
             return Result(0, "200\n", "")
         if name == "backup":
             h.backups += 1

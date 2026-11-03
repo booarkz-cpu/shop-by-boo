@@ -18,9 +18,10 @@ from . import rw_plan
 from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
-              "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down")
-FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile")
-COMPONENTS = ("panel", "node", "subscription_page", "proxy")
+              "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
+              "selfsteal_profile")
+FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
+COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal")
 _sleep = asyncio.sleep  # tests replace it
 SUPPORTED_OS = {("debian", "12"), ("debian", "13"), ("ubuntu", "22.04"), ("ubuntu", "24.04"), ("ubuntu", "26.04")}
 
@@ -106,7 +107,7 @@ for d in "$@"; do echo "dns=$d $(getent ahostsv4 "$d" 2>/dev/null | awk 'NR==1{p
 """
 
 OWNER_CONTAINER = {"caddy": "remnawave-caddy", "panel": "remnawave", "subscription_page": "remnawave-subscription-page",
-                   "node": "remnanode"}
+                   "node": "remnanode", "selfsteal": "remnawave-selfsteal"}
 
 
 def parse_facts(text: str) -> dict:
@@ -169,6 +170,8 @@ def evaluate(facts: dict, roles: list[str], domains: list[str], node_port: int |
         wanted += [(p, "subscription_page") for p in rw_plan.LOCAL_PORTS["subscription_page"]]
     if "node" in roles and node_port:
         wanted.append((node_port, "node"))
+    if "selfsteal" in roles:
+        wanted += [(80, "selfsteal"), (443, "node")]
     containers = facts.get("containers", {})
     for port, owner in wanted:
         proc = listen.get(port)
@@ -236,8 +239,8 @@ async def run_install_docker(ctx: Context, st: dict) -> None:
 
 WRITE = r"""set -eu
 dir="$1"; name="$2"; sum="$3"
-case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy) ;; *) echo "bad dir" >&2; exit 2 ;; esac
-case "$name" in docker-compose.yml|.env|Caddyfile) ;; *) echo "bad name" >&2; exit 2 ;; esac
+case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal) ;; *) echo "bad dir" >&2; exit 2 ;; esac
+case "$name" in docker-compose.yml|.env|Caddyfile|index.html) ;; *) echo "bad name" >&2; exit 2 ;; esac
 install -d -m 0750 "$dir"
 umask 077
 if [ -f "$dir/$name" ]; then cp -p "$dir/$name" "$dir/$name.rw-prev"; else rm -f "$dir/$name.rw-prev"; fi
@@ -248,8 +251,8 @@ mv "$dir/$name.rw-new" "$dir/$name"
 
 UNWRITE = r"""set -eu
 dir="$1"; name="$2"
-case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy) ;; *) exit 2 ;; esac
-case "$name" in docker-compose.yml|.env|Caddyfile) ;; *) exit 2 ;; esac
+case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal) ;; *) exit 2 ;; esac
+case "$name" in docker-compose.yml|.env|Caddyfile|index.html) ;; *) exit 2 ;; esac
 if [ -f "$dir/$name.rw-prev" ]; then mv "$dir/$name.rw-prev" "$dir/$name"; else rm -f "$dir/$name"; fi
 """
 
@@ -285,7 +288,11 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
         return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect), "docker-compose.yml": rw_plan.caddy_compose()}
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
-        return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port)}
+        return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain))}
+    if component == "selfsteal":
+        return {"Caddyfile": rw_plan.selfsteal_caddyfile(plan.selfsteal_domain, plan.tls, plan.acme_email),
+                "index.html": rw_plan.selfsteal_page(plan.selfsteal_template, plan.selfsteal_domain),
+                "docker-compose.yml": rw_plan.selfsteal_compose()}
     raise StepError(f"Неизвестный компонент {component}")
 
 
@@ -314,7 +321,7 @@ async def undo_write_files(ctx: Context, st: dict) -> None:
 
 COMPOSE = r"""set -eu
 dir="$1"; action="$2"
-case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy) ;; *) exit 2 ;; esac
+case "$dir" in /opt/remnawave|/opt/remnanode|/opt/remnawave-subpage|/opt/remnawave-caddy|/opt/remnawave-selfsteal) ;; *) exit 2 ;; esac
 cd "$dir"
 case "$action" in
   up) if [ "$dir" = /opt/remnawave-subpage ]; then docker network inspect remnawave-network >/dev/null 2>&1 || docker network create remnawave-network >/dev/null; fi
@@ -429,6 +436,9 @@ ip="$1"; port="$2"; action="$3"
 command -v ufw >/dev/null 2>&1 || { echo "ufw нет: правило не добавлено"; exit 0; }
 ufw status 2>/dev/null | head -1 | grep -q active || { echo "ufw выключен: правило не добавлено"; exit 0; }
 if [ "$action" = add ]; then ufw allow from "$ip" to any port "$port" proto tcp; else ufw delete allow from "$ip" to any port "$port" proto tcp || true; fi
+if [ "${4:-}" = web ]; then
+  if [ "$action" = add ]; then ufw allow 80/tcp; ufw allow 443/tcp; else ufw delete allow 80/tcp || true; ufw delete allow 443/tcp || true; fi
+fi
 """
 
 
@@ -450,7 +460,8 @@ async def run_firewall_node_port(ctx: Context, st: dict) -> None:
         _note(ctx, "Нода на сервере панели: панель обращается к ней локально, правило не нужно")
         return
     ip = panel_ip(ctx)
-    result = await _run(ctx, st["server_id"], FIREWALL, ip, str(ctx.plan.node_port), "add", timeout=60)
+    web = ("web",) if ctx.plan.selfsteal_domain else ()
+    result = await _run(ctx, st["server_id"], FIREWALL, ip, str(ctx.plan.node_port), "add", *web, timeout=60)
     _note(ctx, result.out + result.err)
     if result.code != 0:
         raise StepError("Правило ufw не добавлено")
@@ -460,7 +471,8 @@ async def run_firewall_node_port(ctx: Context, st: dict) -> None:
 async def undo_firewall_node_port(ctx: Context, st: dict) -> None:
     ip = ctx.state.get("firewall", {}).get(str(st["server_id"]))
     if ip:
-        await _run(ctx, st["server_id"], FIREWALL, ip, str(ctx.plan.node_port), "delete", timeout=60)
+        web = ("web",) if ctx.plan.selfsteal_domain else ()
+        await _run(ctx, st["server_id"], FIREWALL, ip, str(ctx.plan.node_port), "delete", *web, timeout=60)
 
 
 def node_address(ctx: Context, server_id: int) -> str:
@@ -486,7 +498,8 @@ async def run_register_node(ctx: Context, st: dict) -> None:
         if out.code == 0 and out.out.strip():
             ctx.state["bridge_gateway"] = out.out.strip()
     profiles = (await panel_api(ctx, "GET", "/api/config-profiles")).get("configProfiles") or []
-    profile = next((p for p in profiles if p.get("inbounds")), None)
+    own = ctx.state.get("selfsteal_profile")
+    profile = next((p for p in profiles if own and p.get("uuid") == own), None) or next((p for p in profiles if p.get("inbounds")), None)
     if not profile:
         raise StepError("В панели нет профиля конфигурации с inbound: создайте его в «Remnawave: панель»")
     name = f"{ctx.plan.node_name}-{sid}"[:30]
@@ -501,6 +514,46 @@ async def undo_register_node(ctx: Context, st: dict) -> None:
     uuid = ctx.state.get("nodes", {}).pop(str(st["server_id"]), None)
     if uuid:
         await panel_api(ctx, "DELETE", f"/api/nodes/{uuid}")
+
+
+# ---------- SelfSteal ----------
+
+async def run_selfsteal_profile(ctx: Context, st: dict) -> None:
+    """VLESS + REALITY with «dest» on the node's SelfSteal socket, keys from the panel, and the host customers get."""
+    if ctx.state.get("selfsteal_profile"):
+        _note(ctx, f"Профиль SelfSteal уже создан: {ctx.state['selfsteal_profile']}")
+        return
+    from .rw_extensions import RealityIn, reality_config
+    domain = ctx.plan.selfsteal_domain
+    pairs = (await panel_api(ctx, "GET", "/api/system/tools/x25519/generate")).get("keypairs") or []
+    if not pairs:
+        raise StepError("Панель не выдала ключи x25519")
+    name = f"SelfSteal-{st['server_id']}-{pysecrets.token_hex(2)}"[:30]
+    config = reality_config(RealityIn(name=name, server_names=[domain], dest="selfsteal"), pairs[0]["privateKey"])
+    profile = await panel_api(ctx, "POST", "/api/config-profiles", {"name": name, "config": config})
+    inbound = (profile.get("inbounds") or [{}])[0].get("uuid")
+    ctx.state["selfsteal_profile"] = profile.get("uuid")
+    if inbound:
+        host = await panel_api(ctx, "POST", "/api/hosts", {"remark": name, "address": domain, "port": 443, "sni": domain,
+                                                         "inbound": {"configProfileUuid": profile.get("uuid"), "configProfileInboundUuid": inbound}})
+        ctx.state["selfsteal_host"] = host.get("uuid")
+    _note(ctx, f"Профиль {name}: REALITY на 443, dest {rw_plan.SELFSTEAL_SOCKET}, serverNames [{domain}]; хост {domain}:443")
+
+
+async def undo_selfsteal_profile(ctx: Context, st: dict) -> None:
+    host = ctx.state.pop("selfsteal_host", None)
+    if host:
+        await panel_api(ctx, "DELETE", f"/api/hosts/{host}")
+    profile = ctx.state.pop("selfsteal_profile", None)
+    if profile:
+        await panel_api(ctx, "DELETE", f"/api/config-profiles/{profile}")
+
+
+SELFSTEAL_CHECK = r"""set -u
+domain="$1"
+[ -S /dev/shm/selfsteal.sock ] || { echo "nosocket"; exit 0; }
+curl -sk --max-time 10 --haproxy-protocol --unix-socket /dev/shm/selfsteal.sock -o /dev/null -w '%{http_code}' "https://$domain/"
+"""
 
 
 # ---------- verify ----------
@@ -551,6 +604,17 @@ async def run_verify(ctx: Context, st: dict) -> None:
         _note(ctx, f"https://{plan.sub_domain} через Caddy: {code}")
         if code in ("", "000", "502", "503"):
             problems.append(f"страница подписки не отвечает ({code or 'нет ответа'})")
+    if plan.selfsteal_domain:
+        sid = plan.node_server_ids[0]
+        code = ""
+        for _ in range(20):
+            code = (await _run(ctx, sid, SELFSTEAL_CHECK, plan.selfsteal_domain, timeout=30)).out.strip()
+            if code == "200":
+                break
+            await _sleep(6)
+        _note(ctx, f"Сайт SelfSteal через {rw_plan.SELFSTEAL_SOCKET}: {code or 'нет ответа'}")
+        if code != "200":
+            problems.append(f"сайт SelfSteal не отвечает на сокете ({code or 'нет ответа'})")
     if problems:
         raise StepError("Проверка не пройдена: " + "; ".join(problems))
 
@@ -598,7 +662,8 @@ async def run_restore_panel(ctx: Context, st: dict) -> None:
 RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_files": run_write_files,
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
-       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "compose_down": run_compose_down}
+       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "compose_down": run_compose_down,
+       "selfsteal_profile": run_selfsteal_profile}
 UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
-        "register_node": undo_register_node}
+        "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile}
 assert set(RUN) == set(STEP_KINDS)
