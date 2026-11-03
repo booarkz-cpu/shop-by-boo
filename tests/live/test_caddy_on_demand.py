@@ -43,6 +43,10 @@ def serve_backend():
     app = FastAPI()
     app.include_router(rw_domains.router)
 
+    @app.get("/health/live")
+    async def live():  # the backend_lb health check of deploy/Caddyfile
+        return {"ok": True}
+
     async def database():
         async with AsyncSession(engine) as db:
             yield db

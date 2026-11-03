@@ -174,7 +174,7 @@ https:// {
         Strict-Transport-Security "max-age=31536000"
         Content-Security-Policy "default-src 'self'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data:; connect-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
     }
-    respond /caddy/* 404
+    # Every path becomes /sub/…: the backend's /caddy/ask is not reachable from here.
     rewrite * /sub{uri}
     encode zstd gzip
     reverse_proxy {$BACKEND_UPSTREAM:backend:8000} {

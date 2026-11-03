@@ -238,10 +238,11 @@ async def check_http(row: RemnawaveDomain, addresses: list[str]) -> int | None:
         return None
     if http_get:
         return await http_get(row.domain, ip)
-    # The request goes to the address DNS gave (no second lookup), with the domain in SNI and Host.
+    # The request goes to the address DNS gave (no second lookup), with the domain in SNI and Host; the certificate
+    # is verified against the domain (an untrusted one is reported by the TLS check, here there is no answer).
     transport = httpx.AsyncHTTPTransport(retries=0)
     try:
-        async with httpx.AsyncClient(transport=transport, timeout=10, follow_redirects=False, verify=False) as client:
+        async with httpx.AsyncClient(transport=transport, timeout=10, follow_redirects=False) as client:
             r = await client.get(f"https://{ip}/", headers={"Host": row.domain, "User-Agent": "CorgiShop-DomainCheck/1"},
                                  extensions={"sni_hostname": row.domain})
             return r.status_code

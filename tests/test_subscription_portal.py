@@ -299,8 +299,8 @@ def test_caddy_serves_portal_domains_on_demand_only_after_asking():
     text = (Path(__file__).resolve().parents[1] / "deploy/Caddyfile").read_text()
     assert "on_demand_tls" in text and "ask {$CADDY_ASK_URL" in text
     block = text.split("https:// {", 1)[1]
-    assert "on_demand" in block and "rewrite * /sub{uri}" in block and "respond /caddy/* 404" in block
-    assert text.count("respond /caddy/* 404") == 2  # the API domain too
+    assert "on_demand" in block and "rewrite * /sub{uri}" in block  # /caddy/ask becomes /sub/caddy/ask here
+    assert text.count("respond /caddy/* 404") == 1  # the API domain
     compose = (Path(__file__).resolve().parents[1] / "docker-compose.yml").read_text()
     assert "CADDY_ASK_URL: http://${BACKEND_INGRESS_IP" in compose
 
