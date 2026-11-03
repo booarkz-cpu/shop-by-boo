@@ -1,4 +1,4 @@
-# Схема базы данных — v28.67.0
+# Схема базы данных — v28.68.0
 
 Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0091_remnawave_domains`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 

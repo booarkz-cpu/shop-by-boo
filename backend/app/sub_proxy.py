@@ -32,7 +32,7 @@ from datetime import datetime, timedelta
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,6 +51,9 @@ DEFAULT: dict = {
     "rewrite_links": True,       # customers see the proxy link in the cabinet, Mini App, bot and apps
     "mask": True,                # a neutral page for non-subscription requests
     "mask_title": "Вход",
+    "mask_login": "Логин",       # v28.68.0: every text of the neutral page is the owner's
+    "mask_password": "Пароль",
+    "mask_button": "Войти",
     "ua_hwid": True,
     "block_text": "Устройство отключено — напишите в поддержку",
     "blocked_hwids": [],         # [{"hwid": "...", "note": "...", "at": "..."}]
@@ -277,14 +280,16 @@ def _client_ip(request: Request) -> str:
 
 
 def mask_page(cfg: dict) -> HTMLResponse:
-    title = (cfg.get("mask_title") or "Вход")[:60]
+    from html import escape
+    title = escape((cfg.get("mask_title") or "Вход")[:60])
+    login, password, button = (escape(str(cfg.get(k) or DEFAULT[k])[:40]) for k in ("mask_login", "mask_password", "mask_button"))
     html = ("<!doctype html><html lang=ru><head><meta charset=utf-8><meta name=viewport content='width=device-width'>"
             f"<meta name=robots content=noindex><title>{title}</title><style>body{{font:16px system-ui;background:#f4f4f5;"
             "display:grid;place-items:center;height:100vh;margin:0}}form{{background:#fff;padding:32px;border-radius:12px;"
             "box-shadow:0 2px 12px #0001;display:grid;gap:12px;width:280px}}input,button{{padding:10px;border-radius:8px;"
             "border:1px solid #ddd;font:inherit}}button{{background:#18181b;color:#fff}}</style></head><body>"
-            f"<form onsubmit='return false'><b>{title}</b><input placeholder='Логин' autocomplete=off>"
-            "<input type=password placeholder='Пароль'><button>Войти</button></form></body></html>")
+            f"<form onsubmit='return false'><b>{title}</b><input placeholder='{login}' autocomplete=off>"
+            f"<input type=password placeholder='{password}'><button>{button}</button></form></body></html>")
     return HTMLResponse(html, status_code=200, headers={"X-Frame-Options": "DENY", "Cache-Control": "no-store"})
 
 
@@ -476,6 +481,9 @@ class ProxyIn(BaseModel):
     rewrite_links: bool = True
     mask: bool = True
     mask_title: str = Field("Вход", max_length=60)
+    mask_login: str = Field("Логин", max_length=40)
+    mask_password: str = Field("Пароль", max_length=40)
+    mask_button: str = Field("Войти", max_length=40)
     ua_hwid: bool = True
     block_text: str = Field(DEFAULT["block_text"], max_length=120)
     rules: list[RuleIn] = Field(default_factory=list, max_length=50)
@@ -506,6 +514,44 @@ class PortalIn(BaseModel):
     show_devices: bool = True
     expiry_warning_days: int = Field(3, ge=0, le=30)
     apps: list[PortalAppIn] = Field(default_factory=list, max_length=20)
+    language: str = Field("ru", pattern=r"^(ru|en|uk)$")
+    texts: dict[str, dict[str, str]] = Field(default_factory=dict)
+    colors: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("texts")
+    @classmethod
+    def texts_ok(cls, value: dict) -> dict:
+        """Only known languages and keys; at most 300 characters; only the placeholders the key has."""
+        from .sub_portal import PLACEHOLDERS, TEXTS
+        out: dict[str, dict[str, str]] = {}
+        for lang, items in value.items():
+            if lang not in TEXTS:
+                raise ValueError(f"Язык {lang} не поддерживается")
+            for key, text in items.items():
+                if key not in TEXTS[lang]:
+                    raise ValueError(f"Неизвестный текст {key}")
+                if len(text) > 300 or "\n" in text or "\r" in text:
+                    raise ValueError(f"Текст {key}: одна строка до 300 символов")
+                used = set(re.findall(r"\{(\w+)\}", text))
+                if not used <= PLACEHOLDERS.get(key, set()):
+                    raise ValueError(f"Текст {key}: можно использовать только {', '.join('{' + x + '}' for x in sorted(PLACEHOLDERS.get(key, set()))) or 'без подстановок'}")
+                if text != TEXTS[lang][key]:
+                    out.setdefault(lang, {})[key] = text
+        return out
+
+    @field_validator("colors")
+    @classmethod
+    def colors_ok(cls, value: dict) -> dict:
+        from .sub_portal import COLORS, HEX
+        for key, color in value.items():
+            if key not in COLORS or not HEX.match(color):
+                raise ValueError(f"Цвет {key}: нужен вид #RRGGBB")
+        return {k: v for k, v in value.items() if v.upper() != COLORS[k].upper()}
+
+
+class PreviewIn(BaseModel):
+    portal: PortalIn
+    language: str = Field("ru", pattern=r"^(ru|en|uk)$")
 
 
 ProxyIn.model_rebuild()
@@ -583,6 +629,21 @@ async def unblock_device(hwid: str, db: AsyncSession = Depends(get_db), admin=De
     await db.commit()
     _state.update(cfg=cfg, at=time.monotonic())
     return {"ok": True}
+
+
+@router.get("/api/admin/sub-proxy/portal-texts")
+async def portal_texts(admin=Depends(require_permission("ops.diagnostics"))):
+    """Every text of the portal with its default per language and its placeholders (the admin form is built from it)."""
+    from .sub_portal import COLORS, LANGS, PLACEHOLDERS, TEXTS
+    return {"languages": list(LANGS), "defaults": TEXTS, "placeholders": {k: sorted(v) for k, v in PLACEHOLDERS.items()}, "colors": COLORS}
+
+
+@router.post("/api/admin/sub-proxy/portal-preview")
+async def portal_preview(payload: PreviewIn, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("ops.diagnostics"))):
+    """The portal with sample data and the settings being edited (nothing is saved)."""
+    from .content_branding_api import public_branding
+    from .sub_portal import preview
+    return {"html": preview(payload.portal.model_dump(), await public_branding(db), payload.language)}
 
 
 @router.post("/api/admin/sub-proxy/reset-link/{subscription_id}")

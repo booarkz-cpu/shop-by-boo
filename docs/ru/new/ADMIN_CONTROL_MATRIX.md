@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.67.0
+# Управляемость из админки — v28.68.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -25,7 +25,7 @@
 | 15 | Domains | Домены и сертификаты | 7 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `read`, `settings.runtime.write` | IMPLEMENTED |
 | 16 | Certificates | Домены и сертификаты | 2 | ✓ | ✓ | · | · | · | · | ✓ | · | `read` | IMPLEMENTED |
 | 17 | Reverse Proxy | Домены и сертификаты | 1 | ✓ | · | · | · | · | · | · | · | `read` | IMPLEMENTED |
-| 18 | Subscription Portal | Портал подписки | 10 | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | IMPLEMENTED |
+| 18 | Subscription Portal | Портал подписки | 12 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | IMPLEMENTED |
 | 19 | Node Extensions | — | 0 | — | — | — | — | — | — | — | — | — | NOT_STARTED (этап 12: менеджер расширений Remnawave) |
 | 20 | Monitoring | Мониторинг, Состояние системы, Запуск и оповещения, Инциденты, Доступность и качество | 17 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `ops.diagnostics`, `read`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `settings.runtime.write` | IMPLEMENTED |
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | IMPLEMENTED |
