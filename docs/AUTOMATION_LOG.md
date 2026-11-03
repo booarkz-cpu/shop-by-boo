@@ -8,9 +8,9 @@
 
 **Что сделано.** SelfSteal в мастере (Caddy ноды на сокете, профиль REALITY и хост). Действие «module» и шаг `node_module`: IPv6, ядро Xray (`rw_releases`, SHA-256 из GitHub), WARP Native (wgcf), NetBird (ключ через stdin), Xray Checker с результатами и уведомлениями. `rw_extensions`: WARP в профиле, серверный роутинг. Раздел «Модули серверов», поля SelfSteal в мастере, секции WARP и роутинга. Исполнитель ждёт остановки пульса.
 
-**Проверено.** `tests/test_rw_node_modules.py`, `tests/test_rw_extensions.py`, `tests/test_rw_installer.py` (SQLite и PostgreSQL), e2e `rw-installer.spec.ts` и `rw-extensions.spec.ts`; живое задание CI `node-modules`.
+**Проверено.** `tests/test_rw_node_modules.py`, `tests/test_rw_extensions.py`, `tests/test_rw_installer.py` (SQLite и PostgreSQL), e2e `rw-installer.spec.ts` и `rw-extensions.spec.ts`; живое задание CI `node-modules` — PASS: SelfSteal-нода на раннере, сайт-шаблон на 443 для клиента без ключей, IPv6, ядро Xray 26.10.31 по SHA-256, образ Xray Checker закреплён по digest.
 
-**Осталось.** Клиент REALITY с публичным доменом, мост двух нод, WARP на настоящем сервере — BLOCKED_EXTERNAL; NetBird — BLOCKED_SECRETS; закрепить образ Xray Checker по digest из живого теста.
+**Осталось.** Клиент REALITY с публичным доменом, мост двух нод, WARP на настоящем сервере — BLOCKED_EXTERNAL; NetBird — BLOCKED_SECRETS.
 
 ## 2026-11-03 — этап 12, часть А: менеджер расширений через API панели, выпуск v28.69.0
 

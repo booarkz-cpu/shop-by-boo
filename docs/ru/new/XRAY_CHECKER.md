@@ -23,12 +23,12 @@
 
 ## 3. Образ
 
-`rw_plan.CHECKER_IMAGE` — тег `kutovoys/xray-checker:v1.3.1`. Живой тест CI (`tests/live/test_node_modules_live.py`) скачивает образ и выводит его digest; после проверки образ закрепляется по SHA-256, как остальные образы мастера.
+`rw_plan.CHECKER_IMAGE` — `kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a`: закреплён по SHA-256, как остальные образы мастера. Живой тест CI (`tests/live/test_node_modules_live.py`) скачивает его на каждом прогоне и выводит digest.
 
 ## 4. Проверено
 
 | Что | Тест | Статус |
 | --- | --- | --- |
 | Файлы, секреты, результаты, уведомления один раз, выключение | `tests/test_rw_node_modules.py::test_node_modules_end_to_end` | PASS |
-| Образ скачивается на настоящем сервере | `tests/live/test_node_modules_live.py` | CI |
+| Образ скачивается на настоящем сервере | `tests/live/test_node_modules_live.py` | PASS (CI) |
 | Проверка настоящей подписки с нодами | нужен VPS с нодами | BLOCKED_EXTERNAL |

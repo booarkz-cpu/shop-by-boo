@@ -28,9 +28,9 @@ IMAGES = {
 }
 DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page": "/opt/remnawave-subpage", "proxy": "/opt/remnawave-caddy",
         "selfsteal": "/opt/remnawave-selfsteal", "xray_checker": "/opt/remnawave-xray-checker"}
-# v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) — the tag the live test pulls; its digest is printed by
-# tests/live/test_install_live.py and pinned here once verified.
-CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1"
+# v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
+# (tests/live/test_node_modules_live.py prints it on every run).
+CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
 MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).

@@ -27,7 +27,7 @@
 | Модули: SHA-256 из GitHub, откат при ошибке ядра, ключ NetBird только в stdin, Xray Checker и уведомления | `tests/test_rw_node_modules.py` | PASS |
 | WARP в профиле, серверный роутинг в обоих режимах, удаление моста | `tests/test_rw_extensions.py` | PASS |
 | Разделы админки: SelfSteal в мастере, модули, результаты Xray Checker, WARP, роутинг | `admin/e2e/rw-installer.spec.ts`, `admin/e2e/rw-extensions.spec.ts` | PASS |
-| Настоящая панель и нода на раннере CI: SelfSteal, сайт на 443 без ключей, IPv6, ядро Xray последнего релиза, образ Xray Checker | `tests/live/test_node_modules_live.py` (задание `node-modules`) | CI |
+| Настоящая панель и нода на раннере CI: SelfSteal, сайт на 443 без ключей, IPv6, ядро Xray последнего релиза, образ Xray Checker | `tests/live/test_node_modules_live.py` (задание `node-modules`) | PASS (CI) |
 | Клиент VLESS + REALITY с публичным сертификатом; мост между двумя нодами | нужны VPS и домен | BLOCKED_EXTERNAL |
 | WARP на настоящем сервере | нужно согласие владельца с условиями Cloudflare WARP | BLOCKED_EXTERNAL |
 | NetBird на настоящем сервере | нужен ключ установки NetBird | BLOCKED_SECRETS |

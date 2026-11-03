@@ -90,5 +90,5 @@ SelfSteal ставится вместе с нодой: в мастере уст�
 | Настоящая панель последней версии: профиль REALITY, правка, нода, хост, удаление | `tests/live/test_remnawave_live.py::test_extensions_profiles_reality_and_nodes` | CI |
 | Настоящая панель: плагин TorrentBlocker на ноде, проверка конфигурации панелью, SRR и тестер, конфиг страницы, шаблон с балансировщиком | `test_extensions_plugins_srr_pages_and_templates` | CI |
 | SelfSteal: план, файлы, профиль и хост, проверка сокета; модули IPv6, ядро Xray, WARP, NetBird, Xray Checker с откатом | `tests/test_rw_node_modules.py` | PASS |
-| Настоящая панель и нода на раннере CI: SelfSteal с внутренним CA, сайт-шаблон на 443 для клиента без ключей, IPv6, ядро Xray последнего релиза | `tests/live/test_node_modules_live.py` (задание `node-modules`) | CI |
+| Настоящая панель и нода на раннере CI: SelfSteal с внутренним CA, сайт-шаблон на 443 для клиента без ключей, IPv6, ядро Xray последнего релиза | `tests/live/test_node_modules_live.py` (задание `node-modules`) | PASS (CI) |
 | Подключение клиента VLESS + REALITY к ноде с SelfSteal и публичным сертификатом | нужен VPS с доменом | BLOCKED_EXTERNAL |
