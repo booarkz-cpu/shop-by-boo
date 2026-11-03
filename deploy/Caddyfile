@@ -1,4 +1,4 @@
-# v28.72.0 (stage 11): domains of the subscription portal are added in «Серверы → Домены и сертификаты» without
+# v28.72.1 (stage 11): domains of the subscription portal are added in «Серверы → Домены и сертификаты» without
 # editing this file. Caddy issues their certificates on demand (HTTP-01 / TLS-ALPN-01) only after the backend
 # answers 200 at /caddy/ask (an enabled portal domain of the Domain Manager); any other name gets no certificate.
 {

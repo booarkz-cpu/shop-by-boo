@@ -573,19 +573,47 @@ curl -sk --max-time 10 --haproxy-protocol --unix-socket /dev/shm/selfsteal.sock 
 IPV6 = r"""set -eu
 f=/etc/sysctl.d/99-remnawave-ipv6.conf
 [ -d /proc/sys/net/ipv6 ] || { echo "kernel"; exit 3; }
+# The uplink: the interface of the default IPv4 route (a per-interface disable_ipv6=1 keeps it dead at all=0).
+iface="$(ip -o -4 route show default 2>/dev/null | awk '{print $5; exit}')"
+write() {
+  { echo "# Managed by the shop's installation wizard (module IPv6)"
+    for k in all default lo ${iface:+"$iface"}; do echo "net.ipv6.conf.$k.disable_ipv6 = $1"; done; } > "$f"
+  sysctl -q -p "$f"
+}
+# Disabling IPv6 drops the interface's addresses and enabling does not bring static or DHCPv6 ones back:
+# networking is re-read once, as the distribution configures it, and the global address is waited for.
+refresh() {
+  [ -n "$iface" ] || return 0
+  ip -6 addr show dev "$iface" scope global 2>/dev/null | grep -q inet6 && return 0
+  [ "${1:-}" = had ] || return 0
+  if [ -d /etc/netplan ] && command -v netplan >/dev/null 2>&1; then netplan apply >/dev/null 2>&1 || true
+  elif [ -f /etc/network/interfaces ] && command -v ifup >/dev/null 2>&1; then ifdown "$iface" >/dev/null 2>&1 || true; ifup "$iface" >/dev/null 2>&1 || true
+  else systemctl restart systemd-networkd >/dev/null 2>&1 || true; fi
+  for _ in $(seq 1 15); do ip -6 addr show dev "$iface" scope global 2>/dev/null | grep -v tentative | grep -q inet6 && return 0; sleep 1; done
+  echo "noaddr"
+}
+had() { [ -f "$f.rw-had" ] && echo had; }
 case "$1" in
   on|off)
     rm -f "$f.rw-prev" "$f.rw-none"
     if [ -f "$f" ]; then cp -p "$f" "$f.rw-prev"; else : > "$f.rw-none"; fi
-    v=0; [ "$1" = off ] && v=1
-    printf 'net.ipv6.conf.all.disable_ipv6 = %s\nnet.ipv6.conf.default.disable_ipv6 = %s\n' "$v" "$v" > "$f"
-    sysctl -q -p "$f" ;;
+    if [ "$1" = off ]; then
+      # remembered: the server had a global IPv6 address, so switching back on must restore one
+      if [ -n "$iface" ] && ip -6 addr show dev "$iface" scope global 2>/dev/null | grep -q inet6; then : > "$f.rw-had"; fi
+      write 1
+    else
+      write 0
+      refresh "$(had)"
+    fi ;;
   undo)
     if [ -f "$f.rw-prev" ]; then mv "$f.rw-prev" "$f"; sysctl -q -p "$f";
-    elif [ -f "$f.rw-none" ]; then rm -f "$f" "$f.rw-none"; sysctl -q -w net.ipv6.conf.all.disable_ipv6=0 net.ipv6.conf.default.disable_ipv6=0; fi ;;
+    elif [ -f "$f.rw-none" ]; then rm -f "$f" "$f.rw-none"
+      for k in all default lo ${iface:+"$iface"}; do sysctl -q -w "net.ipv6.conf.$k.disable_ipv6=0" || true; done; fi
+    [ "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0 ] && refresh "$(had)" ;;
   *) exit 2 ;;
 esac
-echo "disable_ipv6=$(sysctl -n net.ipv6.conf.all.disable_ipv6)"
+[ "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0 ] && [ "$1" != off ] && rm -f "$f.rw-had"
+echo "disable_ipv6=$(sysctl -n net.ipv6.conf.all.disable_ipv6) iface=${iface:-none} global=$( [ -n "$iface" ] && ip -6 addr show dev "$iface" scope global 2>/dev/null | grep -c inet6 || true)"
 """
 
 APT_GET = r"""apt_get() { DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=--force-confold -y -q "$@"; }"""
@@ -719,6 +747,8 @@ async def run_node_module(ctx: Context, st: dict) -> None:
             raise StepError("IPv6 выключен в ядре (ipv6.disable=1 в параметрах загрузки): sysctl его не включит")
         if result.code != 0:
             raise StepError("Настройка IPv6 не применилась")
+        if enabled and "noaddr" in result.out:
+            raise StepError("IPv6 включён, но интерфейс не получил прежний глобальный адрес IPv6: проверьте настройки сети сервера")
         mods["ipv6"] = "on" if enabled else "off"
     elif name == "xray_core":
         args = ("install", p["url"], p["sha256"]) if enabled else ("remove",)

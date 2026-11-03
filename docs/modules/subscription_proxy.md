@@ -2,7 +2,7 @@
 
 С v28.38.0 магазин сам выполняет работу прослойки перед подпиской Remnawave. Идеи взяты из проекта [remnawave-subscription-middleware](https://github.com/Mrvibecodic/remnawave-subscription-middleware); реализация своя, на Python, внутри магазина, код не копировался: в репозитории проекта нет файла лицензии. Сверка по функциям — в [docs/ru/MIDDLEWARE_RECONCILIATION.md](../ru/MIDDLEWARE_RECONCILIATION.md).
 
-С v28.72.0 (этап 11) по той же ссылке браузер получает [портал подписки](../ru/new/SUBSCRIPTION_PORTAL.md), домен портала добавляется в «Домены и сертификаты» без перезапуска ([домены](../ru/new/SUBSCRIPTION_DOMAIN.md)), а перебор ссылок ставит адрес на паузу ([безопасность](../ru/new/SUBSCRIPTION_SECURITY.md)).
+С v28.72.1 (этап 11) по той же ссылке браузер получает [портал подписки](../ru/new/SUBSCRIPTION_PORTAL.md), домен портала добавляется в «Домены и сертификаты» без перезапуска ([домены](../ru/new/SUBSCRIPTION_DOMAIN.md)), а перебор ссылок ставит адрес на паузу ([безопасность](../ru/new/SUBSCRIPTION_SECURITY.md)).
 
 Все функции выключены по умолчанию. Вызовы панели проверяются на самой новой Remnawave в CI (`tests/live/test_remnawave_live.py`).
 
