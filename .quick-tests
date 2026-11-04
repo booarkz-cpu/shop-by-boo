@@ -1,0 +1,1 @@
+gen:pip install -q numpy pillow && mkdir -p _audit && python scripts/screenshots/bot_chat.py docs/img > _audit/bot.txt 2>&1 || echo bot-failed >> _audit/bot.txt
