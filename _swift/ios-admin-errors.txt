@@ -1,0 +1,9 @@
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/ContentView.swift:208:84: warning: main actor-isolated property 'lang' can not be referenced from a Sendable closure
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/ContentView.swift:678:21: warning: capture of 'block' with non-Sendable type '() throws -> Void' in a '@Sendable' closure
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift:111:13: warning: mutation of captured var 'payload' in concurrently-executing code
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift:112:13: warning: mutation of captured var 'status' in concurrently-executing code
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift:113:13: warning: mutation of captured var 'failure' in concurrently-executing code
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift:141:13: warning: mutation of captured var 'payload' in concurrently-executing code
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift:142:13: warning: mutation of captured var 'status' in concurrently-executing code
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift:143:13: warning: mutation of captured var 'failure' in concurrently-executing code
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift:75:22: warning: stored property '$__lazy_storage_$_session' of 'Sendable'-conforming class 'ShopClient' is mutable
