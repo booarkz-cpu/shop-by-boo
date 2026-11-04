@@ -351,7 +351,7 @@ async def test_panel_and_node_install_end_to_end(database, fleet, monkeypatch, t
     assert staged["change"]["status"] == "staged" and set(staged["change"]["keys"]) == {"remnawave_url", "remnawave_token"}
 
     # maintenance actions are plans over this installation
-    host.log_secret = "db " + rw_jobs.load_secrets(row)["db_password"]
+    host.log_secret = "db " + secrets["db_password"]
     for action in ("diagnose", "logs", "stop", "start", "restart", "update", "restore", "reinstall", "remove"):
         planned = await rw_api.action(approved["id"], rw_api.ActionIn(action=action), db, ADMIN)
         kinds = [s["kind"] for s in planned["plan"]["steps"]]
@@ -373,7 +373,7 @@ async def test_panel_and_node_install_end_to_end(database, fleet, monkeypatch, t
         if action == "logs":
             text = "\n".join(s["log"] or "" for s in done["steps"])
             assert "remnawave | started" in text and "JWT_AUTH_SECRET=***" in text and "leaked-secret-value" not in text
-            assert rw_jobs.load_secrets(row)["db_password"] not in text
+            assert secrets["db_password"] not in text
         if action == "remove":
             assert "compose_down" in kinds and "write_files" not in kinds
     assert not host.up
