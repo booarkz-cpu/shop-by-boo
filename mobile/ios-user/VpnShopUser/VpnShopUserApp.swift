@@ -428,12 +428,12 @@ final class PushCenter: ObservableObject {
     /// Section a tapped push or one of its buttons opens («Приложения: стиль push-уведомлений»).
     @Published var openSection: String?
     @Published private(set) var latestToken: String?
-    private var pending: (@MainActor (Result<String, Error>) -> Void)?
+    private var pending: (@MainActor @Sendable (Result<String, Error>) -> Void)?
 
     nonisolated var enabled: Bool { UserDefaults.standard.bool(forKey: Self.enabledKey) }
 
     /// Asks for permission and returns the APNs device token on the main queue.
-    func requestToken(_ completion: @escaping @MainActor (Result<String, Error>) -> Void) {
+    func requestToken(_ completion: @escaping @MainActor @Sendable (Result<String, Error>) -> Void) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             Task { @MainActor in
                 if let error { completion(.failure(error)); return }

@@ -30,7 +30,7 @@ final class CorgiTunnelManager {
         set { shared?.set(newValue, forKey: CorgiXray.keyBypassRu); reload() }
     }
 
-    func load(_ done: @escaping @MainActor () -> Void = {}) {
+    func load(_ done: @escaping @MainActor @Sendable () -> Void = {}) {
         guard Self.available else { return done() }
         NETunnelProviderManager.loadAllFromPreferences { managers, _ in
             let found = managers?.first { ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == Self.providerBundleId }
@@ -45,7 +45,7 @@ final class CorgiTunnelManager {
         }
     }
 
-    func connect(subscription: String, _ completion: @escaping @MainActor (Error?) -> Void) {
+    func connect(subscription: String, _ completion: @escaping @MainActor @Sendable (Error?) -> Void) {
         guard Self.available, subscription.hasPrefix("https://") else {
             return completion(NSError(domain: "CorgiTunnel", code: 2, userInfo: [NSLocalizedDescriptionKey: "Нет подписки"]))
         }
@@ -62,7 +62,7 @@ final class CorgiTunnelManager {
             manager.isEnabled = true
             let handoff = Handoff(manager)
             manager.saveToPreferences { error in
-                if let error { return Task { @MainActor in completion(error) } }
+                if let error { Task { @MainActor in completion(error) }; return }
                 // A saved configuration must be loaded again before it can start.
                 handoff.value.loadFromPreferences { error in
                     Task { @MainActor [weak self] in
