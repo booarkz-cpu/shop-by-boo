@@ -1,0 +1,422 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug -destination "generic/platform=iOS Simulator" ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO SWIFT_VERSION=5.0 SWIFT_STRICT_CONCURRENCY=complete build
+
+Build settings from command line:
+    ARCHS = arm64
+    CODE_SIGNING_ALLOWED = NO
+    ONLY_ACTIVE_ARCH = YES
+    SDKROOT = iphonesimulator26.5
+    SWIFT_STRICT_CONCURRENCY = complete
+    SWIFT_VERSION = 5.0
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'VpnShopUser' in project 'VpnShopUser' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 3d220e99df25289646d5a38218bf4c33
+Build description path: /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/XCBuildData/3d220e99df25289646d5a38218bf4c33.xcbuilddata
+CreateBuildDirectory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser.xcodeproj
+    builtin-create-build-directory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex
+
+CreateBuildDirectory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser.xcodeproj
+    builtin-create-build-directory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products
+
+ClangStatCache /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser.xcodeproj
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -o /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser-90e934cfb7dab585260e597e3e73a2e9-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser.xcodeproj
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser-90e934cfb7dab585260e597e3e73a2e9-VFS-iphonesimulator/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser.xcodeproj
+    builtin-create-build-directory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator
+
+CreateBuildDirectory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser.xcodeproj
+    builtin-create-build-directory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser.xcodeproj
+    builtin-create-build-directory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser.xcodeproj
+    builtin-create-build-directory /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.hmap (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.hmap
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.DependencyStaticMetadataFileList (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.DependencyMetadataFileList (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-project-headers.hmap (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-own-target-headers.hmap (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-generated-files.hmap (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-all-target-headers.hmap (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-all-non-framework-target-headers.hmap (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser_const_extract_protocols.json (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftFileList (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftConstValuesFileList (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.LinkFileList (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-OutputFileMap.json (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    write-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-OutputFileMap.json
+
+MkDir /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /bin/mkdir -p /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app
+
+MkDir /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/unthinned (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /bin/mkdir -p /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/unthinned
+
+MkDir /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/thinned (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /bin/mkdir -p /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/thinned
+
+GenerateAssetSymbols /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Assets.xcassets (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Assets.xcassets --compile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_dependencies --output-partial-info-plist /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_generated_info.plist --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region ru --target-device iphone --target-device ipad --minimum-deployment-target 16.0 --platform iphonesimulator --bundle-identifier shop.remnawave.user --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CpResource /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/l10n.json /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/l10n.json (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/l10n.json /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app
+
+CpResource /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/default_layout.json /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/default_layout.json (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/default_layout.json /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app
+
+CpResource /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Banners /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Banners (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Banners /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app
+
+CompileAssetCatalogVariant thinned /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Assets.xcassets (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Assets.xcassets --compile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region ru --target-device iphone --target-device ipad --minimum-deployment-target 16.0 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_generated_info.plist_thinned
+/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriver VpnShopUser normal arm64 com.apple.xcode.tools.swift.compiler (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-SwiftDriver -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name VpnShopUser -O @/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftFileList -DDEBUG -enable-upcoming-feature StrictConcurrency -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios16.0-simulator -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator -F /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-Swift.h -working-directory /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_stdarg-BCVUOT879F0S3EMYVWWND5T8Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/ptrcheck-BWMHE3ZTI48XUJLKHYCOFL1OP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/SwiftShims-2A5ZA70SBEYHF8S5797HKJ0E8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/ptrauth-6O7URLCH91VWDL3O6CYDD4OAV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_AvailabilityInternal-2EYDYTXV96SMGQ0FMLIX302HQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_SwiftConcurrencyShims-AI3SIHCOL7BEW4E4CU3AZVAVB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_stdbool-8A02C13778UH2I60PVZV9LIQZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_DarwinFoundation1-BJC39BPOI8JRSCYI56V65976L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_float-EGJT0YW46OP92K65HWAVFEJSK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/DeveloperToolsSupport-7VIP4TQJVF1U8YP2W5L8HN7KD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/ExtensionFoundation-236TVDH9HIN2TV5DAQ50I5R3X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_limits-5PY5CFAJNJSOTPQJBOOE0WG1X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_stddef-7K6V8M0U1WHQT3H8WM8WXS4GH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_DarwinFoundation2-ER0C7PNR09IAUEU6MSA6DSTR9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_tgmath-B8S2CPXMJVC3052HDH58V3ZUN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/sys_types-7NHR21DH4A18RDTH5W8J1T177.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_stdint-41OOCEQZJMVD6XMPFSR8UEZFF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_DarwinFoundation3-EVUN9W6T6CLYRCHLLXQ4VF1GZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_stdatomic-DFA8A7OO2ZQVL0K1O5KZXWUAI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_intrinsics-D85I0HJ64FF724VCCDW9B4Y2A.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/_Builtin_inttypes-292WP3IA0AAFQ1P9D1I1G1W58.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Darwin-4QQXV72VN9P2L65UWKU192NYL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/simd-C3WDSOWRQCZOIXG8UGL5B1DR0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/ObjectiveC-5YZM67LJ4ITRI9W34LK3HKOT3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/MachO-6P8EXCSWWWA9KNPL769XB2I1U.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/os_object-9QE6DA6YKTII0OS3P3TO7IGOR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/os_workgroup-6XURHHE5XMRED8FHRWSTQGQEN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Spatial-V1V153VHFT3NIK5LC5IZ5D1K.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Dispatch-497NIA7MOVV7DJDMY34STEK03.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/XPC-9GAMPQTFDOZDZC8GEPLFVKPCI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/CoreFoundation-9EDXK4G8RF8DRWGQG6TVT674P.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/os-F3HTQYKO2H62V2VHMUNIYHMB5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/dnssd-7S4KJLCEHDV0TSS4DDARFG2MF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/CFNetwork-DCTEQRNB9ZSK4VEEC2Q27HJGF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Security-6CAJQ3DVY7L8CLX5TQADA04H0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/CoreGraphics-9HPXB9XY1WT6M6GHTBL2W8C6Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Foundation-2L13KVTY4HQHK47B3PEIQ316A.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/ImageIO-5NN6LDEJVC10YC3MNEGO4H6CU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/CoreText-CSGC9LPWFW17NP7XCNHK8C7D8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/OpenGLES-5QEMXGZW0XWU55X6Z4GIHN86Y.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/UIUtilities-376WN761Z6KN7P3JO1CN3TXIN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/CoreData-81MDSFEE5SI4Y5JRHZHFC7K2C.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/CoreTransferable-26Z16J4ZC7DWS5NNNUYOKLXYJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/IOSurface-EFVDNUTS2Q8I98AJJX99FZFCC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/UniformTypeIdentifiers-3FIJYXBZYVK6AGRT0HNB8BJ1F.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Symbols-77VJFTN041QJHCOAI7EM7QPTZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Metal-2LIG07LEQFYZJ5TZ0WSQ4R2H1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Network-29R4F9FX8HTVD1AO8J09O9S0S.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/UserNotifications-NRP3VACFCHJIA29T5LIQ6J57.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/NetworkExtension-87PPBWFN058XX4AX3DM7AVPZR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/FileProvider-4MZE3GEKM2JIXUFNWJX57TCG0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Accessibility-3QNSYONXIVACNM3OMSSX9PIYO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/OSLog-2Z7MC19LK1GNUKQX41H25R5FX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/CoreVideo-7BUSXJN2MOWLO9KNOX2L8H5RT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/DataDetection-1V0SQQISYOFQE3GQVJXXHSNSM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/LocalAuthentication-9BEDWCIZJK6MWU56HYKVDJ6V3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/DeviceCheck-3CPFM5F0Q826FHS2XLCT6GYHA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/QuartzCore-1ZM34XM4IDPIQC7YWLOZWZ7NL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/CoreImage-NM0UV6DW1A463D9L5HL28QUY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/SwiftUICore-5YBGTRYMLGBSEKB0T97Q4IZHJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/UIKit-BO88I0TRP69FC0RPYDMINUAFX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/AuthenticationServices-27ZASSKX1T660QPUJNRJ2LZOK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/SwiftUI-8O4CQDUUSLHCRMOIIJFSC1XWD.pcm
+
+SwiftCompile normal arm64 Compiling\ LayoutUI.swift,\ CorgiTunnelManager.swift /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/LayoutUI.swift /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/VPN/CorgiTunnelManager.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+SwiftCompile normal arm64 /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/LayoutUI.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    
+
+SwiftCompile normal arm64 /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/VPN/CorgiTunnelManager.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ VpnShopUser (in target 'VpnShopUser' from project 'VpnShopUser')
+
+EmitSwiftModule normal arm64 (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    
+
+SwiftCompile normal arm64 Compiling\ CorgiXray.swift,\ GeneratedAssetSymbols.swift /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/Shared/CorgiXray.swift /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+
+SwiftCompile normal arm64 /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/Shared/CorgiXray.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    
+
+SwiftCompile normal arm64 /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for VpnShopUser (in target 'VpnShopUser' from project 'VpnShopUser')
+
+SwiftDriver\ Compilation\ Requirements VpnShopUser normal arm64 com.apple.xcode.tools.swift.compiler (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name VpnShopUser -O @/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftFileList -DDEBUG -enable-upcoming-feature StrictConcurrency -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios16.0-simulator -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator -F /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-Swift.h -working-directory /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling CorgiXray.swift, GeneratedAssetSymbols.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+
+SwiftCompile normal arm64 Compiling\ VpnShopUserApp.swift,\ ContentView.swift /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/VpnShopUserApp.swift /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/ContentView.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+SwiftCompile normal arm64 /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/VpnShopUserApp.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    
+
+SwiftCompile normal arm64 /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/ContentView.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    
+
+SwiftMergeGeneratedHeaders /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/VpnShopUser-Swift.h /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-Swift.h (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-Swift.h -o /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/VpnShopUser-Swift.h
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftmodule (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftdoc (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.abi.json (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftsourceinfo (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+LinkAssetCatalog /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Assets.xcassets (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-linkAssetCatalog --thinned /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/thinned --thinned-dependencies /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_generated_info.plist_unthinned --output /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app --plist-output /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Assets.car (in target 'VpnShopUser' from project 'VpnShopUser')
+note: Emplaced /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/AppIcon76x76@2x~ipad.png (in target 'VpnShopUser' from project 'VpnShopUser')
+note: Emplaced /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/AppIcon60x60@2x.png (in target 'VpnShopUser' from project 'VpnShopUser')
+
+ProcessInfoPlistFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Info.plist /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Info.plist (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-infoPlistUtility /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/assetcatalog_generated_info.plist -o /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Info.plist
+
+SwiftDriverJobDiscovery normal arm64 Compiling LayoutUI.swift, CorgiTunnelManager.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+
+SwiftDriverJobDiscovery normal arm64 Compiling VpnShopUserApp.swift, ContentView.swift (in target 'VpnShopUser' from project 'VpnShopUser')
+
+SwiftDriver\ Compilation VpnShopUser normal arm64 com.apple.xcode.tools.swift.compiler (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-Swift-Compilation -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name VpnShopUser -O @/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftFileList -DDEBUG -enable-upcoming-feature StrictConcurrency -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -target arm64-apple-ios16.0-simulator -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator -F /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-688ef53f1462e2c8f657fdc38a81448ff45c64a1807a658693f2a61704f17a36.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-Swift.h -working-directory /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/VpnShopUser normal (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios16.0-simulator -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -Os -L/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator -F/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator -filelist /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.LinkFileList -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser_lto.o -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.swiftmodule @/Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser-linker-args.resp -o /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/VpnShopUser
+
+CopySwiftLibs /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/VpnShopUser --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Frameworks --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/PlugIns --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/SystemExtensions --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.eCxhpu/Metal.xctoolchain --toolchain /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.eCxhpu/Metal.xctoolchain --module-name VpnShopUser --sdk-root /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk --xcode-version 17F113 --platform-family iOS --deployment-target 16.0 --bundle-identifier shop.remnawave.user --output /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app --target-triple arm64-apple-ios16.0-simulator --binary-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/VpnShopUser --dependency-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser_dependency_info.dat --stringsdata-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftFileList --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.DependencyMetadataFileList --static-metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/Objects-normal/arm64/VpnShopUser.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-11-04 20:35:50.183 appintentsmetadataprocessor[2207:10329] Starting appintentsmetadataprocessor export
+2026-11-04 20:35:50.193 appintentsmetadataprocessor[2207:10329] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+
+GenerateDSYMFile /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app.dSYM /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/VpnShopUser (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/VpnShopUser -o /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app.dSYM
+
+AppIntentsSSUTraining (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Info.plist --temp-dir-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/ssu --bundle-id shop.remnawave.user --product-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app --extracted-metadata-path /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Metadata.appintents --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Intermediates.noindex/VpnShopUser.build/Debug-iphonesimulator/VpnShopUser.build/VpnShopUser.DependencyMetadataFileList --source-file /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app/Info.plist --archive-ssu-assets
+2026-11-04 20:35:50.230 appintentsnltrainingprocessor[2210:10336] Parsing options for appintentsnltrainingprocessor
+2026-11-04 20:35:50.231 appintentsnltrainingprocessor[2210:10336] Starting AppIntents SSU YAML Generation
+2026-11-04 20:35:50.235 appintentsnltrainingprocessor[2210:10336] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app
+
+Validate /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    builtin-validationUtility /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app (in target 'VpnShopUser' from project 'VpnShopUser')
+    cd /Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user
+    /usr/bin/touch -c /Users/runner/Library/Developer/Xcode/DerivedData/VpnShopUser-alkqdzqhbfarvucldyovcaolqpne/Build/Products/Debug-iphonesimulator/VpnShopUser.app
+
+warning: Traditional headermap style is no longer supported; please migrate to using separate headermaps and set 'ALWAYS_SEARCH_USER_PATHS' to NO. (in target 'VpnShopUser' from project 'VpnShopUser')
+** BUILD SUCCEEDED **
+
+exit=0
