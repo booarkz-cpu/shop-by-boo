@@ -1,0 +1,183 @@
+Control center: frontend admin check failed: [Errno -3] Temporary failure in name resolution
+Control center: frontend cabinet check failed: [Errno -3] Temporary failure in name resolution
+Control center: frontend miniapp check failed: [Errno -3] Temporary failure in name resolution
+ERROR:    Exception in ASGI application
+  + Exception Group Traceback (most recent call last):
+  |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_utils.py", line 104, in create_collapsing_task_group
+  |     async with anyio.create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 871, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    |     result = await app(  # type: ignore[func-returns-value]
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    |     return await self.app(scope, receive, send)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/applications.py", line 1194, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    |     raise exc
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 203, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/runner/work/shop-by-boo/shop-by-boo/tests/passkey_browser_server.py", line 72, in panel_content_security_policy
+    |     response=await call_next(request)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 179, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 203, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/main.py", line 303, in dispatch
+    |     return await self._dispatch(request, call_next)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/main.py", line 358, in _dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 179, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/routing.py", line 683, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 2811, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 1330, in handle
+    |     await super().handle(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/routing.py", line 289, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 166, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 152, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 745, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 372, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/admin_api.py", line 235, in rw_users
+    |     async def rw_users(start:int=0,size:int=25,admin=Depends(require_permission("read"))): return shop.redact_remote(await shop.RemnawaveClient().list_users(start,max(1,min(size,1000))))
+    |                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/remnawave.py", line 156, in list_users
+    |     return await self._request("GET","/api/users",
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/remnawave.py", line 103, in _request
+    |     raise RemnawaveNotConfigured("Remnawave is not configured: set REMNAWAVE_URL and REMNAWAVE_TOKEN")
+    | app.remnawave.RemnawaveNotConfigured: Remnawave is not configured: set REMNAWAVE_URL and REMNAWAVE_TOKEN
+    +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/applications.py", line 1194, in __call__
+    await super().__call__(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 203, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/tests/passkey_browser_server.py", line 72, in panel_content_security_policy
+    response=await call_next(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 179, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 203, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/main.py", line 303, in dispatch
+    return await self._dispatch(request, call_next)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/main.py", line 358, in _dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 179, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/routing.py", line 683, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 2811, in app
+    await route.handle(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 1330, in handle
+    await super().handle(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/routing.py", line 289, in handle
+    await self.app(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 166, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 152, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 745, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/fastapi/routing.py", line 372, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/admin_api.py", line 235, in rw_users
+    async def rw_users(start:int=0,size:int=25,admin=Depends(require_permission("read"))): return shop.redact_remote(await shop.RemnawaveClient().list_users(start,max(1,min(size,1000))))
+                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/remnawave.py", line 156, in list_users
+    return await self._request("GET","/api/users",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/remnawave.py", line 103, in _request
+    raise RemnawaveNotConfigured("Remnawave is not configured: set REMNAWAVE_URL and REMNAWAVE_TOKEN")
+app.remnawave.RemnawaveNotConfigured: Remnawave is not configured: set REMNAWAVE_URL and REMNAWAVE_TOKEN
+Control center: frontend admin check failed: [Errno -3] Temporary failure in name resolution
+Control center: frontend cabinet check failed: [Errno -3] Temporary failure in name resolution
+Control center: frontend miniapp check failed: [Errno -3] Temporary failure in name resolution
+Diagnostics Remnawave check failed: Remnawave is not configured: set REMNAWAVE_URL and REMNAWAVE_TOKEN
+Control center: frontend admin check failed: [Errno -3] Temporary failure in name resolution
+Control center: frontend cabinet check failed: [Errno -3] Temporary failure in name resolution
+Control center: frontend miniapp check failed: [Errno -3] Temporary failure in name resolution
