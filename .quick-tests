@@ -1,1 +1,0 @@
-gen:mkdir -p _audit/ios; gh run download 41894391223 -R booarkz-cpu/shop-by-boo -n mobile-screenshots-ios -D /tmp/a; find /tmp/a -type f > _audit/list.txt; cp -r /tmp/a/. _audit/ios/; true
