@@ -396,7 +396,7 @@ async def test_bunny_and_gcore_records(database, dns, monkeypatch):
     records = [{"Id": 7, "Type": 0, "Name": "sub", "Value": "198.51.100.1"}, {"Id": 8, "Type": 5, "Name": "sub", "Value": "x"}]
 
     async def call(method, url, headers, provider, ok=(200, 201, 204), **kw):
-        calls.append((provider, method, url.split(".com", 1)[1], kw.get("json"), headers))
+        calls.append((provider, method, "/" + url.split("/", 3)[3], kw.get("json"), headers))
         if url.endswith("/dnszone"):
             return 200, {"Items": [{"Id": 1, "Domain": "example.com"}, {"Id": 2, "Domain": "other.org"}], "HasMoreItems": False}
         if url.endswith("/dnszone/1"):
