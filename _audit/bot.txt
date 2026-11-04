@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/home/runner/work/shop-by-boo/shop-by-boo/scripts/screenshots/bot_chat.py", line 84, in <module>
+    main()
+  File "/home/runner/work/shop-by-boo/shop-by-boo/scripts/screenshots/bot_chat.py", line 76, in main
+    tab.set_content(page(command, banner, caption, rows))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/scripts/screenshots/bot_chat.py", line 48, in page
+    .back{{font-size:24px;color:#8dabc9}} .ava{{width:40px;height:40px;border-radius:50%;background:#fff7e8 url({avatar()}) 50% 22%/170% no-repeat}}
+                                                                                                                 ^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/scripts/screenshots/bot_chat.py", line 38, in avatar
+    sticker("support", outline=0).save(buf, "PNG")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/scripts/bot-banners/render.py", line 184, in sticker
+    import cv2
+ModuleNotFoundError: No module named 'cv2'
+bot-failed

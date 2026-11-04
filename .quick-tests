@@ -1,1 +1,0 @@
-gen:pip install -q numpy pillow playwright && python -m playwright install --with-deps chromium >/dev/null 2>&1 && mkdir -p _audit && python scripts/screenshots/bot_chat.py docs/img > _audit/bot.txt 2>&1 || echo bot-failed >> _audit/bot.txt
