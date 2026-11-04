@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.73.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.74.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2139**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2155**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -73,7 +73,9 @@
 | [.github/workflows/publish-release.yml](../.github/workflows/publish-release.yml) | GitHub CI/CD |
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
@@ -157,6 +159,7 @@
 | [admin/src/appGrowth.tsx](../admin/src/appGrowth.tsx) | Админ-панель |
 | [admin/src/autoUpdate.tsx](../admin/src/autoUpdate.tsx) | Админ-панель |
 | [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
+| [admin/src/automationCenter.tsx](../admin/src/automationCenter.tsx) | Админ-панель |
 | [admin/src/blockMonitor.tsx](../admin/src/blockMonitor.tsx) | Админ-панель |
 | [admin/src/botBanners.tsx](../admin/src/botBanners.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
@@ -224,6 +227,7 @@
 | [admin/src/runtime-settings.tsx](../admin/src/runtime-settings.tsx) | Админ-панель |
 | [admin/src/rw-extensions.tsx](../admin/src/rw-extensions.tsx) | Админ-панель |
 | [admin/src/rw-installer.tsx](../admin/src/rw-installer.tsx) | Админ-панель |
+| [admin/src/rwAutoUpdate.tsx](../admin/src/rwAutoUpdate.tsx) | Админ-панель |
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
 | [admin/src/statusPricing.tsx](../admin/src/statusPricing.tsx) | Админ-панель |
 | [admin/src/style.css](../admin/src/style.css) | Админ-панель |
@@ -406,6 +410,7 @@
 | [backend/app/auth_api.py](../backend/app/auth_api.py) | API, бот и worker |
 | [backend/app/auto_update_api.py](../backend/app/auto_update_api.py) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
+| [backend/app/automation_center.py](../backend/app/automation_center.py) | API, бот и worker |
 | [backend/app/avatar.py](../backend/app/avatar.py) | API, бот и worker |
 | [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
 | [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
@@ -547,6 +552,7 @@
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
 | [backend/app/rw_api.py](../backend/app/rw_api.py) | API, бот и worker |
+| [backend/app/rw_autoupdate.py](../backend/app/rw_autoupdate.py) | API, бот и worker |
 | [backend/app/rw_domains.py](../backend/app/rw_domains.py) | API, бот и worker |
 | [backend/app/rw_extensions.py](../backend/app/rw_extensions.py) | API, бот и worker |
 | [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
@@ -1180,6 +1186,7 @@
 | [docs/ru/RELEASE_V28_72_0.md](../docs/ru/RELEASE_V28_72_0.md) | Документация |
 | [docs/ru/RELEASE_V28_72_1.md](../docs/ru/RELEASE_V28_72_1.md) | Документация |
 | [docs/ru/RELEASE_V28_73_0.md](../docs/ru/RELEASE_V28_73_0.md) | Документация |
+| [docs/ru/RELEASE_V28_74_0.md](../docs/ru/RELEASE_V28_74_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
@@ -1263,16 +1270,21 @@
 | [docs/ru/new/ADMIN_MODULES.md](../docs/ru/new/ADMIN_MODULES.md) | Документация |
 | [docs/ru/new/ADMIN_PANEL_GUIDE.md](../docs/ru/new/ADMIN_PANEL_GUIDE.md) | Документация |
 | [docs/ru/new/API.md](../docs/ru/new/API.md) | Документация |
+| [docs/ru/new/AUTOMATION_CENTER.md](../docs/ru/new/AUTOMATION_CENTER.md) | Документация |
+| [docs/ru/new/AUTO_UPDATE.md](../docs/ru/new/AUTO_UPDATE.md) | Документация |
 | [docs/ru/new/BACKEND_ARCHITECTURE.md](../docs/ru/new/BACKEND_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/BUGFIX_LOG.md](../docs/ru/new/BUGFIX_LOG.md) | Документация |
 | [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
+| [docs/ru/new/CI_CD.md](../docs/ru/new/CI_CD.md) | Документация |
 | [docs/ru/new/CLIENT_BALANCER.md](../docs/ru/new/CLIENT_BALANCER.md) | Документация |
 | [docs/ru/new/DATABASE_SCHEMA.md](../docs/ru/new/DATABASE_SCHEMA.md) | Документация |
 | [docs/ru/new/DEPLOYMENT_AGENT.md](../docs/ru/new/DEPLOYMENT_AGENT.md) | Документация |
 | [docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md](../docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md) | Документация |
+| [docs/ru/new/DOCKER_GUIDE.md](../docs/ru/new/DOCKER_GUIDE.md) | Документация |
 | [docs/ru/new/FEATURE_COMPARISON_MATRIX.md](../docs/ru/new/FEATURE_COMPARISON_MATRIX.md) | Документация |
 | [docs/ru/new/FULL_TECHNICAL_AUDIT.md](../docs/ru/new/FULL_TECHNICAL_AUDIT.md) | Документация |
 | [docs/ru/new/IMPLEMENTATION_STATUS.md](../docs/ru/new/IMPLEMENTATION_STATUS.md) | Документация |
+| [docs/ru/new/INSTALLATION_GUIDE.md](../docs/ru/new/INSTALLATION_GUIDE.md) | Документация |
 | [docs/ru/new/KNOWN_LIMITATIONS.md](../docs/ru/new/KNOWN_LIMITATIONS.md) | Документация |
 | [docs/ru/new/LEGAL_DOCUMENTS.md](../docs/ru/new/LEGAL_DOCUMENTS.md) | Документация |
 | [docs/ru/new/NODE_PLUGINS.md](../docs/ru/new/NODE_PLUGINS.md) | Документация |
@@ -1740,6 +1752,7 @@
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/test-shard.py](../scripts/ci/test-shard.py) | Эксплуатация и релиз |
 | [scripts/ci/zap-summary.py](../scripts/ci/zap-summary.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
 | [scripts/compose-build.sh](../scripts/compose-build.sh) | Эксплуатация и релиз |
@@ -1932,6 +1945,7 @@
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_bot_texts.py](../tests/test_bot_texts.py) | Проверки |
 | [tests/test_cabinet_stage8.py](../tests/test_cabinet_stage8.py) | Проверки |
+| [tests/test_ci_shards.py](../tests/test_ci_shards.py) | Проверки |
 | [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |
 | [tests/test_code_entry_rate_limits.py](../tests/test_code_entry_rate_limits.py) | Проверки |
@@ -2041,6 +2055,7 @@
 | [tests/test_repin_images.py](../tests/test_repin_images.py) | Проверки |
 | [tests/test_route_authorization.py](../tests/test_route_authorization.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
+| [tests/test_rw_autoupdate.py](../tests/test_rw_autoupdate.py) | Проверки |
 | [tests/test_rw_extensions.py](../tests/test_rw_extensions.py) | Проверки |
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_rw_node_modules.py](../tests/test_rw_node_modules.py) | Проверки |
@@ -2050,6 +2065,7 @@
 | [tests/test_schema_matches_migrations.py](../tests/test_schema_matches_migrations.py) | Проверки |
 | [tests/test_single_business_logic.py](../tests/test_single_business_logic.py) | Проверки |
 | [tests/test_speed_forecast.py](../tests/test_speed_forecast.py) | Проверки |
+| [tests/test_stage15_install.py](../tests/test_stage15_install.py) | Проверки |
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_status_and_regional_pricing.py](../tests/test_status_and_regional_pricing.py) | Проверки |
 | [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |
