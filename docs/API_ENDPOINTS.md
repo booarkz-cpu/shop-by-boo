@@ -1,6 +1,6 @@
-# Каталог API — v28.74.0 / API v21.5.1
+# Каталог API — v28.75.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0092_telegram_bot`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0093_ssh_key_rotation`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -232,6 +232,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/legal` | Get Legal | право `read` |
 | `PUT` | `/api/admin/legal` | Put Legal | право `legal.write` |
 | `POST` | `/api/admin/legal/apply` | Apply Legal | право `legal.write` |
+| `POST` | `/api/admin/logs/request` | Request Logs | право `ops.diagnostics` |
+| `GET` | `/api/admin/logs/{service}` | Get Logs | право `ops.diagnostics` |
 | `GET` | `/api/admin/loyalty` | Admin Loyalty | право `read` |
 | `PUT` | `/api/admin/loyalty` | Admin Loyalty Config | право `manage_plans` |
 | `GET` | `/api/admin/lucy-plans` | Lucy State | право `read` |
@@ -517,16 +519,22 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/rw/servers/{server_id}` | Delete Server | право `provision_nodes` |
 | `PATCH` | `/api/admin/rw/servers/{server_id}` | Patch Server | право `provision_nodes` |
 | `POST` | `/api/admin/rw/servers/{server_id}/check` | Check Server | право `provision_nodes` |
+| `POST` | `/api/admin/rw/servers/{server_id}/rotate-key` | Rotate Key | право `provision_nodes` |
 | `GET` | `/api/admin/security` | Admin Security | право `read` |
+| `GET` | `/api/admin/security/history` | Security History | право `sessions.manage` |
 | `POST` | `/api/admin/security/incident` | Security Incident | право `manage_admins` |
 | `GET` | `/api/admin/security/incidents` | Security Incidents | право `read` |
 | `GET` | `/api/admin/security/risk-summary` | Risk Summary | право `security.manage` |
 | `GET` | `/api/admin/security/secrets/status` | Secret Status | право `manage_admins` |
+| `GET` | `/api/admin/security/step-up` | Step Up State | право `security.stepup` |
+| `POST` | `/api/admin/security/step-up` | Step Up | право `security.stepup` |
 | `GET` | `/api/admin/sessions` | Admin Sessions | право `sessions.manage` |
 | `GET` | `/api/admin/sessions/anomalies` | Get Anomalies | право `users.read` |
 | `GET` | `/api/admin/sessions/config` | Get Config | право `ops.diagnostics` |
 | `PUT` | `/api/admin/sessions/config` | Put Config | право `settings.runtime.write` |
 | `GET` | `/api/admin/sessions/geo` | Geography | право `analytics.read` |
+| `GET` | `/api/admin/sessions/mine` | My Sessions | право `sessions.self` |
+| `DELETE` | `/api/admin/sessions/mine/{session_id}` | Revoke My Session | право `sessions.self` |
 | `POST` | `/api/admin/sessions/revoke-all` | Revoke All Sessions | право `sessions.manage` |
 | `DELETE` | `/api/admin/sessions/{session_id}` | Revoke Admin Session | право `sessions.manage` |
 | `PUT` | `/api/admin/settings/{key}` | Admin Setting | право `manage_content` |

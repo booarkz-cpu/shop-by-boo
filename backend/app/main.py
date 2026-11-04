@@ -27,7 +27,7 @@ from .payment_policy import PAYMENT_AGENTS, PROVIDER_CAPABILITIES, routing_names
 from .remnawave import RemnawaveClient, redact_remote
 from .provisioner import run_ssh, ProvisionError
 from .security import (hash_password, verify_password, encrypt_secret, decrypt_secret, issue_token, decode_token,
-                       current_admin, require_permission, verify_totp, generate_recovery_codes, set_recovery_codes, consume_recovery_code)
+                       current_admin, require_permission, require_stepup, verify_totp, generate_recovery_codes, set_recovery_codes, consume_recovery_code)
 from .totp import random_base32, provisioning_uri
 
 APP_VERSION = "21.5.1"
@@ -723,11 +723,11 @@ async def metrics(request:Request):
     except Exception:
         extra=""
     try:
-        from .observability import operational_metrics
+        from .observability import operational_metrics, security_metrics
         from .db import SessionLocal
         async def snapshot():
             async with SessionLocal() as db:
-                return await operational_metrics(db)
+                return await operational_metrics(db) + await security_metrics(db)
         extra += await asyncio.wait_for(snapshot(), timeout=3)
     except Exception:
         extra += "# TYPE vpnshop_database_metrics_available gauge\nvpnshop_database_metrics_available 0\n"

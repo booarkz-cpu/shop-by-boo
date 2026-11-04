@@ -181,7 +181,7 @@ jobs:
               }
               const runs = await github.rest.actions.listWorkflowRuns({...args, workflow_id:'ci.yml', head_sha:context.sha, event:'push', per_page:10});
               const run = runs.data.workflow_runs.find(r => r.head_sha === context.sha && r.event === 'push');
-              // v28.74.0: a failed main CI is often rerun (a flaky job); waiting here lets the rerun publish the
+              // v28.75.0: a failed main CI is often rerun (a flaky job); waiting here lets the rerun publish the
               // packages instead of leaving this job failed for good.
               ciFailed = run?.status === 'completed' && run.conclusion !== 'success';
               if (run?.conclusion === 'success') {

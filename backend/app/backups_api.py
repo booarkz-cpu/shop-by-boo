@@ -3,7 +3,7 @@
 Names that belong to main are read through ``shop.<name>`` at call time, so tests and
 operators that patch ``app.main`` keep affecting this code exactly as before."""
 from .db import get_db
-from .security import require_permission
+from .security import require_permission, require_stepup
 from fastapi import Depends
 from pydantic import BaseModel
 from pydantic import Field
@@ -173,7 +173,7 @@ async def download_backup(backup_id:int,db:AsyncSession=Depends(get_db),admin=De
     return shop.FileResponse(path,filename=job.filename,media_type="application/octet-stream",headers={"Cache-Control":"private, no-store"})
 
 @shop.app.delete("/api/admin/backups/{backup_id}")
-async def delete_backup(backup_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_admins"))):
+async def delete_backup(backup_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_stepup("manage_admins"))):
     job=await db.get(shop.BackupJob,backup_id)
     if not job or not job.filename: raise shop.HTTPException(404,"Backup not found")
     shop._backup_path(job.filename).unlink(missing_ok=True); await db.delete(job); await shop.audit(db,"backup.deleted",admin.email,job.filename); await db.commit(); return {"ok":True}
@@ -275,12 +275,12 @@ async def request_restore(backup_id:int,payload:RestoreApprovalIn,db:AsyncSessio
     return await request_approval(db, await db.get(shop.BackupJob,backup_id), admin, payload.otp)
 
 @shop.app.post("/api/admin/backups/{backup_id}/restore/approve")
-async def approve_restore(backup_id:int,payload:RestoreApprovalIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("backups.restore"))):
+async def approve_restore(backup_id:int,payload:RestoreApprovalIn,db:AsyncSession=Depends(get_db),admin=Depends(require_stepup("backups.restore"))):
     from .restore_approval import use_approval
     return await use_approval(db, await db.get(shop.BackupJob,backup_id), admin, payload.otp, payload.approval_id, approve=True)
 
 @shop.app.post("/api/admin/backups/{backup_id}/restore")
-async def restore_backup(backup_id:int,payload:RestoreApprovalIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("backups.restore"))):
+async def restore_backup(backup_id:int,payload:RestoreApprovalIn,db:AsyncSession=Depends(get_db),admin=Depends(require_stepup("backups.restore"))):
     if payload.confirm!="RESTORE": raise shop.HTTPException(400,"Set confirm=RESTORE")
     from .restore_approval import require_restore_admin, use_approval
     require_restore_admin(admin, payload.otp)

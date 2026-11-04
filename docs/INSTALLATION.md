@@ -1,6 +1,6 @@
 # Установка: от нуля до продакшена
 
-Пошаговая инструкция для дистрибутива `v28.74.0` (runtime/API `21.5.1`, миграция магазина `0092_telegram_bot`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
+Пошаговая инструкция для дистрибутива `v28.75.0` (runtime/API `21.5.1`, миграция магазина `0093_ssh_key_rotation`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
 
 ## Содержание
 
@@ -74,8 +74,8 @@ AAAA добавляйте только если IPv6 действительно 
 ## 4. Установка одной командой
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.74.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.74.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.75.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.75.0 bash /root/shop-install.sh
 ```
 
 Что делает установщик (`install.sh` → `deploy/install-vps.sh`):
@@ -90,7 +90,7 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.74.0/in
 Ручная установка без установщика:
 
 ```bash
-git clone --branch v28.74.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.75.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env            # заполните (раздел 5)
 python3 scripts/harden-env.py   # сгенерирует недостающие секреты (значения не печатаются)
@@ -135,7 +135,7 @@ docker compose up -d
 Миграции применяются сами: каждый запуск контейнера backend выполняет `alembic upgrade head` до старта API (`backend/entrypoint.sh`). Проверить текущую версию схемы:
 
 ```bash
-docker compose exec -T backend alembic current     # ожидается 0092_telegram_bot (head)
+docker compose exec -T backend alembic current     # ожидается 0093_ssh_key_rotation (head)
 docker compose exec -T backend alembic heads
 ```
 
@@ -171,7 +171,7 @@ bash scripts/doctor.sh                       # здоровье API и отве�
 
 ```bash
 bash /opt/vpn-shop/scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.74.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.75.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 Скрипт скачивает архив выпуска, сверяет SHA-256 и манифест, делает копию, собирает образы, применяет миграции и проверяет здоровье ([регламент](ru/DISTRIBUTION_UPGRADE_CURRENT.md)).

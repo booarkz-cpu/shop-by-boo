@@ -56,3 +56,33 @@ tests:
         exp_alerts:
           - exp_labels: {severity: warning}
             exp_annotations: {summary: 'API server error ratio exceeds five percent'}
+  - interval: 30s
+    input_series:
+      - series: 'vpnshop_admin_login_failures_15m{job="vpnshop"}'
+        values: '12x8'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: VpnShopAdminBruteForce
+        exp_alerts:
+          - exp_labels: {job: vpnshop, severity: critical}
+            exp_annotations: {summary: 'Ten or more failed admin sign-ins within fifteen minutes'}
+  - interval: 30s
+    input_series:
+      - series: 'vpnshop_nodes_down{job="vpnshop"}'
+        values: '1x20'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: VpnShopNodesDown
+        exp_alerts:
+          - exp_labels: {job: vpnshop, severity: critical}
+            exp_annotations: {summary: 'Remnawave nodes are down'}
+  - interval: 1m
+    input_series:
+      - series: 'vpnshop_backup_last_success_age_seconds{job="vpnshop"}'
+        values: '-1x40'
+    alert_rule_test:
+      - eval_time: 35m
+        alertname: VpnShopBackupStale
+        exp_alerts:
+          - exp_labels: {job: vpnshop, severity: warning}
+            exp_annotations: {summary: 'No completed backup within thirty-six hours'}

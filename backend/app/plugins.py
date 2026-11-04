@@ -43,7 +43,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .db import get_db
 from .models import (Notification, Payment, Plan, PluginDelivery, PluginEventCursor, PluginInstall, PluginPackage,
                      PluginPublisher, Subscription, User)
-from .security import decrypt_secret, encrypt_secret, require_permission
+from .security import decrypt_secret, encrypt_secret, require_permission, require_stepup
 
 logger = logging.getLogger("vpnshop.plugins")
 
@@ -868,7 +868,7 @@ class CatalogInstallIn(BaseModel):
 
 
 @router.post("/api/admin/plugins/catalog/install")
-async def catalog_install(body: CatalogInstallIn, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("security.manage"))):
+async def catalog_install(body: CatalogInstallIn, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("security.manage"))):
     if body.catalog not in await _catalog_urls(db):
         raise HTTPException(404, "Каталог не подключён")
     try:

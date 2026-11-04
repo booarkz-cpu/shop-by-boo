@@ -1,6 +1,6 @@
-# Схема базы данных — v28.74.0
+# Схема базы данных — v28.75.0
 
-Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0092_telegram_bot`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
+Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0093_ssh_key_rotation`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
 ## Сущности задания
 
@@ -151,7 +151,7 @@
 | `remnawave_domains` | `RemnawaveDomain` | 19 | domain | — | — |
 | `remnawave_events` | `RemnawaveEvent` | 10 | event_key | created_at, event, subscription_id, user_id | — |
 | `remnawave_installations` | `RemnawaveInstallation` | 20 | — | status | — |
-| `remnawave_servers` | `RemnawaveServer` | 19 | name | — | — |
+| `remnawave_servers` | `RemnawaveServer` | 22 | name | — | — |
 | `resellers` | `Reseller` | 13 | api_key_hash, owner_user_id, slug | — | owner_user_id → users |
 | `runtime_setting_changes` | `RuntimeSettingChange` | 12 | fingerprint | source_change_id, status | source_change_id → runtime_setting_changes |
 | `runtime_setting_state` | `RuntimeSettingState` | 3 | — | — | — |

@@ -23,7 +23,7 @@
 | `docs-links.yml` | каждую ночь, вручную | внешние ссылки документации (внутренние ссылки и якоря проверяет `scripts/check-doc-links.py` в задании Backend) |
 | `docker.yml` | push в `main` и теги | образы backend, bot, admin, cabinet, miniapp |
 | `publish-release.yml` | после зелёных CI и Docker на `main` | архивы, SHA-256, манифест, выпуск GitHub |
-| `mobile-release.yml`, `build-mobile.yml` | выпуск | APK/IPA или честный `mobile-production-status.json` без подписи. С v28.74.0 ждёт перезапуска упавшего CI, а не падает сразу |
+| `mobile-release.yml`, `build-mobile.yml` | выпуск | APK/IPA или честный `mobile-production-status.json` без подписи. С v28.75.0 ждёт перезапуска упавшего CI, а не падает сразу |
 | `remnawave-live.yml` | PR с кодом Remnawave, push в `main`, раз в неделю | живая установка Remnawave из мастера, модули нод, Telegram Bot API |
 | `load-security.yml` | PR с backend, push в `main`, раз в неделю | нагрузочная проверка и базовый OWASP ZAP |
 | `resolve-image-digests.yml` | вручную или PR этого файла | digest новых образов Remnawave для закрепления |

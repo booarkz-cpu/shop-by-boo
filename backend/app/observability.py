@@ -40,3 +40,34 @@ async def operational_metrics(db):
         gauge('vpnshop_database_metrics_available','One when this scrape read database metrics',[('',1)]),
     ])
     return ''.join(lines)
+
+
+async def security_metrics(db):
+    """v28.75.0 (stage 16): security, backups and Remnawave — counts only, nothing personal."""
+    from .models import AuditLog, BackupJob, RemnawaveInstallation, RemnawaveServer
+    from .node_health import STATE_KEY, _load
+    from .rw_ssh import KEY_MAX_AGE_DAYS
+    now = datetime.utcnow()
+
+    async def audits(action, since):
+        return int(await db.scalar(select(func.count()).select_from(AuditLog).where(
+            AuditLog.action == action, AuditLog.created_at >= since)) or 0)
+    backup = await db.scalar(select(func.max(BackupJob.created_at)).where(BackupJob.status == 'completed'))
+    servers = (await db.execute(select(RemnawaveServer.ssh_key_marker, RemnawaveServer.ssh_key_rotated_at))).all()
+    due = sum(1 for marker, at in servers if not marker or (at and (now - at).days >= KEY_MAX_AGE_DAYS))
+    failed = int(await db.scalar(select(func.count()).select_from(RemnawaveInstallation).where(
+        RemnawaveInstallation.status == 'failed', RemnawaveInstallation.finished_at >= now - timedelta(days=1))) or 0)
+    state = await _load(db, STATE_KEY, {"nodes": {}})
+    down = sum(1 for item in (state.get("nodes") or {}).values() if isinstance(item, dict) and item.get("down_since"))
+    return ''.join([
+        gauge('vpnshop_admin_login_failures_15m', 'Failed sign-ins to the admin panel in the last 15 minutes',
+              [('', await audits('admin.login.failed', now - timedelta(minutes=15)))]),
+        gauge('vpnshop_admin_stepup_failures_1h', 'Wrong confirmations of dangerous actions in the last hour',
+              [('', await audits('security.stepup.failed', now - timedelta(hours=1)))]),
+        gauge('vpnshop_backup_last_success_age_seconds', 'Seconds since the last completed backup (-1: none yet)',
+              [('', round((now - backup).total_seconds()) if backup else -1)]),
+        gauge('vpnshop_rw_ssh_key_rotation_due', 'Wizard servers with an owner key or a shop key older than the limit',
+              [('', due)]),
+        gauge('vpnshop_rw_installations_failed_24h', 'Remnawave wizard runs that failed in the last day', [('', failed)]),
+        gauge('vpnshop_nodes_down', 'Remnawave nodes the health monitor sees down', [('', down)]),
+    ])

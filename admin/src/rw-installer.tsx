@@ -89,6 +89,14 @@ function Registry({servers, request, toast, reload}: {servers: any[]; request: R
     try { const s = await request(`${API}/servers/${id}/check`, post()); toast(`${s.name}: ${STATUS[s.status] || s.status}`); setShown(id); reload(); }
     catch (e: any) { setError(e.message); reload(); } finally { setBusy(""); }
   }
+  async function rotate(id: number, name: string) {
+    if (!confirm(`Сменить SSH-ключ сервера ${name}? Магазин создаст новый ключ, проверит вход им и уберёт свой прежний ключ. Ключи владельца на сервере не трогаются.`)) return;
+    setBusy(`rotate-${id}`); setError("");
+    try {
+      const s = await request(`${API}/servers/${id}/rotate-key`, post());
+      toast(`${s.name}: новый ключ ${s.ssh_key?.fingerprint || ""}${s.rotation?.note ? " — " + s.rotation.note : ""}`); reload();
+    } catch (e: any) { setError(e.message); } finally { setBusy(""); }
+  }
   async function remove(id: number) {
     setError("");
     try { await request(`${API}/servers/${id}`, {method: "DELETE"}); toast("Сервер удалён из реестра"); setRemoving(null); reload(); }
@@ -104,13 +112,17 @@ function Registry({servers, request, toast, reload}: {servers: any[]; request: R
         <thead><tr><th>Сервер</th><th>Адрес</th><th>Состояние</th><th>Система</th><th>Ресурсы</th><th>Компоненты</th><th></th></tr></thead>
         <tbody>{servers.map(s => <React.Fragment key={s.id}><tr data-rw-server={s.name}>
           <td><b>{s.name}</b><div className="muted">{(s.purpose || []).map((r: string) => ROLE[r]).join(", ")}</div></td>
-          <td>{s.ssh_user}@{s.host}:{s.ssh_port}<div className="muted mono">{s.host_key_fingerprint}</div></td>
+          <td>{s.ssh_user}@{s.host}:{s.ssh_port}<div className="muted mono" title="Отпечаток ключа сервера">{s.host_key_fingerprint}</div>
+            <div className={s.ssh_key?.rotation_due ? "warn-text" : "muted"} data-ssh-key>{s.ssh_key?.managed
+              ? `Ключ магазина ${s.ssh_key.fingerprint} · ${s.ssh_key.age_days ?? 0} дн.${s.ssh_key.rotation_due ? " — пора сменить" : ""}`
+              : `Вход по ${s.auth_method === "password" ? "паролю" : "ключу"} владельца — смените на ключ магазина`}</div></td>
           <td data-status={s.status}>{STATUS[s.status] || s.status}<div className="muted">{s.last_checked_at ? new Date(s.last_checked_at).toLocaleString() : "не проверялся"}</div></td>
           <td>{s.os || "—"}{s.arch ? ` · ${s.arch}` : ""}</td>
           <td>{s.cpu_cores ? `${s.cpu_cores} CPU · ${s.ram_mb} МБ · ${s.disk_gb} ГБ свободно` : "—"}</td>
           <td>{(s.roles || []).map((r: string) => ROLE[r]).join(", ") || "—"}</td>
           <td className="actions">
             <button onClick={() => check(s.id)} disabled={busy === `check-${s.id}`}>{busy === `check-${s.id}` ? "Проверка…" : "Проверить"}</button>
+            <button onClick={() => rotate(s.id, s.name)} disabled={busy === `rotate-${s.id}`}>{busy === `rotate-${s.id}` ? "Смена…" : "Сменить ключ"}</button>
             {s.checks?.length > 0 && <button onClick={() => setShown(shown === s.id ? null : s.id)}>{shown === s.id ? "Скрыть" : "Отчёт"}</button>}
             {removing === s.id ? <button className="danger" onClick={() => remove(s.id)}>Точно удалить</button>
               : <button onClick={() => setRemoving(s.id)} disabled={(s.roles || []).length > 0} title={(s.roles || []).length ? "Сначала «Удаление» в мастере" : ""}>Удалить</button>}

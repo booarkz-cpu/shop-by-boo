@@ -30,7 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from . import rw_plan
 from .db import get_db
 from .models import RemnawaveDeploymentStep, RemnawaveInstallation, RemnawaveServer
-from .security import require_permission
+from .security import require_permission, require_stepup
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin/remnawave/auto-update")
@@ -387,7 +387,7 @@ async def check_releases(db: AsyncSession = Depends(get_db), admin=Depends(requi
 
 
 @router.get("/panel-copies/{name}")
-async def download_panel_copy(name: str, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("backups.write"))):
+async def download_panel_copy(name: str, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("backups.write"))):
     """Копия базы панели, расшифрованная (формат pg_dump -Fc): восстановить — pg_restore на сервере панели."""
     from .main import audit
     from .rw_steps import panel_copies_dir, unseal

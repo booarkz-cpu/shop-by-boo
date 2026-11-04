@@ -29,7 +29,7 @@ from .models import (
     RuntimeSettingChange,
     RuntimeSettingState,
 )
-from .security import decrypt_secret, encrypt_secret, require_permission
+from .security import decrypt_secret, encrypt_secret, require_permission, require_stepup
 
 
 logger = logging.getLogger("remnawave.runtime_settings")
@@ -942,7 +942,7 @@ async def admin_apply_runtime_settings(
     change_id: str,
     payload: ApplySettingsIn,
     db: AsyncSession = Depends(get_db),
-    admin=Depends(require_permission("settings.runtime.write")),
+    admin=Depends(require_stepup("settings.runtime.write")),
 ):
     return await apply_change(change_id, payload, db, admin.email)
 

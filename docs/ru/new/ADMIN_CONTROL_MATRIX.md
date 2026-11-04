@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.74.0
+# Управляемость из админки — v28.75.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -19,7 +19,7 @@
 | 9 | Gifts | Подарки | 6 | ✓ | ✓ | · | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
 | 10 | Referrals | Рефералы и партнёры | 13 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `referrals.read`, `referrals.reconcile`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `referrals.withdrawals.read` | IMPLEMENTED |
 | 11 | Remnawave | Remnawave: панель, Серверы | 32 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `backups.write`, `manage_users`, `ops.diagnostics`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | IMPLEMENTED |
-| 12 | Installation | Установка Remnawave | 57 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
+| 12 | Installation | Установка Remnawave | 58 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 13 | Servers | Серверы, Планирование мощности, Оркестратор | 9 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | `ops.diagnostics`, `provision_nodes`, `settings.runtime.write` | IMPLEMENTED |
 | 14 | Nodes | Серверы, Терминал узлов, Торренты на узлах | 31 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
 | 15 | Domains | Домены и сертификаты | 7 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `read`, `settings.runtime.write` | IMPLEMENTED |
@@ -34,8 +34,8 @@
 | 24 | Telegram | Telegram-бот, Меню бота и Mini App, Дерево кнопок, Баннеры бота, Документы | 31 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `legal.write`, `manage_broadcasts`, `manage_content`, `manage_marketing`, `marketing.read`, `ops.diagnostics`, `read`, `settings.runtime.read` | IMPLEMENTED |
 | 25 | Integrations | Интеграции, Почтовый домен: SPF, DKIM, DMARC | 17 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `analytics.read`, `ops.diagnostics`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
 | 26 | Plugins | Плагины | 14 | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | `ops.diagnostics`, `security.manage` | IMPLEMENTED |
-| 27 | Security | Защита и 2FA, Ключи доступа, Роли и администраторы, Сессии, Антифрод | 23 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `analytics.read`, `manage_admins`, `ops.diagnostics`, `read`, `security.manage`, `sessions.manage`, `settings.runtime.write`, `users.read` | IMPLEMENTED |
-| 28 | Logs | Журнал действий, События | 4 | ✓ | ✓ | · | · | ✓ | · | · | · | `ops.diagnostics`, `read` | IMPLEMENTED |
+| 27 | Security | Защита и 2FA, Ключи доступа, Роли и администраторы, Сессии, Антифрод | 28 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `analytics.read`, `manage_admins`, `ops.diagnostics`, `read`, `security.manage`, `security.stepup`, `sessions.manage`, `sessions.self`, `settings.runtime.write`, `users.read` | IMPLEMENTED |
+| 28 | Logs | Журнал действий, События, Мониторинг | 6 | ✓ | ✓ | · | · | ✓ | · | · | ✓ | `ops.diagnostics`, `read` | IMPLEMENTED |
 | 29 | GitHub | Обновления | 4 | ✓ | ✓ | ✓ | · | · | · | · | ✓ | `ops.releases`, `settings.runtime.write` | IMPLEMENTED |
 | 30 | Settings | Настройки без перезапуска, Функции и модули, Оформление | 9 | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | `manage_content`, `settings.runtime.read`, `settings.runtime.write` | IMPLEMENTED |
 

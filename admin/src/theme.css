@@ -1044,3 +1044,18 @@ div.empty-state[data-state="empty"] { padding: 24px 16px; }
   .health-actions { grid-column: 2; justify-content: flex-start; }
 }
 .legal-preview { white-space: pre-wrap; font: inherit; max-height: 480px; overflow: auto; background: var(--surface-2, rgba(127,127,127,.08)); padding: 14px 16px; border-radius: 10px; line-height: 1.55; }
+
+/* v28.75.0: confirmation of dangerous actions (stepUp.ts) */
+.stepup-dialog { border: 0; padding: 0; background: transparent; max-width: min(440px, calc(100vw - 32px)); width: 100%; }
+.stepup-dialog::backdrop { background: rgba(5, 8, 15, .62); backdrop-filter: blur(2px); }
+.stepup-dialog .card { margin: 0; display: grid; gap: 12px; }
+.stepup-dialog label { display: grid; gap: 6px; }
+.stepup-dialog input { font-size: 18px; letter-spacing: .12em; }
+.stepup-dialog .toolbar { justify-content: flex-end; }
+
+/* v28.75.0: SSH key due for rotation (rw-installer.tsx) */
+.warn-text { color: var(--warning); }
+
+/* v28.75.0: container logs in the browser (containerLogs.tsx) */
+.log-view { max-height: 520px; overflow: auto; white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.45;
+  background: rgb(0 0 0 / .28); border-radius: 10px; padding: 12px; }

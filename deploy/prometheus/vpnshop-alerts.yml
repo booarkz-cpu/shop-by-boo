@@ -31,3 +31,40 @@ groups:
         labels: {severity: warning}
         annotations:
           summary: 'API server error ratio exceeds five percent'
+      # v28.75.0 (stage 16): security, backups and Remnawave.
+      - alert: VpnShopAdminBruteForce
+        expr: vpnshop_admin_login_failures_15m{job="vpnshop"} >= 10
+        for: 1m
+        labels: {severity: critical}
+        annotations:
+          summary: 'Ten or more failed admin sign-ins within fifteen minutes'
+      - alert: VpnShopStepUpFailures
+        expr: vpnshop_admin_stepup_failures_1h{job="vpnshop"} >= 5
+        for: 1m
+        labels: {severity: warning}
+        annotations:
+          summary: 'Repeated wrong confirmations of dangerous actions'
+      - alert: VpnShopBackupStale
+        expr: vpnshop_backup_last_success_age_seconds{job="vpnshop"} > 129600 or vpnshop_backup_last_success_age_seconds{job="vpnshop"} < 0
+        for: 30m
+        labels: {severity: warning}
+        annotations:
+          summary: 'No completed backup within thirty-six hours'
+      - alert: VpnShopNodesDown
+        expr: vpnshop_nodes_down{job="vpnshop"} > 0
+        for: 5m
+        labels: {severity: critical}
+        annotations:
+          summary: 'Remnawave nodes are down'
+      - alert: VpnShopRemnawaveRunFailed
+        expr: vpnshop_rw_installations_failed_24h{job="vpnshop"} > 0
+        for: 1m
+        labels: {severity: warning}
+        annotations:
+          summary: 'A Remnawave install, update or module run failed today (rolled back)'
+      - alert: VpnShopSshKeyRotationDue
+        expr: vpnshop_rw_ssh_key_rotation_due{job="vpnshop"} > 0
+        for: 1h
+        labels: {severity: info}
+        annotations:
+          summary: 'Wizard servers use an owner key or a shop key older than 180 days'

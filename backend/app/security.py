@@ -16,9 +16,9 @@ from .totp import verify as verify_totp_code
 
 bearer = HTTPBearer(auto_error=False)
 PERMISSIONS = {
-    "viewer": {"read", "manage_own_mfa", "users.read", "payments.read", "marketing.read", "analytics.read", "support.read"},
-    "operator": {"read", "manage_plans", "manage_users", "manage_payments", "manage_content", "manage_marketing", "manage_broadcasts", "manage_own_mfa", "users.read", "users.write", "users.keys", "payments.read", "payments.write", "payments.retry", "marketing.read", "analytics.read", "sessions.self", "referrals.read", "support.read", "support.write", "ops.diagnostics", "ops.incidents", "ops.providers", "ops.backups.verify", "ops.releases", "security.passkeys", "feature_flags.manage", "settings.runtime.read"},
-    "admin": {"users.import", "users.bulk", "read", "manage_plans", "manage_users", "manage_payments", "manage_content", "manage_marketing", "manage_broadcasts", "provision_nodes", "manage_admins", "manage_backups", "staging_e2e.manage", "manage_own_mfa", "users.read", "users.write", "users.keys", "payments.read", "payments.write", "payments.retry", "payments.refund", "marketing.read", "backups.read", "backups.write", "backups.restore", "security.manage", "analytics.read", "sessions.manage", "security.stepup", "payments.reconcile", "referrals.read", "referrals.reconcile", "referrals.withdrawals.read", "referrals.withdrawals.approve", "referrals.withdrawals.pay", "security.manage", "support.read", "support.write", "ops.diagnostics", "ops.incidents", "ops.providers", "ops.backups.verify", "ops.releases", "security.passkeys", "feature_flags.manage", "settings.runtime.read", "settings.runtime.write", "nodes.terminal", "legal.write"},
+    "viewer": {"read", "manage_own_mfa", "sessions.self", "users.read", "payments.read", "marketing.read", "analytics.read", "support.read"},
+    "operator": {"read", "manage_plans", "manage_users", "manage_content", "manage_marketing", "manage_broadcasts", "manage_own_mfa", "users.read", "users.write", "users.keys", "payments.read", "payments.write", "payments.retry", "marketing.read", "analytics.read", "sessions.self", "security.stepup", "referrals.read", "support.read", "support.write", "ops.diagnostics", "ops.incidents", "ops.providers", "ops.backups.verify", "ops.releases", "security.passkeys", "feature_flags.manage", "settings.runtime.read"},
+    "admin": {"users.import", "users.bulk", "read", "manage_plans", "manage_users", "manage_content", "manage_marketing", "manage_broadcasts", "provision_nodes", "manage_admins", "staging_e2e.manage", "manage_own_mfa", "users.read", "users.write", "users.keys", "payments.read", "payments.write", "payments.retry", "payments.refund", "marketing.read", "backups.read", "backups.write", "backups.restore", "security.manage", "analytics.read", "sessions.manage", "sessions.self", "security.stepup", "payments.reconcile", "referrals.read", "referrals.reconcile", "referrals.withdrawals.read", "referrals.withdrawals.approve", "referrals.withdrawals.pay", "support.read", "support.write", "ops.diagnostics", "ops.incidents", "ops.providers", "ops.backups.verify", "ops.releases", "security.passkeys", "feature_flags.manage", "settings.runtime.read", "settings.runtime.write", "nodes.terminal", "legal.write"},
 }
 
 # What each permission allows, for «Роли и администраторы» (v28.60.0).
@@ -29,7 +29,7 @@ PERMISSION_LABELS = {
     "users.bulk": "Массовые операции с клиентами", "users.import": "Импорт клиентов и истории",
     "manage_users": "Управление клиентами (старое право)", "manage_plans": "Тарифы", "manage_content": "Тексты, меню, баннеры, оформление",
     "manage_marketing": "Акции, промокоды, кампании", "manage_broadcasts": "Рассылки", "marketing.read": "Просмотр маркетинга",
-    "manage_payments": "Платежи (старое право)", "payments.read": "Просмотр платежей", "payments.write": "Изменение платежей",
+    "payments.read": "Просмотр платежей", "payments.write": "Изменение платежей",
     "payments.retry": "Повтор выдачи после оплаты", "payments.refund": "Возвраты денег", "payments.reconcile": "Сверка платежей и цены",
     "referrals.read": "Просмотр рефералов", "referrals.reconcile": "Сверка рефералов",
     "referrals.withdrawals.read": "Просмотр заявок на вывод", "referrals.withdrawals.approve": "Одобрение вывода",
@@ -38,7 +38,7 @@ PERMISSION_LABELS = {
     "provision_nodes": "Серверы и ноды: установка, обновление, перезапуск", "nodes.terminal": "Терминал на нодах",
     "ops.diagnostics": "Диагностика и мониторинг", "ops.incidents": "Инциденты", "ops.providers": "Платёжные агенты: включение и проверка",
     "ops.backups.verify": "Проверка резервных копий", "ops.releases": "Обновления и выпуски",
-    "manage_backups": "Резервные копии (старое право)", "backups.read": "Просмотр резервных копий", "backups.write": "Создание резервных копий",
+    "backups.read": "Просмотр резервных копий", "backups.write": "Создание резервных копий",
     "backups.restore": "Восстановление из копии",
     "manage_admins": "Администраторы и роли", "security.manage": "Настройки безопасности", "security.passkeys": "Ключи доступа (passkeys)",
     "security.stepup": "Повторное подтверждение опасных действий", "sessions.manage": "Сессии всех администраторов",
@@ -151,6 +151,7 @@ async def current_admin(request: Request, credentials: HTTPAuthorizationCredenti
             await db.rollback()
         raise HTTPException(401, "Admin session device changed")
     session.last_seen_at=now
+    request.state.admin_session_id = session.id  # v28.75.0: step-up confirmations belong to one session
     # Persist activity immediately; endpoint handlers may not commit if they are read-only.
     try:
         await db.commit()
@@ -168,6 +169,60 @@ def require_permission(permission: str):
             raise HTTPException(403, "Insufficient permissions")
         return admin
     dependency.required_permission = permission  # read by route-table checks (tests/app_contract.py)
+    return dependency
+
+
+# v28.75.0 (stage 16): dangerous actions need a fresh confirmation of the administrator's own factor —
+# the TOTP code when two-factor is on, otherwise the password. It lives 10 minutes and belongs to one session
+# (Redis ``admin:stepup:<session id>``); a stolen session cookie alone cannot restore a backup or add an admin.
+STEPUP_TTL = 600
+STEPUP_DETAIL = "STEP_UP_REQUIRED: подтвердите действие кодом двухфакторной защиты или паролем"
+_stepup_local: dict[str, float] = {}
+
+
+def _redis():
+    from . import main
+    return getattr(main, "redis_client", None)
+
+
+async def stepup_fresh(session_id: int | None) -> int:
+    """Seconds the confirmation of this session is still valid (0 — none)."""
+    if session_id is None:
+        return 0
+    key = f"admin:stepup:{session_id}"
+    client = _redis()
+    if client is not None:
+        try:
+            ttl = await client.ttl(key)
+            return max(int(ttl), 0) if ttl and int(ttl) > 0 else 0
+        except Exception:
+            logger.warning("step-up state unavailable in Redis")
+    left = _stepup_local.get(key, 0) - datetime.now(timezone.utc).timestamp()
+    return max(int(left), 0)
+
+
+async def mark_stepup(session_id: int) -> None:
+    key = f"admin:stepup:{session_id}"
+    client = _redis()
+    if client is not None:
+        try:
+            await client.set(key, "1", ex=STEPUP_TTL)
+            return
+        except Exception:
+            logger.warning("step-up state unavailable in Redis")
+    _stepup_local[key] = datetime.now(timezone.utc).timestamp() + STEPUP_TTL
+
+
+def require_stepup(permission: str):
+    """``require_permission`` plus a fresh confirmation of this session (HTTP 428 until there is one)."""
+    base = require_permission(permission)
+
+    async def dependency(request: Request, admin: AdminUser = Depends(base)):
+        if not await stepup_fresh(getattr(request.state, "admin_session_id", None)):
+            raise HTTPException(428, STEPUP_DETAIL)
+        return admin
+    dependency.required_permission = permission
+    dependency.step_up = True
     return dependency
 
 
