@@ -1,0 +1,1 @@
+/Users/runner/work/shop-by-boo/shop-by-boo/mobile/ios-user/VpnShopUser/VpnShopUserApp.swift:848:99: error: cannot find 'outcome' in scope
