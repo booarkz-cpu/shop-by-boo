@@ -48,7 +48,7 @@ surveys - Опросы
 
 | Переменная | Значение |
 | --- | --- |
-| `BOT_TOKEN`, `BOT_USERNAME` | Из BotFather. С v28.74.0 оба меняются в «Настройки без перезапуска → Telegram», бот переподключается сам ([Telegram-бот](../new/TELEGRAM_GUIDE.md)) |
+| `BOT_TOKEN`, `BOT_USERNAME` | Из BotFather. С v28.75.0 оба меняются в «Настройки без перезапуска → Telegram», бот переподключается сам ([Telegram-бот](../new/TELEGRAM_GUIDE.md)) |
 | `MINI_APP_URL` | HTTPS-адрес Mini App |
 | `ADMIN_TELEGRAM_ID` | Ваш ID: только вам отвечает `/ops` |
 | `DEFAULT_LANGUAGE` | `ru` или `en`, пока клиент не выбрал язык |

@@ -20,7 +20,7 @@ tar -xzf "$ARCHIVE" -C "$tmp"
 # into the restored tree before removing it.
 find . -path './.rollback' -prune -o -path './.git' -prune -o \
   -type f \( -name '.env' -o -name '.env.*' \) -exec cp --parents -p -- {} "$tmp" \;
-# v28.74.0: .control (requests and status of the auto-update agent, shared with the admin panel) stays, as in
+# v28.75.0: .control (requests and status of the auto-update agent, shared with the admin panel) stays, as in
 # update.sh — before, a manual rollback removed it and the panel lost the agent until it was reinstalled.
 find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' ! -name '.env.*' ! -name '.git' ! -name '.rollback' ! -name '.control' -exec rm -rf {} +
 cp -a "$tmp"/. "$APP_DIR"/

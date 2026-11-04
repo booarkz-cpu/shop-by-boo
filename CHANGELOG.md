@@ -1,3 +1,16 @@
+# v28.75.0
+
+- Этап 16 — безопасность и мониторинг (`docs/ru/new/SECURITY_AUDIT.md`, `SECRETS_MANAGEMENT.md`, `INCIDENT_RESPONSE.md`, `REMNAWAVE_MONITORING.md`, `SECURITY.md`):
+  - повторное подтверждение опасных действий (`require_stepup`, `backend/app/admin_stepup.py`, окно подтверждения в админке): код 2FA или пароль, 10 минут, одна сессия, пауза после пяти ошибок; 15 действий — администраторы, восстановление и удаление копий, возврат денег, терминал ноды, установка плагина, применение настроек, план мастера на серверах, пароль панели, удаление сервера, смена SSH-ключа, копия базы панели;
+  - права: `security.stepup` и `sessions.self` используются («Мои сессии»), старые `manage_payments` и `manage_backups` убраны;
+  - вход администратора: журнал `admin.login` / `admin.login.failed` с IP, одинаковое время ответа для неизвестного e-mail, сообщение в Telegram при 10 и 50 неудачах за 15 минут;
+  - «Сессии → История безопасности» (`GET /api/admin/security/history`);
+  - смена SSH-ключа сервера мастера (`backend/app/rw_ssh.py`, `POST /api/admin/rw/servers/{id}/rotate-key`, миграция `0093_ssh_key_rotation`): свой Ed25519 на сервер, проверка входа, удаление прежнего ключа магазина по пометке, пароль не хранится;
+  - журналы контейнеров в браузере через агент на сервере (`backend/app/container_logs.py`, «Мониторинг → Журналы контейнеров»), секреты из `.env` заменены на `***`;
+  - вторая подписка прослойки запрашивается только по публичному адресу (SSRF);
+  - метрики безопасности, копий и Remnawave в `/metrics`, шесть новых правил Prometheus; `promtool check/test rules` в CI.
+- Миграция `0093_ssh_key_rotation`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_75_0.md](docs/ru/RELEASE_V28_75_0.md).
+
 # v28.74.0
 
 - Этап 15 — Docker, установщик, автообновление, Automation Center (`docs/ru/new/INSTALLATION_GUIDE.md`, `DOCKER_GUIDE.md`, `AUTO_UPDATE.md`, `AUTOMATION_CENTER.md`, `CI_CD.md`):

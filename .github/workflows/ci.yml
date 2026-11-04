@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   backend:
-    # v28.74.0: the suite runs in two halves on separate runners (each with its own PostgreSQL and Redis): one
+    # v28.75.0: the suite runs in two halves on separate runners (each with its own PostgreSQL and Redis): one
     # runner took 25–30 minutes and a slow one hit the step limit.
     name: Backend • Python + tests + migrations (${{ matrix.shard }}/2)
     runs-on: ubuntu-24.04
