@@ -155,10 +155,10 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
   // v28.75.0: applying settings is a dangerous action — the panel asks to confirm it (password: no 2FA here)
   const confirmBox = page.getByRole('dialog', {name: 'Подтвердите действие'});
   await expect(confirmBox).toBeVisible();
-  await confirmBox.getByLabel('Пароль').fill('wrong-password');
+  await confirmBox.getByRole('textbox', {name: 'Пароль', exact: true}).fill('wrong-password');
   await confirmBox.getByRole('button', {name: 'Подтвердить'}).click();
   await expect(confirmBox.getByRole('alert')).toContainText('Неверный пароль');
-  await confirmBox.getByLabel('Пароль').fill('browser-only-password');
+  await confirmBox.getByRole('textbox', {name: 'Пароль', exact: true}).fill('browser-only-password');
   await confirmBox.getByRole('button', {name: 'Подтвердить'}).click();
   await expect(confirmBox).toBeHidden();
   await expect(page.getByText('Версия настроек: 1', {exact: true})).toBeVisible();
