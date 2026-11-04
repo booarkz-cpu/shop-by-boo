@@ -368,7 +368,8 @@ async def run_compose_down(ctx: Context, st: dict) -> None:
         raise StepError("Контейнеры не остановлены")
 
 
-_ENV_SECRET = re.compile(r"(?im)^((?:[A-Z0-9_]*(?:PASSWORD|SECRET|TOKEN|KEY)[A-Z0-9_]*)\s*[=:]\s*)\S+")
+# "remnawave | JWT_AUTH_SECRET=…", "password: …": whatever follows a secret-looking name on a log line.
+_ENV_SECRET = re.compile(r"(?i)\b([A-Z0-9_]*(?:PASSWORD|SECRET|TOKEN|API_?KEY|PRIVATE_?KEY)[A-Z0-9_]*\s*[=:]\s*)\S+")
 
 
 async def run_compose_ctl(ctx: Context, st: dict) -> None:
