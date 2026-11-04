@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import ipaddress
+import os
 import json
 import secrets as pysecrets
 import socket
@@ -19,7 +20,7 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile", "node_module")
+              "selfsteal_profile", "node_module", "fetch_panel_backup")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
 COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
@@ -901,7 +902,10 @@ echo "$f $(stat -c %s "$f")"
 """
 
 RESTORE = r"""set -eu
-f="$(ls -1t /opt/remnawave/backups/panel-*.dump 2>/dev/null | head -1)"
+f="${1:-}"
+case "$f" in "") f="$(ls -1t /opt/remnawave/backups/panel-*.dump 2>/dev/null | head -1)" ;;
+  /opt/remnawave/backups/panel-[0-9]*Z.dump) [ -f "$f" ] || { echo "нет копии" >&2; exit 3; } ;;
+  *) echo "bad file" >&2; exit 2 ;; esac
 [ -n "$f" ] || { echo "нет копии" >&2; exit 3; }
 cd /opt/remnawave
 docker compose stop remnawave
@@ -920,7 +924,9 @@ async def run_backup_panel(ctx: Context, st: dict) -> None:
 
 
 async def run_restore_panel(ctx: Context, st: dict) -> None:
-    result = await _run(ctx, st["server_id"], RESTORE, timeout=1800)
+    # v28.74.0: an update's rollback restores the copy made at its start (``file``), not just the newest one.
+    file = (st.get("params") or {}).get("file")
+    result = await _run(ctx, st["server_id"], RESTORE, *([file] if file else []), timeout=1800)
     if result.code == 3:
         raise StepError("На сервере нет копии базы панели")
     if result.code != 0:
@@ -928,10 +934,95 @@ async def run_restore_panel(ctx: Context, st: dict) -> None:
     _note(ctx, f"База панели восстановлена из {result.out.strip()}")
 
 
+# v28.74.0 (stage 15, carried over from stage 10): the panel's copy also leaves its server — encrypted, into the
+# shop's backup volume — so losing the panel's server does not lose its database.
+FETCH_BACKUP = r"""set -eu
+f="$1"
+case "$f" in /opt/remnawave/backups/panel-[0-9]*Z.dump) ;; *) echo "bad file" >&2; exit 2 ;; esac
+[ -f "$f" ] || { echo "нет копии" >&2; exit 3; }
+sha256sum "$f" | cut -d' ' -f1
+base64 -w0 "$f"
+"""
+MAX_PANEL_COPY = 256 * 1024 * 1024  # larger copies stay on the server only (noted in the step's log)
+PANEL_COPIES_KEEP = 10
+
+
+def panel_copies_dir():
+    from pathlib import Path
+    return Path(os.environ.get("RW_PANEL_COPIES_DIR", "/data/backups/remnawave"))
+
+
+def seal(data: bytes) -> bytes:
+    """AES-256-GCM with the shop's key (APP_SECRET): nonce + ciphertext."""
+    import secrets as _secrets
+
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+    from .security import _key
+    nonce = _secrets.token_bytes(12)
+    return nonce + AESGCM(_key()).encrypt(nonce, data, b"remnawave-panel-copy")
+
+
+def unseal(blob: bytes) -> bytes:
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+    from .config import settings
+    from .security import _key
+    for secret in (settings.app_secret, settings.app_secret_previous):
+        if not secret:
+            continue
+        try:
+            return AESGCM(_key(secret)).decrypt(blob[:12], blob[12:], b"remnawave-panel-copy")
+        except Exception:  # noqa: BLE001 — try the previous key
+            continue
+    raise ValueError("Копия не расшифровывается ключом магазина")
+
+
+async def run_fetch_panel_backup(ctx: Context, st: dict) -> None:
+    """Never stops the action: if the copy cannot be taken, it stays on the panel's server and the log says so."""
+    try:
+        await _fetch_panel_backup(ctx, st)
+    except (StepError, ValueError, OSError) as exc:
+        ctx.state["last_panel_copy"] = {"error": str(exc)[:300]}
+        _note(ctx, f"Внимание: {exc}. Копия осталась только на сервере панели")
+
+
+async def _fetch_panel_backup(ctx: Context, st: dict) -> None:
+    import base64
+    import hashlib
+    from datetime import datetime, timezone
+
+    path, _, size = str(ctx.state.get("last_panel_backup") or "").partition(" ")
+    if not path:
+        raise StepError("Копии базы панели в этом запуске нет")
+    if size.isdigit() and int(size) > MAX_PANEL_COPY:
+        _note(ctx, f"Копия {size} байт больше {MAX_PANEL_COPY // 1048576} МБ: осталась только на сервере панели ({path})")
+        return
+    result = await _run(ctx, st["server_id"], FETCH_BACKUP, path, timeout=1800)
+    if result.code != 0:
+        raise StepError("Копию базы панели не удалось забрать с сервера")
+    digest, _, body = result.out.strip().partition("\n")
+    data = base64.b64decode(body.strip() or b"", validate=True)
+    if hashlib.sha256(data).hexdigest() != digest.strip():
+        raise StepError("Копия базы панели пришла повреждённой (SHA-256 не совпал)")
+    folder = panel_copies_dir()
+    folder.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    target = folder / f"panel-{st['server_id']}-{stamp}.dump.enc"
+    tmp = target.with_suffix(".part")
+    tmp.write_bytes(seal(data))
+    os.chmod(tmp, 0o600)
+    tmp.replace(target)
+    for old in sorted(folder.glob(f"panel-{st['server_id']}-*.dump.enc"))[:-PANEL_COPIES_KEEP]:
+        old.unlink(missing_ok=True)
+    ctx.state["last_panel_copy"] = {"file": target.name, "sha256": digest.strip(), "size": len(data), "at": stamp}
+    _note(ctx, f"Копия базы панели ({len(data)} байт) зашифрована и сохранена в магазине: {target.name}")
+
+
 RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_files": run_write_files,
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
-       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "compose_down": run_compose_down,
+       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "compose_down": run_compose_down,
        "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module}
 UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
         "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile, "node_module": undo_node_module}

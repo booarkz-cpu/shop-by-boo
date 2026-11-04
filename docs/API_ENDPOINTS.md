@@ -1,4 +1,4 @@
-# Каталог API — v28.73.0 / API v21.5.1
+# Каталог API — v28.74.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0092_telegram_bot`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -60,6 +60,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/auto-update` | Get Auto Update | право `ops.releases` |
 | `PUT` | `/api/admin/auto-update` | Put Auto Update | право `settings.runtime.write` |
 | `POST` | `/api/admin/auto-update/run` | Run Auto Update | право `settings.runtime.write` |
+| `GET` | `/api/admin/automation-center` | Automation Center | право `ops.diagnostics` |
 | `DELETE` | `/api/admin/automation/campaigns/{campaign_id}` | Delete Campaign | право `manage_marketing` |
 | `GET` | `/api/admin/automation/catalog` | Catalog | право `read` |
 | `POST` | `/api/admin/automation/presets/{preset_id}` | Create Preset | право `feature_flags.manage` |
@@ -432,6 +433,11 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/refunds/{refund_id}/retry-revoke` | Retry Refund Revoke | право `payments.refund` |
 | `GET` | `/api/admin/releases` | Admin Releases | право `read` |
 | `POST` | `/api/admin/releases/check` | Check Release | право `read` |
+| `GET` | `/api/admin/remnawave/auto-update` | Get Auto Update | право `ops.releases` |
+| `PUT` | `/api/admin/remnawave/auto-update` | Put Auto Update | право `provision_nodes` |
+| `POST` | `/api/admin/remnawave/auto-update/check` | Check Releases | право `ops.releases` |
+| `GET` | `/api/admin/remnawave/auto-update/panel-copies/{name}` | Download Panel Copy | право `backups.write` |
+| `POST` | `/api/admin/remnawave/auto-update/run` | Run Now | право `provision_nodes` |
 | `GET` | `/api/admin/remnawave/health` | Remnawave Health | право `read` |
 | `GET` | `/api/admin/remnawave/internal-squads` | Remnawave Internal Squads | право `read` |
 | `GET` | `/api/admin/remnawave/monitoring` | Admin Monitoring | право `read` |

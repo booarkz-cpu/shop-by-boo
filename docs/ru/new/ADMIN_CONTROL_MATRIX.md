@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.73.0
+# Управляемость из админки — v28.74.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -9,7 +9,7 @@
 | № | Модуль | Разделы панели | Маршрутов API | Чтение | Создание | Изменение | Удаление | Поиск/фильтр | Настройки | Проверка | Журнал | Права | Статус |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Dashboard | Главная, Командный центр | 17 | ✓ | ✓ | ✓ | · | · | ✓ | · | ✓ | `analytics.read`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
-| 2 | Users | Клиенты магазина, Карточка клиента, Пользователи VPN | 32 | ✓ | ✓ | · | · | ✓ | · | ✓ | ✓ | `manage_users`, `read`, `users.bulk`, `users.import`, `users.keys`, `users.read`, `users.write` | IMPLEMENTED |
+| 2 | Users | Клиенты магазина, Карточка клиента, Пользователи VPN | 37 | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | ✓ | `backups.write`, `manage_users`, `ops.releases`, `provision_nodes`, `read`, `users.bulk`, `users.import`, `users.keys`, `users.read`, `users.write` | IMPLEMENTED |
 | 3 | Subscriptions | Изменения подписок | 12 | ✓ | ✓ | ✓ | · | · | · | · | ✓ | `manage_plans`, `payments.read`, `payments.refund`, `read`, `users.write` | IMPLEMENTED |
 | 4 | Tariffs | Тарифы, Конструктор тарифов, Пакеты трафика | 18 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `manage_plans`, `read` | IMPLEMENTED |
 | 5 | Devices | Устройства | 6 | ✓ | ✓ | ✓ | ✓ | · | · | · | ✓ | `provision_nodes`, `security.manage` | IMPLEMENTED |
@@ -18,7 +18,7 @@
 | 8 | Promo Codes | Акции и рассылки, Группы и предложения | 14 | ✓ | ✓ | ✓ | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
 | 9 | Gifts | Подарки | 6 | ✓ | ✓ | · | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
 | 10 | Referrals | Рефералы и партнёры | 13 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `referrals.read`, `referrals.reconcile`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `referrals.withdrawals.read` | IMPLEMENTED |
-| 11 | Remnawave | Remnawave: панель, Серверы | 27 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `manage_users`, `ops.diagnostics`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | IMPLEMENTED |
+| 11 | Remnawave | Remnawave: панель, Серверы | 32 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `backups.write`, `manage_users`, `ops.diagnostics`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | IMPLEMENTED |
 | 12 | Installation | Установка Remnawave | 57 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 13 | Servers | Серверы, Планирование мощности, Оркестратор | 9 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | `ops.diagnostics`, `provision_nodes`, `settings.runtime.write` | IMPLEMENTED |
 | 14 | Nodes | Серверы, Терминал узлов, Торренты на узлах | 31 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
@@ -29,8 +29,8 @@
 | 19 | Node Extensions | Расширения Remnawave | 31 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 20 | Monitoring | Мониторинг, Состояние системы, Запуск и оповещения, Инциденты, Доступность и качество | 17 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `ops.diagnostics`, `read`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `settings.runtime.write` | IMPLEMENTED |
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | IMPLEMENTED |
-| 22 | Updates | Обновления, Развёртывания | 9 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `ops.releases`, `read`, `settings.runtime.write` | IMPLEMENTED |
-| 23 | Automation | Автоматизация, Очередь задач, Фоновые процессы | 8 | ✓ | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | `feature_flags.manage`, `manage_marketing`, `payments.retry`, `read` | IMPLEMENTED |
+| 22 | Updates | Обновления, Развёртывания | 14 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `backups.write`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write` | IMPLEMENTED |
+| 23 | Automation | Automation Center, Автоматизация, Очередь задач, Фоновые процессы | 9 | ✓ | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | `feature_flags.manage`, `manage_marketing`, `ops.diagnostics`, `payments.retry`, `read` | IMPLEMENTED |
 | 24 | Telegram | Telegram-бот, Меню бота и Mini App, Дерево кнопок, Баннеры бота, Документы | 31 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `legal.write`, `manage_broadcasts`, `manage_content`, `manage_marketing`, `marketing.read`, `ops.diagnostics`, `read`, `settings.runtime.read` | IMPLEMENTED |
 | 25 | Integrations | Интеграции, Почтовый домен: SPF, DKIM, DMARC | 17 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `analytics.read`, `ops.diagnostics`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
 | 26 | Plugins | Плагины | 14 | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | `ops.diagnostics`, `security.manage` | IMPLEMENTED |

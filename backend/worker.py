@@ -206,12 +206,14 @@ async def main_worker():
     from app.node_terminal import terminal_scheduler
     from app.torrent_detection import torrent_scheduler
     from app.runtime_settings import refresh_runtime_settings, runtime_settings_scheduler
+    from app.rw_autoupdate import scheduler as rw_autoupdate_scheduler
     async with AsyncSession(main.engine, expire_on_commit=False) as db:
         await refresh_runtime_settings(db, force=True)
     settings.validate_security()
     main.redis_client = Redis.from_url(settings.redis_url, decode_responses=True, **settings.redis_connection_kwargs())
     await main.redis_client.ping()
     await asyncio.gather(runtime_settings_scheduler(), worker_heartbeat(), health_alert_worker(), job_worker(), installer_worker(),
+        rw_autoupdate_scheduler(),
         main.backup_scheduler(),
         main.fulfillment_retry_scheduler(),
         main.expiry_notification_scheduler(),

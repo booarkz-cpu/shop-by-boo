@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.73.0
+# Модули админ-панели — v28.74.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -17,7 +17,7 @@ API: `/api/admin/overview`, `/api/admin/v6`, `/api/admin/analytics`. Права:
 
 ## 2. Users
 
-Статус: `IMPLEMENTED`. Маршрутов API: 32. Операции: просмотр, создание, поиск и фильтры, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 37. Операции: просмотр, создание, изменение, поиск и фильтры, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
@@ -25,7 +25,7 @@ API: `/api/admin/overview`, `/api/admin/v6`, `/api/admin/analytics`. Права:
 | Карточка клиента | Подробные данные клиента. |
 | Пользователи VPN | Учётные записи в Remnawave: статус, имя пользователя и дата создания. |
 
-API: `/api/admin/users`, `/api/admin/customers`, `/api/admin/remnawave`, `/api/admin/customer-operations`. Права: `manage_users`, `read`, `users.bulk`, `users.import`, `users.keys`, `users.read`, `users.write`.
+API: `/api/admin/users`, `/api/admin/customers`, `/api/admin/remnawave`, `/api/admin/customer-operations`. Права: `backups.write`, `manage_users`, `ops.releases`, `provision_nodes`, `read`, `users.bulk`, `users.import`, `users.keys`, `users.read`, `users.write`.
 
 ## 3. Subscriptions
 
@@ -116,14 +116,14 @@ API: `/api/admin/referrals`, `/api/admin/referral-contests`, `/api/admin/payouts
 
 ## 11. Remnawave
 
-Статус: `IMPLEMENTED`. Маршрутов API: 27. Операции: просмотр, создание, изменение, удаление, поиск и фильтры, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 32. Операции: просмотр, создание, изменение, удаление, поиск и фильтры, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
 | Remnawave: панель | Профили конфигурации, хосты и внутренние сквады панели, режим обслуживания при её недоступности и статистика вызовов API. |
 | Серверы | Узлы Remnawave: онлайн, нагрузка, трафик и число подключённых клиентов. |
 
-API: `/api/admin/panel`, `/api/admin/panel-guard`, `/api/admin/panel-changes`, `/api/admin/panel-api-stats`, `/api/admin/remnawave`. Права: `manage_users`, `ops.diagnostics`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read`.
+API: `/api/admin/panel`, `/api/admin/panel-guard`, `/api/admin/panel-changes`, `/api/admin/panel-api-stats`, `/api/admin/remnawave`. Права: `backups.write`, `manage_users`, `ops.diagnostics`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read`.
 
 ## 12. Installation
 
@@ -236,26 +236,27 @@ API: `/api/admin/backups`, `/api/admin/recovery`. Права: `backups.read`, `b
 
 ## 22. Updates
 
-Статус: `IMPLEMENTED`. Маршрутов API: 9. Операции: просмотр, создание, изменение, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 14. Операции: просмотр, создание, изменение, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
 | Обновления | Установленная версия, доступные выпуски и история обновлений. |
 | Развёртывания | Постепенный выпуск новой версии: доля трафика и ошибки. |
 
-API: `/api/admin/releases`, `/api/admin/auto-update`, `/api/admin/deployments`. Права: `ops.releases`, `read`, `settings.runtime.write`.
+API: `/api/admin/releases`, `/api/admin/auto-update`, `/api/admin/remnawave/auto-update`, `/api/admin/deployments`. Права: `backups.write`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write`.
 
 ## 23. Automation
 
-Статус: `IMPLEMENTED`. Маршрутов API: 8. Операции: просмотр, создание, удаление, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 9. Операции: просмотр, создание, удаление, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
+| Automation Center | Всё, что магазин делает сам: автообновление магазина и Remnawave, релизы на GitHub, версия панели, резервные копии, worker, оповещения и сводка состояния системы. |
 | Автоматизация | Правила «событие → действие» и автоматические кампании. |
 | Очередь задач | Фоновые задачи: ожидают, выполняются, завершились ошибкой; повтор вручную. |
 | Фоновые процессы | Worker и планировщик: работают ли, когда последний раз отвечали. |
 
-API: `/api/admin/automation`, `/api/admin/jobs`, `/api/admin/workers`. Права: `feature_flags.manage`, `manage_marketing`, `payments.retry`, `read`.
+API: `/api/admin/automation-center`, `/api/admin/automation`, `/api/admin/jobs`, `/api/admin/workers`. Права: `feature_flags.manage`, `manage_marketing`, `ops.diagnostics`, `payments.retry`, `read`.
 
 ## 24. Telegram
 
