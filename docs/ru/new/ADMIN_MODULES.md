@@ -61,7 +61,7 @@ API: `/api/admin/anti-sharing`, `/api/admin/wg-pool`. Права: `provision_nod
 
 ## 6. Payments
 
-Статус: `IMPLEMENTED`. Маршрутов API: 34. Операции: просмотр, создание, изменение, поиск и фильтры, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 35. Операции: просмотр, создание, изменение, поиск и фильтры, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
@@ -259,7 +259,7 @@ API: `/api/admin/automation`, `/api/admin/jobs`, `/api/admin/workers`. Прав�
 
 ## 24. Telegram
 
-Статус: `IMPLEMENTED`. Маршрутов API: 28. Операции: просмотр, создание, изменение, удаление, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 31. Операции: просмотр, создание, изменение, удаление, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
@@ -269,7 +269,7 @@ API: `/api/admin/automation`, `/api/admin/jobs`, `/api/admin/workers`. Прав�
 | Баннеры бота | Картинки над разделами бота, Mini App и приложений Android и iOS: стандартные с корги Люси или свои. |
 | Документы | Частые вопросы, правила, политика конфиденциальности и публичная оферта: свой текст и баннер для Mini App, кабинета, бота и приложений Android и iOS. |
 
-API: `/api/admin/telegram`, `/api/admin/bot`, `/api/admin/menu`, `/api/admin/info-pages`, `/api/admin/broadcasts`, `/api/admin/channels`, `/api/admin/pinned-message`. Права: `legal.write`, `manage_broadcasts`, `manage_content`, `manage_marketing`, `marketing.read`, `ops.diagnostics`, `read`, `settings.runtime.read`.
+API: `/api/admin/telegram`, `/api/admin/bot`, `/api/admin/menu`, `/api/admin/info-pages`, `/api/admin/legal`, `/api/admin/broadcasts`, `/api/admin/channels`, `/api/admin/pinned-message`. Права: `legal.write`, `manage_broadcasts`, `manage_content`, `manage_marketing`, `marketing.read`, `ops.diagnostics`, `read`, `settings.runtime.read`.
 
 ## 25. Integrations
 

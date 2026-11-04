@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2127**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2135**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -73,7 +73,9 @@
 | [.github/workflows/publish-release.yml](../.github/workflows/publish-release.yml) | GitHub CI/CD |
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
@@ -192,6 +194,7 @@
 | [admin/src/hotStandby.tsx](../admin/src/hotStandby.tsx) | Админ-панель |
 | [admin/src/i18n.tsx](../admin/src/i18n.tsx) | Админ-панель |
 | [admin/src/insightsV52.tsx](../admin/src/insightsV52.tsx) | Админ-панель |
+| [admin/src/legalDocs.tsx](../admin/src/legalDocs.tsx) | Админ-панель |
 | [admin/src/lib/utils.ts](../admin/src/lib/utils.ts) | Админ-панель |
 | [admin/src/loyalty.tsx](../admin/src/loyalty.tsx) | Админ-панель |
 | [admin/src/lucy-plans.tsx](../admin/src/lucy-plans.tsx) | Админ-панель |
@@ -210,6 +213,7 @@
 | [admin/src/passkeys.tsx](../admin/src/passkeys.tsx) | Админ-панель |
 | [admin/src/payment-admission.tsx](../admin/src/payment-admission.tsx) | Админ-панель |
 | [admin/src/paymentFraud.tsx](../admin/src/paymentFraud.tsx) | Админ-панель |
+| [admin/src/paymentJournal.tsx](../admin/src/paymentJournal.tsx) | Админ-панель |
 | [admin/src/paymentMethods.tsx](../admin/src/paymentMethods.tsx) | Админ-панель |
 | [admin/src/paymentQueue.tsx](../admin/src/paymentQueue.tsx) | Админ-панель |
 | [admin/src/plans-editor.tsx](../admin/src/plans-editor.tsx) | Админ-панель |
@@ -470,6 +474,8 @@
 | [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
 | [backend/app/integrity.py](../backend/app/integrity.py) | API, бот и worker |
+| [backend/app/legal_docs.py](../backend/app/legal_docs.py) | API, бот и worker |
+| [backend/app/legal_texts.py](../backend/app/legal_texts.py) | API, бот и worker |
 | [backend/app/loyalty.py](../backend/app/loyalty.py) | API, бот и worker |
 | [backend/app/lucy_plans.py](../backend/app/lucy_plans.py) | API, бот и worker |
 | [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
@@ -505,6 +511,7 @@
 | [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
 | [backend/app/passkeys.py](../backend/app/passkeys.py) | API, бот и worker |
 | [backend/app/payment_fraud.py](../backend/app/payment_fraud.py) | API, бот и worker |
+| [backend/app/payment_journal.py](../backend/app/payment_journal.py) | API, бот и worker |
 | [backend/app/payment_methods.py](../backend/app/payment_methods.py) | API, бот и worker |
 | [backend/app/payment_platform.py](../backend/app/payment_platform.py) | API, бот и worker |
 | [backend/app/payment_platform_api.py](../backend/app/payment_platform_api.py) | API, бот и worker |
@@ -1994,6 +2001,7 @@
 | [tests/test_ops_weekly.py](../tests/test_ops_weekly.py) | Проверки |
 | [tests/test_pagination.py](../tests/test_pagination.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
+| [tests/test_payment_contract.py](../tests/test_payment_contract.py) | Проверки |
 | [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |
 | [tests/test_payment_fraud.py](../tests/test_payment_fraud.py) | Проверки |
 | [tests/test_payment_load.py](../tests/test_payment_load.py) | Проверки |
