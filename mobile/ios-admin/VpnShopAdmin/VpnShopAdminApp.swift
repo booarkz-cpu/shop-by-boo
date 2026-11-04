@@ -283,3 +283,11 @@ enum ProfileVault {
         if UserDefaults.standard.string(forKey: activeKey) == id { UserDefaults.standard.removeObject(forKey: activeKey) }
     }
 }
+
+/// v28.77.0: shop address baked into the build (Info.plist CorgiShopURL ← CORGI_SHOP_URL); "" when not set.
+/// A new administrator profile starts with it, so the address is not typed by hand.
+let bakedShopURL: String = {
+    let raw = ((Bundle.main.object(forInfoDictionaryKey: "CorgiShopURL") as? String) ?? "").trimmingCharacters(in: .whitespaces)
+    guard raw.hasPrefix("https://"), !raw.contains("$(") else { return "" }
+    return raw.hasSuffix("/") ? String(raw.dropLast()) : raw
+}()

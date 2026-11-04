@@ -42,6 +42,7 @@ jobs:
         run: bash scripts/mobile/build-xray-aar.sh
       - name: Build and verify release variant
         env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
           KEYSTORE_BASE64: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
           ANDROID_KEYSTORE_PASSWORD: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_PASSWORD || '' }}
           ANDROID_KEY_ALIAS: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEY_ALIAS || '' }}
@@ -104,9 +105,12 @@ jobs:
         run: |
           if [[ "$HAS_TUNNEL_PROFILE" == true ]]; then bash scripts/ios/build-tunnel-frameworks.sh; else echo "No tunnel profile: the app keeps handing the subscription to a VPN client"; fi
       - name: Verify device and simulator builds
+        env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
         run: bash scripts/build-ios-packages.sh "$PWD/dist/mobile"
       - name: Sign production packages when owner identity is configured
         env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
           IOS_CERTIFICATE_BASE64: ${{ github.event_name != 'pull_request' && secrets.IOS_CERTIFICATE_BASE64 || '' }}
           IOS_CERTIFICATE_PASSWORD: ${{ github.event_name != 'pull_request' && secrets.IOS_CERTIFICATE_PASSWORD || '' }}
           IOS_USER_PROFILE_BASE64: ${{ github.event_name != 'pull_request' && secrets.IOS_USER_PROFILE_BASE64 || '' }}

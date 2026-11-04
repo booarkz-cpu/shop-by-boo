@@ -22,6 +22,11 @@ fi
 OUT="${1:-$ROOT}"
 mkdir -p "$OUT"
 MODE="${ANDROID_BUILD_MODE:-auto}"
+# v28.77.0: the shop's API address baked into both apps (CORGI_SHOP_URL wins over mobile/shop-url.txt).
+CORGI_SHOP_URL="${CORGI_SHOP_URL:-$(grep -v '^#' "$ROOT/mobile/shop-url.txt" 2>/dev/null | tr -d '[:space:]' | head -c 200 || true)}"
+export CORGI_SHOP_URL
+[[ -z "$CORGI_SHOP_URL" || "$CORGI_SHOP_URL" =~ ^https://[A-Za-z0-9.-]+(:[0-9]+)?/?$ ]] || { echo "CORGI_SHOP_URL must be https://host" >&2; exit 1; }
+echo "Shop address baked into the apps: ${CORGI_SHOP_URL:-(none — the apps keep the address field)}"
 TASK=":app:assembleDebug"
 KIND=debug
 SUFFIX=preview
