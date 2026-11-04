@@ -58,7 +58,8 @@ class MirrorsIn(BaseModel):
     # Extra sites the apps send around the VPN in «Российские сайты напрямую» (banks, Госуслуги…).
     direct_domains: list[str] = Field(default_factory=list, max_length=200)
     gist_id: str = Field(default="", max_length=64, pattern=r"^[0-9a-fA-F]*$")
-    gist_token: str | None = Field(default=None, max_length=255)
+    # 1024: GitHub's newer token formats are longer (installation tokens ``ghs_…`` up to ~520 characters).
+    gist_token: str | None = Field(default=None, max_length=1024)
 
     @field_validator("mirrors", "bootstrap")
     @classmethod
