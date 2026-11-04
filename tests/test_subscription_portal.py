@@ -171,7 +171,7 @@ async def test_cloudflare_record(database, dns, monkeypatch):
         return {"result": {}}
     monkeypatch.setattr(rw_domains, "_cf", cf)
     out = await rw_domains.upsert_dns_record(row.id, db, ADMIN)
-    assert out == {"action": "created", "type": "A", "content": "93.184.216.34", "zone": "example.com"}
+    assert out == {"action": "created", "type": "A", "content": "93.184.216.34", "zone": "example.com", "provider": "cloudflare"}
     assert calls[-1][0] == "POST" and calls[-1][2] == {"type": "A", "name": "sub.example.com", "content": "93.184.216.34", "ttl": 300, "proxied": False}
 
 
@@ -375,3 +375,49 @@ async def test_preview_endpoint(database):
     assert "Проверка" in out["html"] and "Subscription link" in out["html"]
     meta = await sub_proxy.portal_texts(ADMIN)
     assert meta["languages"] == ["ru", "en", "uk"] and "copy" in meta["defaults"]["ru"] and meta["placeholders"]["traffic"] == ["limit", "used"]
+
+
+@pytest.mark.asyncio
+async def test_bunny_and_gcore_records(database, dns, monkeypatch):
+    """v28.77.0: the same A record at Bunny DNS and Gcore DNS (dns_records of eGamesAPI/remnawave-reverse-proxy)."""
+    db = database
+    row = RemnawaveDomain(domain="sub.example.com", purpose="subscription", served_by="shop", created_by="t")
+    db.add(row)
+    await db.commit()
+    for key in ("cloudflare_api_token", "bunny_api_key", "gcore_api_key"):
+        monkeypatch.setattr(settings, key, "", raising=False)
+    with pytest.raises(HTTPException) as err:
+        await rw_domains.upsert_dns_record(row.id, db, ADMIN, provider="bunny")
+    assert err.value.status_code == 409
+    monkeypatch.setattr(settings, "bunny_api_key", "bunny-key", raising=False)
+    monkeypatch.setattr(settings, "gcore_api_key", "gcore-key", raising=False)
+    assert rw_domains.dns_providers() == ["bunny", "gcore"]
+    calls = []
+    records = [{"Id": 7, "Type": 0, "Name": "sub", "Value": "198.51.100.1"}, {"Id": 8, "Type": 5, "Name": "sub", "Value": "x"}]
+
+    async def call(method, url, headers, provider, ok=(200, 201, 204), **kw):
+        calls.append((provider, method, url.split(".com", 1)[1], kw.get("json"), headers))
+        if url.endswith("/dnszone"):
+            return 200, {"Items": [{"Id": 1, "Domain": "example.com"}, {"Id": 2, "Domain": "other.org"}], "HasMoreItems": False}
+        if url.endswith("/dnszone/1"):
+            return 200, {"Records": records}
+        if provider == "gcore" and "/zones/sub.example.com/" in url:
+            return 404, {}
+        if provider == "gcore" and method == "POST":
+            return 409, {}
+        return 200, {}
+    monkeypatch.setattr(rw_domains, "_provider_call", call)
+    out = await rw_domains.upsert_dns_record(row.id, db, ADMIN)  # the first provider with a key
+    assert out == {"action": "updated", "type": "A", "content": "93.184.216.34", "zone": "example.com", "provider": "bunny"}
+    bunny = [c for c in calls if c[0] == "bunny"]
+    assert ("bunny", "PUT", "/dnszone/1/records", {"Type": 0, "Ttl": 300, "Name": "sub", "Value": "93.184.216.34"}, bunny[0][4]) in bunny
+    assert bunny[-1][1:3] == ("DELETE", "/dnszone/1/records/7")  # the old address goes after the new one is in place
+    assert all(c[4]["AccessKey"] == "bunny-key" for c in bunny)
+    out = await rw_domains.upsert_dns_record(row.id, db, ADMIN, provider="gcore")
+    assert out["provider"] == "gcore" and out["action"] == "updated" and out["zone"] == "example.com"
+    gcore = [c for c in calls if c[0] == "gcore"]
+    assert [c[1:3] for c in gcore] == [("POST", "/dns/v2/zones/sub.example.com/sub.example.com./A"),
+                                       ("POST", "/dns/v2/zones/example.com/sub.example.com./A"),
+                                       ("PUT", "/dns/v2/zones/example.com/sub.example.com./A")]
+    assert gcore[-1][3] == {"resource_records": [{"content": ["93.184.216.34"], "enabled": True}], "ttl": 300}
+    assert all(c[4]["Authorization"] == "APIKey gcore-key" for c in gcore)

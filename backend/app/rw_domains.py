@@ -8,8 +8,10 @@
   TLS by connecting to the address DNS gave, with the domain as SNI (certificate, issuer, expiry, whether it is
   trusted); HTTPS answer. A domain that resolves to a private, loopback or link-local address is not connected to:
   the check cannot be turned into a request into the shop's own network.
-* **DNS records.** With a Cloudflare API token (runtime setting ``cloudflare_api_token``) the A record of a domain is
-  created or updated to the expected address from the admin panel; without a token the panel shows what to create.
+* **DNS records.** With a Cloudflare API token (runtime setting ``cloudflare_api_token``), a Bunny DNS key
+  (``bunny_api_key``) or a Gcore DNS token (``gcore_api_key``, v28.77.0 — after ``dns_records`` in
+  eGamesAPI/remnawave-reverse-proxy, MIT, (c) 2025 eGames) the A record of a domain is created or updated to the
+  expected address from the admin panel; without one the panel shows what to create.
 * **Certificates.** Issued by Caddy with ACME HTTP-01 / TLS-ALPN-01 (Let's Encrypt, ZeroSSL as fallback). DNS-01 needs
   a Caddy build with a DNS provider module, which the standard image does not have: not offered (status in docs).
 * Daily re-check; a certificate that expires within 14 days or does not verify raises an alert."""
@@ -42,6 +44,10 @@ PURPOSES = {"subscription": "Портал подписки", "panel": "Пане�
             "node": "Нода (SNI)", "other": "Другое"}
 EXPIRING = timedelta(days=14)
 CF_API = "https://api.cloudflare.com/client/v4"
+BUNNY_API = "https://api.bunny.net"
+GCORE_API = "https://api.gcore.com"
+DNS_PROVIDERS = {"cloudflare": ("cloudflare_api_token", "Cloudflare"), "bunny": ("bunny_api_key", "Bunny DNS"),
+                 "gcore": ("gcore_api_key", "Gcore DNS")}
 connect = None  # tests: async (ip, port, domain) -> (cert_dict | None, verified: bool, error: str | None)
 http_get = None  # tests: async (domain, ip) -> status code
 
@@ -320,6 +326,72 @@ async def _zone_for(domain: str) -> dict:
     raise HTTPException(404, "Зона домена не найдена в Cloudflare (у токена нет к ней доступа)")
 
 
+def dns_providers() -> list[str]:
+    """Providers with a key in the runtime settings, in a fixed order."""
+    return [name for name, (key, _title) in DNS_PROVIDERS.items() if getattr(settings, key, "")]
+
+
+def _zones_of(domain: str) -> list[str]:
+    parts = domain.split(".")
+    return [".".join(parts[i:]) for i in range(len(parts) - 1)]  # longest first
+
+
+async def _provider_call(method: str, url: str, headers: dict, provider: str, ok=(200, 201, 204), **kw):
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.request(method, url, headers=headers, **kw)
+    if r.status_code not in ok:
+        raise HTTPException(502, f"{DNS_PROVIDERS[provider][1]}: HTTP {r.status_code} {r.text[:200]}")
+    try:
+        return r.status_code, (r.json() if r.content else {})
+    except ValueError:
+        return r.status_code, {}
+
+
+async def _bunny_record(domain: str, ip: str) -> tuple[str, str]:
+    """A record at Bunny DNS: the zone is the longest suffix the account has; records of the same name with another
+    address are removed after the new one is added, so the name never resolves to nothing."""
+    h = {"AccessKey": settings.bunny_api_key, "Accept": "application/json", "Content-Type": "application/json"}
+    zones: list[dict] = []
+    for page in range(1, 21):
+        _, data = await _provider_call("GET", f"{BUNNY_API}/dnszone", h, "bunny", params={"page": page, "perPage": 1000})
+        zones += data.get("Items") or []
+        if not data.get("HasMoreItems"):
+            break
+    by_name = {str(z.get("Domain", "")).lower(): z for z in zones}
+    zone = next((by_name[z] for z in _zones_of(domain) if z in by_name), None)
+    if not zone:
+        raise HTTPException(404, "Зона домена не найдена в Bunny DNS")
+    name = domain[: -len(zone["Domain"])].rstrip(".")
+    _, detail = await _provider_call("GET", f"{BUNNY_API}/dnszone/{zone['Id']}", h, "bunny")
+    a_records = [r for r in detail.get("Records") or [] if r.get("Type") == 0 and str(r.get("Name") or "") == name]
+    if any(r.get("Value") == ip for r in a_records):
+        stale, action = [r for r in a_records if r.get("Value") != ip], "unchanged"
+    else:
+        await _provider_call("PUT", f"{BUNNY_API}/dnszone/{zone['Id']}/records", h, "bunny",
+                             json={"Type": 0, "Ttl": 300, "Name": name, "Value": ip})
+        stale, action = a_records, ("updated" if a_records else "created")
+    for r in stale:
+        await _provider_call("DELETE", f"{BUNNY_API}/dnszone/{zone['Id']}/records/{r['Id']}", h, "bunny")
+    return action, zone["Domain"]
+
+
+async def _gcore_record(domain: str, ip: str) -> tuple[str, str]:
+    """A record at Gcore DNS (rrset API): created, or replaced when it exists (409). Only api.gcore.com is called:
+    the key is never sent to another company's API."""
+    h = {"Authorization": f"APIKey {settings.gcore_api_key}", "Content-Type": "application/json"}
+    body = {"resource_records": [{"content": [ip], "enabled": True}], "ttl": 300}
+    for zone in _zones_of(domain):
+        url = f"{GCORE_API}/dns/v2/zones/{zone}/{domain}./A"
+        code, _ = await _provider_call("POST", url, h, "gcore", ok=(200, 201, 204, 404, 409), json=body)
+        if code == 404:
+            continue  # not this zone
+        if code == 409:
+            await _provider_call("PUT", url, h, "gcore", json=body)
+            return "updated", zone
+        return "created", zone
+    raise HTTPException(404, "Зона домена не найдена в Gcore DNS")
+
+
 # ---------------------------------------------------------------- admin API
 
 @router.get("/api/admin/rw/domains")
@@ -328,7 +400,8 @@ async def list_domains(db: AsyncSession = Depends(get_db), admin=Depends(require
     from .sub_proxy import config as proxy_config
     cfg = await proxy_config(db)
     return {"domains": [domain_out(r) for r in rows], "purposes": PURPOSES, "shop_api_domain": settings.api_domain,
-            "subscription_base": cfg.get("public_base") or "", "cloudflare": bool(getattr(settings, "cloudflare_api_token", ""))}
+            "subscription_base": cfg.get("public_base") or "", "cloudflare": bool(getattr(settings, "cloudflare_api_token", "")),
+            "dns_providers": [{"id": p, "title": DNS_PROVIDERS[p][1]} for p in dns_providers()]}
 
 
 @router.post("/api/admin/rw/domains")
@@ -405,9 +478,26 @@ async def make_primary(domain_id: int, db: AsyncSession = Depends(get_db), admin
 
 
 @router.post("/api/admin/rw/domains/{domain_id}/dns-record")
-async def upsert_dns_record(domain_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("settings.runtime.write"))):
-    """Create or update the domain's A record at Cloudflare to the expected address (proxying off: Let's Encrypt and
-    VPN clients must reach the server itself)."""
+async def upsert_dns_record(domain_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("settings.runtime.write")),
+                            provider: Literal["cloudflare", "bunny", "gcore"] | None = None):
+    """Create or update the domain's A record to the expected address at the chosen DNS provider (default: the first
+    with a key; Cloudflare proxying off — Let's Encrypt and VPN clients must reach the server itself)."""
+    configured = dns_providers()
+    provider = provider or (configured[0] if configured else "cloudflare")
+    if provider != "cloudflare":
+        if provider not in configured:
+            raise HTTPException(409, f"Не задан ключ {DNS_PROVIDERS[provider][1]}: «Настройки → Параметры → Remnawave»")
+        row = await _domain(db, domain_id)
+        Resolver, factory = _resolver()
+        async with factory() as client:
+            expected = await expected_addresses(db, row, Resolver(client))
+        ip = next((x for x in expected if ipaddress.ip_address(x).version == 4), None)
+        if not ip:
+            raise HTTPException(409, "Не известен адрес IPv4, на который указывать: задайте «Ожидаемый адрес»")
+        action, zone = await (_bunny_record if provider == "bunny" else _gcore_record)(row.domain, ip)
+        await _audit(db, "rw.domain.dns_record", admin.email, row.domain, f"{provider} A {ip} {action}")
+        await db.commit()
+        return {"action": action, "type": "A", "content": ip, "zone": zone, "provider": provider}
     row = await _domain(db, domain_id)
     Resolver, factory = _resolver()
     async with factory() as client:
@@ -426,7 +516,7 @@ async def upsert_dns_record(domain_id: int, db: AsyncSession = Depends(get_db), 
         action = "created"
     await _audit(db, "rw.domain.dns_record", admin.email, row.domain, f"A {ip} {action}")
     await db.commit()
-    return {"action": action, "type": "A", "content": ip, "zone": zone.get("name")}
+    return {"action": action, "type": "A", "content": ip, "zone": zone.get("name"), "provider": "cloudflare"}
 
 
 @router.get("/api/admin/rw/certificates")

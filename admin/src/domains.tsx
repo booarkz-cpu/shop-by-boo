@@ -60,7 +60,9 @@ export function Domains({request, toast}: Props) {
             <td>{x.http_status ?? "—"}</td>
             <td className="actions">
               <button onClick={() => check(x.id)} disabled={busy === `check-${x.id}`}>{busy === `check-${x.id}` ? "Проверка…" : "Проверить"}</button>
-              {d.cloudflare && <button onClick={() => run(`dns-${x.id}`, async () => { const r = await request(`/api/admin/rw/domains/${x.id}/dns-record`, post()); toast(`Cloudflare: запись A → ${r.content} (${r.action === "created" ? "создана" : "обновлена"})`); })}>Запись A в Cloudflare</button>}
+              {(d.dns_providers || []).map((p: any) => <button key={p.id} onClick={() => run(`dns-${p.id}-${x.id}`, async () => {
+                const r = await request(`/api/admin/rw/domains/${x.id}/dns-record?provider=${p.id}`, post());
+                toast(`${p.title}: запись A → ${r.content} (${r.action === "created" ? "создана" : r.action === "unchanged" ? "уже верная" : "обновлена"})`); })}>Запись A в {p.title}</button>)}
               {x.purpose === "subscription" && x.served_by === "shop" && d.subscription_base !== `https://${x.domain}` &&
                 <button onClick={() => run(`primary-${x.id}`, () => request(`/api/admin/rw/domains/${x.id}/primary`, post()), "Клиенты получают ссылки на этом домене")}>Сделать адресом подписки</button>}
               <button onClick={() => run(`toggle-${x.id}`, () => request(`/api/admin/rw/domains/${x.id}`, {method: "PATCH", body: JSON.stringify({enabled: !x.enabled})}))}>{x.enabled ? "Выключить" : "Включить"}</button>
@@ -86,7 +88,7 @@ export function Domains({request, toast}: Props) {
         <label>Ожидаемый адрес (необязательно)<input value={form.expected_ip} onChange={e => setForm({...form, expected_ip: e.target.value.trim()})} placeholder="203.0.113.10"/></label>
         <div className="wide"><button className="primary" disabled={busy === "add" || !form.domain}>Добавить</button></div>
       </form>
-      {!d.cloudflare && <p className="muted">Записи DNS можно создавать отсюда: задайте токен Cloudflare API (право Zone:DNS:Edit) в «Настройки → Параметры → Remnawave». Без токена создайте запись A у регистратора — адрес показан в проверке.</p>}
+      {!(d.dns_providers || []).length && <p className="muted">Записи DNS можно создавать отсюда: задайте токен Cloudflare API (право Zone:DNS:Edit), ключ Bunny DNS или токен Gcore DNS в «Настройки → Параметры → Remnawave». Без ключа создайте запись A у регистратора — адрес показан в проверке.</p>}
     </div>
     <div className="card" data-certificates>
       <h3>Сертификаты</h3>
