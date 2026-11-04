@@ -222,6 +222,19 @@ async def _rollback(db: AsyncSession, row: RemnawaveInstallation, ctx: rw_steps.
             except Exception as exc:
                 ctx.log.append(f"Вернуть прежнее не удалось: {type(exc).__name__}: {exc}")
                 await _save(db, row, ctx, st)
+        # v28.74.0: a new panel image may have migrated its database before failing, and the previous image does not
+        # read a migrated database: the copy made at the start of this update comes back.
+        backup = next((st for st in done if st.kind == "backup_panel"), None)
+        panel_written = any(st.kind == "write_files" and (st.params or {}).get("component") == "panel" for st in done)
+        copy = str(ctx.state.get("last_panel_backup") or "").split(" ")[0]
+        if row.action == "update" and backup and panel_written and copy:
+            try:
+                await rw_steps.run_restore_panel(ctx, {"kind": "restore_panel", "server_id": backup.server_id, "params": {"file": copy}})
+                await rw_steps.run_wait_panel(ctx, {"kind": "wait_panel", "server_id": backup.server_id, "params": {}})
+                ctx.log.append(f"База панели возвращена из копии {copy}")
+            except Exception as exc:
+                ctx.log.append(f"Базу панели вернуть не удалось: {type(exc).__name__}: {exc}. Копия: {copy}")
+            await _save(db, row, ctx, backup)
 
 
 async def _remember_facts(db: AsyncSession, server_id: int, out: dict | None) -> None:

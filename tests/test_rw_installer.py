@@ -86,7 +86,7 @@ class Host:
 SCRIPTS = {rw_steps.PREFLIGHT: "preflight", DOCKER_INSTALL: "docker", rw_steps.WRITE: "write", rw_steps.UNWRITE: "unwrite",
            rw_steps.COMPOSE: "compose", rw_steps.WAIT_PANEL: "wait", rw_steps.PANEL_CALL: "panel",
            rw_steps.FIREWALL: "firewall", rw_steps.GATEWAY: "gateway", rw_steps.HTTPS_CHECK: "https",
-           rw_steps.BACKUP: "backup", rw_steps.RESTORE: "restore"}
+           rw_steps.BACKUP: "backup", rw_steps.RESTORE: "restore", rw_steps.FETCH_BACKUP: "fetch"}
 
 
 class FakeRemote:
@@ -141,14 +141,19 @@ class FakeRemote:
         if name == "backup":
             h.backups += 1
             return Result(0, f"/opt/remnawave/backups/panel-{h.backups}.dump 1024\n", "")
+        if name == "fetch":
+            import base64
+            data = f"PGDMP panel copy {args[0]}".encode()
+            return Result(0, hashlib.sha256(data).hexdigest() + "\n" + base64.b64encode(data).decode() + "\n", "")
         if name == "restore":
             return Result(0 if h.backups else 3, "/opt/remnawave/backups/panel-1.dump\n", "")
         return Result(0, "ok\n", "")
 
 
 @pytest.fixture
-def fleet(monkeypatch):
+def fleet(monkeypatch, tmp_path):
     hosts = {}
+    monkeypatch.setenv("RW_PANEL_COPIES_DIR", str(tmp_path / "panel-copies"))
 
     def connect(server):
         return FakeRemote(hosts[server["host"]])
@@ -284,7 +289,7 @@ async def plan_and_approve(db, payload):
 
 
 @pytest.mark.asyncio
-async def test_panel_and_node_install_end_to_end(database, fleet, monkeypatch):
+async def test_panel_and_node_install_end_to_end(database, fleet, monkeypatch, tmp_path):
     db = database
     server = await add_server(db, fleet, "panel-1", "198.51.100.10")
     payload = rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com", acme_email="a@example.com")
@@ -349,7 +354,10 @@ async def test_panel_and_node_install_end_to_end(database, fleet, monkeypatch):
         done = await rw_api.get_installation(planned["id"], db, ADMIN)
         assert done["status"] == "succeeded", (action, done)
         if action == "update":
-            assert kinds[0] == "backup_panel" and host.backups == 1
+            assert kinds[:2] == ["backup_panel", "fetch_panel_backup"] and host.backups == 1
+            copies = list((tmp_path / "panel-copies").glob("panel-*.dump.enc"))
+            assert len(copies) == 1 and b"PGDMP" not in copies[0].read_bytes()  # encrypted at rest
+            assert rw_steps.unseal(copies[0].read_bytes()).startswith(b"PGDMP")
         if action == "remove":
             assert "compose_down" in kinds and "write_files" not in kinds
     assert not host.up

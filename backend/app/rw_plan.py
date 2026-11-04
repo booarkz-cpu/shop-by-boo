@@ -26,6 +26,10 @@ IMAGES = {
     "valkey": "valkey/valkey:9-alpine@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b",
     "caddy": "caddy:2.11-alpine@sha256:e70b164da81ef698b3ad19af799ea6086ce6d9e48ed4079eb9fe26f6fbf14ee5",
 }
+# v28.74.0: the upstream versions behind these digests, compared with the releases on GitHub by the auto-update
+# (rw_autoupdate.py). A newer upstream release is installed only after a shop release pins and live-tests it.
+VERSIONS = {"panel": "3.4.8", "node": "3.4.4", "subscription_page": "8.0.1"}
+UPSTREAM = {"panel": "remnawave/backend", "node": "remnawave/node", "subscription_page": "remnawave/subscription-page"}
 DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page": "/opt/remnawave-subpage", "proxy": "/opt/remnawave-caddy",
         "selfsteal": "/opt/remnawave-selfsteal", "xray_checker": "/opt/remnawave-xray-checker"}
 # v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
@@ -632,6 +636,7 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
     else:
         if p and action in ("update", "remove", "reinstall"):
             steps.append(step("backup_panel", p, f"{servers[p]['name']}: копия базы панели"))
+            steps.append(step("fetch_panel_backup", p, f"{servers[p]['name']}: копия базы панели — зашифрованной в хранилище магазина"))
         for sid in roles:
             name = servers[sid]["name"]
             for comp in components(sid):

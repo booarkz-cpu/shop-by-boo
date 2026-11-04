@@ -134,6 +134,7 @@ export const SECTION_GROUPS = [
       {tab: "runtimeSettings", label: "Настройки без перезапуска", description: "Параметры магазина, платёжных систем и интеграций, которые применяются сразу.", keywords: "конфигурация env"},
       {tab: "features", label: "Функции и модули", description: "Включение и выключение отдельных возможностей магазина.", keywords: "флаги feature"},
       {tab: "plugins", label: "Плагины", description: "Установка подписанных плагинов, их права и журнал работы.", keywords: "расширения"},
+      {tab: "automationCenter", label: "Automation Center", description: "Всё, что магазин делает сам: автообновление магазина и Remnawave, релизы на GitHub, версия панели, резервные копии, worker, оповещения и сводка состояния системы.", keywords: "автоматика автообновление расписание cron планировщик automation center"},
       {tab: "automation", label: "Автоматизация", description: "Правила «событие → действие» и автоматические кампании.", keywords: "campaign rules"},
       {tab: "workers", label: "Фоновые процессы", description: "Worker и планировщик: работают ли, когда последний раз отвечали.", keywords: "worker"},
       {tab: "jobs", label: "Очередь задач", description: "Фоновые задачи: ожидают, выполняются, завершились ошибкой; повтор вручную.", keywords: "очередь jobs"},

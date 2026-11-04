@@ -11,7 +11,7 @@ python3 "$(dirname "${BASH_SOURCE[0]}")/validate-rollback-archive.py" "$ARCHIVE"
 cd "$APP_DIR"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$ROLLBACK_DIR"
-tar --exclude='./.rollback' --exclude='./.git' --exclude='./.env' --exclude='./.env.*' --exclude='*/.env' --exclude='*/.env.*' --exclude='*/node_modules' -czf "$ROLLBACK_DIR/pre-rollback-$STAMP.tar.gz" .
+tar --exclude='./.rollback' --exclude='./.control' --exclude='./.git' --exclude='./.env' --exclude='./.env.*' --exclude='*/.env' --exclude='*/.env.*' --exclude='*/node_modules' -czf "$ROLLBACK_DIR/pre-rollback-$STAMP.tar.gz" .
 touch "$ROLLBACK_DIR/RECOVERY_MODE"
 docker compose --profile standby down --remove-orphans || true
 tmp="$(mktemp -d)"
@@ -20,7 +20,9 @@ tar -xzf "$ARCHIVE" -C "$tmp"
 # into the restored tree before removing it.
 find . -path './.rollback' -prune -o -path './.git' -prune -o \
   -type f \( -name '.env' -o -name '.env.*' \) -exec cp --parents -p -- {} "$tmp" \;
-find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' ! -name '.env.*' ! -name '.git' ! -name '.rollback' -exec rm -rf {} +
+# v28.74.0: .control (requests and status of the auto-update agent, shared with the admin panel) stays, as in
+# update.sh — before, a manual rollback removed it and the panel lost the agent until it was reinstalled.
+find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' ! -name '.env.*' ! -name '.git' ! -name '.rollback' ! -name '.control' -exec rm -rf {} +
 cp -a "$tmp"/. "$APP_DIR"/
 rm -rf "$tmp"
 docker compose up -d db redis

@@ -42,6 +42,6 @@ MODULES = (
     "connection_quality",
     "churn",
     "customer_insights",
-    "pnl", "sub_proxy", "client_versions", "panel_api_stats", "webhook_tee", "first_connect", "vpn_sessions", "panel_usage", "wg_pool", "payments_extra", "gateway_ops", "status_page", "regional_pricing", "corporate", "payment_fraud", "subscription_freeze", "dunning", "loyalty", "feedback", "cohorts", "weekly_digest", "speed_test", "node_forecast", "dns_filter", "geoip", "ripe_atlas", "payment_journal", "legal_docs",
+    "pnl", "sub_proxy", "client_versions", "panel_api_stats", "webhook_tee", "first_connect", "vpn_sessions", "panel_usage", "wg_pool", "payments_extra", "gateway_ops", "status_page", "regional_pricing", "corporate", "payment_fraud", "subscription_freeze", "dunning", "loyalty", "feedback", "cohorts", "weekly_digest", "speed_test", "node_forecast", "dns_filter", "geoip", "ripe_atlas", "payment_journal", "legal_docs", "rw_autoupdate", "automation_center",
     "cabinet_security", "lucy_plans", "rw_api", "rw_domains", "rw_extensions", "telegram_bot",
 )
