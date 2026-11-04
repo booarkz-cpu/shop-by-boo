@@ -845,7 +845,8 @@ enum CorgiDiagnostics {
         connection.start(queue: .global())
         _ = done.wait(timeout: .now() + 5)
         connection.cancel()
-        guard let outcome = state.value, !outcome.hasPrefix("!") else { throw Failed(description: outcome.map { String($0.dropFirst()) } ?? "timeout") }
+        let outcome = state.value
+        guard let outcome, !outcome.hasPrefix("!") else { throw Failed(description: outcome.map { String($0.dropFirst()) } ?? "timeout") }
         return outcome
     }
 
