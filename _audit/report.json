@@ -1,0 +1,726 @@
+[
+ {
+  "name": "00-Все_разделы",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Все разделы"
+ },
+ {
+  "name": "01-Главная",
+  "unlabeled": [
+   "input[search] placeholder=\"Поиск по названию или стране\" aria=\"Поиск сервера\""
+  ],
+  "english": [],
+  "h1": "Главная"
+ },
+ {
+  "name": "02-Аналитика_продаж",
+  "unlabeled": [
+   "input[month] placeholder=\"\" aria=\"Параметр\"",
+   "select[select-one] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"Поставщик\" aria=\"Поставщик\"",
+   "input[text] placeholder=\"Нода (для серверов)\" aria=\"Нода (для серверов)\"",
+   "input[text] placeholder=\"Сумма\" aria=\"Сумма\"",
+   "select[select-one] placeholder=\"\" aria=\"Период\"",
+   "input[text] placeholder=\"Источник (vk_ads)\" aria=\"Источник (vk_ads)\"",
+   "input[month] placeholder=\"\" aria=\"Параметр\"",
+   "input[number] placeholder=\"Расход, ₽\" aria=\"Расход, ₽\"",
+   "input[text] placeholder=\"Номер счётчика Метрики\" aria=\"Номер счётчика Метрики\"",
+   "input[text] placeholder=\"Measurement secret\" aria=\"Measurement secret\""
+  ],
+  "english": [
+   "ROMI"
+  ],
+  "h1": "Аналитика продаж"
+ },
+ {
+  "name": "03-Удержание_клиентов",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Удержание клиентов"
+ },
+ {
+  "name": "04-Финансовый_журнал",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Операции\""
+  ],
+  "english": [],
+  "h1": "Финансовый журнал"
+ },
+ {
+  "name": "05-Запуск_и_оповещения",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Запуск и оповещения"
+ },
+ {
+  "name": "06-Состояние_системы",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Состояние системы"
+ },
+ {
+  "name": "07-Инциденты",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Инциденты\""
+  ],
+  "english": [],
+  "h1": "Инциденты"
+ },
+ {
+  "name": "08-Клиенты_магазина",
+  "unlabeled": [
+   "input[text] placeholder=\"ID, Telegram ID, имя или email\" aria=\"Поиск клиента\"",
+   "input[text] placeholder=\"ID клиента\" aria=\"ID клиента\"",
+   "input[text] placeholder=\"ID клиента\" aria=\"ID клиента\"",
+   "select[select-one] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"Для кого\" aria=\"Для кого\"",
+   "input[number] placeholder=\"\" aria=\"Параметр\"",
+   "input[number] placeholder=\"\" aria=\"Параметр\"",
+   "textarea[textarea] placeholder=\"Telegram ID — по одному в строке, через запятую или столбец CSV\" aria=\"Telegram ID — по одному в строке, через запятую или столбец CSV\""
+  ],
+  "english": [
+   "Email",
+   "Telegram"
+  ],
+  "h1": "Клиенты магазина"
+ },
+ {
+  "name": "09-Пользователи_VPN",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Пользователи VPN"
+ },
+ {
+  "name": "10-Устройства",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Устройства\""
+  ],
+  "english": [
+   "User"
+  ],
+  "h1": "Устройства"
+ },
+ {
+  "name": "11-Импорт_и_массовые_операции",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Импорт и массовые операции"
+ },
+ {
+  "name": "12-Обращения_клиентов",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Обращения клиентов"
+ },
+ {
+  "name": "13-Support_Pro",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Support Pro"
+ },
+ {
+  "name": "14-Тарифы",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Тарифы"
+ },
+ {
+  "name": "15-Конструктор_тарифов",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Конструктор тарифов"
+ },
+ {
+  "name": "16-Чеки_в_налоговую",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Чеки в налоговую"
+ },
+ {
+  "name": "17-Пакеты_трафика",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Пакеты трафика"
+ },
+ {
+  "name": "18-Изменения_подписок",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Изменения подписок"
+ },
+ {
+  "name": "19-Платежи",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Платежи\""
+  ],
+  "english": [],
+  "h1": "Платежи"
+ },
+ {
+  "name": "20-Платёжные_агенты",
+  "unlabeled": [
+   "select[select-one] placeholder=\"\" aria=\"Период\"",
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Провайдеры оплаты\""
+  ],
+  "english": [],
+  "h1": "Платёжные агенты"
+ },
+ {
+  "name": "21-Возвраты",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Центр возвратов\""
+  ],
+  "english": [
+   "User"
+  ],
+  "h1": "Возвраты"
+ },
+ {
+  "name": "22-Семейные_подписки",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Семейные подписки"
+ },
+ {
+  "name": "23-Подарки",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Коды\""
+  ],
+  "english": [
+   "Plan"
+  ],
+  "h1": "Подарки"
+ },
+ {
+  "name": "24-Проверка_платежей",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Проверка платежей"
+ },
+ {
+  "name": "25-Акции_и_рассылки",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Акции\"",
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Коды\"",
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Блоки\"",
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: История\"",
+   "textarea[textarea] placeholder=\"Текст (HTML Telegram: <b>, <i>, <a href>)\" aria=\"Текст (HTML Telegram: <b>, <i>, <a href>)\"",
+   "input[text] placeholder=\"Кнопка\" aria=\"Кнопка\"",
+   "input[text] placeholder=\"https://…\" aria=\"https://…\"",
+   "input[text] placeholder=\"ID тарифа\" aria=\"ID тарифа\"",
+   "input[text] placeholder=\"Метка (FEST)\" aria=\"Метка (FEST)\"",
+   "input[number] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"Дней (как в тарифе)\" aria=\"Дней (как в тарифе)\"",
+   "input[number] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"Название\" aria=\"Название\"",
+   "input[datetime-local] placeholder=\"\" aria=\"Параметр\"",
+   "input[datetime-local] placeholder=\"\" aria=\"Параметр\"",
+   "select[select-one] placeholder=\"\" aria=\"Параметр\""
+  ],
+  "english": [],
+  "h1": "Акции и рассылки"
+ },
+ {
+  "name": "26-Группы_и_предложения",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Группы и предложения"
+ },
+ {
+  "name": "27-Конкурсы_и_призы",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Конкурсы и призы"
+ },
+ {
+  "name": "28-Опросы",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Опросы"
+ },
+ {
+  "name": "29-Рефералы_и_партнёры",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Выплаты\""
+  ],
+  "english": [],
+  "h1": "Рефералы и партнёры"
+ },
+ {
+  "name": "30-Уведомления",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Уведомления\""
+  ],
+  "english": [],
+  "h1": "Уведомления"
+ },
+ {
+  "name": "31-Новости_и_страницы",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Новости и страницы"
+ },
+ {
+  "name": "32-Telegram_бот",
+  "unlabeled": [
+   "input[text] placeholder=\"\" aria=\"Команда 1\"",
+   "input[text] placeholder=\"\" aria=\"Описание 1\"",
+   "input[text] placeholder=\"\" aria=\"Команда 2\"",
+   "input[text] placeholder=\"\" aria=\"Описание 2\"",
+   "input[text] placeholder=\"\" aria=\"Команда 3\"",
+   "input[text] placeholder=\"\" aria=\"Описание 3\"",
+   "input[text] placeholder=\"\" aria=\"Команда 4\"",
+   "input[text] placeholder=\"\" aria=\"Описание 4\"",
+   "input[text] placeholder=\"\" aria=\"Команда 5\"",
+   "input[text] placeholder=\"\" aria=\"Описание 5\"",
+   "input[text] placeholder=\"\" aria=\"Команда 6\"",
+   "input[text] placeholder=\"\" aria=\"Описание 6\"",
+   "input[text] placeholder=\"\" aria=\"Команда 7\"",
+   "input[text] placeholder=\"\" aria=\"Описание 7\"",
+   "input[text] placeholder=\"\" aria=\"Команда 8\"",
+   "input[text] placeholder=\"\" aria=\"Описание 8\""
+  ],
+  "english": [],
+  "h1": "Telegram-бот"
+ },
+ {
+  "name": "33-Меню_бота_и_Mini_App",
+  "unlabeled": [
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "textarea[textarea] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "textarea[textarea] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "textarea[textarea] placeholder=\"\" aria=\"Параметр\""
+  ],
+  "english": [
+   "Mini App"
+  ],
+  "h1": "Меню бота и Mini App"
+ },
+ {
+  "name": "34-Дерево_кнопок",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Дерево кнопок"
+ },
+ {
+  "name": "35-Документы",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Документы"
+ },
+ {
+  "name": "36-Конфигурация_Mini_App",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Конфигурация Mini App"
+ },
+ {
+  "name": "37-Приложения_экраны_и_кнопки",
+  "unlabeled": [
+   "textarea[textarea] placeholder=\"\" aria=\"Макет приложений в JSON\""
+  ],
+  "english": [],
+  "h1": "Приложения: экраны и кнопки"
+ },
+ {
+  "name": "38-Приложения_стиль_push_уведомлений",
+  "unlabeled": [
+   "input[text] placeholder=\"\" aria=\"Кнопка 1\"",
+   "select[select-one] placeholder=\"\" aria=\"Раздел кнопки 1\"",
+   "input[text] placeholder=\"\" aria=\"Кнопка 2\"",
+   "select[select-one] placeholder=\"\" aria=\"Раздел кнопки 2\""
+  ],
+  "english": [],
+  "h1": "Приложения: стиль push-уведомлений"
+ },
+ {
+  "name": "39-Приложения_push_кампании",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Приложения: push-кампании"
+ },
+ {
+  "name": "40-Приложения_аналитика",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Приложения: аналитика"
+ },
+ {
+  "name": "41-Баннеры_бота",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Баннеры бота"
+ },
+ {
+  "name": "42-Личный_кабинет",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Личный кабинет"
+ },
+ {
+  "name": "43-Android_и_iOS",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Android и iOS"
+ },
+ {
+  "name": "44-Оформление",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Оформление"
+ },
+ {
+  "name": "45-Серверы",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Узлы\"",
+   "textarea[textarea] placeholder=\"[Interface]\nPrivateKey = …\nAddress = …\n\n[Peer]\n…\" aria=\"[Interface]\nPrivateKey = …\nAddress = …\n\n[Peer]\n…\"",
+   "input[text] placeholder=\"\" aria=\"Сквад тарифа\"",
+   "input[text] placeholder=\"UUID сквада\" aria=\"Сквад без рекламы\"",
+   "input[text] placeholder=\"UUID сквада\" aria=\"Сквад детского режима\""
+  ],
+  "english": [
+   "Xray"
+  ],
+  "h1": "Серверы"
+ },
+ {
+  "name": "46-Remnawave_панель",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Remnawave: панель"
+ },
+ {
+  "name": "47-Установка_Remnawave",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Установка Remnawave"
+ },
+ {
+  "name": "48-Расширения_Remnawave",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Расширения Remnawave"
+ },
+ {
+  "name": "49-Домены_и_сертификаты",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Домены и сертификаты"
+ },
+ {
+  "name": "50-Портал_подписки",
+  "unlabeled": [
+   "input[text] placeholder=\"Номер подписки\" aria=\"Номер подписки\"",
+   "input[text] placeholder=\"HWID устройства\" aria=\"HWID устройства\"",
+   "input[text] placeholder=\"Причина\" aria=\"Причина\"",
+   "input[text] placeholder=\"shortUuid\" aria=\"shortUuid\"",
+   "select[select-one] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[text] placeholder=\"\" aria=\"Параметр\"",
+   "input[checkbox] placeholder=\"\" aria=\"Параметр\""
+  ],
+  "english": [],
+  "h1": "Портал подписки"
+ },
+ {
+  "name": "51-Доступность_и_качество",
+  "unlabeled": [
+   "input[text] placeholder=\"Название (Москва, VPS)\" aria=\"Название (Москва, VPS)\"",
+   "input[text] placeholder=\"Регион\" aria=\"Регион\""
+  ],
+  "english": [],
+  "h1": "Доступность и качество"
+ },
+ {
+  "name": "52-Сеть_узлов_ASN_и_репутация",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Сеть узлов: ASN и репутация"
+ },
+ {
+  "name": "53-Терминал_узлов",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Терминал узлов"
+ },
+ {
+  "name": "54-Маршрутизация",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Маршрутизация"
+ },
+ {
+  "name": "55-Планирование_мощности",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Ноды\""
+  ],
+  "english": [],
+  "h1": "Планирование мощности"
+ },
+ {
+  "name": "56-Оркестратор",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Оркестратор"
+ },
+ {
+  "name": "57-Торренты_на_узлах",
+  "unlabeled": [
+   "input[number] placeholder=\"\" aria=\"Параметр\""
+  ],
+  "english": [],
+  "h1": "Торренты на узлах"
+ },
+ {
+  "name": "58-Антиабуз_и_агенты",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Антиабуз и агенты"
+ },
+ {
+  "name": "59-Мониторинг",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Рабочие процессы\""
+  ],
+  "english": [],
+  "h1": "Мониторинг"
+ },
+ {
+  "name": "60-Админ_центр_30_модулей",
+  "unlabeled": [],
+  "english": [
+   "Automation Center"
+  ],
+  "h1": "Админ-центр: 30 модулей"
+ },
+ {
+  "name": "61-Настройки_без_перезапуска",
+  "unlabeled": [
+   "select[select-one] placeholder=\"\" aria=\"\"",
+   "select[select-one] placeholder=\"\" aria=\"\"",
+   "select[select-one] placeholder=\"\" aria=\"\""
+  ],
+  "english": [
+   "INFO",
+   "Remnawave",
+   "Telegram",
+   "YooKassa",
+   "Platega",
+   "RollyPay",
+   "mainnet",
+   "freekassa",
+   "cloudpayments",
+   "lava",
+   "pal24",
+   "mulenpay",
+   "wata",
+   "antilopay",
+   "aurapay",
+   "anore",
+   "cashera",
+   "paritypay",
+   "tribute",
+   "Stripe",
+   "PayPal"
+  ],
+  "h1": "Настройки без перезапуска"
+ },
+ {
+  "name": "62-Функции_и_модули",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Флаги функций\""
+  ],
+  "english": [],
+  "h1": "Функции и модули"
+ },
+ {
+  "name": "63-Плагины",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Плагины"
+ },
+ {
+  "name": "64-Automation_Center",
+  "unlabeled": [],
+  "english": [
+   "Automation Center"
+  ],
+  "h1": "Automation Center"
+ },
+ {
+  "name": "65-Автоматизация",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Автоматизация"
+ },
+ {
+  "name": "66-Фоновые_процессы",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Рабочие процессы\""
+  ],
+  "english": [],
+  "h1": "Фоновые процессы"
+ },
+ {
+  "name": "67-Очередь_задач",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Задачи\""
+  ],
+  "english": [],
+  "h1": "Очередь задач"
+ },
+ {
+  "name": "68-Почтовый_домен_SPF_DKIM_DMARC",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Почтовый домен: SPF, DKIM, DMARC"
+ },
+ {
+  "name": "69-Диагностика",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Диагностика"
+ },
+ {
+  "name": "70-Обновления",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: История релизов\""
+  ],
+  "english": [],
+  "h1": "Обновления"
+ },
+ {
+  "name": "71-Развёртывания",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Развёртывания\""
+  ],
+  "english": [],
+  "h1": "Развёртывания"
+ },
+ {
+  "name": "72-Корпоративный_контур",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Проверки\"",
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Кампании\"",
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Автоматизация\""
+  ],
+  "english": [],
+  "h1": "Корпоративный контур"
+ },
+ {
+  "name": "73-Рекомендации",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Рекомендации"
+ },
+ {
+  "name": "74-Защита_и_2FA",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Защита и 2FA"
+ },
+ {
+  "name": "75-Ключи_доступа",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Ключи доступа"
+ },
+ {
+  "name": "76-Роли_и_администраторы",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Список администраторов\""
+  ],
+  "english": [
+   "Email",
+   "Telegram ID",
+   "viewer",
+   "operator",
+   "admin"
+  ],
+  "h1": "Роли и администраторы"
+ },
+ {
+  "name": "77-Сессии",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: Активные сессии\""
+  ],
+  "english": [],
+  "h1": "Сессии"
+ },
+ {
+  "name": "78-Антифрод",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Антифрод"
+ },
+ {
+  "name": "79-Журнал_действий",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Журнал действий"
+ },
+ {
+  "name": "80-Резервные_копии",
+  "unlabeled": [
+   "input[text] placeholder=\"Поиск…\" aria=\"Поиск: История\""
+  ],
+  "english": [
+   "SHA-256"
+  ],
+  "h1": "Резервные копии"
+ },
+ {
+  "name": "81-Восстановление",
+  "unlabeled": [],
+  "english": [],
+  "h1": "Восстановление"
+ }
+]
