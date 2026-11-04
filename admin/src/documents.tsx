@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {LoadState} from "./components/ui/state";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
@@ -18,23 +18,30 @@ export function Documents({request, toast, assetBase = ""}: {request: Request; t
   const [canEdit, setCanEdit] = useState(false);
   const [canEditBanners, setCanEditBanners] = useState(false);
   const [kind, setKind] = useState("faq");
+  // v28.77.0: the document the administrator has open now — a reload that started earlier must not switch back.
+  const current = useRef("faq");
   const [lang, setLang] = useState<Lang>("ru");
   const [draft, setDraft] = useState<Page | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  async function load(keep = kind) {
+  async function load(keep?: string) {
     setError("");
     try {
       const r = await request("/api/admin/info-pages");
       const rows: Page[] = r.pages.map((p: any) => ({...p, ru: {...blank(), ...p.ru}, en: {...blank(), ...p.en}, uk: {...blank(), ...p.uk}}));
       setPages(rows); setCanEdit(!!r.can_edit); setCanEditBanners(!!r.can_edit_banners);
-      setDraft(rows.find((p) => p.kind === keep) || rows[0] || null);
+      const open = keep || current.current;
+      setDraft(rows.find((p) => p.kind === open) || rows[0] || null);
     } catch (e: any) { setError(e.message); }
   }
   useEffect(() => { load(); }, []);
 
-  function pick(next: string) { setKind(next); setDraft(pages.find((p) => p.kind === next) || null); setLang("ru"); }
+  function pick(next: string) {
+    current.current = next; setKind(next); setLang("ru");
+    const found = pages.find((p) => p.kind === next);
+    if (found) setDraft(found);  // before the first load the list is empty: load() opens this document when it arrives
+  }
   function edit(patch: Partial<Translation>) {
     if (!draft) return;
     setDraft({...draft, [lang]: {...draft[lang], ...patch}});
