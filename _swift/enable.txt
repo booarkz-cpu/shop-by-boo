@@ -1,0 +1,4 @@
+rich push: CorgiNotificationService embedded
+  LibXray.xcframework missing: the tunnel builds but refuses to start (run scripts/ios/build-tunnel-frameworks.sh)
+  HevSocks5Tunnel.xcframework missing: the tunnel builds but refuses to start (run scripts/ios/build-tunnel-frameworks.sh)
+tunnel: CorgiTunnel embedded, CORGI_TUNNEL = YES, entitlements added
