@@ -1,0 +1,75 @@
+name: Android embedded VPN
+
+# v28.77.0: the embedded VPN of the Android customer app on an emulator — connects through Xray-core (libv2ray.aar)
+# to an Xray server on the runner, reaches a page only the tunnel can reach, disconnects (scripts/mobile/vpn-e2e.sh).
+on:
+  pull_request:
+    paths: ['mobile/android-user/**', 'scripts/mobile/**', '.github/workflows/android-vpn-e2e.yml']
+  push:
+    branches: [main]
+    paths: ['mobile/android-user/**', 'scripts/mobile/**', '.github/workflows/android-vpn-e2e.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-vpn-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vpn:
+    name: Android • embedded VPN on an emulator
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+      - id: xray
+        uses: actions/cache@v4
+        with:
+          path: mobile/android-user/app/libs/libv2ray.aar
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+      - name: Build the embedded VPN engine (libv2ray.aar)
+        if: steps.xray.outputs.cache-hit != 'true'
+        run: bash scripts/mobile/build-xray-aar.sh
+      - name: Build the debug customer app with the engine
+        run: |
+          test -f mobile/android-user/app/libs/libv2ray.aar
+          (cd mobile/android-user && bash gradlew assembleDebug --no-daemon)
+      - name: Xray server for the runner (latest release, SHA-256 from its .dgst)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/xray" && cd "$RUNNER_TEMP/xray"
+          gh release download --repo XTLS/Xray-core --pattern 'Xray-linux-64.zip' --pattern 'Xray-linux-64.zip.dgst'
+          want="$(sed -n 's/^SHA2-256= *//p' Xray-linux-64.zip.dgst | head -1)"
+          echo "$want  Xray-linux-64.zip" | sha256sum -c -
+          unzip -q Xray-linux-64.zip xray && chmod +x xray && ./xray version | head -1
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Connect, reach the page through the tunnel, disconnect
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          cores: 4
+          ram-size: 4096M
+          script: bash scripts/mobile/vpn-e2e.sh mobile/android-user/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/xray/xray"

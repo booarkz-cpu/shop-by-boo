@@ -29,7 +29,7 @@ class CorgiVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) { shutdown(); return START_NOT_STICKY }
         val subscription = intent?.getStringExtra(EXTRA_SUBSCRIPTION).orEmpty()
-        if (!XrayEngine.available() || !subscription.startsWith("https://")) { stopSelf(startId); return START_NOT_STICKY }
+        if (!XrayEngine.available() || !(subscription.startsWith("https://") || ciSubscription(subscription))) { stopSelf(startId); return START_NOT_STICKY }
         foreground()
         state(this, STATE_CONNECTING)
         thread {
@@ -72,6 +72,11 @@ class CorgiVpnService : VpnService() {
         if (Build.VERSION.SDK_INT >= 24) stopForeground(STOP_FOREGROUND_REMOVE) else @Suppress("DEPRECATION") stopForeground(true)
         stopSelf()
     }
+
+    /** v28.77.0: the CI test of the engine (scripts/mobile/vpn-e2e.sh) serves its subscription over http on the
+     *  emulator's host (10.0.2.2) — accepted only by debuggable builds. */
+    private fun ciSubscription(url: String): Boolean =
+        (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && url.startsWith("http://10.0.2.2:")
 
     private fun fetch(url: String): String {
         val connection = (URL(url).openConnection() as HttpURLConnection).apply {

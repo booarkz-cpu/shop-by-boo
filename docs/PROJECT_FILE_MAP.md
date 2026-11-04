@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2216**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2218**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -57,6 +57,7 @@
 | [.github/release-v21.4.0.md](../.github/release-v21.4.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.0.md](../.github/release-v21.5.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.1.md](../.github/release-v21.5.1.md) | GitHub CI/CD |
+| [.github/workflows/android-vpn-e2e.yml](../.github/workflows/android-vpn-e2e.yml) | GitHub CI/CD |
 | [.github/workflows/build-mobile.yml](../.github/workflows/build-mobile.yml) | GitHub CI/CD |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
 | [.github/workflows/claude-roadmap.yml](../.github/workflows/claude-roadmap.yml) | GitHub CI/CD |
@@ -1830,6 +1831,7 @@
 | [scripts/mobile/emulator-quiet.sh](../scripts/mobile/emulator-quiet.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
 | [scripts/mobile/maestro-screens.sh](../scripts/mobile/maestro-screens.sh) | Эксплуатация и релиз |
+| [scripts/mobile/vpn-e2e.sh](../scripts/mobile/vpn-e2e.sh) | Эксплуатация и релиз |
 | [scripts/node-agent.py](../scripts/node-agent.py) | Эксплуатация и релиз |
 | [scripts/open-ports.sh](../scripts/open-ports.sh) | Эксплуатация и релиз |
 | [scripts/package-distribution.py](../scripts/package-distribution.py) | Эксплуатация и релиз |
