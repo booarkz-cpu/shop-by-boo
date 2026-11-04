@@ -1106,7 +1106,8 @@ struct UserRootView: View {
         let language = lang
         DispatchQueue.global(qos: .utility).async {
             guard let next = try? ShopClient(base: normalized, token: "", lang: language).call("GET", "/api/public/app-login/methods") as? [String: Any] else { return }
-            DispatchQueue.main.async { methods = next }
+            let handoff = Handoff(next)
+            DispatchQueue.main.async { methods = handoff.value }
         }
     }
 
@@ -1197,6 +1198,8 @@ struct UserRootView: View {
         #endif
         loadLayout()
         let (origin, session, language) = (base, token, lang)
+        // Read on the main actor: a rotated APNs token to re-bind after the refresh.
+        let pushToken = PushCenter.shared.enabled ? PushCenter.shared.latestToken : nil
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let api = ShopClient(base: origin, token: session, lang: language)
@@ -1239,11 +1242,11 @@ struct UserRootView: View {
                     }
                 }
                 // Re-bind a rotated APNs token, or the same token to a re-issued session.
-                if PushCenter.shared.enabled, let current = PushCenter.shared.latestToken {
+                if let current = pushToken {
                     _ = try? PushCenter.register(base: origin, session: session, lang: language, token: current)
                 }
-                let loaded = next
-                DispatchQueue.main.async { data = loaded; offline = false }
+                let loaded = Handoff(next)
+                DispatchQueue.main.async { data = loaded.value; offline = false }
             } catch {
                 DispatchQueue.main.async { offline = true; notice = error.localizedDescription }
             }
@@ -1435,9 +1438,11 @@ struct UserRootView: View {
     private func work(_ block: @escaping () throws -> Void) {
         busy = true
         notice = ""
+        // The block runs once, on the background thread only.
+        let job = Handoff(block)
         DispatchQueue.global(qos: .userInitiated).async {
             do {
-                try block()
+                try job.value()
                 DispatchQueue.main.async { busy = false }
             } catch {
                 DispatchQueue.main.async { busy = false; notice = error.localizedDescription }

@@ -7,6 +7,10 @@
 - [Адмін-панель](Admin.md)
 - [Оновлення](Updates.md)
 - [Резервні копії](Backup.md)
+- [Remnawave](Remnawave.md)
+- [Домени й TLS](Domains.md)
+- [Застосунки](Mobile.md)
+- [Безпека](Security.md)
 - [Діагностика](Troubleshooting.md)
 
 ---

@@ -1,10 +1,10 @@
-> Актуальная инструкция дистрибутива v28.75.0. Runtime/API `21.5.1`, head магазина `0093_ssh_key_rotation`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.76.0. Runtime/API `21.5.1`, head магазина `0093_ssh_key_rotation`, Support Pro `0008`.
 
 # Админ-панель: разделы, кнопки и поля
 
 Админ-панель открывается на странице **Все разделы**. Здесь собраны все функции магазина: 61 раздел в 8 группах, у каждого — название и одно предложение о том, что в нём делают. Порядок групп повторяет обычный рабочий день оператора: сначала цифры, потом клиенты, продажи, маркетинг, то, что видит клиент, серверы, система и безопасность.
 
-![Все разделы](../screenshots/admin-panel-v28-10-0.png)
+![Все разделы](../../screenshots/admin_panel/00_all_sections.png)
 
 ## Как устроен экран
 
@@ -15,11 +15,11 @@
 - **Поля** — у каждого поля есть подпись над ним. Серый текст внутри поля — пример значения, а не подпись. Значок «?» справа от подписи открывает подсказку: что вводить и что произойдёт.
 - **Таблицы** — счётчик записей, поиск по строкам и постраничный вывод. Пустая таблица пишет «Здесь пока нет записей».
 
-![Быстрый поиск](../screenshots/admin-command-search-v28-10-0.png)
+![Быстрый поиск](../../screenshots/admin_panel/74_command_search.png)
 
 На странице «Все разделы» вверху — ключевые показатели: пользователи (и прирост за сутки), активные подписки, выручка за сутки и за 30 дней, версия API и ваша роль. Поле «Например: промокод, возврат, логотип» фильтрует карточки, найденное слово подсвечивается.
 
-![Поиск по задаче](../screenshots/admin-panel-search-v28-10-0.png)
+![Поиск по задаче](../../screenshots/admin_panel/74_command_search.png)
 
 ## Все разделы
 
@@ -169,32 +169,36 @@
 
 | Телефон | Меню | Форма |
 | --- | --- | --- |
-| ![Телефон](../screenshots/admin-mobile-v28-10-0.png) | ![Меню](../screenshots/admin-mobile-drawer-v28-10-0.png) | ![Форма](../screenshots/admin-mobile-form-v28-10-0.png) |
+| ![Телефон](../../screenshots/admin_panel/variants/phone-all-sections.png) | ![Меню](../../screenshots/admin_panel/variants/phone-menu.png) | ![Форма](../../screenshots/admin_panel/variants/phone-runtimeSettings.png) |
 
-![Светлая тема](../screenshots/admin-panel-light-v28-10-0.png)
+![Светлая тема](../../screenshots/admin_panel/variants/light-panel.png)
 
 ## Скриншоты разделов
 
-- [Главная](../screenshots/admin-dashboard-v28-10-0.png), [Тарифы](../screenshots/admin-plans-v28-10-0.png), [Конструктор тарифов](../screenshots/admin-tariff-constructor-v28-10-0.png)
-- [Акции и рассылки](../screenshots/admin-marketing-v28-10-0.png), [Меню бота и Mini App](../screenshots/admin-bot-content-v28-10-0.png)
-- [Настройки без перезапуска](../screenshots/admin-runtime-settings-v28-10-0.png), [Роли и администраторы](../screenshots/admin-admins-v28-10-0.png), [Сеть узлов](../screenshots/admin-network-intel-v28-10-0.png)
-- [Вход](../screenshots/admin-login-v28-10-0.png)
-- Кабинет клиента: [обзор](../screenshots/cabinet-overview-v28-10-0.png), [тарифы](../screenshots/cabinet-plans-v28-10-0.png); [Mini App в светлой теме Telegram](../screenshots/miniapp-light-v28-10-0.png)
+- [Главная](../../screenshots/admin_panel/02_dashboard.png), [Тарифы](../../screenshots/admin_panel/15_plans.png), [Конструктор тарифов](../../screenshots/admin_panel/16_constructor.png)
+- [Акции и рассылки](../../screenshots/admin_panel/26_marketing.png), [Меню бота и Mini App](../../screenshots/admin_panel/33_content.png)
+- [Настройки без перезапуска](../../screenshots/admin_panel/54_runtimeSettings.png), [Роли и администраторы](../../screenshots/admin_panel/68_admins.png), [Сеть узлов](../../screenshots/admin_panel/46_networkIntel.png)
+- [Вход](../../screenshots/admin_panel/01_login.png)
+- Кабинет клиента: [обзор](../../screenshots/storefront_user/03_overview.png), [тарифы](../../screenshots/storefront_user/04_plans.png); [Mini App](../../docs/img/miniapp-overview.png)
 
 ### Как переснять скриншоты
 
-Скриншоты снимаются на тестовом стенде без внешних сервисов (Remnawave на снимках «недоступен» — так и должно быть):
+Скриншоты снимаются на тестовом стенде без внешних сервисов (Remnawave на снимках «недоступен» — так и должно быть). Нужны PostgreSQL и Redis: регистрация клиента берёт блокировку PostgreSQL.
 
 ```bash
 cd admin && npm run build && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
 # в другом терминале, из корня репозитория:
-APP_ENV=test APP_SECRET=browser-test-only-secret-at-least-32-characters COOKIE_SECURE=false \
+BROWSER_DATABASE_URL=postgresql+asyncpg://… BROWSER_REDIS_URL=redis://… PAYMENTS_SANDBOX=true \
+  APP_ENV=test APP_SECRET=browser-test-only-secret-at-least-32-characters COOKIE_SECURE=false \
   MOBILE_REQUIRE_PROOF=false python tests/passkey_browser_server.py
 # снова в admin/:
-node scripts/screenshots.mjs ../docs/screenshots v28-10-0
+node scripts/screenshots-catalog.mjs "$PWD/.."
+python3 ../scripts/screenshots/readme_admin.py        # блок «Админ-панель» в README
 ```
 
-Скрипт создаёт три тестовых тарифа и два промокода, снимает страницы на 1440×900 и 390×844 в тёмной и светлой теме.
+С v28.76.0 номера разделов сохраняются: новый раздел получает следующий свободный номер. Тест `tests/test_screenshots.py` проверяет, что у каждого раздела меню есть снимок, а README ссылается только на существующие файлы. Телефон 390×844 и светлая тема — в `screenshots/admin_panel/variants/`.
+
+Скрипт создаёт демо-данные (тарифы, промокоды, клиента с покупками), снимает разделы на 1440×900 в тёмной теме, телефон и светлую тему — отдельно.
 
 Полный каталог — каждый раздел панели (`screenshots/admin_panel/`, 61 снимок в порядке меню) и каждый раздел личного кабинета (`screenshots/storefront_user/`, 20 снимков) — снимает `node scripts/screenshots-catalog.mjs ..`. Ему нужен стенд с PostgreSQL, Redis и sandbox-платежами, потому что регистрация покупателя и оплата берут блокировки:
 

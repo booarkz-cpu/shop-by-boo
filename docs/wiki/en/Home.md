@@ -3,7 +3,7 @@
 A VPN subscription shop on top of your Remnawave panel: a customer pays and receives access at once, and you
 run everything from one admin panel.
 
-> Current release **v28.75.0**, runtime/API `21.5.1`, shop migration `0093_ssh_key_rotation`.
+> Current release **v28.76.0**, runtime/API `21.5.1`, shop migration `0093_ssh_key_rotation`.
 
 ## Where to start
 
@@ -15,6 +15,10 @@ run everything from one admin panel.
 | Learn the admin panel | [Admin panel](Admin.md) |
 | Keep the shop updated | [Updates](Updates.md) |
 | Back up and restore data | [Backups](Backup.md) |
+| Install Remnawave and nodes from the admin panel | [Remnawave](Remnawave.md) |
+| Point domains and get certificates | [Domains and TLS](Domains.md) |
+| Android and iOS apps | [Mobile apps](Mobile.md) |
+| 2FA, sign-in history, secrets | [Security](Security.md) |
 | Something is broken | [Troubleshooting](Troubleshooting.md) |
 
 ## What you need first

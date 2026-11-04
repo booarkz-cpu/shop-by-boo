@@ -68,11 +68,31 @@ func publicNode(_ row: [String: Any]) -> [String: Any] {
     return ["name": name, "country": row["country"] as? String ?? "", "status": safe, "users_online": jsonInt(row["users_online"]) ?? 0]
 }
 
-final class ShopClient: NSObject, URLSessionTaskDelegate {
+/// Hands a value from a system callback to the main actor or to a thread waiting on a semaphore.
+/// The callback writes before it signals or hops; the reader reads after, and a lock guards both.
+final class Handoff<Value>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var stored: Value
+    init(_ value: Value) { stored = value }
+    var value: Value {
+        get { lock.lock(); defer { lock.unlock() }; return stored }
+        set { lock.lock(); stored = newValue; lock.unlock() }
+    }
+}
+
+/// Session rules of every shop request: no redirects.
+/// A separate object, so the session does not keep its ShopClient alive.
+private final class SessionGuard: NSObject, URLSessionTaskDelegate {
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        completionHandler(nil)
+    }
+}
+
+final class ShopClient: Sendable {
     let base: String
     let token: String
     let lang: String
-    private lazy var session: URLSession = URLSession(configuration: .ephemeral, delegate: self, delegateQueue: nil)
+    private let session = URLSession(configuration: .ephemeral, delegate: SessionGuard(), delegateQueue: nil)
 
     init(base: String, token: String, lang: String) {
         self.base = base
@@ -80,8 +100,18 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         self.lang = lang
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
-        completionHandler(nil)
+    deinit { session.finishTasksAndInvalidate() }
+
+    /// Runs one request on the session and blocks the calling (background) thread until it ends.
+    private func wait(_ request: URLRequest) -> (Data, Int, Error?) {
+        let semaphore = DispatchSemaphore(value: 0)
+        let answer = Handoff<(Data, Int, Error?)>((Data(), 0, nil))
+        session.dataTask(with: request) { data, response, error in
+            answer.value = (data ?? Data(), (response as? HTTPURLResponse)?.statusCode ?? 0, error)
+            semaphore.signal()
+        }.resume()
+        semaphore.wait()
+        return answer.value
     }
 
     func call(_ method: String, _ path: String, body: [String: Any]? = nil) throws -> Any {
@@ -103,17 +133,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         }
-        let semaphore = DispatchSemaphore(value: 0)
-        var payload = Data()
-        var status = 0
-        var failure: Error?
-        session.dataTask(with: request) { data, response, error in
-            payload = data ?? Data()
-            status = (response as? HTTPURLResponse)?.statusCode ?? 0
-            failure = error
-            semaphore.signal()
-        }.resume()
-        semaphore.wait()
+        let (payload, status, failure) = wait(request)
         if let failure { throw failure }
         if !(200...299).contains(status) { throw NSError(domain: "shop", code: status, userInfo: [NSLocalizedDescriptionKey: detailOf(payload, status)]) }
         if payload.isEmpty { return [String: Any]() }
@@ -133,17 +153,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         var request = URLRequest(url: url)
         request.timeoutInterval = 15
         request.setValue("image/png,image/jpeg,image/webp", forHTTPHeaderField: "Accept")
-        let semaphore = DispatchSemaphore(value: 0)
-        var payload = Data()
-        var status = 0
-        var failure: Error?
-        session.dataTask(with: request) { data, response, error in
-            payload = data ?? Data()
-            status = (response as? HTTPURLResponse)?.statusCode ?? 0
-            failure = error
-            semaphore.signal()
-        }.resume()
-        semaphore.wait()
+        let (payload, status, failure) = wait(request)
         if let failure { throw failure }
         if !(200...299).contains(status) || payload.count > 2 * 1024 * 1024 { throw URLError(.badServerResponse) }
         return payload

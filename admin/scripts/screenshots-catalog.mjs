@@ -13,10 +13,25 @@ const root = path.resolve(process.argv[2] || '..');
 const base = 'http://localhost:8777';
 const adminDir = path.join(root, 'screenshots/admin_panel');
 const userDir = path.join(root, 'screenshots/storefront_user');
+// v28.76.0: section numbers are kept from the previous set (README and guides link to the files); a new section
+// gets the next free number, and a removed section's number is not reused.
+const known = new Map();
+let nextNumber = 2;
+for (const name of fs.existsSync(adminDir) ? fs.readdirSync(adminDir) : []) {
+  const any = name.match(/^(\d{2,3})_/);
+  if (any) nextNumber = Math.max(nextNumber, Number(any[1]) + 1);
+  const m = name.match(/^(\d{2,3})_([A-Za-z0-9]+)\.png$/);
+  if (m && m[2] !== 'login') known.set(m[2], Number(m[1]));
+}
+const searchNumber = [...fs.existsSync(adminDir) ? fs.readdirSync(adminDir) : []].map((f) => f.match(/^(\d+)_command_search\.png$/)).find(Boolean);
 for (const dir of [adminDir, userDir]) {
   fs.rmSync(dir, {recursive: true, force: true});
   fs.mkdirSync(dir, {recursive: true});
 }
+const numberOf = (tab) => {
+  if (!known.has(tab)) known.set(tab, nextNumber++);
+  return known.get(tab);
+};
 
 // Section order and names come from the same map the panel uses.
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -33,8 +48,8 @@ const browser = await chromium.launch({executablePath: process.env.E2E_CHROMIUM_
 const viewport = {width: 1440, height: 900};
 const CUSTOMER = {email: 'demo.buyer@example.test', password: 'DemoBuyerPass123!', name: 'demo.buyer'};
 
-async function newPage(theme = 'dark') {
-  const ctx = await browser.newContext({viewport, locale: 'ru-RU'});
+async function newPage(theme = 'dark', size = viewport) {
+  const ctx = await browser.newContext({viewport: size, locale: 'ru-RU', ...(size.width < 600 ? {isMobile: true, hasTouch: true} : {})});
   await ctx.addInitScript((value) => {
     localStorage.setItem('rw_lang', 'ru');
     localStorage.setItem('rw_theme', value);
@@ -153,17 +168,15 @@ const index = [];
   await settle(page);
   await page.screenshot({path: path.join(adminDir, '00_all_sections.png')});
   index.unshift({file: '00_all_sections.png', group: 'Все разделы', label: 'Все разделы', description: 'Стартовая страница: ключевые показатели и все функции панели по группам с описанием и поиском по задаче.'});
-  let number = 2;
   for (const group of groups) {
     for (const item of group.items) {
       await page.evaluate((tab) => { location.hash = tab; }, item.tab);
       await page.waitForFunction((label) => document.querySelector('h1')?.textContent === label, item.label);
       await settle(page);
       await page.evaluate(() => window.scrollTo(0, 0));
-      const file = `${String(number).padStart(2, '0')}_${item.tab}.png`;
+      const file = `${String(numberOf(item.tab)).padStart(2, '0')}_${item.tab}.png`;
       await page.screenshot({path: path.join(adminDir, file)});
       index.push({file, group: group.title, groupDescription: group.description, label: item.label, description: item.description});
-      number += 1;
     }
   }
   // Cards of newer features sit below the fold: each is captured on its own (screenshots/admin_panel/features/).
@@ -195,13 +208,40 @@ const index = [];
   await page.keyboard.press('Control+K');
   await page.getByRole('dialog', {name: 'Быстрый поиск'}).getByRole('textbox').fill('возврат');
   await page.waitForTimeout(300);
-  const file = `${number}_command_search.png`;
+  const file = `${searchNumber ? searchNumber[1] : String(nextNumber++).padStart(2, '0')}_command_search.png`;
   await page.screenshot({path: path.join(adminDir, file)});
   index.push({file, group: 'Поиск', label: 'Быстрый поиск', description: 'Ctrl+K (⌘K) из любого раздела: поиск по названию, описанию и синонимам, переход клавишами.'});
   await page.context().close();
 }
 
 // ---------- Customer cabinet ----------
+// v28.76.0: the panel on a phone (390×844) and in the light theme — screenshots/admin_panel/variants/.
+{
+  const variantsDir = path.join(adminDir, 'variants');
+  fs.mkdirSync(variantsDir, {recursive: true});
+  const phone = await newPage('dark', {width: 390, height: 844});
+  await adminSignIn(phone);
+  await settle(phone);
+  await phone.screenshot({path: path.join(variantsDir, 'phone-all-sections.png')});
+  for (const tab of ['dashboard', 'payments', 'nodes', 'rwInstaller', 'runtimeSettings']) {
+    await phone.evaluate((target) => { location.hash = target; }, tab);
+    await settle(phone);
+    await phone.screenshot({path: path.join(variantsDir, `phone-${tab}.png`)});
+  }
+  await phone.getByRole('button', {name: 'Открыть меню'}).click();
+  await phone.waitForTimeout(500);
+  await phone.screenshot({path: path.join(variantsDir, 'phone-menu.png')});
+  await phone.context().close();
+  const light = await newPage('light');
+  await adminSignIn(light);
+  for (const tab of ['panel', 'dashboard', 'plans', 'automationCenter']) {
+    await light.evaluate((target) => { location.hash = target; }, tab);
+    await settle(light);
+    await light.screenshot({path: path.join(variantsDir, `light-${tab}.png`)});
+  }
+  await light.context().close();
+}
+
 const cabinet = [
   ['03_overview', 'Обзор'], ['04_plans', 'Тарифы'], ['06_trial', 'Пробный период'], ['07_connection', 'Подключение'],
   ['08_servers', 'Серверы'], ['09_support', 'Поддержка'], ['10_devices', 'Устройства'], ['11_partner', 'Партнёрский кабинет'],

@@ -133,17 +133,17 @@ enum LayoutStore {
             request.setValue(etag, forHTTPHeaderField: "If-None-Match")
         }
         let semaphore = DispatchSemaphore(value: 0)
-        var result: AppLayout?
+        let result = Handoff<AppLayout?>(nil)
         URLSession.shared.dataTask(with: request) { data, response, _ in
             defer { semaphore.signal() }
             guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode), let data, data.count < 512 * 1024,
                   let doc = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
-            defaults.set(data, forKey: "layout_doc:\(base):\(lang)")
-            defaults.set(http.value(forHTTPHeaderField: "ETag") ?? "", forKey: "layout_etag:\(base):\(lang)")
-            result = AppLayout(doc)
+            UserDefaults.standard.set(data, forKey: "layout_doc:\(base):\(lang)")
+            UserDefaults.standard.set(http.value(forHTTPHeaderField: "ETag") ?? "", forKey: "layout_etag:\(base):\(lang)")
+            result.value = AppLayout(doc)
         }.resume()
         semaphore.wait()
-        return result
+        return result.value
     }
 }
 
@@ -200,13 +200,13 @@ enum VpnClients {
         }
     }
 
-    static func installed() -> [Client] {
+    @MainActor static func installed() -> [Client] {
         all.filter { client in URL(string: "\(client.scheme)://").map { UIApplication.shared.canOpenURL($0) } ?? false }
     }
 
     enum Result { case imported, opened, noClient, noSubscription }
 
-    static func connect(_ subscription: String) -> Result {
+    @MainActor static func connect(_ subscription: String) -> Result {
         guard subscription.hasPrefix("https://") else { return .noSubscription }
         let defaults = UserDefaults.standard
         let clients = installed()
@@ -224,7 +224,7 @@ enum VpnClients {
         return .opened
     }
 
-    static func importInto(_ clientId: String, _ subscription: String) -> Bool {
+    @MainActor static func importInto(_ clientId: String, _ subscription: String) -> Bool {
         guard let url = importURL(clientId, subscription), let probe = URL(string: "\(clientId)://"),
               UIApplication.shared.canOpenURL(probe) else { return false }
         UIApplication.shared.open(url)
@@ -313,6 +313,7 @@ func monthlyPrice(_ plan: [String: Any]) -> Double {
 // MARK: - Components
 
 /// Default Lusi banners ship in the app (Banners/), uploads come from the shop.
+@MainActor
 final class BannerLoader: ObservableObject {
     static var cache: [String: UIImage] = [:]
     @Published var image: UIImage?
@@ -334,7 +335,7 @@ final class BannerLoader: ObservableObject {
         URLSession.shared.dataTask(with: target) { data, response, _ in
             guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode), let data, data.count < 4 * 1024 * 1024,
                   let img = UIImage(data: data) else { return }
-            DispatchQueue.main.async { Self.cache[full] = img; self.image = img }
+            Task { @MainActor in Self.cache[full] = img; self.image = img }
         }.resume()
     }
 }

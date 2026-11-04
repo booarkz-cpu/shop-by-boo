@@ -90,9 +90,10 @@ enum CorgiTrust {
         guard let challenge = try? client.call("GET", "/api/mobile/integrity/challenge") as? [String: Any],
               (challenge["mode"] as? String ?? "off") != "off", DCDevice.current.isSupported else { return [:] }
         let semaphore = DispatchSemaphore(value: 0)
-        var token = ""
-        DCDevice.current.generateToken { data, _ in token = data?.base64EncodedString() ?? ""; semaphore.signal() }
+        let answer = Handoff("")
+        DCDevice.current.generateToken { data, _ in answer.value = data?.base64EncodedString() ?? ""; semaphore.signal() }
         _ = semaphore.wait(timeout: .now() + 15)
+        let token = answer.value
         return token.isEmpty ? [:] : ["X-Shop-Integrity": token, "X-Shop-Integrity-Nonce": jsonText(challenge["nonce"])]
     }
 }
@@ -127,13 +128,31 @@ struct LoginLink: Equatable {
     }
 }
 
+/// Hands a value from a system callback to the main actor or to a thread waiting on a semaphore.
+/// The callback writes before it signals or hops; the reader reads after, and a lock guards both.
+final class Handoff<Value>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var stored: Value
+    init(_ value: Value) { stored = value }
+    var value: Value {
+        get { lock.lock(); defer { lock.unlock() }; return stored }
+        set { lock.lock(); stored = newValue; lock.unlock() }
+    }
+}
+
 /// Anonymous app statistics («Приложения: аналитика», backend/app/app_growth.py): a random
 /// installation id (never a device identifier), platform, app version, event and screen.
 enum CorgiAnalytics {
-    static var enabled = true
-    private static var queue: [[String: String]] = []
-    private static var lastFlush = Date.distantPast
+    // All three are read and written only while holding `lock`.
+    nonisolated(unsafe) private static var isEnabled = true
+    nonisolated(unsafe) private static var queue: [[String: String]] = []
+    nonisolated(unsafe) private static var lastFlush = Date.distantPast
     private static let lock = NSLock()
+
+    static var enabled: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return isEnabled }
+        set { lock.lock(); isEnabled = newValue; lock.unlock() }
+    }
 
     static var installId: String {
         if let id = UserDefaults.standard.string(forKey: "install_id") { return id }
@@ -214,18 +233,9 @@ func publicNode(_ row: [String: Any]) -> [String: Any] {
     return ["name": name, "country": row["country"] as? String ?? "", "status": safe, "users_online": jsonInt(row["users_online"]) ?? 0]
 }
 
-final class ShopClient: NSObject, URLSessionTaskDelegate {
-    let base: String
-    let token: String
-    let lang: String
-    private lazy var session: URLSession = URLSession(configuration: .ephemeral, delegate: self, delegateQueue: nil)
-
-    init(base: String, token: String, lang: String) {
-        self.base = base
-        self.token = token
-        self.lang = lang
-    }
-
+/// Session rules of every shop request: no redirects, certificate pinning.
+/// A separate object, so the session does not keep its ShopClient alive.
+private final class SessionGuard: NSObject, URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
         completionHandler(nil)
     }
@@ -240,6 +250,33 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         }
         if CorgiTrust.accepts(trust) { completionHandler(.useCredential, URLCredential(trust: trust)) }
         else { completionHandler(.cancelAuthenticationChallenge, nil) }
+    }
+}
+
+final class ShopClient: Sendable {
+    let base: String
+    let token: String
+    let lang: String
+    private let session = URLSession(configuration: .ephemeral, delegate: SessionGuard(), delegateQueue: nil)
+
+    init(base: String, token: String, lang: String) {
+        self.base = base
+        self.token = token
+        self.lang = lang
+    }
+
+    deinit { session.finishTasksAndInvalidate() }
+
+    /// Runs one request on the session and blocks the calling (background) thread until it ends.
+    private func wait(_ request: URLRequest) -> (Data, Int, Error?) {
+        let semaphore = DispatchSemaphore(value: 0)
+        let answer = Handoff<(Data, Int, Error?)>((Data(), 0, nil))
+        session.dataTask(with: request) { data, response, error in
+            answer.value = (data ?? Data(), (response as? HTTPURLResponse)?.statusCode ?? 0, error)
+            semaphore.signal()
+        }.resume()
+        semaphore.wait()
+        return answer.value
     }
 
     func call(_ method: String, _ path: String, body: [String: Any]? = nil, idempotency: String? = nil, headers: [String: String] = [:]) throws -> Any {
@@ -278,17 +315,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         }
-        let semaphore = DispatchSemaphore(value: 0)
-        var payload = Data()
-        var status = 0
-        var failure: Error?
-        session.dataTask(with: request) { data, response, error in
-            payload = data ?? Data()
-            status = (response as? HTTPURLResponse)?.statusCode ?? 0
-            failure = error
-            semaphore.signal()
-        }.resume()
-        semaphore.wait()
+        let (payload, status, failure) = wait(request)
         if let failure { throw failure }
         // /api/me/sync answers 304 when the account did not change.
         if status == 304 { return [String: Any]() }
@@ -314,18 +341,9 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         request.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
         if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
-        let semaphore = DispatchSemaphore(value: 0)
-        var size = 0
-        var status = 0
-        var failure: Error?
         let started = Date()
-        session.dataTask(with: request) { data, response, error in
-            size = data?.count ?? 0
-            status = (response as? HTTPURLResponse)?.statusCode ?? 0
-            failure = error
-            semaphore.signal()
-        }.resume()
-        semaphore.wait()
+        let (data, status, failure) = wait(request)
+        let size = data.count
         let seconds = Date().timeIntervalSince(started)
         if let failure = failure { throw failure }
         if !(200...299).contains(status) { throw URLError(.badServerResponse) }
@@ -337,17 +355,7 @@ final class ShopClient: NSObject, URLSessionTaskDelegate {
         var request = URLRequest(url: url)
         request.timeoutInterval = 15
         request.setValue("image/png,image/jpeg,image/webp", forHTTPHeaderField: "Accept")
-        let semaphore = DispatchSemaphore(value: 0)
-        var payload = Data()
-        var status = 0
-        var failure: Error?
-        session.dataTask(with: request) { data, response, error in
-            payload = data ?? Data()
-            status = (response as? HTTPURLResponse)?.statusCode ?? 0
-            failure = error
-            semaphore.signal()
-        }.resume()
-        semaphore.wait()
+        let (payload, status, failure) = wait(request)
         if let failure { throw failure }
         if !(200...299).contains(status) || payload.count > 2 * 1024 * 1024 { throw URLError(.badServerResponse) }
         return payload
@@ -411,22 +419,23 @@ enum PushError: Error { case denied }
 
 /// Opt-in APNs registration. The token is bound on the server to the signed-in session and
 /// revoked on sign-out, so a shared iPhone never receives another account's notifications.
+@MainActor
 final class PushCenter: ObservableObject {
     static let shared = PushCenter()
-    static let enabledKey = "push_enabled"
-    static let tokenKey = "push_token"
+    nonisolated static let enabledKey = "push_enabled"
+    nonisolated static let tokenKey = "push_token"
     @Published var openNotifications = false
     /// Section a tapped push or one of its buttons opens («Приложения: стиль push-уведомлений»).
     @Published var openSection: String?
     @Published private(set) var latestToken: String?
-    private var pending: ((Result<String, Error>) -> Void)?
+    private var pending: (@MainActor @Sendable (Result<String, Error>) -> Void)?
 
-    var enabled: Bool { UserDefaults.standard.bool(forKey: Self.enabledKey) }
+    nonisolated var enabled: Bool { UserDefaults.standard.bool(forKey: Self.enabledKey) }
 
     /// Asks for permission and returns the APNs device token on the main queue.
-    func requestToken(_ completion: @escaping (Result<String, Error>) -> Void) {
+    func requestToken(_ completion: @escaping @MainActor @Sendable (Result<String, Error>) -> Void) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 if let error { completion(.failure(error)); return }
                 guard granted else { completion(.failure(PushError.denied)); return }
                 self.pending = completion
@@ -448,7 +457,7 @@ final class PushCenter: ObservableObject {
     }
 
     /// Blocking network call; run off the main queue.
-    static func register(base: String, session: String, lang: String, token: String) throws -> [String: Any] {
+    nonisolated static func register(base: String, session: String, lang: String, token: String) throws -> [String: Any] {
         var body: [String: Any] = [
             "platform": "ios",
             "token": token,
@@ -464,7 +473,7 @@ final class PushCenter: ObservableObject {
 
     /// Buttons of every push type as notification categories (GET /api/mobile/push-style).
     /// Blocking network call; run off the main queue. Failures keep the previous categories.
-    static func registerCategories(base: String, lang: String) {
+    nonisolated static func registerCategories(base: String, lang: String) {
         guard let style = try? ShopClient(base: base, token: "", lang: lang).call("GET", "/api/mobile/push-style") as? [String: Any],
               let categories = style["categories"] as? [String: Any] else { return }
         var set = Set<UNNotificationCategory>()
@@ -481,14 +490,14 @@ final class PushCenter: ObservableObject {
     }
 
     /// Blocking network call that never throws: revoke on the server, then stop APNs locally.
-    static func unregister(base: String, session: String, lang: String) {
+    nonisolated static func unregister(base: String, session: String, lang: String) {
         let token = UserDefaults.standard.string(forKey: tokenKey)
         UserDefaults.standard.removeObject(forKey: tokenKey)
         UserDefaults.standard.set(false, forKey: enabledKey)
         if let token, !base.isEmpty, !session.isEmpty {
             _ = try? ShopClient(base: base, token: session, lang: lang).call("POST", "/api/me/push/devices/unregister", body: ["token": token])
         }
-        DispatchQueue.main.async { UIApplication.shared.unregisterForRemoteNotifications() }
+        Task { @MainActor in UIApplication.shared.unregisterForRemoteNotifications() }
     }
 }
 
@@ -508,16 +517,17 @@ final class PushAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
         PushCenter.shared.failed(error)
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    // UserNotifications calls its delegate outside the main actor; state changes hop to it.
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .list, .sound])
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let action = response.actionIdentifier
         let info = response.notification.request.content.userInfo
         var section = action.hasPrefix("open:") ? String(action.dropFirst(5)) : (info["section"] as? String ?? "")
         if section.range(of: "^[a-z][a-z0-9_-]{0,31}$", options: .regularExpression) == nil { section = "" }
-        DispatchQueue.main.async {
+        Task { @MainActor in
             if section.isEmpty { PushCenter.shared.openNotifications = true } else { PushCenter.shared.openSection = section }
         }
         completionHandler()
@@ -554,7 +564,11 @@ enum PasskeyError: LocalizedError {
 /// app lists `webcredentials:<cabinet domain>` in its associated domains, and iOS
 /// signs with the cabinet origin that the server accepts.
 /// `run` blocks the calling background thread until the system sheet finishes.
-final class PasskeyCeremony: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+///
+/// Not main-actor bound: `run` waits on a background thread while the sheet runs on the main actor.
+/// `result` is written once by the delegate before `done.signal()` and read after `done.wait()`;
+/// `controller` is touched only on the main actor.
+final class PasskeyCeremony: NSObject, @unchecked Sendable {
     private var result: Result<[String: Any], Error> = .failure(PasskeyError.cancelled)
     private let done = DispatchSemaphore(value: 0)
     private var controller: ASAuthorizationController?
@@ -584,8 +598,9 @@ final class PasskeyCeremony: NSObject, ASAuthorizationControllerDelegate, ASAuth
     }
 
     private func run(_ request: ASAuthorizationRequest) throws -> [String: Any] {
-        DispatchQueue.main.async {
-            let controller = ASAuthorizationController(authorizationRequests: [request])
+        let handoff = Handoff(request)
+        Task { @MainActor in
+            let controller = ASAuthorizationController(authorizationRequests: [handoff.value])
             controller.delegate = self
             controller.presentationContextProvider = self
             self.controller = controller  // kept alive until the delegate answers
@@ -594,7 +609,9 @@ final class PasskeyCeremony: NSObject, ASAuthorizationControllerDelegate, ASAuth
         done.wait()
         return try result.get()
     }
+}
 
+extension PasskeyCeremony: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
         return scenes.flatMap { $0.windows }.first { $0.isKeyWindow } ?? ASPresentationAnchor()
@@ -674,9 +691,10 @@ enum ShopPasskeys {
 /// — from the shop or from bootstrap copies such as a GitHub Gist — only with a valid signature. The session
 /// token stays bound to the home address: only the network origin changes.
 enum CorgiMirrors {
-    private static let store = UserDefaults(suiteName: "corgi_mirrors") ?? .standard
+    // UserDefaults is thread-safe; lastFailover is touched only while holding `lock`.
+    nonisolated(unsafe) private static let store = UserDefaults(suiteName: "corgi_mirrors") ?? .standard
     private static let lock = NSLock()
-    private static var lastFailover = Date.distantPast
+    nonisolated(unsafe) private static var lastFailover = Date.distantPast
 
     private static func get(_ home: String, _ name: String) -> String { store.string(forKey: "\(name)|\(home)") ?? "" }
     private static func put(_ home: String, _ values: [String: String]) { for (name, value) in values { store.set(value, forKey: "\(name)|\(home)") } }
@@ -704,15 +722,17 @@ enum CorgiMirrors {
         request.timeoutInterval = 7
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         let semaphore = DispatchSemaphore(value: 0)
-        var result: [String: Any]?
-        URLSession(configuration: .ephemeral).dataTask(with: request) { data, response, _ in
+        let result = Handoff<[String: Any]?>(nil)
+        let session = URLSession(configuration: .ephemeral)
+        session.dataTask(with: request) { data, response, _ in
             if let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode), let data, data.count < 64 * 1024 {
-                result = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+                result.value = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
             }
             semaphore.signal()
         }.resume()
         semaphore.wait()
-        return result
+        session.finishTasksAndInvalidate()
+        return result.value
     }
 
     private static func remember(_ home: String, _ payload: [String: Any]) {
@@ -790,15 +810,15 @@ enum CorgiDiagnostics {
         var request = URLRequest(url: target, timeoutInterval: 8)
         request.setValue(agent, forHTTPHeaderField: "User-Agent")
         let done = DispatchSemaphore(value: 0)
-        var result: Result<String, Error> = .failure(Failed(description: "timeout"))
+        let result = Handoff<Result<String, Error>>(.failure(Failed(description: "timeout")))
         URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error { result = .failure(error) }
-            else if let code = (response as? HTTPURLResponse)?.statusCode, !(200...299).contains(code) { result = .failure(Failed(description: "HTTP \(code)")) }
-            else { result = .success(String(data: data ?? Data(), encoding: .utf8) ?? "") }
+            if let error { result.value = .failure(error) }
+            else if let code = (response as? HTTPURLResponse)?.statusCode, !(200...299).contains(code) { result.value = .failure(Failed(description: "HTTP \(code)")) }
+            else { result.value = .success(String(data: data ?? Data(), encoding: .utf8) ?? "") }
             done.signal()
         }.resume()
         _ = done.wait(timeout: .now() + 10)
-        return try result.get()
+        return try result.value.get()
     }
 
     private static func resolveHost(_ host: String) throws -> String {
@@ -814,17 +834,18 @@ enum CorgiDiagnostics {
         guard let endpointPort = NWEndpoint.Port(rawValue: UInt16(port)) else { throw Failed(description: "bad port") }
         let connection = NWConnection(host: NWEndpoint.Host(host), port: endpointPort, using: .tcp)
         let done = DispatchSemaphore(value: 0)
-        var outcome: String?
-        connection.stateUpdateHandler = { state in
-            switch state {
-            case .ready: outcome = "tcp"; done.signal()
-            case .failed(let error), .waiting(let error): if outcome == nil { outcome = "!\(error)" }; done.signal()
+        let state = Handoff<String?>(nil)
+        connection.stateUpdateHandler = { update in
+            switch update {
+            case .ready: state.value = "tcp"; done.signal()
+            case .failed(let error), .waiting(let error): if state.value == nil { state.value = "!\(error)" }; done.signal()
             default: break
             }
         }
         connection.start(queue: .global())
         _ = done.wait(timeout: .now() + 5)
         connection.cancel()
+        let outcome = state.value
         guard let outcome, !outcome.hasPrefix("!") else { throw Failed(description: outcome.map { String($0.dropFirst()) } ?? "timeout") }
         return outcome
     }
