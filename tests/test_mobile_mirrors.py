@@ -92,3 +92,14 @@ async def test_reserve_domains_served_by_caddy_are_listed_and_accepted(database,
     mobile_auth.require_native_transport(native("api2.corgi.test"))
     with pytest.raises(HTTPException):
         mobile_auth.require_native_transport(native("evil.example"))
+
+
+def test_long_github_tokens_are_accepted():
+    """GitHub's newer token formats (``ghs_…``, up to ~520 characters) fit; a runaway value does not."""
+    import pytest
+    from pydantic import ValidationError
+
+    from app import mobile_mirrors as mm
+    assert mm.MirrorsIn(gist_token="ghs_" + "a" * 516).gist_token.startswith("ghs_")
+    with pytest.raises(ValidationError):
+        mm.MirrorsIn(gist_token="x" * 1025)
