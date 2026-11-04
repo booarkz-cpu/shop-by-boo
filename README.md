@@ -55,13 +55,21 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 ---
 
-> **v28.72.1** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0092_telegram_bot`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.72.1`, `/health` отвечает `21.5.1`.
+> **v28.73.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0092_telegram_bot`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.73.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 **Что это.** Магазин продаёт VPN-подписки и сам выдаёт доступ в вашей панели Remnawave: принимает оплату (СБП, карта, крипта, Telegram Stars), продлевает, считает трафик и устройства, отвечает клиентам. Клиент покупает в боте, Mini App, кабинете или приложении и подключается в одно касание. Владелец управляет всем из одной админ-панели — без программиста и без пересборки приложений.
 
 **Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md).
+
+## 🆕 Новое в v28.73.0
+
+| | |
+| --- | --- |
+| 💳 **Кассы проверены по коду** | Этап 14: у каждой кассы сверены заказ, подпись уведомления, сумма и подтверждение у самой кассы, возвраты и автоплатежи. Новый контрактный тест прогоняет все кассы реестра: чужой заказ и другая сумма отклоняются, неподтверждённая оплата не выдаётся, повторное уведомление не выдаёт второй раз. [Что реализовано](docs/ru/new/PAYMENT_INTEGRATION.md) |
+| 🧾 **Журнал уведомлений касс** | «Кассы → Журнал уведомлений» и карточка в мобильных админках: принятые уведомления с заказом, суммой и ошибкой, отклонённые — неверная подпись, другая сумма, касса не подтвердила оплату |
+| ⚖️ **Юридические документы** | Проекты публичной оферты, политики конфиденциальности и правил пользования по законодательству РФ на трёх языках, с вашими реквизитами. Записываются выключенными — перед публикацией их проверяет юрист. [Подробнее](docs/ru/new/LEGAL_DOCUMENTS.md) |
 
 ## 🆕 Новое в v28.72.1
 
@@ -297,7 +305,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 </tr>
 </table>
 
-[Заметки к выпуску](docs/ru/RELEASE_V28_72_1.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
+[Заметки к выпуску](docs/ru/RELEASE_V28_73_0.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
 
 <details>
 <summary><b>Что было в v28.33.0</b></summary>
@@ -638,8 +646,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.72.1/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.72.1 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.73.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.73.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -656,7 +664,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.72.1 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.73.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -672,12 +680,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.72.1 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.73.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.72.1 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.73.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -1273,7 +1281,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Проверить конфигурацию Compose | `docker compose config` |
 | Health-check API | `curl -s localhost:8000/health` |
 | Резервная копия | `bash scripts/backup.sh` |
-| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.72.1 bash scripts/update-from-github.sh` |
+| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.73.0 bash scripts/update-from-github.sh` |
 | Откатить версию | `bash scripts/rollback.sh` |
 | Включить ночные обновления | `sudo bash scripts/auto-update.sh install` |
 | Состояние автообновления | `sudo bash scripts/auto-update.sh status` |
@@ -1318,7 +1326,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
 | Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
-| Что вошло в выпуск | [Заметки v28.72.1](docs/ru/RELEASE_V28_72_1.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
+| Что вошло в выпуск | [Заметки v28.73.0](docs/ru/RELEASE_V28_73_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | Wiki на трёх языках | [русский](docs/wiki/ru/Home.md), [English](docs/wiki/en/Home.md), [українська](docs/wiki/uk/Home.md) — готовые страницы для GitHub Wiki |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |
@@ -1358,6 +1366,7 @@ Performance / Documentation / Removed / Migration. Даты взяты из Git-
 
 | Версия | Дата | Категория | Изменения | Подробности |
 | --- | --- | --- | --- | --- |
+| `v28.73.0` | 2026-11-04 | Added | Этап 14: проверка касс по коду и контрактный тест всех касс, журнал уведомлений касс, проекты оферты, политики и правил по законодательству РФ |
 | `v28.72.1` | 2026-11-03 | Fixed | Модуль IPv6: адрес сервера восстанавливается после повторного включения, интерфейс переключается вместе с `all` |
 | `v28.72.0` | 2026-11-03 | Added | Тексты Telegram-бота на трёх языках из админки, ответ на языке клиента; сверка функций бота и Mini App (этап 13, часть Б) |
 | `v28.71.0` | 2026-11-03 | Added | Telegram-бот из админки (этап 13, часть А): токен без перезапуска, связь бота с Telegram в «Состоянии системы», меню команд на трёх языках, тестовое сообщение, ошибки бота |

@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.72.1
+# Управляемость из админки — v28.73.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -13,7 +13,7 @@
 | 3 | Subscriptions | Изменения подписок | 12 | ✓ | ✓ | ✓ | · | · | · | · | ✓ | `manage_plans`, `payments.read`, `payments.refund`, `read`, `users.write` | IMPLEMENTED |
 | 4 | Tariffs | Тарифы, Конструктор тарифов, Пакеты трафика | 18 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `manage_plans`, `read` | IMPLEMENTED |
 | 5 | Devices | Устройства | 6 | ✓ | ✓ | ✓ | ✓ | · | · | · | ✓ | `provision_nodes`, `security.manage` | IMPLEMENTED |
-| 6 | Payments | Платежи, Платёжные агенты, Возвраты, Проверка платежей | 34 | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | `ops.diagnostics`, `ops.providers`, `payments.read`, `payments.reconcile`, `payments.refund`, `payments.retry`, `read`, `security.manage`, `settings.runtime.write`, `staging_e2e.manage` | IMPLEMENTED |
+| 6 | Payments | Платежи, Платёжные агенты, Возвраты, Проверка платежей | 35 | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | `ops.diagnostics`, `ops.providers`, `payments.read`, `payments.reconcile`, `payments.refund`, `payments.retry`, `read`, `security.manage`, `settings.runtime.write`, `staging_e2e.manage` | IMPLEMENTED |
 | 7 | Finance | Финансовый журнал, Чеки в налоговую | 12 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `analytics.read`, `manage_plans`, `payments.read`, `payments.reconcile`, `payments.write`, `read` | IMPLEMENTED |
 | 8 | Promo Codes | Акции и рассылки, Группы и предложения | 14 | ✓ | ✓ | ✓ | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
 | 9 | Gifts | Подарки | 6 | ✓ | ✓ | · | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | IMPLEMENTED |
@@ -31,7 +31,7 @@
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | IMPLEMENTED |
 | 22 | Updates | Обновления, Развёртывания | 9 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `ops.releases`, `read`, `settings.runtime.write` | IMPLEMENTED |
 | 23 | Automation | Автоматизация, Очередь задач, Фоновые процессы | 8 | ✓ | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | `feature_flags.manage`, `manage_marketing`, `payments.retry`, `read` | IMPLEMENTED |
-| 24 | Telegram | Telegram-бот, Меню бота и Mini App, Дерево кнопок, Баннеры бота, Документы | 28 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `legal.write`, `manage_broadcasts`, `manage_content`, `manage_marketing`, `marketing.read`, `ops.diagnostics`, `read`, `settings.runtime.read` | IMPLEMENTED |
+| 24 | Telegram | Telegram-бот, Меню бота и Mini App, Дерево кнопок, Баннеры бота, Документы | 31 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `legal.write`, `manage_broadcasts`, `manage_content`, `manage_marketing`, `marketing.read`, `ops.diagnostics`, `read`, `settings.runtime.read` | IMPLEMENTED |
 | 25 | Integrations | Интеграции, Почтовый домен: SPF, DKIM, DMARC | 17 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `analytics.read`, `ops.diagnostics`, `security.manage`, `settings.runtime.write` | IMPLEMENTED |
 | 26 | Plugins | Плагины | 14 | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | `ops.diagnostics`, `security.manage` | IMPLEMENTED |
 | 27 | Security | Защита и 2FA, Ключи доступа, Роли и администраторы, Сессии, Антифрод | 23 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `analytics.read`, `manage_admins`, `ops.diagnostics`, `read`, `security.manage`, `sessions.manage`, `settings.runtime.write`, `users.read` | IMPLEMENTED |

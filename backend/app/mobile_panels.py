@@ -491,6 +491,35 @@ async def ripe_panel(db: AsyncSession) -> dict:
             "actions": [action("Проверить сейчас", "POST", "/api/admin/ripe-atlas/run")] if cfg["key_set"] else []}
 
 
+async def payment_journal_panel(db: AsyncSession) -> dict:
+    """v28.73 «Уведомления касс»: accepted and refused gateway notifications of the week."""
+    from .payment_journal import journal
+    j = await journal(db, "", 7, 20)
+    s = j["summary"]
+    rows = [row("Обработано за 7 дней", s["processed"], "ok"), row("Ждут повтора", s["retry"], "warn" if s["retry"] else "ok"),
+            row("Отклонено", s["refused"], "warn" if s["refused"] else "ok")]
+    rows += [row(f"{r['provider']} · HTTP {r['status']}", r["reason"], "warn") for r in j["refused"][:4]]
+    rows += [row(f"{e['provider']} · {e['order_id'] or e['payment_id']}", e["error"] or "", "bad") for e in j["accepted"] if e["status"] == "retry"][:3]
+    return {"id": "payment_journal", "title": "Уведомления касс", "rows": rows, "actions": []}
+
+
+async def legal_panel(db: AsyncSession) -> dict:
+    """v28.73 «Юридические документы»: seller details filled in and the state of the three documents."""
+    from .info_pages import load as load_page
+    from .legal_docs import KINDS, load, missing
+    seller = await load(db)
+    gaps = missing(seller)
+    rows = [row("Реквизиты", "заполнены" if not gaps else "не заполнено: " + ", ".join(gaps), "ok" if not gaps else "warn")]
+    titles = {"offer": "Оферта", "privacy": "Политика конфиденциальности", "rules": "Правила пользования"}
+    for kind in KINDS:
+        page = await load_page(db, kind)
+        state = "нет" if not page else ("опубликован" if page.get("enabled", True) else "выключен")
+        rows.append(row(titles[kind], state, "ok" if state == "опубликован" else "warn"))
+    return {"id": "legal", "title": "Юридические документы", "rows": rows,
+            "actions": [action("Заполнить документы из шаблона", "POST", "/api/admin/legal/apply", {"kinds": list(KINDS), "overwrite": False},
+                               "Документы запишутся выключенными, изменённые вручную не тронутся. Продолжить?")]}
+
+
 async def panel_api_panel(db: AsyncSession) -> dict:
     from .panel_api_stats import flush, report
     await flush(db)
@@ -503,7 +532,7 @@ async def panel_api_panel(db: AsyncSession) -> dict:
 
 
 BUILDERS = [payment_methods_panel, hot_standby_panel, autoscale_panel, block_monitor_panel, moderation_panel, guard_panel,
-            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel, feedback_panel, cohorts_panel, digest_panel, speed_panel, forecast_panel, dns_filter_panel, geoip_panel, ripe_panel]
+            errors_panel, growth_panel, quality_panel, churn_panel, pnl_panel, sub_proxy_panel, sessions_panel, panel_api_panel, gateways_panel, status_page_panel, corporate_panel, payment_fraud_panel, freeze_panel, dunning_panel, loyalty_panel, feedback_panel, cohorts_panel, digest_panel, speed_panel, forecast_panel, dns_filter_panel, geoip_panel, ripe_panel, payment_journal_panel, legal_panel]
 
 
 @router.get("/api/admin/mobile/panels")

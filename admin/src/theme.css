@@ -1043,3 +1043,4 @@ div.empty-state[data-state="empty"] { padding: 24px 16px; }
   .health-row { grid-template-columns: 10px minmax(0, 1fr); }
   .health-actions { grid-column: 2; justify-content: flex-start; }
 }
+.legal-preview { white-space: pre-wrap; font: inherit; max-height: 480px; overflow: auto; background: var(--surface-2, rgba(127,127,127,.08)); padding: 14px 16px; border-radius: 10px; line-height: 1.55; }

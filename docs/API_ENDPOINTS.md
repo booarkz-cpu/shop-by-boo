@@ -1,4 +1,4 @@
-# Каталог API — v28.72.1 / API v21.5.1
+# Каталог API — v28.73.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0092_telegram_bot`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -228,6 +228,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/integrity` | Integrity | право `ops.diagnostics` |
 | `GET` | `/api/admin/jobs` | Admin Jobs | право `read` |
 | `POST` | `/api/admin/jobs/{job_id}/retry` | Retry Job | право `payments.retry` |
+| `GET` | `/api/admin/legal` | Get Legal | право `read` |
+| `PUT` | `/api/admin/legal` | Put Legal | право `legal.write` |
+| `POST` | `/api/admin/legal/apply` | Apply Legal | право `legal.write` |
 | `GET` | `/api/admin/loyalty` | Admin Loyalty | право `read` |
 | `PUT` | `/api/admin/loyalty` | Admin Loyalty Config | право `manage_plans` |
 | `GET` | `/api/admin/lucy-plans` | Lucy State | право `read` |
@@ -321,6 +324,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/payments/analytics` | Payment Analytics | право `read` |
 | `GET` | `/api/admin/payments/chargebacks` | Admin Chargebacks | право `read` |
 | `PATCH` | `/api/admin/payments/chargebacks/{chargeback_id}` | Update Chargeback | право `payments.reconcile` |
+| `GET` | `/api/admin/payments/events` | Payment Events | право `payments.read` |
 | `GET` | `/api/admin/payments/gift-cards` | List Gift Cards | право `read` |
 | `GET` | `/api/admin/payments/methods` | Get Routing | право `ops.diagnostics` |
 | `PUT` | `/api/admin/payments/methods` | Put Routing | право `settings.runtime.write` |

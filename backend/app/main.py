@@ -114,6 +114,7 @@ import importlib as _importlib
 from .routers import MODULES as _ROUTER_MODULES
 for _module in _ROUTER_MODULES:
     app.include_router(_importlib.import_module(f".{_module}", __package__).router)
+_importlib.import_module(".payment_journal", __package__).install(app)  # v28.73: refused gateway notifications
 from .fiscal import router as fiscal_router
 app.include_router(fiscal_router)
 from .push_style import router as push_style_router
