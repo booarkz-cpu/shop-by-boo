@@ -244,6 +244,10 @@ export function FieldHints() {
           }
           const parent = control.closest("label") || control.parentElement;
           if (!parent) return;
+          // v28.76.0: a «?» button only next to a labelled field (or one with an explicit hint). In table cells and
+          // bare wrappers it dropped onto its own line under the input; there the hint stays in title and
+          // aria-description (hover and screen readers).
+          if (!(parent instanceof HTMLLabelElement) && !control.hasAttribute("data-hint")) return;
           if (parent instanceof HTMLLabelElement) {
             parent.classList.add("has-field-help");
             parent.dataset.tooltip = message;

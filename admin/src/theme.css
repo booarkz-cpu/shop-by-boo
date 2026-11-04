@@ -1059,3 +1059,22 @@ div.empty-state[data-state="empty"] { padding: 24px 16px; }
 /* v28.75.0: container logs in the browser (containerLogs.tsx) */
 .log-view { max-height: 520px; overflow: auto; white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.45;
   background: rgb(0 0 0 / .28); border-radius: 10px; padding: 12px; }
+
+/* v28.76.0 (stage 17): layout fixes from the section-by-section audit (scripts/audit-sections.mjs). */
+/* Table headings were 9px and plain tables 12px: one readable scale for every table of the panel. */
+.workspace table th { font-size: 11px; letter-spacing: .04em; }
+.workspace table td { font-size: 13.5px; }
+/* A toolbar inside a table cell stayed display:flex and broke the row (borders and heights went out of line). */
+.workspace td.toolbar, .workspace td.actions { display: table-cell; margin: 0; white-space: nowrap; text-align: right; }
+.workspace td.toolbar > *, .workspace td.actions > * { margin: 2px 0 2px 8px; vertical-align: middle; }
+/* Checkbox rows sat flush against the next field's label. */
+.workspace .content-wrap label.check { display: flex; width: fit-content; margin: 8px 0 12px; }
+.workspace .content-wrap label.check + label.check { margin-top: 0; }
+/* Explanations under a field: a gap from the input above and the field below. */
+.workspace .content-wrap label + p.muted, .workspace .content-wrap label + .muted { margin: 6px 0 14px; }
+/* Key–value facts (<dl>): a grid of small cards instead of a bare list. */
+.workspace dl.grid-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
+.workspace dl.grid-form > div { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-soft); }
+.workspace dl.grid-form > div.wide { grid-column: 1 / -1; }
+.workspace dl.grid-form dt { margin: 0 0 4px; color: var(--subtle); font-size: 12px; }
+.workspace dl.grid-form dd { margin: 0; color: var(--text-strong); font-weight: 600; overflow-wrap: anywhere; }
