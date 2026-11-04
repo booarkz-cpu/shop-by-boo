@@ -48,8 +48,8 @@ const browser = await chromium.launch({executablePath: process.env.E2E_CHROMIUM_
 const viewport = {width: 1440, height: 900};
 const CUSTOMER = {email: 'demo.buyer@example.test', password: 'DemoBuyerPass123!', name: 'demo.buyer'};
 
-async function newPage(theme = 'dark') {
-  const ctx = await browser.newContext({viewport, locale: 'ru-RU'});
+async function newPage(theme = 'dark', size = viewport) {
+  const ctx = await browser.newContext({viewport: size, locale: 'ru-RU', ...(size.width < 600 ? {isMobile: true, hasTouch: true} : {})});
   await ctx.addInitScript((value) => {
     localStorage.setItem('rw_lang', 'ru');
     localStorage.setItem('rw_theme', value);
@@ -215,6 +215,33 @@ const index = [];
 }
 
 // ---------- Customer cabinet ----------
+// v28.76.0: the panel on a phone (390×844) and in the light theme — screenshots/admin_panel/variants/.
+{
+  const variantsDir = path.join(adminDir, 'variants');
+  fs.mkdirSync(variantsDir, {recursive: true});
+  const phone = await newPage('dark', {width: 390, height: 844});
+  await adminSignIn(phone);
+  await settle(phone);
+  await phone.screenshot({path: path.join(variantsDir, 'phone-all-sections.png')});
+  for (const tab of ['dashboard', 'payments', 'nodes', 'rwInstaller', 'runtimeSettings']) {
+    await phone.evaluate((target) => { location.hash = target; }, tab);
+    await settle(phone);
+    await phone.screenshot({path: path.join(variantsDir, `phone-${tab}.png`)});
+  }
+  await phone.getByRole('button', {name: 'Открыть меню'}).click();
+  await phone.waitForTimeout(500);
+  await phone.screenshot({path: path.join(variantsDir, 'phone-menu.png')});
+  await phone.context().close();
+  const light = await newPage('light');
+  await adminSignIn(light);
+  for (const tab of ['panel', 'dashboard', 'plans', 'automationCenter']) {
+    await light.evaluate((target) => { location.hash = target; }, tab);
+    await settle(light);
+    await light.screenshot({path: path.join(variantsDir, `light-${tab}.png`)});
+  }
+  await light.context().close();
+}
+
 const cabinet = [
   ['03_overview', 'Обзор'], ['04_plans', 'Тарифы'], ['06_trial', 'Пробный период'], ['07_connection', 'Подключение'],
   ['08_servers', 'Серверы'], ['09_support', 'Поддержка'], ['10_devices', 'Устройства'], ['11_partner', 'Партнёрский кабинет'],

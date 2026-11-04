@@ -10,7 +10,10 @@ SHOTS = ROOT / "screenshots/admin_panel"
 
 
 def tabs() -> list[str]:
-    return re.findall(r'\{tab: "([A-Za-z0-9]+)"', (ROOT / "admin/src/sections.ts").read_text())
+    """Sections of the side menu (SECTION_GROUPS); EXTRA_SECTIONS are reached from other screens."""
+    text = (ROOT / "admin/src/sections.ts").read_text()
+    menu = text[text.index("export const SECTION_GROUPS"):text.index("export const EXTRA_SECTIONS")]
+    return re.findall(r'\{tab: "([A-Za-z0-9]+)"', menu)
 
 
 def test_every_admin_section_has_a_screenshot():
