@@ -6,6 +6,8 @@
 
 Справжні платежі відкриті з першого запуску; адміністратор може зупинити їх аварійною кнопкою. Повна перевірка на окремому стенді APP_ENV=staging (E2E v2) — за бажанням. Повне перенесення функцій та підписані APK/IPA ще не завершено. Stable визначає канал поточного ядра.
 
+**Для власника:** [встановлення Remnawave з нуля і домени](OWNER_SETUP_GUIDE.md) (v28.76.0).
+
 [Поточна документація оператора (російською)](../../DOCUMENTATION.md), [live-налаштування](../ru/RUNTIME_SETTINGS_CURRENT.md), [SSH/Termius](../ru/DEPLOYMENT_CURRENT.md), [оновлення](../ru/WORKSPACE_UPGRADE.md), [резервування](../ru/BACKUP_CURRENT.md), [реферали](../ru/REFERRALS_CURRENT.md), [мобільні застосунки](../../MOBILE.md), [API](../API_ENDPOINTS.md), [ліцензія](../../LICENSE).
 
 Для локального тесту клонуйте тег `v28.54.0` і виконайте `bash scripts/test-up.sh`. Loopback-порти: API 18080, адмінка 18081, кабінет 18082, Mini App 18083. Sandbox-підписка не створює VPN-тунель.
