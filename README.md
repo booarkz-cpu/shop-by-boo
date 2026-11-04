@@ -295,9 +295,9 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 | Мониторинг нод (веб) | Ноды в Android-админке | Ноды в iOS-админке | «Вся панель» в телефоне |
 | :---: | :---: | :---: | :---: |
-| ![Мониторинг и автовосстановление нод](docs/assets/screens/admin-nodes.png) | ![Android admin: ноды](docs/assets/screens/android-admin-ops.png) | ![iOS admin: ноды](docs/assets/screens/ios-admin-ops.png) | ![Android admin: вся панель](docs/assets/screens/android-admin-panel.png) |
+| ![Мониторинг и автовосстановление нод](screenshots/admin_panel/45_nodes.png) | ![Android admin: ноды](screenshots/mobile/android-admin-ops.png) | ![iOS admin: ноды](screenshots/mobile/ios-admin-ops.png) | ![Android admin: вся панель](screenshots/mobile/android-admin-panel.png) |
 | **Резервные адреса API и сайты напрямую** | **Анти-шеринг** | **Копия базы в Telegram** | **Бонус днями за друга** |
-| ![Резервные адреса API](docs/assets/screens/api-mirrors.png) | ![Анти-шеринг](docs/assets/screens/anti-sharing.png) | ![Копия базы в Telegram](docs/assets/screens/telegram-backup.png) | ![Бонус днями за друга](docs/assets/screens/referral-bonus.png) |
+| ![Резервные адреса API](screenshots/admin_panel/43_apps.png) | ![Анти-шеринг](screenshots/admin_panel/70_fraud.png) | ![Копия базы в Telegram](screenshots/admin_panel/72_backups.png) | ![Бонус днями за друга](screenshots/admin_panel/30_payouts.png) |
 
 ## 🆕 Новое в v28.34.0
 
