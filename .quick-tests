@@ -1,0 +1,13 @@
+gen:set -e
+cd admin && npm ci --no-audit --no-fund >/dev/null && npm ci --prefix ../cabinet --no-audit --no-fund >/dev/null
+npx playwright install --with-deps chromium >/dev/null 2>&1
+npm run build >/dev/null && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet >/dev/null
+cd ..
+export APP_ENV=test APP_SECRET=browser-test-only-secret-at-least-32-characters COOKIE_SECURE=false COOKIE_SAMESITE=lax MOBILE_REQUIRE_PROOF=false CUSTOMER_WEBAUTHN_ORIGIN=http://localhost:8777 WEBAUTHN_ORIGIN=http://localhost:8777 PAYMENTS_SANDBOX=true
+python tests/passkey_browser_server.py > /tmp/server.log 2>&1 &
+for i in $(seq 1 60); do curl -fsS http://localhost:8777/ >/dev/null 2>&1 && break; sleep 2; done
+cd admin
+node scripts/screenshots-catalog.mjs "$PWD/.." 2>&1 | tail -20
+mkdir -p ../_audit && node scripts/audit-sections.mjs ../_audit 1440 > ../_audit/summary.txt 2>&1 || true
+node scripts/audit-sections.mjs ../_audit/m390 390 > ../_audit/summary390.txt 2>&1 || true
+cp "$(node -e "console.log(require('os').tmpdir())")/admin-screenshots-index.json" ../_audit/index.json 2>/dev/null || true
