@@ -1,1 +1,0 @@
-gen:set -x; mkdir -p _audit/android; gh run download 41894391223 -R booarkz-cpu/shop-by-boo -n mobile-screenshots-android -D /tmp/a; find /tmp/a -type f > _audit/list.txt; cp -r /tmp/a/. _audit/android/; cp /tmp/log _audit/gen.txt 2>/dev/null; true
