@@ -1,3 +1,15 @@
+# v28.74.0
+
+- Этап 15 — Docker, установщик, автообновление, Automation Center (`docs/ru/new/INSTALLATION_GUIDE.md`, `DOCKER_GUIDE.md`, `AUTO_UPDATE.md`, `AUTOMATION_CENTER.md`, `CI_CD.md`):
+  - автообновление Remnawave (`backend/app/rw_autoupdate.py`, «Обновления → Автообновление Remnawave»): ночной запуск в окне 2 часа после заданного времени МСК, выбор установок, «Обновить выбранные сейчас», история, уведомления в Telegram; ставятся только образы, закреплённые выпуском магазина по digest и проверенные живыми тестами;
+  - релизы remnawave/backend, node и subscription-page на GitHub каждые 6 часов — сообщение о новом релизе один раз; версия подключённой панели против проверенной в CI;
+  - откат обновления Remnawave возвращает и базу панели из копии этого обновления, если новая панель уже запускалась (миграции);
+  - новый шаг `fetch_panel_backup`: копия базы панели шифруется AES-256-GCM ключом магазина и хранится в томе копий (10 последних на сервер), скачивание — `GET /api/admin/remnawave/auto-update/panel-copies/{name}`;
+  - Automation Center (`backend/app/automation_center.py`, `GET /api/admin/automation-center`, раздел «Automation Center»);
+  - `scripts/rollback.sh` больше не удаляет `.control` агента автообновления;
+  - CI: тесты backend идут двумя половинами на разных машинах (`scripts/ci/test-shard.py`); публикация мобильных пакетов ждёт перезапуска упавшего CI.
+- Миграций нет: head `0092_telegram_bot`; runtime/API остаётся 21.5.1. Отчёт: [docs/ru/RELEASE_V28_74_0.md](docs/ru/RELEASE_V28_74_0.md).
+
 # v28.73.0
 
 - Этап 14 — платёжная система (`docs/ru/new/PAYMENT_INTEGRATION.md`, `PAYMENT_TESTING.md`, `PAYMENT_SECURITY.md`):
