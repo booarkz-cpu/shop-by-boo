@@ -1,1 +1,0 @@
-gen:export MEDIA_DIR=$(mktemp -d); PYTHONPATH=backend python scripts/generate-api-docs.py && python scripts/generate-admin-matrix.py && python scripts/generate-db-schema.py && python scripts/generate-project-map.py
