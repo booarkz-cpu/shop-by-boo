@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from types import SimpleNamespace
 
 import httpx
+from fastapi import HTTPException
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -128,9 +129,20 @@ async def test_blocked_device_gets_a_stub_and_hwid_from_user_agent(env, mock_htt
 
 
 @pytest.mark.asyncio
-async def test_rules_extra_keys_and_merge_only_for_active_uri_lists(env, mock_http):
-    from app import sub_proxy
+async def test_rules_extra_keys_and_merge_only_for_active_uri_lists(env, mock_http, monkeypatch):
+    from app import content_branding_api, sub_proxy
+    import app.main as shop
     db = env.db
+    # v28.75.0: the second subscription is checked as a public HTTPS address and fetched by the public-only client
+    def resolve(host, port=443):
+        if host.endswith(".internal"):
+            raise HTTPException(400, "Private or local monitoring targets are not allowed")
+        return ["203.0.113.9"]
+    monkeypatch.setattr(shop, "_resolve_public_host", resolve)
+    monkeypatch.setattr(content_branding_api, "_pinned_public_http_client", lambda timeout: sub_proxy.httpx.AsyncClient(timeout=timeout))
+    with pytest.raises(HTTPException) as err:
+        await _enable(db, merge_url="https://redis.internal/{short_uuid}")
+    assert err.value.status_code == 422 and "Вторая подписка" in err.value.detail
     await _customer(db, squad="sq-main")
     await _enable(db, rules=[sub_proxy.RuleIn(name="Happ", ua="^happ", headers={"profile-title": "Корги Люси", "profile-update-interval": "2", "support-url": ""})],
                   extras=[sub_proxy.ExtraIn(name="WG", squad="sq-main", links=["wireguard://k@wg.corgi:51820#WG"]),

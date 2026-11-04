@@ -1,6 +1,6 @@
 # Актуальная документация
 
-Тег дистрибутива v28.74.0, runtime/API 21.5.1, миграция 0092_telegram_bot. [Главный указатель](../DOCUMENTATION.md) содержит текущие инструкции по всем функциям. [Установка](../INSTALL.md), [шаги SSH/Termius](../INSTALL_STEPS.md), [функции](../FUNCTIONS.md), [live-настройки](ru/RUNTIME_SETTINGS_CURRENT.md), [объединение аккаунтов](ru/ACCOUNT_MERGE_CURRENT.md), [отчёт проверки](ru/RELEASE_V28_11_0.md), [границы готовности](ru/FINAL_RELEASE_READINESS.md).
+Тег дистрибутива v28.74.0, runtime/API 21.5.1, миграция 0093_ssh_key_rotation. [Главный указатель](../DOCUMENTATION.md) содержит текущие инструкции по всем функциям. [Установка](../INSTALL.md), [шаги SSH/Termius](../INSTALL_STEPS.md), [функции](../FUNCTIONS.md), [live-настройки](ru/RUNTIME_SETTINGS_CURRENT.md), [объединение аккаунтов](ru/ACCOUNT_MERGE_CURRENT.md), [отчёт проверки](ru/RELEASE_V28_11_0.md), [границы готовности](ru/FINAL_RELEASE_READINESS.md).
 
 [Матрица покрытия](ru/WORKSPACE_COVERAGE.md), [критерии завершения](ru/MATRIX_COMPLETION_21_5_1.md), [API](API_ENDPOINTS.md), [обновление](ru/WORKSPACE_UPGRADE.md), [мобильные приложения](../MOBILE.md), [лицензия](../LICENSE).
 

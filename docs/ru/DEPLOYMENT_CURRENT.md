@@ -43,7 +43,7 @@ sudo docker compose exec -T backend alembic current
 sudo docker compose exec -T support_db psql -U support -d support -Atc 'SELECT version_num FROM alembic_version'
 ```
 
-Ожидаемая версия API `21.5.1` (это не номер тега), head магазина `0092_telegram_bot`, Support Pro `0008`.
+Ожидаемая версия API `21.5.1` (это не номер тега), head магазина `0093_ssh_key_rotation`, Support Pro `0008`.
 
 Проверьте HTTPS всех доменов, `/health/ready`, вход, worker, кабинет и Support Pro. Health не подтверждает внешние платежи, SMTP или VPN. Реальные платежи не включайте вручную в AppSetting; [порядок E2E](STAGING_E2E_V2_IMPLEMENTATION.md).
 

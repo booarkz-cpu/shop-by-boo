@@ -90,7 +90,7 @@
   "legacy_v2_3_0_artifact": "remnawave_vpn_shop_v2_3_0_full_release.zip",
   "legacy_v2_2_1_artifact": "remnawave_vpn_shop_v2_2_1_full_release.zip",
   "sha256": null,
-  "migration_head": "0092_telegram_bot",
+  "migration_head": "0093_ssh_key_rotation",
   "previous_migration_head_v2_5_0": "0037_v2_5_0_tariff_constructor",
   "previous_migration_head_v2_4_0": "0036_v2_4_0_cabinet",
   "previous_migration_head_v2_3_0": "0035_v2_3_0_wallet_gifts",

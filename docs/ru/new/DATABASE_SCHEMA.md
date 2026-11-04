@@ -1,6 +1,6 @@
 # Схема базы данных — v28.74.0
 
-Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0092_telegram_bot`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
+Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0093_ssh_key_rotation`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
 ## Сущности задания
 

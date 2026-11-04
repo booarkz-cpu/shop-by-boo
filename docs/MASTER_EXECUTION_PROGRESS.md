@@ -1,6 +1,6 @@
 # Реестр исполнения — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.74.0`, runtime/API `21.5.1`, миграция магазина `0092_telegram_bot`, Support Pro `0008`.
+Дистрибутив `v28.74.0`, runtime/API `21.5.1`, миграция магазина `0093_ssh_key_rotation`, Support Pro `0008`.
 
 Обновляется вместе с кодом. Статусы: `NOT_STARTED`, `IN_PROGRESS`, `IMPLEMENTED`, `TESTING`, `PASS`, `FAIL`,
 `BLOCKED_SECRETS`, `BLOCKED_ACCESS`, `BLOCKED_PERMISSIONS`, `NOT_APPLICABLE`.

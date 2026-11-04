@@ -1,6 +1,6 @@
 # Установка: от нуля до продакшена
 
-Пошаговая инструкция для дистрибутива `v28.74.0` (runtime/API `21.5.1`, миграция магазина `0092_telegram_bot`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
+Пошаговая инструкция для дистрибутива `v28.74.0` (runtime/API `21.5.1`, миграция магазина `0093_ssh_key_rotation`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
 
 ## Содержание
 
@@ -135,7 +135,7 @@ docker compose up -d
 Миграции применяются сами: каждый запуск контейнера backend выполняет `alembic upgrade head` до старта API (`backend/entrypoint.sh`). Проверить текущую версию схемы:
 
 ```bash
-docker compose exec -T backend alembic current     # ожидается 0092_telegram_bot (head)
+docker compose exec -T backend alembic current     # ожидается 0093_ssh_key_rotation (head)
 docker compose exec -T backend alembic heads
 ```
 

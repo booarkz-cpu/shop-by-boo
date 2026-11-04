@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.74.0. Runtime/API `21.5.1`, head магазина `0092_telegram_bot`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.74.0. Runtime/API `21.5.1`, head магазина `0093_ssh_key_rotation`, Support Pro `0008`.
 
 # Запуск магазина в работу: полный порядок
 
@@ -99,7 +99,7 @@ curl -fsS https://api.vpn.example.com/health/ready
 Ожидается:
 
 - все постоянные сервисы в состоянии `running`. Одноразовые `volume_init` и `support_migrate` завершаются с кодом 0;
-- head миграций `0092_telegram_bot`;
+- head миграций `0093_ssh_key_rotation`;
 - `health/ready` отвечает `200`.
 
 Откройте все пять адресов в браузере: везде должен быть HTTPS без предупреждений. Если сертификат не выдан — проверьте A-записи и открытость портов 80/443 у хостера, затем `docker compose logs --tail=100 caddy`.

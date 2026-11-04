@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
 DISTRIBUTION_TAG = "v28.74.0"
-SHOP_HEAD = "0092_telegram_bot"
+SHOP_HEAD = "0093_ssh_key_rotation"
 SUPPORT_HEAD = "0008"
 
 

@@ -221,7 +221,10 @@ async def merged_lines(cfg: dict, short: str, client: httpx.AsyncClient, ua: str
     if not template:
         return []
     try:
-        r = await client.get(template.replace("{short_uuid}", short), headers={"User-Agent": ua or "v2rayNG/1.9"})
+        # v28.75.0: not the panel's client — this one connects only to public addresses (no SSRF into the network).
+        from .content_branding_api import _pinned_public_http_client
+        async with _pinned_public_http_client(10) as public:
+            r = await public.get(template.replace("{short_uuid}", short), headers={"User-Agent": ua or "v2rayNG/1.9"})
         parsed = uri_list(r.content) if r.status_code == 200 else None
         return parsed[1] if parsed else []
     except httpx.HTTPError as exc:
@@ -589,6 +592,12 @@ async def put_proxy(payload: ProxyIn, db: AsyncSession = Depends(get_db), admin=
             raise HTTPException(422, f"Доп. ключи «{extra.name}»: каждая строка — одна ссылка вида scheme://…")
     if payload.enabled and payload.rewrite_links and not payload.public_base:
         raise HTTPException(422, "Укажите адрес зеркала, чтобы выдавать клиентам ссылки прослойки")
+    if payload.merge_url:  # v28.75.0 (stage 16): the second subscription is fetched by the shop — public HTTPS only
+        from .content_branding_api import validate_public_url
+        try:
+            validate_public_url(payload.merge_url.replace("{short_uuid}", "x"), allow_empty=False)
+        except HTTPException as exc:
+            raise HTTPException(422, f"Вторая подписка: {exc.detail}") from exc
     from .main import audit
     new = {**cfg, **payload.model_dump(exclude={"portal"})}
     if payload.portal is not None:

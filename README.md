@@ -55,7 +55,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 ---
 
-> **v28.74.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0092_telegram_bot`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
+> **v28.74.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0093_ssh_key_rotation`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
 > Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.74.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
@@ -609,7 +609,7 @@ flowchart LR
 | Каталог | Что внутри |
 | --- | --- |
 | `backend/app` | FastAPI: `main.py` (ядро) и модули разделов — `auth_api.py`, `admin_auth_api.py`, `payments_api.py`, `push_campaigns.py`, `app_funnel.py`, `fiscal.py`, `remnawave.py`, `bot.py` и другие ([карта](docs/PROJECT_MAP_RU.md)) |
-| `backend/alembic` | Миграции PostgreSQL, head `0092_telegram_bot` |
+| `backend/alembic` | Миграции PostgreSQL, head `0093_ssh_key_rotation` |
 | `backend/worker.py` | Фоновые процессы: очередь выдачи (`run_next_job`), чеки, кампании, push, автопродление |
 | `admin`, `cabinet`, `miniapp` | Next.js: админ-панель, личный кабинет, Mini App |
 | `mobile/android-user`, `mobile/ios-user` | Клиентские приложения (Kotlin Compose, SwiftUI); `mobile/ios-user/CorgiTunnel` — Network Extension, `CorgiNotificationService` — push с картинками |

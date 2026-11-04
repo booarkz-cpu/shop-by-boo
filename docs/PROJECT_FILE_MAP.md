@@ -341,7 +341,7 @@
 | [backend/alembic/versions/0089_index_cleanup.py](../backend/alembic/versions/0089_index_cleanup.py) | API, бот и worker |
 | [backend/alembic/versions/0090_remnawave_installer.py](../backend/alembic/versions/0090_remnawave_installer.py) | API, бот и worker |
 | [backend/alembic/versions/0091_remnawave_domains.py](../backend/alembic/versions/0091_remnawave_domains.py) | API, бот и worker |
-| [backend/alembic/versions/0092_telegram_bot.py](../backend/alembic/versions/0092_telegram_bot.py) | API, бот и worker |
+| [backend/alembic/versions/0093_ssh_key_rotation.py](../backend/alembic/versions/0093_ssh_key_rotation.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |

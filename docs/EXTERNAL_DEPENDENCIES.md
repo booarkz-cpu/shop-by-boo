@@ -50,7 +50,7 @@
 | Node.js | 26 LTS (CI и образы) | admin, cabinet, miniapp |
 | ruff | 0.17.3 | lint |
 | pytest | 9.1.1 | тесты |
-| alembic | 1.20.1 | 91 миграция, head `0092_telegram_bot` |
+| alembic | 1.20.1 | 91 миграция, head `0093_ssh_key_rotation` |
 | Gradle / Android SDK | `mobile/android-*` | сборка APK/AAB |
 | Xcode | `mobile/ios-*` | сборка IPA |
 
