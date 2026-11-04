@@ -147,16 +147,17 @@ def handle_logs() -> None:
         return
     done = LOGS_DIR / "status.json"
     try:
-        if json.loads(done.read_text()).get("mark") == req["mark"]:
-            return
+        handled = json.loads(done.read_text()).get("mark")
     except (OSError, ValueError):
-        pass
+        handled = None
+    if handled == req["mark"]:
+        return
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
     try:
         os.chown(LOGS_DIR, 0, BACKEND_UID)
         os.chmod(LOGS_DIR, 0o750)
-    except PermissionError:
-        pass
+    except PermissionError as exc:  # not root (tests): the directory keeps its owner
+        print(f"logs directory owner unchanged: {exc}", file=sys.stderr)
     try:
         run = subprocess.run(["docker", "compose", "logs", "--no-color", "--timestamps", "--tail", str(req["lines"]), req["service"]],
                              cwd=APP_DIR, capture_output=True, text=True, timeout=60)
@@ -170,8 +171,8 @@ def handle_logs() -> None:
     for path in (target, done):  # readable by the backend's group only
         try:
             os.chown(path, 0, BACKEND_UID)
-        except PermissionError:
-            pass
+        except PermissionError as exc:
+            print(f"{path.name}: owner unchanged: {exc}", file=sys.stderr)
 
 
 # ---------------------------------------------------------------- systemd

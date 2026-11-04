@@ -8,6 +8,7 @@
 Какие действия требуют подтверждения — ``STEP_UP_ACTIONS`` (их маршруты объявлены через ``require_stepup``)."""
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -19,6 +20,7 @@ from .db import get_db
 from .models import AdminSession
 from .security import STEPUP_TTL, mark_stepup, require_permission, stepup_fresh, verify_password, verify_totp
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 MAX_FAILS = 5
 _fails_local: dict[str, list[float]] = {}
@@ -65,8 +67,8 @@ async def _failed(sid: int) -> int:
             if n == 1:
                 await client.expire(key, STEPUP_TTL)
             return int(n)
-        except Exception:  # noqa: BLE001 — fall back to the process
-            pass
+        except Exception as exc:  # noqa: BLE001 — fall back to the process
+            logger.warning("step-up failures counted in the process: %s", type(exc).__name__)
     now = datetime.utcnow().timestamp()
     recent = [t for t in _fails_local.get(key, []) if now - t < STEPUP_TTL] + [now]
     _fails_local[key] = recent
@@ -80,8 +82,8 @@ async def _fails(sid: int) -> int:
     if client is not None:
         try:
             return int(await client.get(key) or 0)
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("step-up failures read from the process: %s", type(exc).__name__)
     now = datetime.utcnow().timestamp()
     return len([t for t in _fails_local.get(key, []) if now - t < STEPUP_TTL])
 

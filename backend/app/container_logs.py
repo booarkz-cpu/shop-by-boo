@@ -64,12 +64,10 @@ async def get_logs(service: Service, admin=Depends(require_permission("ops.diagn
     folder = control_dir()
     request = _read_json(folder / "logs.request.json")
     status = _read_json(folder / "logs" / "status.json")
-    text = None
     try:
-        raw = (folder / "logs" / f"{service}.txt").read_bytes()[-MAX_BYTES:]
-        text = raw.decode(errors="replace")
+        text = (folder / "logs" / f"{service}.txt").read_bytes()[-MAX_BYTES:].decode(errors="replace")
     except OSError:
-        pass
+        text = None  # not requested yet
     pending = request.get("service") == service and request.get("mark") and request.get("mark") != status.get("mark")
     ready = status.get("service") == service
     return {"service": service, "services": list(SERVICES), "text": text, "pending": bool(pending),
