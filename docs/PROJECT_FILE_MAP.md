@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2212**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2216**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1463,6 +1463,7 @@
 | [mobile/android-admin/gradlew](../mobile/android-admin/gradlew) | Мобильные приложения |
 | [mobile/android-admin/gradlew.bat](../mobile/android-admin/gradlew.bat) | Мобильные приложения |
 | [mobile/android-admin/settings.gradle.kts](../mobile/android-admin/settings.gradle.kts) | Мобильные приложения |
+| [mobile/android-signing-cert.sha256](../mobile/android-signing-cert.sha256) | Мобильные приложения |
 | [mobile/android-user/.gitignore](../mobile/android-user/.gitignore) | Мобильные приложения |
 | [mobile/android-user/app/build.gradle.kts](../mobile/android-user/app/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-user/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt](../mobile/android-user/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt) | Мобильные приложения |
@@ -1577,6 +1578,7 @@
 | [mobile/maestro/flows/02_connected.yaml](../mobile/maestro/flows/02_connected.yaml) | Мобильные приложения |
 | [mobile/maestro/flows/03_giveaways.yaml](../mobile/maestro/flows/03_giveaways.yaml) | Мобильные приложения |
 | [mobile/maestro/flows/04_settings.yaml](../mobile/maestro/flows/04_settings.yaml) | Мобильные приложения |
+| [mobile/shop-url.txt](../mobile/shop-url.txt) | Мобильные приложения |
 | [mobile/store/app-store/en-US/description.txt](../mobile/store/app-store/en-US/description.txt) | Мобильные приложения |
 | [mobile/store/app-store/en-US/keywords.txt](../mobile/store/app-store/en-US/keywords.txt) | Мобильные приложения |
 | [mobile/store/app-store/en-US/name.txt](../mobile/store/app-store/en-US/name.txt) | Мобильные приложения |
@@ -1990,6 +1992,7 @@
 | [tests/test_automation_engine.py](../tests/test_automation_engine.py) | Проверки |
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
+| [tests/test_baked_shop_url.py](../tests/test_baked_shop_url.py) | Проверки |
 | [tests/test_behaviour_auth.py](../tests/test_behaviour_auth.py) | Проверки |
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
 | [tests/test_behaviour_payments_v2.py](../tests/test_behaviour_payments_v2.py) | Проверки |
@@ -2023,6 +2026,7 @@
 | [tests/test_diagnostics.py](../tests/test_diagnostics.py) | Проверки |
 | [tests/test_distribution_update.py](../tests/test_distribution_update.py) | Проверки |
 | [tests/test_docker_installer.py](../tests/test_docker_installer.py) | Проверки |
+| [tests/test_download_links.py](../tests/test_download_links.py) | Проверки |
 | [tests/test_e2e_journeys.py](../tests/test_e2e_journeys.py) | Проверки |
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
 | [tests/test_economics.py](../tests/test_economics.py) | Проверки |
