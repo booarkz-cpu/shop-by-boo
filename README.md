@@ -4,6 +4,8 @@
 
 # 🐶 VPN Shop by Corgi
 
+**Русский** · [English](README.en.md) · [Українська](README.uk.md)
+
 ### Свой VPN-сервис под ключ поверх панели Remnawave
 
 Telegram-бот и Mini App · личный кабинет · приложения Android и iOS · админ-панель · поддержка · оплата

@@ -15,6 +15,10 @@ run everything from one admin panel.
 | Learn the admin panel | [Admin panel](Admin.md) |
 | Keep the shop updated | [Updates](Updates.md) |
 | Back up and restore data | [Backups](Backup.md) |
+| Install Remnawave and nodes from the admin panel | [Remnawave](Remnawave.md) |
+| Point domains and get certificates | [Domains and TLS](Domains.md) |
+| Android and iOS apps | [Mobile apps](Mobile.md) |
+| 2FA, sign-in history, secrets | [Security](Security.md) |
 | Something is broken | [Troubleshooting](Troubleshooting.md) |
 
 ## What you need first
