@@ -26,14 +26,14 @@
 
 Скриншоты сняты с изолированного браузерного стенда текущего кода, без production-данных:
 
-- [Все разделы](../docs/screenshots/admin-panel-v28-10-0.png), [поиск по задаче](../docs/screenshots/admin-panel-search-v28-10-0.png), [быстрый поиск Ctrl+K](../docs/screenshots/admin-command-search-v28-10-0.png), [светлая тема](../docs/screenshots/admin-panel-light-v28-10-0.png)
-- [Главная](../docs/screenshots/admin-dashboard-v28-10-0.png), [Тарифы](../docs/screenshots/admin-plans-v28-10-0.png), [Конструктор тарифов](../docs/screenshots/admin-tariff-constructor-v28-10-0.png), [Акции и рассылки](../docs/screenshots/admin-marketing-v28-10-0.png), [Меню бота и Mini App](../docs/screenshots/admin-bot-content-v28-10-0.png), [Настройки без перезапуска](../docs/screenshots/admin-runtime-settings-v28-10-0.png), [Роли и администраторы](../docs/screenshots/admin-admins-v28-10-0.png), [Сеть узлов](../docs/screenshots/admin-network-intel-v28-10-0.png)
-- Телефон: [Все разделы](../docs/screenshots/admin-mobile-v28-10-0.png), [выдвижное меню](../docs/screenshots/admin-mobile-drawer-v28-10-0.png), [форма](../docs/screenshots/admin-mobile-form-v28-10-0.png)
-- [Вход](../docs/screenshots/admin-login-v28-10-0.png)
-- [Кабинет: обзор](../docs/screenshots/cabinet-overview-v28-10-0.png), [тарифы](../docs/screenshots/cabinet-plans-v28-10-0.png)
-- [Mini App в светлой теме Telegram](../docs/screenshots/miniapp-light-v28-10-0.png)
+- [Все разделы](../screenshots/admin_panel/00_all_sections.png), [поиск по задаче](../screenshots/admin_panel/74_command_search.png), [быстрый поиск Ctrl+K](../screenshots/admin_panel/74_command_search.png), [светлая тема](../screenshots/admin_panel/variants/light-panel.png)
+- [Главная](../screenshots/admin_panel/02_dashboard.png), [Тарифы](../screenshots/admin_panel/15_plans.png), [Конструктор тарифов](../screenshots/admin_panel/16_constructor.png), [Акции и рассылки](../screenshots/admin_panel/26_marketing.png), [Меню бота и Mini App](../screenshots/admin_panel/33_content.png), [Настройки без перезапуска](../screenshots/admin_panel/54_runtimeSettings.png), [Роли и администраторы](../screenshots/admin_panel/68_admins.png), [Сеть узлов](../screenshots/admin_panel/46_networkIntel.png)
+- Телефон: [Все разделы](../screenshots/admin_panel/variants/phone-all-sections.png), [выдвижное меню](../screenshots/admin_panel/variants/phone-menu.png), [форма](../screenshots/admin_panel/variants/phone-runtimeSettings.png)
+- [Вход](../screenshots/admin_panel/01_login.png)
+- [Кабинет: обзор](../screenshots/storefront_user/03_overview.png), [тарифы](../screenshots/storefront_user/04_plans.png)
+- [Mini App](../docs/img/miniapp-overview.png)
 
-Разделы, кнопки и подписи полей описаны в [руководстве по админ-панели](../docs/ru/ADMIN_PANEL_CURRENT.md). Скриншоты снимает `node scripts/screenshots.mjs ../docs/screenshots v28-10-0` на тестовом стенде.
+Разделы, кнопки и подписи полей описаны в [руководстве по админ-панели](../docs/ru/ADMIN_PANEL_CURRENT.md). Скриншоты снимает `node scripts/screenshots-catalog.mjs "$PWD/.."` на тестовом стенде ([как](../docs/ru/ADMIN_PANEL_CURRENT.md)).
 
 ## Branding
 
