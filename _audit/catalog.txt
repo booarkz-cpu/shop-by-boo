@@ -1,0 +1,14 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Error: /api/auth/register 500 {}
+    at window.__api (eval at evaluate (:370:30), <anonymous>:7:22)
+    at async eval (eval at evaluate (:370:30), <anonymous>:5:5)
+    at async <anonymous>:396:30
+    at /home/runner/work/shop-by-boo/shop-by-boo/admin/scripts/screenshots-catalog.mjs:129:14 {
+  log: []
+}
+
+Node.js v22.23.4
+catalog-failed
