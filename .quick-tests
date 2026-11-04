@@ -1,0 +1,1 @@
+gen:export MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups; mkdir -p _audit; for g in generate-admin-matrix generate-api-docs; do python3 scripts/$g.py > _audit/$g.txt 2>&1; echo "$g $?" >> _audit/st.txt; done; git diff --stat > _audit/diff.txt; true
