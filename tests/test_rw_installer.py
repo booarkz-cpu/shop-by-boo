@@ -48,6 +48,7 @@ class Host:
         self.files, self.up, self.calls, self.rules = {}, set(), [], []
         self.fail = set()
         self.users, self.tokens, self.nodes, self.backups = {}, [], {}, 0
+        self.log_secret = ""
 
     def facts_text(self, domains):
         return "\n".join(self.lines + [f"dns={d} {self.ip}" for d in domains]) + "\n"
@@ -123,8 +124,13 @@ class FakeRemote:
                 h.files[(directory, fname)] = prev
             return Result(0, "", "")
         if name == "compose":
-            directory, action = args
-            (h.up.add if action == "up" else h.up.discard)(directory)
+            directory, action = args[:2]
+            if action in ("up", "start", "restart"):
+                h.up.add(directory)
+            elif action in ("down", "stop"):
+                h.up.discard(directory)
+            if action == "logs":  # v28.77.0: a container log with a secret in it
+                return Result(0, f"remnawave | started\nremnawave | JWT_AUTH_SECRET=leaked-secret-value\n{h.log_secret}\n", "")
             return Result(0, f"{directory} {action}\n", "")
         if name == "panel":
             method, path, _browser = args
@@ -345,7 +351,8 @@ async def test_panel_and_node_install_end_to_end(database, fleet, monkeypatch, t
     assert staged["change"]["status"] == "staged" and set(staged["change"]["keys"]) == {"remnawave_url", "remnawave_token"}
 
     # maintenance actions are plans over this installation
-    for action in ("diagnose", "update", "restore", "reinstall", "remove"):
+    host.log_secret = "db " + rw_jobs.load_secrets(row)["db_password"]
+    for action in ("diagnose", "logs", "stop", "start", "restart", "update", "restore", "reinstall", "remove"):
         planned = await rw_api.action(approved["id"], rw_api.ActionIn(action=action), db, ADMIN)
         kinds = [s["kind"] for s in planned["plan"]["steps"]]
         assert set(kinds) <= set(rw_steps.STEP_KINDS), action
@@ -358,6 +365,15 @@ async def test_panel_and_node_install_end_to_end(database, fleet, monkeypatch, t
             copies = list((tmp_path / "panel-copies").glob("panel-*.dump.enc"))
             assert len(copies) == 1 and b"PGDMP" not in copies[0].read_bytes()  # encrypted at rest
             assert rw_steps.unseal(copies[0].read_bytes()).startswith(b"PGDMP")
+        if action in ("logs", "stop", "start", "restart"):  # v28.77.0: service control never writes files
+            assert "compose_ctl" in kinds and "write_files" not in kinds and "compose_down" not in kinds
+            ops = {s["params"]["op"] for s in planned["plan"]["steps"] if s["kind"] == "compose_ctl"}
+            assert ops == {action}
+            assert (action == "stop") == (not host.up)
+        if action == "logs":
+            text = "\n".join(s["log"] or "" for s in done["steps"])
+            assert "remnawave | started" in text and "JWT_AUTH_SECRET=***" in text and "leaked-secret-value" not in text
+            assert rw_jobs.load_secrets(row)["db_password"] not in text
         if action == "remove":
             assert "compose_down" in kinds and "write_files" not in kinds
     assert not host.up

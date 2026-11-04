@@ -505,9 +505,14 @@ def selfsteal_page(template: str, domain: str) -> str:
             f"<p>{_html.escape(lead)}</p></div></header><main><ul>{lis}</ul></main><footer>© {d}</footer></body></html>")
 
 
-ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module")
+ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs")
 ACTION_TITLES = {"install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
-                 "reinstall": "Переустановка", "remove": "Удаление", "module": "Модуль"}
+                 "reinstall": "Переустановка", "remove": "Удаление", "module": "Модуль",
+                 "start": "Запуск", "stop": "Остановка", "restart": "Перезапуск", "logs": "Журналы контейнеров"}
+# v28.77.0: service control over the containers an installation runs (manage_panel in eGamesAPI/remnawave-reverse-proxy,
+# MIT, (c) 2025 eGames — the idea, written here as wizard steps). Files and volumes never change.
+SERVICE_ACTIONS = ("start", "stop", "restart", "logs")
+LOG_LINES = 200
 
 
 def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[str]]) -> tuple[list[dict], str]:
@@ -624,7 +629,20 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
             out.append("xray_checker")
         return out
 
-    if action == "diagnose":
+    if action in SERVICE_ACTIONS:
+        verb = {"start": "запуск", "stop": "остановка", "restart": "перезапуск", "logs": f"последние {LOG_LINES} строк журнала"}[action]
+        order = list(roles)
+        if action == "stop":  # nodes first, the panel last: clients lose a node before the panel goes
+            order = sorted(order, key=lambda sid: 0 if "node" in roles[sid] else 1)
+        for sid in order:
+            name = servers[sid]["name"]
+            for comp in components(sid):
+                steps.append(step("compose_ctl", sid, f"{name}: {verb} ({DIRS[comp]})", component=comp, op=action))
+                if comp == "panel" and action in ("start", "restart"):
+                    steps.append(step("wait_panel", sid, f"{name}: панель отвечает (/health)"))
+        if action in ("start", "restart") and any("node" in rs for rs in roles.values()):
+            steps.append(step("verify", None, "Проверка: HTTPS панели, связь нод, страница подписки"))
+    elif action == "diagnose":
         for sid, rs in roles.items():
             steps.append(step("preflight", sid, f"{servers[sid]['name']}: состояние сервера", roles=rs, domains=[], node_port=None,
                               report_only=True))

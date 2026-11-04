@@ -6,6 +6,7 @@ that change a server have a rollback that the runner calls in reverse order afte
 from __future__ import annotations
 
 import asyncio
+import re
 import ipaddress
 import os
 import json
@@ -20,7 +21,7 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile", "node_module", "fetch_panel_backup")
+              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
 COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
@@ -339,6 +340,10 @@ case "$action" in
       docker compose pull -q && docker compose up -d --remove-orphans && docker compose ps --format '{{.Name}} {{.State}}' ;;
   down) docker compose down --remove-orphans ;;
   ps) docker compose ps --format '{{.Name}} {{.State}}' ;;
+  start) docker compose start && docker compose ps --format '{{.Name}} {{.State}}' ;;
+  stop) docker compose stop && docker compose ps -a --format '{{.Name}} {{.State}}' ;;
+  restart) docker compose restart && docker compose ps --format '{{.Name}} {{.State}}' ;;
+  logs) docker compose logs --no-color --timestamps --tail "${3:-200}" 2>&1 ;;
   *) exit 2 ;;
 esac
 """
@@ -361,6 +366,26 @@ async def run_compose_down(ctx: Context, st: dict) -> None:
     _note(ctx, result.out + result.err)
     if result.code != 0:
         raise StepError("Контейнеры не остановлены")
+
+
+_ENV_SECRET = re.compile(r"(?im)^((?:[A-Z0-9_]*(?:PASSWORD|SECRET|TOKEN|KEY)[A-Z0-9_]*)\s*[=:]\s*)\S+")
+
+
+async def run_compose_ctl(ctx: Context, st: dict) -> None:
+    """start / stop / restart / logs of one component's containers; files and volumes never change. Logs go to the
+    step's journal with the installation's secrets and anything that looks like KEY=value of a secret replaced."""
+    op = st["params"]["op"]
+    if op not in rw_plan.SERVICE_ACTIONS:
+        raise StepError("Неизвестная команда")
+    args = (str(rw_plan.LOG_LINES),) if op == "logs" else ()
+    result = await _run(ctx, st["server_id"], COMPOSE, rw_plan.DIRS[st["params"]["component"]], op, *args, timeout=300)
+    text = result.out + result.err
+    if op == "logs":
+        text = _ENV_SECRET.sub(lambda m: m.group(1) + "***", text)
+    _note(ctx, text)
+    if result.code != 0:
+        raise StepError({"start": "Контейнеры не запустились", "stop": "Контейнеры не остановлены",
+                         "restart": "Контейнеры не перезапустились", "logs": "Журнал не прочитан"}[op] + " (журнал шага)")
 
 
 # ---------- panel ----------
@@ -1023,7 +1048,7 @@ RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
        "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "compose_down": run_compose_down,
-       "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module}
+       "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module, "compose_ctl": run_compose_ctl}
 UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
         "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile, "node_module": undo_node_module}
 assert set(RUN) == set(STEP_KINDS)

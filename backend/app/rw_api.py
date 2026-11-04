@@ -121,7 +121,7 @@ class ModuleIn(BaseModel):
 
 class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module"]
+    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs"]
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
     panel_access: Literal["open", "cookie"] | None = None
     module: ModuleIn | None = None

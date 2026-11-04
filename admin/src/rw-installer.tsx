@@ -248,8 +248,10 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
   </div>;
 }
 
-const ACTIONS: [string, string, boolean][] = [["diagnose", "Диагностика", false], ["update", "Обновить", true], ["restore", "Восстановить базу панели", true],
-  ["reinstall", "Переустановить", true], ["remove", "Удалить", true]];
+// v28.77.0: «Журналы контейнеров», запуск, перезапуск и остановка контейнеров установки (файлы и тома не меняются).
+const ACTIONS: [string, string, boolean][] = [["diagnose", "Диагностика", false], ["logs", "Журналы контейнеров", false],
+  ["restart", "Перезапустить", true], ["start", "Запустить", true], ["stop", "Остановить", true],
+  ["update", "Обновить", true], ["restore", "Восстановить базу панели", true], ["reinstall", "Переустановить", true], ["remove", "Удалить", true]];
 
 function Jobs({jobs, servers, request, toast, opened, setOpened, reload}: any) {
   const names = Object.fromEntries(servers.map((s: any) => [s.id, s.name]));
