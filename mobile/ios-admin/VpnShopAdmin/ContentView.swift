@@ -204,8 +204,9 @@ struct AdminRootView: View {
         let removedToken = ProfileVault.token(profile.id)
         ProfileVault.remove(profile.id)
         if !removedToken.isEmpty {
+            let (origin, language) = (profile.base, lang)
             DispatchQueue.global(qos: .utility).async {
-                _ = try? ShopClient(base: profile.base, token: removedToken, lang: lang).call("POST", "/api/admin/auth/logout")
+                _ = try? ShopClient(base: origin, token: removedToken, lang: language).call("POST", "/api/admin/auth/logout")
             }
         }
         reloadProfiles()
@@ -673,9 +674,11 @@ struct AdminRootView: View {
         busy = true
         notice = ""
         let startedFor = activeId
+        // The block runs once, on the background thread only.
+        let job = Handoff(block)
         DispatchQueue.global(qos: .userInitiated).async {
             do {
-                try block()
+                try job.value()
                 DispatchQueue.main.async { busy = false }
             } catch {
                 let failure = error as NSError
