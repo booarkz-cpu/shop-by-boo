@@ -1,0 +1,2 @@
+generate-admin-matrix 0
+generate-api-docs 0
