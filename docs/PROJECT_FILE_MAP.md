@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.75.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.76.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2167**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2197**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1002,6 +1002,7 @@
 | [docs/en/NEW_IN_V28_52.md](../docs/en/NEW_IN_V28_52.md) | Документация |
 | [docs/en/NEW_IN_V28_53.md](../docs/en/NEW_IN_V28_53.md) | Документация |
 | [docs/en/NEW_IN_V28_54.md](../docs/en/NEW_IN_V28_54.md) | Документация |
+| [docs/en/OWNER_SETUP_GUIDE.md](../docs/en/OWNER_SETUP_GUIDE.md) | Документация |
 | [docs/en/PAYMENTS.md](../docs/en/PAYMENTS.md) | Документация |
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
@@ -1193,6 +1194,7 @@
 | [docs/ru/RELEASE_V28_73_0.md](../docs/ru/RELEASE_V28_73_0.md) | Документация |
 | [docs/ru/RELEASE_V28_74_0.md](../docs/ru/RELEASE_V28_74_0.md) | Документация |
 | [docs/ru/RELEASE_V28_75_0.md](../docs/ru/RELEASE_V28_75_0.md) | Документация |
+| [docs/ru/RELEASE_V28_76_0.md](../docs/ru/RELEASE_V28_76_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
@@ -1275,6 +1277,7 @@
 | [docs/ru/new/ADMIN_CONTROL_MATRIX.md](../docs/ru/new/ADMIN_CONTROL_MATRIX.md) | Документация |
 | [docs/ru/new/ADMIN_MODULES.md](../docs/ru/new/ADMIN_MODULES.md) | Документация |
 | [docs/ru/new/ADMIN_PANEL_GUIDE.md](../docs/ru/new/ADMIN_PANEL_GUIDE.md) | Документация |
+| [docs/ru/new/ANDROID_ARCHITECTURE.md](../docs/ru/new/ANDROID_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/API.md](../docs/ru/new/API.md) | Документация |
 | [docs/ru/new/AUTOMATION_CENTER.md](../docs/ru/new/AUTOMATION_CENTER.md) | Документация |
 | [docs/ru/new/AUTO_UPDATE.md](../docs/ru/new/AUTO_UPDATE.md) | Документация |
@@ -1287,13 +1290,16 @@
 | [docs/ru/new/DEPLOYMENT_AGENT.md](../docs/ru/new/DEPLOYMENT_AGENT.md) | Документация |
 | [docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md](../docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/DOCKER_GUIDE.md](../docs/ru/new/DOCKER_GUIDE.md) | Документация |
+| [docs/ru/new/DOMAIN_SETUP_GUIDE.md](../docs/ru/new/DOMAIN_SETUP_GUIDE.md) | Документация |
 | [docs/ru/new/FEATURE_COMPARISON_MATRIX.md](../docs/ru/new/FEATURE_COMPARISON_MATRIX.md) | Документация |
 | [docs/ru/new/FULL_TECHNICAL_AUDIT.md](../docs/ru/new/FULL_TECHNICAL_AUDIT.md) | Документация |
 | [docs/ru/new/IMPLEMENTATION_STATUS.md](../docs/ru/new/IMPLEMENTATION_STATUS.md) | Документация |
 | [docs/ru/new/INCIDENT_RESPONSE.md](../docs/ru/new/INCIDENT_RESPONSE.md) | Документация |
 | [docs/ru/new/INSTALLATION_GUIDE.md](../docs/ru/new/INSTALLATION_GUIDE.md) | Документация |
+| [docs/ru/new/IOS_ARCHITECTURE.md](../docs/ru/new/IOS_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/KNOWN_LIMITATIONS.md](../docs/ru/new/KNOWN_LIMITATIONS.md) | Документация |
 | [docs/ru/new/LEGAL_DOCUMENTS.md](../docs/ru/new/LEGAL_DOCUMENTS.md) | Документация |
+| [docs/ru/new/MOBILE_API.md](../docs/ru/new/MOBILE_API.md) | Документация |
 | [docs/ru/new/NODE_PLUGINS.md](../docs/ru/new/NODE_PLUGINS.md) | Документация |
 | [docs/ru/new/PAYMENT_INTEGRATION.md](../docs/ru/new/PAYMENT_INTEGRATION.md) | Документация |
 | [docs/ru/new/PAYMENT_SECURITY.md](../docs/ru/new/PAYMENT_SECURITY.md) | Документация |
@@ -1307,6 +1313,7 @@
 | [docs/ru/new/REMNAWAVE_DATA_MODEL.md](../docs/ru/new/REMNAWAVE_DATA_MODEL.md) | Документация |
 | [docs/ru/new/REMNAWAVE_EXTENSIONS.md](../docs/ru/new/REMNAWAVE_EXTENSIONS.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
+| [docs/ru/new/REMNAWAVE_INSTALLATION_GUIDE.md](../docs/ru/new/REMNAWAVE_INSTALLATION_GUIDE.md) | Документация |
 | [docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md](../docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md) | Документация |
 | [docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md](../docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md) | Документация |
 | [docs/ru/new/REMNAWAVE_MONITORING.md](../docs/ru/new/REMNAWAVE_MONITORING.md) | Документация |
@@ -1324,6 +1331,7 @@
 | [docs/ru/new/TELEGRAM_MINI_APP.md](../docs/ru/new/TELEGRAM_MINI_APP.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
 | [docs/ru/new/USER_CABINET_GUIDE.md](../docs/ru/new/USER_CABINET_GUIDE.md) | Документация |
+| [docs/ru/new/VPN_ENGINE.md](../docs/ru/new/VPN_ENGINE.md) | Документация |
 | [docs/ru/new/WARP_NETBIRD.md](../docs/ru/new/WARP_NETBIRD.md) | Документация |
 | [docs/ru/new/XRAY_CHECKER.md](../docs/ru/new/XRAY_CHECKER.md) | Документация |
 | [docs/ru/steps/01-project.md](../docs/ru/steps/01-project.md) | Документация |
@@ -1373,6 +1381,7 @@
 | [docs/uk/NEW_IN_V28_52.md](../docs/uk/NEW_IN_V28_52.md) | Документация |
 | [docs/uk/NEW_IN_V28_53.md](../docs/uk/NEW_IN_V28_53.md) | Документация |
 | [docs/uk/NEW_IN_V28_54.md](../docs/uk/NEW_IN_V28_54.md) | Документация |
+| [docs/uk/OWNER_SETUP_GUIDE.md](../docs/uk/OWNER_SETUP_GUIDE.md) | Документация |
 | [docs/uk/PAYMENTS.md](../docs/uk/PAYMENTS.md) | Документация |
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
@@ -1666,6 +1675,15 @@
 | [screenshots/admin_panel/72_backups.png](../screenshots/admin_panel/72_backups.png) | Корень проекта |
 | [screenshots/admin_panel/73_recovery.png](../screenshots/admin_panel/73_recovery.png) | Корень проекта |
 | [screenshots/admin_panel/74_command_search.png](../screenshots/admin_panel/74_command_search.png) | Корень проекта |
+| [screenshots/admin_panel/75_telegramBot.png](../screenshots/admin_panel/75_telegramBot.png) | Корень проекта |
+| [screenshots/admin_panel/76_remnawave.png](../screenshots/admin_panel/76_remnawave.png) | Корень проекта |
+| [screenshots/admin_panel/77_rwInstaller.png](../screenshots/admin_panel/77_rwInstaller.png) | Корень проекта |
+| [screenshots/admin_panel/78_rwExtensions.png](../screenshots/admin_panel/78_rwExtensions.png) | Корень проекта |
+| [screenshots/admin_panel/79_domains.png](../screenshots/admin_panel/79_domains.png) | Корень проекта |
+| [screenshots/admin_panel/80_subscriptionPortal.png](../screenshots/admin_panel/80_subscriptionPortal.png) | Корень проекта |
+| [screenshots/admin_panel/81_availability.png](../screenshots/admin_panel/81_availability.png) | Корень проекта |
+| [screenshots/admin_panel/82_controlCenter.png](../screenshots/admin_panel/82_controlCenter.png) | Корень проекта |
+| [screenshots/admin_panel/83_automationCenter.png](../screenshots/admin_panel/83_automationCenter.png) | Корень проекта |
 | [screenshots/admin_panel/features/ai-knowledge.png](../screenshots/admin_panel/features/ai-knowledge.png) | Корень проекта |
 | [screenshots/admin_panel/features/anti-sharing.png](../screenshots/admin_panel/features/anti-sharing.png) | Корень проекта |
 | [screenshots/admin_panel/features/api-mirrors.png](../screenshots/admin_panel/features/api-mirrors.png) | Корень проекта |
@@ -1673,6 +1691,17 @@
 | [screenshots/admin_panel/features/promo-generator.png](../screenshots/admin_panel/features/promo-generator.png) | Корень проекта |
 | [screenshots/admin_panel/features/referral-bonus.png](../screenshots/admin_panel/features/referral-bonus.png) | Корень проекта |
 | [screenshots/admin_panel/features/telegram-backup.png](../screenshots/admin_panel/features/telegram-backup.png) | Корень проекта |
+| [screenshots/admin_panel/variants/light-automationCenter.png](../screenshots/admin_panel/variants/light-automationCenter.png) | Корень проекта |
+| [screenshots/admin_panel/variants/light-dashboard.png](../screenshots/admin_panel/variants/light-dashboard.png) | Корень проекта |
+| [screenshots/admin_panel/variants/light-panel.png](../screenshots/admin_panel/variants/light-panel.png) | Корень проекта |
+| [screenshots/admin_panel/variants/light-plans.png](../screenshots/admin_panel/variants/light-plans.png) | Корень проекта |
+| [screenshots/admin_panel/variants/phone-all-sections.png](../screenshots/admin_panel/variants/phone-all-sections.png) | Корень проекта |
+| [screenshots/admin_panel/variants/phone-dashboard.png](../screenshots/admin_panel/variants/phone-dashboard.png) | Корень проекта |
+| [screenshots/admin_panel/variants/phone-menu.png](../screenshots/admin_panel/variants/phone-menu.png) | Корень проекта |
+| [screenshots/admin_panel/variants/phone-nodes.png](../screenshots/admin_panel/variants/phone-nodes.png) | Корень проекта |
+| [screenshots/admin_panel/variants/phone-payments.png](../screenshots/admin_panel/variants/phone-payments.png) | Корень проекта |
+| [screenshots/admin_panel/variants/phone-runtimeSettings.png](../screenshots/admin_panel/variants/phone-runtimeSettings.png) | Корень проекта |
+| [screenshots/admin_panel/variants/phone-rwInstaller.png](../screenshots/admin_panel/variants/phone-rwInstaller.png) | Корень проекта |
 | [screenshots/mobile/android-admin-launch.png](../screenshots/mobile/android-admin-launch.png) | Корень проекта |
 | [screenshots/mobile/android-admin-monitoring.png](../screenshots/mobile/android-admin-monitoring.png) | Корень проекта |
 | [screenshots/mobile/android-admin-ops.png](../screenshots/mobile/android-admin-ops.png) | Корень проекта |
@@ -2075,6 +2104,7 @@
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
 | [tests/test_schema_matches_migrations.py](../tests/test_schema_matches_migrations.py) | Проверки |
+| [tests/test_screenshots.py](../tests/test_screenshots.py) | Проверки |
 | [tests/test_single_business_logic.py](../tests/test_single_business_logic.py) | Проверки |
 | [tests/test_speed_forecast.py](../tests/test_speed_forecast.py) | Проверки |
 | [tests/test_stage15_install.py](../tests/test_stage15_install.py) | Проверки |

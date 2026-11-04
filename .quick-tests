@@ -1,0 +1,1 @@
+gen:mkdir -p _audit; for g in generate-admin-matrix generate-api-docs generate-db-schema; do python3 scripts/$g.py > _audit/$g.txt 2>&1; echo "$g $?" >> _audit/st.txt; done; git diff --stat > _audit/diff.txt; python -m pytest -q tests/test_current_documentation.py tests/test_screenshots.py > _audit/pytest.txt 2>&1; echo "pytest $?" >> _audit/st.txt; true
