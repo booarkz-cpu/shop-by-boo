@@ -4,7 +4,7 @@ Names that belong to main are read through ``shop.<name>`` at call time, so test
 operators that patch ``app.main`` keep affecting this code exactly as before."""
 from typing import Annotated
 from .db import get_db
-from .security import require_permission
+from .security import require_permission, require_stepup
 from fastapi import Depends
 from fastapi import Request
 from fastapi import Response
@@ -310,7 +310,7 @@ async def list_admins(db:AsyncSession=Depends(get_db),admin=Depends(require_perm
     return [{"id":x.id,"email":x.email,"telegram_id":x.telegram_id,"role":x.role,"disabled":x.disabled,"mfa_enabled":x.mfa_enabled,"created_at":x.created_at,"last_login_at":x.last_login_at} for x in rows]
 
 @shop.app.post("/api/admin/admins")
-async def create_admin(payload:AdminUserIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_admins"))):
+async def create_admin(payload:AdminUserIn,db:AsyncSession=Depends(get_db),admin=Depends(require_stepup("manage_admins"))):
     if payload.role not in {"viewer","operator","admin"} or not payload.password: raise shop.HTTPException(400,"Valid role and password are required")
     x=shop.AdminUser(email=payload.email.strip().lower(),telegram_id=payload.telegram_id,password_hash=shop.hash_password(payload.password),role=payload.role,disabled=payload.disabled); db.add(x)
     try: await db.commit()
@@ -318,7 +318,7 @@ async def create_admin(payload:AdminUserIn,db:AsyncSession=Depends(get_db),admin
     await shop.audit(db,"admin.created",admin.email,x.email,{"role":x.role}); await db.commit(); return {"id":x.id}
 
 @shop.app.put("/api/admin/admins/{admin_id}")
-async def update_admin(admin_id:int,payload:AdminUserIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_admins"))):
+async def update_admin(admin_id:int,payload:AdminUserIn,db:AsyncSession=Depends(get_db),admin=Depends(require_stepup("manage_admins"))):
     x=await db.get(shop.AdminUser,admin_id)
     if not x: raise shop.HTTPException(404,"Admin not found")
     if admin.id==x.id and payload.disabled: raise shop.HTTPException(400,"You cannot disable yourself")
@@ -330,7 +330,7 @@ async def update_admin(admin_id:int,payload:AdminUserIn,db:AsyncSession=Depends(
     await shop.audit(db,"admin.updated",admin.email,x.email,{"role":x.role,"disabled":x.disabled}); await db.commit(); return {"ok":True}
 
 @shop.app.delete("/api/admin/admins/{admin_id}")
-async def delete_admin(admin_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_admins"))):
+async def delete_admin(admin_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_stepup("manage_admins"))):
     x=await db.get(shop.AdminUser,admin_id)
     if not x: raise shop.HTTPException(404,"Admin not found")
     if x.id==admin.id: raise shop.HTTPException(400,"You cannot delete yourself")

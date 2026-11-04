@@ -113,7 +113,7 @@ async def _safe_revoke_for_refunded_payment(db:shop.AsyncSession, payment:shop.P
 
 
 @shop.app.post("/api/admin/refunds/{refund_id}/execute")
-async def execute_refund(refund_id:int,db:shop.AsyncSession=shop.Depends(shop.get_db),admin=shop.Depends(shop.require_permission("payments.refund"))):
+async def execute_refund(refund_id:int,db:shop.AsyncSession=shop.Depends(shop.get_db),admin=shop.Depends(shop.require_stepup("payments.refund"))):
     r=await db.get(shop.RefundRequest,refund_id)
     if not r: raise shop.HTTPException(404,"Refund not found")
     if r.status not in {"requested","approved","review"}: raise shop.HTTPException(400,"Refund must be requested, approved, or retried from review")

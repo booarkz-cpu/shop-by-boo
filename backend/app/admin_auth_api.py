@@ -18,6 +18,10 @@ async def admin_telegram_login(payload:dict,request:shop.Request,response:shop.R
     shop._set_auth_cookies(response,token)
     return {"ok":True,"admin_id":admin.id}
 
+_ALERT_AT = 10
+_DUMMY_HASH = shop.hash_password("timing-equaliser-not-a-password")
+
+
 @shop.app.post("/api/admin/auth/login")
 async def admin_login(payload:shop.LoginIn, request:shop.Request, response:shop.Response, db:shop.AsyncSession=shop.Depends(shop.get_db)):
     from .mobile_auth import require_mobile_proof
@@ -29,13 +33,27 @@ async def admin_login(payload:shop.LoginIn, request:shop.Request, response:shop.
     limiter_key=f"login:{client_ip}:{payload.email.lower().strip()}"
     if not await shop._redis_allowed(limiter_key,8,900): raise shop.HTTPException(429,"Too many login attempts. Try again later.", headers={"Retry-After":"900"})
     admin=(await db.execute(shop.select(shop.AdminUser).where(shop.AdminUser.email==payload.email.lower().strip()).with_for_update())).scalar_one_or_none()
-    if not admin or admin.disabled or not shop.verify_password(payload.password, admin.password_hash):
-        raise shop.HTTPException(401,"Invalid credentials")
+    # v28.75.0 (stage 16): an unknown e-mail costs the same password hashing as a known one (no timing oracle),
+    # and every failed or successful sign-in is in the audit log («Журнал действий», «История безопасности»).
+    known=bool(admin and not admin.disabled)
+    password_ok=shop.verify_password(payload.password, admin.password_hash if known else _DUMMY_HASH)
+    async def refuse(reason:str, detail:str):
+        await shop.audit(db,"admin.login.failed",payload.email.lower().strip()[:320],client_ip,{"reason":reason})
+        await db.commit()
+        try:  # the alert never changes the answer
+            recent=int(await db.scalar(shop.select(shop.func.count()).select_from(shop.AuditLog).where(shop.AuditLog.action=="admin.login.failed",shop.AuditLog.created_at>=shop.datetime.utcnow()-shop.timedelta(minutes=15))) or 0)
+            if recent in (_ALERT_AT, _ALERT_AT*5):  # once at 10 and once at 50 failures within 15 minutes
+                await shop.send_alert(f"Подбор пароля к админке: {recent} неудачных входов за 15 минут, последний с {client_ip}")
+        except Exception as exc:
+            shop.logger.warning("login alert skipped: %s", type(exc).__name__)
+        raise shop.HTTPException(401,detail)
+    if not known or not password_ok:
+        await refuse("password","Invalid credentials")
     if admin.mfa_enabled:
-        if not payload.otp: raise shop.HTTPException(401,"MFA code required or invalid")
+        if not payload.otp: await refuse("mfa_missing","MFA code required or invalid")
         if not shop.verify_totp(admin,payload.otp) and not shop.consume_recovery_code(admin,payload.otp):
-            raise shop.HTTPException(401,"MFA code required or invalid")
-    admin.last_login_at=shop.datetime.utcnow();
+            await refuse("mfa","MFA code required or invalid")
+    admin.last_login_at=shop.datetime.utcnow(); await shop.audit(db,"admin.login",admin.email,client_ip,{"mfa":bool(admin.mfa_enabled)})
     from .runtime_security import reset_login_attempts
     await reset_login_attempts(shop.redis_client, limiter_key)
     await db.commit()

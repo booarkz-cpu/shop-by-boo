@@ -23,7 +23,8 @@ from . import rw_jobs, rw_plan, rw_steps
 from .db import get_db
 from .models import AuditLog, RemnawaveDeploymentStep, RemnawaveInstallation, RemnawaveServer
 from .rw_remote import RemoteError, load_private_key, scan_fingerprint
-from .security import encrypt_secret, require_permission
+from .rw_ssh import key_state
+from .security import encrypt_secret, require_permission, require_stepup
 
 router = APIRouter(prefix="/api/admin/rw", tags=["remnawave-installer"])
 FINGERPRINT = r"^SHA256:[A-Za-z0-9+/]{43}$"
@@ -133,7 +134,8 @@ def server_out(row: RemnawaveServer) -> dict:
             "purpose": (preflight.get("purpose") if isinstance(preflight, dict) else None) or [],
             "roles": row.roles or [], "status": row.status, "os": row.os, "arch": row.arch, "cpu_cores": row.cpu_cores,
             "ram_mb": row.ram_mb, "disk_gb": row.disk_gb, "checks": preflight.get("checks", []),
-            "check_ok": preflight.get("ok"), "last_checked_at": row.last_checked_at.isoformat() + "Z" if row.last_checked_at else None}
+            "check_ok": preflight.get("ok"), "last_checked_at": row.last_checked_at.isoformat() + "Z" if row.last_checked_at else None,
+            "ssh_key": key_state(row)}
 
 
 def _iso(value):
@@ -249,7 +251,7 @@ async def patch_server(server_id: int, payload: ServerPatch, db: AsyncSession = 
 
 
 @router.delete("/servers/{server_id}")
-async def delete_server(server_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+async def delete_server(server_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("provision_nodes"))):
     row = await _server(db, server_id, lock=True)
     if row.roles:
         raise HTTPException(409, "На сервере установлены компоненты Remnawave: сначала выполните «Удаление» в мастере")
@@ -352,7 +354,7 @@ async def plan_installation(payload: rw_plan.PlanIn, db: AsyncSession = Depends(
 
 @router.post("/installations/{installation_id}/approve")
 async def approve(installation_id: int, payload: ApproveIn, db: AsyncSession = Depends(get_db),
-                  admin=Depends(require_permission("provision_nodes"))):
+                  admin=Depends(require_stepup("provision_nodes"))):
     row = await _installation(db, installation_id, lock=True)
     if row.status != "planned":
         raise HTTPException(409, "План уже запущен или отменён")
@@ -502,7 +504,7 @@ async def xray_checker(installation_id: int, db: AsyncSession = Depends(get_db),
 
 
 @router.post("/installations/{installation_id}/credentials")
-async def credentials(installation_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+async def credentials(installation_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("provision_nodes"))):
     """The panel administrator's login, shown on request and written to the audit log (the API token never is)."""
     row = await _installation(db, installation_id)
     if row.action != "install" or not row.secrets or not (row.params or {}).get("panel_server_id"):

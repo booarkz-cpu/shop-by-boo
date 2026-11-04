@@ -2185,6 +2185,10 @@ class RemnawaveServer(Base):
     auth_method: Mapped[str] = mapped_column(String(16), nullable=False)
     ssh_secret: Mapped[str] = mapped_column(Text, nullable=False)
     host_key_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    # v28.75.0: the shop's own key for this server (rw_ssh.rotate_key); NULL — the key or password the owner gave.
+    ssh_key_fingerprint: Mapped[str|None] = mapped_column(String(64))
+    ssh_key_marker: Mapped[str|None] = mapped_column(String(80))
+    ssh_key_rotated_at: Mapped[datetime|None] = mapped_column(DateTime)
     roles: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     status: Mapped[str] = mapped_column(String(24), default="new", nullable=False)
     os: Mapped[str|None] = mapped_column(String(64))

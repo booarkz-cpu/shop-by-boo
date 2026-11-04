@@ -122,7 +122,7 @@ export const SECTION_GROUPS = [
       {tab: "orchestrator", label: "Оркестратор", description: "Автоматическое включение и вывод узлов по правилам нагрузки.", keywords: "orchestrator"},
       {tab: "torrents", label: "Торренты на узлах", description: "Кто из клиентов качает торренты: счётчики срабатываний Xray без адресов, отметка в антиабузе и уведомление.", keywords: "bittorrent p2p dht utp торрент"},
       {tab: "platform", label: "Антиабуз и агенты", description: "Агенты на узлах, блокировка устройств-нарушителей и вебхуки событий.", keywords: "abuse hwid агенты"},
-      {tab: "monitoring", label: "Мониторинг", description: "Проверки доступности, версии компонентов и рабочие процессы.", keywords: "uptime"},
+      {tab: "monitoring", label: "Мониторинг", description: "Проверки доступности, версии компонентов, рабочие процессы и журналы контейнеров в браузере.", keywords: "журналы логи docker logs uptime"},
     ],
   },
   {
@@ -154,7 +154,7 @@ export const SECTION_GROUPS = [
       {tab: "security", label: "Защита и 2FA", description: "Двухфакторный вход, смена пароля и правила доступа к панели.", keywords: "пароль totp"},
       {tab: "passkeys", label: "Ключи доступа", description: "Вход в панель по ключу доступа (passkey) вместо пароля.", keywords: "webauthn"},
       {tab: "admins", label: "Роли и администраторы", description: "Кто имеет доступ к панели и с какими правами.", keywords: "доступ права сотрудники"},
-      {tab: "sessions", label: "Сессии", description: "Активные входы в панель; завершить чужую или все сессии.", keywords: "входы"},
+      {tab: "sessions", label: "Сессии", description: "Активные входы в панель, завершение чужой или всех сессий, история безопасности: входы, неудачные попытки, подтверждения опасных действий.", keywords: "входы история безопасности логины"},
       {tab: "fraud", label: "Антифрод", description: "Подозрительные оплаты и аккаунты: проверить и принять решение.", keywords: "мошенничество"},
       {tab: "audit", label: "Журнал действий", description: "Кто из администраторов, когда и что изменил.", keywords: "аудит лог"},
       {tab: "backups", label: "Резервные копии", description: "Расписание и хранение копий базы, ручной запуск и проверка.", keywords: "backup"},

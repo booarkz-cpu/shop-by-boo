@@ -303,6 +303,11 @@ jobs:
           test "$refs" = "postgres:18.6-alpine@$want"
           cp .env.test.example .env.test
           docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
+      - name: Prometheus alert rules
+        # v28.75.0: the alert rules are checked and unit-tested with promtool (the image of the deploy/ stack).
+        run: |
+          docker run --rm -v "$PWD/deploy/prometheus:/rules:ro" --entrypoint promtool prom/prometheus:v3.5.0 check rules /rules/vpnshop-alerts.yml
+          docker run --rm -v "$PWD/deploy/prometheus:/rules:ro" -w /rules --entrypoint promtool prom/prometheus:v3.5.0 test rules vpnshop-alerts.test.yml
 
   containers:
     name: Containers • non-root startup and Redis authentication

@@ -97,6 +97,83 @@ def read_request() -> dict:
     return out
 
 
+# ---------------------------------------------------------------- container logs (v28.75.0)
+# The panel asks for the tail of one service's log; the agent writes it masked into .control/logs/.
+LOGS_REQUEST = CONTROL_DIR / "logs.request.json"
+LOGS_DIR = CONTROL_DIR / "logs"
+LOG_SERVICES = ("backend", "worker", "bot", "caddy", "admin", "cabinet", "miniapp", "db", "redis",
+                "support_pro", "support_worker", "mail_receiver")
+SECRET_NAME = re.compile(r"(SECRET|TOKEN|PASSWORD|PASS|KEY|DSN|URL)$")
+
+
+def read_logs_request() -> dict:
+    try:
+        raw = json.loads(LOGS_REQUEST.read_text())
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(raw, dict) or raw.get("service") not in LOG_SERVICES:
+        return {}
+    if not (isinstance(raw.get("mark"), str) and MARK_RE.match(raw["mark"])):
+        return {}
+    lines = raw.get("lines") if isinstance(raw.get("lines"), int) else 200
+    return {"service": raw["service"], "mark": raw["mark"], "lines": max(10, min(lines, 1000))}
+
+
+def secret_values() -> list[str]:
+    """Values of .env that look secret: they never leave the server in a log."""
+    out = []
+    for name in (APP_DIR / ".env", APP_DIR / "support-pro" / ".env"):
+        try:
+            text = name.read_text()
+        except OSError:
+            continue
+        for line in text.splitlines():
+            key, sep, value = line.partition("=")
+            value = value.strip().strip('"').strip("'")
+            if sep and SECRET_NAME.search(key.strip()) and len(value) >= 8:
+                out.append(value)
+    return sorted(set(out), key=len, reverse=True)
+
+
+def mask(text: str, secrets: list[str]) -> str:
+    for value in secrets:
+        text = text.replace(value, "***")
+    return text
+
+
+def handle_logs() -> None:
+    req = read_logs_request()
+    if not req:
+        return
+    done = LOGS_DIR / "status.json"
+    try:
+        if json.loads(done.read_text()).get("mark") == req["mark"]:
+            return
+    except (OSError, ValueError):
+        pass
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        os.chown(LOGS_DIR, 0, BACKEND_UID)
+        os.chmod(LOGS_DIR, 0o750)
+    except PermissionError:
+        pass
+    try:
+        run = subprocess.run(["docker", "compose", "logs", "--no-color", "--timestamps", "--tail", str(req["lines"]), req["service"]],
+                             cwd=APP_DIR, capture_output=True, text=True, timeout=60)
+        text, code = run.stdout + run.stderr, run.returncode
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        text, code = f"docker compose logs: {type(exc).__name__}", 1
+    target = LOGS_DIR / f"{req['service']}.txt"
+    write_atomic(target, mask(text, secret_values())[-400_000:], 0o640)
+    write_atomic(done, json.dumps({"mark": req["mark"], "service": req["service"], "lines": req["lines"], "code": code,
+                                   "at": now()}) + "\n", 0o640)
+    for path in (target, done):  # readable by the backend's group only
+        try:
+            os.chown(path, 0, BACKEND_UID)
+        except PermissionError:
+            pass
+
+
 # ---------------------------------------------------------------- systemd
 
 def systemctl(*args: str) -> subprocess.CompletedProcess:
@@ -309,6 +386,10 @@ def cmd_agent() -> None:
         HANDLED.write_text(mark)  # first: a crash must not re-run the same request forever
         write_status(handled_check_now=mark)
         run_update(trigger="panel")
+    try:
+        handle_logs()  # v28.75.0: a log request never stops the auto-update agent
+    except Exception as exc:  # noqa: BLE001
+        print(f"logs request failed: {exc}", file=sys.stderr)
     write_status(next_run=next_run() if config["enabled"] else None)
 
 

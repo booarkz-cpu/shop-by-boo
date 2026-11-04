@@ -1,5 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {StatusBadge, type Tone} from "./components/ui/status";
+import {stepUp} from "./stepUp";
+
+const API = process.env.NEXT_PUBLIC_API_URL || "";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 type Component = {repo: string; verified: string; latest: string | null; error: string | null; newer: boolean};
@@ -9,7 +12,8 @@ type Row = {id: number; source_id: number | null; status: string; error: string 
   finished_at: string | null; automatic: boolean; rolled_back?: boolean};
 type State = {settings: {enabled: boolean; time: string; installation_ids: number[]; notify: boolean}; next_run: string | null;
   verified: Record<string, string>; upstream: {checked_at: string | null; components: Record<string, Component>};
-  panel: {status: string; version: string | null; verified: string} | null; installations: Installation[]; history: Row[]};
+  panel: {status: string; version: string | null; verified: string} | null; installations: Installation[]; history: Row[];
+  panel_copies?: {name: string; server_id: number; size: number; created_at: string}[]};
 
 const TITLES: Record<string, string> = {panel: "Панель", node: "Нода", subscription_page: "Страница подписки", postgres: "PostgreSQL",
   valkey: "Valkey", caddy: "Caddy"};
@@ -56,6 +60,18 @@ export function RwAutoUpdate({request, toast}: {request: Request; toast?: (text:
     } finally {
       setBusy(false);
     }
+  }
+
+  async function download(name: string) {
+    const url = `${API}/api/admin/remnawave/auto-update/panel-copies/${encodeURIComponent(name)}`;
+    let r = await fetch(url, {credentials: "include"});
+    if (r.status === 428 && await stepUp((p, o) => request(p, o))) r = await fetch(url, {credentials: "include"});
+    if (!r.ok) { setError(r.status === 428 ? "Скачивание не подтверждено" : `Не скачано (HTTP ${r.status})`); return; }
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(await r.blob());
+    link.download = name.replace(/\.enc$/, "");
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 10000);
   }
 
   const scope = (id: number, list: number[]) => (list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
@@ -106,6 +122,13 @@ export function RwAutoUpdate({request, toast}: {request: Request; toast?: (text:
       <label className="check"><input type="checkbox" checked={form.notify} onChange={e => setForm({...form, notify: e.target.checked})}/> Сообщать в Telegram о новых релизах и итогах обновления</label>
       {state?.next_run ? <p className="muted"><span>Следующий запуск</span>: {when(state.next_run)}</p> : null}
       <div className="toolbar"><button className="primary" disabled={busy} onClick={() => act("/api/admin/remnawave/auto-update", "PUT", form, "Расписание сохранено")}>Сохранить</button></div>
+
+      <h4>Копии базы панели в магазине</h4>
+      {state?.panel_copies?.length ? <table className="table"><thead><tr><th>Файл</th><th>Сервер</th><th>Размер</th><th>Создана</th><th></th></tr></thead>
+        <tbody>{state.panel_copies.map(c => <tr key={c.name}><td>{c.name}</td><td>#{c.server_id}</td><td>{(c.size / 1048576).toFixed(1)} МБ</td>
+          <td>{when(c.created_at)}</td><td><button onClick={() => download(c.name)}>Скачать</button></td></tr>)}</tbody></table>
+        : <p className="muted">Копий пока нет: они появляются при обновлении, переустановке или удалении панели.</p>}
+      <p className="muted">Файлы хранятся зашифрованными ключом магазина; скачивается расшифрованный дамп (pg_dump -Fc) после подтверждения.</p>
 
       <h4>История обновлений</h4>
       {state?.history.length ? <table className="table"><thead><tr><th>№</th><th>Установка</th><th>Кто</th><th>Итог</th><th>Завершено</th></tr></thead>

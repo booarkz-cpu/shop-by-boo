@@ -50,7 +50,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .config import settings
 from .db import SessionLocal, get_db
 from .models import AdminUser, NodeAgent, TerminalChunk, TerminalSession, TerminalSnippet
-from .security import PERMISSIONS, bearer, current_admin, decrypt_secret, encrypt_secret, require_permission, verify_password, verify_totp
+from .security import PERMISSIONS, bearer, current_admin, decrypt_secret, encrypt_secret, require_permission, require_stepup, verify_password, verify_totp
 
 logger = logging.getLogger("vpnshop.node_terminal")
 
@@ -322,7 +322,7 @@ def _confirm(admin: AdminUser, password: str, code: str) -> None:
 
 
 @router.post("/api/admin/terminal/sessions")
-async def admin_terminal_start(body: StartIn, request: Request, db: AsyncSession = Depends(get_db), admin=Depends(require_permission(PERMISSION))):
+async def admin_terminal_start(body: StartIn, request: Request, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup(PERMISSION))):
     if not settings.terminal_enabled:
         raise HTTPException(503, "Терминал выключен: задайте TERMINAL_ENABLED=true в .env и перезапустите backend")
     if not admin.mfa_enabled:
