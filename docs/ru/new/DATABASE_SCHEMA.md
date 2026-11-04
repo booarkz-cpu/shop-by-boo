@@ -1,4 +1,4 @@
-# Схема базы данных — v28.72.1
+# Схема базы данных — v28.73.0
 
 Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0092_telegram_bot`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
