@@ -1,5 +1,7 @@
 # Застосунки Android і iOS
 
+**Завантажити:** [клієнт Android](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [адмінка Android](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk) — завжди останній випуск.
+
 | | Android | iOS |
 | --- | --- | --- |
 | Клієнт | Kotlin, Jetpack Compose, вбудований VPN (Xray-core) | SwiftUI, Swift 6, Network Extension (Xray-core) |

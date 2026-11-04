@@ -521,6 +521,8 @@ Remnawave. Вы устанавливаете его на свой сервер, 
 
 ## 📲 Приложения Android и iOS
 
+**Скачать Android (подписаны ключом магазина):** [клиент — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [админка — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk). Ссылки всегда ведут на последний выпуск; рядом лежат `.sha256` для проверки. iOS — через TestFlight или App Store, когда будет аккаунт Apple Developer.
+
 | VPN | VPN подключён | Подписка | Премиум | Локации |
 | :---: | :---: | :---: | :---: | :---: |
 | ![Android: главный экран](screenshots/mobile/android-vpn.png) | ![Android: VPN подключён](screenshots/mobile/android-vpn-on.png) | ![Android: подписка](screenshots/mobile/android-subscription.png) | ![Android: тарифы](screenshots/mobile/android-premium.png) | ![Android: локации](screenshots/mobile/android-locations.png) |

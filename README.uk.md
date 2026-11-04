@@ -18,6 +18,8 @@
 
 ## З чого почати
 
+**Завантажити для Android (підписано ключем магазину):** [клієнт — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [адмінка — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk). Посилання завжди ведуть на останній випуск.
+
 | Завдання | Документ |
 | --- | --- |
 | Встановити Remnawave і налаштувати домени | [Посібник власника](docs/uk/OWNER_SETUP_GUIDE.md) |

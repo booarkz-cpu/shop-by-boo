@@ -18,6 +18,8 @@ Everything is managed from one admin panel, including installing Remnawave and i
 
 ## Start here
 
+**Download for Android (signed with the shop key):** [customer app — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [admin app — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk). The links always point to the latest release.
+
 | Task | Document |
 | --- | --- |
 | Install Remnawave and set up domains | [Owner setup guide](docs/en/OWNER_SETUP_GUIDE.md) |
