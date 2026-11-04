@@ -6,10 +6,11 @@ import NetworkExtension
 /// Used only when the build embeds the extension (CORGI_TUNNEL = YES, set by
 /// scripts/ios/enable-extensions.py for a team with the Network Extension entitlement). Otherwise
 /// `available` is false and the app keeps handing the subscription to Happ / v2RayTun.
+@MainActor
 final class CorgiTunnelManager {
     static let shared = CorgiTunnelManager()
-    static var available: Bool { (Bundle.main.object(forInfoDictionaryKey: "CorgiTunnelEnabled") as? String) == "YES" }
-    static var providerBundleId: String { (Bundle.main.bundleIdentifier ?? "shop.remnawave.user") + ".tunnel" }
+    nonisolated static var available: Bool { (Bundle.main.object(forInfoDictionaryKey: "CorgiTunnelEnabled") as? String) == "YES" }
+    nonisolated static var providerBundleId: String { (Bundle.main.bundleIdentifier ?? "shop.remnawave.user") + ".tunnel" }
 
     private var manager: NETunnelProviderManager?
     private var observer: NSObjectProtocol?
@@ -29,17 +30,22 @@ final class CorgiTunnelManager {
         set { shared?.set(newValue, forKey: CorgiXray.keyBypassRu); reload() }
     }
 
-    func load(_ done: @escaping () -> Void = {}) {
+    func load(_ done: @escaping @MainActor () -> Void = {}) {
         guard Self.available else { return done() }
-        NETunnelProviderManager.loadAllFromPreferences { [weak self] managers, _ in
-            guard let self else { return }
-            self.manager = managers?.first { ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == Self.providerBundleId }
-            self.watch()
-            DispatchQueue.main.async { self.onStatus?(self.status); done() }
+        NETunnelProviderManager.loadAllFromPreferences { managers, _ in
+            let found = managers?.first { ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == Self.providerBundleId }
+            let handoff = Handoff(found)
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.manager = handoff.value
+                self.watch()
+                self.onStatus?(self.status)
+                done()
+            }
         }
     }
 
-    func connect(subscription: String, _ completion: @escaping (Error?) -> Void) {
+    func connect(subscription: String, _ completion: @escaping @MainActor (Error?) -> Void) {
         guard Self.available, subscription.hasPrefix("https://") else {
             return completion(NSError(domain: "CorgiTunnel", code: 2, userInfo: [NSLocalizedDescriptionKey: "Нет подписки"]))
         }
@@ -54,18 +60,22 @@ final class CorgiTunnelManager {
             manager.protocolConfiguration = proto
             manager.localizedDescription = "Corgi Lusi"
             manager.isEnabled = true
+            let handoff = Handoff(manager)
             manager.saveToPreferences { error in
-                if let error { return DispatchQueue.main.async { completion(error) } }
+                if let error { return Task { @MainActor in completion(error) } }
                 // A saved configuration must be loaded again before it can start.
-                manager.loadFromPreferences { error in
-                    if let error { return DispatchQueue.main.async { completion(error) } }
-                    self.manager = manager
-                    self.watch()
-                    do {
-                        try manager.connection.startVPNTunnel()
-                        DispatchQueue.main.async { completion(nil) }
-                    } catch {
-                        DispatchQueue.main.async { completion(error) }
+                handoff.value.loadFromPreferences { error in
+                    Task { @MainActor [weak self] in
+                        if let error { return completion(error) }
+                        let manager = handoff.value
+                        self?.manager = manager
+                        self?.watch()
+                        do {
+                            try manager.connection.startVPNTunnel()
+                            completion(nil)
+                        } catch {
+                            completion(error)
+                        }
                     }
                 }
             }
@@ -83,8 +93,11 @@ final class CorgiTunnelManager {
     private func watch() {
         guard observer == nil, let connection = manager?.connection else { return }
         observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: connection, queue: .main) { [weak self] _ in
-            guard let self else { return }
-            self.onStatus?(self.status)
+            // Delivered on the main queue (queue: .main).
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.onStatus?(self.status)
+            }
         }
     }
 }
