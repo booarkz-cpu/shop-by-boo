@@ -1,0 +1,4 @@
+generate-admin-matrix 1
+generate-api-docs 1
+generate-db-schema 0
+pytest 0

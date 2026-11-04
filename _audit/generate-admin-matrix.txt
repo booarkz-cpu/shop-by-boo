@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/data/media'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/shop-by-boo/shop-by-boo/scripts/generate-admin-matrix.py", line 126, in <module>
+    main()
+  File "/home/runner/work/shop-by-boo/shop-by-boo/scripts/generate-admin-matrix.py", line 117, in main
+    for target, content in ((TARGET, render()), (MODULES_TARGET, render_modules())):
+                                     ^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/scripts/generate-admin-matrix.py", line 80, in render
+    rows = matrix()
+           ^^^^^^^^
+  File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/admin_center.py", line 92, in matrix
+    from .main import app
+  File "/home/runner/work/shop-by-boo/shop-by-boo/backend/app/main.py", line 380, in <module>
+    pathlib.Path(settings.media_dir).mkdir(parents=True, exist_ok=True)
+  File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/pathlib.py", line 1315, in mkdir
+    self.parent.mkdir(parents=True, exist_ok=True)
+  File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+PermissionError: [Errno 13] Permission denied: '/data'
