@@ -65,3 +65,8 @@ shadcn-совместимые компоненты используют Radix To
 
 Файлы MPL-2.0 Xray-core остаются под MPL-2.0: при распространении приложения приложите текст MPL-2.0 и ссылку на исходники ревизии. Сборка без расширения передаёт подписку в Happ или v2RayTun и этих библиотек не содержит.
 
+
+## Remnawave: идеи модулей и шаблон страницы подписки (с v28.69.0)
+
+- [eGamesAPI/remnawave-reverse-proxy](https://github.com/eGamesAPI/remnawave-reverse-proxy) — MIT, Copyright (c) 2025 eGames. Использованы идеи модулей: расширения ноды, правила подписки, WARP, IPv6, NetBird, Xray Checker, DNS-записи (Cloudflare, Bunny, Gcore), управление панелью, защита панели cookie. Код написан заново в мастере установки магазина.
+- [legiz-ru/Orion](https://github.com/legiz-ru/Orion) — MIT, Copyright (c) 2025 legiz-ru. Шаблон страницы подписки Remnawave (v28.77.0). Не входит в дистрибутив: мастер скачивает `index.html` закреплённого коммита `d232def6a6c11e37aeeb76ebfb1ee8eb5eb8b5bd`, сверяет SHA-256 и записывает на сервер страницы подписки только по выбору администратора.

@@ -75,6 +75,8 @@ class PlanIn(BaseModel):
     # REALITY on port 443 uses it as its «dest» (the node looks like an ordinary site).
     selfsteal_domain: str | None = Field(default=None, max_length=253)
     selfsteal_template: Literal["cloud", "docs", "corgi"] = "cloud"
+    # v28.77.0: the page of the Remnawave subscription page — its own, or Orion (legiz-ru/Orion, MIT) pinned below.
+    subpage_template: Literal["default", "orion"] = "default"
     # v28.70.0: node modules that change the files the wizard writes, so updates keep them:
     # an Xray core of the chosen release mounted into the node, and Xray Checker on one of the servers.
     xray_core: str | None = Field(default=None, pattern=r"^v\d{1,3}\.\d{1,3}\.\d{1,3}$")
@@ -205,7 +207,8 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
         name = servers[s]["name"]
         steps += [step("write_files", s, f"{name}: файлы страницы подписки", component="subscription_page"),
                   step("compose_up", s, f"{name}: запуск страницы подписки", component="subscription_page")]
-        changes[s].append(f"Каталог {DIRS['subscription_page']}; контейнер remnawave-subscription-page на 127.0.0.1:3010")
+        changes[s].append(f"Каталог {DIRS['subscription_page']}; контейнер remnawave-subscription-page на 127.0.0.1:3010; "
+                          f"страница: {SUBPAGE_TEMPLATES[plan.subpage_template]}")
     for sid in {x for x in (p, s) if x}:
         name = servers[sid]["name"]
         sites = [d for d in ((plan.panel_domain if sid == p else None), (plan.sub_domain if sid == s else None)) if d]
@@ -330,7 +333,17 @@ def panel_env(plan: PlanIn, secrets: dict) -> str:
     return "".join(f"{k}={_q(v)}\n" for k, v in values.items())
 
 
-def subpage_compose() -> str:
+# v28.77.0: Orion — a subscription page template by legiz-ru (MIT, Copyright (c) 2025 legiz-ru), the
+# «Custom extensions by legiz» of eGamesAPI/remnawave-reverse-proxy. Pinned to a commit and its SHA-256: the wizard
+# writes exactly this file, never «main». The page loads its scripts from jsDelivr and Skypack in the visitor's browser.
+ORION = {"commit": "d232def6a6c11e37aeeb76ebfb1ee8eb5eb8b5bd",
+         "sha256": "7bfec9a1fa8e62206504bd86690c69a6d4deae6767f09a10b21936f53ef0ecee",
+         "url": "https://raw.githubusercontent.com/legiz-ru/Orion/d232def6a6c11e37aeeb76ebfb1ee8eb5eb8b5bd/index.html"}
+SUBPAGE_TEMPLATES = {"default": "Стандартная страница Remnawave", "orion": "Orion (legiz-ru, MIT)"}
+
+
+def subpage_compose(template: str = "default") -> str:
+    volumes = '    volumes: ["./index.html:/opt/app/frontend/index.html:ro"]\n' if template == "orion" else ""
     return f"""services:
   remnawave-subscription-page:
     image: {IMAGES['subscription_page']}
@@ -339,7 +352,7 @@ def subpage_compose() -> str:
     restart: always
     env_file: .env
     ports: ["127.0.0.1:3010:3010"]
-    networks: [remnawave-network]
+{volumes}    networks: [remnawave-network]
 networks:
   remnawave-network: {{external: true}}
 """

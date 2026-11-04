@@ -124,6 +124,8 @@ class ActionIn(BaseModel):
     action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs"]
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
     panel_access: Literal["open", "cookie"] | None = None
+    # v28.77.0: with «update» — the template of the Remnawave subscription page.
+    subpage_template: Literal["default", "orion"] | None = None
     module: ModuleIn | None = None
 
 
@@ -413,6 +415,10 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
         if payload.action != "update" or not params.get("panel_server_id"):
             raise HTTPException(422, "Доступ к панели меняется действием «Обновить» установки с панелью")
         params["panel_access"] = payload.panel_access
+    if payload.subpage_template:
+        if payload.action != "update" or not params.get("subpage_server_id"):
+            raise HTTPException(422, "Шаблон страницы подписки меняется действием «Обновить» установки со страницей подписки")
+        params["subpage_template"] = payload.subpage_template
     secrets = None
     if payload.action == "module":
         if not payload.module:
