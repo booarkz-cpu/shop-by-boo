@@ -9,6 +9,7 @@ MODULES = (
     "anti_sharing",
     "support_ai",
     "admin_web_ticket",
+    "panel_gate",
     "economics",
     "block_monitor",
     "provider_report",

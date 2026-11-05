@@ -75,7 +75,7 @@ class PlanIn(BaseModel):
     country_code: str = Field(default="XX", pattern=r"^[A-Z]{2}$")
     firewall: bool = True
     # v28.67.0: «закрыть доступ к панели» — the panel's pages answer only with the access cookie (rw_plan.caddyfile).
-    panel_access: Literal["open", "cookie", "tinyauth"] = "open"
+    panel_access: Literal["open", "cookie", "tinyauth", "gate"] = "open"
     # v28.78.0: «tinyauth» — the panel's pages ask for a login on this domain (TinyAuth). It must be a sibling of the
     # panel's domain (auth.example.com for panel.example.com): the session cookie is set for the common parent.
     auth_domain: str | None = Field(default=None, max_length=253)
@@ -141,7 +141,7 @@ class PlanIn(BaseModel):
                 raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
         if self.xray_checker_server_id and self.xray_checker_server_id not in roles_of(self):
             raise ValueError("Xray Checker ставится на один из серверов этой установки")
-        if self.panel_access in ("cookie", "tinyauth") and not self.panel_server_id:
+        if self.panel_access in ("cookie", "tinyauth", "gate") and not self.panel_server_id:
             raise ValueError("Закрыть доступ можно к панели, которую ставит мастер")
         if self.panel_access == "tinyauth":
             if not self.auth_domain:
@@ -240,6 +240,9 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
         if sid == p and plan.panel_access == "tinyauth":
             changes[sid].append(f"Страницы панели — после входа на https://{plan.auth_domain} (TinyAuth, контейнер remnawave-tinyauth "
                                 f"на 127.0.0.1:{TINYAUTH_PORT}); API с токеном и подписки работают без входа")
+        if sid == p and plan.panel_access == "gate":
+            changes[sid].append("Страницы панели — только администраторам магазина с правом управлять серверами (кнопка «Открыть панель» "
+                                "в мастере; Caddy спрашивает магазин о каждом запросе); API с токеном и подписки работают без входа")
     for n in plan.node_server_ids:
         name = servers[n]["name"]
         if plan.selfsteal_domain:
@@ -395,11 +398,13 @@ def subpage_network_compose_needed(local: bool) -> str:
     return "" if local else "docker network inspect remnawave-network >/dev/null 2>&1 || docker network create remnawave-network"
 
 
+# The shop's address in a panel's Caddyfile: https://host[:port] (http only for 127.0.0.1 — the live test).
+SHOP_URL = re.compile(r"^(https://(?!-)[a-z0-9.-]{4,253}(?::\d{2,5})?|http://127\.0\.0\.1:\d{2,5})\Z")
 COOKIE_PART = re.compile(r"^[A-Za-z0-9]{8,64}\Z")
 
 
 def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[str, tuple[str, str]] | None = None,
-              guard: dict[str, int] | None = None) -> str:
+              guard: dict[str, int] | None = None, gate: dict[str, str] | None = None) -> str:
     """``sites`` — domain → local port. Caddy terminates TLS and adds X-Forwarded-For/-Proto, which the panel and
     the subscription page require.
 
@@ -411,9 +416,13 @@ def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[
 
     ``guard`` — domain → local port of TinyAuth (v28.78.0): the same pages ask TinyAuth first (``forward_auth``,
     its Caddy endpoint answers 200 with a session and a redirect to the login page without one); the same
-    requests as above stay open."""
+    requests as above stay open.
+
+    ``gate`` — domain → the shop's public address (v28.78.0, panel_gate.py): the same pages ask the shop; the
+    one-time link ``/__corgi_gate`` is handed to the shop, which sets the panel domain's cookie."""
     protect = protect or {}
     guard = guard or {}
+    gate = gate or {}
     lines = []
     if email:
         lines += ["{", f"\temail {email}", "}", ""]
@@ -433,6 +442,18 @@ def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[
         if domain in guard:
             body += ["\t@guarded {", "\t\tnot path /api/sub/*", "\t\tnot {", "\t\t\tpath /api/*", '\t\t\theader Authorization "Bearer *"',
                      "\t\t}", "\t}", f"\tforward_auth @guarded 127.0.0.1:{int(guard[domain])} {{", "\t\turi /api/auth/caddy", "\t}"]
+        if domain in gate:
+            shop = gate[domain]
+            if not SHOP_URL.match(shop):
+                raise ValueError("Некорректный адрес магазина")
+            body += ["\thandle /__corgi_gate {", "\t\trewrite * /api/panel-gate/redeem?{query}", f"\t\treverse_proxy {shop} {{",
+                     "\t\t\theader_up Host {upstream_hostport}", "\t\t\theader_up X-Corgi-Gate-Host {host}", "\t\t}", "\t}",
+                     "\thandle {", "\t\t@guarded {", "\t\t\tnot path /api/sub/*", "\t\t\tnot {", "\t\t\t\tpath /api/*",
+                     '\t\t\t\theader Authorization "Bearer *"', "\t\t\t}", "\t\t}", f"\t\tforward_auth @guarded {shop} {{",
+                     "\t\t\turi /api/panel-gate/verify", "\t\t\theader_up Host {upstream_hostport}", "\t\t\theader_up X-Corgi-Gate-Host {host}",
+                     "\t\t}", f"\t\treverse_proxy 127.0.0.1:{int(port)}", "\t}"]
+            lines += [f"{domain} {{", *body, "}", ""]
+            continue
         body.append(f"\treverse_proxy 127.0.0.1:{int(port)}")
         lines += [f"{domain} {{", *body, "}", ""]
     return "\n".join(lines)

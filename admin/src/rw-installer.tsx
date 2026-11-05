@@ -221,7 +221,9 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
         <span className="muted">Orion — шаблон legiz-ru/Orion, закреплённый по SHA-256; скрипты страницы загружаются с jsDelivr и Skypack.</span></label>}
       {needPanel && <label>Доступ к панели<select value={f.panel_access} onChange={set("panel_access")}>
         <option value="open">Открыт по адресу панели</option><option value="cookie">Только по секретной ссылке (страницы панели скрыты)</option>
-        <option value="tinyauth">Вход через TinyAuth (логин и пароль на своём домене)</option></select></label>}
+        <option value="gate">Вход через магазин (администраторы магазина с 2FA)</option>
+        <option value="tinyauth">Вход через TinyAuth (логин и пароль на своём домене)</option></select>
+        {f.panel_access === "gate" && <span className="muted">Страницы панели открываются кнопкой «Открыть панель» здесь, в мастере, — только администраторам магазина с правом управлять серверами. API магазина и подписки клиентов работают без входа.</span>}</label>}
       {needPanel && f.panel_access === "tinyauth" && <label>Домен входа TinyAuth<input value={f.auth_domain} onChange={set("auth_domain")} required placeholder="auth.example.com"/>
         <span className="muted">Соседний с доменом панели (auth.example.com для panel.example.com) и указывает на тот же сервер. TinyAuth (GPL-3.0) работает отдельным контейнером; API с токеном магазина и подписки клиентов проходят без входа.</span></label>}
       {(needPanel || needSub) && <label>Сертификат<select value={f.tls} onChange={set("tls")}>
@@ -305,6 +307,10 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
     toast(`Задача №${out.id} запущена`); setPlanned(null); reload();
   });
   const showCreds = () => act(async () => setCreds(await request(`${API}/installations/${id}/credentials`, post())));
+  // The window opens on the click itself (popup blockers), the one-time link arrives a moment later.
+  const openPanel = () => { const tab = window.open("about:blank", "_blank");
+    act(async () => { const out = await request(`${API}/installations/${id}/panel-gate`, post());
+      if (tab) { tab.opener = null; tab.location.href = out.url; } else window.location.href = out.url; }); };
   const connect = () => act(async () => setStaged(await request(`${API}/installations/${id}/connect-shop`, post())));
   const apply = () => act(async () => {
     await request(`/api/admin/runtime-settings/changes/${staged.change.id}/apply`, post({expected_version: staged.change.base_version, fingerprint: staged.change.fingerprint}));
@@ -321,6 +327,7 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
     {isInstall && job.status === "succeeded" && <div className="actions" data-rw-actions>
       {job.result?.panel_url && <a href={job.result.panel_url} target="_blank" rel="noreferrer">{job.result.panel_url}</a>}
       {job.params?.panel_server_id && <button onClick={showCreds}>Показать вход в панель</button>}
+      {job.params?.panel_access === "gate" && <button className="primary" onClick={openPanel} data-rw-open-panel>Открыть панель</button>}
       {job.params?.panel_server_id && job.params?.tls === "acme" && <button onClick={connect}>Подключить магазин к этой панели</button>}
       {job.params?.panel_server_id && <button onClick={() => action("update", {panel_access: job.params?.panel_access === "open" || !job.params?.panel_access ? "cookie" : "open"})}>
         {job.params?.panel_access === "open" || !job.params?.panel_access ? "Закрыть доступ к панели" : "Открыть доступ к панели"}</button>}
