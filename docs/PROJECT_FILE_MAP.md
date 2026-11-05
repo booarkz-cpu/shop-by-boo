@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2236**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2239**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1820,6 +1820,7 @@
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/test-shard.py](../scripts/ci/test-shard.py) | Эксплуатация и релиз |
+| [scripts/ci/tinyauth-live.sh](../scripts/ci/tinyauth-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/zap-summary.py](../scripts/ci/zap-summary.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
 | [scripts/compose-build.sh](../scripts/compose-build.sh) | Эксплуатация и релиз |
@@ -1980,6 +1981,7 @@
 | [tests/live/test_payments_live.py](../tests/live/test_payments_live.py) | Проверки |
 | [tests/live/test_remnawave_live.py](../tests/live/test_remnawave_live.py) | Проверки |
 | [tests/live/test_telegram_live.py](../tests/live/test_telegram_live.py) | Проверки |
+| [tests/live/test_tinyauth_live.py](../tests/live/test_tinyauth_live.py) | Проверки |
 | [tests/load/live.js](../tests/load/live.js) | Проверки |
 | [tests/load/shop.js](../tests/load/shop.js) | Проверки |
 | [tests/main_source.py](../tests/main_source.py) | Проверки |
@@ -2139,6 +2141,7 @@
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_rw_node_modules.py](../tests/test_rw_node_modules.py) | Проверки |
 | [tests/test_rw_ssh.py](../tests/test_rw_ssh.py) | Проверки |
+| [tests/test_rw_tinyauth.py](../tests/test_rw_tinyauth.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
