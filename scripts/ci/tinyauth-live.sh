@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v28.79.0 (stage 18): the wizard's TinyAuth files with the real TinyAuth and Caddy images
+# v28.78.0 (stage 18): the wizard's TinyAuth files with the real TinyAuth and Caddy images
 # (tests/live/test_tinyauth_live.py).
 set -Eeuo pipefail
 cd "${GITHUB_WORKSPACE:-$(git -C "$(dirname "$0")" rev-parse --show-toplevel)}"

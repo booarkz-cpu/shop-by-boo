@@ -102,6 +102,7 @@ class ClientVpnService : VpnService() {
         private fun state(context: Context, value: String) {
             prefs(context).edit().putString("state", value).apply()
             listeners.toList().forEach { it(value) }
+            ClientWidget.refresh(context)
         }
 
         private fun error(context: Context, value: String) { prefs(context).edit().putString("error", value).apply() }

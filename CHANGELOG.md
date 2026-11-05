@@ -1,3 +1,9 @@
+# v28.80.0
+
+- «Корги Люси: клиент» 1.1.0: виджет, проверка обновлений по манифесту `corgi-lusi-client.json` в выпуске, подписка на ТВ с телефона через одноразовую страницу в локальной сети; настройка Obtainium (`docs/ru/RELEASE_V28_80_0.md`).
+- Уборка: удалены `docs/screenshots` и `docs/assets/screens`; украинская документация обновлена; исправлен нестабильный тест Support Pro `test_totp_replay_rejected`.
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.79.0
 
 - Этап 18, часть 3 (`docs/ru/RELEASE_V28_79_0.md`): третье Android-приложение «Корги Люси: клиент» (`mobile/android-client`, `shop.corgi.client`) — отдельный VPN-клиент на Xray-core для любых подписок: подписки по ссылке, QR и «Поделиться» с автообновлением, VLESS/REALITY, VMess, Trojan, Shadowsocks, SOCKS5, WireGuard, полный JSON Xray, автовыбор сервера, маршруты и свои правила, geo-файлы, фрагментация TLS, DNS, приложения через VPN, плитка, Android TV; тест на эмуляторе; подписанный `corgi-lusi-client.apk` в каждом выпуске. Клиент магазина и админка не изменились.

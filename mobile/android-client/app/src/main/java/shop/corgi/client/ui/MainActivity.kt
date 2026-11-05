@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val store = Store(this)
-        thread { runCatching { store.updateDue() } }
+        thread { runCatching { store.updateDue() }; runCatching { store.checkUpdate() } }
         val incoming = importText(intent)
         ciHook(intent)
         setIntent(Intent())  // handled once: a recreation must not import or connect again

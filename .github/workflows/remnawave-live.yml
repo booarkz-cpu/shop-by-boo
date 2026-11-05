@@ -75,7 +75,7 @@ jobs:
       - name: On-demand certificates of portal domains
         run: bash scripts/ci/caddy-on-demand-live.sh
 
-  # v28.79.0 (stage 18): «Доступ к панели → Вход через TinyAuth» — the wizard's files with the real TinyAuth and Caddy.
+  # v28.78.0 (stage 18): «Доступ к панели → Вход через TinyAuth» — the wizard's files with the real TinyAuth and Caddy.
   tinyauth:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

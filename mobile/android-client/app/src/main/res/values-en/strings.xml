@@ -4,4 +4,7 @@
     <string name="app_short">Corgi VPN</string>
     <string name="connected">VPN connected</string>
     <string name="disconnect">Disconnect</string>
+    <string name="widget_description">Connect with one tap</string>
+    <string name="vpn_off">VPN is off</string>
+    <string name="vpn_connecting">Connecting…</string>
 </resources>
