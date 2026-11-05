@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Corgi Lusi: client</string>
+    <string name="app_short">Corgi VPN</string>
+    <string name="connected">VPN connected</string>
+    <string name="disconnect">Disconnect</string>
+</resources>

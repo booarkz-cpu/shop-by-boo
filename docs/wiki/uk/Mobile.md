@@ -1,6 +1,6 @@
 # Застосунки Android і iOS
 
-**Завантажити:** [клієнт Android](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [адмінка Android](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk) — завжди останній випуск.
+**Завантажити:** [клієнт Android](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [«Коргі Люсі: клієнт»](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) · [адмінка Android](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk) — завжди останній випуск.
 
 | | Android | iOS |
 | --- | --- | --- |

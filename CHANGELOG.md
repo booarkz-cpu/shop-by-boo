@@ -1,3 +1,8 @@
+# v28.79.0
+
+- Этап 18, часть 3 (`docs/ru/RELEASE_V28_79_0.md`): третье Android-приложение «Корги Люси: клиент» (`mobile/android-client`, `shop.corgi.client`) — отдельный VPN-клиент на Xray-core для любых подписок: подписки по ссылке, QR и «Поделиться» с автообновлением, VLESS/REALITY, VMess, Trojan, Shadowsocks, SOCKS5, WireGuard, полный JSON Xray, автовыбор сервера, маршруты и свои правила, geo-файлы, фрагментация TLS, DNS, приложения через VPN, плитка, Android TV; тест на эмуляторе; подписанный `corgi-lusi-client.apk` в каждом выпуске. Клиент магазина и админка не изменились.
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.78.0
 
 - Этап 18, часть 2 (`docs/ru/RELEASE_V28_78_0.md`):

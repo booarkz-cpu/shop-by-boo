@@ -73,6 +73,19 @@ jobs:
               if grep -q 'CN=Android Debug' "$apk.certificate.txt"; then echo 'Debug signing certificate rejected'; exit 1; fi
             fi
           done
+          # v28.79.0: the third app «Корги Люси: клиент» (mobile/android-client), signed with the same key, under the
+          # permanent name corgi-lusi-client.apk. Its own Gradle project: the builds above do not change.
+          mkdir -p mobile/android-client/app/libs && cp mobile/android-user/app/libs/libv2ray.aar mobile/android-client/app/libs/
+          (cd mobile/android-client && bash gradlew :app:assembleRelease --no-daemon -q)
+          client=mobile/android-client/app/build/outputs/apk/release/app-release.apk
+          [[ -f "$client" ]] || client=mobile/android-client/app/build/outputs/apk/release/app-release-unsigned.apk
+          if [[ "$state" == signed ]]; then
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$client" > "$RUNNER_TEMP/client-cert.txt"
+            digest="$(sed -n 's/^Signer[^:]*certificate SHA-256 digest: //p' "$RUNNER_TEMP/client-cert.txt" | head -1)"
+            [[ "$digest" == "$(grep -Eo '^[0-9a-f]{64}' mobile/android-signing-cert.sha256)" ]] || { echo "Client app: unexpected signing key ($digest)"; exit 1; }
+            cp "$client" dist/mobile/corgi-lusi-client.apk
+            (cd dist/mobile && sha256sum corgi-lusi-client.apk > corgi-lusi-client.apk.sha256)
+          fi
           printf '%s\n' "$state" > dist/mobile/android-status.txt
           echo "Android production: $state" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
@@ -225,7 +238,7 @@ jobs:
               name === 'mobile-production-status.json' ||
               (android === 'signed' && new RegExp(`^corgi_lusi_android_(user|admin)_${v}_release\\.(?:apk|aab)(?:\\.(?:sha256|certificate\\.txt|package\\.txt))?$`).test(name)) ||
               // Permanent names for releases/latest/download/… links (README, cabinet, bot); signed builds only.
-              (android === 'signed' && /^corgi-lusi-android(?:-admin)?\.apk(?:\.sha256)?$/.test(name)) ||
+              (android === 'signed' && /^corgi-lusi-(?:android(?:-admin)?|client)\.apk(?:\.sha256)?$/.test(name)) ||
               (ios === 'signed' && new RegExp(`^corgi_lusi_ios_(user|admin)_${v}_signed\\.ipa(?:\\.sha256)?$`).test(name)));
             const existing = (await github.rest.repos.listReleaseAssets({...args, release_id:release.id, per_page:100})).data;
             for (const name of names) {

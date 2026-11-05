@@ -7,7 +7,7 @@
 > The code and documentation are published for study and demonstration. If you use them, you alone are responsible for complying with the laws of your country and for the security of your servers and customer data. The author gives no warranty and accepts no liability for any use.
 
 
-> **v28.78.0** — current stable release. Runtime/API `21.5.1`, shop migration `0093_ssh_key_rotation`.
+> **v28.79.0** — current stable release. Runtime/API `21.5.1`, shop migration `0093_ssh_key_rotation`.
 
 **What it is.** The shop sells VPN subscriptions and grants access in your own Remnawave panel. It:
 - takes payments (SBP, cards, crypto, Telegram Stars);
@@ -23,7 +23,7 @@ Everything is managed from one admin panel, including installing Remnawave and i
 
 ## Start here
 
-**Download for Android (signed with the shop key):** [customer app — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [admin app — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk). The links always point to the latest release.
+**Download for Android (signed with the shop key):** [customer app — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [«Corgi Lusi: client» — a VPN for any subscription, APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) · [admin app — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk). The links always point to the latest release.
 
 | Task | Document |
 | --- | --- |
