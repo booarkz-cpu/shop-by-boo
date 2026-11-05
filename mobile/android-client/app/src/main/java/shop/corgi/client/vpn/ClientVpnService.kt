@@ -32,8 +32,11 @@ class ClientVpnService : VpnService() {
                 val store = Store(this)
                 val profile = store.active() ?: throw IllegalStateException(tr("Добавьте подписку или сервер", "Add a subscription or a server", "Додайте підписку або сервер"))
                 val s = store.settings
-                val config = if (profile.kind == "json") ConfigBuilder.fromJson(profile.json, s)
-                    else ConfigBuilder.build(profile.servers(), store.activeServer, s, store.geoReady())
+                val config = when {
+                    profile.kind == "json" -> ConfigBuilder.fromJson(profile.json, s, store.geoReady())
+                    profile.configs.isNotEmpty() -> ConfigBuilder.fromJson(profile.configFor(store.activeServer)!!, s, store.geoReady())
+                    else -> ConfigBuilder.build(profile.servers(), store.activeServer, s, store.geoReady())
+                }
                 if (ConfigBuilder.needsGeo(config) && !store.geoReady()) throw IllegalStateException(tr("Нужны geo-файлы: «Маршруты → Скачать geo-файлы»", "Geo files needed: «Routing → Download geo files»", "Потрібні geo-файли: «Маршрути → Завантажити geo-файли»"))
                 val builder = Builder().setSession(getString(R.string.app_name)).setMtu(s.mtu)
                     .addAddress("172.19.0.1", 30).addRoute("0.0.0.0", 0).addDnsServer(s.dns.firstOrNull { !it.contains("/") } ?: "1.1.1.1")

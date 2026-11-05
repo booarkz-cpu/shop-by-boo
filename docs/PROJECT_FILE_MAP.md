@@ -1,6 +1,6 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.80.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.81.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
@@ -1174,6 +1174,7 @@
 | [docs/ru/RELEASE_V28_79_0.md](../docs/ru/RELEASE_V28_79_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_80_0.md](../docs/ru/RELEASE_V28_80_0.md) | Документация |
+| [docs/ru/RELEASE_V28_81_0.md](../docs/ru/RELEASE_V28_81_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |

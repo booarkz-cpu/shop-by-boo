@@ -76,13 +76,62 @@ object ConfigBuilder {
      * A full Xray config the user imported (observatory, balancers, routing, own outbounds stay as written). Its inbounds
      * are replaced with the tunnel; anything that would listen on the device (socks, http, dokodemo) is not kept.
      */
-    fun fromJson(raw: String, s: Settings): String {
+    fun fromJson(raw: String, s: Settings, geo: Boolean = true): String {
         val config = JSONObject(raw)
         val outbounds = config.optJSONArray("outbounds")
         require(outbounds != null && outbounds.length() > 0) { "no outbounds" }
         config.put("inbounds", JSONArray().put(tunInbound(s.mtu)))
         config.remove("api"); config.remove("stats"); config.remove("metrics")
+        if (!geo) stripGeo(config)
         return config.toString()
+    }
+
+    /**
+     * Without geoip.dat / geosite.dat Xray refuses a config that names them (panels put «geoip:private», «geosite:…» into
+     * their JSON). Then «geoip:private» becomes the private ranges themselves and other geo entries are left out —
+     * the rule keeps what it can, a rule left empty is dropped; DNS servers lose their geo domain lists the same way.
+     */
+    fun stripGeo(config: JSONObject) {
+        fun clean(list: JSONArray?, ip: Boolean): JSONArray? {
+            if (list == null) return null
+            val out = JSONArray()
+            for (i in 0 until list.length()) {
+                val v = list.optString(i)
+                when {
+                    ip && v == "geoip:private" -> PRIVATE.forEach { out.put(it) }
+                    v.startsWith("geoip:") || v.startsWith("geosite:") || v.startsWith("ext:") -> Unit
+                    else -> out.put(list.get(i))
+                }
+            }
+            return out
+        }
+        config.optJSONObject("routing")?.optJSONArray("rules")?.let { rules ->
+            val kept = JSONArray()
+            for (i in 0 until rules.length()) {
+                val rule = rules.optJSONObject(i) ?: continue
+                var emptied = false
+                for ((key, ip) in listOf("domain" to false, "ip" to true, "source" to true)) {
+                    if (!rule.has(key)) continue
+                    val list = clean(rule.optJSONArray(key), ip)
+                    if (list == null || list.length() == 0) { rule.remove(key); emptied = true } else rule.put(key, list)
+                }
+                // A rule that only matched geo lists would now match everything: it goes.
+                val matchers = listOf("domain", "ip", "source", "port", "network", "protocol", "inboundTag", "user", "attrs", "sourcePort")
+                if (emptied && matchers.none { rule.has(it) }) continue
+                kept.put(rule)
+            }
+            config.getJSONObject("routing").put("rules", kept)
+        }
+        config.optJSONObject("dns")?.optJSONArray("servers")?.let { servers ->
+            for (i in 0 until servers.length()) {
+                val server = servers.optJSONObject(i) ?: continue
+                for ((key, ip) in listOf("domains" to false, "expectIPs" to true, "expectedIPs" to true)) {
+                    if (!server.has(key)) continue
+                    val list = clean(server.optJSONArray(key), ip)
+                    if (list == null || list.length() == 0) server.remove(key) else server.put(key, list)
+                }
+            }
+        }
     }
 
     /** Geo rules the config uses (to tell the user to download the files first). */

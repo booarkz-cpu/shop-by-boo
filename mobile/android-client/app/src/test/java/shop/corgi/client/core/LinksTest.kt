@@ -48,8 +48,36 @@ class LinksTest {
     @Test fun subscriptionBodies() {
         val body = Base64.getEncoder().encodeToString("$reality\nhysteria2://x@h.example.com:443#H\ngarbage\n".toByteArray())
         val (servers, skipped) = Links.parseBody(body)
-        assertEquals(1, servers.size); assertEquals(1, skipped)
+        assertEquals(2, servers.size); assertEquals(0, skipped)  // v28.81.0: Hysteria2 is built (Xray 26)
+        assertEquals(1, Links.parseBody(Base64.getEncoder().encodeToString("tuic://x@t.example.com:443#T\n$reality".toByteArray())).second)
         assertEquals(1, Links.parseBody(reality).first.size)
         assertNull(runCatching { Links.parse("vless://nohost") }.getOrNull())
+    }
+
+    @Test fun hysteria2Link() {
+        val s = Links.parse("hysteria2://secret-auth@hy.example.com:443?sni=hy.example.com&alpn=h3#HY")!!
+        assertEquals("hysteria", s.protocol); assertEquals("hy.example.com", s.host); assertEquals(443, s.port)
+        val stream = s.outbound.getJSONObject("streamSettings")
+        assertEquals("hysteria", stream.getString("network")); assertEquals("secret-auth", stream.getJSONObject("hysteriaSettings").getString("auth"))
+        assertEquals(2, s.outbound.getJSONObject("settings").getInt("version"))
+        assertNull(runCatching { Links.parse("hysteria2://a@h.example.com:443?obfs=salamander&obfs-password=x#O") }.getOrNull())
+    }
+
+    /** What Remnawave sends to v2rayNG / Happ when its response rules choose Xray JSON (seen on a live panel, 2026-11-05). */
+    @Test fun remnawaveJsonSubscription() {
+        val item = { name: String, extra: String -> """{"remarks":"$name","dns":{"servers":["1.1.1.1"]},"inbounds":[{"tag":"socks","port":10808,"protocol":"socks"}],
+            "outbounds":[{"tag":"proxy","protocol":"vless","settings":{"vnext":[{"address":"nl.example.com","port":443,"users":[{"id":"u"}]}]},
+            "streamSettings":{"network":"tcp","security":"reality"}},{"tag":"direct","protocol":"freedom"},{"tag":"block","protocol":"blackhole"}],
+            "routing":{"rules":[{"type":"field","ip":["geoip:private"],"outboundTag":"direct"},{"type":"field","domain":["geosite:category-ads-all"],"outboundTag":"block"}]}$extra}""" }
+        val body = "[" + item("⚡ Fastest", ""","burstObservatory":{"subjectSelector":["proxy"]}""") + "," + item("🇳🇱 NL", "") + "]"
+        val configs = Links.jsonConfigs(body)!!
+        assertEquals(listOf("⚡ Fastest", "🇳🇱 NL"), configs.map { it.first })
+        assertNull(Links.jsonConfigs("dmxlc3M6Ly8="))
+        val profile = Profile("1", "sub", "subscription", url = "https://sub.example.com/abc", configs = configs.map { it.second })
+        assertEquals(listOf("⚡ Fastest", "🇳🇱 NL"), profile.servers().map { it.name })
+        assertEquals("nl.example.com", profile.servers()[1].host)
+        assertTrue(profile.configFor("auto")!!.contains("burstObservatory"))
+        assertTrue(profile.configFor("1")!!.contains("🇳🇱 NL"))
+        assertEquals(profile, Profile.of(profile.toJson()))
     }
 }

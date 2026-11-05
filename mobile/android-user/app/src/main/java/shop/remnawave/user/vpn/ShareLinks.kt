@@ -20,8 +20,36 @@ object ShareLinks {
         } catch (_: IllegalArgumentException) {
             String(Base64.decode(text, Base64.URL_SAFE or Base64.NO_WRAP), Charsets.UTF_8)
         }
-        return plain.lines().map { it.trim() }.filter { it.contains("://") }
+        return plain.lines().map { it.trim() }.filter { it.contains("://") && !it.startsWith("http") }
     }
+
+    private val PROXY_PROTOCOLS = setOf("vless", "vmess", "trojan", "shadowsocks", "socks", "wireguard", "hysteria")
+
+    /**
+     * v28.81.0: Remnawave answers v2rayNG / Happ with Xray JSON when its response rules say so — an array of full
+     * configs with «remarks» (the first is often «fastest» with its own balancer). Returns (name, config) or null when
+     * the body is not JSON.
+     */
+    fun jsonConfigs(body: String): List<Pair<String, String>>? {
+        val text = body.trim().removePrefix("\uFEFF")
+        if (!(text.startsWith("[") || text.startsWith("{"))) return null
+        val items = try { if (text.startsWith("[")) JSONArray(text) else JSONArray().put(JSONObject(text)) } catch (_: Exception) { return null }
+        val out = mutableListOf<Pair<String, String>>()
+        for (i in 0 until items.length()) {
+            val item = items.optJSONObject(i) ?: continue
+            val outbounds = item.optJSONArray("outbounds") ?: continue
+            if ((0 until outbounds.length()).none { outbounds.optJSONObject(it)?.optString("protocol") in PROXY_PROTOCOLS }) continue
+            out += item.optString("remarks").ifBlank { "Server ${i + 1}" }.take(80) to item.toString()
+        }
+        return out
+    }
+
+    /** Servers of either kind of subscription body (for counts and checks): the proxy outbound of each JSON config, or the links. */
+    fun servers(body: String): List<VpnServer> = jsonConfigs(body)?.mapNotNull { (name, config) ->
+        val outbounds = JSONObject(config).optJSONArray("outbounds") ?: return@mapNotNull null
+        (0 until outbounds.length()).mapNotNull { outbounds.optJSONObject(it) }.firstOrNull { it.optString("protocol") in PROXY_PROTOCOLS }
+            ?.let { VpnServer(name, it) }
+    } ?: parseAll(body)
 
     fun parseAll(body: String): List<VpnServer> = decodeSubscription(body).mapIndexedNotNull { i, link ->
         try { parse(link, "proxy-$i") } catch (_: Exception) { null }
@@ -32,6 +60,7 @@ object ShareLinks {
         link.startsWith("vmess://") -> vmess(link, tag)
         link.startsWith("trojan://") -> trojan(link, tag)
         link.startsWith("ss://") -> shadowsocks(link, tag)
+        link.startsWith("hysteria2://") || link.startsWith("hy2://") -> hysteria2(link, tag)
         else -> null
     }
 
@@ -80,6 +109,18 @@ object ShareLinks {
         }
         val settings = JSONObject().put("servers", JSONArray().put(JSONObject().put("address", host).put("port", port).put("method", method).put("password", password)))
         return VpnServer(name(uri, host), outbound(tag, "shadowsocks", settings, null))
+    }
+
+    /** hysteria2://auth@host:port?sni=…&alpn=h3 → Xray «hysteria» version 2; links with obfs are skipped. */
+    private fun hysteria2(link: String, tag: String): VpnServer? {
+        val uri = Uri.parse(link.replaceFirst("hy2://", "hysteria2://"))
+        if (q(uri, "obfs").isNotBlank() || uri.host == null || uri.port <= 0) return null
+        val tls = JSONObject().put("serverName", q(uri, "sni").ifBlank { uri.host }).put("alpn", JSONArray(q(uri, "alpn").ifBlank { "h3" }.split(",")))
+        if (q(uri, "insecure") == "1") tls.put("allowInsecure", true)
+        val stream = JSONObject().put("network", "hysteria").put("security", "tls").put("tlsSettings", tls)
+            .put("hysteriaSettings", JSONObject().put("version", 2).put("auth", Uri.decode(uri.userInfo.orEmpty())))
+        val settings = JSONObject().put("version", 2).put("address", uri.host).put("port", uri.port)
+        return VpnServer(name(uri, uri.host ?: tag), outbound(tag, "hysteria", settings, stream))
     }
 
     private fun outbound(tag: String, protocol: String, settings: JSONObject, stream: JSONObject?): JSONObject {
