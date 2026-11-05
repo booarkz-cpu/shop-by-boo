@@ -17,6 +17,8 @@ import shop.corgi.client.vpn.ClientVpnService
 import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
+    private companion object { const val HANDLED = "shop.corgi.client.handled" }
+
     /** Text waiting in «Добавить» (shared, scanned, a link or corgi://import) — confirmed by the user. */
     val incoming = androidx.compose.runtime.mutableStateOf<String?>(null)
 
@@ -37,9 +39,13 @@ class MainActivity : ComponentActivity() {
             }
             runCatching { store.checkUpdate() }
         }
-        incoming.value = handle(intent)
-        ciHook(intent)
-        setIntent(Intent())  // handled once: a recreation must not import or connect again
+        // Handled once: a recreation must not import or connect again. The intent is marked, not replaced — the system
+        // and test tools (ActivityScenario) still recognise the activity by it.
+        if (!intent.getBooleanExtra(HANDLED, false)) {
+            incoming.value = handle(intent)
+            ciHook(intent)
+            intent.putExtra(HANDLED, true)
+        }
         if (savedInstanceState == null && store.settings.autoConnectLaunch && store.active() != null
             && ClientVpnService.current(this) == ClientVpnService.STATE_OFF) connect()
         setContent { ClientApp(store, incoming, ::connect, pending) }
@@ -49,7 +55,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         ciHook(intent)
         val text = handle(intent)
-        setIntent(Intent())
+        setIntent(intent.putExtra(HANDLED, true))
         if (text != null) incoming.value = text
     }
 

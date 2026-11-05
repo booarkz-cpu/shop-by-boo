@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.84.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.85.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2267**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2279**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1178,6 +1178,7 @@
 | [docs/ru/RELEASE_V28_82_0.md](../docs/ru/RELEASE_V28_82_0.md) | Документация |
 | [docs/ru/RELEASE_V28_83_0.md](../docs/ru/RELEASE_V28_83_0.md) | Документация |
 | [docs/ru/RELEASE_V28_84_0.md](../docs/ru/RELEASE_V28_84_0.md) | Документация |
+| [docs/ru/RELEASE_V28_85_0.md](../docs/ru/RELEASE_V28_85_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
@@ -1452,6 +1453,7 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Updates.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Updates.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/data/Store.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/data/Store.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/engine/Xray.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/engine/Xray.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/ui/AppIcons.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/AppIcons.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/ClientApp.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/ClientApp.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/Components.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/Components.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/Dialogs.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/Dialogs.kt) | Мобильные приложения |
@@ -1468,10 +1470,20 @@
 | [mobile/android-client/app/src/main/res/drawable/widget_background.xml](../mobile/android-client/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/layout/client_widget.xml](../mobile/android-client/app/src/main/res/layout/client_widget.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_night.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_night.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_night.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_night.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/values-en/strings.xml](../mobile/android-client/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/values-uk/strings.xml](../mobile/android-client/app/src/main/res/values-uk/strings.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/values/strings.xml](../mobile/android-client/app/src/main/res/values/strings.xml) | Мобильные приложения |

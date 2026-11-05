@@ -45,7 +45,7 @@ export function NodeMonitor({request, toast}: {request: Request; toast?: (text: 
       setError(e.message || "Перезапуск не выполнен");
     }
   }
-  // v28.84.0: turn a node off/on, rename it or move it to another address (PATCH in the panel).
+  // v28.85.0: turn a node off/on, rename it or move it to another address (PATCH in the panel).
   async function nodeAction(n: any, action: "enable" | "disable") {
     if (action === "disable" && !confirm(`Выключить ноду «${n.name}»? Панель перестанет отдавать её клиентам.`)) return;
     try { await request(`/api/admin/nodes/${n.uuid}/${action}`, {method: "POST"}); toast?.(action === "enable" ? "Нода включена" : "Нода выключена"); load(); }

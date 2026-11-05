@@ -94,4 +94,6 @@ adb shell am start -W -n "$PKG/shop.corgi.client.ui.MainActivity" --ez client_te
 for i in $(seq 1 15); do [ "$(state)" = off ] && break; sleep 2; done
 [ "$(state)" = off ] || { echo "FAIL: proxy mode did not stop" >&2; exit 1; }
 adb forward --remove-all || true
+# The UI tests that follow install their own build: the one installed here must not stay in the way.
+adb uninstall "$PKG" >/dev/null 2>&1 || true
 echo "Corgi client VPN: PASS"

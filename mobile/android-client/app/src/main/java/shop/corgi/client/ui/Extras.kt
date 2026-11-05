@@ -86,7 +86,7 @@ internal fun RestoreDialog(store: Store, backup: Result<Backup>, onDone: () -> U
             } }, { Text(it.message ?: tr("Файл не читается", "The file cannot be read", "Файл не читається"), color = MaterialTheme.colorScheme.error) })
         },
         confirmButton = { if (backup.isSuccess) Button(onClick = {
-            store.restore(backup.getOrThrow()); shop.corgi.client.vpn.UpdateJob.schedule(context); onDone()
+            store.restore(backup.getOrThrow()); shop.corgi.client.vpn.UpdateJob.schedule(context); AppIcons.apply(context, store.settings.appIcon); onDone()
         }, Modifier.testTag("restore-confirm")) { Text(tr("Восстановить", "Restore", "Відновити")) } },
         dismissButton = { TextButton(onClick = onDone) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
 }
@@ -232,8 +232,9 @@ internal fun LogsPage(store: Store, s: Settings, save: (Settings) -> Unit) {
     val files = remember(revision) { logs.files() }
     var chosen by remember { mutableStateOf(files.firstOrNull()?.name) }
     var query by remember { mutableStateOf("") }
+    var level by remember { mutableStateOf("all") }
     val file = files.firstOrNull { it.name == chosen } ?: files.firstOrNull()
-    val lines = remember(file, query, revision) { file?.let { logs.lines(it, query) } ?: emptyList() }
+    val lines = remember(file, query, level, revision) { file?.let { logs.lines(it, query) }?.filter { Logs.matches(it, level) } ?: emptyList() }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Section(tr("Журнал ядра", "Core log", "Журнал ядра")) {
             ChoiceRow(tr("Уровень", "Level", "Рівень"), tr("Применяется при следующем подключении", "Applies on the next connection", "Діє з наступного підключення"),
@@ -246,6 +247,11 @@ internal fun LogsPage(store: Store, s: Settings, save: (Settings) -> Unit) {
             files.forEach { f -> FilterChip(selected = f == file, onClick = { chosen = f.name }, label = { Text("${f.name} · ${f.length() / 1024} KB") }) }
         }
         OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth(), placeholder = { Text(tr("Текст, IP или домен", "Text, IP or domain", "Текст, IP або домен")) }, singleLine = true)
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf("all" to tr("Все", "All", "Усі"), "error" to "Error", "warning" to "Warning", "info" to "Info").forEach { (key, label) ->
+                FilterChip(selected = level == key, onClick = { level = key }, label = { Text(label) }, modifier = Modifier.testTag("level-$key"))
+            }
+        }
         Text("${lines.size}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         SelectionContainer {
             Column(Modifier.heightIn(max = 420.dp).padding(4.dp)) {
