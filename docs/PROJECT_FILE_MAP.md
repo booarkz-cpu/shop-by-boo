@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2219**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2221**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1282,6 +1282,7 @@
 | [docs/ru/new/ADMIN_CONTROL_MATRIX.md](../docs/ru/new/ADMIN_CONTROL_MATRIX.md) | Документация |
 | [docs/ru/new/ADMIN_MODULES.md](../docs/ru/new/ADMIN_MODULES.md) | Документация |
 | [docs/ru/new/ADMIN_PANEL_GUIDE.md](../docs/ru/new/ADMIN_PANEL_GUIDE.md) | Документация |
+| [docs/ru/new/ADMIN_VERIFICATION.md](../docs/ru/new/ADMIN_VERIFICATION.md) | Документация |
 | [docs/ru/new/ANDROID_ARCHITECTURE.md](../docs/ru/new/ANDROID_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/API.md](../docs/ru/new/API.md) | Документация |
 | [docs/ru/new/AUTOMATION_CENTER.md](../docs/ru/new/AUTOMATION_CENTER.md) | Документация |
@@ -1863,6 +1864,7 @@
 | [scripts/v19_marketplace_gate.py](../scripts/v19_marketplace_gate.py) | Эксплуатация и релиз |
 | [scripts/v20_payment_platform_gate.py](../scripts/v20_payment_platform_gate.py) | Эксплуатация и релиз |
 | [scripts/validate-rollback-archive.py](../scripts/validate-rollback-archive.py) | Эксплуатация и релиз |
+| [scripts/verify-admin-matrix.py](../scripts/verify-admin-matrix.py) | Эксплуатация и релиз |
 | [scripts/verify-release.sh](../scripts/verify-release.sh) | Эксплуатация и релиз |
 | [scripts/zero-downtime-backend.sh](../scripts/zero-downtime-backend.sh) | Эксплуатация и релиз |
 | [support-pro/.dockerignore](../support-pro/.dockerignore) | Support Pro |

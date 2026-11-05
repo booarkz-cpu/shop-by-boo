@@ -90,6 +90,11 @@ jobs:
           python scripts/check-current-docs.py
           python scripts/check-runtime-placeholders.py
           python scripts/generate-project-map.py --check
+      - name: Admin modules — which test exercises each changing route (docs/ru/new/ADMIN_VERIFICATION.md)
+        env:
+          MEDIA_DIR: /tmp/media
+          BACKUP_DIR: /tmp/backups
+        run: python scripts/verify-admin-matrix.py --check
       - name: Documentation links and anchors
         # A link to a moved or never-created file breaks the first thing a new operator opens.
         # Historical records (docs/archive, .github/release-v*.md) are reported, not enforced.
