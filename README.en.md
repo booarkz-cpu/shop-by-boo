@@ -7,7 +7,7 @@
 > The code and documentation are published for study and demonstration. If you use them, you alone are responsible for complying with the laws of your country and for the security of your servers and customer data. The author gives no warranty and accepts no liability for any use.
 
 
-> **v28.77.1** — current stable release. Runtime/API `21.5.1`, shop migration `0093_ssh_key_rotation`.
+> **v28.78.0** — current stable release. Runtime/API `21.5.1`, shop migration `0093_ssh_key_rotation`.
 
 **What it is.** The shop sells VPN subscriptions and grants access in your own Remnawave panel. It:
 - takes payments (SBP, cards, crypto, Telegram Stars);
