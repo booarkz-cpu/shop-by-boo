@@ -52,7 +52,8 @@ MODE_TITLES = {
     "panel_subpage": "Панель и страница подписки", "subpage": "Только страница подписки",
     "distributed": "Распределённая установка", "add_node": "Добавить ноду к панели",
 }
-DOMAIN = re.compile(r"^(?=.{4,253}$)(?!-)[a-z0-9-]{1,63}(?:\.(?!-)[a-z0-9-]{1,63})+$")
+# \Z, not $: «$» also matches before a final newline, and a name ends up in a Caddyfile.
+DOMAIN = re.compile(r"^(?=.{4,253}\Z)(?!-)[a-z0-9-]{1,63}(?:\.(?!-)[a-z0-9-]{1,63})+\Z")
 PANEL_PORTS = (80, 443)
 LOCAL_PORTS = {"panel": (3000, 3001, 6767), "subscription_page": (3010,)}
 
@@ -394,7 +395,7 @@ def subpage_network_compose_needed(local: bool) -> str:
     return "" if local else "docker network inspect remnawave-network >/dev/null 2>&1 || docker network create remnawave-network"
 
 
-COOKIE_PART = re.compile(r"^[A-Za-z0-9]{8,64}$")
+COOKIE_PART = re.compile(r"^[A-Za-z0-9]{8,64}\Z")
 
 
 def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[str, tuple[str, str]] | None = None,
@@ -459,7 +460,7 @@ def caddy_compose(tinyauth: bool = False) -> str:
 {"  tinyauth-data: {}" + chr(10) if tinyauth else ""}"""
 
 
-TINYAUTH_USER = re.compile(r"^[a-z0-9][a-z0-9_-]{2,31}$")
+TINYAUTH_USER = re.compile(r"^[a-z0-9][a-z0-9_-]{2,31}\Z")
 
 
 def tinyauth_env(auth_domain: str, username: str, password_hash: str) -> str:

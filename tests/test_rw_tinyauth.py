@@ -105,3 +105,10 @@ async def test_verify_expects_the_login_redirect(monkeypatch):
     monkeypatch.setattr(rw_steps, "_sleep", no_sleep)
     with pytest.raises(rw_steps.StepError, match="без входа"):
         await rw_steps.run_verify(ctx, {})
+
+
+def test_names_with_a_trailing_newline_never_reach_a_caddyfile():
+    with pytest.raises(ValueError):
+        rw_plan.caddyfile({"panel.example.com\n": 3000}, "internal", None)
+    with pytest.raises(ValueError):
+        rw_plan.caddyfile({"panel.example.com": 3000}, "internal", None, {"panel.example.com": ("rwabc123\n", "0123456789abcdef")})
