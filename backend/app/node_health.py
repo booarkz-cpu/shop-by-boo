@@ -84,7 +84,8 @@ from datetime import timedelta  # noqa: E402
 from zoneinfo import ZoneInfo  # noqa: E402
 
 from fastapi import APIRouter, Depends, HTTPException  # noqa: E402
-from pydantic import BaseModel, Field  # noqa: E402
+from pydantic import BaseModel, ConfigDict, Field  # noqa: E402
+from typing import Literal  # noqa: E402
 from sqlalchemy import select  # noqa: E402
 from sqlalchemy.ext.asyncio import AsyncSession  # noqa: E402
 
@@ -315,6 +316,54 @@ async def restart_node(node_uuid: str, db: AsyncSession = Depends(get_db), admin
     except Exception as exc:
         raise HTTPException(502, "Remnawave не перезапустил ноду") from exc
     await audit(db, "nodes.restart", admin.email, node_uuid)
+    await db.commit()
+    return {"ok": True}
+
+
+class NodePatchIn(BaseModel):
+    """v28.84.0: «Управление нодами» — a new name, address or port of a node (after remnawave-manager's node menu)."""
+    model_config = ConfigDict(extra="forbid")
+    name: str | None = Field(default=None, min_length=1, max_length=30, pattern=r"^[^\x00-\x1f]+$")
+    address: str | None = Field(default=None, min_length=1, max_length=253, pattern=r"^[A-Za-z0-9.:-]+$")
+    port: int | None = Field(default=None, ge=1, le=65535)
+
+
+def _node_uuid(node_uuid: str) -> str:
+    import re
+    if not re.fullmatch(r"[A-Za-z0-9-]{1,64}", node_uuid):
+        raise HTTPException(400, "Некорректный идентификатор ноды")
+    return node_uuid
+
+
+@router.post("/api/admin/nodes/{node_uuid}/{action}")
+async def node_switch(node_uuid: str, action: Literal["enable", "disable"], db: AsyncSession = Depends(get_db),
+                      admin=Depends(require_permission("provision_nodes"))):
+    """Turn a node off (the panel stops sending it to clients and stops it) or back on."""
+    from .main import audit
+    from .remnawave import RemnawaveClient
+    client = RemnawaveClient()
+    try:
+        await (client.enable_node if action == "enable" else client.disable_node)(_node_uuid(node_uuid))
+    except Exception as exc:
+        raise HTTPException(502, "Remnawave не " + ("включил" if action == "enable" else "выключил") + " ноду") from exc
+    await audit(db, f"nodes.{action}", admin.email, node_uuid)
+    await db.commit()
+    return {"ok": True}
+
+
+@router.patch("/api/admin/nodes/{node_uuid}")
+async def node_patch(node_uuid: str, payload: NodePatchIn, db: AsyncSession = Depends(get_db),
+                     admin=Depends(require_permission("provision_nodes"))):
+    from .main import audit
+    from .remnawave import RemnawaveClient
+    patch = payload.model_dump(exclude_none=True)
+    if not patch:
+        raise HTTPException(422, "Укажите имя, адрес или порт")
+    try:
+        await RemnawaveClient().update_node(_node_uuid(node_uuid), patch)
+    except Exception as exc:
+        raise HTTPException(502, "Remnawave не изменил ноду") from exc
+    await audit(db, "nodes.update", admin.email, node_uuid, patch)
     await db.commit()
     return {"ok": True}
 

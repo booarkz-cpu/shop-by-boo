@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.83.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.84.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2265**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2267**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1177,6 +1177,7 @@
 | [docs/ru/RELEASE_V28_81_0.md](../docs/ru/RELEASE_V28_81_0.md) | Документация |
 | [docs/ru/RELEASE_V28_82_0.md](../docs/ru/RELEASE_V28_82_0.md) | Документация |
 | [docs/ru/RELEASE_V28_83_0.md](../docs/ru/RELEASE_V28_83_0.md) | Документация |
+| [docs/ru/RELEASE_V28_84_0.md](../docs/ru/RELEASE_V28_84_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
@@ -2165,6 +2166,7 @@
 | [tests/test_rw_extensions.py](../tests/test_rw_extensions.py) | Проверки |
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_rw_node_modules.py](../tests/test_rw_node_modules.py) | Проверки |
+| [tests/test_rw_server_modules.py](../tests/test_rw_server_modules.py) | Проверки |
 | [tests/test_rw_ssh.py](../tests/test_rw_ssh.py) | Проверки |
 | [tests/test_rw_tinyauth.py](../tests/test_rw_tinyauth.py) | Проверки |
 | [tests/test_rw_transports.py](../tests/test_rw_transports.py) | Проверки |
