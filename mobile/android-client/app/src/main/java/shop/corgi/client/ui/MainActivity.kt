@@ -7,7 +7,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import shop.corgi.client.core.I18n
+import shop.corgi.client.core.Ping
 import shop.corgi.client.data.Store
+import shop.corgi.client.engine.Xray
+import shop.corgi.client.vpn.UpdateJob
 import shop.corgi.client.vpn.ClientVpnService
 import kotlin.concurrent.thread
 
@@ -19,7 +23,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val store = Store(this)
-        thread { runCatching { store.updateDue() }; runCatching { store.checkUpdate() } }
+        I18n.apply(store.settings.lang)
+        UpdateJob.schedule(this)
+        if (savedInstanceState == null) thread {
+            val s = store.settings
+            runCatching { if (s.updateOnLaunch) store.updateAll() else store.updateDue() }
+            if (s.pingOnLaunch) runCatching {
+                store.pings = store.pings + Ping.all(store.profiles.flatMap { it.servers() }, s) { server -> Xray.measure(this, Ping.probeConfig(server), s.pingUrl) }
+            }
+            runCatching { store.checkUpdate() }
+        }
         val incoming = importText(intent)
         ciHook(intent)
         setIntent(Intent())  // handled once: a recreation must not import or connect again

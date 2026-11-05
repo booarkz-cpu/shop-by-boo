@@ -21,7 +21,12 @@ data class Profile(
     // v28.81.0: servers of a subscription answered with Xray JSON (Remnawave for v2rayNG/Happ): full configs with
     // «remarks»; each is connected as written (its inbounds replaced by the tunnel).
     val configs: List<String> = emptyList(),
+    // v1.3.0: what the subscription says about itself (traffic, expiry, support, site) — from its response headers.
+    val info: SubInfo = SubInfo(),
 ) {
+    /** The name to show: the subscription's own title when it sends one. */
+    val title: String get() = info.title.ifBlank { name }
+
     init {
         require(kind in listOf("subscription", "links", "json")) { "kind" }
         require(kind != "subscription" || url.startsWith("https://") || url.startsWith("http://10.0.2.2:")) { tr("Подписка — только по https://", "Subscriptions only over https://", "Підписка — лише через https://") }
@@ -45,13 +50,13 @@ data class Profile(
 
     fun toJson(): JSONObject = JSONObject().put("id", id).put("name", name).put("kind", kind).put("url", url).put("links", JSONArray(links))
         .put("json", json).put("updatedAt", updatedAt).put("autoUpdateHours", autoUpdateHours).put("skipped", skipped).put("error", error)
-        .put("configs", JSONArray(configs))
+        .put("configs", JSONArray(configs)).put("info", info.toJson())
 
     companion object {
         fun of(j: JSONObject) = Profile(j.getString("id"), j.getString("name"), j.getString("kind"), j.optString("url"),
             j.optJSONArray("links")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList(), j.optString("json"),
             j.optLong("updatedAt"), j.optInt("autoUpdateHours", 12), j.optInt("skipped"), j.optString("error"),
-            j.optJSONArray("configs")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList())
+            j.optJSONArray("configs")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList(), SubInfo.of(j.optJSONObject("info")))
 
         /** What the user pasted or scanned: a subscription URL, links (one per line, or base64), or a JSON config. */
         fun fromText(text: String, id: String, now: Long): Profile {

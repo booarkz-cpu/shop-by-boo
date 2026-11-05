@@ -6,6 +6,7 @@ import org.json.JSONObject
 import shop.corgi.client.core.Links
 import shop.corgi.client.core.Profile
 import shop.corgi.client.core.Settings
+import shop.corgi.client.core.SubInfo
 import shop.corgi.client.core.Update
 import shop.corgi.client.core.tr
 import java.io.File
@@ -58,18 +59,18 @@ class Store(context: Context) {
     fun update(profile: Profile): Profile {
         if (profile.kind != "subscription") return profile
         val updated = try {
-            val body = fetch(profile.url)
+            val (body, info) = fetchSubscription(profile.url)
             // Remnawave answers some clients with Xray JSON instead of share links: both are understood.
             val configs = Links.jsonConfigs(body)
             if (configs != null) {
                 val updated = if (configs.isEmpty()) profile.copy(error = tr("В подписке нет поддерживаемых серверов", "The subscription has no supported servers", "У підписці немає підтримуваних серверів"), updatedAt = System.currentTimeMillis())
-                    else profile.copy(configs = configs.map { it.second }, links = emptyList(), skipped = 0, error = "", updatedAt = System.currentTimeMillis())
+                    else profile.copy(configs = configs.map { it.second }, links = emptyList(), skipped = 0, error = "", updatedAt = System.currentTimeMillis(), info = info)
                 replace(updated)
                 return updated
             }
             val (servers, skipped) = Links.parseBody(body)
             if (servers.isEmpty()) profile.copy(error = tr("В подписке нет поддерживаемых серверов", "The subscription has no supported servers", "У підписці немає підтримуваних серверів"), updatedAt = System.currentTimeMillis())
-            else profile.copy(links = servers.map { it.link }, configs = emptyList(), skipped = skipped, error = "", updatedAt = System.currentTimeMillis())
+            else profile.copy(links = servers.map { it.link }, configs = emptyList(), skipped = skipped, error = "", updatedAt = System.currentTimeMillis(), info = info)
         } catch (exc: Exception) {
             profile.copy(error = exc.message ?: exc.javaClass.simpleName)
         }
@@ -77,7 +78,29 @@ class Store(context: Context) {
         return updated
     }
 
-    fun updateDue() { profiles.filter { it.due(System.currentTimeMillis()) }.forEach { update(it) } }
+    /** Subscriptions whose interval passed (the subscription's own «profile-update-interval» when it is shorter). */
+    fun updateDue(): List<Profile> {
+        val s = settings
+        if (!s.autoUpdate) return emptyList()
+        val now = System.currentTimeMillis()
+        return profiles.filter { p ->
+            val minutes = if (p.info.updateHours > 0) minOf(s.updateMinutes, p.info.updateHours * 60) else s.updateMinutes
+            p.kind == "subscription" && now - p.updatedAt >= minutes * 60_000L
+        }.map { update(it) }
+    }
+
+    fun updateAll(): List<Profile> = profiles.filter { it.kind == "subscription" }.map { update(it) }
+
+    /** A random id of this install, sent as «x-hwid» when the user allows it (Remnawave counts devices by it). */
+    val hwid: String get() = prefs.getString("hwid", null) ?: UUID.randomUUID().toString().uppercase().also { prefs.edit().putString("hwid", it).apply() }
+
+    /** Last measured delays: server link → ms (-1 — no answer). */
+    var pings: Map<String, Int>
+        get() = runCatching { JSONObject(prefs.getString("pings", "{}")!!).let { j -> j.keys().asSequence().associateWith { j.getInt(it) } } }.getOrDefault(emptyMap())
+        set(value) { prefs.edit().putString("pings", JSONObject(value.mapValues { it.value }).toString()).apply() }
+
+    /** Everything back to a fresh install, except the profiles and this install's id. */
+    fun resetSettings() { prefs.edit().remove("settings").remove("pings").apply() }
 
     fun geoReady(): Boolean = File(app.filesDir, "geoip.dat").length() > 0 && File(app.filesDir, "geosite.dat").length() > 0
 
@@ -106,11 +129,24 @@ class Store(context: Context) {
     fun cachedUpdate(): Update? = prefs.getString("update", "").orEmpty().split("|").takeIf { it.size == 4 }
         ?.let { Update(it[0].toInt(), it[1], it[2], it[3]) }
 
-    private fun open(url: String): HttpURLConnection = (URL(url).openConnection() as HttpURLConnection).apply {
+    private fun open(url: String, subscription: Boolean = false): HttpURLConnection = (URL(url).openConnection() as HttpURLConnection).apply {
         instanceFollowRedirects = true; connectTimeout = 15000; readTimeout = 30000
-        // Remnawave and most panels answer v2ray-style clients with base64 share links.
-        setRequestProperty("User-Agent", "v2rayNG/1.10.0 CorgiClient")
+        val s = settings
+        // Remnawave and most panels answer v2ray-style clients with base64 share links or Xray JSON.
+        setRequestProperty("User-Agent", if (subscription) s.userAgent else Settings.DEFAULT_AGENT)
+        if (subscription && s.sendHwid) {
+            setRequestProperty("x-hwid", hwid)
+            setRequestProperty("x-device-os", "Android")
+            setRequestProperty("x-ver-os", android.os.Build.VERSION.RELEASE.orEmpty())
+            setRequestProperty("x-device-model", "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}".trim().take(64))
+        }
         if (responseCode !in 200..299) throw IllegalStateException("HTTP $responseCode")
+    }
+
+    private fun fetchSubscription(url: String): Pair<String, SubInfo> {
+        val connection = open(url, subscription = true)
+        val body = connection.inputStream.bufferedReader().use { it.readText() }
+        return body to SubInfo.parse { name -> connection.getHeaderField(name) }
     }
 
     private fun fetch(url: String): String = open(url).inputStream.bufferedReader().use { it.readText() }

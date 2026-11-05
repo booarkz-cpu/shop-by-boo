@@ -8,6 +8,18 @@ import java.util.Base64
 
 /** One server: its name, the protocol and the Xray outbound built from its share link (tag set when the config is built). */
 data class Server(val name: String, val protocol: String, val outbound: JSONObject, val link: String) {
+    /** «VLESS · TCP · REALITY · JSON» — protocol, transport, security and where it came from, for the server list. */
+    val labels: List<String> get() {
+        val stream = outbound.optJSONObject("streamSettings")
+        val proto = when (protocol) { "hysteria" -> "Hysteria2"; "shadowsocks" -> "SS"; "wireguard" -> "WireGuard"; else -> protocol.uppercase() }
+        val network = stream?.optString("network").orEmpty().ifBlank { if (protocol in listOf("vless", "vmess", "trojan")) "tcp" else "" }
+            .let { if (it == "raw") "tcp" else it }.takeIf { it.isNotBlank() && it != "hysteria" }?.uppercase()
+        val security = stream?.optString("security").orEmpty().takeIf { it.isNotBlank() && it != "none" }?.uppercase()
+        return listOfNotNull(proto, network, security, if (link.startsWith("config:")) "JSON" else null)
+    }
+
+    /** The protocol for the filter chips («VLESS», «Hysteria2» …). */
+    val family: String get() = labels.first()
     val host: String get() = when (protocol) {
         "vless", "vmess" -> outbound.getJSONObject("settings").let { st -> st.optJSONArray("vnext")?.optJSONObject(0)?.optString("address") ?: st.optString("address") }
         "wireguard" -> outbound.getJSONObject("settings").getJSONArray("peers").getJSONObject(0).optString("endpoint").substringBeforeLast(":")

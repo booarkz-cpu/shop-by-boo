@@ -31,6 +31,16 @@ object Xray {
         controller = core
     }
 
+    /**
+     * Real delay through a server: a separate Xray instance with only that outbound requests ``url`` (libv2ray
+     * measureOutboundDelay). Milliseconds, or -1 when the server did not answer.
+     */
+    fun measure(context: Context, config: String, url: String): Long = try {
+        val lib = Class.forName("libv2ray.Libv2ray")
+        lib.getMethod("initCoreEnv", String::class.java, String::class.java).invoke(null, context.filesDir.absolutePath, "")
+        (lib.getMethod("measureOutboundDelay", String::class.java, String::class.java).invoke(null, config, url) as Long).takeIf { it > 0 } ?: -1
+    } catch (_: Throwable) { -1 }
+
     fun stop() {
         val core = controller ?: return
         controller = null

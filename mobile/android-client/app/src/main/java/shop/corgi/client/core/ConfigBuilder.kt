@@ -10,9 +10,11 @@ object ConfigBuilder {
     val RUSSIAN_DOMAINS = listOf("regexp:\\.ru$", "regexp:\\.su$", "regexp:\\.xn--p1ai$", "domain:gosuslugi.ru", "domain:nalog.gov.ru",
         "domain:vk.com", "domain:vk.me", "domain:userapi.com", "domain:yandex.net", "domain:yandex.com", "domain:yastatic.net")
 
-    fun tunInbound(mtu: Int): JSONObject = JSONObject().put("tag", "tun-in").put("protocol", "tun")
+    fun tunInbound(mtu: Int, sniffing: Boolean = true, routeOnly: Boolean = true): JSONObject = JSONObject().put("tag", "tun-in").put("protocol", "tun")
         .put("settings", JSONObject().put("name", "xray0").put("mtu", mtu))
-        .put("sniffing", JSONObject().put("enabled", true).put("destOverride", JSONArray(listOf("http", "tls", "quic"))))
+        .put("sniffing", JSONObject().put("enabled", sniffing).put("destOverride", JSONArray(listOf("http", "tls", "quic"))).put("routeOnly", routeOnly))
+
+    fun tunInbound(s: Settings): JSONObject = tunInbound(s.mtu, s.sniffing, s.routeOnly)
 
     /**
      * ``selected`` — a server's index, or [AUTO]: the fastest of all (observatory + leastPing balancer).
@@ -32,9 +34,12 @@ object ConfigBuilder {
             .put("settings", JSONObject().put("domainStrategy", if (s.ipv6) "UseIP" else "UseIPv4")))
         outbounds.put(JSONObject().put("tag", "block").put("protocol", "blackhole"))
         if (s.fragment) outbounds.put(JSONObject().put("tag", "fragment").put("protocol", "freedom").put("settings", JSONObject()
-            .put("fragment", JSONObject().put("packets", "tlshello").put("length", s.fragmentLength).put("interval", s.fragmentInterval))))
+            .put("fragment", JSONObject().put("packets", s.fragmentPackets).put("length", s.fragmentLength).put("interval", s.fragmentInterval))))
 
         val rules = JSONArray()
+        // «Исключённые маршруты»: these addresses never go through the server.
+        if (s.excludedRoutes.isNotEmpty()) rules.put(JSONObject().put("type", "field").put("ip", JSONArray(s.excludedRoutes)).put("outboundTag", "direct"))
+        if (s.blockUdp) rules.put(JSONObject().put("type", "field").put("network", "udp").put("port", "1-52,54-65535").put("outboundTag", "block"))
         if (s.routing != "global") rules.put(JSONObject().put("type", "field").put("ip", JSONArray(PRIVATE)).put("outboundTag", "direct"))
         if (s.routing == "bypass_ru") {
             rules.put(JSONObject().put("type", "field").put("domain", JSONArray(RUSSIAN_DOMAINS + if (geo) listOf("geosite:ru") else emptyList()))
@@ -56,8 +61,9 @@ object ConfigBuilder {
         val config = JSONObject()
             .put("log", JSONObject().put("loglevel", "warning"))
             .put("dns", JSONObject().put("servers", JSONArray(s.dns)).put("queryStrategy", if (s.ipv6) "UseIP" else "UseIPv4"))
-            .put("inbounds", JSONArray().put(tunInbound(s.mtu)))
+            .put("inbounds", JSONArray().put(tunInbound(s)))
             .put("outbounds", outbounds)
+            .put("policy", JSONObject().put("levels", JSONObject().put("0", JSONObject().put("connIdle", s.idleTimeout))))
         if (selected == AUTO && servers.size > 1) {
             config.put("observatory", JSONObject().put("subjectSelector", JSONArray().put("proxy-"))
                 .put("probeURL", "https://www.gstatic.com/generate_204").put("probeInterval", "1m").put("enableConcurrency", true))
@@ -80,7 +86,7 @@ object ConfigBuilder {
         val config = JSONObject(raw)
         val outbounds = config.optJSONArray("outbounds")
         require(outbounds != null && outbounds.length() > 0) { "no outbounds" }
-        config.put("inbounds", JSONArray().put(tunInbound(s.mtu)))
+        config.put("inbounds", JSONArray().put(tunInbound(s)))
         config.remove("api"); config.remove("stats"); config.remove("metrics")
         if (!geo) stripGeo(config)
         return config.toString()

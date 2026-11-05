@@ -3,6 +3,7 @@ package shop.corgi.client
 import android.content.Context
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -45,26 +46,33 @@ class ClientScreensTest {
         launch()
         exists("Add a subscription")
         compose.onAllNodesWithText("Add")[0].performClick()
-        compose.onNodeWithText("Paste").assertExists()
+        exists("Scan QR")
         compose.onNodeWithText("Cancel").performClick()
         Store(context).add(links)
         scenario?.close(); launch()
         exists("Links (2)")
+        exists("Current provider".uppercase())
     }
 
-    @Test fun serversListAndChoice() {
+    @Test fun serversListSearchFilterAndChoice() {
         Store(context).add(links)
         launch()
         compose.onNodeWithText("Servers").performClick()
-        exists("Fastest (automatic)"); exists("Netherlands"); exists("Germany"); exists("trojan")
-        compose.onNodeWithText("Germany").performClick()
-        assertEquals("1", Store(context).activeServer)
+        exists("Auto select"); exists("Netherlands"); exists("Germany"); exists("REALITY")
+        compose.onAllNodesWithText("TROJAN")[0].performClick()          // the protocol chip comes first
+        assertTrue(compose.onAllNodesWithText("Netherlands").fetchSemanticsNodes().isEmpty())
+        compose.onNodeWithText("All").performClick()
+        compose.onNodeWithTag("search").performTextInput("neth")
+        assertTrue(compose.onAllNodesWithText("Germany").fetchSemanticsNodes().isEmpty())
+        compose.onNodeWithText("Netherlands").performClick()
+        assertEquals("0", Store(context).activeServer)
         compose.onNodeWithText("Home").performClick()
-        exists("Germany")
+        exists("Netherlands")
     }
 
-    @Test fun routingRulesAreAdded() {
+    @Test fun routingRulesAreAddedFromTheSettingsMenu() {
         launch()
+        compose.onNodeWithText("Settings").performClick()
         compose.onNodeWithText("Routing").performClick()
         compose.onNodeWithText("Own rules").performClick()
         assertEquals("custom", Store(context).settings.routing)
@@ -74,13 +82,61 @@ class ClientScreensTest {
         assertEquals("domain:example.com", Store(context).settings.rules.single().match)
     }
 
-    @Test fun settingsSwitchesAndAppsMode() {
+    @Test fun everySettingsPageOpensAndSaves() {
         launch()
         compose.onNodeWithText("Settings").performClick()
+        exists("Everything under your control")   // the brand banner
+        compose.onNodeWithText("Per-app proxy").performClick()
         compose.onNodeWithText("All but selected").performClick()
         assertEquals("except", Store(context).settings.appsMode)
         exists("Choose apps (0)")
+        compose.onNodeWithTag("back").performClick()
+
+        compose.onNodeWithText("Appearance").performClick()
+        compose.onNodeWithText("AMOLED black").performClick()
+        assertTrue(Store(context).settings.amoled)
+        compose.onNodeWithText("Compact").performClick()
+        assertEquals("compact", Store(context).settings.connectStyle)
+        compose.onNodeWithTag("back").performClick()
+
+        compose.onNodeWithText("Tunnel").performClick()
+        compose.onNodeWithText("Block UDP").performClick()
+        assertTrue(Store(context).settings.blockUdp)
+        compose.onNodeWithTag("back").performClick()
+
+        compose.onNodeWithText("Provider settings").performClick()
+        compose.onNodeWithText("Ping on launch").performClick()
+        assertTrue(Store(context).settings.pingOnLaunch)
+        compose.onNodeWithText("By name").performClick()
+        assertEquals("name", Store(context).settings.sort)
+        compose.onNodeWithTag("back").performClick()
+
+        compose.onNodeWithText("Ping settings").performClick()
+        compose.onNodeWithText("TCP Connect").performClick()
+        assertEquals("tcp", Store(context).settings.pingMethod)
+        compose.onNodeWithText("Dots").performClick()
+        assertEquals("dots", Store(context).settings.pingDisplay)
+        compose.onNodeWithTag("back").performClick()
+
+        compose.onNodeWithText("Connection").performClick()
+        exists("Block internet without the VPN")
+        compose.onNodeWithTag("back").performClick()
+
+        compose.onNodeWithText("About").performClick()
+        exists("HWID"); exists(Store(context).hwid)
         exists("Check for updates")
-        exists("Open VPN settings")
+    }
+
+    @Test fun resetBringsDefaultsBackAndKeepsProfiles() {
+        val store = Store(context)
+        store.add(links)
+        store.settings = store.settings.copy(blockUdp = true, sort = "ping")
+        launch()
+        compose.onNodeWithText("Settings").performClick()
+        compose.onNodeWithTag("reset").performClick()
+        compose.onNodeWithText("Reset").performClick()
+        compose.waitForIdle()
+        assertEquals(false, Store(context).settings.blockUdp)
+        assertEquals(1, Store(context).profiles.size)
     }
 }

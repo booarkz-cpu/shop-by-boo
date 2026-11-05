@@ -3,13 +3,10 @@ package shop.corgi.client.ui
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.provider.Settings as AndroidSettings
-import androidx.compose.foundation.Image
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,33 +18,51 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -56,72 +71,110 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.qrcode.QRCodeWriter
+import shop.corgi.client.BuildConfig
 import shop.corgi.client.core.ConfigBuilder
-import shop.corgi.client.core.Rule
-import shop.corgi.client.core.TvReceiver
+import shop.corgi.client.core.Ping
+import shop.corgi.client.core.Profile
+import shop.corgi.client.core.Server
+import shop.corgi.client.core.Settings
+import shop.corgi.client.core.ServerList
+import shop.corgi.client.core.SubInfo
 import shop.corgi.client.core.tr
 import shop.corgi.client.data.Store
 import shop.corgi.client.engine.Xray
 import shop.corgi.client.vpn.ClientVpnService
-import java.net.InetSocketAddress
-import java.net.Socket
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.concurrent.thread
 
-
-private val Brand = Color(0xFFF2994A)
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientApp(store: Store, incoming: String?, connect: () -> Unit) {
     var revision by remember { mutableIntStateOf(0) }
     val refresh: () -> Unit = { revision++ }
-    val dark = when (store.settings.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
-    val colors = if (dark) darkColorScheme(primary = Brand, background = Color(0xFF0E1116), surface = Color(0xFF161B22))
-        else lightColorScheme(primary = Color(0xFFD9772B))
     var tab by remember { mutableIntStateOf(0) }
+    var page by remember { mutableStateOf<String?>(null) }   // a page of «Настройки»
     var adding by remember { mutableStateOf(incoming) }
-    MaterialTheme(colorScheme = colors) {
-        Scaffold(
-            topBar = { TopAppBar(title = { Text(tr("Корги Люси: клиент", "Corgi Lusi: client", "Коргі Люсі: клієнт")) }) },
-            bottomBar = {
-                NavigationBar {
-                    listOf(Icons.Filled.Home to tr("Главная", "Home", "Головна"), Icons.Filled.List to tr("Серверы", "Servers", "Сервери"),
-                        Icons.Filled.Share to tr("Маршруты", "Routing", "Маршрути"), Icons.Filled.Settings to tr("Настройки", "Settings", "Налаштування"))
-                        .forEachIndexed { i, (icon, label) ->
-                            NavigationBarItem(selected = tab == i, onClick = { tab = i }, icon = { Icon(icon, label) }, label = { Text(label) })
+    val s = androidx.compose.runtime.key(revision) { store.settings }
+    BackHandler(enabled = page != null || tab != 0) { if (page != null) page = null else tab = 0 }
+    CorgiTheme(s) {
+        CompositionLocalProvider(LocalVibration provides s.vibration) {
+            Scaffold(
+                containerColor = MaterialTheme.colorScheme.background,
+                bottomBar = {
+                    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+                        listOf(Icons.Filled.Home to tr("Главная", "Home", "Головна"), Icons.Filled.Dns to tr("Серверы", "Servers", "Сервери"),
+                            Icons.Filled.Settings to tr("Настройки", "Settings", "Налаштування")).forEachIndexed { i, (icon, label) ->
+                            NavigationBarItem(selected = tab == i, onClick = { tab = i; page = null }, icon = { Icon(icon, label) }, label = { Text(label) })
                         }
-                }
-            },
-        ) { padding ->
-            Box(Modifier.padding(padding).fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                key(revision) {
-                    when (tab) {
-                        0 -> HomeScreen(store, connect) { adding = "" }
-                        1 -> ServersScreen(store, refresh) { adding = "" }
-                        2 -> RoutingScreen(store, refresh)
-                        else -> SettingsScreen(store, refresh)
+                    }
+                },
+            ) { padding ->
+                Box(Modifier.padding(padding).fillMaxSize()) {
+                    androidx.compose.runtime.key(revision) {
+                        when (tab) {
+                            0 -> HomeScreen(store, connect, refresh, add = { adding = it }) { tab = 1 }
+                            1 -> ServersScreen(store, refresh) { adding = "" }
+                            else -> SettingsScreen(store, page, { page = it }, refresh)
+                        }
                     }
                 }
+                adding?.let { text -> AddDialog(store, text, onDone = { adding = null; refresh() }) }
             }
-            adding?.let { text -> AddDialog(store, text, onDone = { adding = null; refresh() }) }
         }
     }
 }
 
-@Composable
-private fun key(value: Int, content: @Composable () -> Unit) = androidx.compose.runtime.key(value) { content() }
+private fun clipboard(context: Context): String =
+    context.getSystemService(ClipboardManager::class.java)?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString().orEmpty()
+
+private fun scanQr(context: Context, onText: (String) -> Unit) {
+    GmsBarcodeScanning.getClient(context).startScan().addOnSuccessListener { code -> onText(code.rawValue.orEmpty()) }
+}
+
+/** Pings the servers by the chosen method off the main thread and keeps the results. */
+internal fun pingServers(context: Context, store: Store, servers: List<Server>, done: () -> Unit) {
+    if (servers.isEmpty()) { done(); return }
+    thread {
+        val s = store.settings
+        val result = Ping.all(servers, s) { server -> Xray.measure(context, Ping.probeConfig(server), s.pingUrl) }
+        store.pings = store.pings + result
+        android.os.Handler(context.mainLooper).post(done)
+    }
+}
+
+internal fun updateProfiles(context: Context, store: Store, profiles: List<Profile>, done: () -> Unit) {
+    thread {
+        val updated = profiles.filter { it.kind == "subscription" }.map { store.update(it) }
+        if (store.settings.pingAfterUpdate) {
+            val s = store.settings
+            val servers = updated.flatMap { it.servers() }
+            store.pings = store.pings + Ping.all(servers, s) { server -> Xray.measure(context, Ping.probeConfig(server), s.pingUrl) }
+        }
+        android.os.Handler(context.mainLooper).post(done)
+    }
+}
+
+private fun date(millis: Long): String = SimpleDateFormat("dd.MM.yy, HH:mm", Locale.getDefault()).format(Date(millis))
+
+// ---------------------------------------------------------------- Главная
 
 @Composable
-private fun HomeScreen(store: Store, connect: () -> Unit, add: () -> Unit) {
+private fun HomeScreen(store: Store, connect: () -> Unit, refresh: () -> Unit, add: (String) -> Unit, openServers: () -> Unit) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val vibrate = LocalVibration.current
+    val s = store.settings
     var state by remember { mutableStateOf(ClientVpnService.current(context)) }
     DisposableEffect(Unit) {
         val listener: (String) -> Unit = { value -> android.os.Handler(android.os.Looper.getMainLooper()).post { state = value } }
@@ -129,30 +182,72 @@ private fun HomeScreen(store: Store, connect: () -> Unit, add: () -> Unit) {
         onDispose { ClientVpnService.listeners.remove(listener) }
     }
     val profile = store.active()
-    Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Spacer(Modifier.height(24.dp))
-        val on = state == ClientVpnService.STATE_ON
-        Box(Modifier.size(180.dp).background(if (on) Brand else MaterialTheme.colorScheme.surface, CircleShape)
-            .clickable(enabled = profile != null) { if (state == ClientVpnService.STATE_OFF) connect() else ClientVpnService.stop(context) }
-            .testTag("connect"), contentAlignment = Alignment.Center) {
-            Text(when (state) {
-                ClientVpnService.STATE_ON -> tr("Отключить", "Disconnect", "Вимкнути")
-                ClientVpnService.STATE_CONNECTING -> tr("Подключение…", "Connecting…", "Підключення…")
-                else -> tr("Подключить", "Connect", "Підключити")
-            }, style = MaterialTheme.typography.titleLarge)
+    val on = state == ClientVpnService.STATE_ON
+    val toggle = {
+        if (vibrate) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        if (state == ClientVpnService.STATE_OFF) connect() else ClientVpnService.stop(context)
+    }
+    val stateText = when (state) {
+        ClientVpnService.STATE_ON -> tr("Подключено", "Connected", "Підключено")
+        ClientVpnService.STATE_CONNECTING -> tr("Подключение…", "Connecting…", "Підключення…")
+        else -> tr("Нажмите для подключения", "Tap to connect", "Натисніть для підключення")
+    }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(tr("Корги Люси", "Corgi Lusi", "Коргі Люсі"), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary)
+            Text("  v${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        Banner("app-vpn", tr("Свободный интернет без лишнего Гав!", "Free internet without the extra Woof!", "Вільний інтернет без зайвого Гав!"),
+            tr("Ваш VPN-клиент на Xray", "Your Xray VPN client", "Ваш VPN-клієнт на Xray"))
+        val serverName = when {
+            profile == null -> ""
+            profile.kind == "json" -> profile.title
+            store.activeServer == ConfigBuilder.AUTO -> "⚡ " + tr("Автовыбор", "Auto select", "Автовибір")
+            else -> profile.servers().getOrNull(store.activeServer.toIntOrNull() ?: -1)?.name ?: "⚡ " + tr("Автовыбор", "Auto select", "Автовибір")
+        }
+        if (s.connectStyle == "compact") {
+            Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(stateText, style = MaterialTheme.typography.titleMedium)
+                        if (serverName.isNotBlank()) Text(serverName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(checked = on || state == ClientVpnService.STATE_CONNECTING, onCheckedChange = { toggle() }, enabled = profile != null,
+                        modifier = Modifier.testTag("connect"))
+                }
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                val ring = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                Box(Modifier.size(196.dp).clip(CircleShape).border(10.dp, ring.copy(alpha = 0.55f), CircleShape)
+                    .background(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
+                    .clickable(enabled = profile != null) { toggle() }.testTag("connect"), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Filled.PowerSettingsNew, stateText, Modifier.size(84.dp),
+                        tint = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary)
+                }
+                Text(stateText, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                if (serverName.isNotBlank()) Text(serverName, Modifier.clickable(onClick = openServers), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        ClientVpnService.lastError(context).takeIf { it.isNotBlank() && state == ClientVpnService.STATE_OFF }?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (profile == null) {
             Text(tr("Добавьте подписку, ссылку на сервер или конфигурацию Xray.", "Add a subscription, a server link or an Xray config.",
-                "Додайте підписку, посилання на сервер або конфігурацію Xray."))
-            Button(onClick = add) { Text(tr("Добавить", "Add", "Додати")) }
+                "Додайте підписку, посилання на сервер або конфігурацію Xray."), color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
-            val server = store.activeServer
-            val name = if (profile.kind == "json") profile.name else if (server == ConfigBuilder.AUTO) tr("Самый быстрый", "Fastest", "Найшвидший")
-                else profile.servers().getOrNull(server.toIntOrNull() ?: -1)?.name ?: tr("Самый быстрый", "Fastest", "Найшвидший")
-            Text(profile.name, style = MaterialTheme.typography.titleMedium)
-            Text(name)
+            Text(tr("Текущий провайдер", "Current provider", "Поточний провайдер").uppercase(), style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            ProviderCard(store, profile, expanded = null, onToggle = null, refresh = refresh)
         }
-        ClientVpnService.lastError(context).takeIf { it.isNotBlank() && state == ClientVpnService.STATE_OFF }?.let { Text(it, color = Color(0xFFE5534B)) }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Button(onClick = { add("") }, Modifier.weight(1f).height(52.dp)) {
+                Icon(Icons.Filled.Add, null); Spacer(Modifier.size(6.dp)); Text(tr("Добавить", "Add", "Додати"))
+            }
+            FilledTonalButton(onClick = { add(clipboard(context)) }, Modifier.weight(1f).height(52.dp)) {
+                Icon(Icons.Filled.ContentPaste, null); Spacer(Modifier.size(6.dp)); Text(tr("Вставить", "Paste", "Вставити"))
+            }
+            FilledTonalIconButton(onClick = { scanQr(context) { add(it) } }, Modifier.size(52.dp)) { Icon(Icons.Filled.QrCodeScanner, "QR") }
+        }
         store.cachedUpdate()?.let { update ->
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp)) {
@@ -163,317 +258,207 @@ private fun HomeScreen(store: Store, connect: () -> Unit, add: () -> Unit) {
                 }
             }
         }
-        if (!Xray.available()) Text(tr("В этой сборке нет движка Xray.", "This build has no Xray engine.", "У цій збірці немає рушія Xray."), color = Color(0xFFE5534B))
+        if (!Xray.available()) Text(tr("В этой сборке нет движка Xray.", "This build has no Xray engine.", "У цій збірці немає рушія Xray."), color = MaterialTheme.colorScheme.error)
     }
 }
+
+/** A provider (subscription or links): title, update, ping, menu, traffic and term, support and site, servers count. */
+@Composable
+internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, onToggle: (() -> Unit)?, refresh: () -> Unit) {
+    val context = LocalContext.current
+    var menu by remember { mutableStateOf(false) }
+    var qr by remember { mutableStateOf<String?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    val info = profile.info
+    Card(shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier.fillMaxWidth().testTag("provider-${profile.id}")) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (onToggle != null) Icon(if (expanded == true) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null,
+                    Modifier.clickable(onClick = onToggle).padding(end = 6.dp))
+                Text(profile.title, Modifier.weight(1f).clickable(enabled = onToggle != null) { onToggle?.invoke() },
+                    style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (profile.kind == "subscription") FilledTonalIconButton(onClick = {
+                    busy = true; updateProfiles(context, store, listOf(profile)) { busy = false; refresh() }
+                }, enabled = !busy) { Icon(Icons.Filled.Refresh, tr("Обновить", "Update", "Оновити")) }
+                FilledTonalIconButton(onClick = { busy = true; pingServers(context, store, profile.servers()) { busy = false; refresh() } }, enabled = !busy) {
+                    Icon(Icons.Filled.Speed, tr("Пинг", "Ping", "Пінг"))
+                }
+                Box {
+                    FilledTonalIconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreHoriz, tr("Ещё", "More", "Ще")) }
+                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                        DropdownMenuItem(text = { Text(tr("QR для ТВ и телефона", "QR for TV and phone", "QR для ТБ і телефона")) }, leadingIcon = { Icon(Icons.Filled.QrCode2, null) },
+                            onClick = { menu = false; qr = if (profile.kind == "subscription") profile.url else profile.links.joinToString("\n").ifBlank { profile.json } })
+                        if (profile.kind == "subscription") DropdownMenuItem(text = { Text(tr("Копировать ссылку", "Copy link", "Копіювати посилання")) }, onClick = {
+                            menu = false
+                            context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(android.content.ClipData.newPlainText("subscription", profile.url))
+                        })
+                        DropdownMenuItem(text = { Text(tr("Удалить", "Delete", "Видалити"), color = MaterialTheme.colorScheme.error) },
+                            onClick = { menu = false; store.remove(profile.id); refresh() })
+                    }
+                }
+            }
+            if (profile.kind == "subscription" && (info.total > 0 || info.used > 0 || info.expire > 0)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(if (info.expire > 0) tr("до ", "until ", "до ") + SimpleDateFormat("dd.MM.yy", Locale.getDefault()).format(Date(info.expire * 1000)) else "∞",
+                        style = MaterialTheme.typography.bodySmall)
+                    LinearProgressIndicator(progress = { if (info.total > 0) (info.used.toFloat() / info.total).coerceIn(0f, 1f) else 0f },
+                        Modifier.weight(1f).height(6.dp).clip(RoundedCornerShape(3.dp)))
+                    Text("${SubInfo.bytes(info.used)} / ${if (info.total > 0) SubInfo.bytes(info.total) else "∞"}", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            if (info.supportUrl.isNotBlank() || info.webUrl.isNotBlank()) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (info.supportUrl.isNotBlank()) FilledTonalButton(onClick = { open(context, info.supportUrl) }) {
+                    Icon(Icons.AutoMirrored.Filled.HelpOutline, null); Spacer(Modifier.size(6.dp)); Text(tr("Поддержка", "Support", "Підтримка"))
+                }
+                if (info.webUrl.isNotBlank()) FilledTonalButton(onClick = { open(context, info.webUrl) }) {
+                    Icon(Icons.Filled.Language, null); Spacer(Modifier.size(6.dp)); Text(tr("Сайт", "Website", "Сайт"))
+                }
+            }
+            if (info.announce.isNotBlank()) Text(info.announce, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (profile.error.isNotBlank()) Text(profile.error, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            val count = if (profile.kind == "json") 1 else profile.servers().size
+            Text((if (profile.updatedAt > 0) date(profile.updatedAt) + " · " else "") + tr("серверов: ", "servers: ", "серверів: ") + count +
+                (if (profile.skipped > 0) " · " + tr("пропущено ", "skipped ", "пропущено ") + profile.skipped else ""),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.End))
+        }
+    }
+    qr?.let { text -> QrDialog(text) { qr = null } }
+}
+
+private fun open(context: Context, url: String) {
+    runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+}
+
+// ---------------------------------------------------------------- Серверы
 
 @Composable
 private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
     val context = LocalContext.current
-    var pings by remember { mutableStateOf(mapOf<String, String>()) }
-    var qr by remember { mutableStateOf<String?>(null) }
+    val s = store.settings
+    val profiles = store.profiles
+    val pings = store.pings
+    var query by remember { mutableStateOf("") }
+    var family by remember { mutableStateOf<String?>(null) }
+    var collapsed by remember { mutableStateOf(setOf<String>()) }
     var receiving by remember { mutableStateOf(false) }
-    LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = add) { Text(tr("Добавить", "Add", "Додати")) }
-                OutlinedButton(onClick = {
-                    thread { store.profiles.forEach { store.update(it) }; android.os.Handler(context.mainLooper).post(refresh) }
-                }) { Text(tr("Обновить все", "Update all", "Оновити всі")) }
-                OutlinedButton(onClick = { receiving = true }) { Text(tr("С телефона", "From a phone", "З телефона")) }
+    var busy by remember { mutableStateOf(false) }
+    val all = profiles.flatMap { it.servers() }
+    val families = all.map { it.family }.distinct()
+    LazyColumn(Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        item {
+            Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(tr("Серверы", "Servers", "Сервери"), Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                FilledTonalIconButton(onClick = { collapsed = if (collapsed.isEmpty()) profiles.map { it.id }.toSet() else emptySet() }) {
+                    Icon(if (collapsed.isEmpty()) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, tr("Свернуть", "Collapse", "Згорнути"))
+                }
+                FilledTonalIconButton(onClick = {
+                    val next = Settings.SORTS[(Settings.SORTS.indexOf(s.sort) + 1) % Settings.SORTS.size]
+                    store.settings = s.copy(sort = next); refresh()
+                }) { Icon(Icons.Filled.Sort, tr("Сортировка", "Sort", "Сортування")) }
+                FilledTonalIconButton(onClick = { busy = true; updateProfiles(context, store, profiles) { busy = false; refresh() } }, enabled = !busy) {
+                    Icon(Icons.Filled.Refresh, tr("Обновить все", "Update all", "Оновити всі"))
+                }
+                FilledTonalIconButton(onClick = { busy = true; pingServers(context, store, all) { busy = false; refresh() } }, enabled = !busy) {
+                    Icon(Icons.Filled.Speed, tr("Пинг всех", "Ping all", "Пінг усіх"))
+                }
+                FilledTonalIconButton(onClick = add, colors = androidx.compose.material3.IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)) {
+                    Icon(Icons.Filled.Add, tr("Добавить", "Add", "Додати"))
+                }
             }
-        } }
-        for (profile in store.profiles) {
+            Text(tr("серверов", "servers", "серверів") + ": ${all.size} · " + tr("провайдеров", "providers", "провайдерів") + ": ${profiles.size} · " +
+                tr("сортировка", "sort", "сортування") + ": " + sortName(s.sort), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        item {
+            OutlinedTextField(value = query, onValueChange = { query = it }, leadingIcon = { Icon(Icons.Filled.Search, null) },
+                placeholder = { Text(tr("Поиск серверов…", "Search servers…", "Пошук серверів…")) }, singleLine = true,
+                shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth().testTag("search"))
+        }
+        if (families.size > 1) item {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item { FilterChip(selected = family == null, onClick = { family = null }, label = { Text(tr("Все", "All", "Усі")) }) }
+                items(families.size) { i -> FilterChip(selected = family == families[i], onClick = { family = families[i] }, label = { Text(families[i]) }) }
+            }
+        }
+        if (profiles.isEmpty()) item {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Banner("app-locations", tr("Серверов пока нет", "No servers yet", "Серверів поки немає"),
+                    tr("Добавьте подписку, ссылку или QR", "Add a subscription, a link or a QR", "Додайте підписку, посилання або QR"))
+                Button(onClick = add) { Text(tr("Добавить", "Add", "Додати")) }
+            }
+        }
+        for (profile in profiles) {
+            val open = profile.id !in collapsed
             item(key = profile.id) {
-                Card(Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(12.dp)) {
-                        Text(profile.name, style = MaterialTheme.typography.titleMedium)
-                        Text(when (profile.kind) { "subscription" -> tr("Подписка", "Subscription", "Підписка"); "json" -> "Xray JSON"; else -> tr("Ссылки", "Links", "Посилання") }
-                            + (if (profile.skipped > 0) " · " + tr("пропущено", "skipped", "пропущено") + " ${profile.skipped}" else "")
-                            + (if (profile.error.isNotBlank()) " · ${profile.error}" else ""), style = MaterialTheme.typography.bodySmall)
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            if (profile.kind == "subscription") TextButton(onClick = {
-                                thread { store.update(profile); android.os.Handler(context.mainLooper).post(refresh) }
-                            }) { Text(tr("Обновить", "Update", "Оновити")) }
-                            TextButton(onClick = { qr = if (profile.kind == "subscription") profile.url else profile.links.joinToString("\n").ifBlank { profile.json } }) {
-                                Text(tr("QR для ТВ", "QR for TV", "QR для ТБ"))
-                            }
-                            TextButton(onClick = { store.remove(profile.id); refresh() }) { Text(tr("Удалить", "Delete", "Видалити")) }
-                        }
-                        if (profile.kind != "json") {
-                            ServerRow(tr("Самый быстрый (автовыбор)", "Fastest (automatic)", "Найшвидший (автовибір)"), "",
-                                store.activeProfile == profile.id && store.activeServer == ConfigBuilder.AUTO) {
-                                store.activeProfile = profile.id; store.activeServer = ConfigBuilder.AUTO; refresh()
-                            }
-                            profile.servers().forEachIndexed { i, server ->
-                                ServerRow(server.name, "${server.protocol} · ${pings[server.link] ?: ""}",
-                                    store.activeProfile == profile.id && store.activeServer == i.toString()) {
-                                    store.activeProfile = profile.id; store.activeServer = i.toString(); refresh()
-                                }
-                            }
-                            TextButton(onClick = {
-                                thread {
-                                    val result = profile.servers().associate { s -> s.link to tcpPing(s.host, s.port) }
-                                    android.os.Handler(context.mainLooper).post { pings = pings + result }
-                                }
-                            }) { Text(tr("Проверить задержку", "Test latency", "Перевірити затримку")) }
-                        } else {
-                            ServerRow(profile.name, "Xray JSON", store.activeProfile == profile.id) { store.activeProfile = profile.id; refresh() }
-                        }
+                ProviderCard(store, profile, expanded = open, onToggle = { collapsed = if (open) collapsed + profile.id else collapsed - profile.id }, refresh = refresh)
+            }
+            if (!open) continue
+            if (profile.kind == "json") {
+                item(key = profile.id + "-json") {
+                    ServerCard("📄", profile.title, listOf("Xray JSON"), null, s.pingDisplay, store.activeProfile == profile.id) {
+                        store.activeProfile = profile.id; refresh()
                     }
+                }
+                continue
+            }
+            val servers = profile.servers()
+            if (query.isBlank() && family == null && servers.size > 1) item(key = profile.id + "-auto") {
+                ServerCard("⚡", tr("Автовыбор", "Auto select", "Автовибір"), listOf(tr("самый быстрый", "fastest", "найшвидший")), null, s.pingDisplay,
+                    store.activeProfile == profile.id && store.activeServer == ConfigBuilder.AUTO) {
+                    store.activeProfile = profile.id; store.activeServer = ConfigBuilder.AUTO; refresh()
+                }
+            }
+            val arranged = ServerList.arrange(servers, s.sort, pings, query, family)
+            for ((i, server) in arranged) item(key = profile.id + "-" + i) {
+                ServerCard(flagOf(server.name), server.name.removePrefix(flagOf(server.name)).trim(), server.labels, pings[Ping.key(server)], s.pingDisplay,
+                    store.activeProfile == profile.id && store.activeServer == i.toString()) {
+                    store.activeProfile = profile.id; store.activeServer = i.toString(); refresh()
                 }
             }
         }
+        item {
+            TextButton(onClick = { receiving = true }) { Text(tr("Принять подписку с телефона (ТВ)", "Receive a subscription from a phone (TV)", "Прийняти підписку з телефона (ТБ)")) }
+            Spacer(Modifier.height(12.dp))
+        }
     }
-    qr?.let { text -> QrDialog(text) { qr = null } }
     if (receiving) ReceiveDialog(store) { receiving = false; refresh() }
 }
 
-/** On a TV: a one-time page in the local network; the phone opens it by the QR and sends the subscription. */
-@Composable
-private fun ReceiveDialog(store: Store, onDone: () -> Unit) {
-    val context = LocalContext.current
-    var address by remember { mutableStateOf<String?>(null) }
-    var status by remember { mutableStateOf("") }
-    DisposableEffect(Unit) {
-        val receiver = TvReceiver { text ->
-            val result = runCatching { store.add(text).also { if (it.kind == "subscription") store.update(it) } }
-            android.os.Handler(context.mainLooper).post {
-                status = result.fold({ tr("Добавлено: ", "Added: ", "Додано: ") + it.name }, { it.message ?: "error" })
-            }
-        }
-        val ip = TvReceiver.localAddress()
-        if (ip == null) status = tr("Нет локальной сети", "No local network", "Немає локальної мережі")
-        else address = "http://$ip:${receiver.start()}/${receiver.key}"
-        onDispose { receiver.stop() }
+private fun sortName(sort: String) = when (sort) { "ping" -> tr("по пингу", "by ping", "за пінгом"); "name" -> tr("по имени", "by name", "за назвою")
+    else -> tr("по умолчанию", "default", "за замовчуванням") }
+
+/** The flag emoji a panel puts at the start of a server's name (🇩🇪 Германия №1), else none. */
+internal fun flagOf(name: String): String {
+    val t = name.trim()
+    if (t.length >= 4 && Character.codePointAt(t, 0) in 0x1F1E6..0x1F1FF) {
+        val second = Character.charCount(Character.codePointAt(t, 0))
+        if (Character.codePointAt(t, second) in 0x1F1E6..0x1F1FF) return t.substring(0, second + Character.charCount(Character.codePointAt(t, second)))
     }
-    AlertDialog(onDismissRequest = onDone, confirmButton = { TextButton(onClick = onDone) { Text("OK") } },
-        title = { Text(tr("Отсканируйте телефоном", "Scan with a phone", "Відскануйте телефоном")) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                address?.let { url ->
-                    QrImage(url)
-                    Text(tr("Телефон должен быть в той же сети. Страница работает 5 минут и принимает одну подписку.",
-                        "The phone must be on the same network. The page works for 5 minutes and accepts one subscription.",
-                        "Телефон має бути в тій самій мережі. Сторінка працює 5 хвилин і приймає одну підписку."), style = MaterialTheme.typography.bodySmall)
-                }
-                if (status.isNotBlank()) Text(status)
-            }
-        })
+    return ""
 }
 
 @Composable
-private fun QrImage(text: String) {
-    val bitmap = remember(text) {
-        val matrix = QRCodeWriter().encode(text, BarcodeFormat.QR_CODE, 512, 512)
-        Bitmap.createBitmap(512, 512, Bitmap.Config.RGB_565).apply {
-            for (x in 0 until 512) for (y in 0 until 512) setPixel(x, y, if (matrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
-        }
-    }
-    Image(bitmap.asImageBitmap(), null, Modifier.size(240.dp))
-}
-
-@Composable
-private fun ServerRow(title: String, subtitle: String, selected: Boolean, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = selected, onClick = onClick)
-        Column { Text(title); if (subtitle.isNotBlank()) Text(subtitle, style = MaterialTheme.typography.bodySmall) }
-    }
-}
-
-/** TCP connect time to the server (no traffic through the tunnel). */
-private fun tcpPing(host: String, port: Int): String = try {
-    val start = System.nanoTime()
-    Socket().use { it.connect(InetSocketAddress(host, port), 3000) }
-    "${(System.nanoTime() - start) / 1_000_000} ms"
-} catch (_: Exception) { tr("нет ответа", "no answer", "немає відповіді") }
-
-@Composable
-private fun AddDialog(store: Store, initial: String, onDone: () -> Unit) {
-    val context = LocalContext.current
-    var text by remember { mutableStateOf(initial) }
-    var error by remember { mutableStateOf("") }
-    AlertDialog(onDismissRequest = onDone, title = { Text(tr("Добавить", "Add", "Додати")) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(tr("Ссылка на подписку (https://…), ссылки vless://, vmess://, trojan://, ss://, socks://, wireguard:// или JSON Xray.",
-                    "A subscription URL (https://…), vless://, vmess://, trojan://, ss://, socks://, wireguard:// links or an Xray JSON.",
-                    "Посилання на підписку (https://…), посилання vless://, vmess://, trojan://, ss://, socks://, wireguard:// або JSON Xray."),
-                    style = MaterialTheme.typography.bodySmall)
-                OutlinedTextField(value = text, onValueChange = { text = it }, modifier = Modifier.fillMaxWidth().height(140.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = {
-                        val clip = context.getSystemService(ClipboardManager::class.java)?.primaryClip
-                        text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString().orEmpty()
-                    }) { Text(tr("Вставить", "Paste", "Вставити")) }
-                    OutlinedButton(onClick = {
-                        GmsBarcodeScanning.getClient(context).startScan()
-                            .addOnSuccessListener { code -> text = code.rawValue.orEmpty() }
-                            .addOnFailureListener { error = tr("Сканер недоступен", "Scanner unavailable", "Сканер недоступний") }
-                    }) { Text(tr("Сканировать QR", "Scan QR", "Сканувати QR")) }
-                }
-                if (error.isNotBlank()) Text(error, color = Color(0xFFE5534B))
+private fun ServerCard(flag: String, name: String, labels: List<String>, ping: Int?, display: String, selected: Boolean, onClick: () -> Unit) {
+    val colors = listOf(Color(0xFF7AA2F7), MaterialTheme.colorScheme.onSurfaceVariant, MaterialTheme.colorScheme.primary, Color(0xFFF5C451))
+    Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+        else MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth().then(if (selected) Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary,
+        RoundedCornerShape(20.dp)) else Modifier).clickable(onClick = onClick).testTag("server")) {
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+                if (flag.isNotBlank()) Text(flag, style = MaterialTheme.typography.titleLarge) else Icon(Icons.Filled.Bolt, null, tint = MaterialTheme.colorScheme.primary)
             }
-        },
-        confirmButton = {
-            Button(onClick = {
-                try {
-                    val profile = store.add(text)
-                    if (profile.kind == "subscription") thread { store.update(profile); android.os.Handler(context.mainLooper).post(onDone) } else onDone()
-                } catch (exc: Exception) { error = exc.message ?: tr("Не удалось добавить", "Could not add", "Не вдалося додати") }
-            }) { Text(tr("Добавить", "Add", "Додати")) }
-        },
-        dismissButton = { TextButton(onClick = onDone) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
-}
-
-@Composable
-private fun QrDialog(text: String, onDone: () -> Unit) {
-    val bitmap = remember(text) {
-        val matrix = QRCodeWriter().encode(text, BarcodeFormat.QR_CODE, 640, 640)
-        Bitmap.createBitmap(640, 640, Bitmap.Config.RGB_565).apply {
-            for (x in 0 until 640) for (y in 0 until 640) setPixel(x, y, if (matrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
-        }
-    }
-    AlertDialog(onDismissRequest = onDone, confirmButton = { TextButton(onClick = onDone) { Text("OK") } },
-        title = { Text(tr("Отсканируйте на телевизоре или телефоне", "Scan on the TV or phone", "Відскануйте на телевізорі або телефоні")) },
-        text = { Image(bitmap.asImageBitmap(), null, Modifier.size(260.dp)) })
-}
-
-@Composable
-private fun RoutingScreen(store: Store, refresh: () -> Unit) {
-    val context = LocalContext.current
-    val s = store.settings
-    var rule by remember { mutableStateOf("") }
-    var action by remember { mutableStateOf("direct") }
-    var message by remember { mutableStateOf("") }
-    LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        item { Text(tr("Что идёт через VPN", "What goes through the VPN", "Що йде через VPN"), style = MaterialTheme.typography.titleMedium) }
-        items(listOf("global" to tr("Всё через VPN", "Everything", "Усе через VPN"),
-            "bypass_lan" to tr("Всё, кроме локальной сети", "All but the local network", "Усе, крім локальної мережі"),
-            "bypass_ru" to tr("Российские сайты напрямую", "Russian sites direct", "Російські сайти напряму"),
-            "custom" to tr("Свои правила", "Own rules", "Власні правила"))) { (key, label) ->
-            ServerRow(label, "", s.routing == key) { store.settings = s.copy(routing = key); refresh() }
-        }
-        item { Text(tr("Правила (домен, IP, geosite:, geoip:)", "Rules (domain, IP, geosite:, geoip:)", "Правила (домен, IP, geosite:, geoip:)"), style = MaterialTheme.typography.titleMedium) }
-        items(s.rules) { r ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${r.match} → ${r.action}", Modifier.weight(1f))
-                TextButton(onClick = { store.settings = s.copy(rules = s.rules - r); refresh() }) { Text("✕") }
-            }
-        }
-        item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            OutlinedTextField(value = rule, onValueChange = { rule = it }, label = { Text("example.com / 10.0.0.0/8 / geosite:category-ads-all") }, modifier = Modifier.fillMaxWidth())
-            Row { Rule.ACTIONS.forEach { a -> Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(action == a, { action = a }); Text(a) } } }
-            Button(onClick = {
-                try { store.settings = s.copy(rules = s.rules + Rule(Rule.normalize(rule), action)); rule = ""; refresh() }
-                catch (exc: Exception) { message = tr("Неверное правило", "Invalid rule", "Невірне правило") }
-            }) { Text(tr("Добавить правило", "Add rule", "Додати правило")) }
-        } }
-        item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(if (store.geoReady()) tr("Geo-файлы загружены", "Geo files present", "Geo-файли завантажено") else
-                tr("Для geoip:/geosite: нужны geo-файлы", "geoip:/geosite: need the geo files", "Для geoip:/geosite: потрібні geo-файли"))
-            OutlinedButton(onClick = {
-                message = tr("Загрузка…", "Downloading…", "Завантаження…")
-                thread {
-                    val result = runCatching { store.downloadGeo() }.fold({ tr("Готово", "Done", "Готово") }, { it.message ?: "error" })
-                    android.os.Handler(context.mainLooper).post { message = result; refresh() }
-                }
-            }) { Text(tr("Скачать geo-файлы", "Download geo files", "Завантажити geo-файли")) }
-            if (message.isNotBlank()) Text(message)
-        } }
-    }
-}
-
-@Composable
-private fun SettingsScreen(store: Store, refresh: () -> Unit) {
-    val context = LocalContext.current
-    val s = store.settings
-    var dns by remember { mutableStateOf(s.dns.joinToString(", ")) }
-    var picking by remember { mutableStateOf(false) }
-    var updateText by remember { mutableStateOf("") }
-    LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Toggle(tr("Фрагментация TLS ClientHello", "TLS ClientHello fragmentation", "Фрагментація TLS ClientHello"), s.fragment) {
-                store.settings = s.copy(fragment = it); refresh()
-            }
-            Text(tr("Помогает, когда провайдер режет TLS по SNI. Для TLS-серверов; REALITY не затрагивает.",
-                "Helps when the provider blocks TLS by SNI. For TLS servers; REALITY is not affected.",
-                "Допомагає, коли провайдер ріже TLS за SNI. Для TLS-серверів; REALITY не зачіпає."), style = MaterialTheme.typography.bodySmall)
-            Toggle("IPv6", s.ipv6) { store.settings = s.copy(ipv6 = it); refresh() }
-        } }
-        item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            OutlinedTextField(value = dns, onValueChange = { dns = it }, label = { Text("DNS") }, modifier = Modifier.fillMaxWidth())
-            TextButton(onClick = {
-                val list = dns.split(",", " ").map { it.trim() }.filter { it.isNotBlank() }.take(4)
-                if (list.isNotEmpty()) { store.settings = s.copy(dns = list); refresh() }
-            }) { Text(tr("Сохранить DNS", "Save DNS", "Зберегти DNS")) }
-        } }
-        item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(tr("Приложения", "Apps", "Застосунки"), style = MaterialTheme.typography.titleMedium)
-            listOf("all" to tr("Все через VPN", "All through VPN", "Усі через VPN"), "only" to tr("Только выбранные", "Only selected", "Лише вибрані"),
-                "except" to tr("Все, кроме выбранных", "All but selected", "Усі, крім вибраних")).forEach { (key, label) ->
-                ServerRow(label, "", s.appsMode == key) { store.settings = s.copy(appsMode = key); refresh() }
-            }
-            if (s.appsMode != "all") OutlinedButton(onClick = { picking = true }) {
-                Text(tr("Выбрать приложения", "Choose apps", "Вибрати застосунки") + " (${s.apps.size})")
-            }
-        } }
-        item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(tr("Kill switch", "Kill switch", "Kill switch"), style = MaterialTheme.typography.titleMedium)
-            Text(tr("Android блокирует интернет без VPN сам: «Постоянная VPN» и «Блокировать соединения без VPN» в настройках системы.",
-                "Android blocks traffic without the VPN itself: «Always-on VPN» and «Block connections without VPN» in system settings.",
-                "Android блокує інтернет без VPN сам: «Постійна VPN» і «Блокувати з'єднання без VPN» у налаштуваннях системи."),
-                style = MaterialTheme.typography.bodySmall)
-            OutlinedButton(onClick = { context.startActivity(Intent(AndroidSettings.ACTION_VPN_SETTINGS)) }) {
-                Text(tr("Открыть настройки VPN", "Open VPN settings", "Відкрити налаштування VPN"))
-            }
-        } }
-        item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(tr("Тема", "Theme", "Тема"), style = MaterialTheme.typography.titleMedium)
-            listOf("system" to tr("Как в системе", "System", "Як у системі"), "dark" to tr("Тёмная", "Dark", "Темна"), "light" to tr("Светлая", "Light", "Світла"))
-                .forEach { (key, label) -> ServerRow(label, "", s.theme == key) { store.settings = s.copy(theme = key); refresh() } }
-            Text("Xray ${Xray.version().ifBlank { "—" }}", style = MaterialTheme.typography.bodySmall)
-            OutlinedButton(onClick = {
-                updateText = tr("Проверка…", "Checking…", "Перевірка…")
-                thread {
-                    val text = runCatching { store.checkUpdate(force = true) }.fold(
-                        { it?.let { u -> tr("Доступна версия ", "Version available: ", "Доступна версія ") + u.versionName } ?: tr("Установлена последняя версия", "Up to date", "Встановлено останню версію") },
-                        { tr("Не удалось проверить", "Could not check", "Не вдалося перевірити") })
-                    android.os.Handler(context.mainLooper).post { updateText = text; refresh() }
-                }
-            }) { Text(tr("Проверить обновления", "Check for updates", "Перевірити оновлення")) }
-            if (updateText.isNotBlank()) Text(updateText)
-        } }
-    }
-    if (picking) AppsDialog(context, s.apps) { chosen -> if (chosen != null) store.settings = s.copy(apps = chosen); picking = false; refresh() }
-}
-
-@Composable
-private fun Toggle(label: String, value: Boolean, onChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, Modifier.weight(1f)); Switch(checked = value, onCheckedChange = onChange)
-    }
-}
-
-@Composable
-private fun AppsDialog(context: Context, initial: Set<String>, onDone: (Set<String>?) -> Unit) {
-    val apps = remember {
-        val pm = context.packageManager
-        pm.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), PackageManager.MATCH_ALL)
-            .map { it.activityInfo.packageName to it.loadLabel(pm).toString() }.distinctBy { it.first }
-            .filter { it.first != context.packageName }.sortedBy { it.second.lowercase() }
-    }
-    var chosen by remember { mutableStateOf(initial) }
-    AlertDialog(onDismissRequest = { onDone(null) }, title = { Text(tr("Приложения", "Apps", "Застосунки")) },
-        text = {
-            LazyColumn(Modifier.height(420.dp)) {
-                items(apps) { (pkg, label) ->
-                    Row(Modifier.fillMaxWidth().clickable { chosen = if (pkg in chosen) chosen - pkg else chosen + pkg }, verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = pkg in chosen, onCheckedChange = { chosen = if (it) chosen + pkg else chosen - pkg }); Text(label)
+            Column(Modifier.weight(1f)) {
+                Text(name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    labels.forEachIndexed { i, l ->
+                        if (i > 0) Text("·", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(l, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, color = colors[i.coerceAtMost(colors.size - 1)])
                     }
                 }
             }
-        },
-        confirmButton = { Button(onClick = { onDone(chosen) }) { Text("OK") } },
-        dismissButton = { TextButton(onClick = { onDone(null) }) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
+            PingBadge(ping, display)
+        }
+    }
 }
+
