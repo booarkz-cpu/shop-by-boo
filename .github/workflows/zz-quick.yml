@@ -1,0 +1,54 @@
+name: zz dr drill (scratch)
+'on':
+  push:
+    branches:
+    - scratch/**
+permissions:
+  contents: read
+jobs:
+  quick:
+    name: Containers • non-root startup and Redis authentication
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+    - uses: actions/checkout@v5
+    - name: Prepare isolated test configuration
+      run: 'cp .env.example .env
+
+        cp support-pro/.env.example support-pro/.env
+
+        python3 scripts/harden-env.py
+
+        python3 - <<''PY''
+
+        from pathlib import Path
+
+        import secrets
+
+        p=Path(''.env'')
+
+        p.write_text(p.read_text()+''\nAPP_ENV=test\nAPI_DOMAIN=api.example.test\nADMIN_DOMAIN=admin.example.test\nAPP_DOMAIN=app.example.test\nCABINET_DOMAIN=cabinet.example.test\nAPP_SECRET=''+secrets.token_hex(32)+''\n'')
+
+        p=Path(''support-pro/.env'')
+
+        p.write_text(p.read_text()+''\nSESSION_SECRET=''+secrets.token_hex(32)+''\nBOT_TOKEN=123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi\n'')
+
+        PY
+
+        '
+    - name: Move PostgreSQL 16 data to PostgreSQL 18
+      run: "project=\"$(docker compose config --format json | jq -r .name)\"\nold=postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea\nseed(){ # volume user db\n  docker volume create \"${project}_$1\" >/dev/null\n  docker run -d --name \"seed-$1\" -e POSTGRES_USER=\"$2\" -e POSTGRES_PASSWORD=seed -e POSTGRES_DB=\"$3\" -v \"${project}_$1\":/var/lib/postgresql/data \"$old\" >/dev/null\n  for i in $(seq 1 60); do docker exec \"seed-$1\" pg_isready -U \"$2\" -d \"$3\" >/dev/null 2>&1 && break; sleep 2; done\n  sleep 3\n  docker exec \"seed-$1\" psql -U \"$2\" -d \"$3\" -v ON_ERROR_STOP=1 -c \"CREATE TABLE legacy_orders(id serial PRIMARY KEY, note text, paid numeric(12,2)); INSERT INTO legacy_orders(note, paid) SELECT 'order '||g, g FROM generate_series(1,1500) g; CREATE TABLE legacy_users(id int PRIMARY KEY); INSERT INTO legacy_users SELECT generate_series(1,42);\"\n  docker rm -f \"seed-$1\" >/dev/null\n}\nseed postgres_data vpnshop vpnshop\nseed support_postgres_data\
+        \ support support\nAPP_DIR=\"$PWD\" ROLLBACK_DIR=\"$RUNNER_TEMP/rollback\" bash scripts/upgrade-postgres.sh | tee \"$RUNNER_TEMP/upgrade.log\"\ngrep -q 'db: moved to PostgreSQL 18' \"$RUNNER_TEMP/upgrade.log\"\ngrep -q 'support_db: moved to PostgreSQL 18' \"$RUNNER_TEMP/upgrade.log\"\ndocker compose up -d --wait db support_db\ntest \"$(docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SELECT count(*), sum(paid) FROM legacy_orders')\" = \"1500|1125750.00\"\ntest \"$(docker compose exec -T support_db psql -U support -d support -At -c 'SELECT count(*) FROM legacy_users')\" = \"42\"\ndocker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SHOW server_version' | grep -E '^18\\.'\n# A second run is a no-op and the PostgreSQL 16 volume is kept for rollback.\nAPP_DIR=\"$PWD\" ROLLBACK_DIR=\"$RUNNER_TEMP/rollback\" bash scripts/upgrade-postgres.sh | grep -q 'db: already moved to PostgreSQL 18'\ndocker volume inspect \"${project}_postgres_data\" >/dev/null\nls \"$RUNNER_TEMP/rollback\"\
+        /postgres16-db-*.dump\n# The synthetic tables are not part of either schema: Support Pro refuses unknown unversioned schemas.\ndocker compose exec -T db psql -U vpnshop -d vpnshop -c 'DROP TABLE legacy_orders, legacy_users'\ndocker compose exec -T support_db psql -U support -d support -c 'DROP TABLE legacy_orders, legacy_users'\n"
+    - name: Build and start services
+      run: "# Job logs are not always downloadable: on a failed build surface its tail as an annotation.\nif ! docker compose --progress plain build backend admin miniapp cabinet support_pro support_worker caddy > \"$RUNNER_TEMP/build.log\" 2>&1; then\n  tail -n 300 \"$RUNNER_TEMP/build.log\"\n  echo \"::error title=docker compose build::$(grep -E 'ERROR|error|failed|npm ERR|Cannot|No matching|conflict' \"$RUNNER_TEMP/build.log\" | tail -n 25 | tr '\\n' ' ' | cut -c1-3500)\"\n  exit 1\nfi\ndocker compose up -d --wait --wait-timeout 240 backend admin miniapp cabinet support_pro support_worker\n# PostgreSQL 18 everywhere, and pg_dump in the backend image matches the server major version.\ndocker compose exec -T db postgres --version | grep -E 'PostgreSQL\\) 18\\.'\ndocker compose exec -T support_db postgres --version | grep -E 'PostgreSQL\\) 18\\.'\ndocker compose exec -T backend pg_dump --version | grep -E 'PostgreSQL\\) 18\\.'\n"
+    - name: Verify privilege and authentication boundaries
+      run: "for service in backend admin miniapp cabinet support_pro; do\n  test \"$(docker compose exec -T \"$service\" id -u)\" != 0\ndone\nfor service in redis support_redis; do\n  docker compose exec -T \"$service\" redis-cli ping | grep -q NOAUTH\n  docker compose exec -T \"$service\" sh -c 'REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli ping' | grep -qx PONG\n  docker compose exec -T \"$service\" sh -c 'test \"$(awk '\\''/^Uid:/ {print $2}'\\'' /proc/1/status)\" != 0'\ndone\ndocker compose exec -T backend python -c \"from pathlib import Path; p=Path('/data/app-packages/.write-test'); p.write_text('ok'); p.unlink()\"\ndocker compose run --rm --no-deps --entrypoint caddy caddy validate --config /etc/caddy/Caddyfile\ntest \"$(docker compose run --rm --no-deps --entrypoint id caddy -u)\" = 10001\n"
+    - name: Disaster-recovery drill (copy, lose every volume, restore, compare)
+      run: bash scripts/ci/dr-drill.sh
+    - name: Logs on failure
+      if: failure()
+      run: "docker compose logs --tail=100\n# Job logs are not always downloadable: surface the state as annotations too.\ndocker compose ps -a --format '{{.Service}} {{.State}} {{.Status}}' | while read -r line; do echo \"::warning title=service::$line\"; done\nfor svc in $(docker compose ps -a --format '{{.Service}} {{.State}} {{.Health}}' | awk '$2!=\"running\" || $3==\"unhealthy\" {print $1}'); do\n  echo \"::error title=$svc logs::$(docker compose logs --tail=25 --no-log-prefix \"$svc\" 2>&1 | tr '\\n' ' ' | cut -c1-3500)\"\ndone\n"
+    - name: Stop isolated services
+      if: always()
+      run: docker compose down -v
