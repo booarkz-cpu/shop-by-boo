@@ -11,11 +11,12 @@ digest: the digests below were read in CI (.github/workflows/resolve-image-diges
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 import re
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 # Pinned 2026-11-03: panel 3.4.8, node 3.4.4, subscription page 8.0.1 (the versions verified by the live tests).
 IMAGES = {
@@ -39,9 +40,9 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
-MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports")
+MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
-                 "transports": "Транспорты ноды"}
+                 "transports": "Транспорты ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
@@ -171,15 +172,38 @@ class PlanIn(BaseModel):
         return self
 
 
+class Hardening(BaseModel):
+    """v28.84.0: «Защита сервера» — what to turn on. ``admin_ips``: SSH only from these addresses (and the shop's own)."""
+    model_config = ConfigDict(extra="forbid")
+    fail2ban: bool = True
+    upgrades: bool = True
+    bbr: bool = True
+    admin_ips: list[str] = Field(default_factory=list, max_length=10)
+
+    @field_validator("admin_ips")
+    @classmethod
+    def _ips(cls, value: list[str]) -> list[str]:
+        out = []
+        for raw in value:
+            try:
+                out.append(str(ipaddress.ip_network(raw.strip(), strict=False)))
+            except ValueError as exc:
+                raise ValueError(f"Адрес администратора: {raw}") from exc
+            if ipaddress.ip_network(out[-1]).num_addresses > 65536:
+                raise ValueError(f"Слишком широкий диапазон: {raw}")
+        return list(dict.fromkeys(out))
+
+
 class ModuleRun(BaseModel):
     """One module action: what to do on which servers. ``release`` — the files GitHub published for the chosen
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog"]
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
     transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)
+    hardening: "Hardening | None" = None
     release: dict[str, dict[str, str]] = Field(default_factory=dict)
     management_url: str | None = Field(default=None, max_length=200, pattern=r"^https://[A-Za-z0-9.-]+(:\d{1,5})?(/[A-Za-z0-9._~/-]*)?$")
 
@@ -687,6 +711,20 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             steps.append(step("node_module", sid, f"{servers[sid]['name']}: NetBird — {'подключить' if mod.enabled else 'отключить'}",
                               module="netbird", enabled=mod.enabled, management_url=mod.management_url))
         title = f"NetBird: {state}"
+    elif name in ("hardening", "watchdog"):
+        targets = mod.server_ids or list(roles)
+        if any(sid not in roles for sid in targets):
+            raise ValueError("Модуль ставится на серверы этой установки")
+        for sid in targets:
+            n = servers[sid]["name"]
+            if name == "hardening":
+                h = mod.hardening or Hardening()
+                what = ", ".join([w for w, on in (("fail2ban для SSH", h.fail2ban), ("автообновления безопасности", h.upgrades), ("BBR", h.bbr)) if on]
+                                 + ([f"SSH только с {', '.join(h.admin_ips)} и адреса магазина"] if h.admin_ips else [])) or "всё выключить"
+                steps.append(step("node_module", sid, f"{n}: защита сервера — {what}", module="hardening", hardening=h.model_dump()))
+            else:
+                steps.append(step("node_module", sid, f"{n}: самовосстановление — {state}", module="watchdog", enabled=mod.enabled))
+        title = MODULE_TITLES[name] + (f": {state}" if name == "watchdog" else "")
     elif name == "transports":
         if not plan.selfsteal_domain or len(plan.node_server_ids) != 1:
             raise ValueError("Транспорты меняются у установки с SelfSteal на одной ноде")

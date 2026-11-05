@@ -45,6 +45,24 @@ export function NodeMonitor({request, toast}: {request: Request; toast?: (text: 
       setError(e.message || "Перезапуск не выполнен");
     }
   }
+  // v28.84.0: turn a node off/on, rename it or move it to another address (PATCH in the panel).
+  async function nodeAction(n: any, action: "enable" | "disable") {
+    if (action === "disable" && !confirm(`Выключить ноду «${n.name}»? Панель перестанет отдавать её клиентам.`)) return;
+    try { await request(`/api/admin/nodes/${n.uuid}/${action}`, {method: "POST"}); toast?.(action === "enable" ? "Нода включена" : "Нода выключена"); load(); }
+    catch (e: any) { setError(e.message || "Не выполнено"); }
+  }
+  async function editNode(n: any) {
+    const address = prompt(`Адрес ноды «${n.name}» (домен или IP)`, n.address || "");
+    if (address === null) return;
+    const name = prompt("Имя ноды", n.name || "");
+    if (name === null) return;
+    const patch: any = {};
+    if (address.trim() && address.trim() !== n.address) patch.address = address.trim();
+    if (name.trim() && name.trim() !== n.name) patch.name = name.trim();
+    if (!Object.keys(patch).length) return;
+    try { await request(`/api/admin/nodes/${n.uuid}`, {method: "PATCH", body: JSON.stringify(patch)}); toast?.("Нода изменена"); load(); }
+    catch (e: any) { setError(e.message || "Не выполнено"); }
+  }
   async function updateAll() {
     if (!confirm("Обновить все ноды до последней версии remnawave/node? Агент на каждой ноде скачает образ и пересоздаст контейнер.")) return;
     try {
@@ -71,7 +89,10 @@ export function NodeMonitor({request, toast}: {request: Request; toast?: (text: 
             <td>{n.down_minutes ? `${n.down_minutes} мин` : "—"}</td>
             <td>{n.restart_count || 0}</td>
             <td>{n.xray_version || "—"}</td>
-            <td><button onClick={() => restart(n.uuid, n.name)}>Перезапустить</button></td>
+            <td className="row-actions"><button onClick={() => restart(n.uuid, n.name)}>Перезапустить</button>
+              {n.status === "disabled" ? <button onClick={() => nodeAction(n, "enable")}>Включить</button>
+                : <button onClick={() => nodeAction(n, "disable")}>Выключить</button>}
+              <button onClick={() => editNode(n)} data-node-edit>Изменить</button></td>
           </tr>))}</tbody></table></div>
       {data?.agents?.length ? <p className="muted">Агенты нод: {data.agents.map((a: any) => `${a.name}${a.silent ? " (молчит)" : ""}`).join(", ")}</p> : null}
       {cfg ? <div className="grid2">

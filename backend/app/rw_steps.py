@@ -85,6 +85,21 @@ def new_secrets() -> dict:
             "subpage_jwt_secret": pysecrets.token_hex(32), "panel_admin_username": "corgi-admin", "panel_admin_password": password}
 
 
+CLIENT_ADDRESS = 'echo "${SSH_CONNECTION%% *}"'
+
+
+async def _client_address(ctx: Context, server_id: int) -> str:
+    """The shop's address as this server's sshd sees it (without sudo: sudo drops SSH_CONNECTION)."""
+    def work():
+        with ctx.remote(server_id) as remote:
+            return remote.run(CLIENT_ADDRESS, root=False, timeout=30)
+    try:
+        out = (await asyncio.to_thread(work)).out.strip()
+    except RemoteError:
+        return ""
+    return out if re.fullmatch(r"[0-9A-Fa-f.:]{3,45}", out) else ""
+
+
 async def _run(ctx: Context, server_id: int, script: str, *args: str, stdin: bytes | None = None, timeout: int = 900):
     def work():
         with ctx.remote(server_id) as remote:
@@ -856,6 +871,29 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if result.code != 0 or (enabled and "Connected" not in result.out):
             raise StepError("NetBird не подключился к серверу управления (журнал шага)")
         mods["netbird"] = enabled
+    elif name == "hardening":
+        h = p.get("hardening") or {}
+        ips = ",".join(h.get("admin_ips") or []) or "-"
+        shop_ip = await _client_address(ctx, sid) if ips != "-" else "-"
+        result = await _run(ctx, sid, HARDEN, "apply", *("on" if h.get(k) else "off" for k in ("fail2ban", "upgrades", "bbr")), ips, shop_ip or "-", timeout=900)
+        _note(ctx, result.out + result.err)
+        if result.code == 7:
+            raise StepError("Не удалось узнать адрес магазина в SSH-сессии: доступ по SSH не ограничен, чтобы магазин не потерял сервер")
+        if result.code == 6:
+            raise StepError("ufw выключен: доступ по SSH только с адресов администратора работает через ufw (включите его на сервере)")
+        if result.code == 5:
+            raise StepError("Ядро сервера не поддерживает BBR")
+        if result.code == 4:
+            raise StepError("На сервере нет apt: fail2ban и автообновления ставятся на Debian и Ubuntu")
+        if result.code != 0:
+            raise StepError("Защита сервера не применилась (журнал шага)")
+        mods["hardening"] = {k: bool(h.get(k)) for k in ("fail2ban", "upgrades", "bbr")} | {"admin_ips": h.get("admin_ips") or []}
+    elif name == "watchdog":
+        result = await _run(ctx, sid, WATCHDOG, "on" if enabled else "off", timeout=180)
+        _note(ctx, result.out + result.err)
+        if result.code != 0 or (enabled and "watchdog=active" not in result.out):
+            raise StepError("Таймер самовосстановления не запустился (журнал шага)")
+        mods["watchdog"] = enabled
     elif name == "transports":
         wanted = p.get("transports") or []
         flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2")]
@@ -879,6 +917,116 @@ async def run_node_module(ctx: Context, st: dict) -> None:
     else:
         raise StepError(f"Неизвестный модуль {name}")
     ctx.state.setdefault("applied_modules", []).append([sid, name, enabled])
+
+
+# v28.84.0: «Защита сервера» (after remnawave-manager, MIT, (c) Корги Люси: configure_security, configure_kernel,
+# configure_admin_ip). Own files only (jail.d/corgi.local, apt.conf.d/52corgi-*, sysctl.d/99-corgi-bbr.conf), so the
+# distribution's files stay untouched; every file and ufw rule changed is recorded for «undo».
+#   apply <fail2ban on|off> <upgrades on|off> <bbr on|off> <admin ips, comma-separated, or -> <the shop's address or ->
+HARDEN = r"""set -eu
+st=/var/lib/corgi-harden; run=$st/run
+jail=/etc/fail2ban/jail.d/corgi.local; auto=/etc/apt/apt.conf.d/21corgi-auto-upgrades; uu=/etc/apt/apt.conf.d/52corgi-unattended
+bbr=/etc/sysctl.d/99-corgi-bbr.conf
+ssh_ports() { sshd -T 2>/dev/null | awk '$1=="port"{print $2}' | sort -u; }
+save() { n=$(echo "$1" | tr / _); if [ -e "$1" ]; then cp -p "$1" "$run/$n.prev"; else : > "$run/$n.none"; fi; }
+ufw_on() { command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | head -1 | grep -q active; }
+case "$1" in
+apply)
+  f2b="$2"; upg="$3"; kbbr="$4"; ips="$5"; me="${6:--}"; [ "$me" = "-" ] && me=""
+  if [ "$ips" != "-" ]; then
+    ufw_on || { echo "ufw-off"; exit 6; }
+    for ip in $(echo "$ips" | tr , ' ') $me; do case "$ip" in *[!0-9./:a-fA-F]*|"") exit 2 ;; esac; done
+    [ -n "$me" ] || { echo "no-shop-ip"; exit 7; }
+  fi
+  rm -rf "$run"; mkdir -p "$run"; chmod 700 "$st"
+  for f in "$jail" "$auto" "$uu" "$bbr"; do save "$f"; done
+  if [ "$f2b" = on ] || [ "$upg" = on ]; then
+    command -v apt-get >/dev/null 2>&1 || { echo "no-apt"; exit 4; }
+    need=""; [ "$f2b" = on ] && ! command -v fail2ban-client >/dev/null 2>&1 && need="$need fail2ban"
+    [ "$upg" = on ] && ! dpkg -s unattended-upgrades >/dev/null 2>&1 && need="$need unattended-upgrades"
+    if [ -n "$need" ]; then DEBIAN_FRONTEND=noninteractive apt-get update -qq >/dev/null; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $need >/dev/null; fi
+  fi
+  if [ "$f2b" = on ]; then
+    ports="$(ssh_ports | paste -sd, -)"; [ -n "$ports" ] || ports=ssh
+    backend=auto; [ -f /var/log/auth.log ] || backend=systemd
+    mkdir -p /etc/fail2ban/jail.d
+    printf '# Managed by the shop (module «Защита сервера»)\n[sshd]\nenabled = true\nport = %s\nbackend = %s\nfindtime = 600\nmaxretry = 3\nbantime = 7200\n' "$ports" "$backend" > "$jail"
+    systemctl enable --now fail2ban >/dev/null 2>&1 || true
+    fail2ban-client reload >/dev/null 2>&1 || systemctl restart fail2ban
+  else
+    rm -f "$jail"; command -v fail2ban-client >/dev/null 2>&1 && fail2ban-client reload >/dev/null 2>&1 || true
+  fi
+  if [ "$upg" = on ]; then
+    printf 'APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Unattended-Upgrade "1";\nAPT::Periodic::AutocleanInterval "7";\n' > "$auto"
+    printf 'Unattended-Upgrade::Allowed-Origins {\n  "${distro_id}:${distro_codename}-security";\n  "${distro_id}ESMApps:${distro_codename}-apps-security";\n  "${distro_id}ESM:${distro_codename}-infra-security";\n};\nUnattended-Upgrade::AutoFixInterruptedDpkg "true";\nUnattended-Upgrade::Remove-Unused-Kernel-Packages "true";\nUnattended-Upgrade::Automatic-Reboot "false";\n' > "$uu"
+    systemctl enable --now unattended-upgrades >/dev/null 2>&1 || true
+  else
+    rm -f "$auto" "$uu"
+  fi
+  if [ "$kbbr" = on ]; then
+    modprobe tcp_bbr 2>/dev/null || true
+    sysctl -n net.ipv4.tcp_available_congestion_control 2>/dev/null | grep -qw bbr || { echo "no-bbr"; exit 5; }
+    printf 'net.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr\n' > "$bbr"; sysctl -q -p "$bbr"
+  elif [ -f "$bbr" ]; then
+    rm -f "$bbr"; sysctl -q -w net.ipv4.tcp_congestion_control=cubic >/dev/null 2>&1 || true
+  fi
+  if [ "$ips" != "-" ]; then
+    # The shop's own address (seen by sshd for this session) always stays allowed: it manages this server over SSH.
+    for p in $(ssh_ports); do
+      ufw status | grep -Eq "^$p(/tcp)? +ALLOW +Anywhere" && echo "$p" >> "$run/ufw-open"
+      for ip in $(echo "$ips" | tr , ' ') $me; do ufw allow from "$ip" to any port "$p" proto tcp >/dev/null && echo "$ip $p" >> "$run/ufw-added"; done
+      ufw delete allow "$p/tcp" >/dev/null 2>&1 || true; ufw delete allow "$p" >/dev/null 2>&1 || true
+    done
+  fi
+  echo "fail2ban=$f2b upgrades=$upg bbr=$(sysctl -n net.ipv4.tcp_congestion_control) ssh_only=${ips} shop=${me:-}"
+  ;;
+undo)
+  [ -d "$run" ] || exit 0
+  for p in "$run"/*.prev; do [ -e "$p" ] || continue; n=$(basename "$p" .prev); cp -p "$p" "$(echo "$n" | tr _ /)"; done
+  for p in "$run"/*.none; do [ -e "$p" ] || continue; n=$(basename "$p" .none); rm -f "$(echo "$n" | tr _ /)"; done
+  if [ -f "$run/ufw-open" ]; then while read -r p; do ufw allow "$p/tcp" >/dev/null; done < "$run/ufw-open"; fi
+  if [ -f "$run/ufw-added" ]; then while read -r ip p; do ufw delete allow from "$ip" to any port "$p" proto tcp >/dev/null 2>&1 || true; done < "$run/ufw-added"; fi
+  command -v fail2ban-client >/dev/null 2>&1 && fail2ban-client reload >/dev/null 2>&1 || true
+  sysctl -q --system >/dev/null 2>&1 || true
+  rm -rf "$run"; echo "undone" ;;
+*) exit 2 ;;
+esac
+"""
+
+# v28.84.0: «Самовосстановление» (after remnawave-manager's health timer): a systemd timer on the server itself — it
+# works when the shop cannot reach the panel. Every 2 minutes: containers of the wizard's directories that are not
+# running are started again; the panel backend is restarted after 3 failed /health checks in a row. Logged to journald.
+WATCHDOG = r"""set -eu
+case "$1" in
+on)
+  cat > /usr/local/sbin/corgi-watchdog.sh <<'EOF'
+#!/bin/sh
+for d in /opt/remnawave /opt/remnanode /opt/remnawave-subpage /opt/remnawave-caddy /opt/remnawave-selfsteal /opt/remnawave-xray-checker; do
+  [ -f "$d/docker-compose.yml" ] || continue
+  down=$(docker compose --project-directory "$d" ps -a --format '{{.Name}} {{.State}}' 2>/dev/null | awk '$2!="running"{print $1}' | tr '\n' ' ')
+  if [ -n "$down" ]; then logger -t corgi-watchdog "$d: starting $down"; docker compose --project-directory "$d" up -d >/dev/null 2>&1 || logger -t corgi-watchdog "$d: start failed"; fi
+done
+if [ -f /opt/remnawave/docker-compose.yml ]; then
+  f=/run/corgi-watchdog.fails
+  if curl -fsS --max-time 10 http://127.0.0.1:3001/health >/dev/null 2>&1; then rm -f "$f"; else
+    n=$(( $(cat "$f" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$f"
+    if [ "$n" -ge 3 ]; then logger -t corgi-watchdog "panel /health failed $n times: restarting remnawave"; docker restart remnawave >/dev/null 2>&1 || true; rm -f "$f"; fi
+  fi
+fi
+EOF
+  chmod 0755 /usr/local/sbin/corgi-watchdog.sh
+  printf '[Unit]\nDescription=Corgi watchdog: restart stopped Remnawave containers\nAfter=docker.service\n[Service]\nType=oneshot\nExecStart=/usr/local/sbin/corgi-watchdog.sh\n' > /etc/systemd/system/corgi-watchdog.service
+  printf '[Unit]\nDescription=Corgi watchdog every 2 minutes\n[Timer]\nOnBootSec=2min\nOnUnitActiveSec=2min\n[Install]\nWantedBy=timers.target\n' > /etc/systemd/system/corgi-watchdog.timer
+  systemctl daemon-reload; systemctl enable --now corgi-watchdog.timer >/dev/null 2>&1
+  /usr/local/sbin/corgi-watchdog.sh
+  echo "watchdog=$(systemctl is-active corgi-watchdog.timer)" ;;
+off|undo)
+  systemctl disable --now corgi-watchdog.timer >/dev/null 2>&1 || true
+  rm -f /etc/systemd/system/corgi-watchdog.service /etc/systemd/system/corgi-watchdog.timer /usr/local/sbin/corgi-watchdog.sh /run/corgi-watchdog.fails
+  systemctl daemon-reload || true; echo "watchdog=off" ;;
+*) exit 2 ;;
+esac
+"""
 
 
 # v28.81.0: «Транспорты ноды». Ports of the chosen transports in ufw (if it is on) and, for Hysteria2, the TLS certificate
@@ -1062,7 +1210,7 @@ async def checker_status(ctx: Context, sid: int) -> dict:
 
 async def undo_node_module(ctx: Context, st: dict) -> None:
     p, sid = st["params"], st["server_id"]
-    script = {"ipv6": IPV6, "xray_core": XRAY_CORE, "warp": WARP, "netbird": NETBIRD}.get(p["module"])
+    script = {"ipv6": IPV6, "xray_core": XRAY_CORE, "warp": WARP, "netbird": NETBIRD, "hardening": HARDEN, "watchdog": WATCHDOG}.get(p["module"])
     if p["module"] in ("warp", "netbird") and not p.get("enabled", True):
         return  # switching off is not undone: the interface or the connection stays off, which is safe
     if script and [sid, p["module"], p.get("enabled", True)] in ctx.state.get("applied_modules", []):

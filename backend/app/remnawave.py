@@ -272,6 +272,16 @@ class RemnawaveClient:
         # The panel validates the body: {"forceRestart": bool} is required (no body → 400; checked live in CI).
         return await self._request("POST",f"/api/nodes/{node_uuid}/actions/restart",json={"forceRestart":False})
 
+    async def enable_node(self,node_uuid:str):
+        return await self._request("POST",f"/api/nodes/{node_uuid}/actions/enable")
+
+    async def disable_node(self,node_uuid:str):
+        return await self._request("POST",f"/api/nodes/{node_uuid}/actions/disable")
+
+    async def update_node(self,node_uuid:str,patch:dict):
+        """Rename a node or move it to another address/port (PATCH /api/nodes; the panel reconnects to it)."""
+        return await self._request("PATCH","/api/nodes",json={"uuid":node_uuid,**patch})
+
     async def restart_all_nodes(self):
         return await self._request("POST","/api/nodes/actions/restart-all",json={"forceRestart":False})
 
