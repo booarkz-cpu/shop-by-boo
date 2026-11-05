@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2226**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2238**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -74,7 +74,9 @@
 | [.github/workflows/publish-release.yml](../.github/workflows/publish-release.yml) | GitHub CI/CD |
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
@@ -1705,6 +1707,14 @@
 | [screenshots/admin_panel/81_availability.png](../screenshots/admin_panel/81_availability.png) | Корень проекта |
 | [screenshots/admin_panel/82_controlCenter.png](../screenshots/admin_panel/82_controlCenter.png) | Корень проекта |
 | [screenshots/admin_panel/83_automationCenter.png](../screenshots/admin_panel/83_automationCenter.png) | Корень проекта |
+| [screenshots/admin_panel/84_v3.png](../screenshots/admin_panel/84_v3.png) | Корень проекта |
+| [screenshots/admin_panel/85_customer360.png](../screenshots/admin_panel/85_customer360.png) | Корень проекта |
+| [screenshots/admin_panel/86_command360.png](../screenshots/admin_panel/86_command360.png) | Корень проекта |
+| [screenshots/admin_panel/87_commercial.png](../screenshots/admin_panel/87_commercial.png) | Корень проекта |
+| [screenshots/admin_panel/88_integrations.png](../screenshots/admin_panel/88_integrations.png) | Корень проекта |
+| [screenshots/admin_panel/89_events.png](../screenshots/admin_panel/89_events.png) | Корень проекта |
+| [screenshots/admin_panel/90_soc.png](../screenshots/admin_panel/90_soc.png) | Корень проекта |
+| [screenshots/admin_panel/91_status.png](../screenshots/admin_panel/91_status.png) | Корень проекта |
 | [screenshots/admin_panel/features/ai-knowledge.png](../screenshots/admin_panel/features/ai-knowledge.png) | Корень проекта |
 | [screenshots/admin_panel/features/anti-sharing.png](../screenshots/admin_panel/features/anti-sharing.png) | Корень проекта |
 | [screenshots/admin_panel/features/api-mirrors.png](../screenshots/admin_panel/features/api-mirrors.png) | Корень проекта |
@@ -1985,7 +1995,9 @@
 | [tests/test_admin_center.py](../tests/test_admin_center.py) | Проверки |
 | [tests/test_admin_coverage_finance.py](../tests/test_admin_coverage_finance.py) | Проверки |
 | [tests/test_admin_coverage_marketing.py](../tests/test_admin_coverage_marketing.py) | Проверки |
+| [tests/test_admin_coverage_ops.py](../tests/test_admin_coverage_ops.py) | Проверки |
 | [tests/test_admin_coverage_payments.py](../tests/test_admin_coverage_payments.py) | Проверки |
+| [tests/test_admin_coverage_platform.py](../tests/test_admin_coverage_platform.py) | Проверки |
 | [tests/test_admin_coverage_security.py](../tests/test_admin_coverage_security.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
