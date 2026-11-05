@@ -25,7 +25,11 @@ IMAGES = {
     "postgres": "postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636",
     "valkey": "valkey/valkey:9-alpine@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b",
     "caddy": "caddy:2.11-alpine@sha256:e70b164da81ef698b3ad19af799ea6086ce6d9e48ed4079eb9fe26f6fbf14ee5",
+    # v28.78.0: TinyAuth (tinyauthapp/tinyauth, GPL-3.0 — run as a separate container, its code is not part of the
+    # shop) — the login portal in front of the panel's pages; checked in CI by tests/live/test_tinyauth_live.py.
+    "tinyauth": "ghcr.io/tinyauthapp/tinyauth:v5.2.0@sha256:220aa235c76393a73fece831d7ba967b8698d3907fd8e3c4c952f699c7b142a5",
 }
+TINYAUTH_PORT = 3002
 # v28.74.0: the upstream versions behind these digests, compared with the releases on GitHub by the auto-update
 # (rw_autoupdate.py). A newer upstream release is installed only after a shop release pins and live-tests it.
 VERSIONS = {"panel": "3.4.8", "node": "3.4.4", "subscription_page": "8.0.1"}
@@ -48,7 +52,8 @@ MODE_TITLES = {
     "panel_subpage": "Панель и страница подписки", "subpage": "Только страница подписки",
     "distributed": "Распределённая установка", "add_node": "Добавить ноду к панели",
 }
-DOMAIN = re.compile(r"^(?=.{4,253}$)(?!-)[a-z0-9-]{1,63}(?:\.(?!-)[a-z0-9-]{1,63})+$")
+# \Z, not $: «$» also matches before a final newline, and a name ends up in a Caddyfile.
+DOMAIN = re.compile(r"^(?=.{4,253}\Z)(?!-)[a-z0-9-]{1,63}(?:\.(?!-)[a-z0-9-]{1,63})+\Z")
 PANEL_PORTS = (80, 443)
 LOCAL_PORTS = {"panel": (3000, 3001, 6767), "subscription_page": (3010,)}
 
@@ -70,7 +75,10 @@ class PlanIn(BaseModel):
     country_code: str = Field(default="XX", pattern=r"^[A-Z]{2}$")
     firewall: bool = True
     # v28.67.0: «закрыть доступ к панели» — the panel's pages answer only with the access cookie (rw_plan.caddyfile).
-    panel_access: Literal["open", "cookie"] = "open"
+    panel_access: Literal["open", "cookie", "tinyauth"] = "open"
+    # v28.78.0: «tinyauth» — the panel's pages ask for a login on this domain (TinyAuth). It must be a sibling of the
+    # panel's domain (auth.example.com for panel.example.com): the session cookie is set for the common parent.
+    auth_domain: str | None = Field(default=None, max_length=253)
     # v28.70.0: SelfSteal on the node — Caddy serves a template site for this domain on a unix socket and Xray
     # REALITY on port 443 uses it as its «dest» (the node looks like an ordinary site).
     selfsteal_domain: str | None = Field(default=None, max_length=253)
@@ -87,7 +95,7 @@ class PlanIn(BaseModel):
 
     @model_validator(mode="after")
     def check(self):
-        for field in ("panel_domain", "sub_domain", "node_domain", "selfsteal_domain"):
+        for field in ("panel_domain", "sub_domain", "node_domain", "selfsteal_domain", "auth_domain"):
             value = getattr(self, field)
             if value is not None:
                 value = value.strip().lower().rstrip(".")
@@ -133,8 +141,18 @@ class PlanIn(BaseModel):
                 raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
         if self.xray_checker_server_id and self.xray_checker_server_id not in roles_of(self):
             raise ValueError("Xray Checker ставится на один из серверов этой установки")
-        if self.panel_access == "cookie" and not self.panel_server_id:
+        if self.panel_access in ("cookie", "tinyauth") and not self.panel_server_id:
             raise ValueError("Закрыть доступ можно к панели, которую ставит мастер")
+        if self.panel_access == "tinyauth":
+            if not self.auth_domain:
+                raise ValueError("Для входа через TinyAuth нужен свой домен, например auth.example.com")
+            if self.auth_domain in (self.panel_domain, self.sub_domain, self.node_domain, self.selfsteal_domain):
+                raise ValueError("Домен TinyAuth должен отличаться от доменов панели, подписки и нод")
+            parent = self.auth_domain.split(".", 1)[1]
+            if parent.count(".") < 1 or not (self.panel_domain == parent or self.panel_domain.endswith("." + parent)):
+                raise ValueError(f"Домен панели должен быть в той же зоне, что и TinyAuth: …{parent}")
+        elif self.auth_domain:
+            self.auth_domain = None
         if self.tls == "acme" and (self.panel_domain or self.sub_domain) and not self.acme_email:
             raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
         return self
@@ -186,6 +204,7 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
         steal = bool(plan.selfsteal_domain and "node" in rs)
         steps.append(step("preflight", sid, f"{name}: проверка перед установкой", roles=rs + (["selfsteal"] if steal else []),
                           domains=[d for d in (plan.panel_domain if "panel" in rs else None,
+                                               plan.auth_domain if "panel" in rs else None,
                                                plan.sub_domain if "subscription_page" in rs else None,
                                                plan.selfsteal_domain if steal else None) if d],
                           node_port=plan.node_port if "node" in rs else None))
@@ -211,12 +230,16 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
                           f"страница: {SUBPAGE_TEMPLATES[plan.subpage_template]}")
     for sid in {x for x in (p, s) if x}:
         name = servers[sid]["name"]
-        sites = [d for d in ((plan.panel_domain if sid == p else None), (plan.sub_domain if sid == s else None)) if d]
+        sites = [d for d in ((plan.panel_domain if sid == p else None), (plan.auth_domain if sid == p else None),
+                             (plan.sub_domain if sid == s else None)) if d]
         steps += [step("write_files", sid, f"{name}: Caddy для {', '.join(sites)}", component="proxy"),
                   step("compose_up", sid, f"{name}: запуск Caddy (HTTPS)", component="proxy")]
         changes[sid].append(f"Caddy занимает порты 80 и 443; сертификаты: {'Let’s Encrypt (HTTP-01)' if plan.tls == 'acme' else 'внутренний центр Caddy'}")
         if sid == p and plan.panel_access == "cookie":
             changes[sid].append("Доступ к страницам панели закрыт: открывается только по секретной ссылке (API с токеном и подписки работают)")
+        if sid == p and plan.panel_access == "tinyauth":
+            changes[sid].append(f"Страницы панели — после входа на https://{plan.auth_domain} (TinyAuth, контейнер remnawave-tinyauth "
+                                f"на 127.0.0.1:{TINYAUTH_PORT}); API с токеном и подписки работают без входа")
     for n in plan.node_server_ids:
         name = servers[n]["name"]
         if plan.selfsteal_domain:
@@ -372,10 +395,11 @@ def subpage_network_compose_needed(local: bool) -> str:
     return "" if local else "docker network inspect remnawave-network >/dev/null 2>&1 || docker network create remnawave-network"
 
 
-COOKIE_PART = re.compile(r"^[A-Za-z0-9]{8,64}$")
+COOKIE_PART = re.compile(r"^[A-Za-z0-9]{8,64}\Z")
 
 
-def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[str, tuple[str, str]] | None = None) -> str:
+def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[str, tuple[str, str]] | None = None,
+              guard: dict[str, int] | None = None) -> str:
     """``sites`` — domain → local port. Caddy terminates TLS and adds X-Forwarded-For/-Proto, which the panel and
     the subscription page require.
 
@@ -383,8 +407,13 @@ def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[
     (MIT, Copyright (c) 2025 eGames), written for this builder. Opening ``https://<domain>/?<name>=<value>`` once sets
     the cookie; without it the connection is closed, as if nothing listened. Requests with a bearer token to ``/api/``
     (the shop, the panel's own pages after login) and subscriptions ``/api/sub/`` stay open: they are authorized by the
-    panel itself."""
+    panel itself.
+
+    ``guard`` — domain → local port of TinyAuth (v28.78.0): the same pages ask TinyAuth first (``forward_auth``,
+    its Caddy endpoint answers 200 with a session and a redirect to the login page without one); the same
+    requests as above stay open."""
     protect = protect or {}
+    guard = guard or {}
     lines = []
     if email:
         lines += ["{", f"\temail {email}", "}", ""]
@@ -401,12 +430,23 @@ def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[
                      "\t@locked {", f"\t\tnot header Cookie *{name}={value}*", f"\t\tnot query {name}={value}",
                      "\t\tnot path /api/sub/*", "\t\tnot {", "\t\t\tpath /api/*", '\t\t\theader Authorization "Bearer *"', "\t\t}", "\t}",
                      "\tabort @locked"]
+        if domain in guard:
+            body += ["\t@guarded {", "\t\tnot path /api/sub/*", "\t\tnot {", "\t\t\tpath /api/*", '\t\t\theader Authorization "Bearer *"',
+                     "\t\t}", "\t}", f"\tforward_auth @guarded 127.0.0.1:{int(guard[domain])} {{", "\t\turi /api/auth/caddy", "\t}"]
         body.append(f"\treverse_proxy 127.0.0.1:{int(port)}")
         lines += [f"{domain} {{", *body, "}", ""]
     return "\n".join(lines)
 
 
-def caddy_compose() -> str:
+def caddy_compose(tinyauth: bool = False) -> str:
+    extra = f"""  tinyauth:
+    image: {IMAGES['tinyauth']}
+    container_name: remnawave-tinyauth
+    restart: always
+    ports: ["127.0.0.1:{TINYAUTH_PORT}:3000"]
+    env_file: .env
+    volumes: ["tinyauth-data:/data"]
+""" if tinyauth else ""
     return f"""services:
   caddy:
     image: {IMAGES['caddy']}
@@ -414,10 +454,27 @@ def caddy_compose() -> str:
     restart: always
     network_mode: host
     volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "caddy-data:/data", "caddy-config:/config"]
-volumes:
+{extra}volumes:
   caddy-data: {{}}
   caddy-config: {{}}
-"""
+{"  tinyauth-data: {}" + chr(10) if tinyauth else ""}"""
+
+
+TINYAUTH_USER = re.compile(r"^[a-z0-9][a-z0-9_-]{2,31}\Z")
+
+
+def tinyauth_env(auth_domain: str, username: str, password_hash: str) -> str:
+    """TinyAuth v5 settings. The bcrypt hash is single-quoted: compose reads such values literally (no ``$`` expansion)."""
+    if not DOMAIN.match(auth_domain) or not TINYAUTH_USER.match(username):
+        raise ValueError("Некорректные настройки TinyAuth")
+    if not re.fullmatch(r"\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}", password_hash):
+        raise ValueError("Некорректный хеш пароля TinyAuth")
+    return (f"TINYAUTH_APPURL=https://{auth_domain}\n"
+            f"TINYAUTH_AUTH_USERS='{username}:{password_hash}'\n"
+            "TINYAUTH_AUTH_SECURECOOKIE=true\n"
+            "TINYAUTH_AUTH_SESSIONEXPIRY=43200\n"
+            "TINYAUTH_AUTH_LOGINMAXRETRIES=5\n"
+            "TINYAUTH_LABELPROVIDER=none\n")
 
 
 def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_core: bool = False) -> str:

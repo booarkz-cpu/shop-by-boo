@@ -64,6 +64,19 @@ def access_cookie(ctx: "Context") -> tuple[str, str]:
     return ctx.secrets["panel_cookie_name"], ctx.secrets["panel_cookie_value"]
 
 
+def tinyauth_login(ctx: "Context") -> tuple[str, str]:
+    """The TinyAuth login (v28.78.0): made once and kept with the installation's secrets, so the files of an update
+    are the same and the administrator's session survives. Returns (username, bcrypt hash); the password itself
+    is shown with the panel's credentials."""
+    if not ctx.secrets.get("tinyauth_password_hash"):
+        import bcrypt  # a dependency of paramiko, which the wizard's SSH needs anyway
+        password = pysecrets.token_urlsafe(18)
+        ctx.secrets["tinyauth_username"] = "corgi"
+        ctx.secrets["tinyauth_password"] = password
+        ctx.secrets["tinyauth_password_hash"] = bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=12)).decode()
+    return ctx.secrets["tinyauth_username"], ctx.secrets["tinyauth_password_hash"]
+
+
 def new_secrets() -> dict:
     alphabet = string.ascii_letters + string.digits
     # The panel requires 24+ characters with upper and lower case letters and digits.
@@ -290,10 +303,16 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
             sites[plan.panel_domain] = 3000
         if server_id == plan.subpage_server_id:
             sites[plan.sub_domain] = 3010
-        protect = {}
+        protect, guard, files = {}, {}, {}
         if plan.panel_access == "cookie" and plan.panel_domain in sites:
             protect[plan.panel_domain] = access_cookie(ctx)
-        return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect), "docker-compose.yml": rw_plan.caddy_compose()}
+        tinyauth = plan.panel_access == "tinyauth" and plan.panel_domain in sites
+        if tinyauth:
+            sites[plan.auth_domain] = rw_plan.TINYAUTH_PORT
+            guard[plan.panel_domain] = rw_plan.TINYAUTH_PORT
+            files[".env"] = rw_plan.tinyauth_env(plan.auth_domain, *tinyauth_login(ctx))
+        return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect, guard),
+                "docker-compose.yml": rw_plan.caddy_compose(tinyauth), **files}
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
         return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain),
@@ -877,20 +896,34 @@ echo "$code"
 """
 
 
+BROWSER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36 corgi-verify"
+
+
 async def run_verify(ctx: Context, st: dict) -> None:
     plan = ctx.plan
     problems = []
     if plan.panel_server_id:
         for _ in range(20):
             cookie = "=".join(access_cookie(ctx)) if plan.panel_access == "cookie" else ""
-            code = (await _run(ctx, plan.panel_server_id, HTTPS_CHECK, plan.panel_domain, "corgi-verify", "api/auth/status", cookie,
+            # TinyAuth redirects browsers to its login page (other clients get 401): ask as a browser.
+            agent = BROWSER_AGENT if plan.panel_access == "tinyauth" else "corgi-verify"
+            code = (await _run(ctx, plan.panel_server_id, HTTPS_CHECK, plan.panel_domain, agent, "api/auth/status", cookie,
                                timeout=30)).out.strip()
-            if code == "200":
+            if code == ("302" if plan.panel_access == "tinyauth" else "200"):
                 break
             await _sleep(6)
         _note(ctx, f"https://{plan.panel_domain}/api/auth/status через Caddy: {code}")
-        if code != "200":
+        if code != "200" and not (plan.panel_access == "tinyauth" and code == "302"):
             problems.append(f"панель не отвечает через HTTPS ({code})")
+        if plan.panel_access == "tinyauth":
+            # The login portal answers, and the panel's pages send a browser without a session to it.
+            portal = (await _run(ctx, plan.panel_server_id, HTTPS_CHECK, plan.auth_domain, "corgi-verify", "api/healthz", "",
+                                 timeout=30)).out.strip()
+            _note(ctx, f"https://{plan.auth_domain}/api/healthz (TinyAuth): {portal}")
+            if portal != "200":
+                problems.append(f"TinyAuth не отвечает через HTTPS ({portal or 'нет ответа'})")
+            if code != "302":
+                problems.append(f"страницы панели открываются без входа в TinyAuth ({code})")
         if plan.tls == "acme":
             import httpx
             try:
