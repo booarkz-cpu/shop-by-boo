@@ -70,7 +70,8 @@ done_step
 step 'Lose everything'
 docker compose down -v --remove-orphans
 project="$(docker compose config --format json | jq -r .name)"
-if docker volume ls -q | grep -q "^${project}_postgres_data$"; then fail 'volumes were not removed'; fi
+left="$(docker volume ls -q --filter "label=com.docker.compose.project=$project")"
+[[ -z "$left" ]] || fail "volumes were not removed: $left"
 docker compose up -d --wait db support_db
 [[ "$(shop_sql -c "SELECT count(*) FROM pg_tables WHERE schemaname='public'")" == 0 ]] || fail 'the new database is not empty'
 done_step
