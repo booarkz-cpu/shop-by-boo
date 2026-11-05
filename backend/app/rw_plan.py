@@ -27,7 +27,7 @@ IMAGES = {
     "caddy": "caddy:2.11-alpine@sha256:e70b164da81ef698b3ad19af799ea6086ce6d9e48ed4079eb9fe26f6fbf14ee5",
     # v28.78.0: TinyAuth (tinyauthapp/tinyauth, GPL-3.0 — run as a separate container, its code is not part of the
     # shop) — the login portal in front of the panel's pages; checked in CI by tests/live/test_tinyauth_live.py.
-    "tinyauth": "ghcr.io/tinyauthapp/tinyauth:v5.2.0",
+    "tinyauth": "ghcr.io/tinyauthapp/tinyauth:v5.2.0@sha256:220aa235c76393a73fece831d7ba967b8698d3907fd8e3c4c952f699c7b142a5",
 }
 TINYAUTH_PORT = 3002
 # v28.74.0: the upstream versions behind these digests, compared with the releases on GitHub by the auto-update
