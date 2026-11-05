@@ -79,7 +79,16 @@ version=json.loads((root/'release-manifest.template.json').read_text())['version
 PY
 # Resume service before encryption. The captured databases/files are immutable.
 if (( stopped )); then docker compose start "${writers[@]}"; stopped=0; fi
-tar -C "$work" -cf - . | docker compose run --rm --no-deps -T -e BACKUP_BUNDLE_PASSWORD --entrypoint python backend /project/scripts/backup_bundle.py encrypt > "$output"
-docker compose run --rm --no-deps -T -e BACKUP_BUNDLE_PASSWORD --entrypoint python backend /project/scripts/backup_bundle.py decrypt < "$output" | tar -tf - >/dev/null
+# A second backend container cannot start next to the running one: both want the fixed ingress address
+# ("Address already in use"). Encrypt inside the running backend; a separate container only when it is down.
+bundle(){
+  if [[ $'\n'"$(docker compose ps --services --status running)"$'\n' == *$'\n'backend$'\n'* ]]; then
+    docker compose exec -T -e BACKUP_BUNDLE_PASSWORD backend python /project/scripts/backup_bundle.py "$1"
+  else
+    docker compose run --rm --no-deps -T -e BACKUP_BUNDLE_PASSWORD --entrypoint python backend /project/scripts/backup_bundle.py "$1"
+  fi
+}
+tar -C "$work" -cf - . | bundle encrypt > "$output"
+bundle decrypt < "$output" | tar -tf - >/dev/null
 (cd "$BACKUP_DEST" && sha256sum "$(basename "$output")") > "$output.sha256"
 printf 'Зашифрованная копия: %s\nSHA256: %s.sha256\n' "$output" "$output"

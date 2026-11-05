@@ -64,6 +64,10 @@ def test_complete_encrypted_backup_and_authenticated_contents(install):
             assert secrets.extractfile('.env').read()==b'APP_SECRET=shop-test-secret\n'
     commands=Path(env['COMMAND_LOG']).read_text()
     assert commands.index('stop backend')<commands.index('pg_dump')<commands.index('start backend')<commands.index('backup_bundle.py encrypt')
+    # Stage 19, C2 (found by the recovery drill): a second backend container next to the running one fails with
+    # «Address already in use», so the copy is encrypted inside the running backend.
+    assert 'exec -T -e BACKUP_BUNDLE_PASSWORD backend python /project/scripts/backup_bundle.py encrypt' in commands
+    assert 'run --rm --no-deps -T -e BACKUP_BUNDLE_PASSWORD --entrypoint python backend' not in commands
 
 
 @pytest.mark.parametrize('failure',['dump','files','encrypt'])
