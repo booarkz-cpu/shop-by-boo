@@ -25,11 +25,12 @@ printf 'vless://%s@10.0.2.2:10086?encryption=none&type=tcp&security=none#corgi-c
 "$XRAY" run -c xray.json > xray.log 2>&1 &
 python3 -m http.server 18080 --bind 127.0.0.1 --directory page > page.log 2>&1 &
 python3 -m http.server 18081 --bind 0.0.0.0 --directory sub > sub.log 2>&1 &
-trap 'kill $(jobs -p) 2>/dev/null || true; tail -n 20 xray.log >&2 || true' EXIT
+trap 'kill $(jobs -p) 2>/dev/null || true; tail -n 20 xray.log >&2 || true; tail -n 5 page.log >&2 || true' EXIT
 sleep 2
 curl -fsS http://127.0.0.1:18081/ >/dev/null
 
-probe() { adb shell "printf 'GET / HTTP/1.0\r\n\r\n' | toybox nc -w 6 198.18.0.42 80 2>/dev/null" | tr -d '\r' || true; }
+# stdin stays open a few seconds: nc closes the connection at end of input, before a tunnelled answer arrives.
+probe() { adb shell "(printf 'GET / HTTP/1.0\r\n\r\n'; sleep 4) | toybox nc -w 6 198.18.0.42 80 2>/dev/null" | tr -d '\r' || true; }
 state() { adb shell "run-as $PKG cat shared_prefs/shop_vpn.xml 2>/dev/null" | sed -n 's/.*name="state">\([a-z]*\)<.*/\1/p'; }
 
 adb install -r "$APK" >/dev/null
