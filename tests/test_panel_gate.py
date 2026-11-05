@@ -48,7 +48,7 @@ def gate(database, monkeypatch):
 
 async def setup(db, role="admin"):
     admin = AdminUser(email="ops@corgi.test", password_hash="x", role=role)
-    row = RemnawaveInstallation(action="install", mode="panel", server_ids=[1], status="succeeded", plan={}, plan_sha256="0" * 64,
+    row = RemnawaveInstallation(created_by="ci", action="install", mode="panel", server_ids=[1], status="succeeded", plan={}, plan_sha256="0" * 64,
                                 params={"panel_server_id": 1, "panel_domain": PANEL, "panel_access": "gate"})
     db.add_all([admin, row])
     await db.commit()
@@ -111,7 +111,7 @@ async def test_revocation_closes_the_panel(gate):
 async def test_tickets_only_for_gate_installations_and_on_the_panel_domain(gate):
     db = gate
     admin, row = await setup(db)
-    other = RemnawaveInstallation(action="install", mode="panel", server_ids=[1], status="succeeded", plan={}, plan_sha256="1" * 64,
+    other = RemnawaveInstallation(created_by="ci", action="install", mode="panel", server_ids=[1], status="succeeded", plan={}, plan_sha256="1" * 64,
                                   params={"panel_server_id": 1, "panel_domain": "p2.example.com", "panel_access": "cookie"})
     db.add(other)
     await db.commit()
@@ -166,5 +166,7 @@ async def test_plan_needs_a_public_shop_address(monkeypatch):
 
 
 def test_admin_dependency_is_used():
-    route = next(r for r in shop.app.routes if getattr(r, "path", "") == "/api/admin/rw/installations/{installation_id}/panel-gate")
-    assert "POST" in route.methods
+    from app import admin_center
+    routes = {p: r for r, p in admin_center._walk(shop.app.routes)}
+    assert "POST" in routes["/api/admin/rw/installations/{installation_id}/panel-gate"].methods
+    assert {"/api/panel-gate/verify", "/api/panel-gate/redeem"} <= set(routes)

@@ -66,7 +66,7 @@ def shop_app():
             await conn.run_sync(Base.metadata.create_all)
         async with AsyncSession(engine) as db:
             db.add(AdminUser(id=1, email="ops@corgi.test", password_hash="x", role="admin"))
-            db.add(RemnawaveInstallation(id=1, action="install", mode="panel", server_ids=[1], status="succeeded", plan={}, plan_sha256="0" * 64,
+            db.add(RemnawaveInstallation(id=1, created_by="ci", action="install", mode="panel", server_ids=[1], status="succeeded", plan={}, plan_sha256="0" * 64,
                                          params={"panel_server_id": 1, "panel_domain": PANEL, "panel_access": "gate"}))
             await db.commit()
     asyncio.run(prepare())
