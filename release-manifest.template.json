@@ -68,7 +68,7 @@
   "legacy_v2_0_2_contract": {
     "version": "2.0.2-audited"
   },
-  "artifact": "remnawave_vpn_shop_v28_78_0_full_release.zip",
+  "artifact": "remnawave_vpn_shop_v28_79_0_full_release.zip",
   "legacy_v3_1_5_artifact": "remnawave_vpn_shop_v3_1_5_full_release.zip",
   "legacy_v3_1_4_artifact": "remnawave_vpn_shop_v3_1_4_full_release.zip",
   "legacy_v3_1_3_artifact": "remnawave_vpn_shop_v3_1_3_full_release.zip",
@@ -98,7 +98,7 @@
   "previous_migration_head_legacy_marker": "0021_v43_hardening_docs",
   "tests": null,
   "signed": false,
-  "detached_manifest": "remnawave_vpn_shop_v28_78_0_full_release_manifest.json",
+  "detached_manifest": "remnawave_vpn_shop_v28_79_0_full_release_manifest.json",
   "legacy_v3_1_5_detached_manifest": "remnawave_vpn_shop_v3_1_5_full_release_manifest.json",
   "legacy_v3_1_4_detached_manifest": "remnawave_vpn_shop_v3_1_4_full_release_manifest.json",
   "legacy_v3_1_3_detached_manifest": "remnawave_vpn_shop_v3_1_3_full_release_manifest.json",
@@ -165,7 +165,7 @@
   "release_channel": "stable",
   "production_ready": false,
   "upgrade_from": "21.5.0",
-  "distribution_tag": "v28.78.0",
-  "release_title": "v28.78.0 — этап 18, часть 2: сверка всей админки, вход в панель Remnawave через магазин",
-  "release_notes": "docs/ru/RELEASE_V28_78_0.md"
+  "distribution_tag": "v28.79.0",
+  "release_title": "v28.79.0 — третье Android-приложение «Корги Люси: клиент»",
+  "release_notes": "docs/ru/RELEASE_V28_79_0.md"
 }

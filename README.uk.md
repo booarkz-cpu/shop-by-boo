@@ -7,7 +7,7 @@
 > Код і документацію опубліковано для вивчення та демонстрації. Використовуючи їх, ви самі відповідаєте за дотримання законів своєї країни, за безпеку серверів і даних клієнтів. Автор не дає гарантій і не відповідає за наслідки використання.
 
 
-> **v28.78.0** — поточний стабільний випуск. Runtime/API `21.5.1`, міграція магазину `0093_ssh_key_rotation`.
+> **v28.79.0** — поточний стабільний випуск. Runtime/API `21.5.1`, міграція магазину `0093_ssh_key_rotation`.
 
 **Що це.** Магазин продає VPN-підписки й видає доступ у вашій панелі Remnawave. Він:
 - приймає оплату (СБП, картка, крипта, Telegram Stars);
@@ -23,7 +23,7 @@
 
 ## З чого почати
 
-**Завантажити для Android (підписано ключем магазину):** [клієнт — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [адмінка — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk). Посилання завжди ведуть на останній випуск.
+**Завантажити для Android (підписано ключем магазину):** [клієнт — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [«Коргі Люсі: клієнт» — VPN для будь-яких підписок, APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) · [адмінка — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk). Посилання завжди ведуть на останній випуск.
 
 | Завдання | Документ |
 | --- | --- |

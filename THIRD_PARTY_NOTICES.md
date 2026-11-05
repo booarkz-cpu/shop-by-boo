@@ -38,7 +38,7 @@
 
 Сервер WebAuthn использует `webauthn==3.0.1` (py_webauthn, BSD-3-Clause); браузерные тесты — `@playwright/test==1.63.0` (Apache-2.0). Сохраните их полные license/copyright notices при распространении зависимостей. Эти библиотеки не перелицензируются лицензией магазина. Нативный WebAuthn API браузера используется без копирования стороннего JS verifier. Новые модули интеграции и мониторинга написаны в этом репозитории.
 
-## UI дистрибутива v28.78.0
+## UI дистрибутива v28.79.0
 
 shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `admin/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [admin/THIRD_PARTY_LICENSES.txt](admin/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
 
@@ -70,6 +70,6 @@ shadcn-совместимые компоненты используют Radix To
 
 - [eGamesAPI/remnawave-reverse-proxy](https://github.com/eGamesAPI/remnawave-reverse-proxy) — MIT, Copyright (c) 2025 eGames. Использованы идеи модулей: расширения ноды, правила подписки, WARP, IPv6, NetBird, Xray Checker, DNS-записи (Cloudflare, Bunny, Gcore), управление панелью, защита панели cookie. Код написан заново в мастере установки магазина.
 - [legiz-ru/Orion](https://github.com/legiz-ru/Orion) — MIT, Copyright (c) 2025 legiz-ru. Шаблон страницы подписки Remnawave (v28.77.0). Не входит в дистрибутив: мастер скачивает `index.html` закреплённого коммита `d232def6a6c11e37aeeb76ebfb1ee8eb5eb8b5bd`, сверяет SHA-256 и записывает на сервер страницы подписки только по выбору администратора.
-- [tinyauthapp/tinyauth](https://github.com/tinyauthapp/tinyauth) — GPL-3.0. Портал входа перед страницами панели Remnawave (v28.78.0). Не входит в дистрибутив и не связывается с кодом магазина: мастер установки запускает отдельный контейнер `ghcr.io/tinyauthapp/tinyauth:v5.2.0`, закреплённый по SHA-256, только по выбору администратора («Доступ к панели → Вход через TinyAuth»). Идея — модуль `tinyauth.sh` из eGamesAPI/remnawave-reverse-proxy (MIT, Copyright (c) 2025 eGames); конфигурация Caddy (`forward_auth`) написана для магазина.
+- [tinyauthapp/tinyauth](https://github.com/tinyauthapp/tinyauth) — GPL-3.0. Портал входа перед страницами панели Remnawave (v28.79.0). Не входит в дистрибутив и не связывается с кодом магазина: мастер установки запускает отдельный контейнер `ghcr.io/tinyauthapp/tinyauth:v5.2.0`, закреплённый по SHA-256, только по выбору администратора («Доступ к панели → Вход через TinyAuth»). Идея — модуль `tinyauth.sh` из eGamesAPI/remnawave-reverse-proxy (MIT, Copyright (c) 2025 eGames); конфигурация Caddy (`forward_auth`) написана для магазина.
 - [zxing/zxing](https://github.com/zxing/zxing) core 3.5.3 — Apache-2.0. Рисование QR-кода подписки в приложении «Корги Люси: клиент» (v28.79.0).
 - Google code scanner (`play-services-code-scanner`) — условия Google Play services. Сканирование QR без разрешения камеры в приложении «Корги Люси: клиент»; код в дистрибутив не входит, подключается из Google Maven при сборке.
