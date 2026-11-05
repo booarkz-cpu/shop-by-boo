@@ -10,9 +10,51 @@ object ConfigBuilder {
     val RUSSIAN_DOMAINS = listOf("regexp:\\.ru$", "regexp:\\.su$", "regexp:\\.xn--p1ai$", "domain:gosuslugi.ru", "domain:nalog.gov.ru",
         "domain:vk.com", "domain:vk.me", "domain:userapi.com", "domain:yandex.net", "domain:yandex.com", "domain:yastatic.net")
 
-    fun tunInbound(mtu: Int): JSONObject = JSONObject().put("tag", "tun-in").put("protocol", "tun")
+    fun tunInbound(mtu: Int, sniffing: Boolean = true, routeOnly: Boolean = true): JSONObject = JSONObject().put("tag", "tun-in").put("protocol", "tun")
         .put("settings", JSONObject().put("name", "xray0").put("mtu", mtu))
-        .put("sniffing", JSONObject().put("enabled", true).put("destOverride", JSONArray(listOf("http", "tls", "quic"))))
+        .put("sniffing", JSONObject().put("enabled", sniffing).put("destOverride", JSONArray(listOf("http", "tls", "quic"))).put("routeOnly", routeOnly))
+
+    fun tunInbound(s: Settings): JSONObject = tunInbound(s.mtu, s.sniffing, s.routeOnly)
+
+    /**
+     * What listens on the device: the tunnel (TUN mode), and the SOCKS5 / HTTP proxy when «только прокси» or
+     * «локальный прокси» is on — on 127.0.0.1, or on all interfaces for «доступ через хотспот» (never without a password).
+     */
+    fun inbounds(s: Settings): JSONArray {
+        val list = JSONArray()
+        if (s.tunnelMode == "tun") list.put(tunInbound(s))
+        if (s.tunnelMode == "proxy" || s.localProxy) {
+            val listen = if (s.shareLan) "0.0.0.0" else "127.0.0.1"
+            val sniff = JSONObject().put("enabled", s.sniffing).put("destOverride", JSONArray(listOf("http", "tls", "quic"))).put("routeOnly", s.routeOnly)
+            val account = JSONArray().put(JSONObject().put("user", s.proxyUser).put("pass", s.proxyPass))
+            val socks = JSONObject().put("udp", true).put("ip", if (s.shareLan) "0.0.0.0" else "127.0.0.1")
+            if (s.proxyAuth) socks.put("auth", "password").put("accounts", account) else socks.put("auth", "noauth")
+            list.put(JSONObject().put("tag", "socks-in").put("protocol", "socks").put("listen", listen).put("port", s.socksPort).put("settings", socks).put("sniffing", sniff))
+            val http = JSONObject()
+            if (s.proxyAuth && s.httpAuth) http.put("accounts", account)
+            list.put(JSONObject().put("tag", "http-in").put("protocol", "http").put("listen", listen).put("port", s.httpPort).put("settings", http).put("sniffing", sniff))
+        }
+        return list
+    }
+
+    /** Mux for the outbound when on — not for XTLS Vision («flow»), Hysteria2, WireGuard or SOCKS, which do not take it. */
+    fun mux(outbound: JSONObject, s: Settings) {
+        if (!s.mux || outbound.optString("protocol") !in listOf("vless", "vmess", "trojan", "shadowsocks")) return
+        val flow = outbound.optJSONObject("settings")?.optJSONArray("vnext")?.optJSONObject(0)?.optJSONArray("users")?.optJSONObject(0)?.optString("flow").orEmpty()
+        if (flow.isNotBlank()) return
+        outbound.put("mux", JSONObject().put("enabled", true).put("concurrency", s.muxConcurrency).put("xudpConcurrency", s.muxConcurrency).put("xudpProxyUDP443", "reject"))
+    }
+
+    /** Logs to files of «Журналы туннеля», counters for the speed in the notification. */
+    fun extras(config: JSONObject, s: Settings, logFile: String?) {
+        config.put("log", if (s.logLevel == "none" || logFile == null) JSONObject().put("loglevel", "none")
+            else JSONObject().put("loglevel", s.logLevel).put("error", logFile).put("dnsLog", s.logLevel == "debug"))
+        if (s.speedNotification) {
+            config.put("stats", JSONObject())
+            val policy = config.optJSONObject("policy") ?: JSONObject().also { config.put("policy", it) }
+            policy.put("system", (policy.optJSONObject("system") ?: JSONObject()).put("statsOutboundUplink", true).put("statsOutboundDownlink", true))
+        }
+    }
 
     /**
      * ``selected`` — a server's index, or [AUTO]: the fastest of all (observatory + leastPing balancer).
@@ -23,6 +65,7 @@ object ConfigBuilder {
         val outbounds = JSONArray()
         servers.forEachIndexed { i, server ->
             val row = JSONObject(server.outbound.toString()).put("tag", "proxy-$i")
+            mux(row, s)
             if (s.fragment && row.has("streamSettings") && row.getJSONObject("streamSettings").optString("security") == "tls") {
                 row.getJSONObject("streamSettings").put("sockopt", JSONObject().put("dialerProxy", "fragment"))
             }
@@ -32,9 +75,13 @@ object ConfigBuilder {
             .put("settings", JSONObject().put("domainStrategy", if (s.ipv6) "UseIP" else "UseIPv4")))
         outbounds.put(JSONObject().put("tag", "block").put("protocol", "blackhole"))
         if (s.fragment) outbounds.put(JSONObject().put("tag", "fragment").put("protocol", "freedom").put("settings", JSONObject()
-            .put("fragment", JSONObject().put("packets", "tlshello").put("length", s.fragmentLength).put("interval", s.fragmentInterval))))
+            .put("fragment", JSONObject().put("packets", s.fragmentPackets).put("length", s.fragmentLength).put("interval", s.fragmentInterval))
+            .apply { if (s.noises) put("noises", JSONArray().put(JSONObject().put("type", "rand").put("packet", "10-20").put("delay", "10-16"))) }))
 
         val rules = JSONArray()
+        // «Исключённые маршруты»: these addresses never go through the server.
+        if (s.excludedRoutes.isNotEmpty()) rules.put(JSONObject().put("type", "field").put("ip", JSONArray(s.excludedRoutes)).put("outboundTag", "direct"))
+        if (s.blockUdp) rules.put(JSONObject().put("type", "field").put("network", "udp").put("port", "1-52,54-65535").put("outboundTag", "block"))
         if (s.routing != "global") rules.put(JSONObject().put("type", "field").put("ip", JSONArray(PRIVATE)).put("outboundTag", "direct"))
         if (s.routing == "bypass_ru") {
             rules.put(JSONObject().put("type", "field").put("domain", JSONArray(RUSSIAN_DOMAINS + if (geo) listOf("geosite:ru") else emptyList()))
@@ -56,8 +103,9 @@ object ConfigBuilder {
         val config = JSONObject()
             .put("log", JSONObject().put("loglevel", "warning"))
             .put("dns", JSONObject().put("servers", JSONArray(s.dns)).put("queryStrategy", if (s.ipv6) "UseIP" else "UseIPv4"))
-            .put("inbounds", JSONArray().put(tunInbound(s.mtu)))
+            .put("inbounds", inbounds(s))
             .put("outbounds", outbounds)
+            .put("policy", JSONObject().put("levels", JSONObject().put("0", JSONObject().put("connIdle", s.idleTimeout))))
         if (selected == AUTO && servers.size > 1) {
             config.put("observatory", JSONObject().put("subjectSelector", JSONArray().put("proxy-"))
                 .put("probeURL", "https://www.gstatic.com/generate_204").put("probeInterval", "1m").put("enableConcurrency", true))
@@ -80,7 +128,7 @@ object ConfigBuilder {
         val config = JSONObject(raw)
         val outbounds = config.optJSONArray("outbounds")
         require(outbounds != null && outbounds.length() > 0) { "no outbounds" }
-        config.put("inbounds", JSONArray().put(tunInbound(s.mtu)))
+        config.put("inbounds", inbounds(s))
         config.remove("api"); config.remove("stats"); config.remove("metrics")
         if (!geo) stripGeo(config)
         return config.toString()
