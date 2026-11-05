@@ -4,7 +4,7 @@
 
 **PASS** — все изменяющие маршруты покрыты тестами, у всех разделов есть скриншот. **PARTIAL** — ниже перечислено, что не покрыто.
 
-Изменяющих маршрутов: **247 из 314** покрыты тестами; модулей PASS: **12 из 30**.
+Изменяющих маршрутов: **262 из 314** покрыты тестами; модулей PASS: **16 из 30**.
 
 | № | Модуль | Маршрутов | Изменяющих | Покрыто тестами | Статус |
 | --- | --- | --- | --- | --- | --- |
@@ -17,7 +17,7 @@
 | 7 | Finance | 12 | 7 | 7 | PASS |
 | 8 | Promo Codes | 14 | 11 | 11 | PASS |
 | 9 | Gifts | 6 | 3 | 3 | PASS |
-| 10 | Referrals | 13 | 8 | 7 | PARTIAL |
+| 10 | Referrals | 13 | 8 | 8 | PASS |
 | 11 | Remnawave | 32 | 15 | 3 | PARTIAL |
 | 12 | Installation | 58 | 40 | 37 | PARTIAL |
 | 13 | Servers | 9 | 6 | 6 | PASS |
@@ -27,17 +27,17 @@
 | 17 | Reverse Proxy | 1 | 0 | 0 | PASS |
 | 18 | Subscription Portal | 12 | 7 | 6 | PARTIAL |
 | 19 | Node Extensions | 31 | 21 | 20 | PARTIAL |
-| 20 | Monitoring | 17 | 9 | 4 | PARTIAL |
+| 20 | Monitoring | 17 | 9 | 6 | PARTIAL |
 | 21 | Backups | 17 | 11 | 4 | PARTIAL |
 | 22 | Updates | 14 | 9 | 7 | PARTIAL |
-| 23 | Automation | 9 | 4 | 2 | PARTIAL |
+| 23 | Automation | 9 | 4 | 4 | PASS |
 | 24 | Telegram | 31 | 22 | 22 | PASS |
 | 25 | Integrations | 17 | 11 | 8 | PARTIAL |
 | 26 | Plugins | 14 | 11 | 11 | PASS |
-| 27 | Security | 28 | 12 | 7 | PARTIAL |
-| 28 | Logs | 6 | 3 | 2 | PARTIAL |
+| 27 | Security | 28 | 12 | 12 | PASS |
+| 28 | Logs | 6 | 3 | 3 | PARTIAL |
 | 29 | GitHub | 4 | 2 | 2 | PASS |
-| 30 | Settings | 9 | 8 | 4 | PARTIAL |
+| 30 | Settings | 9 | 8 | 8 | PASS |
 
 ## Что не покрыто
 
@@ -54,9 +54,6 @@
 - `POST /api/admin/remnawave/auto-update/check`
 - `POST /api/admin/customer-operations/import/inspect`
 - `POST /api/admin/remnawave/users/{user_id}/extend`
-
-**10. Referrals**
-- `PUT /api/admin/referrals/program`
 
 **11. Remnawave**
 - `POST /api/admin/remnawave/shop/test`
@@ -103,8 +100,6 @@
 
 **20. Monitoring**
 - `POST /api/admin/ops/summary/send`
-- `POST /api/admin/status/components`
-- `PUT /api/admin/status/components/{component_id}`
 - `POST /api/admin/ops/withdrawals/{withdrawal_id}/approve`
 - `POST /api/admin/ops/withdrawals/{withdrawal_id}/paid`
 
@@ -121,29 +116,11 @@
 - `POST /api/admin/remnawave/auto-update/check`
 - `POST /api/admin/deployments/{deployment_id}/rollback`
 
-**23. Automation**
-- `DELETE /api/admin/automation/campaigns/{campaign_id}`
-- `POST /api/admin/jobs/{job_id}/retry`
-
 **25. Integrations**
 - нет скриншота раздела `integrations`
 - `POST /api/admin/webhooks/tee/test`
 - `POST /api/admin/geoip/update`
 - `POST /api/admin/ripe-atlas/run`
 
-**27. Security**
-- `PUT /api/admin/fraud/payment-rules`
-- `POST /api/admin/admins`
-- `PUT /api/admin/admins/{admin_id}`
-- `DELETE /api/admin/admins/{admin_id}`
-- `POST /api/admin/security/incident`
-
 **28. Logs**
 - нет скриншота раздела `events`
-- `POST /api/admin/errors/{error_id}/resolve`
-
-**30. Settings**
-- `POST /api/admin/runtime-settings/stage`
-- `POST /api/admin/runtime-settings/changes/{change_id}/apply`
-- `POST /api/admin/runtime-settings/changes/{change_id}/rollback`
-- `DELETE /api/admin/runtime-settings/changes/{change_id}`
