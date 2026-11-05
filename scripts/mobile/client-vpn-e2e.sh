@@ -75,9 +75,9 @@ done
 # and the device itself (no tunnel) still cannot reach the page.
 echo "— proxy only (SOCKS5 / HTTP with a password)"
 cp sub/links.txt sub/index.html
-adb shell am start -W -n "$PKG/shop.corgi.client.ui.MainActivity" \
-  --es client_test_settings '{"tunnelMode":"proxy","proxyAuth":true,"httpAuth":true,"proxyUser":"ci","proxyPass":"cisecret","socksPort":10808,"httpPort":10809}' \
-  --es client_test_import "http://10.0.2.2:18081/" --ez client_test_connect true >/dev/null
+# One string for the device's shell, the JSON in single quotes there: unquoted, its shell would brace-expand «{a,b}».
+SETTINGS='{"tunnelMode":"proxy","proxyAuth":true,"httpAuth":true,"proxyUser":"ci","proxyPass":"cisecret","socksPort":10808,"httpPort":10809}'
+adb shell "am start -W -n $PKG/shop.corgi.client.ui.MainActivity --es client_test_settings '$SETTINGS' --es client_test_import http://10.0.2.2:18081/ --ez client_test_connect true" >/dev/null
 for i in $(seq 1 30); do [ "$(state)" = on ] && break; sleep 2; done
 [ "$(state)" = on ] || { echo "FAIL: proxy mode did not start (state: $(state))" >&2; adb shell "run-as $PKG cat shared_prefs/client_vpn.xml" >&2 || true
   adb shell "run-as $PKG cat files/logs/app.log" >&2 || true; adb logcat -d | grep -iE "corgi|AndroidRuntime|FATAL|ForegroundService" | tail -60 >&2 || true; exit 1; }
