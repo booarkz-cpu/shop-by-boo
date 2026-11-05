@@ -1,0 +1,8 @@
+saved /home/runner/work/shop-by-boo/shop-by-boo/docs/img/miniapp-overview.png
+saved /home/runner/work/shop-by-boo/shop-by-boo/docs/img/miniapp-wallet.png
+saved /home/runner/work/shop-by-boo/shop-by-boo/docs/img/miniapp-referral.png
+saved /home/runner/work/shop-by-boo/shop-by-boo/docs/img/miniapp-support.png
+saved /home/runner/work/shop-by-boo/shop-by-boo/docs/img/miniapp-servers.png
+saved /home/runner/work/shop-by-boo/shop-by-boo/docs/img/miniapp-info.png
+saved /home/runner/work/shop-by-boo/shop-by-boo/docs/img/miniapp-plans.png
+saved /home/runner/work/shop-by-boo/shop-by-boo/docs/img/miniapp-faq.png
