@@ -62,13 +62,19 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 ---
 
-> **v28.77.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0093_ssh_key_rotation`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.77.0`, `/health` отвечает `21.5.1`.
+> **v28.77.1** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0093_ssh_key_rotation`, Support Pro `0008` / 3.8, приложения Android и iOS `3.4.0`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.77.1`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 **Что это.** Магазин продаёт VPN-подписки и сам выдаёт доступ в вашей панели Remnawave: принимает оплату (СБП, карта, крипта, Telegram Stars), продлевает, считает трафик и устройства, отвечает клиентам. Клиент покупает в боте, Mini App, кабинете или приложении и подключается в одно касание. Владелец управляет всем из одной админ-панели — без программиста и без пересборки приложений.
 
 **Начните здесь:** [руководство по запуску](docs/ru/LAUNCH_GUIDE.md) (от сервера до первой продажи) · [инструкции по 30 модулям](docs/ru/modules/README.md).
+
+## 🆕 Новое в v28.77.1
+
+| | |
+| --- | --- |
+| 🔧 **Исправление выпуска** | В v28.77.0 не попали Android-приложения: проверка подписи не видела отпечаток в выводе нового apksigner. Исправлено — подписанные APK снова в выпуске, постоянные ссылки на скачивание заработали. [Подробно](docs/ru/RELEASE_V28_77_1.md) |
 
 ## 🆕 Новое в v28.77.0
 
@@ -344,7 +350,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 </tr>
 </table>
 
-[Заметки к выпуску](docs/ru/RELEASE_V28_77_0.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
+[Заметки к выпуску](docs/ru/RELEASE_V28_77_1.md) · [установка с нуля до продакшена](docs/INSTALLATION.md) · [архитектура модулей](docs/modules/README.md)
 
 <details>
 <summary><b>Что было в v28.33.0</b></summary>
@@ -687,8 +693,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.77.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.77.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.77.1/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.77.1 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -705,7 +711,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.77.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.77.1 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -721,12 +727,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.77.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.77.1 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.77.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.77.1 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -1358,7 +1364,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Проверить конфигурацию Compose | `docker compose config` |
 | Health-check API | `curl -s localhost:8000/health` |
 | Резервная копия | `bash scripts/backup.sh` |
-| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.77.0 bash scripts/update-from-github.sh` |
+| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.77.1 bash scripts/update-from-github.sh` |
 | Откатить версию | `bash scripts/rollback.sh` |
 | Включить ночные обновления | `sudo bash scripts/auto-update.sh install` |
 | Состояние автообновления | `sudo bash scripts/auto-update.sh status` |
