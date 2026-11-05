@@ -99,3 +99,12 @@ test('main moving during upload keeps the fully uploaded release draft', async t
   const {state,args} = fixture(t);state.moveOnUpload=true;
   await assert.rejects(publish(args),/moved during publication/);assert.equal(state.uploads,3);assert.equal(state.release.draft,true);assert.equal(state.publications,0);
 });
+test('a tag that is not visible right after creation is read again (v28.84.0)', async t => {
+  const {state,args} = fixture(t);
+  let hidden = 1;
+  const create = args.github.rest.git.createRef, read = args.github.rest.git.getRef;
+  args.github.rest.git.createRef = async a => {await create(a); hidden = 1;};
+  args.github.rest.git.getRef = async a => {if (state.ref && hidden-- > 0) throw notFound(); return read(a);};
+  await publish(args);
+  assert.equal(state.publications,1);assert.equal(state.ref.sha,SHA);
+});

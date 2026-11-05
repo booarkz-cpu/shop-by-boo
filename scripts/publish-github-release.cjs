@@ -30,7 +30,13 @@ async function publish({github, context, core, root = process.cwd()}) {
   try { ref = await tagRef(); } catch (error) {
     if (!missing(error)) throw error;
     await github.rest.git.createRef({...repo, ref: `refs/tags/${tag}`, sha});
-    ref = await tagRef();
+    // A tag just created is not always visible to the next read (v28.84.0 failed with 404 here): ask again a few times.
+    for (let attempt = 1; ; attempt++) {
+      try { ref = await tagRef(); break; } catch (again) {
+        if (!missing(again) || attempt >= 6) throw again;
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+      }
+    }
   }
   let release;
   try { release = (await github.rest.repos.getReleaseByTag({...repo, tag})).data; }

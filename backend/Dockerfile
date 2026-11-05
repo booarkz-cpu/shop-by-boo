@@ -8,7 +8,7 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends curl openssl ca-certificates gnupg; \
     install -d /usr/share/postgresql-common/pgdg; \
-    curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc; \
+    curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc; \
     gpg --show-keys --with-colons /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc | grep -q "^fpr:::::::::${PGDG_KEY_FINGERPRINT}:"; \
     . /etc/os-release; \
     echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" > /etc/apt/sources.list.d/pgdg.list; \
