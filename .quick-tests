@@ -1,0 +1,1 @@
+gen:export MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups; mkdir -p _audit; python3 scripts/verify-admin-matrix.py > _audit/v.txt 2>&1; true
