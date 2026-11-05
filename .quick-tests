@@ -1,0 +1,1 @@
+gen: mkdir -p _screens && gh run download 42123658675 -n android-client-screens -D _screens -R booarkz-cpu/shop-by-boo && ls -la _screens
