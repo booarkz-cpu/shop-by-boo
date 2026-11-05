@@ -3,7 +3,8 @@
 #
 # The host runs Xray (VLESS over TCP) and serves a subscription with that one server on http://10.0.2.2.
 # The Xray server sends 198.18.0.42:80 — a benchmark address nobody answers — to a local page saying
-# «corgi-tunnel-ok». So the page is reachable from the emulator only through the tunnel:
+# «corgi-tunnel-ok» (Xray blocks private addresses behind a VLESS inbound by default: «finalRules» allows exactly that
+# one local port). So the page is reachable from the emulator only through the tunnel:
 #   1. before connecting: no answer;  2. connected: «corgi-tunnel-ok»;  3. disconnected: no answer again.
 #
 #   bash scripts/mobile/vpn-e2e.sh <app-debug.apk> <xray binary>     (inside android-emulator-runner)
@@ -16,7 +17,7 @@ cat > xray.json <<JSON
 {"log":{"loglevel":"warning"},
  "inbounds":[{"listen":"0.0.0.0","port":10086,"protocol":"vless","settings":{"clients":[{"id":"$UUID"}],"decryption":"none"},
               "streamSettings":{"network":"tcp","security":"none"}}],
- "outbounds":[{"tag":"direct","protocol":"freedom"},{"tag":"check","protocol":"freedom","settings":{"redirect":"127.0.0.1:18080"}}],
+ "outbounds":[{"tag":"direct","protocol":"freedom"},{"tag":"check","protocol":"freedom","settings":{"redirect":"127.0.0.1:18080","finalRules":[{"action":"allow","ip":["127.0.0.1"],"port":"18080"}]}}],
  "routing":{"rules":[{"type":"field","ip":["198.18.0.42"],"outboundTag":"check"}]}}
 JSON
 mkdir -p page sub
