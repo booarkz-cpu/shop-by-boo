@@ -79,7 +79,8 @@ adb shell am start -W -n "$PKG/shop.corgi.client.ui.MainActivity" \
   --es client_test_settings '{"tunnelMode":"proxy","proxyAuth":true,"httpAuth":true,"proxyUser":"ci","proxyPass":"cisecret","socksPort":10808,"httpPort":10809}' \
   --es client_test_import "http://10.0.2.2:18081/" --ez client_test_connect true >/dev/null
 for i in $(seq 1 30); do [ "$(state)" = on ] && break; sleep 2; done
-[ "$(state)" = on ] || { echo "FAIL: proxy mode did not start (state: $(state))" >&2; adb shell "run-as $PKG cat shared_prefs/client_vpn.xml" >&2 || true; exit 1; }
+[ "$(state)" = on ] || { echo "FAIL: proxy mode did not start (state: $(state))" >&2; adb shell "run-as $PKG cat shared_prefs/client_vpn.xml" >&2 || true
+  adb shell "run-as $PKG cat files/logs/app.log" >&2 || true; adb logcat -d | grep -iE "corgi|AndroidRuntime|FATAL|ForegroundService" | tail -60 >&2 || true; exit 1; }
 adb forward tcp:18808 tcp:10808 >/dev/null; adb forward tcp:18809 tcp:10809 >/dev/null
 ok=""; for i in $(seq 1 10); do
   if curl -s --max-time 8 --socks5-hostname ci:cisecret@127.0.0.1:18808 http://198.18.0.42/ | grep -q corgi-tunnel-ok; then ok=1; break; fi; sleep 2; done

@@ -31,7 +31,11 @@ class ClientVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) { shutdown(); return START_NOT_STICKY }
         if (!Xray.available()) { error(this, tr("В этой сборке нет движка Xray", "This build has no Xray engine", "У цій збірці немає рушія Xray")); stopSelf(startId); return START_NOT_STICKY }
-        foreground()
+        try { foreground() } catch (exc: Exception) {
+            // Android refuses a foreground service it does not allow (e.g. a type the system rejects): say why instead of crashing.
+            error(this, exc.message ?: exc.javaClass.simpleName); Logs(filesDir).app("[VPN] foreground refused: $exc"); stopSelf(startId)
+            return START_NOT_STICKY
+        }
         state(this, STATE_CONNECTING)
         thread {
             try {
