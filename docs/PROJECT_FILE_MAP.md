@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2279**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2285**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1304,6 +1304,7 @@
 | [docs/ru/new/DOCKER_GUIDE.md](../docs/ru/new/DOCKER_GUIDE.md) | Документация |
 | [docs/ru/new/DOMAIN_SETUP_GUIDE.md](../docs/ru/new/DOMAIN_SETUP_GUIDE.md) | Документация |
 | [docs/ru/new/FEATURE_COMPARISON_MATRIX.md](../docs/ru/new/FEATURE_COMPARISON_MATRIX.md) | Документация |
+| [docs/ru/new/FINAL_ACCEPTANCE.md](../docs/ru/new/FINAL_ACCEPTANCE.md) | Документация |
 | [docs/ru/new/FULL_TECHNICAL_AUDIT.md](../docs/ru/new/FULL_TECHNICAL_AUDIT.md) | Документация |
 | [docs/ru/new/IMPLEMENTATION_STATUS.md](../docs/ru/new/IMPLEMENTATION_STATUS.md) | Документация |
 | [docs/ru/new/INCIDENT_RESPONSE.md](../docs/ru/new/INCIDENT_RESPONSE.md) | Документация |
@@ -1320,11 +1321,14 @@
 | [docs/ru/new/RBAC.md](../docs/ru/new/RBAC.md) | Документация |
 | [docs/ru/new/README.md](../docs/ru/new/README.md) | Документация |
 | [docs/ru/new/REGRESSION_TESTS.md](../docs/ru/new/REGRESSION_TESTS.md) | Документация |
+| [docs/ru/new/REGRESSION_TEST_REPORT.md](../docs/ru/new/REGRESSION_TEST_REPORT.md) | Документация |
+| [docs/ru/new/RELEASE_ACCEPTANCE.md](../docs/ru/new/RELEASE_ACCEPTANCE.md) | Документация |
 | [docs/ru/new/REMNAWAVE_API_DESIGN.md](../docs/ru/new/REMNAWAVE_API_DESIGN.md) | Документация |
 | [docs/ru/new/REMNAWAVE_ARCHITECTURE.md](../docs/ru/new/REMNAWAVE_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/REMNAWAVE_DATA_MODEL.md](../docs/ru/new/REMNAWAVE_DATA_MODEL.md) | Документация |
 | [docs/ru/new/REMNAWAVE_EXTENSIONS.md](../docs/ru/new/REMNAWAVE_EXTENSIONS.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
+| [docs/ru/new/REMNAWAVE_FINAL_REPORT.md](../docs/ru/new/REMNAWAVE_FINAL_REPORT.md) | Документация |
 | [docs/ru/new/REMNAWAVE_INSTALLATION_GUIDE.md](../docs/ru/new/REMNAWAVE_INSTALLATION_GUIDE.md) | Документация |
 | [docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md](../docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md) | Документация |
 | [docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md](../docs/ru/new/REMNAWAVE_INSTALLATION_WIZARD.md) | Документация |
@@ -1332,6 +1336,7 @@
 | [docs/ru/new/REMNAWAVE_PREFLIGHT.md](../docs/ru/new/REMNAWAVE_PREFLIGHT.md) | Документация |
 | [docs/ru/new/SECRETS_MANAGEMENT.md](../docs/ru/new/SECRETS_MANAGEMENT.md) | Документация |
 | [docs/ru/new/SECURITY_AUDIT.md](../docs/ru/new/SECURITY_AUDIT.md) | Документация |
+| [docs/ru/new/SECURITY_FINAL_REPORT.md](../docs/ru/new/SECURITY_FINAL_REPORT.md) | Документация |
 | [docs/ru/new/SERVER_ROUTING.md](../docs/ru/new/SERVER_ROUTING.md) | Документация |
 | [docs/ru/new/STAGE_1_VERIFICATION.md](../docs/ru/new/STAGE_1_VERIFICATION.md) | Документация |
 | [docs/ru/new/SUBSCRIPTION_DOMAIN.md](../docs/ru/new/SUBSCRIPTION_DOMAIN.md) | Документация |
@@ -1341,6 +1346,7 @@
 | [docs/ru/new/SUBSCRIPTION_TEMPLATES.md](../docs/ru/new/SUBSCRIPTION_TEMPLATES.md) | Документация |
 | [docs/ru/new/TELEGRAM_GUIDE.md](../docs/ru/new/TELEGRAM_GUIDE.md) | Документация |
 | [docs/ru/new/TELEGRAM_MINI_APP.md](../docs/ru/new/TELEGRAM_MINI_APP.md) | Документация |
+| [docs/ru/new/TEST_REPORT.md](../docs/ru/new/TEST_REPORT.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
 | [docs/ru/new/USER_CABINET_GUIDE.md](../docs/ru/new/USER_CABINET_GUIDE.md) | Документация |
 | [docs/ru/new/VPN_ENGINE.md](../docs/ru/new/VPN_ENGINE.md) | Документация |
