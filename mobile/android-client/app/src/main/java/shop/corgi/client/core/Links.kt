@@ -9,25 +9,53 @@ import java.util.Base64
 /** One server: its name, the protocol and the Xray outbound built from its share link (tag set when the config is built). */
 data class Server(val name: String, val protocol: String, val outbound: JSONObject, val link: String) {
     val host: String get() = when (protocol) {
-        "vless", "vmess" -> outbound.getJSONObject("settings").getJSONArray("vnext").getJSONObject(0).optString("address")
+        "vless", "vmess" -> outbound.getJSONObject("settings").let { st -> st.optJSONArray("vnext")?.optJSONObject(0)?.optString("address") ?: st.optString("address") }
         "wireguard" -> outbound.getJSONObject("settings").getJSONArray("peers").getJSONObject(0).optString("endpoint").substringBeforeLast(":")
-        else -> outbound.getJSONObject("settings").getJSONArray("servers").getJSONObject(0).optString("address")
+        "hysteria" -> outbound.getJSONObject("settings").optString("address")
+        else -> outbound.getJSONObject("settings").optJSONArray("servers")?.optJSONObject(0)?.optString("address").orEmpty()
     }
     val port: Int get() = when (protocol) {
-        "vless", "vmess" -> outbound.getJSONObject("settings").getJSONArray("vnext").getJSONObject(0).optInt("port")
+        "vless", "vmess" -> outbound.getJSONObject("settings").let { st -> st.optJSONArray("vnext")?.optJSONObject(0)?.optInt("port") ?: st.optInt("port") }
         "wireguard" -> outbound.getJSONObject("settings").getJSONArray("peers").getJSONObject(0).optString("endpoint").substringAfterLast(":").toIntOrNull() ?: 0
-        else -> outbound.getJSONObject("settings").getJSONArray("servers").getJSONObject(0).optInt("port")
+        "hysteria" -> outbound.getJSONObject("settings").optInt("port")
+        else -> outbound.getJSONObject("settings").optJSONArray("servers")?.optJSONObject(0)?.optInt("port") ?: 0
     }
 }
 
 /**
  * Share links → Xray outbounds: vless (REALITY, TLS, ws, grpc, xhttp, httpupgrade), vmess, trojan, ss, socks and
  * wireguard. Pure JVM code (java.net.URI, java.util.Base64) so it is unit-tested without a device.
- * Hysteria2 and TUIC links are recognised and skipped: the bundled Xray-core has no such outbounds.
+ * Hysteria2 (Xray 26: protocol «hysteria», version 2) is built too; TUIC and Hysteria v1 are recognised and skipped.
  */
 object Links {
-    val SCHEMES = listOf("vless://", "vmess://", "trojan://", "ss://", "socks://", "socks5://", "wireguard://", "wg://")
-    val UNSUPPORTED = listOf("hysteria2://", "hy2://", "hysteria://", "tuic://")
+    val SCHEMES = listOf("vless://", "vmess://", "trojan://", "ss://", "socks://", "socks5://", "wireguard://", "wg://", "hysteria2://", "hy2://")
+    val UNSUPPORTED = listOf("hysteria://", "tuic://")
+    private val PROXY_PROTOCOLS = setOf("vless", "vmess", "trojan", "shadowsocks", "socks", "wireguard", "hysteria")
+
+    /**
+     * A subscription answered with Xray JSON (Remnawave does so for v2rayNG / Happ when its response rules say so):
+     * an array of full configs (or one config), each with «remarks». Returns (name, config) per entry, or null when
+     * the body is not JSON. Entries without a proxy outbound are skipped.
+     */
+    fun jsonConfigs(body: String): List<Pair<String, String>>? {
+        val text = body.trim().removePrefix("\uFEFF")
+        if (!(text.startsWith("[") || text.startsWith("{"))) return null
+        val items = runCatching { if (text.startsWith("[")) JSONArray(text) else JSONArray().put(JSONObject(text)) }.getOrNull() ?: return null
+        val out = mutableListOf<Pair<String, String>>()
+        for (i in 0 until items.length()) {
+            val item = items.optJSONObject(i) ?: continue
+            val outbounds = item.optJSONArray("outbounds") ?: continue
+            if ((0 until outbounds.length()).none { outbounds.optJSONObject(it)?.optString("protocol") in PROXY_PROTOCOLS }) continue
+            out += item.optString("remarks").ifBlank { "Server ${i + 1}" }.take(80) to item.toString()
+        }
+        return out
+    }
+
+    /** The first proxy outbound of a JSON config (for its address, protocol and latency check). */
+    fun firstProxy(config: String): JSONObject? = runCatching {
+        val outbounds = JSONObject(config).getJSONArray("outbounds")
+        (0 until outbounds.length()).map { outbounds.getJSONObject(it) }.firstOrNull { it.optString("protocol") in PROXY_PROTOCOLS }
+    }.getOrNull()
 
     /** A subscription body: base64 (standard or URL-safe) or plain lines of links. */
     fun decodeBody(body: String): List<String> {
@@ -52,6 +80,7 @@ object Links {
             lower.startsWith("ss://") -> shadowsocks(link)
             lower.startsWith("socks://") || lower.startsWith("socks5://") -> socks(link)
             lower.startsWith("wireguard://") || lower.startsWith("wg://") -> wireguard(link)
+            lower.startsWith("hysteria2://") || lower.startsWith("hy2://") -> hysteria2(link)
             else -> null
         }
     }
@@ -150,6 +179,22 @@ object Links {
             server.put("users", JSONArray().put(JSONObject().put("user", creds.substringBefore(":")).put("pass", creds.substringAfter(":"))))
         }
         return Server(p.name.ifBlank { p.host }, "socks", outbound("socks", JSONObject().put("servers", JSONArray().put(server)), null), link)
+    }
+
+    /**
+     * hysteria2://<auth>@host:port?sni=…&insecure=1&alpn=h3#name → Xray «hysteria» (version 2). Salamander obfuscation
+     * (obfs=salamander) is not supported by Xray's outbound in this form: such links are skipped, not half-built.
+     */
+    private fun hysteria2(link: String): Server {
+        val p = Parts(link.replaceFirst(Regex("^hy2://", RegexOption.IGNORE_CASE), "hysteria2://"))
+        require(p.q("obfs").isBlank()) { "obfs" }
+        val tls = JSONObject().put("serverName", p.q("sni").ifBlank { p.host }).put("alpn", JSONArray(p.q("alpn").ifBlank { "h3" }.split(",")))
+        if (p.q("insecure") == "1" || p.q("allowInsecure") == "1") tls.put("allowInsecure", true)
+        if (p.q("pinSHA256").isNotBlank()) tls.put("pinnedPeerCertSha256", p.q("pinSHA256"))
+        val stream = JSONObject().put("network", "hysteria").put("security", "tls").put("tlsSettings", tls)
+            .put("hysteriaSettings", JSONObject().put("version", 2).put("auth", p.user))
+        val settings = JSONObject().put("version", 2).put("address", p.host).put("port", p.port)
+        return Server(p.name.ifBlank { p.host }, "hysteria", outbound("hysteria", settings, stream), link)
     }
 
     /** wireguard://<private key>@host:port?publickey=…&address=10.0.0.2/32,fd00::2/128&reserved=1,2,3&mtu=1280 */

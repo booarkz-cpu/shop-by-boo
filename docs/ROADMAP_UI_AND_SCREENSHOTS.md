@@ -1,6 +1,6 @@
 # Дорожная карта UI и графических материалов
 
-Дистрибутив `v28.80.0`. Инвентаризация 399 изображений (`png`, `jpg`, `webp`) в репозитории,
+Дистрибутив `v28.81.0`. Инвентаризация 399 изображений (`png`, `jpg`, `webp`) в репозитории,
 без `node_modules` и `.git`.
 
 Документ фиксирует, что реально лежит в репозитории, где используется и что требует обновления.
@@ -40,7 +40,7 @@
 | `docs/img/miniapp-*.png` | Mini App, 390×844 | `scripts/screenshots/miniapp.mjs` |
 | `docs/img/bot-*.png` | Чат с Telegram-ботом | `scripts/screenshots/bot_chat.py` |
 | `screenshots/mobile/` | Приложения Android и iOS (демо-режим) | workflow `mobile-screenshots.yml` |
-| `docs/screenshots/`, `docs/assets/screens/` | Удалены в v28.80.0: старые снимки v28.10.0 и копии для документов | все документы ссылаются на `screenshots/` |
+| `docs/screenshots/`, `docs/assets/screens/` | Удалены в v28.81.0: старые снимки v28.10.0 и копии для документов | все документы ссылаются на `screenshots/` |
 
 ## 3. Проверка полноты
 
@@ -99,7 +99,7 @@
 
 - Исходников desktop-приложений: `desktop/{linux,macos,windows}` содержат только `README.md`.
 - Опубликованных ссылок на Google Play / App Store / RuStore.
-- Подписанных мобильных артефактов: в релизе `v28.80.0` — `*_unsigned.apk` / `*_unsigned.aab`.
+- Подписанных мобильных артефактов: в релизе `v28.81.0` — `*_unsigned.apk` / `*_unsigned.aab`.
 
 ## 9. Порядок дальнейших работ по UI
 

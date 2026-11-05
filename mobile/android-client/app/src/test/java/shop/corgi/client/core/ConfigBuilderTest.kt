@@ -55,7 +55,7 @@ class ConfigBuilderTest {
     @Test fun profilesFromText() {
         assertEquals("subscription", Profile.fromText("https://sub.example.com/abc", "1", 0).kind)
         assertEquals("links", Profile.fromText("vless://u@a.example.com:443#A\ntrojan://p@b.example.com:443#B", "1", 0).kind)
-        assertThrows(IllegalArgumentException::class.java) { Profile.fromText("hysteria2://x@h:1", "1", 0) }
+        assertThrows(IllegalArgumentException::class.java) { Profile.fromText("tuic://x@h.example.com:1", "1", 0) }
         assertThrows(IllegalArgumentException::class.java) { Profile("1", "x", "subscription", url = "http://evil.example.com") }
         val p = Profile("1", "x", "subscription", url = "https://s.example.com", updatedAt = 0, autoUpdateHours = 12)
         assertTrue(p.due(13 * 3_600_000L)); assertFalse(p.due(1))
@@ -65,5 +65,19 @@ class ConfigBuilderTest {
         val s = Settings(routing = "custom", rules = listOf(Rule("domain:a.com", "proxy")), apps = setOf("org.x"), appsMode = "except", fragment = true)
         assertEquals(s, Settings.of(s.toJson()))
         assertEquals(Settings(), Settings.of(JSONObject().put("routing", "nonsense")))
+    }
+
+    @Test fun jsonWithoutGeoFilesKeepsWhatItCan() {
+        val raw = """{"inbounds":[{"tag":"socks","protocol":"socks"}],"outbounds":[{"tag":"proxy","protocol":"vless"}],
+            "routing":{"rules":[{"type":"field","ip":["geoip:private","1.2.3.4"],"outboundTag":"direct"},{"type":"field","domain":["geosite:ru"],"outboundTag":"direct"},
+            {"type":"field","domain":["geosite:ads"],"port":"443","outboundTag":"block"}]},
+            "dns":{"servers":[{"address":"1.1.1.1","domains":["geosite:google","domain:x.com"]}]}}"""
+        val c = JSONObject(ConfigBuilder.fromJson(raw, Settings(), geo = false))
+        assertFalse(ConfigBuilder.needsGeo(c.toString()))
+        val rules = c.getJSONObject("routing").getJSONArray("rules")
+        assertEquals(2, rules.length())  // the geosite-only rule is gone, the one with a port stays without its domains
+        assertTrue(rules.getJSONObject(0).getJSONArray("ip").toString().contains("10.0.0.0/8"))
+        assertEquals("domain:x.com", c.getJSONObject("dns").getJSONArray("servers").getJSONObject(0).getJSONArray("domains").getString(0))
+        assertTrue(ConfigBuilder.needsGeo(ConfigBuilder.fromJson(raw, Settings(), geo = true)))
     }
 }

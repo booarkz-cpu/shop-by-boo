@@ -56,6 +56,55 @@ object XrayEngine {
         return config.toString()
     }
 
+    /**
+     * v28.81.0: a full Xray config from a JSON subscription (Remnawave): its inbounds become the tunnel; what goes
+     * around the VPN is put first; geo lists are replaced (geoip:private → the private ranges) or left out, because the
+     * app carries no geoip.dat / geosite.dat and Xray would refuse the whole config.
+     */
+    fun fromJson(raw: String, bypassRussian: Boolean, extraDirect: List<String> = emptyList()): String {
+        val config = JSONObject(raw)
+        config.put("inbounds", JSONArray().put(JSONObject().put("tag", "tun-in").put("protocol", "tun")
+            .put("settings", JSONObject().put("name", "xray0").put("mtu", CorgiVpnService.MTU))
+            .put("sniffing", JSONObject().put("enabled", true).put("destOverride", JSONArray(listOf("http", "tls", "quic"))))))
+        config.remove("api"); config.remove("stats"); config.remove("metrics")
+        val routing = config.optJSONObject("routing") ?: JSONObject().also { config.put("routing", it) }
+        val old = routing.optJSONArray("rules") ?: JSONArray()
+        val rules = JSONArray()
+        rules.put(JSONObject().put("type", "field").put("ip", JSONArray(PRIVATE)).put("outboundTag", DIRECT))
+        if (bypassRussian) rules.put(JSONObject().put("type", "field").put("domain", JSONArray(RUSSIAN + extraDirect.map { "domain:$it" })).put("outboundTag", DIRECT))
+        for (i in 0 until old.length()) {
+            val rule = old.optJSONObject(i) ?: continue
+            var emptied = false
+            for ((key, ip) in listOf("domain" to false, "ip" to true, "source" to true)) {
+                if (!rule.has(key)) continue
+                val list = rule.optJSONArray(key) ?: continue
+                val out = JSONArray()
+                for (j in 0 until list.length()) {
+                    val v = list.optString(j)
+                    if (ip && v == "geoip:private") PRIVATE.forEach { out.put(it) }
+                    else if (!(v.startsWith("geoip:") || v.startsWith("geosite:") || v.startsWith("ext:"))) out.put(list.get(j))
+                }
+                if (out.length() == 0) { rule.remove(key); emptied = true } else rule.put(key, out)
+            }
+            if (emptied && listOf("domain", "ip", "source", "port", "network", "protocol", "inboundTag", "user", "attrs").none { rule.has(it) }) continue
+            rules.put(rule)
+        }
+        routing.put("rules", rules)
+        config.optJSONObject("dns")?.optJSONArray("servers")?.let { servers ->
+            for (i in 0 until servers.length()) servers.optJSONObject(i)?.let { it.remove("domains"); it.remove("expectIPs"); it.remove("expectedIPs") }
+        }
+        // The «direct» rules need an outbound of that tag.
+        val outbounds = config.getJSONArray("outbounds")
+        if ((0 until outbounds.length()).none { outbounds.optJSONObject(it)?.optString("tag") == DIRECT })
+            outbounds.put(JSONObject().put("tag", DIRECT).put("protocol", "freedom"))
+        return config.toString()
+    }
+
+    private const val DIRECT = "corgi-direct"
+    private val PRIVATE = listOf("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "169.254.0.0/16", "100.64.0.0/10", "fc00::/7", "fe80::/10")
+    private val RUSSIAN = listOf("regexp:\\.ru$", "regexp:\\.su$", "regexp:\\.xn--p1ai$", "domain:gosuslugi.ru", "domain:nalog.gov.ru",
+        "domain:sberbank.com", "domain:vk.com", "domain:vk.me", "domain:userapi.com", "domain:yandex.net", "domain:yandex.com", "domain:yastatic.net")
+
     fun start(context: Context, config: String, tunFd: Int, onStop: () -> Unit) {
         val lib = Class.forName("libv2ray.Libv2ray")
         lib.getMethod("initCoreEnv", String::class.java, String::class.java).invoke(null, context.filesDir.absolutePath, "")
