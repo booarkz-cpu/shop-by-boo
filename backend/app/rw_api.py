@@ -123,7 +123,9 @@ class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs"]
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
-    panel_access: Literal["open", "cookie"] | None = None
+    panel_access: Literal["open", "cookie", "tinyauth"] | None = None
+    # v28.78.0: with panel_access="tinyauth" — the login portal's domain (a sibling of the panel's domain).
+    auth_domain: str | None = Field(default=None, max_length=253)
     # v28.77.0: with «update» — the template of the Remnawave subscription page.
     subpage_template: Literal["default", "orion"] | None = None
     module: ModuleIn | None = None
@@ -415,6 +417,8 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
         if payload.action != "update" or not params.get("panel_server_id"):
             raise HTTPException(422, "Доступ к панели меняется действием «Обновить» установки с панелью")
         params["panel_access"] = payload.panel_access
+        if payload.panel_access == "tinyauth":
+            params["auth_domain"] = payload.auth_domain or params.get("auth_domain")
     if payload.subpage_template:
         if payload.action != "update" or not params.get("subpage_server_id"):
             raise HTTPException(422, "Шаблон страницы подписки меняется действием «Обновить» установки со страницей подписки")
@@ -524,6 +528,9 @@ async def credentials(installation_id: int, db: AsyncSession = Depends(get_db), 
            "password": secrets["panel_admin_password"], "access_url": None}
     if row.params.get("panel_access") == "cookie" and secrets.get("panel_cookie_name"):
         out["access_url"] = f"https://{row.params['panel_domain']}/?{secrets['panel_cookie_name']}={secrets['panel_cookie_value']}"
+    if row.params.get("panel_access") == "tinyauth" and secrets.get("tinyauth_password"):
+        out["tinyauth"] = {"url": f"https://{row.params['auth_domain']}", "username": secrets["tinyauth_username"],
+                           "password": secrets["tinyauth_password"]}
     return out
 
 

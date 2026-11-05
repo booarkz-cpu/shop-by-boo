@@ -6,7 +6,7 @@ on:
   pull_request:
     paths: ['backend/app/remnawave.py', 'backend/app/node_autoscale.py', 'backend/app/block_monitor.py', 'backend/app/node_health.py',
             'backend/app/rw_*.py', 'backend/app/provisioner.py', 'tests/live/**', 'scripts/ci/remnawave-live.sh',
-            'scripts/ci/rw-install-live.sh', 'scripts/ci/caddy-on-demand-live.sh', 'deploy/Caddyfile', 'deploy/caddy/**',
+            'scripts/ci/rw-install-live.sh', 'scripts/ci/caddy-on-demand-live.sh', 'scripts/ci/tinyauth-live.sh', 'deploy/Caddyfile', 'deploy/caddy/**',
             'backend/app/sub_proxy.py', 'backend/app/sub_portal.py', 'backend/app/bot.py', 'backend/app/telegram_bot.py',
             '.github/workflows/remnawave-live.yml']
   push:
@@ -74,6 +74,25 @@ jobs:
       - run: pip install -r backend/requirements.txt -r backend/requirements-test.txt
       - name: On-demand certificates of portal domains
         run: bash scripts/ci/caddy-on-demand-live.sh
+
+  # v28.78.0 (stage 18): «Доступ к панели → Вход через TinyAuth» — the wizard's files with the real TinyAuth and Caddy.
+  tinyauth:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      APP_SECRET: ci-only-secret
+      APP_ENV: test
+      DATABASE_URL: sqlite+aiosqlite:///./live.db
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r backend/requirements.txt -r backend/requirements-test.txt
+      - name: TinyAuth in front of the panel
+        run: bash scripts/ci/tinyauth-live.sh
 
   # v28.70.0 (stage 12): SelfSteal node through the wizard with the shop connected to the newest panel; a TLS client
   # without REALITY keys gets the template site on port 443; IPv6 and the Xray core modules on the same node.

@@ -157,7 +157,7 @@ function Registry({servers, request, toast, reload}: {servers: any[]; request: R
 
 function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: any[]; request: Request; toast: (t: string) => void; onQueued: (id: number) => void}) {
   const [f, setF] = useState<any>({mode: "panel_node", panel_server_id: "", node_server_ids: [] as string[], subpage_server_id: "", panel_domain: "",
-    sub_domain: "", node_domain: "", tls: "acme", acme_email: "", node_port: "2222", node_name: "node", country_code: "XX", firewall: true, panel_access: "open",
+    sub_domain: "", node_domain: "", tls: "acme", acme_email: "", node_port: "2222", node_name: "node", country_code: "XX", firewall: true, panel_access: "open", auth_domain: "",
     selfsteal_domain: "", selfsteal_template: "cloud", subpage_template: "default"});
   const [plan, setPlan] = useState<any>(null);
   const [error, setError] = useState("");
@@ -181,6 +181,7 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
       node_domain: f.node_domain || null, tls: f.tls, acme_email: f.acme_email || null, node_port: Number(f.node_port),
       node_name: f.node_name, country_code: f.country_code.toUpperCase(), firewall: f.firewall,
       panel_access: needPanel ? f.panel_access : "open",
+      auth_domain: needPanel && f.panel_access === "tinyauth" ? f.auth_domain || null : null,
       selfsteal_domain: selfsteal ? f.selfsteal_domain || null : null, selfsteal_template: f.selfsteal_template,
       subpage_template: needSub ? f.subpage_template : "default"};
   }
@@ -219,7 +220,10 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
         <option value="default">Стандартная страница Remnawave</option><option value="orion">Orion (legiz-ru, MIT)</option></select>
         <span className="muted">Orion — шаблон legiz-ru/Orion, закреплённый по SHA-256; скрипты страницы загружаются с jsDelivr и Skypack.</span></label>}
       {needPanel && <label>Доступ к панели<select value={f.panel_access} onChange={set("panel_access")}>
-        <option value="open">Открыт по адресу панели</option><option value="cookie">Только по секретной ссылке (страницы панели скрыты)</option></select></label>}
+        <option value="open">Открыт по адресу панели</option><option value="cookie">Только по секретной ссылке (страницы панели скрыты)</option>
+        <option value="tinyauth">Вход через TinyAuth (логин и пароль на своём домене)</option></select></label>}
+      {needPanel && f.panel_access === "tinyauth" && <label>Домен входа TinyAuth<input value={f.auth_domain} onChange={set("auth_domain")} required placeholder="auth.example.com"/>
+        <span className="muted">Соседний с доменом панели (auth.example.com для panel.example.com) и указывает на тот же сервер. TinyAuth (GPL-3.0) работает отдельным контейнером; API с токеном магазина и подписки клиентов проходят без входа.</span></label>}
       {(needPanel || needSub) && <label>Сертификат<select value={f.tls} onChange={set("tls")}>
         <option value="acme">Let's Encrypt (домены уже указывают на сервер)</option><option value="internal">Внутренний Caddy (проверка, без публичного DNS)</option></select></label>}
       {(needPanel || needSub) && f.tls === "acme" && <label>Email для Let's Encrypt<input type="email" value={f.acme_email} onChange={set("acme_email")} required/></label>}
@@ -318,8 +322,8 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
       {job.result?.panel_url && <a href={job.result.panel_url} target="_blank" rel="noreferrer">{job.result.panel_url}</a>}
       {job.params?.panel_server_id && <button onClick={showCreds}>Показать вход в панель</button>}
       {job.params?.panel_server_id && job.params?.tls === "acme" && <button onClick={connect}>Подключить магазин к этой панели</button>}
-      {job.params?.panel_server_id && <button onClick={() => action("update", {panel_access: job.params?.panel_access === "cookie" ? "open" : "cookie"})}>
-        {job.params?.panel_access === "cookie" ? "Открыть доступ к панели" : "Закрыть доступ к панели"}</button>}
+      {job.params?.panel_server_id && <button onClick={() => action("update", {panel_access: job.params?.panel_access === "open" || !job.params?.panel_access ? "cookie" : "open"})}>
+        {job.params?.panel_access === "open" || !job.params?.panel_access ? "Закрыть доступ к панели" : "Открыть доступ к панели"}</button>}
       {job.params?.subpage_server_id && <button onClick={() => action("update", {subpage_template: job.params?.subpage_template === "orion" ? "default" : "orion"})}>
         {job.params?.subpage_template === "orion" ? "Вернуть стандартную страницу подписки" : "Страница подписки Orion"}</button>}
       {ACTIONS.filter(([a]) => a !== "restore" || job.params?.panel_server_id).map(([a, label, risky]) =>
@@ -327,7 +331,8 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
           : <button key={a} className={risky ? "danger" : ""} onClick={() => action(a)}>{risky ? `Составить план: ${label.toLowerCase()}` : label}</button>)}
     </div>}
     {creds && <SuccessNote>Панель {creds.panel_url}: администратор <code>{creds.username}</code>, пароль <code>{creds.password}</code>.
-      {creds.access_url ? <> Вход только по секретной ссылке: <code>{creds.access_url}</code> (откройте один раз — браузер запомнит доступ на 30 дней).</> : null} Просмотр записан в журнал действий.</SuccessNote>}
+      {creds.access_url ? <> Вход только по секретной ссылке: <code>{creds.access_url}</code> (откройте один раз — браузер запомнит доступ на 30 дней).</> : null}
+      {creds.tinyauth ? <> Сначала вход TinyAuth на {creds.tinyauth.url}: <code>{creds.tinyauth.username}</code>, пароль <code>{creds.tinyauth.password}</code>.</> : null} Просмотр записан в журнал действий.</SuccessNote>}
     {staged && <div data-rw-staged><p>Подготовлено изменение настроек: REMNAWAVE_URL и REMNAWAVE_TOKEN (токен не показывается).</p>
       <button className="primary" onClick={apply}>Применить</button> <button onClick={() => setStaged(null)}>Позже (в «Настройки → Параметры»)</button></div>}
     {isInstall && job.status === "succeeded" && <NodeModules job={job} request={request} onPlanned={setPlanned} setError={setError}/>}
