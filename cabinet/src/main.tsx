@@ -254,6 +254,7 @@ function App() {
   const [ticket, setTicket] = useState({subject: "", message: ""});
   const [copied, setCopied] = useState(false);
   const [shopApps, setShopApps] = useState<any[]>([]);
+  const [appsVisible, setAppsVisible] = useState(true);
   const [clientLogo, setClientLogo] = useState("");
   const [devices, setDevices] = useState<any[]>([]);
   const [routing, setRouting] = useState<any>(null);
@@ -321,6 +322,7 @@ function App() {
       const logo = typeof apps?.logo_url === "string" && apps.logo_url.startsWith("/media/") && !apps.logo_url.includes("..") ? apps.logo_url : "";
       setClientLogo(logo);
       setShopApps(Array.isArray(apps?.apps) ? apps.apps.filter((row: any) => row && row.audience === "user" && row.enabled !== false) : []);
+      setAppsVisible(apps?.cabinet_visible !== false);
     } catch {
       setClientLogo("");
       setShopApps([]);
@@ -748,7 +750,7 @@ function App() {
             <p>Безопасный доступ к сети</p>
           </header>
         )}
-        {!authed && <AppsNotice apps={shopApps} lang={lang} />}
+        {/* v28.86.0: no «Приложения» block before sign-in — only inside the cabinet, and only while it is on in the admin panel. */}
         {MINI_APP&&(m.image||m.instructions||(m.buttons||[]).length>0)&&(!authed||activeItem?.kind==="overview")&&<section className="miniapp-extras form-card">
           {mediaUrl(m.image)&&<img src={mediaUrl(m.image)} alt="" className="miniapp-banner"/>}
           {m.subtitle&&<h2>{m.subtitle}</h2>}{m.instructions&&<p>{m.instructions}</p>}
@@ -900,7 +902,7 @@ function App() {
                     <MyTraffic request={req} />
                     <h3 className="section-title section-title-sm">{config.texts?.servers_title || "Серверы"}</h3>
                     <ServerCatalog servers={servers} />
-                    <AppsNotice apps={shopApps} lang={lang} />
+                    {appsVisible && <AppsNotice apps={shopApps} lang={lang} />}
                   </>
                 )}
 
