@@ -288,7 +288,9 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/nodes/health` | Nodes Health | право `ops.diagnostics` |
 | `PUT` | `/api/admin/nodes/health/config` | Nodes Health Config | право `settings.runtime.write` |
 | `POST` | `/api/admin/nodes/update` | Update Nodes | право `provision_nodes` |
+| `PATCH` | `/api/admin/nodes/{node_uuid}` | Node Patch | право `provision_nodes` |
 | `POST` | `/api/admin/nodes/{node_uuid}/restart` | Restart Node | право `provision_nodes` |
+| `POST` | `/api/admin/nodes/{node_uuid}/{action}` | Node Switch | право `provision_nodes` |
 | `GET` | `/api/admin/notifications` | Admin Notifications | право `read` |
 | `POST` | `/api/admin/notifications` | Admin Notification Create | право `manage_content` |
 | `GET` | `/api/admin/openapi.json` | Admin Openapi | право `read` |
