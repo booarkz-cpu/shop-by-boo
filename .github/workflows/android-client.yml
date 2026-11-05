@@ -86,7 +86,7 @@ jobs:
           cores: 4
           ram-size: 4096M
           # The UI tests also save screens of the main views (ClientScreensTest.shot): pulled for the artifact below.
-          script: bash scripts/mobile/client-vpn-e2e.sh mobile/android-client/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/xray/xray" && cd mobile/android-client && (bash gradlew :app:connectedDebugAndroidTest --no-daemon || (adb logcat -d | grep -E "ActivityTaskManager|ActivityManager|AndroidRuntime|corgi|TestRunner|ActivityScenario" | tail -n 120; exit 1)) && adb pull /data/local/tmp/client-screens "$GITHUB_WORKSPACE/client-screens"
+          script: bash scripts/mobile/client-vpn-e2e.sh mobile/android-client/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/xray/xray" && cd mobile/android-client && (bash gradlew :app:connectedDebugAndroidTest --no-daemon || (adb logcat -d | grep -E "ActivityTaskManager|ActivityManager|AndroidRuntime|corgi|TestRunner|ActivityScenario" | tail -n 120; exit 1)) && (adb pull /data/local/tmp/client-screens "$GITHUB_WORKSPACE/client-screens" || echo "no screens")
       # Job logs show only «there were failing tests»: print which and why (the XML results of the UI tests).
       - name: UI test failures
         if: failure()

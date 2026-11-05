@@ -225,12 +225,14 @@ class ClientScreensTest {
     private fun shot(name: String) {
         compose.waitForIdle()
         val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
-        val dir = java.io.File(context.getExternalFilesDir(null), "screens").apply { mkdirs() }
-        val file = java.io.File(dir, "$name.png")
-        java.io.FileOutputStream(file).use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
-        // The test run uninstalls the app (and its files): a copy goes to /data/local/tmp, which the workflow pulls.
-        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation
-            .executeShellCommand("sh -c 'mkdir -p /data/local/tmp/client-screens && cp ${file.absolutePath} /data/local/tmp/client-screens/'").close()
+        val png = java.io.ByteArrayOutputStream().also { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }.toByteArray()
+        // The shell user (not the app) writes into /data/local/tmp, which the workflow pulls: the bytes go through its stdin.
+        val automation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation
+        android.os.ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand("mkdir -p /data/local/tmp/client-screens")).use { it.readBytes() }
+        // No shell here (arguments are split on spaces, no redirection): dd writes its stdin to the file.
+        val (out, input) = automation.executeShellCommandRw("dd of=/data/local/tmp/client-screens/$name.png").let { it[0] to it[1] }
+        android.os.ParcelFileDescriptor.AutoCloseOutputStream(input).use { it.write(png) }
+        android.os.ParcelFileDescriptor.AutoCloseInputStream(out).use { it.readBytes() }
         Thread.sleep(300)
     }
 
