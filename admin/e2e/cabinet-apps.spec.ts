@@ -30,8 +30,11 @@ async function owner(page: Page, show: boolean) {
   if (!(await shown.isChecked())) await shown.click();
   const link = card.getByPlaceholder('https://');
   if (!(await link.inputValue())) await link.fill('https://example.test/corgi-lusi.apk');
+  const saved = page.waitForResponse((r) => r.url().endsWith('/api/admin/apps') && r.request().method() === 'PUT');
   await page.getByRole('button', {name: 'Сохранить приложения'}).click();
-  await expect(page.getByText('Приложения сохранены')).toBeVisible();
+  const answer = await saved;
+  expect(answer.status(), await answer.text()).toBe(200);
+  expect((await answer.json()).cabinet_visible).toBe(show);
 }
 
 test('no apps block before sign-in; shown inside; the owner switches it off and on', async ({page, browser}) => {
