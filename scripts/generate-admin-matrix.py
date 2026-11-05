@@ -20,6 +20,14 @@ MODULES_TARGET = ROOT / "docs/ru/new/ADMIN_MODULES.md"
 OPS = ["read", "create", "update", "delete", "search", "settings", "diagnostics", "audit"]
 
 
+def verified() -> dict[int, str]:
+    """Stage 18: module → PASS / PARTIAL from docs/ru/new/ADMIN_VERIFICATION.md (scripts/verify-admin-matrix.py)."""
+    path = ROOT / "docs/ru/new/ADMIN_VERIFICATION.md"
+    if not path.exists():
+        return {}
+    return {int(n): st for n, st in re.findall(r"^\| (\d+) \| [^|]+ \| \d+ \| \d+ \| \d+ \| (PASS|PARTIAL) \|$", path.read_text(), re.M)}
+
+
 def tab_labels() -> dict[str, str]:
     text = (ROOT / "admin/src/sections.ts").read_text()
     return dict(re.findall(r'\{tab: "([A-Za-z0-9]+)", label: "([^"]+)"', text))
@@ -78,6 +86,7 @@ def render() -> str:
     manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
     labels = tab_labels()
     rows = matrix()
+    checks = verified()
     ready = sum(1 for m in rows if not m["missing"])
     lines = [
         f"# Управляемость из админки — {manifest['distribution_tag']}",
@@ -87,8 +96,9 @@ def render() -> str:
         "",
         "Операции определяются по маршрутам API: GET → чтение, POST → создание, PUT/PATCH → изменение, DELETE → удаление; "
         "поиск/фильтр — параметры запроса (`status`, `q`, `actor`, `since`…); настройки и проверка — по путям (`config`, `test`, `health`…); "
-        "журнал — изменяющий обработчик пишет в `audit_logs`. Статус `IMPLEMENTED` значит: раздел и API есть. "
-        "Работа каждой кнопки в интерфейсе проверяется на этапе 18, после этого статус станет `PASS` или `FAIL`.",
+        "журнал — изменяющий обработчик пишет в `audit_logs`. Статус `IMPLEMENTED` значит: раздел и API есть; "
+        "`PASS` (этап 18) — каждое изменяющее действие модуля проверено тестом и у его разделов есть скриншоты "
+        "([ADMIN_VERIFICATION](ADMIN_VERIFICATION.md)).",
         "",
         f"Модулей с разделом в панели: **{ready} из {len(rows)}**.",
         "",
@@ -99,7 +109,7 @@ def render() -> str:
         tabs = ", ".join(labels.get(t, t) for t in m["tabs"]) or "—"
         marks = ["—" if m["missing"] else ("✓" if m["operations"][op] else "·") for op in OPS]
         perms = ", ".join(f"`{p}`" for p in m["permissions"]) or "—"
-        status = f"{m['status']} ({m['missing']})" if m["missing"] else m["status"]
+        status = f"{m['status']} ({m['missing']})" if m["missing"] else ("PASS" if checks.get(m["number"]) == "PASS" else m["status"])
         lines.append(f"| {m['number']} | {m['module']} | {tabs} | {m['routes']} | " + " | ".join(marks) + f" | {perms} | {status} |")
     lines += ["", "«·» — у модуля нет маршрута для этой операции; это не обязательно недостаток. Например, у журнала действий нет удаления: записи неизменяемы."]
     rest = outside_modules()

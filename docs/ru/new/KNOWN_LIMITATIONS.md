@@ -13,3 +13,7 @@
 | Сборка Android и iOS | нет Android SDK и Xcode в среде; сборки идут в CI | BLOCKED_EXTERNAL | — (CI) |
 | Скачивание артефактов CI | хранилище артефактов GitHub закрыто политикой среды | BLOCKED_PERMISSIONS | — |
 | Удаление и создание git-ссылок (теги, удаление веток) | закрыто политикой среды | BLOCKED_PERMISSIONS | Выполняет владелец |
+| Push на Android | нет проекта Firebase (`google-services`-идентификаторы и сервисный аккаунт FCM) | BLOCKED_SECRETS | Проект Firebase владельца |
+| iOS на устройстве (VPN, push, TestFlight) | нет аккаунта Apple Developer | BLOCKED_EXTERNAL | Аккаунт и сертификаты |
+| «Корги Люси: клиент» на телефоне и ТВ | проверен на эмуляторе в CI | BLOCKED_EXTERNAL | Устройства |
+| Вход в панель Remnawave через магазин на настоящем сервере | проверен в CI с настоящим Caddy; нужен публичный `API_DOMAIN` магазина | BLOCKED_EXTERNAL | VPS и домен |
