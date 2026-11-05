@@ -23,15 +23,8 @@ def test_yookassa_webhook_binds_only_after_verified_order_metadata():
     assert block.index(verify) < block.index('await bind_provider_payment_id(db,p,pid)')
 
 
-def test_all_webhooks_ignore_late_success_for_refunded_payments():
-    for provider, marker, end in [
-        ('yookassa', '@app.post("/api/webhooks/yookassa")', '@app.post("/api/webhooks/platega")'),
-        ('platega', '@app.post("/api/webhooks/platega")', '@app.post("/api/webhooks/rollypay")'),
-        ('rollypay', '@app.post("/api/webhooks/rollypay")', '# ---------- Reliability, sessions, analytics, referrals ----------'),
-    ]:
-        block = _block(marker, end)
-        assert 'p.status in {"refunded", "refunded_pending_revoke"}' in block
-        assert 'payment_already_refunded' in block
+# test_all_webhooks_ignore_late_success_for_refunded_payments: replaced by the behaviour test
+# tests/test_behaviour_webhooks_refunded.py (C1, stage 19).
 
 
 @pytest.mark.asyncio

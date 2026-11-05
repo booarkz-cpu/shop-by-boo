@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 
 CATALOG_KEY = "mobile_apps"
 LOGO_KEY = "client_logo"
+# v28.86.0: the «Приложения» block of the cabinet — shown only to a signed-in customer, and only while this is on.
+CABINET_KEY = "cabinet_apps_block"
 APP_IDS = ("android-user", "ios-user", "android-admin", "ios-admin")
 
 DEFAULTS: dict[str, dict] = {
@@ -263,10 +265,11 @@ class AppCardIn(BaseModel):
 
 class AppsIn(BaseModel):
     apps: list[AppCardIn] = Field(max_length=8)
+    cabinet_visible: bool | None = None  # v28.86.0: the cabinet's «Приложения» block on/off (None — unchanged)
 
 
 async def _settings(db: AsyncSession) -> dict[str, str]:
-    rows = (await db.execute(select(AppSetting).where(AppSetting.key.in_({CATALOG_KEY, LOGO_KEY})))).scalars().all()
+    rows = (await db.execute(select(AppSetting).where(AppSetting.key.in_({CATALOG_KEY, LOGO_KEY, CABINET_KEY})))).scalars().all()
     return {row.key: row.value for row in rows}
 
 
@@ -274,7 +277,8 @@ async def catalog_payload(db: AsyncSession, *, public: bool) -> dict:
     values = await _settings(db)
     cards = parse_catalog(values.get(CATALOG_KEY))
     shown = public_cards(cards) if public else cards
-    body = {"logo_url": safe_media_path(values.get(LOGO_KEY, "")), "apps": [view_card(card, public=public) for card in shown]}
+    body = {"logo_url": safe_media_path(values.get(LOGO_KEY, "")), "apps": [view_card(card, public=public) for card in shown],
+            "cabinet_visible": values.get(CABINET_KEY, "1") != "0"}
     return body
 
 
@@ -312,6 +316,13 @@ async def save_apps(payload: AppsIn, db: AsyncSession = Depends(get_db), admin=D
         seen.append(card)
     if set(ids) != set(APP_IDS):
         raise HTTPException(400, "Нужны все четыре приложения")
+    if payload.cabinet_visible is not None:
+        flag = await db.get(AppSetting, CABINET_KEY)
+        value = "1" if payload.cabinet_visible else "0"
+        if flag:
+            flag.value = value
+        else:
+            db.add(AppSetting(key=CABINET_KEY, value=value))
     ordered = {card["id"]: card for card in seen}
     encoded = json.dumps([ordered[app_id] for app_id in APP_IDS], ensure_ascii=False)
     row = await db.get(AppSetting, CATALOG_KEY)
@@ -319,7 +330,7 @@ async def save_apps(payload: AppsIn, db: AsyncSession = Depends(get_db), admin=D
         row.value = encoded
     else:
         db.add(AppSetting(key=CATALOG_KEY, value=encoded))
-    await audit(db, "content.apps.updated", admin.email)
+    await audit(db, "content.apps.updated", admin.email, None, {"cabinet_visible": payload.cabinet_visible})
     await db.commit()
     return await catalog_payload(db, public=False)
 
