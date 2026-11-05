@@ -127,6 +127,42 @@ class ClientScreensTest {
         exists("Check for updates")
     }
 
+    @Test fun proxyModeSchemesBackupAndLogsPages() {
+        launch()
+        compose.onNodeWithText("Settings").performClick()
+        compose.onNodeWithText("Tunnel").performClick()
+        compose.onNodeWithText("Proxy only").performClick()
+        assertEquals("proxy", Store(context).settings.tunnelMode)
+        exists("Hotspot access"); exists(Store(context).settings.proxyUser)
+        compose.onNodeWithText("Hotspot access").performClick()
+        assertTrue(Store(context).settings.shareLan && Store(context).settings.proxyAuth)
+        compose.onNodeWithTag("back").performClick()
+        compose.onNodeWithText("URL schemes").performClick()
+        exists("corgi://toggle"); exists("corgi://routing/onadd/{base64}")
+        compose.onNodeWithTag("back").performClick()
+        compose.onNodeWithText("Backup").performClick()
+        exists("Export"); exists("Choose a file")
+        compose.onNodeWithTag("back").performClick()
+        compose.onNodeWithText("Tunnel logs").performClick()
+        compose.onNodeWithText("debug").performClick()
+        assertEquals("debug", Store(context).settings.logLevel)
+    }
+
+    @Test fun restoreLinkIsConfirmedFirst() {
+        val store = Store(context)
+        store.add(links)
+        val link = store.backup().link()
+        store.profiles.forEach { store.remove(it.id) }
+        scenario = ActivityScenario.launch(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(link))
+            .setClassName(context, "shop.corgi.client.ui.MainActivity"))
+        compose.waitForIdle()
+        exists("Restore?"); exists("Links (2) — 2")
+        assertEquals(0, Store(context).profiles.size)   // nothing changes before the confirmation
+        compose.onNodeWithTag("restore-confirm").performClick()
+        compose.waitForIdle()
+        assertEquals(1, Store(context).profiles.size)
+    }
+
     @Test fun resetBringsDefaultsBackAndKeepsProfiles() {
         val store = Store(context)
         store.add(links)
