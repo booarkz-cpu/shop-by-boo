@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2239**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2273**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -57,6 +57,7 @@
 | [.github/release-v21.4.0.md](../.github/release-v21.4.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.0.md](../.github/release-v21.5.0.md) | GitHub CI/CD |
 | [.github/release-v21.5.1.md](../.github/release-v21.5.1.md) | GitHub CI/CD |
+| [.github/workflows/android-client.yml](../.github/workflows/android-client.yml) | GitHub CI/CD |
 | [.github/workflows/android-vpn-e2e.yml](../.github/workflows/android-vpn-e2e.yml) | GitHub CI/CD |
 | [.github/workflows/build-mobile.yml](../.github/workflows/build-mobile.yml) | GitHub CI/CD |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
@@ -1285,6 +1286,7 @@
 | [docs/ru/new/ADMIN_PANEL_GUIDE.md](../docs/ru/new/ADMIN_PANEL_GUIDE.md) | Документация |
 | [docs/ru/new/ADMIN_VERIFICATION.md](../docs/ru/new/ADMIN_VERIFICATION.md) | Документация |
 | [docs/ru/new/ANDROID_ARCHITECTURE.md](../docs/ru/new/ANDROID_ARCHITECTURE.md) | Документация |
+| [docs/ru/new/ANDROID_CLIENT_APP.md](../docs/ru/new/ANDROID_CLIENT_APP.md) | Документация |
 | [docs/ru/new/API.md](../docs/ru/new/API.md) | Документация |
 | [docs/ru/new/AUTOMATION_CENTER.md](../docs/ru/new/AUTOMATION_CENTER.md) | Документация |
 | [docs/ru/new/AUTO_UPDATE.md](../docs/ru/new/AUTO_UPDATE.md) | Документация |
@@ -1467,6 +1469,37 @@
 | [mobile/android-admin/gradlew](../mobile/android-admin/gradlew) | Мобильные приложения |
 | [mobile/android-admin/gradlew.bat](../mobile/android-admin/gradlew.bat) | Мобильные приложения |
 | [mobile/android-admin/settings.gradle.kts](../mobile/android-admin/settings.gradle.kts) | Мобильные приложения |
+| [mobile/android-client/app/build.gradle.kts](../mobile/android-client/app/build.gradle.kts) | Мобильные приложения |
+| [mobile/android-client/app/src/main/AndroidManifest.xml](../mobile/android-client/app/src/main/AndroidManifest.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/Profiles.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/Settings.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Settings.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/data/Store.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/data/Store.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/engine/Xray.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/engine/Xray.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/ui/ClientApp.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/ClientApp.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/ui/MainActivity.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/MainActivity.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-client/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/values-en/strings.xml](../mobile/android-client/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/values-uk/strings.xml](../mobile/android-client/app/src/main/res/values-uk/strings.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/values/strings.xml](../mobile/android-client/app/src/main/res/values/strings.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/xml/network_security.xml](../mobile/android-client/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt) | Мобильные приложения |
+| [mobile/android-client/build.gradle.kts](../mobile/android-client/build.gradle.kts) | Мобильные приложения |
+| [mobile/android-client/gradle.properties](../mobile/android-client/gradle.properties) | Мобильные приложения |
+| [mobile/android-client/gradle/wrapper/gradle-wrapper.jar](../mobile/android-client/gradle/wrapper/gradle-wrapper.jar) | Мобильные приложения |
+| [mobile/android-client/gradle/wrapper/gradle-wrapper.properties](../mobile/android-client/gradle/wrapper/gradle-wrapper.properties) | Мобильные приложения |
+| [mobile/android-client/gradlew](../mobile/android-client/gradlew) | Мобильные приложения |
+| [mobile/android-client/gradlew.bat](../mobile/android-client/gradlew.bat) | Мобильные приложения |
+| [mobile/android-client/settings.gradle.kts](../mobile/android-client/settings.gradle.kts) | Мобильные приложения |
 | [mobile/android-signing-cert.sha256](../mobile/android-signing-cert.sha256) | Мобильные приложения |
 | [mobile/android-user/.gitignore](../mobile/android-user/.gitignore) | Мобильные приложения |
 | [mobile/android-user/app/build.gradle.kts](../mobile/android-user/app/build.gradle.kts) | Мобильные приложения |
@@ -1840,6 +1873,7 @@
 | [scripts/ios/build-tunnel-frameworks.sh](../scripts/ios/build-tunnel-frameworks.sh) | Эксплуатация и релиз |
 | [scripts/ios/enable-extensions.py](../scripts/ios/enable-extensions.py) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
+| [scripts/mobile/client-vpn-e2e.sh](../scripts/mobile/client-vpn-e2e.sh) | Эксплуатация и релиз |
 | [scripts/mobile/emulator-quiet.sh](../scripts/mobile/emulator-quiet.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
 | [scripts/mobile/maestro-screens.sh](../scripts/mobile/maestro-screens.sh) | Эксплуатация и релиз |
