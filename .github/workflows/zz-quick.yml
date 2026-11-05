@@ -1,0 +1,46 @@
+name: zz e2e (scratch)
+'on':
+  push:
+    branches:
+    - scratch/**
+permissions:
+  contents: read
+jobs:
+  quick:
+    name: Content, customer operations and passkeys • Chromium end-to-end
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.14'
+        cache: pip
+        cache-dependency-path: 'backend/requirements.txt
+
+          backend/requirements-test.txt
+
+          '
+    - uses: actions/setup-node@v7
+      with:
+        node-version: '26'
+        cache: npm
+        cache-dependency-path: 'admin/package-lock.json
+
+          cabinet/package-lock.json
+
+          '
+    - name: Install runtime and browser
+      run: 'python -m pip install -r backend/requirements.txt -r backend/requirements-test.txt
+
+        cd admin
+
+        npm ci
+
+        npm ci --prefix ../cabinet
+
+        npx playwright install --with-deps chromium
+
+        '
+    - name: Build and exercise public content, customer operations and WebAuthn
+      working-directory: admin
+      run: "npm run typecheck\nnpm run build\nNEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet\nstatus=0\nnpx playwright test e2e/cabinet-apps.spec.ts --reporter=line > \"$RUNNER_TEMP/e2e.log\" 2>&1 || status=$?\ntail -n 200 \"$RUNNER_TEMP/e2e.log\"\nif [ \"$status\" -ne 0 ]; then\n  # The failing specs and their first error lines, readable from the check annotations.\n  grep -E '^\\s+[0-9]+\\) |Error:|Expected|Received|Timeout|locator' \"$RUNNER_TEMP/e2e.log\" | head -n 40 > \"$RUNNER_TEMP/e2e-summary.txt\" || true\n  echo \"::error title=e2e failure summary::$(sed ':a;N;$!ba;s/\\n/%0A/g' \"$RUNNER_TEMP/e2e-summary.txt\")\"\n  exit \"$status\"\nfi\n"
