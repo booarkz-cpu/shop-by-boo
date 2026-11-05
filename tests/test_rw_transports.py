@@ -89,11 +89,16 @@ class Panel:
             return self.profile()
         if path == "/api/config-profiles" and method == "PATCH":
             self.config = body["config"]
+            # Like Remnawave 3.4: hosts of an inbound that left the profile lose their binding.
+            alive = {f"in-{i['tag']}" for i in self.config["inbounds"]}
+            for h in self.hosts:
+                if h["inbound"]["configProfileInboundUuid"] not in alive:
+                    h["inbound"] = {"configProfileUuid": None, "configProfileInboundUuid": None}
             return self.profile()
         if path == "/api/hosts" and method == "GET":
             return self.hosts
         if path == "/api/hosts" and method == "POST":
-            self.hosts.append({"uuid": f"h-{body['inbound']['configProfileInboundUuid']}", **body})
+            self.hosts.append({"uuid": f"h-{body['inbound']['configProfileInboundUuid']}", **copy.deepcopy(body)})
             return self.hosts[-1]
         if path.startswith("/api/hosts/") and method == "DELETE":
             self.hosts = [h for h in self.hosts if h["uuid"] != path.rsplit("/", 1)[1]]

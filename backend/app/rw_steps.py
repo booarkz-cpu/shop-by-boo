@@ -988,23 +988,32 @@ async def _apply_transports(ctx: Context, chosen: list[str]) -> None:
     before = {i.get("tag") for i in config.get("inbounds") or []}
     ctx.state["profile_inbounds"] = sorted(set(ctx.state.get("profile_inbounds") or [])
                                            | {i.get("uuid") for i in profile.get("inbounds") or [] if i.get("uuid")})
+    wanted = {rw_plan.TRANSPORTS[n][0]: n for n in chosen}
+    # Hosts of the transports being removed go first, while their inbounds still exist: once an inbound leaves the
+    # profile the panel unbinds its hosts and they could not be told apart any more (seen on Remnawave 3.4).
+    old_by_tag = {i.get("tag"): i.get("uuid") for i in profile.get("inbounds") or []}
+    gone = {old_by_tag[t] for t in tags if t not in wanted and old_by_tag.get(t)}
+    created = ctx.state.setdefault("transport_hosts", {})
+    hosts = await _hosts(ctx)
+    for host in hosts:
+        bound = (host.get("inbound") or {}).get("configProfileInboundUuid")
+        if host.get("uuid") and (bound in gone or host.get("uuid") in {created.get(t) for t in tags if t not in wanted}):
+            await panel_api(ctx, "DELETE", f"/api/hosts/{host['uuid']}")
+    for tag in list(created):
+        if tag not in wanted:
+            created.pop(tag)
     config["inbounds"] = inbounds + transport_inbounds(base, plan.selfsteal_domain, chosen)
     await panel_api(ctx, "PATCH", "/api/config-profiles", {"uuid": uuid, "config": config})
     profile = await panel_api(ctx, "GET", f"/api/config-profiles/{uuid}")
     by_tag = {i.get("tag"): i.get("uuid") for i in profile.get("inbounds") or []}
-    wanted = {rw_plan.TRANSPORTS[n][0]: n for n in chosen}
-    # Hosts: one per transport inbound of this profile.
-    hosts = await panel_api(ctx, "GET", "/api/hosts")
-    hosts = hosts if isinstance(hosts, list) else hosts.get("hosts", [])
-    mine = {(h.get("inbound") or {}).get("configProfileInboundUuid"): h for h in hosts
-            if (h.get("inbound") or {}).get("configProfileUuid") == uuid}
+    # Hosts: one per chosen transport inbound of this profile.
+    bound = {(h.get("inbound") or {}).get("configProfileInboundUuid") for h in await _hosts(ctx)}
     for tag, name in wanted.items():
         inbound = by_tag.get(tag)
-        if inbound and inbound not in mine:
-            await panel_api(ctx, "POST", "/api/hosts", transport_host(name, plan.selfsteal_domain, uuid, inbound, f"{plan.selfsteal_domain} {name}"))
-    for inbound, host in mine.items():
-        if host.get("uuid") and inbound not in by_tag.values():
-            await panel_api(ctx, "DELETE", f"/api/hosts/{host['uuid']}")
+        if inbound and inbound not in bound:
+            host = await panel_api(ctx, "POST", "/api/hosts", transport_host(name, plan.selfsteal_domain, uuid, inbound, f"{plan.selfsteal_domain} {name}"))
+            if isinstance(host, dict) and host.get("uuid"):
+                created[tag] = host["uuid"]
     # Squads: wherever the REALITY inbound is, the transports are too (and nowhere once removed).
     main = by_tag.get(base.get("tag"))
     squads = await panel_api(ctx, "GET", "/api/internal-squads")
@@ -1030,6 +1039,11 @@ async def _apply_transports(ctx: Context, chosen: list[str]) -> None:
         await panel_api(ctx, "POST", f"/api/nodes/{node}/actions/restart", {"forceRestart": False})
     ctx.state["transports"] = list(chosen)
     _note(ctx, f"Профиль {uuid}: inbound'ы {sorted(by_tag)} (было {sorted(before)}); сквадов обновлено: {touched}")
+
+
+async def _hosts(ctx: Context) -> list[dict]:
+    hosts = await panel_api(ctx, "GET", "/api/hosts")
+    return hosts if isinstance(hosts, list) else hosts.get("hosts", [])
 
 
 def _profile_inbound_history(ctx: Context) -> set:
