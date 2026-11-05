@@ -4,7 +4,7 @@
 
 **PASS** — все изменяющие маршруты покрыты тестами, у всех разделов есть скриншот. **PARTIAL** — ниже перечислено, что не покрыто.
 
-Изменяющих маршрутов: **234 из 314** покрыты тестами; модулей PASS: **9 из 30**.
+Изменяющих маршрутов: **247 из 314** покрыты тестами; модулей PASS: **12 из 30**.
 
 | № | Модуль | Маршрутов | Изменяющих | Покрыто тестами | Статус |
 | --- | --- | --- | --- | --- | --- |
@@ -12,12 +12,12 @@
 | 2 | Users | 37 | 18 | 12 | PARTIAL |
 | 3 | Subscriptions | 12 | 7 | 7 | PASS |
 | 4 | Tariffs | 18 | 12 | 12 | PASS |
-| 5 | Devices | 6 | 4 | 3 | PARTIAL |
-| 6 | Payments | 35 | 19 | 12 | PARTIAL |
-| 7 | Finance | 12 | 7 | 4 | PARTIAL |
+| 5 | Devices | 6 | 4 | 4 | PASS |
+| 6 | Payments | 35 | 19 | 19 | PASS |
+| 7 | Finance | 12 | 7 | 7 | PASS |
 | 8 | Promo Codes | 14 | 11 | 11 | PASS |
 | 9 | Gifts | 6 | 3 | 3 | PASS |
-| 10 | Referrals | 13 | 8 | 5 | PARTIAL |
+| 10 | Referrals | 13 | 8 | 7 | PARTIAL |
 | 11 | Remnawave | 32 | 15 | 3 | PARTIAL |
 | 12 | Installation | 58 | 40 | 37 | PARTIAL |
 | 13 | Servers | 9 | 6 | 6 | PASS |
@@ -55,27 +55,8 @@
 - `POST /api/admin/customer-operations/import/inspect`
 - `POST /api/admin/remnawave/users/{user_id}/extend`
 
-**5. Devices**
-- `DELETE /api/admin/wg-pool/free`
-
-**6. Payments**
-- `POST /api/admin/gateways/probe`
-- `POST /api/admin/gateways/auto-priority`
-- `POST /api/admin/payments/{payment_id}/risk/recheck`
-- `PATCH /api/admin/payments/chargebacks/{chargeback_id}`
-- `POST /api/admin/payment/gift-cards`
-- `PUT /api/admin/payments/pricing/experiments/{key}`
-- `POST /api/admin/refunds/{refund_id}/approve`
-
-**7. Finance**
-- `DELETE /api/admin/pnl/costs/{cost_id}`
-- `POST /api/admin/fiscal/test`
-- `POST /api/admin/fiscal/receipts/{receipt_id}/retry`
-
 **10. Referrals**
-- `DELETE /api/admin/referral-contests/{contest_id}`
 - `PUT /api/admin/referrals/program`
-- `POST /api/admin/referrals/withdrawals/{withdrawal_id}/paid`
 
 **11. Remnawave**
 - `POST /api/admin/remnawave/shop/test`
