@@ -23,6 +23,11 @@ class AdIn(BaseModel):
 class BroadcastIn(BaseModel):
     text:str=Field(min_length=1,max_length=4000); image_url:str|None=None; button_text:str|None=Field(default=None,max_length=100); button_url:str|None=None; target:str="all"
 
+def _check_discount(payload) -> None:
+    if payload.kind not in {"percent","fixed"}: raise shop.HTTPException(400,"kind must be percent or fixed")
+    if payload.kind=="percent" and payload.value>100: raise shop.HTTPException(400,"Percent discount cannot exceed 100")
+
+
 @shop.app.get("/api/admin/marketing")
 async def admin_marketing(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):
     ps=(await db.execute(shop.select(shop.Promotion).order_by(shop.Promotion.id.desc()))).scalars().all(); cs=(await db.execute(shop.select(shop.PromoCode).order_by(shop.PromoCode.id.desc()))).scalars().all(); ads=(await db.execute(shop.select(shop.Advertisement).order_by(shop.Advertisement.sort_order,shop.Advertisement.id))).scalars().all(); bs=(await db.execute(shop.select(shop.Broadcast).order_by(shop.Broadcast.id.desc()).limit(100))).scalars().all()
@@ -38,6 +43,7 @@ async def create_promotion(payload:PromotionIn,db:AsyncSession=Depends(get_db),a
 async def update_promotion(item_id:int,payload:PromotionIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_marketing"))):
     x=await db.get(shop.Promotion,item_id)
     if not x: raise shop.HTTPException(404,"Promotion not found")
+    _check_discount(payload)  # v28.77.0: an edit is checked like a new promotion (a 150 % discount was accepted)
     for k,v in payload.model_dump().items(): setattr(x,k,v)
     await db.commit(); return {"ok":True}
 @shop.app.delete("/api/admin/promotions/{item_id}")
@@ -58,6 +64,7 @@ async def create_promo_code(payload:PromoCodeIn,db:AsyncSession=Depends(get_db),
 async def update_promo_code(item_id:int,payload:PromoCodeIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_marketing"))):
     x=await db.get(shop.PromoCode,item_id);
     if not x: raise shop.HTTPException(404,"Promo code not found")
+    _check_discount(payload)  # v28.77.0: an edit is checked like a new code
     data=payload.model_dump(); data["code"]=data["code"].strip().upper()
     for k,v in data.items(): setattr(x,k,v)
     await db.commit(); return {"ok":True}
