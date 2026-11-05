@@ -14,8 +14,13 @@ android {
         versionCode = 3400
         versionName = "3.4.0"
         // Historical compatibility marker: versionName = "2.9.0"
+        // v28.77.0: the shop's API address baked into the build (-Pcorgi.shop_url or CORGI_SHOP_URL, see
+        // mobile/shop-url.txt): a new profile starts with it, so the administrator does not type it.
+        val shopUrl = ((project.findProperty("corgi.shop_url") as String?) ?: System.getenv("CORGI_SHOP_URL") ?: "").trim().trimEnd('/')
+        require(shopUrl.isEmpty() || shopUrl.startsWith("https://")) { "corgi.shop_url must start with https://" }
+        buildConfigField("String", "SHOP_URL", "\"$shopUrl\"")
     }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

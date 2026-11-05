@@ -22,6 +22,11 @@ fi
 OUT="${1:-$ROOT}"
 mkdir -p "$OUT"
 MODE="${ANDROID_BUILD_MODE:-auto}"
+# v28.77.0: the shop's API address baked into both apps (CORGI_SHOP_URL wins over mobile/shop-url.txt).
+CORGI_SHOP_URL="${CORGI_SHOP_URL:-$(grep -v '^#' "$ROOT/mobile/shop-url.txt" 2>/dev/null | tr -d '[:space:]' | head -c 200 || true)}"
+export CORGI_SHOP_URL
+[[ -z "$CORGI_SHOP_URL" || "$CORGI_SHOP_URL" =~ ^https://[A-Za-z0-9.-]+(:[0-9]+)?/?$ ]] || { echo "CORGI_SHOP_URL must be https://host" >&2; exit 1; }
+echo "Shop address baked into the apps: ${CORGI_SHOP_URL:-(none — the apps keep the address field)}"
 TASK=":app:assembleDebug"
 KIND=debug
 SUFFIX=preview
@@ -36,6 +41,28 @@ case "$MODE" in
   verify-release) TASK=":app:assembleRelease"; KIND=release; SUFFIX=unsigned ;;
   *) echo "Unknown ANDROID_BUILD_MODE" >&2; exit 1 ;;
 esac
+# Release packages must be signed with the owner's key: its certificate SHA-256 is kept in the repository
+# (mobile/android-signing-cert.sha256, a public value) or given as ANDROID_SIGNING_CERT_SHA256.
+EXPECTED_CERT="${ANDROID_SIGNING_CERT_SHA256:-$(grep -v '^#' "$ROOT/mobile/android-signing-cert.sha256" 2>/dev/null | tr -d ' :\n' || true)}"
+EXPECTED_CERT="$(printf '%s' "$EXPECTED_CERT" | tr -d ' :' | tr 'A-F' 'a-f')"
+verify_signature() {
+  local file="$1" kind="$2" got
+  [[ -n "$EXPECTED_CERT" ]] || { echo "No expected signing certificate: skipping the check of $file" >&2; return 0; }
+  if [[ "$kind" == apk ]]; then
+    local signer
+    signer="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
+    got="$("$signer" verify --print-certs "$file" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+  else
+    # An Android App Bundle carries a JAR signature.
+    jarsigner -verify "$file" >/dev/null
+    got="$(keytool -printcert -jarfile "$file" | sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':' | tr 'A-F' 'a-f')"
+  fi
+  if [[ "$got" != "$EXPECTED_CERT" ]]; then
+    echo "Signing certificate of $(basename "$file") is ${got:-missing}, expected $EXPECTED_CERT" >&2
+    exit 1
+  fi
+  echo "Signed with the expected key: $(basename "$file")"
+}
 for app in android-user android-admin; do
   dir="$ROOT/mobile/$app"
   if [[ "$GRADLE" == "$ROOT/mobile/android-user/gradlew" ]]; then
@@ -63,5 +90,14 @@ for app in android-user android-admin; do
     cp "$dir/app/build/outputs/bundle/release/app-release.aab" "$OUT/$aab"
     (cd "$OUT" && sha256sum "$aab" > "$aab.sha256")
     echo "AAB: $OUT/$aab"
+  fi
+  if [[ "$SUFFIX" == release ]]; then
+    verify_signature "$OUT/$name" apk
+    verify_signature "$OUT/$aab" aab
+    # A permanent name for releases/latest/download/<name> links (README, cabinet, bot).
+    stable="corgi-lusi-android.apk"; [[ "$app" == android-admin ]] && stable="corgi-lusi-android-admin.apk"
+    cp "$OUT/$name" "$OUT/$stable"
+    (cd "$OUT" && sha256sum "$stable" > "$stable.sha256")
+    echo "APK (permanent name): $OUT/$stable"
   fi
 done

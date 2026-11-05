@@ -85,24 +85,25 @@ DEFAULTS: dict[str, dict] = {
     },
 }
 
-# Reference builds published with earlier releases. The shop cabinet serves the
-# file an administrator uploaded; these links are the project packages.
+# The project's signed Android builds: permanent names in every release (scripts/build-android-apk.sh), so these
+# links always lead to the latest release. The shop cabinet serves the file an administrator uploaded instead.
+RELEASES_LATEST = "https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/"
 OFFICIAL_APPS = (
     {
         "id": "android-user",
         "audience": "user",
         "platform": "android",
-        "version": "2.10.0",
-        "url": "https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk",
-        "checksum_url": "https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk.sha256",
+        "version": "latest",
+        "url": RELEASES_LATEST + "corgi-lusi-android.apk",
+        "checksum_url": RELEASES_LATEST + "corgi-lusi-android.apk.sha256",
     },
     {
         "id": "android-admin",
         "audience": "admin",
         "platform": "android",
-        "version": "2.12.0",
-        "url": "https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk",
-        "checksum_url": "https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk.sha256",
+        "version": "latest",
+        "url": RELEASES_LATEST + "corgi-lusi-android-admin.apk",
+        "checksum_url": RELEASES_LATEST + "corgi-lusi-android-admin.apk.sha256",
     },
 )
 
@@ -470,13 +471,13 @@ async def public_install_guide(db: AsyncSession = Depends(get_db)):
         "steps_ru": [
             "Покупатель Android: в личном кабинете откройте блок «Приложения» и нажмите «Скачать», либо откройте GET /api/public/apps/android-user/download, если администратор загрузил APK.",
             "Покупатель iOS: та же карточка ведёт на GET /api/public/apps/ios-user/download, если администратор загрузил IPA. Готового IPA в релизах GitHub нет.",
-            "Сборка проекта для Android покупателя 2.10.0 и администратора 2.12.0 лежит на GitHub. Рядом с APK есть файл .sha256. Проверка: sha256sum -c имя.apk.sha256 в каталоге, где лежат оба файла.",
+            "Подписанные сборки проекта для Android (покупатель и администратор) всегда лежат в последнем выпуске на GitHub: ссылки в поле official. Рядом с APK есть файл .sha256. Проверка: sha256sum -c имя.apk.sha256 в каталоге, где лежат оба файла.",
             "На Android разрешите установку из выбранного источника и откройте APK. На iOS пакет подписывают в Xcode на macOS из mobile/ios-user или mobile/ios-admin.",
         ],
         "steps_en": [
             "Android buyer: in the user cabinet open Apps and press Download, or open GET /api/public/apps/android-user/download when an administrator has uploaded an APK.",
             "iOS buyer: the same card leads to GET /api/public/apps/ios-user/download when an administrator has uploaded an IPA. GitHub releases do not include an IPA.",
-            "The project Android builds stay at buyer 2.10.0 and administrator 2.12.0 on GitHub. A .sha256 file sits next to each APK. Check it with sha256sum -c name.apk.sha256 in the directory that holds both files.",
+            "The signed Android builds of the project (buyer and administrator) are always in the latest GitHub release: see the official links. A .sha256 file sits next to each APK. Check it with sha256sum -c name.apk.sha256 in the directory that holds both files.",
             "On Android, allow installation from the source you chose and open the APK. On iOS, sign the package in Xcode on macOS from mobile/ios-user or mobile/ios-admin.",
         ],
     }

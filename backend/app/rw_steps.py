@@ -6,6 +6,7 @@ that change a server have a rollback that the runner calls in reverse order afte
 from __future__ import annotations
 
 import asyncio
+import re
 import ipaddress
 import os
 import json
@@ -20,10 +21,11 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile", "node_module", "fetch_panel_backup")
+              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
 COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
+fetch_bytes = None  # tests: async (url) -> bytes
 SUPPORTED_OS = {("debian", "12"), ("debian", "13"), ("ubuntu", "22.04"), ("ubuntu", "24.04"), ("ubuntu", "26.04")}
 
 
@@ -247,6 +249,8 @@ umask 077
 if [ -f "$dir/$name" ]; then cp -p "$dir/$name" "$dir/$name.rw-prev"; else rm -f "$dir/$name.rw-prev"; fi
 cat > "$dir/$name.rw-new"
 echo "$sum  $dir/$name.rw-new" | sha256sum -c --status
+# A page served by a container that does not run as root must be readable; secrets (.env) stay 0600.
+[ "$name" = index.html ] && chmod 0644 "$dir/$name.rw-new"
 mv "$dir/$name.rw-new" "$dir/$name"
 """
 
@@ -276,7 +280,10 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
     if component == "subscription_page":
         url, token = await _panel_url_and_token(ctx)
         local = server_id == plan.panel_server_id
-        return {"docker-compose.yml": rw_plan.subpage_compose(), ".env": rw_plan.subpage_env(url, token, ctx.secrets, local)}
+        files = {"docker-compose.yml": rw_plan.subpage_compose(plan.subpage_template), ".env": rw_plan.subpage_env(url, token, ctx.secrets, local)}
+        if plan.subpage_template == "orion":
+            files["index.html"] = await orion_page()
+        return files
     if component == "proxy":
         sites = {}
         if server_id == plan.panel_server_id:
@@ -305,6 +312,23 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
                 "index.html": rw_plan.selfsteal_page(plan.selfsteal_template, plan.selfsteal_domain),
                 "docker-compose.yml": rw_plan.selfsteal_compose()}
     raise StepError(f"Неизвестный компонент {component}")
+
+
+async def orion_page() -> str:
+    """The pinned Orion page; a file whose SHA-256 differs is never written."""
+    import hashlib
+    if fetch_bytes:
+        data = await fetch_bytes(rw_plan.ORION["url"])
+    else:
+        import httpx
+        async with httpx.AsyncClient(timeout=30, follow_redirects=True) as client:
+            r = await client.get(rw_plan.ORION["url"])
+        if r.status_code != 200:
+            raise StepError(f"Шаблон Orion не скачан: HTTP {r.status_code}")
+        data = r.content
+    if hashlib.sha256(data).hexdigest() != rw_plan.ORION["sha256"]:
+        raise StepError("Шаблон Orion не совпал с закреплённой SHA-256: файл не записан")
+    return data.decode()
 
 
 async def run_write_files(ctx: Context, st: dict) -> None:
@@ -339,6 +363,10 @@ case "$action" in
       docker compose pull -q && docker compose up -d --remove-orphans && docker compose ps --format '{{.Name}} {{.State}}' ;;
   down) docker compose down --remove-orphans ;;
   ps) docker compose ps --format '{{.Name}} {{.State}}' ;;
+  start) docker compose start && docker compose ps --format '{{.Name}} {{.State}}' ;;
+  stop) docker compose stop && docker compose ps -a --format '{{.Name}} {{.State}}' ;;
+  restart) docker compose restart && docker compose ps --format '{{.Name}} {{.State}}' ;;
+  logs) docker compose logs --no-color --timestamps --tail "${3:-200}" 2>&1 ;;
   *) exit 2 ;;
 esac
 """
@@ -361,6 +389,27 @@ async def run_compose_down(ctx: Context, st: dict) -> None:
     _note(ctx, result.out + result.err)
     if result.code != 0:
         raise StepError("Контейнеры не остановлены")
+
+
+# "remnawave | JWT_AUTH_SECRET=…", "password: …": whatever follows a secret-looking name on a log line.
+_ENV_SECRET = re.compile(r"(?i)\b([A-Z0-9_]*(?:PASSWORD|SECRET|TOKEN|API_?KEY|PRIVATE_?KEY)[A-Z0-9_]*\s*[=:]\s*)\S+")
+
+
+async def run_compose_ctl(ctx: Context, st: dict) -> None:
+    """start / stop / restart / logs of one component's containers; files and volumes never change. Logs go to the
+    step's journal with the installation's secrets and anything that looks like KEY=value of a secret replaced."""
+    op = st["params"]["op"]
+    if op not in rw_plan.SERVICE_ACTIONS:
+        raise StepError("Неизвестная команда")
+    args = (str(rw_plan.LOG_LINES),) if op == "logs" else ()
+    result = await _run(ctx, st["server_id"], COMPOSE, rw_plan.DIRS[st["params"]["component"]], op, *args, timeout=300)
+    text = result.out + result.err
+    if op == "logs":
+        text = _ENV_SECRET.sub(lambda m: m.group(1) + "***", text)
+    _note(ctx, text)
+    if result.code != 0:
+        raise StepError({"start": "Контейнеры не запустились", "stop": "Контейнеры не остановлены",
+                         "restart": "Контейнеры не перезапустились", "logs": "Журнал не прочитан"}[op] + " (журнал шага)")
 
 
 # ---------- panel ----------
@@ -1023,7 +1072,7 @@ RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
        "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "compose_down": run_compose_down,
-       "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module}
+       "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module, "compose_ctl": run_compose_ctl}
 UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
         "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile, "node_module": undo_node_module}
 assert set(RUN) == set(STEP_KINDS)

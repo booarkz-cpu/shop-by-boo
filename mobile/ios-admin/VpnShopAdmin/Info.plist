@@ -13,6 +13,9 @@
         <key>NSAllowsLocalNetworking</key>
         <true/>
     </dict>
+    <!-- v28.77.0: shop address baked into the build (CORGI_SHOP_URL build setting); a new profile starts with it. -->
+    <key>CorgiShopURL</key>
+    <string>$(CORGI_SHOP_URL)</string>
     <key>CFBundleURLTypes</key>
     <array><dict><key>CFBundleURLSchemes</key><array><string>corgi</string></array></dict></array>
     <key>NSUserActivityTypes</key><array><string>shop.corgi.connect</string><string>shop.corgi.support</string></array>

@@ -316,3 +316,22 @@ async def test_extensions_plugins_srr_pages_and_templates(panel):
     balanced = await ext.patch_template(template["uuid"], ext.TemplatePatch(template_json={**body, **ext.BALANCER_TEMPLATE}), db, admin)
     assert balanced["templateJson"]["routing"]["balancers"][0]["strategy"]["type"] == "leastPing"
     assert (await ext.delete_template(template["uuid"], db, admin))["deleted"]
+
+
+@pytest.mark.asyncio
+async def test_renewal_block_and_reactivation_on_the_real_panel(panel):
+    """v28.77.0 (stage 18, main scenario): the calls a paid renewal, a refund and a repeat purchase make —
+    extend by days (verified like the shop does), disable, enable — against the real panel."""
+    expire = (datetime.utcnow() + timedelta(days=5)).replace(microsecond=0)
+    user = await panel.create_user(f"ci_life_{int(datetime.utcnow().timestamp())}", expire)
+    uid = user["id"]  # the shop keeps the panel «id» as remnawave_uuid
+    before = await panel.get_expiry(uid)
+    assert before and abs((before - expire).total_seconds()) < 120
+    out = await panel.extend_idempotent(uid, 30, before, before + timedelta(days=30))
+    assert out["already_applied"] is False and out["expires_at"] >= before + timedelta(days=30)
+    again = await panel.extend_idempotent(uid, 30, before, before + timedelta(days=30))
+    assert again["already_applied"] is True, "a retried renewal never adds the days twice"
+    await panel.disable_user(uid)  # refund
+    assert str((await panel.get_user(uid))["status"]).upper() == "DISABLED"
+    await panel.enable_user(uid)  # a later purchase re-enables
+    assert str((await panel.get_user(uid))["status"]).upper() == "ACTIVE"

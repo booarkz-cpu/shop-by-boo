@@ -90,6 +90,7 @@ jobs:
         run: bash scripts/mobile/build-xray-aar.sh
       - name: Build APK and AAB
         env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -128,9 +129,12 @@ jobs:
         with:
           ref: ${{ needs.release.outputs.ref }}
       - name: Unsigned IPA and simulator build
+        env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
         run: bash scripts/build-ios-packages.sh "$PWD/dist/mobile"
       - name: Signed IPA when the Apple identity is configured
         env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           IOS_USER_PROFILE_BASE64: ${{ secrets.IOS_USER_PROFILE_BASE64 }}

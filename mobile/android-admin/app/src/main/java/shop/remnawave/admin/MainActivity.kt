@@ -259,7 +259,8 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     var activeId by remember { mutableStateOf(profileStore.activeId()) }
     val tokenStore = remember(activeId) { profileStore.tokens(activeId) }
     var lang by remember { mutableStateOf(prefs.getString("lang", "ru") ?: "ru") }
-    var base by remember { mutableStateOf(profileStore.find(activeId)?.base ?: "") }
+    // v28.77.0: the address baked into the build (BuildConfig.SHOP_URL) fills a new profile.
+    var base by remember { mutableStateOf(profileStore.find(activeId)?.base ?: BuildConfig.SHOP_URL) }
     var token by remember { mutableStateOf(if (demo) "demo" else tokenStore.read()) }
     var profileLabel by remember { mutableStateOf(profileStore.find(activeId)?.label ?: "") }
     var showProfiles by remember { mutableStateOf(false) }
@@ -327,7 +328,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
         if (profiles.size >= ProfileStore.MAX_PROFILES) { notice = t("profile_limit"); return }
         clearLoaded()
         activeId = profileStore.newId()
-        base = ""; email = ""; password = ""; otp = ""; profileLabel = ""; token = ""
+        base = BuildConfig.SHOP_URL; email = ""; password = ""; otp = ""; profileLabel = ""; token = ""
         showProfiles = false
         notice = ""
     }

@@ -42,7 +42,7 @@ def test_every_configuration_field_has_one_explicit_runtime_classification():
     assert hot.isdisjoint(workflows)
     assert deployment.isdisjoint(workflows)
     assert hot | deployment | workflows == set(Settings.model_fields)
-    assert len(hot) == 139  # v28.71.0: the Telegram bot token without restart (the bot reconnects itself)
+    assert len(hot) == 141  # v28.77.0: Bunny DNS and Gcore DNS keys of the Domain Manager
 
 
 def test_integer_limits_are_checked_without_float_rounding():

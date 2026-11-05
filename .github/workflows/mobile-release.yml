@@ -42,6 +42,7 @@ jobs:
         run: bash scripts/mobile/build-xray-aar.sh
       - name: Build and verify release variant
         env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
           KEYSTORE_BASE64: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
           ANDROID_KEYSTORE_PASSWORD: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_PASSWORD || '' }}
           ANDROID_KEY_ALIAS: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEY_ALIAS || '' }}
@@ -62,7 +63,7 @@ jobs:
             state=blocked_missing_signing_key
           fi
           bash scripts/build-android-apk.sh "$PWD/dist/mobile"
-          for apk in dist/mobile/*.apk; do
+          for apk in dist/mobile/corgi_lusi_*.apk; do
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$apk.package.txt"
             grep -q "versionCode='3400'" "$apk.package.txt"
             grep -q "versionName='3.4.0'" "$apk.package.txt"
@@ -104,9 +105,12 @@ jobs:
         run: |
           if [[ "$HAS_TUNNEL_PROFILE" == true ]]; then bash scripts/ios/build-tunnel-frameworks.sh; else echo "No tunnel profile: the app keeps handing the subscription to a VPN client"; fi
       - name: Verify device and simulator builds
+        env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
         run: bash scripts/build-ios-packages.sh "$PWD/dist/mobile"
       - name: Sign production packages when owner identity is configured
         env:
+          CORGI_SHOP_URL: ${{ vars.CORGI_SHOP_URL }}
           IOS_CERTIFICATE_BASE64: ${{ github.event_name != 'pull_request' && secrets.IOS_CERTIFICATE_BASE64 || '' }}
           IOS_CERTIFICATE_PASSWORD: ${{ github.event_name != 'pull_request' && secrets.IOS_CERTIFICATE_PASSWORD || '' }}
           IOS_USER_PROFILE_BASE64: ${{ github.event_name != 'pull_request' && secrets.IOS_USER_PROFILE_BASE64 || '' }}
@@ -220,6 +224,8 @@ jobs:
             const names = fs.readdirSync('dist/mobile').filter(name =>
               name === 'mobile-production-status.json' ||
               (android === 'signed' && new RegExp(`^corgi_lusi_android_(user|admin)_${v}_release\\.(?:apk|aab)(?:\\.(?:sha256|certificate\\.txt|package\\.txt))?$`).test(name)) ||
+              // Permanent names for releases/latest/download/… links (README, cabinet, bot); signed builds only.
+              (android === 'signed' && /^corgi-lusi-android(?:-admin)?\.apk(?:\.sha256)?$/.test(name)) ||
               (ios === 'signed' && new RegExp(`^corgi_lusi_ios_(user|admin)_${v}_signed\\.ipa(?:\\.sha256)?$`).test(name)));
             const existing = (await github.rest.repos.listReleaseAssets({...args, release_id:release.id, per_page:100})).data;
             for (const name of names) {

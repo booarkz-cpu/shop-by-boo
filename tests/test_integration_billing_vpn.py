@@ -77,8 +77,15 @@ class Panel:
             if method == "GET" and len(parts) == 3:
                 return self.ok(user)
             if method == "POST" and parts[3:] == ["actions", "extend"]:
+                # Remnawave contract (ExtendUserCommand): an EXPIRED user is extended from now and becomes ACTIVE;
+                # DISABLED and LIMITED users are extended but keep their status.
                 current = datetime.fromisoformat(user["expireAt"].replace("Z", "+00:00")).replace(tzinfo=None)
                 user["expireAt"] = (max(current, datetime.utcnow()) + timedelta(days=body["days"])).isoformat()
+                if user.get("status") == "EXPIRED":
+                    user["status"] = "ACTIVE"
+                return self.ok(user)
+            if method == "POST" and parts[3:] == ["actions", "disable"]:
+                user["status"] = "DISABLED"
                 return self.ok(user)
             if method == "POST" and parts[3:] == ["actions", "enable"]:
                 user["status"] = "ACTIVE"
@@ -360,3 +367,47 @@ async def test_bot_cabinet_and_apps_show_the_same_subscription(customer, panel, 
     sent.clear()
     await bot.subscription(Message())
     assert sent[0][1].endswith("/rotated")
+
+
+
+# ------------------------------------------------------- main scenario: expiry, block, reactivation (v28.77.0)
+
+@pytest.mark.asyncio
+async def test_expired_then_refunded_customer_is_reactivated_by_the_next_purchase(database, panel, monkeypatch):
+    """Stage 18 main scenario on the panel's side: a subscription ran out (the panel marked the user EXPIRED) →
+    a new payment brings it back from today, ACTIVE; a refund blocks the user (DISABLED) → the next purchase
+    re-enables it. Each payment extends exactly once."""
+    monkeypatch.setattr(shop, "redis_client", object())
+
+    async def quiet(*a, **k):
+        return None
+    monkeypatch.setattr(shop, "notify_user_telegram", quiet)
+    p, remote, _ = await premium(database, panel, "renew-after-expiry")
+    user = panel.users[remote]
+    user["status"] = "EXPIRED"
+    user["expireAt"] = (datetime.utcnow() - timedelta(days=3)).isoformat()
+    sub = await database.get(Subscription, 1)
+    sub.expires_at = datetime.utcnow() - timedelta(days=3)
+    sub.lifecycle_status = "expired"
+    await database.commit()
+
+    await shop.fulfill(p.id, database)
+    assert p.fulfillment_status == "completed"
+    assert user["status"] == "ACTIVE", "the expired customer is reactivated"
+    expiry = datetime.fromisoformat(user["expireAt"])
+    assert timedelta(days=29, hours=23) < expiry - datetime.utcnow() <= timedelta(days=30, minutes=1), "30 days from today"
+    sub = await database.get(Subscription, 1)
+    await database.refresh(sub)
+    assert sub.lifecycle_status == "active" and sub.expires_at > datetime.utcnow() + timedelta(days=29)
+
+    user["status"] = "DISABLED"  # a refund blocks the panel user
+    again = Payment(user_id=1, subscription_id=1, plan_id=2, provider="yookassa", order_id="after-refund", provider_payment_id="yk-after-refund",
+                    amount=Decimal("200"), currency="RUB", status="paid", fulfillment_status="pending", purpose="subscription",
+                    duration_days_snapshot=30, traffic_limit_gb_snapshot=200, device_limit_snapshot=4, remnawave_profile_id_snapshot="squad-plus",
+                    idempotency_key="idem-after-refund", paid_at=datetime.utcnow())
+    database.add(again)
+    await database.commit()
+    await shop.fulfill(again.id, database)
+    assert again.fulfillment_status == "completed"
+    assert user["status"] == "ACTIVE" and panel.count("POST", "/actions/enable") == 1, "the next purchase re-enables the blocked user"
+    assert panel.count("POST", "/actions/extend") == 2

@@ -65,6 +65,9 @@ if [[ -n "${IOS_USER_TUNNEL_PROFILE_BASE64:-}" ]]; then
   TUNNEL_UUID="$(install_profile user-tunnel "$IOS_USER_TUNNEL_PROFILE_BASE64" shop.remnawave.user.tunnel)"
   EXTENSIONS+=(--tunnel --profile "tunnel=$TUNNEL_UUID"); EXTRA_PROFILES="$EXTRA_PROFILES shop.remnawave.user.tunnel=$TUNNEL_UUID"
 fi
+# v28.77.0: the shop's API address baked into both apps (CORGI_SHOP_URL wins over mobile/shop-url.txt).
+CORGI_SHOP_URL="${CORGI_SHOP_URL:-$(grep -v '^#' "$ROOT/mobile/shop-url.txt" 2>/dev/null | tr -d '[:space:]' | head -c 200 || true)}"
+[[ -z "$CORGI_SHOP_URL" || "$CORGI_SHOP_URL" =~ ^https://[A-Za-z0-9.-]+(:[0-9]+)?/?$ ]] || { echo "CORGI_SHOP_URL must be https://host" >&2; exit 1; }
 for role in user admin; do
   project=VpnShopUser; profile="$IOS_USER_PROFILE_BASE64"
   [[ "$role" != admin ]] || { project=VpnShopAdmin; profile="$IOS_ADMIN_PROFILE_BASE64"; }
@@ -88,7 +91,7 @@ PY
     -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
     -archivePath "$WORK/$project.xcarchive" CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Manual \
     CODE_SIGN_IDENTITY="$IDENTITY" DEVELOPMENT_TEAM="$IOS_TEAM_ID" ${profile_arg[@]+"${profile_arg[@]}"} \
-    CORGI_ASSOCIATED_DOMAIN="${CORGI_ASSOCIATED_DOMAIN:-cabinet.example.com}" archive
+    CORGI_ASSOCIATED_DOMAIN="${CORGI_ASSOCIATED_DOMAIN:-cabinet.example.com}" CORGI_SHOP_URL="$CORGI_SHOP_URL" archive
   xcodebuild -exportArchive -archivePath "$WORK/$project.xcarchive" \
     -exportOptionsPlist "$WORK/export.plist" -exportPath "$WORK/export-$role"
   ipa="$WORK/export-$role/$project.ipa"

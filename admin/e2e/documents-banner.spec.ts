@@ -22,15 +22,22 @@ test('administrator sets the text and the banner of a document and both appear e
     page.getByRole('button', {name: 'Документы', exact: true}).click(),
   ]);
   await page.getByRole('tab', {name: /Политика конфиденциальности/}).click();
-  await page.getByLabel('Текст', {exact: true}).fill('## Данные\n- Храним только **email**');
-  await Promise.all([
+  await expect(page.getByRole('tab', {name: /Политика конфиденциальности/})).toHaveAttribute('aria-selected', 'true');
+  const text = page.getByLabel('Текст', {exact: true});
+  await text.fill('## Данные\n- Храним только **email**');
+  await expect(text).toHaveValue('## Данные\n- Храним только **email**');
+  // v28.77.0: saving reloads the list; the banner buttons are busy until that reload ends.
+  const [put] = await Promise.all([
     page.waitForResponse((r) => r.url().endsWith('/api/admin/info-pages/privacy') && r.request().method() === 'PUT' && r.ok()),
+    page.waitForResponse((r) => r.url().endsWith('/api/admin/info-pages') && r.request().method() === 'GET'),
     page.getByRole('button', {name: 'Сохранить', exact: true}).click(),
   ]);
+  expect(put.request().postData()).toContain('Храним только **email**');
   const banner = page.locator('[data-doc-banner="privacy"]');
   await expect(banner.getByRole('img', {name: 'Баннер: Политика конфиденциальности'})).toHaveAttribute('src', /\/api\/bot\/banners\/default\/privacy\.jpg$/);
   await Promise.all([
     page.waitForResponse((r) => r.url().endsWith('/api/admin/bot/banners/privacy') && r.request().method() === 'POST' && r.ok()),
+    page.waitForResponse((r) => r.url().endsWith('/api/admin/info-pages') && r.request().method() === 'GET'),
     banner.getByLabel('Загрузить своё изображение', {exact: true}).setInputFiles({name: 'privacy.png', mimeType: 'image/png', buffer: png(640, 320)}),
   ]);
   const doc = await page.evaluate(async () => (await (await fetch('/api/public/info-pages/privacy?lang=ru', {cache: 'no-store'})).json()));

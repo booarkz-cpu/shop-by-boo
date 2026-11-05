@@ -6,7 +6,7 @@ struct AdminRootView: View {
     @AppStorage("shop_admin_lang") private var lang = "ru"
     @State private var activeId = ProfileVault.activeId()
     @State private var profiles = ProfileVault.all()
-    @State private var base = ProfileVault.find(ProfileVault.activeId())?.base ?? ""
+    @State private var base = ProfileVault.find(ProfileVault.activeId())?.base ?? bakedShopURL
     @State private var token = ProfileVault.token(ProfileVault.activeId())
     @State private var profileLabel = ProfileVault.find(ProfileVault.activeId())?.label ?? ""
     @State private var showProfiles = false
@@ -195,7 +195,7 @@ struct AdminRootView: View {
         guard profiles.count < ProfileVault.maxProfiles else { notice = t("profile_limit"); return }
         clearLoaded()
         activeId = ProfileVault.newId()
-        base = ""; email = ""; password = ""; otp = ""; profileLabel = ""; token = ""
+        base = bakedShopURL; email = ""; password = ""; otp = ""; profileLabel = ""; token = ""
         showProfiles = false
         notice = ""
     }

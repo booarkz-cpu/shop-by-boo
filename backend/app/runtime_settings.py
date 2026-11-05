@@ -92,6 +92,8 @@ DEFINITIONS = (
     SettingDefinition("remnawave_url", "remnawave", "URL Remnawave", "Публичный HTTPS URL панели Remnawave.", "string", "remnawave_url", optional=True),
     SettingDefinition("remnawave_token", "remnawave", "Токен Remnawave", "Bearer-токен API Remnawave; хранится зашифрованно.", "secret", "remnawave_token", secret=True, optional=True),
     SettingDefinition("cloudflare_api_token", "remnawave", "Токен Cloudflare API", "Токен с правом Zone:DNS:Edit: «Домены» создают и обновляют записи A доменов подписки и Remnawave; хранится зашифрованно.", "secret", "cloudflare_api_token", secret=True, optional=True),
+    SettingDefinition("bunny_api_key", "remnawave", "Ключ Bunny DNS", "API key аккаунта Bunny (Account → API): «Домены» создают и обновляют записи A в зонах Bunny DNS; хранится зашифрованно.", "secret", "bunny_api_key", secret=True, optional=True),
+    SettingDefinition("gcore_api_key", "remnawave", "Ключ Gcore DNS", "Постоянный API-токен Gcore с правом на DNS: «Домены» создают и обновляют записи A в зонах Gcore; хранится зашифрованно.", "secret", "gcore_api_key", secret=True, optional=True),
     SettingDefinition("public_base_url", "urls", "Публичный URL API", "HTTPS URL backend, используемый во внешних callback и ссылках.", "string", "public_base_url"),
     SettingDefinition("mini_app_url", "urls", "URL Mini App", "HTTPS URL Telegram Mini App.", "string", "mini_app_url"),
     SettingDefinition("cabinet_url", "urls", "URL кабинета", "Отдельный HTTPS URL кабинета; пустое значение использует Mini App.", "string", "cabinet_url", optional=True),

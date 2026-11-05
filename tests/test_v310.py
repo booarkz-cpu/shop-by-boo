@@ -44,7 +44,11 @@ def test_install_guide_and_package_checksum():
     digest = "ab" * 32
     assert safe_sha256(digest.upper()) == digest and safe_sha256("../etc") == "" and safe_sha256("a" * 63) == ""
     catalog = (ROOT / "backend/app/mobile_catalog.py").read_text()
-    assert BUYER_APK in catalog and ADMIN_APK in catalog
+    # v28.77.0: the catalog links to the permanent names of the latest signed release instead of the 2.x builds.
+    from app.mobile_catalog import OFFICIAL_APPS
+    urls = {app["id"]: app["url"] for app in OFFICIAL_APPS}
+    assert urls["android-user"].endswith("/releases/latest/download/corgi-lusi-android.apk")
+    assert urls["android-admin"].endswith("/releases/latest/download/corgi-lusi-android-admin.apk")
     cabinet = __import__("frontend_sources").cabinet_sources()
     admin = (ROOT / "admin/src/main.tsx").read_text()
     assert "Скачать подписку" in cabinet and "/api/me/subscription-file" in cabinet

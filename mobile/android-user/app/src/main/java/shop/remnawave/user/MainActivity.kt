@@ -131,9 +131,23 @@ class MainActivity : FragmentActivity() {
         /** corgi://payment?order=… — back from the payment page: show how the order went. */
         val pendingPayment = androidx.compose.runtime.mutableStateOf<String?>(null)
     }
+    /** v28.77.0: CI test of the embedded VPN (scripts/mobile/vpn-e2e.sh), debuggable builds only:
+     *  --es corgi_vpn_test <subscription> connects through the engine, --ez corgi_vpn_stop true disconnects.
+     *  Handled on a cold start and in onNewIntent (the activity is singleTask). */
+    private fun vpnTest(intent: Intent?) {
+        if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) == 0) return
+        intent?.getStringExtra("corgi_vpn_test")?.let { url ->
+            if (android.net.VpnService.prepare(this) == null) shop.remnawave.user.vpn.CorgiVpnService.start(this, url)
+            else getSharedPreferences(shop.remnawave.user.vpn.CorgiVpnService.PREFS, 0).edit()
+                .putString(shop.remnawave.user.vpn.CorgiVpnService.KEY_ERROR, "VPN permission is not granted (appops ACTIVATE_VPN)").apply()
+        }
+        if (flag(intent, "corgi_vpn_stop")) shop.remnawave.user.vpn.CorgiVpnService.stop(this)
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        vpnTest(intent)
         LoginLink.parse(intent.data)?.let { pendingLogin.value = it }
         paymentOrder(intent.data)?.let { pendingPayment.value = it }
         intent.getStringExtra(CorgiPush.EXTRA_TAB)?.let { pendingTab.value = it }
@@ -152,6 +166,7 @@ class MainActivity : FragmentActivity() {
             else if (intent?.hasExtra(CorgiPush.EXTRA_TAB) == true) intent?.getStringExtra(CorgiPush.EXTRA_TAB)?.takeIf { Regex("[a-z][a-z0-9_-]{0,31}").matches(it) } ?: "notifications"
             else if (intent?.hasExtra("notification_id") == true) "notifications" else "overview"
         val demoLang = if (demo) intent?.getStringExtra("corgi_lang") else null
+        vpnTest(intent)
         setContent { MaterialTheme(colorScheme = shopColors()) { UserApp(initialTab, demo, demoLang) } }
     }
 }

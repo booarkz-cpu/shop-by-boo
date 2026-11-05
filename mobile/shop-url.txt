@@ -1,0 +1,4 @@
+# The shop's API address baked into every app build, so customers and administrators never type it.
+# One line, https:// only, no path. A repository variable CORGI_SHOP_URL (Settings → Secrets and variables →
+# Actions → Variables) takes precedence. Empty — the apps keep the address field (and still take the address
+# from a sign-in link of the bot or the cabinet).
