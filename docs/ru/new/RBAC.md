@@ -86,7 +86,7 @@
 | `staging_e2e.manage` | Проверка платежей на тестовом стенде | · | · | ✓ |
 | `legal.write` | Документы: правила, политика, оферта, FAQ | · | · | ✓ |
 
-Права `security.stepup` и `sessions.self` с v28.85.0 используются:
+Права `security.stepup` и `sessions.self` с v28.86.0 используются:
 - `security.stepup` — подтверждение опасных действий своей сессии (`/api/admin/security/step-up`, см. ниже);
 - `sessions.self` — свои сессии: список и завершение (`/api/admin/sessions/mine`), раздел «Защита и 2FA → Мои сессии».
 

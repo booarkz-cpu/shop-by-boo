@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.85.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.86.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2279**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2286**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -119,6 +119,7 @@
 | [admin/e2e/app-growth.spec.ts](../admin/e2e/app-growth.spec.ts) | Админ-панель |
 | [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
 | [admin/e2e/bot-banners.spec.ts](../admin/e2e/bot-banners.spec.ts) | Админ-панель |
+| [admin/e2e/cabinet-apps.spec.ts](../admin/e2e/cabinet-apps.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-stage8.spec.ts](../admin/e2e/cabinet-stage8.spec.ts) | Админ-панель |
 | [admin/e2e/content-publishing.spec.ts](../admin/e2e/content-publishing.spec.ts) | Админ-панель |
@@ -1179,6 +1180,7 @@
 | [docs/ru/RELEASE_V28_83_0.md](../docs/ru/RELEASE_V28_83_0.md) | Документация |
 | [docs/ru/RELEASE_V28_84_0.md](../docs/ru/RELEASE_V28_84_0.md) | Документация |
 | [docs/ru/RELEASE_V28_85_0.md](../docs/ru/RELEASE_V28_85_0.md) | Документация |
+| [docs/ru/RELEASE_V28_86_0.md](../docs/ru/RELEASE_V28_86_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
@@ -2053,13 +2055,18 @@
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
 | [tests/test_baked_shop_url.py](../tests/test_baked_shop_url.py) | Проверки |
 | [tests/test_behaviour_auth.py](../tests/test_behaviour_auth.py) | Проверки |
+| [tests/test_behaviour_mfa_recovery.py](../tests/test_behaviour_mfa_recovery.py) | Проверки |
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
 | [tests/test_behaviour_payments_v2.py](../tests/test_behaviour_payments_v2.py) | Проверки |
+| [tests/test_behaviour_payments_yookassa.py](../tests/test_behaviour_payments_yookassa.py) | Проверки |
 | [tests/test_behaviour_store_and_webhooks.py](../tests/test_behaviour_store_and_webhooks.py) | Проверки |
+| [tests/test_behaviour_webhooks_refunded.py](../tests/test_behaviour_webhooks_refunded.py) | Проверки |
+| [tests/test_behaviour_withdrawals.py](../tests/test_behaviour_withdrawals.py) | Проверки |
 | [tests/test_block_monitor.py](../tests/test_block_monitor.py) | Проверки |
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_bot_texts.py](../tests/test_bot_texts.py) | Проверки |
+| [tests/test_cabinet_apps_block.py](../tests/test_cabinet_apps_block.py) | Проверки |
 | [tests/test_cabinet_stage8.py](../tests/test_cabinet_stage8.py) | Проверки |
 | [tests/test_ci_shards.py](../tests/test_ci_shards.py) | Проверки |
 | [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
