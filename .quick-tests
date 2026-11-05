@@ -1,1 +1,0 @@
-gen:export MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups; for g in generate-admin-matrix generate-api-docs generate-db-schema; do python3 scripts/$g.py >/dev/null 2>&1 || echo "$g failed"; done; python3 scripts/generate-project-map.py >/dev/null; true
