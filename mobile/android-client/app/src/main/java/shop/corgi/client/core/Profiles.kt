@@ -21,7 +21,7 @@ data class Profile(
 ) {
     init {
         require(kind in listOf("subscription", "links", "json")) { "kind" }
-        require(kind != "subscription" || url.startsWith("https://") || url.startsWith("http://10.0.2.2:")) { "Подписка — только по https://" }
+        require(kind != "subscription" || url.startsWith("https://") || url.startsWith("http://10.0.2.2:")) { tr("Подписка — только по https://", "Subscriptions only over https://", "Підписка — лише через https://") }
         require(autoUpdateHours in 0..168) { "hours" }
     }
 
@@ -40,7 +40,7 @@ data class Profile(
         /** What the user pasted or scanned: a subscription URL, links (one per line, or base64), or a JSON config. */
         fun fromText(text: String, id: String, now: Long): Profile {
             val value = text.trim()
-            require(value.isNotEmpty()) { "Пусто" }
+            require(value.isNotEmpty()) { tr("Пусто", "Empty", "Порожньо") }
             if (value.startsWith("{")) {
                 ConfigBuilder.fromJson(value, Settings())
                 return Profile(id, JSONObject(value).optString("remarks").ifBlank { "Xray JSON" }.take(60), "json", json = value, updatedAt = now)
@@ -49,8 +49,9 @@ data class Profile(
                 return Profile(id, value.substringAfter("://").substringBefore("/"), "subscription", url = value)
             }
             val (servers, skipped) = Links.parseBody(value)
-            require(servers.isNotEmpty()) { if (skipped > 0) "Эти протоколы не поддерживаются" else "Нет ссылок на серверы" }
-            return Profile(id, if (servers.size == 1) servers[0].name else "Ссылки (${servers.size})", "links",
+            require(servers.isNotEmpty()) { if (skipped > 0) tr("Эти протоколы не поддерживаются", "These protocols are not supported", "Ці протоколи не підтримуються")
+                else tr("Нет ссылок на серверы", "No server links", "Немає посилань на сервери") }
+            return Profile(id, if (servers.size == 1) servers[0].name else tr("Ссылки", "Links", "Посилання") + " (${servers.size})", "links",
                 links = servers.map { it.link }, updatedAt = now, skipped = skipped)
         }
     }

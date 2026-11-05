@@ -7,6 +7,7 @@ import shop.corgi.client.core.Links
 import shop.corgi.client.core.Profile
 import shop.corgi.client.core.Settings
 import shop.corgi.client.core.Update
+import shop.corgi.client.core.tr
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -39,7 +40,7 @@ class Store(context: Context) {
 
     fun add(text: String): Profile {
         val debuggable = (app.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        require(debuggable || !text.trim().startsWith("http://")) { "Подписка — только по https://" }
+        require(debuggable || !text.trim().startsWith("http://")) { tr("Подписка — только по https://", "Subscriptions only over https://", "Підписка — лише через https://") }
         val profile = Profile.fromText(text, UUID.randomUUID().toString(), System.currentTimeMillis())
         profiles = profiles + profile
         if (profiles.size == 1 || activeProfile.isBlank()) { activeProfile = profile.id; activeServer = "auto" }
@@ -59,7 +60,7 @@ class Store(context: Context) {
         val updated = try {
             val body = fetch(profile.url)
             val (servers, skipped) = Links.parseBody(body)
-            if (servers.isEmpty()) profile.copy(error = "В подписке нет поддерживаемых серверов", updatedAt = System.currentTimeMillis())
+            if (servers.isEmpty()) profile.copy(error = tr("В подписке нет поддерживаемых серверов", "The subscription has no supported servers", "У підписці немає підтримуваних серверів"), updatedAt = System.currentTimeMillis())
             else profile.copy(links = servers.map { it.link }, skipped = skipped, error = "", updatedAt = System.currentTimeMillis())
         } catch (exc: Exception) {
             profile.copy(error = exc.message ?: exc.javaClass.simpleName)
@@ -76,10 +77,10 @@ class Store(context: Context) {
     fun downloadGeo() {
         val s = settings
         for ((name, url) in listOf("geoip.dat" to s.geoipUrl, "geosite.dat" to s.geositeUrl)) {
-            require(url.startsWith("https://")) { "Только https://" }
+            require(url.startsWith("https://")) { tr("Только https://", "https:// only", "Лише https://") }
             val tmp = File(app.filesDir, "$name.part")
             open(url).inputStream.use { input -> tmp.outputStream().use { input.copyTo(it) } }
-            require(tmp.length() > 1024) { "$name: пустой файл" }
+            require(tmp.length() > 1024) { "$name: " + tr("пустой файл", "empty file", "порожній файл") }
             tmp.renameTo(File(app.filesDir, name))
         }
     }

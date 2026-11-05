@@ -66,9 +66,13 @@ class TvReceiver(private val onText: (String) -> Unit) {
     companion object {
         private const val STYLE = "<meta name=viewport content='width=device-width'><style>body{font-family:sans-serif;background:#0e1116;color:#f1f5f9;padding:20px}" +
             "textarea{width:100%;height:160px}button{margin-top:12px;padding:12px 20px;background:#f2994a;border:0;border-radius:8px;font-size:16px}</style>"
-        val PAGE = "<!doctype html>$STYLE<h2>Корги Люси: клиент</h2><p>Вставьте ссылку на подписку или ссылки на серверы — они появятся на телевизоре.</p>" +
-            "<form method=post><textarea name=text autofocus></textarea><br><button>Отправить на ТВ</button></form>"
-        val DONE = "<!doctype html>$STYLE<h2>Готово</h2><p>Подписка отправлена на телевизор.</p>"
+        val PAGE: String get() = "<!doctype html>$STYLE<h2>" + tr("Корги Люси: клиент", "Corgi Lusi: client", "Коргі Люсі: клієнт") + "</h2><p>" +
+            tr("Вставьте ссылку на подписку или ссылки на серверы — они появятся на телевизоре.",
+                "Paste a subscription URL or server links — they will appear on the TV.",
+                "Вставте посилання на підписку або посилання на сервери — вони з'являться на телевізорі.") +
+            "</p><form method=post><textarea name=text autofocus></textarea><br><button>" + tr("Отправить на ТВ", "Send to the TV", "Надіслати на ТБ") + "</button></form>"
+        val DONE: String get() = "<!doctype html>$STYLE<h2>" + tr("Готово", "Done", "Готово") + "</h2><p>" +
+            tr("Подписка отправлена на телевизор.", "The subscription was sent to the TV.", "Підписку надіслано на телевізор.") + "</p>"
 
         /** The device's address in the local network (IPv4, not loopback). */
         fun localAddress(): String? = NetworkInterface.getNetworkInterfaces().toList().filter { it.isUp && !it.isLoopback }
