@@ -300,12 +300,17 @@ jobs:
           cp .env.example .env
           cp support-pro/.env.example support-pro/.env
           docker compose -f docker-compose.yml config --quiet
-          # Every PostgreSQL image reference is pinned to the digest of its tag.
-          want="$(docker buildx imagetools inspect postgres:18.6-alpine --format '{{json .Manifest.Digest}}' | tr -d '"')"
-          echo "::notice title=postgres:18.6-alpine digest::$want"
+          # Every PostgreSQL image reference is the same tag pinned to one digest, and that digest still exists in the
+          # registry. Docker Hub rebuilds the tag (base image updates, twice on 2026-11-05): a newer digest is reported
+          # as a notice to repin (scripts/repin-images.sh), not a failure of every pull request.
           refs="$(grep -rhoE 'postgres:[0-9][^ "}]*' docker-compose.yml docker-compose.test.yml support-pro/docker-compose.yml | sort -u)"
           echo "$refs"
-          test "$refs" = "postgres:18.6-alpine@$want"
+          test "$(echo "$refs" | wc -l)" = 1
+          echo "$refs" | grep -qE '^postgres:18\.6-alpine@sha256:[0-9a-f]{64}$'
+          pinned="${refs#*@}"
+          docker buildx imagetools inspect "postgres@$pinned" >/dev/null
+          want="$(docker buildx imagetools inspect postgres:18.6-alpine --format '{{json .Manifest.Digest}}' | tr -d '"')"
+          if [ "$want" != "$pinned" ]; then echo "::notice title=postgres:18.6-alpine was rebuilt::pinned $pinned, the tag now points to $want — repin"; fi
           cp .env.test.example .env.test
           docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
       - name: Prometheus alert rules

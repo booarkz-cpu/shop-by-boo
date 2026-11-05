@@ -95,3 +95,26 @@ class ProxyBackupSchemeTest {
         logs.clear(); assertTrue(logs.files().isEmpty())
     }
 }
+
+class IconsProfilesLogsTest {
+    @Test fun routingProfilesAndIconRoundTrip() {
+        val home = RoutingProfile("Дом", "bypass_ru", listOf(Rule("domain:example.com", "direct")))
+        val s = Settings(appIcon = "night", routingProfiles = listOf(home, RoutingProfile("Работа", "global", emptyList())))
+        assertEquals(s, Settings.of(JSONObject(s.toJson().toString())))
+        assertTrue(runCatching { Settings(routingProfiles = listOf(home, home)) }.isFailure)   // names are unique
+        assertTrue(runCatching { RoutingProfile(" ", "global", emptyList()) }.isFailure)
+        assertEquals("corgi", Settings.of(JSONObject("""{"appIcon":"neon"}""")).appIcon)
+        // A damaged profile is dropped, the others stay.
+        val loaded = Settings.of(JSONObject("""{"routingProfiles":[{"name":"ok","routing":"global"},{"name":"bad","routing":"nowhere"}]}"""))
+        assertEquals(listOf("ok"), loaded.routingProfiles.map { it.name })
+    }
+
+    @Test fun logLevelFilter() {
+        val lines = listOf("2026/11/05 10:00:00 [Warning] core: something", "2026/11/05 10:00:01 [Error] app: dial failed",
+            "2026/11/05 10:00:02 [Info] started", "2026-11-05 10:00:03.000 [VPN] connect")
+        assertEquals(listOf(1), lines.indices.filter { Logs.matches(lines[it], "error") })
+        assertEquals(listOf(0), lines.indices.filter { Logs.matches(lines[it], "warning") })
+        assertEquals(listOf(2, 3), lines.indices.filter { Logs.matches(lines[it], "info") })
+        assertEquals(4, lines.count { Logs.matches(it, "all") })
+    }
+}

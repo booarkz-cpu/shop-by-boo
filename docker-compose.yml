@@ -35,7 +35,7 @@ services:
     cpus: 0.50
 
   db:
-    image: ${POSTGRES_IMAGE:-postgres:18.6-alpine@sha256:8a334ab9502c8ccb8d7dec4e83b36b5ce8ed7b396e585f1c86b0e69c416f4fca}
+    image: ${POSTGRES_IMAGE:-postgres:18.6-alpine@sha256:80df0884d0d3b7f0f7b2c37f273b1c12d5fd66e25aaef2e19ebf95908d620f11}
     restart: unless-stopped
     environment:
       POSTGRES_USER: vpnshop
@@ -340,7 +340,7 @@ services:
       start_period: 10s
 
   support_db:
-    image: postgres:18.6-alpine@sha256:8a334ab9502c8ccb8d7dec4e83b36b5ce8ed7b396e585f1c86b0e69c416f4fca
+    image: postgres:18.6-alpine@sha256:80df0884d0d3b7f0f7b2c37f273b1c12d5fd66e25aaef2e19ebf95908d620f11
     restart: unless-stopped
     environment:
       POSTGRES_DB: support

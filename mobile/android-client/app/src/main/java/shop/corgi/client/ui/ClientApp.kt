@@ -4,6 +4,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -73,6 +74,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -195,44 +198,29 @@ private fun HomeScreen(store: Store, connect: () -> Unit, refresh: () -> Unit, a
         ClientVpnService.STATE_CONNECTING -> tr("Подключение…", "Connecting…", "Підключення…")
         else -> tr("Нажмите для подключения", "Tap to connect", "Натисніть для підключення")
     }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    val connecting = state == ClientVpnService.STATE_CONNECTING
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(tr("Корги Люси", "Corgi Lusi", "Коргі Люсі"), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
+            Text(tr("Корги Люси", "Corgi Lusi", "Коргі Люсі"), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary)
             Text("  v${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Banner("app-vpn", tr("Свободный интернет без лишнего Гав!", "Free internet without the extra Woof!", "Вільний інтернет без зайвого Гав!"),
-            tr("Ваш VPN-клиент на Xray", "Your Xray VPN client", "Ваш VPN-клієнт на Xray"))
-        val serverName = when {
-            profile == null -> ""
-            profile.kind == "json" -> profile.title
-            store.activeServer == ConfigBuilder.AUTO -> "⚡ " + tr("Автовыбор", "Auto select", "Автовибір")
-            else -> profile.servers().getOrNull(store.activeServer.toIntOrNull() ?: -1)?.name ?: "⚡ " + tr("Автовыбор", "Auto select", "Автовибір")
+        HeroBanner()
+        // The slogan and the state under the picture, not over it.
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(tr("Свободный интернет без лишнего Гав!", "Free internet without the extra Woof!", "Вільний інтернет без зайвого Гав!"),
+                style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
+            StatusChip(stateText, on, connecting)
         }
         if (s.connectStyle == "compact") {
-            Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(stateText, style = MaterialTheme.typography.titleMedium)
-                        if (serverName.isNotBlank()) Text(serverName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(checked = on || state == ClientVpnService.STATE_CONNECTING, onCheckedChange = { toggle() }, enabled = profile != null,
-                        modifier = Modifier.testTag("connect"))
-                }
+            Row(Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp), MaterialTheme.colorScheme.surface).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(stateText, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                Switch(checked = on || connecting, onCheckedChange = { toggle() }, enabled = profile != null, modifier = Modifier.testTag("connect"))
             }
         } else {
-            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                val ring = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-                Box(Modifier.size(196.dp).clip(CircleShape).border(10.dp, ring.copy(alpha = 0.55f), CircleShape)
-                    .background(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
-                    .clickable(enabled = profile != null) { toggle() }.testTag("connect"), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.PowerSettingsNew, stateText, Modifier.size(84.dp),
-                        tint = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary)
-                }
-                Text(stateText, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                if (serverName.isNotBlank()) Text(serverName, Modifier.clickable(onClick = openServers), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            ConnectButton(on, connecting, enabled = profile != null, label = stateText, onClick = toggle)
         }
+        if (profile != null) ServerPicker(store, profile, refresh, openServers)
         ClientVpnService.lastError(context).takeIf { it.isNotBlank() && state == ClientVpnService.STATE_OFF }?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (profile == null) {
             Text(tr("Добавьте подписку, ссылку на сервер или конфигурацию Xray.", "Add a subscription, a server link or an Xray config.",
@@ -263,6 +251,108 @@ private fun HomeScreen(store: Store, connect: () -> Unit, refresh: () -> Unit, a
         }
         if (!Xray.available()) Text(tr("В этой сборке нет движка Xray.", "This build has no Xray engine.", "У цій збірці немає рушія Xray."), color = MaterialTheme.colorScheme.error)
     }
+}
+
+/** The picture of the brand alone, in a glass card (the slogan is under it — nothing is written over the corgi). */
+@Composable
+private fun HeroBanner() {
+    val context = LocalContext.current
+    val bitmap = remember { runCatching { context.assets.open("banners/app-vpn.jpg").use { android.graphics.BitmapFactory.decodeStream(it) } }.getOrNull() }
+    Box(Modifier.fillMaxWidth().height(172.dp).glass(RoundedCornerShape(28.dp), MaterialTheme.colorScheme.surface).padding(8.dp)
+        .clip(RoundedCornerShape(22.dp)).background(MaterialTheme.colorScheme.surfaceVariant).testTag("banner-app-vpn")) {
+        bitmap?.let { androidx.compose.foundation.Image(it.asImageBitmap(), tr("Корги Люси", "Corgi Lusi", "Коргі Люсі"),
+            Modifier.fillMaxWidth().height(172.dp), contentScale = androidx.compose.ui.layout.ContentScale.Crop) }
+    }
+}
+
+@Composable
+private fun StatusChip(text: String, on: Boolean, connecting: Boolean) {
+    val color = when { on -> Brand.Success; connecting -> Brand.Warm; else -> MaterialTheme.colorScheme.onSurfaceVariant }
+    Row(Modifier.glass(RoundedCornerShape(50), MaterialTheme.colorScheme.surface).padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box(Modifier.size(10.dp).clip(CircleShape).background(color))
+        Text(text, style = MaterialTheme.typography.labelLarge, color = color)
+    }
+}
+
+/** The big round button: a soft glow of the accent around it when connected, a ring while connecting. */
+@Composable
+private fun ConnectButton(on: Boolean, connecting: Boolean, enabled: Boolean, label: String, onClick: () -> Unit) {
+    val accent = MaterialTheme.colorScheme.primary
+    val glow by androidx.compose.animation.core.animateFloatAsState(if (on) 0.45f else if (connecting) 0.25f else 0.08f, label = "glow")
+    Box(Modifier.fillMaxWidth().height(260.dp), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(250.dp).clip(CircleShape).background(androidx.compose.ui.graphics.Brush.radialGradient(listOf(accent.copy(alpha = glow), Color.Transparent))))
+        Box(Modifier.size(204.dp).clip(CircleShape)
+            .background(if (on) androidx.compose.ui.graphics.Brush.linearGradient(listOf(Brand.Warm, accent))
+                else androidx.compose.ui.graphics.Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surface)))
+            .border(if (connecting) 6.dp else 2.dp, if (on || connecting) accent else Color.White.copy(alpha = 0.10f), CircleShape)
+            .clickable(enabled = enabled, onClick = onClick).testTag("connect"), contentAlignment = Alignment.Center) {
+            Icon(Icons.Filled.PowerSettingsNew, label, Modifier.size(92.dp), tint = if (on) Brand.Ink else accent)
+        }
+    }
+}
+
+/**
+ * The chosen server; a tap opens the list of all servers of the provider (animated), a tap on a row chooses it.
+ * The same choice as in «Серверы» (store.activeProfile / activeServer), with the delays measured there.
+ */
+@Composable
+private fun ServerPicker(store: Store, profile: Profile, refresh: () -> Unit, openServers: () -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    val s = store.settings
+    val pings = store.pings
+    val servers = if (profile.kind == "json") emptyList() else profile.servers()
+    val selected = store.activeServer.toIntOrNull()?.let { servers.getOrNull(it) }
+    val auto = profile.kind != "json" && selected == null
+    val arrow by androidx.compose.animation.core.animateFloatAsState(if (open) 180f else 0f, label = "arrow")
+    Column(Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp), MaterialTheme.colorScheme.surface,
+        if (open) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.08f))
+        .animateContentSize(androidx.compose.animation.core.tween(280)).testTag("server-picker")) {
+        Row(Modifier.fillMaxWidth().clickable { open = !open }.padding(14.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            when {
+                profile.kind == "json" -> ServerRowContent("📄", profile.title, listOf("Xray JSON"), null, s.pingDisplay)
+                auto -> ServerRowContent("⚡", tr("Автовыбор", "Auto select", "Автовибір"), listOf(tr("самый быстрый", "fastest", "найшвидший")), null, s.pingDisplay)
+                else -> ServerRowContent(flagOf(selected!!.name), selected.name.removePrefix(flagOf(selected.name)).trim(), selected.labels, pings[Ping.key(selected)], s.pingDisplay)
+            }
+            Icon(Icons.Filled.ExpandMore, tr("Все серверы", "All servers", "Усі сервери"), Modifier.graphicsLayer { rotationZ = arrow },
+                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (open) {
+            Column(Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (servers.size > 1) ServerRow("⚡", tr("Автовыбор", "Auto select", "Автовибір"), listOf(tr("самый быстрый", "fastest", "найшвидший")), null,
+                    s.pingDisplay, auto) { store.activeProfile = profile.id; store.activeServer = ConfigBuilder.AUTO; open = false; refresh() }
+                servers.forEachIndexed { i, server ->
+                    ServerRow(flagOf(server.name), server.name.removePrefix(flagOf(server.name)).trim(), server.labels, pings[Ping.key(server)], s.pingDisplay,
+                        store.activeServer == i.toString()) { store.activeProfile = profile.id; store.activeServer = i.toString(); open = false; refresh() }
+                }
+                TextButton(onClick = openServers, Modifier.align(Alignment.End)) { Text(tr("Все провайдеры и пинг", "All providers and ping", "Усі провайдери й пінг")) }
+            }
+        }
+    }
+}
+
+/** One server: the flag on the left, the name and the protocol (dim) in the middle, the delay on the right. */
+@Composable
+private fun ServerRow(flag: String, name: String, labels: List<String>, ping: Int?, display: String, selected: Boolean, onClick: () -> Unit) {
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp))
+        .background(if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f) else Color.Transparent)
+        .clickable(onClick = onClick).padding(horizontal = 10.dp, vertical = 10.dp).testTag("server-row"),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        ServerRowContent(flag, name, labels, ping, display)
+    }
+}
+
+@Composable
+private fun androidx.compose.foundation.layout.RowScope.ServerRowContent(flag: String, name: String, labels: List<String>, ping: Int?, display: String) {
+    Box(Modifier.size(42.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+        if (flag.isNotBlank()) Text(flag, style = MaterialTheme.typography.titleLarge) else Icon(Icons.Filled.Dns, null, tint = MaterialTheme.colorScheme.primary)
+    }
+    Column(Modifier.weight(1f)) {
+        Text(name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(labels.joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+    }
+    PingBadge(ping, if (display == "digits") "digits" else display)
 }
 
 /** A provider (subscription or links): title, update, ping, menu, traffic and term, support and site, servers count. */
