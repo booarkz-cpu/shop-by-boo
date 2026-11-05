@@ -53,11 +53,12 @@ async def env(tmp_path, monkeypatch,request):
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url='https://testserver', follow_redirects=False) as client:
         page = await client.get('/login')
         csrf = re.search(r'name="csrf_token" value="([^"]+)"', page.text).group(1)
-        response = await client.post('/login', data={'csrf_token': csrf, 'login': 'admin', 'password': 'correct-password-123', 'code': pyotp.TOTP(secret).now()})
+        code = pyotp.TOTP(secret).now()  # kept: the replay test sends exactly this code again
+        response = await client.post('/login', data={'csrf_token': csrf, 'login': 'admin', 'password': 'correct-password-123', 'code': code})
         assert response.status_code == 303, response.text
         page = await client.get('/')
         csrf = re.search(r'name="csrf-token" content="([^"]+)"', page.text).group(1)
-        yield {'session': session, 'client': client, 'csrf': csrf, 'redis': redis, 'oid': oid, 'secret': secret, 'tmp_path': tmp_path}
+        yield {'session': session, 'client': client, 'csrf': csrf, 'redis': redis, 'oid': oid, 'secret': secret, 'code': code, 'tmp_path': tmp_path}
     await redis.aclose()
     await engine.dispose()
     if root:

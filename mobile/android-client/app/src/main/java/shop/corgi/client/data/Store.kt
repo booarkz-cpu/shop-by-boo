@@ -6,6 +6,7 @@ import org.json.JSONObject
 import shop.corgi.client.core.Links
 import shop.corgi.client.core.Profile
 import shop.corgi.client.core.Settings
+import shop.corgi.client.core.Update
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -82,6 +83,19 @@ class Store(context: Context) {
             tmp.renameTo(File(app.filesDir, name))
         }
     }
+
+    /** The newer version from the latest release, or null; checked at most once a day unless ``force``. */
+    fun checkUpdate(force: Boolean = false): Update? {
+        val now = System.currentTimeMillis()
+        if (!force && now - prefs.getLong("update_checked", 0) < 86_400_000L) return cachedUpdate()
+        val current = app.packageManager.getPackageInfo(app.packageName, 0).let { if (android.os.Build.VERSION.SDK_INT >= 28) it.longVersionCode.toInt() else @Suppress("DEPRECATION") it.versionCode }
+        val found = Update.newer(fetch(Update.MANIFEST), current)
+        prefs.edit().putLong("update_checked", now).putString("update", found?.let { "${it.versionCode}|${it.versionName}|${it.sha256}|${it.apk}" } ?: "").apply()
+        return found
+    }
+
+    fun cachedUpdate(): Update? = prefs.getString("update", "").orEmpty().split("|").takeIf { it.size == 4 }
+        ?.let { Update(it[0].toInt(), it[1], it[2], it[3]) }
 
     private fun open(url: String): HttpURLConnection = (URL(url).openConnection() as HttpURLConnection).apply {
         instanceFollowRedirects = true; connectTimeout = 15000; readTimeout = 30000

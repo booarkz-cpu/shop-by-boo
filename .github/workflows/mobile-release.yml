@@ -85,6 +85,13 @@ jobs:
             [[ "$digest" == "$(grep -Eo '^[0-9a-f]{64}' mobile/android-signing-cert.sha256)" ]] || { echo "Client app: unexpected signing key ($digest)"; exit 1; }
             cp "$client" dist/mobile/corgi-lusi-client.apk
             (cd dist/mobile && sha256sum corgi-lusi-client.apk > corgi-lusi-client.apk.sha256)
+            # v28.80.0: the app's own update check reads this manifest (shop.corgi.client.core.Update).
+            badging="$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/mobile/corgi-lusi-client.apk | head -1)"
+            code="$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<< "$badging")"
+            name="$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" <<< "$badging")"
+            sha="$(cut -d' ' -f1 dist/mobile/corgi-lusi-client.apk.sha256)"
+            printf '{"versionCode":%s,"versionName":"%s","sha256":"%s","apk":"https://github.com/%s/releases/latest/download/corgi-lusi-client.apk"}\n' \
+              "$code" "$name" "$sha" "$GITHUB_REPOSITORY" > dist/mobile/corgi-lusi-client.json
           fi
           printf '%s\n' "$state" > dist/mobile/android-status.txt
           echo "Android production: $state" >> "$GITHUB_STEP_SUMMARY"
@@ -238,7 +245,7 @@ jobs:
               name === 'mobile-production-status.json' ||
               (android === 'signed' && new RegExp(`^corgi_lusi_android_(user|admin)_${v}_release\\.(?:apk|aab)(?:\\.(?:sha256|certificate\\.txt|package\\.txt))?$`).test(name)) ||
               // Permanent names for releases/latest/download/… links (README, cabinet, bot); signed builds only.
-              (android === 'signed' && /^corgi-lusi-(?:android(?:-admin)?|client)\.apk(?:\.sha256)?$/.test(name)) ||
+              (android === 'signed' && /^corgi-lusi-(?:android(?:-admin)?|client)\.apk(?:\.sha256)?$|^corgi-lusi-client\.json$/.test(name)) ||
               (ios === 'signed' && new RegExp(`^corgi_lusi_ios_(user|admin)_${v}_signed\\.ipa(?:\\.sha256)?$`).test(name)));
             const existing = (await github.rest.repos.listReleaseAssets({...args, release_id:release.id, per_page:100})).data;
             for (const name of names) {

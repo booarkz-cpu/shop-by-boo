@@ -49,7 +49,7 @@ for (const viewport of [{name: 'desktop', width: 1440, height: 900}, {name: 'pho
   });
 }
 
-// v28.79.0: sections without a menu item open by their link too (before, the tab guard sent them to «Все разделы»).
+// v28.78.0: sections without a menu item open by their link too (before, the tab guard sent them to «Все разделы»).
 // covers: GET /api/admin/v6/command-center, GET /api/admin/v6/integrations, GET /api/admin/v6/events
 test('sections without a menu item open by link', async ({page}) => {
   await signIn(page);

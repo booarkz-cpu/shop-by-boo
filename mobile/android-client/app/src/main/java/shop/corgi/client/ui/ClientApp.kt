@@ -66,6 +66,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import shop.corgi.client.core.ConfigBuilder
 import shop.corgi.client.core.Rule
+import shop.corgi.client.core.TvReceiver
 import shop.corgi.client.data.Store
 import shop.corgi.client.engine.Xray
 import shop.corgi.client.vpn.ClientVpnService
@@ -154,6 +155,16 @@ private fun HomeScreen(store: Store, connect: () -> Unit, add: () -> Unit) {
             Text(name)
         }
         ClientVpnService.lastError(context).takeIf { it.isNotBlank() && state == ClientVpnService.STATE_OFF }?.let { Text(it, color = Color(0xFFE5534B)) }
+        store.cachedUpdate()?.let { update ->
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(12.dp)) {
+                    Text(tr("Доступна версия", "Version available", "Доступна версія") + " ${update.versionName}", style = MaterialTheme.typography.titleSmall)
+                    TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(update.apk))) }) {
+                        Text(tr("Скачать обновление", "Download the update", "Завантажити оновлення"))
+                    }
+                }
+            }
+        }
         if (!Xray.available()) Text(tr("В этой сборке нет движка Xray.", "This build has no Xray engine.", "У цій збірці немає рушія Xray."), color = Color(0xFFE5534B))
     }
 }
@@ -163,6 +174,7 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
     val context = LocalContext.current
     var pings by remember { mutableStateOf(mapOf<String, String>()) }
     var qr by remember { mutableStateOf<String?>(null) }
+    var receiving by remember { mutableStateOf(false) }
     LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -170,6 +182,7 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
                 OutlinedButton(onClick = {
                     thread { store.profiles.forEach { store.update(it) }; android.os.Handler(context.mainLooper).post(refresh) }
                 }) { Text(tr("Обновить все", "Update all", "Оновити всі")) }
+                OutlinedButton(onClick = { receiving = true }) { Text(tr("С телефона", "From a phone", "З телефона")) }
             }
         } }
         for (profile in store.profiles) {
@@ -215,6 +228,51 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
         }
     }
     qr?.let { text -> QrDialog(text) { qr = null } }
+    if (receiving) ReceiveDialog(store) { receiving = false; refresh() }
+}
+
+/** On a TV: a one-time page in the local network; the phone opens it by the QR and sends the subscription. */
+@Composable
+private fun ReceiveDialog(store: Store, onDone: () -> Unit) {
+    val context = LocalContext.current
+    var address by remember { mutableStateOf<String?>(null) }
+    var status by remember { mutableStateOf("") }
+    DisposableEffect(Unit) {
+        val receiver = TvReceiver { text ->
+            val result = runCatching { store.add(text).also { if (it.kind == "subscription") store.update(it) } }
+            android.os.Handler(context.mainLooper).post {
+                status = result.fold({ tr("Добавлено: ", "Added: ", "Додано: ") + it.name }, { it.message ?: "error" })
+            }
+        }
+        val ip = TvReceiver.localAddress()
+        if (ip == null) status = tr("Нет локальной сети", "No local network", "Немає локальної мережі")
+        else address = "http://$ip:${receiver.start()}/${receiver.key}"
+        onDispose { receiver.stop() }
+    }
+    AlertDialog(onDismissRequest = onDone, confirmButton = { TextButton(onClick = onDone) { Text("OK") } },
+        title = { Text(tr("Отсканируйте телефоном", "Scan with a phone", "Відскануйте телефоном")) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                address?.let { url ->
+                    QrImage(url)
+                    Text(tr("Телефон должен быть в той же сети. Страница работает 5 минут и принимает одну подписку.",
+                        "The phone must be on the same network. The page works for 5 minutes and accepts one subscription.",
+                        "Телефон має бути в тій самій мережі. Сторінка працює 5 хвилин і приймає одну підписку."), style = MaterialTheme.typography.bodySmall)
+                }
+                if (status.isNotBlank()) Text(status)
+            }
+        })
+}
+
+@Composable
+private fun QrImage(text: String) {
+    val bitmap = remember(text) {
+        val matrix = QRCodeWriter().encode(text, BarcodeFormat.QR_CODE, 512, 512)
+        Bitmap.createBitmap(512, 512, Bitmap.Config.RGB_565).apply {
+            for (x in 0 until 512) for (y in 0 until 512) setPixel(x, y, if (matrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+        }
+    }
+    Image(bitmap.asImageBitmap(), null, Modifier.size(240.dp))
 }
 
 @Composable
@@ -334,6 +392,7 @@ private fun SettingsScreen(store: Store, refresh: () -> Unit) {
     val s = store.settings
     var dns by remember { mutableStateOf(s.dns.joinToString(", ")) }
     var picking by remember { mutableStateOf(false) }
+    var updateText by remember { mutableStateOf("") }
     LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Toggle(tr("Фрагментация TLS ClientHello", "TLS ClientHello fragmentation", "Фрагментація TLS ClientHello"), s.fragment) {
@@ -376,6 +435,16 @@ private fun SettingsScreen(store: Store, refresh: () -> Unit) {
             listOf("system" to tr("Как в системе", "System", "Як у системі"), "dark" to tr("Тёмная", "Dark", "Темна"), "light" to tr("Светлая", "Light", "Світла"))
                 .forEach { (key, label) -> ServerRow(label, "", s.theme == key) { store.settings = s.copy(theme = key); refresh() } }
             Text("Xray ${Xray.version().ifBlank { "—" }}", style = MaterialTheme.typography.bodySmall)
+            OutlinedButton(onClick = {
+                updateText = tr("Проверка…", "Checking…", "Перевірка…")
+                thread {
+                    val text = runCatching { store.checkUpdate(force = true) }.fold(
+                        { it?.let { u -> tr("Доступна версия ", "Version available: ", "Доступна версія ") + u.versionName } ?: tr("Установлена последняя версия", "Up to date", "Встановлено останню версію") },
+                        { tr("Не удалось проверить", "Could not check", "Не вдалося перевірити") })
+                    android.os.Handler(context.mainLooper).post { updateText = text; refresh() }
+                }
+            }) { Text(tr("Проверить обновления", "Check for updates", "Перевірити оновлення")) }
+            if (updateText.isNotBlank()) Text(updateText)
         } }
     }
     if (picking) AppsDialog(context, s.apps) { chosen -> if (chosen != null) store.settings = s.copy(apps = chosen); picking = false; refresh() }

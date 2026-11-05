@@ -37,6 +37,12 @@
             </intent-filter>
             <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE" android:value="true" />
         </service>
+        <receiver android:name=".vpn.ClientWidget" android:exported="false" android:label="@string/app_short">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/client_widget_info" />
+        </receiver>
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"

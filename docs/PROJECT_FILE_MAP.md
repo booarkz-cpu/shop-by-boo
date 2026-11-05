@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.79.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.80.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2285**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2240**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -953,39 +953,6 @@
 | [docs/archive/root/V4_NODE_PROVISIONING.md](../docs/archive/root/V4_NODE_PROVISIONING.md) | Документация |
 | [docs/archive/root/V4_RELEASE_NOTES.md](../docs/archive/root/V4_RELEASE_NOTES.md) | Документация |
 | [docs/archive/root/V6_PLATFORM_RELEASE_RU.md](../docs/archive/root/V6_PLATFORM_RELEASE_RU.md) | Документация |
-| [docs/assets/screens/admin-apps.png](../docs/assets/screens/admin-apps.png) | Документация |
-| [docs/assets/screens/admin-backups.png](../docs/assets/screens/admin-backups.png) | Документация |
-| [docs/assets/screens/admin-dashboard.png](../docs/assets/screens/admin-dashboard.png) | Документация |
-| [docs/assets/screens/admin-fraud.png](../docs/assets/screens/admin-fraud.png) | Документация |
-| [docs/assets/screens/admin-nodes.png](../docs/assets/screens/admin-nodes.png) | Документация |
-| [docs/assets/screens/admin-support.png](../docs/assets/screens/admin-support.png) | Документация |
-| [docs/assets/screens/ai-knowledge.png](../docs/assets/screens/ai-knowledge.png) | Документация |
-| [docs/assets/screens/android-admin-launch.png](../docs/assets/screens/android-admin-launch.png) | Документация |
-| [docs/assets/screens/android-admin-monitoring.png](../docs/assets/screens/android-admin-monitoring.png) | Документация |
-| [docs/assets/screens/android-admin-ops.png](../docs/assets/screens/android-admin-ops.png) | Документация |
-| [docs/assets/screens/android-admin-overview.png](../docs/assets/screens/android-admin-overview.png) | Документация |
-| [docs/assets/screens/android-admin-panel.png](../docs/assets/screens/android-admin-panel.png) | Документация |
-| [docs/assets/screens/android-admin-payments.png](../docs/assets/screens/android-admin-payments.png) | Документация |
-| [docs/assets/screens/android-admin-support.png](../docs/assets/screens/android-admin-support.png) | Документация |
-| [docs/assets/screens/android-locations.png](../docs/assets/screens/android-locations.png) | Документация |
-| [docs/assets/screens/android-settings.png](../docs/assets/screens/android-settings.png) | Документация |
-| [docs/assets/screens/android-vpn-on.png](../docs/assets/screens/android-vpn-on.png) | Документация |
-| [docs/assets/screens/android-vpn.png](../docs/assets/screens/android-vpn.png) | Документация |
-| [docs/assets/screens/anti-sharing.png](../docs/assets/screens/anti-sharing.png) | Документация |
-| [docs/assets/screens/api-mirrors.png](../docs/assets/screens/api-mirrors.png) | Документация |
-| [docs/assets/screens/ios-admin-launch.png](../docs/assets/screens/ios-admin-launch.png) | Документация |
-| [docs/assets/screens/ios-admin-monitoring.png](../docs/assets/screens/ios-admin-monitoring.png) | Документация |
-| [docs/assets/screens/ios-admin-ops.png](../docs/assets/screens/ios-admin-ops.png) | Документация |
-| [docs/assets/screens/ios-admin-overview.png](../docs/assets/screens/ios-admin-overview.png) | Документация |
-| [docs/assets/screens/ios-admin-panel.png](../docs/assets/screens/ios-admin-panel.png) | Документация |
-| [docs/assets/screens/ios-admin-payments.png](../docs/assets/screens/ios-admin-payments.png) | Документация |
-| [docs/assets/screens/ios-admin-support.png](../docs/assets/screens/ios-admin-support.png) | Документация |
-| [docs/assets/screens/ios-subscription.png](../docs/assets/screens/ios-subscription.png) | Документация |
-| [docs/assets/screens/ios-vpn.png](../docs/assets/screens/ios-vpn.png) | Документация |
-| [docs/assets/screens/node-monitor.png](../docs/assets/screens/node-monitor.png) | Документация |
-| [docs/assets/screens/promo-generator.png](../docs/assets/screens/promo-generator.png) | Документация |
-| [docs/assets/screens/referral-bonus.png](../docs/assets/screens/referral-bonus.png) | Документация |
-| [docs/assets/screens/telegram-backup.png](../docs/assets/screens/telegram-backup.png) | Документация |
 | [docs/current-guides.json](../docs/current-guides.json) | Документация |
 | [docs/en/DEPLOYMENT.md](../docs/en/DEPLOYMENT.md) | Документация |
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
@@ -1206,6 +1173,7 @@
 | [docs/ru/RELEASE_V28_78_0.md](../docs/ru/RELEASE_V28_78_0.md) | Документация |
 | [docs/ru/RELEASE_V28_79_0.md](../docs/ru/RELEASE_V28_79_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
+| [docs/ru/RELEASE_V28_80_0.md](../docs/ru/RELEASE_V28_80_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
@@ -1358,26 +1326,6 @@
 | [docs/ru/steps/04-payments.md](../docs/ru/steps/04-payments.md) | Документация |
 | [docs/ru/steps/05-operations.md](../docs/ru/steps/05-operations.md) | Документация |
 | [docs/ru/steps/README.md](../docs/ru/steps/README.md) | Документация |
-| [docs/screenshots/admin-admins-v28-10-0.png](../docs/screenshots/admin-admins-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-bot-content-v28-10-0.png](../docs/screenshots/admin-bot-content-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-command-search-v28-10-0.png](../docs/screenshots/admin-command-search-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-dashboard-v28-10-0.png](../docs/screenshots/admin-dashboard-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-login-v28-10-0.png](../docs/screenshots/admin-login-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-marketing-v28-10-0.png](../docs/screenshots/admin-marketing-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-mobile-drawer-v28-10-0.png](../docs/screenshots/admin-mobile-drawer-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-mobile-form-v28-10-0.png](../docs/screenshots/admin-mobile-form-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-mobile-v28-10-0.png](../docs/screenshots/admin-mobile-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-network-intel-v28-10-0.png](../docs/screenshots/admin-network-intel-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-node-terminal-v28-14-0.png](../docs/screenshots/admin-node-terminal-v28-14-0.png) | Документация |
-| [docs/screenshots/admin-panel-light-v28-10-0.png](../docs/screenshots/admin-panel-light-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-panel-search-v28-10-0.png](../docs/screenshots/admin-panel-search-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-panel-v28-10-0.png](../docs/screenshots/admin-panel-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-plans-v28-10-0.png](../docs/screenshots/admin-plans-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-runtime-settings-v28-10-0.png](../docs/screenshots/admin-runtime-settings-v28-10-0.png) | Документация |
-| [docs/screenshots/admin-tariff-constructor-v28-10-0.png](../docs/screenshots/admin-tariff-constructor-v28-10-0.png) | Документация |
-| [docs/screenshots/cabinet-overview-v28-10-0.png](../docs/screenshots/cabinet-overview-v28-10-0.png) | Документация |
-| [docs/screenshots/cabinet-plans-v28-10-0.png](../docs/screenshots/cabinet-plans-v28-10-0.png) | Документация |
-| [docs/screenshots/miniapp-light-v28-10-0.png](../docs/screenshots/miniapp-light-v28-10-0.png) | Документация |
 | [docs/uk/DEPLOYMENT.md](../docs/uk/DEPLOYMENT.md) | Документация |
 | [docs/uk/DOCUMENTATION.md](../docs/uk/DOCUMENTATION.md) | Документация |
 | [docs/uk/NEW_IN_V28_36.md](../docs/uk/NEW_IN_V28_36.md) | Документация |
@@ -1484,13 +1432,18 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Profiles.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Settings.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Settings.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/TvReceiver.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/TvReceiver.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/Updates.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Updates.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/data/Store.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/data/Store.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/engine/Xray.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/engine/Xray.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/ClientApp.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/ClientApp.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/MainActivity.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/MainActivity.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-client/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/drawable/widget_background.xml](../mobile/android-client/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/layout/client_widget.xml](../mobile/android-client/app/src/main/res/layout/client_widget.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
@@ -1499,9 +1452,11 @@
 | [mobile/android-client/app/src/main/res/values-en/strings.xml](../mobile/android-client/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/values-uk/strings.xml](../mobile/android-client/app/src/main/res/values-uk/strings.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/values/strings.xml](../mobile/android-client/app/src/main/res/values/strings.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/xml/client_widget_info.xml](../mobile/android-client/app/src/main/res/xml/client_widget_info.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/xml/network_security.xml](../mobile/android-client/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt) | Мобильные приложения |
 | [mobile/android-client/build.gradle.kts](../mobile/android-client/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-client/gradle.properties](../mobile/android-client/gradle.properties) | Мобильные приложения |
 | [mobile/android-client/gradle/wrapper/gradle-wrapper.jar](../mobile/android-client/gradle/wrapper/gradle-wrapper.jar) | Мобильные приложения |

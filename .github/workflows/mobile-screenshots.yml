@@ -267,17 +267,8 @@ jobs:
           # Only the generated admin block of README changes; the rest of README stays as on the branch.
           commit() {
             python3 scripts/screenshots/readme_admin.py "$shots"/admin-screenshots/admin-screenshots-index.json
-            # A curated set for the documentation (README, docs/modules): apps and the admin sections of new features.
-            mkdir -p docs/assets/screens
-            cp screenshots/mobile/android-vpn.png screenshots/mobile/android-vpn-on.png screenshots/mobile/android-locations.png \
-               screenshots/mobile/android-settings.png screenshots/mobile/ios-vpn.png screenshots/mobile/ios-subscription.png \
-               screenshots/mobile/android-admin-*.png screenshots/mobile/ios-admin-*.png docs/assets/screens/ 2>/dev/null || true
-            cp screenshots/admin_panel/features/*.png docs/assets/screens/ 2>/dev/null || true
-            for section in dashboard nodes apps fraud backups support referrals; do
-              for f in screenshots/admin_panel/*_"$section".png; do [ -f "$f" ] && cp "$f" "docs/assets/screens/admin-$section.png"; done
-            done
             python3 scripts/generate-project-map.py
-            git add screenshots docs/assets/screens README.md docs/PROJECT_FILE_MAP.md
+            git add screenshots README.md docs/PROJECT_FILE_MAP.md
             git diff --cached --quiet && { echo "No changes"; return 0; }
             git commit -q -m "Скриншоты: приложения Android/iOS, админ-панель и кабинет (workflow Mobile screenshots)"
           }
@@ -287,4 +278,4 @@ jobs:
           tag="screenshots-${{ github.run_id }}"
           git tag "$tag"
           git push origin "refs/tags/$tag"
-          echo "::notice title=screenshots::git fetch origin tag $tag && git checkout $tag -- screenshots docs/assets/screens README.md docs/PROJECT_FILE_MAP.md"
+          echo "::notice title=screenshots::git fetch origin tag $tag && git checkout $tag -- screenshots README.md docs/PROJECT_FILE_MAP.md"

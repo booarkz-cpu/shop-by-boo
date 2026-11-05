@@ -7,7 +7,6 @@ from unittest.mock import AsyncMock
 
 import httpx
 import pytest
-import pyotp
 from aiogram.types import Message as TelegramMessage
 from aiogram.exceptions import TelegramNetworkError, TelegramBadRequest, TelegramRetryAfter
 from aiogram.methods import SendMessage
@@ -205,7 +204,8 @@ async def test_auth_csrf_revocation_and_roles(env):
 
 
 async def test_totp_replay_rejected(env):
-    response = await post(env, '/login', login='admin', password='correct-password-123', code=pyotp.TOTP(env['secret']).now())
+    # The code used to sign in, not «now()»: across a 30-second boundary now() is a fresh, valid code (the old flake).
+    response = await post(env, '/login', login='admin', password='correct-password-123', code=env['code'])
     assert response.status_code == 401
 
 
