@@ -85,3 +85,57 @@ async def test_refund_has_its_own_idempotence_key_and_exact_amount(yookassa):
     assert calls[0].headers["Idempotence-Key"] == "refund-yk-9"
     body = json.loads(calls[0].content)
     assert body["amount"] == {"value": "99.90", "currency": "RUB"} and len(body["description"]) == 250
+
+
+def _gateway(monkeypatch, answer: dict, status: int = 200):
+    seen = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(status, json=answer)
+    monkeypatch.setattr(payments, "_public_client", lambda timeout: httpx.AsyncClient(transport=httpx.MockTransport(handler)))
+    return seen
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("paid, amount, currency, order, expected", [
+    ("CONFIRMED", "100.00", "RUB", "o-1", True),
+    ("PENDING", "100.00", "RUB", "o-1", False),       # not paid yet
+    ("CONFIRMED", "99.00", "RUB", "o-1", False),      # another amount
+    ("CONFIRMED", "100.00", "USD", "o-1", False),     # another currency
+    ("CONFIRMED", "100.00", "", "o-1", False),        # no currency cannot confirm money
+    ("CONFIRMED", "100.00", "RUB", "o-2", False),     # someone else's order
+])
+async def test_platega_confirms_only_the_exact_paid_order(monkeypatch, paid, amount, currency, order, expected):
+    monkeypatch.setattr(settings, "platega_api_url", "https://platega.test")
+    monkeypatch.setattr(settings, "platega_merchant_id", "m-1")
+    monkeypatch.setattr(settings, "platega_secret", "s-1")
+    seen = _gateway(monkeypatch, {"status": paid, "payload": order, "paymentDetails": {"amount": amount, "currency": currency}})
+    assert await payments.PlategaProvider().verify_succeeded("txn-9", Decimal("100"), "RUB", "o-1") is expected
+    assert seen[0].url.path == "/transaction/txn-9" and seen[0].headers["X-MerchantId"] == "m-1" and seen[0].headers["X-Secret"] == "s-1"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("paid, amount, currency, order, expected", [
+    ("paid", "100", "RUB", "o-1", True),
+    ("pending", "100", "RUB", "o-1", False),
+    ("paid", "100.01", "RUB", "o-1", False),
+    ("paid", "100", "EUR", "o-1", False),
+    ("paid", "100", "RUB", "o-3", False),
+])
+async def test_rollypay_confirms_only_the_exact_paid_order(monkeypatch, paid, amount, currency, order, expected):
+    monkeypatch.setattr(settings, "rollypay_api_url", "https://rollypay.test")
+    monkeypatch.setattr(settings, "rollypay_api_key", "rpk")
+    seen = _gateway(monkeypatch, {"status": paid, "amount": amount, "payment_currency": currency, "order_id": order})
+    assert await payments.RollyPayProvider().verify_succeeded("p-5", Decimal("100"), "RUB", "o-1") is expected
+    assert seen[0].url.path == "/api/v1/payments/p-5" and seen[0].headers["X-API-Key"] == "rpk" and seen[0].headers["X-Nonce"]
+
+
+@pytest.mark.asyncio
+async def test_a_gateway_error_never_confirms(monkeypatch):
+    monkeypatch.setattr(settings, "platega_api_url", "https://platega.test")
+    _gateway(monkeypatch, {"status": "CONFIRMED"}, status=500)
+    assert await payments.PlategaProvider().verify_succeeded("t", Decimal("1"), "RUB") is False
+    monkeypatch.setattr(settings, "rollypay_api_url", "https://rollypay.test")
+    _gateway(monkeypatch, {"status": "paid"}, status=404)
+    assert await payments.RollyPayProvider().verify_succeeded("t", Decimal("1"), "RUB") is False
