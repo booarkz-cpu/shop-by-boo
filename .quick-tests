@@ -1,0 +1,1 @@
+gen: export MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups APP_SECRET=x APP_ENV=test DATABASE_URL=sqlite+aiosqlite:///./t.db; python scripts/generate-admin-matrix.py; python scripts/verify-admin-matrix.py; rm -f t.db
