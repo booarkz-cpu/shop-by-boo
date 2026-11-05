@@ -1,0 +1,4 @@
+saved docs/img/bot-start.png
+saved docs/img/bot-balance.png
+saved docs/img/bot-buy.png
+saved docs/img/bot-support.png
