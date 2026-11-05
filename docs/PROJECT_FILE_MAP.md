@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2240**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2242**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1427,8 +1427,10 @@
 | [mobile/android-admin/gradlew.bat](../mobile/android-admin/gradlew.bat) | Мобильные приложения |
 | [mobile/android-admin/settings.gradle.kts](../mobile/android-admin/settings.gradle.kts) | Мобильные приложения |
 | [mobile/android-client/app/build.gradle.kts](../mobile/android-client/app/build.gradle.kts) | Мобильные приложения |
+| [mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/AndroidManifest.xml](../mobile/android-client/app/src/main/AndroidManifest.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/I18n.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/I18n.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Profiles.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Settings.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Settings.kt) | Мобильные приложения |
