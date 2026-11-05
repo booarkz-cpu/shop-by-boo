@@ -1,7 +1,11 @@
 package shop.corgi.client
 
 import android.content.Context
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -185,6 +189,38 @@ class ClientScreensTest {
         compose.onNodeWithTag("routing-profile").performClick()
         assertEquals("bypass_ru", Store(context).settings.routing)
         assertEquals(listOf("Home"), Store(context).settings.routingProfiles.map { it.name })
+    }
+
+    @Test fun homeServerCardOpensTheListAndChooses() {
+        Store(context).add(links)
+        launch()
+        exists("Free internet without the extra Woof!")
+        exists("Auto select")
+        shot("home")
+        compose.onNodeWithTag("server-picker").performClick()   // the card opens the list
+        compose.waitForIdle()
+        assertTrue(compose.onAllNodesWithTag("server-row").fetchSemanticsNodes().size == 3)   // auto + 2 servers
+        exists("VLESS • TCP • REALITY")
+        shot("home-servers")
+        compose.onNodeWithText("Germany").performClick()
+        assertEquals("1", Store(context).activeServer)
+        assertTrue(compose.onAllNodesWithTag("server-row").fetchSemanticsNodes().isEmpty())   // closed after the choice
+        exists("Germany")
+        compose.onNodeWithText("Settings").performClick()
+        shot("settings")
+    }
+
+    /** Screens for the owner (pulled by android-client.yml from the app's external files into an artifact). */
+    private fun shot(name: String) {
+        compose.waitForIdle()
+        val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
+        val dir = java.io.File(context.getExternalFilesDir(null), "screens").apply { mkdirs() }
+        val file = java.io.File(dir, "$name.png")
+        java.io.FileOutputStream(file).use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+        // The test run uninstalls the app (and its files): a copy goes to /data/local/tmp, which the workflow pulls.
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation
+            .executeShellCommand("sh -c 'mkdir -p /data/local/tmp/client-screens && cp ${file.absolutePath} /data/local/tmp/client-screens/'").close()
+        Thread.sleep(300)
     }
 
     @Test fun resetBringsDefaultsBackAndKeepsProfiles() {

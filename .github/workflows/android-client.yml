@@ -85,4 +85,11 @@ jobs:
           disable-animations: true
           cores: 4
           ram-size: 4096M
-          script: bash scripts/mobile/client-vpn-e2e.sh mobile/android-client/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/xray/xray" && cd mobile/android-client && bash gradlew :app:connectedDebugAndroidTest --no-daemon
+          # The UI tests also save screens of the main views (ClientScreensTest.shot): pulled for the artifact below.
+          script: bash scripts/mobile/client-vpn-e2e.sh mobile/android-client/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/xray/xray" && cd mobile/android-client && bash gradlew :app:connectedDebugAndroidTest --no-daemon && adb pull /data/local/tmp/client-screens "$GITHUB_WORKSPACE/client-screens"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: android-client-screens
+          path: client-screens/
+          if-no-files-found: ignore
