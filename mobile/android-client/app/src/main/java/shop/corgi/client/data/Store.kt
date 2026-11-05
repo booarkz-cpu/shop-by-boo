@@ -25,7 +25,11 @@ class Store(context: Context) {
         set(value) { prefs.edit().putString("profiles", JSONArray(value.map { it.toJson() }).toString()).apply() }
 
     var settings: Settings
-        get() = Settings.of(prefs.getString("settings", null)?.let { runCatching { JSONObject(it) }.getOrNull() })
+        get() = Settings.of(prefs.getString("settings", null)?.let { runCatching { JSONObject(it) }.getOrNull() }).let { s ->
+            // The local proxy's login and password: random on the first use, changed only by «Сбросить логин/пароль».
+            if (s.proxyUser.isNotBlank() && s.proxyPass.isNotBlank()) s
+            else s.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16)).also { prefs.edit().putString("settings", it.toJson().toString()).apply() }
+        }
         set(value) { prefs.edit().putString("settings", value.toJson().toString()).apply() }
 
     /** The active profile id and the server in it: an index or «auto». */
@@ -98,6 +102,25 @@ class Store(context: Context) {
     var pings: Map<String, Int>
         get() = runCatching { JSONObject(prefs.getString("pings", "{}")!!).let { j -> j.keys().asSequence().associateWith { j.getInt(it) } } }.getOrDefault(emptyMap())
         set(value) { prefs.edit().putString("pings", JSONObject(value.mapValues { it.value }).toString()).apply() }
+
+    private fun random(n: Int): String {
+        val chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        val rnd = java.security.SecureRandom()
+        return (1..n).map { chars[rnd.nextInt(chars.length)] }.joinToString("")
+    }
+
+    /** Puts a backup in place of the providers and settings; this device keeps its own proxy login and password. */
+    fun restore(backup: shop.corgi.client.core.Backup) {
+        val mine = settings
+        profiles = backup.profiles
+        settings = backup.settings.copy(proxyUser = mine.proxyUser, proxyPass = mine.proxyPass)
+        activeProfile = backup.activeProfile.takeIf { id -> backup.profiles.any { it.id == id } } ?: backup.profiles.firstOrNull()?.id.orEmpty()
+        activeServer = backup.activeServer.ifBlank { "auto" }
+    }
+
+    fun backup(): shop.corgi.client.core.Backup = shop.corgi.client.core.Backup(profiles, settings, activeProfile, activeServer, System.currentTimeMillis())
+
+    fun newProxyCredentials() { settings = settings.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16)) }
 
     /** Everything back to a fresh install, except the profiles and this install's id. */
     fun resetSettings() { prefs.edit().remove("settings").remove("pings").apply() }

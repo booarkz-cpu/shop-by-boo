@@ -32,6 +32,9 @@ import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -86,7 +89,10 @@ fun SettingsScreen(store: Store, page: String?, open: (String?) -> Unit, refresh
                         "apps" -> AppsPage(store, s, save)
                         "appearance" -> AppearancePage(s, save)
                         "connection" -> ConnectionPage(s, save)
-                        "tunnel" -> TunnelPage(s, save)
+                        "tunnel" -> TunnelPage(store, s, save)
+                        "schemes" -> SchemesPage()
+                        "backup" -> BackupPage(store, refresh)
+                        "logs" -> LogsPage(store, s, save)
                         "providers" -> ProvidersPage(s) { save(it); UpdateJob.schedule(context) }
                         "ping" -> PingPage(s, save)
                         "about" -> AboutPage(store)
@@ -106,6 +112,9 @@ private val PAGES: List<Pair<String, () -> String>> = listOf(
     "providers" to { tr("Настройки провайдеров", "Provider settings", "Налаштування провайдерів") },
     "ping" to { tr("Настройки пинга", "Ping settings", "Налаштування пінгу") },
     "about" to { tr("О приложении", "About", "Про застосунок") },
+    "schemes" to { tr("Схемы URL-адресов", "URL schemes", "Схеми URL-адрес") },
+    "backup" to { tr("Резервное копирование", "Backup", "Резервне копіювання") },
+    "logs" to { tr("Журналы туннеля", "Tunnel logs", "Журнали тунелю") },
 )
 
 @Composable
@@ -138,6 +147,12 @@ private fun SettingsMenu(store: Store, open: (String?) -> Unit, refresh: () -> U
         } }
         run { Section(tr("Приложение", "App", "Застосунок")) {
             NavRow(Icons.Filled.Info, tr("О приложении", "About", "Про застосунок"), "v${BuildConfig.VERSION_NAME}") { open("about") }
+            NavRow(Icons.Filled.Link, tr("Схемы URL-адресов", "URL schemes", "Схеми URL-адрес"), "corgi://") { open("schemes") }
+            NavRow(Icons.Filled.CloudUpload, tr("Резервное копирование", "Backup", "Резервне копіювання")) { open("backup") }
+        } }
+        run { Section(tr("Отладка", "Debugging", "Налагодження")) {
+            NavRow(Icons.Filled.Terminal, tr("Журналы туннеля", "Tunnel logs", "Журнали тунелю"),
+                (if (s.logLevel == "none") tr("Выключены", "Off", "Вимкнено") else s.logLevel) + " · " + if (s.logHours == 0) "∞" else "${s.logHours} " + tr("ч", "h", "год")) { open("logs") }
         } }
         run {
             OutlinedButton(onClick = { resetting = true }, Modifier.fillMaxWidth().padding(vertical = 12.dp).testTag("reset"),
@@ -239,6 +254,16 @@ private fun ConnectionPage(s: Settings, save: (Settings) -> Unit) {
                 else context.startActivity(Intent(AndroidSettings.ACTION_SETTINGS))
             }
         }
+        Section(tr("Автоподключение", "Auto connect", "Автопідключення")) {
+            ToggleRow(tr("Подключаться при запуске приложения", "Connect when the app opens", "Підключатися під час запуску"), "", s.autoConnectLaunch) {
+                save(s.copy(autoConnectLaunch = it)) }
+            ToggleRow(tr("Подключаться при загрузке устройства", "Connect when the device starts", "Підключатися під час завантаження пристрою"),
+                tr("Нужно разрешение VPN, выданное раньше", "Needs the VPN permission granted before", "Потрібен раніше наданий дозвіл VPN"), s.autoConnectBoot) {
+                save(s.copy(autoConnectBoot = it)) }
+            ToggleRow(tr("Сервер и статус на плитке", "Server and state on the tile", "Сервер і статус на плитці"),
+                tr("Выключите, чтобы оставить только название", "Turn off to keep only the name", "Вимкніть, щоб лишити тільки назву"), s.tileDetails) {
+                save(s.copy(tileDetails = it)); QuickTile.refresh(context) }
+        }
         Section("Kill Switch") {
             NavRow(Icons.Filled.Settings, tr("Блокировать интернет без VPN", "Block internet without the VPN", "Блокувати інтернет без VPN"),
                 hint = tr("Android делает это сам: «Постоянная VPN» и «Блокировать соединения без VPN» в настройках VPN системы.",
@@ -259,7 +284,7 @@ private fun ConnectionPage(s: Settings, save: (Settings) -> Unit) {
 }
 
 @Composable
-private fun TunnelPage(s: Settings, save: (Settings) -> Unit) {
+private fun TunnelPage(store: Store, s: Settings, save: (Settings) -> Unit) {
     var length by remember { mutableStateOf(s.fragmentLength) }
     var interval by remember { mutableStateOf(s.fragmentInterval) }
     var dns by remember { mutableStateOf(s.dns.joinToString(", ")) }
@@ -267,12 +292,27 @@ private fun TunnelPage(s: Settings, save: (Settings) -> Unit) {
     var routes by remember { mutableStateOf(s.excludedRoutes.joinToString("\n")) }
     var message by remember { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Section(tr("Режим туннеля", "Tunnel mode", "Режим тунелю")) {
+            ChoiceRow(tr("Режим", "Mode", "Режим"), if (s.tunnelMode == "proxy") tr("Только локальный прокси, без VPN и значка ключа: Android не пустит через него приложения без настройки прокси",
+                "Only the local proxy, no VPN and no key icon: apps without a proxy setting go direct", "Лише локальний проксі, без VPN і значка ключа: застосунки без налаштування проксі йдуть напряму")
+                else tr("Весь трафик устройства через туннель", "All device traffic through the tunnel", "Увесь трафік пристрою через тунель"),
+                listOf("tun" to "TUN", "proxy" to tr("Только прокси", "Proxy only", "Лише проксі")), s.tunnelMode) { save(s.copy(tunnelMode = it)) }
+            ToggleRow(tr("Скорость в уведомлении", "Speed in the notification", "Швидкість у сповіщенні"), tr("Загрузка и отдача каждую секунду", "Download and upload every second",
+                "Завантаження й віддача щосекунди"), s.speedNotification) { save(s.copy(speedNotification = it)) }
+            ToggleRow(tr("Держать устройство активным", "Keep the device awake", "Тримати пристрій активним"), tr("Wakelock во время работы — нужен на Xiaomi/HyperOS; разряжает батарею быстрее",
+                "A wake lock while connected — needed on Xiaomi/HyperOS; drains the battery faster", "Wakelock під час роботи — потрібен на Xiaomi/HyperOS; швидше розряджає батарею"),
+                s.wakelock) { save(s.copy(wakelock = it)) }
+            ToggleRow(tr("Мультиплексирование (Mux)", "Multiplexing (Mux)", "Мультиплексування (Mux)"), tr("Объединять соединения в один канал (не для XTLS Vision и Hysteria2)",
+                "Combine connections into one channel (not for XTLS Vision or Hysteria2)", "Об'єднувати з'єднання в один канал (не для XTLS Vision і Hysteria2)"), s.mux) { save(s.copy(mux = it)) }
+        }
+        ProxySection(store, s, save)
         Section(tr("Фрагментирование", "Fragmentation", "Фрагментування")) {
             ToggleRow(tr("Фрагментирование", "Fragmentation", "Фрагментування"), tr("Обход DPI: TLS-приветствие по кусочкам (для TLS-серверов; REALITY не затрагивает)",
                 "DPI bypass: the TLS hello in pieces (TLS servers; REALITY is not affected)", "Обхід DPI: TLS-привітання частинами (для TLS-серверів; REALITY не зачіпає)"),
                 s.fragment) { save(s.copy(fragment = it)) }
             if (s.fragment) {
                 ChoiceRow("Packets", "", Settings.FRAGMENT_PACKETS.map { it to it }, s.fragmentPackets) { save(s.copy(fragmentPackets = it)) }
+                ToggleRow("Noises", tr("Случайные пакеты перед данными", "Random packets before the data", "Випадкові пакети перед даними"), s.noises) { save(s.copy(noises = it)) }
                 Row(Modifier.padding(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(length, { length = it }, Modifier.weight(1f), label = { Text("Length") }, singleLine = true)
                     OutlinedTextField(interval, { interval = it }, Modifier.weight(1f), label = { Text("Interval") }, singleLine = true)

@@ -64,6 +64,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -84,6 +85,7 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import shop.corgi.client.BuildConfig
 import shop.corgi.client.core.ConfigBuilder
 import shop.corgi.client.core.Ping
+import shop.corgi.client.core.Scheme
 import shop.corgi.client.core.Profile
 import shop.corgi.client.core.Server
 import shop.corgi.client.core.Settings
@@ -99,12 +101,12 @@ import java.util.Locale
 import kotlin.concurrent.thread
 
 @Composable
-fun ClientApp(store: Store, incoming: String?, connect: () -> Unit) {
+fun ClientApp(store: Store, incoming: MutableState<String?>, connect: () -> Unit, pending: MutableState<Scheme?>) {
     var revision by remember { mutableIntStateOf(0) }
     val refresh: () -> Unit = { revision++ }
     var tab by remember { mutableIntStateOf(0) }
     var page by remember { mutableStateOf<String?>(null) }   // a page of «Настройки»
-    var adding by remember { mutableStateOf(incoming) }
+    var adding by incoming
     val s = androidx.compose.runtime.key(revision) { store.settings }
     BackHandler(enabled = page != null || tab != 0) { if (page != null) page = null else tab = 0 }
     CorgiTheme(s) {
@@ -130,6 +132,7 @@ fun ClientApp(store: Store, incoming: String?, connect: () -> Unit) {
                     }
                 }
                 adding?.let { text -> AddDialog(store, text, onDone = { adding = null; refresh() }) }
+                pending.value?.let { scheme -> SchemeDialog(store, scheme) { pending.value = null; refresh() } }
             }
         }
     }

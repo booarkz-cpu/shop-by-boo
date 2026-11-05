@@ -41,6 +41,12 @@ object Xray {
         (lib.getMethod("measureOutboundDelay", String::class.java, String::class.java).invoke(null, config, url) as Long).takeIf { it > 0 } ?: -1
     } catch (_: Throwable) { -1 }
 
+    /** Bytes through ``tag`` since the last call ("uplink" / "downlink"); needs «stats» in the config. 0 when unknown. */
+    fun traffic(tag: String, direction: String): Long = try {
+        val core = controller ?: return 0
+        core.javaClass.getMethod("queryStats", String::class.java, String::class.java).invoke(core, tag, direction) as Long
+    } catch (_: Throwable) { 0 }
+
     fun stop() {
         val core = controller ?: return
         controller = null

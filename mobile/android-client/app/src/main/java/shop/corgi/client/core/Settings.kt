@@ -52,6 +52,26 @@ data class Settings(
     val blockUdp: Boolean = false,
     val idleTimeout: Int = 300,                  // seconds (Xray policy connIdle)
     val excludedRoutes: List<String> = emptyList(),
+    // v1.4.0: «TUN + прокси» or «только прокси» (no VPN icon), the local SOCKS5/HTTP proxy and sharing it to the LAN
+    val tunnelMode: String = "tun",              // tun | proxy
+    val localProxy: Boolean = false,             // in «tun» mode: SOCKS5/HTTP on the device too
+    val shareLan: Boolean = false,               // bind 0.0.0.0: devices of the same Wi-Fi / hotspot use the phone
+    val socksPort: Int = 10808,
+    val httpPort: Int = 10809,
+    val proxyAuth: Boolean = true,               // SOCKS5 login and password
+    val httpAuth: Boolean = true,                // the same login and password on the HTTP proxy
+    val proxyUser: String = "",
+    val proxyPass: String = "",
+    val mux: Boolean = false,
+    val muxConcurrency: Int = 8,
+    val noises: Boolean = false,
+    val speedNotification: Boolean = true,
+    val wakelock: Boolean = false,
+    val autoConnectLaunch: Boolean = false,
+    val autoConnectBoot: Boolean = false,
+    val tileDetails: Boolean = true,             // the tile shows the server and the state, not only the name
+    val logLevel: String = "none",               // none | error | warning | info | debug
+    val logHours: Int = 1,                       // 1 | 6 | 24 | 168 | 0 (keep all)
     // Apps through the VPN
     val appsMode: String = "all",                // all | only | except
     val apps: Set<String> = emptySet(),
@@ -93,6 +113,12 @@ data class Settings(
         require(pingUrl.startsWith("https://") || pingUrl.startsWith("http://")) { "url" }
         require(userAgent.isNotBlank() && userAgent.length <= 200 && userAgent.none { it == '\n' || it == '\r' }) { "agent" }
         require(excludedRoutes.all { CIDR.matches(it) }) { "routes" }
+        require(tunnelMode in listOf("tun", "proxy") && logLevel in LOG_LEVELS && logHours in LOG_HOURS) { "mode" }
+        require(socksPort in 1024..65535 && httpPort in 1024..65535 && socksPort != httpPort) { "ports" }
+        require(muxConcurrency in 1..128) { "mux" }
+        require(CREDENTIAL.matches(proxyUser) && CREDENTIAL.matches(proxyPass)) { "credentials" }
+        // Sharing the proxy with other devices without a password would open it to the whole network.
+        require(!shareLan || proxyAuth) { "auth" }
     }
 
     fun toJson(): JSONObject = JSONObject().put("routing", routing).put("rules", JSONArray(rules.map { it.toJson() }))
@@ -105,6 +131,11 @@ data class Settings(
         .put("connectStyle", connectStyle).put("vibration", vibration)
         .put("autoUpdate", autoUpdate).put("updateMinutes", updateMinutes).put("notifyUpdates", notifyUpdates).put("updateOnLaunch", updateOnLaunch)
         .put("pingOnLaunch", pingOnLaunch).put("pingAfterUpdate", pingAfterUpdate).put("sendHwid", sendHwid).put("userAgent", userAgent).put("sort", sort)
+        .put("tunnelMode", tunnelMode).put("localProxy", localProxy).put("shareLan", shareLan).put("socksPort", socksPort).put("httpPort", httpPort)
+        .put("proxyAuth", proxyAuth).put("httpAuth", httpAuth).put("proxyUser", proxyUser).put("proxyPass", proxyPass).put("mux", mux)
+        .put("muxConcurrency", muxConcurrency).put("noises", noises).put("speedNotification", speedNotification).put("wakelock", wakelock)
+        .put("autoConnectLaunch", autoConnectLaunch).put("autoConnectBoot", autoConnectBoot).put("tileDetails", tileDetails)
+        .put("logLevel", logLevel).put("logHours", logHours)
         .put("pingMethod", pingMethod).put("pingDisplay", pingDisplay).put("pingUrl", pingUrl).put("pingTimeout", pingTimeout)
 
     companion object {
@@ -117,6 +148,9 @@ data class Settings(
         val PING_METHODS = listOf("core", "tcp", "icmp")
         val PING_DISPLAYS = listOf("digits", "bar", "both", "dots")
         val PING_URLS = listOf("https://www.gstatic.com/generate_204", "https://cp.cloudflare.com/generate_204", "https://captive.apple.com/hotspot-detect.html")
+        val LOG_LEVELS = listOf("none", "error", "warning", "info", "debug")
+        val LOG_HOURS = listOf(1, 6, 24, 168, 0)
+        private val CREDENTIAL = Regex("^[A-Za-z0-9_.-]{0,64}$")
         const val DEFAULT_PING_URL = "https://www.gstatic.com/generate_204"
         // Remnawave and most panels answer v2ray-style clients with share links or Xray JSON; both are understood.
         const val DEFAULT_AGENT = "v2rayNG/1.10.0 CorgiClient"
@@ -161,6 +195,15 @@ data class Settings(
             tryField { it.copy(pingMethod = s("pingMethod", d.pingMethod), pingDisplay = s("pingDisplay", d.pingDisplay)) }
             tryField { it.copy(pingUrl = s("pingUrl", d.pingUrl)) }
             tryField { it.copy(pingTimeout = i("pingTimeout", d.pingTimeout)) }
+            tryField { it.copy(tunnelMode = s("tunnelMode", d.tunnelMode), localProxy = b("localProxy", d.localProxy)) }
+            tryField { it.copy(socksPort = i("socksPort", d.socksPort), httpPort = i("httpPort", d.httpPort)) }
+            tryField { it.copy(proxyUser = s("proxyUser", ""), proxyPass = s("proxyPass", "")) }
+            tryField { it.copy(proxyAuth = b("proxyAuth", d.proxyAuth), httpAuth = b("httpAuth", d.httpAuth)) }
+            tryField { it.copy(shareLan = b("shareLan", d.shareLan)) }
+            tryField { it.copy(mux = b("mux", d.mux), muxConcurrency = i("muxConcurrency", d.muxConcurrency), noises = b("noises", d.noises)) }
+            tryField { it.copy(speedNotification = b("speedNotification", d.speedNotification), wakelock = b("wakelock", d.wakelock), tileDetails = b("tileDetails", d.tileDetails)) }
+            tryField { it.copy(autoConnectLaunch = b("autoConnectLaunch", d.autoConnectLaunch), autoConnectBoot = b("autoConnectBoot", d.autoConnectBoot)) }
+            tryField { it.copy(logLevel = s("logLevel", d.logLevel), logHours = i("logHours", d.logHours)) }
             return out
         }
     }
