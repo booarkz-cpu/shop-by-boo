@@ -4,19 +4,19 @@
 
 **PASS** — все изменяющие маршруты покрыты тестами, у всех разделов есть скриншот. **PARTIAL** — ниже перечислено, что не покрыто.
 
-Изменяющих маршрутов: **223 из 314** покрыты тестами; модулей PASS: **6 из 30**.
+Изменяющих маршрутов: **234 из 314** покрыты тестами; модулей PASS: **9 из 30**.
 
 | № | Модуль | Маршрутов | Изменяющих | Покрыто тестами | Статус |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Dashboard | 17 | 4 | 2 | PARTIAL |
 | 2 | Users | 37 | 18 | 12 | PARTIAL |
 | 3 | Subscriptions | 12 | 7 | 7 | PASS |
-| 4 | Tariffs | 18 | 12 | 7 | PARTIAL |
+| 4 | Tariffs | 18 | 12 | 12 | PASS |
 | 5 | Devices | 6 | 4 | 3 | PARTIAL |
 | 6 | Payments | 35 | 19 | 12 | PARTIAL |
 | 7 | Finance | 12 | 7 | 4 | PARTIAL |
-| 8 | Promo Codes | 14 | 11 | 6 | PARTIAL |
-| 9 | Gifts | 6 | 3 | 2 | PARTIAL |
+| 8 | Promo Codes | 14 | 11 | 11 | PASS |
+| 9 | Gifts | 6 | 3 | 3 | PASS |
 | 10 | Referrals | 13 | 8 | 5 | PARTIAL |
 | 11 | Remnawave | 32 | 15 | 3 | PARTIAL |
 | 12 | Installation | 58 | 40 | 37 | PARTIAL |
@@ -55,13 +55,6 @@
 - `POST /api/admin/customer-operations/import/inspect`
 - `POST /api/admin/remnawave/users/{user_id}/extend`
 
-**4. Tariffs**
-- `POST /api/admin/traffic-packages`
-- `PUT /api/admin/traffic-packages/{package_id}`
-- `PUT /api/admin/tariff-constructors/{constructor_id}`
-- `DELETE /api/admin/tariff-constructors/{constructor_id}`
-- `PUT /api/admin/pricing/regions`
-
 **5. Devices**
 - `DELETE /api/admin/wg-pool/free`
 
@@ -78,16 +71,6 @@
 - `DELETE /api/admin/pnl/costs/{cost_id}`
 - `POST /api/admin/fiscal/test`
 - `POST /api/admin/fiscal/receipts/{receipt_id}/retry`
-
-**8. Promo Codes**
-- `POST /api/admin/promotions`
-- `PUT /api/admin/promotions/{item_id}`
-- `DELETE /api/admin/promotions/{item_id}`
-- `POST /api/admin/promo-codes`
-- `PUT /api/admin/promo-codes/{item_id}`
-
-**9. Gifts**
-- `POST /api/admin/gifts`
 
 **10. Referrals**
 - `DELETE /api/admin/referral-contests/{contest_id}`

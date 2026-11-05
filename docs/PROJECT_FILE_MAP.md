@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2221**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2222**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1982,6 +1982,7 @@
 | [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
 | [tests/test_account_sync.py](../tests/test_account_sync.py) | Проверки |
 | [tests/test_admin_center.py](../tests/test_admin_center.py) | Проверки |
+| [tests/test_admin_coverage_marketing.py](../tests/test_admin_coverage_marketing.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
 | [tests/test_admin_route_permissions.py](../tests/test_admin_route_permissions.py) | Проверки |
