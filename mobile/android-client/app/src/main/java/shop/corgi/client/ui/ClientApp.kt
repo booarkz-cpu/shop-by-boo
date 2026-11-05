@@ -83,7 +83,7 @@ private val Brand = Color(0xFFF2994A)
 @Composable
 fun ClientApp(store: Store, incoming: String?, connect: () -> Unit) {
     var revision by remember { mutableIntStateOf(0) }
-    val refresh = { revision++ }
+    val refresh: () -> Unit = { revision++ }
     val dark = when (store.settings.theme) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
     val colors = if (dark) darkColorScheme(primary = Brand, background = Color(0xFF0E1116), surface = Color(0xFF161B22))
         else lightColorScheme(primary = Color(0xFFD9772B))
