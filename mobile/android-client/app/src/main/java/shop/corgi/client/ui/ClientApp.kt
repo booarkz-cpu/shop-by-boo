@@ -67,16 +67,14 @@ import com.google.zxing.qrcode.QRCodeWriter
 import shop.corgi.client.core.ConfigBuilder
 import shop.corgi.client.core.Rule
 import shop.corgi.client.core.TvReceiver
+import shop.corgi.client.core.tr
 import shop.corgi.client.data.Store
 import shop.corgi.client.engine.Xray
 import shop.corgi.client.vpn.ClientVpnService
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.util.Locale
 import kotlin.concurrent.thread
 
-/** RU / EN / UK by the system language. */
-fun tr(ru: String, en: String, uk: String): String = when (Locale.getDefault().language) { "ru" -> ru; "uk" -> uk; else -> en }
 
 private val Brand = Color(0xFFF2994A)
 

@@ -66,6 +66,13 @@ dependencies {
     implementation("com.google.zxing:core:3.5.3")
     // The VPN engine: Xray-core through libv2ray.aar (scripts/mobile/build-xray-aar.sh), the same as the customer app.
     if (file("libs/libv2ray.aar").exists()) implementation(files("libs/libv2ray.aar"))
+    // UI tests (app/src/androidTest): Compose testing on an emulator in CI (android-client.yml).
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test:runner:1.7.0")
+    androidTestImplementation("androidx.test:core-ktx:1.7.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
 }

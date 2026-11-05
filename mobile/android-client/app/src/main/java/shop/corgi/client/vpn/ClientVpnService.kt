@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import shop.corgi.client.R
 import shop.corgi.client.core.ConfigBuilder
+import shop.corgi.client.core.tr
 import shop.corgi.client.data.Store
 import shop.corgi.client.engine.Xray
 import shop.corgi.client.ui.MainActivity
@@ -23,17 +24,17 @@ class ClientVpnService : VpnService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) { shutdown(); return START_NOT_STICKY }
-        if (!Xray.available()) { error(this, "В этой сборке нет движка Xray"); stopSelf(startId); return START_NOT_STICKY }
+        if (!Xray.available()) { error(this, tr("В этой сборке нет движка Xray", "This build has no Xray engine", "У цій збірці немає рушія Xray")); stopSelf(startId); return START_NOT_STICKY }
         foreground()
         state(this, STATE_CONNECTING)
         thread {
             try {
                 val store = Store(this)
-                val profile = store.active() ?: throw IllegalStateException("Добавьте подписку или сервер")
+                val profile = store.active() ?: throw IllegalStateException(tr("Добавьте подписку или сервер", "Add a subscription or a server", "Додайте підписку або сервер"))
                 val s = store.settings
                 val config = if (profile.kind == "json") ConfigBuilder.fromJson(profile.json, s)
                     else ConfigBuilder.build(profile.servers(), store.activeServer, s, store.geoReady())
-                if (ConfigBuilder.needsGeo(config) && !store.geoReady()) throw IllegalStateException("Нужны geo-файлы: «Маршруты → Скачать geo-файлы»")
+                if (ConfigBuilder.needsGeo(config) && !store.geoReady()) throw IllegalStateException(tr("Нужны geo-файлы: «Маршруты → Скачать geo-файлы»", "Geo files needed: «Routing → Download geo files»", "Потрібні geo-файли: «Маршрути → Завантажити geo-файли»"))
                 val builder = Builder().setSession(getString(R.string.app_name)).setMtu(s.mtu)
                     .addAddress("172.19.0.1", 30).addRoute("0.0.0.0", 0).addDnsServer(s.dns.firstOrNull { !it.contains("/") } ?: "1.1.1.1")
                 if (s.ipv6) builder.addAddress("fdfe:dcba:9876::1", 126).addRoute("::", 0)
@@ -47,7 +48,7 @@ class ClientVpnService : VpnService() {
                     }
                 }
                 if (Build.VERSION.SDK_INT >= 29) builder.setMetered(false)
-                val fd = builder.establish() ?: throw IllegalStateException("Нет разрешения на VPN")
+                val fd = builder.establish() ?: throw IllegalStateException(tr("Нет разрешения на VPN", "No VPN permission", "Немає дозволу на VPN"))
                 tun = fd
                 Xray.start(this, config, fd.fd) { state(this, STATE_OFF) }
                 state(this, STATE_ON)
