@@ -29,8 +29,13 @@ async def actions(db, prefix):
 
 
 @pytest.mark.asyncio
-async def test_platform_modules_agents_keys_and_webhooks_are_audited(database):
+async def test_platform_modules_agents_keys_and_webhooks_are_audited(database, monkeypatch):
     db = database
+    checked = shop.validate_public_url
+
+    def offline(url, allow_empty=False):  # no DNS in CI: a public name passes, literal private addresses are still refused
+        return None if "hooks.example.com" in url else checked(url, allow_empty=allow_empty)
+    monkeypatch.setattr(shop, "validate_public_url", offline)
     with pytest.raises(HTTPException) as err:
         await platform_api.toggle_plugin("nope", {"enabled": False}, db, ADMIN)
     assert err.value.status_code == 404
