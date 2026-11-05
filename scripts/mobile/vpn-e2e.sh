@@ -8,7 +8,7 @@
 #
 #   bash scripts/mobile/vpn-e2e.sh <app-debug.apk> <xray binary>     (inside android-emulator-runner)
 set -euo pipefail
-APK="$1"; XRAY="$2"
+APK="$(realpath "$1")"; XRAY="$(realpath "$2")"  # absolute: the script works in its own directory below
 PKG="${CORGI_PKG:-shop.remnawave.user.preview}"
 WORK="${RUNNER_TEMP:-/tmp}/vpn-e2e"; mkdir -p "$WORK"; cd "$WORK"
 UUID="$(cat /proc/sys/kernel/random/uuid)"

@@ -157,7 +157,8 @@ class MainActivity : FragmentActivity() {
         if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
             intent?.getStringExtra("corgi_vpn_test")?.let { url ->
                 if (android.net.VpnService.prepare(this) == null) shop.remnawave.user.vpn.CorgiVpnService.start(this, url)
-                else android.util.Log.w("CorgiVpnTest", "VPN permission is not granted (appops ACTIVATE_VPN)")
+                else getSharedPreferences(shop.remnawave.user.vpn.CorgiVpnService.PREFS, 0).edit()
+                    .putString(shop.remnawave.user.vpn.CorgiVpnService.KEY_ERROR, "VPN permission is not granted (appops ACTIVATE_VPN)").apply()
             }
             if (flag(intent, "corgi_vpn_stop")) shop.remnawave.user.vpn.CorgiVpnService.stop(this)
         }
