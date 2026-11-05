@@ -101,6 +101,15 @@ def stack(tmp_path_factory):
     panel = http.server.ThreadingHTTPServer(("127.0.0.1", 3000), Stub)
     threading.Thread(target=panel.serve_forever, daemon=True).start()
     threading.Thread(target=shop_app, daemon=True).start()
+    import urllib.error
+    import urllib.request
+    for _ in range(60):  # the shop's router has to answer before Caddy asks it
+        try:
+            urllib.request.urlopen(f"http://127.0.0.1:{PORT}/api/panel-gate/verify", timeout=2)
+        except urllib.error.HTTPError:
+            break
+        except OSError:
+            time.sleep(1)
     directory = tmp_path_factory.mktemp("caddy")
     (directory / "Caddyfile").write_text(rw_plan.caddyfile({PANEL: 3000}, "internal", None, gate={PANEL: f"http://127.0.0.1:{PORT}"}))
     (directory / "docker-compose.yml").write_text(rw_plan.caddy_compose())
