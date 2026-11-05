@@ -83,11 +83,11 @@ async def command_center(db:AsyncSession=Depends(get_db),admin=Depends(require_p
         age=(now-a.last_seen_at).total_seconds() if a.last_seen_at else 10**9
         nodes.append({'id':a.id,'name':a.name,'online':a.enabled and age<=stale,'cpu':a.cpu,'mem':a.mem,'disk':a.disk,'xray_ok':a.xray_ok,'last_seen_at':a.last_seen_at})
     attention=[]
-    if failed: attention.append({'severity':'high','kind':'billing','text':f'{failed} failed payments in 24h'})
-    if incidents: attention.append({'severity':'critical','kind':'security','text':f'{incidents} open security incidents'})
-    if fraud: attention.append({'severity':'high','kind':'fraud','text':f'{fraud} fraud signals require review'})
+    if failed: attention.append({'severity':'high','kind':'billing','text':f'Неудачных платежей за сутки: {failed}'})
+    if incidents: attention.append({'severity':'critical','kind':'security','text':f'Открытых инцидентов безопасности: {incidents}'})
+    if fraud: attention.append({'severity':'high','kind':'fraud','text':f'Сигналов мошенничества ждут проверки: {fraud}'})
     offline=sum(1 for n in nodes if not n['online'])
-    if offline: attention.append({'severity':'critical','kind':'nodes','text':f'{offline} node agents offline/stale'})
+    if offline: attention.append({'severity':'critical','kind':'nodes','text':f'Агентов нод не в сети: {offline}'})
     return {'kpis':{'users':users,'active_subscriptions':active,'revenue_30d':str(revenue or Decimal('0')),'failed_payments_24h':failed,'open_incidents':incidents,'fraud_signals':fraud},'nodes':nodes,'attention':attention,'checked_at':now}
 
 @router.get('/api/admin/v6/config/{section}')
