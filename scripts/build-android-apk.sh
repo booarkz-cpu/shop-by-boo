@@ -50,8 +50,11 @@ verify_signature() {
   [[ -n "$EXPECTED_CERT" ]] || { echo "No expected signing certificate: skipping the check of $file" >&2; return 0; }
   if [[ "$kind" == apk ]]; then
     local signer
-    signer="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
-    got="$("$signer" verify --print-certs "$file" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+    # The build-tools the release workflows install (35.0.0), else the newest present.
+    signer="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+    [[ -x "$signer" ]] || signer="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
+    # --verbose: without it newer apksigner versions print no certificate digests.
+    got="$("$signer" verify --verbose --print-certs "$file" | sed -n 's/^Signer[^:]*certificate SHA-256 digest: //p' | head -1)"
   else
     # An Android App Bundle carries a JAR signature.
     jarsigner -verify "$file" >/dev/null
