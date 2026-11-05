@@ -163,6 +163,30 @@ class ClientScreensTest {
         assertEquals(1, Store(context).profiles.size)
     }
 
+    @Test fun appIconAndRoutingProfiles() {
+        launch()
+        compose.onNodeWithText("Settings").performClick()
+        compose.onNodeWithText("Appearance").performClick()
+        compose.onNodeWithTag("icon-night").performClick()
+        assertEquals("night", Store(context).settings.appIcon)
+        val pm = context.packageManager
+        assertEquals(android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            pm.getComponentEnabledSetting(android.content.ComponentName(context, "shop.corgi.client.ui.LauncherNight")))
+        assertEquals(android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            pm.getComponentEnabledSetting(android.content.ComponentName(context, "shop.corgi.client.ui.LauncherCorgi")))
+        compose.onNodeWithTag("icon-corgi").performClick()
+        compose.onNodeWithTag("back").performClick()
+        compose.onNodeWithText("Routing").performClick()
+        compose.onNodeWithText("Russian sites direct").performClick()
+        compose.onNodeWithTag("profile-name").performTextInput("Home")
+        compose.onNodeWithText("Save current").performClick()
+        compose.onNodeWithText("Everything").performClick()
+        assertEquals("global", Store(context).settings.routing)
+        compose.onNodeWithTag("routing-profile").performClick()
+        assertEquals("bypass_ru", Store(context).settings.routing)
+        assertEquals(listOf("Home"), Store(context).settings.routingProfiles.map { it.name })
+    }
+
     @Test fun resetBringsDefaultsBackAndKeepsProfiles() {
         val store = Store(context)
         store.add(links)

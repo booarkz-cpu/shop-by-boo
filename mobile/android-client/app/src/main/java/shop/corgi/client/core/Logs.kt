@@ -42,5 +42,15 @@ class Logs(filesDir: File) {
 
     fun clear() { files().forEach { it.delete() } }
 
-    companion object { const val KEEP = 4 }
+    companion object {
+        const val KEEP = 4
+
+        /** «Все» / Error / Warning / Info: Xray marks lines «[Error]», «[Warning]» …; the app's own errors say «error». */
+        fun matches(line: String, level: String): Boolean = when (level) {
+            "error" -> line.contains("[Error]", true) || line.contains("] error", true) || line.contains("failed", true)
+            "warning" -> line.contains("[Warning]", true)
+            "info" -> line.contains("[Info]", true) || line.contains("[VPN]")
+            else -> true
+        }
+    }
 }

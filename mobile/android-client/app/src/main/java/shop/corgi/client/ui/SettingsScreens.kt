@@ -10,7 +10,9 @@ import android.content.Intent
 import android.graphics.drawable.Icon as AndroidIcon
 import android.os.Build
 import android.provider.Settings as AndroidSettings
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -165,7 +167,7 @@ private fun SettingsMenu(store: Store, open: (String?) -> Unit, refresh: () -> U
         title = { Text(tr("Сбросить настройки?", "Reset settings?", "Скинути налаштування?")) },
         text = { Text(tr("Все настройки вернутся к начальным. Подписки и серверы останутся.", "All settings go back to defaults. Subscriptions and servers stay.",
             "Усі налаштування повернуться до початкових. Підписки й сервери залишаться.")) },
-        confirmButton = { Button(onClick = { store.resetSettings(); I18n.apply("system"); resetting = false; UpdateJob.schedule(context); (context as? Activity)?.recreate() ?: refresh() }) {
+        confirmButton = { Button(onClick = { store.resetSettings(); I18n.apply("system"); AppIcons.apply(context, "corgi"); resetting = false; UpdateJob.schedule(context); (context as? Activity)?.recreate() ?: refresh() }) {
             Text(tr("Сбросить", "Reset", "Скинути")) } },
         dismissButton = { TextButton(onClick = { resetting = false }) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
 }
@@ -231,6 +233,21 @@ private fun AppearancePage(s: Settings, save: (Settings) -> Unit) {
         Section(tr("Стиль подключения", "Connect style", "Стиль підключення")) {
             ChoiceRow(tr("Главный экран", "Home screen", "Головний екран"), "", listOf("classic" to tr("Классический", "Classic", "Класичний"),
                 "compact" to tr("Компактный", "Compact", "Компактний")), s.connectStyle) { save(s.copy(connectStyle = it)) }
+        }
+        Section(tr("Иконка приложения", "App icon", "Іконка застосунку")) {
+            Row(Modifier.padding(14.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                listOf(Triple("corgi", R.mipmap.ic_launcher, tr("Корги", "Corgi", "Коргі")), Triple("night", R.mipmap.ic_launcher_night, tr("Ночь", "Night", "Ніч")),
+                    Triple("mint", R.mipmap.ic_launcher_mint, tr("Мята", "Mint", "М'ята"))).forEach { (key, icon, label) ->
+                    Column(Modifier.clickable { save(s.copy(appIcon = key)); AppIcons.apply(context, key) }.testTag("icon-$key"),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(icon), label,
+                            Modifier.size(56.dp).then(if (s.appIcon == key) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp)) else Modifier))
+                        Text(label, style = MaterialTheme.typography.bodySmall, color = if (s.appIcon == key) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+            Text(tr("Значок на рабочем столе обновится через несколько секунд.", "The home screen icon updates in a few seconds.", "Значок на робочому столі оновиться за кілька секунд."),
+                Modifier.padding(horizontal = 14.dp, vertical = 4.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Section(tr("Язык", "Language", "Мова")) {
             ChoiceRow(tr("Язык приложения", "App language", "Мова застосунку"), "", listOf("system" to tr("Как в системе", "System", "Як у системі"),
