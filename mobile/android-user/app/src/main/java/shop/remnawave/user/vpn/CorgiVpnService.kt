@@ -34,12 +34,24 @@ class CorgiVpnService : VpnService() {
         state(this, STATE_CONNECTING)
         thread {
             try {
-                val servers = ShareLinks.parseAll(fetch(subscription))
-                if (servers.isEmpty()) throw IllegalStateException("no servers")
+                val body = fetch(subscription)
                 val prefs = getSharedPreferences(PREFS, 0)
-                prefs.edit().putString(KEY_SERVERS, servers.joinToString("\n") { it.name }).apply()
-                val config = XrayEngine.config(servers, prefs.getString(KEY_SERVER, "").orEmpty(), prefs.getBoolean(KEY_BYPASS_RU, false),
-                    shop.remnawave.user.security.CorgiMirrors.direct(this))
+                val selected = prefs.getString(KEY_SERVER, "").orEmpty()
+                val direct = shop.remnawave.user.security.CorgiMirrors.direct(this)
+                // v28.81.0: Remnawave may answer with Xray JSON (full configs) instead of share links — both work.
+                val configs = ShareLinks.jsonConfigs(body)
+                val config = if (configs != null) {
+                    if (configs.isEmpty()) throw IllegalStateException("no servers")
+                    prefs.edit().putString(KEY_SERVERS, configs.joinToString("\n") { it.first }).apply()
+                    val chosen = configs.firstOrNull { it.first == selected }
+                        ?: configs.firstOrNull { it.second.contains("\"observatory\"") || it.second.contains("\"burstObservatory\"") } ?: configs.first()
+                    XrayEngine.fromJson(chosen.second, prefs.getBoolean(KEY_BYPASS_RU, false), direct)
+                } else {
+                    val servers = ShareLinks.parseAll(body)
+                    if (servers.isEmpty()) throw IllegalStateException("no servers")
+                    prefs.edit().putString(KEY_SERVERS, servers.joinToString("\n") { it.name }).apply()
+                    XrayEngine.config(servers, selected, prefs.getBoolean(KEY_BYPASS_RU, false), direct)
+                }
                 val builder = Builder().setSession(getString(R.string.app_name)).setMtu(MTU)
                     .addAddress("172.19.0.1", 30).addRoute("0.0.0.0", 0)
                     .addAddress("fdfe:dcba:9876::1", 126).addRoute("::", 0)

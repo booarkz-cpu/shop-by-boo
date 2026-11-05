@@ -59,9 +59,17 @@ class Store(context: Context) {
         if (profile.kind != "subscription") return profile
         val updated = try {
             val body = fetch(profile.url)
+            // Remnawave answers some clients with Xray JSON instead of share links: both are understood.
+            val configs = Links.jsonConfigs(body)
+            if (configs != null) {
+                val updated = if (configs.isEmpty()) profile.copy(error = tr("В подписке нет поддерживаемых серверов", "The subscription has no supported servers", "У підписці немає підтримуваних серверів"), updatedAt = System.currentTimeMillis())
+                    else profile.copy(configs = configs.map { it.second }, links = emptyList(), skipped = 0, error = "", updatedAt = System.currentTimeMillis())
+                replace(updated)
+                return updated
+            }
             val (servers, skipped) = Links.parseBody(body)
             if (servers.isEmpty()) profile.copy(error = tr("В подписке нет поддерживаемых серверов", "The subscription has no supported servers", "У підписці немає підтримуваних серверів"), updatedAt = System.currentTimeMillis())
-            else profile.copy(links = servers.map { it.link }, skipped = skipped, error = "", updatedAt = System.currentTimeMillis())
+            else profile.copy(links = servers.map { it.link }, configs = emptyList(), skipped = skipped, error = "", updatedAt = System.currentTimeMillis())
         } catch (exc: Exception) {
             profile.copy(error = exc.message ?: exc.javaClass.simpleName)
         }

@@ -18,6 +18,9 @@ data class Profile(
     val autoUpdateHours: Int = 12,
     val skipped: Int = 0,
     val error: String = "",
+    // v28.81.0: servers of a subscription answered with Xray JSON (Remnawave for v2rayNG/Happ): full configs with
+    // «remarks»; each is connected as written (its inbounds replaced by the tunnel).
+    val configs: List<String> = emptyList(),
 ) {
     init {
         require(kind in listOf("subscription", "links", "json")) { "kind" }
@@ -25,22 +28,38 @@ data class Profile(
         require(autoUpdateHours in 0..168) { "hours" }
     }
 
-    fun servers(): List<Server> = links.mapNotNull { runCatching { Links.parse(it) }.getOrNull() }
+    fun servers(): List<Server> = if (configs.isNotEmpty()) configs.mapIndexedNotNull { i, config ->
+        val outbound = Links.firstProxy(config) ?: return@mapIndexedNotNull null
+        Server(runCatching { org.json.JSONObject(config).optString("remarks") }.getOrDefault("").ifBlank { "Server ${i + 1}" },
+            outbound.optString("protocol"), outbound, "config:$i")
+    } else links.mapNotNull { runCatching { Links.parse(it) }.getOrNull() }
+
+    /** The config to connect for ``selected`` (an index or «auto»): the one with its own balancer for «auto», else the first. */
+    fun configFor(selected: String): String? {
+        if (configs.isEmpty()) return null
+        selected.toIntOrNull()?.let { i -> configs.getOrNull(i)?.let { return it } }
+        return configs.firstOrNull { it.contains("\"observatory\"") || it.contains("\"burstObservatory\"") } ?: configs.first()
+    }
 
     fun due(now: Long): Boolean = kind == "subscription" && autoUpdateHours > 0 && now - updatedAt >= autoUpdateHours * 3_600_000L
 
     fun toJson(): JSONObject = JSONObject().put("id", id).put("name", name).put("kind", kind).put("url", url).put("links", JSONArray(links))
         .put("json", json).put("updatedAt", updatedAt).put("autoUpdateHours", autoUpdateHours).put("skipped", skipped).put("error", error)
+        .put("configs", JSONArray(configs))
 
     companion object {
         fun of(j: JSONObject) = Profile(j.getString("id"), j.getString("name"), j.getString("kind"), j.optString("url"),
             j.optJSONArray("links")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList(), j.optString("json"),
-            j.optLong("updatedAt"), j.optInt("autoUpdateHours", 12), j.optInt("skipped"), j.optString("error"))
+            j.optLong("updatedAt"), j.optInt("autoUpdateHours", 12), j.optInt("skipped"), j.optString("error"),
+            j.optJSONArray("configs")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList())
 
         /** What the user pasted or scanned: a subscription URL, links (one per line, or base64), or a JSON config. */
         fun fromText(text: String, id: String, now: Long): Profile {
             val value = text.trim()
             require(value.isNotEmpty()) { tr("Пусто", "Empty", "Порожньо") }
+            Links.jsonConfigs(value)?.takeIf { value.startsWith("[") && it.isNotEmpty() }?.let { items ->
+                return Profile(id, if (items.size == 1) items[0].first else "Xray JSON (${items.size})", "links", configs = items.map { it.second }, updatedAt = now)
+            }
             if (value.startsWith("{")) {
                 ConfigBuilder.fromJson(value, Settings())
                 return Profile(id, JSONObject(value).optString("remarks").ifBlank { "Xray JSON" }.take(60), "json", json = value, updatedAt = now)

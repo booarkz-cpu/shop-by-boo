@@ -35,13 +35,14 @@ object CorgiDiagnostics {
         }
         val code = connection.responseCode
         if (code !in 200..299) throw IllegalStateException("HTTP $code")
-        return connection.inputStream.bufferedReader().use { it.readText().take(512 * 1024) }
+        return connection.inputStream.bufferedReader().use { it.readText().take(2 * 1024 * 1024) }
     }
 
     /** host:port of every server in the subscription (vless/vmess: vnext, trojan/shadowsocks: servers). */
-    private fun endpoints(body: String): List<Pair<String, Int>> = ShareLinks.parseAll(body).mapNotNull { server ->
+    private fun endpoints(body: String): List<Pair<String, Int>> = ShareLinks.servers(body).mapNotNull { server ->
         val settings = server.outbound.optJSONObject("settings") ?: return@mapNotNull null
-        val first = (settings.optJSONArray("vnext") ?: settings.optJSONArray("servers"))?.optJSONObject(0) ?: return@mapNotNull null
+        // vnext / servers, or the address right in «settings» (hysteria, the newer Xray JSON form)
+        val first = (settings.optJSONArray("vnext") ?: settings.optJSONArray("servers"))?.optJSONObject(0) ?: settings
         val host = first.optString("address"); val port = first.optInt("port")
         if (host.isBlank() || port !in 1..65535) null else host to port
     }.distinct().take(12)
@@ -78,7 +79,7 @@ object CorgiDiagnostics {
         var body = ""
         checks.put(check("subscription", "") {
             body = get(subscriptionUrl, "v2rayNG/1.10.0 CorgiLusi")
-            "${ShareLinks.parseAll(body).size} серверов"
+            "${ShareLinks.servers(body).size} серверов"
         })
         for ((address, port) in if (body.isBlank()) emptyList() else endpoints(body)) {
             checks.put(check("server", "$address:$port") { Socket().use { it.connect(InetSocketAddress(address, port), 5000) }; "tcp" })

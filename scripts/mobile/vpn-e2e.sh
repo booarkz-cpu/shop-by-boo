@@ -22,7 +22,18 @@ cat > xray.json <<JSON
 JSON
 mkdir -p page sub
 echo "corgi-tunnel-ok" > page/index.html
-printf 'vless://%s@10.0.2.2:10086?encryption=none&type=tcp&security=none#corgi-ci' "$UUID" | base64 -w0 > sub/index.html
+# v28.81.0: the same server twice — as base64 share links, and as Xray JSON the way Remnawave answers v2rayNG / Happ
+# when its response rules say so (full configs with «remarks», socks/http inbounds, geoip/geosite rules).
+printf 'vless://%s@10.0.2.2:10086?encryption=none&type=tcp&security=none#corgi-ci' "$UUID" | base64 -w0 > sub/links.txt
+cat > sub/json.txt <<JSON
+[{"remarks":"corgi-ci-json","dns":{"servers":["1.1.1.1"]},
+  "inbounds":[{"tag":"socks","port":10808,"listen":"127.0.0.1","protocol":"socks","settings":{"udp":true}},{"tag":"http","port":10809,"listen":"127.0.0.1","protocol":"http"}],
+  "outbounds":[{"tag":"proxy","protocol":"vless","settings":{"vnext":[{"address":"10.0.2.2","port":10086,"users":[{"id":"$UUID","encryption":"none"}]}]},
+                "streamSettings":{"network":"tcp","security":"none"}},{"tag":"direct","protocol":"freedom"},{"tag":"block","protocol":"blackhole"}],
+  "routing":{"domainStrategy":"IPIfNonMatch","rules":[{"type":"field","ip":["geoip:private"],"outboundTag":"direct"},
+             {"type":"field","domain":["geosite:category-ads-all"],"outboundTag":"block"}]}}]
+JSON
+cp sub/links.txt sub/index.html
 "$XRAY" run -c xray.json > xray.log 2>&1 &
 python3 -m http.server 18080 --bind 127.0.0.1 --directory page > page.log 2>&1 &
 python3 -m http.server 18081 --bind 0.0.0.0 --directory sub > sub.log 2>&1 &
@@ -36,6 +47,9 @@ state() { adb shell "run-as $PKG cat shared_prefs/shop_vpn.xml 2>/dev/null" | se
 
 adb install -r "$APK" >/dev/null
 adb shell appops set "$PKG" ACTIVATE_VPN allow
+for fmt in links json; do
+cp "sub/$fmt.txt" sub/index.html
+echo "— subscription as $fmt"
 if probe | grep -q corgi-tunnel-ok; then echo "FAIL: the check page answers without the tunnel" >&2; exit 1; fi
 echo "1/3 without the tunnel: no answer (as expected)"
 
@@ -53,4 +67,5 @@ for i in $(seq 1 15); do [ "$(state)" = off ] && break; sleep 2; done
 sleep 2
 if probe | grep -q corgi-tunnel-ok; then echo "FAIL: the page still answers after disconnecting" >&2; exit 1; fi
 echo "3/3 disconnected: no answer again"
+done
 echo "Embedded VPN: PASS"
