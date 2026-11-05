@@ -331,12 +331,16 @@ async def update_chargeback(chargeback_id:int,payload:ChargebackUpdateIn,db:Asyn
     row.status=payload.status; row.evidence=payload.evidence or row.evidence; row.updated_at=shop.datetime.utcnow(); await shop.audit(db,"payment.chargeback.updated",admin.email,str(row.id),{"status":row.status}); await db.commit(); return {"ok":True}
 
 class GiftCardCreateIn(BaseModel):
-    value:Decimal=Field(gt=0); currency:str="EUR"; expires_days:int|None=Field(default=365,ge=1,le=3650)
+    # v28.77.0: the shop's currency by default — a card in another currency can never be redeemed (redeem checks it).
+    value:Decimal=Field(gt=0,le=1000000,max_digits=12,decimal_places=2); currency:str|None=None; expires_days:int|None=Field(default=365,ge=1,le=3650)
 
 @shop.app.post("/api/admin/payment/gift-cards")
 async def create_gift_card(payload:GiftCardCreateIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("payments.reconcile"))):
-    raw=shop.secrets.token_urlsafe(18).upper().replace("-","")[:24]; card=shop.GiftCard(code_hash=shop.hashlib.sha256(raw.encode()).hexdigest(),code_prefix=raw[:8],value=payload.value,balance=payload.value,currency=payload.currency.upper(),expires_at=shop.datetime.utcnow()+shop.timedelta(days=payload.expires_days) if payload.expires_days else None)
-    db.add(card); await db.commit(); return {"code":raw,"value":str(card.value),"currency":card.currency,"expires_at":card.expires_at}
+    currency=(payload.currency or shop.settings.default_currency or "RUB").upper()
+    if currency!=str(shop.settings.default_currency or "").upper(): raise shop.HTTPException(400,"Подарочная карта — только в валюте магазина: другую нельзя будет погасить")
+    raw=shop.secrets.token_urlsafe(18).upper().replace("-","")[:24]; card=shop.GiftCard(code_hash=shop.hashlib.sha256(raw.encode()).hexdigest(),code_prefix=raw[:8],value=payload.value,balance=payload.value,currency=currency,expires_at=shop.datetime.utcnow()+shop.timedelta(days=payload.expires_days) if payload.expires_days else None)
+    db.add(card); await db.flush(); await shop.audit(db,"payment.gift_card.created",admin.email,card.code_prefix,{"value":str(card.value),"currency":currency})
+    await db.commit(); return {"code":raw,"value":str(card.value),"currency":card.currency,"expires_at":card.expires_at}
 
 class GiftCardRedeemIn(BaseModel): code:str
 

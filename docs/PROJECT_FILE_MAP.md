@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2220**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2236**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1283,6 +1283,7 @@
 | [docs/ru/new/ADMIN_CONTROL_MATRIX.md](../docs/ru/new/ADMIN_CONTROL_MATRIX.md) | Документация |
 | [docs/ru/new/ADMIN_MODULES.md](../docs/ru/new/ADMIN_MODULES.md) | Документация |
 | [docs/ru/new/ADMIN_PANEL_GUIDE.md](../docs/ru/new/ADMIN_PANEL_GUIDE.md) | Документация |
+| [docs/ru/new/ADMIN_VERIFICATION.md](../docs/ru/new/ADMIN_VERIFICATION.md) | Документация |
 | [docs/ru/new/ANDROID_ARCHITECTURE.md](../docs/ru/new/ANDROID_ARCHITECTURE.md) | Документация |
 | [docs/ru/new/API.md](../docs/ru/new/API.md) | Документация |
 | [docs/ru/new/AUTOMATION_CENTER.md](../docs/ru/new/AUTOMATION_CENTER.md) | Документация |
@@ -1704,6 +1705,14 @@
 | [screenshots/admin_panel/81_availability.png](../screenshots/admin_panel/81_availability.png) | Корень проекта |
 | [screenshots/admin_panel/82_controlCenter.png](../screenshots/admin_panel/82_controlCenter.png) | Корень проекта |
 | [screenshots/admin_panel/83_automationCenter.png](../screenshots/admin_panel/83_automationCenter.png) | Корень проекта |
+| [screenshots/admin_panel/84_v3.png](../screenshots/admin_panel/84_v3.png) | Корень проекта |
+| [screenshots/admin_panel/85_customer360.png](../screenshots/admin_panel/85_customer360.png) | Корень проекта |
+| [screenshots/admin_panel/86_command360.png](../screenshots/admin_panel/86_command360.png) | Корень проекта |
+| [screenshots/admin_panel/87_commercial.png](../screenshots/admin_panel/87_commercial.png) | Корень проекта |
+| [screenshots/admin_panel/88_integrations.png](../screenshots/admin_panel/88_integrations.png) | Корень проекта |
+| [screenshots/admin_panel/89_events.png](../screenshots/admin_panel/89_events.png) | Корень проекта |
+| [screenshots/admin_panel/90_soc.png](../screenshots/admin_panel/90_soc.png) | Корень проекта |
+| [screenshots/admin_panel/91_status.png](../screenshots/admin_panel/91_status.png) | Корень проекта |
 | [screenshots/admin_panel/features/ai-knowledge.png](../screenshots/admin_panel/features/ai-knowledge.png) | Корень проекта |
 | [screenshots/admin_panel/features/anti-sharing.png](../screenshots/admin_panel/features/anti-sharing.png) | Корень проекта |
 | [screenshots/admin_panel/features/api-mirrors.png](../screenshots/admin_panel/features/api-mirrors.png) | Корень проекта |
@@ -1864,6 +1873,7 @@
 | [scripts/v19_marketplace_gate.py](../scripts/v19_marketplace_gate.py) | Эксплуатация и релиз |
 | [scripts/v20_payment_platform_gate.py](../scripts/v20_payment_platform_gate.py) | Эксплуатация и релиз |
 | [scripts/validate-rollback-archive.py](../scripts/validate-rollback-archive.py) | Эксплуатация и релиз |
+| [scripts/verify-admin-matrix.py](../scripts/verify-admin-matrix.py) | Эксплуатация и релиз |
 | [scripts/verify-release.sh](../scripts/verify-release.sh) | Эксплуатация и релиз |
 | [scripts/zero-downtime-backend.sh](../scripts/zero-downtime-backend.sh) | Эксплуатация и релиз |
 | [support-pro/.dockerignore](../support-pro/.dockerignore) | Support Pro |
@@ -1981,6 +1991,12 @@
 | [tests/test_account_merge.py](../tests/test_account_merge.py) | Проверки |
 | [tests/test_account_sync.py](../tests/test_account_sync.py) | Проверки |
 | [tests/test_admin_center.py](../tests/test_admin_center.py) | Проверки |
+| [tests/test_admin_coverage_finance.py](../tests/test_admin_coverage_finance.py) | Проверки |
+| [tests/test_admin_coverage_marketing.py](../tests/test_admin_coverage_marketing.py) | Проверки |
+| [tests/test_admin_coverage_ops.py](../tests/test_admin_coverage_ops.py) | Проверки |
+| [tests/test_admin_coverage_payments.py](../tests/test_admin_coverage_payments.py) | Проверки |
+| [tests/test_admin_coverage_platform.py](../tests/test_admin_coverage_platform.py) | Проверки |
+| [tests/test_admin_coverage_security.py](../tests/test_admin_coverage_security.py) | Проверки |
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
 | [tests/test_admin_route_permissions.py](../tests/test_admin_route_permissions.py) | Проверки |

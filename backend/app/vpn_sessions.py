@@ -292,8 +292,12 @@ async def online_now(user_id: int, db: AsyncSession = Depends(get_db), admin=Dep
 @router.post("/api/admin/users/{user_id}/drop-connections")
 async def drop_connections(user_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("users.write"))):
     from .remnawave import RemnawaveClient
+    from .main import audit
     sub = await _sub_of(db, user_id)
-    return {"ok": True, "dropped": await drop(RemnawaveClient(), sub.remnawave_uuid)}
+    dropped = await drop(RemnawaveClient(), sub.remnawave_uuid)
+    await audit(db, "user.connections.dropped", admin.email, str(user_id), {"dropped": dropped})
+    await db.commit()
+    return {"ok": True, "dropped": dropped}
 
 
 async def drop(panel, panel_user: str) -> bool:

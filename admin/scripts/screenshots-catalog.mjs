@@ -42,6 +42,11 @@ const groups = body.split(/\n  \{\n    id:/).slice(1).map((chunk) => ({
   description: chunk.match(/description: "([^"]+)"/)[1],
   items: [...chunk.matchAll(/\{tab: "([^"]+)", label: "([^"]+)", description: "([^"]+)"/g)].map((m) => ({tab: m[1], label: m[2], description: m[3]})),
 }));
+// Stage 18: sections without a menu item of their own (opened from other pages) are captured too.
+const extraBody = sectionsSource.slice(sectionsSource.indexOf('export const EXTRA_SECTIONS'), sectionsSource.indexOf('export function sectionInfo'));
+const extraItems = [...extraBody.matchAll(/\{tab: "([^"]+)", label: "([^"]+)", description: "([^"]+)"/g)]
+  .map((m) => ({tab: m[1], label: m[2], description: m[3]})).filter((item) => item.tab !== 'panel');
+if (extraItems.length) groups.push({title: 'Разделы без пункта меню', description: 'Открываются из других разделов и по ссылке.', items: extraItems});
 
 // --lang makes the browser's own controls (file pickers) Russian as well.
 const browser = await chromium.launch({executablePath: process.env.E2E_CHROMIUM_PATH || undefined, args: ['--lang=ru-RU'], env: {...process.env, LANG: 'ru_RU.UTF-8', LANGUAGE: 'ru'}});

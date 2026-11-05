@@ -309,6 +309,12 @@ async def list_admins(db:AsyncSession=Depends(get_db),admin=Depends(require_perm
     rows=(await db.execute(shop.select(shop.AdminUser).order_by(shop.AdminUser.id))).scalars().all()
     return [{"id":x.id,"email":x.email,"telegram_id":x.telegram_id,"role":x.role,"disabled":x.disabled,"mfa_enabled":x.mfa_enabled,"created_at":x.created_at,"last_login_at":x.last_login_at} for x in rows]
 
+async def _active_admins(db) -> int:
+    """v28.77.0: the shop never loses its last active administrator (nobody could manage access afterwards)."""
+    return int(await db.scalar(shop.select(shop.func.count()).select_from(shop.AdminUser)
+                               .where(shop.AdminUser.role=="admin",shop.AdminUser.disabled.is_(False))) or 0)
+
+
 @shop.app.post("/api/admin/admins")
 async def create_admin(payload:AdminUserIn,db:AsyncSession=Depends(get_db),admin=Depends(require_stepup("manage_admins"))):
     if payload.role not in {"viewer","operator","admin"} or not payload.password: raise shop.HTTPException(400,"Valid role and password are required")
@@ -323,6 +329,8 @@ async def update_admin(admin_id:int,payload:AdminUserIn,db:AsyncSession=Depends(
     if not x: raise shop.HTTPException(404,"Admin not found")
     if admin.id==x.id and payload.disabled: raise shop.HTTPException(400,"You cannot disable yourself")
     if payload.role not in {"viewer","operator","admin"}: raise shop.HTTPException(400,"Invalid role")
+    if x.role=="admin" and not x.disabled and (payload.role!="admin" or payload.disabled) and await _active_admins(db)<=1:
+        raise shop.HTTPException(409,"Это последний активный администратор: сначала назначьте другого")
     old_role=x.role; old_disabled=x.disabled; old_email=x.email; old_telegram_id=x.telegram_id
     x.email=payload.email.strip().lower(); x.telegram_id=payload.telegram_id; x.role=payload.role; x.disabled=payload.disabled
     if payload.password: x.password_hash=shop.hash_password(payload.password)
@@ -334,6 +342,8 @@ async def delete_admin(admin_id:int,db:AsyncSession=Depends(get_db),admin=Depend
     x=await db.get(shop.AdminUser,admin_id)
     if not x: raise shop.HTTPException(404,"Admin not found")
     if x.id==admin.id: raise shop.HTTPException(400,"You cannot delete yourself")
+    if x.role=="admin" and not x.disabled and await _active_admins(db)<=1:
+        raise shop.HTTPException(409,"Это последний активный администратор: сначала назначьте другого")
     await db.delete(x); await shop.audit(db,"admin.deleted",admin.email,x.email); await db.commit(); return {"ok":True}
 
 @shop.app.post("/api/admin/auth/logout")

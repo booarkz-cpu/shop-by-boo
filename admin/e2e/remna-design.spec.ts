@@ -130,6 +130,7 @@ test('desktop sidebar collapses to an icon rail and remembers the choice', async
   await expect.poll(async () => Math.round((await page.locator('.sidebar').boundingBox())!.width)).toBe(272);
 });
 
+// covers: POST /api/admin/runtime-settings/stage, POST /api/admin/runtime-settings/changes/{change_id}/apply, POST /api/admin/runtime-settings/changes/{change_id}/rollback
 test('runtime settings are hinted, staged, applied and rolled back', async ({page}) => {
   await signIn(page);
   await page.getByRole('button', {name: /Настройки без перезапуска/}).click();

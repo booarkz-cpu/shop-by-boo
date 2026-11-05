@@ -239,3 +239,18 @@ async def test_server_routing_bridge(routing_panel):
     with pytest.raises(HTTPException):  # an exit node running the entry profile would route into itself
         routing_panel["profiles"][ENTRY]["config"]["inbounds"].append({"tag": "x"})
         await ext.create_routing(ext.RoutingIn(entry_profile_uuid=EXIT, exit_node_uuid=NODE), db, ADMIN)
+
+
+@pytest.mark.asyncio
+async def test_subscription_page_config_edit(panel):
+    """Stage 18 (ADMIN_VERIFICATION): «Расширения → Страница подписки» edits a config by UUID only."""
+    db = Db()
+    await ext.patch_subpage_config(U1, ext.SubpagePatch(name="Corgi", config={"brandingSettings": {"title": "Corgi"}}), db, ADMIN)
+    assert panel[-1][:3] == ("PATCH", "/api/subscription-page-configs",
+                             {"uuid": U1, "name": "Corgi", "config": {"brandingSettings": {"title": "Corgi"}}})
+    await ext.patch_subpage_config(U1, ext.SubpagePatch(name="Lucy"), db, ADMIN)
+    assert panel[-1][2] == {"uuid": U1, "name": "Lucy"}, "an unset config is not sent as null"
+    assert [r.action for r in db.rows] == ["rw.subpage_config.updated"] * 2
+    with pytest.raises(HTTPException) as err:
+        await ext.patch_subpage_config("../nodes", ext.SubpagePatch(name="x1"), db, ADMIN)
+    assert err.value.status_code == 422
