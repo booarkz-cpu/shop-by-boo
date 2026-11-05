@@ -1,0 +1,87 @@
+"""Stage 19, C1 (behaviour instead of source text), money first: YooKassa against a fake YooKassa API.
+
+Replaces the source-text checks of tests/test_critical_audit_v2005.py and part of test_v15_production.py: what the
+shop sends and how it reads the answers, not how the code is spelled."""
+import json
+from datetime import datetime, timezone
+from decimal import Decimal
+
+import httpx
+import pytest
+
+from app import payments
+from app.config import settings
+
+
+@pytest.fixture
+def yookassa(monkeypatch):
+    calls, pages = [], {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request)
+        path = request.url.path
+        if request.method == "POST" and path == "/v3/payments":
+            body = json.loads(request.content)
+            return httpx.Response(200, json={"id": "yk-new", "status": "pending", "metadata": body["metadata"]})
+        if request.method == "GET" and path == "/v3/payments":
+            return httpx.Response(200, json=pages.get(request.url.params.get("cursor") or "", {"items": []}))
+        if request.method == "POST" and path == "/v3/refunds":
+            return httpx.Response(200, json={"id": "rf-1", "status": "pending"})
+        return httpx.Response(404, json={})
+
+    monkeypatch.setattr(payments, "_public_client", lambda timeout: httpx.AsyncClient(transport=httpx.MockTransport(handler)))
+    monkeypatch.setattr(settings, "yookassa_api_url", "https://api.yookassa.test")
+    monkeypatch.setattr(settings, "yookassa_shop_id", "shop")
+    monkeypatch.setattr(settings, "yookassa_secret_key", "secret")
+    return calls, pages
+
+
+@pytest.mark.asyncio
+async def test_a_repeated_create_reuses_the_order_as_the_idempotence_key(yookassa):
+    calls, _ = yookassa
+    provider = payments.YooKassaProvider()
+    for _ in range(2):  # a lost answer: the shop asks again for the same order
+        await provider.create_payment(100.0, "RUB", "Lucy Mini", {"order_id": "o-42", "email": "a@example.com"})
+    keys = [c.headers["Idempotence-Key"] for c in calls]
+    assert keys == ["o-42", "o-42"], "YooKassa returns the same payment, no second charge"
+    body = json.loads(calls[0].content)
+    assert body["amount"] == {"value": "100.00", "currency": "RUB"} and body["metadata"]["order_id"] == "o-42"
+    assert body["receipt"]["customer"]["email"] == "a@example.com"
+    # Without an order id each request is a new payment (a random key).
+    await provider.create_payment(10.0, "RUB", "x", {})
+    await provider.create_payment(10.0, "RUB", "x", {})
+    assert calls[2].headers["Idempotence-Key"] != calls[3].headers["Idempotence-Key"]
+
+
+@pytest.mark.asyncio
+async def test_lookup_by_order_never_creates_and_follows_the_pages(yookassa):
+    calls, pages = yookassa
+    pages[""] = {"items": [{"id": "yk-1", "metadata": {"order_id": "other"}}], "next_cursor": "c2"}
+    pages["c2"] = {"items": [{"id": "yk-2", "metadata": {"order_id": "o-7"}}]}
+    found = await payments.YooKassaProvider().find_by_order_id("o-7", datetime(2026, 11, 5, 12, 0, tzinfo=timezone.utc))
+    assert found["id"] == "yk-2"
+    assert all(c.method == "GET" for c in calls), "the lookup never opens a payment"
+    assert calls[0].url.params["created_at.gte"] == "2026-11-05T12:00:00.000Z"
+    assert calls[1].url.params["cursor"] == "c2"
+    calls.clear(); pages.clear()
+    assert await payments.YooKassaProvider().find_by_order_id("o-8") is None
+    assert "created_at.gte" not in calls[0].url.params
+
+
+@pytest.mark.asyncio
+async def test_lookup_stops_after_five_pages(yookassa):
+    calls, pages = yookassa
+    for i in range(10):
+        pages["" if i == 0 else f"c{i}"] = {"items": [], "next_cursor": f"c{i + 1}"}
+    assert await payments.YooKassaProvider().find_by_order_id("o-1") is None
+    assert len(calls) == 5
+
+
+@pytest.mark.asyncio
+async def test_refund_has_its_own_idempotence_key_and_exact_amount(yookassa):
+    calls, _ = yookassa
+    out = await payments.YooKassaProvider().refund("yk-9", Decimal("99.9"), "RUB", "x" * 400)
+    assert out == {"id": "rf-1", "status": "pending"}
+    assert calls[0].headers["Idempotence-Key"] == "refund-yk-9"
+    body = json.loads(calls[0].content)
+    assert body["amount"] == {"value": "99.90", "currency": "RUB"} and len(body["description"]) == 250
