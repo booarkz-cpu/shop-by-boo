@@ -14,12 +14,8 @@ def test_privacy_delete_blocks_indefinite_subscription_and_revokes_remote_access
     assert 'active.remnawave_uuid=None' in block
 
 
-def test_withdrawal_reject_cannot_restore_balance_after_payout_started():
-    start = MAIN.index('@app.post("/api/admin/referrals/withdrawals/{withdrawal_id}/reject")')
-    block = MAIN[start:MAIN.index('@app.post("/api/admin/referrals/withdrawals/{withdrawal_id}/approve")', start)]
-    assert 'if x.status != "requested"' in block
-    assert 'PayoutTransaction' in block
-    assert 'double-spend' in block
+# test_withdrawal_reject_cannot_restore_balance_after_payout_started: replaced by the behaviour test
+# tests/test_behaviour_withdrawals.py (C1, stage 19).
 
 
 def test_v44_5_16_migration_preserves_previous_head():
