@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- «Держать устройство активным»: a partial wake lock while connected, only when the user turns it on. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- The background subscription update survives a reboot (JobScheduler persisted job). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Android TV: no touchscreen, no camera needed. -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
@@ -25,11 +31,22 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.NoActionBar">
         <service android:name=".vpn.ClientVpnService" android:permission="android.permission.BIND_VPN_SERVICE" android:exported="false"
-            android:foregroundServiceType="systemExempted">
+            android:foregroundServiceType="systemExempted|specialUse"
+            tools:ignore="ForegroundServicePermission">
+            <!-- systemExempted is allowed for a VpnService app with the VPN permission (no exact-alarm permission needed). -->
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Local SOCKS5/HTTP proxy through Xray without a VPN interface («proxy only» mode chosen by the user)" />
         </service>
+        <receiver android:name=".vpn.BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".vpn.UpdateJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="false" />
         <service android:name=".vpn.QuickTile" android:exported="true" android:icon="@drawable/corgi_logo" android:label="@string/app_short"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
@@ -69,7 +86,17 @@
                 <data android:scheme="ss" />
                 <data android:scheme="socks" />
                 <data android:scheme="wireguard" />
-                <data android:scheme="corgiclient" android:host="import" />
+                <data android:scheme="hysteria2" />
+                <data android:scheme="hy2" />
+            </intent-filter>
+            <!-- The app's own links in a filter of their own: a host here would otherwise apply to the share-link schemes above.
+                 corgi://connect, …/import/{base64}, …/restore/… (Tasker, shortcuts, links); corgiclient://import?url=… -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="corgi" />
+                <data android:scheme="corgiclient" />
             </intent-filter>
         </activity>
     </application>

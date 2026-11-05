@@ -70,4 +70,28 @@ sleep 2
 if probe | grep -q corgi-tunnel-ok; then echo "FAIL: the page still answers after disconnecting" >&2; exit 1; fi
 echo "3/3 disconnected: no answer again"
 done
+# v1.3.0: «только прокси» — no VPN interface; SOCKS5 and HTTP on the device with a login and password. The host reaches
+# them through adb forward: with the password the check page answers through the server, without it the proxy refuses,
+# and the device itself (no tunnel) still cannot reach the page.
+echo "— proxy only (SOCKS5 / HTTP with a password)"
+cp sub/links.txt sub/index.html
+# One string for the device's shell, the JSON in single quotes there: unquoted, its shell would brace-expand «{a,b}».
+SETTINGS='{"tunnelMode":"proxy","proxyAuth":true,"httpAuth":true,"proxyUser":"ci","proxyPass":"cisecret","socksPort":10808,"httpPort":10809}'
+adb shell "am start -W -n $PKG/shop.corgi.client.ui.MainActivity --es client_test_settings '$SETTINGS' --es client_test_import http://10.0.2.2:18081/ --ez client_test_connect true" >/dev/null
+for i in $(seq 1 30); do [ "$(state)" = on ] && break; sleep 2; done
+[ "$(state)" = on ] || { echo "FAIL: proxy mode did not start (state: $(state))" >&2; adb shell "run-as $PKG cat shared_prefs/client_vpn.xml" >&2 || true
+  adb shell "run-as $PKG cat files/logs/app.log" >&2 || true; adb logcat -d | grep -iE "corgi|AndroidRuntime|FATAL|ForegroundService" | tail -60 >&2 || true; exit 1; }
+adb forward tcp:18808 tcp:10808 >/dev/null; adb forward tcp:18809 tcp:10809 >/dev/null
+ok=""; for i in $(seq 1 10); do
+  if curl -s --max-time 8 --socks5-hostname ci:cisecret@127.0.0.1:18808 http://198.18.0.42/ | grep -q corgi-tunnel-ok; then ok=1; break; fi; sleep 2; done
+[ -n "$ok" ] || { echo "FAIL: SOCKS5 with the password does not reach the page through the server" >&2; exit 1; }
+curl -s --max-time 8 -x http://ci:cisecret@127.0.0.1:18809 http://198.18.0.42/ | grep -q corgi-tunnel-ok || { echo "FAIL: HTTP proxy with the password" >&2; exit 1; }
+if curl -s --max-time 8 --socks5-hostname 127.0.0.1:18808 http://198.18.0.42/ | grep -q corgi-tunnel-ok; then echo "FAIL: SOCKS5 answers without the password" >&2; exit 1; fi
+if curl -s --max-time 8 -x http://127.0.0.1:18809 http://198.18.0.42/ | grep -q corgi-tunnel-ok; then echo "FAIL: HTTP proxy answers without the password" >&2; exit 1; fi
+if probe | grep -q corgi-tunnel-ok; then echo "FAIL: proxy-only mode tunnels the whole device" >&2; exit 1; fi
+echo "proxy only: SOCKS5 and HTTP work with the password, refuse without it; the device has no tunnel"
+adb shell am start -W -n "$PKG/shop.corgi.client.ui.MainActivity" --ez client_test_stop true >/dev/null
+for i in $(seq 1 15); do [ "$(state)" = off ] && break; sleep 2; done
+[ "$(state)" = off ] || { echo "FAIL: proxy mode did not stop" >&2; exit 1; }
+adb forward --remove-all || true
 echo "Corgi client VPN: PASS"
