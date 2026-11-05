@@ -4,12 +4,12 @@
 
 **PASS** — все изменяющие маршруты покрыты тестами, у всех разделов есть скриншот. **PARTIAL** — ниже перечислено, что не покрыто.
 
-Изменяющих маршрутов: **262 из 314** покрыты тестами; модулей PASS: **16 из 30**.
+Изменяющих маршрутов: **314 из 314** покрыты тестами; модулей PASS: **26 из 30**.
 
 | № | Модуль | Маршрутов | Изменяющих | Покрыто тестами | Статус |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Dashboard | 17 | 4 | 2 | PARTIAL |
-| 2 | Users | 37 | 18 | 12 | PARTIAL |
+| 1 | Dashboard | 17 | 4 | 4 | PARTIAL |
+| 2 | Users | 37 | 18 | 18 | PARTIAL |
 | 3 | Subscriptions | 12 | 7 | 7 | PASS |
 | 4 | Tariffs | 18 | 12 | 12 | PASS |
 | 5 | Devices | 6 | 4 | 4 | PASS |
@@ -18,21 +18,21 @@
 | 8 | Promo Codes | 14 | 11 | 11 | PASS |
 | 9 | Gifts | 6 | 3 | 3 | PASS |
 | 10 | Referrals | 13 | 8 | 8 | PASS |
-| 11 | Remnawave | 32 | 15 | 3 | PARTIAL |
-| 12 | Installation | 58 | 40 | 37 | PARTIAL |
+| 11 | Remnawave | 32 | 15 | 15 | PASS |
+| 12 | Installation | 58 | 40 | 40 | PASS |
 | 13 | Servers | 9 | 6 | 6 | PASS |
-| 14 | Nodes | 31 | 23 | 13 | PARTIAL |
-| 15 | Domains | 7 | 6 | 5 | PARTIAL |
-| 16 | Certificates | 2 | 1 | 0 | PARTIAL |
+| 14 | Nodes | 31 | 23 | 23 | PASS |
+| 15 | Domains | 7 | 6 | 6 | PASS |
+| 16 | Certificates | 2 | 1 | 1 | PASS |
 | 17 | Reverse Proxy | 1 | 0 | 0 | PASS |
-| 18 | Subscription Portal | 12 | 7 | 6 | PARTIAL |
-| 19 | Node Extensions | 31 | 21 | 20 | PARTIAL |
-| 20 | Monitoring | 17 | 9 | 6 | PARTIAL |
-| 21 | Backups | 17 | 11 | 4 | PARTIAL |
-| 22 | Updates | 14 | 9 | 7 | PARTIAL |
+| 18 | Subscription Portal | 12 | 7 | 7 | PASS |
+| 19 | Node Extensions | 31 | 21 | 21 | PASS |
+| 20 | Monitoring | 17 | 9 | 9 | PASS |
+| 21 | Backups | 17 | 11 | 11 | PASS |
+| 22 | Updates | 14 | 9 | 9 | PASS |
 | 23 | Automation | 9 | 4 | 4 | PASS |
 | 24 | Telegram | 31 | 22 | 22 | PASS |
-| 25 | Integrations | 17 | 11 | 8 | PARTIAL |
+| 25 | Integrations | 17 | 11 | 11 | PARTIAL |
 | 26 | Plugins | 14 | 11 | 11 | PASS |
 | 27 | Security | 28 | 12 | 12 | PASS |
 | 28 | Logs | 6 | 3 | 3 | PARTIAL |
@@ -43,84 +43,12 @@
 
 **1. Dashboard**
 - нет скриншота раздела `command360`
-- `POST /api/admin/v6/orchestrator/evaluate`
-- `POST /api/admin/v6/provision`
 
 **2. Users**
 - нет скриншота раздела `customer360`
-- `POST /api/admin/remnawave/shop/test`
-- `POST /api/admin/remnawave/shop/plan-mapping/validate`
-- `POST /api/admin/users/{user_id}/drop-connections`
-- `POST /api/admin/remnawave/auto-update/check`
-- `POST /api/admin/customer-operations/import/inspect`
-- `POST /api/admin/remnawave/users/{user_id}/extend`
-
-**11. Remnawave**
-- `POST /api/admin/remnawave/shop/test`
-- `POST /api/admin/remnawave/shop/plan-mapping/validate`
-- `PUT /api/admin/panel/hosts/{host_uuid}`
-- `POST /api/admin/panel/squads/{squad_uuid}/{action}`
-- `POST /api/admin/panel/hosts`
-- `PATCH /api/admin/panel/hosts/{host_uuid}`
-- `DELETE /api/admin/panel/hosts/{host_uuid}`
-- `POST /api/admin/panel/squads`
-- `PATCH /api/admin/panel/squads/{squad_uuid}`
-- `DELETE /api/admin/panel/squads/{squad_uuid}`
-- `POST /api/admin/remnawave/auto-update/check`
-- `POST /api/admin/remnawave/users/{user_id}/extend`
-
-**12. Installation**
-- `DELETE /api/admin/rw/domains/{domain_id}`
-- `POST /api/admin/rw/certificates/check`
-- `PATCH /api/admin/rw/extensions/subpage-configs/{config_uuid}`
-
-**14. Nodes**
-- `POST /api/admin/platform/torrents/threshold`
-- `POST /api/admin/platform/plugins/{key}`
-- `POST /api/admin/platform/agents`
-- `POST /api/admin/platform/blacklist`
-- `POST /api/admin/platform/api-keys`
-- `DELETE /api/admin/platform/api-keys/{key_id}`
-- `POST /api/admin/platform/webhooks`
-- `PUT /api/admin/platform/mail`
-- `POST /api/admin/platform/mail/test`
-- `POST /api/admin/platform/dkim`
-
-**15. Domains**
-- `DELETE /api/admin/rw/domains/{domain_id}`
-
-**16. Certificates**
-- `POST /api/admin/rw/certificates/check`
-
-**18. Subscription Portal**
-- `POST /api/admin/sub-proxy/clients/refresh`
-
-**19. Node Extensions**
-- `PATCH /api/admin/rw/extensions/subpage-configs/{config_uuid}`
-
-**20. Monitoring**
-- `POST /api/admin/ops/summary/send`
-- `POST /api/admin/ops/withdrawals/{withdrawal_id}/approve`
-- `POST /api/admin/ops/withdrawals/{withdrawal_id}/paid`
-
-**21. Backups**
-- `POST /api/admin/backups/telegram/send-now`
-- `PUT /api/admin/backups/config`
-- `POST /api/admin/backups/run`
-- `POST /api/admin/backups/{backup_id}/validate`
-- `POST /api/admin/backups/{backup_id}/restore/request`
-- `POST /api/admin/backups/{backup_id}/restore/approve`
-- `POST /api/admin/recovery/operations/{operation_id}/retry`
-
-**22. Updates**
-- `POST /api/admin/remnawave/auto-update/check`
-- `POST /api/admin/deployments/{deployment_id}/rollback`
 
 **25. Integrations**
 - нет скриншота раздела `integrations`
-- `POST /api/admin/webhooks/tee/test`
-- `POST /api/admin/geoip/update`
-- `POST /api/admin/ripe-atlas/run`
 
 **28. Logs**
 - нет скриншота раздела `events`
