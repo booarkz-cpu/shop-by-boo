@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -48,7 +49,9 @@ class ClientScreensTest {
     /** Scrolls to the element first when it is in a scrollable screen: a tap outside the visible area hits nothing. */
     private fun androidx.compose.ui.test.SemanticsNodeInteraction.tap() {
         runCatching { performScrollTo() }
-        performClick()
+        // The node's own click action: a touch can land on another element when the screen is still settling.
+        if (fetchSemanticsNode().config.contains(androidx.compose.ui.semantics.SemanticsActions.OnClick))
+            performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick) else performClick()
         compose.waitForIdle()
     }
 
