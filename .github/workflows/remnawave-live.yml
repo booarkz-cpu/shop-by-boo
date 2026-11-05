@@ -6,7 +6,7 @@ on:
   pull_request:
     paths: ['backend/app/remnawave.py', 'backend/app/node_autoscale.py', 'backend/app/block_monitor.py', 'backend/app/node_health.py',
             'backend/app/rw_*.py', 'backend/app/provisioner.py', 'tests/live/**', 'scripts/ci/remnawave-live.sh',
-            'scripts/ci/rw-install-live.sh', 'scripts/ci/caddy-on-demand-live.sh', 'scripts/ci/tinyauth-live.sh', 'deploy/Caddyfile', 'deploy/caddy/**',
+            'scripts/ci/rw-install-live.sh', 'scripts/ci/caddy-on-demand-live.sh', 'scripts/ci/tinyauth-live.sh', 'scripts/ci/panel-gate-live.sh', 'backend/app/panel_gate.py', 'deploy/Caddyfile', 'deploy/caddy/**',
             'backend/app/sub_proxy.py', 'backend/app/sub_portal.py', 'backend/app/bot.py', 'backend/app/telegram_bot.py',
             '.github/workflows/remnawave-live.yml']
   push:
@@ -93,6 +93,8 @@ jobs:
       - run: pip install -r backend/requirements.txt -r backend/requirements-test.txt
       - name: TinyAuth in front of the panel
         run: bash scripts/ci/tinyauth-live.sh
+      - name: The shop's own login in front of the panel
+        run: bash scripts/ci/panel-gate-live.sh
 
   # v28.70.0 (stage 12): SelfSteal node through the wizard with the shop connected to the newest panel; a TLS client
   # without REALITY keys gets the template site on port 443; IPv6 and the Xray core modules on the same node.

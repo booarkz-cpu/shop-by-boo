@@ -123,7 +123,7 @@ class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs"]
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
-    panel_access: Literal["open", "cookie", "tinyauth"] | None = None
+    panel_access: Literal["open", "cookie", "tinyauth", "gate"] | None = None
     # v28.78.0: with panel_access="tinyauth" — the login portal's domain (a sibling of the panel's domain).
     auth_domain: str | None = Field(default=None, max_length=253)
     # v28.77.0: with «update» — the template of the Remnawave subscription page.
@@ -334,6 +334,14 @@ async def get_installation(installation_id: int, db: AsyncSession = Depends(get_
     return installation_out(row, await _steps(db, row.id))
 
 
+def _gate_ready(access: str | None) -> None:
+    """«Вход через магазин» needs the shop's public HTTPS address: the panel's Caddy asks it about every page."""
+    if access == "gate":
+        from .panel_gate import shop_base
+        if not shop_base().startswith("https://") or "localhost" in shop_base():
+            raise HTTPException(422, "Для входа через магазин задайте публичный адрес API магазина (API_DOMAIN)")
+
+
 @router.post("/installations/plan")
 async def plan_installation(payload: rw_plan.PlanIn, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     """The plan to review: steps, what changes on each server, pinned images. Nothing runs until it is approved."""
@@ -342,6 +350,7 @@ async def plan_installation(payload: rw_plan.PlanIn, db: AsyncSession = Depends(
     unchecked = [servers[i]["name"] for i in ids if i in servers and servers[i]["status"] in ("new", "unreachable")]
     if unchecked:
         raise HTTPException(422, "Сначала проверьте серверы («Проверить»): " + ", ".join(unchecked))
+    _gate_ready(payload.panel_access)
     try:
         plan = rw_plan.build_plan(payload, servers, _shop_panel())
     except ValueError as exc:
@@ -416,6 +425,7 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
     if payload.panel_access:
         if payload.action != "update" or not params.get("panel_server_id"):
             raise HTTPException(422, "Доступ к панели меняется действием «Обновить» установки с панелью")
+        _gate_ready(payload.panel_access)
         params["panel_access"] = payload.panel_access
         if payload.panel_access == "tinyauth":
             params["auth_domain"] = payload.auth_domain or params.get("auth_domain")
