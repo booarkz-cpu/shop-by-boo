@@ -3,6 +3,7 @@ package shop.corgi.client.ui
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,17 +43,26 @@ import androidx.compose.ui.unit.dp
 import shop.corgi.client.core.Ping
 import shop.corgi.client.core.tr
 
-/** The brand banner (assets/banners, the shop apps' artwork) with a title over a dark gradient. */
+/** «Стекло»: a translucent surface with a thin light border over the deep background (the brand's dark look). */
+fun Modifier.glass(shape: androidx.compose.ui.graphics.Shape, tint: Color, border: Color = Color.White.copy(alpha = 0.08f)): Modifier =
+    this.clip(shape).background(tint.copy(alpha = 0.72f)).border(1.dp, border, shape)
+
+/**
+ * The brand banner (assets/banners, the shop apps' artwork): the picture alone in a rounded card — nothing is written
+ * over it — and the title and hint under it.
+ */
 @Composable
 fun Banner(asset: String, title: String, subtitle: String = "") {
     val context = LocalContext.current
     val bitmap = remember(asset) { runCatching { context.assets.open("banners/$asset.jpg").use { BitmapFactory.decodeStream(it) } }.getOrNull() }
-    Box(Modifier.fillMaxWidth().height(132.dp).clip(RoundedCornerShape(20.dp)).background(MaterialTheme.colorScheme.surfaceVariant).testTag("banner-$asset")) {
-        bitmap?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxWidth().height(132.dp), contentScale = ContentScale.Crop) }
-        Box(Modifier.fillMaxWidth().height(132.dp).background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC0E0F14)))))
-        Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
-            Text(title, color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            if (subtitle.isNotBlank()) Text(subtitle, color = Color(0xFFE8E2DA), style = MaterialTheme.typography.bodySmall)
+    val shape = RoundedCornerShape(24.dp)
+    Column(Modifier.fillMaxWidth().glass(shape, MaterialTheme.colorScheme.surface).testTag("banner-$asset")) {
+        Box(Modifier.fillMaxWidth().height(140.dp).padding(8.dp).clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
+            bitmap?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxWidth().height(140.dp), contentScale = ContentScale.Crop) }
+        }
+        Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 14.dp, top = 2.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            if (subtitle.isNotBlank()) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

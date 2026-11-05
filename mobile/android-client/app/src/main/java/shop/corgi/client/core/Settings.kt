@@ -29,6 +29,18 @@ data class Rule(val match: String, val action: String) {
     }
 }
 
+/** v1.4.0: a named set of routing — the mode and the rules — to switch between in one tap («Профили маршрутизации»). */
+data class RoutingProfile(val name: String, val routing: String, val rules: List<Rule>) {
+    init { require(name.isNotBlank() && name.length <= 40) { "name" }; require(routing in Settings.ROUTING) { "routing" } }
+
+    fun toJson(): JSONObject = JSONObject().put("name", name).put("routing", routing).put("rules", JSONArray(rules.map { it.toJson() }))
+
+    companion object {
+        fun of(j: JSONObject) = RoutingProfile(j.getString("name"), j.getString("routing"),
+            j.optJSONArray("rules")?.let { a -> (0 until a.length()).map { Rule.of(a.getJSONObject(it)) } } ?: emptyList())
+    }
+}
+
 /**
  * Everything the user set; stored as JSON. Defaults are what a new install uses. Every field here is shown in the
  * settings menu and changes what the app does (no switches without an effect).
@@ -72,6 +84,9 @@ data class Settings(
     val tileDetails: Boolean = true,             // the tile shows the server and the state, not only the name
     val logLevel: String = "none",               // none | error | warning | info | debug
     val logHours: Int = 1,                       // 1 | 6 | 24 | 168 | 0 (keep all)
+    // v1.4.0
+    val appIcon: String = "corgi",               // corgi | night | mint
+    val routingProfiles: List<RoutingProfile> = emptyList(),
     // Apps through the VPN
     val appsMode: String = "all",                // all | only | except
     val apps: Set<String> = emptySet(),
@@ -116,6 +131,7 @@ data class Settings(
         require(tunnelMode in listOf("tun", "proxy") && logLevel in LOG_LEVELS && logHours in LOG_HOURS) { "mode" }
         require(socksPort in 1024..65535 && httpPort in 1024..65535 && socksPort != httpPort) { "ports" }
         require(muxConcurrency in 1..128) { "mux" }
+        require(appIcon in APP_ICONS && routingProfiles.size <= 20 && routingProfiles.map { it.name }.toSet().size == routingProfiles.size) { "icon" }
         require(CREDENTIAL.matches(proxyUser) && CREDENTIAL.matches(proxyPass)) { "credentials" }
         // Sharing the proxy with other devices without a password would open it to the whole network.
         require(!shareLan || proxyAuth) { "auth" }
@@ -136,6 +152,7 @@ data class Settings(
         .put("muxConcurrency", muxConcurrency).put("noises", noises).put("speedNotification", speedNotification).put("wakelock", wakelock)
         .put("autoConnectLaunch", autoConnectLaunch).put("autoConnectBoot", autoConnectBoot).put("tileDetails", tileDetails)
         .put("logLevel", logLevel).put("logHours", logHours)
+        .put("appIcon", appIcon).put("routingProfiles", JSONArray(routingProfiles.map { it.toJson() }))
         .put("pingMethod", pingMethod).put("pingDisplay", pingDisplay).put("pingUrl", pingUrl).put("pingTimeout", pingTimeout)
 
     companion object {
@@ -149,6 +166,7 @@ data class Settings(
         val PING_DISPLAYS = listOf("digits", "bar", "both", "dots")
         val PING_URLS = listOf("https://www.gstatic.com/generate_204", "https://cp.cloudflare.com/generate_204", "https://captive.apple.com/hotspot-detect.html")
         val LOG_LEVELS = listOf("none", "error", "warning", "info", "debug")
+        val APP_ICONS = listOf("corgi", "night", "mint")
         val LOG_HOURS = listOf(1, 6, 24, 168, 0)
         private val CREDENTIAL = Regex("^[A-Za-z0-9_.-]{0,64}$")
         const val DEFAULT_PING_URL = "https://www.gstatic.com/generate_204"
@@ -204,6 +222,8 @@ data class Settings(
             tryField { it.copy(speedNotification = b("speedNotification", d.speedNotification), wakelock = b("wakelock", d.wakelock), tileDetails = b("tileDetails", d.tileDetails)) }
             tryField { it.copy(autoConnectLaunch = b("autoConnectLaunch", d.autoConnectLaunch), autoConnectBoot = b("autoConnectBoot", d.autoConnectBoot)) }
             tryField { it.copy(logLevel = s("logLevel", d.logLevel), logHours = i("logHours", d.logHours)) }
+            tryField { it.copy(appIcon = s("appIcon", d.appIcon)) }
+            tryField { it.copy(routingProfiles = json.optJSONArray("routingProfiles")?.let { a -> (0 until a.length()).mapNotNull { runCatching { RoutingProfile.of(a.getJSONObject(it)) }.getOrNull() } } ?: emptyList()) }
             return out
         }
     }

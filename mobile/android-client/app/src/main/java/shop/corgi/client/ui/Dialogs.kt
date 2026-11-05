@@ -66,6 +66,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import shop.corgi.client.core.ConfigBuilder
 import shop.corgi.client.core.Rule
+import shop.corgi.client.core.RoutingProfile
 import shop.corgi.client.core.TvReceiver
 import shop.corgi.client.core.tr
 import shop.corgi.client.data.Store
@@ -186,7 +187,34 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
     var rule by remember { mutableStateOf("") }
     var action by remember { mutableStateOf("direct") }
     var message by remember { mutableStateOf("") }
+    var profileName by remember { mutableStateOf("") }
     LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // v1.4.0: «Профили маршрутизации» — the mode and rules saved under a name, applied in one tap.
+        item { Text(tr("Профили маршрутизации", "Routing profiles", "Профілі маршрутизації"), style = MaterialTheme.typography.titleMedium) }
+        items(s.routingProfiles, key = { "profile-" + it.name }) { p ->
+            val active = p.routing == s.routing && p.rules == s.rules
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f).clickable { store.settings = s.copy(routing = p.routing, rules = p.rules); refresh() }.testTag("routing-profile")) {
+                    Text((if (active) "● " else "") + p.name, style = MaterialTheme.typography.titleSmall)
+                    Text(tr("правил: ", "rules: ", "правил: ") + p.rules.size, style = MaterialTheme.typography.bodySmall)
+                }
+                TextButton(onClick = { store.settings = s.copy(routingProfiles = s.routingProfiles - p); refresh() }) { Text("✕") }
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, singleLine = true, modifier = Modifier.weight(1f).testTag("profile-name"),
+                    placeholder = { Text(tr("Имя профиля", "Profile name", "Назва профілю")) })
+                Button(onClick = {
+                    val name = profileName.trim()
+                    message = runCatching {
+                        val profile = RoutingProfile(name, s.routing, s.rules)
+                        store.settings = s.copy(routingProfiles = s.routingProfiles.filterNot { it.name == name } + profile)
+                        profileName = ""; refresh()
+                    }.fold({ tr("Профиль сохранён", "Profile saved", "Профіль збережено") }, { tr("Нужно имя (до 40 символов), не больше 20 профилей", "A name (up to 40 characters), at most 20 profiles", "Потрібна назва (до 40 символів), не більше 20 профілів") })
+                }) { Text(tr("Сохранить текущие", "Save current", "Зберегти поточні")) }
+            }
+        }
         item { Text(tr("Что идёт через VPN", "What goes through the VPN", "Що йде через VPN"), style = MaterialTheme.typography.titleMedium) }
         items(listOf("global" to tr("Всё через VPN", "Everything", "Усе через VPN"),
             "bypass_lan" to tr("Всё, кроме локальной сети", "All but the local network", "Усе, крім локальної мережі"),
