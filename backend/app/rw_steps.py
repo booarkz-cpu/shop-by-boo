@@ -21,7 +21,7 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl")
+              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
 COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
@@ -318,7 +318,7 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
                 "docker-compose.yml": rw_plan.caddy_compose(tinyauth), **files}
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
-        return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain),
+        return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain), hysteria="hysteria2" in plan.transports,
                                                            xray_core=bool(plan.xray_core))}
     if component == "xray_checker":
         url = ctx.secrets.get("checker_subscription_url")
@@ -856,6 +856,16 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if result.code != 0 or (enabled and "Connected" not in result.out):
             raise StepError("NetBird не подключился к серверу управления (журнал шага)")
         mods["netbird"] = enabled
+    elif name == "transports":
+        wanted = p.get("transports") or []
+        flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2")]
+        result = await _run(ctx, sid, TRANSPORTS_SH, ctx.plan.selfsteal_domain, *flags, timeout=300)
+        _note(ctx, result.out + result.err)
+        if result.code == 5:
+            raise StepError("Нет сертификата SelfSteal для Hysteria2: Caddy ноды ещё не получил его (проверьте DNS домена и повторите)")
+        if result.code != 0:
+            raise StepError("Порты и сертификат транспортов не настроены (журнал шага)")
+        mods["transports"] = list(wanted)
     elif name == "xray_checker":
         data = {}
         for _ in range(15):
@@ -869,6 +879,161 @@ async def run_node_module(ctx: Context, st: dict) -> None:
     else:
         raise StepError(f"Неизвестный модуль {name}")
     ctx.state.setdefault("applied_modules", []).append([sid, name, enabled])
+
+
+# v28.81.0: «Транспорты ноды». Ports of the chosen transports in ufw (if it is on) and, for Hysteria2, the TLS certificate
+# of the SelfSteal domain: copied from the node's Caddy (any issuer) to HYSTERIA_DIR every day by a systemd timer; Xray
+# reloads it (ocspStapling). After remnawave-manager (MIT, (c) Корги Люси): write_hysteria_cert_helper, write_firewall.
+TRANSPORTS_SH = r"""set -eu
+domain="$1"; xhttp="$2"; grpc="$3"; hy="$4"; dir=/opt/remnanode/hysteria
+case "$domain" in *[!a-z0-9.-]*|"") exit 2 ;; esac
+port() {  # port/proto on|off
+  command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | head -1 | grep -q active || return 0
+  if [ "$2" = on ]; then ufw allow "$1" >/dev/null; else ufw delete allow "$1" >/dev/null 2>&1 || true; fi
+}
+port 4443/tcp "$xhttp"; port 8443/tcp "$grpc"; port 443/udp "$hy"
+if [ "$hy" = on ]; then
+  install -d -m 0755 "$dir"
+  cat > /usr/local/sbin/corgi-hysteria-cert.sh <<EOF
+#!/bin/sh
+set -eu
+d=\$(docker exec remnawave-selfsteal sh -c 'find /data/caddy/certificates -type d -name "$domain" | head -n1')
+[ -n "\$d" ] || exit 3
+docker exec remnawave-selfsteal cat "\$d/$domain.crt" > $dir/cert.pem.new
+docker exec remnawave-selfsteal cat "\$d/$domain.key" > $dir/key.pem.new
+[ -s $dir/cert.pem.new ] && [ -s $dir/key.pem.new ] || exit 4
+chmod 0644 $dir/cert.pem.new; chmod 0600 $dir/key.pem.new
+mv -f $dir/cert.pem.new $dir/cert.pem; mv -f $dir/key.pem.new $dir/key.pem
+EOF
+  chmod 0700 /usr/local/sbin/corgi-hysteria-cert.sh
+  printf '[Unit]\nDescription=Copy the SelfSteal certificate for Hysteria2\n[Service]\nType=oneshot\nExecStart=/usr/local/sbin/corgi-hysteria-cert.sh\n' > /etc/systemd/system/corgi-hysteria-cert.service
+  printf '[Unit]\nDescription=Daily copy of the SelfSteal certificate for Hysteria2\n[Timer]\nOnCalendar=daily\nRandomizedDelaySec=1h\nPersistent=true\n[Install]\nWantedBy=timers.target\n' > /etc/systemd/system/corgi-hysteria-cert.timer
+  systemctl daemon-reload; systemctl enable --now corgi-hysteria-cert.timer >/dev/null 2>&1
+  # Caddy may still be getting the certificate: wait for it up to two minutes.
+  for i in $(seq 1 24); do /usr/local/sbin/corgi-hysteria-cert.sh 2>/dev/null && break; sleep 5; done
+  [ -s "$dir/cert.pem" ] && [ -s "$dir/key.pem" ] || { echo "nocert"; exit 5; }
+  echo "cert=$(openssl x509 -in $dir/cert.pem -noout -enddate 2>/dev/null | cut -d= -f2)"
+else
+  systemctl disable --now corgi-hysteria-cert.timer >/dev/null 2>&1 || true
+  rm -f /etc/systemd/system/corgi-hysteria-cert.service /etc/systemd/system/corgi-hysteria-cert.timer /usr/local/sbin/corgi-hysteria-cert.sh
+  systemctl daemon-reload || true
+fi
+echo "transports xhttp=$xhttp grpc=$grpc hysteria2=$hy"
+"""
+
+
+def transport_inbounds(base: dict, domain: str, wanted: list[str]) -> list[dict]:
+    """The inbounds of the chosen transports next to ``base`` (the VLESS + TCP + REALITY inbound of the profile): the
+    same REALITY settings (keys, SelfSteal site, serverNames); Hysteria2 with the copied certificate."""
+    reality = (base.get("streamSettings") or {}).get("realitySettings") or {}
+    sniff = base.get("sniffing") or {"enabled": True, "destOverride": ["http", "tls", "quic"]}
+    out = []
+    for name in wanted:
+        tag, port, _proto = rw_plan.TRANSPORTS[name]
+        if name == "hysteria2":
+            out.append({"tag": tag, "port": port, "listen": "0.0.0.0", "protocol": "hysteria", "settings": {"version": 2, "clients": []},
+                        "sniffing": sniff,
+                        "streamSettings": {"network": "hysteria", "hysteriaSettings": {"version": 2}, "security": "tls",
+                                           "tlsSettings": {"serverName": domain, "alpn": ["h3"], "certificates": [
+                                               {"certificateFile": f"{rw_plan.HYSTERIA_MOUNT}/cert.pem", "keyFile": f"{rw_plan.HYSTERIA_MOUNT}/key.pem",
+                                                "ocspStapling": 3600}]}}})
+            continue
+        stream = {"network": name, "security": "reality", "realitySettings": dict(reality)}
+        if name == "xhttp":
+            stream["xhttpSettings"] = {"path": "/xhttp", "mode": "auto"}
+        else:
+            stream["grpcSettings"] = {"serviceName": "grpc", "multiMode": True}
+        out.append({"tag": tag, "port": port, "listen": "0.0.0.0", "protocol": "vless", "settings": {"clients": [], "decryption": "none"},
+                    "sniffing": sniff, "streamSettings": stream})
+    return out
+
+
+def transport_host(name: str, domain: str, profile: str, inbound: str, remark: str) -> dict:
+    tag, port, _ = rw_plan.TRANSPORTS[name]
+    body = {"remark": remark[:40], "address": domain, "port": port, "sni": domain,
+            "inbound": {"configProfileUuid": profile, "configProfileInboundUuid": inbound}}
+    if name == "xhttp":
+        body["path"] = "/xhttp"
+    if name == "grpc":
+        body["path"] = "grpc"  # the panel puts a gRPC host's path into the serviceName of the link
+    if name == "hysteria2":
+        body["alpn"] = "h3"
+    return body
+
+
+async def run_node_transports(ctx: Context, st: dict) -> None:
+    ctx.state["transports_before"] = list(ctx.state.get("transports") or [])
+    await _apply_transports(ctx, list(ctx.plan.transports))
+
+
+async def undo_node_transports(ctx: Context, st: dict) -> None:
+    if "transports_before" in ctx.state:
+        await _apply_transports(ctx, ctx.state.pop("transports_before"))
+
+
+async def _apply_transports(ctx: Context, chosen: list[str]) -> None:
+    """Make the SelfSteal profile carry exactly the chosen transports: inbounds, a host each, the same squads as the
+    REALITY inbound; then restart the node. VLESS + TCP + REALITY stays untouched."""
+    plan = ctx.plan
+    uuid = ctx.state.get("selfsteal_profile")
+    if not uuid:
+        raise StepError("Нет профиля SelfSteal этой установки: транспорты добавляются к нему")
+    profile = await panel_api(ctx, "GET", f"/api/config-profiles/{uuid}")
+    config = profile.get("config") or {}
+    tags = {t for t, _p, _n in rw_plan.TRANSPORTS.values()}
+    inbounds = [i for i in config.get("inbounds") or [] if i.get("tag") not in tags]
+    base = next((i for i in inbounds if ((i.get("streamSettings") or {}).get("security") == "reality")), None)
+    if not base:
+        raise StepError("В профиле SelfSteal нет inbound'а VLESS + REALITY")
+    before = {i.get("tag") for i in config.get("inbounds") or []}
+    ctx.state["profile_inbounds"] = sorted(set(ctx.state.get("profile_inbounds") or [])
+                                           | {i.get("uuid") for i in profile.get("inbounds") or [] if i.get("uuid")})
+    config["inbounds"] = inbounds + transport_inbounds(base, plan.selfsteal_domain, chosen)
+    await panel_api(ctx, "PATCH", "/api/config-profiles", {"uuid": uuid, "config": config})
+    profile = await panel_api(ctx, "GET", f"/api/config-profiles/{uuid}")
+    by_tag = {i.get("tag"): i.get("uuid") for i in profile.get("inbounds") or []}
+    wanted = {rw_plan.TRANSPORTS[n][0]: n for n in chosen}
+    # Hosts: one per transport inbound of this profile.
+    hosts = await panel_api(ctx, "GET", "/api/hosts")
+    hosts = hosts if isinstance(hosts, list) else hosts.get("hosts", [])
+    mine = {(h.get("inbound") or {}).get("configProfileInboundUuid"): h for h in hosts
+            if (h.get("inbound") or {}).get("configProfileUuid") == uuid}
+    for tag, name in wanted.items():
+        inbound = by_tag.get(tag)
+        if inbound and inbound not in mine:
+            await panel_api(ctx, "POST", "/api/hosts", transport_host(name, plan.selfsteal_domain, uuid, inbound, f"{plan.selfsteal_domain} {name}"))
+    for inbound, host in mine.items():
+        if host.get("uuid") and inbound not in by_tag.values():
+            await panel_api(ctx, "DELETE", f"/api/hosts/{host['uuid']}")
+    # Squads: wherever the REALITY inbound is, the transports are too (and nowhere once removed).
+    main = by_tag.get(base.get("tag"))
+    squads = await panel_api(ctx, "GET", "/api/internal-squads")
+    squads = squads if isinstance(squads, list) else squads.get("internalSquads", [])
+    extra = [by_tag[t] for t in wanted if by_tag.get(t)]
+    touched = 0
+    for squad in squads:
+        current = [i.get("uuid") for i in squad.get("inbounds") or []]
+        if main not in current:
+            continue
+        valid = set(by_tag.values())
+        # Drop inbounds of this profile that no longer exist (removed transports), add the chosen transports.
+        keep = [i for i in current if i in valid or i not in _profile_inbound_history(ctx)]
+        new = list(dict.fromkeys(keep + extra))
+        if new != current:
+            await panel_api(ctx, "PATCH", "/api/internal-squads", {"uuid": squad.get("uuid"), "inbounds": new})
+            touched += 1
+    ctx.state["profile_inbounds"] = sorted(set(ctx.state["profile_inbounds"]) | set(by_tag.values()))
+    # The nodes of this installation serve every inbound of the profile; PATCH makes the panel push the new config.
+    active = [i.get("uuid") for i in profile.get("inbounds") or [] if i.get("uuid")]
+    for node in (ctx.state.get("nodes") or {}).values():
+        await panel_api(ctx, "PATCH", "/api/nodes", {"uuid": node, "configProfile": {"activeConfigProfileUuid": uuid, "activeInbounds": active}})
+        await panel_api(ctx, "POST", f"/api/nodes/{node}/actions/restart", {"forceRestart": False})
+    ctx.state["transports"] = list(chosen)
+    _note(ctx, f"Профиль {uuid}: inbound'ы {sorted(by_tag)} (было {sorted(before)}); сквадов обновлено: {touched}")
+
+
+def _profile_inbound_history(ctx: Context) -> set:
+    return set(ctx.state.get("profile_inbounds") or [])
 
 
 async def checker_status(ctx: Context, sid: int) -> dict:
@@ -1111,7 +1276,9 @@ RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
        "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "compose_down": run_compose_down,
-       "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module, "compose_ctl": run_compose_ctl}
+       "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module, "compose_ctl": run_compose_ctl,
+       "node_transports": run_node_transports}
 UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
-        "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile, "node_module": undo_node_module}
+        "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile, "node_module": undo_node_module,
+        "node_transports": undo_node_transports}
 assert set(RUN) == set(STEP_KINDS)

@@ -39,12 +39,20 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
-MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker")
-MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker"}
+MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports")
+MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
+                 "transports": "Транспорты ноды"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
 SELFSTEAL_SOCKET = "/dev/shm/selfsteal.sock"
+# v28.81.0: extra transports of a SelfSteal node next to VLESS + TCP + REALITY on 443 (after remnawave-manager, MIT,
+# (c) Корги Люси): tag, port, network — the same REALITY keys and the SelfSteal site; Hysteria2 uses the TLS certificate
+# the node's Caddy issued for the SelfSteal domain (copied to HYSTERIA_DIR, Xray reloads it).
+TRANSPORTS = {"xhttp": ("VLESS_XHTTP_REALITY", 4443, "tcp"), "grpc": ("VLESS_GRPC_REALITY", 8443, "tcp"), "hysteria2": ("HYSTERIA2", 443, "udp")}
+TRANSPORT_TITLES = {"xhttp": "VLESS + xHTTP + REALITY (TCP 4443)", "grpc": "VLESS + gRPC + REALITY (TCP 8443)", "hysteria2": "Hysteria2 (UDP 443)"}
+HYSTERIA_DIR = "/opt/remnanode/hysteria"
+HYSTERIA_MOUNT = "/var/lib/corgi-hysteria"
 SELFSTEAL_TEMPLATES = {"cloud": "Облачное хранилище", "docs": "Документация", "corgi": "Блог о корги"}
 MODES = ("panel_node", "panel", "node", "panel_subpage", "subpage", "distributed", "add_node")
 MODE_TITLES = {
@@ -90,6 +98,8 @@ class PlanIn(BaseModel):
     xray_core: str | None = Field(default=None, pattern=r"^v\d{1,3}\.\d{1,3}\.\d{1,3}$")
     xray_checker_server_id: int | None = None
     xray_checker_interval: int = Field(default=300, ge=60, le=86400)
+    # v28.81.0: extra transports of the SelfSteal node (TRANSPORTS); VLESS + TCP + REALITY on 443 always stays.
+    transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)
     # The module action being planned (rw_api.action fills it; it is not kept after the run).
     module: "ModuleRun | None" = None
 
@@ -139,6 +149,9 @@ class PlanIn(BaseModel):
                 raise ValueError("Домен ноды и домен SelfSteal должны совпадать")
             if self.tls == "acme" and not self.acme_email:
                 raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
+        self.transports = sorted(set(self.transports))
+        if self.transports and not self.selfsteal_domain:
+            raise ValueError("Транспорты xHTTP, gRPC и Hysteria2 ставятся на ноду с SelfSteal (домен ноды и сертификат)")
         if self.xray_checker_server_id and self.xray_checker_server_id not in roles_of(self):
             raise ValueError("Xray Checker ставится на один из серверов этой установки")
         if self.panel_access in ("cookie", "tinyauth", "gate") and not self.panel_server_id:
@@ -162,10 +175,11 @@ class ModuleRun(BaseModel):
     """One module action: what to do on which servers. ``release`` — the files GitHub published for the chosen
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports"]
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
+    transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)
     release: dict[str, dict[str, str]] = Field(default_factory=dict)
     management_url: str | None = Field(default=None, max_length=200, pattern=r"^https://[A-Za-z0-9.-]+(:\d{1,5})?(/[A-Za-z0-9._~/-]*)?$")
 
@@ -261,6 +275,11 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
             steps.append(step("selfsteal_profile", n, f"{name}: профиль VLESS + REALITY с SelfSteal и хост {plan.selfsteal_domain}"))
             changes.setdefault(n, []).append("В панели: профиль конфигурации REALITY (ключи от панели) и хост для клиентов")
         steps.append(step("register_node", n, f"{name}: нода в панели"))
+        if plan.transports:
+            chosen = ", ".join(TRANSPORT_TITLES[t] for t in plan.transports)
+            steps += [step("node_module", n, f"{name}: порты и сертификат Hysteria2 — {chosen}", module="transports", transports=plan.transports),
+                      step("node_transports", None, f"Панель: транспорты {chosen} в профиле SelfSteal, хосты и сквады")]
+            changes[n].append(f"Транспорты: {chosen}; если есть ufw — их порты открыты для всех")
     steps.append(step("verify", None, "Проверка: HTTPS панели, связь нод, страница подписки" + (", сайт SelfSteal" if plan.selfsteal_domain else "")))
     return {
         "mode": plan.mode, "title": MODE_TITLES[plan.mode], "images": IMAGES,
@@ -498,7 +517,7 @@ def tinyauth_env(auth_domain: str, username: str, password_hash: str) -> str:
             "TINYAUTH_LABELPROVIDER=none\n")
 
 
-def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_core: bool = False) -> str:
+def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_core: bool = False, hysteria: bool = False) -> str:
     from .provisioner import node_compose as official
     text = official(secret_key, node_port).replace("image: remnawave/node:latest", f"image: {IMAGES['node']}")
     volumes = []
@@ -509,6 +528,9 @@ def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_
         # The core of the chosen release (checked by SHA-256 when downloaded) instead of the bundled one;
         # the node's rw-core starts /usr/local/bin/xray unless a panel profile points it at another core.
         volumes.append("      - ./xray-core/xray:/usr/local/bin/xray:ro\n")
+    if hysteria:
+        # Hysteria2 reads the SelfSteal domain's certificate (copied there by the node's timer, see rw_steps.TRANSPORTS_SH).
+        volumes.append(f"      - {HYSTERIA_DIR}:{HYSTERIA_MOUNT}:ro\n")
     if volumes:
         text = text.replace("    cap_add:\n", "    volumes:\n" + "".join(volumes) + "    cap_add:\n", 1)
     return text
@@ -665,6 +687,18 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             steps.append(step("node_module", sid, f"{servers[sid]['name']}: NetBird — {'подключить' if mod.enabled else 'отключить'}",
                               module="netbird", enabled=mod.enabled, management_url=mod.management_url))
         title = f"NetBird: {state}"
+    elif name == "transports":
+        if not plan.selfsteal_domain or len(plan.node_server_ids) != 1:
+            raise ValueError("Транспорты меняются у установки с SelfSteal на одной ноде")
+        sid = plan.node_server_ids[0]
+        n = servers[sid]["name"]
+        chosen = ", ".join(TRANSPORT_TITLES[t] for t in plan.transports) or "только TCP + REALITY"
+        steps += [step("node_module", sid, f"{n}: порты и сертификат Hysteria2 — {chosen}", module="transports", transports=plan.transports),
+                  step("write_files", sid, f"{n}: файлы ({DIRS['node']})", component="node"),
+                  step("compose_up", sid, f"{n}: перезапуск ноды", component="node"),
+                  step("node_transports", None, f"Панель: inbound'ы профиля SelfSteal, хосты и сквады — {chosen}"),
+                  step("verify", None, "Проверка: нода на связи")]
+        title = f"Транспорты ноды: {chosen}"
     else:  # xray_checker
         sid = plan.xray_checker_server_id
         if mod.enabled and not sid:

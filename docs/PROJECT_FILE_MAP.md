@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2242**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2243**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -2145,6 +2145,7 @@
 | [tests/test_rw_node_modules.py](../tests/test_rw_node_modules.py) | Проверки |
 | [tests/test_rw_ssh.py](../tests/test_rw_ssh.py) | Проверки |
 | [tests/test_rw_tinyauth.py](../tests/test_rw_tinyauth.py) | Проверки |
+| [tests/test_rw_transports.py](../tests/test_rw_transports.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |

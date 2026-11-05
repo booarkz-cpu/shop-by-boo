@@ -108,9 +108,10 @@ class ApproveIn(BaseModel):
 class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports"]
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
+    transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)  # v28.81.0
     version: str | None = Field(default=None, pattern=r"^(latest|v\d{1,3}\.\d{1,3}\.\d{1,3})$")  # Xray core
     accept_warp_tos: bool = False
     setup_key: SecretStr | None = Field(default=None, max_length=200)          # NetBird
@@ -486,6 +487,10 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
                 raise HTTPException(422, "Ключ установки NetBird (Setup key) из консоли NetBird")
             secrets["netbird_setup_key"] = key
         run["management_url"] = mod.management_url or None
+    if mod.name == "transports":
+        # The chosen set replaces the current one; an empty set leaves only VLESS + TCP + REALITY.
+        params["transports"] = sorted(set(mod.transports)) if mod.enabled else []
+        run["transports"] = params["transports"]
     if mod.name == "xray_checker":
         if mod.enabled:
             url = mod.subscription_url.get_secret_value().strip() if mod.subscription_url else secrets.get("checker_subscription_url", "")

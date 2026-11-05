@@ -158,7 +158,7 @@ function Registry({servers, request, toast, reload}: {servers: any[]; request: R
 function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: any[]; request: Request; toast: (t: string) => void; onQueued: (id: number) => void}) {
   const [f, setF] = useState<any>({mode: "panel_node", panel_server_id: "", node_server_ids: [] as string[], subpage_server_id: "", panel_domain: "",
     sub_domain: "", node_domain: "", tls: "acme", acme_email: "", node_port: "2222", node_name: "node", country_code: "XX", firewall: true, panel_access: "open", auth_domain: "",
-    selfsteal_domain: "", selfsteal_template: "cloud", subpage_template: "default"});
+    selfsteal_domain: "", selfsteal_template: "cloud", subpage_template: "default", transports: [] as string[]});
   const [plan, setPlan] = useState<any>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -183,6 +183,7 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
       panel_access: needPanel ? f.panel_access : "open",
       auth_domain: needPanel && f.panel_access === "tinyauth" ? f.auth_domain || null : null,
       selfsteal_domain: selfsteal ? f.selfsteal_domain || null : null, selfsteal_template: f.selfsteal_template,
+      transports: selfsteal && f.selfsteal_domain ? f.transports : [],
       subpage_template: needSub ? f.subpage_template : "default"};
   }
   async function makePlan(e: React.FormEvent) {
@@ -243,6 +244,7 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
         {f.selfsteal_domain && f.tls === "acme" && <label>Email для Let's Encrypt<input type="email" value={f.acme_email} onChange={set("acme_email")} required/></label>}
         {f.selfsteal_domain && !(needPanel || needSub) && <label>Сертификат<select value={f.tls} onChange={set("tls")}>
           <option value="acme">Let's Encrypt</option><option value="internal">Внутренний Caddy (проверка)</option></select></label>}
+        {f.selfsteal_domain && <TransportPicker value={f.transports} onChange={v => { setF({...f, transports: v}); setPlan(null); }}/>}
       </fieldset>}
       <div className="wide"><button className="primary" disabled={busy || usable.length === 0}>Составить план</button></div>
     </form>
@@ -349,7 +351,20 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
   </div>;
 }
 
+// v28.82.0: extra transports of a SelfSteal node next to VLESS + TCP + REALITY on 443 (rw_plan.TRANSPORTS).
+const TRANSPORTS: [string, string][] = [["xhttp", "VLESS + xHTTP + REALITY (TCP 4443)"], ["grpc", "VLESS + gRPC + REALITY (TCP 8443)"],
+  ["hysteria2", "Hysteria2 (UDP 443, сертификат домена SelfSteal)"]];
+
+function TransportPicker({value, onChange}: {value: string[]; onChange: (v: string[]) => void}) {
+  return <div className="wide" data-rw-transports>
+    <p className="muted">VLESS + TCP + REALITY на 443 остаётся всегда. Дополнительно (те же ключи REALITY и сайт SelfSteal; клиенты получат их в подписке):</p>
+    {TRANSPORTS.map(([k, title]) => <label key={k} className="inline"><input type="checkbox" checked={value.includes(k)} data-rw-transport={k}
+      onChange={e => onChange(e.target.checked ? [...value, k] : value.filter(x => x !== k))}/> {title}</label>)}
+  </div>;
+}
+
 const MODULE_HINTS: Record<string, string> = {
+  transports: "Меняет набор транспортов ноды SelfSteal: inbound'ы профиля, хосты и сквады в панели, порты ufw и сертификат Hysteria2 на ноде. Выбранный набор заменяет текущий; без галочек остаётся только TCP + REALITY.",
   ipv6: "Включает или выключает IPv6 на выбранных серверах (sysctl). Прежняя настройка сохраняется и возвращается при ошибке.",
   xray_core: "Ядро Xray выбранного релиза XTLS/Xray-core вместо ядра из образа ноды. SHA-256 берётся из GitHub при составлении плана и проверяется на сервере; при ошибке ничего не заменяется.",
   warp: "Интерфейс warp (Cloudflare WARP через wgcf, без маршрутов). Трафик в него направляет исходящий warp-out профиля — «Расширения Remnawave → WARP в профиле».",
@@ -361,7 +376,8 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
   const servers = Object.entries(job.plan?.servers || {}).map(([id, s]: any) => ({id: Number(id), ...s}));
   const nodes = servers.filter(s => s.roles.includes("node"));
   const [f, setF] = useState<any>({name: "ipv6", enabled: false, server_ids: nodes.map(s => String(s.id)), version: "latest", accept_warp_tos: false,
-    setup_key: "", management_url: "", subscription_url: "", interval: "300", checker_server: String((nodes[0] || servers[0] || {}).id || "")});
+    setup_key: "", management_url: "", subscription_url: "", interval: "300", checker_server: String((nodes[0] || servers[0] || {}).id || ""),
+    transports: (job.result?.state?.transports || job.params?.transports || []) as string[]});
   const [checker, setChecker] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: string) => (e: any) => setF({...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value});
@@ -373,6 +389,7 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
     if (f.name === "xray_core" && f.enabled) m.version = f.version || "latest";
     if (f.name === "warp") m.accept_warp_tos = f.accept_warp_tos;
     if (f.name === "netbird" && f.enabled) { m.setup_key = f.setup_key; m.management_url = f.management_url || null; }
+    if (f.name === "transports") { m.enabled = true; m.transports = f.transports; }
     if (f.name === "xray_checker" && f.enabled) { m.server_ids = [Number(f.checker_server)]; m.interval = Number(f.interval); if (f.subscription_url) m.subscription_url = f.subscription_url; }
     try { onPlanned(await request(`${API}/installations/${job.id}/actions`, post({action: "module", module: m}))); setF({...f, setup_key: ""}); }
     catch (err: any) { setError(err.message); } finally { setBusy(false); }
@@ -389,16 +406,18 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
     <p className="muted">Каждое изменение — план из закрытого списка шагов: просмотрите его и запустите. Откат при ошибке — автоматически.</p>
     {Object.keys(mods).length > 0 && <ul data-rw-module-state>{Object.entries(mods).map(([sid, m]: any) => <li key={sid}>
       <b>{(servers.find(s => String(s.id) === sid) || {name: `#${sid}`}).name}</b>: {[m.ipv6 && `IPv6 ${m.ipv6 === "off" ? "выключен" : "включён"}`,
-        m.xray_core && `ядро ${m.xray_core}`, m.warp && "WARP", m.netbird && "NetBird"].filter(Boolean).join(", ") || "по умолчанию"}</li>)}</ul>}
+        m.xray_core && `ядро ${m.xray_core}`, m.warp && "WARP", m.netbird && "NetBird", m.transports?.length && `транспорты: ${m.transports.join(", ")}`].filter(Boolean).join(", ") || "по умолчанию"}</li>)}</ul>}
     <form onSubmit={plan} className="grid-form">
       <label>Модуль<select value={f.name} onChange={set("name")} data-rw-module>
         <option value="ipv6">IPv6</option><option value="xray_core">Ядро Xray</option><option value="warp">WARP Native</option>
-        <option value="netbird">NetBird</option><option value="xray_checker">Xray Checker</option></select></label>
-      <label>Действие<select value={f.enabled ? "on" : "off"} onChange={e => setF({...f, enabled: e.target.value === "on"})}>
+        <option value="netbird">NetBird</option><option value="xray_checker">Xray Checker</option>
+        {job.params?.selfsteal_domain && <option value="transports">Транспорты ноды</option>}</select></label>
+      {f.name !== "transports" && <label>Действие<select value={f.enabled ? "on" : "off"} onChange={e => setF({...f, enabled: e.target.value === "on"})}>
         <option value="on">{f.name === "xray_core" ? "Установить версию" : "Включить"}</option>
-        <option value="off">{f.name === "xray_core" ? "Вернуть ядро из образа" : "Выключить"}</option></select></label>
+        <option value="off">{f.name === "xray_core" ? "Вернуть ядро из образа" : "Выключить"}</option></select></label>}
       <p className="muted wide">{MODULE_HINTS[f.name]}</p>
       {["ipv6", "warp", "netbird"].includes(f.name) && pickServers(f.name === "ipv6" || f.name === "netbird" ? servers : nodes)}
+      {f.name === "transports" && <TransportPicker value={f.transports} onChange={v => setF({...f, transports: v})}/>}
       {f.name === "xray_core" && f.enabled && <label>Версия<input value={f.version} onChange={set("version")} placeholder="latest или v25.10.15" pattern="latest|v\d+\.\d+\.\d+"/></label>}
       {f.name === "warp" && f.enabled && <label className="inline wide"><input type="checkbox" checked={f.accept_warp_tos} onChange={set("accept_warp_tos")}/>
         Я принимаю условия Cloudflare WARP (wgcf зарегистрирует учётную запись WARP для каждого сервера)</label>}
