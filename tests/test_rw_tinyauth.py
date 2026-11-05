@@ -95,6 +95,7 @@ async def test_verify_expects_the_login_redirect(monkeypatch):
     monkeypatch.setattr(rw_steps, "_run", run)
     await rw_steps.run_verify(ctx, {})
     assert ("auth.example.com", "corgi-verify", "api/healthz") in seen
+    assert ("panel.example.com", rw_steps.BROWSER_AGENT, "api/auth/status") in seen, "TinyAuth redirects only browsers"
 
     async def open_panel(ctx_, sid, script, *args, **kw):
         return type("R", (), {"out": "200\n", "err": "", "code": 0})()

@@ -1,7 +1,8 @@
 """v28.78.0 (stage 18): the wizard's files for «Доступ к панели → Вход через TinyAuth» with the real TinyAuth and Caddy
 images (scripts/ci/tinyauth-live.sh, CI job «tinyauth»). A stub answers for the panel on 127.0.0.1:3000.
 
-* the panel's pages send a browser without a session to the login page on the TinyAuth domain;
+* the panel's pages send a browser without a session to the login page on the TinyAuth domain (other clients get
+  401 with the login address in ``x-tinyauth-location``);
 * requests with a bearer token to /api/ (the shop) and subscriptions /api/sub/ reach the panel without a login;
 * after logging in with the generated password the same browser opens the panel's pages; a wrong password does not.
 
@@ -20,6 +21,7 @@ from app import rw_plan, rw_steps
 
 pytestmark = pytest.mark.skipif(os.environ.get("TINYAUTH_LIVE") != "1", reason="no Docker for the TinyAuth test")
 PANEL, AUTH = "panel.corgi-ci.example.com", "auth.corgi-ci.example.com"
+BROWSER = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36"
 
 
 class Stub(http.server.BaseHTTPRequestHandler):
@@ -37,7 +39,7 @@ class Stub(http.server.BaseHTTPRequestHandler):
 
 def curl(url, *extra):
     host = url.split("/")[2]
-    out = subprocess.run(["curl", "-sk", "--max-time", "15", "--resolve", f"{host}:443:127.0.0.1", "-o", "/tmp/ta-body",
+    out = subprocess.run(["curl", "-sk", "--max-time", "15", "-A", BROWSER, "--resolve", f"{host}:443:127.0.0.1", "-o", "/tmp/ta-body",
                           "-w", "%{http_code} %{redirect_url}", *extra, url], capture_output=True, text=True)
     code, _, location = out.stdout.partition(" ")
     body = Path("/tmp/ta-body").read_text(errors="replace") if Path("/tmp/ta-body").exists() else ""
@@ -83,6 +85,8 @@ def test_pages_need_a_login(stack):
         assert code in ("302", "307"), (path, code, body[:200])
         assert location.startswith(f"https://{AUTH}/"), location
         assert "PANEL" not in body
+    code, _, body = curl(f"https://{PANEL}/", "-A", "curl/8")
+    assert code == "401" and "PANEL" not in body
 
 
 def test_shop_api_and_subscriptions_pass(stack):

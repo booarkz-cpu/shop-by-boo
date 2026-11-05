@@ -896,13 +896,18 @@ echo "$code"
 """
 
 
+BROWSER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36 corgi-verify"
+
+
 async def run_verify(ctx: Context, st: dict) -> None:
     plan = ctx.plan
     problems = []
     if plan.panel_server_id:
         for _ in range(20):
             cookie = "=".join(access_cookie(ctx)) if plan.panel_access == "cookie" else ""
-            code = (await _run(ctx, plan.panel_server_id, HTTPS_CHECK, plan.panel_domain, "corgi-verify", "api/auth/status", cookie,
+            # TinyAuth redirects browsers to its login page (other clients get 401): ask as a browser.
+            agent = BROWSER_AGENT if plan.panel_access == "tinyauth" else "corgi-verify"
+            code = (await _run(ctx, plan.panel_server_id, HTTPS_CHECK, plan.panel_domain, agent, "api/auth/status", cookie,
                                timeout=30)).out.strip()
             if code == ("302" if plan.panel_access == "tinyauth" else "200"):
                 break
