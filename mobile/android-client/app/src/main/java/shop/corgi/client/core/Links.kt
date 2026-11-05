@@ -71,7 +71,7 @@ object Links {
 
     /** A subscription body: base64 (standard or URL-safe) or plain lines of links. */
     fun decodeBody(body: String): List<String> {
-        val text = body.trim().removePrefix("﻿")
+        val text = body.trim().removePrefix("\uFEFF")
         val plain = if (text.contains("://")) text else b64(text.replace("\n", "").replace("\r", "")) ?: text
         return plain.lines().map { it.trim() }.filter { line -> (SCHEMES + UNSUPPORTED).any { line.startsWith(it, ignoreCase = true) } }
     }

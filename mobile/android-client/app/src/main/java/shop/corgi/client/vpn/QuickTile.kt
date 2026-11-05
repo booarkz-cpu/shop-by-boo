@@ -14,6 +14,7 @@ import shop.corgi.client.ui.MainActivity
 class QuickTile : TileService() {
     override fun onStartListening() { paint() }
 
+    @android.annotation.SuppressLint("StartActivityAndCollapseDeprecated")  // the Intent form only below Android 14
     override fun onClick() {
         if (ClientVpnService.current(this) == ClientVpnService.STATE_OFF) {
             if (Store(this).settings.tunnelMode == "tun" && VpnService.prepare(this) != null) {

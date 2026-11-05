@@ -168,7 +168,7 @@ internal fun updateProfiles(context: Context, store: Store, profiles: List<Profi
     }
 }
 
-private fun date(millis: Long): String = SimpleDateFormat("dd.MM.yy, HH:mm", Locale.getDefault()).format(Date(millis))
+private fun date(millis: Long): String = SimpleDateFormat("dd.MM.yy, HH:mm", Locale.ROOT).format(Date(millis))
 
 // ---------------------------------------------------------------- Главная
 
@@ -303,7 +303,7 @@ internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, on
             }
             if (profile.kind == "subscription" && (info.total > 0 || info.used > 0 || info.expire > 0)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(if (info.expire > 0) tr("до ", "until ", "до ") + SimpleDateFormat("dd.MM.yy", Locale.getDefault()).format(Date(info.expire * 1000)) else "∞",
+                    Text(if (info.expire > 0) tr("до ", "until ", "до ") + SimpleDateFormat("dd.MM.yy", Locale.ROOT).format(Date(info.expire * 1000)) else "∞",
                         style = MaterialTheme.typography.bodySmall)
                     LinearProgressIndicator(progress = { if (info.total > 0) (info.used.toFloat() / info.total).coerceIn(0f, 1f) else 0f },
                         Modifier.weight(1f).height(6.dp).clip(RoundedCornerShape(3.dp)))

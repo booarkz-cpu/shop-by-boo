@@ -244,12 +244,13 @@ private fun AppearancePage(s: Settings, save: (Settings) -> Unit) {
 @Composable
 private fun ConnectionPage(s: Settings, save: (Settings) -> Unit) {
     val context = LocalContext.current
+    val tileName = androidx.compose.ui.res.stringResource(R.string.app_short)
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Section(tr("Плитка в шторке", "Quick settings tile", "Плитка в шторці")) {
             NavRow(Icons.Filled.Bolt, tr("Добавить плитку в шторку", "Add the tile to quick settings", "Додати плитку в шторку"),
                 hint = tr("Подключение и отключение без открытия приложения", "Connect and disconnect without opening the app", "Підключення без відкриття застосунку")) {
                 if (Build.VERSION.SDK_INT >= 33) context.getSystemService(StatusBarManager::class.java)?.requestAddTileService(
-                    ComponentName(context, QuickTile::class.java), context.getString(R.string.app_short), AndroidIcon.createWithResource(context, R.drawable.corgi_logo),
+                    ComponentName(context, QuickTile::class.java), tileName, AndroidIcon.createWithResource(context, R.drawable.corgi_logo),
                     context.mainExecutor) { }
                 else context.startActivity(Intent(AndroidSettings.ACTION_SETTINGS))
             }
