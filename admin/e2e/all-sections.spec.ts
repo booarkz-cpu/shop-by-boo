@@ -48,3 +48,16 @@ for (const viewport of [{name: 'desktop', width: 1440, height: 900}, {name: 'pho
     expect(problems).toEqual([]);
   });
 }
+
+// v28.78.0: sections without a menu item open by their link too (before, the tab guard sent them to «Все разделы»).
+// covers: GET /api/admin/v6/command-center, GET /api/admin/v6/integrations, GET /api/admin/v6/events
+test('sections without a menu item open by link', async ({page}) => {
+  await signIn(page);
+  for (const [hash, label] of [['command360', 'Командный центр'], ['customer360', 'Карточка клиента'], ['integrations', 'Интеграции'],
+                               ['events', 'События'], ['soc', 'Центр безопасности'], ['status', 'Статус сервиса']]) {
+    await page.evaluate((target) => { location.hash = target; }, hash);
+    await expect(page.locator('main h1').first()).toHaveText(label);
+    expect(page.url()).toContain(`#${hash}`);
+    await expect(page.locator('main')).not.toContainText(FAILED);
+  }
+});
