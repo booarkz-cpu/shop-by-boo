@@ -87,6 +87,20 @@ jobs:
           ram-size: 4096M
           # The UI tests also save screens of the main views (ClientScreensTest.shot): pulled for the artifact below.
           script: bash scripts/mobile/client-vpn-e2e.sh mobile/android-client/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/xray/xray" && cd mobile/android-client && bash gradlew :app:connectedDebugAndroidTest --no-daemon && adb pull /data/local/tmp/client-screens "$GITHUB_WORKSPACE/client-screens"
+      # Job logs show only «there were failing tests»: print which and why (the XML results of the UI tests).
+      - name: UI test failures
+        if: failure()
+        run: |
+          for f in mobile/android-client/app/build/outputs/androidTest-results/connected/debug/*.xml; do
+            [ -f "$f" ] || continue
+            python3 - "$f" <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          for case in ET.parse(sys.argv[1]).iter("testcase"):
+              for bad in list(case.iter("failure")) + list(case.iter("error")):
+                  text = (bad.text or bad.get("message") or "").strip().splitlines()
+                  print(f"::error title={case.get('name')}::" + " | ".join(text[:6])[:1500])
+          PY
+          done
       - uses: actions/upload-artifact@v7
         if: always()
         with:
