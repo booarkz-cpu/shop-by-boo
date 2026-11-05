@@ -28,6 +28,15 @@ def sources() -> tuple[str, str]:
     return py, e2e
 
 
+def e2e_covers(e2e: str) -> set[str]:
+    """Routes a browser test drives through the panel's buttons, declared next to the test:
+    ``// covers: POST /api/admin/runtime-settings/stage, POST /api/admin/runtime-settings/changes/{change_id}/apply``."""
+    out = set()
+    for line in re.findall(r"//\s*covers:\s*(.+)", e2e):
+        out |= {x.strip() for x in line.split(",") if x.strip()}
+    return out
+
+
 def path_regex(path: str) -> re.Pattern:
     parts = [re.escape(x) if not x.startswith("{") else r"[^/\"'`\s?]+" for x in path.strip("/").split("/")]
     return re.compile(r"/" + "/".join(parts) + r"(?![A-Za-z0-9_-])")
@@ -37,6 +46,7 @@ def main() -> int:
     from app import admin_center
     from app.main import app
     py, e2e = sources()
+    declared = e2e_covers(e2e)
     shots = {p.name.split("_", 1)[1].removesuffix(".png") for p in (ROOT / "screenshots/admin_panel").glob("[0-9]*_*.png")}
     routes = [(r, p) for r, p in admin_center._walk(app.routes) if p.startswith("/api/admin/")]
     rows, total, covered_total = [], 0, 0
@@ -49,7 +59,8 @@ def main() -> int:
             fn = r.endpoint.__name__
             by_call = re.search(rf"\b{re.escape(fn)}\(", py) is not None
             by_path = path_regex(p).search(py) or path_regex(p).search(e2e)
-            if not (by_call or by_path):
+            by_e2e = any(f"{m} {p}" in declared for m in r.methods)
+            if not (by_call or by_path or by_e2e):
                 uncovered.append(f"{'/'.join(sorted(r.methods))} {p}")
         no_shot = [t for t in tabs if t not in shots]
         total += len(changing); covered_total += len(changing) - len(uncovered)
