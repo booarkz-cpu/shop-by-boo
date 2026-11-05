@@ -421,3 +421,27 @@ async def test_bunny_and_gcore_records(database, dns, monkeypatch):
                                        ("PUT", "/dns/v2/zones/example.com/sub.example.com./A")]
     assert gcore[-1][3] == {"resource_records": [{"content": ["93.184.216.34"], "enabled": True}], "ttl": 300}
     assert all(c[4]["Authorization"] == "APIKey gcore-key" for c in gcore)
+
+
+@pytest.mark.asyncio
+async def test_delete_domain_and_check_all_certificates(database, dns, monkeypatch):
+    """Stage 18 (ADMIN_VERIFICATION): the customers' subscription address cannot be deleted; «Проверить все»."""
+    db = database
+    first = await rw_domains.add_domain(rw_domains.DomainIn(domain="sub.example.com", purpose="subscription"), db, ADMIN)
+    second = await rw_domains.add_domain(rw_domains.DomainIn(domain="old.example.com", purpose="subscription"), db, ADMIN)
+    dns.zone[("sub.example.com", "A")] = ["93.184.216.34"]
+    out = await rw_domains.check_all(db, ADMIN)
+    assert out["checked"] == 2 and "sub.example.com" not in out["problems"]
+
+    async def cfg(db_):
+        return {"public_base": "https://sub.example.com/"}
+    monkeypatch.setattr(sub_proxy, "config", cfg)
+    with pytest.raises(HTTPException) as err:
+        await rw_domains.delete_domain(first["id"], db, ADMIN)
+    assert err.value.status_code == 409
+    assert await rw_domains.delete_domain(second["id"], db, ADMIN) == {"deleted": True}
+    assert (await db.execute(select(RemnawaveDomain.domain))).scalars().all() == ["sub.example.com"]
+    assert (await db.execute(select(AuditLog.target).where(AuditLog.action == "rw.domain.deleted"))).scalars().all() == ["old.example.com"]
+    with pytest.raises(HTTPException) as err:
+        await rw_domains.delete_domain(second["id"], db, ADMIN)
+    assert err.value.status_code == 404

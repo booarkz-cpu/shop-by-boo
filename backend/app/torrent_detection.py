@@ -227,6 +227,8 @@ async def admin_torrents_threshold(body: ThresholdIn, db: AsyncSession = Depends
         row.value = str(body.min_events)
     else:
         db.add(AppSetting(key=THRESHOLD_KEY, value=str(body.min_events)))
+    from .main import audit
+    await audit(db, "platform.torrents.threshold", admin.email, None, {"min_events": body.min_events})
     await db.commit()
     return {"min_events": body.min_events}
 

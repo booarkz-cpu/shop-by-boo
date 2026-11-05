@@ -259,6 +259,7 @@ async def toggle_plugin(key: str, payload: dict, db: AsyncSession = Depends(get_
     if not row:
         raise HTTPException(404, "Модуль не найден")
     row.enabled = bool(payload.get("enabled"))
+    await _audit(db, "platform.plugin.toggled", admin.email, key, {"enabled": row.enabled})
     await db.commit()
     return {"ok": True, "enabled": row.enabled}
 
@@ -272,6 +273,8 @@ async def create_agent(payload: dict, db: AsyncSession = Depends(get_db), admin=
     token = secrets.token_urlsafe(32)
     row = NodeAgent(name=name, token_hash=_hash(token), enabled=True, created_at=datetime.utcnow())
     db.add(row)
+    await db.flush()
+    await _audit(db, "platform.agent.created", admin.email, str(row.id), {"name": name})
     await db.commit()
     await db.refresh(row)
     return {"id": row.id, "name": row.name, "token": token}
@@ -287,6 +290,7 @@ async def add_blacklist(payload: BlacklistIn, db: AsyncSession = Depends(get_db)
     else:
         row = DeviceBlacklist(hwid=payload.hwid, action=payload.action, note=payload.note, enabled=True, created_at=datetime.utcnow())
         db.add(row)
+    await _audit(db, "platform.blacklist.added", admin.email, payload.hwid[:64], {"action": payload.action})
     await db.commit()
     return {"ok": True}
 
@@ -320,6 +324,8 @@ async def create_api_key(payload: ApiKeyIn, db: AsyncSession = Depends(get_db), 
     secret = "rw_" + secrets.token_urlsafe(24)
     row = ShopApiKey(name=payload.name, prefix=secret[:10], secret_hash=_hash(secret), scopes=payload.scopes, enabled=True, created_at=datetime.utcnow())
     db.add(row)
+    await db.flush()
+    await _audit(db, "platform.api_key.created", admin.email, str(row.id), {"name": payload.name, "prefix": row.prefix, "scopes": payload.scopes})
     await db.commit()
     return {"id": row.id, "token": secret, "prefix": row.prefix}
 
@@ -330,6 +336,7 @@ async def disable_api_key(key_id: int, db: AsyncSession = Depends(get_db), admin
     if not row:
         raise HTTPException(404, "Ключ не найден")
     row.enabled = False
+    await _audit(db, "platform.api_key.disabled", admin.email, str(row.id), {"prefix": row.prefix})
     await db.commit()
     return {"ok": True}
 
@@ -343,6 +350,8 @@ async def create_webhook(payload: WebhookIn, db: AsyncSession = Depends(get_db),
     secret = secrets.token_urlsafe(24)
     row = OutboundWebhook(url=payload.url, secret_encrypted=encrypt_secret(secret), events=payload.events, enabled=True, created_at=datetime.utcnow())
     db.add(row)
+    await db.flush()
+    await _audit(db, "platform.webhook.created", admin.email, str(row.id), {"url": payload.url, "events": payload.events})
     await db.commit()
     return {"id": row.id, "secret": secret}
 
@@ -368,6 +377,7 @@ async def save_mail(payload: MailIn, db: AsyncSession = Depends(get_db), admin=D
         row.value = value
     else:
         db.add(AppSetting(key="smtp_settings", value=value))
+    await _audit(db, "platform.mail.saved", admin.email, None, {"host": stored.get("host"), "sender": stored.get("sender")})
     await db.commit()
     return {"ok": True}
 
@@ -423,6 +433,7 @@ async def create_dkim(payload: dict, db: AsyncSession = Depends(get_db), admin=D
         row.value = stored
     else:
         db.add(AppSetting(key="dkim_private", value=stored))
+    await _audit(db, "platform.dkim.created", admin.email, domain, {"selector": selector})
     await db.commit()
     return {"txt": txt}
 
