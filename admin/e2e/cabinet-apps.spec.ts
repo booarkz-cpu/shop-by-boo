@@ -12,19 +12,31 @@ async function signIn(page: Page) {
 async function owner(page: Page, show: boolean) {
   await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
   await page.goto('/');
-  await page.getByLabel('Email', {exact: true}).fill('browser@example.test');
-  await page.getByLabel('Пароль', {exact: true}).fill('browser-only-password');
-  await page.getByRole('button', {name: 'Войти', exact: true}).click();
+  const email = page.getByLabel('Email', {exact: true});
+  await expect(page.locator('.hub-card').first().or(email)).toBeVisible();
+  if (await email.isVisible()) {  // the second call reuses the signed-in page
+    await email.fill('browser@example.test');
+    await page.getByLabel('Пароль', {exact: true}).fill('browser-only-password');
+    await page.getByRole('button', {name: 'Войти', exact: true}).click();
+  }
   await expect(page.locator('.hub-card').first()).toBeVisible();
   await page.locator('.sidebar').getByRole('button', {name: /Android и iOS/}).click();
   const box = page.locator('[data-cabinet-apps]').getByRole('checkbox');
   await expect(box).toBeVisible();
   if ((await box.isChecked()) !== show) await box.click();
+  // The block lists published apps: make sure the buyer's Android card is shown and has a link.
+  const card = page.locator('.card').filter({has: page.getByRole('heading', {name: 'Android · Покупатель'})});
+  const shown = card.getByRole('checkbox');
+  if (!(await shown.isChecked())) await shown.click();
+  const link = card.getByPlaceholder('https://');
+  if (!(await link.inputValue())) await link.fill('https://example.test/corgi-lusi.apk');
   await page.getByRole('button', {name: 'Сохранить приложения'}).click();
   await expect(page.getByText('Приложения сохранены')).toBeVisible();
 }
 
 test('no apps block before sign-in; shown inside; the owner switches it off and on', async ({page, browser}) => {
+  const admin = await browser.newPage();
+  await owner(admin, true);  // an app is published and the block is on: it must still stay off the sign-in pages
   await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
   await page.goto('/cabinet/');
   await expect(page.getByLabel('Электронная почта')).toBeVisible();
@@ -35,7 +47,6 @@ test('no apps block before sign-in; shown inside; the owner switches it off and 
   await signIn(page);
   await expect(page.locator('section.apps-note')).toBeVisible();
 
-  const admin = await browser.newPage();
   await owner(admin, false);
   await page.reload();
   await expect(page.getByRole('region', {name: 'Статус подписки'})).toBeVisible();
