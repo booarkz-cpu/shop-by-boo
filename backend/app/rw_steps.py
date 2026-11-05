@@ -303,7 +303,7 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
             sites[plan.panel_domain] = 3000
         if server_id == plan.subpage_server_id:
             sites[plan.sub_domain] = 3010
-        protect, guard, files = {}, {}, {}
+        protect, guard, gate, files = {}, {}, {}, {}
         if plan.panel_access == "cookie" and plan.panel_domain in sites:
             protect[plan.panel_domain] = access_cookie(ctx)
         tinyauth = plan.panel_access == "tinyauth" and plan.panel_domain in sites
@@ -311,7 +311,10 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
             sites[plan.auth_domain] = rw_plan.TINYAUTH_PORT
             guard[plan.panel_domain] = rw_plan.TINYAUTH_PORT
             files[".env"] = rw_plan.tinyauth_env(plan.auth_domain, *tinyauth_login(ctx))
-        return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect, guard),
+        if plan.panel_access == "gate" and plan.panel_domain in sites:
+            from .panel_gate import shop_base
+            gate[plan.panel_domain] = shop_base()
+        return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect, guard, gate),
                 "docker-compose.yml": rw_plan.caddy_compose(tinyauth), **files}
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
@@ -906,14 +909,14 @@ async def run_verify(ctx: Context, st: dict) -> None:
         for _ in range(20):
             cookie = "=".join(access_cookie(ctx)) if plan.panel_access == "cookie" else ""
             # TinyAuth redirects browsers to its login page (other clients get 401): ask as a browser.
-            agent = BROWSER_AGENT if plan.panel_access == "tinyauth" else "corgi-verify"
+            agent = BROWSER_AGENT if plan.panel_access in ("tinyauth", "gate") else "corgi-verify"
             code = (await _run(ctx, plan.panel_server_id, HTTPS_CHECK, plan.panel_domain, agent, "api/auth/status", cookie,
                                timeout=30)).out.strip()
-            if code == ("302" if plan.panel_access == "tinyauth" else "200"):
+            if code == ("302" if plan.panel_access in ("tinyauth", "gate") else "200"):
                 break
             await _sleep(6)
         _note(ctx, f"https://{plan.panel_domain}/api/auth/status через Caddy: {code}")
-        if code != "200" and not (plan.panel_access == "tinyauth" and code == "302"):
+        if code != "200" and not (plan.panel_access in ("tinyauth", "gate") and code == "302"):
             problems.append(f"панель не отвечает через HTTPS ({code})")
         if plan.panel_access == "tinyauth":
             # The login portal answers, and the panel's pages send a browser without a session to it.
@@ -924,6 +927,9 @@ async def run_verify(ctx: Context, st: dict) -> None:
                 problems.append(f"TinyAuth не отвечает через HTTPS ({portal or 'нет ответа'})")
             if code != "302":
                 problems.append(f"страницы панели открываются без входа в TinyAuth ({code})")
+        if plan.panel_access == "gate" and code != "302":
+            # 302 comes from the shop itself (to its admin panel): the panel's server reaches the shop and asks it.
+            problems.append(f"страницы панели не спрашивают магазин о входе ({code}: 502 — сервер панели не достучался до магазина)")
         if plan.tls == "acme":
             import httpx
             try:

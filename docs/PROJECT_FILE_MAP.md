@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.77.1`; runtime/API `21.5.1`.
+Дистрибутив `v28.78.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2273**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2280**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -518,6 +518,7 @@
 | [backend/app/pagination.py](../backend/app/pagination.py) | API, бот и worker |
 | [backend/app/panel_admin.py](../backend/app/panel_admin.py) | API, бот и worker |
 | [backend/app/panel_api_stats.py](../backend/app/panel_api_stats.py) | API, бот и worker |
+| [backend/app/panel_gate.py](../backend/app/panel_gate.py) | API, бот и worker |
 | [backend/app/panel_guard.py](../backend/app/panel_guard.py) | API, бот и worker |
 | [backend/app/panel_usage.py](../backend/app/panel_usage.py) | API, бот и worker |
 | [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
@@ -778,6 +779,8 @@
 | [docs/MASTER_ROADMAP_VPN_SHOP.md](../docs/MASTER_ROADMAP_VPN_SHOP.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
 | [docs/PROJECT_ARCHITECTURE.md](../docs/PROJECT_ARCHITECTURE.md) | Документация |
+| [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
+| [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_INVENTORY.md](../docs/PROJECT_INVENTORY.md) | Документация |
 | [docs/PROJECT_MAP_RU.md](../docs/PROJECT_MAP_RU.md) | Документация |
@@ -1202,6 +1205,7 @@
 | [docs/ru/RELEASE_V28_76_0.md](../docs/ru/RELEASE_V28_76_0.md) | Документация |
 | [docs/ru/RELEASE_V28_77_0.md](../docs/ru/RELEASE_V28_77_0.md) | Документация |
 | [docs/ru/RELEASE_V28_77_1.md](../docs/ru/RELEASE_V28_77_1.md) | Документация |
+| [docs/ru/RELEASE_V28_78_0.md](../docs/ru/RELEASE_V28_78_0.md) | Документация |
 | [docs/ru/RELEASE_V28_7_0.md](../docs/ru/RELEASE_V28_7_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
@@ -1850,6 +1854,7 @@
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/caddy-on-demand-live.sh](../scripts/ci/caddy-on-demand-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
+| [scripts/ci/panel-gate-live.sh](../scripts/ci/panel-gate-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/test-shard.py](../scripts/ci/test-shard.py) | Эксплуатация и релиз |
@@ -2012,6 +2017,7 @@
 | [tests/live/test_hetzner_live.py](../tests/live/test_hetzner_live.py) | Проверки |
 | [tests/live/test_install_live.py](../tests/live/test_install_live.py) | Проверки |
 | [tests/live/test_node_modules_live.py](../tests/live/test_node_modules_live.py) | Проверки |
+| [tests/live/test_panel_gate_live.py](../tests/live/test_panel_gate_live.py) | Проверки |
 | [tests/live/test_payments_live.py](../tests/live/test_payments_live.py) | Проверки |
 | [tests/live/test_remnawave_live.py](../tests/live/test_remnawave_live.py) | Проверки |
 | [tests/live/test_telegram_live.py](../tests/live/test_telegram_live.py) | Проверки |
@@ -2133,6 +2139,7 @@
 | [tests/test_ops_alerts.py](../tests/test_ops_alerts.py) | Проверки |
 | [tests/test_ops_weekly.py](../tests/test_ops_weekly.py) | Проверки |
 | [tests/test_pagination.py](../tests/test_pagination.py) | Проверки |
+| [tests/test_panel_gate.py](../tests/test_panel_gate.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |
 | [tests/test_payment_contract.py](../tests/test_payment_contract.py) | Проверки |
 | [tests/test_payment_failover_chain.py](../tests/test_payment_failover_chain.py) | Проверки |

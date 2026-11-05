@@ -1,4 +1,4 @@
-# Схема базы данных — v28.77.1
+# Схема базы данных — v28.78.0
 
 Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0093_ssh_key_rotation`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 

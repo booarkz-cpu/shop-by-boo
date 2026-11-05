@@ -1,4 +1,4 @@
-# Каталог API — v28.77.1 / API v21.5.1
+# Каталог API — v28.78.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0093_ssh_key_rotation`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -510,6 +510,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/rw/installations/{installation_id}/cancel` | Cancel | право `provision_nodes` |
 | `POST` | `/api/admin/rw/installations/{installation_id}/connect-shop` | Connect Shop | право `provision_nodes`, право `settings.runtime.write` |
 | `POST` | `/api/admin/rw/installations/{installation_id}/credentials` | Credentials | право `provision_nodes` |
+| `POST` | `/api/admin/rw/installations/{installation_id}/panel-gate` | Open Panel | право `provision_nodes` |
 | `GET` | `/api/admin/rw/installations/{installation_id}/xray-checker` | Xray Checker | право `read` |
 | `GET` | `/api/admin/rw/meta` | Meta | право `read` |
 | `GET` | `/api/admin/rw/proxy-routes` | Proxy Routes | право `read` |
@@ -878,6 +879,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/mobile/integrity/challenge` | Integrity Challenge | открытый |
 | `GET` | `/api/mobile/layout` | Mobile Layout | открытый |
 | `GET` | `/api/mobile/push-style` | Public Push Style | открытый |
+| `GET` | `/api/panel-gate/redeem` | Redeem | открытый |
+| `GET` | `/api/panel-gate/verify` | Verify | открытый |
 | `POST` | `/api/payments/create` | Create Payment | сессия клиента |
 | `POST` | `/api/payments/mobile/verify` | Verify Mobile Purchase | сессия клиента |
 | `GET` | `/api/payments/providers` | Payment Providers | открытый |

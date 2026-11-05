@@ -338,7 +338,8 @@ class GiftCardCreateIn(BaseModel):
 async def create_gift_card(payload:GiftCardCreateIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("payments.reconcile"))):
     currency=(payload.currency or shop.settings.default_currency or "RUB").upper()
     if currency!=str(shop.settings.default_currency or "").upper(): raise shop.HTTPException(400,"Подарочная карта — только в валюте магазина: другую нельзя будет погасить")
-    raw=shop.secrets.token_urlsafe(18).upper().replace("-","")[:24]; card=shop.GiftCard(code_hash=shop.hashlib.sha256(raw.encode()).hexdigest(),code_prefix=raw[:8],value=payload.value,balance=payload.value,currency=currency,expires_at=shop.datetime.utcnow()+shop.timedelta(days=payload.expires_days) if payload.expires_days else None)
+    raw="".join(shop.secrets.choice("ABCDEFGHJKLMNPQRSTUVWXYZ23456789") for _ in range(24));  # v28.78.0: always 24 characters, no look-alikes (O/0, I/1) and no «_»
+    card=shop.GiftCard(code_hash=shop.hashlib.sha256(raw.encode()).hexdigest(),code_prefix=raw[:8],value=payload.value,balance=payload.value,currency=currency,expires_at=shop.datetime.utcnow()+shop.timedelta(days=payload.expires_days) if payload.expires_days else None)
     db.add(card); await db.flush(); await shop.audit(db,"payment.gift_card.created",admin.email,card.code_prefix,{"value":str(card.value),"currency":currency})
     await db.commit(); return {"code":raw,"value":str(card.value),"currency":card.currency,"expires_at":card.expires_at}
 
