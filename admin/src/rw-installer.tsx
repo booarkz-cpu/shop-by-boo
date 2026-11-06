@@ -366,6 +366,7 @@ function TransportPicker({value, onChange}: {value: string[]; onChange: (v: stri
 const MODULE_HINTS: Record<string, string> = {
   hardening: "Защита сервера: fail2ban, обновления безопасности, BBR, SSH только с ваших адресов. Только свои файлы настроек; откат возвращает прежнее.",
   watchdog: "Самовосстановление: таймер на самом сервере каждые 2 минуты поднимает остановленные контейнеры и перезапускает панель после трёх неудачных проверок. Работает, даже когда магазин недоступен.",
+  selfsteal_site: "Меняет сайт-шаблон, который видят без ключей на домене ноды SelfSteal: файлы Caddy на ноде переписываются и Caddy перезапускается; нода, ключи REALITY и подписки не меняются. При ошибке возвращается прежний сайт.",
   transports: "Меняет набор транспортов ноды SelfSteal: inbound'ы профиля, хосты и сквады в панели, порты ufw и сертификат Hysteria2 на ноде. Выбранный набор заменяет текущий; без галочек остаётся только TCP + REALITY.",
   ipv6: "Включает или выключает IPv6 на выбранных серверах (sysctl). Прежняя настройка сохраняется и возвращается при ошибке.",
   xray_core: "Ядро Xray выбранного релиза XTLS/Xray-core вместо ядра из образа ноды. SHA-256 берётся из GitHub при составлении плана и проверяется на сервере; при ошибке ничего не заменяется.",
@@ -380,7 +381,7 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
   const [f, setF] = useState<any>({name: "ipv6", enabled: false, server_ids: nodes.map(s => String(s.id)), version: "latest", accept_warp_tos: false,
     setup_key: "", management_url: "", subscription_url: "", interval: "300", checker_server: String((nodes[0] || servers[0] || {}).id || ""),
     transports: (job.result?.state?.transports || job.params?.transports || []) as string[],
-    h_fail2ban: true, h_upgrades: true, h_bbr: true, h_ips: ""});
+    h_fail2ban: true, h_upgrades: true, h_bbr: true, h_ips: "", selfsteal_template: job.params?.selfsteal_template || "cloud"});
   const [checker, setChecker] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: string) => (e: any) => setF({...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value});
@@ -393,6 +394,7 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
     if (f.name === "warp") m.accept_warp_tos = f.accept_warp_tos;
     if (f.name === "netbird" && f.enabled) { m.setup_key = f.setup_key; m.management_url = f.management_url || null; }
     if (f.name === "transports") { m.enabled = true; m.transports = f.transports; }
+    if (f.name === "selfsteal_site") { m.enabled = true; m.selfsteal_template = f.selfsteal_template; }
     if (["hardening", "watchdog"].includes(f.name)) m.server_ids = f.server_ids.map(Number);
     if (f.name === "hardening") {
       m.enabled = true;
@@ -421,8 +423,9 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
         <option value="ipv6">IPv6</option><option value="xray_core">Ядро Xray</option><option value="warp">WARP Native</option>
         <option value="netbird">NetBird</option><option value="xray_checker">Xray Checker</option>
         {job.params?.selfsteal_domain && <option value="transports">Транспорты ноды</option>}
+        {job.params?.selfsteal_domain && <option value="selfsteal_site">Сайт SelfSteal</option>}
         <option value="hardening">Защита сервера</option><option value="watchdog">Самовосстановление</option></select></label>
-      {!["transports", "hardening"].includes(f.name) && <label>Действие<select value={f.enabled ? "on" : "off"} onChange={e => setF({...f, enabled: e.target.value === "on"})}>
+      {!["transports", "hardening", "selfsteal_site"].includes(f.name) && <label>Действие<select value={f.enabled ? "on" : "off"} onChange={e => setF({...f, enabled: e.target.value === "on"})}>
         <option value="on">{f.name === "xray_core" ? "Установить версию" : "Включить"}</option>
         <option value="off">{f.name === "xray_core" ? "Вернуть ядро из образа" : "Выключить"}</option></select></label>}
       <p className="muted wide">{MODULE_HINTS[f.name]}</p>
@@ -435,6 +438,8 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
         <p className="muted">Адрес магазина добавляется сам — он управляет сервером по SSH. Ограничение работает через ufw: если ufw выключен, план остановится с понятной ошибкой.</p>
       </div>}
       {f.name === "transports" && <TransportPicker value={f.transports} onChange={v => setF({...f, transports: v})}/>}
+      {f.name === "selfsteal_site" && <label data-rw-selfsteal-site>Сайт-шаблон (сейчас: {({cloud: "Облачное хранилище", docs: "Документация", corgi: "Блог о корги"} as any)[job.params?.selfsteal_template || "cloud"]})<select value={f.selfsteal_template} onChange={set("selfsteal_template")}>
+        <option value="cloud">Облачное хранилище</option><option value="docs">Документация</option><option value="corgi">Блог о корги</option></select></label>}
       {f.name === "xray_core" && f.enabled && <label>Версия<input value={f.version} onChange={set("version")} placeholder="latest или v25.10.15" pattern="latest|v\d+\.\d+\.\d+"/></label>}
       {f.name === "warp" && f.enabled && <label className="inline wide"><input type="checkbox" checked={f.accept_warp_tos} onChange={set("accept_warp_tos")}/>
         Я принимаю условия Cloudflare WARP (wgcf зарегистрирует учётную запись WARP для каждого сервера)</label>}

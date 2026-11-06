@@ -108,9 +108,10 @@ class ApproveIn(BaseModel):
 class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site"]
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
+    selfsteal_template: Literal["cloud", "docs", "corgi"] | None = None         # v28.88.0
     hardening: rw_plan.Hardening | None = None                                  # v28.84.0
     transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)  # v28.81.0
     version: str | None = Field(default=None, pattern=r"^(latest|v\d{1,3}\.\d{1,3}\.\d{1,3})$")  # Xray core
@@ -494,6 +495,12 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
         # The chosen set replaces the current one; an empty set leaves only VLESS + TCP + REALITY.
         params["transports"] = sorted(set(mod.transports)) if mod.enabled else []
         run["transports"] = params["transports"]
+    if mod.name == "selfsteal_site":
+        if not params.get("selfsteal_domain"):
+            raise HTTPException(422, "У этой установки нет SelfSteal")
+        if not mod.selfsteal_template:
+            raise HTTPException(422, "Выберите сайт-шаблон")
+        params["selfsteal_template"] = mod.selfsteal_template  # the plan writes the site from the installation's settings
     if mod.name == "xray_checker":
         if mod.enabled:
             url = mod.subscription_url.get_secret_value().strip() if mod.subscription_url else secrets.get("checker_subscription_url", "")

@@ -40,9 +40,10 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
-MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog")
+MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
-                 "transports": "Транспорты ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление"}
+                 "transports": "Транспорты ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
+                 "selfsteal_site": "Сайт SelfSteal"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
@@ -198,7 +199,7 @@ class ModuleRun(BaseModel):
     """One module action: what to do on which servers. ``release`` — the files GitHub published for the chosen
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site"]
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
@@ -737,6 +738,18 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
                   step("node_transports", None, f"Панель: inbound'ы профиля SelfSteal, хосты и сквады — {chosen}"),
                   step("verify", None, "Проверка: нода на связи")]
         title = f"Транспорты ноды: {chosen}"
+    elif name == "selfsteal_site":
+        # v28.88.0 (BACKLOG A3): another site-template behind SelfSteal without a reinstall — the node's Caddy files
+        # are rewritten (the previous ones come back on an error) and Caddy restarted; the node and REALITY stay as is.
+        if not plan.selfsteal_domain or not plan.node_server_ids:
+            raise ValueError("Сайт-шаблон меняется у установки с SelfSteal")
+        site = SELFSTEAL_TEMPLATES[plan.selfsteal_template]
+        for sid in plan.node_server_ids:
+            n = servers[sid]["name"]
+            steps += [step("write_files", sid, f"{n}: SelfSteal — сайт «{site}»", component="selfsteal"),
+                      step("compose_up", sid, f"{n}: перезапуск Caddy SelfSteal", component="selfsteal")]
+        steps.append(step("verify", None, "Проверка: ноды на связи"))
+        title = f"Сайт SelfSteal: «{site}»"
     else:  # xray_checker
         sid = plan.xray_checker_server_id
         if mod.enabled and not sid:
