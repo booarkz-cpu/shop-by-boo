@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2291**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2301**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -981,6 +981,11 @@
 | [docs/en/README.md](../docs/en/README.md) | Документация |
 | [docs/en/STAGING_E2E_20_0_8.md](../docs/en/STAGING_E2E_20_0_8.md) | Документация |
 | [docs/en/TESTING.md](../docs/en/TESTING.md) | Документация |
+| [docs/en/guides/ADMIN_PANEL.md](../docs/en/guides/ADMIN_PANEL.md) | Документация |
+| [docs/en/guides/CLIENT_APPS.md](../docs/en/guides/CLIENT_APPS.md) | Документация |
+| [docs/en/guides/INSTALLATION.md](../docs/en/guides/INSTALLATION.md) | Документация |
+| [docs/en/guides/README.md](../docs/en/guides/README.md) | Документация |
+| [docs/en/guides/REMNAWAVE.md](../docs/en/guides/REMNAWAVE.md) | Документация |
 | [docs/examples/plugin/README.md](../docs/examples/plugin/README.md) | Документация |
 | [docs/examples/plugin/manifest.json](../docs/examples/plugin/manifest.json) | Документация |
 | [docs/img/app-banners-all.jpg](../docs/img/app-banners-all.jpg) | Документация |
@@ -1360,6 +1365,11 @@
 | [docs/uk/README.md](../docs/uk/README.md) | Документация |
 | [docs/uk/STAGING_E2E_20_0_8.md](../docs/uk/STAGING_E2E_20_0_8.md) | Документация |
 | [docs/uk/TESTING.md](../docs/uk/TESTING.md) | Документация |
+| [docs/uk/guides/ADMIN_PANEL.md](../docs/uk/guides/ADMIN_PANEL.md) | Документация |
+| [docs/uk/guides/CLIENT_APPS.md](../docs/uk/guides/CLIENT_APPS.md) | Документация |
+| [docs/uk/guides/INSTALLATION.md](../docs/uk/guides/INSTALLATION.md) | Документация |
+| [docs/uk/guides/README.md](../docs/uk/guides/README.md) | Документация |
+| [docs/uk/guides/REMNAWAVE.md](../docs/uk/guides/REMNAWAVE.md) | Документация |
 | [docs/wiki/README.md](../docs/wiki/README.md) | Документация |
 | [docs/wiki/en/Admin.md](../docs/wiki/en/Admin.md) | Документация |
 | [docs/wiki/en/Backup.md](../docs/wiki/en/Backup.md) | Документация |

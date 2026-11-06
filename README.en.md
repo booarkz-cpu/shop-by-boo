@@ -33,7 +33,7 @@ Everything is managed from one admin panel, including installing Remnawave and i
 | All documentation | [Documentation index](docs/en/DOCUMENTATION.md) · [Wiki](docs/wiki/en/Home.md) |
 | What changed | [CHANGELOG](CHANGELOG.md) (Russian) |
 
-Most detailed guides are in Russian — see [DOCUMENTATION_RU](DOCUMENTATION_RU.md).
+Detailed guides in English — [installation, admin panel, Remnawave, Android apps](docs/en/guides/README.md). The full Russian set: [DOCUMENTATION_RU](DOCUMENTATION_RU.md).
 
 ## Contributing and security
 
