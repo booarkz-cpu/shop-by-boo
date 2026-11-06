@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2301**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2302**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1275,6 +1275,7 @@
 | [docs/ru/new/AUTOMATION_CENTER.md](../docs/ru/new/AUTOMATION_CENTER.md) | Документация |
 | [docs/ru/new/AUTO_UPDATE.md](../docs/ru/new/AUTO_UPDATE.md) | Документация |
 | [docs/ru/new/BACKEND_ARCHITECTURE.md](../docs/ru/new/BACKEND_ARCHITECTURE.md) | Документация |
+| [docs/ru/new/BACKLOG.md](../docs/ru/new/BACKLOG.md) | Документация |
 | [docs/ru/new/BUGFIX_LOG.md](../docs/ru/new/BUGFIX_LOG.md) | Документация |
 | [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
 | [docs/ru/new/CI_CD.md](../docs/ru/new/CI_CD.md) | Документация |
