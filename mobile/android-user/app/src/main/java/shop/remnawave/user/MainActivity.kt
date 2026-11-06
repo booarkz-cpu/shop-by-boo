@@ -135,10 +135,17 @@ class MainActivity : FragmentActivity() {
         val pendingPayment = androidx.compose.runtime.mutableStateOf<String?>(null)
     }
     /** v28.77.0: CI test of the embedded VPN (scripts/mobile/vpn-e2e.sh), debuggable builds only:
-     *  --es corgi_vpn_test <subscription> connects through the engine, --ez corgi_vpn_stop true disconnects.
+     *  --es corgi_vpn_test <subscription> connects through the engine, --ez corgi_vpn_stop true disconnects,
+     *  --es corgi_vpn_tuning <json> sets the customer's own rules and fragmentation first.
      *  Handled on a cold start and in onNewIntent (the activity is singleTask). */
     private fun vpnTest(intent: Intent?) {
         if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) == 0) return
+        // C3 (v28.88.0): --es corgi_vpn_tuning <json> stores own rules / fragmentation before connecting ("" clears them).
+        intent?.getStringExtra("corgi_vpn_tuning")?.let { raw ->
+            val prefs = getSharedPreferences(shop.remnawave.user.vpn.CorgiVpnService.PREFS, 0)
+            val tuning = if (raw.isBlank()) shop.remnawave.user.vpn.Tuning() else shop.remnawave.user.vpn.Tuning.of(org.json.JSONObject(raw))
+            prefs.edit().putString(shop.remnawave.user.vpn.Tuning.PREF, tuning.toJson().toString()).commit()
+        }
         intent?.getStringExtra("corgi_vpn_test")?.let { url ->
             if (android.net.VpnService.prepare(this) == null) shop.remnawave.user.vpn.CorgiVpnService.start(this, url)
             else getSharedPreferences(shop.remnawave.user.vpn.CorgiVpnService.PREFS, 0).edit()
