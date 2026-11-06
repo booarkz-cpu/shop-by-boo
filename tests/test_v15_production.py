@@ -4,7 +4,6 @@ from pathlib import Path
 import unittest
 ROOT = Path(__file__).resolve().parents[1]
 MAIN = main_source()
-SEC = (ROOT / "backend/app/security.py").read_text()
 BOT = (ROOT / "backend/app/bot.py").read_text()
 class V15ProductionTests(unittest.TestCase):
     def test_no_known_runtime_bugs(self):
@@ -14,15 +13,8 @@ class V15ProductionTests(unittest.TestCase):
     def test_python_sources_parse(self):
         for p in (ROOT / "backend/app").glob("*.py"):
             ast.parse(p.read_text())
-    def test_security_contracts_v15(self):
-        self.assertIn('AuthExchangeCode', MAIN); self.assertIn('"/api/auth/exchange"', MAIN)
-        self.assertIn('request.cookies.get("rw_user")', MAIN); self.assertIn('request.cookies.get("rw_admin")', SEC)
-        self.assertIn('X-CSRF-Token', MAIN); self.assertIn('_redis_allowed', MAIN); self.assertIn('Webhook IP not allowed', MAIN)
-    def test_promo_usage_is_reserved_then_consumed_safely(self):
-        self.assertIn('reserve_promo(db,promo,user.id,canonical_order_id)', MAIN)
-        self.assertIn('promo_row.reserved_count=max(0,int(promo_row.reserved_count or 0)-1)', MAIN)
-        self.assertIn('promo_row.used_count += 1', MAIN)
-        self.assertNotIn('if promo: promo.used_count += 1', MAIN)
+    # test_security_contracts_v15 and test_promo_usage_is_reserved_then_consumed_safely: replaced by the behaviour tests
+    # tests/test_behaviour_csrf.py and tests/test_behaviour_promo_consume.py (C1, stage 19).
     def test_broadcast_atomic(self):
         self.assertIn('FOR UPDATE SKIP LOCKED', BOT)
     def test_https_urls(self):

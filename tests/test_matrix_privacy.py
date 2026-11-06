@@ -56,3 +56,32 @@ async def test_account_deletion_erases_customer_keys_and_disables_partner(databa
         assert await database.scalar(select(func.count()).select_from(model))==0
     assert await database.scalar(select(func.count()).select_from(AccountMergeAlias))==0
     assert await database.scalar(select(func.count()).select_from(AccountAction))==0
+
+
+@pytest.mark.asyncio
+async def test_an_endless_subscription_blocks_deletion_and_a_panel_failure_stops_it(database, monkeypatch):
+    """C1, stage 19: replaces test_v44_5_15_deep_regressions.test_privacy_delete_blocks_indefinite_subscription_… (three
+    source lines): a subscription without an end date counts as active, and the account is never anonymised while
+    its VPN access may still be switched on."""
+    sub = await database.get(Subscription, 1)
+    sub.expires_at = None
+    await database.commit()
+    with pytest.raises(HTTPException) as error:
+        await shop.privacy_delete(request(), database)
+    assert error.value.status_code == 409
+
+    sub.expires_at = datetime.utcnow() - timedelta(days=1)
+    await database.commit()
+    calls = []
+
+    class Down:
+        async def disable_user(self, uuid):
+            calls.append(uuid)
+            raise RuntimeError('panel is down')
+    monkeypatch.setattr(shop, 'RemnawaveClient', Down)
+    with pytest.raises(HTTPException) as error:
+        await shop.privacy_delete(request(), database)
+    assert error.value.status_code == 503 and calls == ['remote-1']
+    await database.rollback()
+    assert (await database.get(User, 1, populate_existing=True)).deleted_at is None
+    assert (await database.get(Subscription, 1, populate_existing=True)).remnawave_uuid == 'remote-1', 'the link to the panel is kept for the next try'

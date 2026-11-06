@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2286**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2287**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -2055,10 +2055,16 @@
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
 | [tests/test_baked_shop_url.py](../tests/test_baked_shop_url.py) | Проверки |
 | [tests/test_behaviour_auth.py](../tests/test_behaviour_auth.py) | Проверки |
+| [tests/test_behaviour_csrf.py](../tests/test_behaviour_csrf.py) | Проверки |
+| [tests/test_behaviour_fulfil_locks.py](../tests/test_behaviour_fulfil_locks.py) | Проверки |
 | [tests/test_behaviour_mfa_recovery.py](../tests/test_behaviour_mfa_recovery.py) | Проверки |
+| [tests/test_behaviour_payment_guards.py](../tests/test_behaviour_payment_guards.py) | Проверки |
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
 | [tests/test_behaviour_payments_v2.py](../tests/test_behaviour_payments_v2.py) | Проверки |
 | [tests/test_behaviour_payments_yookassa.py](../tests/test_behaviour_payments_yookassa.py) | Проверки |
+| [tests/test_behaviour_promo_consume.py](../tests/test_behaviour_promo_consume.py) | Проверки |
+| [tests/test_behaviour_public_urls.py](../tests/test_behaviour_public_urls.py) | Проверки |
+| [tests/test_behaviour_refund_revoke.py](../tests/test_behaviour_refund_revoke.py) | Проверки |
 | [tests/test_behaviour_store_and_webhooks.py](../tests/test_behaviour_store_and_webhooks.py) | Проверки |
 | [tests/test_behaviour_webhooks_refunded.py](../tests/test_behaviour_webhooks_refunded.py) | Проверки |
 | [tests/test_behaviour_withdrawals.py](../tests/test_behaviour_withdrawals.py) | Проверки |
@@ -2223,7 +2229,6 @@
 | [tests/test_v1_0_4_critical_regressions.py](../tests/test_v1_0_4_critical_regressions.py) | Проверки |
 | [tests/test_v1_0_5_critical_regressions.py](../tests/test_v1_0_5_critical_regressions.py) | Проверки |
 | [tests/test_v1_0_7_critical_regression.py](../tests/test_v1_0_7_critical_regression.py) | Проверки |
-| [tests/test_v1_0_8_critical_regression.py](../tests/test_v1_0_8_critical_regression.py) | Проверки |
 | [tests/test_v1_0_9_critical_regressions.py](../tests/test_v1_0_9_critical_regressions.py) | Проверки |
 | [tests/test_v1_release_deep_audit.py](../tests/test_v1_release_deep_audit.py) | Проверки |
 | [tests/test_v2012_security.py](../tests/test_v2012_security.py) | Проверки |
@@ -2280,16 +2285,12 @@
 | [tests/test_v44_5_14_deep_regressions.py](../tests/test_v44_5_14_deep_regressions.py) | Проверки |
 | [tests/test_v44_5_15_deep_regressions.py](../tests/test_v44_5_15_deep_regressions.py) | Проверки |
 | [tests/test_v44_5_16_deep_regressions.py](../tests/test_v44_5_16_deep_regressions.py) | Проверки |
-| [tests/test_v44_5_17_deep_regressions.py](../tests/test_v44_5_17_deep_regressions.py) | Проверки |
 | [tests/test_v44_5_18_deep_regressions.py](../tests/test_v44_5_18_deep_regressions.py) | Проверки |
 | [tests/test_v44_5_19_branding_ui_and_security.py](../tests/test_v44_5_19_branding_ui_and_security.py) | Проверки |
-| [tests/test_v44_5_1_deep_regressions.py](../tests/test_v44_5_1_deep_regressions.py) | Проверки |
-| [tests/test_v44_5_20_dns_pinning.py](../tests/test_v44_5_20_dns_pinning.py) | Проверки |
 | [tests/test_v44_5_7_deep_regressions.py](../tests/test_v44_5_7_deep_regressions.py) | Проверки |
 | [tests/test_v44_5_8_deep_regressions.py](../tests/test_v44_5_8_deep_regressions.py) | Проверки |
 | [tests/test_v44_5_9_deep_regressions.py](../tests/test_v44_5_9_deep_regressions.py) | Проверки |
 | [tests/test_v44_enterprise_suite.py](../tests/test_v44_enterprise_suite.py) | Проверки |
-| [tests/test_v45_4_deep_regressions.py](../tests/test_v45_4_deep_regressions.py) | Проверки |
 | [tests/test_v45_5_deep_regressions.py](../tests/test_v45_5_deep_regressions.py) | Проверки |
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |

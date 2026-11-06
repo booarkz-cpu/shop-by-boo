@@ -1,18 +1,12 @@
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = main_source()
 MODELS = (ROOT / "backend/app/models.py").read_text()
 MIGRATIONS = ROOT / "backend/alembic/versions"
 
 
-def test_privacy_delete_blocks_indefinite_subscription_and_revokes_remote_access():
-    block = MAIN[MAIN.index('@app.delete("/api/me/privacy/account")'):MAIN.index('@app.get("/api/admin/monitoring")')]
-    assert 'x.expires_at is None or x.expires_at>datetime.utcnow()' in block
-    assert 'await RemnawaveClient().disable_user(active.remnawave_uuid)' in block
-    assert 'active.remnawave_uuid=None' in block
-
+# test_privacy_delete_blocks_indefinite_subscription_and_revokes_remote_access: replaced by the behaviour test
+# tests/test_matrix_privacy.py::test_an_endless_subscription_blocks_deletion_and_a_panel_failure_stops_it (C1, stage 19).
 
 # test_withdrawal_reject_cannot_restore_balance_after_payout_started: replaced by the behaviour test
 # tests/test_behaviour_withdrawals.py (C1, stage 19).

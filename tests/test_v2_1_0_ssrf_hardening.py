@@ -1,27 +1,9 @@
-from main_source import main_source
+"""The staging runner never follows redirects. The staging settings, the staging payment and the pinned DNS transport
+are checked by running them in tests/test_behaviour_public_urls.py (C1, stage 19)."""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = main_source()
-PAYMENTS = (ROOT / 'backend/app/payments.py').read_text()
 STAGING = (ROOT / 'scripts/staging-e2e.sh').read_text()
-BUILD = (ROOT / 'scripts/build-release.sh').read_text()
-INSTALLER = (ROOT / 'deploy/install-vps.sh').read_text()
-
-
-def test_staging_urls_are_public_https_validated_before_persistence():
-    block = MAIN[MAIN.index('async def update_staging_e2e_config'):MAIN.index('async def _run_staging_e2e')]
-    assert 'validate_public_url(payload.public_base_url, allow_empty=False)' in block
-    assert 'validate_public_url(payload.remnawave_url, allow_empty=False)' in block
-    assert 'for provider_url in (payload.yookassa_api_url, payload.platega_api_url, payload.rollypay_api_url)' in block
-    assert 'validate_public_url(provider_url, allow_empty=False)' in block
-
-
-def test_staging_provider_requests_pin_dns_and_validate_endpoint():
-    block = PAYMENTS[PAYMENTS.index('async def staging_create_payment'):]
-    assert 'from .main import validate_public_url, _pinned_public_http_client' in block
-    assert 'async with _pinned_public_http_client(20) as c:' in block
-    assert block.count('validate_public_url(api_url, allow_empty=False)') == 3
 
 
 def test_staging_runner_does_not_follow_redirects():

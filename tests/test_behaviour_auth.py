@@ -322,3 +322,19 @@ async def test_mfa_disable_needs_the_password(db):
         await admin_auth_api.mfa_disable(admin_auth_api.PasswordConfirm(password="wrong pass"), db, admin)
     assert (await admin_auth_api.mfa_disable(admin_auth_api.PasswordConfirm(password="correct horse"), db, admin))["mfa_enabled"] is False
     assert admin.totp_secret_encrypted is None and admin.recovery_codes_encrypted is None
+
+
+@pytest.mark.asyncio
+async def test_admin_login_attempts_are_counted_per_real_client_behind_the_proxy(db, limiter, monkeypatch):
+    """C1, stage 19: replaces test_v45_4_deep_regressions (the string ``client_ip=_client_ip(request)``). Behind the
+    shop's own proxy every request comes from the proxy address; the limit must follow the real client."""
+    monkeypatch.setattr(settings, "trusted_proxy_cidrs", "10.0.0.0/8")
+
+    def via_proxy(client):
+        base = request("/api/admin/auth/login")
+        base.scope["headers"].append((b"x-forwarded-for", client.encode()))
+        return base
+    for client in ("203.0.113.1", "203.0.113.2"):
+        with pytest.raises(HTTPException):
+            await admin_auth_api.admin_login(shop.LoginIn(email="nobody@corgi.test", password="x"), via_proxy(client), Response(), db)
+    assert set(limiter) == {"login:203.0.113.1:nobody@corgi.test", "login:203.0.113.2:nobody@corgi.test"}
