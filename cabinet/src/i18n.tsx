@@ -308,7 +308,16 @@ Object.assign(EN, {
 
 const TABLES: Record<Exclude<Lang, "ru">, Record<string, string>> = {en: EN, uk: UK};
 
+// BACKLOG A4 (v28.88.0): the owner's versions of the texts, from «Личный кабинет → Тексты кабинета» in the admin panel.
+let OVERRIDES: Partial<Record<Lang, Record<string, string>>> = {};
+
+export function setOverrides(next: Partial<Record<Lang, Record<string, string>>>) {
+  OVERRIDES = next || {};
+}
+
 export function translate(lang: Lang, value: string): string {
+  const own = value ? OVERRIDES[lang]?.[value] : undefined;
+  if (own) return own;
   if (!value || lang === "ru") return value;
   const table = TABLES[lang];
   if (table && table[value]) return table[value];
@@ -353,12 +362,18 @@ export function detectLang(serverDefault?: string): Lang {
   return browser.startsWith("en") ? "en" : "ru";
 }
 
-export function LangProvider({children}: {children: React.ReactNode}) {
+export function LangProvider({children, textsUrl}: {children: React.ReactNode; textsUrl?: string}) {
   const [lang, setLangState] = useState<Lang>(detectLang());
+  const [, setTextsVersion] = useState(0);
   useEffect(() => {
     activeLang = lang;
     document.documentElement.lang = lang;
   }, [lang]);
+  useEffect(() => {
+    if (!textsUrl) return;
+    // The owner's texts; without them (or on an error) the cabinet keeps its own.
+    fetch(textsUrl).then((r) => r.ok ? r.json() : {}).then((data) => { setOverrides(data || {}); setTextsVersion((v) => v + 1); }).catch(() => undefined);
+  }, [textsUrl]);
   function setLang(next: Lang) {
     activeLang = next;
     localStorage.setItem("rw_lang", next);
@@ -373,7 +388,8 @@ export function useLang() {
 
 function sourceOf(current: string, stored: string | undefined, lang: Lang): string {
   if (stored && (current === stored || current === translate("en", stored) ||
-      current === translate("uk", stored) || current === translate("ru", stored))) return stored;
+      current === translate("uk", stored) || current === translate("ru", stored) ||
+      Object.values(OVERRIDES).some((table) => table?.[stored] === current))) return stored;
   return current;
 }
 
