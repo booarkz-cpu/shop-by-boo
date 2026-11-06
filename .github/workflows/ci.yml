@@ -322,7 +322,7 @@ jobs:
   containers:
     name: Containers • non-root startup and Redis authentication
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v5
       - name: Prepare isolated test configuration
@@ -392,6 +392,11 @@ jobs:
           docker compose exec -T backend python -c "from pathlib import Path; p=Path('/data/app-packages/.write-test'); p.write_text('ok'); p.unlink()"
           docker compose run --rm --no-deps --entrypoint caddy caddy validate --config /etc/caddy/Caddyfile
           test "$(docker compose run --rm --no-deps --entrypoint id caddy -u)" = 10001
+      - name: Restore drill (copy, total loss, restore, same data)
+        # Stage 19, C2: scripts/backup.sh → every volume and .env lost → the copy alone brings back every table,
+        # the customer's subscription and payment, the administrator's sign-in and the files.
+        timeout-minutes: 15
+        run: bash scripts/ci/restore-drill.sh
       - name: Logs on failure
         if: failure()
         run: |

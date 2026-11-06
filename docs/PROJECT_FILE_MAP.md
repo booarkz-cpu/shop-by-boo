@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2287**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2288**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1855,6 +1855,7 @@
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
 | [scripts/ci/panel-gate-live.sh](../scripts/ci/panel-gate-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/restore-drill.sh](../scripts/ci/restore-drill.sh) | Эксплуатация и релиз |
 | [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/test-shard.py](../scripts/ci/test-shard.py) | Эксплуатация и релиз |
 | [scripts/ci/tinyauth-live.sh](../scripts/ci/tinyauth-live.sh) | Эксплуатация и релиз |
