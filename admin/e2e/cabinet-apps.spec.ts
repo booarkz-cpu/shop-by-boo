@@ -21,11 +21,13 @@ async function owner(page: Page, show: boolean) {
   }
   await expect(page.locator('.hub-card').first()).toBeVisible();
   await page.locator('.sidebar').getByRole('button', {name: /Android и iOS/}).click();
-  const box = page.locator('[data-cabinet-apps]').getByRole('checkbox');
-  await expect(box).toBeVisible();
-  if ((await box.isChecked()) !== show) await box.click();
-  // The block lists published apps: make sure the buyer's Android card is shown and has a link.
+  // The app cards come from the loaded data: wait for them, or the load resets what was clicked before it.
   const card = page.locator('.card').filter({has: page.getByRole('heading', {name: 'Android · Покупатель'})});
+  await expect(card).toBeVisible();
+  const box = page.locator('[data-cabinet-apps]').getByRole('checkbox');
+  if ((await box.isChecked()) !== show) await box.click();
+  await expect(box).toBeChecked({checked: show});
+  // The block lists published apps: make sure the buyer's Android card is shown and has a link.
   const shown = card.getByRole('checkbox');
   if (!(await shown.isChecked())) await shown.click();
   const link = card.getByPlaceholder('https://');
