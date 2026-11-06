@@ -145,3 +145,33 @@ async def test_launch_checks_cover_the_new_safety_nets(database, monkeypatch):
     monkeypatch.setattr(shop.settings, "api_mirror_domains", "api2.corgi.test")
     checks = {c["key"]: c for c in (await ops_alerts.readiness(database, None))["checks"]}
     assert checks["telegram_backup"]["ok"] and checks["api_mirrors"]["ok"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("missing", ["yookassa_shop_id", "yookassa_secret_key", "yookassa_webhook_ip_allowlist"])
+async def test_a_gateway_without_its_keys_is_never_routed(shop_env, monkeypatch, missing):
+    """C1, stage 19: replaces test_v44_5_1_deep_regressions (strings of _payment_provider_order). ЮKassa also needs the
+    webhook allowlist: without it its notifications are refused, so a payment there could never be confirmed."""
+    db = shop_env
+    assert (await shop._payment_provider_order(db, None))[0] == "yookassa"
+    monkeypatch.setattr(shop.settings, missing, "")
+    order = await shop._payment_provider_order(db, None)
+    assert "yookassa" not in order and order[0] == "rollypay"
+    with pytest.raises(HTTPException) as err:
+        await shop._payment_provider_order(db, "yookassa")
+    assert err.value.status_code == 503, "asking for it by name does not help"
+    with pytest.raises(HTTPException) as err:
+        await shop._payment_provider_order(db, "no-such-gateway")
+    assert err.value.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_a_disabled_gateway_is_refused_by_name(shop_env):
+    db = shop_env
+    await shop._payment_provider_order(db, None)
+    await enterprise_api.v41_provider_update("platega", enterprise_api.ProviderHealthIn(enabled=False, priority=30), db, ADMIN)
+    assert "platega" not in await shop._payment_provider_order(db, None)
+    with pytest.raises(HTTPException) as err:
+        await shop._payment_provider_order(db, "platega")
+    assert err.value.status_code == 503
+    assert (await shop._payment_provider_order(db, "cryptobot"))[0] == "cryptobot", "a requested working gateway goes first"
