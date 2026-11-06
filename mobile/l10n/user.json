@@ -216,7 +216,18 @@
     "contest_until": "до",
     "contest_me": "Вы на {place} месте ({score})",
     "contest_join": "Пригласите друга по своей ссылке, чтобы попасть в таблицу",
-    "stats_month": "Трафик за 30 дней"
+    "stats_month": "Трафик за 30 дней",
+    "rules_title": "Свои правила",
+    "rules_hint": "Сайт или адрес: example.com, full:api.example.com, keyword:ads, regexp:…, 10.0.0.0/8. Правила работают раньше правил подписки.",
+    "rules_match": "Сайт или адрес",
+    "rule_proxy": "Через VPN",
+    "rule_direct": "Напрямую",
+    "rule_block": "Блокировать",
+    "rules_bad": "Не похоже на сайт или адрес",
+    "rules_geo": "Списки geosite/geoip в этом приложении не поддерживаются — укажите сайт или адрес",
+    "rules_full": "Достигнут предел — 200 правил",
+    "fragment_title": "Фрагментация TLS",
+    "fragment_hint": "Делит начало TLS-соединения на части — помогает, когда провайдер мешает подключению. Только для серверов с TLS (REALITY не затрагивается)."
   },
   "en": {
     "app_name": "VPN shop",
@@ -435,7 +446,18 @@
     "contest_until": "until",
     "contest_me": "You are #{place} ({score})",
     "contest_join": "Invite a friend with your link to get on the board",
-    "stats_month": "Traffic, 30 days"
+    "stats_month": "Traffic, 30 days",
+    "rules_title": "Your rules",
+    "rules_hint": "A site or address: example.com, full:api.example.com, keyword:ads, regexp:…, 10.0.0.0/8. Your rules come before the subscription's.",
+    "rules_match": "Site or address",
+    "rule_proxy": "Through VPN",
+    "rule_direct": "Direct",
+    "rule_block": "Block",
+    "rules_bad": "This does not look like a site or address",
+    "rules_geo": "geosite/geoip lists are not supported in this app — enter a site or address",
+    "rules_full": "Limit reached — 200 rules",
+    "fragment_title": "TLS fragmentation",
+    "fragment_hint": "Splits the start of a TLS connection into pieces — helps when the provider interferes. TLS servers only (REALITY is not affected)."
   },
   "uk": {
     "app_name": "Коргі Люсі",
@@ -654,6 +676,17 @@
     "contest_until": "до",
     "contest_me": "Ви на {place} місці ({score})",
     "contest_join": "Запросіть друга за своїм посиланням, щоб потрапити до таблиці",
-    "stats_month": "Трафік за 30 днів"
+    "stats_month": "Трафік за 30 днів",
+    "rules_title": "Свої правила",
+    "rules_hint": "Сайт або адреса: example.com, full:api.example.com, keyword:ads, regexp:…, 10.0.0.0/8. Ваші правила діють раніше за правила підписки.",
+    "rules_match": "Сайт або адреса",
+    "rule_proxy": "Через VPN",
+    "rule_direct": "Напряму",
+    "rule_block": "Блокувати",
+    "rules_bad": "Не схоже на сайт або адресу",
+    "rules_geo": "Списки geosite/geoip у цьому застосунку не підтримуються — вкажіть сайт або адресу",
+    "rules_full": "Досягнуто межі — 200 правил",
+    "fragment_title": "Фрагментація TLS",
+    "fragment_hint": "Ділить початок TLS-з'єднання на частини — допомагає, коли провайдер заважає підключенню. Лише для серверів з TLS (REALITY не зачіпається)."
   }
 }

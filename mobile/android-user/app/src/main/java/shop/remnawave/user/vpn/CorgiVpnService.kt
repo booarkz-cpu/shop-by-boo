@@ -45,12 +45,12 @@ class CorgiVpnService : VpnService() {
                     prefs.edit().putString(KEY_SERVERS, configs.joinToString("\n") { it.first }).apply()
                     val chosen = configs.firstOrNull { it.first == selected }
                         ?: configs.firstOrNull { it.second.contains("\"observatory\"") || it.second.contains("\"burstObservatory\"") } ?: configs.first()
-                    XrayEngine.fromJson(chosen.second, prefs.getBoolean(KEY_BYPASS_RU, false), direct)
+                    XrayEngine.fromJson(chosen.second, prefs.getBoolean(KEY_BYPASS_RU, false), direct, Tuning.load(prefs))
                 } else {
                     val servers = ShareLinks.parseAll(body)
                     if (servers.isEmpty()) throw IllegalStateException("no servers")
                     prefs.edit().putString(KEY_SERVERS, servers.joinToString("\n") { it.name }).apply()
-                    XrayEngine.config(servers, selected, prefs.getBoolean(KEY_BYPASS_RU, false), direct)
+                    XrayEngine.config(servers, selected, prefs.getBoolean(KEY_BYPASS_RU, false), direct, Tuning.load(prefs))
                 }
                 val builder = Builder().setSession(getString(R.string.app_name)).setMtu(MTU)
                     .addAddress("172.19.0.1", 30).addRoute("0.0.0.0", 0)

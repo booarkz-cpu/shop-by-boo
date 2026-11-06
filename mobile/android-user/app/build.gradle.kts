@@ -43,6 +43,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    // JVM unit tests (app/src/test): Android stubs return defaults; org.json is the real library.
+    testOptions { unitTests.isReturnDefaultValues = true }
     signingConfigs {
         create("shopRelease") {
             val store = System.getenv("ANDROID_KEYSTORE")
@@ -95,4 +97,7 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.7.0")
     androidTestImplementation("androidx.test:core-ktx:1.7.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    // JVM unit tests of the VPN configs (app/src/test).
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }
