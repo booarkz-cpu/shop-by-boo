@@ -28,15 +28,9 @@ class V15ProductionTests(unittest.TestCase):
     def test_https_urls(self):
         self.assertIn('Only absolute HTTPS URLs are allowed', MAIN); self.assertIn('parsed.scheme != "https"', MAIN)
     def test_mfa_recovery_and_payment_verification(self):
-        self.assertIn("recovery_codes_encrypted", (ROOT / "backend/app/models.py").read_text())
+        # Recovery codes: behaviour in tests/test_behaviour_mfa_recovery.py (C1, stage 19).
         self.assertIn("with_for_update()", MAIN)
-        self.assertIn("manage_own_mfa", SEC)
-        self.assertIn("sha256", (ROOT / "backend/app/models.py").read_text())
-        self.assertIn("generate_recovery_codes", MAIN)
-        pay=(ROOT / "backend/app/payments.py").read_text()
-        self.assertIn("verify_succeeded", pay)
-        self.assertIn("transaction/{payment_id}", pay)
-        self.assertIn("api/v1/payments/{payment_id}", pay)
+        # Payment verification: behaviour in tests/test_behaviour_payments_yookassa.py and test_v44_5_18 (verify_succeeded).
     def test_frontends_cookie_auth(self):
         for p in (ROOT / "admin/src/main.tsx", ROOT / "cabinet/src/main.tsx"):
             s=p.read_text(); self.assertNotIn('localStorage.setItem("user_token"',s); self.assertNotIn('localStorage.setItem("rw_admin_token"',s); self.assertIn('credentials:"include"',s)

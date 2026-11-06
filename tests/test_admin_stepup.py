@@ -143,7 +143,51 @@ async def test_security_history(database):
     assert {e["level"] for e in out["events"] if e["action"] == "admin.login.failed"} == {"warn"}
 
 
-def test_admin_sign_in_is_audited_and_has_no_timing_oracle():
-    src = (ROOT / "backend/app/admin_auth_api.py").read_text()
-    assert '"admin.login.failed"' in src and '"admin.login",admin.email' in src
-    assert "admin.password_hash if known else _DUMMY_HASH" in src and "send_alert" in src
+@pytest.mark.asyncio
+async def test_admin_sign_in_is_audited_and_has_no_timing_oracle(database, monkeypatch):
+    """C1 (stage 19): behaviour instead of the source text — an unknown e-mail costs the same password hashing as a known
+    one, every failure is in the audit log, the 10th failure in 15 minutes raises an alert, a sign-in is audited."""
+    from starlette.responses import Response
+
+    from app import admin_auth_api, mobile_auth
+    db = database
+    admin, _ = await make_admin(db)
+    hashes, alerts = [], []
+    real_verify = main.verify_password
+
+    def verify(password, stored):
+        hashes.append(stored)
+        return real_verify(password, stored)
+
+    async def allowed(*a, **k):
+        return True
+
+    async def alert(text):
+        alerts.append(text)
+    monkeypatch.setattr(main, "verify_password", verify)
+    monkeypatch.setattr(main, "_redis_allowed", allowed)
+    monkeypatch.setattr(main, "send_alert", alert)
+    monkeypatch.setattr(mobile_auth, "require_mobile_proof", lambda request: None)
+    request = SimpleNamespace(headers={}, client=SimpleNamespace(host="203.0.113.7"), cookies={}, url=SimpleNamespace(scheme="https"))
+    monkeypatch.setattr(main, "_client_ip", lambda r: "203.0.113.7")
+
+    async def attempt(email, password):
+        return await admin_auth_api.admin_login(main.LoginIn(email=email, password=password), request, Response(), db)
+
+    with pytest.raises(HTTPException) as unknown:
+        await attempt("nobody@corgi.test", "whatever")
+    with pytest.raises(HTTPException) as wrong:
+        await attempt(admin.email, "wrong password")
+    assert unknown.value.status_code == wrong.value.status_code == 401 and unknown.value.detail == wrong.value.detail
+    assert hashes == [admin_auth_api._DUMMY_HASH, admin.password_hash], "the unknown e-mail is hashed too"
+    for _ in range(8):
+        with pytest.raises(HTTPException):
+            await attempt(admin.email, "wrong password")
+    failed = (await db.execute(select(AuditLog).where(AuditLog.action == "admin.login.failed"))).scalars().all()
+    assert len(failed) == 10 and {f.target for f in failed} == {"203.0.113.7"}
+    assert len(alerts) == 1 and "10" in alerts[0], "one alert at the 10th failure"
+    try:
+        await attempt(admin.email, "correct horse battery")
+    except Exception:
+        pass  # the session cookie part needs the full app; the audit entry is written before it
+    assert (await db.execute(select(AuditLog).where(AuditLog.action == "admin.login"))).scalars().first() is not None
