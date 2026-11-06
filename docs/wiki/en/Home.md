@@ -13,6 +13,7 @@ run everything from one admin panel.
 | Connect payments | [Payments](Payments.md) |
 | Set up the bot and Mini App | [Telegram](Telegram.md) |
 | Learn the admin panel | [Admin panel](Admin.md) |
+| Detailed guides | [Installation, admin panel, Remnawave, Android apps](../../en/guides/README.md) |
 | Keep the shop updated | [Updates](Updates.md) |
 | Back up and restore data | [Backups](Backup.md) |
 | Install Remnawave and nodes from the admin panel | [Remnawave](Remnawave.md) |

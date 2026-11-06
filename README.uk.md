@@ -33,7 +33,7 @@
 | Уся документація | [Документація](docs/uk/DOCUMENTATION.md) · [Wiki](docs/wiki/uk/Home.md) |
 | Що змінилося | [CHANGELOG](CHANGELOG.md) (російською) |
 
-Найдокладніші інструкції — російською: [DOCUMENTATION_RU](DOCUMENTATION_RU.md).
+Докладні посібники українською — [встановлення, адмінпанель, Remnawave, Android-застосунки](docs/uk/guides/README.md). Повний набір російською: [DOCUMENTATION_RU](DOCUMENTATION_RU.md).
 
 ## Участь і безпека
 
