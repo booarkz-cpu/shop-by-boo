@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2286**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2289**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -2055,10 +2055,13 @@
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
 | [tests/test_baked_shop_url.py](../tests/test_baked_shop_url.py) | Проверки |
 | [tests/test_behaviour_auth.py](../tests/test_behaviour_auth.py) | Проверки |
+| [tests/test_behaviour_csrf.py](../tests/test_behaviour_csrf.py) | Проверки |
 | [tests/test_behaviour_mfa_recovery.py](../tests/test_behaviour_mfa_recovery.py) | Проверки |
+| [tests/test_behaviour_payment_guards.py](../tests/test_behaviour_payment_guards.py) | Проверки |
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |
 | [tests/test_behaviour_payments_v2.py](../tests/test_behaviour_payments_v2.py) | Проверки |
 | [tests/test_behaviour_payments_yookassa.py](../tests/test_behaviour_payments_yookassa.py) | Проверки |
+| [tests/test_behaviour_promo_consume.py](../tests/test_behaviour_promo_consume.py) | Проверки |
 | [tests/test_behaviour_store_and_webhooks.py](../tests/test_behaviour_store_and_webhooks.py) | Проверки |
 | [tests/test_behaviour_webhooks_refunded.py](../tests/test_behaviour_webhooks_refunded.py) | Проверки |
 | [tests/test_behaviour_withdrawals.py](../tests/test_behaviour_withdrawals.py) | Проверки |
