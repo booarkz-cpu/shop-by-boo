@@ -1066,7 +1066,7 @@ class CabinetRootBoundary extends React.Component<{children: React.ReactNode}, {
 export default function CabinetRoot() {
   return (
     <CabinetRootBoundary>
-      <LangProvider>
+      <LangProvider textsUrl={`${API}/api/public/cabinet-texts`}>
         <AppConfigProvider>
           <App />
         </AppConfigProvider>
