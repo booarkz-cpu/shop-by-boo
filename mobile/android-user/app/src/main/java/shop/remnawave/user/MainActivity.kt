@@ -54,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.ImageBitmap
@@ -78,6 +79,8 @@ import shop.remnawave.user.analytics.CorgiAnalytics
 import shop.remnawave.user.security.CorgiTrust
 import shop.remnawave.user.ui.*
 import shop.remnawave.user.vpn.CorgiVpnService
+import shop.remnawave.user.vpn.RouteRule
+import shop.remnawave.user.vpn.Tuning
 import shop.remnawave.user.vpn.VpnClients
 import shop.remnawave.user.vpn.XrayEngine
 
@@ -1204,6 +1207,9 @@ private fun SplitDialog(layout: AppLayout, t: (String) -> String, onClose: () ->
     }
     var excluded by remember { mutableStateOf(CorgiVpnService.excludedApps(context)) }
     var bypassRu by remember { mutableStateOf(prefs.getBoolean(CorgiVpnService.KEY_BYPASS_RU, false)) }
+    var tuning by remember { mutableStateOf(Tuning.load(prefs)) }
+    var draft by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
     AlertDialog(onDismissRequest = onClose, containerColor = theme.surface, titleContentColor = theme.text, textContentColor = theme.text,
         title = { Text(t("split_title")) },
         text = {
@@ -1212,6 +1218,10 @@ private fun SplitDialog(layout: AppLayout, t: (String) -> String, onClose: () ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(bypassRu, { bypassRu = it; prefs.edit().putBoolean(CorgiVpnService.KEY_BYPASS_RU, it).apply() })
                     Text(t("bypass_ru"), color = theme.text)
+                }
+                TuningSection(theme, t, tuning, error, draft, { draft = it; error = "" }) { next, problem ->
+                    if (next != null) { tuning = next; Tuning.save(prefs, next) }
+                    error = problem
                 }
                 apps.forEach { (pkg, label) ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1225,6 +1235,53 @@ private fun SplitDialog(layout: AppLayout, t: (String) -> String, onClose: () ->
             }
         },
         confirmButton = { TextButton(onClick = onClose) { Text(t("done"), color = theme.accent) } })
+}
+
+/**
+ * Stage 19, C3: the customer's own rules (a site or an address through the VPN, around it, or blocked) and TLS
+ * fragmentation. Saved at once; applied at the next connection (the dialog reconnects on close).
+ */
+@Composable
+private fun TuningSection(
+    theme: LayoutTheme, t: (String) -> String, tuning: Tuning, error: String, draft: String,
+    onDraft: (String) -> Unit, onChange: (Tuning?, String) -> Unit,
+) {
+    Spacer(Modifier.height(8.dp))
+    Text(t("rules_title"), color = theme.text, fontWeight = FontWeight.Bold)
+    Muted(t("rules_hint"), theme)
+    TextInput(draft, onDraft, t("rules_match"), theme)
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        RouteRule.ACTIONS.forEach { action ->
+            FilterChip(selected = false, onClick = {
+                val rule = runCatching { RouteRule(RouteRule.normalize(draft), action) }.getOrNull()
+                when {
+                    rule == null -> onChange(null, t(if (draft.trim().startsWith("geo")) "rules_geo" else "rules_bad"))
+                    tuning.rules.size >= Tuning.MAX_RULES && tuning.rules.none { it.match == rule.match } -> onChange(null, t("rules_full"))
+                    else -> { onChange(tuning.withRule(rule), ""); onDraft("") }
+                }
+            }, label = { Text(t("rule_$action")) })
+        }
+    }
+    if (error.isNotBlank()) Text(error, color = theme.danger)
+    tuning.rules.forEach { rule ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(rule.match, color = theme.text, modifier = Modifier.weight(1f))
+            Text(t("rule_${rule.action}"), color = theme.muted)
+            Text("✕", color = theme.danger, modifier = Modifier.clickable { onChange(tuning.without(rule.match), "") }.padding(8.dp))
+        }
+    }
+    Spacer(Modifier.height(8.dp))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(tuning.fragment, { onChange(tuning.copy(fragment = it), "") })
+        Text(t("fragment_title"), color = theme.text)
+    }
+    Muted(t("fragment_hint"), theme)
+    if (tuning.fragment) Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Tuning.PACKETS.forEach { packets ->
+            FilterChip(selected = tuning.fragmentPackets == packets, onClick = { onChange(tuning.copy(fragmentPackets = packets), "") },
+                label = { Text(if (packets == "tlshello") "ClientHello" else packets) })
+        }
+    }
 }
 
 private fun currentLanguageLabel(lang: String): String = when (lang) { "en" -> "English"; "uk" -> "Українська"; else -> "Русский" }

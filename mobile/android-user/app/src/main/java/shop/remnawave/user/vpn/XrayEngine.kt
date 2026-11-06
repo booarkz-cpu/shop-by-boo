@@ -21,7 +21,7 @@ object XrayEngine {
     } catch (_: Throwable) { "" }
 
     /** Xray config: TUN inbound, the servers, automatic choice of the fastest, and what goes around the VPN. */
-    fun config(servers: List<VpnServer>, selected: String, bypassRussian: Boolean, extraDirect: List<String> = emptyList()): String {
+    fun config(servers: List<VpnServer>, selected: String, bypassRussian: Boolean, extraDirect: List<String> = emptyList(), tuning: Tuning = Tuning()): String {
         val outbounds = JSONArray()
         servers.forEach { outbounds.put(it.outbound) }
         outbounds.put(JSONObject().put("tag", "direct").put("protocol", "freedom"))
@@ -53,7 +53,7 @@ object XrayEngine {
             rules.put(JSONObject().put("type", "field").put("network", "tcp,udp").put("balancerTag", "auto"))
         }
         config.put("routing", routing.put("rules", rules))
-        return config.toString()
+        return tuning.apply(config, if (bypassRussian) 2 else 1).toString()
     }
 
     /**
@@ -61,7 +61,7 @@ object XrayEngine {
      * around the VPN is put first; geo lists are replaced (geoip:private → the private ranges) or left out, because the
      * app carries no geoip.dat / geosite.dat and Xray would refuse the whole config.
      */
-    fun fromJson(raw: String, bypassRussian: Boolean, extraDirect: List<String> = emptyList()): String {
+    fun fromJson(raw: String, bypassRussian: Boolean, extraDirect: List<String> = emptyList(), tuning: Tuning = Tuning()): String {
         val config = JSONObject(raw)
         config.put("inbounds", JSONArray().put(JSONObject().put("tag", "tun-in").put("protocol", "tun")
             .put("settings", JSONObject().put("name", "xray0").put("mtu", CorgiVpnService.MTU))
@@ -97,7 +97,7 @@ object XrayEngine {
         val outbounds = config.getJSONArray("outbounds")
         if ((0 until outbounds.length()).none { outbounds.optJSONObject(it)?.optString("tag") == DIRECT })
             outbounds.put(JSONObject().put("tag", DIRECT).put("protocol", "freedom"))
-        return config.toString()
+        return tuning.apply(config, if (bypassRussian) 2 else 1).toString()
     }
 
     private const val DIRECT = "corgi-direct"

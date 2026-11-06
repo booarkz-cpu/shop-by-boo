@@ -425,9 +425,9 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
-      - name: Compile debug application
+      - name: Compile debug application and run JVM unit tests
         working-directory: mobile/${{ matrix.app }}
-        run: bash gradlew assembleDebug --no-daemon
+        run: bash gradlew assembleDebug testDebugUnitTest --no-daemon
 
   android-engine:
     # The customer app with the embedded VPN engine (Xray-core via libv2ray.aar, built from the
