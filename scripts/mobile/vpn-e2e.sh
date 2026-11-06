@@ -67,5 +67,24 @@ for i in $(seq 1 15); do [ "$(state)" = off ] && break; sleep 2; done
 sleep 2
 if probe | grep -q corgi-tunnel-ok; then echo "FAIL: the page still answers after disconnecting" >&2; exit 1; fi
 echo "3/3 disconnected: no answer again"
+
+# C3 (v28.88.0): the customer's own rule «block 198.18.0.42» is put before the subscription's routing — connected,
+# yet the check page stays silent; without the rule it answers again. Single quotes: no brace expansion in adb shell.
+start_with(){ adb shell "am start -W -n $PKG/shop.remnawave.user.MainActivity --es corgi_vpn_tuning '$1' --es corgi_vpn_test http://10.0.2.2:18081/" >/dev/null; }
+start_with '{"rules":[{"match":"198.18.0.42","action":"block"}]}'
+for i in $(seq 1 30); do [ "$(state)" = on ] && break; sleep 2; done
+[ "$(state)" = on ] || { echo "FAIL: the VPN with an own rule did not connect (state: $(state))" >&2; adb shell "run-as $PKG cat shared_prefs/shop_vpn.xml" >&2 || true; exit 1; }
+sleep 4
+if probe | grep -q corgi-tunnel-ok; then echo "FAIL: the blocked address still answers through the tunnel" >&2; exit 1; fi
+echo "4/4 own rule «block»: connected, the blocked address does not answer"
+adb shell am start -W -n "$PKG/shop.remnawave.user.MainActivity" --ez corgi_vpn_stop true >/dev/null
+for i in $(seq 1 15); do [ "$(state)" = off ] && break; sleep 2; done
+start_with ''
+for i in $(seq 1 30); do [ "$(state)" = on ] && break; sleep 2; done
+ok=""; for i in $(seq 1 10); do if probe | grep -q corgi-tunnel-ok; then ok=1; break; fi; sleep 2; done
+[ -n "$ok" ] || { echo "FAIL: after removing the rule the page does not answer through the tunnel" >&2; exit 1; }
+echo "    rule removed: the page answers through the tunnel again"
+adb shell am start -W -n "$PKG/shop.remnawave.user.MainActivity" --ez corgi_vpn_stop true >/dev/null
+for i in $(seq 1 15); do [ "$(state)" = off ] && break; sleep 2; done
 done
 echo "Embedded VPN: PASS"
