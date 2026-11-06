@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2302**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2308**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -167,6 +167,7 @@
 | [admin/src/automationCenter.tsx](../admin/src/automationCenter.tsx) | Админ-панель |
 | [admin/src/blockMonitor.tsx](../admin/src/blockMonitor.tsx) | Админ-панель |
 | [admin/src/botBanners.tsx](../admin/src/botBanners.tsx) | Админ-панель |
+| [admin/src/cabinet-texts.tsx](../admin/src/cabinet-texts.tsx) | Админ-панель |
 | [admin/src/components/field-hints.tsx](../admin/src/components/field-hints.tsx) | Админ-панель |
 | [admin/src/components/preferences-menu.tsx](../admin/src/components/preferences-menu.tsx) | Админ-панель |
 | [admin/src/components/select-field.tsx](../admin/src/components/select-field.tsx) | Админ-панель |
@@ -415,6 +416,7 @@
 | [backend/app/assets/bot_banners/surveys.jpg](../backend/app/assets/bot_banners/surveys.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/topup.jpg](../backend/app/assets/bot_banners/topup.jpg) | API, бот и worker |
 | [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
+| [backend/app/assets/cabinet_strings.json](../backend/app/assets/cabinet_strings.json) | API, бот и worker |
 | [backend/app/assets/mobile_strings.json](../backend/app/assets/mobile_strings.json) | API, бот и worker |
 | [backend/app/auth_api.py](../backend/app/auth_api.py) | API, бот и worker |
 | [backend/app/auto_update_api.py](../backend/app/auto_update_api.py) | API, бот и worker |
@@ -431,6 +433,7 @@
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
 | [backend/app/cabinet_security.py](../backend/app/cabinet_security.py) | API, бот и worker |
+| [backend/app/cabinet_texts.py](../backend/app/cabinet_texts.py) | API, бот и worker |
 | [backend/app/channel_gate.py](../backend/app/channel_gate.py) | API, бот и worker |
 | [backend/app/churn.py](../backend/app/churn.py) | API, бот и worker |
 | [backend/app/client_versions.py](../backend/app/client_versions.py) | API, бот и worker |
@@ -684,6 +687,7 @@
 | [cabinet/src/app/page.tsx](../cabinet/src/app/page.tsx) | Кабинет |
 | [cabinet/src/button-tree.tsx](../cabinet/src/button-tree.tsx) | Кабинет |
 | [cabinet/src/cabinet-security.tsx](../cabinet/src/cabinet-security.tsx) | Кабинет |
+| [cabinet/src/cabinet-texts.test.tsx](../cabinet/src/cabinet-texts.test.tsx) | Кабинет |
 | [cabinet/src/company.tsx](../cabinet/src/company.tsx) | Кабинет |
 | [cabinet/src/connection.tsx](../cabinet/src/connection.tsx) | Кабинет |
 | [cabinet/src/documents.test.tsx](../cabinet/src/documents.test.tsx) | Кабинет |
@@ -1881,6 +1885,7 @@
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
 | [scripts/generate-admin-matrix.py](../scripts/generate-admin-matrix.py) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |
+| [scripts/generate-cabinet-strings.py](../scripts/generate-cabinet-strings.py) | Эксплуатация и релиз |
 | [scripts/generate-db-schema.py](../scripts/generate-db-schema.py) | Эксплуатация и релиз |
 | [scripts/generate-project-map.py](../scripts/generate-project-map.py) | Эксплуатация и релиз |
 | [scripts/geo/natural-earth-to-svg.py](../scripts/geo/natural-earth-to-svg.py) | Эксплуатация и релиз |
@@ -2089,6 +2094,7 @@
 | [tests/test_bot_texts.py](../tests/test_bot_texts.py) | Проверки |
 | [tests/test_cabinet_apps_block.py](../tests/test_cabinet_apps_block.py) | Проверки |
 | [tests/test_cabinet_stage8.py](../tests/test_cabinet_stage8.py) | Проверки |
+| [tests/test_cabinet_texts.py](../tests/test_cabinet_texts.py) | Проверки |
 | [tests/test_ci_shards.py](../tests/test_ci_shards.py) | Проверки |
 | [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |

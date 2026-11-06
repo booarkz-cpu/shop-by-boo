@@ -96,6 +96,8 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/branding/{kind}` | Admin Branding Delete | право `manage_content` |
 | `POST` | `/api/admin/broadcasts` | Create Broadcast | право `manage_broadcasts` |
 | `POST` | `/api/admin/broadcasts/{broadcast_id}/retry` | Retry Broadcast | право `manage_broadcasts` |
+| `GET` | `/api/admin/cabinet-texts` | Admin Texts | право `read` |
+| `PUT` | `/api/admin/cabinet-texts` | Put Texts | право `manage_content` |
 | `GET` | `/api/admin/cabinet/guides` | Admin Cabinet Guides | право `manage_content` |
 | `PUT` | `/api/admin/cabinet/guides/{platform}` | Admin Cabinet Guide | право `manage_content` |
 | `GET` | `/api/admin/cabinet/menu` | Admin Cabinet Menu | право `manage_content` |
@@ -904,6 +906,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/public/apps/{app_id}/download` | Public App Download | открытый |
 | `GET` | `/api/public/branding` | Public Branding | открытый |
 | `GET` | `/api/public/cabinet-menu` | Public Cabinet Menu | открытый |
+| `GET` | `/api/public/cabinet-texts` | Public Texts | открытый |
 | `GET` | `/api/public/config` | Public Config | открытый |
 | `GET` | `/api/public/guest-checkout` | Public Guest | открытый |
 | `GET` | `/api/public/info-pages` | Public List | открытый |

@@ -1,0 +1,790 @@
+{
+ "1. Создать код в исходном аккаунте": {
+  "en": "1. Create a code in the source account",
+  "uk": ""
+ },
+ "2. Проверить код в основном аккаунте": {
+  "en": "2. Review the code in the primary account",
+  "uk": ""
+ },
+ "Remnawave недоступен": {
+  "en": "Remnawave is unavailable",
+  "uk": "Remnawave недоступний"
+ },
+ "Telegram WebApp initData недоступен": {
+  "en": "Telegram WebApp initData is unavailable",
+  "uk": "Telegram WebApp initData недоступний"
+ },
+ "Use your compatible VPN client and import the subscription URL.": {
+  "en": "Use your compatible VPN client and import the subscription URL.",
+  "uk": "Використайте сумісний VPN-клієнт і імпортуйте посилання підписки."
+ },
+ "Активирована": {
+  "en": "Redeemed",
+  "uk": ""
+ },
+ "Активировать подарок": {
+  "en": "Redeem a gift",
+  "uk": ""
+ },
+ "Активировать подарочную карту": {
+  "en": "Redeem a gift card",
+  "uk": ""
+ },
+ "Активировать пробный период": {
+  "en": "Activate trial",
+  "uk": "Активувати пробний період"
+ },
+ "Активна": {
+  "en": "Active",
+  "uk": "Активна"
+ },
+ "Активные сессии": {
+  "en": "Active sessions",
+  "uk": ""
+ },
+ "Баланс кошелька": {
+  "en": "Wallet balance",
+  "uk": "Баланс гаманця"
+ },
+ "Безлимит": {
+  "en": "Unlimited",
+  "uk": "Безліміт"
+ },
+ "Безопасный доступ к сети": {
+  "en": "Secure network access",
+  "uk": "Безпечний доступ до мережі"
+ },
+ "Ваш код приглашения": {
+  "en": "Your referral code",
+  "uk": ""
+ },
+ "Ваш личный кабинет": {
+  "en": "Your account",
+  "uk": ""
+ },
+ "Ваш ответ снова откроет обращение. Переписка сохранится.": {
+  "en": "Your reply will reopen the ticket. The conversation is saved.",
+  "uk": ""
+ },
+ "Войти": {
+  "en": "Sign in",
+  "uk": "Увійти"
+ },
+ "Войти через Telegram": {
+  "en": "Sign in with Telegram",
+  "uk": "Увійти через Telegram"
+ },
+ "Войти через VK": {
+  "en": "Sign in with VK",
+  "uk": "Увійти через VK"
+ },
+ "Войти через Яндекс": {
+  "en": "Sign in with Yandex",
+  "uk": "Увійти через Яндекс"
+ },
+ "Все": {
+  "en": "All",
+  "uk": ""
+ },
+ "Вставьте код после входа в аккаунт, который должен остаться основным.": {
+  "en": "Paste the code after signing in to the account that should remain primary.",
+  "uk": ""
+ },
+ "Вход": {
+  "en": "Sign in",
+  "uk": "Вхід"
+ },
+ "Вы": {
+  "en": "You",
+  "uk": ""
+ },
+ "Выберите тариф": {
+  "en": "Choose a plan",
+  "uk": "Виберіть тариф"
+ },
+ "Выберите тариф для пробного периода": {
+  "en": "Select a plan for the trial",
+  "uk": "Виберіть тариф для пробного періоду"
+ },
+ "Выберите тариф и способ оплаты": {
+  "en": "Choose a plan and payment method",
+  "uk": "Виберіть тариф і спосіб оплати"
+ },
+ "Выдан": {
+  "en": "Access granted",
+  "uk": ""
+ },
+ "Выйти": {
+  "en": "Sign out",
+  "uk": "Вийти"
+ },
+ "Выйти на всех устройствах": {
+  "en": "Sign out everywhere",
+  "uk": ""
+ },
+ "Главная": {
+  "en": "Home",
+  "uk": ""
+ },
+ "Готов к передаче": {
+  "en": "Ready to share",
+  "uk": ""
+ },
+ "Для Android и iOS есть отдельные приложения магазина.": {
+  "en": "Separate shop apps are available for Android and iOS.",
+  "uk": "Для Android і iOS є окремі застосунки магазину."
+ },
+ "Для аккаунта без пароля оставьте поле пустым и войдите заново не более пяти минут назад.": {
+  "en": "For an account without a password, leave this empty and make sure you signed in within the last five minutes.",
+  "uk": ""
+ },
+ "Для аккаунта без пароля оставьте поле пустым и используйте свежий вход.": {
+  "en": "For an account without a password, leave this empty and use a recent sign-in.",
+  "uk": ""
+ },
+ "Добро пожаловать": {
+  "en": "Welcome",
+  "uk": "Ласкаво просимо"
+ },
+ "Загрузить следующие сообщения": {
+  "en": "Load next messages",
+  "uk": ""
+ },
+ "Загрузка переписки…": {
+  "en": "Loading conversation…",
+  "uk": ""
+ },
+ "Загрузка…": {
+  "en": "Loading…",
+  "uk": "Завантаження…"
+ },
+ "Закрыть переписку": {
+  "en": "Close conversation",
+  "uk": ""
+ },
+ "Записей пока нет": {
+  "en": "No records yet",
+  "uk": ""
+ },
+ "Запросить выплату": {
+  "en": "Request a withdrawal",
+  "uk": ""
+ },
+ "Зачислить на баланс": {
+  "en": "Credit to wallet",
+  "uk": ""
+ },
+ "Защита и 2FA": {
+  "en": "Security and 2FA",
+  "uk": ""
+ },
+ "Изменения сохранены": {
+  "en": "Changes saved",
+  "uk": ""
+ },
+ "Инструкции по устройствам": {
+  "en": "Device guides",
+  "uk": "Інструкції для пристроїв"
+ },
+ "Истекает": {
+  "en": "Expires",
+  "uk": "Спливає"
+ },
+ "История входов": {
+  "en": "Sign-in history",
+  "uk": ""
+ },
+ "История платежей": {
+  "en": "Payment history",
+  "uk": ""
+ },
+ "Исходный аккаунт": {
+  "en": "Source account",
+  "uk": ""
+ },
+ "К списку": {
+  "en": "Back to list",
+  "uk": ""
+ },
+ "Клиент": {
+  "en": "Customer",
+  "uk": ""
+ },
+ "Клиенты магазина": {
+  "en": "Shop customers",
+  "uk": ""
+ },
+ "Клиенты не найдены": {
+  "en": "No customers found",
+  "uk": ""
+ },
+ "Ключи доступа": {
+  "en": "Passkeys",
+  "uk": ""
+ },
+ "Код": {
+  "en": "Code",
+  "uk": "Код"
+ },
+ "Код исходного аккаунта": {
+  "en": "Source-account code",
+  "uk": ""
+ },
+ "Код карты": {
+  "en": "Card code",
+  "uk": ""
+ },
+ "Конструктор тарифов": {
+  "en": "Plan builder",
+  "uk": "Конструктор тарифів"
+ },
+ "Контрольная сумма": {
+  "en": "Checksum",
+  "uk": "Контрольна сума"
+ },
+ "Конфликты": {
+  "en": "Conflicts",
+  "uk": ""
+ },
+ "Копировать ссылку": {
+  "en": "Copy link",
+  "uk": "Копіювати посилання"
+ },
+ "Кошелёк": {
+  "en": "Wallet",
+  "uk": "Гаманець"
+ },
+ "Купить в подарок": {
+  "en": "Buy as a gift",
+  "uk": ""
+ },
+ "Личный кабинет": {
+  "en": "Account",
+  "uk": "Особистий кабінет"
+ },
+ "Магазин VPN": {
+  "en": "VPN shop",
+  "uk": "Магазин VPN"
+ },
+ "Мои выплаты": {
+  "en": "My withdrawals",
+  "uk": ""
+ },
+ "Мои обращения": {
+  "en": "My requests",
+  "uk": ""
+ },
+ "Мои подарки": {
+  "en": "My gifts",
+  "uk": ""
+ },
+ "Моя подписка": {
+  "en": "My subscription",
+  "uk": ""
+ },
+ "Найти": {
+  "en": "Search",
+  "uk": ""
+ },
+ "Найти раздел": {
+  "en": "Find a section",
+  "uk": ""
+ },
+ "Найти раздел…": {
+  "en": "Find a section…",
+  "uk": ""
+ },
+ "Настройка магазина": {
+  "en": "Shop setup",
+  "uk": ""
+ },
+ "Начисления": {
+  "en": "Rewards",
+  "uk": ""
+ },
+ "Не удалось загрузить раздел": {
+  "en": "Unable to load this section",
+  "uk": ""
+ },
+ "Не удалось объединить аккаунты": {
+  "en": "Could not merge the accounts",
+  "uk": ""
+ },
+ "Не удалось проверить объединение": {
+  "en": "Could not validate the merge",
+  "uk": ""
+ },
+ "Не удалось создать код объединения": {
+  "en": "Could not create a merge code",
+  "uk": ""
+ },
+ "Неактивна": {
+  "en": "Inactive",
+  "uk": "Неактивна"
+ },
+ "Неизвестно": {
+  "en": "Unknown",
+  "uk": "Невідомо"
+ },
+ "Нет аккаунта? Зарегистрироваться": {
+  "en": "No account? Sign up",
+  "uk": "Немає акаунта? Зареєструватися"
+ },
+ "Нет активной подписки": {
+  "en": "No active subscription",
+  "uk": "Немає активної підписки"
+ },
+ "Нет узлов": {
+  "en": "No nodes",
+  "uk": "Немає вузлів"
+ },
+ "Новое обращение": {
+  "en": "New support request",
+  "uk": ""
+ },
+ "Обзор": {
+  "en": "Overview",
+  "uk": "Огляд"
+ },
+ "Обновить данные": {
+  "en": "Reload data",
+  "uk": ""
+ },
+ "Обращения клиентов": {
+  "en": "Customer requests",
+  "uk": ""
+ },
+ "Обслуживание": {
+  "en": "Maintenance",
+  "uk": ""
+ },
+ "Объединение аккаунтов": {
+  "en": "Merge accounts",
+  "uk": ""
+ },
+ "Объединение пока невозможно. Устраните перечисленные конфликты.": {
+  "en": "The accounts cannot be merged yet. Resolve the listed conflicts first.",
+  "uk": ""
+ },
+ "Объединить аккаунты": {
+  "en": "Merge accounts",
+  "uk": ""
+ },
+ "Одноразовый код": {
+  "en": "One-time code",
+  "uk": ""
+ },
+ "Ожидает выдачи": {
+  "en": "Awaiting access",
+  "uk": ""
+ },
+ "Ожидает ответа поддержки": {
+  "en": "Waiting for support",
+  "uk": ""
+ },
+ "Онлайн": {
+  "en": "Online",
+  "uk": "Онлайн"
+ },
+ "Операции кошелька": {
+  "en": "Wallet transactions",
+  "uk": ""
+ },
+ "Оплатить": {
+  "en": "Pay",
+  "uk": "Оплатити"
+ },
+ "Оплачено с баланса": {
+  "en": "Paid from balance",
+  "uk": "Сплачено з балансу"
+ },
+ "Основной аккаунт": {
+  "en": "Primary account",
+  "uk": ""
+ },
+ "Ответ поддержки": {
+  "en": "Support reply",
+  "uk": ""
+ },
+ "Ответ получен": {
+  "en": "Reply received",
+  "uk": ""
+ },
+ "Отключён": {
+  "en": "Disabled",
+  "uk": "Вимкнено"
+ },
+ "Откройте VPN-клиент на ТВ, добавьте подписку по ссылке или QR и активируйте профиль.": {
+  "en": "Open the VPN client on your TV, add the subscription via link or QR, then activate the profile.",
+  "uk": "Відкрийте VPN-клієнт на ТБ, додайте підписку за посиланням або QR і активуйте профіль."
+ },
+ "Открытые": {
+  "en": "Open",
+  "uk": ""
+ },
+ "Открыть": {
+  "en": "Open",
+  "uk": "Відкрити"
+ },
+ "Открыть переписку": {
+  "en": "Open conversation",
+  "uk": ""
+ },
+ "Отмена": {
+  "en": "Cancel",
+  "uk": "Скасувати"
+ },
+ "Отправить": {
+  "en": "Send",
+  "uk": ""
+ },
+ "Отправить ответ": {
+  "en": "Send reply",
+  "uk": ""
+ },
+ "Отправить сообщение": {
+  "en": "Send message",
+  "uk": ""
+ },
+ "Офлайн": {
+  "en": "Offline",
+  "uk": "Офлайн"
+ },
+ "Ошибка": {
+  "en": "Error",
+  "uk": "Помилка"
+ },
+ "Ошибка выдачи": {
+  "en": "Access delivery failed",
+  "uk": ""
+ },
+ "Пароль": {
+  "en": "Password",
+  "uk": "Пароль"
+ },
+ "Платёж создан": {
+  "en": "Payment created",
+  "uk": "Платіж створено"
+ },
+ "Платёжные агенты": {
+  "en": "Payment agents",
+  "uk": ""
+ },
+ "Повторить загрузку": {
+  "en": "Retry",
+  "uk": ""
+ },
+ "Подарить подписку": {
+  "en": "Give a subscription",
+  "uk": ""
+ },
+ "Подарки": {
+  "en": "Gifts",
+  "uk": ""
+ },
+ "Подарочный код": {
+  "en": "Gift code",
+  "uk": ""
+ },
+ "Поддержка": {
+  "en": "Support",
+  "uk": "Підтримка"
+ },
+ "Подключение": {
+  "en": "Connection",
+  "uk": "Підключення"
+ },
+ "Подписка": {
+  "en": "Subscription",
+  "uk": "Підписка"
+ },
+ "Подписка и балансы вашего аккаунта": {
+  "en": "Your subscription and balances",
+  "uk": "Підписка та баланси вашого акаунта"
+ },
+ "Показать": {
+  "en": "Show",
+  "uk": ""
+ },
+ "Показать план переноса": {
+  "en": "Show transfer plan",
+  "uk": ""
+ },
+ "Пользователи VPN": {
+  "en": "VPN users",
+  "uk": ""
+ },
+ "Пользовательский раздел": {
+  "en": "Custom section",
+  "uk": "Користувацький розділ"
+ },
+ "Пополнить": {
+  "en": "Top up",
+  "uk": ""
+ },
+ "Последний ответ поддержки": {
+  "en": "Latest support reply",
+  "uk": ""
+ },
+ "Приложения": {
+  "en": "Apps",
+  "uk": "Застосунки"
+ },
+ "Пробный период": {
+  "en": "Trial",
+  "uk": "Пробний період"
+ },
+ "Пробный период активирован": {
+  "en": "Trial activated",
+  "uk": "Пробний період активовано"
+ },
+ "Провайдер оплаты": {
+  "en": "Payment provider",
+  "uk": "Провайдер оплати"
+ },
+ "Промокод": {
+  "en": "Promo code",
+  "uk": "Промокод"
+ },
+ "Прочитано": {
+  "en": "Mark as read",
+  "uk": ""
+ },
+ "Разделы кабинета": {
+  "en": "Account sections",
+  "uk": "Розділи кабінету"
+ },
+ "Регистрация": {
+  "en": "Sign up",
+  "uk": "Реєстрація"
+ },
+ "Резервные копии": {
+  "en": "Backups",
+  "uk": ""
+ },
+ "Реквизиты": {
+  "en": "Payment details",
+  "uk": ""
+ },
+ "Реферальная программа": {
+  "en": "Referral program",
+  "uk": "Реферальна програма"
+ },
+ "Реферальный баланс": {
+  "en": "Referral balance",
+  "uk": "Реферальний баланс"
+ },
+ "Решено": {
+  "en": "Resolved",
+  "uk": ""
+ },
+ "Решённые": {
+  "en": "Resolved",
+  "uk": ""
+ },
+ "Роли и администраторы": {
+  "en": "Roles and administrators",
+  "uk": ""
+ },
+ "С баланса": {
+  "en": "Pay from balance",
+  "uk": "З балансу"
+ },
+ "Серверы": {
+  "en": "Servers",
+  "uk": "Сервери"
+ },
+ "Сервис временно недоступен": {
+  "en": "Service temporarily unavailable",
+  "uk": ""
+ },
+ "Скачать": {
+  "en": "Download",
+  "uk": "Завантажити"
+ },
+ "Скачать по ссылке": {
+  "en": "Download from link",
+  "uk": "Завантажити за посиланням"
+ },
+ "Скачать подписку": {
+  "en": "Download subscription",
+  "uk": "Завантажити підписку"
+ },
+ "Скопировано": {
+  "en": "Copied",
+  "uk": "Скопійовано"
+ },
+ "Скопировать код": {
+  "en": "Copy code",
+  "uk": ""
+ },
+ "Скопировать ссылку приглашения": {
+  "en": "Copy referral link",
+  "uk": ""
+ },
+ "Сначала создайте код в аккаунте, данные которого нужно перенести. Затем войдите в основной аккаунт, вставьте код и проверьте план переноса. Запись выполняется только после подтверждения обеих сторон.": {
+  "en": "First create a code in the account whose data you want to transfer. Then sign in to the primary account, paste the code, and review the transfer plan. Nothing is written until both sides are confirmed.",
+  "uk": ""
+ },
+ "Соберите тариф: устройства, трафик и срок": {
+  "en": "Build a plan: devices, traffic and duration",
+  "uk": "Зберіть тариф: пристрої, трафік і термін"
+ },
+ "События безопасности": {
+  "en": "Security events",
+  "uk": ""
+ },
+ "Создайте обращение в службу поддержки": {
+  "en": "Create a support request",
+  "uk": "Створіть звернення до служби підтримки"
+ },
+ "Создать аккаунт": {
+  "en": "Create account",
+  "uk": "Створити акаунт"
+ },
+ "Создать одноразовый код": {
+  "en": "Create one-time code",
+  "uk": ""
+ },
+ "Создать тикет": {
+  "en": "Create ticket",
+  "uk": "Створити тікет"
+ },
+ "Сообщение": {
+  "en": "Message",
+  "uk": "Повідомлення"
+ },
+ "Сообщение отправлено": {
+  "en": "Message sent",
+  "uk": ""
+ },
+ "Сохранить": {
+  "en": "Save",
+  "uk": "Зберегти"
+ },
+ "Способ оплаты": {
+  "en": "Payment method",
+  "uk": ""
+ },
+ "Способы входа": {
+  "en": "Sign-in methods",
+  "uk": ""
+ },
+ "Срок": {
+  "en": "Duration",
+  "uk": "Термін"
+ },
+ "Ссылка подписки": {
+  "en": "Subscription link",
+  "uk": "Посилання підписки"
+ },
+ "Ссылка подписки и инструкции по устройствам": {
+  "en": "Subscription link and device guides",
+  "uk": "Посилання підписки та інструкції для пристроїв"
+ },
+ "Ссылка подписки пока недоступна": {
+  "en": "Subscription link is not available yet",
+  "uk": "Посилання підписки поки недоступне"
+ },
+ "Статус": {
+  "en": "Status",
+  "uk": "Статус"
+ },
+ "Статус узлов без адресов и служебных данных": {
+  "en": "Node status without addresses or internal data",
+  "uk": "Статус вузлів без адрес і службових даних"
+ },
+ "Сумма пополнения": {
+  "en": "Top-up amount",
+  "uk": ""
+ },
+ "Тарифы": {
+  "en": "Plans",
+  "uk": "Тарифи"
+ },
+ "Текущий пароль исходного аккаунта": {
+  "en": "Current source-account password",
+  "uk": ""
+ },
+ "Текущий пароль основного аккаунта": {
+  "en": "Current primary-account password",
+  "uk": ""
+ },
+ "Тема": {
+  "en": "Subject",
+  "uk": "Тема"
+ },
+ "Тикет создан": {
+  "en": "Ticket created",
+  "uk": "Тікет створено"
+ },
+ "Трафик": {
+  "en": "Traffic",
+  "uk": "Трафік"
+ },
+ "Уведомления": {
+  "en": "Notifications",
+  "uk": ""
+ },
+ "Уже есть аккаунт? Войти": {
+  "en": "Already have an account? Sign in",
+  "uk": "Вже є акаунт? Увійти"
+ },
+ "Управляйте подпиской, тарифами и подключением": {
+  "en": "Manage your subscription, plans and connection",
+  "uk": "Керуйте підпискою, тарифами та підключенням"
+ },
+ "Установите клиент для Linux, импортируйте ссылку подписки через конфиг или URI.": {
+  "en": "Install a Linux VPN client and import the subscription URL via config or URI.",
+  "uk": "Встановіть клієнт для Linux, імпортуйте посилання підписки через конфіг або URI."
+ },
+ "Установите клиент для Windows, импортируйте ссылку подписки и включите соединение.": {
+  "en": "Install a Windows VPN client, import the subscription URL, then enable the connection.",
+  "uk": "Встановіть клієнт для Windows, імпортуйте посилання підписки та увімкніть з'єднання."
+ },
+ "Установите клиент для macOS, импортируйте ссылку подписки и подключитесь.": {
+  "en": "Install a macOS VPN client, import the subscription URL, then connect.",
+  "uk": "Встановіть клієнт для macOS, імпортуйте посилання підписки та підключіться."
+ },
+ "Установите совместимый VPN-клиент из App Store, импортируйте ссылку подписки и подключитесь.": {
+  "en": "Install a compatible VPN client from the App Store, import the subscription URL, then connect.",
+  "uk": "Встановіть сумісний VPN-клієнт з App Store, імпортуйте посилання підписки та підключіться."
+ },
+ "Установите совместимый VPN-клиент, импортируйте ссылку подписки и подключитесь.": {
+  "en": "Install a compatible VPN client, import the subscription URL, then connect.",
+  "uk": "Встановіть сумісний VPN-клієнт, імпортуйте посилання підписки та підключіться."
+ },
+ "Устройства": {
+  "en": "Devices",
+  "uk": "Пристрої"
+ },
+ "Функции и модули": {
+  "en": "Features and modules",
+  "uk": ""
+ },
+ "Электронная почта": {
+  "en": "Email",
+  "uk": "Електронна пошта"
+ },
+ "Я проверил план и подтверждаю необратимый перенос данных в текущий аккаунт.": {
+  "en": "I reviewed the plan and confirm the irreversible transfer into the current account.",
+  "uk": ""
+ },
+ "Язык": {
+  "en": "Language",
+  "uk": "Мова"
+ },
+ "дней": {
+  "en": "days",
+  "uk": "днів"
+ },
+ "дней бесплатно": {
+  "en": "free days",
+  "uk": "днів безкоштовно"
+ },
+ "или": {
+  "en": "or",
+  "uk": "або"
+ }
+}
