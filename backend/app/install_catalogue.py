@@ -45,6 +45,7 @@ OPS: tuple[tuple, ...] = (
     ("all_protocols", "nodes", "Все протоколы на одной ноде", "TCP/xHTTP/gRPC + REALITY, Hysteria2, VLESS + TCP + TLS; отпечаток браузера, TLS 1.2/1.3.", True, True, ("module", "transports", "node")),
     ("selfsteal", "nodes", "Маскировка SelfSteal", "Свой сайт на домене ноды: сводка, проверка снаружи, свой архив, каталог шаблонов.", True, True, ("tab", "selfsteal")),
     ("node_port", "nodes", "Доступ панели к нодам", "Служебный порт нод — только для сервера панели, сразу на всех нодах; правило снимается, если панель потеряла ноду.", True, True, ("module", "node_port", "node")),
+    ("cascade", "nodes", "Каскад нод (мост)", "Вход на одной ноде, выход на другой: Shadowsocks-мост между нодами и правила для российских адресов — через API панели, без SSH.", False, False, ("tab", "rwExtensions")),
     ("routing_ru", "nodes", "Российские сервисы напрямую", "Маршрутизация на сервере: свои правила и российские сервисы мимо VPN.", False, False, ("tab", "rwExtensions")),
     ("ads_nodes", "nodes", "Блокировка рекламы на нодах", "Реклама и трекеры не открываются у всех клиентов профиля — правило geosite:category-ads-all на нодах, без SSH.", False, True, ("tab", "rwExtensions")),
     ("torrents", "nodes", "Торренты на нодах", "Блокировка BitTorrent плагином ноды и счётчики срабатываний.", False, False, ("tab", "torrents")),
@@ -64,6 +65,8 @@ OPS: tuple[tuple, ...] = (
     ("alerts", "protect", "Оповещения", "Мониторинг и уведомления о сбоях.", False, True, ("tab", "monitoring")),
     ("backups", "protect", "Резервные копии", "Копии базы магазина и панели, проверка восстановления, копия в Telegram.", False, True, ("tab", "backups")),
     ("snapshot", "protect", "Снапшот сервера → скачать", "Копия базы панели и файлы всех компонентов (compose, .env, Caddyfile, сайт) — зашифрованы в магазине, скачиваются с подтверждением 2FA.", True, True, ("action", "snapshot")),
+    ("restore_files", "protect", "Экстренное восстановление", "Файлы компонентов из снапшота обратно на сервер; текущие сначала упаковываются и возвращаются при ошибке, затем компоненты перезапускаются.", True, False, ("action", "restore_files")),
+    ("anti_censorship", "protect", "Анти-РКН: чек-лист нод", "По каждой ноде: свой сайт, проверка снаружи, порт ноды, отпечаток, запасной протокол, защита, автообновление, снапшоты — и что исправить.", False, True, ("tab", "install")),
     ("terminal", "protect", "Терминал сервера", "Командная оболочка на сервере с подтверждением 2FA и записью сессии.", True, False, ("tab", "nodeTerminal")),
     ("remove", "protect", "Удалить установку", "Остановить и убрать контейнеры установки (тома и копии остаются) — в «Установка Remnawave».", True, False, ("tab", "rwInstaller")),
     ("bot", "sales", "Telegram-бот продаж", "Свой бот магазина: меню, оплата, подписки.", False, True, ("tab", "telegramBot")),
@@ -151,3 +154,56 @@ async def download_snapshot(name: str, db: AsyncSession = Depends(get_db), admin
     await db.commit()
     return Response(data, media_type="application/octet-stream",
                     headers={"Content-Disposition": f'attachment; filename="{name.removesuffix(".enc")}"'})
+
+
+# ---------------------------------------------------------------- «Анти-РКН»: a checklist per node (read-only)
+
+CHECKLIST = (
+    ("selfsteal", "Свой сайт SelfSteal на домене ноды", "selfsteal"),
+    ("outside", "Проверка снаружи — в порядке (не старше 7 дней)", "selfsteal"),
+    ("node_port", "Порт ноды открыт только для панели", "node_port"),
+    ("fingerprint", "Отпечаток браузера задан (uTLS)", "all_protocols"),
+    ("protocols", "Запасной протокол на ноде (xHTTP, gRPC, Hysteria2 или TLS)", "all_protocols"),
+    ("guard", "Защита ноды от сканеров и перебора включена", "node_guard"),
+    ("hardening", "Защита сервера (fail2ban, обновления безопасности)", "hardening"),
+    ("autoupdate", "Автообновление панели и нод включено", "update_panel"),
+    ("snapshots", "Ежедневные снапшоты включены", "snapshot"),
+)
+
+
+@router.get("/anti-censorship")
+async def anti_censorship(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
+    """What the shop already knows about every node, as a checklist; each point names the card that fixes it.
+    Nothing is checked over the network here — «Проверить» in «SelfSteal» does that."""
+    from . import rw_autoupdate, rw_selfsteal, rw_snapshots
+    nodes = await rw_selfsteal.known_nodes(db)
+    checks = await rw_selfsteal._load(db, rw_selfsteal.CHECKS_KEY, {})
+    auto = await rw_selfsteal._load(db, rw_autoupdate.KEY, rw_autoupdate.DEFAULT)
+    daily = await rw_selfsteal._load(db, rw_snapshots.KEY, rw_snapshots.DEFAULT)
+    now = datetime.now(timezone.utc)
+    out = []
+    for node in nodes:
+        row = await db.get(RemnawaveInstallation, node["installation_id"])
+        params = (row.params if row else None) or {}
+        mods = (((row.result or {}).get("state") or {}).get("modules") or {}).get(str(node["server_id"]), {}) if row else {}
+        check = checks.get(node["key"]) or {}
+        fresh = bool(check.get("checked_at")) and (now - datetime.fromisoformat(check["checked_at"])).days < 7
+        auto_on = bool(auto.get("enabled")) and (not auto.get("installation_ids") or node["installation_id"] in auto["installation_ids"])
+        hard = mods.get("hardening")
+        ok = {
+            "selfsteal": bool(node["domain"]),
+            "outside": fresh and check.get("remarks") == 0,
+            # the wizard's «firewall» or the module «Порт ноды для панели», unless it was opened later
+            "node_port": mods.get("node_port") != "open" and (bool(mods.get("node_port")) or bool(params.get("firewall"))),
+            # set by the wizard or «Протоколы и маскировка» since v28.90.0 (hosts made before have none)
+            "fingerprint": bool(node["domain"]) and "fingerprint" in params,
+            "protocols": bool(params.get("transports")),
+            "guard": str(mods.get("node_guard", "")).startswith("guard=enforce"),
+            "hardening": isinstance(hard, dict) and bool(hard.get("fail2ban")) and bool(hard.get("upgrades")),
+            "autoupdate": auto_on,
+            "snapshots": bool(daily.get("enabled")),
+        }
+        items = [{"key": k, "title": t, "ok": ok[k], "fix": card} for k, t, card in CHECKLIST]
+        out.append({"key": node["key"], "name": node["name"], "address": node["address"], "country": node["country"],
+                    "done": sum(i["ok"] for i in items), "total": len(items), "items": items})
+    return {"nodes": out}

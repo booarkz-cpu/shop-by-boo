@@ -103,6 +103,15 @@ async def test_snapshot_and_danger_zone(database, fleet, monkeypatch, tmp_path):
     planned, done = await act(action="remove_component", component="node")
     assert [s["kind"] for s in planned["plan"]["steps"]] == ["compose_down"] and done["status"] == "succeeded"
     assert "/opt/remnanode" not in host.up and "/opt/remnawave" in host.up, "only the node is taken off"
+    # Emergency restore: the files of the snapshot back on the server, then every component restarts.
+    with pytest.raises(HTTPException):
+        await rw_api.action(installed["id"], rw_api.ActionIn(action="restore_files"), db, ADMIN)
+    with pytest.raises(HTTPException):
+        await rw_api.action(installed["id"], rw_api.ActionIn(action="update", snapshot=files["name"]), db, ADMIN)
+    planned, done = await act(action="restore_files", snapshot=files["name"])
+    kinds = [s["kind"] for s in planned["plan"]["steps"]]
+    assert kinds[0] == "put_configs" and "compose_up" in kinds and done["status"] == "succeeded", done["error"]
+    assert host.restored[-1][:2] == ("put", True), "the archive arrives whole (SHA-256)"
     planned, _ = await act(action="remove_component", component="panel")
     assert [s["kind"] for s in planned["plan"]["steps"]] == ["backup_panel", "fetch_panel_backup", "compose_down"]
 
@@ -155,3 +164,67 @@ async def test_daily_snapshots_queue_and_go_to_telegram(database, fleet, monkeyp
     assert done["sent"] == 2 and not done["errors"], done
     assert {name.split("-")[0] for _, _, name in sent} == {"config", "panel"} and all(chat == "-1001234567" for _, chat, _ in sent)
     assert all(name.endswith(".enc") for _, _, name in sent)
+
+
+def test_put_configs_script_restores_and_goes_back(tmp_path):
+    """rw_steps.PUT_CONFIGS itself (bash) in a scratch root: the files come back, the old ones are kept, «undo» returns
+    them, and an archive with a path outside the wizard's directories changes nothing."""
+    import hashlib
+    import io
+    import subprocess
+    import tarfile
+
+    from app import rw_steps
+    root = tmp_path / "root"
+    (root / "opt/remnawave").mkdir(parents=True)
+    (root / "opt/remnawave/docker-compose.yml").write_text("old")
+    script = rw_steps.PUT_CONFIGS.replace("before=/root/", f"before={tmp_path}/").replace("cd /\n", f"cd {root}\n") \
+        .replace("-C /", f"-C {root}")
+
+    def archive(entries: dict) -> bytes:
+        out = io.BytesIO()
+        with tarfile.open(fileobj=out, mode="w:gz") as tar:
+            for name, body in entries.items():
+                info = tarfile.TarInfo(name)
+                info.size = len(body)
+                tar.addfile(info, io.BytesIO(body))
+        return out.getvalue()
+
+    def run(*args, data=b""):
+        return subprocess.run(["bash", "-c", script, "p", *args], input=data, capture_output=True)
+
+    good = archive({"opt/remnawave/docker-compose.yml": b"new"})
+    assert run("put", hashlib.sha256(good).hexdigest(), "k1", data=good).returncode == 0
+    assert (root / "opt/remnawave/docker-compose.yml").read_text() == "new"
+    assert (tmp_path / "corgi-before-restore-k1.tar.gz").is_file()
+    assert run("undo", "", "k1").returncode == 0
+    assert (root / "opt/remnawave/docker-compose.yml").read_text() == "old", "«undo» brings the files before the restore back"
+    bad = archive({"etc/cron.d/x": b"evil", "opt/remnawave/docker-compose.yml": b"new"})
+    assert run("put", hashlib.sha256(bad).hexdigest(), "k2", data=bad).returncode == 4
+    assert (root / "opt/remnawave/docker-compose.yml").read_text() == "old" and not (root / "etc").exists()
+    assert run("put", "0" * 64, "k3", data=good).returncode == 3
+    assert run("put", "abc", "k;rm", data=good).returncode == 2
+
+
+@pytest.mark.asyncio
+async def test_anti_censorship_checklist(database, fleet, monkeypatch):
+    from app import rw_api, rw_selfsteal
+    db = database
+    server = await add_server(db, fleet, "n9", "198.51.100.49")
+    await rw_api.check_server(server["id"], db, ADMIN)
+    installed = await plan_and_approve(db, rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com",
+                                                          tls="internal", firewall=True))
+    await run_all(db)
+    report = (await install_catalogue.anti_censorship(db, ADMIN))["nodes"]
+    assert len(report) == 1 and report[0]["total"] == len(install_catalogue.CHECKLIST)
+    items = {i["key"]: i for i in report[0]["items"]}
+    assert not items["selfsteal"]["ok"] and items["selfsteal"]["fix"] == "selfsteal"
+    assert items["node_port"]["ok"], "the wizard closed the node's port"
+    assert not items["guard"]["ok"] and not items["snapshots"]["ok"]
+    # The node guard switched on through the module → the point turns green.
+    planned = await rw_api.action(installed["id"], rw_api.ActionIn(action="module", module=rw_api.ModuleIn(name="node_guard", server_ids=[server["id"]])), db, ADMIN)
+    await rw_api.approve(planned["id"], rw_api.ApproveIn(plan_sha256=planned["plan_sha256"]), db, ADMIN)
+    await run_all(db)
+    items = {i["key"]: i for i in (await install_catalogue.anti_censorship(db, ADMIN))["nodes"][0]["items"]}
+    assert items["guard"]["ok"], items["guard"]
+    assert {i["fix"] for i in items.values()} <= {o["id"] for o in install_catalogue.catalogue()}, "every fix is a card"
