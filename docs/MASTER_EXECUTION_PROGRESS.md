@@ -1,6 +1,6 @@
 # Реестр исполнения — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.97.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008`.
+Дистрибутив `v28.98.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008`.
 
 Обновляется вместе с кодом. Статусы: `NOT_STARTED`, `IN_PROGRESS`, `IMPLEMENTED`, `TESTING`, `PASS`, `FAIL`,
 `BLOCKED_SECRETS`, `BLOCKED_ACCESS`, `BLOCKED_PERMISSIONS`, `NOT_APPLICABLE`.
@@ -23,7 +23,7 @@
 | Реализация | 100 % (все доступные задачи выполнены) |
 | Проверено фактически | 51 % (24 из 47) |
 
-Публикация релиза проверена по факту: тег `v28.97.0` создан на коммите `db36289` (совпадает с `main`),
+Публикация релиза проверена по факту: тег `v28.98.0` создан на коммите `db36289` (совпадает с `main`),
 релиз опубликован `2026-11-01T07:41:36Z`, 19 ассетов, скачанный дистрибутив прошёл `sha256sum -c`,
 а распакованный архив содержит исправления (`window_start` в `economics.py`, вызовы в `cohorts.py` и
 `growth.py`). Оставшиеся `IMPLEMENTED` — ночное автообновление и центр автоматизации: код и документация
@@ -88,7 +88,7 @@
 | DOC-02 | Гайд внешних зависимостей | 36 | docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md | 421 строка, 13 групп | PASS |
 | REL-01 | Релиз v28.89.0 | 40 | Версия синхронизирована в 63 файлах | `check-current-docs` — OK | PASS |
 | GHA-03 | Concurrency CI привязана к коммиту | 31, 40 | `ci.yml`, `docker.yml`: `ci-${ref}-${sha}` | `test_ci_concurrency_is_scoped_to_one_commit` | PASS |
-| REL-02 | Публикация тега v28.97.0 | 40 | Тег на `db36289` (совпадает с `main`), релиз с 19 ассетами | `GET /releases/tags/v28.97.0` → 200; манифест: commit `db36289`, `sha256sum -c` → OK | PASS |
+| REL-02 | Публикация тега v28.98.0 | 40 | Тег на `db36289` (совпадает с `main`), релиз с 19 ассетами | `GET /releases/tags/v28.98.0` → 200; манифест: commit `db36289`, `sha256sum -c` → OK | PASS |
 | REL-03 | Дистрибутив содержит исправления | 40 | `window_start` и его вызовы в распакованном архиве | `grep` по распакованному ZIP: economics.py:82, cohorts.py:34, growth.py:309 | PASS |
 
 ## Что означает BLOCKED

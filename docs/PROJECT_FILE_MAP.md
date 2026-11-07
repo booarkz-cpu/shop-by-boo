@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.97.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.98.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2360**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2363**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -443,6 +443,7 @@
 | [backend/app/channel_gate.py](../backend/app/channel_gate.py) | API, бот и worker |
 | [backend/app/churn.py](../backend/app/churn.py) | API, бот и worker |
 | [backend/app/client_versions.py](../backend/app/client_versions.py) | API, бот и worker |
+| [backend/app/cloudflare_cdn.py](../backend/app/cloudflare_cdn.py) | API, бот и worker |
 | [backend/app/cohorts.py](../backend/app/cohorts.py) | API, бот и worker |
 | [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
 | [backend/app/connection_quality.py](../backend/app/connection_quality.py) | API, бот и worker |
@@ -1215,6 +1216,7 @@
 | [docs/ru/RELEASE_V28_95_0.md](../docs/ru/RELEASE_V28_95_0.md) | Документация |
 | [docs/ru/RELEASE_V28_96_0.md](../docs/ru/RELEASE_V28_96_0.md) | Документация |
 | [docs/ru/RELEASE_V28_97_0.md](../docs/ru/RELEASE_V28_97_0.md) | Документация |
+| [docs/ru/RELEASE_V28_98_0.md](../docs/ru/RELEASE_V28_98_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
@@ -2142,6 +2144,7 @@
 | [tests/test_cabinet_texts.py](../tests/test_cabinet_texts.py) | Проверки |
 | [tests/test_ci_shards.py](../tests/test_ci_shards.py) | Проверки |
 | [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
+| [tests/test_cloudflare_cdn.py](../tests/test_cloudflare_cdn.py) | Проверки |
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |
 | [tests/test_code_entry_rate_limits.py](../tests/test_code_entry_rate_limits.py) | Проверки |
 | [tests/test_configure_support_bridge.py](../tests/test_configure_support_bridge.py) | Проверки |

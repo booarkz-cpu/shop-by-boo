@@ -25,7 +25,7 @@ RULE_TAG = "corgi-cdn"
 
 
 class CloudflareError(RuntimeError):
-    pass
+    """An answer of the Cloudflare API the step shows to the administrator."""
 
 
 async def _request(method: str, path: str, token: str, body: dict | None = None, params: dict | None = None) -> dict:
