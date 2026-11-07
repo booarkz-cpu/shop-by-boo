@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.90.0
+# Модули админ-панели — v28.91.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -127,7 +127,7 @@ API: `/api/admin/panel`, `/api/admin/panel-guard`, `/api/admin/panel-changes`, `
 
 ## 12. Installation
 
-Статус: `IMPLEMENTED`. Маршрутов API: 59. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 66. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
