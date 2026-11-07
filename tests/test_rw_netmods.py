@@ -252,3 +252,57 @@ async def test_geo_step_passes_the_files_and_reports_a_bad_sum(monkeypatch):
     ctx.state["node_secret_key"] = "k"
     files = await rw_steps.files_for(ctx, "node", 2)
     assert "./geo/ru-geosite.dat:/usr/local/share/xray/ru-geosite.dat:ro" in files["docker-compose.yml"], "the plan's lists reach the node's compose"
+
+
+# ---- v28.99.0 (N7): the owner's own psiphond on the nodes
+
+
+def test_psiphon_plan_and_script_arguments():
+    steps, title = rw_plan.module_steps(plan_with(name="psiphon", psiphon_port=10443, psiphon_protocol="TLS-OSSH"), SERVERS, {2: ["node"]})
+    assert title == "Сервер Psiphon (psiphond): включить" and steps[0]["params"] == {
+        "module": "psiphon", "enabled": True, "psiphon_port": 10443, "psiphon_protocol": "TLS-OSSH"}
+    for taken in (2053, 4443, 8443):
+        with pytest.raises(ValueError, match="занят"):
+            rw_plan.module_steps(plan_with(name="psiphon", psiphon_port=taken), SERVERS, {2: ["node"]})
+    with pytest.raises(ValidationError):
+        rw_plan.ModuleRun(name="psiphon", psiphon_protocol="MEEK")
+    assert subprocess.run(["bash", "-n"], input=rw_netmods.PSIPHON, text=True).returncode == 0
+    assert len(rw_netmods.PSIPHON_COMMIT) == 40 and rw_netmods.PSIPHON_BUILDER.startswith("golang:1.26-bookworm@sha256:")
+    good = ["on", "10443", "93.184.216.40", rw_netmods.PSIPHON_COMMIT, rw_netmods.PSIPHON_BUILDER, "OSSH"]
+    for i, bad in ((1, "80"), (1, "1;id"), (2, "$(id)"), (3, "main"), (4, "golang:latest"), (5, "MEEK")):
+        args = list(good)
+        args[i] = bad
+        assert subprocess.run(["bash", "-c", rw_netmods.PSIPHON, "p", *args], capture_output=True).returncode == 2, args
+    assert "User=corgi-psiphon" in rw_netmods.PSIPHON and "CGO_ENABLED=0" in rw_netmods.PSIPHON
+
+
+def test_psiphon_client_config():
+    entry = "ab" * 300
+    client = rw_netmods.psiphon_client(f"psiphon=on port=10443 protocol=OSSH entry={entry}")
+    cfg = client["config"]
+    assert client["port"] == 10443 and cfg["TargetServerEntry"] == entry and cfg["DisableRemoteServerListFetcher"] is True
+    assert len(cfg["PropagationChannelId"]) == len(cfg["SponsorId"]) == 16
+    assert rw_netmods.psiphon_client("psiphon=on port=1 entry=nothex") == {} and rw_netmods.psiphon_client("psiphon=off") == {}
+
+
+@pytest.mark.asyncio
+async def test_psiphon_step_hides_the_entry_and_undoes(monkeypatch):
+    calls = []
+    answer = SimpleNamespace(code=0, out="built\npsiphon=on port=10443 protocol=OSSH entry=" + "cd" * 100 + "\n", err="")
+
+    async def run(ctx, sid, script, *args, timeout=0):
+        calls.append((script, args, timeout))
+        return answer
+    monkeypatch.setattr(rw_steps, "_run", run)
+    ctx = rw_steps.Context(plan=rw_plan.PlanIn(mode="add_node", node_server_ids=[2]), servers=SERVERS, secrets={}, state={})
+    st = {"server_id": 2, "params": {"module": "psiphon", "enabled": True, "psiphon_port": 10443, "psiphon_protocol": "OSSH"}}
+    await rw_steps.run_node_module(ctx, st)
+    assert calls[-1][:2] == (rw_netmods.PSIPHON, ("on", "10443", "93.184.216.40", rw_netmods.PSIPHON_COMMIT, rw_netmods.PSIPHON_BUILDER, "OSSH"))
+    assert calls[-1][2] >= 1800, "the first build takes minutes"
+    assert ctx.state["psiphon"]["2"]["config"]["TargetServerEntry"] == "cd" * 100
+    assert "cdcdcd" not in "\n".join(ctx.log) and "entry=[скрыто]" in "\n".join(ctx.log)
+    await rw_steps.undo_node_module(ctx, st)
+    assert calls[-1][:2] == (rw_netmods.PSIPHON, ("off",))
+    answer = SimpleNamespace(code=6, out="nobuild\n", err="")
+    with pytest.raises(rw_steps.StepError, match="не собрался"):
+        await rw_steps.run_node_module(ctx, st)

@@ -131,6 +131,11 @@ jobs:
         if: matrix.shard == 1
         timeout-minutes: 5
         run: bash scripts/ci/wizard-caddy-check.sh
+      - name: psiphond on the runner
+        # v28.99.0 (N7): rw_netmods.PSIPHON builds psiphond from the pinned commit, runs it; Psiphon's ConsoleClient fetches a page through it.
+        if: matrix.shard == 2
+        timeout-minutes: 25
+        run: sudo env "PATH=$PATH" bash scripts/ci/psiphon-check.sh
       - name: Russian geo lists for the nodes
         # v28.95.0 (N7): the latest lists by the SHA-256 GitHub published, rw_steps.GEO, and Xray of the node image loading them.
         if: matrix.shard == 1

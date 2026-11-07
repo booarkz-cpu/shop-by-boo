@@ -56,6 +56,7 @@ OPS: tuple[tuple, ...] = (
     ("sni_scan", "nodes", "Автоподбор SNI для REALITY", "С самой ноды проверяет ~30 известных сайтов: отвечают ли по TLS 1.3 и HTTP/2 и как быстро — лучшие кандидаты для REALITY без SelfSteal. Ничего не меняет.", True, False, ("module", "sni_scan", "node")),
     ("cdn", "nodes", "Cloudflare CDN", "Трафик нод через XHTTP за Cloudflare и/или домен подписки за CDN — включается и выключается здесь; нужен токен API Cloudflare.", False, True, ("module", "cdn", "node")),
     ("geo_files", "nodes", "Российские списки блокировок", "geoip/geosite с заблокированными в России доменами и адресами (runetfreedom, SHA-256 сверяется) рядом со встроенными; в правилах — ext:ru-geosite.dat:ru-blocked.", True, False, ("module", "geo_files", "node")),
+    ("psiphon", "nodes", "Сервер Psiphon (psiphond)", "Свой сервер Psiphon на ноде (OSSH или TLS-OSSH): собирается из исходников Psiphon, к нему подключаются только клиенты с его конфигом — его можно скачать здесь.", False, False, ("module", "psiphon", "node")),
     ("mtproto", "nodes", "MTProto-прокси для Telegram", "Прокси Telegram на ноде с маскировкой FakeTLS под выбранный сайт; ссылка tg:// для клиентов появляется после установки.", True, False, ("module", "mtproto", "node")),
     ("mss_clamp", "nodes", "MSS clamp", "Меряет MTU пути до Cloudflare и Яндекса; если он меньше MTU интерфейса — включает MSS clamp. Нода не перезапускается.", True, False, ("module", "mss_clamp", "node")),
     ("hardening", "protect", "Базовая защита и ускорение", "fail2ban, обновления безопасности, BBR, SSH только с ваших адресов.", True, True, ("module", "hardening", "any")),
@@ -147,6 +148,29 @@ async def mtproto_links(db: AsyncSession = Depends(get_db), admin=Depends(requir
     servers = {s.id: s for s in (await db.execute(select(RemnawaveServer))).scalars().all()}
     return {"proxies": [{"server_id": int(sid), "name": servers[int(sid)].name if int(sid) in servers else f"#{sid}", **link}
                         for sid, link in sorted(links.items(), key=lambda x: int(x[0]))]}
+
+
+@router.get("/psiphon")
+async def psiphon_servers(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+    """v28.99.0 (N7): the psiphond servers the shop put on nodes, with the client config of each (the latest run wins)."""
+    rows = (await db.execute(select(RemnawaveInstallation).where(RemnawaveInstallation.action == "module",
+                                                                 RemnawaveInstallation.status == "succeeded")
+                             .order_by(RemnawaveInstallation.id))).scalars().all()
+    found_all: dict[str, dict] = {}
+    for row in rows:
+        run = (row.params or {}).get("module") or {}
+        if run.get("name") != "psiphon":
+            continue
+        found = ((row.result or {}).get("state") or {}).get("psiphon") or {}
+        targets = [st["server_id"] for st in (row.plan or {}).get("steps", []) if st.get("kind") == "node_module"]
+        for sid in targets:
+            if run.get("enabled", True) and str(sid) in found:
+                found_all[str(sid)] = found[str(sid)]
+            else:
+                found_all.pop(str(sid), None)
+    servers = {s.id: s for s in (await db.execute(select(RemnawaveServer))).scalars().all()}
+    return {"servers": [{"server_id": int(sid), "name": servers[int(sid)].name if int(sid) in servers else f"#{sid}", **item}
+                        for sid, item in sorted(found_all.items(), key=lambda x: int(x[0]))]}
 
 
 # ---------------------------------------------------------------- snapshots (encrypted in the shop)

@@ -347,3 +347,27 @@ async def test_panel_domain_change_keeps_subscriptions_and_moves_the_links(datab
     assert "panel.example.com {" not in caddy.replace("new-panel.example.com {", "")
     await db.refresh(source)
     assert source.params["panel_domain_aliases"] == []
+
+
+@pytest.mark.asyncio
+async def test_psiphon_servers_follow_the_latest_run(database, fleet):
+    """v28.99.0 (N7): «Сервер Psiphon» on a node — its client config, gone after «off»."""
+    from app import rw_api
+    db = database
+    server = await add_server(db, fleet, "n1", "198.51.100.60")
+    await rw_api.check_server(server["id"], db, ADMIN)
+    install = await plan_and_approve(db, rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com",
+                                                        tls="internal"))
+    await run_all(db)
+
+    async def module(enabled):
+        planned = await rw_api.action(install["id"], rw_api.ActionIn(action="module", module=rw_api.ModuleIn(
+            name="psiphon", enabled=enabled, server_ids=[server["id"]], psiphon_port=10443, psiphon_protocol="TLS-OSSH")), db, ADMIN)
+        await rw_api.approve(planned["id"], rw_api.ApproveIn(plan_sha256=planned["plan_sha256"]), db, ADMIN)
+        await run_all(db)
+    await module(True)
+    [item] = (await install_catalogue.psiphon_servers(db, ADMIN))["servers"]
+    assert (item["server_id"], item["name"], item["port"], item["protocol"]) == (server["id"], "n1", 10443, "TLS-OSSH")
+    assert item["config"]["TargetServerEntry"] == "ef" * 64
+    await module(False)
+    assert (await install_catalogue.psiphon_servers(db, ADMIN))["servers"] == []

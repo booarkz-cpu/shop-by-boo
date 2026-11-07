@@ -178,3 +178,7 @@ SelfSteal ставится вместе с нодой: в мастере уст�
 ### Cloudflare CDN (v28.98.0)
 
 Модуль `cdn` (`ModuleIn.cdn_nodes`, `cdn_subscription`, `cdn_domain`, `cloudflare_token`): токен проверяется (`/user/tokens/verify`) и хранится в секретах установки. Нода — транспорт `cdn` (`VLESS_XHTTP_CDN`, TCP 2083, XHTTP + TLS с сертификатом SelfSteal, путь `/cdn`), хост панели с `securityLayer: TLS` и доменом CDN. Шаг `cdn_dns` (`cloudflare_cdn.apply_records`, `set_full_ssl`, `restore_records`) — A-записи с «proxied» и правило `http_config_settings` «SSL: Full» с описанием `corgi-cdn <домен>`; правила владельца сохраняются.
+
+### Свой сервер Psiphon (v28.99.0)
+
+Модуль `psiphon` (`psiphon_port`, `psiphon_protocol` OSSH / TLS-OSSH): `rw_netmods.PSIPHON` собирает psiphond на ноде (`PSIPHON_COMMIT`, `PSIPHON_BUILDER` по digest, `CGO_ENABLED=0`), создаёт ключи (`psiphond generate`) один раз, служба `corgi-psiphon` с `ProtectSystem=strict` и без capabilities. `rw_netmods.psiphon_client` — конфиг ConsoleClient только с `TargetServerEntry` этого сервера; `GET /api/admin/install/psiphon`. Проверка — `scripts/ci/psiphon-check.sh`.

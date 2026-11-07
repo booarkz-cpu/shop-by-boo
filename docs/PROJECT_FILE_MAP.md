@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.98.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.99.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2363**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2365**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1217,6 +1217,7 @@
 | [docs/ru/RELEASE_V28_96_0.md](../docs/ru/RELEASE_V28_96_0.md) | Документация |
 | [docs/ru/RELEASE_V28_97_0.md](../docs/ru/RELEASE_V28_97_0.md) | Документация |
 | [docs/ru/RELEASE_V28_98_0.md](../docs/ru/RELEASE_V28_98_0.md) | Документация |
+| [docs/ru/RELEASE_V28_99_0.md](../docs/ru/RELEASE_V28_99_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
@@ -1913,6 +1914,7 @@
 | [scripts/ci/netmods-check.sh](../scripts/ci/netmods-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/node-port-guard.sh](../scripts/ci/node-port-guard.sh) | Эксплуатация и релиз |
 | [scripts/ci/panel-gate-live.sh](../scripts/ci/panel-gate-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/psiphon-check.sh](../scripts/ci/psiphon-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/restore-drill.sh](../scripts/ci/restore-drill.sh) | Эксплуатация и релиз |
 | [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
