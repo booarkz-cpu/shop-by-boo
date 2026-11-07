@@ -109,12 +109,14 @@ class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon"]
     # v28.98.0 (N7): Cloudflare CDN — what goes behind it, the CDN domain of the nodes, the owner's API token.
     cdn_nodes: bool = False
     cdn_subscription: bool = False
     cdn_domain: str | None = Field(default=None, max_length=253)
     cloudflare_token: SecretStr | None = Field(default=None, max_length=200)
+    psiphon_port: int | None = Field(default=None, ge=1024, le=65535)           # v28.99.0 (N7)
+    psiphon_protocol: Literal["OSSH", "TLS-OSSH"] | None = None
     mtproto_port: int | None = Field(default=None, ge=1024, le=65535)          # v28.94.0 (N7)
     mtproto_domain: str | None = Field(default=None, max_length=100)
     guard_ports: list[int] | None = Field(default=None, max_length=12)          # v28.92.0 (N7)
@@ -557,7 +559,7 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
         run["management_url"] = mod.management_url or None
     if mod.name == "hardening":
         run["hardening"] = (mod.hardening or rw_plan.Hardening()).model_dump()
-    for key in ("guard_ports", "guard_rate", "guard_allow", "guard_mode", "swap_mb", "mtproto_port", "mtproto_domain"):
+    for key in ("guard_ports", "guard_rate", "guard_allow", "guard_mode", "swap_mb", "mtproto_port", "mtproto_domain", "psiphon_port", "psiphon_protocol"):
         if getattr(mod, key) is not None:
             run[key] = getattr(mod, key)
     if mod.name == "cdn":

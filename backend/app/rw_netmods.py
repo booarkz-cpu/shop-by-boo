@@ -20,6 +20,8 @@ scripts/ci/netmods-check.sh runs all three in network namespaces / a scratch roo
 """
 from __future__ import annotations
 
+import re
+
 MSS = r"""set -eu
 action="$1"; conf=/etc/corgi/mss.nft; unit=/etc/systemd/system/corgi-mss.service
 systemd_on() { [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; }
@@ -213,6 +215,80 @@ def mtproto_link(host: str, line: str) -> dict:
     query = f"server={host}&port={fields['port']}&secret={fields['secret']}"
     return {"port": int(fields["port"]), "domain": fields.get("domain", ""), "tg": f"tg://proxy?{query}",
             "https": f"https://t.me/proxy?{query}"}
+
+
+# v28.99.0 (N7, by the owner's request of 2026-11-07): psiphond — the Psiphon server (Psiphon-Labs/psiphon-tunnel-core,
+# GPL-3.0) of the owner's own: built on the node from a pinned commit in a pinned Go image (no binary is downloaded),
+# run as a systemd service under its own user. It is not the public Psiphon network: only clients given this server's
+# entry (TargetServerEntry) connect. The files stay in /opt/corgi-psiphon (keys survive «on» again); «off» removes all.
+PSIPHON_REPO = "https://github.com/Psiphon-Labs/psiphon-tunnel-core"
+PSIPHON_COMMIT = "fc35a756e293fac716b3be55ead259c4eab4fe2b"  # master of 2026-11-06
+PSIPHON_BUILDER = "golang:1.26-bookworm@sha256:5de7c99eb78ca5e515a4c340235d0955ec5964a5071c492c15503d7c267da473"  # go1.26.10 («Resolve image digests», 2026-11-07)
+PSIPHON_PROTOCOLS = ("OSSH", "TLS-OSSH")
+
+PSIPHON = r"""set -eu
+action="$1"; port="${2:-}"; ip="${3:-}"; commit="${4:-}"; image="${5:-}"; proto="${6:-OSSH}"
+d=/opt/corgi-psiphon; unit=/etc/systemd/system/corgi-psiphon.service
+repo=https://github.com/Psiphon-Labs/psiphon-tunnel-core
+ufw_on() { command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | grep -q "Status: active"; }
+case "$action" in
+on)
+  case "$port" in ""|*[!0-9]*) echo "bad port"; exit 2 ;; esac
+  [ "$port" -ge 1024 ] && [ "$port" -le 65535 ] || { echo "bad port"; exit 2; }
+  case "$ip" in ""|*[!0-9.]*) echo "bad ip"; exit 2 ;; esac
+  echo "$commit" | grep -Eq '^[0-9a-f]{40}$' || { echo "bad commit"; exit 2; }
+  case "$image" in golang:*@sha256:*) ;; *) echo "bad image"; exit 2 ;; esac
+  case "$proto" in OSSH|TLS-OSSH) ;; *) echo "bad protocol"; exit 2 ;; esac
+  command -v docker >/dev/null 2>&1 || { echo "nodocker"; exit 7; }
+  if ss -ltnH "sport = :$port" 2>/dev/null | grep -q . && ! systemctl is-active --quiet corgi-psiphon; then echo "busy"; exit 5; fi
+  install -d -m 0750 "$d"
+  if [ ! -x "$d/psiphond" ] || [ "$(cat "$d/commit" 2>/dev/null)" != "$commit" ]; then
+    docker run --rm -e GOTOOLCHAIN=local -e CGO_ENABLED=0 -e GOFLAGS=-mod=vendor -v "$d:/out" "$image" sh -ec '
+      git clone -q --filter=blob:none "$0" /src; cd /src; git checkout -q "$1"; [ "$(git rev-parse HEAD)" = "$1" ]
+      cd Server; go build -trimpath -ldflags "-s -w" -o /out/psiphond.new .' "$repo" "$commit" || { echo "nobuild"; exit 6; }
+    mv -f "$d/psiphond.new" "$d/psiphond"; chmod 0755 "$d/psiphond"; printf '%s' "$commit" > "$d/commit"
+  fi
+  id corgi-psiphon >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin corgi-psiphon
+  if [ ! -s "$d/server-entry.dat" ] || [ "$(cat "$d/listen" 2>/dev/null)" != "$ip $proto:$port" ]; then
+    ( cd "$d" && rm -f psiphond.config psiphond-*.config server-entry.dat && ./psiphond --ipaddress "$ip" --protocol "$proto:$port" --web 0 generate >/dev/null )
+    printf '%s' "$ip $proto:$port" > "$d/listen"
+  fi
+  chown -R corgi-psiphon "$d"; chmod 0600 "$d"/*.config "$d/server-entry.dat"
+  printf '%s\n' "[Unit]" "Description=Psiphon server of the shop (psiphond)" "After=network-online.target" "[Service]" \
+    "User=corgi-psiphon" "WorkingDirectory=$d" "ExecStart=$d/psiphond run" "Restart=always" "RestartSec=5" "NoNewPrivileges=yes" \
+    "ProtectSystem=strict" "ReadWritePaths=$d" "ProtectHome=yes" "PrivateTmp=yes" "CapabilityBoundingSet=" "[Install]" \
+    "WantedBy=multi-user.target" > "$unit"
+  old=$(cat "$d/port" 2>/dev/null || true)
+  systemctl daemon-reload; systemctl enable corgi-psiphon >/dev/null 2>&1; systemctl restart corgi-psiphon
+  if ufw_on; then
+    if [ -n "$old" ] && [ "$old" != "$port" ]; then ufw delete allow "$old/tcp" >/dev/null 2>&1 || true; fi
+    ufw allow "$port/tcp" >/dev/null
+  fi
+  printf '%s' "$port" > "$d/port"
+  for i in $(seq 1 15); do ss -ltnH "sport = :$port" | grep -q . && break; sleep 1; done
+  ss -ltnH "sport = :$port" | grep -q . || { journalctl -u corgi-psiphon -n 20 --no-pager 2>/dev/null | tail -20; echo "norun"; exit 6; }
+  echo "psiphon=on port=$port protocol=$proto entry=$(cat "$d/server-entry.dat")" ;;
+off)
+  systemctl disable --now corgi-psiphon >/dev/null 2>&1 || true
+  rm -f "$unit"; systemctl daemon-reload || true
+  if [ -f "$d/port" ] && ufw_on; then ufw delete allow "$(cat "$d/port")/tcp" >/dev/null 2>&1 || true; fi
+  rm -rf "$d"; echo "psiphon=off" ;;
+*) exit 2 ;;
+esac
+"""
+
+
+def psiphon_client(line: str) -> dict:
+    """The script's last line → the client config of ConsoleClient (and the Psiphon libraries) for this server only."""
+    import secrets as _secrets
+    fields = dict(part.split("=", 1) for part in line.split() if "=" in part)
+    entry = fields.get("entry", "")
+    if fields.get("psiphon") != "on" or not re.fullmatch(r"[0-9a-f]{40,20000}", entry):
+        return {}
+    return {"port": int(fields["port"]), "protocol": fields.get("protocol", "OSSH"),
+            "config": {"LocalSocksProxyPort": 1080, "LocalHttpProxyPort": 8080,
+                       "PropagationChannelId": _secrets.token_hex(8).upper(), "SponsorId": _secrets.token_hex(8).upper(),
+                       "TargetServerEntry": entry, "DisableRemoteServerListFetcher": True}}
 
 
 SNI_CANDIDATES = ("www.microsoft.com", "www.apple.com", "dl.google.com", "www.samsung.com", "www.nvidia.com", "www.amd.com",

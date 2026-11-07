@@ -36,6 +36,8 @@ jobs:
           label remnawave/subscription-page:latest
           check postgres:18.4 'postgres --version'
           check valkey/valkey:9-alpine 'valkey-server --version'
+          # v28.99.0 (N7): the image psiphond is built in on the node (Go of psiphon-tunnel-core's go.mod, with git).
+          check golang:1.26-bookworm 'go version'
           # v28.94.0 (N7): MTProto proxy for Telegram (9seconds/mtg, MIT). The image has no shell: the version comes from the binary.
           docker pull -q nineseconds/mtg:2 >/dev/null
           echo "IMAGE nineseconds/mtg:2 | $(docker image inspect nineseconds/mtg:2 --format '{{index .RepoDigests 0}}') | $(docker run --rm nineseconds/mtg:2 --version 2>&1 | head -1)" | tee -a "$GITHUB_STEP_SUMMARY"

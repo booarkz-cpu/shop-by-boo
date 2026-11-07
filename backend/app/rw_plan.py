@@ -41,12 +41,12 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
 MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn")
+           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
                  "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
                  "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели", "mss_clamp": "MSS clamp",
                  "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки",
-                 "sni_scan": "Подбор сайта для REALITY", "mtproto": "MTProto-прокси для Telegram",
+                 "sni_scan": "Подбор сайта для REALITY", "mtproto": "MTProto-прокси для Telegram", "psiphon": "Сервер Psiphon (psiphond)",
                  "geo_files": "Российские списки блокировок (geo)", "cdn": "Cloudflare CDN"}
 # v28.95.0 (N7): the Russian lists sit next to the image's own geo files (those stay as they are) and are used as
 # ext:ru-geosite.dat:<category> / ext:ru-geoip.dat:<category> in the routing rules of the panel.
@@ -271,11 +271,14 @@ class ModuleRun(BaseModel):
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon"]
     enabled: bool = True
     # v28.98.0 (N7): Cloudflare — the parts this run switches (on with enabled, back to direct without).
     cdn_nodes: bool = False
     cdn_subscription: bool = False
+    # v28.99.0 (N7): psiphond — its port and tunnel protocol.
+    psiphon_port: int = Field(default=10443, ge=1024, le=65535)
+    psiphon_protocol: Literal["OSSH", "TLS-OSSH"] = "OSSH"
     # v28.94.0 (N7): MTProto — the port and the site FakeTLS pretends to be.
     mtproto_port: int = Field(default=9443, ge=1024, le=65535)
     mtproto_domain: str = Field(default="www.cloudflare.com", min_length=4, max_length=100, pattern=r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$")
@@ -900,6 +903,19 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
                       step("compose_up", sid, f"{n}: перезапуск ноды", component="node")]
         steps.append(step("verify", None, "Проверка: ноды на связи"))
         title = f"Российские списки: {mod.version}" if mod.enabled else "Российские списки: убрать"
+    elif name == "psiphon":
+        # v28.99.0 (N7): the owner's own Psiphon server on the chosen nodes (rw_netmods.PSIPHON).
+        targets = mod.server_ids or nodes
+        if not targets or any(sid not in nodes for sid in targets):
+            raise ValueError("Выберите ноды этой установки")
+        if mod.enabled and (mod.psiphon_port in MTPROTO_TAKEN or mod.psiphon_port == plan.node_port):
+            raise ValueError(f"Порт {mod.psiphon_port} занят нодой: выберите другой")
+        for sid in targets:
+            what = (f"psiphond ({mod.psiphon_protocol}, TCP {mod.psiphon_port}) — сборка из исходников Psiphon при первом включении"
+                    if mod.enabled else "убрать psiphond")
+            steps.append(step("node_module", sid, f"{servers[sid]['name']}: {what}", module="psiphon", enabled=mod.enabled,
+                              psiphon_port=mod.psiphon_port, psiphon_protocol=mod.psiphon_protocol))
+        title = f"{MODULE_TITLES[name]}: {state}"
     elif name == "mtproto":
         # v28.94.0 (N7): a Telegram MTProto proxy with FakeTLS on the chosen nodes (rw_netmods.MTPROTO, image pinned by digest).
         targets = mod.server_ids or nodes
