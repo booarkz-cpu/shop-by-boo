@@ -142,6 +142,8 @@ class PlanIn(BaseModel):
     node_port_ips: list[str] = Field(default_factory=list, max_length=10)
     # v28.92.0 (N7): «Опасная зона → Удалить компонент» — which one (rw_api.action fills it with the action).
     remove_component: Literal["panel", "subscription_page", "proxy", "node", "selfsteal", "xray_checker"] | None = None
+    # v28.93.0 (N7 «Экстренное восстановление»): the snapshot of the files to put back (rw_api.action fills it).
+    snapshot_file: str | None = Field(default=None, pattern=r"^config-\d{1,9}-\d{8}T\d{6}Z\.tar\.gz\.enc$")
     # The module action being planned (rw_api.action fills it; it is not kept after the run).
     module: "ModuleRun | None" = None
 
@@ -680,8 +682,8 @@ volumes:
 
 
 ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
-           "snapshot", "remove_component")
-ACTION_TITLES = {"snapshot": "Снапшот сервера", "remove_component": "Удаление компонента", "install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
+           "snapshot", "remove_component", "restore_files")
+ACTION_TITLES = {"restore_files": "Экстренное восстановление файлов", "snapshot": "Снапшот сервера", "remove_component": "Удаление компонента", "install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
                  "reinstall": "Переустановка", "remove": "Удаление", "module": "Модуль",
                  "start": "Запуск", "stop": "Остановка", "restart": "Перезапуск", "logs": "Журналы контейнеров"}
 # v28.77.0: service control over the containers an installation runs (manage_panel in eGamesAPI/remnawave-reverse-proxy,
@@ -896,6 +898,22 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
         return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {MODE_TITLES[plan.mode]}", "images": IMAGES,
                 "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": rs, "changes": []}
                             for sid, rs in roles.items()},
+                "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
+    if action == "restore_files":
+        # v28.93.0 (N7): the files of a snapshot back on its server — the current files are packed first and come back
+        # on any error; then every component of the server restarts with the restored files.
+        name = plan.snapshot_file or ""
+        sid = int(name.split("-")[1]) if name else None
+        if sid not in roles:
+            raise ValueError("Снапшот не от сервера этой установки")
+        steps.append(step("put_configs", sid, f"{servers[sid]['name']}: файлы из снапшота {name.removesuffix('.enc')} (текущие — в копию на сервере)",
+                          snapshot=name))
+        steps += [step("compose_up", sid, f"{servers[sid]['name']}: перезапуск ({DIRS[c]})", component=c) for c in components(sid)]
+        if "panel" in components(sid):
+            steps.append(step("wait_panel", sid, f"{servers[sid]['name']}: панель отвечает (/health)"))
+        return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {servers[sid]['name']}", "images": IMAGES,
+                "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": roles[sid],
+                                       "changes": [f"Файлы компонентов — из снапшота {name.removesuffix('.enc')}"]}},
                 "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
     if action == "remove_component":
         comp = plan.remove_component

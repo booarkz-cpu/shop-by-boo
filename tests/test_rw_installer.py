@@ -88,7 +88,10 @@ SCRIPTS = {rw_steps.PREFLIGHT: "preflight", DOCKER_INSTALL: "docker", rw_steps.W
            rw_steps.COMPOSE: "compose", rw_steps.WAIT_PANEL: "wait", rw_steps.PANEL_CALL: "panel",
            rw_steps.FIREWALL: "firewall", rw_steps.GATEWAY: "gateway", rw_steps.HTTPS_CHECK: "https",
            rw_steps.BACKUP: "backup", rw_steps.RESTORE: "restore", rw_steps.FETCH_BACKUP: "fetch", rw_steps.SITE: "site",
-           rw_steps.FETCH_CONFIGS: "configs"}
+           rw_steps.FETCH_CONFIGS: "configs", rw_steps.PUT_CONFIGS: "put_configs"}
+from app import rw_netmods  # noqa: E402
+
+SCRIPTS.update({rw_netmods.GUARD: "guard", rw_netmods.MSS: "mss", rw_netmods.SWAP: "swap", rw_steps.CLIENT_ADDRESS: "client"})
 
 
 class FakeRemote:
@@ -138,6 +141,18 @@ class FakeRemote:
             token, _, body = stdin.decode().partition("\n")
             code, data = h.panel(method, path, token, json.loads(body) if body else None)
             return Result(0, json.dumps(data) + "\n" + str(code), "")
+        if name == "client":  # the shop's address as the server's sshd sees it
+            return Result(0, "203.0.113.1\n", "")
+        if name in ("guard", "mss", "swap"):  # v28.92.0: what the real scripts print (scripts/ci/netmods-check.sh runs them)
+            if args[0] == "off":
+                return Result(0, f"{name}=off\n", "")
+            line = {"guard": f"guard={args[4] if len(args) > 4 else 'enforce'} ports={args[1] if len(args) > 1 else ''} rate={args[2] if len(args) > 2 else ''}",
+                    "mss": "iface=eth0 mtu=1500 path=1500\nclamp=not-needed", "swap": f"swap=/swapfile.corgi size={args[1] if len(args) > 1 else 0}M"}[name]
+            return Result(0, line + "\n", "")
+        if name == "put_configs":  # v28.93.0: the files of a snapshot back; «undo» puts the copy back
+            h.restored = getattr(h, "restored", [])
+            h.restored.append(args[0] if args[0] == "undo" else ("put", hashlib.sha256(stdin).hexdigest() == args[1], args[2]))
+            return Result(0, "restored\n", "")
         if name == "configs":  # v28.92.0: the files of the components as tar.gz
             import base64
             import io

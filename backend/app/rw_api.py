@@ -137,7 +137,9 @@ class ModuleIn(BaseModel):
 class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
-                    "snapshot", "remove_component"]
+                    "snapshot", "remove_component", "restore_files"]
+    # v28.93.0 (N7): with «restore_files» — the snapshot of the files («Установка → Снапшоты серверов»).
+    snapshot: str | None = Field(default=None, pattern=r"^config-\d{1,9}-\d{8}T\d{6}Z\.tar\.gz\.enc$")
     # v28.92.0 (N7): with «remove_component» — which component to take off the servers.
     component: Literal["panel", "subscription_page", "proxy", "node", "selfsteal", "xray_checker"] | None = None
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
@@ -452,6 +454,13 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
             raise HTTPException(422, "Шаблон страницы подписки меняется действием «Обновить» установки со страницей подписки")
         params["subpage_template"] = payload.subpage_template
     params.pop("remove_component", None)
+    params.pop("snapshot_file", None)
+    if payload.action == "restore_files":
+        if not payload.snapshot:
+            raise HTTPException(422, "Выберите снапшот")
+        params["snapshot_file"] = payload.snapshot
+    elif payload.snapshot:
+        raise HTTPException(422, "Снапшот задаётся действием «restore_files»")
     if payload.action == "remove_component":
         if not payload.component:
             raise HTTPException(422, "Выберите компонент")

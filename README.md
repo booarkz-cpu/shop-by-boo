@@ -63,8 +63,8 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 ---
 
-> **v28.92.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008` / 3.8, приложения Android и iOS `3.5.0`, «Корги Люси: клиент» `1.5.0`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.92.0`, `/health` отвечает `21.5.1`.
+> **v28.93.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008` / 3.8, приложения Android и iOS `3.5.0`, «Корги Люси: клиент» `1.5.0`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.93.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 **Что это.** Магазин продаёт VPN-подписки и сам выдаёт доступ в вашей панели Remnawave: принимает оплату (СБП, карта, крипта, Telegram Stars), продлевает, считает трафик и устройства, отвечает клиентам. Клиент покупает в боте, Mini App, кабинете или приложении и подключается в одно касание. Владелец управляет всем из одной админ-панели — без программиста и без пересборки приложений.
@@ -96,8 +96,8 @@ Telegram-бот и Mini App · личный кабинет · приложени
 Подключитесь к серверу (на Windows — PowerShell, на macOS и Linux — Терминал): `ssh root@IP_СЕРВЕРА`. Затем:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.92.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.92.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.93.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.93.0 bash /root/shop-install.sh
 ```
 
 Установщик спросит домен, токен бота и цены, сам поставит Docker, создаст случайные пароли и запустит всё. Это занимает 5–15 минут.
@@ -159,6 +159,13 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.92.0/in
 
 Застряли? [Руководство по запуску](docs/ru/LAUNCH_GUIDE.md) подробнее, [частые вопросы](docs/ru/FUNCTION_GUIDE.md) — по каждой функции.
 
+## 🆕 Новое в v28.93.0
+
+| | |
+| --- | --- |
+| 🚑 **Экстренное восстановление** | «Восстановить» у снапшота файлов: компоненты возвращаются на сервер, текущие файлы сохраняются и возвращаются при ошибке. [Подробнее](docs/ru/RELEASE_V28_93_0.md) |
+| 🧭 **Чек-лист «Анти-РКН»** | Девять пунктов по каждой ноде; у невыполненного — «Исправить». |
+
 ## 🆕 Новое в v28.92.0
 
 | | |
@@ -172,7 +179,10 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.92.0/in
 | --- | --- |
 | 🎭 **Раздел «SelfSteal»** | Что стоит на каждой ноде, проверка снаружи по 11 пунктам, свой сайт из архива, каталог из 22 шаблонов — у каждой ноды своя сборка. [Подробнее](docs/ru/RELEASE_V28_91_0.md) |
 
-## 🆕 Новое в v28.90.0
+<details>
+<summary><b>Новое в прежних выпусках (v28.34.0 – v28.90.0)</b></summary>
+
+### 🆕 Новое в v28.90.0
 
 | | |
 | --- | --- |
@@ -180,9 +190,6 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.92.0/in
 | 🔒 **Порт ноды только для панели** | nftables всегда, на всех нодах сразу; правило снимается само, если панель потеряла ноду. |
 | 🐾 **«Корги Люси: клиент» 1.5.0** | Новый главный экран: стрик, статистика, блокировка рекламы, «Поделиться». |
 | 📜 **Лицензия 2.9 и автообновления** | Состав проекта и всё взятое извне — в одной таблице; Dependabot для всех манифестов. |
-
-<details>
-<summary><b>Новое в прежних выпусках (v28.34.0 – v28.89.0)</b></summary>
 
 ### 🆕 Новое в v28.89.0
 
@@ -887,8 +894,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.92.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.92.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.93.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.93.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -905,7 +912,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.92.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.93.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -921,12 +928,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.92.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.93.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.92.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.93.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -1603,7 +1610,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Проверить конфигурацию Compose | `docker compose config` |
 | Health-check API | `curl -s localhost:8000/health` |
 | Резервная копия | `bash scripts/backup.sh` |
-| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.92.0 bash scripts/update-from-github.sh` |
+| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.93.0 bash scripts/update-from-github.sh` |
 | Откатить версию | `bash scripts/rollback.sh` |
 | Включить ночные обновления | `sudo bash scripts/auto-update.sh install` |
 | Состояние автообновления | `sudo bash scripts/auto-update.sh status` |
@@ -1648,7 +1655,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
 | Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
-| Что вошло в выпуск | [Заметки v28.92.0](docs/ru/RELEASE_V28_86_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
+| Что вошло в выпуск | [Заметки v28.93.0](docs/ru/RELEASE_V28_86_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | Wiki на трёх языках | [русский](docs/wiki/ru/Home.md), [English](docs/wiki/en/Home.md), [українська](docs/wiki/uk/Home.md) — готовые страницы для GitHub Wiki |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |
