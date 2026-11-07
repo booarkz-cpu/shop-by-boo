@@ -77,7 +77,12 @@ async def fetch(address: str, domain: str, scheme: str, path: str) -> Answer:
     port = 443 if scheme == "https" else 80
     host = f"[{address}]" if ":" in address else address
     started = time.monotonic()
-    async with httpx.AsyncClient(timeout=10, follow_redirects=False, verify=False, trust_env=False) as client:
+    # The certificate is judged by point 4 (certificate()); the pages are read even when it is not right, so that the
+    # other points still say what a visitor would see. Nothing is sent but GET requests without cookies.
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    async with httpx.AsyncClient(timeout=10, follow_redirects=False, verify=context, trust_env=False) as client:
         response = await client.get(f"{scheme}://{host}:{port}{path}", headers={"Host": domain, "User-Agent": "Mozilla/5.0"},
                                     extensions={"sni_hostname": domain} if scheme == "https" else {})
         body = response.content[:500_000]
