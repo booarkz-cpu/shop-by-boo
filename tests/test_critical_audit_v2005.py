@@ -1,5 +1,4 @@
 """20.0.5: a lost YooKassa response must not open a second charge."""
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,10 +10,11 @@ def test_live_version_is_20_0_5():
 
 
 def test_reconciliation_uses_the_lookup_not_a_new_payment():
-    # C1: the provider's behaviour is in tests/test_behaviour_payments_yookassa.py; here only that the reconcilers call it.
-    main = main_source()
-    assert main.count("find_by_order_id(p.order_id, p.created_at)") == 2
-    assert 'provider.create(Decimal(str(p.amount)),p.order_id' not in main
+    # The admin reconciliation: behaviour in tests/test_behaviour_payments_v2.py (BACKLOG A1). The background scheduler is an
+    # endless loop, so here only that it calls the same lookup and never create().
+    scheduler = (ROOT / "backend/app/schedulers.py").read_text()
+    assert scheduler.count("find_by_order_id(p.order_id, p.created_at)") == 1
+    assert "provider.create(" not in scheduler
 
 
 def test_changelog_is_in_the_root_readme():

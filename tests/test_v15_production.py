@@ -1,14 +1,11 @@
-from main_source import main_source
 import ast
 from pathlib import Path
 import unittest
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = main_source()
 BOT = (ROOT / "backend/app/bot.py").read_text()
 class V15ProductionTests(unittest.TestCase):
-    def test_no_known_runtime_bugs(self):
-        self.assertNotIn("LOGIN_BUCKET.setdefault(key", MAIN)
-        self.assertNotIn("if payload.item_type==\"url\": validate_public_url(payload.action,allow_empty=False)\n    await db.delete(x)", MAIN)
+    # The old in-memory login bucket is no longer filled anywhere (sign-in limits live in runtime_security);
+    # the menu delete takes no body: tests/test_v16_v19_release.py.
 
     def test_python_sources_parse(self):
         for p in (ROOT / "backend/app").glob("*.py"):
