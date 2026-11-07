@@ -221,6 +221,34 @@ class ClientScreensTest {
         shot("settings")
     }
 
+    /** v1.5.0: the main screen of the owner's prompt — every part is there and the ad blocking switch works. */
+    @Test fun mainScreenPartsAndAdBlocking() {
+        Store(context).add(links)
+        context.getSharedPreferences("client_streak", 0).edit().clear().commit()
+        launch()
+        for (tag in listOf("slogan", "streak", "share", "banner-app-vpn", "status", "connect", "adblock", "server-picker")) {
+            assertTrue(tag, compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty())
+        }
+        exists("Free internet without the extra Woof!"); exists("PROTECTION IN ONE TAP"); exists("Unlimited"); exists("Disconnected")
+        exists("0 days")
+        assertTrue("no stats while disconnected", compose.onAllNodesWithTag("stats").fetchSemanticsNodes().isEmpty())
+        // The slogan is right under the name: above the banner.
+        val slogan = compose.onNodeWithTag("slogan").fetchSemanticsNode().boundsInRoot
+        val banner = compose.onNodeWithTag("banner-app-vpn").fetchSemanticsNode().boundsInRoot
+        assertTrue("slogan above the banner", slogan.bottom <= banner.top)
+        shot("home-v150")
+        // Without geosite.dat the switch explains what is needed and stays off.
+        compose.onNodeWithTag("adblock").tap()
+        exists("Geo files needed")
+        assertEquals(false, Store(context).settings.adBlock)
+        // With the files it turns on and is kept in the settings (the config gets the block rule — AdBlockTest).
+        java.io.File(context.filesDir, "geoip.dat").writeText("x"); java.io.File(context.filesDir, "geosite.dat").writeText("x")
+        compose.onNodeWithTag("adblock").tap()
+        assertEquals(true, Store(context).settings.adBlock)
+        java.io.File(context.filesDir, "geoip.dat").delete(); java.io.File(context.filesDir, "geosite.dat").delete()
+        Store(context).settings = Store(context).settings.copy(adBlock = false)
+    }
+
     /** Screens for the owner (pulled by android-client.yml from the app's external files into an artifact). */
     private fun shot(name: String) {
         compose.waitForIdle()
