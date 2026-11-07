@@ -84,7 +84,7 @@ services:
       db: {condition: service_healthy}
     entrypoint: ["/bin/sh", "/backup.sh"]
   clamav:
-    image: clamav/clamav:stable@sha256:0e31ce089574268aefa0b543767d66b70240ab51ed49eec53e07f18d5629d817
+    image: clamav/clamav:stable@sha256:6d87c712e3391e13c1ba6e05dfb074d4b1ddb5a6834b23bb9da990d2a4ef042a
     profiles: [antivirus]
     restart: unless-stopped
     volumes: [clamdata:/var/lib/clamav]
