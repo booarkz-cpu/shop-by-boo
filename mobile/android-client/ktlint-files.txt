@@ -11,3 +11,5 @@ app/src/main/java/shop/corgi/client/core/GeoProgress.kt
 app/src/main/java/shop/corgi/client/core/AppList.kt
 app/src/main/java/shop/corgi/client/ui/AppsScreen.kt
 app/src/test/java/shop/corgi/client/core/AppListTest.kt
+app/src/main/java/shop/corgi/client/core/ExternalIp.kt
+app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt

@@ -40,6 +40,10 @@ class AndroidVpnEngine(context: Context) : VpnEngine {
 
     override fun lastError(): String = ClientVpnService.lastError(app)
 
+    override fun externalIp(): shop.corgi.client.core.ExternalIp? = ClientVpnService.ipCheck?.let {
+        shop.corgi.client.core.ExternalIp.lookup(it)
+    }
+
     override fun configBusy(): Boolean = shop.corgi.client.core.ConfigGate.busy
 
     override fun mustChoose(): Boolean = store.mustChoose

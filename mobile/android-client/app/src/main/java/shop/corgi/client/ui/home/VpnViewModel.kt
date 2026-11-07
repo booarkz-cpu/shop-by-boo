@@ -40,6 +40,9 @@ data class VpnUiState(
     val configBusy: Boolean = false,
     /** v1.6.0 (N10): the active server was removed — the button waits for another one. */
     val mustChoose: Boolean = false,
+    /** v1.6.0 (N10): the address the internet sees and its flag, after connecting. */
+    val externalIp: String = "",
+    val externalFlag: String = "",
     val error: String = ""
 ) {
     val isConnected: Boolean get() = status == VpnStatus.Connected
@@ -85,9 +88,18 @@ interface VpnEngine {
 
     /** Calls [listener] when [configBusy] changes; returns the way to stop listening. */
     fun listenConfig(listener: () -> Unit): () -> Unit = {}
+
+    /** v1.6.0 (N10): the external address through the tunnel (blocking; null when unknown). */
+    fun externalIp(): shop.corgi.client.core.ExternalIp? = null
 }
 
-class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = System::currentTimeMillis) : ViewModel() {
+class VpnViewModel(
+    private val engine: VpnEngine,
+    private val now: () -> Long = System::currentTimeMillis,
+    private val io: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.IO
+) : ViewModel() {
+    private var lookup: Job? = null
+
     private val mutableState = MutableStateFlow(read(VpnUiState()))
     val state: StateFlow<VpnUiState> = mutableState.asStateFlow()
 
@@ -106,6 +118,14 @@ class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = 
     fun refresh() {
         val next = read(mutableState.value)
         mutableState.value = next
+        if (next.isConnected && next.externalIp.isEmpty() && lookup?.isActive != true) {
+            lookup = viewModelScope.launch {
+                val found = kotlinx.coroutines.withContext(io) { engine.externalIp() }
+                if (found != null && mutableState.value.isConnected) {
+                    mutableState.update { it.copy(externalIp = found.ip, externalFlag = found.flag) }
+                }
+            }
+        }
         if (next.isConnected && ticker?.isActive != true) {
             ticker = viewModelScope.launch {
                 while (isActive && mutableState.value.isConnected) {
@@ -160,6 +180,8 @@ class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = 
             adBlockPending = previous.adBlockPending && status != VpnStatus.Idle,
             streakDays = engine.streak(),
             hasProfile = engine.hasProfile(),
+            externalIp = if (status == VpnStatus.Connected) previous.externalIp else "",
+            externalFlag = if (status == VpnStatus.Connected) previous.externalFlag else "",
             configBusy = engine.configBusy(),
             mustChoose = engine.mustChoose(),
             error = if (status == VpnStatus.Idle) engine.lastError() else ""

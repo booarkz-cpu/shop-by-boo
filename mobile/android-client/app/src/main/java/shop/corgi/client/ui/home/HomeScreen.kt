@@ -140,6 +140,15 @@ fun HomeContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 StatusBadge(state.status)
+                // v1.6.0 (N10): the address the internet sees, with its country's flag.
+                AnimatedVisibility(state.isConnected && state.externalIp.isNotEmpty(), enter = fadeIn(), exit = fadeOut()) {
+                    Text(
+                        listOf(state.externalFlag, state.externalIp).filter { it.isNotEmpty() }.joinToString(" "),
+                        Modifier.testTag("external-ip"),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 if (compact) {
                     CompactSwitch(state) {
                         strong()
@@ -444,11 +453,11 @@ private fun AdBlockRow(state: VpnUiState, onToggle: () -> Unit) {
     }
 }
 
-/** The bars of the server card from the measured delay: 3 — fast, 2 — fair, 1 — slow, 0 — not measured or no answer. */
+/** The bars from the measured delay (v1.6.0, N10): 3 — under 100 ms, 2 — 100–300 ms, 1 — slower, 0 — not measured or no answer. */
 fun signalBars(ping: Int?): Int = when {
     ping == null || ping <= 0 -> 0
-    ping < 150 -> 3
-    ping < 400 -> 2
+    ping < 100 -> 3
+    ping <= 300 -> 2
     else -> 1
 }
 
@@ -462,13 +471,14 @@ fun SignalIcon(ping: Int?) {
             1 -> Icons.Filled.NetworkWifi1Bar
             else -> Icons.Filled.SignalWifi0Bar
         }
-    val tint = if (bars >= 2) {
-        Brand.Success
-    } else if (bars == 1) {
-        Brand.Warm
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
+    val tint =
+        when {
+            bars == 3 -> Brand.Success
+            bars == 2 -> Color(0xFFF5C451)
+            bars == 1 -> Brand.Warm
+            ping != null && ping < 0 -> Brand.Danger // no answer: red
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        }
     Icon(icon, tr("Сигнал", "Signal", "Сигнал"), Modifier.size(20.dp).testTag("signal-$bars"), tint = tint)
 }
 
