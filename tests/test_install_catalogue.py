@@ -30,6 +30,8 @@ def test_every_card_leads_to_a_working_place():
             assert op["action"]["tab"] in tabs, op["id"]
         elif kind == "module":
             assert op["action"]["module"] in rw_plan.MODULES and op["action"]["needs"] in ("node", "any"), op["id"]
+        elif kind == "action":
+            assert op["action"]["name"] in rw_plan.ACTIONS, op["id"]
         else:
             assert kind == "install"
     assert {o["id"] for o in ops if o["simple"]} >= {"install_panel", "add_node", "hardening", "node_port"}, "the basics in «Простой»"
