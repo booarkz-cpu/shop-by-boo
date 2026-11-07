@@ -1,3 +1,4 @@
+import {SiteTemplateSelect} from "./selfsteal";
 import React, {useEffect, useRef, useState} from "react";
 import {EmptyState, LoadState, SuccessNote} from "./components/ui/state";
 
@@ -158,7 +159,7 @@ function Registry({servers, request, toast, reload}: {servers: any[]; request: R
 function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: any[]; request: Request; toast: (t: string) => void; onQueued: (id: number) => void}) {
   const [f, setF] = useState<any>({mode: "panel_node", panel_server_id: "", node_server_ids: [] as string[], subpage_server_id: "", panel_domain: "",
     sub_domain: "", node_domain: "", tls: "acme", acme_email: "", node_port: "2222", node_name: "node", country_code: "XX", firewall: true, panel_access: "open", auth_domain: "",
-    selfsteal_domain: "", selfsteal_template: "cloud", subpage_template: "default", transports: [] as string[],
+    selfsteal_domain: "", selfsteal_template: "cloud", selfsteal_lang: "ru", subpage_template: "default", transports: [] as string[],
     fingerprint: "firefox", tls_min: "1.3", tls_max: "1.3", node_port_ips: ""});
   const [plan, setPlan] = useState<any>(null);
   const [error, setError] = useState("");
@@ -183,7 +184,7 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
       node_name: f.node_name, country_code: f.country_code.toUpperCase(), firewall: f.firewall,
       panel_access: needPanel ? f.panel_access : "open",
       auth_domain: needPanel && f.panel_access === "tinyauth" ? f.auth_domain || null : null,
-      selfsteal_domain: selfsteal ? f.selfsteal_domain || null : null, selfsteal_template: f.selfsteal_template,
+      selfsteal_domain: selfsteal ? f.selfsteal_domain || null : null, selfsteal_template: f.selfsteal_template, selfsteal_lang: f.selfsteal_lang,
       transports: selfsteal && f.selfsteal_domain ? f.transports : [],
       fingerprint: f.fingerprint, tls_min: f.tls_min, tls_max: f.tls_max, node_port_ips: splitList(f.node_port_ips),
       subpage_template: needSub ? f.subpage_template : "default"};
@@ -243,8 +244,9 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
       {selfsteal && <fieldset className="wide" data-rw-selfsteal><legend>SelfSteal — маскировка ноды под сайт (TLS + REALITY)</legend>
         <p className="muted">Caddy на ноде получает сертификат домена ноды и отдаёт сайт-шаблон через сокет; Xray REALITY на порту 443 направляет туда всех, у кого нет ключей. Мастер создаст профиль REALITY и хост в панели. Домен должен указывать на сервер ноды.</p>
         <label>Домен ноды<input value={f.selfsteal_domain} onChange={set("selfsteal_domain")} placeholder="node1.example.com"/></label>
-        <label>Сайт-шаблон<select value={f.selfsteal_template} onChange={set("selfsteal_template")}>
-          <option value="cloud">Облачное хранилище</option><option value="docs">Документация</option><option value="corgi">Блог о корги</option></select></label>
+        <SiteTemplateSelect request={request} value={f.selfsteal_template} onChange={v => setF({...f, selfsteal_template: v})}
+          lang={f.selfsteal_lang} onLang={v => setF({...f, selfsteal_lang: v})}/>
+        <p className="muted">22 шаблона, у каждой ноды своя сборка; свой сайт из архива и проверка снаружи — «Серверы → SelfSteal».</p>
         {f.selfsteal_domain && f.tls === "acme" && <label>Email для Let's Encrypt<input type="email" value={f.acme_email} onChange={set("acme_email")} required/></label>}
         {f.selfsteal_domain && !(needPanel || needSub) && <label>Сертификат<select value={f.tls} onChange={set("tls")}>
           <option value="acme">Let's Encrypt</option><option value="internal">Внутренний Caddy (проверка)</option></select></label>}
@@ -357,10 +359,10 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
 }
 
 // v28.82.0: extra transports of a SelfSteal node next to VLESS + TCP + REALITY on 443 (rw_plan.TRANSPORTS).
-// v28.90.0 (N6): «tls» — VLESS + TCP + TLS with the TLS versions chosen below.
+// v28.92.0 (N6): «tls» — VLESS + TCP + TLS with the TLS versions chosen below.
 const TRANSPORTS: [string, string][] = [["xhttp", "VLESS + xHTTP + REALITY (TCP 4443)"], ["grpc", "VLESS + gRPC + REALITY (TCP 8443)"],
   ["hysteria2", "Hysteria2 (UDP 443, сертификат домена SelfSteal)"], ["tls", "VLESS + TCP + TLS (TCP 2053, сертификат домена SelfSteal)"]];
-// v28.90.0 (N5): rw_plan.FINGERPRINTS — what browser the client pretends to be (uTLS).
+// v28.92.0 (N5): rw_plan.FINGERPRINTS — what browser the client pretends to be (uTLS).
 const FINGERPRINTS: [string, string][] = [["firefox", "Firefox (по умолчанию)"], ["chrome", "Chrome"], ["safari", "Safari"], ["ios", "iOS"],
   ["android", "Android"], ["edge", "Edge"], ["qq", "QQ"], ["random", "Случайный из популярных"], ["randomized", "Полностью случайный"]];
 const splitList = (v: string) => String(v || "").split(/[\s,]+/).map(x => x.trim()).filter(Boolean);
@@ -406,7 +408,8 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
   const [f, setF] = useState<any>({name: "ipv6", enabled: false, server_ids: nodes.map(s => String(s.id)), version: "latest", accept_warp_tos: false,
     setup_key: "", management_url: "", subscription_url: "", interval: "300", checker_server: String((nodes[0] || servers[0] || {}).id || ""),
     transports: (job.result?.state?.transports || job.params?.transports || []) as string[],
-    h_fail2ban: true, h_upgrades: true, h_bbr: true, h_ips: "", selfsteal_template: job.params?.selfsteal_template || "cloud",
+    h_fail2ban: true, h_upgrades: true, h_bbr: true, h_ips: "", selfsteal_template: job.params?.selfsteal_template === "custom" ? "cloud" : job.params?.selfsteal_template || "cloud",
+    selfsteal_lang: job.params?.selfsteal_lang || "ru",
     fingerprint: job.params?.fingerprint || "firefox", tls_min: job.params?.tls_min || "1.3", tls_max: job.params?.tls_max || "1.3",
     node_port_ips: (job.params?.node_port_ips || []).join(", ")});
   const [checker, setChecker] = useState<any>(null);
@@ -422,7 +425,7 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
     if (f.name === "netbird" && f.enabled) { m.setup_key = f.setup_key; m.management_url = f.management_url || null; }
     if (f.name === "transports") { m.enabled = true; m.transports = f.transports; m.fingerprint = f.fingerprint; m.tls_min = f.tls_min; m.tls_max = f.tls_max; }
     if (f.name === "node_port") { m.server_ids = f.server_ids.map(Number); m.node_port_ips = splitList(f.node_port_ips); }
-    if (f.name === "selfsteal_site") { m.enabled = true; m.selfsteal_template = f.selfsteal_template; }
+    if (f.name === "selfsteal_site") { m.enabled = true; m.selfsteal_template = f.selfsteal_template; m.selfsteal_lang = f.selfsteal_lang; }
     if (["hardening", "watchdog"].includes(f.name)) m.server_ids = f.server_ids.map(Number);
     if (f.name === "hardening") {
       m.enabled = true;
@@ -470,8 +473,10 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
       </div>}
       {f.name === "transports" && <TransportPicker value={f.transports} onChange={v => setF({...f, transports: v})}/>}
       {f.name === "transports" && <Camouflage f={f} set={set} transports={f.transports}/>}
-      {f.name === "selfsteal_site" && <label data-rw-selfsteal-site>Сайт-шаблон (сейчас: {({cloud: "Облачное хранилище", docs: "Документация", corgi: "Блог о корги"} as any)[job.params?.selfsteal_template || "cloud"]})<select value={f.selfsteal_template} onChange={set("selfsteal_template")}>
-        <option value="cloud">Облачное хранилище</option><option value="docs">Документация</option><option value="corgi">Блог о корги</option></select></label>}
+      {f.name === "selfsteal_site" && <div data-rw-selfsteal-site className="wide"><p className="muted">Сейчас: {job.params?.selfsteal_template || "cloud"}.
+        Свой сайт из архива — «Серверы → SelfSteal».</p>
+        <SiteTemplateSelect request={request} value={f.selfsteal_template} onChange={v => setF({...f, selfsteal_template: v})}
+          lang={f.selfsteal_lang} onLang={v => setF({...f, selfsteal_lang: v})}/></div>}
       {f.name === "xray_core" && f.enabled && <label>Версия<input value={f.version} onChange={set("version")} placeholder="latest или v25.10.15" pattern="latest|v\d+\.\d+\.\d+"/></label>}
       {f.name === "warp" && f.enabled && <label className="inline wide"><input type="checkbox" checked={f.accept_warp_tos} onChange={set("accept_warp_tos")}/>
         Я принимаю условия Cloudflare WARP (wgcf зарегистрирует учётную запись WARP для каждого сервера)</label>}
