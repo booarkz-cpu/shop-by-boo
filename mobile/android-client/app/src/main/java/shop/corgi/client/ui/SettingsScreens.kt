@@ -483,12 +483,30 @@ private fun AboutPage(store: Store) {
                 Text(hwid, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
             }
         }
+        // v1.6.1 (N11): the client and its Xray core update themselves; the geo files too.
+        var s by remember { mutableStateOf(store.settings) }
+        Section(tr("Обновления", "Updates", "Оновлення")) {
+            ToggleRow(tr("Обновлять автоматически", "Update automatically", "Оновлювати автоматично"),
+                tr("Раз в сутки по Wi-Fi: новая версия с новым ядром Xray скачивается и проверяется, установка — по нажатию",
+                    "Once a day on Wi-Fi: a new version with a new Xray core is downloaded and checked, installed by a tap",
+                    "Раз на добу через Wi-Fi: нова версія з новим ядром Xray завантажується й перевіряється"), s.autoUpdateApp) {
+                s = s.copy(autoUpdateApp = it); store.settings = s; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
+            ToggleRow(tr("Обновлять geo-файлы", "Update the geo files", "Оновлювати geo-файли"),
+                tr("Раз в сутки, если они скачаны", "Once a day, when they are downloaded", "Раз на добу, якщо вони завантажені"), s.autoUpdateGeo) {
+                s = s.copy(autoUpdateGeo = it); store.settings = s; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
+            store.readyUpdate()?.let { apk ->
+                NavRow(Icons.Filled.Settings, tr("Установить ", "Install ", "Встановити ") + (store.cachedUpdate()?.versionName ?: ""),
+                    hint = tr("Скачано и проверено по SHA-256", "Downloaded and checked by SHA-256", "Завантажено й перевірено SHA-256")) {
+                    (context as? android.app.Activity)?.let { runCatching { shop.corgi.client.vpn.ApkInstaller.install(it, apk) } }
+                }
+            }
+        }
         Section(tr("Ссылки", "Links", "Посилання")) {
             NavRow(Icons.Filled.Info, tr("Лицензии третьих сторон", "Third-party licences", "Ліцензії третіх сторін")) { licenses = true }
             NavRow(Icons.Filled.Settings, tr("Проверить обновления", "Check for updates", "Перевірити оновлення")) {
                 updateText = tr("Проверка…", "Checking…", "Перевірка…")
                 thread {
-                    val text = runCatching { store.checkUpdate(force = true) }.fold(
+                    val text = runCatching { store.checkUpdate(force = true)?.also { u -> runCatching { store.downloadUpdate(u) } } }.fold(
                         { it?.let { u -> tr("Доступна версия ", "Version available: ", "Доступна версія ") + u.versionName } ?: tr("Установлена последняя версия", "Up to date", "Встановлено останню версію") },
                         { tr("Не удалось проверить", "Could not check", "Не вдалося перевірити") })
                     android.os.Handler(context.mainLooper).post { updateText = text }

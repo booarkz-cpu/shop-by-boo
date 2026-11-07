@@ -104,6 +104,10 @@ data class Settings(
     val autoUpdate: Boolean = true,
     val updateMinutes: Int = 360,
     val notifyUpdates: Boolean = false,
+    /** v1.6.1 (N11): download a newer client (and its Xray core) in the background and offer to install it. */
+    val autoUpdateApp: Boolean = true,
+    /** v1.6.1 (N11): refresh the geo files once a day when they are present. */
+    val autoUpdateGeo: Boolean = true,
     val updateOnLaunch: Boolean = true,
     val pingOnLaunch: Boolean = false,
     val pingAfterUpdate: Boolean = false,
@@ -147,7 +151,7 @@ data class Settings(
         .put("appsMode", appsMode).put("apps", JSONArray(apps.sorted()))
         .put("theme", theme).put("materialYou", materialYou).put("amoled", amoled).put("textScale", textScale.toDouble()).put("lang", lang)
         .put("connectStyle", connectStyle).put("vibration", vibration)
-        .put("autoUpdate", autoUpdate).put("updateMinutes", updateMinutes).put("notifyUpdates", notifyUpdates).put("updateOnLaunch", updateOnLaunch)
+        .put("autoUpdate", autoUpdate).put("updateMinutes", updateMinutes).put("notifyUpdates", notifyUpdates).put("autoUpdateApp", autoUpdateApp).put("autoUpdateGeo", autoUpdateGeo).put("updateOnLaunch", updateOnLaunch)
         .put("pingOnLaunch", pingOnLaunch).put("pingAfterUpdate", pingAfterUpdate).put("sendHwid", sendHwid).put("userAgent", userAgent).put("sort", sort)
         .put("tunnelMode", tunnelMode).put("localProxy", localProxy).put("shareLan", shareLan).put("socksPort", socksPort).put("httpPort", httpPort)
         .put("proxyAuth", proxyAuth).put("httpAuth", httpAuth).put("proxyUser", proxyUser).put("proxyPass", proxyPass).put("mux", mux)
@@ -208,6 +212,7 @@ data class Settings(
             tryField { it.copy(textScale = json.optDouble("textScale", 1.0).toFloat()) }
             tryField { it.copy(lang = s("lang", d.lang)) }
             tryField { it.copy(connectStyle = s("connectStyle", d.connectStyle)) }
+            tryField { it.copy(autoUpdateApp = b("autoUpdateApp", d.autoUpdateApp), autoUpdateGeo = b("autoUpdateGeo", d.autoUpdateGeo)) }
             tryField { it.copy(autoUpdate = b("autoUpdate", d.autoUpdate), notifyUpdates = b("notifyUpdates", d.notifyUpdates), updateOnLaunch = b("updateOnLaunch", d.updateOnLaunch)) }
             tryField { it.copy(updateMinutes = i("updateMinutes", d.updateMinutes)) }
             tryField { it.copy(pingOnLaunch = b("pingOnLaunch", d.pingOnLaunch), pingAfterUpdate = b("pingAfterUpdate", d.pingAfterUpdate), sendHwid = b("sendHwid", d.sendHwid)) }
