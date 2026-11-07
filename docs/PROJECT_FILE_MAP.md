@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.95.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.96.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2357**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2358**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1213,6 +1213,7 @@
 | [docs/ru/RELEASE_V28_93_0.md](../docs/ru/RELEASE_V28_93_0.md) | Документация |
 | [docs/ru/RELEASE_V28_94_0.md](../docs/ru/RELEASE_V28_94_0.md) | Документация |
 | [docs/ru/RELEASE_V28_95_0.md](../docs/ru/RELEASE_V28_95_0.md) | Документация |
+| [docs/ru/RELEASE_V28_96_0.md](../docs/ru/RELEASE_V28_96_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |

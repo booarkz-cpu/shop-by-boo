@@ -10,7 +10,7 @@ type Installation = {id: number; title: string; servers: {id: number; name: stri
   outdated: string[]; busy: boolean; last_update: Row | null};
 type Row = {id: number; source_id: number | null; status: string; error: string | null; created_by: string; created_at: string | null;
   finished_at: string | null; automatic: boolean; rolled_back?: boolean};
-type State = {settings: {enabled: boolean; time: string; installation_ids: number[]; notify: boolean}; next_run: string | null;
+type State = {settings: {enabled: boolean; time: string; installation_ids: number[]; notify: boolean; geo?: boolean}; next_run: string | null;
   verified: Record<string, string>; upstream: {checked_at: string | null; components: Record<string, Component>};
   panel: {status: string; version: string | null; verified: string} | null; installations: Installation[]; history: Row[];
   panel_copies?: {name: string; server_id: number; size: number; created_at: string}[]};
@@ -29,7 +29,7 @@ export function RwAutoUpdate({request, toast}: {request: Request; toast?: (text:
   const [state, setState] = useState<State | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({enabled: false, time: "04:30", installation_ids: [] as number[], notify: true});
+  const [form, setForm] = useState({enabled: false, time: "04:30", installation_ids: [] as number[], notify: true, geo: false});
   const [picked, setPicked] = useState<number[]>([]);
 
   async function load(sync = false) {
@@ -37,7 +37,7 @@ export function RwAutoUpdate({request, toast}: {request: Request; toast?: (text:
       const next: State = await request("/api/admin/remnawave/auto-update");
       setState(next);
       setError("");
-      if (sync) setForm(next.settings);
+      if (sync) setForm({...next.settings, geo: !!next.settings.geo});
     } catch (e: any) {
       setError(e.message || "Состояние недоступно");
     }
@@ -119,6 +119,7 @@ export function RwAutoUpdate({request, toast}: {request: Request; toast?: (text:
         {state.installations.map(i => <label className="check" key={i.id}><input type="checkbox" checked={form.installation_ids.includes(i.id)}
           onChange={() => setForm({...form, installation_ids: scope(i.id, form.installation_ids)})}/> #{i.id} {i.title}: {i.servers.map(s => s.name).join(", ")}</label>)}
       </fieldset> : null}
+      <label className="check" data-autoupdate-geo><input type="checkbox" checked={!!form.geo} onChange={e => setForm({...form, geo: e.target.checked})}/> В то же время обновлять российские списки блокировок (только там, где они установлены; нода перезапускается)</label>
       <label className="check"><input type="checkbox" checked={form.notify} onChange={e => setForm({...form, notify: e.target.checked})}/> Сообщать в Telegram о новых релизах и итогах обновления</label>
       {state?.next_run ? <p className="muted"><span>Следующий запуск</span>: {when(state.next_run)}</p> : null}
       <div className="toolbar"><button className="primary" disabled={busy} onClick={() => act("/api/admin/remnawave/auto-update", "PUT", form, "Расписание сохранено")}>Сохранить</button></div>
