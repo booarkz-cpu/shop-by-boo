@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 import pytest
+from sqlalchemy import select
 
 from app import install_catalogue, rw_plan
 from test_rw_installer import ADMIN, add_server, fleet, plan_and_approve, run_all  # noqa: F401
@@ -286,3 +287,63 @@ async def test_geo_lists_go_into_the_node_compose_and_out_again(database, fleet,
     await module(False)
     compose = next(v for k, v in host.files.items() if len(k) == 2 and k[0] == "/opt/remnanode" and k[1] == "docker-compose.yml")
     assert "./geo/" not in compose
+
+
+@pytest.mark.asyncio
+async def test_panel_domain_change_keeps_subscriptions_and_moves_the_links(database, fleet):
+    """v28.97.0 (N7): «Сменить домен панели» — DNS first, a copy of the database, the panel's .env and Caddy on the new
+    domain; the former one keeps /api/sub/ and the shop's API, the rest is redirected; the shop's links move; later the
+    former domain can be dropped."""
+    from datetime import datetime, timedelta
+
+    from fastapi import HTTPException
+
+    from app import rw_api
+    from app.models import RemnawaveInstallation, Subscription
+    db = database
+    server = await add_server(db, fleet, "p1", "198.51.100.50")
+    await rw_api.check_server(server["id"], db, ADMIN)
+    install = await plan_and_approve(db, rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com",
+                                                        tls="internal"))
+    await run_all(db)
+    db.add_all([Subscription(user_id=901, plan_id=1, expires_at=datetime.utcnow() + timedelta(days=5),
+                             subscription_url="https://panel.example.com/api/sub/abc"),
+                Subscription(user_id=902, plan_id=1, expires_at=datetime.utcnow() + timedelta(days=5),
+                             subscription_url="https://other.example.net/api/sub/xyz")])
+    await db.commit()
+    host = fleet["198.51.100.50"]
+
+    async def change(**body):
+        planned = await rw_api.action(install["id"], rw_api.ActionIn(action="change_domain", **body), db, ADMIN)
+        await rw_api.approve(planned["id"], rw_api.ApproveIn(plan_sha256=planned["plan_sha256"]), db, ADMIN)
+        await run_all(db)
+        return planned
+    for bad in ({"new_panel_domain": "panel.example.com"}, {"new_panel_domain": "not a domain"}, {}):
+        with pytest.raises(HTTPException):
+            await rw_api.action(install["id"], rw_api.ActionIn(action="change_domain", **bad), db, ADMIN)
+    with pytest.raises(HTTPException):
+        await rw_api.action(install["id"], rw_api.ActionIn(action="update", new_panel_domain="x.example.com"), db, ADMIN)
+
+    planned = await change(new_panel_domain="New-Panel.example.com.")
+    kinds = [s["kind"] for s in planned["plan"]["steps"]]
+    assert kinds[:2] == ["preflight", "backup_panel"] and "write_files" in kinds and kinds[-1] == "verify"
+    assert planned["plan"]["steps"][0]["params"]["domains"] == ["new-panel.example.com"]
+    row = await db.get(RemnawaveInstallation, planned["id"])
+    assert row.status == "succeeded", row.error
+    env = host.files[("/opt/remnawave", ".env")]
+    assert 'PANEL_DOMAIN="new-panel.example.com"' in env and 'SUB_PUBLIC_DOMAIN="new-panel.example.com/api/sub"' in env
+    caddy = host.files[("/opt/remnawave-caddy", "Caddyfile")]
+    assert "new-panel.example.com {" in caddy and "panel.example.com {" in caddy and "redir https://new-panel.example.com{uri} 308" in caddy
+    links = {s.user_id: s.subscription_url for s in (await db.execute(select(Subscription).where(Subscription.user_id.in_([901, 902])))).scalars()}
+    assert links == {901: "https://new-panel.example.com/api/sub/abc", 902: "https://other.example.net/api/sub/xyz"}
+    source = await db.get(RemnawaveInstallation, install["id"])
+    await db.refresh(source)
+    assert source.params["panel_domain"] == "new-panel.example.com" and source.params["panel_domain_aliases"] == ["panel.example.com"]
+    state = await install_catalogue.server_state(db, server["id"])
+    assert state["panel_domain"] == "new-panel.example.com" and state["panel_domain_aliases"] == ["panel.example.com"]
+
+    await change(new_panel_domain="new-panel.example.com", keep_old_domain=False)  # «Прежние домены больше не нужны»
+    caddy = host.files[("/opt/remnawave-caddy", "Caddyfile")]
+    assert "panel.example.com {" not in caddy.replace("new-panel.example.com {", "")
+    await db.refresh(source)
+    assert source.params["panel_domain_aliases"] == []

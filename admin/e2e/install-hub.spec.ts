@@ -19,6 +19,7 @@ test('Установка: catalogue, modes, search, a module plan and the danger
   await page.route('**/api/admin/install/catalogue*', async (r: any) => {
     const real = await (await r.fetch({url: r.request().url().split('?')[0]})).json();
     const state = {server: {id: 7, name: 'fi-1', host: '93.184.216.34', status: 'ready'}, installation_id: 9, roles: ['node', 'panel'],
+      panel_domain: 'panel.example.com', panel_domain_aliases: [], separate_subpage: false,
       steps: {prepared: true, panel: true, domain: false}};
     for (const op of real.operations) op.ready = true;
     return r.fulfill({json: {...real, state}});
@@ -81,6 +82,15 @@ test('Установка: catalogue, modes, search, a module plan and the danger
   await expect(anti).toContainText('1 из 2');
   await anti.getByRole('button', {name: 'Исправить'}).click();
   await expect(hub.locator('[data-install-plan="node_guard"]')).toBeVisible();
+
+  // v28.97.0: «Сменить домен панели» — the new domain and keeping the former one for subscriptions.
+  await hub.locator('[data-op="change_domain"]').getByRole('button', {name: 'Установить'}).click();
+  const dom = hub.locator('[data-install-domain]');
+  await expect(dom).toContainText('Сейчас: panel.example.com');
+  await dom.locator('[data-domain-new]').fill('Panel2.example.com');
+  await dom.getByRole('button', {name: 'Дальше'}).click();
+  await dom.getByRole('button', {name: 'Составить план', exact: true}).click();
+  expect(sent.at(-1)).toEqual({action: 'change_domain', new_panel_domain: 'panel2.example.com', keep_old_domain: true});
 
   // Danger zone: nothing until the server's name is typed.
   const danger = hub.locator('[data-install-danger]');

@@ -170,3 +170,7 @@ SelfSteal ставится вместе с нодой: в мастере уст�
 ### Российские списки блокировок (v28.95.0)
 
 Модуль `geo_files`: `rw_releases.geo_lists()` берёт последний выпуск `runetfreedom/russia-v2ray-rules-dat` (тег ГГГГММДДЧЧММ) с SHA-256, опубликованным GitHub, и фиксирует его в плане; `rw_steps.GEO` скачивает `geoip.dat` / `geosite.dat` только с адреса этого выпуска, сверяет сумму и кладёт в `/opt/remnanode/geo/ru-*.dat` (прежние — в `.rw-prev`); `node_compose(geo=True)` монтирует их в `/usr/local/share/xray/ru-*.dat` (встроенные файлы образа не заменяются); нода перезапускается. В правилах — `ext:ru-geosite.dat:<категория>`, `ext:ru-geoip.dat:<категория>`. Настоящая проверка — `scripts/ci/geo-check.sh`.
+
+### Смена домена панели (v28.97.0)
+
+Действие `change_domain` (`ActionIn.new_panel_domain`, `keep_old_domain`): `PlanIn.panel_domain` меняется, прежний попадает в `panel_domain_aliases` (до трёх). План — `preflight` (DNS нового домена), `backup_panel`, `write_files` панели и Caddy, `compose_up`, `wait_panel`, `verify`. `rw_plan.caddyfile(moved=…)` пишет для прежнего домена блок: `/api/sub/*` и `/api/*` с Bearer — в панель (Host нового домена), остальное — `redir 308`. После успеха `rw_jobs._move_subscription_links` переписывает `Subscription.subscription_url` с префиксом прежнего домена (только без отдельной страницы подписки).
