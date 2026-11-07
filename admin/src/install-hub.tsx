@@ -103,6 +103,14 @@ function ActionPlan({title, text, state, request, toast, body, onClose, danger}:
 function Snapshots({request, toast}: any) {
   const [list, setList] = useState<any[] | null>(null);
   const [error, setError] = useState("");
+  const [plan, setPlan] = useState<any>(null);
+  useEffect(() => { request("/api/admin/install/snapshots-schedule").then(setPlan).catch(() => {}); }, []);
+  async function saveSchedule() {
+    setError("");
+    try { setPlan(await request("/api/admin/install/snapshots-schedule", {method: "PUT", body: JSON.stringify({enabled: plan.enabled, time: plan.time, telegram: plan.telegram})}));
+      toast(plan.enabled ? `Снапшоты каждый день в ${plan.time} МСК` : "Ежедневные снапшоты выключены"); }
+    catch (e: any) { setError(e.message); }
+  }
   const load = () => request("/api/admin/install/snapshots").then((x: any) => setList(x.snapshots)).catch((e: any) => setError(e.message));
   useEffect(() => { load(); }, []);
   async function download(name: string) {
@@ -122,6 +130,14 @@ function Snapshots({request, toast}: any) {
     <h4>Снапшоты серверов</h4>
     <p className="muted">Зашифрованы в магазине (последние 5 на сервер). Скачивание — с подтверждением 2FA; файлы — tar.gz, база панели — pg_dump.</p>
     {error && <div role="alert" className="error">{error}</div>}
+    {plan && <div className="toolbar" data-install-schedule>
+      <label className="inline"><input type="checkbox" checked={plan.enabled} onChange={e => setPlan({...plan, enabled: e.target.checked})}/> Каждый день</label>
+      <label>в (МСК)<input type="time" value={plan.time} onChange={e => setPlan({...plan, time: e.target.value})}/></label>
+      <label className="inline"><input type="checkbox" checked={plan.telegram} onChange={e => setPlan({...plan, telegram: e.target.checked})}/> и в Telegram (чат и пароль — «Резервные копии»)</label>
+      <button onClick={saveSchedule}>Сохранить</button>
+      {plan.state?.last && <span className="muted">Последний запуск: {new Date(plan.state.last.at).toLocaleString("ru-RU")}
+        {plan.state.last.sent ? `, в Telegram: ${plan.state.last.sent}` : ""}{plan.state.last.errors?.length ? `, замечания: ${plan.state.last.errors.join("; ")}` : ""}</span>}
+    </div>}
     {list === null ? <p className="muted">Загрузка…</p> : list.length === 0 ? <p className="muted">Снапшотов пока нет: карточка «Снапшот сервера → скачать».</p> :
       <div className="table-wrap"><table><thead><tr><th>Когда</th><th>Сервер</th><th>Что</th><th>Размер</th><th/></tr></thead>
         <tbody>{list.map(s => <tr key={s.name}><td>{new Date(s.created_at).toLocaleString("ru-RU")}</td><td>#{s.server_id}</td>
