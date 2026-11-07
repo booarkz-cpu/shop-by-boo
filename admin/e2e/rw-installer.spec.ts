@@ -97,7 +97,8 @@ test('add a server, check it, review the plan, run it and read the step log', as
 
 // v28.70.0 (stage 12): SelfSteal in the wizard and the node modules of a finished installation.
 test('SelfSteal fields, node modules plan and Xray Checker results', async ({page}) => {
-  test.setTimeout(60_000);
+  // v28.90.0: two more module plans (protocols and the node port) — the whole test needs more time on a CI runner.
+  test.setTimeout(150_000);
   const server = (id: number, name: string) => ({id, name, host: `198.51.100.${id}`, ssh_port: 22, ssh_user: 'root', auth_method: 'key', has_secret: true,
     host_key_fingerprint: FP, purpose: ['node'], roles: ['node'], status: 'installed', arch: 'x86_64', checks: [], check_ok: true});
   const job = {id: 9, action: 'install', mode: 'node', title: 'Только нода', server_ids: [2], status: 'succeeded', progress: 100,
