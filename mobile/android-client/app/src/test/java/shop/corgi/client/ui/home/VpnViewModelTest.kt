@@ -23,7 +23,7 @@ import shop.corgi.client.vpn.Session
 private class FakeEngine : VpnEngine {
     var state = "off"
     var session = Session()
-    var adBlock = false
+    var adBlockOn = false
     var geo = true
     var disconnects = 0
     val listeners = mutableListOf<(String) -> Unit>()
@@ -47,10 +47,10 @@ private class FakeEngine : VpnEngine {
 
     override fun session() = session
 
-    override fun adBlock() = adBlock
+    override fun adBlock() = adBlockOn
 
     override fun setAdBlock(on: Boolean) {
-        adBlock = on
+        adBlockOn = on
     }
 
     override fun geoReady() = geo
@@ -110,15 +110,15 @@ class VpnViewModelTest {
         model.toggleAdBlock()
         assertFalse(model.state.value.adBlock)
         assertTrue(model.state.value.adBlockNeedsGeo)
-        assertFalse(engine.adBlock)
+        assertFalse(engine.adBlockOn)
         engine.geo = true
         model.toggleAdBlock()
-        assertTrue(model.state.value.adBlock && engine.adBlock)
+        assertTrue(model.state.value.adBlock && engine.adBlockOn)
         assertFalse(model.state.value.adBlockNeedsGeo || model.state.value.adBlockPending)
         engine.set("on")
         model.toggleAdBlock()
         assertTrue(model.state.value.adBlockPending)
-        assertFalse(engine.adBlock)
+        assertFalse(engine.adBlockOn)
         engine.set("off")
         assertFalse("the next connection takes the switch as it is", model.state.value.adBlockPending)
         advanceTimeBy(3 * VpnViewModel.TICK_MS)
