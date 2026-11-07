@@ -212,3 +212,57 @@ async def test_an_uncertain_non_yookassa_payment_is_not_charged_again(database, 
         await shop.create_payment({"plan_id": 1, "provider": "platega"}, checkout([(b"idempotency-key", b"buy-twice")]), database)
     assert blocked.value.status_code == 409 and "повторное списание заблокировано" in blocked.value.detail
     assert Gateway.calls == ["SecondGateway"], "the retry never reaches the provider"
+
+
+@pytest.mark.asyncio
+async def test_the_same_checkout_key_for_another_plan_is_refused(database, monkeypatch):
+    """Was: 'lock:checkout-intent:' and 'if existing.plan_id != plan_id' in MAIN (test_v301_audit.py)."""
+    await _checkout_env(database, monkeypatch, ["platega"])
+    with pytest.raises(HTTPException):
+        await shop.create_payment({"plan_id": 1, "provider": "platega"}, checkout([(b"idempotency-key", b"buy-plan")]), database)
+    with pytest.raises(HTTPException) as other:
+        await shop.create_payment({"plan_id": 2, "provider": "platega"}, checkout([(b"idempotency-key", b"buy-plan")]), database)
+    assert (other.value.status_code, other.value.detail) == (409, "Idempotency-Key уже использован для другого платежа")
+    assert Gateway.calls == ["SecondGateway"], "the other plan never reaches the provider"
+
+
+@pytest.mark.asyncio
+async def test_reconciliation_recovers_a_lost_yookassa_answer_by_the_order_id(database, monkeypatch):
+    """Was: main.count('find_by_order_id(p.order_id, p.created_at)') and no provider.create in MAIN (test_critical_audit_v2005.py)."""
+    from sqlalchemy import select
+    from app import recovery_api
+    seen = []
+
+    class Lookup:
+        async def find_by_order_id(self, order_id, created_at):
+            seen.append(("find", order_id))
+            return {"id": "yk-found", "confirmation": {"confirmation_url": "https://pay.example.test/yk-found"}}
+
+        async def create(self, *args, **kwargs):
+            seen.append(("create",))
+            raise AssertionError("reconciliation must not open a second charge")
+
+        async def verify_succeeded(self, *args):
+            seen.append(("verify",) + args[:1])
+            return False
+
+    class Idle:
+        pass
+
+    async def noop(*args, **kwargs):
+        return None
+    for name in ("PlategaProvider", "RollyPayProvider", "CryptoBotProvider", "FreekassaProvider", "StripePlatform", "PayPalPlatform",
+                 "CryptoGatewayPlatform"):
+        monkeypatch.setattr(shop, name, Idle)
+    monkeypatch.setattr(shop, "YooKassaProvider", Lookup)
+    monkeypatch.setattr(recovery_api, "extra_gateways", lambda: {})
+    monkeypatch.setattr(shop, "audit", noop)
+    database.add(Payment(user_id=1, subscription_id=1, plan_id=1, provider="yookassa", order_id="lost-order", amount=100, currency="RUB",
+                         status="creation_unknown", fulfillment_terminal=True))
+    await database.commit()
+    out = await recovery_api.reconcile_payments(database, admin=type("A", (), {"email": "owner@example.test"})())
+    assert out["creation_unknown_recovered"] == 1
+    assert seen == [("find", "lost-order"), ("verify", "yk-found")]
+    row = await database.scalar(select(Payment).where(Payment.order_id == "lost-order").execution_options(populate_existing=True))
+    assert (row.provider_payment_id, row.status, row.fulfillment_terminal) == ("yk-found", "pending", False)
+    assert row.checkout_url == "https://pay.example.test/yk-found"
