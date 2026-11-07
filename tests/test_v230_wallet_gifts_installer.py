@@ -1,4 +1,3 @@
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -41,7 +40,3 @@ def test_wallet_gifts_and_days_promo_are_wired():
     assert shop.discounted_amount(100, "fixed", 500) == Decimal("100.00")
     assert shop.discounted_amount(100, "fixed", -5) == Decimal("0.00")
     # The purchaser cannot redeem their own gift: test_v2_0_0_product_and_critical_audit.py.
-
-
-def test_v230_release_markers_remain_as_history():
-    main_source()

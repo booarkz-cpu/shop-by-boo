@@ -131,3 +131,41 @@ def test_staging_output_hides_secrets_but_not_public_ids():
               "platega_merchant_id": "merchant-123456789", "remnawave_token": "short"}
     out = staging_e2e_api._redact_staging_output("k=live-secret-abcdef id=shop-123456789 r=runner-token-xyz m=merchant-123456789 t=short", config)
     assert out == "k=[скрыто] id=shop-123456789 r=[скрыто] m=merchant-123456789 t=short"
+
+
+# ---- Content settings and system health (replaces the source checks of test_v43_regressions.py, test_v34_hardening.py) ----
+from app import content_branding_api, recovery_api  # noqa: E402
+from app.models import AppSetting, WorkerState  # noqa: E402
+
+
+@pytest.mark.asyncio
+async def test_admin_content_shows_content_and_only_booleans_for_secrets(database):
+    database.add_all([AppSetting(key="app_name", value="Корги"), AppSetting(key="yookassa_secret_key", value="enc:live-secret"),
+                      AppSetting(key="backup_password", value=""), AppSetting(key="staging_e2e.config", value="enc:staging"),
+                      AppSetting(key="internal.other", value="never-shown")])
+    await database.commit()
+    out = await content_branding_api.admin_content(database, admin=None)
+    assert out["settings"]["app_name"] == "Корги"
+    assert out["secret_status"] == {"yookassa_secret_key": True, "backup_password": False, "staging_e2e.config": True}
+    text = repr(out)
+    assert "live-secret" not in text and "enc:staging" not in text and "never-shown" not in text
+
+
+@pytest.mark.asyncio
+async def test_system_health_counts_fresh_online_workers_of_this_role(database, monkeypatch):
+    monkeypatch.setattr(shop, "engine", database.bind)
+    monkeypatch.setattr(shop, "redis_client", None)
+    role = shop.settings.worker_role
+    now = datetime.utcnow()
+    database.add_all([WorkerState(worker_id="w1", role=role, status="online", last_seen_at=now - timedelta(seconds=10)),
+                      WorkerState(worker_id="w2", role=role, status="online", last_seen_at=now - timedelta(seconds=300)),
+                      WorkerState(worker_id="w3", role=role, status="stopped", last_seen_at=now),
+                      WorkerState(worker_id="w4", role=role + "-other", status="online", last_seen_at=now)])
+    await database.commit()
+    out = await recovery_api.system_health(admin=None)
+    assert out["database"] is True and out["redis"] is False
+    assert out["worker_count"] == 1 and out["worker_healthy"] is True
+    await database.delete(await database.get(WorkerState, 1))
+    await database.commit()
+    out = await recovery_api.system_health(admin=None)
+    assert out["worker_count"] == 0 and out["worker_healthy"] is False and out["worker_heartbeat"] is None
