@@ -114,6 +114,13 @@ jobs:
         run: |
           sudo apt-get install -y -qq nftables iproute2 >/dev/null
           sudo env "PATH=$PATH" bash scripts/ci/node-port-guard.sh
+      - name: Server modules of «Установка» (guard, MSS clamp, swap) for real
+        # v28.92.0 (N7): backend/app/rw_netmods.py scripts in network namespaces and a swap file on the runner.
+        if: matrix.shard == 1
+        timeout-minutes: 8
+        run: |
+          sudo apt-get install -y -qq nftables iproute2 iputils-ping >/dev/null
+          sudo env "PATH=$PATH" bash scripts/ci/netmods-check.sh
       - name: Alembic heads
         working-directory: backend
         run: alembic heads
