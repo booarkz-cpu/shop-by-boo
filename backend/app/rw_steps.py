@@ -346,7 +346,6 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
                 ".env": rw_plan.checker_env(url, plan.xray_checker_interval, ctx.secrets["checker_user"], ctx.secrets["checker_password"])}
     if component == "selfsteal":
         return {"Caddyfile": rw_plan.selfsteal_caddyfile(plan.selfsteal_domain, plan.tls, plan.acme_email),
-                "index.html": rw_plan.selfsteal_page(plan.selfsteal_template, plan.selfsteal_domain),
                 "docker-compose.yml": rw_plan.selfsteal_compose()}
     raise StepError(f"Неизвестный компонент {component}")
 
@@ -381,12 +380,71 @@ async def run_write_files(ctx: Context, st: dict) -> None:
         written.append(name)
         _note(ctx, f"{directory}/{name}: записан, SHA-256 сверен")
     ctx.state.setdefault("written", {})[f"{st['server_id']}:{component}"] = written
+    if component == "selfsteal":
+        await deploy_site(ctx, st["server_id"])
 
 
 async def undo_write_files(ctx: Context, st: dict) -> None:
     component = st["params"]["component"]
+    if component == "selfsteal" and str(st["server_id"]) in ctx.state.get("site_deployed", {}):
+        await _run(ctx, st["server_id"], SITE, "undo", timeout=120)
+        ctx.state["site_deployed"].pop(str(st["server_id"]))
     for name in ctx.state.get("written", {}).get(f"{st['server_id']}:{component}", []):
         await _run(ctx, st["server_id"], UNWRITE, rw_plan.DIRS[component], name, timeout=60)
+
+
+# ---------- the SelfSteal site (v28.91.0, N8) ----------
+# The site arrives as a tar.gz on stdin (checked by SHA-256), unpacks into sites/site-<sha> and «current» is switched to
+# it in one rename; «undo» switches back. The three newest builds stay for a fast way back.
+SITE = r"""set -eu
+action="$1"; sum="${2:-}"; d=/opt/remnawave-selfsteal/sites
+install -d -m 0755 "$d"; cd "$d"
+case "$action" in
+  put)
+    case "$sum" in ""|*[!a-f0-9]*) exit 2 ;; esac
+    new="site-$(printf %.16s "$sum")"
+    if [ ! -d "$new" ]; then
+      tmp=$(mktemp -d "$d/.new.XXXXXX")
+      cat > "$tmp.tgz"
+      echo "$sum  $tmp.tgz" | sha256sum -c - >/dev/null 2>&1 || { rm -rf "$tmp" "$tmp.tgz"; echo badsum; exit 3; }
+      tar -xzf "$tmp.tgz" -C "$tmp" --no-same-owner --no-same-permissions; rm -f "$tmp.tgz"
+      if find "$tmp" ! -type f ! -type d | grep -q . || [ ! -f "$tmp/index.html" ]; then rm -rf "$tmp"; echo badsite; exit 4; fi
+      chmod 0755 "$tmp"; chmod -R a+rX "$tmp"; mv "$tmp" "$new"
+    fi
+    prev=$(readlink current 2>/dev/null || true)
+    printf '%s\n' "$prev" > previous
+    ln -sfn "$new" current.tmp && mv -Tf current.tmp current
+    ls -1dt site-* 2>/dev/null | tail -n +4 | grep -vx "$new" | grep -vx "${prev:-none}" | xargs -r rm -rf
+    echo "site=$new files=$(find "$new" -type f | wc -l)" ;;
+  undo)
+    prev=$(cat previous 2>/dev/null || true)
+    if [ -n "$prev" ] && [ -d "$prev" ]; then ln -sfn "$prev" current.tmp && mv -Tf current.tmp current; else rm -f current; fi
+    echo "site=${prev:-none}" ;;
+  *) exit 2 ;;
+esac
+"""
+
+
+def site_bundle(plan: rw_plan.PlanIn) -> bytes:
+    """The node's site as tar.gz: a catalogue build for its domain, or the archive the administrator uploaded."""
+    from . import selfsteal_sites
+    if plan.selfsteal_template == "custom":
+        from .rw_selfsteal import upload_path
+        path = upload_path(plan.selfsteal_upload)
+        if not path.is_file():
+            raise StepError("Загруженный сайт не найден: загрузите архив снова в «SelfSteal → Свой сайт»")
+        return path.read_bytes()
+    return selfsteal_sites.pack(selfsteal_sites.build_site(plan.selfsteal_template, plan.selfsteal_domain, plan.selfsteal_lang))
+
+
+async def deploy_site(ctx: Context, server_id: int) -> None:
+    import hashlib
+    data = site_bundle(ctx.plan)
+    result = await _run(ctx, server_id, SITE, "put", hashlib.sha256(data).hexdigest(), stdin=data, timeout=180)
+    _note(ctx, result.out + result.err)
+    if result.code != 0:
+        raise StepError("Сайт SelfSteal не выложен на ноду (SHA-256 или содержимое архива; журнал шага)")
+    ctx.state.setdefault("site_deployed", {})[str(server_id)] = True
 
 
 # ---------- compose ----------

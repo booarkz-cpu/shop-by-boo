@@ -111,7 +111,9 @@ class ModuleIn(BaseModel):
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site"]
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
-    selfsteal_template: Literal["cloud", "docs", "corgi"] | None = None         # v28.88.0
+    selfsteal_template: str | None = Field(default=None, max_length=40)         # v28.88.0; v28.91.0 — the catalogue or «custom»
+    selfsteal_lang: Literal["ru", "en"] | None = None                           # v28.91.0
+    selfsteal_upload: str | None = Field(default=None, pattern=r"^[a-f0-9]{16}$")  # v28.91.0: an uploaded site
     hardening: rw_plan.Hardening | None = None                                  # v28.84.0
     transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)  # v28.81.0
     version: str | None = Field(default=None, pattern=r"^(latest|v\d{1,3}\.\d{1,3}\.\d{1,3})$")  # Xray core
@@ -501,6 +503,13 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
         if not mod.selfsteal_template:
             raise HTTPException(422, "Выберите сайт-шаблон")
         params["selfsteal_template"] = mod.selfsteal_template  # the plan writes the site from the installation's settings
+        params["selfsteal_upload"] = mod.selfsteal_upload if mod.selfsteal_template == "custom" else None
+        if mod.selfsteal_lang:
+            params["selfsteal_lang"] = mod.selfsteal_lang
+        if mod.selfsteal_template == "custom":
+            from .rw_selfsteal import upload_path
+            if not mod.selfsteal_upload or not upload_path(mod.selfsteal_upload).is_file():
+                raise HTTPException(422, "Свой сайт не найден: загрузите архив в «SelfSteal → Свой сайт»")
     if mod.name == "xray_checker":
         if mod.enabled:
             url = mod.subscription_url.get_secret_value().strip() if mod.subscription_url else secrets.get("checker_subscription_url", "")

@@ -518,6 +518,13 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/rw/installations/{installation_id}/xray-checker` | Xray Checker | право `read` |
 | `GET` | `/api/admin/rw/meta` | Meta | право `read` |
 | `GET` | `/api/admin/rw/proxy-routes` | Proxy Routes | право `read` |
+| `GET` | `/api/admin/rw/selfsteal/catalogue` | Catalogue | право `read` |
+| `POST` | `/api/admin/rw/selfsteal/check` | Check | право `provision_nodes` |
+| `GET` | `/api/admin/rw/selfsteal/overview` | Overview | право `read` |
+| `GET` | `/api/admin/rw/selfsteal/preview/{template}` | Preview | право `read` |
+| `GET` | `/api/admin/rw/selfsteal/sites` | List Sites | право `read` |
+| `POST` | `/api/admin/rw/selfsteal/sites` | Upload Site | право `provision_nodes` |
+| `DELETE` | `/api/admin/rw/selfsteal/sites/{site_id}` | Delete Site | право `provision_nodes` |
 | `GET` | `/api/admin/rw/servers` | List Servers | право `read` |
 | `POST` | `/api/admin/rw/servers` | Create Server | право `provision_nodes` |
 | `POST` | `/api/admin/rw/servers/scan` | Scan | право `provision_nodes` |

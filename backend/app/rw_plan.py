@@ -55,7 +55,11 @@ TRANSPORTS = {"xhttp": ("VLESS_XHTTP_REALITY", 4443, "tcp"), "grpc": ("VLESS_GRP
 TRANSPORT_TITLES = {"xhttp": "VLESS + xHTTP + REALITY (TCP 4443)", "grpc": "VLESS + gRPC + REALITY (TCP 8443)", "hysteria2": "Hysteria2 (UDP 443)"}
 HYSTERIA_DIR = "/opt/remnanode/hysteria"
 HYSTERIA_MOUNT = "/var/lib/corgi-hysteria"
-SELFSTEAL_TEMPLATES = {"cloud": "Облачное хранилище", "docs": "Документация", "corgi": "Блог о корги"}
+# v28.91.0 (N8): the catalogue of selfsteal_sites (22 templates, a build of its own for every node) and «custom» —
+# a site the administrator uploaded as an archive (selfsteal_upload: its id in «SelfSteal → Свои сайты»).
+from .selfsteal_sites import CATALOGUE as _SITES  # noqa: E402
+
+SELFSTEAL_TEMPLATES = {t.id: t.ru[0][0] for t in _SITES} | {"custom": "свой сайт"}
 MODES = ("panel_node", "panel", "node", "panel_subpage", "subpage", "distributed", "add_node")
 MODE_TITLES = {
     "panel_node": "Панель и нода на одном сервере", "panel": "Только панель", "node": "Только нода",
@@ -92,7 +96,9 @@ class PlanIn(BaseModel):
     # v28.70.0: SelfSteal on the node — Caddy serves a template site for this domain on a unix socket and Xray
     # REALITY on port 443 uses it as its «dest» (the node looks like an ordinary site).
     selfsteal_domain: str | None = Field(default=None, max_length=253)
-    selfsteal_template: Literal["cloud", "docs", "corgi"] = "cloud"
+    selfsteal_template: str = Field(default="cloud", max_length=40)
+    selfsteal_lang: Literal["ru", "en"] = "ru"
+    selfsteal_upload: str | None = Field(default=None, pattern=r"^[a-f0-9]{16}$")
     # v28.77.0: the page of the Remnawave subscription page — its own, or Orion (legiz-ru/Orion, MIT) pinned below.
     subpage_template: Literal["default", "orion"] = "default"
     # v28.70.0: node modules that change the files the wizard writes, so updates keep them:
@@ -151,6 +157,10 @@ class PlanIn(BaseModel):
                 raise ValueError("Домен ноды и домен SelfSteal должны совпадать")
             if self.tls == "acme" and not self.acme_email:
                 raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
+        if self.selfsteal_template not in SELFSTEAL_TEMPLATES:
+            raise ValueError("Сайт SelfSteal: шаблон из каталога или свой сайт")
+        if (self.selfsteal_template == "custom") != bool(self.selfsteal_upload):
+            raise ValueError("Свой сайт SelfSteal: выберите загруженный архив")
         self.transports = sorted(set(self.transports))
         if self.transports and not self.selfsteal_domain:
             raise ValueError("Транспорты xHTTP, gRPC и Hysteria2 ставятся на ноду с SelfSteal (домен ноды и сертификат)")
@@ -600,8 +610,13 @@ def selfsteal_caddyfile(domain: str, tls: str, email: str | None) -> str:
         opts.append(f"\temail {email}")
     return "\n".join(["{", *opts, "}", "",
                       f"http://{domain} {{", "\tbind 0.0.0.0", f"\tredir https://{domain}{{uri}} permanent", "}", "",
-                      f"https://{domain} {{", f"\tbind unix/{SELFSTEAL_SOCKET}", "\troot * /srv", "\ttry_files {path} /index.html",
-                      "\tfile_server", "}", "",
+                      # v28.91.0 (N8): a whole site (rw_steps.SITE keeps «current» pointing at the deployed build), its own
+                      # 404 page, HSTS and no «Server: Caddy» — what «SelfSteal → Проверка снаружи» looks for.
+                      f"https://{domain} {{", f"\tbind unix/{SELFSTEAL_SOCKET}", "\troot * /sites/current",
+                      "\theader {", "\t\t-Server", '\t\tStrict-Transport-Security "max-age=31536000; includeSubDomains"',
+                      "\t\tX-Content-Type-Options nosniff", "\t\tReferrer-Policy strict-origin-when-cross-origin", "\t}",
+                      "\tencode gzip", "\ttry_files {path} {path}/index.html {path}.html", "\tfile_server",
+                      "\thandle_errors {", "\t\trewrite * /404.html", "\t\tfile_server", "\t}", "}", "",
                       ":80 {", "\tbind 0.0.0.0", "\trespond 204", "}", ""])
 
 
@@ -613,7 +628,7 @@ def selfsteal_compose() -> str:
     restart: always
     network_mode: host
     command: sh -c 'rm -f {SELFSTEAL_SOCKET} && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'
-    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "./index.html:/srv/index.html:ro", "/dev/shm:/dev/shm:rw", "caddy-data:/data", "caddy-config:/config"]
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "./sites:/sites:ro", "/dev/shm:/dev/shm:rw", "caddy-data:/data", "caddy-config:/config"]
     healthcheck:
       test: ["CMD", "test", "-S", "{SELFSTEAL_SOCKET}"]
       interval: 5s
@@ -623,24 +638,6 @@ volumes:
   caddy-data: {{}}
   caddy-config: {{}}
 """
-
-
-def selfsteal_page(template: str, domain: str) -> str:
-    """A small, self-contained site (no outside requests): what anyone who opens the node's domain sees."""
-    import html as _html
-    d = _html.escape(domain)
-    pages = {
-        "cloud": ("Хранилище файлов", "Синхронизация и резервные копии для команд", ["Шифрование на устройстве", "Версии файлов 30 дней", "Доступ по ссылке"], "#2563EB"),
-        "docs": ("Документация", "Руководства, справочник API и заметки к выпускам", ["Быстрый старт", "Справочник API", "Заметки к выпускам"], "#0F766E"),
-        "corgi": ("Дневник корги", "Прогулки, рецепты лакомств и советы по уходу", ["Осенние прогулки", "Печенье из тыквы", "Как вычёсывать подшёрсток"], "#C2410C"),
-    }
-    title, lead, items, color = pages.get(template, pages["cloud"])
-    lis = "".join(f"<li>{_html.escape(x)}</li>" for x in items)
-    return (f"<!doctype html><html lang=ru><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-            f"<title>{_html.escape(title)} — {d}</title><style>body{{margin:0;font:16px/1.6 system-ui,sans-serif;color:#1f2937;background:#f8fafc}}"
-            f"header{{background:{color};color:#fff;padding:48px 24px}}main{{max-width:760px;margin:0 auto;padding:24px}}h1{{margin:0 0 8px}}"
-            f"li{{margin:8px 0}}footer{{color:#64748b;text-align:center;padding:24px}}</style></head><body><header><div style='max-width:760px;margin:0 auto'><h1>{_html.escape(title)}</h1>"
-            f"<p>{_html.escape(lead)}</p></div></header><main><ul>{lis}</ul></main><footer>© {d}</footer></body></html>")
 
 
 ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs")
