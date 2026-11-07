@@ -13,9 +13,13 @@ def test_release_301_is_current_and_documented():
     assert "3.0.1" in readme and "3.0.0-realise" in readme
     assert "3.0.1" in security and "decrypt_secret" in security
     assert "9.13" in instruction
-    import sys
-    import app.main  # noqa: F401
-    assert "backend.app.security" not in sys.modules  # the app imports its own package, never a second copy
+    import types
+
+    import app.main
+    # The app imports its own package, never a second copy as «backend.app…» (another test may import one; the app must not).
+    names = [getattr(v, "__name__", "") if isinstance(v, types.ModuleType) else getattr(v, "__module__", "") or ""
+             for v in vars(app.main).values()]
+    assert not [n for n in names if n.startswith("backend.")]
 
 
 def test_gift_lock_order():
