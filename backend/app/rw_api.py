@@ -108,12 +108,16 @@ class ApproveIn(BaseModel):
 class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port"]
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     selfsteal_template: Literal["cloud", "docs", "corgi"] | None = None         # v28.88.0
     hardening: rw_plan.Hardening | None = None                                  # v28.84.0
-    transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)  # v28.81.0
+    transports: list[rw_plan.TransportName] = Field(default_factory=list, max_length=4)  # v28.81.0
+    fingerprint: rw_plan.Fingerprint | None = None                             # v28.90.0 (N5), with «transports»
+    tls_min: rw_plan.TlsVersion | None = None                                   # v28.90.0 (N6), with «transports»
+    tls_max: rw_plan.TlsVersion | None = None
+    node_port_ips: list[str] | None = Field(default=None, max_length=10)       # v28.90.0 (N5), with «node_port»
     version: str | None = Field(default=None, pattern=r"^(latest|v\d{1,3}\.\d{1,3}\.\d{1,3})$")  # Xray core
     accept_warp_tos: bool = False
     setup_key: SecretStr | None = Field(default=None, max_length=200)          # NetBird
@@ -495,6 +499,13 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
         # The chosen set replaces the current one; an empty set leaves only VLESS + TCP + REALITY.
         params["transports"] = sorted(set(mod.transports)) if mod.enabled else []
         run["transports"] = params["transports"]
+        for key in ("fingerprint", "tls_min", "tls_max"):
+            if getattr(mod, key) is not None:
+                params[key] = getattr(mod, key)
+    if mod.name == "node_port":
+        if mod.node_port_ips is not None:
+            params["node_port_ips"] = mod.node_port_ips  # PlanIn checks the addresses
+        run["server_ids"] = mod.server_ids
     if mod.name == "selfsteal_site":
         if not params.get("selfsteal_domain"):
             raise HTTPException(422, "У этой установки нет SelfSteal")

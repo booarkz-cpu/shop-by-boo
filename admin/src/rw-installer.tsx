@@ -158,7 +158,8 @@ function Registry({servers, request, toast, reload}: {servers: any[]; request: R
 function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: any[]; request: Request; toast: (t: string) => void; onQueued: (id: number) => void}) {
   const [f, setF] = useState<any>({mode: "panel_node", panel_server_id: "", node_server_ids: [] as string[], subpage_server_id: "", panel_domain: "",
     sub_domain: "", node_domain: "", tls: "acme", acme_email: "", node_port: "2222", node_name: "node", country_code: "XX", firewall: true, panel_access: "open", auth_domain: "",
-    selfsteal_domain: "", selfsteal_template: "cloud", subpage_template: "default", transports: [] as string[]});
+    selfsteal_domain: "", selfsteal_template: "cloud", subpage_template: "default", transports: [] as string[],
+    fingerprint: "firefox", tls_min: "1.3", tls_max: "1.3", node_port_ips: ""});
   const [plan, setPlan] = useState<any>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -184,6 +185,7 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
       auth_domain: needPanel && f.panel_access === "tinyauth" ? f.auth_domain || null : null,
       selfsteal_domain: selfsteal ? f.selfsteal_domain || null : null, selfsteal_template: f.selfsteal_template,
       transports: selfsteal && f.selfsteal_domain ? f.transports : [],
+      fingerprint: f.fingerprint, tls_min: f.tls_min, tls_max: f.tls_max, node_port_ips: splitList(f.node_port_ips),
       subpage_template: needSub ? f.subpage_template : "default"};
   }
   async function makePlan(e: React.FormEvent) {
@@ -234,7 +236,9 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
         <label>Порт ноды<input type="number" min={1024} max={65535} value={f.node_port} onChange={set("node_port")}/></label>
         <label>Имя ноды в панели<input value={f.node_name} onChange={set("node_name")} pattern="[A-Za-z0-9_-]{3,24}"/></label>
         <label>Страна (код)<input value={f.country_code} onChange={set("country_code")} pattern="[A-Za-z]{2}" maxLength={2}/></label>
-        <label className="inline"><input type="checkbox" checked={f.firewall} onChange={set("firewall")}/> Открыть порт ноды только для адреса панели (если включён ufw)</label>
+        <label className="inline"><input type="checkbox" checked={f.firewall} onChange={set("firewall")}/> Порт ноды — только для адреса панели (nftables; из интернета к нему не подключиться)</label>
+        {f.firewall && <label>Ещё адреса для порта ноды<input value={f.node_port_ips} onChange={set("node_port_ips")} placeholder="пусто — только панель; 203.0.113.9, …"/>
+          <span className="muted">Например, будущий адрес панели при переезде. Если после установки панель не видит ноду, правило снимается само.</span></label>}
       </>}
       {selfsteal && <fieldset className="wide" data-rw-selfsteal><legend>SelfSteal — маскировка ноды под сайт (TLS + REALITY)</legend>
         <p className="muted">Caddy на ноде получает сертификат домена ноды и отдаёт сайт-шаблон через сокет; Xray REALITY на порту 443 направляет туда всех, у кого нет ключей. Мастер создаст профиль REALITY и хост в панели. Домен должен указывать на сервер ноды.</p>
@@ -245,6 +249,7 @@ function Wizard({meta, servers, request, toast, onQueued}: {meta: any; servers: 
         {f.selfsteal_domain && !(needPanel || needSub) && <label>Сертификат<select value={f.tls} onChange={set("tls")}>
           <option value="acme">Let's Encrypt</option><option value="internal">Внутренний Caddy (проверка)</option></select></label>}
         {f.selfsteal_domain && <TransportPicker value={f.transports} onChange={v => { setF({...f, transports: v}); setPlan(null); }}/>}
+        {f.selfsteal_domain && <Camouflage f={f} set={set} transports={f.transports}/>}
       </fieldset>}
       <div className="wide"><button className="primary" disabled={busy || usable.length === 0}>Составить план</button></div>
     </form>
@@ -352,14 +357,33 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
 }
 
 // v28.82.0: extra transports of a SelfSteal node next to VLESS + TCP + REALITY on 443 (rw_plan.TRANSPORTS).
+// v28.90.0 (N6): «tls» — VLESS + TCP + TLS with the TLS versions chosen below.
 const TRANSPORTS: [string, string][] = [["xhttp", "VLESS + xHTTP + REALITY (TCP 4443)"], ["grpc", "VLESS + gRPC + REALITY (TCP 8443)"],
-  ["hysteria2", "Hysteria2 (UDP 443, сертификат домена SelfSteal)"]];
+  ["hysteria2", "Hysteria2 (UDP 443, сертификат домена SelfSteal)"], ["tls", "VLESS + TCP + TLS (TCP 2053, сертификат домена SelfSteal)"]];
+// v28.90.0 (N5): rw_plan.FINGERPRINTS — what browser the client pretends to be (uTLS).
+const FINGERPRINTS: [string, string][] = [["firefox", "Firefox (по умолчанию)"], ["chrome", "Chrome"], ["safari", "Safari"], ["ios", "iOS"],
+  ["android", "Android"], ["edge", "Edge"], ["qq", "QQ"], ["random", "Случайный из популярных"], ["randomized", "Полностью случайный"]];
+const splitList = (v: string) => String(v || "").split(/[\s,]+/).map(x => x.trim()).filter(Boolean);
 
 function TransportPicker({value, onChange}: {value: string[]; onChange: (v: string[]) => void}) {
   return <div className="wide" data-rw-transports>
     <p className="muted">VLESS + TCP + REALITY на 443 остаётся всегда. Дополнительно (те же ключи REALITY и сайт SelfSteal; клиенты получат их в подписке):</p>
     {TRANSPORTS.map(([k, title]) => <label key={k} className="inline"><input type="checkbox" checked={value.includes(k)} data-rw-transport={k}
       onChange={e => onChange(e.target.checked ? [...value, k] : value.filter(x => x !== k))}/> {title}</label>)}
+    <button type="button" data-rw-all-transports onClick={() => onChange(TRANSPORTS.map(([k]) => k))}>Все протоколы на этой ноде</button>
+  </div>;
+}
+
+function Camouflage({f, set, transports}: {f: any; set: (k: string) => (e: any) => void; transports: string[]}) {
+  return <div className="wide" data-rw-camouflage>
+    <label>Отпечаток браузера (uTLS)<select value={f.fingerprint} onChange={set("fingerprint")} data-rw-fingerprint-select>
+      {FINGERPRINTS.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select>
+      <span className="muted">Каким браузером клиент выглядит для провайдера. Ставится во все хосты ноды, кроме Hysteria2 (у QUIC его нет).</span></label>
+    {transports.includes("tls") && <>
+      <label>TLS: от версии<select value={f.tls_min} onChange={set("tls_min")} data-rw-tls-min><option value="1.2">TLS 1.2</option><option value="1.3">TLS 1.3</option></select></label>
+      <label>TLS: до версии<select value={f.tls_max} onChange={set("tls_max")} data-rw-tls-max><option value="1.2">TLS 1.2</option><option value="1.3">TLS 1.3</option></select></label>
+    </>}
+    <p className="muted">REALITY и Hysteria2 работают только по TLS 1.3 — так устроены протоколы; выбор версии относится к «VLESS + TCP + TLS».</p>
   </div>;
 }
 
@@ -367,7 +391,8 @@ const MODULE_HINTS: Record<string, string> = {
   hardening: "Защита сервера: fail2ban, обновления безопасности, BBR, SSH только с ваших адресов. Только свои файлы настроек; откат возвращает прежнее.",
   watchdog: "Самовосстановление: таймер на самом сервере каждые 2 минуты поднимает остановленные контейнеры и перезапускает панель после трёх неудачных проверок. Работает, даже когда магазин недоступен.",
   selfsteal_site: "Меняет сайт-шаблон, который видят без ключей на домене ноды SelfSteal: файлы Caddy на ноде переписываются и Caddy перезапускается; нода, ключи REALITY и подписки не меняются. При ошибке возвращается прежний сайт.",
-  transports: "Меняет набор транспортов ноды SelfSteal: inbound'ы профиля, хосты и сквады в панели, порты ufw и сертификат Hysteria2 на ноде. Выбранный набор заменяет текущий; без галочек остаётся только TCP + REALITY.",
+  transports: "Меняет протоколы ноды SelfSteal и маскировку: inbound'ы профиля, хосты (с отпечатком браузера) и сквады в панели, порты и сертификат TLS на ноде. Выбранный набор заменяет текущий; без галочек остаётся только TCP + REALITY.",
+  node_port: "Порт ноды для панели: правило nftables на каждой выбранной ноде пускает к порту только адрес панели и указанные адреса — из интернета к нему не подключиться. Переезд панели: сначала добавьте новый адрес. Если после правила панель не видит ноду, правило снимается само.",
   ipv6: "Включает или выключает IPv6 на выбранных серверах (sysctl). Прежняя настройка сохраняется и возвращается при ошибке.",
   xray_core: "Ядро Xray выбранного релиза XTLS/Xray-core вместо ядра из образа ноды. SHA-256 берётся из GitHub при составлении плана и проверяется на сервере; при ошибке ничего не заменяется.",
   warp: "Интерфейс warp (Cloudflare WARP через wgcf, без маршрутов). Трафик в него направляет исходящий warp-out профиля — «Расширения Remnawave → WARP в профиле».",
@@ -381,7 +406,9 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
   const [f, setF] = useState<any>({name: "ipv6", enabled: false, server_ids: nodes.map(s => String(s.id)), version: "latest", accept_warp_tos: false,
     setup_key: "", management_url: "", subscription_url: "", interval: "300", checker_server: String((nodes[0] || servers[0] || {}).id || ""),
     transports: (job.result?.state?.transports || job.params?.transports || []) as string[],
-    h_fail2ban: true, h_upgrades: true, h_bbr: true, h_ips: "", selfsteal_template: job.params?.selfsteal_template || "cloud"});
+    h_fail2ban: true, h_upgrades: true, h_bbr: true, h_ips: "", selfsteal_template: job.params?.selfsteal_template || "cloud",
+    fingerprint: job.params?.fingerprint || "firefox", tls_min: job.params?.tls_min || "1.3", tls_max: job.params?.tls_max || "1.3",
+    node_port_ips: (job.params?.node_port_ips || []).join(", ")});
   const [checker, setChecker] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: string) => (e: any) => setF({...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value});
@@ -393,7 +420,8 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
     if (f.name === "xray_core" && f.enabled) m.version = f.version || "latest";
     if (f.name === "warp") m.accept_warp_tos = f.accept_warp_tos;
     if (f.name === "netbird" && f.enabled) { m.setup_key = f.setup_key; m.management_url = f.management_url || null; }
-    if (f.name === "transports") { m.enabled = true; m.transports = f.transports; }
+    if (f.name === "transports") { m.enabled = true; m.transports = f.transports; m.fingerprint = f.fingerprint; m.tls_min = f.tls_min; m.tls_max = f.tls_max; }
+    if (f.name === "node_port") { m.server_ids = f.server_ids.map(Number); m.node_port_ips = splitList(f.node_port_ips); }
     if (f.name === "selfsteal_site") { m.enabled = true; m.selfsteal_template = f.selfsteal_template; }
     if (["hardening", "watchdog"].includes(f.name)) m.server_ids = f.server_ids.map(Number);
     if (f.name === "hardening") {
@@ -402,7 +430,7 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
         admin_ips: String(f.h_ips || "").split(/[\s,]+/).map((x: string) => x.trim()).filter(Boolean)};
     }
     if (f.name === "xray_checker" && f.enabled) { m.server_ids = [Number(f.checker_server)]; m.interval = Number(f.interval); if (f.subscription_url) m.subscription_url = f.subscription_url; }
-    try { onPlanned(await request(`${API}/installations/${job.id}/actions`, post({action: "module", module: m}))); setF({...f, setup_key: ""}); }
+    try { onPlanned(await request(`${API}/installations/${job.id}/actions`, post({action: "module", module: m}))); setF((x: any) => ({...x, setup_key: ""})); }
     catch (err: any) { setError(err.message); } finally { setBusy(false); }
   }
   async function loadChecker() {
@@ -417,19 +445,22 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
     <p className="muted">Каждое изменение — план из закрытого списка шагов: просмотрите его и запустите. Откат при ошибке — автоматически.</p>
     {Object.keys(mods).length > 0 && <ul data-rw-module-state>{Object.entries(mods).map(([sid, m]: any) => <li key={sid}>
       <b>{(servers.find(s => String(s.id) === sid) || {name: `#${sid}`}).name}</b>: {[m.ipv6 && `IPv6 ${m.ipv6 === "off" ? "выключен" : "включён"}`,
-        m.xray_core && `ядро ${m.xray_core}`, m.warp && "WARP", m.netbird && "NetBird", m.hardening && "защита", m.watchdog && "самовосстановление", m.transports?.length && `транспорты: ${m.transports.join(", ")}`].filter(Boolean).join(", ") || "по умолчанию"}</li>)}</ul>}
+        m.xray_core && `ядро ${m.xray_core}`, m.warp && "WARP", m.netbird && "NetBird", m.hardening && "защита", m.watchdog && "самовосстановление", m.transports?.length && `транспорты: ${m.transports.join(", ")}`,
+        m.node_port && (m.node_port === "open" ? "порт ноды открыт" : `порт ноды: только ${m.node_port}`)].filter(Boolean).join(", ") || "по умолчанию"}</li>)}</ul>}
     <form onSubmit={plan} className="grid-form">
       <label>Модуль<select value={f.name} onChange={set("name")} data-rw-module>
         <option value="ipv6">IPv6</option><option value="xray_core">Ядро Xray</option><option value="warp">WARP Native</option>
         <option value="netbird">NetBird</option><option value="xray_checker">Xray Checker</option>
-        {job.params?.selfsteal_domain && <option value="transports">Транспорты ноды</option>}
+        {job.params?.selfsteal_domain && <option value="transports">Протоколы и маскировка</option>}
+        {nodes.length > 0 && <option value="node_port">Порт ноды для панели</option>}
         {job.params?.selfsteal_domain && <option value="selfsteal_site">Сайт SelfSteal</option>}
         <option value="hardening">Защита сервера</option><option value="watchdog">Самовосстановление</option></select></label>
       {!["transports", "hardening", "selfsteal_site"].includes(f.name) && <label>Действие<select value={f.enabled ? "on" : "off"} onChange={e => setF({...f, enabled: e.target.value === "on"})}>
-        <option value="on">{f.name === "xray_core" ? "Установить версию" : "Включить"}</option>
-        <option value="off">{f.name === "xray_core" ? "Вернуть ядро из образа" : "Выключить"}</option></select></label>}
+        <option value="on">{f.name === "xray_core" ? "Установить версию" : f.name === "node_port" ? "Только для панели (закрыть для остальных)" : "Включить"}</option>
+        <option value="off">{f.name === "xray_core" ? "Вернуть ядро из образа" : f.name === "node_port" ? "Открыть (снять правило)" : "Выключить"}</option></select></label>}
       <p className="muted wide">{MODULE_HINTS[f.name]}</p>
-      {["ipv6", "warp", "netbird", "hardening", "watchdog"].includes(f.name) && pickServers(["warp"].includes(f.name) ? nodes : servers)}
+      {["ipv6", "warp", "netbird", "hardening", "watchdog", "node_port"].includes(f.name) && pickServers(["warp", "node_port"].includes(f.name) ? nodes : servers)}
+      {f.name === "node_port" && f.enabled && <label className="wide" data-rw-node-port>Ещё адреса, кроме панели (через запятую)<input value={f.node_port_ips} onChange={set("node_port_ips")} placeholder="203.0.113.9 — новый адрес панели при переезде"/></label>}
       {f.name === "hardening" && <div className="wide" data-rw-hardening>
         <label className="inline"><input type="checkbox" checked={f.h_fail2ban} onChange={set("h_fail2ban")}/> fail2ban для SSH (3 ошибки входа — бан на 2 часа)</label>
         <label className="inline"><input type="checkbox" checked={f.h_upgrades} onChange={set("h_upgrades")}/> Автоматические обновления безопасности (без перезагрузки)</label>
@@ -438,6 +469,7 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
         <p className="muted">Адрес магазина добавляется сам — он управляет сервером по SSH. Ограничение работает через ufw: если ufw выключен, план остановится с понятной ошибкой.</p>
       </div>}
       {f.name === "transports" && <TransportPicker value={f.transports} onChange={v => setF({...f, transports: v})}/>}
+      {f.name === "transports" && <Camouflage f={f} set={set} transports={f.transports}/>}
       {f.name === "selfsteal_site" && <label data-rw-selfsteal-site>Сайт-шаблон (сейчас: {({cloud: "Облачное хранилище", docs: "Документация", corgi: "Блог о корги"} as any)[job.params?.selfsteal_template || "cloud"]})<select value={f.selfsteal_template} onChange={set("selfsteal_template")}>
         <option value="cloud">Облачное хранилище</option><option value="docs">Документация</option><option value="corgi">Блог о корги</option></select></label>}
       {f.name === "xray_core" && f.enabled && <label>Версия<input value={f.version} onChange={set("version")} placeholder="latest или v25.10.15" pattern="latest|v\d+\.\d+\.\d+"/></label>}

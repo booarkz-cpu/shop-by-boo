@@ -1,0 +1,10 @@
+# v1.5.0: ktlint (CI «Android client», step «ktlint») checks the code of the new main screen and its tests;
+# the older files join it as they are rewritten. Android Studio style, lines up to 140 characters.
+root = true
+
+[*.{kt,kts}]
+ktlint_code_style = android_studio
+max_line_length = 140
+indent_size = 4
+insert_final_newline = true
+ktlint_function_naming_ignore_when_annotated_with = Composable

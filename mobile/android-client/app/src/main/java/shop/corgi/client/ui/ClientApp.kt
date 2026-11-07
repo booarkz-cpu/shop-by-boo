@@ -178,118 +178,42 @@ private fun date(millis: Long): String = SimpleDateFormat("dd.MM.yy, HH:mm", Loc
 @Composable
 private fun HomeScreen(store: Store, connect: () -> Unit, refresh: () -> Unit, add: (String) -> Unit, openServers: () -> Unit) {
     val context = LocalContext.current
-    val haptic = LocalHapticFeedback.current
-    val vibrate = LocalVibration.current
-    val s = store.settings
-    var state by remember { mutableStateOf(ClientVpnService.current(context)) }
-    DisposableEffect(Unit) {
-        val listener: (String) -> Unit = { value -> android.os.Handler(android.os.Looper.getMainLooper()).post { state = value } }
-        ClientVpnService.listeners.add(listener)
-        onDispose { ClientVpnService.listeners.remove(listener) }
-    }
     val profile = store.active()
-    val on = state == ClientVpnService.STATE_ON
-    val toggle = {
-        if (vibrate) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-        if (state == ClientVpnService.STATE_OFF) connect() else ClientVpnService.stop(context)
-    }
-    val stateText = when (state) {
-        ClientVpnService.STATE_ON -> tr("Подключено", "Connected", "Підключено")
-        ClientVpnService.STATE_CONNECTING -> tr("Подключение…", "Connecting…", "Підключення…")
-        else -> tr("Нажмите для подключения", "Tap to connect", "Натисніть для підключення")
-    }
-    val connecting = state == ClientVpnService.STATE_CONNECTING
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(tr("Корги Люси", "Corgi Lusi", "Коргі Люсі"), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.primary)
-            Text("  v${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        HeroBanner()
-        // The slogan and the state under the picture, not over it.
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(tr("Свободный интернет без лишнего Гав!", "Free internet without the extra Woof!", "Вільний інтернет без зайвого Гав!"),
-                style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
-            StatusChip(stateText, on, connecting)
-        }
-        if (s.connectStyle == "compact") {
-            Row(Modifier.fillMaxWidth().glass(RoundedCornerShape(24.dp), MaterialTheme.colorScheme.surface).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(stateText, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                Switch(checked = on || connecting, onCheckedChange = { toggle() }, enabled = profile != null, modifier = Modifier.testTag("connect"))
-            }
-        } else {
-            ConnectButton(on, connecting, enabled = profile != null, label = stateText, onClick = toggle)
-        }
-        if (profile != null) ServerPicker(store, profile, refresh, openServers)
-        ClientVpnService.lastError(context).takeIf { it.isNotBlank() && state == ClientVpnService.STATE_OFF }?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        if (profile == null) {
-            Text(tr("Добавьте подписку, ссылку на сервер или конфигурацию Xray.", "Add a subscription, a server link or an Xray config.",
-                "Додайте підписку, посилання на сервер або конфігурацію Xray."), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        } else {
-            Text(tr("Текущий провайдер", "Current provider", "Поточний провайдер").uppercase(), style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            ProviderCard(store, profile, expanded = null, onToggle = null, refresh = refresh)
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Button(onClick = { add("") }, Modifier.weight(1f).height(52.dp)) {
-                Icon(Icons.Filled.Add, null); Spacer(Modifier.size(6.dp)); Text(tr("Добавить", "Add", "Додати"))
-            }
-            FilledTonalButton(onClick = { add(clipboard(context)) }, Modifier.weight(1f).height(52.dp)) {
-                Icon(Icons.Filled.ContentPaste, null); Spacer(Modifier.size(6.dp)); Text(tr("Вставить", "Paste", "Вставити"))
-            }
-            FilledTonalIconButton(onClick = { scanQr(context) { add(it) } }, Modifier.size(52.dp)) { Icon(Icons.Filled.QrCodeScanner, "QR") }
-        }
-        store.cachedUpdate()?.let { update ->
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(12.dp)) {
-                    Text(tr("Доступна версия", "Version available", "Доступна версія") + " ${update.versionName}", style = MaterialTheme.typography.titleSmall)
-                    TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(update.apk))) }) {
-                        Text(tr("Скачать обновление", "Download the update", "Завантажити оновлення"))
+    // v1.5.0: the screen itself is shop.corgi.client.ui.home (VpnViewModel + HomeContent); here — the parts on the store.
+    shop.corgi.client.ui.home.HomeScreen(connect = connect, compact = store.settings.connectStyle == "compact",
+        server = { if (profile != null) ServerPicker(store, profile, refresh, openServers) },
+        below = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (profile == null) {
+                    Text(tr("Добавьте подписку, ссылку на сервер или конфигурацию Xray.", "Add a subscription, a server link or an Xray config.",
+                        "Додайте підписку, посилання на сервер або конфігурацію Xray."), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else {
+                    Text(tr("Текущий провайдер", "Current provider", "Поточний провайдер").uppercase(), style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    ProviderCard(store, profile, expanded = null, onToggle = null, refresh = refresh)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Button(onClick = { add("") }, Modifier.weight(1f).height(52.dp)) {
+                        Icon(Icons.Filled.Add, null); Spacer(Modifier.size(6.dp)); Text(tr("Добавить", "Add", "Додати"))
+                    }
+                    FilledTonalButton(onClick = { add(clipboard(context)) }, Modifier.weight(1f).height(52.dp)) {
+                        Icon(Icons.Filled.ContentPaste, null); Spacer(Modifier.size(6.dp)); Text(tr("Вставить", "Paste", "Вставити"))
+                    }
+                    FilledTonalIconButton(onClick = { scanQr(context) { add(it) } }, Modifier.size(52.dp)) { Icon(Icons.Filled.QrCodeScanner, "QR") }
+                }
+                store.cachedUpdate()?.let { update ->
+                    Card(Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(12.dp)) {
+                            Text(tr("Доступна версия", "Version available", "Доступна версія") + " ${update.versionName}", style = MaterialTheme.typography.titleSmall)
+                            TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(update.apk))) }) {
+                                Text(tr("Скачать обновление", "Download the update", "Завантажити оновлення"))
+                            }
+                        }
                     }
                 }
+                if (!Xray.available()) Text(tr("В этой сборке нет движка Xray.", "This build has no Xray engine.", "У цій збірці немає рушія Xray."), color = MaterialTheme.colorScheme.error)
             }
-        }
-        if (!Xray.available()) Text(tr("В этой сборке нет движка Xray.", "This build has no Xray engine.", "У цій збірці немає рушія Xray."), color = MaterialTheme.colorScheme.error)
-    }
-}
-
-/** The picture of the brand alone, in a glass card (the slogan is under it — nothing is written over the corgi). */
-@Composable
-private fun HeroBanner() {
-    val context = LocalContext.current
-    val bitmap = remember { runCatching { context.assets.open("banners/app-vpn.jpg").use { android.graphics.BitmapFactory.decodeStream(it) } }.getOrNull() }
-    Box(Modifier.fillMaxWidth().height(172.dp).glass(RoundedCornerShape(28.dp), MaterialTheme.colorScheme.surface).padding(8.dp)
-        .clip(RoundedCornerShape(22.dp)).background(MaterialTheme.colorScheme.surfaceVariant).testTag("banner-app-vpn")) {
-        bitmap?.let { androidx.compose.foundation.Image(it.asImageBitmap(), tr("Корги Люси", "Corgi Lusi", "Коргі Люсі"),
-            Modifier.fillMaxWidth().height(172.dp), contentScale = androidx.compose.ui.layout.ContentScale.Crop) }
-    }
-}
-
-@Composable
-private fun StatusChip(text: String, on: Boolean, connecting: Boolean) {
-    val color = when { on -> Brand.Success; connecting -> Brand.Warm; else -> MaterialTheme.colorScheme.onSurfaceVariant }
-    Row(Modifier.glass(RoundedCornerShape(50), MaterialTheme.colorScheme.surface).padding(horizontal = 14.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box(Modifier.size(10.dp).clip(CircleShape).background(color))
-        Text(text, style = MaterialTheme.typography.labelLarge, color = color)
-    }
-}
-
-/** The big round button: a soft glow of the accent around it when connected, a ring while connecting. */
-@Composable
-private fun ConnectButton(on: Boolean, connecting: Boolean, enabled: Boolean, label: String, onClick: () -> Unit) {
-    val accent = MaterialTheme.colorScheme.primary
-    val glow by androidx.compose.animation.core.animateFloatAsState(if (on) 0.45f else if (connecting) 0.25f else 0.08f, label = "glow")
-    Box(Modifier.fillMaxWidth().height(260.dp), contentAlignment = Alignment.Center) {
-        Box(Modifier.size(250.dp).clip(CircleShape).background(androidx.compose.ui.graphics.Brush.radialGradient(listOf(accent.copy(alpha = glow), Color.Transparent))))
-        Box(Modifier.size(204.dp).clip(CircleShape)
-            .background(if (on) androidx.compose.ui.graphics.Brush.linearGradient(listOf(Brand.Warm, accent))
-                else androidx.compose.ui.graphics.Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surface)))
-            .border(if (connecting) 6.dp else 2.dp, if (on || connecting) accent else Color.White.copy(alpha = 0.10f), CircleShape)
-            .clickable(enabled = enabled, onClick = onClick).testTag("connect"), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.PowerSettingsNew, label, Modifier.size(92.dp), tint = if (on) Brand.Ink else accent)
-        }
-    }
+        })
 }
 
 /**
@@ -315,6 +239,7 @@ private fun ServerPicker(store: Store, profile: Profile, refresh: () -> Unit, op
                 auto -> ServerRowContent("⚡", tr("Автовыбор", "Auto select", "Автовибір"), listOf(tr("самый быстрый", "fastest", "найшвидший")), null, s.pingDisplay)
                 else -> ServerRowContent(flagOf(selected!!.name), selected.name.removePrefix(flagOf(selected.name)).trim(), selected.labels, pings[Ping.key(selected)], s.pingDisplay)
             }
+            if (profile.kind != "json" && selected != null) shop.corgi.client.ui.home.SignalIcon(pings[Ping.key(selected)])
             Icon(Icons.Filled.ExpandMore, tr("Все серверы", "All servers", "Усі сервери"), Modifier.graphicsLayer { rotationZ = arrow },
                 tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }

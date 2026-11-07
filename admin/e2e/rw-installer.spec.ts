@@ -97,7 +97,8 @@ test('add a server, check it, review the plan, run it and read the step log', as
 
 // v28.70.0 (stage 12): SelfSteal in the wizard and the node modules of a finished installation.
 test('SelfSteal fields, node modules plan and Xray Checker results', async ({page}) => {
-  test.setTimeout(60_000);
+  // v28.90.0: two more module plans (protocols and the node port) — the whole test needs more time on a CI runner.
+  test.setTimeout(150_000);
   const server = (id: number, name: string) => ({id, name, host: `198.51.100.${id}`, ssh_port: 22, ssh_user: 'root', auth_method: 'key', has_secret: true,
     host_key_fingerprint: FP, purpose: ['node'], roles: ['node'], status: 'installed', arch: 'x86_64', checks: [], check_ok: true});
   const job = {id: 9, action: 'install', mode: 'node', title: 'Только нода', server_ids: [2], status: 'succeeded', progress: 100,
@@ -126,6 +127,13 @@ test('SelfSteal fields, node modules plan and Xray Checker results', async ({pag
   await expect(ss).toContainText('TLS + REALITY');
   await ss.getByLabel('Домен ноды', {exact: true}).fill('node.example.com');
   await expect(ss.getByLabel('Сайт-шаблон', {exact: true}).locator('option')).toHaveCount(3);
+  // v28.90.0 (N5, N6): every protocol in one click, the browser fingerprint (Firefox by default), TLS versions for VLESS + TCP + TLS.
+  await expect(ss.getByLabel('Отпечаток браузера (uTLS)', {exact: true})).toHaveValue('firefox');
+  await expect(ss.locator('[data-rw-tls-min]')).toHaveCount(0);
+  await ss.getByRole('button', {name: 'Все протоколы на этой ноде'}).click();
+  for (const k of ['xhttp', 'grpc', 'hysteria2', 'tls']) await expect(ss.locator(`[data-rw-transport="${k}"]`)).toBeChecked();
+  await ss.locator('[data-rw-tls-min]').selectOption('1.2');
+  await expect(ss).toContainText('только по TLS 1.3');
   await wizard.getByLabel('Серверы нод', {exact: true}).selectOption(['2', '3']);
   await expect(ss).toHaveCount(0);  // one domain — one node
 
@@ -139,6 +147,21 @@ test('SelfSteal fields, node modules plan and Xray Checker results', async ({pag
   await expect(page.locator('[data-rw-action-plan]')).toContainText('fi-1: NetBird — подключить');
   expect(sent).toMatchObject({action: 'module', module: {name: 'netbird', enabled: true, setup_key: 'ABCDEF12-3456-7890', server_ids: [2]}});
   await expect(mods.getByLabel('Ключ установки (Setup key)', {exact: true})).toHaveValue('');
+
+  // Protocols and camouflage of the installed node, and the node's port only for the panel — from the admin panel.
+  await mods.getByLabel('Модуль', {exact: true}).selectOption('transports');
+  await mods.getByRole('button', {name: 'Все протоколы на этой ноде'}).click();
+  await mods.getByLabel('Отпечаток браузера (uTLS)', {exact: true}).selectOption('safari');
+  await mods.locator('[data-rw-tls-min]').selectOption('1.2');
+  await mods.getByRole('button', {name: 'Составить план'}).click();
+  await expect.poll(() => sent?.module?.name).toBe('transports');
+  expect(sent.module).toMatchObject({transports: ['xhttp', 'grpc', 'hysteria2', 'tls'], fingerprint: 'safari', tls_min: '1.2', tls_max: '1.3'});
+  await mods.getByLabel('Модуль', {exact: true}).selectOption('node_port');
+  await mods.getByLabel('Действие', {exact: true}).selectOption('on');
+  await mods.locator('[data-rw-node-port] input').fill('203.0.113.9, 2001:db8::1');
+  await mods.getByRole('button', {name: 'Составить план'}).click();
+  await expect.poll(() => sent?.module?.name).toBe('node_port');
+  expect(sent.module).toMatchObject({enabled: true, server_ids: [2], node_port_ips: ['203.0.113.9', '2001:db8::1']});
 
   await mods.getByRole('button', {name: 'Результаты Xray Checker'}).click();
   await expect(mods.locator('[data-rw-checker]')).toContainText('На связи 1 из 2');

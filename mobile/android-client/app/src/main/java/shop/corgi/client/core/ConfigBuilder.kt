@@ -81,6 +81,8 @@ object ConfigBuilder {
         val rules = JSONArray()
         // «Исключённые маршруты»: these addresses never go through the server.
         if (s.excludedRoutes.isNotEmpty()) rules.put(JSONObject().put("type", "field").put("ip", JSONArray(s.excludedRoutes)).put("outboundTag", "direct"))
+        // v1.5.0: ads are blocked before any other rule, in every routing mode (the list is in geosite.dat).
+        if (s.adBlock && geo) rules.put(JSONObject().put("type", "field").put("domain", JSONArray().put(AD_LIST)).put("outboundTag", "block"))
         if (s.blockUdp) rules.put(JSONObject().put("type", "field").put("network", "udp").put("port", "1-52,54-65535").put("outboundTag", "block"))
         if (s.routing != "global") rules.put(JSONObject().put("type", "field").put("ip", JSONArray(PRIVATE)).put("outboundTag", "direct"))
         if (s.routing == "bypass_ru") {
@@ -183,5 +185,7 @@ object ConfigBuilder {
     }
 
     /** Geo rules the config uses (to tell the user to download the files first). */
+    const val AD_LIST = "geosite:category-ads-all"
+
     fun needsGeo(raw: String): Boolean = Regex("\"geo(ip|site):").containsMatchIn(raw)
 }

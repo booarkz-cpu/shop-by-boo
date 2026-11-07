@@ -1,0 +1,6 @@
+app/src/main/java/shop/corgi/client/ui/home/**/*.kt
+app/src/main/java/shop/corgi/client/vpn/Session.kt
+app/src/main/java/shop/corgi/client/vpn/Streak.kt
+app/src/test/java/shop/corgi/client/ui/home/**/*.kt
+app/src/test/java/shop/corgi/client/vpn/**/*.kt
+app/src/test/java/shop/corgi/client/core/AdBlockTest.kt

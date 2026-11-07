@@ -1,6 +1,6 @@
 # Лицензия проекта и сторонние компоненты
 
-Авторский код магазина распространяется по **Corgi Lusi VPN Shop Source License 2.8** из [LICENSE](LICENSE). Собственный коммерческий VPN-магазин разрешён без отдельного согласия. Условия распространения исходников, самостоятельного продукта и контейнерных образов остаются в пункте 3 лицензии. Этот проект не объявляется MIT/AGPL и не объявляется полностью перенесённым.
+Авторский код магазина распространяется по **Corgi Lusi VPN Shop Source License 2.9** из [LICENSE](LICENSE). Собственный коммерческий VPN-магазин разрешён без отдельного согласия. Условия распространения исходников, самостоятельного продукта и контейнерных образов остаются в пункте 3 лицензии. Этот проект не объявляется MIT/AGPL и не объявляется полностью перенесённым.
 
 Лицензия проекта не заменяет лицензии зависимостей. При распространении собранных приложений/образов сохраните корневой LICENSE, уведомления об авторских правах и тексты лицензий реально включённых библиотек. При внутренней сборке используйте зафиксированные версии и включайте notices в доступный получателю раздел приложения/пакета. Публичная поставка конкретного бинарника требует сверки его фактического состава; эта таблица не сертификат всех транзитивных зависимостей.
 
@@ -38,7 +38,7 @@
 
 Сервер WebAuthn использует `webauthn==3.0.1` (py_webauthn, BSD-3-Clause); браузерные тесты — `@playwright/test==1.63.0` (Apache-2.0). Сохраните их полные license/copyright notices при распространении зависимостей. Эти библиотеки не перелицензируются лицензией магазина. Нативный WebAuthn API браузера используется без копирования стороннего JS verifier. Новые модули интеграции и мониторинга написаны в этом репозитории.
 
-## UI дистрибутива v28.89.0
+## UI дистрибутива v28.90.0
 
 shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `admin/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [admin/THIRD_PARTY_LICENSES.txt](admin/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
 
@@ -73,3 +73,24 @@ shadcn-совместимые компоненты используют Radix To
 - [tinyauthapp/tinyauth](https://github.com/tinyauthapp/tinyauth) — GPL-3.0. Портал входа перед страницами панели Remnawave (v28.86.0). Не входит в дистрибутив и не связывается с кодом магазина: мастер установки запускает отдельный контейнер `ghcr.io/tinyauthapp/tinyauth:v5.2.0`, закреплённый по SHA-256, только по выбору администратора («Доступ к панели → Вход через TinyAuth»). Идея — модуль `tinyauth.sh` из eGamesAPI/remnawave-reverse-proxy (MIT, Copyright (c) 2025 eGames); конфигурация Caddy (`forward_auth`) написана для магазина.
 - [zxing/zxing](https://github.com/zxing/zxing) core 3.5.3 — Apache-2.0. Рисование QR-кода подписки в приложении «Корги Люси: клиент» (v28.86.0).
 - Google code scanner (`play-services-code-scanner`) — условия Google Play services. Сканирование QR без разрешения камеры в приложении «Корги Люси: клиент»; код в дистрибутив не входит, подключается из Google Maven при сборке.
+
+## Сводная таблица: что взято извне и на каких условиях (редакция лицензии 2.9, 2026-11-07)
+
+`tests/test_license_notices.py` проверяет, что каждый проект, на который ссылается код магазина как на источник («after …», «MIT, (c) …»), есть в этой таблице, а `LICENSE` и `mobile/LICENSE` совпадают.
+
+| Проект | Лицензия | Что взято | Как входит |
+| --- | --- | --- | --- |
+| [booarkz-cpu/remnawave-manager](https://github.com/booarkz-cpu/remnawave-manager) | MIT, © Корги Люси | Транспорты ноды, защита сервера, самовосстановление, сертификат Hysteria2, правила фаервола (v28.81–v28.84) | Код переписан шагами мастера установки (`backend/app/rw_steps.py`) |
+| [eGamesAPI/remnawave-reverse-proxy](https://github.com/eGamesAPI/remnawave-reverse-proxy) | MIT, © 2025 eGames | Идеи модулей ноды, SelfSteal, защита панели, TinyAuth | Код написан заново |
+| [legiz-ru/Orion](https://github.com/legiz-ru/Orion) | MIT, © 2025 legiz-ru | Шаблон страницы подписки | Скачивается мастером по выбору администратора, SHA-256 закреплён |
+| [kutovoys/xray-checker](https://github.com/kutovoys/xray-checker) | MIT | Проверка серверов подписки | Отдельный контейнер, образ закреплён по digest |
+| [ViRb3/wgcf](https://github.com/ViRb3/wgcf) | MIT | Регистрация WARP на сервере | Бинарный файл выпуска скачивается на сервер, SHA-256 сверяется |
+| [XTLS/Xray-core](https://github.com/XTLS/Xray-core) | MPL-2.0 | VPN-ядро приложений и нод | Библиотека в APK/IPA; на нодах — в образе Remnawave или выбранный выпуск |
+| [XTLS/libXray](https://github.com/XTLS/libXray), [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel) | MIT | VPN-расширение iOS | Связываются при сборке (см. выше) |
+| [2dust/AndroidLibXrayLite](https://github.com/2dust/AndroidLibXrayLite) | LGPL-3.0 | Обвязка Xray для Android | Отдельная заменяемая библиотека (см. выше) |
+| [remnawave/panel, node, subscription-page](https://github.com/remnawave) | AGPL-3.0 | Панель и ноды VPN | Не входят в дистрибутив: мастер запускает их официальные образы, закреплённые по digest, отдельными контейнерами на серверах владельца |
+| [tinyauthapp/tinyauth](https://github.com/tinyauthapp/tinyauth) | GPL-3.0 | Вход перед панелью | Отдельный контейнер по выбору администратора |
+| [runetfreedom/russia-v2ray-rules-dat](https://github.com/runetfreedom/russia-v2ray-rules-dat) | GPL-3.0 (данные) | geoip.dat / geosite.dat, в том числе список рекламы для «Блокировки рекламы» клиента | Не входят в приложение: скачиваются пользователем по кнопке |
+| [pinterest/ktlint](https://github.com/pinterest/ktlint) | MIT | Проверка стиля кода клиента в CI | Только инструмент CI, в приложения не входит |
+| remnawave-admin, bedolaga-cabinet | AGPL-3.0 | Только идеи интерфейса и функций | Кода нет |
+| bedolaga-bot | Commons Clause | Только идеи функций | Кода нет |

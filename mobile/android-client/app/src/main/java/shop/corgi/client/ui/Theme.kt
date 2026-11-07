@@ -23,8 +23,8 @@ import shop.corgi.client.core.Settings
 object Brand {
     val Orange = Color(0xFFFF8A1F)
     val Warm = Color(0xFFFFC069)
-    val Night = Color(0xFF0E0F14)
-    val Surface = Color(0xFF1A1C24)
+    val Night = Color(0xFF09090B)   // v1.5.0: the owner's main screen (#09090B, cards #18181B)
+    val Surface = Color(0xFF18181B)
     val Surface2 = Color(0xFF252833)
     val Text = Color(0xFFF5F2EE)
     val Muted = Color(0xFF9A97A3)

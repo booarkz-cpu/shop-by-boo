@@ -64,6 +64,8 @@ data class Settings(
     val blockUdp: Boolean = false,
     val idleTimeout: Int = 300,                  // seconds (Xray policy connIdle)
     val excludedRoutes: List<String> = emptyList(),
+    // v1.5.0: «Блокировка рекламы» on the main screen — geosite:category-ads-all to the block outbound (needs geo files).
+    val adBlock: Boolean = false,
     // v1.4.0: «TUN + прокси» or «только прокси» (no VPN icon), the local SOCKS5/HTTP proxy and sharing it to the LAN
     val tunnelMode: String = "tun",              // tun | proxy
     val localProxy: Boolean = false,             // in «tun» mode: SOCKS5/HTTP on the device too
@@ -141,7 +143,7 @@ data class Settings(
         .put("geoipUrl", geoipUrl).put("geositeUrl", geositeUrl)
         .put("dns", JSONArray(dns)).put("fragment", fragment).put("fragmentPackets", fragmentPackets).put("fragmentLength", fragmentLength)
         .put("fragmentInterval", fragmentInterval).put("mtu", mtu).put("ipv6", ipv6).put("sniffing", sniffing).put("routeOnly", routeOnly)
-        .put("blockUdp", blockUdp).put("idleTimeout", idleTimeout).put("excludedRoutes", JSONArray(excludedRoutes))
+        .put("blockUdp", blockUdp).put("adBlock", adBlock).put("idleTimeout", idleTimeout).put("excludedRoutes", JSONArray(excludedRoutes))
         .put("appsMode", appsMode).put("apps", JSONArray(apps.sorted()))
         .put("theme", theme).put("materialYou", materialYou).put("amoled", amoled).put("textScale", textScale.toDouble()).put("lang", lang)
         .put("connectStyle", connectStyle).put("vibration", vibration)
@@ -197,6 +199,7 @@ data class Settings(
             tryField { it.copy(mtu = i("mtu", d.mtu)) }
             tryField { it.copy(ipv6 = b("ipv6", d.ipv6), sniffing = b("sniffing", d.sniffing), routeOnly = b("routeOnly", d.routeOnly), blockUdp = b("blockUdp", d.blockUdp)) }
             tryField { it.copy(idleTimeout = i("idleTimeout", d.idleTimeout)) }
+            tryField { it.copy(adBlock = b("adBlock", d.adBlock)) }
             tryField { it.copy(excludedRoutes = strings("excludedRoutes", emptyList())) }
             tryField { it.copy(appsMode = s("appsMode", d.appsMode), apps = strings("apps", emptyList()).toSet()) }
             // Before v1.3.0 «system» was the default theme: it keeps working, new installs get the brand theme.
