@@ -41,9 +41,46 @@ updates:
       # Types must match the runtime: images and CI use Node 26.
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
-  - package-ecosystem: docker
-    directory: /backend
+  - package-ecosystem: npm
+    directory: /miniapp
     schedule: {interval: weekly, day: monday}
+    open-pull-requests-limit: 5
+    groups:
+      miniapp-minor: {update-types: [minor, patch]}
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
+  # v28.90.0 (stage 20, N3): the three Android apps (Gradle plugins, Kotlin, Compose, libraries).
+  - package-ecosystem: gradle
+    directory: /mobile/android-user
+    schedule: {interval: weekly, day: monday}
+    open-pull-requests-limit: 5
+    groups:
+      android-user-minor: {update-types: [minor, patch]}
+  - package-ecosystem: gradle
+    directory: /mobile/android-admin
+    schedule: {interval: weekly, day: monday}
+    open-pull-requests-limit: 5
+    groups:
+      android-admin-minor: {update-types: [minor, patch]}
+  - package-ecosystem: gradle
+    directory: /mobile/android-client
+    schedule: {interval: weekly, day: monday}
+    open-pull-requests-limit: 5
+    groups:
+      android-client-minor: {update-types: [minor, patch]}
+  # Base images of every Dockerfile (pinned by digest: Dependabot moves tag and digest together).
+  - package-ecosystem: docker
+    directories: [/backend, /admin, /cabinet, /miniapp, /deploy/caddy, /support-pro/app]
+    schedule: {interval: weekly, day: monday}
+    groups:
+      docker-images: {update-types: [minor, patch]}
+  # Images of the compose files (PostgreSQL, Redis, Caddy, …).
+  - package-ecosystem: docker-compose
+    directories: [/, /support-pro]
+    schedule: {interval: weekly, day: monday}
+    groups:
+      compose-images: {update-types: [minor, patch]}
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly, day: monday}
