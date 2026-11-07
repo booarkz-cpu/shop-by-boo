@@ -4,7 +4,7 @@
 
 **PASS** — все изменяющие маршруты покрыты тестами, у всех разделов есть скриншот. **PARTIAL** — ниже перечислено, что не покрыто.
 
-Изменяющих маршрутов: **322 из 322** покрыты тестами; модулей PASS: **30 из 30**.
+Изменяющих маршрутов: **324 из 324** покрыты тестами; модулей PASS: **30 из 30**.
 
 | № | Модуль | Маршрутов | Изменяющих | Покрыто тестами | Статус |
 | --- | --- | --- | --- | --- | --- |
@@ -19,14 +19,14 @@
 | 9 | Gifts | 6 | 3 | 3 | PASS |
 | 10 | Referrals | 13 | 8 | 8 | PASS |
 | 11 | Remnawave | 32 | 15 | 15 | PASS |
-| 12 | Installation | 66 | 44 | 44 | PASS |
+| 12 | Installation | 67 | 45 | 45 | PASS |
 | 13 | Servers | 11 | 8 | 8 | PASS |
 | 14 | Nodes | 33 | 25 | 25 | PASS |
 | 15 | Domains | 7 | 6 | 6 | PASS |
 | 16 | Certificates | 2 | 1 | 1 | PASS |
 | 17 | Reverse Proxy | 1 | 0 | 0 | PASS |
 | 18 | Subscription Portal | 12 | 7 | 7 | PASS |
-| 19 | Node Extensions | 31 | 21 | 21 | PASS |
+| 19 | Node Extensions | 32 | 22 | 22 | PASS |
 | 20 | Monitoring | 17 | 9 | 9 | PASS |
 | 21 | Backups | 17 | 11 | 11 | PASS |
 | 22 | Updates | 14 | 9 | 9 | PASS |

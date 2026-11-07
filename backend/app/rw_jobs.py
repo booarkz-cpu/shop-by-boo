@@ -272,7 +272,7 @@ async def _finish(db: AsyncSession, row: RemnawaveInstallation, ctx: rw_steps.Co
         # modules' state stay with the installation they belong to.
         source = await db.get(RemnawaveInstallation, row.source_installation_id)
         if source:
-            source.params = {k: v for k, v in row.params.items() if k != "module"}
+            source.params = {k: v for k, v in row.params.items() if k not in ("module", "remove_component")}
             store_secrets(source, ctx.secrets)
             if row.action == "module":
                 source.result = {**(source.result or {}), "state": {**((source.result or {}).get("state") or {}),
