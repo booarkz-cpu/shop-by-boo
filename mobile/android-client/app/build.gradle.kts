@@ -66,8 +66,8 @@ dependencies {
     // QR: scanning through Google's code scanner (no camera permission), drawing with ZXing core (Apache-2.0).
     implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
     // Play services pull an old Fragment; the activity-result API needs 1.3+.
-    implementation("androidx.fragment:fragment:1.8.9")
-    implementation("com.google.zxing:core:3.5.3")
+    implementation("androidx.fragment:fragment:1.9.1")
+    implementation("com.google.zxing:core:3.5.4")
     // The VPN engine: Xray-core through libv2ray.aar (scripts/mobile/build-xray-aar.sh), the same as the customer app.
     if (file("libs/libv2ray.aar").exists()) implementation(files("libs/libv2ray.aar"))
     // UI tests (app/src/androidTest): Compose testing on an emulator in CI (android-client.yml).
