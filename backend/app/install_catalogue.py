@@ -67,6 +67,7 @@ OPS: tuple[tuple, ...] = (
     ("alerts", "protect", "Оповещения", "Мониторинг и уведомления о сбоях.", False, True, ("tab", "monitoring")),
     ("backups", "protect", "Резервные копии", "Копии базы магазина и панели, проверка восстановления, копия в Telegram.", False, True, ("tab", "backups")),
     ("snapshot", "protect", "Снапшот сервера → скачать", "Копия базы панели и файлы всех компонентов (compose, .env, Caddyfile, сайт) — зашифрованы в магазине, скачиваются с подтверждением 2FA.", True, True, ("action", "snapshot")),
+    ("change_domain", "panel", "Сменить домен панели", "Новый домен для панели: сначала проверяется DNS, перед сменой — копия базы; прежний домен продолжает отдавать подписки клиентам и API магазину, остальное переадресуется.", False, True, ("action", "change_domain")),
     ("restore_files", "protect", "Экстренное восстановление", "Файлы компонентов из снапшота обратно на сервер; текущие сначала упаковываются и возвращаются при ошибке, затем компоненты перезапускаются.", True, False, ("action", "restore_files")),
     ("anti_censorship", "protect", "Анти-РКН: чек-лист нод", "По каждой ноде: свой сайт, проверка снаружи, порт ноды, отпечаток, запасной протокол, защита, автообновление, снапшоты — и что исправить.", False, True, ("tab", "install")),
     ("terminal", "protect", "Терминал сервера", "Командная оболочка на сервере с подтверждением 2FA и записью сессии.", True, False, ("tab", "nodeTerminal")),
@@ -105,6 +106,9 @@ async def server_state(db: AsyncSession, server_id: int) -> dict:
     params = holder.params if holder else {}
     return {"server": {"id": server.id, "name": server.name, "host": server.host, "status": server.status},
             "installation_id": holder.id if holder else None, "roles": roles,
+            "panel_domain": params.get("panel_domain") if params.get("panel_server_id") else None,
+            "panel_domain_aliases": params.get("panel_domain_aliases") or [],
+            "separate_subpage": bool(params.get("subpage_server_id")),
             "steps": {"prepared": server.status not in ("new", "unreachable"), "panel": "panel" in roles or "node" in roles,
                       "domain": bool(params.get("panel_domain") or params.get("selfsteal_domain") or params.get("node_domain"))}}
 

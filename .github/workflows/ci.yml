@@ -126,6 +126,11 @@ jobs:
         if: matrix.shard == 1
         timeout-minutes: 6
         run: sudo env "PATH=$PATH" bash scripts/ci/mtproto-check.sh
+      - name: Caddyfiles of the Remnawave wizard
+        # v28.97.0 (N7): every variant (incl. a former panel domain after «Сменить домен панели») validated by the pinned Caddy.
+        if: matrix.shard == 1
+        timeout-minutes: 5
+        run: bash scripts/ci/wizard-caddy-check.sh
       - name: Russian geo lists for the nodes
         # v28.95.0 (N7): the latest lists by the SHA-256 GitHub published, rw_steps.GEO, and Xray of the node image loading them.
         if: matrix.shard == 1

@@ -113,6 +113,9 @@ class PlanIn(BaseModel):
     node_server_ids: list[int] = Field(default_factory=list, max_length=20)
     subpage_server_id: int | None = None
     panel_domain: str | None = Field(default=None, max_length=253)
+    # v28.97.0 (N7): former panel domains still served after «Сменить домен панели»: subscriptions /api/sub/ keep working,
+    # everything else is redirected to the new domain; emptied by the same action with «старый домен больше не нужен».
+    panel_domain_aliases: list[str] = Field(default_factory=list, max_length=3)
     sub_domain: str | None = Field(default=None, max_length=253)
     node_domain: str | None = Field(default=None, max_length=253)
     tls: Literal["acme", "internal"] = "acme"
@@ -164,6 +167,14 @@ class PlanIn(BaseModel):
                 if not DOMAIN.match(value):
                     raise ValueError(f"{field}: некорректный домен")
                 setattr(self, field, value)
+        aliases = []
+        for value in self.panel_domain_aliases:
+            value = value.strip().lower().rstrip(".")
+            if not DOMAIN.match(value):
+                raise ValueError("panel_domain_aliases: некорректный домен")
+            if value != self.panel_domain and value not in aliases:
+                aliases.append(value)
+        self.panel_domain_aliases = aliases
         nodes = list(dict.fromkeys(self.node_server_ids))
         self.node_server_ids = nodes
         m = self.mode
@@ -509,7 +520,7 @@ COOKIE_PART = re.compile(r"^[A-Za-z0-9]{8,64}\Z")
 
 
 def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[str, tuple[str, str]] | None = None,
-              guard: dict[str, int] | None = None, gate: dict[str, str] | None = None) -> str:
+              guard: dict[str, int] | None = None, gate: dict[str, str] | None = None, moved: dict[str, str] | None = None) -> str:
     """``sites`` — domain → local port. Caddy terminates TLS and adds X-Forwarded-For/-Proto, which the panel and
     the subscription page require.
 
@@ -561,6 +572,17 @@ def caddyfile(sites: dict[str, int], tls: str, email: str | None, protect: dict[
             continue
         body.append(f"\treverse_proxy 127.0.0.1:{int(port)}")
         lines += [f"{domain} {{", *body, "}", ""]
+    for old, new in (moved or {}).items():
+        # v28.97.0: a former panel domain — the clients' subscription links keep working, the rest goes to the new domain.
+        if not (DOMAIN.match(old) and DOMAIN.match(new)) or old in sites:
+            raise ValueError("Некорректный прежний домен")
+        port = sites[new]
+        # The shop's own API calls (a bearer token) also stay until «Подключить магазин» points it at the new domain.
+        lines += [f"{old} {{", *(["\ttls internal"] if tls == "internal" else []),
+                  "\t@kept {", "\t\tpath /api/sub/*", "\t}", "\t@shop {", "\t\tpath /api/*", '\t\theader Authorization "Bearer *"', "\t}",
+                  "\thandle @kept {", f"\t\treverse_proxy 127.0.0.1:{int(port)} {{", f"\t\t\theader_up Host {new}", "\t\t}", "\t}",
+                  "\thandle @shop {", f"\t\treverse_proxy 127.0.0.1:{int(port)} {{", f"\t\t\theader_up Host {new}", "\t\t}", "\t}",
+                  "\thandle {", f"\t\tredir https://{new}{{uri}} 308", "\t}", "}", ""]
     return "\n".join(lines)
 
 
@@ -697,8 +719,8 @@ volumes:
 
 
 ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
-           "snapshot", "remove_component", "restore_files")
-ACTION_TITLES = {"restore_files": "Экстренное восстановление файлов", "snapshot": "Снапшот сервера", "remove_component": "Удаление компонента", "install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
+           "snapshot", "remove_component", "restore_files", "change_domain")
+ACTION_TITLES = {"change_domain": "Смена домена панели", "restore_files": "Экстренное восстановление файлов", "snapshot": "Снапшот сервера", "remove_component": "Удаление компонента", "install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
                  "reinstall": "Переустановка", "remove": "Удаление", "module": "Модуль",
                  "start": "Запуск", "stop": "Остановка", "restart": "Перезапуск", "logs": "Журналы контейнеров"}
 # v28.77.0: service control over the containers an installation runs (manage_panel in eGamesAPI/remnawave-reverse-proxy,
@@ -933,6 +955,31 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
             out.append("xray_checker")
         return out
 
+    if action == "change_domain":
+        # v28.97.0 (N7): the panel moves to a new domain. The new domain must point at the panel's server (checked first);
+        # the panel's .env (PANEL_DOMAIN, FRONT_END_DOMAIN and, without a separate subscription page, SUB_PUBLIC_DOMAIN)
+        # and Caddy are written again; former domains in panel_domain_aliases keep serving /api/sub/ (the clients'
+        # subscription links) and redirect the rest. After success the shop rewrites the stored subscription links.
+        if not p:
+            raise ValueError("В этой установке нет панели")
+        name = servers[p]["name"]
+        new, old = plan.panel_domain, plan.panel_domain_aliases
+        steps.append(step("preflight", p, f"{name}: {new} указывает на этот сервер", roles=roles[p], domains=[new], node_port=None))
+        steps += [step("backup_panel", p, f"{name}: копия базы панели"),
+                  step("write_files", p, f"{name}: файлы панели ({DIRS['panel']}) — домен {new}", component="panel"),
+                  step("write_files", p, f"{name}: Caddy ({DIRS['proxy']}) — {new}" + (f", прежние {', '.join(old)} — подписки и переадресация" if old else ""),
+                       component="proxy")]
+        if plan.subpage_server_id == p and plan.sub_domain:
+            steps.append(step("write_files", p, f"{name}: файлы страницы подписки ({DIRS['subscription_page']})", component="subscription_page"))
+        steps += [step("compose_up", p, f"{name}: перезапуск панели", component="panel"),
+                  step("wait_panel", p, f"{name}: панель отвечает (/health)"),
+                  step("compose_up", p, f"{name}: перезапуск Caddy", component="proxy"),
+                  step("verify", None, f"Проверка: https://{new}")]
+        changes = [f"Домен панели — {new}"] + ([f"Прежние домены {', '.join(old)}: подписки работают, остальное — переадресация на {new}"] if old
+                                              else ["Прежних доменов больше нет"])
+        return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {new}", "images": IMAGES,
+                "servers": {str(p): {"name": name, "host": servers[p]["host"], "roles": roles[p], "changes": changes}},
+                "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
     if action == "snapshot":
         # v28.92.0 (N7): «Снапшот сервера» — the panel's database (as before an update) and the files of every
         # component (compose, .env, Caddyfile, site; no volumes), encrypted in the shop; downloaded in «Установка».

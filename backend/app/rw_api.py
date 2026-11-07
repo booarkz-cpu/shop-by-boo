@@ -139,7 +139,10 @@ class ModuleIn(BaseModel):
 class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
-                    "snapshot", "remove_component", "restore_files"]
+                    "snapshot", "remove_component", "restore_files", "change_domain"]
+    # v28.97.0 (N7): with «change_domain» — the panel's new domain, and whether the former one keeps serving subscriptions.
+    new_panel_domain: str | None = Field(default=None, max_length=253)
+    keep_old_domain: bool = True
     # v28.93.0 (N7): with «restore_files» — the snapshot of the files («Установка → Снапшоты серверов»).
     snapshot: str | None = Field(default=None, pattern=r"^config-\d{1,9}-\d{8}T\d{6}Z\.tar\.gz\.enc$")
     # v28.92.0 (N7): with «remove_component» — which component to take off the servers.
@@ -463,6 +466,26 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
         params["snapshot_file"] = payload.snapshot
     elif payload.snapshot:
         raise HTTPException(422, "Снапшот задаётся действием «restore_files»")
+    if payload.action == "change_domain":
+        new = (payload.new_panel_domain or "").strip().lower().rstrip(".")
+        if not rw_plan.DOMAIN.match(new):
+            raise HTTPException(422, "Укажите новый домен панели")
+        old = params.get("panel_domain")
+        aliases = [a for a in params.get("panel_domain_aliases") or [] if a != new]
+        if new == old:
+            if payload.keep_old_domain or not aliases:
+                raise HTTPException(422, "Это текущий домен панели")
+            aliases = []  # «старые домены больше не нужны»: only the current domain stays
+        elif payload.keep_old_domain:
+            aliases = ([old] + [a for a in aliases if a != old])[:3]
+        else:
+            aliases = []
+        taken = {params.get(k) for k in ("sub_domain", "node_domain", "selfsteal_domain", "auth_domain")} - {None}
+        if new in taken:
+            raise HTTPException(422, "Этот домен уже занят другим компонентом установки")
+        params["panel_domain"], params["panel_domain_aliases"] = new, aliases
+    elif payload.new_panel_domain:
+        raise HTTPException(422, "Домен панели меняется действием «change_domain»")
     if payload.action == "remove_component":
         if not payload.component:
             raise HTTPException(422, "Выберите компонент")
