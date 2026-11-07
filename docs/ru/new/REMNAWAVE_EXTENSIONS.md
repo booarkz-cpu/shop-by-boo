@@ -162,3 +162,7 @@ SelfSteal ставится вместе с нодой: в мастере уст�
 ### Экстренное восстановление и «Анти-РКН» (v28.93.0)
 
 Действие `restore_files` (`rw_steps.PUT_CONFIGS`) возвращает файлы компонентов из снапшота: архив проверяется по SHA-256, пути только `/opt/remnawave*` и `/opt/remnanode`, текущие файлы упаковываются в `/root/corgi-before-restore-<время>.tar.gz` и возвращаются шагом отката. `GET /api/admin/install/anti-censorship` — девять пунктов по каждой ноде из данных магазина (без сетевых проверок), у каждого пункта — карточка каталога, которая его исправляет.
+
+### MTProto-прокси для Telegram (v28.94.0)
+
+Модуль `mtproto` (`rw_netmods.MTPROTO`): контейнер `corgi-mtproto` из образа `nineseconds/mtg:2` (9seconds/mtg, MIT, закреплён по digest) в режиме `simple-run` с FakeTLS-секретом под выбранный сайт; `--network host`, `--read-only`, `--cap-drop ALL`, порт 1024–65535 не из портов ноды. Секрет — `/etc/corgi/mtproto.secret` (0600), создаётся один раз; в журнал шага не пишется, ссылка — в состоянии установки и в `GET /api/admin/install/mtproto`. Проверка настоящим контейнером — `scripts/ci/mtproto-check.sh`.

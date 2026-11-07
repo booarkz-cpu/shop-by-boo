@@ -1003,7 +1003,7 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if result.code != 0 or (enabled and "watchdog=active" not in result.out):
             raise StepError("Таймер самовосстановления не запустился (журнал шага)")
         mods["watchdog"] = enabled
-    elif name in ("mss_clamp", "node_guard", "swap"):
+    elif name in ("mss_clamp", "node_guard", "swap", "mtproto"):
         await _run_netmod(ctx, sid, name, p, enabled, mods)
     elif name == "sni_scan":
         from . import rw_netmods
@@ -1393,6 +1393,23 @@ async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool,
                 p.get("mode") or "enforce") if enabled else ("off",)
         result = await _run(ctx, sid, rw_netmods.GUARD, *args, timeout=180)
         errors = {7: "На сервере нет nftables, и он не установился (apt)"}
+    elif name == "mtproto":
+        args = ("on", str(p.get("mtproto_port") or 9443), p.get("mtproto_domain") or "www.cloudflare.com", rw_netmods.MTPROTO_IMAGE) if enabled else ("off",)
+        result = await _run(ctx, sid, rw_netmods.MTPROTO, *args, timeout=600)
+        errors = {5: "Порт MTProto уже занят на сервере другой программой", 6: "Контейнер MTProto не запустился (журнал шага)",
+                  7: "На сервере нет Docker"}
+        if result.code == 0 and enabled:
+            # The secret goes to the installation's state (the administrator gives the link to clients), never to the step log.
+            link = rw_netmods.mtproto_link(ctx.servers[sid]["host"], (result.out.strip().splitlines() or [""])[-1])
+            if not link:
+                raise StepError("MTProto запустился без секрета (журнал шага)")
+            _note(ctx, re.sub(r"secret=\S+", "secret=[скрыто]", result.out) + result.err)
+            ctx.state.setdefault("mtproto", {})[str(sid)] = link
+            ctx.state.setdefault("applied_modules", []).append([sid, name, enabled])
+            mods[name] = f"TCP {link['port']}, {link['domain']}"
+            return
+        if not enabled:
+            ctx.state.setdefault("mtproto", {}).pop(str(sid), None)
     else:
         result = await _run(ctx, sid, rw_netmods.SWAP, *(("on", str(p.get("swap_mb") or 1024)) if enabled else ("off",)), timeout=600)
         errors = {5: "Мало места на диске для файла подкачки (нужно на 1 ГБ больше его размера)"}
@@ -1406,10 +1423,10 @@ async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool,
 
 async def undo_node_module(ctx: Context, st: dict) -> None:
     p, sid = st["params"], st["server_id"]
-    if p["module"] in ("mss_clamp", "node_guard", "swap"):
+    if p["module"] in ("mss_clamp", "node_guard", "swap", "mtproto"):
         from . import rw_netmods
         if p.get("enabled", True) and [sid, p["module"], True] in ctx.state.get("applied_modules", []):
-            script = {"mss_clamp": rw_netmods.MSS, "node_guard": rw_netmods.GUARD, "swap": rw_netmods.SWAP}[p["module"]]
+            script = {"mss_clamp": rw_netmods.MSS, "node_guard": rw_netmods.GUARD, "swap": rw_netmods.SWAP, "mtproto": rw_netmods.MTPROTO}[p["module"]]
             await _run(ctx, sid, script, "off", timeout=300)
         return
     if p["module"] == "node_port" and str(sid) in ctx.state.get("node_port_before", {}):

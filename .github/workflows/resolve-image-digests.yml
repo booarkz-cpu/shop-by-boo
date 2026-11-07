@@ -36,6 +36,9 @@ jobs:
           label remnawave/subscription-page:latest
           check postgres:18.4 'postgres --version'
           check valkey/valkey:9-alpine 'valkey-server --version'
+          # v28.94.0 (N7): MTProto proxy for Telegram (9seconds/mtg, MIT). The image has no shell: the version comes from the binary.
+          docker pull -q nineseconds/mtg:2 >/dev/null
+          echo "IMAGE nineseconds/mtg:2 | $(docker image inspect nineseconds/mtg:2 --format '{{index .RepoDigests 0}}') | $(docker run --rm nineseconds/mtg:2 --version 2>&1 | head -1)" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Android toolchain versions
         run: |
           meta(){ curl -fsS "$1" | grep -oE "<version>[^<]+" | sed 's/<version>//' | grep -viE "alpha|beta|rc|dev|eap|snapshot|-m[0-9]" | sort -V | tail -1; }

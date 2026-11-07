@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "";
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const post = (body?: any): RequestInit => ({method: "POST", body: body === undefined ? undefined : JSON.stringify(body)});
 // Modules planned right here (the others need more input and open «Установка Remnawave → Модули серверов»).
-const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan"];
+const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto"];
 const STEPS: [string, string][] = [["prepared", "Подготовьте сервер"], ["panel", "Установите панель или ноду"], ["domain", "Подключите домен"]];
 
 /** «Установка» (v28.92.0, N7): every operation on the servers in one catalogue — each card does its job or opens the section that does. */
@@ -191,7 +191,14 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
   const [ports, setPorts] = useState("443, 4443, 8443, 2053");
   const [guardMode, setGuardMode] = useState("enforce");
   const [swap, setSwap] = useState("1024");
+  const [mtPort, setMtPort] = useState("9443");
+  const [mtDomain, setMtDomain] = useState("www.cloudflare.com");
+  const [proxies, setProxies] = useState<any[]>([]);
   const [plan, setPlan] = useState<any>(null);
+  useEffect(() => {
+    if (name === "mtproto") request("/api/admin/install/mtproto").then((x: any) => setProxies(x.proxies.filter((p: any) => p.server_id === state.server.id)))
+      .catch(() => setProxies([]));
+  }, [name, state.server.id]);
   const [error, setError] = useState("");
   function module() {
     const m: any = {name, enabled};
@@ -199,7 +206,8 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
     if (name === "transports") Object.assign(m, {enabled: true, transports: enabled ? ["xhttp", "grpc", "hysteria2", "tls"] : [], fingerprint: "firefox"});
     if (name === "hardening") Object.assign(m, {enabled: true, server_ids: [sid], hardening: enabled ? {fail2ban: true, upgrades: true, bbr: true, admin_ips: []}
       : {fail2ban: false, upgrades: false, bbr: false, admin_ips: []}});
-    if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port", "sni_scan"].includes(name)) m.server_ids = [sid];
+    if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port", "sni_scan", "mtproto"].includes(name)) m.server_ids = [sid];
+    if (name === "mtproto" && enabled) Object.assign(m, {mtproto_port: Number(mtPort), mtproto_domain: mtDomain.trim().toLowerCase()});
     if (name === "node_guard") Object.assign(m, {guard_rate: Number(rate), guard_mode: guardMode,
       guard_ports: ports.split(/[\s,]+/).filter(Boolean).map(Number)});
     if (name === "swap") m.swap_mb = Number(swap);
@@ -228,8 +236,14 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
         <label>Порты<input value={ports} onChange={e => { setPorts(e.target.value); setPlan(null); }}/></label>
         <label>Режим<select value={guardMode} onChange={e => { setGuardMode(e.target.value); setPlan(null); }}>
           <option value="enforce">Банить на 10 минут</option><option value="observe">Только считать</option></select></label></>}
+      {name === "mtproto" && enabled && <>
+        <label>Порт TCP<input type="number" min={1024} max={65535} value={mtPort} onChange={e => { setMtPort(e.target.value); setPlan(null); }}/></label>
+        <label>Маскировка под сайт<input value={mtDomain} onChange={e => { setMtDomain(e.target.value); setPlan(null); }}/></label></>}
       {name === "swap" && enabled && <label>Размер, МБ<input type="number" min={256} max={16384} step={256} value={swap} onChange={e => { setSwap(e.target.value); setPlan(null); }}/></label>}
     </div>
+    {name === "mtproto" && proxies.length > 0 && <div data-mtproto-links>{proxies.map(p => <p key={p.server_id}>
+      Прокси работает: TCP {p.port}, маскировка под {p.domain}. Ссылка для клиентов: <a href={p.https} target="_blank" rel="noreferrer">{p.https}</a>{" "}
+      <button className="link" onClick={() => { navigator.clipboard?.writeText(p.tg); toast("Ссылка tg:// скопирована"); }}>Скопировать tg://</button></p>)}</div>}
     {!plan ? <div className="toolbar"><button className="primary" onClick={make}>Составить план</button><button onClick={onClose}>Отмена</button></div>
       : <div data-install-plan-steps><ol>{plan.plan.steps.map((s: any) => <li key={s.position}>{s.title}</li>)}</ol>
         <div className="toolbar"><button className="primary" onClick={run}>Запустить</button><button onClick={() => setPlan(null)}>Изменить</button></div></div>}

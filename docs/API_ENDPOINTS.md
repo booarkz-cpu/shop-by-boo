@@ -1,4 +1,4 @@
-# Каталог API — v28.93.0 / API v21.5.1
+# Каталог API — v28.94.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -230,6 +230,7 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/info-pages/{kind}` | Admin Save | право `legal.write` |
 | `GET` | `/api/admin/install/anti-censorship` | Anti Censorship | право `read` |
 | `GET` | `/api/admin/install/catalogue` | Get Catalogue | право `read` |
+| `GET` | `/api/admin/install/mtproto` | Mtproto Links | право `provision_nodes` |
 | `GET` | `/api/admin/install/snapshots` | Snapshots | право `backups.read` |
 | `GET` | `/api/admin/install/snapshots-schedule` | Get Schedule | право `backups.read` |
 | `PUT` | `/api/admin/install/snapshots-schedule` | Put Schedule | право `backups.write` |

@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.93.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.94.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
 
 # Админ-панель: разделы, кнопки и поля
 

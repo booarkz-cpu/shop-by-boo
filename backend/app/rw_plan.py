@@ -41,12 +41,12 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
 MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-           "mss_clamp", "node_guard", "swap", "sni_scan")
+           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
                  "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
                  "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели", "mss_clamp": "MSS clamp",
                  "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки",
-                 "sni_scan": "Подбор сайта для REALITY"}
+                 "sni_scan": "Подбор сайта для REALITY", "mtproto": "MTProto-прокси для Telegram"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
@@ -61,6 +61,8 @@ TRANSPORTS = {"xhttp": ("VLESS_XHTTP_REALITY", 4443, "tcp"), "grpc": ("VLESS_GRP
 TRANSPORT_TITLES = {"xhttp": "VLESS + xHTTP + REALITY (TCP 4443)", "grpc": "VLESS + gRPC + REALITY (TCP 8443)", "hysteria2": "Hysteria2 (UDP 443)",
                     "tls": "VLESS + TCP + TLS (TCP 2053)"}
 TransportName = Literal["xhttp", "grpc", "hysteria2", "tls"]
+# v28.94.0 (N7): ports the node already uses (REALITY 443, extra transports, SelfSteal's HTTP) — MTProto takes another one.
+MTPROTO_TAKEN = {80, 443, *(port for _, port, _ in TRANSPORTS.values())}
 # v28.90.0 (N5): the uTLS fingerprint clients present (Remnawave host «fingerprint»); Firefox by default.
 FINGERPRINTS = {"firefox": "Firefox", "chrome": "Chrome", "safari": "Safari", "ios": "iOS", "android": "Android", "edge": "Edge",
                 "qq": "QQ", "random": "Случайный из популярных", "randomized": "Полностью случайный"}
@@ -241,8 +243,11 @@ class ModuleRun(BaseModel):
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto"]
     enabled: bool = True
+    # v28.94.0 (N7): MTProto — the port and the site FakeTLS pretends to be.
+    mtproto_port: int = Field(default=9443, ge=1024, le=65535)
+    mtproto_domain: str = Field(default="www.cloudflare.com", min_length=4, max_length=100, pattern=r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$")
     # v28.92.0 (N7): «Защита ноды» — ports, new connections per second from one address, extra allowed addresses, mode;
     # «Файл подкачки» — size in MB.
     guard_ports: list[int] = Field(default_factory=lambda: [443, 4443, 8443, 2053], max_length=12)
@@ -800,6 +805,19 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             steps.append(step("node_module", sid, f"{servers[sid]['name']}: проверить сайты-кандидаты (TLS 1.3, HTTP/2, скорость); ничего не меняется",
                               module="sni_scan", enabled=True))
         title = "Подбор сайта для REALITY"
+    elif name == "mtproto":
+        # v28.94.0 (N7): a Telegram MTProto proxy with FakeTLS on the chosen nodes (rw_netmods.MTPROTO, image pinned by digest).
+        targets = mod.server_ids or nodes
+        if not targets or any(sid not in nodes for sid in targets):
+            raise ValueError("Выберите ноды этой установки")
+        if mod.enabled and (mod.mtproto_port in MTPROTO_TAKEN or mod.mtproto_port == plan.node_port):
+            raise ValueError(f"Порт {mod.mtproto_port} занят нодой: выберите другой (не 80, 443, 2053, 4443, 8443 и не порт ноды для панели)")
+        for sid in targets:
+            what = (f"MTProto-прокси на TCP {mod.mtproto_port}, маскировка под {mod.mtproto_domain}" if mod.enabled
+                    else "убрать MTProto-прокси")
+            steps.append(step("node_module", sid, f"{servers[sid]['name']}: {what}", module="mtproto", enabled=mod.enabled,
+                              mtproto_port=mod.mtproto_port, mtproto_domain=mod.mtproto_domain))
+        title = f"{MODULE_TITLES[name]}: {state}"
     elif name in ("mss_clamp", "node_guard", "swap"):
         # v28.92.0 (N7, rw_netmods): MSS clamp and the guard on the nodes by default, swap on any server of the installation.
         targets = mod.server_ids or (list(roles) if name == "swap" else nodes)

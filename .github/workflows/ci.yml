@@ -121,6 +121,11 @@ jobs:
         run: |
           sudo apt-get install -y -qq nftables iproute2 iputils-ping >/dev/null
           sudo env "PATH=$PATH" bash scripts/ci/netmods-check.sh
+      - name: MTProto module on the runner
+        # v28.94.0 (N7): rw_netmods.MTPROTO with the pinned mtg image — secret, container, port, «off».
+        if: matrix.shard == 1
+        timeout-minutes: 6
+        run: sudo env "PATH=$PATH" bash scripts/ci/mtproto-check.sh
       - name: Alembic heads
         working-directory: backend
         run: alembic heads

@@ -10,6 +10,9 @@ ufw, fail2ban, CrowdSec or the table of «Порт ноды для панели�
   banned for 10 minutes (table inet corgi_guard, dynamic sets with timeouts). The shop's address, the panel's, the
   administrator's and CGNAT (100.64.0.0/10 — many clients behind one address) are never limited. «observe» only counts.
 * swap — a swap file of the chosen size (/swapfile.corgi) and vm.swappiness=10, after a check of free disk space.
+* mtproto — a Telegram MTProto proxy (9seconds/mtg, MIT, image pinned by digest) with FakeTLS: to a censor the traffic
+  looks like TLS to the chosen site. The secret is made once on the server (/etc/corgi/mtproto.secret, 0600) and kept
+  until «off»; the container runs with --restart unless-stopped; ufw, when active, opens only its port.
 * sni_scan — read-only: from the node, which well-known sites answer TLS 1.3 with HTTP/2 and how fast — candidates for
   the REALITY «dest» of a node without SelfSteal (nothing is changed on the server).
 
@@ -155,6 +158,62 @@ off)
 *) exit 2 ;;
 esac
 """
+
+# v28.94.0 (N7): 9seconds/mtg 2.x — https://github.com/9seconds/mtg (MIT). Digest from the «Resolve image digests» workflow (2026-11-07).
+MTPROTO_IMAGE = "nineseconds/mtg:2@sha256:9553495b5216cbe6b238e88ce8a3d43ef582e4dc45fcdd7a14d54497500f5d4f"  # mtg v2.3.0
+
+MTPROTO = r"""set -eu
+action="$1"; port="${2:-}"; domain="${3:-}"; image="${4:-}"
+secret_file=/etc/corgi/mtproto.secret; name=corgi-mtproto
+ufw_on() { command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | grep -q "Status: active"; }
+off() {
+  command -v docker >/dev/null 2>&1 && docker rm -f "$name" >/dev/null 2>&1 || true
+  if [ -f /etc/corgi/mtproto.port ] && ufw_on; then ufw delete allow "$(cat /etc/corgi/mtproto.port)/tcp" >/dev/null 2>&1 || true; fi
+  rm -f "$secret_file" /etc/corgi/mtproto.port
+}
+case "$action" in
+on)
+  case "$port" in ""|*[!0-9]*) echo "bad port"; exit 2 ;; esac
+  [ "$port" -ge 1 ] && [ "$port" -le 65535 ] || { echo "bad port"; exit 2; }
+  case "$domain" in ""|*[!a-z0-9.-]*) echo "bad domain"; exit 2 ;; esac
+  case "$image" in nineseconds/mtg:*@sha256:*) ;; *) echo "bad image"; exit 2 ;; esac
+  command -v docker >/dev/null 2>&1 || { echo "nodocker"; exit 7; }
+  if ss -ltnH "sport = :$port" 2>/dev/null | grep -q . && ! docker ps --format '{{.Names}}' | grep -qx "$name"; then echo "busy"; exit 5; fi
+  install -d -m 0755 /etc/corgi
+  docker pull -q "$image" >/dev/null || { echo "nopull"; exit 6; }
+  if [ ! -s "$secret_file" ] || [ "$(cat /etc/corgi/mtproto.domain 2>/dev/null)" != "$domain" ]; then
+    secret=$(docker run --rm "$image" generate-secret --hex "$domain" | tr -d '[:space:]')
+    case "$secret" in ee[0-9a-f]*) ;; *) echo "nosecret"; exit 6 ;; esac
+    umask 077; printf '%s' "$secret" > "$secret_file"; printf '%s' "$domain" > /etc/corgi/mtproto.domain
+  fi
+  secret=$(cat "$secret_file")
+  old=$(cat /etc/corgi/mtproto.port 2>/dev/null || true)
+  docker rm -f "$name" >/dev/null 2>&1 || true
+  docker run -d --name "$name" --restart unless-stopped --network host --read-only --cap-drop ALL --security-opt no-new-privileges \
+    "$image" simple-run "0.0.0.0:$port" "$secret" >/dev/null
+  if ufw_on; then
+    [ -n "$old" ] && [ "$old" != "$port" ] && ufw delete allow "$old/tcp" >/dev/null 2>&1 || true
+    ufw allow "$port/tcp" >/dev/null
+  fi
+  printf '%s' "$port" > /etc/corgi/mtproto.port
+  sleep 2
+  docker ps --format '{{.Names}}' | grep -qx "$name" || { docker logs --tail 20 "$name" 2>&1 | sed 's/ee[0-9a-f]\{20,\}/[secret]/g'; echo "norun"; exit 6; }
+  echo "mtproto=on port=$port domain=$domain secret=$secret" ;;
+off) off; echo "mtproto=off" ;;
+*) exit 2 ;;
+esac
+"""
+
+
+def mtproto_link(host: str, line: str) -> dict:
+    """The script's last line → what the administrator gives to clients (tg:// and https://t.me links)."""
+    fields = dict(part.split("=", 1) for part in line.split() if "=" in part)
+    if fields.get("mtproto") != "on" or not fields.get("secret"):
+        return {}
+    query = f"server={host}&port={fields['port']}&secret={fields['secret']}"
+    return {"port": int(fields["port"]), "domain": fields.get("domain", ""), "tg": f"tg://proxy?{query}",
+            "https": f"https://t.me/proxy?{query}"}
+
 
 SNI_CANDIDATES = ("www.microsoft.com", "www.apple.com", "dl.google.com", "www.samsung.com", "www.nvidia.com", "www.amd.com",
                   "www.intel.com", "www.cisco.com", "www.oracle.com", "www.ibm.com", "www.logitech.com", "www.asus.com",

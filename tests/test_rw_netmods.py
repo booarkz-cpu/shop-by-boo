@@ -102,3 +102,68 @@ async def test_sni_scan_is_read_only_and_ranks_the_candidates(monkeypatch):
     assert calls[0] == rw_netmods.SNI_CANDIDATES and len(calls[0]) >= 25
     assert ctx.state["modules"]["2"]["sni_scan"] == "dl.google.com, www.apple.com"
     assert ctx.state["sni_scan"]["2"][0] == {"host": "dl.google.com", "ms": 45, "group": "X25519"}
+
+
+# ---- v28.94.0 (N7): MTProto proxy for Telegram
+
+
+def test_mtproto_plan_refuses_the_node_ports():
+    steps, title = rw_plan.module_steps(plan_with(name="mtproto", mtproto_port=9443, mtproto_domain="www.cloudflare.com"), SERVERS, {2: ["node"]})
+    assert title == "MTProto-прокси для Telegram: включить" and len(steps) == 1
+    assert steps[0]["params"] == {"module": "mtproto", "enabled": True, "mtproto_port": 9443, "mtproto_domain": "www.cloudflare.com"}
+    assert "TCP 9443" in steps[0]["title"] and "www.cloudflare.com" in steps[0]["title"]
+    for taken in (443, 2053, 4443, 8443, 2222):  # REALITY, the extra transports, the node's port for the panel
+        if taken >= 1024:
+            with pytest.raises(ValueError, match="занят нодой"):
+                rw_plan.module_steps(plan_with(name="mtproto", mtproto_port=taken), SERVERS, {2: ["node"]})
+    with pytest.raises(ValidationError):
+        rw_plan.ModuleRun(name="mtproto", mtproto_port=443)  # below 1024: the container has no capabilities
+    with pytest.raises(ValidationError):
+        rw_plan.ModuleRun(name="mtproto", mtproto_domain="evil.com;id")
+    with pytest.raises(ValueError, match="ноды"):
+        rw_plan.module_steps(plan_with(name="mtproto", server_ids=[3]), SERVERS, {2: ["node"], 3: ["panel"]})
+    off, _ = rw_plan.module_steps(plan_with(name="mtproto", enabled=False, mtproto_port=443 + 10000), SERVERS, {2: ["node"]})
+    assert "убрать MTProto" in off[0]["title"]
+
+
+def test_mtproto_script_refuses_bad_arguments_and_unpinned_images():
+    assert subprocess.run(["bash", "-n"], input=rw_netmods.MTPROTO, text=True).returncode == 0
+    image = rw_netmods.MTPROTO_IMAGE
+    assert image.startswith("nineseconds/mtg:2@sha256:") and len(image.split("@sha256:")[1]) == 64
+    for args in (["on", "9443;id", "a.b", image], ["on", "0", "a.b", image], ["on", "70000", "a.b", image], ["on", "9443", "A B", image],
+                 ["on", "9443", "a.b", "nineseconds/mtg:latest"], ["on", "9443", "a.b", "evil/mtg@sha256:" + "0" * 64], ["nope"]):
+        assert subprocess.run(["bash", "-c", rw_netmods.MTPROTO, "m", *args], capture_output=True).returncode == 2, args
+    assert "--cap-drop ALL" in rw_netmods.MTPROTO and "--read-only" in rw_netmods.MTPROTO
+
+
+def test_mtproto_link():
+    link = rw_netmods.mtproto_link("93.184.216.40", "mtproto=on port=9443 domain=www.cloudflare.com secret=ee0011")
+    assert link == {"port": 9443, "domain": "www.cloudflare.com", "tg": "tg://proxy?server=93.184.216.40&port=9443&secret=ee0011",
+                    "https": "https://t.me/proxy?server=93.184.216.40&port=9443&secret=ee0011"}
+    assert rw_netmods.mtproto_link("h", "mtproto=off") == {} and rw_netmods.mtproto_link("h", "") == {}
+
+
+@pytest.mark.asyncio
+async def test_mtproto_step_keeps_the_secret_out_of_the_log_and_undoes(monkeypatch):
+    calls = []
+    answer = SimpleNamespace(code=0, out="pulled\nmtproto=on port=9443 domain=www.cloudflare.com secret=eeabcdef0123456789\n", err="")
+
+    async def run(ctx, sid, script, *args, timeout=0):
+        calls.append((script, args))
+        return answer
+    monkeypatch.setattr(rw_steps, "_run", run)
+    ctx = rw_steps.Context(plan=rw_plan.PlanIn(mode="add_node", node_server_ids=[2]), servers=SERVERS, secrets={}, state={})
+    st = {"server_id": 2, "params": {"module": "mtproto", "enabled": True, "mtproto_port": 9443, "mtproto_domain": "www.cloudflare.com"}}
+    await rw_steps.run_node_module(ctx, st)
+    assert calls[-1] == (rw_netmods.MTPROTO, ("on", "9443", "www.cloudflare.com", rw_netmods.MTPROTO_IMAGE))
+    assert ctx.state["mtproto"]["2"]["tg"] == "tg://proxy?server=93.184.216.40&port=9443&secret=eeabcdef0123456789"
+    assert ctx.state["modules"]["2"]["mtproto"] == "TCP 9443, www.cloudflare.com"
+    assert "eeabcdef" not in "\n".join(ctx.log) and "secret=[скрыто]" in "\n".join(ctx.log)
+    await rw_steps.undo_node_module(ctx, st)
+    assert calls[-1] == (rw_netmods.MTPROTO, ("off",))
+    answer = SimpleNamespace(code=5, out="busy\n", err="")
+    with pytest.raises(rw_steps.StepError, match="занят"):
+        await rw_steps.run_node_module(ctx, st)
+    answer = SimpleNamespace(code=0, out="mtproto=off\n", err="")
+    await rw_steps.run_node_module(ctx, {"server_id": 2, "params": {"module": "mtproto", "enabled": False}})
+    assert "2" not in ctx.state["mtproto"] and ctx.state["modules"]["2"]["mtproto"] == "off"

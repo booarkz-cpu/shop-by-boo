@@ -28,6 +28,8 @@ test('Установка: catalogue, modes, search, a module plan and the danger
   await page.route('**/api/admin/install/anti-censorship', (r: any) => r.fulfill({json: {nodes: [{key: '9:7', name: 'fi-1', address: '93.184.216.34',
     country: 'FI', done: 1, total: 2, items: [{key: 'selfsteal', title: 'Свой сайт SelfSteal на домене ноды', ok: true, fix: 'selfsteal'},
       {key: 'guard', title: 'Защита ноды от сканеров и перебора включена', ok: false, fix: 'node_guard'}]}]}}));
+  await page.route('**/api/admin/install/mtproto', (r: any) => r.fulfill({json: {proxies: [{server_id: 7, name: 'fi-1', port: 9443,
+    domain: 'www.cloudflare.com', tg: 'tg://proxy?server=93.184.216.34&port=9443&secret=ee00', https: 'https://t.me/proxy?server=93.184.216.34&port=9443&secret=ee00'}]}}));
   await page.route('**/api/admin/install/snapshots-schedule', (r: any) => r.fulfill({json: {enabled: false, time: '04:00', telegram: false, state: {}}}));
   const sent: any[] = [];
   await page.route('**/api/admin/rw/installations/9/actions', (r: any) => {
@@ -55,6 +57,16 @@ test('Установка: catalogue, modes, search, a module plan and the danger
   await expect(plan.locator('[data-install-plan-steps]')).toContainText('план шага');
   expect(sent.at(-1)).toEqual({action: 'module', module: {name: 'node_guard', enabled: true, server_ids: [7], guard_rate: 80,
     guard_mode: 'observe', guard_ports: [443, 4443, 8443, 2053]}});
+
+  // v28.94.0: MTProto — its port and cover site; the link of the running proxy.
+  await hub.locator('[data-op="mtproto"]').getByRole('button', {name: 'Установить'}).click();
+  const mt = hub.locator('[data-install-plan="mtproto"]');
+  await expect(mt.locator('[data-mtproto-links]')).toContainText('https://t.me/proxy?server=93.184.216.34&port=9443');
+  await mt.getByLabel('Порт TCP', {exact: true}).fill('9555');
+  await mt.getByLabel('Маскировка под сайт', {exact: true}).fill('www.Microsoft.com');
+  await mt.getByRole('button', {name: 'Составить план'}).click();
+  expect(sent.at(-1)).toEqual({action: 'module', module: {name: 'mtproto', enabled: true, server_ids: [7], mtproto_port: 9555,
+    mtproto_domain: 'www.microsoft.com'}});
 
   // Snapshots: the list and the schedule.
   await expect(hub.locator('[data-install-snapshots]')).toContainText('Файлы компонентов');
