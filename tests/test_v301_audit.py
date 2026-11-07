@@ -18,13 +18,9 @@ def test_release_301_is_current_and_documented():
     assert "backend.app.security" not in main
 
 
-def test_wallet_spend_requires_a_client_key_and_blocks_a_second_debit():
+def test_gift_lock_order_and_checkout_intent_lock():
+    # The wallet key and one debit: tests/test_behaviour_gift_cards.py (BACKLOG A1).
     main = main_source()
-    spend = main[main.index("async def wallet_spend"): main.index("async def purchase_gift")]
-    assert 'if not idem or len(idem)>128: raise HTTPException(400,"Idempotency-Key is required")' in spend
-    assert "uuid.uuid4()" not in spend
-    assert "Повторное списание с баланса заблокировано" in spend
-    assert "timedelta(seconds=30)" in spend
     gift = (ROOT / "backend/app/gift_orders.py").read_text()
     assert gift.index("with_for_update") < gift.index("code='GIFT_'")
     create = main[main.index("async def create_payment"): main.index("async def _renew_redis_lock")]

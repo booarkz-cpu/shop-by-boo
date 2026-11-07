@@ -1,8 +1,6 @@
-from main_source import main_source
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-MAIN=main_source()
 MODELS=(ROOT/'backend/app/models.py').read_text()
 SEC=(ROOT/'backend/app/security.py').read_text()
 MAN=(ROOT/'release-manifest.template.json').read_text()

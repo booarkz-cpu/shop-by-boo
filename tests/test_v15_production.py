@@ -18,11 +18,16 @@ class V15ProductionTests(unittest.TestCase):
     def test_broadcast_atomic(self):
         self.assertIn('FOR UPDATE SKIP LOCKED', BOT)
     def test_https_urls(self):
-        self.assertIn('Only absolute HTTPS URLs are allowed', MAIN); self.assertIn('parsed.scheme != "https"', MAIN)
-    def test_mfa_recovery_and_payment_verification(self):
-        # Recovery codes: behaviour in tests/test_behaviour_mfa_recovery.py (C1, stage 19).
-        self.assertIn("with_for_update()", MAIN)
-        # Payment verification: behaviour in tests/test_behaviour_payments_yookassa.py and test_v44_5_18 (verify_succeeded).
+        from fastapi import HTTPException
+        from app.content_branding_api import validate_public_url
+        for bad in ("http://example.com/a", "ftp://example.com", "https://user:pw@example.com", "javascript:alert(1)", "https://localhost/"):
+            with self.assertRaises(HTTPException, msg=bad):
+                validate_public_url(bad)
+        with self.assertRaises(HTTPException) as err:
+            validate_public_url("http://example.com")
+        self.assertEqual(err.exception.detail, "Only absolute HTTPS URLs are allowed")
+    # Recovery codes: behaviour in tests/test_behaviour_mfa_recovery.py (C1, stage 19).
+    # Payment verification: behaviour in tests/test_behaviour_payments_yookassa.py and test_v44_5_18 (verify_succeeded).
     def test_frontends_cookie_auth(self):
         for p in (ROOT / "admin/src/main.tsx", ROOT / "cabinet/src/main.tsx"):
             s=p.read_text(); self.assertNotIn('localStorage.setItem("user_token"',s); self.assertNotIn('localStorage.setItem("rw_admin_token"',s); self.assertIn('credentials:"include"',s)
