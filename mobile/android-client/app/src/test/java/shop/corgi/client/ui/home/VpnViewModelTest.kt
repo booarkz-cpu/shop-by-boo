@@ -103,7 +103,7 @@ class VpnViewModelTest {
 
     @Test fun idleAsksTheScreenToConnectAndFollowsTheService() = runTest(dispatcher) {
         val engine = FakeEngine()
-        val model = VpnViewModel(engine) { clock }
+        val model = VpnViewModel(engine, { clock }, dispatcher)
         assertEquals(VpnStatus.Idle, model.state.value.status)
         assertEquals("boom", model.state.value.error)
         assertEquals(3, model.state.value.streakDays)
@@ -133,7 +133,7 @@ class VpnViewModelTest {
 
     @Test fun adBlockNeedsGeoFilesAndAppliesOnTheNextConnection() = runTest(dispatcher) {
         val engine = FakeEngine().apply { geo = false }
-        val model = VpnViewModel(engine) { clock }
+        val model = VpnViewModel(engine, { clock }, dispatcher)
         model.toggleAdBlock()
         assertFalse(model.state.value.adBlock)
         assertTrue(model.state.value.adBlockNeedsGeo)
@@ -153,7 +153,7 @@ class VpnViewModelTest {
 
     @Test fun theButtonWaitsWhileServersChangeAndAfterTheActiveOneIsRemoved() = runTest(dispatcher) {
         val engine = FakeEngine()
-        val model = VpnViewModel(engine) { clock }
+        val model = VpnViewModel(engine, { clock }, dispatcher)
         val events = mutableListOf<HomeEvent>()
         val collecting = async { model.events.collect { events += it } }
         runCurrent()
