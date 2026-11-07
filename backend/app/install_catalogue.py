@@ -54,6 +54,7 @@ OPS: tuple[tuple, ...] = (
     ("availability", "nodes", "Доступность нод", "Проверки из разных сетей, RIPE Atlas, качество подключений.", False, True, ("tab", "availability")),
     ("xray_checker", "nodes", "Проверка конфигов трафиком", "Xray Checker проверяет каждый сервер подписки настоящим соединением.", True, False, ("module", "xray_checker", "any")),
     ("sni_scan", "nodes", "Автоподбор SNI для REALITY", "С самой ноды проверяет ~30 известных сайтов: отвечают ли по TLS 1.3 и HTTP/2 и как быстро — лучшие кандидаты для REALITY без SelfSteal. Ничего не меняет.", True, False, ("module", "sni_scan", "node")),
+    ("mtproto", "nodes", "MTProto-прокси для Telegram", "Прокси Telegram на ноде с маскировкой FakeTLS под выбранный сайт; ссылка tg:// для клиентов появляется после установки.", True, False, ("module", "mtproto", "node")),
     ("mss_clamp", "nodes", "MSS clamp", "Меряет MTU пути до Cloudflare и Яндекса; если он меньше MTU интерфейса — включает MSS clamp. Нода не перезапускается.", True, False, ("module", "mss_clamp", "node")),
     ("hardening", "protect", "Базовая защита и ускорение", "fail2ban, обновления безопасности, BBR, SSH только с ваших адресов.", True, True, ("module", "hardening", "any")),
     ("node_guard", "protect", "Защита ноды (nftables)", "Лимит новых соединений с одного адреса на портах ноды, автобан на 10 минут; ваш адрес, панель и CGNAT — без ограничений.", True, True, ("module", "node_guard", "node")),
@@ -117,6 +118,29 @@ async def get_catalogue(server_id: int | None = None, db: AsyncSession = Depends
             needs_install = op["action"]["kind"] in ("module", "action")
             op["ready"] = not needs_install or (state["installation_id"] is not None and (needs != "node" or "node" in state["roles"]))
     return {"groups": GROUPS, "operations": ops, "state": state, "total": len(ops)}
+
+
+@router.get("/mtproto")
+async def mtproto_links(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+    """v28.94.0 (N7): the MTProto proxies the shop put on nodes — the latest run per server wins («off» removes it)."""
+    rows = (await db.execute(select(RemnawaveInstallation).where(RemnawaveInstallation.action == "module",
+                                                                 RemnawaveInstallation.status == "succeeded")
+                             .order_by(RemnawaveInstallation.id))).scalars().all()
+    links: dict[str, dict] = {}
+    for row in rows:
+        run = (row.params or {}).get("module") or {}
+        if run.get("name") != "mtproto":
+            continue
+        found = ((row.result or {}).get("state") or {}).get("mtproto") or {}
+        targets = [st["server_id"] for st in (row.plan or {}).get("steps", []) if st.get("kind") == "node_module"]
+        for sid in targets or run.get("server_ids") or []:
+            if run.get("enabled", True) and str(sid) in found:
+                links[str(sid)] = found[str(sid)]
+            else:
+                links.pop(str(sid), None)
+    servers = {s.id: s for s in (await db.execute(select(RemnawaveServer))).scalars().all()}
+    return {"proxies": [{"server_id": int(sid), "name": servers[int(sid)].name if int(sid) in servers else f"#{sid}", **link}
+                        for sid, link in sorted(links.items(), key=lambda x: int(x[0]))]}
 
 
 # ---------------------------------------------------------------- snapshots (encrypted in the shop)

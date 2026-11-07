@@ -228,3 +228,28 @@ async def test_anti_censorship_checklist(database, fleet, monkeypatch):
     items = {i["key"]: i for i in (await install_catalogue.anti_censorship(db, ADMIN))["nodes"][0]["items"]}
     assert items["guard"]["ok"], items["guard"]
     assert {i["fix"] for i in items.values()} <= {o["id"] for o in install_catalogue.catalogue()}, "every fix is a card"
+
+
+@pytest.mark.asyncio
+async def test_mtproto_links_follow_the_latest_run(database, fleet):
+    """v28.94.0 (N7): the MTProto proxy on a node — its link for clients, gone after «off»."""
+    db = database
+    server = await add_server(db, fleet, "n1", "198.51.100.40")
+    from app import rw_api
+    await rw_api.check_server(server["id"], db, ADMIN)
+    install = await plan_and_approve(db, rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com",
+                                                        tls="internal"))
+    await run_all(db)
+
+    async def module(enabled):
+        planned = await rw_api.action(install["id"], rw_api.ActionIn(action="module", module=rw_api.ModuleIn(
+            name="mtproto", enabled=enabled, server_ids=[server["id"]], mtproto_port=9443, mtproto_domain="www.cloudflare.com")), db, ADMIN)
+        await rw_api.approve(planned["id"], rw_api.ApproveIn(plan_sha256=planned["plan_sha256"]), db, ADMIN)
+        await run_all(db)
+    await module(True)
+    out = await install_catalogue.mtproto_links(db, ADMIN)
+    assert out["proxies"] == [{"server_id": server["id"], "name": "n1", "port": 9443, "domain": "www.cloudflare.com",
+                               "tg": f"tg://proxy?server=198.51.100.40&port=9443&secret=ee{'ab' * 16}",
+                               "https": f"https://t.me/proxy?server=198.51.100.40&port=9443&secret=ee{'ab' * 16}"}]
+    await module(False)
+    assert (await install_catalogue.mtproto_links(db, ADMIN))["proxies"] == []

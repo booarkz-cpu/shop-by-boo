@@ -91,7 +91,8 @@ SCRIPTS = {rw_steps.PREFLIGHT: "preflight", DOCKER_INSTALL: "docker", rw_steps.W
            rw_steps.FETCH_CONFIGS: "configs", rw_steps.PUT_CONFIGS: "put_configs"}
 from app import rw_netmods  # noqa: E402
 
-SCRIPTS.update({rw_netmods.GUARD: "guard", rw_netmods.MSS: "mss", rw_netmods.SWAP: "swap", rw_steps.CLIENT_ADDRESS: "client"})
+SCRIPTS.update({rw_netmods.GUARD: "guard", rw_netmods.MSS: "mss", rw_netmods.SWAP: "swap", rw_steps.CLIENT_ADDRESS: "client",
+                rw_netmods.MTPROTO: "mtproto"})
 
 
 class FakeRemote:
@@ -149,6 +150,8 @@ class FakeRemote:
             line = {"guard": f"guard={args[4] if len(args) > 4 else 'enforce'} ports={args[1] if len(args) > 1 else ''} rate={args[2] if len(args) > 2 else ''}",
                     "mss": "iface=eth0 mtu=1500 path=1500\nclamp=not-needed", "swap": f"swap=/swapfile.corgi size={args[1] if len(args) > 1 else 0}M"}[name]
             return Result(0, line + "\n", "")
+        if name == "mtproto":  # v28.94.0: the script's last line (scripts/ci/mtproto-check.sh runs the real one)
+            return Result(0, "mtproto=off\n" if args[0] == "off" else f"mtproto=on port={args[1]} domain={args[2]} secret=ee{'ab' * 16}\n", "")
         if name == "put_configs":  # v28.93.0: the files of a snapshot back; «undo» puts the copy back
             h.restored = getattr(h, "restored", [])
             h.restored.append(args[0] if args[0] == "undo" else ("put", hashlib.sha256(stdin).hexdigest() == args[1], args[2]))
