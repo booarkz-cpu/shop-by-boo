@@ -87,7 +87,7 @@ class Host:
 SCRIPTS = {rw_steps.PREFLIGHT: "preflight", DOCKER_INSTALL: "docker", rw_steps.WRITE: "write", rw_steps.UNWRITE: "unwrite",
            rw_steps.COMPOSE: "compose", rw_steps.WAIT_PANEL: "wait", rw_steps.PANEL_CALL: "panel",
            rw_steps.FIREWALL: "firewall", rw_steps.GATEWAY: "gateway", rw_steps.HTTPS_CHECK: "https",
-           rw_steps.BACKUP: "backup", rw_steps.RESTORE: "restore", rw_steps.FETCH_BACKUP: "fetch"}
+           rw_steps.BACKUP: "backup", rw_steps.RESTORE: "restore", rw_steps.FETCH_BACKUP: "fetch", rw_steps.SITE: "site"}
 
 
 class FakeRemote:
@@ -137,6 +137,19 @@ class FakeRemote:
             token, _, body = stdin.decode().partition("\n")
             code, data = h.panel(method, path, token, json.loads(body) if body else None)
             return Result(0, json.dumps(data) + "\n" + str(code), "")
+        if name == "site":  # v28.91.0: the SelfSteal site as tar.gz — unpacked here as {path: text}
+            import io
+            import tarfile
+            key = ("/opt/remnawave-selfsteal", "site")
+            if args[0] == "undo":
+                h.files[key] = h.files.pop(key + ("prev",), None)
+                return Result(0, "site=prev\n", "")
+            assert hashlib.sha256(stdin).hexdigest() == args[1]
+            with tarfile.open(fileobj=io.BytesIO(stdin), mode="r:gz") as tar:
+                site = {m.name: tar.extractfile(m).read().decode("utf-8", "replace") for m in tar.getmembers() if m.isfile()}
+            h.files[key + ("prev",)] = h.files.get(key)
+            h.files[key] = site
+            return Result(0, f"site=site-{args[1][:16]} files={len(site)}\n", "")
         if name == "firewall":
             h.rules.append(args)
             return Result(0, "Rule added\n", "")
