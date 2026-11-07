@@ -1,8 +1,6 @@
 import ast, pathlib, re, yaml
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 MAIN=ROOT/'backend/app/main.py'
-SEC=ROOT/'backend/app/security.py'
-MODELS=ROOT/'backend/app/models.py'
 COMPOSE=ROOT/'docker-compose.yml'
 
 def read(p): return p.read_text(encoding='utf-8')
@@ -27,9 +25,13 @@ def test_security_session_and_permissions():
     assert 'users.keys' in PERMISSIONS['operator'] and 'backups.write' not in PERMISSIONS['operator']
 
 def test_models():
-    s=read(MODELS)
-    for x in ['AdminSession','PromoRedemption','ReferralReward','fulfillment_status','next_retry_at','idempotency_key','referral_code','referral_balance']:
-        assert x in s
+    from app import models
+    for name in ['AdminSession','PromoRedemption','ReferralReward']:
+        assert hasattr(models, name), name
+    for column in ['fulfillment_status','next_retry_at','idempotency_key']:
+        assert column in models.Payment.__table__.columns, column
+    for column in ['referral_code','referral_balance']:
+        assert column in models.User.__table__.columns, column
 
 def test_migration_chain():
     files=sorted((ROOT/'backend/alembic/versions').glob('*.py'))

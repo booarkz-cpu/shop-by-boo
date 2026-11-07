@@ -52,13 +52,13 @@ def test_existing_shop_routes_in_the_api_design_are_real():
 
 
 def test_used_panel_routes_have_a_client_method_and_a_live_test():
-    client = (ROOT / "backend/app/remnawave.py").read_text()
+    from app.remnawave import RemnawaveClient
     live = (ROOT / "tests/live/test_remnawave_live.py").read_text()
     table = DOCS["REMNAWAVE_API_DESIGN"].split("## 1.")[1].split("Ошибки:")[0]
     for row in [r for r in table.splitlines() if r.startswith("| `")]:
         cells = [c.strip() for c in row.strip("|").split("|")]
         for method in re.findall(r"`(\w+)`", cells[1]):
-            assert method == "sub_proxy" or f"def {method}(" in client, method
+            assert method == "sub_proxy" or callable(getattr(RemnawaveClient, method, None)), method
         for test in re.findall(r"`(test_\w+)`", cells[3]):
             assert f"def {test}(" in live, test
 
