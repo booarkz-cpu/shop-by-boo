@@ -16,7 +16,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import rw_plan, rw_steps
@@ -267,7 +267,9 @@ async def _finish(db: AsyncSession, row: RemnawaveInstallation, ctx: rw_steps.Co
                   "panel_url": f"https://{plan.panel_domain}" if plan.panel_domain and plan.panel_server_id else None,
                   "subscription_url": f"https://{plan.sub_domain}" if plan.sub_domain and plan.subpage_server_id else None,
                   "nodes": ctx.state.get("nodes", {})}
-    if row.action in ("update", "module") and row.source_installation_id:
+    if row.action == "change_domain":
+        await _move_subscription_links(db, row, plan)
+    if row.action in ("update", "module", "change_domain") and row.source_installation_id:
         # Settings changed by an update (panel access) or a module (Xray core, Xray Checker), new secrets and the
         # modules' state stay with the installation they belong to.
         source = await db.get(RemnawaveInstallation, row.source_installation_id)
@@ -279,6 +281,23 @@ async def _finish(db: AsyncSession, row: RemnawaveInstallation, ctx: rw_steps.Co
                                                                     "modules": ctx.state.get("modules", {})}}
     row.status = "succeeded"; row.error = None; row.finished_at = datetime.utcnow(); row.worker_id = None
     await _save(db, row, ctx)
+
+
+async def _move_subscription_links(db, row, plan) -> None:
+    """v28.97.0 (N7): after «Сменить домен панели» the links the shop shows its customers point at the new domain.
+    Only links served by the panel itself (no separate subscription page) change; the former domain keeps answering
+    /api/sub/ as long as it stays in panel_domain_aliases, so links already imported into apps keep working."""
+    from .models import Subscription
+    if plan.subpage_server_id or not plan.panel_domain:
+        return
+    source = await db.get(RemnawaveInstallation, row.source_installation_id) if row.source_installation_id else None
+    old = (source.params or {}).get("panel_domain") if source else None
+    if not old or old == plan.panel_domain:
+        return
+    prefix_old, prefix_new = f"https://{old}/api/sub/", f"https://{plan.panel_domain}/api/sub/"
+    result = await db.execute(update(Subscription).where(Subscription.subscription_url.startswith(prefix_old, autoescape=True))
+                              .values(subscription_url=func.replace(Subscription.subscription_url, prefix_old, prefix_new)))
+    row.result = {**(row.result or {}), "moved_links": result.rowcount or 0}
 
 
 async def installer_worker(engine, worker_id: str) -> None:

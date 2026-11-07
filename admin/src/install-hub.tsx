@@ -61,7 +61,8 @@ export function InstallHub({request, toast, navigate}: {request: Request; toast:
         {state.steps[key] ? "✅" : `${i + 1}.`} {title}</li>)}</ol>}
       {state && !state.installation_id && <p className="muted">На этом сервере ещё нет установки мастера: модули станут доступны после неё.</p>}
     </section>
-    {active && state && active.action.kind === "action" && <ActionPlan title={active.title} text={active.text} state={state} request={request} toast={toast}
+    {active && state && active.action.name === "change_domain" && <DomainChange state={state} request={request} toast={toast} onClose={() => setActive(null)}/>}
+    {active && state && active.action.kind === "action" && active.action.name !== "change_domain" && <ActionPlan title={active.title} text={active.text} state={state} request={request} toast={toast}
       body={{action: active.action.name}} onClose={() => setActive(null)}/>}
     {active && state && active.action.kind === "module" && <ModulePlan op={active} state={state} request={request} toast={toast} onClose={() => setActive(null)}/>}
     {Object.entries(data.groups).map(([gid, gtitle]: any) => {
@@ -105,6 +106,34 @@ function ActionPlan({title, text, state, request, toast, body, onClose, danger}:
     {!plan ? <div className="toolbar"><button className="primary" onClick={make}>Составить план</button><button onClick={onClose}>Отмена</button></div>
       : <div data-install-plan-steps><ol>{plan.plan.steps.map((s: any) => <li key={s.position}>{s.title}</li>)}</ol>
         <div className="toolbar"><button className={danger ? "danger" : "primary"} onClick={run}>Запустить</button><button onClick={() => setPlan(null)}>Изменить</button></div></div>}
+  </section>;
+}
+
+/** v28.97.0 (N7): «Сменить домен панели» — the new domain, and whether the former one keeps serving subscriptions. */
+function DomainChange({state, request, toast, onClose}: any) {
+  const [domain, setDomain] = useState("");
+  const [keep, setKeep] = useState(true);
+  const [ready, setReady] = useState(false);
+  const current = state.panel_domain;
+  if (!current) return <section className="card" data-install-domain><p className="muted">На этом сервере нет панели Remnawave.</p>
+    <button onClick={onClose}>Закрыть</button></section>;
+  const value = domain.trim().toLowerCase();
+  return <section className="card" data-install-domain>
+    <h4>Сменить домен панели — {state.server.name}</h4>
+    <p>Сейчас: <b>{current}</b>{state.panel_domain_aliases.length > 0 && <> · прежние, ещё работают: {state.panel_domain_aliases.join(", ")}</>}</p>
+    {!ready ? <>
+      <ol className="muted">
+        <li>Добавьте у регистратора A-запись нового домена на {state.server.host} и подождите, пока она разойдётся.</li>
+        <li>Оставьте прежний домен: ссылки подписок, уже добавленные клиентами в приложения, продолжат работать{state.separate_subpage ? " (у вас отдельная страница подписки — её ссылки не меняются)" : ""}.</li>
+        <li>После смены нажмите «Подключить магазин» у установки в «Установка Remnawave», чтобы магазин ходил в панель по новому домену.</li>
+      </ol>
+      <label>Новый домен<input value={domain} onChange={e => setDomain(e.target.value)} placeholder="panel2.example.com" data-domain-new/></label>
+      <label className="check"><input type="checkbox" checked={keep} onChange={e => setKeep(e.target.checked)} data-domain-keep/> Оставить {current} для подписок и API магазина (переадресация остального)</label>
+      {state.panel_domain_aliases.length > 0 && <button onClick={() => { setDomain(current); setKeep(false); setReady(true); }} data-domain-drop>Прежние домены больше не нужны</button>}
+      <div className="toolbar"><button className="primary" disabled={!value || value === current} onClick={() => setReady(true)}>Дальше</button><button onClick={onClose}>Отмена</button></div>
+    </> : <ActionPlan title="Смена домена панели" text={value === current ? `Убрать прежние домены: ${state.panel_domain_aliases.join(", ")}` : `${current} → ${value}`}
+      state={state} request={request} toast={toast} body={{action: "change_domain", new_panel_domain: value, keep_old_domain: keep}}
+      onClose={() => { setReady(false); onClose(); }}/>}
   </section>;
 }
 

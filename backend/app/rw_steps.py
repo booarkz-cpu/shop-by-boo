@@ -329,7 +329,8 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
         if plan.panel_access == "gate" and plan.panel_domain in sites:
             from .panel_gate import shop_base
             gate[plan.panel_domain] = shop_base()
-        return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect, guard, gate),
+        moved = {old: plan.panel_domain for old in plan.panel_domain_aliases} if plan.panel_domain in sites else {}
+        return {"Caddyfile": rw_plan.caddyfile(sites, plan.tls, plan.acme_email, protect, guard, gate, moved),
                 "docker-compose.yml": rw_plan.caddy_compose(tinyauth), **files}
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
