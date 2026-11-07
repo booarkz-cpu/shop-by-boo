@@ -47,7 +47,7 @@ APPLE_ENDED = {"EXPIRED", "DID_FAIL_TO_RENEW", "GRACE_PERIOD_EXPIRED"}
 
 
 class StoreError(Exception):
-    pass
+    """A store answer or signature the shop does not accept; the message goes to the client as a 422."""
 
 
 def enabled() -> bool:
