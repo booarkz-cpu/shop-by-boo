@@ -100,6 +100,12 @@ def test_miniapp_consumes_configured_buttons_and_images():
 
 
 def test_bot_consumes_start_image():
-    s = read('backend/app/bot_banners.py')
-    assert 'bot_start_image' in s
-    assert 'answer_photo' in s
+    # The image uploaded before v28.22.0 is the start banner; switching banners off hides it.
+    from app import bot_banners
+    state = {"bot_start_image": "/media/start.png"}
+    source, _, url = bot_banners.resolve("start", state)
+    assert (source, url) == ("custom", "/media/start.png")
+    assert bot_banners.resolve("start", {**state, bot_banners.ENABLED_KEY: "0"})[0] == "hidden"
+    assert bot_banners.resolve("start", {**state, bot_banners.PREFIX + "start": "https://cdn.example.test/new.png"})[2] == "https://cdn.example.test/new.png"
+
+

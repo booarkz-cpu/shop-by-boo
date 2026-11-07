@@ -55,14 +55,48 @@ def test_remote_payload_and_audit_are_redacted():
     assert _public_refund_reason("обычная причина") == "обычная причина"
 
 
-def test_admin_routes_hide_credentials_and_stderr():
+def test_admin_routes_hide_credentials_and_stderr(monkeypatch):
     for path in ("/api/admin/remnawave/users/{user_id}/subscription", "/api/admin/remnawave/users/{user_id}/keys"):
         assert permissions("GET", path) == {"users.keys"}, path
-    provisioner = (ROOT / "backend/app/provisioner.py").read_text()
-    body = provisioner[provisioner.index("def run_ssh"):]
-    assert '"output"' not in body
-    assert 'ProvisionError("Remote install failed")' in body
-    assert "err[-4000:]" not in body.split("raise ProvisionError", 1)[1][:200]
+    # A failed install answers without the remote output (stderr may hold tokens and paths); success has no output either.
+    import io
+    import pytest
+    from app import provisioner
+
+    class Channel:
+        def __init__(self, rc):
+            self.rc = rc
+
+        def recv_exit_status(self):
+            return self.rc
+
+    class Out(io.BytesIO):
+        def __init__(self, data, rc):
+            super().__init__(data)
+            self.channel = Channel(rc)
+
+    class Client:
+        def __init__(self, rc):
+            self.rc, self.closed = rc, False
+
+        def exec_command(self, command, timeout):
+            return None, Out(b"stdout secret-token", self.rc), io.BytesIO(b"stderr SECRET_KEY=abc /root/.ssh/id")
+
+        def close(self):
+            self.closed = True
+
+    compose = "services:\n  remnanode:\n    image: remnawave/node:latest\n"
+    for rc in (1, 0):
+        client = Client(rc)
+        monkeypatch.setattr(provisioner, "_connect", lambda *a, client=client, **k: client)
+        if rc:
+            with pytest.raises(provisioner.ProvisionError) as err:
+                provisioner.run_ssh("203.0.113.9", 22, "root", None, "key", compose, "203.0.113.1")
+            assert str(err.value) == "Remote install failed"
+        else:
+            out = provisioner.run_ssh("203.0.113.9", 22, "root", None, "key", compose, "203.0.113.1")
+            assert out == {"ok": True, "host": "203.0.113.9", "directory": "/opt/remnanode"}
+        assert client.closed
 
 
 def test_docs_describe_312_and_keep_311():
