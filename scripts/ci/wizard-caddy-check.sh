@@ -10,13 +10,13 @@ import sys
 from app import rw_plan as p
 cases = {
     "open": p.caddyfile({"panel.example.com": 3000, "sub.example.com": 3010}, "acme", "owner@example.com"),
-    "cookie": p.caddyfile({"panel.example.com": 3000}, "internal", None, protect={"panel.example.com": ("corgi_k", "v" * 24)}),
+    "cookie": p.caddyfile({"panel.example.com": 3000}, "internal", None, protect={"panel.example.com": ("corgikey1", "v" * 24)}),
     "tinyauth": p.caddyfile({"panel.example.com": 3000, "auth.example.com": p.TINYAUTH_PORT}, "acme", "owner@example.com",
                             guard={"panel.example.com": p.TINYAUTH_PORT}),
     "gate": p.caddyfile({"panel.example.com": 3000}, "acme", "owner@example.com", gate={"panel.example.com": "https://shop.example.com"}),
     "moved": p.caddyfile({"new-panel.example.com": 3000}, "acme", "owner@example.com",
                          moved={"panel.example.com": "new-panel.example.com", "older.example.com": "new-panel.example.com"}),
-    "moved-cookie": p.caddyfile({"new-panel.example.com": 3000}, "internal", None, protect={"new-panel.example.com": ("corgi_k", "v" * 24)},
+    "moved-cookie": p.caddyfile({"new-panel.example.com": 3000}, "internal", None, protect={"new-panel.example.com": ("corgikey1", "v" * 24)},
                                 moved={"panel.example.com": "new-panel.example.com"}),
 }
 for name, text in cases.items():
