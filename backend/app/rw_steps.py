@@ -1003,6 +1003,8 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if result.code != 0 or (enabled and "watchdog=active" not in result.out):
             raise StepError("Таймер самовосстановления не запустился (журнал шага)")
         mods["watchdog"] = enabled
+    elif name in ("mss_clamp", "node_guard", "swap"):
+        await _run_netmod(ctx, sid, name, p, enabled, mods)
     elif name == "transports":
         wanted = p.get("transports") or []
         flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2", "tls")]
@@ -1356,8 +1358,42 @@ async def checker_status(ctx: Context, sid: int) -> dict:
     return data if isinstance(data, dict) else {"success": False}
 
 
+async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool, mods: dict) -> None:
+    """v28.92.0 (N7): MSS clamp, node guard, swap (rw_netmods)."""
+    from . import rw_netmods
+    if name == "mss_clamp":
+        result = await _run(ctx, sid, rw_netmods.MSS, "on" if enabled else "off", timeout=300)
+        errors = {5: "У сервера нет маршрута по умолчанию", 6: "MTU пути не измерен: ping до 1.1.1.1 и 77.88.8.8 не проходит",
+                  7: "На сервере нет nftables, и он не установился (apt)"}
+    elif name == "node_guard":
+        allow = list(dict.fromkeys([*(p.get("allow") or []), *([await _client_address(ctx, sid)] if enabled else [])]))
+        try:
+            allow.append(panel_ip(ctx))
+        except StepError:
+            pass
+        args = ("on", ",".join(map(str, p.get("ports") or [])), str(p.get("rate") or 150), ",".join(a for a in allow if a) or "-",
+                p.get("mode") or "enforce") if enabled else ("off",)
+        result = await _run(ctx, sid, rw_netmods.GUARD, *args, timeout=180)
+        errors = {7: "На сервере нет nftables, и он не установился (apt)"}
+    else:
+        result = await _run(ctx, sid, rw_netmods.SWAP, *(("on", str(p.get("swap_mb") or 1024)) if enabled else ("off",)), timeout=600)
+        errors = {5: "Мало места на диске для файла подкачки (нужно на 1 ГБ больше его размера)"}
+    _note(ctx, result.out + result.err)
+    if result.code != 0:
+        raise StepError(errors.get(result.code, f"Модуль «{rw_plan.MODULE_TITLES[name]}» не применился (журнал шага)"))
+    ctx.state.setdefault("applied_modules", []).append([sid, name, enabled])
+    line = (result.out.strip().splitlines() or [""])[-1]
+    mods[name] = line if enabled else "off"
+
+
 async def undo_node_module(ctx: Context, st: dict) -> None:
     p, sid = st["params"], st["server_id"]
+    if p["module"] in ("mss_clamp", "node_guard", "swap"):
+        from . import rw_netmods
+        if p.get("enabled", True) and [sid, p["module"], True] in ctx.state.get("applied_modules", []):
+            script = {"mss_clamp": rw_netmods.MSS, "node_guard": rw_netmods.GUARD, "swap": rw_netmods.SWAP}[p["module"]]
+            await _run(ctx, sid, script, "off", timeout=300)
+        return
     if p["module"] == "node_port" and str(sid) in ctx.state.get("node_port_before", {}):
         before = ctx.state["node_port_before"].pop(str(sid))
         now = ctx.state.get("firewall", {}).get(str(sid))

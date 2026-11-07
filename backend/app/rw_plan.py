@@ -40,10 +40,12 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
-MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port")
+MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
+           "mss_clamp", "node_guard", "swap")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
                  "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
-                 "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели"}
+                 "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели", "mss_clamp": "MSS clamp",
+                 "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
@@ -233,8 +235,16 @@ class ModuleRun(BaseModel):
     """One module action: what to do on which servers. ``release`` — the files GitHub published for the chosen
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
+                  "mss_clamp", "node_guard", "swap"]
     enabled: bool = True
+    # v28.92.0 (N7): «Защита ноды» — ports, new connections per second from one address, extra allowed addresses, mode;
+    # «Файл подкачки» — size in MB.
+    guard_ports: list[int] = Field(default_factory=lambda: [443, 4443, 8443, 2053], max_length=12)
+    guard_rate: int = Field(default=150, ge=5, le=5000)
+    guard_allow: list[str] = Field(default_factory=list, max_length=10)
+    guard_mode: Literal["enforce", "observe"] = "enforce"
+    swap_mb: int = Field(default=1024, ge=256, le=16384)
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
     transports: list[TransportName] = Field(default_factory=list, max_length=4)
@@ -775,6 +785,26 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
                               enabled=mod.enabled, ips=plan.node_port_ips))
         steps.append(step("verify", None, "Проверка: панель видит ноды (иначе правило снимается)"))
         title = f"Порт ноды для панели: {'закрыть для всех, кроме панели' if mod.enabled else 'открыть'}"
+    elif name in ("mss_clamp", "node_guard", "swap"):
+        # v28.92.0 (N7, rw_netmods): MSS clamp and the guard on the nodes by default, swap on any server of the installation.
+        targets = mod.server_ids or (list(roles) if name == "swap" else nodes)
+        if not targets or any(sid not in roles for sid in targets):
+            raise ValueError("Выберите серверы этой установки")
+        if name == "node_guard" and (not mod.guard_ports or any(not 1 <= p <= 65535 for p in mod.guard_ports)):
+            raise ValueError("Порты защиты: от 1 до 65535")
+        allow = _networks(mod.guard_allow, "Адрес без ограничений")
+        for sid in targets:
+            n = servers[sid]["name"]
+            if name == "mss_clamp":
+                what = "измерить MTU пути и включить MSS clamp, если нужен" if mod.enabled else "выключить MSS clamp"
+            elif name == "node_guard":
+                what = (f"{'лимит' if mod.guard_mode == 'enforce' else 'только счёт'} {mod.guard_rate} новых соединений/с с адреса на портах "
+                        f"{', '.join(map(str, mod.guard_ports))}" if mod.enabled else "выключить защиту")
+            else:
+                what = f"файл подкачки {mod.swap_mb} МБ" if mod.enabled else "убрать файл подкачки"
+            steps.append(step("node_module", sid, f"{n}: {what}", module=name, enabled=mod.enabled, ports=sorted(set(mod.guard_ports)),
+                              rate=mod.guard_rate, allow=allow, mode=mod.guard_mode, swap_mb=mod.swap_mb))
+        title = f"{MODULE_TITLES[name]}: {state}"
     elif name == "selfsteal_site":
         # v28.88.0 (BACKLOG A3): another site-template behind SelfSteal without a reinstall — the node's Caddy files
         # are rewritten (the previous ones come back on an error) and Caddy restarted; the node and REALITY stay as is.
