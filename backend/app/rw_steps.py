@@ -21,7 +21,7 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports", "fetch_configs", "put_configs")
+              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports", "fetch_configs", "put_configs", "cdn_dns")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
 COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
@@ -1062,7 +1062,7 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         mods["sni_scan"] = ", ".join(r["host"] for r in found[:3]) or "нет подходящих"
     elif name == "transports":
         wanted = p.get("transports") or []
-        flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2", "tls")]
+        flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2", "tls", "cdn")]
         result = await _run(ctx, sid, TRANSPORTS_SH, ctx.plan.selfsteal_domain, *flags, timeout=300)
         _note(ctx, result.out + result.err)
         if result.code == 5:
@@ -1226,14 +1226,14 @@ esac
 # of the SelfSteal domain: copied from the node's Caddy (any issuer) to HYSTERIA_DIR every day by a systemd timer; Xray
 # reloads it (ocspStapling). After remnawave-manager (MIT, (c) Корги Люси): write_hysteria_cert_helper, write_firewall.
 TRANSPORTS_SH = r"""set -eu
-domain="$1"; xhttp="$2"; grpc="$3"; hy="$4"; tls="${5:-off}"; dir=/opt/remnanode/hysteria
+domain="$1"; xhttp="$2"; grpc="$3"; hy="$4"; tls="${5:-off}"; cdn="${6:-off}"; dir=/opt/remnanode/hysteria
 case "$domain" in *[!a-z0-9.-]*|"") exit 2 ;; esac
 port() {  # port/proto on|off
   command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | head -1 | grep -q active || return 0
   if [ "$2" = on ]; then ufw allow "$1" >/dev/null; else ufw delete allow "$1" >/dev/null 2>&1 || true; fi
 }
-port 4443/tcp "$xhttp"; port 8443/tcp "$grpc"; port 443/udp "$hy"; port 2053/tcp "$tls"
-if [ "$hy" = on ] || [ "$tls" = on ]; then
+port 4443/tcp "$xhttp"; port 8443/tcp "$grpc"; port 443/udp "$hy"; port 2053/tcp "$tls"; port 2083/tcp "$cdn"
+if [ "$hy" = on ] || [ "$tls" = on ] || [ "$cdn" = on ]; then
   install -d -m 0755 "$dir"
   cat > /usr/local/sbin/corgi-hysteria-cert.sh <<EOF
 #!/bin/sh
@@ -1259,7 +1259,7 @@ else
   rm -f /etc/systemd/system/corgi-hysteria-cert.service /etc/systemd/system/corgi-hysteria-cert.timer /usr/local/sbin/corgi-hysteria-cert.sh
   systemctl daemon-reload || true
 fi
-echo "transports xhttp=$xhttp grpc=$grpc hysteria2=$hy tls=$tls"
+echo "transports xhttp=$xhttp grpc=$grpc hysteria2=$hy tls=$tls cdn=$cdn"
 """
 
 
@@ -1280,6 +1280,13 @@ def transport_inbounds(base: dict, domain: str, wanted: list[str], tls_min: str 
                                            "tlsSettings": {"serverName": domain, "alpn": ["h3"], "certificates": [
                                                dict(certificate)]}}})
             continue
+        if name == "cdn":
+            # v28.98.0: behind Cloudflare — XHTTP over TLS with the SelfSteal certificate (Cloudflare «Full» does not check its name).
+            out.append({"tag": tag, "port": port, "listen": "0.0.0.0", "protocol": "vless", "settings": {"clients": [], "decryption": "none"},
+                        "sniffing": sniff,
+                        "streamSettings": {"network": "xhttp", "security": "tls", "xhttpSettings": {"path": rw_plan.CDN_PATH, "mode": "auto"},
+                                           "tlsSettings": {"serverName": domain, "alpn": ["h2", "http/1.1"], "certificates": [dict(certificate)]}}})
+            continue
         if name == "tls":
             out.append({"tag": tag, "port": port, "listen": "0.0.0.0", "protocol": "vless", "settings": {"clients": [], "decryption": "none"},
                         "sniffing": sniff,
@@ -1299,6 +1306,11 @@ def transport_inbounds(base: dict, domain: str, wanted: list[str], tls_min: str 
 
 def transport_host(name: str, domain: str, profile: str, inbound: str, remark: str, fingerprint: str = "firefox") -> dict:
     tag, port, _ = rw_plan.TRANSPORTS[name]
+    if name == "cdn":
+        # The client talks TLS to Cloudflare for the CDN domain; the host carries it as SNI and Host.
+        return {"remark": remark[:40], "address": domain, "port": port, "sni": domain, "host": domain, "path": rw_plan.CDN_PATH,
+                "securityLayer": "TLS", "alpn": "h2,http/1.1", "fingerprint": fingerprint,
+                "inbound": {"configProfileUuid": profile, "configProfileInboundUuid": inbound}}
     body = {"remark": remark[:40], "address": domain, "port": port, "sni": domain,
             "inbound": {"configProfileUuid": profile, "configProfileInboundUuid": inbound}}
     if name != "hysteria2":  # QUIC has no uTLS fingerprint
@@ -1364,8 +1376,8 @@ async def _apply_transports(ctx: Context, chosen: list[str]) -> None:
     for tag, name in wanted.items():
         inbound = by_tag.get(tag)
         if inbound and inbound not in bound:
-            host = await panel_api(ctx, "POST", "/api/hosts", transport_host(name, plan.selfsteal_domain, uuid, inbound, f"{plan.selfsteal_domain} {name}",
-                                                                           plan.fingerprint))
+            domain = plan.cdn_domain if name == "cdn" else plan.selfsteal_domain
+            host = await panel_api(ctx, "POST", "/api/hosts", transport_host(name, domain, uuid, inbound, f"{domain} {name}", plan.fingerprint))
             if isinstance(host, dict) and host.get("uuid"):
                 created[tag] = host["uuid"]
     # v28.90.0 (N5): every host of this profile except Hysteria2 presents the chosen browser fingerprint.
@@ -1401,6 +1413,45 @@ async def _apply_transports(ctx: Context, chosen: list[str]) -> None:
         await panel_api(ctx, "POST", f"/api/nodes/{node}/actions/restart", {"forceRestart": False})
     ctx.state["transports"] = list(chosen)
     _note(ctx, f"Профиль {uuid}: inbound'ы {sorted(by_tag)} (было {sorted(before)}); сквадов обновлено: {touched}")
+
+
+async def run_cdn_dns(ctx: Context, st: dict) -> None:
+    """v28.98.0 (N7): Cloudflare DNS of the CDN domain (nodes) or the subscription domain — what was there goes to the
+    state for «undo»."""
+    from . import cloudflare_cdn as cf
+    p = st["params"]
+    token = ctx.secrets.get("cloudflare_token")
+    if not token:
+        raise StepError("Нет токена Cloudflare этой установки: включите CDN заново с токеном")
+    on = bool(p["on"])
+    saved = {"part": p["part"], "domain": p["domain"], "ssl_rule": None}
+    try:
+        if p["part"] == "nodes":
+            saved["records"] = await cf.apply_records(token, p["domain"], p["addresses"] if on else [], True)
+            await cf.set_full_ssl(token, p["domain"], on)
+            saved["ssl_rule"] = on
+        else:
+            saved["records"] = await cf.apply_records(token, p["domain"], p["addresses"], on)
+            if on:
+                mode = await cf.zone_setting(token, p["domain"], "ssl")
+                if mode not in ("full", "strict"):
+                    _note(ctx, f"Внимание: режим SSL зоны Cloudflare — «{mode}»: для подписки нужен «Full (strict)», иначе браузеры увидят ошибку")
+    except cf.CloudflareError as exc:
+        raise StepError(str(exc)) from exc
+    ctx.state.setdefault("cdn_before", []).append(saved)
+    ctx.state.setdefault("cdn", {})[p["part"]] = {"domain": p["domain"], "on": on}
+    _note(ctx, f"Cloudflare: {p['domain']} — " + ("через CDN" if on else "убран из CDN" if p["part"] == "nodes" else "напрямую"))
+
+
+async def undo_cdn_dns(ctx: Context, st: dict) -> None:
+    from . import cloudflare_cdn as cf
+    token = ctx.secrets.get("cloudflare_token")
+    for saved in reversed(ctx.state.pop("cdn_before", None) or []):
+        if not token:
+            return
+        await cf.restore_records(token, saved["records"])
+        if saved["ssl_rule"] is not None:
+            await cf.set_full_ssl(token, saved["domain"], not saved["ssl_rule"])
 
 
 async def _hosts(ctx: Context) -> list[dict]:
@@ -1820,8 +1871,8 @@ RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
        "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "fetch_configs": run_fetch_configs, "put_configs": run_put_configs, "compose_down": run_compose_down,
        "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module, "compose_ctl": run_compose_ctl,
-       "node_transports": run_node_transports}
+       "node_transports": run_node_transports, "cdn_dns": run_cdn_dns}
 UNDO = {"write_files": undo_write_files, "put_configs": undo_put_configs, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
         "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile, "node_module": undo_node_module,
-        "node_transports": undo_node_transports}
+        "node_transports": undo_node_transports, "cdn_dns": undo_cdn_dns}
 assert set(RUN) == set(STEP_KINDS)

@@ -40,7 +40,7 @@ def test_defaults_and_validation():
     assert selfsteal(node_port_ips=["198.51.100.7", "198.51.100.7/32", "2001:db8::1"]).node_port_ips == ["198.51.100.7/32", "2001:db8::1/128"]
     every = selfsteal(transports=["tls", "hysteria2", "grpc", "xhttp"])
     assert every.transports == ["grpc", "hysteria2", "tls", "xhttp"]
-    assert set(rw_plan.TRANSPORTS) == {"xhttp", "grpc", "hysteria2", "tls"}
+    assert set(rw_plan.TRANSPORTS) == {"xhttp", "grpc", "hysteria2", "tls", "cdn"}  # v28.98.0: «cdn» — only through the module «Cloudflare CDN»
 
 
 def test_tls_inbound_takes_the_chosen_versions():
