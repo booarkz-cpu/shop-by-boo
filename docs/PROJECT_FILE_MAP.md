@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2352**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2353**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -2113,6 +2113,7 @@
 | [tests/test_behaviour_auth.py](../tests/test_behaviour_auth.py) | Проверки |
 | [tests/test_behaviour_csrf.py](../tests/test_behaviour_csrf.py) | Проверки |
 | [tests/test_behaviour_fulfil_locks.py](../tests/test_behaviour_fulfil_locks.py) | Проверки |
+| [tests/test_behaviour_gift_cards.py](../tests/test_behaviour_gift_cards.py) | Проверки |
 | [tests/test_behaviour_mfa_recovery.py](../tests/test_behaviour_mfa_recovery.py) | Проверки |
 | [tests/test_behaviour_payment_guards.py](../tests/test_behaviour_payment_guards.py) | Проверки |
 | [tests/test_behaviour_payments.py](../tests/test_behaviour_payments.py) | Проверки |

@@ -1,6 +1,5 @@
 import ast, pathlib, re, yaml
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-from main_source import main_source
 MAIN=ROOT/'backend/app/main.py'
 SEC=ROOT/'backend/app/security.py'
 MODELS=ROOT/'backend/app/models.py'
@@ -13,10 +12,13 @@ def test_python_compiles():
         ast.parse(read(p))
 
 def test_main_has_v19_features():
-    s=main_source()
-    for x in ['/api/admin/analytics','/api/admin/sessions','/api/admin/payments/{payment_id}/retry','/api/admin/backups/{backup_id}/verify','/api/admin/backups/{backup_id}/restore','/api/me/referral','/api/me/subscription','fulfillment_retry_scheduler','expiry_notification_scheduler']:
-        assert x in s
-    m=re.search(r'async def admin_menu_delete.*?(?=\n@app|\Z)',s,re.S); assert m and 'payload' not in m.group(0)
+    import inspect
+    from app import main as shop
+    from app_contract import missing_paths
+    assert not missing_paths('/api/admin/analytics','/api/admin/sessions','/api/admin/payments/{payment_id}/retry','/api/admin/backups/{backup_id}/verify',
+                             '/api/admin/backups/{backup_id}/restore','/api/me/referral','/api/me/subscription')
+    assert callable(shop.fulfillment_retry_scheduler) and callable(shop.expiry_notification_scheduler)
+    assert 'payload' not in inspect.signature(shop.admin_menu_delete).parameters  # a DELETE takes no body
 
 def test_security_session_and_permissions():
     # Admin sessions are registered by jti and revocable: test_v42_hardening.py.
