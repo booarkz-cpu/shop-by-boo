@@ -179,6 +179,8 @@ class VpnViewModelTest {
         assertFalse("stopping waits for the change too", buttonEnabled(model.state.value))
         engine.config(busy = false)
         assertTrue(buttonEnabled(model.state.value))
+        // Disconnected, so the once-a-second ticker ends and the test scheduler becomes idle.
+        engine.set("off")
         collecting.cancel()
         advanceTimeBy(VpnViewModel.TICK_MS)
     }
