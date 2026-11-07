@@ -40,10 +40,10 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
-MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site")
+MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
-                 "transports": "Транспорты ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
-                 "selfsteal_site": "Сайт SelfSteal"}
+                 "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
+                 "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
@@ -51,8 +51,31 @@ SELFSTEAL_SOCKET = "/dev/shm/selfsteal.sock"
 # v28.81.0: extra transports of a SelfSteal node next to VLESS + TCP + REALITY on 443 (after remnawave-manager, MIT,
 # (c) Корги Люси): tag, port, network — the same REALITY keys and the SelfSteal site; Hysteria2 uses the TLS certificate
 # the node's Caddy issued for the SelfSteal domain (copied to HYSTERIA_DIR, Xray reloads it).
-TRANSPORTS = {"xhttp": ("VLESS_XHTTP_REALITY", 4443, "tcp"), "grpc": ("VLESS_GRPC_REALITY", 8443, "tcp"), "hysteria2": ("HYSTERIA2", 443, "udp")}
-TRANSPORT_TITLES = {"xhttp": "VLESS + xHTTP + REALITY (TCP 4443)", "grpc": "VLESS + gRPC + REALITY (TCP 8443)", "hysteria2": "Hysteria2 (UDP 443)"}
+# v28.90.0 (N6): «tls» — VLESS + TCP + TLS with the same certificate and the TLS versions the owner chose; REALITY and
+# Hysteria2 (QUIC) work only over TLS 1.3, so the choice applies to this inbound.
+TRANSPORTS = {"xhttp": ("VLESS_XHTTP_REALITY", 4443, "tcp"), "grpc": ("VLESS_GRPC_REALITY", 8443, "tcp"), "hysteria2": ("HYSTERIA2", 443, "udp"),
+              "tls": ("VLESS_TCP_TLS", 2053, "tcp")}
+TRANSPORT_TITLES = {"xhttp": "VLESS + xHTTP + REALITY (TCP 4443)", "grpc": "VLESS + gRPC + REALITY (TCP 8443)", "hysteria2": "Hysteria2 (UDP 443)",
+                    "tls": "VLESS + TCP + TLS (TCP 2053)"}
+TransportName = Literal["xhttp", "grpc", "hysteria2", "tls"]
+# v28.90.0 (N5): the uTLS fingerprint clients present (Remnawave host «fingerprint»); Firefox by default.
+FINGERPRINTS = {"firefox": "Firefox", "chrome": "Chrome", "safari": "Safari", "ios": "iOS", "android": "Android", "edge": "Edge",
+                "qq": "QQ", "random": "Случайный из популярных", "randomized": "Полностью случайный"}
+Fingerprint = Literal["firefox", "chrome", "safari", "ios", "android", "edge", "qq", "random", "randomized"]
+TlsVersion = Literal["1.2", "1.3"]
+
+
+def _networks(value: list[str], label: str) -> list[str]:
+    out = []
+    for raw in value:
+        try:
+            net = ipaddress.ip_network(raw.strip(), strict=False)
+        except ValueError as exc:
+            raise ValueError(f"{label}: {raw}") from exc
+        if net.num_addresses > 65536:
+            raise ValueError(f"Слишком широкий диапазон: {raw}")
+        out.append(str(net))
+    return list(dict.fromkeys(out))
 HYSTERIA_DIR = "/opt/remnanode/hysteria"
 HYSTERIA_MOUNT = "/var/lib/corgi-hysteria"
 SELFSTEAL_TEMPLATES = {"cloud": "Облачное хранилище", "docs": "Документация", "corgi": "Блог о корги"}
@@ -101,7 +124,13 @@ class PlanIn(BaseModel):
     xray_checker_server_id: int | None = None
     xray_checker_interval: int = Field(default=300, ge=60, le=86400)
     # v28.81.0: extra transports of the SelfSteal node (TRANSPORTS); VLESS + TCP + REALITY on 443 always stays.
-    transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)
+    transports: list[TransportName] = Field(default_factory=list, max_length=4)
+    # v28.90.0 (N5, N6): the browser fingerprint of the hosts and the TLS versions of «VLESS + TCP + TLS».
+    fingerprint: Fingerprint = "firefox"
+    tls_min: TlsVersion = "1.3"
+    tls_max: TlsVersion = "1.3"
+    # v28.90.0 (N5): more addresses allowed to the node's port besides the panel's (for a panel move: add the new one first).
+    node_port_ips: list[str] = Field(default_factory=list, max_length=10)
     # The module action being planned (rw_api.action fills it; it is not kept after the run).
     module: "ModuleRun | None" = None
 
@@ -152,8 +181,11 @@ class PlanIn(BaseModel):
             if self.tls == "acme" and not self.acme_email:
                 raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
         self.transports = sorted(set(self.transports))
+        if self.tls_min > self.tls_max:
+            raise ValueError("TLS: минимальная версия выше максимальной")
+        self.node_port_ips = _networks(self.node_port_ips, "Адрес для порта ноды")
         if self.transports and not self.selfsteal_domain:
-            raise ValueError("Транспорты xHTTP, gRPC и Hysteria2 ставятся на ноду с SelfSteal (домен ноды и сертификат)")
+            raise ValueError("Транспорты xHTTP, gRPC, Hysteria2 и TLS ставятся на ноду с SelfSteal (домен ноды и сертификат)")
         if self.xray_checker_server_id and self.xray_checker_server_id not in roles_of(self):
             raise ValueError("Xray Checker ставится на один из серверов этой установки")
         if self.panel_access in ("cookie", "tinyauth", "gate") and not self.panel_server_id:
@@ -184,26 +216,18 @@ class Hardening(BaseModel):
     @field_validator("admin_ips")
     @classmethod
     def _ips(cls, value: list[str]) -> list[str]:
-        out = []
-        for raw in value:
-            try:
-                out.append(str(ipaddress.ip_network(raw.strip(), strict=False)))
-            except ValueError as exc:
-                raise ValueError(f"Адрес администратора: {raw}") from exc
-            if ipaddress.ip_network(out[-1]).num_addresses > 65536:
-                raise ValueError(f"Слишком широкий диапазон: {raw}")
-        return list(dict.fromkeys(out))
+        return _networks(value, "Адрес администратора")
 
 
 class ModuleRun(BaseModel):
     """One module action: what to do on which servers. ``release`` — the files GitHub published for the chosen
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port"]
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
-    transports: list[Literal["xhttp", "grpc", "hysteria2"]] = Field(default_factory=list, max_length=3)
+    transports: list[TransportName] = Field(default_factory=list, max_length=4)
     hardening: "Hardening | None" = None
     release: dict[str, dict[str, str]] = Field(default_factory=dict)
     management_url: str | None = Field(default=None, max_length=200, pattern=r"^https://[A-Za-z0-9.-]+(:\d{1,5})?(/[A-Za-z0-9._~/-]*)?$")
@@ -294,7 +318,8 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
         changes[n].append(f"Каталог {DIRS['node']}; контейнер remnanode (сеть хоста), порт {plan.node_port}")
         if plan.firewall:
             steps.append(step("firewall_node_port", n, f"{name}: порт {plan.node_port} только для адреса панели"))
-            changes[n].append(f"Если есть ufw: правило «разрешить {plan.node_port}/tcp только с адреса панели»"
+            changes[n].append(f"Порт {plan.node_port}/tcp — только с адреса панели (nftables; и правило ufw, если он включён). "
+                              "Если после установки панель не видит ноду, правило снимается"
                               + ("; порты 80 и 443 открыты для всех" if plan.selfsteal_domain else ""))
         if plan.selfsteal_domain:
             steps.append(step("selfsteal_profile", n, f"{name}: профиль VLESS + REALITY с SelfSteal и хост {plan.selfsteal_domain}"))
@@ -543,6 +568,7 @@ def tinyauth_env(auth_domain: str, username: str, password_hash: str) -> str:
 
 
 def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_core: bool = False, hysteria: bool = False) -> str:
+    """``hysteria`` — the node has a TLS-certificate transport (Hysteria2 or VLESS + TCP + TLS)."""
     from .provisioner import node_compose as official
     text = official(secret_key, node_port).replace("image: remnawave/node:latest", f"image: {IMAGES['node']}")
     volumes = []
@@ -554,7 +580,7 @@ def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_
         # the node's rw-core starts /usr/local/bin/xray unless a panel profile points it at another core.
         volumes.append("      - ./xray-core/xray:/usr/local/bin/xray:ro\n")
     if hysteria:
-        # Hysteria2 reads the SelfSteal domain's certificate (copied there by the node's timer, see rw_steps.TRANSPORTS_SH).
+        # Hysteria2 and VLESS + TCP + TLS read the SelfSteal domain's certificate (copied there by the node's timer, see rw_steps.TRANSPORTS_SH).
         volumes.append(f"      - {HYSTERIA_DIR}:{HYSTERIA_MOUNT}:ro\n")
     if volumes:
         text = text.replace("    cap_add:\n", "    volumes:\n" + "".join(volumes) + "    cap_add:\n", 1)
@@ -732,12 +758,26 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
         sid = plan.node_server_ids[0]
         n = servers[sid]["name"]
         chosen = ", ".join(TRANSPORT_TITLES[t] for t in plan.transports) or "только TCP + REALITY"
-        steps += [step("node_module", sid, f"{n}: порты и сертификат Hysteria2 — {chosen}", module="transports", transports=plan.transports),
+        chosen += f"; отпечаток {FINGERPRINTS[plan.fingerprint]}" + (f"; TLS {plan.tls_min}–{plan.tls_max}" if "tls" in plan.transports else "")
+        steps += [step("node_module", sid, f"{n}: порты и сертификат TLS — {chosen}", module="transports", transports=plan.transports),
                   step("write_files", sid, f"{n}: файлы ({DIRS['node']})", component="node"),
                   step("compose_up", sid, f"{n}: перезапуск ноды", component="node"),
                   step("node_transports", None, f"Панель: inbound'ы профиля SelfSteal, хосты и сквады — {chosen}"),
                   step("verify", None, "Проверка: нода на связи")]
-        title = f"Транспорты ноды: {chosen}"
+        title = f"Протоколы и маскировка: {chosen}"
+    elif name == "node_port":
+        # v28.90.0 (N5): the node's port only from the panel (and the extra addresses) on every node at once — nftables
+        # always, ufw too when it is on; «verify» takes the rule back from a node the panel stops seeing.
+        targets = mod.server_ids or nodes
+        if not targets or any(sid not in nodes for sid in targets):
+            raise ValueError("Выберите ноды этой установки")
+        extra = f" и {', '.join(plan.node_port_ips)}" if plan.node_port_ips else ""
+        for sid in targets:
+            what = f"только с адреса панели{extra}" if mod.enabled else "открыть (снять правило)"
+            steps.append(step("node_module", sid, f"{servers[sid]['name']}: порт {plan.node_port}/tcp — {what}", module="node_port",
+                              enabled=mod.enabled, ips=plan.node_port_ips))
+        steps.append(step("verify", None, "Проверка: панель видит ноды (иначе правило снимается)"))
+        title = f"Порт ноды для панели: {'закрыть для всех, кроме панели' if mod.enabled else 'открыть'}"
     elif name == "selfsteal_site":
         # v28.88.0 (BACKLOG A3): another site-template behind SelfSteal without a reinstall — the node's Caddy files
         # are rewritten (the previous ones come back on an error) and Caddy restarted; the node and REALITY stay as is.

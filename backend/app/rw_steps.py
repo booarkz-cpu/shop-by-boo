@@ -333,7 +333,7 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
                 "docker-compose.yml": rw_plan.caddy_compose(tinyauth), **files}
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
-        return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain), hysteria="hysteria2" in plan.transports,
+        return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain), hysteria=bool({"hysteria2", "tls"} & set(plan.transports)),
                                                            xray_core=bool(plan.xray_core))}
     if component == "xray_checker":
         url = ctx.secrets.get("checker_subscription_url")
@@ -528,15 +528,63 @@ async def _keygen(ctx: Context) -> str:
 
 # ---------- node ----------
 
+# v28.90.0 (N5): the node's port only from the panel's address (and the extra ones) — always, with nftables: an own
+# table «inet corgi_node_port» that drops every other source before any other rule, kept over reboots by a systemd
+# unit; ufw, when it is on, gets the same allow rule. «delete» removes the table, the unit and the ufw rules.
+# The first address is the panel's; the rest are comma-separated extra networks. scripts/ci/node-port-guard.sh runs
+# this very script in network namespaces: the panel connects, an outsider does not.
 FIREWALL = r"""set -eu
-ip="$1"; port="$2"; action="$3"
-command -v ufw >/dev/null 2>&1 || { echo "ufw нет: правило не добавлено"; exit 0; }
-ufw status 2>/dev/null | head -1 | grep -q active || { echo "ufw выключен: правило не добавлено"; exit 0; }
-if [ "$action" = add ]; then ufw allow from "$ip" to any port "$port" proto tcp; else ufw delete allow from "$ip" to any port "$port" proto tcp || true; fi
-if [ "${4:-}" = web ]; then
+ips="$1"; port="$2"; action="$3"
+case "$port" in ""|*[!0-9]*) echo "bad port"; exit 2 ;; esac
+case "$ips" in ""|*[!0-9a-fA-F.:/,]*) echo "bad address"; exit 2 ;; esac
+conf=/etc/corgi/node-port.nft; unit=/etc/systemd/system/corgi-node-port.service
+v4=""; v6=""
+for ip in $(echo "$ips" | tr , ' '); do case "$ip" in *:*) v6="$v6${v6:+, }$ip" ;; *) v4="$v4${v4:+, }$ip" ;; esac; done
+ufw_on() { command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | head -1 | grep -q active; }
+systemd_on() { [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; }
+if [ "$action" = add ]; then
+  if ! command -v nft >/dev/null 2>&1; then
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nftables >/dev/null 2>&1 || { echo "nonft"; exit 7; }
+  fi
+  install -d -m 0755 /etc/corgi
+  {
+    echo "table inet corgi_node_port {}"
+    echo "delete table inet corgi_node_port"
+    echo "table inet corgi_node_port {"
+    echo "  chain input {"
+    echo "    type filter hook input priority -10; policy accept;"
+    echo "    iifname \"lo\" accept"
+    [ -n "$v4" ] && echo "    tcp dport $port ip saddr { $v4 } accept"
+    [ -n "$v6" ] && echo "    tcp dport $port ip6 saddr { $v6 } accept"
+    echo "    tcp dport $port counter drop"
+    echo "  }"
+    echo "}"
+  } > "$conf.new"
+  nft -c -f "$conf.new" || { rm -f "$conf.new"; echo "nft-syntax"; exit 7; }
+  mv -f "$conf.new" "$conf"; nft -f "$conf"
+  if systemd_on; then
+    printf '[Unit]\nDescription=Node port only for the Remnawave panel\nAfter=network-pre.target\nBefore=network-online.target\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=%s -f %s\n[Install]\nWantedBy=multi-user.target\n' "$(command -v nft)" "$conf" > "$unit"
+    systemctl daemon-reload; systemctl enable corgi-node-port.service >/dev/null 2>&1 || true
+  fi
+  if ufw_on; then for ip in $(echo "$ips" | tr , ' '); do ufw allow from "$ip" to any port "$port" proto tcp >/dev/null; done; fi
+  echo "nft=on port=$port allow=$ips"
+else
+  command -v nft >/dev/null 2>&1 && nft delete table inet corgi_node_port 2>/dev/null || true
+  if systemd_on; then systemctl disable corgi-node-port.service >/dev/null 2>&1 || true; fi
+  rm -f "$conf" "$unit"
+  if systemd_on; then systemctl daemon-reload || true; fi
+  if ufw_on; then for ip in $(echo "$ips" | tr , ' '); do ufw delete allow from "$ip" to any port "$port" proto tcp >/dev/null 2>&1 || true; done; fi
+  echo "nft=off port=$port"
+fi
+if [ "${4:-}" = web ] && ufw_on; then
   if [ "$action" = add ]; then ufw allow 80/tcp; ufw allow 443/tcp; else ufw delete allow 80/tcp || true; ufw delete allow 443/tcp || true; fi
 fi
 """
+
+
+def node_port_sources(ctx: Context) -> str:
+    """The panel's address first, then the extra networks of the installation."""
+    return ",".join(dict.fromkeys([panel_ip(ctx), *ctx.plan.node_port_ips]))
 
 
 def panel_ip(ctx: Context) -> str:
@@ -556,20 +604,22 @@ async def run_firewall_node_port(ctx: Context, st: dict) -> None:
     if st["server_id"] == ctx.plan.panel_server_id:
         _note(ctx, "Нода на сервере панели: панель обращается к ней локально, правило не нужно")
         return
-    ip = panel_ip(ctx)
+    ips = node_port_sources(ctx)
     web = ("web",) if ctx.plan.selfsteal_domain else ()
-    result = await _run(ctx, st["server_id"], FIREWALL, ip, str(ctx.plan.node_port), "add", *web, timeout=60)
+    result = await _run(ctx, st["server_id"], FIREWALL, ips, str(ctx.plan.node_port), "add", *web, timeout=180)
     _note(ctx, result.out + result.err)
+    if result.code == 7:
+        raise StepError("На сервере нет nftables, и он не установился (apt): порт ноды не закрыт")
     if result.code != 0:
-        raise StepError("Правило ufw не добавлено")
-    ctx.state.setdefault("firewall", {})[str(st["server_id"])] = ip
+        raise StepError("Правило порта ноды не добавлено (журнал шага)")
+    ctx.state.setdefault("firewall", {})[str(st["server_id"])] = ips
 
 
 async def undo_firewall_node_port(ctx: Context, st: dict) -> None:
-    ip = ctx.state.get("firewall", {}).get(str(st["server_id"]))
-    if ip:
+    ips = ctx.state.get("firewall", {}).pop(str(st["server_id"]), None)
+    if ips:
         web = ("web",) if ctx.plan.selfsteal_domain else ()
-        await _run(ctx, st["server_id"], FIREWALL, ip, str(ctx.plan.node_port), "delete", *web, timeout=60)
+        await _run(ctx, st["server_id"], FIREWALL, ips, str(ctx.plan.node_port), "delete", *web, timeout=60)
 
 
 def node_address(ctx: Context, server_id: int) -> str:
@@ -632,6 +682,7 @@ async def run_selfsteal_profile(ctx: Context, st: dict) -> None:
     ctx.state["selfsteal_profile"] = profile.get("uuid")
     if inbound:
         host = await panel_api(ctx, "POST", "/api/hosts", {"remark": name, "address": domain, "port": 443, "sni": domain,
+                                                         "fingerprint": ctx.plan.fingerprint,
                                                          "inbound": {"configProfileUuid": profile.get("uuid"), "configProfileInboundUuid": inbound}})
         ctx.state["selfsteal_host"] = host.get("uuid")
     _note(ctx, f"Профиль {name}: REALITY на 443, dest {rw_plan.SELFSTEAL_SOCKET}, serverNames [{domain}]; хост {domain}:443")
@@ -896,14 +947,32 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         mods["watchdog"] = enabled
     elif name == "transports":
         wanted = p.get("transports") or []
-        flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2")]
+        flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2", "tls")]
         result = await _run(ctx, sid, TRANSPORTS_SH, ctx.plan.selfsteal_domain, *flags, timeout=300)
         _note(ctx, result.out + result.err)
         if result.code == 5:
-            raise StepError("Нет сертификата SelfSteal для Hysteria2: Caddy ноды ещё не получил его (проверьте DNS домена и повторите)")
+            raise StepError("Нет сертификата SelfSteal для Hysteria2 / TLS: Caddy ноды ещё не получил его (проверьте DNS домена и повторите)")
         if result.code != 0:
             raise StepError("Порты и сертификат транспортов не настроены (журнал шага)")
         mods["transports"] = list(wanted)
+    elif name == "node_port":
+        if sid == ctx.plan.panel_server_id:
+            _note(ctx, "Нода на сервере панели: панель обращается к ней локально, правило не нужно")
+            return
+        ips = node_port_sources(ctx)
+        before = ctx.state.get("firewall", {}).get(str(sid))
+        result = await _run(ctx, sid, FIREWALL, ips if enabled else (before or ips), str(ctx.plan.node_port), "add" if enabled else "delete", timeout=180)
+        _note(ctx, result.out + result.err)
+        if result.code == 7:
+            raise StepError("На сервере нет nftables, и он не установился (apt): порт ноды не закрыт")
+        if result.code != 0:
+            raise StepError("Правило порта ноды не применилось (журнал шага)")
+        ctx.state.setdefault("node_port_before", {}).setdefault(str(sid), before or "")
+        if enabled:
+            ctx.state.setdefault("firewall", {})[str(sid)] = ips
+        else:
+            ctx.state.get("firewall", {}).pop(str(sid), None)
+        mods["node_port"] = ips if enabled else "open"
     elif name == "xray_checker":
         data = {}
         for _ in range(15):
@@ -1033,14 +1102,14 @@ esac
 # of the SelfSteal domain: copied from the node's Caddy (any issuer) to HYSTERIA_DIR every day by a systemd timer; Xray
 # reloads it (ocspStapling). After remnawave-manager (MIT, (c) Корги Люси): write_hysteria_cert_helper, write_firewall.
 TRANSPORTS_SH = r"""set -eu
-domain="$1"; xhttp="$2"; grpc="$3"; hy="$4"; dir=/opt/remnanode/hysteria
+domain="$1"; xhttp="$2"; grpc="$3"; hy="$4"; tls="${5:-off}"; dir=/opt/remnanode/hysteria
 case "$domain" in *[!a-z0-9.-]*|"") exit 2 ;; esac
 port() {  # port/proto on|off
   command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | head -1 | grep -q active || return 0
   if [ "$2" = on ]; then ufw allow "$1" >/dev/null; else ufw delete allow "$1" >/dev/null 2>&1 || true; fi
 }
-port 4443/tcp "$xhttp"; port 8443/tcp "$grpc"; port 443/udp "$hy"
-if [ "$hy" = on ]; then
+port 4443/tcp "$xhttp"; port 8443/tcp "$grpc"; port 443/udp "$hy"; port 2053/tcp "$tls"
+if [ "$hy" = on ] || [ "$tls" = on ]; then
   install -d -m 0755 "$dir"
   cat > /usr/local/sbin/corgi-hysteria-cert.sh <<EOF
 #!/bin/sh
@@ -1066,13 +1135,15 @@ else
   rm -f /etc/systemd/system/corgi-hysteria-cert.service /etc/systemd/system/corgi-hysteria-cert.timer /usr/local/sbin/corgi-hysteria-cert.sh
   systemctl daemon-reload || true
 fi
-echo "transports xhttp=$xhttp grpc=$grpc hysteria2=$hy"
+echo "transports xhttp=$xhttp grpc=$grpc hysteria2=$hy tls=$tls"
 """
 
 
-def transport_inbounds(base: dict, domain: str, wanted: list[str]) -> list[dict]:
+def transport_inbounds(base: dict, domain: str, wanted: list[str], tls_min: str = "1.3", tls_max: str = "1.3") -> list[dict]:
     """The inbounds of the chosen transports next to ``base`` (the VLESS + TCP + REALITY inbound of the profile): the
-    same REALITY settings (keys, SelfSteal site, serverNames); Hysteria2 with the copied certificate."""
+    same REALITY settings (keys, SelfSteal site, serverNames); Hysteria2 and VLESS + TCP + TLS with the copied
+    certificate — the latter with the TLS versions the owner chose (v28.90.0, N6)."""
+    certificate = {"certificateFile": f"{rw_plan.HYSTERIA_MOUNT}/cert.pem", "keyFile": f"{rw_plan.HYSTERIA_MOUNT}/key.pem", "ocspStapling": 3600}
     reality = (base.get("streamSettings") or {}).get("realitySettings") or {}
     sniff = base.get("sniffing") or {"enabled": True, "destOverride": ["http", "tls", "quic"]}
     out = []
@@ -1083,8 +1154,14 @@ def transport_inbounds(base: dict, domain: str, wanted: list[str]) -> list[dict]
                         "sniffing": sniff,
                         "streamSettings": {"network": "hysteria", "hysteriaSettings": {"version": 2}, "security": "tls",
                                            "tlsSettings": {"serverName": domain, "alpn": ["h3"], "certificates": [
-                                               {"certificateFile": f"{rw_plan.HYSTERIA_MOUNT}/cert.pem", "keyFile": f"{rw_plan.HYSTERIA_MOUNT}/key.pem",
-                                                "ocspStapling": 3600}]}}})
+                                               dict(certificate)]}}})
+            continue
+        if name == "tls":
+            out.append({"tag": tag, "port": port, "listen": "0.0.0.0", "protocol": "vless", "settings": {"clients": [], "decryption": "none"},
+                        "sniffing": sniff,
+                        "streamSettings": {"network": "tcp", "security": "tls",
+                                           "tlsSettings": {"serverName": domain, "alpn": ["h2", "http/1.1"], "minVersion": tls_min,
+                                                           "maxVersion": tls_max, "certificates": [dict(certificate)]}}})
             continue
         stream = {"network": name, "security": "reality", "realitySettings": dict(reality)}
         if name == "xhttp":
@@ -1096,10 +1173,12 @@ def transport_inbounds(base: dict, domain: str, wanted: list[str]) -> list[dict]
     return out
 
 
-def transport_host(name: str, domain: str, profile: str, inbound: str, remark: str) -> dict:
+def transport_host(name: str, domain: str, profile: str, inbound: str, remark: str, fingerprint: str = "firefox") -> dict:
     tag, port, _ = rw_plan.TRANSPORTS[name]
     body = {"remark": remark[:40], "address": domain, "port": port, "sni": domain,
             "inbound": {"configProfileUuid": profile, "configProfileInboundUuid": inbound}}
+    if name != "hysteria2":  # QUIC has no uTLS fingerprint
+        body["fingerprint"] = fingerprint
     if name == "xhttp":
         body["path"] = "/xhttp"
     if name == "grpc":
@@ -1117,6 +1196,8 @@ async def run_node_transports(ctx: Context, st: dict) -> None:
 async def undo_node_transports(ctx: Context, st: dict) -> None:
     if "transports_before" in ctx.state:
         await _apply_transports(ctx, ctx.state.pop("transports_before"))
+    for uuid, fingerprint in (ctx.state.pop("fingerprints_before", None) or {}).items():
+        await panel_api(ctx, "PATCH", "/api/hosts", {"uuid": uuid, "fingerprint": fingerprint or None})
 
 
 async def _apply_transports(ctx: Context, chosen: list[str]) -> None:
@@ -1150,7 +1231,7 @@ async def _apply_transports(ctx: Context, chosen: list[str]) -> None:
     for tag in list(created):
         if tag not in wanted:
             created.pop(tag)
-    config["inbounds"] = inbounds + transport_inbounds(base, plan.selfsteal_domain, chosen)
+    config["inbounds"] = inbounds + transport_inbounds(base, plan.selfsteal_domain, chosen, plan.tls_min, plan.tls_max)
     await panel_api(ctx, "PATCH", "/api/config-profiles", {"uuid": uuid, "config": config})
     profile = await panel_api(ctx, "GET", f"/api/config-profiles/{uuid}")
     by_tag = {i.get("tag"): i.get("uuid") for i in profile.get("inbounds") or []}
@@ -1159,9 +1240,18 @@ async def _apply_transports(ctx: Context, chosen: list[str]) -> None:
     for tag, name in wanted.items():
         inbound = by_tag.get(tag)
         if inbound and inbound not in bound:
-            host = await panel_api(ctx, "POST", "/api/hosts", transport_host(name, plan.selfsteal_domain, uuid, inbound, f"{plan.selfsteal_domain} {name}"))
+            host = await panel_api(ctx, "POST", "/api/hosts", transport_host(name, plan.selfsteal_domain, uuid, inbound, f"{plan.selfsteal_domain} {name}",
+                                                                           plan.fingerprint))
             if isinstance(host, dict) and host.get("uuid"):
                 created[tag] = host["uuid"]
+    # v28.90.0 (N5): every host of this profile except Hysteria2 presents the chosen browser fingerprint.
+    quic = by_tag.get(rw_plan.TRANSPORTS["hysteria2"][0])
+    previous = ctx.state.setdefault("fingerprints_before", {})
+    for host in await _hosts(ctx):
+        bound = (host.get("inbound") or {}).get("configProfileInboundUuid")
+        if host.get("uuid") and bound in set(by_tag.values()) - {quic} and host.get("fingerprint") != plan.fingerprint:
+            previous.setdefault(host["uuid"], host.get("fingerprint") or "")
+            await panel_api(ctx, "PATCH", "/api/hosts", {"uuid": host["uuid"], "fingerprint": plan.fingerprint})
     # Squads: wherever the REALITY inbound is, the transports are too (and nowhere once removed).
     main = by_tag.get(base.get("tag"))
     squads = await panel_api(ctx, "GET", "/api/internal-squads")
@@ -1210,6 +1300,16 @@ async def checker_status(ctx: Context, sid: int) -> dict:
 
 async def undo_node_module(ctx: Context, st: dict) -> None:
     p, sid = st["params"], st["server_id"]
+    if p["module"] == "node_port" and str(sid) in ctx.state.get("node_port_before", {}):
+        before = ctx.state["node_port_before"].pop(str(sid))
+        now = ctx.state.get("firewall", {}).get(str(sid))
+        if before:
+            await _run(ctx, sid, FIREWALL, before, str(ctx.plan.node_port), "add", timeout=180)
+            ctx.state.setdefault("firewall", {})[str(sid)] = before
+        elif now:
+            await _run(ctx, sid, FIREWALL, now, str(ctx.plan.node_port), "delete", timeout=60)
+            ctx.state["firewall"].pop(str(sid), None)
+        return
     script = {"ipv6": IPV6, "xray_core": XRAY_CORE, "warp": WARP, "netbird": NETBIRD, "hardening": HARDEN, "watchdog": WATCHDOG}.get(p["module"])
     if p["module"] in ("warp", "netbird") and not p.get("enabled", True):
         return  # switching off is not undone: the interface or the connection stays off, which is safe
@@ -1277,6 +1377,12 @@ async def run_verify(ctx: Context, st: dict) -> None:
         _note(ctx, f"Нода {uuid}: {'на связи' if connected else 'не подключилась'}")
         if not connected:
             problems.append(f"нода на сервере {ctx.servers[int(sid)]['name']} не подключилась к панели")
+            # v28.90.0 (N5): a closed port must not cut the panel off — the rule goes, the node stays reachable.
+            ips = ctx.state.get("firewall", {}).pop(str(sid), None)
+            if ips:
+                await _run(ctx, int(sid), FIREWALL, ips, str(plan.node_port), "delete", timeout=60)
+                (ctx.state.setdefault("modules", {}).setdefault(str(sid), {}))["node_port"] = "open"
+                problems.append(f"правило порта ноды на {ctx.servers[int(sid)]['name']} снято: панель её не видела")
     if plan.subpage_server_id:
         code = (await _run(ctx, plan.subpage_server_id, HTTPS_CHECK, plan.sub_domain, "v2rayNG/1.9.30", "", timeout=30)).out.strip()
         _note(ctx, f"https://{plan.sub_domain} через Caddy: {code}")
