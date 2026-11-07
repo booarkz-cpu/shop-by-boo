@@ -1,16 +1,17 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.89.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.90.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2314**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2332**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
 | [.dockerignore](../.dockerignore) | Корень проекта |
 | [.env.example](../.env.example) | Корень проекта |
 | [.env.test.example](../.env.test.example) | Корень проекта |
+| [.github/PULL_REQUEST_TEMPLATE.md](../.github/PULL_REQUEST_TEMPLATE.md) | GitHub CI/CD |
 | [.github/dependabot.yml](../.github/dependabot.yml) | GitHub CI/CD |
 | [.github/release-mobile-v2.14.1.md](../.github/release-mobile-v2.14.1.md) | GitHub CI/CD |
 | [.github/release-v20.0.1.md](../.github/release-v20.0.1.md) | GitHub CI/CD |
@@ -1196,6 +1197,7 @@
 | [docs/ru/RELEASE_V28_88_0.md](../docs/ru/RELEASE_V28_88_0.md) | Документация |
 | [docs/ru/RELEASE_V28_89_0.md](../docs/ru/RELEASE_V28_89_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
+| [docs/ru/RELEASE_V28_90_0.md](../docs/ru/RELEASE_V28_90_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
@@ -1453,6 +1455,7 @@
 | [mobile/android-admin/gradlew](../mobile/android-admin/gradlew) | Мобильные приложения |
 | [mobile/android-admin/gradlew.bat](../mobile/android-admin/gradlew.bat) | Мобильные приложения |
 | [mobile/android-admin/settings.gradle.kts](../mobile/android-admin/settings.gradle.kts) | Мобильные приложения |
+| [mobile/android-client/.editorconfig](../mobile/android-client/.editorconfig) | Мобильные приложения |
 | [mobile/android-client/app/build.gradle.kts](../mobile/android-client/app/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/AndroidManifest.xml](../mobile/android-client/app/src/main/AndroidManifest.xml) | Мобильные приложения |
@@ -1483,10 +1486,15 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/MainActivity.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/MainActivity.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/Theme.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/Theme.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/AndroidVpnEngine.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/AndroidVpnEngine.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Session.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Session.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Streak.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Streak.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-client/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable/widget_background.xml](../mobile/android-client/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
@@ -1511,17 +1519,21 @@
 | [mobile/android-client/app/src/main/res/values/strings.xml](../mobile/android-client/app/src/main/res/values/strings.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/xml/client_widget_info.xml](../mobile/android-client/app/src/main/res/xml/client_widget_info.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/xml/network_security.xml](../mobile/android-client/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/core/AdBlockTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/AdBlockTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/vpn/SessionAndStreakTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/vpn/SessionAndStreakTest.kt) | Мобильные приложения |
 | [mobile/android-client/build.gradle.kts](../mobile/android-client/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-client/gradle.properties](../mobile/android-client/gradle.properties) | Мобильные приложения |
 | [mobile/android-client/gradle/wrapper/gradle-wrapper.jar](../mobile/android-client/gradle/wrapper/gradle-wrapper.jar) | Мобильные приложения |
 | [mobile/android-client/gradle/wrapper/gradle-wrapper.properties](../mobile/android-client/gradle/wrapper/gradle-wrapper.properties) | Мобильные приложения |
 | [mobile/android-client/gradlew](../mobile/android-client/gradlew) | Мобильные приложения |
 | [mobile/android-client/gradlew.bat](../mobile/android-client/gradlew.bat) | Мобильные приложения |
+| [mobile/android-client/ktlint-files.txt](../mobile/android-client/ktlint-files.txt) | Мобильные приложения |
 | [mobile/android-client/settings.gradle.kts](../mobile/android-client/settings.gradle.kts) | Мобильные приложения |
 | [mobile/android-signing-cert.sha256](../mobile/android-signing-cert.sha256) | Мобильные приложения |
 | [mobile/android-user/.gitignore](../mobile/android-user/.gitignore) | Мобильные приложения |
@@ -1875,6 +1887,7 @@
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/caddy-on-demand-live.sh](../scripts/ci/caddy-on-demand-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
+| [scripts/ci/node-port-guard.sh](../scripts/ci/node-port-guard.sh) | Эксплуатация и релиз |
 | [scripts/ci/panel-gate-live.sh](../scripts/ci/panel-gate-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/restore-drill.sh](../scripts/ci/restore-drill.sh) | Эксплуатация и релиз |
@@ -1901,6 +1914,7 @@
 | [scripts/ios/build-tunnel-frameworks.sh](../scripts/ios/build-tunnel-frameworks.sh) | Эксплуатация и релиз |
 | [scripts/ios/enable-extensions.py](../scripts/ios/enable-extensions.py) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
+| [scripts/mobile/client-ktlint.sh](../scripts/mobile/client-ktlint.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-vpn-e2e.sh](../scripts/mobile/client-vpn-e2e.sh) | Эксплуатация и релиз |
 | [scripts/mobile/emulator-quiet.sh](../scripts/mobile/emulator-quiet.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
@@ -1908,6 +1922,7 @@
 | [scripts/mobile/vpn-e2e.sh](../scripts/mobile/vpn-e2e.sh) | Эксплуатация и релиз |
 | [scripts/node-agent.py](../scripts/node-agent.py) | Эксплуатация и релиз |
 | [scripts/open-ports.sh](../scripts/open-ports.sh) | Эксплуатация и релиз |
+| [scripts/open-pr.sh](../scripts/open-pr.sh) | Эксплуатация и релиз |
 | [scripts/package-distribution.py](../scripts/package-distribution.py) | Эксплуатация и релиз |
 | [scripts/package-source.py](../scripts/package-source.py) | Эксплуатация и релиз |
 | [scripts/pin-images.sh](../scripts/pin-images.sh) | Эксплуатация и релиз |
@@ -2119,6 +2134,7 @@
 | [tests/test_customer_passkeys.py](../tests/test_customer_passkeys.py) | Проверки |
 | [tests/test_customer_profile.py](../tests/test_customer_profile.py) | Проверки |
 | [tests/test_database_schema_doc.py](../tests/test_database_schema_doc.py) | Проверки |
+| [tests/test_dependabot_coverage.py](../tests/test_dependabot_coverage.py) | Проверки |
 | [tests/test_dependency_locks.py](../tests/test_dependency_locks.py) | Проверки |
 | [tests/test_design_tokens.py](../tests/test_design_tokens.py) | Проверки |
 | [tests/test_diagnostics.py](../tests/test_diagnostics.py) | Проверки |
@@ -2149,6 +2165,7 @@
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_integrity_report.py](../tests/test_integrity_report.py) | Проверки |
 | [tests/test_legal_docs.py](../tests/test_legal_docs.py) | Проверки |
+| [tests/test_license_notices.py](../tests/test_license_notices.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_loyalty.py](../tests/test_loyalty.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
@@ -2214,6 +2231,7 @@
 | [tests/test_route_authorization.py](../tests/test_route_authorization.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
 | [tests/test_rw_autoupdate.py](../tests/test_rw_autoupdate.py) | Проверки |
+| [tests/test_rw_camouflage.py](../tests/test_rw_camouflage.py) | Проверки |
 | [tests/test_rw_extensions.py](../tests/test_rw_extensions.py) | Проверки |
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_rw_node_modules.py](../tests/test_rw_node_modules.py) | Проверки |
