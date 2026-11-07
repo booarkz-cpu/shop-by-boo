@@ -12,6 +12,7 @@ class BootReceiver : BroadcastReceiver() {
         if (intent.action !in listOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED)) return
         val store = Store(context)
         UpdateJob.schedule(context)
+        NetworkReceiver.sync(context)
         val s = store.settings
         if (!s.autoConnectBoot || store.active() == null) return
         // Without the VPN permission nothing can start silently; «only proxy» needs none.

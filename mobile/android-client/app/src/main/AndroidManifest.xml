@@ -43,6 +43,8 @@
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Local SOCKS5/HTTP proxy through Xray without a VPN interface («proxy only» mode chosen by the user)" />
         </service>
+        <!-- v1.6.0 (N10): «Подключаться при смене сети» — woken by ConnectivityManager's PendingIntent only. -->
+        <receiver android:name=".vpn.NetworkReceiver" android:exported="false" />
         <receiver android:name=".vpn.BootReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

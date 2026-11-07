@@ -272,6 +272,11 @@ private fun ConnectionPage(s: Settings, save: (Settings) -> Unit) {
             ToggleRow(tr("Подключаться при загрузке устройства", "Connect when the device starts", "Підключатися під час завантаження пристрою"),
                 tr("Нужно разрешение VPN, выданное раньше", "Needs the VPN permission granted before", "Потрібен раніше наданий дозвіл VPN"), s.autoConnectBoot) {
                 save(s.copy(autoConnectBoot = it)) }
+            // v1.6.0 (N10)
+            ToggleRow(tr("Подключаться при смене сети", "Connect when the network changes", "Підключатися при зміні мережі"),
+                tr("Wi-Fi ↔ мобильная сеть; Android может не разрешить запуск в фоне", "Wi-Fi ↔ mobile; Android may not allow a background start",
+                    "Wi-Fi ↔ мобільна мережа; Android може не дозволити запуск у фоні"), s.autoConnectNetwork) {
+                save(s.copy(autoConnectNetwork = it)); shop.corgi.client.vpn.NetworkReceiver.sync(context) }
             ToggleRow(tr("Сервер и статус на плитке", "Server and state on the tile", "Сервер і статус на плитці"),
                 tr("Выключите, чтобы оставить только название", "Turn off to keep only the name", "Вимкніть, щоб лишити тільки назву"), s.tileDetails) {
                 save(s.copy(tileDetails = it)); QuickTile.refresh(context) }
