@@ -228,6 +228,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/incident-mode` | Incident Mode | право `manage_admins` |
 | `GET` | `/api/admin/info-pages` | Admin List | право `read` |
 | `PUT` | `/api/admin/info-pages/{kind}` | Admin Save | право `legal.write` |
+| `GET` | `/api/admin/install/anti-censorship` | Anti Censorship | право `read` |
 | `GET` | `/api/admin/install/catalogue` | Get Catalogue | право `read` |
 | `GET` | `/api/admin/install/snapshots` | Snapshots | право `backups.read` |
 | `GET` | `/api/admin/install/snapshots-schedule` | Get Schedule | право `backups.read` |

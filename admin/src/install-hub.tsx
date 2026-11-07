@@ -27,6 +27,9 @@ export function InstallHub({request, toast, navigate}: {request: Request; toast:
   const ops = data.operations.filter((o: any) => (mode === "expert" || o.simple) && (!q || `${o.title} ${o.text}`.toLowerCase().includes(q)));
   const state = data.state;
   function open(op: any) {
+    if (op.action.kind === "tab" && op.action.tab === "install") {
+      document.querySelector("[data-install-anti]")?.scrollIntoView({behavior: "smooth"}); return;
+    }
     if (op.action.kind === "tab") return navigate(op.action.tab);
     if (op.action.name === "restore_files") {
       document.querySelector("[data-install-snapshots]")?.scrollIntoView({behavior: "smooth"});
@@ -73,6 +76,7 @@ export function InstallHub({request, toast, navigate}: {request: Request; toast:
         </div>)}</div></section>;
     })}
     {ops.length === 0 && <section className="card"><p className="muted">Ничего не найдено.</p></section>}
+    <AntiCensorship request={request} onFix={(id: string) => { const op = data.operations.find((o: any) => o.id === id); if (op) open(op); }}/>
     <Snapshots request={request} toast={toast} state={state}/>
     {state?.installation_id && <DangerZone state={state} request={request} toast={toast}/>}
   </div>;
@@ -229,5 +233,21 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
     {!plan ? <div className="toolbar"><button className="primary" onClick={make}>Составить план</button><button onClick={onClose}>Отмена</button></div>
       : <div data-install-plan-steps><ol>{plan.plan.steps.map((s: any) => <li key={s.position}>{s.title}</li>)}</ol>
         <div className="toolbar"><button className="primary" onClick={run}>Запустить</button><button onClick={() => setPlan(null)}>Изменить</button></div></div>}
+  </section>;
+}
+
+/** «Анти-РКН» (v28.93.0): what the shop knows about every node as a checklist; «Исправить» opens the card that fixes it. */
+function AntiCensorship({request, onFix}: {request: Request; onFix: (id: string) => void}) {
+  const [nodes, setNodes] = useState<any[] | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => { request("/api/admin/install/anti-censorship").then((x: any) => setNodes(x.nodes)).catch((e: any) => setError(e.message)); }, []);
+  return <section className="card" data-install-anti>
+    <h4>Анти-РКН: чек-лист нод</h4>
+    <p className="muted">Что магазин знает о каждой ноде; по сети здесь ничего не проверяется — для этого «Проверить» в «SelfSteal».</p>
+    {error && <div role="alert" className="error">{error}</div>}
+    {nodes === null ? <p className="muted">Загрузка…</p> : nodes.length === 0 ? <p className="muted">Нод мастера пока нет.</p> :
+      nodes.map(n => <details key={n.key} data-anti-node={n.key}><summary><b>{n.name}</b> {n.address} — {n.done} из {n.total}</summary>
+        <ul className="checklist">{n.items.map((i: any) => <li key={i.key} data-ok={i.ok}>{i.ok ? "✅" : "⚠️"} {i.title}
+          {!i.ok && <button className="link" onClick={() => onFix(i.fix)}>Исправить</button>}</li>)}</ul></details>)}
   </section>;
 }

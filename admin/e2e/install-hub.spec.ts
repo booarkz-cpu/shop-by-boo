@@ -25,6 +25,9 @@ test('Установка: catalogue, modes, search, a module plan and the danger
   });
   await page.route('**/api/admin/install/snapshots', (r: any) => r.fulfill({json: {snapshots: [
     {name: 'config-7-20261107T010000Z.tar.gz.enc', kind: 'files', server_id: 7, size: 20480, created_at: '2026-11-07T01:00:00+00:00'}]}}));
+  await page.route('**/api/admin/install/anti-censorship', (r: any) => r.fulfill({json: {nodes: [{key: '9:7', name: 'fi-1', address: '93.184.216.34',
+    country: 'FI', done: 1, total: 2, items: [{key: 'selfsteal', title: 'Свой сайт SelfSteal на домене ноды', ok: true, fix: 'selfsteal'},
+      {key: 'guard', title: 'Защита ноды от сканеров и перебора включена', ok: false, fix: 'node_guard'}]}]}}));
   await page.route('**/api/admin/install/snapshots-schedule', (r: any) => r.fulfill({json: {enabled: false, time: '04:00', telegram: false, state: {}}}));
   const sent: any[] = [];
   await page.route('**/api/admin/rw/installations/9/actions', (r: any) => {
@@ -59,6 +62,13 @@ test('Установка: catalogue, modes, search, a module plan and the danger
   await hub.locator('[data-restore="config-7-20261107T010000Z.tar.gz.enc"]').click();
   await hub.locator('[data-install-action="restore_files"]').getByRole('button', {name: 'Составить план', exact: true}).click();
   expect(sent.at(-1)).toEqual({action: 'restore_files', snapshot: 'config-7-20261107T010000Z.tar.gz.enc'});
+
+  // «Анти-РКН»: a red point opens the card that fixes it.
+  const anti = hub.locator('[data-anti-node="9:7"]');
+  await anti.locator('summary').click();
+  await expect(anti).toContainText('1 из 2');
+  await anti.getByRole('button', {name: 'Исправить'}).click();
+  await expect(hub.locator('[data-install-plan="node_guard"]')).toBeVisible();
 
   // Danger zone: nothing until the server's name is typed.
   const danger = hub.locator('[data-install-danger]');

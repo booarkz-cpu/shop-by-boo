@@ -204,3 +204,27 @@ def test_put_configs_script_restores_and_goes_back(tmp_path):
     assert (root / "opt/remnawave/docker-compose.yml").read_text() == "old" and not (root / "etc").exists()
     assert run("put", "0" * 64, "k3", data=good).returncode == 3
     assert run("put", "abc", "k;rm", data=good).returncode == 2
+
+
+@pytest.mark.asyncio
+async def test_anti_censorship_checklist(database, fleet, monkeypatch):
+    from app import rw_api, rw_selfsteal
+    db = database
+    server = await add_server(db, fleet, "n9", "198.51.100.49")
+    await rw_api.check_server(server["id"], db, ADMIN)
+    installed = await plan_and_approve(db, rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com",
+                                                          tls="internal", firewall=True))
+    await run_all(db)
+    report = (await install_catalogue.anti_censorship(db, ADMIN))["nodes"]
+    assert len(report) == 1 and report[0]["total"] == len(install_catalogue.CHECKLIST)
+    items = {i["key"]: i for i in report[0]["items"]}
+    assert not items["selfsteal"]["ok"] and items["selfsteal"]["fix"] == "selfsteal"
+    assert items["node_port"]["ok"], "the wizard closed the node's port"
+    assert not items["guard"]["ok"] and not items["snapshots"]["ok"]
+    # The node guard switched on through the module → the point turns green.
+    planned = await rw_api.action(installed["id"], rw_api.ActionIn(action="module", module=rw_api.ModuleIn(name="node_guard", server_ids=[server["id"]])), db, ADMIN)
+    await rw_api.approve(planned["id"], rw_api.ApproveIn(plan_sha256=planned["plan_sha256"]), db, ADMIN)
+    await run_all(db)
+    items = {i["key"]: i for i in (await install_catalogue.anti_censorship(db, ADMIN))["nodes"][0]["items"]}
+    assert items["guard"]["ok"], items["guard"]
+    assert {i["fix"] for i in items.values()} <= {o["id"] for o in install_catalogue.catalogue()}, "every fix is a card"
