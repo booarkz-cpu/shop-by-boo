@@ -168,3 +168,47 @@ async def test_automation_center_lists_processes(database, notes, monkeypatch, t
     assert items["shop_update"]["status"] == "off" and "auto-update.sh install" in items["shop_update"]["detail"]
     assert items["rw_update"]["status"] == "off" and items["workers"]["status"] == "error"
     assert all(i["tab"] and i["status"] in ("ok", "warn", "error", "off") for i in items.values())
+
+
+@pytest.mark.asyncio
+async def test_nightly_geo_lists_only_where_installed(database, fleet, notes, monkeypatch):
+    """v28.96.0 (N7): «В то же время обновлять российские списки» — a module run with the newest build, only where the
+    lists are installed, once a night; the installation remembers the new build."""
+    from app import rw_api, rw_releases
+    db = database
+    iid, host = await installed(db, fleet)
+    files = {k: {"url": f"https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/download/{{v}}/{k}.dat", "sha256": c * 64}
+             for k, c in (("geoip", "a"), ("geosite", "b"))}
+
+    def build(v):
+        return v, {k: {**f, "url": f["url"].format(v=v)} for k, f in files.items()}
+    current = ["202611050000"]
+
+    async def lists():
+        return build(current[0])
+    monkeypatch.setattr(rw_releases, "geo_lists", lists)
+    monkeypatch.setattr(rw_autoupdate, "fetch_geo", lists)
+    await rw_autoupdate.put_auto_update(rw_autoupdate.SettingsIn(enabled=True, time="04:30", geo=True), db, ADMIN)
+    report = await rw_autoupdate.tick(db, NIGHT)
+    assert report.get("geo") in (None, []), "no lists installed — nothing to refresh"
+
+    planned = await rw_api.action(iid, rw_api.ActionIn(action="module", module=rw_api.ModuleIn(name="geo_files", enabled=True)), db, ADMIN)
+    await rw_api.approve(planned["id"], rw_api.ApproveIn(plan_sha256=planned["plan_sha256"]), db, ADMIN)
+    await run_all(db)
+    current[0] = "202611051200"
+    state = await rw_autoupdate._load(db, rw_autoupdate.STATE_KEY, {})
+    state["last_run_date"] = None
+    await rw_autoupdate._save(db, rw_autoupdate.STATE_KEY, state)
+    report = await rw_autoupdate.tick(db, NIGHT)
+    assert len(report["geo"]) == 1 and any("202611051200" in n for n in notes)
+    assert (await rw_autoupdate.tick(db, NIGHT)).get("geo") in (None, []), "once a night"
+    await run_all(db)
+    assert ("geo", ("install", build("202611051200")[1]["geoip"]["url"], "a" * 64, build("202611051200")[1]["geosite"]["url"], "b" * 64)) in host.calls
+    from app.models import RemnawaveInstallation
+    source = await db.get(RemnawaveInstallation, iid)
+    await db.refresh(source)
+    assert source.params["geo_files"] == "202611051200"
+    assert "./geo/ru-geosite.dat" in host.files[("/opt/remnanode", "docker-compose.yml")]
+    state["last_run_date"] = None
+    await rw_autoupdate._save(db, rw_autoupdate.STATE_KEY, {**(await rw_autoupdate._load(db, rw_autoupdate.STATE_KEY, {})), "last_run_date": None})
+    assert (await rw_autoupdate.tick(db, NIGHT)).get("geo") == [], "the newest build is already there"

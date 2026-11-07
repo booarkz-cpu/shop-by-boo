@@ -35,7 +35,7 @@ from .security import require_permission, require_stepup
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin/remnawave/auto-update")
 KEY, STATE_KEY = "rw.autoupdate", "rw.autoupdate.state"
-DEFAULT = {"enabled": False, "time": "04:30", "installation_ids": [], "notify": True}
+DEFAULT = {"enabled": False, "time": "04:30", "installation_ids": [], "notify": True, "geo": False}
 MSK = ZoneInfo("Europe/Moscow")
 ACTOR = "auto-update"
 WINDOW = timedelta(hours=2)  # a worker restarted at 04:40 still runs the 04:30 update
@@ -52,6 +52,8 @@ class SettingsIn(BaseModel):
     time: str = Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
     installation_ids: list[int] = Field(default_factory=list, max_length=50)
     notify: bool = True
+    # v28.96.0 (N7): the Russian geo lists (module geo_files) to the latest build on the same night — only where they are installed.
+    geo: bool = False
 
 
 class RunIn(BaseModel):
@@ -150,9 +152,11 @@ async def outdated(db: AsyncSession, ids: list[int] | None = None) -> list[dict]
     return [i for i in await installations(db) if i["outdated"] and not i["busy"] and (not wanted or i["id"] in wanted)]
 
 
-async def schedule_update(db: AsyncSession, source_id: int, actor: str, action: str = "update") -> RemnawaveInstallation:
+async def schedule_update(db: AsyncSession, source_id: int, actor: str, action: str = "update",
+                          module: dict | None = None) -> RemnawaveInstallation:
     """The «update» plan of an installation, queued at once (the same plan an administrator approves by hand).
-    v28.92.0: also «snapshot» for the daily snapshots of «Установка» (rw_snapshots)."""
+    v28.92.0: also «snapshot» for the daily snapshots of «Установка» (rw_snapshots).
+    v28.96.0: also «module» with a prepared module run (the nightly geo lists)."""
     from . import rw_api
     from .main import audit
 
@@ -164,6 +168,10 @@ async def schedule_update(db: AsyncSession, source_id: int, actor: str, action: 
     if busy:
         raise HTTPException(409, f"На серверах {busy} уже идёт другая установка")
     params = dict(source.params)
+    if module is not None:
+        params["module"] = module
+        if module.get("name") == "geo_files":
+            params["geo_files"] = module.get("version")
     try:
         plan = rw_plan.build_action(action, rw_plan.PlanIn(**params), servers)
     except ValueError as exc:
@@ -182,6 +190,19 @@ async def schedule_update(db: AsyncSession, source_id: int, actor: str, action: 
 
 
 # ---------- releases on GitHub ----------
+
+async def fetch_geo() -> tuple[str, dict]:
+    """The latest Russian geo lists with their SHA-256 (seam for tests)."""
+    from . import rw_releases
+    return await rw_releases.geo_lists()
+
+
+async def geo_due(db: AsyncSession, ids: list[int]) -> list[RemnawaveInstallation]:
+    """Succeeded installations that have the Russian geo lists — the nightly refresh touches nothing else."""
+    rows = (await db.execute(select(RemnawaveInstallation).where(RemnawaveInstallation.action == "install",
+                                                                 RemnawaveInstallation.status == "succeeded"))).scalars().all()
+    return [r for r in rows if (r.params or {}).get("geo_files") and (not ids or r.id in ids)]
+
 
 async def fetch_upstream() -> dict:
     """Latest release tags of the panel, the node and the subscription page (seam for tests)."""
@@ -275,6 +296,8 @@ async def tick(db: AsyncSession, now: datetime | None = None) -> dict:
         if report["queued"] and cfg["notify"]:
             await _notify(f"Автообновление Remnawave запущено: {len(report['queued'])} установок, "
                           "копия базы панели перед обновлением, откат при сбое.")
+        if cfg.get("geo"):
+            await _geo_night(db, cfg, state, report)
     still = []
     for rid in state.get("watch") or []:
         row = await db.get(RemnawaveInstallation, rid)
@@ -291,6 +314,35 @@ async def tick(db: AsyncSession, now: datetime | None = None) -> dict:
     await _save(db, STATE_KEY, state)
     await db.commit()
     return report
+
+
+async def _geo_night(db: AsyncSession, cfg: dict, state: dict, report: dict) -> None:
+    """v28.96.0 (N7): the Russian geo lists to the latest build where an older one is installed. An installation that is
+    being updated tonight is skipped (its node restarts once) and gets the lists the next night."""
+    targets = await geo_due(db, cfg["installation_ids"])
+    if not targets:
+        return
+    try:
+        version, release = await fetch_geo()
+    except Exception as exc:  # GitHub unreachable: the next night tries again
+        if cfg["notify"]:
+            await _notify(f"Российские списки: последняя сборка не получена — {str(exc)[:200]}")
+        return
+    report.setdefault("geo", [])
+    for source in targets:
+        if source.params["geo_files"] >= version:
+            continue
+        try:
+            row = await schedule_update(db, source.id, ACTOR, action="module", module={
+                "name": "geo_files", "enabled": True, "server_ids": [], "version": version, "release": release})
+        except HTTPException as exc:
+            if cfg["notify"]:
+                await _notify(f"Российские списки: установка #{source.id} пропущена — {exc.detail}")
+            continue
+        state["watch"].append(row.id)
+        report["geo"].append(row.id)
+    if report["geo"] and cfg["notify"]:
+        await _notify(f"Российские списки {version}: обновление запущено на {len(report['geo'])} установках (ноды перезапустятся).")
 
 
 async def scheduler() -> None:
