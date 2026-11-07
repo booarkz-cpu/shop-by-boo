@@ -1,16 +1,13 @@
 """20.0.6: a staging help line must not open the production payment gate."""
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_live_version_is_20_0_6():
-    main = main_source()
+    from app.main import APP_VERSION as current
     installer = (ROOT / "deploy/install-vps.sh").read_text()
     builder = (ROOT / "scripts/build-release.sh").read_text()
-    first = main.index('APP_VERSION = "')
-    current = main[first:].split('"', 2)[1]
     assert tuple(map(int, current.split('-', 1)[0].split('.'))) >= (20, 0, 6)
     assert f'INSTALLER_VERSION="{current}"' in installer
     assert f'VERSION="{current}"' in builder

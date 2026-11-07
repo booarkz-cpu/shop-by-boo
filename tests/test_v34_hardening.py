@@ -1,5 +1,4 @@
 import pytest
-from main_source import main_source
 # The shop database fixture is shared by the behaviour tests; pytest picks it up from this module's namespace.
 from test_subscription_commerce import database  # noqa: F401
 from pathlib import Path
@@ -125,15 +124,7 @@ def test_both_frontends_render_an_error_screen_instead_of_a_black_page():
         assert "getDerivedStateFromError" in main, f"{surface}: the boundary catches render errors"
 
 
-def test_worker_health_uses_worker_state_not_role_heartbeat_key():
-    m=main_source()
-    start=m.index('@app.get("/api/admin/system/health")')
-    end=m.index('@app.get("/api/admin/analytics")', start)
-    block=m[start:end]
-    assert 'WorkerState' in block
-    assert 'last_seen_at>=cutoff' in block
-    assert 'worker_count' in block
-    assert 'worker:heartbeat:{settings.worker_role}' not in block
+# Worker health from WorkerState: tests/test_behaviour_plans_privacy.py (BACKLOG A1).
 
 def test_no_v33_current_release_labels():
     for rel in ['admin/src/main.tsx','deploy/install-vps.sh','scripts/build-release.sh','release-manifest.template.json']:

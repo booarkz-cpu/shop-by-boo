@@ -1,29 +1,15 @@
 """3.1.1 staging gate instructions and secret-preservation contracts."""
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_311_is_first():
-    main_source()
     (ROOT / "scripts/build-release.sh").read_text()
     (ROOT / "deploy/install-vps.sh").read_text()
 
 
-def test_blank_staging_secrets_are_preserved_and_output_is_redacted():
-    main = main_source()
-    block = main[main.index("async def update_staging_e2e_config"): main.index("def _redact_staging_output")]
-    assert "previous=await _staging_config(db) or {}" in block
-    assert 'for key in ("remnawave_token","user_bearer_token","yookassa_shop_id","yookassa_secret_key","platega_merchant_id","platega_secret","rollypay_api_key","rollypay_signing_secret")' in block
-    assert "Укажите токен Remnawave для staging" in block
-    assert "production-платёжные credentials" in block
-    redact = main[main.index("def _redact_staging_output"): main.index("async def _run_staging_e2e")]
-    assert "[скрыто]" in redact
-    assert "yookassa_secret_key" in redact
-    assert "yookassa_shop_id" not in redact
-    assert "platega_merchant_id" not in redact
-    assert "full_pass = False" in main
+# Blank staging secrets, refusals and the redacted output: tests/test_behaviour_plans_privacy.py (BACKLOG A1).
 
 
 def test_runner_prints_checkout_and_image_has_curl():

@@ -40,7 +40,8 @@ ALLOWED_REDIRECTS = {
 }
 
 LINK = re.compile(r"!?\[[^\]]*\]\(\s*(https?://[^)\s]+?)(?:\s+\"[^\"]*\")?\s*\)")
-BARE_URL = re.compile(r"(?<![(\[<])(\bhttps?://[^\s)>\]]+)")
+# A quote ends a bare URL: links inside JSON or code samples ("probeUrl": "https://…") are read without it.
+BARE_URL = re.compile(r"(?<![(\[<])(\bhttps?://[^\s)>\]\"']+)")
 
 
 def documents() -> list[Path]:
