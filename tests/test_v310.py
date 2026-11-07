@@ -1,5 +1,4 @@
 """3.1.0 audit, checksum and install-guide contracts."""
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -8,7 +7,6 @@ ADMIN_APK = "https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download
 
 
 def test_release_310_is_current_and_documented():
-    main_source()
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_0.md").read_text()
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     security = (ROOT / "docs/archive/SECURITY_BEFORE_ALPHA_6.md").read_text()
@@ -24,19 +22,7 @@ def test_release_310_is_current_and_documented():
     assert "личный кабинет" in readme and "Конструктор тарифов" in readme
 
 
-def test_public_plans_and_auto_renew_do_not_leak_internals():
-    main = main_source()
-    plans = main[main.index("async def plans"): main.index("async def validate_promo")]
-    assert "remnawave_profile_id" not in plans
-    admin = main[main.index("async def admin_list_plans"): main.index("async def create_plan")]
-    assert '"remnawave_profile_id":p.remnawave_profile_id' in admin
-    status = main[main.index("async def auto_renew_status"): main.index("async def connection_qr")]
-    assert "method.last_error if method else None" not in status
-    assert "Автопродление не выполнено" in status
-    file_route = main[main.index("async def subscription_file"): main.index("async def connection_info")]
-    assert 'filename="remnawave-subscription.txt"' in file_route
-    assert "private, no-store" in file_route
-    assert "\\r\\n\\x00" in file_route
+# The public plan list, the auto-renew status and the subscription file: tests/test_behaviour_plans_privacy.py (BACKLOG A1).
 
 
 def test_install_guide_and_package_checksum():
