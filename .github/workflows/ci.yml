@@ -107,6 +107,13 @@ jobs:
         run: node --test tests/release-publisher.test.cjs tests/dependabot-automerge.test.cjs tests/mobile-client-release.test.cjs
       - name: Terminal screen model
         run: node --experimental-strip-types --test tests/terminal-screen.test.mjs
+      - name: Node port only for the panel (nftables in network namespaces)
+        # v28.90.0 (N5): the installer's FIREWALL script itself; real TCP connections from «panel» and «outsider».
+        if: matrix.shard == 1
+        timeout-minutes: 5
+        run: |
+          sudo apt-get install -y -qq nftables iproute2 >/dev/null
+          sudo env "PATH=$PATH" bash scripts/ci/node-port-guard.sh
       - name: Alembic heads
         working-directory: backend
         run: alembic heads
