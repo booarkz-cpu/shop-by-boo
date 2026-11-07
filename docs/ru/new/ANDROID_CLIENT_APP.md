@@ -92,7 +92,7 @@
 
 - APK: [corgi-lusi-client.apk](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) — в каждом выпуске магазина, подписан ключом `corgi`; рядом `corgi-lusi-client.apk.sha256` и манифест `corgi-lusi-client.json`.
 - [Obtainium](https://github.com/ImranR98/Obtainium): «Добавить приложение» → адрес `https://github.com/booarkz-cpu/shop-by-boo` → «Фильтр APK по регулярному выражению»: `^corgi-lusi-client\.apk$` → сохранить. Obtainium сам проверит новые выпуски.
+- **Свой выпуск клиента** (с v28.89.0): на каждую новую версию клиента «Mobile packages» создаёт выпуск `client-v<версия>` (например, `client-v1.4.0`) с тем же APK, `.sha256` и манифестом, ссылка которого ведёт на этот выпуск. Он никогда не становится «последним выпуском» — ссылки `releases/latest/download/…` магазина не меняются. Чтобы Obtainium следил только за клиентом, добавьте ещё «Фильтр названий выпусков»: `^client-v`.
 
 ## Что дальше
 
-- Отдельные теги выпусков клиента, если его версии разойдутся с выпусками магазина.
