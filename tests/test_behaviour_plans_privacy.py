@@ -54,7 +54,10 @@ async def test_subscription_file_is_private_and_refuses_header_injection(databas
     assert response.body == b"https://sub.example.test/s/abc\n"
     assert response.headers["cache-control"] == "private, no-store"
     assert response.headers["content-disposition"] == 'attachment; filename="remnawave-subscription.txt"'
-    for bad in ("https://sub.example.test/s/abc\r\nSet-Cookie: x=1", "https://sub.example.test/\x00", ""):
+    bad_links = ["https://sub.example.test/s/abc\r\nSet-Cookie: x=1", ""]
+    if database.bind.dialect.name == "sqlite":  # PostgreSQL itself refuses NUL in text
+        bad_links.append("https://sub.example.test/\x00")
+    for bad in bad_links:
         sub.subscription_url = bad
         await database.commit()
         with pytest.raises(HTTPException) as err:
