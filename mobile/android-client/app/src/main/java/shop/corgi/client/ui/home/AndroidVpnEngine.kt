@@ -39,4 +39,13 @@ class AndroidVpnEngine(context: Context) : VpnEngine {
     override fun hasProfile(): Boolean = store.active() != null
 
     override fun lastError(): String = ClientVpnService.lastError(app)
+
+    override fun configBusy(): Boolean = shop.corgi.client.core.ConfigGate.busy
+
+    override fun mustChoose(): Boolean = store.mustChoose
+
+    override fun listenConfig(listener: () -> Unit): () -> Unit {
+        val main = Handler(Looper.getMainLooper())
+        return shop.corgi.client.core.ConfigGate.listen { main.post(listener) }
+    }
 }

@@ -35,11 +35,14 @@ class Store(context: Context) {
     /** The active profile id and the server in it: an index or «auto». */
     var activeProfile: String
         get() = prefs.getString("active_profile", "").orEmpty()
-        set(value) { prefs.edit().putString("active_profile", value).apply() }
+        set(value) { prefs.edit().putString("active_profile", value).putBoolean("choose_server", false).apply() }
+
+    /** v1.6.0 (N10): the active server was removed — nothing is connected until the user picks another one. */
+    val mustChoose: Boolean get() = prefs.getBoolean("choose_server", false)
 
     var activeServer: String
         get() = prefs.getString("active_server", "auto").orEmpty()
-        set(value) { prefs.edit().putString("active_server", value).apply() }
+        set(value) { prefs.edit().putString("active_server", value).putBoolean("choose_server", false).apply() }
 
     fun active(): Profile? = profiles.firstOrNull { it.id == activeProfile } ?: profiles.firstOrNull()
 
@@ -52,15 +55,27 @@ class Store(context: Context) {
         return profile
     }
 
-    fun remove(id: String) {
-        profiles = profiles.filterNot { it.id == id }
-        if (activeProfile == id) { activeProfile = profiles.firstOrNull()?.id.orEmpty(); activeServer = "auto" }
+    /** Removes a provider (inside [ConfigGate]); returns true when it was the active one. */
+    fun remove(id: String): Boolean = removeAll(setOf(id))
+
+    /** v1.6.0 (N10): several providers at once (multi-select). The active one gone → the user picks the next server. */
+    fun removeAll(ids: Set<String>): Boolean = shop.corgi.client.core.ConfigGate.run {
+        val wasActive = active()?.id in ids
+        profiles = profiles.filterNot { it.id in ids }
+        if (wasActive) {
+            activeProfile = profiles.firstOrNull()?.id.orEmpty()
+            activeServer = "auto"
+            if (profiles.isNotEmpty()) prefs.edit().putBoolean("choose_server", true).apply()
+        }
+        wasActive
     }
 
     fun replace(profile: Profile) { profiles = profiles.map { if (it.id == profile.id) profile else it } }
 
     /** Downloads a subscription now (call off the main thread). Keeps the previous servers when it fails. */
-    fun update(profile: Profile): Profile {
+    fun update(profile: Profile): Profile = shop.corgi.client.core.ConfigGate.run { updateNow(profile) }
+
+    private fun updateNow(profile: Profile): Profile {
         if (profile.kind != "subscription") return profile
         val updated = try {
             val (body, info) = fetchSubscription(profile.url)

@@ -312,7 +312,12 @@ internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, on
                             context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(android.content.ClipData.newPlainText("subscription", profile.url))
                         })
                         DropdownMenuItem(text = { Text(tr("Удалить", "Delete", "Видалити"), color = MaterialTheme.colorScheme.error) },
-                            onClick = { menu = false; store.remove(profile.id); refresh() })
+                            onClick = {
+                                menu = false
+                                // v1.6.0 (N10): the active provider gone — the tunnel goes down, the button waits for another server.
+                                if (store.remove(profile.id) && ClientVpnService.current(context) != "off") ClientVpnService.stop(context)
+                                refresh()
+                            })
                     }
                 }
             }

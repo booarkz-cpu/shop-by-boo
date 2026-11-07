@@ -60,6 +60,25 @@ private class FakeEngine : VpnEngine {
     override fun hasProfile() = true
 
     override fun lastError() = "boom"
+
+    var busy = false
+    var choose = false
+    val configListeners = mutableListOf<() -> Unit>()
+
+    fun config(busy: Boolean = this.busy, choose: Boolean = this.choose) {
+        this.busy = busy
+        this.choose = choose
+        configListeners.toList().forEach { it() }
+    }
+
+    override fun configBusy() = busy
+
+    override fun mustChoose() = choose
+
+    override fun listenConfig(listener: () -> Unit): () -> Unit {
+        configListeners += listener
+        return { configListeners -= listener }
+    }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -122,6 +141,38 @@ class VpnViewModelTest {
         engine.set("off")
         assertFalse("the next connection takes the switch as it is", model.state.value.adBlockPending)
         advanceTimeBy(3 * VpnViewModel.TICK_MS)
+    }
+
+    @Test fun theButtonWaitsWhileServersChangeAndAfterTheActiveOneIsRemoved() = runTest(dispatcher) {
+        val engine = FakeEngine()
+        val model = VpnViewModel(engine) { clock }
+        val events = mutableListOf<HomeEvent>()
+        val collecting = async { model.events.collect { events += it } }
+        runCurrent()
+        engine.config(busy = true)
+        assertTrue(model.state.value.configBusy)
+        assertFalse(model.state.value.canConnect)
+        assertFalse(buttonEnabled(model.state.value))
+        model.toggleVpn()
+        runCurrent()
+        assertTrue("no connection on a configuration being changed", events.isEmpty())
+        engine.config(busy = false, choose = true)
+        assertFalse("the removed server is not replaced silently", buttonEnabled(model.state.value))
+        model.toggleVpn()
+        runCurrent()
+        assertTrue(events.isEmpty())
+        engine.config(choose = false)
+        assertTrue(buttonEnabled(model.state.value))
+        model.toggleVpn()
+        runCurrent()
+        assertEquals(listOf<HomeEvent>(HomeEvent.Connect), events)
+        engine.set("on")
+        engine.config(busy = true)
+        assertFalse("stopping waits for the change too", buttonEnabled(model.state.value))
+        engine.config(busy = false)
+        assertTrue(buttonEnabled(model.state.value))
+        collecting.cancel()
+        advanceTimeBy(VpnViewModel.TICK_MS)
     }
 
     @Test fun textsOfTheScreen() {

@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.expandVertically
@@ -52,7 +55,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -141,12 +146,19 @@ fun HomeContent(
                         onToggle()
                     }
                 } else {
-                    PowerButton(state.status, enabled = state.hasProfile) {
+                    PowerButton(state.status, enabled = buttonEnabled(state)) {
                         strong()
                         onToggle()
                     }
                 }
                 Stats(state)
+            }
+            if (state.mustChoose && state.status == VpnStatus.Idle) {
+                Text(
+                    tr("Сервер удалён — выберите другой", "The server was removed — pick another one", "Сервер видалено — оберіть інший"),
+                    Modifier.testTag("must-choose"),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
             if (state.error.isNotBlank()) Text(state.error, color = MaterialTheme.colorScheme.error)
             server()
@@ -313,7 +325,21 @@ private fun PowerButton(status: VpnStatus, enabled: Boolean, onClick: () -> Unit
         } else {
             Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surface))
         }
-    Box(Modifier.size(220.dp), contentAlignment = Alignment.Center) {
+    // v1.6.0 (N10): a pulse around the button while connecting; a disabled button is half transparent.
+    val pulse = rememberInfiniteTransition(label = "pulse")
+    val ring by pulse.animateFloat(1f, 1.22f, infiniteRepeatable(tween(900), RepeatMode.Restart), label = "ring")
+    val ringAlpha by pulse.animateFloat(0.45f, 0f, infiniteRepeatable(tween(900), RepeatMode.Restart), label = "ringAlpha")
+    Box(Modifier.size(220.dp).alpha(if (enabled) 1f else 0.5f), contentAlignment = Alignment.Center) {
+        if (status == VpnStatus.Connecting) {
+            Box(
+                Modifier
+                    .size(180.dp)
+                    .scale(ring)
+                    .alpha(ringAlpha)
+                    .border(3.dp, Brand.Warm, CircleShape)
+                    .testTag("connect-pulse")
+            )
+        }
         Box(
             Modifier
                 .size(180.dp)
@@ -333,6 +359,9 @@ private fun PowerButton(status: VpnStatus, enabled: Boolean, onClick: () -> Unit
     }
 }
 
+/** v1.6.0 (N10): idle — only with a chosen server and no change of the servers running; on — stopping waits for the change too. */
+internal fun buttonEnabled(state: VpnUiState): Boolean = if (state.status == VpnStatus.Idle) state.canConnect else !state.configBusy
+
 @Composable
 private fun CompactSwitch(state: VpnUiState, onToggle: () -> Unit) {
     Row(
@@ -347,7 +376,7 @@ private fun CompactSwitch(state: VpnUiState, onToggle: () -> Unit) {
         Switch(
             checked = state.status != VpnStatus.Idle,
             onCheckedChange = { onToggle() },
-            enabled = state.hasProfile,
+            enabled = buttonEnabled(state),
             modifier = Modifier.testTag("connect")
         )
     }
