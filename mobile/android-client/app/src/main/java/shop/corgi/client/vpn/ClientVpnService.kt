@@ -87,15 +87,21 @@ class ClientVpnService : VpnService() {
     }
 
     private fun afterStart(s: Settings, tags: List<String>) {
+        session = Session(System.currentTimeMillis())
+        Streak.record(this)
         state(this, STATE_ON)
         QuickTile.refresh(this)
         if (s.wakelock) wake = getSystemService(PowerManager::class.java)?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "corgi:vpn")?.apply { acquire() }
-        if (s.speedNotification) speedThread = thread {
-            // Once a second: bytes through the proxy outbounds since the previous second.
+        speedThread = thread {
+            // Once a second: bytes through the proxy outbounds since the previous second — for the main screen
+            // (v1.5.0) and, when chosen, the notification. Xray's counters reset on reading: this is the only reader.
             while (Xray.running && speedThread == Thread.currentThread()) {
                 val up = tags.sumOf { Xray.traffic(it, "uplink") }
                 val down = tags.sumOf { Xray.traffic(it, "downlink") }
-                runCatching { getSystemService(NotificationManager::class.java)?.notify(7, notification("↑ ${SubInfo.bytes(up)}/s  ↓ ${SubInfo.bytes(down)}/s")) }
+                session = session.add(up, down)
+                if (s.speedNotification) {
+                    runCatching { getSystemService(NotificationManager::class.java)?.notify(7, notification("↑ ${SubInfo.bytes(up)}/s  ↓ ${SubInfo.bytes(down)}/s")) }
+                }
                 try { Thread.sleep(1000) } catch (_: InterruptedException) { break }
             }
         }
@@ -107,6 +113,7 @@ class ClientVpnService : VpnService() {
 
     private fun shutdown() {
         speedThread = null
+        session = Session()
         runCatching { wake?.takeIf { it.isHeld }?.release() }
         wake = null
         if (Xray.running) Logs(filesDir).app("[VPN] disconnect")
@@ -147,6 +154,10 @@ class ClientVpnService : VpnService() {
         const val STATE_CONNECTING = "connecting"
         const val STATE_ON = "on"
         val listeners = mutableListOf<(String) -> Unit>()
+
+        /** v1.5.0: the running session for the main screen — when it began and the traffic of its last second and in all. */
+        @Volatile var session: Session = Session()
+            private set
 
         private fun prefs(context: Context) = context.getSharedPreferences("client_vpn", 0)
 

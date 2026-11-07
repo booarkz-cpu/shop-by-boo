@@ -5,10 +5,10 @@ name: Android client app
 # Xray server on the runner (scripts/mobile/client-vpn-e2e.sh). The customer and administrator apps are not built here.
 on:
   pull_request:
-    paths: ['mobile/android-client/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
+    paths: ['mobile/android-client/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
   push:
     branches: [main]
-    paths: ['mobile/android-client/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
+    paths: ['mobile/android-client/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
   workflow_dispatch:
 
 permissions:
@@ -45,6 +45,8 @@ jobs:
       - name: Build the VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
+      - name: ktlint (main screen, view model and their tests)
+        run: bash scripts/mobile/client-ktlint.sh
       - name: Unit tests, debug and release builds
         run: |
           set -euo pipefail
