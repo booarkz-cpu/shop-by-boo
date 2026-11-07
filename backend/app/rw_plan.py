@@ -41,13 +41,13 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
 MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files")
+           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
                  "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
                  "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели", "mss_clamp": "MSS clamp",
                  "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки",
                  "sni_scan": "Подбор сайта для REALITY", "mtproto": "MTProto-прокси для Telegram",
-                 "geo_files": "Российские списки блокировок (geo)"}
+                 "geo_files": "Российские списки блокировок (geo)", "cdn": "Cloudflare CDN"}
 # v28.95.0 (N7): the Russian lists sit next to the image's own geo files (those stay as they are) and are used as
 # ext:ru-geosite.dat:<category> / ext:ru-geoip.dat:<category> in the routing rules of the panel.
 GEO_DIR = "/usr/local/share/xray"
@@ -62,10 +62,14 @@ SELFSTEAL_SOCKET = "/dev/shm/selfsteal.sock"
 # v28.90.0 (N6): «tls» — VLESS + TCP + TLS with the same certificate and the TLS versions the owner chose; REALITY and
 # Hysteria2 (QUIC) work only over TLS 1.3, so the choice applies to this inbound.
 TRANSPORTS = {"xhttp": ("VLESS_XHTTP_REALITY", 4443, "tcp"), "grpc": ("VLESS_GRPC_REALITY", 8443, "tcp"), "hysteria2": ("HYSTERIA2", 443, "udp"),
-              "tls": ("VLESS_TCP_TLS", 2053, "tcp")}
+              "tls": ("VLESS_TCP_TLS", 2053, "tcp"),
+              # v28.98.0 (N7): VLESS + XHTTP + TLS behind Cloudflare — the client reaches the CDN domain on 2083 (a port
+              # Cloudflare proxies), Cloudflare reaches the node on 2083 over TLS with the SelfSteal certificate.
+              "cdn": ("VLESS_XHTTP_CDN", 2083, "tcp")}
 TRANSPORT_TITLES = {"xhttp": "VLESS + xHTTP + REALITY (TCP 4443)", "grpc": "VLESS + gRPC + REALITY (TCP 8443)", "hysteria2": "Hysteria2 (UDP 443)",
-                    "tls": "VLESS + TCP + TLS (TCP 2053)"}
-TransportName = Literal["xhttp", "grpc", "hysteria2", "tls"]
+                    "tls": "VLESS + TCP + TLS (TCP 2053)", "cdn": "VLESS + XHTTP через Cloudflare CDN (TCP 2083)"}
+TransportName = Literal["xhttp", "grpc", "hysteria2", "tls", "cdn"]
+CDN_PATH = "/cdn"
 # v28.94.0 (N7): ports the node already uses (REALITY 443, extra transports, SelfSteal's HTTP) — MTProto takes another one.
 MTPROTO_TAKEN = {80, 443, *(port for _, port, _ in TRANSPORTS.values())}
 # v28.90.0 (N5): the uTLS fingerprint clients present (Remnawave host «fingerprint»); Firefox by default.
@@ -140,7 +144,10 @@ class PlanIn(BaseModel):
     # v28.70.0: node modules that change the files the wizard writes, so updates keep them:
     # an Xray core of the chosen release mounted into the node, and Xray Checker on one of the servers.
     xray_core: str | None = Field(default=None, pattern=r"^v\d{1,3}\.\d{1,3}\.\d{1,3}$")
-    geo_files: str | None = Field(default=None, pattern=r"^\d{12}$")  # v28.95.0: the build of the Russian geo lists mounted into the nodes
+    geo_files: str | None = Field(default=None, pattern=r"^\d{12}$")
+    # v28.98.0 (N7): Cloudflare — the CDN domain of the nodes' XHTTP (transport «cdn») and the subscription domain behind the CDN.
+    cdn_domain: str | None = Field(default=None, max_length=253)
+    cdn_subscription: bool = False  # v28.95.0: the build of the Russian geo lists mounted into the nodes
     xray_checker_server_id: int | None = None
     xray_checker_interval: int = Field(default=300, ge=60, le=86400)
     # v28.81.0: extra transports of the SelfSteal node (TRANSPORTS); VLESS + TCP + REALITY on 443 always stays.
@@ -160,13 +167,17 @@ class PlanIn(BaseModel):
 
     @model_validator(mode="after")
     def check(self):
-        for field in ("panel_domain", "sub_domain", "node_domain", "selfsteal_domain", "auth_domain"):
+        for field in ("panel_domain", "sub_domain", "node_domain", "selfsteal_domain", "auth_domain", "cdn_domain"):
             value = getattr(self, field)
             if value is not None:
                 value = value.strip().lower().rstrip(".")
                 if not DOMAIN.match(value):
                     raise ValueError(f"{field}: некорректный домен")
                 setattr(self, field, value)
+        if "cdn" in self.transports and not (self.cdn_domain and self.selfsteal_domain):
+            raise ValueError("XHTTP через CDN: нужен домен CDN и SelfSteal на ноде")
+        if self.cdn_domain and self.cdn_domain in (self.panel_domain, self.sub_domain, self.selfsteal_domain, self.node_domain, self.auth_domain):
+            raise ValueError("Домен CDN — отдельный, не домен панели, подписки или SelfSteal")
         aliases = []
         for value in self.panel_domain_aliases:
             value = value.strip().lower().rstrip(".")
@@ -260,8 +271,11 @@ class ModuleRun(BaseModel):
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn"]
     enabled: bool = True
+    # v28.98.0 (N7): Cloudflare — the parts this run switches (on with enabled, back to direct without).
+    cdn_nodes: bool = False
+    cdn_subscription: bool = False
     # v28.94.0 (N7): MTProto — the port and the site FakeTLS pretends to be.
     mtproto_port: int = Field(default=9443, ge=1024, le=65535)
     mtproto_domain: str = Field(default="www.cloudflare.com", min_length=4, max_length=100, pattern=r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$")
@@ -274,7 +288,7 @@ class ModuleRun(BaseModel):
     swap_mb: int = Field(default=1024, ge=256, le=16384)
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
-    transports: list[TransportName] = Field(default_factory=list, max_length=4)
+    transports: list[TransportName] = Field(default_factory=list, max_length=5)
     hardening: "Hardening | None" = None
     release: dict[str, dict[str, str]] = Field(default_factory=dict)
     management_url: str | None = Field(default=None, max_length=200, pattern=r"^https://[A-Za-z0-9.-]+(:\d{1,5})?(/[A-Za-z0-9._~/-]*)?$")
@@ -837,6 +851,37 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             steps.append(step("node_module", sid, f"{servers[sid]['name']}: проверить сайты-кандидаты (TLS 1.3, HTTP/2, скорость); ничего не меняется",
                               module="sni_scan", enabled=True))
         title = "Подбор сайта для REALITY"
+    elif name == "cdn":
+        # v28.98.0 (N7): Cloudflare in front of the nodes' XHTTP and/or the subscription domain. Switching on: the node's
+        # transport first, then the DNS records go behind the CDN; switching off: the records first, then the transport.
+        sub_target = plan.sub_domain if plan.subpage_server_id else plan.panel_domain
+        sub_server = plan.subpage_server_id or plan.panel_server_id
+        node_steps: list[dict] = []
+        if mod.cdn_nodes:
+            if not plan.selfsteal_domain or len(plan.node_server_ids) != 1 or not plan.cdn_domain:
+                raise ValueError("XHTTP через CDN — у установки с SelfSteal на одной ноде и с доменом CDN")
+            sid = plan.node_server_ids[0]
+            n = servers[sid]["name"]
+            ip = servers[sid]["host"]
+            chosen = ", ".join(TRANSPORT_TITLES[t] for t in plan.transports) or "только TCP + REALITY"
+            node_steps = [step("node_module", sid, f"{n}: порты и сертификат TLS — {chosen}", module="transports", transports=plan.transports),
+                          step("write_files", sid, f"{n}: файлы ({DIRS['node']})", component="node"),
+                          step("compose_up", sid, f"{n}: перезапуск ноды", component="node"),
+                          step("node_transports", None, f"Панель: inbound'ы и хосты — {chosen}")]
+            dns = step("cdn_dns", None, (f"Cloudflare: {plan.cdn_domain} → {ip} через CDN, SSL «Full» для этого домена" if mod.enabled
+                                         else f"Cloudflare: убрать {plan.cdn_domain} и правило SSL"),
+                       part="nodes", on=bool(mod.enabled), domain=plan.cdn_domain, addresses=[ip])
+            steps += node_steps + [dns] if mod.enabled else [dns] + node_steps
+        if mod.cdn_subscription:
+            if not sub_target or not sub_server:
+                raise ValueError("Нет домена подписки в этой установке")
+            on = bool(mod.enabled)
+            steps.append(step("cdn_dns", None, f"Cloudflare: {sub_target} — {'через CDN (оранжевое облако)' if on else 'напрямую (серое облако)'}",
+                              part="subscription", on=on, domain=sub_target, addresses=[servers[sub_server]["host"]]))
+        if not steps:
+            raise ValueError("Выберите, что вынести за CDN")
+        steps.append(step("verify", None, "Проверка: ноды и панель на связи"))
+        title = "Cloudflare CDN: " + ("включить" if mod.enabled else "выключить")
     elif name == "geo_files":
         # v28.95.0 (N7): the Russian geo lists on every node of the installation (like the Xray core: the files, then the node restarts).
         if not nodes:

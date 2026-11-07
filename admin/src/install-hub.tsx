@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "";
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const post = (body?: any): RequestInit => ({method: "POST", body: body === undefined ? undefined : JSON.stringify(body)});
 // Modules planned right here (the others need more input and open «Установка Remnawave → Модули серверов»).
-const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto", "geo_files"];
+const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto", "geo_files", "cdn"];
 const STEPS: [string, string][] = [["prepared", "Подготовьте сервер"], ["panel", "Установите панель или ноду"], ["domain", "Подключите домен"]];
 
 /** «Установка» (v28.92.0, N7): every operation on the servers in one catalogue — each card does its job or opens the section that does. */
@@ -221,6 +221,7 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
   const [guardMode, setGuardMode] = useState("enforce");
   const [swap, setSwap] = useState("1024");
   const [mtPort, setMtPort] = useState("9443");
+  const [cdn, setCdn] = useState({nodes: true, subscription: true, domain: "", token: ""});
   const [mtDomain, setMtDomain] = useState("www.cloudflare.com");
   const [proxies, setProxies] = useState<any[]>([]);
   const [plan, setPlan] = useState<any>(null);
@@ -237,6 +238,10 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
       : {fail2ban: false, upgrades: false, bbr: false, admin_ips: []}});
     if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port", "sni_scan", "mtproto"].includes(name)) m.server_ids = [sid];
     if (name === "mtproto" && enabled) Object.assign(m, {mtproto_port: Number(mtPort), mtproto_domain: mtDomain.trim().toLowerCase()});
+    if (name === "cdn") {
+      if (enabled) Object.assign(m, {cdn_nodes: cdn.nodes, cdn_subscription: cdn.subscription, cdn_domain: cdn.domain.trim().toLowerCase() || null});
+      if (cdn.token.trim()) m.cloudflare_token = cdn.token.trim();
+    }
     if (name === "node_guard") Object.assign(m, {guard_rate: Number(rate), guard_mode: guardMode,
       guard_ports: ports.split(/[\s,]+/).filter(Boolean).map(Number)});
     if (name === "swap") m.swap_mb = Number(swap);
@@ -265,6 +270,15 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
         <label>Порты<input value={ports} onChange={e => { setPorts(e.target.value); setPlan(null); }}/></label>
         <label>Режим<select value={guardMode} onChange={e => { setGuardMode(e.target.value); setPlan(null); }}>
           <option value="enforce">Банить на 10 минут</option><option value="observe">Только считать</option></select></label></>}
+      {name === "cdn" && <>
+        {enabled && <>
+          <label className="check"><input type="checkbox" checked={cdn.nodes} onChange={e => { setCdn({...cdn, nodes: e.target.checked}); setPlan(null); }} data-cdn-nodes/> Трафик ноды: VLESS + XHTTP через Cloudflare (TCP 2083)</label>
+          <label className="check"><input type="checkbox" checked={cdn.subscription} onChange={e => { setCdn({...cdn, subscription: e.target.checked}); setPlan(null); }} data-cdn-sub/> Домен подписки за Cloudflare (оранжевое облако)</label>
+          {cdn.nodes && <label>Домен CDN для нод<input value={cdn.domain} placeholder="cdn.example.com" onChange={e => { setCdn({...cdn, domain: e.target.value}); setPlan(null); }} data-cdn-domain/></label>}
+        </>}
+        <label>Токен API Cloudflare<input type="password" autoComplete="off" value={cdn.token} placeholder="сохранён — оставьте пустым" onChange={e => { setCdn({...cdn, token: e.target.value}); setPlan(null); }} data-cdn-token/></label>
+        <p className="muted wide">Токен: Cloudflare → My Profile → API Tokens → «Create Token»: Zone · DNS · Edit, Zone · Zone Settings · Read, Zone · Config Rules · Edit для зоны домена. Хранится зашифрованным у установки.
+          «Выключить» возвращает домены напрямую и убирает транспорт CDN.</p></>}
       {name === "geo_files" && <p className="muted wide">Списки обновляются у источника каждые 6 часов: «Включить» ещё раз ставит последнюю сборку.
         В правилах маршрутизации — <code>ext:ru-geosite.dat:ru-blocked</code>, <code>ext:ru-geoip.dat:ru-blocked</code>, <code>ext:ru-geosite.dat:ru-available-only-inside</code>.</p>}
       {name === "mtproto" && enabled && <>

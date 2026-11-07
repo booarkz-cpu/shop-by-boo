@@ -174,3 +174,7 @@ SelfSteal ставится вместе с нодой: в мастере уст�
 ### Смена домена панели (v28.97.0)
 
 Действие `change_domain` (`ActionIn.new_panel_domain`, `keep_old_domain`): `PlanIn.panel_domain` меняется, прежний попадает в `panel_domain_aliases` (до трёх). План — `preflight` (DNS нового домена), `backup_panel`, `write_files` панели и Caddy, `compose_up`, `wait_panel`, `verify`. `rw_plan.caddyfile(moved=…)` пишет для прежнего домена блок: `/api/sub/*` и `/api/*` с Bearer — в панель (Host нового домена), остальное — `redir 308`. После успеха `rw_jobs._move_subscription_links` переписывает `Subscription.subscription_url` с префиксом прежнего домена (только без отдельной страницы подписки).
+
+### Cloudflare CDN (v28.98.0)
+
+Модуль `cdn` (`ModuleIn.cdn_nodes`, `cdn_subscription`, `cdn_domain`, `cloudflare_token`): токен проверяется (`/user/tokens/verify`) и хранится в секретах установки. Нода — транспорт `cdn` (`VLESS_XHTTP_CDN`, TCP 2083, XHTTP + TLS с сертификатом SelfSteal, путь `/cdn`), хост панели с `securityLayer: TLS` и доменом CDN. Шаг `cdn_dns` (`cloudflare_cdn.apply_records`, `set_full_ssl`, `restore_records`) — A-записи с «proxied» и правило `http_config_settings` «SSL: Full» с описанием `corgi-cdn <домен>`; правила владельца сохраняются.
