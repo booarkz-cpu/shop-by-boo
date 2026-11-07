@@ -83,6 +83,8 @@ data class Settings(
     val wakelock: Boolean = false,
     val autoConnectLaunch: Boolean = false,
     val autoConnectBoot: Boolean = false,
+    /** v1.6.0 (N10): connect when the device moves to another network (Wi-Fi ↔ mobile). */
+    val autoConnectNetwork: Boolean = false,
     val tileDetails: Boolean = true,             // the tile shows the server and the state, not only the name
     val logLevel: String = "none",               // none | error | warning | info | debug
     val logHours: Int = 1,                       // 1 | 6 | 24 | 168 | 0 (keep all)
@@ -152,7 +154,7 @@ data class Settings(
         .put("tunnelMode", tunnelMode).put("localProxy", localProxy).put("shareLan", shareLan).put("socksPort", socksPort).put("httpPort", httpPort)
         .put("proxyAuth", proxyAuth).put("httpAuth", httpAuth).put("proxyUser", proxyUser).put("proxyPass", proxyPass).put("mux", mux)
         .put("muxConcurrency", muxConcurrency).put("noises", noises).put("speedNotification", speedNotification).put("wakelock", wakelock)
-        .put("autoConnectLaunch", autoConnectLaunch).put("autoConnectBoot", autoConnectBoot).put("tileDetails", tileDetails)
+        .put("autoConnectLaunch", autoConnectLaunch).put("autoConnectBoot", autoConnectBoot).put("autoConnectNetwork", autoConnectNetwork).put("tileDetails", tileDetails)
         .put("logLevel", logLevel).put("logHours", logHours)
         .put("appIcon", appIcon).put("routingProfiles", JSONArray(routingProfiles.map { it.toJson() }))
         .put("pingMethod", pingMethod).put("pingDisplay", pingDisplay).put("pingUrl", pingUrl).put("pingTimeout", pingTimeout)
@@ -224,6 +226,7 @@ data class Settings(
             tryField { it.copy(mux = b("mux", d.mux), muxConcurrency = i("muxConcurrency", d.muxConcurrency), noises = b("noises", d.noises)) }
             tryField { it.copy(speedNotification = b("speedNotification", d.speedNotification), wakelock = b("wakelock", d.wakelock), tileDetails = b("tileDetails", d.tileDetails)) }
             tryField { it.copy(autoConnectLaunch = b("autoConnectLaunch", d.autoConnectLaunch), autoConnectBoot = b("autoConnectBoot", d.autoConnectBoot)) }
+            tryField { it.copy(autoConnectNetwork = b("autoConnectNetwork", d.autoConnectNetwork)) }
             tryField { it.copy(logLevel = s("logLevel", d.logLevel), logHours = i("logHours", d.logHours)) }
             tryField { it.copy(appIcon = s("appIcon", d.appIcon)) }
             tryField { it.copy(routingProfiles = json.optJSONArray("routingProfiles")?.let { a -> (0 until a.length()).mapNotNull { runCatching { RoutingProfile.of(a.getJSONObject(it)) }.getOrNull() } } ?: emptyList()) }

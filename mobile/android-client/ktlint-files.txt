@@ -4,3 +4,12 @@ app/src/main/java/shop/corgi/client/vpn/Streak.kt
 app/src/test/java/shop/corgi/client/ui/home/**/*.kt
 app/src/test/java/shop/corgi/client/vpn/**/*.kt
 app/src/test/java/shop/corgi/client/core/AdBlockTest.kt
+app/src/main/java/shop/corgi/client/core/ConfigGate.kt
+app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt
+app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt
+app/src/main/java/shop/corgi/client/core/GeoProgress.kt
+app/src/main/java/shop/corgi/client/core/AppList.kt
+app/src/main/java/shop/corgi/client/ui/AppsScreen.kt
+app/src/test/java/shop/corgi/client/core/AppListTest.kt
+app/src/main/java/shop/corgi/client/core/ExternalIp.kt
+app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt

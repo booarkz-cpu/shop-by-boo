@@ -49,7 +49,13 @@ class ClientVpnService : VpnService() {
                     profile.configs.isNotEmpty() -> ConfigBuilder.fromJson(profile.configFor(store.activeServer)!!, s, store.geoReady())
                     else -> ConfigBuilder.build(profile.servers(), store.activeServer, s, store.geoReady())
                 }
-                val config = org.json.JSONObject(raw).also { ConfigBuilder.extras(it, s, logs.xray.absolutePath) }.toString()
+                // v1.6.0 (N10): a SOCKS inbound of this connection only, for the external address on the main screen.
+                val check = shop.corgi.client.core.IpCheck.random(java.net.ServerSocket(0).use { it.localPort })
+                val config = org.json.JSONObject(raw).also {
+                    ConfigBuilder.extras(it, s, logs.xray.absolutePath)
+                    (it.optJSONArray("inbounds") ?: org.json.JSONArray().also { a -> it.put("inbounds", a) }).put(check.inbound())
+                }.toString()
+                ipCheck = check
                 val tags = org.json.JSONObject(config).optJSONArray("outbounds")?.let { a -> (0 until a.length()).map { a.getJSONObject(it) } }
                     ?.filter { it.optString("protocol") !in listOf("freedom", "blackhole", "dns") }?.map { it.optString("tag") }?.filter { it.isNotBlank() } ?: emptyList()
                 logs.app("[VPN] connect ${profile.title} / ${store.activeServer} mode=${s.tunnelMode}")
@@ -113,6 +119,7 @@ class ClientVpnService : VpnService() {
 
     private fun shutdown() {
         speedThread = null
+        ipCheck = null
         session = Session()
         runCatching { wake?.takeIf { it.isHeld }?.release() }
         wake = null
@@ -148,6 +155,9 @@ class ClientVpnService : VpnService() {
 
     companion object {
         const val ACTION_START = "shop.corgi.client.START"
+        /** v1.6.0 (N10): the SOCKS inbound of the running connection for the external address (null when off). */
+        @Volatile var ipCheck: shop.corgi.client.core.IpCheck? = null
+
         const val ACTION_STOP = "shop.corgi.client.STOP"
         const val CHANNEL = "corgi_client_vpn"
         const val STATE_OFF = "off"

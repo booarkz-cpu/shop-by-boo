@@ -144,6 +144,8 @@ fun PingBadge(ms: Int?, display: String) {
                 .background(if (b <= bars) color else MaterialTheme.colorScheme.outline))
         }
         if (display != "dots" && display != "bar" && text.isNotBlank()) Text(text, style = MaterialTheme.typography.bodySmall, color = color)
+        // v1.6.0 (N10): the Wi-Fi bars next to the digits (green < 100 ms, yellow 100–300 ms, red — no answer).
+        if (display == "digits" && ms != null) shop.corgi.client.ui.home.SignalIcon(ms)
     }
 }
 

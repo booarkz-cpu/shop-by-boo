@@ -1,5 +1,9 @@
+@file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+
 package shop.corgi.client.ui
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.combinedClickable
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -312,7 +316,12 @@ internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, on
                             context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(android.content.ClipData.newPlainText("subscription", profile.url))
                         })
                         DropdownMenuItem(text = { Text(tr("Удалить", "Delete", "Видалити"), color = MaterialTheme.colorScheme.error) },
-                            onClick = { menu = false; store.remove(profile.id); refresh() })
+                            onClick = {
+                                menu = false
+                                // v1.6.0 (N10): the active provider gone — the tunnel goes down, the button waits for another server.
+                                if (store.remove(profile.id) && ClientVpnService.current(context) != "off") ClientVpnService.stop(context)
+                                refresh()
+                            })
                     }
                 }
             }
@@ -361,9 +370,29 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
     var collapsed by remember { mutableStateOf(setOf<String>()) }
     var receiving by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
+    // v1.6.0 (N10): a long press starts choosing providers; «Удалить» removes all of them after a confirmation.
+    var chosen by remember { mutableStateOf(setOf<String>()) }
+    var confirm by remember { mutableStateOf(false) }
     val all = profiles.flatMap { it.servers() }
     val families = all.map { it.family }.distinct()
+    if (confirm) AlertDialog(onDismissRequest = { confirm = false },
+        title = { Text(tr("Удалить выбранные?", "Delete the chosen ones?", "Видалити вибрані?")) },
+        text = { Text(tr("Провайдеров: ", "Providers: ", "Провайдерів: ") + chosen.size) },
+        confirmButton = { Button(onClick = {
+            if (store.removeAll(chosen) && ClientVpnService.current(context) != "off") ClientVpnService.stop(context)
+            chosen = emptySet(); confirm = false; refresh()
+        }, modifier = Modifier.testTag("delete-chosen-confirm")) { Text(tr("Удалить", "Delete", "Видалити")) } },
+        dismissButton = { TextButton(onClick = { confirm = false }) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
     LazyColumn(Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (chosen.isNotEmpty()) item {
+            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.errorContainer).padding(8.dp).testTag("choosing"),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(tr("Выбрано: ", "Chosen: ", "Вибрано: ") + chosen.size, Modifier.weight(1f))
+                TextButton(onClick = { chosen = profiles.map { it.id }.toSet() }) { Text(tr("Все", "All", "Усі")) }
+                Button(onClick = { confirm = true }, modifier = Modifier.testTag("delete-chosen")) { Text(tr("Удалить", "Delete", "Видалити")) }
+                TextButton(onClick = { chosen = emptySet() }) { Text(tr("Отмена", "Cancel", "Скасувати")) }
+            }
+        }
         item {
             Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(tr("Серверы", "Servers", "Сервери"), Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
@@ -409,7 +438,14 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
         for (profile in profiles) {
             val open = profile.id !in collapsed
             item(key = profile.id) {
-                ProviderCard(store, profile, expanded = open, onToggle = { collapsed = if (open) collapsed + profile.id else collapsed - profile.id }, refresh = refresh)
+                val picked = profile.id in chosen
+                Box(Modifier.fillMaxWidth()
+                    .then(if (picked) Modifier.border(2.dp, MaterialTheme.colorScheme.error, RoundedCornerShape(24.dp)) else Modifier)
+                    .combinedClickable(onClick = { if (chosen.isNotEmpty()) chosen = if (picked) chosen - profile.id else chosen + profile.id },
+                        onLongClick = { chosen = if (picked) chosen - profile.id else chosen + profile.id })
+                    .testTag("provider")) {
+                    ProviderCard(store, profile, expanded = open, onToggle = { collapsed = if (open) collapsed + profile.id else collapsed - profile.id }, refresh = refresh)
+                }
             }
             if (!open) continue
             if (profile.kind == "json") {

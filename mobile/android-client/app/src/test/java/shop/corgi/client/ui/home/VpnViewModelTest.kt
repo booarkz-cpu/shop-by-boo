@@ -60,6 +60,33 @@ private class FakeEngine : VpnEngine {
     override fun hasProfile() = true
 
     override fun lastError() = "boom"
+
+    var busy = false
+    var choose = false
+    val configListeners = mutableListOf<() -> Unit>()
+
+    fun config(busy: Boolean = this.busy, choose: Boolean = this.choose) {
+        this.busy = busy
+        this.choose = choose
+        configListeners.toList().forEach { it() }
+    }
+
+    override fun configBusy() = busy
+
+    override fun mustChoose() = choose
+
+    var ip: shop.corgi.client.core.ExternalIp? = null
+    var lookups = 0
+
+    override fun externalIp(): shop.corgi.client.core.ExternalIp? {
+        lookups++
+        return ip
+    }
+
+    override fun listenConfig(listener: () -> Unit): () -> Unit {
+        configListeners += listener
+        return { configListeners -= listener }
+    }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -124,6 +151,53 @@ class VpnViewModelTest {
         advanceTimeBy(3 * VpnViewModel.TICK_MS)
     }
 
+    @Test fun theButtonWaitsWhileServersChangeAndAfterTheActiveOneIsRemoved() = runTest(dispatcher) {
+        val engine = FakeEngine()
+        val model = VpnViewModel(engine) { clock }
+        val events = mutableListOf<HomeEvent>()
+        val collecting = async { model.events.collect { events += it } }
+        runCurrent()
+        engine.config(busy = true)
+        assertTrue(model.state.value.configBusy)
+        assertFalse(model.state.value.canConnect)
+        assertFalse(buttonEnabled(model.state.value))
+        model.toggleVpn()
+        runCurrent()
+        assertTrue("no connection on a configuration being changed", events.isEmpty())
+        engine.config(busy = false, choose = true)
+        assertFalse("the removed server is not replaced silently", buttonEnabled(model.state.value))
+        model.toggleVpn()
+        runCurrent()
+        assertTrue(events.isEmpty())
+        engine.config(choose = false)
+        assertTrue(buttonEnabled(model.state.value))
+        model.toggleVpn()
+        runCurrent()
+        assertEquals(listOf<HomeEvent>(HomeEvent.Connect), events)
+        engine.set("on")
+        engine.config(busy = true)
+        assertFalse("stopping waits for the change too", buttonEnabled(model.state.value))
+        engine.config(busy = false)
+        assertTrue(buttonEnabled(model.state.value))
+        collecting.cancel()
+        advanceTimeBy(VpnViewModel.TICK_MS)
+    }
+
+    @Test fun theExternalAddressAfterConnectingAndGoneAfterDisconnecting() = runTest(dispatcher) {
+        val engine = FakeEngine()
+        engine.ip = shop.corgi.client.core.ExternalIp("203.0.113.7", "FI")
+        val model = VpnViewModel(engine, { clock }, dispatcher)
+        engine.set("on")
+        runCurrent()
+        assertEquals("203.0.113.7", model.state.value.externalIp)
+        assertEquals("\uD83C\uDDEB\uD83C\uDDEE", model.state.value.externalFlag)
+        advanceTimeBy(3 * VpnViewModel.TICK_MS)
+        assertEquals("looked up once per connection", 1, engine.lookups)
+        engine.set("off")
+        assertEquals("", model.state.value.externalIp)
+        advanceTimeBy(VpnViewModel.TICK_MS)
+    }
+
     @Test fun textsOfTheScreen() {
         assertEquals("3 days", streakText(3))
         assertEquals("1 day", streakText(1))
@@ -133,6 +207,6 @@ class VpnViewModelTest {
         assertEquals("21 день", streakText(21))
         assertEquals("12 дней", streakText(12))
         assertEquals("01:02:05", duration(3_725))
-        assertEquals(listOf(0, 3, 2, 1, 0), listOf(null, 40, 200, 900, -1).map { signalBars(it) })
+        assertEquals(listOf(0, 3, 2, 2, 1, 0), listOf(null, 40, 100, 300, 301, -1).map { signalBars(it) })
     }
 }
