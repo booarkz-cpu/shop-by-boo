@@ -143,15 +143,21 @@ class Store(context: Context) {
     fun geoReady(): Boolean = File(app.filesDir, "geoip.dat").length() > 0 && File(app.filesDir, "geosite.dat").length() > 0
 
     /** geoip.dat and geosite.dat from the URLs in the settings (https only), written atomically. */
-    fun downloadGeo() {
+    fun downloadGeo(onProgress: (Float) -> Unit = {}) {
         val s = settings
-        for ((name, url) in listOf("geoip.dat" to s.geoipUrl, "geosite.dat" to s.geositeUrl)) {
+        val files = listOf("geoip.dat" to s.geoipUrl, "geosite.dat" to s.geositeUrl)
+        val progress = shop.corgi.client.core.GeoProgress(files.size, onProgress)
+        for ((i, pair) in files.withIndex()) {
+            val (name, url) = pair
             require(url.startsWith("https://")) { tr("Только https://", "https:// only", "Лише https://") }
+            progress.start(i)
             val tmp = File(app.filesDir, "$name.part")
-            open(url).inputStream.use { input -> tmp.outputStream().use { input.copyTo(it) } }
+            val connection = open(url)
+            connection.inputStream.use { input -> tmp.outputStream().use { progress.copy(input, it, connection.contentLengthLong) } }
             require(tmp.length() > 1024) { "$name: " + tr("пустой файл", "empty file", "порожній файл") }
             tmp.renameTo(File(app.filesDir, name))
         }
+        progress.finish()
     }
 
     /** The newer version from the latest release, or null; checked at most once a day unless ``force``. */

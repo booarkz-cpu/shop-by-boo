@@ -6,3 +6,5 @@ app/src/test/java/shop/corgi/client/vpn/**/*.kt
 app/src/test/java/shop/corgi/client/core/AdBlockTest.kt
 app/src/main/java/shop/corgi/client/core/ConfigGate.kt
 app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt
+app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt
+app/src/main/java/shop/corgi/client/core/GeoProgress.kt
