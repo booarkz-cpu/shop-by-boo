@@ -87,7 +87,7 @@ class Host:
 SCRIPTS = {rw_steps.PREFLIGHT: "preflight", DOCKER_INSTALL: "docker", rw_steps.WRITE: "write", rw_steps.UNWRITE: "unwrite",
            rw_steps.COMPOSE: "compose", rw_steps.WAIT_PANEL: "wait", rw_steps.PANEL_CALL: "panel",
            rw_steps.FIREWALL: "firewall", rw_steps.GATEWAY: "gateway", rw_steps.HTTPS_CHECK: "https",
-           rw_steps.BACKUP: "backup", rw_steps.RESTORE: "restore", rw_steps.FETCH_BACKUP: "fetch"}
+           rw_steps.BACKUP: "backup", rw_steps.RESTORE: "restore", rw_steps.FETCH_BACKUP: "fetch", rw_steps.FETCH_CONFIGS: "configs"}
 
 
 class FakeRemote:
@@ -137,6 +137,16 @@ class FakeRemote:
             token, _, body = stdin.decode().partition("\n")
             code, data = h.panel(method, path, token, json.loads(body) if body else None)
             return Result(0, json.dumps(data) + "\n" + str(code), "")
+        if name == "configs":  # v28.92.0: the files of the components as tar.gz
+            import base64
+            import io
+            import tarfile
+            out = io.BytesIO()
+            with tarfile.open(fileobj=out, mode="w:gz") as tar:
+                body = b"services: {}"
+                info = tarfile.TarInfo("opt/remnawave/docker-compose.yml"); info.size = len(body); tar.addfile(info, io.BytesIO(body))
+            data = out.getvalue()
+            return Result(0, hashlib.sha256(data).hexdigest() + "\n" + base64.b64encode(data).decode() + "\n", "")
         if name == "firewall":
             h.rules.append(args)
             return Result(0, "Rule added\n", "")

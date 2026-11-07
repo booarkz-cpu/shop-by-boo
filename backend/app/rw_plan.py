@@ -133,6 +133,8 @@ class PlanIn(BaseModel):
     tls_max: TlsVersion = "1.3"
     # v28.90.0 (N5): more addresses allowed to the node's port besides the panel's (for a panel move: add the new one first).
     node_port_ips: list[str] = Field(default_factory=list, max_length=10)
+    # v28.92.0 (N7): «Опасная зона → Удалить компонент» — which one (rw_api.action fills it with the action).
+    remove_component: Literal["panel", "subscription_page", "proxy", "node", "selfsteal", "xray_checker"] | None = None
     # The module action being planned (rw_api.action fills it; it is not kept after the run).
     module: "ModuleRun | None" = None
 
@@ -679,8 +681,9 @@ def selfsteal_page(template: str, domain: str) -> str:
             f"<p>{_html.escape(lead)}</p></div></header><main><ul>{lis}</ul></main><footer>© {d}</footer></body></html>")
 
 
-ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs")
-ACTION_TITLES = {"install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
+ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
+           "snapshot", "remove_component")
+ACTION_TITLES = {"snapshot": "Снапшот сервера", "remove_component": "Удаление компонента", "install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
                  "reinstall": "Переустановка", "remove": "Удаление", "module": "Модуль",
                  "start": "Запуск", "stop": "Остановка", "restart": "Перезапуск", "logs": "Журналы контейнеров"}
 # v28.77.0: service control over the containers an installation runs (manage_panel in eGamesAPI/remnawave-reverse-proxy,
@@ -875,6 +878,34 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
             out.append("xray_checker")
         return out
 
+    if action == "snapshot":
+        # v28.92.0 (N7): «Снапшот сервера» — the panel's database (as before an update) and the files of every
+        # component (compose, .env, Caddyfile, site; no volumes), encrypted in the shop; downloaded in «Установка».
+        if p:
+            steps += [step("backup_panel", p, f"{servers[p]['name']}: копия базы панели"),
+                      step("fetch_panel_backup", p, f"{servers[p]['name']}: копия базы панели — зашифрованной в хранилище магазина")]
+        for sid in roles:
+            steps.append(step("fetch_configs", sid, f"{servers[sid]['name']}: файлы компонентов ({', '.join(components(sid))}) — в хранилище магазина"))
+        return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {MODE_TITLES[plan.mode]}", "images": IMAGES,
+                "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": rs, "changes": []}
+                            for sid, rs in roles.items()},
+                "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
+    if action == "remove_component":
+        comp = plan.remove_component
+        holders = [sid for sid in roles if comp in components(sid)]
+        if not comp or not holders:
+            raise ValueError("Этого компонента нет на серверах установки")
+        if comp == "panel":
+            steps += [step("backup_panel", p, f"{servers[p]['name']}: копия базы панели"),
+                      step("fetch_panel_backup", p, f"{servers[p]['name']}: копия базы панели — зашифрованной в хранилище магазина")]
+        for sid in holders:
+            steps.append(step("compose_down", sid, f"{servers[sid]['name']}: остановить и убрать контейнеры ({DIRS[comp]}); тома и файлы остаются",
+                              component=comp))
+        return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {DIRS[comp]}", "images": IMAGES,
+                "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": roles[sid],
+                                       "changes": [f"Контейнеры {DIRS[comp]} остановлены и удалены; вернуть — «Переустановить» установку"]}
+                            for sid in holders},
+                "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
     if action in SERVICE_ACTIONS:
         verb = {"start": "запуск", "stop": "остановка", "restart": "перезапуск", "logs": f"последние {LOG_LINES} строк журнала"}[action]
         order = list(roles)
