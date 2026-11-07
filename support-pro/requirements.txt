@@ -41,7 +41,7 @@ python-multipart==0.0.33
 PyYAML==6.0.3
 qrcode==8.2
 redis==8.1.0
-SQLAlchemy==2.1.6
+SQLAlchemy==2.1.8
 starlette==1.10.0
 typing-inspection==0.4.4
 typing_extensions==4.16.0

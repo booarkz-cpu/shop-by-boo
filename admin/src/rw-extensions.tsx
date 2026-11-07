@@ -38,6 +38,7 @@ export function RwExtensions({request, toast}: Props) {
     <Profiles d={d} request={request} toast={toast} reload={load}/>
     <Plugins d={d} request={request} toast={toast} reload={load}/>
     <WarpProfile d={d} request={request} toast={toast}/>
+    <AdBlockProfile d={d} request={request} toast={toast}/>
     <ServerRouting d={d} request={request} toast={toast}/>
     <SubscriptionRules request={request} toast={toast}/>
     <PagesAndTemplates request={request} toast={toast}/>
@@ -215,6 +216,25 @@ function WarpProfile({d, request, toast}: any) {
       <label className="wide">Домены через WARP<input value={domains} onChange={e => setDomains(e.target.value)} placeholder="example.com, geosite:openai"/></label>
       <div className="wide toolbar"><button className="primary" onClick={() => apply(true)}>Включить WARP для доменов</button><button onClick={() => apply(false)}>Убрать WARP</button></div>
     </div>}
+  </section>;
+}
+
+/** v28.92.0 (N7): ad domains of the node's geosite.dat to BLOCK for every client of the profile. */
+function AdBlockProfile({d, request, toast}: any) {
+  const [profile, setProfile] = useState(d.profiles[0]?.uuid || "");
+  const [error, setError] = useState("");
+  async function apply(enabled: boolean) {
+    setError("");
+    try { await request(`${API}/profiles/${profile}/adblock`, body("POST", {enabled})); toast(enabled ? "Реклама блокируется на нодах профиля" : "Блокировка рекламы снята"); }
+    catch (e: any) { setError(e.message); }
+  }
+  return <section className="card" data-rw-adblock>
+    <h3>Блокировка рекламы на нодах</h3>
+    <p className="muted">Правило <code>geosite:category-ads-all → BLOCK</code> первым в профиле: реклама и трекеры не открываются у всех клиентов, без настроек в приложениях. Ноды получат профиль сразу.</p>
+    {error && <div role="alert" className="error">{error}</div>}
+    {d.profiles.length === 0 ? <EmptyState title="Нет профилей" hint="Создайте профиль выше."/> : <div className="toolbar">
+      <label>Профиль<select value={profile} onChange={e => setProfile(e.target.value)}>{d.profiles.map((p: any) => <option key={p.uuid} value={p.uuid}>{p.name}</option>)}</select></label>
+      <button className="primary" onClick={() => apply(true)}>Включить</button><button onClick={() => apply(false)}>Выключить</button></div>}
   </section>;
 }
 

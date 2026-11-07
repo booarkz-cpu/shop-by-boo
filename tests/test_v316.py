@@ -1,12 +1,10 @@
 """3.1.6: admin, Mini App and cabinet nginx must serve HTTP on a read-only root."""
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_316_is_first():
-    main_source()
     (ROOT / "scripts/build-release.sh").read_text()
     (ROOT / "deploy/install-vps.sh").read_text()
 
