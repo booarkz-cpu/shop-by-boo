@@ -36,6 +36,8 @@ jobs:
           label remnawave/subscription-page:latest
           check postgres:18.4 'postgres --version'
           check valkey/valkey:9-alpine 'valkey-server --version'
+          # N7 geo/zapret: where the node image keeps Xray's geo files and how Xray finds them.
+          echo "GEO $(docker run --rm --entrypoint sh remnawave/node:latest -c 'find / -xdev \( -name "geo*.dat" -o -name "*.dat" -path "*xray*" \) 2>/dev/null | head -20 | tr "\n" " "; echo; env | grep -i -E "xray|asset" | tr "\n" " "; ls -la /usr/local/share/xray /usr/local/bin 2>/dev/null | tr "\n" " "')" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Android toolchain versions
         run: |
           meta(){ curl -fsS "$1" | grep -oE "<version>[^<]+" | sed 's/<version>//' | grep -viE "alpha|beta|rc|dev|eap|snapshot|-m[0-9]" | sort -V | tail -1; }
