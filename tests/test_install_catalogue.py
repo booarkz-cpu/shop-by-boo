@@ -253,3 +253,36 @@ async def test_mtproto_links_follow_the_latest_run(database, fleet):
                                "https": f"https://t.me/proxy?server=198.51.100.40&port=9443&secret=ee{'ab' * 16}"}]
     await module(False)
     assert (await install_catalogue.mtproto_links(db, ADMIN))["proxies"] == []
+
+
+@pytest.mark.asyncio
+async def test_geo_lists_go_into_the_node_compose_and_out_again(database, fleet, monkeypatch):
+    """v28.95.0 (N7): «Российские списки» — the module fixes the release in the plan, the node's compose mounts the files."""
+    from app import rw_api, rw_releases
+    db = database
+    files = {"geoip": {"url": "https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/download/202611071200/geoip.dat", "sha256": "a" * 64},
+             "geosite": {"url": "https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/download/202611071200/geosite.dat", "sha256": "b" * 64}}
+
+    async def lists():
+        return "202611071200", files
+    monkeypatch.setattr(rw_releases, "geo_lists", lists)
+    server = await add_server(db, fleet, "n1", "198.51.100.40")
+    await rw_api.check_server(server["id"], db, ADMIN)
+    install = await plan_and_approve(db, rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com",
+                                                        tls="internal"))
+    await run_all(db)
+    host = fleet["198.51.100.40"]
+
+    async def module(enabled):
+        planned = await rw_api.action(install["id"], rw_api.ActionIn(action="module", module=rw_api.ModuleIn(name="geo_files", enabled=enabled)), db, ADMIN)
+        await rw_api.approve(planned["id"], rw_api.ApproveIn(plan_sha256=planned["plan_sha256"]), db, ADMIN)
+        await run_all(db)
+        return planned
+    planned = await module(True)
+    assert planned["params"]["geo_files"] == "202611071200"
+    compose = next(v for k, v in host.files.items() if len(k) == 2 and k[0] == "/opt/remnanode" and k[1] == "docker-compose.yml")
+    assert "./geo/ru-geosite.dat:/usr/local/share/xray/ru-geosite.dat:ro" in compose
+    assert ("geo", ("install", files["geoip"]["url"], "a" * 64, files["geosite"]["url"], "b" * 64)) in host.calls
+    await module(False)
+    compose = next(v for k, v in host.files.items() if len(k) == 2 and k[0] == "/opt/remnanode" and k[1] == "docker-compose.yml")
+    assert "./geo/" not in compose

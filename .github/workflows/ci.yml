@@ -126,6 +126,13 @@ jobs:
         if: matrix.shard == 1
         timeout-minutes: 6
         run: sudo env "PATH=$PATH" bash scripts/ci/mtproto-check.sh
+      - name: Russian geo lists for the nodes
+        # v28.95.0 (N7): the latest lists by the SHA-256 GitHub published, rw_steps.GEO, and Xray of the node image loading them.
+        if: matrix.shard == 1
+        timeout-minutes: 8
+        env:
+          GH_API_TOKEN: ${{ github.token }}
+        run: sudo env "PATH=$PATH" GH_API_TOKEN="$GH_API_TOKEN" bash scripts/ci/geo-check.sh
       - name: Alembic heads
         working-directory: backend
         run: alembic heads

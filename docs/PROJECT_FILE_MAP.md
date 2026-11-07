@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.94.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.95.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2355**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2357**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1212,6 +1212,7 @@
 | [docs/ru/RELEASE_V28_92_0.md](../docs/ru/RELEASE_V28_92_0.md) | Документация |
 | [docs/ru/RELEASE_V28_93_0.md](../docs/ru/RELEASE_V28_93_0.md) | Документация |
 | [docs/ru/RELEASE_V28_94_0.md](../docs/ru/RELEASE_V28_94_0.md) | Документация |
+| [docs/ru/RELEASE_V28_95_0.md](../docs/ru/RELEASE_V28_95_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
@@ -1902,6 +1903,7 @@
 | [scripts/check-migration-heads.py](../scripts/check-migration-heads.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/caddy-on-demand-live.sh](../scripts/ci/caddy-on-demand-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/geo-check.sh](../scripts/ci/geo-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
 | [scripts/ci/mtproto-check.sh](../scripts/ci/mtproto-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/netmods-check.sh](../scripts/ci/netmods-check.sh) | Эксплуатация и релиз |

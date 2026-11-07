@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "";
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const post = (body?: any): RequestInit => ({method: "POST", body: body === undefined ? undefined : JSON.stringify(body)});
 // Modules planned right here (the others need more input and open «Установка Remnawave → Модули серверов»).
-const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto"];
+const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto", "geo_files"];
 const STEPS: [string, string][] = [["prepared", "Подготовьте сервер"], ["panel", "Установите панель или ноду"], ["domain", "Подключите домен"]];
 
 /** «Установка» (v28.92.0, N7): every operation on the servers in one catalogue — each card does its job or opens the section that does. */
@@ -236,6 +236,8 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
         <label>Порты<input value={ports} onChange={e => { setPorts(e.target.value); setPlan(null); }}/></label>
         <label>Режим<select value={guardMode} onChange={e => { setGuardMode(e.target.value); setPlan(null); }}>
           <option value="enforce">Банить на 10 минут</option><option value="observe">Только считать</option></select></label></>}
+      {name === "geo_files" && <p className="muted wide">Списки обновляются у источника каждые 6 часов: «Включить» ещё раз ставит последнюю сборку.
+        В правилах маршрутизации — <code>ext:ru-geosite.dat:ru-blocked</code>, <code>ext:ru-geoip.dat:ru-blocked</code>, <code>ext:ru-geosite.dat:ru-available-only-inside</code>.</p>}
       {name === "mtproto" && enabled && <>
         <label>Порт TCP<input type="number" min={1024} max={65535} value={mtPort} onChange={e => { setMtPort(e.target.value); setPlan(null); }}/></label>
         <label>Маскировка под сайт<input value={mtDomain} onChange={e => { setMtDomain(e.target.value); setPlan(null); }}/></label></>}

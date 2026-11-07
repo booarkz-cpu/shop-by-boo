@@ -109,7 +109,7 @@ class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files"]
     mtproto_port: int | None = Field(default=None, ge=1024, le=65535)          # v28.94.0 (N7)
     mtproto_domain: str | None = Field(default=None, max_length=100)
     guard_ports: list[int] | None = Field(default=None, max_length=12)          # v28.92.0 (N7)
@@ -508,6 +508,11 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
                 version, release = await rw_releases.xray_core(None if mod.version in (None, "latest") else mod.version)
                 run.update(version=version, release=release)
             params["xray_core"] = run.get("version")
+        elif mod.name == "geo_files":  # v28.95.0 (N7)
+            if mod.enabled:
+                version, release = await rw_releases.geo_lists()
+                run.update(version=version, release=release)
+            params["geo_files"] = run.get("version")
         elif mod.name == "warp" and mod.enabled:
             if not mod.accept_warp_tos:
                 raise HTTPException(422, "Подтвердите условия Cloudflare WARP: wgcf регистрирует учётную запись WARP")

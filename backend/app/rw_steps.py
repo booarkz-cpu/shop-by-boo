@@ -334,7 +334,7 @@ async def files_for(ctx: Context, component: str, server_id: int) -> dict[str, s
     if component == "node":
         key = ctx.state.get("node_secret_key") or await _keygen(ctx)
         return {"docker-compose.yml": rw_plan.node_compose(key, plan.node_port, selfsteal=bool(plan.selfsteal_domain), hysteria=bool({"hysteria2", "tls"} & set(plan.transports)),
-                                                           xray_core=bool(plan.xray_core))}
+                                                           xray_core=bool(plan.xray_core), geo=bool(plan.geo_files))}
     if component == "xray_checker":
         url = ctx.secrets.get("checker_subscription_url")
         if not url:
@@ -850,6 +850,40 @@ case "$1" in
 esac
 """
 
+# v28.95.0 (N7): the Russian geo lists (runetfreedom/russia-v2ray-rules-dat) for the node — checked by the SHA-256 GitHub
+# published for the release chosen when the plan was made; the previous files come back on «undo».
+GEO = r"""set -eu
+d=/opt/remnanode/geo
+case "$1" in
+  install)
+    [ "$#" -eq 5 ] || exit 2
+    tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+    set -- "$2" "$3" "$4" "$5"
+    for pair in "geoip $1 $2" "geosite $3 $4"; do
+      set -- $pair
+      case "$2" in https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/download/[0-9]*/"$1".dat) ;; *) echo "bad url" >&2; exit 2 ;; esac
+      echo "$3" | grep -Eq '^[0-9a-f]{64}$' || exit 2
+      curl -fsSL --max-time 300 -o "$tmp/$1.dat" "$2"
+      echo "$3  $tmp/$1.dat" | sha256sum -c --status || { echo "sha256 mismatch: $1"; exit 4; }
+      [ "$(stat -c %s "$tmp/$1.dat")" -gt 1024 ] || { echo "too small: $1"; exit 4; }
+    done
+    install -d -m 0755 "$d"
+    for name in geoip geosite; do
+      if [ -f "$d/ru-$name.dat" ]; then cp -p "$d/ru-$name.dat" "$d/ru-$name.dat.rw-prev"; else rm -f "$d/ru-$name.dat.rw-prev"; fi
+      install -m 0644 "$tmp/$name.dat" "$d/ru-$name.dat"
+    done
+    echo "geo=$(stat -c %s "$d/ru-geoip.dat"),$(stat -c %s "$d/ru-geosite.dat")" ;;
+  remove)
+    for name in geoip geosite; do [ -f "$d/ru-$name.dat" ] && mv "$d/ru-$name.dat" "$d/ru-$name.dat.rw-prev"; done
+    echo "removed" ;;
+  undo)
+    for name in geoip geosite; do
+      if [ -f "$d/ru-$name.dat.rw-prev" ]; then mv "$d/ru-$name.dat.rw-prev" "$d/ru-$name.dat"; else rm -f "$d/ru-$name.dat"; fi
+    done ;;
+  *) exit 2 ;;
+esac
+"""
+
 XRAY_VERSION = r"""docker exec remnanode sh -c '[ -x /usr/local/bin/rw-core ] && /usr/local/bin/rw-core version || xray version' 2>/dev/null | head -n1"""
 
 # WARP Native: a WireGuard interface «warp» to Cloudflare WARP, without routes (Table = off) — only the Xray
@@ -959,6 +993,17 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if result.code != 0:
             raise StepError("Ядро Xray не установлено")
         mods["xray_core"] = p.get("version") if enabled else None
+    elif name == "geo_files":
+        files = p.get("files") or {}
+        args = ("install", files["geoip"]["url"], files["geoip"]["sha256"], files["geosite"]["url"], files["geosite"]["sha256"]) \
+            if enabled else ("remove",)
+        result = await _run(ctx, sid, GEO, *args, timeout=600)
+        _note(ctx, result.out + result.err)
+        if result.code == 4:
+            raise StepError("Файл списков не прошёл проверку (SHA-256 или размер): ничего не заменено")
+        if result.code != 0:
+            raise StepError("Российские списки не установлены")
+        mods["geo_files"] = p.get("version") if enabled else None
     elif name == "warp":
         args = ("install", p["url"], p["sha256"]) if enabled else ("remove",)
         result = await _run(ctx, sid, WARP, *args, timeout=600)
@@ -1439,7 +1484,7 @@ async def undo_node_module(ctx: Context, st: dict) -> None:
             await _run(ctx, sid, FIREWALL, now, str(ctx.plan.node_port), "delete", timeout=60)
             ctx.state["firewall"].pop(str(sid), None)
         return
-    script = {"ipv6": IPV6, "xray_core": XRAY_CORE, "warp": WARP, "netbird": NETBIRD, "hardening": HARDEN, "watchdog": WATCHDOG}.get(p["module"])
+    script = {"ipv6": IPV6, "xray_core": XRAY_CORE, "geo_files": GEO, "warp": WARP, "netbird": NETBIRD, "hardening": HARDEN, "watchdog": WATCHDOG}.get(p["module"])
     if p["module"] in ("warp", "netbird") and not p.get("enabled", True):
         return  # switching off is not undone: the interface or the connection stays off, which is safe
     if script and [sid, p["module"], p.get("enabled", True)] in ctx.state.get("applied_modules", []):

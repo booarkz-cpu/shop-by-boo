@@ -41,12 +41,17 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
 MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto")
+           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
                  "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
                  "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели", "mss_clamp": "MSS clamp",
                  "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки",
-                 "sni_scan": "Подбор сайта для REALITY", "mtproto": "MTProto-прокси для Telegram"}
+                 "sni_scan": "Подбор сайта для REALITY", "mtproto": "MTProto-прокси для Telegram",
+                 "geo_files": "Российские списки блокировок (geo)"}
+# v28.95.0 (N7): the Russian lists sit next to the image's own geo files (those stay as they are) and are used as
+# ext:ru-geosite.dat:<category> / ext:ru-geoip.dat:<category> in the routing rules of the panel.
+GEO_DIR = "/usr/local/share/xray"
+GEO_FILES = {"geoip": "ru-geoip.dat", "geosite": "ru-geosite.dat"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
@@ -132,6 +137,7 @@ class PlanIn(BaseModel):
     # v28.70.0: node modules that change the files the wizard writes, so updates keep them:
     # an Xray core of the chosen release mounted into the node, and Xray Checker on one of the servers.
     xray_core: str | None = Field(default=None, pattern=r"^v\d{1,3}\.\d{1,3}\.\d{1,3}$")
+    geo_files: str | None = Field(default=None, pattern=r"^\d{12}$")  # v28.95.0: the build of the Russian geo lists mounted into the nodes
     xray_checker_server_id: int | None = None
     xray_checker_interval: int = Field(default=300, ge=60, le=86400)
     # v28.81.0: extra transports of the SelfSteal node (TRANSPORTS); VLESS + TCP + REALITY on 443 always stays.
@@ -243,7 +249,7 @@ class ModuleRun(BaseModel):
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files"]
     enabled: bool = True
     # v28.94.0 (N7): MTProto — the port and the site FakeTLS pretends to be.
     mtproto_port: int = Field(default=9443, ge=1024, le=65535)
@@ -597,7 +603,8 @@ def tinyauth_env(auth_domain: str, username: str, password_hash: str) -> str:
             "TINYAUTH_LABELPROVIDER=none\n")
 
 
-def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_core: bool = False, hysteria: bool = False) -> str:
+def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_core: bool = False, hysteria: bool = False,
+                 geo: bool = False) -> str:
     """``hysteria`` — the node has a TLS-certificate transport (Hysteria2 or VLESS + TCP + TLS)."""
     from .provisioner import node_compose as official
     text = official(secret_key, node_port).replace("image: remnawave/node:latest", f"image: {IMAGES['node']}")
@@ -609,6 +616,9 @@ def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_
         # The core of the chosen release (checked by SHA-256 when downloaded) instead of the bundled one;
         # the node's rw-core starts /usr/local/bin/xray unless a panel profile points it at another core.
         volumes.append("      - ./xray-core/xray:/usr/local/bin/xray:ro\n")
+    if geo:
+        # v28.95.0 (N7): the Russian lists next to the image's geoip.dat / geosite.dat — new names, nothing replaced.
+        volumes += [f"      - ./geo/{name}:{GEO_DIR}/{name}:ro\n" for name in GEO_FILES.values()]
     if hysteria:
         # Hysteria2 and VLESS + TCP + TLS read the SelfSteal domain's certificate (copied there by the node's timer, see rw_steps.TRANSPORTS_SH).
         volumes.append(f"      - {HYSTERIA_DIR}:{HYSTERIA_MOUNT}:ro\n")
@@ -805,6 +815,24 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             steps.append(step("node_module", sid, f"{servers[sid]['name']}: проверить сайты-кандидаты (TLS 1.3, HTTP/2, скорость); ничего не меняется",
                               module="sni_scan", enabled=True))
         title = "Подбор сайта для REALITY"
+    elif name == "geo_files":
+        # v28.95.0 (N7): the Russian geo lists on every node of the installation (like the Xray core: the files, then the node restarts).
+        if not nodes:
+            raise ValueError("В этой установке нет нод")
+        for sid in nodes:
+            n = servers[sid]["name"]
+            if mod.enabled:
+                if set(mod.release) != set(GEO_FILES):
+                    raise ValueError("Нет файлов списков с SHA-256 (составьте план заново)")
+                steps.append(step("node_module", sid, f"{n}: российские списки {mod.version} (geoip {mod.release['geoip']['sha256'][:12]}…, "
+                                  f"geosite {mod.release['geosite']['sha256'][:12]}…)", module="geo_files", enabled=True, version=mod.version,
+                                  files={k: mod.release[k] for k in GEO_FILES}))
+            else:
+                steps.append(step("node_module", sid, f"{n}: убрать российские списки", module="geo_files", enabled=False))
+            steps += [step("write_files", sid, f"{n}: файлы ({DIRS['node']})", component="node"),
+                      step("compose_up", sid, f"{n}: перезапуск ноды", component="node")]
+        steps.append(step("verify", None, "Проверка: ноды на связи"))
+        title = f"Российские списки: {mod.version}" if mod.enabled else "Российские списки: убрать"
     elif name == "mtproto":
         # v28.94.0 (N7): a Telegram MTProto proxy with FakeTLS on the chosen nodes (rw_netmods.MTPROTO, image pinned by digest).
         targets = mod.server_ids or nodes

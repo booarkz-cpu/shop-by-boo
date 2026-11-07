@@ -92,7 +92,7 @@ SCRIPTS = {rw_steps.PREFLIGHT: "preflight", DOCKER_INSTALL: "docker", rw_steps.W
 from app import rw_netmods  # noqa: E402
 
 SCRIPTS.update({rw_netmods.GUARD: "guard", rw_netmods.MSS: "mss", rw_netmods.SWAP: "swap", rw_steps.CLIENT_ADDRESS: "client",
-                rw_netmods.MTPROTO: "mtproto"})
+                rw_netmods.MTPROTO: "mtproto", rw_steps.GEO: "geo"})
 
 
 class FakeRemote:
@@ -150,6 +150,8 @@ class FakeRemote:
             line = {"guard": f"guard={args[4] if len(args) > 4 else 'enforce'} ports={args[1] if len(args) > 1 else ''} rate={args[2] if len(args) > 2 else ''}",
                     "mss": "iface=eth0 mtu=1500 path=1500\nclamp=not-needed", "swap": f"swap=/swapfile.corgi size={args[1] if len(args) > 1 else 0}M"}[name]
             return Result(0, line + "\n", "")
+        if name == "geo":  # v28.95.0: the Russian lists put in place (scripts/ci/geo-check.sh runs the real script)
+            return Result(0, "geo=4096,8192\n" if args[0] == "install" else "removed\n", "")
         if name == "mtproto":  # v28.94.0: the script's last line (scripts/ci/mtproto-check.sh runs the real one)
             return Result(0, "mtproto=off\n" if args[0] == "off" else f"mtproto=on port={args[1]} domain={args[2]} secret=ee{'ab' * 16}\n", "")
         if name == "put_configs":  # v28.93.0: the files of a snapshot back; «undo» puts the copy back
