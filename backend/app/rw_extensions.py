@@ -305,6 +305,33 @@ async def _save_config(profile_uuid: str, config: dict) -> dict:
     return await _panel("PATCH", "/api/config-profiles", json={"uuid": profile_uuid, "config": config})
 
 
+ADS = "geosite:category-ads-all"
+
+
+class AdBlockIn(BaseModel):
+    enabled: bool = True
+
+
+@router.post("/profiles/{profile_uuid}/adblock")
+async def profile_adblock(profile_uuid: str, payload: AdBlockIn, db: AsyncSession = Depends(get_db),
+                          admin=Depends(require_permission("provision_nodes"))):
+    """v28.92.0 (N7 «Блокировка рекламы»): on the node, for every client of the profile — the ad domains of the node's
+    geosite.dat go to BLOCK, first of all rules. Switched off, only this rule goes; nothing else in the profile changes."""
+    _, config = await _profile_config(profile_uuid)
+    routing = config.get("routing") if isinstance(config.get("routing"), dict) else {}
+    rules = [r for r in routing.get("rules") or [] if r.get("domain") != [ADS]]
+    outbounds = list(config.get("outbounds") or [])
+    if payload.enabled:
+        rules.insert(0, {"domain": [ADS], "outboundTag": "BLOCK"})
+        if not any(o.get("tag") == "BLOCK" for o in outbounds):
+            outbounds.append({"tag": "BLOCK", "protocol": "blackhole"})
+    config["outbounds"] = outbounds
+    config["routing"] = {**routing, "rules": rules}
+    await _save_config(profile_uuid, config)
+    await _audit(db, "rw.profile.adblock", admin.email, profile_uuid, {"enabled": payload.enabled})
+    return {"enabled": payload.enabled}
+
+
 @router.post("/profiles/{profile_uuid}/warp")
 async def profile_warp(profile_uuid: str, payload: WarpIn, db: AsyncSession = Depends(get_db),
                        admin=Depends(require_permission("provision_nodes"))):
