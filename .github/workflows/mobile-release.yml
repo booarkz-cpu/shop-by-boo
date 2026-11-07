@@ -259,7 +259,7 @@ jobs:
                 headers:{'content-type':'application/octet-stream','content-length':data.length}})).data;
               if (uploaded.digest !== expectedDigest || uploaded.size !== data.length) throw new Error(`Upload verification failed: ${name}`);
             }
-            // v28.90.0 (BACKLOG A6): «Корги Люси: клиент» also gets a release of its own, `client-v<version>`, once
+            // v28.91.0 (BACKLOG A6): «Корги Люси: клиент» also gets a release of its own, `client-v<version>`, once
             // per client version — Obtainium and people can follow the client alone. Never «latest»: the shop's
             // releases/latest/download/… links keep pointing at the distribution release.
             if (android === 'signed' && fs.existsSync('dist/mobile/corgi-lusi-client.json')) {

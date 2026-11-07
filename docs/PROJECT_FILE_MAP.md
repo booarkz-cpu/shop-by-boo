@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.90.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.91.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2332**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2339**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -143,6 +143,7 @@
 | [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
 | [admin/e2e/rw-extensions.spec.ts](../admin/e2e/rw-extensions.spec.ts) | Админ-панель |
 | [admin/e2e/rw-installer.spec.ts](../admin/e2e/rw-installer.spec.ts) | Админ-панель |
+| [admin/e2e/selfsteal.spec.ts](../admin/e2e/selfsteal.spec.ts) | Админ-панель |
 | [admin/e2e/system-status.spec.ts](../admin/e2e/system-status.spec.ts) | Админ-панель |
 | [admin/e2e/telegram-bot.spec.ts](../admin/e2e/telegram-bot.spec.ts) | Админ-панель |
 | [admin/index.html](../admin/index.html) | Админ-панель |
@@ -237,6 +238,7 @@
 | [admin/src/rw-installer.tsx](../admin/src/rw-installer.tsx) | Админ-панель |
 | [admin/src/rwAutoUpdate.tsx](../admin/src/rwAutoUpdate.tsx) | Админ-панель |
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
+| [admin/src/selfsteal.tsx](../admin/src/selfsteal.tsx) | Админ-панель |
 | [admin/src/statusPricing.tsx](../admin/src/statusPricing.tsx) | Админ-панель |
 | [admin/src/stepUp.ts](../admin/src/stepUp.ts) | Админ-панель |
 | [admin/src/style.css](../admin/src/style.css) | Админ-панель |
@@ -575,12 +577,15 @@
 | [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
 | [backend/app/rw_releases.py](../backend/app/rw_releases.py) | API, бот и worker |
 | [backend/app/rw_remote.py](../backend/app/rw_remote.py) | API, бот и worker |
+| [backend/app/rw_selfsteal.py](../backend/app/rw_selfsteal.py) | API, бот и worker |
 | [backend/app/rw_ssh.py](../backend/app/rw_ssh.py) | API, бот и worker |
 | [backend/app/rw_steps.py](../backend/app/rw_steps.py) | API, бот и worker |
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
 | [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
 | [backend/app/seat_access.py](../backend/app/seat_access.py) | API, бот и worker |
 | [backend/app/security.py](../backend/app/security.py) | API, бот и worker |
+| [backend/app/selfsteal_check.py](../backend/app/selfsteal_check.py) | API, бот и worker |
+| [backend/app/selfsteal_sites.py](../backend/app/selfsteal_sites.py) | API, бот и worker |
 | [backend/app/smart_cart.py](../backend/app/smart_cart.py) | API, бот и worker |
 | [backend/app/speed_test.py](../backend/app/speed_test.py) | API, бот и worker |
 | [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
@@ -1198,6 +1203,7 @@
 | [docs/ru/RELEASE_V28_89_0.md](../docs/ru/RELEASE_V28_89_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_90_0.md](../docs/ru/RELEASE_V28_90_0.md) | Документация |
+| [docs/ru/RELEASE_V28_91_0.md](../docs/ru/RELEASE_V28_91_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
 | [docs/ru/SECURITY_AUDIT_20_0_14.md](../docs/ru/SECURITY_AUDIT_20_0_14.md) | Документация |
@@ -2244,6 +2250,7 @@
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
 | [tests/test_schema_matches_migrations.py](../tests/test_schema_matches_migrations.py) | Проверки |
 | [tests/test_screenshots.py](../tests/test_screenshots.py) | Проверки |
+| [tests/test_selfsteal_sites.py](../tests/test_selfsteal_sites.py) | Проверки |
 | [tests/test_single_business_logic.py](../tests/test_single_business_logic.py) | Проверки |
 | [tests/test_speed_forecast.py](../tests/test_speed_forecast.py) | Проверки |
 | [tests/test_stage15_install.py](../tests/test_stage15_install.py) | Проверки |

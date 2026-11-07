@@ -171,3 +171,17 @@ function Catalogue({catalogue, apiBase}: any) {
     </div>)}</div>
   </section>;
 }
+
+/** The catalogue's templates as a <select> (the wizard and «Сайт SelfSteal» of the installer), with the site's language. */
+export function SiteTemplateSelect({request, value, onChange, lang, onLang, label = "Сайт-шаблон"}: {request: Request; value: string;
+  onChange: (v: string) => void; lang: string; onLang: (v: string) => void; label?: string}) {
+  const [list, setList] = useState<any[]>([]);
+  useEffect(() => { request(`${API}/catalogue`).then((c: any) => setList(c.templates)).catch(() => setList([])); }, []);
+  return <>
+    <label>{label}<select value={value} onChange={e => onChange(e.target.value)} data-rw-site-template>
+      {list.length === 0 && <option value={value}>{value}</option>}
+      {list.map((t: any) => <option key={t.id} value={t.id}>{t.title} — {t.theme_title}</option>)}</select></label>
+    <label>Язык сайта<select value={lang} onChange={e => onLang(e.target.value)} data-rw-site-lang>
+      <option value="ru">Русский</option><option value="en">English</option></select></label>
+  </>;
+}

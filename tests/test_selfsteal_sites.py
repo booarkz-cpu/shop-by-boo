@@ -256,6 +256,7 @@ async def test_api_upload_list_delete_preview_and_overview(database, monkeypatch
     assert b"<title>" in page.body and "default-src 'none'" in page.headers["content-security-policy"]
     assert b"<style>" in page.body and b"data:image/svg+xml;base64," in page.body and b"href='/" not in page.body
     assert b"page=about/index.html" in page.body, "links lead to the other pages of the preview"
+    assert "frame-ancestors 'self'" in page.headers["content-security-policy"] and page.headers["x-frame-options"] == "SAMEORIGIN"
     with pytest.raises(HTTPException):
         await rw_selfsteal.preview("garden", "bad domain", "en", "index.html", ADMIN)
     catalogue = await rw_selfsteal.catalogue(ADMIN)

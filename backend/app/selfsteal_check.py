@@ -203,7 +203,7 @@ async def check(domain: str, address: str) -> dict:
     for path in inner[:5]:
         try:
             alive += (await fetch(address, domain, "https", path)).status == 200
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception:  # noqa: BLE001 — a page that does not answer simply does not count
+            continue
     report.add("pages", alive >= 2, f"Внутренних страниц открывается: {alive} из {len(inner[:5])}")
     return report.as_dict()

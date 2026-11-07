@@ -181,9 +181,12 @@ async def preview(template: str, domain: str = "node.example.com", lang: str = "
         target = f"{target}/index.html" if target else "index.html"
         return f"href='?domain={quote(domain)}&lang={lang}&page={quote(target)}'"
     text = re.sub(r"href='(/[a-z0-9/-]*)'", link, text)
+    # Only the admin panel may show it in a frame (the API answers X-Frame-Options: DENY everywhere else).
+    ancestors = " ".join(["'self'", *settings.admin_cors_origins_list()])
     return Response(text, media_type="text/html; charset=utf-8", headers={
-        "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'",
-        "X-Content-Type-Options": "nosniff"})
+        "Content-Security-Policy": f"default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; "
+                                   f"frame-ancestors {ancestors}",
+        "X-Frame-Options": "SAMEORIGIN", "X-Content-Type-Options": "nosniff"})
 
 
 # ---------------------------------------------------------------- own sites (uploaded archives)
