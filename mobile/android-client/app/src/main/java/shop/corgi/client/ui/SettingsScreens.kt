@@ -185,20 +185,14 @@ private fun pingMethodName(m: String) = when (m) { "tcp" -> "TCP"; "icmp" -> "IC
 
 @Composable
 private fun AppsPage(store: Store, s: Settings, save: (Settings) -> Unit) {
+    // v1.6.0 (N10): «Прокси по приложениям» — a whole screen with icons, search, system apps, import and export.
     val context = LocalContext.current
-    var picking by remember { mutableStateOf(false) }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Section(tr("Какие приложения идут через VPN", "Which apps go through the VPN", "Які застосунки йдуть через VPN")) {
-            listOf("all" to tr("Все приложения", "All apps", "Усі застосунки"), "only" to tr("Только выбранные", "Only selected", "Лише вибрані"),
-                "except" to tr("Все, кроме выбранных", "All but selected", "Усі, крім вибраних")).forEach { (key, label) ->
-                ServerRow(label, "", s.appsMode == key) { save(s.copy(appsMode = key)) }
-            }
-        }
-        if (s.appsMode != "all") Button(onClick = { picking = true }, Modifier.fillMaxWidth()) {
-            Text(tr("Выбрать приложения", "Choose apps", "Вибрати застосунки") + " (${s.apps.size})")
-        }
-    }
-    if (picking) AppsDialog(context, s.apps) { chosen -> if (chosen != null) save(s.copy(apps = chosen)); picking = false }
+    val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
+    AppsScreen(s, save,
+        share = { text -> clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("apps", text))
+            context.startActivity(android.content.Intent.createChooser(android.content.Intent(android.content.Intent.ACTION_SEND).setType("application/json")
+                .putExtra(android.content.Intent.EXTRA_TEXT, text), null)) },
+        paste = { clipboard?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString() })
 }
 
 @Composable
