@@ -230,6 +230,10 @@ class Settings(BaseSettings):
     google_play_api_url: str = Field(default="https://androidpublisher.googleapis.com", alias="GOOGLE_PLAY_API_URL")
     # JSON object {"store.product.id": plan_id}. Empty refuses Apple and Google purchases.
     mobile_store_products: str = Field(default="", alias="MOBILE_STORE_PRODUCTS")
+    # v28.89.0 (BACKLOG A5): purchases in Google Play / App Store are accepted only when the owner turns this on.
+    mobile_store_purchases_enabled: bool = Field(default=False, alias="MOBILE_STORE_PURCHASES_ENABLED")
+    # Secret part of the Pub/Sub push URL for Google Play real-time notifications (?token=…).
+    google_play_rtdn_token: str = Field(default="", alias="GOOGLE_PLAY_RTDN_TOKEN")
     crypto_gateway_url: str = Field(default="", alias="CRYPTO_GATEWAY_URL")
     crypto_gateway_key: str = Field(default="", alias="CRYPTO_GATEWAY_KEY")
     sepa_enabled: bool = Field(default=False, alias="SEPA_ENABLED")

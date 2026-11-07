@@ -280,8 +280,11 @@ class MobilePurchaseIn(BaseModel):
 
 @shop.app.post("/api/payments/mobile/verify")
 async def verify_mobile_purchase(payload:MobilePurchaseIn,request:Request,db:AsyncSession=Depends(get_db)):
-    raise shop.HTTPException(410,"Покупки через магазины приложений отключены. Используйте YooKassa, RollyPay или Platega в кабинете.")
+    """v28.89.0 (BACKLOG A5): a purchase made in Google Play or App Store — only when the owner turned it on. The shop
+    asks the store itself; the client's data is only a pointer. See store_billing.py for renewals and refunds."""
+    from . import store_billing
     from .payment_platform import store_product_plan_id
+    store_billing.require_enabled()
     user=await shop.user_from_token(request,db); plan=await db.get(shop.Plan,payload.plan_id)
     if not plan or not plan.enabled: raise shop.HTTPException(404,"Plan not found")
     try:
@@ -289,31 +292,25 @@ async def verify_mobile_purchase(payload:MobilePurchaseIn,request:Request,db:Asy
             if not payload.purchase_token: raise shop.HTTPException(400,"purchase_token is required")
             data=await shop.GooglePlayPlatform().verify_subscription(payload.purchase_token)
             product_id=str(data.get("productId") or "")
-            expiry=((data.get("lineItems") or [{}])[0]).get("expiryTime")
-            external_id=str(payload.purchase_token)
+            expiry=store_billing._iso(((data.get("lineItems") or [{}])[0]).get("expiryTime"))
+            # One order per billing period; the purchase token stays the same across renewals.
+            external_id=str(data.get("latestOrderId") or "")
+            chain_key=store_billing.google_chain(payload.purchase_token)
         elif payload.provider=="apple_iap":
             if not payload.signed_transaction: raise shop.HTTPException(400,"signed_transaction is required")
             data=await shop.AppleStorePlatform().verify_transaction(payload.signed_transaction)
             product_id=str(data.get("productId") or "")
-            expiry=data.get("expiresDate") or data.get("expiresDateMs")
+            expiry=store_billing._ms(data.get("expiresDate"))
             external_id=str(data.get("transactionId") or "")
-            if not external_id: raise shop.HTTPException(402,"Apple transaction id is required")
+            chain_key=str(data.get("originalTransactionId") or external_id)
         else: raise shop.HTTPException(400,"Unsupported mobile provider")
         mapped=store_product_plan_id(product_id)
     except shop.PlatformProviderError as exc:
         raise shop.HTTPException(402,str(exc)) from exc
     if mapped!=plan.id: raise shop.HTTPException(403,"Store product does not match the selected plan")
-    # One external store transaction grants one shop payment. A missing id must not
-    # mint a fresh paid order.
-    existing=(await db.execute(shop.select(shop.Payment).where(shop.Payment.provider==payload.provider,shop.Payment.provider_payment_id==external_id))).scalar_one_or_none()
-    if existing:
-        if existing.user_id != user.id:
-            raise shop.HTTPException(409,"Store transaction belongs to another account")
-        return {"ok":True,"payment_id":existing.id,"status":existing.status,"expires_at":expiry}
-    order=f"{payload.provider}-{external_id}"
-    p=shop.Payment(user_id=user.id,plan_id=plan.id,provider=payload.provider,provider_payment_id=external_id,order_id=order,amount=plan.price,original_amount=plan.price,discount_amount=0,duration_days_snapshot=plan.duration_days,traffic_limit_gb_snapshot=plan.traffic_limit_gb,device_limit_snapshot=plan.device_limit,remnawave_profile_id_snapshot=plan.remnawave_profile_id,currency=shop.settings.default_currency,status="paid",fulfillment_status="pending",idempotency_key=shop.hashlib.sha256(order.encode()).hexdigest(),purpose="subscription")
-    db.add(p); await db.flush(); await shop._issue_invoice(db,p); await db.commit(); await shop._confirm_and_fulfill_payment(p.id,db)
-    return {"ok":True,"payment_id":p.id,"provider":payload.provider,"expires_at":expiry}
+    target=await shop.reserve_target(db,user,plan.id,{})
+    return await store_billing.grant(db,provider=payload.provider,user_id=user.id,plan=plan,external_id=external_id,chain_key=chain_key,
+                                     product_id=product_id,expires_at=expiry,subscription_id=target.id)
 
 @shop.app.get("/api/admin/payments/chargebacks")
 async def admin_chargebacks(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):

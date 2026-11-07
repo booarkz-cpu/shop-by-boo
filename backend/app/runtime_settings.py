@@ -169,6 +169,8 @@ DEFINITIONS = (
     SettingDefinition("google_play_package", "mobile_stores", "Google Play package", "Package name Android-приложения.", "string", "google_play_package", optional=True),
     SettingDefinition("google_service_account_json", "mobile_stores", "Google service account", "JSON сервисного аккаунта Google Play; хранится зашифрованно.", "secret", "google_service_account_json", secret=True, optional=True),
     SettingDefinition("google_play_api_url", "mobile_stores", "Google Play API URL", "HTTPS endpoint Android Publisher API.", "string", "google_play_api_url"),
+    SettingDefinition("mobile_store_purchases_enabled", "mobile_stores", "Покупки в магазинах приложений", "Принимать подписки, купленные в Google Play и App Store (v28.89.0). Выключено — приложения продают только через кабинет.", "boolean", "mobile_store_purchases_enabled"),
+    SettingDefinition("google_play_rtdn_token", "mobile_stores", "Токен уведомлений Google Play", "Секрет адреса push-подписки Pub/Sub: https://<API_DOMAIN>/api/webhooks/google-play?token=…; хранится зашифрованно.", "secret", "google_play_rtdn_token", secret=True, optional=True),
     SettingDefinition("mobile_store_products", "mobile_stores", "Mapping store products", "JSON object: product ID → ID тарифа.", "string", "mobile_store_products", optional=True),
     SettingDefinition("mobile_client_key", "mobile", "Ключ native-клиента", "Общий ключ доказательства native-запроса; хранится зашифрованно.", "secret", "mobile_client_key", secret=True, optional=True),
     SettingDefinition("mobile_require_proof", "mobile", "Требовать native proof", "Отклоняет mobile API без корректного доказательства клиента.", "boolean", "mobile_require_proof"),

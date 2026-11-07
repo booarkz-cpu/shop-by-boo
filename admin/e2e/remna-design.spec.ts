@@ -137,7 +137,7 @@ test('runtime settings are hinted, staged, applied and rolled back', async ({pag
 
   await expect(page.getByRole('heading', {name: 'Настройки без перезапуска', level: 1})).toBeVisible();
   const registryCounts = page.locator('.runtime-registry-counts');
-  await expect(registryCounts).toContainText('141 live');  // v28.77.0: Bunny DNS and Gcore DNS keys
+  await expect(registryCounts).toContainText('143 live');  // v28.89.0: store purchases switch and the Google Play notifications token
   await expect(registryCounts).toContainText('86 deployment');
   await expect(registryCounts).toContainText('2 workflow');
   await expect(page.getByText('RW доступ')).toBeVisible();

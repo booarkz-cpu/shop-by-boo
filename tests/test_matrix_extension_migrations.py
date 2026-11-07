@@ -75,6 +75,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
                 # 0089 (v28.58.0) changes only indexes and a NOT NULL: undone first, so the older downgrades
                 # find the indexes they created, and redone last.
                 # 0090 (v28.66.0, the installer's registry and tasks) goes first and comes back last.
+                migration('0094_store_subscriptions').downgrade()
                 migration('0093_ssh_key_rotation').downgrade()
                 migration('0092_telegram_bot').downgrade()
                 migration('0091_remnawave_domains').downgrade()
@@ -89,6 +90,7 @@ async def test_postgres_new_migrations_roundtrip_and_history_guards(database):
                 migration('0091_remnawave_domains').upgrade()
                 migration('0092_telegram_bot').upgrade()
                 migration('0093_ssh_key_rotation').upgrade()
+                migration('0094_store_subscriptions').upgrade()
         await conn.run_sync(cycle)
     partner=Reseller(name='Test',slug='test',api_key_hash='hash',owner_user_id=1)
     database.add(partner);await database.flush()

@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.88.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.89.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -88,6 +88,7 @@ shop-by-boo/
 | `backend/alembic/versions/0091_remnawave_domains.py` | v28.67.0: таблица `remnawave_domains` менеджера доменов |
 | `backend/alembic/versions/0092_telegram_bot.py` | v28.71.0: таблица `telegram_bot_state` — связь бота с Telegram |
 | `backend/alembic/versions/0093_ssh_key_rotation.py` | v28.75.0: поля SSH-ключа магазина у `remnawave_servers` (отпечаток, пометка, время смены) |
+| `backend/alembic/versions/0094_store_subscriptions.py` | v28.89.0: `store_subscriptions` — подписки из Google Play и App Store (покупатель, подписка магазина, тариф, последний заказ) |
 | `backend/app/heartbeat.py` | Файл жизни для healthcheck worker, бота и приёма почты |
 | `backend/app/seat_access.py` | Выдача доступа месту в семейной и корпоративной подписке |
 | `backend/app/pagination.py` | Страницы списков: `limit`, `offset`, `X-Total-Count` |

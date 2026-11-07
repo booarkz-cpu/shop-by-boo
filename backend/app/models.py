@@ -2306,3 +2306,24 @@ Index("ix_provisioning_operations_status", ProvisioningOperation.status)
 Index("ix_user_devices_user_status", UserDevice.user_id, UserDevice.status)
 Index("uq_users_yandex_id", User.yandex_id, unique=True,
       postgresql_where=User.yandex_id.isnot(None), sqlite_where=User.yandex_id.isnot(None))
+
+
+class StoreSubscription(Base):
+    """v28.89.0 (BACKLOG A5): a subscription bought in Google Play or App Store and the shop subscription it renews.
+
+    ``chain_key`` identifies the store's subscription across renewals: Apple's ``originalTransactionId`` or the
+    SHA-256 of Google's purchase token (the token itself is not stored)."""
+    __tablename__ = "store_subscriptions"
+    __table_args__ = (UniqueConstraint("provider", "chain_key", name="uq_store_subscription_chain"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    provider: Mapped[str] = mapped_column(String(32), nullable=False)
+    chain_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    subscription_id: Mapped[int|None] = mapped_column(Integer)
+    plan_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    product_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(24), default="active", nullable=False)
+    last_order_id: Mapped[str|None] = mapped_column(String(255))
+    expires_at: Mapped[datetime|None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

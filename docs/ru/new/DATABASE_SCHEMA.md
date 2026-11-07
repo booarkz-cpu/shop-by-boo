@@ -1,6 +1,6 @@
-# Схема базы данных — v28.88.0
+# Схема базы данных — v28.89.0
 
-Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0093_ssh_key_rotation`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
+Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0094_store_subscriptions`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
 ## Сущности задания
 
@@ -30,7 +30,7 @@
 
 ## Таблицы
 
-Всего таблиц: 160, внешних ключей: 57. Связи без внешнего ключа держит код; записи без связи показывает «Аналитика → Запуск и оповещения → Целостность данных» (`GET /api/admin/integrity`).
+Всего таблиц: 161, внешних ключей: 57. Связи без внешнего ключа держит код; записи без связи показывает «Аналитика → Запуск и оповещения → Целостность данных» (`GET /api/admin/integrity`).
 
 | Таблица | Модель | Колонок | Уникальные | Индексы | Внешние ключи |
 | --- | --- | --- | --- | --- | --- |
@@ -163,6 +163,7 @@
 | `stars_subscriptions` | `StarsSubscription` | 15 | order_id | subscription_id, user_id | — |
 | `status_components` | `StatusComponent` | 8 | slug | — | — |
 | `status_subscribers` | `StatusSubscriber` | 3 | user_id | — | — |
+| `store_subscriptions` | `StoreSubscription` | 12 | provider+chain_key | user_id | — |
 | `sub_requests` | `SubRequest` | 16 | — | created_at, short_uuid+created_at | — |
 | `subscription_freezes` | `SubscriptionFreeze` | 8 | — | subscription_id, until, user_id | — |
 | `subscriptions` | `Subscription` | 22 | user_id | user_id | — |
