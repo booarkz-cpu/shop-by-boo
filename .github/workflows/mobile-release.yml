@@ -259,6 +259,40 @@ jobs:
                 headers:{'content-type':'application/octet-stream','content-length':data.length}})).data;
               if (uploaded.digest !== expectedDigest || uploaded.size !== data.length) throw new Error(`Upload verification failed: ${name}`);
             }
+            // v28.89.0 (BACKLOG A6): «Корги Люси: клиент» also gets a release of its own, `client-v<version>`, once
+            // per client version — Obtainium and people can follow the client alone. Never «latest»: the shop's
+            // releases/latest/download/… links keep pointing at the distribution release.
+            if (android === 'signed' && fs.existsSync('dist/mobile/corgi-lusi-client.json')) {
+              const client = JSON.parse(fs.readFileSync('dist/mobile/corgi-lusi-client.json', 'utf8'));
+              if (!/^\d+\.\d+\.\d+$/.test(client.versionName || '')) throw new Error('Invalid client version');
+              const clientTag = `client-v${client.versionName}`;
+              let own;
+              try { own = (await github.rest.repos.getReleaseByTag({...args, tag: clientTag})).data; }
+              catch (e) { if (e.status !== 404) throw e; }
+              if (!own) {
+                own = (await github.rest.repos.createRelease({...args, tag_name: clientTag, target_commitish: context.sha,
+                  name: `Корги Люси: клиент ${client.versionName}`, make_latest: 'false',
+                  body: `«Корги Люси: клиент» ${client.versionName} (versionCode ${client.versionCode}), собран вместе с ${tag}.\n\n` +
+                    `APK: \`corgi-lusi-client.apk\` (SHA-256 \`${client.sha256}\`). Obtainium: этот репозиторий, фильтр выпусков \`^client-v\`, фильтр APK \`^corgi-lusi-client\\.apk$\`.`})).data;
+              }
+              const ownAssets = (await github.rest.repos.listReleaseAssets({...args, release_id: own.id, per_page: 100})).data;
+              const ownJson = Buffer.from(JSON.stringify({...client,
+                apk: `https://github.com/${context.repo.owner}/${context.repo.repo}/releases/download/${clientTag}/corgi-lusi-client.apk`}) + '\n');
+              for (const [name, data] of [['corgi-lusi-client.apk', fs.readFileSync('dist/mobile/corgi-lusi-client.apk')],
+                                          ['corgi-lusi-client.apk.sha256', fs.readFileSync('dist/mobile/corgi-lusi-client.apk.sha256')],
+                                          ['corgi-lusi-client.json', ownJson]]) {
+                const expectedDigest = 'sha256:' + require('crypto').createHash('sha256').update(data).digest('hex');
+                const old = ownAssets.find(a => a.name === name);
+                if (old) {
+                  // The same client version built again (another shop release): the first build stays.
+                  if (old.digest !== expectedDigest) core.notice(`${clientTag}: ${name} already published; kept.`);
+                  continue;
+                }
+                const uploaded = (await github.rest.repos.uploadReleaseAsset({...args, release_id: own.id, name, data,
+                  headers: {'content-type': 'application/octet-stream', 'content-length': data.length}})).data;
+                if (uploaded.digest !== expectedDigest || uploaded.size !== data.length) throw new Error(`Upload verification failed: ${clientTag}/${name}`);
+              }
+            }
             const marker = '\n<!-- mobile-production-status -->';
             const body = release.body.split(marker)[0] + marker +
               `\n\nMobile ${mobileVersion}: Android **${android}**, iOS **${ios}**.\n`;
