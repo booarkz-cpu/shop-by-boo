@@ -359,10 +359,10 @@ function JobDetail({id, request, toast, reload}: {id: number; request: Request; 
 }
 
 // v28.82.0: extra transports of a SelfSteal node next to VLESS + TCP + REALITY on 443 (rw_plan.TRANSPORTS).
-// v28.91.0 (N6): «tls» — VLESS + TCP + TLS with the TLS versions chosen below.
+// v28.92.0 (N6): «tls» — VLESS + TCP + TLS with the TLS versions chosen below.
 const TRANSPORTS: [string, string][] = [["xhttp", "VLESS + xHTTP + REALITY (TCP 4443)"], ["grpc", "VLESS + gRPC + REALITY (TCP 8443)"],
   ["hysteria2", "Hysteria2 (UDP 443, сертификат домена SelfSteal)"], ["tls", "VLESS + TCP + TLS (TCP 2053, сертификат домена SelfSteal)"]];
-// v28.91.0 (N5): rw_plan.FINGERPRINTS — what browser the client pretends to be (uTLS).
+// v28.92.0 (N5): rw_plan.FINGERPRINTS — what browser the client pretends to be (uTLS).
 const FINGERPRINTS: [string, string][] = [["firefox", "Firefox (по умолчанию)"], ["chrome", "Chrome"], ["safari", "Safari"], ["ios", "iOS"],
   ["android", "Android"], ["edge", "Edge"], ["qq", "QQ"], ["random", "Случайный из популярных"], ["randomized", "Полностью случайный"]];
 const splitList = (v: string) => String(v || "").split(/[\s,]+/).map(x => x.trim()).filter(Boolean);

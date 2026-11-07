@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.91.0 (stage 20, N8): «Серверы → SelfSteal». The catalogue and the preview come from the real backend; the nodes,
+// v28.92.0 (stage 20, N8): «Серверы → SelfSteal». The catalogue and the preview come from the real backend; the nodes,
 // the outside check, the uploads and the plan are answered by stubs shaped like the backend's responses
 // (tests/test_selfsteal_sites.py and tests/test_rw_node_modules.py run the same flow against fake nodes).
 async function signIn(page: any) {

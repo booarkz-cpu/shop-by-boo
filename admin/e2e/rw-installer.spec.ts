@@ -128,7 +128,7 @@ test('SelfSteal fields, node modules plan and Xray Checker results', async ({pag
   await ss.getByLabel('Домен ноды', {exact: true}).fill('node.example.com');
   await expect(ss.getByLabel('Сайт-шаблон', {exact: true}).locator('option')).toHaveCount(22);  // v28.91.0: the catalogue of «SelfSteal»
   await expect(ss.getByLabel('Язык сайта', {exact: true})).toHaveValue('ru');
-  // v28.91.0 (N5, N6): every protocol in one click, the browser fingerprint (Firefox by default), TLS versions for VLESS + TCP + TLS.
+  // v28.92.0 (N5, N6): every protocol in one click, the browser fingerprint (Firefox by default), TLS versions for VLESS + TCP + TLS.
   await expect(ss.getByLabel('Отпечаток браузера (uTLS)', {exact: true})).toHaveValue('firefox');
   await expect(ss.locator('[data-rw-tls-min]')).toHaveCount(0);
   await ss.getByRole('button', {name: 'Все протоколы на этой ноде'}).click();

@@ -1388,7 +1388,7 @@ async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool,
         try:
             allow.append(panel_ip(ctx))
         except StepError:
-            pass
+            _note(ctx, "Адрес панели неизвестен: в белый список не добавлен")
         args = ("on", ",".join(map(str, p.get("ports") or [])), str(p.get("rate") or 150), ",".join(a for a in allow if a) or "-",
                 p.get("mode") or "enforce") if enabled else ("off",)
         result = await _run(ctx, sid, rw_netmods.GUARD, *args, timeout=180)
