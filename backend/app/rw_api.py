@@ -109,7 +109,12 @@ class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn"]
+    # v28.98.0 (N7): Cloudflare CDN — what goes behind it, the CDN domain of the nodes, the owner's API token.
+    cdn_nodes: bool = False
+    cdn_subscription: bool = False
+    cdn_domain: str | None = Field(default=None, max_length=253)
+    cloudflare_token: SecretStr | None = Field(default=None, max_length=200)
     mtproto_port: int | None = Field(default=None, ge=1024, le=65535)          # v28.94.0 (N7)
     mtproto_domain: str | None = Field(default=None, max_length=100)
     guard_ports: list[int] | None = Field(default=None, max_length=12)          # v28.92.0 (N7)
@@ -123,7 +128,7 @@ class ModuleIn(BaseModel):
     selfsteal_lang: Literal["ru", "en"] | None = None                           # v28.91.0
     selfsteal_upload: str | None = Field(default=None, pattern=r"^[a-f0-9]{16}$")  # v28.91.0: an uploaded site
     hardening: rw_plan.Hardening | None = None                                  # v28.84.0
-    transports: list[rw_plan.TransportName] = Field(default_factory=list, max_length=4)  # v28.81.0
+    transports: list[rw_plan.TransportName] = Field(default_factory=list, max_length=5)  # v28.81.0
     fingerprint: rw_plan.Fingerprint | None = None                             # v28.90.0 (N5), with «transports»
     tls_min: rw_plan.TlsVersion | None = None                                   # v28.90.0 (N6), with «transports»
     tls_max: rw_plan.TlsVersion | None = None
@@ -555,9 +560,13 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
     for key in ("guard_ports", "guard_rate", "guard_allow", "guard_mode", "swap_mb", "mtproto_port", "mtproto_domain"):
         if getattr(mod, key) is not None:
             run[key] = getattr(mod, key)
+    if mod.name == "cdn":
+        await _cdn_params(mod, params, secrets, run)
     if mod.name == "transports":
         # The chosen set replaces the current one; an empty set leaves only VLESS + TCP + REALITY.
-        params["transports"] = sorted(set(mod.transports)) if mod.enabled else []
+        # v28.98.0: «cdn» is switched by the module «cdn» (it needs the token and the DNS), so it stays as it was here.
+        keep_cdn = ["cdn"] if "cdn" in (params.get("transports") or []) else []
+        params["transports"] = sorted((set(mod.transports) - {"cdn"}) | set(keep_cdn)) if mod.enabled else keep_cdn
         run["transports"] = params["transports"]
         for key in ("fingerprint", "tls_min", "tls_max"):
             if getattr(mod, key) is not None:
@@ -594,6 +603,43 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
             run["server_ids"] = [params["xray_checker_server_id"]] if params.get("xray_checker_server_id") else []
             params["xray_checker_server_id"] = None
     return run
+
+
+async def _cdn_params(mod: ModuleIn, params: dict, secrets: dict, run: dict) -> None:
+    """v28.98.0 (N7): «Cloudflare CDN» — the token is checked and kept with the installation's secrets; switching on
+    adds the transport «cdn» (nodes) and/or marks the subscription; switching off removes what is on."""
+    from . import cloudflare_cdn as cf
+    token = mod.cloudflare_token.get_secret_value().strip() if mod.cloudflare_token else secrets.get("cloudflare_token", "")
+    try:
+        await cf.check_token(token)
+    except cf.CloudflareError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    secrets["cloudflare_token"] = token
+    transports = set(params.get("transports") or [])
+    if mod.enabled:
+        if not (mod.cdn_nodes or mod.cdn_subscription):
+            raise HTTPException(422, "Выберите, что вынести за CDN: трафик нод (XHTTP) и/или домен подписки")
+        if mod.cdn_nodes:
+            domain = (mod.cdn_domain or params.get("cdn_domain") or "").strip().lower().rstrip(".")
+            if not rw_plan.DOMAIN.match(domain):
+                raise HTTPException(422, "Домен CDN для нод, например cdn.example.com (в зоне Cloudflare этого токена)")
+            try:
+                await cf.zone_of(token, domain)
+            except cf.CloudflareError as exc:
+                raise HTTPException(422, str(exc)) from exc
+            params["cdn_domain"] = domain
+            transports.add("cdn")
+        if mod.cdn_subscription:
+            params["cdn_subscription"] = True
+        run.update(cdn_nodes=mod.cdn_nodes, cdn_subscription=mod.cdn_subscription)
+    else:
+        nodes, sub = "cdn" in transports, bool(params.get("cdn_subscription"))
+        if not (nodes or sub):
+            raise HTTPException(409, "CDN этой установки не включён")
+        run.update(cdn_nodes=nodes, cdn_subscription=sub)  # the parts that go back to direct
+        transports.discard("cdn")
+        params["cdn_subscription"] = False
+    params["transports"] = sorted(transports)
 
 
 @router.get("/installations/{installation_id}/xray-checker")
