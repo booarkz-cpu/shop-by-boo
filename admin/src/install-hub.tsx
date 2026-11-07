@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "";
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const post = (body?: any): RequestInit => ({method: "POST", body: body === undefined ? undefined : JSON.stringify(body)});
 // Modules planned right here (the others need more input and open «Установка Remnawave → Модули серверов»).
-const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto", "geo_files"];
+const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto", "geo_files", "psiphon"];
 const STEPS: [string, string][] = [["prepared", "Подготовьте сервер"], ["panel", "Установите панель или ноду"], ["domain", "Подключите домен"]];
 
 /** «Установка» (v28.92.0, N7): every operation on the servers in one catalogue — each card does its job or opens the section that does. */
@@ -223,10 +223,14 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
   const [mtPort, setMtPort] = useState("9443");
   const [mtDomain, setMtDomain] = useState("www.cloudflare.com");
   const [proxies, setProxies] = useState<any[]>([]);
+  const [psi, setPsi] = useState({port: "10443", protocol: "OSSH"});
+  const [psiphons, setPsiphons] = useState<any[]>([]);
   const [plan, setPlan] = useState<any>(null);
   useEffect(() => {
     if (name === "mtproto") request("/api/admin/install/mtproto").then((x: any) => setProxies(x.proxies.filter((p: any) => p.server_id === state.server.id)))
       .catch(() => setProxies([]));
+    if (name === "psiphon") request("/api/admin/install/psiphon").then((x: any) => setPsiphons(x.servers.filter((p: any) => p.server_id === state.server.id)))
+      .catch(() => setPsiphons([]));
   }, [name, state.server.id]);
   const [error, setError] = useState("");
   function module() {
@@ -235,7 +239,8 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
     if (name === "transports") Object.assign(m, {enabled: true, transports: enabled ? ["xhttp", "grpc", "hysteria2", "tls"] : [], fingerprint: "firefox"});
     if (name === "hardening") Object.assign(m, {enabled: true, server_ids: [sid], hardening: enabled ? {fail2ban: true, upgrades: true, bbr: true, admin_ips: []}
       : {fail2ban: false, upgrades: false, bbr: false, admin_ips: []}});
-    if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port", "sni_scan", "mtproto"].includes(name)) m.server_ids = [sid];
+    if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port", "sni_scan", "mtproto", "psiphon"].includes(name)) m.server_ids = [sid];
+    if (name === "psiphon" && enabled) Object.assign(m, {psiphon_port: Number(psi.port), psiphon_protocol: psi.protocol});
     if (name === "mtproto" && enabled) Object.assign(m, {mtproto_port: Number(mtPort), mtproto_domain: mtDomain.trim().toLowerCase()});
     if (name === "node_guard") Object.assign(m, {guard_rate: Number(rate), guard_mode: guardMode,
       guard_ports: ports.split(/[\s,]+/).filter(Boolean).map(Number)});
@@ -267,6 +272,16 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
           <option value="enforce">Банить на 10 минут</option><option value="observe">Только считать</option></select></label></>}
       {name === "geo_files" && <p className="muted wide">Списки обновляются у источника каждые 6 часов: «Включить» ещё раз ставит последнюю сборку.
         В правилах маршрутизации — <code>ext:ru-geosite.dat:ru-blocked</code>, <code>ext:ru-geoip.dat:ru-blocked</code>, <code>ext:ru-geosite.dat:ru-available-only-inside</code>.</p>}
+      {name === "psiphon" && enabled && <>
+        <label>Порт TCP<input type="number" min={1024} max={65535} value={psi.port} onChange={e => { setPsi({...psi, port: e.target.value}); setPlan(null); }}/></label>
+        <label>Протокол<select value={psi.protocol} onChange={e => { setPsi({...psi, protocol: e.target.value}); setPlan(null); }}>
+          <option value="OSSH">OSSH — обфусцированный SSH</option><option value="TLS-OSSH">TLS-OSSH — внутри TLS</option></select></label>
+        <p className="muted wide">Это ваш сервер Psiphon, не публичная сеть Psiphon: подключаются только клиенты с его конфигом (ConsoleClient или своя сборка
+          приложения Psiphon). Первое включение собирает psiphond из исходников — несколько минут.</p></>}
+      {name === "psiphon" && psiphons.length > 0 && <div data-psiphon-servers>{psiphons.map(p => <p key={p.server_id}>
+        psiphond работает: {p.protocol}, TCP {p.port}.{" "}
+        <button className="link" onClick={() => { const url = URL.createObjectURL(new Blob([JSON.stringify(p.config, null, 2)], {type: "application/json"}));
+          const a = document.createElement("a"); a.href = url; a.download = `psiphon-${p.name}.config`; a.click(); URL.revokeObjectURL(url); }}>Скачать конфиг клиента</button></p>)}</div>}
       {name === "mtproto" && enabled && <>
         <label>Порт TCP<input type="number" min={1024} max={65535} value={mtPort} onChange={e => { setMtPort(e.target.value); setPlan(null); }}/></label>
         <label>Маскировка под сайт<input value={mtDomain} onChange={e => { setMtDomain(e.target.value); setPlan(null); }}/></label></>}

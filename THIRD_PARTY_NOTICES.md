@@ -85,6 +85,7 @@ shadcn-совместимые компоненты используют Radix To
 | [legiz-ru/Orion](https://github.com/legiz-ru/Orion) | MIT, © 2025 legiz-ru | Шаблон страницы подписки | Скачивается мастером по выбору администратора, SHA-256 закреплён |
 | [kutovoys/xray-checker](https://github.com/kutovoys/xray-checker) | MIT | Проверка серверов подписки | Отдельный контейнер, образ закреплён по digest |
 | [9seconds/mtg](https://github.com/9seconds/mtg) | MIT | MTProto-прокси для Telegram на ноде (v28.94.0) | Отдельный контейнер, образ `nineseconds/mtg` v2.3.0 закреплён по digest |
+| [Psiphon-Labs/psiphon-tunnel-core](https://github.com/Psiphon-Labs/psiphon-tunnel-core) | GPL-3.0 | Свой сервер Psiphon (psiphond) на ноде (v28.99.0) | Собирается на сервере владельца из закреплённого коммита в закреплённом образе Go; исходники и бинарник в репозитории магазина не хранятся |
 | [runetfreedom/russia-v2ray-rules-dat](https://github.com/runetfreedom/russia-v2ray-rules-dat) | GPL-3.0 (данные) | Российские списки блокировок на нодах (v28.95.0) | Файлы скачиваются на сервер владельца из выпуска GitHub с проверкой SHA-256; в репозитории магазина их нет |
 | [ViRb3/wgcf](https://github.com/ViRb3/wgcf) | MIT | Регистрация WARP на сервере | Бинарный файл выпуска скачивается на сервер, SHA-256 сверяется |
 | [XTLS/Xray-core](https://github.com/XTLS/Xray-core) | MPL-2.0 | VPN-ядро приложений и нод | Библиотека в APK/IPA; на нодах — в образе Remnawave или выбранный выпуск |

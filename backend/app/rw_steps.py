@@ -1049,7 +1049,7 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if result.code != 0 or (enabled and "watchdog=active" not in result.out):
             raise StepError("Таймер самовосстановления не запустился (журнал шага)")
         mods["watchdog"] = enabled
-    elif name in ("mss_clamp", "node_guard", "swap", "mtproto"):
+    elif name in ("mss_clamp", "node_guard", "swap", "mtproto", "psiphon"):
         await _run_netmod(ctx, sid, name, p, enabled, mods)
     elif name == "sni_scan":
         from . import rw_netmods
@@ -1456,6 +1456,24 @@ async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool,
             return
         if not enabled:
             ctx.state.setdefault("mtproto", {}).pop(str(sid), None)
+    elif name == "psiphon":
+        # v28.99.0 (N7): psiphond is built on the node from the pinned commit (several minutes the first time).
+        args = ("on", str(p.get("psiphon_port") or 10443), ctx.servers[sid]["host"], rw_netmods.PSIPHON_COMMIT, rw_netmods.PSIPHON_BUILDER,
+                p.get("psiphon_protocol") or "OSSH") if enabled else ("off",)
+        result = await _run(ctx, sid, rw_netmods.PSIPHON, *args, timeout=1800)
+        errors = {5: "Порт psiphond уже занят на сервере другой программой", 6: "psiphond не собрался или не запустился (журнал шага)",
+                  7: "На сервере нет Docker"}
+        if result.code == 0 and enabled:
+            client = rw_netmods.psiphon_client((result.out.strip().splitlines() or [""])[-1])
+            if not client:
+                raise StepError("psiphond запустился без записи сервера (журнал шага)")
+            _note(ctx, re.sub(r"entry=\S+", "entry=[скрыто]", result.out) + result.err)
+            ctx.state.setdefault("psiphon", {})[str(sid)] = client
+            ctx.state.setdefault("applied_modules", []).append([sid, name, enabled])
+            mods[name] = f"{client['protocol']} TCP {client['port']}"
+            return
+        if not enabled:
+            ctx.state.setdefault("psiphon", {}).pop(str(sid), None)
     else:
         result = await _run(ctx, sid, rw_netmods.SWAP, *(("on", str(p.get("swap_mb") or 1024)) if enabled else ("off",)), timeout=600)
         errors = {5: "Мало места на диске для файла подкачки (нужно на 1 ГБ больше его размера)"}
@@ -1469,10 +1487,11 @@ async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool,
 
 async def undo_node_module(ctx: Context, st: dict) -> None:
     p, sid = st["params"], st["server_id"]
-    if p["module"] in ("mss_clamp", "node_guard", "swap", "mtproto"):
+    if p["module"] in ("mss_clamp", "node_guard", "swap", "mtproto", "psiphon"):
         from . import rw_netmods
         if p.get("enabled", True) and [sid, p["module"], True] in ctx.state.get("applied_modules", []):
-            script = {"mss_clamp": rw_netmods.MSS, "node_guard": rw_netmods.GUARD, "swap": rw_netmods.SWAP, "mtproto": rw_netmods.MTPROTO}[p["module"]]
+            script = {"mss_clamp": rw_netmods.MSS, "node_guard": rw_netmods.GUARD, "swap": rw_netmods.SWAP, "mtproto": rw_netmods.MTPROTO,
+                      "psiphon": rw_netmods.PSIPHON}[p["module"]]
             await _run(ctx, sid, script, "off", timeout=300)
         return
     if p["module"] == "node_port" and str(sid) in ctx.state.get("node_port_before", {}):
