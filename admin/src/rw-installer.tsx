@@ -430,7 +430,7 @@ function NodeModules({job, request, onPlanned, setError}: {job: any; request: Re
         admin_ips: String(f.h_ips || "").split(/[\s,]+/).map((x: string) => x.trim()).filter(Boolean)};
     }
     if (f.name === "xray_checker" && f.enabled) { m.server_ids = [Number(f.checker_server)]; m.interval = Number(f.interval); if (f.subscription_url) m.subscription_url = f.subscription_url; }
-    try { onPlanned(await request(`${API}/installations/${job.id}/actions`, post({action: "module", module: m}))); setF({...f, setup_key: ""}); }
+    try { onPlanned(await request(`${API}/installations/${job.id}/actions`, post({action: "module", module: m}))); setF((x: any) => ({...x, setup_key: ""})); }
     catch (err: any) { setError(err.message); } finally { setBusy(false); }
   }
   async function loadChecker() {

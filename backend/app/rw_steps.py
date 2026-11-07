@@ -1035,9 +1035,18 @@ apply)
     rm -f "$auto" "$uu"
   fi
   if [ "$kbbr" = on ]; then
-    modprobe tcp_bbr 2>/dev/null || true
-    sysctl -n net.ipv4.tcp_available_congestion_control 2>/dev/null | grep -qw bbr || { echo "no-bbr"; exit 5; }
-    printf 'net.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr\n' > "$bbr"; sysctl -q -p "$bbr"
+    # v28.92.0 (N7): what the server can do — containers (OpenVZ, LXC) share the host's kernel and cannot change it.
+    virt=$(systemd-detect-virt 2>/dev/null || echo unknown); echo "virt=$virt kernel=$(uname -r)"
+    case "$virt" in openvz|lxc|lxc-libvirt|docker|podman) echo "bbr=skipped: контейнерная виртуализация ($virt), ядро общее с хостом" ;;
+    *)
+      modprobe tcp_bbr 2>/dev/null || true
+      if sysctl -n net.ipv4.tcp_available_congestion_control 2>/dev/null | grep -qw bbr; then
+        printf 'net.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr\n' > "$bbr"; sysctl -q -p "$bbr"
+        v=$(cat /sys/module/tcp_bbr/version 2>/dev/null || true); [ -n "$v" ] && echo "bbr-version=$v"
+      else
+        echo "no-bbr"; exit 5
+      fi ;;
+    esac
   elif [ -f "$bbr" ]; then
     rm -f "$bbr"; sysctl -q -w net.ipv4.tcp_congestion_control=cubic >/dev/null 2>&1 || true
   fi
