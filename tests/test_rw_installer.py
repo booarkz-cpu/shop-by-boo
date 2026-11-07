@@ -88,7 +88,7 @@ SCRIPTS = {rw_steps.PREFLIGHT: "preflight", DOCKER_INSTALL: "docker", rw_steps.W
            rw_steps.COMPOSE: "compose", rw_steps.WAIT_PANEL: "wait", rw_steps.PANEL_CALL: "panel",
            rw_steps.FIREWALL: "firewall", rw_steps.GATEWAY: "gateway", rw_steps.HTTPS_CHECK: "https",
            rw_steps.BACKUP: "backup", rw_steps.RESTORE: "restore", rw_steps.FETCH_BACKUP: "fetch", rw_steps.SITE: "site",
-           rw_steps.FETCH_CONFIGS: "configs"}
+           rw_steps.FETCH_CONFIGS: "configs", rw_steps.PUT_CONFIGS: "put_configs"}
 
 
 class FakeRemote:
@@ -138,6 +138,10 @@ class FakeRemote:
             token, _, body = stdin.decode().partition("\n")
             code, data = h.panel(method, path, token, json.loads(body) if body else None)
             return Result(0, json.dumps(data) + "\n" + str(code), "")
+        if name == "put_configs":  # v28.93.0: the files of a snapshot back; «undo» puts the copy back
+            h.restored = getattr(h, "restored", [])
+            h.restored.append(args[0] if args[0] == "undo" else ("put", hashlib.sha256(stdin).hexdigest() == args[1], args[2]))
+            return Result(0, "restored\n", "")
         if name == "configs":  # v28.92.0: the files of the components as tar.gz
             import base64
             import io

@@ -28,6 +28,10 @@ export function InstallHub({request, toast, navigate}: {request: Request; toast:
   const state = data.state;
   function open(op: any) {
     if (op.action.kind === "tab") return navigate(op.action.tab);
+    if (op.action.name === "restore_files") {
+      document.querySelector("[data-install-snapshots]")?.scrollIntoView({behavior: "smooth"});
+      return toast("Выберите снапшот файлов в «Снапшоты серверов» и нажмите «Восстановить»");
+    }
     if (op.action.kind === "action") return setActive(op);
     if (op.action.kind === "install" || !DIRECT.includes(op.action.module)) return navigate("rwInstaller");
     setActive(op);
@@ -69,7 +73,7 @@ export function InstallHub({request, toast, navigate}: {request: Request; toast:
         </div>)}</div></section>;
     })}
     {ops.length === 0 && <section className="card"><p className="muted">Ничего не найдено.</p></section>}
-    <Snapshots request={request} toast={toast}/>
+    <Snapshots request={request} toast={toast} state={state}/>
     {state?.installation_id && <DangerZone state={state} request={request} toast={toast}/>}
   </div>;
 }
@@ -100,7 +104,8 @@ function ActionPlan({title, text, state, request, toast, body, onClose, danger}:
   </section>;
 }
 
-function Snapshots({request, toast}: any) {
+function Snapshots({request, toast, state}: any) {
+  const [restore, setRestore] = useState<string>("");
   const [list, setList] = useState<any[] | null>(null);
   const [error, setError] = useState("");
   const [plan, setPlan] = useState<any>(null);
@@ -142,7 +147,12 @@ function Snapshots({request, toast}: any) {
       <div className="table-wrap"><table><thead><tr><th>Когда</th><th>Сервер</th><th>Что</th><th>Размер</th><th/></tr></thead>
         <tbody>{list.map(s => <tr key={s.name}><td>{new Date(s.created_at).toLocaleString("ru-RU")}</td><td>#{s.server_id}</td>
           <td>{s.kind === "files" ? "Файлы компонентов" : "База панели"}</td><td>{(s.size / 1024).toFixed(0)} КБ</td>
-          <td><button onClick={() => download(s.name)}>Скачать</button></td></tr>)}</tbody></table></div>}
+          <td className="actions"><button onClick={() => download(s.name)}>Скачать</button>
+            {s.kind === "files" && state?.installation_id && s.server_id === state.server.id &&
+              <button onClick={() => setRestore(s.name)} data-restore={s.name}>Восстановить</button>}</td></tr>)}</tbody></table></div>}
+    {restore && state && <ActionPlan danger title="Экстренное восстановление файлов" state={state} request={request} toast={toast}
+      text={`Файлы компонентов вернутся из снапшота ${restore.replace(/\.enc$/, "")}; текущие сначала упакуются в копию на сервере и вернутся при ошибке. Затем компоненты перезапустятся. «Запустить» спросит 2FA.`}
+      body={{action: "restore_files", snapshot: restore}} onClose={() => setRestore("")}/>}
   </section>;
 }
 

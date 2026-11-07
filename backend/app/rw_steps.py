@@ -21,7 +21,7 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports", "fetch_configs")
+              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports", "fetch_configs", "put_configs")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
 COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
@@ -1591,6 +1591,35 @@ sha256sum "$tmp" | cut -d' ' -f1
 base64 -w0 "$tmp"; rm -f "$tmp"
 """
 SNAPSHOTS_KEEP = 5
+# v28.93.0 (N7 «Экстренное восстановление»): the files of a snapshot back. The archive comes on stdin (checked by
+# SHA-256), only paths under the wizard's directories are accepted; the current files are packed to /root first and
+# «undo» unpacks that copy back.
+PUT_CONFIGS = r"""set -eu
+action="$1"; sum="${2:-}"; keep="${3:-}"
+case "$keep" in ""|*[!A-Za-z0-9.-]*) exit 2 ;; esac
+before=/root/corgi-before-restore-$keep.tar.gz
+cd /
+dirs=""
+for d in opt/remnawave opt/remnanode opt/remnawave-subpage opt/remnawave-caddy opt/remnawave-selfsteal opt/remnawave-xray-checker; do
+  [ -d "$d" ] && dirs="$dirs $d"
+done
+if [ "$action" = undo ]; then
+  [ -f "$before" ] && tar -xzf "$before" -C / --no-same-owner
+  echo "restored-before"; exit 0
+fi
+case "$sum" in ""|*[!a-f0-9]*) exit 2 ;; esac
+tmp=$(mktemp)
+cat > "$tmp"
+echo "$sum  $tmp" | sha256sum -c - >/dev/null 2>&1 || { rm -f "$tmp"; echo badsum; exit 3; }
+if tar -tzf "$tmp" | grep -Ev '^opt/(remnawave|remnanode|remnawave-subpage|remnawave-caddy|remnawave-selfsteal|remnawave-xray-checker)(/|$)' | grep -q .; then
+  rm -f "$tmp"; echo "outside"; exit 4
+fi
+tar -czf "$before" --exclude='*/backups' --exclude='*/xray-core' --exclude='*/sites/site-*' $dirs 2>/dev/null || true
+chmod 600 "$before"
+tar -xzf "$tmp" -C / --no-same-owner
+rm -f "$tmp"
+echo "restored files=$(tar -tzf "$before" 2>/dev/null | wc -l) before=$before"
+"""
 MAX_PANEL_COPY = 256 * 1024 * 1024  # larger copies stay on the server only (noted in the step's log)
 PANEL_COPIES_KEEP = 10
 
@@ -1655,6 +1684,33 @@ async def run_fetch_configs(ctx: Context, st: dict) -> None:
     _note(ctx, f"Файлы компонентов ({len(data)} байт) зашифрованы и сохранены в магазине: {target.name}")
 
 
+async def run_put_configs(ctx: Context, st: dict) -> None:
+    import hashlib
+    from datetime import datetime, timezone
+    name = st["params"]["snapshot"]
+    path = panel_copies_dir() / name
+    if not path.is_file():
+        raise StepError("Снапшот не найден в хранилище магазина")
+    try:
+        data = unseal(path.read_bytes())
+    except ValueError as exc:
+        raise StepError(str(exc)) from exc
+    keep = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    result = await _run(ctx, st["server_id"], PUT_CONFIGS, "put", hashlib.sha256(data).hexdigest(), keep, stdin=data, timeout=300)
+    _note(ctx, result.out + result.err)
+    if result.code == 4:
+        raise StepError("В снапшоте есть файлы вне каталогов мастера — не восстановлено")
+    if result.code != 0:
+        raise StepError("Файлы снапшота не восстановлены (SHA-256 или распаковка; журнал шага)")
+    ctx.state.setdefault("restored_files", {})[str(st["server_id"])] = keep
+
+
+async def undo_put_configs(ctx: Context, st: dict) -> None:
+    keep = ctx.state.get("restored_files", {}).pop(str(st["server_id"]), None)
+    if keep:
+        await _run(ctx, st["server_id"], PUT_CONFIGS, "undo", "", keep, timeout=300)
+
+
 async def run_fetch_panel_backup(ctx: Context, st: dict) -> None:
     """Never stops the action: if the copy cannot be taken, it stays on the panel's server and the log says so."""
     try:
@@ -1699,10 +1755,10 @@ async def _fetch_panel_backup(ctx: Context, st: dict) -> None:
 RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_files": run_write_files,
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
-       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "fetch_configs": run_fetch_configs, "compose_down": run_compose_down,
+       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "fetch_configs": run_fetch_configs, "put_configs": run_put_configs, "compose_down": run_compose_down,
        "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module, "compose_ctl": run_compose_ctl,
        "node_transports": run_node_transports}
-UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
+UNDO = {"write_files": undo_write_files, "put_configs": undo_put_configs, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,
         "register_node": undo_register_node, "selfsteal_profile": undo_selfsteal_profile, "node_module": undo_node_module,
         "node_transports": undo_node_transports}
 assert set(RUN) == set(STEP_KINDS)

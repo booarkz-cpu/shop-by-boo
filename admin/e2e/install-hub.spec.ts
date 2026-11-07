@@ -56,6 +56,9 @@ test('Установка: catalogue, modes, search, a module plan and the danger
   // Snapshots: the list and the schedule.
   await expect(hub.locator('[data-install-snapshots]')).toContainText('Файлы компонентов');
   await expect(hub.locator('[data-install-schedule]')).toBeVisible();
+  await hub.locator('[data-restore="config-7-20261107T010000Z.tar.gz.enc"]').click();
+  await hub.locator('[data-install-action="restore_files"]').getByRole('button', {name: 'Составить план', exact: true}).click();
+  expect(sent.at(-1)).toEqual({action: 'restore_files', snapshot: 'config-7-20261107T010000Z.tar.gz.enc'});
 
   // Danger zone: nothing until the server's name is typed.
   const danger = hub.locator('[data-install-danger]');
