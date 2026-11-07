@@ -54,6 +54,7 @@ OPS: tuple[tuple, ...] = (
     ("availability", "nodes", "Доступность нод", "Проверки из разных сетей, RIPE Atlas, качество подключений.", False, True, ("tab", "availability")),
     ("xray_checker", "nodes", "Проверка конфигов трафиком", "Xray Checker проверяет каждый сервер подписки настоящим соединением.", True, False, ("module", "xray_checker", "any")),
     ("sni_scan", "nodes", "Автоподбор SNI для REALITY", "С самой ноды проверяет ~30 известных сайтов: отвечают ли по TLS 1.3 и HTTP/2 и как быстро — лучшие кандидаты для REALITY без SelfSteal. Ничего не меняет.", True, False, ("module", "sni_scan", "node")),
+    ("geo_files", "nodes", "Российские списки блокировок", "geoip/geosite с заблокированными в России доменами и адресами (runetfreedom, SHA-256 сверяется) рядом со встроенными; в правилах — ext:ru-geosite.dat:ru-blocked.", True, False, ("module", "geo_files", "node")),
     ("mtproto", "nodes", "MTProto-прокси для Telegram", "Прокси Telegram на ноде с маскировкой FakeTLS под выбранный сайт; ссылка tg:// для клиентов появляется после установки.", True, False, ("module", "mtproto", "node")),
     ("mss_clamp", "nodes", "MSS clamp", "Меряет MTU пути до Cloudflare и Яндекса; если он меньше MTU интерфейса — включает MSS clamp. Нода не перезапускается.", True, False, ("module", "mss_clamp", "node")),
     ("hardening", "protect", "Базовая защита и ускорение", "fail2ban, обновления безопасности, BBR, SSH только с ваших адресов.", True, True, ("module", "hardening", "any")),

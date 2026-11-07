@@ -167,3 +167,88 @@ async def test_mtproto_step_keeps_the_secret_out_of_the_log_and_undoes(monkeypat
     answer = SimpleNamespace(code=0, out="mtproto=off\n", err="")
     await rw_steps.run_node_module(ctx, {"server_id": 2, "params": {"module": "mtproto", "enabled": False}})
     assert "2" not in ctx.state["mtproto"] and ctx.state["modules"]["2"]["mtproto"] == "off"
+
+
+# ---- v28.95.0 (N7): Russian geo lists on the nodes
+
+GEO_RELEASE = {"geoip": {"url": "https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/download/202611071200/geoip.dat", "sha256": "a" * 64},
+               "geosite": {"url": "https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/download/202611071200/geosite.dat", "sha256": "b" * 64}}
+
+
+@pytest.mark.asyncio
+async def test_geo_lists_come_with_the_sha256_github_published(monkeypatch):
+    from app import rw_releases
+
+    async def fetch(repo, tag):
+        assert (repo, tag) == ("runetfreedom/russia-v2ray-rules-dat", None)
+        return {"tag_name": "202611071200", "assets": [
+            {"name": n, "browser_download_url": GEO_RELEASE[n[:-4]]["url"], "digest": "sha256:" + GEO_RELEASE[n[:-4]]["sha256"]}
+            for n in ("geoip.dat", "geosite.dat")]}
+    monkeypatch.setattr(rw_releases, "fetch", fetch)
+    assert await rw_releases.geo_lists() == ("202611071200", GEO_RELEASE)
+
+    async def no_digest(repo, tag):
+        return {"tag_name": "202611071200", "assets": [{"name": "geoip.dat", "browser_download_url": GEO_RELEASE["geoip"]["url"]},
+                                                       {"name": "geosite.dat", "browser_download_url": GEO_RELEASE["geosite"]["url"]}]}
+    monkeypatch.setattr(rw_releases, "fetch", no_digest)
+    with pytest.raises(rw_releases.ReleaseError, match="SHA-256"):
+        await rw_releases.geo_lists()
+
+    async def odd_tag(repo, tag):
+        return {"tag_name": "latest", "assets": []}
+    monkeypatch.setattr(rw_releases, "fetch", odd_tag)
+    with pytest.raises(rw_releases.ReleaseError, match="версия"):
+        await rw_releases.geo_lists()
+
+
+def test_geo_plan_restarts_every_node_and_the_compose_mounts_new_names():
+    run = rw_plan.ModuleRun(name="geo_files", version="202611071200", release=GEO_RELEASE)
+    plan = rw_plan.PlanIn(mode="add_node", node_server_ids=[2], module=run, geo_files="202611071200")
+    steps, title = rw_plan.module_steps(plan, SERVERS, {2: ["node"]})
+    assert [s["kind"] for s in steps] == ["node_module", "write_files", "compose_up", "verify"] and title == "Российские списки: 202611071200"
+    assert steps[0]["params"]["files"] == GEO_RELEASE and "aaaaaaaaaaaa…" in steps[0]["title"]
+    with pytest.raises(ValueError, match="SHA-256"):
+        rw_plan.module_steps(plan_with(name="geo_files", version="202611071200"), SERVERS, {2: ["node"]})
+    compose = rw_plan.node_compose("k", 2222, geo=True)
+    assert "./geo/ru-geosite.dat:/usr/local/share/xray/ru-geosite.dat:ro" in compose
+    assert "/usr/local/share/xray/geosite.dat" not in compose, "the image's own files are never replaced"
+    assert "./geo/" not in rw_plan.node_compose("k", 2222)
+    with pytest.raises(ValidationError):
+        rw_plan.PlanIn(mode="add_node", node_server_ids=[2], geo_files="../x")
+
+
+def test_geo_script_refuses_other_sites_and_bad_sums():
+    from app import rw_steps
+    assert subprocess.run(["bash", "-n"], input=rw_steps.GEO, text=True).returncode == 0
+    g, s = GEO_RELEASE["geoip"], GEO_RELEASE["geosite"]
+    for args in (["install", "https://example.com/geoip.dat", g["sha256"], s["url"], s["sha256"]],
+                 ["install", g["url"], "nothex", s["url"], s["sha256"]],
+                 ["install", s["url"], g["sha256"], g["url"], s["sha256"]],  # files swapped
+                 ["install", g["url"], g["sha256"]], ["nope"]):
+        assert subprocess.run(["bash", "-c", rw_steps.GEO, "geo", *args], capture_output=True).returncode == 2, args
+
+
+@pytest.mark.asyncio
+async def test_geo_step_passes_the_files_and_reports_a_bad_sum(monkeypatch):
+    from app import rw_steps
+    calls = []
+    answer = SimpleNamespace(code=0, out="geo=4096,8192\n", err="")
+
+    async def run(ctx, sid, script, *args, timeout=0):
+        calls.append((script, args))
+        return answer
+    monkeypatch.setattr(rw_steps, "_run", run)
+    ctx = rw_steps.Context(plan=rw_plan.PlanIn(mode="add_node", node_server_ids=[2], geo_files="202611071200"), servers=SERVERS, secrets={}, state={})
+    st = {"server_id": 2, "params": {"module": "geo_files", "enabled": True, "version": "202611071200", "files": GEO_RELEASE}}
+    await rw_steps.run_node_module(ctx, st)
+    g, s = GEO_RELEASE["geoip"], GEO_RELEASE["geosite"]
+    assert calls[-1] == (rw_steps.GEO, ("install", g["url"], g["sha256"], s["url"], s["sha256"]))
+    assert ctx.state["modules"]["2"]["geo_files"] == "202611071200"
+    await rw_steps.undo_node_module(ctx, st)
+    assert calls[-1] == (rw_steps.GEO, ("undo",))
+    answer = SimpleNamespace(code=4, out="sha256 mismatch: geosite\n", err="")
+    with pytest.raises(rw_steps.StepError, match="SHA-256"):
+        await rw_steps.run_node_module(ctx, st)
+    ctx.state["node_secret_key"] = "k"
+    files = await rw_steps.files_for(ctx, "node", 2)
+    assert "./geo/ru-geosite.dat:/usr/local/share/xray/ru-geosite.dat:ro" in files["docker-compose.yml"], "the plan's lists reach the node's compose"

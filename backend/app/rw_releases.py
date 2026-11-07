@@ -77,6 +77,19 @@ async def xray_core(tag: str | None) -> tuple[str, dict[str, dict[str, str]]]:
     return version, {arch: _asset(release, "XTLS/Xray-core", name) for arch, name in rw_plan.XRAY_ASSETS.items()}
 
 
+GEO_REPO = "runetfreedom/russia-v2ray-rules-dat"  # GPL-3.0 data, downloaded on the owner's node, not copied into the shop
+GEO_TAG = re.compile(r"^\d{12}$")  # the repository tags every build by its time: YYYYMMDDHHMM
+
+
+async def geo_lists() -> tuple[str, dict[str, dict[str, str]]]:
+    """v28.95.0 (N7): the latest Russian geo lists for Xray (geoip.dat, geosite.dat) with the SHA-256 GitHub published."""
+    release = await fetch(GEO_REPO, None)
+    version = release.get("tag_name") or ""
+    if not GEO_TAG.match(version):
+        raise ReleaseError(f"Неожиданная версия списков {version!r}")
+    return version, {name: _asset(release, GEO_REPO, f"{name}.dat") for name in ("geoip", "geosite")}
+
+
 async def wgcf() -> tuple[str, dict[str, dict[str, str]]]:
     release = await fetch("ViRb3/wgcf", None)
     version = release.get("tag_name") or ""

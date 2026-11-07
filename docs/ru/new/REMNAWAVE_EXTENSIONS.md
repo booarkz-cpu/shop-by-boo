@@ -166,3 +166,7 @@ SelfSteal ставится вместе с нодой: в мастере уст�
 ### MTProto-прокси для Telegram (v28.94.0)
 
 Модуль `mtproto` (`rw_netmods.MTPROTO`): контейнер `corgi-mtproto` из образа `nineseconds/mtg:2` (9seconds/mtg, MIT, закреплён по digest) в режиме `simple-run` с FakeTLS-секретом под выбранный сайт; `--network host`, `--read-only`, `--cap-drop ALL`, порт 1024–65535 не из портов ноды. Секрет — `/etc/corgi/mtproto.secret` (0600), создаётся один раз; в журнал шага не пишется, ссылка — в состоянии установки и в `GET /api/admin/install/mtproto`. Проверка настоящим контейнером — `scripts/ci/mtproto-check.sh`.
+
+### Российские списки блокировок (v28.95.0)
+
+Модуль `geo_files`: `rw_releases.geo_lists()` берёт последний выпуск `runetfreedom/russia-v2ray-rules-dat` (тег ГГГГММДДЧЧММ) с SHA-256, опубликованным GitHub, и фиксирует его в плане; `rw_steps.GEO` скачивает `geoip.dat` / `geosite.dat` только с адреса этого выпуска, сверяет сумму и кладёт в `/opt/remnanode/geo/ru-*.dat` (прежние — в `.rw-prev`); `node_compose(geo=True)` монтирует их в `/usr/local/share/xray/ru-*.dat` (встроенные файлы образа не заменяются); нода перезапускается. В правилах — `ext:ru-geosite.dat:<категория>`, `ext:ru-geoip.dat:<категория>`. Настоящая проверка — `scripts/ci/geo-check.sh`.
