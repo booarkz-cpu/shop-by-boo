@@ -1,4 +1,4 @@
-# Каталог API — v28.91.0 / API v21.5.1
+# Каталог API — v28.92.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -228,6 +228,11 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/incident-mode` | Incident Mode | право `manage_admins` |
 | `GET` | `/api/admin/info-pages` | Admin List | право `read` |
 | `PUT` | `/api/admin/info-pages/{kind}` | Admin Save | право `legal.write` |
+| `GET` | `/api/admin/install/catalogue` | Get Catalogue | право `read` |
+| `GET` | `/api/admin/install/snapshots` | Snapshots | право `backups.read` |
+| `GET` | `/api/admin/install/snapshots-schedule` | Get Schedule | право `backups.read` |
+| `PUT` | `/api/admin/install/snapshots-schedule` | Put Schedule | право `backups.write` |
+| `GET` | `/api/admin/install/snapshots/{name}` | Download Snapshot | право `backups.write` |
 | `GET` | `/api/admin/integrity` | Integrity | право `ops.diagnostics` |
 | `GET` | `/api/admin/jobs` | Admin Jobs | право `read` |
 | `POST` | `/api/admin/jobs/{job_id}/retry` | Retry Job | право `payments.retry` |
@@ -487,6 +492,7 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/rw/extensions/profiles/{profile_uuid}` | Delete Profile | право `provision_nodes` |
 | `GET` | `/api/admin/rw/extensions/profiles/{profile_uuid}` | Get Profile | право `read` |
 | `PATCH` | `/api/admin/rw/extensions/profiles/{profile_uuid}` | Patch Profile | право `provision_nodes` |
+| `POST` | `/api/admin/rw/extensions/profiles/{profile_uuid}/adblock` | Profile Adblock | право `provision_nodes` |
 | `POST` | `/api/admin/rw/extensions/profiles/{profile_uuid}/host` | Profile Host | право `provision_nodes` |
 | `POST` | `/api/admin/rw/extensions/profiles/{profile_uuid}/warp` | Profile Warp | право `provision_nodes` |
 | `GET` | `/api/admin/rw/extensions/routing` | List Routing | право `read` |

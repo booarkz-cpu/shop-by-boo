@@ -7,7 +7,7 @@ const post = (body?: any): RequestInit => ({method: "POST", body: body === undef
 const flag = (code: string) => /^[A-Z]{2}$/.test(code || "") && code !== "XX"
   ? String.fromCodePoint(...[...code].map(c => 0x1f1e6 + c.charCodeAt(0) - 65)) : "🏳️";
 
-/** «Серверы → SelfSteal» (v28.91.0, N8): the sites the nodes show to strangers — overview, outside check, own sites, catalogue. */
+/** «Серверы → SelfSteal» (v28.92.0, N8): the sites the nodes show to strangers — overview, outside check, own sites, catalogue. */
 export function SelfSteal({request, toast, apiBase = ""}: {request: Request; toast: (t: string) => void; apiBase?: string}) {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState("");

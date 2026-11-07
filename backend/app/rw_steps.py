@@ -21,7 +21,7 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports")
+              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports", "fetch_configs")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
 COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
@@ -1003,6 +1003,17 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if result.code != 0 or (enabled and "watchdog=active" not in result.out):
             raise StepError("Таймер самовосстановления не запустился (журнал шага)")
         mods["watchdog"] = enabled
+    elif name in ("mss_clamp", "node_guard", "swap"):
+        await _run_netmod(ctx, sid, name, p, enabled, mods)
+    elif name == "sni_scan":
+        from . import rw_netmods
+        result = await _run(ctx, sid, rw_netmods.SNI_SCAN, *rw_netmods.SNI_CANDIDATES, timeout=400)
+        if result.code == 7:
+            raise StepError("На сервере нет openssl")
+        found = rw_netmods.parse_sni(result.out)
+        _note(ctx, "Подходят (TLS 1.3 + HTTP/2), быстрые сверху: " + (", ".join(f"{r['host']} — {r['ms']} мс" for r in found[:10]) or "ни один"))
+        ctx.state.setdefault("sni_scan", {})[str(sid)] = found[:15]
+        mods["sni_scan"] = ", ".join(r["host"] for r in found[:3]) or "нет подходящих"
     elif name == "transports":
         wanted = p.get("transports") or []
         flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2", "tls")]
@@ -1091,9 +1102,18 @@ apply)
     rm -f "$auto" "$uu"
   fi
   if [ "$kbbr" = on ]; then
-    modprobe tcp_bbr 2>/dev/null || true
-    sysctl -n net.ipv4.tcp_available_congestion_control 2>/dev/null | grep -qw bbr || { echo "no-bbr"; exit 5; }
-    printf 'net.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr\n' > "$bbr"; sysctl -q -p "$bbr"
+    # v28.92.0 (N7): what the server can do — containers (OpenVZ, LXC) share the host's kernel and cannot change it.
+    virt=$(systemd-detect-virt 2>/dev/null || echo unknown); echo "virt=$virt kernel=$(uname -r)"
+    case "$virt" in openvz|lxc|lxc-libvirt|docker|podman) echo "bbr=skipped: контейнерная виртуализация ($virt), ядро общее с хостом" ;;
+    *)
+      modprobe tcp_bbr 2>/dev/null || true
+      if sysctl -n net.ipv4.tcp_available_congestion_control 2>/dev/null | grep -qw bbr; then
+        printf 'net.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr\n' > "$bbr"; sysctl -q -p "$bbr"
+        v=$(cat /sys/module/tcp_bbr/version 2>/dev/null || true); [ -n "$v" ] && echo "bbr-version=$v"
+      else
+        echo "no-bbr"; exit 5
+      fi ;;
+    esac
   elif [ -f "$bbr" ]; then
     rm -f "$bbr"; sysctl -q -w net.ipv4.tcp_congestion_control=cubic >/dev/null 2>&1 || true
   fi
@@ -1356,8 +1376,42 @@ async def checker_status(ctx: Context, sid: int) -> dict:
     return data if isinstance(data, dict) else {"success": False}
 
 
+async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool, mods: dict) -> None:
+    """v28.92.0 (N7): MSS clamp, node guard, swap (rw_netmods)."""
+    from . import rw_netmods
+    if name == "mss_clamp":
+        result = await _run(ctx, sid, rw_netmods.MSS, "on" if enabled else "off", timeout=300)
+        errors = {5: "У сервера нет маршрута по умолчанию", 6: "MTU пути не измерен: ping до 1.1.1.1 и 77.88.8.8 не проходит",
+                  7: "На сервере нет nftables, и он не установился (apt)"}
+    elif name == "node_guard":
+        allow = list(dict.fromkeys([*(p.get("allow") or []), *([await _client_address(ctx, sid)] if enabled else [])]))
+        try:
+            allow.append(panel_ip(ctx))
+        except StepError:
+            _note(ctx, "Адрес панели неизвестен: в белый список не добавлен")
+        args = ("on", ",".join(map(str, p.get("ports") or [])), str(p.get("rate") or 150), ",".join(a for a in allow if a) or "-",
+                p.get("mode") or "enforce") if enabled else ("off",)
+        result = await _run(ctx, sid, rw_netmods.GUARD, *args, timeout=180)
+        errors = {7: "На сервере нет nftables, и он не установился (apt)"}
+    else:
+        result = await _run(ctx, sid, rw_netmods.SWAP, *(("on", str(p.get("swap_mb") or 1024)) if enabled else ("off",)), timeout=600)
+        errors = {5: "Мало места на диске для файла подкачки (нужно на 1 ГБ больше его размера)"}
+    _note(ctx, result.out + result.err)
+    if result.code != 0:
+        raise StepError(errors.get(result.code, f"Модуль «{rw_plan.MODULE_TITLES[name]}» не применился (журнал шага)"))
+    ctx.state.setdefault("applied_modules", []).append([sid, name, enabled])
+    line = (result.out.strip().splitlines() or [""])[-1]
+    mods[name] = line if enabled else "off"
+
+
 async def undo_node_module(ctx: Context, st: dict) -> None:
     p, sid = st["params"], st["server_id"]
+    if p["module"] in ("mss_clamp", "node_guard", "swap"):
+        from . import rw_netmods
+        if p.get("enabled", True) and [sid, p["module"], True] in ctx.state.get("applied_modules", []):
+            script = {"mss_clamp": rw_netmods.MSS, "node_guard": rw_netmods.GUARD, "swap": rw_netmods.SWAP}[p["module"]]
+            await _run(ctx, sid, script, "off", timeout=300)
+        return
     if p["module"] == "node_port" and str(sid) in ctx.state.get("node_port_before", {}):
         before = ctx.state["node_port_before"].pop(str(sid))
         now = ctx.state.get("firewall", {}).get(str(sid))
@@ -1522,6 +1576,21 @@ case "$f" in /opt/remnawave/backups/panel-[0-9]*Z.dump) ;; *) echo "bad file" >&
 sha256sum "$f" | cut -d' ' -f1
 base64 -w0 "$f"
 """
+# v28.92.0 (N7): «Снапшот сервера» — the files of the wizard's components (no volumes, no copies, no Xray core).
+FETCH_CONFIGS = r"""set -eu
+cd /
+dirs=""
+for d in opt/remnawave opt/remnanode opt/remnawave-subpage opt/remnawave-caddy opt/remnawave-selfsteal opt/remnawave-xray-checker; do
+  [ -d "$d" ] && dirs="$dirs $d"
+done
+[ -n "$dirs" ] || { echo "nothing" >&2; exit 3; }
+tmp=$(mktemp)
+tar -czf "$tmp" --exclude='*/backups' --exclude='*/xray-core' --exclude='*/sites/site-*' --exclude='*/hysteria' --exclude='*.rw-prev' $dirs 2>/dev/null || true
+[ "$(stat -c %s "$tmp")" -le 33554432 ] || { rm -f "$tmp"; echo "too big" >&2; exit 4; }
+sha256sum "$tmp" | cut -d' ' -f1
+base64 -w0 "$tmp"; rm -f "$tmp"
+"""
+SNAPSHOTS_KEEP = 5
 MAX_PANEL_COPY = 256 * 1024 * 1024  # larger copies stay on the server only (noted in the step's log)
 PANEL_COPIES_KEEP = 10
 
@@ -1555,6 +1624,35 @@ def unseal(blob: bytes) -> bytes:
         except Exception:  # noqa: BLE001 — try the previous key
             continue
     raise ValueError("Копия не расшифровывается ключом магазина")
+
+
+async def run_fetch_configs(ctx: Context, st: dict) -> None:
+    import base64
+    import hashlib
+    from datetime import datetime, timezone
+    sid = st["server_id"]
+    result = await _run(ctx, sid, FETCH_CONFIGS, timeout=600)
+    if result.code == 3:
+        _note(ctx, "Файлов мастера на сервере нет")
+        return
+    if result.code != 0:
+        raise StepError("Файлы компонентов не удалось забрать (больше 32 МБ или ошибка tar)")
+    digest, _, body = result.out.strip().partition("\n")
+    data = base64.b64decode(body.strip() or b"", validate=True)
+    if hashlib.sha256(data).hexdigest() != digest.strip():
+        raise StepError("Файлы компонентов пришли повреждёнными (SHA-256 не совпал)")
+    folder = panel_copies_dir()
+    folder.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    target = folder / f"config-{sid}-{stamp}.tar.gz.enc"
+    tmp = target.with_suffix(".part")
+    tmp.write_bytes(seal(data))
+    os.chmod(tmp, 0o600)
+    tmp.replace(target)
+    for old in sorted(folder.glob(f"config-{sid}-*.tar.gz.enc"))[:-SNAPSHOTS_KEEP]:
+        old.unlink(missing_ok=True)
+    ctx.state.setdefault("snapshots", {})[str(sid)] = target.name
+    _note(ctx, f"Файлы компонентов ({len(data)} байт) зашифрованы и сохранены в магазине: {target.name}")
 
 
 async def run_fetch_panel_backup(ctx: Context, st: dict) -> None:
@@ -1601,7 +1699,7 @@ async def _fetch_panel_backup(ctx: Context, st: dict) -> None:
 RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_files": run_write_files,
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
-       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "compose_down": run_compose_down,
+       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "fetch_configs": run_fetch_configs, "compose_down": run_compose_down,
        "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module, "compose_ctl": run_compose_ctl,
        "node_transports": run_node_transports}
 UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,

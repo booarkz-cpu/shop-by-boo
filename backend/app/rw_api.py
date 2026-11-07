@@ -108,7 +108,13 @@ class ApproveIn(BaseModel):
 class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
+                  "mss_clamp", "node_guard", "swap", "sni_scan"]
+    guard_ports: list[int] | None = Field(default=None, max_length=12)          # v28.92.0 (N7)
+    guard_rate: int | None = Field(default=None, ge=5, le=5000)
+    guard_allow: list[str] | None = Field(default=None, max_length=10)
+    guard_mode: Literal["enforce", "observe"] | None = None
+    swap_mb: int | None = Field(default=None, ge=256, le=16384)
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     selfsteal_template: str | None = Field(default=None, max_length=40)         # v28.88.0; v28.91.0 — the catalogue or «custom»
@@ -130,7 +136,10 @@ class ModuleIn(BaseModel):
 
 class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs"]
+    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
+                    "snapshot", "remove_component"]
+    # v28.92.0 (N7): with «remove_component» — which component to take off the servers.
+    component: Literal["panel", "subscription_page", "proxy", "node", "selfsteal", "xray_checker"] | None = None
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
     panel_access: Literal["open", "cookie", "tinyauth", "gate"] | None = None
     # v28.78.0: with panel_access="tinyauth" — the login portal's domain (a sibling of the panel's domain).
@@ -442,6 +451,13 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
         if payload.action != "update" or not params.get("subpage_server_id"):
             raise HTTPException(422, "Шаблон страницы подписки меняется действием «Обновить» установки со страницей подписки")
         params["subpage_template"] = payload.subpage_template
+    params.pop("remove_component", None)
+    if payload.action == "remove_component":
+        if not payload.component:
+            raise HTTPException(422, "Выберите компонент")
+        params["remove_component"] = payload.component
+    elif payload.component:
+        raise HTTPException(422, "Компонент задаётся действием «remove_component»")
     secrets = None
     if payload.action == "module":
         if not payload.module:
@@ -497,6 +513,9 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
         run["management_url"] = mod.management_url or None
     if mod.name == "hardening":
         run["hardening"] = (mod.hardening or rw_plan.Hardening()).model_dump()
+    for key in ("guard_ports", "guard_rate", "guard_allow", "guard_mode", "swap_mb"):
+        if getattr(mod, key) is not None:
+            run[key] = getattr(mod, key)
     if mod.name == "transports":
         # The chosen set replaces the current one; an empty set leaves only VLESS + TCP + REALITY.
         params["transports"] = sorted(set(mod.transports)) if mod.enabled else []
