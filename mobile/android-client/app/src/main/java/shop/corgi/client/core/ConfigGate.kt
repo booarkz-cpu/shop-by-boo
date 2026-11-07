@@ -29,12 +29,12 @@ object ConfigGate {
     }
 
     private fun enter() {
-        if (depth.getAndIncrement() == 0) notifyAll()
+        if (depth.getAndIncrement() == 0) announce()
     }
 
     private fun leave() {
-        if (depth.decrementAndGet() == 0) notifyAll()
+        if (depth.decrementAndGet() == 0) announce()
     }
 
-    private fun notifyAll() = listeners.forEach { it() }
+    private fun announce() = listeners.forEach { it() }
 }
