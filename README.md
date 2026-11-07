@@ -1129,6 +1129,10 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ![Расширения Remnawave](screenshots/admin_panel/78_rwExtensions.png)
 
+**SelfSteal** — Сайты-маскировки нод: что стоит на каждой ноде, проверка снаружи (11 пунктов), свой сайт из архива и каталог из 22 шаблонов — у каждой ноды своя сборка.
+
+![SelfSteal](screenshots/admin_panel/92_selfsteal.png)
+
 **Домены и сертификаты** — Домены портала подписки и серверов Remnawave: проверка DNS и сертификатов, записи в Cloudflare, адрес подписки клиентов, маршруты Caddy.
 
 ![Домены и сертификаты](screenshots/admin_panel/79_domains.png)
