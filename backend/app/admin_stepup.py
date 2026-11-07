@@ -42,6 +42,7 @@ STEP_UP_ACTIONS = (
     ("DELETE", "/api/admin/rw/servers/{server_id}", "Удаление сервера из реестра"),
     ("POST", "/api/admin/rw/servers/{server_id}/rotate-key", "Смена SSH-ключа сервера"),
     ("GET", "/api/admin/remnawave/auto-update/panel-copies/{name}", "Скачивание копии базы панели"),
+    ("GET", "/api/admin/install/snapshots/{name}", "Скачивание снимка файлов или базы панели"),
 )
 
 
