@@ -103,3 +103,53 @@ async def test_snapshot_and_danger_zone(database, fleet, monkeypatch, tmp_path):
     assert "/opt/remnanode" not in host.up and "/opt/remnawave" in host.up, "only the node is taken off"
     planned, _ = await act(action="remove_component", component="panel")
     assert [s["kind"] for s in planned["plan"]["steps"]] == ["backup_panel", "fetch_panel_backup", "compose_down"]
+
+
+@pytest.mark.asyncio
+async def test_daily_snapshots_queue_and_go_to_telegram(database, fleet, monkeypatch, tmp_path):
+    from datetime import datetime, timezone
+
+    from app import rw_api, rw_snapshots, telegram_backup
+    from app.config import settings
+    db = database
+    monkeypatch.setenv("RW_PANEL_COPIES_DIR", str(tmp_path / "copies"))
+    server = await add_server(db, fleet, "p2", "198.51.100.42")
+    await rw_api.check_server(server["id"], db, ADMIN)
+    await plan_and_approve(db, rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com", tls="internal"))
+    await run_all(db)
+    await rw_snapshots.put_schedule(rw_snapshots.ScheduleIn(enabled=True, time="04:00", telegram=True), db, ADMIN)
+    morning = datetime(2026, 11, 8, 1, 10, tzinfo=timezone.utc)  # 04:10 MSK
+    first = await rw_snapshots.tick(db, morning)
+    assert len(first["queued"]) == 1
+    assert (await rw_snapshots.tick(db, morning))["queued"] == [], "once a day"
+    await run_all(db)
+    sent = []
+
+    class Client:
+        async def post(self, url, data=None, files=None):
+            sent.append((url.rsplit("/", 1)[1], data["chat_id"], files["document"][0]))
+            return type("R", (), {"status_code": 200})()
+
+    async def encrypt(source, target, password):
+        target.write_bytes(b"ENC" + source.read_bytes())
+
+    monkeypatch.setattr(telegram_backup, "encrypt", encrypt)
+    monkeypatch.setattr(settings, "bot_token", "123:abc")
+    without = await rw_snapshots.tick(db, morning, client=Client())
+    assert without["sent"] == 0 and "пароль" in without["errors"][0], "nothing goes out without the backup password"
+    rw_snapshots_state = await rw_snapshots._load(db, rw_snapshots.STATE_KEY, {})
+    assert rw_snapshots_state["watch"] == []
+
+    # The next morning with the backup password and the chat: the files go out encrypted.
+    from app.main import set_setting
+    from app.security import encrypt_secret
+    await set_setting(db, "backup_password", encrypt_secret("backup-password-1"))
+    await telegram_backup.save(db, {**telegram_backup.DEFAULT, "chat_id": "-1001234567"})
+    await db.commit()
+    next_day = datetime(2026, 11, 9, 1, 5, tzinfo=timezone.utc)
+    assert len((await rw_snapshots.tick(db, next_day))["queued"]) == 1
+    await run_all(db)
+    done = await rw_snapshots.tick(db, next_day, client=Client())
+    assert done["sent"] == 2 and not done["errors"], done
+    assert {name.split("-")[0] for _, _, name in sent} == {"config", "panel"} and all(chat == "-1001234567" for _, chat, _ in sent)
+    assert all(name.endswith(".enc") for _, _, name in sent)
