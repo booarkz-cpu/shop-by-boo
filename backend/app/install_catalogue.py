@@ -10,13 +10,17 @@ For the chosen server the catalogue also says where it is on the way «Подг�
 """
 from __future__ import annotations
 
+import re
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_db
 from .models import RemnawaveInstallation, RemnawaveServer
-from .security import require_permission
+from .security import require_permission, require_stepup
 
 router = APIRouter(prefix="/api/admin/install")
 
@@ -29,6 +33,7 @@ GROUPS = {
 
 # id, group, title, what it does, over SSH, shown in «Простой», action
 #   action: ("tab", <admin tab>) | ("install", None) | ("module", <module name>, <role it needs: node|any>)
+#           | ("action", <installation action>) — snapshot; the «danger zone» is its own block of the section
 OPS: tuple[tuple, ...] = (
     ("install_panel", "panel", "Установка Remnawave-панели", "Docker-стек панели, Caddy с сертификатом и токен API для магазина — мастер с планом и откатом.", True, True, ("install", None)),
     ("update_panel", "panel", "Обновить панель и ноды", "Проверенные версии образов: копия базы, обновление, проверка, откат; по расписанию или кнопкой.", True, True, ("tab", "releases")),
@@ -56,6 +61,7 @@ OPS: tuple[tuple, ...] = (
     ("https_status", "protect", "Статус-страница VPN", "Публичная страница статуса сервиса на своём домене.", False, True, ("tab", "status")),
     ("alerts", "protect", "Оповещения", "Мониторинг и уведомления о сбоях.", False, True, ("tab", "monitoring")),
     ("backups", "protect", "Резервные копии", "Копии базы магазина и панели, проверка восстановления, копия в Telegram.", False, True, ("tab", "backups")),
+    ("snapshot", "protect", "Снапшот сервера → скачать", "Копия базы панели и файлы всех компонентов (compose, .env, Caddyfile, сайт) — зашифрованы в магазине, скачиваются с подтверждением 2FA.", True, True, ("action", "snapshot")),
     ("terminal", "protect", "Терминал сервера", "Командная оболочка на сервере с подтверждением 2FA и записью сессии.", True, False, ("tab", "nodeTerminal")),
     ("remove", "protect", "Удалить установку", "Остановить и убрать контейнеры установки (тома и копии остаются) — в «Установка Remnawave».", True, False, ("tab", "rwInstaller")),
     ("bot", "sales", "Telegram-бот продаж", "Свой бот магазина: меню, оплата, подписки.", False, True, ("tab", "telegramBot")),
@@ -70,6 +76,7 @@ def catalogue() -> list[dict]:
     for op_id, group, title, text, ssh, simple, action in OPS:
         out.append({"id": op_id, "group": group, "title": title, "text": text, "ssh": ssh, "simple": simple,
                     "action": {"kind": action[0], "tab": action[1] if action[0] == "tab" else None,
+                               "name": action[1] if action[0] == "action" else None,
                                "module": action[1] if action[0] == "module" else None,
                                "needs": action[2] if action[0] == "module" else None}})
     return out
@@ -102,5 +109,43 @@ async def get_catalogue(server_id: int | None = None, db: AsyncSession = Depends
     if state:
         for op in ops:
             needs = op["action"]["needs"]
-            op["ready"] = op["action"]["kind"] != "module" or (state["installation_id"] is not None and (needs != "node" or "node" in state["roles"]))
+            needs_install = op["action"]["kind"] in ("module", "action")
+            op["ready"] = not needs_install or (state["installation_id"] is not None and (needs != "node" or "node" in state["roles"]))
     return {"groups": GROUPS, "operations": ops, "state": state, "total": len(ops)}
+
+
+# ---------------------------------------------------------------- snapshots (encrypted in the shop)
+
+SNAPSHOT_NAME = re.compile(r"^(config-\d+-\d{8}T\d{6}Z\.tar\.gz|panel-\d+-\d{8}T\d{6}Z\.dump)\.enc$")
+
+
+@router.get("/snapshots")
+async def snapshots(admin=Depends(require_permission("backups.read"))):
+    from .rw_steps import panel_copies_dir
+    folder = panel_copies_dir()
+    files = sorted((f for f in folder.glob("*.enc") if SNAPSHOT_NAME.match(f.name)), key=lambda f: f.name.split("-", 2)[2], reverse=True) \
+        if folder.is_dir() else []
+    return {"snapshots": [{"name": f.name, "kind": "files" if f.name.startswith("config-") else "database",
+                           "server_id": int(f.name.split("-")[1]), "size": f.stat().st_size,
+                           "created_at": datetime.strptime(f.name.split("-")[2][:16], "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc).isoformat()}
+                          for f in files[:60]]}
+
+
+@router.get("/snapshots/{name}")
+async def download_snapshot(name: str, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("backups.write"))):
+    """A snapshot decrypted: the files as tar.gz, the panel's database in pg_dump -Fc format."""
+    from .main import audit
+    from .rw_steps import panel_copies_dir, unseal
+    if not SNAPSHOT_NAME.match(name):
+        raise HTTPException(404, "Нет такого снапшота")
+    path = panel_copies_dir() / name
+    if not path.is_file():
+        raise HTTPException(404, "Нет такого снапшота")
+    try:
+        data = unseal(path.read_bytes())
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    await audit(db, "install.snapshot.downloaded", admin.email, name, {"size": len(data)})
+    await db.commit()
+    return Response(data, media_type="application/octet-stream",
+                    headers={"Content-Disposition": f'attachment; filename="{name.removesuffix(".enc")}"'})

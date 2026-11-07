@@ -136,7 +136,10 @@ class ModuleIn(BaseModel):
 
 class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs"]
+    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
+                    "snapshot", "remove_component"]
+    # v28.92.0 (N7): with «remove_component» — which component to take off the servers.
+    component: Literal["panel", "subscription_page", "proxy", "node", "selfsteal", "xray_checker"] | None = None
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
     panel_access: Literal["open", "cookie", "tinyauth", "gate"] | None = None
     # v28.78.0: with panel_access="tinyauth" — the login portal's domain (a sibling of the panel's domain).
@@ -448,6 +451,13 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
         if payload.action != "update" or not params.get("subpage_server_id"):
             raise HTTPException(422, "Шаблон страницы подписки меняется действием «Обновить» установки со страницей подписки")
         params["subpage_template"] = payload.subpage_template
+    params.pop("remove_component", None)
+    if payload.action == "remove_component":
+        if not payload.component:
+            raise HTTPException(422, "Выберите компонент")
+        params["remove_component"] = payload.component
+    elif payload.component:
+        raise HTTPException(422, "Компонент задаётся действием «remove_component»")
     secrets = None
     if payload.action == "module":
         if not payload.module:

@@ -55,3 +55,51 @@ async def test_server_state_and_ready_modules(database, fleet):
     assert next(o for o in after["operations"] if o["id"] == "node_guard")["ready"]
     with pytest.raises(Exception):
         await install_catalogue.get_catalogue(999, db, ADMIN)
+
+
+@pytest.mark.asyncio
+async def test_snapshot_and_danger_zone(database, fleet, monkeypatch, tmp_path):
+    from fastapi import HTTPException
+
+    from app import rw_api
+    db = database
+    monkeypatch.setenv("RW_PANEL_COPIES_DIR", str(tmp_path / "copies"))
+    server = await add_server(db, fleet, "p1", "198.51.100.41")
+    await rw_api.check_server(server["id"], db, ADMIN)
+    installed = await plan_and_approve(db, rw_plan.PlanIn(mode="panel_node", panel_server_id=server["id"], panel_domain="panel.example.com",
+                                                          tls="internal"))
+    await run_all(db)
+
+    async def act(**kw):
+        planned = await rw_api.action(installed["id"], rw_api.ActionIn(**kw), db, ADMIN)
+        await rw_api.approve(planned["id"], rw_api.ApproveIn(plan_sha256=planned["plan_sha256"]), db, ADMIN)
+        await run_all(db)
+        return planned, await rw_api.get_installation(planned["id"], db, ADMIN)
+
+    planned, done = await act(action="snapshot")
+    assert [s["kind"] for s in planned["plan"]["steps"]] == ["backup_panel", "fetch_panel_backup", "fetch_configs"]
+    assert done["status"] == "succeeded", done["error"]
+    listed = (await install_catalogue.snapshots(ADMIN))["snapshots"]
+    assert {s["kind"] for s in listed} == {"files", "database"}
+    files = next(s for s in listed if s["kind"] == "files")
+    got = await install_catalogue.download_snapshot(files["name"], db, ADMIN)
+    import io
+    import tarfile
+    assert tarfile.open(fileobj=io.BytesIO(got.body), mode="r:gz").getnames() == ["opt/remnawave/docker-compose.yml"]
+    assert (tmp_path / "copies" / files["name"]).read_bytes()[:20] != got.body[:20], "stored encrypted"
+    with pytest.raises(HTTPException):
+        await install_catalogue.download_snapshot("../etc/passwd", db, ADMIN)
+
+    with pytest.raises(HTTPException):
+        await rw_api.action(installed["id"], rw_api.ActionIn(action="remove_component"), db, ADMIN)
+    with pytest.raises(HTTPException):
+        await rw_api.action(installed["id"], rw_api.ActionIn(action="update", component="node"), db, ADMIN)
+    with pytest.raises(HTTPException):
+        await rw_api.action(installed["id"], rw_api.ActionIn(action="remove_component", component="selfsteal"), db, ADMIN)
+    host = fleet["198.51.100.41"]
+    assert "/opt/remnanode" in host.up
+    planned, done = await act(action="remove_component", component="node")
+    assert [s["kind"] for s in planned["plan"]["steps"]] == ["compose_down"] and done["status"] == "succeeded"
+    assert "/opt/remnanode" not in host.up and "/opt/remnawave" in host.up, "only the node is taken off"
+    planned, _ = await act(action="remove_component", component="panel")
+    assert [s["kind"] for s in planned["plan"]["steps"]] == ["backup_panel", "fetch_panel_backup", "compose_down"]

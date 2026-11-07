@@ -21,7 +21,7 @@ from .rw_remote import Remote, RemoteError, tail
 
 STEP_KINDS = ("preflight", "install_docker", "write_files", "compose_up", "wait_panel", "panel_bootstrap",
               "firewall_node_port", "register_node", "verify", "backup_panel", "restore_panel", "compose_down",
-              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports")
+              "selfsteal_profile", "node_module", "fetch_panel_backup", "compose_ctl", "node_transports", "fetch_configs")
 FILE_NAMES = ("docker-compose.yml", ".env", "Caddyfile", "index.html")
 COMPONENTS = ("panel", "node", "subscription_page", "proxy", "selfsteal", "xray_checker")
 _sleep = asyncio.sleep  # tests replace it
@@ -1558,6 +1558,21 @@ case "$f" in /opt/remnawave/backups/panel-[0-9]*Z.dump) ;; *) echo "bad file" >&
 sha256sum "$f" | cut -d' ' -f1
 base64 -w0 "$f"
 """
+# v28.92.0 (N7): «Снапшот сервера» — the files of the wizard's components (no volumes, no copies, no Xray core).
+FETCH_CONFIGS = r"""set -eu
+cd /
+dirs=""
+for d in opt/remnawave opt/remnanode opt/remnawave-subpage opt/remnawave-caddy opt/remnawave-selfsteal opt/remnawave-xray-checker; do
+  [ -d "$d" ] && dirs="$dirs $d"
+done
+[ -n "$dirs" ] || { echo "nothing" >&2; exit 3; }
+tmp=$(mktemp)
+tar -czf "$tmp" --exclude='*/backups' --exclude='*/xray-core' --exclude='*/sites/site-*' --exclude='*/hysteria' --exclude='*.rw-prev' $dirs 2>/dev/null || true
+[ "$(stat -c %s "$tmp")" -le 33554432 ] || { rm -f "$tmp"; echo "too big" >&2; exit 4; }
+sha256sum "$tmp" | cut -d' ' -f1
+base64 -w0 "$tmp"; rm -f "$tmp"
+"""
+SNAPSHOTS_KEEP = 5
 MAX_PANEL_COPY = 256 * 1024 * 1024  # larger copies stay on the server only (noted in the step's log)
 PANEL_COPIES_KEEP = 10
 
@@ -1591,6 +1606,35 @@ def unseal(blob: bytes) -> bytes:
         except Exception:  # noqa: BLE001 — try the previous key
             continue
     raise ValueError("Копия не расшифровывается ключом магазина")
+
+
+async def run_fetch_configs(ctx: Context, st: dict) -> None:
+    import base64
+    import hashlib
+    from datetime import datetime, timezone
+    sid = st["server_id"]
+    result = await _run(ctx, sid, FETCH_CONFIGS, timeout=600)
+    if result.code == 3:
+        _note(ctx, "Файлов мастера на сервере нет")
+        return
+    if result.code != 0:
+        raise StepError("Файлы компонентов не удалось забрать (больше 32 МБ или ошибка tar)")
+    digest, _, body = result.out.strip().partition("\n")
+    data = base64.b64decode(body.strip() or b"", validate=True)
+    if hashlib.sha256(data).hexdigest() != digest.strip():
+        raise StepError("Файлы компонентов пришли повреждёнными (SHA-256 не совпал)")
+    folder = panel_copies_dir()
+    folder.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    target = folder / f"config-{sid}-{stamp}.tar.gz.enc"
+    tmp = target.with_suffix(".part")
+    tmp.write_bytes(seal(data))
+    os.chmod(tmp, 0o600)
+    tmp.replace(target)
+    for old in sorted(folder.glob(f"config-{sid}-*.tar.gz.enc"))[:-SNAPSHOTS_KEEP]:
+        old.unlink(missing_ok=True)
+    ctx.state.setdefault("snapshots", {})[str(sid)] = target.name
+    _note(ctx, f"Файлы компонентов ({len(data)} байт) зашифрованы и сохранены в магазине: {target.name}")
 
 
 async def run_fetch_panel_backup(ctx: Context, st: dict) -> None:
@@ -1637,7 +1681,7 @@ async def _fetch_panel_backup(ctx: Context, st: dict) -> None:
 RUN = {"preflight": run_preflight, "install_docker": run_install_docker, "write_files": run_write_files,
        "compose_up": run_compose_up, "wait_panel": run_wait_panel, "panel_bootstrap": run_panel_bootstrap,
        "firewall_node_port": run_firewall_node_port, "register_node": run_register_node, "verify": run_verify,
-       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "compose_down": run_compose_down,
+       "backup_panel": run_backup_panel, "restore_panel": run_restore_panel, "fetch_panel_backup": run_fetch_panel_backup, "fetch_configs": run_fetch_configs, "compose_down": run_compose_down,
        "selfsteal_profile": run_selfsteal_profile, "node_module": run_node_module, "compose_ctl": run_compose_ctl,
        "node_transports": run_node_transports}
 UNDO = {"write_files": undo_write_files, "compose_up": undo_compose_up, "firewall_node_port": undo_firewall_node_port,

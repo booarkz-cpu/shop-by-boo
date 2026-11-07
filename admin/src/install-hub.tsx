@@ -1,5 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {EmptyState, LoadState} from "./components/ui/state";
+import {stepUp} from "./stepUp";
+
+const API = process.env.NEXT_PUBLIC_API_URL || "";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const post = (body?: any): RequestInit => ({method: "POST", body: body === undefined ? undefined : JSON.stringify(body)});
@@ -25,6 +28,7 @@ export function InstallHub({request, toast, navigate}: {request: Request; toast:
   const state = data.state;
   function open(op: any) {
     if (op.action.kind === "tab") return navigate(op.action.tab);
+    if (op.action.kind === "action") return setActive(op);
     if (op.action.kind === "install" || !DIRECT.includes(op.action.module)) return navigate("rwInstaller");
     setActive(op);
   }
@@ -50,7 +54,9 @@ export function InstallHub({request, toast, navigate}: {request: Request; toast:
         {state.steps[key] ? "✅" : `${i + 1}.`} {title}</li>)}</ol>}
       {state && !state.installation_id && <p className="muted">На этом сервере ещё нет установки мастера: модули станут доступны после неё.</p>}
     </section>
-    {active && state && <ModulePlan op={active} state={state} request={request} toast={toast} onClose={() => setActive(null)}/>}
+    {active && state && active.action.kind === "action" && <ActionPlan title={active.title} text={active.text} state={state} request={request} toast={toast}
+      body={{action: active.action.name}} onClose={() => setActive(null)}/>}
+    {active && state && active.action.kind === "module" && <ModulePlan op={active} state={state} request={request} toast={toast} onClose={() => setActive(null)}/>}
     {Object.entries(data.groups).map(([gid, gtitle]: any) => {
       const list = ops.filter((o: any) => o.group === gid);
       if (!list.length) return null;
@@ -63,7 +69,89 @@ export function InstallHub({request, toast, navigate}: {request: Request; toast:
         </div>)}</div></section>;
     })}
     {ops.length === 0 && <section className="card"><p className="muted">Ничего не найдено.</p></section>}
+    <Snapshots request={request} toast={toast}/>
+    {state?.installation_id && <DangerZone state={state} request={request} toast={toast}/>}
   </div>;
+}
+
+const COMPONENTS: Record<string, string> = {panel: "Панель Remnawave", subscription_page: "Страница подписки", proxy: "Caddy (HTTPS панели и подписки)",
+  node: "Нода", selfsteal: "Сайт SelfSteal", xray_checker: "Xray Checker"};
+
+/** A plan of an installation action (snapshot, removal of a component) — «Запустить» asks for 2FA. */
+function ActionPlan({title, text, state, request, toast, body, onClose, danger}: any) {
+  const [plan, setPlan] = useState<any>(null);
+  const [error, setError] = useState("");
+  async function make() {
+    setError("");
+    try { setPlan(await request(`/api/admin/rw/installations/${state.installation_id}/actions`, post(body))); } catch (e: any) { setError(e.message); }
+  }
+  async function run() {
+    setError("");
+    try { await request(`/api/admin/rw/installations/${plan.id}/approve`, post({plan_sha256: plan.plan_sha256}));
+      toast(`«${title}» запущено: журнал шагов — в «Установка Remnawave»`); onClose(); }
+    catch (e: any) { setError(e.message); }
+  }
+  return <section className={`card ${danger ? "danger" : ""}`} data-install-action={body.action}>
+    <h4>{title} — {state.server.name}</h4><p className="muted">{text}</p>
+    {error && <div role="alert" className="error">{error}</div>}
+    {!plan ? <div className="toolbar"><button className="primary" onClick={make}>Составить план</button><button onClick={onClose}>Отмена</button></div>
+      : <div data-install-plan-steps><ol>{plan.plan.steps.map((s: any) => <li key={s.position}>{s.title}</li>)}</ol>
+        <div className="toolbar"><button className={danger ? "danger" : "primary"} onClick={run}>Запустить</button><button onClick={() => setPlan(null)}>Изменить</button></div></div>}
+  </section>;
+}
+
+function Snapshots({request, toast}: any) {
+  const [list, setList] = useState<any[] | null>(null);
+  const [error, setError] = useState("");
+  const load = () => request("/api/admin/install/snapshots").then((x: any) => setList(x.snapshots)).catch((e: any) => setError(e.message));
+  useEffect(() => { load(); }, []);
+  async function download(name: string) {
+    setError("");
+    const url = `${API}/api/admin/install/snapshots/${encodeURIComponent(name)}`;
+    let r = await fetch(url, {credentials: "include"});
+    if (r.status === 428 && await stepUp((p, o) => request(p, o))) r = await fetch(url, {credentials: "include"});
+    if (!r.ok) { setError(r.status === 428 ? "Скачивание не подтверждено" : `Не скачано (HTTP ${r.status})`); return; }
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(await r.blob());
+    link.download = name.replace(/\.enc$/, "");
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+    toast("Снапшот скачан");
+  }
+  return <section className="card" data-install-snapshots>
+    <h4>Снапшоты серверов</h4>
+    <p className="muted">Зашифрованы в магазине (последние 5 на сервер). Скачивание — с подтверждением 2FA; файлы — tar.gz, база панели — pg_dump.</p>
+    {error && <div role="alert" className="error">{error}</div>}
+    {list === null ? <p className="muted">Загрузка…</p> : list.length === 0 ? <p className="muted">Снапшотов пока нет: карточка «Снапшот сервера → скачать».</p> :
+      <div className="table-wrap"><table><thead><tr><th>Когда</th><th>Сервер</th><th>Что</th><th>Размер</th><th/></tr></thead>
+        <tbody>{list.map(s => <tr key={s.name}><td>{new Date(s.created_at).toLocaleString("ru-RU")}</td><td>#{s.server_id}</td>
+          <td>{s.kind === "files" ? "Файлы компонентов" : "База панели"}</td><td>{(s.size / 1024).toFixed(0)} КБ</td>
+          <td><button onClick={() => download(s.name)}>Скачать</button></td></tr>)}</tbody></table></div>}
+  </section>;
+}
+
+/** «Опасная зона»: one component off the server, or the whole installation — only after typing the server's name, then 2FA. */
+function DangerZone({state, request, toast}: any) {
+  const [what, setWhat] = useState("");
+  const [typed, setTyped] = useState("");
+  const [open, setOpen] = useState<any>(null);
+  const confirmed = typed.trim() === state.server.name;
+  const choices = Object.entries(COMPONENTS).filter(([k]) => k !== "proxy" || state.roles.includes("panel") || state.roles.includes("subscription_page"));
+  return <section className="card danger" data-install-danger>
+    <h4>Опасная зона</h4>
+    <p className="muted">Удаление компонента останавливает и убирает его контейнеры; тома, файлы и копии остаются, вернуть — «Переустановить» установку.
+      Перед удалением панели снимается копия её базы. «Очистить сервер» — удалить всю установку мастера с этого сервера.</p>
+    <div className="grid-form">
+      <label>Что удалить<select value={what} onChange={e => { setWhat(e.target.value); setOpen(null); }} data-danger-what>
+        <option value="">— выберите —</option>{choices.map(([k, t]) => <option key={k} value={k}>{t}</option>)}
+        <option value="all">Очистить сервер (вся установка)</option></select></label>
+      <label>Введите имя сервера «{state.server.name}»<input value={typed} onChange={e => setTyped(e.target.value)} data-danger-confirm/></label>
+    </div>
+    <button className="danger" disabled={!what || !confirmed} onClick={() => setOpen(what === "all" ? {action: "remove"} : {action: "remove_component", component: what})}>
+      Составить план удаления</button>
+    {open && <ActionPlan danger title={what === "all" ? "Очистить сервер" : `Удалить: ${COMPONENTS[what]}`} text="Проверьте шаги; «Запустить» спросит подтверждение 2FA."
+      state={state} request={request} toast={toast} body={open} onClose={() => { setOpen(null); setTyped(""); setWhat(""); }}/>}
+  </section>;
 }
 
 function ModulePlan({op, state, request, toast, onClose}: any) {
