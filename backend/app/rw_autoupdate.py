@@ -150,8 +150,9 @@ async def outdated(db: AsyncSession, ids: list[int] | None = None) -> list[dict]
     return [i for i in await installations(db) if i["outdated"] and not i["busy"] and (not wanted or i["id"] in wanted)]
 
 
-async def schedule_update(db: AsyncSession, source_id: int, actor: str) -> RemnawaveInstallation:
-    """The «update» plan of an installation, queued at once (the same plan an administrator approves by hand)."""
+async def schedule_update(db: AsyncSession, source_id: int, actor: str, action: str = "update") -> RemnawaveInstallation:
+    """The «update» plan of an installation, queued at once (the same plan an administrator approves by hand).
+    v28.92.0: also «snapshot» for the daily snapshots of «Установка» (rw_snapshots)."""
     from . import rw_api
     from .main import audit
 
@@ -164,10 +165,10 @@ async def schedule_update(db: AsyncSession, source_id: int, actor: str) -> Remna
         raise HTTPException(409, f"На серверах {busy} уже идёт другая установка")
     params = dict(source.params)
     try:
-        plan = rw_plan.build_action("update", rw_plan.PlanIn(**params), servers)
+        plan = rw_plan.build_action(action, rw_plan.PlanIn(**params), servers)
     except ValueError as exc:
         raise HTTPException(409, f"План обновления не составлен: {exc}") from exc
-    row = RemnawaveInstallation(action="update", mode=source.mode, server_ids=source.server_ids, params=params, plan=plan,
+    row = RemnawaveInstallation(action=action, mode=source.mode, server_ids=source.server_ids, params=params, plan=plan,
                                 plan_sha256=rw_plan.plan_hash(plan, params), status="queued", secrets=source.secrets,
                                 result={"state": (source.result or {}).get("state") or {}}, source_installation_id=source.id,
                                 created_by=actor, approved_by=actor)
@@ -176,7 +177,7 @@ async def schedule_update(db: AsyncSession, source_id: int, actor: str) -> Remna
     for st in plan["steps"]:
         db.add(RemnawaveDeploymentStep(installation_id=row.id, server_id=st["server_id"], position=st["position"], kind=st["kind"],
                                        title=st["title"][:200], params=st["params"], status="pending"))
-    await audit(db, "rw.autoupdate.queued", actor, str(row.id), {"source": source.id, "images": plan["images"]})
+    await audit(db, f"rw.{'autoupdate' if action == 'update' else action}.queued", actor, str(row.id), {"source": source.id, "images": plan["images"]})
     return row  # the worker's loop (rw_jobs.installer_worker) picks the queued row up
 
 
@@ -302,6 +303,9 @@ async def scheduler() -> None:
             if lock:
                 async with SessionLocal() as db:
                     await tick(db)
+                from . import rw_snapshots
+                async with SessionLocal() as db:
+                    await rw_snapshots.tick(db)
         except Exception:
             logger.exception("Remnawave auto-update pass failed")
         await asyncio.sleep(60)

@@ -108,10 +108,18 @@ class ApproveIn(BaseModel):
 class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
+                  "mss_clamp", "node_guard", "swap", "sni_scan"]
+    guard_ports: list[int] | None = Field(default=None, max_length=12)          # v28.92.0 (N7)
+    guard_rate: int | None = Field(default=None, ge=5, le=5000)
+    guard_allow: list[str] | None = Field(default=None, max_length=10)
+    guard_mode: Literal["enforce", "observe"] | None = None
+    swap_mb: int | None = Field(default=None, ge=256, le=16384)
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
-    selfsteal_template: Literal["cloud", "docs", "corgi"] | None = None         # v28.88.0
+    selfsteal_template: str | None = Field(default=None, max_length=40)         # v28.88.0; v28.91.0 — the catalogue or «custom»
+    selfsteal_lang: Literal["ru", "en"] | None = None                           # v28.91.0
+    selfsteal_upload: str | None = Field(default=None, pattern=r"^[a-f0-9]{16}$")  # v28.91.0: an uploaded site
     hardening: rw_plan.Hardening | None = None                                  # v28.84.0
     transports: list[rw_plan.TransportName] = Field(default_factory=list, max_length=4)  # v28.81.0
     fingerprint: rw_plan.Fingerprint | None = None                             # v28.90.0 (N5), with «transports»
@@ -128,7 +136,12 @@ class ModuleIn(BaseModel):
 
 class ActionIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs"]
+    action: Literal["update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
+                    "snapshot", "remove_component", "restore_files"]
+    # v28.93.0 (N7): with «restore_files» — the snapshot of the files («Установка → Снапшоты серверов»).
+    snapshot: str | None = Field(default=None, pattern=r"^config-\d{1,9}-\d{8}T\d{6}Z\.tar\.gz\.enc$")
+    # v28.92.0 (N7): with «remove_component» — which component to take off the servers.
+    component: Literal["panel", "subscription_page", "proxy", "node", "selfsteal", "xray_checker"] | None = None
     # v28.67.0: with «update» — close or open the panel's pages (secret access link).
     panel_access: Literal["open", "cookie", "tinyauth", "gate"] | None = None
     # v28.78.0: with panel_access="tinyauth" — the login portal's domain (a sibling of the panel's domain).
@@ -440,6 +453,20 @@ async def action(installation_id: int, payload: ActionIn, db: AsyncSession = Dep
         if payload.action != "update" or not params.get("subpage_server_id"):
             raise HTTPException(422, "Шаблон страницы подписки меняется действием «Обновить» установки со страницей подписки")
         params["subpage_template"] = payload.subpage_template
+    params.pop("remove_component", None)
+    params.pop("snapshot_file", None)
+    if payload.action == "restore_files":
+        if not payload.snapshot:
+            raise HTTPException(422, "Выберите снапшот")
+        params["snapshot_file"] = payload.snapshot
+    elif payload.snapshot:
+        raise HTTPException(422, "Снапшот задаётся действием «restore_files»")
+    if payload.action == "remove_component":
+        if not payload.component:
+            raise HTTPException(422, "Выберите компонент")
+        params["remove_component"] = payload.component
+    elif payload.component:
+        raise HTTPException(422, "Компонент задаётся действием «remove_component»")
     secrets = None
     if payload.action == "module":
         if not payload.module:
@@ -495,6 +522,9 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
         run["management_url"] = mod.management_url or None
     if mod.name == "hardening":
         run["hardening"] = (mod.hardening or rw_plan.Hardening()).model_dump()
+    for key in ("guard_ports", "guard_rate", "guard_allow", "guard_mode", "swap_mb"):
+        if getattr(mod, key) is not None:
+            run[key] = getattr(mod, key)
     if mod.name == "transports":
         # The chosen set replaces the current one; an empty set leaves only VLESS + TCP + REALITY.
         params["transports"] = sorted(set(mod.transports)) if mod.enabled else []
@@ -512,6 +542,13 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
         if not mod.selfsteal_template:
             raise HTTPException(422, "Выберите сайт-шаблон")
         params["selfsteal_template"] = mod.selfsteal_template  # the plan writes the site from the installation's settings
+        params["selfsteal_upload"] = mod.selfsteal_upload if mod.selfsteal_template == "custom" else None
+        if mod.selfsteal_lang:
+            params["selfsteal_lang"] = mod.selfsteal_lang
+        if mod.selfsteal_template == "custom":
+            from .rw_selfsteal import upload_path
+            if not mod.selfsteal_upload or not upload_path(mod.selfsteal_upload).is_file():
+                raise HTTPException(422, "Свой сайт не найден: загрузите архив в «SelfSteal → Свой сайт»")
     if mod.name == "xray_checker":
         if mod.enabled:
             url = mod.subscription_url.get_secret_value().strip() if mod.subscription_url else secrets.get("checker_subscription_url", "")
