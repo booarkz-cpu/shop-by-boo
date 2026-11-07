@@ -1,12 +1,10 @@
 """3.1.5: nginx frontends must start on a read-only root filesystem."""
-from main_source import main_source
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_315_is_first():
-    main_source()
     (ROOT / "scripts/build-release.sh").read_text()
     (ROOT / "deploy/install-vps.sh").read_text()
 

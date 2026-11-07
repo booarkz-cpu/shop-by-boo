@@ -1,5 +1,4 @@
 """3.1.3 installer reads answers from the terminal when stdin is a pipe."""
-from main_source import main_source
 import os
 import pty
 import select
@@ -10,7 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_version_313_is_first():
-    main_source()
     (ROOT / "scripts/build-release.sh").read_text()
     (ROOT / "deploy/install-vps.sh").read_text()
 
