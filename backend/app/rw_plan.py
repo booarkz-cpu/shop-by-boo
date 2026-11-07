@@ -40,10 +40,13 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # v28.70.0: Xray Checker (kutovoys/xray-checker, MIT) v1.3.1, pinned by the digest the live test pulled
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
-MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port")
+MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
+           "mss_clamp", "node_guard", "swap", "sni_scan")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
                  "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
-                 "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели"}
+                 "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели", "mss_clamp": "MSS clamp",
+                 "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки",
+                 "sni_scan": "Подбор сайта для REALITY"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
@@ -78,7 +81,11 @@ def _networks(value: list[str], label: str) -> list[str]:
     return list(dict.fromkeys(out))
 HYSTERIA_DIR = "/opt/remnanode/hysteria"
 HYSTERIA_MOUNT = "/var/lib/corgi-hysteria"
-SELFSTEAL_TEMPLATES = {"cloud": "Облачное хранилище", "docs": "Документация", "corgi": "Блог о корги"}
+# v28.91.0 (N8): the catalogue of selfsteal_sites (22 templates, a build of its own for every node) and «custom» —
+# a site the administrator uploaded as an archive (selfsteal_upload: its id in «SelfSteal → Свои сайты»).
+from .selfsteal_sites import CATALOGUE as _SITES  # noqa: E402
+
+SELFSTEAL_TEMPLATES = {t.id: t.ru[0][0] for t in _SITES} | {"custom": "свой сайт"}
 MODES = ("panel_node", "panel", "node", "panel_subpage", "subpage", "distributed", "add_node")
 MODE_TITLES = {
     "panel_node": "Панель и нода на одном сервере", "panel": "Только панель", "node": "Только нода",
@@ -115,7 +122,9 @@ class PlanIn(BaseModel):
     # v28.70.0: SelfSteal on the node — Caddy serves a template site for this domain on a unix socket and Xray
     # REALITY on port 443 uses it as its «dest» (the node looks like an ordinary site).
     selfsteal_domain: str | None = Field(default=None, max_length=253)
-    selfsteal_template: Literal["cloud", "docs", "corgi"] = "cloud"
+    selfsteal_template: str = Field(default="cloud", max_length=40)
+    selfsteal_lang: Literal["ru", "en"] = "ru"
+    selfsteal_upload: str | None = Field(default=None, pattern=r"^[a-f0-9]{16}$")
     # v28.77.0: the page of the Remnawave subscription page — its own, or Orion (legiz-ru/Orion, MIT) pinned below.
     subpage_template: Literal["default", "orion"] = "default"
     # v28.70.0: node modules that change the files the wizard writes, so updates keep them:
@@ -131,6 +140,10 @@ class PlanIn(BaseModel):
     tls_max: TlsVersion = "1.3"
     # v28.90.0 (N5): more addresses allowed to the node's port besides the panel's (for a panel move: add the new one first).
     node_port_ips: list[str] = Field(default_factory=list, max_length=10)
+    # v28.92.0 (N7): «Опасная зона → Удалить компонент» — which one (rw_api.action fills it with the action).
+    remove_component: Literal["panel", "subscription_page", "proxy", "node", "selfsteal", "xray_checker"] | None = None
+    # v28.93.0 (N7 «Экстренное восстановление»): the snapshot of the files to put back (rw_api.action fills it).
+    snapshot_file: str | None = Field(default=None, pattern=r"^config-\d{1,9}-\d{8}T\d{6}Z\.tar\.gz\.enc$")
     # The module action being planned (rw_api.action fills it; it is not kept after the run).
     module: "ModuleRun | None" = None
 
@@ -180,6 +193,10 @@ class PlanIn(BaseModel):
                 raise ValueError("Домен ноды и домен SelfSteal должны совпадать")
             if self.tls == "acme" and not self.acme_email:
                 raise ValueError("Для сертификата Let's Encrypt нужен email (ACME)")
+        if self.selfsteal_template not in SELFSTEAL_TEMPLATES:
+            raise ValueError("Сайт SelfSteal: шаблон из каталога или свой сайт")
+        if (self.selfsteal_template == "custom") != bool(self.selfsteal_upload):
+            raise ValueError("Свой сайт SelfSteal: выберите загруженный архив")
         self.transports = sorted(set(self.transports))
         if self.tls_min > self.tls_max:
             raise ValueError("TLS: минимальная версия выше максимальной")
@@ -223,8 +240,16 @@ class ModuleRun(BaseModel):
     """One module action: what to do on which servers. ``release`` — the files GitHub published for the chosen
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
-    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port"]
+    name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
+                  "mss_clamp", "node_guard", "swap", "sni_scan"]
     enabled: bool = True
+    # v28.92.0 (N7): «Защита ноды» — ports, new connections per second from one address, extra allowed addresses, mode;
+    # «Файл подкачки» — size in MB.
+    guard_ports: list[int] = Field(default_factory=lambda: [443, 4443, 8443, 2053], max_length=12)
+    guard_rate: int = Field(default=150, ge=5, le=5000)
+    guard_allow: list[str] = Field(default_factory=list, max_length=10)
+    guard_mode: Literal["enforce", "observe"] = "enforce"
+    swap_mb: int = Field(default=1024, ge=256, le=16384)
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
     transports: list[TransportName] = Field(default_factory=list, max_length=4)
@@ -626,8 +651,13 @@ def selfsteal_caddyfile(domain: str, tls: str, email: str | None) -> str:
         opts.append(f"\temail {email}")
     return "\n".join(["{", *opts, "}", "",
                       f"http://{domain} {{", "\tbind 0.0.0.0", f"\tredir https://{domain}{{uri}} permanent", "}", "",
-                      f"https://{domain} {{", f"\tbind unix/{SELFSTEAL_SOCKET}", "\troot * /srv", "\ttry_files {path} /index.html",
-                      "\tfile_server", "}", "",
+                      # v28.91.0 (N8): a whole site (rw_steps.SITE keeps «current» pointing at the deployed build), its own
+                      # 404 page, HSTS and no «Server: Caddy» — what «SelfSteal → Проверка снаружи» looks for.
+                      f"https://{domain} {{", f"\tbind unix/{SELFSTEAL_SOCKET}", "\troot * /sites/current",
+                      "\theader {", "\t\t-Server", '\t\tStrict-Transport-Security "max-age=31536000; includeSubDomains"',
+                      "\t\tX-Content-Type-Options nosniff", "\t\tReferrer-Policy strict-origin-when-cross-origin", "\t}",
+                      "\tencode gzip", "\ttry_files {path} {path}/index.html {path}.html", "\tfile_server",
+                      "\thandle_errors {", "\t\trewrite * /404.html", "\t\tfile_server", "\t}", "}", "",
                       ":80 {", "\tbind 0.0.0.0", "\trespond 204", "}", ""])
 
 
@@ -639,7 +669,7 @@ def selfsteal_compose() -> str:
     restart: always
     network_mode: host
     command: sh -c 'rm -f {SELFSTEAL_SOCKET} && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'
-    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "./index.html:/srv/index.html:ro", "/dev/shm:/dev/shm:rw", "caddy-data:/data", "caddy-config:/config"]
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "./sites:/sites:ro", "/dev/shm:/dev/shm:rw", "caddy-data:/data", "caddy-config:/config"]
     healthcheck:
       test: ["CMD", "test", "-S", "{SELFSTEAL_SOCKET}"]
       interval: 5s
@@ -651,26 +681,9 @@ volumes:
 """
 
 
-def selfsteal_page(template: str, domain: str) -> str:
-    """A small, self-contained site (no outside requests): what anyone who opens the node's domain sees."""
-    import html as _html
-    d = _html.escape(domain)
-    pages = {
-        "cloud": ("Хранилище файлов", "Синхронизация и резервные копии для команд", ["Шифрование на устройстве", "Версии файлов 30 дней", "Доступ по ссылке"], "#2563EB"),
-        "docs": ("Документация", "Руководства, справочник API и заметки к выпускам", ["Быстрый старт", "Справочник API", "Заметки к выпускам"], "#0F766E"),
-        "corgi": ("Дневник корги", "Прогулки, рецепты лакомств и советы по уходу", ["Осенние прогулки", "Печенье из тыквы", "Как вычёсывать подшёрсток"], "#C2410C"),
-    }
-    title, lead, items, color = pages.get(template, pages["cloud"])
-    lis = "".join(f"<li>{_html.escape(x)}</li>" for x in items)
-    return (f"<!doctype html><html lang=ru><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-            f"<title>{_html.escape(title)} — {d}</title><style>body{{margin:0;font:16px/1.6 system-ui,sans-serif;color:#1f2937;background:#f8fafc}}"
-            f"header{{background:{color};color:#fff;padding:48px 24px}}main{{max-width:760px;margin:0 auto;padding:24px}}h1{{margin:0 0 8px}}"
-            f"li{{margin:8px 0}}footer{{color:#64748b;text-align:center;padding:24px}}</style></head><body><header><div style='max-width:760px;margin:0 auto'><h1>{_html.escape(title)}</h1>"
-            f"<p>{_html.escape(lead)}</p></div></header><main><ul>{lis}</ul></main><footer>© {d}</footer></body></html>")
-
-
-ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs")
-ACTION_TITLES = {"install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
+ACTIONS = ("install", "update", "diagnose", "restore", "reinstall", "remove", "module", "start", "stop", "restart", "logs",
+           "snapshot", "remove_component", "restore_files")
+ACTION_TITLES = {"restore_files": "Экстренное восстановление файлов", "snapshot": "Снапшот сервера", "remove_component": "Удаление компонента", "install": "Установка", "update": "Обновление", "diagnose": "Диагностика", "restore": "Восстановление базы панели",
                  "reinstall": "Переустановка", "remove": "Удаление", "module": "Модуль",
                  "start": "Запуск", "stop": "Остановка", "restart": "Перезапуск", "logs": "Журналы контейнеров"}
 # v28.77.0: service control over the containers an installation runs (manage_panel in eGamesAPI/remnawave-reverse-proxy,
@@ -778,6 +791,35 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
                               enabled=mod.enabled, ips=plan.node_port_ips))
         steps.append(step("verify", None, "Проверка: панель видит ноды (иначе правило снимается)"))
         title = f"Порт ноды для панели: {'закрыть для всех, кроме панели' if mod.enabled else 'открыть'}"
+    elif name == "sni_scan":
+        # v28.92.0 (N7 «Автоподбор SNI»): read-only — which well-known sites answer the node with TLS 1.3 + HTTP/2.
+        targets = mod.server_ids or nodes
+        if not targets or any(sid not in nodes for sid in targets):
+            raise ValueError("Выберите ноды этой установки")
+        for sid in targets:
+            steps.append(step("node_module", sid, f"{servers[sid]['name']}: проверить сайты-кандидаты (TLS 1.3, HTTP/2, скорость); ничего не меняется",
+                              module="sni_scan", enabled=True))
+        title = "Подбор сайта для REALITY"
+    elif name in ("mss_clamp", "node_guard", "swap"):
+        # v28.92.0 (N7, rw_netmods): MSS clamp and the guard on the nodes by default, swap on any server of the installation.
+        targets = mod.server_ids or (list(roles) if name == "swap" else nodes)
+        if not targets or any(sid not in roles for sid in targets):
+            raise ValueError("Выберите серверы этой установки")
+        if name == "node_guard" and (not mod.guard_ports or any(not 1 <= p <= 65535 for p in mod.guard_ports)):
+            raise ValueError("Порты защиты: от 1 до 65535")
+        allow = _networks(mod.guard_allow, "Адрес без ограничений")
+        for sid in targets:
+            n = servers[sid]["name"]
+            if name == "mss_clamp":
+                what = "измерить MTU пути и включить MSS clamp, если нужен" if mod.enabled else "выключить MSS clamp"
+            elif name == "node_guard":
+                what = (f"{'лимит' if mod.guard_mode == 'enforce' else 'только счёт'} {mod.guard_rate} новых соединений/с с адреса на портах "
+                        f"{', '.join(map(str, mod.guard_ports))}" if mod.enabled else "выключить защиту")
+            else:
+                what = f"файл подкачки {mod.swap_mb} МБ" if mod.enabled else "убрать файл подкачки"
+            steps.append(step("node_module", sid, f"{n}: {what}", module=name, enabled=mod.enabled, ports=sorted(set(mod.guard_ports)),
+                              rate=mod.guard_rate, allow=allow, mode=mod.guard_mode, swap_mb=mod.swap_mb))
+        title = f"{MODULE_TITLES[name]}: {state}"
     elif name == "selfsteal_site":
         # v28.88.0 (BACKLOG A3): another site-template behind SelfSteal without a reinstall — the node's Caddy files
         # are rewritten (the previous ones come back on an error) and Caddy restarted; the node and REALITY stay as is.
@@ -845,6 +887,50 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
             out.append("xray_checker")
         return out
 
+    if action == "snapshot":
+        # v28.92.0 (N7): «Снапшот сервера» — the panel's database (as before an update) and the files of every
+        # component (compose, .env, Caddyfile, site; no volumes), encrypted in the shop; downloaded in «Установка».
+        if p:
+            steps += [step("backup_panel", p, f"{servers[p]['name']}: копия базы панели"),
+                      step("fetch_panel_backup", p, f"{servers[p]['name']}: копия базы панели — зашифрованной в хранилище магазина")]
+        for sid in roles:
+            steps.append(step("fetch_configs", sid, f"{servers[sid]['name']}: файлы компонентов ({', '.join(components(sid))}) — в хранилище магазина"))
+        return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {MODE_TITLES[plan.mode]}", "images": IMAGES,
+                "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": rs, "changes": []}
+                            for sid, rs in roles.items()},
+                "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
+    if action == "restore_files":
+        # v28.93.0 (N7): the files of a snapshot back on its server — the current files are packed first and come back
+        # on any error; then every component of the server restarts with the restored files.
+        name = plan.snapshot_file or ""
+        sid = int(name.split("-")[1]) if name else None
+        if sid not in roles:
+            raise ValueError("Снапшот не от сервера этой установки")
+        steps.append(step("put_configs", sid, f"{servers[sid]['name']}: файлы из снапшота {name.removesuffix('.enc')} (текущие — в копию на сервере)",
+                          snapshot=name))
+        steps += [step("compose_up", sid, f"{servers[sid]['name']}: перезапуск ({DIRS[c]})", component=c) for c in components(sid)]
+        if "panel" in components(sid):
+            steps.append(step("wait_panel", sid, f"{servers[sid]['name']}: панель отвечает (/health)"))
+        return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {servers[sid]['name']}", "images": IMAGES,
+                "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": roles[sid],
+                                       "changes": [f"Файлы компонентов — из снапшота {name.removesuffix('.enc')}"]}},
+                "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
+    if action == "remove_component":
+        comp = plan.remove_component
+        holders = [sid for sid in roles if comp in components(sid)]
+        if not comp or not holders:
+            raise ValueError("Этого компонента нет на серверах установки")
+        if comp == "panel":
+            steps += [step("backup_panel", p, f"{servers[p]['name']}: копия базы панели"),
+                      step("fetch_panel_backup", p, f"{servers[p]['name']}: копия базы панели — зашифрованной в хранилище магазина")]
+        for sid in holders:
+            steps.append(step("compose_down", sid, f"{servers[sid]['name']}: остановить и убрать контейнеры ({DIRS[comp]}); тома и файлы остаются",
+                              component=comp))
+        return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {DIRS[comp]}", "images": IMAGES,
+                "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": roles[sid],
+                                       "changes": [f"Контейнеры {DIRS[comp]} остановлены и удалены; вернуть — «Переустановить» установку"]}
+                            for sid in holders},
+                "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
     if action in SERVICE_ACTIONS:
         verb = {"start": "запуск", "stop": "остановка", "restart": "перезапуск", "logs": f"последние {LOG_LINES} строк журнала"}[action]
         order = list(roles)

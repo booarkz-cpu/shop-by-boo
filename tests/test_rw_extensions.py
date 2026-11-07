@@ -204,6 +204,20 @@ async def test_warp_outbound_in_a_profile(routing_panel):
 
 
 @pytest.mark.asyncio
+async def test_ad_blocking_on_the_nodes_of_a_profile(routing_panel):
+    db = Db()
+    before = [dict(r) for r in routing_panel["profiles"][ENTRY]["config"]["routing"]["rules"]]
+    await ext.profile_adblock(ENTRY, ext.AdBlockIn(), db, ADMIN)
+    await ext.profile_adblock(ENTRY, ext.AdBlockIn(), db, ADMIN)  # again: still one rule
+    config = routing_panel["profiles"][ENTRY]["config"]
+    assert config["routing"]["rules"][0] == {"domain": ["geosite:category-ads-all"], "outboundTag": "BLOCK"}
+    assert sum(r.get("domain") == ["geosite:category-ads-all"] for r in config["routing"]["rules"]) == 1
+    assert any(o["tag"] == "BLOCK" and o["protocol"] == "blackhole" for o in config["outbounds"])
+    await ext.profile_adblock(ENTRY, ext.AdBlockIn(enabled=False), db, ADMIN)
+    assert routing_panel["profiles"][ENTRY]["config"]["routing"]["rules"] == before, "only our rule goes"
+
+
+@pytest.mark.asyncio
 async def test_server_routing_bridge(routing_panel):
     db = Db()
     out = await ext.create_routing(ext.RoutingIn(entry_profile_uuid=ENTRY, exit_node_uuid=NODE, port=8443), db, ADMIN)
