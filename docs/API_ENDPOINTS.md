@@ -1,6 +1,6 @@
-# Каталог API — v28.88.0 / API v21.5.1
+# Каталог API — v28.89.0 / API v21.5.1
 
-Сгенерирован из OpenAPI текущих исходников. Миграция: `0093_ssh_key_rotation`.
+Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
 Сценарии: [руководство](ru/WORKSPACE_USER_GUIDE.md), [рефералы](ru/REFERRALS_CURRENT.md), [HTTP API](../API_REFERENCE_RU.md).
 
@@ -933,6 +933,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/v3/status` | V3 Status | открытый |
 | `POST` | `/api/webhooks/anore` | Anore Webhook | подпись провайдера |
 | `POST` | `/api/webhooks/antilopay` | Antilopay Webhook | подпись провайдера |
+| `POST` | `/api/webhooks/app-store` | App Store Notification | подпись провайдера |
 | `POST` | `/api/webhooks/aurapay` | Aurapay Webhook | подпись провайдера |
 | `POST` | `/api/webhooks/cashera` | Cashera Webhook | подпись провайдера |
 | `POST` | `/api/webhooks/cloudpayments` | Cloudpayments Webhook | подпись провайдера |
@@ -940,6 +941,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/webhooks/cryptobot` | Cryptobot Webhook | подпись провайдера |
 | `GET` | `/api/webhooks/freekassa` | Freekassa Webhook | подпись провайдера |
 | `POST` | `/api/webhooks/freekassa` | Freekassa Webhook | подпись провайдера |
+| `POST` | `/api/webhooks/google-play` | Google Play Notification | подпись провайдера |
 | `POST` | `/api/webhooks/lava` | Lava Webhook | подпись провайдера |
 | `POST` | `/api/webhooks/mulenpay` | Mulenpay Webhook | подпись провайдера |
 | `POST` | `/api/webhooks/pal24` | Pal24 Webhook | подпись провайдера |

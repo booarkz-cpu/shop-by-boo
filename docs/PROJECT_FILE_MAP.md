@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.88.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.89.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2310**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2314**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -353,6 +353,7 @@
 | [backend/alembic/versions/0091_remnawave_domains.py](../backend/alembic/versions/0091_remnawave_domains.py) | API, бот и worker |
 | [backend/alembic/versions/0092_telegram_bot.py](../backend/alembic/versions/0092_telegram_bot.py) | API, бот и worker |
 | [backend/alembic/versions/0093_ssh_key_rotation.py](../backend/alembic/versions/0093_ssh_key_rotation.py) | API, бот и worker |
+| [backend/alembic/versions/0094_store_subscriptions.py](../backend/alembic/versions/0094_store_subscriptions.py) | API, бот и worker |
 | [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
 | [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
 | [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
@@ -585,6 +586,7 @@
 | [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
 | [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
 | [backend/app/status_page.py](../backend/app/status_page.py) | API, бот и worker |
+| [backend/app/store_billing.py](../backend/app/store_billing.py) | API, бот и worker |
 | [backend/app/sub_portal.py](../backend/app/sub_portal.py) | API, бот и worker |
 | [backend/app/sub_proxy.py](../backend/app/sub_proxy.py) | API, бот и worker |
 | [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
@@ -1192,6 +1194,7 @@
 | [docs/ru/RELEASE_V28_86_0.md](../docs/ru/RELEASE_V28_86_0.md) | Документация |
 | [docs/ru/RELEASE_V28_87_0.md](../docs/ru/RELEASE_V28_87_0.md) | Документация |
 | [docs/ru/RELEASE_V28_88_0.md](../docs/ru/RELEASE_V28_88_0.md) | Документация |
+| [docs/ru/RELEASE_V28_89_0.md](../docs/ru/RELEASE_V28_89_0.md) | Документация |
 | [docs/ru/RELEASE_V28_8_0.md](../docs/ru/RELEASE_V28_8_0.md) | Документация |
 | [docs/ru/RELEASE_V28_9_0.md](../docs/ru/RELEASE_V28_9_0.md) | Документация |
 | [docs/ru/RUNTIME_SETTINGS_CURRENT.md](../docs/ru/RUNTIME_SETTINGS_CURRENT.md) | Документация |
@@ -2229,6 +2232,7 @@
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_status_and_regional_pricing.py](../tests/test_status_and_regional_pricing.py) | Проверки |
 | [tests/test_store_assets.py](../tests/test_store_assets.py) | Проверки |
+| [tests/test_store_billing.py](../tests/test_store_billing.py) | Проверки |
 | [tests/test_subscription_commerce.py](../tests/test_subscription_commerce.py) | Проверки |
 | [tests/test_subscription_middleware.py](../tests/test_subscription_middleware.py) | Проверки |
 | [tests/test_subscription_portal.py](../tests/test_subscription_portal.py) | Проверки |

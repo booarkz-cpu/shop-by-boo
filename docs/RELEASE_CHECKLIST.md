@@ -1,6 +1,6 @@
 # Чек-лист релиза
 
-Дистрибутив `v28.88.0`, runtime/API `21.5.1`, миграция магазина `0093_ssh_key_rotation`,
+Дистрибутив `v28.89.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
 Support Pro `0008`.
 
 Отмечайте пункт только при наличии подтверждения. Правило простое: то, что не проверено, остаётся
@@ -58,7 +58,7 @@ cd cabinet && npm ci && npm run typecheck && npm test && npm run build
 
 ```bash
 cd backend
-alembic heads     # один head: 0093_ssh_key_rotation
+alembic heads     # один head: 0094_store_subscriptions
 alembic upgrade head
 ```
 

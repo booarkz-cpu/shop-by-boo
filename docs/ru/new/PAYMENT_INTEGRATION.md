@@ -46,7 +46,7 @@
 | Tribute | `tribute.py` | подпись Tribute | — (донат пополняет баланс) | нет | нет | — | `test_tribute.py` | BLOCKED_SECRETS |
 | Telegram Stars | `telegram_stars.py`, `bot.py` | Telegram (`pre_checkout_query` + `successful_payment`, сверка суммы XTR и заказа) | ответ Telegram | `refundStarPayment` | подписка Stars на 30 дней | тестовая среда Telegram | `test_growth.py`, `test_single_business_logic.py` | BLOCKED_SECRETS |
 | Stripe, PayPal | `payment_platform_api.py` | подпись Stripe / проверка PayPal API | API платёжной системы | — | — | test mode | `test_behaviour_store_and_webhooks.py` | BLOCKED_SECRETS |
-| Apple IAP, Google Play | `payment_platform_api.py` | — | — | — | — | — | `test_behaviour_store_and_webhooks.py` | NOT_APPLICABLE: приём закрыт ответом 410, оплата идёт через кабинет |
+| Apple IAP, Google Play | `payment_platform_api.py` | — | — | — | — | — | `test_behaviour_store_and_webhooks.py`, `test_store_billing.py` | IMPLEMENTED (v28.89.0): включает владелец; продления и возвраты — `store_billing.py`; вживую BLOCKED_SECRETS |
 | Sandbox магазина | `payments.py` (`SandboxProvider`) | — | только при `PAYMENTS_SANDBOX=true` и не в production | да | да | сам и есть sandbox | `test_sandbox_*` | PASS (CI) |
 
 «Контракт» — `tests/test_payment_contract.py` (v28.75.0). Он прогоняет каждую кассу реестра `gateways.GATEWAYS` через общую выдачу и проверяет:
@@ -73,4 +73,4 @@
 
 - **Живые платежи** у всех касс — `BLOCKED_SECRETS`. Нужны sandbox-ключи и разрешение владельца на тестовые платежи. Как проверить — в [PAYMENT_TESTING.md](PAYMENT_TESTING.md).
 - **Возвраты через API у Lava, Pal24, Mulen Pay, WATA, Antilopay, AuraPay, Anore, Cashera и ParityPay.** Подтверждённого метода возврата в документации этих касс нет: возврат делается в кабинете кассы, магазин его перечитывает.
-- **Apple IAP и Google Play** закрыты (410). Покупки в приложениях идут через кабинет.
+- **Apple IAP и Google Play** (v28.89.0): выключены по умолчанию, включаются в «Настройках без перезапуска → Магазины приложений». Магазин сам проверяет покупку у Google/Apple; продления и возвраты — `POST /api/webhooks/app-store` и `POST /api/webhooks/google-play?token=…` (`store_billing.py`).
