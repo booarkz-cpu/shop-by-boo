@@ -10,6 +10,8 @@ ufw, fail2ban, CrowdSec or the table of «Порт ноды для панели�
   banned for 10 minutes (table inet corgi_guard, dynamic sets with timeouts). The shop's address, the panel's, the
   administrator's and CGNAT (100.64.0.0/10 — many clients behind one address) are never limited. «observe» only counts.
 * swap — a swap file of the chosen size (/swapfile.corgi) and vm.swappiness=10, after a check of free disk space.
+* sni_scan — read-only: from the node, which well-known sites answer TLS 1.3 with HTTP/2 and how fast — candidates for
+  the REALITY «dest» of a node without SelfSteal (nothing is changed on the server).
 
 scripts/ci/netmods-check.sh runs all three in network namespaces / a scratch root in CI.
 """
@@ -153,3 +155,33 @@ off)
 *) exit 2 ;;
 esac
 """
+
+SNI_CANDIDATES = ("www.microsoft.com", "www.apple.com", "dl.google.com", "www.samsung.com", "www.nvidia.com", "www.amd.com",
+                  "www.intel.com", "www.cisco.com", "www.oracle.com", "www.ibm.com", "www.logitech.com", "www.asus.com",
+                  "www.dell.com", "www.hp.com", "www.lenovo.com", "www.mozilla.org", "www.yahoo.com", "www.bing.com",
+                  "gateway.icloud.com", "itunes.apple.com", "swdist.apple.com", "www.speedtest.net", "addons.mozilla.org",
+                  "www.tesla.com", "www.sony.com", "www.xbox.com", "www.playstation.com", "www.adobe.com")
+
+SNI_SCAN = r"""set -u
+command -v openssl >/dev/null 2>&1 || { echo "noopenssl"; exit 7; }
+for host in "$@"; do
+  case "$host" in *[!a-z0-9.-]*) continue ;; esac
+  start=$(date +%s%N)
+  out=$(echo | timeout 6 openssl s_client -connect "$host:443" -servername "$host" -tls1_3 -alpn h2 2>/dev/null)
+  ms=$(( ($(date +%s%N) - start) / 1000000 ))
+  proto=$(printf '%s' "$out" | grep -m1 -o 'Protocol *: *TLSv1.3\|New, TLSv1.3' | head -1)
+  alpn=$(printf '%s' "$out" | grep -m1 -o 'ALPN protocol: h2')
+  group=$(printf '%s' "$out" | grep -m1 -io 'X25519[A-Za-z0-9]*' | head -1)
+  if [ -n "$proto" ] && [ -n "$alpn" ]; then echo "ok $ms $host ${group:-?}"; else echo "no $ms $host"; fi
+done
+"""
+
+
+def parse_sni(out: str) -> list[dict]:
+    """The scan's lines → the fitting sites, fastest first."""
+    rows = []
+    for line in out.splitlines():
+        parts = line.split()
+        if len(parts) >= 3 and parts[0] == "ok" and parts[1].isdigit():
+            rows.append({"host": parts[2], "ms": int(parts[1]), "group": parts[3] if len(parts) > 3 else "?"})
+    return sorted(rows, key=lambda r: r["ms"])

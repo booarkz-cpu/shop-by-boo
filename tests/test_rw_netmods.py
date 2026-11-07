@@ -81,3 +81,24 @@ async def test_steps_pass_the_shop_and_panel_addresses_and_undo(monkeypatch):
     answers[rw_netmods.MSS] = SimpleNamespace(code=6, out="", err="")
     with pytest.raises(rw_steps.StepError, match="MTU пути"):
         await rw_steps.run_node_module(ctx, {"server_id": 2, "params": {"module": "mss_clamp", "enabled": True}})
+
+
+@pytest.mark.asyncio
+async def test_sni_scan_is_read_only_and_ranks_the_candidates(monkeypatch):
+    steps, title = rw_plan.module_steps(plan_with(name="sni_scan"), SERVERS, {2: ["node"]})
+    assert title == "Подбор сайта для REALITY" and "ничего не меняется" in steps[0]["title"]
+    assert subprocess.run(["bash", "-n"], input=rw_netmods.SNI_SCAN, text=True).returncode == 0
+    out = "ok 120 www.apple.com X25519MLKEM768\nno 30 www.bad.example\nok 45 dl.google.com X25519\nweird line\n"
+    assert [r["host"] for r in rw_netmods.parse_sni(out)] == ["dl.google.com", "www.apple.com"]
+    calls = []
+
+    async def run(ctx, sid, script, *args, timeout=0):
+        calls.append(args)
+        return SimpleNamespace(code=0, out=out, err="")
+
+    monkeypatch.setattr(rw_steps, "_run", run)
+    ctx = rw_steps.Context(plan=rw_plan.PlanIn(mode="add_node", node_server_ids=[2]), servers=SERVERS, secrets={}, state={})
+    await rw_steps.run_node_module(ctx, {"server_id": 2, "params": {"module": "sni_scan", "enabled": True}})
+    assert calls[0] == rw_netmods.SNI_CANDIDATES and len(calls[0]) >= 25
+    assert ctx.state["modules"]["2"]["sni_scan"] == "dl.google.com, www.apple.com"
+    assert ctx.state["sni_scan"]["2"][0] == {"host": "dl.google.com", "ms": 45, "group": "X25519"}

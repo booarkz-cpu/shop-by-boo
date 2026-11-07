@@ -41,11 +41,12 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
 MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-           "mss_clamp", "node_guard", "swap")
+           "mss_clamp", "node_guard", "swap", "sni_scan")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
                  "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
                  "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели", "mss_clamp": "MSS clamp",
-                 "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки"}
+                 "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки",
+                 "sni_scan": "Подбор сайта для REALITY"}
 # Release files by the server's architecture (uname -m; the preflight allows only these two).
 XRAY_ASSETS = {"x86_64": "Xray-linux-64.zip", "aarch64": "Xray-linux-arm64-v8a.zip"}
 WGCF_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}
@@ -238,7 +239,7 @@ class ModuleRun(BaseModel):
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan"]
     enabled: bool = True
     # v28.92.0 (N7): «Защита ноды» — ports, new connections per second from one address, extra allowed addresses, mode;
     # «Файл подкачки» — size in MB.
@@ -788,6 +789,15 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
                               enabled=mod.enabled, ips=plan.node_port_ips))
         steps.append(step("verify", None, "Проверка: панель видит ноды (иначе правило снимается)"))
         title = f"Порт ноды для панели: {'закрыть для всех, кроме панели' if mod.enabled else 'открыть'}"
+    elif name == "sni_scan":
+        # v28.92.0 (N7 «Автоподбор SNI»): read-only — which well-known sites answer the node with TLS 1.3 + HTTP/2.
+        targets = mod.server_ids or nodes
+        if not targets or any(sid not in nodes for sid in targets):
+            raise ValueError("Выберите ноды этой установки")
+        for sid in targets:
+            steps.append(step("node_module", sid, f"{servers[sid]['name']}: проверить сайты-кандидаты (TLS 1.3, HTTP/2, скорость); ничего не меняется",
+                              module="sni_scan", enabled=True))
+        title = "Подбор сайта для REALITY"
     elif name in ("mss_clamp", "node_guard", "swap"):
         # v28.92.0 (N7, rw_netmods): MSS clamp and the guard on the nodes by default, swap on any server of the installation.
         targets = mod.server_ids or (list(roles) if name == "swap" else nodes)

@@ -109,7 +109,7 @@ class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan"]
     guard_ports: list[int] | None = Field(default=None, max_length=12)          # v28.92.0 (N7)
     guard_rate: int | None = Field(default=None, ge=5, le=5000)
     guard_allow: list[str] | None = Field(default=None, max_length=10)

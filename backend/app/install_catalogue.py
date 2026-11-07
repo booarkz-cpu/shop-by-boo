@@ -52,6 +52,7 @@ OPS: tuple[tuple, ...] = (
     ("xray_core", "nodes", "Ядро Xray нужной версии", "Выпуск Xray-core с GitHub (SHA-256 сверяется) вместо ядра образа.", True, False, ("module", "xray_core", "node")),
     ("availability", "nodes", "Доступность нод", "Проверки из разных сетей, RIPE Atlas, качество подключений.", False, True, ("tab", "availability")),
     ("xray_checker", "nodes", "Проверка конфигов трафиком", "Xray Checker проверяет каждый сервер подписки настоящим соединением.", True, False, ("module", "xray_checker", "any")),
+    ("sni_scan", "nodes", "Автоподбор SNI для REALITY", "С самой ноды проверяет ~30 известных сайтов: отвечают ли по TLS 1.3 и HTTP/2 и как быстро — лучшие кандидаты для REALITY без SelfSteal. Ничего не меняет.", True, False, ("module", "sni_scan", "node")),
     ("mss_clamp", "nodes", "MSS clamp", "Меряет MTU пути до Cloudflare и Яндекса; если он меньше MTU интерфейса — включает MSS clamp. Нода не перезапускается.", True, False, ("module", "mss_clamp", "node")),
     ("hardening", "protect", "Базовая защита и ускорение", "fail2ban, обновления безопасности, BBR, SSH только с ваших адресов.", True, True, ("module", "hardening", "any")),
     ("node_guard", "protect", "Защита ноды (nftables)", "Лимит новых соединений с одного адреса на портах ноды, автобан на 10 минут; ваш адрес, панель и CGNAT — без ограничений.", True, True, ("module", "node_guard", "node")),

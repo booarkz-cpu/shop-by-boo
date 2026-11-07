@@ -1005,6 +1005,15 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         mods["watchdog"] = enabled
     elif name in ("mss_clamp", "node_guard", "swap"):
         await _run_netmod(ctx, sid, name, p, enabled, mods)
+    elif name == "sni_scan":
+        from . import rw_netmods
+        result = await _run(ctx, sid, rw_netmods.SNI_SCAN, *rw_netmods.SNI_CANDIDATES, timeout=400)
+        if result.code == 7:
+            raise StepError("На сервере нет openssl")
+        found = rw_netmods.parse_sni(result.out)
+        _note(ctx, "Подходят (TLS 1.3 + HTTP/2), быстрые сверху: " + (", ".join(f"{r['host']} — {r['ms']} мс" for r in found[:10]) or "ни один"))
+        ctx.state.setdefault("sni_scan", {})[str(sid)] = found[:15]
+        mods["sni_scan"] = ", ".join(r["host"] for r in found[:3]) or "нет подходящих"
     elif name == "transports":
         wanted = p.get("transports") or []
         flags = ["on" if t in wanted else "off" for t in ("xhttp", "grpc", "hysteria2", "tls")]

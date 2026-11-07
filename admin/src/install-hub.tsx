@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "";
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const post = (body?: any): RequestInit => ({method: "POST", body: body === undefined ? undefined : JSON.stringify(body)});
 // Modules planned right here (the others need more input and open «Установка Remnawave → Модули серверов»).
-const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp"];
+const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan"];
 const STEPS: [string, string][] = [["prepared", "Подготовьте сервер"], ["panel", "Установите панель или ноду"], ["domain", "Подключите домен"]];
 
 /** «Установка» (v28.92.0, N7): every operation on the servers in one catalogue — each card does its job or opens the section that does. */
@@ -185,7 +185,7 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
     if (name === "transports") Object.assign(m, {enabled: true, transports: enabled ? ["xhttp", "grpc", "hysteria2", "tls"] : [], fingerprint: "firefox"});
     if (name === "hardening") Object.assign(m, {enabled: true, server_ids: [sid], hardening: enabled ? {fail2ban: true, upgrades: true, bbr: true, admin_ips: []}
       : {fail2ban: false, upgrades: false, bbr: false, admin_ips: []}});
-    if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port"].includes(name)) m.server_ids = [sid];
+    if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port", "sni_scan"].includes(name)) m.server_ids = [sid];
     if (name === "node_guard") Object.assign(m, {guard_rate: Number(rate), guard_mode: guardMode,
       guard_ports: ports.split(/[\s,]+/).filter(Boolean).map(Number)});
     if (name === "swap") m.swap_mb = Number(swap);
