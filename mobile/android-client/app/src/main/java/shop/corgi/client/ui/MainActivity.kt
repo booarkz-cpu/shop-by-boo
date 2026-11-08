@@ -17,7 +17,10 @@ import shop.corgi.client.vpn.ClientVpnService
 import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
-    private companion object { const val HANDLED = "shop.corgi.client.handled" }
+    private companion object {
+        const val HANDLED = "shop.corgi.client.handled"
+        const val TILE_PREFERENCES = "android.service.quicksettings.action.QS_TILE_PREFERENCES"
+    }
 
     /** Text waiting in «Добавить» (shared, scanned, a link or corgi://import) — confirmed by the user. */
     val incoming = androidx.compose.runtime.mutableStateOf<String?>(null)
@@ -53,11 +56,13 @@ class MainActivity : ComponentActivity() {
         }
         if (savedInstanceState == null && store.settings.autoConnectLaunch && store.active() != null
             && ClientVpnService.current(this) == ClientVpnService.STATE_OFF) connect()
-        setContent { ClientApp(store, incoming, ::connect, pending) }
+        if (intent?.action == TILE_PREFERENCES) openTab.value = 1
+        setContent { ClientApp(store, incoming, ::connect, pending, openTab) }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (intent.action == TILE_PREFERENCES) openTab.value = 1
         ciHook(intent)
         val text = handle(intent)
         setIntent(intent.putExtra(HANDLED, true))
@@ -66,6 +71,9 @@ class MainActivity : ComponentActivity() {
 
     /** A corgi://routing/… or corgi://restore/… link waiting for the user's confirmation in the app. */
     val pending = androidx.compose.runtime.mutableStateOf<Scheme?>(null)
+
+    /** v1.8.0 (N12): the tab to show — 1 (servers) after a long press on the quick settings tile. */
+    val openTab = androidx.compose.runtime.mutableStateOf<Int?>(null)
 
     /**
      * What an intent asks for: text to add (shown in «Добавить» to confirm), or a corgi:// action — connect, disconnect,
@@ -126,4 +134,5 @@ class MainActivity : ComponentActivity() {
         }
         if (intent.getBooleanExtra("client_test_stop", false)) ClientVpnService.stop(this)
     }
+
 }
