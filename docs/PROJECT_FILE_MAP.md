@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.101.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.102.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2384**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2386**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1120,6 +1120,7 @@
 | [docs/ru/RELEASE_V28.md](../docs/ru/RELEASE_V28.md) | Документация |
 | [docs/ru/RELEASE_V28_100_0.md](../docs/ru/RELEASE_V28_100_0.md) | Документация |
 | [docs/ru/RELEASE_V28_101_0.md](../docs/ru/RELEASE_V28_101_0.md) | Документация |
+| [docs/ru/RELEASE_V28_102_0.md](../docs/ru/RELEASE_V28_102_0.md) | Документация |
 | [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
@@ -2390,5 +2391,6 @@
 | [tests/test_v45_5_deep_regressions.py](../tests/test_v45_5_deep_regressions.py) | Проверки |
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |
+| [tests/test_workflows_parse.py](../tests/test_workflows_parse.py) | Проверки |
 | [tests/test_xray_core_watch.py](../tests/test_xray_core_watch.py) | Проверки |
 | [tests/test_zero_downtime_deploy.py](../tests/test_zero_downtime_deploy.py) | Проверки |
