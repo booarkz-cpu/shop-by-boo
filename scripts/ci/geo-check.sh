@@ -19,7 +19,8 @@ import json,sys; r=json.load(open('$dir/release.json')); f=r['files']
 print(r['version'], r['image'], r['dir'], f['geoip']['url'], f['geoip']['sha256'], f['geosite']['url'], f['geosite']['sha256'])")
 fail() { echo "FAIL: $*"; exit 1; }
 echo "lists $version"
-out=$(bash "$dir/geo.sh" install "$u1" "$s1" "$u2" "$s2") || fail "install: $out"
+# GitHub release downloads answer 504 at times: up to 4 tries, 30 s apart.
+for try in 1 2 3 4; do out=$(bash "$dir/geo.sh" install "$u1" "$s1" "$u2" "$s2") && break; echo "::warning::geo install try $try: $out"; [ "$try" = 4 ] && fail "install: $out"; sleep 30; done
 echo "ok: $out"
 cat > "$dir/config.json" <<JSON
 {"log": {"loglevel": "warning"},

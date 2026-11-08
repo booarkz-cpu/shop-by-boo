@@ -47,6 +47,8 @@ jobs:
         run: bash scripts/mobile/build-xray-aar.sh
       - name: ktlint (main screen, view model and their tests)
         run: bash scripts/mobile/client-ktlint.sh
+      - name: Gradle distribution (retries on GitHub 504)
+        run: bash scripts/ci/gradle-warm.sh mobile/android-client
       - name: Unit tests, debug and release builds
         run: |
           set -euo pipefail
