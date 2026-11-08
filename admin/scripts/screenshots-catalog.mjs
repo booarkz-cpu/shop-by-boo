@@ -173,6 +173,7 @@ const index = [];
   await settle(page);
   await page.screenshot({path: path.join(adminDir, '00_all_sections.png')});
   index.unshift({file: '00_all_sections.png', group: 'Все разделы', label: 'Все разделы', description: 'Стартовая страница: ключевые показатели и все функции панели по группам с описанием и поиском по задаче.'});
+  const broken = [];
   for (const group of groups) {
     for (const item of group.items) {
       await page.evaluate((tab) => { location.hash = tab; }, item.tab);
@@ -181,6 +182,9 @@ const index = [];
       await page.evaluate(() => window.scrollTo(0, 0));
       const file = `${String(numberOf(item.tab)).padStart(2, '0')}_${item.tab}.png`;
       await page.screenshot({path: path.join(adminDir, file)});
+      // N13: a section that shows its error state is a broken picture — listed, and the run fails at the end.
+      const failed = await page.getByText('Не удалось загрузить раздел').count();
+      if (failed) broken.push(`${item.tab} (${item.label})`);
       index.push({file, group: group.title, groupDescription: group.description, label: item.label, description: item.description});
     }
   }
@@ -210,6 +214,7 @@ const index = [];
       console.warn(`feature card ${name} not captured: ${error.message.split('\n')[0]}`);
     }
   }
+  if (broken.length) { console.error(`sections in their error state: ${broken.join(', ')}`); process.exitCode = 1; }
   await page.keyboard.press('Control+K');
   await page.getByRole('dialog', {name: 'Быстрый поиск'}).getByRole('textbox').fill('возврат');
   await page.waitForTimeout(300);

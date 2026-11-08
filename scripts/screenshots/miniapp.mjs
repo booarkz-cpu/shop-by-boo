@@ -58,7 +58,12 @@ const api = {
   "/api/me/dashboard": {user: {username: "artem", email: "", wallet_balance: "350.00", referral_balance: "120.00", referral_code: "LUSI42"},
     subscription: {id: 1, name: "12 месяцев", status: "active", expires_at: days(214), subscription_url: "https://sub.example.com/s/demo"}},
   "/api/plans": config.plans, "/api/me/subscriptions": [{id: 1, name: "12 месяцев", is_primary: true, expires_at: days(214), status: "active"}],
-  "/api/me/traffic": {available: true, traffic_used_bytes: 38e9, traffic_limit_bytes: 0, devices: 3},
+  // One answer for the overview's traffic card and «Трафик по дням» (?days=…): the same path in the cabinet.
+  "/api/me/traffic": {available: true, traffic_used_bytes: 38e9, traffic_limit_bytes: 0, devices: 3,
+    days: Array.from({length: 30}, (_, i) => ({day: days(i - 29).slice(0, 10), bytes: Math.round((0.6 + 0.4 * Math.sin(i / 3) ** 2 + (i % 7 === 5 ? 0.5 : 0)) * 1.4e9)})),
+    total_bytes: 38e9, per_day_bytes: 1.27e9, peak: {day: days(-2).slice(0, 10), bytes: 2.6e9},
+    nodes: [{name: "Frankfurt #1", bytes: 21e9, share: 55}, {name: "Helsinki", bytes: 11e9, share: 29}, {name: "Amsterdam", bytes: 6e9, share: 16}]},
+  "/api/me/stats": {days_with_us: 214, days_paid: 365, traffic_used_gb: 38, traffic_limit_gb: null, traffic_lifetime_gb: 412, devices: 3, device_limit: 5, blocked_servers_avoided: 17},
   "/api/me/devices": [], "/api/me/routing/recommendation": {recommendation: {name: "Frankfurt #1", country: "DE", load: 34}},
   "/api/me/connection-info": {subscription_url: "https://sub.example.com/s/demo", platforms: {android: "", ios: ""}},
   "/api/me/wallet/history": {balance: "350.00", items: []}, "/api/me/consent": {enabled: false, accepted: true, version: "1"},

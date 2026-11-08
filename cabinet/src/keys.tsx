@@ -55,7 +55,7 @@ export function MyTraffic({request}: {request: RequestFn}) {
   const [days, setDays] = useState(30);
   const [data, setData] = useState<any>(null);
   useEffect(() => { request(`/api/me/traffic?days=${days}`).then(setData).catch(() => setData(null)); }, [request, days]);
-  if (!data || !data.days.length) return null;
+  if (!Array.isArray(data?.days) || !data.days.length) return null;
   const max = Math.max(1, ...data.days.map((x: any) => x.bytes));
   return (
     <section className="form-card" aria-label="Трафик по дням">
@@ -64,7 +64,7 @@ export function MyTraffic({request}: {request: RequestFn}) {
       <p>Всего {gb(data.total_bytes)} · в среднем {gb(data.per_day_bytes)} в день{data.peak ? ` · пик ${data.peak.day.slice(5)} — ${gb(data.peak.bytes)}` : ""}</p>
       <div className="traffic-bars" role="img" aria-label="Трафик по дням">{data.days.map((x: any) =>
         <span key={x.day} title={`${x.day}: ${gb(x.bytes)}`} style={{height: `${Math.max(3, (x.bytes * 100) / max)}%`}}/>)}</div>
-      {data.nodes.length ? <ul className="key-list">{data.nodes.map((n: any) => <li key={n.name}><span>{n.name}</span><span>{gb(n.bytes)} · {n.share}%</span></li>)}</ul> : null}
+      {data.nodes?.length ? <ul className="key-list">{data.nodes.map((n: any) => <li key={n.name}><span>{n.name}</span><span>{gb(n.bytes)} · {n.share}%</span></li>)}</ul> : null}
     </section>
   );
 }

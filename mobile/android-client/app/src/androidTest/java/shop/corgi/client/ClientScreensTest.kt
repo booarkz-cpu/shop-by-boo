@@ -81,6 +81,7 @@ class ClientScreensTest {
         launch()
         compose.onNodeWithText("Servers").tap()
         exists("Auto select"); exists("Netherlands"); exists("Germany"); exists("REALITY")
+        shot("servers")  // N13: README
         compose.onAllNodesWithText("TROJAN")[0].tap()          // the protocol chip comes first
         assertTrue(compose.onAllNodesWithText("Netherlands").fetchSemanticsNodes().isEmpty())
         compose.onNodeWithText("All").tap()
@@ -101,6 +102,7 @@ class ClientScreensTest {
         compose.onNodeWithText("example.com / 10.0.0.0/8 / geosite:category-ads-all").performTextInput("Example.com")
         compose.onNodeWithText("Add rule").tap()
         exists("domain:example.com → direct")
+        shot("routing")  // N13: README
         assertEquals("domain:example.com", Store(context).settings.rules.single().match)
     }
 
@@ -154,6 +156,7 @@ class ClientScreensTest {
         compose.onAllNodesWithTag("app-row")[0].tap()
         assertEquals(1, Store(context).settings.apps.size)
         exists("Chosen: 1")
+        shot("apps")  // N13: README
     }
 
     @Test fun everySettingsPageOpensAndSaves() {
