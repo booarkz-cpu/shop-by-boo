@@ -27,6 +27,7 @@ class ClientVpnService : VpnService() {
     private var tun: ParcelFileDescriptor? = null
     private var wake: PowerManager.WakeLock? = null
     @Volatile private var speedThread: Thread? = null
+    @Volatile private var failoverThread: Thread? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) { shutdown(); return START_NOT_STICKY }
@@ -62,7 +63,7 @@ class ClientVpnService : VpnService() {
                 if (s.tunnelMode == "proxy") {
                     // «Только прокси»: no VPN interface and no key icon — apps that support a proxy use 127.0.0.1 (or this phone's address).
                     Xray.start(this, config, 0) { state(this, STATE_OFF) }
-                    afterStart(s, tags)
+                    afterStart(s, tags, check)
                     return@thread
                 }
                 if (ConfigBuilder.needsGeo(config) && !store.geoReady()) throw IllegalStateException(tr("Нужны geo-файлы: «Маршруты → Скачать geo-файлы»", "Geo files needed: «Routing → Download geo files»", "Потрібні geo-файли: «Маршрути → Завантажити geo-файли»"))
@@ -82,7 +83,7 @@ class ClientVpnService : VpnService() {
                 val fd = builder.establish() ?: throw IllegalStateException(tr("Нет разрешения на VPN", "No VPN permission", "Немає дозволу на VPN"))
                 tun = fd
                 Xray.start(this, config, fd.fd) { state(this, STATE_OFF) }
-                afterStart(s, tags)
+                afterStart(s, tags, check)
             } catch (exc: Exception) {
                 error(this, exc.message ?: exc.javaClass.simpleName)
                 Logs(filesDir).app("[VPN] error ${exc.message ?: exc.javaClass.simpleName}")
@@ -92,7 +93,7 @@ class ClientVpnService : VpnService() {
         return START_STICKY
     }
 
-    private fun afterStart(s: Settings, tags: List<String>) {
+    private fun afterStart(s: Settings, tags: List<String>, check: shop.corgi.client.core.IpCheck) {
         session = Session(System.currentTimeMillis())
         Streak.record(this)
         state(this, STATE_ON)
@@ -111,6 +112,43 @@ class ClientVpnService : VpnService() {
                 try { Thread.sleep(1000) } catch (_: InterruptedException) { break }
             }
         }
+        if (s.smartFailover) watch(s, check)
+    }
+
+    /**
+     * v1.7.1 (N12): Smart Failover — the page of «URL проверки» through the tunnel every 10 s; no answer for the chosen
+     * time → the fastest other server of the provider, and the tunnel comes back up on it.
+     */
+    private fun watch(s: Settings, check: shop.corgi.client.core.IpCheck) {
+        failoverThread = thread {
+            val failover = shop.corgi.client.core.Failover(s.failoverSeconds * 1000L)
+            while (Xray.running && failoverThread == Thread.currentThread()) {
+                try { Thread.sleep(shop.corgi.client.core.Failover.PROBE_MS) } catch (_: InterruptedException) { break }
+                if (!Xray.running || failoverThread != Thread.currentThread()) break
+                val ok = shop.corgi.client.core.ExternalIp.probe(check, s.pingUrl)
+                if (!failover.record(ok, System.currentTimeMillis())) continue
+                val store = Store(this)
+                val profile = store.active() ?: break
+                if (profile.kind == "json" || profile.configs.isNotEmpty()) break
+                val keys = profile.servers().map { shop.corgi.client.core.Ping.key(it) }
+                val next = shop.corgi.client.core.Failover.next(keys, store.activeServer, store.pings) ?: break
+                Logs(filesDir).app("[VPN] failover ${store.activeServer} -> $next: no answer for ${s.failoverSeconds} s")
+                store.activeServer = next
+                failoverThread = null
+                android.os.Handler(mainLooper).post { restart() }
+                break
+            }
+        }
+    }
+
+    /** The tunnel again with the server now chosen, without leaving the foreground. */
+    private fun restart() {
+        speedThread = null
+        failoverThread = null
+        Xray.stop()
+        try { tun?.close() } catch (_: Exception) { }
+        tun = null
+        start(this)
     }
 
     override fun onRevoke() { shutdown() }
@@ -119,6 +157,7 @@ class ClientVpnService : VpnService() {
 
     private fun shutdown() {
         speedThread = null
+        failoverThread = null
         ipCheck = null
         session = Session()
         runCatching { wake?.takeIf { it.isHeld }?.release() }

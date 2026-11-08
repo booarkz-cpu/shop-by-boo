@@ -324,6 +324,16 @@ private fun TunnelPage(store: Store, s: Settings, save: (Settings) -> Unit) {
             ToggleRow(tr("Мультиплексирование (Mux)", "Multiplexing (Mux)", "Мультиплексування (Mux)"), tr("Объединять соединения в один канал (не для XTLS Vision и Hysteria2)",
                 "Combine connections into one channel (not for XTLS Vision or Hysteria2)", "Об'єднувати з'єднання в один канал (не для XTLS Vision і Hysteria2)"), s.mux) { save(s.copy(mux = it)) }
         }
+        // v1.7.1 (N12): Smart Failover — leave a dead server by itself.
+        Section(tr("Авто-переключение", "Smart Failover", "Авто-перемикання")) {
+            ToggleRow(tr("Переключаться при обрыве", "Switch when the server dies", "Перемикатися при обриві"),
+                tr("Раз в 10 с проверяется «URL проверки» через туннель; нет ответа дольше заданного — подключение к самому быстрому другому серверу провайдера. Для «Автовыбора» не нужно",
+                    "Every 10 s the check URL is opened through the tunnel; no answer for longer than set — the fastest other server of the provider. Not needed for «Auto select»",
+                    "Раз на 10 с перевіряється URL через тунель; немає відповіді довше заданого — найшвидший інший сервер провайдера"),
+                s.smartFailover) { save(s.copy(smartFailover = it)) }
+            if (s.smartFailover) ChoiceRow(tr("Ждать ответа", "Wait for an answer", "Чекати відповіді"), "",
+                listOf(15, 30, 60, 120).map { it.toString() to "$it " + tr("с", "s", "с") }, s.failoverSeconds.toString()) { save(s.copy(failoverSeconds = it.toInt())) }
+        }
         ProxySection(store, s, save)
         Section(tr("Фрагментирование", "Fragmentation", "Фрагментування")) {
             ToggleRow(tr("Фрагментирование", "Fragmentation", "Фрагментування"), tr("Обход DPI: TLS-приветствие по кусочкам (для TLS-серверов; REALITY не затрагивает)",

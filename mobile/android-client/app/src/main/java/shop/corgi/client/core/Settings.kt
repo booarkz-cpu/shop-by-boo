@@ -61,6 +61,9 @@ data class Settings(
     val domainStrategy: String = "auto",
     /** v1.7.0: own rules as written, or «block» first, then «proxy», then «direct». */
     val ruleOrder: String = "written",
+    /** v1.7.1 (N12): switch to the fastest other server when the chosen one has not answered for [failoverSeconds]. */
+    val smartFailover: Boolean = false,
+    val failoverSeconds: Int = 30,
     val fragment: Boolean = false,
     val fragmentPackets: String = "tlshello",    // tlshello | 1-3 | 1-5
     val fragmentLength: String = "100-200",
@@ -148,6 +151,7 @@ data class Settings(
         require(socksPort in 1024..65535 && httpPort in 1024..65535 && socksPort != httpPort) { "ports" }
         require(muxConcurrency in 1..128) { "mux" }
         require(domainStrategy in DOMAIN_STRATEGIES && ruleOrder in RULE_ORDERS) { "dns" }
+        require(failoverSeconds in 15..300) { "failover" }
         require(localDns.isEmpty() || DNS_ADDRESS.matches(localDns)) { "localDns" }
         require(appIcon in APP_ICONS && routingProfiles.size <= 20 && routingProfiles.map { it.name }.toSet().size == routingProfiles.size) { "icon" }
         require(CREDENTIAL.matches(proxyUser) && CREDENTIAL.matches(proxyPass)) { "credentials" }
@@ -158,6 +162,7 @@ data class Settings(
     fun toJson(): JSONObject = JSONObject().put("routing", routing).put("rules", JSONArray(rules.map { it.toJson() }))
         .put("geoipUrl", geoipUrl).put("geositeUrl", geositeUrl)
         .put("dns", JSONArray(dns)).put("localDns", localDns).put("fakeDns", fakeDns).put("domainStrategy", domainStrategy).put("ruleOrder", ruleOrder)
+        .put("smartFailover", smartFailover).put("failoverSeconds", failoverSeconds)
         .put("fragment", fragment).put("fragmentPackets", fragmentPackets).put("fragmentLength", fragmentLength)
         .put("fragmentInterval", fragmentInterval).put("mtu", mtu).put("ipv6", ipv6).put("sniffing", sniffing).put("routeOnly", routeOnly)
         .put("blockUdp", blockUdp).put("adBlock", adBlock).put("idleTimeout", idleTimeout).put("excludedRoutes", JSONArray(excludedRoutes))
@@ -218,6 +223,7 @@ data class Settings(
             tryField { it.copy(localDns = s("localDns", d.localDns)) }
             tryField { it.copy(fakeDns = b("fakeDns", d.fakeDns)) }
             tryField { it.copy(domainStrategy = s("domainStrategy", d.domainStrategy), ruleOrder = s("ruleOrder", d.ruleOrder)) }
+            tryField { it.copy(smartFailover = b("smartFailover", d.smartFailover), failoverSeconds = i("failoverSeconds", d.failoverSeconds)) }
             tryField { it.copy(fragment = b("fragment", d.fragment), fragmentPackets = s("fragmentPackets", d.fragmentPackets)) }
             tryField { it.copy(fragmentLength = s("fragmentLength", d.fragmentLength), fragmentInterval = s("fragmentInterval", d.fragmentInterval)) }
             tryField { it.copy(mtu = i("mtu", d.mtu)) }
