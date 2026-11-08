@@ -45,7 +45,11 @@ class ClientVpnService : VpnService() {
                 val s = store.settings
                 val logs = Logs(filesDir)
                 logs.rotate(s.logHours)
+                // v1.8.1 (N12): Geek Mode — the hand-edited JSON, only when it still passes the checks.
+                val geek = store.geekConfig.takeIf { s.geekMode && shop.corgi.client.core.GeekConfig.problem(it) == null }
+                if (s.geekMode && geek == null) logs.app("[VPN] Geek Mode: the edited config is not valid — the generated one is used")
                 val raw = when {
+                    geek != null -> ConfigBuilder.fromJson(geek, s, store.geoReady())
                     profile.kind == "json" -> ConfigBuilder.fromJson(profile.json, s, store.geoReady())
                     profile.configs.isNotEmpty() -> ConfigBuilder.fromJson(profile.configFor(store.activeServer)!!, s, store.geoReady())
                     else -> ConfigBuilder.build(profile.servers(), store.activeServer, s, store.geoReady())

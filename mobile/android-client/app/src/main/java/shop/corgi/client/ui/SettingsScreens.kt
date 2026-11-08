@@ -14,6 +14,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Link
@@ -102,6 +104,7 @@ fun SettingsScreen(store: Store, page: String?, open: (String?) -> Unit, refresh
                         "about" -> AboutPage(store)
                         "stats" -> StatsPage(store)
                         "netlog" -> NetworkLogPage(store, s, save)
+                        "geek" -> GeekPage(store, s, save)
                     }
                 }
             }
@@ -120,6 +123,7 @@ private val PAGES: List<Pair<String, () -> String>> = listOf(
     "about" to { tr("О приложении", "About", "Про застосунок") },
     "stats" to { tr("Статистика и скорость", "Statistics and speed", "Статистика і швидкість") },
     "netlog" to { tr("Журнал сети", "Network log", "Журнал мережі") },
+    "geek" to { "Geek Mode" },
     "schemes" to { tr("Схемы URL-адресов", "URL schemes", "Схеми URL-адрес") },
     "backup" to { tr("Резервное копирование", "Backup", "Резервне копіювання") },
     "logs" to { tr("Журналы туннеля", "Tunnel logs", "Журнали тунелю") },
@@ -156,6 +160,7 @@ private fun SettingsMenu(store: Store, open: (String?) -> Unit, refresh: () -> U
         run { Section(tr("Приложение", "App", "Застосунок")) {
             NavRow(Icons.Filled.Info, tr("О приложении", "About", "Про застосунок"), "v${BuildConfig.VERSION_NAME}") { open("about") }
             NavRow(Icons.Filled.Speed, tr("Статистика и скорость", "Statistics and speed", "Статистика і швидкість")) { open("stats") }
+            NavRow(Icons.Filled.Code, "Geek Mode", if (s.geekMode) tr("Включён", "On", "Увімкнено") else tr("Выключен", "Off", "Вимкнено")) { open("geek") }
             NavRow(Icons.Filled.Terminal, tr("Журнал сети", "Network log", "Журнал мережі"),
                 if (s.networkLog) tr("Включён", "On", "Увімкнено") else tr("Выключен", "Off", "Вимкнено")) { open("netlog") }
             NavRow(Icons.Filled.Link, tr("Схемы URL-адресов", "URL schemes", "Схеми URL-адрес"), "corgi://") { open("schemes") }
@@ -765,5 +770,50 @@ private fun NetworkLogPage(store: Store, s: Settings, save: (Settings) -> Unit) 
                 Text(mark, color = color, style = MaterialTheme.typography.labelMedium)
             }
         }
+    }
+}
+
+/**
+ * v1.8.1 (N12, phase 3): Geek Mode — the raw Xray JSON of the tunnel. «Взять текущий» fills the editor with the config
+ * the app generates now; «Сохранить» checks it first; while the switch is on the tunnel starts with it (from the next
+ * connection). A broken text is refused and the generated config is used instead.
+ */
+@Composable
+private fun GeekPage(store: Store, s: Settings, save: (Settings) -> Unit) {
+    var text by remember { mutableStateOf(store.geekConfig) }
+    var note by remember { mutableStateOf("") }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Section("Geek Mode") {
+            ToggleRow(tr("Запускать с этим JSON", "Start with this JSON", "Запускати з цим JSON"),
+                tr("Туннель стартует с конфигом ниже вместо собранного приложением (входы остаются свои). Для тех, кто знает Xray; ошибка — и подключится обычный конфиг",
+                    "The tunnel starts with the config below instead of the generated one (the app keeps its own inbounds). For those who know Xray; on an error the usual config is used",
+                    "Тунель стартує з конфігом нижче замість згенерованого. Для тих, хто знає Xray"),
+                s.geekMode) { on ->
+                if (on && shop.corgi.client.core.GeekConfig.problem(store.geekConfig) != null) {
+                    note = tr("Сначала сохраните рабочий конфиг", "Save a working config first", "Спочатку збережіть робочий конфіг")
+                } else save(s.copy(geekMode = on))
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            OutlinedButton(onClick = {
+                note = runCatching { store.generatedConfig()?.let { text = shop.corgi.client.core.GeekConfig.pretty(it) } }
+                    .fold({ if (it == null) tr("Добавьте сервер", "Add a server", "Додайте сервер") else tr("Взят текущий конфиг", "The current config", "Взято поточний конфіг") },
+                        { tr("Не удалось собрать конфиг", "Could not build the config", "Не вдалося зібрати конфіг") })
+            }, modifier = Modifier.testTag("geek-current")) { Text(tr("Взять текущий", "Take the current", "Взяти поточний")) }
+            Button(onClick = {
+                val problem = shop.corgi.client.core.GeekConfig.problem(text)
+                note = if (problem == null) {
+                    store.geekConfig = text
+                    tr("Сохранено — со следующего подключения", "Saved — from the next connection", "Збережено — з наступного підключення")
+                } else problem
+            }, modifier = Modifier.testTag("geek-save")) { Text(tr("Сохранить", "Save", "Зберегти")) }
+            TextButton(onClick = { store.geekConfig = ""; text = ""; save(s.copy(geekMode = false)); note = tr("Сброшено", "Reset", "Скинуто") }) {
+                Text(tr("Сброс", "Reset", "Скинути"), color = MaterialTheme.colorScheme.error)
+            }
+        }
+        if (note.isNotBlank()) Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.testTag("geek-note"))
+        OutlinedTextField(text, { text = it.take(shop.corgi.client.core.GeekConfig.MAX_LENGTH) }, Modifier.fillMaxWidth().heightIn(min = 240.dp).testTag("geek-editor"),
+            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace),
+            placeholder = { Text("{ \"outbounds\": [ … ] }") })
     }
 }
