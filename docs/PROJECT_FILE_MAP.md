@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2425**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2428**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1872,12 +1872,15 @@
 | [screenshots/admin_panel/variants/phone-runtimeSettings.png](../screenshots/admin_panel/variants/phone-runtimeSettings.png) | Корень проекта |
 | [screenshots/admin_panel/variants/phone-rwInstaller.png](../screenshots/admin_panel/variants/phone-rwInstaller.png) | Корень проекта |
 | [screenshots/client/apps.png](../screenshots/client/apps.png) | Корень проекта |
+| [screenshots/client/geek.png](../screenshots/client/geek.png) | Корень проекта |
 | [screenshots/client/home-servers.png](../screenshots/client/home-servers.png) | Корень проекта |
 | [screenshots/client/home-v150.png](../screenshots/client/home-v150.png) | Корень проекта |
 | [screenshots/client/home.png](../screenshots/client/home.png) | Корень проекта |
+| [screenshots/client/netlog.png](../screenshots/client/netlog.png) | Корень проекта |
 | [screenshots/client/routing.png](../screenshots/client/routing.png) | Корень проекта |
 | [screenshots/client/servers.png](../screenshots/client/servers.png) | Корень проекта |
 | [screenshots/client/settings.png](../screenshots/client/settings.png) | Корень проекта |
+| [screenshots/client/stats.png](../screenshots/client/stats.png) | Корень проекта |
 | [screenshots/mobile/android-admin-launch.png](../screenshots/mobile/android-admin-launch.png) | Корень проекта |
 | [screenshots/mobile/android-admin-monitoring.png](../screenshots/mobile/android-admin-monitoring.png) | Корень проекта |
 | [screenshots/mobile/android-admin-ops.png](../screenshots/mobile/android-admin-ops.png) | Корень проекта |
