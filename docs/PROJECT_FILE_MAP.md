@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.103.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.104.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2391**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2393**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1122,6 +1122,7 @@
 | [docs/ru/RELEASE_V28_101_0.md](../docs/ru/RELEASE_V28_101_0.md) | Документация |
 | [docs/ru/RELEASE_V28_102_0.md](../docs/ru/RELEASE_V28_102_0.md) | Документация |
 | [docs/ru/RELEASE_V28_103_0.md](../docs/ru/RELEASE_V28_103_0.md) | Документация |
+| [docs/ru/RELEASE_V28_104_0.md](../docs/ru/RELEASE_V28_104_0.md) | Документация |
 | [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
@@ -1558,6 +1559,7 @@
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/AppListTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/AppListTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt) | Мобильные приложения |

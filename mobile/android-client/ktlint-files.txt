@@ -17,3 +17,4 @@ app/src/main/java/shop/corgi/client/core/ApkCheck.kt
 app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt
 app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt
 app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt
+app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt

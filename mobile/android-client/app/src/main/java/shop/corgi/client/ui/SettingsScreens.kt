@@ -306,6 +306,7 @@ private fun TunnelPage(store: Store, s: Settings, save: (Settings) -> Unit) {
     var length by remember { mutableStateOf(s.fragmentLength) }
     var interval by remember { mutableStateOf(s.fragmentInterval) }
     var dns by remember { mutableStateOf(s.dns.joinToString(", ")) }
+    var localDns by remember { mutableStateOf(s.localDns) }
     var mtu by remember { mutableStateOf(s.mtu.toString()) }
     var routes by remember { mutableStateOf(s.excludedRoutes.joinToString("\n")) }
     var message by remember { mutableStateOf("") }
@@ -356,15 +357,27 @@ private fun TunnelPage(store: Store, s: Settings, save: (Settings) -> Unit) {
         Section("DNS · MTU") {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(dns, { dns = it }, Modifier.fillMaxWidth(), label = { Text("DNS (1.1.1.1, https://dns.google/dns-query)") })
+                OutlinedTextField(localDns, { localDns = it }, Modifier.fillMaxWidth().testTag("local-dns"), singleLine = true,
+                    label = { Text(tr("Локальный DNS для сайтов напрямую", "Local DNS for direct sites", "Локальний DNS для сайтів напряму")) },
+                    placeholder = { Text("77.88.8.8 · https+local://dns.yandex/dns-query") })
                 OutlinedTextField(mtu, { mtu = it }, Modifier.fillMaxWidth(), label = { Text("MTU (1280–9000)") }, singleLine = true)
                 Button(onClick = {
                     message = runCatching {
                         val list = dns.split(",", " ", "\n").map { it.trim() }.filter { it.isNotBlank() }.take(4)
                         require(list.isNotEmpty() && list.all { Regex("^(https://[^\\s]+|tls://[^\\s]+|[0-9a-fA-F:.]+)$").matches(it) })
-                        save(s.copy(dns = list, mtu = mtu.trim().toInt()))
+                        require(localDns.isBlank() || Settings.DNS_ADDRESS.matches(localDns.trim()))
+                        save(s.copy(dns = list, mtu = mtu.trim().toInt(), localDns = localDns.trim()))
                     }.fold({ tr("Сохранено", "Saved", "Збережено") }, { tr("Проверьте DNS и MTU", "Check DNS and MTU", "Перевірте DNS і MTU") })
                 }) { Text(tr("Сохранить", "Save", "Зберегти")) }
             }
+            // v1.7.0 (N12): local DNS for the direct domains, FakeDNS and how routing resolves domains.
+            ToggleRow("FakeDNS", tr("Приложения сразу получают адрес из 198.18.0.0/15, настоящий запрос делает сервер — быстрее открываются сайты и нет утечек DNS",
+                "Apps get an address from 198.18.0.0/15 at once, the server does the real lookup — faster first loads, no DNS leaks",
+                "Застосунки одразу отримують адресу з 198.18.0.0/15, справжній запит робить сервер"), s.fakeDns) { save(s.copy(fakeDns = it)) }
+            ChoiceRow(tr("Стратегия доменов", "Domain strategy", "Стратегія доменів"),
+                tr("Как правила сравнивают домены с IP: «Авто» — IPIfNonMatch с geo-файлами", "How rules match domains against IPs: «Auto» — IPIfNonMatch with geo files",
+                    "Як правила зіставляють домени з IP: «Авто» — IPIfNonMatch з geo-файлами"),
+                Settings.DOMAIN_STRATEGIES.map { it to if (it == "auto") tr("Авто", "Auto", "Авто") else it }, s.domainStrategy) { save(s.copy(domainStrategy = it)) }
         }
         Section(tr("Исключённые маршруты", "Excluded routes", "Виключені маршрути")) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
