@@ -192,6 +192,15 @@ class Store(context: Context) {
     /** v1.6.1 (N11): when the shop was last asked for a newer client (0 — never). */
     fun updateCheckedAt(): Long = prefs.getLong("update_checked", 0)
 
+    /** v1.7.3 (N12): bytes through the VPN and direct, added to today's line of the traffic history. */
+    @Synchronized
+    fun addTraffic(vpn: Long, direct: Long) {
+        val day = shop.corgi.client.core.TrafficHistory.day(System.currentTimeMillis())
+        prefs.edit().putString("traffic_history", shop.corgi.client.core.TrafficHistory.add(trafficHistory(), day, vpn, direct)).apply()
+    }
+
+    fun trafficHistory(): String = prefs.getString("traffic_history", "{}") ?: "{}"
+
     fun geoUpdatedAt(): Long = File(app.filesDir, "geosite.dat").lastModified()
 
     fun cachedUpdate(): Update? = prefs.getString("update", "").orEmpty().split("|").takeIf { it.size == 4 }
