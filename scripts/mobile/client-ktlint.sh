@@ -8,7 +8,7 @@ SHA256=b596a05f09364e1997b644152683af12fef58944f3acfabdf78071f5a490eb98
 cd "$(dirname "$0")/../../mobile/android-client"
 bin="${RUNNER_TEMP:-/tmp}/ktlint-$VERSION"
 if [ ! -x "$bin" ]; then
-  curl -fsSL --retry 3 -o "$bin" "https://github.com/pinterest/ktlint/releases/download/$VERSION/ktlint"
+  curl -fsSL --retry 8 --retry-all-errors --retry-delay 20 -o "$bin" "https://github.com/pinterest/ktlint/releases/download/$VERSION/ktlint"
   echo "$SHA256  $bin" | sha256sum -c -
   chmod +x "$bin"
 fi

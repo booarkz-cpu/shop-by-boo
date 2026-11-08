@@ -199,6 +199,22 @@ class Store(context: Context) {
         prefs.edit().putString("traffic_history", shop.corgi.client.core.TrafficHistory.add(trafficHistory(), day, vpn, direct)).apply()
     }
 
+    /** v1.8.1 (N12): the hand-edited Xray JSON of Geek Mode (empty — none). */
+    var geekConfig: String
+        get() = prefs.getString("geek_config", "") ?: ""
+        set(value) { prefs.edit().putString("geek_config", value).apply() }
+
+    /** The config the tunnel would start with now, without Geek Mode (for «Взять текущий»). */
+    fun generatedConfig(): String? {
+        val profile = active() ?: return null
+        val s = settings
+        return when {
+            profile.kind == "json" -> shop.corgi.client.core.ConfigBuilder.fromJson(profile.json, s, geoReady())
+            profile.configs.isNotEmpty() -> shop.corgi.client.core.ConfigBuilder.fromJson(profile.configFor(activeServer)!!, s, geoReady())
+            else -> shop.corgi.client.core.ConfigBuilder.build(profile.servers(), activeServer, s, geoReady())
+        }
+    }
+
     fun trafficHistory(): String = prefs.getString("traffic_history", "{}") ?: "{}"
 
     fun geoUpdatedAt(): Long = File(app.filesDir, "geosite.dat").lastModified()

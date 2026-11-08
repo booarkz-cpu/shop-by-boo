@@ -461,6 +461,8 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+      - name: Gradle distribution (retries on GitHub 504)
+        run: bash scripts/ci/gradle-warm.sh mobile/${{ matrix.app }}
       - name: Compile debug application and run JVM unit tests
         working-directory: mobile/${{ matrix.app }}
         run: bash gradlew assembleDebug testDebugUnitTest --no-daemon
@@ -492,6 +494,8 @@ jobs:
       - name: Build libv2ray.aar
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
+      - name: Gradle distribution (retries on GitHub 504)
+        run: bash scripts/ci/gradle-warm.sh mobile/android-user
       - name: Compile the app with the engine
         working-directory: mobile/android-user
         run: |
@@ -512,6 +516,8 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+      - name: Gradle distribution (retries on GitHub 504)
+        run: bash scripts/ci/gradle-warm.sh mobile/android-user mobile/android-admin
       - name: Build the apps and their tests
         run: |
           (cd mobile/android-user && bash gradlew assembleDebug assembleDebugAndroidTest --no-daemon)
