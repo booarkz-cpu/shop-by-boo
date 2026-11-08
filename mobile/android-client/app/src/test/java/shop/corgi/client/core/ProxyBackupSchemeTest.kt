@@ -47,7 +47,8 @@ class ProxyBackupSchemeTest {
         val row = JSONObject(vision.outbound.toString()); ConfigBuilder.mux(row, Settings(mux = true))
         assertFalse(row.has("mux"))
         val quiet = JSONObject(); ConfigBuilder.extras(quiet, Settings(speedNotification = false), "/x")
-        assertEquals("none", quiet.getJSONObject("log").getString("loglevel")); assertFalse(quiet.has("stats"))
+        // v1.7.3: the counters are always on — the main screen and the traffic by day need them.
+        assertEquals("none", quiet.getJSONObject("log").getString("loglevel")); assertTrue(quiet.has("stats"))
     }
 
     @Test fun backupRoundTripWithoutProxyCredentials() {
