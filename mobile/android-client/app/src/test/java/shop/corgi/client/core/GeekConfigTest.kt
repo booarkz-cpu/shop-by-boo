@@ -41,5 +41,8 @@ class GeekConfigTest {
 
     @Test fun settingsKeepTheSwitch() {
         assertEquals(Settings(geekMode = true), Settings.of(Settings(geekMode = true).toJson()))
+        // v1.8.1: the mascot is on by default and can be turned off.
+        assertTrue(Settings().mascot)
+        assertEquals(Settings(mascot = false), Settings.of(Settings(mascot = false).toJson()))
     }
 }

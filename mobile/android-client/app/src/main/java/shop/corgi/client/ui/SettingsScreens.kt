@@ -228,6 +228,10 @@ private fun AppearancePage(s: Settings, save: (Settings) -> Unit) {
                 "Чисто чорне тло — економить заряд на OLED"), s.amoled) { save(s.copy(amoled = it)) }
             ToggleRow(tr("Вибрация", "Vibration", "Вібрація"), tr("Виброотклик при нажатиях", "Haptic feedback on taps", "Вібровідгук при натисканнях"), s.vibration) {
                 save(s.copy(vibration = it)) }
+            // v1.8.1 (N12)
+            ToggleRow(tr("Корги Люси на главном", "Corgi Lusi on the main screen", "Коргі Люсі на головному"),
+                tr("Спит, когда выключено, бежит при подключении, радуется, когда всё работает", "Asleep when off, running while connecting, happy when on",
+                    "Спить, коли вимкнено, біжить при підключенні, радіє, коли все працює"), s.mascot) { save(s.copy(mascot = it)) }
         }
         Section(tr("Размер текста", "Text size", "Розмір тексту")) {
             Column(Modifier.padding(horizontal = 14.dp, vertical = 8.dp)) {
