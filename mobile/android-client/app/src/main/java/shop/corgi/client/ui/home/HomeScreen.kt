@@ -335,20 +335,8 @@ private fun PowerButton(status: VpnStatus, enabled: Boolean, onClick: () -> Unit
             Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surface))
         }
     // v1.6.0 (N10): a pulse around the button while connecting; a disabled button is half transparent.
-    val pulse = rememberInfiniteTransition(label = "pulse")
-    val ring by pulse.animateFloat(1f, 1.22f, infiniteRepeatable(tween(900), RepeatMode.Restart), label = "ring")
-    val ringAlpha by pulse.animateFloat(0.45f, 0f, infiniteRepeatable(tween(900), RepeatMode.Restart), label = "ringAlpha")
     Box(Modifier.size(220.dp).alpha(if (enabled) 1f else 0.5f), contentAlignment = Alignment.Center) {
-        if (status == VpnStatus.Connecting) {
-            Box(
-                Modifier
-                    .size(180.dp)
-                    .scale(ring)
-                    .alpha(ringAlpha)
-                    .border(3.dp, Brand.Warm, CircleShape)
-                    .testTag("connect-pulse")
-            )
-        }
+        if (status == VpnStatus.Connecting) PulseRing()
         Box(
             Modifier
                 .size(180.dp)
@@ -366,6 +354,22 @@ private fun PowerButton(status: VpnStatus, enabled: Boolean, onClick: () -> Unit
             CircularProgressIndicator(Modifier.size(196.dp), color = Brand.Warm, strokeWidth = 4.dp)
         }
     }
+}
+
+/** The ring pulses only while it is shown, so an idle screen has no endless animation (Compose UI tests wait for idle). */
+@Composable
+private fun PulseRing() {
+    val pulse = rememberInfiniteTransition(label = "pulse")
+    val ring by pulse.animateFloat(1f, 1.22f, infiniteRepeatable(tween(900), RepeatMode.Restart), label = "ring")
+    val ringAlpha by pulse.animateFloat(0.45f, 0f, infiniteRepeatable(tween(900), RepeatMode.Restart), label = "ringAlpha")
+    Box(
+        Modifier
+            .size(180.dp)
+            .scale(ring)
+            .alpha(ringAlpha)
+            .border(3.dp, Brand.Warm, CircleShape)
+            .testTag("connect-pulse")
+    )
 }
 
 /** v1.6.0 (N10): idle — only with a chosen server and no change of the servers running; on — stopping waits for the change too. */
