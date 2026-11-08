@@ -22,7 +22,7 @@ Telegram bot and Mini App · web cabinet · Android and iOS apps · «Corgi Lusi
 > ‼️ **This project is for educational and informational purposes only.** ‼️
 > The code and documentation are published for study and demonstration. If you use them, you alone are responsible for complying with the laws of your country and for the security of your servers and customer data. The author gives no warranty and accepts no liability for the consequences of use.
 
-> **v28.105.0** — current stable release. Runtime/API `21.5.1`, shop migration `0094_store_subscriptions`, «Corgi Lusi: client» `1.7.1`.
+> **v28.106.0** — current stable release. Runtime/API `21.5.1`, shop migration `0094_store_subscriptions`, «Corgi Lusi: client» `1.7.2`.
 
 ## 🐶 What it is, in plain words
 
@@ -115,8 +115,8 @@ Answer `yes` to the fingerprint question, then type the password — **the chara
 ### Step 5. Run the installer — one command
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.105.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.105.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.106.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.106.0 bash /root/shop-install.sh
 ```
 
 | Question | Answer |
