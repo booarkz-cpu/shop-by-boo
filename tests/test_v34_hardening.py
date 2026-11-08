@@ -22,11 +22,7 @@ def test_traffic_endpoint_is_user_scoped():
     hits = [route for path, route in all_routes() if path == "/api/me/traffic"]
     assert len(hits) == 1, f"the path is registered {len(hits)} times: {[r.endpoint.__module__ for r in hits]}"
     assert hits[0].endpoint.__module__ == "app.panel_usage", "the breakdown and the counters live in one handler"
-    source = (ROOT / "backend/app/panel_usage.py").read_text(encoding="utf-8")
-    block = source[source.index('@router.get("/api/me/traffic")'):]
-    assert "user_from_token(request, db)" in block, "the customer comes from the session token"
-    assert "user.id" in block, "the counters are read for that customer only"
-    assert "SupportTicket" not in block
+    # Owner-scoped: behaviour in tests/test_behaviour_traffic_scope.py (BACKLOG A1).
 
 
 def test_no_path_answers_twice():
