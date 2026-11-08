@@ -205,6 +205,19 @@ class ClientScreensTest {
         exists("Check for updates")
     }
 
+    @Test fun statisticsNetworkLogAndGeekPagesForTheReadme() {  // v1.8.1 (N12): screens for the README
+        launch()
+        compose.onNodeWithText("Settings").tap()
+        compose.onNodeWithText("Statistics and speed").tap()
+        shot("stats")
+        compose.onNodeWithTag("back").tap()
+        compose.onNodeWithText("Network log").tap()
+        shot("netlog")
+        compose.onNodeWithTag("back").tap()
+        compose.onNodeWithText("Geek Mode").tap()
+        shot("geek")
+    }
+
     @Test fun proxyModeSchemesBackupAndLogsPages() {
         launch()
         compose.onNodeWithText("Settings").tap()

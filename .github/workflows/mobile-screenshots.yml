@@ -91,7 +91,8 @@ jobs:
         run: |
           # Pinned: Maestro releases change behaviour (2.12.0 changed screenshot paths); raise deliberately.
           export MAESTRO_VERSION=2.12.0
-          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          # GitHub downloads answer 504 at times: up to 5 tries, 30 s apart.
+          for i in 1 2 3 4 5; do curl -fsSL --retry 5 --retry-all-errors "https://get.maestro.mobile.dev" | bash && break; [ "$i" = 5 ] && exit 1; sleep 30; done
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
       - name: Enable KVM
         run: |
