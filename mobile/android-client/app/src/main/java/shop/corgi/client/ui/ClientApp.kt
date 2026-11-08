@@ -286,7 +286,7 @@ private fun androidx.compose.foundation.layout.RowScope.ServerRowContent(flag: S
 
 /** A provider (subscription or links): title, update, ping, menu, traffic and term, support and site, servers count. */
 @Composable
-internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, onToggle: (() -> Unit)?, refresh: () -> Unit) {
+internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, onToggle: (() -> Unit)?, refresh: () -> Unit, onLongClick: (() -> Unit)? = null) {
     val context = LocalContext.current
     var menu by remember { mutableStateOf(false) }
     var qr by remember { mutableStateOf<String?>(null) }
@@ -298,7 +298,8 @@ internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, on
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (onToggle != null) Icon(if (expanded == true) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null,
                     Modifier.clickable(onClick = onToggle).padding(end = 6.dp))
-                Text(profile.title, Modifier.weight(1f).clickable(enabled = onToggle != null) { onToggle?.invoke() },
+                // v1.6.2: the title takes the long press too — its own click used to swallow the card's «choose for deleting».
+                Text(profile.title, Modifier.weight(1f).combinedClickable(enabled = onToggle != null || onLongClick != null, onLongClick = onLongClick) { onToggle?.invoke() }.testTag("provider-title"),
                     style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (profile.kind == "subscription") FilledTonalIconButton(onClick = {
                     busy = true; updateProfiles(context, store, listOf(profile)) { busy = false; refresh() }
@@ -444,7 +445,8 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
                     .combinedClickable(onClick = { if (chosen.isNotEmpty()) chosen = if (picked) chosen - profile.id else chosen + profile.id },
                         onLongClick = { chosen = if (picked) chosen - profile.id else chosen + profile.id })
                     .testTag("provider")) {
-                    ProviderCard(store, profile, expanded = open, onToggle = { collapsed = if (open) collapsed + profile.id else collapsed - profile.id }, refresh = refresh)
+                    ProviderCard(store, profile, expanded = open, onToggle = { collapsed = if (open) collapsed + profile.id else collapsed - profile.id }, refresh = refresh,
+                        onLongClick = { chosen = if (picked) chosen - profile.id else chosen + profile.id })
                 }
             }
             if (!open) continue

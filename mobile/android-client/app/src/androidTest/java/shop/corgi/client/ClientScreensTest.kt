@@ -125,7 +125,7 @@ class ClientScreensTest {
         store.activeProfile = first.id
         launch()
         compose.onNodeWithText("Servers").tap()
-        compose.onAllNodesWithTag("provider")[0].performTouchInput { longClick() }
+        compose.onAllNodesWithTag("provider-title")[0].performTouchInput { longClick() }
         compose.waitForIdle()
         compose.onNodeWithTag("delete-chosen").tap()
         compose.onNodeWithTag("delete-chosen-confirm").tap()
@@ -159,9 +159,10 @@ class ClientScreensTest {
         compose.onNodeWithText("Settings").tap()
         exists("Everything under your control")   // the brand banner
         compose.onNodeWithText("Per-app proxy").tap()
-        compose.onNodeWithText("All but selected").tap()
+        // v1.6.0: the apps screen — mode cards «Only through the tunnel» / «Bypass» and the number chosen.
+        compose.onNodeWithTag("apps-mode-except").tap()
         assertEquals("except", Store(context).settings.appsMode)
-        exists("Choose apps (0)")
+        exists("Chosen: 0")
         compose.onNodeWithTag("back").tap()
 
         compose.onNodeWithText("Appearance").tap()
