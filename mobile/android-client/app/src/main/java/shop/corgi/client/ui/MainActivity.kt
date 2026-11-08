@@ -31,6 +31,11 @@ class MainActivity : ComponentActivity() {
         val store = Store(this)
         I18n.apply(store.settings.lang)
         UpdateJob.schedule(this)
+        shop.corgi.client.vpn.AppUpdateJob.schedule(this)
+        // v1.6.1 (N11): «Обновление готово» → the checked APK goes to the system installer.
+        if (intent?.action == shop.corgi.client.vpn.AppUpdateJob.ACTION_INSTALL) {
+            store.readyUpdate()?.let { apk -> runCatching { shop.corgi.client.vpn.ApkInstaller.install(this, apk) } }
+        }
         if (savedInstanceState == null) thread {
             val s = store.settings
             runCatching { if (s.updateOnLaunch) store.updateAll() else store.updateDue() }

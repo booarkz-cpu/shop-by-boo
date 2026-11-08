@@ -170,6 +170,30 @@ class Store(context: Context) {
         return found
     }
 
+    /** v1.6.1 (N11): the APK of [update] in the app's cache, checked by its SHA-256 (call off the main thread). */
+    fun downloadUpdate(update: Update): File {
+        require(update.apk.startsWith("https://github.com/booarkz-cpu/shop-by-boo/releases/")) { "apk url" }
+        val dir = File(app.cacheDir, "updates").apply { mkdirs() }
+        val apk = File(dir, "corgi-lusi-client-${update.versionCode}.apk")
+        if (shop.corgi.client.core.ApkCheck.matches(apk, update.sha256)) return apk
+        dir.listFiles()?.forEach { it.delete() }
+        val tmp = File(dir, "download.part")
+        open(update.apk).inputStream.use { input -> tmp.outputStream().use { input.copyTo(it) } }
+        require(shop.corgi.client.core.ApkCheck.matches(tmp, update.sha256)) { tr("Контрольная сумма не совпала", "Checksum mismatch", "Контрольна сума не збіглася") }
+        tmp.renameTo(apk)
+        return apk
+    }
+
+    /** The downloaded APK of the newer version, if it is there and intact. */
+    fun readyUpdate(): File? = cachedUpdate()?.let { u ->
+        File(File(app.cacheDir, "updates"), "corgi-lusi-client-${u.versionCode}.apk").takeIf { shop.corgi.client.core.ApkCheck.matches(it, u.sha256) }
+    }
+
+    /** v1.6.1 (N11): when the shop was last asked for a newer client (0 — never). */
+    fun updateCheckedAt(): Long = prefs.getLong("update_checked", 0)
+
+    fun geoUpdatedAt(): Long = File(app.filesDir, "geosite.dat").lastModified()
+
     fun cachedUpdate(): Update? = prefs.getString("update", "").orEmpty().split("|").takeIf { it.size == 4 }
         ?.let { Update(it[0].toInt(), it[1], it[2], it[3]) }
 

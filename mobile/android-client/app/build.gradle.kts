@@ -13,9 +13,13 @@ android {
         applicationId = "shop.corgi.client"
         minSdk = 26
         targetSdk = 36
-        versionCode = 160
-        versionName = "1.6.0"
+        versionCode = 161
+        versionName = "1.6.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // v1.6.1 (N11): the AndroidLibXrayLite commit the AAR is built from, shown in «О приложении».
+        val xrayAar = rootProject.file("../../scripts/mobile/build-xray-aar.sh")
+        val xrayCommit = Regex("XRAY_AAR_COMMIT:-([0-9a-f]{40})").find(if (xrayAar.exists()) xrayAar.readText() else "")?.groupValues?.get(1) ?: "unknown"
+        buildConfigField("String", "XRAY_AAR_COMMIT", "\"$xrayCommit\"")
     }
     buildFeatures {
         compose = true

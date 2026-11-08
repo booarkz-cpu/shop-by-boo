@@ -469,6 +469,10 @@ private fun AboutPage(store: Store) {
         Section(tr("Информация", "Information", "Інформація")) {
             InfoRow(tr("Версия Xray", "Xray version", "Версія Xray"), Xray.version().ifBlank { "—" })
             InfoRow(tr("Версия приложения", "App version", "Версія застосунку"), "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+            // v1.6.1 (N11): which AndroidLibXrayLite commit the core is built from and when updates were last checked.
+            InfoRow(tr("Сборка ядра", "Core build", "Збірка ядра"), "AndroidLibXrayLite ${BuildConfig.XRAY_AAR_COMMIT.take(8)}")
+            InfoRow(tr("Проверка обновлений", "Update check", "Перевірка оновлень"), formatStamp(store.updateCheckedAt()))
+            InfoRow(tr("Geo-файлы", "Geo files", "Geo-файли"), formatStamp(store.geoUpdatedAt()))
         }
         Section(tr("Устройство", "Device", "Пристрій")) {
             InfoRow(tr("Версия ОС", "OS version", "Версія ОС"), "Android ${Build.VERSION.RELEASE}")
@@ -482,12 +486,30 @@ private fun AboutPage(store: Store) {
                 Text(hwid, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
             }
         }
+        // v1.6.1 (N11): the client and its Xray core update themselves; the geo files too.
+        var s by remember { mutableStateOf(store.settings) }
+        Section(tr("Обновления", "Updates", "Оновлення")) {
+            ToggleRow(tr("Обновлять автоматически", "Update automatically", "Оновлювати автоматично"),
+                tr("Раз в сутки по Wi-Fi: новая версия с новым ядром Xray скачивается и проверяется, установка — по нажатию",
+                    "Once a day on Wi-Fi: a new version with a new Xray core is downloaded and checked, installed by a tap",
+                    "Раз на добу через Wi-Fi: нова версія з новим ядром Xray завантажується й перевіряється"), s.autoUpdateApp) {
+                s = s.copy(autoUpdateApp = it); store.settings = s; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
+            ToggleRow(tr("Обновлять geo-файлы", "Update the geo files", "Оновлювати geo-файли"),
+                tr("Раз в сутки, если они скачаны", "Once a day, when they are downloaded", "Раз на добу, якщо вони завантажені"), s.autoUpdateGeo) {
+                s = s.copy(autoUpdateGeo = it); store.settings = s; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
+            store.readyUpdate()?.let { apk ->
+                NavRow(Icons.Filled.Settings, tr("Установить ", "Install ", "Встановити ") + (store.cachedUpdate()?.versionName ?: ""),
+                    hint = tr("Скачано и проверено по SHA-256", "Downloaded and checked by SHA-256", "Завантажено й перевірено SHA-256")) {
+                    (context as? android.app.Activity)?.let { runCatching { shop.corgi.client.vpn.ApkInstaller.install(it, apk) } }
+                }
+            }
+        }
         Section(tr("Ссылки", "Links", "Посилання")) {
             NavRow(Icons.Filled.Info, tr("Лицензии третьих сторон", "Third-party licences", "Ліцензії третіх сторін")) { licenses = true }
             NavRow(Icons.Filled.Settings, tr("Проверить обновления", "Check for updates", "Перевірити оновлення")) {
                 updateText = tr("Проверка…", "Checking…", "Перевірка…")
                 thread {
-                    val text = runCatching { store.checkUpdate(force = true) }.fold(
+                    val text = runCatching { store.checkUpdate(force = true)?.also { u -> runCatching { store.downloadUpdate(u) } } }.fold(
                         { it?.let { u -> tr("Доступна версия ", "Version available: ", "Доступна версія ") + u.versionName } ?: tr("Установлена последняя версия", "Up to date", "Встановлено останню версію") },
                         { tr("Не удалось проверить", "Could not check", "Не вдалося перевірити") })
                     android.os.Handler(context.mainLooper).post { updateText = text }
@@ -514,3 +536,7 @@ private fun InfoRow(title: String, value: String) {
         Text(value, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
     }
 }
+
+/** A date and time in the device's locale, or «—» for 0. */
+internal fun formatStamp(millis: Long): String = if (millis <= 0L) "—" else
+    java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT).format(java.util.Date(millis))
