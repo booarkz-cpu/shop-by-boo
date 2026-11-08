@@ -13,12 +13,15 @@ import java.util.Locale
 class Logs(filesDir: File) {
     val dir = File(filesDir, "logs").apply { mkdirs() }
     val xray: File get() = File(dir, "xray.log")
+    /** v1.7.4 (N12): «Журнал сети» — Xray's access log of this connection (started afresh on every connection). */
+    val access: File get() = File(dir, "access.log")
     private val app: File get() = File(dir, "app.log")
 
     fun files(): List<File> = dir.listFiles { f -> f.isFile && f.name.endsWith(".log") }?.sortedByDescending { it.lastModified() } ?: emptyList()
 
     /** Before a connection: the previous xray.log becomes xray_1.log (and so on); old files go. */
     fun rotate(hours: Int, now: Long = System.currentTimeMillis()) {
+        access.delete()
         if (hours > 0) files().filter { now - it.lastModified() > hours * 3_600_000L }.forEach { it.delete() }
         if (xray.length() == 0L) return
         File(dir, "xray_$KEEP.log").delete()

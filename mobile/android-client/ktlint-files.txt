@@ -25,3 +25,5 @@ app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt
 app/src/main/java/shop/corgi/client/core/TrafficHistory.kt
 app/src/main/java/shop/corgi/client/core/SpeedTest.kt
 app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt
+app/src/main/java/shop/corgi/client/core/NetworkLog.kt
+app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt
