@@ -67,7 +67,9 @@ def zip_of(entries: dict) -> bytes:
     out = io.BytesIO()
     with zipfile.ZipFile(out, "w") as z:
         for name, body in entries.items():
-            z.writestr(name, body)
+            # A fixed time: writestr(name) stamps «now», so two archives built a second apart were different bytes
+            # and «the same archive replaces its entry» failed when the test crossed a two-second boundary.
+            z.writestr(zipfile.ZipInfo(name, date_time=(2026, 1, 1, 0, 0, 0)), body)
     return out.getvalue()
 
 
