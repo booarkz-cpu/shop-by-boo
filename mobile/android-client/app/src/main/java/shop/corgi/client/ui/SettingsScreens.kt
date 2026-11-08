@@ -282,6 +282,7 @@ private fun ConnectionPage(s: Settings, save: (Settings) -> Unit) {
                 tr("Выключите, чтобы оставить только название", "Turn off to keep only the name", "Вимкніть, щоб лишити тільки назву"), s.tileDetails) {
                 save(s.copy(tileDetails = it)); QuickTile.refresh(context) }
         }
+        TrustedWifiSection(s, save)
         Section("Kill Switch") {
             NavRow(Icons.Filled.Settings, tr("Блокировать интернет без VPN", "Block internet without the VPN", "Блокувати інтернет без VPN"),
                 hint = tr("Android делает это сам: «Постоянная VPN» и «Блокировать соединения без VPN» в настройках VPN системы.",
@@ -564,3 +565,57 @@ private fun InfoRow(title: String, value: String) {
 /** A date and time in the device's locale, or «—» for 0. */
 internal fun formatStamp(millis: Long): String = if (millis <= 0L) "—" else
     java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT).format(java.util.Date(millis))
+
+/**
+ * v1.7.2 (N12): «Доверенные Wi-Fi» — names of networks where the tunnel pauses; «Добавить текущую» asks for the location
+ * permission Android requires for the Wi-Fi name. In the background Android gives the name only with «Разрешить всегда».
+ */
+@Composable
+private fun TrustedWifiSection(s: Settings, save: (Settings) -> Unit) {
+    val context = LocalContext.current
+    var name by remember { mutableStateOf("") }
+    var note by remember { mutableStateOf("") }
+    fun addCurrent() {
+        val ssid = shop.corgi.client.vpn.NetworkReceiver.currentSsid(context)
+        note = if (ssid == null) {
+            tr("Не видно имени сети: подключитесь к Wi-Fi и включите геолокацию", "No network name: join a Wi-Fi and turn location on",
+                "Не видно назви мережі: підключіться до Wi-Fi та увімкніть геолокацію")
+        } else {
+            runCatching { save(s.copy(trustedWifi = (s.trustedWifi + ssid).distinct())) }
+                .fold({ tr("Добавлено: ", "Added: ", "Додано: ") + ssid }, { tr("Не больше 20 сетей", "At most 20 networks", "Не більше 20 мереж") })
+        }
+        shop.corgi.client.vpn.NetworkReceiver.sync(context)
+    }
+    val permission = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) addCurrent() else note = tr("Без доступа к геолокации Android не показывает имя Wi-Fi", "Without location Android hides the Wi-Fi name",
+            "Без геолокації Android не показує назву Wi-Fi")
+    }
+    Section(tr("Доверенные Wi-Fi", "Trusted Wi-Fi", "Довірені Wi-Fi")) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(tr("В этих сетях VPN встаёт на паузу, в мобильной сети и любой другой Wi-Fi — сразу включается снова. Android отдаёт имя сети только с доступом к геолокации, в фоне — «Разрешить всегда»",
+                "On these networks the VPN pauses; on mobile data or any other Wi-Fi it comes back at once. Android gives the network name only with location access, in the background — «Allow all the time»",
+                "У цих мережах VPN на паузі; у мобільній мережі чи іншому Wi-Fi — одразу вмикається знову. Назву мережі Android дає лише з доступом до геолокації"),
+                style = MaterialTheme.typography.bodySmall)
+            s.trustedWifi.forEach { ssid ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(ssid, Modifier.weight(1f).testTag("trusted-wifi"))
+                    TextButton(onClick = { save(s.copy(trustedWifi = s.trustedWifi - ssid)); shop.corgi.client.vpn.NetworkReceiver.sync(context) }) { Text("✕") }
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(name, { name = it.take(32) }, Modifier.weight(1f).testTag("trusted-name"), singleLine = true,
+                    placeholder = { Text(tr("Имя сети (SSID)", "Network name (SSID)", "Назва мережі (SSID)")) })
+                Button(onClick = {
+                    note = runCatching { save(s.copy(trustedWifi = (s.trustedWifi + name.trim()).distinct())); name = ""; shop.corgi.client.vpn.NetworkReceiver.sync(context) }
+                        .fold({ tr("Добавлено", "Added", "Додано") }, { tr("Неверное имя или больше 20 сетей", "Invalid name or more than 20 networks", "Невірна назва або понад 20 мереж") })
+                }, modifier = Modifier.testTag("trusted-add")) { Text(tr("Добавить", "Add", "Додати")) }
+            }
+            OutlinedButton(onClick = {
+                if (context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    android.content.pm.PackageManager.PERMISSION_GRANTED) addCurrent() else permission.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            }) { Text(tr("Добавить текущую сеть", "Add the current network", "Додати поточну мережу")) }
+            if (note.isNotBlank()) Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
