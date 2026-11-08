@@ -61,6 +61,12 @@ Real screens of the current version, captured automatically.
 | --- | --- |
 | ![Admin dashboard](screenshots/admin_panel/02_dashboard.png) | ![Customer cabinet](screenshots/storefront_user/03_overview.png) |
 
+**«Corgi Lusi: client»** — a separate Android VPN app for any subscription (not only your shop's): the mascot sleeps, runs and cheers with the connection; traffic statistics and a speed test through the tunnel; a log of where every domain went; a raw Xray JSON editor for experts.
+
+| Home | Statistics and speed | Network log | Geek Mode |
+| :---: | :---: | :---: | :---: |
+| ![Client: home with the mascot](screenshots/client/home.png) | ![Client: traffic and speed test](screenshots/client/stats.png) | ![Client: network log](screenshots/client/netlog.png) | ![Client: raw Xray JSON editor](screenshots/client/geek.png) |
+
 The admin panel is in Russian; menu names below are given in Russian with an English translation in brackets.
 
 ## 🧾 What you need before you start
