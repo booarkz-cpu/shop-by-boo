@@ -36,8 +36,8 @@ Telegram-бот и Mini App · личный кабинет · приложени
 > ‼️ **Проект создан только в ознакомительных целях.** ‼️
 > Код и документация публикуются для изучения и демонстрации. Используя их, вы сами отвечаете за соблюдение законов своей страны, за безопасность серверов и данных клиентов. Автор не даёт гарантий и не отвечает за последствия использования.
 
-> **v28.103.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008` / 3.8, приложения Android и iOS `3.5.0`, «Корги Люси: клиент» `1.6.2`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.103.0`, `/health` отвечает `21.5.1`.
+> **v28.104.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008` / 3.8, приложения Android и iOS `3.5.0`, «Корги Люси: клиент» `1.7.0`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.104.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 ## 📑 Оглавление
@@ -51,7 +51,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 | [Путь клиента](#-путь-клиента-от-start-до-подключения) | что видит покупатель от `/start` до включённого VPN |
 | [Каждый день](#-каждый-день-что-делает-владелец) | 10 минут в день: где смотреть деньги, клиентов, обращения и сбои |
 | [Частые вопросы](#-частые-вопросы-новичка) | «что делать, если…» — самые частые ситуации |
-| [Новое в выпусках](#-новое-в-v281030) | последние изменения |
+| [Новое в выпусках](#-новое-в-v281040) | последние изменения |
 | [О проекте и возможности](#-о-проекте) | подробно: возможности, стек, требования, архитектура |
 | [Быстрый старт для опытных](#-быстрый-старт) | одна команда, Docker Compose вручную, локальный стенд |
 | [Переменные окружения](#-переменные-окружения) | каждая настройка и где взять значение |
@@ -203,8 +203,8 @@ ssh root@IP_СЕРВЕРА
 Скопируйте **целиком** и вставьте в окно сервера (в PowerShell вставка — правой кнопкой мыши):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.103.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.103.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.104.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.104.0 bash /root/shop-install.sh
 ```
 
 Установщик задаст несколько вопросов. Отвечайте так:
@@ -388,6 +388,12 @@ APK — в каждом [выпуске](https://github.com/booarkz-cpu/shop-by-
 
 Больше ответов — в [справочнике по функциям](docs/ru/FUNCTION_GUIDE.md) и [инструкциях по 30 модулям](docs/ru/modules/README.md).
 
+## 🆕 Новое в v28.104.0
+
+| | |
+| --- | --- |
+| 🧭 **Клиент 1.7.0: DNS по-взрослому** | Локальный DNS для сайтов, которые идут напрямую, FakeDNS (быстрее первые загрузки, нет утечек DNS), выбор стратегии доменов и порядок своих правил «блок → прокси → напрямую». [Подробнее](docs/ru/RELEASE_V28_104_0.md) |
+
 ## 🆕 Новое в v28.103.0
 
 | | |
@@ -400,14 +406,14 @@ APK — в каждом [выпуске](https://github.com/booarkz-cpu/shop-by-
 | --- | --- |
 | 🛠️ **Клиент 1.6.2** | Экран «Прокси по приложениям» открывается без сбоя (в 1.6.0–1.6.1 он мог закрыть приложение); проверки клиента в CI снова работают. [Подробнее](docs/ru/RELEASE_V28_102_0.md) |
 
-## 🆕 Новое в v28.101.0
+<details>
+<summary><b>Новое в прежних выпусках (v28.34.0 – v28.101.0)</b></summary>
+
+### 🆕 Новое в v28.101.0
 
 | | |
 | --- | --- |
 | 🔄 **Клиент обновляется сам** | «Корги Люси: клиент» 1.6.1: раз в сутки по Wi-Fi скачивает новую версию с новым ядром Xray и проверяет её по SHA-256, установка — одним нажатием; geo-файлы обновляются ежедневно; в «О приложении» — сборка ядра и даты проверок. Новое ядро AndroidLibXrayLite само приходит pull request'ом и проходит весь CI. [Подробнее](docs/ru/RELEASE_V28_101_0.md) |
-
-<details>
-<summary><b>Новое в прежних выпусках (v28.34.0 – v28.100.0)</b></summary>
 
 ### 🆕 Новое в v28.100.0
 
@@ -1193,8 +1199,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.103.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.103.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.104.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.104.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -1211,7 +1217,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.103.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.104.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -1227,12 +1233,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.103.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.104.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.103.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.104.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -1909,7 +1915,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Проверить конфигурацию Compose | `docker compose config` |
 | Health-check API | `curl -s localhost:8000/health` |
 | Резервная копия | `bash scripts/backup.sh` |
-| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.103.0 bash scripts/update-from-github.sh` |
+| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.104.0 bash scripts/update-from-github.sh` |
 | Откатить версию | `bash scripts/rollback.sh` |
 | Включить ночные обновления | `sudo bash scripts/auto-update.sh install` |
 | Состояние автообновления | `sudo bash scripts/auto-update.sh status` |
@@ -1954,7 +1960,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
 | Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
-| Что вошло в выпуск | [Заметки v28.103.0](docs/ru/RELEASE_V28_86_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
+| Что вошло в выпуск | [Заметки v28.104.0](docs/ru/RELEASE_V28_86_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | Wiki на трёх языках | [русский](docs/wiki/ru/Home.md), [English](docs/wiki/en/Home.md), [українська](docs/wiki/uk/Home.md) — готовые страницы для GitHub Wiki |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |

@@ -53,6 +53,14 @@ data class Settings(
     val geositeUrl: String = DEFAULT_GEOSITE,
     // Tunnel
     val dns: List<String> = listOf("1.1.1.1", "8.8.8.8"),
+    /** v1.7.0 (N12): DNS for the domains that go direct (Russian sites, own «direct» rules); empty — the same as [dns]. */
+    val localDns: String = "",
+    /** v1.7.0: FakeDNS — apps get addresses from 198.18.0.0/15 at once, the real lookup happens on the server. */
+    val fakeDns: Boolean = false,
+    /** v1.7.0: how routing resolves domains — auto (IPIfNonMatch with geo files, AsIs without), AsIs, IPIfNonMatch, IPOnDemand. */
+    val domainStrategy: String = "auto",
+    /** v1.7.0: own rules as written, or «block» first, then «proxy», then «direct». */
+    val ruleOrder: String = "written",
     val fragment: Boolean = false,
     val fragmentPackets: String = "tlshello",    // tlshello | 1-3 | 1-5
     val fragmentLength: String = "100-200",
@@ -139,6 +147,8 @@ data class Settings(
         require(tunnelMode in listOf("tun", "proxy") && logLevel in LOG_LEVELS && logHours in LOG_HOURS) { "mode" }
         require(socksPort in 1024..65535 && httpPort in 1024..65535 && socksPort != httpPort) { "ports" }
         require(muxConcurrency in 1..128) { "mux" }
+        require(domainStrategy in DOMAIN_STRATEGIES && ruleOrder in RULE_ORDERS) { "dns" }
+        require(localDns.isEmpty() || DNS_ADDRESS.matches(localDns)) { "localDns" }
         require(appIcon in APP_ICONS && routingProfiles.size <= 20 && routingProfiles.map { it.name }.toSet().size == routingProfiles.size) { "icon" }
         require(CREDENTIAL.matches(proxyUser) && CREDENTIAL.matches(proxyPass)) { "credentials" }
         // Sharing the proxy with other devices without a password would open it to the whole network.
@@ -147,7 +157,8 @@ data class Settings(
 
     fun toJson(): JSONObject = JSONObject().put("routing", routing).put("rules", JSONArray(rules.map { it.toJson() }))
         .put("geoipUrl", geoipUrl).put("geositeUrl", geositeUrl)
-        .put("dns", JSONArray(dns)).put("fragment", fragment).put("fragmentPackets", fragmentPackets).put("fragmentLength", fragmentLength)
+        .put("dns", JSONArray(dns)).put("localDns", localDns).put("fakeDns", fakeDns).put("domainStrategy", domainStrategy).put("ruleOrder", ruleOrder)
+        .put("fragment", fragment).put("fragmentPackets", fragmentPackets).put("fragmentLength", fragmentLength)
         .put("fragmentInterval", fragmentInterval).put("mtu", mtu).put("ipv6", ipv6).put("sniffing", sniffing).put("routeOnly", routeOnly)
         .put("blockUdp", blockUdp).put("adBlock", adBlock).put("idleTimeout", idleTimeout).put("excludedRoutes", JSONArray(excludedRoutes))
         .put("appsMode", appsMode).put("apps", JSONArray(apps.sorted()))
@@ -165,6 +176,10 @@ data class Settings(
 
     companion object {
         val ROUTING = listOf("global", "bypass_lan", "bypass_ru", "custom")
+        val DOMAIN_STRATEGIES = listOf("auto", "AsIs", "IPIfNonMatch", "IPOnDemand")
+        val RULE_ORDERS = listOf("written", "block_proxy_direct")
+        /** A DNS address Xray takes: an IP, localhost, or https:// / https+local:// / tcp:// / tcp+local:// / quic+local:// with a host. */
+        val DNS_ADDRESS = Regex("^(localhost|[0-9a-fA-F:.]+|(https|https\\+local|tcp|tcp\\+local|quic\\+local)://[A-Za-z0-9.:\\[\\]_-]+(/[^\\s]*)?)$")
         val THEMES = listOf("system", "corgi", "light", "dark")
         val LANGS = listOf("system", "ru", "en", "uk")
         val FRAGMENT_PACKETS = listOf("tlshello", "1-3", "1-5")
@@ -200,6 +215,9 @@ data class Settings(
             tryField { it.copy(rules = json.optJSONArray("rules")?.let { a -> (0 until a.length()).map { Rule.of(a.getJSONObject(it)) } } ?: d.rules) }
             tryField { it.copy(geoipUrl = s("geoipUrl", d.geoipUrl), geositeUrl = s("geositeUrl", d.geositeUrl)) }
             tryField { it.copy(dns = strings("dns", d.dns).ifEmpty { d.dns }) }
+            tryField { it.copy(localDns = s("localDns", d.localDns)) }
+            tryField { it.copy(fakeDns = b("fakeDns", d.fakeDns)) }
+            tryField { it.copy(domainStrategy = s("domainStrategy", d.domainStrategy), ruleOrder = s("ruleOrder", d.ruleOrder)) }
             tryField { it.copy(fragment = b("fragment", d.fragment), fragmentPackets = s("fragmentPackets", d.fragmentPackets)) }
             tryField { it.copy(fragmentLength = s("fragmentLength", d.fragmentLength), fragmentInterval = s("fragmentInterval", d.fragmentInterval)) }
             tryField { it.copy(mtu = i("mtu", d.mtu)) }

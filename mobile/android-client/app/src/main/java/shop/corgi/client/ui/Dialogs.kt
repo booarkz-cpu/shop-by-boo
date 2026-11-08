@@ -251,6 +251,18 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
             ServerRow(label, "", s.routing == key) { store.settings = s.copy(routing = key); refresh() }
         }
         item { Text(tr("Правила (домен, IP, geosite:, geoip:)", "Rules (domain, IP, geosite:, geoip:)", "Правила (домен, IP, geosite:, geoip:)"), style = MaterialTheme.typography.titleMedium) }
+        // v1.7.0 (N12): the order of own rules — as written, or «block» first, then «proxy», then «direct».
+        item {
+            Row(Modifier.fillMaxWidth().clickable {
+                store.settings = s.copy(ruleOrder = if (s.ruleOrder == "written") "block_proxy_direct" else "written"); refresh()
+            }.testTag("rule-order"), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(tr("Порядок: блок → прокси → напрямую", "Order: block → proxy → direct", "Порядок: блок → проксі → напряму"), style = MaterialTheme.typography.titleSmall)
+                    Text(tr("Иначе — как записаны", "Otherwise as written", "Інакше — як записано"), style = MaterialTheme.typography.bodySmall)
+                }
+                androidx.compose.material3.Switch(s.ruleOrder == "block_proxy_direct", null)
+            }
+        }
         // v1.6.0 (N10): a rule goes by a swipe to the left or «⋮ → Удалить», always after a confirmation.
         items(s.rules, key = { "rule-" + it.match + "-" + it.action }) { r -> RuleRow(r) { toDelete = r } }
         item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
