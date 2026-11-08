@@ -73,9 +73,12 @@ object ConfigBuilder {
     }
 
     /** Logs to files of «Журналы туннеля», counters for the speed in the notification. */
-    fun extras(config: JSONObject, s: Settings, logFile: String?) {
-        config.put("log", if (s.logLevel == "none" || logFile == null) JSONObject().put("loglevel", "none")
-            else JSONObject().put("loglevel", s.logLevel).put("error", logFile).put("dnsLog", s.logLevel == "debug"))
+    fun extras(config: JSONObject, s: Settings, logFile: String?, accessFile: String? = null) {
+        val log = if (s.logLevel == "none" || logFile == null) JSONObject().put("loglevel", "none")
+            else JSONObject().put("loglevel", s.logLevel).put("error", logFile).put("dnsLog", s.logLevel == "debug")
+        // v1.7.4 (N12): «Журнал сети» — a line per connection with its route, only while the switch is on.
+        if (s.networkLog && accessFile != null) log.put("access", accessFile).put("dnsLog", true)
+        config.put("log", log)
         // Counters for the speed on the main screen and in the notification, and (v1.7.3) the traffic by day.
         run {
             config.put("stats", JSONObject())
