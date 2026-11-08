@@ -4,6 +4,7 @@ import org.junit.Assert.assertFalse
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsEnabled
 import android.content.Context
