@@ -186,7 +186,7 @@ private fun HomeScreen(store: Store, connect: () -> Unit, refresh: () -> Unit, a
     val context = LocalContext.current
     val profile = store.active()
     // v1.5.0: the screen itself is shop.corgi.client.ui.home (VpnViewModel + HomeContent); here — the parts on the store.
-    shop.corgi.client.ui.home.HomeScreen(connect = connect, compact = store.settings.connectStyle == "compact",
+    shop.corgi.client.ui.home.HomeScreen(connect = connect, compact = store.settings.connectStyle == "compact", mascot = store.settings.mascot,
         server = { if (profile != null) ServerPicker(store, profile, refresh, openServers) },
         below = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {

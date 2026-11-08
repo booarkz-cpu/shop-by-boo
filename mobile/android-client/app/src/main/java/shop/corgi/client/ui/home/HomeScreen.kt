@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -86,7 +87,13 @@ import shop.corgi.client.ui.brandScheme
  * [server] and [below] are the parts that work on the store (the server picker, the provider, «Добавить»).
  */
 @Composable
-fun HomeScreen(connect: () -> Unit, compact: Boolean, server: @Composable () -> Unit, below: @Composable () -> Unit) {
+fun HomeScreen(
+    connect: () -> Unit,
+    compact: Boolean,
+    server: @Composable () -> Unit,
+    below: @Composable () -> Unit,
+    mascot: Boolean = false
+) {
     val context = LocalContext.current
     val model: VpnViewModel = viewModel { VpnViewModel(AndroidVpnEngine(context)) }
     val state by model.state.collectAsState()
@@ -97,6 +104,7 @@ fun HomeScreen(connect: () -> Unit, compact: Boolean, server: @Composable () -> 
         state = state,
         version = BuildConfig.VERSION_NAME,
         compact = compact,
+        mascot = mascot,
         onToggle = model::toggleVpn,
         onAdBlock = model::toggleAdBlock,
         onShare = { share(context) },
@@ -110,6 +118,7 @@ fun HomeContent(
     state: VpnUiState,
     version: String,
     compact: Boolean = false,
+    mascot: Boolean = false,
     onToggle: () -> Unit = {},
     onAdBlock: () -> Unit = {},
     onShare: () -> Unit = {},
@@ -139,6 +148,8 @@ fun HomeContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // v1.8.1 (N12): Corgi Lusi sleeps when off, runs while connecting and is happy when on.
+                if (mascot) Mascot(state.status)
                 StatusBadge(state.status)
                 // v1.6.0 (N10): the address the internet sees, with its country's flag.
                 AnimatedVisibility(state.isConnected && state.externalIp.isNotEmpty(), enter = fadeIn(), exit = fadeOut()) {
@@ -370,6 +381,35 @@ private fun PulseRing() {
             .border(3.dp, Brand.Warm, CircleShape)
             .testTag("connect-pulse")
     )
+}
+
+/** v1.8.1 (N12): the mascot for the state; the bounce exists only while connecting (no endless animation otherwise). */
+@Composable
+private fun Mascot(status: VpnStatus) {
+    androidx.compose.animation.Crossfade(status, label = "mascot") { s ->
+        val (image, text) = when (s) {
+            VpnStatus.Idle -> shop.corgi.client.R.drawable.mascot_sleep to tr("Люси спит", "Lusi is asleep", "Люсі спить")
+            VpnStatus.Connecting ->
+                shop.corgi.client.R.drawable.mascot_run to
+                    tr("Люси бежит подключать", "Lusi is running to connect", "Люсі біжить підключати")
+            VpnStatus.Connected ->
+                shop.corgi.client.R.drawable.mascot_happy to
+                    tr("Люси рада: всё работает", "Lusi is happy: all works", "Люсі рада: усе працює")
+        }
+        val bounce = if (s == VpnStatus.Connecting) bounceOffset() else 0f
+        androidx.compose.foundation.Image(
+            androidx.compose.ui.res.painterResource(image),
+            text,
+            Modifier.size(120.dp).offset(y = bounce.dp).testTag("mascot-${s.name.lowercase()}")
+        )
+    }
+}
+
+@Composable
+private fun bounceOffset(): Float {
+    val t = rememberInfiniteTransition(label = "bounce")
+    val y by t.animateFloat(0f, -8f, infiniteRepeatable(tween(350), RepeatMode.Reverse), label = "y")
+    return y
 }
 
 /** v1.6.0 (N10): idle — only with a chosen server and no change of the servers running; on — stopping waits for the change too. */
