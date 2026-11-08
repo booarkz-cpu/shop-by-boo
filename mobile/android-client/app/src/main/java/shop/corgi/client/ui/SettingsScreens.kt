@@ -300,6 +300,15 @@ private fun ConnectionPage(s: Settings, save: (Settings) -> Unit) {
                 save(s.copy(tileDetails = it)); QuickTile.refresh(context) }
         }
         TrustedWifiSection(s, save)
+        // v1.8.2 (N12): App Lock — turning it on (and off) needs the same prompt, so nobody else can switch it.
+        Section(tr("Блокировка приложения", "App Lock", "Блокування застосунку")) {
+            ToggleRow(tr("Вход по отпечатку или PIN", "Unlock with a fingerprint or PIN", "Вхід за відбитком або PIN"),
+                tr("Приложение открывается только после отпечатка, лица или PIN-кода телефона; 30 секунд вне приложения — без повторного запроса",
+                    "The app opens only after the fingerprint, the face or the phone's PIN; 30 seconds away do not ask again",
+                    "Застосунок відкривається лише після відбитка, обличчя або PIN телефона"), s.appLock) { on ->
+                (context as? MainActivity)?.authenticate { save(s.copy(appLock = on)) }
+            }
+        }
         // v1.8.0 (N12): Intents for Tasker / MacroDroid.
         Section(tr("Управление из других приложений", "Control from other apps", "Керування з інших застосунків")) {
             ToggleRow(tr("Разрешить Tasker и другим", "Allow Tasker and others", "Дозволити Tasker та іншим"),

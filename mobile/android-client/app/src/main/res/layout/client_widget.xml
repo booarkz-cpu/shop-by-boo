@@ -9,11 +9,13 @@
     android:orientation="horizontal"
     android:padding="12dp">
 
+    <!-- v1.8.2 (N12): Corgi Lusi asleep / running / happy, by the state. -->
     <ImageView
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+        android:id="@+id/widget_mascot"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:contentDescription="@string/app_name"
-        android:src="@drawable/corgi_logo" />
+        android:src="@drawable/mascot_sleep" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -37,6 +39,15 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="#FF94A3B8"
+            android:textSize="12sp" />
+
+        <!-- v1.8.2 (N12): the speed while connected, refreshed every few seconds. -->
+        <TextView
+            android:id="@+id/widget_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textColor="#FFFF8A1F"
             android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>

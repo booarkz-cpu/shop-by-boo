@@ -33,3 +33,5 @@ app/src/main/java/shop/corgi/client/vpn/AutomationReceiver.kt
 app/src/test/java/shop/corgi/client/core/Phase3Test.kt
 app/src/main/java/shop/corgi/client/core/GeekConfig.kt
 app/src/test/java/shop/corgi/client/core/GeekConfigTest.kt
+app/src/main/java/shop/corgi/client/core/AppLock.kt
+app/src/test/java/shop/corgi/client/core/AppLockTest.kt

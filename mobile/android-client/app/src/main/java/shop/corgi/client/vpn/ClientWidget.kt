@@ -30,6 +30,10 @@ class ClientWidget : AppWidgetProvider() {
     companion object {
         const val ACTION_TOGGLE = "shop.corgi.client.WIDGET_TOGGLE"
 
+        /** True when at least one widget is on the home screen (the speed is pushed only then). */
+        fun present(context: Context): Boolean =
+            AppWidgetManager.getInstance(context).getAppWidgetIds(ComponentName(context, ClientWidget::class.java)).isNotEmpty()
+
         fun refresh(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(ComponentName(context, ClientWidget::class.java))
@@ -51,6 +55,16 @@ class ClientWidget : AppWidgetProvider() {
                 else -> profile.servers().getOrNull(store.activeServer.toIntOrNull() ?: -1)?.name ?: profile.name
             }
             views.setTextViewText(R.id.widget_server, server)
+            // v1.8.2 (N12): the mascot for the state and the speed while connected.
+            val state = ClientVpnService.current(context)
+            views.setImageViewResource(R.id.widget_mascot, when (state) {
+                ClientVpnService.STATE_ON -> R.drawable.mascot_happy
+                ClientVpnService.STATE_CONNECTING -> R.drawable.mascot_run
+                else -> R.drawable.mascot_sleep
+            })
+            val session = ClientVpnService.session
+            views.setTextViewText(R.id.widget_speed, if (state == ClientVpnService.STATE_ON)
+                "↓ ${shop.corgi.client.core.SubInfo.bytes(session.downSpeed)}/s  ↑ ${shop.corgi.client.core.SubInfo.bytes(session.upSpeed)}/s" else "")
             val toggle = PendingIntent.getBroadcast(context, 11, Intent(context, ClientWidget::class.java).setAction(ACTION_TOGGLE),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
             views.setOnClickPendingIntent(R.id.widget_root, toggle)

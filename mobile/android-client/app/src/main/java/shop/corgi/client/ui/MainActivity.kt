@@ -7,6 +7,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 import shop.corgi.client.core.I18n
 import shop.corgi.client.core.Ping
 import shop.corgi.client.core.Scheme
@@ -57,7 +63,9 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null && store.settings.autoConnectLaunch && store.active() != null
             && ClientVpnService.current(this) == ClientVpnService.STATE_OFF) connect()
         if (intent?.action == TILE_PREFERENCES) openTab.value = 1
-        setContent { ClientApp(store, incoming, ::connect, pending, openTab) }
+        setContent {
+            if (locked.value) LockScreen { unlock() } else ClientApp(store, incoming, ::connect, pending, openTab)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -71,6 +79,70 @@ class MainActivity : ComponentActivity() {
 
     /** A corgi://routing/… or corgi://restore/… link waiting for the user's confirmation in the app. */
     val pending = androidx.compose.runtime.mutableStateOf<Scheme?>(null)
+
+    /** v1.8.2 (N12): App Lock — the content stays hidden until the system prompt is passed. */
+    val locked = androidx.compose.runtime.mutableStateOf(false)
+    private var unlockedAt = 0L
+    private var leftAt = 0L
+
+    override fun onResume() {
+        super.onResume()
+        val enabled = Store(this).settings.appLock
+        locked.value = shop.corgi.client.core.AppLock.locked(enabled, unlockedAt, leftAt, System.currentTimeMillis())
+        // The prompt opens by itself once per return to the app; after «Отмена» it waits for the button (no prompt loop).
+        if (locked.value && !autoPrompted) {
+            autoPrompted = true
+            unlock()
+        }
+    }
+
+    private var autoPrompted = false
+
+    override fun onStop() {
+        super.onStop()
+        autoPrompted = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (!locked.value) leftAt = System.currentTimeMillis()
+    }
+
+    /** The system prompt: fingerprint / face, or the phone's PIN, pattern or password; [then] after a success. */
+    fun authenticate(then: () -> Unit) {
+        val title = shop.corgi.client.core.tr("Корги Люси", "Corgi Lusi", "Коргі Люсі")
+        val keyguard = getSystemService(android.app.KeyguardManager::class.java)
+        if (keyguard?.isDeviceSecure != true) {
+            android.widget.Toast.makeText(this, shop.corgi.client.core.tr("Сначала задайте блокировку экрана в настройках телефона",
+                "Set a screen lock in the phone's settings first", "Спочатку задайте блокування екрана"), android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            val prompt = android.hardware.biometrics.BiometricPrompt.Builder(this).setTitle(title)
+                .setAllowedAuthenticators(android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                    android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL).build()
+            prompt.authenticate(android.os.CancellationSignal(), mainExecutor, object : android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: android.hardware.biometrics.BiometricPrompt.AuthenticationResult?) { then() }
+            })
+        } else {
+            @Suppress("DEPRECATION")
+            val intent = keyguard!!.createConfirmDeviceCredentialIntent(title, null) ?: run { then(); return }
+            pendingUnlock = then
+            confirm.launch(intent)
+        }
+    }
+
+    private var pendingUnlock: (() -> Unit)? = null
+    private val confirm = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) pendingUnlock?.invoke()
+        pendingUnlock = null
+    }
+
+    private fun unlock() = authenticate {
+        unlockedAt = System.currentTimeMillis()
+        leftAt = 0L
+        locked.value = false
+    }
 
     /** v1.8.0 (N12): the tab to show — 1 (servers) after a long press on the quick settings tile. */
     val openTab = androidx.compose.runtime.mutableStateOf<Int?>(null)
@@ -135,4 +207,22 @@ class MainActivity : ComponentActivity() {
         if (intent.getBooleanExtra("client_test_stop", false)) ClientVpnService.stop(this)
     }
 
+}
+
+/** v1.8.2 (N12): what shows while the app is locked — the mascot asleep and one button. */
+@androidx.compose.runtime.Composable
+private fun LockScreen(unlock: () -> Unit) {
+    androidx.compose.foundation.layout.Column(
+        androidx.compose.ui.Modifier.fillMaxSize().background(androidx.compose.material3.MaterialTheme.colorScheme.background).padding(24.dp),
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+    ) {
+        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(shop.corgi.client.R.drawable.mascot_sleep), null,
+            androidx.compose.ui.Modifier.size(160.dp))
+        androidx.compose.material3.Text(shop.corgi.client.core.tr("Приложение заблокировано", "The app is locked", "Застосунок заблоковано"),
+            style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+        androidx.compose.material3.Button(onClick = unlock, modifier = androidx.compose.ui.Modifier.padding(top = 16.dp).testTag("unlock")) {
+            androidx.compose.material3.Text(shop.corgi.client.core.tr("Разблокировать", "Unlock", "Розблокувати"))
+        }
+    }
 }
