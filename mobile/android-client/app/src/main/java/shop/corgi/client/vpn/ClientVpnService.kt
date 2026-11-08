@@ -53,7 +53,7 @@ class ClientVpnService : VpnService() {
                 // v1.6.0 (N10): a SOCKS inbound of this connection only, for the external address on the main screen.
                 val check = shop.corgi.client.core.IpCheck.random(java.net.ServerSocket(0).use { it.localPort })
                 val config = org.json.JSONObject(raw).also {
-                    ConfigBuilder.extras(it, s, logs.xray.absolutePath)
+                    ConfigBuilder.extras(it, s, logs.xray.absolutePath, logs.access.absolutePath)
                     (it.optJSONArray("inbounds") ?: org.json.JSONArray().also { a -> it.put("inbounds", a) }).put(check.inbound())
                 }.toString()
                 ipCheck = check

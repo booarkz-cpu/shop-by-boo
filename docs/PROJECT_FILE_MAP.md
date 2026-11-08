@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.107.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.108.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2403**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2406**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1126,6 +1126,7 @@
 | [docs/ru/RELEASE_V28_105_0.md](../docs/ru/RELEASE_V28_105_0.md) | Документация |
 | [docs/ru/RELEASE_V28_106_0.md](../docs/ru/RELEASE_V28_106_0.md) | Документация |
 | [docs/ru/RELEASE_V28_107_0.md](../docs/ru/RELEASE_V28_107_0.md) | Документация |
+| [docs/ru/RELEASE_V28_108_0.md](../docs/ru/RELEASE_V28_108_0.md) | Документация |
 | [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
@@ -1505,6 +1506,7 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/I18n.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/I18n.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Logs.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Logs.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/NetworkLog.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/NetworkLog.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Ping.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Ping.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Profiles.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Settings.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Settings.kt) | Мобильные приложения |
@@ -1571,6 +1573,7 @@
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/FailoverTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/FailoverTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt) | Мобильные приложения |

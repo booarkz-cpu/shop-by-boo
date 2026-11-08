@@ -101,6 +101,7 @@ fun SettingsScreen(store: Store, page: String?, open: (String?) -> Unit, refresh
                         "ping" -> PingPage(s, save)
                         "about" -> AboutPage(store)
                         "stats" -> StatsPage(store)
+                        "netlog" -> NetworkLogPage(store, s, save)
                     }
                 }
             }
@@ -118,6 +119,7 @@ private val PAGES: List<Pair<String, () -> String>> = listOf(
     "ping" to { tr("Настройки пинга", "Ping settings", "Налаштування пінгу") },
     "about" to { tr("О приложении", "About", "Про застосунок") },
     "stats" to { tr("Статистика и скорость", "Statistics and speed", "Статистика і швидкість") },
+    "netlog" to { tr("Журнал сети", "Network log", "Журнал мережі") },
     "schemes" to { tr("Схемы URL-адресов", "URL schemes", "Схеми URL-адрес") },
     "backup" to { tr("Резервное копирование", "Backup", "Резервне копіювання") },
     "logs" to { tr("Журналы туннеля", "Tunnel logs", "Журнали тунелю") },
@@ -154,6 +156,8 @@ private fun SettingsMenu(store: Store, open: (String?) -> Unit, refresh: () -> U
         run { Section(tr("Приложение", "App", "Застосунок")) {
             NavRow(Icons.Filled.Info, tr("О приложении", "About", "Про застосунок"), "v${BuildConfig.VERSION_NAME}") { open("about") }
             NavRow(Icons.Filled.Speed, tr("Статистика и скорость", "Statistics and speed", "Статистика і швидкість")) { open("stats") }
+            NavRow(Icons.Filled.Terminal, tr("Журнал сети", "Network log", "Журнал мережі"),
+                if (s.networkLog) tr("Включён", "On", "Увімкнено") else tr("Выключен", "Off", "Вимкнено")) { open("netlog") }
             NavRow(Icons.Filled.Link, tr("Схемы URL-адресов", "URL schemes", "Схеми URL-адрес"), "corgi://") { open("schemes") }
             NavRow(Icons.Filled.CloudUpload, tr("Резервное копирование", "Backup", "Резервне копіювання")) { open("backup") }
         } }
@@ -689,6 +693,68 @@ private fun StatsPage(store: Store) {
                     }
                 }, modifier = Modifier.testTag("speedtest")) { Text(tr("Измерить скорость", "Measure the speed", "Виміряти швидкість")) }
                 if (speed.isNotBlank()) Text(speed, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag("speed-result"))
+            }
+        }
+    }
+}
+
+/**
+ * v1.7.4 (N12, phase 2): «Журнал сети» — every connection with its domain and route (through the VPN, direct,
+ * blocked, DNS), newest first, refreshed every 2 s while the page is open. Written only while the switch is on;
+ * starts afresh on every connection and never leaves the device.
+ */
+@Composable
+private fun NetworkLogPage(store: Store, s: Settings, save: (Settings) -> Unit) {
+    val context = LocalContext.current
+    var route by remember { mutableStateOf<shop.corgi.client.core.NetworkLog.Route?>(null) }
+    var query by remember { mutableStateOf("") }
+    var lines by remember { mutableStateOf(emptyList<String>()) }
+    // Real-time refresh with the main looper (not the Compose clock): stops when the page closes.
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        val logs = shop.corgi.client.core.Logs(context.filesDir)
+        val handler = android.os.Handler(context.mainLooper)
+        val tick = object : Runnable {
+            override fun run() {
+                lines = runCatching { logs.lines(logs.access, limit = 2000) }.getOrDefault(emptyList())
+                handler.postDelayed(this, 2000)
+            }
+        }
+        tick.run()
+        onDispose { handler.removeCallbacks(tick) }
+    }
+    val entries = shop.corgi.client.core.NetworkLog.entries(lines, route, query)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Section(tr("Журнал сети", "Network log", "Журнал мережі")) {
+            ToggleRow(tr("Записывать соединения", "Record connections", "Записувати з'єднання"),
+                tr("Домены и куда они пошли: через VPN, напрямую, заблокированы. Включается со следующего подключения; хранится только на телефоне",
+                    "Domains and where they went: VPN, direct, blocked. From the next connection; stays on the phone",
+                    "Домени й куди вони пішли: VPN, напряму, заблоковано. З наступного підключення; лише на телефоні"),
+                s.networkLog) { save(s.copy(networkLog = it)) }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(null to tr("Все", "All", "Усі"), shop.corgi.client.core.NetworkLog.Route.PROXY to "VPN", shop.corgi.client.core.NetworkLog.Route.DIRECT to tr("Напрямую", "Direct", "Напряму"), shop.corgi.client.core.NetworkLog.Route.BLOCK to tr("Блок", "Blocked", "Блок"))
+                .forEach { (value, label) ->
+                    if (route == value) Button(onClick = {}) { Text(label) } else OutlinedButton(onClick = { route = value }) { Text(label) }
+                }
+        }
+        OutlinedTextField(query, { query = it.take(60) }, Modifier.fillMaxWidth().testTag("netlog-search"), singleLine = true,
+            placeholder = { Text(tr("Поиск домена", "Search a domain", "Пошук домену")) })
+        if (entries.isEmpty()) {
+            Text(if (s.networkLog) tr("Пока пусто — откройте что-нибудь в браузере", "Empty so far — open something in a browser", "Поки порожньо")
+                else tr("Включите запись и переподключитесь", "Turn recording on and reconnect", "Увімкніть запис і перепідключіться"),
+                style = MaterialTheme.typography.bodySmall)
+        }
+        entries.forEach { e ->
+            val (mark, color) = when (e.route) {
+                shop.corgi.client.core.NetworkLog.Route.PROXY -> "VPN" to MaterialTheme.colorScheme.primary
+                shop.corgi.client.core.NetworkLog.Route.DIRECT -> tr("напрямую", "direct", "напряму") to MaterialTheme.colorScheme.tertiary
+                shop.corgi.client.core.NetworkLog.Route.BLOCK -> tr("блок", "blocked", "блок") to MaterialTheme.colorScheme.error
+                shop.corgi.client.core.NetworkLog.Route.DNS -> "DNS" to MaterialTheme.colorScheme.onSurfaceVariant
+            }
+            Row(Modifier.fillMaxWidth().testTag("netlog-entry"), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(e.time, style = MaterialTheme.typography.bodySmall)
+                Text("${e.host}:${e.port}", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+                Text(mark, color = color, style = MaterialTheme.typography.labelMedium)
             }
         }
     }
