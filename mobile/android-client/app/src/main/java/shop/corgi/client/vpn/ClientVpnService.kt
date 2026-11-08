@@ -223,7 +223,8 @@ class ClientVpnService : VpnService() {
         fun lastError(context: Context): String = prefs(context).getString("error", "").orEmpty()
 
         fun start(context: Context) {
-            prefs(context).edit().remove("error").apply()
+            // A start (by the user, or after a trusted Wi-Fi) ends a pause of «Доверенные Wi-Fi».
+            prefs(context).edit().remove("error").remove("paused_trusted").apply()
             val intent = Intent(context, ClientVpnService::class.java).setAction(ACTION_START)
             if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent) else context.startService(intent)
         }
