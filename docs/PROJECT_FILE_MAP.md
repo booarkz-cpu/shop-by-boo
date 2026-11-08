@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.100.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.101.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2376**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2384**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -76,6 +76,7 @@
 | [.github/workflows/publish-release.yml](../.github/workflows/publish-release.yml) | GitHub CI/CD |
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
+| [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -1118,6 +1119,7 @@
 | [docs/ru/RELEASE_V27.md](../docs/ru/RELEASE_V27.md) | Документация |
 | [docs/ru/RELEASE_V28.md](../docs/ru/RELEASE_V28.md) | Документация |
 | [docs/ru/RELEASE_V28_100_0.md](../docs/ru/RELEASE_V28_100_0.md) | Документация |
+| [docs/ru/RELEASE_V28_101_0.md](../docs/ru/RELEASE_V28_101_0.md) | Документация |
 | [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
@@ -1486,6 +1488,7 @@
 | [mobile/android-client/app/src/main/assets/banners/app-settings.jpg](../mobile/android-client/app/src/main/assets/banners/app-settings.jpg) | Мобильные приложения |
 | [mobile/android-client/app/src/main/assets/banners/app-support.jpg](../mobile/android-client/app/src/main/assets/banners/app-support.jpg) | Мобильные приложения |
 | [mobile/android-client/app/src/main/assets/banners/app-vpn.jpg](../mobile/android-client/app/src/main/assets/banners/app-vpn.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/ApkCheck.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/ApkCheck.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/AppList.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/AppList.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Backup.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Backup.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Мобильные приложения |
@@ -1515,6 +1518,8 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/AndroidVpnEngine.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/AndroidVpnEngine.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt) | Мобильные приложения |
@@ -1547,6 +1552,7 @@
 | [mobile/android-client/app/src/main/res/xml/client_widget_info.xml](../mobile/android-client/app/src/main/res/xml/client_widget_info.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/xml/network_security.xml](../mobile/android-client/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/AdBlockTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/AdBlockTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/AppListTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/AppListTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt) | Мобильные приложения |
@@ -1958,6 +1964,7 @@
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
 | [scripts/mobile/maestro-screens.sh](../scripts/mobile/maestro-screens.sh) | Эксплуатация и релиз |
 | [scripts/mobile/vpn-e2e.sh](../scripts/mobile/vpn-e2e.sh) | Эксплуатация и релиз |
+| [scripts/mobile/xray-core-watch.py](../scripts/mobile/xray-core-watch.py) | Эксплуатация и релиз |
 | [scripts/node-agent.py](../scripts/node-agent.py) | Эксплуатация и релиз |
 | [scripts/open-ports.sh](../scripts/open-ports.sh) | Эксплуатация и релиз |
 | [scripts/open-pr.sh](../scripts/open-pr.sh) | Эксплуатация и релиз |
@@ -2383,4 +2390,5 @@
 | [tests/test_v45_5_deep_regressions.py](../tests/test_v45_5_deep_regressions.py) | Проверки |
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |
+| [tests/test_xray_core_watch.py](../tests/test_xray_core_watch.py) | Проверки |
 | [tests/test_zero_downtime_deploy.py](../tests/test_zero_downtime_deploy.py) | Проверки |

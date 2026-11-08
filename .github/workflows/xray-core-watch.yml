@@ -1,0 +1,62 @@
+name: Xray core watch
+# v28.101.0 (stage 20, N11): once a day — a new release of 2dust/AndroidLibXrayLite (the Xray core of «Корги Люси:
+# клиент») becomes a pull request with the new pinned commit and the client's next version. Pull requests opened with the
+# workflow token do not start other workflows, so the CI of the branch is started explicitly (workflow_dispatch); the
+# pull request is merged only when every check is green.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: xray-core-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: The latest AndroidLibXrayLite
+        id: latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=$(gh api repos/2dust/AndroidLibXrayLite/releases/latest --jq .tag_name)
+          case "$tag" in v[0-9]*.[0-9]*.[0-9]*|[0-9]*.[0-9]*.[0-9]*) ;; *) echo "unexpected tag $tag"; exit 1 ;; esac
+          # The commit the tag points at (an annotated tag is peeled with ^{}).
+          commit=$(git ls-remote https://github.com/2dust/AndroidLibXrayLite "refs/tags/$tag^{}" "refs/tags/$tag" | sort -k2 -r | head -1 | cut -f1)
+          echo "$commit" | grep -Eq '^[0-9a-f]{40}$' || { echo "no commit for $tag"; exit 1; }
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"; echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "AndroidLibXrayLite $tag → $commit" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: A pull request when the core changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.latest.outputs.tag }}
+          COMMIT: ${{ steps.latest.outputs.commit }}
+        run: |
+          set -euo pipefail
+          out=$(python3 scripts/mobile/xray-core-watch.py --tag "$TAG" --commit "$COMMIT")
+          echo "$out" | tee -a "$GITHUB_STEP_SUMMARY"
+          [ "$out" = "up-to-date" ] && exit 0
+          branch="auto/xray-core-$TAG"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then echo "$branch is already open"; exit 0; fi
+          python3 scripts/mobile/xray-core-watch.py --tag "$TAG" --commit "$COMMIT" --write
+          version=$(echo "$out" | awk '{print $4}')
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add scripts/mobile/build-xray-aar.sh mobile/android-client/app/build.gradle.kts docs/ru/new/ANDROID_CLIENT_APP.md
+          git commit -m "client $version: Xray core from AndroidLibXrayLite $TAG" -m "Opened by «Xray core watch» (N11)."
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "client $version: ядро Xray из AndroidLibXrayLite $TAG" \
+            --body "Автоматически (N11, «Xray core watch»): AndroidLibXrayLite \`$TAG\` (\`$COMMIT\`) вместо закреплённого коммита; клиент $version. Вливать только при полностью зелёном CI (сборка AAR из нового коммита, unit, эмулятор с настоящим VPN)."
+          gh workflow run ci.yml --ref "$branch"
+          gh workflow run android-client.yml --ref "$branch"
