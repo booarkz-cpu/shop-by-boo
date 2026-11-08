@@ -4,7 +4,7 @@ name: Mobile screenshots
 # demo mode (fixed data, no network): Android with --ez corgi_demo true, iOS with -CorgiDemo.
 # The pictures are uploaded as the "mobile-screenshots" artifacts of the run.
 # Run by hand with «commit» to also refresh the admin panel and cabinet catalog and commit every
-# picture (screenshots/mobile, screenshots/admin_panel, screenshots/storefront_user, README) to the branch.
+# picture (screenshots/mobile, screenshots/admin_panel, screenshots/storefront_user, screenshots/client, README) to the branch.
 on:
   workflow_dispatch:
     inputs:
@@ -238,10 +238,64 @@ jobs:
             screenshots/admin-screenshots-index.json
           if-no-files-found: error
 
+  client:
+    name: "«Корги Люси — клиент» screens"
+    # N13: the screens of the standalone client for README — ClientScreensTest saves them (ClientScreensTest.shot).
+    if: github.event_name == 'workflow_dispatch' && inputs.commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+      - id: xray
+        uses: actions/cache@v4
+        with:
+          path: mobile/android-user/app/libs/libv2ray.aar
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+      - name: Build the VPN engine (libv2ray.aar)
+        if: steps.xray.outputs.cache-hit != 'true'
+        run: bash scripts/mobile/build-xray-aar.sh
+      - name: Debug build
+        run: |
+          set -euo pipefail
+          mkdir -p mobile/android-client/app/libs
+          cp mobile/android-user/app/libs/libv2ray.aar mobile/android-client/app/libs/
+          cd mobile/android-client && bash gradlew :app:assembleDebug --no-daemon
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: UI tests that save the screens
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          cores: 4
+          ram-size: 4096M
+          script: cd mobile/android-client && timeout 25m bash gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=shop.corgi.client.ClientScreensTest --no-daemon && adb pull /data/local/tmp/client-screens "$GITHUB_WORKSPACE/client-screens"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: client-screens
+          path: client-screens/
+
   commit:
     name: Commit screenshots to a tag
     if: github.event_name == 'workflow_dispatch' && inputs.commit
-    needs: [android, ios, admin]
+    needs: [android, ios, admin, client]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -260,7 +314,9 @@ jobs:
           find "$shots" -maxdepth 3 | head -n 20
           mkdir -p screenshots/mobile
           cp "$shots"/mobile-screenshots-android/*.png "$shots"/mobile-screenshots-ios/*.png screenshots/mobile/
-          rm -rf screenshots/admin_panel screenshots/storefront_user
+          rm -rf screenshots/admin_panel screenshots/storefront_user screenshots/client
+          mkdir -p screenshots/client
+          find "$shots"/client-screens -name '*.png' -exec cp {} screenshots/client/ \;
           cp -r "$shots"/admin-screenshots/admin_panel "$shots"/admin-screenshots/storefront_user screenshots/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
