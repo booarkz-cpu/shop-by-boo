@@ -3,6 +3,7 @@ package shop.corgi.client
 import org.junit.Assert.assertFalse
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsEnabled
 import android.content.Context
@@ -134,7 +135,7 @@ class ClientScreensTest {
         exists("The server was removed")
         compose.onNodeWithTag("connect").assertIsNotEnabled()
         compose.onNodeWithText("Servers").tap()
-        compose.onNodeWithText("Finland").tap()
+        compose.onAllNodesWithTag("server").filter(hasText("Finland", substring = true))[0].tap()  // the provider is called «Finland» too
         assertFalse(Store(context).mustChoose)
         compose.onNodeWithText("Home").tap()
         compose.onNodeWithTag("connect").assertIsEnabled()
