@@ -12,6 +12,7 @@ permissions:
   contents: write
   pull-requests: write
   actions: write
+  issues: write
 
 concurrency:
   group: xray-core-watch
@@ -55,7 +56,16 @@ jobs:
           git checkout -b "$branch"
           git add scripts/mobile/build-xray-aar.sh mobile/android-client/app/build.gradle.kts docs/ru/new/ANDROID_CLIENT_APP.md
           git commit -m "client $version: Xray core from AndroidLibXrayLite $TAG" -m "Opened by «Xray core watch» (N11)."
-          git push origin "$branch"
+          # The branch ruleset lets only trusted apps create branches; the workflow token is not one of them unless the
+          # owner allows it. Then the new core becomes an issue (once per tag) for a maintainer to open the pull request.
+          if ! git push origin "$branch"; then
+            title="Ядро Xray: AndroidLibXrayLite $TAG"
+            if [ -z "$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')" ]; then
+              gh issue create --title "$title" --body "«Xray core watch» (N11) нашёл новый выпуск AndroidLibXrayLite \`$TAG\` (коммит \`$COMMIT\`), но не смог создать ветку \`$branch\`: правила веток разрешают это только доверенным приложениям. Откройте PR вручную: \`python3 scripts/mobile/xray-core-watch.py --tag $TAG --commit $COMMIT --write\` — или разрешите GitHub Actions создавать ветки \`auto/*\` в правилах репозитория."
+            fi
+            echo "::warning title=Xray core watch::branch $branch was refused; an issue asks for the pull request"
+            exit 0
+          fi
           gh pr create --base main --head "$branch" --title "client $version: ядро Xray из AndroidLibXrayLite $TAG" \
             --body "Автоматически (N11, «Xray core watch»): AndroidLibXrayLite \`$TAG\` (\`$COMMIT\`) вместо закреплённого коммита; клиент $version. Вливать только при полностью зелёном CI (сборка AAR из нового коммита, unit, эмулятор с настоящим VPN)."
           gh workflow run ci.yml --ref "$branch"
