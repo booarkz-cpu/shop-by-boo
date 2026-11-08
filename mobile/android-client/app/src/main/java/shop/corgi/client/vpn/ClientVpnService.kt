@@ -102,10 +102,22 @@ class ClientVpnService : VpnService() {
         speedThread = thread {
             // Once a second: bytes through the proxy outbounds since the previous second — for the main screen
             // (v1.5.0) and, when chosen, the notification. Xray's counters reset on reading: this is the only reader.
+            // v1.7.3 (N12): the traffic by day — through the VPN and direct — saved every 10 seconds.
+            val store = Store(this)
+            var vpn = 0L
+            var direct = 0L
+            var tick = 0
             while (Xray.running && speedThread == Thread.currentThread()) {
                 val up = tags.sumOf { Xray.traffic(it, "uplink") }
                 val down = tags.sumOf { Xray.traffic(it, "downlink") }
                 session = session.add(up, down)
+                vpn += up + down
+                direct += Xray.traffic("direct", "uplink") + Xray.traffic("direct", "downlink")
+                if (++tick % 10 == 0 && (vpn > 0 || direct > 0)) {
+                    runCatching { store.addTraffic(vpn, direct) }
+                    vpn = 0
+                    direct = 0
+                }
                 if (s.speedNotification) {
                     runCatching { getSystemService(NotificationManager::class.java)?.notify(7, notification("↑ ${SubInfo.bytes(up)}/s  ↓ ${SubInfo.bytes(down)}/s")) }
                 }

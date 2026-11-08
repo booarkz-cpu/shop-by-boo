@@ -13,6 +13,7 @@ import android.provider.Settings as AndroidSettings
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -99,6 +100,7 @@ fun SettingsScreen(store: Store, page: String?, open: (String?) -> Unit, refresh
                         "providers" -> ProvidersPage(s) { save(it); UpdateJob.schedule(context) }
                         "ping" -> PingPage(s, save)
                         "about" -> AboutPage(store)
+                        "stats" -> StatsPage(store)
                     }
                 }
             }
@@ -115,6 +117,7 @@ private val PAGES: List<Pair<String, () -> String>> = listOf(
     "providers" to { tr("Настройки провайдеров", "Provider settings", "Налаштування провайдерів") },
     "ping" to { tr("Настройки пинга", "Ping settings", "Налаштування пінгу") },
     "about" to { tr("О приложении", "About", "Про застосунок") },
+    "stats" to { tr("Статистика и скорость", "Statistics and speed", "Статистика і швидкість") },
     "schemes" to { tr("Схемы URL-адресов", "URL schemes", "Схеми URL-адрес") },
     "backup" to { tr("Резервное копирование", "Backup", "Резервне копіювання") },
     "logs" to { tr("Журналы туннеля", "Tunnel logs", "Журнали тунелю") },
@@ -150,6 +153,7 @@ private fun SettingsMenu(store: Store, open: (String?) -> Unit, refresh: () -> U
         } }
         run { Section(tr("Приложение", "App", "Застосунок")) {
             NavRow(Icons.Filled.Info, tr("О приложении", "About", "Про застосунок"), "v${BuildConfig.VERSION_NAME}") { open("about") }
+            NavRow(Icons.Filled.Speed, tr("Статистика и скорость", "Statistics and speed", "Статистика і швидкість")) { open("stats") }
             NavRow(Icons.Filled.Link, tr("Схемы URL-адресов", "URL schemes", "Схеми URL-адрес"), "corgi://") { open("schemes") }
             NavRow(Icons.Filled.CloudUpload, tr("Резервное копирование", "Backup", "Резервне копіювання")) { open("backup") }
         } }
@@ -616,6 +620,76 @@ private fun TrustedWifiSection(s: Settings, save: (Settings) -> Unit) {
                     android.content.pm.PackageManager.PERMISSION_GRANTED) addCurrent() else permission.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
             }) { Text(tr("Добавить текущую сеть", "Add the current network", "Додати поточну мережу")) }
             if (note.isNotBlank()) Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
+/**
+ * v1.7.3 (N12, phase 2): traffic by day — through the VPN and direct — for 7 or 30 days, and a speed test of the
+ * server through the running tunnel.
+ */
+@Composable
+private fun StatsPage(store: Store) {
+    val context = LocalContext.current
+    var days by remember { mutableStateOf(7) }
+    var speed by remember { mutableStateOf("") }
+    var testing by remember { mutableStateOf(false) }
+    val series = remember(days) { shop.corgi.client.core.TrafficHistory.series(store.trafficHistory(), days, System.currentTimeMillis()) }
+    val vpnColor = MaterialTheme.colorScheme.primary
+    val directColor = MaterialTheme.colorScheme.tertiary
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Section(tr("Трафик", "Traffic", "Трафік")) {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(7, 30).forEach { d ->
+                        if (d == days) Button(onClick = {}) { Text("$d " + tr("дн.", "days", "дн.")) }
+                        else OutlinedButton(onClick = { days = d }, modifier = Modifier.testTag("stats-$d")) { Text("$d " + tr("дн.", "days", "дн.")) }
+                    }
+                }
+                val max = (series.maxOfOrNull { it.vpn + it.direct } ?: 0L).coerceAtLeast(1L)
+                androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(140.dp).testTag("traffic-chart")) {
+                    val slot = size.width / series.size
+                    series.forEachIndexed { i, d ->
+                        val x = i * slot + slot * 0.15f
+                        val w = slot * 0.7f
+                        val hv = size.height * d.vpn / max
+                        val hd = size.height * d.direct / max
+                        drawRect(directColor, androidx.compose.ui.geometry.Offset(x, size.height - hd), androidx.compose.ui.geometry.Size(w, hd))
+                        drawRect(vpnColor, androidx.compose.ui.geometry.Offset(x, size.height - hd - hv), androidx.compose.ui.geometry.Size(w, hv))
+                    }
+                }
+                val vpn = series.sumOf { it.vpn }
+                val direct = series.sumOf { it.direct }
+                Text("● " + tr("Через VPN: ", "Through the VPN: ", "Через VPN: ") + shop.corgi.client.core.SubInfo.bytes(vpn), color = vpnColor)
+                Text("● " + tr("Напрямую: ", "Direct: ", "Напряму: ") + shop.corgi.client.core.SubInfo.bytes(direct), color = directColor)
+                Text(tr("Считается, пока включён туннель; «напрямую» — локальная сеть и правила «direct»",
+                    "Counted while the tunnel is on; «direct» — the local network and «direct» rules",
+                    "Рахується, поки увімкнено тунель; «напряму» — локальна мережа та правила «direct»"), style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        Section("Speedtest") {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(tr("Скачивание 10 МБ и отдача 3 МБ через туннель — настоящая скорость текущего сервера",
+                    "A 10 MB download and a 3 MB upload through the tunnel — the real speed of the current server",
+                    "Завантаження 10 МБ і віддача 3 МБ через тунель — справжня швидкість сервера"), style = MaterialTheme.typography.bodySmall)
+                Button(enabled = !testing, onClick = {
+                    val check = shop.corgi.client.vpn.ClientVpnService.ipCheck
+                    if (check == null) {
+                        speed = tr("Сначала подключитесь", "Connect first", "Спочатку підключіться")
+                        return@Button
+                    }
+                    testing = true
+                    speed = tr("Измеряю…", "Measuring…", "Вимірюю…")
+                    val main = android.os.Handler(context.mainLooper)
+                    thread {
+                        val text = runCatching { shop.corgi.client.core.SpeedTest.run(check) }.fold(
+                            { r -> "↓ %.1f  ↑ %.1f ".format(r.downMbps, r.upMbps) + tr("Мбит/с", "Mbit/s", "Мбіт/с") },
+                            { tr("Сервер не ответил", "The server did not answer", "Сервер не відповів") })
+                        main.post { speed = text; testing = false }
+                    }
+                }, modifier = Modifier.testTag("speedtest")) { Text(tr("Измерить скорость", "Measure the speed", "Виміряти швидкість")) }
+                if (speed.isNotBlank()) Text(speed, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag("speed-result"))
+            }
         }
     }
 }
