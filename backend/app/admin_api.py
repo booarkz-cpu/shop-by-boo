@@ -232,7 +232,11 @@ async def admin_audit(page:int=1,page_size:int=50,db:AsyncSession=Depends(get_db
     return [{"id":x.id,"action":x.action,"actor":x.actor,"target":x.target,"details":shop._public_audit_details(x.details),"created_at":str(x.created_at)} for x in rows]
 
 @shop.app.get("/api/admin/remnawave/users")
-async def rw_users(start:int=0,size:int=25,admin=Depends(require_permission("read"))): return shop.redact_remote(await shop.RemnawaveClient().list_users(start,max(1,min(size,1000))))
+async def rw_users(start:int=0,size:int=25,admin=Depends(require_permission("read"))):
+    # v28.103.0 (N13): before Remnawave is connected the section is an empty list with the reason, not an error page.
+    from .remnawave import RemnawaveNotConfigured
+    try: return shop.redact_remote(await shop.RemnawaveClient().list_users(start,max(1,min(size,1000))))
+    except RemnawaveNotConfigured: return {"users":[],"configured":False,"detail":"Remnawave ещё не подключена: «Серверы → Установка Remnawave» или адрес и токен панели в настройках."}
 @shop.app.get("/api/admin/remnawave/users/stream")
 async def rw_user_stream(telegram_id:int|None=None,cursor:int|None=None,size:int=250,status:str|None=None,admin=Depends(require_permission("read"))): return shop.redact_remote(await shop.RemnawaveClient().stream_users(telegram_id,cursor,size,status))
 @shop.app.get("/api/admin/remnawave/nodes")

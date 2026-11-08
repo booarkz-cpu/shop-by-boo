@@ -57,6 +57,9 @@ async def database():
 
 app=FastAPI(lifespan=lifespan)
 app.router.routes.extend(shop.app.router.routes)
+# The same error answers as production (503 «not configured», 502 «unreachable»), not bare 500s.
+from app.errors import register_error_handlers
+register_error_handlers(app)
 app.dependency_overrides[get_db]=database
 shop.app.dependency_overrides[get_db]=database
 app.add_middleware(shop.SecurityHeadersMiddleware)
