@@ -7,7 +7,7 @@
 > Код і документацію опубліковано для вивчення та демонстрації. Використовуючи їх, ви самі відповідаєте за дотримання законів своєї країни, за безпеку серверів і даних клієнтів. Автор не дає гарантій і не відповідає за наслідки використання.
 
 
-> **v28.101.0** — поточний стабільний випуск. Runtime/API `21.5.1`, міграція магазину `0094_store_subscriptions`.
+> **v28.102.0** — поточний стабільний випуск. Runtime/API `21.5.1`, міграція магазину `0094_store_subscriptions`.
 
 **Що це.** Магазин продає VPN-підписки й видає доступ у вашій панелі Remnawave. Він:
 - приймає оплату (СБП, картка, крипта, Telegram Stars);
@@ -60,8 +60,8 @@
 Підключіться до сервера (Windows — PowerShell, macOS і Linux — Термінал): `ssh root@IP_СЕРВЕРА`. Потім:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.101.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.101.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.102.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.102.0 bash /root/shop-install.sh
 ```
 
 Інсталятор запитає домен, токен бота й ціни, сам поставить Docker, створить випадкові паролі та запустить усе (5–15 хвилин).

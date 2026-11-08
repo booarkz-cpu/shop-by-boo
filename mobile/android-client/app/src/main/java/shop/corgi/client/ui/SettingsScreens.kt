@@ -85,10 +85,11 @@ fun SettingsScreen(store: Store, page: String?, open: (String?) -> Unit, refresh
         }
         when (page) {
             "routing" -> RoutingScreen(store, refresh)
+            // v1.6.2: the apps screen has its own LazyColumn — inside a lazy item it got an unbounded height.
+            "apps" -> AppsPage(store, s, save)
             else -> LazyColumn(Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 item {
                     when (page) {
-                        "apps" -> AppsPage(store, s, save)
                         "appearance" -> AppearancePage(s, save)
                         "connection" -> ConnectionPage(s, save)
                         "tunnel" -> TunnelPage(store, s, save)
