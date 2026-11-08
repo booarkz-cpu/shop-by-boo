@@ -77,7 +77,7 @@ data class ExternalIp(val ip: String, val country: String) {
             }.getOrDefault(false)
         }
 
-        private fun authenticate(check: IpCheck) {
+        internal fun authenticate(check: IpCheck) {
             Authenticator.setDefault(
                 object : Authenticator() {
                     override fun getPasswordAuthentication(): PasswordAuthentication? = if (requestingHost == "127.0.0.1" &&

@@ -76,7 +76,8 @@ object ConfigBuilder {
     fun extras(config: JSONObject, s: Settings, logFile: String?) {
         config.put("log", if (s.logLevel == "none" || logFile == null) JSONObject().put("loglevel", "none")
             else JSONObject().put("loglevel", s.logLevel).put("error", logFile).put("dnsLog", s.logLevel == "debug"))
-        if (s.speedNotification) {
+        // Counters for the speed on the main screen and in the notification, and (v1.7.3) the traffic by day.
+        run {
             config.put("stats", JSONObject())
             val policy = config.optJSONObject("policy") ?: JSONObject().also { config.put("policy", it) }
             policy.put("system", (policy.optJSONObject("system") ?: JSONObject()).put("statsOutboundUplink", true).put("statsOutboundDownlink", true))

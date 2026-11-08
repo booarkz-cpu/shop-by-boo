@@ -22,3 +22,6 @@ app/src/main/java/shop/corgi/client/core/Failover.kt
 app/src/test/java/shop/corgi/client/core/FailoverTest.kt
 app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt
 app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt
+app/src/main/java/shop/corgi/client/core/TrafficHistory.kt
+app/src/main/java/shop/corgi/client/core/SpeedTest.kt
+app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt
