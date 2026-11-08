@@ -36,9 +36,19 @@ data class VpnUiState(
     val adBlockNeedsGeo: Boolean = false,
     val streakDays: Int = 0,
     val hasProfile: Boolean = false,
+    /** v1.6.0 (N10): servers are being removed or a subscription rewritten — the button waits. */
+    val configBusy: Boolean = false,
+    /** v1.6.0 (N10): the active server was removed — the button waits for another one. */
+    val mustChoose: Boolean = false,
+    /** v1.6.0 (N10): the address the internet sees and its flag, after connecting. */
+    val externalIp: String = "",
+    val externalFlag: String = "",
     val error: String = ""
 ) {
     val isConnected: Boolean get() = status == VpnStatus.Connected
+
+    /** The main button can start the tunnel (it can always stop it). */
+    val canConnect: Boolean get() = hasProfile && !configBusy && !mustChoose
 }
 
 /** One-off actions the screen carries out for the view model (the VPN permission dialog belongs to the activity). */
@@ -69,9 +79,27 @@ interface VpnEngine {
     fun hasProfile(): Boolean
 
     fun lastError(): String
+
+    /** v1.6.0 (N10): a change of the servers is running ([shop.corgi.client.core.ConfigGate]). */
+    fun configBusy(): Boolean = false
+
+    /** v1.6.0 (N10): the active server was removed and no other one is chosen yet. */
+    fun mustChoose(): Boolean = false
+
+    /** Calls [listener] when [configBusy] changes; returns the way to stop listening. */
+    fun listenConfig(listener: () -> Unit): () -> Unit = {}
+
+    /** v1.6.0 (N10): the external address through the tunnel (blocking; null when unknown). */
+    fun externalIp(): shop.corgi.client.core.ExternalIp? = null
 }
 
-class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = System::currentTimeMillis) : ViewModel() {
+class VpnViewModel(
+    private val engine: VpnEngine,
+    private val now: () -> Long = System::currentTimeMillis,
+    private val io: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.IO
+) : ViewModel() {
+    private var lookup: Job? = null
+
     private val mutableState = MutableStateFlow(read(VpnUiState()))
     val state: StateFlow<VpnUiState> = mutableState.asStateFlow()
 
@@ -80,6 +108,7 @@ class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = 
 
     private var ticker: Job? = null
     private val stopListening = engine.listen { refresh() }
+    private val stopConfig = engine.listenConfig { refresh() }
 
     init {
         refresh()
@@ -89,6 +118,14 @@ class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = 
     fun refresh() {
         val next = read(mutableState.value)
         mutableState.value = next
+        if (next.isConnected && next.externalIp.isEmpty() && lookup?.isActive != true) {
+            lookup = viewModelScope.launch {
+                val found = kotlinx.coroutines.withContext(io) { engine.externalIp() }
+                if (found != null && mutableState.value.isConnected) {
+                    mutableState.update { it.copy(externalIp = found.ip, externalFlag = found.flag) }
+                }
+            }
+        }
         if (next.isConnected && ticker?.isActive != true) {
             ticker = viewModelScope.launch {
                 while (isActive && mutableState.value.isConnected) {
@@ -102,7 +139,7 @@ class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = 
     /** Idle → asks the screen to connect (the permission dialog, then the service); otherwise disconnects. */
     fun toggleVpn() {
         when (mutableState.value.status) {
-            VpnStatus.Idle -> mutableEvents.tryEmit(HomeEvent.Connect)
+            VpnStatus.Idle -> if (read(mutableState.value).canConnect) mutableEvents.tryEmit(HomeEvent.Connect)
             VpnStatus.Connecting, VpnStatus.Connected -> engine.disconnect()
         }
     }
@@ -121,6 +158,7 @@ class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = 
 
     override fun onCleared() {
         stopListening()
+        stopConfig()
     }
 
     private fun read(previous: VpnUiState): VpnUiState {
@@ -142,6 +180,10 @@ class VpnViewModel(private val engine: VpnEngine, private val now: () -> Long = 
             adBlockPending = previous.adBlockPending && status != VpnStatus.Idle,
             streakDays = engine.streak(),
             hasProfile = engine.hasProfile(),
+            externalIp = if (status == VpnStatus.Connected) previous.externalIp else "",
+            externalFlag = if (status == VpnStatus.Connected) previous.externalFlag else "",
+            configBusy = engine.configBusy(),
+            mustChoose = engine.mustChoose(),
             error = if (status == VpnStatus.Idle) engine.lastError() else ""
         )
     }

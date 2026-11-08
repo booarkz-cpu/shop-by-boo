@@ -1,5 +1,10 @@
 package shop.corgi.client
 
+import org.junit.Assert.assertFalse
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsEnabled
 import android.content.Context
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
@@ -95,6 +100,58 @@ class ClientScreensTest {
         compose.onNodeWithText("Add rule").tap()
         exists("domain:example.com → direct")
         assertEquals("domain:example.com", Store(context).settings.rules.single().match)
+    }
+
+    @Test fun ruleIsDeletedOnlyAfterTheConfirmation() {  // v1.6.0 (N10)
+        Store(context).let { it.settings = it.settings.copy(routing = "custom", rules = listOf(shop.corgi.client.core.Rule("domain:example.com", "direct"))) }
+        launch()
+        compose.onNodeWithText("Settings").tap()
+        compose.onNodeWithText("Routing").tap()
+        compose.onNodeWithTag("rule-menu").tap()
+        compose.onNodeWithTag("rule-delete").tap()
+        exists("Delete the rule?")
+        compose.onNodeWithText("Cancel").tap()
+        assertEquals(1, Store(context).settings.rules.size)
+        compose.onNodeWithTag("rule-menu").tap()
+        compose.onNodeWithTag("rule-delete").tap()
+        compose.onNodeWithTag("rule-delete-confirm").tap()
+        assertTrue(Store(context).settings.rules.isEmpty())
+    }
+
+    @Test fun removingTheActiveProviderLocksTheButtonUntilAServerIsChosen() {  // v1.6.0 (N10)
+        val store = Store(context)
+        val first = store.add(links)
+        store.add("vless://11111111-2222-3333-4444-555555555555@fi.example.com:443?security=reality&pbk=KEY&sid=ab#Finland")
+        store.activeProfile = first.id
+        launch()
+        compose.onNodeWithText("Servers").tap()
+        compose.onAllNodesWithTag("provider")[0].performTouchInput { longClick() }
+        compose.waitForIdle()
+        compose.onNodeWithTag("delete-chosen").tap()
+        compose.onNodeWithTag("delete-chosen-confirm").tap()
+        assertTrue(Store(context).mustChoose)
+        compose.onNodeWithText("Home").tap()
+        exists("The server was removed")
+        compose.onNodeWithTag("connect").assertIsNotEnabled()
+        compose.onNodeWithText("Servers").tap()
+        compose.onNodeWithText("Finland").tap()
+        assertFalse(Store(context).mustChoose)
+        compose.onNodeWithText("Home").tap()
+        compose.onNodeWithTag("connect").assertIsEnabled()
+    }
+
+    @Test fun appsScreenSearchesAndExportsTheChoice() {  // v1.6.0 (N10)
+        launch()
+        compose.onNodeWithText("Settings").tap()
+        compose.onNodeWithText("Per-app proxy").tap()
+        compose.onNodeWithTag("apps-mode-except").tap()
+        assertEquals("except", Store(context).settings.appsMode)
+        compose.waitUntil(20_000) { compose.onAllNodesWithTag("app-row").fetchSemanticsNodes().isNotEmpty() || compose.onAllNodesWithTag("apps-list").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("apps-system-tab").tap()
+        compose.waitUntil(20_000) { compose.onAllNodesWithTag("app-row").fetchSemanticsNodes().isNotEmpty() }
+        compose.onAllNodesWithTag("app-row")[0].tap()
+        assertEquals(1, Store(context).settings.apps.size)
+        exists("Chosen: 1")
     }
 
     @Test fun everySettingsPageOpensAndSaves() {

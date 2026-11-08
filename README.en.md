@@ -7,7 +7,7 @@
 > The code and documentation are published for study and demonstration. If you use them, you alone are responsible for complying with the laws of your country and for the security of your servers and customer data. The author gives no warranty and accepts no liability for any use.
 
 
-> **v28.99.0** — current stable release. Runtime/API `21.5.1`, shop migration `0094_store_subscriptions`.
+> **v28.100.0** — current stable release. Runtime/API `21.5.1`, shop migration `0094_store_subscriptions`.
 
 **What it is.** The shop sells VPN subscriptions and grants access in your own Remnawave panel. It:
 - takes payments (SBP, cards, crypto, Telegram Stars);
@@ -60,8 +60,8 @@ Ten steps. Nothing to know in advance: where a command is needed it is given in 
 Connect to the server (Windows — PowerShell, macOS and Linux — Terminal): `ssh root@SERVER_IP`. Then:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.99.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.99.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.100.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.100.0 bash /root/shop-install.sh
 ```
 
 The installer asks for the domain, the bot token and prices, installs Docker, creates random passwords and starts everything (5–15 minutes).

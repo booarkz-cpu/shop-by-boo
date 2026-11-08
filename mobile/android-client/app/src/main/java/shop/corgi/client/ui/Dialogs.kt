@@ -1,5 +1,15 @@
 package shop.corgi.client.ui
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.LinearProgressIndicator
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -188,6 +198,24 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
     var action by remember { mutableStateOf("direct") }
     var message by remember { mutableStateOf("") }
     var profileName by remember { mutableStateOf("") }
+    // v1.6.0 (N10): the geo download's progress, null when nothing is being downloaded.
+    var geoProgress by remember { mutableStateOf<Float?>(null) }
+    var toDelete by remember { mutableStateOf<Rule?>(null) }
+    toDelete?.let { r ->
+        AlertDialog(onDismissRequest = { toDelete = null }, title = { Text(tr("Удалить правило?", "Delete the rule?", "Видалити правило?")) },
+            text = { Text("${r.match} → ${r.action}") },
+            confirmButton = { Button(onClick = { store.settings = store.settings.let { it.copy(rules = it.rules - r) }; toDelete = null; refresh() },
+                modifier = Modifier.testTag("rule-delete-confirm")) { Text(tr("Удалить", "Delete", "Видалити")) } },
+            dismissButton = { TextButton(onClick = { toDelete = null }) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
+    }
+    Column(Modifier.fillMaxSize()) {
+    geoProgress?.let { value ->
+        Column(Modifier.fillMaxWidth().padding(12.dp).testTag("geo-progress"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(tr("Обновление баз данных гео-роутинга…", "Updating the geo-routing databases…", "Оновлення баз гео-маршрутизації…") + " ${(value * 100).toInt()}%",
+                style = MaterialTheme.typography.bodyMedium)
+            LinearProgressIndicator(progress = { value }, modifier = Modifier.fillMaxWidth())
+        }
+    }
     LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         // v1.4.0: «Профили маршрутизации» — the mode and rules saved under a name, applied in one tap.
         item { Text(tr("Профили маршрутизации", "Routing profiles", "Профілі маршрутизації"), style = MaterialTheme.typography.titleMedium) }
@@ -223,12 +251,8 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
             ServerRow(label, "", s.routing == key) { store.settings = s.copy(routing = key); refresh() }
         }
         item { Text(tr("Правила (домен, IP, geosite:, geoip:)", "Rules (domain, IP, geosite:, geoip:)", "Правила (домен, IP, geosite:, geoip:)"), style = MaterialTheme.typography.titleMedium) }
-        items(s.rules) { r ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${r.match} → ${r.action}", Modifier.weight(1f))
-                TextButton(onClick = { store.settings = s.copy(rules = s.rules - r); refresh() }) { Text("✕") }
-            }
-        }
+        // v1.6.0 (N10): a rule goes by a swipe to the left or «⋮ → Удалить», always after a confirmation.
+        items(s.rules, key = { "rule-" + it.match + "-" + it.action }) { r -> RuleRow(r) { toDelete = r } }
         item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedTextField(value = rule, onValueChange = { rule = it }, label = { Text("example.com / 10.0.0.0/8 / geosite:category-ads-all") }, modifier = Modifier.fillMaxWidth())
             Row { Rule.ACTIONS.forEach { a -> Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(action == a, { action = a }); Text(a) } } }
@@ -240,15 +264,45 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
         item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(if (store.geoReady()) tr("Geo-файлы загружены", "Geo files present", "Geo-файли завантажено") else
                 tr("Для geoip:/geosite: нужны geo-файлы", "geoip:/geosite: need the geo files", "Для geoip:/geosite: потрібні geo-файли"))
-            OutlinedButton(onClick = {
-                message = tr("Загрузка…", "Downloading…", "Завантаження…")
+            OutlinedButton(enabled = geoProgress == null, onClick = {
+                message = ""
+                geoProgress = 0f
+                val main = android.os.Handler(context.mainLooper)
                 thread {
-                    val result = runCatching { store.downloadGeo() }.fold({ tr("Готово", "Done", "Готово") }, { it.message ?: "error" })
-                    android.os.Handler(context.mainLooper).post { message = result; refresh() }
+                    val result = runCatching { store.downloadGeo { value -> main.post { geoProgress = value } } }
+                        .fold({ tr("Готово", "Done", "Готово") }, { it.message ?: "error" })
+                    main.post { geoProgress = null; message = result; refresh() }
                 }
             }) { Text(tr("Скачать geo-файлы", "Download geo files", "Завантажити geo-файли")) }
             if (message.isNotBlank()) Text(message)
         } }
+    }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RuleRow(rule: Rule, onDelete: () -> Unit) {
+    val swipe = rememberSwipeToDismissBoxState()
+    LaunchedEffect(swipe.currentValue) {
+        if (swipe.currentValue == SwipeToDismissBoxValue.EndToStart) { onDelete(); swipe.snapTo(SwipeToDismissBoxValue.Settled) }
+    }
+    var menu by remember { mutableStateOf(false) }
+    SwipeToDismissBox(swipe, enableDismissFromStartToEnd = false, modifier = Modifier.testTag("rule"), backgroundContent = {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.errorContainer).padding(horizontal = 16.dp), contentAlignment = Alignment.CenterEnd) {
+            Icon(Icons.Filled.Delete, tr("Удалить", "Delete", "Видалити"), tint = MaterialTheme.colorScheme.error)
+        }
+    }) {
+        Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("${rule.match} → ${rule.action}", Modifier.weight(1f))
+            Box {
+                IconButton(onClick = { menu = true }, modifier = Modifier.testTag("rule-menu")) { Icon(Icons.Filled.MoreVert, tr("Ещё", "More", "Ще")) }
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    DropdownMenuItem(text = { Text(tr("Удалить", "Delete", "Видалити"), color = MaterialTheme.colorScheme.error) },
+                        leadingIcon = { Icon(Icons.Filled.Delete, null) }, onClick = { menu = false; onDelete() }, modifier = Modifier.testTag("rule-delete"))
+                }
+            }
+        }
     }
 }
 

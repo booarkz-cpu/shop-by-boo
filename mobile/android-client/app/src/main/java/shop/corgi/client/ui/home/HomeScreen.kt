@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.expandVertically
@@ -52,7 +55,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -135,18 +140,34 @@ fun HomeContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 StatusBadge(state.status)
+                // v1.6.0 (N10): the address the internet sees, with its country's flag.
+                AnimatedVisibility(state.isConnected && state.externalIp.isNotEmpty(), enter = fadeIn(), exit = fadeOut()) {
+                    Text(
+                        listOf(state.externalFlag, state.externalIp).filter { it.isNotEmpty() }.joinToString(" "),
+                        Modifier.testTag("external-ip"),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 if (compact) {
                     CompactSwitch(state) {
                         strong()
                         onToggle()
                     }
                 } else {
-                    PowerButton(state.status, enabled = state.hasProfile) {
+                    PowerButton(state.status, enabled = buttonEnabled(state)) {
                         strong()
                         onToggle()
                     }
                 }
                 Stats(state)
+            }
+            if (state.mustChoose && state.status == VpnStatus.Idle) {
+                Text(
+                    tr("Сервер удалён — выберите другой", "The server was removed — pick another one", "Сервер видалено — оберіть інший"),
+                    Modifier.testTag("must-choose"),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
             if (state.error.isNotBlank()) Text(state.error, color = MaterialTheme.colorScheme.error)
             server()
@@ -313,7 +334,9 @@ private fun PowerButton(status: VpnStatus, enabled: Boolean, onClick: () -> Unit
         } else {
             Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surface))
         }
-    Box(Modifier.size(220.dp), contentAlignment = Alignment.Center) {
+    // v1.6.0 (N10): a pulse around the button while connecting; a disabled button is half transparent.
+    Box(Modifier.size(220.dp).alpha(if (enabled) 1f else 0.5f), contentAlignment = Alignment.Center) {
+        if (status == VpnStatus.Connecting) PulseRing()
         Box(
             Modifier
                 .size(180.dp)
@@ -333,6 +356,25 @@ private fun PowerButton(status: VpnStatus, enabled: Boolean, onClick: () -> Unit
     }
 }
 
+/** The ring pulses only while it is shown, so an idle screen has no endless animation (Compose UI tests wait for idle). */
+@Composable
+private fun PulseRing() {
+    val pulse = rememberInfiniteTransition(label = "pulse")
+    val ring by pulse.animateFloat(1f, 1.22f, infiniteRepeatable(tween(900), RepeatMode.Restart), label = "ring")
+    val ringAlpha by pulse.animateFloat(0.45f, 0f, infiniteRepeatable(tween(900), RepeatMode.Restart), label = "ringAlpha")
+    Box(
+        Modifier
+            .size(180.dp)
+            .scale(ring)
+            .alpha(ringAlpha)
+            .border(3.dp, Brand.Warm, CircleShape)
+            .testTag("connect-pulse")
+    )
+}
+
+/** v1.6.0 (N10): idle — only with a chosen server and no change of the servers running; on — stopping waits for the change too. */
+internal fun buttonEnabled(state: VpnUiState): Boolean = if (state.status == VpnStatus.Idle) state.canConnect else !state.configBusy
+
 @Composable
 private fun CompactSwitch(state: VpnUiState, onToggle: () -> Unit) {
     Row(
@@ -347,7 +389,7 @@ private fun CompactSwitch(state: VpnUiState, onToggle: () -> Unit) {
         Switch(
             checked = state.status != VpnStatus.Idle,
             onCheckedChange = { onToggle() },
-            enabled = state.hasProfile,
+            enabled = buttonEnabled(state),
             modifier = Modifier.testTag("connect")
         )
     }
@@ -415,11 +457,11 @@ private fun AdBlockRow(state: VpnUiState, onToggle: () -> Unit) {
     }
 }
 
-/** The bars of the server card from the measured delay: 3 — fast, 2 — fair, 1 — slow, 0 — not measured or no answer. */
+/** The bars from the measured delay (v1.6.0, N10): 3 — under 100 ms, 2 — 100–300 ms, 1 — slower, 0 — not measured or no answer. */
 fun signalBars(ping: Int?): Int = when {
     ping == null || ping <= 0 -> 0
-    ping < 150 -> 3
-    ping < 400 -> 2
+    ping < 100 -> 3
+    ping <= 300 -> 2
     else -> 1
 }
 
@@ -433,13 +475,14 @@ fun SignalIcon(ping: Int?) {
             1 -> Icons.Filled.NetworkWifi1Bar
             else -> Icons.Filled.SignalWifi0Bar
         }
-    val tint = if (bars >= 2) {
-        Brand.Success
-    } else if (bars == 1) {
-        Brand.Warm
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
+    val tint =
+        when {
+            bars == 3 -> Brand.Success
+            bars == 2 -> Color(0xFFF5C451)
+            bars == 1 -> Brand.Warm
+            ping != null && ping < 0 -> Brand.Danger // no answer: red
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        }
     Icon(icon, tr("Сигнал", "Signal", "Сигнал"), Modifier.size(20.dp).testTag("signal-$bars"), tint = tint)
 }
 

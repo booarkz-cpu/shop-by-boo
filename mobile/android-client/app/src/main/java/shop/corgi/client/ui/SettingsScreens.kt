@@ -185,20 +185,14 @@ private fun pingMethodName(m: String) = when (m) { "tcp" -> "TCP"; "icmp" -> "IC
 
 @Composable
 private fun AppsPage(store: Store, s: Settings, save: (Settings) -> Unit) {
+    // v1.6.0 (N10): «Прокси по приложениям» — a whole screen with icons, search, system apps, import and export.
     val context = LocalContext.current
-    var picking by remember { mutableStateOf(false) }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Section(tr("Какие приложения идут через VPN", "Which apps go through the VPN", "Які застосунки йдуть через VPN")) {
-            listOf("all" to tr("Все приложения", "All apps", "Усі застосунки"), "only" to tr("Только выбранные", "Only selected", "Лише вибрані"),
-                "except" to tr("Все, кроме выбранных", "All but selected", "Усі, крім вибраних")).forEach { (key, label) ->
-                ServerRow(label, "", s.appsMode == key) { save(s.copy(appsMode = key)) }
-            }
-        }
-        if (s.appsMode != "all") Button(onClick = { picking = true }, Modifier.fillMaxWidth()) {
-            Text(tr("Выбрать приложения", "Choose apps", "Вибрати застосунки") + " (${s.apps.size})")
-        }
-    }
-    if (picking) AppsDialog(context, s.apps) { chosen -> if (chosen != null) save(s.copy(apps = chosen)); picking = false }
+    val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
+    AppsScreen(s, save,
+        share = { text -> clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("apps", text))
+            context.startActivity(android.content.Intent.createChooser(android.content.Intent(android.content.Intent.ACTION_SEND).setType("application/json")
+                .putExtra(android.content.Intent.EXTRA_TEXT, text), null)) },
+        paste = { clipboard?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString() })
 }
 
 @Composable
@@ -278,6 +272,11 @@ private fun ConnectionPage(s: Settings, save: (Settings) -> Unit) {
             ToggleRow(tr("Подключаться при загрузке устройства", "Connect when the device starts", "Підключатися під час завантаження пристрою"),
                 tr("Нужно разрешение VPN, выданное раньше", "Needs the VPN permission granted before", "Потрібен раніше наданий дозвіл VPN"), s.autoConnectBoot) {
                 save(s.copy(autoConnectBoot = it)) }
+            // v1.6.0 (N10)
+            ToggleRow(tr("Подключаться при смене сети", "Connect when the network changes", "Підключатися при зміні мережі"),
+                tr("Wi-Fi ↔ мобильная сеть; Android может не разрешить запуск в фоне", "Wi-Fi ↔ mobile; Android may not allow a background start",
+                    "Wi-Fi ↔ мобільна мережа; Android може не дозволити запуск у фоні"), s.autoConnectNetwork) {
+                save(s.copy(autoConnectNetwork = it)); shop.corgi.client.vpn.NetworkReceiver.sync(context) }
             ToggleRow(tr("Сервер и статус на плитке", "Server and state on the tile", "Сервер і статус на плитці"),
                 tr("Выключите, чтобы оставить только название", "Turn off to keep only the name", "Вимкніть, щоб лишити тільки назву"), s.tileDetails) {
                 save(s.copy(tileDetails = it)); QuickTile.refresh(context) }

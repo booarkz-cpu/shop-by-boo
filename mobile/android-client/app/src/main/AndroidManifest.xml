@@ -15,6 +15,9 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- v1.6.0 (N10): «Прокси по приложениям» lists every installed app (system ones too) to include or leave outside the
+         tunnel — the VPN use case Google Play allows for this permission. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
     <!-- «Приложения через VPN»: the list of launcher apps to include or leave outside the tunnel. -->
     <queries>
         <intent>
@@ -40,6 +43,8 @@
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Local SOCKS5/HTTP proxy through Xray without a VPN interface («proxy only» mode chosen by the user)" />
         </service>
+        <!-- v1.6.0 (N10): «Подключаться при смене сети» — woken by ConnectivityManager's PendingIntent only. -->
+        <receiver android:name=".vpn.NetworkReceiver" android:exported="false" />
         <receiver android:name=".vpn.BootReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
