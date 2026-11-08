@@ -60,8 +60,24 @@ data class ExternalIp(val ip: String, val country: String) {
             return ExternalIp(ip, json.optString("country").uppercase().take(2))
         }
 
-        /** Through the tunnel's SOCKS inbound [check]; null when there is no answer (call off the main thread). */
-        fun lookup(check: IpCheck): ExternalIp? {
+        /** v1.7.1 (N12): does [url] answer through the tunnel (2xx/3xx in 8 s)? For Smart Failover (off the main thread). */
+        fun probe(check: IpCheck, url: String): Boolean {
+            authenticate(check)
+            return runCatching {
+                val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", check.port))
+                val connection = URL(url).openConnection(proxy) as java.net.HttpURLConnection
+                connection.connectTimeout = 8_000
+                connection.readTimeout = 8_000
+                connection.instanceFollowRedirects = false
+                try {
+                    connection.responseCode in 200..399
+                } finally {
+                    connection.disconnect()
+                }
+            }.getOrDefault(false)
+        }
+
+        private fun authenticate(check: IpCheck) {
             Authenticator.setDefault(
                 object : Authenticator() {
                     override fun getPasswordAuthentication(): PasswordAuthentication? = if (requestingHost == "127.0.0.1" &&
@@ -73,6 +89,11 @@ data class ExternalIp(val ip: String, val country: String) {
                     }
                 }
             )
+        }
+
+        /** Through the tunnel's SOCKS inbound [check]; null when there is no answer (call off the main thread). */
+        fun lookup(check: IpCheck): ExternalIp? {
+            authenticate(check)
             return runCatching {
                 val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", check.port))
                 val connection = URL(URL_INFO).openConnection(proxy) as HttpsURLConnection
