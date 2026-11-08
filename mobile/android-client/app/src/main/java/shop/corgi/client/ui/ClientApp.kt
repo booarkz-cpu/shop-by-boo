@@ -108,10 +108,12 @@ import java.util.Locale
 import kotlin.concurrent.thread
 
 @Composable
-fun ClientApp(store: Store, incoming: MutableState<String?>, connect: () -> Unit, pending: MutableState<Scheme?>) {
+fun ClientApp(store: Store, incoming: MutableState<String?>, connect: () -> Unit, pending: MutableState<Scheme?>, openTab: MutableState<Int?>? = null) {
     var revision by remember { mutableIntStateOf(0) }
     val refresh: () -> Unit = { revision++ }
     var tab by remember { mutableIntStateOf(0) }
+    // v1.8.0 (N12): a long press on the quick settings tile asks for the server list.
+    openTab?.value?.let { wanted -> androidx.compose.runtime.LaunchedEffect(wanted) { tab = wanted; openTab.value = null } }
     var page by remember { mutableStateOf<String?>(null) }   // a page of «Настройки»
     var adding by incoming
     val s = androidx.compose.runtime.key(revision) { store.settings }

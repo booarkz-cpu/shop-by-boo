@@ -52,6 +52,14 @@
         <!-- v1.6.0 (N10): «Подключаться при смене сети» — woken by ConnectivityManager's PendingIntent only. -->
         <receiver android:name=".vpn.NetworkReceiver" android:exported="false" />
         <receiver android:name=".vpn.ApkInstaller$InstallResult" android:exported="false" />
+        <!-- v1.8.0 (N12): Intents for Tasker and other automation apps; ignored unless the user turned them on. -->
+        <receiver android:name=".vpn.AutomationReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="shop.corgi.client.action.CONNECT" />
+                <action android:name="shop.corgi.client.action.DISCONNECT" />
+                <action android:name="shop.corgi.client.action.TOGGLE" />
+            </intent-filter>
+        </receiver>
         <service android:name=".vpn.AppUpdateJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="false" />
         <receiver android:name=".vpn.BootReceiver" android:exported="true">
             <intent-filter>
@@ -78,6 +86,10 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
+            <!-- v1.8.0 (N12): a long press on the quick settings tile opens the server list. -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
             <!-- Import: share links and subscription URLs from other apps, the browser or a QR code. -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

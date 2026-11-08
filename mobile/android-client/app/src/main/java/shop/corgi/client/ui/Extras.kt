@@ -235,6 +235,19 @@ internal fun LogsPage(store: Store, s: Settings, save: (Settings) -> Unit) {
     var level by remember { mutableStateOf("all") }
     val file = files.firstOrNull { it.name == chosen } ?: files.firstOrNull()
     val lines = remember(file, query, level, revision) { file?.let { logs.lines(it, query) }?.filter { Logs.matches(it, level) } ?: emptyList() }
+    // v1.8.0 (N12): «Экспорт в .zip» — every log in one archive where the user chooses to save it.
+    var zipNote by remember { mutableStateOf("") }
+    val saveZip = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        zipNote = runCatching {
+            context.contentResolver.openOutputStream(uri)!!.use { out ->
+                val about = "Corgi Lusi client ${shop.corgi.client.BuildConfig.VERSION_NAME} (${shop.corgi.client.BuildConfig.VERSION_CODE})\n" +
+                    "Android ${android.os.Build.VERSION.RELEASE} · ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}\n"
+                shop.corgi.client.core.LogZip.write(logs.files(), about, out)
+            }
+        }.fold({ tr("Архив сохранён", "Archive saved", "Архів збережено") }, { tr("Не удалось сохранить", "Could not save", "Не вдалося зберегти") })
+    }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Section(tr("Журнал ядра", "Core log", "Журнал ядра")) {
             ChoiceRow(tr("Уровень", "Level", "Рівень"), tr("Применяется при следующем подключении", "Applies on the next connection", "Діє з наступного підключення"),
@@ -266,8 +279,10 @@ internal fun LogsPage(store: Store, s: Settings, save: (Settings) -> Unit) {
             OutlinedButton(onClick = { revision++ }) { Text(tr("Обновить", "Refresh", "Оновити")) }
             OutlinedButton(onClick = { copy(context, "log", lines.joinToString("\n")) }) { Text(tr("Копировать", "Copy", "Копіювати")) }
             OutlinedButton(onClick = { share(context, files) }) { Text(tr("Экспорт", "Export", "Експорт")) }
+            OutlinedButton(onClick = { saveZip.launch(shop.corgi.client.core.LogZip.name(System.currentTimeMillis())) }, modifier = Modifier.testTag("logs-zip")) { Text(".zip") }
             TextButton(onClick = { logs.clear(); revision++ }) { Text(tr("Удалить", "Delete", "Видалити"), color = MaterialTheme.colorScheme.error) }
         }
+        if (zipNote.isNotBlank()) Text(zipNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
     }
 }
 

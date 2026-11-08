@@ -27,3 +27,7 @@ app/src/main/java/shop/corgi/client/core/SpeedTest.kt
 app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt
 app/src/main/java/shop/corgi/client/core/NetworkLog.kt
 app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt
+app/src/main/java/shop/corgi/client/core/LogZip.kt
+app/src/main/java/shop/corgi/client/core/Automation.kt
+app/src/main/java/shop/corgi/client/vpn/AutomationReceiver.kt
+app/src/test/java/shop/corgi/client/core/Phase3Test.kt

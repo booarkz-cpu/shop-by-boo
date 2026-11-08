@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.108.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.109.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2406**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2411**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1127,6 +1127,7 @@
 | [docs/ru/RELEASE_V28_106_0.md](../docs/ru/RELEASE_V28_106_0.md) | Документация |
 | [docs/ru/RELEASE_V28_107_0.md](../docs/ru/RELEASE_V28_107_0.md) | Документация |
 | [docs/ru/RELEASE_V28_108_0.md](../docs/ru/RELEASE_V28_108_0.md) | Документация |
+| [docs/ru/RELEASE_V28_109_0.md](../docs/ru/RELEASE_V28_109_0.md) | Документация |
 | [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
@@ -1497,6 +1498,7 @@
 | [mobile/android-client/app/src/main/assets/banners/app-vpn.jpg](../mobile/android-client/app/src/main/assets/banners/app-vpn.jpg) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/ApkCheck.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/ApkCheck.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/AppList.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/AppList.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/Automation.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Automation.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Backup.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Backup.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigGate.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/ConfigGate.kt) | Мобильные приложения |
@@ -1505,6 +1507,7 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/GeoProgress.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/GeoProgress.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/I18n.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/I18n.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Links.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/core/LogZip.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/LogZip.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Logs.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Logs.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/NetworkLog.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/NetworkLog.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/Ping.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/Ping.kt) | Мобильные приложения |
@@ -1532,6 +1535,7 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/AutomationReceiver.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/AutomationReceiver.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt) | Мобильные приложения |
@@ -1574,6 +1578,7 @@
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/LinksTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/core/Phase3Test.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/Phase3Test.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt) | Мобильные приложения |

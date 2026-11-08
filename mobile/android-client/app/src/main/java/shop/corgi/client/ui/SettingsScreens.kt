@@ -291,6 +291,14 @@ private fun ConnectionPage(s: Settings, save: (Settings) -> Unit) {
                 save(s.copy(tileDetails = it)); QuickTile.refresh(context) }
         }
         TrustedWifiSection(s, save)
+        // v1.8.0 (N12): Intents for Tasker / MacroDroid.
+        Section(tr("Управление из других приложений", "Control from other apps", "Керування з інших застосунків")) {
+            ToggleRow(tr("Разрешить Tasker и другим", "Allow Tasker and others", "Дозволити Tasker та іншим"),
+                tr("Широковещательные Intent: shop.corgi.client.action.CONNECT, DISCONNECT, TOGGLE (extra «server» — номер сервера). Включайте, только если пользуетесь: отправить их может любое приложение",
+                    "Broadcast intents: shop.corgi.client.action.CONNECT, DISCONNECT, TOGGLE (extra «server» — the server's number). Only if you use them: any app can send them",
+                    "Широкомовні Intent: shop.corgi.client.action.CONNECT, DISCONNECT, TOGGLE (extra «server» — номер сервера)"),
+                s.allowAutomation) { save(s.copy(allowAutomation = it)) }
+        }
         Section("Kill Switch") {
             NavRow(Icons.Filled.Settings, tr("Блокировать интернет без VPN", "Block internet without the VPN", "Блокувати інтернет без VPN"),
                 hint = tr("Android делает это сам: «Постоянная VPN» и «Блокировать соединения без VPN» в настройках VPN системы.",
