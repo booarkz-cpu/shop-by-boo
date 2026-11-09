@@ -4,7 +4,7 @@
 
 services:
   redis:
-    image: redis:8.10-alpine@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537
+    image: redis:8.10-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
     command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
     volumes:
       - test_redis_data:/data
@@ -15,7 +15,7 @@ services:
       retries: 20
 
   db:
-    image: postgres:18.6-alpine@sha256:80df0884d0d3b7f0f7b2c37f273b1c12d5fd66e25aaef2e19ebf95908d620f11
+    image: postgres:18.6-alpine@sha256:123b17998ccaf47e53b502e8c6a1e79afd8f579c6f3eec83c563da026f957395
     environment:
       POSTGRES_USER: vpnshop
       POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env.test}
