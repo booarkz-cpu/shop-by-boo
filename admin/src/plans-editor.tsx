@@ -79,8 +79,10 @@ function PlanForm({initial, squads, squadError, busy, onSubmit, onCancel, submit
   onCancel?: () => void;
   submitLabel: string;
 }) {
+  // The form is filled from `initial` once, when it opens; the parent remounts it (`key`) for another plan or a fresh
+  // create form. No effect on `initial`: the edit form got a new object on every parent render (squads loaded,
+  // busy toggled), and that reset what the administrator had typed (the e2e saw the old price saved).
   const [form, setForm] = useState<Form>(initial);
-  useEffect(() => setForm(initial), [initial]);
   const custom = !DURATIONS.some((d) => String(d.days) === form.duration_days);
   const known = squads.some((s) => s.uuid === form.remnawave_profile_id);
   const set = (patch: Partial<Form>) => setForm({...form, ...patch});
@@ -244,7 +246,7 @@ export function PlansEditor({data, request, reload, toast}: {data: Plan[]; reque
           {plans.map((plan) => (
             <div className="plan card" key={plan.id} data-plan-id={plan.id}>
               {editing === plan.id ? (
-                <PlanForm initial={toForm(plan)} squads={squads} squadError={squadError} busy={busy} onSubmit={(f) => save(f, plan.id)} onCancel={() => setEditing(null)} submitLabel="Сохранить" />
+                <PlanForm key={plan.id} initial={toForm(plan)} squads={squads} squadError={squadError} busy={busy} onSubmit={(f) => save(f, plan.id)} onCancel={() => setEditing(null)} submitLabel="Сохранить" />
               ) : (
                 <>
                   <div className="plan-head">

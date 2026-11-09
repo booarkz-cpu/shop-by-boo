@@ -32,6 +32,7 @@ test('administrator creates, edits and hides a fixed plan with its Remnawave squ
   const byId = page.locator(`[data-plan-id="${stored.id}"]`);
   await byId.getByRole('button', {name: 'Изменить'}).click();
   await byId.getByLabel('Цена, ₽', {exact: true}).fill('549');
+  await expect(byId.getByLabel('Цена, ₽', {exact: true})).toHaveValue('549');
   await Promise.all([
     page.waitForResponse((r) => r.url().endsWith(`/api/admin/plans/${stored.id}`) && r.request().method() === 'PUT'),
     byId.getByRole('button', {name: 'Сохранить', exact: true}).click(),
