@@ -18,7 +18,7 @@ python-multipart==0.0.33
 
 redis==8.1.0
 
-boto3==1.43.123
+boto3==1.43.125
 
 qrcode[pil]==8.2
 Pillow==13.0.0
