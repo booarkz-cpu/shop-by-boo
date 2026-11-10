@@ -1,0 +1,5879 @@
+[
+ {
+  "id": "REQ-GOV-0001",
+  "lines": [
+   17,
+   17
+  ],
+  "sha": "4683533cc0ee",
+  "path": "Часть I → Document Purpose"
+ },
+ {
+  "id": "REQ-GOV-0002",
+  "lines": [
+   21,
+   21
+  ],
+  "sha": "9921c96980c1",
+  "path": "Часть I → Critical Rule"
+ },
+ {
+  "id": "REQ-GOV-0003",
+  "lines": [
+   25,
+   25
+  ],
+  "sha": "c4bf37d20533",
+  "path": "Часть I → Role"
+ },
+ {
+  "id": "REQ-MIG-0001",
+  "lines": [
+   29,
+   29
+  ],
+  "sha": "d08b830b1405",
+  "path": "Часть I → Primary Repository"
+ },
+ {
+  "id": "REQ-MIG-0002",
+  "lines": [
+   35,
+   35
+  ],
+  "sha": "2dc7aff647c8",
+  "path": "Часть I → Source Repositories → Repo"
+ },
+ {
+  "id": "REQ-MIG-0003",
+  "lines": [
+   39,
+   39
+  ],
+  "sha": "93742afab510",
+  "path": "Часть I → Source Repositories → Repo"
+ },
+ {
+  "id": "REQ-MIG-0004",
+  "lines": [
+   43,
+   43
+  ],
+  "sha": "70877cea10d1",
+  "path": "Часть I → Source Repositories → Repo"
+ },
+ {
+  "id": "REQ-MIG-0005",
+  "lines": [
+   47,
+   47
+  ],
+  "sha": "58f35f3abfee",
+  "path": "Часть I → Source Repositories → Repo"
+ },
+ {
+  "id": "REQ-MIG-0006",
+  "lines": [
+   51,
+   51
+  ],
+  "sha": "196c1d326791",
+  "path": "Часть I → Source Repositories → Repo"
+ },
+ {
+  "id": "REQ-MIG-0007",
+  "lines": [
+   55,
+   55
+  ],
+  "sha": "a0b51d121f81",
+  "path": "Часть I → Source Repositories → Repo"
+ },
+ {
+  "id": "REQ-MIG-0008",
+  "lines": [
+   59,
+   59
+  ],
+  "sha": "002f80be22fd",
+  "path": "Часть I → Source Repositories → Repo"
+ },
+ {
+  "id": "REQ-MIG-0009",
+  "lines": [
+   63,
+   63
+  ],
+  "sha": "de53f8230486",
+  "path": "Часть I → Source Repositories → Repo"
+ },
+ {
+  "id": "REQ-MIG-0010",
+  "lines": [
+   67,
+   67
+  ],
+  "sha": "84367107144d",
+  "path": "Часть I → Source Repositories → Mandatory Read"
+ },
+ {
+  "id": "REQ-MIG-0011",
+  "lines": [
+   71,
+   71
+  ],
+  "sha": "ad6373a6cd3d",
+  "path": "Часть I → Source Repositories → Mandatory Read"
+ },
+ {
+  "id": "REQ-MIG-0012",
+  "lines": [
+   75,
+   75
+  ],
+  "sha": "4ebd7398f661",
+  "path": "Часть I → Source Repositories → Rule"
+ },
+ {
+  "id": "REQ-MIG-0013",
+  "lines": [
+   82,
+   82
+  ],
+  "sha": "d51a187566c2",
+  "path": "Часть I → Monorepo → Apps"
+ },
+ {
+  "id": "REQ-MIG-0014",
+  "lines": [
+   86,
+   86
+  ],
+  "sha": "6a2b76f206ef",
+  "path": "Часть I → Monorepo → Services"
+ },
+ {
+  "id": "REQ-MIG-0015",
+  "lines": [
+   90,
+   90
+  ],
+  "sha": "9155b3484354",
+  "path": "Часть I → Monorepo → Packages"
+ },
+ {
+  "id": "REQ-MIG-0016",
+  "lines": [
+   94,
+   94
+  ],
+  "sha": "f0187012ae05",
+  "path": "Часть I → Monorepo → Infrastructure"
+ },
+ {
+  "id": "REQ-MIG-0017",
+  "lines": [
+   98,
+   98
+  ],
+  "sha": "f5d3eafeeb70",
+  "path": "Часть I → Monorepo → Other"
+ },
+ {
+  "id": "REQ-MIG-0018",
+  "lines": [
+   102,
+   102
+  ],
+  "sha": "4643ab967625",
+  "path": "Часть I → Monorepo → Rule"
+ },
+ {
+  "id": "REQ-GOV-0004",
+  "lines": [
+   106,
+   106
+  ],
+  "sha": "c576b5877014",
+  "path": "Часть I → Products"
+ },
+ {
+  "id": "REQ-CLIENT-0001",
+  "lines": [
+   109,
+   109
+  ],
+  "sha": "775c3fe5e340",
+  "path": "Часть I → Products → Корги Люси: Клиент"
+ },
+ {
+  "id": "REQ-CLIENT-0002",
+  "lines": [
+   113,
+   113
+  ],
+  "sha": "ab0562975c26",
+  "path": "Часть I → Products → Корги Люси: Клиент → Purpose"
+ },
+ {
+  "id": "REQ-CLIENT-0003",
+  "lines": [
+   117,
+   117
+  ],
+  "sha": "b27272eef798",
+  "path": "Часть I → Products → Корги Люси: Клиент → Imports"
+ },
+ {
+  "id": "REQ-CLIENT-0004",
+  "lines": [
+   121,
+   121
+  ],
+  "sha": "ef30407568fd",
+  "path": "Часть I → Products → Корги Люси: Клиент → Protocols"
+ },
+ {
+  "id": "REQ-CLIENT-0005",
+  "lines": [
+   125,
+   125
+  ],
+  "sha": "289410490313",
+  "path": "Часть I → Products → Корги Люси: Клиент → Features"
+ },
+ {
+  "id": "REQ-CLIENT-0006",
+  "lines": [
+   131,
+   131
+  ],
+  "sha": "40ed70df9304",
+  "path": "Часть I → Products → Корги Люси: Клиент → Branding → Banner"
+ },
+ {
+  "id": "REQ-CLIENT-0007",
+  "lines": [
+   135,
+   135
+  ],
+  "sha": "f9730e9b72e5",
+  "path": "Часть I → Products → Корги Люси: Клиент → Branding → Slogan"
+ },
+ {
+  "id": "REQ-CLIENT-0008",
+  "lines": [
+   139,
+   139
+  ],
+  "sha": "ea5b6126fff4",
+  "path": "Часть I → Products → Корги Люси: Клиент → Branding → Style"
+ },
+ {
+  "id": "REQ-CLIENT-0009",
+  "lines": [
+   143,
+   143
+  ],
+  "sha": "618a841aa670",
+  "path": "Часть I → Products → Корги Люси: Клиент → Branding → Remove"
+ },
+ {
+  "id": "REQ-CLIENT-0010",
+  "lines": [
+   148,
+   148
+  ],
+  "sha": "f420f10c03bc",
+  "path": "Часть I → Products → Корги Люси: Клиент → Critical Bug"
+ },
+ {
+  "id": "REQ-SHOP-0001",
+  "lines": [
+   152,
+   152
+  ],
+  "sha": "d36c43b96d7f",
+  "path": "Часть I → Products → VPN Shop by Corgi Lucy"
+ },
+ {
+  "id": "REQ-SHOP-0002",
+  "lines": [
+   156,
+   156
+  ],
+  "sha": "abd8d55d332f",
+  "path": "Часть I → Products → VPN Shop by Corgi Lucy → Scope"
+ },
+ {
+  "id": "REQ-SHOP-0003",
+  "lines": [
+   159,
+   159
+  ],
+  "sha": "e317bca703bd",
+  "path": "Часть I → Products → VPN Shop by Corgi Lucy → Lucy Max"
+ },
+ {
+  "id": "REQ-SHOP-0004",
+  "lines": [
+   162,
+   164
+  ],
+  "sha": "8c657010bb15",
+  "path": "Часть I → Products → VPN Shop by Corgi Lucy → Lucy Ultra"
+ },
+ {
+  "id": "REQ-SHOP-0005",
+  "lines": [
+   167,
+   169
+  ],
+  "sha": "d9c56a0ad990",
+  "path": "Часть I → Products → VPN Shop by Corgi Lucy → Lucy Mini — Test"
+ },
+ {
+  "id": "REQ-SHOP-0006",
+  "lines": [
+   173,
+   173
+  ],
+  "sha": "1353b3f936ab",
+  "path": "Часть I → Products → VPN Shop by Corgi Lucy → Rule"
+ },
+ {
+  "id": "REQ-SHOP-0007",
+  "lines": [
+   177,
+   177
+  ],
+  "sha": "64959b236c97",
+  "path": "Часть I → Products → VPN Shop by Corgi Lucy → Authentication"
+ },
+ {
+  "id": "REQ-SHOP-0008",
+  "lines": [
+   181,
+   181
+  ],
+  "sha": "c69b59120fac",
+  "path": "Часть I → Products → VPN Shop by Corgi Lucy → Telegram"
+ },
+ {
+  "id": "REQ-ADMIN-0001",
+  "lines": [
+   185,
+   185
+  ],
+  "sha": "2174f013f1ec",
+  "path": "Часть I → Products → Lucy Admin"
+ },
+ {
+  "id": "REQ-ADMIN-0002",
+  "lines": [
+   189,
+   189
+  ],
+  "sha": "c4f757cbb253",
+  "path": "Часть I → Products → Lucy Admin → Interfaces"
+ },
+ {
+  "id": "REQ-ADMIN-0003",
+  "lines": [
+   193,
+   193
+  ],
+  "sha": "260c7d1cafcd",
+  "path": "Часть I → Products → Lucy Admin → Modules"
+ },
+ {
+  "id": "REQ-ADMIN-0004",
+  "lines": [
+   197,
+   197
+  ],
+  "sha": "4388644f402a",
+  "path": "Часть I → Products → Lucy Admin → Parity Document"
+ },
+ {
+  "id": "REQ-ADMIN-0005",
+  "lines": [
+   201,
+   201
+  ],
+  "sha": "181fbfe0f828",
+  "path": "Часть I → Products → Lucy Admin → Parity Fields"
+ },
+ {
+  "id": "REQ-ADMIN-0006",
+  "lines": [
+   205,
+   205
+  ],
+  "sha": "5d63e2254892",
+  "path": "Часть I → Products → Lucy Admin → Rule"
+ },
+ {
+  "id": "REQ-QA-0001",
+  "lines": [
+   213,
+   213
+  ],
+  "sha": "e7d8865a8ba7",
+  "path": "Часть I → Full Audit → Scope"
+ },
+ {
+  "id": "REQ-QA-0002",
+  "lines": [
+   217,
+   217
+  ],
+  "sha": "e8fba0c30dd9",
+  "path": "Часть I → Full Audit → Find"
+ },
+ {
+  "id": "REQ-QA-0003",
+  "lines": [
+   221,
+   221
+  ],
+  "sha": "8bde56dcc648",
+  "path": "Часть I → Full Audit → Known Error"
+ },
+ {
+  "id": "REQ-QA-0004",
+  "lines": [
+   225,
+   225
+  ],
+  "sha": "52b7c50f0555",
+  "path": "Часть I → Full Audit → Known Error"
+ },
+ {
+  "id": "REQ-QA-0005",
+  "lines": [
+   229,
+   229
+  ],
+  "sha": "55eaf8cdcff5",
+  "path": "Часть I → Full Audit → Known Error"
+ },
+ {
+  "id": "REQ-QA-0006",
+  "lines": [
+   233,
+   233
+  ],
+  "sha": "f83c35877f1b",
+  "path": "Часть I → Full Audit → Known Error"
+ },
+ {
+  "id": "REQ-QA-0007",
+  "lines": [
+   237,
+   237
+  ],
+  "sha": "b14a0f2bf345",
+  "path": "Часть I → Full Audit → Docker Checks"
+ },
+ {
+  "id": "REQ-QA-0008",
+  "lines": [
+   241,
+   241
+  ],
+  "sha": "d99c8f7d7267",
+  "path": "Часть I → Full Audit → Rule"
+ },
+ {
+  "id": "REQ-PAY-0001",
+  "lines": [
+   248,
+   248
+  ],
+  "sha": "7b56a1a9a916",
+  "path": "Часть I → Payment Ecosystem → Priority"
+ },
+ {
+  "id": "REQ-PAY-0002",
+  "lines": [
+   252,
+   252
+  ],
+  "sha": "d240a4b08afa",
+  "path": "Часть I → Payment Ecosystem → Architecture"
+ },
+ {
+  "id": "REQ-PAY-0003",
+  "lines": [
+   256,
+   256
+  ],
+  "sha": "fe7102a68b2b",
+  "path": "Часть I → Payment Ecosystem → Providers"
+ },
+ {
+  "id": "REQ-PAY-0004",
+  "lines": [
+   260,
+   260
+  ],
+  "sha": "9fb86fc9e1b1",
+  "path": "Часть I → Payment Ecosystem → Configuration Ids"
+ },
+ {
+  "id": "REQ-PAY-0005",
+  "lines": [
+   264,
+   264
+  ],
+  "sha": "155e26a33138",
+  "path": "Часть I → Payment Ecosystem → Classification"
+ },
+ {
+  "id": "REQ-PAY-0006",
+  "lines": [
+   268,
+   268
+  ],
+  "sha": "736bdcdee669",
+  "path": "Часть I → Payment Ecosystem → Methods"
+ },
+ {
+  "id": "REQ-PAY-0007",
+  "lines": [
+   274,
+   274
+  ],
+  "sha": "dfb935bb971c",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → YooKassa"
+ },
+ {
+  "id": "REQ-PAY-0008",
+  "lines": [
+   278,
+   278
+  ],
+  "sha": "dfcb27b6aa20",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Pal24"
+ },
+ {
+  "id": "REQ-PAY-0009",
+  "lines": [
+   282,
+   282
+  ],
+  "sha": "aab8ec3a1538",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Platega"
+ },
+ {
+  "id": "REQ-PAY-0010",
+  "lines": [
+   286,
+   286
+  ],
+  "sha": "dfcb27b6aa20",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → FreeKassa"
+ },
+ {
+  "id": "REQ-PAY-0011",
+  "lines": [
+   290,
+   290
+  ],
+  "sha": "dec7292386b7",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Kassa AI"
+ },
+ {
+  "id": "REQ-PAY-0012",
+  "lines": [
+   294,
+   294
+  ],
+  "sha": "5f1ed1ca3f14",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → RollyPay"
+ },
+ {
+  "id": "REQ-PAY-0013",
+  "lines": [
+   298,
+   298
+  ],
+  "sha": "aab8ec3a1538",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Overpay"
+ },
+ {
+  "id": "REQ-PAY-0014",
+  "lines": [
+   302,
+   302
+  ],
+  "sha": "dfb935bb971c",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → AuraPay"
+ },
+ {
+  "id": "REQ-PAY-0015",
+  "lines": [
+   306,
+   306
+  ],
+  "sha": "dfb935bb971c",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Etoplatezhi"
+ },
+ {
+  "id": "REQ-PAY-0016",
+  "lines": [
+   310,
+   310
+  ],
+  "sha": "19e72773b8fd",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Antilopay"
+ },
+ {
+  "id": "REQ-PAY-0017",
+  "lines": [
+   314,
+   314
+  ],
+  "sha": "fa79034aeab8",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Jupiter"
+ },
+ {
+  "id": "REQ-PAY-0018",
+  "lines": [
+   318,
+   318
+  ],
+  "sha": "acaf8e19173d",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Donut"
+ },
+ {
+  "id": "REQ-PAY-0019",
+  "lines": [
+   322,
+   322
+  ],
+  "sha": "dfb935bb971c",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Lava"
+ },
+ {
+  "id": "REQ-PAY-0020",
+  "lines": [
+   326,
+   326
+  ],
+  "sha": "2fc05e3c9772",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → CisPay"
+ },
+ {
+  "id": "REQ-PAY-0021",
+  "lines": [
+   330,
+   330
+  ],
+  "sha": "9af0548a4411",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Anore"
+ },
+ {
+  "id": "REQ-PAY-0022",
+  "lines": [
+   334,
+   334
+  ],
+  "sha": "dfb935bb971c",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → TabPay"
+ },
+ {
+  "id": "REQ-PAY-0023",
+  "lines": [
+   338,
+   338
+  ],
+  "sha": "dfb935bb971c",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → ParityPay"
+ },
+ {
+  "id": "REQ-PAY-0024",
+  "lines": [
+   342,
+   342
+  ],
+  "sha": "aab8ec3a1538",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → Cashera"
+ },
+ {
+  "id": "REQ-PAY-0025",
+  "lines": [
+   346,
+   346
+  ],
+  "sha": "bf8549b222c1",
+  "path": "Часть I → Payment Ecosystem → Known Capabilities → CloudPayments"
+ },
+ {
+  "id": "REQ-PAY-0026",
+  "lines": [
+   351,
+   351
+  ],
+  "sha": "29920809bbdc",
+  "path": "Часть I → Payment Ecosystem → Verify"
+ },
+ {
+  "id": "REQ-PAY-0027",
+  "lines": [
+   355,
+   355
+  ],
+  "sha": "889a3dec0b9c",
+  "path": "Часть I → Payment Ecosystem → Statuses"
+ },
+ {
+  "id": "REQ-PAY-0028",
+  "lines": [
+   359,
+   359
+  ],
+  "sha": "06d28cd20d5b",
+  "path": "Часть I → Payment Ecosystem → Scenarios"
+ },
+ {
+  "id": "REQ-PAY-0029",
+  "lines": [
+   363,
+   363
+  ],
+  "sha": "4295a1f2f892",
+  "path": "Часть I → Payment Ecosystem → Platforms"
+ },
+ {
+  "id": "REQ-PAY-0030",
+  "lines": [
+   367,
+   367
+  ],
+  "sha": "ab1a71fd9948",
+  "path": "Часть I → Payment Ecosystem → Security"
+ },
+ {
+  "id": "REQ-PAY-0031",
+  "lines": [
+   371,
+   371
+  ],
+  "sha": "532773fb6ca5",
+  "path": "Часть I → Payment Ecosystem → Docs"
+ },
+ {
+  "id": "REQ-PAY-0032",
+  "lines": [
+   375,
+   375
+  ],
+  "sha": "967a3ad05805",
+  "path": "Часть I → Payment Ecosystem → Audit Scripts"
+ },
+ {
+  "id": "REQ-PAY-0033",
+  "lines": [
+   379,
+   379
+  ],
+  "sha": "5aa8dd24b5aa",
+  "path": "Часть I → Payment Ecosystem → Rule"
+ },
+ {
+  "id": "REQ-RW-0001",
+  "lines": [
+   386,
+   386
+  ],
+  "sha": "582849c9d4b1",
+  "path": "Часть I → Remnawave → Goal"
+ },
+ {
+  "id": "REQ-RW-0002",
+  "lines": [
+   390,
+   390
+  ],
+  "sha": "36550c901f9d",
+  "path": "Часть I → Remnawave → Capabilities"
+ },
+ {
+  "id": "REQ-RW-0003",
+  "lines": [
+   394,
+   394
+  ],
+  "sha": "d322182de54a",
+  "path": "Часть I → Remnawave → Requirements"
+ },
+ {
+  "id": "REQ-MASQUE-0001",
+  "lines": [
+   401,
+   401
+  ],
+  "sha": "1bbc999b48c3",
+  "path": "Часть I → Masque → Goal"
+ },
+ {
+  "id": "REQ-MASQUE-0002",
+  "lines": [
+   405,
+   405
+  ],
+  "sha": "e24b53cbc231",
+  "path": "Часть I → Masque → Version Claim"
+ },
+ {
+  "id": "REQ-MASQUE-0003",
+  "lines": [
+   409,
+   409
+  ],
+  "sha": "9f49b8eaac07",
+  "path": "Часть I → Masque → Verification"
+ },
+ {
+  "id": "REQ-MASQUE-0004",
+  "lines": [
+   413,
+   413
+  ],
+  "sha": "b1c8cff19a9e",
+  "path": "Часть I → Masque → Node Provisioning"
+ },
+ {
+  "id": "REQ-MASQUE-0005",
+  "lines": [
+   417,
+   417
+  ],
+  "sha": "0c2f44a84afb",
+  "path": "Часть I → Masque → Multiplexing"
+ },
+ {
+  "id": "REQ-MASQUE-0006",
+  "lines": [
+   421,
+   421
+  ],
+  "sha": "3fc86d51f80e",
+  "path": "Часть I → Masque → Grpc"
+ },
+ {
+  "id": "REQ-MASQUE-0007",
+  "lines": [
+   425,
+   425
+  ],
+  "sha": "6096b25e29b0",
+  "path": "Часть I → Masque → Subscriptions"
+ },
+ {
+  "id": "REQ-MASQUE-0008",
+  "lines": [
+   429,
+   429
+  ],
+  "sha": "970d268523b0",
+  "path": "Часть I → Masque → Admin Ui"
+ },
+ {
+  "id": "REQ-MASQUE-0009",
+  "lines": [
+   433,
+   433
+  ],
+  "sha": "4d67eda0e648",
+  "path": "Часть I → Masque → Anti Dpi"
+ },
+ {
+  "id": "REQ-MASQUE-0010",
+  "lines": [
+   437,
+   437
+  ],
+  "sha": "65c42b59371e",
+  "path": "Часть I → Masque → Alternative Engine"
+ },
+ {
+  "id": "REQ-MASQUE-0011",
+  "lines": [
+   441,
+   441
+  ],
+  "sha": "902e1df96c59",
+  "path": "Часть I → Masque → Deliverables"
+ },
+ {
+  "id": "REQ-MASQUE-0012",
+  "lines": [
+   445,
+   445
+  ],
+  "sha": "a7491a19c181",
+  "path": "Часть I → Masque → Report"
+ },
+ {
+  "id": "REQ-NODE-0001",
+  "lines": [
+   452,
+   452
+  ],
+  "sha": "1dc4a4132726",
+  "path": "Часть I → Node Manager → Features"
+ },
+ {
+  "id": "REQ-NODE-0002",
+  "lines": [
+   456,
+   456
+  ],
+  "sha": "18752686bb8b",
+  "path": "Часть I → Node Manager → Bulk"
+ },
+ {
+  "id": "REQ-NODE-0003",
+  "lines": [
+   463,
+   463
+  ],
+  "sha": "d2fe6e89ddb7",
+  "path": "Часть I → Server Installation Maintenance → Rule"
+ },
+ {
+  "id": "REQ-NODE-0004",
+  "lines": [
+   467,
+   467
+  ],
+  "sha": "abdd43efaa6f",
+  "path": "Часть I → Server Installation Maintenance → Catalog"
+ },
+ {
+  "id": "REQ-NODE-0005",
+  "lines": [
+   471,
+   471
+  ],
+  "sha": "e9d7a1c14ecb",
+  "path": "Часть I → Server Installation Maintenance → Mtproto"
+ },
+ {
+  "id": "REQ-NODE-0006",
+  "lines": [
+   475,
+   475
+  ],
+  "sha": "2d24d1376e6e",
+  "path": "Часть I → Server Installation Maintenance → Haproxy Cascade"
+ },
+ {
+  "id": "REQ-NODE-0007",
+  "lines": [
+   479,
+   479
+  ],
+  "sha": "8038fe6b2648",
+  "path": "Часть I → Server Installation Maintenance → Live Traffic Test"
+ },
+ {
+  "id": "REQ-NODE-0008",
+  "lines": [
+   483,
+   483
+  ],
+  "sha": "566707b754b8",
+  "path": "Часть I → Server Installation Maintenance → Geoassets"
+ },
+ {
+  "id": "REQ-NODE-0009",
+  "lines": [
+   487,
+   487
+  ],
+  "sha": "2d6de938a7cc",
+  "path": "Часть I → Server Installation Maintenance → Xray Adblock"
+ },
+ {
+  "id": "REQ-NODE-0010",
+  "lines": [
+   491,
+   491
+  ],
+  "sha": "bf18548420a3",
+  "path": "Часть I → Server Installation Maintenance → Adguard Home"
+ },
+ {
+  "id": "REQ-NODE-0011",
+  "lines": [
+   495,
+   495
+  ],
+  "sha": "81ca4037aebb",
+  "path": "Часть I → Server Installation Maintenance → Rkn Diagnostics"
+ },
+ {
+  "id": "REQ-NODE-0012",
+  "lines": [
+   499,
+   499
+  ],
+  "sha": "63ac924bdbb6",
+  "path": "Часть I → Server Installation Maintenance → Mss Clamp"
+ },
+ {
+  "id": "REQ-NODE-0013",
+  "lines": [
+   503,
+   503
+  ],
+  "sha": "3aa7668925f7",
+  "path": "Часть I → Server Installation Maintenance → Panel Node Access"
+ },
+ {
+  "id": "REQ-NODE-0014",
+  "lines": [
+   507,
+   507
+  ],
+  "sha": "c2456f35898e",
+  "path": "Часть I → Server Installation Maintenance → Torrent Blocker"
+ },
+ {
+  "id": "REQ-NODE-0015",
+  "lines": [
+   511,
+   511
+  ],
+  "sha": "bfe39dd1b708",
+  "path": "Часть I → Server Installation Maintenance → Panel Https"
+ },
+ {
+  "id": "REQ-NODE-0016",
+  "lines": [
+   515,
+   515
+  ],
+  "sha": "9f09e77baf42",
+  "path": "Часть I → Server Installation Maintenance → Status Page"
+ },
+ {
+  "id": "REQ-NODE-0017",
+  "lines": [
+   519,
+   519
+  ],
+  "sha": "a68c3005e225",
+  "path": "Часть I → Server Installation Maintenance → Bbr"
+ },
+ {
+  "id": "REQ-NODE-0018",
+  "lines": [
+   523,
+   523
+  ],
+  "sha": "08eea210e50f",
+  "path": "Часть I → Server Installation Maintenance → Backups"
+ },
+ {
+  "id": "REQ-NODE-0019",
+  "lines": [
+   527,
+   527
+  ],
+  "sha": "63376593fec5",
+  "path": "Часть I → Server Installation Maintenance → Snapshot Download"
+ },
+ {
+  "id": "REQ-NODE-0020",
+  "lines": [
+   531,
+   531
+  ],
+  "sha": "ff35db87f799",
+  "path": "Часть I → Server Installation Maintenance → Crowdsec"
+ },
+ {
+  "id": "REQ-NODE-0021",
+  "lines": [
+   535,
+   535
+  ],
+  "sha": "8a21e5a13942",
+  "path": "Часть I → Server Installation Maintenance → Hubguard"
+ },
+ {
+  "id": "REQ-NODE-0022",
+  "lines": [
+   541,
+   541
+  ],
+  "sha": "d856deabd4d6",
+  "path": "Часть I → Server Installation Maintenance → Danger Zone → Remove Component"
+ },
+ {
+  "id": "REQ-NODE-0023",
+  "lines": [
+   545,
+   545
+  ],
+  "sha": "6691fad44fb5",
+  "path": "Часть I → Server Installation Maintenance → Danger Zone → Clean Server"
+ },
+ {
+  "id": "REQ-NODE-0024",
+  "lines": [
+   549,
+   549
+  ],
+  "sha": "dc058a18bb1e",
+  "path": "Часть I → Server Installation Maintenance → Danger Zone → Rule"
+ },
+ {
+  "id": "REQ-NODE-0025",
+  "lines": [
+   554,
+   554
+  ],
+  "sha": "a4ed4647a61a",
+  "path": "Часть I → Server Installation Maintenance → Protocol Switch Repair"
+ },
+ {
+  "id": "REQ-NODE-0026",
+  "lines": [
+   558,
+   558
+  ],
+  "sha": "a9edfe8e40d0",
+  "path": "Часть I → Server Installation Maintenance → Node Reconnect"
+ },
+ {
+  "id": "REQ-NODE-0027",
+  "lines": [
+   562,
+   562
+  ],
+  "sha": "cb231a8d863d",
+  "path": "Часть I → Server Installation Maintenance → Common Acceptance"
+ },
+ {
+  "id": "REQ-AUTO-0001",
+  "lines": [
+   569,
+   569
+  ],
+  "sha": "7bcaf6a76163",
+  "path": "Часть I → Auto Selection → Purpose"
+ },
+ {
+  "id": "REQ-AUTO-0002",
+  "lines": [
+   575,
+   575
+  ],
+  "sha": "937d137f6bf0",
+  "path": "Часть I → Auto Selection → Modes → server-side"
+ },
+ {
+  "id": "REQ-AUTO-0003",
+  "lines": [
+   579,
+   579
+  ],
+  "sha": "f8b8ceb5ff1f",
+  "path": "Часть I → Auto Selection → Modes → client-side"
+ },
+ {
+  "id": "REQ-AUTO-0004",
+  "lines": [
+   583,
+   583
+  ],
+  "sha": "9984fcc1d15a",
+  "path": "Часть I → Auto Selection → Modes → Rule"
+ },
+ {
+  "id": "REQ-AUTO-0005",
+  "lines": [
+   590,
+   590
+  ],
+  "sha": "35526985e19d",
+  "path": "Часть I → Auto Selection → Delivery → separate-tile"
+ },
+ {
+  "id": "REQ-AUTO-0006",
+  "lines": [
+   594,
+   594
+  ],
+  "sha": "a23d6e0a4f5a",
+  "path": "Часть I → Auto Selection → Delivery → all-list"
+ },
+ {
+  "id": "REQ-AUTO-0007",
+  "lines": [
+   601,
+   601
+  ],
+  "sha": "dbf11767ff9e",
+  "path": "Часть I → Auto Selection → Algorithms → leastPing"
+ },
+ {
+  "id": "REQ-AUTO-0008",
+  "lines": [
+   605,
+   605
+  ],
+  "sha": "567beb344d8b",
+  "path": "Часть I → Auto Selection → Algorithms → leastLoad"
+ },
+ {
+  "id": "REQ-AUTO-0009",
+  "lines": [
+   609,
+   609
+  ],
+  "sha": "8c8c7969edf4",
+  "path": "Часть I → Auto Selection → Algorithms → roundRobin"
+ },
+ {
+  "id": "REQ-AUTO-0010",
+  "lines": [
+   613,
+   613
+  ],
+  "sha": "53f2dfa2f462",
+  "path": "Часть I → Auto Selection → Algorithms → random"
+ },
+ {
+  "id": "REQ-AUTO-0011",
+  "lines": [
+   617,
+   617
+  ],
+  "sha": "45262feb0a6e",
+  "path": "Часть I → Auto Selection → Algorithms → Rule"
+ },
+ {
+  "id": "REQ-AUTO-0012",
+  "lines": [
+   622,
+   622
+  ],
+  "sha": "a3c635fb9550",
+  "path": "Часть I → Auto Selection → Management"
+ },
+ {
+  "id": "REQ-AUTO-0013",
+  "lines": [
+   626,
+   626
+  ],
+  "sha": "b13bbc9e759c",
+  "path": "Часть I → Auto Selection → Hide Nodes"
+ },
+ {
+  "id": "REQ-AUTO-0014",
+  "lines": [
+   630,
+   630
+  ],
+  "sha": "bfdd8a891992",
+  "path": "Часть I → Auto Selection → Statistics"
+ },
+ {
+  "id": "REQ-AUTO-0015",
+  "lines": [
+   634,
+   634
+  ],
+  "sha": "1ad4de8e16d5",
+  "path": "Часть I → Auto Selection → Tile"
+ },
+ {
+  "id": "REQ-AUTO-0016",
+  "lines": [
+   638,
+   638
+  ],
+  "sha": "3f1187ed2e59",
+  "path": "Часть I → Auto Selection → Failure"
+ },
+ {
+  "id": "REQ-AUTO-0017",
+  "lines": [
+   642,
+   642
+  ],
+  "sha": "ac4931704ea2",
+  "path": "Часть I → Auto Selection → Tests"
+ },
+ {
+  "id": "REQ-AUTO-0018",
+  "lines": [
+   646,
+   646
+  ],
+  "sha": "d4edb490f8c2",
+  "path": "Часть I → Auto Selection → Documentation"
+ },
+ {
+  "id": "REQ-INFRA-0001",
+  "lines": [
+   653,
+   653
+  ],
+  "sha": "8052b5a2009a",
+  "path": "Часть I → Additional Infrastructure → Items"
+ },
+ {
+  "id": "REQ-INFRA-0002",
+  "lines": [
+   657,
+   657
+  ],
+  "sha": "f3b97af68cf0",
+  "path": "Часть I → Additional Infrastructure → Groups"
+ },
+ {
+  "id": "REQ-INFRA-0003",
+  "lines": [
+   661,
+   661
+  ],
+  "sha": "c8ca2ce93990",
+  "path": "Часть I → Additional Infrastructure → Rule"
+ },
+ {
+  "id": "REQ-API-0001",
+  "lines": [
+   668,
+   668
+  ],
+  "sha": "83c3673e2de1",
+  "path": "Часть I → Backend Api Database → Scope"
+ },
+ {
+  "id": "REQ-API-0002",
+  "lines": [
+   672,
+   672
+  ],
+  "sha": "d59dbccc3a7b",
+  "path": "Часть I → Backend Api Database → Rules"
+ },
+ {
+  "id": "REQ-UI-0001",
+  "lines": [
+   679,
+   679
+  ],
+  "sha": "cdcbff46ca53",
+  "path": "Часть I → Ui Ux → Design"
+ },
+ {
+  "id": "REQ-UI-0002",
+  "lines": [
+   683,
+   683
+  ],
+  "sha": "824293938bb0",
+  "path": "Часть I → Ui Ux → Reference"
+ },
+ {
+  "id": "REQ-UI-0003",
+  "lines": [
+   687,
+   687
+  ],
+  "sha": "79108752868a",
+  "path": "Часть I → Ui Ux → Fix"
+ },
+ {
+  "id": "REQ-SHOP-0009",
+  "lines": [
+   694,
+   694
+  ],
+  "sha": "ad516c40eda7",
+  "path": "Часть I → User Cabinet Telegram → Features"
+ },
+ {
+  "id": "REQ-SHOP-0010",
+  "lines": [
+   698,
+   698
+  ],
+  "sha": "7b43f0617965",
+  "path": "Часть I → User Cabinet Telegram → Auth"
+ },
+ {
+  "id": "REQ-SHOP-0011",
+  "lines": [
+   702,
+   702
+  ],
+  "sha": "59647c9bcb10",
+  "path": "Часть I → User Cabinet Telegram → Mini App"
+ },
+ {
+  "id": "REQ-MOBILE-0001",
+  "lines": [
+   709,
+   709
+  ],
+  "sha": "154a2a087ba5",
+  "path": "Часть I → Mobile → Android"
+ },
+ {
+  "id": "REQ-MOBILE-0002",
+  "lines": [
+   713,
+   713
+  ],
+  "sha": "bc1ed2c24217",
+  "path": "Часть I → Mobile → Ios"
+ },
+ {
+  "id": "REQ-MOBILE-0003",
+  "lines": [
+   717,
+   717
+  ],
+  "sha": "b8ea0ce4c0c7",
+  "path": "Часть I → Mobile → Admin Mobile"
+ },
+ {
+  "id": "REQ-MOBILE-0004",
+  "lines": [
+   721,
+   721
+  ],
+  "sha": "8cb71004584e",
+  "path": "Часть I → Mobile → Rule"
+ },
+ {
+  "id": "REQ-INFRA-0004",
+  "lines": [
+   728,
+   728
+  ],
+  "sha": "b14a0f2bf345",
+  "path": "Часть I → Docker Installer Vps Termux → Checks"
+ },
+ {
+  "id": "REQ-INFRA-0005",
+  "lines": [
+   732,
+   732
+  ],
+  "sha": "84b5725d025a",
+  "path": "Часть I → Docker Installer Vps Termux → Installer"
+ },
+ {
+  "id": "REQ-INFRA-0006",
+  "lines": [
+   736,
+   736
+  ],
+  "sha": "98b12f11e1d0",
+  "path": "Часть I → Docker Installer Vps Termux → Vps"
+ },
+ {
+  "id": "REQ-INFRA-0007",
+  "lines": [
+   740,
+   740
+  ],
+  "sha": "857f2b5dbfb4",
+  "path": "Часть I → Docker Installer Vps Termux → Termux"
+ },
+ {
+  "id": "REQ-CI-0001",
+  "lines": [
+   747,
+   747
+  ],
+  "sha": "74be6aa700d1",
+  "path": "Часть I → Github Cicd → Workflows"
+ },
+ {
+  "id": "REQ-CI-0002",
+  "lines": [
+   751,
+   751
+  ],
+  "sha": "e05b0431d276",
+  "path": "Часть I → Github Cicd → Nightly"
+ },
+ {
+  "id": "REQ-CI-0003",
+  "lines": [
+   755,
+   755
+  ],
+  "sha": "e686b4c03065",
+  "path": "Часть I → Github Cicd → Production Rule"
+ },
+ {
+  "id": "REQ-CI-0004",
+  "lines": [
+   759,
+   759
+  ],
+  "sha": "3de990a1d56d",
+  "path": "Часть I → Github Cicd → Runner Rule"
+ },
+ {
+  "id": "REQ-CI-0005",
+  "lines": [
+   763,
+   763
+  ],
+  "sha": "a49c8a9ca112",
+  "path": "Часть I → Github Cicd → Admin Control"
+ },
+ {
+  "id": "REQ-DOC-0001",
+  "lines": [
+   770,
+   770
+  ],
+  "sha": "b005873cd4cb",
+  "path": "Часть I → Documentation → Readme"
+ },
+ {
+  "id": "REQ-DOC-0002",
+  "lines": [
+   774,
+   774
+  ],
+  "sha": "4213ddb0591a",
+  "path": "Часть I → Documentation → Wiki Languages"
+ },
+ {
+  "id": "REQ-DOC-0003",
+  "lines": [
+   778,
+   778
+  ],
+  "sha": "de862eafb316",
+  "path": "Часть I → Documentation → Guides"
+ },
+ {
+  "id": "REQ-DOC-0004",
+  "lines": [
+   782,
+   782
+  ],
+  "sha": "c35b2610b7f6",
+  "path": "Часть I → Documentation → Rule"
+ },
+ {
+  "id": "REQ-QA-0009",
+  "lines": [
+   789,
+   789
+  ],
+  "sha": "d43cb6660a3a",
+  "path": "Часть I → Screenshot Coverage → Purpose"
+ },
+ {
+  "id": "REQ-QA-0010",
+  "lines": [
+   795,
+   795
+  ],
+  "sha": "61d13edfafbc",
+  "path": "Часть I → Screenshot Coverage → Coverage → VPN Shop"
+ },
+ {
+  "id": "REQ-QA-0011",
+  "lines": [
+   799,
+   799
+  ],
+  "sha": "2a5a670961b8",
+  "path": "Часть I → Screenshot Coverage → Coverage → User Cabinet"
+ },
+ {
+  "id": "REQ-QA-0012",
+  "lines": [
+   803,
+   803
+  ],
+  "sha": "28b57acc7292",
+  "path": "Часть I → Screenshot Coverage → Coverage → Telegram Mini App"
+ },
+ {
+  "id": "REQ-QA-0013",
+  "lines": [
+   807,
+   807
+  ],
+  "sha": "6abccbb425d8",
+  "path": "Часть I → Screenshot Coverage → Coverage → Telegram Bot"
+ },
+ {
+  "id": "REQ-QA-0014",
+  "lines": [
+   811,
+   811
+  ],
+  "sha": "780f9605117a",
+  "path": "Часть I → Screenshot Coverage → Coverage → Lucy Admin Web"
+ },
+ {
+  "id": "REQ-QA-0015",
+  "lines": [
+   815,
+   815
+  ],
+  "sha": "c2115c87c4c8",
+  "path": "Часть I → Screenshot Coverage → Coverage → Lucy Admin Android/iOS"
+ },
+ {
+  "id": "REQ-QA-0016",
+  "lines": [
+   819,
+   819
+  ],
+  "sha": "fb0514860936",
+  "path": "Часть I → Screenshot Coverage → Coverage → VPN Client Android/iOS"
+ },
+ {
+  "id": "REQ-QA-0017",
+  "lines": [
+   823,
+   823
+  ],
+  "sha": "5f1cc025f581",
+  "path": "Часть I → Screenshot Coverage → Coverage → Installer and Node Maintenance"
+ },
+ {
+  "id": "REQ-QA-0018",
+  "lines": [
+   827,
+   827
+  ],
+  "sha": "84f175995b3f",
+  "path": "Часть I → Screenshot Coverage → Coverage → Auto-selection"
+ },
+ {
+  "id": "REQ-QA-0019",
+  "lines": [
+   832,
+   832
+  ],
+  "sha": "7b5f38c84bc2",
+  "path": "Часть I → Screenshot Coverage → Tools"
+ },
+ {
+  "id": "REQ-QA-0020",
+  "lines": [
+   836,
+   836
+  ],
+  "sha": "5705266273ad",
+  "path": "Часть I → Screenshot Coverage → Rules"
+ },
+ {
+  "id": "REQ-QA-0021",
+  "lines": [
+   840,
+   840
+  ],
+  "sha": "d3015c11265c",
+  "path": "Часть I → Screenshot Coverage → Document"
+ },
+ {
+  "id": "REQ-QA-0022",
+  "lines": [
+   844,
+   844
+  ],
+  "sha": "3247d471c9bb",
+  "path": "Часть I → Screenshot Coverage → Metadata"
+ },
+ {
+  "id": "REQ-GOV-0005",
+  "lines": [
+   851,
+   851
+  ],
+  "sha": "2874de9abda0",
+  "path": "Часть I → Balanced Development → Rule"
+ },
+ {
+  "id": "REQ-GOV-0006",
+  "lines": [
+   855,
+   855
+  ],
+  "sha": "c6d1b86c66c9",
+  "path": "Часть I → Balanced Development → Documents"
+ },
+ {
+  "id": "REQ-GOV-0007",
+  "lines": [
+   862,
+   862
+  ],
+  "sha": "13178aecad9c",
+  "path": "Часть I → Acceptance Checklist → File"
+ },
+ {
+  "id": "REQ-GOV-0008",
+  "lines": [
+   866,
+   866
+  ],
+  "sha": "0176902138c6",
+  "path": "Часть I → Acceptance Checklist → Fields"
+ },
+ {
+  "id": "REQ-GOV-0009",
+  "lines": [
+   870,
+   870
+  ],
+  "sha": "5ce1f8e8e6fd",
+  "path": "Часть I → Acceptance Checklist → Statuses"
+ },
+ {
+  "id": "REQ-GOV-0010",
+  "lines": [
+   874,
+   874
+  ],
+  "sha": "7abb52b89462",
+  "path": "Часть I → Acceptance Checklist → Rules"
+ },
+ {
+  "id": "REQ-QA-0023",
+  "lines": [
+   881,
+   881
+  ],
+  "sha": "bd36b553637f",
+  "path": "Часть I → Audit Automation → Directory"
+ },
+ {
+  "id": "REQ-QA-0024",
+  "lines": [
+   885,
+   885
+  ],
+  "sha": "5700c45291f3",
+  "path": "Часть I → Audit Automation → Scripts"
+ },
+ {
+  "id": "REQ-QA-0025",
+  "lines": [
+   889,
+   889
+  ],
+  "sha": "6643f12075c3",
+  "path": "Часть I → Audit Automation → Workflow"
+ },
+ {
+  "id": "REQ-QA-0026",
+  "lines": [
+   893,
+   893
+  ],
+  "sha": "793816473683",
+  "path": "Часть I → Audit Automation → Artifacts"
+ },
+ {
+  "id": "REQ-QA-0027",
+  "lines": [
+   897,
+   897
+  ],
+  "sha": "9aa4ca277d12",
+  "path": "Часть I → Audit Automation → Rule"
+ },
+ {
+  "id": "REQ-GOV-0011",
+  "lines": [
+   902,
+   902
+  ],
+  "sha": "92727a14ce00",
+  "path": "Часть I → Autonomous Cycle"
+ },
+ {
+  "id": "REQ-GOV-0012",
+  "lines": [
+   908,
+   908
+  ],
+  "sha": "5e479235d0c2",
+  "path": "Часть I → State Tracking → Files"
+ },
+ {
+  "id": "REQ-GOV-0013",
+  "lines": [
+   912,
+   912
+  ],
+  "sha": "b8252f9773a4",
+  "path": "Часть I → State Tracking → Interim"
+ },
+ {
+  "id": "REQ-GOV-0014",
+  "lines": [
+   916,
+   916
+  ],
+  "sha": "7dad5466f1e0",
+  "path": "Часть I → State Tracking → Rule"
+ },
+ {
+  "id": "REQ-GOV-0015",
+  "lines": [
+   923,
+   923
+  ],
+  "sha": "f75dc9dfc78e",
+  "path": "Часть I → Final Reports → Required"
+ },
+ {
+  "id": "REQ-GOV-0016",
+  "lines": [
+   927,
+   927
+  ],
+  "sha": "8c053f689435",
+  "path": "Часть I → Final Reports → Additional"
+ },
+ {
+  "id": "REQ-GOV-0017",
+  "lines": [
+   931,
+   931
+  ],
+  "sha": "5c6212095b8d",
+  "path": "Часть I → Final Reports → Fields"
+ },
+ {
+  "id": "REQ-SEC-0001",
+  "lines": [
+   938,
+   938
+  ],
+  "sha": "06fa673a53bc",
+  "path": "Часть I → Git Security → Allowed"
+ },
+ {
+  "id": "REQ-SEC-0002",
+  "lines": [
+   942,
+   942
+  ],
+  "sha": "f361c086bf8b",
+  "path": "Часть I → Git Security → Forbidden"
+ },
+ {
+  "id": "REQ-SEC-0003",
+  "lines": [
+   946,
+   946
+  ],
+  "sha": "d364311b1af3",
+  "path": "Часть I → Git Security → External Blockers"
+ },
+ {
+  "id": "REQ-SEC-0004",
+  "lines": [
+   950,
+   950
+  ],
+  "sha": "a9daef36a528",
+  "path": "Часть I → Git Security → Production Safety"
+ },
+ {
+  "id": "REQ-GOV-0018",
+  "lines": [
+   956,
+   958
+  ],
+  "sha": "0108a01974a3",
+  "path": "Часть I → First Execution Sequence → Inventory"
+ },
+ {
+  "id": "REQ-GOV-0019",
+  "lines": [
+   961,
+   963
+  ],
+  "sha": "b476dd412e73",
+  "path": "Часть I → First Execution Sequence → Feature inventory"
+ },
+ {
+  "id": "REQ-GOV-0020",
+  "lines": [
+   966,
+   968
+  ],
+  "sha": "09900961fb07",
+  "path": "Часть I → First Execution Sequence → Monorepo architecture"
+ },
+ {
+  "id": "REQ-GOV-0021",
+  "lines": [
+   971,
+   973
+  ],
+  "sha": "a01fb642137b",
+  "path": "Часть I → First Execution Sequence → Full audit"
+ },
+ {
+  "id": "REQ-GOV-0022",
+  "lines": [
+   976,
+   978
+  ],
+  "sha": "90da1af444cc",
+  "path": "Часть I → First Execution Sequence → Migration"
+ },
+ {
+  "id": "REQ-GOV-0023",
+  "lines": [
+   981,
+   983
+  ],
+  "sha": "2a9faf3506a5",
+  "path": "Часть I → First Execution Sequence → Fixes"
+ },
+ {
+  "id": "REQ-GOV-0024",
+  "lines": [
+   986,
+   988
+  ],
+  "sha": "c47fc5e77322",
+  "path": "Часть I → First Execution Sequence → Products"
+ },
+ {
+  "id": "REQ-GOV-0025",
+  "lines": [
+   991,
+   993
+  ],
+  "sha": "503b275cd646",
+  "path": "Часть I → First Execution Sequence → Node operations"
+ },
+ {
+  "id": "REQ-GOV-0026",
+  "lines": [
+   996,
+   998
+  ],
+  "sha": "6c9e29426fc1",
+  "path": "Часть I → First Execution Sequence → Testing"
+ },
+ {
+  "id": "REQ-GOV-0027",
+  "lines": [
+   1001,
+   1003
+  ],
+  "sha": "9e355a4a753e",
+  "path": "Часть I → First Execution Sequence → Docs and release"
+ },
+ {
+  "id": "REQ-GOV-0028",
+  "lines": [
+   1010,
+   1010
+  ],
+  "sha": "a6da47f4d966",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0029",
+  "lines": [
+   1014,
+   1014
+  ],
+  "sha": "5fac17eed92d",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0030",
+  "lines": [
+   1018,
+   1018
+  ],
+  "sha": "20a5de630ad6",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0031",
+  "lines": [
+   1022,
+   1022
+  ],
+  "sha": "967f44002b93",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0032",
+  "lines": [
+   1026,
+   1026
+  ],
+  "sha": "bd17ef45e724",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0033",
+  "lines": [
+   1030,
+   1030
+  ],
+  "sha": "368beaac8438",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0034",
+  "lines": [
+   1034,
+   1034
+  ],
+  "sha": "6a239f8b0e6e",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0035",
+  "lines": [
+   1038,
+   1038
+  ],
+  "sha": "be8ed3fbdb01",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0036",
+  "lines": [
+   1042,
+   1042
+  ],
+  "sha": "5b98412163c8",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0037",
+  "lines": [
+   1046,
+   1046
+  ],
+  "sha": "cffacc3cd15d",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0038",
+  "lines": [
+   1050,
+   1050
+  ],
+  "sha": "2c071ab80630",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0039",
+  "lines": [
+   1054,
+   1054
+  ],
+  "sha": "a4b24a66cbea",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0040",
+  "lines": [
+   1058,
+   1058
+  ],
+  "sha": "35341e2bec86",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0041",
+  "lines": [
+   1062,
+   1062
+  ],
+  "sha": "1f30c9c0505e",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0042",
+  "lines": [
+   1066,
+   1066
+  ],
+  "sha": "47c45aeb0df0",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0043",
+  "lines": [
+   1070,
+   1070
+  ],
+  "sha": "0d516af40bfa",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0044",
+  "lines": [
+   1074,
+   1074
+  ],
+  "sha": "9d2c6cc43c9e",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0045",
+  "lines": [
+   1078,
+   1078
+  ],
+  "sha": "e126b8417827",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0046",
+  "lines": [
+   1082,
+   1082
+  ],
+  "sha": "b179841c40a2",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0047",
+  "lines": [
+   1086,
+   1086
+  ],
+  "sha": "d0e9942d9dff",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0048",
+  "lines": [
+   1090,
+   1090
+  ],
+  "sha": "bc8bbb5e4180",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0049",
+  "lines": [
+   1094,
+   1094
+  ],
+  "sha": "88aaddb01069",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0050",
+  "lines": [
+   1098,
+   1098
+  ],
+  "sha": "8f97d5514b53",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0051",
+  "lines": [
+   1102,
+   1102
+  ],
+  "sha": "de04d3638a6e",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0052",
+  "lines": [
+   1106,
+   1106
+  ],
+  "sha": "bafe17aa20d2",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0053",
+  "lines": [
+   1110,
+   1110
+  ],
+  "sha": "df61549f00d3",
+  "path": "Часть I → Acceptance Criteria → Criterion"
+ },
+ {
+  "id": "REQ-GOV-0054",
+  "lines": [
+   1114,
+   1114
+  ],
+  "sha": "201f41d50a5b",
+  "path": "Часть I → Non Loss Rule"
+ },
+ {
+  "id": "REQ-GOV-0055",
+  "lines": [
+   1118,
+   1118
+  ],
+  "sha": "d2a9ae13e23f",
+  "path": "Часть I → Non Loss Rule → Rule"
+ },
+ {
+  "id": "REQ-GOV-0056",
+  "lines": [
+   1122,
+   1122
+  ],
+  "sha": "cfe0b7eeda8d",
+  "path": "Часть I → Non Loss Rule → Allowed"
+ },
+ {
+  "id": "REQ-GOV-0057",
+  "lines": [
+   1126,
+   1126
+  ],
+  "sha": "7041e8c4ff23",
+  "path": "Часть I → Non Loss Rule → Forbidden"
+ },
+ {
+  "id": "REQ-GOV-0058",
+  "lines": [
+   1130,
+   1130
+  ],
+  "sha": "2e5e64ac83b5",
+  "path": "Часть I → Non Loss Rule → Reconciliation"
+ },
+ {
+  "id": "REQ-GOV-0059",
+  "lines": [
+   1135,
+   1135
+  ],
+  "sha": "18c2bfdcd7dc",
+  "path": "Часть I → Final Objective"
+ },
+ {
+  "id": "REQ-GOV-0060",
+  "lines": [
+   1139,
+   1139
+  ],
+  "sha": "2a5ac77b9da5",
+  "path": "Часть I → Instruction To Claude"
+ },
+ {
+  "id": "REQ-GOV-0061",
+  "lines": [
+   1142,
+   1142
+  ],
+  "sha": "d3f1c079b536",
+  "path": "Часть I → Completeness Supplement"
+ },
+ {
+  "id": "REQ-GOV-0062",
+  "lines": [
+   1146,
+   1146
+  ],
+  "sha": "fdf6a94a1a5b",
+  "path": "Часть I → Completeness Supplement → Purpose"
+ },
+ {
+  "id": "REQ-GOV-0063",
+  "lines": [
+   1152,
+   1152
+  ],
+  "sha": "accc98d294a0",
+  "path": "Часть I → Completeness Supplement → Autonomous Execution Strict → Rule"
+ },
+ {
+  "id": "REQ-GOV-0064",
+  "lines": [
+   1156,
+   1156
+  ],
+  "sha": "3d64461724eb",
+  "path": "Часть I → Completeness Supplement → Autonomous Execution Strict → Rule"
+ },
+ {
+  "id": "REQ-GOV-0065",
+  "lines": [
+   1160,
+   1160
+  ],
+  "sha": "82a84aeb01c8",
+  "path": "Часть I → Completeness Supplement → Autonomous Execution Strict → Rule"
+ },
+ {
+  "id": "REQ-GOV-0066",
+  "lines": [
+   1164,
+   1164
+  ],
+  "sha": "44a02766c925",
+  "path": "Часть I → Completeness Supplement → Autonomous Execution Strict → Rule"
+ },
+ {
+  "id": "REQ-GOV-0067",
+  "lines": [
+   1168,
+   1168
+  ],
+  "sha": "90c76b9e57d1",
+  "path": "Часть I → Completeness Supplement → Autonomous Execution Strict → Rule"
+ },
+ {
+  "id": "REQ-MIG-0019",
+  "lines": [
+   1175,
+   1175
+  ],
+  "sha": "13860f429c90",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Single Repository"
+ },
+ {
+  "id": "REQ-MIG-0020",
+  "lines": [
+   1181,
+   1181
+  ],
+  "sha": "f67723e6664f",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-MIG-0021",
+  "lines": [
+   1185,
+   1185
+  ],
+  "sha": "0992ec714e2d",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-MIG-0022",
+  "lines": [
+   1189,
+   1189
+  ],
+  "sha": "d68cf2523e1f",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-MIG-0023",
+  "lines": [
+   1193,
+   1193
+  ],
+  "sha": "d22e983fadd9",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-MIG-0024",
+  "lines": [
+   1197,
+   1197
+  ],
+  "sha": "b56f9f49a12b",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-MIG-0025",
+  "lines": [
+   1201,
+   1201
+  ],
+  "sha": "89898144bf62",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-MIG-0026",
+  "lines": [
+   1205,
+   1205
+  ],
+  "sha": "48f79ce68717",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-MIG-0027",
+  "lines": [
+   1209,
+   1209
+  ],
+  "sha": "8d17efceb6c2",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-MIG-0028",
+  "lines": [
+   1213,
+   1213
+  ],
+  "sha": "eec2dc8ff39d",
+  "path": "Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task"
+ },
+ {
+  "id": "REQ-BRAND-0001",
+  "lines": [
+   1221,
+   1221
+  ],
+  "sha": "0d5cbcdcf43d",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Brand Name"
+ },
+ {
+  "id": "REQ-BRAND-0002",
+  "lines": [
+   1225,
+   1225
+  ],
+  "sha": "6e56bef770ab",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Brand Variants"
+ },
+ {
+  "id": "REQ-BRAND-0003",
+  "lines": [
+   1231,
+   1231
+  ],
+  "sha": "d560ac297e47",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Max"
+ },
+ {
+  "id": "REQ-BRAND-0004",
+  "lines": [
+   1235,
+   1235
+  ],
+  "sha": "287ae3fa11dd",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Ultra"
+ },
+ {
+  "id": "REQ-BRAND-0005",
+  "lines": [
+   1239,
+   1239
+  ],
+  "sha": "8fa0a464d249",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Mini"
+ },
+ {
+  "id": "REQ-BRAND-0006",
+  "lines": [
+   1243,
+   1243
+  ],
+  "sha": "3696863b772a",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Task"
+ },
+ {
+  "id": "REQ-BRAND-0007",
+  "lines": [
+   1248,
+   1248
+  ],
+  "sha": "bc8abd444dc1",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Service Descriptions"
+ },
+ {
+  "id": "REQ-BRAND-0008",
+  "lines": [
+   1252,
+   1252
+  ],
+  "sha": "f84d4182723e",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Maintenance Message"
+ },
+ {
+  "id": "REQ-BRAND-0009",
+  "lines": [
+   1256,
+   1256
+  ],
+  "sha": "ef2ba3468360",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Payment Copy"
+ },
+ {
+  "id": "REQ-BRAND-0010",
+  "lines": [
+   1262,
+   1262
+  ],
+  "sha": "cca7bd8e2f2d",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Banner Size"
+ },
+ {
+  "id": "REQ-BRAND-0011",
+  "lines": [
+   1266,
+   1266
+  ],
+  "sha": "d4f3ef74d771",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Format"
+ },
+ {
+  "id": "REQ-BRAND-0012",
+  "lines": [
+   1270,
+   1270
+  ],
+  "sha": "6c286d48ea23",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Layout"
+ },
+ {
+  "id": "REQ-BRAND-0013",
+  "lines": [
+   1274,
+   1274
+  ],
+  "sha": "78307dfe7c7b",
+  "path": "Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Rule"
+ },
+ {
+  "id": "REQ-NODE-0028",
+  "lines": [
+   1282,
+   1282
+  ],
+  "sha": "6271f52b4e69",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Note"
+ },
+ {
+  "id": "REQ-NODE-0029",
+  "lines": [
+   1286,
+   1286
+  ],
+  "sha": "ecf46968f898",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Page Heading"
+ },
+ {
+  "id": "REQ-NODE-0030",
+  "lines": [
+   1290,
+   1290
+  ],
+  "sha": "d4a03ec76db2",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Intro Bullets"
+ },
+ {
+  "id": "REQ-NODE-0031",
+  "lines": [
+   1294,
+   1294
+  ],
+  "sha": "9ccbfab8117f",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Server Context"
+ },
+ {
+  "id": "REQ-NODE-0032",
+  "lines": [
+   1299,
+   1301
+  ],
+  "sha": "7764502019d1",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → HTTPS для этой панели"
+ },
+ {
+  "id": "REQ-NODE-0033",
+  "lines": [
+   1304,
+   1306
+  ],
+  "sha": "00f33fef0928",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Статус-страница VPN"
+ },
+ {
+  "id": "REQ-NODE-0034",
+  "lines": [
+   1309,
+   1311
+  ],
+  "sha": "3b00305b6177",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Ускорение BBR / BBR3"
+ },
+ {
+  "id": "REQ-NODE-0035",
+  "lines": [
+   1314,
+   1316
+  ],
+  "sha": "79d8f40edc1e",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Настроить автобекапы"
+ },
+ {
+  "id": "REQ-NODE-0036",
+  "lines": [
+   1319,
+   1321
+  ],
+  "sha": "2e1fa40c9128",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Снапшот сервера — скачать"
+ },
+ {
+  "id": "REQ-NODE-0037",
+  "lines": [
+   1324,
+   1326
+  ],
+  "sha": "0cefb9a1e1f8",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → CrowdSec — защита от брутфорса"
+ },
+ {
+  "id": "REQ-NODE-0038",
+  "lines": [
+   1329,
+   1331
+  ],
+  "sha": "eafd5f9ab05b",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → HUBGuard — защита nftables"
+ },
+ {
+  "id": "REQ-NODE-0039",
+  "lines": [
+   1338,
+   1338
+  ],
+  "sha": "4650d803c833",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Remove Component"
+ },
+ {
+  "id": "REQ-NODE-0040",
+  "lines": [
+   1342,
+   1342
+  ],
+  "sha": "e63a374e682c",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Clean Server"
+ },
+ {
+  "id": "REQ-NODE-0041",
+  "lines": [
+   1347,
+   1347
+  ],
+  "sha": "1a5962624595",
+  "path": "Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Operation Ui"
+ },
+ {
+  "id": "REQ-NODE-0042",
+  "lines": [
+   1356,
+   1356
+  ],
+  "sha": "4d35a11fca8f",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Title"
+ },
+ {
+  "id": "REQ-NODE-0043",
+  "lines": [
+   1362,
+   1362
+  ],
+  "sha": "87329883ece4",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage"
+ },
+ {
+  "id": "REQ-NODE-0044",
+  "lines": [
+   1366,
+   1366
+  ],
+  "sha": "29f2ef136a4e",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage"
+ },
+ {
+  "id": "REQ-NODE-0045",
+  "lines": [
+   1370,
+   1370
+  ],
+  "sha": "d176503e4605",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage"
+ },
+ {
+  "id": "REQ-NODE-0046",
+  "lines": [
+   1374,
+   1374
+  ],
+  "sha": "d6575e6c3cd4",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage"
+ },
+ {
+  "id": "REQ-NODE-0047",
+  "lines": [
+   1379,
+   1379
+  ],
+  "sha": "9e6faeb66ecc",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Example Observed State"
+ },
+ {
+  "id": "REQ-NODE-0048",
+  "lines": [
+   1383,
+   1383
+  ],
+  "sha": "ba76f9415e64",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage Detail"
+ },
+ {
+  "id": "REQ-NODE-0049",
+  "lines": [
+   1387,
+   1387
+  ],
+  "sha": "efe9ad378d26",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Progress Ui"
+ },
+ {
+  "id": "REQ-NODE-0050",
+  "lines": [
+   1391,
+   1391
+  ],
+  "sha": "073dd2d24d36",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Rollback"
+ },
+ {
+  "id": "REQ-NODE-0051",
+  "lines": [
+   1395,
+   1395
+  ],
+  "sha": "42fc7b798fcc",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Observed Result Example"
+ },
+ {
+  "id": "REQ-NODE-0052",
+  "lines": [
+   1400,
+   1400
+  ],
+  "sha": "79ccb10383aa",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Node Reconnect Matrix"
+ },
+ {
+  "id": "REQ-AUTO-0019",
+  "lines": [
+   1406,
+   1406
+  ],
+  "sha": "8a4cc0d59568",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Heading"
+ },
+ {
+  "id": "REQ-AUTO-0020",
+  "lines": [
+   1410,
+   1410
+  ],
+  "sha": "69b2825e2849",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Actions"
+ },
+ {
+  "id": "REQ-AUTO-0021",
+  "lines": [
+   1414,
+   1414
+  ],
+  "sha": "c2811ef133e3",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Metrics"
+ },
+ {
+  "id": "REQ-AUTO-0022",
+  "lines": [
+   1418,
+   1418
+  ],
+  "sha": "8a0c5d7e6c5e",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Mode"
+ },
+ {
+  "id": "REQ-AUTO-0023",
+  "lines": [
+   1422,
+   1422
+  ],
+  "sha": "a21dd41c07fb",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Algorithm Options"
+ },
+ {
+  "id": "REQ-AUTO-0024",
+  "lines": [
+   1426,
+   1426
+  ],
+  "sha": "c6c94e5e9fa3",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Tile Name"
+ },
+ {
+  "id": "REQ-AUTO-0025",
+  "lines": [
+   1430,
+   1430
+  ],
+  "sha": "5f3d8ecdddd5",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Hide Pool Nodes"
+ },
+ {
+  "id": "REQ-AUTO-0026",
+  "lines": [
+   1434,
+   1434
+  ],
+  "sha": "d492a2d6fb97",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Client Compatibility Warning"
+ },
+ {
+  "id": "REQ-AUTO-0027",
+  "lines": [
+   1438,
+   1438
+  ],
+  "sha": "3b521868aa54",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Explanation"
+ },
+ {
+  "id": "REQ-AUTO-0028",
+  "lines": [
+   1442,
+   1442
+  ],
+  "sha": "4966f3e6317b",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Node Table"
+ },
+ {
+  "id": "REQ-AUTO-0029",
+  "lines": [
+   1446,
+   1446
+  ],
+  "sha": "e61aa2edc0da",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Observed Example"
+ },
+ {
+  "id": "REQ-AUTO-0030",
+  "lines": [
+   1450,
+   1450
+  ],
+  "sha": "66434af490ed",
+  "path": "Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Retry"
+ },
+ {
+  "id": "REQ-NODE-0053",
+  "lines": [
+   1458,
+   1458
+  ],
+  "sha": "61c9b235a7b2",
+  "path": "Часть I → Completeness Supplement → Network And Censorship Diagnostics → Rkn Context"
+ },
+ {
+  "id": "REQ-NODE-0054",
+  "lines": [
+   1462,
+   1462
+  ],
+  "sha": "664c354f27a3",
+  "path": "Часть I → Completeness Supplement → Network And Censorship Diagnostics → Symptoms"
+ },
+ {
+  "id": "REQ-NODE-0055",
+  "lines": [
+   1466,
+   1466
+  ],
+  "sha": "a0a32f655ba4",
+  "path": "Часть I → Completeness Supplement → Network And Censorship Diagnostics → Status Communications"
+ },
+ {
+  "id": "REQ-QA-0028",
+  "lines": [
+   1473,
+   1473
+  ],
+  "sha": "02c4d8c8a9fa",
+  "path": "Часть I → Completeness Supplement → Product And Service Reliability → Task"
+ },
+ {
+  "id": "REQ-QA-0029",
+  "lines": [
+   1477,
+   1477
+  ],
+  "sha": "985c8e722e89",
+  "path": "Часть I → Completeness Supplement → Product And Service Reliability → Task"
+ },
+ {
+  "id": "REQ-QA-0030",
+  "lines": [
+   1481,
+   1481
+  ],
+  "sha": "871ab1d2d6a3",
+  "path": "Часть I → Completeness Supplement → Product And Service Reliability → Task"
+ },
+ {
+  "id": "REQ-QA-0031",
+  "lines": [
+   1485,
+   1485
+  ],
+  "sha": "d2a5d5585da9",
+  "path": "Часть I → Completeness Supplement → Product And Service Reliability → Task"
+ },
+ {
+  "id": "REQ-QA-0032",
+  "lines": [
+   1489,
+   1489
+  ],
+  "sha": "463f34c83a86",
+  "path": "Часть I → Completeness Supplement → Product And Service Reliability → Task"
+ },
+ {
+  "id": "REQ-QA-0033",
+  "lines": [
+   1493,
+   1493
+  ],
+  "sha": "000c34db4049",
+  "path": "Часть I → Completeness Supplement → Product And Service Reliability → Task"
+ },
+ {
+  "id": "REQ-QA-0034",
+  "lines": [
+   1497,
+   1497
+  ],
+  "sha": "67c5b433e0b4",
+  "path": "Часть I → Completeness Supplement → Product And Service Reliability → Task"
+ },
+ {
+  "id": "REQ-QA-0035",
+  "lines": [
+   1501,
+   1501
+  ],
+  "sha": "1c607d8f68df",
+  "path": "Часть I → Completeness Supplement → Product And Service Reliability → Task"
+ },
+ {
+  "id": "REQ-QA-0036",
+  "lines": [
+   1508,
+   1508
+  ],
+  "sha": "e8eba37be6df",
+  "path": "Часть I → Completeness Supplement → Expanded Test Matrix → Payments"
+ },
+ {
+  "id": "REQ-QA-0037",
+  "lines": [
+   1512,
+   1512
+  ],
+  "sha": "e0f8e6354e9e",
+  "path": "Часть I → Completeness Supplement → Expanded Test Matrix → Remnawave"
+ },
+ {
+  "id": "REQ-QA-0038",
+  "lines": [
+   1516,
+   1516
+  ],
+  "sha": "4b8cf83255db",
+  "path": "Часть I → Completeness Supplement → Expanded Test Matrix → Node Ops"
+ },
+ {
+  "id": "REQ-QA-0039",
+  "lines": [
+   1520,
+   1520
+  ],
+  "sha": "39057777e7c3",
+  "path": "Часть I → Completeness Supplement → Expanded Test Matrix → Auto Select"
+ },
+ {
+  "id": "REQ-QA-0040",
+  "lines": [
+   1524,
+   1524
+  ],
+  "sha": "b4f72085297f",
+  "path": "Часть I → Completeness Supplement → Expanded Test Matrix → Mobile"
+ },
+ {
+  "id": "REQ-QA-0041",
+  "lines": [
+   1528,
+   1528
+  ],
+  "sha": "1395c2834912",
+  "path": "Часть I → Completeness Supplement → Expanded Test Matrix → Ui"
+ },
+ {
+  "id": "REQ-GOV-0068",
+  "lines": [
+   1535,
+   1535
+  ],
+  "sha": "f9433e86644d",
+  "path": "Часть I → Completeness Supplement → Expanded State Requirements → Requirement"
+ },
+ {
+  "id": "REQ-GOV-0069",
+  "lines": [
+   1539,
+   1539
+  ],
+  "sha": "9e6bcaed0f8e",
+  "path": "Часть I → Completeness Supplement → Expanded State Requirements → Requirement"
+ },
+ {
+  "id": "REQ-GOV-0070",
+  "lines": [
+   1543,
+   1543
+  ],
+  "sha": "13ea4cd10c11",
+  "path": "Часть I → Completeness Supplement → Expanded State Requirements → Requirement"
+ },
+ {
+  "id": "REQ-GOV-0071",
+  "lines": [
+   1547,
+   1547
+  ],
+  "sha": "2497ae0b6e68",
+  "path": "Часть I → Completeness Supplement → Expanded State Requirements → Requirement"
+ },
+ {
+  "id": "REQ-GOV-0072",
+  "lines": [
+   1551,
+   1551
+  ],
+  "sha": "4aea11cd9440",
+  "path": "Часть I → Completeness Supplement → Expanded State Requirements → Requirement"
+ },
+ {
+  "id": "REQ-GOV-0073",
+  "lines": [
+   1555,
+   1555
+  ],
+  "sha": "b97190db41a5",
+  "path": "Часть I → Completeness Supplement → Expanded State Requirements → Requirement"
+ },
+ {
+  "id": "REQ-QA-0042",
+  "lines": [
+   1564,
+   1564
+  ],
+  "sha": "b3cf7c4a58c2",
+  "path": "Часть II → II.1. Дополнительные технические ошибки и проверки"
+ },
+ {
+  "id": "REQ-QA-0043",
+  "lines": [
+   1565,
+   1565
+  ],
+  "sha": "834dfcd1b197",
+  "path": "Часть II → II.1. Дополнительные технические ошибки и проверки"
+ },
+ {
+  "id": "REQ-QA-0044",
+  "lines": [
+   1566,
+   1566
+  ],
+  "sha": "73567247720e",
+  "path": "Часть II → II.1. Дополнительные технические ошибки и проверки"
+ },
+ {
+  "id": "REQ-QA-0045",
+  "lines": [
+   1567,
+   1567
+  ],
+  "sha": "a65468efe5bd",
+  "path": "Часть II → II.1. Дополнительные технические ошибки и проверки"
+ },
+ {
+  "id": "REQ-QA-0046",
+  "lines": [
+   1568,
+   1568
+  ],
+  "sha": "03d0f8b316d5",
+  "path": "Часть II → II.1. Дополнительные технические ошибки и проверки"
+ },
+ {
+  "id": "REQ-QA-0047",
+  "lines": [
+   1569,
+   1569
+  ],
+  "sha": "ccd1127b8795",
+  "path": "Часть II → II.1. Дополнительные технические ошибки и проверки"
+ },
+ {
+  "id": "REQ-NODE-0056",
+  "lines": [
+   1572,
+   1572
+  ],
+  "sha": "c6ed89ce00e6",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0057",
+  "lines": [
+   1573,
+   1573
+  ],
+  "sha": "903d5e59cf8d",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0058",
+  "lines": [
+   1574,
+   1574
+  ],
+  "sha": "068170e664ce",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0059",
+  "lines": [
+   1575,
+   1575
+  ],
+  "sha": "a470fc0149c5",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0060",
+  "lines": [
+   1576,
+   1576
+  ],
+  "sha": "5e436757b970",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0061",
+  "lines": [
+   1577,
+   1577
+  ],
+  "sha": "2969bf865aa8",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0062",
+  "lines": [
+   1578,
+   1578
+  ],
+  "sha": "fea2cc0b489f",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0063",
+  "lines": [
+   1579,
+   1579
+  ],
+  "sha": "a5e974a9f543",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0064",
+  "lines": [
+   1580,
+   1580
+  ],
+  "sha": "4979a8f13f52",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0065",
+  "lines": [
+   1581,
+   1581
+  ],
+  "sha": "5abe2bcdc18f",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0066",
+  "lines": [
+   1582,
+   1582
+  ],
+  "sha": "314dd9b068b1",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0067",
+  "lines": [
+   1583,
+   1583
+  ],
+  "sha": "c57d6ea40da6",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0068",
+  "lines": [
+   1584,
+   1584
+  ],
+  "sha": "8ff4e3cd6ab3",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0069",
+  "lines": [
+   1585,
+   1585
+  ],
+  "sha": "6cc9e213741d",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0070",
+  "lines": [
+   1586,
+   1586
+  ],
+  "sha": "c04f61a1ffd9",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-NODE-0071",
+  "lines": [
+   1587,
+   1587
+  ],
+  "sha": "b5c76afd8da4",
+  "path": "Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять"
+ },
+ {
+  "id": "REQ-AUTO-0031",
+  "lines": [
+   1590,
+   1590
+  ],
+  "sha": "ade44215c4f8",
+  "path": "Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний"
+ },
+ {
+  "id": "REQ-AUTO-0032",
+  "lines": [
+   1591,
+   1591
+  ],
+  "sha": "b1eb3758e0de",
+  "path": "Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний"
+ },
+ {
+  "id": "REQ-AUTO-0033",
+  "lines": [
+   1592,
+   1592
+  ],
+  "sha": "01c6b0a9fb4a",
+  "path": "Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний"
+ },
+ {
+  "id": "REQ-AUTO-0034",
+  "lines": [
+   1593,
+   1593
+  ],
+  "sha": "812ea4c20e52",
+  "path": "Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний"
+ },
+ {
+  "id": "REQ-AUTO-0035",
+  "lines": [
+   1594,
+   1594
+  ],
+  "sha": "a66a82dc66c8",
+  "path": "Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний"
+ },
+ {
+  "id": "REQ-BRAND-0014",
+  "lines": [
+   1597,
+   1597
+  ],
+  "sha": "3d4092704a60",
+  "path": "Часть II → II.4. Бренд и контент"
+ },
+ {
+  "id": "REQ-BRAND-0015",
+  "lines": [
+   1598,
+   1598
+  ],
+  "sha": "a516935d1a84",
+  "path": "Часть II → II.4. Бренд и контент"
+ },
+ {
+  "id": "REQ-BRAND-0016",
+  "lines": [
+   1599,
+   1599
+  ],
+  "sha": "a909854edb5f",
+  "path": "Часть II → II.4. Бренд и контент"
+ },
+ {
+  "id": "REQ-BRAND-0017",
+  "lines": [
+   1600,
+   1600
+  ],
+  "sha": "da698b455b78",
+  "path": "Часть II → II.4. Бренд и контент"
+ },
+ {
+  "id": "REQ-BRAND-0018",
+  "lines": [
+   1601,
+   1601
+  ],
+  "sha": "95c6f4c01059",
+  "path": "Часть II → II.4. Бренд и контент"
+ },
+ {
+  "id": "REQ-BRAND-0019",
+  "lines": [
+   1602,
+   1602
+  ],
+  "sha": "f5fcd6936061",
+  "path": "Часть II → II.4. Бренд и контент"
+ },
+ {
+  "id": "REQ-BRAND-0020",
+  "lines": [
+   1603,
+   1603
+  ],
+  "sha": "704723adb143",
+  "path": "Часть II → II.4. Бренд и контент"
+ },
+ {
+  "id": "REQ-DOC-0005",
+  "lines": [
+   1606,
+   1606
+  ],
+  "sha": "b590bd7aa3d9",
+  "path": "Часть II → II.5. VPS, Termux, GitHub и документация"
+ },
+ {
+  "id": "REQ-DOC-0006",
+  "lines": [
+   1607,
+   1607
+  ],
+  "sha": "175740b39104",
+  "path": "Часть II → II.5. VPS, Termux, GitHub и документация"
+ },
+ {
+  "id": "REQ-DOC-0007",
+  "lines": [
+   1608,
+   1608
+  ],
+  "sha": "8ba3ca6c7440",
+  "path": "Часть II → II.5. VPS, Termux, GitHub и документация"
+ },
+ {
+  "id": "REQ-DOC-0008",
+  "lines": [
+   1609,
+   1609
+  ],
+  "sha": "a17574e42101",
+  "path": "Часть II → II.5. VPS, Termux, GitHub и документация"
+ },
+ {
+  "id": "REQ-DOC-0009",
+  "lines": [
+   1610,
+   1610
+  ],
+  "sha": "18f2a569e42d",
+  "path": "Часть II → II.5. VPS, Termux, GitHub и документация"
+ },
+ {
+  "id": "REQ-DOC-0010",
+  "lines": [
+   1611,
+   1611
+  ],
+  "sha": "f022a500910a",
+  "path": "Часть II → II.5. VPS, Termux, GitHub и документация"
+ },
+ {
+  "id": "REQ-DOC-0011",
+  "lines": [
+   1612,
+   1612
+  ],
+  "sha": "e5f1b3e797b3",
+  "path": "Часть II → II.5. VPS, Termux, GitHub и документация"
+ },
+ {
+  "id": "REQ-GOV-0074",
+  "lines": [
+   1615,
+   1615
+  ],
+  "sha": "d53339732d3c",
+  "path": "Часть II → II.6. Восстановление недоступных task groups"
+ },
+ {
+  "id": "REQ-GOV-0075",
+  "lines": [
+   1618,
+   1618
+  ],
+  "sha": "58f685037f98",
+  "path": "Часть II → II.7. Обязательные проектные принципы"
+ },
+ {
+  "id": "REQ-GOV-0076",
+  "lines": [
+   1619,
+   1619
+  ],
+  "sha": "0d8e7cac97fc",
+  "path": "Часть II → II.7. Обязательные проектные принципы"
+ },
+ {
+  "id": "REQ-GOV-0077",
+  "lines": [
+   1620,
+   1620
+  ],
+  "sha": "f8306595991f",
+  "path": "Часть II → II.7. Обязательные проектные принципы"
+ },
+ {
+  "id": "REQ-GOV-0078",
+  "lines": [
+   1621,
+   1621
+  ],
+  "sha": "0e41f994d59f",
+  "path": "Часть II → II.7. Обязательные проектные принципы"
+ },
+ {
+  "id": "REQ-GOV-0079",
+  "lines": [
+   1622,
+   1622
+  ],
+  "sha": "52052d065959",
+  "path": "Часть II → II.7. Обязательные проектные принципы"
+ },
+ {
+  "id": "REQ-GOV-0080",
+  "lines": [
+   1623,
+   1623
+  ],
+  "sha": "94ed93667025",
+  "path": "Часть II → II.7. Обязательные проектные принципы"
+ },
+ {
+  "id": "REQ-GOV-0081",
+  "lines": [
+   1624,
+   1624
+  ],
+  "sha": "80793c99bff9",
+  "path": "Часть II → II.7. Обязательные проектные принципы"
+ },
+ {
+  "id": "REQ-GOV-0082",
+  "lines": [
+   1625,
+   1625
+  ],
+  "sha": "c9c651aee273",
+  "path": "Часть II → II.7. Обязательные проектные принципы"
+ },
+ {
+  "id": "REQ-GOV-0083",
+  "lines": [
+   2108,
+   2115
+  ],
+  "sha": "1e84b122663f",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0084",
+  "lines": [
+   2116,
+   2116
+  ],
+  "sha": "99c157ce85ee",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0085",
+  "lines": [
+   2117,
+   2117
+  ],
+  "sha": "afe1cc7d421a",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0086",
+  "lines": [
+   2118,
+   2118
+  ],
+  "sha": "32bb341f7eb6",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0087",
+  "lines": [
+   2119,
+   2119
+  ],
+  "sha": "760e5d41a53d",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0088",
+  "lines": [
+   2120,
+   2120
+  ],
+  "sha": "132334369223",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0089",
+  "lines": [
+   2121,
+   2121
+  ],
+  "sha": "8759d6c8074f",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0090",
+  "lines": [
+   2122,
+   2122
+  ],
+  "sha": "9136cd63e4cf",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0091",
+  "lines": [
+   2123,
+   2123
+  ],
+  "sha": "480c38589d6f",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-GOV-0092",
+  "lines": [
+   2124,
+   2124
+  ],
+  "sha": "265942184758",
+  "path": "Часть IV → 23. Протокол сохранения требований и управления изменениями"
+ },
+ {
+  "id": "REQ-ARCH-0001",
+  "lines": [
+   2128,
+   2128
+  ],
+  "sha": "ba9b72dd46a9",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов"
+ },
+ {
+  "id": "REQ-ARCH-0002",
+  "lines": [
+   2132,
+   2132
+  ],
+  "sha": "c7315cc0b54a",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы"
+ },
+ {
+  "id": "REQ-ARCH-0003",
+  "lines": [
+   2133,
+   2133
+  ],
+  "sha": "ca01840a0d45",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы"
+ },
+ {
+  "id": "REQ-ARCH-0004",
+  "lines": [
+   2134,
+   2134
+  ],
+  "sha": "9125dcffba43",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы"
+ },
+ {
+  "id": "REQ-ARCH-0005",
+  "lines": [
+   2135,
+   2135
+  ],
+  "sha": "39f6c164bb85",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы"
+ },
+ {
+  "id": "REQ-ARCH-0006",
+  "lines": [
+   2136,
+   2136
+  ],
+  "sha": "affdd61fdd33",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы"
+ },
+ {
+  "id": "REQ-ARCH-0007",
+  "lines": [
+   2137,
+   2137
+  ],
+  "sha": "a2ca5d849ac6",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы"
+ },
+ {
+  "id": "REQ-ARCH-0008",
+  "lines": [
+   2138,
+   2138
+  ],
+  "sha": "bf3f96721b9f",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы"
+ },
+ {
+  "id": "REQ-ARCH-0009",
+  "lines": [
+   2142,
+   2142
+  ],
+  "sha": "13f201c96a9d",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0010",
+  "lines": [
+   2143,
+   2143
+  ],
+  "sha": "09fff055d0f6",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0011",
+  "lines": [
+   2144,
+   2144
+  ],
+  "sha": "9159cb3a3366",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0012",
+  "lines": [
+   2145,
+   2145
+  ],
+  "sha": "2313aca450d6",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0013",
+  "lines": [
+   2146,
+   2146
+  ],
+  "sha": "67d5b45b3b37",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0014",
+  "lines": [
+   2147,
+   2147
+  ],
+  "sha": "239747a15147",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0015",
+  "lines": [
+   2148,
+   2148
+  ],
+  "sha": "8985937080b9",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0016",
+  "lines": [
+   2149,
+   2149
+  ],
+  "sha": "3fad5201f0aa",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0017",
+  "lines": [
+   2150,
+   2150
+  ],
+  "sha": "0113dd3ed684",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0018",
+  "lines": [
+   2151,
+   2151
+  ],
+  "sha": "cf3d616e9314",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0019",
+  "lines": [
+   2152,
+   2152
+  ],
+  "sha": "e65a837fedbe",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-ARCH-0020",
+  "lines": [
+   2154,
+   2154
+  ],
+  "sha": "dc16bf0dea9d",
+  "path": "Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы"
+ },
+ {
+  "id": "REQ-CLIENT-0011",
+  "lines": [
+   2160,
+   2160
+  ],
+  "sha": "d481180cac10",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0012",
+  "lines": [
+   2161,
+   2161
+  ],
+  "sha": "f5563cfc79f7",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0013",
+  "lines": [
+   2162,
+   2162
+  ],
+  "sha": "265e3765565b",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0014",
+  "lines": [
+   2163,
+   2163
+  ],
+  "sha": "6ae3a5463d66",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0015",
+  "lines": [
+   2164,
+   2164
+  ],
+  "sha": "99549637736b",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0016",
+  "lines": [
+   2165,
+   2165
+  ],
+  "sha": "f455b0880ed5",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0017",
+  "lines": [
+   2166,
+   2166
+  ],
+  "sha": "a42ba148fdac",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0018",
+  "lines": [
+   2167,
+   2167
+  ],
+  "sha": "d19851054a7d",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0019",
+  "lines": [
+   2168,
+   2168
+  ],
+  "sha": "6c20d31fa0ba",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками"
+ },
+ {
+  "id": "REQ-CLIENT-0020",
+  "lines": [
+   2172,
+   2172
+  ],
+  "sha": "87558932c35a",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность"
+ },
+ {
+  "id": "REQ-CLIENT-0021",
+  "lines": [
+   2173,
+   2173
+  ],
+  "sha": "425fb1e276a3",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность"
+ },
+ {
+  "id": "REQ-CLIENT-0022",
+  "lines": [
+   2174,
+   2174
+  ],
+  "sha": "587570d61fdc",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность"
+ },
+ {
+  "id": "REQ-CLIENT-0023",
+  "lines": [
+   2175,
+   2175
+  ],
+  "sha": "deed10a8dbb4",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность"
+ },
+ {
+  "id": "REQ-CLIENT-0024",
+  "lines": [
+   2176,
+   2176
+  ],
+  "sha": "101d164cd33f",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность"
+ },
+ {
+  "id": "REQ-CLIENT-0025",
+  "lines": [
+   2177,
+   2177
+  ],
+  "sha": "439de7e48efb",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность"
+ },
+ {
+  "id": "REQ-CLIENT-0026",
+  "lines": [
+   2178,
+   2178
+  ],
+  "sha": "acd200b1add3",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность"
+ },
+ {
+  "id": "REQ-CLIENT-0027",
+  "lines": [
+   2182,
+   2182
+  ],
+  "sha": "bf1768536bbf",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения"
+ },
+ {
+  "id": "REQ-CLIENT-0028",
+  "lines": [
+   2183,
+   2183
+  ],
+  "sha": "2a4a13164cce",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения"
+ },
+ {
+  "id": "REQ-CLIENT-0029",
+  "lines": [
+   2184,
+   2184
+  ],
+  "sha": "6b422e09aded",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения"
+ },
+ {
+  "id": "REQ-CLIENT-0030",
+  "lines": [
+   2185,
+   2185
+  ],
+  "sha": "e74b3baf2a17",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения"
+ },
+ {
+  "id": "REQ-CLIENT-0031",
+  "lines": [
+   2186,
+   2186
+  ],
+  "sha": "e6235da0ef31",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения"
+ },
+ {
+  "id": "REQ-CLIENT-0032",
+  "lines": [
+   2187,
+   2187
+  ],
+  "sha": "52bec06b7207",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения"
+ },
+ {
+  "id": "REQ-CLIENT-0033",
+  "lines": [
+   2191,
+   2191
+  ],
+  "sha": "b170d97a9eb5",
+  "path": "Часть IV → 25. VPN-клиент — расширенные требования → 25.4. Производительность"
+ },
+ {
+  "id": "REQ-SHOP-0012",
+  "lines": [
+   2197,
+   2197
+  ],
+  "sha": "071aaa744caa",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя"
+ },
+ {
+  "id": "REQ-SHOP-0013",
+  "lines": [
+   2198,
+   2198
+  ],
+  "sha": "a3c9cfd860a7",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя"
+ },
+ {
+  "id": "REQ-SHOP-0014",
+  "lines": [
+   2199,
+   2199
+  ],
+  "sha": "9b211035baee",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя"
+ },
+ {
+  "id": "REQ-SHOP-0015",
+  "lines": [
+   2200,
+   2200
+  ],
+  "sha": "fd4a11b3d566",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя"
+ },
+ {
+  "id": "REQ-SHOP-0016",
+  "lines": [
+   2201,
+   2201
+  ],
+  "sha": "4363e9a00e3e",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя"
+ },
+ {
+  "id": "REQ-SHOP-0017",
+  "lines": [
+   2202,
+   2202
+  ],
+  "sha": "d65038ab12cb",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя"
+ },
+ {
+  "id": "REQ-SHOP-0018",
+  "lines": [
+   2206,
+   2206
+  ],
+  "sha": "dcaaf42cdafc",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement"
+ },
+ {
+  "id": "REQ-SHOP-0019",
+  "lines": [
+   2207,
+   2207
+  ],
+  "sha": "16a388015cbf",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement"
+ },
+ {
+  "id": "REQ-SHOP-0020",
+  "lines": [
+   2208,
+   2208
+  ],
+  "sha": "5c1d74f0195e",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement"
+ },
+ {
+  "id": "REQ-SHOP-0021",
+  "lines": [
+   2209,
+   2209
+  ],
+  "sha": "7af786141532",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement"
+ },
+ {
+  "id": "REQ-SHOP-0022",
+  "lines": [
+   2210,
+   2210
+  ],
+  "sha": "0746f72af55d",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement"
+ },
+ {
+  "id": "REQ-SHOP-0023",
+  "lines": [
+   2211,
+   2211
+  ],
+  "sha": "970473315566",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement"
+ },
+ {
+  "id": "REQ-SHOP-0024",
+  "lines": [
+   2212,
+   2212
+  ],
+  "sha": "714dea8c26af",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement"
+ },
+ {
+  "id": "REQ-SHOP-0025",
+  "lines": [
+   2216,
+   2216
+  ],
+  "sha": "8228a2b04aa8",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App"
+ },
+ {
+  "id": "REQ-SHOP-0026",
+  "lines": [
+   2217,
+   2217
+  ],
+  "sha": "78a243068b96",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App"
+ },
+ {
+  "id": "REQ-SHOP-0027",
+  "lines": [
+   2218,
+   2218
+  ],
+  "sha": "2e185069febe",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App"
+ },
+ {
+  "id": "REQ-SHOP-0028",
+  "lines": [
+   2219,
+   2219
+  ],
+  "sha": "6ce447f0f6ea",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App"
+ },
+ {
+  "id": "REQ-SHOP-0029",
+  "lines": [
+   2220,
+   2220
+  ],
+  "sha": "ce855c09eb08",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App"
+ },
+ {
+  "id": "REQ-SHOP-0030",
+  "lines": [
+   2221,
+   2221
+  ],
+  "sha": "7e48e9fb0b12",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App"
+ },
+ {
+  "id": "REQ-SHOP-0031",
+  "lines": [
+   2222,
+   2222
+  ],
+  "sha": "afe2e8eeefbc",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App"
+ },
+ {
+  "id": "REQ-SHOP-0032",
+  "lines": [
+   2223,
+   2223
+  ],
+  "sha": "cedac59278ac",
+  "path": "Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App"
+ },
+ {
+  "id": "REQ-ADMIN-0007",
+  "lines": [
+   2229,
+   2229
+  ],
+  "sha": "a9ec97d74842",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит"
+ },
+ {
+  "id": "REQ-ADMIN-0008",
+  "lines": [
+   2230,
+   2230
+  ],
+  "sha": "cece7b6b4ddb",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит"
+ },
+ {
+  "id": "REQ-ADMIN-0009",
+  "lines": [
+   2231,
+   2231
+  ],
+  "sha": "540194dc8984",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит"
+ },
+ {
+  "id": "REQ-ADMIN-0010",
+  "lines": [
+   2232,
+   2232
+  ],
+  "sha": "475364cad5ca",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит"
+ },
+ {
+  "id": "REQ-ADMIN-0011",
+  "lines": [
+   2233,
+   2233
+  ],
+  "sha": "afe6678b32b0",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит"
+ },
+ {
+  "id": "REQ-ADMIN-0012",
+  "lines": [
+   2234,
+   2234
+  ],
+  "sha": "ed7b73322024",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит"
+ },
+ {
+  "id": "REQ-ADMIN-0013",
+  "lines": [
+   2238,
+   2238
+  ],
+  "sha": "244bcf480d58",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.2. Административные списки и операции"
+ },
+ {
+  "id": "REQ-ADMIN-0014",
+  "lines": [
+   2242,
+   2242
+  ],
+  "sha": "258135b58e24",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.3. Dashboard и мониторинг"
+ },
+ {
+  "id": "REQ-ADMIN-0015",
+  "lines": [
+   2246,
+   2246
+  ],
+  "sha": "ddae2365e805",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр"
+ },
+ {
+  "id": "REQ-ADMIN-0016",
+  "lines": [
+   2247,
+   2247
+  ],
+  "sha": "36981b9f4ec4",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр"
+ },
+ {
+  "id": "REQ-ADMIN-0017",
+  "lines": [
+   2248,
+   2248
+  ],
+  "sha": "df7136160809",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр"
+ },
+ {
+  "id": "REQ-ADMIN-0018",
+  "lines": [
+   2249,
+   2249
+  ],
+  "sha": "03187049c1ac",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр"
+ },
+ {
+  "id": "REQ-ADMIN-0019",
+  "lines": [
+   2250,
+   2250
+  ],
+  "sha": "845af224968d",
+  "path": "Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр"
+ },
+ {
+  "id": "REQ-PAY-0034",
+  "lines": [
+   2256,
+   2256
+  ],
+  "sha": "41d6bf65c2b2",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.1. Модель транзакций"
+ },
+ {
+  "id": "REQ-PAY-0035",
+  "lines": [
+   2260,
+   2260
+  ],
+  "sha": "b5e4f661ddfa",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность"
+ },
+ {
+  "id": "REQ-PAY-0036",
+  "lines": [
+   2261,
+   2261
+  ],
+  "sha": "a7676100b0b6",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность"
+ },
+ {
+  "id": "REQ-PAY-0037",
+  "lines": [
+   2262,
+   2262
+  ],
+  "sha": "deab706785d7",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность"
+ },
+ {
+  "id": "REQ-PAY-0038",
+  "lines": [
+   2263,
+   2263
+  ],
+  "sha": "dbcf0e11da16",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность"
+ },
+ {
+  "id": "REQ-PAY-0039",
+  "lines": [
+   2264,
+   2264
+  ],
+  "sha": "5471bd60fe16",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность"
+ },
+ {
+  "id": "REQ-PAY-0040",
+  "lines": [
+   2265,
+   2265
+  ],
+  "sha": "325dcc547369",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность"
+ },
+ {
+  "id": "REQ-PAY-0041",
+  "lines": [
+   2266,
+   2266
+  ],
+  "sha": "6abb45501b9f",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность"
+ },
+ {
+  "id": "REQ-PAY-0042",
+  "lines": [
+   2267,
+   2267
+  ],
+  "sha": "f7bcd1cdbcb8",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность"
+ },
+ {
+  "id": "REQ-PAY-0043",
+  "lines": [
+   2271,
+   2271
+  ],
+  "sha": "9a16fe4bc40e",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.3. Проверка провайдера"
+ },
+ {
+  "id": "REQ-PAY-0044",
+  "lines": [
+   2275,
+   2275
+  ],
+  "sha": "beec6869afa9",
+  "path": "Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.4. Отображение методов"
+ },
+ {
+  "id": "REQ-RW-0004",
+  "lines": [
+   2279,
+   2279
+  ],
+  "sha": "5c7fa455bff1",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0005",
+  "lines": [
+   2280,
+   2280
+  ],
+  "sha": "82d8fd7bbb50",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0006",
+  "lines": [
+   2281,
+   2281
+  ],
+  "sha": "08f91d3ecffd",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0007",
+  "lines": [
+   2282,
+   2282
+  ],
+  "sha": "9168fcda6abc",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0008",
+  "lines": [
+   2283,
+   2283
+  ],
+  "sha": "460f283373ea",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0009",
+  "lines": [
+   2284,
+   2284
+  ],
+  "sha": "1a0811464757",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0010",
+  "lines": [
+   2285,
+   2285
+  ],
+  "sha": "3b0a1145eb65",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0011",
+  "lines": [
+   2286,
+   2286
+  ],
+  "sha": "3442f293db56",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0012",
+  "lines": [
+   2287,
+   2287
+  ],
+  "sha": "065015912879",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0013",
+  "lines": [
+   2288,
+   2288
+  ],
+  "sha": "782e178e1254",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0014",
+  "lines": [
+   2289,
+   2289
+  ],
+  "sha": "7934559d2aee",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0015",
+  "lines": [
+   2290,
+   2290
+  ],
+  "sha": "e24841144b98",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-RW-0016",
+  "lines": [
+   2291,
+   2291
+  ],
+  "sha": "b7ce1577f35b",
+  "path": "Часть IV → 29. Remnawave и управление нодами — расширение"
+ },
+ {
+  "id": "REQ-INFRA-0008",
+  "lines": [
+   2297,
+   2297
+  ],
+  "sha": "96882483fd3c",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик"
+ },
+ {
+  "id": "REQ-INFRA-0009",
+  "lines": [
+   2301,
+   2301
+  ],
+  "sha": "4755f166dcc3",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление"
+ },
+ {
+  "id": "REQ-INFRA-0010",
+  "lines": [
+   2302,
+   2302
+  ],
+  "sha": "484e5c47953d",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление"
+ },
+ {
+  "id": "REQ-INFRA-0011",
+  "lines": [
+   2303,
+   2303
+  ],
+  "sha": "35c3dcac4a57",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление"
+ },
+ {
+  "id": "REQ-INFRA-0012",
+  "lines": [
+   2304,
+   2304
+  ],
+  "sha": "11db25041fdc",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление"
+ },
+ {
+  "id": "REQ-INFRA-0013",
+  "lines": [
+   2305,
+   2305
+  ],
+  "sha": "ebe204d362f7",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление"
+ },
+ {
+  "id": "REQ-INFRA-0014",
+  "lines": [
+   2306,
+   2306
+  ],
+  "sha": "ebbe50f47885",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление"
+ },
+ {
+  "id": "REQ-INFRA-0015",
+  "lines": [
+   2307,
+   2307
+  ],
+  "sha": "cefa1626a796",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление"
+ },
+ {
+  "id": "REQ-INFRA-0016",
+  "lines": [
+   2308,
+   2308
+  ],
+  "sha": "f4c964966923",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление"
+ },
+ {
+  "id": "REQ-INFRA-0017",
+  "lines": [
+   2312,
+   2312
+  ],
+  "sha": "24a6135a893a",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий"
+ },
+ {
+  "id": "REQ-INFRA-0018",
+  "lines": [
+   2313,
+   2313
+  ],
+  "sha": "22bd0c0a0d24",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий"
+ },
+ {
+  "id": "REQ-INFRA-0019",
+  "lines": [
+   2314,
+   2314
+  ],
+  "sha": "28d7af5677f8",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий"
+ },
+ {
+  "id": "REQ-INFRA-0020",
+  "lines": [
+   2315,
+   2315
+  ],
+  "sha": "60e03f25ffc8",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий"
+ },
+ {
+  "id": "REQ-INFRA-0021",
+  "lines": [
+   2316,
+   2316
+  ],
+  "sha": "1d7942a8358c",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий"
+ },
+ {
+  "id": "REQ-INFRA-0022",
+  "lines": [
+   2317,
+   2317
+  ],
+  "sha": "5405d6e1256f",
+  "path": "Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий"
+ },
+ {
+  "id": "REQ-INFRA-0023",
+  "lines": [
+   2323,
+   2323
+  ],
+  "sha": "ea9ad3372fbc",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability"
+ },
+ {
+  "id": "REQ-INFRA-0024",
+  "lines": [
+   2324,
+   2324
+  ],
+  "sha": "f76ecf60afbf",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability"
+ },
+ {
+  "id": "REQ-INFRA-0025",
+  "lines": [
+   2325,
+   2325
+  ],
+  "sha": "ddf05e363b5e",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability"
+ },
+ {
+  "id": "REQ-INFRA-0026",
+  "lines": [
+   2326,
+   2326
+  ],
+  "sha": "f46f048304c4",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability"
+ },
+ {
+  "id": "REQ-INFRA-0027",
+  "lines": [
+   2327,
+   2327
+  ],
+  "sha": "b80c7387f2df",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability"
+ },
+ {
+  "id": "REQ-INFRA-0028",
+  "lines": [
+   2328,
+   2328
+  ],
+  "sha": "a35f7fb362c7",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability"
+ },
+ {
+  "id": "REQ-INFRA-0029",
+  "lines": [
+   2332,
+   2332
+  ],
+  "sha": "639742bd4b6f",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0030",
+  "lines": [
+   2333,
+   2333
+  ],
+  "sha": "383e61cf77c7",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0031",
+  "lines": [
+   2334,
+   2334
+  ],
+  "sha": "a238ad93caf7",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0032",
+  "lines": [
+   2335,
+   2335
+  ],
+  "sha": "6f75f2c1a2cf",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0033",
+  "lines": [
+   2336,
+   2336
+  ],
+  "sha": "7b0467e64dd5",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0034",
+  "lines": [
+   2337,
+   2337
+  ],
+  "sha": "ac070852ab2a",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0035",
+  "lines": [
+   2338,
+   2338
+  ],
+  "sha": "4e088610f2f0",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0036",
+  "lines": [
+   2339,
+   2339
+  ],
+  "sha": "f6621910f4ad",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0037",
+  "lines": [
+   2340,
+   2340
+  ],
+  "sha": "b6a2e9dda384",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery"
+ },
+ {
+  "id": "REQ-INFRA-0038",
+  "lines": [
+   2344,
+   2344
+  ],
+  "sha": "003a4528f911",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.3. Сертификаты и DNS"
+ },
+ {
+  "id": "REQ-INFRA-0039",
+  "lines": [
+   2345,
+   2345
+  ],
+  "sha": "154bfefff4d2",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.3. Сертификаты и DNS"
+ },
+ {
+  "id": "REQ-INFRA-0040",
+  "lines": [
+   2346,
+   2346
+  ],
+  "sha": "3846424110de",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.3. Сертификаты и DNS"
+ },
+ {
+  "id": "REQ-INFRA-0041",
+  "lines": [
+   2347,
+   2347
+  ],
+  "sha": "47b7b289e675",
+  "path": "Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.3. Сертификаты и DNS"
+ },
+ {
+  "id": "REQ-SEC-0005",
+  "lines": [
+   2351,
+   2351
+  ],
+  "sha": "e0f10da2fbaa",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0006",
+  "lines": [
+   2352,
+   2352
+  ],
+  "sha": "a5763790d528",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0007",
+  "lines": [
+   2353,
+   2353
+  ],
+  "sha": "972cb0522bc9",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0008",
+  "lines": [
+   2354,
+   2354
+  ],
+  "sha": "717356a98a40",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0009",
+  "lines": [
+   2355,
+   2355
+  ],
+  "sha": "8aa8d61051aa",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0010",
+  "lines": [
+   2356,
+   2356
+  ],
+  "sha": "6f65c0f9d7c8",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0011",
+  "lines": [
+   2357,
+   2357
+  ],
+  "sha": "aa79aa36f72a",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0012",
+  "lines": [
+   2358,
+   2358
+  ],
+  "sha": "f775fe875070",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0013",
+  "lines": [
+   2359,
+   2359
+  ],
+  "sha": "fb9eff99c7e7",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0014",
+  "lines": [
+   2360,
+   2360
+  ],
+  "sha": "cd4dd3be1297",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-SEC-0015",
+  "lines": [
+   2361,
+   2361
+  ],
+  "sha": "e8821aad2fbd",
+  "path": "Часть IV → 32. Безопасность и privacy — расширение"
+ },
+ {
+  "id": "REQ-UI-0004",
+  "lines": [
+   2365,
+   2365
+  ],
+  "sha": "69e140648114",
+  "path": "Часть IV → 33. Локализация, доступность и качество интерфейсов"
+ },
+ {
+  "id": "REQ-UI-0005",
+  "lines": [
+   2366,
+   2366
+  ],
+  "sha": "d45cdd4e0991",
+  "path": "Часть IV → 33. Локализация, доступность и качество интерфейсов"
+ },
+ {
+  "id": "REQ-UI-0006",
+  "lines": [
+   2367,
+   2367
+  ],
+  "sha": "72d041177f76",
+  "path": "Часть IV → 33. Локализация, доступность и качество интерфейсов"
+ },
+ {
+  "id": "REQ-UI-0007",
+  "lines": [
+   2368,
+   2368
+  ],
+  "sha": "db225048ab12",
+  "path": "Часть IV → 33. Локализация, доступность и качество интерфейсов"
+ },
+ {
+  "id": "REQ-UI-0008",
+  "lines": [
+   2369,
+   2369
+  ],
+  "sha": "559648e6be92",
+  "path": "Часть IV → 33. Локализация, доступность и качество интерфейсов"
+ },
+ {
+  "id": "REQ-UI-0009",
+  "lines": [
+   2370,
+   2370
+  ],
+  "sha": "d09a6d7ff65a",
+  "path": "Часть IV → 33. Локализация, доступность и качество интерфейсов"
+ },
+ {
+  "id": "REQ-UI-0010",
+  "lines": [
+   2371,
+   2371
+  ],
+  "sha": "4ca24db0edaa",
+  "path": "Часть IV → 33. Локализация, доступность и качество интерфейсов"
+ },
+ {
+  "id": "REQ-QA-0048",
+  "lines": [
+   2377,
+   2377
+  ],
+  "sha": "f810feb710c3",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0049",
+  "lines": [
+   2378,
+   2378
+  ],
+  "sha": "ec47191ea747",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0050",
+  "lines": [
+   2379,
+   2379
+  ],
+  "sha": "00fe8e45a71b",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0051",
+  "lines": [
+   2380,
+   2380
+  ],
+  "sha": "1afd42c83f96",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0052",
+  "lines": [
+   2381,
+   2381
+  ],
+  "sha": "144a70c489c5",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0053",
+  "lines": [
+   2382,
+   2382
+  ],
+  "sha": "450a554fb2e7",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0054",
+  "lines": [
+   2383,
+   2383
+  ],
+  "sha": "29ee3e3f2b2d",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0055",
+  "lines": [
+   2384,
+   2384
+  ],
+  "sha": "1485a9819fe9",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0056",
+  "lines": [
+   2385,
+   2385
+  ],
+  "sha": "057868eea294",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов"
+ },
+ {
+  "id": "REQ-QA-0057",
+  "lines": [
+   2389,
+   2389
+  ],
+  "sha": "1e294667ae5a",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0058",
+  "lines": [
+   2390,
+   2390
+  ],
+  "sha": "b13ce7ab4f22",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0059",
+  "lines": [
+   2391,
+   2391
+  ],
+  "sha": "ec703c8210ee",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0060",
+  "lines": [
+   2392,
+   2392
+  ],
+  "sha": "920b777f23aa",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0061",
+  "lines": [
+   2393,
+   2393
+  ],
+  "sha": "11fc07df7ef3",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0062",
+  "lines": [
+   2394,
+   2394
+  ],
+  "sha": "d2807d7ec031",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0063",
+  "lines": [
+   2395,
+   2395
+  ],
+  "sha": "81f1eff886a5",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0064",
+  "lines": [
+   2396,
+   2396
+  ],
+  "sha": "c91950b2212c",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0065",
+  "lines": [
+   2397,
+   2397
+  ],
+  "sha": "5e124afff0b3",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0066",
+  "lines": [
+   2398,
+   2398
+  ],
+  "sha": "d762a0cfa614",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0067",
+  "lines": [
+   2399,
+   2399
+  ],
+  "sha": "667efe58afe7",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0068",
+  "lines": [
+   2400,
+   2400
+  ],
+  "sha": "ac5d6c4ff578",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии"
+ },
+ {
+  "id": "REQ-QA-0069",
+  "lines": [
+   2404,
+   2404
+  ],
+  "sha": "480ce6786c2b",
+  "path": "Часть IV → 34. Полная стратегия тестирования → 34.3. Test evidence"
+ },
+ {
+  "id": "REQ-CI-0006",
+  "lines": [
+   2408,
+   2408
+  ],
+  "sha": "b7e277df3d51",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0007",
+  "lines": [
+   2409,
+   2409
+  ],
+  "sha": "b20598ec07d0",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0008",
+  "lines": [
+   2410,
+   2410
+  ],
+  "sha": "49fa9c7e8375",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0009",
+  "lines": [
+   2411,
+   2411
+  ],
+  "sha": "13dd646d697d",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0010",
+  "lines": [
+   2412,
+   2412
+  ],
+  "sha": "07248128a4ce",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0011",
+  "lines": [
+   2413,
+   2413
+  ],
+  "sha": "020e53721350",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0012",
+  "lines": [
+   2414,
+   2414
+  ],
+  "sha": "11a8d4303c8d",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0013",
+  "lines": [
+   2415,
+   2415
+  ],
+  "sha": "6eb049099e23",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0014",
+  "lines": [
+   2416,
+   2416
+  ],
+  "sha": "a7c5778124d4",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-CI-0015",
+  "lines": [
+   2417,
+   2417
+  ],
+  "sha": "28f5ef1f69ec",
+  "path": "Часть IV → 35. CI/CD, релизы и управление версиями"
+ },
+ {
+  "id": "REQ-PERF-0001",
+  "lines": [
+   2421,
+   2421
+  ],
+  "sha": "eba99dca805c",
+  "path": "Часть IV → 36. Управление производительностью и стоимостью"
+ },
+ {
+  "id": "REQ-PERF-0002",
+  "lines": [
+   2422,
+   2422
+  ],
+  "sha": "da075170fa79",
+  "path": "Часть IV → 36. Управление производительностью и стоимостью"
+ },
+ {
+  "id": "REQ-PERF-0003",
+  "lines": [
+   2423,
+   2423
+  ],
+  "sha": "06ee1e4a9644",
+  "path": "Часть IV → 36. Управление производительностью и стоимостью"
+ },
+ {
+  "id": "REQ-PERF-0004",
+  "lines": [
+   2424,
+   2424
+  ],
+  "sha": "adb451bc259a",
+  "path": "Часть IV → 36. Управление производительностью и стоимостью"
+ },
+ {
+  "id": "REQ-PERF-0005",
+  "lines": [
+   2425,
+   2425
+  ],
+  "sha": "6b89fc41887e",
+  "path": "Часть IV → 36. Управление производительностью и стоимостью"
+ },
+ {
+  "id": "REQ-PERF-0006",
+  "lines": [
+   2426,
+   2426
+  ],
+  "sha": "f6784438dd58",
+  "path": "Часть IV → 36. Управление производительностью и стоимостью"
+ },
+ {
+  "id": "REQ-PERF-0007",
+  "lines": [
+   2427,
+   2427
+  ],
+  "sha": "041261a5049a",
+  "path": "Часть IV → 36. Управление производительностью и стоимостью"
+ },
+ {
+  "id": "REQ-DOC-0012",
+  "lines": [
+   2431,
+   2431
+  ],
+  "sha": "c81d24dc36a7",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0013",
+  "lines": [
+   2432,
+   2432
+  ],
+  "sha": "281ab4a37b0e",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0014",
+  "lines": [
+   2433,
+   2433
+  ],
+  "sha": "719c57704a03",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0015",
+  "lines": [
+   2434,
+   2434
+  ],
+  "sha": "a3da35ec07bc",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0016",
+  "lines": [
+   2435,
+   2435
+  ],
+  "sha": "09fff055d0f6",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0017",
+  "lines": [
+   2436,
+   2436
+  ],
+  "sha": "9159cb3a3366",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0018",
+  "lines": [
+   2437,
+   2437
+  ],
+  "sha": "2313aca450d6",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0019",
+  "lines": [
+   2438,
+   2438
+  ],
+  "sha": "67d5b45b3b37",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0020",
+  "lines": [
+   2439,
+   2439
+  ],
+  "sha": "239747a15147",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0021",
+  "lines": [
+   2440,
+   2440
+  ],
+  "sha": "8985937080b9",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0022",
+  "lines": [
+   2441,
+   2441
+  ],
+  "sha": "3fad5201f0aa",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0023",
+  "lines": [
+   2442,
+   2442
+  ],
+  "sha": "cf3d616e9314",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0024",
+  "lines": [
+   2443,
+   2443
+  ],
+  "sha": "e65a837fedbe",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0025",
+  "lines": [
+   2444,
+   2444
+  ],
+  "sha": "8f548e76f7e3",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0026",
+  "lines": [
+   2445,
+   2445
+  ],
+  "sha": "f37ffc85a8f1",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0027",
+  "lines": [
+   2446,
+   2446
+  ],
+  "sha": "66001fe22934",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0028",
+  "lines": [
+   2447,
+   2447
+  ],
+  "sha": "f7ec29bf6a63",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0029",
+  "lines": [
+   2448,
+   2448
+  ],
+  "sha": "f3404b41ec38",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0030",
+  "lines": [
+   2449,
+   2449
+  ],
+  "sha": "df5734753b60",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0031",
+  "lines": [
+   2450,
+   2450
+  ],
+  "sha": "404503ac2174",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0032",
+  "lines": [
+   2451,
+   2451
+  ],
+  "sha": "3201c326ee9a",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0033",
+  "lines": [
+   2452,
+   2452
+  ],
+  "sha": "c7cf0c7f0b92",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0034",
+  "lines": [
+   2453,
+   2453
+  ],
+  "sha": "35bc03ac7975",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0035",
+  "lines": [
+   2454,
+   2454
+  ],
+  "sha": "fc156b4de4de",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0036",
+  "lines": [
+   2455,
+   2455
+  ],
+  "sha": "31e8cb45fde8",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-DOC-0037",
+  "lines": [
+   2457,
+   2457
+  ],
+  "sha": "cfc24dc0b5fe",
+  "path": "Часть IV → 37. Полный каталог документов и артефактов"
+ },
+ {
+  "id": "REQ-GOV-0093",
+  "lines": [
+   2461,
+   2461
+  ],
+  "sha": "833f91c1f1f4",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0094",
+  "lines": [
+   2463,
+   2463
+  ],
+  "sha": "307fe0ae50da",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0095",
+  "lines": [
+   2464,
+   2464
+  ],
+  "sha": "1ae91ce7f857",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0096",
+  "lines": [
+   2465,
+   2465
+  ],
+  "sha": "173b365dab9d",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0097",
+  "lines": [
+   2466,
+   2466
+  ],
+  "sha": "3965b42161d9",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0098",
+  "lines": [
+   2467,
+   2467
+  ],
+  "sha": "b535cef27656",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0099",
+  "lines": [
+   2468,
+   2468
+  ],
+  "sha": "6325eb8271fa",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0100",
+  "lines": [
+   2469,
+   2469
+  ],
+  "sha": "49e3e60e8731",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0101",
+  "lines": [
+   2470,
+   2470
+  ],
+  "sha": "f980fcf0ce87",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0102",
+  "lines": [
+   2471,
+   2471
+  ],
+  "sha": "1f68c2ca512d",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0103",
+  "lines": [
+   2472,
+   2472
+  ],
+  "sha": "dbba2a014406",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0104",
+  "lines": [
+   2473,
+   2473
+  ],
+  "sha": "32fd3ff49ca5",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0105",
+  "lines": [
+   2474,
+   2474
+  ],
+  "sha": "3eac032c9564",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0106",
+  "lines": [
+   2475,
+   2475
+  ],
+  "sha": "980aaf7269b2",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0107",
+  "lines": [
+   2476,
+   2476
+  ],
+  "sha": "6b1c1bf4829d",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0108",
+  "lines": [
+   2477,
+   2477
+  ],
+  "sha": "2dacf8a7dcf1",
+  "path": "Часть IV → 38. Расширенный критерий готовности к эксплуатации"
+ },
+ {
+  "id": "REQ-GOV-0109",
+  "lines": [
+   2481,
+   2481
+  ],
+  "sha": "13a2123a9091",
+  "path": "Часть IV → 39. Правило автономного исполнения"
+ },
+ {
+  "id": "REQ-GOV-0110",
+  "lines": [
+   2485,
+   2485
+  ],
+  "sha": "baba382cbf81",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0111",
+  "lines": [
+   2486,
+   2486
+  ],
+  "sha": "e986d2571bed",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0112",
+  "lines": [
+   2487,
+   2487
+  ],
+  "sha": "040843f27e1c",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0113",
+  "lines": [
+   2488,
+   2488
+  ],
+  "sha": "42e7ebbd1a67",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0114",
+  "lines": [
+   2489,
+   2489
+  ],
+  "sha": "be3909d3f8ab",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0115",
+  "lines": [
+   2490,
+   2490
+  ],
+  "sha": "bb4badfe309b",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0116",
+  "lines": [
+   2491,
+   2491
+  ],
+  "sha": "d5471084080c",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0117",
+  "lines": [
+   2492,
+   2492
+  ],
+  "sha": "f120d5f7d498",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0118",
+  "lines": [
+   2493,
+   2493
+  ],
+  "sha": "6d9f9cf317c5",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0119",
+  "lines": [
+   2494,
+   2494
+  ],
+  "sha": "7867f7a98ece",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0120",
+  "lines": [
+   2495,
+   2495
+  ],
+  "sha": "24735ffb62b6",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0121",
+  "lines": [
+   2496,
+   2496
+  ],
+  "sha": "f38511c30a07",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0122",
+  "lines": [
+   2497,
+   2497
+  ],
+  "sha": "215f47ba2605",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ },
+ {
+  "id": "REQ-GOV-0123",
+  "lines": [
+   2499,
+   2499
+  ],
+  "sha": "d54862490e77",
+  "path": "Часть IV → 40. Обязательный финальный ответ владельцу"
+ }
+]
