@@ -208,6 +208,15 @@ async def _panel_state() -> tuple[list[dict], list[dict], bool | None]:
     return hosts, nodes, json_at_base
 
 
+@router.get("/meta")
+async def meta(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
+    """What the shop itself knows (no call to the panel): the saved choice and the list of algorithms."""
+    config = await _config(db)
+    return {"enabled": bool(config.get("enabled")), "name": config.get("name"), "algorithm": config.get("algorithm"),
+            "hide_nodes": bool(config.get("hide_nodes")), "hosts": len(config.get("hosts") or []), "algorithms": ALGORITHMS,
+            "formats_without_balancer": NON_JSON_TYPES}
+
+
 @router.get("")
 async def get_pool(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
     config = await _config(db)

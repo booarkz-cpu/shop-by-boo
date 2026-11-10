@@ -72,7 +72,15 @@ export function AutoSelect({request, toast}: {request: RequestFn; toast: (m: str
     run(() => request(API, {method: "DELETE"}), "Плитка убрана, узлы возвращены в список");
   };
 
-  if (error) return <section className="card" role="alert"><h2><Zap aria-hidden="true" /> Пул автовыбора</h2><p>{error}</p><button type="button" className="secondary" onClick={load}>Повторить</button></section>;
+  if (error) return (
+    <section className="card" data-autoselect aria-label="Пул автовыбора">
+      <h2><Zap aria-hidden="true" /> Пул автовыбора — «быстрейшая нода клиенту»</h2>
+      <p className="muted">В списке серверов клиента появляется одна плитка «⚡ Автовыбор»: узел за ней выбирается по задержке, по нагрузке, по кругу или случайно. Узлы пула можно скрыть из списка.</p>
+      <p role="status"><StatusBadge tone="warn">Нет связи с панелью</StatusBadge> {error}</p>
+      <p className="muted">Узлы пула берутся из панели Remnawave. Подключите магазин к панели (адрес и токен в настройках Remnawave), затем нажмите «Повторить».</p>
+      <button type="button" className="secondary" onClick={load}>Повторить</button>
+    </section>
+  );
   if (!view) return <p className="muted card">Загрузка…</p>;
   const s = view.stats;
   const selectable = view.hosts.filter((h) => !h.disabled);

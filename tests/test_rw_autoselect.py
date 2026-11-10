@@ -282,3 +282,12 @@ def test_a_host_without_a_known_node_is_shown_as_unknown_not_as_online():
     served = auto.pool_view({**auto.DEFAULT, "hosts": [DE]}, [{**host, "inbound": {"configProfileInboundUuid": INBOUND}}],
                             [{"uuid": uid(11), "isConnected": True, "usersOnline": 4, "configProfile": {"activeInbounds": [{"uuid": INBOUND}]}}], True)
     assert served["hosts"][0]["online"] is True and served["hosts"][0]["users_online"] == 4
+
+
+@pytest.mark.asyncio
+async def test_meta_answers_without_the_panel(env):
+    panel, stored, db = env
+    panel.fail_on = lambda *a: True  # the panel is down: the page still opens and says what is saved
+    out = await auto.meta(db, ADMIN)
+    assert out["enabled"] is False and set(out["algorithms"]) == {"leastPing", "leastLoad", "roundRobin", "random"}
+    assert not panel.calls
