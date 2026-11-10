@@ -55,3 +55,14 @@ def test_a_pass_without_evidence_or_with_a_missing_file_is_refused(tmp_path):
     data['REQ-GOV-0001'] = {'status': 'BLOCKED_EXTERNAL', 'evidence': []}
     status.write_text(json.dumps(data))
     assert 'нужно примечание' in run(root, '--check').stderr
+
+
+def test_the_payment_inventory_matches_the_code_and_names_what_is_missing():
+    script = ROOT / 'scripts/audit/check_payment_provider_registry.py'
+    result = subprocess.run([sys.executable, str(script), '--check'], text=True, capture_output=True)
+    assert result.returncode == 0, result.stderr
+    text = (ROOT / 'docs/PAYMENT_PROVIDER_INVENTORY.md').read_text()
+    # A gateway of the checkout queue is listed as implemented; one the code does not have is never shown as working.
+    assert '| YooKassa | `yookassa` | `IMPLEMENTED` |' in text
+    assert '| Heleket | `heleket` | — | **Нет в коде** |' in text
+    assert 'настоящими деньгами не проверена ни для одной кассы' in text

@@ -11,13 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **11** — 1.7%.
+- Подтверждено (`PASS`): **19** — 2.9%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 11 | Проверено, доказательство указано |
-| `PARTIAL` | 7 | Сделано частично, остаток описан |
-| `NOT_TESTED` | 635 | Ещё не сверено с кодом |
+| `PASS` | 19 | Проверено, доказательство указано |
+| `PARTIAL` | 26 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 7 | Функции нет |
+| `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
+| `NOT_TESTED` | 600 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -27,7 +29,7 @@
 | Магазин, кабинет, Telegram | 32 | 0 | 0 | 0 | 32 |
 | Бренд и тексты | 20 | 0 | 0 | 0 | 20 |
 | Lucy Admin | 19 | 0 | 0 | 0 | 19 |
-| Платежи | 44 | 0 | 0 | 0 | 44 |
+| Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 0 | 0 | 0 | 16 |
 | MASQUE | 12 | 0 | 0 | 0 | 12 |
 | Ноды: установка, обслуживание, защита | 71 | 0 | 0 | 0 | 71 |
@@ -1630,197 +1632,260 @@
 
 ## Платежи
 
-### REQ-PAY-0001 — `NOT_TESTED`
+### REQ-PAY-0001 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Priority (строка 248). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: 25 из 35 названий владельца есть в коде и покрыты тестами. Нет в коде: Heleket, Kassa AI, RioPay, SeverPay, Overpay, Etoplatezhi, Jupiter, Donut, CisPay, TabPay. Для адаптера нужна документация API кассы или тестовые ключи.
 
 > Обязательная часть реализации, не отложенный backlog.
 
-### REQ-PAY-0002 — `NOT_TESTED`
+### REQ-PAY-0002 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Architecture (строка 252). Продукт: Все три.
+- Доказательство: `backend/app/payment_policy.py`; `backend/app/payment_methods.py`; `backend/app/gateway_ops.py`; `backend/app/payment_journal.py`; `backend/app/payment_fraud.py`; `backend/app/fiscal.py`; `tests/test_payment_failover_chain.py`; `tests/test_payment_contract.py`.
+- Примечание: Очередь касс, способы оплаты, проверка здоровья с выводом кассы из очереди, журнал уведомлений, антифрод и чеки есть и проверены тестами. Каждый из 23 компонентов списка по отдельности ещё не сверен.
 
 > Provider Registry; Adapter Interface; Capabilities Registry; Method Registry; Router; Priority Queue; Health Monitor; Circuit Breaker; Payment API; Webhook Router; Signature Validator; State Machine; Idempotency; Transaction Registry; Order Registry; Reconciliation; Refund Service; Recurring Payments; Risk Assessment; Chargeback Management; Tax/Fiscalization; Analytics; Audit Log.
 
-### REQ-PAY-0003 — `NOT_TESTED`
+### REQ-PAY-0003 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Providers (строка 256). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`; `scripts/audit/check_payment_provider_registry.py`.
+- Примечание: Нет в коде: Heleket, Kassa AI, RioPay, SeverPay, Overpay, Etoplatezhi, Jupiter, Donut, CisPay, TabPay. Для адаптера нужна документация API кассы или тестовые ключи.
 
 > Telegram Stars; Tribute; CryptoBot; Heleket; YooKassa; MulenPay; Pal24; Platega; WATA; FreeKassa; FreeKassa SBP; FreeKassa Card; CloudPayments; Kassa AI; RioPay; SeverPay; RollyPay; Overpay; AuraPay; Etoplatezhi; Antilopay; Jupiter; Donut; Lava; CisPay; Anore; TabPay; ParityPay; Cashera; Stripe; PayPal; Apple StoreKit; Google Play Billing; Crypto Gateway; Sandbox.
 
-### REQ-PAY-0004 — `NOT_TESTED`
+### REQ-PAY-0004 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Configuration Ids (строка 260). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`; `scripts/audit/check_payment_provider_registry.py`.
+- Примечание: 19 из 29 ID есть. freekassa_sbp и freekassa_card — способы оплаты кассы freekassa, отдельных ID нет. Нет в коде: Heleket, Kassa AI, RioPay, SeverPay, Overpay, Etoplatezhi, Jupiter, Donut, CisPay, TabPay. Для адаптера нужна документация API кассы или тестовые ключи.
 
 > telegram_stars; tribute; cryptobot; heleket; yookassa; mulenpay; pal24; platega; wata; freekassa; freekassa_sbp; freekassa_card; cloudpayments; kassa_ai; riopay; severpay; rollypay; overpay; aurapay; etoplatezhi; antilopay; jupiter; donut; lava; cispay; anore; tabpay; paritypay; cashera.
 
-### REQ-PAY-0005 — `NOT_TESTED`
+### REQ-PAY-0005 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Classification (строка 264). Продукт: Все три.
+- Доказательство: `backend/app/payment_policy.py`; `backend/app/payment_methods.py`; `backend/app/payment_platform.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > Не путать провайдера, метод оплаты, конфигурационный ID, платформенный платёж и sandbox. Наличие адаптера/ID не означает работоспособность.
 
-### REQ-PAY-0006 — `NOT_TESTED`
+### REQ-PAY-0006 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Methods (строка 268). Продукт: Все три.
+- Доказательство: `backend/app/payment_methods.py`; `tests/test_payment_methods.py`.
+- Примечание: Есть карта, СБП и криптовалюта. Отдельных способов «QR СБП», SberPay и YooMoney в коде нет.
 
 > Банковские карты; СБП; QR СБП; SberPay; YooMoney; криптовалюта; встроенные методы платформ; иные методы только при подтверждении API.
 
-### REQ-PAY-0007 — `NOT_TESTED`
+### REQ-PAY-0007 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → YooKassa (строка 274). Продукт: Все три.
+- Платформы: backend/API.
+- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > card; sbp
 
-### REQ-PAY-0008 — `NOT_TESTED`
+### REQ-PAY-0008 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Pal24 (строка 278). Продукт: Все три.
+- Платформы: backend/API.
+- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > sbp; card
 
-### REQ-PAY-0009 — `NOT_TESTED`
+### REQ-PAY-0009 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Platega (строка 282). Продукт: Все три.
+- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Platega в коде принимает карту и СБП из постоянной таблицы. Список способов у самой кассы не запрашивается: нужны ключи (O7).
 
 > Динамические методы — проверить.
 
-### REQ-PAY-0010 — `NOT_TESTED`
+### REQ-PAY-0010 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → FreeKassa (строка 286). Продукт: Все три.
+- Платформы: backend/API.
+- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > sbp; card
 
-### REQ-PAY-0011 — `NOT_TESTED`
+### REQ-PAY-0011 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Kassa AI (строка 290). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Адаптера Kassa AI в коде нет. Нужна документация API кассы или тестовые ключи.
 
 > sbp; card; sberpay
 
-### REQ-PAY-0012 — `NOT_TESTED`
+### REQ-PAY-0012 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → RollyPay (строка 294). Продукт: Все три.
+- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: RollyPay: карта и СБП есть, криптовалюты через RollyPay в коде нет.
 
 > sbp; card; crypto
 
-### REQ-PAY-0013 — `NOT_TESTED`
+### REQ-PAY-0013 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Overpay (строка 298). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Адаптера Overpay в коде нет. Нужна документация API кассы или тестовые ключи.
 
 > Динамические методы — проверить.
 
-### REQ-PAY-0014 — `NOT_TESTED`
+### REQ-PAY-0014 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → AuraPay (строка 302). Продукт: Все три.
+- Платформы: backend/API.
+- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > card; sbp
 
-### REQ-PAY-0015 — `NOT_TESTED`
+### REQ-PAY-0015 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Etoplatezhi (строка 306). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Адаптера Etoplatezhi в коде нет. Нужна документация API кассы или тестовые ключи.
 
 > card; sbp
 
-### REQ-PAY-0016 — `NOT_TESTED`
+### REQ-PAY-0016 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Antilopay (строка 310). Продукт: Все три.
+- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Antilopay: карта и СБП есть, SberPay в коде нет.
 
 > card; sbp; sberpay
 
-### REQ-PAY-0017 — `NOT_TESTED`
+### REQ-PAY-0017 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Jupiter (строка 314). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Адаптера Jupiter в коде нет. Нужна документация API кассы или тестовые ключи.
 
 > sbp
 
-### REQ-PAY-0018 — `NOT_TESTED`
+### REQ-PAY-0018 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Donut (строка 318). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Адаптера Donut в коде нет. Нужна документация API кассы или тестовые ключи.
 
 > card; sbp; sbp_qr
 
-### REQ-PAY-0019 — `NOT_TESTED`
+### REQ-PAY-0019 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Lava (строка 322). Продукт: Все три.
+- Платформы: backend/API.
+- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > card; sbp
 
-### REQ-PAY-0020 — `NOT_TESTED`
+### REQ-PAY-0020 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → CisPay (строка 326). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Адаптера CisPay в коде нет. Нужна документация API кассы или тестовые ключи.
 
 > card; sbp; crypto
 
-### REQ-PAY-0021 — `NOT_TESTED`
+### REQ-PAY-0021 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Anore (строка 330). Продукт: Все три.
+- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Anore: карта и СБП есть, YooMoney и криптовалюты через Anore в коде нет.
 
 > sbp; card; yoomoney; crypto
 
-### REQ-PAY-0022 — `NOT_TESTED`
+### REQ-PAY-0022 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → TabPay (строка 334). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Адаптера TabPay в коде нет. Нужна документация API кассы или тестовые ключи.
 
 > card; sbp
 
-### REQ-PAY-0023 — `NOT_TESTED`
+### REQ-PAY-0023 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → ParityPay (строка 338). Продукт: Все три.
+- Платформы: backend/API.
+- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > card; sbp
 
-### REQ-PAY-0024 — `NOT_TESTED`
+### REQ-PAY-0024 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Cashera (строка 342). Продукт: Все три.
+- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Cashera в коде принимает карту и СБП из постоянной таблицы. Список способов у самой кассы не запрашивается: нужны ключи (O7).
 
 > Динамические методы — проверить.
 
-### REQ-PAY-0025 — `NOT_TESTED`
+### REQ-PAY-0025 — `BLOCKED_SECRETS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → CloudPayments (строка 346). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: Адаптер CloudPayments есть (карта, СБП, автопродление, возврат). Выбор способа на странице кассы можно увидеть только с тестовым магазином: O7.
 
 > Проверить выбор метода на странице провайдера.
 
-### REQ-PAY-0026 — `NOT_TESTED`
+### REQ-PAY-0026 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Verify (строка 351). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`; `tests/test_tribute.py`; `tests/test_payments_pal24_mulenpay.py`; `tests/test_payments_wata_antilopay.py`.
+- Примечание: Адаптеры Telegram Stars, Tribute, CryptoBot, MulenPay и WATA есть и покрыты тестами. Heleket, RioPay и SeverPay — нет в коде. Официальные возможности касс заново не сверялись. Mir Pay, T-Pay, Alfa Pay не исследованы.
 
 > Для Telegram Stars, Tribute, CryptoBot, Heleket, MulenPay, WATA, RioPay, SeverPay проверить адаптеры и официальные возможности. Не выдумывать методы. Mir Pay, T-Pay, Alfa Pay исследовать только при подтверждённой технической возможности.
 
-### REQ-PAY-0027 — `NOT_TESTED`
+### REQ-PAY-0027 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Statuses (строка 355). Продукт: Все три.
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Примечание: В инвентаре проставлен IMPLEMENTED. Остальные ступени шкалы требуют ключей и ещё никому не присвоены.
 
 > IMPLEMENTED; CONFIGURED; SANDBOX_VERIFIED; PRODUCTION_VERIFIED; BLOCKED_SECRETS; BLOCKED_PROVIDER; NOT_SUPPORTED; RETIRED.
 
-### REQ-PAY-0028 — `NOT_TESTED`
+### REQ-PAY-0028 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Scenarios (строка 359). Продукт: Все три.
+- Доказательство: `tests/test_payment_contract.py`; `tests/test_behaviour_payment_guards.py`; `tests/test_external_refund.py`; `tests/test_payment_failover_chain.py`; `tests/test_behaviour_webhooks_refunded.py`; `tests/test_payment_fraud.py`.
+- Примечание: Тестами проверены: покупка, уведомление, сумма и заказ, защита от повтора, полный и частичный возврат, переход на запасную кассу, повторная выдача, chargeback в антифроде. Ещё не сверены: автопродление, отмена, истечение, финансовый журнал, аналитика.
 
 > Покупка; продление; автопродление; возврат; частичный возврат; повторная оплата; отмена; истечение; неуспешная оплата; сверка; chargeback; повторная проверка статуса; webhook; проверка суммы/валюты/заказа; защита от повторной обработки; восстановление; failover; sandbox; финансовый журнал; аналитика.
 
-### REQ-PAY-0029 — `NOT_TESTED`
+### REQ-PAY-0029 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Platforms (строка 363). Продукт: Все три.
+- Доказательство: `tests/test_store_billing.py`; `tests/test_behaviour_store_and_webhooks.py`; `tests/test_tribute.py`; `backend/app/telegram_stars.py`.
+- Примечание: Проверка покупок Apple и Google на сервере, продление и возврат проверены тестами с подменой магазинов. Tribute проверен тестом. Для Telegram Stars поведенческий тест pre-checkout и successful_payment ещё не найден. Вживую — нужны аккаунты магазинов и бот.
 
 > Apple StoreKit и Google Play Billing: серверная проверка транзакций, статусы, отмены, истечения, восстановление. Telegram Stars: invoice, pre-checkout, successful_payment. Tribute: проверить фактические механизмы.
 
-### REQ-PAY-0030 — `NOT_TESTED`
+### REQ-PAY-0030 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Security (строка 367). Продукт: Все три.
+- Доказательство: `tests/test_behaviour_payment_guards.py`; `tests/test_payment_contract.py`; `tests/test_behaviour_payments_yookassa.py`.
+- Примечание: Проверены тестами: подписи, список адресов, сумма и заказ, повторное уведомление, сверка через API кассы, журнал. Права доступа к платёжным действиям и защита секретов в журналах ещё не сверены.
 
 > Подписи webhook; replay protection; idempotency; проверка суммы, валюты, заказа; защита от подмены статуса; проверка через API провайдера; журнал; защита секретов; RBAC.
 
-### REQ-PAY-0031 — `NOT_TESTED`
+### REQ-PAY-0031 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Docs (строка 371). Продукт: Все три.
-- Названные файлы: `docs/PAYMENT_CAPABILITIES_MATRIX.md` — нет; `docs/PAYMENT_METHODS_MATRIX.md` — нет; `docs/PAYMENT_PROVIDER_INVENTORY.md` — нет; `docs/PAYMENT_PROVIDER_ONBOARDING.md` — нет; `docs/PAYMENT_RECONCILIATION.md` — нет; `docs/PAYMENT_SECURITY_REPORT.md` — нет; `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`).
+- Названные файлы: `docs/PAYMENT_CAPABILITIES_MATRIX.md` — нет; `docs/PAYMENT_METHODS_MATRIX.md` — нет; `docs/PAYMENT_PROVIDER_INVENTORY.md` — есть (`docs/PAYMENT_PROVIDER_INVENTORY.md`); `docs/PAYMENT_PROVIDER_ONBOARDING.md` — нет; `docs/PAYMENT_RECONCILIATION.md` — нет; `docs/PAYMENT_SECURITY_REPORT.md` — нет; `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`).
+- Доказательство: `docs/PAYMENT_PROVIDER_INVENTORY.md`; `docs/ru/PAYMENTS.md`.
+- Примечание: Создан PAYMENT_PROVIDER_INVENTORY.md (в нём же способы и возможности). Остальных шести документов с этими именами нет; руководства по платежам лежат в docs/ru/PAYMENTS*.md.
 
 > docs/PAYMENT_PROVIDER_INVENTORY.md; docs/PAYMENT_METHODS_MATRIX.md; docs/PAYMENT_CAPABILITIES_MATRIX.md; docs/PAYMENT_TESTING.md; docs/PAYMENT_SECURITY_REPORT.md; docs/PAYMENT_RECONCILIATION.md; docs/PAYMENT_PROVIDER_ONBOARDING.md.
 
-### REQ-PAY-0032 — `NOT_TESTED`
+### REQ-PAY-0032 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Audit Scripts (строка 375). Продукт: Все три.
-- Названные файлы: `check_payment_capabilities.py` — нет; `check_payment_contracts.py` — нет; `check_payment_methods_ui.py` — нет; `check_payment_provider_registry.py` — нет; `check_payment_reconciliation.py` — нет; `check_payment_webhooks.py` — нет; `scripts/audit/check_payments.py` — нет.
+- Названные файлы: `check_payment_capabilities.py` — нет; `check_payment_contracts.py` — нет; `check_payment_methods_ui.py` — нет; `check_payment_provider_registry.py` — есть (`scripts/audit/check_payment_provider_registry.py`); `check_payment_reconciliation.py` — нет; `check_payment_webhooks.py` — нет; `scripts/audit/check_payments.py` — нет.
+- Доказательство: `scripts/audit/check_payment_provider_registry.py`.
+- Примечание: Есть check_payment_provider_registry.py, он работает в CI. Остальных шести скриптов нет.
 
 > scripts/audit/check_payments.py; check_payment_provider_registry.py; check_payment_capabilities.py; check_payment_webhooks.py; check_payment_methods_ui.py; check_payment_contracts.py; check_payment_reconciliation.py.
 
@@ -1842,15 +1907,19 @@
 
 > - Использовать transactional outbox/inbox там, где это оправдано архитектурой.
 
-### REQ-PAY-0036 — `NOT_TESTED`
+### REQ-PAY-0036 — `PASS`
 
 - Источник: Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность (строка 2261). Продукт: Все три.
+- Платформы: backend/API.
+- Доказательство: `tests/test_behaviour_webhooks_refunded.py`; `tests/test_payment_contract.py`.
 
 > - Обрабатывать повторные, задержанные и пришедшие не по порядку webhook.
 
-### REQ-PAY-0037 — `NOT_TESTED`
+### REQ-PAY-0037 — `PARTIAL`
 
 - Источник: Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность (строка 2262). Продукт: Все три.
+- Доказательство: `tests/test_behaviour_payment_guards.py`.
+- Примечание: Сверка спрашивает кассу о сохранённом заказе — проверено тестом. Расписание периодической сверки ещё не сверено.
 
 > - Периодически сверять локальные статусы с API провайдера.
 
@@ -1890,9 +1959,11 @@
 
 > Для каждого провайдера из исходного списка отдельно проверить: официальный API, документацию, доступность в стране/для юридического лица пользователя, методы, валюты, комиссии, recurring/refund/partial refund, webhook signing, test mode, ограничения, SDK, сроки и статус интеграции. Не удалять провайдер только потому, что документация или credentials сейчас недоступны; отметить blocker и оставить адаптер/контракт только если это оправдано архитектурой.
 
-### REQ-PAY-0044 — `NOT_TESTED`
+### REQ-PAY-0044 — `PARTIAL`
 
 - Источник: Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.4. Отображение методов (строка 2275). Продукт: Все три.
+- Доказательство: `backend/app/payment_methods.py`; `tests/test_payment_methods.py`; `tests/test_payment_failover_chain.py`.
+- Примечание: Способ показывается, только если есть включённая касса с ключами. Ограничений по валюте, сумме, стране и платформе в коде нет.
 
 > Список методов оплаты строить из подтверждённых capabilities и настроек merchant account. Не показывать метод, если он не активирован, не доступен для валюты/суммы/страны/платформы. Не смешивать `provider_id`, `method_id`, `config_id`, `payment_system` и `platform_billing`.
 

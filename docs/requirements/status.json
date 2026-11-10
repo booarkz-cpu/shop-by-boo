@@ -132,5 +132,296 @@
   ],
   "note": "То же, что REQ-QA-0006.",
   "platforms": "Web"
+ },
+ "REQ-PAY-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "25 из 35 названий владельца есть в коде и покрыты тестами. Нет в коде: Heleket, Kassa AI, RioPay, SeverPay, Overpay, Etoplatezhi, Jupiter, Donut, CisPay, TabPay. Для адаптера нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/payment_policy.py",
+   "backend/app/payment_methods.py",
+   "backend/app/gateway_ops.py",
+   "backend/app/payment_journal.py",
+   "backend/app/payment_fraud.py",
+   "backend/app/fiscal.py",
+   "tests/test_payment_failover_chain.py",
+   "tests/test_payment_contract.py"
+  ],
+  "note": "Очередь касс, способы оплаты, проверка здоровья с выводом кассы из очереди, журнал уведомлений, антифрод и чеки есть и проверены тестами. Каждый из 23 компонентов списка по отдельности ещё не сверен."
+ },
+ "REQ-PAY-0003": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md",
+   "scripts/audit/check_payment_provider_registry.py"
+  ],
+  "note": "Нет в коде: Heleket, Kassa AI, RioPay, SeverPay, Overpay, Etoplatezhi, Jupiter, Donut, CisPay, TabPay. Для адаптера нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md",
+   "scripts/audit/check_payment_provider_registry.py"
+  ],
+  "note": "19 из 29 ID есть. freekassa_sbp и freekassa_card — способы оплаты кассы freekassa, отдельных ID нет. Нет в коде: Heleket, Kassa AI, RioPay, SeverPay, Overpay, Etoplatezhi, Jupiter, Donut, CisPay, TabPay. Для адаптера нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0005": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/payment_policy.py",
+   "backend/app/payment_methods.py",
+   "backend/app/payment_platform.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ]
+ },
+ "REQ-PAY-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "tests/test_payment_methods.py"
+  ],
+  "note": "Есть карта, СБП и криптовалюта. Отдельных способов «QR СБП», SberPay и YooMoney в коде нет."
+ },
+ "REQ-PAY-0007": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "tests/test_gateway_ops.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-PAY-0008": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "tests/test_gateway_ops.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-PAY-0010": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "tests/test_gateway_ops.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-PAY-0014": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "tests/test_gateway_ops.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-PAY-0019": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "tests/test_gateway_ops.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-PAY-0023": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "tests/test_gateway_ops.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-PAY-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Platega в коде принимает карту и СБП из постоянной таблицы. Список способов у самой кассы не запрашивается: нужны ключи (O7)."
+ },
+ "REQ-PAY-0024": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Cashera в коде принимает карту и СБП из постоянной таблицы. Список способов у самой кассы не запрашивается: нужны ключи (O7)."
+ },
+ "REQ-PAY-0011": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Адаптера Kassa AI в коде нет. Нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0013": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Адаптера Overpay в коде нет. Нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0015": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Адаптера Etoplatezhi в коде нет. Нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0017": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Адаптера Jupiter в коде нет. Нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0018": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Адаптера Donut в коде нет. Нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0020": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Адаптера CisPay в коде нет. Нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0022": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Адаптера TabPay в коде нет. Нужна документация API кассы или тестовые ключи."
+ },
+ "REQ-PAY-0012": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "RollyPay: карта и СБП есть, криптовалюты через RollyPay в коде нет."
+ },
+ "REQ-PAY-0016": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Antilopay: карта и СБП есть, SberPay в коде нет."
+ },
+ "REQ-PAY-0021": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Anore: карта и СБП есть, YooMoney и криптовалюты через Anore в коде нет."
+ },
+ "REQ-PAY-0025": {
+  "status": "BLOCKED_SECRETS",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "Адаптер CloudPayments есть (карта, СБП, автопродление, возврат). Выбор способа на странице кассы можно увидеть только с тестовым магазином: O7."
+ },
+ "REQ-PAY-0026": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md",
+   "tests/test_tribute.py",
+   "tests/test_payments_pal24_mulenpay.py",
+   "tests/test_payments_wata_antilopay.py"
+  ],
+  "note": "Адаптеры Telegram Stars, Tribute, CryptoBot, MulenPay и WATA есть и покрыты тестами. Heleket, RioPay и SeverPay — нет в коде. Официальные возможности касс заново не сверялись. Mir Pay, T-Pay, Alfa Pay не исследованы."
+ },
+ "REQ-PAY-0027": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ],
+  "note": "В инвентаре проставлен IMPLEMENTED. Остальные ступени шкалы требуют ключей и ещё никому не присвоены."
+ },
+ "REQ-PAY-0028": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_payment_contract.py",
+   "tests/test_behaviour_payment_guards.py",
+   "tests/test_external_refund.py",
+   "tests/test_payment_failover_chain.py",
+   "tests/test_behaviour_webhooks_refunded.py",
+   "tests/test_payment_fraud.py"
+  ],
+  "note": "Тестами проверены: покупка, уведомление, сумма и заказ, защита от повтора, полный и частичный возврат, переход на запасную кассу, повторная выдача, chargeback в антифроде. Ещё не сверены: автопродление, отмена, истечение, финансовый журнал, аналитика."
+ },
+ "REQ-PAY-0029": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_store_billing.py",
+   "tests/test_behaviour_store_and_webhooks.py",
+   "tests/test_tribute.py",
+   "backend/app/telegram_stars.py"
+  ],
+  "note": "Проверка покупок Apple и Google на сервере, продление и возврат проверены тестами с подменой магазинов. Tribute проверен тестом. Для Telegram Stars поведенческий тест pre-checkout и successful_payment ещё не найден. Вживую — нужны аккаунты магазинов и бот."
+ },
+ "REQ-PAY-0030": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_behaviour_payment_guards.py",
+   "tests/test_payment_contract.py",
+   "tests/test_behaviour_payments_yookassa.py"
+  ],
+  "note": "Проверены тестами: подписи, список адресов, сумма и заказ, повторное уведомление, сверка через API кассы, журнал. Права доступа к платёжным действиям и защита секретов в журналах ещё не сверены."
+ },
+ "REQ-PAY-0031": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/PAYMENT_PROVIDER_INVENTORY.md",
+   "docs/ru/PAYMENTS.md"
+  ],
+  "note": "Создан PAYMENT_PROVIDER_INVENTORY.md (в нём же способы и возможности). Остальных шести документов с этими именами нет; руководства по платежам лежат в docs/ru/PAYMENTS*.md."
+ },
+ "REQ-PAY-0032": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/audit/check_payment_provider_registry.py"
+  ],
+  "note": "Есть check_payment_provider_registry.py, он работает в CI. Остальных шести скриптов нет."
+ },
+ "REQ-PAY-0036": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_behaviour_webhooks_refunded.py",
+   "tests/test_payment_contract.py"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-PAY-0037": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_behaviour_payment_guards.py"
+  ],
+  "note": "Сверка спрашивает кассу о сохранённом заказе — проверено тестом. Расписание периодической сверки ещё не сверено."
+ },
+ "REQ-PAY-0044": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/payment_methods.py",
+   "tests/test_payment_methods.py",
+   "tests/test_payment_failover_chain.py"
+  ],
+  "note": "Способ показывается, только если есть включённая касса с ключами. Ограничений по валюте, сумме, стране и платформе в коде нет."
  }
 }
