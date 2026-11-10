@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2442**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2445**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -77,9 +77,7 @@
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
-| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
-| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
@@ -122,6 +120,7 @@
 | [admin/e2e/app-config.spec.ts](../admin/e2e/app-config.spec.ts) | Админ-панель |
 | [admin/e2e/app-growth.spec.ts](../admin/e2e/app-growth.spec.ts) | Админ-панель |
 | [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
+| [admin/e2e/autoselect.spec.ts](../admin/e2e/autoselect.spec.ts) | Админ-панель |
 | [admin/e2e/bot-banners.spec.ts](../admin/e2e/bot-banners.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-apps.spec.ts](../admin/e2e/cabinet-apps.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
@@ -803,7 +802,10 @@
 | [docs/MASTER_EXECUTION_REPORTS.md](../docs/MASTER_EXECUTION_REPORTS.md) | Документация |
 | [docs/MASTER_ROADMAP_VPN_SHOP.md](../docs/MASTER_ROADMAP_VPN_SHOP.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
+| [docs/PAYMENT_PROVIDER_INVENTORY.md](../docs/PAYMENT_PROVIDER_INVENTORY.md) | Документация |
 | [docs/PROJECT_ARCHITECTURE.md](../docs/PROJECT_ARCHITECTURE.md) | Документация |
+| [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
+| [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_INVENTORY.md](../docs/PROJECT_INVENTORY.md) | Документация |
 | [docs/PROJECT_MAP_RU.md](../docs/PROJECT_MAP_RU.md) | Документация |
@@ -1952,6 +1954,7 @@
 | [screenshots/storefront_user/21_info.png](../screenshots/storefront_user/21_info.png) | Корень проекта |
 | [screenshots/storefront_user/22_faq.png](../screenshots/storefront_user/22_faq.png) | Корень проекта |
 | [screenshots/storefront_user/23_offer.png](../screenshots/storefront_user/23_offer.png) | Корень проекта |
+| [scripts/audit/check_payment_provider_registry.py](../scripts/audit/check_payment_provider_registry.py) | Эксплуатация и релиз |
 | [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/auto-update.sh](../scripts/auto-update.sh) | Эксплуатация и релиз |

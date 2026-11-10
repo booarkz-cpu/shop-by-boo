@@ -91,6 +91,7 @@ jobs:
           python scripts/check-runtime-placeholders.py
           python scripts/generate-project-map.py --check
           python scripts/audit/requirements_register.py --check
+          python scripts/audit/check_payment_provider_registry.py --check
       - name: Admin modules — which test exercises each changing route (docs/ru/new/ADMIN_VERIFICATION.md)
         env:
           MEDIA_DIR: /tmp/media
