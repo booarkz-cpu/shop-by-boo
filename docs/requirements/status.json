@@ -1,0 +1,136 @@
+{
+ "REQ-GOV-0083": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/REQUIREMENTS_MASTER_REGISTER.md",
+   "scripts/audit/requirements_register.py"
+  ],
+  "note": "В реестр внесён мастер-промпт v6 целиком (653 требования). Ещё не внесены: история переписки, скриншоты, исходные репозитории, issues и PR."
+ },
+ "REQ-DOC-0013": {
+  "status": "PASS",
+  "evidence": [
+   "docs/REQUIREMENTS_MASTER_REGISTER.md"
+  ]
+ },
+ "REQ-GOV-0087": {
+  "status": "PASS",
+  "evidence": [
+   "docs/REQUIREMENTS_CHANGELOG.md",
+   "scripts/audit/requirements_register.py"
+  ]
+ },
+ "REQ-DOC-0014": {
+  "status": "PASS",
+  "evidence": [
+   "docs/REQUIREMENTS_CHANGELOG.md"
+  ]
+ },
+ "REQ-GOV-0074": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/BACKLOG.md",
+   "docs/ru/new/IMPLEMENTATION_STATUS.md"
+  ],
+  "note": "Найдены точные тексты O1–O14, N1–N13, A1–A7 (BACKLOG.md) и этапов 1–20 (IMPLEMENTATION_STATUS.md). Группы B–F в репозитории описаны только итогами в заметках выпусков; их исходные формулировки в реестр ещё не перенесены."
+ },
+ "REQ-INFRA-0002": {
+  "status": "PASS",
+  "evidence": [
+   "docs/ru/new/BACKLOG.md"
+  ]
+ },
+ "REQ-INFRA-0003": {
+  "status": "PASS",
+  "evidence": [
+   "docs/ru/new/BACKLOG.md"
+  ]
+ },
+ "REQ-INFRA-0034": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/ci/restore-drill.sh",
+   ".github/workflows/ci.yml"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-QA-0064": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/ci/restore-drill.sh",
+   "scripts/backup.sh"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-GOV-0042": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/ci/restore-drill.sh"
+  ],
+  "note": "Копия и восстановление магазина и Support Pro проверяются в каждом прогоне CI. Копии панели Remnawave на настоящем сервере не проверены: нужен VPS (O1)."
+ },
+ "REQ-QA-0003": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_v313.py"
+  ],
+  "platforms": "server"
+ },
+ "REQ-QA-0045": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_v313.py"
+  ],
+  "platforms": "server"
+ },
+ "REQ-QA-0004": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/db.py",
+   "docs/MASTER_EXECUTION_REPORTS.md"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-QA-0042": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/db.py",
+   "docs/MASTER_EXECUTION_REPORTS.md"
+  ],
+  "platforms": "backend/API"
+ },
+ "REQ-QA-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MASTER_EXECUTION_REPORTS.md"
+  ],
+  "note": "На текущем коде ошибка не воспроизводится (отчёт AUD-04): сервер отдаёт метки объектами. Отдельного теста на этот симптом нет.",
+  "platforms": "Web"
+ },
+ "REQ-QA-0043": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MASTER_EXECUTION_REPORTS.md"
+  ],
+  "note": "То же, что REQ-QA-0005: не воспроизводится, отдельного теста нет.",
+  "platforms": "Web"
+ },
+ "REQ-QA-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MASTER_EXECUTION_REPORTS.md",
+   "admin/src/main.tsx"
+  ],
+  "note": "В панели списки приводятся к массиву функцией list() (отчёт AUD-05). Отдельного теста на этот симптом нет.",
+  "platforms": "Web"
+ },
+ "REQ-QA-0044": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MASTER_EXECUTION_REPORTS.md",
+   "admin/src/main.tsx"
+  ],
+  "note": "То же, что REQ-QA-0006.",
+  "platforms": "Web"
+ }
+}

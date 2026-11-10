@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2428**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2435**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -806,6 +806,8 @@
 | [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md) | Документация |
 | [docs/RELEASE_LIMITATIONS.md](../docs/RELEASE_LIMITATIONS.md) | Документация |
 | [docs/REPOSITORY_AUDIT.md](../docs/REPOSITORY_AUDIT.md) | Документация |
+| [docs/REQUIREMENTS_CHANGELOG.md](../docs/REQUIREMENTS_CHANGELOG.md) | Документация |
+| [docs/REQUIREMENTS_MASTER_REGISTER.md](../docs/REQUIREMENTS_MASTER_REGISTER.md) | Документация |
 | [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
@@ -1057,6 +1059,9 @@
 | [docs/modules/unit_economics.md](../docs/modules/unit_economics.md) | Документация |
 | [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
+| [docs/prompts/MASTER_PROMPT_V6.md](../docs/prompts/MASTER_PROMPT_V6.md) | Документация |
+| [docs/requirements/register.json](../docs/requirements/register.json) | Документация |
+| [docs/requirements/status.json](../docs/requirements/status.json) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PANEL_CURRENT.md](../docs/ru/ADMIN_PANEL_CURRENT.md) | Документация |
 | [docs/ru/ADMIN_PASSKEYS.md](../docs/ru/ADMIN_PASSKEYS.md) | Документация |
@@ -1941,6 +1946,7 @@
 | [screenshots/storefront_user/21_info.png](../screenshots/storefront_user/21_info.png) | Корень проекта |
 | [screenshots/storefront_user/22_faq.png](../screenshots/storefront_user/22_faq.png) | Корень проекта |
 | [screenshots/storefront_user/23_offer.png](../screenshots/storefront_user/23_offer.png) | Корень проекта |
+| [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/auto-update.sh](../scripts/auto-update.sh) | Эксплуатация и релиз |
 | [scripts/auto_update.py](../scripts/auto_update.py) | Эксплуатация и релиз |
@@ -2320,6 +2326,7 @@
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
 | [tests/test_repin_images.py](../tests/test_repin_images.py) | Проверки |
+| [tests/test_requirements_register.py](../tests/test_requirements_register.py) | Проверки |
 | [tests/test_route_authorization.py](../tests/test_route_authorization.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
 | [tests/test_rw_autoupdate.py](../tests/test_rw_autoupdate.py) | Проверки |
