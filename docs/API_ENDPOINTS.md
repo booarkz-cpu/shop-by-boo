@@ -477,6 +477,7 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/rw/autoselect` | Delete Pool | право `provision_nodes` |
 | `GET` | `/api/admin/rw/autoselect` | Get Pool | право `read` |
 | `PUT` | `/api/admin/rw/autoselect` | Put Pool | право `provision_nodes` |
+| `GET` | `/api/admin/rw/autoselect/meta` | Meta | право `read` |
 | `POST` | `/api/admin/rw/autoselect/refresh` | Refresh Pool | право `provision_nodes` |
 | `GET` | `/api/admin/rw/certificates` | Certificates | право `read` |
 | `POST` | `/api/admin/rw/certificates/check` | Check All | право `read` |
