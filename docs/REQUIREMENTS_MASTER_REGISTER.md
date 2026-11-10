@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **19** — 2.9%.
+- Подтверждено (`PASS`): **40** — 6.1%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 19 | Проверено, доказательство указано |
-| `PARTIAL` | 26 | Сделано частично, остаток описан |
+| `PASS` | 40 | Проверено, доказательство указано |
+| `PARTIAL` | 39 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 7 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 600 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 566 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -33,7 +33,7 @@
 | Remnawave | 16 | 0 | 0 | 0 | 16 |
 | MASQUE | 12 | 0 | 0 | 0 | 12 |
 | Ноды: установка, обслуживание, защита | 71 | 0 | 0 | 0 | 71 |
-| Автовыбор | 35 | 0 | 0 | 0 | 35 |
+| Автовыбор | 35 | 21 | 13 | 0 | 1 |
 | Инфраструктура, установщик, копии | 41 | 3 | 0 | 0 | 38 |
 | Backend, API, база | 2 | 0 | 0 | 0 | 2 |
 | Интерфейсы | 10 | 0 | 0 | 0 | 10 |
@@ -118,7 +118,7 @@
 ### REQ-GOV-0012 — `NOT_TESTED`
 
 - Источник: Часть I → State Tracking → Files (строка 908). Продукт: Все три.
-- Названные файлы: `AUTOMATION_LOG.md` — есть (`docs/AUTOMATION_LOG.md`); `IMPLEMENTATION_STATUS.md` — есть (`docs/ru/new/IMPLEMENTATION_STATUS.md`); `KNOWN_LIMITATIONS.md` — есть (`docs/ru/new/KNOWN_LIMITATIONS.md`); `MASTER_ROADMAP.md` — нет; `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет; `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет; `docs/AUTO_SELECTION.md` — нет; `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`); `docs/MASQUE_IMPLEMENTATION_REPORT.md` — нет; `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`); `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет; `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`); `docs/SCREENSHOT_COVERAGE.md` — нет.
+- Названные файлы: `AUTOMATION_LOG.md` — есть (`docs/AUTOMATION_LOG.md`); `IMPLEMENTATION_STATUS.md` — есть (`docs/ru/new/IMPLEMENTATION_STATUS.md`); `KNOWN_LIMITATIONS.md` — есть (`docs/ru/new/KNOWN_LIMITATIONS.md`); `MASTER_ROADMAP.md` — нет; `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет; `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет; `docs/AUTO_SELECTION.md` — есть (`docs/AUTO_SELECTION.md`); `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`); `docs/MASQUE_IMPLEMENTATION_REPORT.md` — нет; `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`); `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет; `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`); `docs/SCREENSHOT_COVERAGE.md` — нет.
 
 > IMPLEMENTATION_STATUS.md; MASTER_ROADMAP.md; AUTOMATION_LOG.md; KNOWN_LIMITATIONS.md; docs/ADMIN_FEATURE_PARITY_MATRIX.md; docs/SCREENSHOT_COVERAGE.md; docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md; docs/PROJECT_BALANCED_DEVELOPMENT.md; docs/PROJECT_WORKLOAD_MATRIX.md; docs/PROJECT_COMPLETION_MATRIX.md; docs/MASQUE_IMPLEMENTATION_REPORT.md; docs/CODE_REUSE_REGISTER.md; docs/REFERENCE_REPOSITORIES.md; docs/PAYMENT_TESTING.md; docs/AUTO_SELECTION.md.
 
@@ -2581,15 +2581,19 @@
 
 ## Автовыбор
 
-### REQ-AUTO-0001 — `NOT_TESTED`
+### REQ-AUTO-0001 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Purpose (строка 569). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `docs/AUTO_SELECTION.md`.
+- Примечание: Проверено на модели панели. На настоящей панели Remnawave и в приложениях клиентов не проверено: нужен VPS (O1).
 
 > Полноценный пул автовыбора VPN-ноды.
 
-### REQ-AUTO-0002 — `NOT_TESTED`
+### REQ-AUTO-0002 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Modes → server-side (строка 575). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
+- Примечание: Панель формирует отдельную плитку и шаблон с балансировщиком; узел по этому шаблону выбирает ядро Xray в приложении клиента. Выбора узла на самом сервере при выдаче подписки нет. Проверено на модели панели. На настоящей панели Remnawave и в приложениях клиентов не проверено: нужен VPS (O1).
 
 > Панель/сервер выбирает ноду и формирует подписку или отдельную плитку.
 
@@ -2599,196 +2603,255 @@
 
 > Ноду выбирает сам VPN-клиент.
 
-### REQ-AUTO-0004 — `NOT_TESTED`
+### REQ-AUTO-0004 — `PASS`
 
 - Источник: Часть I → Auto Selection → Modes → Rule (строка 583). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `docs/AUTO_SELECTION.md`; `admin/src/autoselect.tsx`.
 
 > Не смешивать серверный и клиентский автовыбор.
 
-### REQ-AUTO-0005 — `NOT_TESTED`
+### REQ-AUTO-0005 — `PASS`
 
 - Источник: Часть I → Auto Selection → Delivery → separate-tile (строка 590). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Отдельная плитка «Автовыбор»; обычные ноды могут отображаться отдельно.
 
-### REQ-AUTO-0006 — `NOT_TESTED`
+### REQ-AUTO-0006 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Delivery → all-list (строка 594). Продукт: Все три.
+- Доказательство: `backend/app/rw_extensions.py`; `docs/AUTO_SELECTION.md`.
+- Примечание: Заготовка балансировщика по всему списку есть в «Расширения Remnawave → Готовые фрагменты»; владелец вставляет её в шаблон сам. Пул автовыбора старый режим не меняет. Теста на заготовку нет.
 
 > Старый режим «Весь список»; балансировка только при поддержке формата.
 
-### REQ-AUTO-0007 — `NOT_TESTED`
+### REQ-AUTO-0007 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → leastPing (строка 601). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > По минимальной задержке.
 
-### REQ-AUTO-0008 — `NOT_TESTED`
+### REQ-AUTO-0008 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → leastLoad (строка 605). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > По минимальной нагрузке.
 
-### REQ-AUTO-0009 — `NOT_TESTED`
+### REQ-AUTO-0009 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → roundRobin (строка 609). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > По кругу.
 
-### REQ-AUTO-0010 — `NOT_TESTED`
+### REQ-AUTO-0010 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → random (строка 613). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Случайно.
 
-### REQ-AUTO-0011 — `NOT_TESTED`
+### REQ-AUTO-0011 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → Rule (строка 617). Продукт: Все три.
+- Доказательство: `docs/AUTO_SELECTION.md`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Для каждого алгоритма определить входные данные, выбор, недоступность, обновление метрик, равные значения и fallback.
 
-### REQ-AUTO-0012 — `NOT_TESTED`
+### REQ-AUTO-0012 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Management (строка 622). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Примечание: Есть: включение, обновление, удаление плитки, имя, алгоритм, выбор узлов, «выбрать все» и «снять все», скрытие, состав, доступность. Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при каждом «Обновить пул».
 
 > Включение; отключение; обновление; сброс шаблона; удаление плитки; имя; алгоритм; выбор нод; массовое включение/исключение; скрытие; состав; доступность.
 
-### REQ-AUTO-0013 — `NOT_TESTED`
+### REQ-AUTO-0013 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Hide Nodes (строка 626). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Примечание: Скрытие и возврат узлов проверены на модели панели; ограничение форматов показано на странице. Поведение в настоящих клиентах Clash, sing-box и Base64 не проверено: нужен VPS (O1).
 
 > Опция «Скрыть узлы пула из списка приложения»: при включении клиент видит только плитку «Автовыбор»; при выключении узлы возвращаются после обновления подписки. Проверить Clash, sing-box, Base64 и другие клиенты. Если формат не поддерживает настоящий балансировщик, показать ограничение; не выдавать первую ноду за балансировщик.
 
-### REQ-AUTO-0014 — `NOT_TESTED`
+### REQ-AUTO-0014 — `PASS`
 
 - Источник: Часть I → Auto Selection → Statistics (строка 630). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
 
 > Количество нод в подписке и пуле; доступные; выдаваемые; online/offline; исключённые; последняя проверка; актуальность метрик. Только реальные данные.
 
-### REQ-AUTO-0015 — `NOT_TESTED`
+### REQ-AUTO-0015 — `PASS`
 
 - Источник: Часть I → Auto Selection → Tile (строка 634). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
 
 > Имя; иконка; алгоритм; ноды; видимость; состояние; отображение клиенту. Пример: ⚡ Автовыбор.
 
-### REQ-AUTO-0016 — `NOT_TESTED`
+### REQ-AUTO-0016 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Failure (строка 638). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
+- Примечание: Недоступный узел пропускается, запасной — первый узел пула, напрямую трафик не идёт; состояние узлов видно на странице. Событие переключения не записывается: узел выбирает приложение клиента, сервер о переключении не знает.
 
 > При недоступности выбранной ноды выбрать доступную; fallback; не выдавать недействительную конфигурацию; записать событие; обновить состояние.
 
-### REQ-AUTO-0017 — `NOT_TESTED`
+### REQ-AUTO-0017 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Tests (строка 642). Продукт: Все три.
+- Доказательство: `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
+- Примечание: На модели панели проверены: четыре алгоритма, скрытие и возврат, удаление плитки, смена имени, смена состава, пустой пул, удалённый узел. Изменение задержки и нагрузки, реконнект и разные форматы подписки требуют настоящего клиента Xray: O1.
 
 > Все четыре алгоритма; отключение ноды; изменение нагрузки/задержки; обновление подписки; скрытие/возврат; удаление плитки; изменение имени; отсутствие доступных нод; совместимость форматов; реконнект; fallback.
 
-### REQ-AUTO-0018 — `NOT_TESTED`
+### REQ-AUTO-0018 — `PASS`
 
 - Источник: Часть I → Auto Selection → Documentation (строка 646). Продукт: Все три.
-- Названные файлы: `docs/AUTO_SELECTION.md` — нет.
+- Названные файлы: `docs/AUTO_SELECTION.md` — есть (`docs/AUTO_SELECTION.md`).
+- Доказательство: `docs/AUTO_SELECTION.md`.
 
 > docs/AUTO_SELECTION.md
 
-### REQ-AUTO-0019 — `NOT_TESTED`
+### REQ-AUTO-0019 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Heading (строка 1406). Продукт: Все три.
+- Платформы: Web.
+- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
 
 > Пул автовыбора — «быстрейшая нода клиенту».
 
-### REQ-AUTO-0020 — `NOT_TESTED`
+### REQ-AUTO-0020 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Actions (строка 1410). Продукт: Все три.
+- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `backend/app/rw_autoselect.py`.
+- Примечание: Есть «Убрать плитку», «Включить <алгоритм>», «Обновить пул». Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при «Обновить пул».
 
 > Сбросить шаблон; убрать плитку; включить leastPing; обновить пул.
 
-### REQ-AUTO-0021 — `NOT_TESTED`
+### REQ-AUTO-0021 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Metrics (строка 1414). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Примечание: Показано «Видны в подписке X/Y» и «В пуле X/Y» из данных панели. Признаков «у ноды есть открытая плитка» и «inbound входит в пул» на странице нет.
 
 > Видны в подписке X/Y; раздаются клиентам X/Y; у ноды есть открытая плитка; inbound входит в пул. Значения брать из реального состояния.
 
-### REQ-AUTO-0022 — `NOT_TESTED`
+### REQ-AUTO-0022 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Mode (строка 1418). Продукт: Все три.
+- Доказательство: `docs/AUTO_SELECTION.md`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Отдельная плитка «Автовыбор» (новый режим) либо «Весь список» (старый режим). Обеспечить совместимость и не менять режим без явного действия администратора.
 
-### REQ-AUTO-0023 — `NOT_TESTED`
+### REQ-AUTO-0023 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Algorithm Options (строка 1422). Продукт: Все три.
+- Платформы: Web.
+- Доказательство: `backend/app/rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
 
 > По задержке (leastPing); по нагрузке (leastLoad); по кругу (roundRobin); случайно (random).
 
-### REQ-AUTO-0024 — `NOT_TESTED`
+### REQ-AUTO-0024 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Tile Name (строка 1426). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
 
 > Настраиваемое имя, пример «⚡ Автовыбор».
 
-### REQ-AUTO-0025 — `NOT_TESTED`
+### REQ-AUTO-0025 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Hide Pool Nodes (строка 1430). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Примечание: Переключатель есть, скрытие и возврат проверены на модели панели. Возврат узлов у настоящего клиента после обновления подписки не проверен: O1.
 
 > Переключатель скрытия узлов пула из списка приложения. При включении клиенты видят только плитку; при выключении обычные узлы возвращаются после обновления подписки.
 
-### REQ-AUTO-0026 — `NOT_TESTED`
+### REQ-AUTO-0026 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Client Compatibility Warning (строка 1434). Продукт: Все три.
+- Платформы: Web.
+- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `docs/AUTO_SELECTION.md`.
 
 > В Clash/sing-box/Base64 и других форматах может отсутствовать поддержка настоящего балансировщика. В таком случае честно объяснить, что плитка может вести на первый узел пула; не заявлять полноценный клиентский балансировщик.
 
-### REQ-AUTO-0027 — `NOT_TESTED`
+### REQ-AUTO-0027 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Explanation (строка 1438). Продукт: Все три.
+- Доказательство: `docs/AUTO_SELECTION.md`; `admin/src/autoselect.tsx`.
 
 > Панельный автовыбор выбирает ноду на серверной стороне; «Автовыбор в приложении» выбирает клиент. Отдельная плитка означает, что клиент видит одну плитку «Автовыбор» плюс обычные ноды, если скрытие не включено.
 
-### REQ-AUTO-0028 — `NOT_TESTED`
+### REQ-AUTO-0028 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Node Table (строка 1442). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Примечание: Есть: галочка, страна с флагом, имя, состояние, признак «раздаётся», число клиентов. Задержки и нагрузки по узлам нет: их измеряет приложение клиента, панели они неизвестны. Время проверки одно на всю страницу.
 
 > Чекбокс включения ноды в пул; флаг/страна; имя; статус online; признак «раздаётся»; число пользователей; доступность; задержка/нагрузка; последняя проверка.
 
-### REQ-AUTO-0029 — `NOT_TESTED`
+### REQ-AUTO-0029 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Observed Example (строка 1446). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > В показанном интерфейсе было 11/11 видимых в подписке и 11/11 раздаваемых; пример пула включал Германию №1, Чехию №1 и Нидерланды №2. Эти числа и страны не являются константами — только динамические данные.
 
-### REQ-AUTO-0030 — `NOT_TESTED`
+### REQ-AUTO-0030 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Retry (строка 1450). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Повторный запуск обновляет пул по отмеченным галочкам; проверить идемпотентность и корректное сохранение настроек.
 
-### REQ-AUTO-0031 — `NOT_TESTED`
+### REQ-AUTO-0031 — `PASS`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1590). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
 
 > - Пул должен показывать число узлов в подписке и пуле, доступные/выдаваемые, online/offline, исключённые, последнюю проверку и актуальность метрик.
 
-### REQ-AUTO-0032 — `NOT_TESTED`
+### REQ-AUTO-0032 — `PASS`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1591). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
 
 > - Плитка имеет имя, иконку, алгоритм, список узлов, видимость и состояние; пример имени — `⚡ Автовыбор`.
 
-### REQ-AUTO-0033 — `NOT_TESTED`
+### REQ-AUTO-0033 — `PARTIAL`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1592). Продукт: Все три.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
+- Примечание: То же, что REQ-AUTO-0016: событие переключения не записывается.
 
 > - При недоступности выбранной ноды выполнить fallback на доступную, не выдавать недействительную конфигурацию, записать событие.
 
-### REQ-AUTO-0034 — `NOT_TESTED`
+### REQ-AUTO-0034 — `PARTIAL`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1593). Продукт: Все три.
+- Доказательство: `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
+- Примечание: То же, что REQ-AUTO-0017.
 
 > - Проверить все алгоритмы: leastPing, leastLoad, roundRobin, random; отключение узла; изменение метрик; обновление подписки; скрытие/возврат; удаление плитки; переименование; отсутствие доступных узлов; совместимость форматов; reconnect и fallback.
 
-### REQ-AUTO-0035 — `NOT_TESTED`
+### REQ-AUTO-0035 — `PASS`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1594). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > - Если формат клиента не поддерживает настоящий балансировщик, честно показать ограничение; не выдавать первую ноду за полноценный балансировщик.
 
