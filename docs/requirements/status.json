@@ -423,5 +423,297 @@
    "tests/test_payment_failover_chain.py"
   ],
   "note": "Способ показывается, только если есть включённая касса с ключами. Ограничений по валюте, сумме, стране и платформе в коде нет."
+ },
+ "REQ-AUTO-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx",
+   "docs/AUTO_SELECTION.md"
+  ],
+  "note": "Проверено на модели панели. На настоящей панели Remnawave и в приложениях клиентов не проверено: нужен VPS (O1)."
+ },
+ "REQ-AUTO-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "docs/AUTO_SELECTION.md"
+  ],
+  "note": "Панель формирует отдельную плитку и шаблон с балансировщиком; узел по этому шаблону выбирает ядро Xray в приложении клиента. Выбора узла на самом сервере при выдаче подписки нет. Проверено на модели панели. На настоящей панели Remnawave и в приложениях клиентов не проверено: нужен VPS (O1)."
+ },
+ "REQ-AUTO-0004": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTO_SELECTION.md",
+   "admin/src/autoselect.tsx"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0005": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_extensions.py",
+   "tests/test_rw_extensions.py",
+   "docs/AUTO_SELECTION.md"
+  ],
+  "note": "Заготовка балансировщика по всему списку есть в «Расширения Remnawave → Готовые фрагменты»; владелец вставляет её в шаблон сам. Пул автовыбора старый режим не меняет."
+ },
+ "REQ-AUTO-0007": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0008": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0009": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0010": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0011": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTO_SELECTION.md",
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ]
+ },
+ "REQ-AUTO-0012": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx",
+   "admin/e2e/autoselect.spec.ts"
+  ],
+  "note": "Есть: включение, обновление, удаление плитки, имя, алгоритм, выбор узлов, «выбрать все» и «снять все», скрытие, состав, доступность. Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при каждом «Обновить пул»."
+ },
+ "REQ-AUTO-0013": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx",
+   "admin/e2e/autoselect.spec.ts"
+  ],
+  "note": "Скрытие и возврат узлов проверены на модели панели; ограничение форматов показано на странице. Поведение в настоящих клиентах Clash, sing-box и Base64 не проверено: нужен VPS (O1)."
+ },
+ "REQ-AUTO-0014": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0015": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0016": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "docs/AUTO_SELECTION.md"
+  ],
+  "note": "Недоступный узел пропускается, запасной — первый узел пула, напрямую трафик не идёт; состояние узлов видно на странице. Событие переключения не записывается: узел выбирает приложение клиента, сервер о переключении не знает."
+ },
+ "REQ-AUTO-0017": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_rw_autoselect.py",
+   "admin/e2e/autoselect.spec.ts"
+  ],
+  "note": "На модели панели проверены: четыре алгоритма, скрытие и возврат, удаление плитки, смена имени, смена состава, пустой пул, удалённый узел. Изменение задержки и нагрузки, реконнект и разные форматы подписки требуют настоящего клиента Xray: O1."
+ },
+ "REQ-AUTO-0018": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTO_SELECTION.md"
+  ]
+ },
+ "REQ-AUTO-0019": {
+  "status": "PASS",
+  "evidence": [
+   "admin/src/autoselect.tsx",
+   "admin/e2e/autoselect.spec.ts"
+  ],
+  "platforms": "Web"
+ },
+ "REQ-AUTO-0020": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/src/autoselect.tsx",
+   "admin/e2e/autoselect.spec.ts",
+   "backend/app/rw_autoselect.py"
+  ],
+  "note": "Есть «Убрать плитку», «Включить <алгоритм>», «Обновить пул». Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при «Обновить пул»."
+ },
+ "REQ-AUTO-0021": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx"
+  ],
+  "note": "Показано «Видны в подписке X/Y» и «В пуле X/Y» из данных панели. Признаков «у ноды есть открытая плитка» и «inbound входит в пул» на странице нет."
+ },
+ "REQ-AUTO-0022": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTO_SELECTION.md",
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ]
+ },
+ "REQ-AUTO-0023": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "admin/src/autoselect.tsx",
+   "admin/e2e/autoselect.spec.ts"
+  ],
+  "platforms": "Web"
+ },
+ "REQ-AUTO-0024": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/e2e/autoselect.spec.ts"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0025": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx",
+   "admin/e2e/autoselect.spec.ts"
+  ],
+  "note": "Переключатель есть, скрытие и возврат проверены на модели панели. Возврат узлов у настоящего клиента после обновления подписки не проверен: O1."
+ },
+ "REQ-AUTO-0026": {
+  "status": "PASS",
+  "evidence": [
+   "admin/src/autoselect.tsx",
+   "admin/e2e/autoselect.spec.ts",
+   "docs/AUTO_SELECTION.md"
+  ],
+  "platforms": "Web"
+ },
+ "REQ-AUTO-0027": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTO_SELECTION.md",
+   "admin/src/autoselect.tsx"
+  ]
+ },
+ "REQ-AUTO-0028": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx"
+  ],
+  "note": "Есть: галочка, страна с флагом, имя, состояние, признак «раздаётся», число клиентов. Задержки и нагрузки по узлам нет: их измеряет приложение клиента, панели они неизвестны. Время проверки одно на всю страницу."
+ },
+ "REQ-AUTO-0029": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ]
+ },
+ "REQ-AUTO-0030": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0031": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0032": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "admin/src/autoselect.tsx"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-AUTO-0033": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "docs/AUTO_SELECTION.md"
+  ],
+  "note": "То же, что REQ-AUTO-0016: событие переключения не записывается."
+ },
+ "REQ-AUTO-0034": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_rw_autoselect.py",
+   "admin/e2e/autoselect.spec.ts"
+  ],
+  "note": "То же, что REQ-AUTO-0017."
+ },
+ "REQ-AUTO-0035": {
+  "status": "PASS",
+  "evidence": [
+   "admin/src/autoselect.tsx",
+   "admin/e2e/autoselect.spec.ts",
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py"
+  ],
+  "platforms": "Web, backend/API"
  }
 }
