@@ -47,14 +47,14 @@ test('auto-selection pool: choose nodes, switch on, hide, refresh, remove', asyn
   await expect(root.locator('[data-stat="subscription"]')).toContainText('Видны в подписке: 2/2');
   // Real state per node; a disabled host cannot be chosen; the panel setting is reported, not hidden.
   await expect(root.locator(`[data-host="${CZ}"]`)).toContainText('не на связи');
-  await expect(root.getByLabel('В пуле: Выключенный')).toBeDisabled();
+  await expect(root.getByLabel('В пуле: Выключенный', {exact: true})).toBeDisabled();
   await expect(root.getByText('Формат Xray JSON не основной')).toBeVisible();
   const start = root.getByRole('button', {name: 'Включить leastPing'});
   await expect(start).toBeDisabled();  // nothing chosen yet
 
   await root.getByRole('button', {name: 'Выбрать все'}).click();
-  await root.getByLabel('Алгоритм').selectOption('leastLoad');
-  await root.getByLabel('Имя плитки').fill('🚀 Быстрый');
+  await root.getByLabel('Алгоритм', {exact: true}).selectOption('leastLoad');
+  await root.getByLabel('Имя плитки', {exact: true}).fill('🚀 Быстрый');
   await expect(root.getByText('В Clash, Mihomo, sing-box и Base64 плитка не показывается')).toBeVisible();
   await root.getByRole('button', {name: 'Включить leastLoad'}).click();
   await expect(root.getByText('Плитка включена')).toBeVisible();
@@ -62,7 +62,7 @@ test('auto-selection pool: choose nodes, switch on, hide, refresh, remove', asyn
   await expect(root.locator('[data-stat="pool"]')).toContainText('В пуле: 2/2');
   await expect(root.locator('[data-stat="pool"]')).toContainText('на связи 1, не на связи 1');
 
-  await root.getByLabel('Скрыть узлы пула из списка приложения').check();
+  await root.getByLabel('Скрыть узлы пула из списка приложения', {exact: true}).check();
   await expect(root.getByText('там плитка ведёт на первый узел пула')).toBeVisible();  // the honest limit of other formats
   await root.getByRole('button', {name: 'Сохранить и обновить пул'}).click();
   await expect(root.locator('[data-stat="subscription"]')).toContainText('Видны в подписке: 0/2');
