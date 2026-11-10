@@ -474,6 +474,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/runtime-settings/changes/{change_id}/apply` | Admin Apply Runtime Settings | право `settings.runtime.write` |
 | `POST` | `/api/admin/runtime-settings/changes/{change_id}/rollback` | Admin Rollback Runtime Settings | право `settings.runtime.write` |
 | `POST` | `/api/admin/runtime-settings/stage` | Admin Stage Runtime Settings | право `settings.runtime.write` |
+| `DELETE` | `/api/admin/rw/autoselect` | Delete Pool | право `provision_nodes` |
+| `GET` | `/api/admin/rw/autoselect` | Get Pool | право `read` |
+| `PUT` | `/api/admin/rw/autoselect` | Put Pool | право `provision_nodes` |
+| `POST` | `/api/admin/rw/autoselect/refresh` | Refresh Pool | право `provision_nodes` |
 | `GET` | `/api/admin/rw/certificates` | Certificates | право `read` |
 | `POST` | `/api/admin/rw/certificates/check` | Check All | право `read` |
 | `GET` | `/api/admin/rw/domains` | List Domains | право `read` |
