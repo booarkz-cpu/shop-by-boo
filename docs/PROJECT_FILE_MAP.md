@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2443**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2444**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1864,6 +1864,7 @@
 | [screenshots/admin_panel/91_status.png](../screenshots/admin_panel/91_status.png) | Корень проекта |
 | [screenshots/admin_panel/92_install.png](../screenshots/admin_panel/92_install.png) | Корень проекта |
 | [screenshots/admin_panel/93_selfsteal.png](../screenshots/admin_panel/93_selfsteal.png) | Корень проекта |
+| [screenshots/admin_panel/94_autoselect.png](../screenshots/admin_panel/94_autoselect.png) | Корень проекта |
 | [screenshots/admin_panel/features/ai-knowledge.png](../screenshots/admin_panel/features/ai-knowledge.png) | Корень проекта |
 | [screenshots/admin_panel/features/anti-sharing.png](../screenshots/admin_panel/features/anti-sharing.png) | Корень проекта |
 | [screenshots/admin_panel/features/api-mirrors.png](../screenshots/admin_panel/features/api-mirrors.png) | Корень проекта |
