@@ -43,7 +43,7 @@ MODULES: tuple[tuple[int, str, tuple[str, ...], tuple[str, ...], str], ...] = (
     (16, "Certificates", ("domains",), ("rw/certificates",), ""),
     (17, "Reverse Proxy", ("domains",), ("rw/proxy-routes",), ""),
     (18, "Subscription Portal", ("subscriptionPortal",), ("sub-proxy",), ""),
-    (19, "Node Extensions", ("rwExtensions",), ("rw/extensions",), ""),
+    (19, "Node Extensions", ("rwExtensions", "autoselect"), ("rw/extensions", "rw/autoselect"), ""),
     (20, "Monitoring", ("monitoring", "health", "opsReadiness", "incidents", "availability"), ("monitoring", "ops", "block-monitor", "health", "integrity", "status"), ""),
     (21, "Backups", ("backups", "recovery"), ("backups", "recovery"), ""),
     (22, "Updates", ("releases", "deployments"), ("releases", "auto-update", "remnawave/auto-update", "deployments"), ""),

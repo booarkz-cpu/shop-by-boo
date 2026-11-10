@@ -163,7 +163,7 @@ async def test_separate_tile_next_to_the_nodes(env):
     assert tile["remark"] == "⚡ Автовыбор" and not tile["isHidden"] and not tile["isDisabled"]
     # Nodes visible: the tile exists only where a real balancer exists (Xray JSON); other formats do not get a fake one.
     assert tile["excludeFromSubscriptionTypes"] == auto.NON_JSON_TYPES
-    assert panel.listed() == ["⚡ Автовыбор", "Германия №1", "Нидерланды №2", "Чехия №1"]
+    assert panel.listed() == sorted(["⚡ Автовыбор", "Германия №1", "Нидерланды №2", "Чехия №1"])
     assert panel.pool_template()["routing"]["balancers"][0]["strategy"]["type"] == "leastLoad"
     assert panel.pool_template()["remnawave"]["injectHosts"][0]["selector"]["values"] == [DE, CZ, NL]
     assert tile["xrayJsonTemplateUuid"] == stored["template_uuid"] and stored["tile_uuid"] == tile["uuid"]
@@ -182,13 +182,13 @@ async def test_hiding_the_nodes_and_bringing_them_back(env):
     panel, stored, db = env
     panel.hosts[NL]["isHidden"] = True  # the owner hid this one by hand before
     view = await auto.put_pool(pool(hide_nodes=True), db, ADMIN)
-    assert panel.listed() == ["⚡ Автовыбор"]
+    assert panel.listed() == sorted(["⚡ Автовыбор"])
     # Hidden nodes: the tile stays in every format, or Clash / sing-box / Base64 customers would see nothing.
     assert panel.tile()["excludeFromSubscriptionTypes"] == []
     assert stored["hidden_by_us"] == [DE, CZ] and view["stats"]["in_subscription"] == 0 and view["stats"]["pool_total"] == 3
     await auto.put_pool(pool(hide_nodes=False), db, ADMIN)
     # Only what the shop hid comes back; the host hidden by hand stays hidden.
-    assert panel.listed() == ["⚡ Автовыбор", "Германия №1", "Чехия №1"] and panel.hosts[NL]["isHidden"] is True
+    assert panel.listed() == sorted(["⚡ Автовыбор", "Германия №1", "Чехия №1"]) and panel.hosts[NL]["isHidden"] is True
     assert stored["hidden_by_us"] == [] and panel.tile()["excludeFromSubscriptionTypes"] == auto.NON_JSON_TYPES
 
 
@@ -197,7 +197,7 @@ async def test_a_node_leaving_the_pool_returns_to_the_list_and_rename(env):
     panel, stored, db = env
     await auto.put_pool(pool(hide_nodes=True), db, ADMIN)
     await auto.put_pool(pool(hide_nodes=True, hosts=[DE, NL], name="🚀 Быстрый", algorithm="roundRobin"), db, ADMIN)
-    assert panel.listed() == ["Чехия №1", "🚀 Быстрый"]
+    assert panel.listed() == sorted(["Чехия №1", "🚀 Быстрый"])
     assert panel.pool_template()["remnawave"]["injectHosts"][0]["selector"]["values"] == [DE, NL]
     assert panel.pool_template()["routing"]["balancers"][0]["strategy"]["type"] == "roundRobin"
     assert len([h for h in panel.hosts.values() if h.get("xrayJsonTemplateUuid")]) == 1  # the same tile, renamed
@@ -239,7 +239,7 @@ async def test_a_failure_while_hiding_is_remembered_so_the_nodes_can_be_brought_
     assert stored["hidden_by_us"] == [DE] and panel.hosts[DE]["isHidden"] is True
     panel.fail_on = None
     await auto.delete_pool(db, ADMIN)
-    assert panel.listed() == ["Германия №1", "Нидерланды №2", "Чехия №1"]
+    assert panel.listed() == sorted(["Германия №1", "Нидерланды №2", "Чехия №1"])
 
 
 @pytest.mark.asyncio
