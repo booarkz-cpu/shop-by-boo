@@ -923,17 +923,25 @@
  "REQ-NODE-0014": {
   "status": "PARTIAL",
   "evidence": [
+   "backend/app/rw_torrent_ban.py",
+   "tests/test_rw_torrent_ban.py",
+   "admin/e2e/torrent-ban.spec.ts",
    "backend/app/torrent_detection.py",
-   "tests/test_torrent_detection.py"
+   "tests/test_torrent_detection.py",
+   "docs/TORRENT_BAN.md"
   ],
-  "note": "Есть блокировка BitTorrent плагином ноды, счётчики срабатываний, уведомления и учёт нарушений. Временного бана IP через nftables с автоматическим снятием нет.",
+  "note": "Временный бан адреса с автоматическим снятием включается одной кнопкой в «Торренты на узлах»: это плагин Torrent Blocker ноды (nftables), срок, список исключений, выбор нод, журнал блокировок. Счётчики, уведомления и учёт нарушений есть. На настоящей ноде блокировка и её снятие не проверены: нет VPS.",
   "platforms": "server, backend/API, Web"
  },
  "REQ-NODE-0068": {
   "status": "PARTIAL",
   "evidence": [
+   "backend/app/rw_torrent_ban.py",
+   "tests/test_rw_torrent_ban.py",
+   "admin/e2e/torrent-ban.spec.ts",
    "backend/app/torrent_detection.py",
-   "tests/test_torrent_detection.py"
+   "tests/test_torrent_detection.py",
+   "docs/TORRENT_BAN.md"
   ],
   "note": "То же, что REQ-NODE-0014.",
   "platforms": "server, backend/API, Web"

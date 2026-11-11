@@ -2249,8 +2249,8 @@
 
 - Источник: Часть I → Server Installation Maintenance → Torrent Blocker (строка 507). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`.
-- Примечание: Есть блокировка BitTorrent плагином ноды, счётчики срабатываний, уведомления и учёт нарушений. Временного бана IP через nftables с автоматическим снятием нет.
+- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `admin/e2e/torrent-ban.spec.ts`; `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
+- Примечание: Временный бан адреса с автоматическим снятием включается одной кнопкой в «Торренты на узлах»: это плагин Torrent Blocker ноды (nftables), срок, список исключений, выбор нод, журнал блокировок. Счётчики, уведомления и учёт нарушений есть. На настоящей ноде блокировка и её снятие не проверены: нет VPS.
 
 > Обнаружение BitTorrent в логах Xray; временный бан IP; nftables/iptables; правила; журнал; автоматическое снятие; диагностика; предупреждение о влиянии на общие ноды; до перезапуска Xray показать последствия.
 
@@ -2653,7 +2653,7 @@
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1584). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`.
+- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `admin/e2e/torrent-ban.spec.ts`; `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
 - Примечание: То же, что REQ-NODE-0014.
 
 > - временная блокировка torrent IP через nftables/iptables;
