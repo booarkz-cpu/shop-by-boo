@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.111.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.112.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2437**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2444**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -120,6 +120,7 @@
 | [admin/e2e/app-config.spec.ts](../admin/e2e/app-config.spec.ts) | Админ-панель |
 | [admin/e2e/app-growth.spec.ts](../admin/e2e/app-growth.spec.ts) | Админ-панель |
 | [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
+| [admin/e2e/autoselect.spec.ts](../admin/e2e/autoselect.spec.ts) | Админ-панель |
 | [admin/e2e/bot-banners.spec.ts](../admin/e2e/bot-banners.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-apps.spec.ts](../admin/e2e/cabinet-apps.spec.ts) | Админ-панель |
 | [admin/e2e/cabinet-design.spec.ts](../admin/e2e/cabinet-design.spec.ts) | Админ-панель |
@@ -169,6 +170,7 @@
 | [admin/src/autoUpdate.tsx](../admin/src/autoUpdate.tsx) | Админ-панель |
 | [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
 | [admin/src/automationCenter.tsx](../admin/src/automationCenter.tsx) | Админ-панель |
+| [admin/src/autoselect.tsx](../admin/src/autoselect.tsx) | Админ-панель |
 | [admin/src/blockMonitor.tsx](../admin/src/blockMonitor.tsx) | Админ-панель |
 | [admin/src/botBanners.tsx](../admin/src/botBanners.tsx) | Админ-панель |
 | [admin/src/cabinet-texts.tsx](../admin/src/cabinet-texts.tsx) | Админ-панель |
@@ -575,6 +577,7 @@
 | [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
 | [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
 | [backend/app/rw_api.py](../backend/app/rw_api.py) | API, бот и worker |
+| [backend/app/rw_autoselect.py](../backend/app/rw_autoselect.py) | API, бот и worker |
 | [backend/app/rw_autoupdate.py](../backend/app/rw_autoupdate.py) | API, бот и worker |
 | [backend/app/rw_domains.py](../backend/app/rw_domains.py) | API, бот и worker |
 | [backend/app/rw_extensions.py](../backend/app/rw_extensions.py) | API, бот и worker |
@@ -781,6 +784,7 @@
 | [docker-compose.yml](../docker-compose.yml) | Корень проекта |
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
 | [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
+| [docs/AUTO_SELECTION.md](../docs/AUTO_SELECTION.md) | Документация |
 | [docs/AUTO_UPDATE.md](../docs/AUTO_UPDATE.md) | Документация |
 | [docs/AUTO_UPDATE_SECURITY.md](../docs/AUTO_UPDATE_SECURITY.md) | Документация |
 | [docs/AUTO_UPDATE_TESTING.md](../docs/AUTO_UPDATE_TESTING.md) | Документация |
@@ -1137,6 +1141,7 @@
 | [docs/ru/RELEASE_V28_10_0.md](../docs/ru/RELEASE_V28_10_0.md) | Документация |
 | [docs/ru/RELEASE_V28_110_0.md](../docs/ru/RELEASE_V28_110_0.md) | Документация |
 | [docs/ru/RELEASE_V28_111_0.md](../docs/ru/RELEASE_V28_111_0.md) | Документация |
+| [docs/ru/RELEASE_V28_112_0.md](../docs/ru/RELEASE_V28_112_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
@@ -1859,6 +1864,7 @@
 | [screenshots/admin_panel/91_status.png](../screenshots/admin_panel/91_status.png) | Корень проекта |
 | [screenshots/admin_panel/92_install.png](../screenshots/admin_panel/92_install.png) | Корень проекта |
 | [screenshots/admin_panel/93_selfsteal.png](../screenshots/admin_panel/93_selfsteal.png) | Корень проекта |
+| [screenshots/admin_panel/94_autoselect.png](../screenshots/admin_panel/94_autoselect.png) | Корень проекта |
 | [screenshots/admin_panel/features/ai-knowledge.png](../screenshots/admin_panel/features/ai-knowledge.png) | Корень проекта |
 | [screenshots/admin_panel/features/anti-sharing.png](../screenshots/admin_panel/features/anti-sharing.png) | Корень проекта |
 | [screenshots/admin_panel/features/api-mirrors.png](../screenshots/admin_panel/features/api-mirrors.png) | Корень проекта |
@@ -2331,6 +2337,7 @@
 | [tests/test_requirements_register.py](../tests/test_requirements_register.py) | Проверки |
 | [tests/test_route_authorization.py](../tests/test_route_authorization.py) | Проверки |
 | [tests/test_runtime_settings.py](../tests/test_runtime_settings.py) | Проверки |
+| [tests/test_rw_autoselect.py](../tests/test_rw_autoselect.py) | Проверки |
 | [tests/test_rw_autoupdate.py](../tests/test_rw_autoupdate.py) | Проверки |
 | [tests/test_rw_camouflage.py](../tests/test_rw_camouflage.py) | Проверки |
 | [tests/test_rw_extensions.py](../tests/test_rw_extensions.py) | Проверки |

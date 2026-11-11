@@ -20,3 +20,9 @@
 - Создан `docs/PAYMENT_PROVIDER_INVENTORY.md`: список владельца против кода. Его строит и проверяет в CI
   `scripts/audit/check_payment_provider_registry.py`.
 - Удалений и объединений нет.
+
+## 2026-11-11, раздел «Автовыбор»
+
+- Раздел реализован в выпуске v28.112.0 (`backend/app/rw_autoselect.py`, `docs/AUTO_SELECTION.md`).
+- Сверены 34 из 35 требований: 21 `PASS`, 13 `PARTIAL`. Не сверено одно — REQ-AUTO-0003 (автовыбор в приложении клиента).
+- Удалений и объединений нет.

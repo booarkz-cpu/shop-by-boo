@@ -40,6 +40,7 @@ OPS: tuple[tuple, ...] = (
     ("panel_domain", "panel", "Открыть панель по домену", "Домен и сертификат панели, записи DNS, маршруты Caddy.", False, True, ("tab", "domains")),
     ("sub_page", "panel", "Страница подписки", "Своя страница: «добавить в приложение», QR, срок и трафик — рядом с панелью или отдельно.", False, True, ("tab", "subscriptionPortal")),
     ("panel_profiles", "panel", "Профили, хосты и сквады", "Профили конфигурации нод, хосты и внутренние сквады панели.", False, False, ("tab", "remnawave")),
+    ("autoselect_pool", "panel", "Пул автовыбора", "Плитка «Автовыбор»: узлы пула, четыре алгоритма, скрытие узлов из списка — без SSH.", False, False, ("tab", "autoselect")),
     ("client_balancer", "panel", "Автовыбор сервера в приложении", "Балансировщик клиента (leastPing) в шаблоне подписки — без SSH.", False, False, ("tab", "rwExtensions")),
     ("add_node", "nodes", "Подключить ноду", "Нода к панели — один сервер или несколько сразу.", True, True, ("install", None)),
     ("all_protocols", "nodes", "Все протоколы на одной ноде", "TCP/xHTTP/gRPC + REALITY, Hysteria2, VLESS + TCP + TLS; отпечаток браузера, TLS 1.2/1.3.", True, True, ("module", "transports", "node")),
