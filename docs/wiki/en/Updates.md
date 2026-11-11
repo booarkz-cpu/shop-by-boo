@@ -61,11 +61,7 @@ If a safe rollback is impossible, the update stops, diagnostics are preserved an
 
 ```bash
 bash scripts/backup.sh
-<<<<<<< HEAD
 sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.121.0 bash /opt/vpn-shop/scripts/update-from-github.sh
-=======
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.120.0 bash /opt/vpn-shop/scripts/update-from-github.sh
->>>>>>> origin/main
 ```
 
 ## What the "Updates" section shows

@@ -1,10 +1,6 @@
 # Shop by Boo — проектная спецификация
 
-<<<<<<< HEAD
 > Актуальный дистрибутив: `v28.121.0`; runtime/API: `21.5.1`; migration head: `0094_store_subscriptions`.
-=======
-> Актуальный дистрибутив: `v28.120.0`; runtime/API: `21.5.1`; migration head: `0094_store_subscriptions`.
->>>>>>> origin/main
 
 ## Назначение
 
@@ -46,10 +42,6 @@ bash scripts/test-up.sh
 ```
 
 
-<<<<<<< HEAD
 ## Контракт дистрибутива v28.121.0
-=======
-## Контракт дистрибутива v28.120.0
->>>>>>> origin/main
 
 Runtime/API сохраняет `21.5.1`; магазин — `0094_store_subscriptions`, Support Pro — `0008`. Миграция 0078 добавляет расписание и A/B-варианты push-кампаний (`push_campaigns.scheduled_at`, `sent_at`, `title_b`, `body_b`, `b_percent`, `conversion_days`, таблица `push_campaign_recipients`); её downgrade удаляет только маркетинговую статистику. Защищённая история runtime-конфигурации (миграция 0064) блокирует свой downgrade после появления истории. Реестр классифицирует все 226 полей: 134 live, 90 deployment и 2 специализированных workflow. `backend/app/release_identity.py` задаёт тег дистрибутива независимо от API. `release-manifest.template.json` — канонический источник имён релизных файлов. Загрузчик требует совпадения тега, версии API, SHA-256 и коммита; publisher проверяет CI и Docker на текущем `main`, не перемещает существующий тег и не заменяет несовпадающие assets. Матрица остаётся открытой для неперенесённых подсистем и внешней приёмки.

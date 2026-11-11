@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-<<<<<<< HEAD
 """Print the test files of one half of the backend suite (CI job «Backend», v28.121.0).
-=======
-"""Print the test files of one half of the backend suite (CI job «Backend», v28.120.0).
->>>>>>> origin/main
 
     python scripts/ci/test-shard.py 1 2   # files of shard 1 of 2, one per line
 

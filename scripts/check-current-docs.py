@@ -11,11 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
-<<<<<<< HEAD
 DISTRIBUTION_TAG = "v28.121.0"
-=======
-DISTRIBUTION_TAG = "v28.120.0"
->>>>>>> origin/main
 SHOP_HEAD = "0094_store_subscriptions"
 SUPPORT_HEAD = "0008"
 
@@ -47,11 +43,7 @@ def main() -> None:
     require("docs/ru/WORKSPACE_COVERAGE.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/ACCOUNT_MERGE_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
     require("docs/ru/RUNTIME_SETTINGS_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
-<<<<<<< HEAD
     require("docs/ru/RELEASE_V28_121_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
-=======
-    require("docs/ru/RELEASE_V28_120_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
->>>>>>> origin/main
     require("docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md", DISTRIBUTION_TAG, SHOP_HEAD, "admission/attestation")
     require("PROJECT_SPEC.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "134")
     require("PROJECT_STRUCTURE.md", DISTRIBUTION_TAG, SHOP_HEAD, "runtime_settings.py")
@@ -63,21 +55,12 @@ def main() -> None:
     expected = {
         "version": VERSION,
         "distribution_tag": DISTRIBUTION_TAG,
-<<<<<<< HEAD
         "artifact": "remnawave_vpn_shop_v28_121_0_full_release.zip",
         "detached_manifest": "remnawave_vpn_shop_v28_121_0_full_release_manifest.json",
         "migration_head": SHOP_HEAD,
         "support_migration_head": SUPPORT_HEAD,
         "upgrade_from": "21.5.0",
         "release_notes": "docs/ru/RELEASE_V28_121_0.md",
-=======
-        "artifact": "remnawave_vpn_shop_v28_120_0_full_release.zip",
-        "detached_manifest": "remnawave_vpn_shop_v28_120_0_full_release_manifest.json",
-        "migration_head": SHOP_HEAD,
-        "support_migration_head": SUPPORT_HEAD,
-        "upgrade_from": "21.5.0",
-        "release_notes": "docs/ru/RELEASE_V28_120_0.md",
->>>>>>> origin/main
     }
     mismatches = {key: (manifest.get(key), value) for key, value in expected.items() if manifest.get(key) != value}
     if mismatches:

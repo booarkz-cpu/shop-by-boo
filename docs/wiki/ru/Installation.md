@@ -36,13 +36,8 @@ dig +short admin.ваш-домен.ru
 Одной командой:
 
 ```bash
-<<<<<<< HEAD
 curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.121.0/install.sh -o /root/shop-install.sh
 BRANCH=v28.121.0 bash /root/shop-install.sh
-=======
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.120.0/install.sh -o /root/shop-install.sh
-BRANCH=v28.120.0 bash /root/shop-install.sh
->>>>>>> origin/main
 ```
 
 Установщик спросит домены, цены и пароль администратора, поставит Docker, соберёт образы, применит миграции
@@ -106,11 +101,7 @@ curl -s localhost:8000/health
 
 ```bash
 bash scripts/backup.sh
-<<<<<<< HEAD
 sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.121.0 bash /opt/vpn-shop/scripts/update-from-github.sh
-=======
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.120.0 bash /opt/vpn-shop/scripts/update-from-github.sh
->>>>>>> origin/main
 ```
 
 Подробно: [Обновления](Updates.md).

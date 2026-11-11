@@ -13,13 +13,8 @@ android {
         applicationId = "shop.corgi.client"
         minSdk = 26
         targetSdk = 36
-<<<<<<< HEAD
         versionCode = 193
         versionName = "1.9.3"
-=======
-        versionCode = 192
-        versionName = "1.9.2"
->>>>>>> origin/main
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // v1.6.1 (N11): the AndroidLibXrayLite commit the AAR is built from, shown in «О приложении».
         val xrayAar = rootProject.file("../../scripts/mobile/build-xray-aar.sh")
