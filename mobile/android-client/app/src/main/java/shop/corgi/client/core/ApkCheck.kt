@@ -20,6 +20,12 @@ object ApkCheck {
 
     fun matches(file: File, expected: String): Boolean = file.isFile && file.length() > 0 && sha256(file) == expected.lowercase()
 
+    /**
+     * v1.9.2: whether the background job installs the downloaded update itself. An update restarts the app, so never
+     * while the VPN works; before Android 12 the system always asks, and the question cannot be shown from the background.
+     */
+    fun installNow(sdk: Int, vpnRunning: Boolean): Boolean = sdk >= 31 && !vpnRunning
+
     /** Once a day at most, unless forced. */
     fun due(now: Long, last: Long, force: Boolean = false): Boolean = force || now - last >= DAY_MS
 

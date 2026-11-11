@@ -46,4 +46,21 @@ class AppUpdateTest {
         assertNull(AppUpdate.offer(null, 0))
         assertTrue(AppUpdate.MANIFEST.endsWith("/releases/latest/download/corgi-lusi-android.json"))
     }
+
+    /** v3.7.0: the background job installs by itself only where the system can do it silently and no VPN is cut. */
+    @Test fun backgroundInstallOnlyWithoutAWorkingVpn() {
+        assertTrue(AppUpdater.installNow(sdk = 31, vpnRunning = false))
+        assertFalse("an update restarts the app: never under a working VPN", AppUpdater.installNow(sdk = 36, vpnRunning = true))
+        assertFalse("before Android 12 the system always asks", AppUpdater.installNow(sdk = 30, vpnRunning = false))
+    }
+
+    @Test fun downloadedFileIsCheckedByItsSha256() {
+        val file = java.io.File.createTempFile("shop", ".apk").apply { writeText("abc") }
+        val sum = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        assertEquals(sum, AppUpdater.sha256(file))
+        assertTrue(AppUpdater.matches(file, sum.uppercase()))
+        assertFalse(AppUpdater.matches(file, "0".repeat(64)))
+        assertFalse("an empty file never matches", AppUpdater.matches(java.io.File.createTempFile("empty", ".apk"), sum))
+        assertEquals("corgi-lusi-android", AppUpdater.STEM)
+    }
 }

@@ -549,9 +549,9 @@ private fun AboutPage(store: Store) {
         var s by remember { mutableStateOf(store.settings) }
         Section(tr("Обновления", "Updates", "Оновлення")) {
             ToggleRow(tr("Обновлять автоматически", "Update automatically", "Оновлювати автоматично"),
-                tr("Раз в сутки по Wi-Fi: новая версия с новым ядром Xray скачивается и проверяется, установка — по нажатию",
-                    "Once a day on Wi-Fi: a new version with a new Xray core is downloaded and checked, installed by a tap",
-                    "Раз на добу через Wi-Fi: нова версія з новим ядром Xray завантажується й перевіряється"), s.autoUpdateApp) {
+                tr("Раз в сутки по Wi-Fi новая версия скачивается, проверяется и ставится сама, когда VPN выключен. Если Android просит подтверждение — по нажатию",
+                    "Once a day on Wi-Fi a new version is downloaded, checked and installed by itself while the VPN is off. If Android asks to confirm — by a tap",
+                    "Раз на добу через Wi-Fi нова версія завантажується, перевіряється і встановлюється сама, коли VPN вимкнено. Якщо Android просить підтвердження — за натисканням"), s.autoUpdateApp) {
                 s = s.copy(autoUpdateApp = it); store.settings = s; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
             ToggleRow(tr("Обновлять geo-файлы", "Update the geo files", "Оновлювати geo-файли"),
                 tr("Раз в сутки, если они скачаны", "Once a day, when they are downloaded", "Раз на добу, якщо вони завантажені"), s.autoUpdateGeo) {

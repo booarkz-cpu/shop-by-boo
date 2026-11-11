@@ -12,18 +12,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * v3.6.0: the app finds its own new version in the shop's latest release on GitHub. Every release carries
+ * v3.6.0 (the window), v3.7.0 (the background update, AppUpdater): the app finds its own new version in the shop's latest release on GitHub. Every release carries
  * corgi-lusi-android-admin.json next to corgi-lusi-android-admin.apk:
  * {"versionCode": 3600, "versionName": "3.6.0", "sha256": "…", "apk": "https://github.com/…/corgi-lusi-android-admin.apk"}.
  * The app compares versionCode once a day and offers the APK; Android checks that the signature matches the
@@ -58,10 +60,13 @@ data class AppUpdate(val versionCode: Int, val versionName: String, val sha256: 
         /** What to show: nothing for a version the person already put off. */
         fun offer(found: AppUpdate?, dismissedCode: Int): AppUpdate? = found?.takeIf { it.versionCode > dismissedCode }
 
-        private fun installer(context: Context): String? = runCatching {
+        fun installer(context: Context): String? = runCatching {
             if (Build.VERSION.SDK_INT >= 30) context.packageManager.getInstallSourceInfo(context.packageName).installingPackageName
             else @Suppress("DEPRECATION") context.packageManager.getInstallerPackageName(context.packageName)
         }.getOrNull()
+
+        /** The newer version in the latest release, asked right now (the daily job; call off the main thread). */
+        fun latest(current: Int): AppUpdate? = newer(fetch(), current)
 
         private fun fetch(): String {
             val connection = (URL(MANIFEST).openConnection() as HttpURLConnection).apply {
@@ -102,8 +107,11 @@ data class AppUpdate(val versionCode: Int, val versionName: String, val sha256: 
 fun AppUpdateDialog(current: Int, debug: Boolean, skip: Boolean, t: (String) -> String) {
     val context = LocalContext.current
     var update by remember { mutableStateOf<AppUpdate?>(null) }
+    val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
-        if (!skip) update = withContext(Dispatchers.IO) { AppUpdate.check(context, current, debug) }
+        if (skip) return@LaunchedEffect
+        if (!debug) AppUpdater.schedule(context)   // v3.7.0: the daily background update
+        update = withContext(Dispatchers.IO) { AppUpdate.check(context, current, debug) }
     }
     val found = update ?: return
     AlertDialog(
@@ -113,8 +121,13 @@ fun AppUpdateDialog(current: Int, debug: Boolean, skip: Boolean, t: (String) -> 
         text = { Text(t("update_body")) },
         confirmButton = {
             TextButton(onClick = {
-                runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(found.apk)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
                 update = null
+                // v3.7.0: downloaded and checked by the app, installed by the system; the browser is the fallback.
+                scope.launch(Dispatchers.IO) {
+                    runCatching { AppUpdater.install(context, AppUpdater.download(context, found), background = false) }.onFailure {
+                        runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(found.apk)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    }
+                }
             }) { Text(t("update_install")) }
         },
         dismissButton = { TextButton(onClick = { AppUpdate.dismiss(context, found); update = null }) { Text(t("update_later")) } }
