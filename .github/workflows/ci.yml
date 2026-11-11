@@ -123,6 +123,11 @@ jobs:
         run: |
           sudo apt-get install -y -qq nftables iproute2 iputils-ping >/dev/null
           sudo env "PATH=$PATH" bash scripts/ci/netmods-check.sh
+      - name: CrowdSec module of «Установка» for real (install, ban reaches nftables, removal)
+        # v28.114.0: the script of backend/app/rw_netmods.py on the runner, from the official CrowdSec repository.
+        if: matrix.shard == 1
+        timeout-minutes: 10
+        run: sudo env "PATH=$PATH" bash scripts/ci/crowdsec-check.sh
       - name: MTProto module on the runner
         # v28.94.0 (N7): rw_netmods.MTPROTO with the pinned mtg image — secret, container, port, «off».
         if: matrix.shard == 1
