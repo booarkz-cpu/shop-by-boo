@@ -63,6 +63,7 @@ OPS: tuple[tuple, ...] = (
     ("mss_clamp", "nodes", "MSS clamp", "Меряет MTU пути до Cloudflare и Яндекса; если он меньше MTU интерфейса — включает MSS clamp. Нода не перезапускается.", True, False, ("module", "mss_clamp", "node")),
     ("hardening", "protect", "Базовая защита и ускорение", "fail2ban, обновления безопасности, BBR, SSH только с ваших адресов.", True, True, ("module", "hardening", "any")),
     ("node_guard", "protect", "Защита ноды (nftables)", "Лимит новых соединений с одного адреса на портах ноды, автобан на 10 минут; ваш адрес, панель и CGNAT — без ограничений.", True, True, ("module", "node_guard", "node")),
+    ("crowdsec", "protect", "CrowdSec — защита от брутфорса", "Перебор паролей SSH и сканеры банятся на уровне nftables; ваш адрес, магазин и панель — в белом списке. Общий список блокировок CrowdSec — по желанию.", True, False, ("module", "crowdsec", "any")),
     ("swap", "protect", "Файл подкачки", "Swap нужного размера и vm.swappiness=10 после проверки свободного места.", True, False, ("module", "swap", "any")),
     ("watchdog", "protect", "Самовосстановление", "Таймер на сервере поднимает остановленные контейнеры и перезапускает зависшую панель.", True, True, ("module", "watchdog", "any")),
     ("ipv6", "protect", "IPv6 на сервере", "Включить или выключить IPv6 (прежняя настройка возвращается при ошибке).", True, False, ("module", "ipv6", "any")),

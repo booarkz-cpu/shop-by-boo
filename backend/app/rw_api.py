@@ -109,7 +109,7 @@ class ModuleIn(BaseModel):
     """v28.70.0: a node module for the servers of an installation (docs/ru/new/REMNAWAVE_EXTENSIONS.md)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon", "crowdsec"]
     # v28.98.0 (N7): Cloudflare CDN — what goes behind it, the CDN domain of the nodes, the owner's API token.
     cdn_nodes: bool = False
     cdn_subscription: bool = False
@@ -124,6 +124,7 @@ class ModuleIn(BaseModel):
     guard_allow: list[str] | None = Field(default=None, max_length=10)
     guard_mode: Literal["enforce", "observe"] | None = None
     swap_mb: int | None = Field(default=None, ge=256, le=16384)
+    crowdsec_community: bool | None = None                                      # v28.114.0
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     selfsteal_template: str | None = Field(default=None, max_length=40)         # v28.88.0; v28.91.0 — the catalogue or «custom»
@@ -559,7 +560,8 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
         run["management_url"] = mod.management_url or None
     if mod.name == "hardening":
         run["hardening"] = (mod.hardening or rw_plan.Hardening()).model_dump()
-    for key in ("guard_ports", "guard_rate", "guard_allow", "guard_mode", "swap_mb", "mtproto_port", "mtproto_domain", "psiphon_port", "psiphon_protocol"):
+    for key in ("guard_ports", "guard_rate", "guard_allow", "guard_mode", "swap_mb", "mtproto_port", "mtproto_domain", "psiphon_port", "psiphon_protocol",
+                "crowdsec_community"):
         if getattr(mod, key) is not None:
             run[key] = getattr(mod, key)
     if mod.name == "cdn":

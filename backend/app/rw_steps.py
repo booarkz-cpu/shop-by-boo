@@ -1049,7 +1049,7 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if result.code != 0 or (enabled and "watchdog=active" not in result.out):
             raise StepError("Таймер самовосстановления не запустился (журнал шага)")
         mods["watchdog"] = enabled
-    elif name in ("mss_clamp", "node_guard", "swap", "mtproto", "psiphon"):
+    elif name in ("mss_clamp", "node_guard", "swap", "mtproto", "psiphon", "crowdsec"):
         await _run_netmod(ctx, sid, name, p, enabled, mods)
     elif name == "sni_scan":
         from . import rw_netmods
@@ -1490,6 +1490,17 @@ async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool,
                 p.get("mode") or "enforce") if enabled else ("off",)
         result = await _run(ctx, sid, rw_netmods.GUARD, *args, timeout=180)
         errors = {7: "На сервере нет nftables, и он не установился (apt)"}
+    elif name == "crowdsec":
+        # The same allowlist as «Защита ноды»: the owner's extra addresses, the address this SSH session comes from, the panel.
+        allow = list(dict.fromkeys([*(p.get("allow") or []), *([await _client_address(ctx, sid)] if enabled else [])]))
+        try:
+            allow.append(panel_ip(ctx))
+        except StepError:
+            _note(ctx, "Адрес панели неизвестен: в белый список не добавлен")
+        args = ("on", "on" if p.get("community") else "off", ",".join(a for a in dict.fromkeys(allow) if a) or "-") if enabled else ("off",)
+        result = await _run(ctx, sid, rw_netmods.CROWDSEC, *args, timeout=900)
+        errors = {5: "CrowdSec ставится только на Debian и Ubuntu с systemd", 6: "CrowdSec не установился или не запустился (журнал шага)",
+                  7: "Ключ репозитория CrowdSec не скачался: проверьте выход сервера в интернет"}
     elif name == "mtproto":
         args = ("on", str(p.get("mtproto_port") or 9443), p.get("mtproto_domain") or "www.cloudflare.com", rw_netmods.MTPROTO_IMAGE) if enabled else ("off",)
         result = await _run(ctx, sid, rw_netmods.MTPROTO, *args, timeout=600)
@@ -1538,12 +1549,12 @@ async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool,
 
 async def undo_node_module(ctx: Context, st: dict) -> None:
     p, sid = st["params"], st["server_id"]
-    if p["module"] in ("mss_clamp", "node_guard", "swap", "mtproto", "psiphon"):
+    if p["module"] in ("mss_clamp", "node_guard", "swap", "mtproto", "psiphon", "crowdsec"):
         from . import rw_netmods
         if p.get("enabled", True) and [sid, p["module"], True] in ctx.state.get("applied_modules", []):
             script = {"mss_clamp": rw_netmods.MSS, "node_guard": rw_netmods.GUARD, "swap": rw_netmods.SWAP, "mtproto": rw_netmods.MTPROTO,
-                      "psiphon": rw_netmods.PSIPHON}[p["module"]]
-            await _run(ctx, sid, script, "off", timeout=300)
+                      "psiphon": rw_netmods.PSIPHON, "crowdsec": rw_netmods.CROWDSEC}[p["module"]]
+            await _run(ctx, sid, script, "off", timeout=600)
         return
     if p["module"] == "node_port" and str(sid) in ctx.state.get("node_port_before", {}):
         before = ctx.state["node_port_before"].pop(str(sid))
