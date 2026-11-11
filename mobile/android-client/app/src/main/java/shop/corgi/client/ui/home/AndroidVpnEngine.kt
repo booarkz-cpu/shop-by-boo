@@ -33,7 +33,6 @@ class AndroidVpnEngine(context: Context) : VpnEngine {
 
     override fun geoReady(): Boolean = store.geoReady()
 
-
     override fun hasProfile(): Boolean = store.active() != null
 
     override fun lastError(): String = ClientVpnService.lastError(app)

@@ -245,7 +245,11 @@ private fun Header(version: String, onShare: () -> Unit) {
                 )
             }
             Text(
-                tr("Твой интернет. Твои правила. Твоя Люси", "Your internet. Your rules. Your Lusi", "Твій інтернет. Твої правила. Твоя Люсі"),
+                tr(
+                    "Твой интернет. Твои правила. Твоя Люси",
+                    "Your internet. Your rules. Your Lusi",
+                    "Твій інтернет. Твої правила. Твоя Люсі"
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.testTag("slogan")

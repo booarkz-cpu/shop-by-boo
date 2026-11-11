@@ -55,7 +55,6 @@ private class FakeEngine : VpnEngine {
 
     override fun geoReady() = geo
 
-
     override fun hasProfile() = true
 
     override fun lastError() = "boom"

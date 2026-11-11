@@ -73,7 +73,6 @@ interface VpnEngine {
 
     fun geoReady(): Boolean
 
-
     fun hasProfile(): Boolean
 
     fun lastError(): String
