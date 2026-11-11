@@ -4,7 +4,7 @@
 #  * the engine and the nftables bouncer are installed from the official repository and both services run;
 #  * the allowlist holds the addresses passed to the script;
 #  * without the shared blocklist the engine does not talk to the Central API;
-#  * a ban decision reaches nftables (the bouncer enforces it);
+#  * a ban decision reaches nftables (the bouncer enforces it); «status» lists it, «unban» lifts it and it leaves nftables;
 #  * a second run changes nothing; «off» removes the packages, the repository, the key, the data and the tables.
 # Needs root and network access to packagecloud.io.
 set -euo pipefail
@@ -33,8 +33,12 @@ cscli bouncers list -o raw | tail -n +2 | grep -q . && ok "bouncer registered" |
 cscli decisions add --ip 192.0.2.77 --duration 5m --reason corgi-ci >/dev/null
 found=0; for _ in $(seq 1 20); do if nft list ruleset 2>/dev/null | grep -q '192\.0\.2\.77'; then found=1; break; fi; sleep 2; done
 [ "$found" = 1 ] && ok "a ban reaches nftables" || { nft list ruleset | head -40; fail "the ban did not reach nftables"; }
-# An allowlisted address is never banned by a scenario decision list: the engine refuses or drops it.
-cscli decisions delete --ip 192.0.2.77 >/dev/null 2>&1 || true
+# v28.115.0: the panel's «показать блокировки» and «снять блокировку».
+st=$(bash "$s" status); echo "$st" | grep -q '^ban 192\.0\.2\.77 | corgi-ci' && echo "$st" | tail -1 | grep -q '^crowdsec=on decisions=[1-9]' && ok "status lists the ban" || { echo "$st"; fail "status"; }
+un=$(bash "$s" unban 192.0.2.77); echo "$un" | grep -q '^unbanned=192\.0\.2\.77$' && ! echo "$un" | grep -q '^ban 192\.0\.2\.77' && ok "unban lifts it" || { echo "$un"; fail "unban"; }
+gone=0; for _ in $(seq 1 20); do if ! nft list ruleset 2>/dev/null | grep -q '192\.0\.2\.77'; then gone=1; break; fi; sleep 2; done
+[ "$gone" = 1 ] && ok "the address leaves nftables" || fail "the address stayed in nftables"
+rc=0; bash "$s" unban '1.2.3.4;id' >/dev/null 2>&1 || rc=$?; [ "$rc" = 2 ] && ok "a bad address is refused" || fail "bad address accepted ($rc)"
 
 out2=$(bash "$s" on off 203.0.113.9,198.51.100.0/24) || fail "second run exited with $?"
 [ "$(echo "$out2" | tail -1)" = "$(echo "$out" | tail -1)" ] && ok "a second run gives the same state" || fail "second run differs: $(echo "$out2" | tail -1)"
@@ -46,4 +50,5 @@ if command -v cscli >/dev/null 2>&1 || dpkg -s crowdsec >/dev/null 2>&1; then dp
   && [ ! -e /etc/systemd/system/crowdsec.service.d ] || fail "files stayed"
 nft list ruleset 2>/dev/null | grep -q 'table ip crowdsec' && fail "the nftables table stayed" || ok "«off» removes everything"
 bash "$s" off >/dev/null && ok "a second «off» is harmless"
+rc=0; bash "$s" status >/dev/null 2>&1 || rc=$?; [ "$rc" = 8 ] && ok "status says «not installed» after removal" || fail "status after removal ($rc)"
 echo "crowdsec module: PASS"

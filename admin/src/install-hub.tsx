@@ -221,6 +221,8 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
   const [guardMode, setGuardMode] = useState("enforce");
   const [swap, setSwap] = useState("1024");
   const [community, setCommunity] = useState(false);
+  const [csAction, setCsAction] = useState("install");
+  const [csIp, setCsIp] = useState("");
   const [mtPort, setMtPort] = useState("9443");
   const [cdn, setCdn] = useState({nodes: true, subscription: true, domain: "", token: ""});
   const [mtDomain, setMtDomain] = useState("www.cloudflare.com");
@@ -251,7 +253,7 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
     if (name === "node_guard") Object.assign(m, {guard_rate: Number(rate), guard_mode: guardMode,
       guard_ports: ports.split(/[\s,]+/).filter(Boolean).map(Number)});
     if (name === "swap") m.swap_mb = Number(swap);
-    if (name === "crowdsec" && enabled) m.crowdsec_community = community;
+    if (name === "crowdsec" && enabled) Object.assign(m, {crowdsec_community: community, crowdsec_action: csAction}, csAction === "unban" ? {crowdsec_ip: csIp.trim()} : {});
     return m;
   }
   async function make() {
@@ -301,7 +303,15 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
       {name === "mtproto" && enabled && <>
         <label>Порт TCP<input type="number" min={1024} max={65535} value={mtPort} onChange={e => { setMtPort(e.target.value); setPlan(null); }}/></label>
         <label>Маскировка под сайт<input value={mtDomain} onChange={e => { setMtDomain(e.target.value); setPlan(null); }}/></label></>}
-      {name === "crowdsec" && enabled && <>
+      {name === "crowdsec" && enabled && <label>Что сделать
+        <select value={csAction} onChange={e => { setCsAction(e.target.value); setPlan(null); }}>
+          <option value="install">Установить или обновить настройки</option>
+          <option value="status">Показать действующие блокировки</option>
+          <option value="unban">Снять блокировку с адреса</option>
+        </select></label>}
+      {name === "crowdsec" && enabled && csAction === "unban" && <label>Адрес<input value={csIp} placeholder="203.0.113.9" onChange={e => { setCsIp(e.target.value); setPlan(null); }}/></label>}
+      {name === "crowdsec" && enabled && csAction !== "install" && <p className="muted">Список блокировок и результат появятся в журнале шага. Установка при этом не меняется.</p>}
+      {name === "crowdsec" && enabled && csAction === "install" && <>
         <label className="checkbox"><input type="checkbox" checked={community} onChange={e => { setCommunity(e.target.checked); setPlan(null); }}/> Общий список блокировок CrowdSec</label>
         <p className="muted">С общим списком сервер получает адреса известных атакующих и сам сообщает в CrowdSec адреса тех, кто атакует его. Без него CrowdSec работает только по журналам этого сервера и ни с кем не обменивается данными. Ваш адрес, адрес магазина и панели всегда в белом списке.</p></>}
       {name === "swap" && enabled && <label>Размер, МБ<input type="number" min={256} max={16384} step={256} value={swap} onChange={e => { setSwap(e.target.value); setPlan(null); }}/></label>}

@@ -227,6 +227,18 @@ on)
     systemctl is-active --quiet "$svc" || { echo "$svc is not active"; journalctl -u "$svc" -n 15 --no-pager 2>/dev/null | tail -n 15; exit 6; }
   done
   echo "crowdsec=on bouncer=nftables community=$community collections=$(cscli collections list -o raw 2>/dev/null | tail -n +2 | wc -l) allow=$n" ;;
+status|unban)
+  # v28.115.0: what is banned now, and lifting a false ban — from the panel, without a shell on the server.
+  command -v cscli >/dev/null 2>&1 || { echo "not installed"; exit 8; }
+  if [ "$action" = unban ]; then
+    ip="${2:-}"
+    case "$ip" in ""|*[!0-9a-fA-F.:]*) echo "bad address"; exit 2 ;; esac
+    cscli decisions delete --ip "$ip" >/dev/null 2>&1 || { echo "unban failed"; exit 6; }
+    echo "unbanned=$ip"
+  fi
+  # id,source,ip,reason,action,country,as,events_count,expiration,simulated,alert_id — the newest 30, without the header.
+  cscli decisions list -o raw 2>/dev/null | tail -n +2 | head -n 30 | awk -F, '{print "ban " $3 " | " $4 " | " $2 " | " $9}' | sed 's/^ban Ip:/ban /'
+  echo "crowdsec=on decisions=$(cscli decisions list -o raw 2>/dev/null | tail -n +2 | wc -l)" ;;
 off) off; echo "crowdsec=off" ;;
 *) exit 2 ;;
 esac
