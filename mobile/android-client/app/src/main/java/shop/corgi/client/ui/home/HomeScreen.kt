@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
@@ -28,7 +29,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -54,6 +54,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -61,17 +62,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import shop.corgi.client.BuildConfig
 import shop.corgi.client.R
@@ -262,32 +268,52 @@ private fun Header(version: String, onShare: () -> Unit) {
 }
 
 /**
- * v1.9.0 (master prompt v6): the banner «Свободный Гав в интернете!» with the corgi on the right. The text is drawn
- * by the app, so no crop of the picture can cut it. «ЗАЩИТА В ОДНО КАСАНИЕ» and the «Безлимит» pill are gone.
+ * v1.9.3 (owner, 2026-11-11): the banner in the style of the brand — the same as the banners of the shop apps and the
+ * Mini App: the paw and «Корги Люси», the orange line, the title in condensed capitals and the corgi sticker on the
+ * right, on the dark background with the warm glow. The text is drawn by the app, so no crop can cut it.
  * A tap connects when there is a profile and the VPN is off.
  */
 @Composable
 private fun WoofBanner(onClick: () -> Unit) {
     val shape = RoundedCornerShape(24.dp)
+    val condensed = remember { FontFamily(android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD)) }
     Row(
         Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
-            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape)
+            .background(Brush.horizontalGradient(listOf(Color(0xFF2B1A0D), Color(0xFF17171B), Color(0xFF3A2410))))
+            .border(1.dp, Brand.Orange.copy(alpha = 0.35f), shape)
             .clickable(onClick = onClick)
-            .padding(16.dp)
+            .padding(start = 18.dp, top = 14.dp, end = 8.dp, bottom = 14.dp)
             .testTag("banner-app-vpn"),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            tr("Свободный Гав в интернете!", "Free Woof on the internet!", "Вільний Гав в інтернеті!"),
-            Modifier.weight(1f).testTag("banner-text"),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Black,
-            color = MaterialTheme.colorScheme.onSurface
+        Column(Modifier.weight(1f)) {
+            Text(
+                "🐾 " + tr("Корги Люси", "Corgi Lusi", "Коргі Люсі"),
+                Modifier.testTag("banner-brand"),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = Brand.Warm
+            )
+            Spacer(Modifier.height(6.dp))
+            Box(Modifier.width(44.dp).height(4.dp).clip(CircleShape).background(Brand.Orange))
+            Spacer(Modifier.height(10.dp))
+            Text(
+                tr("Свободный Гав в интернете!", "Free Woof on the internet!", "Вільний Гав в інтернеті!").uppercase(),
+                Modifier.testTag("banner-text"),
+                fontFamily = condensed,
+                fontWeight = FontWeight.Black,
+                fontSize = 24.sp,
+                lineHeight = 27.sp,
+                color = Brand.Text
+            )
+        }
+        Image(
+            painterResource(R.drawable.banner_corgi),
+            tr("Корги Люси", "Corgi Lusi", "Коргі Люсі"),
+            Modifier.size(108.dp)
         )
-        Image(painterResource(R.drawable.corgi_logo), tr("Корги", "Corgi", "Коргі"), Modifier.size(84.dp))
     }
 }
 
@@ -372,33 +398,80 @@ private fun PulseRing() {
     )
 }
 
-/** v1.8.1 (N12): the mascot for the state; the bounce exists only while connecting (no endless animation otherwise). */
+/**
+ * v1.9.3 (owner, 2026-11-11): Lusi with the globe. VPN off — the globe stands still; connecting — the globe glows;
+ * VPN on — Lusi turns the globe: its meridians run across it. No animation runs while the VPN is off.
+ */
 @Composable
 private fun Mascot(status: VpnStatus) {
-    androidx.compose.animation.Crossfade(status, label = "mascot") { s ->
-        val (image, text) = when (s) {
-            VpnStatus.Idle -> shop.corgi.client.R.drawable.mascot_sleep to tr("Люси спит", "Lusi is asleep", "Люсі спить")
+    val text =
+        when (status) {
+            VpnStatus.Idle ->
+                tr("Люси у глобуса: VPN выключен", "Lusi at the globe: the VPN is off", "Люсі біля глобуса: VPN вимкнено")
             VpnStatus.Connecting ->
-                shop.corgi.client.R.drawable.mascot_run to
-                    tr("Люси бежит подключать", "Lusi is running to connect", "Люсі біжить підключати")
+                tr("Глобус светится: подключение", "The globe glows: connecting", "Глобус світиться: підключення")
             VpnStatus.Connected ->
-                shop.corgi.client.R.drawable.mascot_happy to
-                    tr("Люси рада: всё работает", "Lusi is happy: all works", "Люсі рада: усе працює")
+                tr("Люси крутит глобус: VPN работает", "Lusi turns the globe: the VPN works", "Люсі крутить глобус: VPN працює")
         }
-        val bounce = if (s == VpnStatus.Connecting) bounceOffset() else 0f
-        androidx.compose.foundation.Image(
-            androidx.compose.ui.res.painterResource(image),
-            text,
-            Modifier.size(120.dp).offset(y = bounce.dp).testTag("mascot-${s.name.lowercase()}")
-        )
+    val turn = if (status == VpnStatus.Connected) globeTurn() else 0f
+    val glow = if (status == VpnStatus.Connecting) globeGlow() else 0f
+    Box(Modifier.size(width = 196.dp, height = 160.dp).testTag("mascot-${status.name.lowercase()}")) {
+        // The globe of the sticker: its centre and radius as shares of the picture (scripts/bot-banners, «location»).
+        fun DrawScope.centre() = Offset(size.width * GLOBE_X, size.height * GLOBE_Y)
+        Canvas(Modifier.matchParentSize()) {
+            if (glow > 0f) {
+                val r = size.width * GLOBE_R * 1.75f
+                val halo = Brush.radialGradient(listOf(Brand.Warm.copy(alpha = 0.85f * glow), Color.Transparent), centre(), r)
+                drawCircle(halo, r, centre())
+            }
+        }
+        Image(painterResource(R.drawable.mascot_globe), text, Modifier.matchParentSize())
+        val motion =
+            when (status) {
+                VpnStatus.Connected -> "globe-turning"
+                VpnStatus.Connecting -> "globe-glowing"
+                else -> "globe-still"
+            }
+        Canvas(Modifier.matchParentSize().testTag(motion)) {
+            val r = size.width * GLOBE_R
+            val c = centre()
+            if (status == VpnStatus.Connecting) drawCircle(Brand.Warm.copy(alpha = 0.18f + 0.22f * glow), r, c)
+            if (status == VpnStatus.Connected) {
+                for (line in GlobeMotion.meridians(turn)) {
+                    val a = r * kotlin.math.abs(line)
+                    drawArc(
+                        Color.White.copy(alpha = 0.38f),
+                        startAngle = if (line >= 0f) -90f else 90f,
+                        sweepAngle = 180f,
+                        useCenter = false,
+                        topLeft = Offset(c.x - a, c.y - r),
+                        size = Size(2 * a, 2 * r),
+                        style = Stroke(width = 1.5.dp.toPx())
+                    )
+                }
+            }
+        }
     }
 }
 
+private const val GLOBE_X = 0.305f
+private const val GLOBE_Y = 0.48f
+private const val GLOBE_R = 0.225f
+
+/** One turn of the globe in four seconds; runs only while the VPN works. */
 @Composable
-private fun bounceOffset(): Float {
-    val t = rememberInfiniteTransition(label = "bounce")
-    val y by t.animateFloat(0f, -8f, infiniteRepeatable(tween(350), RepeatMode.Reverse), label = "y")
-    return y
+private fun globeTurn(): Float {
+    val t = rememberInfiniteTransition(label = "globe")
+    val phase by t.animateFloat(0f, 1f, infiniteRepeatable(tween(4000, easing = LinearEasing)), label = "turn")
+    return phase
+}
+
+/** The glow of the globe while connecting: breathes between dim and bright. */
+@Composable
+private fun globeGlow(): Float {
+    val t = rememberInfiniteTransition(label = "glow")
+    val level by t.animateFloat(0.35f, 1f, infiniteRepeatable(tween(700), RepeatMode.Reverse), label = "level")
+    return level
 }
 
 /** v1.6.0 (N10): idle — only with a chosen server and no change of the servers running; on — stopping waits for the change too. */

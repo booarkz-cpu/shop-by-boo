@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+> Актуальная инструкция дистрибутива v28.121.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
+=======
 > Актуальная инструкция дистрибутива v28.120.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
+>>>>>>> origin/main
 
 # Запуск магазина в работу: полный порядок
 
@@ -60,7 +64,11 @@ ssh -t root@SERVER_IP
 Выполните одну команду установки:
 
 ```bash
+<<<<<<< HEAD
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.121.0/install.sh -o /root/shop-install.sh && BRANCH=v28.121.0 bash /root/shop-install.sh
+=======
 curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.120.0/install.sh -o /root/shop-install.sh && BRANCH=v28.120.0 bash /root/shop-install.sh
+>>>>>>> origin/main
 ```
 
 Установщик ставит Docker, клонирует точный тег, задаёт вопросы, создаёт `.env`, собирает и запускает все сервисы, включает firewall (открыты только SSH, 80/443 TCP и 443 UDP). Рабочий каталог — `/opt/vpn-shop`.

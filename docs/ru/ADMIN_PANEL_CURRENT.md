@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+> Актуальная инструкция дистрибутива v28.121.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
+=======
 > Актуальная инструкция дистрибутива v28.120.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
+>>>>>>> origin/main
 
 # Админ-панель: разделы, кнопки и поля
 

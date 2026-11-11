@@ -61,7 +61,11 @@ bash scripts/rollback.sh
 
 ```bash
 bash scripts/backup.sh
+<<<<<<< HEAD
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.121.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+=======
 sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.120.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+>>>>>>> origin/main
 ```
 
 ## Що видно в розділі «Оновлення»
