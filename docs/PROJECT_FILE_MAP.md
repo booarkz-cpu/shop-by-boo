@@ -1,6 +1,6 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.115.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.116.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
@@ -1150,6 +1150,7 @@
 | [docs/ru/RELEASE_V28_113_0.md](../docs/ru/RELEASE_V28_113_0.md) | Документация |
 | [docs/ru/RELEASE_V28_114_0.md](../docs/ru/RELEASE_V28_114_0.md) | Документация |
 | [docs/ru/RELEASE_V28_115_0.md](../docs/ru/RELEASE_V28_115_0.md) | Документация |
+| [docs/ru/RELEASE_V28_116_0.md](../docs/ru/RELEASE_V28_116_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
@@ -1565,7 +1566,6 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Session.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Session.kt) | Мобильные приложения |
-| [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Streak.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Streak.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable-nodpi/mascot_happy.webp](../mobile/android-client/app/src/main/res/drawable-nodpi/mascot_happy.webp) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable-nodpi/mascot_run.webp](../mobile/android-client/app/src/main/res/drawable-nodpi/mascot_run.webp) | Мобильные приложения |
@@ -1613,7 +1613,7 @@
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt) | Мобильные приложения |
-| [mobile/android-client/app/src/test/java/shop/corgi/client/vpn/SessionAndStreakTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/vpn/SessionAndStreakTest.kt) | Мобильные приложения |
+| [mobile/android-client/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt](../mobile/android-client/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt) | Мобильные приложения |
 | [mobile/android-client/build.gradle.kts](../mobile/android-client/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-client/gradle.properties](../mobile/android-client/gradle.properties) | Мобильные приложения |
 | [mobile/android-client/gradle/wrapper/gradle-wrapper.jar](../mobile/android-client/gradle/wrapper/gradle-wrapper.jar) | Мобильные приложения |

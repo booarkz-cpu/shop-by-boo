@@ -40,6 +40,8 @@ class MainActivity : ComponentActivity() {
         val store = Store(this)
         I18n.apply(store.settings.lang)
         UpdateJob.schedule(this)
+        // v1.9.0: the day counter is gone (master prompt v6); what earlier versions kept for it is deleted.
+        deleteSharedPreferences("client_streak")
         shop.corgi.client.vpn.AppUpdateJob.schedule(this)
         // v1.6.1 (N11): «Обновление готово» → the checked APK goes to the system installer.
         if (intent?.action == shop.corgi.client.vpn.AppUpdateJob.ACTION_INSTALL) {

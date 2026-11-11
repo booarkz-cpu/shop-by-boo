@@ -99,7 +99,6 @@ class ClientVpnService : VpnService() {
 
     private fun afterStart(s: Settings, tags: List<String>, check: shop.corgi.client.core.IpCheck) {
         session = Session(System.currentTimeMillis())
-        Streak.record(this)
         state(this, STATE_ON)
         QuickTile.refresh(this)
         if (s.wakelock) wake = getSystemService(PowerManager::class.java)?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "corgi:vpn")?.apply { acquire() }

@@ -16,16 +16,16 @@
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
 | `PASS` | 53 | Проверено, доказательство указано |
-| `PARTIAL` | 62 | Сделано частично, остаток описан |
+| `PARTIAL` | 65 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 8 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 529 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 526 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 123 | 1 | 3 | 0 | 119 |
 | Монорепозиторий и перенос | 28 | 0 | 0 | 0 | 28 |
-| «Корги Люси: Клиент» | 33 | 0 | 0 | 0 | 33 |
+| «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
 | Магазин, кабинет, Telegram | 32 | 0 | 0 | 0 | 32 |
 | Бренд и тексты | 20 | 0 | 0 | 0 | 20 |
 | Lucy Admin | 19 | 0 | 0 | 0 | 19 |
@@ -1023,15 +1023,21 @@
 
 > Split Tunneling; Smart Routing; Live Traffic; LAN Proxy Share; Self-Healing; Battery Saver; Pet the Corgi; Haptic Feedback; авто-выбор сервера; проверка задержки; уведомления; PIN; биометрия; диагностика; профили; импорт/экспорт; восстановление подключения.
 
-### REQ-CLIENT-0006 — `NOT_TESTED`
+### REQ-CLIENT-0006 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Branding → Banner (строка 131). Продукт: Клиент.
+- Платформы: Android.
+- Доказательство: `mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
+- Примечание: Android: баннер есть, проверен тестом на эмуляторе. Приложения «Корги Люси: клиент» для iOS нет.
 
 > Свободный Гав в интернете!
 
-### REQ-CLIENT-0007 — `NOT_TESTED`
+### REQ-CLIENT-0007 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Branding → Slogan (строка 135). Продукт: Клиент.
+- Платформы: Android.
+- Доказательство: `mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
+- Примечание: Android: слоган есть, проверен тестом на эмуляторе. Приложения для iOS нет.
 
 > Твой интернет. Твои правила. Твоя Люси
 
@@ -1041,9 +1047,12 @@
 
 > Тёмная/космическая градиентная концепция; маскот корги; список серверов; цветной статус; задержка XX ms; SVG Add; заметные переключатели.
 
-### REQ-CLIENT-0009 — `NOT_TESTED`
+### REQ-CLIENT-0009 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Branding → Remove (строка 143). Продукт: Клиент.
+- Платформы: Android.
+- Доказательство: `mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
+- Примечание: Android: счётчик дней с огоньком, баннер «ЗАЩИТА В ОДНО КАСАНИЕ» и «Безлимит» убраны, проверено тестом на эмуляторе. Элемента «маска» на главном экране нет: нужен снимок от владельца, чтобы понять, о чём речь.
 
 > Лишние счётчики дней; декоративный огонёк; баннер «ЗАЩИТА В ОДНО КАСАНИЕ»; маска; кнопка «Безлимит».
 
