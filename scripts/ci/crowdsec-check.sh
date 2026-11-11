@@ -19,7 +19,7 @@ fail() { echo "FAIL: $*"; exit 1; }
 ok() { echo "ok: $*"; }
 s="$dir/crowdsec.sh"
 
-out=$(bash "$s" on off 203.0.113.9,198.51.100.0/24) || { echo "$out"; fail "install exited with $?"; }
+out=$(bash "$s" on off 203.0.113.9,198.51.100.0/24) || { echo "$out" | tail -n 30; fail "install failed"; }
 echo "$out" | tail -1
 echo "$out" | tail -1 | grep -q '^crowdsec=on bouncer=nftables community=off collections=[1-9][0-9]* allow=2$' || fail "unexpected result line"
 systemctl is-active --quiet crowdsec && systemctl is-active --quiet crowdsec-firewall-bouncer && ok "engine and bouncer are running" || fail "a service is down"

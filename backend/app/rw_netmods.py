@@ -209,6 +209,13 @@ on)
     cscli allowlists create corgi -d "Corgi: administrator, shop and panel addresses" >/dev/null || { echo "allowlist failed"; exit 6; }
     for a in $(echo "$allow" | tr ',' ' '); do cscli allowlists add corgi "$a" >/dev/null && n=$((n+1)); done
   fi
+  # The package registers the bouncer while the engine may still be starting, and then its key is refused
+  # («API error: access forbidden»). A key of our own makes the result the same on every run.
+  bconf=/etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+  [ -f "$bconf" ] || { echo "no bouncer config"; exit 6; }
+  cscli bouncers delete corgi-firewall >/dev/null 2>&1 || true
+  bkey=$(cscli bouncers add corgi-firewall -o raw 2>/dev/null) && [ -n "$bkey" ] || { echo "bouncer key failed"; exit 6; }
+  sed -i "s|^api_key:.*|api_key: $bkey|" "$bconf"; chmod 600 "$bconf"
   systemctl restart crowdsec-firewall-bouncer || true
   sleep 3
   for svc in crowdsec crowdsec-firewall-bouncer; do
