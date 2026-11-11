@@ -281,7 +281,7 @@ class ClientScreensTest {
     @Test fun homeServerCardOpensTheListAndChooses() {
         Store(context).add(links)
         launch()
-        exists("Free internet without the extra Woof!")
+        exists("Free Woof on the internet!")
         exists("Auto select")
         shot("home")
         compose.onNodeWithTag("server-picker").tap()   // the card opens the list
@@ -302,7 +302,8 @@ class ClientScreensTest {
         Store(context).add(links)
         launch()
         for (tag in listOf("slogan", "share", "banner-app-vpn", "banner-text", "status", "connect", "adblock", "server-picker")) {
-            assertTrue(tag, compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty())
+            // The banner is one tappable element, so its text lives in the unmerged tree.
+            assertTrue(tag, compose.onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty())
         }
         // v1.9.0 (master prompt v6): the banner and the slogan of the brand …
         exists("Free Woof on the internet!"); exists("Your internet. Your rules. Your Lusi"); exists("Disconnected")
