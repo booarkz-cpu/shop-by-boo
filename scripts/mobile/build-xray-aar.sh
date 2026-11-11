@@ -11,7 +11,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 REPO="https://github.com/2dust/AndroidLibXrayLite"
-COMMIT="${XRAY_AAR_COMMIT:-2ffe5f794a32ba15b122e177b5acffc6f11c4959}"
+COMMIT="${XRAY_AAR_COMMIT:-b5a377087e74eaa34e86718710b04c50f4b767f5}"
 OUT="$ROOT/mobile/android-user/app/libs"
 WORK="${RUNNER_TEMP:-/tmp}/xray-aar-$COMMIT"
 export ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-${ANDROID_NDK_LATEST_HOME:-}}"
