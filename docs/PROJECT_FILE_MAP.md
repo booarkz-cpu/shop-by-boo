@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.121.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.122.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2478**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2482**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -828,6 +828,7 @@
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/TORRENT_BAN.md](../docs/TORRENT_BAN.md) | Документация |
+| [docs/VERSIONING.md](../docs/VERSIONING.md) | Документация |
 | [docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md](../docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md) | Документация |
 | [docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md](../docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md) | Документация |
 | [docs/archive/DOCUMENTATION_RU_BEFORE_ALPHA_6.md](../docs/archive/DOCUMENTATION_RU_BEFORE_ALPHA_6.md) | Документация |
@@ -1164,6 +1165,7 @@
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_120_0.md](../docs/ru/RELEASE_V28_120_0.md) | Документация |
 | [docs/ru/RELEASE_V28_121_0.md](../docs/ru/RELEASE_V28_121_0.md) | Документация |
+| [docs/ru/RELEASE_V28_122_0.md](../docs/ru/RELEASE_V28_122_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
@@ -2010,6 +2012,7 @@
 | [scripts/check-migration-heads.py](../scripts/check-migration-heads.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/caddy-on-demand-live.sh](../scripts/ci/caddy-on-demand-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/check-licenses.py](../scripts/ci/check-licenses.py) | Эксплуатация и релиз |
 | [scripts/ci/crowdsec-check.sh](../scripts/ci/crowdsec-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/geo-check.sh](../scripts/ci/geo-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/gradle-warm.sh](../scripts/ci/gradle-warm.sh) | Эксплуатация и релиз |
@@ -2303,6 +2306,7 @@
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_integrity_report.py](../tests/test_integrity_report.py) | Проверки |
 | [tests/test_legal_docs.py](../tests/test_legal_docs.py) | Проверки |
+| [tests/test_license_check.py](../tests/test_license_check.py) | Проверки |
 | [tests/test_license_notices.py](../tests/test_license_notices.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_loyalty.py](../tests/test_loyalty.py) | Проверки |

@@ -21,11 +21,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Test stack (sandbox payments, no gateways)
         run: bash scripts/test-up.sh
       - name: k6 load profile
-        uses: grafana/setup-k6-action@v1
+        uses: grafana/setup-k6-action@c47136d33d365efbeb9ae7266908b5dcf98cdece # v1
       - run: k6 run --summary-export k6-summary.json tests/load/shop.js
         env:
           API_BASE: http://127.0.0.1:18080
@@ -45,7 +45,7 @@ jobs:
       - name: Stack logs on failure
         if: failure()
         run: docker compose --env-file .env.test -f docker-compose.test.yml logs --tail 120 backend
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: load-security-reports

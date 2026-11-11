@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **53** — 8.1%.
+- Подтверждено (`PASS`): **63** — 9.6%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 53 | Проверено, доказательство указано |
-| `PARTIAL` | 65 | Сделано частично, остаток описан |
+| `PASS` | 63 | Проверено, доказательство указано |
+| `PARTIAL` | 70 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 8 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 526 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 511 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -38,7 +38,7 @@
 | Backend, API, база | 2 | 0 | 0 | 0 | 2 |
 | Интерфейсы | 10 | 0 | 0 | 0 | 10 |
 | Мобильные приложения | 4 | 0 | 0 | 0 | 4 |
-| CI/CD и выпуски | 15 | 0 | 0 | 0 | 15 |
+| CI/CD и выпуски | 15 | 10 | 5 | 0 | 0 |
 | Документация | 37 | 2 | 0 | 0 | 35 |
 | Аудит, тесты, скриншоты | 69 | 5 | 4 | 0 | 60 |
 | Безопасность | 15 | 0 | 0 | 0 | 15 |
@@ -3319,93 +3319,113 @@
 
 ## CI/CD и выпуски
 
-### REQ-CI-0001 — `NOT_TESTED`
+### REQ-CI-0001 — `PASS`
 
 - Источник: Часть I → Github Cicd → Workflows (строка 747). Продукт: Все три.
+- Доказательство: `.github/workflows/ci.yml`; `.github/workflows/docker.yml`; `.github/workflows/publish-release.yml`; `.github/workflows/docs-links.yml`; `scripts/ci/check-licenses.py`; `tests/test_license_check.py`.
 
 > Проверка кода; линтеры; тесты; backend/frontend builds; Android; iOS; Docker; security scanning; dependency checks; лицензии; audit; releases; документация.
 
-### REQ-CI-0002 — `NOT_TESTED`
+### REQ-CI-0002 — `PARTIAL`
 
 - Источник: Часть I → Github Cicd → Nightly (строка 751). Продукт: Все три.
+- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `backend/app/rw_autoupdate.py`; `tests/test_rw_autoupdate.py`; `.github/workflows/xray-core-watch.yml`; `docs/AUTO_UPDATE.md`.
+- Примечание: Ночной агент проверяет выпуск, делает копию, обновляет, проверяет и откатывает; есть отчёт. Проверено тестами и на машине CI. Ночной прогон на настоящем сервере не проверен: нет VPS.
 
 > Проверка новых изменений; получение обновлений; анализ diff; dependency checks; backup; тестирование; сборка; совместимость; отчёт; rollback.
 
-### REQ-CI-0003 — `NOT_TESTED`
+### REQ-CI-0003 — `PASS`
 
 - Источник: Часть I → Github Cicd → Production Rule (строка 755). Продукт: Все три.
+- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `.github/workflows/deploy.yml`; `.github/workflows/publish-release.yml`; `tests/test_production_installer_v2016.py`.
 
 > Не обновлять production автоматически без проверок и разрешений.
 
-### REQ-CI-0004 — `NOT_TESTED`
+### REQ-CI-0004 — `PASS`
 
 - Источник: Часть I → Github Cicd → Runner Rule (строка 759). Продукт: Все три.
+- Доказательство: `docs/AUTO_UPDATE.md`; `backend/app/ecosystem_updates.py`; `tests/test_ecosystem_updates.py`; `backend/app/auto_update_api.py`.
 
 > Не обещать работу без реального runner или иной среды выполнения.
 
-### REQ-CI-0005 — `NOT_TESTED`
+### REQ-CI-0005 — `PARTIAL`
 
 - Источник: Часть I → Github Cicd → Admin Control (строка 763). Продукт: Все три.
+- Доказательство: `admin/src/autoUpdate.tsx`; `admin/src/ecosystem-updates.tsx`; `backend/app/auto_update_api.py`; `backend/app/ecosystem_updates.py`; `tests/test_auto_update_api.py`.
+- Примечание: Раздел «Обновления» показывает версии, выпуски, дату и итог последнего запуска, ошибки; откат агент делает сам. Запуска GitHub workflow из панели нет.
 
 > Lucy Admin показывает версии, изменения, проверки, дату, ошибки и rollback; может безопасно инициировать GitHub workflow. Не хранить токены открыто.
 
-### REQ-CI-0006 — `NOT_TESTED`
+### REQ-CI-0006 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2408). Продукт: Все три.
+- Доказательство: `docs/VERSIONING.md`; `scripts/check-current-docs.py`; `tests/test_mobile_family_status.py`; `tests/mobile-client-release.test.cjs`; `CHANGELOG.md`.
 
 > - Установить единые правила versioning и changelog для каждого независимо выпускаемого приложения/сервиса.
 
-### REQ-CI-0007 — `NOT_TESTED`
+### REQ-CI-0007 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2409). Продукт: Все три.
+- Доказательство: `.github/workflows/ci.yml`; `.github/workflows/docker.yml`; `.github/workflows/remnawave-live.yml`; `.github/workflows/mobile-release.yml`; `.github/workflows/android-client.yml`; `tests/test_workflows_parse.py`.
 
 > - Проверять lint, format, typecheck, unit, integration, contract, security, build, Docker, installer и mobile build jobs.
 
-### REQ-CI-0008 — `NOT_TESTED`
+### REQ-CI-0008 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2410). Продукт: Все три.
+- Доказательство: `backend/requirements.txt`; `admin/package-lock.json`; `cabinet/package-lock.json`; `miniapp/package-lock.json`; `.github/workflows/ci.yml`.
 
 > - Кэшировать зависимости безопасно и фиксировать lockfiles.
 
-### REQ-CI-0009 — `NOT_TESTED`
+### REQ-CI-0009 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2411). Продукт: Все три.
+- Доказательство: `tests/test_workflows_parse.py`; `.github/workflows/ci.yml`; `.github/workflows/deploy.yml`; `.github/dependabot.yml`.
 
 > - Использовать минимальные GitHub Actions permissions, pin action versions и защищать secrets/environments.
 
-### REQ-CI-0010 — `NOT_TESTED`
+### REQ-CI-0010 — `PARTIAL`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2412). Продукт: Все три.
+- Доказательство: `.github/workflows/deploy.yml`; `.github/workflows/mobile-release.yml`; `.github/workflows/ci.yml`.
+- Примечание: Есть предпросмотр (сборки и пакеты pull request) и production (окружение GitHub `production`). Отдельного окружения staging нет: для него нужен второй сервер.
 
 > - Разделить preview, staging и production.
 
-### REQ-CI-0011 — `NOT_TESTED`
+### REQ-CI-0011 — `PARTIAL`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2413). Продукт: Все три.
+- Доказательство: `scripts/check-current-docs.py`; `scripts/package-distribution.py`; `docs/ru/RELEASE_V28_122_0.md`; `docs/VERSIONING.md`.
+- Примечание: Заметки каждого выпуска содержат миграции, проверки, известные ограничения; у файлов выпуска есть SHA-256. Отдельных разделов «ломающие изменения» и «откат» в заметках нет.
 
 > - Создавать release notes с breaking changes, migrations, rollback, known issues и checksum artifacts.
 
-### REQ-CI-0012 — `NOT_TESTED`
+### REQ-CI-0012 — `PARTIAL`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2414). Продукт: Все три.
+- Доказательство: `.github/workflows/publish-release.yml`; `scripts/package-distribution.py`; `scripts/auto_update.py`.
+- Примечание: Агент обновления сверяет SHA-256 и манифест. С v28.122.0 архив получает аттестацию происхождения GitHub; первая аттестация появится с выпуском и ещё не проверена. Подписи ключом владельца нет.
 
 > - Проверять подпись/происхождение релизных артефактов, где поддерживается.
 
-### REQ-CI-0013 — `NOT_TESTED`
+### REQ-CI-0013 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2415). Продукт: Все три.
+- Доказательство: `.github/workflows/publish-release.yml`; `tests/test_production_installer_v2016.py`; `tests/release-publisher.test.cjs`; `tests/test_workflows_parse.py`.
 
 > - Не публиковать release, пока критические проверки не прошли или не зафиксированы явно разрешённые исключения.
 
-### REQ-CI-0014 — `NOT_TESTED`
+### REQ-CI-0014 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2416). Продукт: Все три.
+- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `backend/app/rw_autoupdate.py`; `tests/test_rw_autoupdate.py`.
 
 > - Nightly jobs не должны автоматически внедрять непроверенные изменения в production.
 
-### REQ-CI-0015 — `NOT_TESTED`
+### REQ-CI-0015 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2417). Продукт: Все три.
+- Доказательство: `docs/AUTO_UPDATE.md`; `backend/app/ecosystem_updates.py`; `tests/test_ecosystem_updates.py`.
 
 > - Не обещать автоматическое выполнение задач, если runner отключён или не настроен.
 

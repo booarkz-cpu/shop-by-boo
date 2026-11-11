@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
   actions: write
+  # v28.122.0: provenance attestation of the distribution archive (Sigstore, stored by GitHub).
+  id-token: write
+  attestations: write
 
 concurrency:
   group: publish-source-release
@@ -21,12 +24,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out verified commit
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
       - name: Require successful CI and Docker on current main
         id: gate
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const repo = {owner: context.repo.owner, repo: context.repo.repo};
@@ -55,8 +58,17 @@ jobs:
           python3 scripts/package-distribution.py --ci-run '${{ steps.gate.outputs.ci_run }}'
       - name: Publish verified files and dispatch tagged Docker
         if: steps.gate.outputs.ready == 'true'
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const {publish} = require('./scripts/publish-github-release.cjs');
             await publish({github, context, core});
+      - name: Attest the provenance of the distribution
+        # Anyone can check where the archive was built: gh attestation verify <file> --repo <owner>/<repo>.
+        # The release is already published above; a failure here must not fail the run, because the mobile
+        # packages are attached only after a successful run.
+        if: steps.gate.outputs.ready == 'true'
+        continue-on-error: true
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        with:
+          subject-path: remnawave_vpn_shop_*_full_release.zip

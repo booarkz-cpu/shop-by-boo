@@ -27,10 +27,10 @@ jobs:
       HETZNER_SERVER_TYPE: ${{ inputs.server_type }}
       HETZNER_LOCATION: ${{ inputs.location }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Token is set
         run: test -n "$HETZNER_API_TOKEN" || { echo "::error title=Hetzner live::Add the HETZNER_API_TOKEN secret (Settings → Secrets and variables → Actions)"; exit 1; }
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.14"
           cache: pip

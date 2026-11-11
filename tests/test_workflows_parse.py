@@ -44,3 +44,16 @@ def test_ci_gate_waits_for_every_job():
     assert sorted(set(needs) - others) == [], "`gate` needs jobs that do not exist"
     assert len(needs) == len(set(needs))
     assert gate.get("if") == "always()", "the gate must run even when a job above failed, to report it"
+
+
+def test_every_action_is_pinned_to_a_commit():
+    """A tag of an action can be moved to other code; a commit cannot (master prompt v6, «pin action versions»).
+
+    Every `uses:` names the full commit SHA and keeps the version in a comment, which Dependabot updates together.
+    """
+    import re
+
+    pinned = re.compile(r"^\s*(?:- )?uses:\s*[\w.-]+/[\w./-]+@[0-9a-f]{40} # v\d[\w.]*$")
+    loose = [f"{path.name}: {line.strip()}" for path in WORKFLOWS for line in path.read_text(encoding="utf-8").splitlines()
+             if re.match(r"^\s*(?:- )?uses:", line) and not re.match(r"^\s*(?:- )?uses:\s*\./", line) and not pinned.match(line)]
+    assert loose == [], "pin these actions to a commit SHA with the version in a comment"
