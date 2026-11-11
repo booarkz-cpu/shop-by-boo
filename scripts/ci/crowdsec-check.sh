@@ -25,7 +25,9 @@ echo "$out" | tail -1 | grep -q '^crowdsec=on bouncer=nftables community=off col
 systemctl is-active --quiet crowdsec && systemctl is-active --quiet crowdsec-firewall-bouncer && ok "engine and bouncer are running" || fail "a service is down"
 cscli allowlists inspect corgi | grep -q 203.0.113.9 && cscli allowlists inspect corgi | grep -q 198.51.100.0/24 && ok "allowlist holds the owner's addresses" || fail "allowlist"
 cscli collections list -o raw | grep -q crowdsecurity/sshd && ok "SSH brute-force scenarios installed" || fail "no sshd collection"
-if cscli capi status >/dev/null 2>&1; then fail "the engine talks to the Central API although the shared blocklist is off"; else ok "no Central API without the shared blocklist"; fi
+tr '\0' ' ' < "/proc/$(systemctl show -p MainPID --value crowdsec)/cmdline" | grep -q -- '-no-capi' || fail "the engine runs without -no-capi"
+[ ! -s /etc/crowdsec/online_api_credentials.yaml ] || fail "Central API credentials stayed"
+if cscli capi status >/dev/null 2>&1; then fail "the Central API is reachable although the shared blocklist is off"; else ok "no Central API without the shared blocklist"; fi
 cscli bouncers list -o raw | tail -n +2 | grep -q . && ok "bouncer registered" || fail "bouncer not registered"
 
 cscli decisions add --ip 192.0.2.77 --duration 5m --reason corgi-ci >/dev/null

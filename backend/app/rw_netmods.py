@@ -167,7 +167,7 @@ esac
 # Linux», manual repository setup) with the nftables firewall bouncer. The administrator's, the shop's and the panel's
 # addresses go to an allowlist first, so the owner is never banned from his own server. «community» — the shared
 # blocklist of CrowdSec: with it the server reports attackers' addresses to CrowdSec; without it the engine runs with
-# -no-capi and talks to nobody. «off» purges the packages, the repository, the key and the data.
+# -no-capi and its Central API credentials are wiped (the package registers once while it installs). «off» purges the packages, the repository, the key and the data.
 CROWDSEC = r"""set -eu
 action="$1"; community="${2:-off}"; allow="${3:--}"
 key=/etc/apt/keyrings/corgi-crowdsec.gpg; list=/etc/apt/sources.list.d/corgi-crowdsec.list; dropin=/etc/systemd/system/crowdsec.service.d
@@ -199,6 +199,11 @@ on)
     unit=$(systemctl show -p FragmentPath --value crowdsec); start=$(grep -m1 '^ExecStart=' "$unit" | cut -d= -f2-)
     [ -n "$start" ] || { echo "no unit"; exit 6; }
     install -d -m 0755 "$dropin"; printf '[Service]\nExecStart=\nExecStart=%s -no-capi\n' "$start" > "$dropin/corgi.conf"
+    # The package registers the server with the Central API once, while it installs. The credentials are wiped,
+    # so neither the engine nor cscli can send or fetch anything afterwards.
+    : > /etc/crowdsec/online_api_credentials.yaml
+  elif [ ! -s /etc/crowdsec/online_api_credentials.yaml ]; then
+    cscli capi register >/dev/null 2>&1 || { echo "capi register failed"; exit 6; }
   fi
   systemctl daemon-reload; systemctl enable crowdsec crowdsec-firewall-bouncer >/dev/null 2>&1 || true
   systemctl restart crowdsec || true
