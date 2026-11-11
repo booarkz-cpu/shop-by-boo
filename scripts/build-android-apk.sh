@@ -101,6 +101,11 @@ for app in android-user android-admin; do
     stable="corgi-lusi-android.apk"; [[ "$app" == android-admin ]] && stable="corgi-lusi-android-admin.apk"
     cp "$OUT/$name" "$OUT/$stable"
     (cd "$OUT" && sha256sum "$stable" > "$stable.sha256")
+    # v28.119.0: the app's own update check reads this manifest (shop.remnawave.*.update.AppUpdate).
+    code="$(sed -n 's/^ *versionCode = \([0-9][0-9]*\).*/\1/p' "$dir/app/build.gradle.kts" | head -1)"
+    [[ "$code" =~ ^[0-9]+$ ]] || { echo "No versionCode in $dir/app/build.gradle.kts" >&2; exit 1; }
+    printf '{"versionCode":%s,"versionName":"%s","sha256":"%s","apk":"https://github.com/%s/releases/latest/download/%s"}\n' \
+      "$code" "$version" "$(cut -d' ' -f1 "$OUT/$stable.sha256")" "${GITHUB_REPOSITORY:-booarkz-cpu/shop-by-boo}" "$stable" > "$OUT/${stable%.apk}.json"
     echo "APK (permanent name): $OUT/$stable"
   fi
 done

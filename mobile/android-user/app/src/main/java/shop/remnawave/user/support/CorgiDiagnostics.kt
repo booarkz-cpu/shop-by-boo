@@ -75,7 +75,7 @@ object CorgiDiagnostics {
         val origin = CorgiMirrors.resolve(base)
         val host = try { URL(origin).host } catch (_: Exception) { "" }
         checks.put(check("dns", host) { InetAddress.getAllByName(host).joinToString { it.hostAddress ?: "" } })
-        checks.put(check("api", "$origin/health/live") { get("$origin/health/live", "CorgiLusi-Android-User/3.5.0"); "ok" })
+        checks.put(check("api", "$origin/health/live") { get("$origin/health/live", "CorgiLusi-Android-User/3.6.0"); "ok" })
         var body = ""
         checks.put(check("subscription", "") {
             body = get(subscriptionUrl, "v2rayNG/1.10.0 CorgiLusi")

@@ -227,7 +227,11 @@
     "rules_geo": "Списки geosite/geoip в этом приложении не поддерживаются — укажите сайт или адрес",
     "rules_full": "Достигнут предел — 200 правил",
     "fragment_title": "Фрагментация TLS",
-    "fragment_hint": "Делит начало TLS-соединения на части — помогает, когда провайдер мешает подключению. Только для серверов с TLS (REALITY не затрагивается)."
+    "fragment_hint": "Делит начало TLS-соединения на части — помогает, когда провайдер мешает подключению. Только для серверов с TLS (REALITY не затрагивается).",
+    "update_title": "Доступна версия {version}",
+    "update_body": "Новая версия лежит в выпуске магазина на GitHub. Откроется загрузка файла; после неё подтвердите установку. Данные приложения сохранятся.",
+    "update_install": "Обновить",
+    "update_later": "Позже"
   },
   "en": {
     "app_name": "VPN shop",
@@ -457,7 +461,11 @@
     "rules_geo": "geosite/geoip lists are not supported in this app — enter a site or address",
     "rules_full": "Limit reached — 200 rules",
     "fragment_title": "TLS fragmentation",
-    "fragment_hint": "Splits the start of a TLS connection into pieces — helps when the provider interferes. TLS servers only (REALITY is not affected)."
+    "fragment_hint": "Splits the start of a TLS connection into pieces — helps when the provider interferes. TLS servers only (REALITY is not affected).",
+    "update_title": "Version {version} is available",
+    "update_body": "The new version is in the shop release on GitHub. The file download will open; then confirm the installation. App data is kept.",
+    "update_install": "Update",
+    "update_later": "Later"
   },
   "uk": {
     "app_name": "Коргі Люсі",
@@ -687,6 +695,10 @@
     "rules_geo": "Списки geosite/geoip у цьому застосунку не підтримуються — вкажіть сайт або адресу",
     "rules_full": "Досягнуто межі — 200 правил",
     "fragment_title": "Фрагментація TLS",
-    "fragment_hint": "Ділить початок TLS-з'єднання на частини — допомагає, коли провайдер заважає підключенню. Лише для серверів з TLS (REALITY не зачіпається)."
+    "fragment_hint": "Ділить початок TLS-з'єднання на частини — допомагає, коли провайдер заважає підключенню. Лише для серверів з TLS (REALITY не зачіпається).",
+    "update_title": "Доступна версія {version}",
+    "update_body": "Нова версія лежить у випуску магазину на GitHub. Відкриється завантаження файлу; після нього підтвердьте встановлення. Дані застосунку збережуться.",
+    "update_install": "Оновити",
+    "update_later": "Пізніше"
   }
 }

@@ -65,8 +65,8 @@ jobs:
           bash scripts/build-android-apk.sh "$PWD/dist/mobile"
           for apk in dist/mobile/corgi_lusi_*.apk; do
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$apk.package.txt"
-            grep -q "versionCode='3500'" "$apk.package.txt"
-            grep -q "versionName='3.5.0'" "$apk.package.txt"
+            grep -q "versionCode='3600'" "$apk.package.txt"
+            grep -q "versionName='3.6.0'" "$apk.package.txt"
             if grep -q 'application-debuggable' "$apk.package.txt"; then echo 'Debuggable release rejected'; exit 1; fi
             if [[ "$state" == signed ]]; then
               "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > "$apk.certificate.txt"
@@ -245,7 +245,7 @@ jobs:
               name === 'mobile-production-status.json' ||
               (android === 'signed' && new RegExp(`^corgi_lusi_android_(user|admin)_${v}_release\\.(?:apk|aab)(?:\\.(?:sha256|certificate\\.txt|package\\.txt))?$`).test(name)) ||
               // Permanent names for releases/latest/download/… links (README, cabinet, bot); signed builds only.
-              (android === 'signed' && /^corgi-lusi-(?:android(?:-admin)?|client)\.apk(?:\.sha256)?$|^corgi-lusi-client\.json$/.test(name)) ||
+              (android === 'signed' && /^corgi-lusi-(?:android(?:-admin)?|client)\.apk(?:\.sha256)?$|^corgi-lusi-client\.json$|^corgi-lusi-android(?:-admin)?\.json$/.test(name)) ||
               (ios === 'signed' && new RegExp(`^corgi_lusi_ios_(user|admin)_${v}_signed\\.ipa(?:\\.sha256)?$`).test(name)));
             const existing = (await github.rest.repos.listReleaseAssets({...args, release_id:release.id, per_page:100})).data;
             for (const name of names) {
