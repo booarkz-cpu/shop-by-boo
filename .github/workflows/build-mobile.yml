@@ -173,7 +173,9 @@ jobs:
         run: |
           set -Eeuo pipefail
           cd "$RUNNER_TEMP/apps"
-          files=$(ls *.apk *.aab *.ipa *.zip *.sha256 2>/dev/null)
+          # v28.120.0: the update manifests of the Android apps go with the APKs they describe. This job replaces
+          # the stable APKs, so a manifest left from another build would carry the wrong SHA-256.
+          files=$(ls *.apk *.aab *.ipa *.zip *.sha256 corgi-lusi-android.json corgi-lusi-android-admin.json 2>/dev/null)
           test -n "$files"
           # --clobber: a re-run replaces the packages of the same release instead of failing.
           gh release upload "$TAG" $files --clobber --repo "$GITHUB_REPOSITORY"
