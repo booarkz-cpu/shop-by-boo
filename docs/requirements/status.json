@@ -714,5 +714,117 @@
    "tests/test_rw_autoselect.py"
   ],
   "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0025": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "admin/src/protocol-switch.tsx",
+   "admin/e2e/protocol-switch.spec.ts"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0026": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "admin/src/protocol-switch.tsx",
+   "docs/PROTOCOL_SWITCH.md"
+  ],
+  "note": "Таблица нод после смены протокола есть: номер, страна, имя, состояние, транспорт, время, причина, итог. Проверяется подключение ноды к панели с новым профилем, а не трафик клиента через ноду. После других массовых операций таблица не показывается."
+ },
+ "REQ-NODE-0042": {
+  "status": "PASS",
+  "evidence": [
+   "admin/src/protocol-switch.tsx",
+   "admin/e2e/protocol-switch.spec.ts"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0043": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0044": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0045": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0046": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0047": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0048": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "admin/src/protocol-switch.tsx"
+  ],
+  "note": "Все шаги есть. Итоговый транспорт в таблице — тот, что записан в профиль; фактический транспорт на самой ноде не измеряется. На настоящей панели не проверено: O1."
+ },
+ "REQ-NODE-0049": {
+  "status": "PASS",
+  "evidence": [
+   "admin/src/protocol-switch.tsx",
+   "admin/e2e/protocol-switch.spec.ts"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0050": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0051": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "admin/src/protocol-switch.tsx"
+  ],
+  "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0052": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "admin/src/protocol-switch.tsx",
+   "admin/e2e/protocol-switch.spec.ts"
+  ],
+  "platforms": "Web, backend/API"
  }
 }

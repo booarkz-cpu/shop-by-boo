@@ -44,6 +44,7 @@ OPS: tuple[tuple, ...] = (
     ("client_balancer", "panel", "Автовыбор сервера в приложении", "Балансировщик клиента (leastPing) в шаблоне подписки — без SSH.", False, False, ("tab", "rwExtensions")),
     ("add_node", "nodes", "Подключить ноду", "Нода к панели — один сервер или несколько сразу.", True, True, ("install", None)),
     ("all_protocols", "nodes", "Все протоколы на одной ноде", "TCP/xHTTP/gRPC + REALITY, Hysteria2, VLESS + TCP + TLS; отпечаток браузера, TLS 1.2/1.3.", True, True, ("module", "transports", "node")),
+    ("protocol_switch", "nodes", "Починка блока: смена протокола", "Перевод inbound на другой транспорт (TCP, XHTTP, gRPC): чтение, смена, обновление hosts, проверка реконнекта нод; откат одной кнопкой — без SSH.", False, True, ("tab", "protocolSwitch")),
     ("selfsteal", "nodes", "Маскировка SelfSteal", "Свой сайт на домене ноды: сводка, проверка снаружи, свой архив, каталог шаблонов.", True, True, ("tab", "selfsteal")),
     ("node_port", "nodes", "Доступ панели к нодам", "Служебный порт нод — только для сервера панели, сразу на всех нодах; правило снимается, если панель потеряла ноду.", True, True, ("module", "node_port", "node")),
     ("cascade", "nodes", "Каскад нод (мост)", "Вход на одной ноде, выход на другой: Shadowsocks-мост между нодами и правила для российских адресов — через API панели, без SSH.", False, False, ("tab", "rwExtensions")),

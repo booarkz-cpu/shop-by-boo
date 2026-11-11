@@ -800,6 +800,9 @@ label.has-field-help:not(.inline):not(.nav-search)>.field-help-slot { position: 
 .intel-node-head h3 { margin:0; }
 .intel-node-head .mono,.network-intel code { overflow-wrap:anywhere; }
 .intel-warnings { margin:0;padding:0;list-style:none;display:grid;gap:6px; }
+.stage-list { margin:12px 0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:stage; }
+.stage-list summary { cursor:pointer;display:flex;flex-wrap:wrap;gap:8px;align-items:center; }
+.stage-log { margin:8px 0 0;padding:10px;border-radius:8px;background:var(--surface-2, rgba(127,127,127,.12));font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:240px;overflow:auto; }
 .intel-customers { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
 .intel-attribution { font-size:12px; }
 .network-intel .spin { animation:intel-spin 1s linear infinite; }

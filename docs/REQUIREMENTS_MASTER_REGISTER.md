@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **40** — 6.1%.
+- Подтверждено (`PASS`): **51** — 7.8%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 40 | Проверено, доказательство указано |
-| `PARTIAL` | 39 | Сделано частично, остаток описан |
+| `PASS` | 51 | Проверено, доказательство указано |
+| `PARTIAL` | 41 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 7 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 566 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 553 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -32,7 +32,7 @@
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 0 | 0 | 0 | 16 |
 | MASQUE | 12 | 0 | 0 | 0 | 12 |
-| Ноды: установка, обслуживание, защита | 71 | 0 | 0 | 0 | 71 |
+| Ноды: установка, обслуживание, защита | 71 | 11 | 2 | 0 | 58 |
 | Автовыбор | 35 | 21 | 13 | 0 | 1 |
 | Инфраструктура, установщик, копии | 41 | 3 | 0 | 0 | 38 |
 | Backend, API, база | 2 | 0 | 0 | 0 | 2 |
@@ -2289,15 +2289,19 @@
 
 > Не путать удаление одного компонента с полной очисткой сервера.
 
-### REQ-NODE-0025 — `NOT_TESTED`
+### REQ-NODE-0025 — `PASS`
 
 - Источник: Часть I → Server Installation Maintenance → Protocol Switch Repair (строка 554). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
 
 > Последовательные этапы: чтение текущего транспорта; смена протокола inbound; обновление hosts; проверка реконнекта нод. Каждый этап показывает состояние, индикатор, журнал, ошибку, результат, время, диагностику. Определить inbound/profile; обновить и применить; обновить hosts; дождаться реконнекта; проверить все ноды; сохранить старый и новый транспорт. Не объявлять успех до проверок.
 
-### REQ-NODE-0026 — `NOT_TESTED`
+### REQ-NODE-0026 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Node Reconnect (строка 558). Продукт: Все три.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `docs/PROTOCOL_SWITCH.md`.
+- Примечание: Таблица нод после смены протокола есть: номер, страна, имя, состояние, транспорт, время, причина, итог. Проверяется подключение ноды к панели с новым профилем, а не трафик клиента через ноду. После других массовых операций таблица не показывается.
 
 > После смены протокола/массовой операции проверить все ноды: номер; страна; имя; online/offline; транспорт; время; ошибка; итог. Проверять не только SSH, но и реальный VPN-транспорт.
 
@@ -2398,69 +2402,91 @@
 
 > В карточке: категория/тип «Обслуживание сервера»; способ выполнения; иконка; заголовок; описание; кнопка «Установить»/«Скачать»; ход выполнения; журнал; результат; ошибка и диагностика. Кнопка должна вызывать реальную операцию и быть защищена от повторного нажатия.
 
-### REQ-NODE-0042 — `NOT_TESTED`
+### REQ-NODE-0042 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Title (строка 1356). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
 
 > Починка блока: смена протокола
 
-### REQ-NODE-0043 — `NOT_TESTED`
+### REQ-NODE-0043 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage (строка 1362). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Чтение текущего транспорта.
 
-### REQ-NODE-0044 — `NOT_TESTED`
+### REQ-NODE-0044 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage (строка 1366). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Смена протокола inbound.
 
-### REQ-NODE-0045 — `NOT_TESTED`
+### REQ-NODE-0045 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage (строка 1370). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Обновление hosts.
 
-### REQ-NODE-0046 — `NOT_TESTED`
+### REQ-NODE-0046 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage (строка 1374). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Проверка реконнекта нод.
 
-### REQ-NODE-0047 — `NOT_TESTED`
+### REQ-NODE-0047 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Example Observed State (строка 1379). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > В пользовательском интерфейсе отображался inbound STEAL-T12 в профиле узла; исходный транспорт gRPC, целевой xHTTP. Это пример диагностического сценария, а не фиксированное имя для всех серверов.
 
-### REQ-NODE-0048 — `NOT_TESTED`
+### REQ-NODE-0048 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage Detail (строка 1383). Продукт: Все три.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`.
+- Примечание: Все шаги есть. Итоговый транспорт в таблице — тот, что записан в профиль; фактический транспорт на самой ноде не измеряется. На настоящей панели не проверено: O1.
 
 > Показать текущий профиль и inbound; прочитать фактический транспорт; обновить профиль Remnawave; инициировать корректное применение/перегенерацию конфигурации; обновить hosts; дождаться переподключения; проверить каждую ноду и итоговый транспорт.
 
-### REQ-NODE-0049 — `NOT_TESTED`
+### REQ-NODE-0049 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Progress Ui (строка 1387). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
 
 > Общий статус; зелёные/ошибочные этапы; раскрываемый лог каждого этапа; временные метки; прогресс; ссылка «К списку»; возможность безопасного просмотра деталей.
 
-### REQ-NODE-0050 — `NOT_TESTED`
+### REQ-NODE-0050 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Rollback (строка 1391). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Сохранить старую конфигурацию и транспорт; при ошибке восстановить исходное состояние, если это безопасно; не оставлять часть нод на несовместимых параметрах.
 
-### REQ-NODE-0051 — `NOT_TESTED`
+### REQ-NODE-0051 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Observed Result Example (строка 1395). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`.
 
 > В одном из показанных тестов обновился один hosts entry, а проверка сообщила об online-статусе 11 из 18 нод; это не считать универсальной нормой. Всегда показывать фактическое количество проверенных, online и offline нод.
 
-### REQ-NODE-0052 — `NOT_TESTED`
+### REQ-NODE-0052 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Node Reconnect Matrix (строка 1400). Продукт: Все три.
+- Платформы: Web, backend/API.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
 
 > Отображать порядковый номер; страну; название ноды; статус online/offline; транспорт; причину ошибки; время проверки. Проверять все ноды, а не только первые несколько.
 
