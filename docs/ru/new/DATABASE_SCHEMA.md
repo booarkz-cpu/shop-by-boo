@@ -1,4 +1,4 @@
-# Схема базы данных — v28.117.0
+# Схема базы данных — v28.118.0
 
 Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0094_store_subscriptions`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
