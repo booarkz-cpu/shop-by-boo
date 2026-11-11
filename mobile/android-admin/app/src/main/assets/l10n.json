@@ -111,7 +111,11 @@
     "cash_saved": "Очередь касс сохранена",
     "cash_up": "Выше",
     "panel_cancel": "Отмена",
-    "panel_done": "Готово"
+    "panel_done": "Готово",
+    "update_title": "Доступна версия {version}",
+    "update_body": "Новая версия лежит в выпуске магазина на GitHub. Откроется загрузка файла; после неё подтвердите установку. Данные приложения сохранятся.",
+    "update_install": "Обновить",
+    "update_later": "Позже"
   },
   "en": {
     "app_name": "VPN admin",
@@ -225,7 +229,11 @@
     "cash_saved": "Payment queue saved",
     "cash_up": "Up",
     "panel_cancel": "Cancel",
-    "panel_done": "Done"
+    "panel_done": "Done",
+    "update_title": "Version {version} is available",
+    "update_body": "The new version is in the shop release on GitHub. The file download will open; then confirm the installation. App data is kept.",
+    "update_install": "Update",
+    "update_later": "Later"
   },
   "uk": {
     "app_name": "Коргі Люсі Адмін",
@@ -339,6 +347,10 @@
     "cash_saved": "Чергу кас збережено",
     "cash_up": "Вище",
     "panel_cancel": "Скасувати",
-    "panel_done": "Готово"
+    "panel_done": "Готово",
+    "update_title": "Доступна версія {version}",
+    "update_body": "Нова версія лежить у випуску магазину на GitHub. Відкриється завантаження файлу; після нього підтвердьте встановлення. Дані застосунку збережуться.",
+    "update_install": "Оновити",
+    "update_later": "Пізніше"
   }
 }

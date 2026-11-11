@@ -1,7 +1,7 @@
 # Инвентаризация проекта — VPN Shop by Corgi Lucy
 
 Дистрибутив `v28.118.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
-Support Pro `0008`, мобильные приложения 3.5.0.
+Support Pro `0008`, мобильные приложения 3.6.0.
 
 Все числа в этом документе получены из репозитория на коммите `e3b9387` (`main`), а не из README:
 `git ls-files`, таблица маршрутов собранного приложения, `alembic heads`, `docker-compose.yml`.
@@ -108,7 +108,7 @@ Support Pro `0008`, мобильные приложения 3.5.0.
 | `mobile/ios-user` | 10 `.swift` | Swift + SwiftUI |
 | `mobile/ios-admin` | — | Swift + SwiftUI |
 
-Всего 24 файла Kotlin и 10 Swift. Версия приложений 3.5.0. Сборка проверяется в CI
+Всего 24 файла Kotlin и 10 Swift. Версия приложений 3.6.0. Сборка проверяется в CI
 (`Android • PKCE build`, `iOS • PKCE build`, UI-тесты на эмуляторе и симуляторе).
 
 ## 7. Инфраструктура

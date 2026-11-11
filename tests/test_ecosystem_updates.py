@@ -8,9 +8,10 @@ TAG = "v28.118.0"
 
 
 def release(*extra):
-    names = ["corgi-lusi-client.apk", "corgi-lusi-client.json", "corgi_lusi_android_user_3_5_0_release.apk",
-             "corgi_lusi_android_admin_3_5_0_release.apk", "corgi_lusi_ios_user_3_5_0_unsigned.ipa",
-             "corgi_lusi_ios_admin_3_5_0_unsigned.ipa", *extra]
+    names = ["corgi-lusi-client.apk", "corgi-lusi-client.json", "corgi_lusi_android_user_3_6_0_release.apk",
+             "corgi_lusi_android_admin_3_6_0_release.apk", "corgi_lusi_ios_user_3_6_0_unsigned.ipa",
+             "corgi_lusi_ios_admin_3_6_0_unsigned.ipa", "corgi-lusi-android.apk", "corgi-lusi-android.json",
+             "corgi-lusi-android-admin.apk", "corgi-lusi-android-admin.json", *extra]
     return {"tag_name": TAG, "assets": [{"name": n} for n in names]}
 
 
@@ -49,17 +50,20 @@ def test_everything_switched_on():
     assert r["geo"]["auto"] == "on" and "04:30" in r["geo"]["schedule"]
     assert r["android_client"]["auto"] == "in_app" and r["android_client"]["latest"] == f"выпуск {TAG}"
     assert result["checked_at"] == "2026-11-11T12:00:00+00:00"
-    assert result["summary"] == {"total": 10, "automatic": 6, "switched_off": 0, "no_mechanism": 4, "updates_waiting": 2}
+    assert result["summary"] == {"total": 10, "automatic": 8, "switched_off": 0, "no_mechanism": 2, "updates_waiting": 2}
 
 
 def test_no_promise_where_there_is_no_mechanism():
     r = rows(eco.build(shop(), github(False), remnawave(), release(), now=NOW))
-    # The shop and admin apps for Android do not look for a new version: the table says so instead of «автоматически».
+    # v28.119.0: the shop and admin apps check themselves — but only when the release carries their manifests.
     for key in ("android_user", "android_admin"):
-        assert r[key]["auto"] == "none" and r[key]["latest"] == "3.5.0" and "вручную" in r[key]["how"]
+        assert r[key]["auto"] == "in_app" and r[key]["latest"] == "3.6.0" and "раз в сутки" in r[key]["schedule"]
+    old = {"tag_name": "v28.118.0", "assets": [{"name": n} for n in ("corgi-lusi-android.apk", "corgi_lusi_android_user_3_5_0_release.apk")]}
+    stale = rows(eco.build(shop(), github(False), remnawave(), old, now=NOW))["android_user"]
+    assert stale["auto"] == "none" and stale["latest"] == "3.5.0" and "вручную" in stale["how"]
     for key in ("ios_user", "ios_admin"):
         assert r[key]["auto"] == "none" and "Apple Developer" in r[key]["note"]
-    assert eco.SELF_CHECKING_APPS == {"android_client"}
+    assert eco.SELF_CHECKING_APPS == {"android_client", "android_user", "android_admin"}
 
 
 def test_agent_not_installed_and_switched_off():
@@ -99,6 +103,7 @@ def test_github_unreachable_gives_unknown_not_current():
 
 def test_app_versions_come_from_file_names_only():
     assert eco.app_versions(release("something_else_9_9_9.apk", "corgi_lusi_android_user_x.apk")) == {
-        "android_client": "в выпуске", "android_user": "3.5.0", "android_admin": "3.5.0", "ios_user": "3.5.0", "ios_admin": "3.5.0"}
-    assert eco.app_versions({"assets": [{"name": "corgi-lusi-client.apk"}]}) == {}  # the manifest is missing: no claim
-    assert eco.app_versions(None) == {}
+        "android_client": "в выпуске", "android_user": "3.6.0", "android_admin": "3.6.0", "ios_user": "3.6.0", "ios_admin": "3.6.0",
+        "_manifests": ["android_admin", "android_user"]}
+    assert eco.app_versions({"assets": [{"name": "corgi-lusi-client.apk"}]}) == {"_manifests": []}  # the manifest is missing: no claim
+    assert eco.app_versions(None) == {"_manifests": []}

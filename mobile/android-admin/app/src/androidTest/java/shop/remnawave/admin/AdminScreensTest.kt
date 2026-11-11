@@ -28,6 +28,19 @@ class AdminScreensTest {
 
     @After fun close() { scenario?.close() }
 
+    /** v3.6.0: the admin app's own update check reads the manifest of the latest shop release. */
+    @Test fun updateManifestIsCheckedStrictly() {
+        val update = shop.remnawave.admin.update.AppUpdate
+        val sha = "b".repeat(64)
+        val apk = "https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk"
+        val good = """{"versionCode":3700,"versionName":"3.7.0","sha256":"$sha","apk":"$apk"}"""
+        org.junit.Assert.assertEquals("3.7.0", update.newer(good, 3600)?.versionName)
+        org.junit.Assert.assertNull(update.newer(good, 3700))
+        org.junit.Assert.assertTrue(runCatching { update.parse(good.replace("corgi-lusi-android-admin.apk", "corgi-lusi-android.apk")) }.isFailure)
+        org.junit.Assert.assertTrue(update.fromStore("com.android.vending"))
+        org.junit.Assert.assertFalse(update.fromStore(null))
+    }
+
     @Test fun overviewShowsKpis() {
         launch("overview")
         compose.onNodeWithText("1284").assertExists()

@@ -318,7 +318,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             readTimeout = 30000
             setRequestProperty("Accept", "application/octet-stream")
             setRequestProperty("Accept-Encoding", "identity")
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.5.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.6.0")
             setRequestProperty("X-Shop-Client", "android-user")
             if (token.isNotBlank()) setRequestProperty("Authorization", "Bearer $token")
         }
@@ -363,7 +363,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.5.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.6.0")
             // Historical compatibility marker: CorgiLusi-Android-User/2.9.0
             setRequestProperty("X-Shop-Client", "android-user")
 
@@ -1072,6 +1072,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
             }
             if (dialog == "split") SplitDialog(layout, ::t, onClose = { dialog = ""; restartEngine() })
             if (dialog == "battery") BatteryDialog(layout, ::t, onClose = { dialog = "" })
+            shop.remnawave.user.update.AppUpdateDialog(BuildConfig.VERSION_CODE, BuildConfig.DEBUG, demo, ::t)
             if (dialog == "pay_method") PayMethodDialog(layout, data.config.optJSONArray("payment_methods") ?: JSONArray(), ::t, onClose = { dialog = "" }) { key ->
                 dialog = ""; pay(pendingPlan, key)
             }
@@ -1391,7 +1392,7 @@ private fun loadAuthedPng(base: String, path: String, token: String, lang: Strin
         readTimeout = 15000
         setRequestProperty("Accept", "image/png")
         setRequestProperty("Accept-Language", lang)
-        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.5.0")
+        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.6.0")
         setRequestProperty("X-Shop-Client", "android-user")
 
 
