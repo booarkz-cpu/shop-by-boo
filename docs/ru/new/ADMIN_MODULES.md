@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.117.0
+# Модули админ-панели — v28.118.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -242,7 +242,7 @@ API: `/api/admin/backups`, `/api/admin/recovery`. Права: `backups.read`, `b
 
 | Раздел панели | Что в нём |
 | --- | --- |
-| Обновления | Установленная версия, доступные выпуски и история обновлений. |
+| Обновления | Вся экосистема одной таблицей: что обновляется с GitHub само, что выключено; автообновление магазина и Remnawave, история. |
 | Развёртывания | Постепенный выпуск новой версии: доля трафика и ошибки. |
 
 API: `/api/admin/releases`, `/api/admin/auto-update`, `/api/admin/remnawave/auto-update`, `/api/admin/deployments`. Права: `backups.write`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write`.
@@ -323,13 +323,13 @@ API: `/api/admin/audit`, `/api/admin/errors`, `/api/admin/logs`. Права: `op
 
 ## 29. GitHub
 
-Статус: `IMPLEMENTED`. Маршрутов API: 4. Операции: просмотр, создание, изменение, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 5. Операции: просмотр, создание, изменение, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
-| Обновления | Установленная версия, доступные выпуски и история обновлений. |
+| Обновления | Вся экосистема одной таблицей: что обновляется с GitHub само, что выключено; автообновление магазина и Remnawave, история. |
 
-API: `/api/admin/github-update`, `/api/admin/auto-update`. Права: `ops.releases`, `settings.runtime.write`.
+API: `/api/admin/github-update`, `/api/admin/auto-update`, `/api/admin/ecosystem-updates`. Права: `ops.releases`, `settings.runtime.write`.
 
 ## 30. Settings
 

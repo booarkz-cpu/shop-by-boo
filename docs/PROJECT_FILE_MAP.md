@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.117.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.118.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2461**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2466**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -130,6 +130,7 @@
 | [admin/e2e/customer-operations.spec.ts](../admin/e2e/customer-operations.spec.ts) | Админ-панель |
 | [admin/e2e/documents-banner.spec.ts](../admin/e2e/documents-banner.spec.ts) | Админ-панель |
 | [admin/e2e/domains-portal.spec.ts](../admin/e2e/domains-portal.spec.ts) | Админ-панель |
+| [admin/e2e/ecosystem-updates.spec.ts](../admin/e2e/ecosystem-updates.spec.ts) | Админ-панель |
 | [admin/e2e/fraud-decisions.spec.ts](../admin/e2e/fraud-decisions.spec.ts) | Админ-панель |
 | [admin/e2e/growth.spec.ts](../admin/e2e/growth.spec.ts) | Админ-панель |
 | [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
@@ -199,6 +200,7 @@
 | [admin/src/documents.tsx](../admin/src/documents.tsx) | Админ-панель |
 | [admin/src/domains.tsx](../admin/src/domains.tsx) | Админ-панель |
 | [admin/src/economics.tsx](../admin/src/economics.tsx) | Админ-панель |
+| [admin/src/ecosystem-updates.tsx](../admin/src/ecosystem-updates.tsx) | Админ-панель |
 | [admin/src/fiscal.tsx](../admin/src/fiscal.tsx) | Админ-панель |
 | [admin/src/fraud.tsx](../admin/src/fraud.tsx) | Админ-панель |
 | [admin/src/freezeDunning.tsx](../admin/src/freezeDunning.tsx) | Админ-панель |
@@ -471,6 +473,7 @@
 | [backend/app/dunning.py](../backend/app/dunning.py) | API, бот и worker |
 | [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
 | [backend/app/economics.py](../backend/app/economics.py) | API, бот и worker |
+| [backend/app/ecosystem_updates.py](../backend/app/ecosystem_updates.py) | API, бот и worker |
 | [backend/app/email_templates.py](../backend/app/email_templates.py) | API, бот и worker |
 | [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
 | [backend/app/error_log.py](../backend/app/error_log.py) | API, бот и worker |
@@ -1156,6 +1159,7 @@
 | [docs/ru/RELEASE_V28_115_0.md](../docs/ru/RELEASE_V28_115_0.md) | Документация |
 | [docs/ru/RELEASE_V28_116_0.md](../docs/ru/RELEASE_V28_116_0.md) | Документация |
 | [docs/ru/RELEASE_V28_117_0.md](../docs/ru/RELEASE_V28_117_0.md) | Документация |
+| [docs/ru/RELEASE_V28_118_0.md](../docs/ru/RELEASE_V28_118_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
@@ -2264,6 +2268,7 @@
 | [tests/test_e2e_journeys.py](../tests/test_e2e_journeys.py) | Проверки |
 | [tests/test_e2e_v2.py](../tests/test_e2e_v2.py) | Проверки |
 | [tests/test_economics.py](../tests/test_economics.py) | Проверки |
+| [tests/test_ecosystem_updates.py](../tests/test_ecosystem_updates.py) | Проверки |
 | [tests/test_error_format.py](../tests/test_error_format.py) | Проверки |
 | [tests/test_exact_release_update.py](../tests/test_exact_release_update.py) | Проверки |
 | [tests/test_external_refund.py](../tests/test_external_refund.py) | Проверки |
