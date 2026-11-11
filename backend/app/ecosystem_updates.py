@@ -25,6 +25,9 @@ RW_TITLES = {"panel": "Панель Remnawave", "node": "Ноды Remnawave", "s
 # Apps that look for a new version on GitHub themselves. Kept here so that the table cannot promise more than the code does.
 SELF_CHECKING_APPS = {"android_client", "android_user", "android_admin"}
 
+SILENT = ("Приложение само скачивает новый APK из выпуска на GitHub и сверяет SHA-256. На Android 12 и новее ставит его без "
+          "вопросов, когда VPN выключен; первое обновление и Android 11 и старше требуют одного подтверждения. Подпись проверяет Android.")
+
 __all__ = ["router", "build", "app_versions"]
 
 
@@ -118,17 +121,16 @@ def _apps(versions: dict, tag: str | None) -> list[dict]:
         checks = key in SELF_CHECKING_APPS and (key == "android_client" or key in versions.get("_manifests", ()))
         rows.append(_row(key, title, latest=(versions.get(key) if versions.get(key) != "в выпуске" else where) if present else None,
                          state="unknown", auto="in_app" if checks else "none",
-                         schedule=("проверка раз в сутки на устройстве, если включена в настройках приложения" if key == "android_client"
-                                   else "проверка раз в сутки при запуске приложения") if checks else None,
-                         how=("Приложение само находит новый APK в выпуске на GitHub, сверяет SHA-256 и предлагает установить. "
-                              "Подпись проверяет Android." if key == "android_client" else
-                              "Приложение 3.6.0 и новее само находит новую версию в выпуске на GitHub и предлагает скачать APK. "
-                              "Подпись проверяет Android. Установленное из магазина приложений обновляет сам магазин.") if checks else
+                         schedule=("раз в сутки по Wi-Fi, если включено в настройках приложения" if key == "android_client"
+                                   else "раз в сутки в фоне") if checks else None,
+                         how=(SILENT + (" Клиент 1.9.2 и новее." if key == "android_client" else
+                                        " Приложение 3.7.0 и новее. Установленное из магазина приложений обновляет сам магазин.")) if checks else
                              "APK лежит в выпуске на GitHub, но файла для проверки обновлений в нём нет: версию ставят вручную.",
                          note=None if present else "В последнем выпуске на GitHub файла приложения нет"))
     for key, title in (("ios_user", "Приложение магазина для iOS"), ("ios_admin", "Приложение администратора для iOS")):
         rows.append(_row(key, title, latest=versions.get(key), state="unknown", auto="none",
-                         how="В выпуске лежит неподписанная сборка. Автоматического обновления нет.",
+                         how="В выпуске лежит неподписанная сборка. Приложение на iOS не может обновить себя само с GitHub: "
+                             "это запрещено системой. После публикации в App Store обновлять будет сама iOS.",
                          note="Нужен аккаунт Apple Developer: обновления на iOS идут только через App Store или TestFlight"))
     return rows
 
