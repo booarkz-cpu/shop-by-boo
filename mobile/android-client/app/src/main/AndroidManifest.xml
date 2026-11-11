@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- v1.6.1 (N11): the checked APK of a newer version is handed to the system installer (the user confirms). -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- v1.9.2: Android 12+ lets an app update itself without a confirmation once it is its own installer of record. -->
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- v1.7.2 (N12): «Доверенные Wi-Fi» — Android gives the Wi-Fi name (SSID) only with the location permission; in the background — with «always». -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />

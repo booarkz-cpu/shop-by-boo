@@ -1,6 +1,5 @@
 package shop.corgi.client.vpn
 
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,11 +10,19 @@ import java.io.File
 
 /**
  * v1.6.1 (N11): installs the downloaded and checked APK through PackageInstaller (no file is shared with other apps);
- * Android shows its own confirmation and checks that the APK is signed with the same key.
+ * Android checks that the APK is signed with the same key.
+ *
+ * v1.9.2: without the person. On Android 12 and newer the system installs the update with no confirmation when this app
+ * is its own installer of record (it has installed one update of itself before) — permission
+ * UPDATE_PACKAGES_WITHOUT_USER_ACTION. Otherwise the system asks; from the background that question cannot be shown,
+ * so the «Обновление готово» notification stays and the person installs by a tap.
  */
 object ApkInstaller {
-    fun install(activity: Activity, apk: File) {
-        val installer = activity.packageManager.packageInstaller
+    private const val EXTRA_BACKGROUND = "background"
+    private const val EXTRA_VERSION = "version"
+
+    fun install(context: Context, apk: File, background: Boolean = false, version: String = "") {
+        val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         if (Build.VERSION.SDK_INT >= 31) params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
         val id = installer.createSession(params)
@@ -26,9 +33,9 @@ object ApkInstaller {
             }
             val result =
                 PendingIntent.getBroadcast(
-                    activity,
+                    context,
                     id,
-                    Intent(activity, InstallResult::class.java),
+                    Intent(context, InstallResult::class.java).putExtra(EXTRA_BACKGROUND, background).putExtra(EXTRA_VERSION, version),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 )
             session.commit(result.intentSender)
@@ -39,6 +46,11 @@ object ApkInstaller {
     class InstallResult : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -999) == PackageInstaller.STATUS_PENDING_USER_ACTION) {
+                if (intent.getBooleanExtra(EXTRA_BACKGROUND, false)) {
+                    // Nobody is looking at the app: the system's question cannot be opened from here.
+                    AppUpdateJob.notifyReady(context, intent.getStringExtra(EXTRA_VERSION).orEmpty())
+                    return
+                }
                 @Suppress("DEPRECATION")
                 val confirm = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT) ?: return
                 context.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

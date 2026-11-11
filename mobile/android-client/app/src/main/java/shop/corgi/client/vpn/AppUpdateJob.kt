@@ -17,6 +17,7 @@ import shop.corgi.client.R
 import shop.corgi.client.core.ApkCheck
 import shop.corgi.client.core.tr
 import shop.corgi.client.data.Store
+import shop.corgi.client.engine.Xray
 import shop.corgi.client.ui.MainActivity
 
 /**
@@ -31,7 +32,15 @@ class AppUpdateJob : JobService() {
             val s = store.settings
             if (s.autoUpdateApp) {
                 runCatching { store.checkUpdate() }.getOrNull()?.let { update ->
-                    runCatching { store.downloadUpdate(update) }.getOrNull()?.let { notifyReady(this, update.versionName) }
+                    runCatching { store.downloadUpdate(update) }.getOrNull()?.let { apk ->
+                        // v1.9.2: installed right away when that cannot cut a working VPN; otherwise by a tap.
+                        if (ApkCheck.installNow(Build.VERSION.SDK_INT, Xray.running)) {
+                            runCatching { ApkInstaller.install(this, apk, background = true, version = update.versionName) }
+                                .onFailure { notifyReady(this, update.versionName) }
+                        } else {
+                            notifyReady(this, update.versionName)
+                        }
+                    }
                 }
             }
             if (s.autoUpdateGeo && store.geoReady() && ApkCheck.due(System.currentTimeMillis(), store.geoUpdatedAt())) {

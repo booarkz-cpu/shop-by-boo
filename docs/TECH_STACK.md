@@ -68,7 +68,7 @@
 | iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `mobile/ios-user` |
 | iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `mobile/ios-admin` |
 
-Версия приложений — **3.6.0** (`versionName`, `MARKETING_VERSION`).
+Версия приложений — **3.7.0** (`versionName`, `MARKETING_VERSION`).
 Тесты: XCUITest на симуляторе, UI-тесты на эмуляторе Android, Maestro (`mobile/maestro`).
 
 ## Данные и инфраструктура
