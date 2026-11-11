@@ -826,5 +826,27 @@
    "admin/e2e/protocol-switch.spec.ts"
   ],
   "platforms": "Web, backend/API"
+ },
+ "REQ-NODE-0020": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/crowdsec-check.sh",
+   "tests/test_rw_netmods.py",
+   "docs/CROWDSEC.md"
+  ],
+  "note": "Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список против ложных блокировок, полное удаление — проверено настоящей установкой в CI. Нет: просмотра блокировок и снятия ложной блокировки из панели, уведомлений, сценариев для журналов веб-сервера.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0037": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/crowdsec-check.sh",
+   "tests/test_rw_netmods.py",
+   "docs/CROWDSEC.md"
+  ],
+  "note": "Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список против ложных блокировок, полное удаление — проверено настоящей установкой в CI. Нет: просмотра блокировок и снятия ложной блокировки из панели, уведомлений, сценариев для журналов веб-сервера.",
+  "platforms": "server, backend/API, Web"
  }
 }
