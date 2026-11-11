@@ -208,7 +208,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-Admin/3.5.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-Admin/3.6.0")
             // Historical compatibility marker: CorgiLusi-Android-Admin/2.10.0
             // Historical compatibility marker: CorgiLusi-Android-Admin/2.9.0
             setRequestProperty("X-Shop-Client", "android-admin")
@@ -461,6 +461,7 @@ private fun AdminApp(demo: Boolean = false, demoTab: String = "overview") {
     fun money(value: Any?) = value?.toString()?.removeSuffix(".00").orEmpty()
     val navItems = listOf("overview", "launch", "plans", "payments", "monitoring", "platform", "ops", "support", "broadcast", "panel")
     Box(Modifier.fillMaxSize().background(Remna.bg)) {
+        shop.remnawave.admin.update.AppUpdateDialog(BuildConfig.VERSION_CODE, BuildConfig.DEBUG, demo, ::t)
         Column(Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             RemnaHeader(t("app_name"), if (token.isNotBlank() && unlocked) profileTitle() else t("tagline"), logo, if (lang == "ru") "EN" else "RU") {
                 lang = if (lang == "ru") "en" else "ru"

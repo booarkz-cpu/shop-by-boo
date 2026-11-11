@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.118.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.119.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2466**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2470**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1160,6 +1160,7 @@
 | [docs/ru/RELEASE_V28_116_0.md](../docs/ru/RELEASE_V28_116_0.md) | Документация |
 | [docs/ru/RELEASE_V28_117_0.md](../docs/ru/RELEASE_V28_117_0.md) | Документация |
 | [docs/ru/RELEASE_V28_118_0.md](../docs/ru/RELEASE_V28_118_0.md) | Документация |
+| [docs/ru/RELEASE_V28_119_0.md](../docs/ru/RELEASE_V28_119_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
@@ -1501,6 +1502,7 @@
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/RemnaUi.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/RemnaUi.kt) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdate.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdate.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
@@ -1668,6 +1670,7 @@
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Screens.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Screens.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/ShopData.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/ShopData.kt) | Мобильные приложения |
+| [mobile/android-user/app/src/main/java/shop/remnawave/user/update/AppUpdate.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/update/AppUpdate.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/BatteryGuard.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/BatteryGuard.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt) | Мобильные приложения |
@@ -1687,6 +1690,7 @@
 | [mobile/android-user/app/src/main/res/values/strings.xml](../mobile/android-user/app/src/main/res/values/strings.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml](../mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/xml/network_security.xml](../mobile/android-user/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
+| [mobile/android-user/app/src/test/java/shop/remnawave/user/update/AppUpdateTest.kt](../mobile/android-user/app/src/test/java/shop/remnawave/user/update/AppUpdateTest.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/test/java/shop/remnawave/user/vpn/TuningTest.kt](../mobile/android-user/app/src/test/java/shop/remnawave/user/vpn/TuningTest.kt) | Мобильные приложения |
 | [mobile/android-user/build.gradle.kts](../mobile/android-user/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-user/gradle.properties](../mobile/android-user/gradle.properties) | Мобильные приложения |

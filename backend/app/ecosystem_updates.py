@@ -23,13 +23,13 @@ router = APIRouter(prefix="/api/admin/ecosystem-updates")
 APP_ASSET = re.compile(r"^corgi_lusi_(android|ios)_(user|admin)_(\d+)_(\d+)_(\d+)_")
 RW_TITLES = {"panel": "Панель Remnawave", "node": "Ноды Remnawave", "subscription_page": "Страница подписки Remnawave"}
 # Apps that look for a new version on GitHub themselves. Kept here so that the table cannot promise more than the code does.
-SELF_CHECKING_APPS = {"android_client"}
+SELF_CHECKING_APPS = {"android_client", "android_user", "android_admin"}
 
 __all__ = ["router", "build", "app_versions"]
 
 
 def app_versions(release: dict | None) -> dict:
-    """Versions of the mobile apps in a GitHub release, read from the names of its files."""
+    """Versions of the mobile apps in a GitHub release, read from the names of its files (``_manifests``: apps with an update manifest)."""
     found: dict[str, str] = {}
     names = {str(a.get("name") or "") for a in (release or {}).get("assets") or []}
     for name in names:
@@ -38,6 +38,9 @@ def app_versions(release: dict | None) -> dict:
             found[f"{match[1]}_{match[2]}"] = ".".join(match.group(3, 4, 5))
     if "corgi-lusi-client.apk" in names and "corgi-lusi-client.json" in names:
         found["android_client"] = "в выпуске"
+    # The shop and admin apps check themselves only when the release carries their manifests (v28.119.0 and later).
+    found["_manifests"] = sorted(key for key, stem in (("android_user", "corgi-lusi-android"), ("android_admin", "corgi-lusi-android-admin"))
+                                 if {f"{stem}.apk", f"{stem}.json"} <= names)
     return found
 
 
@@ -112,13 +115,16 @@ def _apps(versions: dict, tag: str | None) -> list[dict]:
     for key, title in (("android_client", "«Корги Люси: клиент» для Android"), ("android_user", "Приложение магазина для Android"),
                        ("android_admin", "Приложение администратора для Android")):
         present = key in versions
-        checks = key in SELF_CHECKING_APPS
+        checks = key in SELF_CHECKING_APPS and (key == "android_client" or key in versions.get("_manifests", ()))
         rows.append(_row(key, title, latest=(versions.get(key) if versions.get(key) != "в выпуске" else where) if present else None,
                          state="unknown", auto="in_app" if checks else "none",
-                         schedule="проверка раз в сутки на устройстве, если включена в настройках приложения" if checks else None,
-                         how="Приложение само находит новый APK в выпуске на GitHub, сверяет SHA-256 и предлагает установить. "
-                             "Подпись проверяет Android." if checks else
-                             "APK лежит в каждом выпуске на GitHub. Приложение новую версию само не ищет: её ставят вручную.",
+                         schedule=("проверка раз в сутки на устройстве, если включена в настройках приложения" if key == "android_client"
+                                   else "проверка раз в сутки при запуске приложения") if checks else None,
+                         how=("Приложение само находит новый APK в выпуске на GitHub, сверяет SHA-256 и предлагает установить. "
+                              "Подпись проверяет Android." if key == "android_client" else
+                              "Приложение 3.6.0 и новее само находит новую версию в выпуске на GitHub и предлагает скачать APK. "
+                              "Подпись проверяет Android. Установленное из магазина приложений обновляет сам магазин.") if checks else
+                             "APK лежит в выпуске на GitHub, но файла для проверки обновлений в нём нет: версию ставят вручную.",
                          note=None if present else "В последнем выпуске на GitHub файла приложения нет"))
     for key, title in (("ios_user", "Приложение магазина для iOS"), ("ios_admin", "Приложение администратора для iOS")):
         rows.append(_row(key, title, latest=versions.get(key), state="unknown", auto="none",

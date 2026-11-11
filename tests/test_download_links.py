@@ -24,6 +24,9 @@ def test_release_workflow_publishes_the_permanent_names():
     pattern = re.search(r"/\^corgi-lusi-\(\?:android\(\?:-admin\)\?\|client\)\\\.apk\(\?:\\\.sha256\)\?\$", workflow)
     assert pattern, "mobile-release.yml must attach the permanent APK names"
     assert "^corgi-lusi-client\\.json$" in workflow and "corgi-lusi-client.json" in workflow, "the client's update manifest"
+    assert "^corgi-lusi-android(?:-admin)?\\.json$" in workflow, "update manifests of the shop and admin apps"
+    script = (ROOT / "scripts/build-android-apk.sh").read_text()
+    assert '"$OUT/${stable%.apk}.json"' in script and '"versionCode":%s' in script, "the build writes those manifests"
 
 
 def test_every_download_link_points_to_a_produced_file():
