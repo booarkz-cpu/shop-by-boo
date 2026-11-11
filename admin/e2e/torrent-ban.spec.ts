@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.117.0: «Серверы → Торренты на нодах» → «Временный бан за торренты». The backend is a stub shaped like
+// v28.117.0: «Серверы → Торренты на узлах» → «Временный бан за торренты». The backend is a stub shaped like
 // backend/app/rw_torrent_ban.py (tests/test_rw_torrent_ban.py runs the same flow against a model of the panel).
 const DE = '00000001-0000-4000-8000-000000000000', CZ = '00000002-0000-4000-8000-000000000000';
 
@@ -33,7 +33,7 @@ test('temporary torrent ban: choose nodes, switch on with a warning, switch off'
   });
   page.on('dialog', (d: any) => { asked.push(d.message()); d.accept(); });
 
-  await page.locator('.sidebar').getByRole('button', {name: /Торренты на нодах/}).click();
+  await page.locator('.sidebar').getByRole('button', {name: /Торренты на узлах/}).click();
   const root = page.locator('[data-torrent-ban]');
   await expect(root.locator('[data-ban-summary]')).toHaveText('Выключен');
   // The warning about a shared address is on the page before anything is switched on.
