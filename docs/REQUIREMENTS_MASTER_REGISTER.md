@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **51** — 7.8%.
+- Подтверждено (`PASS`): **53** — 8.1%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 51 | Проверено, доказательство указано |
-| `PARTIAL` | 43 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 7 | Функции нет |
+| `PASS` | 53 | Проверено, доказательство указано |
+| `PARTIAL` | 62 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 8 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 551 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 529 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -32,7 +32,7 @@
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 0 | 0 | 0 | 16 |
 | MASQUE | 12 | 0 | 0 | 0 | 12 |
-| Ноды: установка, обслуживание, защита | 71 | 11 | 4 | 0 | 56 |
+| Ноды: установка, обслуживание, защита | 71 | 13 | 23 | 0 | 34 |
 | Автовыбор | 35 | 21 | 13 | 0 | 1 |
 | Инфраструктура, установщик, копии | 41 | 3 | 0 | 0 | 38 |
 | Backend, API, база | 2 | 0 | 0 | 0 | 2 |
@@ -2157,9 +2157,12 @@
 
 > Массовые операции показывают выбранные ноды, компоненты, последствия, rollback и backup до выполнения.
 
-### REQ-NODE-0003 — `NOT_TESTED`
+### REQ-NODE-0003 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Rule (строка 463). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Примечание: Каталог «Установка» восстановлен и проверен тестами и сценарием в браузере. Нет: AdGuard Home, каскада HAProxy, временного бана IP за торренты. CrowdSec — частично.
 
 > Восстановить и полноценно реализовать функциональность «Установка» и «Обслуживание и защита», показанную на скриншотах. Скриншоты — требования, не доказательство реализации. Проверить исходный код; отсутствующее реализовать; существующее проверить.
 
@@ -2175,9 +2178,12 @@
 
 > Установка MTProto Proxy на выбранную ноду; автоматическая настройка; корректная ссылка; показ ссылки; проверка доступности; журнал; удаление без влияния на другие сервисы.
 
-### REQ-NODE-0006 — `NOT_TESTED`
+### REQ-NODE-0006 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Haproxy Cascade (строка 475). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
+- Примечание: Каскад сделан мостом Shadowsocks между двумя нодами через API панели, не HAProxy. Цепочки из 2–3 нод и проверки каждого звена нет.
 
 > Каскад HAProxy через 2–3 ноды; выбор транзитных и конечной; настройка маршрута; проверка каждого звена и TCP; диагностика; без ненужного второго шифрования; безопасное применение; rollback.
 
@@ -2193,15 +2199,19 @@
 
 > Обновление geoip.dat, geosite.dat и других GeoAssets; версия; источник; целостность; checksum; хранение; backup; применение; проверка конфигурации; минимальный перезапуск; rollback. Для нод без Docker Compose — безопасный поддерживаемый способ. Ориентир около 10 секунд только измерять, не гарантировать.
 
-### REQ-NODE-0009 — `NOT_TESTED`
+### REQ-NODE-0009 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Xray Adblock (строка 487). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
+- Примечание: Есть правило geosite:category-ads-all первым в профиле для всех клиентов, выключение возвращает профиль. Нет: выбора нод, своих доменов, проверки DNS.
 
 > Отдельная блокировка рекламы/трекеров через DNS/geosite и подтверждённые возможности Xray; выбор нод; пользовательские домены; проверка DNS; rollback.
 
-### REQ-NODE-0010 — `NOT_TESTED`
+### REQ-NODE-0010 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Server Installation Maintenance → Adguard Home (строка 491). Продукт: Все три.
+- Примечание: AdGuard Home в коде нет.
 
 > Отдельная установка AdGuard Home; выбор нод; DNS; интеграция с Xray; списки; статистика; мониторинг; резервный DNS; диагностика; учитывать ресурсы. Не устанавливать конкурирующие механизмы без проверки.
 
@@ -2211,9 +2221,12 @@
 
 > Проверка 443; selfsteal; порт 80; редирект 301; TLS 1.2/1.3; HSTS; заглушка; Trojan; VLESS; Vision; открытые порты; доступность панели. Исправления безопасные и обратимые; не закрывать админ-доступ; не обещать невозможность блокировки.
 
-### REQ-NODE-0012 — `NOT_TESTED`
+### REQ-NODE-0012 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Mss Clamp (строка 499). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
+- Примечание: MTU пути до 1.1.1.1 и 77.88.8.8 измеряется, MSS рассчитывается и включается только при необходимости, сохраняется после перезагрузки, нода не перезапускается — проверено настоящим запуском в CI. Проверки соединений клиентов после включения нет; других контрольных адресов нет.
 
 > Проверка MTU/MSS; маршруты до Cloudflare, Яндекс DNS и контрольных адресов; расчёт; необходимость; применение; сохранение после reboot; проверка соединений; не перезапускать VPN без нужды.
 
@@ -2223,9 +2236,12 @@
 
 > SSH-порт; доступ только с IP панели; массовое применение; миграция панели; предварительное добавление нового IP; проверка доступности; автоматическая отмена правила при потере доступа; не блокировать SSH администратора.
 
-### REQ-NODE-0014 — `NOT_TESTED`
+### REQ-NODE-0014 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Torrent Blocker (строка 507). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`.
+- Примечание: Есть блокировка BitTorrent плагином ноды, счётчики срабатываний, уведомления и учёт нарушений. Временного бана IP через nftables с автоматическим снятием нет.
 
 > Обнаружение BitTorrent в логах Xray; временный бан IP; nftables/iptables; правила; журнал; автоматическое снятие; диагностика; предупреждение о влиянии на общие ноды; до перезапуска Xray показать последствия.
 
@@ -2241,9 +2257,12 @@
 
 > Публичная статус-страница; реальная доступность нод; тестовый трафик; online/latency; инциденты; состояние сервисов; домен; не раскрывать секреты и внутренние адреса. TCP-порт сам по себе не доказывает работоспособность.
 
-### REQ-NODE-0017 — `NOT_TESTED`
+### REQ-NODE-0017 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Bbr (строка 519). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_steps.py`; `tests/test_rw_server_modules.py`; `tests/live/test_node_modules_live.py`.
+- Примечание: Перед включением BBR определяются виртуализация и ядро; на OpenVZ и LXC шаг пропускается с объяснением; результат проверяется, выключение возвращает прежнее — проверено на живой машине CI. Отдельной поддержки BBR3 нет.
 
 > Определить ядро Linux, версию, виртуализацию, congestion control, права и совместимость; включать только поддерживаемый BBR/BBR3; проверить результат и rollback.
 
@@ -2268,27 +2287,38 @@
 
 > Установка; защита SSH/web от brute force; обнаружение сканирования; community blocklists при соблюдении условий; мониторинг; журнал; уведомления; firewall bouncer; снятие ложных блокировок.
 
-### REQ-NODE-0021 — `NOT_TESTED`
+### REQ-NODE-0021 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Hubguard (строка 535). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
+- Примечание: Отдельная таблица nftables, лимит новых соединений с адреса, бан на 10 минут, белый список (магазин, панель, администратор, CGNAT), действующие соединения не трогаются, выключение убирает таблицу — проверено настоящим запуском в CI. Доступность панели после включения отдельно не проверяется.
 
 > Защита nftables; ограничение новых соединений; защита от сканирования и перебора; отдельная таблица; не ломать ufw/CrowdSec; whitelist SSH и необходимого CGNAT; сохранять действующие сессии; проверить доступность панели; rollback.
 
-### REQ-NODE-0022 — `NOT_TESTED`
+### REQ-NODE-0022 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Remove Component (строка 541). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Примечание: Удаляются по одному: панель (после копии её базы), страница подписки, Caddy, нода, сайт SelfSteal, Xray Checker; MTProto — выключением модуля. Бот и статус-страница — части магазина, а не сервера ноды, отдельной операции для них здесь нет.
 
 > Удалять только выбранный компонент: бот, ноду, status page, MTProto или другой модуль. Не затрагивать остальные сервисы.
 
-### REQ-NODE-0023 — `NOT_TESTED`
+### REQ-NODE-0023 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Clean Server (строка 545). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Примечание: Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены.
 
 > Полное удаление Remnawave, нод, контейнеров, конфигураций и связанных компонентов. Необратимая операция: повторное подтверждение; точный сервер; список ресурсов; проверка backup; журнал; проверка полномочий.
 
-### REQ-NODE-0024 — `NOT_TESTED`
+### REQ-NODE-0024 — `PASS`
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Rule (строка 549). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`.
 
 > Не путать удаление одного компонента с полной очисткой сервера.
 
@@ -2352,9 +2382,12 @@
 > `id` = `vpn-status-page`
 > Публичная status page для клиентов; проверка каждого конфига реальным трафиком; online и latency; установка в один клик; собственный домен; безопасное публичное отображение без раскрытия внутренней информации.
 
-### REQ-NODE-0034 — `NOT_TESTED`
+### REQ-NODE-0034 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Ускорение BBR / BBR3 (строки 1309–1311). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_steps.py`; `tests/test_rw_server_modules.py`; `tests/live/test_node_modules_live.py`.
+- Примечание: То же, что REQ-NODE-0017.
 
 > `id` = `bbr`
 > Проверить ядро и виртуализацию до изменений; применить только поддерживаемую настройку TCP; не менять VPN-конфигурацию; показать фактический результат.
@@ -2383,22 +2416,31 @@
 > `id` = `crowdsec`
 > Установка CrowdSec; обнаружение brute force и сканеров SSH/web; community blocklist при соблюдении условий; bouncer; журнал, метрики, уведомления, защита от ложных блокировок.
 
-### REQ-NODE-0038 — `NOT_TESTED`
+### REQ-NODE-0038 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → HUBGuard — защита nftables (строки 1329–1331). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
+- Примечание: Отдельная таблица nftables, лимит новых соединений с адреса, бан на 10 минут, белый список (магазин, панель, администратор, CGNAT), действующие соединения не трогаются, выключение убирает таблицу — проверено настоящим запуском в CI. Доступность панели после включения отдельно не проверяется.
 
 > `id` = `hubguard`
 > Ограничение новых соединений на портах ноды; autoban сканеров и перебора; собственная таблица inet hubguard; не ломать ufw и CrowdSec; добавить SSH-адрес администратора и необходимые CGNAT-адреса в whitelist; не обрывать текущую сессию.
 
-### REQ-NODE-0039 — `NOT_TESTED`
+### REQ-NODE-0039 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Remove Component (строка 1338). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Примечание: То же, что REQ-NODE-0022.
 
 > Снять с сервера ОДИН компонент (например, бот, ноду, status page, MTProto), не трогая остальные. Ясно объяснить, что это не полная очистка сервера.
 
-### REQ-NODE-0040 — `NOT_TESTED`
+### REQ-NODE-0040 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Clean Server (строка 1342). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Примечание: То же, что REQ-NODE-0023.
 
 > Полностью удалить Remnawave, ноду, контейнеры и конфигурации. Необратимо. Требовать точный выбор сервера, перечень удаляемых ресурсов, проверку backup и повторное подтверждение.
 
@@ -2514,9 +2556,12 @@
 
 > Готовить уведомления клиентам только по подтверждённым данным. Если сервис не затронут — не заявлять о проблеме; техническое объяснение делать кратким и понятным. Не обещать обход любых блокировок.
 
-### REQ-NODE-0056 — `NOT_TESTED`
+### REQ-NODE-0056 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1572). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `backend/app/rw_steps.py`.
+- Примечание: Файл подкачки с проверкой свободного места и vm.swappiness — есть, проверено настоящим запуском в CI. Из sysctl — только подкачка и BBR; общего раздела настроек sysctl нет.
 
 > - swap и sysctl;
 
@@ -2538,9 +2583,12 @@
 
 > - ремонт заблокированного узла;
 
-### REQ-NODE-0060 — `NOT_TESTED`
+### REQ-NODE-0060 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1576). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
+- Примечание: То же, что REQ-NODE-0006.
 
 > - каскадирование HAProxy на 2–3 узла;
 
@@ -2562,9 +2610,12 @@
 
 > - GEO, geoip.dat и geosite.dat с checksum и rollback;
 
-### REQ-NODE-0064 — `NOT_TESTED`
+### REQ-NODE-0064 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1580). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
+- Примечание: Блокировка рекламы правилом Xray есть (REQ-NODE-0009). AdGuard Home нет.
 
 > - Xray AdBlock и AdGuard Home;
 
@@ -2574,9 +2625,12 @@
 
 > - RKN diagnostics: 443, selfsteal, 80/301, TLS 1.2/1.3, HSTS, Trojan, VLESS/Vision;
 
-### REQ-NODE-0066 — `NOT_TESTED`
+### REQ-NODE-0066 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1582). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
+- Примечание: MTU пути до 1.1.1.1 и 77.88.8.8 измеряется, MSS рассчитывается и включается только при необходимости, сохраняется после перезагрузки, нода не перезапускается — проверено настоящим запуском в CI. Проверки соединений клиентов после включения нет; других контрольных адресов нет.
 
 > - MSS clamp и MTU;
 
@@ -2586,21 +2640,29 @@
 
 > - ограничение SSH доступа к панели с безопасным rollback;
 
-### REQ-NODE-0068 — `NOT_TESTED`
+### REQ-NODE-0068 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1584). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`.
+- Примечание: То же, что REQ-NODE-0014.
 
 > - временная блокировка torrent IP через nftables/iptables;
 
-### REQ-NODE-0069 — `NOT_TESTED`
+### REQ-NODE-0069 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1585). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `scripts/ci/crowdsec-check.sh`; `tests/test_install_catalogue.py`.
+- Примечание: CrowdSec — частично (REQ-NODE-0020). Защита nftables и снапшоты есть и проверены.
 
 > - CrowdSec, HUBGuard, nftables, backup snapshots;
 
-### REQ-NODE-0070 — `NOT_TESTED`
+### REQ-NODE-0070 — `PASS`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1586). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
 
 > - безопасное удаление отдельного компонента и отдельный сценарий полной очистки сервера;
 

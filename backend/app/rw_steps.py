@@ -1490,6 +1490,15 @@ async def _run_netmod(ctx: Context, sid: int, name: str, p: dict, enabled: bool,
                 p.get("mode") or "enforce") if enabled else ("off",)
         result = await _run(ctx, sid, rw_netmods.GUARD, *args, timeout=180)
         errors = {7: "На сервере нет nftables, и он не установился (apt)"}
+    elif name == "crowdsec" and enabled and p.get("action") in ("status", "unban"):
+        # v28.115.0: reading the bans and lifting one do not change the installation: nothing to undo, no module state.
+        args = ("status",) if p["action"] == "status" else ("unban", p.get("ip") or "")
+        result = await _run(ctx, sid, rw_netmods.CROWDSEC, *args, timeout=120)
+        _note(ctx, result.out + result.err)
+        if result.code != 0:
+            raise StepError({8: "CrowdSec на этом сервере не установлен", 6: "CrowdSec не снял блокировку (журнал шага)"}.get(
+                result.code, "CrowdSec не ответил (журнал шага)"))
+        return
     elif name == "crowdsec":
         # The same allowlist as «Защита ноды»: the owner's extra addresses, the address this SSH session comes from, the panel.
         allow = list(dict.fromkeys([*(p.get("allow") or []), *([await _client_address(ctx, sid)] if enabled else [])]))

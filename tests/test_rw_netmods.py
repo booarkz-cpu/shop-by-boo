@@ -364,3 +364,41 @@ async def test_crowdsec_step_allowlists_the_owner_the_shop_and_the_panel_and_und
     answers.clear()
     await rw_steps.run_node_module(ctx, {"server_id": 2, "params": {"module": "crowdsec", "enabled": False}})
     assert calls[-1][1] == ("off",) and ctx.state["modules"]["2"]["crowdsec"] == "off"
+
+
+@pytest.mark.asyncio
+async def test_crowdsec_status_and_unban_change_nothing_else(monkeypatch):
+    """v28.115.0: the bans are read and a false ban is lifted from the panel; the installation and its undo are untouched."""
+    steps, _ = rw_plan.module_steps(plan_with(name="crowdsec", crowdsec_action="unban", crowdsec_ip=" 203.0.113.9 ", server_ids=[2]), SERVERS, {2: ["node"]})
+    assert steps[0]["params"]["action"] == "unban" and steps[0]["params"]["ip"] == "203.0.113.9" and "снять блокировку с адреса 203.0.113.9" in steps[0]["title"]
+    status, _ = rw_plan.module_steps(plan_with(name="crowdsec", crowdsec_action="status", server_ids=[2]), SERVERS, {2: ["node"]})
+    assert status[0]["params"]["action"] == "status" and status[0]["params"]["ip"] is None
+    for bad in (None, "", "not-an-ip", "1.2.3.4;id", "203.0.113.0/24"):
+        with pytest.raises(ValueError, match="Укажите адрес"):
+            rw_plan.module_steps(plan_with(name="crowdsec", crowdsec_action="unban", crowdsec_ip=bad, server_ids=[2]), SERVERS, {2: ["node"]})
+    # Removal ignores the action: «выключить» always removes.
+    off, _ = rw_plan.module_steps(plan_with(name="crowdsec", enabled=False, crowdsec_action="unban", crowdsec_ip="x", server_ids=[2]), SERVERS, {2: ["node"]})
+    assert off[0]["params"]["action"] == "install" and "удалить CrowdSec" in off[0]["title"]
+
+    calls, answer = [], {"code": 0, "out": "ban 198.51.100.9 | crowdsecurity/ssh-bf | crowdsec | 3h59m\ncrowdsec=on decisions=1\n"}
+
+    async def run(ctx, sid, script, *args, timeout=0):
+        calls.append(args)
+        return SimpleNamespace(code=answer["code"], out=answer["out"], err="")
+
+    monkeypatch.setattr(rw_steps, "_run", run)
+    ctx = rw_steps.Context(plan=rw_plan.PlanIn(mode="add_node", node_server_ids=[2]), servers=SERVERS, secrets={}, state={"modules": {"2": {"crowdsec": "crowdsec=on"}}},
+                           shop_panel_url="https://198.51.100.7")
+    await rw_steps.run_node_module(ctx, status[0])
+    await rw_steps.run_node_module(ctx, steps[0])
+    assert calls == [("status",), ("unban", "203.0.113.9")]
+    assert ctx.state["modules"]["2"]["crowdsec"] == "crowdsec=on" and not ctx.state.get("applied_modules"), "nothing to undo"
+    calls.clear()
+    await rw_steps.undo_node_module(ctx, steps[0])
+    assert calls == [], "undo of «unban» never removes CrowdSec"
+    answer.update(code=8, out="not installed\n")
+    with pytest.raises(rw_steps.StepError, match="не установлен"):
+        await rw_steps.run_node_module(ctx, status[0])
+    for args in (["unban", "1.2.3.4;id"], ["unban", ""]):
+        out = subprocess.run(["bash", "-c", "cscli() { :; }; " + rw_netmods.CROWDSEC, "c", *args], capture_output=True, text=True)
+        assert out.returncode == 2 and "bad address" in out.stdout, args

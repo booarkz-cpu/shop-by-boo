@@ -125,6 +125,8 @@ class ModuleIn(BaseModel):
     guard_mode: Literal["enforce", "observe"] | None = None
     swap_mb: int | None = Field(default=None, ge=256, le=16384)
     crowdsec_community: bool | None = None                                      # v28.114.0
+    crowdsec_action: Literal["install", "status", "unban"] | None = None        # v28.115.0
+    crowdsec_ip: str | None = Field(default=None, max_length=45)
     enabled: bool = True
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     selfsteal_template: str | None = Field(default=None, max_length=40)         # v28.88.0; v28.91.0 — the catalogue or «custom»
@@ -561,7 +563,7 @@ async def _module_params(mod: ModuleIn, params: dict, secrets: dict) -> dict:
     if mod.name == "hardening":
         run["hardening"] = (mod.hardening or rw_plan.Hardening()).model_dump()
     for key in ("guard_ports", "guard_rate", "guard_allow", "guard_mode", "swap_mb", "mtproto_port", "mtproto_domain", "psiphon_port", "psiphon_protocol",
-                "crowdsec_community"):
+                "crowdsec_community", "crowdsec_action", "crowdsec_ip"):
         if getattr(mod, key) is not None:
             run[key] = getattr(mod, key)
     if mod.name == "cdn":

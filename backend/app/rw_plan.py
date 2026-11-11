@@ -292,6 +292,9 @@ class ModuleRun(BaseModel):
     swap_mb: int = Field(default=1024, ge=256, le=16384)
     # v28.114.0: CrowdSec — the shared blocklist (the server then reports attackers to CrowdSec); off by default.
     crowdsec_community: bool = False
+    # v28.115.0: «status» lists the bans, «unban» lifts one (a false ban); both leave the installation as it is.
+    crowdsec_action: Literal["install", "status", "unban"] = "install"
+    crowdsec_ip: str | None = Field(default=None, max_length=45)
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
     transports: list[TransportName] = Field(default_factory=list, max_length=5)
@@ -947,6 +950,14 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             elif name == "node_guard":
                 what = (f"{'лимит' if mod.guard_mode == 'enforce' else 'только счёт'} {mod.guard_rate} новых соединений/с с адреса на портах "
                         f"{', '.join(map(str, mod.guard_ports))}" if mod.enabled else "выключить защиту")
+            elif name == "crowdsec" and mod.enabled and mod.crowdsec_action == "status":
+                what = "CrowdSec: показать действующие блокировки"
+            elif name == "crowdsec" and mod.enabled and mod.crowdsec_action == "unban":
+                try:
+                    address = str(ipaddress.ip_address((mod.crowdsec_ip or "").strip()))
+                except ValueError:
+                    raise ValueError("Укажите адрес (IPv4 или IPv6), с которого нужно снять блокировку") from None
+                what = f"CrowdSec: снять блокировку с адреса {address}"
             elif name == "crowdsec":
                 what = ("CrowdSec и блокировщик nftables: перебор SSH и сканеры; " + ("общий список блокировок включён" if mod.crowdsec_community
                         else "без обмена данными с CrowdSec")) if mod.enabled else "удалить CrowdSec"
@@ -954,7 +965,9 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
                 what = f"файл подкачки {mod.swap_mb} МБ" if mod.enabled else "убрать файл подкачки"
             steps.append(step("node_module", sid, f"{n}: {what}", module=name, enabled=mod.enabled, ports=sorted(set(mod.guard_ports)),
                               rate=mod.guard_rate, allow=allow, mode=mod.guard_mode, swap_mb=mod.swap_mb,
-                              community=mod.crowdsec_community))
+                              community=mod.crowdsec_community,
+                              action=mod.crowdsec_action if name == "crowdsec" and mod.enabled else "install",
+                              ip=str(ipaddress.ip_address(mod.crowdsec_ip.strip())) if name == "crowdsec" and mod.enabled and mod.crowdsec_action == "unban" else None))
         title = f"{MODULE_TITLES[name]}: {state}"
     elif name == "selfsteal_site":
         # v28.88.0 (BACKLOG A3): another site-template behind SelfSteal without a reinstall — the node's Caddy files
