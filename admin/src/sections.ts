@@ -144,7 +144,7 @@ export const SECTION_GROUPS = [
       {tab: "jobs", label: "Очередь задач", description: "Фоновые задачи: ожидают, выполняются, завершились ошибкой; повтор вручную.", keywords: "очередь jobs"},
       {tab: "mailDomain", label: "Почтовый домен: SPF, DKIM, DMARC", description: "Доходят ли письма магазина: DNS-записи домена и отчёты DMARC о том, кто отправляет почту от его имени.", keywords: "почта email mx spf dkim dmarc доставляемость"},
       {tab: "operations", label: "Диагностика", description: "Проверка конфигурации, подключений и готовности к работе с подсказками по исправлению.", keywords: "проверка"},
-      {tab: "releases", label: "Обновления", description: "Установленная версия, доступные выпуски и история обновлений.", keywords: "релизы версии github"},
+      {tab: "releases", label: "Обновления", description: "Вся экосистема одной таблицей: что обновляется с GitHub само, что выключено; автообновление магазина и Remnawave, история.", keywords: "релизы версии github автообновление экосистема приложения"},
       {tab: "deployments", label: "Развёртывания", description: "Постепенный выпуск новой версии: доля трафика и ошибки.", keywords: "canary"},
       {tab: "enterprise", label: "Корпоративный контур", description: "Проверки, кампании и правила автоматизации для крупных установок.", keywords: "enterprise"},
       {tab: "intelligence", label: "Рекомендации", description: "Подсказки по росту продаж и снижению нагрузки на основе данных магазина.", keywords: "советы"},

@@ -53,7 +53,7 @@ MODULES: tuple[tuple[int, str, tuple[str, ...], tuple[str, ...], str], ...] = (
     (26, "Plugins", ("plugins",), ("plugins",), ""),
     (27, "Security", ("security", "passkeys", "admins", "sessions", "fraud"), ("security", "admins", "sessions", "fraud", "roles"), ""),
     (28, "Logs", ("audit", "events", "monitoring"), ("audit", "errors", "logs"), ""),
-    (29, "GitHub", ("releases",), ("github-update", "auto-update"), ""),
+    (29, "GitHub", ("releases",), ("github-update", "auto-update", "ecosystem-updates"), ""),
     (30, "Settings", ("runtimeSettings", "features", "branding"), ("runtime-settings", "settings", "branding"), ""),
 )
 
