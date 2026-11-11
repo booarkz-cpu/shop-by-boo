@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: Validate published stable release
         id: release
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}
         with:
@@ -87,7 +87,7 @@ jobs:
           fi
       - name: Install exact release with backup and health checks
         if: steps.release.outputs.skip != 'true' && steps.secrets.outputs.skip != 'true'
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@2ead5e36573f08b82fbfce1504f1a4b05a647c6f # v1.2.2
         env:
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
           APP_DIR: ${{ secrets.DEPLOY_PATH }}

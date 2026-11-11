@@ -28,10 +28,10 @@ jobs:
       PEAK_VUS: ${{ inputs.peak_vus }}
       STEP: ${{ inputs.step }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Target is set
         run: test -n "$TARGET" || { echo "::error title=Load live::Add the LOAD_TARGET_URL secret or give a target"; exit 1; }
-      - uses: grafana/setup-k6-action@v1
+      - uses: grafana/setup-k6-action@c47136d33d365efbeb9ae7266908b5dcf98cdece # v1
       - run: k6 run --summary-export k6-live.json tests/load/live.js
       - name: k6 numbers as annotations
         if: always()

@@ -48,3 +48,16 @@ def test_signing_certificate_is_pinned():
     lines = [l for l in (ROOT / "mobile/android-signing-cert.sha256").read_text().splitlines() if l and not l.startswith("#")]
     assert len(lines) == 1 and re.fullmatch(r"[0-9a-f]{64}", lines[0])
     assert "verify_signature" in (ROOT / "scripts/build-android-apk.sh").read_text()
+
+
+def test_mobile_packages_are_built_for_every_head_of_main():
+    """The release belongs to the head of main: the packages must be built for it whatever files the last commit touched.
+
+    v28.119.0 was published without the client and the update manifests because a CI-only commit became the head
+    and the paths filter skipped «Mobile packages» for it.
+    """
+    import yaml
+
+    triggers = yaml.safe_load((ROOT / ".github/workflows/mobile-release.yml").read_text())[True]
+    assert triggers["push"] == {"branches": ["main"]}
+    assert "paths" in triggers["pull_request"], "pull requests still build only when the apps change"

@@ -1090,5 +1090,152 @@
   ],
   "note": "Android: счётчик дней с огоньком, баннер «ЗАЩИТА В ОДНО КАСАНИЕ» и «Безлимит» убраны, проверено тестом на эмуляторе. Элемента «маска» на главном экране нет: нужен снимок от владельца, чтобы понять, о чём речь.",
   "platforms": "Android"
+ },
+ "REQ-CI-0001": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   ".github/workflows/docker.yml",
+   ".github/workflows/publish-release.yml",
+   ".github/workflows/docs-links.yml",
+   "scripts/ci/check-licenses.py",
+   "tests/test_license_check.py"
+  ]
+ },
+ "REQ-CI-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/auto_update.py",
+   "tests/test_auto_update_agent.py",
+   "backend/app/rw_autoupdate.py",
+   "tests/test_rw_autoupdate.py",
+   ".github/workflows/xray-core-watch.yml",
+   "docs/AUTO_UPDATE.md"
+  ],
+  "note": "Ночной агент проверяет выпуск, делает копию, обновляет, проверяет и откатывает; есть отчёт. Проверено тестами и на машине CI. Ночной прогон на настоящем сервере не проверен: нет VPS."
+ },
+ "REQ-CI-0003": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/auto_update.py",
+   "tests/test_auto_update_agent.py",
+   ".github/workflows/deploy.yml",
+   ".github/workflows/publish-release.yml",
+   "tests/test_production_installer_v2016.py"
+  ]
+ },
+ "REQ-CI-0004": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTO_UPDATE.md",
+   "backend/app/ecosystem_updates.py",
+   "tests/test_ecosystem_updates.py",
+   "backend/app/auto_update_api.py"
+  ]
+ },
+ "REQ-CI-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/src/autoUpdate.tsx",
+   "admin/src/ecosystem-updates.tsx",
+   "backend/app/auto_update_api.py",
+   "backend/app/ecosystem_updates.py",
+   "tests/test_auto_update_api.py"
+  ],
+  "note": "Раздел «Обновления» показывает версии, выпуски, дату и итог последнего запуска, ошибки; откат агент делает сам. Запуска GitHub workflow из панели нет."
+ },
+ "REQ-CI-0006": {
+  "status": "PASS",
+  "evidence": [
+   "docs/VERSIONING.md",
+   "scripts/check-current-docs.py",
+   "tests/test_mobile_family_status.py",
+   "tests/mobile-client-release.test.cjs",
+   "CHANGELOG.md"
+  ]
+ },
+ "REQ-CI-0007": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   ".github/workflows/docker.yml",
+   ".github/workflows/remnawave-live.yml",
+   ".github/workflows/mobile-release.yml",
+   ".github/workflows/android-client.yml",
+   "tests/test_workflows_parse.py"
+  ]
+ },
+ "REQ-CI-0008": {
+  "status": "PASS",
+  "evidence": [
+   "backend/requirements.txt",
+   "admin/package-lock.json",
+   "cabinet/package-lock.json",
+   "miniapp/package-lock.json",
+   ".github/workflows/ci.yml"
+  ]
+ },
+ "REQ-CI-0009": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_workflows_parse.py",
+   ".github/workflows/ci.yml",
+   ".github/workflows/deploy.yml",
+   ".github/dependabot.yml"
+  ]
+ },
+ "REQ-CI-0010": {
+  "status": "PARTIAL",
+  "evidence": [
+   ".github/workflows/deploy.yml",
+   ".github/workflows/mobile-release.yml",
+   ".github/workflows/ci.yml"
+  ],
+  "note": "Есть предпросмотр (сборки и пакеты pull request) и production (окружение GitHub `production`). Отдельного окружения staging нет: для него нужен второй сервер."
+ },
+ "REQ-CI-0012": {
+  "status": "PARTIAL",
+  "evidence": [
+   ".github/workflows/publish-release.yml",
+   "scripts/package-distribution.py",
+   "scripts/auto_update.py"
+  ],
+  "note": "Агент обновления сверяет SHA-256 и манифест. С v28.122.0 архив получает аттестацию происхождения GitHub; первая аттестация появится с выпуском и ещё не проверена. Подписи ключом владельца нет."
+ },
+ "REQ-CI-0013": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/publish-release.yml",
+   "tests/test_production_installer_v2016.py",
+   "tests/release-publisher.test.cjs",
+   "tests/test_workflows_parse.py"
+  ]
+ },
+ "REQ-CI-0014": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/auto_update.py",
+   "tests/test_auto_update_agent.py",
+   "backend/app/rw_autoupdate.py",
+   "tests/test_rw_autoupdate.py"
+  ]
+ },
+ "REQ-CI-0015": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTO_UPDATE.md",
+   "backend/app/ecosystem_updates.py",
+   "tests/test_ecosystem_updates.py"
+  ]
+ },
+ "REQ-CI-0011": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/check-current-docs.py",
+   "scripts/package-distribution.py",
+   "docs/ru/RELEASE_V28_122_0.md",
+   "docs/VERSIONING.md"
+  ],
+  "note": "Заметки каждого выпуска содержат миграции, проверки, известные ограничения; у файлов выпуска есть SHA-256. Отдельных разделов «ломающие изменения» и «откат» в заметках нет."
  }
 }
