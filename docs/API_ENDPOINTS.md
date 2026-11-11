@@ -531,6 +531,11 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/rw/installations/{installation_id}/panel-gate` | Open Panel | право `provision_nodes` |
 | `GET` | `/api/admin/rw/installations/{installation_id}/xray-checker` | Xray Checker | право `read` |
 | `GET` | `/api/admin/rw/meta` | Meta | право `read` |
+| `GET` | `/api/admin/rw/protocol-switch` | Overview | право `read` |
+| `POST` | `/api/admin/rw/protocol-switch` | Start | право `provision_nodes` |
+| `GET` | `/api/admin/rw/protocol-switch/meta` | Meta | право `read` |
+| `POST` | `/api/admin/rw/protocol-switch/{job_id}/check` | Check | право `provision_nodes` |
+| `POST` | `/api/admin/rw/protocol-switch/{job_id}/rollback` | Rollback | право `provision_nodes` |
 | `GET` | `/api/admin/rw/proxy-routes` | Proxy Routes | право `read` |
 | `GET` | `/api/admin/rw/selfsteal/catalogue` | Catalogue | право `read` |
 | `POST` | `/api/admin/rw/selfsteal/check` | Check | право `provision_nodes` |
