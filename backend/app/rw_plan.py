@@ -41,13 +41,14 @@ DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page"
 # (tests/live/test_node_modules_live.py prints it on every run).
 CHECKER_IMAGE = "kutovoys/xray-checker:v1.3.1@sha256:33c9a4987caa3a5f0af466ae3eeb233b53068931d0e2e7af357d4dfc5269bc4a"
 MODULES = ("ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon")
+           "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon", "crowdsec")
 MODULE_TITLES = {"ipv6": "IPv6", "xray_core": "Ядро Xray", "warp": "WARP Native", "netbird": "NetBird", "xray_checker": "Xray Checker",
                  "transports": "Протоколы и маскировка ноды", "hardening": "Защита сервера", "watchdog": "Самовосстановление",
                  "selfsteal_site": "Сайт SelfSteal", "node_port": "Порт ноды для панели", "mss_clamp": "MSS clamp",
                  "node_guard": "Защита ноды (nftables)", "swap": "Файл подкачки",
                  "sni_scan": "Подбор сайта для REALITY", "mtproto": "MTProto-прокси для Telegram", "psiphon": "Сервер Psiphon (psiphond)",
-                 "geo_files": "Российские списки блокировок (geo)", "cdn": "Cloudflare CDN"}
+                 "geo_files": "Российские списки блокировок (geo)", "cdn": "Cloudflare CDN",
+                 "crowdsec": "CrowdSec — защита от перебора"}
 # v28.95.0 (N7): the Russian lists sit next to the image's own geo files (those stay as they are) and are used as
 # ext:ru-geosite.dat:<category> / ext:ru-geoip.dat:<category> in the routing rules of the panel.
 GEO_DIR = "/usr/local/share/xray"
@@ -271,7 +272,7 @@ class ModuleRun(BaseModel):
     version, by architecture, with their SHA-256 (looked up when the plan is made, so the approved plan fixes them)."""
     model_config = ConfigDict(extra="forbid")
     name: Literal["ipv6", "xray_core", "warp", "netbird", "xray_checker", "transports", "hardening", "watchdog", "selfsteal_site", "node_port",
-                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon"]
+                  "mss_clamp", "node_guard", "swap", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon", "crowdsec"]
     enabled: bool = True
     # v28.98.0 (N7): Cloudflare — the parts this run switches (on with enabled, back to direct without).
     cdn_nodes: bool = False
@@ -289,6 +290,8 @@ class ModuleRun(BaseModel):
     guard_allow: list[str] = Field(default_factory=list, max_length=10)
     guard_mode: Literal["enforce", "observe"] = "enforce"
     swap_mb: int = Field(default=1024, ge=256, le=16384)
+    # v28.114.0: CrowdSec — the shared blocklist (the server then reports attackers to CrowdSec); off by default.
+    crowdsec_community: bool = False
     server_ids: list[int] = Field(default_factory=list, max_length=20)
     version: str | None = Field(default=None, max_length=40)
     transports: list[TransportName] = Field(default_factory=list, max_length=5)
@@ -929,9 +932,9 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             steps.append(step("node_module", sid, f"{servers[sid]['name']}: {what}", module="mtproto", enabled=mod.enabled,
                               mtproto_port=mod.mtproto_port, mtproto_domain=mod.mtproto_domain))
         title = f"{MODULE_TITLES[name]}: {state}"
-    elif name in ("mss_clamp", "node_guard", "swap"):
+    elif name in ("mss_clamp", "node_guard", "swap", "crowdsec"):
         # v28.92.0 (N7, rw_netmods): MSS clamp and the guard on the nodes by default, swap on any server of the installation.
-        targets = mod.server_ids or (list(roles) if name == "swap" else nodes)
+        targets = mod.server_ids or (list(roles) if name in ("swap", "crowdsec") else nodes)
         if not targets or any(sid not in roles for sid in targets):
             raise ValueError("Выберите серверы этой установки")
         if name == "node_guard" and (not mod.guard_ports or any(not 1 <= p <= 65535 for p in mod.guard_ports)):
@@ -944,10 +947,14 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             elif name == "node_guard":
                 what = (f"{'лимит' if mod.guard_mode == 'enforce' else 'только счёт'} {mod.guard_rate} новых соединений/с с адреса на портах "
                         f"{', '.join(map(str, mod.guard_ports))}" if mod.enabled else "выключить защиту")
+            elif name == "crowdsec":
+                what = ("CrowdSec и блокировщик nftables: перебор SSH и сканеры; " + ("общий список блокировок включён" if mod.crowdsec_community
+                        else "без обмена данными с CrowdSec")) if mod.enabled else "удалить CrowdSec"
             else:
                 what = f"файл подкачки {mod.swap_mb} МБ" if mod.enabled else "убрать файл подкачки"
             steps.append(step("node_module", sid, f"{n}: {what}", module=name, enabled=mod.enabled, ports=sorted(set(mod.guard_ports)),
-                              rate=mod.guard_rate, allow=allow, mode=mod.guard_mode, swap_mb=mod.swap_mb))
+                              rate=mod.guard_rate, allow=allow, mode=mod.guard_mode, swap_mb=mod.swap_mb,
+                              community=mod.crowdsec_community))
         title = f"{MODULE_TITLES[name]}: {state}"
     elif name == "selfsteal_site":
         # v28.88.0 (BACKLOG A3): another site-template behind SelfSteal without a reinstall — the node's Caddy files

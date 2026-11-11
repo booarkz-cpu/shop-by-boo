@@ -306,3 +306,61 @@ async def test_psiphon_step_hides_the_entry_and_undoes(monkeypatch):
     answer = SimpleNamespace(code=6, out="nobuild\n", err="")
     with pytest.raises(rw_steps.StepError, match="не собрался"):
         await rw_steps.run_node_module(ctx, st)
+
+
+# ---- v28.114.0: CrowdSec (master prompt v6, REQ-NODE-0020 / 0037). The script itself is run for real by scripts/ci/crowdsec-check.sh.
+
+def test_crowdsec_plan_goes_to_any_server_and_says_whether_data_is_shared():
+    steps, title = rw_plan.module_steps(plan_with(name="crowdsec", server_ids=[2, 3]), SERVERS, {2: ["node"], 3: ["panel"]})
+    assert [s["server_id"] for s in steps] == [2, 3] and steps[0]["params"]["module"] == "crowdsec" and steps[0]["params"]["community"] is False
+    assert "без обмена данными с CrowdSec" in steps[0]["title"] and "CrowdSec" in title
+    shared, _ = rw_plan.module_steps(plan_with(name="crowdsec", crowdsec_community=True, server_ids=[2]), SERVERS, {2: ["node"]})
+    assert shared[0]["params"]["community"] is True and "общий список блокировок включён" in shared[0]["title"]
+    off, _ = rw_plan.module_steps(plan_with(name="crowdsec", enabled=False, server_ids=[2]), SERVERS, {2: ["node"]})
+    assert "удалить CrowdSec" in off[0]["title"]
+    with pytest.raises(ValueError):
+        rw_plan.module_steps(plan_with(name="crowdsec", server_ids=[99]), SERVERS, {2: ["node"]})
+    with pytest.raises(ValueError):
+        rw_plan.module_steps(plan_with(name="crowdsec", guard_allow=["not-an-ip"], server_ids=[2]), SERVERS, {2: ["node"]})
+
+
+def test_crowdsec_script_is_valid_and_refuses_bad_arguments():
+    assert subprocess.run(["bash", "-n"], input=rw_netmods.CROWDSEC, text=True).returncode == 0
+    for args in (["on", "maybe", "-"], ["on", "on", "1.2.3.4;id"], ["on", "off", "$(id)"], ["nope"]):
+        assert subprocess.run(["bash", "-c", rw_netmods.CROWDSEC, "c", *args], capture_output=True).returncode == 2, args
+    # The repository of the vendor with its own key; never «curl | sh».
+    assert "packagecloud.io/crowdsec/crowdsec/gpgkey" in rw_netmods.CROWDSEC and "signed-by=" in rw_netmods.CROWDSEC
+    assert "install.crowdsec.net" not in rw_netmods.CROWDSEC and "| sh" not in rw_netmods.CROWDSEC and "| bash" not in rw_netmods.CROWDSEC
+
+
+@pytest.mark.asyncio
+async def test_crowdsec_step_allowlists_the_owner_the_shop_and_the_panel_and_undo_removes_it(monkeypatch):
+    calls, answers = [], {}
+
+    async def run(ctx, sid, script, *args, timeout=0):
+        calls.append((script, args, timeout))
+        return answers.get(script, SimpleNamespace(code=0, out="noise\ncrowdsec=on bouncer=nftables community=off collections=3 allow=3\n", err=""))
+
+    async def client(ctx, sid):
+        return "198.51.100.1"
+
+    monkeypatch.setattr(rw_steps, "_run", run)
+    monkeypatch.setattr(rw_steps, "_client_address", client)
+    ctx = rw_steps.Context(plan=rw_plan.PlanIn(mode="add_node", node_server_ids=[2]), servers=SERVERS, secrets={}, state={}, shop_panel_url="https://198.51.100.7")
+    st = {"server_id": 2, "params": {"module": "crowdsec", "enabled": True, "allow": ["203.0.113.9/32"], "community": False}}
+    await rw_steps.run_node_module(ctx, st)
+    script, args, timeout = calls[-1]
+    assert script is rw_netmods.CROWDSEC and args == ("on", "off", "203.0.113.9/32,198.51.100.1,198.51.100.7") and timeout >= 600
+    assert ctx.state["modules"]["2"]["crowdsec"] == "crowdsec=on bouncer=nftables community=off collections=3 allow=3"
+    await rw_steps.run_node_module(ctx, {"server_id": 2, "params": {"module": "crowdsec", "enabled": True, "allow": [], "community": True}})
+    assert calls[-1][1][:2] == ("on", "on")
+    await rw_steps.undo_node_module(ctx, st)
+    assert calls[-1][:2] == (rw_netmods.CROWDSEC, ("off",)), "undo removes CrowdSec"
+
+    for code, text in ((5, "только на Debian и Ubuntu"), (6, "не установился или не запустился"), (7, "Ключ репозитория")):
+        answers[rw_netmods.CROWDSEC] = SimpleNamespace(code=code, out="", err="")
+        with pytest.raises(rw_steps.StepError, match=text):
+            await rw_steps.run_node_module(ctx, st)
+    answers.clear()
+    await rw_steps.run_node_module(ctx, {"server_id": 2, "params": {"module": "crowdsec", "enabled": False}})
+    assert calls[-1][1] == ("off",) and ctx.state["modules"]["2"]["crowdsec"] == "off"
