@@ -835,7 +835,7 @@
    "tests/test_rw_netmods.py",
    "docs/CROWDSEC.md"
   ],
-  "note": "Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список против ложных блокировок, полное удаление — проверено настоящей установкой в CI. Нет: просмотра блокировок и снятия ложной блокировки из панели, уведомлений, сценариев для журналов веб-сервера.",
+  "note": "Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список, список блокировок и снятие ложной блокировки из панели, полное удаление — проверено настоящей установкой в CI. Нет: уведомлений о блокировках и сценариев для журналов веб-сервера.",
   "platforms": "server, backend/API, Web"
  },
  "REQ-NODE-0037": {
@@ -846,7 +846,214 @@
    "tests/test_rw_netmods.py",
    "docs/CROWDSEC.md"
   ],
-  "note": "Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список против ложных блокировок, полное удаление — проверено настоящей установкой в CI. Нет: просмотра блокировок и снятия ложной блокировки из панели, уведомлений, сценариев для журналов веб-сервера.",
+  "note": "Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список, список блокировок и снятие ложной блокировки из панели, полное удаление — проверено настоящей установкой в CI. Нет: уведомлений о блокировках и сценариев для журналов веб-сервера.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0003": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "admin/e2e/install-hub.spec.ts"
+  ],
+  "note": "Каталог «Установка» восстановлен и проверен тестами и сценарием в браузере. Нет: AdGuard Home, каскада HAProxy, временного бана IP за торренты. CrowdSec — частично.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_extensions.py",
+   "tests/test_rw_extensions.py"
+  ],
+  "note": "Каскад сделан мостом Shadowsocks между двумя нодами через API панели, не HAProxy. Цепочки из 2–3 нод и проверки каждого звена нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0060": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_extensions.py",
+   "tests/test_rw_extensions.py"
+  ],
+  "note": "То же, что REQ-NODE-0006.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_extensions.py",
+   "tests/test_rw_extensions.py"
+  ],
+  "note": "Есть правило geosite:category-ads-all первым в профиле для всех клиентов, выключение возвращает профиль. Нет: выбора нод, своих доменов, проверки DNS.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0010": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "AdGuard Home в коде нет."
+ },
+ "REQ-NODE-0064": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_extensions.py",
+   "tests/test_rw_extensions.py"
+  ],
+  "note": "Блокировка рекламы правилом Xray есть (REQ-NODE-0009). AdGuard Home нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0012": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/netmods-check.sh",
+   "tests/test_rw_netmods.py"
+  ],
+  "note": "MTU пути до 1.1.1.1 и 77.88.8.8 измеряется, MSS рассчитывается и включается только при необходимости, сохраняется после перезагрузки, нода не перезапускается — проверено настоящим запуском в CI. Проверки соединений клиентов после включения нет; других контрольных адресов нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0066": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/netmods-check.sh",
+   "tests/test_rw_netmods.py"
+  ],
+  "note": "MTU пути до 1.1.1.1 и 77.88.8.8 измеряется, MSS рассчитывается и включается только при необходимости, сохраняется после перезагрузки, нода не перезапускается — проверено настоящим запуском в CI. Проверки соединений клиентов после включения нет; других контрольных адресов нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0014": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/torrent_detection.py",
+   "tests/test_torrent_detection.py"
+  ],
+  "note": "Есть блокировка BitTorrent плагином ноды, счётчики срабатываний, уведомления и учёт нарушений. Временного бана IP через nftables с автоматическим снятием нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0068": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/torrent_detection.py",
+   "tests/test_torrent_detection.py"
+  ],
+  "note": "То же, что REQ-NODE-0014.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0017": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_steps.py",
+   "tests/test_rw_server_modules.py",
+   "tests/live/test_node_modules_live.py"
+  ],
+  "note": "Перед включением BBR определяются виртуализация и ядро; на OpenVZ и LXC шаг пропускается с объяснением; результат проверяется, выключение возвращает прежнее — проверено на живой машине CI. Отдельной поддержки BBR3 нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0034": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_steps.py",
+   "tests/test_rw_server_modules.py",
+   "tests/live/test_node_modules_live.py"
+  ],
+  "note": "То же, что REQ-NODE-0017.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0021": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/netmods-check.sh",
+   "tests/test_rw_netmods.py"
+  ],
+  "note": "Отдельная таблица nftables, лимит новых соединений с адреса, бан на 10 минут, белый список (магазин, панель, администратор, CGNAT), действующие соединения не трогаются, выключение убирает таблицу — проверено настоящим запуском в CI. Доступность панели после включения отдельно не проверяется.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0038": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/netmods-check.sh",
+   "tests/test_rw_netmods.py"
+  ],
+  "note": "Отдельная таблица nftables, лимит новых соединений с адреса, бан на 10 минут, белый список (магазин, панель, администратор, CGNAT), действующие соединения не трогаются, выключение убирает таблицу — проверено настоящим запуском в CI. Доступность панели после включения отдельно не проверяется.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0022": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "admin/e2e/install-hub.spec.ts"
+  ],
+  "note": "Удаляются по одному: панель (после копии её базы), страница подписки, Caddy, нода, сайт SelfSteal, Xray Checker; MTProto — выключением модуля. Бот и статус-страница — части магазина, а не сервера ноды, отдельной операции для них здесь нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0039": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "admin/e2e/install-hub.spec.ts"
+  ],
+  "note": "То же, что REQ-NODE-0022.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0023": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "admin/e2e/install-hub.spec.ts"
+  ],
+  "note": "Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0040": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "admin/e2e/install-hub.spec.ts"
+  ],
+  "note": "То же, что REQ-NODE-0023.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0024": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py"
+  ],
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0070": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "admin/e2e/install-hub.spec.ts"
+  ],
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0056": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/netmods-check.sh",
+   "backend/app/rw_steps.py"
+  ],
+  "note": "Файл подкачки с проверкой свободного места и vm.swappiness — есть, проверено настоящим запуском в CI. Из sysctl — только подкачка и BBR; общего раздела настроек sysctl нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0069": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/netmods-check.sh",
+   "scripts/ci/crowdsec-check.sh",
+   "tests/test_install_catalogue.py"
+  ],
+  "note": "CrowdSec — частично (REQ-NODE-0020). Защита nftables и снапшоты есть и проверены.",
   "platforms": "server, backend/API, Web"
  }
 }
