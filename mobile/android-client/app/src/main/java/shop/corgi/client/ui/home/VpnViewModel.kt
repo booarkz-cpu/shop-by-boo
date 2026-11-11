@@ -20,7 +20,7 @@ enum class VpnStatus { Idle, Connecting, Connected }
 
 /**
  * Everything the main screen draws (v1.5.0, MVVM): the tunnel's state, the session's time and traffic, the ad
- * blocking switch and the streak. Built by [VpnViewModel] only — the screen never reads the service or the store.
+ * blocking switch. Built by [VpnViewModel] only — the screen never reads the service or the store.
  */
 data class VpnUiState(
     val status: VpnStatus = VpnStatus.Idle,
@@ -34,7 +34,6 @@ data class VpnUiState(
     val adBlockPending: Boolean = false,
     /** Ad blocking needs geosite.dat («Маршруты → Скачать geo-файлы»); the switch did not turn on. */
     val adBlockNeedsGeo: Boolean = false,
-    val streakDays: Int = 0,
     val hasProfile: Boolean = false,
     /** v1.6.0 (N10): servers are being removed or a subscription rewritten — the button waits. */
     val configBusy: Boolean = false,
@@ -73,8 +72,6 @@ interface VpnEngine {
     fun setAdBlock(on: Boolean)
 
     fun geoReady(): Boolean
-
-    fun streak(): Int
 
     fun hasProfile(): Boolean
 
@@ -178,7 +175,6 @@ class VpnViewModel(
             adBlock = engine.adBlock(),
             // After a disconnect the next connection takes the switch as it is now.
             adBlockPending = previous.adBlockPending && status != VpnStatus.Idle,
-            streakDays = engine.streak(),
             hasProfile = engine.hasProfile(),
             externalIp = if (status == VpnStatus.Connected) previous.externalIp else "",
             externalFlag = if (status == VpnStatus.Connected) previous.externalFlag else "",

@@ -135,11 +135,11 @@ fun HomeContent(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Header(version, state.streakDays) {
+            Header(version) {
                 light()
                 onShare()
             }
-            ProtectionBanner {
+            WoofBanner {
                 light()
                 if (state.status == VpnStatus.Idle && state.hasProfile) onToggle()
             }
@@ -218,9 +218,13 @@ private fun Glow(status: VpnStatus) {
     }
 }
 
-/** The name with the version, the slogan right under the name; the streak and «Поделиться» on the right. */
+/**
+ * The name with the version, the slogan right under the name; «Поделиться» on the right.
+ * v1.9.0 (the owner's master prompt v6): the slogan is «Твой интернет. Твои правила. Твоя Люси»; the day counter
+ * with the flame is gone.
+ */
 @Composable
-private fun Header(version: String, streak: Int, onShare: () -> Unit) {
+private fun Header(version: String, onShare: () -> Unit) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -241,34 +245,29 @@ private fun Header(version: String, streak: Int, onShare: () -> Unit) {
                 )
             }
             Text(
-                tr("Свободный интернет без лишнего Гав!", "Free internet without the extra Woof!", "Вільний інтернет без зайвого Гав!"),
+                tr(
+                    "Твой интернет. Твои правила. Твоя Люси",
+                    "Your internet. Your rules. Your Lusi",
+                    "Твій інтернет. Твої правила. Твоя Люсі"
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.testTag("slogan")
             )
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "🔥 " + streakText(streak),
-                Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
-                    .testTag("streak"),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = onShare, Modifier.testTag("share")) {
-                Icon(Icons.Filled.Share, tr("Поделиться", "Share", "Поділитися"), tint = MaterialTheme.colorScheme.onSurface)
-            }
+        IconButton(onClick = onShare, Modifier.testTag("share")) {
+            Icon(Icons.Filled.Share, tr("Поделиться", "Share", "Поділитися"), tint = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
 
-/** «ЗАЩИТА В ОДНО КАСАНИЕ» — drawn by the app (the text is never cut by the picture's crop), the corgi on the right. */
+/**
+ * v1.9.0 (master prompt v6): the banner «Свободный Гав в интернете!» with the corgi on the right. The text is drawn
+ * by the app, so no crop of the picture can cut it. «ЗАЩИТА В ОДНО КАСАНИЕ» and the «Безлимит» pill are gone.
+ * A tap connects when there is a profile and the VPN is off.
+ */
 @Composable
-private fun ProtectionBanner(onClick: () -> Unit) {
+private fun WoofBanner(onClick: () -> Unit) {
     val shape = RoundedCornerShape(24.dp)
     Row(
         Modifier
@@ -281,23 +280,13 @@ private fun ProtectionBanner(onClick: () -> Unit) {
             .testTag("banner-app-vpn"),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(
-                tr("ЗАЩИТА В ОДНО КАСАНИЕ", "PROTECTION IN ONE TAP", "ЗАХИСТ В ОДИН ДОТИК"),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                tr("Безлимит", "Unlimited", "Безліміт"),
-                Modifier
-                    .clip(RoundedCornerShape(50))
-                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+        Text(
+            tr("Свободный Гав в интернете!", "Free Woof on the internet!", "Вільний Гав в інтернеті!"),
+            Modifier.weight(1f).testTag("banner-text"),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Black,
+            color = MaterialTheme.colorScheme.onSurface
+        )
         Image(painterResource(R.drawable.corgi_logo), tr("Корги", "Corgi", "Коргі"), Modifier.size(84.dp))
     }
 }
@@ -532,29 +521,6 @@ fun statusText(status: VpnStatus): String = when (status) {
     VpnStatus.Connected -> tr("Подключено", "Connected", "Підключено")
 }
 
-/** «3 дня», «5 дней», «1 day» … */
-fun streakText(days: Int): String {
-    val mod10 = days % 10
-    val mod100 = days % 100
-    val few = mod10 in 2..4 && mod100 !in 12..14
-    val one = mod10 == 1 && mod100 != 11
-    val ru = if (one) {
-        "день"
-    } else if (few) {
-        "дня"
-    } else {
-        "дней"
-    }
-    val uk = if (one) {
-        "день"
-    } else if (few) {
-        "дні"
-    } else {
-        "днів"
-    }
-    return tr("$days $ru", if (days == 1) "1 day" else "$days days", "$days $uk")
-}
-
 fun duration(seconds: Long): String = "%02d:%02d:%02d".format(seconds / 3600, seconds % 3600 / 60, seconds % 60)
 
 private fun share(context: Context) {
@@ -579,7 +545,6 @@ private val previewConnected =
         downTotal = 412_000_000,
         upTotal = 23_000_000,
         adBlock = true,
-        streakDays = 3,
         hasProfile = true
     )
 

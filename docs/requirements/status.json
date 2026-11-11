@@ -1055,5 +1055,32 @@
   ],
   "note": "CrowdSec — частично (REQ-NODE-0020). Защита nftables и снапшоты есть и проверены.",
   "platforms": "server, backend/API, Web"
+ },
+ "REQ-CLIENT-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
+   "mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
+  ],
+  "note": "Android: баннер есть, проверен тестом на эмуляторе. Приложения «Корги Люси: клиент» для iOS нет.",
+  "platforms": "Android"
+ },
+ "REQ-CLIENT-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
+   "mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
+  ],
+  "note": "Android: слоган есть, проверен тестом на эмуляторе. Приложения для iOS нет.",
+  "platforms": "Android"
+ },
+ "REQ-CLIENT-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
+   "mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
+  ],
+  "note": "Android: счётчик дней с огоньком, баннер «ЗАЩИТА В ОДНО КАСАНИЕ» и «Безлимит» убраны, проверено тестом на эмуляторе. Элемента «маска» на главном экране нет: нужен снимок от владельца, чтобы понять, о чём речь.",
+  "platforms": "Android"
  }
 }

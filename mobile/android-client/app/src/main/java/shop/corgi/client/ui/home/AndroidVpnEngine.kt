@@ -6,9 +6,8 @@ import android.os.Looper
 import shop.corgi.client.data.Store
 import shop.corgi.client.vpn.ClientVpnService
 import shop.corgi.client.vpn.Session
-import shop.corgi.client.vpn.Streak
 
-/** [VpnEngine] of the app: ClientVpnService, the settings in [Store] and the streak kept on the phone. */
+/** [VpnEngine] of the app: ClientVpnService, the settings in [Store]. */
 class AndroidVpnEngine(context: Context) : VpnEngine {
     private val app = context.applicationContext
     private val store = Store(app)
@@ -33,8 +32,6 @@ class AndroidVpnEngine(context: Context) : VpnEngine {
     }
 
     override fun geoReady(): Boolean = store.geoReady()
-
-    override fun streak(): Int = Streak.current(app)
 
     override fun hasProfile(): Boolean = store.active() != null
 

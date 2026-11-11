@@ -55,8 +55,6 @@ private class FakeEngine : VpnEngine {
 
     override fun geoReady() = geo
 
-    override fun streak() = 3
-
     override fun hasProfile() = true
 
     override fun lastError() = "boom"
@@ -106,7 +104,6 @@ class VpnViewModelTest {
         val model = VpnViewModel(engine, { clock }, dispatcher)
         assertEquals(VpnStatus.Idle, model.state.value.status)
         assertEquals("boom", model.state.value.error)
-        assertEquals(3, model.state.value.streakDays)
         val event = async { model.events.first() }
         runCurrent()
         model.toggleVpn()
@@ -201,13 +198,6 @@ class VpnViewModelTest {
     }
 
     @Test fun textsOfTheScreen() {
-        assertEquals("3 days", streakText(3))
-        assertEquals("1 day", streakText(1))
-        Locale.setDefault(Locale.forLanguageTag("ru"))
-        assertEquals("3 дня", streakText(3))
-        assertEquals("5 дней", streakText(5))
-        assertEquals("21 день", streakText(21))
-        assertEquals("12 дней", streakText(12))
         assertEquals("01:02:05", duration(3_725))
         assertEquals(listOf(0, 3, 2, 2, 1, 0), listOf(null, 40, 100, 300, 301, -1).map { signalBars(it) })
     }

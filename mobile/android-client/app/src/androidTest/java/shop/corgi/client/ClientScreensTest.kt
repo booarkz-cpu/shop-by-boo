@@ -281,7 +281,7 @@ class ClientScreensTest {
     @Test fun homeServerCardOpensTheListAndChooses() {
         Store(context).add(links)
         launch()
-        exists("Free internet without the extra Woof!")
+        exists("Free Woof on the internet!")
         exists("Auto select")
         shot("home")
         compose.onNodeWithTag("server-picker").tap()   // the card opens the list
@@ -300,13 +300,18 @@ class ClientScreensTest {
     /** v1.5.0: the main screen of the owner's prompt — every part is there and the ad blocking switch works. */
     @Test fun mainScreenPartsAndAdBlocking() {
         Store(context).add(links)
-        context.getSharedPreferences("client_streak", 0).edit().clear().commit()
         launch()
-        for (tag in listOf("slogan", "streak", "share", "banner-app-vpn", "status", "connect", "adblock", "server-picker")) {
-            assertTrue(tag, compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty())
+        for (tag in listOf("slogan", "share", "banner-app-vpn", "banner-text", "status", "connect", "adblock", "server-picker")) {
+            // The banner is one tappable element, so its text lives in the unmerged tree.
+            assertTrue(tag, compose.onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty())
         }
-        exists("Free internet without the extra Woof!"); exists("PROTECTION IN ONE TAP"); exists("Unlimited"); exists("Disconnected")
-        exists("0 days")
+        // v1.9.0 (master prompt v6): the banner and the slogan of the brand …
+        exists("Free Woof on the internet!"); exists("Your internet. Your rules. Your Lusi"); exists("Disconnected")
+        // … and what the owner asked to remove is gone: the day counter with the flame, the old banner, «Безлимит».
+        assertTrue("no day counter", compose.onAllNodesWithTag("streak").fetchSemanticsNodes().isEmpty())
+        for (gone in listOf("PROTECTION IN ONE TAP", "Unlimited", "0 days", "Free internet without the extra Woof!")) {
+            assertTrue(gone, compose.onAllNodesWithText(gone, substring = true).fetchSemanticsNodes().isEmpty())
+        }
         assertTrue("no stats while disconnected", compose.onAllNodesWithTag("stats").fetchSemanticsNodes().isEmpty())
         // The slogan is right under the name: above the banner.
         val slogan = compose.onNodeWithTag("slogan").fetchSemanticsNode().boundsInRoot
