@@ -2,11 +2,17 @@ ARG PYTHON_BASE_IMAGE=python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d
 FROM ${PYTHON_BASE_IMAGE}
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /app
+# The base image is pinned by digest: the package fixes published since are installed here (v28.123.0).
+RUN set -eux; apt-get update; apt-get upgrade -y --no-install-recommends; rm -rf /var/lib/apt/lists/*
 RUN addgroup --system --gid 10001 app && adduser --system --uid 10001 --ingroup app app
 COPY requirements.txt .
 # The pip download cache lives in a BuildKit cache mount: rebuilds (also --no-cache ones) reuse the
 # wheels, and the image itself carries no cache.
-RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
+# The packaging tools are not needed to run the app and carry their own bundled libraries with known
+# vulnerabilities: they are removed from the finished image (v28.123.0).
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt \
+    && (pip uninstall -y setuptools wheel || true) \
+    && python -m pip uninstall -y pip
 COPY alembic.ini ./alembic.ini
 COPY alembic ./alembic
 COPY app ./app

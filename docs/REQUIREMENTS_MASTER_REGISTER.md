@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **63** — 9.6%.
+- Подтверждено (`PASS`): **72** — 11.0%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 63 | Проверено, доказательство указано |
-| `PARTIAL` | 70 | Сделано частично, остаток описан |
+| `PASS` | 72 | Проверено, доказательство указано |
+| `PARTIAL` | 75 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 8 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 511 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 497 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -38,10 +38,10 @@
 | Backend, API, база | 2 | 0 | 0 | 0 | 2 |
 | Интерфейсы | 10 | 0 | 0 | 0 | 10 |
 | Мобильные приложения | 4 | 0 | 0 | 0 | 4 |
-| CI/CD и выпуски | 15 | 10 | 5 | 0 | 0 |
+| CI/CD и выпуски | 15 | 11 | 4 | 0 | 0 |
 | Документация | 37 | 2 | 0 | 0 | 35 |
 | Аудит, тесты, скриншоты | 69 | 5 | 4 | 0 | 60 |
-| Безопасность | 15 | 0 | 0 | 0 | 15 |
+| Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 0 | 0 | 0 | 20 |
 | Производительность и стоимость | 7 | 0 | 0 | 0 | 7 |
 
@@ -3400,11 +3400,11 @@
 
 > - Создавать release notes с breaking changes, migrations, rollback, known issues и checksum artifacts.
 
-### REQ-CI-0012 — `PARTIAL`
+### REQ-CI-0012 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2414). Продукт: Все три.
-- Доказательство: `.github/workflows/publish-release.yml`; `scripts/package-distribution.py`; `scripts/auto_update.py`.
-- Примечание: Агент обновления сверяет SHA-256 и манифест. С v28.122.0 архив получает аттестацию происхождения GitHub; первая аттестация появится с выпуском и ещё не проверена. Подписи ключом владельца нет.
+- Доказательство: `.github/workflows/publish-release.yml`; `scripts/package-distribution.py`; `scripts/auto_update.py`; `docs/VERSIONING.md`.
+- Примечание: Аттестация происхождения архива v28.123.0 создана и видна через API GitHub (проверено 2026-11-12); агент обновления сверяет SHA-256 и манифест.
 
 > - Проверять подпись/происхождение релизных артефактов, где поддерживается.
 
@@ -3579,7 +3579,7 @@
 ### REQ-DOC-0023 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2442). Продукт: Все три.
-- Названные файлы: `docs/architecture/THREAT_MODEL.md` — нет.
+- Названные файлы: `docs/architecture/THREAT_MODEL.md` — есть (`docs/THREAT_MODEL.md`).
 
 > - `docs/architecture/THREAT_MODEL.md`
 
@@ -4126,75 +4126,93 @@
 
 ## Безопасность
 
-### REQ-SEC-0001 — `NOT_TESTED`
+### REQ-SEC-0001 — `PASS`
 
 - Источник: Часть I → Git Security → Allowed (строка 938). Продукт: Все три.
+- Доказательство: `.github/workflows/ci.yml`; `tests/test_workflows_parse.py`; `.github/workflows/publish-release.yml`; `docs/VERSIONING.md`.
 
 > Feature branches; fix branches; pull requests; проверка изменений; CI; code review; безопасные релизы.
 
-### REQ-SEC-0002 — `NOT_TESTED`
+### REQ-SEC-0002 — `PASS`
 
 - Источник: Часть I → Git Security → Forbidden (строка 942). Продукт: Все три.
+- Доказательство: `.github/workflows/ci.yml`; `tests/test_workflows_parse.py`; `docs/prompts/MASTER_PROMPT_V6.md`; `docs/SECURITY_FINDINGS.md`.
+- Примечание: Запреты соблюдаются: работа идёт через PR и squash-слияние; Trivy в CI ищет секреты в репозитории; настоящих платежей и действий на production не было.
 
 > Force push; обход branch protection; переписывание чужой истории; удаление чужих изменений; удаление веток без разрешения; секреты в репозитории; публикация токенов; обход CAPTCHA/KYC/2FA; реальные платежи и возвраты без разрешения; удаление production-данных без разрешения; обновление production без проверок и разрешений.
 
-### REQ-SEC-0003 — `NOT_TESTED`
+### REQ-SEC-0003 — `PASS`
 
 - Источник: Часть I → Git Security → External Blockers (строка 946). Продукт: Все три.
+- Доказательство: `docs/requirements/status.json`; `scripts/audit/requirements_register.py`; `docs/ru/new/BACKLOG.md`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > При отсутствии доступа/секретов отметить BLOCKED_EXTERNAL или BLOCKED_SECRETS, подготовить безопасную конфигурацию, выполнить sandbox-тесты и продолжить независимые задачи.
 
-### REQ-SEC-0004 — `NOT_TESTED`
+### REQ-SEC-0004 — `PARTIAL`
 
 - Источник: Часть I → Git Security → Production Safety (строка 950). Продукт: Все три.
+- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `tests/test_admin_stepup.py`; `backend/app/rw_protocol_switch.py`; `tests/test_stage15_install.py`.
+- Примечание: Опасные действия в панели требуют подтверждения, обновление делает копию и откат, наружу открыты только нужные порты. На настоящем сервере не проверено: нет VPS.
 
 > Перед опасными действиями определить среду, сервер и права; сделать backup; подготовить rollback; показать последствия; получить разрешение. Не отключать защиту; не открывать лишние порты; не раскрывать токены, пароли, ключи, конфигурации пользователей, персональные данные и платёжные реквизиты. Вести audit log.
 
-### REQ-SEC-0005 — `NOT_TESTED`
+### REQ-SEC-0005 — `PASS`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2351). Продукт: Все три.
+- Доказательство: `docs/THREAT_MODEL.md`; `SECURITY_MODEL_RU.md`.
 
 > - Создать threat model для трёх продуктов и отдельно для payment, admin, node provisioning и mobile VPN client.
 
-### REQ-SEC-0006 — `NOT_TESTED`
+### REQ-SEC-0006 — `PASS`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2352). Продукт: Все три.
+- Доказательство: `docs/THREAT_MODEL.md`.
 
 > - Провести STRIDE или эквивалентный threat analysis для доверительных границ.
 
-### REQ-SEC-0007 — `NOT_TESTED`
+### REQ-SEC-0007 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2353). Продукт: Все три.
+- Доказательство: `docs/ru/new/SECURITY_AUDIT.md`; `docs/THREAT_MODEL.md`; `.github/workflows/load-security.yml`.
+- Примечание: Аудиты этапов 3 и 16 прошли по основным классам OWASP; построчной сверки с ASVS, API Top 10 и MASVS с отметкой по каждому пункту нет.
 
 > - Проверять OWASP ASVS/API/MASVS применительно к фактическому стеку.
 
-### REQ-SEC-0008 — `NOT_TESTED`
+### REQ-SEC-0008 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2354). Продукт: Все три.
+- Доказательство: `docs/ru/new/SECURITY_AUDIT.md`; `tests/test_behaviour_csrf.py`; `tests/test_v2_1_0_ssrf_hardening.py`; `tests/test_admin_route_permissions.py`; `tests/test_rw_ssh.py`; `.github/workflows/load-security.yml`.
+- Примечание: CSRF, SSRF, права, внедрение команд покрыты тестами; SQLi, XSS, обход путей проверены аудитом кода. Автоматического теста «чужой идентификатор» на все клиентские маршруты и теста гонок нет.
 
 > - Проверять IDOR/BOLA, SSRF, SQLi, XSS, CSRF, path traversal, command injection, template injection, deserialization, open redirect, privilege escalation, race conditions и insecure direct object access.
 
-### REQ-SEC-0009 — `NOT_TESTED`
+### REQ-SEC-0009 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2355). Продукт: Все три.
+- Доказательство: `docs/ru/new/SECURITY_AUDIT.md`; `tests/test_behaviour_csrf.py`; `tests/test_code_entry_rate_limits.py`; `tests/test_login_fallback_reset.py`; `tests/test_app_login.py`; `tests/test_stage15_install.py`.
+- Примечание: CORS, CSRF, ограничения частоты, защита от перебора, сброс пароля и ключи входа проверены. Отдельных тестов на флаги cookie, CSP и ротацию refresh-токена в этом разделе не собрано.
 
 > - Проверять CORS, CSP, cookie flags, session rotation, refresh token rotation, password reset, MFA support, rate limits и brute force protection.
 
-### REQ-SEC-0010 — `NOT_TESTED`
+### REQ-SEC-0010 — `PASS`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2356). Продукт: Все три.
+- Доказательство: `.github/workflows/ci.yml`; `tests/test_workflows_parse.py`; `.github/workflows/load-security.yml`; `scripts/ci/zap-summary.py`; `.trivyignore`; `docs/SECURITY_FINDINGS.md`.
 
 > - Использовать secret scanning, dependency scanning, SAST, DAST и container scanning там, где доступны инструменты.
 
-### REQ-SEC-0011 — `NOT_TESTED`
+### REQ-SEC-0011 — `PASS`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2357). Продукт: Все три.
+- Доказательство: `.github/workflows/ci.yml`; `scripts/ci/check-licenses.py`; `tests/test_license_check.py`; `.github/workflows/publish-release.yml`; `tests/test_workflows_parse.py`.
 
 > - Проверять SBOM, лицензии, уязвимые зависимости и происхождение бинарных артефактов.
 
-### REQ-SEC-0012 — `NOT_TESTED`
+### REQ-SEC-0012 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2358). Продукт: Все три.
+- Доказательство: `tests/test_behaviour_plans_privacy.py`; `tests/test_fiscal.py`; `tests/test_runtime_settings.py`; `docs/ru/new/SECURITY_AUDIT.md`.
+- Примечание: Секреты зашифрованы в базе и не отдаются интерфейсу. Автоматической проверки, что ни один секрет не попадает в журналы, нет.
 
 > - Не логировать токены, пароли, private keys, VPN credentials, payment secrets и полные персональные данные.
 
@@ -4204,15 +4222,18 @@
 
 > - Проверять экспорт/импорт данных, права на скачивание, временные ссылки и срок действия.
 
-### REQ-SEC-0014 — `NOT_TESTED`
+### REQ-SEC-0014 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2360). Продукт: Все три.
+- Доказательство: `mobile/android-client/app/src/main/AndroidManifest.xml`; `mobile/android-user/app/src/main/AndroidManifest.xml`; `mobile/android-admin/app/src/main/AndroidManifest.xml`; `mobile/android-client/app/src/main/res/xml/network_security.xml`; `docs/THREAT_MODEL.md`.
+- Примечание: Резервное копирование данных выключено, открытый HTTP запрещён, проверка сертификатов системная; про root сказано без гарантий. Экспортированные компоненты и deep links построчно не сверены; iOS и MASVS не проверены.
 
 > - Для мобильных приложений проверить secure storage, deep links, exported components, backup rules, network security config, certificate validation и jailbreak/root limitations без ложных гарантий.
 
-### REQ-SEC-0015 — `NOT_TESTED`
+### REQ-SEC-0015 — `PASS`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2361). Продукт: Все три.
+- Доказательство: `docs/SECURITY_FINDINGS.md`.
 
 > - Security findings классифицировать по severity, exploitability, impact, affected version, remediation и retest evidence.
 
@@ -4331,7 +4352,7 @@
 ### REQ-ARCH-0018 — `NOT_TESTED`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2151). Продукт: Все три.
-- Названные файлы: `docs/architecture/THREAT_MODEL.md` — нет.
+- Названные файлы: `docs/architecture/THREAT_MODEL.md` — есть (`docs/THREAT_MODEL.md`).
 
 > - `docs/architecture/THREAT_MODEL.md`
 

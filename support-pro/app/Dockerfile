@@ -2,7 +2,12 @@ FROM python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 WORKDIR /srv
 COPY requirements.txt .
+# The base image is pinned by digest: the package fixes published since are installed here. The packaging tools
+# are not needed to run the app and carry bundled libraries with known vulnerabilities: they are removed (v28.123.0).
+RUN set -eux; apt-get update; apt-get upgrade -y --no-install-recommends; rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r requirements.txt \
+    && (pip uninstall -y setuptools wheel || true) \
+    && python -m pip uninstall -y pip \
     && useradd --uid 10001 --create-home support \
     && mkdir -p /data/uploads && chown support:support /data/uploads
 COPY app ./app

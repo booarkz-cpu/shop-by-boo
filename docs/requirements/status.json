@@ -1194,13 +1194,14 @@
   "note": "Есть предпросмотр (сборки и пакеты pull request) и production (окружение GitHub `production`). Отдельного окружения staging нет: для него нужен второй сервер."
  },
  "REQ-CI-0012": {
-  "status": "PARTIAL",
+  "status": "PASS",
   "evidence": [
    ".github/workflows/publish-release.yml",
    "scripts/package-distribution.py",
-   "scripts/auto_update.py"
+   "scripts/auto_update.py",
+   "docs/VERSIONING.md"
   ],
-  "note": "Агент обновления сверяет SHA-256 и манифест. С v28.122.0 архив получает аттестацию происхождения GitHub; первая аттестация появится с выпуском и ещё не проверена. Подписи ключом владельца нет."
+  "note": "Аттестация происхождения архива v28.123.0 создана и видна через API GitHub (проверено 2026-11-12); агент обновления сверяет SHA-256 и манифест."
  },
  "REQ-CI-0013": {
   "status": "PASS",
@@ -1237,5 +1238,138 @@
    "docs/VERSIONING.md"
   ],
   "note": "Заметки каждого выпуска содержат миграции, проверки, известные ограничения; у файлов выпуска есть SHA-256. Отдельных разделов «ломающие изменения» и «откат» в заметках нет."
+ },
+ "REQ-SEC-0001": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   "tests/test_workflows_parse.py",
+   ".github/workflows/publish-release.yml",
+   "docs/VERSIONING.md"
+  ]
+ },
+ "REQ-SEC-0002": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   "tests/test_workflows_parse.py",
+   "docs/prompts/MASTER_PROMPT_V6.md",
+   "docs/SECURITY_FINDINGS.md"
+  ],
+  "note": "Запреты соблюдаются: работа идёт через PR и squash-слияние; Trivy в CI ищет секреты в репозитории; настоящих платежей и действий на production не было."
+ },
+ "REQ-SEC-0003": {
+  "status": "PASS",
+  "evidence": [
+   "docs/requirements/status.json",
+   "scripts/audit/requirements_register.py",
+   "docs/ru/new/BACKLOG.md",
+   "docs/PAYMENT_PROVIDER_INVENTORY.md"
+  ]
+ },
+ "REQ-SEC-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/auto_update.py",
+   "tests/test_auto_update_agent.py",
+   "tests/test_admin_stepup.py",
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_stage15_install.py"
+  ],
+  "note": "Опасные действия в панели требуют подтверждения, обновление делает копию и откат, наружу открыты только нужные порты. На настоящем сервере не проверено: нет VPS."
+ },
+ "REQ-SEC-0005": {
+  "status": "PASS",
+  "evidence": [
+   "docs/THREAT_MODEL.md",
+   "SECURITY_MODEL_RU.md"
+  ]
+ },
+ "REQ-SEC-0006": {
+  "status": "PASS",
+  "evidence": [
+   "docs/THREAT_MODEL.md"
+  ]
+ },
+ "REQ-SEC-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/SECURITY_AUDIT.md",
+   "docs/THREAT_MODEL.md",
+   ".github/workflows/load-security.yml"
+  ],
+  "note": "Аудиты этапов 3 и 16 прошли по основным классам OWASP; построчной сверки с ASVS, API Top 10 и MASVS с отметкой по каждому пункту нет."
+ },
+ "REQ-SEC-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/SECURITY_AUDIT.md",
+   "tests/test_behaviour_csrf.py",
+   "tests/test_v2_1_0_ssrf_hardening.py",
+   "tests/test_admin_route_permissions.py",
+   "tests/test_rw_ssh.py",
+   ".github/workflows/load-security.yml"
+  ],
+  "note": "CSRF, SSRF, права, внедрение команд покрыты тестами; SQLi, XSS, обход путей проверены аудитом кода. Автоматического теста «чужой идентификатор» на все клиентские маршруты и теста гонок нет."
+ },
+ "REQ-SEC-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/SECURITY_AUDIT.md",
+   "tests/test_behaviour_csrf.py",
+   "tests/test_code_entry_rate_limits.py",
+   "tests/test_login_fallback_reset.py",
+   "tests/test_app_login.py",
+   "tests/test_stage15_install.py"
+  ],
+  "note": "CORS, CSRF, ограничения частоты, защита от перебора, сброс пароля и ключи входа проверены. Отдельных тестов на флаги cookie, CSP и ротацию refresh-токена в этом разделе не собрано."
+ },
+ "REQ-SEC-0010": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   "tests/test_workflows_parse.py",
+   ".github/workflows/load-security.yml",
+   "scripts/ci/zap-summary.py",
+   ".trivyignore",
+   "docs/SECURITY_FINDINGS.md"
+  ]
+ },
+ "REQ-SEC-0011": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   "scripts/ci/check-licenses.py",
+   "tests/test_license_check.py",
+   ".github/workflows/publish-release.yml",
+   "tests/test_workflows_parse.py"
+  ]
+ },
+ "REQ-SEC-0012": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_behaviour_plans_privacy.py",
+   "tests/test_fiscal.py",
+   "tests/test_runtime_settings.py",
+   "docs/ru/new/SECURITY_AUDIT.md"
+  ],
+  "note": "Секреты зашифрованы в базе и не отдаются интерфейсу. Автоматической проверки, что ни один секрет не попадает в журналы, нет."
+ },
+ "REQ-SEC-0014": {
+  "status": "PARTIAL",
+  "evidence": [
+   "mobile/android-client/app/src/main/AndroidManifest.xml",
+   "mobile/android-user/app/src/main/AndroidManifest.xml",
+   "mobile/android-admin/app/src/main/AndroidManifest.xml",
+   "mobile/android-client/app/src/main/res/xml/network_security.xml",
+   "docs/THREAT_MODEL.md"
+  ],
+  "note": "Резервное копирование данных выключено, открытый HTTP запрещён, проверка сертификатов системная; про root сказано без гарантий. Экспортированные компоненты и deep links построчно не сверены; iOS и MASVS не проверены."
+ },
+ "REQ-SEC-0015": {
+  "status": "PASS",
+  "evidence": [
+   "docs/SECURITY_FINDINGS.md"
+  ]
  }
 }

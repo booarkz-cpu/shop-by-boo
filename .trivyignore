@@ -1,0 +1,6 @@
+# Exceptions of the container scan in CI (.github/workflows/ci.yml, job «containers»).
+# One line per finding, with the reason and an expiry date: after it the finding blocks the merge again.
+
+# golang.org/x/net inside the upstream Caddy 2.11.9 binary. The shop does not build Caddy; no Caddy release
+# carries the fixed library yet. Re-check when a newer Caddy is out and refresh CADDY_IMAGE.
+CVE-2026-78661 exp:2027-01-15

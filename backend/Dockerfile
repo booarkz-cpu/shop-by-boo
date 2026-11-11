@@ -4,8 +4,11 @@ FROM ${PYTHON_BASE_IMAGE}
 # official PGDG repository (Debian ships an older major). The signing key is checked by fingerprint.
 ARG PG_CLIENT_MAJOR=18
 ARG PGDG_KEY_FINGERPRINT=B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+# The base image is pinned by digest, so its packages are as old as the digest: the fixes published since are
+# installed here (v28.123.0, container scan in CI).
 RUN set -eux; \
     apt-get update; \
+    apt-get upgrade -y --no-install-recommends; \
     apt-get install -y --no-install-recommends curl openssl ca-certificates gnupg; \
     install -d /usr/share/postgresql-common/pgdg; \
     curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc; \
@@ -23,7 +26,11 @@ RUN addgroup --system --gid 10001 app && adduser --system --uid 10001 --ingroup 
 COPY requirements.txt .
 # The pip download cache lives in a BuildKit cache mount: rebuilds (also --no-cache ones) reuse the
 # wheels, and the image itself carries no cache.
-RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
+# The packaging tools are not needed to run the app and carry their own bundled libraries with known
+# vulnerabilities: they are removed from the finished image (v28.123.0).
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt \
+    && (pip uninstall -y setuptools wheel || true) \
+    && python -m pip uninstall -y pip
 COPY alembic.ini ./alembic.ini
 COPY alembic ./alembic
 COPY app ./app
