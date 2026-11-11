@@ -281,7 +281,7 @@ class ClientScreensTest {
     @Test fun homeServerCardOpensTheListAndChooses() {
         Store(context).add(links)
         launch()
-        exists("Free Woof on the internet!")
+        exists("FREE WOOF ON THE INTERNET!")
         exists("Auto select")
         shot("home")
         compose.onNodeWithTag("server-picker").tap()   // the card opens the list
@@ -306,7 +306,12 @@ class ClientScreensTest {
             assertTrue(tag, compose.onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty())
         }
         // v1.9.0 (master prompt v6): the banner and the slogan of the brand …
-        exists("Free Woof on the internet!"); exists("Your internet. Your rules. Your Lusi"); exists("Disconnected")
+        exists("FREE WOOF ON THE INTERNET!"); exists("Your internet. Your rules. Your Lusi"); exists("Disconnected")
+        // v1.9.3: the banner in the brand style (the paw and the name) and Lusi with the globe; the globe stands still
+        // while the VPN is off — no animation runs.
+        assertTrue(compose.onAllNodesWithTag("banner-brand", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty())
+        for (tag in listOf("mascot-idle", "globe-still")) assertTrue(tag, compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty())
+        assertTrue(compose.onAllNodesWithTag("globe-turning").fetchSemanticsNodes().isEmpty())
         // … and what the owner asked to remove is gone: the day counter with the flame, the old banner, «Безлимит».
         assertTrue("no day counter", compose.onAllNodesWithTag("streak").fetchSemanticsNodes().isEmpty())
         for (gone in listOf("PROTECTION IN ONE TAP", "Unlimited", "0 days", "Free internet without the extra Woof!")) {
