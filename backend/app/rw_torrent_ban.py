@@ -148,7 +148,7 @@ async def _state() -> dict:
         reports = _list(await _panel("GET", "/api/node-plugins/torrent-blocker", params={"start": 0, "size": REPORTS}), "records")
         stats = await _panel("GET", "/api/node-plugins/torrent-blocker/stats")
     except HTTPException:
-        pass  # the report endpoints are optional: the switch itself still works
+        reports = reports or None  # the report endpoints are optional: the switch itself still works
     return {**view(nodes, plugins, reports, stats), "panel_supported": True, "panel_error": None}
 
 
