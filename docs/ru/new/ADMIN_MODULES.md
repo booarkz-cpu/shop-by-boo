@@ -127,7 +127,7 @@ API: `/api/admin/panel`, `/api/admin/panel-guard`, `/api/admin/panel-changes`, `
 
 ## 12. Installation
 
-Статус: `IMPLEMENTED`. Маршрутов API: 77. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 79. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
@@ -149,15 +149,15 @@ API: `/api/admin/nodes`, `/api/admin/provision-node`. Права: `ops.diagnosti
 
 ## 14. Nodes
 
-Статус: `IMPLEMENTED`. Маршрутов API: 33. Операции: просмотр, создание, изменение, удаление, поиск и фильтры, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 35. Операции: просмотр, создание, изменение, удаление, поиск и фильтры, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
 | Серверы | Узлы Remnawave: онлайн, нагрузка, трафик и число подключённых клиентов. |
 | Терминал узлов | Командная оболочка на VPN-сервере через агент: с подтверждением 2FA и записью сессии. |
-| Торренты на узлах | Кто из клиентов качает торренты: счётчики срабатываний Xray без адресов, отметка в антиабузе и уведомление. |
+| Торренты на узлах | Кто из клиентов качает торренты: счётчики срабатываний Xray без адресов, отметка в антиабузе и уведомление. Временный бан адреса на ноде одной кнопкой. |
 
-API: `/api/admin/nodes`, `/api/admin/terminal`, `/api/admin/platform`. Права: `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write`.
+API: `/api/admin/nodes`, `/api/admin/terminal`, `/api/admin/platform`, `/api/admin/rw/torrent-ban`. Права: `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write`.
 
 ## 15. Domains
 
