@@ -36,5 +36,5 @@
 | 26 | Plugins | 14 | 11 | 11 | PASS |
 | 27 | Security | 28 | 12 | 12 | PASS |
 | 28 | Logs | 6 | 3 | 3 | PASS |
-| 29 | GitHub | 4 | 2 | 2 | PASS |
+| 29 | GitHub | 5 | 2 | 2 | PASS |
 | 30 | Settings | 9 | 8 | 8 | PASS |
