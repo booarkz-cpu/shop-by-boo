@@ -40,7 +40,8 @@ out2=$(bash "$s" on off 203.0.113.9,198.51.100.0/24) || fail "second run exited 
 [ "$(echo "$out2" | tail -1)" = "$(echo "$out" | tail -1)" ] && ok "a second run gives the same state" || fail "second run differs: $(echo "$out2" | tail -1)"
 
 [ "$(bash "$s" off | tail -1)" = "crowdsec=off" ] || fail "off"
-! command -v cscli >/dev/null 2>&1 || fail "cscli stayed"
+hash -r
+if command -v cscli >/dev/null 2>&1 || dpkg -s crowdsec >/dev/null 2>&1; then dpkg -l | grep -i crowdsec || true; fail "the packages stayed"; fi
 [ ! -e /etc/crowdsec ] && [ ! -e /var/lib/crowdsec ] && [ ! -e /etc/apt/sources.list.d/corgi-crowdsec.list ] && [ ! -e /etc/apt/keyrings/corgi-crowdsec.gpg ] \
   && [ ! -e /etc/systemd/system/crowdsec.service.d ] || fail "files stayed"
 nft list ruleset 2>/dev/null | grep -q 'table ip crowdsec' && fail "the nftables table stayed" || ok "«off» removes everything"
