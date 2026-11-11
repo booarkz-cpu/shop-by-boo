@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "";
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const post = (body?: any): RequestInit => ({method: "POST", body: body === undefined ? undefined : JSON.stringify(body)});
 // Modules planned right here (the others need more input and open «Установка Remnawave → Модули серверов»).
-const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon"];
+const DIRECT = ["transports", "node_port", "hardening", "watchdog", "node_guard", "swap", "mss_clamp", "sni_scan", "mtproto", "geo_files", "cdn", "psiphon", "crowdsec"];
 const STEPS: [string, string][] = [["prepared", "Подготовьте сервер"], ["panel", "Установите панель или ноду"], ["domain", "Подключите домен"]];
 
 /** «Установка» (v28.92.0, N7): every operation on the servers in one catalogue — each card does its job or opens the section that does. */
@@ -220,6 +220,7 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
   const [ports, setPorts] = useState("443, 4443, 8443, 2053");
   const [guardMode, setGuardMode] = useState("enforce");
   const [swap, setSwap] = useState("1024");
+  const [community, setCommunity] = useState(false);
   const [mtPort, setMtPort] = useState("9443");
   const [cdn, setCdn] = useState({nodes: true, subscription: true, domain: "", token: ""});
   const [mtDomain, setMtDomain] = useState("www.cloudflare.com");
@@ -240,7 +241,7 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
     if (name === "transports") Object.assign(m, {enabled: true, transports: enabled ? ["xhttp", "grpc", "hysteria2", "tls"] : [], fingerprint: "firefox"});
     if (name === "hardening") Object.assign(m, {enabled: true, server_ids: [sid], hardening: enabled ? {fail2ban: true, upgrades: true, bbr: true, admin_ips: []}
       : {fail2ban: false, upgrades: false, bbr: false, admin_ips: []}});
-    if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port", "sni_scan", "mtproto", "psiphon"].includes(name)) m.server_ids = [sid];
+    if (["watchdog", "node_guard", "swap", "mss_clamp", "node_port", "sni_scan", "mtproto", "psiphon", "crowdsec"].includes(name)) m.server_ids = [sid];
     if (name === "psiphon" && enabled) Object.assign(m, {psiphon_port: Number(psi.port), psiphon_protocol: psi.protocol});
     if (name === "mtproto" && enabled) Object.assign(m, {mtproto_port: Number(mtPort), mtproto_domain: mtDomain.trim().toLowerCase()});
     if (name === "cdn") {
@@ -250,6 +251,7 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
     if (name === "node_guard") Object.assign(m, {guard_rate: Number(rate), guard_mode: guardMode,
       guard_ports: ports.split(/[\s,]+/).filter(Boolean).map(Number)});
     if (name === "swap") m.swap_mb = Number(swap);
+    if (name === "crowdsec" && enabled) m.crowdsec_community = community;
     return m;
   }
   async function make() {
@@ -299,6 +301,9 @@ function ModulePlan({op, state, request, toast, onClose}: any) {
       {name === "mtproto" && enabled && <>
         <label>Порт TCP<input type="number" min={1024} max={65535} value={mtPort} onChange={e => { setMtPort(e.target.value); setPlan(null); }}/></label>
         <label>Маскировка под сайт<input value={mtDomain} onChange={e => { setMtDomain(e.target.value); setPlan(null); }}/></label></>}
+      {name === "crowdsec" && enabled && <>
+        <label className="checkbox"><input type="checkbox" checked={community} onChange={e => { setCommunity(e.target.checked); setPlan(null); }}/> Общий список блокировок CrowdSec</label>
+        <p className="muted">С общим списком сервер получает адреса известных атакующих и сам сообщает в CrowdSec адреса тех, кто атакует его. Без него CrowdSec работает только по журналам этого сервера и ни с кем не обменивается данными. Ваш адрес, адрес магазина и панели всегда в белом списке.</p></>}
       {name === "swap" && enabled && <label>Размер, МБ<input type="number" min={256} max={16384} step={256} value={swap} onChange={e => { setSwap(e.target.value); setPlan(null); }}/></label>}
     </div>
     {name === "mtproto" && proxies.length > 0 && <div data-mtproto-links>{proxies.map(p => <p key={p.server_id}>

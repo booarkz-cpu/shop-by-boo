@@ -13,6 +13,8 @@ ufw, fail2ban, CrowdSec or the table of «Порт ноды для панели�
 * mtproto — a Telegram MTProto proxy (9seconds/mtg, MIT, image pinned by digest) with FakeTLS: to a censor the traffic
   looks like TLS to the chosen site. The secret is made once on the server (/etc/corgi/mtproto.secret, 0600) and kept
   until «off»; the container runs with --restart unless-stopped; ufw, when active, opens only its port.
+* crowdsec — CrowdSec with the nftables bouncer from the official repository: bans SSH brute force and scanners;
+  the owner's, the shop's and the panel's addresses are allowlisted first (v28.114.0).
 * sni_scan — read-only: from the node, which well-known sites answer TLS 1.3 with HTTP/2 and how fast — candidates for
   the REALITY «dest» of a node without SelfSteal (nothing is changed on the server).
 
@@ -157,6 +159,75 @@ off)
   if swapon --show=NAME --noheadings 2>/dev/null | grep -qx "$file"; then swapoff "$file"; fi
   if [ -f /etc/fstab ]; then grep -v "^$file " /etc/fstab > /etc/fstab.corgi.tmp || true; cat /etc/fstab.corgi.tmp > /etc/fstab; rm -f /etc/fstab.corgi.tmp; fi
   rm -f "$file" "$tune"; echo "swap=off" ;;
+*) exit 2 ;;
+esac
+"""
+
+# v28.114.0 (master prompt v6, REQ-NODE-0020 / 0037): CrowdSec from its official repository (docs.crowdsec.net «Install on
+# Linux», manual repository setup) with the nftables firewall bouncer. The administrator's, the shop's and the panel's
+# addresses go to an allowlist first, so the owner is never banned from his own server. «community» — the shared
+# blocklist of CrowdSec: with it the server reports attackers' addresses to CrowdSec; without it the engine runs with
+# -no-capi and its Central API credentials are wiped (the package registers once while it installs). «off» purges the packages, the repository, the key and the data.
+CROWDSEC = r"""set -eu
+action="$1"; community="${2:-off}"; allow="${3:--}"
+key=/etc/apt/keyrings/corgi-crowdsec.gpg; list=/etc/apt/sources.list.d/corgi-crowdsec.list; dropin=/etc/systemd/system/crowdsec.service.d
+export DEBIAN_FRONTEND=noninteractive
+off() {
+  if command -v apt-get >/dev/null 2>&1; then
+    systemctl stop crowdsec-firewall-bouncer crowdsec >/dev/null 2>&1 || true
+    apt-get purge -y -qq crowdsec-firewall-bouncer-nftables crowdsec >/dev/null 2>&1 || true
+  fi
+  rm -rf /etc/crowdsec /var/lib/crowdsec "$key" "$list" "$dropin"
+  if command -v nft >/dev/null 2>&1; then nft delete table ip crowdsec 2>/dev/null || true; nft delete table ip6 crowdsec6 2>/dev/null || true; fi
+  if command -v systemctl >/dev/null 2>&1; then systemctl daemon-reload >/dev/null 2>&1 || true; fi
+}
+case "$action" in
+on)
+  case "$community" in on|off) ;; *) echo "bad community"; exit 2 ;; esac
+  case "$allow" in *[!0-9a-fA-F.:/,-]*) echo "bad allow"; exit 2 ;; esac
+  command -v apt-get >/dev/null 2>&1 && [ -d /run/systemd/system ] || { echo "unsupported"; exit 5; }
+  apt-get update -qq >/dev/null 2>&1 || true
+  apt-get install -y -qq curl gnupg ca-certificates nftables >/dev/null || { echo "apt failed"; exit 6; }
+  install -d -m 0755 /etc/apt/keyrings
+  curl -fsSL --retry 3 --retry-delay 2 https://packagecloud.io/crowdsec/crowdsec/gpgkey | gpg --dearmor --yes -o "$key" || { echo "no repository key"; exit 7; }
+  echo "deb [signed-by=$key] https://packagecloud.io/crowdsec/crowdsec/any any main" > "$list"
+  apt-get update -qq >/dev/null 2>&1 || true
+  apt-get install -y -qq crowdsec crowdsec-firewall-bouncer-nftables >/dev/null || { echo "install failed"; exit 6; }
+  cscli collections install crowdsecurity/linux crowdsecurity/sshd >/dev/null 2>&1 || true
+  rm -rf "$dropin"
+  if [ "$community" = off ]; then
+    unit=$(systemctl show -p FragmentPath --value crowdsec); start=$(grep -m1 '^ExecStart=' "$unit" | cut -d= -f2-)
+    [ -n "$start" ] || { echo "no unit"; exit 6; }
+    install -d -m 0755 "$dropin"; printf '[Service]\nExecStart=\nExecStart=%s -no-capi\n' "$start" > "$dropin/corgi.conf"
+    # The package registers the server with the Central API once, while it installs. The credentials are wiped,
+    # so neither the engine nor cscli can send or fetch anything afterwards.
+    : > /etc/crowdsec/online_api_credentials.yaml
+  elif [ ! -s /etc/crowdsec/online_api_credentials.yaml ]; then
+    cscli capi register >/dev/null 2>&1 || { echo "capi register failed"; exit 6; }
+  fi
+  systemctl daemon-reload; systemctl enable crowdsec crowdsec-firewall-bouncer >/dev/null 2>&1 || true
+  systemctl restart crowdsec || true
+  i=0; until cscli lapi status >/dev/null 2>&1; do i=$((i+1)); [ "$i" -le 30 ] || break; sleep 2; done
+  n=0
+  cscli allowlists delete corgi >/dev/null 2>&1 || true
+  if [ "$allow" != "-" ]; then
+    cscli allowlists create corgi -d "Corgi: administrator, shop and panel addresses" >/dev/null || { echo "allowlist failed"; exit 6; }
+    for a in $(echo "$allow" | tr ',' ' '); do cscli allowlists add corgi "$a" >/dev/null && n=$((n+1)); done
+  fi
+  # The package registers the bouncer while the engine may still be starting, and then its key is refused
+  # («API error: access forbidden»). A key of our own makes the result the same on every run.
+  bconf=/etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+  [ -f "$bconf" ] || { echo "no bouncer config"; exit 6; }
+  cscli bouncers delete corgi-firewall >/dev/null 2>&1 || true
+  bkey=$(cscli bouncers add corgi-firewall -o raw 2>/dev/null) && [ -n "$bkey" ] || { echo "bouncer key failed"; exit 6; }
+  sed -i "s|^api_key:.*|api_key: $bkey|" "$bconf"; chmod 600 "$bconf"
+  systemctl restart crowdsec-firewall-bouncer || true
+  sleep 3
+  for svc in crowdsec crowdsec-firewall-bouncer; do
+    systemctl is-active --quiet "$svc" || { echo "$svc is not active"; journalctl -u "$svc" -n 15 --no-pager 2>/dev/null | tail -n 15; exit 6; }
+  done
+  echo "crowdsec=on bouncer=nftables community=$community collections=$(cscli collections list -o raw 2>/dev/null | tail -n +2 | wc -l) allow=$n" ;;
+off) off; echo "crowdsec=off" ;;
 *) exit 2 ;;
 esac
 """
