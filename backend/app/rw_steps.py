@@ -1100,6 +1100,8 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         _note(ctx, f"Xray Checker: проверяет {len(data.get('data') or [])} серверов подписки")
     else:
         raise StepError(f"Неизвестный модуль {name}")
+    if name == "crowdsec" and enabled and p.get("action") in ("status", "unban"):
+        return  # read-only or a lifted ban: not an applied module, so «undo» has nothing to remove
     ctx.state.setdefault("applied_modules", []).append([sid, name, enabled])
 
 
