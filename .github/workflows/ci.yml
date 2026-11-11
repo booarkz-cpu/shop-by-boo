@@ -640,3 +640,20 @@ jobs:
           fi
           grep -qE "hev_socks5_tunnel_main_from_str" "$RUNNER_TEMP/symbols.txt" && grep -qE "LibXrayInvoke|libXray" "$RUNNER_TEMP/symbols.txt" \
             || { echo "::error title=extensions::the tunnel engine is not linked"; exit 1; }
+
+  gate:
+    # The one required status check for main (Settings → Rules): green only when every job above passed.
+    # A new job must be added to `needs` — otherwise the gate does not wait for it.
+    name: CI gate
+    if: always()
+    needs: [backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Every job passed
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          failed=$(echo "$RESULTS" | jq -r '[to_entries[] | select(.value.result != "success" and .value.result != "skipped") | .key] | join(", ")')
+          if [ -n "$failed" ]; then echo "::error title=CI gate::not green: $failed"; exit 1; fi
