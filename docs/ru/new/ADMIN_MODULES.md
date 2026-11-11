@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.112.0
+# Модули админ-панели — v28.113.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -127,7 +127,7 @@ API: `/api/admin/panel`, `/api/admin/panel-guard`, `/api/admin/panel-changes`, `
 
 ## 12. Installation
 
-Статус: `IMPLEMENTED`. Маршрутов API: 72. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 77. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
@@ -201,14 +201,15 @@ API: `/api/admin/sub-proxy`. Права: `ops.diagnostics`, `settings.runtime.wr
 
 ## 19. Node Extensions
 
-Статус: `IMPLEMENTED`. Маршрутов API: 37. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 42. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
 | Расширения Remnawave | Профили конфигурации нод с конструктором VLESS + REALITY и SelfSteal, плагины нод (TorrentBlocker, фильтры), правила ответов подписки, лимит устройств, страница и шаблоны подписки, клиентский балансировщик. |
 | Пул автовыбора | Плитка «Автовыбор» в списке серверов клиента: узлы пула, алгоритм (по задержке, по нагрузке, по кругу, случайно), скрытие узлов, состояние по данным панели. |
+| Смена протокола | Починка блока: перевод inbound на другой транспорт (TCP, XHTTP, gRPC) в четыре этапа с журналом, проверкой нод и возвратом прежнего транспорта. |
 
-API: `/api/admin/rw/extensions`, `/api/admin/rw/autoselect`. Права: `provision_nodes`, `read`, `settings.runtime.write`.
+API: `/api/admin/rw/extensions`, `/api/admin/rw/autoselect`, `/api/admin/rw/protocol-switch`. Права: `provision_nodes`, `read`, `settings.runtime.write`.
 
 ## 20. Monitoring
 

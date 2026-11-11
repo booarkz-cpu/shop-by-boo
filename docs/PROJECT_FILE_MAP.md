@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.112.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.113.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2444**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2451**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -143,6 +143,7 @@
 | [admin/e2e/plans-editor.spec.ts](../admin/e2e/plans-editor.spec.ts) | Админ-панель |
 | [admin/e2e/plugins.spec.ts](../admin/e2e/plugins.spec.ts) | Админ-панель |
 | [admin/e2e/preferences-help.spec.ts](../admin/e2e/preferences-help.spec.ts) | Админ-панель |
+| [admin/e2e/protocol-switch.spec.ts](../admin/e2e/protocol-switch.spec.ts) | Админ-панель |
 | [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
 | [admin/e2e/rw-extensions.spec.ts](../admin/e2e/rw-extensions.spec.ts) | Админ-панель |
 | [admin/e2e/rw-installer.spec.ts](../admin/e2e/rw-installer.spec.ts) | Админ-панель |
@@ -234,6 +235,7 @@
 | [admin/src/plans-editor.tsx](../admin/src/plans-editor.tsx) | Админ-панель |
 | [admin/src/plugins.tsx](../admin/src/plugins.tsx) | Админ-панель |
 | [admin/src/promo-audiences.tsx](../admin/src/promo-audiences.tsx) | Админ-панель |
+| [admin/src/protocol-switch.tsx](../admin/src/protocol-switch.tsx) | Админ-панель |
 | [admin/src/push-status.tsx](../admin/src/push-status.tsx) | Админ-панель |
 | [admin/src/pushStyle.tsx](../admin/src/pushStyle.tsx) | Админ-панель |
 | [admin/src/reconciliation.tsx](../admin/src/reconciliation.tsx) | Админ-панель |
@@ -584,6 +586,7 @@
 | [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
 | [backend/app/rw_netmods.py](../backend/app/rw_netmods.py) | API, бот и worker |
 | [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
+| [backend/app/rw_protocol_switch.py](../backend/app/rw_protocol_switch.py) | API, бот и worker |
 | [backend/app/rw_releases.py](../backend/app/rw_releases.py) | API, бот и worker |
 | [backend/app/rw_remote.py](../backend/app/rw_remote.py) | API, бот и worker |
 | [backend/app/rw_selfsteal.py](../backend/app/rw_selfsteal.py) | API, бот и worker |
@@ -807,6 +810,7 @@
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_INVENTORY.md](../docs/PROJECT_INVENTORY.md) | Документация |
 | [docs/PROJECT_MAP_RU.md](../docs/PROJECT_MAP_RU.md) | Документация |
+| [docs/PROTOCOL_SWITCH.md](../docs/PROTOCOL_SWITCH.md) | Документация |
 | [docs/REFERENCE_REPOSITORIES.md](../docs/REFERENCE_REPOSITORIES.md) | Документация |
 | [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md) | Документация |
 | [docs/RELEASE_LIMITATIONS.md](../docs/RELEASE_LIMITATIONS.md) | Документация |
@@ -1142,6 +1146,7 @@
 | [docs/ru/RELEASE_V28_110_0.md](../docs/ru/RELEASE_V28_110_0.md) | Документация |
 | [docs/ru/RELEASE_V28_111_0.md](../docs/ru/RELEASE_V28_111_0.md) | Документация |
 | [docs/ru/RELEASE_V28_112_0.md](../docs/ru/RELEASE_V28_112_0.md) | Документация |
+| [docs/ru/RELEASE_V28_113_0.md](../docs/ru/RELEASE_V28_113_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
@@ -1865,6 +1870,7 @@
 | [screenshots/admin_panel/92_install.png](../screenshots/admin_panel/92_install.png) | Корень проекта |
 | [screenshots/admin_panel/93_selfsteal.png](../screenshots/admin_panel/93_selfsteal.png) | Корень проекта |
 | [screenshots/admin_panel/94_autoselect.png](../screenshots/admin_panel/94_autoselect.png) | Корень проекта |
+| [screenshots/admin_panel/95_protocolSwitch.png](../screenshots/admin_panel/95_protocolSwitch.png) | Корень проекта |
 | [screenshots/admin_panel/features/ai-knowledge.png](../screenshots/admin_panel/features/ai-knowledge.png) | Корень проекта |
 | [screenshots/admin_panel/features/anti-sharing.png](../screenshots/admin_panel/features/anti-sharing.png) | Корень проекта |
 | [screenshots/admin_panel/features/api-mirrors.png](../screenshots/admin_panel/features/api-mirrors.png) | Корень проекта |
@@ -2344,6 +2350,7 @@
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_rw_netmods.py](../tests/test_rw_netmods.py) | Проверки |
 | [tests/test_rw_node_modules.py](../tests/test_rw_node_modules.py) | Проверки |
+| [tests/test_rw_protocol_switch.py](../tests/test_rw_protocol_switch.py) | Проверки |
 | [tests/test_rw_server_modules.py](../tests/test_rw_server_modules.py) | Проверки |
 | [tests/test_rw_ssh.py](../tests/test_rw_ssh.py) | Проверки |
 | [tests/test_rw_tinyauth.py](../tests/test_rw_tinyauth.py) | Проверки |
