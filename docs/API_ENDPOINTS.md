@@ -1,4 +1,4 @@
-# Каталог API — v28.116.0 / API v21.5.1
+# Каталог API — v28.117.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -551,6 +551,8 @@ production gate остаётся закрытым без полного applicat
 | `PATCH` | `/api/admin/rw/servers/{server_id}` | Patch Server | право `provision_nodes` |
 | `POST` | `/api/admin/rw/servers/{server_id}/check` | Check Server | право `provision_nodes` |
 | `POST` | `/api/admin/rw/servers/{server_id}/rotate-key` | Rotate Key | право `provision_nodes` |
+| `GET` | `/api/admin/rw/torrent-ban` | Get State | право `read` |
+| `PUT` | `/api/admin/rw/torrent-ban` | Apply | право `provision_nodes` |
 | `GET` | `/api/admin/security` | Admin Security | право `read` |
 | `GET` | `/api/admin/security/history` | Security History | право `sessions.manage` |
 | `POST` | `/api/admin/security/incident` | Security Incident | право `manage_admins` |

@@ -38,7 +38,7 @@ MODULES: tuple[tuple[int, str, tuple[str, ...], tuple[str, ...], str], ...] = (
     (11, "Remnawave", ("remnawave", "nodes"), ("panel", "panel-guard", "panel-changes", "panel-api-stats", "remnawave"), ""),
     (12, "Installation", ("rwInstaller",), ("rw",), ""),
     (13, "Servers", ("nodes", "capacity", "orchestrator"), ("nodes", "provision-node"), ""),
-    (14, "Nodes", ("nodes", "nodeTerminal", "torrents"), ("nodes", "terminal", "platform"), ""),
+    (14, "Nodes", ("nodes", "nodeTerminal", "torrents"), ("nodes", "terminal", "platform", "rw/torrent-ban"), ""),
     (15, "Domains", ("domains",), ("rw/domains",), ""),
     (16, "Certificates", ("domains",), ("rw/certificates",), ""),
     (17, "Reverse Proxy", ("domains",), ("rw/proxy-routes",), ""),
