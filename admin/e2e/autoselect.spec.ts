@@ -52,7 +52,7 @@ test('auto-selection pool: choose nodes, switch on, hide, refresh, remove', asyn
   const start = root.getByRole('button', {name: 'Включить leastPing'});
   await expect(start).toBeDisabled();  // nothing chosen yet
 
-  await root.getByRole('button', {name: 'Выбрать все'}).click();
+  await root.getByRole('button', {name: 'Выбрать все', exact: true}).click();
   await root.getByLabel('Алгоритм', {exact: true}).selectOption('leastLoad');
   await root.getByLabel('Имя плитки', {exact: true}).fill('🚀 Быстрый');
   await expect(root.getByText('В Clash, Mihomo, sing-box и Base64 плитка не показывается')).toBeVisible();
@@ -68,9 +68,9 @@ test('auto-selection pool: choose nodes, switch on, hide, refresh, remove', asyn
   await expect(root.locator('[data-stat="subscription"]')).toContainText('Видны в подписке: 0/2');
   expect(sent[1].hide_nodes).toBe(true);
 
-  await root.getByRole('button', {name: 'Обновить пул'}).click();
+  await root.getByRole('button', {name: 'Обновить пул', exact: true}).click();
   await expect.poll(() => refreshed).toBe(1);
-  await root.getByRole('button', {name: 'Убрать плитку'}).click();
+  await root.getByRole('button', {name: 'Убрать плитку', exact: true}).click();
   await expect(root.getByText('Плитки нет')).toBeVisible();
-  await expect(root.getByRole('button', {name: 'Убрать плитку'})).toHaveCount(0);
+  await expect(root.getByRole('button', {name: 'Убрать плитку', exact: true})).toHaveCount(0);
 });
