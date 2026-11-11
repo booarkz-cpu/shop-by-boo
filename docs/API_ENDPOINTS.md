@@ -156,6 +156,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/e2e-v2/overview` | Overview | право `staging_e2e.manage` |
 | `POST` | `/api/admin/e2e-v2/runs` | Start Run | право `staging_e2e.manage` |
 | `POST` | `/api/admin/e2e-v2/runs/{run_id}/cancel` | Cancel Run | право `staging_e2e.manage` |
+| `GET` | `/api/admin/ecosystem-updates` | Get Ecosystem | право `ops.releases` |
 | `GET` | `/api/admin/email-templates` | Get Templates | право `manage_content` |
 | `DELETE` | `/api/admin/email-templates/{purpose}` | Reset Template | право `manage_content` |
 | `PUT` | `/api/admin/email-templates/{purpose}` | Put Template | право `manage_content` |
