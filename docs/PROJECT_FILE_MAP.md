@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.116.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.117.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2455**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2461**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -150,6 +150,7 @@
 | [admin/e2e/selfsteal.spec.ts](../admin/e2e/selfsteal.spec.ts) | Админ-панель |
 | [admin/e2e/system-status.spec.ts](../admin/e2e/system-status.spec.ts) | Админ-панель |
 | [admin/e2e/telegram-bot.spec.ts](../admin/e2e/telegram-bot.spec.ts) | Админ-панель |
+| [admin/e2e/torrent-ban.spec.ts](../admin/e2e/torrent-ban.spec.ts) | Админ-панель |
 | [admin/index.html](../admin/index.html) | Админ-панель |
 | [admin/next.config.mjs](../admin/next.config.mjs) | Админ-панель |
 | [admin/nginx.conf](../admin/nginx.conf) | Админ-панель |
@@ -259,6 +260,7 @@
 | [admin/src/telegram-bot.tsx](../admin/src/telegram-bot.tsx) | Админ-панель |
 | [admin/src/terminal-screen.ts](../admin/src/terminal-screen.ts) | Админ-панель |
 | [admin/src/theme.css](../admin/src/theme.css) | Админ-панель |
+| [admin/src/torrent-ban.tsx](../admin/src/torrent-ban.tsx) | Админ-панель |
 | [admin/src/torrents.tsx](../admin/src/torrents.tsx) | Админ-панель |
 | [admin/src/worldMap.json](../admin/src/worldMap.json) | Админ-панель |
 | [admin/src/worldMap.tsx](../admin/src/worldMap.tsx) | Админ-панель |
@@ -593,6 +595,7 @@
 | [backend/app/rw_snapshots.py](../backend/app/rw_snapshots.py) | API, бот и worker |
 | [backend/app/rw_ssh.py](../backend/app/rw_ssh.py) | API, бот и worker |
 | [backend/app/rw_steps.py](../backend/app/rw_steps.py) | API, бот и worker |
+| [backend/app/rw_torrent_ban.py](../backend/app/rw_torrent_ban.py) | API, бот и worker |
 | [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
 | [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
 | [backend/app/seat_access.py](../backend/app/seat_access.py) | API, бот и worker |
@@ -821,6 +824,7 @@
 | [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
+| [docs/TORRENT_BAN.md](../docs/TORRENT_BAN.md) | Документация |
 | [docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md](../docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md) | Документация |
 | [docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md](../docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md) | Документация |
 | [docs/archive/DOCUMENTATION_RU_BEFORE_ALPHA_6.md](../docs/archive/DOCUMENTATION_RU_BEFORE_ALPHA_6.md) | Документация |
@@ -1151,6 +1155,7 @@
 | [docs/ru/RELEASE_V28_114_0.md](../docs/ru/RELEASE_V28_114_0.md) | Документация |
 | [docs/ru/RELEASE_V28_115_0.md](../docs/ru/RELEASE_V28_115_0.md) | Документация |
 | [docs/ru/RELEASE_V28_116_0.md](../docs/ru/RELEASE_V28_116_0.md) | Документация |
+| [docs/ru/RELEASE_V28_117_0.md](../docs/ru/RELEASE_V28_117_0.md) | Документация |
 | [docs/ru/RELEASE_V28_11_0.md](../docs/ru/RELEASE_V28_11_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
@@ -2358,6 +2363,7 @@
 | [tests/test_rw_server_modules.py](../tests/test_rw_server_modules.py) | Проверки |
 | [tests/test_rw_ssh.py](../tests/test_rw_ssh.py) | Проверки |
 | [tests/test_rw_tinyauth.py](../tests/test_rw_tinyauth.py) | Проверки |
+| [tests/test_rw_torrent_ban.py](../tests/test_rw_torrent_ban.py) | Проверки |
 | [tests/test_rw_transports.py](../tests/test_rw_transports.py) | Проверки |
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |

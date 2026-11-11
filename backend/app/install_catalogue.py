@@ -50,7 +50,7 @@ OPS: tuple[tuple, ...] = (
     ("cascade", "nodes", "Каскад нод (мост)", "Вход на одной ноде, выход на другой: Shadowsocks-мост между нодами и правила для российских адресов — через API панели, без SSH.", False, False, ("tab", "rwExtensions")),
     ("routing_ru", "nodes", "Российские сервисы напрямую", "Маршрутизация на сервере: свои правила и российские сервисы мимо VPN.", False, False, ("tab", "rwExtensions")),
     ("ads_nodes", "nodes", "Блокировка рекламы на нодах", "Реклама и трекеры не открываются у всех клиентов профиля — правило geosite:category-ads-all на нодах, без SSH.", False, True, ("tab", "rwExtensions")),
-    ("torrents", "nodes", "Торренты на нодах", "Блокировка BitTorrent плагином ноды и счётчики срабатываний.", False, False, ("tab", "torrents")),
+    ("torrents", "nodes", "Торренты на нодах", "Временный бан адреса за торренты одной кнопкой (плагин Torrent Blocker ноды, срок и исключения) и счётчики срабатываний.", False, False, ("tab", "torrents")),
     ("warp", "nodes", "WARP на ноде", "Интерфейс Cloudflare WARP для выхода к отдельным сервисам.", True, False, ("module", "warp", "node")),
     ("xray_core", "nodes", "Ядро Xray нужной версии", "Выпуск Xray-core с GitHub (SHA-256 сверяется) вместо ядра образа.", True, False, ("module", "xray_core", "node")),
     ("availability", "nodes", "Доступность нод", "Проверки из разных сетей, RIPE Atlas, качество подключений.", False, True, ("tab", "availability")),
