@@ -489,6 +489,8 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/rw/domains/{domain_id}/check` | Check Domain | право `read` |
 | `POST` | `/api/admin/rw/domains/{domain_id}/dns-record` | Upsert Dns Record | право `settings.runtime.write` |
 | `POST` | `/api/admin/rw/domains/{domain_id}/primary` | Make Primary | право `settings.runtime.write` |
+| `POST` | `/api/admin/rw/drift/check` | Check | право `read` |
+| `GET` | `/api/admin/rw/drift/meta` | Meta | право `read` |
 | `GET` | `/api/admin/rw/extensions` | Overview | право `read` |
 | `POST` | `/api/admin/rw/extensions/nodes/{node_uuid}/plugin` | Node Plugin | право `provision_nodes` |
 | `POST` | `/api/admin/rw/extensions/nodes/{node_uuid}/profile` | Node Profile | право `provision_nodes` |
