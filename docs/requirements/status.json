@@ -2292,18 +2292,23 @@
   "note": "Сквозной прогон «заказ → оплата → выдача → подписка» идёт через настоящие маршруты на стенде; есть сценарии резервной кассы и автопродления. Шагов «бот: старт» и «обращение в поддержку» в одном сценарии нет."
  },
  "REQ-MASQUE-0001": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
-  "note": "Автоустановки MASQUE на ноду нет: панель Remnawave 3.4.10 не выдаёт пользователей для этого протокола, а без пользователей ядро отклоняет все туннели. Причины и условия возврата — в docs/MASQUE_IMPLEMENTATION_REPORT.md, §9–10."
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_masque.py",
+   "backend/app/masque_panel.py",
+   "scripts/ci/masque-check.sh",
+   "admin/e2e/masque-panel.spec.ts"
+  ],
+  "note": "Установка одной кнопкой: сертификат, контейнеры, порт, пользователи; дальше доступ сам следует за подписками. Проверено в CI на настоящих Caddy, Xray и HAProxy."
  },
  "REQ-MASQUE-0002": {
   "status": "PARTIAL",
   "evidence": [
+   "backend/app/rw_masque.py",
    "backend/app/masque.py",
-   "tests/test_masque.py",
    "docs/MASQUE_IMPLEMENTATION_REPORT.md"
   ],
-  "note": "Тега v26.10.10 не существует; магазин требует первый тег не старше него — v26.10.21 — и показывает, на каких нодах ядро подходит. Само ядро нод до этой версии магазин не поднимает."
+  "note": "Тега v26.10.10 не существует. Для MASQUE магазин ставит на ноду свой Xray 26.11.9, закреплённый по хешу образа. Ядро Xray самой ноды Remnawave до этой версии магазин не поднимает."
  },
  "REQ-MASQUE-0003": {
   "status": "PASS",
@@ -2317,54 +2322,59 @@
  "REQ-MASQUE-0004": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/masque.py",
-   "backend/app/rw_steps.py",
-   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+   "backend/app/rw_masque.py",
+   "scripts/ci/masque-check.sh",
+   "backend/app/masque_panel.py"
   ],
-  "note": "Проверка портов и сертификат ноды (Caddy + копирование таймером) есть и переиспользуются; установки MASQUE на чистую ноду по SSH нет."
+  "note": "Установка на ноду по SSH, проверка порта, TLS с сертификатом ноды, передача файлов с контрольной суммой — есть и проверены в CI. Свой выпуск сертификата не нужен: берётся сертификат сайта SelfSteal. Занятость порта другим процессом перед установкой не проверяется; на VPS не проверено."
  },
  "REQ-MASQUE-0005": {
   "status": "PARTIAL",
   "evidence": [
+   "backend/app/rw_masque.py",
    "backend/app/masque.py",
-   "tests/test_masque.py",
-   "scripts/masque-selfcheck.sh",
+   "scripts/ci/masque-check.sh",
    "docs/MASQUE_IMPLEMENTATION_REPORT.md"
   ],
-  "note": "Конфликты 443, ALPN, ограничения REALITY исследованы; inbound проверен на настоящем Xray. Правил routing для MASQUE и общего 443 через обратный прокси нет. На VPS с настоящим доменом не проверено."
+  "note": "Конфликты исследованы; рабочая схема — отдельный TCP-порт, HAProxy по пути, Xray на loopback — проверена в CI. HTTP/3 не используется: его нельзя спрятать за сайтом. Общий порт 443 с REALITY не делается."
  },
  "REQ-MASQUE-0006": {
   "status": "PARTIAL",
   "evidence": [
-   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+   "backend/app/rw_masque.py",
+   "backend/app/masque_panel.py",
+   "scripts/ci/masque-check.sh",
+   "tests/test_masque_panel.py"
   ],
-  "note": "HandlerService, AddUser/RemoveUser и StatsService проверены по исходникам v26.11.9. Горячей выдачи пользователей, статистики и лимитов для MASQUE в магазине нет: нодами управляет панель."
+  "note": "Пользователи добавляются и убираются через API Xray без перезапуска — проверено в CI. Статистика по пользователям читается. Лимиты трафика и устройств для MASQUE не применяются."
  },
  "REQ-MASQUE-0007": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/masque.py",
-   "tests/test_masque.py",
-   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+   "backend/app/masque_panel.py",
+   "backend/app/rw_masque.py",
+   "tests/test_masque_panel.py",
+   "docs/MASQUE_PANEL.md"
   ],
-  "note": "VLESS Reality и Hysteria 2 выдаются подпиской панели; MASQUE в подписку не добавляется и остальные конфигурации не ломает. Готов только проверенный JSON outbound; ссылок для v2rayNG и NekoBox нет."
+  "note": "MASQUE выдаётся своей подпиской в формате JSON и не затрагивает подписку Remnawave. Ссылок для v2rayNG и NekoBox нет; на этих клиентах не проверено."
  },
  "REQ-MASQUE-0008": {
   "status": "PARTIAL",
   "evidence": [
+   "admin/src/masque-panel.tsx",
+   "admin/e2e/masque-panel.spec.ts",
    "admin/src/masque.tsx",
-   "admin/e2e/masque.spec.ts",
-   "backend/app/masque.py"
+   "backend/app/masque_panel.py"
   ],
-  "note": "Есть проверка совместимости: версии ядра нод, конфликты порта, причины. Переключателей, fallback-домена, прогресса и диагностики установки нет — включать нечего."
+  "note": "Есть переключатель выдачи, выбор тарифов, установка и удаление, проверка совместимости, состояние ноды, понятные причины отказа. Пошагового прогресса установки нет: кнопка ждёт результата."
  },
  "REQ-MASQUE-0009": {
   "status": "PASS",
   "evidence": [
    "docs/MASQUE_IMPLEMENTATION_REPORT.md",
-   "scripts/masque-selfcheck.sh"
+   "scripts/ci/masque-check.sh"
   ],
-  "note": "Отказ при неверном пароле проверен на настоящем Xray; ответы 401/404, отсутствие сайта-прикрытия и запрет частных адресов описаны в отчёте, §6. Защита от DPI не обещается."
+  "note": "Посторонний видит сайт SelfSteal и его 404, в том числе на неверном секретном пути — проверено в CI. Ограничения маскировки описаны в отчёте, §9. Защита от DPI не обещается."
  },
  "REQ-MASQUE-0010": {
   "status": "PASS",
@@ -2377,11 +2387,13 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/MASQUE_IMPLEMENTATION_REPORT.md",
-   "backend/app/masque.py",
-   "tests/test_masque.py",
-   "scripts/masque-selfcheck.sh"
+   "docs/MASQUE_PANEL.md",
+   "backend/app/rw_masque.py",
+   "backend/app/masque_panel.py",
+   "scripts/ci/masque-check.sh",
+   "tests/test_masque_panel.py"
   ],
-  "note": "Официальное подтверждение, код, конфигурации, тесты, ограничения, безопасность и документация есть для проверочной части; рабочей выдачи MASQUE пользователям нет."
+  "note": "Архитектура, подтверждение, код, конфигурации, тесты, ограничения, безопасность и документация есть. Не проверено на VPS и на клиентских устройствах."
  },
  "REQ-MASQUE-0012": {
   "status": "PASS",

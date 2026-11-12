@@ -94,14 +94,14 @@ def test_own_inbound_is_not_a_conflict_but_another_masque_is():
     assert masque.port_conflicts([{"tag": "x", "port": "bad"}, "junk", {"tag": "y"}]) == []
 
 
-def test_readiness_never_says_masque_can_be_enabled():
+def test_readiness_lists_nodes_profiles_and_notes():
     nodes = [{"uuid": "n1", "name": "de-1", "versions": {"xray": "26.11.9"}}, {"uuid": "n2", "name": "cz-1", "xrayVersion": "26.7.28"},
              {"uuid": "n3"}]
     out = masque.readiness(nodes, [{"uuid": "p1", "name": "Основной", "config": {"inbounds": _profile()}}, {"uuid": "p2"}], 443)
     assert [(n["name"], n["xray"], n["state"]) for n in out["nodes"]] == [("de-1", "26.11.9", "ready"), ("cz-1", "26.7.28", "old"), ("—", None, "unknown")]
     assert out["nodes_ready"] == 1 and out["required"] == "v26.10.21" and out["first_tag"] == "v26.9.30"
     assert len(out["profiles"][0]["conflicts"]) == 2 and out["profiles"][1]["conflicts"] == []
-    assert out["can_enable"] is False and {b["key"] for b in out["blockers"]} == {"panel", "link", "reality"}
+    assert {b["key"] for b in out["blockers"]} == {"panel", "link", "reality"}
     assert out["example"]["port"] == 443 and out["example"]["settings"]["users"] == []
 
 

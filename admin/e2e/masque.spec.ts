@@ -6,7 +6,7 @@ const blockers = [{key: 'panel', title: 'Панель Remnawave не знает 
   {key: 'link', title: 'Нет общей ссылки для клиента', text: 'Только JSON.'}, {key: 'reality', title: 'Не работает с REALITY', text: 'Только TLS.'}];
 const view = (port: number, conflicts: string[]) => ({required: 'v26.10.21', first_tag: 'v26.9.30', port, http: ['h3', 'h2'], nodes_ready: 1,
   nodes: [{uuid: 'n1', name: 'de-1', xray: '26.11.9', state: 'ready'}, {uuid: 'n2', name: 'cz-1', xray: '26.7.28', state: 'old'}, {uuid: 'n3', name: 'nl-1', xray: null, state: 'unknown'}],
-  profiles: [{uuid: 'p1', name: 'Основной', conflicts}], blockers, can_enable: false, example: {tag: 'MASQUE', port, protocol: 'masque'}});
+  profiles: [{uuid: 'p1', name: 'Основной', conflicts}], blockers, example: {tag: 'MASQUE', port, protocol: 'masque'}});
 
 test('MASQUE readiness: nodes, blockers and the port check', async ({page}) => {
   await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
@@ -25,7 +25,6 @@ test('MASQUE readiness: nodes, blockers and the port check', async ({page}) => {
 
   await page.locator('.sidebar').getByRole('button', {name: /Смена протокола/}).click();
   const root = page.locator('[data-masque]');
-  await expect(root.locator('[data-masque-summary]')).toContainText('Не включается');
   await expect(root.locator('[data-masque-summary]')).toContainText('Ноды с подходящим ядром: 1 из 3');
   await expect(root).toContainText('Нужно ядро Xray v26.10.21 или новее');
   await expect(root.locator('[data-masque-blocker]')).toHaveCount(3);
@@ -33,7 +32,7 @@ test('MASQUE readiness: nodes, blockers and the port check', async ({page}) => {
   await expect(root.locator('[data-masque-node="cz-1"]')).toContainText('старое ядро');
   await expect(root.locator('[data-masque-node="nl-1"]')).toContainText('версия неизвестна');
   await expect(root.locator('[data-masque-profile="Основной"]')).toContainText('свободен');
-  await expect(root.getByRole('button', {name: /включить/i})).toHaveCount(0);   // nothing pretends to switch MASQUE on
+  await expect(root.getByRole('button', {name: /включить|установить/i})).toHaveCount(0);   // this block only reads
 
   const port = root.getByLabel('Порт MASQUE (UDP для HTTP/3 и TCP для HTTP/2)', {exact: true});
   await port.fill('99999');
