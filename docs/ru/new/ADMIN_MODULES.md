@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.124.0
+# Модули админ-панели — v28.125.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -311,15 +311,15 @@ API: `/api/admin/security`, `/api/admin/admins`, `/api/admin/sessions`, `/api/ad
 
 ## 28. Logs
 
-Статус: `IMPLEMENTED`. Маршрутов API: 6. Операции: просмотр, создание, поиск и фильтры, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 8. Операции: просмотр, создание, поиск и фильтры, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
-| Журнал действий | Кто из администраторов, когда и что изменил. |
+| Журнал действий | Кто из администраторов, когда и что изменил. Целостность журнала: изменённая или удалённая запись видна при проверке. |
 | События | Поток событий магазина. |
 | Мониторинг | Проверки доступности, версии компонентов, рабочие процессы и журналы контейнеров в браузере. |
 
-API: `/api/admin/audit`, `/api/admin/errors`, `/api/admin/logs`. Права: `ops.diagnostics`, `read`.
+API: `/api/admin/audit`, `/api/admin/audit-seal`, `/api/admin/errors`, `/api/admin/logs`. Права: `ops.diagnostics`, `read`.
 
 ## 29. GitHub
 

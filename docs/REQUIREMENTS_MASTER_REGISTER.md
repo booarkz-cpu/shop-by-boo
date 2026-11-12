@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **73** — 11.2%.
+- Подтверждено (`PASS`): **76** — 11.6%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 73 | Проверено, доказательство указано |
-| `PARTIAL` | 88 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 10 | Функции нет |
+| `PASS` | 76 | Проверено, доказательство указано |
+| `PARTIAL` | 99 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 15 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 481 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 462 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -28,7 +28,7 @@
 | «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
 | Магазин, кабинет, Telegram | 32 | 0 | 0 | 0 | 32 |
 | Бренд и тексты | 20 | 0 | 0 | 0 | 20 |
-| Lucy Admin | 19 | 0 | 0 | 0 | 19 |
+| Lucy Admin | 19 | 3 | 11 | 0 | 0 |
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 1 | 13 | 0 | 0 |
 | MASQUE | 12 | 0 | 0 | 0 | 12 |
@@ -1523,118 +1523,149 @@
 
 ## Lucy Admin
 
-### REQ-ADMIN-0001 — `NOT_TESTED`
+### REQ-ADMIN-0001 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Products → Lucy Admin (строка 185). Продукт: Админка.
+- Примечание: Идентификатор продукта `lucy-admin` из мастер-промпта в коде и документации не используется: панель называется «панель администратора».
 
 > `id` = `lucy-admin`
 
-### REQ-ADMIN-0002 — `NOT_TESTED`
+### REQ-ADMIN-0002 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Interfaces (строка 189). Продукт: Админка.
+- Доказательство: `admin/src/main.tsx`; `mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `mobile/ios-admin/VpnShopAdmin/ContentView.swift`; `backend/app/security.py`; `tests/test_admin_route_permissions.py`; `backend/app/audit_seal.py`.
+- Примечание: Веб-панель, приложения администратора для Android и iOS работают через один API с ролями и журналом. В приложениях 10 разделов против примерно 100 в веб-панели.
 
 > Web Admin; Android Admin; iOS Admin; единый API; RBAC; аудит.
 
-### REQ-ADMIN-0003 — `NOT_TESTED`
+### REQ-ADMIN-0003 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Modules (строка 193). Продукт: Админка.
+- Доказательство: `admin/src/sections.ts`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`; `docs/ru/new/ADMIN_MODULES.md`; `scripts/verify-admin-matrix.py`.
+- Примечание: Разделы веб-панели покрывают перечень; построчной сверки каждого названного раздела не было. MASQUE и Hysteria 2 в панели не сверены.
 
 > Dashboard; Users; Roles; Tariffs; Subscriptions; Payments; Payment Providers; Remnawave; VPN Nodes; Node Provisioning; MASQUE; VLESS/REALITY; Hysteria 2; Server Monitoring; Network Monitoring; Telegram Bot; Telegram Mini App; User Cabinet; VPN Client Management; Commercial App Management; Android Builds; iOS Builds; GitHub; CI/CD; Pull Requests; Releases; Docker; Installer; Database; Backup/Restore/Rollback; Updates; Security Center; Audit Logs; API Management; Notifications; Support; Localization; Documentation; System Settings; Automation Center; Autonomous Audit; Checklist Dashboard; Screenshot Coverage; Admin Feature Parity; Payment Testing; Protocol Compatibility; Infrastructure Diagnostics; Node Installation and Maintenance; Auto-selection Management; Subscription Status Page; Server Protection; Dangerous Operations; Repair and Recovery; Migration Tools.
 
-### REQ-ADMIN-0004 — `NOT_TESTED`
+### REQ-ADMIN-0004 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Products → Lucy Admin → Parity Document (строка 197). Продукт: Админка.
 - Названные файлы: `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет.
+- Примечание: Документа docs/ADMIN_FEATURE_PARITY_MATRIX.md нет. Есть матрица разделов веб-панели и API: docs/ru/new/ADMIN_CONTROL_MATRIX.md.
 
 > docs/ADMIN_FEATURE_PARITY_MATRIX.md
 
-### REQ-ADMIN-0005 — `NOT_TESTED`
+### REQ-ADMIN-0005 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Products → Lucy Admin → Parity Fields (строка 201). Продукт: Админка.
+- Примечание: Сводной таблицы «Web / Android / iOS / API» по каждой функции нет.
 
 > Web; Android; iOS; API; статус; функциональность; тесты; ограничения; evidence.
 
-### REQ-ADMIN-0006 — `NOT_TESTED`
+### REQ-ADMIN-0006 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Rule (строка 205). Продукт: Админка.
+- Доказательство: `scripts/verify-admin-matrix.py`; `docs/ru/new/ADMIN_VERIFICATION.md`; `tests/test_admin_center.py`; `admin/e2e/torrent-ban.spec.ts`.
+- Примечание: Автоматически проверяется каждый раздел: у него есть маршруты API и тесты. Каждая отдельная кнопка автоматически не проверяется.
 
 > Ни одна кнопка не должна быть декоративной или фиктивной.
 
-### REQ-ADMIN-0007 — `NOT_TESTED`
+### REQ-ADMIN-0007 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2229). Продукт: Админка.
+- Доказательство: `backend/app/security.py`; `docs/ru/new/RBAC.md`; `tests/test_rbac_doc.py`; `tests/test_admin_route_permissions.py`.
+- Примечание: Роли и права по разделам и действиям есть, документ сверяется с кодом тестом. Отдельных прав export и deploy для каждого ресурса нет.
 
 > - Определить роли и permissions по ресурсам и операциям, включая read/create/update/delete/execute/export/refund/deploy.
 
-### REQ-ADMIN-0008 — `NOT_TESTED`
+### REQ-ADMIN-0008 — `PASS`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2230). Продукт: Админка.
+- Доказательство: `tests/test_admin_route_permissions.py`; `backend/app/security.py`; `tests/test_admin_center.py`.
 
 > - Применять авторизацию на backend, а не только скрывать UI.
 
-### REQ-ADMIN-0009 — `NOT_TESTED`
+### REQ-ADMIN-0009 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2231). Продукт: Админка.
+- Доказательство: `backend/app/security.py`; `docs/ru/new/RBAC.md`; `tests/test_admin_route_permissions.py`.
+- Примечание: Роли оператора и администратора разделены, опасные права выданы только администратору. Разделения обязанностей (двое на одно действие) и прав по окружениям нет.
 
 > - Поддерживать принцип наименьших привилегий, разделение обязанностей и доступ по окружениям.
 
-### REQ-ADMIN-0010 — `NOT_TESTED`
+### REQ-ADMIN-0010 — `PASS`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2232). Продукт: Админка.
+- Доказательство: `backend/app/admin_stepup.py`; `tests/test_admin_stepup.py`.
 
 > - Критические операции требовать повторной аутентификации или дополнительного подтверждения в соответствии с риском.
 
-### REQ-ADMIN-0011 — `NOT_TESTED`
+### REQ-ADMIN-0011 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2233). Продукт: Админка.
+- Доказательство: `backend/app/models.py`; `backend/app/main.py`; `backend/app/admin_api.py`; `admin/src/control-center.tsx`.
+- Примечание: В записи есть администратор, действие, объект, время, идентификатор запроса и подробности без секретов. Отдельного поля результата и единого формата «было — стало» нет.
 
 > - Audit log должен содержать actor, action, resource, timestamp, result, correlation ID и безопасный diff без секретов.
 
-### REQ-ADMIN-0012 — `NOT_TESTED`
+### REQ-ADMIN-0012 — `PASS`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2234). Продукт: Админка.
+- Доказательство: `backend/app/audit_seal.py`; `tests/test_audit_seal.py`; `admin/e2e/audit-seal.spec.ts`; `docs/AUDIT_LOG_INTEGRITY.md`; `backend/app/admin_api.py`.
+- Примечание: Записи запечатываются каждые десять минут подписью с секретом сервера; изменённая или удалённая запись находится проверкой. Пределы защиты описаны в документе.
 
 > - Логи аудита должны быть защищены от незаметного изменения и доступны для расследования.
 
-### REQ-ADMIN-0013 — `NOT_TESTED`
+### REQ-ADMIN-0013 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.2. Административные списки и операции (строка 2238). Продукт: Админка.
+- Доказательство: `backend/app/admin_api.py`; `admin/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
+- Примечание: Поиск, фильтры и серверная постраничная выдача есть в основных таблицах. Сохранённых представлений и предпросмотра массовых действий во всех таблицах нет; построчной сверки семи таблиц не было.
 
 > Для таблиц Users, Nodes, Payments, Subscriptions, Orders, Tickets и Audit Logs реализовать поиск, фильтры, сортировку, пагинацию, сохранённые представления, экспорт с RBAC, bulk actions с preview, подтверждением и журналом. Обеспечить серверную пагинацию и устойчивость к большим наборам данных.
 
-### REQ-ADMIN-0014 — `NOT_TESTED`
+### REQ-ADMIN-0014 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.3. Dashboard и мониторинг (строка 2242). Продукт: Админка.
+- Доказательство: `admin/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
+- Примечание: Показатели берутся из базы и панели. Источник, период и время обновления подписаны не у каждого показателя; сверки по списку не было.
 
 > Показывать только реальные метрики с указанием источника, периода и времени последнего обновления: revenue, paid orders, conversion, active/expired subscriptions, churn, node health, latency, traffic, service health, payment provider health, queue lag, failed jobs, webhook failures и incidents. Не подменять отсутствующие данные нулями или фиктивными графиками.
 
-### REQ-ADMIN-0015 — `NOT_TESTED`
+### REQ-ADMIN-0015 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2246). Продукт: Админка.
+- Доказательство: `admin/src/control-center.tsx`; `backend/app/ecosystem_updates.py`; `admin/src/ecosystem-updates.tsx`; `backend/app/ops_alerts.py`.
+- Примечание: «Центр управления» и «Готовность» сводят сервисы, ноды, платежи, копии; обновления сведены отдельной таблицей. Состояния мобильных сборок и CI на одном экране нет.
 
 > - Объединить статус сервисов, нод, интеграций, платежей, бота, Mini App, кабинета, мобильных сборок, backup jobs и CI/CD.
 
-### REQ-ADMIN-0016 — `NOT_TESTED`
+### REQ-ADMIN-0016 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2247). Продукт: Админка.
+- Примечание: Жизненного цикла инцидента (обнаружен, принят, расследуется, смягчён, решён, разбор) в панели нет. Есть режим обслуживания и документ docs/ru/new/INCIDENT_RESPONSE.md.
 
 > - Ввести incident lifecycle: detected, acknowledged, investigating, mitigated, resolved, postmortem.
 
-### REQ-ADMIN-0017 — `NOT_TESTED`
+### REQ-ADMIN-0017 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2248). Продукт: Админка.
+- Примечание: Карточки инцидента с владельцем, серьёзностью, влиянием, хронологией и разбором нет.
 
 > - Показывать владельца инцидента, severity, impact, timeline, связанные alerts, действия и postmortem.
 
-### REQ-ADMIN-0018 — `NOT_TESTED`
+### REQ-ADMIN-0018 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2249). Продукт: Админка.
+- Доказательство: `backend/app/rw_jobs.py`; `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `backend/app/rw_api.py`.
+- Примечание: Установка и смена протокола идут задачами на сервере с ходом, журналом и откатом. Ключа идемпотентности, общего срока и правила отмены у всех опасных действий нет.
 
 > - Опасные действия выполнять через backend jobs с idempotency key, progress, logs, timeout, cancellation policy и rollback strategy.
 
-### REQ-ADMIN-0019 — `NOT_TESTED`
+### REQ-ADMIN-0019 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2250). Продукт: Админка.
+- Доказательство: `admin/e2e/torrent-ban.spec.ts`; `admin/e2e/protocol-switch.spec.ts`; `admin/e2e/autoselect.spec.ts`; `admin/e2e/rw-drift.spec.ts`.
+- Примечание: В проверенных разделах экран меняется только после ответа сервера. По всем разделам это не проверено.
 
 > - UI не должен утверждать, что операция выполнена, пока backend не вернул подтверждённый результат.
 

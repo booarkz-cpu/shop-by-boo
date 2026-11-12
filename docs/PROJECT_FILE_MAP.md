@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.124.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.125.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2492**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2498**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -120,6 +120,7 @@
 | [admin/e2e/all-sections.spec.ts](../admin/e2e/all-sections.spec.ts) | Админ-панель |
 | [admin/e2e/app-config.spec.ts](../admin/e2e/app-config.spec.ts) | Админ-панель |
 | [admin/e2e/app-growth.spec.ts](../admin/e2e/app-growth.spec.ts) | Админ-панель |
+| [admin/e2e/audit-seal.spec.ts](../admin/e2e/audit-seal.spec.ts) | Админ-панель |
 | [admin/e2e/automation.spec.ts](../admin/e2e/automation.spec.ts) | Админ-панель |
 | [admin/e2e/autoselect.spec.ts](../admin/e2e/autoselect.spec.ts) | Админ-панель |
 | [admin/e2e/bot-banners.spec.ts](../admin/e2e/bot-banners.spec.ts) | Админ-панель |
@@ -172,6 +173,7 @@
 | [admin/src/app/page.tsx](../admin/src/app/page.tsx) | Админ-панель |
 | [admin/src/appConfig.tsx](../admin/src/appConfig.tsx) | Админ-панель |
 | [admin/src/appGrowth.tsx](../admin/src/appGrowth.tsx) | Админ-панель |
+| [admin/src/audit-seal.tsx](../admin/src/audit-seal.tsx) | Админ-панель |
 | [admin/src/autoUpdate.tsx](../admin/src/autoUpdate.tsx) | Админ-панель |
 | [admin/src/automation.tsx](../admin/src/automation.tsx) | Админ-панель |
 | [admin/src/automationCenter.tsx](../admin/src/automationCenter.tsx) | Админ-панель |
@@ -436,6 +438,7 @@
 | [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
 | [backend/app/assets/cabinet_strings.json](../backend/app/assets/cabinet_strings.json) | API, бот и worker |
 | [backend/app/assets/mobile_strings.json](../backend/app/assets/mobile_strings.json) | API, бот и worker |
+| [backend/app/audit_seal.py](../backend/app/audit_seal.py) | API, бот и worker |
 | [backend/app/auth_api.py](../backend/app/auth_api.py) | API, бот и worker |
 | [backend/app/auto_update_api.py](../backend/app/auto_update_api.py) | API, бот и worker |
 | [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
@@ -796,6 +799,7 @@
 | [docker-compose.test.yml](../docker-compose.test.yml) | Корень проекта |
 | [docker-compose.yml](../docker-compose.yml) | Корень проекта |
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
+| [docs/AUDIT_LOG_INTEGRITY.md](../docs/AUDIT_LOG_INTEGRITY.md) | Документация |
 | [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
 | [docs/AUTO_SELECTION.md](../docs/AUTO_SELECTION.md) | Документация |
 | [docs/AUTO_UPDATE.md](../docs/AUTO_UPDATE.md) | Документация |
@@ -1175,6 +1179,7 @@
 | [docs/ru/RELEASE_V28_122_0.md](../docs/ru/RELEASE_V28_122_0.md) | Документация |
 | [docs/ru/RELEASE_V28_123_0.md](../docs/ru/RELEASE_V28_123_0.md) | Документация |
 | [docs/ru/RELEASE_V28_124_0.md](../docs/ru/RELEASE_V28_124_0.md) | Документация |
+| [docs/ru/RELEASE_V28_125_0.md](../docs/ru/RELEASE_V28_125_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
@@ -2231,6 +2236,7 @@
 | [tests/test_app_config.py](../tests/test_app_config.py) | Проверки |
 | [tests/test_app_growth.py](../tests/test_app_growth.py) | Проверки |
 | [tests/test_app_login.py](../tests/test_app_login.py) | Проверки |
+| [tests/test_audit_seal.py](../tests/test_audit_seal.py) | Проверки |
 | [tests/test_audit_v2009_runtime.py](../tests/test_audit_v2009_runtime.py) | Проверки |
 | [tests/test_auto_update_agent.py](../tests/test_auto_update_agent.py) | Проверки |
 | [tests/test_auto_update_api.py](../tests/test_auto_update_api.py) | Проверки |
