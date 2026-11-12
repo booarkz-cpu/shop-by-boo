@@ -101,3 +101,26 @@ async def test_parallel_reset_exactly_once_on_postgres(database,monkeypatch):
                 await db.rollback();return False
     results=await asyncio.gather(reset('first-password'),reset('second-password'))
     assert results.count(True)==1
+
+
+@pytest.mark.asyncio
+async def test_reset_request_does_not_tell_whether_the_account_exists(database,monkeypatch):
+    """Master prompt v6 (REQ-SHOP-0016): the same answer for a known address, an unknown one and an account without a password."""
+    monkeypatch.setattr(actions.settings,'smtp_host','smtp.example.test')
+    monkeypatch.setattr(actions.settings,'smtp_from','shop@example.test')
+    monkeypatch.setattr(actions.settings,'cabinet_url','https://cabinet.example.test')
+    user=await database.get(User,1);user.email='owner@example.test';user.email_password_hash=hash_password('old-password')
+    await database.commit()
+    before=await database.scalar(select(func.count()).select_from(AccountAction))
+    answers=[]
+    for email in ('owner@example.test','nobody@example.test'):
+        response=Response()
+        body=await actions.request_reset(actions.EmailIn(email=email),request(),response,database)
+        answers.append((body,response.headers.get('cache-control')))
+    assert answers[0]==answers[1] and answers[0][0]['ok'] is True and answers[0][1]=='private, no-store'
+    # A reset is prepared only for the address that has a password; the unknown address gets none.
+    assert await database.scalar(select(func.count()).select_from(AccountAction))==before+1
+    # Asked again at once: no second letter (two-minute limit), and still the same answer.
+    response=Response()
+    assert (await actions.request_reset(actions.EmailIn(email='owner@example.test'),request(),response,database),response.headers.get('cache-control'))==answers[0]
+    assert await database.scalar(select(func.count()).select_from(AccountAction))==before+1
