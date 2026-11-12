@@ -4,8 +4,10 @@ import {StatusBadge} from "./components/ui/status";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Plan = {id: number; name: string; enabled: boolean; traffic_limit_gb: number | null};
-type Node = {server_id: number; name: string; address: string; domain: string | null; ready: boolean; installed: boolean; port: number | null; users: number | null; synced_at: string | null; error: string | null};
-type View = {enabled: boolean; plan_ids: number[]; port: number; plans: Plan[]; nodes: Node[]; users: number; images: {xray: string; haproxy: string}; notes: string[]};
+type Shield = {strict_sni: boolean; tls_like_site: boolean; probe_ban: boolean; ban_after: number; ban_minutes: number};
+type Node = {server_id: number; name: string; address: string; domain: string | null; ready: boolean; installed: boolean; port: number | null; users: number | null; synced_at: string | null; error: string | null; shield: Shield | null};
+type Probe = {domain: string; port: number; same: boolean; checks: {check: string; same: boolean; differences: string[]}[]; limits: string[]};
+type View = {enabled: boolean; plan_ids: number[]; port: number; plans: Plan[]; nodes: Node[]; users: number; images: {xray: string; haproxy: string}; notes: string[]; shield_default: Shield};
 type UserRow = {subscription_id: number; user_id: number; plan_id: number; login: string; expires_at: string; url: string};
 type Traffic = {subscription_id: number | null; user_id: number | null; login: string; uplink: number; downlink: number};
 type Status = {users: number; port: number; certificate_until: string; traffic: Traffic[]};
@@ -26,6 +28,9 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
   const [users, setUsers] = useState<{total: number; items: UserRow[]} | null>(null);
   const [status, setStatus] = useState<{node: string; data: Status} | null>(null);
   const [confirm, setConfirm] = useState<Node | null>(null);
+  const [reissueOf, setReissueOf] = useState<UserRow | null>(null);
+  const [setup, setSetup] = useState<{node: Node; shield: Shield} | null>(null);
+  const [probe, setProbe] = useState<{node: string; data: Probe} | null>(null);
 
   function show(next: View) {
     setView(next);
@@ -56,10 +61,17 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
     show(await request(`${API}/settings`, {method: "PUT", headers: JSON_HEADERS, body: JSON.stringify({enabled, plan_ids: plans, port: Number(port)})}));
     toast("Настройки MASQUE сохранены");
   });
-  const install = (n: Node) => act(`install-${n.server_id}`, async () => {
-    show(await request(`${API}/nodes/${n.server_id}/install`, {method: "POST"}));
-    toast(`MASQUE установлен на ${n.name}`);
+  const shieldOk = !!setup && Number.isInteger(setup.shield.ban_after) && setup.shield.ban_after >= 5 && setup.shield.ban_after <= 500
+    && Number.isInteger(setup.shield.ban_minutes) && setup.shield.ban_minutes >= 1 && setup.shield.ban_minutes <= 1440;
+  const install = (n: Node, shield: Shield) => act(`install-${n.server_id}`, async () => {
+    setSetup(null);
+    show(await request(`${API}/nodes/${n.server_id}/install`, {method: "POST", headers: JSON_HEADERS, body: JSON.stringify({shield})}));
+    toast(n.installed ? `Защиты на ${n.name} изменены` : `MASQUE установлен на ${n.name}`);
   });
+  const runProbe = (n: Node) => act(`probe-${n.server_id}`, async () => {
+    setProbe({node: n.name, data: await request(`${API}/nodes/${n.server_id}/probe`, {method: "POST"})});
+  });
+  const shieldText = (s: Shield | null) => !s ? "—" : [s.strict_sni && "строгий SNI", s.tls_like_site && "TLS как у сайта", s.probe_ban && `блокировка после ${s.ban_after} отказов на ${s.ban_minutes} мин.`].filter(Boolean).join(", ") || "только базовые";
   const remove = (n: Node) => act(`remove-${n.server_id}`, async () => {
     setConfirm(null);
     show(await request(`${API}/nodes/${n.server_id}/remove`, {method: "POST"}));
@@ -74,6 +86,12 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
     toast("Список пользователей отправлен на ноды");
   });
   const loadUsers = () => act("users", async () => setUsers(await request(`${API}/users?limit=50`)));
+  const reissue = (u: UserRow) => act(`reissue-${u.subscription_id}`, async () => {
+    setReissueOf(null);
+    const next = await request(`${API}/users/${u.subscription_id}/reissue`, {method: "POST"});
+    setUsers((list) => list && {...list, items: list.items.map((i) => (i.subscription_id === u.subscription_id ? {...i, url: next.url, login: next.login} : i))});
+    toast(`Подписке ${u.subscription_id} выдана новая ссылка`);
+  });
   const copy = (url: string) => navigator.clipboard?.writeText(url).then(() => toast("Ссылка скопирована"), () => toast("Не удалось скопировать"));
 
   return (
@@ -114,7 +132,7 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
         {view.nodes.length === 0 ? <p className="muted">Нод, установленных магазином, нет. MASQUE ставится на ноду с сайтом SelfSteal.</p> : (
           <div className="table-scroll">
             <table>
-              <thead><tr><th>Нода</th><th>Домен сайта</th><th>Состояние</th><th>Пользователей</th><th>Сверено</th><th>Действия</th></tr></thead>
+              <thead><tr><th>Нода</th><th>Домен сайта</th><th>Состояние</th><th>Защиты</th><th>Пользователей</th><th>Сверено</th><th>Действия</th></tr></thead>
               <tbody>
                 {view.nodes.map((n) => (
                   <tr key={n.server_id} data-masque-panel-node={n.name}>
@@ -125,12 +143,15 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
                         : n.ready ? <StatusBadge tone="idle">не установлен</StatusBadge> : <StatusBadge tone="warn">нет сайта SelfSteal</StatusBadge>}
                       {n.error && <div className="muted">{n.error}</div>}
                     </td>
+                    <td>{n.installed ? shieldText(n.shield) : "—"}</td>
                     <td>{n.installed ? n.users ?? "—" : "—"}</td>
                     <td>{n.installed ? when(n.synced_at) : "—"}</td>
                     <td>
-                      {!n.installed && <button type="button" className="secondary" disabled={!n.ready || !!busy} onClick={() => install(n)}>{busy === `install-${n.server_id}` ? "Устанавливаю…" : "Установить"}</button>}
+                      {!n.installed && <button type="button" className="secondary" disabled={!n.ready || !!busy} onClick={() => setSetup({node: n, shield: {...view.shield_default}})}>{busy === `install-${n.server_id}` ? "Устанавливаю…" : "Установить"}</button>}
                       {n.installed && <>
                         <button type="button" className="secondary" disabled={!!busy} onClick={() => check(n)}>{busy === `status-${n.server_id}` ? "Проверяю…" : "Проверить"}</button>{" "}
+                        <button type="button" className="secondary" disabled={!!busy} onClick={() => runProbe(n)}>{busy === `probe-${n.server_id}` ? "Смотрю снаружи…" : "Проверить маскировку"}</button>{" "}
+                        <button type="button" className="secondary" disabled={!!busy} onClick={() => setSetup({node: n, shield: {...(n.shield || view.shield_default)}})}>{busy === `install-${n.server_id}` ? "Меняю…" : "Изменить защиты"}</button>{" "}
                         <button type="button" className="secondary" disabled={!!busy} onClick={() => setConfirm(n)}>{busy === `remove-${n.server_id}` ? "Удаляю…" : "Удалить"}</button>
                       </>}
                     </td>
@@ -138,6 +159,37 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        {setup && (
+          <form role="dialog" aria-label="Защиты от обнаружения" className="card" data-masque-panel-setup onSubmit={(e) => { e.preventDefault(); if (shieldOk) install(setup.node, setup.shield); }}>
+            <h3>{setup.node.installed ? `Защиты на ноде «${setup.node.name}»` : `Установка MASQUE на «${setup.node.name}»`}</h3>
+            <p className="muted">Всегда включено: на порту виден сайт SelfSteal; в туннель попадает только запрос на секретный путь; любой другой запрос, даже на этот путь, получает страницу сайта; служебные страницы прокси заменены.</p>
+            <label className="check"><input type="checkbox" checked={setup.shield.strict_sni} onChange={(e) => setSetup({...setup, shield: {...setup.shield, strict_sni: e.target.checked}})} /> Строгий SNI — без имени домена сертификат не выдаётся, сканер по IP не узнает домен</label>
+            <label className="check"><input type="checkbox" checked={setup.shield.tls_like_site} onChange={(e) => setSetup({...setup, shield: {...setup.shield, tls_like_site: e.target.checked}})} /> TLS как у сайта — версии, шифры и кривые те же, что у сайта на порту 443</label>
+            <label className="check"><input type="checkbox" checked={setup.shield.probe_ban} onChange={(e) => setSetup({...setup, shield: {...setup.shield, probe_ban: e.target.checked}})} /> Блокировка зондирования — адрес, который подбирает пароли или пути, видит только сайт</label>
+            {setup.shield.probe_ban && <>
+              <label>Отказов до блокировки (5–500)
+                <input inputMode="numeric" value={String(setup.shield.ban_after)} onChange={(e) => setSetup({...setup, shield: {...setup.shield, ban_after: Number(e.target.value.replace(/\D/g, "") || 0)}})} />
+              </label>
+              <label>Срок блокировки, минут (1–1440)
+                <input inputMode="numeric" value={String(setup.shield.ban_minutes)} onChange={(e) => setSetup({...setup, shield: {...setup.shield, ban_minutes: Number(e.target.value.replace(/\D/g, "") || 0)}})} />
+              </label>
+              <p className="muted">Клиент сам повторяет попытку несколько раз, поэтому порог не делайте маленьким. У мобильных операторов один адрес бывает у многих абонентов: покупатель с истёкшей подпиской может на время закрыть MASQUE соседям по адресу.</p>
+              {!shieldOk && <p role="alert">Порог — от 5 до 500, срок — от 1 до 1440 минут.</p>}
+            </>}
+            {setup.node.installed && <p>Контейнеры будут пересозданы: открытые туннели на этой ноде переподключатся.</p>}
+            <button type="submit" disabled={!shieldOk || !!busy}>{setup.node.installed ? "Применить" : "Установить"}</button>{" "}
+            <button type="button" className="secondary" onClick={() => setSetup(null)}>Отмена</button>
+          </form>
+        )}
+        {probe && (
+          <div data-masque-panel-probe>
+            <h3>Маскировка ноды «{probe.node}» снаружи</h3>
+            <p role="status"><StatusBadge tone={probe.data.same ? "ok" : "warn"}>{probe.data.same ? "Порт отвечает как сайт" : "Есть отличия от сайта"}</StatusBadge> Сравнение ответов порта {probe.data.port} и порта 443.</p>
+            <ul>{probe.data.checks.map((c) => <li key={c.check}><strong>{c.check}:</strong> {c.same ? "одинаково" : c.differences.join("; ")}</li>)}</ul>
+            <p className="muted">Чего маскировка не скрывает:</p>
+            <ul className="muted">{probe.data.limits.map((l) => <li key={l}>{l}</li>)}</ul>
           </div>
         )}
         {confirm && (
@@ -171,9 +223,17 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
               <thead><tr><th>Подписка</th><th>Покупатель</th><th>Логин</th><th>Действует до</th><th>Ссылка</th></tr></thead>
               <tbody>
                 {users.items.map((u) => <tr key={u.subscription_id}><td>{u.subscription_id}</td><td>{u.user_id}</td><td><code>{u.login}</code></td><td>{when(u.expires_at)}</td>
-                  <td><button type="button" className="secondary" onClick={() => copy(u.url)} aria-label={`Скопировать ссылку подписки ${u.subscription_id}`}>Скопировать</button></td></tr>)}
+                  <td><button type="button" className="secondary" onClick={() => copy(u.url)} aria-label={`Скопировать ссылку подписки ${u.subscription_id}`}>Скопировать</button>{" "}
+                    <button type="button" className="secondary" disabled={!!busy} onClick={() => setReissueOf(u)} aria-label={`Выдать новую ссылку подписке ${u.subscription_id}`}>Новая ссылка</button></td></tr>)}
               </tbody>
             </table>
+            {reissueOf && (
+              <div role="alertdialog" aria-label="Выдать новую ссылку" className="card" data-masque-panel-reissue>
+                <p>Выдать подписке {reissueOf.subscription_id} новую ссылку MASQUE? Старая ссылка и логин перестанут работать сразу, покупателю нужно будет добавить новую.</p>
+                <button type="button" onClick={() => reissue(reissueOf)}>Выдать новую</button>{" "}
+                <button type="button" className="secondary" onClick={() => setReissueOf(null)}>Отмена</button>
+              </div>
+            )}
             {users.total > users.items.length && <p className="muted">Показаны первые {users.items.length} из {users.total}.</p>}
           </div>
         ))}

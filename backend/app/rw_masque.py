@@ -41,7 +41,7 @@ PREFIX = re.compile(r"^[a-z0-9]{16,40}\Z")
 EMAIL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._@-]{0,63}\Z")
 
 __all__ = ["XRAY_IMAGE", "HAPROXY_IMAGE", "NODE", "credentials", "new_prefix", "path", "server_config", "haproxy_cfg", "compose",
-           "bundle", "client_config", "parse_result"]
+           "bundle", "client_config", "parse_result", "shield", "SHIELD_DEFAULT"]
 
 
 def credentials(secret: str, key: str) -> tuple[str, str]:
@@ -92,14 +92,59 @@ def server_config(domain: str, users: list[dict], prefix: str) -> dict:
     }
 
 
-def haproxy_cfg(domain: str, port: int, prefix: str) -> str:
+# Protections against detection that the owner chooses when a node is installed (decision of 2026-11-12).
+# The block counts refusals per address, and a client retries by itself, so the default threshold is not small;
+# customers of one mobile operator can share an address — hence a short default term.
+SHIELD_DEFAULT = {"strict_sni": True, "tls_like_site": True, "probe_ban": True, "ban_after": 30, "ban_minutes": 10}
+# Caddy's (Go's) defaults, in its order: what a visitor of port 443 negotiates with the same site.
+SITE_TLS13 = "TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256"
+SITE_TLS12 = ("ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:"
+              "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305")
+SITE_CURVES = "X25519:P-256:P-384"
+# What Go's net/http (Caddy) answers to a request it cannot parse — instead of HAProxy's own HTML page.
+ERROR_400 = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain; charset=utf-8\r\nConnection: close\r\n\r\n400 Bad Request"
+
+
+def shield(value: dict | None = None) -> dict:
+    """The chosen protections, validated; anything missing takes the default."""
+    raw = {**SHIELD_DEFAULT, **(value or {})}
+    out = {key: bool(raw[key]) for key in ("strict_sni", "tls_like_site", "probe_ban")}
+    try:
+        out["ban_after"], out["ban_minutes"] = int(raw["ban_after"]), int(raw["ban_minutes"])
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Порог и срок блокировки — целые числа") from exc
+    if not 5 <= out["ban_after"] <= 500:
+        raise ValueError("Порог блокировки: от 5 до 500 отказов")
+    if not 1 <= out["ban_minutes"] <= 1440:
+        raise ValueError("Срок блокировки: от 1 минуты до суток")
+    return out
+
+
+def haproxy_cfg(domain: str, port: int, prefix: str, protections: dict | None = None) -> str:
+    """The public side. Always: only an extended CONNECT to the secret path reaches Xray — any other request, the
+    secret path included, is answered by the SelfSteal site; HAProxy's own error pages are replaced."""
     if not DOMAIN.match(domain) or not PREFIX.match(prefix):
         raise ValueError("Некорректные настройки MASQUE")
-    port = _port(port)
-    tls = "ssl crt /tls/site.pem alpn h2,http/1.1"
+    port, opts = _port(port), shield(protections)
+    tls = "ssl crt /tls/site.pem alpn h2,http/1.1" + (" strict-sni" if opts["strict_sni"] else "")
+    site_tls = f"""	ssl-default-bind-options ssl-min-ver TLSv1.2
+	ssl-default-bind-ciphersuites {SITE_TLS13}
+	ssl-default-bind-ciphers {SITE_TLS12}
+	ssl-default-bind-curves {SITE_CURVES}
+""" if opts["tls_like_site"] else ""
+    # HAProxy sees an HTTP/2 extended CONNECT (RFC 8441) as a request with «Upgrade: <protocol>»; that is what the
+    # tunnel rule matches. A plain GET of the secret path has no such header and goes to the site.
+    # A banned address keeps getting the site — also on the right path — so the ban cannot be seen from outside.
+    # The entry lives ban_minutes after the address's last request.
+    ban_track = f"""	stick-table type ipv6 size 100k expire {opts["ban_minutes"]}m store gpc1
+	http-request track-sc0 src
+	http-request sc-inc-gpc1(0) if {{ req.hdr(upgrade) -i connect-ip }} !{{ path_beg /{prefix}/ }}
+""" if opts["probe_ban"] else ""
+    ban_acl = f" !{{ sc0_get_gpc1 ge {opts['ban_after']} }}" if opts["probe_ban"] else ""
+    ban_count = "	http-response sc-inc-gpc1(0) if { status 401 }\n" if opts["probe_ban"] else ""
     return f"""global
 	log stdout format raw local0 notice
-defaults
+{site_tls}defaults
 	mode http
 	log global
 	timeout connect 5s
@@ -107,13 +152,20 @@ defaults
 	timeout server 1h
 	timeout tunnel 1h
 	timeout http-request 15s
+	errorfile 400 /errors/400.http
+	errorfile 408 /dev/null
+	errorfile 500 /dev/null
+	errorfile 502 /dev/null
+	errorfile 503 /dev/null
+	errorfile 504 /dev/null
 frontend public
 	bind :{port} {tls}
 #V6#	bind :::{port} v6only {tls}
-	use_backend tunnel if {{ path_beg /{prefix}/ }}
+	http-request deny deny_status 400 if !{{ req.hdr(host) -m found }}
+{ban_track}	use_backend tunnel if {{ req.hdr(upgrade) -i connect-ip }} {{ path_beg /{prefix}/ }}{ban_acl}
 	default_backend site
 backend tunnel
-	server xray 127.0.0.1:{INNER_PORT} ssl verify none alpn h2 sni str({domain})
+{ban_count}	server xray 127.0.0.1:{INNER_PORT} ssl verify none alpn h2 sni str({domain})
 backend site
 	http-request set-header Host {domain}
 	server site unix@{SELFSTEAL_SOCKET} ssl verify none alpn h2,http/1.1 sni str({domain}) send-proxy
@@ -137,18 +189,19 @@ def compose() -> str:
     # root inside the container: the SelfSteal socket of the node's Caddy is writable by its owner only.
     user: "0:0"
     command: ["haproxy", "-W", "-db", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
-    volumes: ["./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro", "./tls/haproxy:/tls:ro", "/dev/shm:/dev/shm:rw"]
+    volumes: ["./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro", "./tls/haproxy:/tls:ro", "./errors:/errors:ro", "/dev/shm:/dev/shm:rw"]
     depends_on: [xray]
 """
 
 
-def bundle(domain: str, port: int, prefix: str, users: list[dict]) -> bytes:
+def bundle(domain: str, port: int, prefix: str, users: list[dict], protections: dict | None = None) -> bytes:
     """What the node script receives on stdin: a tar.gz with every file of the stack and the list of logins."""
     config = server_config(domain, users, prefix)
     files = {
         "config.json": json.dumps(config, ensure_ascii=False, separators=(",", ":")),
-        "haproxy.cfg": haproxy_cfg(domain, port, prefix),
+        "haproxy.cfg": haproxy_cfg(domain, port, prefix, protections),
         "docker-compose.yml": compose(),
+        "400.http": ERROR_400,
         "users": "".join(u["email"] + "\n" for u in config["inbounds"][0]["settings"]["users"]),
     }
     out = io.BytesIO()
@@ -212,7 +265,7 @@ on|sync)
   cat > "$tmp/b.tgz"
   [ "$(sha256sum "$tmp/b.tgz" | cut -d' ' -f1)" = "$sum" ] || { echo "bad archive"; exit 3; }
   mkdir "$tmp/x"; tar -xzf "$tmp/b.tgz" -C "$tmp/x" --no-same-owner
-  for f in config.json haproxy.cfg docker-compose.yml users; do [ -f "$tmp/x/$f" ] || { echo "bad archive"; exit 3; }; done
+  for f in config.json haproxy.cfg docker-compose.yml users 400.http; do [ -f "$tmp/x/$f" ] || { echo "bad archive"; exit 3; }; done
   if [ "$action" = sync ]; then
     running "$xr" || { echo "not installed"; exit 8; }
     install -m 0640 -o 0 -g 65532 "$tmp/x/config.json" "$dir/xray/config.json.new"; mv -f "$dir/xray/config.json.new" "$dir/xray/config.json"
@@ -257,6 +310,7 @@ EOF
   install -m 0640 -o 0 -g 65532 "$tmp/x/config.json" "$dir/xray/config.json"
   if [ -e /proc/net/if_inet6 ]; then sed 's/^#V6#//' "$tmp/x/haproxy.cfg" > "$dir/haproxy.cfg"; else grep -v '^#V6#' "$tmp/x/haproxy.cfg" > "$dir/haproxy.cfg"; fi
   chmod 0644 "$dir/haproxy.cfg"
+  install -d -m 0755 "$dir/errors"; install -m 0644 "$tmp/x/400.http" "$dir/errors/400.http"
   install -m 0644 "$tmp/x/docker-compose.yml" "$dir/docker-compose.yml"
   cd "$dir"
   docker compose up -d --force-recreate --quiet-pull >/dev/null 2>&1 || { echo "compose failed"; docker compose logs --tail 20 2>&1 | tail -n 20; exit 6; }

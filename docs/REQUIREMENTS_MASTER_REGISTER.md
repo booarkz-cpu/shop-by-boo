@@ -2275,8 +2275,8 @@
 ### REQ-MASQUE-0007 — `PARTIAL`
 
 - Источник: Часть I → Masque → Subscriptions (строка 425). Продукт: Все три.
-- Доказательство: `backend/app/masque_panel.py`; `backend/app/rw_masque.py`; `tests/test_masque_panel.py`; `docs/MASQUE_PANEL.md`.
-- Примечание: MASQUE выдаётся своей подпиской в формате JSON и не затрагивает подписку Remnawave. Ссылок для v2rayNG и NekoBox нет; на этих клиентах не проверено.
+- Доказательство: `backend/app/masque_panel.py`; `backend/app/rw_masque.py`; `tests/test_masque_panel.py`; `docs/MASQUE_PANEL.md`; `cabinet/src/masque.tsx`; `cabinet/src/masque.test.tsx`.
+- Примечание: MASQUE выдаётся своей подпиской в формате JSON и не затрагивает подписку Remnawave; покупатель видит ссылку в кабинете и Mini App и может её перевыпустить. Ссылок для v2rayNG и NekoBox нет; на клиентах не проверено.
 
 > VLESS Reality; Hysteria 2; MASQUE; JSON/Base64 bundle; v2rayNG; NekoBox. Неподдерживаемый MASQUE не должен ломать остальные конфигурации.
 
@@ -2284,15 +2284,15 @@
 
 - Источник: Часть I → Masque → Admin Ui (строка 429). Продукт: Все три.
 - Доказательство: `admin/src/masque-panel.tsx`; `admin/e2e/masque-panel.spec.ts`; `admin/src/masque.tsx`; `backend/app/masque_panel.py`.
-- Примечание: Есть переключатель выдачи, выбор тарифов, установка и удаление, проверка совместимости, состояние ноды, понятные причины отказа. Пошагового прогресса установки нет: кнопка ждёт результата.
+- Примечание: Есть переключатель выдачи, выбор тарифов, установка с выбором защит, изменение защит, удаление, проверка совместимости и маскировки, состояние ноды, понятные причины отказа. Пошагового прогресса установки нет: кнопка ждёт результата.
 
 > Переключатели MASQUE; проверка совместимости; скрытие дублирующих настроек; fallback domain; мониторинг установки; прогресс; диагностика.
 
 ### REQ-MASQUE-0009 — `PASS`
 
 - Источник: Часть I → Masque → Anti Dpi (строка 433). Продукт: Все три.
-- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `scripts/ci/masque-check.sh`.
-- Примечание: Посторонний видит сайт SelfSteal и его 404, в том числе на неверном секретном пути — проверено в CI. Ограничения маскировки описаны в отчёте, §9. Защита от DPI не обещается.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `scripts/ci/masque-check.sh`; `backend/app/rw_masque.py`; `tests/test_masque_panel.py`.
+- Примечание: Посторонний видит сайт SelfSteal и его 404, в том числе на секретном пути; строгий SNI, TLS как у сайта, ответы на непонятные запросы и незаметная блокировка зондирования проверены в CI. Ограничения описаны в отчёте, §9. Защита от DPI не обещается.
 
 > Исследовать unauthorized requests; probing; fallback; легитимный веб-сервер; ограничения защиты. Не обещать гарантированную защиту от DPI.
 
