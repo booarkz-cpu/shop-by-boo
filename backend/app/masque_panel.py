@@ -28,7 +28,7 @@ from . import rw_masque
 from .config import settings
 from .db import get_db
 from .models import Plan, Subscription
-from .security import require_permission, require_stepup
+from .security import require_permission
 
 router = APIRouter(tags=["masque"])
 
@@ -235,7 +235,7 @@ async def panel(db: AsyncSession = Depends(get_db), admin=Depends(require_permis
 
 
 @router.put("/api/admin/masque/panel/settings")
-async def save_settings(payload: SettingsIn, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("provision_nodes"))):
+async def save_settings(payload: SettingsIn, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     from .main import audit
     state = await _state(db)
     known = {p.id for p in (await db.execute(select(Plan))).scalars().all()}
@@ -250,7 +250,7 @@ async def save_settings(payload: SettingsIn, db: AsyncSession = Depends(get_db),
 
 
 @router.post("/api/admin/masque/panel/nodes/{server_id}/install")
-async def install(server_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("provision_nodes"))):
+async def install(server_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     from .main import audit
     from .rw_api import _busy
     from .rw_selfsteal import known_nodes
@@ -275,7 +275,7 @@ async def install(server_id: int, db: AsyncSession = Depends(get_db), admin=Depe
 
 
 @router.post("/api/admin/masque/panel/nodes/{server_id}/remove")
-async def remove(server_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("provision_nodes"))):
+async def remove(server_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     from .main import audit
     state = await _state(db)
     if str(server_id) not in state["nodes"]:
@@ -320,7 +320,7 @@ async def status(server_id: int, db: AsyncSession = Depends(get_db), admin=Depen
 
 
 @router.post("/api/admin/masque/panel/sync")
-async def sync(db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("provision_nodes"))):
+async def sync(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     from .main import audit
     state = await _state(db)
     users = users_of(await _live_subs(db, state, _naive()))
@@ -335,7 +335,7 @@ async def sync(db: AsyncSession = Depends(get_db), admin=Depends(require_stepup(
 
 
 @router.get("/api/admin/masque/panel/users")
-async def users(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db), admin=Depends(require_stepup("provision_nodes"))):
+async def users(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     """Who has MASQUE now, with the subscription link (a link is a secret: the same right as managing nodes)."""
     state = await _state(db)
     subs = sorted(await _live_subs(db, state, _naive()), key=lambda s: s.id)
