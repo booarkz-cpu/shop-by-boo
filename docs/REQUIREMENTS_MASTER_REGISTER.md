@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **106** — 16.2%.
+- Подтверждено (`PASS`): **110** — 16.8%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 106 | Проверено, доказательство указано |
-| `PARTIAL` | 139 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 17 | Функции нет |
+| `PASS` | 110 | Проверено, доказательство указано |
+| `PARTIAL` | 146 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 18 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 390 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 378 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -31,7 +31,7 @@
 | Lucy Admin | 19 | 3 | 11 | 0 | 0 |
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 1 | 13 | 0 | 0 |
-| MASQUE | 12 | 0 | 0 | 0 | 12 |
+| MASQUE | 12 | 4 | 7 | 0 | 0 |
 | Ноды: установка, обслуживание, защита | 71 | 13 | 23 | 0 | 34 |
 | Автовыбор | 35 | 21 | 13 | 0 | 1 |
 | Инфраструктура, установщик, копии | 41 | 3 | 0 | 0 | 38 |
@@ -118,7 +118,7 @@
 ### REQ-GOV-0012 — `NOT_TESTED`
 
 - Источник: Часть I → State Tracking → Files (строка 908). Продукт: Все три.
-- Названные файлы: `AUTOMATION_LOG.md` — есть (`docs/AUTOMATION_LOG.md`); `IMPLEMENTATION_STATUS.md` — есть (`docs/ru/new/IMPLEMENTATION_STATUS.md`); `KNOWN_LIMITATIONS.md` — есть (`docs/ru/new/KNOWN_LIMITATIONS.md`); `MASTER_ROADMAP.md` — нет; `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет; `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет; `docs/AUTO_SELECTION.md` — есть (`docs/AUTO_SELECTION.md`); `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`); `docs/MASQUE_IMPLEMENTATION_REPORT.md` — нет; `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`); `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет; `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`); `docs/SCREENSHOT_COVERAGE.md` — нет.
+- Названные файлы: `AUTOMATION_LOG.md` — есть (`docs/AUTOMATION_LOG.md`); `IMPLEMENTATION_STATUS.md` — есть (`docs/ru/new/IMPLEMENTATION_STATUS.md`); `KNOWN_LIMITATIONS.md` — есть (`docs/ru/new/KNOWN_LIMITATIONS.md`); `MASTER_ROADMAP.md` — нет; `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет; `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет; `docs/AUTO_SELECTION.md` — есть (`docs/AUTO_SELECTION.md`); `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`); `docs/MASQUE_IMPLEMENTATION_REPORT.md` — есть (`docs/MASQUE_IMPLEMENTATION_REPORT.md`); `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`); `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет; `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`); `docs/SCREENSHOT_COVERAGE.md` — нет.
 
 > IMPLEMENTATION_STATUS.md; MASTER_ROADMAP.md; AUTOMATION_LOG.md; KNOWN_LIMITATIONS.md; docs/ADMIN_FEATURE_PARITY_MATRIX.md; docs/SCREENSHOT_COVERAGE.md; docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md; docs/PROJECT_BALANCED_DEVELOPMENT.md; docs/PROJECT_WORKLOAD_MATRIX.md; docs/PROJECT_COMPLETION_MATRIX.md; docs/MASQUE_IMPLEMENTATION_REPORT.md; docs/CODE_REUSE_REGISTER.md; docs/REFERENCE_REPOSITORIES.md; docs/PAYMENT_TESTING.md; docs/AUTO_SELECTION.md.
 
@@ -2224,76 +2224,99 @@
 
 ## MASQUE
 
-### REQ-MASQUE-0001 — `NOT_TESTED`
+### REQ-MASQUE-0001 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Masque → Goal (строка 401). Продукт: Все три.
+- Примечание: Автоустановки MASQUE на ноду нет: панель Remnawave 3.4.10 не выдаёт пользователей для этого протокола, а без пользователей ядро отклоняет все туннели. Причины и условия возврата — в docs/MASQUE_IMPLEMENTATION_REPORT.md, §9–10.
 
 > Максимально автоматизированный Zero-Touch Provisioning MASQUE.
 
-### REQ-MASQUE-0002 — `NOT_TESTED`
+### REQ-MASQUE-0002 — `PARTIAL`
 
 - Источник: Часть I → Masque → Version Claim (строка 405). Продукт: Все три.
+- Доказательство: `backend/app/masque.py`; `tests/test_masque.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: Тега v26.10.10 не существует; магазин требует первый тег не старше него — v26.10.21 — и показывает, на каких нодах ядро подходит. Само ядро нод до этой версии магазин не поднимает.
 
 > Xray-core v26.10.10+
 
-### REQ-MASQUE-0003 — `NOT_TESTED`
+### REQ-MASQUE-0003 — `PASS`
 
 - Источник: Часть I → Masque → Verification (строка 409). Продукт: Все три.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `scripts/masque-selfcheck.sh`; `tests/test_masque.py`.
+- Примечание: Теги, код и документация прочитаны из официальных репозиториев на 2026-11-12; inbound и outbound приняты настоящим Xray 26.11.9, страница получена через туннель по HTTP/3 и HTTP/2 (scripts/masque-selfcheck.sh на runner GitHub).
 
 > Проверить существование версии и реальную поддержку MASQUE по официальным источникам. Не утверждать поддержку без подтверждения.
 
-### REQ-MASQUE-0004 — `NOT_TESTED`
+### REQ-MASQUE-0004 — `PARTIAL`
 
 - Источник: Часть I → Masque → Node Provisioning (строка 413). Продукт: Все три.
+- Доказательство: `backend/app/masque.py`; `backend/app/rw_steps.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: Проверка портов и сертификат ноды (Caddy + копирование таймером) есть и переиспользуются; установки MASQUE на чистую ноду по SSH нет.
 
 > Python/Next.js; Bash; SSH; Docker; установка на чистую ноду; проверка портов; ACME/Let's Encrypt; TLS; безопасная передача сертификатов и ключей.
 
-### REQ-MASQUE-0005 — `NOT_TESTED`
+### REQ-MASQUE-0005 — `PARTIAL`
 
 - Источник: Часть I → Masque → Multiplexing (строка 417). Продукт: Все три.
+- Доказательство: `backend/app/masque.py`; `tests/test_masque.py`; `scripts/masque-selfcheck.sh`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: Конфликты 443, ALPN, ограничения REALITY исследованы; inbound проверен на настоящем Xray. Правил routing для MASQUE и общего 443 через обратный прокси нет. На VPS с настоящим доменом не проверено.
 
 > Исследовать MASQUE HTTP/3 UDP; MASQUE HTTP/2 TCP; Hysteria 2 UDP; VLESS+REALITY TCP/UDP; конфликты 443; разные порты; ALPN; SNI; routing; listener; reverse proxy; ограничения REALITY; QUIC/TCP. Подготовить проверенные inbounds/routing.
 
-### REQ-MASQUE-0006 — `NOT_TESTED`
+### REQ-MASQUE-0006 — `PARTIAL`
 
 - Источник: Часть I → Masque → Grpc (строка 421). Продукт: Все три.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: HandlerService, AddUser/RemoveUser и StatsService проверены по исходникам v26.11.9. Горячей выдачи пользователей, статистики и лимитов для MASQUE в магазине нет: нодами управляет панель.
 
 > Проверить HandlerService, AddInbound, StatsService и необходимые методы. Реализовать hot reload без неоправданного прерывания соединений, точную статистику и синхронизацию лимитов.
 
-### REQ-MASQUE-0007 — `NOT_TESTED`
+### REQ-MASQUE-0007 — `PARTIAL`
 
 - Источник: Часть I → Masque → Subscriptions (строка 425). Продукт: Все три.
+- Доказательство: `backend/app/masque.py`; `tests/test_masque.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: VLESS Reality и Hysteria 2 выдаются подпиской панели; MASQUE в подписку не добавляется и остальные конфигурации не ломает. Готов только проверенный JSON outbound; ссылок для v2rayNG и NekoBox нет.
 
 > VLESS Reality; Hysteria 2; MASQUE; JSON/Base64 bundle; v2rayNG; NekoBox. Неподдерживаемый MASQUE не должен ломать остальные конфигурации.
 
-### REQ-MASQUE-0008 — `NOT_TESTED`
+### REQ-MASQUE-0008 — `PARTIAL`
 
 - Источник: Часть I → Masque → Admin Ui (строка 429). Продукт: Все три.
+- Доказательство: `admin/src/masque.tsx`; `admin/e2e/masque.spec.ts`; `backend/app/masque.py`.
+- Примечание: Есть проверка совместимости: версии ядра нод, конфликты порта, причины. Переключателей, fallback-домена, прогресса и диагностики установки нет — включать нечего.
 
 > Переключатели MASQUE; проверка совместимости; скрытие дублирующих настроек; fallback domain; мониторинг установки; прогресс; диагностика.
 
-### REQ-MASQUE-0009 — `NOT_TESTED`
+### REQ-MASQUE-0009 — `PASS`
 
 - Источник: Часть I → Masque → Anti Dpi (строка 433). Продукт: Все три.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `scripts/masque-selfcheck.sh`.
+- Примечание: Отказ при неверном пароле проверен на настоящем Xray; ответы 401/404, отсутствие сайта-прикрытия и запрет частных адресов описаны в отчёте, §6. Защита от DPI не обещается.
 
 > Исследовать unauthorized requests; probing; fallback; легитимный веб-сервер; ограничения защиты. Не обещать гарантированную защиту от DPI.
 
-### REQ-MASQUE-0010 — `NOT_TESTED`
+### REQ-MASQUE-0010 — `PASS`
 
 - Источник: Часть I → Masque → Alternative Engine (строка 437). Продукт: Все три.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: sing-box проверен по исходникам: masque-server и masque-client с 1.15.0 (alpha). Вывод: препятствие в панели, а не в ядре.
 
 > Если Xray не поддерживает нужное, исследовать sing-box и другие движки.
 
-### REQ-MASQUE-0011 — `NOT_TESTED`
+### REQ-MASQUE-0011 — `PARTIAL`
 
 - Источник: Часть I → Masque → Deliverables (строка 441). Продукт: Все три.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `backend/app/masque.py`; `tests/test_masque.py`; `scripts/masque-selfcheck.sh`.
+- Примечание: Официальное подтверждение, код, конфигурации, тесты, ограничения, безопасность и документация есть для проверочной части; рабочей выдачи MASQUE пользователям нет.
 
 > Архитектура; официальное подтверждение; код; конфигурации; тесты; ограничения; безопасность; документация.
 
-### REQ-MASQUE-0012 — `NOT_TESTED`
+### REQ-MASQUE-0012 — `PASS`
 
 - Источник: Часть I → Masque → Report (строка 445). Продукт: Все три.
-- Названные файлы: `docs/MASQUE_IMPLEMENTATION_REPORT.md` — нет.
+- Названные файлы: `docs/MASQUE_IMPLEMENTATION_REPORT.md` — есть (`docs/MASQUE_IMPLEMENTATION_REPORT.md`).
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: Отчёт написан.
 
 > docs/MASQUE_IMPLEMENTATION_REPORT.md
 
