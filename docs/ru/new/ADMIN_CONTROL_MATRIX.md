@@ -26,7 +26,7 @@
 | 16 | Certificates | Домены и сертификаты | 2 | ✓ | ✓ | · | · | · | · | ✓ | · | `read` | PASS |
 | 17 | Reverse Proxy | Домены и сертификаты | 1 | ✓ | · | · | · | · | · | · | · | `read` | PASS |
 | 18 | Subscription Portal | Портал подписки | 12 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | PASS |
-| 19 | Node Extensions | Расширения Remnawave, Пул автовыбора, Смена протокола | 52 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | PASS |
+| 19 | Node Extensions | Расширения Remnawave, Пул автовыбора, Смена протокола | 54 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | PASS |
 | 20 | Monitoring | Мониторинг, Состояние системы, Запуск и оповещения, Инциденты, Доступность и качество | 17 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `ops.diagnostics`, `read`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `settings.runtime.write` | PASS |
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | PASS |
 | 22 | Updates | Обновления, Развёртывания | 14 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `backups.write`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write` | PASS |
