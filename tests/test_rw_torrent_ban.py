@@ -26,9 +26,16 @@ OWN = uid(40)  # the owner's own plugin with an egress filter
 class Db:
     def __init__(self):
         self.rows = []
+        self.settings = {}
 
     def add(self, row):
-        self.rows.append(row)
+        if type(row).__name__ == "AppSetting":
+            self.settings[row.key] = row
+        else:
+            self.rows.append(row)
+
+    async def get(self, model, key):   # app settings: none saved yet
+        return self.settings.get(key)
 
     async def commit(self):
         pass
@@ -120,6 +127,10 @@ async def test_a_bare_node_gets_the_shop_plugin_and_a_node_with_a_plugin_keeps_i
     assert panel.blocker(CZ)["enabled"] is True and panel.blocker(CZ)["blockDuration"] == 2700 and panel.blocker(CZ)["includeRuleTags"] == ["ads"]
     assert panel.plugins[OWN]["pluginConfig"]["egressFilter"] == {"enabled": True, "blockedIps": [], "blockedPorts": [25]}
     assert panel.nodes[NL]["activePluginUuid"] is None  # not chosen: untouched
+    # v28.124.0: what was set is remembered for «Сверка с панелью».
+    import json
+    saved = json.loads(db.settings[tb.DESIRED_KEY].value)
+    assert {u: v["minutes"] for u, v in saved["nodes"].items()} == {DE: 45, CZ: 45} and saved["applied_at"]
     rows = {r["name"]: r for r in out["nodes"]}
     assert (rows["de-1"]["ban"], rows["de-1"]["minutes"], rows["de-1"]["plugin"]["ours"]) == (True, 45, True)
     assert (rows["cz-1"]["ban"], rows["cz-1"]["plugin"]["name"], rows["cz-1"]["plugin"]["ours"]) == (True, "MyFilters", False)
@@ -150,6 +161,8 @@ async def test_switching_off_returns_what_was_changed(env):
     assert panel.blocker(CZ)["enabled"] is False and panel.plugins[OWN]["pluginConfig"]["egressFilter"]["enabled"] is True
     assert out["enabled_nodes"] == 0 and [r.action for r in db.rows] == ["rw.torrent_ban.enabled", "rw.torrent_ban.disabled"]
     assert (await tb.apply(ask(enabled=False, node_uuids=[DE, CZ]), db, ADMIN))["changed"] == []  # a second «off» is harmless
+    import json
+    assert json.loads(db.settings[tb.DESIRED_KEY].value)["nodes"] == {}  # nothing is left to compare with the panel
 
 
 @pytest.mark.asyncio
