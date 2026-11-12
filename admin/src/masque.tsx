@@ -6,11 +6,11 @@ type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Node = {uuid: string; name: string; xray: string | null; state: "ready" | "old" | "unknown"};
 type Profile = {uuid: string; name: string; conflicts: string[]};
 type Blocker = {key: string; title: string; text: string};
-type View = {required: string; first_tag: string; port: number; http: string[]; nodes: Node[]; nodes_ready: number; profiles: Profile[]; blockers: Blocker[]; can_enable: boolean; example: object};
+type View = {required: string; first_tag: string; port: number; http: string[]; nodes: Node[]; nodes_ready: number; profiles: Profile[]; blockers: Blocker[]; example: object};
 
 const STATE: Record<Node["state"], [string, "ok" | "warn" | "idle"]> = {ready: ["подходит", "ok"], old: ["старое ядро", "warn"], unknown: ["версия неизвестна", "idle"]};
 
-/** «Смена протокола» → «MASQUE»: readiness of the nodes and the reasons the protocol is not switched on. Changes nothing. */
+/** «Смена протокола» → «MASQUE»: which nodes have a suitable core, port conflicts and what to know. Changes nothing. */
 export function Masque({request}: {request: RequestFn}) {
   const [view, setView] = useState<View | null>(null);
   const [error, setError] = useState("");
@@ -36,16 +36,15 @@ export function Masque({request}: {request: RequestFn}) {
   return (
     <section className="card" data-masque aria-label="MASQUE">
       {title}
-      <p className="muted">Туннель поверх HTTP/3 (UDP) и HTTP/2 (TCP) по RFC 9484. Здесь видно, готовы ли ноды и что мешает включить протокол. Проверка ничего не меняет.</p>
+      <p className="muted">Туннель поверх HTTP/3 (UDP) и HTTP/2 (TCP) по RFC 9484. Здесь видно, у каких нод подходит ядро и свободен ли порт. Проверка ничего не меняет; установка и подписка — в блоке ниже.</p>
       {error && <p role="status"><StatusBadge tone="warn">Нет данных</StatusBadge> {error}</p>}
       {!view && !error && <p className="muted">Загрузка…</p>}
       {view && <>
         <p data-masque-summary role="status">
-          <StatusBadge tone="warn">Не включается</StatusBadge>{" "}
           <StatusBadge tone={view.nodes.length > 0 && view.nodes_ready === view.nodes.length ? "ok" : "idle"}>Ноды с подходящим ядром: {view.nodes_ready} из {view.nodes.length}</StatusBadge>
         </p>
         <p>Нужно ядро Xray {view.required} или новее. MASQUE появился в {view.first_tag}; версии v26.10.10 не существует.</p>
-        <h3>Что мешает включить</h3>
+        <h3>Что нужно знать</h3>
         <ul data-masque-blockers>
           {view.blockers.map((b) => <li key={b.key} data-masque-blocker={b.key}><strong>{b.title}.</strong> {b.text}</li>)}
         </ul>
