@@ -33,7 +33,7 @@ from .security import require_permission
 router = APIRouter(tags=["masque"])
 
 STATE_KEY = "masque.panel"
-DEFAULT = {"enabled": False, "plan_ids": [], "port": rw_masque.DEFAULT_PORT, "nodes": {}}
+DEFAULT = {"enabled": False, "plan_ids": [], "port": rw_masque.DEFAULT_PORT, "nodes": {}, "epochs": {}, "reissued_at": {}}
 LIVE = ("active", "grace", "cancel_scheduled")     # paid and not paused, frozen or expired
 RESYNC = timedelta(minutes=30)                     # a node is re-checked this often even when the list did not change
 TOKEN = re.compile(r"^(\d{1,12})\.([0-9a-f]{32})\Z")
@@ -47,17 +47,41 @@ class SettingsIn(BaseModel):
     port: int = Field(default=rw_masque.DEFAULT_PORT, ge=1024, le=65535)
 
 
+class ShieldIn(BaseModel):
+    strict_sni: bool = True
+    tls_like_site: bool = True
+    probe_ban: bool = True
+    ban_after: int = Field(default=rw_masque.SHIELD_DEFAULT["ban_after"], ge=5, le=500)
+    ban_minutes: int = Field(default=rw_masque.SHIELD_DEFAULT["ban_minutes"], ge=1, le=1440)
+
+
+class InstallIn(BaseModel):
+    shield: ShieldIn = Field(default_factory=ShieldIn)
+
+
 # ---------------------------------------------------------------- pure
 
-def token(subscription: int) -> str:
-    sig = hmac.new(settings.app_secret.encode(), f"masque-sub:{int(subscription)}".encode(), hashlib.sha256).hexdigest()[:32]
+def epoch_of(state: dict, subscription: int) -> int:
+    """How many times the link of a subscription was reissued (0: never)."""
+    return int((state.get("epochs") or {}).get(str(int(subscription))) or 0)
+
+
+def key_of(state: dict, subscription: int) -> str:
+    """What the login, the password and the link of a subscription follow from; a reissue changes it."""
+    epoch = epoch_of(state, subscription)
+    return f"{int(subscription)}:{epoch}" if epoch else str(int(subscription))
+
+
+def token(subscription: int, state: dict | None = None) -> str:
+    key = key_of(state or {}, subscription)
+    sig = hmac.new(settings.app_secret.encode(), f"masque-sub:{key}".encode(), hashlib.sha256).hexdigest()[:32]
     return f"{int(subscription)}.{sig}"
 
 
-def subscription_id(value: str) -> int | None:
-    """The subscription a link belongs to; None for a link the shop did not issue."""
+def subscription_id(value: str, state: dict | None = None) -> int | None:
+    """The subscription a link belongs to; None for a link the shop did not issue or has reissued since."""
     match = TOKEN.match(value or "")
-    if not match or not hmac.compare_digest(token(int(match[1])), value):
+    if not match or not hmac.compare_digest(token(int(match[1]), state), value):
         return None
     return int(match[1])
 
@@ -72,10 +96,14 @@ def eligible(sub, state: dict, now: datetime) -> bool:
     return not plans or sub.plan_id in plans
 
 
-def users_of(subs) -> list[dict]:
+def creds(state: dict, subscription: int) -> tuple[str, str]:
+    return rw_masque.credentials(settings.app_secret, key_of(state, subscription))
+
+
+def users_of(subs, state: dict | None = None) -> list[dict]:
     out = []
     for sub in sorted(subs, key=lambda s: s.id):
-        login, password = rw_masque.credentials(settings.app_secret, str(sub.id))
+        login, password = creds(state or {}, sub.id)
         out.append({"email": login, "pass": password})
     return out
 
@@ -99,7 +127,7 @@ def prefix_of(server_id: int) -> str:
 
 def configs_for(state: dict, sub) -> list[dict]:
     """The subscription itself: one whole client config per working node."""
-    login, password = rw_masque.credentials(settings.app_secret, str(sub.id))
+    login, password = creds(state, sub.id)
     nodes = sorted((n for n in (state.get("nodes") or {}).values() if n.get("state") == "on"), key=lambda n: n.get("name") or "")
     return [rw_masque.client_config(n["domain"], int(n["port"]), prefix_of(n["server_id"]), login, password, f"MASQUE · {n.get('name') or n['domain']}")
             for n in nodes]
@@ -158,7 +186,7 @@ def _why(result) -> str:
 
 async def sync_node(db: AsyncSession, node: dict, users: list[dict], action: str = "sync") -> dict:
     """Sends the stack's files and the user list to one node; returns the node record with the result."""
-    data = rw_masque.bundle(node["domain"], int(node["port"]), prefix_of(node["server_id"]), users)
+    data = rw_masque.bundle(node["domain"], int(node["port"]), prefix_of(node["server_id"]), users, node.get("shield"))
     now = _naive()
     try:
         result = await _ssh(db, node["server_id"], action, node["domain"], str(node["port"]), hashlib.sha256(data).hexdigest(), stdin=data)
@@ -189,7 +217,7 @@ async def tick(db: AsyncSession, now: datetime | None = None) -> int:
     if not state["nodes"]:
         return 0
     now = _naive(now)
-    users = users_of(await _live_subs(db, state, now))
+    users = users_of(await _live_subs(db, state, now), state)
     touched = 0
     for key, node in list(state["nodes"].items()):
         if due(node, users_hash(users, node["domain"], int(node["port"])), now):
@@ -213,17 +241,19 @@ async def _view(db: AsyncSession, state: dict) -> dict:
         candidates.append({"server_id": item["server_id"], "name": item["name"], "address": item["address"], "domain": item["domain"],
                            "ready": bool(item["domain"]), "installed": bool(record and record.get("state") == "on"),
                            "port": (record or {}).get("port"), "users": (record or {}).get("users"), "synced_at": (record or {}).get("synced_at"),
-                           "error": (record or {}).get("error")})
+                           "error": (record or {}).get("error"), "shield": rw_masque.shield((record or {}).get("shield")) if record else None})
     known = {c["server_id"] for c in candidates}
     for record in state["nodes"].values():          # a node whose installation record is gone still has to be removable
         if record["server_id"] not in known:
             candidates.append({"server_id": record["server_id"], "name": record.get("name") or f"#{record['server_id']}", "address": "",
                                "domain": record["domain"], "ready": True, "installed": record.get("state") == "on", "port": record.get("port"),
-                               "users": record.get("users"), "synced_at": record.get("synced_at"), "error": record.get("error")})
+                               "users": record.get("users"), "synced_at": record.get("synced_at"), "error": record.get("error"),
+                               "shield": rw_masque.shield(record.get("shield"))})
     plans = (await db.execute(select(Plan).order_by(Plan.id))).scalars().all()
     return {"enabled": bool(state.get("enabled")), "plan_ids": list(state.get("plan_ids") or []), "port": int(state.get("port") or rw_masque.DEFAULT_PORT),
             "plans": [{"id": p.id, "name": p.name, "enabled": bool(p.enabled), "traffic_limit_gb": p.traffic_limit_gb} for p in plans],
             "nodes": candidates, "users": len(subs), "images": {"xray": rw_masque.XRAY_IMAGE.split("@")[0], "haproxy": rw_masque.HAPROXY_IMAGE.split("@")[0]},
+            "shield_default": dict(rw_masque.SHIELD_DEFAULT),
             "notes": ["Трафик MASQUE не входит в лимит трафика тарифа: панель Remnawave его не видит.",
                       "Работает по HTTP/2 (TCP). HTTP/3 спрятать за сайтом нельзя, поэтому он не используется.",
                       "Клиенту нужна поддержка MASQUE в Xray 26.9.30 или новее и подписка в формате JSON."]}
@@ -250,7 +280,10 @@ async def save_settings(payload: SettingsIn, db: AsyncSession = Depends(get_db),
 
 
 @router.post("/api/admin/masque/panel/nodes/{server_id}/install")
-async def install(server_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+async def install(server_id: int, payload: InstallIn | None = None, db: AsyncSession = Depends(get_db),
+                  admin=Depends(require_permission("provision_nodes"))):
+    """Installs MASQUE on a node with the protections chosen for it; on an installed node — changes the protections
+    (the stack is recreated, open tunnels reconnect)."""
     from .main import audit
     from .rw_api import _busy
     from .rw_selfsteal import known_nodes
@@ -262,14 +295,18 @@ async def install(server_id: int, db: AsyncSession = Depends(get_db), admin=Depe
         raise HTTPException(409, "У ноды нет сайта SelfSteal: MASQUE прячется за ним. Установите ноду с SelfSteal")
     if await _busy(db, [server_id]):
         raise HTTPException(409, "На сервере идёт установка: дождитесь её окончания")
-    node = {"server_id": server_id, "name": item["name"], "domain": item["domain"], "port": int(state.get("port") or rw_masque.DEFAULT_PORT)}
-    users = users_of(await _live_subs(db, state, _naive()))
+    previous = state["nodes"].get(str(server_id)) or {}
+    chosen = rw_masque.shield((payload or InstallIn()).shield.model_dump())
+    node = {"server_id": server_id, "name": item["name"], "domain": item["domain"], "shield": chosen,
+            "port": int(previous.get("port") or state.get("port") or rw_masque.DEFAULT_PORT)}
+    users = users_of(await _live_subs(db, state, _naive()), state)
     record = await sync_node(db, node, users, action="on")
     if record.get("error"):
         raise HTTPException(502, record["error"])
     state["nodes"][str(server_id)] = record
     await _store(db, state)
-    await audit(db, "masque.node.installed", admin.email, str(server_id), {"domain": node["domain"], "port": node["port"], "users": len(users)})
+    await audit(db, "masque.node.installed", admin.email, str(server_id), {"domain": node["domain"], "port": node["port"], "users": len(users), "shield": chosen,
+                                                                         "reinstall": bool(previous)})
     await db.commit()
     return await _view(db, state)
 
@@ -288,6 +325,60 @@ async def remove(server_id: int, db: AsyncSession = Depends(get_db), admin=Depen
     await audit(db, "masque.node.removed", admin.email, str(server_id), {"domain": record.get("domain")})
     await db.commit()
     return await _view(db, state)
+
+
+def compare(reference: dict, candidate: dict) -> list[str]:
+    """How the MASQUE port's answer differs from the site's own answer on port 443 (an empty list: no difference)."""
+    out = []
+    if reference["status"] != candidate["status"]:
+        out.append(f"код ответа {candidate['status']} вместо {reference['status']}")
+    if reference["body"] != candidate["body"]:
+        out.append("другое содержимое страницы")
+    for name in sorted(set(reference["headers"]) | set(candidate["headers"])):
+        if name in ("date", "alt-svc", "age"):          # the time of the answer; the site's own HTTP/3 advert
+            continue
+        a, b = reference["headers"].get(name), candidate["headers"].get(name)
+        if a != b:
+            out.append(f"заголовок {name}: " + ("лишний" if a is None else "отсутствует" if b is None else "другое значение"))
+    return out
+
+
+async def _fetch(url: str) -> dict:
+    import httpx
+    async with httpx.AsyncClient(http2=False, timeout=10, follow_redirects=False) as client:
+        response = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"})
+    return {"status": response.status_code, "body": hashlib.sha256(response.content).hexdigest(),
+            "headers": {k.lower(): v for k, v in response.headers.items()}}
+
+
+@router.post("/api/admin/masque/panel/nodes/{server_id}/probe")
+async def probe(server_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("read"))):
+    """Looks at the node from outside, as a censor's scanner would: the MASQUE port must answer exactly as the site
+    does on port 443 — on the home page, on a missing page and on the secret path itself."""
+    import secrets
+
+    import httpx
+    state = await _state(db)
+    node = state["nodes"].get(str(server_id))
+    if not node:
+        raise HTTPException(404, "MASQUE на этой ноде не установлен")
+    site, masked = f"https://{node['domain']}", f"https://{node['domain']}:{int(node['port'])}"
+    missing = "/" + secrets.token_hex(6) + ".html"
+    checks = [("Главная страница", "/", "/"), ("Несуществующая страница", missing, missing),
+              ("Секретный путь без туннеля", missing, f"/{prefix_of(server_id)}/1/2/")]
+    rows = []
+    for title, reference_path, masked_path in checks:
+        try:
+            reference, candidate = await _fetch(site + reference_path), await _fetch(masked + masked_path)
+        except httpx.HTTPError as exc:                 # the node or the port is not reachable from the shop
+            rows.append({"check": title, "same": False, "differences": [f"нет ответа: {type(exc).__name__}"]})
+            continue
+        differences = compare(reference, candidate)
+        rows.append({"check": title, "same": not differences, "differences": differences})
+    return {"domain": node["domain"], "port": int(node["port"]), "same": all(r["same"] for r in rows), "checks": rows,
+            "limits": ["Порт не 443: сайт на нестандартном порту сам по себе необычен.",
+                       "Отпечаток TLS у порта MASQUE и у сайта разный: параметры приближены, но серверы разные.",
+                       "Долгое соединение HTTP/2 с большим объёмом данных заметно при анализе трафика."]}
 
 
 def parse_status(out: str) -> dict:
@@ -310,7 +401,7 @@ async def status(server_id: int, db: AsyncSession = Depends(get_db), admin=Depen
     if result.code != 0:
         raise HTTPException(502, _why(result))
     parsed = parse_status(result.out)
-    logins = {rw_masque.credentials(settings.app_secret, str(s.id))[0]: s for s in await _live_subs(db, state, _naive())}
+    logins = {creds(state, s.id)[0]: s for s in await _live_subs(db, state, _naive())}
     rows = [{"subscription_id": logins[login].id if login in logins else None, "user_id": logins[login].user_id if login in logins else None,
              "login": login, **value} for login, value in parsed["traffic"].items()]
     rows.sort(key=lambda r: -(r["uplink"] + r["downlink"]))
@@ -323,7 +414,7 @@ async def status(server_id: int, db: AsyncSession = Depends(get_db), admin=Depen
 async def sync(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     from .main import audit
     state = await _state(db)
-    users = users_of(await _live_subs(db, state, _naive()))
+    users = users_of(await _live_subs(db, state, _naive()), state)
     for key, node in list(state["nodes"].items()):
         if node.get("state") == "on":
             state["nodes"][key] = await sync_node(db, node, users)
@@ -341,24 +432,49 @@ async def users(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get
     subs = sorted(await _live_subs(db, state, _naive()), key=lambda s: s.id)
     limit, offset = max(1, min(int(limit), 200)), max(0, int(offset))
     return {"total": len(subs), "items": [{"subscription_id": s.id, "user_id": s.user_id, "plan_id": s.plan_id,
-                                           "login": rw_masque.credentials(settings.app_secret, str(s.id))[0],
-                                           "expires_at": s.expires_at.isoformat() + "Z", "url": link(s.id)} for s in subs[offset:offset + limit]]}
+                                           "login": creds(state, s.id)[0], "reissued": epoch_of(state, s.id),
+                                           "expires_at": s.expires_at.isoformat() + "Z", "url": link(s.id, state)} for s in subs[offset:offset + limit]]}
 
 
 # ---------------------------------------------------------------- the subscription
 
-def link(subscription: int) -> str:
-    return f"{settings.public_base_url.rstrip('/')}/api/masque/sub/{token(subscription)}"
+def link(subscription: int, state: dict | None = None) -> str:
+    return f"{settings.public_base_url.rstrip('/')}/api/masque/sub/{token(subscription, state)}"
+
+
+async def _reissue(db: AsyncSession, state: dict, sub) -> None:
+    """A new login, password and link for one subscription; the old ones stop working at once on every node."""
+    epochs = dict(state.get("epochs") or {})
+    epochs[str(sub.id)] = epoch_of(state, sub.id) + 1
+    state["epochs"] = epochs
+    users = users_of(await _live_subs(db, state, _naive()), state)
+    for key, node in list(state["nodes"].items()):
+        if node.get("state") == "on":
+            state["nodes"][key] = await sync_node(db, node, users)
+    await _store(db, state)
+
+
+@router.post("/api/admin/masque/panel/users/{subscription}/reissue")
+async def reissue(subscription: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+    from .main import audit
+    sub = await db.get(Subscription, subscription)
+    if sub is None:
+        raise HTTPException(404, "Подписка не найдена")
+    state = await _state(db)
+    await _reissue(db, state, sub)
+    await audit(db, "masque.link.reissued", admin.email, str(sub.id), {"user_id": sub.user_id, "by": "admin"})
+    await db.commit()
+    return {"subscription_id": sub.id, "url": link(sub.id, state), "login": creds(state, sub.id)[0]}
 
 
 @router.get("/api/masque/sub/{value}")
 async def subscription(value: str, db: AsyncSession = Depends(get_db)):
     """The MASQUE subscription: a JSON array of whole Xray client configs. The token is the only credential."""
-    sid = subscription_id(value)
+    state = await _state(db)
+    sid = subscription_id(value, state)
     sub = await db.get(Subscription, sid) if sid is not None else None
     if sub is None:
         raise HTTPException(404, "Подписка не найдена")
-    state = await _state(db)
     if not eligible(sub, state, _naive()):
         raise HTTPException(403, "Подписка не активна или MASQUE для неё не включён")
     configs = configs_for(state, sub)
@@ -377,5 +493,38 @@ async def my_masque(request: Request, db: AsyncSession = Depends(get_db)):
     now = _naive()
     working = any(n.get("state") == "on" for n in state["nodes"].values())
     subs = (await db.execute(select(Subscription).where(Subscription.user_id == user.id).order_by(Subscription.id))).scalars().all()
-    items = [{"subscription_id": s.id, "name": s.name, "url": link(s.id)} for s in subs if working and eligible(s, state, now)]
+    items = [{"subscription_id": s.id, "name": s.name, "url": link(s.id, state)} for s in subs if working and eligible(s, state, now)]
     return {"available": bool(items), "items": items, "format": "xray-json", "transport": "MASQUE (HTTP/2)"}
+
+
+@router.get("/api/me/masque/{subscription}/qr")
+async def my_masque_qr(subscription: int, request: Request, db: AsyncSession = Depends(get_db)):
+    """A QR code of the customer's own MASQUE link (for a client on another device)."""
+    from .main import user_from_token
+    from .wg_pool import qr_data_url
+    user = await user_from_token(request, db)
+    sub = await db.get(Subscription, subscription)
+    state = await _state(db)
+    if sub is None or sub.user_id != user.id or not eligible(sub, state, _naive()):
+        raise HTTPException(404, "Подписка MASQUE недоступна")
+    return JSONResponse({"png": qr_data_url(link(sub.id, state)), "name": sub.name}, headers={"Cache-Control": "private, no-store"})
+
+
+@router.post("/api/me/masque/{subscription}/reissue")
+async def my_masque_reissue(subscription: int, request: Request, db: AsyncSession = Depends(get_db)):
+    """The customer replaces a leaked link: a new one is issued and the old one stops working."""
+    from .main import audit, user_from_token
+    user = await user_from_token(request, db)
+    sub = await db.get(Subscription, subscription)
+    state = await _state(db)
+    if sub is None or sub.user_id != user.id or not eligible(sub, state, _naive()):
+        raise HTTPException(404, "Подписка MASQUE недоступна")
+    last = (state.get("reissued_at") or {}).get(str(sub.id))
+    now = _naive()
+    if last and now - datetime.fromisoformat(last.rstrip("Z")) < timedelta(minutes=10):
+        raise HTTPException(429, "Ссылку можно менять не чаще раза в 10 минут")
+    state["reissued_at"] = {**(state.get("reissued_at") or {}), str(sub.id): _iso(now)}
+    await _reissue(db, state, sub)
+    await audit(db, "masque.link.reissued", f"user:{user.id}", str(sub.id), {"user_id": user.id, "by": "customer"})
+    await db.commit()
+    return {"subscription_id": sub.id, "name": sub.name, "url": link(sub.id, state)}

@@ -8,6 +8,7 @@ import {Bell, CircleHelp, CreditCard, Gift, Handshake, Home, KeyRound, LayoutGri
 import {Overview, type Traffic} from "./overview";
 import {Connection} from "./connection";
 import {ConnectionKeys, MyTraffic} from "./keys";
+import {MasqueLinks} from "./masque";
 import {Avatar, GuestPurchase, MyStats, UpsellOffers, reportScreen, topUpAndBuy, RequiredChannels} from "./insights";
 import {Plans} from "./plans";
 import {ProfileCard} from "./profile";
@@ -954,6 +955,7 @@ function App() {
                   <Connection subUrl={subUrl} api={API} copied={copied} onCopy={copyLink} platform={platform} platformKeys={platformKeys.length ? platformKeys : PLATFORM_ORDER} labels={PLATFORM_LABELS} onPlatform={setPlatform} guideText={guideText || apiGuide} goPlans={() => goKind("plans")} />
                 )}
                 {activeItem?.kind === "connection" && sub && <ConnectionKeys request={req} />}
+                {activeItem?.kind === "connection" && sub && <MasqueLinks request={req} />}
 
                 {activeItem?.kind === "devices" && (
                   <>
