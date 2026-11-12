@@ -361,6 +361,9 @@ async def scheduler() -> None:
                 from . import rw_drift
                 async with SessionLocal() as db:
                     await rw_drift.tick(db)
+                from . import audit_seal  # the same worker loop: sealing the audit log needs no loop of its own
+                async with SessionLocal() as db:
+                    await audit_seal.tick(db)
         except Exception:
             logger.exception("Remnawave auto-update pass failed")
         await asyncio.sleep(60)
