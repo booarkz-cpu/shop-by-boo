@@ -20,6 +20,7 @@ from __future__ import annotations
 import copy
 import ipaddress
 import re
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -33,6 +34,9 @@ router = APIRouter(prefix="/api/admin/rw/torrent-ban", tags=["remnawave-torrent-
 UUID = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 PLUGIN_NAME = "CorgiTorrentBan"
 REPORTS = 50
+
+
+DESIRED_KEY = "rw.torrent_ban"
 
 
 class BanIn(BaseModel):
@@ -215,6 +219,16 @@ async def apply(payload: BanIn, db: AsyncSession = Depends(get_db), admin=Depend
             if _blocker(plugin).get("enabled"):
                 await _panel("PATCH", "/api/node-plugins", json={"uuid": plugin["uuid"], "pluginConfig": with_blocker(plugin.get("pluginConfig"), False, 0, [])})
                 changed.append(f"плагин «{plugin.get('name')}»")
+    # v28.124.0: what the shop set is remembered, so that «Сверка с панелью» (rw_drift) can tell when the panel differs.
+    from .node_health import _load, _save
+    desired = await _load(db, DESIRED_KEY, {"nodes": {}})
+    wanted_nodes = dict(desired.get("nodes") or {})
+    for uuid in payload.node_uuids:
+        if payload.enabled:
+            wanted_nodes[uuid] = {"name": str(nodes[uuid].get("name") or ""), "minutes": payload.minutes}
+        else:
+            wanted_nodes.pop(uuid, None)
+    await _save(db, DESIRED_KEY, {"nodes": wanted_nodes, "applied_at": datetime.now(UTC).isoformat(timespec="seconds")})
     await audit(db, "rw.torrent_ban.enabled" if payload.enabled else "rw.torrent_ban.disabled", admin.email, None,
                 {"nodes": len(payload.node_uuids), "minutes": payload.minutes if payload.enabled else None, "changed": changed[:50]})
     await db.commit()

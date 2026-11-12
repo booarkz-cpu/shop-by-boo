@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.123.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.124.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2486**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2492**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -147,6 +147,7 @@
 | [admin/e2e/preferences-help.spec.ts](../admin/e2e/preferences-help.spec.ts) | Админ-панель |
 | [admin/e2e/protocol-switch.spec.ts](../admin/e2e/protocol-switch.spec.ts) | Админ-панель |
 | [admin/e2e/remna-design.spec.ts](../admin/e2e/remna-design.spec.ts) | Админ-панель |
+| [admin/e2e/rw-drift.spec.ts](../admin/e2e/rw-drift.spec.ts) | Админ-панель |
 | [admin/e2e/rw-extensions.spec.ts](../admin/e2e/rw-extensions.spec.ts) | Админ-панель |
 | [admin/e2e/rw-installer.spec.ts](../admin/e2e/rw-installer.spec.ts) | Админ-панель |
 | [admin/e2e/selfsteal.spec.ts](../admin/e2e/selfsteal.spec.ts) | Админ-панель |
@@ -245,6 +246,7 @@
 | [admin/src/reconciliation.tsx](../admin/src/reconciliation.tsx) | Админ-панель |
 | [admin/src/referral-program.tsx](../admin/src/referral-program.tsx) | Админ-панель |
 | [admin/src/runtime-settings.tsx](../admin/src/runtime-settings.tsx) | Админ-панель |
+| [admin/src/rw-drift.tsx](../admin/src/rw-drift.tsx) | Админ-панель |
 | [admin/src/rw-extensions.tsx](../admin/src/rw-extensions.tsx) | Админ-панель |
 | [admin/src/rw-installer.tsx](../admin/src/rw-installer.tsx) | Админ-панель |
 | [admin/src/rwAutoUpdate.tsx](../admin/src/rwAutoUpdate.tsx) | Админ-панель |
@@ -588,6 +590,7 @@
 | [backend/app/rw_autoselect.py](../backend/app/rw_autoselect.py) | API, бот и worker |
 | [backend/app/rw_autoupdate.py](../backend/app/rw_autoupdate.py) | API, бот и worker |
 | [backend/app/rw_domains.py](../backend/app/rw_domains.py) | API, бот и worker |
+| [backend/app/rw_drift.py](../backend/app/rw_drift.py) | API, бот и worker |
 | [backend/app/rw_extensions.py](../backend/app/rw_extensions.py) | API, бот и worker |
 | [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
 | [backend/app/rw_netmods.py](../backend/app/rw_netmods.py) | API, бот и worker |
@@ -826,6 +829,7 @@
 | [docs/REQUIREMENTS_CHANGELOG.md](../docs/REQUIREMENTS_CHANGELOG.md) | Документация |
 | [docs/REQUIREMENTS_MASTER_REGISTER.md](../docs/REQUIREMENTS_MASTER_REGISTER.md) | Документация |
 | [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
+| [docs/RW_DRIFT.md](../docs/RW_DRIFT.md) | Документация |
 | [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
@@ -1170,6 +1174,7 @@
 | [docs/ru/RELEASE_V28_121_0.md](../docs/ru/RELEASE_V28_121_0.md) | Документация |
 | [docs/ru/RELEASE_V28_122_0.md](../docs/ru/RELEASE_V28_122_0.md) | Документация |
 | [docs/ru/RELEASE_V28_123_0.md](../docs/ru/RELEASE_V28_123_0.md) | Документация |
+| [docs/ru/RELEASE_V28_124_0.md](../docs/ru/RELEASE_V28_124_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
@@ -2380,6 +2385,7 @@
 | [tests/test_rw_autoselect.py](../tests/test_rw_autoselect.py) | Проверки |
 | [tests/test_rw_autoupdate.py](../tests/test_rw_autoupdate.py) | Проверки |
 | [tests/test_rw_camouflage.py](../tests/test_rw_camouflage.py) | Проверки |
+| [tests/test_rw_drift.py](../tests/test_rw_drift.py) | Проверки |
 | [tests/test_rw_extensions.py](../tests/test_rw_extensions.py) | Проверки |
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_rw_netmods.py](../tests/test_rw_netmods.py) | Проверки |

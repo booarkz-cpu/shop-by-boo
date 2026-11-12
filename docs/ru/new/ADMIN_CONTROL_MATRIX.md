@@ -1,4 +1,4 @@
-# Управляемость из админки — v28.123.0
+# Управляемость из админки — v28.124.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения (`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».
 
@@ -19,14 +19,14 @@
 | 9 | Gifts | Подарки | 6 | ✓ | ✓ | · | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | PASS |
 | 10 | Referrals | Рефералы и партнёры | 13 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `referrals.read`, `referrals.reconcile`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `referrals.withdrawals.read` | PASS |
 | 11 | Remnawave | Remnawave: панель, Серверы | 32 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `backups.write`, `manage_users`, `ops.diagnostics`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | PASS |
-| 12 | Installation | Установка Remnawave | 79 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | PASS |
+| 12 | Installation | Установка Remnawave | 81 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | PASS |
 | 13 | Servers | Серверы, Планирование мощности, Оркестратор | 11 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | `ops.diagnostics`, `provision_nodes`, `settings.runtime.write` | PASS |
 | 14 | Nodes | Серверы, Терминал узлов, Торренты на узлах | 35 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | PASS |
 | 15 | Domains | Домены и сертификаты | 7 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `read`, `settings.runtime.write` | PASS |
 | 16 | Certificates | Домены и сертификаты | 2 | ✓ | ✓ | · | · | · | · | ✓ | · | `read` | PASS |
 | 17 | Reverse Proxy | Домены и сертификаты | 1 | ✓ | · | · | · | · | · | · | · | `read` | PASS |
 | 18 | Subscription Portal | Портал подписки | 12 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `ops.diagnostics`, `settings.runtime.write`, `users.write` | PASS |
-| 19 | Node Extensions | Расширения Remnawave, Пул автовыбора, Смена протокола | 42 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | PASS |
+| 19 | Node Extensions | Расширения Remnawave, Пул автовыбора, Смена протокола | 44 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | PASS |
 | 20 | Monitoring | Мониторинг, Состояние системы, Запуск и оповещения, Инциденты, Доступность и качество | 17 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `ops.diagnostics`, `read`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `settings.runtime.write` | PASS |
 | 21 | Backups | Резервные копии, Восстановление | 17 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `backups.read`, `backups.restore`, `backups.write`, `manage_admins`, `payments.retry`, `read` | PASS |
 | 22 | Updates | Обновления, Развёртывания | 14 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `backups.write`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write` | PASS |
