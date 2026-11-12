@@ -266,6 +266,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/marketplace/resellers/{reseller_id}/rotate-key` | Rotate Reseller Key | право `referrals.reconcile` |
 | `GET` | `/api/admin/marketplace/withdrawals` | Withdrawals | право `referrals.withdrawals.read` |
 | `POST` | `/api/admin/marketplace/withdrawals/{withdrawal_id}/decision` | Decide | право `referrals.withdrawals.approve` |
+| `GET` | `/api/admin/masque` | State | право `read` |
 | `POST` | `/api/admin/menu` | Admin Menu | право `manage_content` |
 | `DELETE` | `/api/admin/menu/{item_id}` | Admin Menu Delete | право `manage_content` |
 | `PUT` | `/api/admin/menu/{item_id}` | Admin Menu Update | право `manage_content` |
