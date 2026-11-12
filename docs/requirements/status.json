@@ -1999,5 +1999,296 @@
    "backend/app/lucy_plans.py"
   ],
   "note": "Правило честности записано, тексты обещают только условия тарифов. Автоматической проверки всех текстов интерфейсов на лишние обещания нет."
+ },
+ "REQ-SHOP-0001": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Идентификатор продукта `vpn-shop` из мастер-промпта в коде и документации не используется."
+ },
+ "REQ-SHOP-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/SYSTEM_OVERVIEW.md",
+   "docs/architecture/API_CATALOG.md",
+   "tests/test_e2e_v2.py",
+   "tests/test_behaviour_store_and_webhooks.py"
+  ],
+  "note": "Все перечисленные части есть и работают через один API. Построчной сверки каждой части с требованиями её раздела не было; на настоящем сервере не проверено."
+ },
+ "REQ-SHOP-0003": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "tests/test_cabinet_stage8.py",
+   "admin/src/lucy-plans.tsx"
+  ]
+ },
+ "REQ-SHOP-0004": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "tests/test_cabinet_stage8.py",
+   "admin/src/lucy-plans.tsx"
+  ]
+ },
+ "REQ-SHOP-0005": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "tests/test_cabinet_stage8.py",
+   "admin/src/lucy-plans.tsx"
+  ]
+ },
+ "REQ-SHOP-0006": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "admin/src/lucy-plans.tsx",
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Цены задаёт только владелец в панели; код и тексты цен не содержат и не меняют."
+ },
+ "REQ-SHOP-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/auth_api.py",
+   "tests/test_behaviour_auth.py",
+   "tests/test_audit_v2009_runtime.py",
+   "tests/test_account_actions.py"
+  ],
+  "note": "Вход по почте, через VK и Яндекс реализован и покрыт тестами на подделку и захват учётной записи. С настоящими ключами OAuth не проверено: ключей нет."
+ },
+ "REQ-SHOP-0010": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/auth_api.py",
+   "tests/test_behaviour_auth.py",
+   "tests/test_audit_v2009_runtime.py",
+   "tests/test_account_actions.py"
+  ],
+  "note": "Вход по почте, через VK и Яндекс реализован и покрыт тестами на подделку и захват учётной записи. С настоящими ключами OAuth не проверено: ключей нет."
+ },
+ "REQ-SHOP-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/bot.py",
+   "tests/test_bot_api_rules.py",
+   "tests/test_bot_texts.py",
+   "tests/test_bot_banners.py",
+   "tests/live/test_telegram_live.py"
+  ],
+  "note": "Команды, меню, тексты и баннеры бота покрыты тестами; есть проверка с настоящим Telegram API в CI. Сквозной прогон покупки в настоящем боте с оплатой не проводился."
+ },
+ "REQ-SHOP-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/customer_api.py",
+   "backend/app/account_sync.py",
+   "tests/test_account_sync.py",
+   "tests/test_multiple_subscriptions.py",
+   "tests/test_subscription_portal.py"
+  ],
+  "note": "Кабинет даёт вход, профиль, устройства, покупку, продление, подписку, QR, поддержку, уведомления и историю платежей. Построчной сверки каждого пункта с экраном не было."
+ },
+ "REQ-SHOP-0011": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/API_CATALOG.md",
+   "backend/app/account_sync.py",
+   "tests/test_account_sync.py",
+   "tests/test_single_business_logic.py"
+  ]
+ },
+ "REQ-SHOP-0012": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/models.py",
+   "backend/app/account_merge.py",
+   "tests/test_account_merge.py",
+   "docs/architecture/CONTEXT_MAP.md"
+  ],
+  "note": "Учётная запись, способы входа, устройства, подписки, заказы, платежи и обращения связаны с одним клиентом. Отдельных сущностей счёта (invoice) и настроек уведомлений по единому образцу нет."
+ },
+ "REQ-SHOP-0013": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/account_merge.py",
+   "tests/test_account_merge.py",
+   "tests/test_audit_v2009_runtime.py",
+   "tests/test_behaviour_auth.py"
+  ],
+  "note": "Привязка способов входа и объединение учётных записей есть. Отвязка каждого способа входа по отдельности не сверена."
+ },
+ "REQ-SHOP-0014": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_audit_v2009_runtime.py",
+   "tests/test_account_merge.py",
+   "tests/test_behaviour_auth.py",
+   "backend/app/account_merge.py"
+  ]
+ },
+ "REQ-SHOP-0015": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/account_actions.py",
+   "tests/test_account_actions.py",
+   "tests/test_behaviour_auth.py",
+   "tests/test_login_fallback_reset.py"
+  ]
+ },
+ "REQ-SHOP-0016": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/account_actions.py",
+   "tests/test_account_actions.py"
+  ]
+ },
+ "REQ-SHOP-0017": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_matrix_privacy.py",
+   "tests/test_multiple_subscriptions.py",
+   "backend/app/legal_texts.py"
+  ],
+  "note": "Удаление учётной записи стирает ключи и имена. Выгрузки своих данных клиентом нет."
+ },
+ "REQ-SHOP-0018": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/models.py",
+   "backend/app/subscription_commerce.py",
+   "tests/test_subscription_commerce.py",
+   "docs/architecture/DATA_FLOW.md"
+  ],
+  "note": "Тариф, заказ, платёж и подписка — разные записи; настройка VPN живёт в панели. Отдельной сущности права на услугу (entitlement) нет: её роль выполняет подписка."
+ },
+ "REQ-SHOP-0019": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/account_sync.py",
+   "tests/test_account_sync.py",
+   "backend/app/rw_drift.py"
+  ],
+  "note": "Состояние подписки для всех клиентов отдаёт один маршрут синхронизации; срок и лимиты исполняет панель. Сверки подписок магазина с панелью нет."
+ },
+ "REQ-SHOP-0020": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/grace_access.py",
+   "backend/app/subscription_freeze.py",
+   "tests/test_behaviour_refund_revoke.py",
+   "tests/test_behaviour_webhooks_refunded.py",
+   "tests/test_reconciliation.py"
+  ],
+  "note": "Ожидание оплаты, активная, льготный период, истёкшая, замороженная и возвращённая подписки обрабатываются. Состояния past_due, chargeback и migration отдельно не выделены."
+ },
+ "REQ-SHOP-0021": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_behaviour_store_and_webhooks.py",
+   "tests/test_behaviour_fulfil_locks.py",
+   "tests/test_subscription_commerce.py",
+   "docs/architecture/DATA_FLOW.md"
+  ]
+ },
+ "REQ-SHOP-0022": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_subscription_commerce.py",
+   "tests/test_renewal_readiness.py",
+   "tests/test_multiple_subscriptions.py"
+  ],
+  "note": "Продление до и после окончания и смена тарифа с пересчётом покрыты тестами. Отдельных тестов на часовые пояса нет."
+ },
+ "REQ-SHOP-0023": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "backend/app/remnawave.py",
+   "tests/test_remnawave_contract.py",
+   "tests/test_cabinet_stage8.py"
+  ],
+  "note": "Предел устройств тарифа передаётся панели и показывается в кабинете. Сквозного теста «изменили предел — совпало в панели и кабинете» нет."
+ },
+ "REQ-SHOP-0024": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_behaviour_fulfil_locks.py",
+   "tests/test_e2e_journeys.py",
+   "backend/app/remnawave.py",
+   "tests/test_subscription_commerce.py"
+  ],
+  "note": "Выдача повторяется ограниченное число раз, оплаченный заказ не теряется, есть предохранитель запросов к панели. Отдельной очереди исходящих операций (outbox) нет."
+ },
+ "REQ-SHOP-0025": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/bot.py",
+   "tests/test_bot_api_rules.py",
+   "docs/architecture/EVENT_CATALOG.md"
+  ],
+  "note": "Бот забирает обновления сам (long polling), входящего webhook Telegram нет, поэтому секрет webhook не применяется. Обработка пределов Telegram API покрыта частично."
+ },
+ "REQ-SHOP-0026": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/bot.py",
+   "tests/test_bot_api_rules.py"
+  ],
+  "note": "Покупка и выдача идемпотентны на стороне API. Отдельного теста повторной доставки одной команды или нажатия нет."
+ },
+ "REQ-SHOP-0027": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_behaviour_store_and_webhooks.py",
+   "docs/architecture/DATA_FLOW.md",
+   "tests/test_e2e_v2.py"
+  ]
+ },
+ "REQ-SHOP-0028": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/auth_api.py",
+   "tests/test_behaviour_auth.py"
+  ]
+ },
+ "REQ-SHOP-0029": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_behaviour_csrf.py",
+   "tests/test_behaviour_auth.py",
+   "backend/app/auth_api.py"
+  ],
+  "note": "Точные origin, привязка сессии к устройству, срок жизни и отзыв сессии проверяются. Проверки домена и HTTPS Mini App на настоящем домене не было."
+ },
+ "REQ-SHOP-0030": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_behaviour_auth.py",
+   "tests/test_account_sync.py",
+   "cabinet/src/stickers.tsx"
+  ],
+  "note": "Повторный вход, несколько устройств и экран после оплаты покрыты. Закрытие и повторное открытие Mini App на телефоне не проверены."
+ },
+ "REQ-SHOP-0031": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/bot_texts.py",
+   "cabinet/src/i18n.tsx",
+   "tests/test_bot_texts.py",
+   "tests/test_critical_startup_and_i18n.py",
+   "mobile/l10n/user.json"
+  ],
+  "note": "Бот, кабинет и приложения имеют русский, английский и украинский языки. Проверки, что переведена каждая строка каждого интерфейса, нет."
+ },
+ "REQ-SHOP-0032": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_e2e_v2.py",
+   "tests/test_e2e_journeys.py",
+   "backend/app/staging_e2e_api.py"
+  ],
+  "note": "Сквозной прогон «заказ → оплата → выдача → подписка» идёт через настоящие маршруты на стенде; есть сценарии резервной кассы и автопродления. Шагов «бот: старт» и «обращение в поддержку» в одном сценарии нет."
  }
 }

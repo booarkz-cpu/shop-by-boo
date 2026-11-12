@@ -11,22 +11,22 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **95** — 14.5%.
+- Подтверждено (`PASS`): **106** — 16.2%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 95 | Проверено, доказательство указано |
-| `PARTIAL` | 119 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 16 | Функции нет |
+| `PASS` | 106 | Проверено, доказательство указано |
+| `PARTIAL` | 139 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 17 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 422 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 390 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 123 | 1 | 3 | 0 | 119 |
 | Монорепозиторий и перенос | 28 | 0 | 0 | 0 | 28 |
 | «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
-| Магазин, кабинет, Telegram | 32 | 0 | 0 | 0 | 32 |
+| Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
 | Lucy Admin | 19 | 3 | 11 | 0 | 0 |
 | Платежи | 44 | 8 | 19 | 1 | 9 |
@@ -1203,197 +1203,250 @@
 
 ## Магазин, кабинет, Telegram
 
-### REQ-SHOP-0001 — `NOT_TESTED`
+### REQ-SHOP-0001 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy (строка 152). Продукт: Магазин.
+- Примечание: Идентификатор продукта `vpn-shop` из мастер-промпта в коде и документации не используется.
 
 > `id` = `vpn-shop`
 
-### REQ-SHOP-0002 — `NOT_TESTED`
+### REQ-SHOP-0002 — `PARTIAL`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Scope (строка 156). Продукт: Магазин.
+- Доказательство: `docs/architecture/SYSTEM_OVERVIEW.md`; `docs/architecture/API_CATALOG.md`; `tests/test_e2e_v2.py`; `tests/test_behaviour_store_and_webhooks.py`.
+- Примечание: Все перечисленные части есть и работают через один API. Построчной сверки каждой части с требованиями её раздела не было; на настоящем сервере не проверено.
 
 > Backend; API; Telegram Bot; Telegram Mini App; кабинет; регистрация; авторизация; тарифы; подписки; платежи; Remnawave; VPN-ноды; статистика; пользователи; уведомления; поддержка; аналитика; автоматизация.
 
-### REQ-SHOP-0003 — `NOT_TESTED`
+### REQ-SHOP-0003 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Max (строка 159). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
 
 > `devices` = `2`; `traffic` = `unlimited`
 
-### REQ-SHOP-0004 — `NOT_TESTED`
+### REQ-SHOP-0004 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Ultra (строки 162–164). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
 
 > `devices` = `4`; `traffic` = `unlimited`
 > Визуально и коммерчески выгоднее Lucy Max.
 
-### REQ-SHOP-0005 — `NOT_TESTED`
+### REQ-SHOP-0005 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Mini — Test (строки 167–169). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
 
 > `duration` = `3 days`; `devices` = `1`
 > Для тестирования сервиса.
 
-### REQ-SHOP-0006 — `NOT_TESTED`
+### REQ-SHOP-0006 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Rule (строка 173). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `admin/src/lucy-plans.tsx`; `docs/BRAND_COPY.md`.
+- Примечание: Цены задаёт только владелец в панели; код и тексты цен не содержат и не меняют.
 
 > Не менять цены и коммерческие условия без обоснования и разрешения.
 
-### REQ-SHOP-0007 — `NOT_TESTED`
+### REQ-SHOP-0007 — `PARTIAL`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Authentication (строка 177). Продукт: Магазин.
+- Доказательство: `backend/app/auth_api.py`; `tests/test_behaviour_auth.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_account_actions.py`.
+- Примечание: Вход по почте, через VK и Яндекс реализован и покрыт тестами на подделку и захват учётной записи. С настоящими ключами OAuth не проверено: ключей нет.
 
 > Email; VK; Yandex — если безопасно и технически подтверждено.
 
-### REQ-SHOP-0008 — `NOT_TESTED`
+### REQ-SHOP-0008 — `PARTIAL`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Telegram (строка 181). Продукт: Магазин.
+- Доказательство: `backend/app/bot.py`; `tests/test_bot_api_rules.py`; `tests/test_bot_texts.py`; `tests/test_bot_banners.py`; `tests/live/test_telegram_live.py`.
+- Примечание: Команды, меню, тексты и баннеры бота покрыты тестами; есть проверка с настоящим Telegram API в CI. Сквозной прогон покупки в настоящем боте с оплатой не проводился.
 
 > Проверить и исправить ранее сообщавшуюся проблему неработающего Telegram Bot. Проверить команды, меню, регистрацию, покупку, продление, оплату, выдачу подписки, уведомления, поддержку, Mini App, webhook, ошибки и восстановление после перезапуска.
 
-### REQ-SHOP-0009 — `NOT_TESTED`
+### REQ-SHOP-0009 — `PARTIAL`
 
 - Источник: Часть I → User Cabinet Telegram → Features (строка 694). Продукт: Магазин.
+- Доказательство: `backend/app/customer_api.py`; `backend/app/account_sync.py`; `tests/test_account_sync.py`; `tests/test_multiple_subscriptions.py`; `tests/test_subscription_portal.py`.
+- Примечание: Кабинет даёт вход, профиль, устройства, покупку, продление, подписку, QR, поддержку, уведомления и историю платежей. Построчной сверки каждого пункта с экраном не было.
 
 > Регистрация; вход; профиль; устройства; покупка; продление; подписка; срок; тариф; трафик; конфигурация; QR; инструкции; поддержка; уведомления; история платежей.
 
-### REQ-SHOP-0010 — `NOT_TESTED`
+### REQ-SHOP-0010 — `PARTIAL`
 
 - Источник: Часть I → User Cabinet Telegram → Auth (строка 698). Продукт: Магазин.
+- Доказательство: `backend/app/auth_api.py`; `tests/test_behaviour_auth.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_account_actions.py`.
+- Примечание: Вход по почте, через VK и Яндекс реализован и покрыт тестами на подделку и захват учётной записи. С настоящими ключами OAuth не проверено: ключей нет.
 
 > Email; VK; Yandex при безопасной реализации.
 
-### REQ-SHOP-0011 — `NOT_TESTED`
+### REQ-SHOP-0011 — `PASS`
 
 - Источник: Часть I → User Cabinet Telegram → Mini App (строка 702). Продукт: Магазин.
+- Доказательство: `docs/architecture/API_CATALOG.md`; `backend/app/account_sync.py`; `tests/test_account_sync.py`; `tests/test_single_business_logic.py`.
 
 > Использовать общий API, не дублировать бизнес-логику.
 
-### REQ-SHOP-0012 — `NOT_TESTED`
+### REQ-SHOP-0012 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2197). Продукт: Магазин.
+- Доказательство: `backend/app/models.py`; `backend/app/account_merge.py`; `tests/test_account_merge.py`; `docs/architecture/CONTEXT_MAP.md`.
+- Примечание: Учётная запись, способы входа, устройства, подписки, заказы, платежи и обращения связаны с одним клиентом. Отдельных сущностей счёта (invoice) и настроек уведомлений по единому образцу нет.
 
 > - Единая модель account, profile, credentials, linked identities, devices, subscriptions, orders, payments, invoices, support tickets и notification preferences.
 
-### REQ-SHOP-0013 — `NOT_TESTED`
+### REQ-SHOP-0013 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2198). Продукт: Магазин.
+- Доказательство: `backend/app/account_merge.py`; `tests/test_account_merge.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_behaviour_auth.py`.
+- Примечание: Привязка способов входа и объединение учётных записей есть. Отвязка каждого способа входа по отдельности не сверена.
 
 > - Поддерживать безопасную привязку/отвязку email, VK, Yandex и Telegram identity.
 
-### REQ-SHOP-0014 — `NOT_TESTED`
+### REQ-SHOP-0014 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2199). Продукт: Магазин.
+- Доказательство: `tests/test_audit_v2009_runtime.py`; `tests/test_account_merge.py`; `tests/test_behaviour_auth.py`; `backend/app/account_merge.py`.
 
 > - Защитить account linking от takeover и подмены identity.
 
-### REQ-SHOP-0015 — `NOT_TESTED`
+### REQ-SHOP-0015 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2200). Продукт: Магазин.
+- Доказательство: `backend/app/account_actions.py`; `tests/test_account_actions.py`; `tests/test_behaviour_auth.py`; `tests/test_login_fallback_reset.py`.
 
 > - Реализовать восстановление доступа, смену пароля, logout all sessions, revoke sessions и подтверждение критичных действий.
 
-### REQ-SHOP-0016 — `NOT_TESTED`
+### REQ-SHOP-0016 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2201). Продукт: Магазин.
+- Доказательство: `backend/app/account_actions.py`; `tests/test_account_actions.py`.
 
 > - Не раскрывать существование аккаунта в ответах восстановления пароля.
 
-### REQ-SHOP-0017 — `NOT_TESTED`
+### REQ-SHOP-0017 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2202). Продукт: Магазин.
+- Доказательство: `tests/test_matrix_privacy.py`; `tests/test_multiple_subscriptions.py`; `backend/app/legal_texts.py`.
+- Примечание: Удаление учётной записи стирает ключи и имена. Выгрузки своих данных клиентом нет.
 
 > - Предусмотреть удаление/экспорт данных в пределах применимого законодательства и политики сервиса.
 
-### REQ-SHOP-0018 — `NOT_TESTED`
+### REQ-SHOP-0018 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2206). Продукт: Магазин.
+- Доказательство: `backend/app/models.py`; `backend/app/subscription_commerce.py`; `tests/test_subscription_commerce.py`; `docs/architecture/DATA_FLOW.md`.
+- Примечание: Тариф, заказ, платёж и подписка — разные записи; настройка VPN живёт в панели. Отдельной сущности права на услугу (entitlement) нет: её роль выполняет подписка.
 
 > - Разделить тарифный план, заказ, платёж, entitlement, активную подписку и техническую конфигурацию VPN.
 
-### REQ-SHOP-0019 — `NOT_TESTED`
+### REQ-SHOP-0019 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2207). Продукт: Магазин.
+- Доказательство: `backend/app/account_sync.py`; `tests/test_account_sync.py`; `backend/app/rw_drift.py`.
+- Примечание: Состояние подписки для всех клиентов отдаёт один маршрут синхронизации; срок и лимиты исполняет панель. Сверки подписок магазина с панелью нет.
 
 > - Определить единственный авторитетный источник состояния подписки.
 
-### REQ-SHOP-0020 — `NOT_TESTED`
+### REQ-SHOP-0020 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2208). Продукт: Магазин.
+- Доказательство: `backend/app/grace_access.py`; `backend/app/subscription_freeze.py`; `tests/test_behaviour_refund_revoke.py`; `tests/test_behaviour_webhooks_refunded.py`; `tests/test_reconciliation.py`.
+- Примечание: Ожидание оплаты, активная, льготный период, истёкшая, замороженная и возвращённая подписки обрабатываются. Состояния past_due, chargeback и migration отдельно не выделены.
 
 > - Обработать pending, active, grace period, past_due, expired, canceled, suspended, refunded, chargeback и migration states.
 
-### REQ-SHOP-0021 — `NOT_TESTED`
+### REQ-SHOP-0021 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2209). Продукт: Магазин.
+- Доказательство: `tests/test_behaviour_store_and_webhooks.py`; `tests/test_behaviour_fulfil_locks.py`; `tests/test_subscription_commerce.py`; `docs/architecture/DATA_FLOW.md`.
 
 > - Синхронизировать entitlement после подтверждённого платежа; повторный webhook не должен создавать повторную подписку или повторное начисление.
 
-### REQ-SHOP-0022 — `NOT_TESTED`
+### REQ-SHOP-0022 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2210). Продукт: Магазин.
+- Доказательство: `tests/test_subscription_commerce.py`; `tests/test_renewal_readiness.py`; `tests/test_multiple_subscriptions.py`.
+- Примечание: Продление до и после окончания и смена тарифа с пересчётом покрыты тестами. Отдельных тестов на часовые пояса нет.
 
 > - Правильно обрабатывать timezone, даты окончания, продление до окончания, продление после окончания и смену тарифов.
 
-### REQ-SHOP-0023 — `NOT_TESTED`
+### REQ-SHOP-0023 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2211). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `backend/app/remnawave.py`; `tests/test_remnawave_contract.py`; `tests/test_cabinet_stage8.py`.
+- Примечание: Предел устройств тарифа передаётся панели и показывается в кабинете. Сквозного теста «изменили предел — совпало в панели и кабинете» нет.
 
 > - Изменение числа устройств должно отражаться в Remnawave и пользовательском кабинете согласованно.
 
-### REQ-SHOP-0024 — `NOT_TESTED`
+### REQ-SHOP-0024 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2212). Продукт: Магазин.
+- Доказательство: `tests/test_behaviour_fulfil_locks.py`; `tests/test_e2e_journeys.py`; `backend/app/remnawave.py`; `tests/test_subscription_commerce.py`.
+- Примечание: Выдача повторяется ограниченное число раз, оплаченный заказ не теряется, есть предохранитель запросов к панели. Отдельной очереди исходящих операций (outbox) нет.
 
 > - При частичной недоступности Remnawave применять retry/outbox и reconciliation, а не терять оплаченный заказ.
 
-### REQ-SHOP-0025 — `NOT_TESTED`
+### REQ-SHOP-0025 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2216). Продукт: Магазин.
+- Доказательство: `backend/app/bot.py`; `tests/test_bot_api_rules.py`; `docs/architecture/EVENT_CATALOG.md`.
+- Примечание: Бот забирает обновления сам (long polling), входящего webhook Telegram нет, поэтому секрет webhook не применяется. Обработка пределов Telegram API покрыта частично.
 
 > - Проверить webhook secret token, обработку update ID, повторов, out-of-order events, timeout и Telegram API rate limits.
 
-### REQ-SHOP-0026 — `NOT_TESTED`
+### REQ-SHOP-0026 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2217). Продукт: Магазин.
+- Доказательство: `backend/app/bot.py`; `tests/test_bot_api_rules.py`.
+- Примечание: Покупка и выдача идемпотентны на стороне API. Отдельного теста повторной доставки одной команды или нажатия нет.
 
 > - Поддерживать идемпотентную обработку команд и callback queries.
 
-### REQ-SHOP-0027 — `NOT_TESTED`
+### REQ-SHOP-0027 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2218). Продукт: Магазин.
+- Доказательство: `tests/test_behaviour_store_and_webhooks.py`; `docs/architecture/DATA_FLOW.md`; `tests/test_e2e_v2.py`.
 
 > - Не выполнять финансовую операцию только по данным клиента или тексту callback.
 
-### REQ-SHOP-0028 — `NOT_TESTED`
+### REQ-SHOP-0028 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2219). Продукт: Магазин.
+- Доказательство: `backend/app/auth_api.py`; `tests/test_behaviour_auth.py`.
 
 > - Проверять Telegram Mini App `initData` на сервере, timestamp и подпись; не доверять присланному `user` JSON без валидации.
 
-### REQ-SHOP-0029 — `NOT_TESTED`
+### REQ-SHOP-0029 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2220). Продукт: Магазин.
+- Доказательство: `tests/test_behaviour_csrf.py`; `tests/test_behaviour_auth.py`; `backend/app/auth_api.py`.
+- Примечание: Точные origin, привязка сессии к устройству, срок жизни и отзыв сессии проверяются. Проверки домена и HTTPS Mini App на настоящем домене не было.
 
 > - Проверять домен, HTTPS, allowed origins, session binding и срок жизни сессии.
 
-### REQ-SHOP-0030 — `NOT_TESTED`
+### REQ-SHOP-0030 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2221). Продукт: Магазин.
+- Доказательство: `tests/test_behaviour_auth.py`; `tests/test_account_sync.py`; `cabinet/src/stickers.tsx`.
+- Примечание: Повторный вход, несколько устройств и экран после оплаты покрыты. Закрытие и повторное открытие Mini App на телефоне не проверены.
 
 > - Корректно обрабатывать повторный вход, несколько устройств, закрытие Mini App и возврат после оплаты.
 
-### REQ-SHOP-0031 — `NOT_TESTED`
+### REQ-SHOP-0031 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2222). Продукт: Магазин.
+- Доказательство: `backend/app/bot_texts.py`; `cabinet/src/i18n.tsx`; `tests/test_bot_texts.py`; `tests/test_critical_startup_and_i18n.py`; `mobile/l10n/user.json`.
+- Примечание: Бот, кабинет и приложения имеют русский, английский и украинский языки. Проверки, что переведена каждая строка каждого интерфейса, нет.
 
 > - Все тексты и кнопки локализовать RU/EN/UK.
 
-### REQ-SHOP-0032 — `NOT_TESTED`
+### REQ-SHOP-0032 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2223). Продукт: Магазин.
+- Доказательство: `tests/test_e2e_v2.py`; `tests/test_e2e_journeys.py`; `backend/app/staging_e2e_api.py`.
+- Примечание: Сквозной прогон «заказ → оплата → выдача → подписка» идёт через настоящие маршруты на стенде; есть сценарии резервной кассы и автопродления. Шагов «бот: старт» и «обращение в поддержку» в одном сценарии нет.
 
 > - Создать E2E сценарии: start → register/login → choose tariff → create order → payment → entitlement → subscription/config → support → renewal.
 
