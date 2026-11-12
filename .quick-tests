@@ -1,0 +1,1 @@
+gen:pip install -q playwright numpy pillow opencv-python-headless 2>&1 | grep -v notice | tail -1; python -m playwright install --with-deps chromium >/dev/null 2>&1; python scripts/bot-banners/render.py --extras 2>&1 | tail -2
