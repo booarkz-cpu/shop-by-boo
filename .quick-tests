@@ -1,1 +1,0 @@
-gen:pip install -q playwright numpy pillow 2>&1 | tail -1; python -m playwright install --with-deps chromium >/dev/null 2>&1; python scripts/bot-banners/render.py 2>&1 | tail -3
