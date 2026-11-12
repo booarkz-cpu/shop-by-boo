@@ -1525,5 +1525,164 @@
    "tests/live/test_node_modules_live.py"
   ],
   "note": "После операции проверяются состояние в панели и открытый порт; Xray Checker проверяет подключение по расписанию. Проверки настоящим клиентом сразу после операции нет."
+ },
+ "REQ-ADMIN-0001": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Идентификатор продукта `lucy-admin` из мастер-промпта в коде и документации не используется: панель называется «панель администратора»."
+ },
+ "REQ-ADMIN-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/src/main.tsx",
+   "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt",
+   "mobile/ios-admin/VpnShopAdmin/ContentView.swift",
+   "backend/app/security.py",
+   "tests/test_admin_route_permissions.py",
+   "backend/app/audit_seal.py"
+  ],
+  "note": "Веб-панель, приложения администратора для Android и iOS работают через один API с ролями и журналом. В приложениях 10 разделов против примерно 100 в веб-панели."
+ },
+ "REQ-ADMIN-0003": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/src/sections.ts",
+   "docs/ru/new/ADMIN_CONTROL_MATRIX.md",
+   "docs/ru/new/ADMIN_MODULES.md",
+   "scripts/verify-admin-matrix.py"
+  ],
+  "note": "Разделы веб-панели покрывают перечень; построчной сверки каждого названного раздела не было. MASQUE и Hysteria 2 в панели не сверены."
+ },
+ "REQ-ADMIN-0004": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Документа docs/ADMIN_FEATURE_PARITY_MATRIX.md нет. Есть матрица разделов веб-панели и API: docs/ru/new/ADMIN_CONTROL_MATRIX.md."
+ },
+ "REQ-ADMIN-0005": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Сводной таблицы «Web / Android / iOS / API» по каждой функции нет."
+ },
+ "REQ-ADMIN-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/verify-admin-matrix.py",
+   "docs/ru/new/ADMIN_VERIFICATION.md",
+   "tests/test_admin_center.py",
+   "admin/e2e/torrent-ban.spec.ts"
+  ],
+  "note": "Автоматически проверяется каждый раздел: у него есть маршруты API и тесты. Каждая отдельная кнопка автоматически не проверяется."
+ },
+ "REQ-ADMIN-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/security.py",
+   "docs/ru/new/RBAC.md",
+   "tests/test_rbac_doc.py",
+   "tests/test_admin_route_permissions.py"
+  ],
+  "note": "Роли и права по разделам и действиям есть, документ сверяется с кодом тестом. Отдельных прав export и deploy для каждого ресурса нет."
+ },
+ "REQ-ADMIN-0008": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_admin_route_permissions.py",
+   "backend/app/security.py",
+   "tests/test_admin_center.py"
+  ]
+ },
+ "REQ-ADMIN-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/security.py",
+   "docs/ru/new/RBAC.md",
+   "tests/test_admin_route_permissions.py"
+  ],
+  "note": "Роли оператора и администратора разделены, опасные права выданы только администратору. Разделения обязанностей (двое на одно действие) и прав по окружениям нет."
+ },
+ "REQ-ADMIN-0010": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/admin_stepup.py",
+   "tests/test_admin_stepup.py"
+  ]
+ },
+ "REQ-ADMIN-0011": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/models.py",
+   "backend/app/main.py",
+   "backend/app/admin_api.py",
+   "admin/src/control-center.tsx"
+  ],
+  "note": "В записи есть администратор, действие, объект, время, идентификатор запроса и подробности без секретов. Отдельного поля результата и единого формата «было — стало» нет."
+ },
+ "REQ-ADMIN-0013": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/admin_api.py",
+   "admin/src/control-center.tsx",
+   "docs/ru/new/ADMIN_CONTROL_MATRIX.md"
+  ],
+  "note": "Поиск, фильтры и серверная постраничная выдача есть в основных таблицах. Сохранённых представлений и предпросмотра массовых действий во всех таблицах нет; построчной сверки семи таблиц не было."
+ },
+ "REQ-ADMIN-0014": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/src/control-center.tsx",
+   "docs/ru/new/ADMIN_CONTROL_MATRIX.md"
+  ],
+  "note": "Показатели берутся из базы и панели. Источник, период и время обновления подписаны не у каждого показателя; сверки по списку не было."
+ },
+ "REQ-ADMIN-0015": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/src/control-center.tsx",
+   "backend/app/ecosystem_updates.py",
+   "admin/src/ecosystem-updates.tsx",
+   "backend/app/ops_alerts.py"
+  ],
+  "note": "«Центр управления» и «Готовность» сводят сервисы, ноды, платежи, копии; обновления сведены отдельной таблицей. Состояния мобильных сборок и CI на одном экране нет."
+ },
+ "REQ-ADMIN-0016": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Жизненного цикла инцидента (обнаружен, принят, расследуется, смягчён, решён, разбор) в панели нет. Есть режим обслуживания и документ docs/ru/new/INCIDENT_RESPONSE.md."
+ },
+ "REQ-ADMIN-0017": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Карточки инцидента с владельцем, серьёзностью, влиянием, хронологией и разбором нет."
+ },
+ "REQ-ADMIN-0018": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_jobs.py",
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "backend/app/rw_api.py"
+  ],
+  "note": "Установка и смена протокола идут задачами на сервере с ходом, журналом и откатом. Ключа идемпотентности, общего срока и правила отмены у всех опасных действий нет."
+ },
+ "REQ-ADMIN-0019": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/e2e/torrent-ban.spec.ts",
+   "admin/e2e/protocol-switch.spec.ts",
+   "admin/e2e/autoselect.spec.ts",
+   "admin/e2e/rw-drift.spec.ts"
+  ],
+  "note": "В проверенных разделах экран меняется только после ответа сервера. По всем разделам это не проверено."
+ },
+ "REQ-ADMIN-0012": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/audit_seal.py",
+   "tests/test_audit_seal.py",
+   "admin/e2e/audit-seal.spec.ts",
+   "docs/AUDIT_LOG_INTEGRITY.md",
+   "backend/app/admin_api.py"
+  ],
+  "note": "Записи запечатываются каждые десять минут подписью с секретом сервера; изменённая или удалённая запись находится проверкой. Пределы защиты описаны в документе."
  }
 }

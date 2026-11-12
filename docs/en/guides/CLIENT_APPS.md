@@ -37,7 +37,7 @@ A separate app for any subscriptions (links, QR, «Share», full Xray JSON), wri
 | Connection | Per-app proxy, quick settings tile, kill switch through the system settings, LAN, hotspot access to SOCKS5/HTTP with a password, autoconnect |
 | Other | Widget, Android TV and «subscription to TV from the phone», backups (file, QR, link), `corgi://` URL schemes, tunnel logs, three app icons, RU/EN/UK |
 
-Updates: the app checks `corgi-lusi-client.json` of the latest release; or add the repository to [Obtainium](https://github.com/ImranR98/Obtainium) with the APK filter `^corgi-lusi-client\.apk$`. Since v28.124.0 every new client version also gets its own release `client-v<version>` (never «latest»): add the release-name filter `^client-v` in Obtainium to follow the client alone.
+Updates: the app checks `corgi-lusi-client.json` of the latest release; or add the repository to [Obtainium](https://github.com/ImranR98/Obtainium) with the APK filter `^corgi-lusi-client\.apk$`. Since v28.125.0 every new client version also gets its own release `client-v<version>` (never «latest»): add the release-name filter `^client-v` in Obtainium to follow the client alone.
 
 ## Verification
 
