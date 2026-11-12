@@ -44,6 +44,8 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/admin/apps/{app_id}/file` | Delete App File | право `manage_content` |
 | `POST` | `/api/admin/apps/{app_id}/file` | Upload App File | право `manage_content` |
 | `GET` | `/api/admin/audit` | Admin Audit | право `read` |
+| `GET` | `/api/admin/audit-seal` | Get State | право `read` |
+| `POST` | `/api/admin/audit-seal/verify` | Post Verify | право `read` |
 | `POST` | `/api/admin/auth/login` | Admin Login | вход администратора |
 | `POST` | `/api/admin/auth/logout` | Admin Logout | вход администратора |
 | `POST` | `/api/admin/auth/mfa/disable` | Mfa Disable | право `manage_own_mfa` |

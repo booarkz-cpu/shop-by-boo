@@ -35,7 +35,7 @@
 | 25 | Integrations | Интеграции, Почтовый домен: SPF, DKIM, DMARC | 17 | ✓ | ✓ | ✓ | · | · | · | ✓ | ✓ | `analytics.read`, `ops.diagnostics`, `security.manage`, `settings.runtime.write` | PASS |
 | 26 | Plugins | Плагины | 14 | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | `ops.diagnostics`, `security.manage` | PASS |
 | 27 | Security | Защита и 2FA, Ключи доступа, Роли и администраторы, Сессии, Антифрод | 28 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `analytics.read`, `manage_admins`, `ops.diagnostics`, `read`, `security.manage`, `security.stepup`, `sessions.manage`, `sessions.self`, `settings.runtime.write`, `users.read` | PASS |
-| 28 | Logs | Журнал действий, События, Мониторинг | 6 | ✓ | ✓ | · | · | ✓ | · | · | ✓ | `ops.diagnostics`, `read` | PASS |
+| 28 | Logs | Журнал действий, События, Мониторинг | 8 | ✓ | ✓ | · | · | ✓ | · | ✓ | ✓ | `ops.diagnostics`, `read` | PASS |
 | 29 | GitHub | Обновления | 5 | ✓ | ✓ | ✓ | · | · | · | · | ✓ | `ops.releases`, `settings.runtime.write` | PASS |
 | 30 | Settings | Настройки без перезапуска, Функции и модули, Оформление | 9 | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | `manage_content`, `settings.runtime.read`, `settings.runtime.write` | PASS |
 
