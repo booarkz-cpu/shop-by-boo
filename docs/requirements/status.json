@@ -1842,5 +1842,162 @@
    "tests/test_architecture_docs.py"
   ],
   "note": "Образец записи и пять записей о решениях ноября 2026 года есть; тест проверяет состав записи. Решения, принятые раньше, записями не оформлены."
+ },
+ "REQ-BRAND-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора."
+ },
+ "REQ-BRAND-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора."
+ },
+ "REQ-BRAND-0014": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора."
+ },
+ "REQ-BRAND-0015": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md",
+   "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt"
+  ],
+  "note": "Слоган стоит в приложении «Корги Люси: клиент». В боте, кабинете и Mini App он не вшит: текст подготовлен в docs/BRAND_COPY.md."
+ },
+ "REQ-BRAND-0003": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "tests/test_cabinet_stage8.py",
+   "admin/src/lucy-plans.tsx"
+  ]
+ },
+ "REQ-BRAND-0004": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "tests/test_cabinet_stage8.py",
+   "admin/src/lucy-plans.tsx"
+  ]
+ },
+ "REQ-BRAND-0005": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "tests/test_cabinet_stage8.py",
+   "admin/src/lucy-plans.tsx"
+  ]
+ },
+ "REQ-BRAND-0016": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/lucy_plans.py",
+   "tests/test_cabinet_stage8.py",
+   "admin/src/lucy-plans.tsx"
+  ]
+ },
+ "REQ-BRAND-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md",
+   "backend/app/lucy_plans.py"
+  ],
+  "note": "Описания каждого тарифа, сравнительный блок и текстовый вариант подготовлены в docs/BRAND_COPY.md; панель не даёт сделать Ultra невыгоднее Max. В интерфейсы эти описания не вшиты."
+ },
+ "REQ-BRAND-0017": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md",
+   "backend/app/lucy_plans.py"
+  ],
+  "note": "Описания каждого тарифа, сравнительный блок и текстовый вариант подготовлены в docs/BRAND_COPY.md; панель не даёт сделать Ultra невыгоднее Max. В интерфейсы эти описания не вшиты."
+ },
+ "REQ-BRAND-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Описание сервиса на русском и английском и сообщение о технических работах подготовлены в docs/BRAND_COPY.md. Переменных .env для этих текстов в магазине нет."
+ },
+ "REQ-BRAND-0018": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Описание сервиса на русском и английском и сообщение о технических работах подготовлены в docs/BRAND_COPY.md. Переменных .env для этих текстов в магазине нет."
+ },
+ "REQ-BRAND-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md",
+   "cabinet/src/stickers.tsx"
+  ],
+  "note": "Сообщение подготовлено в docs/BRAND_COPY.md; кабинет показывает свой экран технических работ. Переменной .env для текста нет, бот отдельного текста не показывает."
+ },
+ "REQ-BRAND-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Текст с СБП и «Мир» без Visa и Mastercard подготовлен в docs/BRAND_COPY.md. На экран оплаты он не вшит; какие способы включены у владельца, неизвестно."
+ },
+ "REQ-BRAND-0019": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Текст с СБП и «Мир» без Visa и Mastercard подготовлен в docs/BRAND_COPY.md. На экран оплаты он не вшит; какие способы включены у владельца, неизвестно."
+ },
+ "REQ-BRAND-0010": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/bot-banners/render.py",
+   "tests/test_bot_banners.py",
+   "backend/app/assets/bot_banners/home.jpg",
+   "docs/BRAND_COPY.md"
+  ]
+ },
+ "REQ-BRAND-0011": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/bot-banners/render.py",
+   "tests/test_bot_banners.py",
+   "backend/app/assets/bot_banners/home.jpg",
+   "docs/BRAND_COPY.md"
+  ]
+ },
+ "REQ-BRAND-0020": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/bot-banners/render.py",
+   "tests/test_bot_banners.py",
+   "backend/app/assets/bot_banners/home.jpg",
+   "docs/BRAND_COPY.md"
+  ]
+ },
+ "REQ-BRAND-0012": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/bot-banners/render.py",
+   "tests/test_bot_banners.py",
+   "backend/app/assets/bot_banners/home.jpg"
+  ],
+  "note": "Текст баннеров отступает от краёв на 80 px, шрифт уменьшается для длинных заголовков; это проверяет тест. Читаемость на экране телефона на устройстве не проверена."
+ },
+ "REQ-BRAND-0013": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/BRAND_COPY.md",
+   "backend/app/lucy_plans.py"
+  ],
+  "note": "Правило честности записано, тексты обещают только условия тарифов. Автоматической проверки всех текстов интерфейсов на лишние обещания нет."
  }
 }

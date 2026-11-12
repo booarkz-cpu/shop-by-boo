@@ -41,6 +41,8 @@ INTERFACE_STICKERS = ("waiting", "success", "error404", "bugs", "maintenance", "
                       "holiday", "gift", "vip", "payment", "delivery")
 DOCS = ROOT / "docs/img"
 W, H = 1280, 640
+# Master prompt v6, Telegram banner: text is never closer than 80 px to an edge (tests/test_bot_banners.py).
+SAFE = 80
 INK = "#3a2416"
 
 # sheet → (approximate card origins x, y; card width, height; caption share of the card height;
@@ -270,10 +272,10 @@ body{width:%dpx;height:%dpx;overflow:hidden;font-family:Lusi,'Roboto Condensed',
  background:radial-gradient(circle at 78%% 50%%,var(--glow) 0,transparent 48%%),linear-gradient(135deg,#fbf6ef 0%%,#f3e9dd 100%%)}
 .paw{position:absolute;width:var(--s);height:var(--s);color:#8a5a3a;opacity:.13;transform:rotate(var(--r))}
 .spark{position:absolute;width:var(--s);height:var(--s);color:var(--c);transform:rotate(var(--r))}
-.brand{position:absolute;left:64px;top:56px;display:flex;align-items:center;gap:12px;font-size:30px;letter-spacing:.02em;color:#8a5a3a}
+.brand{position:absolute;left:%dpx;top:%dpx;display:flex;align-items:center;gap:12px;font-size:30px;letter-spacing:.02em;color:#8a5a3a}
 .brand i{display:block;width:34px;height:34px;color:#e08a2c}
 .sticker{position:absolute;display:block;filter:drop-shadow(0 16px 22px rgba(84,46,16,.24)) drop-shadow(0 3px 5px rgba(84,46,16,.12))}
-""" % (W, H, INK)
+""" % (W, H, INK, SAFE, SAFE)
 
 
 def decor(seed: int, accent: str, area=(0, 0, W, H)) -> str:
@@ -299,11 +301,11 @@ def banner_html(key: str) -> str:
     tilt = (-3, -2, 2, 3)[seed % 4]
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>{font_face()}{BASE_CSS}
 :root{{--glow:{accent}55}}
-.title{{position:absolute;left:64px;top:50%;transform:translateY(-58%);width:540px;font-size:{size}px;line-height:.98;font-weight:800;
+.title{{position:absolute;left:{SAFE}px;top:50%;transform:translateY(-58%);width:540px;font-size:{size}px;line-height:.98;font-weight:800;
  text-transform:uppercase;letter-spacing:.005em;text-shadow:0 3px 0 #fff}}
-.caption{{position:absolute;left:64px;bottom:74px;max-width:560px;font-size:31px;line-height:1.15;padding:14px 24px;border-radius:999px;
+.caption{{position:absolute;left:{SAFE}px;bottom:{SAFE}px;max-width:560px;font-size:31px;line-height:1.15;padding:14px 24px;border-radius:999px;
  background:#fff;color:#5b3a24;box-shadow:0 8px 20px rgba(84,46,16,.12);border:3px solid {accent}}}
-.bar{{position:absolute;left:64px;top:118px;width:120px;height:10px;border-radius:5px;background:{accent}}}
+.bar{{position:absolute;left:{SAFE}px;top:{SAFE + 62}px;width:120px;height:10px;border-radius:5px;background:{accent}}}
 </style></head><body>
 {decor(seed, accent)}
 <div class="brand"><i>{PAW}</i>Корги Люси</div><div class="bar"></div>

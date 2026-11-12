@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **88** — 13.5%.
+- Подтверждено (`PASS`): **95** — 14.5%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 88 | Проверено, доказательство указано |
-| `PARTIAL` | 106 | Сделано частично, остаток описан |
+| `PASS` | 95 | Проверено, доказательство указано |
+| `PARTIAL` | 119 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 16 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 442 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 422 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -27,7 +27,7 @@
 | Монорепозиторий и перенос | 28 | 0 | 0 | 0 | 28 |
 | «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
 | Магазин, кабинет, Telegram | 32 | 0 | 0 | 0 | 32 |
-| Бренд и тексты | 20 | 0 | 0 | 0 | 20 |
+| Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
 | Lucy Admin | 19 | 3 | 11 | 0 | 0 |
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 1 | 13 | 0 | 0 |
@@ -1400,123 +1400,156 @@
 
 ## Бренд и тексты
 
-### REQ-BRAND-0001 — `NOT_TESTED`
+### REQ-BRAND-0001 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Brand Name (строка 1221). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`.
+- Примечание: Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора.
 
 > Корги Люси — Свободный интернет без лишнего Гав.
 
-### REQ-BRAND-0002 — `NOT_TESTED`
+### REQ-BRAND-0002 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Brand Variants (строка 1225). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`.
+- Примечание: Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора.
 
 > Корги Люси — «Свободный Гав!»; Корги Люси — Свободный интернет от Люси.
 
-### REQ-BRAND-0003 — `NOT_TESTED`
+### REQ-BRAND-0003 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Max (строка 1231). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
 
 > Lucy Max: 2 устройства, безлимитный трафик.
 
-### REQ-BRAND-0004 — `NOT_TESTED`
+### REQ-BRAND-0004 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Ultra (строка 1235). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
 
 > Lucy Ultra: 4 устройства, безлимитный трафик; показать очевидную выгоду относительно Max без изменения цены/условий без разрешения.
 
-### REQ-BRAND-0005 — `NOT_TESTED`
+### REQ-BRAND-0005 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Mini (строка 1239). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
 
 > Lucy Mini — Test: 3 дня, 1 устройство, тестовый тариф.
 
-### REQ-BRAND-0006 — `NOT_TESTED`
+### REQ-BRAND-0006 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Task (строка 1243). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`; `backend/app/lucy_plans.py`.
+- Примечание: Описания каждого тарифа, сравнительный блок и текстовый вариант подготовлены в docs/BRAND_COPY.md; панель не даёт сделать Ultra невыгоднее Max. В интерфейсы эти описания не вшиты.
 
 > Подготовить описания каждого тарифа отдельно, единый сравнительный блок трёх тарифов и упрощённый текстовый вариант.
 
-### REQ-BRAND-0007 — `NOT_TESTED`
+### REQ-BRAND-0007 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Service Descriptions (строка 1248). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`.
+- Примечание: Описание сервиса на русском и английском и сообщение о технических работах подготовлены в docs/BRAND_COPY.md. Переменных .env для этих текстов в магазине нет.
 
 > Подготовить русское и английское описание сервиса для .env и пользовательских интерфейсов.
 
-### REQ-BRAND-0008 — `NOT_TESTED`
+### REQ-BRAND-0008 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Maintenance Message (строка 1252). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`; `cabinet/src/stickers.tsx`.
+- Примечание: Сообщение подготовлено в docs/BRAND_COPY.md; кабинет показывает свой экран технических работ. Переменной .env для текста нет, бот отдельного текста не показывает.
 
 > Подготовить короткое уведомление о технических работах в фирменном стиле Lucy для .env/бота/кабинета.
 
-### REQ-BRAND-0009 — `NOT_TESTED`
+### REQ-BRAND-0009 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Payment Copy (строка 1256). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`.
+- Примечание: Текст с СБП и «Мир» без Visa и Mastercard подготовлен в docs/BRAND_COPY.md. На экран оплаты он не вшит; какие способы включены у владельца, неизвестно.
 
 > Текст для оплаты через YooKassa с упоминанием СБП и карт платёжной системы «Мир». Не упоминать Visa/Mastercard в данном тексте. Не заявлять методы, которые фактически не включены у мерчанта.
 
-### REQ-BRAND-0010 — `NOT_TESTED`
+### REQ-BRAND-0010 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Banner Size (строка 1262). Продукт: Магазин.
+- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
 
 > 1280×640 px, соотношение 2:1.
 
-### REQ-BRAND-0011 — `NOT_TESTED`
+### REQ-BRAND-0011 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Format (строка 1266). Продукт: Магазин.
+- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
 
 > JPEG, качество 90–95%, ориентир размера файла 200 KB, без прозрачности.
 
-### REQ-BRAND-0012 — `NOT_TESTED`
+### REQ-BRAND-0012 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Layout (строка 1270). Продукт: Магазин.
+- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `backend/app/assets/bot_banners/home.jpg`.
+- Примечание: Текст баннеров отступает от краёв на 80 px, шрифт уменьшается для длинных заголовков; это проверяет тест. Читаемость на экране телефона на устройстве не проверена.
 
 > Текст не ближе 80 px от краёв; при необходимости уменьшить шрифт; проверить читаемость на мобильном экране.
 
-### REQ-BRAND-0013 — `NOT_TESTED`
+### REQ-BRAND-0013 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Rule (строка 1274). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`; `backend/app/lucy_plans.py`.
+- Примечание: Правило честности записано, тексты обещают только условия тарифов. Автоматической проверки всех текстов интерфейсов на лишние обещания нет.
 
 > Фирменные тексты и баннеры согласовать с брендингом. Не использовать ложные заявления о скорости, безопасности, доступности или безлимитности сверх фактических условий.
 
-### REQ-BRAND-0014 — `NOT_TESTED`
+### REQ-BRAND-0014 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1597). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`.
+- Примечание: Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора.
 
 > - Название и стиль: «Корги Люси — Свободный интернет без лишнего Гав», «Корги Люси — Свободный Гав!», «Корги Люси — Свободный интернет от Люси».
 
-### REQ-BRAND-0015 — `NOT_TESTED`
+### REQ-BRAND-0015 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1598). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`; `mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`.
+- Примечание: Слоган стоит в приложении «Корги Люси: клиент». В боте, кабинете и Mini App он не вшит: текст подготовлен в docs/BRAND_COPY.md.
 
 > - Слоган: «Твой интернет. Твои правила. Твоя Люси».
 
-### REQ-BRAND-0016 — `NOT_TESTED`
+### REQ-BRAND-0016 — `PASS`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1599). Продукт: Магазин.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
 
 > - Lucy Max: 2 устройства, безлимитный трафик; Lucy Ultra: 4 устройства, безлимитный трафик, выгоднее Max; Lucy Mini — Test: 3 дня, 1 устройство.
 
-### REQ-BRAND-0017 — `NOT_TESTED`
+### REQ-BRAND-0017 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1600). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`; `backend/app/lucy_plans.py`.
+- Примечание: Описания каждого тарифа, сравнительный блок и текстовый вариант подготовлены в docs/BRAND_COPY.md; панель не даёт сделать Ultra невыгоднее Max. В интерфейсы эти описания не вшиты.
 
 > - Отдельные описания тарифов, единый тарифный блок и простой plain-text вариант; Ultra визуально выгоднее.
 
-### REQ-BRAND-0018 — `NOT_TESTED`
+### REQ-BRAND-0018 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1601). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`.
+- Примечание: Описание сервиса на русском и английском и сообщение о технических работах подготовлены в docs/BRAND_COPY.md. Переменных .env для этих текстов в магазине нет.
 
 > - Короткое сообщение о технических работах для `.env` в стиле Люси; описание сервиса в `.env` на русском и английском.
 
-### REQ-BRAND-0019 — `NOT_TESTED`
+### REQ-BRAND-0019 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1602). Продукт: Магазин.
+- Доказательство: `docs/BRAND_COPY.md`.
+- Примечание: Текст с СБП и «Мир» без Visa и Mastercard подготовлен в docs/BRAND_COPY.md. На экран оплаты он не вшит; какие способы включены у владельца, неизвестно.
 
 > - Для YooKassa упоминать СБП и «Мир», не упоминать Visa/Mastercard в текстах, как просил пользователь, при условии фактической доступности метода.
 
-### REQ-BRAND-0020 — `NOT_TESTED`
+### REQ-BRAND-0020 — `PASS`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1603). Продукт: Магазин.
+- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
 
 > - Telegram promo banner: 1280×640 px, 2:1, JPEG quality 90–95%, ориентир 200 KB, без прозрачности, текст отступает 80 px от краёв, уменьшенный шрифт.
 

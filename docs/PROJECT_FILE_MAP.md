@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.126.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.127.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2518**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2520**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -807,6 +807,7 @@
 | [docs/AUTO_UPDATE_TESTING.md](../docs/AUTO_UPDATE_TESTING.md) | Документация |
 | [docs/AUTO_UPDATE_TROUBLESHOOTING.md](../docs/AUTO_UPDATE_TROUBLESHOOTING.md) | Документация |
 | [docs/BRANCHES.md](../docs/BRANCHES.md) | Документация |
+| [docs/BRAND_COPY.md](../docs/BRAND_COPY.md) | Документация |
 | [docs/CLAUDE_GITHUB_AUTOMATION.md](../docs/CLAUDE_GITHUB_AUTOMATION.md) | Документация |
 | [docs/CODE_REUSE_REGISTER.md](../docs/CODE_REUSE_REGISTER.md) | Документация |
 | [docs/CROWDSEC.md](../docs/CROWDSEC.md) | Документация |
@@ -1198,6 +1199,7 @@
 | [docs/ru/RELEASE_V28_124_0.md](../docs/ru/RELEASE_V28_124_0.md) | Документация |
 | [docs/ru/RELEASE_V28_125_0.md](../docs/ru/RELEASE_V28_125_0.md) | Документация |
 | [docs/ru/RELEASE_V28_126_0.md](../docs/ru/RELEASE_V28_126_0.md) | Документация |
+| [docs/ru/RELEASE_V28_127_0.md](../docs/ru/RELEASE_V28_127_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
