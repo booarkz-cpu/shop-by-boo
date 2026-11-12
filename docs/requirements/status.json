@@ -2290,5 +2290,104 @@
    "backend/app/staging_e2e_api.py"
   ],
   "note": "Сквозной прогон «заказ → оплата → выдача → подписка» идёт через настоящие маршруты на стенде; есть сценарии резервной кассы и автопродления. Шагов «бот: старт» и «обращение в поддержку» в одном сценарии нет."
+ },
+ "REQ-MASQUE-0001": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Автоустановки MASQUE на ноду нет: панель Remnawave 3.4.10 не выдаёт пользователей для этого протокола, а без пользователей ядро отклоняет все туннели. Причины и условия возврата — в docs/MASQUE_IMPLEMENTATION_REPORT.md, §9–10."
+ },
+ "REQ-MASQUE-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/masque.py",
+   "tests/test_masque.py",
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+  ],
+  "note": "Тега v26.10.10 не существует; магазин требует первый тег не старше него — v26.10.21 — и показывает, на каких нодах ядро подходит. Само ядро нод до этой версии магазин не поднимает."
+ },
+ "REQ-MASQUE-0003": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md",
+   "scripts/masque-selfcheck.sh",
+   "tests/test_masque.py"
+  ],
+  "note": "Теги, код и документация прочитаны из официальных репозиториев на 2026-11-12; inbound и outbound приняты настоящим Xray 26.11.9, страница получена через туннель по HTTP/3 и HTTP/2 (scripts/masque-selfcheck.sh на runner GitHub)."
+ },
+ "REQ-MASQUE-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/masque.py",
+   "backend/app/rw_steps.py",
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+  ],
+  "note": "Проверка портов и сертификат ноды (Caddy + копирование таймером) есть и переиспользуются; установки MASQUE на чистую ноду по SSH нет."
+ },
+ "REQ-MASQUE-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/masque.py",
+   "tests/test_masque.py",
+   "scripts/masque-selfcheck.sh",
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+  ],
+  "note": "Конфликты 443, ALPN, ограничения REALITY исследованы; inbound проверен на настоящем Xray. Правил routing для MASQUE и общего 443 через обратный прокси нет. На VPS с настоящим доменом не проверено."
+ },
+ "REQ-MASQUE-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+  ],
+  "note": "HandlerService, AddUser/RemoveUser и StatsService проверены по исходникам v26.11.9. Горячей выдачи пользователей, статистики и лимитов для MASQUE в магазине нет: нодами управляет панель."
+ },
+ "REQ-MASQUE-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/masque.py",
+   "tests/test_masque.py",
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+  ],
+  "note": "VLESS Reality и Hysteria 2 выдаются подпиской панели; MASQUE в подписку не добавляется и остальные конфигурации не ломает. Готов только проверенный JSON outbound; ссылок для v2rayNG и NekoBox нет."
+ },
+ "REQ-MASQUE-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/src/masque.tsx",
+   "admin/e2e/masque.spec.ts",
+   "backend/app/masque.py"
+  ],
+  "note": "Есть проверка совместимости: версии ядра нод, конфликты порта, причины. Переключателей, fallback-домена, прогресса и диагностики установки нет — включать нечего."
+ },
+ "REQ-MASQUE-0009": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md",
+   "scripts/masque-selfcheck.sh"
+  ],
+  "note": "Отказ при неверном пароле проверен на настоящем Xray; ответы 401/404, отсутствие сайта-прикрытия и запрет частных адресов описаны в отчёте, §6. Защита от DPI не обещается."
+ },
+ "REQ-MASQUE-0010": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+  ],
+  "note": "sing-box проверен по исходникам: masque-server и masque-client с 1.15.0 (alpha). Вывод: препятствие в панели, а не в ядре."
+ },
+ "REQ-MASQUE-0011": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md",
+   "backend/app/masque.py",
+   "tests/test_masque.py",
+   "scripts/masque-selfcheck.sh"
+  ],
+  "note": "Официальное подтверждение, код, конфигурации, тесты, ограничения, безопасность и документация есть для проверочной части; рабочей выдачи MASQUE пользователям нет."
+ },
+ "REQ-MASQUE-0012": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MASQUE_IMPLEMENTATION_REPORT.md"
+  ],
+  "note": "Отчёт написан."
  }
 }

@@ -26,7 +26,7 @@
 | 16 | Certificates | 2 | 1 | 1 | PASS |
 | 17 | Reverse Proxy | 1 | 0 | 0 | PASS |
 | 18 | Subscription Portal | 12 | 7 | 7 | PASS |
-| 19 | Node Extensions | 44 | 29 | 29 | PASS |
+| 19 | Node Extensions | 45 | 29 | 29 | PASS |
 | 20 | Monitoring | 17 | 9 | 9 | PASS |
 | 21 | Backups | 17 | 11 | 11 | PASS |
 | 22 | Updates | 14 | 9 | 9 | PASS |

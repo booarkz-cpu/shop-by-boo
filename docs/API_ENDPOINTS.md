@@ -1,4 +1,4 @@
-# Каталог API — v28.127.0 / API v21.5.1
+# Каталог API — v28.128.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -266,6 +266,7 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/marketplace/resellers/{reseller_id}/rotate-key` | Rotate Reseller Key | право `referrals.reconcile` |
 | `GET` | `/api/admin/marketplace/withdrawals` | Withdrawals | право `referrals.withdrawals.read` |
 | `POST` | `/api/admin/marketplace/withdrawals/{withdrawal_id}/decision` | Decide | право `referrals.withdrawals.approve` |
+| `GET` | `/api/admin/masque` | State | право `read` |
 | `POST` | `/api/admin/menu` | Admin Menu | право `manage_content` |
 | `DELETE` | `/api/admin/menu/{item_id}` | Admin Menu Delete | право `manage_content` |
 | `PUT` | `/api/admin/menu/{item_id}` | Admin Menu Update | право `manage_content` |

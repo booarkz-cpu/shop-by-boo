@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.127.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.128.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2520**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2527**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -138,6 +138,7 @@
 | [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
 | [admin/e2e/install-hub.spec.ts](../admin/e2e/install-hub.spec.ts) | Админ-панель |
 | [admin/e2e/integrity.spec.ts](../admin/e2e/integrity.spec.ts) | Админ-панель |
+| [admin/e2e/masque.spec.ts](../admin/e2e/masque.spec.ts) | Админ-панель |
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
 | [admin/e2e/mobile-layout.spec.ts](../admin/e2e/mobile-layout.spec.ts) | Админ-панель |
 | [admin/e2e/passkeys.spec.ts](../admin/e2e/passkeys.spec.ts) | Админ-панель |
@@ -223,6 +224,7 @@
 | [admin/src/lucy-plans.tsx](../admin/src/lucy-plans.tsx) | Админ-панель |
 | [admin/src/mail-domain.tsx](../admin/src/mail-domain.tsx) | Админ-панель |
 | [admin/src/main.tsx](../admin/src/main.tsx) | Админ-панель |
+| [admin/src/masque.tsx](../admin/src/masque.tsx) | Админ-панель |
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
 | [admin/src/mobileLayout.tsx](../admin/src/mobileLayout.tsx) | Админ-панель |
 | [admin/src/network-intel.tsx](../admin/src/network-intel.tsx) | Админ-панель |
@@ -524,6 +526,7 @@
 | [backend/app/main.py](../backend/app/main.py) | API, бот и worker |
 | [backend/app/marketing_api.py](../backend/app/marketing_api.py) | API, бот и worker |
 | [backend/app/marketplace_api.py](../backend/app/marketplace_api.py) | API, бот и worker |
+| [backend/app/masque.py](../backend/app/masque.py) | API, бот и worker |
 | [backend/app/menu_tree.py](../backend/app/menu_tree.py) | API, бот и worker |
 | [backend/app/mobile_api.py](../backend/app/mobile_api.py) | API, бот и worker |
 | [backend/app/mobile_auth.py](../backend/app/mobile_auth.py) | API, бот и worker |
@@ -814,6 +817,7 @@
 | [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
+| [docs/MASQUE_IMPLEMENTATION_REPORT.md](../docs/MASQUE_IMPLEMENTATION_REPORT.md) | Документация |
 | [docs/MASTER_EXECUTION_BLOCKERS.md](../docs/MASTER_EXECUTION_BLOCKERS.md) | Документация |
 | [docs/MASTER_EXECUTION_HANDOFF.md](../docs/MASTER_EXECUTION_HANDOFF.md) | Документация |
 | [docs/MASTER_EXECUTION_PLAN.md](../docs/MASTER_EXECUTION_PLAN.md) | Документация |
@@ -1200,6 +1204,7 @@
 | [docs/ru/RELEASE_V28_125_0.md](../docs/ru/RELEASE_V28_125_0.md) | Документация |
 | [docs/ru/RELEASE_V28_126_0.md](../docs/ru/RELEASE_V28_126_0.md) | Документация |
 | [docs/ru/RELEASE_V28_127_0.md](../docs/ru/RELEASE_V28_127_0.md) | Документация |
+| [docs/ru/RELEASE_V28_128_0.md](../docs/ru/RELEASE_V28_128_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
@@ -2082,6 +2087,7 @@
 | [scripts/integration-test.sh](../scripts/integration-test.sh) | Эксплуатация и релиз |
 | [scripts/ios/build-tunnel-frameworks.sh](../scripts/ios/build-tunnel-frameworks.sh) | Эксплуатация и релиз |
 | [scripts/ios/enable-extensions.py](../scripts/ios/enable-extensions.py) | Эксплуатация и релиз |
+| [scripts/masque-selfcheck.sh](../scripts/masque-selfcheck.sh) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-ktlint.sh](../scripts/mobile/client-ktlint.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-vpn-e2e.sh](../scripts/mobile/client-vpn-e2e.sh) | Эксплуатация и релиз |
@@ -2350,6 +2356,7 @@
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
 | [tests/test_mail_receiver.py](../tests/test_mail_receiver.py) | Проверки |
 | [tests/test_main_split.py](../tests/test_main_split.py) | Проверки |
+| [tests/test_masque.py](../tests/test_masque.py) | Проверки |
 | [tests/test_matrix_extension_migrations.py](../tests/test_matrix_extension_migrations.py) | Проверки |
 | [tests/test_matrix_privacy.py](../tests/test_matrix_privacy.py) | Проверки |
 | [tests/test_menu_hierarchy.py](../tests/test_menu_hierarchy.py) | Проверки |
