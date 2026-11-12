@@ -1,4 +1,4 @@
-"""MASQUE (CONNECT-IP, RFC 9484): what is confirmed, what a node needs, and why it is not switched on yet.
+"""MASQUE (CONNECT-IP, RFC 9484): what is confirmed and what a node needs.
 
 Checked against the official sources on 2026-11-12 (``docs/MASQUE_IMPLEMENTATION_REPORT.md`` has the commits):
 
@@ -6,8 +6,8 @@ Checked against the official sources on 2026-11-12 (``docs/MASQUE_IMPLEMENTATION
   the first tag not older than it is v26.10.21, and that is the version this module asks of a node;
 * the transport works only over TLS (REALITY is not supported), HTTP/3 listens on UDP and HTTP/2 on TCP;
 * the Remnawave panel (3.4.10) knows nothing about MASQUE: it does not put users into such an inbound and does not
-  write it into a subscription. Until that changes the shop has nothing honest to switch on, so ``can_enable`` is
-  False and the page only shows the readiness of the nodes and the prepared, validated configuration.
+  write it into a subscription. Since v28.129.0 the shop does that itself (``rw_masque``, ``masque_panel``); this
+  module stays the pure part: versions, the inbound and outbound of the official schema, port conflicts.
 
 Everything here is pure except the page endpoint, which reads the nodes and profiles from the panel and changes nothing.
 """
@@ -31,15 +31,17 @@ HTTP = {"h3": "udp", "h2": "tcp"}
 UDP_NETWORKS = {"hysteria", "kcp", "mkcp", "quic"}
 VERSION = re.compile(r"(?<![\d.])v?(\d{1,3})\.(\d{1,3})\.(\d{1,3})(?![\d.])")
 
+# What an administrator should know before switching MASQUE on (shown on the page).
 BLOCKERS = (
     {"key": "panel", "title": "Панель Remnawave не знает MASQUE",
-     "text": "Панель 3.4.10 не добавляет пользователей в inbound MASQUE и не пишет его в подписку. Без этого клиент не получит "
-             "ни логин, ни адрес сервера."},
-    {"key": "link", "title": "Нет общей ссылки для клиента",
-     "text": "У v2rayNG ссылка masque:// описывает только Cloudflare WARP (ключи устройства), а не сервер с логином и паролем. "
-             "Такой сервер передаётся только целым JSON-конфигом."},
+     "text": "Поэтому MASQUE ведёт сам магазин: ставит его на ноду, выдаёт доступ по подпискам и отдаёт свою ссылку подписки. "
+             "Трафик MASQUE панель не видит, и в лимит тарифа он не входит."},
+    {"key": "link", "title": "Подписка — в формате JSON",
+     "text": "Общей ссылки masque:// для сервера с логином и паролем нет: у v2rayNG она описывает только Cloudflare WARP. "
+             "Магазин отдаёт готовые конфигурации Xray, их принимают клиенты с поддержкой подписок JSON."},
     {"key": "reality", "title": "Не работает с REALITY",
-     "text": "MASQUE идёт только через обычный TLS с сертификатом домена ноды, поэтому ставится отдельным портом рядом с REALITY."},
+     "text": "MASQUE идёт через обычный TLS с сертификатом домена ноды. Он ставится на отдельный порт и прячется за сайтом SelfSteal: "
+             "посетитель порта видит сайт, а туннель открывается только по секретному пути."},
 )
 
 __all__ = ["router", "parse_version", "core_state", "inbound", "outbound", "port_conflicts", "readiness"]
@@ -176,7 +178,7 @@ def readiness(nodes: list[dict], profiles: list[dict], port: int = DEFAULT_PORT,
                "conflicts": port_conflicts((p.get("config") or {}).get("inbounds") or [], port, http)} for p in profiles]
     return {"required": "v" + ".".join(map(str, REQUIRED)), "first_tag": "v" + ".".join(map(str, FIRST_TAG)), "port": int(port),
             "http": _http(http), "nodes": rows, "nodes_ready": sum(r["state"] == "ready" for r in rows), "profiles": checks,
-            "blockers": list(BLOCKERS), "can_enable": False,
+            "blockers": list(BLOCKERS),
             "example": inbound("node.example.com", "/var/lib/corgi-hysteria/cert.pem", "/var/lib/corgi-hysteria/key.pem",
                                port=port, http=http)}
 

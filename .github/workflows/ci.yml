@@ -129,6 +129,12 @@ jobs:
         if: matrix.shard == 1
         timeout-minutes: 10
         run: sudo env "PATH=$PATH" bash scripts/ci/crowdsec-check.sh
+      - name: MASQUE on a node behind the SelfSteal site, for real (tunnel, hot users, removal)
+        # v28.129.0: the script and files of backend/app/rw_masque.py on the runner — the node's SelfSteal Caddy, the
+        # pinned Xray and HAProxy images and a real Xray client.
+        if: matrix.shard == 2
+        timeout-minutes: 12
+        run: sudo env "PATH=$PATH" bash scripts/ci/masque-check.sh
       - name: MTProto module on the runner
         # v28.94.0 (N7): rw_netmods.MTPROTO with the pinned mtg image — secret, container, port, «off».
         if: matrix.shard == 1
