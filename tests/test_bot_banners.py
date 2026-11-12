@@ -229,7 +229,7 @@ def test_telegram_banners_follow_the_owners_format():
 
     from PIL import Image
 
-    root = pathlib.Path(__file__).resolve().parents[1]
+    root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location("banner_render", root / "scripts/bot-banners/render.py")
     render = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(render)
@@ -237,11 +237,10 @@ def test_telegram_banners_follow_the_owners_format():
     source = (root / "scripts/bot-banners/render.py").read_text(encoding="utf-8")
     assert "quality=92" in source                                     # inside the 90–95 range
     # Every positioned text block of the Telegram banner starts at the safe margin, not at a number of its own.
-    light = source[source.index("def banner_html") if "def banner_html" in source else 0:source.index("APP_W, APP_H") if source.index("APP_W, APP_H") > 2000 else len(source)]
     for block in (".title{{", ".caption{{", ".bar{{"):
         assert re.search(re.escape(block) + r"position:absolute;left:\{SAFE\}px", source), block
-    assert ".brand{position:absolute;left:%dpx;top:%dpx;" in render.BASE_CSS or "left:80px;top:80px" in render.BASE_CSS
-    assert "bottom:{SAFE}px" in source and light is not None
+    assert ".brand{position:absolute;left:80px;top:80px;" in render.BASE_CSS
+    assert "bottom:{SAFE}px" in source
     banners = [p for p in (root / "backend/app/assets/bot_banners").glob("*.jpg") if not p.name.startswith("app-")]
     assert len(banners) >= 25
     for path in banners:
