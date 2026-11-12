@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **76** — 11.6%.
+- Подтверждено (`PASS`): **88** — 13.5%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 76 | Проверено, доказательство указано |
-| `PARTIAL` | 99 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 15 | Функции нет |
+| `PASS` | 88 | Проверено, доказательство указано |
+| `PARTIAL` | 106 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 16 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 462 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 442 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -42,7 +42,7 @@
 | Документация | 37 | 2 | 0 | 0 | 35 |
 | Аудит, тесты, скриншоты | 69 | 5 | 4 | 0 | 60 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
-| Архитектура | 20 | 0 | 0 | 0 | 20 |
+| Архитектура | 20 | 12 | 7 | 0 | 0 |
 | Производительность и стоимость | 7 | 0 | 0 | 0 | 7 |
 
 ## Правила работы и приёмка
@@ -3590,63 +3590,63 @@
 ### REQ-DOC-0016 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2435). Продукт: Все три.
-- Названные файлы: `docs/architecture/SYSTEM_OVERVIEW.md` — нет.
+- Названные файлы: `docs/architecture/SYSTEM_OVERVIEW.md` — есть (`docs/architecture/SYSTEM_OVERVIEW.md`).
 
 > - `docs/architecture/SYSTEM_OVERVIEW.md`
 
 ### REQ-DOC-0017 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2436). Продукт: Все три.
-- Названные файлы: `docs/architecture/CONTEXT_MAP.md` — нет.
+- Названные файлы: `docs/architecture/CONTEXT_MAP.md` — есть (`docs/architecture/CONTEXT_MAP.md`).
 
 > - `docs/architecture/CONTEXT_MAP.md`
 
 ### REQ-DOC-0018 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2437). Продукт: Все три.
-- Названные файлы: `docs/architecture/CONTAINER_DIAGRAM.md` — нет.
+- Названные файлы: `docs/architecture/CONTAINER_DIAGRAM.md` — есть (`docs/architecture/CONTAINER_DIAGRAM.md`).
 
 > - `docs/architecture/CONTAINER_DIAGRAM.md`
 
 ### REQ-DOC-0019 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2438). Продукт: Все три.
-- Названные файлы: `docs/architecture/DATA_FLOW.md` — нет.
+- Названные файлы: `docs/architecture/DATA_FLOW.md` — есть (`docs/architecture/DATA_FLOW.md`).
 
 > - `docs/architecture/DATA_FLOW.md`
 
 ### REQ-DOC-0020 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2439). Продукт: Все три.
-- Названные файлы: `docs/architecture/DOMAIN_BOUNDARIES.md` — нет.
+- Названные файлы: `docs/architecture/DOMAIN_BOUNDARIES.md` — есть (`docs/architecture/DOMAIN_BOUNDARIES.md`).
 
 > - `docs/architecture/DOMAIN_BOUNDARIES.md`
 
 ### REQ-DOC-0021 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2440). Продукт: Все три.
-- Названные файлы: `docs/architecture/API_CATALOG.md` — нет.
+- Названные файлы: `docs/architecture/API_CATALOG.md` — есть (`docs/architecture/API_CATALOG.md`).
 
 > - `docs/architecture/API_CATALOG.md`
 
 ### REQ-DOC-0022 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2441). Продукт: Все три.
-- Названные файлы: `docs/architecture/EVENT_CATALOG.md` — нет.
+- Названные файлы: `docs/architecture/EVENT_CATALOG.md` — есть (`docs/architecture/EVENT_CATALOG.md`).
 
 > - `docs/architecture/EVENT_CATALOG.md`
 
 ### REQ-DOC-0023 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2442). Продукт: Все три.
-- Названные файлы: `docs/architecture/THREAT_MODEL.md` — есть (`docs/THREAT_MODEL.md`).
+- Названные файлы: `docs/architecture/THREAT_MODEL.md` — есть (`docs/architecture/THREAT_MODEL.md`).
 
 > - `docs/architecture/THREAT_MODEL.md`
 
 ### REQ-DOC-0024 — `NOT_TESTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2443). Продукт: Все три.
-- Названные файлы: `docs/architecture/DEPLOYMENT_TOPOLOGY.md` — нет.
+- Названные файлы: `docs/architecture/DEPLOYMENT_TOPOLOGY.md` — есть (`docs/architecture/DEPLOYMENT_TOPOLOGY.md`).
 
 > - `docs/architecture/DEPLOYMENT_TOPOLOGY.md`
 
@@ -4300,132 +4300,159 @@
 
 ## Архитектура
 
-### REQ-ARCH-0001 — `NOT_TESTED`
+### REQ-ARCH-0001 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов (строка 2128). Продукт: Все три.
+- Доказательство: `docs/architecture/SYSTEM_OVERVIEW.md`; `docs/architecture/CONTEXT_MAP.md`.
+- Примечание: Три продукта описаны как самостоятельные; клиент VPN отделён полностью. Магазин и панель администратора делят один процесс API и одну базу.
 
 > Все три продукта имеют равную продуктовую значимость. При этом единый монорепозиторий не означает общую неразделённую бизнес-модель.
 
-### REQ-ARCH-0002 — `NOT_TESTED`
+### REQ-ARCH-0002 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2132). Продукт: Все три.
+- Доказательство: `docs/architecture/CONTEXT_MAP.md`; `docs/architecture/DOMAIN_BOUNDARIES.md`.
+- Примечание: Двенадцать областей сопоставлены с группами модулей. Это группы модулей одного процесса, а не отдельные контексты с контрактами.
 
 > - Разделить bounded contexts: `vpn_client`, `shop`, `identity`, `billing`, `subscriptions`, `remnawave`, `nodes`, `admin`, `support`, `notifications`, `analytics`, `infrastructure`.
 
-### REQ-ARCH-0003 — `NOT_TESTED`
+### REQ-ARCH-0003 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2133). Продукт: Все три.
+- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `backend/app/security.py`; `backend/app/remnawave.py`; `admin/src/components/ui/button.tsx`; `mobile/l10n/user.json`.
 
 > - Общими могут быть UI primitives, дизайн-токены, API-клиенты, схемы DTO, localization utilities, telemetry abstractions, test helpers и security utilities.
 
-### REQ-ARCH-0004 — `NOT_TESTED`
+### REQ-ARCH-0004 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2134). Продукт: Все три.
+- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `tests/test_admin_route_permissions.py`.
+- Примечание: Права клиента и администратора, Support Pro и клиент VPN разделены. Данные областей магазина лежат в одной базе с общими моделями.
 
 > - Разделить данные, права, бизнес-процессы и жизненные циклы самостоятельных продуктов.
 
-### REQ-ARCH-0005 — `NOT_TESTED`
+### REQ-ARCH-0005 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2135). Продукт: Все три.
+- Доказательство: `docs/architecture/CONTEXT_MAP.md`; `docs/architecture/API_CATALOG.md`; `docs/architecture/EVENT_CATALOG.md`.
+- Примечание: Для каждой области названы код, таблицы, связи и события. Владелец области и перечень разрешённых зависимостей не определены.
 
 > - Определить владельца каждого домена, публичные контракты, события, таблицы БД и разрешённые зависимости.
 
-### REQ-ARCH-0006 — `NOT_TESTED`
+### REQ-ARCH-0006 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2136). Продукт: Все три.
+- Примечание: Циклические зависимости и доступ к таблицам чужой области автоматически не проверяются; все модули магазина работают с общей базой. См. docs/architecture/DOMAIN_BOUNDARIES.md.
 
 > - Не допускать циклических зависимостей и прямого доступа одного сервиса к внутренним таблицам другого домена.
 
-### REQ-ARCH-0007 — `NOT_TESTED`
+### REQ-ARCH-0007 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2137). Продукт: Все три.
+- Доказательство: `docs/architecture/CONTEXT_MAP.md`; `backend/app/remnawave.py`; `tests/test_remnawave_contract.py`.
+- Примечание: С панелью, провайдерами, нодами и Support Pro магазин связан через API и webhook. Внутри магазина области вызывают функции друг друга напрямую.
 
 > - Интеграции должны идти через API, события или документированные application services.
 
-### REQ-ARCH-0008 — `NOT_TESTED`
+### REQ-ARCH-0008 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2138). Продукт: Все три.
+- Доказательство: `docs/architecture/CONTAINER_DIAGRAM.md`; `docs/architecture/DOMAIN_BOUNDARIES.md`; `scripts/generate-architecture-docs.py`; `docs/AUTO_UPDATE.md`.
+- Примечание: Назначение, зависимости, проверки готовности и тома каждой службы собраны в одной таблице; остальное описано в других документах. Единой карточки на службу со всеми пунктами нет.
 
 > - Для каждого сервиса определить: назначение, входы/выходы, зависимости, health/readiness, конфигурацию, секреты, миграции, логирование, метрики, backup, deploy и rollback.
 
-### REQ-ARCH-0009 — `NOT_TESTED`
+### REQ-ARCH-0009 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2142). Продукт: Все три.
+- Доказательство: `docs/architecture/README.md`; `tests/test_architecture_docs.py`; `scripts/generate-architecture-docs.py`; `.github/workflows/ci.yml`.
 
 > Создать и поддерживать:
 
-### REQ-ARCH-0010 — `NOT_TESTED`
+### REQ-ARCH-0010 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2143). Продукт: Все три.
-- Названные файлы: `docs/architecture/SYSTEM_OVERVIEW.md` — нет.
+- Названные файлы: `docs/architecture/SYSTEM_OVERVIEW.md` — есть (`docs/architecture/SYSTEM_OVERVIEW.md`).
+- Доказательство: `docs/architecture/SYSTEM_OVERVIEW.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/SYSTEM_OVERVIEW.md`
 
-### REQ-ARCH-0011 — `NOT_TESTED`
+### REQ-ARCH-0011 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2144). Продукт: Все три.
-- Названные файлы: `docs/architecture/CONTEXT_MAP.md` — нет.
+- Названные файлы: `docs/architecture/CONTEXT_MAP.md` — есть (`docs/architecture/CONTEXT_MAP.md`).
+- Доказательство: `docs/architecture/CONTEXT_MAP.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/CONTEXT_MAP.md`
 
-### REQ-ARCH-0012 — `NOT_TESTED`
+### REQ-ARCH-0012 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2145). Продукт: Все три.
-- Названные файлы: `docs/architecture/CONTAINER_DIAGRAM.md` — нет.
+- Названные файлы: `docs/architecture/CONTAINER_DIAGRAM.md` — есть (`docs/architecture/CONTAINER_DIAGRAM.md`).
+- Доказательство: `docs/architecture/CONTAINER_DIAGRAM.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/CONTAINER_DIAGRAM.md`
 
-### REQ-ARCH-0013 — `NOT_TESTED`
+### REQ-ARCH-0013 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2146). Продукт: Все три.
-- Названные файлы: `docs/architecture/DATA_FLOW.md` — нет.
+- Названные файлы: `docs/architecture/DATA_FLOW.md` — есть (`docs/architecture/DATA_FLOW.md`).
+- Доказательство: `docs/architecture/DATA_FLOW.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/DATA_FLOW.md`
 
-### REQ-ARCH-0014 — `NOT_TESTED`
+### REQ-ARCH-0014 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2147). Продукт: Все три.
-- Названные файлы: `docs/architecture/DOMAIN_BOUNDARIES.md` — нет.
+- Названные файлы: `docs/architecture/DOMAIN_BOUNDARIES.md` — есть (`docs/architecture/DOMAIN_BOUNDARIES.md`).
+- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/DOMAIN_BOUNDARIES.md`
 
-### REQ-ARCH-0015 — `NOT_TESTED`
+### REQ-ARCH-0015 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2148). Продукт: Все три.
-- Названные файлы: `docs/architecture/API_CATALOG.md` — нет.
+- Названные файлы: `docs/architecture/API_CATALOG.md` — есть (`docs/architecture/API_CATALOG.md`).
+- Доказательство: `docs/architecture/API_CATALOG.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/API_CATALOG.md`
 
-### REQ-ARCH-0016 — `NOT_TESTED`
+### REQ-ARCH-0016 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2149). Продукт: Все три.
-- Названные файлы: `docs/architecture/EVENT_CATALOG.md` — нет.
+- Названные файлы: `docs/architecture/EVENT_CATALOG.md` — есть (`docs/architecture/EVENT_CATALOG.md`).
+- Доказательство: `docs/architecture/EVENT_CATALOG.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/EVENT_CATALOG.md`
 
-### REQ-ARCH-0017 — `NOT_TESTED`
+### REQ-ARCH-0017 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2150). Продукт: Все три.
+- Доказательство: `docs/architecture/ADR/README.md`; `docs/architecture/ADR/0000-template.md`; `docs/architecture/ADR/0001-audit-seals-in-settings.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/ADR/`
 
-### REQ-ARCH-0018 — `NOT_TESTED`
+### REQ-ARCH-0018 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2151). Продукт: Все три.
-- Названные файлы: `docs/architecture/THREAT_MODEL.md` — есть (`docs/THREAT_MODEL.md`).
+- Названные файлы: `docs/architecture/THREAT_MODEL.md` — есть (`docs/architecture/THREAT_MODEL.md`).
+- Доказательство: `docs/architecture/THREAT_MODEL.md`; `tests/test_architecture_docs.py`; `docs/THREAT_MODEL.md`.
 
 > - `docs/architecture/THREAT_MODEL.md`
 
-### REQ-ARCH-0019 — `NOT_TESTED`
+### REQ-ARCH-0019 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2152). Продукт: Все три.
-- Названные файлы: `docs/architecture/DEPLOYMENT_TOPOLOGY.md` — нет.
+- Названные файлы: `docs/architecture/DEPLOYMENT_TOPOLOGY.md` — есть (`docs/architecture/DEPLOYMENT_TOPOLOGY.md`).
+- Доказательство: `docs/architecture/DEPLOYMENT_TOPOLOGY.md`; `tests/test_architecture_docs.py`.
 
 > - `docs/architecture/DEPLOYMENT_TOPOLOGY.md`
 
-### REQ-ARCH-0020 — `NOT_TESTED`
+### REQ-ARCH-0020 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2154). Продукт: Все три.
+- Доказательство: `docs/architecture/ADR/README.md`; `docs/architecture/ADR/0000-template.md`; `tests/test_architecture_docs.py`.
+- Примечание: Образец записи и пять записей о решениях ноября 2026 года есть; тест проверяет состав записи. Решения, принятые раньше, записями не оформлены.
 
 > Для значимых решений оформлять ADR: контекст, варианты, решение, последствия, риски, обратимость, дата и статус.
 

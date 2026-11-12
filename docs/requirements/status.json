@@ -1684,5 +1684,163 @@
    "backend/app/admin_api.py"
   ],
   "note": "Записи запечатываются каждые десять минут подписью с секретом сервера; изменённая или удалённая запись находится проверкой. Пределы защиты описаны в документе."
+ },
+ "REQ-ARCH-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/SYSTEM_OVERVIEW.md",
+   "docs/architecture/CONTEXT_MAP.md"
+  ],
+  "note": "Три продукта описаны как самостоятельные; клиент VPN отделён полностью. Магазин и панель администратора делят один процесс API и одну базу."
+ },
+ "REQ-ARCH-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/CONTEXT_MAP.md",
+   "docs/architecture/DOMAIN_BOUNDARIES.md"
+  ],
+  "note": "Двенадцать областей сопоставлены с группами модулей. Это группы модулей одного процесса, а не отдельные контексты с контрактами."
+ },
+ "REQ-ARCH-0003": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/DOMAIN_BOUNDARIES.md",
+   "backend/app/security.py",
+   "backend/app/remnawave.py",
+   "admin/src/components/ui/button.tsx",
+   "mobile/l10n/user.json"
+  ]
+ },
+ "REQ-ARCH-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/DOMAIN_BOUNDARIES.md",
+   "tests/test_admin_route_permissions.py"
+  ],
+  "note": "Права клиента и администратора, Support Pro и клиент VPN разделены. Данные областей магазина лежат в одной базе с общими моделями."
+ },
+ "REQ-ARCH-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/CONTEXT_MAP.md",
+   "docs/architecture/API_CATALOG.md",
+   "docs/architecture/EVENT_CATALOG.md"
+  ],
+  "note": "Для каждой области названы код, таблицы, связи и события. Владелец области и перечень разрешённых зависимостей не определены."
+ },
+ "REQ-ARCH-0006": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Циклические зависимости и доступ к таблицам чужой области автоматически не проверяются; все модули магазина работают с общей базой. См. docs/architecture/DOMAIN_BOUNDARIES.md."
+ },
+ "REQ-ARCH-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/CONTEXT_MAP.md",
+   "backend/app/remnawave.py",
+   "tests/test_remnawave_contract.py"
+  ],
+  "note": "С панелью, провайдерами, нодами и Support Pro магазин связан через API и webhook. Внутри магазина области вызывают функции друг друга напрямую."
+ },
+ "REQ-ARCH-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/CONTAINER_DIAGRAM.md",
+   "docs/architecture/DOMAIN_BOUNDARIES.md",
+   "scripts/generate-architecture-docs.py",
+   "docs/AUTO_UPDATE.md"
+  ],
+  "note": "Назначение, зависимости, проверки готовности и тома каждой службы собраны в одной таблице; остальное описано в других документах. Единой карточки на службу со всеми пунктами нет."
+ },
+ "REQ-ARCH-0009": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/README.md",
+   "tests/test_architecture_docs.py",
+   "scripts/generate-architecture-docs.py",
+   ".github/workflows/ci.yml"
+  ]
+ },
+ "REQ-ARCH-0010": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/SYSTEM_OVERVIEW.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0011": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/CONTEXT_MAP.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0012": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/CONTAINER_DIAGRAM.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0013": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/DATA_FLOW.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0014": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/DOMAIN_BOUNDARIES.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0015": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/API_CATALOG.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0016": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/EVENT_CATALOG.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0018": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/THREAT_MODEL.md",
+   "tests/test_architecture_docs.py",
+   "docs/THREAT_MODEL.md"
+  ]
+ },
+ "REQ-ARCH-0019": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/DEPLOYMENT_TOPOLOGY.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0017": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/ADR/README.md",
+   "docs/architecture/ADR/0000-template.md",
+   "docs/architecture/ADR/0001-audit-seals-in-settings.md",
+   "tests/test_architecture_docs.py"
+  ]
+ },
+ "REQ-ARCH-0020": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/ADR/README.md",
+   "docs/architecture/ADR/0000-template.md",
+   "tests/test_architecture_docs.py"
+  ],
+  "note": "Образец записи и пять записей о решениях ноября 2026 года есть; тест проверяет состав записи. Решения, принятые раньше, записями не оформлены."
  }
 }

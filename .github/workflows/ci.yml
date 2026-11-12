@@ -89,6 +89,7 @@ jobs:
         run: |
           python scripts/check-current-docs.py
           python scripts/check-runtime-placeholders.py
+          python scripts/generate-architecture-docs.py --check
           python scripts/generate-project-map.py --check
           python scripts/audit/requirements_register.py --check
           python scripts/audit/check_payment_provider_registry.py --check
