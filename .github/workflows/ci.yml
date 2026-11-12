@@ -300,6 +300,19 @@ jobs:
           for dir in admin miniapp cabinet; do
             (cd "$dir" && npm audit --audit-level=high)
           done
+      - name: Secret and vulnerability scan of the repository, SBOM
+        # Trivy (pinned by digest): a secret committed to the repository or a HIGH/CRITICAL vulnerability in a
+        # lockfile blocks the merge. The CycloneDX list of components is kept as the artifact «sbom».
+        run: |
+          docker run --rm -v "$PWD:/src" aquasec/trivy@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb fs --quiet --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1 /src
+          mkdir -p "$RUNNER_TEMP/sbom"
+          docker run --rm -v "$PWD:/src" -v "$RUNNER_TEMP/sbom:/out" aquasec/trivy@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb fs --quiet --format cyclonedx --output /out/sbom.cdx.json /src
+          python3 -c "import json,sys; d=json.load(open(sys.argv[1])); n=len(d.get('components') or []); print(f'SBOM: {n} components'); assert n > 100" "$RUNNER_TEMP/sbom/sbom.cdx.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: sbom
+          path: ${{ runner.temp }}/sbom/sbom.cdx.json
+          retention-days: 90
       - name: Dependency licences
         # A strong copyleft or source-available licence among the shipped dependencies blocks the merge
         # (scripts/ci/check-licenses.py; weak copyleft — LGPL, MPL — is allowed for a library used as is).
@@ -447,6 +460,18 @@ jobs:
           docker compose exec -T backend python -c "from pathlib import Path; p=Path('/data/app-packages/.write-test'); p.write_text('ok'); p.unlink()"
           docker compose run --rm --no-deps --entrypoint caddy caddy validate --config /etc/caddy/Caddyfile
           test "$(docker compose run --rm --no-deps --entrypoint id caddy -u)" = 10001
+      - name: Container scan (the images the shop builds)
+        # A HIGH or CRITICAL vulnerability that already has a fix blocks the merge: update the base image digest,
+        # the package or the dependency. Trivy is pinned by digest. Exceptions: .trivyignore, each with a reason
+        # and an expiry date.
+        run: |
+          images="$(docker images --format '{{.Repository}}:{{.Tag}}' | grep -E '^shop-by-boo-' | sort -u)"
+          test -n "$images"
+          for image in $images; do
+            echo "== $image"
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/.trivyignore:/.trivyignore:ro" aquasec/trivy@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb \
+              image --quiet --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --ignorefile /.trivyignore --exit-code 1 "$image"
+          done
       - name: Restore drill (copy, total loss, restore, same data)
         # Stage 19, C2: scripts/backup.sh → every volume and .env lost → the copy alone brings back every table,
         # the customer's subscription and payment, the administrator's sign-in and the files.

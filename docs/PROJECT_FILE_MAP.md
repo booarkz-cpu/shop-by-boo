@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.122.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.123.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2482**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2486**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -78,6 +78,7 @@
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.trivyignore](../.trivyignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
@@ -825,8 +826,10 @@
 | [docs/REQUIREMENTS_CHANGELOG.md](../docs/REQUIREMENTS_CHANGELOG.md) | Документация |
 | [docs/REQUIREMENTS_MASTER_REGISTER.md](../docs/REQUIREMENTS_MASTER_REGISTER.md) | Документация |
 | [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
+| [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
+| [docs/THREAT_MODEL.md](../docs/THREAT_MODEL.md) | Документация |
 | [docs/TORRENT_BAN.md](../docs/TORRENT_BAN.md) | Документация |
 | [docs/VERSIONING.md](../docs/VERSIONING.md) | Документация |
 | [docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md](../docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md) | Документация |
@@ -1166,6 +1169,7 @@
 | [docs/ru/RELEASE_V28_120_0.md](../docs/ru/RELEASE_V28_120_0.md) | Документация |
 | [docs/ru/RELEASE_V28_121_0.md](../docs/ru/RELEASE_V28_121_0.md) | Документация |
 | [docs/ru/RELEASE_V28_122_0.md](../docs/ru/RELEASE_V28_122_0.md) | Документация |
+| [docs/ru/RELEASE_V28_123_0.md](../docs/ru/RELEASE_V28_123_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |

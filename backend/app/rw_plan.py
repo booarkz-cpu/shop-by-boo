@@ -25,7 +25,7 @@ IMAGES = {
     "subscription_page": "remnawave/subscription-page:latest@sha256:ba8445b1e0d1c170cf314686ef638b73cabf42a0c6217d027e6cb958ca161ca6",
     "postgres": "postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636",
     "valkey": "valkey/valkey:9-alpine@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b",
-    "caddy": "caddy:2.11-alpine@sha256:e70b164da81ef698b3ad19af799ea6086ce6d9e48ed4079eb9fe26f6fbf14ee5",
+    "caddy": "caddy:2.11-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9",
     # v28.78.0: TinyAuth (tinyauthapp/tinyauth, GPL-3.0 — run as a separate container, its code is not part of the
     # shop) — the login portal in front of the panel's pages; checked in CI by tests/live/test_tinyauth_live.py.
     "tinyauth": "ghcr.io/tinyauthapp/tinyauth:v5.2.0@sha256:220aa235c76393a73fece831d7ba967b8698d3907fd8e3c4c952f699c7b142a5",

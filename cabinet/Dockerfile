@@ -10,6 +10,8 @@ RUN if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fu
 COPY . .
 RUN npm run build
 FROM ${NGINX_BASE_IMAGE}
+# The base image is pinned by digest: the package fixes published since are installed here (v28.123.0).
+RUN apk upgrade --no-cache
 COPY --from=build /src/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf /etc/nginx/conf.d/default.conf

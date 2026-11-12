@@ -29,3 +29,7 @@ reportlab==5.1.0
 webauthn==3.0.1
 maxminddb==3.2.0
 defusedxml==0.7.1
+
+# Not imported by the shop directly: boto3 pulls it in; this version carries the security fixes
+# (container scan in CI, v28.123.0).
+urllib3==2.8.0

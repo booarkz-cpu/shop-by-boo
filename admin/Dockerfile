@@ -17,6 +17,8 @@ COPY cabinet/scripts/csp-externalize.mjs /src/cabinet/scripts/csp-externalize.mj
 RUN ln -s /src/admin/node_modules /src/cabinet/node_modules
 RUN npm run build
 FROM ${NGINX_BASE_IMAGE}
+# The base image is pinned by digest: the package fixes published since are installed here (v28.123.0).
+RUN apk upgrade --no-cache
 COPY --from=build /src/admin/dist /usr/share/nginx/html
 COPY admin/nginx.conf /etc/nginx/nginx.conf
 COPY admin/default.conf /etc/nginx/conf.d/default.conf
