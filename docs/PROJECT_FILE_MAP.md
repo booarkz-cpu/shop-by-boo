@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.128.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.129.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2527**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2537**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -77,7 +77,9 @@
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.trivyignore](../.trivyignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -138,6 +140,7 @@
 | [admin/e2e/history-import.spec.ts](../admin/e2e/history-import.spec.ts) | Админ-панель |
 | [admin/e2e/install-hub.spec.ts](../admin/e2e/install-hub.spec.ts) | Админ-панель |
 | [admin/e2e/integrity.spec.ts](../admin/e2e/integrity.spec.ts) | Админ-панель |
+| [admin/e2e/masque-panel.spec.ts](../admin/e2e/masque-panel.spec.ts) | Админ-панель |
 | [admin/e2e/masque.spec.ts](../admin/e2e/masque.spec.ts) | Админ-панель |
 | [admin/e2e/menu-tree.spec.ts](../admin/e2e/menu-tree.spec.ts) | Админ-панель |
 | [admin/e2e/mobile-layout.spec.ts](../admin/e2e/mobile-layout.spec.ts) | Админ-панель |
@@ -224,6 +227,7 @@
 | [admin/src/lucy-plans.tsx](../admin/src/lucy-plans.tsx) | Админ-панель |
 | [admin/src/mail-domain.tsx](../admin/src/mail-domain.tsx) | Админ-панель |
 | [admin/src/main.tsx](../admin/src/main.tsx) | Админ-панель |
+| [admin/src/masque-panel.tsx](../admin/src/masque-panel.tsx) | Админ-панель |
 | [admin/src/masque.tsx](../admin/src/masque.tsx) | Админ-панель |
 | [admin/src/menu-tree.tsx](../admin/src/menu-tree.tsx) | Админ-панель |
 | [admin/src/mobileLayout.tsx](../admin/src/mobileLayout.tsx) | Админ-панель |
@@ -527,6 +531,7 @@
 | [backend/app/marketing_api.py](../backend/app/marketing_api.py) | API, бот и worker |
 | [backend/app/marketplace_api.py](../backend/app/marketplace_api.py) | API, бот и worker |
 | [backend/app/masque.py](../backend/app/masque.py) | API, бот и worker |
+| [backend/app/masque_panel.py](../backend/app/masque_panel.py) | API, бот и worker |
 | [backend/app/menu_tree.py](../backend/app/menu_tree.py) | API, бот и worker |
 | [backend/app/mobile_api.py](../backend/app/mobile_api.py) | API, бот и worker |
 | [backend/app/mobile_auth.py](../backend/app/mobile_auth.py) | API, бот и worker |
@@ -599,6 +604,7 @@
 | [backend/app/rw_drift.py](../backend/app/rw_drift.py) | API, бот и worker |
 | [backend/app/rw_extensions.py](../backend/app/rw_extensions.py) | API, бот и worker |
 | [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
+| [backend/app/rw_masque.py](../backend/app/rw_masque.py) | API, бот и worker |
 | [backend/app/rw_netmods.py](../backend/app/rw_netmods.py) | API, бот и worker |
 | [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
 | [backend/app/rw_protocol_switch.py](../backend/app/rw_protocol_switch.py) | API, бот и worker |
@@ -818,6 +824,7 @@
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
 | [docs/MASQUE_IMPLEMENTATION_REPORT.md](../docs/MASQUE_IMPLEMENTATION_REPORT.md) | Документация |
+| [docs/MASQUE_PANEL.md](../docs/MASQUE_PANEL.md) | Документация |
 | [docs/MASTER_EXECUTION_BLOCKERS.md](../docs/MASTER_EXECUTION_BLOCKERS.md) | Документация |
 | [docs/MASTER_EXECUTION_HANDOFF.md](../docs/MASTER_EXECUTION_HANDOFF.md) | Документация |
 | [docs/MASTER_EXECUTION_PLAN.md](../docs/MASTER_EXECUTION_PLAN.md) | Документация |
@@ -1205,6 +1212,7 @@
 | [docs/ru/RELEASE_V28_126_0.md](../docs/ru/RELEASE_V28_126_0.md) | Документация |
 | [docs/ru/RELEASE_V28_127_0.md](../docs/ru/RELEASE_V28_127_0.md) | Документация |
 | [docs/ru/RELEASE_V28_128_0.md](../docs/ru/RELEASE_V28_128_0.md) | Документация |
+| [docs/ru/RELEASE_V28_129_0.md](../docs/ru/RELEASE_V28_129_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
@@ -2056,6 +2064,7 @@
 | [scripts/ci/geo-check.sh](../scripts/ci/geo-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/gradle-warm.sh](../scripts/ci/gradle-warm.sh) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
+| [scripts/ci/masque-check.sh](../scripts/ci/masque-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/mtproto-check.sh](../scripts/ci/mtproto-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/netmods-check.sh](../scripts/ci/netmods-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/node-port-guard.sh](../scripts/ci/node-port-guard.sh) | Эксплуатация и релиз |
@@ -2357,6 +2366,7 @@
 | [tests/test_mail_receiver.py](../tests/test_mail_receiver.py) | Проверки |
 | [tests/test_main_split.py](../tests/test_main_split.py) | Проверки |
 | [tests/test_masque.py](../tests/test_masque.py) | Проверки |
+| [tests/test_masque_panel.py](../tests/test_masque_panel.py) | Проверки |
 | [tests/test_matrix_extension_migrations.py](../tests/test_matrix_extension_migrations.py) | Проверки |
 | [tests/test_matrix_privacy.py](../tests/test_matrix_privacy.py) | Проверки |
 | [tests/test_menu_hierarchy.py](../tests/test_menu_hierarchy.py) | Проверки |

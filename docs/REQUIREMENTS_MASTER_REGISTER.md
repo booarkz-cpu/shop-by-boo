@@ -11,13 +11,13 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **113** — 17.3%.
+- Подтверждено (`PASS`): **114** — 17.5%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 113 | Проверено, доказательство указано |
+| `PASS` | 114 | Проверено, доказательство указано |
 | `PARTIAL` | 164 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 20 | Функции нет |
+| `NOT_IMPLEMENTED` | 19 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
 | `NOT_TESTED` | 355 | Ещё не сверено с кодом |
 
@@ -31,7 +31,7 @@
 | Lucy Admin | 19 | 3 | 11 | 0 | 0 |
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 1 | 13 | 0 | 0 |
-| MASQUE | 12 | 4 | 7 | 0 | 0 |
+| MASQUE | 12 | 5 | 7 | 0 | 0 |
 | Ноды: установка, обслуживание, защита | 71 | 13 | 23 | 0 | 34 |
 | Автовыбор | 35 | 21 | 13 | 0 | 1 |
 | Инфраструктура, установщик, копии | 41 | 3 | 0 | 0 | 38 |
@@ -2224,18 +2224,19 @@
 
 ## MASQUE
 
-### REQ-MASQUE-0001 — `NOT_IMPLEMENTED`
+### REQ-MASQUE-0001 — `PASS`
 
 - Источник: Часть I → Masque → Goal (строка 401). Продукт: Все три.
-- Примечание: Автоустановки MASQUE на ноду нет: панель Remnawave 3.4.10 не выдаёт пользователей для этого протокола, а без пользователей ядро отклоняет все туннели. Причины и условия возврата — в docs/MASQUE_IMPLEMENTATION_REPORT.md, §9–10.
+- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `admin/e2e/masque-panel.spec.ts`.
+- Примечание: Установка одной кнопкой: сертификат, контейнеры, порт, пользователи; дальше доступ сам следует за подписками. Проверено в CI на настоящих Caddy, Xray и HAProxy.
 
 > Максимально автоматизированный Zero-Touch Provisioning MASQUE.
 
 ### REQ-MASQUE-0002 — `PARTIAL`
 
 - Источник: Часть I → Masque → Version Claim (строка 405). Продукт: Все три.
-- Доказательство: `backend/app/masque.py`; `tests/test_masque.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
-- Примечание: Тега v26.10.10 не существует; магазин требует первый тег не старше него — v26.10.21 — и показывает, на каких нодах ядро подходит. Само ядро нод до этой версии магазин не поднимает.
+- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: Тега v26.10.10 не существует. Для MASQUE магазин ставит на ноду свой Xray 26.11.9, закреплённый по хешу образа. Ядро Xray самой ноды Remnawave до этой версии магазин не поднимает.
 
 > Xray-core v26.10.10+
 
@@ -2250,48 +2251,48 @@
 ### REQ-MASQUE-0004 — `PARTIAL`
 
 - Источник: Часть I → Masque → Node Provisioning (строка 413). Продукт: Все три.
-- Доказательство: `backend/app/masque.py`; `backend/app/rw_steps.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
-- Примечание: Проверка портов и сертификат ноды (Caddy + копирование таймером) есть и переиспользуются; установки MASQUE на чистую ноду по SSH нет.
+- Доказательство: `backend/app/rw_masque.py`; `scripts/ci/masque-check.sh`; `backend/app/masque_panel.py`.
+- Примечание: Установка на ноду по SSH, проверка порта, TLS с сертификатом ноды, передача файлов с контрольной суммой — есть и проверены в CI. Свой выпуск сертификата не нужен: берётся сертификат сайта SelfSteal. Занятость порта другим процессом перед установкой не проверяется; на VPS не проверено.
 
 > Python/Next.js; Bash; SSH; Docker; установка на чистую ноду; проверка портов; ACME/Let's Encrypt; TLS; безопасная передача сертификатов и ключей.
 
 ### REQ-MASQUE-0005 — `PARTIAL`
 
 - Источник: Часть I → Masque → Multiplexing (строка 417). Продукт: Все три.
-- Доказательство: `backend/app/masque.py`; `tests/test_masque.py`; `scripts/masque-selfcheck.sh`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
-- Примечание: Конфликты 443, ALPN, ограничения REALITY исследованы; inbound проверен на настоящем Xray. Правил routing для MASQUE и общего 443 через обратный прокси нет. На VPS с настоящим доменом не проверено.
+- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque.py`; `scripts/ci/masque-check.sh`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Примечание: Конфликты исследованы; рабочая схема — отдельный TCP-порт, HAProxy по пути, Xray на loopback — проверена в CI. HTTP/3 не используется: его нельзя спрятать за сайтом. Общий порт 443 с REALITY не делается.
 
 > Исследовать MASQUE HTTP/3 UDP; MASQUE HTTP/2 TCP; Hysteria 2 UDP; VLESS+REALITY TCP/UDP; конфликты 443; разные порты; ALPN; SNI; routing; listener; reverse proxy; ограничения REALITY; QUIC/TCP. Подготовить проверенные inbounds/routing.
 
 ### REQ-MASQUE-0006 — `PARTIAL`
 
 - Источник: Часть I → Masque → Grpc (строка 421). Продукт: Все три.
-- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
-- Примечание: HandlerService, AddUser/RemoveUser и StatsService проверены по исходникам v26.11.9. Горячей выдачи пользователей, статистики и лимитов для MASQUE в магазине нет: нодами управляет панель.
+- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `tests/test_masque_panel.py`.
+- Примечание: Пользователи добавляются и убираются через API Xray без перезапуска — проверено в CI. Статистика по пользователям читается. Лимиты трафика и устройств для MASQUE не применяются.
 
 > Проверить HandlerService, AddInbound, StatsService и необходимые методы. Реализовать hot reload без неоправданного прерывания соединений, точную статистику и синхронизацию лимитов.
 
 ### REQ-MASQUE-0007 — `PARTIAL`
 
 - Источник: Часть I → Masque → Subscriptions (строка 425). Продукт: Все три.
-- Доказательство: `backend/app/masque.py`; `tests/test_masque.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
-- Примечание: VLESS Reality и Hysteria 2 выдаются подпиской панели; MASQUE в подписку не добавляется и остальные конфигурации не ломает. Готов только проверенный JSON outbound; ссылок для v2rayNG и NekoBox нет.
+- Доказательство: `backend/app/masque_panel.py`; `backend/app/rw_masque.py`; `tests/test_masque_panel.py`; `docs/MASQUE_PANEL.md`.
+- Примечание: MASQUE выдаётся своей подпиской в формате JSON и не затрагивает подписку Remnawave. Ссылок для v2rayNG и NekoBox нет; на этих клиентах не проверено.
 
 > VLESS Reality; Hysteria 2; MASQUE; JSON/Base64 bundle; v2rayNG; NekoBox. Неподдерживаемый MASQUE не должен ломать остальные конфигурации.
 
 ### REQ-MASQUE-0008 — `PARTIAL`
 
 - Источник: Часть I → Masque → Admin Ui (строка 429). Продукт: Все три.
-- Доказательство: `admin/src/masque.tsx`; `admin/e2e/masque.spec.ts`; `backend/app/masque.py`.
-- Примечание: Есть проверка совместимости: версии ядра нод, конфликты порта, причины. Переключателей, fallback-домена, прогресса и диагностики установки нет — включать нечего.
+- Доказательство: `admin/src/masque-panel.tsx`; `admin/e2e/masque-panel.spec.ts`; `admin/src/masque.tsx`; `backend/app/masque_panel.py`.
+- Примечание: Есть переключатель выдачи, выбор тарифов, установка и удаление, проверка совместимости, состояние ноды, понятные причины отказа. Пошагового прогресса установки нет: кнопка ждёт результата.
 
 > Переключатели MASQUE; проверка совместимости; скрытие дублирующих настроек; fallback domain; мониторинг установки; прогресс; диагностика.
 
 ### REQ-MASQUE-0009 — `PASS`
 
 - Источник: Часть I → Masque → Anti Dpi (строка 433). Продукт: Все три.
-- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `scripts/masque-selfcheck.sh`.
-- Примечание: Отказ при неверном пароле проверен на настоящем Xray; ответы 401/404, отсутствие сайта-прикрытия и запрет частных адресов описаны в отчёте, §6. Защита от DPI не обещается.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `scripts/ci/masque-check.sh`.
+- Примечание: Посторонний видит сайт SelfSteal и его 404, в том числе на неверном секретном пути — проверено в CI. Ограничения маскировки описаны в отчёте, §9. Защита от DPI не обещается.
 
 > Исследовать unauthorized requests; probing; fallback; легитимный веб-сервер; ограничения защиты. Не обещать гарантированную защиту от DPI.
 
@@ -2306,8 +2307,8 @@
 ### REQ-MASQUE-0011 — `PARTIAL`
 
 - Источник: Часть I → Masque → Deliverables (строка 441). Продукт: Все три.
-- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `backend/app/masque.py`; `tests/test_masque.py`; `scripts/masque-selfcheck.sh`.
-- Примечание: Официальное подтверждение, код, конфигурации, тесты, ограничения, безопасность и документация есть для проверочной части; рабочей выдачи MASQUE пользователям нет.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `docs/MASQUE_PANEL.md`; `backend/app/rw_masque.py`; `backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `tests/test_masque_panel.py`.
+- Примечание: Архитектура, подтверждение, код, конфигурации, тесты, ограничения, безопасность и документация есть. Не проверено на VPS и на клиентских устройствах.
 
 > Архитектура; официальное подтверждение; код; конфигурации; тесты; ограничения; безопасность; документация.
 

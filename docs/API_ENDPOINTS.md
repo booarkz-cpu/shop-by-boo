@@ -267,6 +267,13 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/marketplace/withdrawals` | Withdrawals | право `referrals.withdrawals.read` |
 | `POST` | `/api/admin/marketplace/withdrawals/{withdrawal_id}/decision` | Decide | право `referrals.withdrawals.approve` |
 | `GET` | `/api/admin/masque` | State | право `read` |
+| `GET` | `/api/admin/masque/panel` | Panel | право `read` |
+| `POST` | `/api/admin/masque/panel/nodes/{server_id}/install` | Install | право `provision_nodes` |
+| `POST` | `/api/admin/masque/panel/nodes/{server_id}/remove` | Remove | право `provision_nodes` |
+| `POST` | `/api/admin/masque/panel/nodes/{server_id}/status` | Status | право `read` |
+| `PUT` | `/api/admin/masque/panel/settings` | Save Settings | право `provision_nodes` |
+| `POST` | `/api/admin/masque/panel/sync` | Sync | право `provision_nodes` |
+| `GET` | `/api/admin/masque/panel/users` | Users | право `provision_nodes` |
 | `POST` | `/api/admin/menu` | Admin Menu | право `manage_content` |
 | `DELETE` | `/api/admin/menu/{item_id}` | Admin Menu Delete | право `manage_content` |
 | `PUT` | `/api/admin/menu/{item_id}` | Admin Menu Update | право `manage_content` |
@@ -756,6 +763,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/internal/support-bridge/tickets/{ticket_id}/messages` | Messages | служебный токен |
 | `POST` | `/api/internal/support-bridge/tickets/{ticket_id}/reply` | Reply | служебный токен |
 | `POST` | `/api/internal/support-bridge/tickets/{ticket_id}/status` | Status | служебный токен |
+| `GET` | `/api/masque/sub/{value}` | Subscription | открытый |
 | `GET` | `/api/me` | Api Me | сессия клиента |
 | `POST` | `/api/me/account-merge/authorization` | Create Authorization | сессия клиента |
 | `POST` | `/api/me/account-merge/confirm` | Confirm Merge | сессия клиента |
@@ -814,6 +822,7 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/identity` | Identity | сессия клиента |
 | `GET` | `/api/me/loyalty` | My Loyalty | сессия клиента |
 | `POST` | `/api/me/lusi/action` | Lusi Action | сессия клиента |
+| `GET` | `/api/me/masque` | My Masque | сессия клиента |
 | `GET` | `/api/me/mobile/alerts` | Mobile Alerts | сессия клиента |
 | `GET` | `/api/me/mobile/bootstrap` | Mobile Bootstrap | сессия клиента |
 | `GET` | `/api/me/mobile/connection` | Mobile Connection | сессия клиента |
