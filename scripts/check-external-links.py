@@ -30,6 +30,9 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_DIRS = {"node_modules", ".git", "dist", ".next", "archive"}
+# The owner's prompts are kept word for word, and the register quotes them: their links are the owner's own
+# (a private repository answers 404 to an anonymous request) and are not ours to fix.
+VERBATIM = ("docs/prompts/", "docs/REQUIREMENTS_MASTER_REGISTER.md")
 HOSTS_SKIPPED = {"img.shields.io", "badgen.net", "shields.io", "localhost", "127.0.0.1"}
 # Hosts a link may legitimately be redirected to when the site moved to a canonical address.
 ALLOWED_REDIRECTS = {
@@ -49,6 +52,7 @@ def documents() -> list[Path]:
         path for path in ROOT.rglob("*.md")
         if path.is_file() and not any(part in SKIP_DIRS for part in path.relative_to(ROOT).parts)
         and not path.name.startswith("release-v")
+        and not path.relative_to(ROOT).as_posix().startswith(VERBATIM)
     )
 
 

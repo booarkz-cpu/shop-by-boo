@@ -2389,5 +2389,199 @@
    "docs/MASQUE_IMPLEMENTATION_REPORT.md"
   ],
   "note": "Отчёт написан."
+ },
+ "REQ-API-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/API_CATALOG.md",
+   "tests/test_rbac_doc.py",
+   "tests/test_error_format.py",
+   "backend/app/audit_seal.py"
+  ],
+  "note": "API, RBAC, миграции, единый формат ошибок, журнал действий и фоновые задачи есть и покрыты тестами. Построчной сверки каждого пункта для каждого маршрута не было; отдельной очереди задач нет — фоновые циклы идут в процессе API под блокировкой Redis."
+ },
+ "REQ-API-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/architecture/DOMAIN_BOUNDARIES.md",
+   "tests/test_client_api_contract.py",
+   "docs/API_ENDPOINTS.md"
+  ],
+  "note": "Данные магазина и Support Pro лежат в раздельных схемах и миграциях; контракты клиентского API проверяются тестом. Версионирования API в адресах нет; границы областей в коде автоматически не проверяются (REQ-ARCH-0006)."
+ },
+ "REQ-UI-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/UI_UX_GUIDE.md",
+   "admin/e2e/mobile-layout.spec.ts",
+   "tests/test_mobile_layout.py",
+   "admin/e2e/all-sections.spec.ts"
+  ],
+  "note": "Единые карточки, статусы, боковое меню и мобильная раскладка есть и проверяются в браузере. Приложения Android собраны на Material 3; веб-панель следует собственной дизайн-системе, а не Material 3. Доступность проверена частично (REQ-UI-0007)."
+ },
+ "REQ-UI-0002": {
+  "status": "PASS",
+  "evidence": [
+   "docs/ru/new/UI_UX_GUIDE.md",
+   "THIRD_PARTY_NOTICES.md"
+  ],
+  "note": "Интерфейс написан с нуля в репозитории; кода и материалов Support Pro сторонних авторов в нём нет — состав стороннего кода перечислен в THIRD_PARTY_NOTICES.md."
+ },
+ "REQ-UI-0003": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/e2e/all-sections.spec.ts",
+   "scripts/check-runtime-placeholders.py",
+   "tests/test_error_format.py"
+  ],
+  "note": "Тест открывает каждый раздел веб-панели и проверяет, что он не пуст; заглушки в коде останавливают CI. Формы, модальные окна и таблицы всех разделов по отдельности не проверялись; мобильные экраны на устройстве не проверены."
+ },
+ "REQ-UI-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_critical_startup_and_i18n.py",
+   "mobile/l10n/user.json",
+   "mobile/l10n/admin.json",
+   "README.en.md",
+   "README.uk.md"
+  ],
+  "note": "Русский, английский и украинский есть в кабинете, боте, приложениях и README. Полнота перевода каждой ошибки, письма, строки установщика и каждого документа не проверялась; документация в основном на русском."
+ },
+ "REQ-UI-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "mobile/l10n/user.json",
+   "tests/test_critical_startup_and_i18n.py"
+  ],
+  "note": "Строки приложений и кабинета вынесены в словари. В бэкенде и веб-панели администратора часть русских строк стоит прямо в коде."
+ },
+ "REQ-UI-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_mobile_layout.py",
+   "admin/e2e/mobile-layout.spec.ts"
+  ],
+  "note": "Обрезание и горизонтальная прокрутка проверяются на узком экране. Множественное число, длинные переводы, часовые пояса и RTL системно не проверялись."
+ },
+ "REQ-UI-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/UI_UX_GUIDE.md",
+   "admin/e2e/masque.spec.ts"
+  ],
+  "note": "Тесты браузера находят элементы по ролям и подписям, поэтому подписи полей и кнопок обязательны. Контраст, порядок фокуса, экранный диктор и уменьшение движения инструментом не проверялись."
+ },
+ "REQ-UI-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/e2e/mobile-layout.spec.ts",
+   "tests/test_mobile_layout.py"
+  ],
+  "note": "Раскладка проверяется в браузере на ширине телефона, длинные таблицы прокручиваются внутри блока. Безопасные области и экранная клавиатура на настоящих устройствах не проверены."
+ },
+ "REQ-UI-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/e2e/masque.spec.ts",
+   "admin/e2e/plans-editor.spec.ts",
+   "tests/test_error_format.py"
+  ],
+  "note": "Серверная проверка и единый формат ошибок есть везде; в новых формах есть проверка в браузере, состояние отправки и сообщение у поля. По каждой форме проекта проверка не проводилась."
+ },
+ "REQ-UI-0010": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/e2e/protocol-switch.spec.ts",
+   "admin/e2e/rw-installer.spec.ts"
+  ],
+  "note": "Опасные операции с нодами идут с подтверждением, прогрессом, итогом и откатом. Единого правила для каждой операции проекта и его проверки нет."
+ },
+ "REQ-MOBILE-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/VPN_ENGINE.md",
+   "mobile/android-client",
+   "tests/test_v290_android_apk.py",
+   ".github/workflows/build-mobile.yml"
+  ],
+  "note": "Kotlin, Compose, Material 3, VpnService, сборка APK в GitHub Actions; движки сравнены, выбран Xray-core. AAB для Google Play не собирается; производительность движков не измерялась; на устройстве не проверено."
+ },
+ "REQ-MOBILE-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "mobile/ios-user",
+   "docs/ru/new/VPN_ENGINE.md",
+   "docs/ru/new/KNOWN_LIMITATIONS.md"
+  ],
+  "note": "SwiftUI, Packet Tunnel Provider, Keychain и биометрия собираются и проходят UI-тесты в CI на симуляторе. Подписанной сборки и проверки на устройстве нет: нужен Apple Developer."
+ },
+ "REQ-MOBILE-0003": {
+  "status": "PARTIAL",
+  "evidence": [
+   "mobile/android-admin",
+   "mobile/ios-admin",
+   "tests/test_v270_mobile_apps.py"
+  ],
+  "note": "Приложения администратора есть и работают через тот же API с теми же правами. В них 10 разделов против примерно 100 в веб-панели; матрицы соответствия нет (REQ-ADMIN-0004)."
+ },
+ "REQ-MOBILE-0004": {
+  "status": "PASS",
+  "evidence": [
+   "mobile/android-user",
+   "mobile/android-admin",
+   "mobile/android-client",
+   "mobile/ios-user",
+   "mobile/ios-admin"
+  ],
+  "note": "Все пять приложений лежат в каталоге mobile/ этого репозитория."
+ },
+ "REQ-PERF-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/PERFORMANCE_AUDIT.md",
+   "tests/test_payment_load.py"
+  ],
+  "note": "Проверены индексы, конкурентные оплаты и пул соединений. Время ответа API, память, процессор, время сборки, размеры образов и приложений не измерены: стенда нет."
+ },
+ "REQ-PERF-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/PERFORMANCE_AUDIT.md"
+  ],
+  "note": "Найдены лишние индексы, внешние ключи без индекса, выборка без ограничения и 57 списков без limit (PERF-01…04). N+1 и размеры ответов на настоящих данных не проверялись."
+ },
+ "REQ-PERF-0003": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_pagination.py",
+   "docs/ru/new/PERFORMANCE_AUDIT.md"
+  ],
+  "note": "Постраничная выдача есть у больших списков и покрыта тестом; 57 справочных списков отдаются целиком."
+ },
+ "REQ-PERF-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/PERFORMANCE_AUDIT.md",
+   "tests/test_code_entry_rate_limits.py"
+  ],
+  "note": "Заданы лимиты частоты запросов, обновления подписки и ввода кодов. Единого документа с лимитами на загрузки, тела запросов, параллельные вебхуки, SSH-задачи и массовые действия нет."
+ },
+ "REQ-PERF-0005": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Учёта стоимости внешних API, писем, касс, хранилища и CI в проекте нет."
+ },
+ "REQ-PERF-0006": {
+  "status": "PASS",
+  "evidence": [
+   "docs/EXTERNAL_DEPENDENCIES.md",
+   "THIRD_PARTY_NOTICES.md"
+  ],
+  "note": "Платных сервисов и регулярных расходов работа не добавляла: все внешние зависимости перечислены, обязательных платных среди них нет."
+ },
+ "REQ-PERF-0007": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Сравнительных замеров «до и после» нет: оптимизаций производительности на этом этапе не делалось, стенда для замеров нет."
  }
 }
