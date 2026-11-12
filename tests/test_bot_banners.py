@@ -224,22 +224,19 @@ def test_generator_covers_every_banner_and_new_sections_have_their_own():
 
 def test_telegram_banners_follow_the_owners_format():
     """Master prompt v6: 1280x640 (2:1), JPEG without transparency, about 200 KB, text at least 80 px from every edge."""
-    import importlib.util
     import re
 
     from PIL import Image
 
     root = Path(__file__).resolve().parents[1]
-    spec = importlib.util.spec_from_file_location("banner_render", root / "scripts/bot-banners/render.py")
-    render = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(render)
-    assert (render.W, render.H, render.SAFE) == (1280, 640, 80)
+    # The renderer is read as text: importing it needs NumPy and OpenCV, which the test environment does not have.
     source = (root / "scripts/bot-banners/render.py").read_text(encoding="utf-8")
+    assert "\nW, H = 1280, 640\n" in source and "\nSAFE = 80\n" in source
     assert "quality=92" in source                                     # inside the 90–95 range
     # Every positioned text block of the Telegram banner starts at the safe margin, not at a number of its own.
     for block in (".title{{", ".caption{{", ".bar{{"):
         assert re.search(re.escape(block) + r"position:absolute;left:\{SAFE\}px", source), block
-    assert ".brand{position:absolute;left:80px;top:80px;" in render.BASE_CSS
+    assert ".brand{position:absolute;left:%dpx;top:%dpx;" in source and '""" % (W, H, INK, SAFE, SAFE)' in source
     assert "bottom:{SAFE}px" in source
     banners = [p for p in (root / "backend/app/assets/bot_banners").glob("*.jpg") if not p.name.startswith("app-")]
     assert len(banners) >= 25
