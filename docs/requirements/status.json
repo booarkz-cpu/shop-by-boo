@@ -1371,5 +1371,153 @@
   "evidence": [
    "docs/SECURITY_FINDINGS.md"
   ]
+ },
+ "REQ-RW-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/remnawave.py",
+   "backend/app/rw_api.py",
+   "backend/app/rw_extensions.py",
+   "backend/app/install_catalogue.py",
+   "tests/test_remnawave_contract.py",
+   ".github/workflows/remnawave-live.yml"
+  ],
+  "note": "Магазин продаёт и ведёт подписки через панель, ставит панель и ноды, управляет профилями, хостами, плагинами из панели администратора. Требования RW-0004 – 0007 о слое согласования состояния не выполнены."
+ },
+ "REQ-RW-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/remnawave.py",
+   "backend/app/remnawave_shop_api.py",
+   "backend/app/remnawave_events.py",
+   "tests/test_remnawave_contract.py",
+   "tests/test_remnawave_squads.py"
+  ],
+  "note": "Пользователи, подписки, сроки, трафик, устройства, ноды, блокировки, продление и выдача есть. Построчной сверки каждого пункта списка с экраном панели администратора не было."
+ },
+ "REQ-RW-0003": {
+  "status": "PARTIAL",
+  "evidence": [
+   ".github/workflows/remnawave-live.yml",
+   "tests/live/test_remnawave_live.py",
+   "tests/test_remnawave_contract.py",
+   "backend/app/remnawave.py",
+   "backend/app/rw_snapshots.py"
+  ],
+  "note": "Настоящий API проверяется в CI на настоящей панели; есть предохранитель от шквала повторов, журнал, копии базы панели. Миграции между панелями нет."
+ },
+ "REQ-RW-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/remnawave.py",
+   "tests/test_remnawave_contract.py",
+   "backend/app/rw_autoupdate.py",
+   "backend/app/rw_torrent_ban.py"
+  ],
+  "note": "Единый клиент панели с проверкой контракта есть; версия панели читается и сравнивается с проверенной. Таблицы возможностей по версиям нет: проверка версии сделана отдельно в каждой функции."
+ },
+ "REQ-RW-0005": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Раздельного хранения желаемого и наблюдаемого состояния нет: магазин меняет панель напрямую и читает её состояние по запросу."
+ },
+ "REQ-RW-0006": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Цикла согласования с повторами, разбросом по времени и очередью неудавшихся операций нет. Есть только предохранитель от шквала повторов в клиенте панели."
+ },
+ "REQ-RW-0007": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "note": "Состояние последней успешной синхронизации не хранится, расхождение с панелью не выявляется."
+ },
+ "REQ-RW-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "backend/app/rw_autoselect.py",
+   "tests/test_rw_autoselect.py",
+   "backend/app/rw_torrent_ban.py",
+   "tests/test_rw_torrent_ban.py"
+  ],
+  "note": "Смена протокола сохраняет прежний inbound до первого изменения; автовыбор и бан за торренты не трогают чужие объекты. Общего правила «инвентаризация и копия перед любым изменением inbound» для всех разделов нет."
+ },
+ "REQ-RW-0009": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "backend/app/rw_plan.py",
+   "backend/app/rw_autoselect.py"
+  ],
+  "note": "Откат есть у смены протокола и обновлений; установка показывает план до запуска. Пробного запуска без изменений (dry-run) у операций с панелью нет."
+ },
+ "REQ-RW-0010": {
+  "status": "PARTIAL",
+  "evidence": [
+   "admin/src/torrent-ban.tsx",
+   "admin/src/protocol-switch.tsx",
+   "admin/src/autoselect.tsx",
+   "admin/e2e/torrent-ban.spec.ts"
+  ],
+  "note": "Разделы показывают выбранные ноды и что изменится; зависимые сервисы и оценка влияния не выводятся."
+ },
+ "REQ-RW-0011": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_torrent_ban.py",
+   "tests/test_rw_torrent_ban.py",
+   "backend/app/rw_autoupdate.py",
+   "backend/app/rw_extensions.py"
+  ],
+  "note": "Версии ноды и Xray показываются по каждой ноде, плагины не предлагаются старым нодам. sing-box не поддерживается; единой проверки совместимости конфигурации с каждой нодой нет."
+ },
+ "REQ-RW-0012": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/rw_remote.py",
+   "tests/test_rw_ssh.py",
+   "backend/app/rw_ssh.py"
+  ]
+ },
+ "REQ-RW-0013": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_ssh.py",
+   "tests/test_rw_ssh.py",
+   "tests/test_stage15_install.py"
+  ],
+  "note": "Службы работают не от root, у ключей SSH есть отпечаток и смена. Установка на ноду идёт от root: отдельной ограниченной учётной записи для неё нет."
+ },
+ "REQ-RW-0014": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_jobs.py",
+   "backend/app/rw_api.py",
+   "backend/app/remnawave.py"
+  ],
+  "note": "Задачи установки идут очередью; у клиента панели есть предохранитель. Явного ограничения числа одновременных SSH-операций и частоты нет."
+ },
+ "REQ-RW-0015": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "backend/app/rw_autoupdate.py",
+   "backend/app/rw_snapshots.py",
+   "tests/test_rw_autoupdate.py",
+   "docs/PROTOCOL_SWITCH.md"
+  ],
+  "note": "Перед обновлением делается копия базы панели, смена протокола хранит данные для отката. Доступность восстановления в обход основной сети перед операцией не проверяется."
+ },
+ "REQ-RW-0016": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "backend/app/rw_steps.py",
+   "tests/live/test_node_modules_live.py"
+  ],
+  "note": "После операции проверяются состояние в панели и открытый порт; Xray Checker проверяет подключение по расписанию. Проверки настоящим клиентом сразу после операции нет."
  }
 }
