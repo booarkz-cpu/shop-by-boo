@@ -45,5 +45,5 @@ MODULES = (
     "customer_insights",
     "pnl", "sub_proxy", "client_versions", "panel_api_stats", "webhook_tee", "first_connect", "vpn_sessions", "panel_usage", "wg_pool", "payments_extra", "gateway_ops", "status_page", "regional_pricing", "corporate", "payment_fraud", "subscription_freeze", "dunning", "loyalty", "feedback", "cohorts", "weekly_digest", "speed_test", "node_forecast", "dns_filter", "geoip", "ripe_atlas", "payment_journal", "legal_docs", "rw_autoupdate", "automation_center", "admin_stepup", "rw_ssh", "container_logs",
     "cabinet_security", "lucy_plans", "rw_api", "rw_domains", "rw_extensions", "telegram_bot", "cabinet_texts", "store_billing",
-    "rw_selfsteal", "install_catalogue", "rw_snapshots", "rw_autoselect", "rw_protocol_switch", "rw_torrent_ban", "rw_drift", "audit_seal", "ecosystem_updates", "masque",
+    "rw_selfsteal", "install_catalogue", "rw_snapshots", "rw_autoselect", "rw_protocol_switch", "rw_torrent_ban", "rw_drift", "audit_seal", "ecosystem_updates", "masque", "masque_panel",
 )
