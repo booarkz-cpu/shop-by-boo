@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import pytest
 
 from app import audit_seal as seal
+from test_subscription_commerce import database  # noqa: F401
 
 NOW = datetime(2026, 11, 12, 10, 0, tzinfo=timezone.utc)
 
@@ -131,3 +132,29 @@ async def test_the_worker_seals_every_ten_minutes(wired):
     wired.rows.append(record(8))
     assert await seal.tick(wired, NOW.replace(minute=9)) is None
     assert await seal.tick(wired, NOW.replace(minute=10)) == 1
+
+
+@pytest.mark.asyncio
+async def test_on_a_real_database_table(database, monkeypatch):
+    """The same through SQL: records written by the shop's own audit(), sealed, changed in the table, found."""
+    from sqlalchemy import update
+
+    from app import main as shop
+    from app.models import AuditLog
+
+    monkeypatch.setattr(seal, "_last_tick", None)
+    for i in range(3):
+        await shop.audit(database, "plan.update", "owner@example.test", f"plan:{i}", {"price": 100 + i})
+    await database.commit()
+    assert await seal.seal_new(database, NOW) == 3
+    await shop.audit(database, "plan.delete", "owner@example.test", "plan:2", None)
+    await database.commit()
+    state = await seal.get_state(db=database, admin=None)
+    assert state["sealed_records"] == 3 and state["unsealed_records"] == 1 and state["intact"] is False   # not checked yet
+    assert (await seal.verify(database, NOW))["intact"] is True
+
+    await database.execute(update(AuditLog).where(AuditLog.target == "plan:1").values(details='{"price": 1}'))
+    await database.commit()
+    database.expire_all()
+    result = await seal.verify(database, NOW)
+    assert result["intact"] is False and [(b["sealed"], b["found"]) for b in result["broken"]] == [(3, 3)]
