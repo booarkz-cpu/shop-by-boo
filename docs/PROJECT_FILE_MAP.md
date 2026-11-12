@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.125.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.126.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2498**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2518**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -840,6 +840,23 @@
 | [docs/THREAT_MODEL.md](../docs/THREAT_MODEL.md) | Документация |
 | [docs/TORRENT_BAN.md](../docs/TORRENT_BAN.md) | Документация |
 | [docs/VERSIONING.md](../docs/VERSIONING.md) | Документация |
+| [docs/architecture/ADR/0000-template.md](../docs/architecture/ADR/0000-template.md) | Документация |
+| [docs/architecture/ADR/0001-audit-seals-in-settings.md](../docs/architecture/ADR/0001-audit-seals-in-settings.md) | Документация |
+| [docs/architecture/ADR/0002-drift-check-is-read-only.md](../docs/architecture/ADR/0002-drift-check-is-read-only.md) | Документация |
+| [docs/architecture/ADR/0003-pin-actions-and-scanner-by-digest.md](../docs/architecture/ADR/0003-pin-actions-and-scanner-by-digest.md) | Документация |
+| [docs/architecture/ADR/0004-apps-self-update-from-github.md](../docs/architecture/ADR/0004-apps-self-update-from-github.md) | Документация |
+| [docs/architecture/ADR/0005-runtime-images-without-packaging-tools.md](../docs/architecture/ADR/0005-runtime-images-without-packaging-tools.md) | Документация |
+| [docs/architecture/ADR/README.md](../docs/architecture/ADR/README.md) | Документация |
+| [docs/architecture/API_CATALOG.md](../docs/architecture/API_CATALOG.md) | Документация |
+| [docs/architecture/CONTAINER_DIAGRAM.md](../docs/architecture/CONTAINER_DIAGRAM.md) | Документация |
+| [docs/architecture/CONTEXT_MAP.md](../docs/architecture/CONTEXT_MAP.md) | Документация |
+| [docs/architecture/DATA_FLOW.md](../docs/architecture/DATA_FLOW.md) | Документация |
+| [docs/architecture/DEPLOYMENT_TOPOLOGY.md](../docs/architecture/DEPLOYMENT_TOPOLOGY.md) | Документация |
+| [docs/architecture/DOMAIN_BOUNDARIES.md](../docs/architecture/DOMAIN_BOUNDARIES.md) | Документация |
+| [docs/architecture/EVENT_CATALOG.md](../docs/architecture/EVENT_CATALOG.md) | Документация |
+| [docs/architecture/README.md](../docs/architecture/README.md) | Документация |
+| [docs/architecture/SYSTEM_OVERVIEW.md](../docs/architecture/SYSTEM_OVERVIEW.md) | Документация |
+| [docs/architecture/THREAT_MODEL.md](../docs/architecture/THREAT_MODEL.md) | Документация |
 | [docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md](../docs/archive/API_REFERENCE_RU_BEFORE_ALPHA_6.md) | Документация |
 | [docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md](../docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md) | Документация |
 | [docs/archive/DOCUMENTATION_RU_BEFORE_ALPHA_6.md](../docs/archive/DOCUMENTATION_RU_BEFORE_ALPHA_6.md) | Документация |
@@ -1180,6 +1197,7 @@
 | [docs/ru/RELEASE_V28_123_0.md](../docs/ru/RELEASE_V28_123_0.md) | Документация |
 | [docs/ru/RELEASE_V28_124_0.md](../docs/ru/RELEASE_V28_124_0.md) | Документация |
 | [docs/ru/RELEASE_V28_125_0.md](../docs/ru/RELEASE_V28_125_0.md) | Документация |
+| [docs/ru/RELEASE_V28_126_0.md](../docs/ru/RELEASE_V28_126_0.md) | Документация |
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
@@ -2050,6 +2068,7 @@
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
 | [scripts/generate-admin-matrix.py](../scripts/generate-admin-matrix.py) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |
+| [scripts/generate-architecture-docs.py](../scripts/generate-architecture-docs.py) | Эксплуатация и релиз |
 | [scripts/generate-cabinet-strings.py](../scripts/generate-cabinet-strings.py) | Эксплуатация и релиз |
 | [scripts/generate-db-schema.py](../scripts/generate-db-schema.py) | Эксплуатация и релиз |
 | [scripts/generate-project-map.py](../scripts/generate-project-map.py) | Эксплуатация и релиз |
@@ -2236,6 +2255,7 @@
 | [tests/test_app_config.py](../tests/test_app_config.py) | Проверки |
 | [tests/test_app_growth.py](../tests/test_app_growth.py) | Проверки |
 | [tests/test_app_login.py](../tests/test_app_login.py) | Проверки |
+| [tests/test_architecture_docs.py](../tests/test_architecture_docs.py) | Проверки |
 | [tests/test_audit_seal.py](../tests/test_audit_seal.py) | Проверки |
 | [tests/test_audit_v2009_runtime.py](../tests/test_audit_v2009_runtime.py) | Проверки |
 | [tests/test_auto_update_agent.py](../tests/test_auto_update_agent.py) | Проверки |
