@@ -2,7 +2,9 @@
 # v28.129.0 (owner's task of 2026-11-12): MASQUE on a node behind the SelfSteal site, checked for real — the very
 # script and files of backend/app/rw_masque.py on the CI runner (Ubuntu, Docker, systemd):
 #  * the node's own SelfSteal Caddy runs as on a node (internal certificate), MASQUE is installed next to it;
-#  * a visitor of the MASQUE port gets the SelfSteal site and its 404 page, also on a wrong «secret» path;
+#  * a visitor of the MASQUE port gets the SelfSteal site and its 404 page, also on a wrong and on the right «secret» path;
+#  * protections against detection (v28.130.0): strict SNI, the site's TLS settings, no proxy error pages, an invisible
+#    block of an address that tries wrong passwords — and the same node with the optional ones switched off;
 #  * a real Xray client fetches a page through the tunnel; a wrong password and a private address are refused;
 #  * a user is added and removed through the API without restarting Xray; the removed one is cut off;
 #  * «status» reports users and traffic; a second «on» changes nothing; «off» removes everything.
@@ -32,13 +34,14 @@ PY
 for _ in $(seq 1 30); do [ -S /dev/shm/selfsteal.sock ] && break; sleep 1; done
 [ -S /dev/shm/selfsteal.sock ] && ok "the node's SelfSteal site is up" || fail "no SelfSteal socket"
 
-bundle() {  # bundle <file> <login:password>...
-  py - "$DOMAIN" "$PORT" "$@" <<'PY'
+bundle() {  # bundle <file> <login:password>...   (SHIELD=off: every optional protection switched off)
+  py - "$DOMAIN" "$PORT" "${SHIELD:-on}" "$@" <<'PY'
 import sys
 from app import rw_masque as m
-domain, port, out, *users = sys.argv[1:]
+domain, port, mode, out, *users = sys.argv[1:]
 prefix = m.new_prefix("ci-secret", "node-1")
-open(out, "wb").write(m.bundle(domain, int(port), prefix, [dict(zip(("email", "pass"), u.split(":"))) for u in users]))
+shield = {"ban_after": 20, "ban_minutes": 1} if mode == "on" else {"strict_sni": False, "tls_like_site": False, "probe_ban": False}
+open(out, "wb").write(m.bundle(domain, int(port), prefix, [dict(zip(("email", "pass"), u.split(":"))) for u in users], shield))
 PY
 }
 node() { local action=$1 file=$2; bash "$W/node.sh" "$action" "$DOMAIN" "$PORT" "$(sha256sum "$file" | cut -d' ' -f1)" < "$file"; }
@@ -60,7 +63,19 @@ get "https://$DOMAIN:$PORT/aaaaaaaaaaaaaaaaaaaaaaaa/1/2/" | grep -q 'selfsteal-s
 hdr=$(get -D - -o /dev/null "https://$DOMAIN:$PORT/")
 echo "$hdr" | grep -qi '^strict-transport-security:' && ! echo "$hdr" | grep -qi '^server:' && ok "the site's headers, no Server header" || { echo "$hdr"; fail "headers"; }
 [ "$(get -o /dev/null -w '%{http_version}' "https://$DOMAIN:$PORT/")" = 2 ] && ok "the port speaks HTTP/2" || fail "no HTTP/2"
-echo "plain GET of the secret path without a tunnel: HTTP $(get -o /dev/null -w '%{http_code}' "https://$DOMAIN:$PORT/$PREFIX/1/2/")"
+get "https://$DOMAIN:$PORT/$PREFIX/1/2/" | grep -q 'selfsteal-site-404' && ok "a plain request to the real secret path is the site's 404 as well" || fail "the secret path answers differently"
+# What a scanner sees. No server name: no certificate, so the domain is not revealed.
+if echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -noservername 2>/dev/null | grep -q 'BEGIN CERTIFICATE'; then fail "a certificate is given without a server name"; else ok "no certificate without the server name (strict SNI)"; fi
+echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -servername "$DOMAIN" 2>/dev/null | grep -q 'BEGIN CERTIFICATE' || fail "no certificate with the right server name"
+# A request that cannot be parsed gets what Go's net/http (Caddy) answers, not HAProxy's HTML page.
+bad=$(printf 'THIS IS NOT HTTP\r\n\r\n' | timeout 10 openssl s_client -quiet -connect "127.0.0.1:$PORT" -servername "$DOMAIN" 2>/dev/null || true)
+echo "$bad" | grep -q '^400 Bad Request' && echo "$bad" | grep -qi '^content-type: text/plain; charset=utf-8' && ! echo "$bad" | grep -qi '<html' \
+  && ok "a malformed request is answered like the site's server, not like a proxy" || { echo "$bad"; fail "malformed request reveals the proxy"; }
+nohost=$(printf 'GET / HTTP/1.1\r\n\r\n' | timeout 10 openssl s_client -quiet -connect "127.0.0.1:$PORT" -servername "$DOMAIN" 2>/dev/null || true)
+echo "$nohost" | head -n1 | grep -q '^HTTP/1.1 400 Bad Request' && ! echo "$nohost" | grep -qi '<html' && ok "a request without Host is refused the same way" || { echo "$nohost"; fail "request without Host"; }
+if echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -servername "$DOMAIN" -tls1_1 2>/dev/null | grep -q 'BEGIN CERTIFICATE'; then fail "TLS 1.1 is accepted"; else ok "TLS below 1.2 is refused, as on the site"; fi
+suite=$(echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -servername "$DOMAIN" -tls1_2 2>/dev/null | sed -n 's/^ *Cipher *: *//p' | head -n1)
+case "$suite" in ECDHE-*-AES128-GCM-SHA256|ECDHE-*-AES256-GCM-SHA384|ECDHE-*-CHACHA20-POLY1305) ok "TLS 1.2 suite is one of the site's: $suite" ;; *) fail "unexpected TLS 1.2 suite: $suite" ;; esac
 ss -ltn | grep -q "127.0.0.1:12087 " && ss -ltn | grep -q "127.0.0.1:12086 " && ok "Xray listens on loopback only" || { ss -ltn; fail "Xray is not on loopback"; }
 
 curl -fsSL -o "$W/xray.zip" https://github.com/XTLS/Xray-core/releases/download/v26.11.9/Xray-linux-64.zip
@@ -111,9 +126,23 @@ st=$(bash "$W/node.sh" status); echo "$st"
 echo "$st" | tail -1 | grep -q "^masque=on users=1 port=$PORT cert=" || fail "status line"
 echo "$st" | grep -q '^traffic u2 downlink [1-9]' && ok "status reports the user's traffic" || fail "no traffic in status"
 
+# Probing: enough wrong passwords (the threshold here is 20 refusals; a client may retry by itself), and the address
+# gets only the site — even with the right password.
+[ "$(through u2 $URL)" = 204 ] || fail "the address is blocked before the threshold"
+blocked=0
+for n in $(seq 1 24); do through bad $URL >/dev/null; if [ "$(through u2 $URL)" = 000 ]; then blocked=$n; break; fi; done
+[ "$blocked" -gt 0 ] && ok "after repeated wrong passwords ($blocked more attempts) the address is blocked from the tunnel" || fail "no block after wrong passwords"
+get "https://$DOMAIN:$PORT/" | grep -q 'selfsteal-site-home' && ok "the blocked address still sees the site (the block cannot be seen)" || fail "blocked address lost the site"
+
 out=$(node on "$W/b3.tgz") || fail "second install failed"
 echo "$out" | tail -1 | grep -q "^masque=on users=1 port=$PORT cert=" && ok "a second «on» gives the same state" || fail "second on"
 [ "$(through u2 $URL)" = 204 ] || fail "tunnel after the second on"
+SHIELD=off bundle "$W/b4.tgz" u2:pass-two
+node on "$W/b4.tgz" >/dev/null || fail "install without the optional protections failed"
+echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -noservername 2>/dev/null | grep -q 'BEGIN CERTIFICATE' && ok "with strict SNI off the port answers without a server name" || fail "strict SNI could not be switched off"
+for _ in $(seq 1 8); do through bad $URL >/dev/null; done
+[ "$(through u2 $URL)" = 204 ] && ok "with the probing block off wrong passwords block nobody" || fail "block is on though switched off"
+get "https://$DOMAIN:$PORT/$PREFIX/1/2/" | grep -q 'selfsteal-site-404' && ok "the always-on protections stay: the secret path is still the site's 404" || fail "always-on protections lost"
 rc=0; bash "$W/node.sh" on 'bad;domain' 2087 "$(printf 'a%.0s' $(seq 64))" < /dev/null >/dev/null 2>&1 || rc=$?; [ "$rc" = 2 ] && ok "a bad domain is refused" || fail "bad domain ($rc)"
 rc=0; bash "$W/node.sh" on "$DOMAIN" 443 "$(printf 'a%.0s' $(seq 64))" < /dev/null >/dev/null 2>&1 || rc=$?; [ "$rc" = 2 ] && ok "a port below 1024 is refused" || fail "low port ($rc)"
 rc=0; bash "$W/node.sh" on "$DOMAIN" 2087 "$(printf 'a%.0s' $(seq 64))" < "$W/b3.tgz" >/dev/null 2>&1 || rc=$?; [ "$rc" = 3 ] && ok "a damaged archive is refused" || fail "bad archive ($rc)"

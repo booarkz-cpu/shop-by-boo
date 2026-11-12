@@ -1,4 +1,4 @@
-# Каталог API — v28.129.0 / API v21.5.1
+# Каталог API — v28.130.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -269,11 +269,13 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/masque` | State | право `read` |
 | `GET` | `/api/admin/masque/panel` | Panel | право `read` |
 | `POST` | `/api/admin/masque/panel/nodes/{server_id}/install` | Install | право `provision_nodes` |
+| `POST` | `/api/admin/masque/panel/nodes/{server_id}/probe` | Probe | право `read` |
 | `POST` | `/api/admin/masque/panel/nodes/{server_id}/remove` | Remove | право `provision_nodes` |
 | `POST` | `/api/admin/masque/panel/nodes/{server_id}/status` | Status | право `read` |
 | `PUT` | `/api/admin/masque/panel/settings` | Save Settings | право `provision_nodes` |
 | `POST` | `/api/admin/masque/panel/sync` | Sync | право `provision_nodes` |
 | `GET` | `/api/admin/masque/panel/users` | Users | право `provision_nodes` |
+| `POST` | `/api/admin/masque/panel/users/{subscription}/reissue` | Reissue | право `provision_nodes` |
 | `POST` | `/api/admin/menu` | Admin Menu | право `manage_content` |
 | `DELETE` | `/api/admin/menu/{item_id}` | Admin Menu Delete | право `manage_content` |
 | `PUT` | `/api/admin/menu/{item_id}` | Admin Menu Update | право `manage_content` |
@@ -823,6 +825,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/me/loyalty` | My Loyalty | сессия клиента |
 | `POST` | `/api/me/lusi/action` | Lusi Action | сессия клиента |
 | `GET` | `/api/me/masque` | My Masque | сессия клиента |
+| `GET` | `/api/me/masque/{subscription}/qr` | My Masque Qr | сессия клиента |
+| `POST` | `/api/me/masque/{subscription}/reissue` | My Masque Reissue | сессия клиента |
 | `GET` | `/api/me/mobile/alerts` | Mobile Alerts | сессия клиента |
 | `GET` | `/api/me/mobile/bootstrap` | Mobile Bootstrap | сессия клиента |
 | `GET` | `/api/me/mobile/connection` | Mobile Connection | сессия клиента |
