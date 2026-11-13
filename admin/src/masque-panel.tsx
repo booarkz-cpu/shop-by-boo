@@ -7,8 +7,8 @@ type Plan = {id: number; name: string; enabled: boolean; traffic_limit_gb: numbe
 type Shield = {strict_sni: boolean; tls_like_site: boolean; probe_ban: boolean; ban_after: number; ban_minutes: number};
 type Node = {server_id: number; name: string; address: string; domain: string | null; ready: boolean; installed: boolean; port: number | null; users: number | null; synced_at: string | null; error: string | null; shield: Shield | null};
 type Probe = {domain: string; port: number; same: boolean; checks: {check: string; same: boolean; differences: string[]}[]; limits: string[]};
-type View = {enabled: boolean; plan_ids: number[]; port: number; plans: Plan[]; nodes: Node[]; users: number; images: {xray: string; haproxy: string}; notes: string[]; shield_default: Shield};
-type UserRow = {subscription_id: number; user_id: number; plan_id: number; login: string; expires_at: string; url: string};
+type View = {enabled: boolean; plan_ids: number[]; port: number; count_in_limit: boolean; over_limit: number; plans: Plan[]; nodes: Node[]; users: number; images: {xray: string; haproxy: string}; notes: string[]; shield_default: Shield};
+type UserRow = {subscription_id: number; user_id: number; plan_id: number; login: string; expires_at: string; url: string; traffic_bytes: number; over_limit: boolean; tunnels: number};
 type Traffic = {subscription_id: number | null; user_id: number | null; login: string; uplink: number; downlink: number};
 type Status = {users: number; port: number; certificate_until: string; traffic: Traffic[]};
 
@@ -25,6 +25,7 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
   const [enabled, setEnabled] = useState(false);
   const [plans, setPlans] = useState<number[]>([]);
   const [port, setPort] = useState("2087");
+  const [counted, setCounted] = useState(true);
   const [users, setUsers] = useState<{total: number; items: UserRow[]} | null>(null);
   const [status, setStatus] = useState<{node: string; data: Status} | null>(null);
   const [confirm, setConfirm] = useState<Node | null>(null);
@@ -37,6 +38,7 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
     setEnabled(next.enabled);
     setPlans(next.plan_ids);
     setPort(String(next.port));
+    setCounted(next.count_in_limit);
     setError("");
   }
   async function act(key: string, work: () => Promise<void>) {
@@ -55,10 +57,10 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
   }, []);
 
   const portOk = /^\d{4,5}$/.test(port) && Number(port) >= 1024 && Number(port) <= 65535;
-  const dirty = !!view && (enabled !== view.enabled || port !== String(view.port) || plans.join() !== view.plan_ids.join());
+  const dirty = !!view && (enabled !== view.enabled || port !== String(view.port) || plans.join() !== view.plan_ids.join() || counted !== view.count_in_limit);
   const installed = view ? view.nodes.filter((n) => n.installed).length : 0;
   const save = () => act("save", async () => {
-    show(await request(`${API}/settings`, {method: "PUT", headers: JSON_HEADERS, body: JSON.stringify({enabled, plan_ids: plans, port: Number(port)})}));
+    show(await request(`${API}/settings`, {method: "PUT", headers: JSON_HEADERS, body: JSON.stringify({enabled, plan_ids: plans, port: Number(port), count_in_limit: counted})}));
     toast("Настройки MASQUE сохранены");
   });
   const shieldOk = !!setup && Number.isInteger(setup.shield.ban_after) && setup.shield.ban_after >= 5 && setup.shield.ban_after <= 500
@@ -105,6 +107,7 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
           <StatusBadge tone={view.enabled ? "ok" : "idle"}>{view.enabled ? "Доступ выдаётся" : "Доступ не выдаётся"}</StatusBadge>{" "}
           <StatusBadge tone={installed ? "ok" : "idle"}>Нод с MASQUE: {installed}</StatusBadge>{" "}
           <StatusBadge tone="idle">Подписок с доступом: {view.users}</StatusBadge>
+          {view.count_in_limit && view.over_limit > 0 && <>{" "}<StatusBadge tone="warn">Исчерпали лимит тарифа: {view.over_limit}</StatusBadge></>}
         </p>
         <ul>{view.notes.map((n) => <li key={n}>{n}</li>)}</ul>
 
@@ -121,6 +124,8 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
               </label>
             ))}
           </fieldset>
+          <label className="check"><input type="checkbox" checked={counted} onChange={(e) => setCounted(e.target.checked)} /> Засчитывать трафик MASQUE в лимит тарифа</label>
+          <p className="muted">Включено: трафик MASQUE складывается с трафиком панели, и когда лимит тарифа исчерпан, доступ MASQUE снимается до нового периода. Выключено: MASQUE безлимитный.</p>
           <label>Порт для новых установок (TCP, от 1024)
             <input inputMode="numeric" value={port} onChange={(e) => setPort(e.target.value)} aria-invalid={!portOk} />
           </label>
@@ -220,9 +225,9 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
         {users && (users.items.length === 0 ? <p className="muted">Подписок с доступом нет.</p> : (
           <div className="table-scroll" data-masque-panel-users>
             <table>
-              <thead><tr><th>Подписка</th><th>Покупатель</th><th>Логин</th><th>Действует до</th><th>Ссылка</th></tr></thead>
+              <thead><tr><th>Подписка</th><th>Покупатель</th><th>Логин</th><th>Трафик MASQUE</th><th>Туннелей</th><th>Действует до</th><th>Ссылка</th></tr></thead>
               <tbody>
-                {users.items.map((u) => <tr key={u.subscription_id}><td>{u.subscription_id}</td><td>{u.user_id}</td><td><code>{u.login}</code></td><td>{when(u.expires_at)}</td>
+                {users.items.map((u) => <tr key={u.subscription_id}><td>{u.subscription_id}</td><td>{u.user_id}</td><td><code>{u.login}</code></td><td>{mb(u.traffic_bytes)}{u.over_limit && <> <StatusBadge tone="warn">лимит исчерпан</StatusBadge></>}</td><td>{u.tunnels || "без лимита"}</td><td>{when(u.expires_at)}</td>
                   <td><button type="button" className="secondary" onClick={() => copy(u.url)} aria-label={`Скопировать ссылку подписки ${u.subscription_id}`}>Скопировать</button>{" "}
                     <button type="button" className="secondary" disabled={!!busy} onClick={() => setReissueOf(u)} aria-label={`Выдать новую ссылку подписке ${u.subscription_id}`}>Новая ссылка</button></td></tr>)}
               </tbody>

@@ -14,8 +14,9 @@ NOW = datetime(2026, 11, 12, 12, 0, 0)
 ON = {"enabled": True, "plan_ids": [], "port": 2087, "nodes": {}}
 
 
-def sub(id=1, plan=1, days=10, life="active", user=7):
-    return SimpleNamespace(id=id, plan_id=plan, user_id=user, name="Подписка", expires_at=NOW + timedelta(days=days), lifecycle_status=life)
+def sub(id=1, plan=1, days=10, life="active", user=7, devices=None, gb=None):
+    return SimpleNamespace(id=id, plan_id=plan, user_id=user, name="Подписка", expires_at=NOW + timedelta(days=days), lifecycle_status=life,
+                           device_limit_snapshot=devices, traffic_limit_gb_snapshot=gb, remnawave_uuid=None)
 
 
 # ---------------------------------------------------------------- who has access
@@ -78,7 +79,7 @@ def test_server_config_keeps_xray_on_loopback_and_private_networks_closed():
     assert inbound["streamSettings"]["tlsSettings"]["alpn"] == ["h2"]                       # HTTP/3 cannot be hidden behind the site
     assert inbound["streamSettings"]["masqueSettings"]["path"] == f"/{prefix}/{{target}}/{{ipproto}}/"
     assert inbound["settings"]["address"] == ["10.77.0.1/16"]                              # no IPv6 inside the tunnel
-    assert config["api"]["listen"] == f"127.0.0.1:{rw_masque.API_PORT}" and "HandlerService" in config["api"]["services"]
+    assert config["api"]["listen"] == rw_masque.API_SOCK and "HandlerService" in config["api"]["services"]
     assert config["policy"]["levels"]["0"] == {"statsUserUplink": True, "statsUserDownlink": True}
     freedom = config["outbounds"][0]
     assert freedom["protocol"] == "freedom" and "settings" not in freedom                   # Xray's default final rules stay
@@ -89,7 +90,8 @@ def test_server_config_keeps_xray_on_loopback_and_private_networks_closed():
 def test_haproxy_sends_only_the_secret_path_to_xray():
     prefix = rw_masque.new_prefix("secret", "server-1")
     text = rw_masque.haproxy_cfg("node.example.com", 2087, prefix)
-    assert f"use_backend tunnel if {{ req.hdr(upgrade) -i connect-ip }} {{ path_beg /{prefix}/ }}" in text    # only a tunnel request
+    assert "acl tunnel req.hdr(upgrade) -i connect-ip" in text and f"acl secret path_beg /{prefix}/" in text
+    assert "use_backend tunnel if tunnel secret" in text                                   # only a tunnel request to the secret path
     assert "default_backend site" in text
     assert "bind :2087 ssl crt /tls/site.pem alpn h2,http/1.1 strict-sni" in text and "#V6#\tbind :::2087 v6only" in text
     assert f"server xray 127.0.0.1:{rw_masque.INNER_PORT} ssl verify none alpn h2 sni str(node.example.com)" in text
@@ -117,7 +119,7 @@ def test_bundle_is_reproducible_and_complete():
         names = tar.getnames()
         config = json.load(tar.extractfile("config.json"))
         logins = tar.extractfile("users").read().decode()
-    assert names == ["config.json", "haproxy.cfg", "docker-compose.yml", "400.http", "users"]
+    assert names == ["config.json", "haproxy.cfg", "docker-compose.yml", "400.http", "limits.map", "users"]
     assert logins == "m2\nm1\n" and [u["email"] for u in config["inbounds"][0]["settings"]["users"]] == ["m2", "m1"]
 
 
@@ -207,11 +209,13 @@ async def test_tick_contacts_a_node_only_when_its_list_changed(stored, monkeypat
     calls = []
 
     async def ssh(db, server_id, action, *args, stdin=None):
+        if action == "traffic":
+            return SimpleNamespace(code=0, out="masque=traffic", err="")
         calls.append((server_id, action, args[0], args[1], len(stdin)))
         return SimpleNamespace(code=0, out="masque=sync users=1 added=1 removed=0", err="")
 
     monkeypatch.setattr(panel, "_ssh", ssh)
-    stored[panel.STATE_KEY] = {**ON, "nodes": {"1": {"server_id": 1, "name": "de-1", "domain": "de.example.com", "port": 2087, "state": "on"}}}
+    stored[panel.STATE_KEY] = {**ON, "nodes": {"1": {"server_id": 1, "name": "de-1", "domain": "de.example.com", "port": 2087, "state": "on", "stack": panel.STACK}}}
     db = Db([sub(1, days=5), sub(2, life="frozen")])
     now = datetime.now(panel.UTC)
     db.subs = [sub(1), sub(2, life="frozen")]
@@ -236,7 +240,8 @@ async def test_failed_sync_is_remembered_and_retried(stored, monkeypatch):
         return SimpleNamespace(code=8, out="not installed", err="")
 
     monkeypatch.setattr(panel, "_ssh", ssh)
-    stored[panel.STATE_KEY] = {**ON, "nodes": {"1": {"server_id": 1, "name": "de-1", "domain": "de.example.com", "port": 2087, "state": "on"}}}
+    stored[panel.STATE_KEY] = {**ON, "nodes": {"1": {"server_id": 1, "name": "de-1", "domain": "de.example.com", "port": 2087, "state": "on",
+                                                     "stack": panel.STACK}}}
     db = Db([])
     assert await panel.tick(db) == 1
     node = stored[panel.STATE_KEY]["nodes"]["1"]
@@ -298,7 +303,7 @@ def test_always_on_protections_do_not_depend_on_the_choice():
         assert "req.hdr(upgrade) -i connect-ip" in text                                   # a plain GET of the secret path goes to the site
         assert "errorfile 400 /errors/400.http" in text and text.count("/dev/null") == 5    # no HAProxy pages
         assert "http-request deny deny_status 400 if !{ req.hdr(host) -m found }" in text
-    assert "strict-sni" not in off and "ssl-default-bind" not in off and "stick-table" not in off and "gpc1" not in off
+    assert "strict-sni" not in off and "ssl-default-bind" not in off and "type ipv6" not in off and "gpc1" not in off
     assert rw_masque.ERROR_400.startswith("HTTP/1.1 400 Bad Request\r\n") and rw_masque.ERROR_400.endswith("\r\n\r\n400 Bad Request")
     assert "html" not in rw_masque.ERROR_400.lower()
 
@@ -321,7 +326,7 @@ def test_bundle_carries_the_chosen_protections():
     b = rw_masque.bundle("node.example.com", 2087, prefix, [], {"probe_ban": False})
     assert a != b
     with tarfile.open(fileobj=io.BytesIO(gzip.decompress(b))) as tar:
-        assert "stick-table" not in tar.extractfile("haproxy.cfg").read().decode()
+        assert "type ipv6" not in tar.extractfile("haproxy.cfg").read().decode()
         assert tar.extractfile("400.http").read().decode() == rw_masque.ERROR_400
 
 
@@ -356,3 +361,104 @@ async def test_probe_compares_three_requests_and_reports_an_unreachable_port(sto
     assert len(out["limits"]) == 3
     with pytest.raises(panel.HTTPException):
         await panel.probe(9, db=Db([]), admin=None)
+
+
+# ---------------------------------------------------------------- tunnels as in the plan (owner's decision 2)
+
+def test_tunnel_limit_follows_the_plans_device_limit():
+    users = panel.users_of([sub(1, devices=3), sub(2)], ON)
+    assert [u["limit"] for u in users] == [3, 0]
+    assert rw_masque.limits_map(users) == f"{users[0]['email']} 3\n"                 # no line: no limit
+    assert panel.users_hash(users, "a.example.com", 2087) != panel.users_hash(panel.users_of([sub(1, devices=2), sub(2)], ON), "a.example.com", 2087)
+    text = rw_masque.haproxy_cfg("node.example.com", 2087, rw_masque.new_prefix("s", "server-1"))
+    assert "http-request track-sc1 http_auth_user table tunnels if tunnel secret" in text
+    assert f"map_str_int({rw_masque.LIMITS_MAP},0)" in text and "use_backend site if tunnel secret limited too_many" in text
+    assert text.index("use_backend site if tunnel secret limited too_many") < text.index("use_backend tunnel if tunnel secret")
+    assert f"stats socket {rw_masque.HAPROXY_SOCK} mode 600 level admin" in text
+
+
+def test_xray_api_is_a_unix_socket_not_a_port():
+    config = rw_masque.server_config("node.example.com", [], rw_masque.new_prefix("s", "server-1"))
+    assert config["api"]["listen"] == rw_masque.API_SOCK and config["api"]["listen"].startswith("/")
+    assert str(rw_masque.API_PORT) not in rw_masque.NODE and "unix://" + rw_masque.API_SOCK in rw_masque.NODE
+    assert "traffic)" in rw_masque.NODE and "-reset" in rw_masque.NODE and "limits_apply" in rw_masque.NODE
+
+
+# ---------------------------------------------------------------- traffic and the plan's limit (owner's decision 1)
+
+def test_counter_adds_up_and_starts_anew_each_month_without_the_panel():
+    a = panel.add_traffic(None, 100, datetime(2026, 11, 12))
+    b = panel.add_traffic(a, 50, datetime(2026, 11, 30))
+    assert b["bytes"] == 150 and b["since"] == a["since"]
+    c = panel.add_traffic(b, 7, datetime(2026, 12, 1))
+    assert c["bytes"] == 7 and c["since"].startswith("2026-12-01")
+    assert panel.add_traffic(c, -5, datetime(2026, 12, 2))["bytes"] == 7             # a negative delta is ignored
+
+
+def test_limit_counts_masque_together_with_the_panel():
+    entry = {"bytes": 3 * panel.GB, "since": "2026-11-01T00:00:00Z"}
+    ok = panel.judge(entry, 10 * panel.GB, {"userTraffic": {"usedTrafficBytes": 6 * panel.GB}}, NOW)
+    assert ok["over"] is False and ok["panel_used"] == 6 * panel.GB and ok["limit"] == 10 * panel.GB
+    assert panel.judge(entry, 10 * panel.GB, {"userTraffic": {"usedTrafficBytes": 7 * panel.GB}}, NOW)["over"] is True
+    assert panel.judge(entry, 10 * panel.GB, {"usedTrafficBytes": 1, "trafficLimitBytes": 3 * panel.GB}, NOW)["over"] is True   # the panel's own limit wins
+    assert panel.judge(entry, 2 * panel.GB, None, NOW)["over"] is True                 # the panel is silent: MASQUE alone
+    assert panel.judge(entry, None, {"usedTrafficBytes": 10 ** 15}, NOW)["over"] is False   # no limit: never over
+
+
+def test_a_new_period_in_the_panel_starts_the_masque_counter_anew():
+    entry = {"bytes": 9 * panel.GB, "since": "2026-11-01T00:00:00Z", "over": True}
+    out = panel.judge(entry, 10 * panel.GB, {"usedTrafficBytes": 0, "lastTrafficResetAt": "2026-11-10T00:00:00.000Z"}, NOW)
+    assert out["bytes"] == 0 and out["over"] is False and out["since"].startswith("2026-11-10") and out["panel_reset"] is True
+    again = panel.judge({**out, "bytes": 5}, 10 * panel.GB, {"usedTrafficBytes": 0, "lastTrafficResetAt": "2026-11-10T00:00:00.000Z"}, NOW)
+    assert again["bytes"] == 5                                                           # the same reset is not applied twice
+    assert panel.add_traffic(again, 1, datetime(2026, 12, 3))["bytes"] == 6               # the month rule yields to the panel's period
+
+
+def test_used_up_limit_takes_masque_away_only_while_the_switch_is_on():
+    s = sub(5, gb=10)
+    assert panel.eligible(s, ON, NOW, {5}) is False
+    assert panel.eligible(s, {**ON, "count_in_limit": False}, NOW, {5}) is True
+    assert panel.eligible(s, ON, NOW, {6}) is True
+
+
+@pytest.mark.asyncio
+async def test_collect_adds_node_traffic_and_blocks_the_one_over_the_limit(stored, monkeypatch):
+    now = panel._naive()
+    live, free = sub(1, gb=1), sub(2)
+    for s in (live, free):
+        s.expires_at = now + timedelta(days=5)
+    state = {**ON, "nodes": {"1": {"server_id": 1, "name": "de-1", "domain": "de.example.com", "port": 2087, "state": "on", "stack": panel.STACK},
+                             "2": {"server_id": 2, "name": "old", "domain": "old.example.com", "port": 2087, "state": "on"}}}
+    l1, l2 = panel.creds(state, 1)[0], panel.creds(state, 2)[0]
+    asked = []
+
+    async def ssh(db, server_id, action, *args, stdin=None):
+        asked.append((server_id, action))
+        return SimpleNamespace(code=0, err="", out=f"traffic {l1} uplink {panel.GB}\ntraffic {l1} downlink 5\ntraffic {l2} downlink 9\ntraffic ghost downlink 1\nmasque=traffic")
+
+    monkeypatch.setattr(panel, "_ssh", ssh)
+    db = Db([live, free])
+    assert await panel.collect(db, state, now) is True
+    assert asked == [(1, "traffic")]                                                    # a node of the old layout is not asked
+    data = stored[panel.TRAFFIC_KEY]
+    assert data["subs"]["1"]["bytes"] == panel.GB + 5 and data["subs"]["2"]["bytes"] == 9 and "ghost" not in str(data)
+    assert data["over"] == [1] and data["subs"]["2"]["over"] is False                   # 1 GB plan, 1 GB moved; the other has no limit
+    assert [s.id for s in await panel._live_subs(db, state, now)] == [2]
+    assert [s.id for s in await panel._live_subs(db, {**state, "count_in_limit": False}, now)] == [1, 2]
+    assert await panel.collect(db, state, now) is False and asked == [(1, "traffic")]   # not again within five minutes
+
+
+@pytest.mark.asyncio
+async def test_node_of_an_older_release_is_reinstalled_once(stored, monkeypatch):
+    actions = []
+
+    async def ssh(db, server_id, action, *args, stdin=None):
+        actions.append(action)
+        return SimpleNamespace(code=0, out="masque=on users=0 port=2087 cert=x", err="")
+
+    monkeypatch.setattr(panel, "_ssh", ssh)
+    stored[panel.STATE_KEY] = {**ON, "nodes": {"1": {"server_id": 1, "name": "de-1", "domain": "de.example.com", "port": 2087, "state": "on"}}}
+    assert await panel.tick(Db([])) == 1 and actions == ["on"]
+    assert stored[panel.STATE_KEY]["nodes"]["1"]["stack"] == panel.STACK
+    await panel.tick(Db([]))
+    assert "on" not in actions[1:]                                                       # afterwards only traffic and syncs

@@ -31,8 +31,16 @@ XRAY_IMAGE = "ghcr.io/xtls/xray-core:26.11.9@sha256:9812e382e229e9ed63fd179bf1a4
 HAPROXY_IMAGE = "haproxy:3.2-alpine@sha256:1c3568e520453cc8ba98c39501febcf450429c80e6cc27ecad779961d76e597c"
 TAG = "MASQUE"
 DIR = "/opt/corgi-masque"
-INNER_PORT = 12087          # Xray's MASQUE inbound, loopback
-API_PORT = 12086            # Xray's gRPC API, loopback
+INNER_PORT = 12087          # Xray's MASQUE inbound, loopback (the MASQUE transport cannot listen on a unix socket)
+API_PORT = 12086            # reserved: never offered as the public port
+# Xray's API has no TCP port: it is a unix socket in a directory only the two containers see. A loopback port could
+# be reached through the node's own VPN (the panel's Xray runs on the host network and an old core lets a customer
+# connect to 127.0.0.1) — and the API has no password. The inbound stays on loopback: it asks for the secret path
+# and a password itself.
+RUN = "/run/masque"
+API_SOCK = f"{RUN}/api.sock"
+HAPROXY_SOCK = f"{RUN}/haproxy.sock"
+LIMITS_MAP = "/maps/limits.map"
 DEFAULT_PORT = masque.DEFAULT_PORT
 # One IPv4 range of 65 thousand tunnel addresses. No IPv6 inside the tunnel: many nodes have no IPv6 route, and a
 # client that was given an IPv6 address would send there what the node cannot deliver.
@@ -82,7 +90,7 @@ def server_config(domain: str, users: list[dict], prefix: str) -> dict:
             raise ValueError("Некорректный логин MASQUE")
     return {
         "log": {"loglevel": "warning"},
-        "api": {"tag": "api", "listen": f"127.0.0.1:{API_PORT}", "services": ["HandlerService", "StatsService"]},
+        "api": {"tag": "api", "listen": API_SOCK, "services": ["HandlerService", "StatsService"]},
         "stats": {},
         "policy": {"levels": {"0": {"statsUserUplink": True, "statsUserDownlink": True}}},
         "inbounds": [inbound],
@@ -144,6 +152,7 @@ def haproxy_cfg(domain: str, port: int, prefix: str, protections: dict | None = 
     ban_count = "	http-response sc-inc-gpc1(0) if { status 401 }\n" if opts["probe_ban"] else ""
     return f"""global
 	log stdout format raw local0 notice
+	stats socket {HAPROXY_SOCK} mode 600 level admin
 {site_tls}defaults
 	mode http
 	log global
@@ -162,8 +171,18 @@ frontend public
 	bind :{port} {tls}
 #V6#	bind :::{port} v6only {tls}
 	http-request deny deny_status 400 if !{{ req.hdr(host) -m found }}
-{ban_track}	use_backend tunnel if {{ req.hdr(upgrade) -i connect-ip }} {{ path_beg /{prefix}/ }}{ban_acl}
+{ban_track}	acl tunnel req.hdr(upgrade) -i connect-ip
+	acl secret path_beg /{prefix}/
+	http-request track-sc1 http_auth_user table tunnels if tunnel secret
+	http-request set-var(txn.limit) http_auth_user,map_str_int({LIMITS_MAP},0) if tunnel secret
+	http-request set-var(txn.open) sc1_conn_cur if tunnel secret
+	acl limited var(txn.limit) -m int gt 0
+	acl too_many var(txn.open),sub(txn.limit) -m int gt 0
+	use_backend site if tunnel secret limited too_many
+	use_backend tunnel if tunnel secret{ban_acl}
 	default_backend site
+backend tunnels
+	stick-table type string len 64 size 100k expire 1h store conn_cur
 backend tunnel
 {ban_count}	server xray 127.0.0.1:{INNER_PORT} ssl verify none alpn h2 sni str({domain})
 backend site
@@ -180,7 +199,7 @@ def compose() -> str:
     restart: always
     network_mode: host
     command: ["run", "-c", "/usr/local/etc/xray/config.json"]
-    volumes: ["./xray:/usr/local/etc/xray:ro", "./tls/xray:/tls:ro"]
+    volumes: ["./xray:/usr/local/etc/xray:ro", "./tls/xray:/tls:ro", "./run:/run/masque:rw"]
   haproxy:
     image: {HAPROXY_IMAGE}
     container_name: corgi-masque-haproxy
@@ -189,19 +208,27 @@ def compose() -> str:
     # root inside the container: the SelfSteal socket of the node's Caddy is writable by its owner only.
     user: "0:0"
     command: ["haproxy", "-W", "-db", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
-    volumes: ["./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro", "./tls/haproxy:/tls:ro", "./errors:/errors:ro", "/dev/shm:/dev/shm:rw"]
+    volumes: ["./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro", "./tls/haproxy:/tls:ro", "./errors:/errors:ro", "./maps:/maps:ro", "./run:/run/masque:rw",
+              "/dev/shm:/dev/shm:rw"]
     depends_on: [xray]
 """
 
 
+def limits_map(users: list[dict]) -> str:
+    """``login limit`` per line: how many tunnels a login may hold at once (0 or absent: no limit)."""
+    return "".join(f"{u['email']} {int(u.get('limit') or 0)}\n" for u in users if int(u.get("limit") or 0) > 0)
+
+
 def bundle(domain: str, port: int, prefix: str, users: list[dict], protections: dict | None = None) -> bytes:
-    """What the node script receives on stdin: a tar.gz with every file of the stack and the list of logins."""
+    """What the node script receives on stdin: a tar.gz with every file of the stack and the list of logins.
+    A user may carry ``limit`` — the number of simultaneous tunnels (the plan's device limit)."""
     config = server_config(domain, users, prefix)
     files = {
         "config.json": json.dumps(config, ensure_ascii=False, separators=(",", ":")),
         "haproxy.cfg": haproxy_cfg(domain, port, prefix, protections),
         "docker-compose.yml": compose(),
         "400.http": ERROR_400,
+        "limits.map": limits_map(users),
         "users": "".join(u["email"] + "\n" for u in config["inbounds"][0]["settings"]["users"]),
     }
     out = io.BytesIO()
@@ -239,12 +266,12 @@ def parse_result(out: str) -> dict:
 
 
 # on|sync <domain> <port> <sha256 of stdin>   — stdin: bundle()
-# status | off
+# status | traffic | off
 # Exit codes: 2 bad arguments, 3 bad archive, 5 the node is not ready (no docker / no SelfSteal / no certificate),
 # 6 the stack did not start, 8 not installed.
 NODE = r"""set -eu
 action="$1"; domain="${2:-}"; port="${3:-0}"; sum="${4:-}"
-dir=__DIR__; api=127.0.0.1:__API__; xr=corgi-masque-xray; hp=corgi-masque-haproxy
+dir=__DIR__; api=unix://__APISOCK__; xr=corgi-masque-xray; hp=corgi-masque-haproxy
 certsh=/usr/local/sbin/corgi-masque-cert.sh; unit=/etc/systemd/system/corgi-masque-cert
 xapi() { docker exec "$xr" /usr/local/bin/xray api "$@"; }
 fw() {  # port on|off
@@ -253,6 +280,34 @@ fw() {  # port on|off
 }
 running() { [ "$(docker inspect -f '{{.State.Running}}' "$1" 2>/dev/null)" = true ]; }
 live() { xapi inbounduser -s "$api" -tag=__TAG__ 2>/dev/null | grep -o '"email": *"[^"]*"' | cut -d'"' -f4 | sort -u; }
+# limits_apply <old map> <new map>: changes HAProxy's tunnel limits in place through its admin socket (no reload: a
+# reload would leave an old process behind for as long as its tunnels live). Without python3 the new limits wait for
+# the next restart of the container; the answer says which it was.
+limits_apply() {
+  command -v python3 >/dev/null 2>&1 || { echo pending; return 0; }
+  python3 - "$1" "$2" "$dir/run/haproxy.sock" "__MAP__" <<'PY' || echo pending
+import socket, sys
+old, new, sock, name = sys.argv[1:5]
+def read(path):
+    try:
+        return dict(line.split() for line in open(path) if len(line.split()) == 2)
+    except OSError:
+        return {}
+a, b = read(old), read(new)
+cmds = [f"del map {name} {k}" for k in a if k not in b]
+cmds += [f"add map {name} {k} {v}" for k, v in b.items() if k not in a]
+cmds += [f"set map {name} {k} {v}" for k, v in b.items() if k in a and a[k] != v]
+for i in range(0, len(cmds), 50):
+    s = socket.socket(socket.AF_UNIX)
+    s.settimeout(5)
+    s.connect(sock)
+    s.sendall((";".join(cmds[i:i + 50]) + "\n").encode())
+    while s.recv(4096):
+        pass
+    s.close()
+print("applied")
+PY
+}
 case "$action" in
 on|sync)
   case "$domain" in *[!a-z0-9.-]*|"") echo "bad domain"; exit 2 ;; esac
@@ -265,7 +320,7 @@ on|sync)
   cat > "$tmp/b.tgz"
   [ "$(sha256sum "$tmp/b.tgz" | cut -d' ' -f1)" = "$sum" ] || { echo "bad archive"; exit 3; }
   mkdir "$tmp/x"; tar -xzf "$tmp/b.tgz" -C "$tmp/x" --no-same-owner
-  for f in config.json haproxy.cfg docker-compose.yml users 400.http; do [ -f "$tmp/x/$f" ] || { echo "bad archive"; exit 3; }; done
+  for f in config.json haproxy.cfg docker-compose.yml users 400.http limits.map; do [ -f "$tmp/x/$f" ] || { echo "bad archive"; exit 3; }; done
   if [ "$action" = sync ]; then
     running "$xr" || { echo "not installed"; exit 8; }
     install -m 0640 -o 0 -g 65532 "$tmp/x/config.json" "$dir/xray/config.json.new"; mv -f "$dir/xray/config.json.new" "$dir/xray/config.json"
@@ -275,11 +330,19 @@ on|sync)
     if [ -s "$tmp/add" ]; then xapi adu -s "$api" /usr/local/etc/xray/config.json >/dev/null 2>&1 || true; fi
     live > "$tmp/now"
     cmp -s "$tmp/now" "$tmp/want" || { echo "users differ after sync"; exit 6; }
-    echo "masque=sync users=$(wc -l < "$tmp/want") added=$(wc -l < "$tmp/add") removed=$(wc -l < "$tmp/drop")"
+    limits=same
+    install -d -m 0755 "$dir/maps"
+    if ! cmp -s "$tmp/x/limits.map" "$dir/maps/limits.map" 2>/dev/null; then
+      limits=$(limits_apply "$dir/maps/limits.map" "$tmp/x/limits.map")
+      install -m 0644 "$tmp/x/limits.map" "$dir/maps/limits.map"
+    fi
+    echo "masque=sync users=$(wc -l < "$tmp/want") added=$(wc -l < "$tmp/add") removed=$(wc -l < "$tmp/drop") limits=$limits"
     exit 0
   fi
   running remnawave-selfsteal || { echo "noselfsteal"; exit 5; }
-  install -d -m 0755 "$dir" "$dir/xray" "$dir/tls"
+  install -d -m 0755 "$dir" "$dir/xray" "$dir/tls" "$dir/maps"
+  install -d -m 0770 -o 65532 -g 65532 "$dir/run"; rm -f "$dir/run"/*.sock
+  install -m 0644 "$tmp/x/limits.map" "$dir/maps/limits.map"
   install -d -m 0750 -o 65532 -g 65532 "$dir/tls/xray"; install -d -m 0700 "$dir/tls/haproxy"
   cat > "$certsh" <<EOF
 #!/bin/sh
@@ -320,7 +383,7 @@ EOF
        && (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then ok=1; break; fi
     sleep 2
   done
-  [ "$ok" = 1 ] || { echo "not started"; docker compose logs --tail 20 2>&1 | tail -n 20; exit 6; }
+  [ "$ok" = 1 ] || { echo "not started"; ls -l "$dir/run" 2>&1 | tail -n 5; xapi inbounduser -s "$api" -tag=__TAG__ 2>&1 | tail -n 2; docker compose logs --tail 20 2>&1 | tail -n 20; exit 6; }
   fw "$port" on
   echo "masque=on users=$(live | wc -l) port=$port cert=$(openssl x509 -in "$dir/tls/xray/cert.pem" -noout -enddate 2>/dev/null | cut -d= -f2 | tr ' ' '_')" ;;
 status)
@@ -329,6 +392,12 @@ status)
   xapi statsquery -s "$api" -pattern "user>>>" 2>/dev/null | tr -d ' \n' | grep -o '"name":"user>>>[^"]*","value":[0-9]*' \
     | sed 's/"name":"user>>>\([^>]*\)>>>traffic>>>\([a-z]*\)","value":\([0-9]*\)/traffic \1 \2 \3/' || true
   echo "masque=on users=$(live | wc -l) port=$port cert=$(openssl x509 -in "$dir/tls/xray/cert.pem" -noout -enddate 2>/dev/null | cut -d= -f2 | tr ' ' '_')" ;;
+traffic)
+  # What every login moved since the previous call (the counters are reset by the call).
+  running "$xr" || { echo "not installed"; exit 8; }
+  xapi statsquery -s "$api" -pattern "user>>>" -reset 2>/dev/null | tr -d ' \n' | grep -o '"name":"user>>>[^"]*","value":[0-9]*' \
+    | sed 's/"name":"user>>>\([^>]*\)>>>traffic>>>\([a-z]*\)","value":\([0-9]*\)/traffic \1 \2 \3/' || true
+  echo "masque=traffic" ;;
 off)
   port=$(grep -m1 -o 'bind :[0-9]*' "$dir/haproxy.cfg" 2>/dev/null | cut -d: -f2 || true)
   if [ -f "$dir/docker-compose.yml" ] && command -v docker >/dev/null 2>&1; then (cd "$dir" && docker compose down --remove-orphans >/dev/null 2>&1) || true; fi
@@ -340,4 +409,4 @@ off)
   echo "masque=off" ;;
 *) exit 2 ;;
 esac
-""".replace("__DIR__", DIR).replace("__API__", str(API_PORT)).replace("__TAG__", TAG)
+""".replace("__DIR__", DIR).replace("__APISOCK__", API_SOCK).replace("__TAG__", TAG).replace("__MAP__", LIMITS_MAP)
