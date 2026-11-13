@@ -1846,23 +1846,29 @@
  "REQ-BRAND-0001": {
   "status": "PARTIAL",
   "evidence": [
-   "docs/BRAND_COPY.md"
+   "docs/BRAND_COPY.md",
+   "backend/app/brand_copy.py",
+   "tests/test_brand_copy.py"
   ],
-  "note": "Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора."
+  "note": "Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
  },
  "REQ-BRAND-0002": {
   "status": "PARTIAL",
   "evidence": [
-   "docs/BRAND_COPY.md"
+   "docs/BRAND_COPY.md",
+   "backend/app/brand_copy.py",
+   "tests/test_brand_copy.py"
   ],
-  "note": "Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора."
+  "note": "Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
  },
  "REQ-BRAND-0014": {
   "status": "PARTIAL",
   "evidence": [
-   "docs/BRAND_COPY.md"
+   "docs/BRAND_COPY.md",
+   "backend/app/brand_copy.py",
+   "tests/test_brand_copy.py"
   ],
-  "note": "Текст подготовлен в docs/BRAND_COPY.md. В магазин он не вшит: владелец вставляет его в разделах содержимого панели администратора."
+  "note": "Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
  },
  "REQ-BRAND-0015": {
   "status": "PARTIAL",
@@ -1870,7 +1876,7 @@
    "docs/BRAND_COPY.md",
    "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt"
   ],
-  "note": "Слоган стоит в приложении «Корги Люси: клиент». В боте, кабинете и Mini App он не вшит: текст подготовлен в docs/BRAND_COPY.md."
+  "note": "Слоган — в приложении «Корги Люси: клиент», в приветствии бота и подзаголовком кабинета и Mini App по умолчанию (v28.132.0). В приложениях магазина Android и iOS он не показывается."
  },
  "REQ-BRAND-0003": {
   "status": "PASS",
@@ -1923,24 +1929,29 @@
  "REQ-BRAND-0007": {
   "status": "PARTIAL",
   "evidence": [
-   "docs/BRAND_COPY.md"
+   "docs/BRAND_COPY.md",
+   "backend/app/brand_copy.py",
+   "tests/test_brand_copy.py"
   ],
-  "note": "Описание сервиса на русском и английском и сообщение о технических работах подготовлены в docs/BRAND_COPY.md. Переменных .env для этих текстов в магазине нет."
+  "note": "Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено."
  },
  "REQ-BRAND-0018": {
   "status": "PARTIAL",
   "evidence": [
-   "docs/BRAND_COPY.md"
+   "docs/BRAND_COPY.md",
+   "backend/app/brand_copy.py",
+   "tests/test_brand_copy.py"
   ],
-  "note": "Описание сервиса на русском и английском и сообщение о технических работах подготовлены в docs/BRAND_COPY.md. Переменных .env для этих текстов в магазине нет."
+  "note": "Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено."
  },
  "REQ-BRAND-0008": {
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "cabinet/src/stickers.tsx"
+   "cabinet/src/stickers.tsx",
+   "backend/app/brand_copy.py"
   ],
-  "note": "Сообщение подготовлено в docs/BRAND_COPY.md; кабинет показывает свой экран технических работ. Переменной .env для текста нет, бот отдельного текста не показывает."
+  "note": "Кабинет показывает текст бренда на экране технических работ, ответ API 503 несёт его на трёх языках (v28.132.0). Бот отдельного сообщения о технических работах не показывает; переменной .env для текста нет."
  },
  "REQ-BRAND-0009": {
   "status": "PARTIAL",

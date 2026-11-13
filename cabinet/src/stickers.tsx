@@ -84,9 +84,12 @@ export function PaymentResult({order, request, onDone, go}: {order: string; requ
 }
 
 /** Shown while the API answers 503 «maintenance»: retries by itself every 30 seconds. */
+/** The brand text (backend/app/brand_copy.py MAINTENANCE, docs/BRAND_COPY.md; owner's decision 4 of 2026-11-12). */
+export const MAINTENANCE_TEXT = "Люси ненадолго ушла на прогулку: идут технические работы. Подписки работают как обычно — скоро вернёмся.";
+
 export function MaintenanceScreen({onRetry}: {onRetry: () => void}) {
   useEffect(() => { const t = setInterval(onRetry, 30000); return () => clearInterval(t); }, [onRetry]);
-  return <StickerState sticker="maintenance" tone="warn" title="Идут технические работы" text="Магазин скоро вернётся. Подписки работают как обычно — VPN не отключается.">
+  return <StickerState sticker="maintenance" tone="warn" title="Идут технические работы" text={MAINTENANCE_TEXT}>
     <button className="btn-primary" onClick={onRetry}>Проверить снова</button>
   </StickerState>;
 }
