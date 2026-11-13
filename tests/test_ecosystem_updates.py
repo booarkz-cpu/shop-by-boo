@@ -57,8 +57,9 @@ def test_no_promise_where_there_is_no_mechanism():
     r = rows(eco.build(shop(), github(False), remnawave(), release(), now=NOW))
     # v28.119.0: the shop and admin apps check themselves — but only when the release carries their manifests.
     for key in ("android_user", "android_admin"):
-        assert r[key]["auto"] == "in_app" and r[key]["latest"] == "3.7.0" and "раз в сутки" in r[key]["schedule"]
+        assert r[key]["auto"] == "in_app" and r[key]["latest"] == "3.7.0" and "каждые 6 часов" in r[key]["schedule"]
         assert "без вопросов" in r[key]["how"] and "одного подтверждения" in r[key]["how"]   # v28.120.0: no false «always silent»
+        assert "при включённом VPN" in r[key]["how"] and "когда VPN выключен" not in r[key]["how"]   # v28.137.0
     old = {"tag_name": "v28.118.0", "assets": [{"name": n} for n in ("corgi-lusi-android.apk", "corgi_lusi_android_user_3_5_0_release.apk")]}
     stale = rows(eco.build(shop(), github(False), remnawave(), old, now=NOW))["android_user"]
     assert stale["auto"] == "none" and stale["latest"] == "3.5.0" and "вручную" in stale["how"]
@@ -109,3 +110,31 @@ def test_app_versions_come_from_file_names_only():
         "_manifests": ["android_admin", "android_user"]}
     assert eco.app_versions({"assets": [{"name": "corgi-lusi-client.apk"}]}) == {"_manifests": []}  # the manifest is missing: no claim
     assert eco.app_versions(None) == {"_manifests": []}
+
+
+def test_masque_row_follows_the_nodes():
+    from app import masque_panel
+
+    assert "masque" not in rows(eco.build(shop(), github(), remnawave(), release(), now=NOW))   # not asked: no row
+    none = rows(eco.build(shop(), github(), remnawave(), release(), now=NOW, masque={}))["masque"]
+    assert (none["state"], none["auto"], none["installed"]) == ("not_installed", "none", None)
+    assert none["latest"] == masque_panel.images_label() and none["latest"].startswith("Xray ")
+    fresh = {"state": "on", "stack": masque_panel.STACK, "images": masque_panel.IMAGES, "images_label": masque_panel.images_label()}
+    legacy = {"state": "on", "stack": masque_panel.STACK}                       # installed by v28.138.0: no record of images
+    old = {"state": "on", "stack": masque_panel.STACK, "images": "000000000000", "images_label": "Xray 26.10.1, HAProxy 3.1"}
+    current = rows(eco.build(shop(), github(), remnawave(), release(), now=NOW, masque={"1": fresh, "2": legacy, "3": {"state": "off"}}))["masque"]
+    assert (current["state"], current["auto"], current["tab"]) == ("current", "on", "protocolSwitch")
+    assert "минуты" in current["schedule"]
+    behind = rows(eco.build(shop(), github(), remnawave(), release(), now=NOW, masque={"1": fresh, "2": old}))["masque"]
+    assert behind["state"] == "update" and behind["note"] == "Отстаёт нод: 1 из 2 — переустановка идёт сама"
+    assert "Xray 26.10.1, HAProxy 3.1" in behind["installed"]
+
+
+def test_masque_nodes_with_other_images_are_reinstalled():
+    from app import masque_panel
+
+    assert masque_panel.up_to_date({"stack": masque_panel.STACK, "images": masque_panel.IMAGES})
+    assert masque_panel.up_to_date({"stack": masque_panel.STACK}) == (masque_panel.IMAGES == masque_panel.LEGACY_IMAGES)
+    assert not masque_panel.up_to_date({"stack": masque_panel.STACK, "images": "000000000000"})
+    assert not masque_panel.up_to_date({"stack": 2, "images": masque_panel.IMAGES})
+    assert masque_panel.IMAGES == masque_panel.LEGACY_IMAGES     # this release pins the same images as v28.138.0
