@@ -30,7 +30,7 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
   const [status, setStatus] = useState<{node: string; data: Status} | null>(null);
   const [confirm, setConfirm] = useState<Node | null>(null);
   const [reissueOf, setReissueOf] = useState<UserRow | null>(null);
-  const [setup, setSetup] = useState<{node: Node; shield: Shield} | null>(null);
+  const [setup, setSetup] = useState<{node: Node; shield: Shield; port: string} | null>(null);
   const [probe, setProbe] = useState<{node: string; data: Probe} | null>(null);
 
   function show(next: View) {
@@ -63,12 +63,13 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
     show(await request(`${API}/settings`, {method: "PUT", headers: JSON_HEADERS, body: JSON.stringify({enabled, plan_ids: plans, port: Number(port), count_in_limit: counted})}));
     toast("Настройки MASQUE сохранены");
   });
+  const setupPortOk = !!setup && /^\d{4,5}$/.test(setup.port) && Number(setup.port) >= 1024 && Number(setup.port) <= 65535;
   const shieldOk = !!setup && Number.isInteger(setup.shield.ban_after) && setup.shield.ban_after >= 5 && setup.shield.ban_after <= 500
     && Number.isInteger(setup.shield.ban_minutes) && setup.shield.ban_minutes >= 1 && setup.shield.ban_minutes <= 1440;
-  const install = (n: Node, shield: Shield) => act(`install-${n.server_id}`, async () => {
+  const install = (n: Node, shield: Shield, nodePort: number) => act(`install-${n.server_id}`, async () => {
     setSetup(null);
-    show(await request(`${API}/nodes/${n.server_id}/install`, {method: "POST", headers: JSON_HEADERS, body: JSON.stringify({shield})}));
-    toast(n.installed ? `Защиты на ${n.name} изменены` : `MASQUE установлен на ${n.name}`);
+    show(await request(`${API}/nodes/${n.server_id}/install`, {method: "POST", headers: JSON_HEADERS, body: JSON.stringify({shield, port: nodePort})}));
+    toast(!n.installed ? `MASQUE установлен на ${n.name}, порт ${nodePort}` : n.port !== nodePort ? `MASQUE на ${n.name} перенесён на порт ${nodePort}` : `Защиты на ${n.name} изменены`);
   });
   const runProbe = (n: Node) => act(`probe-${n.server_id}`, async () => {
     setProbe({node: n.name, data: await request(`${API}/nodes/${n.server_id}/probe`, {method: "POST"})});
@@ -152,11 +153,11 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
                     <td>{n.installed ? n.users ?? "—" : "—"}</td>
                     <td>{n.installed ? when(n.synced_at) : "—"}</td>
                     <td>
-                      {!n.installed && <button type="button" className="secondary" disabled={!n.ready || !!busy} onClick={() => setSetup({node: n, shield: {...view.shield_default}})}>{busy === `install-${n.server_id}` ? "Устанавливаю…" : "Установить"}</button>}
+                      {!n.installed && <button type="button" className="secondary" disabled={!n.ready || !!busy} onClick={() => setSetup({node: n, shield: {...view.shield_default}, port: String(view.port)})}>{busy === `install-${n.server_id}` ? "Устанавливаю…" : "Установить"}</button>}
                       {n.installed && <>
                         <button type="button" className="secondary" disabled={!!busy} onClick={() => check(n)}>{busy === `status-${n.server_id}` ? "Проверяю…" : "Проверить"}</button>{" "}
                         <button type="button" className="secondary" disabled={!!busy} onClick={() => runProbe(n)}>{busy === `probe-${n.server_id}` ? "Смотрю снаружи…" : "Проверить маскировку"}</button>{" "}
-                        <button type="button" className="secondary" disabled={!!busy} onClick={() => setSetup({node: n, shield: {...(n.shield || view.shield_default)}})}>{busy === `install-${n.server_id}` ? "Меняю…" : "Изменить защиты"}</button>{" "}
+                        <button type="button" className="secondary" disabled={!!busy} onClick={() => setSetup({node: n, shield: {...(n.shield || view.shield_default)}, port: String(n.port ?? view.port)})}>{busy === `install-${n.server_id}` ? "Меняю…" : "Порт и защиты"}</button>{" "}
                         <button type="button" className="secondary" disabled={!!busy} onClick={() => setConfirm(n)}>{busy === `remove-${n.server_id}` ? "Удаляю…" : "Удалить"}</button>
                       </>}
                     </td>
@@ -167,8 +168,13 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
           </div>
         )}
         {setup && (
-          <form role="dialog" aria-label="Защиты от обнаружения" className="card" data-masque-panel-setup onSubmit={(e) => { e.preventDefault(); if (shieldOk) install(setup.node, setup.shield); }}>
-            <h3>{setup.node.installed ? `Защиты на ноде «${setup.node.name}»` : `Установка MASQUE на «${setup.node.name}»`}</h3>
+          <form role="dialog" aria-label="Защиты от обнаружения" className="card" data-masque-panel-setup onSubmit={(e) => { e.preventDefault(); if (shieldOk && setupPortOk) install(setup.node, setup.shield, Number(setup.port)); }}>
+            <h3>{setup.node.installed ? `Порт и защиты на ноде «${setup.node.name}»` : `Установка MASQUE на «${setup.node.name}»`}</h3>
+            <label>Порт этой ноды (1024–65535)
+              <input inputMode="numeric" data-masque-node-port value={setup.port} onChange={(e) => setSetup({...setup, port: e.target.value.replace(/\D/g, "")})} aria-invalid={!setupPortOk} />
+            </label>
+            {!setupPortOk && <p role="alert">Порт — число от 1024 до 65535.</p>}
+            {setup.node.installed && setupPortOk && Number(setup.port) !== setup.node.port && <p role="status">Порт сменится с {setup.node.port} на {setup.port}: новый откроется в брандмауэре ноды, старый закроется, ссылки подписки сами укажут новый порт. Брандмауэр хостинга, если он есть, откройте сами.</p>}
             <p className="muted">Всегда включено: на порту виден сайт SelfSteal; в туннель попадает только запрос на секретный путь; любой другой запрос, даже на этот путь, получает страницу сайта; служебные страницы прокси заменены.</p>
             <label className="check"><input type="checkbox" checked={setup.shield.strict_sni} onChange={(e) => setSetup({...setup, shield: {...setup.shield, strict_sni: e.target.checked}})} /> Строгий SNI — без имени домена сертификат не выдаётся, сканер по IP не узнает домен</label>
             <label className="check"><input type="checkbox" checked={setup.shield.tls_like_site} onChange={(e) => setSetup({...setup, shield: {...setup.shield, tls_like_site: e.target.checked}})} /> TLS как у сайта — версии, шифры и кривые те же, что у сайта на порту 443</label>
@@ -184,7 +190,7 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
               {!shieldOk && <p role="alert">Порог — от 5 до 500, срок — от 1 до 1440 минут.</p>}
             </>}
             {setup.node.installed && <p>Контейнеры будут пересозданы: открытые туннели на этой ноде переподключатся.</p>}
-            <button type="submit" disabled={!shieldOk || !!busy}>{setup.node.installed ? "Применить" : "Установить"}</button>{" "}
+            <button type="submit" disabled={!shieldOk || !setupPortOk || !!busy}>{setup.node.installed ? "Применить" : "Установить"}</button>{" "}
             <button type="button" className="secondary" onClick={() => setSetup(null)}>Отмена</button>
           </form>
         )}
