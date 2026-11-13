@@ -58,6 +58,8 @@ private val ENGINE_ACTIONS = setOf("vpn_mode", "vpn_server", "split_tunnel")
 fun visibleButtons(section: LayoutSection, data: ShopData): List<LayoutButton> = section.buttons.filter {
     // Buttons of the embedded VPN exist only in builds that carry the engine (libv2ray.aar).
     if (it.action in ENGINE_ACTIONS && !shop.remnawave.user.vpn.XrayEngine.available()) return@filter false
+    // MASQUE is handed out by the shop only to some plans: no link, no button.
+    if (it.action == "copy_masque" && data.masqueUrl.isBlank()) return@filter false
     when (it.audience) {
         "subscribed" -> data.subscribed
         "unsubscribed" -> !data.subscribed

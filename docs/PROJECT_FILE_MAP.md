@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2540**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2542**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1750,6 +1750,7 @@
 | [mobile/android-user/app/src/main/res/values/strings.xml](../mobile/android-user/app/src/main/res/values/strings.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml](../mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/xml/network_security.xml](../mobile/android-user/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
+| [mobile/android-user/app/src/test/java/shop/remnawave/user/ui/MasqueButtonTest.kt](../mobile/android-user/app/src/test/java/shop/remnawave/user/ui/MasqueButtonTest.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/test/java/shop/remnawave/user/update/AppUpdateTest.kt](../mobile/android-user/app/src/test/java/shop/remnawave/user/update/AppUpdateTest.kt) | Мобильные приложения |
 | [mobile/android-user/app/src/test/java/shop/remnawave/user/vpn/TuningTest.kt](../mobile/android-user/app/src/test/java/shop/remnawave/user/vpn/TuningTest.kt) | Мобильные приложения |
 | [mobile/android-user/build.gradle.kts](../mobile/android-user/build.gradle.kts) | Мобильные приложения |
@@ -2376,6 +2377,7 @@
 | [tests/test_mobile_family_status.py](../tests/test_mobile_family_status.py) | Проверки |
 | [tests/test_mobile_integrity.py](../tests/test_mobile_integrity.py) | Проверки |
 | [tests/test_mobile_layout.py](../tests/test_mobile_layout.py) | Проверки |
+| [tests/test_mobile_layout_actions.py](../tests/test_mobile_layout_actions.py) | Проверки |
 | [tests/test_mobile_mirrors.py](../tests/test_mobile_mirrors.py) | Проверки |
 | [tests/test_mobile_store_expiry.py](../tests/test_mobile_store_expiry.py) | Проверки |
 | [tests/test_money_recovery.py](../tests/test_money_recovery.py) | Проверки |

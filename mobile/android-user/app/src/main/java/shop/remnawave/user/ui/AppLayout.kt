@@ -65,7 +65,7 @@ data class AppLayout(
 
 /** Actions the app implements; a button with anything else is not drawn. */
 val KNOWN_ACTIONS = setOf(
-    "connect", "open", "url", "document", "cabinet", "telegram_channel", "import_app", "copy_subscription", "show_qr", "copy_id",
+    "connect", "open", "url", "document", "cabinet", "telegram_channel", "import_app", "copy_subscription", "copy_masque", "show_qr", "copy_id",
     "buy", "pay_wallet", "trial", "topup", "redeem", "auto_location", "share_referral", "copy_referral", "family_invite",
     "support_ticket", "report_problem", "language", "push_toggle", "widget_toggle", "passkey_add", "vpn_mode", "vpn_server", "split_tunnel", "refresh", "sign_out",
 )

@@ -47,7 +47,7 @@ struct LayoutTheme {
 
 /// Actions the app implements; a button with anything else is not drawn.
 let knownActions: Set<String> = [
-    "connect", "open", "url", "document", "cabinet", "telegram_channel", "import_app", "copy_subscription", "show_qr", "copy_id",
+    "connect", "open", "url", "document", "cabinet", "telegram_channel", "import_app", "copy_subscription", "copy_masque", "show_qr", "copy_id",
     "buy", "pay_wallet", "trial", "topup", "redeem", "auto_location", "share_referral", "copy_referral", "family_invite",
     "support_ticket", "report_problem", "language", "push_toggle", "widget_toggle", "passkey_add", "refresh", "sign_out",
 ]
@@ -265,6 +265,8 @@ struct ShopData {
     var stats: [String: Any] = [:]
     var upsell: [[String: Any]] = []
     var contest: [String: Any] = [:]
+    /// MASQUE links (GET /api/me/masque, v28.131.0): the shop's own subscription for a protocol the panel does not know.
+    var masque: [String: Any] = [:]
 
     /// The first giveaway the customer can still join: the home screen promo banner.
     var openGiveaway: [String: Any]? {
@@ -287,6 +289,12 @@ struct ShopData {
     var subscriptionUrl: String {
         let url = jsonText(connection["subscription_url"]).isEmpty ? jsonText(subscription?["subscription_url"]) : jsonText(connection["subscription_url"])
         return url.hasPrefix("https://") ? url : ""
+    }
+    /// The first MASQUE link the customer may use now (empty: not handed out, or the plan's limit is used up).
+    var masqueUrl: String {
+        let items = masque["items"] as? [[String: Any]] ?? []
+        let usable = items.first { ($0["over_limit"] as? Bool) != true && jsonText($0["url"]).hasPrefix("https://") }
+        return usable.map { jsonText($0["url"]) } ?? ""
     }
     var customerId: String {
         let code = jsonText(user["referral_code"])
