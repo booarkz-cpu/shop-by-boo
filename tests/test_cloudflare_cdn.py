@@ -78,8 +78,8 @@ def cdn_plan(**module):
 def test_the_plan_switches_the_transport_and_the_dns_in_the_right_order():
     on, title = rw_plan.module_steps(cdn_plan(cdn_nodes=True), NODE, {2: ["node"]})
     assert title == "Cloudflare CDN: включить"
-    assert [s["kind"] for s in on] == ["node_module", "write_files", "compose_up", "node_transports", "cdn_dns", "verify"]
-    assert on[4]["params"] == {"part": "nodes", "on": True, "domain": "cdn.example.com", "addresses": ["93.184.216.40"]}
+    assert [s["kind"] for s in on] == ["node_module", "node_module", "write_files", "compose_up", "node_transports", "cdn_dns", "verify"]
+    assert on[5]["params"] == {"part": "nodes", "on": True, "domain": "cdn.example.com", "addresses": ["93.184.216.40"]}
     off, _ = rw_plan.module_steps(cdn_plan(enabled=False, cdn_nodes=True), NODE, {2: ["node"]})
     assert [s["kind"] for s in off][:2] == ["cdn_dns", "node_module"], "off: the CDN stops sending traffic before the inbound goes"
     with pytest.raises(ValueError, match="Выберите"):

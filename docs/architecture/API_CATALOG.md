@@ -2,11 +2,11 @@
 
 Сгенерировано из [API_ENDPOINTS.md](../API_ENDPOINTS.md): `python3 scripts/generate-architecture-docs.py`. Руками не править.
 
-Всего маршрутов: **991**. Полный перечень с правами — в [API_ENDPOINTS.md](../API_ENDPOINTS.md); общие правила (вход, CSRF, ошибки) — в [API.md](../ru/new/API.md).
+Всего маршрутов: **995**. Полный перечень с правами — в [API_ENDPOINTS.md](../API_ENDPOINTS.md); общие правила (вход, CSRF, ошибки) — в [API.md](../ru/new/API.md).
 
 | Область | Начало пути | Маршрутов | Методы | Кто вызывает |
 | --- | --- | ---: | --- | --- |
-| Remnawave: установка, ноды, расширения (панель администратора) | `/api/admin/rw` | 81 | DELETE 9, GET 28, PATCH 7, POST 35, PUT 2 | право роли: 81 |
+| Remnawave: установка, ноды, расширения (панель администратора) | `/api/admin/rw` | 85 | DELETE 9, GET 29, PATCH 7, POST 38, PUT 2 | право роли: 85 |
 | Панель администратора | `/api/admin` | 618 | DELETE 45, GET 247, PATCH 5, POST 226, PUT 95 | право роли: 611; вход администратора: 7 |
 | Webhook платёжных провайдеров и внешних систем | `/api/webhooks` | 21 | GET 1, POST 20 | подпись провайдера: 21 |
 | Платежи | `/api/payments` | 6 | GET 1, POST 5 | сессия клиента: 3; подпись провайдера: 2; открытый: 1 |

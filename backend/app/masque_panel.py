@@ -194,6 +194,17 @@ async def _ssh(db: AsyncSession, server_id: int, action: str, *args: str, stdin:
     return result
 
 
+async def _ports(db: AsyncSession, server_id: int, action: str, port: int) -> str:
+    """v28.135.0 (owner's task of 2026-11-13): the MASQUE port in every firewall of the node, not only ufw."""
+    from . import rw_ports
+    try:
+        _row, result = await rw_ports._ssh(db, server_id, action, f"tcp/{int(port)}")
+    except HTTPException as exc:
+        return f"не удалось: {exc.detail}"
+    return "открыт" if action == "open" and result.code == 0 else "закрыт" if result.code == 0 else \
+        rw_ports.REASONS.get(result.code, f"код {result.code}")
+
+
 REASONS = {"port busy": "Порт MASQUE на сервере занят другой программой: выберите другой порт в настройках",
            "nodocker": "На сервере нет Docker", "noselfsteal": "На ноде не запущен сайт SelfSteal: MASQUE прячется за ним",
            "nocert": "У сайта SelfSteal ещё нет сертификата", "not installed": "MASQUE на этой ноде не установлен",
@@ -472,6 +483,9 @@ async def install(server_id: int, payload: InstallIn | None = None, db: AsyncSes
     record = await sync_node(db, node, users, action="on")
     if record.get("error"):
         raise HTTPException(502, record["error"])
+    record["ports"] = await _ports(db, server_id, "open", node["port"])
+    if previous.get("port") and int(previous["port"]) != int(node["port"]):
+        await _ports(db, server_id, "close", int(previous["port"]))
     state["nodes"][str(server_id)] = record
     await _store(db, state)
     await audit(db, "masque.node.installed", admin.email, str(server_id), {"domain": node["domain"], "port": node["port"], "users": len(users), "shield": chosen,
@@ -490,6 +504,8 @@ async def remove(server_id: int, db: AsyncSession = Depends(get_db), admin=Depen
     if result.code != 0:
         raise HTTPException(502, _why(result))
     record = state["nodes"].pop(str(server_id))
+    if record.get("port"):
+        await _ports(db, server_id, "close", int(record["port"]))
     await _store(db, state)
     await audit(db, "masque.node.removed", admin.email, str(server_id), {"domain": record.get("domain")})
     await db.commit()
