@@ -334,10 +334,10 @@ def test_bundle_carries_the_chosen_protections():
 def test_a_site_that_is_down_looks_like_maintenance_not_like_a_proxy():
     """v28.138.0: the SelfSteal site does not answer — the port shows a maintenance page (before: an empty 503)."""
     text = rw_masque.haproxy_cfg("node.example.com", 2087, rw_masque.new_prefix("secret", "server-1"))
-    site = text.split("backend site")[1]
+    site = text.split("\nbackend site\n")[1]
     for code in (502, 503, 504):
         assert f"errorfile {code} /errors/503.http" in site
-    assert "/errors/503.http" not in text.split("backend site")[0]          # the tunnel backend keeps closing silently
+    assert "/errors/503.http" not in text.split("\nbackend site\n")[0]      # the tunnel backend keeps closing silently
     page = rw_masque.ERROR_SITE_DOWN
     head, body = page.split("\r\n\r\n", 1)
     assert head.startswith("HTTP/1.1 503 Service Unavailable\r\n") and "Retry-After: 300" in head
