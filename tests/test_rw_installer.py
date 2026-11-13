@@ -93,6 +93,9 @@ from app import rw_netmods  # noqa: E402
 
 SCRIPTS.update({rw_netmods.GUARD: "guard", rw_netmods.MSS: "mss", rw_netmods.SWAP: "swap", rw_steps.CLIENT_ADDRESS: "client",
                 rw_netmods.MTPROTO: "mtproto", rw_netmods.PSIPHON: "psiphon", rw_steps.GEO: "geo"})
+from app import rw_ports  # noqa: E402
+
+SCRIPTS[rw_ports.NODE] = "ports"  # v28.135.0: scripts/ci/ports-check.sh runs the real one
 
 
 class FakeRemote:
@@ -142,6 +145,12 @@ class FakeRemote:
             token, _, body = stdin.decode().partition("\n")
             code, data = h.panel(method, path, token, json.loads(body) if body else None)
             return Result(0, json.dumps(data) + "\n" + str(code), "")
+        if name == "ports":
+            if args[0] == "scan":
+                return Result(0, "firewall ufw\n" + "".join(f"opened {x}\n" for x in sorted(getattr(h, "ports", set()))) + "ports=scan\n", "")
+            h.ports = getattr(h, "ports", set())
+            (h.ports.update if args[0] == "open" else h.ports.difference_update)(args[1].split(","))
+            return Result(0, "".join(f"{'opened' if args[0] == 'open' else 'closed'} {x}\n" for x in args[1].split(",")) + f"ports={args[0]}\n", "")
         if name == "client":  # the shop's address as the server's sshd sees it
             return Result(0, "203.0.113.1\n", "")
         if name in ("guard", "mss", "swap"):  # v28.92.0: what the real scripts print (scripts/ci/netmods-check.sh runs them)

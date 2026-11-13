@@ -37,7 +37,8 @@ def test_plan_rules_and_steps():
     plan.module = rw_plan.ModuleRun(name="transports", transports=["grpc"])
     plan.transports = ["grpc"]
     steps, title = rw_plan.module_steps(plan, SERVERS, {2: ["node"]})
-    assert "gRPC" in title and [s["kind"] for s in steps] == ["node_module", "write_files", "compose_up", "node_transports", "verify"]
+    assert "gRPC" in title and [s["kind"] for s in steps] == ["node_module", "node_module", "write_files", "compose_up", "node_transports", "verify"]
+    assert steps[1]["params"]["module"] == "ports" and steps[1]["params"]["ports"][0]["port"] == 8443   # v28.135.0
     with pytest.raises(ValueError):
         rw_plan.module_steps(rw_plan.PlanIn(mode="node", node_server_ids=[2], module=rw_plan.ModuleRun(name="transports")),
                              SERVERS, {2: ["node"]})
