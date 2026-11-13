@@ -11,7 +11,7 @@ data class Server(val name: String, val protocol: String, val outbound: JSONObje
     /** «VLESS · TCP · REALITY · JSON» — protocol, transport, security and where it came from, for the server list. */
     val labels: List<String> get() {
         val stream = outbound.optJSONObject("streamSettings")
-        val proto = when (protocol) { "hysteria" -> "Hysteria2"; "shadowsocks" -> "SS"; "wireguard" -> "WireGuard"; else -> protocol.uppercase() }
+        val proto = when (protocol) { "hysteria" -> "Hysteria2"; "shadowsocks" -> "SS"; "wireguard" -> "WireGuard"; "masque" -> "MASQUE"; else -> protocol.uppercase() }
         val network = stream?.optString("network").orEmpty().ifBlank { if (protocol in listOf("vless", "vmess", "trojan")) "tcp" else "" }
             .let { if (it == "raw") "tcp" else it }.takeIf { it.isNotBlank() && it != "hysteria" }?.uppercase()
         val security = stream?.optString("security").orEmpty().takeIf { it.isNotBlank() && it != "none" }?.uppercase()
@@ -23,13 +23,13 @@ data class Server(val name: String, val protocol: String, val outbound: JSONObje
     val host: String get() = when (protocol) {
         "vless", "vmess" -> outbound.getJSONObject("settings").let { st -> st.optJSONArray("vnext")?.optJSONObject(0)?.optString("address") ?: st.optString("address") }
         "wireguard" -> outbound.getJSONObject("settings").getJSONArray("peers").getJSONObject(0).optString("endpoint").substringBeforeLast(":")
-        "hysteria" -> outbound.getJSONObject("settings").optString("address")
+        "hysteria", "masque" -> outbound.getJSONObject("settings").optString("address")
         else -> outbound.getJSONObject("settings").optJSONArray("servers")?.optJSONObject(0)?.optString("address").orEmpty()
     }
     val port: Int get() = when (protocol) {
         "vless", "vmess" -> outbound.getJSONObject("settings").let { st -> st.optJSONArray("vnext")?.optJSONObject(0)?.optInt("port") ?: st.optInt("port") }
         "wireguard" -> outbound.getJSONObject("settings").getJSONArray("peers").getJSONObject(0).optString("endpoint").substringAfterLast(":").toIntOrNull() ?: 0
-        "hysteria" -> outbound.getJSONObject("settings").optInt("port")
+        "hysteria", "masque" -> outbound.getJSONObject("settings").optInt("port")
         else -> outbound.getJSONObject("settings").optJSONArray("servers")?.optJSONObject(0)?.optInt("port") ?: 0
     }
 }
@@ -42,7 +42,8 @@ data class Server(val name: String, val protocol: String, val outbound: JSONObje
 object Links {
     val SCHEMES = listOf("vless://", "vmess://", "trojan://", "ss://", "socks://", "socks5://", "wireguard://", "wg://", "hysteria2://", "hy2://")
     val UNSUPPORTED = listOf("hysteria://", "tuic://")
-    private val PROXY_PROTOCOLS = setOf("vless", "vmess", "trojan", "shadowsocks", "socks", "wireguard", "hysteria")
+    // «masque» (Xray 26.9.30+): the shop's own MASQUE subscription hands out whole JSON configs, there is no share link.
+    private val PROXY_PROTOCOLS = setOf("vless", "vmess", "trojan", "shadowsocks", "socks", "wireguard", "hysteria", "masque")
 
     /**
      * A subscription answered with Xray JSON (Remnawave does so for v2rayNG / Happ when its response rules say so):
