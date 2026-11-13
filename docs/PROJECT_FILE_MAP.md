@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.134.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.135.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2547**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2556**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -77,7 +77,9 @@
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.trivyignore](../.trivyignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -154,6 +156,7 @@
 | [admin/e2e/rw-extensions.spec.ts](../admin/e2e/rw-extensions.spec.ts) | Админ-панель |
 | [admin/e2e/rw-installer.spec.ts](../admin/e2e/rw-installer.spec.ts) | Админ-панель |
 | [admin/e2e/selfsteal.spec.ts](../admin/e2e/selfsteal.spec.ts) | Админ-панель |
+| [admin/e2e/server-ports.spec.ts](../admin/e2e/server-ports.spec.ts) | Админ-панель |
 | [admin/e2e/system-status.spec.ts](../admin/e2e/system-status.spec.ts) | Админ-панель |
 | [admin/e2e/telegram-bot.spec.ts](../admin/e2e/telegram-bot.spec.ts) | Админ-панель |
 | [admin/e2e/torrent-ban.spec.ts](../admin/e2e/torrent-ban.spec.ts) | Админ-панель |
@@ -258,6 +261,7 @@
 | [admin/src/rwAutoUpdate.tsx](../admin/src/rwAutoUpdate.tsx) | Админ-панель |
 | [admin/src/sections.ts](../admin/src/sections.ts) | Админ-панель |
 | [admin/src/selfsteal.tsx](../admin/src/selfsteal.tsx) | Админ-панель |
+| [admin/src/server-ports.tsx](../admin/src/server-ports.tsx) | Админ-панель |
 | [admin/src/statusPricing.tsx](../admin/src/statusPricing.tsx) | Админ-панель |
 | [admin/src/stepUp.ts](../admin/src/stepUp.ts) | Админ-панель |
 | [admin/src/style.css](../admin/src/style.css) | Админ-панель |
@@ -606,6 +610,7 @@
 | [backend/app/rw_masque.py](../backend/app/rw_masque.py) | API, бот и worker |
 | [backend/app/rw_netmods.py](../backend/app/rw_netmods.py) | API, бот и worker |
 | [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
+| [backend/app/rw_ports.py](../backend/app/rw_ports.py) | API, бот и worker |
 | [backend/app/rw_protocol_switch.py](../backend/app/rw_protocol_switch.py) | API, бот и worker |
 | [backend/app/rw_releases.py](../backend/app/rw_releases.py) | API, бот и worker |
 | [backend/app/rw_remote.py](../backend/app/rw_remote.py) | API, бот и worker |
@@ -849,6 +854,7 @@
 | [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
 | [docs/RW_DRIFT.md](../docs/RW_DRIFT.md) | Документация |
 | [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
+| [docs/SERVER_PORTS.md](../docs/SERVER_PORTS.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/THREAT_MODEL.md](../docs/THREAT_MODEL.md) | Документация |
@@ -1221,6 +1227,7 @@
 | [docs/ru/RELEASE_V28_132_0.md](../docs/ru/RELEASE_V28_132_0.md) | Документация |
 | [docs/ru/RELEASE_V28_133_0.md](../docs/ru/RELEASE_V28_133_0.md) | Документация |
 | [docs/ru/RELEASE_V28_134_0.md](../docs/ru/RELEASE_V28_134_0.md) | Документация |
+| [docs/ru/RELEASE_V28_135_0.md](../docs/ru/RELEASE_V28_135_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
@@ -2077,6 +2084,7 @@
 | [scripts/ci/netmods-check.sh](../scripts/ci/netmods-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/node-port-guard.sh](../scripts/ci/node-port-guard.sh) | Эксплуатация и релиз |
 | [scripts/ci/panel-gate-live.sh](../scripts/ci/panel-gate-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/ports-check.sh](../scripts/ci/ports-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/psiphon-check.sh](../scripts/ci/psiphon-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/restore-drill.sh](../scripts/ci/restore-drill.sh) | Эксплуатация и релиз |
@@ -2445,6 +2453,7 @@
 | [tests/test_rw_installer.py](../tests/test_rw_installer.py) | Проверки |
 | [tests/test_rw_netmods.py](../tests/test_rw_netmods.py) | Проверки |
 | [tests/test_rw_node_modules.py](../tests/test_rw_node_modules.py) | Проверки |
+| [tests/test_rw_ports.py](../tests/test_rw_ports.py) | Проверки |
 | [tests/test_rw_protocol_switch.py](../tests/test_rw_protocol_switch.py) | Проверки |
 | [tests/test_rw_server_modules.py](../tests/test_rw_server_modules.py) | Проверки |
 | [tests/test_rw_ssh.py](../tests/test_rw_ssh.py) | Проверки |

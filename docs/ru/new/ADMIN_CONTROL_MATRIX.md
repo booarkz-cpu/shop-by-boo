@@ -19,7 +19,7 @@
 | 9 | Gifts | Подарки | 6 | ✓ | ✓ | · | ✓ | · | · | · | ✓ | `manage_marketing`, `marketing.read` | PASS |
 | 10 | Referrals | Рефералы и партнёры | 13 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `referrals.read`, `referrals.reconcile`, `referrals.withdrawals.approve`, `referrals.withdrawals.pay`, `referrals.withdrawals.read` | PASS |
 | 11 | Remnawave | Remnawave: панель, Серверы | 32 | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | `backups.write`, `manage_users`, `ops.diagnostics`, `ops.releases`, `provision_nodes`, `read`, `settings.runtime.write`, `users.keys`, `users.read` | PASS |
-| 12 | Installation | Установка Remnawave | 81 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | PASS |
+| 12 | Installation | Установка Remnawave | 85 | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | `provision_nodes`, `read`, `settings.runtime.write` | PASS |
 | 13 | Servers | Серверы, Планирование мощности, Оркестратор | 11 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | `ops.diagnostics`, `provision_nodes`, `settings.runtime.write` | PASS |
 | 14 | Nodes | Серверы, Терминал узлов, Торренты на узлах | 35 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `manage_users`, `nodes.terminal`, `ops.diagnostics`, `provision_nodes`, `read`, `security.manage`, `settings.runtime.write` | PASS |
 | 15 | Domains | Домены и сертификаты | 7 | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | `read`, `settings.runtime.write` | PASS |

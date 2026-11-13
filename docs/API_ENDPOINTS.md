@@ -546,6 +546,10 @@ production gate остаётся закрытым без полного applicat
 | `POST` | `/api/admin/rw/installations/{installation_id}/panel-gate` | Open Panel | право `provision_nodes` |
 | `GET` | `/api/admin/rw/installations/{installation_id}/xray-checker` | Xray Checker | право `read` |
 | `GET` | `/api/admin/rw/meta` | Meta | право `read` |
+| `GET` | `/api/admin/rw/ports/{server_id}` | Ports | право `read` |
+| `POST` | `/api/admin/rw/ports/{server_id}/close` | Close Ports | право `provision_nodes` |
+| `POST` | `/api/admin/rw/ports/{server_id}/open` | Open Ports | право `provision_nodes` |
+| `POST` | `/api/admin/rw/ports/{server_id}/open-required` | Open Required | право `provision_nodes` |
 | `GET` | `/api/admin/rw/protocol-switch` | Overview | право `read` |
 | `POST` | `/api/admin/rw/protocol-switch` | Start | право `provision_nodes` |
 | `GET` | `/api/admin/rw/protocol-switch/meta` | Meta | право `read` |
