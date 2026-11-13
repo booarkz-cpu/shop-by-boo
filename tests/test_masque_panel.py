@@ -592,3 +592,18 @@ async def test_tick_sends_the_alert(stored, monkeypatch):
     assert len(sent) == 1 and "«de-1» не сверяется" in sent[0] and stored[panel.STATE_KEY]["nodes"]["1"]["alerted_failure"] is True
     await panel.tick(Db([]))
     assert len(sent) == 1
+
+
+def test_a_node_port_used_by_another_service_is_refused():
+    """v28.140.0: the port of a node can be chosen; one that another service of the node needs is refused."""
+    need = [{"proto": "tcp", "port": 443, "why": "VLESS Reality"}, {"proto": "udp", "port": 2096, "why": "Hysteria2"},
+            {"proto": "tcp", "port": 2087, "why": "MASQUE"}]
+    assert panel.port_taken(443, need, None) == ["TCP 443: VLESS Reality"]
+    assert panel.port_taken(2096, need, None) == []                       # UDP only: MASQUE is TCP
+    assert panel.port_taken(2087, need, 2087) == []                       # its own current port
+    assert panel.port_taken(2087, need, None) == ["TCP 2087: MASQUE"]     # not installed yet: someone else's
+    assert panel.port_taken(2095, need, 2087) == []
+    assert panel.InstallIn(port=2095).port == 2095 and panel.InstallIn().port is None
+    for bad in (80, 70000):
+        with pytest.raises(Exception):
+            panel.InstallIn(port=bad)

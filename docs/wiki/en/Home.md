@@ -3,7 +3,7 @@
 A VPN subscription shop on top of your Remnawave panel: a customer pays and receives access at once, and you
 run everything from one admin panel.
 
-> Current release **v28.139.0**, runtime/API `21.5.1`, shop migration `0094_store_subscriptions`.
+> Current release **v28.140.0**, runtime/API `21.5.1`, shop migration `0094_store_subscriptions`.
 
 ## Where to start
 

@@ -25,10 +25,12 @@ test('MASQUE panel: settings, install on a node, status, subscriptions, removal'
     current = view({...body, users: 2, over_limit: 1});
     return r.fulfill({json: current});
   });
+  const ports: number[] = [];
   await page.route('**/api/admin/masque/panel/nodes/3/install', (r: any) => {
-    const shield = r.request().postDataJSON().shield;
+    const {shield, port} = r.request().postDataJSON();
     sent.push(['install', shield]);
-    current = {...current, nodes: [node({installed: true, port: current.port, users: 2, synced_at: '2026-11-12T12:00:00Z', shield}), current.nodes[1]]};
+    ports.push(port);
+    current = {...current, nodes: [node({installed: true, port, users: 2, synced_at: '2026-11-12T12:00:00Z', shield}), current.nodes[1]]};
     return r.fulfill({json: current});
   });
   await page.route('**/api/admin/masque/panel/nodes/3/probe', (r: any) => r.fulfill({json: {domain: 'de.example.com', port: 2090, same: false, checks: [
@@ -90,15 +92,24 @@ test('MASQUE panel: settings, install on a node, status, subscriptions, removal'
   await expect(root.locator('[data-masque-panel-node="de-1"]')).toContainText('работает, порт 2090');
   await expect(root.locator('[data-masque-panel-node="de-1"]')).toContainText('TLS как у сайта, блокировка после 40 отказов на 10 мин.');
   expect(sent[1]).toEqual(['install', {...SHIELD, strict_sni: false, ban_after: 40}]);
+  expect(ports).toEqual([2090]);                        // v28.140.0: the node gets the port from the settings
 
   // The look from outside: what differs from the site is named.
   await root.locator('[data-masque-panel-node="de-1"]').getByRole('button', {name: 'Проверить маскировку', exact: true}).click();
   await expect(root.locator('[data-masque-panel-probe]')).toContainText('Есть отличия от сайта');
   await expect(root.locator('[data-masque-panel-probe]')).toContainText('заголовок server: лишний');
 
-  // Changing the protections of an installed node warns that tunnels reconnect; «Отмена» sends nothing.
-  await root.locator('[data-masque-panel-node="de-1"]').getByRole('button', {name: 'Изменить защиты', exact: true}).click();
+  // Changing the port or protections of an installed node warns that tunnels reconnect; «Отмена» sends nothing.
+  await root.locator('[data-masque-panel-node="de-1"]').getByRole('button', {name: 'Порт и защиты', exact: true}).click();
   await expect(root.locator('[data-masque-panel-setup]')).toContainText('открытые туннели на этой ноде переподключатся');
+  // v28.140.0: the node's port can be changed; what happens to the firewall and the links is said.
+  const nodePort = root.locator('[data-masque-node-port]');
+  await expect(nodePort).toHaveValue('2090');
+  await nodePort.fill('80');
+  await expect(root.locator('[data-masque-panel-setup]').getByRole('alert')).toHaveText('Порт — число от 1024 до 65535.');
+  await expect(root.locator('[data-masque-panel-setup]').getByRole('button', {name: 'Применить', exact: true})).toBeDisabled();
+  await nodePort.fill('2095');
+  await expect(root.locator('[data-masque-panel-setup]')).toContainText('Порт сменится с 2090 на 2095');
   await root.locator('[data-masque-panel-setup]').getByRole('button', {name: 'Отмена', exact: true}).click();
   await expect(root.locator('[data-masque-panel-setup]')).toHaveCount(0);
   await expect(root.locator('[data-masque-panel-summary]')).toContainText('Нод с MASQUE: 1');
