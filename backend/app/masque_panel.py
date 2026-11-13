@@ -37,6 +37,25 @@ TRAFFIC_KEY = "masque.traffic"
 # Owner's decision of 2026-11-12: whether MASQUE traffic counts towards the plan's limit is a switch, on by default.
 DEFAULT = {"enabled": False, "plan_ids": [], "port": rw_masque.DEFAULT_PORT, "nodes": {}, "epochs": {}, "reissued_at": {},
            "count_in_limit": True}
+# v28.139.0: the images a node runs. A new shop release that pins newer Xray or HAProxy images reinstalls every node
+# within a minute (the worker compares this fingerprint), not only a new stack layout. Nodes installed by v28.138.0 have
+# no record of their images: they ran exactly these (LEGACY_IMAGES).
+IMAGES = hashlib.sha256((rw_masque.XRAY_IMAGE + "\n" + rw_masque.HAPROXY_IMAGE).encode()).hexdigest()[:12]
+LEGACY_IMAGES = "7b3239d99c79"
+
+
+def images_label() -> str:
+    """«Xray 26.11.9, HAProxy 3.2» — for people; the digests stay in the code."""
+    xray = rw_masque.XRAY_IMAGE.split("@")[0].rsplit(":", 1)[-1]
+    haproxy = rw_masque.HAPROXY_IMAGE.split("@")[0].rsplit(":", 1)[-1].split("-")[0]
+    return f"Xray {xray}, HAProxy {haproxy}"
+
+
+def up_to_date(node: dict) -> bool:
+    """The node runs this release's stack layout and images."""
+    return int(node.get("stack") or 1) == STACK and node.get("images", LEGACY_IMAGES) == IMAGES
+
+
 STACK = 3                                          # the layout of a node's stack; an older one is reinstalled by the worker
 COLLECT = timedelta(minutes=5)                     # how often a node is asked for traffic
 RECHECK = timedelta(minutes=15)                    # how often the panel is asked about one subscription's usage
@@ -233,7 +252,8 @@ async def sync_node(db: AsyncSession, node: dict, users: list[dict], action: str
         return {**node, "error": error, "checked_at": _iso(now), "failing_since": node.get("failing_since") or _iso(now)}
     node = {k: v for k, v in node.items() if k not in ("failing_since", "alerted_failure")}
     return {**node, "state": "on", "error": None, "users": len(users), "hash": users_hash(users, node["domain"], int(node["port"])),
-            "synced_at": _iso(now), "checked_at": _iso(now), **({"stack": STACK} if action == "on" else {})}
+            "synced_at": _iso(now), "checked_at": _iso(now),
+            **({"stack": STACK, "images": IMAGES, "images_label": images_label()} if action == "on" else {})}
 
 
 def due(node: dict, wanted: str, now: datetime) -> bool:
@@ -260,8 +280,8 @@ async def tick(db: AsyncSession, now: datetime | None = None) -> int:
     users = users_of(await _live_subs(db, state, now), state)
     touched = 0
     for key, node in list(state["nodes"].items()):
-        if node.get("state") == "on" and int(node.get("stack") or 1) != STACK:
-            # Installed by an older release: the stack is recreated once (its tunnels reconnect).
+        if node.get("state") == "on" and not up_to_date(node):
+            # Installed by an older release (another layout or other images): recreated once (its tunnels reconnect).
             state["nodes"][key] = await sync_node(db, node, users, action="on")
             touched += 1
         elif due(node, users_hash(users, node["domain"], int(node["port"])), now):
