@@ -37,7 +37,7 @@ TRAFFIC_KEY = "masque.traffic"
 # Owner's decision of 2026-11-12: whether MASQUE traffic counts towards the plan's limit is a switch, on by default.
 DEFAULT = {"enabled": False, "plan_ids": [], "port": rw_masque.DEFAULT_PORT, "nodes": {}, "epochs": {}, "reissued_at": {},
            "count_in_limit": True}
-STACK = 2                                          # the layout of a node's stack; an older one is reinstalled by the worker
+STACK = 3                                          # the layout of a node's stack; an older one is reinstalled by the worker
 COLLECT = timedelta(minutes=5)                     # how often a node is asked for traffic
 RECHECK = timedelta(minutes=15)                    # how often the panel is asked about one subscription's usage
 PANEL_CALLS = 30                                   # at most this many panel questions per pass

@@ -119,7 +119,7 @@ def test_bundle_is_reproducible_and_complete():
         names = tar.getnames()
         config = json.load(tar.extractfile("config.json"))
         logins = tar.extractfile("users").read().decode()
-    assert names == ["config.json", "haproxy.cfg", "docker-compose.yml", "400.http", "limits.map", "users"]
+    assert names == ["config.json", "haproxy.cfg", "docker-compose.yml", "400.http", "503.http", "limits.map", "users"]
     assert logins == "m2\nm1\n" and [u["email"] for u in config["inbounds"][0]["settings"]["users"]] == ["m2", "m1"]
 
 
@@ -328,6 +328,22 @@ def test_bundle_carries_the_chosen_protections():
     with tarfile.open(fileobj=io.BytesIO(gzip.decompress(b))) as tar:
         assert "type ipv6" not in tar.extractfile("haproxy.cfg").read().decode()
         assert tar.extractfile("400.http").read().decode() == rw_masque.ERROR_400
+        assert tar.extractfile("503.http").read().decode() == rw_masque.ERROR_SITE_DOWN
+
+
+def test_a_site_that_is_down_looks_like_maintenance_not_like_a_proxy():
+    """v28.138.0: the SelfSteal site does not answer — the port shows a maintenance page (before: an empty 503)."""
+    text = rw_masque.haproxy_cfg("node.example.com", 2087, rw_masque.new_prefix("secret", "server-1"))
+    site = text.split("\nbackend site\n")[1]
+    for code in (502, 503, 504):
+        assert f"errorfile {code} /errors/503.http" in site
+    assert "/errors/503.http" not in text.split("\nbackend site\n")[0]      # the tunnel backend keeps closing silently
+    page = rw_masque.ERROR_SITE_DOWN
+    head, body = page.split("\r\n\r\n", 1)
+    assert head.startswith("HTTP/1.1 503 Service Unavailable\r\n") and "Retry-After: 300" in head
+    assert f"Content-Length: {len(body.encode())}" in head and "<title>Maintenance</title>" in body
+    assert not any(word in page.lower() for word in ("haproxy", "xray", "masque", "proxy", "corgi", "корги"))
+    assert len(page.encode()) < 16384                                       # an errorfile must fit HAProxy's buffer
 
 
 def test_outside_comparison_names_every_difference():
