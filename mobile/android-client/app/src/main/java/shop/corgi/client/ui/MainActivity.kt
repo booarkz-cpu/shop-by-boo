@@ -45,7 +45,10 @@ class MainActivity : ComponentActivity() {
         shop.corgi.client.vpn.AppUpdateJob.schedule(this)
         // v1.6.1 (N11): «Обновление готово» → the checked APK goes to the system installer.
         if (intent?.action == shop.corgi.client.vpn.AppUpdateJob.ACTION_INSTALL) {
-            store.readyUpdate()?.let { apk -> runCatching { shop.corgi.client.vpn.ApkInstaller.install(this, apk) } }
+            val ready = store.readyUpdate()
+            if (ready != null) runCatching { shop.corgi.client.vpn.ApkInstaller.install(this, ready) }
+            // v1.9.6: «Доступна версия» on mobile data — the APK is downloaded now, then installed.
+            else thread { runCatching { store.checkUpdate(force = true)?.let { u -> shop.corgi.client.vpn.ApkInstaller.install(this, store.downloadUpdate(u)) } } }
         }
         if (savedInstanceState == null) thread {
             val s = store.settings

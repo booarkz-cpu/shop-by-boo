@@ -568,8 +568,14 @@ private fun AboutPage(store: Store) {
             NavRow(Icons.Filled.Settings, tr("Проверить обновления", "Check for updates", "Перевірити оновлення")) {
                 updateText = tr("Проверка…", "Checking…", "Перевірка…")
                 thread {
-                    val text = runCatching { store.checkUpdate(force = true)?.also { u -> runCatching { store.downloadUpdate(u) } } }.fold(
-                        { it?.let { u -> tr("Доступна версия ", "Version available: ", "Доступна версія ") + u.versionName } ?: tr("Установлена последняя версия", "Up to date", "Встановлено останню версію") },
+                    // v1.9.6: a found update is downloaded and handed to the installer right away (before: only downloaded).
+                    val text = runCatching { store.checkUpdate(force = true) }.fold(
+                        { found -> found?.let { u ->
+                            runCatching { store.downloadUpdate(u) }.fold(
+                                { apk -> (context as? android.app.Activity)?.let { a -> runCatching { shop.corgi.client.vpn.ApkInstaller.install(a, apk, version = u.versionName) } }
+                                    tr("Устанавливается версия ", "Installing version ", "Встановлюється версія ") + u.versionName },
+                                { tr("Доступна версия ", "Version available: ", "Доступна версія ") + u.versionName + tr(" — не удалось скачать", " — download failed", " — не вдалося завантажити") })
+                        } ?: tr("Установлена последняя версия", "Up to date", "Встановлено останню версію") },
                         { tr("Не удалось проверить", "Could not check", "Не вдалося перевірити") })
                     android.os.Handler(context.mainLooper).post { updateText = text }
                 }
