@@ -114,14 +114,22 @@ class AppUpdateJob : JobService() {
                 @Suppress("DEPRECATION")
                 Notification.Builder(context)
             }
+            val title = if (downloaded) {
+                tr("Обновление готово", "Update ready", "Оновлення готове")
+            } else {
+                tr("Доступна версия", "Version available", "Доступна версія")
+            }
+            val text = if (downloaded) {
+                tr("Нажмите, чтобы установить", "Tap to install", "Натисніть, щоб встановити")
+            } else {
+                tr("Нажмите, чтобы скачать и установить", "Tap to download and install", "Натисніть, щоб завантажити й встановити")
+            }
             runCatching {
                 manager.notify(
                     9,
                     builder.setSmallIcon(R.drawable.corgi_logo)
-                        .setContentTitle((if (downloaded) tr("Обновление готово", "Update ready", "Оновлення готове")
-                            else tr("Доступна версия", "Version available", "Доступна версія")) + " — $version")
-                        .setContentText(if (downloaded) tr("Нажмите, чтобы установить", "Tap to install", "Натисніть, щоб встановити")
-                            else tr("Нажмите, чтобы скачать и установить", "Tap to download and install", "Натисніть, щоб завантажити й встановити"))
+                        .setContentTitle("$title — $version")
+                        .setContentText(text)
                         .setContentIntent(install).setAutoCancel(true).build()
                 )
             }

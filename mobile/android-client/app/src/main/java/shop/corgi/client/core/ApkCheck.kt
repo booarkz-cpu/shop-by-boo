@@ -47,6 +47,7 @@ object ApkCheck {
 
     const val DAY_MS = 86_400_000L
     const val CHECK_MS = 3 * 3_600_000L
+
     /** How often the background job runs (any network). */
     const val JOB_MS = 6 * 3_600_000L
 }
