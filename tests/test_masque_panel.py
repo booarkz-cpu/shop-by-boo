@@ -607,3 +607,26 @@ def test_a_node_port_used_by_another_service_is_refused():
     for bad in (80, 70000):
         with pytest.raises(Exception):
             panel.InstallIn(port=bad)
+
+
+def test_install_stages_and_rollback_are_read_from_the_node():
+    """v28.141.0: the node script names its stages; a failure is undone and the answer says how."""
+    from types import SimpleNamespace
+
+    out = "step check\nstep files\nstep cert\nstep config\nstep containers\nstep start\nnot started\nrollback=previous"
+    info = rw_masque.parse_steps(out)
+    assert info == {"steps": ["check", "files", "cert", "config", "containers", "start"], "last": "start", "rollback": "previous"}
+    assert rw_masque.parse_steps("step check\nstep nonsense\nrollback=maybe") == {"steps": ["check"], "last": "check", "rollback": None}
+    why = panel._why(SimpleNamespace(code=6, out=out, err=""))
+    assert why == "Скрипт завершился с кодом 6: not started (этап «проверка запуска»; изменения отменены: работает прежняя установка)"
+    removed = panel._why(SimpleNamespace(code=5, out="step check\nstep files\nstep cert\nnocert\nrollback=removed", err=""))
+    assert removed == "У сайта SelfSteal ещё нет сертификата (этап «сертификат сайта»; незавершённая установка удалена с ноды)"
+    # Stopped by the checks before anything changed: nothing to undo, nothing to add.
+    assert panel._why(SimpleNamespace(code=7, out="step check\nport busy: nginx", err="")) == panel.REASONS["port busy"]
+
+
+def test_a_failed_reinstall_is_retried_after_15_minutes():
+    now = datetime(2026, 11, 14, 12, 0)
+    assert panel.reinstall_due({"checked_at": "2026-11-14T11:40:00Z"}, now)
+    assert not panel.reinstall_due({"checked_at": "2026-11-14T11:50:00Z"}, now)
+    assert panel.reinstall_due({}, now)
