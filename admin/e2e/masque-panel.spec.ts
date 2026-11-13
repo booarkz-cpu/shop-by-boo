@@ -4,7 +4,7 @@ import {expect, test} from '@playwright/test';
 // (tests/test_masque_panel.py checks the rules; scripts/ci/masque-check.sh runs the node part for real).
 const SHIELD = {strict_sni: true, tls_like_site: true, probe_ban: true, ban_after: 30, ban_minutes: 10};
 const node = (over: object = {}) => ({server_id: 3, name: 'de-1', address: '203.0.113.5', domain: 'de.example.com', ready: true, installed: false, port: null, users: null, synced_at: null, error: null, shield: null, ...over});
-const view = (over: object = {}) => ({enabled: false, plan_ids: [], port: 2087, plans: [{id: 1, name: 'Lucy Max', enabled: true, traffic_limit_gb: null}, {id: 2, name: 'Lucy Mini', enabled: true, traffic_limit_gb: 50}],
+const view = (over: object = {}) => ({enabled: false, plan_ids: [], port: 2087, count_in_limit: true, over_limit: 0, plans: [{id: 1, name: 'Lucy Max', enabled: true, traffic_limit_gb: null}, {id: 2, name: 'Lucy Mini', enabled: true, traffic_limit_gb: 50}],
   nodes: [node(), node({server_id: 4, name: 'cz-1', domain: null, ready: false})], users: 0, images: {xray: 'ghcr.io/xtls/xray-core:26.11.9', haproxy: 'haproxy:3.2-alpine'},
   notes: ['Трафик MASQUE не входит в лимит трафика тарифа: панель Remnawave его не видит.'], shield_default: SHIELD, ...over});
 
@@ -22,7 +22,7 @@ test('MASQUE panel: settings, install on a node, status, subscriptions, removal'
   await page.route('**/api/admin/masque/panel/settings', (r: any) => {
     const body = r.request().postDataJSON();
     sent.push(['settings', body]);
-    current = view({...body, users: 2});
+    current = view({...body, users: 2, over_limit: 1});
     return r.fulfill({json: current});
   });
   await page.route('**/api/admin/masque/panel/nodes/3/install', (r: any) => {
@@ -37,7 +37,7 @@ test('MASQUE panel: settings, install on a node, status, subscriptions, removal'
   await page.route('**/api/admin/masque/panel/nodes/3/status', (r: any) => r.fulfill({json: {users: 2, port: 2090, certificate_until: 'Feb 10 2027 GMT',
     traffic: [{subscription_id: 11, user_id: 7, login: 'm1', uplink: 1048576, downlink: 52428800}]}}));
   await page.route('**/api/admin/masque/panel/users?limit=50', (r: any) => r.fulfill({json: {total: 1, items: [{subscription_id: 11, user_id: 7, plan_id: 1, login: 'm1',
-    expires_at: '2026-12-12T00:00:00Z', url: 'https://shop.example.com/api/masque/sub/11.abc'}]}}));
+    expires_at: '2026-12-12T00:00:00Z', url: 'https://shop.example.com/api/masque/sub/11.abc', traffic_bytes: 3145728, over_limit: true, tunnels: 3}]}}));
   await page.route('**/api/admin/masque/panel/sync', (r: any) => {
     sent.push(['sync', 0]);
     return r.fulfill({json: current});
@@ -72,7 +72,9 @@ test('MASQUE panel: settings, install on a node, status, subscriptions, removal'
   await save.click();
   await expect(root.locator('[data-masque-panel-summary]')).toContainText('Доступ выдаётся');
   await expect(root.locator('[data-masque-panel-summary]')).toContainText('Подписок с доступом: 2');
-  expect(sent[0]).toEqual(['settings', {enabled: true, plan_ids: [1], port: 2090}]);
+  expect(sent[0]).toEqual(['settings', {enabled: true, plan_ids: [1], port: 2090, count_in_limit: true}]);
+  await expect(root.locator('[data-masque-panel-summary]')).toContainText('Исчерпали лимит тарифа: 1');
+  await expect(root.getByLabel('Засчитывать трафик MASQUE в лимит тарифа', {exact: true})).toBeChecked();
 
   // Install on the node that has a SelfSteal site: the protections are chosen first (owner's decision of 2026-11-12).
   await root.locator('[data-masque-panel-node="de-1"]').getByRole('button', {name: 'Установить', exact: true}).click();
@@ -110,6 +112,8 @@ test('MASQUE panel: settings, install on a node, status, subscriptions, removal'
 
   await root.getByRole('button', {name: 'Показать список и ссылки', exact: true}).click();
   await expect(root.locator('[data-masque-panel-users]')).toContainText('m1');
+  await expect(root.locator('[data-masque-panel-users]')).toContainText('3.00 МБ');
+  await expect(root.locator('[data-masque-panel-users]')).toContainText('лимит исчерпан');
   await expect(root.getByRole('button', {name: 'Скопировать ссылку подписки 11', exact: true})).toBeVisible();
 
   // A new link for a subscription: asks first, then the row shows the new login.

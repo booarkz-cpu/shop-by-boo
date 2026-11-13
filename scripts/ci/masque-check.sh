@@ -34,14 +34,14 @@ PY
 for _ in $(seq 1 30); do [ -S /dev/shm/selfsteal.sock ] && break; sleep 1; done
 [ -S /dev/shm/selfsteal.sock ] && ok "the node's SelfSteal site is up" || fail "no SelfSteal socket"
 
-bundle() {  # bundle <file> <login:password>...   (SHIELD=off: every optional protection switched off)
+bundle() {  # bundle <file> <login:password[:tunnel limit]>...   (SHIELD=off: every optional protection switched off)
   py - "$DOMAIN" "$PORT" "${SHIELD:-on}" "$@" <<'PY'
 import sys
 from app import rw_masque as m
 domain, port, mode, out, *users = sys.argv[1:]
 prefix = m.new_prefix("ci-secret", "node-1")
 shield = {"ban_after": 20, "ban_minutes": 1} if mode == "on" else {"strict_sni": False, "tls_like_site": False, "probe_ban": False}
-open(out, "wb").write(m.bundle(domain, int(port), prefix, [dict(zip(("email", "pass"), u.split(":"))) for u in users], shield))
+open(out, "wb").write(m.bundle(domain, int(port), prefix, [dict(zip(("email", "pass", "limit"), u.split(":"))) for u in users], shield))
 PY
 }
 node() { local action=$1 file=$2; bash "$W/node.sh" "$action" "$DOMAIN" "$PORT" "$(sha256sum "$file" | cut -d' ' -f1)" < "$file"; }
@@ -76,7 +76,9 @@ echo "$nohost" | head -n1 | grep -q '^HTTP/1.1 400 Bad Request' && ! echo "$noho
 if echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -servername "$DOMAIN" -tls1_1 2>/dev/null | grep -q 'BEGIN CERTIFICATE'; then fail "TLS 1.1 is accepted"; else ok "TLS below 1.2 is refused, as on the site"; fi
 suite=$(echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -servername "$DOMAIN" -tls1_2 2>/dev/null | sed -n 's/^ *Cipher *: *//p' | head -n1)
 case "$suite" in ECDHE-*-AES128-GCM-SHA256|ECDHE-*-AES256-GCM-SHA384|ECDHE-*-CHACHA20-POLY1305) ok "TLS 1.2 suite is one of the site's: $suite" ;; *) fail "unexpected TLS 1.2 suite: $suite" ;; esac
-ss -ltn | grep -q "127.0.0.1:12087 " && ss -ltn | grep -q "127.0.0.1:12086 " && ok "Xray listens on loopback only" || { ss -ltn; fail "Xray is not on loopback"; }
+[ -S /opt/corgi-masque/run/api.sock ] && ! ss -ltn | grep -q ':12086 ' && ss -ltn | grep -q '127.0.0.1:12087 ' && ! ss -ltn | grep ':12087 ' | grep -qv '127.0.0.1:12087 ' \
+  && ok "Xray's API has no TCP port (a unix socket); its inbound listens on loopback only" || { ss -ltn; ls -l /opt/corgi-masque/run; fail "Xray's ports"; }
+[ "$(stat -c '%a' /opt/corgi-masque/run)" = 770 ] && [ "$(stat -c '%a' /opt/corgi-masque/run/haproxy.sock)" = 600 ] && ok "the sockets are closed to other users of the server" || fail "socket permissions"
 
 curl -fsSL -o "$W/xray.zip" https://github.com/XTLS/Xray-core/releases/download/v26.11.9/Xray-linux-64.zip
 (cd "$W" && unzip -q xray.zip && chmod +x xray)
@@ -90,13 +92,16 @@ config = m.client_config(domain, int(port), m.new_prefix("ci-secret", "node-1"),
 config["outbounds"][0]["streamSettings"]["tlsSettings"]["certificates"] = [{"usage": "verify", "certificateFile": f"{w}/root.crt"}]
 if private:
     config.pop("routing")          # send even a private address into the tunnel, to see the node refuse it
+if name.endswith("-b"):
+    config["inbounds"][0]["port"], config["inbounds"][1]["port"] = 10818, 10819    # a second client next to the first
 json.dump(config, open(f"{w}/client-{name}.json", "w"))
 PY
 }
 through() {  # through <client name> <url>: HTTP code of the url fetched through the tunnel ("000" when it fails)
   "$W/xray" run -c "$W/client-$1.json" > "$W/client-$1.log" 2>&1 & local pid=$!
   sleep 2
-  curl -s -o /dev/null -w '%{http_code}' --max-time 15 --socks5-hostname 127.0.0.1:10808 "$2" || true
+  local socks=10808; case "$1" in *-b) socks=10818 ;; esac
+  curl -s -o /dev/null -w '%{http_code}' --max-time 15 --socks5-hostname "127.0.0.1:$socks" "$2" || true
   kill "$pid" >/dev/null 2>&1 || true; wait "$pid" 2>/dev/null || true
 }
 URL=https://www.gstatic.com/generate_204
@@ -111,17 +116,46 @@ sleep 1
 
 bundle "$W/b2.tgz" u1:pass-one u2:pass-two
 out=$(node sync "$W/b2.tgz") || { echo "$out"; fail "sync failed"; }
-[ "$(echo "$out" | tail -1)" = "masque=sync users=2 added=1 removed=0" ] && ok "a user is added: $(echo "$out" | tail -1)" || { echo "$out"; fail "sync add"; }
+[ "$(echo "$out" | tail -1)" = "masque=sync users=2 added=1 removed=0 limits=same" ] && ok "a user is added: $(echo "$out" | tail -1)" || { echo "$out"; fail "sync add"; }
 [ "$(docker inspect -f '{{.State.StartedAt}}' corgi-masque-xray)" = "$started" ] && ok "Xray was not restarted" || fail "Xray restarted on sync"
 [ "$(through u2 $URL)" = 204 ] && ok "the new user gets a tunnel at once" || fail "new user has no tunnel"
 bundle "$W/b3.tgz" u2:pass-two
 out=$(node sync "$W/b3.tgz") || { echo "$out"; fail "sync failed"; }
-[ "$(echo "$out" | tail -1)" = "masque=sync users=1 added=0 removed=1" ] && ok "a user is removed: $(echo "$out" | tail -1)" || { echo "$out"; fail "sync remove"; }
+[ "$(echo "$out" | tail -1)" = "masque=sync users=1 added=0 removed=1 limits=same" ] && ok "a user is removed: $(echo "$out" | tail -1)" || { echo "$out"; fail "sync remove"; }
 [ "$(through u1 $URL)" = 000 ] && ok "the removed user is cut off" || fail "removed user still has a tunnel"
 [ "$(through u2 $URL)" = 204 ] && ok "the remaining user keeps working" || fail "remaining user lost the tunnel"
-[ "$(node sync "$W/b3.tgz" | tail -1)" = "masque=sync users=1 added=0 removed=0" ] && ok "a second sync changes nothing" || fail "second sync"
+[ "$(node sync "$W/b3.tgz" | tail -1)" = "masque=sync users=1 added=0 removed=0 limits=same" ] && ok "a second sync changes nothing" || fail "second sync"
+
+# The number of simultaneous tunnels (the plan's device limit): one for u2, changed without a reload.
+bundle "$W/b5.tgz" u2:pass-two:1
+out=$(node sync "$W/b5.tgz"); [ "$(echo "$out" | tail -1)" = "masque=sync users=1 added=0 removed=0 limits=applied" ] && ok "a tunnel limit is applied on the fly: $(echo "$out" | tail -1)" || { echo "$out"; fail "limit sync"; }
+client u2-b u2 pass-two
+"$W/xray" run -c "$W/client-u2.json" > "$W/hold.log" 2>&1 & hold=$!
+sleep 2
+[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 --socks5-hostname 127.0.0.1:10808 $URL)" = 204 ] || fail "the first device has no tunnel"
+"$W/xray" run -c "$W/client-u2-b.json" > "$W/second.log" 2>&1 & second=$!
+sleep 2
+[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 --socks5-hostname 127.0.0.1:10818 $URL || true)" = 000 ] && ok "a second device over the limit gets no tunnel" || fail "the tunnel limit is not enforced"
+[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 --socks5-hostname 127.0.0.1:10808 $URL)" = 204 ] && ok "the first device keeps working" || fail "the first device lost its tunnel"
+kill "$hold" "$second" >/dev/null 2>&1 || true; wait "$hold" "$second" 2>/dev/null || true
+sleep 2
+[ "$(through u2-b $URL)" = 204 ] && ok "when the first device leaves, the second one gets in" || fail "the place was not freed"
+bundle "$W/b6.tgz" u2:pass-two
+[ "$(node sync "$W/b6.tgz" | tail -1)" = "masque=sync users=1 added=0 removed=0 limits=applied" ] && ok "the limit is lifted on the fly" || fail "limit removal"
+"$W/xray" run -c "$W/client-u2.json" > "$W/hold.log" 2>&1 & hold=$!
+sleep 2
+curl -s -o /dev/null --max-time 15 --socks5-hostname 127.0.0.1:10808 $URL || true
+[ "$(through u2-b $URL)" = 204 ] && ok "without a limit two devices work at once" || fail "limit still on"
+kill "$hold" >/dev/null 2>&1 || true; wait "$hold" 2>/dev/null || true
+[ "$(docker inspect -f '{{.State.StartedAt}}' corgi-masque-haproxy | cut -c1-19)" != "" ] && [ "$(docker top corgi-masque-haproxy | grep -c 'haproxy')" -le 2 ] && ok "HAProxy was not reloaded (one master, one worker)" || { docker top corgi-masque-haproxy; fail "HAProxy processes"; }
+docker restart corgi-masque-xray >/dev/null && sleep 4 && [ "$(through u2 $URL)" = 204 ] && ok "Xray comes back after a restart (the old socket files do not get in the way)" || { docker logs --tail 8 corgi-masque-xray; fail "Xray did not come back after a restart"; }
 grep -q '"u2"' /opt/corgi-masque/xray/config.json && ! grep -q '"u1"' /opt/corgi-masque/xray/config.json && ok "the saved config holds the same users (a restart keeps them)" || fail "saved config"
 
+tr=$(bash "$W/node.sh" traffic); echo "$tr"
+echo "$tr" | grep -q '^traffic u2 downlink [1-9]' && [ "$(echo "$tr" | tail -1)" = "masque=traffic" ] && ok "«traffic» reports what each login moved" || fail "traffic action"
+tr2=$(bash "$W/node.sh" traffic)
+! echo "$tr2" | grep -q '^traffic u2 downlink [1-9]' && ok "and resets the counters, so the next call reports only new traffic" || { echo "$tr2"; fail "traffic not reset"; }
+[ "$(through u2 $URL)" = 204 ] || fail "tunnel before status"
 st=$(bash "$W/node.sh" status); echo "$st"
 echo "$st" | tail -1 | grep -q "^masque=on users=1 port=$PORT cert=" || fail "status line"
 echo "$st" | grep -q '^traffic u2 downlink [1-9]' && ok "status reports the user's traffic" || fail "no traffic in status"

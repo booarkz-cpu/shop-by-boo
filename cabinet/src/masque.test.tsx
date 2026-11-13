@@ -70,3 +70,11 @@ it("issues a new link only after the customer confirms", async () => {
   fireEvent.click(screen.getByRole("button", {name: "Копировать ссылку MASQUE: Lucy Max"}));
   expect(writeText).toHaveBeenCalledWith("https://shop.example.com/api/masque/sub/11.new");
 });
+
+it("shows the traffic, the device count and a used-up limit", async () => {
+  const request = vi.fn(async () => ({available: true, counts_in_limit: true, items: [{...ITEMS[0], traffic_bytes: 2147483648, tunnels: 3, over_limit: true}]}));
+  render(<MasqueLinks request={request} />);
+  expect(await screen.findByText(/2\.0 ГБ · устройств одновременно: 3/)).toBeTruthy();
+  expect(screen.getByText(/Лимит трафика тарифа исчерпан/)).toBeTruthy();
+  expect(screen.getByText("Трафик MASQUE входит в лимит трафика вашего тарифа.")).toBeTruthy();
+});
