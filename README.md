@@ -36,8 +36,8 @@ Telegram-бот и Mini App · личный кабинет · приложени
 > ‼️ **Проект создан только в ознакомительных целях.** ‼️
 > Код и документация публикуются для изучения и демонстрации. Используя их, вы сами отвечаете за соблюдение законов своей страны, за безопасность серверов и данных клиентов. Автор не даёт гарантий и не отвечает за последствия использования.
 
-> **v28.136.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008` / 3.8, приложения Android и iOS `3.8.0`, «Корги Люси: клиент» `1.9.6`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.136.0`, `/health` отвечает `21.5.1`.
+> **v28.137.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008` / 3.8, приложения Android и iOS `3.9.0`, «Корги Люси: клиент» `1.9.7`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.137.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 ## 📑 Оглавление
@@ -203,8 +203,8 @@ ssh root@IP_СЕРВЕРА
 Скопируйте **целиком** и вставьте в окно сервера (в PowerShell вставка — правой кнопкой мыши):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.136.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.136.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.137.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.137.0 bash /root/shop-install.sh
 ```
 
 Установщик задаст несколько вопросов. Отвечайте так:
@@ -387,6 +387,14 @@ APK — в каждом [выпуске](https://github.com/booarkz-cpu/shop-by-
 </details>
 
 Больше ответов — в [справочнике по функциям](docs/ru/FUNCTION_GUIDE.md) и [инструкциях по 30 модулям](docs/ru/modules/README.md).
+
+## 🆕 Новое в v28.137.0
+
+| | |
+| --- | --- |
+| 🎨 **Новые иконки приложений** | Голова корги и знак приложения во всю иконку (щит у клиента, ключ у приложения магазина, шестерёнки у приложения администратора), адаптивные иконки Android — маска лаунчера больше не режет рисунок; варианты клиента «Корги», «Ночь», «Мята». |
+| 🔄 **Обновление без участия человека** | Клиент 1.9.7 и приложения 3.9.0 каждые 6 часов и при запуске сами скачивают новую версию с GitHub и ставят её — по любой сети и при включённом VPN (он включается снова). Где Android требует подтверждения (Android 11 и старше, первый раз на части телефонов) — одно нажатие. |
+| 🔍 **Сверка нод MASQUE** | «Сверка с панелью» раз в 6 часов спрашивает каждую ноду с MASQUE, работает ли стек, на каком порту и со сколькими пользователями, и пишет администраторам о новых расхождениях. |
 
 ## 🆕 Новое в v28.136.0
 
@@ -1399,8 +1407,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.136.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.136.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.137.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.137.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -1417,7 +1425,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.136.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.137.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -1433,12 +1441,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.136.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.137.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.136.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.137.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -2123,7 +2131,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Проверить конфигурацию Compose | `docker compose config` |
 | Health-check API | `curl -s localhost:8000/health` |
 | Резервная копия | `bash scripts/backup.sh` |
-| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.136.0 bash scripts/update-from-github.sh` |
+| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.137.0 bash scripts/update-from-github.sh` |
 | Откатить версию | `bash scripts/rollback.sh` |
 | Включить ночные обновления | `sudo bash scripts/auto-update.sh install` |
 | Состояние автообновления | `sudo bash scripts/auto-update.sh status` |
@@ -2168,7 +2176,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
 | Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
-| Что вошло в выпуск | [Заметки v28.136.0](docs/ru/RELEASE_V28_136_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
+| Что вошло в выпуск | [Заметки v28.137.0](docs/ru/RELEASE_V28_137_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | Wiki на трёх языках | [русский](docs/wiki/ru/Home.md), [English](docs/wiki/en/Home.md), [українська](docs/wiki/uk/Home.md) — готовые страницы для GitHub Wiki |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |

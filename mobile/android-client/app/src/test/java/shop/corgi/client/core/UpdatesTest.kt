@@ -37,11 +37,6 @@ class UpdatesTest {
         assertNull(ApkCheck.stillNewer(null, 1))
     }
 
-    @Test fun mobileDataOnlyNotifies() {
-        assertTrue(ApkCheck.downloadInBackground(metered = false))
-        assertTrue(!ApkCheck.downloadInBackground(metered = true))
-    }
-
     @Test fun tvReceiverTakesOneSubscriptionByItsKey() {
         val got = mutableListOf<String>()
         val receiver = TvReceiver { got += it }

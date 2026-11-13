@@ -39,3 +39,28 @@ test('panel drift: the last answer, a new check, the place to fix', async ({page
   await expect(root.locator('[data-drift-summary]')).toHaveText('Совпадает');
   await expect(root.locator('[data-drift-item]')).toHaveCount(0);
 });
+
+// v28.137.0: MASQUE nodes are checked too, even when nothing is set on the Remnawave panel.
+test('panel drift: a MASQUE node whose stack was stopped', async ({page}) => {
+  await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
+  await page.goto('/');
+  await page.getByLabel('Email', {exact: true}).fill('browser@example.test');
+  await page.getByLabel('Пароль', {exact: true}).fill('browser-only-password');
+  await page.getByRole('button', {name: 'Войти', exact: true}).click();
+  await expect(page.locator('.hub-card').first()).toBeVisible();
+
+  const masqueOnly = {...base, watched: {autoselect: false, torrent_ban_nodes: 0, masque_nodes: 1}};
+  await page.route('**/api/admin/rw/drift/meta', (r: any) => r.fulfill({json: masqueOnly}));
+  await page.route('**/api/admin/rw/drift/check', (r: any) => r.fulfill({json: {...masqueOnly, checked_at: '2026-11-13T20:00:00+00:00', items: [
+    {area: 'MASQUE', object: 'Нода de.example.org', expected: 'стек MASQUE работает', actual: 'стек MASQUE не запущен', tab: 'protocolSwitch'}]}}));
+
+  await page.locator('.sidebar').getByRole('button', {name: /Расширения Remnawave/}).click();
+  const root = page.locator('[data-rw-drift]');
+  const button = root.getByRole('button', {name: 'Проверить сейчас', exact: true});
+  await expect(button).toBeEnabled();
+  await button.click();
+  await expect(root.locator('[data-drift-summary]')).toHaveText('Расхождений: 1');
+  const row = root.locator('[data-drift-item="Нода de.example.org"]');
+  await expect(row).toContainText('стек MASQUE не запущен');
+  await expect(row.getByRole('link', {name: 'MASQUE: ноды и подписка', exact: true})).toHaveAttribute('href', '#protocolSwitch');
+});

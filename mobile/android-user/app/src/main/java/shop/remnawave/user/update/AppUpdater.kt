@@ -24,8 +24,8 @@ import kotlin.concurrent.thread
  *
  * Android 12 and newer install it with no confirmation when this app is its own installer of record (it has installed
  * one update of itself before) — permission UPDATE_PACKAGES_WITHOUT_USER_ACTION. Otherwise the system has to ask, and
- * from the background that question cannot be shown: the «Доступна версия» window offers the update at the next start.
- * An update restarts the app, so the job never installs while the VPN works.
+ * from the background that question cannot be shown: the update is installed at the next start of the app.
+ * v28.137.0: every 6 hours, also under a working VPN (an update restarts the app; the VPN is started again after it).
  */
 object AppUpdater {
     private const val JOB = 4301
@@ -43,8 +43,14 @@ object AppUpdater {
 
     fun matches(file: File, expected: String): Boolean = file.isFile && file.length() > 0 && sha256(file) == expected.lowercase()
 
-    /** Whether the background job installs by itself: only where the system can do it silently and no VPN is cut. */
-    fun installNow(sdk: Int, vpnRunning: Boolean): Boolean = sdk >= 31 && !vpnRunning
+    /**
+     * Whether the background job installs by itself: wherever the system can do it silently (Android 12+). v28.137.0: a
+     * working VPN no longer holds the update back — the app restarts it after the update ([ResumeAfterUpdate]).
+     */
+    fun installNow(sdk: Int): Boolean = sdk >= 31
+
+    const val PREFS = "app_update_install"
+    const val KEY_RESUME_VPN = "resume_vpn"
 
     fun vpnRunning(context: Context): Boolean = context.getSharedPreferences(shop.remnawave.user.vpn.CorgiVpnService.PREFS, 0).getString(shop.remnawave.user.vpn.CorgiVpnService.KEY_STATE, shop.remnawave.user.vpn.CorgiVpnService.STATE_OFF) != shop.remnawave.user.vpn.CorgiVpnService.STATE_OFF
 
@@ -71,10 +77,13 @@ object AppUpdater {
     }
 
     /** Hands the checked APK to the system installer; Android checks that it is signed with the same key. */
-    fun install(context: Context, apk: File, background: Boolean) {
+    fun install(context: Context, apk: File, background: Boolean, resumeVpn: Boolean = false) {
         val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         if (Build.VERSION.SDK_INT >= 31) params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
+        // v28.137.0: Android 14+ — the app becomes the owner of its updates, the next ones go without a question.
+        if (Build.VERSION.SDK_INT >= 34) params.setRequestUpdateOwnership(true)
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_RESUME_VPN, resumeVpn).commit()
         val id = installer.createSession(params)
         installer.openSession(id).use { session ->
             session.openWrite("$STEM.apk", 0, apk.length()).use { out ->
@@ -87,12 +96,12 @@ object AppUpdater {
         }
     }
 
-    /** The daily job; scheduled again at every start of the app (it is not kept across a reboot). */
+    /** The job every 6 hours (was daily); scheduled again at every start and after an update; an older daily job is replaced. */
     fun schedule(context: Context) {
         val scheduler = context.getSystemService(JobScheduler::class.java) ?: return
-        if (scheduler.getPendingJob(JOB) != null) return
+        if (scheduler.getPendingJob(JOB)?.intervalMillis == AppUpdate.JOB) return
         scheduler.schedule(JobInfo.Builder(JOB, ComponentName(context, AppUpdateJob::class.java))
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY).setPeriodic(AppUpdate.DAY).build())
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY).setPeriodic(AppUpdate.JOB).build())
     }
 
     /** The system's answer: when it needs a confirmation and the person is in the app, its own screen is opened. */
@@ -114,7 +123,7 @@ class AppUpdateJob : JobService() {
                 if (!BuildConfig.DEBUG && !AppUpdate.fromStore(AppUpdate.installer(this))) {
                     AppUpdate.latest(BuildConfig.VERSION_CODE)?.let { update ->
                         val apk = AppUpdater.download(this, update)
-                        if (AppUpdater.installNow(Build.VERSION.SDK_INT, AppUpdater.vpnRunning(this))) AppUpdater.install(this, apk, background = true)
+                        if (AppUpdater.installNow(Build.VERSION.SDK_INT)) AppUpdater.install(this, apk, background = true, resumeVpn = AppUpdater.vpnRunning(this))
                     }
                 }
             }
@@ -124,4 +133,19 @@ class AppUpdateJob : JobService() {
     }
 
     override fun onStopJob(params: JobParameters): Boolean = true
+}
+
+/** v28.137.0: after an automatic update installed under a working VPN, the VPN comes back by itself. */
+class ResumeAfterUpdate : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
+        AppUpdater.schedule(context)
+        val prefs = context.getSharedPreferences(AppUpdater.PREFS, Context.MODE_PRIVATE)
+        val flagged = prefs.getBoolean(AppUpdater.KEY_RESUME_VPN, false)
+        prefs.edit().remove(AppUpdater.KEY_RESUME_VPN).apply()
+        val subscription = shop.remnawave.user.vpn.CorgiVpnService.lastSubscription(context)
+        if (flagged && subscription.isNotEmpty() && android.net.VpnService.prepare(context) == null) {
+            runCatching { shop.remnawave.user.vpn.CorgiVpnService.start(context, subscription) }
+        }
+    }
 }

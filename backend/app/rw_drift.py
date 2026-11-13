@@ -5,6 +5,10 @@ and the temporary torrent ban (``rw_torrent_ban``) — and remembers what it set
 afterwards, a node can be re-created, a host deleted. This page reads the panel, compares it with what was set, and
 lists every difference with the place where it is put right. Nothing is changed here.
 
+v28.137.0: MASQUE is the shop's own stack on the nodes (``masque_panel``), not a panel object, but it drifts the same way:
+a node is reinstalled, the stack is stopped by hand, the port is changed. Each installed node is asked for its status
+(``corgi-masque.sh status``) and compared with what the shop sent: the stack runs, the port, the number of users.
+
 The last check and the last check without differences are kept (``rw.drift``), so the page says how fresh the answer is
 even when the panel is unreachable.
 """
@@ -22,7 +26,7 @@ router = APIRouter(prefix="/api/admin/rw/drift")
 STATE_KEY = "rw.drift"
 DEFAULT = {"checked_at": None, "ok_at": None, "items": [], "error": None}
 
-__all__ = ["router", "compare", "pool_drift", "ban_drift"]
+__all__ = ["router", "compare", "pool_drift", "ban_drift", "masque_drift"]
 
 
 def _item(area: str, obj: str, expected: str, actual: str, tab: str) -> dict:
@@ -65,6 +69,28 @@ def ban_drift(desired: dict | None, ban: dict | None) -> list[dict]:
     return items
 
 
+MASQUE_DOWN = {"8": "стек MASQUE не запущен", "not installed": "стек MASQUE не запущен"}
+
+
+def masque_drift(nodes: dict | None, reports: dict | None) -> list[dict]:
+    """Differences of MASQUE nodes. ``nodes`` is ``masque_panel`` state; ``reports[key]`` is the parsed result line of
+    ``status`` (``{"users": "3", "port": "2087"}``) or the error text when the node did not answer."""
+    area, tab, items = "MASQUE", "protocolSwitch", []
+    for key, node in sorted((nodes or {}).items(), key=lambda kv: str(kv[1].get("domain") or kv[0])):
+        if node.get("state") != "on" or key not in (reports or {}):
+            continue
+        name, report = f"Нода {node.get('domain') or key}", reports[key]
+        if isinstance(report, str):
+            items.append(_item(area, name, "стек MASQUE работает", MASQUE_DOWN.get(report.strip(), report.strip()[:200] or "нет ответа"), tab))
+            continue
+        port, users = str(report.get("port") or ""), str(report.get("users") or "")
+        if port and port != str(node.get("port")):
+            items.append(_item(area, name, f"порт {node.get('port')}", f"порт {port}", tab))
+        if users.isdigit() and node.get("users") is not None and int(users) != int(node["users"]):
+            items.append(_item(area, name, f"пользователей: {node['users']}", f"пользователей: {users}", tab))
+    return items
+
+
 def compare(pool: dict | None, ban_desired: dict | None, ban: dict | None) -> list[dict]:
     return [*pool_drift(pool), *ban_drift(ban_desired, ban)]
 
@@ -96,6 +122,34 @@ async def read_panel(db: AsyncSession) -> tuple[dict | None, dict, dict | None]:
     return pool, desired, ban
 
 
+async def read_masque(db: AsyncSession) -> tuple[dict, dict]:
+    """Seam for tests: MASQUE nodes the shop installed and what each of them reports now."""
+    from . import masque_panel, rw_masque
+
+    nodes = (await masque_panel._state(db))["nodes"]
+    reports: dict = {}
+    for key, node in nodes.items():
+        if node.get("state") != "on":
+            continue
+        try:
+            result = await masque_panel._ssh(db, int(node["server_id"]), "status")
+        except HTTPException as exc:
+            reports[key] = str(exc.detail)
+            continue
+        reports[key] = rw_masque.parse_result(result.out) if result.code == 0 else (
+            "8" if result.code == 8 else masque_panel._why(result))
+    return nodes, reports
+
+
+async def _check(db: AsyncSession, watched: dict) -> list[dict]:
+    items: list[dict] = []
+    if watched["autoselect"] or watched["torrent_ban_nodes"]:
+        items += compare(*await read_panel(db))
+    if watched.get("masque_nodes"):
+        items += masque_drift(*await read_masque(db))
+    return items
+
+
 def _view(state: dict, watched: dict) -> dict:
     return {"checked_at": state.get("checked_at"), "ok_at": state.get("ok_at"), "error": state.get("error"),
             "failed_at": state.get("failed_at"), "items": state.get("items") or [], "watched": watched,
@@ -108,7 +162,15 @@ async def _watched(db: AsyncSession) -> dict:
 
     config = await rw_autoselect._config(db)
     desired = await _load(db, rw_torrent_ban.DESIRED_KEY, {"nodes": {}})
-    return {"autoselect": bool(config.get("enabled")), "torrent_ban_nodes": len(desired.get("nodes") or {})}
+    from . import masque_panel
+
+    masque = (await masque_panel._state(db))["nodes"]
+    return {"autoselect": bool(config.get("enabled")), "torrent_ban_nodes": len(desired.get("nodes") or {}),
+            "masque_nodes": sum(1 for n in masque.values() if n.get("state") == "on")}
+
+
+def watching(watched: dict) -> bool:
+    return bool(watched["autoselect"] or watched["torrent_ban_nodes"] or watched.get("masque_nodes"))
 
 
 EVERY_HOURS = 6
@@ -134,10 +196,10 @@ async def tick(db: AsyncSession, now: datetime | None = None) -> dict | None:
     now = now or datetime.now(UTC)
     previous = await _load(db, STATE_KEY, DEFAULT)
     watched = await _watched(db)
-    if not (watched["autoselect"] or watched["torrent_ban_nodes"]) or not due(previous, now):
+    if not watching(watched) or not due(previous, now):
         return None
     try:
-        items, error = compare(*await read_panel(db)), None
+        items, error = await _check(db, watched), None
     except HTTPException as exc:
         items, error = None, str(exc.detail)[:300]
     state = remember(previous, items, error, now)
@@ -166,11 +228,12 @@ async def check(db: AsyncSession = Depends(get_db), admin=Depends(require_permis
     from .node_health import _load, _save
 
     previous = await _load(db, STATE_KEY, DEFAULT)
+    watched = await _watched(db)
     try:
-        items, error = compare(*await read_panel(db)), None
+        items, error = await _check(db, watched), None
     except HTTPException as exc:
         items, error = None, str(exc.detail)[:300]
     state = remember(previous, items, error)
     await _save(db, STATE_KEY, state)
     await db.commit()
-    return _view(state, await _watched(db))
+    return _view(state, watched)

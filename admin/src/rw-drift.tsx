@@ -4,10 +4,10 @@ import {StatusBadge} from "./components/ui/status";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Item = {area: string; object: string; expected: string; actual: string; tab: string};
-type View = {checked_at: string | null; ok_at: string | null; error: string | null; failed_at: string | null; items: Item[]; in_sync: boolean; watched: {autoselect: boolean; torrent_ban_nodes: number}};
+type View = {checked_at: string | null; ok_at: string | null; error: string | null; failed_at: string | null; items: Item[]; in_sync: boolean; watched: {autoselect: boolean; torrent_ban_nodes: number; masque_nodes?: number}};
 
 const when = (value: string | null) => (value ? new Date(value).toLocaleString("ru-RU") : "ещё не было");
-const PLACE: Record<string, string> = {autoselect: "Автовыбор", torrents: "Торренты на узлах"};
+const PLACE: Record<string, string> = {autoselect: "Автовыбор", torrents: "Торренты на узлах", protocolSwitch: "MASQUE: ноды и подписка"};
 
 /** «Сверка с панелью»: what the shop set on the Remnawave panel against what the panel has now. Changes nothing. */
 export function RwDrift({request}: {request: RequestFn}) {
@@ -32,11 +32,11 @@ export function RwDrift({request}: {request: RequestFn}) {
   const title = <h2><GitCompare aria-hidden="true" /> Сверка с панелью</h2>;
   if (error) return <section className="card" data-rw-drift aria-label="Сверка с панелью">{title}<p role="status"><StatusBadge tone="warn">Нет данных</StatusBadge> {error}</p></section>;
   if (!view) return <p className="muted card">Загрузка…</p>;
-  const nothing = !view.watched.autoselect && !view.watched.torrent_ban_nodes;
+  const nothing = !view.watched.autoselect && !view.watched.torrent_ban_nodes && !view.watched.masque_nodes;
   return (
     <section className="card" data-rw-drift aria-label="Сверка с панелью">
       {title}
-      <p className="muted">Магазин помнит, что он настроил на панели Remnawave: пул автовыбора и бан за торренты. Здесь видно, совпадает ли это с панелью сейчас. Проверка ничего не меняет.</p>
+      <p className="muted">Магазин помнит, что он настроил на панели Remnawave (пул автовыбора и бан за торренты) и на нодах (MASQUE: работает ли стек, порт, число пользователей). Здесь видно, совпадает ли это с тем, что есть сейчас. Проверка ничего не меняет; раз в 6 часов она идёт сама, о новых расхождениях приходит сообщение.</p>
       <p data-drift-summary role="status">
         {nothing ? <StatusBadge tone="idle">Сверять нечего</StatusBadge>
           : view.error ? <StatusBadge tone="danger">Панель не ответила</StatusBadge>
@@ -44,12 +44,12 @@ export function RwDrift({request}: {request: RequestFn}) {
           : view.in_sync ? <StatusBadge tone="ok">Совпадает</StatusBadge>
           : <StatusBadge tone="warn">Расхождений: {view.items.length}</StatusBadge>}
       </p>
-      {nothing && <p className="muted">Автовыбор не включён, бан за торренты через магазин не настраивался.</p>}
+      {nothing && <p className="muted">Автовыбор не включён, бан за торренты через магазин не настраивался, MASQUE не установлен ни на одну ноду.</p>}
       {view.error && <p className="muted">Ошибка {when(view.failed_at)}: {view.error}. Ниже — результат последней удавшейся проверки.</p>}
       {view.items.length > 0 && (
         <div className="table-scroll">
           <table>
-            <thead><tr><th>Где</th><th>Что</th><th>Настроено магазином</th><th>Сейчас на панели</th><th>Где исправить</th></tr></thead>
+            <thead><tr><th>Где</th><th>Что</th><th>Настроено магазином</th><th>Сейчас</th><th>Где исправить</th></tr></thead>
             <tbody>
               {view.items.map((item, index) => (
                 <tr key={index} data-drift-item={item.object}>

@@ -21,10 +21,18 @@ object ApkCheck {
     fun matches(file: File, expected: String): Boolean = file.isFile && file.length() > 0 && sha256(file) == expected.lowercase()
 
     /**
-     * v1.9.2: whether the background job installs the downloaded update itself. An update restarts the app, so never
-     * while the VPN works; before Android 12 the system always asks, and the question cannot be shown from the background.
+     * v1.9.2: whether the background job installs the downloaded update itself: from Android 12 the system can do it
+     * without asking; before that it always asks, and the question cannot be shown from the background. Since v1.9.7 a
+     * working VPN does not hold the update back (see [resumeAfterUpdate]).
      */
-    fun installNow(sdk: Int, vpnRunning: Boolean): Boolean = sdk >= 31 && !vpnRunning
+    fun installNow(sdk: Int): Boolean = sdk >= 31
+
+    /**
+     * v1.9.7 (owner, 2026-11-13: «полностью автоматическое обновление без участия пользователя»): the update is installed
+     * under a working VPN too. Installing restarts the app and cuts the tunnel for a few seconds; the app remembers it
+     * and starts the tunnel again as soon as the new version is in place (MY_PACKAGE_REPLACED, [shop.corgi.client.vpn.BootReceiver]).
+     */
+    fun resumeAfterUpdate(flagged: Boolean, tunNeedsPermission: Boolean): Boolean = flagged && !tunNeedsPermission
 
     /** Once a day at most, unless forced. */
     fun due(now: Long, last: Long, force: Boolean = false): Boolean = force || now - last >= DAY_MS
@@ -38,12 +46,6 @@ object ApkCheck {
 
     /** v1.9.6: the remembered update, only while it is still newer than the installed version. */
     fun stillNewer(cached: Update?, current: Int): Update? = cached?.takeIf { it.versionCode > current }
-
-    /**
-     * v1.9.6: the background job downloads the APK (about 150 MB) by itself only off a metered network; on mobile data it
-     * shows «Доступна версия», and a tap downloads and installs it.
-     */
-    fun downloadInBackground(metered: Boolean): Boolean = !metered
 
     const val DAY_MS = 86_400_000L
     const val CHECK_MS = 3 * 3_600_000L
