@@ -242,7 +242,8 @@ struct UserRootView: View {
 
     private func visible(_ section: LayoutSection) -> [LayoutButton] {
         // The iOS app has no home screen widget: its switch is Android-only.
-        section.buttons.filter { $0.action != "widget_toggle" }.filter { b in
+        // MASQUE is handed out by the shop only to some plans: no link, no button.
+        section.buttons.filter { $0.action != "widget_toggle" && ($0.action != "copy_masque" || !data.masqueUrl.isEmpty) }.filter { b in
             switch b.audience { case "subscribed": return data.subscribed; case "unsubscribed": return !data.subscribed; default: return true }
         }
     }
@@ -934,6 +935,7 @@ struct UserRootView: View {
             if data.subscriptionUrl.isEmpty { notice = t("need_subscription") }
             else if !VpnClients.importInto(button.target, data.subscriptionUrl) { sheet = "install" }
         case "copy_subscription": copy(data.subscriptionUrl)
+        case "copy_masque": copy(data.masqueUrl)
         case "show_qr": sheet = "qr"
         case "copy_id": copy(data.customerId)
         case "buy":
@@ -1227,6 +1229,8 @@ struct UserRootView: View {
                 next.stats = (try? api.call("GET", "/api/me/stats")) as? [String: Any] ?? [:]
                 next.upsell = ((try? api.call("GET", "/api/me/upsell")) as? [String: Any])?["offers"] as? [[String: Any]] ?? []
                 next.contest = ((try? api.call("GET", "/api/me/referral-contest")) as? [String: Any])?["contest"] as? [String: Any] ?? [:]
+                // v28.131.0: shops before it have no MASQUE — the button simply stays hidden.
+                next.masque = (try? api.call("GET", "/api/me/masque")) as? [String: Any] ?? [:]
                 // Connection quality (connection_quality.py): server checks with the network type, at most every 6 hours.
                 let qualityAt = UserDefaults.standard.double(forKey: "corgi_quality_at")
                 if !next.subscriptionUrl.isEmpty && Date().timeIntervalSince1970 - qualityAt > 6 * 3600 {

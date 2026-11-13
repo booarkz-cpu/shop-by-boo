@@ -11,8 +11,8 @@ android {
         minSdk = 26
         targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 3700
-        versionName = "3.7.0"
+        versionCode = 3800
+        versionName = "3.8.0"
         // Historical compatibility marker: versionName = "2.9.0"
         // v28.77.0: the shop's API address baked into the build (-Pcorgi.shop_url or CORGI_SHOP_URL, see
         // mobile/shop-url.txt): a new profile starts with it, so the administrator does not type it.

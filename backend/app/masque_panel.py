@@ -33,7 +33,15 @@ from .security import require_permission
 router = APIRouter(tags=["masque"])
 
 STATE_KEY = "masque.panel"
-DEFAULT = {"enabled": False, "plan_ids": [], "port": rw_masque.DEFAULT_PORT, "nodes": {}, "epochs": {}, "reissued_at": {}}
+TRAFFIC_KEY = "masque.traffic"
+# Owner's decision of 2026-11-12: whether MASQUE traffic counts towards the plan's limit is a switch, on by default.
+DEFAULT = {"enabled": False, "plan_ids": [], "port": rw_masque.DEFAULT_PORT, "nodes": {}, "epochs": {}, "reissued_at": {},
+           "count_in_limit": True}
+STACK = 2                                          # the layout of a node's stack; an older one is reinstalled by the worker
+COLLECT = timedelta(minutes=5)                     # how often a node is asked for traffic
+RECHECK = timedelta(minutes=15)                    # how often the panel is asked about one subscription's usage
+PANEL_CALLS = 30                                   # at most this many panel questions per pass
+GB = 1024 ** 3
 LIVE = ("active", "grace", "cancel_scheduled")     # paid and not paused, frozen or expired
 RESYNC = timedelta(minutes=30)                     # a node is re-checked this often even when the list did not change
 TOKEN = re.compile(r"^(\d{1,12})\.([0-9a-f]{32})\Z")
@@ -45,6 +53,7 @@ class SettingsIn(BaseModel):
     enabled: bool
     plan_ids: list[int] = Field(default_factory=list, max_length=200)
     port: int = Field(default=rw_masque.DEFAULT_PORT, ge=1024, le=65535)
+    count_in_limit: bool = True
 
 
 class ShieldIn(BaseModel):
@@ -86,9 +95,12 @@ def subscription_id(value: str, state: dict | None = None) -> int | None:
     return int(match[1])
 
 
-def eligible(sub, state: dict, now: datetime) -> bool:
-    """A subscription has MASQUE while it is paid and running, and its plan is among the chosen ones (none chosen: all)."""
+def eligible(sub, state: dict, now: datetime, over: frozenset | set = frozenset()) -> bool:
+    """A subscription has MASQUE while it is paid and running, its plan is among the chosen ones (none chosen: all)
+    and — when MASQUE counts towards the plan's limit — the limit is not used up (``over``: those that used it up)."""
     if not state.get("enabled") or sub.expires_at is None or sub.expires_at <= now:
+        return False
+    if state.get("count_in_limit", True) and sub.id in over:
         return False
     if (sub.lifecycle_status or "active") not in LIVE:
         return False
@@ -104,12 +116,13 @@ def users_of(subs, state: dict | None = None) -> list[dict]:
     out = []
     for sub in sorted(subs, key=lambda s: s.id):
         login, password = creds(state or {}, sub.id)
-        out.append({"email": login, "pass": password})
+        # Owner's decision of 2026-11-12: as many tunnels at once as the plan allows devices (none set: no limit).
+        out.append({"email": login, "pass": password, "limit": int(getattr(sub, "device_limit_snapshot", None) or 0)})
     return out
 
 
 def users_hash(users: list[dict], domain: str, port: int) -> str:
-    text = "\n".join(sorted(u["email"] for u in users)) + f"\n{domain}:{port}"
+    text = "\n".join(sorted(f"{u['email']}:{int(u.get('limit') or 0)}" for u in users)) + f"\n{domain}:{port}"
     return hashlib.sha256(text.encode()).hexdigest()[:16]
 
 
@@ -147,12 +160,21 @@ async def _store(db: AsyncSession, state: dict) -> None:
     await _save(db, STATE_KEY, state)
 
 
-async def _live_subs(db: AsyncSession, state: dict, now: datetime) -> list:
+async def _traffic(db: AsyncSession) -> dict:
+    from .node_health import _load
+    data = await _load(db, TRAFFIC_KEY, {"subs": {}, "over": []})
+    data["subs"], data["over"] = dict(data.get("subs") or {}), list(data.get("over") or [])
+    return data
+
+
+async def _live_subs(db: AsyncSession, state: dict, now: datetime, limited: bool = True) -> list:
+    """Subscriptions that have MASQUE now. ``limited=False``: without the traffic-limit rule (who would have it)."""
     if not state.get("enabled"):
         return []
     rows = (await db.execute(select(Subscription).where(Subscription.expires_at.is_not(None), Subscription.expires_at > now,
                                                         Subscription.lifecycle_status.in_(LIVE)))).scalars().all()
-    return [s for s in rows if eligible(s, state, now)]
+    over = frozenset((await _traffic(db))["over"]) if limited and state.get("count_in_limit", True) else frozenset()
+    return [s for s in rows if eligible(s, state, now, over)]
 
 
 async def _ssh(db: AsyncSession, server_id: int, action: str, *args: str, stdin: bytes | None = None):
@@ -196,7 +218,7 @@ async def sync_node(db: AsyncSession, node: dict, users: list[dict], action: str
     if error:
         return {**node, "error": error, "checked_at": _iso(now)}
     return {**node, "state": "on", "error": None, "users": len(users), "hash": users_hash(users, node["domain"], int(node["port"])),
-            "synced_at": _iso(now), "checked_at": _iso(now)}
+            "synced_at": _iso(now), "checked_at": _iso(now), **({"stack": STACK} if action == "on" else {})}
 
 
 def due(node: dict, wanted: str, now: datetime) -> bool:
@@ -217,16 +239,118 @@ async def tick(db: AsyncSession, now: datetime | None = None) -> int:
     if not state["nodes"]:
         return 0
     now = _naive(now)
+    if await collect(db, state, now):
+        await _store(db, state)
+        await db.commit()
     users = users_of(await _live_subs(db, state, now), state)
     touched = 0
     for key, node in list(state["nodes"].items()):
-        if due(node, users_hash(users, node["domain"], int(node["port"])), now):
+        if node.get("state") == "on" and int(node.get("stack") or 1) != STACK:
+            # Installed by an older release: the stack is recreated once (its tunnels reconnect).
+            state["nodes"][key] = await sync_node(db, node, users, action="on")
+            touched += 1
+        elif due(node, users_hash(users, node["domain"], int(node["port"])), now):
             state["nodes"][key] = await sync_node(db, node, users)
             touched += 1
     if touched:
         await _store(db, state)
         await db.commit()
     return touched
+
+
+# ---------------------------------------------------------------- traffic and the plan's limit
+
+def _since(text: str | None) -> datetime | None:
+    try:
+        return datetime.fromisoformat(str(text).replace("Z", "+00:00")).astimezone(UTC).replace(tzinfo=None) if text else None
+    except ValueError:
+        return None
+
+
+def add_traffic(entry: dict | None, delta: int, now: datetime) -> dict:
+    """One subscription's MASQUE counter. Without word from the panel it starts anew every calendar month."""
+    entry = dict(entry or {})
+    since = _since(entry.get("since"))
+    if since is None or (since.year, since.month) != (now.year, now.month) and not entry.get("panel_reset"):
+        entry.update(bytes=0, since=_iso(now))
+    entry["bytes"] = int(entry.get("bytes") or 0) + max(0, int(delta))
+    return entry
+
+
+def judge(entry: dict, limit_bytes: int | None, panel: dict | None, now: datetime) -> dict:
+    """Whether the plan's limit is used up, counting MASQUE together with what the panel has counted.
+
+    ``panel``: the panel's user (``usedTrafficBytes``, ``trafficLimitBytes``, ``lastTrafficResetAt``) or None when the
+    panel did not answer — then MASQUE alone is compared with the plan's limit."""
+    entry = dict(entry)
+    panel = panel or {}
+    traffic = panel.get("userTraffic") or {}
+    reset = _since(panel.get("lastTrafficResetAt") or traffic.get("lastTrafficResetAt"))
+    since = _since(entry.get("since"))
+    if reset and (since is None or reset > since):          # the panel started a new period: so does MASQUE
+        entry.update(bytes=0, since=_iso(reset), panel_reset=True)
+    used = panel.get("usedTrafficBytes", traffic.get("usedTrafficBytes", panel.get("trafficUsedBytes")))
+    remote_limit = panel.get("trafficLimitBytes")
+    limit = int(remote_limit) if remote_limit else int(limit_bytes or 0)
+    entry["panel_used"] = int(used) if used is not None else None
+    entry["limit"] = limit or None
+    entry["over"] = bool(limit) and int(entry.get("bytes") or 0) + int(used or 0) >= limit
+    entry["checked_at"] = _iso(now)
+    return entry
+
+
+async def collect(db: AsyncSession, state: dict, now: datetime) -> bool:
+    """Asks the nodes what each login moved, adds it to the subscriptions' counters and decides who used up the limit.
+    Returns True when a node record changed (its ``traffic_at``)."""
+    from .node_health import _save
+    nodes = [n for n in state["nodes"].values() if n.get("state") == "on" and int(n.get("stack") or 1) == STACK
+             and ((_since(n.get("traffic_at")) or datetime.min) + COLLECT <= now)]
+    data = await _traffic(db)
+    subs = {s.id: s for s in await _live_subs(db, state, now, limited=False)}
+    logins = {creds(state, sid)[0]: sid for sid in subs}
+    changed = False
+    for node in nodes:
+        node["traffic_at"] = _iso(now)
+        changed = True
+        try:
+            result = await _ssh(db, node["server_id"], "traffic")
+        except HTTPException:
+            continue
+        if result.code != 0:
+            continue
+        for login, value in parse_status(result.out)["traffic"].items():
+            sid = logins.get(login)
+            if sid is not None:
+                data["subs"][str(sid)] = add_traffic(data["subs"].get(str(sid)), value["uplink"] + value["downlink"], now)
+    asked = 0
+    for key, entry in list(data["subs"].items()):
+        sub = subs.get(int(key))
+        if sub is None:
+            continue
+        limit = int(sub.traffic_limit_gb_snapshot) * GB if getattr(sub, "traffic_limit_gb_snapshot", None) else None
+        if not limit or not state.get("count_in_limit", True):
+            entry["over"] = False
+            continue
+        last = _since(entry.get("checked_at"))
+        if last and now - last < RECHECK or asked >= PANEL_CALLS:
+            continue
+        asked += 1
+        data["subs"][key] = judge(entry, limit, await _panel_user(sub), now)
+    data["over"] = sorted(int(k) for k, e in data["subs"].items() if e.get("over"))
+    if nodes or asked:
+        await _save(db, TRAFFIC_KEY, data)
+    return changed
+
+
+async def _panel_user(sub) -> dict | None:
+    if not getattr(sub, "remnawave_uuid", None):
+        return None
+    try:
+        from .main import RemnawaveClient
+        data = await RemnawaveClient().get_user(sub.remnawave_uuid)
+    except Exception:                                  # noqa: BLE001 — the panel is down: MASQUE alone is compared
+        return None
+    return data if isinstance(data, dict) else None
 
 
 # ---------------------------------------------------------------- admin
@@ -250,11 +374,15 @@ async def _view(db: AsyncSession, state: dict) -> dict:
                                "users": record.get("users"), "synced_at": record.get("synced_at"), "error": record.get("error"),
                                "shield": rw_masque.shield(record.get("shield"))})
     plans = (await db.execute(select(Plan).order_by(Plan.id))).scalars().all()
+    over = len((await _traffic(db))["over"]) if state.get("count_in_limit", True) else 0
     return {"enabled": bool(state.get("enabled")), "plan_ids": list(state.get("plan_ids") or []), "port": int(state.get("port") or rw_masque.DEFAULT_PORT),
+            "count_in_limit": bool(state.get("count_in_limit", True)), "over_limit": over,
             "plans": [{"id": p.id, "name": p.name, "enabled": bool(p.enabled), "traffic_limit_gb": p.traffic_limit_gb} for p in plans],
             "nodes": candidates, "users": len(subs), "images": {"xray": rw_masque.XRAY_IMAGE.split("@")[0], "haproxy": rw_masque.HAPROXY_IMAGE.split("@")[0]},
             "shield_default": dict(rw_masque.SHIELD_DEFAULT),
-            "notes": ["Трафик MASQUE не входит в лимит трафика тарифа: панель Remnawave его не видит.",
+            "notes": ["Трафик MASQUE считает магазин: панель Remnawave его не видит. При включённой настройке он складывается с трафиком "
+                      "панели, и когда лимит тарифа исчерпан, доступ MASQUE снимается до нового периода.",
+                      "Одновременных туннелей у подписки — столько, сколько устройств разрешает тариф.",
                       "Работает по HTTP/2 (TCP). HTTP/3 спрятать за сайтом нельзя, поэтому он не используется.",
                       "Клиенту нужна поддержка MASQUE в Xray 26.9.30 или новее и подписка в формате JSON."]}
 
@@ -271,8 +399,8 @@ async def save_settings(payload: SettingsIn, db: AsyncSession = Depends(get_db),
     known = {p.id for p in (await db.execute(select(Plan))).scalars().all()}
     if any(pid not in known for pid in payload.plan_ids):
         raise HTTPException(422, "Выбран тариф, которого нет")
-    before = {k: state.get(k) for k in ("enabled", "plan_ids", "port")}
-    state.update(enabled=payload.enabled, plan_ids=sorted(set(payload.plan_ids)), port=payload.port)
+    before = {k: state.get(k) for k in ("enabled", "plan_ids", "port", "count_in_limit")}
+    state.update(enabled=payload.enabled, plan_ids=sorted(set(payload.plan_ids)), port=payload.port, count_in_limit=payload.count_in_limit)
     await _store(db, state)
     await audit(db, "masque.settings", admin.email, STATE_KEY, {"before": before, "after": {k: state[k] for k in before}})
     await db.commit()
@@ -429,9 +557,13 @@ async def sync(db: AsyncSession = Depends(get_db), admin=Depends(require_permiss
 async def users(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     """Who has MASQUE now, with the subscription link (a link is a secret: the same right as managing nodes)."""
     state = await _state(db)
-    subs = sorted(await _live_subs(db, state, _naive()), key=lambda s: s.id)
+    subs = sorted(await _live_subs(db, state, _naive(), limited=False), key=lambda s: s.id)
     limit, offset = max(1, min(int(limit), 200)), max(0, int(offset))
+    traffic = await _traffic(db)
+    counted = bool(state.get("count_in_limit", True))
     return {"total": len(subs), "items": [{"subscription_id": s.id, "user_id": s.user_id, "plan_id": s.plan_id,
+                                           "traffic_bytes": int((traffic["subs"].get(str(s.id)) or {}).get("bytes") or 0),
+                                           "over_limit": counted and s.id in traffic["over"], "tunnels": int(s.device_limit_snapshot or 0),
                                            "login": creds(state, s.id)[0], "reissued": epoch_of(state, s.id),
                                            "expires_at": s.expires_at.isoformat() + "Z", "url": link(s.id, state)} for s in subs[offset:offset + limit]]}
 
@@ -477,6 +609,8 @@ async def subscription(value: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(404, "Подписка не найдена")
     if not eligible(sub, state, _naive()):
         raise HTTPException(403, "Подписка не активна или MASQUE для неё не включён")
+    if state.get("count_in_limit", True) and sub.id in (await _traffic(db))["over"]:
+        raise HTTPException(403, "Лимит трафика тарифа исчерпан: MASQUE вернётся с началом нового периода")
     configs = configs_for(state, sub)
     if not configs:
         raise HTTPException(503, "MASQUE пока не установлен ни на одной ноде")
@@ -484,17 +618,28 @@ async def subscription(value: str, db: AsyncSession = Depends(get_db)):
                                           "Content-Disposition": 'attachment; filename="masque.json"'})
 
 
+async def customer_items(db: AsyncSession, user_id: int) -> tuple[list[dict], dict]:
+    """A customer's MASQUE links, one per subscription that has the protocol now (shared by the cabinet and the bot)."""
+    state = await _state(db)
+    now = _naive()
+    working = any(n.get("state") == "on" for n in state["nodes"].values())
+    subs = (await db.execute(select(Subscription).where(Subscription.user_id == user_id).order_by(Subscription.id))).scalars().all()
+    traffic = await _traffic(db)
+    over = frozenset(traffic["over"]) if state.get("count_in_limit", True) else frozenset()
+    items = [{"subscription_id": s.id, "name": s.name, "url": link(s.id, state), "over_limit": s.id in over,
+              "traffic_bytes": int((traffic["subs"].get(str(s.id)) or {}).get("bytes") or 0), "tunnels": int(s.device_limit_snapshot or 0)}
+             for s in subs if working and eligible(s, state, now)]
+    return items, state
+
+
 @router.get("/api/me/masque")
 async def my_masque(request: Request, db: AsyncSession = Depends(get_db)):
     """The signed-in customer's MASQUE links, one per subscription that has the protocol."""
     from .main import user_from_token
     user = await user_from_token(request, db)
-    state = await _state(db)
-    now = _naive()
-    working = any(n.get("state") == "on" for n in state["nodes"].values())
-    subs = (await db.execute(select(Subscription).where(Subscription.user_id == user.id).order_by(Subscription.id))).scalars().all()
-    items = [{"subscription_id": s.id, "name": s.name, "url": link(s.id, state)} for s in subs if working and eligible(s, state, now)]
-    return {"available": bool(items), "items": items, "format": "xray-json", "transport": "MASQUE (HTTP/2)"}
+    items, state = await customer_items(db, user.id)
+    return {"available": bool(items), "items": items, "format": "xray-json", "transport": "MASQUE (HTTP/2)",
+            "counts_in_limit": bool(state.get("count_in_limit", True))}
 
 
 @router.get("/api/me/masque/{subscription}/qr")

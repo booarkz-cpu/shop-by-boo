@@ -318,7 +318,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             readTimeout = 30000
             setRequestProperty("Accept", "application/octet-stream")
             setRequestProperty("Accept-Encoding", "identity")
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.7.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.8.0")
             setRequestProperty("X-Shop-Client", "android-user")
             if (token.isNotBlank()) setRequestProperty("Authorization", "Bearer $token")
         }
@@ -363,7 +363,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.7.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.8.0")
             // Historical compatibility marker: CorgiLusi-Android-User/2.9.0
             setRequestProperty("X-Shop-Client", "android-user")
 
@@ -617,6 +617,8 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     stats = try { api.get("/api/me/stats") as JSONObject } catch (_: Exception) { JSONObject() },
                     upsell = try { (api.get("/api/me/upsell") as JSONObject).optJSONArray("offers") ?: JSONArray() } catch (_: Exception) { JSONArray() },
                     contest = try { (api.get("/api/me/referral-contest") as JSONObject).optJSONObject("contest") ?: JSONObject() } catch (_: Exception) { JSONObject() },
+                    // v28.131.0: shops before it have no MASQUE — the button simply stays hidden.
+                    masque = try { api.get("/api/me/masque") as JSONObject } catch (_: Exception) { JSONObject() },
                 )
                 activity.runOnUiThread { data = next; ui = ui.copy(offline = false) }
                 // Connection quality: the server checks with the carrier, at most every 6 hours (connection_quality.py).
@@ -812,6 +814,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     else if (!VpnClients.importInto(context, button.target, data.subscriptionUrl)) dialog = "install"
                 }
                 "copy_subscription" -> copy("subscription", data.subscriptionUrl)
+                "copy_masque" -> copy("masque", data.masqueUrl)
                 "show_qr" -> dialog = "qr"
                 "copy_id" -> copy("id", data.customerId)
                 "buy" -> pay(selectedPlanId())
@@ -1392,7 +1395,7 @@ private fun loadAuthedPng(base: String, path: String, token: String, lang: Strin
         readTimeout = 15000
         setRequestProperty("Accept", "image/png")
         setRequestProperty("Accept-Language", lang)
-        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.7.0")
+        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.8.0")
         setRequestProperty("X-Shop-Client", "android-user")
 
 
