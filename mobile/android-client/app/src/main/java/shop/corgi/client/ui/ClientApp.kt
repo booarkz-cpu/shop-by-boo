@@ -434,7 +434,7 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
         }
         if (profiles.isEmpty()) item {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Banner("app-locations", tr("Серверов пока нет", "No servers yet", "Серверів поки немає"),
+                Banner("client-servers", tr("Серверов пока нет", "No servers yet", "Серверів поки немає"),
                     tr("Добавьте подписку, ссылку или QR", "Add a subscription, a link or a QR", "Додайте підписку, посилання або QR"))
                 Button(onClick = add) { Text(tr("Добавить", "Add", "Додати")) }
             }

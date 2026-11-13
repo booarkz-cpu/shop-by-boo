@@ -166,6 +166,6 @@
   "production_ready": false,
   "upgrade_from": "21.5.0",
   "distribution_tag": "v28.136.0",
-  "release_title": "v28.136.0 — клиент 1.9.6: обновление приходит в тот же день",
+  "release_title": "v28.136.0 — клиент 1.9.6: обновление в тот же день и свои баннеры разделов",
   "release_notes": "docs/ru/RELEASE_V28_136_0.md"
 }
