@@ -153,6 +153,7 @@ grep -q '"u2"' /opt/corgi-masque/xray/config.json && ! grep -q '"u1"' /opt/corgi
 
 tr=$(bash "$W/node.sh" traffic); echo "$tr"
 echo "$tr" | grep -q '^traffic u2 downlink [1-9]' && [ "$(echo "$tr" | tail -1)" = "masque=traffic" ] && ok "«traffic» reports what each login moved" || fail "traffic action"
+echo "$tr" | grep -Eq '^cert [A-Z][a-z]{2}_+[0-9]+_[0-9:]+_20[0-9]{2}_GMT$' && ok "and the certificate's end date" || fail "no certificate date in traffic"
 tr2=$(bash "$W/node.sh" traffic)
 ! echo "$tr2" | grep -q '^traffic u2 downlink [1-9]' && ok "and resets the counters, so the next call reports only new traffic" || { echo "$tr2"; fail "traffic not reset"; }
 [ "$(through u2 $URL)" = 204 ] || fail "tunnel before status"
@@ -177,6 +178,11 @@ echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -noservername 2>/d
 for _ in $(seq 1 8); do through bad $URL >/dev/null; done
 [ "$(through u2 $URL)" = 204 ] && ok "with the probing block off wrong passwords block nobody" || fail "block is on though switched off"
 get "https://$DOMAIN:$PORT/$PREFIX/1/2/" | grep -q 'selfsteal-site-404' && ok "the always-on protections stay: the secret path is still the site's 404" || fail "always-on protections lost"
+python3 -m http.server 2091 --bind 0.0.0.0 >/dev/null 2>&1 & busy=$!
+sleep 1
+rc=0; out=$(bash "$W/node.sh" on "$DOMAIN" 2091 "$(sha256sum "$W/b3.tgz" | cut -d' ' -f1)" < "$W/b3.tgz" 2>&1) || rc=$?
+kill "$busy" >/dev/null 2>&1 || true
+[ "$rc" = 7 ] && echo "$out" | grep -q '^port busy: python' && ok "a port held by another program is refused before anything changes ($out)" || { echo "$out"; fail "busy port ($rc)"; }
 rc=0; bash "$W/node.sh" on 'bad;domain' 2087 "$(printf 'a%.0s' $(seq 64))" < /dev/null >/dev/null 2>&1 || rc=$?; [ "$rc" = 2 ] && ok "a bad domain is refused" || fail "bad domain ($rc)"
 rc=0; bash "$W/node.sh" on "$DOMAIN" 443 "$(printf 'a%.0s' $(seq 64))" < /dev/null >/dev/null 2>&1 || rc=$?; [ "$rc" = 2 ] && ok "a port below 1024 is refused" || fail "low port ($rc)"
 rc=0; bash "$W/node.sh" on "$DOMAIN" 2087 "$(printf 'a%.0s' $(seq 64))" < "$W/b3.tgz" >/dev/null 2>&1 || rc=$?; [ "$rc" = 3 ] && ok "a damaged archive is refused" || fail "bad archive ($rc)"

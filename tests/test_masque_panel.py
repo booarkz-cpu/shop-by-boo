@@ -512,3 +512,67 @@ async def test_subscription_link_is_rate_limited(monkeypatch):
     with pytest.raises(panel.HTTPException) as err:
         await panel.subscription("999.0000", db=Db([]), request=request)
     assert err.value.status_code == 429 and calls == 3                                   # the fourth never reaches the database
+
+
+# ---------------------------------------------------------------- alerts
+
+def test_certificate_date_of_the_node_script_is_read():
+    assert panel.cert_until("Nov_13_17:28:00_2026_GMT") == datetime(2026, 11, 13, 17, 28)
+    assert panel.cert_until("Feb__1_00:00:00_2027_GMT") == datetime(2027, 2, 1)          # openssl pads the day with a space
+    assert panel.cert_until("") is None and panel.cert_until("garbage") is None
+    assert panel.parse_status("traffic m1 uplink 5\ncert Feb_10_12:00:00_2027_GMT\nmasque=traffic")["cert"] == "Feb_10_12:00:00_2027_GMT"
+
+
+def test_alerts_once_per_problem():
+    now = datetime(2026, 11, 13, 12, 0)
+    state = {"nodes": {
+        "1": {"name": "de-1", "domain": "de.example.com", "state": "on", "error": "Нода не ответила", "failing_since": "2026-11-13T11:45:00Z"},
+        "2": {"name": "cz-1", "domain": "cz.example.com", "state": "on", "error": "x", "failing_since": "2026-11-13T11:55:00Z"},
+        "3": {"name": "nl-1", "domain": "nl.example.com", "state": "on", "cert_until": "Nov_20_00:00:00_2026_GMT"},
+        "4": {"name": "fi-1", "domain": "fi.example.com", "state": "on", "cert_until": "Feb_10_00:00:00_2027_GMT"},
+    }}
+    first = panel.alerts(state, now)
+    assert len(first) == 2
+    assert "«de-1» не сверяется с 11:45 UTC: Нода не ответила" in first[0]                # 15 minutes: reported; cz-1 after 5: not yet
+    assert "«nl-1» истекает через 6 дн. (20.11.2026)" in first[1]                         # fi-1 has three months left
+    assert panel.alerts(state, now) == []                                                  # nothing is repeated
+    state["nodes"]["3"]["cert_until"] = "Nov_21_00:00:00_2026_GMT"                         # a renewed but still short one: reported again
+    assert len(panel.alerts(state, now)) == 1
+
+
+@pytest.mark.asyncio
+async def test_a_recovered_node_can_alert_again(stored, monkeypatch):
+    replies = iter([SimpleNamespace(code=8, out="not installed", err=""), SimpleNamespace(code=0, out="masque=sync users=0", err="")])
+
+    async def ssh(db, server_id, action, *args, stdin=None):
+        return next(replies)
+
+    monkeypatch.setattr(panel, "_ssh", ssh)
+    node = {"server_id": 1, "name": "de-1", "domain": "de.example.com", "port": 2087, "state": "on", "failing_since": "2026-11-13T11:00:00Z",
+            "alerted_failure": True}
+    failed = await panel.sync_node(Db([]), node, [])
+    assert failed["failing_since"] == "2026-11-13T11:00:00Z" and failed["alerted_failure"] is True   # the first failure time is kept
+    ok = await panel.sync_node(Db([]), failed, [])
+    assert "failing_since" not in ok and "alerted_failure" not in ok and ok["error"] is None
+
+
+@pytest.mark.asyncio
+async def test_tick_sends_the_alert(stored, monkeypatch):
+    from app import rw_autoupdate
+    sent = []
+
+    async def notify(text):
+        sent.append(text)
+
+    async def ssh(db, server_id, action, *args, stdin=None):
+        return SimpleNamespace(code=0, out="masque=traffic", err="")
+
+    monkeypatch.setattr(rw_autoupdate, "_notify", notify)
+    monkeypatch.setattr(panel, "_ssh", ssh)
+    stored[panel.STATE_KEY] = {**ON, "nodes": {"1": {"server_id": 1, "name": "de-1", "domain": "de.example.com", "port": 2087, "state": "on",
+                                                     "stack": panel.STACK, "error": "x", "failing_since": "2000-01-01T00:00:00Z",
+                                                     "hash": panel.users_hash([], "de.example.com", 2087), "checked_at": "2999-01-01T00:00:00Z"}}}
+    await panel.tick(Db([]))
+    assert len(sent) == 1 and "«de-1» не сверяется" in sent[0] and stored[panel.STATE_KEY]["nodes"]["1"]["alerted_failure"] is True
+    await panel.tick(Db([]))
+    assert len(sent) == 1

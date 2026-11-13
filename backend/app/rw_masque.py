@@ -268,7 +268,7 @@ def parse_result(out: str) -> dict:
 # on|sync <domain> <port> <sha256 of stdin>   — stdin: bundle()
 # status | traffic | off
 # Exit codes: 2 bad arguments, 3 bad archive, 5 the node is not ready (no docker / no SelfSteal / no certificate),
-# 6 the stack did not start, 8 not installed.
+# 6 the stack did not start, 7 the port is held by another program, 8 not installed.
 NODE = r"""set -eu
 action="$1"; domain="${2:-}"; port="${3:-0}"; sum="${4:-}"
 dir=__DIR__; api=unix://__APISOCK__; xr=corgi-masque-xray; hp=corgi-masque-haproxy
@@ -340,6 +340,11 @@ on|sync)
     exit 0
   fi
   running remnawave-selfsteal || { echo "noselfsteal"; exit 5; }
+  # Before anything is changed: the public port must be free — or held by this stack's own HAProxy (a reinstall).
+  if command -v ss >/dev/null 2>&1; then
+    holder=$(ss -Hltnp "sport = :$port" 2>/dev/null | grep -o 'users:(("[^"]*"' | cut -d'"' -f2 | grep -vx haproxy | head -n1 || true)
+    [ -z "$holder" ] || { echo "port busy: $holder"; exit 7; }
+  fi
   install -d -m 0755 "$dir" "$dir/xray" "$dir/tls" "$dir/maps"
   install -d -m 0770 -o 65532 -g 65532 "$dir/run"; rm -f "$dir/run"/*.sock
   install -m 0644 "$tmp/x/limits.map" "$dir/maps/limits.map"
@@ -397,6 +402,7 @@ traffic)
   running "$xr" || { echo "not installed"; exit 8; }
   xapi statsquery -s "$api" -pattern "user>>>" -reset 2>/dev/null | tr -d ' \n' | grep -o '"name":"user>>>[^"]*","value":[0-9]*' \
     | sed 's/"name":"user>>>\([^>]*\)>>>traffic>>>\([a-z]*\)","value":\([0-9]*\)/traffic \1 \2 \3/' || true
+  echo "cert $(openssl x509 -in "$dir/tls/xray/cert.pem" -noout -enddate 2>/dev/null | cut -d= -f2 | tr ' ' '_')"
   echo "masque=traffic" ;;
 off)
   port=$(grep -m1 -o 'bind :[0-9]*' "$dir/haproxy.cfg" 2>/dev/null | cut -d: -f2 || true)
