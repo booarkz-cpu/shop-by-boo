@@ -75,6 +75,15 @@
       "target": ""
      },
      {
+      "action": "copy_masque",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "masque",
+      "label": "Copy MASQUE link",
+      "style": "secondary",
+      "target": ""
+     },
+     {
       "action": "open",
       "audience": "any",
       "icon": "smartphone",
@@ -810,7 +819,7 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "cb7dee6a37f31b83"
+  "version": "5743a7a2c5a6fa37"
  },
  "ru": {
   "features": {
@@ -884,6 +893,15 @@
       "icon": "qr",
       "id": "qr",
       "label": "QR-код для другого устройства",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "copy_masque",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "masque",
+      "label": "Скопировать ссылку MASQUE",
       "style": "secondary",
       "target": ""
      },
@@ -1623,7 +1641,7 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "6755a9843f744ebc"
+  "version": "059a826f1050451c"
  },
  "uk": {
   "features": {
@@ -1697,6 +1715,15 @@
       "icon": "qr",
       "id": "qr",
       "label": "QR-код для іншого пристрою",
+      "style": "secondary",
+      "target": ""
+     },
+     {
+      "action": "copy_masque",
+      "audience": "subscribed",
+      "icon": "link",
+      "id": "masque",
+      "label": "Скопіювати посилання MASQUE",
       "style": "secondary",
       "target": ""
      },
@@ -2436,6 +2463,6 @@
    "surface_2": "#252833",
    "text": "#F5F2EE"
   },
-  "version": "dfb8a158f5b442a4"
+  "version": "ecac8d45c3b8e9c7"
  }
 }
