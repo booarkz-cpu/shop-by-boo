@@ -245,7 +245,7 @@ private fun ServerPicker(store: Store, profile: Profile, refresh: () -> Unit, op
                 auto -> ServerRowContent("⚡", tr("Автовыбор", "Auto select", "Автовибір"), listOf(tr("самый быстрый", "fastest", "найшвидший")), null, s.pingDisplay)
                 else -> ServerRowContent(flagOf(selected!!.name), selected.name.removePrefix(flagOf(selected.name)).trim(), selected.labels, pings[Ping.key(selected)], s.pingDisplay)
             }
-            if (profile.kind != "json" && selected != null) shop.corgi.client.ui.home.SignalIcon(pings[Ping.key(selected)])
+            // v1.9.5: no second signal icon here — PingBadge of the row already draws one (the owner saw two, 2026-11-13).
             Icon(Icons.Filled.ExpandMore, tr("Все серверы", "All servers", "Усі сервери"), Modifier.graphicsLayer { rotationZ = arrow },
                 tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -281,7 +281,8 @@ private fun androidx.compose.foundation.layout.RowScope.ServerRowContent(flag: S
     }
     Column(Modifier.weight(1f)) {
         Text(name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(labels.joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+        Text(labels.joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1,
+            overflow = TextOverflow.Ellipsis, modifier = Modifier.testTag("server-labels"))
     }
     PingBadge(ping, if (display == "digits") "digits" else display)
 }
