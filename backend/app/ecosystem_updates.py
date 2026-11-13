@@ -25,8 +25,10 @@ RW_TITLES = {"panel": "Панель Remnawave", "node": "Ноды Remnawave", "s
 # Apps that look for a new version on GitHub themselves. Kept here so that the table cannot promise more than the code does.
 SELF_CHECKING_APPS = {"android_client", "android_user", "android_admin"}
 
-SILENT = ("Приложение само скачивает новый APK из выпуска на GitHub и сверяет SHA-256. На Android 12 и новее ставит его без "
-          "вопросов, когда VPN выключен; первое обновление и Android 11 и старше требуют одного подтверждения. Подпись проверяет Android.")
+SILENT = ("Приложение само скачивает новый APK из выпуска на GitHub, сверяет SHA-256 и ставит его. На Android 12 и новее — без "
+          "вопросов, в том числе при включённом VPN (после обновления он включается снова); Android 11 и старше и на части телефонов "
+          "первое обновление требуют одного подтверждения. Подпись проверяет Android.")
+APP_SCHEDULE = "каждые 6 часов и при запуске, по любой сети"
 
 __all__ = ["router", "build", "app_versions"]
 
@@ -121,10 +123,10 @@ def _apps(versions: dict, tag: str | None) -> list[dict]:
         checks = key in SELF_CHECKING_APPS and (key == "android_client" or key in versions.get("_manifests", ()))
         rows.append(_row(key, title, latest=(versions.get(key) if versions.get(key) != "в выпуске" else where) if present else None,
                          state="unknown", auto="in_app" if checks else "none",
-                         schedule=("раз в сутки по Wi-Fi, если включено в настройках приложения" if key == "android_client"
-                                   else "раз в сутки в фоне") if checks else None,
-                         how=(SILENT + (" Клиент 1.9.2 и новее." if key == "android_client" else
-                                        " Приложение 3.7.0 и новее. Установленное из магазина приложений обновляет сам магазин.")) if checks else
+                         schedule=(APP_SCHEDULE + (", если включено в настройках приложения" if key == "android_client" else ""))
+                                  if checks else None,
+                         how=(SILENT + (" Так — с клиента 1.9.7 (раньше: раз в сутки, только по Wi‑Fi и без VPN)." if key == "android_client" else
+                                        " Так — с приложения 3.9.0. Установленное из магазина приложений обновляет сам магазин.")) if checks else
                              "APK лежит в выпуске на GitHub, но файла для проверки обновлений в нём нет: версию ставят вручную.",
                          note=None if present else "В последнем выпуске на GitHub файла приложения нет"))
     for key, title in (("ios_user", "Приложение магазина для iOS"), ("ios_admin", "Приложение администратора для iOS")):
@@ -135,9 +137,26 @@ def _apps(versions: dict, tag: str | None) -> list[dict]:
     return rows
 
 
+def _masque(nodes: dict) -> dict:
+    """v28.139.0: the MASQUE stack (Xray and HAProxy images) on the nodes; it follows the shop's release by itself."""
+    from . import masque_panel
+
+    on = [n for n in nodes.values() if n.get("state") == "on"]
+    behind = [n for n in on if not masque_panel.up_to_date(n)]
+    installed = sorted({n.get("images_label") or "как в v28.138.0" for n in on}) if on else []
+    return _row("masque", "MASQUE на нодах: Xray и HAProxy", installed=", ".join(installed) or None, latest=masque_panel.images_label(),
+                state="not_installed" if not on else ("update" if behind else "current"), auto="on" if on else "none",
+                schedule="в течение минуты после обновления магазина" if on else None, tab="protocolSwitch",
+                note=None if on else "MASQUE не установлен ни на одну ноду",
+                how="Образы закреплены в выпуске магазина по SHA-256. Когда новый выпуск магазина приносит другие образы или "
+                    "раскладку стека, воркер сам переустанавливает MASQUE на каждой ноде (туннели переподключаются); "
+                    "сайт SelfSteal не трогается.") | ({"note": f"Отстаёт нод: {len(behind)} из {len(on)} — переустановка идёт сама"} if behind else {})
+
+
 def build(shop: dict, github: dict | None, rw: dict, release: dict | None, github_error: str | None = None,
-          now: datetime | None = None) -> dict:
-    rows = [_shop(shop, github, github_error), *_remnawave(rw), *_apps(app_versions(release), (release or {}).get("tag_name"))]
+          now: datetime | None = None, masque: dict | None = None) -> dict:
+    rows = [_shop(shop, github, github_error), *_remnawave(rw), *([_masque(masque)] if masque is not None else []),
+            *_apps(app_versions(release), (release or {}).get("tag_name"))]
     return {"checked_at": (now or datetime.now(timezone.utc)).replace(microsecond=0).isoformat(), "components": rows,
             "summary": {"total": len(rows), "automatic": sum(r["auto"] in ("on", "in_app") for r in rows),
                         "switched_off": sum(r["auto"] in ("off", "not_installed") for r in rows),
@@ -169,5 +188,8 @@ async def get_ecosystem(db: AsyncSession = Depends(get_db), admin=Depends(requir
         github_view = {"current_tag": DISTRIBUTION_TAG} if error else None
     else:
         github_view = github
+    from . import masque_panel
+
     rw = await rw_autoupdate.overview(db, with_panel=False)
-    return build(auto_update_api.read_state(), github_view, rw, release, error)
+    masque = (await masque_panel._state(db))["nodes"]
+    return build(auto_update_api.read_state(), github_view, rw, release, error, masque=masque)
