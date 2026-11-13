@@ -56,7 +56,12 @@ class MainActivity : ComponentActivity() {
             if (s.pingOnLaunch) runCatching {
                 store.pings = store.pings + Ping.all(store.profiles.flatMap { it.servers() }, s) { server -> Xray.measure(this, Ping.probeConfig(server), s.pingUrl) }
             }
-            runCatching { store.checkUpdate() }
+            // v1.9.7: an update found at launch is downloaded and installed at once (the system asks only where it must).
+            if (s.autoUpdateApp) runCatching {
+                store.checkUpdate()?.let { u ->
+                    shop.corgi.client.vpn.ApkInstaller.install(this, store.downloadUpdate(u), version = u.versionName, resumeVpn = Xray.running)
+                }
+            } else runCatching { store.checkUpdate() }
         }
         // Handled once: a recreation must not import or connect again. The intent is marked, not replaced — the system
         // and test tools (ActivityScenario) still recognise the activity by it.

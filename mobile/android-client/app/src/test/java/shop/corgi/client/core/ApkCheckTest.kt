@@ -20,11 +20,14 @@ class ApkCheckTest {
         assertTrue(ApkCheck.due(now = 5, last = 4, force = true))
     }
 
-    /** v1.9.2: the background job installs by itself only where the system can do it silently and no VPN is cut. */
-    @Test fun installsItselfOnlyWithoutAWorkingVpn() {
-        assertTrue(ApkCheck.installNow(sdk = 31, vpnRunning = false))
-        assertTrue(ApkCheck.installNow(sdk = 36, vpnRunning = false))
-        assertFalse("an update restarts the app: never under a working VPN", ApkCheck.installNow(sdk = 36, vpnRunning = true))
-        assertFalse("before Android 12 the system always asks", ApkCheck.installNow(sdk = 30, vpnRunning = false))
+    /** v1.9.7: the background job installs by itself wherever the system can do it silently, a working VPN included. */
+    @Test fun installsItselfAlsoUnderAWorkingVpn() {
+        assertTrue(ApkCheck.installNow(sdk = 31))
+        assertTrue(ApkCheck.installNow(sdk = 36))
+        assertFalse("before Android 12 the system always asks", ApkCheck.installNow(sdk = 30))
+        assertTrue("the tunnel comes back after the update", ApkCheck.resumeAfterUpdate(flagged = true, tunNeedsPermission = false))
+        assertFalse(ApkCheck.resumeAfterUpdate(flagged = false, tunNeedsPermission = false))
+        val withoutPermission = ApkCheck.resumeAfterUpdate(flagged = true, tunNeedsPermission = true)
+        assertFalse("without the VPN permission nothing starts silently", withoutPermission)
     }
 }

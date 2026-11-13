@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.136.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.137.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2565**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2617**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1074,6 +1074,7 @@
 | [docs/examples/plugin/README.md](../docs/examples/plugin/README.md) | Документация |
 | [docs/examples/plugin/manifest.json](../docs/examples/plugin/manifest.json) | Документация |
 | [docs/img/app-banners-all.jpg](../docs/img/app-banners-all.jpg) | Документация |
+| [docs/img/app-icons-all.png](../docs/img/app-icons-all.png) | Документация |
 | [docs/img/bot-balance.png](../docs/img/bot-balance.png) | Документация |
 | [docs/img/bot-banners-all.jpg](../docs/img/bot-banners-all.jpg) | Документация |
 | [docs/img/bot-buy.png](../docs/img/bot-buy.png) | Документация |
@@ -1228,6 +1229,7 @@
 | [docs/ru/RELEASE_V28_134_0.md](../docs/ru/RELEASE_V28_134_0.md) | Документация |
 | [docs/ru/RELEASE_V28_135_0.md](../docs/ru/RELEASE_V28_135_0.md) | Документация |
 | [docs/ru/RELEASE_V28_136_0.md](../docs/ru/RELEASE_V28_136_0.md) | Документация |
+| [docs/ru/RELEASE_V28_137_0.md](../docs/ru/RELEASE_V28_137_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
@@ -1570,11 +1572,22 @@
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdate.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdate.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdater.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdater.kt) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../mobile/android-admin/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/values-en/strings.xml](../mobile/android-admin/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/values/strings.xml](../mobile/android-admin/app/src/main/res/values/strings.xml) | Мобильные приложения |
 | [mobile/android-admin/app/src/main/res/xml/network_security.xml](../mobile/android-admin/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
@@ -1654,6 +1667,9 @@
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Session.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/Session.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable-nodpi/banner_corgi.webp](../mobile/android-client/app/src/main/res/drawable-nodpi/banner_corgi.webp) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/drawable-nodpi/icon_preview_corgi.png](../mobile/android-client/app/src/main/res/drawable-nodpi/icon_preview_corgi.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/drawable-nodpi/icon_preview_mint.png](../mobile/android-client/app/src/main/res/drawable-nodpi/icon_preview_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/drawable-nodpi/icon_preview_night.png](../mobile/android-client/app/src/main/res/drawable-nodpi/icon_preview_night.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable-nodpi/mascot_globe.webp](../mobile/android-client/app/src/main/res/drawable-nodpi/mascot_globe.webp) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable-nodpi/mascot_happy.webp](../mobile/android-client/app/src/main/res/drawable-nodpi/mascot_happy.webp) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable-nodpi/mascot_run.webp](../mobile/android-client/app/src/main/res/drawable-nodpi/mascot_run.webp) | Мобильные приложения |
@@ -1661,21 +1677,44 @@
 | [mobile/android-client/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-client/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/drawable/widget_background.xml](../mobile/android-client/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/layout/client_widget.xml](../mobile/android-client/app/src/main/res/layout/client_widget.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../mobile/android-client/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-anydpi-v26/ic_launcher_mint.xml](../mobile/android-client/app/src/main/res/mipmap-anydpi-v26/ic_launcher_mint.xml) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-anydpi-v26/ic_launcher_night.xml](../mobile/android-client/app/src/main/res/mipmap-anydpi-v26/ic_launcher_night.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_mint_bg.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_mint_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_night.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_night_bg.png](../mobile/android-client/app/src/main/res/mipmap-hdpi/ic_launcher_night_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_mint_bg.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_mint_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_night.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_night_bg.png](../mobile/android-client/app/src/main/res/mipmap-mdpi/ic_launcher_night_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_mint_bg.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_mint_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_night.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_night_bg.png](../mobile/android-client/app/src/main/res/mipmap-xhdpi/ic_launcher_night_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint_bg.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_night.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_night_bg.png](../mobile/android-client/app/src/main/res/mipmap-xxhdpi/ic_launcher_night_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint_bg.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night.png) | Мобильные приложения |
+| [mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night_bg.png](../mobile/android-client/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night_bg.png) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/values-en/strings.xml](../mobile/android-client/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/values-uk/strings.xml](../mobile/android-client/app/src/main/res/values-uk/strings.xml) | Мобильные приложения |
 | [mobile/android-client/app/src/main/res/values/strings.xml](../mobile/android-client/app/src/main/res/values/strings.xml) | Мобильные приложения |
@@ -1760,11 +1799,22 @@
 | [mobile/android-user/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-user/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/drawable/widget_background.xml](../mobile/android-user/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/layout/corgi_widget.xml](../mobile/android-user/app/src/main/res/layout/corgi_widget.xml) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../mobile/android-user/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Мобильные приложения |
+| [mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/values-en/strings.xml](../mobile/android-user/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/values/strings.xml](../mobile/android-user/app/src/main/res/values/strings.xml) | Мобильные приложения |
 | [mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml](../mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml) | Мобильные приложения |
@@ -1853,6 +1903,7 @@
 | [mobile/store/google-play/ru-RU/short_description.txt](../mobile/store/google-play/ru-RU/short_description.txt) | Мобильные приложения |
 | [mobile/store/google-play/ru-RU/title.txt](../mobile/store/google-play/ru-RU/title.txt) | Мобильные приложения |
 | [mobile/store/icons/admin-icon-1024.png](../mobile/store/icons/admin-icon-1024.png) | Мобильные приложения |
+| [mobile/store/icons/client-icon-512.png](../mobile/store/icons/client-icon-512.png) | Мобильные приложения |
 | [mobile/store/icons/icon-1024.png](../mobile/store/icons/icon-1024.png) | Мобильные приложения |
 | [mobile/store/icons/icon-512.png](../mobile/store/icons/icon-512.png) | Мобильные приложения |
 | [mobile/store/rustore/description.txt](../mobile/store/rustore/description.txt) | Мобильные приложения |
@@ -2150,6 +2201,7 @@
 | [scripts/staging-e2e.sh](../scripts/staging-e2e.sh) | Эксплуатация и релиз |
 | [scripts/standby-agent.py](../scripts/standby-agent.py) | Эксплуатация и релиз |
 | [scripts/static_audit.py](../scripts/static_audit.py) | Эксплуатация и релиз |
+| [scripts/store/icons.py](../scripts/store/icons.py) | Эксплуатация и релиз |
 | [scripts/store/render.py](../scripts/store/render.py) | Эксплуатация и релиз |
 | [scripts/test-up.sh](../scripts/test-up.sh) | Эксплуатация и релиз |
 | [scripts/update-from-github.sh](../scripts/update-from-github.sh) | Эксплуатация и релиз |

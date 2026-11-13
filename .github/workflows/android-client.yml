@@ -74,7 +74,7 @@ jobs:
           gh release download --repo XTLS/Xray-core --pattern 'Xray-linux-64.zip' --pattern 'Xray-linux-64.zip.dgst'
           want="$(sed -n 's/^SHA2-256= *//p' Xray-linux-64.zip.dgst | head -1)"
           echo "$want  Xray-linux-64.zip" | sha256sum -c -
-          unzip -q Xray-linux-64.zip xray && chmod +x xray && ./xray version | head -1
+          unzip -q Xray-linux-64.zip xray && chmod +x xray && ./xray version | sed -n 1p
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

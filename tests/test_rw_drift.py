@@ -104,7 +104,7 @@ async def test_check_stores_the_answer_and_meta_reads_it_without_the_panel(wired
 
     monkeypatch.setattr(rw_drift, "read_panel", read_panel)
     before = await rw_drift.meta(db=wired, admin=None)
-    assert before["checked_at"] is None and before["in_sync"] is False and before["watched"] == {"autoselect": True, "torrent_ban_nodes": 0}
+    assert before["checked_at"] is None and before["in_sync"] is False and before["watched"] == {"autoselect": True, "torrent_ban_nodes": 0, "masque_nodes": 0}
 
     first = await rw_drift.check(db=wired, admin=None)
     assert len(first["items"]) == 1 and first["in_sync"] is False and wired.commits == 1
@@ -145,3 +145,70 @@ async def test_tick_checks_when_due_and_notifies_once(wired, monkeypatch):
     assert await rw_drift.tick(wired, NOW.replace(minute=30)) is None          # not due yet
     again = await rw_drift.tick(wired, NOW.replace(hour=15))
     assert again["checked_at"] == "2026-11-12T15:00:00+00:00" and len(sent) == 1  # the same difference: no second message
+
+
+MASQUE_NODES = {
+    "7": {"server_id": 7, "domain": "de.example.org", "port": 2087, "state": "on", "users": 3},
+    "8": {"server_id": 8, "domain": "cz.example.org", "port": 2087, "state": "on", "users": 3},
+    "9": {"server_id": 9, "domain": "nl.example.org", "port": 2087, "state": "off"},
+}
+
+
+def test_masque_nodes_drift_when_the_stack_is_stopped_or_changed_on_the_node():
+    same = {"7": {"masque": "on", "users": "3", "port": "2087"}, "8": {"masque": "on", "users": "3", "port": "2087"}}
+    assert rw_drift.masque_drift(MASQUE_NODES, same) == []
+    assert rw_drift.masque_drift(MASQUE_NODES, {}) == []                     # nothing asked: nothing claimed
+    items = rw_drift.masque_drift(MASQUE_NODES, {"7": "8", "8": {"users": "1", "port": "8443"}, "9": "8"})
+    assert [(i["object"], i["expected"], i["actual"]) for i in items] == [
+        ("Нода cz.example.org", "порт 2087", "порт 8443"),
+        ("Нода cz.example.org", "пользователей: 3", "пользователей: 1"),
+        ("Нода de.example.org", "стек MASQUE работает", "стек MASQUE не запущен"),
+    ]
+    assert {i["area"] for i in items} == {"MASQUE"} and {i["tab"] for i in items} == {"protocolSwitch"}
+    down = rw_drift.masque_drift(MASQUE_NODES, {"7": "SSH: нет соединения"})
+    assert down[0]["actual"] == "SSH: нет соединения"
+
+
+@pytest.mark.asyncio
+async def test_check_asks_masque_nodes_even_without_panel_settings(wired, monkeypatch):
+    from app import masque_panel, rw_autoselect
+
+    wired.store[masque_panel.STATE_KEY] = {"nodes": MASQUE_NODES}
+
+    async def off(_db):
+        return {"enabled": False}
+
+    async def read_panel(_db):
+        raise AssertionError("the panel is not asked when nothing is set on it")
+
+    async def read_masque(_db):
+        return MASQUE_NODES, {"7": "8"}
+
+    monkeypatch.setattr(rw_autoselect, "_config", off)
+    monkeypatch.setattr(rw_drift, "read_panel", read_panel)
+    monkeypatch.setattr(rw_drift, "read_masque", read_masque)
+    view = await rw_drift.check(db=wired, admin=None)
+    assert view["watched"] == {"autoselect": False, "torrent_ban_nodes": 0, "masque_nodes": 2}
+    assert [i["actual"] for i in view["items"]] == ["стек MASQUE не запущен"]
+
+
+@pytest.mark.asyncio
+async def test_read_masque_asks_only_installed_nodes(wired, monkeypatch):
+    from types import SimpleNamespace
+
+    from app import masque_panel
+
+    wired.store[masque_panel.STATE_KEY] = {"nodes": MASQUE_NODES}
+    asked = []
+
+    async def ssh(_db, server_id, action, *args, **kwargs):
+        asked.append((server_id, action))
+        if server_id == 8:
+            return SimpleNamespace(code=8, out="not installed", err="")
+        return SimpleNamespace(code=0, out="masque=on users=3 port=2087 cert=Feb_1_2027", err="")
+
+    monkeypatch.setattr(masque_panel, "_ssh", ssh)
+    nodes, reports = await rw_drift.read_masque(wired)
+    assert asked == [(7, "status"), (8, "status")]
+    assert reports == {"7": {"masque": "on", "users": "3", "port": "2087", "cert": "Feb_1_2027"}, "8": "8"}
+    assert rw_drift.masque_drift(nodes, reports)[0]["actual"] == "стек MASQUE не запущен"

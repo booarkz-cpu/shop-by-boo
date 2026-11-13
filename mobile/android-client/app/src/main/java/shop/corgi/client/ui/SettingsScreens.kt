@@ -265,8 +265,8 @@ private fun AppearancePage(s: Settings, save: (Settings) -> Unit) {
         }
         Section(tr("Иконка приложения", "App icon", "Іконка застосунку")) {
             Row(Modifier.padding(14.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                listOf(Triple("corgi", R.mipmap.ic_launcher, tr("Корги", "Corgi", "Коргі")), Triple("night", R.mipmap.ic_launcher_night, tr("Ночь", "Night", "Ніч")),
-                    Triple("mint", R.mipmap.ic_launcher_mint, tr("Мята", "Mint", "М'ята"))).forEach { (key, icon, label) ->
+                listOf(Triple("corgi", R.drawable.icon_preview_corgi, tr("Корги", "Corgi", "Коргі")), Triple("night", R.drawable.icon_preview_night, tr("Ночь", "Night", "Ніч")),
+                    Triple("mint", R.drawable.icon_preview_mint, tr("Мята", "Mint", "М'ята"))).forEach { (key, icon, label) ->
                     Column(Modifier.clickable { save(s.copy(appIcon = key)); AppIcons.apply(context, key) }.testTag("icon-$key"),
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(icon), label,
@@ -566,9 +566,9 @@ private fun AboutPage(store: Store) {
         var s by remember { mutableStateOf(store.settings) }
         Section(tr("Обновления", "Updates", "Оновлення")) {
             ToggleRow(tr("Обновлять автоматически", "Update automatically", "Оновлювати автоматично"),
-                tr("Раз в сутки по Wi-Fi новая версия скачивается, проверяется и ставится сама, когда VPN выключен. Если Android просит подтверждение — по нажатию",
-                    "Once a day on Wi-Fi a new version is downloaded, checked and installed by itself while the VPN is off. If Android asks to confirm — by a tap",
-                    "Раз на добу через Wi-Fi нова версія завантажується, перевіряється і встановлюється сама, коли VPN вимкнено. Якщо Android просить підтвердження — за натисканням"), s.autoUpdateApp) {
+                tr("Каждые 6 часов новая версия с GitHub скачивается, проверяется и ставится сама — по любой сети и при включённом VPN (он включится снова). Android 11 и старше просят подтвердить",
+                    "Every 6 hours a new version from GitHub is downloaded, checked and installed by itself — on any network and with the VPN on (it comes back). Android 11 and older ask to confirm",
+                    "Кожні 6 годин нова версія з GitHub завантажується, перевіряється і встановлюється сама — через будь-яку мережу і з увімкненим VPN (він увімкнеться знову). Android 11 і старші просять підтвердити"), s.autoUpdateApp) {
                 s = s.copy(autoUpdateApp = it); store.settings = s; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
             ToggleRow(tr("Обновлять geo-файлы", "Update the geo files", "Оновлювати geo-файли"),
                 tr("Раз в сутки, если они скачаны", "Once a day, when they are downloaded", "Раз на добу, якщо вони завантажені"), s.autoUpdateGeo) {

@@ -11,7 +11,7 @@ Sources: the corgi Lusi sticker sheets (scripts/bot-banners) and the demo screen
 * mobile/store/google-play/feature-graphic.png (1024x500);
 * mobile/store/screenshots/{android,ios}/NN-<screen>.png — screenshots on the brand background
   with a caption: Google Play 1080x1920, App Store 6.9" 1320x2868;
-* Android launcher icons (res/mipmap-*/ic_launcher*.png) of both apps and the iOS AppIcon sets.
+* app icons: scripts/store/icons.py (called from here with --icons).
 
 Needs Pillow, NumPy and Python Playwright with Chromium (the same as the banner renderer).
 """
@@ -99,21 +99,10 @@ def shoot(page, html: str, w: int, h: int, target: pathlib.Path, transparent: bo
 ANDROID_DENSITIES = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
 
 
-def icons(page):
-    shoot(page, icon_html(1024), 1024, 1024, STORE / "icons" / "icon-1024.png")
-    shoot(page, icon_html(512), 512, 512, STORE / "icons" / "icon-512.png")
-    shoot(page, icon_html(1024, admin=True), 1024, 1024, STORE / "icons" / "admin-icon-1024.png")
-    for role, admin in (("user", False), ("admin", True)):
-        res = ROOT / f"mobile/android-{role}/app/src/main/res"
-        for density, px in ANDROID_DENSITIES.items():
-            shoot(page, icon_html(px * 4, admin, rounded=True), px * 4, px * 4, res / f"mipmap-{density}/ic_launcher.png", transparent=True, rgb=False)
-            Image.open(res / f"mipmap-{density}/ic_launcher.png").resize((px, px), Image.LANCZOS).save(res / f"mipmap-{density}/ic_launcher.png", optimize=True)
-        app = "VpnShopUser" if role == "user" else "VpnShopAdmin"
-        appicon = ROOT / f"mobile/ios-{role}/{app}/Assets.xcassets/AppIcon.appiconset"
-        shoot(page, icon_html(1024, admin), 1024, 1024, appicon / "icon-1024.png")
-        (appicon / "Contents.json").write_text(json.dumps({"images": [{"filename": "icon-1024.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"}],
-                                                           "info": {"author": "xcode", "version": 1}}, indent=2) + "\n")
-        (appicon.parent / "Contents.json").write_text(json.dumps({"info": {"author": "xcode", "version": 1}}, indent=2) + "\n")
+def icons(page=None):
+    """v28.137.0: the icons are drawn by scripts/store/icons.py (adaptive Android icons, client variants, iOS, stores)."""
+    import icons as app_icons  # noqa: PLC0415
+    app_icons.write_all()
 
 
 def screenshots(page):

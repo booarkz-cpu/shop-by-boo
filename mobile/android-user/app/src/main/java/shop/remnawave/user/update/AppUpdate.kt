@@ -36,6 +36,9 @@ data class AppUpdate(val versionCode: Int, val versionName: String, val sha256: 
         const val RELEASES = "https://github.com/booarkz-cpu/shop-by-boo/releases/"
         const val MANIFEST = RELEASES + "latest/download/corgi-lusi-android.json"
         const val DAY = 86_400_000L
+        /** v28.137.0: GitHub is asked at most every 3 hours (was once a day); the background job runs every 6 hours. */
+        const val CHECK = 3 * 3_600_000L
+        const val JOB = 6 * 3_600_000L
         private val SHA = Regex("^[0-9a-f]{64}$")
         private val NAME = Regex("^\\d+\\.\\d+\\.\\d+$")
         private val STORES = setOf("com.android.vending", "com.huawei.appmarket", "ru.vk.store", "com.xiaomi.mipicks", "com.sec.android.app.samsungapps")
@@ -55,7 +58,7 @@ data class AppUpdate(val versionCode: Int, val versionName: String, val sha256: 
         fun fromStore(installer: String?): Boolean = installer in STORES
 
         /** Whether to ask GitHub now: at most once a day. */
-        fun due(now: Long, checkedAt: Long): Boolean = now - checkedAt >= DAY || checkedAt > now
+        fun due(now: Long, checkedAt: Long): Boolean = now - checkedAt >= CHECK || checkedAt > now
 
         /** What to show: nothing for a version the person already put off. */
         fun offer(found: AppUpdate?, dismissedCode: Int): AppUpdate? = found?.takeIf { it.versionCode > dismissedCode }
@@ -111,7 +114,13 @@ fun AppUpdateDialog(current: Int, debug: Boolean, skip: Boolean, t: (String) -> 
     LaunchedEffect(Unit) {
         if (skip) return@LaunchedEffect
         if (!debug) AppUpdater.schedule(context)   // v3.7.0: the daily background update
-        update = withContext(Dispatchers.IO) { AppUpdate.check(context, current, debug) }
+        val found = withContext(Dispatchers.IO) { AppUpdate.check(context, current, debug) } ?: return@LaunchedEffect
+        // v28.137.0 (owner: «без участия пользователя от слова совсем»): downloaded and installed at once; the system asks
+        // only where it must (Android 11 and older). The window is left for a failed download.
+        val installed = withContext(Dispatchers.IO) {
+            runCatching { AppUpdater.install(context, AppUpdater.download(context, found), background = false, resumeVpn = AppUpdater.vpnRunning(context)) }.isSuccess
+        }
+        if (!installed) update = found
     }
     val found = update ?: return
     AlertDialog(
