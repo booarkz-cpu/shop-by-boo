@@ -32,6 +32,17 @@ class AppUpdateJob : JobService() {
             val s = store.settings
             if (s.autoUpdateApp) {
                 runCatching { store.checkUpdate() }.getOrNull()?.let { update ->
+                    // v1.9.6: on mobile data only a notification; the APK is downloaded after a tap.
+                    val metered = getSystemService(android.net.ConnectivityManager::class.java)?.isActiveNetworkMetered ?: true
+                    if (store.readyUpdate() == null && !ApkCheck.downloadInBackground(metered)) {
+                        // Once per version, not every 6 hours.
+                        val prefs = getSharedPreferences("client_update_job", MODE_PRIVATE)
+                        if (prefs.getInt("notified", 0) != update.versionCode) {
+                            notifyReady(this, update.versionName, downloaded = false)
+                            prefs.edit().putInt("notified", update.versionCode).apply()
+                        }
+                        return@let
+                    }
                     runCatching { store.downloadUpdate(update) }.getOrNull()?.let { apk ->
                         // v1.9.2: installed right away when that cannot cut a working VPN; otherwise by a tap.
                         if (ApkCheck.installNow(Build.VERSION.SDK_INT, Xray.running)) {
@@ -65,17 +76,19 @@ class AppUpdateJob : JobService() {
                 scheduler.cancel(ID)
                 return
             }
-            if (scheduler.getPendingJob(ID) != null) return
+            // v1.9.6: before, the job waited for Wi-Fi once a day; a job scheduled by an older version is replaced.
+            val pending = scheduler.getPendingJob(ID)
+            if (pending != null && pending.intervalMillis == ApkCheck.JOB_MS && pending.networkType == JobInfo.NETWORK_TYPE_ANY) return
             scheduler.schedule(
                 JobInfo.Builder(ID, ComponentName(context, AppUpdateJob::class.java))
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                    .setPeriodic(ApkCheck.DAY_MS)
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                    .setPeriodic(ApkCheck.JOB_MS)
                     .setPersisted(true)
                     .build()
             )
         }
 
-        fun notifyReady(context: Context, version: String) {
+        fun notifyReady(context: Context, version: String, downloaded: Boolean = true) {
             val manager = context.getSystemService(NotificationManager::class.java) ?: return
             if (Build.VERSION.SDK_INT >= 26 && manager.getNotificationChannel(CHANNEL) == null) {
                 manager.createNotificationChannel(
@@ -101,12 +114,22 @@ class AppUpdateJob : JobService() {
                 @Suppress("DEPRECATION")
                 Notification.Builder(context)
             }
+            val title = if (downloaded) {
+                tr("Обновление готово", "Update ready", "Оновлення готове")
+            } else {
+                tr("Доступна версия", "Version available", "Доступна версія")
+            }
+            val text = if (downloaded) {
+                tr("Нажмите, чтобы установить", "Tap to install", "Натисніть, щоб встановити")
+            } else {
+                tr("Нажмите, чтобы скачать и установить", "Tap to download and install", "Натисніть, щоб завантажити й встановити")
+            }
             runCatching {
                 manager.notify(
                     9,
                     builder.setSmallIcon(R.drawable.corgi_logo)
-                        .setContentTitle(tr("Обновление готово", "Update ready", "Оновлення готове") + " — $version")
-                        .setContentText(tr("Нажмите, чтобы установить", "Tap to install", "Натисніть, щоб встановити"))
+                        .setContentTitle("$title — $version")
+                        .setContentText(text)
                         .setContentIntent(install).setAutoCancel(true).build()
                 )
             }

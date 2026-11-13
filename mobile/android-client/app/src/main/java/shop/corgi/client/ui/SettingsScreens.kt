@@ -91,6 +91,8 @@ fun SettingsScreen(store: Store, page: String?, open: (String?) -> Unit, refresh
             // v1.6.2: the apps screen has its own LazyColumn — inside a lazy item it got an unbounded height.
             "apps" -> AppsPage(store, s, save)
             else -> LazyColumn(Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // v1.9.6: every section has a banner of its own; «О приложении» draws its own with the version.
+                PAGE_BANNERS[page]?.let { (asset, hint) -> item { Banner(asset, title, hint()) } }
                 item {
                     when (page) {
                         "appearance" -> AppearancePage(s, save)
@@ -111,6 +113,21 @@ fun SettingsScreen(store: Store, page: String?, open: (String?) -> Unit, refresh
         }
     }
 }
+
+/** v1.9.6: the client's section banners (scripts/bot-banners/render.py --client) and what each section does. */
+internal val PAGE_BANNERS: Map<String, Pair<String, () -> String>> = mapOf(
+    "appearance" to ("client-appearance" to { tr("Тема, цвета и вибрация", "Theme, colours and vibration", "Тема, кольори й вібрація") }),
+    "connection" to ("client-connection" to { tr("Автоподключение, плитка и блокировка", "Auto-connect, tile and lock", "Автопідключення, плитка й блокування") }),
+    "tunnel" to ("client-tunnel" to { tr("Режим, Mux и авто-переключение", "Mode, Mux and auto-switch", "Режим, Mux і автоперемикання") }),
+    "providers" to ("client-providers" to { tr("Обновление подписок в фоне и при запуске", "Subscriptions updated in the background and at launch", "Оновлення підписок у фоні й під час запуску") }),
+    "ping" to ("client-ping" to { tr("Как измерять задержку серверов", "How server latency is measured", "Як вимірювати затримку серверів") }),
+    "stats" to ("client-stats" to { tr("Трафик и тест скорости", "Traffic and speed test", "Трафік і тест швидкості") }),
+    "netlog" to ("client-netlog" to { tr("Куда подключаются приложения", "Where apps connect", "Куди підключаються застосунки") }),
+    "geek" to ("client-geek" to { tr("Свой JSON-конфиг Xray", "Your own Xray JSON config", "Власний JSON-конфіг Xray") }),
+    "schemes" to ("client-schemes" to { tr("Ссылки для импорта и управления", "Links to import and control", "Посилання для імпорту й керування") }),
+    "backup" to ("client-backup" to { tr("Серверы и настройки в одном файле", "Servers and settings in one file", "Сервери й налаштування в одному файлі") }),
+    "logs" to ("client-logs" to { tr("Что пишет ядро — для поддержки", "What the core writes — for support", "Що пише ядро — для підтримки") }),
+)
 
 private val PAGES: List<Pair<String, () -> String>> = listOf(
     "apps" to { tr("Прокси по приложениям", "Per-app proxy", "Проксі за застосунками") },
@@ -136,8 +153,8 @@ private fun SettingsMenu(store: Store, open: (String?) -> Unit, refresh: () -> U
     var resetting by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         run { Text(tr("Настройки", "Settings", "Налаштування"), Modifier.padding(top = 12.dp), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold) }
-        run { Banner("app-settings", tr("Всё под вашим контролем", "Everything under your control", "Усе під вашим контролем"),
-            tr("Каждая настройка — здесь, в меню", "Every setting is here in the menu", "Кожне налаштування — тут, у меню")) }
+        run { Banner("client-settings", tr("Всё под вашим контролем", "Everything under your control", "Усе під вашим контролем"),
+            tr("Маршруты, туннель, пинг и оформление", "Routing, tunnel, ping and appearance", "Маршрути, тунель, пінг і оформлення")) }
         run { Section(tr("Прокси по приложениям", "Per-app proxy", "Проксі за застосунками")) {
             NavRow(Icons.Filled.Apps, tr("Прокси по приложениям", "Per-app proxy", "Проксі за застосунками"), when (s.appsMode) {
                 "only" -> tr("Только выбранные", "Only selected", "Лише вибрані") + " (${s.apps.size})"
@@ -524,7 +541,7 @@ private fun AboutPage(store: Store) {
     var licenses by remember { mutableStateOf(false) }
     val hwid = store.hwid
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Banner("app-info", tr("Корги Люси: клиент", "Corgi Lusi: client", "Коргі Люсі: клієнт"), "v${BuildConfig.VERSION_NAME}")
+        Banner("client-about", tr("Корги Люси: клиент", "Corgi Lusi: client", "Коргі Люсі: клієнт"), "v${BuildConfig.VERSION_NAME}")
         Section(tr("Информация", "Information", "Інформація")) {
             InfoRow(tr("Версия Xray", "Xray version", "Версія Xray"), Xray.version().ifBlank { "—" })
             InfoRow(tr("Версия приложения", "App version", "Версія застосунку"), "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
@@ -568,8 +585,14 @@ private fun AboutPage(store: Store) {
             NavRow(Icons.Filled.Settings, tr("Проверить обновления", "Check for updates", "Перевірити оновлення")) {
                 updateText = tr("Проверка…", "Checking…", "Перевірка…")
                 thread {
-                    val text = runCatching { store.checkUpdate(force = true)?.also { u -> runCatching { store.downloadUpdate(u) } } }.fold(
-                        { it?.let { u -> tr("Доступна версия ", "Version available: ", "Доступна версія ") + u.versionName } ?: tr("Установлена последняя версия", "Up to date", "Встановлено останню версію") },
+                    // v1.9.6: a found update is downloaded and handed to the installer right away (before: only downloaded).
+                    val text = runCatching { store.checkUpdate(force = true) }.fold(
+                        { found -> found?.let { u ->
+                            runCatching { store.downloadUpdate(u) }.fold(
+                                { apk -> (context as? android.app.Activity)?.let { a -> runCatching { shop.corgi.client.vpn.ApkInstaller.install(a, apk, version = u.versionName) } }
+                                    tr("Устанавливается версия ", "Installing version ", "Встановлюється версія ") + u.versionName },
+                                { tr("Доступна версия ", "Version available: ", "Доступна версія ") + u.versionName + tr(" — не удалось скачать", " — download failed", " — не вдалося завантажити") })
+                        } ?: tr("Установлена последняя версия", "Up to date", "Встановлено останню версію") },
                         { tr("Не удалось проверить", "Could not check", "Не вдалося перевірити") })
                     android.os.Handler(context.mainLooper).post { updateText = text }
                 }

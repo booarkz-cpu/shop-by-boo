@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.135.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.136.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2554**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2565**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1079,6 +1079,7 @@
 | [docs/img/bot-buy.png](../docs/img/bot-buy.png) | Документация |
 | [docs/img/bot-start.png](../docs/img/bot-start.png) | Документация |
 | [docs/img/bot-support.png](../docs/img/bot-support.png) | Документация |
+| [docs/img/client-banners-all.jpg](../docs/img/client-banners-all.jpg) | Документация |
 | [docs/img/hero.jpg](../docs/img/hero.jpg) | Документация |
 | [docs/img/miniapp-faq.png](../docs/img/miniapp-faq.png) | Документация |
 | [docs/img/miniapp-info.png](../docs/img/miniapp-info.png) | Документация |
@@ -1226,6 +1227,7 @@
 | [docs/ru/RELEASE_V28_133_0.md](../docs/ru/RELEASE_V28_133_0.md) | Документация |
 | [docs/ru/RELEASE_V28_134_0.md](../docs/ru/RELEASE_V28_134_0.md) | Документация |
 | [docs/ru/RELEASE_V28_135_0.md](../docs/ru/RELEASE_V28_135_0.md) | Документация |
+| [docs/ru/RELEASE_V28_136_0.md](../docs/ru/RELEASE_V28_136_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
@@ -1587,12 +1589,20 @@
 | [mobile/android-client/app/build.gradle.kts](../mobile/android-client/app/build.gradle.kts) | Мобильные приложения |
 | [mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/AndroidManifest.xml](../mobile/android-client/app/src/main/AndroidManifest.xml) | Мобильные приложения |
-| [mobile/android-client/app/src/main/assets/banners/app-info.jpg](../mobile/android-client/app/src/main/assets/banners/app-info.jpg) | Мобильные приложения |
-| [mobile/android-client/app/src/main/assets/banners/app-locations.jpg](../mobile/android-client/app/src/main/assets/banners/app-locations.jpg) | Мобильные приложения |
-| [mobile/android-client/app/src/main/assets/banners/app-security.jpg](../mobile/android-client/app/src/main/assets/banners/app-security.jpg) | Мобильные приложения |
-| [mobile/android-client/app/src/main/assets/banners/app-settings.jpg](../mobile/android-client/app/src/main/assets/banners/app-settings.jpg) | Мобильные приложения |
-| [mobile/android-client/app/src/main/assets/banners/app-support.jpg](../mobile/android-client/app/src/main/assets/banners/app-support.jpg) | Мобильные приложения |
-| [mobile/android-client/app/src/main/assets/banners/app-vpn.jpg](../mobile/android-client/app/src/main/assets/banners/app-vpn.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-about.jpg](../mobile/android-client/app/src/main/assets/banners/client-about.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-appearance.jpg](../mobile/android-client/app/src/main/assets/banners/client-appearance.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-backup.jpg](../mobile/android-client/app/src/main/assets/banners/client-backup.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-connection.jpg](../mobile/android-client/app/src/main/assets/banners/client-connection.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-geek.jpg](../mobile/android-client/app/src/main/assets/banners/client-geek.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-logs.jpg](../mobile/android-client/app/src/main/assets/banners/client-logs.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-netlog.jpg](../mobile/android-client/app/src/main/assets/banners/client-netlog.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-ping.jpg](../mobile/android-client/app/src/main/assets/banners/client-ping.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-providers.jpg](../mobile/android-client/app/src/main/assets/banners/client-providers.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-schemes.jpg](../mobile/android-client/app/src/main/assets/banners/client-schemes.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-servers.jpg](../mobile/android-client/app/src/main/assets/banners/client-servers.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-settings.jpg](../mobile/android-client/app/src/main/assets/banners/client-settings.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-stats.jpg](../mobile/android-client/app/src/main/assets/banners/client-stats.jpg) | Мобильные приложения |
+| [mobile/android-client/app/src/main/assets/banners/client-tunnel.jpg](../mobile/android-client/app/src/main/assets/banners/client-tunnel.jpg) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/ApkCheck.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/ApkCheck.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/AppList.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/AppList.kt) | Мобильные приложения |
 | [mobile/android-client/app/src/main/java/shop/corgi/client/core/AppLock.kt](../mobile/android-client/app/src/main/java/shop/corgi/client/core/AppLock.kt) | Мобильные приложения |
@@ -2322,6 +2332,7 @@
 | [tests/test_cabinet_texts.py](../tests/test_cabinet_texts.py) | Проверки |
 | [tests/test_ci_shards.py](../tests/test_ci_shards.py) | Проверки |
 | [tests/test_client_api_contract.py](../tests/test_client_api_contract.py) | Проверки |
+| [tests/test_client_banners.py](../tests/test_client_banners.py) | Проверки |
 | [tests/test_cloudflare_cdn.py](../tests/test_cloudflare_cdn.py) | Проверки |
 | [tests/test_cloudpayments_refund_recurring.py](../tests/test_cloudpayments_refund_recurring.py) | Проверки |
 | [tests/test_code_entry_rate_limits.py](../tests/test_code_entry_rate_limits.py) | Проверки |

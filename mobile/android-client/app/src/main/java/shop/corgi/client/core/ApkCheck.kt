@@ -29,5 +29,25 @@ object ApkCheck {
     /** Once a day at most, unless forced. */
     fun due(now: Long, last: Long, force: Boolean = false): Boolean = force || now - last >= DAY_MS
 
+    /**
+     * v1.9.6: whether the release manifest is asked again. Every 3 hours at most: a day-long pause hid a release that came
+     * out after the morning check until the next day. A remembered update that is not newer than the installed app
+     * (it has just been installed) does not count.
+     */
+    fun checkDue(now: Long, last: Long, force: Boolean = false): Boolean = force || last <= 0L || now - last >= CHECK_MS || now < last
+
+    /** v1.9.6: the remembered update, only while it is still newer than the installed version. */
+    fun stillNewer(cached: Update?, current: Int): Update? = cached?.takeIf { it.versionCode > current }
+
+    /**
+     * v1.9.6: the background job downloads the APK (about 150 MB) by itself only off a metered network; on mobile data it
+     * shows «Доступна версия», and a tap downloads and installs it.
+     */
+    fun downloadInBackground(metered: Boolean): Boolean = !metered
+
     const val DAY_MS = 86_400_000L
+    const val CHECK_MS = 3 * 3_600_000L
+
+    /** How often the background job runs (any network). */
+    const val JOB_MS = 6 * 3_600_000L
 }

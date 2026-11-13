@@ -17,6 +17,7 @@ docs/img/bot-banners-all.jpg (all banners on one sheet).
     python3 scripts/bot-banners/render.py --stickers   # only dump the cut stickers to /tmp
     python3 scripts/bot-banners/render.py --assets     # only the interface stickers (cabinet/public/assets/stickers)
     python3 scripts/bot-banners/render.py --app        # dark banners of the Android/iOS app sections (app-*.jpg)
+    python3 scripts/bot-banners/render.py --client     # «Корги Люси: клиент»: one banner per client section (client-*.jpg)
 
 Needs Pillow, NumPy and Python Playwright with Chromium.
 """
@@ -124,6 +125,27 @@ APP_SECTIONS = {
     "app-status": ("Состояние сервиса", "Что работает прямо сейчас", "balancing", "#7dd8a3"),
     "app-security": ("Вход и безопасность", "Ключи входа и защита аккаунта", "login", "#b49cff"),
     "app-info": ("Информация", "Ответы, правила и документы", "search", "#c9a2ff"),
+}
+
+
+# v28.136.0: «Корги Люси: клиент» has sections of its own (it is a VPN client, not the shop). Before, it showed the shop
+# app's banners — «Информация: ответы, правила и документы» on «О приложении». key → (title, caption, sticker, accent).
+CLIENT = ROOT / "mobile/android-client/app/src/main/assets/banners"
+CLIENT_SECTIONS = {
+    "client-servers": ("Серверы", "Подписки, ссылки и QR-коды", "access", "#7cb7ff"),
+    "client-settings": ("Настройки", "Маршруты, туннель, пинг и оформление", "settings", "#ffb84d"),
+    "client-about": ("О приложении", "Версия, ядро Xray и обновления", "deploy", "#c9a2ff"),
+    "client-appearance": ("Оформление", "Тема, цвета и вибрация", "vip", "#ffc069"),
+    "client-connection": ("Соединение", "Автоподключение, плитка и блокировка", "api", "#ff9db0"),
+    "client-tunnel": ("Туннель", "Режим, Mux и авто-переключение", "security", "#b49cff"),
+    "client-providers": ("Провайдеры", "Обновление подписок в фоне и при запуске", "renewal", "#7dd8a3"),
+    "client-ping": ("Пинг", "Как измерять задержку серверов", "speed", "#ff8a1f"),
+    "client-stats": ("Статистика", "Трафик и тест скорости", "metrics", "#6cc8ff"),
+    "client-netlog": ("Журнал сети", "Куда подключаются приложения", "search", "#c9a2ff"),
+    "client-geek": ("Geek Mode", "Свой JSON-конфиг Xray", "maintenance", "#ffc83d"),
+    "client-schemes": ("Схемы URL", "Ссылки для импорта и управления", "delivery", "#ff9db0"),
+    "client-backup": ("Резервная копия", "Серверы и настройки в одном файле", "backup", "#6fd6a8"),
+    "client-logs": ("Журналы туннеля", "Что пишет ядро — для поддержки", "bugs", "#ff8a8a"),
 }
 
 
@@ -315,8 +337,8 @@ def banner_html(key: str) -> str:
 </body></html>"""
 
 
-def app_banner_html(key: str) -> str:
-    title, caption, name, accent = APP_SECTIONS[key]
+def app_banner_html(key: str, table: dict | None = None) -> str:
+    title, caption, name, accent = (table or APP_SECTIONS)[key]
     art = sticker(name)
     scale = min(470 / art.width, 450 / art.height)
     aw, ah = round(art.width * scale), round(art.height * scale)
@@ -392,6 +414,30 @@ def main(argv):
         for name in CATALOG:
             sticker(name).save(out / f"{name}.png")
         print("stickers in", out)
+        return
+    if "--client" in flags:
+        keys = [a for a in argv if not a.startswith("--")] or list(CLIENT_SECTIONS)
+        CLIENT.mkdir(parents=True, exist_ok=True)
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page(viewport={"width": APP_W, "height": APP_H})
+            for key in keys:
+                page.set_content(app_banner_html(key, CLIENT_SECTIONS))
+                page.wait_for_function("document.fonts.ready.then(() => [...document.images].every(i => i.complete))")
+                page.evaluate("""() => { const t = document.getElementById('title'); let s = parseFloat(getComputedStyle(t).fontSize);
+                  while ((t.scrollWidth > t.clientWidth || t.getBoundingClientRect().height > 2.05 * s) && s > 44) { s -= 4; t.style.fontSize = s + 'px'; } }""")
+                target = CLIENT / f"{key}.jpg"
+                img = Image.open(io.BytesIO(page.screenshot(type="png"))).convert("RGB")
+                img.resize((960, 384), Image.LANCZOS).save(target, "JPEG", quality=84, optimize=True, progressive=True)
+                print("saved", target.relative_to(ROOT))
+            browser.close()
+        tiles = [Image.open(CLIENT / f"{k}.jpg").resize((640, 256), Image.LANCZOS) for k in CLIENT_SECTIONS]
+        cols = 3
+        sheet = Image.new("RGB", (cols * 640 + (cols + 1) * 16, ((len(tiles) + cols - 1) // cols) * 272 + 16), "#0e0f14")
+        for i, t in enumerate(tiles):
+            sheet.paste(t, (16 + (i % cols) * 656, 16 + (i // cols) * 272))
+        sheet.save(DOCS / "client-banners-all.jpg", "JPEG", quality=84, optimize=True)
+        print("saved docs/img/client-banners-all.jpg")
         return
     if "--app" in flags:
         # Banners of the mobile apps; with key arguments only the named ones.

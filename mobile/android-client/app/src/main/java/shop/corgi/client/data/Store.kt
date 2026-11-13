@@ -160,15 +160,18 @@ class Store(context: Context) {
         progress.finish()
     }
 
-    /** The newer version from the latest release, or null; checked at most once a day unless ``force``. */
+    /** The newer version from the latest release, or null; asked at most every 3 hours unless ``force`` (v1.9.6). */
     fun checkUpdate(force: Boolean = false): Update? {
         val now = System.currentTimeMillis()
-        if (!force && now - prefs.getLong("update_checked", 0) < 86_400_000L) return cachedUpdate()
-        val current = app.packageManager.getPackageInfo(app.packageName, 0).let { if (android.os.Build.VERSION.SDK_INT >= 28) it.longVersionCode.toInt() else @Suppress("DEPRECATION") it.versionCode }
+        val current = currentVersion()
+        if (!shop.corgi.client.core.ApkCheck.checkDue(now, prefs.getLong("update_checked", 0), force)) return cachedUpdate()
         val found = Update.newer(fetch(Update.MANIFEST), current)
         prefs.edit().putLong("update_checked", now).putString("update", found?.let { "${it.versionCode}|${it.versionName}|${it.sha256}|${it.apk}" } ?: "").apply()
         return found
     }
+
+    fun currentVersion(): Int = app.packageManager.getPackageInfo(app.packageName, 0)
+        .let { if (android.os.Build.VERSION.SDK_INT >= 28) it.longVersionCode.toInt() else @Suppress("DEPRECATION") it.versionCode }
 
     /** v1.6.1 (N11): the APK of [update] in the app's cache, checked by its SHA-256 (call off the main thread). */
     fun downloadUpdate(update: Update): File {
@@ -220,7 +223,8 @@ class Store(context: Context) {
     fun geoUpdatedAt(): Long = File(app.filesDir, "geosite.dat").lastModified()
 
     fun cachedUpdate(): Update? = prefs.getString("update", "").orEmpty().split("|").takeIf { it.size == 4 }
-        ?.let { Update(it[0].toInt(), it[1], it[2], it[3]) }
+        ?.let { runCatching { Update(it[0].toInt(), it[1], it[2], it[3]) }.getOrNull() }
+        ?.let { shop.corgi.client.core.ApkCheck.stillNewer(it, currentVersion()) }
 
     private fun open(url: String, subscription: Boolean = false): HttpURLConnection = (URL(url).openConnection() as HttpURLConnection).apply {
         instanceFollowRedirects = true; connectTimeout = 15000; readTimeout = 30000
