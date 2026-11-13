@@ -5,7 +5,13 @@ import {StatusBadge} from "./components/ui/status";
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Plan = {id: number; name: string; enabled: boolean; traffic_limit_gb: number | null};
 type Shield = {strict_sni: boolean; tls_like_site: boolean; probe_ban: boolean; ban_after: number; ban_minutes: number};
-type Node = {server_id: number; name: string; address: string; domain: string | null; ready: boolean; installed: boolean; port: number | null; users: number | null; synced_at: string | null; error: string | null; shield: Shield | null};
+type Node = {server_id: number; name: string; address: string; domain: string | null; ready: boolean; installed: boolean; port: number | null; users: number | null; synced_at: string | null; install_log?: InstallLog | null; error: string | null; shield: Shield | null};
+type InstallLog = {steps: string[]; last: string | null; rollback: string | null};
+// v28.141.0: the stages of the last install on the node (backend/app/rw_masque.py STEPS) and how a failure was undone.
+const STEPS: Record<string, string> = {check: "проверка ноды", files: "файлы стека", cert: "сертификат сайта", config: "настройки Xray и HAProxy",
+  containers: "запуск контейнеров", start: "проверка запуска", firewall: "порт в брандмауэре"};
+const UNDONE: Record<string, string> = {previous: "изменения отменены, работает прежняя установка", removed: "незавершённая установка удалена",
+  failed: "вернуть прежнюю установку не удалось"};
 type Probe = {domain: string; port: number; same: boolean; checks: {check: string; same: boolean; differences: string[]}[]; limits: string[]};
 type View = {enabled: boolean; plan_ids: number[]; port: number; count_in_limit: boolean; over_limit: number; plans: Plan[]; nodes: Node[]; users: number; images: {xray: string; haproxy: string}; notes: string[]; shield_default: Shield};
 type UserRow = {subscription_id: number; user_id: number; plan_id: number; login: string; expires_at: string; url: string; traffic_bytes: number; over_limit: boolean; tunnels: number};
@@ -148,6 +154,10 @@ export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: st
                       {n.installed ? <StatusBadge tone={n.error ? "warn" : "ok"}>{n.error ? "ошибка сверки" : `работает, порт ${n.port}`}</StatusBadge>
                         : n.ready ? <StatusBadge tone="idle">не установлен</StatusBadge> : <StatusBadge tone="warn">нет сайта SelfSteal</StatusBadge>}
                       {n.error && <div className="muted">{n.error}</div>}
+                      {n.install_log && n.install_log.steps.length > 0 && <div className="muted" data-masque-install-log>
+                        Последняя установка: {n.install_log.steps.map((st) => STEPS[st] || st).join(" → ")}
+                        {n.install_log.rollback ? ` — сбой, ${UNDONE[n.install_log.rollback] || n.install_log.rollback}` : n.install_log.last === "firewall" ? " ✓" : ""}
+                      </div>}
                     </td>
                     <td>{n.installed ? shieldText(n.shield) : "—"}</td>
                     <td>{n.installed ? n.users ?? "—" : "—"}</td>

@@ -240,29 +240,54 @@ REASONS = {"port busy": "Порт MASQUE на сервере занят друг
 
 
 def _why(result) -> str:
-    lines = ((result.out or "") + "\n" + (result.err or "")).strip().splitlines()
+    lines = [line for line in ((result.out or "") + "\n" + (result.err or "")).strip().splitlines()
+             if not line.startswith(("step ", "rollback="))]
     last = lines[-1].strip() if lines else ""
     for key, text in REASONS.items():
         if key in "\n".join(lines[-25:]):
-            return text
-    return f"Скрипт завершился с кодом {result.code}: {last[:200]}" if last else f"Скрипт завершился с кодом {result.code}"
+            return text + _undone(result)
+    base = f"Скрипт завершился с кодом {result.code}: {last[:200]}" if last else f"Скрипт завершился с кодом {result.code}"
+    return base + _undone(result)
+
+
+def _undone(result) -> str:
+    """v28.141.0: at which stage the install stopped and what happened to the node afterwards."""
+    info = rw_masque.parse_steps(result.out)
+    if not info["last"] or info["last"] == "check" and not info["rollback"]:
+        return ""
+    text = f" (этап «{rw_masque.STEPS[info['last']]}»"
+    return text + (f"; {rw_masque.ROLLBACK[info['rollback']]})" if info["rollback"] else ")")
 
 
 async def sync_node(db: AsyncSession, node: dict, users: list[dict], action: str = "sync") -> dict:
     """Sends the stack's files and the user list to one node; returns the node record with the result."""
     data = rw_masque.bundle(node["domain"], int(node["port"]), prefix_of(node["server_id"]), users, node.get("shield"))
     now = _naive()
+    result = None
     try:
         result = await _ssh(db, node["server_id"], action, node["domain"], str(node["port"]), hashlib.sha256(data).hexdigest(), stdin=data)
         error = None if result.code == 0 else _why(result)
     except HTTPException as exc:
         error = str(exc.detail)[:300]
     if error:
-        return {**node, "error": error, "checked_at": _iso(now), "failing_since": node.get("failing_since") or _iso(now)}
+        return {**node, "error": error, "checked_at": _iso(now), "failing_since": node.get("failing_since") or _iso(now),
+                **({"install_log": rw_masque.parse_steps(result.out)} if action == "on" and result is not None else {})}
     node = {k: v for k, v in node.items() if k not in ("failing_since", "alerted_failure")}
     return {**node, "state": "on", "error": None, "users": len(users), "hash": users_hash(users, node["domain"], int(node["port"])),
             "synced_at": _iso(now), "checked_at": _iso(now),
-            **({"stack": STACK, "images": IMAGES, "images_label": images_label()} if action == "on" else {})}
+            **({"stack": STACK, "images": IMAGES, "images_label": images_label(), "install_log": rw_masque.parse_steps(result.out)}
+               if action == "on" else {})}
+
+
+REINSTALL_RETRY = timedelta(minutes=15)
+
+
+def reinstall_due(node: dict, now: datetime) -> bool:
+    try:
+        last = datetime.fromisoformat((node.get("checked_at") or "").rstrip("Z"))
+    except ValueError:
+        return True
+    return now - last >= REINSTALL_RETRY
 
 
 def due(node: dict, wanted: str, now: datetime) -> bool:
@@ -291,6 +316,9 @@ async def tick(db: AsyncSession, now: datetime | None = None) -> int:
     for key, node in list(state["nodes"].items()):
         if node.get("state") == "on" and not up_to_date(node):
             # Installed by an older release (another layout or other images): recreated once (its tunnels reconnect).
+            # v28.141.0: a failed reinstall is rolled back on the node and tried again 15 minutes later, not every minute.
+            if node.get("error") and not reinstall_due(node, now):
+                continue
             state["nodes"][key] = await sync_node(db, node, users, action="on")
             touched += 1
         elif due(node, users_hash(users, node["domain"], int(node["port"])), now):
@@ -446,7 +474,8 @@ async def _view(db: AsyncSession, state: dict) -> dict:
         candidates.append({"server_id": item["server_id"], "name": item["name"], "address": item["address"], "domain": item["domain"],
                            "ready": bool(item["domain"]), "installed": bool(record and record.get("state") == "on"),
                            "port": (record or {}).get("port"), "users": (record or {}).get("users"), "synced_at": (record or {}).get("synced_at"),
-                           "error": (record or {}).get("error"), "shield": rw_masque.shield((record or {}).get("shield")) if record else None})
+                           "error": (record or {}).get("error"), "shield": rw_masque.shield((record or {}).get("shield")) if record else None,
+                           "install_log": (record or {}).get("install_log")})
     known = {c["server_id"] for c in candidates}
     for record in state["nodes"].values():          # a node whose installation record is gone still has to be removable
         if record["server_id"] not in known:
