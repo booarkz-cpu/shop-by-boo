@@ -28,7 +28,7 @@ class MasqueButtonTest {
     fun noMasqueNoButton() {
         assertEquals("", data().masqueUrl)
         assertEquals(listOf("copy_link"), visibleButtons(section, data()).map { it.id })
-        assertEquals(listOf("copy_link"), visibleButtons(section, ShopData()).map { it.id })
+        assertEquals(emptyList<String>(), visibleButtons(section, ShopData()).map { it.id })   // no subscription: neither button
     }
 
     @Test
