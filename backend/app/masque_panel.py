@@ -618,20 +618,26 @@ async def subscription(value: str, db: AsyncSession = Depends(get_db)):
                                           "Content-Disposition": 'attachment; filename="masque.json"'})
 
 
-@router.get("/api/me/masque")
-async def my_masque(request: Request, db: AsyncSession = Depends(get_db)):
-    """The signed-in customer's MASQUE links, one per subscription that has the protocol."""
-    from .main import user_from_token
-    user = await user_from_token(request, db)
+async def customer_items(db: AsyncSession, user_id: int) -> tuple[list[dict], dict]:
+    """A customer's MASQUE links, one per subscription that has the protocol now (shared by the cabinet and the bot)."""
     state = await _state(db)
     now = _naive()
     working = any(n.get("state") == "on" for n in state["nodes"].values())
-    subs = (await db.execute(select(Subscription).where(Subscription.user_id == user.id).order_by(Subscription.id))).scalars().all()
+    subs = (await db.execute(select(Subscription).where(Subscription.user_id == user_id).order_by(Subscription.id))).scalars().all()
     traffic = await _traffic(db)
     over = frozenset(traffic["over"]) if state.get("count_in_limit", True) else frozenset()
     items = [{"subscription_id": s.id, "name": s.name, "url": link(s.id, state), "over_limit": s.id in over,
               "traffic_bytes": int((traffic["subs"].get(str(s.id)) or {}).get("bytes") or 0), "tunnels": int(s.device_limit_snapshot or 0)}
              for s in subs if working and eligible(s, state, now)]
+    return items, state
+
+
+@router.get("/api/me/masque")
+async def my_masque(request: Request, db: AsyncSession = Depends(get_db)):
+    """The signed-in customer's MASQUE links, one per subscription that has the protocol."""
+    from .main import user_from_token
+    user = await user_from_token(request, db)
+    items, state = await customer_items(db, user.id)
     return {"available": bool(items), "items": items, "format": "xray-json", "transport": "MASQUE (HTTP/2)",
             "counts_in_limit": bool(state.get("count_in_limit", True))}
 

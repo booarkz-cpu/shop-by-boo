@@ -462,3 +462,28 @@ async def test_node_of_an_older_release_is_reinstalled_once(stored, monkeypatch)
     assert stored[panel.STATE_KEY]["nodes"]["1"]["stack"] == panel.STACK
     await panel.tick(Db([]))
     assert "on" not in actions[1:]                                                       # afterwards only traffic and syncs
+
+
+@pytest.mark.asyncio
+async def test_customer_links_only_for_subscriptions_with_masque_on_a_working_node(stored):
+    now = panel._naive()
+    a, b, c = sub(1, user=7), sub(2, user=7, life="frozen"), sub(3, user=7, gb=1)
+    for s in (a, b, c):
+        s.expires_at = now + timedelta(days=5)
+    stored[panel.STATE_KEY] = {**ON, "nodes": {"1": {"server_id": 1, "domain": "de.example.com", "port": 2087, "state": "on"}}}
+    stored[panel.TRAFFIC_KEY] = {"subs": {"3": {"bytes": 5}}, "over": [3]}
+    items, _ = await panel.customer_items(Db([a, b, c]), 7)
+    # frozen: no link; a used-up limit: listed with the flag, so the cabinet can say why (the bot skips it)
+    assert [(i["subscription_id"], i["over_limit"]) for i in items] == [(1, False), (3, True)]
+    stored[panel.STATE_KEY]["count_in_limit"] = False
+    items, _ = await panel.customer_items(Db([a, b, c]), 7)
+    assert [(i["subscription_id"], i["over_limit"]) for i in items] == [(1, False), (3, False)] and items[1]["traffic_bytes"] == 5
+    stored[panel.STATE_KEY]["nodes"]["1"]["state"] = "failed"
+    assert (await panel.customer_items(Db([a, b, c]), 7))[0] == []                    # no working node: no link
+
+
+def test_bot_has_the_masque_line_in_three_languages():
+    from app.bot_texts import t
+    for lang in ("ru", "en", "uk"):
+        text = t(lang, "keys_masque", name="Lucy Max", url="https://x/api/masque/sub/1.a")
+        assert "MASQUE · Lucy Max" in text and "<code>https://x/api/masque/sub/1.a</code>" in text

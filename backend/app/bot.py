@@ -714,6 +714,10 @@ async def keys_command(message: Message):
         return
     lines = [_tr(lang, "keys_title")]
     lines += [f"{escape(unquote(x.split('#', 1)[1]) if '#' in x else x.split('://')[0])}\n<code>{escape(x)}</code>" for x in links]
+    from .masque_panel import customer_items          # MASQUE has its own subscription (the panel does not know it)
+    async with AsyncSession(engine, expire_on_commit=False) as db:
+        lines += [_tr(lang, "keys_masque", name=escape(i["name"]), url=escape(i["url"])) for i in (await customer_items(db, user.id))[0]
+                  if not i["over_limit"]]
     text = "\n\n".join(lines)
     # A photo caption holds 1024 characters: long key lists go as a plain message.
     if len(text) > 1000:
