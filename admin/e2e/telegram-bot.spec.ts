@@ -21,11 +21,13 @@ test('without a token the section says how to connect the bot', async ({page}) =
   await expect(page.locator('[data-bot-commands]').getByRole('button', {name: 'Сохранить и применить'})).toBeDisabled();
 
   // v28.72.0: the bot's texts are saved by the real backend (no token is needed for them).
+  // The default is the brand text since v28.132.0 (backend/app/brand_copy.py, owner's decision 4).
+  const WELCOME_EN = 'Welcome to {name} — free internet without the extra woof!\nYour internet. Your rules. Your Lusi.';
   const texts = page.locator('[data-bot-texts]');
   await texts.getByLabel('Язык', {exact: true}).selectOption('en');
   await texts.getByLabel('Поиск', {exact: true}).fill('welcome');
   const welcome = texts.getByRole('textbox', {name: 'welcome', exact: true});
-  await expect(welcome).toHaveValue('Welcome to {name}!');
+  await expect(welcome).toHaveValue(WELCOME_EN);
   await welcome.fill('Hi from {name}!');
   await texts.getByRole('button', {name: 'Сохранить (1)'}).click();
   await expect(texts.locator('[data-text="welcome"]')).toContainText('свой');
@@ -35,7 +37,7 @@ test('without a token the section says how to connect the bot', async ({page}) =
   await texts.getByRole('button', {name: 'Стандартный текст'}).click();
   await texts.getByRole('button', {name: 'Сохранить (1)'}).click();
   await expect(texts.locator('[data-text="welcome"]')).not.toContainText('свой');
-  await expect(welcome).toHaveValue('Welcome to {name}!');
+  await expect(welcome).toHaveValue(WELCOME_EN);
 });
 
 test('connected bot: live check, stale webhook, commands and a test message', async ({page}) => {
