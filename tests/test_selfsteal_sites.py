@@ -270,3 +270,11 @@ async def test_api_upload_list_delete_preview_and_overview(database, monkeypatch
     assert err.value.status_code == 404
     await rw_selfsteal.delete_site(entry["id"], db, ADMIN)
     assert not rw_selfsteal.upload_path(entry["id"]).exists() and (await rw_selfsteal.list_sites(db, ADMIN))["sites"] == []
+
+
+def test_pack_does_not_depend_on_the_time(monkeypatch):
+    import time
+    files = {"index.html": b"<title>x</title>", "a/b.css": b"body{}"}
+    first = selfsteal_sites.pack(files)
+    monkeypatch.setattr(time, "time", lambda: 2_000_000_000.0)
+    assert selfsteal_sites.pack(files) == first                   # same files, same bytes, whatever the clock says

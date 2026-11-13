@@ -13,6 +13,7 @@ tar.gz and unpacks into the node's ``/opt/remnawave-selfsteal/site`` (rw_steps.S
 """
 from __future__ import annotations
 
+import gzip
 import hashlib
 import html
 import io
@@ -424,7 +425,9 @@ def page_title(files: dict[str, bytes]) -> str:
 def pack(files: dict[str, bytes]) -> bytes:
     """The site as tar.gz with fixed owners, modes and times (the same site gives the same bytes)."""
     out = io.BytesIO()
-    with tarfile.open(fileobj=out, mode="w:gz", format=tarfile.PAX_FORMAT) as tar:
+    # The gzip header carries a time too: tarfile's «w:gz» stamps «now», so the same site uploaded a second later
+    # got another id and a second entry in the list. mtime=0 makes the bytes depend on the files only.
+    with gzip.GzipFile(fileobj=out, mode="wb", mtime=0) as packed, tarfile.open(fileobj=packed, mode="w", format=tarfile.PAX_FORMAT) as tar:
         for path in sorted(files):
             info = tarfile.TarInfo(path)
             info.size, info.mode, info.mtime, info.uid, info.gid = len(files[path]), 0o644, 0, 0, 0
