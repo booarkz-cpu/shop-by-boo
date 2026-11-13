@@ -293,6 +293,9 @@ class ClientScreensTest {
         assertEquals("1", Store(context).activeServer)
         assertTrue(compose.onAllNodesWithTag("server-row").fetchSemanticsNodes().isEmpty())   // closed after the choice
         exists("Germany")
+        // v1.9.5: the chosen server's card shows the signal once (the owner's screenshot of 2026-11-13 had two icons).
+        val signals = (0..3).sumOf { compose.onAllNodesWithTag("signal-$it", useUnmergedTree = true).fetchSemanticsNodes().size }
+        assertTrue("signal icons: $signals", signals <= 1)
         compose.onNodeWithText("Settings").tap()
         shot("settings")
     }
