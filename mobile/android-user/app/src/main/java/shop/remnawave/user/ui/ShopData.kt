@@ -30,6 +30,8 @@ data class ShopData(
     val stats: JSONObject = JSONObject(),
     val upsell: JSONArray = JSONArray(),
     val contest: JSONObject = JSONObject(),
+    /** MASQUE links (GET /api/me/masque, v28.131.0): the shop's own subscription for a protocol the panel does not know. */
+    val masque: JSONObject = JSONObject(),
 ) {
     val user: JSONObject get() = dashboard.optJSONObject("user") ?: JSONObject()
     val subscription: JSONObject? get() = dashboard.optJSONObject("subscription")
@@ -45,6 +47,18 @@ data class ShopData(
     val subscriptionUrl: String
         get() = connection.optString("subscription_url").ifBlank { subscription?.optString("subscription_url").orEmpty() }
             .takeIf { it.startsWith("https://") }.orEmpty()
+
+    /** The first MASQUE link the customer may use now (empty: MASQUE is not handed out, or the plan's limit is used up). */
+    val masqueUrl: String
+        get() {
+            val items = masque.optJSONArray("items") ?: return ""
+            for (i in 0 until items.length()) {
+                val row = items.optJSONObject(i) ?: continue
+                val url = row.optString("url")
+                if (!row.optBoolean("over_limit") && url.startsWith("https://")) return url
+            }
+            return ""
+        }
 
     val customerId: String
         get() = user.optString("referral_code").ifBlank { user.optInt("id").takeIf { it > 0 }?.toString().orEmpty() }

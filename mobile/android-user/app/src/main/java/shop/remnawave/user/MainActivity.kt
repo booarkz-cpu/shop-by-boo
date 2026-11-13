@@ -617,6 +617,8 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     stats = try { api.get("/api/me/stats") as JSONObject } catch (_: Exception) { JSONObject() },
                     upsell = try { (api.get("/api/me/upsell") as JSONObject).optJSONArray("offers") ?: JSONArray() } catch (_: Exception) { JSONArray() },
                     contest = try { (api.get("/api/me/referral-contest") as JSONObject).optJSONObject("contest") ?: JSONObject() } catch (_: Exception) { JSONObject() },
+                    // v28.131.0: shops before it have no MASQUE — the button simply stays hidden.
+                    masque = try { api.get("/api/me/masque") as JSONObject } catch (_: Exception) { JSONObject() },
                 )
                 activity.runOnUiThread { data = next; ui = ui.copy(offline = false) }
                 // Connection quality: the server checks with the carrier, at most every 6 hours (connection_quality.py).
@@ -812,6 +814,7 @@ private fun UserApp(initialTab: String = "overview", demo: Boolean = false, demo
                     else if (!VpnClients.importInto(context, button.target, data.subscriptionUrl)) dialog = "install"
                 }
                 "copy_subscription" -> copy("subscription", data.subscriptionUrl)
+                "copy_masque" -> copy("masque", data.masqueUrl)
                 "show_qr" -> dialog = "qr"
                 "copy_id" -> copy("id", data.customerId)
                 "buy" -> pay(selectedPlanId())
