@@ -68,7 +68,7 @@ async def test_owner_edits_texts_and_the_bot_uses_them(database):
     out = await telegram_bot.put_texts(telegram_bot.TextsIn(lang="en", texts={"welcome": "Hi from <b>{name}</b>!", "plans_empty": "Soon!"}), db, ADMIN)
     assert out["custom"] == 2
     assert bot_texts.t("en", "welcome", name="Lucy") == "Hi from <b>Lucy</b>!"
-    assert bot_texts.t("ru", "welcome", name="Люси") == "Добро пожаловать в Люси!", "other languages keep their texts"
+    assert bot_texts.t("ru", "welcome", name="Люси").startswith("Добро пожаловать в Люси — свободный интернет"), "other languages keep their texts"
     stored = json.loads((await db.get(AppSetting, bot_texts.SETTING)).value)
     assert stored["en"] == {"welcome": "Hi from <b>{name}</b>!", "plans_empty": "Soon!"}
 
@@ -76,7 +76,7 @@ async def test_owner_edits_texts_and_the_bot_uses_them(database):
         await telegram_bot.put_texts(telegram_bot.TextsIn(lang="en", texts={"welcome": "Hi {user}"}), db, ADMIN)
     assert err.value.status_code == 422 and "{user}" in err.value.detail
     await telegram_bot.put_texts(telegram_bot.TextsIn(lang="en", texts={"welcome": "", "plans_empty": bot_texts.default("en", "plans_empty")}), db, ADMIN)
-    assert bot_texts.t("en", "welcome", name="Lucy") == "Welcome to Lucy!", "an empty field or the default text resets it"
+    assert bot_texts.t("en", "welcome", name="Lucy") == bot_texts.default("en", "welcome").format(name="Lucy"), "an empty field or the default text resets it"
     assert (await telegram_bot.get_texts(db, ADMIN))["texts"][0]["custom"] == {}
 
 

@@ -82,5 +82,6 @@ def test_interfaces_have_russian_and_english_catalogs():
     assert "Referral program" in mini_i18n and "Реферальная программа" in mini
     assert "Автопродление" in mini
     from app import bot
-    assert bot._tr("en", "welcome", name="Corgi") == "Welcome to Corgi!"
-    assert bot._tr("ru", "welcome", name="Корги") == "Добро пожаловать в Корги!"
+    # Brand texts are the defaults since v28.132.0 (owner's decision 4; docs/BRAND_COPY.md).
+    assert bot._tr("en", "welcome", name="Corgi") == "Welcome to Corgi — free internet without the extra woof!\nYour internet. Your rules. Your Lusi."
+    assert bot._tr("ru", "welcome", name="Корги") == "Добро пожаловать в Корги — свободный интернет без лишнего Гав!\nТвой интернет. Твои правила. Твоя Люси."
