@@ -169,6 +169,15 @@ for n in $(seq 1 24); do through bad $URL >/dev/null; if [ "$(through u2 $URL)" 
 [ "$blocked" -gt 0 ] && ok "after repeated wrong passwords ($blocked more attempts) the address is blocked from the tunnel" || fail "no block after wrong passwords"
 get "https://$DOMAIN:$PORT/" | grep -q 'selfsteal-site-home' && ok "the blocked address still sees the site (the block cannot be seen)" || fail "blocked address lost the site"
 
+# v28.138.0: the SelfSteal site is down (its container restarts): the port answers like a site under maintenance.
+docker stop remnawave-selfsteal >/dev/null
+down=$(get -i "https://$DOMAIN:$PORT/" || true)
+echo "$down" | head -n1 | grep -q '^HTTP/2 503' && echo "$down" | grep -qi '^retry-after: 300' && echo "$down" | grep -q "We'll be back shortly" \
+  && ! echo "$down" | grep -qi 'haproxy' && ok "with the site down the port shows a maintenance page, not an empty reply" || { echo "$down" | head -n 12; fail "site-down page"; }
+docker start remnawave-selfsteal >/dev/null
+for _ in $(seq 1 30); do get "https://$DOMAIN:$PORT/" 2>/dev/null | grep -q 'selfsteal-site-home' && break; sleep 1; done
+get "https://$DOMAIN:$PORT/" | grep -q 'selfsteal-site-home' && ok "the site is back on the port as soon as it is up again" || fail "site did not come back"
+
 out=$(node on "$W/b3.tgz") || fail "second install failed"
 echo "$out" | tail -1 | grep -q "^masque=on users=1 port=$PORT cert=" && ok "a second «on» gives the same state" || fail "second on"
 [ "$(through u2 $URL)" = 204 ] || fail "tunnel after the second on"
