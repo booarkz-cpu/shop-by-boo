@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.131.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.132.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2542**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2547**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -77,7 +77,9 @@
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.trivyignore](../.trivyignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -456,6 +458,7 @@
 | [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
 | [backend/app/bot_texts.py](../backend/app/bot_texts.py) | API, бот и worker |
 | [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
+| [backend/app/brand_copy.py](../backend/app/brand_copy.py) | API, бот и worker |
 | [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
 | [backend/app/cabinet_security.py](../backend/app/cabinet_security.py) | API, бот и worker |
 | [backend/app/cabinet_texts.py](../backend/app/cabinet_texts.py) | API, бот и worker |
@@ -1217,6 +1220,7 @@
 | [docs/ru/RELEASE_V28_12_0.md](../docs/ru/RELEASE_V28_12_0.md) | Документация |
 | [docs/ru/RELEASE_V28_130_0.md](../docs/ru/RELEASE_V28_130_0.md) | Документация |
 | [docs/ru/RELEASE_V28_131_0.md](../docs/ru/RELEASE_V28_131_0.md) | Документация |
+| [docs/ru/RELEASE_V28_132_0.md](../docs/ru/RELEASE_V28_132_0.md) | Документация |
 | [docs/ru/RELEASE_V28_13_0.md](../docs/ru/RELEASE_V28_13_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
@@ -2306,6 +2310,7 @@
 | [tests/test_bot_api_rules.py](../tests/test_bot_api_rules.py) | Проверки |
 | [tests/test_bot_banners.py](../tests/test_bot_banners.py) | Проверки |
 | [tests/test_bot_texts.py](../tests/test_bot_texts.py) | Проверки |
+| [tests/test_brand_copy.py](../tests/test_brand_copy.py) | Проверки |
 | [tests/test_cabinet_apps_block.py](../tests/test_cabinet_apps_block.py) | Проверки |
 | [tests/test_cabinet_stage8.py](../tests/test_cabinet_stage8.py) | Проверки |
 | [tests/test_cabinet_texts.py](../tests/test_cabinet_texts.py) | Проверки |
