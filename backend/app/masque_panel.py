@@ -42,6 +42,8 @@ COLLECT = timedelta(minutes=5)                     # how often a node is asked f
 RECHECK = timedelta(minutes=15)                    # how often the panel is asked about one subscription's usage
 PANEL_CALLS = 30                                   # at most this many panel questions per pass
 GB = 1024 ** 3
+ALERT_AFTER = timedelta(minutes=10)               # a node failing this long is reported to the administrator
+CERT_WARN = timedelta(days=14)                    # a certificate that ends sooner is reported
 LIVE = ("active", "grace", "cancel_scheduled")     # paid and not paused, frozen or expired
 RESYNC = timedelta(minutes=30)                     # a node is re-checked this often even when the list did not change
 TOKEN = re.compile(r"^(\d{1,12})\.([0-9a-f]{32})\Z")
@@ -192,7 +194,8 @@ async def _ssh(db: AsyncSession, server_id: int, action: str, *args: str, stdin:
     return result
 
 
-REASONS = {"nodocker": "На сервере нет Docker", "noselfsteal": "На ноде не запущен сайт SelfSteal: MASQUE прячется за ним",
+REASONS = {"port busy": "Порт MASQUE на сервере занят другой программой: выберите другой порт в настройках",
+           "nodocker": "На сервере нет Docker", "noselfsteal": "На ноде не запущен сайт SelfSteal: MASQUE прячется за ним",
            "nocert": "У сайта SelfSteal ещё нет сертификата", "not installed": "MASQUE на этой ноде не установлен",
            "bad archive": "Файлы дошли до сервера повреждёнными", "users differ after sync": "Нода не приняла список пользователей"}
 
@@ -216,7 +219,8 @@ async def sync_node(db: AsyncSession, node: dict, users: list[dict], action: str
     except HTTPException as exc:
         error = str(exc.detail)[:300]
     if error:
-        return {**node, "error": error, "checked_at": _iso(now)}
+        return {**node, "error": error, "checked_at": _iso(now), "failing_since": node.get("failing_since") or _iso(now)}
+    node = {k: v for k, v in node.items() if k not in ("failing_since", "alerted_failure")}
     return {**node, "state": "on", "error": None, "users": len(users), "hash": users_hash(users, node["domain"], int(node["port"])),
             "synced_at": _iso(now), "checked_at": _iso(now), **({"stack": STACK} if action == "on" else {})}
 
@@ -252,10 +256,44 @@ async def tick(db: AsyncSession, now: datetime | None = None) -> int:
         elif due(node, users_hash(users, node["domain"], int(node["port"])), now):
             state["nodes"][key] = await sync_node(db, node, users)
             touched += 1
-    if touched:
+    messages = alerts(state, now)
+    if messages:
+        from .rw_autoupdate import _notify
+        await _notify("\n".join(messages) + "\nПодробности: «Смена протокола» → «MASQUE: ноды и подписка».")
+    if touched or messages:
         await _store(db, state)
         await db.commit()
     return touched
+
+
+# ---------------------------------------------------------------- alerts
+
+def cert_until(text: str | None) -> datetime | None:
+    """``Nov_13_17:28:00_2026_GMT`` (what the node script prints) → a naive UTC time."""
+    try:
+        return datetime.strptime(" ".join(str(text or "").replace("_", " ").split()), "%b %d %H:%M:%S %Y GMT")
+    except ValueError:
+        return None
+
+
+def alerts(state: dict, now: datetime) -> list[str]:
+    """What to tell the administrator now (once per problem): a node failing for 10 minutes, a certificate ending
+    within 14 days. Marks what it reported in the node records."""
+    out = []
+    for node in state["nodes"].values():
+        if node.get("state") != "on":
+            continue
+        since = _since(node.get("failing_since"))
+        if since and now - since >= ALERT_AFTER and not node.get("alerted_failure"):
+            out.append(f"MASQUE на ноде «{node.get('name') or node['domain']}» не сверяется с {node['failing_since'][11:16]} UTC: {node.get('error')}")
+            node["alerted_failure"] = True
+        until = cert_until(node.get("cert_until"))
+        if until and until - now <= CERT_WARN and node.get("alerted_cert") != node.get("cert_until"):
+            days = max(0, (until - now).days)
+            out.append(f"Сертификат MASQUE на ноде «{node.get('name') or node['domain']}» истекает через {days} дн. ({until:%d.%m.%Y}). "
+                       "Его выпускает сайт SelfSteal ноды: проверьте DNS домена и порт 80.")
+            node["alerted_cert"] = node.get("cert_until")
+    return out
 
 
 # ---------------------------------------------------------------- traffic and the plan's limit
@@ -318,7 +356,10 @@ async def collect(db: AsyncSession, state: dict, now: datetime) -> bool:
             continue
         if result.code != 0:
             continue
-        for login, value in parse_status(result.out)["traffic"].items():
+        parsed = parse_status(result.out)
+        if parsed["cert"]:
+            node["cert_until"] = parsed["cert"]
+        for login, value in parsed["traffic"].items():
             sid = logins.get(login)
             if sid is not None:
                 data["subs"][str(sid)] = add_traffic(data["subs"].get(str(sid)), value["uplink"] + value["downlink"], now)
@@ -512,11 +553,14 @@ async def probe(server_id: int, db: AsyncSession = Depends(get_db), admin=Depend
 def parse_status(out: str) -> dict:
     """``traffic <login> uplink|downlink <bytes>`` lines and the result line of the node script."""
     traffic: dict[str, dict] = {}
+    cert = None
     for line in (out or "").splitlines():
         parts = line.split()
+        if len(parts) == 2 and parts[0] == "cert":
+            cert = parts[1]
         if len(parts) == 4 and parts[0] == "traffic" and parts[2] in ("uplink", "downlink") and parts[3].isdigit():
             traffic.setdefault(parts[1], {"uplink": 0, "downlink": 0})[parts[2]] = int(parts[3])
-    return {"summary": rw_masque.parse_result(out), "traffic": traffic}
+    return {"summary": rw_masque.parse_result(out), "traffic": traffic, "cert": cert}
 
 
 @router.post("/api/admin/masque/panel/nodes/{server_id}/status")
