@@ -111,6 +111,16 @@ SITE_TLS12 = ("ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-E
 SITE_CURVES = "X25519:P-256:P-384"
 # What Go's net/http (Caddy) answers to a request it cannot parse — instead of HAProxy's own HTML page.
 ERROR_400 = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain; charset=utf-8\r\nConnection: close\r\n\r\n400 Bad Request"
+# v28.138.0: the page when the SelfSteal site itself does not answer (its container is restarting or stopped). Before,
+# HAProxy closed the connection with an empty 503 — a reply no ordinary web server gives. Now it is what a site under
+# maintenance shows: a short neutral HTML page with Retry-After; no proxy name, no brand.
+_DOWN_BODY = ("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+              "<title>Maintenance</title><style>body{font:16px/1.5 system-ui,sans-serif;margin:0;display:grid;place-items:center;min-height:100vh;"
+              "background:#f6f6f4;color:#333}main{max-width:28rem;padding:2rem;text-align:center}h1{font-size:1.4rem;margin:0 0 .5rem}</style></head>"
+              "<body><main><h1>We'll be back shortly</h1><p>The site is undergoing scheduled maintenance. Please try again in a few minutes.</p>"
+              "</main></body></html>")
+ERROR_SITE_DOWN = ("HTTP/1.1 503 Service Unavailable\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\n"
+                   f"Retry-After: 300\r\nContent-Length: {len(_DOWN_BODY.encode())}\r\nConnection: close\r\n\r\n{_DOWN_BODY}")
 
 
 def shield(value: dict | None = None) -> dict:
@@ -186,6 +196,9 @@ backend tunnels
 backend tunnel
 {ban_count}	server xray 127.0.0.1:{INNER_PORT} ssl verify none alpn h2 sni str({domain})
 backend site
+	errorfile 502 /errors/503.http
+	errorfile 503 /errors/503.http
+	errorfile 504 /errors/503.http
 	http-request set-header Host {domain}
 	server site unix@{SELFSTEAL_SOCKET} ssl verify none alpn h2,http/1.1 sni str({domain}) send-proxy
 """
@@ -228,6 +241,7 @@ def bundle(domain: str, port: int, prefix: str, users: list[dict], protections: 
         "haproxy.cfg": haproxy_cfg(domain, port, prefix, protections),
         "docker-compose.yml": compose(),
         "400.http": ERROR_400,
+        "503.http": ERROR_SITE_DOWN,
         "limits.map": limits_map(users),
         "users": "".join(u["email"] + "\n" for u in config["inbounds"][0]["settings"]["users"]),
     }
@@ -320,7 +334,7 @@ on|sync)
   cat > "$tmp/b.tgz"
   [ "$(sha256sum "$tmp/b.tgz" | cut -d' ' -f1)" = "$sum" ] || { echo "bad archive"; exit 3; }
   mkdir "$tmp/x"; tar -xzf "$tmp/b.tgz" -C "$tmp/x" --no-same-owner
-  for f in config.json haproxy.cfg docker-compose.yml users 400.http limits.map; do [ -f "$tmp/x/$f" ] || { echo "bad archive"; exit 3; }; done
+  for f in config.json haproxy.cfg docker-compose.yml users 400.http 503.http limits.map; do [ -f "$tmp/x/$f" ] || { echo "bad archive"; exit 3; }; done
   if [ "$action" = sync ]; then
     running "$xr" || { echo "not installed"; exit 8; }
     install -m 0640 -o 0 -g 65532 "$tmp/x/config.json" "$dir/xray/config.json.new"; mv -f "$dir/xray/config.json.new" "$dir/xray/config.json"
@@ -378,7 +392,7 @@ EOF
   install -m 0640 -o 0 -g 65532 "$tmp/x/config.json" "$dir/xray/config.json"
   if [ -e /proc/net/if_inet6 ]; then sed 's/^#V6#//' "$tmp/x/haproxy.cfg" > "$dir/haproxy.cfg"; else grep -v '^#V6#' "$tmp/x/haproxy.cfg" > "$dir/haproxy.cfg"; fi
   chmod 0644 "$dir/haproxy.cfg"
-  install -d -m 0755 "$dir/errors"; install -m 0644 "$tmp/x/400.http" "$dir/errors/400.http"
+  install -d -m 0755 "$dir/errors"; install -m 0644 "$tmp/x/400.http" "$dir/errors/400.http"; install -m 0644 "$tmp/x/503.http" "$dir/errors/503.http"
   install -m 0644 "$tmp/x/docker-compose.yml" "$dir/docker-compose.yml"
   cd "$dir"
   docker compose up -d --force-recreate --quiet-pull >/dev/null 2>&1 || { echo "compose failed"; docker compose logs --tail 20 2>&1 | tail -n 20; exit 6; }
