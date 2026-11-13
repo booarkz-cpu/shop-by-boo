@@ -52,5 +52,5 @@ it("maintenance answers are recognised and the screen retries on request", async
   render(<MaintenanceScreen onRetry={retry} />);
   fireEvent.click(screen.getByRole("button", {name: "Проверить снова"}));
   await waitFor(() => expect(retry).toHaveBeenCalledTimes(1));
-  expect(screen.getByText(/VPN не отключается/)).toBeTruthy();
+  expect(screen.getByText(/Люси ненадолго ушла на прогулку/)).toBeTruthy();   // the brand text (owner's decision 4)
 });

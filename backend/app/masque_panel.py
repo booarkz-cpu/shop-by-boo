@@ -599,9 +599,24 @@ async def reissue(subscription: int, db: AsyncSession = Depends(get_db), admin=D
     return {"subscription_id": sub.id, "url": link(sub.id, state), "login": creds(state, sub.id)[0]}
 
 
+SUB_LIMIT, SUB_WINDOW = 60, 600       # requests per address and per link in ten minutes (clients refresh about hourly)
+
+
+async def _sub_allowed(request: Request | None, value: str) -> bool:
+    """A link guesser or a leaked link pulled by a crowd runs into this before the database is asked."""
+    from .main import _client_ip, redis_client
+    from .runtime_security import rate_allowed
+    ip = _client_ip(request) if request is not None else "-"
+    key = hashlib.sha256(value.encode()).hexdigest()[:16]
+    return (await rate_allowed(redis_client, f"rl:masque-sub:ip:{ip}", SUB_LIMIT, SUB_WINDOW)
+            and await rate_allowed(redis_client, f"rl:masque-sub:link:{key}", SUB_LIMIT, SUB_WINDOW))
+
+
 @router.get("/api/masque/sub/{value}")
-async def subscription(value: str, db: AsyncSession = Depends(get_db)):
+async def subscription(value: str, db: AsyncSession = Depends(get_db), request: Request = None):
     """The MASQUE subscription: a JSON array of whole Xray client configs. The token is the only credential."""
+    if not await _sub_allowed(request, value):
+        raise HTTPException(429, "Слишком много запросов: повторите позже", headers={"Retry-After": str(SUB_WINDOW)})
     state = await _state(db)
     sid = subscription_id(value, state)
     sub = await db.get(Subscription, sid) if sid is not None else None

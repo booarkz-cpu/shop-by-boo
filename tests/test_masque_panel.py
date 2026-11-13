@@ -487,3 +487,28 @@ def test_bot_has_the_masque_line_in_three_languages():
     for lang in ("ru", "en", "uk"):
         text = t(lang, "keys_masque", name="Lucy Max", url="https://x/api/masque/sub/1.a")
         assert "MASQUE · Lucy Max" in text and "<code>https://x/api/masque/sub/1.a</code>" in text
+
+
+@pytest.mark.asyncio
+async def test_subscription_link_is_rate_limited(monkeypatch):
+    from app import main, runtime_security
+    monkeypatch.setattr(main, "redis_client", None)                                     # the in-process fallback counter
+    runtime_security._LOCAL.clear()
+    calls = 0
+
+    async def no_state(db):
+        nonlocal calls
+        calls += 1
+        return {**ON}
+
+    monkeypatch.setattr(panel, "_state", no_state)
+    monkeypatch.setattr(panel, "SUB_LIMIT", 3)
+    request = SimpleNamespace(headers={}, client=SimpleNamespace(host="198.51.100.7"), scope={})
+    monkeypatch.setattr(main, "_client_ip", lambda req: req.client.host)
+    for _ in range(3):
+        with pytest.raises(panel.HTTPException) as err:
+            await panel.subscription("999.0000", db=Db([]), request=request)
+        assert err.value.status_code == 404                                              # a forged link: not found
+    with pytest.raises(panel.HTTPException) as err:
+        await panel.subscription("999.0000", db=Db([]), request=request)
+    assert err.value.status_code == 429 and calls == 3                                   # the fourth never reaches the database

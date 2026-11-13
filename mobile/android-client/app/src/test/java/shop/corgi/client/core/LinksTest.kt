@@ -80,4 +80,20 @@ class LinksTest {
         assertTrue(profile.configFor("1")!!.contains("🇳🇱 NL"))
         assertEquals(profile, Profile.of(profile.toJson()))
     }
+
+    /** v1.9.4: the shop's MASQUE subscription (backend/app/rw_masque.py client_config) — whole JSON configs, one per node. */
+    @Test fun masqueJsonSubscription() {
+        val proxy = """{"tag":"proxy","protocol":"masque","settings":{"address":"de.example.com","port":2087},
+            "streamSettings":{"method":"masque","masqueSettings":{"path":"/0123456789abcdef01234567/{target}/{ipproto}/","user":"m1","pass":"p"},
+            "security":"tls","tlsSettings":{"serverName":"de.example.com","alpn":["h2"]}}}"""
+        val body = """[{"remarks":"MASQUE · de-1","outbounds":[$proxy,{"tag":"direct","protocol":"freedom"}]},
+            {"remarks":"no proxy","outbounds":[{"protocol":"freedom"}]}]"""
+        val configs = Links.jsonConfigs(body)!!
+        assertEquals(listOf("MASQUE · de-1"), configs.map { it.first })
+        val outbound = Links.firstProxy(configs[0].second)!!
+        val server = Server(configs[0].first, outbound.optString("protocol"), outbound, "config:0")
+        assertEquals("de.example.com", server.host); assertEquals(2087, server.port)
+        assertEquals(listOf("MASQUE", "TLS", "JSON"), server.labels)
+        assertEquals("MASQUE", server.family)
+    }
 }

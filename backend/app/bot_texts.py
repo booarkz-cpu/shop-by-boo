@@ -21,8 +21,11 @@ TAG = re.compile(r"</?(b|i|u|s|code|pre|a)(\s+href=\"https?://[^\"<>]+\")?>")
 # key: (group, ru, en, uk)
 DEFAULTS: dict[str, tuple[str, str, str, str]] = {
     # ---- start and menu
-    "welcome": ("Старт", "Добро пожаловать в {name}!", "Welcome to {name}!", "Ласкаво просимо до {name}!"),
-    "shop_name": ("Старт", "Корги Люси", "Corgi Lucy", "Коргі Люсі"),
+    # Brand texts as defaults (owner's decision 4 of 2026-11-12; docs/BRAND_COPY.md).
+    "welcome": ("Старт", "Добро пожаловать в {name} — свободный интернет без лишнего Гав!\nТвой интернет. Твои правила. Твоя Люси.",
+                "Welcome to {name} — free internet without the extra woof!\nYour internet. Your rules. Your Lusi.",
+                "Ласкаво просимо до {name} — вільний інтернет без зайвого Гав!\nТвій інтернет. Твої правила. Твоя Люсі."),
+    "shop_name": ("Старт", "Корги Люси", "Corgi Lusi", "Коргі Люсі"),
     "open_shop": ("Старт", "🛒 Открыть магазин", "🛒 Open shop", "🛒 Відкрити магазин"),
     "prices": ("Старт", "Актуальные цены", "Current prices", "Актуальні ціни"),
     "promo_scope": ("Старт", " для выбранных тарифов", " for selected plans", " для вибраних тарифів"),

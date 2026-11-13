@@ -2,7 +2,7 @@
 
 The link a customer gets — ``https://<portal domain>/<shortUuid>`` (sub_proxy) — answers two kinds of callers:
 * a VPN client gets the subscription (sub_proxy proxies it from the panel, as before);
-* a browser gets this page: the shop's branding (Corgi Lucy), whether the subscription is active and until when,
+* a browser gets this page: the shop's branding (Corgi Lusi), whether the subscription is active and until when,
   traffic, devices under the limit, the link to copy, a QR code, «add to app» buttons and instructions for the
   clients of the owner's catalogue, notices, support and renewal links.
 
