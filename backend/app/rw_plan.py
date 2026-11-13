@@ -321,6 +321,15 @@ def step(kind: str, server_id: int | None, title: str, **params) -> dict:
     return {"kind": kind, "server_id": server_id, "title": title, "params": params}
 
 
+def ports_step(sid: int, name: str, need: list[dict]) -> list[dict]:
+    """v28.135.0 (owner's task of 2026-11-13): open these ports in every firewall of the server (rw_ports)."""
+    need = [x for x in need if x.get("scope", "all") == "all"]
+    if not need:
+        return []
+    listed = ", ".join(f"{x['port']}/{x['proto']}" for x in need)
+    return [step("node_module", sid, f"{name}: открыть порты {listed}", module="ports", ports=need)]
+
+
 def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -> dict:
     """Steps and consequences. ``servers`` — id → {name, host, roles}; ``shop_panel`` — URL of the panel the shop uses."""
     roles = roles_of(plan)
@@ -400,6 +409,18 @@ def build_plan(plan: PlanIn, servers: dict[int, dict], shop_panel: str | None) -
             steps += [step("node_module", n, f"{name}: порты и сертификат Hysteria2 — {chosen}", module="transports", transports=plan.transports),
                       step("node_transports", None, f"Панель: транспорты {chosen} в профиле SelfSteal, хосты и сквады")]
             changes[n].append(f"Транспорты: {chosen}; если есть ufw — их порты открыты для всех")
+    # v28.135.0 (owner's task of 2026-11-13): every port the installation needs is opened in the server's firewalls
+    # (ufw, firewalld, iptables, nftables); the node's port for the panel keeps its own rule (firewall_node_port).
+    from .rw_ports import required as ports_required
+    for sid, rs in sorted(roles.items()):
+        steal = bool(plan.selfsteal_domain and "node" in rs)
+        added = ports_step(sid, servers[sid]["name"], ports_required(rs + (["selfsteal"] if steal else []),
+                                                                     transports=plan.transports if "node" in rs else ()))
+        if added:
+            steps += added
+            listed = ", ".join(f"{x['port']}/{x['proto']}" for x in added[0]["params"]["ports"])
+            changes.setdefault(sid, []).append(f"Порты {listed} открыты во всех брандмауэрах сервера (ufw, firewalld, iptables, nftables); "
+                                               "порт SSH не трогается; брандмауэр хостинга магазин не видит")
     steps.append(step("verify", None, "Проверка: HTTPS панели, связь нод, страница подписки" + (", сайт SelfSteal" if plan.selfsteal_domain else "")))
     return {
         "mode": plan.mode, "title": MODE_TITLES[plan.mode], "images": IMAGES,
@@ -832,7 +853,9 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
         n = servers[sid]["name"]
         chosen = ", ".join(TRANSPORT_TITLES[t] for t in plan.transports) or "только TCP + REALITY"
         chosen += f"; отпечаток {FINGERPRINTS[plan.fingerprint]}" + (f"; TLS {plan.tls_min}–{plan.tls_max}" if "tls" in plan.transports else "")
+        from .rw_ports import required as ports_required
         steps += [step("node_module", sid, f"{n}: порты и сертификат TLS — {chosen}", module="transports", transports=plan.transports),
+                  *ports_step(sid, n, ports_required([], transports=plan.transports)),
                   step("write_files", sid, f"{n}: файлы ({DIRS['node']})", component="node"),
                   step("compose_up", sid, f"{n}: перезапуск ноды", component="node"),
                   step("node_transports", None, f"Панель: inbound'ы профиля SelfSteal, хосты и сквады — {chosen}"),
@@ -873,7 +896,9 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
             n = servers[sid]["name"]
             ip = servers[sid]["host"]
             chosen = ", ".join(TRANSPORT_TITLES[t] for t in plan.transports) or "только TCP + REALITY"
+            from .rw_ports import required as ports_required
             node_steps = [step("node_module", sid, f"{n}: порты и сертификат TLS — {chosen}", module="transports", transports=plan.transports),
+                          *ports_step(sid, n, ports_required([], transports=plan.transports)),
                           step("write_files", sid, f"{n}: файлы ({DIRS['node']})", component="node"),
                           step("compose_up", sid, f"{n}: перезапуск ноды", component="node"),
                           step("node_transports", None, f"Панель: inbound'ы и хосты — {chosen}")]
@@ -921,6 +946,8 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
                     if mod.enabled else "убрать psiphond")
             steps.append(step("node_module", sid, f"{servers[sid]['name']}: {what}", module="psiphon", enabled=mod.enabled,
                               psiphon_port=mod.psiphon_port, psiphon_protocol=mod.psiphon_protocol))
+            if mod.enabled:
+                steps += ports_step(sid, servers[sid]["name"], [{"proto": "tcp", "port": mod.psiphon_port}])
         title = f"{MODULE_TITLES[name]}: {state}"
     elif name == "mtproto":
         # v28.94.0 (N7): a Telegram MTProto proxy with FakeTLS on the chosen nodes (rw_netmods.MTPROTO, image pinned by digest).
@@ -934,6 +961,8 @@ def module_steps(plan: PlanIn, servers: dict[int, dict], roles: dict[int, list[s
                     else "убрать MTProto-прокси")
             steps.append(step("node_module", sid, f"{servers[sid]['name']}: {what}", module="mtproto", enabled=mod.enabled,
                               mtproto_port=mod.mtproto_port, mtproto_domain=mod.mtproto_domain))
+            if mod.enabled:
+                steps += ports_step(sid, servers[sid]["name"], [{"proto": "tcp", "port": mod.mtproto_port}])
         title = f"{MODULE_TITLES[name]}: {state}"
     elif name in ("mss_clamp", "node_guard", "swap", "crowdsec"):
         # v28.92.0 (N7, rw_netmods): MSS clamp and the guard on the nodes by default, swap on any server of the installation.

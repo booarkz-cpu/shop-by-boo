@@ -1098,6 +1098,21 @@ async def run_node_module(ctx: Context, st: dict) -> None:
         if not data.get("success"):
             raise StepError("Xray Checker не отвечает на 127.0.0.1:2112")
         _note(ctx, f"Xray Checker: проверяет {len(data.get('data') or [])} серверов подписки")
+    elif name == "ports":
+        # v28.135.0 (owner's task of 2026-11-13): open what the installation needs in every firewall of the server.
+        from . import rw_ports
+        wanted = rw_ports.spec(p.get("ports") or [])
+        before = rw_ports.parse_scan((await _run(ctx, sid, rw_ports.NODE, "scan", timeout=120)).out)
+        result = await _run(ctx, sid, rw_ports.NODE, "open", wanted, timeout=180)
+        _note(ctx, result.out + result.err)
+        if result.code != 0:
+            raise StepError(rw_ports.REASONS.get(result.code, "Порты не открыты (журнал шага)"))
+        walls = ", ".join(before["firewalls"])
+        _note(ctx, f"Брандмауэр сервера: {walls}" + (" — на сервере порты и так открыты; если клиенты не подключаются, "
+                                                    "проверьте брандмауэр в панели хостинга" if before["firewalls"] == ["none"] else ""))
+        # «undo» closes only what this run opened: a port the shop had opened before stays.
+        ctx.state.setdefault("ports_opened", {})[str(sid)] = [x for x in wanted.split(",")
+                                                             if (x.split("/")[0], int(x.split("/")[1])) not in before["opened"]]
     else:
         raise StepError(f"Неизвестный модуль {name}")
     if name == "crowdsec" and enabled and p.get("action") in ("status", "unban"):
@@ -1566,6 +1581,12 @@ async def undo_node_module(ctx: Context, st: dict) -> None:
             script = {"mss_clamp": rw_netmods.MSS, "node_guard": rw_netmods.GUARD, "swap": rw_netmods.SWAP, "mtproto": rw_netmods.MTPROTO,
                       "psiphon": rw_netmods.PSIPHON, "crowdsec": rw_netmods.CROWDSEC}[p["module"]]
             await _run(ctx, sid, script, "off", timeout=600)
+        return
+    if p["module"] == "ports":
+        from . import rw_ports
+        opened = ctx.state.get("ports_opened", {}).pop(str(sid), [])
+        if opened:
+            await _run(ctx, sid, rw_ports.NODE, "close", ",".join(opened), timeout=180)
         return
     if p["module"] == "node_port" and str(sid) in ctx.state.get("node_port_before", {}):
         before = ctx.state["node_port_before"].pop(str(sid))

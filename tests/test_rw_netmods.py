@@ -109,7 +109,9 @@ async def test_sni_scan_is_read_only_and_ranks_the_candidates(monkeypatch):
 
 def test_mtproto_plan_refuses_the_node_ports():
     steps, title = rw_plan.module_steps(plan_with(name="mtproto", mtproto_port=9443, mtproto_domain="www.cloudflare.com"), SERVERS, {2: ["node"]})
-    assert title == "MTProto-прокси для Telegram: включить" and len(steps) == 1
+    # v28.135.0: the module step, then its port opened in every firewall of the node.
+    assert title == "MTProto-прокси для Telegram: включить" and len(steps) == 2
+    assert steps[1]["params"] == {"module": "ports", "ports": [{"proto": "tcp", "port": 9443}]}
     assert steps[0]["params"] == {"module": "mtproto", "enabled": True, "mtproto_port": 9443, "mtproto_domain": "www.cloudflare.com"}
     assert "TCP 9443" in steps[0]["title"] and "www.cloudflare.com" in steps[0]["title"]
     for taken in (443, 2053, 4443, 8443, 2222):  # REALITY, the extra transports, the node's port for the panel
