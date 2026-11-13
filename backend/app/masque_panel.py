@@ -87,6 +87,15 @@ class ShieldIn(BaseModel):
 
 class InstallIn(BaseModel):
     shield: ShieldIn = Field(default_factory=ShieldIn)
+    # v28.140.0: the node's own port; none — the port it already has, or the default port from the settings.
+    port: int | None = Field(default=None, ge=1024, le=65535)
+
+
+def port_taken(port: int, required: list[dict], own: int | None) -> list[str]:
+    """Why ``port`` cannot be MASQUE's on this node: another service the shop installed there needs TCP ``port``.
+    MASQUE's own current port does not count."""
+    return [f"TCP {port}: {r['why']}" for r in required
+            if r.get("proto") == "tcp" and int(r.get("port") or 0) == int(port) and int(port) != int(own or 0)]
 
 
 # ---------------------------------------------------------------- pure
@@ -496,9 +505,14 @@ async def install(server_id: int, payload: InstallIn | None = None, db: AsyncSes
     if await _busy(db, [server_id]):
         raise HTTPException(409, "На сервере идёт установка: дождитесь её окончания")
     previous = state["nodes"].get(str(server_id)) or {}
-    chosen = rw_masque.shield((payload or InstallIn()).shield.model_dump())
-    node = {"server_id": server_id, "name": item["name"], "domain": item["domain"], "shield": chosen,
-            "port": int(previous.get("port") or state.get("port") or rw_masque.DEFAULT_PORT)}
+    payload = payload or InstallIn()
+    chosen = rw_masque.shield(payload.shield.model_dump())
+    port = int(payload.port or previous.get("port") or state.get("port") or rw_masque.DEFAULT_PORT)
+    from .rw_ports import required_for
+    taken = port_taken(port, await required_for(db, server_id), previous.get("port") if previous.get("state") == "on" else None)
+    if taken:
+        raise HTTPException(409, "Порт занят другой службой этой ноды: " + "; ".join(taken))
+    node = {"server_id": server_id, "name": item["name"], "domain": item["domain"], "shield": chosen, "port": port}
     users = users_of(await _live_subs(db, state, _naive()), state)
     record = await sync_node(db, node, users, action="on")
     if record.get("error"):
@@ -509,7 +523,7 @@ async def install(server_id: int, payload: InstallIn | None = None, db: AsyncSes
     state["nodes"][str(server_id)] = record
     await _store(db, state)
     await audit(db, "masque.node.installed", admin.email, str(server_id), {"domain": node["domain"], "port": node["port"], "users": len(users), "shield": chosen,
-                                                                         "reinstall": bool(previous)})
+                                                                         "reinstall": bool(previous), "previous_port": previous.get("port")})
     await db.commit()
     return await _view(db, state)
 
