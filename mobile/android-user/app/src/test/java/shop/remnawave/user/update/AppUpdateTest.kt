@@ -37,8 +37,9 @@ class AppUpdateTest {
     }
 
     @Test fun onceADayAndNotAfterLater() {
-        assertTrue(AppUpdate.due(AppUpdate.DAY, 0))
-        assertFalse(AppUpdate.due(AppUpdate.DAY + 5, AppUpdate.DAY))
+        assertTrue(AppUpdate.due(AppUpdate.CHECK, 0))
+        assertFalse(AppUpdate.due(AppUpdate.CHECK + 5, AppUpdate.CHECK))
+        assertTrue("a release out after the morning check is seen the same day", AppUpdate.due(AppUpdate.CHECK * 2, AppUpdate.CHECK - 1))
         assertTrue(AppUpdate.due(10, 500))                                      // the clock went back: check again
         val found = AppUpdate.parse(manifest())
         assertEquals(found, AppUpdate.offer(found, 3600))
@@ -47,11 +48,12 @@ class AppUpdateTest {
         assertTrue(AppUpdate.MANIFEST.endsWith("/releases/latest/download/corgi-lusi-android.json"))
     }
 
-    /** v3.7.0: the background job installs by itself only where the system can do it silently and no VPN is cut. */
-    @Test fun backgroundInstallOnlyWithoutAWorkingVpn() {
-        assertTrue(AppUpdater.installNow(sdk = 31, vpnRunning = false))
-        assertFalse("an update restarts the app: never under a working VPN", AppUpdater.installNow(sdk = 36, vpnRunning = true))
-        assertFalse("before Android 12 the system always asks", AppUpdater.installNow(sdk = 30, vpnRunning = false))
+    /** v28.137.0: the background job installs by itself wherever the system can do it silently, a working VPN included. */
+    @Test fun backgroundInstallAlsoUnderAWorkingVpn() {
+        assertTrue(AppUpdater.installNow(sdk = 31))
+        assertTrue(AppUpdater.installNow(sdk = 36))
+        assertFalse("before Android 12 the system always asks", AppUpdater.installNow(sdk = 30))
+        assertTrue(AppUpdate.JOB <= 6 * 3_600_000L)
     }
 
     @Test fun downloadedFileIsCheckedByItsSha256() {

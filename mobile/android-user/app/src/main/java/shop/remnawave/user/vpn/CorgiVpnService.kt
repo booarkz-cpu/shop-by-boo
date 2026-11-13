@@ -126,6 +126,7 @@ class CorgiVpnService : VpnService() {
         const val KEY_SERVER = "server"
         const val KEY_BYPASS_RU = "bypass_ru"
         const val KEY_EXCLUDED = "excluded_apps"
+        const val KEY_LAST_SUBSCRIPTION = "last_subscription"
         const val KEY_MODE = "mode"  // "engine" | "client"
         const val STATE_OFF = "off"
         const val STATE_CONNECTING = "connecting"
@@ -150,8 +151,11 @@ class CorgiVpnService : VpnService() {
         fun useEngine(context: Context): Boolean =
             XrayEngine.available() && context.getSharedPreferences(PREFS, 0).getString(KEY_MODE, "engine") == "engine"
 
+        /** v28.137.0: the subscription of the last start — the VPN is started with it again after an automatic update. */
+        fun lastSubscription(context: Context): String = context.getSharedPreferences(PREFS, 0).getString(KEY_LAST_SUBSCRIPTION, "").orEmpty()
+
         fun start(context: Context, subscription: String) {
-            context.getSharedPreferences(PREFS, 0).edit().remove(KEY_ERROR).apply()
+            context.getSharedPreferences(PREFS, 0).edit().remove(KEY_ERROR).putString(KEY_LAST_SUBSCRIPTION, subscription).apply()
             val intent = Intent(context, CorgiVpnService::class.java).setAction(ACTION_START).putExtra(EXTRA_SUBSCRIPTION, subscription)
             if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent) else context.startService(intent)
         }

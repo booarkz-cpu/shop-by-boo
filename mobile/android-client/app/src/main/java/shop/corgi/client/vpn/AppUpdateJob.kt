@@ -21,9 +21,10 @@ import shop.corgi.client.engine.Xray
 import shop.corgi.client.ui.MainActivity
 
 /**
- * v1.6.1 (N11): «Обновлять автоматически» — once a day the release manifest is checked; a newer client (with a newer
- * Xray core) is downloaded in the background and checked by its SHA-256, then a notification offers to install it
- * (Android asks the user to confirm an app that is not installed by a store). The geo files are refreshed the same day.
+ * v1.6.1 (N11): «Обновлять автоматически» — the release manifest is checked; a newer client (with a newer Xray core) is
+ * downloaded in the background and checked by its SHA-256. v1.9.7: every 6 hours on any network, installed without the
+ * person on Android 12+ (also under a working VPN, which comes back after the update); before Android 12, or when the
+ * system still wants a confirmation, «Обновление готово» is shown. The geo files are refreshed once a day.
  */
 class AppUpdateJob : JobService() {
     override fun onStartJob(params: JobParameters): Boolean {
@@ -32,21 +33,14 @@ class AppUpdateJob : JobService() {
             val s = store.settings
             if (s.autoUpdateApp) {
                 runCatching { store.checkUpdate() }.getOrNull()?.let { update ->
-                    // v1.9.6: on mobile data only a notification; the APK is downloaded after a tap.
-                    val metered = getSystemService(android.net.ConnectivityManager::class.java)?.isActiveNetworkMetered ?: true
-                    if (store.readyUpdate() == null && !ApkCheck.downloadInBackground(metered)) {
-                        // Once per version, not every 6 hours.
-                        val prefs = getSharedPreferences("client_update_job", MODE_PRIVATE)
-                        if (prefs.getInt("notified", 0) != update.versionCode) {
-                            notifyReady(this, update.versionName, downloaded = false)
-                            prefs.edit().putInt("notified", update.versionCode).apply()
-                        }
-                        return@let
-                    }
+                    // v1.9.7: downloaded on any network (on mobile data too) and installed without the person.
                     runCatching { store.downloadUpdate(update) }.getOrNull()?.let { apk ->
-                        // v1.9.2: installed right away when that cannot cut a working VPN; otherwise by a tap.
-                        if (ApkCheck.installNow(Build.VERSION.SDK_INT, Xray.running)) {
-                            runCatching { ApkInstaller.install(this, apk, background = true, version = update.versionName) }
+                        // v1.9.7: installed right away, also under a working VPN (it comes back after the update).
+                        if (ApkCheck.installNow(Build.VERSION.SDK_INT)) {
+                            val resume = Xray.running
+                            runCatching {
+                                ApkInstaller.install(this, apk, background = true, version = update.versionName, resumeVpn = resume)
+                            }
                                 .onFailure { notifyReady(this, update.versionName) }
                         } else {
                             notifyReady(this, update.versionName)

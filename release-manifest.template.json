@@ -166,6 +166,6 @@
   "production_ready": false,
   "upgrade_from": "21.5.0",
   "distribution_tag": "v28.137.0",
-  "release_title": "v28.137.0 — сверка нод MASQUE",
+  "release_title": "v28.137.0 — новые иконки, обновление приложений без участия человека, сверка MASQUE",
   "release_notes": "docs/ru/RELEASE_V28_137_0.md"
 }

@@ -37,3 +37,26 @@ def test_launcher_icons_are_wired():
     for role, app in (("user", "VpnShopUser"), ("admin", "VpnShopAdmin")):
         assert "ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon" in (ROOT / f"mobile/ios-{role}/{app}.xcodeproj/project.pbxproj").read_text()
         assert Image.open(ROOT / f"mobile/ios-{role}/{app}/Assets.xcassets/AppIcon.appiconset/icon-1024.png").size == (1024, 1024)
+
+
+def test_adaptive_launcher_icons_of_all_three_apps():
+    """v28.137.0: adaptive icons, so a launcher's mask cuts only the background (owner's screenshot of 2026-11-13)."""
+    names = {"client": ("ic_launcher", "ic_launcher_night", "ic_launcher_mint"), "user": ("ic_launcher",), "admin": ("ic_launcher",)}
+    for role, icons in names.items():
+        res = ROOT / f"mobile/android-{role}/app/src/main/res"
+        for name in icons:
+            xml = (res / f"mipmap-anydpi-v26/{name}.xml").read_text()
+            assert f'@mipmap/{name}_bg' in xml and "@mipmap/ic_launcher_fg" in xml
+            for density, scale in (("mdpi", 1), ("xxxhdpi", 4)):
+                assert Image.open(res / f"mipmap-{density}/{name}_bg.png").size == (108 * scale, 108 * scale)
+        fg = Image.open(res / "mipmap-xxxhdpi/ic_launcher_fg.png")
+        assert fg.size == (432, 432) and fg.mode == "RGBA"
+        box = fg.getchannel("A").getbbox()
+        # The art stays in the middle part a launcher shows (72 of 108 dp); nothing is drawn near the layer's edge.
+        assert box[0] >= 432 * 0.15 and box[2] <= 432 * 0.85 and box[1] >= 432 * 0.15 and box[3] <= 432 * 0.85, box
+    # The picker in «Оформление» draws previews: painterResource cannot draw an adaptive icon.
+    code = (ROOT / "mobile/android-client/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt").read_text()
+    assert "R.mipmap." not in code
+    for key in ("corgi", "night", "mint"):
+        assert f"R.drawable.icon_preview_{key}" in code
+        assert (ROOT / f"mobile/android-client/app/src/main/res/drawable-nodpi/icon_preview_{key}.png").is_file()

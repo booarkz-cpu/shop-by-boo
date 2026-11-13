@@ -41,8 +41,8 @@ class AdminScreensTest {
         org.junit.Assert.assertFalse(update.fromStore(null))
         // v3.7.0: the background job installs by itself only on Android 12 and newer.
         val updater = shop.remnawave.admin.update.AppUpdater
-        org.junit.Assert.assertTrue(updater.installNow(31, false))
-        org.junit.Assert.assertFalse(updater.installNow(30, false))
+        org.junit.Assert.assertTrue(updater.installNow(31))
+        org.junit.Assert.assertFalse(updater.installNow(30))
         org.junit.Assert.assertEquals("corgi-lusi-android-admin", updater.STEM)
     }
 
