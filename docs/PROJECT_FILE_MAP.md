@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.147.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.148.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2639**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2643**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -77,7 +77,9 @@
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.trivyignore](../.trivyignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -838,6 +840,7 @@
 | [docs/MASTER_EXECUTION_PROGRESS.md](../docs/MASTER_EXECUTION_PROGRESS.md) | Документация |
 | [docs/MASTER_EXECUTION_REPORTS.md](../docs/MASTER_EXECUTION_REPORTS.md) | Документация |
 | [docs/MASTER_ROADMAP_VPN_SHOP.md](../docs/MASTER_ROADMAP_VPN_SHOP.md) | Документация |
+| [docs/MONOREPO_LAYOUT.md](../docs/MONOREPO_LAYOUT.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
 | [docs/OWNER_DECISIONS.md](../docs/OWNER_DECISIONS.md) | Документация |
 | [docs/PAYMENT_PROVIDER_INVENTORY.md](../docs/PAYMENT_PROVIDER_INVENTORY.md) | Документация |
@@ -1245,6 +1248,7 @@
 | [docs/ru/RELEASE_V28_145_0.md](../docs/ru/RELEASE_V28_145_0.md) | Документация |
 | [docs/ru/RELEASE_V28_146_0.md](../docs/ru/RELEASE_V28_146_0.md) | Документация |
 | [docs/ru/RELEASE_V28_147_0.md](../docs/ru/RELEASE_V28_147_0.md) | Документация |
+| [docs/ru/RELEASE_V28_148_0.md](../docs/ru/RELEASE_V28_148_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
