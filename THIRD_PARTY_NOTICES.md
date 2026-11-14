@@ -38,7 +38,7 @@
 
 Сервер WebAuthn использует `webauthn==3.0.1` (py_webauthn, BSD-3-Clause); браузерные тесты — `@playwright/test==1.63.0` (Apache-2.0). Сохраните их полные license/copyright notices при распространении зависимостей. Эти библиотеки не перелицензируются лицензией магазина. Нативный WebAuthn API браузера используется без копирования стороннего JS verifier. Новые модули интеграции и мониторинга написаны в этом репозитории.
 
-## UI дистрибутива v28.154.0
+## UI дистрибутива v28.155.0
 
 shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `apps/lucy-admin/web/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt](apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
 
