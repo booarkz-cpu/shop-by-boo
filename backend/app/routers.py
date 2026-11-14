@@ -2,6 +2,7 @@
 A new module adds its name here; v28.35+ modules live in this list instead of growing main.py."""
 MODULES = (
     "log_format",
+    "host_metrics",
     "tribute",
     "node_health",
     "bonus_days",
