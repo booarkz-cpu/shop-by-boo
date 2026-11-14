@@ -135,6 +135,11 @@ jobs:
         if: matrix.shard == 2
         timeout-minutes: 12
         run: sudo env "PATH=$PATH" bash scripts/ci/masque-check.sh
+      - name: No secrets in the repository (.env, private keys, dumps, tokens)
+        # v28.143.0 (REQ-INFRA-0021): every file git tracks; the findings name the path and the kind, never the value.
+        if: matrix.shard == 1
+        timeout-minutes: 2
+        run: python3 scripts/ci/secret-leak-check.py
       - name: Ports of a server, for real (iptables and nftables in network namespaces)
         # v28.135.0: the script of backend/app/rw_ports.py opens, reapplies after a «reboot» and closes ports; SSH is never closed.
         if: matrix.shard == 2

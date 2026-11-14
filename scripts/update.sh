@@ -7,6 +7,24 @@ umask 077
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 ROLLBACK_DIR="${ROLLBACK_DIR:-$APP_DIR/.rollback}"
 mkdir -p "$ROLLBACK_DIR"
+# v28.143.0 (REQ-INFRA-0011): enough free disk for the snapshot, the dump and the new images — checked before writing.
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/update-space.sh"
+install_kb=$(du -sk --exclude=./.rollback --exclude=./.git --exclude='*/node_modules' . 2>/dev/null | cut -f1 || echo 0)
+db_kb=0
+if docker compose up -d db >/dev/null 2>&1; then
+  for _ in $(seq 1 15); do   # the database may still be starting: retry while psql itself fails
+    if size=$(docker compose exec -T db psql -U vpnshop -d vpnshop -tAc "select pg_database_size('vpnshop')/1024" 2>/dev/null); then
+      db_kb=$(printf '%s' "$size" | tr -dc 0-9); break
+    fi
+    sleep 2
+  done
+fi
+free_kb=$(df -Pk "$ROLLBACK_DIR" | awk 'NR==2{print $4}')
+space_check "$(space_need_kb "${install_kb:-0}" "${db_kb:-0}")" "${free_kb:-0}" || exit 3
+docker_root=$(docker info -f '{{.DockerRootDir}}' 2>/dev/null || true)
+if [[ -n "$docker_root" && -d "$docker_root" ]]; then
+  space_check "$SPACE_RESERVE_KB" "$(df -Pk "$docker_root" | awk 'NR==2{print $4}')" || exit 3
+fi
 SNAPSHOT="$ROLLBACK_DIR/pre-update-$STAMP.tar.gz"
 DB_DUMP="$ROLLBACK_DIR/pre-update-$STAMP.sql"
 # Never copy environment secrets into rollback archives.
