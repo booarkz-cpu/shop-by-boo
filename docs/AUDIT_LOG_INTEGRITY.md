@@ -2,8 +2,8 @@
 
 Раздел панели администратора: **Журнал действий**, блок «Целостность журнала».
 
-Код: `backend/app/audit_seal.py`, блок `admin/src/audit-seal.tsx`,
-тесты `tests/test_audit_seal.py` и `admin/e2e/audit-seal.spec.ts`.
+Код: `backend/app/audit_seal.py`, блок `apps/lucy-admin/web/src/audit-seal.tsx`,
+тесты `tests/test_audit_seal.py` и `apps/lucy-admin/web/e2e/audit-seal.spec.ts`.
 
 ## Зачем
 

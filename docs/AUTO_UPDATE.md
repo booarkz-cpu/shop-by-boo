@@ -4,7 +4,7 @@
 
 Документ описывает **фактически реализованный** механизм. Всё, что здесь написано, проверено по
 исходному коду `scripts/auto_update.py`, `scripts/github_release_fetch.py`,
-`backend/app/auto_update_api.py`, `admin/src/autoUpdate.tsx`. То, что нельзя проверить без VPS,
+`backend/app/auto_update_api.py`, `apps/lucy-admin/web/src/autoUpdate.tsx`. То, что нельзя проверить без VPS,
 помечено явно.
 
 Подробности цикла и откат: [modules/auto_update_and_rollback.md](modules/auto_update_and_rollback.md).
@@ -28,7 +28,7 @@ GitHub Actions не имеет доступа к файловой системе
 | Хост | Загрузка и проверка релиза (SHA-256, манифест, commit) | `scripts/github_release_fetch.py` |
 | Хост | Снимок, замена файлов, сборка, миграции, health, откат | `scripts/update.sh`, `scripts/rollback.sh` |
 | backend | Экран «Обновления» и запрос «Обновить сейчас» | `backend/app/auto_update_api.py` |
-| admin | UI «Автообновление с GitHub» | `admin/src/autoUpdate.tsx` |
+| admin | UI «Автообновление с GitHub» | `apps/lucy-admin/web/src/autoUpdate.tsx` |
 
 ```
 admin (браузер)
@@ -143,9 +143,9 @@ backend  ◀── читает ──  $APP_DIR/.control/auto-update.status.jso
 
 ## 6. Интерфейс панели
 
-Раздел админки: **Выпуски → Обновления** (вкладка `releases`, `admin/src/sections.ts`).
-Внутри — карточка «Автообновление с GitHub» (`admin/src/autoUpdate.tsx`) и карточка «Релиз GitHub»
-(`Releases` в `admin/src/main.tsx`).
+Раздел админки: **Выпуски → Обновления** (вкладка `releases`, `apps/lucy-admin/web/src/sections.ts`).
+Внутри — карточка «Автообновление с GitHub» (`apps/lucy-admin/web/src/autoUpdate.tsx`) и карточка «Релиз GitHub»
+(`Releases` в `apps/lucy-admin/web/src/main.tsx`).
 
 Отображается: доступность агента, включённость, время, установленная и доступная версии,
 состояние (`running`), время последнего запуска, `last_result` и `last_message`, `next_run`,
@@ -202,14 +202,14 @@ sudo bash /opt/vpn-shop/scripts/auto-update.sh disable   # выключить (�
 | Агент, таймеры, расписание | Реализовано | `scripts/auto_update.py`, тесты `tests/test_auto_update_agent.py` |
 | Проверка релиза, SHA-256, манифест | Реализовано | `scripts/github_release_fetch.py`, `backend/app/github_update.py` |
 | API панели, права, защита от повтора | Реализовано | `tests/test_auto_update_api.py` — проходит |
-| UI «Автообновление» | Реализовано | `admin/src/autoUpdate.tsx`, typecheck и build проходят |
+| UI «Автообновление» | Реализовано | `apps/lucy-admin/web/src/autoUpdate.tsx`, typecheck и build проходят |
 | Снимок и откат при сбое | Реализовано | `scripts/update.sh`, `scripts/rollback.sh` |
 | Реальный ночной прогон на VPS | **Не проверено** | Нужен хост с systemd и root — `BLOCKED_ACCESS` |
 
 ## 10. Вся экосистема
 
 Раздел «Обновления» начинается с таблицы «Вся экосистема: автообновление с GitHub»
-(`backend/app/ecosystem_updates.py`, `admin/src/ecosystem-updates.tsx`). Таблица ничего не меняет:
+(`backend/app/ecosystem_updates.py`, `apps/lucy-admin/web/src/ecosystem-updates.tsx`). Таблица ничего не меняет:
 она читает состояние существующих механизмов и последний выпуск на GitHub.
 
 | Часть | Автообновление | Механизм | Где настраивается |

@@ -25,9 +25,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Build artifacts
-admin/dist/
-miniapp/dist/
-cabinet/dist/
+apps/lucy-admin/web/dist/
+apps/telegram-mini-app/dist/
+apps/user-cabinet/dist/
 coverage/
 
 # Local/runtime data

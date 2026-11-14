@@ -30,7 +30,7 @@
     "SUPPORT_PRO_INTEGRATION_RU.md",
     "THIRD_PARTY_NOTICES.md",
     "UNIFIED_ARCHITECTURE_RU.md",
-    "admin/README.md",
+    "apps/lucy-admin/web/README.md",
     "corgi-cli/README.md",
     "deploy/wireguard/README_RU.md",
     "desktop/README.md",

@@ -35,9 +35,9 @@
 ```bash
 python -m compileall -q backend/app
 python scripts/check-current-docs.py
-(cd admin && npm ci && npm run typecheck && npm run build)
-(cd cabinet && npm ci && npm run typecheck && npm run build)
-(cd miniapp && npm ci && npm run typecheck && npm run build)
+(cd apps/lucy-admin/web && npm ci && npm run typecheck && npm run build)
+(cd apps/user-cabinet && npm ci && npm run typecheck && npm run build)
+(cd apps/telegram-mini-app && npm ci && npm run typecheck && npm run build)
 bash scripts/test-up.sh
 ```
 

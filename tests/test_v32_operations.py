@@ -30,5 +30,5 @@ def test_build_stage_images_are_pinnable():
     for x in ['PYTHON_BASE_IMAGE','NODE_BASE_IMAGE','NGINX_BASE_IMAGE']:
         assert x in compose
     assert 'ARG PYTHON_BASE_IMAGE' in read(ROOT/'backend/Dockerfile')
-    assert 'ARG NODE_BASE_IMAGE' in read(ROOT/'admin/Dockerfile')
-    assert 'ARG NGINX_BASE_IMAGE' in read(ROOT/'admin/Dockerfile')
+    assert 'ARG NODE_BASE_IMAGE' in read(ROOT/'apps/lucy-admin/web/Dockerfile')
+    assert 'ARG NGINX_BASE_IMAGE' in read(ROOT/'apps/lucy-admin/web/Dockerfile')

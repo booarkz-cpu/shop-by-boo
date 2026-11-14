@@ -14,8 +14,8 @@ from test_subscription_commerce import database  # noqa: F401
 ROOT = Path(__file__).resolve().parents[1]
 REQ = (ROOT / "backend/requirements.txt").read_text()
 MANIFEST = (ROOT / "release-manifest.template.json").read_text()
-UI = (ROOT / "admin/src/main.tsx").read_text()
-CSS = (ROOT / "admin/src/style.css").read_text()
+UI = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+CSS = (ROOT / "apps/lucy-admin/web/src/style.css").read_text()
 
 
 @pytest.mark.asyncio
@@ -77,8 +77,8 @@ async def test_content_managers_change_only_public_branding_settings(database):
 def test_frontend_supports_light_dark_theme_and_custom_branding():
     assert 'localStorage.getItem("rw_theme")' in UI
     assert 'document.documentElement.dataset.theme' in UI
-    assert 'Переключить тему' in (ROOT / 'admin/src/i18n.tsx').read_text()
-    assert 'Брендинг панели' in (ROOT / 'admin/src/i18n.tsx').read_text()
+    assert 'Переключить тему' in (ROOT / 'apps/lucy-admin/web/src/i18n.tsx').read_text()
+    assert 'Брендинг панели' in (ROOT / 'apps/lucy-admin/web/src/i18n.tsx').read_text()
     assert '/api/admin/branding/logo' in UI
     assert '/api/admin/branding/favicon' in UI
     assert 'app_name' in UI
@@ -92,5 +92,5 @@ def test_release_is_44_5_20_and_pillow_is_pinned():
 
 
 def test_frontend_source_transpile_check_is_documented_by_project_structure():
-    assert (ROOT / 'admin/src/main.tsx').exists()
-    assert (ROOT / 'admin/src/style.css').exists()
+    assert (ROOT / 'apps/lucy-admin/web/src/main.tsx').exists()
+    assert (ROOT / 'apps/lucy-admin/web/src/style.css').exists()

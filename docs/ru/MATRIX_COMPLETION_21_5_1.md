@@ -87,7 +87,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Расширенная DNS/ASN/reputation карта | Источники данных: RIPEstat Data API (ASN, владелец, префикс, анонс, страна RIR; без ключа, с `sourceapp`) и AbuseIPDB v2 (репутация, по ключу оператора); лицензирование и атрибуция указаны в интерфейсе и регламенте; кэш на IP и источник со сроком 7 дней / 24 часа и отметкой свежести; последние данные сохраняются при ошибке с backoff; бюджет запросов на окно и пауза по `Retry-After`; DNS A/AAAA; внутренние и зарезервированные адреса не отправляются; UI анализа с предупреждениями и сводкой сетей клиентов без IP | `tests/test_network_intel.py` (SQLite/PostgreSQL): ошибка источника, устаревание, IPv6, приватные адреса, rate limits; `admin/e2e/remna-design.spec.ts`. [Регламент](NETWORK_INTEL_CURRENT.md) |
+| Расширенная DNS/ASN/reputation карта | Источники данных: RIPEstat Data API (ASN, владелец, префикс, анонс, страна RIR; без ключа, с `sourceapp`) и AbuseIPDB v2 (репутация, по ключу оператора); лицензирование и атрибуция указаны в интерфейсе и регламенте; кэш на IP и источник со сроком 7 дней / 24 часа и отметкой свежести; последние данные сохраняются при ошибке с backoff; бюджет запросов на окно и пауза по `Retry-After`; DNS A/AAAA; внутренние и зарезервированные адреса не отправляются; UI анализа с предупреждениями и сводкой сетей клиентов без IP | `tests/test_network_intel.py` (SQLite/PostgreSQL): ошибка источника, устаревание, IPv6, приватные адреса, rate limits; `apps/lucy-admin/web/e2e/remna-design.spec.ts`. [Регламент](NETWORK_INTEL_CURRENT.md) |
 
 Проверка источников на реальных адресах узлов — за оператором.
 
@@ -95,7 +95,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Plugin runtime/hotload | Плагин — внешний HTTPS-сервис, код в магазине не выполняется. Подписанный Ed25519 пакетный формат (манифест и README), доверенные ключи издателей с отзывом; capability sandbox: API `/api/plugin/v1` с отдельным токеном и только подтверждёнными правами, события только при наличии права; lifecycle: загрузка, подтверждение прав, включение, выключение, удаление; обновление ждёт подтверждения новых прав, откат к любой версии в пределах подтверждённых прав без перезапуска; совместимость `api_version`; изоляция секретов (настройки зашифрованы и видны только своему плагину, токен хранится хешем); HMAC-подписанные события с повтором и автоостановкой | `tests/test_plugins.py` (SQLite/PostgreSQL): недоверенный и изменённый пакет, отказ и откат, обновление, изоляция секретов и прав; `admin/e2e/plugins.spec.ts`. [Регламент](PLUGINS_CURRENT.md) |
+| Plugin runtime/hotload | Плагин — внешний HTTPS-сервис, код в магазине не выполняется. Подписанный Ed25519 пакетный формат (манифест и README), доверенные ключи издателей с отзывом; capability sandbox: API `/api/plugin/v1` с отдельным токеном и только подтверждёнными правами, события только при наличии права; lifecycle: загрузка, подтверждение прав, включение, выключение, удаление; обновление ждёт подтверждения новых прав, откат к любой версии в пределах подтверждённых прав без перезапуска; совместимость `api_version`; изоляция секретов (настройки зашифрованы и видны только своему плагину, токен хранится хешем); HMAC-подписанные события с повтором и автоостановкой | `tests/test_plugins.py` (SQLite/PostgreSQL): недоверенный и изменённый пакет, отказ и откат, обновление, изоляция секретов и прав; `apps/lucy-admin/web/e2e/plugins.spec.ts`. [Регламент](PLUGINS_CURRENT.md) |
 
 Публичный каталог плагинов не входит в выпуск.
 
@@ -119,7 +119,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Native push (из строки «Native push/widget/multiprofile admin») | Реестр устройств с SHA-256 индексом и AES-GCM токеном, привязка к сессии входа, очередь `push_deliveries`, FCM HTTP v1 (OAuth сервисного аккаунта) и APNs (ES256, HTTP/2), повтор с backoff, отзыв при потерянном токене, выходе, смене аккаунта и удалении; opt-in в Android (FCM без google-services) и iOS; состояние в админке | `tests/test_push.py` (SQLite/PostgreSQL): регистрация и повтор, переход токена между аккаунтами, лимит устройств, подписи FCM/APNs, скрытие текста ответа поддержки, UNREGISTERED/410, backoff до отказа, logout без обращения к провайдеру, удалённый аккаунт, отсутствие ключей; `admin/e2e/remna-design.spec.ts`; CI-сборка Android/iOS. [Регламент](PUSH_NOTIFICATIONS_CURRENT.md) |
+| Native push (из строки «Native push/widget/multiprofile admin») | Реестр устройств с SHA-256 индексом и AES-GCM токеном, привязка к сессии входа, очередь `push_deliveries`, FCM HTTP v1 (OAuth сервисного аккаунта) и APNs (ES256, HTTP/2), повтор с backoff, отзыв при потерянном токене, выходе, смене аккаунта и удалении; opt-in в Android (FCM без google-services) и iOS; состояние в админке | `tests/test_push.py` (SQLite/PostgreSQL): регистрация и повтор, переход токена между аккаунтами, лимит устройств, подписи FCM/APNs, скрытие текста ответа поддержки, UNREGISTERED/410, backoff до отказа, logout без обращения к провайдеру, удалённый аккаунт, отсутствие ключей; `apps/lucy-admin/web/e2e/remna-design.spec.ts`; CI-сборка Android/iOS. [Регламент](PUSH_NOTIFICATIONS_CURRENT.md) |
 
 Виджет Android и административный мультипрофиль закрыты в v28.6.0. Реальная доставка через Firebase/Apple требует ключей оператора и проверяется на стенде.
 
@@ -127,8 +127,8 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Исторический импорт VPN/платежей | Версионированный адаптер `generic-sqlite-v1`, зашифрованный неизменяемый снимок сверки с fingerprint состояния, контрольные итоги, повтор без дублей по ID платежа и UUID Remnawave, конфликт изменённых строк, журнал и откат с проверкой использования; платежи только как история | `tests/test_history_import.py` (SQLite и PostgreSQL): preview без записи, расхождение сумм блокирует apply, повтор без дублей, устаревший preview, откат и его отказ; roundtrip `0065_history_import`; `admin/e2e/history-import.spec.ts`. [Регламент](HISTORY_IMPORT_CURRENT.md). Внешняя приёмка на копии реальной выгрузки — за оператором |
-| Интерфейсы и Telegram Mini App | Next.js static export, Remna Dark, сворачиваемый sidebar/drawer, дашборд метрик, кабинет с трафиком/сроком/QR, Telegram WebApp SDK, строгая CSP | `admin/e2e/remna-design.spec.ts`, `admin/e2e/cabinet-design.spec.ts` под production CSP; Vitest кабинета |
+| Исторический импорт VPN/платежей | Версионированный адаптер `generic-sqlite-v1`, зашифрованный неизменяемый снимок сверки с fingerprint состояния, контрольные итоги, повтор без дублей по ID платежа и UUID Remnawave, конфликт изменённых строк, журнал и откат с проверкой использования; платежи только как история | `tests/test_history_import.py` (SQLite и PostgreSQL): preview без записи, расхождение сумм блокирует apply, повтор без дублей, устаревший preview, откат и его отказ; roundtrip `0065_history_import`; `apps/lucy-admin/web/e2e/history-import.spec.ts`. [Регламент](HISTORY_IMPORT_CURRENT.md). Внешняя приёмка на копии реальной выгрузки — за оператором |
+| Интерфейсы и Telegram Mini App | Next.js static export, Remna Dark, сворачиваемый sidebar/drawer, дашборд метрик, кабинет с трафиком/сроком/QR, Telegram WebApp SDK, строгая CSP | `apps/lucy-admin/web/e2e/remna-design.spec.ts`, `apps/lucy-admin/web/e2e/cabinet-design.spec.ts` под production CSP; Vitest кабинета |
 
 ## Закрыто в v28.3.0
 
@@ -136,7 +136,7 @@
 | --- | --- | --- |
 | Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 187 полей классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
 
-Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
+Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `apps/user-cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
 
 ## Порядок закрытия матрицы
 

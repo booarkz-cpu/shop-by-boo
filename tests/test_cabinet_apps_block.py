@@ -47,9 +47,9 @@ async def test_switch_is_on_by_default_and_saved_from_the_admin_panel(db):
 
 
 def test_cabinet_shows_the_block_only_after_sign_in_and_when_switched_on():
-    cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/main.tsx").read_text()
     assert "{!authed && <AppsNotice" not in cabinet, "no «Приложения» block on the sign-in and registration pages"
     assert "{appsVisible && <AppsNotice apps={shopApps} lang={lang} />}" in cabinet
     assert "setAppsVisible(apps?.cabinet_visible !== false)" in cabinet
-    admin = (ROOT / "admin/src/main.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
     assert "cabinet_visible:cabinetVisible" in admin and "Показывать покупателю после входа" in admin

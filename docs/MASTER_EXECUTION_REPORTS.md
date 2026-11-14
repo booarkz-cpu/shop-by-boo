@@ -24,7 +24,7 @@ Starlette обслуживает первый совпавший маршрут.
 ### 2. Обнаруженные проблемы
 
 * Кабинет, Mini App и мобильные приложения получали ответ **без** `days` и `nodes`.
-  `cabinet/src/keys.tsx` читает `data.days.length` → падение
+  `apps/user-cabinet/src/keys.tsx` читает `data.days.length` → падение
   `Cannot read properties of undefined (reading 'length')`, блок статистики исчезал.
 * Маршрут `GET /api/admin/users/{user_id}/traffic` из `panel_usage.py` не попадал в таблицу маршрутов —
   кнопка «Трафик» в карточке клиента админки не работала.
@@ -88,7 +88,7 @@ python -m pytest tests/test_v34_hardening.py tests/test_subscription_middleware.
 
 ### 1. Исходное состояние
 
-`admin/src/app/page.tsx` и `cabinet/src/app/page.tsx` монтируют корень с `ssr: false`. Файлов
+`apps/lucy-admin/web/src/app/page.tsx` и `apps/user-cabinet/src/app/page.tsx` монтируют корень с `ssr: false`. Файлов
 `error.tsx` / `global-error.tsx` не было ни в одном приложении. В кабинете `SectionBoundary` защищал только
 контент раздела, корневые провайдеры — ничем.
 
@@ -100,17 +100,17 @@ python -m pytest tests/test_v34_hardening.py tests/test_subscription_middleware.
 
 ### 3. Выполненные действия
 
-* `admin/src/app/error.tsx`, `cabinet/src/app/error.tsx` — экран ошибки Next.js: причина, «Попробовать снова»
+* `apps/lucy-admin/web/src/app/error.tsx`, `apps/user-cabinet/src/app/error.tsx` — экран ошибки Next.js: причина, «Попробовать снова»
   (`reset`, сессия сохраняется), «Перезагрузить».
-* `CabinetRootBoundary` в `cabinet/src/main.tsx` и `AdminErrorBoundary`, навешенный на корень
-  `admin/src/main.tsx`, — ловят сбой **выше** страницы, в самих провайдерах.
+* `CabinetRootBoundary` в `apps/user-cabinet/src/main.tsx` и `AdminErrorBoundary`, навешенный на корень
+  `apps/lucy-admin/web/src/main.tsx`, — ловят сбой **выше** страницы, в самих провайдерах.
 * Текст экрана прямо говорит, что подписка и платежи не затронуты: сбой отрисовки не должен выглядеть как
   потеря доступа.
 
 ### 4. Изменённые файлы
 
-`admin/src/app/error.tsx` (новый), `cabinet/src/app/error.tsx` (новый), `admin/src/main.tsx`,
-`cabinet/src/main.tsx`, `tests/test_v34_hardening.py`.
+`apps/lucy-admin/web/src/app/error.tsx` (новый), `apps/user-cabinet/src/app/error.tsx` (новый), `apps/lucy-admin/web/src/main.tsx`,
+`apps/user-cabinet/src/main.tsx`, `tests/test_v34_hardening.py`.
 
 ### 5. Тесты
 
@@ -223,11 +223,11 @@ ids: {'get': 'freekassa_webhook_get', 'post': 'freekassa_webhook_post'}
 ### Проверено
 
 * `reading 'trim'`: единственные места, где `.trim()` вызывается на значении метки, — обработчики
-  `admin/src/mobileLayout.tsx` (строки 183, 211), читающие `v.ru`/`v.en`/`v.uk`. Backend отдаёт
+  `apps/lucy-admin/web/src/mobileLayout.tsx` (строки 183, 211), читающие `v.ru`/`v.en`/`v.uk`. Backend отдаёт
   `texts` как `dict[str, Label]` с полями `ru`/`en`/`uk` (`backend/app/mobile_layout.py`, классы
   `Label`, `LongText`) и `strings` как `dict[str, LongText]`. Форма совпадает, воспроизвести падение на
   текущем коде нельзя.
-* `map is not a function`: нормализация `list()` уже есть в `admin/src/main.tsx` и обрабатывает `items`,
+* `map is not a function`: нормализация `list()` уже есть в `apps/lucy-admin/web/src/main.tsx` и обрабатывает `items`,
   `results`, `data`. В кабинете списки читаются через `?.`/`|| []`.
 
 ### Решение

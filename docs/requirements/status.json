@@ -119,7 +119,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/MASTER_EXECUTION_REPORTS.md",
-   "admin/src/main.tsx"
+   "apps/lucy-admin/web/src/main.tsx"
   ],
   "note": "В панели списки приводятся к массиву функцией list() (отчёт AUD-05). Отдельного теста на этот симптом нет.",
   "platforms": "Web"
@@ -128,7 +128,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/MASTER_EXECUTION_REPORTS.md",
-   "admin/src/main.tsx"
+   "apps/lucy-admin/web/src/main.tsx"
   ],
   "note": "То же, что REQ-QA-0006.",
   "platforms": "Web"
@@ -429,7 +429,7 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx",
+   "apps/lucy-admin/web/src/autoselect.tsx",
    "docs/AUTO_SELECTION.md"
   ],
   "note": "Проверено на модели панели. На настоящей панели Remnawave и в приложениях клиентов не проверено: нужен VPS (O1)."
@@ -447,7 +447,7 @@
   "status": "PASS",
   "evidence": [
    "docs/AUTO_SELECTION.md",
-   "admin/src/autoselect.tsx"
+   "apps/lucy-admin/web/src/autoselect.tsx"
   ],
   "platforms": "Web, backend/API"
  },
@@ -512,8 +512,8 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx",
-   "admin/e2e/autoselect.spec.ts"
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
   "note": "Есть: включение, обновление, удаление плитки, имя, алгоритм, выбор узлов, «выбрать все» и «снять все», скрытие, состав, доступность. Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при каждом «Обновить пул»."
  },
@@ -522,8 +522,8 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx",
-   "admin/e2e/autoselect.spec.ts"
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
   "note": "Скрытие и возврат узлов проверены на модели панели; ограничение форматов показано на странице. Поведение в настоящих клиентах Clash, sing-box и Base64 не проверено: нужен VPS (O1)."
  },
@@ -532,7 +532,7 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx"
+   "apps/lucy-admin/web/src/autoselect.tsx"
   ],
   "platforms": "Web, backend/API"
  },
@@ -541,7 +541,7 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx"
+   "apps/lucy-admin/web/src/autoselect.tsx"
   ],
   "platforms": "Web, backend/API"
  },
@@ -558,7 +558,7 @@
   "status": "PARTIAL",
   "evidence": [
    "tests/test_rw_autoselect.py",
-   "admin/e2e/autoselect.spec.ts"
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
   "note": "На модели панели проверены: четыре алгоритма, скрытие и возврат, удаление плитки, смена имени, смена состава, пустой пул, удалённый узел. Изменение задержки и нагрузки, реконнект и разные форматы подписки требуют настоящего клиента Xray: O1."
  },
@@ -571,16 +571,16 @@
  "REQ-AUTO-0019": {
   "status": "PASS",
   "evidence": [
-   "admin/src/autoselect.tsx",
-   "admin/e2e/autoselect.spec.ts"
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
   "platforms": "Web"
  },
  "REQ-AUTO-0020": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/src/autoselect.tsx",
-   "admin/e2e/autoselect.spec.ts",
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts",
    "backend/app/rw_autoselect.py"
   ],
   "note": "Есть «Убрать плитку», «Включить <алгоритм>», «Обновить пул». Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при «Обновить пул»."
@@ -590,7 +590,7 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx"
+   "apps/lucy-admin/web/src/autoselect.tsx"
   ],
   "note": "Показано «Видны в подписке X/Y» и «В пуле X/Y» из данных панели. Признаков «у ноды есть открытая плитка» и «inbound входит в пул» на странице нет."
  },
@@ -606,8 +606,8 @@
   "status": "PASS",
   "evidence": [
    "backend/app/rw_autoselect.py",
-   "admin/src/autoselect.tsx",
-   "admin/e2e/autoselect.spec.ts"
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
   "platforms": "Web"
  },
@@ -616,7 +616,7 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/e2e/autoselect.spec.ts"
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
   "platforms": "Web, backend/API"
  },
@@ -625,16 +625,16 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx",
-   "admin/e2e/autoselect.spec.ts"
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
   "note": "Переключатель есть, скрытие и возврат проверены на модели панели. Возврат узлов у настоящего клиента после обновления подписки не проверен: O1."
  },
  "REQ-AUTO-0026": {
   "status": "PASS",
   "evidence": [
-   "admin/src/autoselect.tsx",
-   "admin/e2e/autoselect.spec.ts",
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts",
    "docs/AUTO_SELECTION.md"
   ],
   "platforms": "Web"
@@ -643,7 +643,7 @@
   "status": "PASS",
   "evidence": [
    "docs/AUTO_SELECTION.md",
-   "admin/src/autoselect.tsx"
+   "apps/lucy-admin/web/src/autoselect.tsx"
   ]
  },
  "REQ-AUTO-0028": {
@@ -651,7 +651,7 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx"
+   "apps/lucy-admin/web/src/autoselect.tsx"
   ],
   "note": "Есть: галочка, страна с флагом, имя, состояние, признак «раздаётся», число клиентов. Задержки и нагрузки по узлам нет: их измеряет приложение клиента, панели они неизвестны. Время проверки одно на всю страницу."
  },
@@ -675,7 +675,7 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx"
+   "apps/lucy-admin/web/src/autoselect.tsx"
   ],
   "platforms": "Web, backend/API"
  },
@@ -684,7 +684,7 @@
   "evidence": [
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "admin/src/autoselect.tsx"
+   "apps/lucy-admin/web/src/autoselect.tsx"
   ],
   "platforms": "Web, backend/API"
  },
@@ -701,15 +701,15 @@
   "status": "PARTIAL",
   "evidence": [
    "tests/test_rw_autoselect.py",
-   "admin/e2e/autoselect.spec.ts"
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
   "note": "То же, что REQ-AUTO-0017."
  },
  "REQ-AUTO-0035": {
   "status": "PASS",
   "evidence": [
-   "admin/src/autoselect.tsx",
-   "admin/e2e/autoselect.spec.ts",
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts",
    "backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ],
@@ -720,8 +720,8 @@
   "evidence": [
    "backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "admin/src/protocol-switch.tsx",
-   "admin/e2e/protocol-switch.spec.ts"
+   "apps/lucy-admin/web/src/protocol-switch.tsx",
+   "apps/lucy-admin/web/e2e/protocol-switch.spec.ts"
   ],
   "platforms": "Web, backend/API"
  },
@@ -730,7 +730,7 @@
   "evidence": [
    "backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "admin/src/protocol-switch.tsx",
+   "apps/lucy-admin/web/src/protocol-switch.tsx",
    "docs/PROTOCOL_SWITCH.md"
   ],
   "note": "Таблица нод после смены протокола есть: номер, страна, имя, состояние, транспорт, время, причина, итог. Проверяется подключение ноды к панели с новым профилем, а не трафик клиента через ноду. После других массовых операций таблица не показывается."
@@ -738,8 +738,8 @@
  "REQ-NODE-0042": {
   "status": "PASS",
   "evidence": [
-   "admin/src/protocol-switch.tsx",
-   "admin/e2e/protocol-switch.spec.ts"
+   "apps/lucy-admin/web/src/protocol-switch.tsx",
+   "apps/lucy-admin/web/e2e/protocol-switch.spec.ts"
   ],
   "platforms": "Web, backend/API"
  },
@@ -788,15 +788,15 @@
   "evidence": [
    "backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "admin/src/protocol-switch.tsx"
+   "apps/lucy-admin/web/src/protocol-switch.tsx"
   ],
   "note": "Все шаги есть. Итоговый транспорт в таблице — тот, что записан в профиль; фактический транспорт на самой ноде не измеряется. На настоящей панели не проверено: O1."
  },
  "REQ-NODE-0049": {
   "status": "PASS",
   "evidence": [
-   "admin/src/protocol-switch.tsx",
-   "admin/e2e/protocol-switch.spec.ts"
+   "apps/lucy-admin/web/src/protocol-switch.tsx",
+   "apps/lucy-admin/web/e2e/protocol-switch.spec.ts"
   ],
   "platforms": "Web, backend/API"
  },
@@ -813,7 +813,7 @@
   "evidence": [
    "backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "admin/src/protocol-switch.tsx"
+   "apps/lucy-admin/web/src/protocol-switch.tsx"
   ],
   "platforms": "Web, backend/API"
  },
@@ -822,8 +822,8 @@
   "evidence": [
    "backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "admin/src/protocol-switch.tsx",
-   "admin/e2e/protocol-switch.spec.ts"
+   "apps/lucy-admin/web/src/protocol-switch.tsx",
+   "apps/lucy-admin/web/e2e/protocol-switch.spec.ts"
   ],
   "platforms": "Web, backend/API"
  },
@@ -854,7 +854,7 @@
   "evidence": [
    "backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
-   "admin/e2e/install-hub.spec.ts"
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "Каталог «Установка» восстановлен и проверен тестами и сценарием в браузере. Нет: AdGuard Home, каскада HAProxy, временного бана IP за торренты. CrowdSec — частично.",
   "platforms": "server, backend/API, Web"
@@ -925,7 +925,7 @@
   "evidence": [
    "backend/app/rw_torrent_ban.py",
    "tests/test_rw_torrent_ban.py",
-   "admin/e2e/torrent-ban.spec.ts",
+   "apps/lucy-admin/web/e2e/torrent-ban.spec.ts",
    "backend/app/torrent_detection.py",
    "tests/test_torrent_detection.py",
    "docs/TORRENT_BAN.md"
@@ -938,7 +938,7 @@
   "evidence": [
    "backend/app/rw_torrent_ban.py",
    "tests/test_rw_torrent_ban.py",
-   "admin/e2e/torrent-ban.spec.ts",
+   "apps/lucy-admin/web/e2e/torrent-ban.spec.ts",
    "backend/app/torrent_detection.py",
    "tests/test_torrent_detection.py",
    "docs/TORRENT_BAN.md"
@@ -991,7 +991,7 @@
   "evidence": [
    "backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
-   "admin/e2e/install-hub.spec.ts"
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "Удаляются по одному: панель (после копии её базы), страница подписки, Caddy, нода, сайт SelfSteal, Xray Checker; MTProto — выключением модуля. Бот и статус-страница — части магазина, а не сервера ноды, отдельной операции для них здесь нет.",
   "platforms": "server, backend/API, Web"
@@ -1001,7 +1001,7 @@
   "evidence": [
    "backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
-   "admin/e2e/install-hub.spec.ts"
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "То же, что REQ-NODE-0022.",
   "platforms": "server, backend/API, Web"
@@ -1011,7 +1011,7 @@
   "evidence": [
    "backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
-   "admin/e2e/install-hub.spec.ts"
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены.",
   "platforms": "server, backend/API, Web"
@@ -1021,7 +1021,7 @@
   "evidence": [
    "backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
-   "admin/e2e/install-hub.spec.ts"
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "То же, что REQ-NODE-0023.",
   "platforms": "server, backend/API, Web"
@@ -1039,7 +1039,7 @@
   "evidence": [
    "backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
-   "admin/e2e/install-hub.spec.ts"
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "platforms": "server, backend/API, Web"
  },
@@ -1136,8 +1136,8 @@
  "REQ-CI-0005": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/src/autoUpdate.tsx",
-   "admin/src/ecosystem-updates.tsx",
+   "apps/lucy-admin/web/src/autoUpdate.tsx",
+   "apps/lucy-admin/web/src/ecosystem-updates.tsx",
    "backend/app/auto_update_api.py",
    "backend/app/ecosystem_updates.py",
    "tests/test_auto_update_api.py"
@@ -1169,9 +1169,9 @@
   "status": "PASS",
   "evidence": [
    "backend/requirements.txt",
-   "admin/package-lock.json",
-   "cabinet/package-lock.json",
-   "miniapp/package-lock.json",
+   "apps/lucy-admin/web/package-lock.json",
+   "apps/user-cabinet/package-lock.json",
+   "apps/telegram-mini-app/package-lock.json",
    ".github/workflows/ci.yml"
   ]
  },
@@ -1431,7 +1431,7 @@
   "evidence": [
    "backend/app/rw_drift.py",
    "tests/test_rw_drift.py",
-   "admin/e2e/rw-drift.spec.ts",
+   "apps/lucy-admin/web/e2e/rw-drift.spec.ts",
    "docs/RW_DRIFT.md",
    "backend/app/rw_torrent_ban.py"
   ],
@@ -1462,10 +1462,10 @@
  "REQ-RW-0010": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/src/torrent-ban.tsx",
-   "admin/src/protocol-switch.tsx",
-   "admin/src/autoselect.tsx",
-   "admin/e2e/torrent-ban.spec.ts"
+   "apps/lucy-admin/web/src/torrent-ban.tsx",
+   "apps/lucy-admin/web/src/protocol-switch.tsx",
+   "apps/lucy-admin/web/src/autoselect.tsx",
+   "apps/lucy-admin/web/e2e/torrent-ban.spec.ts"
   ],
   "note": "Разделы показывают выбранные ноды и что изменится; зависимые сервисы и оценка влияния не выводятся."
  },
@@ -1534,7 +1534,7 @@
  "REQ-ADMIN-0002": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/src/main.tsx",
+   "apps/lucy-admin/web/src/main.tsx",
    "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt",
    "apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift",
    "backend/app/security.py",
@@ -1546,7 +1546,7 @@
  "REQ-ADMIN-0003": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/src/sections.ts",
+   "apps/lucy-admin/web/src/sections.ts",
    "docs/ru/new/ADMIN_CONTROL_MATRIX.md",
    "docs/ru/new/ADMIN_MODULES.md",
    "scripts/verify-admin-matrix.py"
@@ -1569,7 +1569,7 @@
    "scripts/verify-admin-matrix.py",
    "docs/ru/new/ADMIN_VERIFICATION.md",
    "tests/test_admin_center.py",
-   "admin/e2e/torrent-ban.spec.ts"
+   "apps/lucy-admin/web/e2e/torrent-ban.spec.ts"
   ],
   "note": "Автоматически проверяется каждый раздел: у него есть маршруты API и тесты. Каждая отдельная кнопка автоматически не проверяется."
  },
@@ -1613,7 +1613,7 @@
    "backend/app/models.py",
    "backend/app/main.py",
    "backend/app/admin_api.py",
-   "admin/src/control-center.tsx"
+   "apps/lucy-admin/web/src/control-center.tsx"
   ],
   "note": "В записи есть администратор, действие, объект, время, идентификатор запроса и подробности без секретов. Отдельного поля результата и единого формата «было — стало» нет."
  },
@@ -1621,7 +1621,7 @@
   "status": "PARTIAL",
   "evidence": [
    "backend/app/admin_api.py",
-   "admin/src/control-center.tsx",
+   "apps/lucy-admin/web/src/control-center.tsx",
    "docs/ru/new/ADMIN_CONTROL_MATRIX.md"
   ],
   "note": "Поиск, фильтры и серверная постраничная выдача есть в основных таблицах. Сохранённых представлений и предпросмотра массовых действий во всех таблицах нет; построчной сверки семи таблиц не было."
@@ -1629,7 +1629,7 @@
  "REQ-ADMIN-0014": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/src/control-center.tsx",
+   "apps/lucy-admin/web/src/control-center.tsx",
    "docs/ru/new/ADMIN_CONTROL_MATRIX.md"
   ],
   "note": "Показатели берутся из базы и панели. Источник, период и время обновления подписаны не у каждого показателя; сверки по списку не было."
@@ -1637,9 +1637,9 @@
  "REQ-ADMIN-0015": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/src/control-center.tsx",
+   "apps/lucy-admin/web/src/control-center.tsx",
    "backend/app/ecosystem_updates.py",
-   "admin/src/ecosystem-updates.tsx",
+   "apps/lucy-admin/web/src/ecosystem-updates.tsx",
    "backend/app/ops_alerts.py"
   ],
   "note": "«Центр управления» и «Готовность» сводят сервисы, ноды, платежи, копии; обновления сведены отдельной таблицей. Состояния мобильных сборок и CI на одном экране нет."
@@ -1667,10 +1667,10 @@
  "REQ-ADMIN-0019": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/e2e/torrent-ban.spec.ts",
-   "admin/e2e/protocol-switch.spec.ts",
-   "admin/e2e/autoselect.spec.ts",
-   "admin/e2e/rw-drift.spec.ts"
+   "apps/lucy-admin/web/e2e/torrent-ban.spec.ts",
+   "apps/lucy-admin/web/e2e/protocol-switch.spec.ts",
+   "apps/lucy-admin/web/e2e/autoselect.spec.ts",
+   "apps/lucy-admin/web/e2e/rw-drift.spec.ts"
   ],
   "note": "В проверенных разделах экран меняется только после ответа сервера. По всем разделам это не проверено."
  },
@@ -1679,7 +1679,7 @@
   "evidence": [
    "backend/app/audit_seal.py",
    "tests/test_audit_seal.py",
-   "admin/e2e/audit-seal.spec.ts",
+   "apps/lucy-admin/web/e2e/audit-seal.spec.ts",
    "docs/AUDIT_LOG_INTEGRITY.md",
    "backend/app/admin_api.py"
   ],
@@ -1707,7 +1707,7 @@
    "docs/architecture/DOMAIN_BOUNDARIES.md",
    "backend/app/security.py",
    "backend/app/remnawave.py",
-   "admin/src/components/ui/button.tsx",
+   "apps/lucy-admin/web/src/components/ui/button.tsx",
    "packages/localization/user.json"
   ]
  },
@@ -1883,7 +1883,7 @@
   "evidence": [
    "backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
-   "admin/src/lucy-plans.tsx"
+   "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
  },
  "REQ-BRAND-0004": {
@@ -1891,7 +1891,7 @@
   "evidence": [
    "backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
-   "admin/src/lucy-plans.tsx"
+   "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
  },
  "REQ-BRAND-0005": {
@@ -1899,7 +1899,7 @@
   "evidence": [
    "backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
-   "admin/src/lucy-plans.tsx"
+   "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
  },
  "REQ-BRAND-0016": {
@@ -1907,7 +1907,7 @@
   "evidence": [
    "backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
-   "admin/src/lucy-plans.tsx"
+   "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
  },
  "REQ-BRAND-0006": {
@@ -1948,7 +1948,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "cabinet/src/stickers.tsx",
+   "apps/user-cabinet/src/stickers.tsx",
    "backend/app/brand_copy.py"
   ],
   "note": "Кабинет показывает текст бренда на экране технических работ, ответ API 503 несёт его на трёх языках (v28.132.0). Бот отдельного сообщения о технических работах не показывает; переменной .env для текста нет."
@@ -2031,7 +2031,7 @@
   "evidence": [
    "backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
-   "admin/src/lucy-plans.tsx"
+   "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
  },
  "REQ-SHOP-0004": {
@@ -2039,7 +2039,7 @@
   "evidence": [
    "backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
-   "admin/src/lucy-plans.tsx"
+   "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
  },
  "REQ-SHOP-0005": {
@@ -2047,14 +2047,14 @@
   "evidence": [
    "backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
-   "admin/src/lucy-plans.tsx"
+   "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
  },
  "REQ-SHOP-0006": {
   "status": "PASS",
   "evidence": [
    "backend/app/lucy_plans.py",
-   "admin/src/lucy-plans.tsx",
+   "apps/lucy-admin/web/src/lucy-plans.tsx",
    "docs/BRAND_COPY.md"
   ],
   "note": "Цены задаёт только владелец в панели; код и тексты цен не содержат и не меняют."
@@ -2278,7 +2278,7 @@
   "evidence": [
    "tests/test_behaviour_auth.py",
    "tests/test_account_sync.py",
-   "cabinet/src/stickers.tsx"
+   "apps/user-cabinet/src/stickers.tsx"
   ],
   "note": "Повторный вход, несколько устройств и экран после оплаты покрыты. Закрытие и повторное открытие Mini App на телефоне не проверены."
  },
@@ -2286,7 +2286,7 @@
   "status": "PARTIAL",
   "evidence": [
    "backend/app/bot_texts.py",
-   "cabinet/src/i18n.tsx",
+   "apps/user-cabinet/src/i18n.tsx",
    "tests/test_bot_texts.py",
    "tests/test_critical_startup_and_i18n.py",
    "packages/localization/user.json"
@@ -2308,7 +2308,7 @@
    "backend/app/rw_masque.py",
    "backend/app/masque_panel.py",
    "scripts/ci/masque-check.sh",
-   "admin/e2e/masque-panel.spec.ts"
+   "apps/lucy-admin/web/e2e/masque-panel.spec.ts"
   ],
   "note": "Установка одной кнопкой: сертификат, контейнеры, порт, пользователи; дальше доступ сам следует за подписками. Проверено в CI на настоящих Caddy, Xray и HAProxy."
  },
@@ -2366,17 +2366,17 @@
    "backend/app/rw_masque.py",
    "tests/test_masque_panel.py",
    "docs/MASQUE_PANEL.md",
-   "cabinet/src/masque.tsx",
-   "cabinet/src/masque.test.tsx"
+   "apps/user-cabinet/src/masque.tsx",
+   "apps/user-cabinet/src/masque.test.tsx"
   ],
   "note": "MASQUE выдаётся своей подпиской в формате JSON и не затрагивает подписку Remnawave; покупатель видит ссылку в кабинете и Mini App и может её перевыпустить. Ссылок для v2rayNG и NekoBox нет; на клиентах не проверено."
  },
  "REQ-MASQUE-0008": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/src/masque-panel.tsx",
-   "admin/e2e/masque-panel.spec.ts",
-   "admin/src/masque.tsx",
+   "apps/lucy-admin/web/src/masque-panel.tsx",
+   "apps/lucy-admin/web/e2e/masque-panel.spec.ts",
+   "apps/lucy-admin/web/src/masque.tsx",
    "backend/app/masque_panel.py"
   ],
   "note": "Есть переключатель выдачи, выбор тарифов, установка с выбором защит, изменение защит, удаление, проверка совместимости и маскировки, состояние ноды, понятные причины отказа. Пошагового прогресса установки нет: кнопка ждёт результата."
@@ -2440,9 +2440,9 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/ru/new/UI_UX_GUIDE.md",
-   "admin/e2e/mobile-layout.spec.ts",
+   "apps/lucy-admin/web/e2e/mobile-layout.spec.ts",
    "tests/test_mobile_layout.py",
-   "admin/e2e/all-sections.spec.ts"
+   "apps/lucy-admin/web/e2e/all-sections.spec.ts"
   ],
   "note": "Единые карточки, статусы, боковое меню и мобильная раскладка есть и проверяются в браузере. Приложения Android собраны на Material 3; веб-панель следует собственной дизайн-системе, а не Material 3. Доступность проверена частично (REQ-UI-0007)."
  },
@@ -2457,7 +2457,7 @@
  "REQ-UI-0003": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/e2e/all-sections.spec.ts",
+   "apps/lucy-admin/web/e2e/all-sections.spec.ts",
    "scripts/check-runtime-placeholders.py",
    "tests/test_error_format.py"
   ],
@@ -2486,7 +2486,7 @@
   "status": "PARTIAL",
   "evidence": [
    "tests/test_mobile_layout.py",
-   "admin/e2e/mobile-layout.spec.ts"
+   "apps/lucy-admin/web/e2e/mobile-layout.spec.ts"
   ],
   "note": "Обрезание и горизонтальная прокрутка проверяются на узком экране. Множественное число, длинные переводы, часовые пояса и RTL системно не проверялись."
  },
@@ -2494,14 +2494,14 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/ru/new/UI_UX_GUIDE.md",
-   "admin/e2e/masque.spec.ts"
+   "apps/lucy-admin/web/e2e/masque.spec.ts"
   ],
   "note": "Тесты браузера находят элементы по ролям и подписям, поэтому подписи полей и кнопок обязательны. Контраст, порядок фокуса, экранный диктор и уменьшение движения инструментом не проверялись."
  },
  "REQ-UI-0008": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/e2e/mobile-layout.spec.ts",
+   "apps/lucy-admin/web/e2e/mobile-layout.spec.ts",
    "tests/test_mobile_layout.py"
   ],
   "note": "Раскладка проверяется в браузере на ширине телефона, длинные таблицы прокручиваются внутри блока. Безопасные области и экранная клавиатура на настоящих устройствах не проверены."
@@ -2509,8 +2509,8 @@
  "REQ-UI-0009": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/e2e/masque.spec.ts",
-   "admin/e2e/plans-editor.spec.ts",
+   "apps/lucy-admin/web/e2e/masque.spec.ts",
+   "apps/lucy-admin/web/e2e/plans-editor.spec.ts",
    "tests/test_error_format.py"
   ],
   "note": "Серверная проверка и единый формат ошибок есть везде; в новых формах есть проверка в браузере, состояние отправки и сообщение у поля. По каждой форме проекта проверка не проводилась."
@@ -2518,8 +2518,8 @@
  "REQ-UI-0010": {
   "status": "PARTIAL",
   "evidence": [
-   "admin/e2e/protocol-switch.spec.ts",
-   "admin/e2e/rw-installer.spec.ts"
+   "apps/lucy-admin/web/e2e/protocol-switch.spec.ts",
+   "apps/lucy-admin/web/e2e/rw-installer.spec.ts"
   ],
   "note": "Опасные операции с нодами идут с подтверждением, прогрессом, итогом и откатом. Единого правила для каждой операции проекта и его проверки нет."
  },
@@ -3178,7 +3178,7 @@
   "evidence": [
    ".github/workflows/ci.yml",
    ".github/workflows/android-client.yml",
-   "admin/e2e"
+   "apps/lucy-admin/web/e2e"
   ],
   "platforms": "all products",
   "note": "Playwright (Chromium end-to-end), эмулятор Android (UI-тесты, VPN на эмуляторе), XCTest (iOS UI-тесты) — в CI каждого PR."
@@ -3220,7 +3220,7 @@
  "REQ-QA-0051": {
   "status": "PASS",
   "evidence": [
-   "admin/e2e",
+   "apps/lucy-admin/web/e2e",
    ".github/workflows/ci.yml"
   ],
   "platforms": "all products",

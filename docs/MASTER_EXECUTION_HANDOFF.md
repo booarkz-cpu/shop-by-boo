@@ -42,7 +42,7 @@
 | Ночное автообновление | нет VPS с магазином | раздел «Автообновление» гайда |
 | Reverse proxy | нет домена и хоста | раздел «Reverse proxy» гайда |
 | Мобильные сборки | нет Android SDK / Xcode | раздел «Мобильные приложения» гайда |
-| Визуальная проверка UI | Playwright без Chromium | `cd admin && npx playwright test` |
+| Визуальная проверка UI | Playwright без Chromium | `cd apps/lucy-admin/web && npx playwright test` |
 
 ## Как продолжить
 

@@ -5,23 +5,23 @@ FROM ${NODE_BASE_IMAGE} AS build
 ARG VITE_API_URL=""
 ENV NEXT_PUBLIC_API_URL=$VITE_API_URL \
     NEXT_TELEMETRY_DISABLED=1
-WORKDIR /src/admin
-COPY admin/package*.json ./
+WORKDIR /src/apps/lucy-admin/web
+COPY apps/lucy-admin/web/package*.json ./
 RUN if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fund; else npm install --package-lock=false --ignore-scripts --no-audit --no-fund; fi
-COPY admin/ .
-COPY cabinet/src/support-attachments.tsx /src/cabinet/src/support-attachments.tsx
-COPY cabinet/src/public-pages.tsx /src/cabinet/src/public-pages.tsx
-COPY cabinet/src/button-tree.tsx /src/cabinet/src/button-tree.tsx
-COPY cabinet/src/http-json.ts /src/cabinet/src/http-json.ts
-COPY cabinet/scripts/csp-externalize.mjs /src/cabinet/scripts/csp-externalize.mjs
-RUN ln -s /src/admin/node_modules /src/cabinet/node_modules
+COPY apps/lucy-admin/web/ .
+COPY apps/user-cabinet/src/support-attachments.tsx /src/apps/user-cabinet/src/support-attachments.tsx
+COPY apps/user-cabinet/src/public-pages.tsx /src/apps/user-cabinet/src/public-pages.tsx
+COPY apps/user-cabinet/src/button-tree.tsx /src/apps/user-cabinet/src/button-tree.tsx
+COPY apps/user-cabinet/src/http-json.ts /src/apps/user-cabinet/src/http-json.ts
+COPY apps/user-cabinet/scripts/csp-externalize.mjs /src/apps/user-cabinet/scripts/csp-externalize.mjs
+RUN ln -s /src/admin/node_modules /src/apps/user-cabinet/node_modules
 RUN npm run build
 FROM ${NGINX_BASE_IMAGE}
 # The base image is pinned by digest: the package fixes published since are installed here (v28.123.0).
 RUN apk upgrade --no-cache
-COPY --from=build /src/admin/dist /usr/share/nginx/html
-COPY admin/nginx.conf /etc/nginx/nginx.conf
-COPY admin/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /src/apps/lucy-admin/web/dist /usr/share/nginx/html
+COPY apps/lucy-admin/web/nginx.conf /etc/nginx/nginx.conf
+COPY apps/lucy-admin/web/default.conf /etc/nginx/conf.d/default.conf
 USER 101:101
 EXPOSE 80
 CMD ["/bin/sh", "-c", "mkdir -p /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && chmod 1777 /tmp/nginx /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && exec nginx -g 'daemon off;'"]

@@ -100,10 +100,10 @@ flowchart TD
 | --- | --- | --- |
 | Telegram-бот | вход, покупка, продление, поддержка, уведомления; меню и баннеры настраиваются в админке | `backend/app/bot.py` (860 строк) |
 | Mini App | тот же кабинет внутри Telegram; вход по подписанному `initData` | сборка `cabinet`, отдаётся через `miniapp` |
-| Личный кабинет | подписки, устройства, платежи, поддержка, рефералы | `cabinet/` (52 компонента) |
+| Личный кабинет | подписки, устройства, платежи, поддержка, рефералы | `apps/user-cabinet/` (52 компонента) |
 | Android / iOS user | встроенный VPN на Android (Xray-core), импорт подписки, push | `apps/vpn-shop/android`, `mobile/ios-user` |
 | Android / iOS admin | админка в телефоне | `apps/lucy-admin/android`, `mobile/ios-admin` |
-| Админ-панель | 60 компонентов, 458 маршрутов API | `admin/` |
+| Админ-панель | 60 компонентов, 458 маршрутов API | `apps/lucy-admin/web/` |
 
 ### Ядро
 

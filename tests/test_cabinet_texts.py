@@ -20,7 +20,7 @@ KEY = "Личный кабинет"
 
 
 def test_the_list_follows_the_cabinet_source():
-    """assets/cabinet_strings.json is generated from cabinet/src/i18n.tsx — a new text in the cabinet appears in the admin."""
+    """assets/cabinet_strings.json is generated from apps/user-cabinet/src/i18n.tsx — a new text in the cabinet appears in the admin."""
     done = subprocess.run([sys.executable, str(ROOT / "scripts/generate-cabinet-strings.py"), "--check"], capture_output=True, text=True)
     assert done.returncode == 0, done.stderr
     texts = cabinet_texts.defaults()
@@ -71,4 +71,4 @@ async def test_unknown_or_oversized_texts_are_refused(database):
     assert await cabinet_texts.public_texts(db) == {}
 
 
-# The cabinet side (the owner's text wins, the rest keeps the cabinet's tables): cabinet/src/cabinet-texts.test.tsx (vitest).
+# The cabinet side (the owner's text wins, the rest keeps the cabinet's tables): apps/user-cabinet/src/cabinet-texts.test.tsx (vitest).

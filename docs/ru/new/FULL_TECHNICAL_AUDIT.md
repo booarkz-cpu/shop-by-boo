@@ -13,7 +13,7 @@
 | TECH-03 | средний | Database | 134 колонки `*_id` без внешнего ключа, в том числе `payments.user_id` и `subscriptions.user_id` | 5 |
 | TECH-04 | средний | Remnawave | `subscriptions.remnawave_uuid` хранит числовой `id` пользователя панели, а не UUID. Название вводит в заблуждение; импорт истории может принести настоящие UUID, которые API 3.4 отвергнет | 4–5 |
 | TECH-05 | средний | Remnawave | Версия панели в проекте не зафиксирована; проверка совместимости с живой панелью не проводилась | 9 |
-| TECH-06 | средний | Frontend | `admin/src/main.tsx` — 126 КБ, 60 строк длиннее 400 символов; повтор кода в `documents.tsx` (BUG-H3) | 4, 6 |
+| TECH-06 | средний | Frontend | `apps/lucy-admin/web/src/main.tsx` — 126 КБ, 60 строк длиннее 400 символов; повтор кода в `documents.tsx` (BUG-H3) | 4, 6 |
 | TECH-07 | низкий | Backend | Три отдельные реализации защиты от SSRF (`content_branding_api.py`, `payments.py` `_public_client`, `plugins.py`), а два модуля ей не пользуются (SEC-01) | 4 |
 | TECH-08 | низкий | Infrastructure | Нет healthcheck у `worker`, `bot`, `mail_receiver`, `support_worker` (`backend_standby` наследует его у backend через `extends` — уточнено на этапе 4); нет лимита памяти у `bot` и сервисов Support Pro | 4 |
 | TECH-09 | низкий | Backend | У `provisioner.py` нет поведенческого теста, только проверки по тексту кода | 4 |
@@ -47,12 +47,12 @@
 
 | Что | Результат |
 | --- | --- |
-| Структура | Next.js со статическим экспортом: `admin/` и `cabinet/`; Mini App — это сборка кабинета с `NEXT_PUBLIC_SURFACE=miniapp` (`miniapp/` содержит только Dockerfile и nginx) |
+| Структура | Next.js со статическим экспортом: `apps/lucy-admin/web/` и `apps/user-cabinet/`; Mini App — это сборка кабинета с `NEXT_PUBLIC_SURFACE=miniapp` (`apps/telegram-mini-app/` содержит только Dockerfile и nginx) |
 | Маршрутизация | Внутренние разделы в одном приложении; nginx отдаёт `index.html` на любой неизвестный путь (`try_files … /index.html`) |
-| API-клиент | `req()` в `admin/src/main.tsx:79` и в `cabinet/src/main.tsx:100`: `let d = {}; try { d = await r.json() } catch {}`, ошибка выбрасывается только при `!r.ok`. Ответ 2xx, который не JSON (HTML от SPA-заглушки при неверно настроенном `/api`, пустое тело), становится `{}` (TECH-01) |
+| API-клиент | `req()` в `apps/lucy-admin/web/src/main.tsx:79` и в `apps/user-cabinet/src/main.tsx:100`: `let d = {}; try { d = await r.json() } catch {}`, ошибка выбрасывается только при `!r.ok`. Ответ 2xx, который не JSON (HTML от SPA-заглушки при неверно настроенном `/api`, пустое тело), становится `{}` (TECH-01) |
 | Обработка ошибок | `AdminErrorBoundary`, error boundary в кабинете и в каждом разделе Mini App, `error.tsx` в обоих приложениях |
-| Защита от пустых данных | 70 мест вида `(x \|\| []).map(…)`, 30 из них в `admin/src/main.tsx`; 103 вызова `.trim()`. Прежние исправления `trim` (коммиты `2673787d`, `a251c11b`, `a708b318`, 2026-10-01) нормализовали значение в месте вызова, а не причину |
-| Сборка и типы | `typecheck + build` admin, cabinet и miniapp проходят в CI (PR #164); встроенные скрипты выносятся в файлы под CSP (`cabinet/scripts/csp-externalize.mjs`) |
+| Защита от пустых данных | 70 мест вида `(x \|\| []).map(…)`, 30 из них в `apps/lucy-admin/web/src/main.tsx`; 103 вызова `.trim()`. Прежние исправления `trim` (коммиты `2673787d`, `a251c11b`, `a708b318`, 2026-10-01) нормализовали значение в месте вызова, а не причину |
+| Сборка и типы | `typecheck + build` admin, cabinet и miniapp проходят в CI (PR #164); встроенные скрипты выносятся в файлы под CSP (`apps/user-cabinet/scripts/csp-externalize.mjs`) |
 | Адаптивность | Скриншоты мобильных экранов делает CI, но артефакты недоступны из этой среды (хранилище заблокировано прокси) — `BLOCKED_ACCESS` |
 
 ## Database

@@ -6,9 +6,9 @@
 | --- | --- | --- |
 | Выпуск v28.77.0 вышел без Android-приложений: новый apksigner печатает отпечаток только с `--verbose` | v28.77.1 | `tests/test_download_links.py`, сверка отпечатка в `scripts/build-android-apk.sh` |
 | Ссылки на приложения в кабинете вели на сборки 2.10.0 старого репозитория | v28.77.0 | `tests/test_download_links.py`, `tests/test_v310.py` |
-| «Документы»: баннер, загруженный сразу после «Сохранить», терялся; нестабильный e2e | v28.77.0 | `admin/e2e/documents-banner.spec.ts` |
+| «Документы»: баннер, загруженный сразу после «Сохранить», терялся; нестабильный e2e | v28.77.0 | `apps/lucy-admin/web/e2e/documents-banner.spec.ts` |
 | Счётчики «Чеки в налоговую» и похожие склеивали подпись с числом | v28.77.0 | скриншоты разделов, `tests/test_screenshots.py` |
-| Разделы без пункта меню не открывались: защита вкладок отправляла на «Все разделы» | v28.78.0 | `admin/e2e/all-sections.spec.ts` («sections without a menu item open by link») |
+| Разделы без пункта меню не открывались: защита вкладок отправляла на «Все разделы» | v28.78.0 | `apps/lucy-admin/web/e2e/all-sections.spec.ts` («sections without a menu item open by link») |
 | Последний активный администратор мог понизить, отключить или удалить себя | v28.78.0 | `tests/test_admin_coverage_security.py::test_administrators_and_the_last_active_admin` |
 | Скидка акции и промокода проверялась только при создании | v28.78.0 | `tests/test_admin_coverage_marketing.py` |
 | Подарочная карта создавалась в чужой валюте; код иногда 23 символа вместо 24 | v28.78.0 | `tests/test_admin_coverage_payments.py::test_gift_card_in_the_shop_currency_only` |

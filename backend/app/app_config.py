@@ -179,7 +179,7 @@ class PromoCard(_Strict):
     _link = field_validator("link")(classmethod(lambda cls, v: _safe_url(v)))
 
 
-# Corgi Lusi stickers bundled with the Mini App (cabinet/public/assets/stickers, scripts/bot-banners/render.py --assets).
+# Corgi Lusi stickers bundled with the Mini App (apps/user-cabinet/public/assets/stickers, scripts/bot-banners/render.py --assets).
 PROMO_STICKERS = ("holiday", "gift", "success", "vip", "payment", "delivery", "goodbye")
 
 

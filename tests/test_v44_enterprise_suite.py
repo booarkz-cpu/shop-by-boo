@@ -11,7 +11,7 @@ from app_contract import missing_paths, revision, tables
 from test_subscription_commerce import database  # noqa: F401
 
 ROOT=Path(__file__).resolve().parents[1]
-ADMIN=(ROOT/"admin/src/main.tsx").read_text()+(ROOT/"admin/src/sections.ts").read_text()
+ADMIN=(ROOT/"apps/lucy-admin/web/src/main.tsx").read_text()+(ROOT/"apps/lucy-admin/web/src/sections.ts").read_text()
 
 
 def test_v44_contract_and_migration_chain():

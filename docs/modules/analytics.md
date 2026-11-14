@@ -1,6 +1,6 @@
 # Аналитика приложений и push-кампании
 
-Код: `backend/app/app_growth.py` (события, сводка, сегменты), `app_funnel.py` (воронка), `push_campaigns.py` (кампании, расписание, A/B), `push.py` (доставка). Админка: `admin/src/appGrowth.tsx`. Инструкции владельцу — [модуль 12](../ru/modules/12-notifications-push.md) и [модуль 16](../ru/modules/16-mobile-apps.md). Тесты: `tests/test_app_growth.py`, `tests/test_push_campaigns.py`.
+Код: `backend/app/app_growth.py` (события, сводка, сегменты), `app_funnel.py` (воронка), `push_campaigns.py` (кампании, расписание, A/B), `push.py` (доставка). Админка: `apps/lucy-admin/web/src/appGrowth.tsx`. Инструкции владельцу — [модуль 12](../ru/modules/12-notifications-push.md) и [модуль 16](../ru/modules/16-mobile-apps.md). Тесты: `tests/test_app_growth.py`, `tests/test_push_campaigns.py`.
 
 ## События приложений
 

@@ -57,7 +57,7 @@
 
 | Задача | Статус |
 | --- | --- |
-| Единый design system (тёмная тема, Inter, JetBrains Mono) | Реализовано: `admin/src/style.css` содержит `--accent`, `--surface`, Inter, `html[data-theme="light"]` |
+| Единый design system (тёмная тема, Inter, JetBrains Mono) | Реализовано: `apps/lucy-admin/web/src/style.css` содержит `--accent`, `--surface`, Inter, `html[data-theme="light"]` |
 | Адаптивная навигация и мобильная вёрстка админки | Реализовано, скриншоты в `screenshots/admin_panel` |
 | Skeleton-загрузка, пустые состояния, ошибки | Реализовано в компонентах UI |
 | Локализация кабинета | `ru` и `en` |
@@ -127,10 +127,10 @@
 | Бот | `/start`, меню, покупка, поддержка | NOT_VERIFIED | `bot.py` (860 строк) | `BOT_TOKEN` |
 | Бот | меню и баннеры из админки | IMPLEMENTED | `bot_banners.py`, `menu-tree.tsx` | — |
 | Mini App | серверная проверка `initData` | IMPLEMENTED | `auth_api.telegram_user_from_init_data` | `BOT_TOKEN` |
-| Кабинет | подписки, устройства, платежи, поддержка | IMPLEMENTED | `cabinet/` 52 компонента | API |
-| Кабинет | 55 vitest-тестов | IMPLEMENTED | `cabinet/src/*.test.tsx` | — |
-| Админ-панель | 458 маршрутов, 60 компонентов | IMPLEMENTED | `admin/src` | API |
-| Админ-панель | экран ошибки вместо чёрной страницы | IMPLEMENTED | `admin/src/app/error.tsx` | — |
+| Кабинет | подписки, устройства, платежи, поддержка | IMPLEMENTED | `apps/user-cabinet/` 52 компонента | API |
+| Кабинет | 55 vitest-тестов | IMPLEMENTED | `apps/user-cabinet/src/*.test.tsx` | — |
+| Админ-панель | 458 маршрутов, 60 компонентов | IMPLEMENTED | `apps/lucy-admin/web/src` | API |
+| Админ-панель | экран ошибки вместо чёрной страницы | IMPLEMENTED | `apps/lucy-admin/web/src/app/error.tsx` | — |
 | Админ-панель | центр автоматизации | IMPLEMENTED | `automation.py`, `automation.tsx` | — |
 | Админ-панель | раздел «Обновления» | IMPLEMENTED | `autoUpdate.tsx` | update agent |
 | Мобильные | Android user с встроенным Xray | PARTIAL | `apps/vpn-shop/android` | SDK, сборка |

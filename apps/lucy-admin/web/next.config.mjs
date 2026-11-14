@@ -2,13 +2,13 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-// The admin bundle imports three shared customer components from ../cabinet/src.
+// The admin bundle imports three shared customer components from ../../user-cabinet/src.
 // Build from the repository root so those files resolve, and pin React to the
 // admin installation so the panel never ships two React copies. In the Docker
-// image ../cabinet has no install of its own; the Dockerfile links
-// ../cabinet/node_modules to this package's node_modules instead.
-const repoRoot = path.resolve(here, "..");
-// Turbopack resolves alias targets relative to its root, so point at ./admin/node_modules/...
+// image ../../user-cabinet has no install of its own; the Dockerfile links
+// ../../user-cabinet/node_modules to this package's node_modules instead.
+const repoRoot = path.resolve(here, "../../..");
+// Turbopack resolves alias targets relative to its root, so point at ./apps/lucy-admin/web/node_modules/...
 const local = (name) => "./" + path.posix.join(path.relative(repoRoot, here).split(path.sep).join("/"), "node_modules", name);
 
 /** @type {import('next').NextConfig} */

@@ -76,8 +76,8 @@ async def panel_content_security_policy(request,call_next):
     if not request.url.path.startswith(("/api/","/media/")):
         response.headers["Content-Security-Policy"]=PANEL_CSP
     return response
-app.mount('/cabinet',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'cabinet/dist'),html=True))
-app.mount('/',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'admin/dist'),html=True))
+app.mount('/cabinet',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'apps/user-cabinet/dist'),html=True))
+app.mount('/',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'apps/lucy-admin/web/dist'),html=True))
 
 if __name__=='__main__':
     uvicorn.run(app,host='127.0.0.1',port=8777,log_level='warning')

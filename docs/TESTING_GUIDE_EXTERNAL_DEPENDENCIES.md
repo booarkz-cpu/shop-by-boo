@@ -191,7 +191,7 @@ getUpdates» — запущены два инстанса бота или одн
 
 **Назначение.** Магазин внутри Telegram; авторизация через `initData`.
 
-**Модули.** `miniapp/`, `backend/app/auth_api.py`, `admin_auth_api.py`, `app_login.py`.
+**Модули.** `apps/telegram-mini-app/`, `backend/app/auth_api.py`, `admin_auth_api.py`, `app_login.py`.
 
 **Переменные.** `BOT_TOKEN` (ключ HMAC для проверки подписи), `MINI_APP_URL`, `CABINET_URL`.
 

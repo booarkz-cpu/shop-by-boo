@@ -15,7 +15,7 @@ def _bundle(folder: str) -> str:
 
 
 def cabinet_sources() -> str:
-    return _bundle("cabinet/src")
+    return _bundle("apps/user-cabinet/src")
 
 
 def miniapp_sources() -> str:
@@ -24,4 +24,4 @@ def miniapp_sources() -> str:
 
 
 def cabinet_i18n() -> str:
-    return (ROOT / "cabinet/src/i18n.tsx").read_text(encoding="utf-8")
+    return (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text(encoding="utf-8")

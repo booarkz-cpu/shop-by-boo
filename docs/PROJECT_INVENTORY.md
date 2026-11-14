@@ -46,13 +46,13 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 | `tests/` | 228 | pytest-набор |
 | `mobile/` | 176 | Android и iOS, user и admin |
 | `screenshots/` | 142 | галереи интерфейсов |
-| `admin/` | 120 | админ-панель (Next.js) |
-| `cabinet/` | 110 | личный кабинет и Mini App (Next.js) |
+| `apps/lucy-admin/web/` | 120 | админ-панель (Next.js) |
+| `apps/user-cabinet/` | 110 | личный кабинет и Mini App (Next.js) |
 | `support-pro/` | 93 | отдельный сервис поддержки |
 | `scripts/` | 77 | эксплуатация и релиз |
 | `.github/` | 61 | 15 workflows, соглашения |
 | `deploy/` | 18 | Caddy, nginx, prometheus, grafana, wireguard, mail-tls |
-| `miniapp/` | 6 | nginx-конфигурация Mini App |
+| `apps/telegram-mini-app/` | 6 | nginx-конфигурация Mini App |
 | `desktop/` | 4 | README-заготовки для трёх ОС |
 | `browser-extension/` | 2 | заготовка расширения |
 | `terraform/` | 1 | заготовка инфраструктуры |
@@ -158,7 +158,7 @@ hot-standby, zero-downtime, миграция PostgreSQL.
 | --- | --- | --- |
 | Backend pytest | **220 файлов**, 2534 теста собирается (`pytest --collect-only`, 2026-11-02) | `pytest -q tests --timeout=180` |
 | Кабинет vitest | 16 файлов, 55 тестов | `npm test` в `cabinet` |
-| E2E Playwright | 8+ спецификаций в `admin/e2e` | `npx playwright test` |
+| E2E Playwright | 8+ спецификаций в `apps/lucy-admin/web/e2e` | `npx playwright test` |
 | Мобильные UI | Android эмулятор, iOS симулятор | workflows `ci.yml` |
 | Контракты документации | 5 скриптов | `scripts/check-*.py` |
 

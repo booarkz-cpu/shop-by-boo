@@ -12,7 +12,7 @@
 | SSH с закреплённым ключом сервера | `backend/app/rw_remote.py` |
 | Исполнитель: очередь, шаги, откат, «пульс» | `backend/app/rw_jobs.py`, цикл `installer_worker` в `backend/worker.py` |
 | Таблицы `remnawave_servers`, `remnawave_installations`, `remnawave_deployment_steps` | `backend/app/models.py`, миграция `0090_remnawave_installer` |
-| Раздел админки | `admin/src/rw-installer.tsx` |
+| Раздел админки | `apps/lucy-admin/web/src/rw-installer.tsx` |
 
 Исполнитель — отдельный цикл worker, не общая очередь `jobs`: установка длится до получаса и не должна задерживать платежи и выдачу подписок.
 

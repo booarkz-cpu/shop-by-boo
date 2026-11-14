@@ -1,6 +1,6 @@
 import {SelectField} from "./components/select-field";
 import React,{useEffect,useState} from 'react';
-import {ButtonTree} from '../../cabinet/src/button-tree';
+import {ButtonTree} from '../../../user-cabinet/src/button-tree';
 type Req=(path:string,options?:RequestInit)=>Promise<any>;
 const styles:Record<string,string>={default:'Обычный',primary:'Синий',success:'Зелёный',danger:'Красный'};
 const blankBot=()=>({title:'',action:'',item_type:'folder',parent_id:'',sort_order:0,enabled:true,style:'default',icon_custom_emoji_id:'',icon:''});

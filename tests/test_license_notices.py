@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = [ROOT / "backend/app", ROOT / "admin/src", ROOT / "cabinet/src", ROOT / "scripts", ROOT / "mobile", ROOT / "apps", ROOT / "packages"]
+SOURCES = [ROOT / "backend/app", ROOT / "apps/lucy-admin/web/src", ROOT / "apps/user-cabinet/src", ROOT / "scripts", ROOT / "mobile", ROOT / "apps", ROOT / "packages"]
 REPO = re.compile(r"\b([A-Za-z0-9][A-Za-z0-9_.-]+/[A-Za-z0-9][A-Za-z0-9_.-]+)\s*(?:\(|,)\s*MIT\b")
 AFTER = re.compile(r"\b[Aa]fter ([A-Za-z0-9][A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)?) \(MIT")
 

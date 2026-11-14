@@ -107,7 +107,7 @@ API:
 
 **Карточка клиента:** история по провайдерам, сводка за неделю, «Сейчас онлайн» (`POST/GET /api/connections/by-user`) и сброс соединений (`POST /api/connections/drop`). Если подключённых нод нет, панель отвечает ошибкой A219, и магазин показывает «нигде не подключён».
 
-**«География клиентов»** — векторная карта стран (v28.42.0, `admin/src/worldMap.tsx`, Natural Earth 1:110m) и список стран и провайдеров по сессиям, без IP.
+**«География клиентов»** — векторная карта стран (v28.42.0, `apps/lucy-admin/web/src/worldMap.tsx`, Natural Earth 1:110m) и список стран и провайдеров по сессиям, без IP.
 
 API:
 - `GET/PUT /api/admin/sessions/config`, `GET /api/admin/sessions/anomalies`;

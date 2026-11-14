@@ -17,10 +17,10 @@
 
 | Клиент | Как читает |
 | --- | --- |
-| Кабинет и Telegram Mini App | `cabinet/src/account-sync.ts`: длинный опрос, пока вкладка видима; при смене версии — перечитать данные |
+| Кабинет и Telegram Mini App | `apps/user-cabinet/src/account-sync.ts`: длинный опрос, пока вкладка видима; при смене версии — перечитать данные |
 | Android | `LaunchedEffect` в `MainActivity.kt`: `wait=10`, только пока приложение на экране |
 | iOS | `.task(id:)` в `ContentView.swift`: так же, только в активной сцене |
 | Бот | Читает базу на каждое действие — всегда актуален |
 
-Тесты: `tests/test_account_sync.py`, `cabinet/src/account-sync.test.tsx`, сквозной сценарий в
+Тесты: `tests/test_account_sync.py`, `apps/user-cabinet/src/account-sync.test.tsx`, сквозной сценарий в
 `tests/test_e2e_journeys.py`.

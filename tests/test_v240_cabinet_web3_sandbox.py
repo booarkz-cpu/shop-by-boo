@@ -35,22 +35,22 @@ async def test_sandbox_payments_work_only_when_enabled_outside_production(monkey
 
 
 def test_v240_frontends_and_sandbox_script_exist():
-    cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
-    admin = (ROOT / "admin/src/main.tsx").read_text()
-    style = (ROOT / "admin/src/style.css").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/main.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+    style = (ROOT / "apps/lucy-admin/web/src/style.css").read_text()
     compose = (ROOT / "docker-compose.yml").read_text()
     caddy = (ROOT / "deploy/Caddyfile").read_text()
     script = (ROOT / "scripts/sandbox-e2e.sh").read_text()
     assert "Личный кабинет" in cabinet
-    assert "Войти через Telegram" in (ROOT / "cabinet/src/i18n.tsx").read_text()
-    assert "Войти через Яндекс" in (ROOT / "cabinet/src/i18n.tsx").read_text()
-    assert "Войти через VK" in (ROOT / "cabinet/src/i18n.tsx").read_text()
+    assert "Войти через Telegram" in (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
+    assert "Войти через Яндекс" in (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
+    assert "Войти через VK" in (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
     assert "sandbox_payment" in cabinet
     assert "CabinetCMS" in admin
     assert "Личный кабинет" in admin
     assert "--accent:" in style
     assert "Inter" in style
-    assert "@fontsource-variable/inter" in (ROOT / "admin/src/app/layout.tsx").read_text()
+    assert "@fontsource-variable/inter" in (ROOT / "apps/lucy-admin/web/src/app/layout.tsx").read_text()
     assert "cabinet:" in compose
     assert "CABINET_DOMAIN" in compose
     ci = (ROOT / ".github/workflows/ci.yml").read_text()

@@ -13,12 +13,12 @@ shop-by-boo/
 │   ├── alembic/             миграции PostgreSQL/SQLite
 │   └── requirements*.txt    runtime и test зависимости Python
 ├── bot/                     Telegram bot и worker handlers
-├── admin/                   Next.js (static export) админская панель
+├── apps/lucy-admin/web/                   Next.js (static export) админская панель
 │   ├── src/app/             App Router: layout и клиентская страница
 │   ├── src/                 feature-модули, admin-shell, dashboard, theme.css
 │   └── e2e/                 Chromium workflows
-├── cabinet/                 Next.js кабинет пользователя и Telegram Mini App (telegram.ts, scripts/csp-externalize.mjs)
-├── miniapp/                 Docker-образ Mini App: сборка кабинета с NEXT_PUBLIC_SURFACE=miniapp
+├── apps/user-cabinet/                 Next.js кабинет пользователя и Telegram Mini App (telegram.ts, scripts/csp-externalize.mjs)
+├── apps/telegram-mini-app/                 Docker-образ Mini App: сборка кабинета с NEXT_PUBLIC_SURFACE=miniapp
 ├── mobile/                  Android/iOS клиентские и admin исходники
 ├── desktop/                 контракты desktop WireGuard shell
 ├── support-pro/             изолированный сервис поддержки
@@ -39,9 +39,9 @@ shop-by-boo/
 | Commerce/payments | `backend/app/subscription_commerce.py`, `payments.py`, `payment_policy.py` | Финансовые записи неизменяемы; webhook идемпотентен |
 | Remnawave/provisioning | `backend/app/remnawave.py`, `provisioner.py`, `subscriptions.py` | Повторная операция безопасна, ownership проверяется до remote-вызова |
 | Telegram | `bot/`, `backend/app/bot*` | Bot/Mini App не дублируют бизнес-правила API |
-| Web UI | `admin/src`, `cabinet/src`, `miniapp/src` | Визуальные токены общие, бизнес-логика остаётся в API/feature-модулях |
+| Web UI | `apps/lucy-admin/web/src`, `apps/user-cabinet/src`, `miniapp/src` | Визуальные токены общие, бизнес-логика остаётся в API/feature-модулях |
 | Operations | `deploy/`, `scripts/`, `.github/workflows/` | Backup/restore и release contract проверяются CI |
-| Live configuration | `backend/app/runtime_settings.py`, `admin/src/runtime-settings.tsx` | Только явно типизированные поля; секреты маскируются; применение версионировано и аудируется |
+| Live configuration | `backend/app/runtime_settings.py`, `apps/lucy-admin/web/src/runtime-settings.tsx` | Только явно типизированные поля; секреты маскируются; применение версионировано и аудируется |
 
 ## Конфигурация
 
@@ -56,12 +56,12 @@ shop-by-boo/
 
 | Модуль | Назначение |
 | --- | --- |
-| `admin/src/components/ui/` | shadcn/Radix кнопки, меню, списки и tooltip |
-| `admin/src/components/field-hints.tsx` | Контекстная помощь RU/EN для динамических форм |
-| `admin/src/components/select-field.tsx` | Адаптер существующих форм к Radix Select |
+| `apps/lucy-admin/web/src/components/ui/` | shadcn/Radix кнопки, меню, списки и tooltip |
+| `apps/lucy-admin/web/src/components/field-hints.tsx` | Контекстная помощь RU/EN для динамических форм |
+| `apps/lucy-admin/web/src/components/select-field.tsx` | Адаптер существующих форм к Radix Select |
 | `backend/app/account_merge.py` | Двухсторонняя авторизация, conflict preview, атомарный перенос, aliases и retry journal |
 | `backend/alembic/versions/0063_account_merge.py` | Merge schema и credential-specific passkey handles |
-| `cabinet/src/account-merge.tsx` | Двухшаговый доступный интерфейс объединения аккаунтов |
+| `apps/user-cabinet/src/account-merge.tsx` | Двухшаговый доступный интерфейс объединения аккаунтов |
 | `docs/ru/ACCOUNT_MERGE_CURRENT.md` | Пользовательский, security и операторский регламент merge |
 | `backend/app/runtime_settings.py` | Полный реестр, проверка зависимостей, шифрование, stage/apply/rollback и polling |
 | `backend/alembic/versions/0064_runtime_settings.py` | Версия и защищённая история runtime-настроек |
@@ -99,10 +99,10 @@ shop-by-boo/
 | `scripts/repin-images.sh` | При обновлении переводит закреплённые в `.env` образы Redis и Caddy на версии выпуска (v28.64.0) |
 | `backend/app/lucy_plans.py` | Тарифы Lucy Mini/Max/Ultra и пробный период только на Lucy Mini (v28.63.0) |
 | `backend/app/rw_api.py`, `rw_plan.py`, `rw_steps.py`, `rw_remote.py`, `rw_jobs.py` | Мастер установки Remnawave: реестр серверов, план по режиму, закрытый список шагов по SSH, исполнитель с откатом (v28.66.0) |
-| `admin/src/rw-installer.tsx` | Раздел «Установка Remnawave»: серверы, мастер, план, задачи и журналы (v28.66.0) |
+| `apps/lucy-admin/web/src/rw-installer.tsx` | Раздел «Установка Remnawave»: серверы, мастер, план, задачи и журналы (v28.66.0) |
 | `backend/app/rw_domains.py`, `sub_portal.py` | Домены, сертификаты, маршруты Caddy и вопрос on-demand TLS; портал подписки в браузере (v28.67.0) |
-| `admin/src/domains.tsx` | Раздел «Домены и сертификаты» (v28.67.0) |
-| `backend/app/rw_extensions.py`, `admin/src/rw-extensions.tsx` | Менеджер расширений Remnawave через API панели: профили и REALITY, плагины нод, правила подписки, страница и шаблоны подписки (v28.69.0) |
+| `apps/lucy-admin/web/src/domains.tsx` | Раздел «Домены и сертификаты» (v28.67.0) |
+| `backend/app/rw_extensions.py`, `apps/lucy-admin/web/src/rw-extensions.tsx` | Менеджер расширений Remnawave через API панели: профили и REALITY, плагины нод, правила подписки, страница и шаблоны подписки (v28.69.0) |
 | `backend/app/telegram_stars.py` | Telegram Stars: пополнение кошелька, подписка с автопродлением каждые 30 дней, проверка, зачисление, возврат |
 | `backend/app/remnawave_events.py` | Подписанные вебхуки Remnawave: уведомления клиентам, события автоматизации, защита пробного периода (IP, Telegram, HWID) |
 | `backend/app/growth.py` | Семейная подписка, аналитика удержания, публичный статус сервиса |
@@ -112,9 +112,9 @@ shop-by-boo/
 | `backend/app/widget.py` | Минимальная сводка подписки для виджета Android с кэшем трафика |
 | `support-pro/app/email_channel.py` | Email-канал Support Pro: приём IMAP, цепочки, ответы SMTP, удаление и срок хранения |
 | `backend/app/customer_profile.py` | Профиль клиента: имя и способы входа |
-| `cabinet/src/telegram.ts` | Обёртка Telegram WebApp SDK: тема, haptics, BackButton/MainButton |
-| `cabinet/scripts/csp-externalize.mjs` | Перенос inline-скриптов Next.js в файлы для строгой CSP |
-| `admin/src/runtime-settings.tsx` | Поиск, группы, preview, история и deployment-классификация |
+| `apps/user-cabinet/src/telegram.ts` | Обёртка Telegram WebApp SDK: тема, haptics, BackButton/MainButton |
+| `apps/user-cabinet/scripts/csp-externalize.mjs` | Перенос inline-скриптов Next.js в файлы для строгой CSP |
+| `apps/lucy-admin/web/src/runtime-settings.tsx` | Поиск, группы, preview, история и deployment-классификация |
 | `docs/ru/RUNTIME_SETTINGS_CURRENT.md` | Операторская инструкция live-config |
 | `backend/app/release_identity.py` | Версия дистрибутива независимо от API |
 | `scripts/package-distribution.py` | Архив, checksum и detached manifest |

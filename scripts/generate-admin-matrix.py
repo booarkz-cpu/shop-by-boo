@@ -3,7 +3,7 @@
 application (v28.60.0 / v28.62.0, stage 6).
 
 The same data feeds «Система → Админ-центр» (``backend/app/admin_center.py``); section names and
-descriptions come from ``admin/src/sections.ts``. ``--check`` fails when a document is stale;
+descriptions come from ``apps/lucy-admin/web/src/sections.ts``. ``--check`` fails when a document is stale;
 tests/test_admin_center.py runs it in CI."""
 from __future__ import annotations
 
@@ -29,12 +29,12 @@ def verified() -> dict[int, str]:
 
 
 def tab_labels() -> dict[str, str]:
-    text = (ROOT / "admin/src/sections.ts").read_text()
+    text = (ROOT / "apps/lucy-admin/web/src/sections.ts").read_text()
     return dict(re.findall(r'\{tab: "([A-Za-z0-9]+)", label: "([^"]+)"', text))
 
 
 def tab_descriptions() -> dict[str, tuple[str, str]]:
-    text = (ROOT / "admin/src/sections.ts").read_text()
+    text = (ROOT / "apps/lucy-admin/web/src/sections.ts").read_text()
     return {tab: (label, description) for tab, label, description
             in re.findall(r'\{tab: "([A-Za-z0-9]+)", label: "([^"]+)", description: "([^"]+)"', text)}
 
@@ -55,7 +55,7 @@ def render_modules() -> str:
         f"# Модули админ-панели — {manifest['distribution_tag']}",
         "",
         "Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` "
-        "и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — "
+        "и маршрутов приложения, разделы и их описания — из `apps/lucy-admin/web/src/sections.ts`. Сводная таблица операций — "
         "[ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — "
         "[ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).",
         "",

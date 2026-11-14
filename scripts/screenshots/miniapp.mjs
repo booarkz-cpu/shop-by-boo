@@ -2,10 +2,10 @@
 /**
  * Screenshots of the Telegram Mini App with a mocked API and Telegram WebApp.
  *
- *   (cd cabinet && npm run build:miniapp)
+ *   (cd apps/user-cabinet && npm run build:miniapp)
  *   node scripts/screenshots/miniapp.mjs [out-dir]      # default: docs/img
  *
- * Serves cabinet/dist, answers /api/* from cabinet/src/mock-config.json and demo data,
+ * Serves apps/user-cabinet/dist, answers /api/* from apps/user-cabinet/src/mock-config.json and demo data,
  * fakes window.Telegram.WebApp (so the Mini App surface and greeting are used) and saves
  * one 390×844 PNG per section: miniapp-<section>.png.
  */
@@ -16,15 +16,15 @@ import {extname, join, resolve} from "node:path";
 import {createRequire} from "node:module";
 
 const root = resolve(new URL("../..", import.meta.url).pathname);
-const dist = join(root, "cabinet/dist");
+const dist = join(root, "apps/user-cabinet/dist");
 const out = resolve(process.argv[2] || join(root, "docs/img"));
-if (!existsSync(join(dist, "index.html"))) { console.error("Build first: (cd cabinet && npm run build:miniapp)"); process.exit(2); }
+if (!existsSync(join(dist, "index.html"))) { console.error("Build first: (cd apps/user-cabinet && npm run build:miniapp)"); process.exit(2); }
 mkdirSync(out, {recursive: true});
 const require = createRequire(import.meta.url);
 let chromium;
-try { ({chromium} = require("playwright")); } catch { ({chromium} = require(join(root, "admin/node_modules/playwright"))); }
+try { ({chromium} = require("playwright")); } catch { ({chromium} = require(join(root, "apps/lucy-admin/web/node_modules/playwright"))); }
 
-const config = JSON.parse(await readFile(join(root, "cabinet/src/mock-config.json"), "utf8"));
+const config = JSON.parse(await readFile(join(root, "apps/user-cabinet/src/mock-config.json"), "utf8"));
 const days = (n) => new Date(Date.now() + n * 86400000).toISOString();
 // Demo store for the pictures: brand "Корги Люси", no product names in the demo texts.
 const live = {...config, version: "screenshots", offline: false, viewer: {first_name: "Артём", username: "artem", language: "ru"},

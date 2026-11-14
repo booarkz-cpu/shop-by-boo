@@ -1,5 +1,5 @@
 import {Button} from "./components/ui/button";
-import {readJsonBody} from "../../cabinet/src/http-json";
+import {readJsonBody} from "../../../user-cabinet/src/http-json";
 import {FieldHints} from "./components/field-hints";
 import {PreferencesMenu,LanguageMenu} from "./components/preferences-menu";
 import {TooltipProvider} from "./components/ui/tooltip";

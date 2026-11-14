@@ -111,5 +111,5 @@
 | --- | --- |
 | `tests/test_cabinet_stage8.py` | Сессии (своя, чужая, текущая), устройства под лимитом, тела запросов к панели 3.x, ответы 503 и 502 без утечки, тарифы Lucy и пробный период только на Lucy Mini, Google в настройках без перезапуска |
 | `tests/live/test_remnawave_live.py` | Лимиты Lucy и операции с устройствами на настоящей панели |
-| `admin/e2e/cabinet-stage8.spec.ts` | Кабинет: кнопка Google, сессии с «Завершить», устройства; админка: «Тарифы Lucy» |
-| `cabinet/src/*.test.tsx`, `admin/e2e/cabinet-design.spec.ts` | Остальные разделы кабинета и Mini App |
+| `apps/lucy-admin/web/e2e/cabinet-stage8.spec.ts` | Кабинет: кнопка Google, сессии с «Завершить», устройства; админка: «Тарифы Lucy» |
+| `apps/user-cabinet/src/*.test.tsx`, `apps/lucy-admin/web/e2e/cabinet-design.spec.ts` | Остальные разделы кабинета и Mini App |

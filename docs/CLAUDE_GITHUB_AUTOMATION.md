@@ -104,8 +104,8 @@ cd backend && python -m compileall -q app worker.py && alembic heads
 python3 scripts/check-current-docs.py
 python3 scripts/check-runtime-placeholders.py
 python3 scripts/generate-project-map.py --check
-cd admin && npm ci && npm run typecheck && npm run build
-cd ../cabinet && npm ci && npm run typecheck && npm test && npm run build
+cd apps/lucy-admin/web && npm ci && npm run typecheck && npm run build
+cd ../../user-cabinet && npm ci && npm run typecheck && npm test && npm run build
 ```
 
 Журнал фактически выполненных работ: [AUTOMATION_LOG.md](AUTOMATION_LOG.md).

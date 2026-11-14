@@ -18,17 +18,17 @@ for marker in ["CSRF validation failed", "TrustedHostMiddleware", "X-Content-Typ
         errors.append(f"Security control missing: {marker}")
 
 # Frontend regression that previously caused a broken JSX tree.
-cab=(ROOT/"cabinet"/"src"/"main.tsx").read_text(encoding="utf-8")
-plans=(ROOT/"cabinet"/"src"/"plans.tsx").read_text(encoding="utf-8")
+cab=(ROOT/"apps"/"user-cabinet"/"src"/"main.tsx").read_text(encoding="utf-8")
+plans=(ROOT/"apps"/"user-cabinet"/"src"/"plans.tsx").read_text(encoding="utf-8")
 if plans.count('option key={p} value={p}') != 1:
     errors.append("Cabinet payment-provider option block is malformed or duplicated")
 if "VPN Shop by Corgi" not in cab:
     errors.append("Cabinet brand marker missing")
 
-admin=(ROOT/"admin"/"src"/"main.tsx").read_text(encoding="utf-8")
+admin=(ROOT/"apps"/"lucy-admin"/"web"/"src"/"main.tsx").read_text(encoding="utf-8")
 if "navigate={setTab}" not in admin:
     errors.append("Admin dashboard navigation wiring missing")
-layout=(ROOT/"admin"/"src"/"app"/"layout.tsx").read_text(encoding="utf-8")
+layout=(ROOT/"apps"/"lucy-admin"/"web"/"src"/"app"/"layout.tsx").read_text(encoding="utf-8")
 if "design-system.css" not in layout or "theme.css" not in layout:
     errors.append("Admin design-system import missing")
 

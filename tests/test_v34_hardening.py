@@ -123,6 +123,6 @@ def test_both_frontends_render_an_error_screen_instead_of_a_black_page():
 # Worker health from WorkerState: tests/test_behaviour_plans_privacy.py (BACKLOG A1).
 
 def test_no_v33_current_release_labels():
-    for rel in ['admin/src/main.tsx','deploy/install-vps.sh','scripts/build-release.sh','release-manifest.template.json']:
+    for rel in ['apps/lucy-admin/web/src/main.tsx','deploy/install-vps.sh','scripts/build-release.sh','release-manifest.template.json']:
         text=(ROOT/rel).read_text()
         assert 'V33' not in text and 'v33' not in text and '33.0.0-production' not in text

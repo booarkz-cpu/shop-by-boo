@@ -47,8 +47,8 @@ async def test_a_constructor_plan_is_not_sold_as_a_plain_plan(database, monkeypa
 
 
 def test_v250_frontends_expose_builder_and_servers():
-    admin = (ROOT / "admin/src/main.tsx").read_text()
-    cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/main.tsx").read_text()
     mini = __import__("frontend_sources").miniapp_sources()
     assert "Конструктор тарифов" in admin
     assert "Мониторинг Remnawave" in admin

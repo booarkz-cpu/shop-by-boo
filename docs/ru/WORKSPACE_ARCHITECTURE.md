@@ -18,16 +18,16 @@
 | Проекции истории кошелька и подарков | `customer_workspace_api.py`; только записи текущего пользователя |
 | Привязка реферала | `referrals.py`; одна функция для бота и кабинета |
 | Заявка на реферальную выплату | `withdrawal_requests`, ключ повторной операции и PostgreSQL advisory lock |
-| Страницы пользователя | `cabinet/src/main.tsx`, `workspace.tsx` |
+| Страницы пользователя | `apps/user-cabinet/src/main.tsx`, `workspace.tsx` |
 | Telegram Mini App | Общий кабинет, флаг поверхности и настраиваемые виджеты |
 | Объединение клиентских аккаунтов | `account_merge.py`; две повторные авторизации, conflict preview, атомарный перенос, login aliases и operation journal |
 | Настройки без перезапуска | `runtime_settings.py`; 96 типизированных live-параметров, staged/apply, шифрование, версия, audit и rollback |
-| Клиенты и обращения оператора | `admin/src/customer-desk.tsx`, `support-desk.tsx` |
+| Клиенты и обращения оператора | `apps/lucy-admin/web/src/customer-desk.tsx`, `support-desk.tsx` |
 | Роли, cookie, CSRF, 2FA и мобильная proof-проверка | Существующий security/auth-контур |
 
 ## Устранённые дубли
 
-Удалены неиспользуемые части `admin/src/main_src`, содержавшие вторую копию интерфейса. Next.js (static export) собирает реальный TypeScript-entry. Mini App не хранит вторую реализацию продаж, переводов и CSS: это кабинет, собранный с `NEXT_PUBLIC_SURFACE=miniapp`, с интеграцией Telegram WebApp SDK в `cabinet/src/telegram.ts`. Из обычного меню убраны дополнительные обзорные центры и отдельный вход в фиксированную карточку клиента; сведения доступны через основную главную и поиск клиента.
+Удалены неиспользуемые части `apps/lucy-admin/web/src/main_src`, содержавшие вторую копию интерфейса. Next.js (static export) собирает реальный TypeScript-entry. Mini App не хранит вторую реализацию продаж, переводов и CSS: это кабинет, собранный с `NEXT_PUBLIC_SURFACE=miniapp`, с интеграцией Telegram WebApp SDK в `apps/user-cabinet/src/telegram.ts`. Из обычного меню убраны дополнительные обзорные центры и отдельный вход в фиксированную карточку клиента; сведения доступны через основную главную и поиск клиента.
 
 Два вида пользователей не объединяются механически: внутренний клиент магазина и внешний UUID Remnawave имеют разное назначение. Подарочная подписка и подарочная карта также не являются одной сущностью: первая выдаёт VPN, вторая пополняет кошелёк.
 

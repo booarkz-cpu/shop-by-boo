@@ -22,7 +22,7 @@ updates:
       - dependency-name: pydantic-core
         versions: [">=2.47"]
   - package-ecosystem: npm
-    directory: /admin
+    directory: /apps/lucy-admin/web
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:
@@ -32,7 +32,7 @@ updates:
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
   - package-ecosystem: npm
-    directory: /cabinet
+    directory: /apps/user-cabinet
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:
@@ -42,7 +42,7 @@ updates:
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
   - package-ecosystem: npm
-    directory: /miniapp
+    directory: /apps/telegram-mini-app
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:

@@ -44,7 +44,7 @@ Downgrade `0053` блокируется, пока в `webauthn_credentials` ес
 
 ```bash
 python -m pip install -r backend/requirements.txt -r backend/requirements-test.txt
-cd admin
+cd apps/lucy-admin/web
 npm ci
 npx playwright install chromium
 npm run build

@@ -3,7 +3,7 @@
 Раздел панели администратора: **Серверы → Пул автовыбора**. В списке серверов клиента появляется одна плитка,
 например `⚡ Автовыбор`. Узел за ней выбирается автоматически.
 
-Код: `backend/app/rw_autoselect.py`, страница `admin/src/autoselect.tsx`, тесты `tests/test_rw_autoselect.py`.
+Код: `backend/app/rw_autoselect.py`, страница `apps/lucy-admin/web/src/autoselect.tsx`, тесты `tests/test_rw_autoselect.py`.
 
 ## Кто выбирает узел
 

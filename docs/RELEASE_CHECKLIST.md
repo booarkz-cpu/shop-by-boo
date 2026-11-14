@@ -44,8 +44,8 @@ python -m pytest -q ../tests --timeout=120
 ## 4. Фронтенды
 
 ```bash
-cd admin   && npm ci && npm run typecheck && npm run build
-cd cabinet && npm ci && npm run typecheck && npm test && npm run build
+cd apps/lucy-admin/web   && npm ci && npm run typecheck && npm run build
+cd apps/user-cabinet && npm ci && npm run typecheck && npm test && npm run build
 ```
 
 - [ ] admin: typecheck (оба tsconfig) — чисто

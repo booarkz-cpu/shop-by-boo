@@ -9,7 +9,7 @@ checks = {
     'support caddy': '{$SUPPORT_PRO_DOMAIN}' in (ROOT/'deploy/Caddyfile').read_text(),
     'support sso endpoint': '/sso' in (ROOT/'support-pro/app/main.py').read_text(),
     'admin support api': '/api/admin/support-pro/status' in (ROOT/'backend/app/v3_api.py').read_text(),
-    'admin support ui': 'SupportProDesk' in (ROOT/'admin/src/main.tsx').read_text(),
+    'admin support ui': 'SupportProDesk' in (ROOT/'apps/lucy-admin/web/src/main.tsx').read_text(),
 }
 for py in [ROOT/'backend/app/v3_api.py', ROOT/'support-pro/app/main.py']:
     ast.parse(py.read_text())

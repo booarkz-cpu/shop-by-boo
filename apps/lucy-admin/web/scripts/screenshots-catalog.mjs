@@ -9,7 +9,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import os from 'node:os';
 
-const root = path.resolve(process.argv[2] || '..');
+const root = path.resolve(process.argv[2] || '../../..');
 const base = 'http://localhost:8777';
 const adminDir = path.join(root, 'screenshots/admin_panel');
 const userDir = path.join(root, 'screenshots/storefront_user');

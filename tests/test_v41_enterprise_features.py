@@ -3,7 +3,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 MAN=(ROOT/'release-manifest.template.json').read_text()
 # Menu labels live in the section map since v28.10.0.
-ADMIN=(ROOT/'admin/src/main.tsx').read_text()+(ROOT/'admin/src/passkeys.tsx').read_text()+(ROOT/'admin/src/sections.ts').read_text()
+ADMIN=(ROOT/'apps/lucy-admin/web/src/main.tsx').read_text()+(ROOT/'apps/lucy-admin/web/src/passkeys.tsx').read_text()+(ROOT/'apps/lucy-admin/web/src/sections.ts').read_text()
 
 
 def test_v41_feature_pack_contract():

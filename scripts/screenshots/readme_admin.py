@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rewrite the «#### Админ-панель» block of README.md from the index the catalog script writes.
 
-    node admin/scripts/screenshots-catalog.mjs "$PWD"          # writes $TMPDIR/admin-screenshots-index.json
+    node apps/lucy-admin/web/scripts/screenshots-catalog.mjs "$PWD"          # writes $TMPDIR/admin-screenshots-index.json
     python3 scripts/screenshots/readme_admin.py [index.json]
 
 Groups keep the order of the side menu; each group is a collapsed <details> block.

@@ -35,9 +35,9 @@ def test_install_guide_and_package_checksum():
     assert urls["android-user"].endswith("/releases/latest/download/corgi-lusi-android.apk")
     assert urls["android-admin"].endswith("/releases/latest/download/corgi-lusi-android-admin.apk")
     cabinet = __import__("frontend_sources").cabinet_sources()
-    admin = (ROOT / "admin/src/main.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
     assert "Скачать подписку" in cabinet and "/api/me/subscription-file" in cabinet
     assert "Контрольная сумма" in cabinet and "Контрольная сумма" in admin
     assert "client-logo" not in admin
-    assert "Скачать подписку" in (ROOT / "cabinet/src/i18n.tsx").read_text()
-    assert "Контрольная сумма" in (ROOT / "admin/src/i18n.tsx").read_text()
+    assert "Скачать подписку" in (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
+    assert "Контрольная сумма" in (ROOT / "apps/lucy-admin/web/src/i18n.tsx").read_text()

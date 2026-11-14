@@ -186,13 +186,13 @@
 Скриншоты снимаются на тестовом стенде без внешних сервисов (Remnawave на снимках «недоступен» — так и должно быть). Нужны PostgreSQL и Redis: регистрация клиента берёт блокировку PostgreSQL.
 
 ```bash
-cd admin && npm run build && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
+cd apps/lucy-admin/web && npm run build && NEXT_BASE_PATH=/cabinet npm run build --prefix ../../user-cabinet
 # в другом терминале, из корня репозитория:
 BROWSER_DATABASE_URL=postgresql+asyncpg://… BROWSER_REDIS_URL=redis://… PAYMENTS_SANDBOX=true \
   APP_ENV=test APP_SECRET=browser-test-only-secret-at-least-32-characters COOKIE_SECURE=false \
   MOBILE_REQUIRE_PROOF=false python tests/passkey_browser_server.py
 # снова в admin/:
-node scripts/screenshots-catalog.mjs "$PWD/.."
+node scripts/screenshots-catalog.mjs "$PWD/../../.."
 python3 ../scripts/screenshots/readme_admin.py        # блок «Админ-панель» в README
 ```
 
@@ -213,4 +213,4 @@ APP_ENV=test APP_SECRET=browser-test-only-secret-at-least-32-characters COOKIE_S
 
 ## Проверка
 
-`admin/e2e/remna-design.spec.ts` проверяет, что страница «Все разделы» показывает 8 групп и не меньше 61 раздела с описанием, поиск находит раздел по задаче и сообщает, если ничего не найдено, переход из карточки открывает раздел с путём и описанием, поля формы подписаны, а на телефоне нет горизонтальной прокрутки. Остальные сценарии `admin/e2e` проходят по новому меню.
+`apps/lucy-admin/web/e2e/remna-design.spec.ts` проверяет, что страница «Все разделы» показывает 8 групп и не меньше 61 раздела с описанием, поиск находит раздел по задаче и сообщает, если ничего не найдено, переход из карточки открывает раздел с путём и описанием, поля формы подписаны, а на телефоне нет горизонтальной прокрутки. Остальные сценарии `apps/lucy-admin/web/e2e` проходят по новому меню.

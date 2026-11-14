@@ -4,8 +4,8 @@
 
 | Тест | Что проверяет | Ошибка | Где запускается |
 | --- | --- | --- | --- |
-| `cabinet/src/http-json.test.tsx` | HTML и не-JSON в успешном ответе — ошибка с адресом запроса; JSON, пустой ответ, 204 и тело ответа с ошибкой — как раньше | BUG-H1, BUG-H2 | vitest |
-| `tests/test_frontend_regressions.py` | Оба клиента API читают ответ через `readJsonBody`; функция баннера в «Документах» одна; `admin/Dockerfile` копирует каждый файл кабинета, который импортирует админка | BUG-H1, BUG-H2, BUG-H3 | pytest |
+| `apps/user-cabinet/src/http-json.test.tsx` | HTML и не-JSON в успешном ответе — ошибка с адресом запроса; JSON, пустой ответ, 204 и тело ответа с ошибкой — как раньше | BUG-H1, BUG-H2 | vitest |
+| `tests/test_frontend_regressions.py` | Оба клиента API читают ответ через `readJsonBody`; функция баннера в «Документах» одна; `apps/lucy-admin/web/Dockerfile` копирует каждый файл кабинета, который импортирует админка | BUG-H1, BUG-H2, BUG-H3 | pytest |
 | `tests/test_schema_matches_migrations.py` | На базе, поднятой миграциями: autogenerate не находит отличий от моделей; нет двух индексов на одних колонках; `gift_redemptions.operation_key` — `NOT NULL` | BUG-A1, BUG-A2 | pytest на PostgreSQL CI (`AUDIT_TEST_DATABASE_URL`) |
 | `tests/test_subscription_middleware.py::test_webhook_receivers_must_be_public` | Получатель на `127.0.0.1`, `192.168.*`, `localhost`, `*.localhost` отклоняется при сохранении; к старому сохранённому адресу соединения нет | BUG-A3 | pytest |
 | `tests/test_reconciliation.py::test_postback_addresses_must_be_public` | Постбэк на внутренний адрес (в том числе IPv6 `::1`) отклоняется при сохранении | BUG-A3 | pytest |

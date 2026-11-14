@@ -78,7 +78,7 @@ services:
   admin:
     build:
       context: .
-      dockerfile: admin/Dockerfile
+      dockerfile: apps/lucy-admin/web/Dockerfile
       args:
         VITE_API_URL: ""
     depends_on:
@@ -91,7 +91,7 @@ services:
 
   cabinet:
     build:
-      context: ./cabinet
+      context: ./apps/user-cabinet
       args:
         VITE_API_URL: ""
     depends_on:
@@ -105,7 +105,7 @@ services:
   miniapp:
     build:
       context: .
-      dockerfile: miniapp/Dockerfile
+      dockerfile: apps/telegram-mini-app/Dockerfile
       args:
         VITE_API_URL: ""
     depends_on:

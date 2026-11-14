@@ -1476,7 +1476,7 @@ flowchart LR
 | `mobile/maestro`, `mobile/store` | Сценарии Maestro и материалы для сторов |
 | `support-pro` | Встроенная служба поддержки |
 | `deploy`, `scripts`, `install.sh` | Установка на сервер в одну команду, обновление, копии, сборки |
-| `tests` | Тесты backend (pytest), e2e (Playwright) — `admin/e2e` |
+| `tests` | Тесты backend (pytest), e2e (Playwright) — `apps/lucy-admin/web/e2e` |
 | `docs` | Документация: [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md), [30 модулей для владельца](docs/ru/modules/README.md) |
 
 ### 📱 Mini App на данных
@@ -1589,7 +1589,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ### Mini App
 
-Настоящие снимки собранного Mini App (390×844) со стандартными баннерами. Обновить: `(cd cabinet && npm run build:miniapp) && node scripts/screenshots/miniapp.mjs`.
+Настоящие снимки собранного Mini App (390×844) со стандартными баннерами. Обновить: `(cd apps/user-cabinet && npm run build:miniapp) && node scripts/screenshots/miniapp.mjs`.
 
 | Главная | Пополнение | Рефералы | Поддержка |
 | :---: | :---: | :---: | :---: |
@@ -1607,7 +1607,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ### Админ-панель и личный кабинет
 
-Ниже настоящие снимки всех разделов админ-панели и кабинета (Remna Dark, 1440×900). Их снимает скрипт [`admin/scripts/screenshots-catalog.mjs`](admin/scripts/screenshots-catalog.mjs) на изолированном тестовом стенде с тестовыми тарифами и sandbox-оплатами. Поэтому серверы Remnawave на снимках недоступны, а суммы и клиенты тестовые. Описание каждого раздела — в [руководстве по админ-панели](docs/ru/ADMIN_PANEL_CURRENT.md).
+Ниже настоящие снимки всех разделов админ-панели и кабинета (Remna Dark, 1440×900). Их снимает скрипт [`apps/lucy-admin/web/scripts/screenshots-catalog.mjs`](apps/lucy-admin/web/scripts/screenshots-catalog.mjs) на изолированном тестовом стенде с тестовыми тарифами и sandbox-оплатами. Поэтому серверы Remnawave на снимках недоступны, а суммы и клиенты тестовые. Описание каждого раздела — в [руководстве по админ-панели](docs/ru/ADMIN_PANEL_CURRENT.md).
 
 | Админ-панель | Личный кабинет |
 | --- | --- |
@@ -2294,9 +2294,9 @@ python3 -m venv .venv
 .venv/bin/pip install -r backend/requirements.txt -r backend/requirements-test.txt
 APP_ENV=test APP_SECRET=test-only-secret PYTHONPATH=backend .venv/bin/python -m pytest -q tests
 
-cd admin && npm ci && npm run typecheck && npm run build
-cd ../cabinet && npm ci && npm run typecheck && npm test && npm run build
-cd ../admin && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet && npx playwright test   # Chromium под production CSP
+cd apps/lucy-admin/web && npm ci && npm run typecheck && npm run build
+cd ../../user-cabinet && npm ci && npm run typecheck && npm test && npm run build
+cd ../lucy-admin/web && NEXT_BASE_PATH=/cabinet npm run build --prefix ../../user-cabinet && npx playwright test   # Chromium под production CSP
 ```
 
 Тесты с PostgreSQL и Redis включаются переменными `AUDIT_TEST_DATABASE_URL` и `REDIS_URL`. **CI** (`.github/workflows/ci.yml`) поднимает PostgreSQL 18 и Redis 7.4 и выполняет:
@@ -2354,7 +2354,7 @@ Performance / Documentation / Removed / Migration. Даты взяты из Git-
 | `v28.45.0` | 2026-10-29 | Payments | Пакет `backend/app/gateways/`: у каждой дополнительной кассы свой модуль, общая часть вынесена в `common.py` | [заметки](docs/ru/RELEASE_V28_45_0.md) |
 | `v28.44.0` | 2026-10-28 | Payments | Tribute (`tribute.py`): пополнение кошелька донатом в Telegram | [заметки](docs/ru/RELEASE_V28_44_0.md) |
 | `v28.43.0` | 2026-10-28 | Payments | Кассы Cashera и ParityPay (карты, СБП) в `payments_extra.py` | [заметки](docs/ru/RELEASE_V28_43_0.md) |
-| `v28.42.0` | 2026-10-28 | Added | «География клиентов» (Мониторинг): векторная карта стран (`admin/src/worldMap.tsx`) | [заметки](docs/ru/RELEASE_V28_42_0.md) |
+| `v28.42.0` | 2026-10-28 | Added | «География клиентов» (Мониторинг): векторная карта стран (`apps/lucy-admin/web/src/worldMap.tsx`) | [заметки](docs/ru/RELEASE_V28_42_0.md) |
 | `v28.41.0` | 2026-10-28 | Payments | Кассы AuraPay и Anore (карты, СБП) в `payments_extra.py` | [заметки](docs/ru/RELEASE_V28_41_0.md) |
 | `v28.40.0` | 2026-10-28 | Payments | Кассы WATA и Antilopay (карты, СБП) в `payments_extra.py` | [заметки](docs/ru/RELEASE_V28_40_0.md) |
 | `v28.39.0` | 2026-10-28 | Payments | Кассы Pal24 (PayPalych) и Mulen Pay (карты, СБП) в `payments_extra.py` | [заметки](docs/ru/RELEASE_V28_39_0.md) |

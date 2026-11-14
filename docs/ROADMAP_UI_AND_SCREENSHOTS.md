@@ -8,7 +8,7 @@
 
 ## 1. Design system
 
-Реализовано в `admin/src/style.css` и переиспользуемых компонентах. Проверено по коду и тестам
+Реализовано в `apps/lucy-admin/web/src/style.css` и переиспользуемых компонентах. Проверено по коду и тестам
 (`tests/test_critical_startup_and_i18n.py` утверждает наличие этих признаков):
 
 | Требование | Состояние |
@@ -22,10 +22,10 @@
 | Светлая тема | `html[data-theme="light"]` |
 | Адаптивная боковая панель | Реализовано, скриншоты `admin-mobile-drawer-v28-10-0.png` |
 | Поиск по командам | Реализовано, `admin-command-search`, `admin-panel-search` |
-| Статусы, skeleton, пустые состояния | `admin/src/components/ui/status.tsx` и UI-компоненты |
+| Статусы, skeleton, пустые состояния | `apps/lucy-admin/web/src/components/ui/status.tsx` и UI-компоненты |
 | Подтверждение опасных операций | `confirm()` в опасных действиях, например «Обновить сейчас» |
 
-Кабинет использует собственную тему (`cabinet/src/style.css`), согласованную по палитре.
+Кабинет использует собственную тему (`apps/user-cabinet/src/style.css`), согласованную по палитре.
 
 ## 2. Инвентаризация изображений
 
@@ -33,7 +33,7 @@
 
 | Каталог | Что | Как снимается |
 | --- | --- | --- |
-| `screenshots/admin_panel/` | Все 81 раздел бокового меню, вход, «Все разделы», быстрый поиск; номера разделов прежние, новые — с 75 | `admin/scripts/screenshots-catalog.mjs` |
+| `screenshots/admin_panel/` | Все 81 раздел бокового меню, вход, «Все разделы», быстрый поиск; номера разделов прежние, новые — с 75 | `apps/lucy-admin/web/scripts/screenshots-catalog.mjs` |
 | `screenshots/admin_panel/variants/` | Телефон 390×844 (все разделы, меню, главная, платежи, ноды, установка Remnawave, настройки) и светлая тема | тот же скрипт |
 | `screenshots/admin_panel/features/` | Карточки функций ниже первого экрана | тот же скрипт |
 | `screenshots/storefront_user/` | Личный кабинет: вход, регистрация, тарифы, оплата, подключение, серверы, поддержка, устройства и др. | тот же скрипт |
@@ -45,7 +45,7 @@
 ## 3. Проверка полноты
 
 `tests/test_screenshots.py` в CI:
-- у каждого раздела бокового меню (`SECTION_GROUPS` в `admin/src/sections.ts`) есть снимок `NN_<раздел>.png`, номера не повторяются;
+- у каждого раздела бокового меню (`SECTION_GROUPS` в `apps/lucy-admin/web/src/sections.ts`) есть снимок `NN_<раздел>.png`, номера не повторяются;
 - README ссылается только на существующие изображения.
 
 Новый раздел без снимка не пройдёт CI: перед выпуском запустите скрипт съёмки.
@@ -55,7 +55,7 @@
 Инструкция — [руководство по админ-панели](ru/ADMIN_PANEL_CURRENT.md). Кратко:
 1. сборка админки и кабинета;
 2. тестовый стенд `tests/passkey_browser_server.py` с PostgreSQL и Redis (`BROWSER_DATABASE_URL`, `BROWSER_REDIS_URL`, `PAYMENTS_SANDBOX=true`);
-3. `node admin/scripts/screenshots-catalog.mjs <корень>`;
+3. `node apps/lucy-admin/web/scripts/screenshots-catalog.mjs <корень>`;
 4. `python3 scripts/screenshots/readme_admin.py` — блок «Админ-панель» в README.
 
 После этапа, который менял интерфейс, снимки обновляются тем же скриптом. Полная пересъёмка — на этапах 17 и 18.
@@ -88,8 +88,8 @@
 
 ## 7. Изображения Mini App и кабинета
 
-Кабинет: `cabinet/public/` содержит статические ассеты, собираются в `dist`. Mini App
-(`miniapp/`) использует те же статические ресурсы через общий кабинет (`npm ci --prefix ../cabinet`
+Кабинет: `apps/user-cabinet/public/` содержит статические ассеты, собираются в `dist`. Mini App
+(`apps/telegram-mini-app/`) использует те же статические ресурсы через общий кабинет (`npm ci --prefix ../cabinet`
 в CI).
 
 Фон и изображения Mini App задаются настройками (`miniapp_background_image`, `miniapp_image`) и

@@ -41,8 +41,8 @@
 | pytest-asyncio | 1.4.1.post1 | `requirements-test.txt` |
 | pytest-timeout | 2.4.0 | `requirements-test.txt` |
 | aiosqlite | 0.22.1 | `requirements-test.txt` (локальный SQLite-прогон) |
-| Vitest | см. `cabinet/package.json` | модульные тесты кабинета |
-| Playwright | см. `admin/package.json` | e2e в браузере |
+| Vitest | см. `apps/user-cabinet/package.json` | модульные тесты кабинета |
+| Playwright | см. `apps/lucy-admin/web/package.json` | e2e в браузере |
 
 ## Frontend
 
@@ -54,7 +54,7 @@
 | React DOM | 19.3.1 | `admin` | рендер |
 | TypeScript | 7.0.2 | `admin` | строгая типизация |
 | Tailwind CSS | ^4.3.3 | `admin` | стили |
-| nginx | 1.30 (pinned digest) | `admin/Dockerfile`, `cabinet/Dockerfile`, `miniapp` | раздача собранной статики |
+| nginx | 1.30 (pinned digest) | `apps/lucy-admin/web/Dockerfile`, `apps/user-cabinet/Dockerfile`, `miniapp` | раздача собранной статики |
 
 Шрифты интерфейса: **Inter** (текст) и **JetBrains Mono** (технические данные), заданы в стилях
 панели и кабинета.

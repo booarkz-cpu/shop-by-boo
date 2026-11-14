@@ -54,7 +54,7 @@ lint, shell-синтаксис, компиляция, 2507 backend-тестов,
 | Ссылок на магазины приложений нет | В коде и документации их нет |
 | Desktop-приложения отсутствуют | `desktop/{linux,macos,windows}` содержат только `README.md` |
 | `browser-extension` и `corgi-cli` минимальны | `manifest.json` + `service-worker.js`; `README.md` |
-| Локализация кабинета: `ru` и `en` | `Lang = "ru" | "en"` в `cabinet/src/i18n.tsx`; украинский для кабинета не заявлен |
+| Локализация кабинета: `ru` и `en` | `Lang = "ru" | "en"` в `apps/user-cabinet/src/i18n.tsx`; украинский для кабинета не заявлен |
 | Мобильная локализация: `packages/localization/{admin,user}.json` | Отдельный набор, не общий с вебом |
 | Тест платежей требует переменных как в CI | Без `PAYMENTS_SANDBOX=true` и `APP_ENV=test` один тест падает |
 
@@ -97,7 +97,7 @@ lint, shell-синтаксис, компиляция, 2507 backend-тестов,
 | --- | --- | --- |
 | Заглушка версии в админке | `Текущая версия: <b>корпоративный контур</b>` | `{git?.current_tag || git?.current || '—'}` |
 
-Файл: `admin/src/main.tsx`. Проверено: typecheck (оба tsconfig) чист, профильные тесты — 31 passed.
+Файл: `apps/lucy-admin/web/src/main.tsx`. Проверено: typecheck (оба tsconfig) чист, профильные тесты — 31 passed.
 
 ## 5. Исторические симптомы: перепроверены, не воспроизводятся
 
