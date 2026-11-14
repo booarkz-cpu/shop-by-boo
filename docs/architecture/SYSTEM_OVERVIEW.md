@@ -28,7 +28,7 @@ Docker Compose на один сервер.
 | Кабинет и Mini App | `apps/user-cabinet/`, `apps/telegram-mini-app/` | Интерфейс клиента |
 | Support Pro | `support-pro/` | Обращения в поддержку; своя база и свои фоновые задачи |
 | Мобильные приложения | `mobile/` | Три приложения для Android, два для iOS |
-| Установка и обновление | `install.sh`, `scripts/`, `deploy/` | Установщик, агент обновления, Caddy |
+| Установка и обновление | `install.sh`, `scripts/`, `infrastructure/` | Установщик, агент обновления, Caddy |
 
 Службы, сети и тома перечислены в [CONTAINER_DIAGRAM.md](CONTAINER_DIAGRAM.md).
 

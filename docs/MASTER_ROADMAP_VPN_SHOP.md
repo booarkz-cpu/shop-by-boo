@@ -147,7 +147,7 @@
 | Документация | контракты версии, карты, ссылок | IMPLEMENTED | `scripts/check-*.py` | — |
 | Десктоп | приложения Linux/macOS/Windows | MISSING | `desktop/*` — только README | — |
 | Расширение браузера | — | MISSING | `browser-extension` — 2 файла | — |
-| Terraform | инфраструктура как код | MISSING | `terraform/` — 1 файл | — |
+| Terraform | инфраструктура как код | MISSING | `infrastructure/provisioning/` — 1 файл | — |
 | `corgi-cli` | CLI | MISSING | `corgi-cli/README.md` | — |
 
 Итог по таблице: **27 `IMPLEMENTED`**, 5 `PARTIAL`, 7 `NOT_VERIFIED`, 4 `MISSING` — всего 43 функции.

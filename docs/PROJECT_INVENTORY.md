@@ -51,11 +51,11 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 | `support-pro/` | 93 | отдельный сервис поддержки |
 | `scripts/` | 77 | эксплуатация и релиз |
 | `.github/` | 61 | 15 workflows, соглашения |
-| `deploy/` | 18 | Caddy, nginx, prometheus, grafana, wireguard, mail-tls |
+| `infrastructure/` | 20 | установщик, Caddy, nginx, prometheus, grafana, wireguard, mail-tls, Terraform; `deploy/` — 5 переходников старых путей |
 | `apps/telegram-mini-app/` | 6 | nginx-конфигурация Mini App |
 | `desktop/` | 4 | README-заготовки для трёх ОС |
 | `browser-extension/` | 2 | заготовка расширения |
-| `terraform/` | 1 | заготовка инфраструктуры |
+| `infrastructure/provisioning/` | 1 | заготовка инфраструктуры (Terraform) |
 
 ## 4. Backend
 

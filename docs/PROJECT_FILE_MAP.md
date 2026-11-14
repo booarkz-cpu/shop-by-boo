@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2650**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2784**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -111,6 +111,51 @@
 | [SUPPORT_PRO_INTEGRATION_RU.md](../SUPPORT_PRO_INTEGRATION_RU.md) | Корень проекта |
 | [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) | Корень проекта |
 | [UNIFIED_ARCHITECTURE_RU.md](../UNIFIED_ARCHITECTURE_RU.md) | Корень проекта |
+| [admin/dist/404.html](../admin/dist/404.html) | Админ-панель |
+| [admin/dist/__next.__PAGE__.txt](../admin/dist/__next.__PAGE__.txt) | Админ-панель |
+| [admin/dist/__next._full.txt](../admin/dist/__next._full.txt) | Админ-панель |
+| [admin/dist/__next._tree.txt](../admin/dist/__next._tree.txt) | Админ-панель |
+| [admin/dist/_next/static/C9cKuW6vGPGG23ZanjXHG/_buildManifest.js](../admin/dist/_next/static/C9cKuW6vGPGG23ZanjXHG/_buildManifest.js) | Админ-панель |
+| [admin/dist/_next/static/C9cKuW6vGPGG23ZanjXHG/_clientMiddlewareManifest.js](../admin/dist/_next/static/C9cKuW6vGPGG23ZanjXHG/_clientMiddlewareManifest.js) | Админ-панель |
+| [admin/dist/_next/static/C9cKuW6vGPGG23ZanjXHG/_ssgManifest.js](../admin/dist/_next/static/C9cKuW6vGPGG23ZanjXHG/_ssgManifest.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/06v37y2el4dby.js](../admin/dist/_next/static/chunks/06v37y2el4dby.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/0b0d2ziwyj12y.css](../admin/dist/_next/static/chunks/0b0d2ziwyj12y.css) | Админ-панель |
+| [admin/dist/_next/static/chunks/0bntchm-qoweb.css](../admin/dist/_next/static/chunks/0bntchm-qoweb.css) | Админ-панель |
+| [admin/dist/_next/static/chunks/0cz1d0mv5g_q7.js](../admin/dist/_next/static/chunks/0cz1d0mv5g_q7.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/0jm9p8e831ziy.css](../admin/dist/_next/static/chunks/0jm9p8e831ziy.css) | Админ-панель |
+| [admin/dist/_next/static/chunks/0paffjhq-6r_g.js](../admin/dist/_next/static/chunks/0paffjhq-6r_g.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/0pfendy-vyusc.js](../admin/dist/_next/static/chunks/0pfendy-vyusc.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/0q5tcy3mxcru4.js](../admin/dist/_next/static/chunks/0q5tcy3mxcru4.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/0tsu5xbh4_tu_.js](../admin/dist/_next/static/chunks/0tsu5xbh4_tu_.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/155nebk38y5fk.css](../admin/dist/_next/static/chunks/155nebk38y5fk.css) | Админ-панель |
+| [admin/dist/_next/static/chunks/1_zz3zb7xq2wx.js](../admin/dist/_next/static/chunks/1_zz3zb7xq2wx.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/2t2_x-8g2nuqt.js](../admin/dist/_next/static/chunks/2t2_x-8g2nuqt.js) | Админ-панель |
+| [admin/dist/_next/static/chunks/turbopack-2u1d16houkiyo.js](../admin/dist/_next/static/chunks/turbopack-2u1d16houkiyo.js) | Админ-панель |
+| [admin/dist/_next/static/csp/2be8c2ac27a63d76bc7a.js](../admin/dist/_next/static/csp/2be8c2ac27a63d76bc7a.js) | Админ-панель |
+| [admin/dist/_next/static/csp/3814cddd18b2095e01ab.js](../admin/dist/_next/static/csp/3814cddd18b2095e01ab.js) | Админ-панель |
+| [admin/dist/_next/static/csp/b17b3d960deba565214a.js](../admin/dist/_next/static/csp/b17b3d960deba565214a.js) | Админ-панель |
+| [admin/dist/_next/static/csp/b29313c5a850a1d49fa5.js](../admin/dist/_next/static/csp/b29313c5a850a1d49fa5.js) | Админ-панель |
+| [admin/dist/_next/static/csp/d3a1b9c9a37e27dc6404.js](../admin/dist/_next/static/csp/d3a1b9c9a37e27dc6404.js) | Админ-панель |
+| [admin/dist/_next/static/media/inter-cyrillic-ext-wght-normal.20g3-bbbhdq0_.woff2](../admin/dist/_next/static/media/inter-cyrillic-ext-wght-normal.20g3-bbbhdq0_.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/inter-cyrillic-wght-normal.2cxlyxah-fd35.woff2](../admin/dist/_next/static/media/inter-cyrillic-wght-normal.2cxlyxah-fd35.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/inter-greek-ext-wght-normal.0mkxydxl0e43d.woff2](../admin/dist/_next/static/media/inter-greek-ext-wght-normal.0mkxydxl0e43d.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/inter-greek-wght-normal.1rx9vjatjkdar.woff2](../admin/dist/_next/static/media/inter-greek-wght-normal.1rx9vjatjkdar.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/inter-latin-ext-wght-normal.3gdi_th3seg1n.woff2](../admin/dist/_next/static/media/inter-latin-ext-wght-normal.3gdi_th3seg1n.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/inter-latin-wght-normal.0gsaq8ukbf34m.woff2](../admin/dist/_next/static/media/inter-latin-wght-normal.0gsaq8ukbf34m.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/inter-vietnamese-wght-normal.2kcj5i_8uff48.woff2](../admin/dist/_next/static/media/inter-vietnamese-wght-normal.2kcj5i_8uff48.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/jetbrains-mono-cyrillic-ext-wght-normal.1ladf10s224e1.woff2](../admin/dist/_next/static/media/jetbrains-mono-cyrillic-ext-wght-normal.1ladf10s224e1.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/jetbrains-mono-cyrillic-wght-normal.0x7cg5h5x34js.woff2](../admin/dist/_next/static/media/jetbrains-mono-cyrillic-wght-normal.0x7cg5h5x34js.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/jetbrains-mono-greek-wght-normal.1k07jbkicvzf3.woff2](../admin/dist/_next/static/media/jetbrains-mono-greek-wght-normal.1k07jbkicvzf3.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/jetbrains-mono-latin-ext-wght-normal.3rxtet6g9i1k3.woff2](../admin/dist/_next/static/media/jetbrains-mono-latin-ext-wght-normal.3rxtet6g9i1k3.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/jetbrains-mono-latin-wght-normal.2rmhnsrc80fag.woff2](../admin/dist/_next/static/media/jetbrains-mono-latin-wght-normal.2rmhnsrc80fag.woff2) | Админ-панель |
+| [admin/dist/_next/static/media/jetbrains-mono-vietnamese-wght-normal.0a13tgqsi9z78.woff2](../admin/dist/_next/static/media/jetbrains-mono-vietnamese-wght-normal.0a13tgqsi9z78.woff2) | Админ-панель |
+| [admin/dist/_not-found.html](../admin/dist/_not-found.html) | Админ-панель |
+| [admin/dist/_not-found.txt](../admin/dist/_not-found.txt) | Админ-панель |
+| [admin/dist/_not-found/__next._full.txt](../admin/dist/_not-found/__next._full.txt) | Админ-панель |
+| [admin/dist/_not-found/__next._not-found.__PAGE__.txt](../admin/dist/_not-found/__next._not-found.__PAGE__.txt) | Админ-панель |
+| [admin/dist/_not-found/__next._tree.txt](../admin/dist/_not-found/__next._tree.txt) | Админ-панель |
+| [admin/dist/index.html](../admin/dist/index.html) | Админ-панель |
+| [admin/dist/index.txt](../admin/dist/index.txt) | Админ-панель |
 | [apps/lucy-admin/android/app/build.gradle.kts](../apps/lucy-admin/android/app/build.gradle.kts) | Приложения |
 | [apps/lucy-admin/android/app/src/androidTest/java/shop/remnawave/admin/AdminScreensTest.kt](../apps/lucy-admin/android/app/src/androidTest/java/shop/remnawave/admin/AdminScreensTest.kt) | Приложения |
 | [apps/lucy-admin/android/app/src/debug/AndroidManifest.xml](../apps/lucy-admin/android/app/src/debug/AndroidManifest.xml) | Приложения |
@@ -1104,27 +1149,96 @@
 | [backend/worker.py](../backend/worker.py) | API, бот и worker |
 | [browser-extension/manifest.json](../browser-extension/manifest.json) | Корень проекта |
 | [browser-extension/service-worker.js](../browser-extension/service-worker.js) | Корень проекта |
+| [cabinet/dist/404.html](../cabinet/dist/404.html) | Кабинет |
+| [cabinet/dist/__next.__PAGE__.txt](../cabinet/dist/__next.__PAGE__.txt) | Кабинет |
+| [cabinet/dist/__next._full.txt](../cabinet/dist/__next._full.txt) | Кабинет |
+| [cabinet/dist/__next._tree.txt](../cabinet/dist/__next._tree.txt) | Кабинет |
+| [cabinet/dist/_next/static/aTzfeRLBoSRipLH6R64eR/_buildManifest.js](../cabinet/dist/_next/static/aTzfeRLBoSRipLH6R64eR/_buildManifest.js) | Кабинет |
+| [cabinet/dist/_next/static/aTzfeRLBoSRipLH6R64eR/_clientMiddlewareManifest.js](../cabinet/dist/_next/static/aTzfeRLBoSRipLH6R64eR/_clientMiddlewareManifest.js) | Кабинет |
+| [cabinet/dist/_next/static/aTzfeRLBoSRipLH6R64eR/_ssgManifest.js](../cabinet/dist/_next/static/aTzfeRLBoSRipLH6R64eR/_ssgManifest.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/02535jfktl8ru.css](../cabinet/dist/_next/static/chunks/02535jfktl8ru.css) | Кабинет |
+| [cabinet/dist/_next/static/chunks/0cz1d0mv5g_q7.js](../cabinet/dist/_next/static/chunks/0cz1d0mv5g_q7.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/0q_kmdf7a0gnk.js](../cabinet/dist/_next/static/chunks/0q_kmdf7a0gnk.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/0wfurka9errm3.js](../cabinet/dist/_next/static/chunks/0wfurka9errm3.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/1m9-ni-kyf1k6.js](../cabinet/dist/_next/static/chunks/1m9-ni-kyf1k6.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/2fx2n4i2730e0.js](../cabinet/dist/_next/static/chunks/2fx2n4i2730e0.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/2ute4361j5zb2.js](../cabinet/dist/_next/static/chunks/2ute4361j5zb2.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/34-s9nvef5sdp.js](../cabinet/dist/_next/static/chunks/34-s9nvef5sdp.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/3qfy96eoyh-ek.js](../cabinet/dist/_next/static/chunks/3qfy96eoyh-ek.js) | Кабинет |
+| [cabinet/dist/_next/static/chunks/turbopack-1gpk8ewnduaqr.js](../cabinet/dist/_next/static/chunks/turbopack-1gpk8ewnduaqr.js) | Кабинет |
+| [cabinet/dist/_next/static/csp/3814cddd18b2095e01ab.js](../cabinet/dist/_next/static/csp/3814cddd18b2095e01ab.js) | Кабинет |
+| [cabinet/dist/_next/static/csp/4673b8ce33e23881fed5.js](../cabinet/dist/_next/static/csp/4673b8ce33e23881fed5.js) | Кабинет |
+| [cabinet/dist/_next/static/csp/6db58e8eed478e26d700.js](../cabinet/dist/_next/static/csp/6db58e8eed478e26d700.js) | Кабинет |
+| [cabinet/dist/_next/static/csp/879c74fd720ea701bde8.js](../cabinet/dist/_next/static/csp/879c74fd720ea701bde8.js) | Кабинет |
+| [cabinet/dist/_next/static/csp/b3d71cbe5e99c090ed19.js](../cabinet/dist/_next/static/csp/b3d71cbe5e99c090ed19.js) | Кабинет |
+| [cabinet/dist/_next/static/media/inter-cyrillic-ext-wght-normal.20g3-bbbhdq0_.woff2](../cabinet/dist/_next/static/media/inter-cyrillic-ext-wght-normal.20g3-bbbhdq0_.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/inter-cyrillic-wght-normal.2cxlyxah-fd35.woff2](../cabinet/dist/_next/static/media/inter-cyrillic-wght-normal.2cxlyxah-fd35.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/inter-greek-ext-wght-normal.0mkxydxl0e43d.woff2](../cabinet/dist/_next/static/media/inter-greek-ext-wght-normal.0mkxydxl0e43d.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/inter-greek-wght-normal.1rx9vjatjkdar.woff2](../cabinet/dist/_next/static/media/inter-greek-wght-normal.1rx9vjatjkdar.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/inter-latin-ext-wght-normal.3gdi_th3seg1n.woff2](../cabinet/dist/_next/static/media/inter-latin-ext-wght-normal.3gdi_th3seg1n.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/inter-latin-wght-normal.0gsaq8ukbf34m.woff2](../cabinet/dist/_next/static/media/inter-latin-wght-normal.0gsaq8ukbf34m.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/inter-vietnamese-wght-normal.2kcj5i_8uff48.woff2](../cabinet/dist/_next/static/media/inter-vietnamese-wght-normal.2kcj5i_8uff48.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/jetbrains-mono-cyrillic-ext-wght-normal.1ladf10s224e1.woff2](../cabinet/dist/_next/static/media/jetbrains-mono-cyrillic-ext-wght-normal.1ladf10s224e1.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/jetbrains-mono-cyrillic-wght-normal.0x7cg5h5x34js.woff2](../cabinet/dist/_next/static/media/jetbrains-mono-cyrillic-wght-normal.0x7cg5h5x34js.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/jetbrains-mono-greek-wght-normal.1k07jbkicvzf3.woff2](../cabinet/dist/_next/static/media/jetbrains-mono-greek-wght-normal.1k07jbkicvzf3.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/jetbrains-mono-latin-ext-wght-normal.3rxtet6g9i1k3.woff2](../cabinet/dist/_next/static/media/jetbrains-mono-latin-ext-wght-normal.3rxtet6g9i1k3.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/jetbrains-mono-latin-wght-normal.2rmhnsrc80fag.woff2](../cabinet/dist/_next/static/media/jetbrains-mono-latin-wght-normal.2rmhnsrc80fag.woff2) | Кабинет |
+| [cabinet/dist/_next/static/media/jetbrains-mono-vietnamese-wght-normal.0a13tgqsi9z78.woff2](../cabinet/dist/_next/static/media/jetbrains-mono-vietnamese-wght-normal.0a13tgqsi9z78.woff2) | Кабинет |
+| [cabinet/dist/_not-found.html](../cabinet/dist/_not-found.html) | Кабинет |
+| [cabinet/dist/_not-found.txt](../cabinet/dist/_not-found.txt) | Кабинет |
+| [cabinet/dist/_not-found/__next._full.txt](../cabinet/dist/_not-found/__next._full.txt) | Кабинет |
+| [cabinet/dist/_not-found/__next._not-found.__PAGE__.txt](../cabinet/dist/_not-found/__next._not-found.__PAGE__.txt) | Кабинет |
+| [cabinet/dist/_not-found/__next._tree.txt](../cabinet/dist/_not-found/__next._tree.txt) | Кабинет |
+| [cabinet/dist/assets/banners/account.jpg](../cabinet/dist/assets/banners/account.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/balance.jpg](../cabinet/dist/assets/banners/balance.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/buy.jpg](../cabinet/dist/assets/banners/buy.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/channels.jpg](../cabinet/dist/assets/banners/channels.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/connection.jpg](../cabinet/dist/assets/banners/connection.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/contest.jpg](../cabinet/dist/assets/banners/contest.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/devices.jpg](../cabinet/dist/assets/banners/devices.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/family.jpg](../cabinet/dist/assets/banners/family.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/faq.jpg](../cabinet/dist/assets/banners/faq.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/gifts.jpg](../cabinet/dist/assets/banners/gifts.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/guest.jpg](../cabinet/dist/assets/banners/guest.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/home.jpg](../cabinet/dist/assets/banners/home.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/info.jpg](../cabinet/dist/assets/banners/info.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/menu.jpg](../cabinet/dist/assets/banners/menu.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/offer.jpg](../cabinet/dist/assets/banners/offer.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/payments.jpg](../cabinet/dist/assets/banners/payments.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/privacy.jpg](../cabinet/dist/assets/banners/privacy.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/promo.jpg](../cabinet/dist/assets/banners/promo.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/referral.jpg](../cabinet/dist/assets/banners/referral.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/rules.jpg](../cabinet/dist/assets/banners/rules.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/servers.jpg](../cabinet/dist/assets/banners/servers.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/start.jpg](../cabinet/dist/assets/banners/start.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/stats.jpg](../cabinet/dist/assets/banners/stats.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/status.jpg](../cabinet/dist/assets/banners/status.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/subscription.jpg](../cabinet/dist/assets/banners/subscription.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/support.jpg](../cabinet/dist/assets/banners/support.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/surveys.jpg](../cabinet/dist/assets/banners/surveys.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/topup.jpg](../cabinet/dist/assets/banners/topup.jpg) | Кабинет |
+| [cabinet/dist/assets/banners/trial.jpg](../cabinet/dist/assets/banners/trial.jpg) | Кабинет |
+| [cabinet/dist/assets/stickers/bugs.webp](../cabinet/dist/assets/stickers/bugs.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/delivery.webp](../cabinet/dist/assets/stickers/delivery.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/error404.webp](../cabinet/dist/assets/stickers/error404.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/gift.webp](../cabinet/dist/assets/stickers/gift.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/goodbye.webp](../cabinet/dist/assets/stickers/goodbye.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/holiday.webp](../cabinet/dist/assets/stickers/holiday.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/maintenance.webp](../cabinet/dist/assets/stickers/maintenance.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/payment.webp](../cabinet/dist/assets/stickers/payment.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/success.webp](../cabinet/dist/assets/stickers/success.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/vip.webp](../cabinet/dist/assets/stickers/vip.webp) | Кабинет |
+| [cabinet/dist/assets/stickers/waiting.webp](../cabinet/dist/assets/stickers/waiting.webp) | Кабинет |
+| [cabinet/dist/index.html](../cabinet/dist/index.html) | Кабинет |
+| [cabinet/dist/index.txt](../cabinet/dist/index.txt) | Кабинет |
+| [cabinet/dist/manifest.webmanifest](../cabinet/dist/manifest.webmanifest) | Кабинет |
 | [conftest.py](../conftest.py) | Корень проекта |
 | [corgi-cli/README.md](../corgi-cli/README.md) | Корень проекта |
-| [deploy/Caddyfile](../deploy/Caddyfile) | Установка |
-| [deploy/Caddyfile.example](../deploy/Caddyfile.example) | Установка |
-| [deploy/build-production.sh](../deploy/build-production.sh) | Установка |
-| [deploy/caddy/Dockerfile](../deploy/caddy/Dockerfile) | Установка |
-| [deploy/grafana/vpnshop-operations.json](../deploy/grafana/vpnshop-operations.json) | Установка |
-| [deploy/grafana/vpnshop-platform.json](../deploy/grafana/vpnshop-platform.json) | Установка |
-| [deploy/install-docker.sh](../deploy/install-docker.sh) | Установка |
-| [deploy/install-status.sh](../deploy/install-status.sh) | Установка |
-| [deploy/install-vps.sh](../deploy/install-vps.sh) | Установка |
-| [deploy/mail-tls/README.txt](../deploy/mail-tls/README.txt) | Установка |
-| [deploy/nginx/default.conf](../deploy/nginx/default.conf) | Установка |
-| [deploy/nginx/nginx.conf](../deploy/nginx/nginx.conf) | Установка |
-| [deploy/nginx/test-proxy.conf](../deploy/nginx/test-proxy.conf) | Установка |
-| [deploy/prometheus/prometheus.example.yml](../deploy/prometheus/prometheus.example.yml) | Установка |
-| [deploy/prometheus/vpnshop-alerts.test.yml](../deploy/prometheus/vpnshop-alerts.test.yml) | Установка |
-| [deploy/prometheus/vpnshop-alerts.yml](../deploy/prometheus/vpnshop-alerts.yml) | Установка |
-| [deploy/resume-vps-after-pin.sh](../deploy/resume-vps-after-pin.sh) | Установка |
-| [deploy/wireguard/README_RU.md](../deploy/wireguard/README_RU.md) | Установка |
-| [deploy/wireguard/provision-node.sh](../deploy/wireguard/provision-node.sh) | Установка |
+| [deploy/build-production.sh](../deploy/build-production.sh) | Переходники старых путей установки |
+| [deploy/install-docker.sh](../deploy/install-docker.sh) | Переходники старых путей установки |
+| [deploy/install-status.sh](../deploy/install-status.sh) | Переходники старых путей установки |
+| [deploy/install-vps.sh](../deploy/install-vps.sh) | Переходники старых путей установки |
+| [deploy/resume-vps-after-pin.sh](../deploy/resume-vps-after-pin.sh) | Переходники старых путей установки |
 | [desktop/README.md](../desktop/README.md) | Корень проекта |
 | [desktop/linux/README.md](../desktop/linux/README.md) | Корень проекта |
 | [desktop/macos/README.md](../desktop/macos/README.md) | Корень проекта |
@@ -1895,6 +2009,26 @@
 | [docs/wiki/uk/Updates.md](../docs/wiki/uk/Updates.md) | Документация |
 | [docs/wiki/uk/_Sidebar.md](../docs/wiki/uk/_Sidebar.md) | Документация |
 | [docs_API.md](../docs_API.md) | Корень проекта |
+| [infrastructure/deployment/build-production.sh](../infrastructure/deployment/build-production.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/install-docker.sh](../infrastructure/deployment/install-docker.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/install-status.sh](../infrastructure/deployment/install-status.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/install-vps.sh](../infrastructure/deployment/install-vps.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/mail-tls/README.txt](../infrastructure/deployment/mail-tls/README.txt) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/resume-vps-after-pin.sh](../infrastructure/deployment/resume-vps-after-pin.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/wireguard/README_RU.md](../infrastructure/deployment/wireguard/README_RU.md) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/wireguard/provision-node.sh](../infrastructure/deployment/wireguard/provision-node.sh) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/grafana/vpnshop-operations.json](../infrastructure/monitoring/grafana/vpnshop-operations.json) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/grafana/vpnshop-platform.json](../infrastructure/monitoring/grafana/vpnshop-platform.json) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/prometheus/prometheus.example.yml](../infrastructure/monitoring/prometheus/prometheus.example.yml) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml](../infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/prometheus/vpnshop-alerts.yml](../infrastructure/monitoring/prometheus/vpnshop-alerts.yml) | Установка, прокси, мониторинг |
+| [infrastructure/provisioning/corgi/main.tf](../infrastructure/provisioning/corgi/main.tf) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/Caddyfile](../infrastructure/reverse-proxy/Caddyfile) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/Caddyfile.example](../infrastructure/reverse-proxy/Caddyfile.example) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/caddy/Dockerfile](../infrastructure/reverse-proxy/caddy/Dockerfile) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/nginx/default.conf](../infrastructure/reverse-proxy/nginx/default.conf) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/nginx/nginx.conf](../infrastructure/reverse-proxy/nginx/nginx.conf) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/nginx/test-proxy.conf](../infrastructure/reverse-proxy/nginx/test-proxy.conf) | Установка, прокси, мониторинг |
 | [install.sh](../install.sh) | Корень проекта |
 | [mobile/LICENSE](../mobile/LICENSE) | Мобильные приложения |
 | [mobile/__init__.py](../mobile/__init__.py) | Мобильные приложения |
@@ -2335,7 +2469,6 @@
 | [support-pro/tests/test_remote_history.py](../support-pro/tests/test_remote_history.py) | Support Pro |
 | [support-pro/tests/test_security_audit.py](../support-pro/tests/test_security_audit.py) | Support Pro |
 | [support-pro/tests/test_shop_bridge.py](../support-pro/tests/test_shop_bridge.py) | Support Pro |
-| [terraform/corgi/main.tf](../terraform/corgi/main.tf) | Корень проекта |
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
@@ -2466,6 +2599,7 @@
 | [tests/test_install_status.py](../tests/test_install_status.py) | Проверки |
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_integrity_report.py](../tests/test_integrity_report.py) | Проверки |
+| [tests/test_layout_stage4.py](../tests/test_layout_stage4.py) | Проверки |
 | [tests/test_legal_docs.py](../tests/test_legal_docs.py) | Проверки |
 | [tests/test_license_check.py](../tests/test_license_check.py) | Проверки |
 | [tests/test_license_notices.py](../tests/test_license_notices.py) | Проверки |
