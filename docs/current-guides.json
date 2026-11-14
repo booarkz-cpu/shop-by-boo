@@ -32,7 +32,7 @@
     "UNIFIED_ARCHITECTURE_RU.md",
     "apps/lucy-admin/web/README.md",
     "corgi-cli/README.md",
-    "deploy/wireguard/README_RU.md",
+    "infrastructure/deployment/wireguard/README_RU.md",
     "desktop/README.md",
     "desktop/linux/README.md",
     "desktop/macos/README.md",

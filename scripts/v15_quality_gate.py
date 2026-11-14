@@ -18,7 +18,7 @@ ok('android vpn service', (ROOT/'apps/vpn-shop/android/app/src/main/java/shop/re
 ok('ios packet tunnel provider', (ROOT/'apps/vpn-shop/ios/VpnShopUser/VPN/CorgiPacketTunnelProvider.swift').exists())
 ok('browser extension', (ROOT/'browser-extension/manifest.json').exists())
 ok('desktop contracts', all((ROOT/'desktop'/x/'README.md').exists() for x in ('windows','macos','linux')))
-ok('terraform contract', (ROOT/'terraform/corgi/main.tf').exists())
+ok('terraform contract', (ROOT/'infrastructure/provisioning/corgi/main.tf').exists())
 ok('privacy launch policy', (ROOT/'docs/archive/root/PRODUCTION_LAUNCH_V15.md').exists())
 failed=[n for n,v in checks if not v]
 print(f'v15 quality: {len(checks)-len(failed)}/{len(checks)} passed')

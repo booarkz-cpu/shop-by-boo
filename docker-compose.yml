@@ -191,7 +191,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./deploy/mail-tls:/tls:ro
+      - ./infrastructure/deployment/mail-tls:/tls:ro
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -252,8 +252,8 @@ services:
       - "80"
     command: ["/bin/sh", "-c", "mkdir -p /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && chmod 1777 /tmp/nginx /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && exec nginx -g 'daemon off;'"]
     volumes:
-      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infrastructure/reverse-proxy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/reverse-proxy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     security_opt:
       - no-new-privileges:true
     read_only: true
@@ -288,8 +288,8 @@ services:
       - "80"
     command: ["/bin/sh", "-c", "mkdir -p /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && chmod 1777 /tmp/nginx /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && exec nginx -g 'daemon off;'"]
     volumes:
-      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infrastructure/reverse-proxy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/reverse-proxy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     security_opt:
       - no-new-privileges:true
     read_only: true
@@ -323,8 +323,8 @@ services:
       - "80"
     command: ["/bin/sh", "-c", "mkdir -p /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && chmod 1777 /tmp/nginx /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && exec nginx -g 'daemon off;'"]
     volumes:
-      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infrastructure/reverse-proxy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/reverse-proxy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     security_opt:
       - no-new-privileges:true
     read_only: true
@@ -471,7 +471,7 @@ services:
 
   caddy:
     build:
-      context: ./deploy/caddy
+      context: ./infrastructure/reverse-proxy/caddy
       args:
         CADDY_BASE_IMAGE: ${CADDY_IMAGE:-caddy:2.11-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9}
     networks:
@@ -485,12 +485,12 @@ services:
     restart: unless-stopped
     environment:
       SUPPORT_UPSTREAM: ${SUPPORT_INGRESS_IP:-172.30.84.4}:8000
-      # The backend and its zero-downtime standby (deploy/Caddyfile → backend_lb prefers the first).
+      # The backend and its zero-downtime standby (infrastructure/reverse-proxy/Caddyfile → backend_lb prefers the first).
       BACKEND_UPSTREAM: ${BACKEND_INGRESS_IP:-172.30.84.3}:8000 ${BACKEND_STANDBY_INGRESS_IP:-172.30.84.5}:8000
       API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN in .env}
       API_MIRROR_DOMAINS: ${API_MIRROR_DOMAINS:-}
       SUB_PROXY_DOMAINS: ${SUB_PROXY_DOMAINS:-}
-      # v28.67.0: on-demand certificates of the Domain Manager's portal domains (deploy/Caddyfile).
+      # v28.67.0: on-demand certificates of the Domain Manager's portal domains (infrastructure/reverse-proxy/Caddyfile).
       CADDY_ASK_URL: http://${BACKEND_INGRESS_IP:-172.30.84.3}:8000/caddy/ask
       ADMIN_DOMAIN: ${ADMIN_DOMAIN:?set ADMIN_DOMAIN in .env}
       APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN in .env}
@@ -513,7 +513,7 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./infrastructure/reverse-proxy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     healthcheck:

@@ -2,7 +2,7 @@
 
 При обновлении старый backend продолжает отвечать клиентам, пока новая версия не ответит `200` на
 `/health/ready`. Механизм включён по умолчанию (`ZERO_DOWNTIME=1`) и работает при любом обновлении через
-`deploy/build-production.sh`: автообновление, «Обновить сейчас», ручной `update.sh`, GitHub Actions deploy.
+`infrastructure/deployment/build-production.sh`: автообновление, «Обновить сейчас», ручной `update.sh`, GitHub Actions deploy.
 
 ## Как это устроено
 
@@ -10,7 +10,7 @@
 | --- | --- |
 | `backend_standby` в `docker-compose.yml` | Копия сервиса `backend` (`extends`) со своим адресом `BACKEND_STANDBY_INGRESS_IP` (по умолчанию `172.30.84.5`) в сети ingress; профиль `standby`, обычным `up` не запускается |
 | `BACKEND_UPSTREAM` у Caddy | Два адреса: backend и standby |
-| Сниппет `(backend_lb)` в `deploy/Caddyfile` | `lb_policy first` (всегда backend, если он жив), активная проверка `/health/live` каждые 3 с, повтор недоставленных запросов до 20 с |
+| Сниппет `(backend_lb)` в `infrastructure/reverse-proxy/Caddyfile` | `lb_policy first` (всегда backend, если он жив), активная проверка `/health/live` каждые 3 с, повтор недоставленных запросов до 20 с |
 | `scripts/zero-downtime-backend.sh` | Порядок переключения |
 
 ```mermaid

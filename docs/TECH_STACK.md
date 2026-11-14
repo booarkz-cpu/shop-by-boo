@@ -77,10 +77,10 @@
 | --- | --- | --- | --- |
 | PostgreSQL | 18.6-alpine (pinned digest) | `docker-compose.yml` | основная БД и Support Pro |
 | Redis | 8.10-alpine (pinned digest) | `docker-compose.yml` | блокировки, кэш |
-| Caddy | 2.11, build из `deploy/caddy` | `docker-compose.yml` | TLS, HTTP/3, маршруты |
-| Prometheus | конфиг `deploy/prometheus` | `prometheus.example.yml`, `vpnshop-alerts.yml` | метрики и алерты |
-| Grafana | 2 дашборда | `deploy/grafana/*.json` | `vpnshop-operations`, `vpnshop-platform` |
-| WireGuard | конфиг `deploy/wireguard` | — | служебный туннель |
+| Caddy | 2.11, build из `infrastructure/reverse-proxy/caddy` | `docker-compose.yml` | TLS, HTTP/3, маршруты |
+| Prometheus | конфиг `infrastructure/monitoring/prometheus` | `prometheus.example.yml`, `vpnshop-alerts.yml` | метрики и алерты |
+| Grafana | 2 дашборда | `infrastructure/monitoring/grafana/*.json` | `vpnshop-operations`, `vpnshop-platform` |
+| WireGuard | конфиг `infrastructure/deployment/wireguard` | — | служебный туннель |
 | OWASP ZAP | `.zap/` | — | сканирование в CI |
 
 Все внешние образы закреплены по digest `@sha256:` — это исключает подмену тега.

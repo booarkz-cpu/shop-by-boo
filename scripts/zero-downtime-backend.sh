@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Zero-downtime backend switch, run by deploy/build-production.sh during an update.
+# Zero-downtime backend switch, run by infrastructure/deployment/build-production.sh during an update.
 #
 # 1. The new release starts as `backend_standby` (same image, own ingress address) next to the running backend.
 # 2. Nothing else changes until the standby answers /health/ready with 200; if it never does, it is removed
 #    and the old backend keeps serving untouched (the update then fails and update.sh rolls back).
-# 3. `backend` is recreated on the new image. Caddy (deploy/Caddyfile, backend_lb) prefers `backend` and sends
+# 3. `backend` is recreated on the new image. Caddy (infrastructure/reverse-proxy/Caddyfile, backend_lb) prefers `backend` and sends
 #    requests to the standby while it restarts; requests that could not be delivered are retried for 20 s.
 # 4. When the new `backend` answers 200 the standby is stopped and removed.
 #

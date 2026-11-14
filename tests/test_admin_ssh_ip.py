@@ -26,7 +26,7 @@ def fake_bin(tmp: Path) -> Path:
 
 
 def firewall_section(tmp: Path, env: dict) -> tuple[int, str, str]:
-    text = (ROOT / "deploy/install-vps.sh").read_text()
+    text = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     start = text.index("# ADMIN_SSH_IP=<адрес>")
     end = text.index("ufw allow 80/tcp", start)
     script = ('log(){ echo "LOG $*"; }; warn(){ echo "WARN $*"; }; die(){ echo "DIE $*"; exit 1; }\nSSH_PORT=2222\n'
@@ -83,14 +83,14 @@ def test_open_ports_keeps_ssh_by_default(tmp_path):
 
 
 def test_installer_passes_the_limit_to_open_ports():
-    text = (ROOT / "deploy/install-vps.sh").read_text()
+    text = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert 'SSH_ONLY_FROM="$SSH_FROM" bash "$ROOT/scripts/open-ports.sh" vds' in text
     assert os.path.exists(ROOT / "scripts/open-ports.sh")
 
 
 def ssh_question(env: dict) -> str:
     """Owner's decision № 18: the installer asks; run non-interactively, as INSTALL_NONINTERACTIVE=1 would."""
-    text = (ROOT / "deploy/install-vps.sh").read_text()
+    text = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     helper = text[text.index("prompt() {"):text.index("prompt_required() {")]
     start = text.index("# Owner's decision № 18")
     end = text.index("esac\n", start) + len("esac\n")

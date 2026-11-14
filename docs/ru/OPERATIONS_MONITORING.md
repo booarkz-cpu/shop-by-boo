@@ -7,8 +7,8 @@
 ## Подключение Prometheus
 
 1. Задайте `METRICS_ENABLED=true` и случайный `METRICS_TOKEN` в серверном `.env`, перезапустите backend. `/metrics` возвращает `404` при отключении, `503` без токена, `401` при неверном `X-Metrics-Token`.
-2. Скопируйте [пример конфигурации](../../deploy/prometheus/prometheus.example.yml), замените `api.example.com:443` своим HTTPS API. Сохраните токен в отдельный приватный файл `/etc/prometheus/secrets/vpnshop-metrics-token`, доступный только процессу Prometheus. Значение должно совпадать с backend; не добавляйте его в Git и не передавайте как аргумент командной строки.
-3. Поместите рядом [правила](../../deploy/prometheus/vpnshop-alerts.yml), проверьте `promtool check config /etc/prometheus/prometheus.yml` и `promtool check rules /etc/prometheus/vpnshop-alerts.yml`. Используйте Prometheus с поддержкой `http_headers.files`; TLS verification остаётся включённой.
+2. Скопируйте [пример конфигурации](../../infrastructure/monitoring/prometheus/prometheus.example.yml), замените `api.example.com:443` своим HTTPS API. Сохраните токен в отдельный приватный файл `/etc/prometheus/secrets/vpnshop-metrics-token`, доступный только процессу Prometheus. Значение должно совпадать с backend; не добавляйте его в Git и не передавайте как аргумент командной строки.
+3. Поместите рядом [правила](../../infrastructure/monitoring/prometheus/vpnshop-alerts.yml), проверьте `promtool check config /etc/prometheus/prometheus.yml` и `promtool check rules /etc/prometheus/vpnshop-alerts.yml`. Используйте Prometheus с поддержкой `http_headers.files`; TLS verification остаётся включённой.
 4. Настройте собственный Alertmanager и получателей. Сам файл правил не отправляет уведомления без интеграции Alertmanager. В примере scrape каждые 30 секунд, timeout 10 секунд.
 5. Убедитесь, что `up{job="vpnshop"}=1`, `vpnshop_database_metrics_available=1`, worker heartbeat присутствует. Поочерёдно остановите тестовый worker и тестовый API на отдельном стенде, проверьте переход alerts из pending в firing и восстановление.
 
@@ -16,7 +16,7 @@
 
 ## Grafana
 
-Импортируйте [vpnshop-operations.json](../../deploy/grafana/vpnshop-operations.json), выберите Prometheus datasource и scrape job `vpnshop`. Dashboard содержит 14 панелей: доступность API/БД, worker, RPS, доля 5xx, возраст очереди, статусы задач/платежей/возвратов/обращений, локальные подписки, нарушения, агенты и исходящие webhook. Старый [platform dashboard](../../deploy/grafana/vpnshop-platform.json) сохранён.
+Импортируйте [vpnshop-operations.json](../../infrastructure/monitoring/grafana/vpnshop-operations.json), выберите Prometheus datasource и scrape job `vpnshop`. Dashboard содержит 14 панелей: доступность API/БД, worker, RPS, доля 5xx, возраст очереди, статусы задач/платежей/возвратов/обращений, локальные подписки, нарушения, агенты и исходящие webhook. Старый [platform dashboard](../../infrastructure/monitoring/grafana/vpnshop-platform.json) сохранён.
 
 Распределённые API реплики читают общую БД: gauges нужно агрегировать `max`, а не суммировать. Dashboard делает это явно; процессные counters запросов/ошибок агрегируются через `sum(rate(...))`. Последние три панели требуют включённого существующего plugin `metrics`; отсутствие этих рядов означает отсутствие данных, а не нулевые нарушения. Для внешней PostgreSQL/Redis/Remnawave инфраструктуры подключите соответствующие exporters: эти показатели не выдумываются из локального состояния магазина.
 
@@ -37,4 +37,4 @@
 
 Alerts: недоступность scrape 2 минуты, отказ метрик БД 2 минуты, отсутствие worker 3 минуты, queued задача старше 15 минут в течение 5 минут, доля 5xx выше 5% в течение 5 минут. Подстройте пороги под нагрузку и retry policy. Исторические failed задачи сохраняются, поэтому на их ненулевое число по умолчанию alert не создан.
 
-Правила имеют [тесты срабатывания](../../deploy/prometheus/vpnshop-alerts.test.yml): `promtool test rules deploy/prometheus/vpnshop-alerts.test.yml`. Конфигурация, правила и все запросы dashboard проверены promtool 3.15.0.
+Правила имеют [тесты срабатывания](../../infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml): `promtool test rules infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml`. Конфигурация, правила и все запросы dashboard проверены promtool 3.15.0.

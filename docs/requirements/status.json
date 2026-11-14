@@ -2684,8 +2684,8 @@
   "status": "PASS",
   "evidence": [
    "scripts/zero-downtime-backend.sh",
-   "deploy/build-production.sh",
-   "deploy/Caddyfile",
+   "infrastructure/deployment/build-production.sh",
+   "infrastructure/reverse-proxy/Caddyfile",
    "tests/test_zero_downtime_deploy.py"
   ],
   "platforms": "backend/API, server"
@@ -2759,8 +2759,8 @@
  "REQ-INFRA-0008": {
   "status": "PASS",
   "evidence": [
-   "deploy/install-status.sh",
-   "deploy/install-vps.sh",
+   "infrastructure/deployment/install-status.sh",
+   "infrastructure/deployment/install-vps.sh",
    "tests/test_install_status.py"
   ],
   "platforms": "backend/API, server",

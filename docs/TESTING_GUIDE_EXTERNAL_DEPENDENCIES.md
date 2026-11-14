@@ -115,7 +115,7 @@ python -m pytest -q ../tests/live/test_remnawave_live.py -v
 
 **Назначение.** TLS-терминация, маршрутизация на панель и подписки, скрытие прямых портов.
 
-**Модули.** `deploy/Caddyfile`, `deploy/caddy/`, `deploy/nginx/`, `backend/app/sub_proxy.py`.
+**Модули.** `infrastructure/reverse-proxy/Caddyfile`, `infrastructure/reverse-proxy/caddy/`, `infrastructure/reverse-proxy/nginx/`, `backend/app/sub_proxy.py`.
 
 **Переменные.** `DOMAIN`, `ACME_EMAIL` (в `.env.example`), плюс параметры Caddyfile.
 
@@ -125,7 +125,7 @@ python -m pytest -q ../tests/live/test_remnawave_live.py -v
 # синтаксис конфигурации Caddy
 docker run --rm -v "$PWD/deploy:/etc/caddy" caddy:2 caddy validate --config /etc/caddy/Caddyfile
 # синтаксис nginx
-docker run --rm -v "$PWD/deploy/nginx:/etc/nginx" nginx:alpine nginx -t
+docker run --rm -v "$PWD/infrastructure/reverse-proxy/nginx:/etc/nginx" nginx:alpine nginx -t
 ```
 
 В песочнице Docker недоступен → `BLOCKED_ACCESS`. Разбор YAML/конфигов выполнен вручную: структура
@@ -330,7 +330,7 @@ python -m pytest -q ../tests/live/test_payments_live.py -v
 cp .env.example .env && cp support-pro/.env.example support-pro/.env
 docker compose -f docker-compose.yml config --quiet
 docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
-bash -n deploy/install-vps.sh
+bash -n infrastructure/deployment/install-vps.sh
 ```
 
 В песочнице Docker отсутствует → `BLOCKED_ACCESS`. YAML разобран программно: 17 сервисов в

@@ -81,7 +81,7 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.153.0/i
   && BRANCH=v28.153.0 bash /root/shop-install.sh
 ```
 
-Что делает установщик (`install.sh` → `deploy/install-vps.sh`):
+Что делает установщик (`install.sh` → `infrastructure/deployment/install-vps.sh`):
 
 1. Ставит Docker и Compose, настраивает firewall и системные параметры.
 2. Скачивает дистрибутив точного тега в `/opt/vpn-shop`.
@@ -185,7 +185,7 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.153.0 bash /opt/vpn-shop/scripts/
 - Панель и агент обмениваются файлами в `/opt/vpn-shop/.control` (в контейнере `/data/control`); backend не выполняет команд на сервере.
 - Выпуск, который не установился (откат выполнен автоматически), ночью повторно не ставится; «Обновить сейчас» пробует снова. В режиме восстановления (`.rollback/RECOVERY_MODE`) автообновление останавливается до ручной проверки.
 - Итог приходит в Telegram (`ALERT_TELEGRAM_CHAT_ID`, иначе `ADMIN_TELEGRAM_ID`). Хранятся 5 последних снимков.
-- Сервер, установленный раньше, получает агент сам при обновлении до v28.34.0 и новее (сборка `deploy/build-production.sh` вызывает `auto_update.py ensure`); выключенное автообновление остаётся выключенным. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, а также `status`, `run` (обновить сейчас) и `disable`.
+- Сервер, установленный раньше, получает агент сам при обновлении до v28.34.0 и новее (сборка `infrastructure/deployment/build-production.sh` вызывает `auto_update.py ensure`); выключенное автообновление остаётся выключенным. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, а также `status`, `run` (обновить сейчас) и `disable`.
 
 **Из GitHub Actions** (альтернатива: push-деплой по SSH) («Corgi Lusi Production Deploy»). Workflow подключается к серверу по SSH и запускает то же обновление. Настройка:
 

@@ -21,7 +21,7 @@ bash scripts/test-up.sh
 ```bash
 git clone --branch v28.153.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 Нужны домены с корректными DNS A/AAAA, открытые 80/443, доступ к Docker, Telegram и Remnawave. Установщик запрашивает параметры. Проверяйте назначение доменов API, админки и кабинета. Подробные требования и поля: [VDS](docs/ru/DEPLOYMENT_CURRENT.md); это актуальное руководство v28.153.0, обновление описано в [обновлении](docs/ru/WORKSPACE_UPGRADE.md).

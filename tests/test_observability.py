@@ -28,7 +28,7 @@ async def test_gauges_zero_fill_bound_status_and_exclude_private_data(database):
 
 
 def test_dashboard_panels_have_unique_ids_and_fit_grid():
-    dashboard=json.loads(Path('deploy/grafana/vpnshop-operations.json').read_text())
+    dashboard=json.loads(Path('infrastructure/monitoring/grafana/vpnshop-operations.json').read_text())
     assert len(dashboard['panels'])==14
     assert len({x['id'] for x in dashboard['panels']})==14
     for panel in dashboard['panels']:

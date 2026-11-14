@@ -3,7 +3,7 @@
  * Moves every inline <script> of a Next.js static export into a same-origin file.
  *
  * Production serves the panels with `Content-Security-Policy: script-src 'self'`
- * (deploy/Caddyfile). Next.js boots by streaming its RSC payload through inline
+ * (infrastructure/reverse-proxy/Caddyfile). Next.js boots by streaming its RSC payload through inline
  * `self.__next_f.push(...)` scripts, which that policy blocks. Replacing each one
  * with `<script src>` at the same position keeps execution order (they stay
  * parser-blocking, in document order) while keeping the CSP free of

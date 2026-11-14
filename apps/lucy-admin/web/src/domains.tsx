@@ -10,7 +10,7 @@ const CERT: Record<string, string> = {unknown: "не проверен", valid: "
 const SERVED: Record<string, string> = {shop: "Caddy магазина", remnawave: "Caddy сервера Remnawave", external: "Внешний"};
 
 /** «Серверы → Домены и сертификаты» (v28.67.0, stage 11): Domain Manager, certificates and what each Caddy serves.
- *  Portal domains served by the shop's Caddy get their certificates on demand (deploy/Caddyfile asks /caddy/ask),
+ *  Portal domains served by the shop's Caddy get their certificates on demand (infrastructure/reverse-proxy/Caddyfile asks /caddy/ask),
  *  so a domain added here works without editing files or restarting. */
 export function Domains({request, toast}: Props) {
   const [d, setD] = useState<any>(null);

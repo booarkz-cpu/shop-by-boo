@@ -17,13 +17,13 @@
 curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28/install.sh | sudo bash
 ```
 
-`install.sh` ставит `git`, `curl` и Docker (`deploy/install-docker.sh`), клонирует выпуск в `/opt/vpn-shop-src` и передаёт работу `deploy/install-vps.sh`. Тот выполняет такие шаги:
+`install.sh` ставит `git`, `curl` и Docker (`infrastructure/deployment/install-docker.sh`), клонирует выпуск в `/opt/vpn-shop-src` и передаёт работу `infrastructure/deployment/install-vps.sh`. Тот выполняет такие шаги:
 
 1. **Проверка системы:** ОС, root, свободные порты, наличие терминала для вопросов. Без терминала нужно задать `INSTALL_NONINTERACTIVE=1` и переменные окружения.
 2. **Конфигурация:** спрашивает домены, e-mail для Let's Encrypt, токен бота и порт SSH. Генерирует секреты (`APP_SECRET`, пароли баз). Пишет `.env` с правами 600 (`scripts/harden-env.py`).
 3. **Фаервол:** открывает порт SSH, 80 и 443. PostgreSQL, Redis, API и панели наружу не открываются.
 4. **Образы:** закрепляет базовые образы по digest (`scripts/pin-images.sh`, файл `.env.images`).
-5. **Сборка и запуск:** `deploy/build-production.sh`, ожидание API и миграций (`alembic upgrade head` при старте backend).
+5. **Сборка и запуск:** `infrastructure/deployment/build-production.sh`, ожидание API и миграций (`alembic upgrade head` при старте backend).
 6. **Support Pro:** создаёт первого оператора и показывает TOTP.
 7. **Автообновление:** включает агент `scripts/auto-update.sh install` ([AUTO_UPDATE.md](AUTO_UPDATE.md)).
 

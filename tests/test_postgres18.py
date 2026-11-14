@@ -42,7 +42,7 @@ def test_backend_image_ships_a_postgres_18_client_for_in_app_backups():
 
 def test_update_moves_data_before_the_new_stack_starts():
     update = (ROOT / "scripts/update.sh").read_text()
-    assert update.index("bash scripts/upgrade-postgres.sh") < update.index("bash deploy/build-production.sh")
+    assert update.index("bash scripts/upgrade-postgres.sh") < update.index("bash infrastructure/deployment/build-production.sh")
     assert "scripts/upgrade-postgres.sh" in (ROOT / "scripts/preflight.sh").read_text()
     assert SCRIPT.stat().st_mode & 0o111
     subprocess.run(["bash", "-n", str(SCRIPT)], check=True)

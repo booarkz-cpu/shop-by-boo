@@ -63,7 +63,7 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.153.0/i
 
 Установщик сам клонирует точный тег, устанавливает зависимости, собирает и запускает сервисы. Ручная распаковка ZIP не нужна. Source-каталог по умолчанию `/opt/vpn-shop-src`, рабочий каталог `/opt/vpn-shop`. Для иных каталогов задайте `SOURCE_DIR` и `APP_DIR` перед `bash`.
 
-Docker ставится из его подписанного apt-репозитория через `deploy/install-docker.sh`. Работающий существующий Engine/Compose переиспользуется; live Engine не заменяется автоматически при отсутствии совместимого Compose plugin. Официальная процедура: [Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Debian](https://docs.docker.com/engine/install/debian/).
+Docker ставится из его подписанного apt-репозитория через `infrastructure/deployment/install-docker.sh`. Работающий существующий Engine/Compose переиспользуется; live Engine не заменяется автоматически при отсутствии совместимого Compose plugin. Официальная процедура: [Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Debian](https://docs.docker.com/engine/install/debian/).
 
 Установщик запросит домены, email/пароль администратора, бот, Remnawave, платежных агентов, язык, валюту, часовой пояс, цены, параметры рефералов и OAuth. Секреты вводятся скрыто. Email для сертификата передаётся Caddy. При выборе платежей `none` аккаунты касс можно настроить позднее. `PAYMENTS_SANDBOX=true` в production запрещён.
 

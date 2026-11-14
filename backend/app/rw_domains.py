@@ -1,7 +1,7 @@
 """Domain Manager, certificates and proxy routes (v28.67, stage 11; docs/ru/new/SUBSCRIPTION_DOMAIN.md).
 
 * **Domains.** The administrator adds a domain with its purpose (subscription portal, Remnawave panel, subscription
-  page, node) and who serves it: ``shop`` — the shop's own Caddy (deploy/Caddyfile issues the certificate on demand
+  page, node) and who serves it: ``shop`` — the shop's own Caddy (infrastructure/reverse-proxy/Caddyfile issues the certificate on demand
   after asking ``/caddy/ask``, so a domain added here works without editing files or restarting anything);
   ``remnawave`` — Caddy on a server of the installation wizard; ``external`` — only checked.
 * **Checks.** DNS through DNS-over-HTTPS (A, AAAA, CNAME, TXT, CAA — the same resolver as the mail domain check);

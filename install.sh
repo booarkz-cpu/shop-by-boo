@@ -5,11 +5,11 @@
 #   curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28/install.sh | sudo bash
 #
 # Этот файл готовит Docker и исходники, затем передаёт управление
-# deploy/install-vps.sh. Все операторские данные вводятся там.
+# infrastructure/deployment/install-vps.sh. Все операторские данные вводятся там.
 # Внутренние порты PostgreSQL, Redis, API и панелей наружу не открываются.
 #
 # This wrapper prepares Docker and the source tree, then execs
-# deploy/install-vps.sh, which asks for every operator setting.
+# infrastructure/deployment/install-vps.sh, which asks for every operator setting.
 # PostgreSQL, Redis, the API and the panels stay off the public firewall.
 #
 set -euo pipefail
@@ -39,7 +39,7 @@ if [[ -n "${BASH_SOURCE[0]:-}" && -f "${BASH_SOURCE[0]}" ]]; then
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
-if [[ -n "$SCRIPT_DIR" && -f "$SCRIPT_DIR/docker-compose.yml" && -f "$SCRIPT_DIR/deploy/install-vps.sh" ]]; then
+if [[ -n "$SCRIPT_DIR" && -f "$SCRIPT_DIR/docker-compose.yml" && -f "$SCRIPT_DIR/infrastructure/deployment/install-vps.sh" ]]; then
   SOURCE_DIR="$SCRIPT_DIR"
 else
   mkdir -p "$SOURCE_DIR"
@@ -60,18 +60,18 @@ else
   fi
 fi
 
-if [[ ! -f "$SOURCE_DIR/deploy/install-vps.sh" ]]; then
-  echo "Не найден deploy/install-vps.sh в $SOURCE_DIR" >&2
+if [[ ! -f "$SOURCE_DIR/infrastructure/deployment/install-vps.sh" ]]; then
+  echo "Не найден infrastructure/deployment/install-vps.sh в $SOURCE_DIR" >&2
   exit 1
 fi
 
-bash "$SOURCE_DIR/deploy/install-docker.sh"
+bash "$SOURCE_DIR/infrastructure/deployment/install-docker.sh"
 
 if [[ ! -t 0 && "${INSTALL_NONINTERACTIVE:-0}" != "1" ]]; then
   if [[ ! -r /dev/tty ]]; then
     echo "Нет терминала для вопросов установщика. Запустите bash install.sh из SSH или задайте INSTALL_NONINTERACTIVE=1." >&2
     exit 1
   fi
-  exec bash "$SOURCE_DIR/deploy/install-vps.sh" </dev/tty
+  exec bash "$SOURCE_DIR/infrastructure/deployment/install-vps.sh" </dev/tty
 fi
-exec bash "$SOURCE_DIR/deploy/install-vps.sh"
+exec bash "$SOURCE_DIR/infrastructure/deployment/install-vps.sh"

@@ -170,7 +170,7 @@ async def test_app_association_documents(monkeypatch):
 
 def test_app_association_is_routed_on_the_cabinet_domain():
     from pathlib import Path
-    caddy = (Path(__file__).resolve().parents[1] / 'deploy/Caddyfile').read_text()
+    caddy = (Path(__file__).resolve().parents[1] / 'infrastructure/reverse-proxy/Caddyfile').read_text()
     cabinet = caddy[caddy.index('{$CABINET_DOMAIN} {'):caddy.index('{$API_DOMAIN} {')]
     assert 'handle /.well-known/assetlinks.json' in cabinet and 'handle /.well-known/apple-app-site-association' in cabinet
     digest = hashlib.sha256(b'unused').hexdigest()

@@ -137,8 +137,8 @@
 | Мобильные | iOS user и admin | PARTIAL | `apps/vpn-shop/ios`, `apps/lucy-admin/ios` | Xcode |
 | Мобильные | Android admin | PARTIAL | `apps/lucy-admin/android` | SDK |
 | Инфраструктура | 17 сервисов Compose, образы по digest | IMPLEMENTED | `docker-compose.yml` | Docker |
-| Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `deploy/Caddyfile` | домены |
-| Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `deploy/install-vps.sh` | чистый VPS |
+| Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `infrastructure/reverse-proxy/Caddyfile` | домены |
+| Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `infrastructure/deployment/install-vps.sh` | чистый VPS |
 | Инфраструктура | откат и горячий резерв | IMPLEMENTED | `rollback.sh`, `hot-standby.sh` | снимок |
 | CI/CD | 15 workflows, gate публикации | IMPLEMENTED | `.github/workflows` | GitHub |
 | CI/CD | публикация релиза | IMPLEMENTED | `publish-release.yml` | зелёные CI и Docker |

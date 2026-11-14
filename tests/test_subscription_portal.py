@@ -296,7 +296,7 @@ def test_portal_settings_are_validated():
 
 def test_caddy_serves_portal_domains_on_demand_only_after_asking():
     from pathlib import Path
-    text = (Path(__file__).resolve().parents[1] / "deploy/Caddyfile").read_text()
+    text = (Path(__file__).resolve().parents[1] / "infrastructure/reverse-proxy/Caddyfile").read_text()
     assert "on_demand_tls" in text and "ask {$CADDY_ASK_URL" in text
     block = text.split("https:// {", 1)[1]
     assert "on_demand" in block and "rewrite * /sub{uri}" in block  # /caddy/ask becomes /sub/caddy/ask here

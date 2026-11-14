@@ -256,7 +256,7 @@ Support Pro установлен вместе с магазином и связ�
 ## Шаг 15. Мониторинг и оповещения
 
 1. **Оповещения в Telegram:** `ALERT_TELEGRAM_CHAT_ID` — ID чата, куда бот присылает алерты (бот должен быть в этом чате).
-2. **Prometheus и Grafana:** `METRICS_TOKEN` создан установщиком. Подключите `/metrics` к своему Prometheus по примеру `deploy/prometheus/`, импортируйте дашборд `deploy/grafana/vpnshop-operations.json`.
+2. **Prometheus и Grafana:** `METRICS_TOKEN` создан установщиком. Подключите `/metrics` к своему Prometheus по примеру `infrastructure/monitoring/prometheus/`, импортируйте дашборд `infrastructure/monitoring/grafana/vpnshop-operations.json`.
 3. Ежедневно смотрите **Аналитика → Состояние системы** и **Система → Фоновые процессы**: worker должен быть онлайн, очередь не должна стоять.
 
 [Модуль «Состояние, инциденты и мониторинг»](modules/02-health-incidents-monitoring.md).

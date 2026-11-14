@@ -89,7 +89,7 @@
 | Статический анализ | `bandit -r backend/app support-pro/app -ll` (bandit 1.9.4) | Высокий уровень: 0 (CI требует 0). Средний: 7, разобраны: B608, B314 — см. выше и SEC-04; B104 `0.0.0.0` — адрес прослушивания внутри контейнера и заглушка IP; B601 — SEC-02; B610 — ложное срабатывание (функция `extra` из `payment_fraud`) |
 | Зависимости Python | `pip-audit -r backend/requirements.txt` | Известных уязвимостей нет |
 | Зависимости JavaScript | `npm audit --audit-level=high` в CI (проверка «Dependency vulnerability audit» в PR #164) | Пройдено |
-| Заголовки | `deploy/Caddyfile` | `HSTS`, `X-Frame-Options DENY`/`frame-ancestors`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, строгий CSP; `Server` убран |
+| Заголовки | `infrastructure/reverse-proxy/Caddyfile` | `HSTS`, `X-Frame-Options DENY`/`frame-ancestors`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, строгий CSP; `Server` убран |
 | Контейнеры | `docker-compose.yml`, Dockerfile | Сервисы приложения не root (backend `10001`, фронтенды `101`, Caddy `10001`), `read_only`, `cap_drop: ALL`, образы закреплены по digest. Наружу открыты только 80/443 (Caddy) и 25 (приём почты) |
 
 ## Не проверено

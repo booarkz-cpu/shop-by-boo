@@ -19,13 +19,13 @@ Russian original: [INSTALLATION_GUIDE](../../ru/new/INSTALLATION_GUIDE.md). Othe
 curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28/install.sh | sudo bash
 ```
 
-`install.sh` installs `git`, `curl` and Docker (`deploy/install-docker.sh`), clones the release to `/opt/vpn-shop-src` and hands over to `deploy/install-vps.sh`, which:
+`install.sh` installs `git`, `curl` and Docker (`infrastructure/deployment/install-docker.sh`), clones the release to `/opt/vpn-shop-src` and hands over to `infrastructure/deployment/install-vps.sh`, which:
 
 1. **Checks the system:** OS, root, free ports, a terminal for questions. Without a terminal set `INSTALL_NONINTERACTIVE=1` and the environment variables.
 2. **Configures:** asks for the domains, the Let's Encrypt e-mail, the bot token and the SSH port; generates the secrets (`APP_SECRET`, database passwords); writes `.env` with mode 600 (`scripts/harden-env.py`).
 3. **Firewall:** opens the SSH port, 80 and 443. PostgreSQL, Redis, the API and the panels are never exposed.
 4. **Images:** pins the base images by digest (`scripts/pin-images.sh`, file `.env.images`).
-5. **Builds and starts:** `deploy/build-production.sh`, then waits for the API and the migrations (`alembic upgrade head` runs when the backend starts).
+5. **Builds and starts:** `infrastructure/deployment/build-production.sh`, then waits for the API and the migrations (`alembic upgrade head` runs when the backend starts).
 6. **Support Pro:** creates the first operator and shows the TOTP secret.
 7. **Auto-update:** enables the agent `scripts/auto-update.sh install` ([AUTO_UPDATE](../../ru/new/AUTO_UPDATE.md)).
 

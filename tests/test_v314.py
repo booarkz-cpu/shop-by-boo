@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_version_314_is_first():
     (ROOT / "scripts/build-release.sh").read_text()
-    (ROOT / "deploy/install-vps.sh").read_text()
+    (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
 
 
 def test_migration_boot_is_serialized():
@@ -22,14 +22,14 @@ def test_migration_boot_is_serialized():
     worker = compose.split("  worker:", 1)[1].split("  bot:", 1)[0]
     assert "backend:" in worker
     assert "condition: service_healthy" in worker
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert "docker compose logs --tail=180 backend worker" in installer
     assert "normalize_tz" in installer
     assert "Europe/Moscow" in installer
 
 
 def test_prompt_trims_prices_and_maps_moscow():
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     helpers = installer[installer.index("trim_spaces() {"): installer.index("prompt_required() {")]
     script = (
         "set -Eeuo pipefail\n"

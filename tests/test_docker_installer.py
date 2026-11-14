@@ -37,7 +37,7 @@ if name=='apt-get' and 'docker-ce' in args:
         p.write_text('#!/bin/sh\nexit '+('1' if mode=='existing_without_compose' else '0')+'\n');p.chmod(0o755)
     script=tmp_path/'installer.sh'
     # Exercise the same package flow without requiring root or writing host /etc.
-    script.write_text((ROOT/'deploy/install-docker.sh').read_text().replace('[[ $EUID -eq 0 ]]','true').replace('/etc',str(etc)))
+    script.write_text((ROOT/'infrastructure/deployment/install-docker.sh').read_text().replace('[[ $EUID -eq 0 ]]','true').replace('/etc',str(etc)))
     result=subprocess.run(['bash',str(script)],env={**os.environ,'PATH':str(binary),
         'TEST_LOG':str(log),'TEST_BIN':str(binary),'TEST_MODE':mode},capture_output=True,text=True)
     calls=[json.loads(x) for x in log.read_text().splitlines()] if log.exists() else []

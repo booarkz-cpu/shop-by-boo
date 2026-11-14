@@ -74,7 +74,7 @@
 | Healthchecks | Есть у redis, db, backend (и `backend_standby` через `extends`), admin, miniapp, cabinet, support_db, support_redis, support_pro, caddy. Нет — TECH-08 (исправлено в v28.58.0) |
 | Caddy | Один набор блоков для всех доменов; подписки идут через `SUB_PROXY_DOMAINS` в общий блок; балансировка backend → standby для обновления без простоя; строгие заголовки безопасности |
 | TLS | Выпускает Caddy автоматически; проверка на реальном домене — `BLOCKED_EXTERNAL` |
-| Установщик | `install.sh` запускается через `curl … \| sudo bash` с тега репозитория; `deploy/install-vps.sh` читает ответы с терминала. Запуск на чистом VPS — этап 10, `BLOCKED_EXTERNAL` |
+| Установщик | `install.sh` запускается через `curl … \| sudo bash` с тега репозитория; `infrastructure/deployment/install-vps.sh` читает ответы с терминала. Запуск на чистом VPS — этап 10, `BLOCKED_EXTERNAL` |
 
 ## Тесты
 

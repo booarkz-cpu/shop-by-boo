@@ -1,0 +1,1 @@
+try{var w=window.Telegram&&window.Telegram.WebApp;var s=w&&w.initData?w.colorScheme:localStorage.getItem("rw_cabinet_theme");document.documentElement.dataset.theme=s==="light"?"light":"dark";if(w&&w.initData)document.documentElement.dataset.surface="miniapp"}catch(e){document.documentElement.dataset.theme="dark"}

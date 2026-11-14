@@ -27,7 +27,7 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.153.0/i
 ```bash
 git clone --branch v28.153.0 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 Wrapper по умолчанию закреплён за `v28.153.0` и не заменяет другой существующий source checkout. Для нового source-каталога задайте `SOURCE_DIR`; для действующего магазина используйте обновление, а не повторную установку.

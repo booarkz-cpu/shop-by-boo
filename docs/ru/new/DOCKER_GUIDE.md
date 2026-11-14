@@ -1,6 +1,6 @@
 # Docker
 
-Магазин работает одним `docker-compose.yml`. Образы баз, Redis и Caddy закреплены по digest (`.env.images`, `scripts/pin-images.sh`). Свои образы собираются из исходников выпуска (`deploy/build-production.sh`).
+Магазин работает одним `docker-compose.yml`. Образы баз, Redis и Caddy закреплены по digest (`.env.images`, `scripts/pin-images.sh`). Свои образы собираются из исходников выпуска (`infrastructure/deployment/build-production.sh`).
 
 ## Службы
 

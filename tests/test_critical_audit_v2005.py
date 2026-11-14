@@ -5,7 +5,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_live_version_is_20_0_5():
-    (ROOT / "deploy/install-vps.sh").read_text()
+    (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     (ROOT / "scripts/build-release.sh").read_text()
 
 

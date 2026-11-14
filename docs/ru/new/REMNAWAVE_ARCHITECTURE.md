@@ -13,7 +13,7 @@
 
 1. **Один backend.** Remnawave Manager — часть backend магазина (`backend/app`), а не отдельный сервис. Права (`require_permission`), журнал действий (`audit_logs`), очередь задач (`jobs`) и состояние системы общие ([RBAC](RBAC.md), [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md)).
 2. **Никаких команд из браузера.** Браузер отправляет только типизированные значения: адрес, порт, домен, выбранный режим. Сервер сам строит из них файлы и шаги. Шаги — заранее известные, версионированные, с проверкой контрольной суммы ([DEPLOYMENT_AGENT_ARCHITECTURE](DEPLOYMENT_AGENT_ARCHITECTURE.md)).
-3. **Без второго прокси и второй подписки на сервере магазина.** Порты 80/443 сервера магазина держит Caddy (`deploy/Caddyfile`). Свой домен подписки — это существующая прослойка `backend/app/sub_proxy.py` за тем же Caddy. На отдельных серверах Remnawave свой обратный прокси допустим: там нет Caddy магазина.
+3. **Без второго прокси и второй подписки на сервере магазина.** Порты 80/443 сервера магазина держит Caddy (`infrastructure/reverse-proxy/Caddyfile`). Свой домен подписки — это существующая прослойка `backend/app/sub_proxy.py` за тем же Caddy. На отдельных серверах Remnawave свой обратный прокси допустим: там нет Caddy магазина.
 4. **Только проверенный API Remnawave.** Вызовы панели берутся из `@remnawave/backend-contract` и проверяются на настоящей панели последней версии в CI (`tests/live/test_remnawave_live.py`). Пока функция не прошла такую проверку, она не считается поддерживаемой.
 5. **Каждое действие — задача.** Долгие операции идут через очередь задач с шагами и журналом, а не внутри HTTP-запроса. Исключение — существующие быстрые вызовы API панели.
 
@@ -47,7 +47,7 @@
 ```mermaid
 flowchart LR
   subgraph Shop["Сервер магазина"]
-    Caddy["Caddy :80/:443<br/>deploy/Caddyfile"] --> Backend["backend: API, Remnawave Manager,<br/>sub_proxy"]
+    Caddy["Caddy :80/:443<br/>infrastructure/reverse-proxy/Caddyfile"] --> Backend["backend: API, Remnawave Manager,<br/>sub_proxy"]
     Backend --> Worker["worker: очередь задач"]
     Backend --> DB[("PostgreSQL 18")]
     Backend --> Redis[("Redis 8")]
@@ -84,8 +84,8 @@ flowchart LR
 | 3 | Server Registry | Список серверов: адрес, порт SSH, отпечаток, назначение, ресурсы, состояние | Частично: агенты узлов `node_agents` (`backend/app/platform_api.py`), серверы автомасштабирования Hetzner (`backend/app/node_autoscale.py`) | Сделано в v28.66.0: таблица `remnawave_servers`, раздел «Установка Remnawave» (`apps/lucy-admin/web/src/rw-installer.tsx`) |
 | 4 | Node Manager | Ноды панели: создание, перезапуск, обновление, нагрузка, терминал | `backend/app/node_health.py`, `backend/app/node_autoscale.py`, `backend/app/node_forecast.py`, `backend/app/node_terminal.py`, `scripts/node-agent.py` | Сделано в v28.66.0: режимы «Только нода» и «Добавить ноду» |
 | 5 | Domain Manager | Домены панели, подписки, нод; DNS-проверка | `backend/app/rw_domains.py`, раздел «Домены и сертификаты» (v28.67.0); записи A через Cloudflare. Домены самого магазина — в `.env` | — |
-| 6 | Certificate Manager | Сертификаты доменов, сроки, продление | Сертификаты сервера магазина выпускает Caddy; срок и проверку цепочки показывает «Состояние системы» (`backend/app/system_status.py`) | Сделано в v28.67.0: проверка сертификатов всех доменов, выпуск on demand (`deploy/Caddyfile`), ежедневная проверка и оповещения. DNS-01 — этап 15 |
-| 7 | Proxy Manager | Маршруты обратного прокси | `deploy/Caddyfile` (общий Caddy магазина), Caddy серверов мастера (`backend/app/rw_plan.py`), «Маршруты Caddy» (`GET /api/admin/rw/proxy-routes`) | Сделано в v28.67.0: домены портала без перезапуска (on-demand TLS), закрытие доступа к панели |
+| 6 | Certificate Manager | Сертификаты доменов, сроки, продление | Сертификаты сервера магазина выпускает Caddy; срок и проверку цепочки показывает «Состояние системы» (`backend/app/system_status.py`) | Сделано в v28.67.0: проверка сертификатов всех доменов, выпуск on demand (`infrastructure/reverse-proxy/Caddyfile`), ежедневная проверка и оповещения. DNS-01 — этап 15 |
+| 7 | Proxy Manager | Маршруты обратного прокси | `infrastructure/reverse-proxy/Caddyfile` (общий Caddy магазина), Caddy серверов мастера (`backend/app/rw_plan.py`), «Маршруты Caddy» (`GET /api/admin/rw/proxy-routes`) | Сделано в v28.67.0: домены портала без перезапуска (on-demand TLS), закрытие доступа к панели |
 | 8 | Subscription Manager | Выдача подписки: свой домен, правила приложений, блокировка устройств | `backend/app/sub_proxy.py`, `backend/app/client_versions.py`, `backend/app/subscriptions.py` | Сделано в v28.67.0: портал подписки (`backend/app/sub_portal.py`), защита от перебора, смена ссылки |
 | 9 | Module Manager | Расширения нод: SelfSteal, WARP, IPv6, маршрутизация и др. | Нет | v28.69.0: менеджер расширений через API панели (`backend/app/rw_extensions.py`): профили и REALITY, плагины нод, SRR, страница и шаблоны подписки. Модули на серверах (SelfSteal, IPv6, Xray, WARP, NetBird, Xray Checker) — этап 12, часть Б |
 | 10 | Backup Manager | Копии магазина и Remnawave | Копии магазина: `backend/app/backups_api.py`, `backend/app/backup_verify.py`, `backend/app/telegram_backup.py`, `backend/app/hot_standby.py` | v28.66.0: шаг `backup_panel` — копия на сервере панели перед обновлением и удалением. Передача в хранилище магазина — этап 15 |

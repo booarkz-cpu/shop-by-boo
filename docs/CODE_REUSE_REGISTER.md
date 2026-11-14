@@ -32,9 +32,9 @@
 | Журнал запросов подписки | middleware `request_log` | `sub_proxy.py` → «Журнал подписки» | есть, 14 дней |
 | Доп. конфиги WireGuard/VLESS | middleware `wglease.php` | `backend/app/wg_pool.py` | есть |
 | Нейтральная страница для сканеров | middleware `landing.php` | `sub_proxy.py` | есть |
-| Reverse proxy с автоматическим TLS | reverse-proxy целиком | `deploy/Caddyfile` + сервис `caddy` | есть, TLS и HTTP/3 |
+| Reverse proxy с автоматическим TLS | reverse-proxy целиком | `infrastructure/reverse-proxy/Caddyfile` + сервис `caddy` | есть, TLS и HTTP/3 |
 | Анти-абьюз по HWID/IP/UA | admin `hwid_guard`, `ip_guard` | `anti_sharing.py`, `abuse.py` | есть |
-| Мониторинг нод и алерты | admin `attack_detector`, `metrics` | `operations_api.py` (`/api/admin/monitoring`), `ops_alerts.py`, `deploy/prometheus`, `deploy/grafana` | есть |
+| Мониторинг нод и алерты | admin `attack_detector`, `metrics` | `operations_api.py` (`/api/admin/monitoring`), `ops_alerts.py`, `infrastructure/monitoring/prometheus`, `infrastructure/monitoring/grafana` | есть |
 | Почтовый домен: свой MX, SPF/DKIM/DMARC | admin `mail/` | `mail_domain.py` (1052 строки), `mail_receiver.py` | есть |
 | Терминал узлов | admin `terminal_sessions` | `node_terminal.py` (617 строк) | есть |
 | Анти-торрент | admin `torrent_p2p_whitelist` | `torrent_detection.py`, `platform_api.py` | есть |

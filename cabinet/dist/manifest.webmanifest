@@ -1,0 +1,11 @@
+{
+  "name": "Личный кабинет",
+  "short_name": "Кабинет",
+  "description": "Личный кабинет VPN Shop by Corgi",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090D16",
+  "theme_color": "#090D16",
+  "lang": "ru"
+}

@@ -7,7 +7,7 @@
 ```bash
 git clone --branch v28.54.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 Настройка DNS, Docker и секретов: [DEPLOYMENT_CURRENT.md](DEPLOYMENT_CURRENT.md).

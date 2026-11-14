@@ -3270,7 +3270,7 @@
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик (строка 2297). Продукт: Все три.
 - Платформы: backend/API, server.
-- Доказательство: `deploy/install-status.sh`; `deploy/install-vps.sh`; `tests/test_install_status.py`.
+- Доказательство: `infrastructure/deployment/install-status.sh`; `infrastructure/deployment/install-vps.sh`; `tests/test_install_status.py`.
 - Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.153.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.153.0, решение владельца 2026-11-14). На VPS не проверено.
 
 > Поддерживать идемпотентные этапы: preflight → environment validation → DNS/ports → secrets → dependencies → database → migrations → services → health checks → admin bootstrap → final report. Каждый этап должен иметь машинно-читаемый статус, лог, понятную ошибку и безопасный повтор.
@@ -3312,7 +3312,7 @@
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2305). Продукт: Все три.
 - Платформы: backend/API, server.
-- Доказательство: `scripts/zero-downtime-backend.sh`; `deploy/build-production.sh`; `deploy/Caddyfile`; `tests/test_zero_downtime_deploy.py`.
+- Доказательство: `scripts/zero-downtime-backend.sh`; `infrastructure/deployment/build-production.sh`; `infrastructure/reverse-proxy/Caddyfile`; `tests/test_zero_downtime_deploy.py`.
 
 > - Поддерживать rolling/blue-green подход, если он совместим с фактической архитектурой.
 

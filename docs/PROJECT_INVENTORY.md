@@ -146,7 +146,7 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 
 ### Скрипты эксплуатации — 27
 
-Установка (`install.sh`, `deploy/install-vps.sh`, `deploy/install-docker.sh`), обновление
+Установка (`install.sh`, `infrastructure/deployment/install-vps.sh`, `infrastructure/deployment/install-docker.sh`), обновление
 (`update.sh`, `update-from-github.sh`, `auto-update.sh`), откат (`rollback.sh`), резервные копии
 (`backup.sh`), диагностика (`doctor.sh`, `preflight.sh`, `security-scan.sh`), секреты
 (`rotate-secrets.sh`), мобильные сборки (3 скрипта), staging/интеграция (4 скрипта),

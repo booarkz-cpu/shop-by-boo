@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class RecoveryTests(unittest.TestCase):
     def test_installer_writes_one_cabinet_cors_origin(self):
-        script = (ROOT / "deploy/install-vps.sh").read_text()
+        script = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
         writer = script[script.index("umask 077\n{"):script.index("# Strict production firewall:")]
         self.assertEqual(writer.count("env_line CABINET_CORS_ORIGINS "), 1)
         self.assertIn('env_line CABINET_CORS_ORIGINS "https://${CABINET_DOMAIN}"', writer)
@@ -168,9 +168,9 @@ class RecoveryTests(unittest.TestCase):
             (stage / "backend" / "app" / "main.py").write_text("release")
             (stage / "support-pro").mkdir()
             (stage / "support-pro" / ".env").write_text("release-secret\n")
-            (stage / "deploy").mkdir()
+            (stage / "infrastructure" / "deployment").mkdir(parents=True)
             (stage / "scripts").mkdir()
-            for path in (stage / "deploy" / "build-production.sh", stage / "scripts" / "doctor.sh", stage / "scripts" / "upgrade-postgres.sh"):
+            for path in (stage / "infrastructure" / "deployment" / "build-production.sh", stage / "scripts" / "doctor.sh", stage / "scripts" / "upgrade-postgres.sh"):
                 path.write_text("#!/bin/sh\nexit 0\n")
                 path.chmod(0o755)
             fakebin = base / "bin"
