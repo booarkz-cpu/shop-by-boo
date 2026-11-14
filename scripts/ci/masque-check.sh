@@ -109,6 +109,36 @@ client u1 u1 pass-one; client bad u1 wrong; client u2 u2 pass-two; client privat
 "$W/xray" run -test -c "$W/client-u1.json" >/dev/null 2>&1 && ok "the subscription config is accepted by a real Xray client" || fail "client config refused"
 [ "$(through u1 $URL)" = 204 ] && ok "a page is fetched through the tunnel behind the site" || { tail -n 5 "$W/client-u1.log"; docker logs --tail 10 corgi-masque-xray; docker logs --tail 10 corgi-masque-haproxy; fail "tunnel"; }
 [ "$(through bad $URL)" = 000 ] && ok "a wrong password is refused" || fail "wrong password accepted"
+# v28.142.0: BitTorrent through the tunnel is cut, plain HTTP to the same host is not (the rule needs sniffing).
+handshake() {  # handshake <client> <bt|http>: bytes the far end answered with through the tunnel
+  "$W/xray" run -c "$W/client-$1.json" > "$W/client-$1.log" 2>&1 & local pid=$!
+  sleep 2
+  python3 - "$2" <<'PY' || true
+import socket, sys
+s = socket.create_connection(("127.0.0.1", 10808), timeout=10)
+s.sendall(b"\x05\x01\x00"); s.recv(2)
+host = b"example.com"
+s.sendall(b"\x05\x01\x00\x03" + bytes([len(host)]) + host + (80).to_bytes(2, "big"))
+if s.recv(10)[1:2] != b"\x00":
+    print(0); sys.exit()
+s.sendall(b"\x13BitTorrent protocol" + bytes(8) + bytes(20) + b"-qB4650-000000000000" if sys.argv[1] == "bt"
+          else b"GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
+got = b""
+try:
+    while len(got) < 64:
+        chunk = s.recv(4096)
+        if not chunk:
+            break
+        got += chunk
+except OSError:
+    pass
+print(len(got))
+PY
+  kill "$pid" >/dev/null 2>&1 || true; wait "$pid" 2>/dev/null || true
+}
+http_bytes=$(handshake u1 http); bt_bytes=$(handshake u1 bt)
+[ "${http_bytes:-0}" -gt 0 ] && [ "${bt_bytes:-1}" = 0 ] && ok "BitTorrent through the tunnel is cut, plain HTTP to the same host passes" \
+  || { docker logs --tail 10 corgi-masque-xray; fail "torrent block (http=$http_bytes bt=$bt_bytes)"; }
 (cd "$SS/sites/current" && exec python3 -m http.server 8099 --bind 0.0.0.0 >/dev/null 2>&1) &
 sleep 1
 [ "$(through private "http://$(hostname -I | awk '{print $1}'):8099/index.html")" = 000 ] && ok "a tunnel user cannot reach the node's private address" || fail "private address reachable"
