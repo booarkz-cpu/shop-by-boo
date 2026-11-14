@@ -53,11 +53,13 @@ ssh-copy-id root@203.0.113.10    # один раз введите пароль
 
 ## 4. Установить магазин
 
-На сервере (после `ssh`):
+На сервере (после `ssh`) выполните команду из раздела «Установка одной командой» в
+[INSTALLATION.md](../../INSTALLATION.md#4-установка-одной-командой) — там всегда номер текущего выпуска. Она выглядит так
+(`vX.Y.Z` — этот номер):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.142.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.142.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/vX.Y.Z/install.sh -o /root/shop-install.sh \
+  && BRANCH=vX.Y.Z bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, скачивает магазин и задаёт вопросы: домены, токен бота, адрес и токен панели Remnawave,
