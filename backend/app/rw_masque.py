@@ -273,6 +273,25 @@ def client_config(domain: str, port: int, prefix: str, login: str, password: str
     }
 
 
+STEPS = {"check": "проверка ноды", "files": "файлы стека", "cert": "сертификат сайта", "config": "настройки Xray и HAProxy",
+         "containers": "запуск контейнеров", "start": "проверка запуска", "firewall": "порт в брандмауэре"}
+ROLLBACK = {"previous": "изменения отменены: работает прежняя установка", "removed": "незавершённая установка удалена с ноды",
+            "failed": "вернуть прежнюю установку не удалось — нужна переустановка"}
+
+
+def parse_steps(out: str) -> dict:
+    """v28.141.0: the stages the node script went through and how a failure was undone.
+    ``{"steps": ["check", …], "last": "containers", "rollback": "previous" | "removed" | "failed" | None}``."""
+    steps, rollback = [], None
+    for line in (out or "").splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[0] == "step" and parts[1] in STEPS:
+            steps.append(parts[1])
+        elif line.startswith("rollback=") and line.split("=", 1)[1] in ROLLBACK:
+            rollback = line.split("=", 1)[1]
+    return {"steps": steps, "last": steps[-1] if steps else None, "rollback": rollback}
+
+
 def parse_result(out: str) -> dict:
     """``masque=on users=3 port=2087 …`` — the last line of the node script as a dict."""
     line = (out or "").strip().splitlines()[-1] if (out or "").strip() else ""
@@ -353,12 +372,36 @@ on|sync)
     echo "masque=sync users=$(wc -l < "$tmp/want") added=$(wc -l < "$tmp/add") removed=$(wc -l < "$tmp/drop") limits=$limits"
     exit 0
   fi
+  echo "step check"
   running remnawave-selfsteal || { echo "noselfsteal"; exit 5; }
   # Before anything is changed: the public port must be free — or held by this stack's own HAProxy (a reinstall).
   if command -v ss >/dev/null 2>&1; then
     holder=$(ss -Hltnp "sport = :$port" 2>/dev/null | grep -o 'users:(("[^"]*"' | cut -d'"' -f2 | grep -vx haproxy | head -n1 || true)
     [ -z "$holder" ] || { echo "port busy: $holder"; exit 7; }
   fi
+  # v28.141.0: a failed install leaves no half-built stack. The files of a working install are kept aside first; on a
+  # failure they come back and the previous stack starts again («rollback=previous»), or — on a first install — what
+  # was made is removed («rollback=removed»).
+  prev=""
+  if [ -f "$dir/docker-compose.yml" ] && [ -f "$dir/haproxy.cfg" ]; then
+    prev="$tmp/prev"; mkdir -p "$prev"
+    cp -a "$dir/docker-compose.yml" "$dir/haproxy.cfg" "$prev/"
+    for d in xray errors maps; do [ -d "$dir/$d" ] && cp -a "$dir/$d" "$prev/"; done
+  fi
+  rollback() {
+    if [ -n "$prev" ]; then
+      cp -a "$prev"/. "$dir"/
+      if (cd "$dir" && docker compose up -d --force-recreate --quiet-pull >/dev/null 2>&1); then echo "rollback=previous"; else echo "rollback=failed"; fi
+    else
+      (cd "$dir" 2>/dev/null && docker compose down --remove-orphans >/dev/null 2>&1) || true
+      docker rm -f "$xr" "$hp" >/dev/null 2>&1 || true
+      if [ -d /run/systemd/system ]; then systemctl disable --now corgi-masque-cert.timer >/dev/null 2>&1 || true; fi
+      rm -f "$unit.service" "$unit.timer" "$certsh"; rm -rf "$dir"
+      if [ -d /run/systemd/system ]; then systemctl daemon-reload >/dev/null 2>&1 || true; fi
+      echo "rollback=removed"
+    fi
+  }
+  echo "step files"
   install -d -m 0755 "$dir" "$dir/xray" "$dir/tls" "$dir/maps"
   install -d -m 0770 -o 65532 -g 65532 "$dir/run"; rm -f "$dir/run"/*.sock
   install -m 0644 "$tmp/x/limits.map" "$dir/maps/limits.map"
@@ -387,22 +430,27 @@ EOF
     printf '[Unit]\nDescription=Daily copy of the SelfSteal certificate for MASQUE\n[Timer]\nOnCalendar=daily\nRandomizedDelaySec=1h\nPersistent=true\n[Install]\nWantedBy=timers.target\n' > "$unit.timer"
     systemctl daemon-reload; systemctl enable --now corgi-masque-cert.timer >/dev/null 2>&1 || true
   fi
+  echo "step cert"
   for i in $(seq 1 24); do "$certsh" 2>/dev/null && break; sleep 5; done
-  [ -s "$dir/tls/xray/cert.pem" ] && [ -s "$dir/tls/haproxy/site.pem" ] || { echo "nocert"; exit 5; }
+  [ -s "$dir/tls/xray/cert.pem" ] && [ -s "$dir/tls/haproxy/site.pem" ] || { echo "nocert"; rollback; exit 5; }
+  echo "step config"
   install -m 0640 -o 0 -g 65532 "$tmp/x/config.json" "$dir/xray/config.json"
   if [ -e /proc/net/if_inet6 ]; then sed 's/^#V6#//' "$tmp/x/haproxy.cfg" > "$dir/haproxy.cfg"; else grep -v '^#V6#' "$tmp/x/haproxy.cfg" > "$dir/haproxy.cfg"; fi
   chmod 0644 "$dir/haproxy.cfg"
   install -d -m 0755 "$dir/errors"; install -m 0644 "$tmp/x/400.http" "$dir/errors/400.http"; install -m 0644 "$tmp/x/503.http" "$dir/errors/503.http"
   install -m 0644 "$tmp/x/docker-compose.yml" "$dir/docker-compose.yml"
   cd "$dir"
-  docker compose up -d --force-recreate --quiet-pull >/dev/null 2>&1 || { echo "compose failed"; docker compose logs --tail 20 2>&1 | tail -n 20; exit 6; }
+  echo "step containers"
+  docker compose up -d --force-recreate --quiet-pull >/dev/null 2>&1 || { echo "compose failed"; docker compose logs --tail 20 2>&1 | tail -n 20; rollback; exit 6; }
+  echo "step start"
   ok=0
   for i in $(seq 1 20); do
     if running "$xr" && running "$hp" && xapi inbounduser -s "$api" -tag=__TAG__ >/dev/null 2>&1 \
        && (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then ok=1; break; fi
     sleep 2
   done
-  [ "$ok" = 1 ] || { echo "not started"; ls -l "$dir/run" 2>&1 | tail -n 5; xapi inbounduser -s "$api" -tag=__TAG__ 2>&1 | tail -n 2; docker compose logs --tail 20 2>&1 | tail -n 20; exit 6; }
+  [ "$ok" = 1 ] || { echo "not started"; ls -l "$dir/run" 2>&1 | tail -n 5; xapi inbounduser -s "$api" -tag=__TAG__ 2>&1 | tail -n 2; docker compose logs --tail 20 2>&1 | tail -n 20; cd /; rollback; exit 6; }
+  echo "step firewall"
   fw "$port" on
   echo "masque=on users=$(live | wc -l) port=$port cert=$(openssl x509 -in "$dir/tls/xray/cert.pem" -noout -enddate 2>/dev/null | cut -d= -f2 | tr ' ' '_')" ;;
 status)

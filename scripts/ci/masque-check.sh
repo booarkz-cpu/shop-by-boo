@@ -181,6 +181,15 @@ get "https://$DOMAIN:$PORT/" | grep -q 'selfsteal-site-home' && ok "the site is 
 out=$(node on "$W/b3.tgz") || fail "second install failed"
 echo "$out" | tail -1 | grep -q "^masque=on users=1 port=$PORT cert=" && ok "a second «on» gives the same state" || fail "second on"
 [ "$(through u2 $URL)" = 204 ] || fail "tunnel after the second on"
+# v28.141.0: a reinstall that fails (HAProxy refuses its config) is rolled back: the previous stack works again.
+mkdir "$W/badx"; tar -xzf "$W/b3.tgz" -C "$W/badx"; printf '\tno-such-directive\n' >> "$W/badx/haproxy.cfg"
+tar -czf "$W/bad.tgz" -C "$W/badx" .
+rc=0; out=$(node on "$W/bad.tgz" 2>&1) || rc=$?
+[ "$rc" = 6 ] && echo "$out" | grep -q '^rollback=previous$' && echo "$out" | grep -q '^step start$' \
+  && ok "a failed reinstall is rolled back to the previous install ($(echo "$out" | grep -c '^step ') stages)" || { echo "$out" | tail -n 15; fail "rollback of a failed reinstall ($rc)"; }
+for _ in $(seq 1 20); do [ "$(through u2 $URL)" = 204 ] && break; sleep 2; done
+[ "$(through u2 $URL)" = 204 ] && get "https://$DOMAIN:$PORT/" | grep -q 'selfsteal-site-home' && ! grep -q 'no-such-directive' /opt/corgi-masque/haproxy.cfg \
+  && ok "after the rollback the tunnel and the site work as before" || fail "previous install did not come back"
 SHIELD=off bundle "$W/b4.tgz" u2:pass-two
 node on "$W/b4.tgz" >/dev/null || fail "install without the optional protections failed"
 echo | timeout 10 openssl s_client -connect "127.0.0.1:$PORT" -noservername 2>/dev/null | grep -q 'BEGIN CERTIFICATE' && ok "with strict SNI off the port answers without a server name" || fail "strict SNI could not be switched off"
@@ -202,4 +211,9 @@ rc=0; bash "$W/node.sh" on "$DOMAIN" 2087 "$(printf 'a%.0s' $(seq 64))" < "$W/b3
 docker ps --format '{{.Names}}' | grep -q '^remnawave-selfsteal$' && ok "the SelfSteal site is untouched" || fail "SelfSteal stopped"
 bash "$W/node.sh" off >/dev/null && ok "a second «off» is harmless"
 rc=0; bash "$W/node.sh" status >/dev/null 2>&1 || rc=$?; [ "$rc" = 8 ] && ok "status says «not installed» after removal" || fail "status after removal ($rc)"
+# v28.141.0: a first install that fails leaves nothing behind.
+rc=0; out=$(node on "$W/bad.tgz" 2>&1) || rc=$?
+[ "$rc" = 6 ] && echo "$out" | grep -q '^rollback=removed$' && [ ! -e /opt/corgi-masque ] && [ ! -e /usr/local/sbin/corgi-masque-cert.sh ] \
+  && ! docker ps -a --format '{{.Names}}' | grep -q '^corgi-masque-' && ok "a failed first install is removed from the node" || { echo "$out" | tail -n 15; fail "cleanup of a failed first install ($rc)"; }
+docker ps --format '{{.Names}}' | grep -q '^remnawave-selfsteal$' && ok "the SelfSteal site is untouched by the cleanup" || fail "SelfSteal stopped by the cleanup"
 echo "masque module: PASS"
