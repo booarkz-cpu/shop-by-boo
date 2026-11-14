@@ -102,8 +102,8 @@ env_line() {
   printf "%s='%s'\n" "$key" "$escaped"
 }
 
-status_stage settings
 INSTALLER_VERSION="21.5.1"
+status_stage settings
 log "Remnawave VPN Shop — 21.5.1 stable core installer"
 echo
 echo "Все основные настройки будут введены сейчас. После установки редактировать .env вручную не требуется."
