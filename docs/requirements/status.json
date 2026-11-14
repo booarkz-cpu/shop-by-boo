@@ -4056,5 +4056,320 @@
   ],
   "note": "То же, что REQ-NODE-0007.",
   "platforms": "server, backend/API, Web"
+ },
+ "REQ-CLIENT-0001": {
+  "status": "PASS",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt",
+   "apps/vpn-client/android/app/build.gradle.kts",
+   "docs/ru/new/ANDROID_CLIENT_APP.md"
+  ],
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt",
+   "docs/ru/new/ANDROID_CLIENT_APP.md"
+  ],
+  "note": "Клиент для Android бесплатный, без регистрации и покупки, работает с любой подпиской и не обращается к серверу магазина (кроме проверки обновлений на GitHub). Клиента для iOS нет: нужен Apple Developer (O11).",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0003": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt"
+  ],
+  "note": "Ссылка, QR, буфер обмена, файл, ручной ввод, несколько подписок, обновление, изменение, удаление, экспорт копией, пинг серверов. Отдельной «диагностики конфигурации» с разбором ошибок по полям нет. На телефоне не проверено.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt",
+   "docs/MASQUE_PANEL.md"
+  ],
+  "note": "Разбираются ссылки VLESS (в том числе REALITY), Trojan, Shadowsocks, VMess, Hysteria 2 и подписка MASQUE; неподдержанные ссылки считаются и показываются как пропущенные. TUIC не поддержан. Работа каждого протокола на телефоне не проверена; в CI VPN на эмуляторе проверяется на VLESS.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt",
+   "docs/ru/new/ANDROID_CLIENT_APP.md"
+  ],
+  "note": "Есть: прокси по приложениям, маршрутизация, статистика трафика, прокси для локальной сети, переключение на запасной сервер, вибрация, автовыбор, пинг, уведомления, блокировка приложения отпечатком или PIN телефона, журналы и диагностика. Нет отдельного режима экономии батареи и «Погладить корги»; своего PIN приложение не хранит (системный). На телефоне не проверено.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Theme.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt",
+   "screenshots/client/home.png",
+   "screenshots/client/home-servers.png"
+  ],
+  "note": "Тёмная тема бренда с градиентом, маскот, список серверов, цветной статус и задержка в мс, заметные переключатели — на снимках из CI. Соответствие макету владельца на телефоне не подтверждено им.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0010": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt",
+   "docs/ru/new/ANDROID_CLIENT_APP.md"
+  ],
+  "note": "Блокировка переписана в 1.8.1: системный запрос (BiometricPrompt или подтверждение блокировки экрана), включение только после успешного запроса, VPN при блокировке не останавливается. Logcat с телефона владельца с исходным вылетом не получен, на устройстве не перепроверено.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0011": {
+  "status": "PASS",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt"
+  ],
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0012": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt"
+  ],
+  "note": "Показываются срок действия, трафик, время последнего обновления, число серверов, число пропущенных ссылок и ошибка. Время следующего обновления не показывается.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0013": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt"
+  ],
+  "note": "Обновление вручную и по расписанию (интервал из настроек или из подписки, если он короче), одновременные изменения закрыты ConfigGate. Растущей паузы после ошибок (backoff) нет: следующая попытка — по обычному интервалу.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0014": {
+  "status": "PASS",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt"
+  ],
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0015": {
+  "status": "PASS",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt"
+  ],
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0016": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt"
+  ],
+  "note": "Пустой список, неизвестный протокол, неверный формат, недоступный адрес, ошибка HTTP и TLS оставляют прежние серверы и показывают причину; с 1.9.8 ответ больше 8 МБ не читается. Истёкшая подписка показывается по заголовку подписки. Дубли серверов не убираются; отдельных тестов на редирект и ошибку TLS нет.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0017": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt"
+  ],
+  "note": "Подписка — только по https:// (http — лишь в отладочной сборке), сертификат проверяет система, размер ограничен, содержимое разбирается по известным схемам. Адрес подписки на внутренние сети не запрещён: пользователь сам вводит адрес на своём устройстве, ответ никуда не пересылается.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0018": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt"
+  ],
+  "note": "Копия профилей и настроек в файл и восстановление из него; логин и пароль локального прокси в копию не попадают. Файл копии не шифруется — в нём ссылки подписок.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0019": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt"
+  ],
+  "note": "Экспорт и «поделиться» — только по нажатию пользователя. Отдельного предупреждения о ключах и UUID перед экспортом нет.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0020": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt"
+  ],
+  "note": "Состояния в интерфейсе: выключен, подключение, подключён; запрос разрешения VPN и ошибка показываются отдельными событиями, переподключение — в уведомлении службы. Отдельных состояний preparing, reconnecting, stopping в модели нет.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0021": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt"
+  ],
+  "note": "Кнопка недоступна, пока меняется конфигурация; модель экрана покрыта тестами. Отдельного теста на серию быстрых нажатий нет.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0022": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt"
+  ],
+  "note": "VPN работает в службе переднего плана и не зависит от экрана; состояние экран берёт у службы. Поворот, сворачивание и блокировка устройства на телефоне не проверялись; в CI — запуск на эмуляторе.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0023": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt"
+  ],
+  "note": "Смена сети, доверенные Wi-Fi, запуск после перезагрузки и переключение на запасной сервер реализованы и покрыты тестами логики. Переходы Wi-Fi ↔ мобильная сеть, портал авторизации, Doze, нехватка памяти на устройствах не проверялись.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0024": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt"
+  ],
+  "note": "При включённом Smart Failover служба каждые 10 секунд проверяет выход через туннель настоящим запросом и при неудаче переключает сервер. Статус «подключён» появляется после запуска ядра, а не после первой удачной проверки.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0025": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt"
+  ],
+  "note": "Остановка закрывает туннель, ядро и потоки, обрабатывается отзыв разрешения VPN. Отсутствие «зависшей» службы на устройствах длительно не проверялось.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0026": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Logs.kt"
+  ],
+  "note": "Журналы одним .zip по нажатию. Вычищение адресов серверов и UUID из журналов перед экспортом не сверено.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0027": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt"
+  ],
+  "note": "Разрешения запрашиваются в момент включения функции, с подписью у переключателя (уведомления, доверенные сети — геолокация для имени Wi-Fi). Отдельного экрана с объяснением разрешения VPN перед первым запросом нет.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0028": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt"
+  ],
+  "note": "История трафика — только объём по дням, на устройстве. Журнал сети (домены и маршруты) выключен по умолчанию, включается пользователем и хранится только на устройстве. Политики приватности клиента отдельным документом нет.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0029": {
+  "status": "PASS",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ApkCheck.kt"
+  ],
+  "platforms": "Android client",
+  "note": "Журналы уходят из приложения только кнопкой «поделиться»; библиотек аналитики и отчётов о сбоях в сборке нет. Серверу подписки по умолчанию передаётся идентификатор устройства (заголовок x-hwid) — отключается в настройках."
+ },
+ "REQ-CLIENT-0030": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt",
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "В текстах клиента и бренда нет обещаний анонимности и обхода любых блокировок. Явной оговорки об этом в приложении или в документе клиента нет.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0031": {
+  "status": "PASS",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt"
+  ],
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0032": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt"
+  ],
+  "note": "Профили со ссылками подписок лежат в обычных настройках приложения (SharedPreferences, резервное копирование системы выключено). Шифрования ключом Android Keystore нет.",
+  "platforms": "Android client"
+ },
+ "REQ-CLIENT-0033": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [
+   "docs/ru/new/ANDROID_CLIENT_APP.md"
+  ],
+  "note": "Замеров холодного и тёплого запуска, времени подключения, процессора, памяти, батареи и доли сессий без сбоев нет; численных улучшений проект не заявляет. Нужны устройства (O12).",
+  "platforms": "Android client"
  }
 }

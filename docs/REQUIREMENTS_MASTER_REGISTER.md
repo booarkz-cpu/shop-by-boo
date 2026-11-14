@@ -11,22 +11,22 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **186** — 28.5%.
+- Подтверждено (`PASS`): **192** — 29.4%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 186 | Проверено, доказательство указано |
-| `PARTIAL` | 233 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 35 | Функции нет |
+| `PASS` | 192 | Проверено, доказательство указано |
+| `PARTIAL` | 255 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 37 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 197 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 167 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 123 | 12 | 5 | 0 | 102 |
 | Монорепозиторий и перенос | 28 | 14 | 14 | 0 | 0 |
-| «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
+| «Корги Люси: Клиент» | 33 | 6 | 25 | 0 | 0 |
 | Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
 | Lucy Admin | 19 | 3 | 11 | 0 | 0 |
@@ -1120,33 +1120,47 @@
 
 ## «Корги Люси: Клиент»
 
-### REQ-CLIENT-0001 — `NOT_TESTED`
+### REQ-CLIENT-0001 — `PASS`
 
 - Источник: Часть I → Products → Корги Люси: Клиент (строка 109). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt`; `apps/vpn-client/android/app/build.gradle.kts`; `docs/ru/new/ANDROID_CLIENT_APP.md`.
 
 > `id` = `vpn-client`
 
-### REQ-CLIENT-0002 — `NOT_TESTED`
+### REQ-CLIENT-0002 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Purpose (строка 113). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `docs/ru/new/ANDROID_CLIENT_APP.md`.
+- Примечание: Клиент для Android бесплатный, без регистрации и покупки, работает с любой подпиской и не обращается к серверу магазина (кроме проверки обновлений на GitHub). Клиента для iOS нет: нужен Apple Developer (O11).
 
 > Полностью бесплатный универсальный VPN-клиент Android/iOS для совместимых сторонних VPN-подписок. Не зависит от коммерческого backend VPN Shop, не требует обязательной регистрации или покупки.
 
-### REQ-CLIENT-0003 — `NOT_TESTED`
+### REQ-CLIENT-0003 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Imports (строка 117). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt`.
+- Примечание: Ссылка, QR, буфер обмена, файл, ручной ввод, несколько подписок, обновление, изменение, удаление, экспорт копией, пинг серверов. Отдельной «диагностики конфигурации» с разбором ошибок по полям нет. На телефоне не проверено.
 
 > URL; QR; файл; буфер обмена; ручное добавление; несколько подписок; обновление; редактирование; удаление; экспорт; диагностика конфигурации; проверка доступности серверов.
 
-### REQ-CLIENT-0004 — `NOT_TESTED`
+### REQ-CLIENT-0004 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Protocols (строка 121). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt`; `docs/MASQUE_PANEL.md`.
+- Примечание: Разбираются ссылки VLESS (в том числе REALITY), Trojan, Shadowsocks, VMess, Hysteria 2 и подписка MASQUE; неподдержанные ссылки считаются и показываются как пропущенные. TUIC не поддержан. Работа каждого протокола на телефоне не проверена; в CI VPN на эмуляторе проверяется на VLESS.
 
 > VLESS; REALITY; Trojan; Shadowsocks; VMess; Hysteria 2; TUIC; MASQUE и другие — только если подтверждены движком и платформой.
 
-### REQ-CLIENT-0005 — `NOT_TESTED`
+### REQ-CLIENT-0005 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Features (строка 125). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt`; `docs/ru/new/ANDROID_CLIENT_APP.md`.
+- Примечание: Есть: прокси по приложениям, маршрутизация, статистика трафика, прокси для локальной сети, переключение на запасной сервер, вибрация, автовыбор, пинг, уведомления, блокировка приложения отпечатком или PIN телефона, журналы и диагностика. Нет отдельного режима экономии батареи и «Погладить корги»; своего PIN приложение не хранит (системный). На телефоне не проверено.
 
 > Split Tunneling; Smart Routing; Live Traffic; LAN Proxy Share; Self-Healing; Battery Saver; Pet the Corgi; Haptic Feedback; авто-выбор сервера; проверка задержки; уведомления; PIN; биометрия; диагностика; профили; импорт/экспорт; восстановление подключения.
 
@@ -1168,9 +1182,12 @@
 
 > Твой интернет. Твои правила. Твоя Люси
 
-### REQ-CLIENT-0008 — `NOT_TESTED`
+### REQ-CLIENT-0008 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Branding → Style (строка 139). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Theme.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt`; `screenshots/client/home.png`; `screenshots/client/home-servers.png`.
+- Примечание: Тёмная тема бренда с градиентом, маскот, список серверов, цветной статус и задержка в мс, заметные переключатели — на снимках из CI. Соответствие макету владельца на телефоне не подтверждено им.
 
 > Тёмная/космическая градиентная концепция; маскот корги; список серверов; цветной статус; задержка XX ms; SVG Add; заметные переключатели.
 
@@ -1183,147 +1200,215 @@
 
 > Лишние счётчики дней; декоративный огонёк; баннер «ЗАЩИТА В ОДНО КАСАНИЕ»; маска; кнопка «Безлимит».
 
-### REQ-CLIENT-0010 — `NOT_TESTED`
+### REQ-CLIENT-0010 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Critical Bug (строка 148). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt`; `docs/ru/new/ANDROID_CLIENT_APP.md`.
+- Примечание: Блокировка переписана в 1.8.1: системный запрос (BiometricPrompt или подтверждение блокировки экрана), включение только после успешного запроса, VPN при блокировке не останавливается. Logcat с телефона владельца с исходным вылетом не получен, на устройстве не перепроверено.
 
 > Приложение может падать при включении PIN/биометрии из настроек подключения. Получить Logcat/stack trace; найти первопричину; проверить Activity/Service lifecycle, VPNService, блокировку UI, разрешения и состояние подключения; исправить; блокировка UI не должна завершать VPNService или сессию; проверить минимум 15 сценариев.
 
-### REQ-CLIENT-0011 — `NOT_TESTED`
+### REQ-CLIENT-0011 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2160). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt`.
 
 > - Поддерживать несколько независимых подписок и локальных профилей.
 
-### REQ-CLIENT-0012 — `NOT_TESTED`
+### REQ-CLIENT-0012 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2161). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt`.
+- Примечание: Показываются срок действия, трафик, время последнего обновления, число серверов, число пропущенных ссылок и ошибка. Время следующего обновления не показывается.
 
 > - Отображать источник, дату последнего обновления, дату следующего обновления, срок действия, количество конфигураций и ошибки.
 
-### REQ-CLIENT-0013 — `NOT_TESTED`
+### REQ-CLIENT-0013 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2162). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt`.
+- Примечание: Обновление вручную и по расписанию (интервал из настроек или из подписки, если он короче), одновременные изменения закрыты ConfigGate. Растущей паузы после ошибок (backoff) нет: следующая попытка — по обычному интервалу.
 
 > - Поддерживать обновление вручную и по расписанию с разумными ограничениями, backoff и защитой от одновременных обновлений.
 
-### REQ-CLIENT-0014 — `NOT_TESTED`
+### REQ-CLIENT-0014 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2163). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt`.
 
 > - Не перезаписывать рабочий профиль невалидным ответом сервера.
 
-### REQ-CLIENT-0015 — `NOT_TESTED`
+### REQ-CLIENT-0015 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2164). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt`.
 
 > - При ошибке обновления сохранять последнюю рабочую конфигурацию и показывать понятную диагностику.
 
-### REQ-CLIENT-0016 — `NOT_TESTED`
+### REQ-CLIENT-0016 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2165). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt`.
+- Примечание: Пустой список, неизвестный протокол, неверный формат, недоступный адрес, ошибка HTTP и TLS оставляют прежние серверы и показывают причину; с 1.9.8 ответ больше 8 МБ не читается. Истёкшая подписка показывается по заголовку подписки. Дубли серверов не убираются; отдельных тестов на редирект и ошибку TLS нет.
 
 > - Обрабатывать истёкшую подписку, пустой список, некорректный формат, неизвестный протокол, дубли, недоступный URL, redirect, TLS error и oversized response.
 
-### REQ-CLIENT-0017 — `NOT_TESTED`
+### REQ-CLIENT-0017 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2166). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`.
+- Примечание: Подписка — только по https:// (http — лишь в отладочной сборке), сертификат проверяет система, размер ограничен, содержимое разбирается по известным схемам. Адрес подписки на внутренние сети не запрещён: пользователь сам вводит адрес на своём устройстве, ответ никуда не пересылается.
 
 > - Импортировать только разрешённые схемы; проверять URL, redirects, сертификаты, размер и содержимое; не допускать SSRF через произвольные внутренние адреса.
 
-### REQ-CLIENT-0018 — `NOT_TESTED`
+### REQ-CLIENT-0018 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2167). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt`.
+- Примечание: Копия профилей и настроек в файл и восстановление из него; логин и пароль локального прокси в копию не попадают. Файл копии не шифруется — в нём ссылки подписок.
 
 > - Поддерживать резервное копирование и перенос профилей с защитой приватных данных.
 
-### REQ-CLIENT-0019 — `NOT_TESTED`
+### REQ-CLIENT-0019 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2168). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt`.
+- Примечание: Экспорт и «поделиться» — только по нажатию пользователя. Отдельного предупреждения о ключах и UUID перед экспортом нет.
 
 > - Экспортировать конфигурации только после явного действия пользователя и предупреждать о чувствительных ключах/UUID.
 
-### REQ-CLIENT-0020 — `NOT_TESTED`
+### REQ-CLIENT-0020 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2172). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt`.
+- Примечание: Состояния в интерфейсе: выключен, подключение, подключён; запрос разрешения VPN и ошибка показываются отдельными событиями, переподключение — в уведомлении службы. Отдельных состояний preparing, reconnecting, stopping в модели нет.
 
 > - Реализовать корректные состояния: disconnected, preparing, connecting, connected, reconnecting, stopping, permission_required, error.
 
-### REQ-CLIENT-0021 — `NOT_TESTED`
+### REQ-CLIENT-0021 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2173). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt`.
+- Примечание: Кнопка недоступна, пока меняется конфигурация; модель экрана покрыта тестами. Отдельного теста на серию быстрых нажатий нет.
 
 > - Исключить гонки при быстрых нажатиях connect/disconnect и смене профиля.
 
-### REQ-CLIENT-0022 — `NOT_TESTED`
+### REQ-CLIENT-0022 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2174). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt`.
+- Примечание: VPN работает в службе переднего плана и не зависит от экрана; состояние экран берёт у службы. Поворот, сворачивание и блокировка устройства на телефоне не проверялись; в CI — запуск на эмуляторе.
 
 > - Сохранять состояние VPN при смене Activity/Scene, повороте экрана, сворачивании приложения и блокировке устройства.
 
-### REQ-CLIENT-0023 — `NOT_TESTED`
+### REQ-CLIENT-0023 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2175). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt`.
+- Примечание: Смена сети, доверенные Wi-Fi, запуск после перезагрузки и переключение на запасной сервер реализованы и покрыты тестами логики. Переходы Wi-Fi ↔ мобильная сеть, портал авторизации, Doze, нехватка памяти на устройствах не проверялись.
 
 > - Отдельно тестировать переход Wi-Fi ↔ mobile data, captive portal, потерю сети, смену IP, DNS failure, sleep/wake, Doze, low-memory и reboot.
 
-### REQ-CLIENT-0024 — `NOT_TESTED`
+### REQ-CLIENT-0024 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2176). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt`.
+- Примечание: При включённом Smart Failover служба каждые 10 секунд проверяет выход через туннель настоящим запросом и при неудаче переключает сервер. Статус «подключён» появляется после запуска ядра, а не после первой удачной проверки.
 
 > - Не показывать connected до подтверждения работающего tunnel/data path.
 
-### REQ-CLIENT-0025 — `NOT_TESTED`
+### REQ-CLIENT-0025 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2177). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt`.
+- Примечание: Остановка закрывает туннель, ядро и потоки, обрабатывается отзыв разрешения VPN. Отсутствие «зависшей» службы на устройствах длительно не проверялось.
 
 > - Обеспечить корректное завершение соединения, освобождение ресурсов и защиту от zombie service.
 
-### REQ-CLIENT-0026 — `NOT_TESTED`
+### REQ-CLIENT-0026 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2178). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Logs.kt`.
+- Примечание: Журналы одним .zip по нажатию. Вычищение адресов серверов и UUID из журналов перед экспортом не сверено.
 
 > - Реализовать диагностический экспорт без секретов и персональных данных по умолчанию.
 
-### REQ-CLIENT-0027 — `NOT_TESTED`
+### REQ-CLIENT-0027 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2182). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt`.
+- Примечание: Разрешения запрашиваются в момент включения функции, с подписью у переключателя (уведомления, доверенные сети — геолокация для имени Wi-Fi). Отдельного экрана с объяснением разрешения VPN перед первым запросом нет.
 
 > - Объяснять назначение VPN permission, локального VPN API, уведомлений и иных разрешений.
 
-### REQ-CLIENT-0028 — `NOT_TESTED`
+### REQ-CLIENT-0028 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2183). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt`.
+- Примечание: История трафика — только объём по дням, на устройстве. Журнал сети (домены и маршруты) выключен по умолчанию, включается пользователем и хранится только на устройстве. Политики приватности клиента отдельным документом нет.
 
 > - Не собирать историю трафика, содержимое пакетов или browsing history без необходимости и явного основания.
 
-### REQ-CLIENT-0029 — `NOT_TESTED`
+### REQ-CLIENT-0029 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2184). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ApkCheck.kt`.
+- Примечание: Журналы уходят из приложения только кнопкой «поделиться»; библиотек аналитики и отчётов о сбоях в сборке нет. Серверу подписки по умолчанию передаётся идентификатор устройства (заголовок x-hwid) — отключается в настройках.
 
 > - Не передавать диагностические данные без согласия пользователя.
 
-### REQ-CLIENT-0030 — `NOT_TESTED`
+### REQ-CLIENT-0030 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2185). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt`; `docs/BRAND_COPY.md`.
+- Примечание: В текстах клиента и бренда нет обещаний анонимности и обхода любых блокировок. Явной оговорки об этом в приложении или в документе клиента нет.
 
 > - Документировать, что VPN не гарантирует анонимность, защиту от всех угроз или обход всех блокировок.
 
-### REQ-CLIENT-0031 — `NOT_TESTED`
+### REQ-CLIENT-0031 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2186). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt`.
 
 > - PIN/биометрия защищают интерфейс и локальные действия, но не должны неожиданно останавливать активный VPN tunnel.
 
-### REQ-CLIENT-0032 — `NOT_TESTED`
+### REQ-CLIENT-0032 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2187). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`.
+- Примечание: Профили со ссылками подписок лежат в обычных настройках приложения (SharedPreferences, резервное копирование системы выключено). Шифрования ключом Android Keystore нет.
 
 > - Секреты профилей хранить в защищённом хранилище платформы, где это применимо.
 
-### REQ-CLIENT-0033 — `NOT_TESTED`
+### REQ-CLIENT-0033 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.4. Производительность (строка 2191). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `docs/ru/new/ANDROID_CLIENT_APP.md`.
+- Примечание: Замеров холодного и тёплого запуска, времени подключения, процессора, памяти, батареи и доли сессий без сбоев нет; численных улучшений проект не заявляет. Нужны устройства (O12).
 
 > Измерять cold start, warm start, connect time, reconnect time, CPU, RAM, battery impact, app size, crash-free sessions и throughput на сопоставимых тестовых условиях. Не заявлять численные улучшения без baseline и повторяемых измерений.
 

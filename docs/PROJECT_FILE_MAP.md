@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2657**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2659**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -469,6 +469,7 @@
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt) | Приложения |
@@ -572,6 +573,7 @@
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt) | Приложения |
