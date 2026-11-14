@@ -2650,7 +2650,7 @@
    "docs/ru/new/TERMUX_GUIDE.md"
   ],
   "platforms": "backend/API, server",
-  "note": "Пошаговая инструкция для Android/Termux написана (v28.143.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
+  "note": "Пошаговая инструкция для Android/Termux написана (v28.144.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
  },
  "REQ-INFRA-0010": {
   "status": "PASS",
@@ -2669,7 +2669,7 @@
    "scripts/github_release_fetch.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.143.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
+  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.144.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
  },
  "REQ-INFRA-0012": {
   "status": "PASS",
@@ -2726,28 +2726,52 @@
   "platforms": "backend/API, server"
  },
  "REQ-INFRA-0032": {
-  "status": "PARTIAL",
+  "status": "PASS",
   "evidence": [
+   "backend/app/backups_api.py",
    "backend/app/telegram_backup.py",
    "tests/test_promo_generator_and_tg_backup.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Копия может уходить в Telegram (отдельно от сервера). По умолчанию scripts/backup.sh пишет в /var/backups на том же сервере; отдельное хранилище (S3 и т. п.) не настроено."
+  "note": "Копии уходят в S3-совместимое хранилище (размер сверяется после загрузки) и/или в Telegram; включается в панели «Резервные копии»."
  },
  "REQ-INFRA-0033": {
-  "status": "PARTIAL",
+  "status": "PASS",
   "evidence": [
    "scripts/backup.sh",
+   "backend/app/backups_api.py",
+   "backend/app/backup_verify.py",
    "backend/app/ops_alerts.py"
   ],
-  "platforms": "backend/API, server",
-  "note": "Проверяются SHA-256, полнота (pg_restore --list, tar -t, расшифровка копии) и сбой копии (оповещение). Срок хранения копий scripts/backup.sh не задаёт."
+  "platforms": "backend/API, server"
  },
  "REQ-INFRA-0037": {
   "status": "PASS",
   "evidence": [
+   "backend/app/backups_api.py",
+   "tests/test_backup_retention_verified.py",
    "scripts/auto_update.py",
    "scripts/backup.sh"
+  ],
+  "platforms": "backend/API, server",
+  "note": "v28.144.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
+ },
+ "REQ-INFRA-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "deploy/install-status.sh",
+   "deploy/install-vps.sh",
+   "tests/test_install_status.py"
+  ],
+  "platforms": "backend/API, server",
+  "note": "С v28.144.0 установщик пишет машиночитаемое состояние этапов (/var/log/vpn-shop-install.json): этап, состояние каждого, понятная ошибка, на каком этапе остановился. Безопасного повтора с середины нет: повторный запуск поверх частичной установки останавливается и предлагает deploy/build-production.sh."
+ },
+ "REQ-INFRA-0009": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/github_release_fetch.py",
+   "release-manifest.template.json",
+   "tests/test_distribution_update.py"
   ],
   "platforms": "backend/API, server"
  }
