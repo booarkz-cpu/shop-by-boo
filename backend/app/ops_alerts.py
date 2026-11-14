@@ -145,8 +145,12 @@ def recovery_point(schedule: str, last_completed: datetime | None, now: datetime
 
 
 async def recovery_point_problems(db: AsyncSession, now: datetime) -> list[Problem]:
-    from .backups_api import BACKUP_INTERVALS, setting_value
-    schedule = await setting_value(db, "backup_schedule", "off")
+    from .backups_api import BACKUP_INTERVALS, DEFAULT_SCHEDULE, backup_blocked, setting_value
+    schedule = await setting_value(db, "backup_schedule", DEFAULT_SCHEDULE)
+    if schedule != "off" and await backup_blocked(db) == "password":
+        return [Problem("rpo:password", "Резервные копии не делаются: нет пароля шифрования",
+                        "Копии шифруются, а пароль не задан. Безопасность → Резервные копии → задайте пароль (не короче 12 символов) "
+                        "и сохраните его отдельно от сервера: без него копию не открыть.", "medium")]
     last = await db.scalar(select(BackupJob.created_at).where(BackupJob.status == "completed").order_by(BackupJob.created_at.desc()).limit(1))
     return [Problem(key, title, detail, "medium") for key, title, detail in
             recovery_point(schedule, last, now, BACKUP_INTERVALS.get(schedule, 0))]

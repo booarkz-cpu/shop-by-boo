@@ -284,6 +284,8 @@ SUPPORT_PRO_SSO_SECRET="$(openssl rand -hex 32)"
 SUPPORT_BRIDGE_TOKEN="$(openssl rand -hex 32)"
 SUPPORT_PRO_SESSION_SECRET="$(openssl rand -hex 32)"
 SUPPORT_PRO_ADMIN_PASSWORD="$(openssl rand -hex 16)"
+# v28.148.0: the password of the hourly backups (owner's decision of 2026-11-14); shown once in the final report.
+BACKUP_PASSWORD="$(openssl rand -hex 16)"
 SUPPORT_REDIS_PASSWORD="$(openssl rand -hex 32)"
 
 status_stage dependencies
@@ -367,6 +369,7 @@ umask 077
   env_line PANEL_DOMAIN "$PANEL_DOMAIN"
   env_line MAINTENANCE_MODE "false"
   env_line BACKUPS_DIR "/data/backups"
+  env_line BACKUP_PASSWORD "${BACKUP_PASSWORD:-}"
   env_line PROJECT_DIR "/project"
   env_line DB_PASSWORD "$DB_PASSWORD"
   env_line POSTGRES_PASSWORD "$DB_PASSWORD"
@@ -432,7 +435,7 @@ chmod 600 support-pro/.env
 # Caddy uses TCP 80/443 and HTTP/3 uses UDP 443. All application services remain internal.
 # The answers the later stages need, for a run that has to continue after a failure (removed when the install is done).
 ( umask 077
-  for name in ADMIN_DOMAIN ADMIN_EMAIL ADMIN_PASSWORD API_DOMAIN APP_DOMAIN AUTO_UPDATE CABINET_DOMAIN GENERATED_ADMIN_PASSWORD \
+  for name in ADMIN_DOMAIN ADMIN_EMAIL ADMIN_PASSWORD API_DOMAIN APP_DOMAIN AUTO_UPDATE BACKUP_PASSWORD CABINET_DOMAIN GENERATED_ADMIN_PASSWORD \
               PAYMENT_PROVIDER SUPPORT_PRO_ADMIN_PASSWORD SUPPORT_PRO_DOMAIN YANDEX_CLIENT_ID YANDEX_CLIENT_SECRET; do
     printf '%s=%q\n' "$name" "${!name-}"
   done > "$RESUME_FILE" )
@@ -613,6 +616,8 @@ else
   echo "Admin password: введён вами при установке."
 fi
 echo
+echo "Пароль резервных копий (каждый час): ${BACKUP_PASSWORD}"
+echo "  Сохраните его в менеджере паролей ОТДЕЛЬНО от сервера: без него копию не открыть, восстановить его нельзя."
 echo "Все секреты сохранены в ${ROOT}/.env (chmod 600)."
 echo "2FA выключена по умолчанию. Включите её позже в Admin → Безопасность, если требуется."
 echo "Firewall V40: открыты только SSH, TCP 80/443 и UDP 443. PostgreSQL, Redis и application ports остаются внутренними."

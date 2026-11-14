@@ -377,6 +377,8 @@ class Settings(BaseSettings):
     backups_dir: str = Field(default="/data/backups", alias="BACKUPS_DIR")
     project_dir: str = Field(default="/project", alias="PROJECT_DIR")
     backup_s3_prefix: str = Field(default="vpn-shop", alias="BACKUP_S3_PREFIX")
+    # v28.148.0: the installer generates it and shows it once; the panel keeps it (encrypted) as «backup_password».
+    backup_password_env: str = Field(default="", alias="BACKUP_PASSWORD")
 
     # ---------- Yandex ID ----------
     yandex_client_id: str = Field(default="", alias="YANDEX_CLIENT_ID")

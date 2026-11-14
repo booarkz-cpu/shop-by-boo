@@ -193,3 +193,25 @@ def test_a_drifting_server_clock_is_reported():
     behind = format_datetime((datetime.utcnow() - timedelta(minutes=10)).replace(tzinfo=tz.utc), usegmt=True)
     assert 590 <= ops_alerts.clock_drift(lambda: behind) <= 610
     assert ops_alerts.clock_drift(lambda: "not a date") is None
+
+
+@pytest.mark.asyncio
+async def test_hourly_backups_by_default_and_the_installers_password(database, monkeypatch):
+    """v28.148.0 (owner's decision of 2026-11-14): an installation backs up every hour from the start. The password the
+    installer generated (BACKUP_PASSWORD) becomes the panel's once; without any password nothing fails every minute —
+    one alert says what to do."""
+    from app import backups_api
+    from app.backups_api import setting_value
+
+    assert backups_api.DEFAULT_SCHEDULE == "1h" and backups_api.DEFAULT_RETENTION == "48"
+    assert backups_api.BackupConfigIn().schedule == "1h" and backups_api.BackupConfigIn().retention == 48
+    monkeypatch.setattr(settings, "backup_password_env", "")
+    assert await backups_api.backup_blocked(database) == "password"
+    found = {p.key: p for p in await ops_alerts.recovery_point_problems(database, datetime.utcnow())}
+    assert list(found) == ["rpo:password"] and "задайте пароль" in found["rpo:password"].detail
+    monkeypatch.setattr(settings, "backup_password_env", "installer-made-0123456789")
+    assert await backups_api.seed_backup_password(database) is True
+    assert await setting_value(database, "backup_password", "") and await backups_api.backup_blocked(database) is None
+    assert await backups_api.seed_backup_password(database) is False          # the panel's password is never replaced
+    keys = [p.key for p in await ops_alerts.recovery_point_problems(database, datetime.utcnow())]
+    assert keys == ["rpo:late"]                                                 # hourly, but no copy yet
