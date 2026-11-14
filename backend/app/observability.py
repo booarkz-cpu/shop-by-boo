@@ -39,6 +39,10 @@ async def operational_metrics(db):
         gauge('vpnshop_subscriptions_active','Current locally active subscriptions, not a remote VPN probe',[('',int(active or 0))]),
         gauge('vpnshop_database_metrics_available','One when this scrape read database metrics',[('',1)]),
     ])
+    # v28.147.0 (REQ-INFRA-0025): latency percentiles, disk, memory, CPU load and the database pool.
+    from .host_metrics import lines as host_lines
+    from .config import settings
+    lines.append(host_lines(getattr(settings, 'media_dir', None)))
     return ''.join(lines)
 
 

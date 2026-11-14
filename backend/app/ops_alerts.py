@@ -201,6 +201,48 @@ async def certificate_check(now: datetime, read=cert_days_left) -> list[Problem]
     return certificate_problems(_CERT_CACHE["days"])
 
 
+# v28.147.0 (REQ-INFRA-0028): the server's clock. Webhook signatures with a time window, TOTP codes, certificates and
+# the schedules all assume the clock is right; a drifting clock breaks them quietly. Compared with the Date header of a
+# well-known HTTPS server every 6 hours (a second's precision is enough: the alert is for a minute and more).
+CLOCK_SOURCE = "https://api.github.com"
+CLOCK_MAX_DRIFT = timedelta(seconds=60)
+_CLOCK_CACHE: dict = {"at": None, "drift": None}
+
+
+def clock_drift(fetch_date=None) -> float | None:
+    """Seconds this server is ahead (+) or behind (−) the source; None when the source did not answer."""
+    import email.utils
+    import urllib.request
+    try:
+        started = datetime.utcnow()
+        if fetch_date is None:
+            with urllib.request.urlopen(urllib.request.Request(CLOCK_SOURCE, method="HEAD"), timeout=5) as response:
+                header = response.headers.get("Date")
+        else:
+            header = fetch_date()
+        remote = email.utils.parsedate_to_datetime(header).replace(tzinfo=None)
+        middle = started + (datetime.utcnow() - started) / 2
+        return round((middle - remote).total_seconds(), 1)
+    except Exception:  # noqa: BLE001 — no answer, no verdict
+        return None
+
+
+def clock_problems(drift: float | None) -> list[Problem]:
+    if drift is None or abs(drift) < CLOCK_MAX_DRIFT.total_seconds():
+        return []
+    side = "спешат" if drift > 0 else "отстают"
+    return [Problem("clock", "Часы сервера идут неверно",
+                    f"Часы {side} на {abs(int(drift))} с. Подписи платёжных уведомлений, коды входа и расписания могут перестать работать. "
+                    "Включите синхронизацию: timedatectl set-ntp true (проверка: timedatectl status).", "critical" if abs(drift) >= 300 else "medium")]
+
+
+async def clock_check(now: datetime, read=None) -> list[Problem]:
+    import asyncio
+    if _CLOCK_CACHE["at"] is None or now - _CLOCK_CACHE["at"] >= CERT_EVERY:
+        _CLOCK_CACHE.update(at=now, drift=await asyncio.to_thread(clock_drift, read))
+    return clock_problems(_CLOCK_CACHE["drift"])
+
+
 async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None) -> list[Problem]:
     now = now or datetime.utcnow()
     day = now - timedelta(days=1)
@@ -245,6 +287,7 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     out += await recovery_point_problems(db, now)
     if settings.app_env == "production":       # test and local stands have no public certificates to ask
         out += await certificate_check(now)
+        out += await clock_check(now)
     backup = await db.scalar(select(BackupJob).order_by(BackupJob.id.desc()).limit(1))
     if backup and backup.status == "failed" and backup.created_at >= day:
         out.append(Problem(f"backup:{backup.id}", "Резервная копия не создана", (backup.error or "ошибка")[:300] + ". Безопасность → Резервные копии."))
