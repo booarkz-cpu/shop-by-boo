@@ -63,6 +63,20 @@ def current_distribution(app_dir: Path) -> str:
     return tag[1:]
 
 
+def min_upgrade_from(app_dir: Path) -> str | None:
+    """``min_upgrade_from`` of the release manifest: the oldest installed distribution this release may update."""
+    path = app_dir / "release-manifest.template.json"
+    try:
+        value = json.loads(path.read_text(encoding="utf-8")).get("min_upgrade_from")
+    except (OSError, ValueError, AttributeError):
+        return None
+    if value is None:
+        return None
+    if not isinstance(value, str) or not re.fullmatch(r"\d+\.\d+\.\d+", value):
+        fail("Некорректное min_upgrade_from в манифесте выпуска")
+    return value
+
+
 def tag_commit(tag: str) -> str:
     payload = fetch_json(f"https://api.github.com/repos/{REPO}/git/ref/tags/{tag}")
     for _ in range(5):
@@ -203,6 +217,12 @@ def main() -> None:
         fail("Некорректная версия дистрибутива в архиве")
     if distribution != latest:
         fail("Версия дистрибутива в архиве не совпадает с тегом релиза")
+    # v28.144.0 (REQ-INFRA-0009): a release may say from which installed version it can be reached in one step
+    # (a migration chain or a data move that older installs lack). An older install is refused before any change.
+    floor = min_upgrade_from(stage)
+    if floor and version_tuple(installed) < version_tuple(floor):
+        fail(f"Выпуск {tag} ставится поверх версии не ниже v{floor}, а установлена v{installed}. "
+             f"Сначала обновитесь до v{floor} (RELEASE_TAG=v{floor}), затем до {tag}.")
     if distribution != extracted:
         manifest_name = zip_name.removesuffix(".zip") + "_manifest.json"
         if assets.get(manifest_name) != f"{DOWNLOAD_PREFIX}{tag}/{manifest_name}":

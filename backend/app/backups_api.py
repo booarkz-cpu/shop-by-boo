@@ -35,10 +35,19 @@ def _backup_path(filename: str) -> pathlib.Path:
         raise shop.HTTPException(400, "Invalid backup path")
     return path
 
+def retention_victims(rows: list, retention: int, verified: set[int]) -> list:
+    """The backups to delete: older than the newest ``retention`` ones (``rows`` newest first) — but never the newest
+    one whose restore check passed (REQ-INFRA-0037): without it a run of unchecked copies could push it out."""
+    keep_verified = next((row.id for row in rows if row.id in verified), None)
+    return [row for row in rows[max(1, retention):] if row.id != keep_verified]
+
+
 async def enforce_backup_retention(db: AsyncSession):
+    from .models import BackupVerification
     retention = int(await shop.setting_value(db, "backup_retention", "7"))
     rows = (await db.execute(shop.select(shop.BackupJob).where(shop.BackupJob.status == "completed").order_by(shop.BackupJob.created_at.desc()))).scalars().all()
-    for old in rows[retention:]:
+    verified = set((await db.execute(shop.select(BackupVerification.backup_id).where(BackupVerification.status == "passed"))).scalars().all())
+    for old in retention_victims(rows, retention, verified):
         if old.filename:
             shop._backup_path(old.filename).unlink(missing_ok=True)
         await db.delete(old)
