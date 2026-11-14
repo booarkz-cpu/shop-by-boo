@@ -3313,5 +3313,140 @@
   "evidence": [],
   "platforms": "all products",
   "note": "artifacts/audit/* не формируются."
+ },
+ "REQ-GOV-0002": {
+  "status": "PASS",
+  "evidence": [
+   "README.md",
+   "docs/OWNER_DECISIONS.md"
+  ],
+  "platforms": "all products",
+  "note": "Один целевой репозиторий shop-by-boo; новые не создаются."
+ },
+ "REQ-GOV-0028": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products",
+  "note": "Все компоненты в shop-by-boo; источники сверены."
+ },
+ "REQ-GOV-0029": {
+  "status": "PASS",
+  "evidence": [
+   "README.md"
+  ],
+  "platforms": "all products",
+  "note": "Репозиторий называется shop-by-boo."
+ },
+ "REQ-GOV-0009": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/audit/requirements_register.py"
+  ],
+  "platforms": "all products",
+  "note": "Статусы реестра: PASS, PARTIAL, FAIL, NOT_IMPLEMENTED, BLOCKED_EXTERNAL, BLOCKED_SECRETS, SOURCE_UNAVAILABLE, NOT_APPLICABLE, NOT_TESTED, RETIRED_BY_OWNER."
+ },
+ "REQ-GOV-0010": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/audit/requirements_register.py",
+   "tests/test_requirements_register.py"
+  ],
+  "platforms": "all products",
+  "note": "--check отклоняет PASS/PARTIAL без доказательств и доказательство-путь, которого нет."
+ },
+ "REQ-GOV-0089": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/audit/requirements_register.py"
+  ],
+  "platforms": "all products",
+  "note": "Статус SOURCE_UNAVAILABLE есть в реестре."
+ },
+ "REQ-GOV-0014": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTOMATION_LOG.md"
+  ],
+  "platforms": "all products",
+  "note": "Каждая задача записана в журнал автоматизации: задача, что сделано, чем проверено."
+ },
+ "REQ-GOV-0030": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products",
+  "note": "Функции remnawave-manager сопоставлены с магазином, недостающее перенесено; lucy-vpn-android закрыт решением владельца № 16."
+ },
+ "REQ-GOV-0049": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   "docs/RELEASE_PROCESS.md"
+  ],
+  "platforms": "all products",
+  "note": "CI на каждый PR, выпуск после зелёного CI и Docker на main."
+ },
+ "REQ-GOV-0079": {
+  "status": "PASS",
+  "evidence": [
+   "docs/RELEASE_PROCESS.md",
+   ".github/workflows/ci.yml"
+  ],
+  "platforms": "all products",
+  "note": "PR → полностью зелёный CI (CI gate) → squash merge; защита ветки не обходится."
+ },
+ "REQ-GOV-0081": {
+  "status": "PASS",
+  "evidence": [
+   "docs/AUTOMATION_LOG.md",
+   "docs/ru/RELEASE_V28_151_0.md"
+  ],
+  "platforms": "all products",
+  "note": "Отчёты, заметки к выпускам и журнал — на русском."
+ },
+ "REQ-GOV-0020": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md"
+  ],
+  "platforms": "all products",
+  "note": "Структура по промпту — этапы 1–3 перенесены (клиент, мобильные приложения, веб-панель, кабинет, Mini App); этапы 4–5 (infrastructure/, services/) впереди."
+ },
+ "REQ-GOV-0076": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   ".github/workflows/ci.yml"
+  ],
+  "platforms": "all products",
+  "note": "Один репозиторий с отдельными сборками каждого приложения; backend ещё один сервис с модулями."
+ },
+ "REQ-GOV-0006": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/PROJECT_BALANCED_DEVELOPMENT.md, PROJECT_WORKLOAD_MATRIX.md, PROJECT_COMPLETION_MATRIX.md ещё нет."
+ },
+ "REQ-GOV-0007": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md ещё нет."
+ },
+ "REQ-GOV-0015": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "Финальные отчёты пишутся в конце работ."
+ },
+ "REQ-GOV-0088": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/SOURCE_TRACEABILITY_MATRIX.md ещё нет."
  }
 }

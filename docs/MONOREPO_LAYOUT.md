@@ -14,9 +14,9 @@
 | `apps/vpn-client/ios` | — (клиента iOS нет) | — | не создаётся: пустой модуль |
 | `apps/vpn-shop/android`, `apps/vpn-shop/ios` | бывш. `mobile/android-user`; `mobile/ios-user` | 2а / 2б | Android перенесён в v28.151.0; iOS — следующим выпуском |
 | `apps/lucy-admin/android`, `apps/lucy-admin/ios` | бывш. `mobile/android-admin`; `mobile/ios-admin` | 2а / 2б | Android перенесён в v28.151.0; iOS — следующим выпуском |
-| `apps/lucy-admin/web` | `admin` | 3 | план |
-| `apps/user-cabinet` | `cabinet` | 3 | план |
-| `apps/telegram-mini-app` | `miniapp` | 3 | план |
+| `apps/lucy-admin/web` | бывш. `admin` | 3 | **перенесено в v28.153.0** |
+| `apps/user-cabinet` | бывш. `cabinet` | 3 | **перенесено в v28.153.0** |
+| `apps/telegram-mini-app` | бывш. `miniapp` | 3 | **перенесено в v28.153.0** |
 | `apps/telegram-bot`, `apps/status-page` | модули бэкенда (`backend/app/bot*`, страница статуса) | 5 | вместе с бэкендом |
 | `services/api` и остальные сервисы промпта | `backend` (один FastAPI с модулями: `auth*`, `payment*`, `subscription*`, `remnawave*`, `rw_*`, `autoselect*`, `masque*`, `notifications*`) | 5 | один сервис; модули перечисляются в карте, а не дробятся на пустые папки |
 | `services/support` | `support-pro` | 5 | план |

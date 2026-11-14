@@ -11,19 +11,19 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **165** — 25.3%.
+- Подтверждено (`PASS`): **176** — 27.0%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 165 | Проверено, доказательство указано |
-| `PARTIAL` | 183 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 31 | Функции нет |
+| `PASS` | 176 | Проверено, доказательство указано |
+| `PARTIAL` | 185 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 35 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 273 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 256 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Правила работы и приёмка | 123 | 1 | 3 | 0 | 119 |
+| Правила работы и приёмка | 123 | 12 | 5 | 0 | 102 |
 | Монорепозиторий и перенос | 28 | 9 | 2 | 0 | 17 |
 | «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
 | Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
@@ -53,9 +53,12 @@
 
 > Полный мастер-промпт Claude AI. Все задачи, требования и критерии сохраняются. Разрешено добавлять и объединять дубли только без потери уникальных требований.
 
-### REQ-GOV-0002 — `NOT_TESTED`
+### REQ-GOV-0002 — `PASS`
 
 - Источник: Часть I → Critical Rule (строка 21). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `README.md`; `docs/OWNER_DECISIONS.md`.
+- Примечание: Один целевой репозиторий shop-by-boo; новые не создаются.
 
 > Единственный целевой репозиторий всей экосистемы — shop-by-boo. Название не менять. Не создавать отдельные целевые репозитории для приложений, сервисов, API, мобильных клиентов, админки, платежей, инфраструктуры, документации или тестов. Всё находится в одном монорепозитории, но сохраняет логические границы, независимые сборки и возможность независимого развёртывания сервисов.
 
@@ -77,17 +80,21 @@
 
 > Все три продукта развиваются параллельно и имеют равную продуктовую значимость. P0–P5 обозначают только техническую срочность, риски и зависимости, не ценность продукта.
 
-### REQ-GOV-0006 — `NOT_TESTED`
+### REQ-GOV-0006 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Balanced Development → Documents (строка 855). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет.
+- Примечание: docs/PROJECT_BALANCED_DEVELOPMENT.md, PROJECT_WORKLOAD_MATRIX.md, PROJECT_COMPLETION_MATRIX.md ещё нет.
 
 > docs/PROJECT_BALANCED_DEVELOPMENT.md; docs/PROJECT_WORKLOAD_MATRIX.md; docs/PROJECT_COMPLETION_MATRIX.md.
 
-### REQ-GOV-0007 — `NOT_TESTED`
+### REQ-GOV-0007 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Acceptance Checklist → File (строка 862). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет.
+- Примечание: docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md ещё нет.
 
 > docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md
 
@@ -97,15 +104,21 @@
 
 > Уникальный ID; исходная формулировка; описание; критерии; зависимости; статус; ссылка на код; тест; доказательство; дата; версия.
 
-### REQ-GOV-0009 — `NOT_TESTED`
+### REQ-GOV-0009 — `PASS`
 
 - Источник: Часть I → Acceptance Checklist → Statuses (строка 870). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/requirements_register.py`.
+- Примечание: Статусы реестра: PASS, PARTIAL, FAIL, NOT_IMPLEMENTED, BLOCKED_EXTERNAL, BLOCKED_SECRETS, SOURCE_UNAVAILABLE, NOT_APPLICABLE, NOT_TESTED, RETIRED_BY_OWNER.
 
 > PASS; FAIL; PARTIAL; NOT_IMPLEMENTED; BLOCKED_EXTERNAL; NOT_APPLICABLE; NOT_TESTED.
 
-### REQ-GOV-0010 — `NOT_TESTED`
+### REQ-GOV-0010 — `PASS`
 
 - Источник: Часть I → Acceptance Checklist → Rules (строка 874). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/requirements_register.py`; `tests/test_requirements_register.py`.
+- Примечание: --check отклоняет PASS/PARTIAL без доказательств и доказательство-путь, которого нет.
 
 > PASS только с реальным подтверждением; PARTIAL при частичной реализации; BLOCKED_EXTERNAL при внешней блокировке; NOT_TESTED если тест не выполнен; NOT_IMPLEMENTED если функции нет.
 
@@ -128,16 +141,21 @@
 
 > PROMPT_VPN_SHOP_<DATE>_STAGE_<NUMBER>.md
 
-### REQ-GOV-0014 — `NOT_TESTED`
+### REQ-GOV-0014 — `PASS`
 
 - Источник: Часть I → State Tracking → Rule (строка 916). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/AUTOMATION_LOG.md`.
+- Примечание: Каждая задача записана в журнал автоматизации: задача, что сделано, чем проверено.
 
 > Фиксировать каждую задачу и не терять состояние после перезапуска рабочего окружения.
 
-### REQ-GOV-0015 — `NOT_TESTED`
+### REQ-GOV-0015 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Final Reports → Required (строка 923). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `FINAL_ACCEPTANCE.md` — есть (`docs/ru/new/FINAL_ACCEPTANCE.md`); `FINAL_IMPLEMENTATION_REPORT.md` — нет; `FINAL_PROJECT_AUDIT.md` — нет; `FINAL_SECURITY_REPORT.md` — нет; `FINAL_TEST_REPORT.md` — нет.
+- Примечание: Финальные отчёты пишутся в конце работ.
 
 > FINAL_PROJECT_AUDIT.md; FINAL_IMPLEMENTATION_REPORT.md; FINAL_SECURITY_REPORT.md; FINAL_TEST_REPORT.md; FINAL_ACCEPTANCE.md.
 
@@ -167,9 +185,12 @@
 > `n` = `2`
 > Найти все функции; каталогизировать модули; выявить уникальное, дубли и неработающее; матрица требований; список того, что нельзя потерять.
 
-### REQ-GOV-0020 — `NOT_TESTED`
+### REQ-GOV-0020 — `PARTIAL`
 
 - Источник: Часть I → First Execution Sequence → Monorepo architecture (строки 966–968). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`.
+- Примечание: Структура по промпту — этапы 1–3 перенесены (клиент, мобильные приложения, веб-панель, кабинет, Mini App); этапы 4–5 (infrastructure/, services/) впереди.
 
 > `n` = `3`
 > Сохранить имя shop-by-boo; подготовить структуру; границы трёх продуктов; общие библиотеки; API; БД; контракты; независимые сборки; план миграции и проверки сохранности.
@@ -223,21 +244,30 @@
 > `n` = `10`
 > Обновить README, Wiki, документацию и отчёты. Подготовить релиз; публиковать только после проверки и в пределах прав.
 
-### REQ-GOV-0028 — `NOT_TESTED`
+### REQ-GOV-0028 — `PASS`
 
 - Источник: Часть I → Acceptance Criteria → Criterion (строка 1010). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `docs/MIGRATION_MAPPING.md`.
+- Примечание: Все компоненты в shop-by-boo; источники сверены.
 
 > Все целевые компоненты в одном shop-by-boo.
 
-### REQ-GOV-0029 — `NOT_TESTED`
+### REQ-GOV-0029 — `PASS`
 
 - Источник: Часть I → Acceptance Criteria → Criterion (строка 1014). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `README.md`.
+- Примечание: Репозиторий называется shop-by-boo.
 
 > Название репозитория не изменено.
 
-### REQ-GOV-0030 — `NOT_TESTED`
+### REQ-GOV-0030 — `PASS`
 
 - Источник: Часть I → Acceptance Criteria → Criterion (строка 1018). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: Функции remnawave-manager сопоставлены с магазином, недостающее перенесено; lucy-vpn-android закрыт решением владельца № 16.
 
 > Уникальные функции исходных проектов сохранены или обоснованно отмечены как несовместимые/непереносимые.
 
@@ -351,9 +381,12 @@
 
 > Acceptance Checklist содержит доказательства.
 
-### REQ-GOV-0049 — `NOT_TESTED`
+### REQ-GOV-0049 — `PASS`
 
 - Источник: Часть I → Acceptance Criteria → Criterion (строка 1094). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/ci.yml`; `docs/RELEASE_PROCESS.md`.
+- Примечание: CI на каждый PR, выпуск после зелёного CI и Docker на main.
 
 > CI/CD работает.
 
@@ -516,9 +549,12 @@
 
 > - Все три продукта равноправны по ценности.
 
-### REQ-GOV-0076 — `NOT_TESTED`
+### REQ-GOV-0076 — `PARTIAL`
 
 - Источник: Часть II → II.7. Обязательные проектные принципы (строка 1619). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `.github/workflows/ci.yml`.
+- Примечание: Один репозиторий с отдельными сборками каждого приложения; backend ещё один сервис с модулями.
 
 > - Один целевой монорепозиторий `shop-by-boo`, но чёткое разделение бизнес-доменов и независимые сборки/развёртывания.
 
@@ -534,9 +570,12 @@
 
 > - Весь доступный аудит/тестирование выполнять автономно, не просить пользователя запускать то, что можно сделать самому.
 
-### REQ-GOV-0079 — `NOT_TESTED`
+### REQ-GOV-0079 — `PASS`
 
 - Источник: Часть II → II.7. Обязательные проектные принципы (строка 1622). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/RELEASE_PROCESS.md`; `.github/workflows/ci.yml`.
+- Примечание: PR → полностью зелёный CI (CI gate) → squash merge; защита ветки не обходится.
 
 > - PR → зелёный CI → review → squash merge, если политика репозитория это допускает; не обходить защиту.
 
@@ -546,9 +585,12 @@
 
 > - Не использовать mocks для выдачи ложного статуса готовности; тестовые mocks допустимы только как явно обозначенные тестовые двойники.
 
-### REQ-GOV-0081 — `NOT_TESTED`
+### REQ-GOV-0081 — `PASS`
 
 - Источник: Часть II → II.7. Обязательные проектные принципы (строка 1624). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/AUTOMATION_LOG.md`; `docs/ru/RELEASE_V28_151_0.md`.
+- Примечание: Отчёты, заметки к выпускам и журнал — на русском.
 
 > - Все отчёты пользователю — на русском.
 
@@ -600,16 +642,21 @@
 
 > 5. Вести `docs/REQUIREMENTS_CHANGELOG.md`. Запрещено физически удалять требования из реестра. Отменённые требования помечать `RETIRED_BY_OWNER` с причиной и ссылкой на решение владельца.
 
-### REQ-GOV-0088 — `NOT_TESTED`
+### REQ-GOV-0088 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 23. Протокол сохранения требований и управления изменениями (строка 2120). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SOURCE_TRACEABILITY_MATRIX.md` — нет.
+- Примечание: docs/SOURCE_TRACEABILITY_MATRIX.md ещё нет.
 
 > 6. Вести `docs/SOURCE_TRACEABILITY_MATRIX.md`: источник → требования → код → тесты → evidence → релиз.
 
-### REQ-GOV-0089 — `NOT_TESTED`
+### REQ-GOV-0089 — `PASS`
 
 - Источник: Часть IV → 23. Протокол сохранения требований и управления изменениями (строка 2121). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/requirements_register.py`.
+- Примечание: Статус SOURCE_UNAVAILABLE есть в реестре.
 
 > 7. При недоступной истории/изображении/репозитории фиксировать `SOURCE_UNAVAILABLE`, а не восстанавливать точный текст догадкой. Продолжать работу по доступным задачам.
 
@@ -1254,14 +1301,14 @@
 ### REQ-SHOP-0003 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Max (строка 159). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > `devices` = `2`; `traffic` = `unlimited`
 
 ### REQ-SHOP-0004 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Ultra (строки 162–164). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > `devices` = `4`; `traffic` = `unlimited`
 > Визуально и коммерчески выгоднее Lucy Max.
@@ -1269,7 +1316,7 @@
 ### REQ-SHOP-0005 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Mini — Test (строки 167–169). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > `duration` = `3 days`; `devices` = `1`
 > Для тестирования сервиса.
@@ -1277,7 +1324,7 @@
 ### REQ-SHOP-0006 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Rule (строка 173). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `admin/src/lucy-plans.tsx`; `docs/BRAND_COPY.md`.
+- Доказательство: `backend/app/lucy_plans.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`; `docs/BRAND_COPY.md`.
 - Примечание: Цены задаёт только владелец в панели; код и тексты цен не содержат и не меняют.
 
 > Не менять цены и коммерческие условия без обоснования и разрешения.
@@ -1462,7 +1509,7 @@
 ### REQ-SHOP-0030 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2221). Продукт: Магазин.
-- Доказательство: `tests/test_behaviour_auth.py`; `tests/test_account_sync.py`; `cabinet/src/stickers.tsx`.
+- Доказательство: `tests/test_behaviour_auth.py`; `tests/test_account_sync.py`; `apps/user-cabinet/src/stickers.tsx`.
 - Примечание: Повторный вход, несколько устройств и экран после оплаты покрыты. Закрытие и повторное открытие Mini App на телефоне не проверены.
 
 > - Корректно обрабатывать повторный вход, несколько устройств, закрытие Mini App и возврат после оплаты.
@@ -1470,7 +1517,7 @@
 ### REQ-SHOP-0031 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2222). Продукт: Магазин.
-- Доказательство: `backend/app/bot_texts.py`; `cabinet/src/i18n.tsx`; `tests/test_bot_texts.py`; `tests/test_critical_startup_and_i18n.py`; `packages/localization/user.json`.
+- Доказательство: `backend/app/bot_texts.py`; `apps/user-cabinet/src/i18n.tsx`; `tests/test_bot_texts.py`; `tests/test_critical_startup_and_i18n.py`; `packages/localization/user.json`.
 - Примечание: Бот, кабинет и приложения имеют русский, английский и украинский языки. Проверки, что переведена каждая строка каждого интерфейса, нет.
 
 > - Все тексты и кнопки локализовать RU/EN/UK.
@@ -1505,21 +1552,21 @@
 ### REQ-BRAND-0003 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Max (строка 1231). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > Lucy Max: 2 устройства, безлимитный трафик.
 
 ### REQ-BRAND-0004 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Ultra (строка 1235). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > Lucy Ultra: 4 устройства, безлимитный трафик; показать очевидную выгоду относительно Max без изменения цены/условий без разрешения.
 
 ### REQ-BRAND-0005 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Mini (строка 1239). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > Lucy Mini — Test: 3 дня, 1 устройство, тестовый тариф.
 
@@ -1542,7 +1589,7 @@
 ### REQ-BRAND-0008 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Maintenance Message (строка 1252). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `cabinet/src/stickers.tsx`; `backend/app/brand_copy.py`.
+- Доказательство: `docs/BRAND_COPY.md`; `apps/user-cabinet/src/stickers.tsx`; `backend/app/brand_copy.py`.
 - Примечание: Кабинет показывает текст бренда на экране технических работ, ответ API 503 несёт его на трёх языках (v28.132.0). Бот отдельного сообщения о технических работах не показывает; переменной .env для текста нет.
 
 > Подготовить короткое уведомление о технических работах в фирменном стиле Lucy для .env/бота/кабинета.
@@ -1604,7 +1651,7 @@
 ### REQ-BRAND-0016 — `PASS`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1599). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > - Lucy Max: 2 устройства, безлимитный трафик; Lucy Ultra: 4 устройства, безлимитный трафик, выгоднее Max; Lucy Mini — Test: 3 дня, 1 устройство.
 
@@ -1652,7 +1699,7 @@
 ### REQ-ADMIN-0002 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Interfaces (строка 189). Продукт: Админка.
-- Доказательство: `admin/src/main.tsx`; `apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift`; `backend/app/security.py`; `tests/test_admin_route_permissions.py`; `backend/app/audit_seal.py`.
+- Доказательство: `apps/lucy-admin/web/src/main.tsx`; `apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift`; `backend/app/security.py`; `tests/test_admin_route_permissions.py`; `backend/app/audit_seal.py`.
 - Примечание: Веб-панель, приложения администратора для Android и iOS работают через один API с ролями и журналом. В приложениях 10 разделов против примерно 100 в веб-панели.
 
 > Web Admin; Android Admin; iOS Admin; единый API; RBAC; аудит.
@@ -1660,7 +1707,7 @@
 ### REQ-ADMIN-0003 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Modules (строка 193). Продукт: Админка.
-- Доказательство: `admin/src/sections.ts`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`; `docs/ru/new/ADMIN_MODULES.md`; `scripts/verify-admin-matrix.py`.
+- Доказательство: `apps/lucy-admin/web/src/sections.ts`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`; `docs/ru/new/ADMIN_MODULES.md`; `scripts/verify-admin-matrix.py`.
 - Примечание: Разделы веб-панели покрывают перечень; построчной сверки каждого названного раздела не было. MASQUE и Hysteria 2 в панели не сверены.
 
 > Dashboard; Users; Roles; Tariffs; Subscriptions; Payments; Payment Providers; Remnawave; VPN Nodes; Node Provisioning; MASQUE; VLESS/REALITY; Hysteria 2; Server Monitoring; Network Monitoring; Telegram Bot; Telegram Mini App; User Cabinet; VPN Client Management; Commercial App Management; Android Builds; iOS Builds; GitHub; CI/CD; Pull Requests; Releases; Docker; Installer; Database; Backup/Restore/Rollback; Updates; Security Center; Audit Logs; API Management; Notifications; Support; Localization; Documentation; System Settings; Automation Center; Autonomous Audit; Checklist Dashboard; Screenshot Coverage; Admin Feature Parity; Payment Testing; Protocol Compatibility; Infrastructure Diagnostics; Node Installation and Maintenance; Auto-selection Management; Subscription Status Page; Server Protection; Dangerous Operations; Repair and Recovery; Migration Tools.
@@ -1683,7 +1730,7 @@
 ### REQ-ADMIN-0006 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Rule (строка 205). Продукт: Админка.
-- Доказательство: `scripts/verify-admin-matrix.py`; `docs/ru/new/ADMIN_VERIFICATION.md`; `tests/test_admin_center.py`; `admin/e2e/torrent-ban.spec.ts`.
+- Доказательство: `scripts/verify-admin-matrix.py`; `docs/ru/new/ADMIN_VERIFICATION.md`; `tests/test_admin_center.py`; `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`.
 - Примечание: Автоматически проверяется каждый раздел: у него есть маршруты API и тесты. Каждая отдельная кнопка автоматически не проверяется.
 
 > Ни одна кнопка не должна быть декоративной или фиктивной.
@@ -1721,7 +1768,7 @@
 ### REQ-ADMIN-0011 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2233). Продукт: Админка.
-- Доказательство: `backend/app/models.py`; `backend/app/main.py`; `backend/app/admin_api.py`; `admin/src/control-center.tsx`.
+- Доказательство: `backend/app/models.py`; `backend/app/main.py`; `backend/app/admin_api.py`; `apps/lucy-admin/web/src/control-center.tsx`.
 - Примечание: В записи есть администратор, действие, объект, время, идентификатор запроса и подробности без секретов. Отдельного поля результата и единого формата «было — стало» нет.
 
 > - Audit log должен содержать actor, action, resource, timestamp, result, correlation ID и безопасный diff без секретов.
@@ -1729,7 +1776,7 @@
 ### REQ-ADMIN-0012 — `PASS`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2234). Продукт: Админка.
-- Доказательство: `backend/app/audit_seal.py`; `tests/test_audit_seal.py`; `admin/e2e/audit-seal.spec.ts`; `docs/AUDIT_LOG_INTEGRITY.md`; `backend/app/admin_api.py`.
+- Доказательство: `backend/app/audit_seal.py`; `tests/test_audit_seal.py`; `apps/lucy-admin/web/e2e/audit-seal.spec.ts`; `docs/AUDIT_LOG_INTEGRITY.md`; `backend/app/admin_api.py`.
 - Примечание: Записи запечатываются каждые десять минут подписью с секретом сервера; изменённая или удалённая запись находится проверкой. Пределы защиты описаны в документе.
 
 > - Логи аудита должны быть защищены от незаметного изменения и доступны для расследования.
@@ -1737,7 +1784,7 @@
 ### REQ-ADMIN-0013 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.2. Административные списки и операции (строка 2238). Продукт: Админка.
-- Доказательство: `backend/app/admin_api.py`; `admin/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
+- Доказательство: `backend/app/admin_api.py`; `apps/lucy-admin/web/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
 - Примечание: Поиск, фильтры и серверная постраничная выдача есть в основных таблицах. Сохранённых представлений и предпросмотра массовых действий во всех таблицах нет; построчной сверки семи таблиц не было.
 
 > Для таблиц Users, Nodes, Payments, Subscriptions, Orders, Tickets и Audit Logs реализовать поиск, фильтры, сортировку, пагинацию, сохранённые представления, экспорт с RBAC, bulk actions с preview, подтверждением и журналом. Обеспечить серверную пагинацию и устойчивость к большим наборам данных.
@@ -1745,7 +1792,7 @@
 ### REQ-ADMIN-0014 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.3. Dashboard и мониторинг (строка 2242). Продукт: Админка.
-- Доказательство: `admin/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
+- Доказательство: `apps/lucy-admin/web/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
 - Примечание: Показатели берутся из базы и панели. Источник, период и время обновления подписаны не у каждого показателя; сверки по списку не было.
 
 > Показывать только реальные метрики с указанием источника, периода и времени последнего обновления: revenue, paid orders, conversion, active/expired subscriptions, churn, node health, latency, traffic, service health, payment provider health, queue lag, failed jobs, webhook failures и incidents. Не подменять отсутствующие данные нулями или фиктивными графиками.
@@ -1753,7 +1800,7 @@
 ### REQ-ADMIN-0015 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2246). Продукт: Админка.
-- Доказательство: `admin/src/control-center.tsx`; `backend/app/ecosystem_updates.py`; `admin/src/ecosystem-updates.tsx`; `backend/app/ops_alerts.py`.
+- Доказательство: `apps/lucy-admin/web/src/control-center.tsx`; `backend/app/ecosystem_updates.py`; `apps/lucy-admin/web/src/ecosystem-updates.tsx`; `backend/app/ops_alerts.py`.
 - Примечание: «Центр управления» и «Готовность» сводят сервисы, ноды, платежи, копии; обновления сведены отдельной таблицей. Состояния мобильных сборок и CI на одном экране нет.
 
 > - Объединить статус сервисов, нод, интеграций, платежей, бота, Mini App, кабинета, мобильных сборок, backup jobs и CI/CD.
@@ -1783,7 +1830,7 @@
 ### REQ-ADMIN-0019 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2250). Продукт: Админка.
-- Доказательство: `admin/e2e/torrent-ban.spec.ts`; `admin/e2e/protocol-switch.spec.ts`; `admin/e2e/autoselect.spec.ts`; `admin/e2e/rw-drift.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `apps/lucy-admin/web/e2e/rw-drift.spec.ts`.
 - Примечание: В проверенных разделах экран меняется только после ответа сервера. По всем разделам это не проверено.
 
 > - UI не должен утверждать, что операция выполнена, пока backend не вернул подтверждённый результат.
@@ -2178,7 +2225,7 @@
 ### REQ-RW-0007 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2282). Продукт: Все три.
-- Доказательство: `backend/app/rw_drift.py`; `tests/test_rw_drift.py`; `admin/e2e/rw-drift.spec.ts`; `docs/RW_DRIFT.md`; `backend/app/rw_torrent_ban.py`.
+- Доказательство: `backend/app/rw_drift.py`; `tests/test_rw_drift.py`; `apps/lucy-admin/web/e2e/rw-drift.spec.ts`; `docs/RW_DRIFT.md`; `backend/app/rw_torrent_ban.py`.
 - Примечание: Магазин хранит время последней сверки и последней сверки без расхождений и выявляет расхождения с панелью для пула автовыбора и бана за торренты (по кнопке и каждые шесть часов). Подписки, профили и хосты вне пула не сверяются.
 
 > - Сохранять состояние последней успешной синхронизации и выявлять drift.
@@ -2202,7 +2249,7 @@
 ### REQ-RW-0010 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2285). Продукт: Все три.
-- Доказательство: `admin/src/torrent-ban.tsx`; `admin/src/protocol-switch.tsx`; `admin/src/autoselect.tsx`; `admin/e2e/torrent-ban.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/src/torrent-ban.tsx`; `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`.
 - Примечание: Разделы показывают выбранные ноды и что изменится; зависимые сервисы и оценка влияния не выводятся.
 
 > - Для bulk actions выводить список целевых узлов, итоговые изменения, зависимые сервисы и оценку влияния.
@@ -2260,7 +2307,7 @@
 ### REQ-MASQUE-0001 — `PASS`
 
 - Источник: Часть I → Masque → Goal (строка 401). Продукт: Все три.
-- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `admin/e2e/masque-panel.spec.ts`.
+- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `apps/lucy-admin/web/e2e/masque-panel.spec.ts`.
 - Примечание: Установка одной кнопкой: сертификат, контейнеры, порт, пользователи; дальше доступ сам следует за подписками. Проверено в CI на настоящих Caddy, Xray и HAProxy.
 
 > Максимально автоматизированный Zero-Touch Provisioning MASQUE.
@@ -2308,7 +2355,7 @@
 ### REQ-MASQUE-0007 — `PARTIAL`
 
 - Источник: Часть I → Masque → Subscriptions (строка 425). Продукт: Все три.
-- Доказательство: `backend/app/masque_panel.py`; `backend/app/rw_masque.py`; `tests/test_masque_panel.py`; `docs/MASQUE_PANEL.md`; `cabinet/src/masque.tsx`; `cabinet/src/masque.test.tsx`.
+- Доказательство: `backend/app/masque_panel.py`; `backend/app/rw_masque.py`; `tests/test_masque_panel.py`; `docs/MASQUE_PANEL.md`; `apps/user-cabinet/src/masque.tsx`; `apps/user-cabinet/src/masque.test.tsx`.
 - Примечание: MASQUE выдаётся своей подпиской в формате JSON и не затрагивает подписку Remnawave; покупатель видит ссылку в кабинете и Mini App и может её перевыпустить. Ссылок для v2rayNG и NekoBox нет; на клиентах не проверено.
 
 > VLESS Reality; Hysteria 2; MASQUE; JSON/Base64 bundle; v2rayNG; NekoBox. Неподдерживаемый MASQUE не должен ломать остальные конфигурации.
@@ -2316,7 +2363,7 @@
 ### REQ-MASQUE-0008 — `PARTIAL`
 
 - Источник: Часть I → Masque → Admin Ui (строка 429). Продукт: Все три.
-- Доказательство: `admin/src/masque-panel.tsx`; `admin/e2e/masque-panel.spec.ts`; `admin/src/masque.tsx`; `backend/app/masque_panel.py`.
+- Доказательство: `apps/lucy-admin/web/src/masque-panel.tsx`; `apps/lucy-admin/web/e2e/masque-panel.spec.ts`; `apps/lucy-admin/web/src/masque.tsx`; `backend/app/masque_panel.py`.
 - Примечание: Есть переключатель выдачи, выбор тарифов, установка с выбором защит, изменение защит, удаление, проверка совместимости и маскировки, состояние ноды, понятные причины отказа. Пошагового прогресса установки нет: кнопка ждёт результата.
 
 > Переключатели MASQUE; проверка совместимости; скрытие дублирующих настроек; fallback domain; мониторинг установки; прогресс; диагностика.
@@ -2373,7 +2420,7 @@
 
 - Источник: Часть I → Server Installation Maintenance → Rule (строка 463). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: Каталог «Установка» восстановлен и проверен тестами и сценарием в браузере. Нет: AdGuard Home, каскада HAProxy, временного бана IP за торренты. CrowdSec — частично.
 
 > Восстановить и полноценно реализовать функциональность «Установка» и «Обслуживание и защита», показанную на скриншотах. Скриншоты — требования, не доказательство реализации. Проверить исходный код; отсутствующее реализовать; существующее проверить.
@@ -2452,7 +2499,7 @@
 
 - Источник: Часть I → Server Installation Maintenance → Torrent Blocker (строка 507). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `admin/e2e/torrent-ban.spec.ts`; `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
+- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`; `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
 - Примечание: Временный бан адреса с автоматическим снятием включается одной кнопкой в «Торренты на узлах»: это плагин Torrent Blocker ноды (nftables), срок, список исключений, выбор нод, журнал блокировок. Счётчики, уведомления и учёт нарушений есть. На настоящей ноде блокировка и её снятие не проверены: нет VPS.
 
 > Обнаружение BitTorrent в логах Xray; временный бан IP; nftables/iptables; правила; журнал; автоматическое снятие; диагностика; предупреждение о влиянии на общие ноды; до перезапуска Xray показать последствия.
@@ -2512,7 +2559,7 @@
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Remove Component (строка 541). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: Удаляются по одному: панель (после копии её базы), страница подписки, Caddy, нода, сайт SelfSteal, Xray Checker; MTProto — выключением модуля. Бот и статус-страница — части магазина, а не сервера ноды, отдельной операции для них здесь нет.
 
 > Удалять только выбранный компонент: бот, ноду, status page, MTProto или другой модуль. Не затрагивать остальные сервисы.
@@ -2521,7 +2568,7 @@
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Clean Server (строка 545). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены.
 
 > Полное удаление Remnawave, нод, контейнеров, конфигураций и связанных компонентов. Необратимая операция: повторное подтверждение; точный сервер; список ресурсов; проверка backup; журнал; проверка полномочий.
@@ -2538,14 +2585,14 @@
 
 - Источник: Часть I → Server Installation Maintenance → Protocol Switch Repair (строка 554). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 > Последовательные этапы: чтение текущего транспорта; смена протокола inbound; обновление hosts; проверка реконнекта нод. Каждый этап показывает состояние, индикатор, журнал, ошибку, результат, время, диагностику. Определить inbound/profile; обновить и применить; обновить hosts; дождаться реконнекта; проверить все ноды; сохранить старый и новый транспорт. Не объявлять успех до проверок.
 
 ### REQ-NODE-0026 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Node Reconnect (строка 558). Продукт: Все три.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `docs/PROTOCOL_SWITCH.md`.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`; `docs/PROTOCOL_SWITCH.md`.
 - Примечание: Таблица нод после смены протокола есть: номер, страна, имя, состояние, транспорт, время, причина, итог. Проверяется подключение ноды к панели с новым профилем, а не трафик клиента через ноду. После других массовых операций таблица не показывается.
 
 > После смены протокола/массовой операции проверить все ноды: номер; страна; имя; online/offline; транспорт; время; ошибка; итог. Проверять не только SSH, но и реальный VPN-транспорт.
@@ -2642,7 +2689,7 @@
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Remove Component (строка 1338). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: То же, что REQ-NODE-0022.
 
 > Снять с сервера ОДИН компонент (например, бот, ноду, status page, MTProto), не трогая остальные. Ясно объяснить, что это не полная очистка сервера.
@@ -2651,7 +2698,7 @@
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Clean Server (строка 1342). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: То же, что REQ-NODE-0023.
 
 > Полностью удалить Remnawave, ноду, контейнеры и конфигурации. Необратимо. Требовать точный выбор сервера, перечень удаляемых ресурсов, проверку backup и повторное подтверждение.
@@ -2666,7 +2713,7 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Title (строка 1356). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 > Починка блока: смена протокола
 
@@ -2713,7 +2760,7 @@
 ### REQ-NODE-0048 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage Detail (строка 1383). Продукт: Все три.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`.
 - Примечание: Все шаги есть. Итоговый транспорт в таблице — тот, что записан в профиль; фактический транспорт на самой ноде не измеряется. На настоящей панели не проверено: O1.
 
 > Показать текущий профиль и inbound; прочитать фактический транспорт; обновить профиль Remnawave; инициировать корректное применение/перегенерацию конфигурации; обновить hosts; дождаться переподключения; проверить каждую ноду и итоговый транспорт.
@@ -2722,7 +2769,7 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Progress Ui (строка 1387). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 > Общий статус; зелёные/ошибочные этапы; раскрываемый лог каждого этапа; временные метки; прогресс; ссылка «К списку»; возможность безопасного просмотра деталей.
 
@@ -2738,7 +2785,7 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Observed Result Example (строка 1395). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`.
 
 > В одном из показанных тестов обновился один hosts entry, а проверка сообщила об online-статусе 11 из 18 нод; это не считать универсальной нормой. Всегда показывать фактическое количество проверенных, online и offline нод.
 
@@ -2746,7 +2793,7 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Node Reconnect Matrix (строка 1400). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 > Отображать порядковый номер; страну; название ноды; статус online/offline; транспорт; причину ошибки; время проверки. Проверять все ноды, а не только первые несколько.
 
@@ -2856,7 +2903,7 @@
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1584). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `admin/e2e/torrent-ban.spec.ts`; `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
+- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`; `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
 - Примечание: То же, что REQ-NODE-0014.
 
 > - временная блокировка torrent IP через nftables/iptables;
@@ -2874,7 +2921,7 @@
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1586). Продукт: Все три.
 - Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 
 > - безопасное удаление отдельного компонента и отдельный сценарий полной очистки сервера;
 
@@ -2890,7 +2937,7 @@
 ### REQ-AUTO-0001 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Purpose (строка 569). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `docs/AUTO_SELECTION.md`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `docs/AUTO_SELECTION.md`.
 - Примечание: Проверено на модели панели. На настоящей панели Remnawave и в приложениях клиентов не проверено: нужен VPS (O1).
 
 > Полноценный пул автовыбора VPN-ноды.
@@ -2913,7 +2960,7 @@
 
 - Источник: Часть I → Auto Selection → Modes → Rule (строка 583). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `docs/AUTO_SELECTION.md`; `admin/src/autoselect.tsx`.
+- Доказательство: `docs/AUTO_SELECTION.md`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > Не смешивать серверный и клиентский автовыбор.
 
@@ -2975,7 +3022,7 @@
 ### REQ-AUTO-0012 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Management (строка 622). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: Есть: включение, обновление, удаление плитки, имя, алгоритм, выбор узлов, «выбрать все» и «снять все», скрытие, состав, доступность. Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при каждом «Обновить пул».
 
 > Включение; отключение; обновление; сброс шаблона; удаление плитки; имя; алгоритм; выбор нод; массовое включение/исключение; скрытие; состав; доступность.
@@ -2983,7 +3030,7 @@
 ### REQ-AUTO-0013 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Hide Nodes (строка 626). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: Скрытие и возврат узлов проверены на модели панели; ограничение форматов показано на странице. Поведение в настоящих клиентах Clash, sing-box и Base64 не проверено: нужен VPS (O1).
 
 > Опция «Скрыть узлы пула из списка приложения»: при включении клиент видит только плитку «Автовыбор»; при выключении узлы возвращаются после обновления подписки. Проверить Clash, sing-box, Base64 и другие клиенты. Если формат не поддерживает настоящий балансировщик, показать ограничение; не выдавать первую ноду за балансировщик.
@@ -2992,7 +3039,7 @@
 
 - Источник: Часть I → Auto Selection → Statistics (строка 630). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > Количество нод в подписке и пуле; доступные; выдаваемые; online/offline; исключённые; последняя проверка; актуальность метрик. Только реальные данные.
 
@@ -3000,7 +3047,7 @@
 
 - Источник: Часть I → Auto Selection → Tile (строка 634). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > Имя; иконка; алгоритм; ноды; видимость; состояние; отображение клиенту. Пример: ⚡ Автовыбор.
 
@@ -3015,7 +3062,7 @@
 ### REQ-AUTO-0017 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Tests (строка 642). Продукт: Все три.
-- Доказательство: `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: На модели панели проверены: четыре алгоритма, скрытие и возврат, удаление плитки, смена имени, смена состава, пустой пул, удалённый узел. Изменение задержки и нагрузки, реконнект и разные форматы подписки требуют настоящего клиента Xray: O1.
 
 > Все четыре алгоритма; отключение ноды; изменение нагрузки/задержки; обновление подписки; скрытие/возврат; удаление плитки; изменение имени; отсутствие доступных нод; совместимость форматов; реконнект; fallback.
@@ -3032,14 +3079,14 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Heading (строка 1406). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 
 > Пул автовыбора — «быстрейшая нода клиенту».
 
 ### REQ-AUTO-0020 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Actions (строка 1410). Продукт: Все три.
-- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `backend/app/rw_autoselect.py`.
+- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `backend/app/rw_autoselect.py`.
 - Примечание: Есть «Убрать плитку», «Включить <алгоритм>», «Обновить пул». Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при «Обновить пул».
 
 > Сбросить шаблон; убрать плитку; включить leastPing; обновить пул.
@@ -3047,7 +3094,7 @@
 ### REQ-AUTO-0021 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Metrics (строка 1414). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 - Примечание: Показано «Видны в подписке X/Y» и «В пуле X/Y» из данных панели. Признаков «у ноды есть открытая плитка» и «inbound входит в пул» на странице нет.
 
 > Видны в подписке X/Y; раздаются клиентам X/Y; у ноды есть открытая плитка; inbound входит в пул. Значения брать из реального состояния.
@@ -3063,7 +3110,7 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Algorithm Options (строка 1422). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `backend/app/rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `backend/app/rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 
 > По задержке (leastPing); по нагрузке (leastLoad); по кругу (roundRobin); случайно (random).
 
@@ -3071,14 +3118,14 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Tile Name (строка 1426). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 
 > Настраиваемое имя, пример «⚡ Автовыбор».
 
 ### REQ-AUTO-0025 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Hide Pool Nodes (строка 1430). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: Переключатель есть, скрытие и возврат проверены на модели панели. Возврат узлов у настоящего клиента после обновления подписки не проверен: O1.
 
 > Переключатель скрытия узлов пула из списка приложения. При включении клиенты видят только плитку; при выключении обычные узлы возвращаются после обновления подписки.
@@ -3087,21 +3134,21 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Client Compatibility Warning (строка 1434). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `docs/AUTO_SELECTION.md`.
+- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `docs/AUTO_SELECTION.md`.
 
 > В Clash/sing-box/Base64 и других форматах может отсутствовать поддержка настоящего балансировщика. В таком случае честно объяснить, что плитка может вести на первый узел пула; не заявлять полноценный клиентский балансировщик.
 
 ### REQ-AUTO-0027 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Explanation (строка 1438). Продукт: Все три.
-- Доказательство: `docs/AUTO_SELECTION.md`; `admin/src/autoselect.tsx`.
+- Доказательство: `docs/AUTO_SELECTION.md`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > Панельный автовыбор выбирает ноду на серверной стороне; «Автовыбор в приложении» выбирает клиент. Отдельная плитка означает, что клиент видит одну плитку «Автовыбор» плюс обычные ноды, если скрытие не включено.
 
 ### REQ-AUTO-0028 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Node Table (строка 1442). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 - Примечание: Есть: галочка, страна с флагом, имя, состояние, признак «раздаётся», число клиентов. Задержки и нагрузки по узлам нет: их измеряет приложение клиента, панели они неизвестны. Время проверки одно на всю страницу.
 
 > Чекбокс включения ноды в пул; флаг/страна; имя; статус online; признак «раздаётся»; число пользователей; доступность; задержка/нагрузка; последняя проверка.
@@ -3125,7 +3172,7 @@
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1590). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > - Пул должен показывать число узлов в подписке и пуле, доступные/выдаваемые, online/offline, исключённые, последнюю проверку и актуальность метрик.
 
@@ -3133,7 +3180,7 @@
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1591). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > - Плитка имеет имя, иконку, алгоритм, список узлов, видимость и состояние; пример имени — `⚡ Автовыбор`.
 
@@ -3148,7 +3195,7 @@
 ### REQ-AUTO-0034 — `PARTIAL`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1593). Продукт: Все три.
-- Доказательство: `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: То же, что REQ-AUTO-0017.
 
 > - Проверить все алгоритмы: leastPing, leastLoad, roundRobin, random; отключение узла; изменение метрик; обновление подписки; скрытие/возврат; удаление плитки; переименование; отсутствие доступных узлов; совместимость форматов; reconnect и fallback.
@@ -3157,7 +3204,7 @@
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1594). Продукт: Все три.
 - Платформы: Web, backend/API.
-- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > - Если формат клиента не поддерживает настоящий балансировщик, честно показать ограничение; не выдавать первую ноду за полноценный балансировщик.
 
@@ -3517,7 +3564,7 @@
 ### REQ-UI-0001 — `PARTIAL`
 
 - Источник: Часть I → Ui Ux → Design (строка 679). Продукт: Все три.
-- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `admin/e2e/mobile-layout.spec.ts`; `tests/test_mobile_layout.py`; `admin/e2e/all-sections.spec.ts`.
+- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `apps/lucy-admin/web/e2e/mobile-layout.spec.ts`; `tests/test_mobile_layout.py`; `apps/lucy-admin/web/e2e/all-sections.spec.ts`.
 - Примечание: Единые карточки, статусы, боковое меню и мобильная раскладка есть и проверяются в браузере. Приложения Android собраны на Material 3; веб-панель следует собственной дизайн-системе, а не Material 3. Доступность проверена частично (REQ-UI-0007).
 
 > Material Design/Material 3; адаптивность; понятное боковое меню; современные кнопки; единые карточки; ясные статусы; мобильная совместимость; доступность; светлая/тёмная темы по необходимости.
@@ -3533,7 +3580,7 @@
 ### REQ-UI-0003 — `PARTIAL`
 
 - Источник: Часть I → Ui Ux → Fix (строка 687). Продукт: Все три.
-- Доказательство: `admin/e2e/all-sections.spec.ts`; `scripts/check-runtime-placeholders.py`; `tests/test_error_format.py`.
+- Доказательство: `apps/lucy-admin/web/e2e/all-sections.spec.ts`; `scripts/check-runtime-placeholders.py`; `tests/test_error_format.py`.
 - Примечание: Тест открывает каждый раздел веб-панели и проверяет, что он не пуст; заглушки в коде останавливают CI. Формы, модальные окна и таблицы всех разделов по отдельности не проверялись; мобильные экраны на устройстве не проверены.
 
 > Чёрные страницы; недоступные и пустые разделы; фиктивные кнопки; ошибки форм, модальных окон, таблиц, мобильных экранов и API. Показывать загрузку, успех и понятные ошибки.
@@ -3557,7 +3604,7 @@
 ### REQ-UI-0006 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2367). Продукт: Все три.
-- Доказательство: `tests/test_mobile_layout.py`; `admin/e2e/mobile-layout.spec.ts`.
+- Доказательство: `tests/test_mobile_layout.py`; `apps/lucy-admin/web/e2e/mobile-layout.spec.ts`.
 - Примечание: Обрезание и горизонтальная прокрутка проверяются на узком экране. Множественное число, длинные переводы, часовые пояса и RTL системно не проверялись.
 
 > - Проверять длинные строки, pluralization, даты, валюты, timezone, RTL readiness при необходимости и отсутствие обрезания.
@@ -3565,7 +3612,7 @@
 ### REQ-UI-0007 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2368). Продукт: Все три.
-- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `admin/e2e/masque.spec.ts`.
+- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `apps/lucy-admin/web/e2e/masque.spec.ts`.
 - Примечание: Тесты браузера находят элементы по ролям и подписям, поэтому подписи полей и кнопок обязательны. Контраст, порядок фокуса, экранный диктор и уменьшение движения инструментом не проверялись.
 
 > - Проверять keyboard navigation, focus management, labels, contrast, touch target sizes, screen readers, semantic headings и reduced motion.
@@ -3573,7 +3620,7 @@
 ### REQ-UI-0008 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2369). Продукт: Все три.
-- Доказательство: `admin/e2e/mobile-layout.spec.ts`; `tests/test_mobile_layout.py`.
+- Доказательство: `apps/lucy-admin/web/e2e/mobile-layout.spec.ts`; `tests/test_mobile_layout.py`.
 - Примечание: Раскладка проверяется в браузере на ширине телефона, длинные таблицы прокручиваются внутри блока. Безопасные области и экранная клавиатура на настоящих устройствах не проверены.
 
 > - Проверять responsive layouts на реальных viewport widths, safe areas, virtual keyboard и длинных таблицах.
@@ -3581,7 +3628,7 @@
 ### REQ-UI-0009 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2370). Продукт: Все три.
-- Доказательство: `admin/e2e/masque.spec.ts`; `admin/e2e/plans-editor.spec.ts`; `tests/test_error_format.py`.
+- Доказательство: `apps/lucy-admin/web/e2e/masque.spec.ts`; `apps/lucy-admin/web/e2e/plans-editor.spec.ts`; `tests/test_error_format.py`.
 - Примечание: Серверная проверка и единый формат ошибок есть везде; в новых формах есть проверка в браузере, состояние отправки и сообщение у поля. По каждой форме проекта проверка не проводилась.
 
 > - Для каждой формы проверять client-side и server-side validation, field-level errors, submit loading, duplicate submit и сохранение данных при ошибке.
@@ -3589,7 +3636,7 @@
 ### REQ-UI-0010 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2371). Продукт: Все три.
-- Доказательство: `admin/e2e/protocol-switch.spec.ts`; `admin/e2e/rw-installer.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`; `apps/lucy-admin/web/e2e/rw-installer.spec.ts`.
 - Примечание: Опасные операции с нодами идут с подтверждением, прогрессом, итогом и откатом. Единого правила для каждой операции проекта и его проверки нет.
 
 > - Для каждой операции иметь понятные confirmation, progress, success/failure и recovery states.
@@ -3664,7 +3711,7 @@
 ### REQ-CI-0005 — `PARTIAL`
 
 - Источник: Часть I → Github Cicd → Admin Control (строка 763). Продукт: Все три.
-- Доказательство: `admin/src/autoUpdate.tsx`; `admin/src/ecosystem-updates.tsx`; `backend/app/auto_update_api.py`; `backend/app/ecosystem_updates.py`; `tests/test_auto_update_api.py`.
+- Доказательство: `apps/lucy-admin/web/src/autoUpdate.tsx`; `apps/lucy-admin/web/src/ecosystem-updates.tsx`; `backend/app/auto_update_api.py`; `backend/app/ecosystem_updates.py`; `tests/test_auto_update_api.py`.
 - Примечание: Раздел «Обновления» показывает версии, выпуски, дату и итог последнего запуска, ошибки; откат агент делает сам. Запуска GitHub workflow из панели нет.
 
 > Lucy Admin показывает версии, изменения, проверки, дату, ошибки и rollback; может безопасно инициировать GitHub workflow. Не хранить токены открыто.
@@ -3686,7 +3733,7 @@
 ### REQ-CI-0008 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2410). Продукт: Все три.
-- Доказательство: `backend/requirements.txt`; `admin/package-lock.json`; `cabinet/package-lock.json`; `miniapp/package-lock.json`; `.github/workflows/ci.yml`.
+- Доказательство: `backend/requirements.txt`; `apps/lucy-admin/web/package-lock.json`; `apps/user-cabinet/package-lock.json`; `apps/telegram-mini-app/package-lock.json`; `.github/workflows/ci.yml`.
 
 > - Кэшировать зависимости безопасно и фиксировать lockfiles.
 
@@ -4100,7 +4147,7 @@
 
 - Источник: Часть I → Full Audit → Known Error (строка 233). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `admin/src/main.tsx`.
+- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `apps/lucy-admin/web/src/main.tsx`.
 - Примечание: В панели списки приводятся к массиву функцией list() (отчёт AUD-05). Отдельного теста на этот симптом нет.
 
 > (s || []).map is not a function
@@ -4181,7 +4228,7 @@
 
 - Источник: Часть I → Screenshot Coverage → Tools (строка 832). Продукт: Все три.
 - Платформы: all products.
-- Доказательство: `.github/workflows/ci.yml`; `.github/workflows/android-client.yml`; `admin/e2e`.
+- Доказательство: `.github/workflows/ci.yml`; `.github/workflows/android-client.yml`; `apps/lucy-admin/web/e2e`.
 - Примечание: Playwright (Chromium end-to-end), эмулятор Android (UI-тесты, VPN на эмуляторе), XCTest (iOS UI-тесты) — в CI каждого PR.
 
 > Playwright; Android Emulator; XCTest и доступные инструменты автоматизации.
@@ -4361,7 +4408,7 @@
 
 - Источник: Часть II → II.1. Дополнительные технические ошибки и проверки (строка 1566). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `admin/src/main.tsx`.
+- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `apps/lucy-admin/web/src/main.tsx`.
 - Примечание: То же, что REQ-QA-0006.
 
 > - Исправить `(s || []).map is not a function`.
@@ -4411,7 +4458,7 @@
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2380). Продукт: Все три.
 - Платформы: all products.
-- Доказательство: `admin/e2e`; `.github/workflows/ci.yml`.
+- Доказательство: `apps/lucy-admin/web/e2e`; `.github/workflows/ci.yml`.
 - Примечание: E2E Playwright по админке и кабинету в CI каждого PR.
 
 > - E2E tests для критических пользовательских и административных сценариев.
@@ -4683,7 +4730,7 @@
 ### REQ-ARCH-0003 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2133). Продукт: Все три.
-- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `backend/app/security.py`; `backend/app/remnawave.py`; `admin/src/components/ui/button.tsx`; `packages/localization/user.json`.
+- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `backend/app/security.py`; `backend/app/remnawave.py`; `apps/lucy-admin/web/src/components/ui/button.tsx`; `packages/localization/user.json`.
 
 > - Общими могут быть UI primitives, дизайн-токены, API-клиенты, схемы DTO, localization utilities, telemetry abstractions, test helpers и security utilities.
 

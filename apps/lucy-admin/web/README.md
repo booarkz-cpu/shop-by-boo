@@ -1,4 +1,4 @@
-> Текущий магазин v21.5.1: [общая документация](../DOCUMENTATION.md). Следуйте текущему регламенту установки и границам готовности.
+> Текущий магазин v21.5.1: [общая документация](../../../DOCUMENTATION.md). Следуйте текущему регламенту установки и границам готовности.
 
 # VPN Shop by Corgi — Admin Panel
 
@@ -12,13 +12,13 @@
 - `src/dashboard.tsx` — плашка состояния, плитки метрик (2×2 на телефоне, 4×1 на ПК), KPI-полоса, «Обновить» и выпадающее меню «Действия», поиск с лупой и сегментированный фильтр серверов, состояние API/БД/Redis/Remnawave, быстрые действия.
 - `src/components/ui/` — `Button`, `DropdownMenu` (+ `Item`/`Separator`), `Select`, `Tooltip`, `Skeleton`, `Segmented`, `StatusDot`/`StatusBadge`, `SearchInput`; strict TypeScript (`tsconfig.ui.json`).
 - `src/sections.ts` — карта панели: группы, названия и описания всех разделов; из неё строятся меню, страница «Все разделы» (`src/admin-hub.tsx`), заголовки разделов и быстрый поиск.
-- `src/history-import.tsx` — перенос истории подписок и платежей со сверкой и откатом ([регламент](../docs/ru/HISTORY_IMPORT_CURRENT.md)).
+- `src/history-import.tsx` — перенос истории подписок и платежей со сверкой и откатом ([регламент](../../../docs/ru/HISTORY_IMPORT_CURRENT.md)).
 
 `SelectField` сохраняет скрытый нативный элемент и существующие обработчики форм. Видимый элемент — Radix combobox.
 
 `FieldHints` добавляет `aria-description`, `title` и кнопку помощи каждому видимому редактируемому полю. Подсказка RU/EN открывается при фокусе или нажатии, закрывается Escape и выводится в portal с ограничением по границам экрана.
 
-Раздел **Система → Настройки без перезапуска** использует `src/runtime-settings.tsx` ([операторская инструкция](../docs/ru/RUNTIME_SETTINGS_CURRENT.md)).
+Раздел **Система → Настройки без перезапуска** использует `src/runtime-settings.tsx` ([операторская инструкция](../../../docs/ru/RUNTIME_SETTINGS_CURRENT.md)).
 
 Команды: `npm run dev` (порт 5173), `npm run typecheck`, `npm run build`, `npm run test:e2e`. Браузерные регрессии: `e2e/remna-design.spec.ts`, `e2e/cabinet-design.spec.ts` (кабинет и Telegram Mini App), `e2e/history-import.spec.ts`, `e2e/preferences-help.spec.ts` и сценарии редакторов. Для e2e кабинет собирается с `NEXT_BASE_PATH=/cabinet`.
 
@@ -26,14 +26,14 @@
 
 Скриншоты сняты с изолированного браузерного стенда текущего кода, без production-данных:
 
-- [Все разделы](../screenshots/admin_panel/00_all_sections.png), [поиск по задаче](../screenshots/admin_panel/74_command_search.png), [быстрый поиск Ctrl+K](../screenshots/admin_panel/74_command_search.png), [светлая тема](../screenshots/admin_panel/variants/light-panel.png)
-- [Главная](../screenshots/admin_panel/02_dashboard.png), [Тарифы](../screenshots/admin_panel/15_plans.png), [Конструктор тарифов](../screenshots/admin_panel/16_constructor.png), [Акции и рассылки](../screenshots/admin_panel/26_marketing.png), [Меню бота и Mini App](../screenshots/admin_panel/33_content.png), [Настройки без перезапуска](../screenshots/admin_panel/54_runtimeSettings.png), [Роли и администраторы](../screenshots/admin_panel/68_admins.png), [Сеть узлов](../screenshots/admin_panel/46_networkIntel.png)
-- Телефон: [Все разделы](../screenshots/admin_panel/variants/phone-all-sections.png), [выдвижное меню](../screenshots/admin_panel/variants/phone-menu.png), [форма](../screenshots/admin_panel/variants/phone-runtimeSettings.png)
-- [Вход](../screenshots/admin_panel/01_login.png)
-- [Кабинет: обзор](../screenshots/storefront_user/03_overview.png), [тарифы](../screenshots/storefront_user/04_plans.png)
-- [Mini App](../docs/img/miniapp-overview.png)
+- [Все разделы](../../../screenshots/admin_panel/00_all_sections.png), [поиск по задаче](../../../screenshots/admin_panel/74_command_search.png), [быстрый поиск Ctrl+K](../../../screenshots/admin_panel/74_command_search.png), [светлая тема](../../../screenshots/admin_panel/variants/light-panel.png)
+- [Главная](../../../screenshots/admin_panel/02_dashboard.png), [Тарифы](../../../screenshots/admin_panel/15_plans.png), [Конструктор тарифов](../../../screenshots/admin_panel/16_constructor.png), [Акции и рассылки](../../../screenshots/admin_panel/26_marketing.png), [Меню бота и Mini App](../../../screenshots/admin_panel/33_content.png), [Настройки без перезапуска](../../../screenshots/admin_panel/54_runtimeSettings.png), [Роли и администраторы](../../../screenshots/admin_panel/68_admins.png), [Сеть узлов](../../../screenshots/admin_panel/46_networkIntel.png)
+- Телефон: [Все разделы](../../../screenshots/admin_panel/variants/phone-all-sections.png), [выдвижное меню](../../../screenshots/admin_panel/variants/phone-menu.png), [форма](../../../screenshots/admin_panel/variants/phone-runtimeSettings.png)
+- [Вход](../../../screenshots/admin_panel/01_login.png)
+- [Кабинет: обзор](../../../screenshots/storefront_user/03_overview.png), [тарифы](../../../screenshots/storefront_user/04_plans.png)
+- [Mini App](../../../docs/img/miniapp-overview.png)
 
-Разделы, кнопки и подписи полей описаны в [руководстве по админ-панели](../docs/ru/ADMIN_PANEL_CURRENT.md). Скриншоты снимает `node scripts/screenshots-catalog.mjs "$PWD/.."` на тестовом стенде ([как](../docs/ru/ADMIN_PANEL_CURRENT.md)).
+Разделы, кнопки и подписи полей описаны в [руководстве по админ-панели](../../../docs/ru/ADMIN_PANEL_CURRENT.md). Скриншоты снимает `node scripts/screenshots-catalog.mjs "$PWD/.."` на тестовом стенде ([как](../../../docs/ru/ADMIN_PANEL_CURRENT.md)).
 
 ## Branding
 
