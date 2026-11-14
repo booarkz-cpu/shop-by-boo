@@ -2925,5 +2925,72 @@
   ],
   "platforms": "all products",
   "note": "Чужой код не копируется (решение № 13: только идеи); уведомления о сторонних зависимостях в THIRD_PARTY_NOTICES.md. Сверка старых репозиториев владельца ещё не проведена."
+ },
+ "REQ-MIG-0001": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md",
+   "README.md"
+  ],
+  "platforms": "all products",
+  "note": "Целевой репозиторий shop-by-boo; состояние зафиксировано в сверке."
+ },
+ "REQ-MIG-0002": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products",
+  "note": "VPN-Shop-by-CorgiLusi указывает на тот же репозиторий (тот же HEAD) — прежнее имя, переносить нечего."
+ },
+ "REQ-MIG-0003": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md",
+   "tests/test_admin_ssh_ip.py"
+  ],
+  "platforms": "all products",
+  "note": "remnawave-manager 5b83423 сверен по пунктам меню 1–33; недостающее (SSH только с адреса владельца) перенесено своим кодом."
+ },
+ "REQ-MIG-0009": {
+  "status": "BLOCKED_EXTERNAL",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products",
+  "note": "lucy-vpn-android недоступен из среды разработки — нужен доступ или подтверждение владельца, что репозитория нет."
+ },
+ "REQ-MIG-0020": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products",
+  "note": "URL, ветка, SHA, теги, версия зафиксированы для shop-by-boo, VPN-Shop-by-CorgiLusi, remnawave-manager; lucy-vpn-android недоступен."
+ },
+ "REQ-MIG-0021": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products",
+  "note": "Каталог функций remnawave-manager (меню 1–33, CLI) составлен и сопоставлен; каталог lucy-vpn-android ждёт доступа."
+ },
+ "REQ-MIG-0022": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products",
+  "note": "Для каждой функции указана каноническая реализация в магазине, отличия перечислены."
+ },
+ "REQ-MIG-0027": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md",
+   "tests/test_admin_ssh_ip.py"
+  ],
+  "platforms": "all products",
+  "note": "Отчёт mapping источник/коммит → модуль магазина → тесты → статус для remnawave-manager; lucy-vpn-android ждёт доступа."
  }
 }

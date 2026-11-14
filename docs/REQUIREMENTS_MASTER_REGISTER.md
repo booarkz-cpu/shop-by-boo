@@ -11,20 +11,21 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **132** — 20.2%.
+- Подтверждено (`PASS`): **136** — 20.8%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 132 | Проверено, доказательство указано |
-| `PARTIAL` | 179 | Сделано частично, остаток описан |
+| `PASS` | 136 | Проверено, доказательство указано |
+| `PARTIAL` | 182 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 19 | Функции нет |
+| `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 322 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 314 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 123 | 1 | 3 | 0 | 119 |
-| Монорепозиторий и перенос | 28 | 1 | 2 | 0 | 25 |
+| Монорепозиторий и перенос | 28 | 5 | 5 | 1 | 17 |
 | «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
 | Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
@@ -820,21 +821,30 @@
 
 ## Монорепозиторий и перенос
 
-### REQ-MIG-0001 — `NOT_TESTED`
+### REQ-MIG-0001 — `PASS`
 
 - Источник: Часть I → Primary Repository (строка 29). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `README.md`.
+- Примечание: Целевой репозиторий shop-by-boo; состояние зафиксировано в сверке.
 
 > https://github.com/booarkz-cpu/shop-by-boo.git
 
-### REQ-MIG-0002 — `NOT_TESTED`
+### REQ-MIG-0002 — `PASS`
 
 - Источник: Часть I → Source Repositories → Repo (строка 35). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: VPN-Shop-by-CorgiLusi указывает на тот же репозиторий (тот же HEAD) — прежнее имя, переносить нечего.
 
 > https://github.com/booarkz-cpu/VPN-Shop-by-CorgiLusi.git
 
-### REQ-MIG-0003 — `NOT_TESTED`
+### REQ-MIG-0003 — `PASS`
 
 - Источник: Часть I → Source Repositories → Repo (строка 39). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `tests/test_admin_ssh_ip.py`.
+- Примечание: remnawave-manager 5b83423 сверен по пунктам меню 1–33; недостающее (SSH только с адреса владельца) перенесено своим кодом.
 
 > https://github.com/booarkz-cpu/remnawave-manager
 
@@ -868,9 +878,12 @@
 
 > https://github.com/STEP-CORP/StepBot/tree/main
 
-### REQ-MIG-0009 — `NOT_TESTED`
+### REQ-MIG-0009 — `BLOCKED_EXTERNAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 63). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: lucy-vpn-android недоступен из среды разработки — нужен доступ или подтверждение владельца, что репозитория нет.
 
 > https://github.com/booarkz-cpu/lucy-vpn-android
 
@@ -942,21 +955,30 @@
 
 > Единственный целевой репозиторий: https://github.com/booarkz-cpu/shop-by-boo.git, имя shop-by-boo. Не создавать новые целевые репозитории. Ранее упомянутый lucy-vpn-android и другие репозитории — источники кода/истории для миграции в монорепозиторий.
 
-### REQ-MIG-0020 — `NOT_TESTED`
+### REQ-MIG-0020 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1181). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: URL, ветка, SHA, теги, версия зафиксированы для shop-by-boo, VPN-Shop-by-CorgiLusi, remnawave-manager; lucy-vpn-android недоступен.
 
 > Зафиксировать исходные URL, default branch, commit SHA, теги, релизы, ветки и состояние каждого источника.
 
-### REQ-MIG-0021 — `NOT_TESTED`
+### REQ-MIG-0021 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1185). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: Каталог функций remnawave-manager (меню 1–33, CLI) составлен и сопоставлен; каталог lucy-vpn-android ждёт доступа.
 
 > Составить каталог всех экранов, API endpoints, фоновых задач, CLI-команд, скриптов, сервисов, конфигураций, миграций БД и пользовательских сценариев.
 
-### REQ-MIG-0022 — `NOT_TESTED`
+### REQ-MIG-0022 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1189). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: Для каждой функции указана каноническая реализация в магазине, отличия перечислены.
 
 > Сопоставить одинаковые функции, определить каноническую реализацию, перечислить отличия и уникальные возможности каждой реализации.
 
@@ -987,9 +1009,12 @@
 
 > Проверить отсутствие секретов и персональных данных в переносимых commit, fixture, логах и артефактах.
 
-### REQ-MIG-0027 — `NOT_TESTED`
+### REQ-MIG-0027 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1209). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `tests/test_admin_ssh_ip.py`.
+- Примечание: Отчёт mapping источник/коммит → модуль магазина → тесты → статус для remnawave-manager; lucy-vpn-android ждёт доступа.
 
 > Создать отчёт mapping: source repository/path/commit → monorepo path → новая реализация → тесты → evidence.
 

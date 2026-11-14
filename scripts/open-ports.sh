@@ -36,7 +36,8 @@ allow_ufw() {
     fi
     return 0
   fi
-  ufw allow OpenSSH >/dev/null 2>&1 || true
+  # SSH_ONLY_FROM: the installer limited SSH to the owner's address; opening OpenSSH here would undo that.
+  [[ -n "${SSH_ONLY_FROM:-}" ]] || ufw allow OpenSSH >/dev/null 2>&1 || true
   ufw allow 80/tcp >/dev/null 2>&1 || true
   ufw allow 443/tcp >/dev/null 2>&1 || true
   ufw allow 443/udp >/dev/null 2>&1 || true
@@ -53,7 +54,7 @@ allow_firewalld() {
     log "firewalld allows TCP 18080-18083"
     return 0
   fi
-  firewall-cmd --permanent --add-service=ssh >/dev/null 2>&1 || true
+  [[ -n "${SSH_ONLY_FROM:-}" ]] || firewall-cmd --permanent --add-service=ssh >/dev/null 2>&1 || true
   firewall-cmd --permanent --add-service=http >/dev/null 2>&1 || true
   firewall-cmd --permanent --add-service=https >/dev/null 2>&1 || true
   firewall-cmd --permanent --add-port=443/udp >/dev/null 2>&1 || true
@@ -91,7 +92,9 @@ if [[ "$MODE" == "test" ]]; then
 else
   allow_ufw
   allow_firewalld
-  for port in 22 80 443; do
+  vds_ports="22 80 443"
+  [[ -z "${SSH_ONLY_FROM:-}" ]] || vds_ports="80 443"
+  for port in $vds_ports; do
     allow_filter iptables tcp "$port"
     allow_filter ip6tables tcp "$port"
     allow_nft tcp "$port"

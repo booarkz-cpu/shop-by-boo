@@ -435,7 +435,7 @@ chmod 600 support-pro/.env
 # Caddy uses TCP 80/443 and HTTP/3 uses UDP 443. All application services remain internal.
 # The answers the later stages need, for a run that has to continue after a failure (removed when the install is done).
 ( umask 077
-  for name in ADMIN_DOMAIN ADMIN_EMAIL ADMIN_PASSWORD API_DOMAIN APP_DOMAIN AUTO_UPDATE BACKUP_PASSWORD CABINET_DOMAIN GENERATED_ADMIN_PASSWORD \
+  for name in ADMIN_DOMAIN ADMIN_EMAIL ADMIN_PASSWORD ADMIN_SSH_IP API_DOMAIN APP_DOMAIN AUTO_UPDATE BACKUP_PASSWORD CABINET_DOMAIN GENERATED_ADMIN_PASSWORD \
               PAYMENT_PROVIDER SUPPORT_PRO_ADMIN_PASSWORD SUPPORT_PRO_DOMAIN YANDEX_CLIENT_ID YANDEX_CLIENT_SECRET; do
     printf '%s=%q\n' "$name" "${!name-}"
   done > "$RESUME_FILE" )
@@ -454,14 +454,33 @@ fi
 SSH_PORT="${SSH_PORT:-22}"
 [[ "$SSH_PORT" =~ ^[0-9]+$ ]] || die "Не удалось определить SSH-порт"
 status_stage firewall
-log "Открываю SSH-порт ${SSH_PORT} в firewall"
-ufw allow "${SSH_PORT}/tcp" >/dev/null || die "Не удалось открыть SSH-порт ${SSH_PORT}"
+# ADMIN_SSH_IP=<адрес> limits SSH to the owner's address. It is applied only when the current SSH session comes from that
+# address (or there is no SSH session), so the run can never lock its own operator out.
+ADMIN_SSH_IP="${ADMIN_SSH_IP:-}"
+SSH_FROM=""
+if [[ -n "$ADMIN_SSH_IP" ]]; then
+  if [[ ! "$ADMIN_SSH_IP" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ && ! "$ADMIN_SSH_IP" =~ ^[0-9A-Fa-f:]+$ ]]; then
+    warn "ADMIN_SSH_IP=${ADMIN_SSH_IP} не похож на IP-адрес — SSH остаётся открытым для всех"
+  elif [[ -n "${SSH_CONNECTION:-}" && "${SSH_CONNECTION%% *}" != "$ADMIN_SSH_IP" ]]; then
+    warn "Вы подключены с ${SSH_CONNECTION%% *}, а не с ${ADMIN_SSH_IP} — SSH остаётся открытым для всех, чтобы не потерять доступ"
+  else
+    SSH_FROM="$ADMIN_SSH_IP"
+  fi
+fi
+if [[ -n "$SSH_FROM" ]]; then
+  log "Открываю SSH-порт ${SSH_PORT} только для ${SSH_FROM}"
+  ufw delete allow "${SSH_PORT}/tcp" >/dev/null 2>&1 || true
+  ufw allow from "$SSH_FROM" to any port "$SSH_PORT" proto tcp >/dev/null || die "Не удалось открыть SSH-порт ${SSH_PORT} для ${SSH_FROM}"
+else
+  log "Открываю SSH-порт ${SSH_PORT} в firewall"
+  ufw allow "${SSH_PORT}/tcp" >/dev/null || die "Не удалось открыть SSH-порт ${SSH_PORT}"
+fi
 ufw allow 80/tcp >/dev/null 2>&1 || true
 ufw allow 443/tcp >/dev/null 2>&1 || true
 ufw allow 443/udp >/dev/null 2>&1 || true
 ufw --force enable >/dev/null || die "Не удалось включить firewall"
 if [[ -f "$ROOT/scripts/open-ports.sh" ]]; then
-  bash "$ROOT/scripts/open-ports.sh" vds || warn "Проверьте дополнительные порты вручную"
+  SSH_ONLY_FROM="$SSH_FROM" bash "$ROOT/scripts/open-ports.sh" vds || warn "Проверьте дополнительные порты вручную"
 fi
 
 # SSH hardening without changing authentication mode, so a fresh VDS is not locked out.
