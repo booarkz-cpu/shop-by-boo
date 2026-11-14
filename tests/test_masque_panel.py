@@ -630,3 +630,12 @@ def test_a_failed_reinstall_is_retried_after_15_minutes():
     assert panel.reinstall_due({"checked_at": "2026-11-14T11:40:00Z"}, now)
     assert not panel.reinstall_due({"checked_at": "2026-11-14T11:50:00Z"}, now)
     assert panel.reinstall_due({}, now)
+
+
+def test_bittorrent_rule_can_match():
+    """v28.142.0: the BitTorrent rule of the MASQUE Xray needs sniffing on its inbound — without it it never matched."""
+    config = rw_masque.server_config("node.example.com", [], rw_masque.new_prefix("secret", "server-1"))
+    sniff = config["inbounds"][0]["sniffing"]
+    assert sniff["enabled"] is True and sniff["routeOnly"] is True     # routing only: the destination is not rewritten
+    assert {"type": "field", "protocol": ["bittorrent"], "outboundTag": "block"} in config["routing"]["rules"]
+    assert {"tag": "block", "protocol": "blackhole"} in config["outbounds"]
