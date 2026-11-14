@@ -19,6 +19,9 @@ def fake_bin(tmp: Path) -> Path:
         tool.write_text(f'#!/bin/sh\necho "{name} $*" >> "{tmp}/calls"\n'
                         'case "$1" in -C|--state) exit 1;; esac\nexit 0\n')
         tool.chmod(0o755)
+    # open-ports.sh re-runs itself through sudo when not root, which would drop the fake PATH; the runner is not root.
+    (bin_dir / "id").write_text("#!/bin/sh\necho 0\n")
+    (bin_dir / "id").chmod(0o755)
     return bin_dir
 
 
