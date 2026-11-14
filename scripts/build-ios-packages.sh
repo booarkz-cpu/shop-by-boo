@@ -13,7 +13,8 @@ CORGI_SHOP_URL="${CORGI_SHOP_URL:-$(grep -v '^#' "$ROOT/mobile/shop-url.txt" 2>/
 for role in user admin; do
   project=VpnShopUser
   [[ "$role" != admin ]] || project=VpnShopAdmin
-  dir="$ROOT/mobile/ios-$role"
+  dir="$ROOT/apps/vpn-shop/ios"
+  [[ "$role" != admin ]] || dir="$ROOT/apps/lucy-admin/ios"
   version="$(sed -n 's/.*MARKETING_VERSION = \([^;]*\);.*/\1/p' "$dir/$project.xcodeproj/project.pbxproj" | head -1)"
   [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
   base="corgi_lusi_ios_${role}_${version//./_}"

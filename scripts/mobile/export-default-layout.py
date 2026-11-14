@@ -16,6 +16,6 @@ sys.path.insert(0, str(ROOT / "backend"))
 from app.mobile_layout import bundled_defaults  # noqa: E402
 
 text = json.dumps(bundled_defaults(), ensure_ascii=False, indent=1, sort_keys=True) + "\n"
-for path in ("apps/vpn-shop/android/app/src/main/assets/default_layout.json", "mobile/ios-user/VpnShopUser/default_layout.json"):
+for path in ("apps/vpn-shop/android/app/src/main/assets/default_layout.json", "apps/vpn-shop/ios/VpnShopUser/default_layout.json"):
     (ROOT / path).write_text(text)
     print("wrote", path)

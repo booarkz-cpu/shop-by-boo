@@ -350,7 +350,7 @@ python3 scripts/node-agent.py
 3. Установите пакет командой `adb install -r файл.apk` либо откройте APK на телефоне после разрешения установки из этого источника.
 4. В приложении укажите адрес API с `https://`. `http://` принимается для `localhost`, `127.0.0.1` и `10.0.2.2`.
 5. Повторная сборка из исходников: задайте `ANDROID_HOME` и `GRADLE_BIN`, затем `bash scripts/build-android-apk.sh /tmp/apk`. Каталоги `apps/vpn-shop/android` и `apps/lucy-admin/android` также открываются в Android Studio.
-6. iOS: на macOS откройте `mobile/ios-user/VpnShopUser.xcodeproj` и `mobile/ios-admin/VpnShopAdmin.xcodeproj` в Xcode 15 или новее, выберите команду подписи и нажмите Run. IPA создаёт Product → Archive.
+6. iOS: на macOS откройте `apps/vpn-shop/ios/VpnShopUser.xcodeproj` и `apps/lucy-admin/ios/VpnShopAdmin.xcodeproj` в Xcode 15 или новее, выберите команду подписи и нажмите Run. IPA создаёт Product → Archive.
 7. Подпись APK в релизе — debug-ключ машины сборки. Сборка на другой машине может потребовать удалить уже установленное приложение, если отладочный ключ отличается.
 
 ## 9.9. Приложения 2.10.0, подпись и обновление с GitHub
@@ -436,7 +436,7 @@ sudo bash /opt/vpn-shop/scripts/update-from-github.sh
 4. `GET /api/me/auto-renew` при ошибке отдаёт «Автопродление не выполнено».
 5. После загрузки APK или IPA карточка показывает SHA-256. Кабинет и панель выводят её только если это 64 шестнадцатеричных символа.
 6. Во вкладке «Подключение» кнопка **Скачать подписку** открывает `GET /api/me/subscription-file`.
-7. Как скачать приложения проекта: покупатель Android — https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk , администратор Android — https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk . Проверка: `sha256sum -c` по файлу `.sha256` в том же каталоге. iOS собирается в Xcode из `mobile/ios-user` и `mobile/ios-admin`. Справка без входа: `GET /api/public/apps/install`.
+7. Как скачать приложения проекта: покупатель Android — https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk , администратор Android — https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk . Проверка: `sha256sum -c` по файлу `.sha256` в том же каталоге. iOS собирается в Xcode из `apps/vpn-shop/ios` и `apps/lucy-admin/ios`. Справка без входа: `GET /api/public/apps/install`.
 
 ## 9.15. Staging E2E и production gate в панели
 
@@ -933,7 +933,7 @@ The four source trees live under `mobile/`: `android-user`, `android-admin`, `io
 3. Install with `adb install -r file.apk`, or open the APK on the phone after allowing installs from that source.
 4. Enter the API address as `https://`. `http://` is accepted for `localhost`, `127.0.0.1` and `10.0.2.2`.
 5. Rebuild from source with `ANDROID_HOME` and `GRADLE_BIN` set, then `bash scripts/build-android-apk.sh /tmp/apk`. Android Studio opens `apps/vpn-shop/android` and `apps/lucy-admin/android` as well.
-6. iOS: on macOS, open `mobile/ios-user/VpnShopUser.xcodeproj` and `mobile/ios-admin/VpnShopAdmin.xcodeproj` in Xcode 15 or newer, select a signing team and press Run. Product → Archive creates the IPA.
+6. iOS: on macOS, open `apps/vpn-shop/ios/VpnShopUser.xcodeproj` and `apps/lucy-admin/ios/VpnShopAdmin.xcodeproj` in Xcode 15 or newer, select a signing team and press Run. Product → Archive creates the IPA.
 7. The release APKs are signed with the build machine's debug key. A later build on another machine can require uninstalling the previous copy when the debug key differs.
 
 ## 9.9. Apps 2.10.0, proof and the GitHub update
@@ -1019,7 +1019,7 @@ The script needs `.env` in `/opt/vpn-shop` (or in `APP_DIR`). It downloads the `
 4. `GET /api/me/auto-renew` answers «Автопродление не выполнено» after a failure.
 5. After an APK or IPA upload the card shows SHA-256. The cabinet and the panel print it only when it is 64 hexadecimal characters.
 6. On the Connection tab, **Скачать подписку** (Download subscription) opens `GET /api/me/subscription-file`.
-7. Project app downloads: Android buyer https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk , Android administrator https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk . Check with `sha256sum -c` against the `.sha256` file in the same directory. iOS is built in Xcode from `mobile/ios-user` and `mobile/ios-admin`. The signed-out summary is `GET /api/public/apps/install`.
+7. Project app downloads: Android buyer https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk , Android administrator https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk . Check with `sha256sum -c` against the `.sha256` file in the same directory. iOS is built in Xcode from `apps/vpn-shop/ios` and `apps/lucy-admin/ios`. The signed-out summary is `GET /api/public/apps/install`.
 
 ## 9.15. Staging E2E and the production gate in the panel
 

@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **154** — 23.6%.
+- Подтверждено (`PASS`): **165** — 25.3%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 154 | Проверено, доказательство указано |
-| `PARTIAL` | 180 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 28 | Функции нет |
+| `PASS` | 165 | Проверено, доказательство указано |
+| `PARTIAL` | 183 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 31 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 290 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 273 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -40,7 +40,7 @@
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
 | CI/CD и выпуски | 15 | 11 | 4 | 0 | 0 |
 | Документация | 37 | 16 | 1 | 0 | 11 |
-| Аудит, тесты, скриншоты | 69 | 5 | 4 | 0 | 60 |
+| Аудит, тесты, скриншоты | 69 | 16 | 7 | 0 | 43 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
 | Производительность и стоимость | 7 | 1 | 4 | 0 | 0 |
@@ -1652,7 +1652,7 @@
 ### REQ-ADMIN-0002 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Interfaces (строка 189). Продукт: Админка.
-- Доказательство: `admin/src/main.tsx`; `apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `mobile/ios-admin/VpnShopAdmin/ContentView.swift`; `backend/app/security.py`; `tests/test_admin_route_permissions.py`; `backend/app/audit_seal.py`.
+- Доказательство: `admin/src/main.tsx`; `apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift`; `backend/app/security.py`; `tests/test_admin_route_permissions.py`; `backend/app/audit_seal.py`.
 - Примечание: Веб-панель, приложения администратора для Android и iOS работают через один API с ролями и журналом. В приложениях 10 разделов против примерно 100 в веб-панели.
 
 > Web Admin; Android Admin; iOS Admin; единый API; RBAC; аудит.
@@ -3215,7 +3215,7 @@
 - Источник: Часть I → Docker Installer Vps Termux → Termux (строка 740). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
-- Примечание: Пошаговая инструкция для Android/Termux написана (v28.151.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
+- Примечание: Пошаговая инструкция для Android/Termux написана (v28.152.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
 
 > Android/Termux: инструменты; подключение к VPS; Git; проверка репозитория; установка; запуск; обновление; логи; диагностика. Пошагово для новичка.
 
@@ -3224,7 +3224,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик (строка 2297). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `deploy/install-status.sh`; `deploy/install-vps.sh`; `tests/test_install_status.py`.
-- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.151.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.151.0, решение владельца 2026-11-14). На VPS не проверено.
+- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.152.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.152.0, решение владельца 2026-11-14). На VPS не проверено.
 
 > Поддерживать идемпотентные этапы: preflight → environment validation → DNS/ports → secrets → dependencies → database → migrations → services → health checks → admin bootstrap → final report. Каждый этап должен иметь машинно-читаемый статус, лог, понятную ошибку и безопасный повтор.
 
@@ -3249,7 +3249,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2303). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `scripts/update-space.sh`; `scripts/update.sh`; `tests/test_update_space.py`; `scripts/github_release_fetch.py`.
-- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.151.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
+- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.152.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
 
 > - Проверять свободное место и доступность внешних зависимостей.
 
@@ -3346,7 +3346,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2324). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/log_format.py`; `backend/app/main.py`; `backend/app/errors.py`; `tests/test_ops_alerts.py`.
-- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.151.0). Трассировки (OpenTelemetry) нет.
+- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.152.0). Трассировки (OpenTelemetry) нет.
 
 > - Добавить structured logs, metrics, traces и correlation IDs.
 
@@ -3355,7 +3355,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2325). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/host_metrics.py`; `backend/app/observability.py`; `backend/app/main.py`; `tests/test_host_metrics.py`.
-- Примечание: С v28.151.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
+- Примечание: С v28.152.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
 
 > - Отслеживать error rate, latency percentiles, throughput, saturation, queue depth, failed jobs, webhook lag, DB pool, disk, memory, CPU, node availability и certificate expiry.
 
@@ -3370,7 +3370,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2327). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `backend/app/masque_panel.py`; `backend/app/rw_drift.py`; `tests/test_ops_alerts.py`.
-- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.151.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
+- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.152.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
 
 > - Уведомлять о backup failures, certificate expiry, payment provider outage, node degradation, failed migrations и security incidents.
 
@@ -3379,7 +3379,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2328). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `tests/test_ops_alerts.py`.
-- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.151.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
+- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.152.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
 
 > - Учитывать timezone и clock drift для cron, webhook signature и сертификатов.
 
@@ -3455,7 +3455,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2340). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/backups_api.py`; `tests/test_backup_retention_verified.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
-- Примечание: v28.151.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
+- Примечание: v28.152.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
 
 > - Не удалять последний проверенный backup автоматически.
 
@@ -3608,7 +3608,7 @@
 ### REQ-MOBILE-0002 — `PARTIAL`
 
 - Источник: Часть I → Mobile → Ios (строка 713). Продукт: Все три.
-- Доказательство: `mobile/ios-user`; `docs/ru/new/VPN_ENGINE.md`; `docs/ru/new/KNOWN_LIMITATIONS.md`.
+- Доказательство: `apps/vpn-shop/ios`; `docs/ru/new/VPN_ENGINE.md`; `docs/ru/new/KNOWN_LIMITATIONS.md`.
 - Примечание: SwiftUI, Packet Tunnel Provider, Keychain и биометрия собираются и проходят UI-тесты в CI на симуляторе. Подписанной сборки и проверки на устройстве нет: нужен Apple Developer.
 
 > Swift 6; SwiftUI; Network Extension; NEVPNManager; Packet Tunnel Provider; Keychain; Face ID; Touch ID; entitlements; Apple Developer requirements. Не обещать возможности, ограниченные iOS или правилами Apple.
@@ -3616,7 +3616,7 @@
 ### REQ-MOBILE-0003 — `PARTIAL`
 
 - Источник: Часть I → Mobile → Admin Mobile (строка 717). Продукт: Все три.
-- Доказательство: `apps/lucy-admin/android`; `mobile/ios-admin`; `tests/test_v270_mobile_apps.py`.
+- Доказательство: `apps/lucy-admin/android`; `apps/lucy-admin/ios`; `tests/test_v270_mobile_apps.py`.
 - Примечание: Приложения администратора есть и работают через тот же API с теми же правами. В них 10 разделов против примерно 100 в веб-панели; матрицы соответствия нет (REQ-ADMIN-0004).
 
 > Android/iOS Lucy Admin; функциональная совместимость с Web Admin; критические действия доступны согласно RBAC.
@@ -3624,7 +3624,7 @@
 ### REQ-MOBILE-0004 — `PASS`
 
 - Источник: Часть I → Mobile → Rule (строка 721). Продукт: Все три.
-- Доказательство: `apps/vpn-shop/android`; `apps/lucy-admin/android`; `apps/vpn-client/android`; `mobile/ios-user`; `mobile/ios-admin`.
+- Доказательство: `apps/vpn-shop/android`; `apps/lucy-admin/android`; `apps/vpn-client/android`; `apps/vpn-shop/ios`; `apps/lucy-admin/ios`.
 - Примечание: Все пять приложений лежат в каталоге mobile/ этого репозитория.
 
 > Все мобильные приложения находятся внутри shop-by-boo.
@@ -4177,9 +4177,12 @@
 
 > Пул; состав; статистика; алгоритмы; настройки плитки; скрытие нод; выбор нод; обновление; ошибки; fallback.
 
-### REQ-QA-0019 — `NOT_TESTED`
+### REQ-QA-0019 — `PASS`
 
 - Источник: Часть I → Screenshot Coverage → Tools (строка 832). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/ci.yml`; `.github/workflows/android-client.yml`; `admin/e2e`.
+- Примечание: Playwright (Chromium end-to-end), эмулятор Android (UI-тесты, VPN на эмуляторе), XCTest (iOS UI-тесты) — в CI каждого PR.
 
 > Playwright; Android Emulator; XCTest и доступные инструменты автоматизации.
 
@@ -4189,10 +4192,12 @@
 
 > Скриншоты настоящие, из запущенного приложения, актуальные и привязанные к версии. Не генерировать фальшивые скриншоты и не использовать макеты как доказательство. Проверять desktop/mobile, адаптивность, loading, ошибки, успешные операции, доступность элементов, отсутствие чёрных и пустых экранов.
 
-### REQ-QA-0021 — `NOT_TESTED`
+### REQ-QA-0021 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Screenshot Coverage → Document (строка 840). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SCREENSHOT_COVERAGE.md` — нет.
+- Примечание: docs/SCREENSHOT_COVERAGE.md ещё нет.
 
 > docs/SCREENSHOT_COVERAGE.md
 
@@ -4202,9 +4207,12 @@
 
 > Приложение; модуль; маршрут; версия; дата; сценарий; ожидаемый/фактический результат; путь к скриншоту; статус.
 
-### REQ-QA-0023 — `NOT_TESTED`
+### REQ-QA-0023 — `PARTIAL`
 
 - Источник: Часть I → Audit Automation → Directory (строка 881). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/requirements_register.py`; `scripts/audit/check_payment_provider_registry.py`.
+- Примечание: В scripts/audit/ — проверка реестра требований и реестра провайдеров; остальные проверки — в scripts/check-*.py и CI.
 
 > scripts/audit/
 
@@ -4215,17 +4223,21 @@
 
 > run_full_audit.py; check_requirements.py; check_documentation.py; check_doc_links.py; check_screenshots.py; check_admin_parity.py; check_products_separation.py; check_api_contracts.py; check_runtime_placeholders.py; check_secrets.py; check_dependencies.py; check_licenses.py; check_docker.py; check_installation.py; check_mobile_builds.py; check_release_artifacts.py; check_tests.py; check_masque_support.py; check_vpn_protocols.py; check_node_provisioning.py; check_balanced_development.py; check_payments.py; check_remnawave.py; check_android_client.py; check_ios_client.py; generate_project_map.py; generate_audit_report.py; generate_checklist.py; check_auto_selection.py; check_node_maintenance.py; check_backup_restore.py; check_server_security.py; check_protocol_repair.py; check_status_page.py; check_mobile_ui.py; check_repository_monorepo.py; check_migration_integrity.py.
 
-### REQ-QA-0025 — `NOT_TESTED`
+### REQ-QA-0025 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Audit Automation → Workflow (строка 889). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `.github/workflows/autonomous-audit.yml` — нет.
+- Примечание: .github/workflows/autonomous-audit.yml нет; проверки идут в ci.yml и ночном docs-links.yml.
 
 > .github/workflows/autonomous-audit.yml
 
-### REQ-QA-0026 — `NOT_TESTED`
+### REQ-QA-0026 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Audit Automation → Artifacts (строка 893). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `artifacts/audit/FULL_AUDIT_REPORT.md` — нет; `artifacts/audit/checklist-results.json` — нет.
+- Примечание: artifacts/audit/* не формируются.
 
 > artifacts/audit/checklist-results.json; artifacts/audit/FULL_AUDIT_REPORT.md.
 
@@ -4259,15 +4271,21 @@
 
 > Проверить, что все ссылки на мобильные приложения в README ведут на реальные релизы/артефакты, а не на несуществующие файлы.
 
-### REQ-QA-0032 — `NOT_TESTED`
+### REQ-QA-0032 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Product And Service Reliability → Task (строка 1489). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/INSTALLATION.md`; `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Установка на VDS и управление с Android через Termux.
 
 > Подготовить пошаговые инструкции для установки на тестовый VDS и управления с Android через Termux.
 
-### REQ-QA-0033 — `NOT_TESTED`
+### REQ-QA-0033 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Product And Service Reliability → Task (строка 1493). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Раздел 9: задать и проверить git config user.name / user.email, в том числе в Termux; про приватную почту GitHub.
 
 > Подготовить пошаговую инструкцию, как проверить git config user.name и user.email, в том числе с Android/Termux; не публиковать личный email без необходимости.
 
@@ -4301,9 +4319,12 @@
 
 > Для каждой серверной операции: dry-run; совместимость; порт занят/свободен; SSH недоступен; sudo отсутствует; диск заполнен; DNS ошибка; ACME failure; частичная установка; повторный запуск; rollback; удаление только компонента; восстановление.
 
-### REQ-QA-0039 — `NOT_TESTED`
+### REQ-QA-0039 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Expanded Test Matrix → Auto Select (строка 1520). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_rw_autoselect.py`.
+- Примечание: Каждый алгоритм строит балансировщик по выбранным хостам, неизвестный алгоритм и пустой пул отклоняются; равные метрики и устаревшие данные отдельными тестами не проверены.
 
 > Проверить алгоритмы leastPing/leastLoad/roundRobin/random на детерминированных тестовых данных; равные метрики; устаревшие метрики; нода offline; все ноды offline; смена состава; скрытие; возвращение; подписка; разные клиентские форматы.
 
@@ -4365,9 +4386,12 @@
 
 > - Проверить недоступные страницы и чёрные экраны админки и кабинета; проверить Telegram Bot end-to-end.
 
-### REQ-QA-0048 — `NOT_TESTED`
+### REQ-QA-0048 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2377). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/ci.yml`; `tests`.
+- Примечание: Unit-тесты доменной логики — Backend (2 части) в CI каждого PR.
 
 > - Unit tests для доменной логики и edge cases.
 
@@ -4383,9 +4407,12 @@
 
 > - Integration tests для БД, очередей, фоновых задач и сервисных взаимодействий.
 
-### REQ-QA-0051 — `NOT_TESTED`
+### REQ-QA-0051 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2380). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `admin/e2e`; `.github/workflows/ci.yml`.
+- Примечание: E2E Playwright по админке и кабинету в CI каждого PR.
 
 > - E2E tests для критических пользовательских и административных сценариев.
 
@@ -4395,15 +4422,21 @@
 
 > - Security tests и regression tests для известных ошибок.
 
-### REQ-QA-0053 — `NOT_TESTED`
+### REQ-QA-0053 — `PARTIAL`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2382). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/load-security.yml`; `tests/test_payment_load.py`.
+- Примечание: Нагрузочный базовый прогон и тест нагрузки платежей; соак-тесты и нагрузка на живых нодах — только на VPS.
 
 > - Load/soak tests для критичных API, платежей, очередей и VPN-node orchestration.
 
-### REQ-QA-0054 — `NOT_TESTED`
+### REQ-QA-0054 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2383). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/ci.yml`; `.github/workflows/android-client.yml`.
+- Примечание: UI/instrumentation-тесты Android (эмулятор) и iOS (симулятор) в CI.
 
 > - Mobile UI/instrumentation tests на Android и доступные iOS simulator tests.
 
@@ -4419,21 +4452,30 @@
 
 > - Chaos/failure injection только на изолированном тестовом контуре.
 
-### REQ-QA-0057 — `NOT_TESTED`
+### REQ-QA-0057 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2389). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_subscription_commerce.py`.
+- Примечание: test_purchase_retries_after_quote_expiry_do_not_debit_twice, test_postgres_parallel_different_quotes_cannot_reserve_twice.
 
 > - Покупка/продление не создаёт дубли.
 
-### REQ-QA-0058 — `NOT_TESTED`
+### REQ-QA-0058 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2390). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_v2014_security.py`; `tests/test_growth.py`.
+- Примечание: test_duplicate_events_never_enter_payment_processing (по провайдерам), webhook Remnawave проверяется и не дублируется.
 
 > - Повтор webhook безопасен.
 
-### REQ-QA-0059 — `NOT_TESTED`
+### REQ-QA-0059 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2391). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_admin_coverage_ops.py`.
+- Примечание: Неудачная выдача после оплаты остаётся ProvisioningOperation «failed» и выполняется повтором; платёж не теряется.
 
 > - Ошибка Remnawave не теряет подтверждённый платёж.
 
@@ -4455,9 +4497,12 @@
 
 > - PIN/биометрия не останавливают VPNService.
 
-### REQ-QA-0063 — `NOT_TESTED`
+### REQ-QA-0063 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2395). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_rw_protocol_switch.py`.
+- Примечание: test_rollback_returns_the_previous_transport_and_only_the_latest_run_can_be_rolled_back.
 
 > - Изменение протокола имеет rollback.
 
@@ -4481,9 +4526,12 @@
 
 > - Изменение локали не ломает layout и валидацию.
 
-### REQ-QA-0067 — `NOT_TESTED`
+### REQ-QA-0067 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2399). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_integrity_report.py`; `tests/test_v2_0_0_product_and_critical_audit.py`; `tests/test_admin_customer_operations.py`.
+- Примечание: Маршруты проверяют право роли; без права — 403.
 
 > - Пользователь без нужных прав не может выполнить операцию через прямой API.
 

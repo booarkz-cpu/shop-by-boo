@@ -483,13 +483,13 @@ async def public_install_guide(db: AsyncSession = Depends(get_db)):
             "Покупатель Android: в личном кабинете откройте блок «Приложения» и нажмите «Скачать», либо откройте GET /api/public/apps/android-user/download, если администратор загрузил APK.",
             "Покупатель iOS: та же карточка ведёт на GET /api/public/apps/ios-user/download, если администратор загрузил IPA. Готового IPA в релизах GitHub нет.",
             "Подписанные сборки проекта для Android (покупатель и администратор) всегда лежат в последнем выпуске на GitHub: ссылки в поле official. Рядом с APK есть файл .sha256. Проверка: sha256sum -c имя.apk.sha256 в каталоге, где лежат оба файла.",
-            "На Android разрешите установку из выбранного источника и откройте APK. На iOS пакет подписывают в Xcode на macOS из mobile/ios-user или mobile/ios-admin.",
+            "На Android разрешите установку из выбранного источника и откройте APK. На iOS пакет подписывают в Xcode на macOS из apps/vpn-shop/ios или apps/lucy-admin/ios.",
         ],
         "steps_en": [
             "Android buyer: in the user cabinet open Apps and press Download, or open GET /api/public/apps/android-user/download when an administrator has uploaded an APK.",
             "iOS buyer: the same card leads to GET /api/public/apps/ios-user/download when an administrator has uploaded an IPA. GitHub releases do not include an IPA.",
             "The signed Android builds of the project (buyer and administrator) are always in the latest GitHub release: see the official links. A .sha256 file sits next to each APK. Check it with sha256sum -c name.apk.sha256 in the directory that holds both files.",
-            "On Android, allow installation from the source you chose and open the APK. On iOS, sign the package in Xcode on macOS from mobile/ios-user or mobile/ios-admin.",
+            "On Android, allow installation from the source you chose and open the APK. On iOS, sign the package in Xcode on macOS from apps/vpn-shop/ios or apps/lucy-admin/ios.",
         ],
     }
 

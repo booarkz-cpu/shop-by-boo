@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.151.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.152.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2648**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2649**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -316,6 +316,14 @@
 | [apps/lucy-admin/android/gradlew](../apps/lucy-admin/android/gradlew) | Приложения |
 | [apps/lucy-admin/android/gradlew.bat](../apps/lucy-admin/android/gradlew.bat) | Приложения |
 | [apps/lucy-admin/android/settings.gradle.kts](../apps/lucy-admin/android/settings.gradle.kts) | Приложения |
+| [apps/lucy-admin/ios/VpnShopAdmin.xcodeproj/project.pbxproj](../apps/lucy-admin/ios/VpnShopAdmin.xcodeproj/project.pbxproj) | Приложения |
+| [apps/lucy-admin/ios/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/Contents.json](../apps/lucy-admin/ios/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/Contents.json) | Приложения |
+| [apps/lucy-admin/ios/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/icon-1024.png](../apps/lucy-admin/ios/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/icon-1024.png) | Приложения |
+| [apps/lucy-admin/ios/VpnShopAdmin/Assets.xcassets/Contents.json](../apps/lucy-admin/ios/VpnShopAdmin/Assets.xcassets/Contents.json) | Приложения |
+| [apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift](../apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift) | Приложения |
+| [apps/lucy-admin/ios/VpnShopAdmin/Info.plist](../apps/lucy-admin/ios/VpnShopAdmin/Info.plist) | Приложения |
+| [apps/lucy-admin/ios/VpnShopAdmin/VpnShopAdminApp.swift](../apps/lucy-admin/ios/VpnShopAdmin/VpnShopAdminApp.swift) | Приложения |
+| [apps/lucy-admin/ios/VpnShopAdmin/l10n.json](../apps/lucy-admin/ios/VpnShopAdmin/l10n.json) | Приложения |
 | [apps/vpn-client/android/.editorconfig](../apps/vpn-client/android/.editorconfig) | Приложения |
 | [apps/vpn-client/android/app/build.gradle.kts](../apps/vpn-client/android/app/build.gradle.kts) | Приложения |
 | [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Приложения |
@@ -546,6 +554,43 @@
 | [apps/vpn-shop/android/gradlew](../apps/vpn-shop/android/gradlew) | Приложения |
 | [apps/vpn-shop/android/gradlew.bat](../apps/vpn-shop/android/gradlew.bat) | Приложения |
 | [apps/vpn-shop/android/settings.gradle.kts](../apps/vpn-shop/android/settings.gradle.kts) | Приложения |
+| [apps/vpn-shop/ios/.gitignore](../apps/vpn-shop/ios/.gitignore) | Приложения |
+| [apps/vpn-shop/ios/CorgiNotificationService/Info.plist](../apps/vpn-shop/ios/CorgiNotificationService/Info.plist) | Приложения |
+| [apps/vpn-shop/ios/CorgiNotificationService/NotificationService.swift](../apps/vpn-shop/ios/CorgiNotificationService/NotificationService.swift) | Приложения |
+| [apps/vpn-shop/ios/CorgiTunnel/CorgiTunnel.entitlements](../apps/vpn-shop/ios/CorgiTunnel/CorgiTunnel.entitlements) | Приложения |
+| [apps/vpn-shop/ios/CorgiTunnel/Info.plist](../apps/vpn-shop/ios/CorgiTunnel/Info.plist) | Приложения |
+| [apps/vpn-shop/ios/CorgiTunnel/PacketTunnelProvider.swift](../apps/vpn-shop/ios/CorgiTunnel/PacketTunnelProvider.swift) | Приложения |
+| [apps/vpn-shop/ios/Shared/CorgiXray.swift](../apps/vpn-shop/ios/Shared/CorgiXray.swift) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser.xcodeproj/project.pbxproj](../apps/vpn-shop/ios/VpnShopUser.xcodeproj/project.pbxproj) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser.xcodeproj/xcshareddata/xcschemes/VpnShopUser.xcscheme](../apps/vpn-shop/ios/VpnShopUser.xcodeproj/xcshareddata/xcschemes/VpnShopUser.xcscheme) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json](../apps/vpn-shop/ios/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Assets.xcassets/AppIcon.appiconset/icon-1024.png](../apps/vpn-shop/ios/VpnShopUser/Assets.xcassets/AppIcon.appiconset/icon-1024.png) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Assets.xcassets/Contents.json](../apps/vpn-shop/ios/VpnShopUser/Assets.xcassets/Contents.json) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-devices.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-devices.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-family.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-family.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-gifts.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-gifts.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-giveaways.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-giveaways.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-info.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-info.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-locations.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-locations.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-notifications.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-notifications.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-premium.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-premium.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-referral.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-referral.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-security.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-security.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-settings.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-settings.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-status.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-status.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-subscription.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-subscription.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-support.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-support.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-vpn.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-vpn.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Banners/app-wallet.jpg](../apps/vpn-shop/ios/VpnShopUser/Banners/app-wallet.jpg) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/ContentView.swift](../apps/vpn-shop/ios/VpnShopUser/ContentView.swift) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/Info.plist](../apps/vpn-shop/ios/VpnShopUser/Info.plist) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/LayoutUI.swift](../apps/vpn-shop/ios/VpnShopUser/LayoutUI.swift) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/VPN/CorgiTunnelManager.swift](../apps/vpn-shop/ios/VpnShopUser/VPN/CorgiTunnelManager.swift) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/VpnShopUser.entitlements](../apps/vpn-shop/ios/VpnShopUser/VpnShopUser.entitlements) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift](../apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/default_layout.json](../apps/vpn-shop/ios/VpnShopUser/default_layout.json) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUser/l10n.json](../apps/vpn-shop/ios/VpnShopUser/l10n.json) | Приложения |
+| [apps/vpn-shop/ios/VpnShopUserUITests/VpnShopUserUITests.swift](../apps/vpn-shop/ios/VpnShopUserUITests/VpnShopUserUITests.swift) | Приложения |
 | [backend/.dockerignore](../backend/.dockerignore) | API, бот и worker |
 | [backend/Dockerfile](../backend/Dockerfile) | API, бот и worker |
 | [backend/Dockerfile.bot](../backend/Dockerfile.bot) | API, бот и worker |
@@ -1521,6 +1566,7 @@
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_150_0.md](../docs/ru/RELEASE_V28_150_0.md) | Документация |
 | [docs/ru/RELEASE_V28_151_0.md](../docs/ru/RELEASE_V28_151_0.md) | Документация |
+| [docs/ru/RELEASE_V28_152_0.md](../docs/ru/RELEASE_V28_152_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
@@ -1853,51 +1899,6 @@
 | [mobile/__init__.py](../mobile/__init__.py) | Мобильные приложения |
 | [mobile/android-signing-cert.sha256](../mobile/android-signing-cert.sha256) | Мобильные приложения |
 | [mobile/client_rules.py](../mobile/client_rules.py) | Мобильные приложения |
-| [mobile/ios-admin/VpnShopAdmin.xcodeproj/project.pbxproj](../mobile/ios-admin/VpnShopAdmin.xcodeproj/project.pbxproj) | Мобильные приложения |
-| [mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/Contents.json](../mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/Contents.json) | Мобильные приложения |
-| [mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/icon-1024.png](../mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/icon-1024.png) | Мобильные приложения |
-| [mobile/ios-admin/VpnShopAdmin/Assets.xcassets/Contents.json](../mobile/ios-admin/VpnShopAdmin/Assets.xcassets/Contents.json) | Мобильные приложения |
-| [mobile/ios-admin/VpnShopAdmin/ContentView.swift](../mobile/ios-admin/VpnShopAdmin/ContentView.swift) | Мобильные приложения |
-| [mobile/ios-admin/VpnShopAdmin/Info.plist](../mobile/ios-admin/VpnShopAdmin/Info.plist) | Мобильные приложения |
-| [mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift](../mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift) | Мобильные приложения |
-| [mobile/ios-admin/VpnShopAdmin/l10n.json](../mobile/ios-admin/VpnShopAdmin/l10n.json) | Мобильные приложения |
-| [mobile/ios-user/.gitignore](../mobile/ios-user/.gitignore) | Мобильные приложения |
-| [mobile/ios-user/CorgiNotificationService/Info.plist](../mobile/ios-user/CorgiNotificationService/Info.plist) | Мобильные приложения |
-| [mobile/ios-user/CorgiNotificationService/NotificationService.swift](../mobile/ios-user/CorgiNotificationService/NotificationService.swift) | Мобильные приложения |
-| [mobile/ios-user/CorgiTunnel/CorgiTunnel.entitlements](../mobile/ios-user/CorgiTunnel/CorgiTunnel.entitlements) | Мобильные приложения |
-| [mobile/ios-user/CorgiTunnel/Info.plist](../mobile/ios-user/CorgiTunnel/Info.plist) | Мобильные приложения |
-| [mobile/ios-user/CorgiTunnel/PacketTunnelProvider.swift](../mobile/ios-user/CorgiTunnel/PacketTunnelProvider.swift) | Мобильные приложения |
-| [mobile/ios-user/Shared/CorgiXray.swift](../mobile/ios-user/Shared/CorgiXray.swift) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj](../mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser.xcodeproj/xcshareddata/xcschemes/VpnShopUser.xcscheme](../mobile/ios-user/VpnShopUser.xcodeproj/xcshareddata/xcschemes/VpnShopUser.xcscheme) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json](../mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/Contents.json) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/icon-1024.png](../mobile/ios-user/VpnShopUser/Assets.xcassets/AppIcon.appiconset/icon-1024.png) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Assets.xcassets/Contents.json](../mobile/ios-user/VpnShopUser/Assets.xcassets/Contents.json) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-devices.jpg](../mobile/ios-user/VpnShopUser/Banners/app-devices.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-family.jpg](../mobile/ios-user/VpnShopUser/Banners/app-family.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-gifts.jpg](../mobile/ios-user/VpnShopUser/Banners/app-gifts.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-giveaways.jpg](../mobile/ios-user/VpnShopUser/Banners/app-giveaways.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-info.jpg](../mobile/ios-user/VpnShopUser/Banners/app-info.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-locations.jpg](../mobile/ios-user/VpnShopUser/Banners/app-locations.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-notifications.jpg](../mobile/ios-user/VpnShopUser/Banners/app-notifications.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-premium.jpg](../mobile/ios-user/VpnShopUser/Banners/app-premium.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-referral.jpg](../mobile/ios-user/VpnShopUser/Banners/app-referral.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-security.jpg](../mobile/ios-user/VpnShopUser/Banners/app-security.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-settings.jpg](../mobile/ios-user/VpnShopUser/Banners/app-settings.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-status.jpg](../mobile/ios-user/VpnShopUser/Banners/app-status.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-subscription.jpg](../mobile/ios-user/VpnShopUser/Banners/app-subscription.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-support.jpg](../mobile/ios-user/VpnShopUser/Banners/app-support.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-vpn.jpg](../mobile/ios-user/VpnShopUser/Banners/app-vpn.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Banners/app-wallet.jpg](../mobile/ios-user/VpnShopUser/Banners/app-wallet.jpg) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/ContentView.swift](../mobile/ios-user/VpnShopUser/ContentView.swift) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/Info.plist](../mobile/ios-user/VpnShopUser/Info.plist) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/LayoutUI.swift](../mobile/ios-user/VpnShopUser/LayoutUI.swift) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/VPN/CorgiTunnelManager.swift](../mobile/ios-user/VpnShopUser/VPN/CorgiTunnelManager.swift) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/VpnShopUser.entitlements](../mobile/ios-user/VpnShopUser/VpnShopUser.entitlements) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/VpnShopUserApp.swift](../mobile/ios-user/VpnShopUser/VpnShopUserApp.swift) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/default_layout.json](../mobile/ios-user/VpnShopUser/default_layout.json) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUser/l10n.json](../mobile/ios-user/VpnShopUser/l10n.json) | Мобильные приложения |
-| [mobile/ios-user/VpnShopUserUITests/VpnShopUserUITests.swift](../mobile/ios-user/VpnShopUserUITests/VpnShopUserUITests.swift) | Мобильные приложения |
 | [mobile/maestro/config.yaml](../mobile/maestro/config.yaml) | Мобильные приложения |
 | [mobile/maestro/flows/01_vpn_and_premium.yaml](../mobile/maestro/flows/01_vpn_and_premium.yaml) | Мобильные приложения |
 | [mobile/maestro/flows/02_connected.yaml](../mobile/maestro/flows/02_connected.yaml) | Мобильные приложения |

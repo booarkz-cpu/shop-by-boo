@@ -1,6 +1,6 @@
 # Инвентаризация проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.151.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
+Дистрибутив `v28.152.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
 Support Pro `0008`, мобильные приложения 3.8.0.
 
 Все числа в этом документе получены из репозитория на коммите `e3b9387` (`main`), а не из README:
@@ -105,8 +105,8 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 | --- | --- | --- |
 | `apps/vpn-shop/android` | — | Kotlin + Compose, встроенный Xray-core |
 | `apps/lucy-admin/android` | — | Kotlin + Compose |
-| `mobile/ios-user` | 10 `.swift` | Swift + SwiftUI |
-| `mobile/ios-admin` | — | Swift + SwiftUI |
+| `apps/vpn-shop/ios` | 10 `.swift` | Swift + SwiftUI |
+| `apps/lucy-admin/ios` | — | Swift + SwiftUI |
 
 Всего 24 файла Kotlin и 10 Swift. Версия приложений 3.8.0. Сборка проверяется в CI
 (`Android • PKCE build`, `iOS • PKCE build`, UI-тесты на эмуляторе и симуляторе).

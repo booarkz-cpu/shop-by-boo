@@ -30,15 +30,15 @@ def test_mobile_catalogs_are_complete_and_copied():
         assert all(catalog["ru"].values()) and all(catalog["en"].values())
     assert (ROOT / "apps/vpn-shop/android/app/src/main/assets/l10n.json").read_text() == (ROOT / "packages/localization/user.json").read_text()
     assert (ROOT / "apps/lucy-admin/android/app/src/main/assets/l10n.json").read_text() == (ROOT / "packages/localization/admin.json").read_text()
-    assert (ROOT / "mobile/ios-user/VpnShopUser/l10n.json").read_text() == (ROOT / "packages/localization/user.json").read_text()
-    assert (ROOT / "mobile/ios-admin/VpnShopAdmin/l10n.json").read_text() == (ROOT / "packages/localization/admin.json").read_text()
+    assert (ROOT / "apps/vpn-shop/ios/VpnShopUser/l10n.json").read_text() == (ROOT / "packages/localization/user.json").read_text()
+    assert (ROOT / "apps/lucy-admin/ios/VpnShopAdmin/l10n.json").read_text() == (ROOT / "packages/localization/admin.json").read_text()
 
 
 def test_native_clients_keep_session_bounds():
     user_android = (ROOT / "apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
     admin_android = (ROOT / "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
-    user_ios = (ROOT / "mobile/ios-user/VpnShopUser/VpnShopUserApp.swift").read_text()
-    admin_ios = (ROOT / "mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
+    user_ios = (ROOT / "apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift").read_text()
+    admin_ios = (ROOT / "apps/lucy-admin/ios/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
     for source, client in (
         (user_android, "android-user"),
         (admin_android, "android-admin"),

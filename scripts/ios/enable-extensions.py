@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embed the iOS app extensions into the customer app (mobile/ios-user).
+"""Embed the iOS app extensions into the customer app (apps/vpn-shop/ios).
 
     python3 scripts/ios/enable-extensions.py --push            # rich push (pictures) only
     python3 scripts/ios/enable-extensions.py --tunnel --push   # plus the embedded VPN
@@ -14,7 +14,7 @@ in a signed release once the team has them; it is idempotent.
   * sets CORGI_TUNNEL = YES (the app then connects by itself instead of handing the subscription
     to Happ / v2RayTun);
   * adds the Network Extension and App Group entitlements to the app;
-  * links mobile/ios-user/Frameworks/LibXray.xcframework and HevSocks5Tunnel.xcframework into the
+  * links apps/vpn-shop/ios/Frameworks/LibXray.xcframework and HevSocks5Tunnel.xcframework into the
     extension when they exist (scripts/ios/build-tunnel-frameworks.sh builds them).
 """
 import argparse
@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-IOS = ROOT / "mobile/ios-user"
+IOS = ROOT / "apps/vpn-shop/ios"
 PBX = IOS / "VpnShopUser.xcodeproj/project.pbxproj"
 APP_ENTITLEMENTS = IOS / "VpnShopUser/VpnShopUser.entitlements"
 APP_TARGET = "B0000000000000000000000E"

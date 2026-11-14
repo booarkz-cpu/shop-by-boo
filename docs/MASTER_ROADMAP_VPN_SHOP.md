@@ -1,6 +1,6 @@
 # Мастер-дорожная карта VPN Shop
 
-Дистрибутив `v28.151.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.152.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Состояние на `2026-10-31`. Отметка «сделано» означает, что есть подтверждение в коде или в
 результате проверки; «не проверено» — что функциональность существует, но живой прогон не выполнен.
@@ -134,7 +134,7 @@
 | Админ-панель | центр автоматизации | IMPLEMENTED | `automation.py`, `automation.tsx` | — |
 | Админ-панель | раздел «Обновления» | IMPLEMENTED | `autoUpdate.tsx` | update agent |
 | Мобильные | Android user с встроенным Xray | PARTIAL | `apps/vpn-shop/android` | SDK, сборка |
-| Мобильные | iOS user и admin | PARTIAL | `mobile/ios-user`, `mobile/ios-admin` | Xcode |
+| Мобильные | iOS user и admin | PARTIAL | `apps/vpn-shop/ios`, `apps/lucy-admin/ios` | Xcode |
 | Мобильные | Android admin | PARTIAL | `apps/lucy-admin/android` | SDK |
 | Инфраструктура | 17 сервисов Compose, образы по digest | IMPLEMENTED | `docker-compose.yml` | Docker |
 | Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `deploy/Caddyfile` | домены |

@@ -20,11 +20,11 @@
 
 Серверная версия **3.1.6** не меняет пакеты Android и проекты iOS. Покупатель остаётся **2.10.0**, администратор — **2.12.0**. То же было в **3.1.5**, **3.1.4**, **3.1.3**, **3.1.2**, **3.1.1** и **3.1.0**: загруженный APK или IPA получает SHA-256, и кабинет показывает её рядом с кнопкой **Скачать**. Файл подписки скачивается кнопкой **Скачать подписку**. Повторное нажатие «оплатить с баланса» по-прежнему не списывает сумму второй раз: это исправление **3.0.1**, сервер требует `Idempotency-Key`.
 
-Как скачать сборки репозитория: покупатель https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk , администратор https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk . Проверка — `sha256sum -c` по соседнему файлу `.sha256`. IPA нет: Xcode, каталоги `mobile/ios-user` и `mobile/ios-admin`.
+Как скачать сборки репозитория: покупатель https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk , администратор https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk . Проверка — `sha256sum -c` по соседнему файлу `.sha256`. IPA нет: Xcode, каталоги `apps/vpn-shop/ios` и `apps/lucy-admin/ios`.
 
 Server version **3.1.6** does not change the Android packages or the iOS projects. The buyer app stays **2.10.0** and the administrator app stays **2.12.0**. The same was true in **3.1.5**, **3.1.4**, **3.1.3**, **3.1.2**, **3.1.1**, and **3.1.0**: an uploaded APK or IPA receives a SHA-256, and the cabinet shows it beside **Скачать** (Download). The subscription file is downloaded with **Скачать подписку** (Download subscription). A second tap on “pay from balance” still does not debit the amount again: that is the **3.0.1** fix, and the server requires `Idempotency-Key`.
 
-Repository builds: buyer https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk , administrator https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk . Check them with `sha256sum -c` against the neighbouring `.sha256` file. There is no IPA: use Xcode and the directories `mobile/ios-user` and `mobile/ios-admin`.
+Repository builds: buyer https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk , administrator https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk . Check them with `sha256sum -c` against the neighbouring `.sha256` file. There is no IPA: use Xcode and the directories `apps/vpn-shop/ios` and `apps/lucy-admin/ios`.
 
 С версии **2.13.0** ссылка на скачивание приложения администратора стоит в веб-панели, а ссылка на приложение покупателя — в личном кабинете. Сами пакеты Android остаются **2.12.0** для администратора и **2.10.0** для покупателя, пока администратор не загрузит новый файл.
 
@@ -60,8 +60,8 @@ The apps are part of Remnawave VPN Shop and are covered by the project source li
 | --- | --- | --- | --- | --- |
 | Android, покупатель | `apps/vpn-shop/android` | `shop.remnawave.user` | `android-user` | `RemnawaveShop-Android-User/2.10.0` |
 | Android, администратор | `apps/lucy-admin/android` | `shop.remnawave.admin` | `android-admin` | `RemnawaveShop-Android-Admin/2.12.0` |
-| iOS, покупатель | `mobile/ios-user` | `shop.remnawave.user` | `ios-user` | `RemnawaveShop-iOS-User/2.10.0` |
-| iOS, администратор | `mobile/ios-admin` | `shop.remnawave.admin` | `ios-admin` | `RemnawaveShop-iOS-Admin/2.12.0` |
+| iOS, покупатель | `apps/vpn-shop/ios` | `shop.remnawave.user` | `ios-user` | `RemnawaveShop-iOS-User/2.10.0` |
+| iOS, администратор | `apps/lucy-admin/ios` | `shop.remnawave.admin` | `ios-admin` | `RemnawaveShop-iOS-Admin/2.12.0` |
 
 User-Agent должен оставаться одинаковым между входом и следующими запросами: сессия привязана к нему, смена строки отзывает сессию. Предыдущие строки сессии 2.9.0: `RemnawaveShop-Android-User/2.9.0`, `RemnawaveShop-Android-Admin/2.9.0`, `RemnawaveShop-iOS-User/2.9.0`, `RemnawaveShop-iOS-Admin/2.9.0`. Строка администратора 2.10.0 была `RemnawaveShop-Android-Admin/2.10.0` и `RemnawaveShop-iOS-Admin/2.10.0`. Строка 2.12.0 начинает новую сессию администратора. Покупатель остаётся на `2.10.0`.
 
@@ -162,7 +162,7 @@ ANDROID_HOME=$HOME/android-sdk GRADLE_BIN=$HOME/gradle-8.10.2/bin/gradle bash sc
 
 Нужны Android SDK 35, build-tools 35.0.0 и Gradle 8.10.2. С ключом скрипт вызывает `:app:assembleRelease`, иначе `:app:assembleDebug`, в `apps/vpn-shop/android` и `apps/lucy-admin/android` (AGP 8.7, Kotlin 2.0, compileSdk 35, minSdk 26, versionName `2.10.0`, исторический versionName `2.9.0` оставлен комментарием в Gradle). Cleartext в `network_security.xml` разрешён только для трёх локальных хостов. Пакет 2.10.0 подписан release-ключом и ставится вручную. Для Google Play подпись задаёт владелец. Закрытый ключ в git не коммитится.
 
-iOS: откройте `mobile/ios-user/VpnShopUser.xcodeproj` или `mobile/ios-admin/VpnShopAdmin.xcodeproj` в Xcode 15+ на macOS (iOS 16, Swift 5, MARKETING_VERSION `2.10.0`, предыдущая версия интерфейса `2.9.0`). В проекте `CODE_SIGNING_ALLOWED = NO`, чтобы дерево собиралось без команды; для устройства подпись настраивается в Xcode. `NSAllowsLocalNetworking` разрешает локальный HTTP. IPA появляется после Product → Archive в Xcode. На Linux Xcode нет, поэтому релиз IPA не содержит.
+iOS: откройте `apps/vpn-shop/ios/VpnShopUser.xcodeproj` или `apps/lucy-admin/ios/VpnShopAdmin.xcodeproj` в Xcode 15+ на macOS (iOS 16, Swift 5, MARKETING_VERSION `2.10.0`, предыдущая версия интерфейса `2.9.0`). В проекте `CODE_SIGNING_ALLOWED = NO`, чтобы дерево собиралось без команды; для устройства подпись настраивается в Xcode. `NSAllowsLocalNetworking` разрешает локальный HTTP. IPA появляется после Product → Archive в Xcode. На Linux Xcode нет, поэтому релиз IPA не содержит.
 
 Android: the **2.10.0** GitHub release attaches `remnawave_vpn_shop_android_user_2_10_0.apk` and `remnawave_vpn_shop_android_admin_2_10_0.apk` with `.sha256` files. The **2.9.0** release attached `remnawave_vpn_shop_android_user_2_9_0.apk` and `remnawave_vpn_shop_android_admin_2_9_0.apk`. Rebuild with `scripts/build-android-apk.sh` (SDK 35, Gradle 8.10.2, `assembleRelease` when `ANDROID_KEYSTORE` is set, otherwise `assembleDebug`). iOS: open the `.xcodeproj` in Xcode on macOS. `CODE_SIGNING_ALLOWED = NO` lets the tree compile without a team; a device build needs a signing team. The IPA is produced by Xcode Archive. This Linux host has no Xcode, so the release has no IPA.
 

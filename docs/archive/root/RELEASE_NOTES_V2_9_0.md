@@ -27,7 +27,7 @@ adb install -r remnawave_vpn_shop_android_admin_2_9_0.apk
 
 ## iOS
 
-Откройте `mobile/ios-user/VpnShopUser.xcodeproj` и `mobile/ios-admin/VpnShopAdmin.xcodeproj` в Xcode 15 или новее, выберите команду подписи и соберите приложение. IPA создаёт Product → Archive. На хосте этого релиза Xcode нет, поэтому IPA во вложениях нет.
+Откройте `apps/vpn-shop/ios/VpnShopUser.xcodeproj` и `apps/lucy-admin/ios/VpnShopAdmin.xcodeproj` в Xcode 15 или новее, выберите команду подписи и соберите приложение. IPA создаёт Product → Archive. На хосте этого релиза Xcode нет, поэтому IPA во вложениях нет.
 
 ## English
 
@@ -41,7 +41,7 @@ The migration head stays `0038_v2_6_0_platform`. The license stays Remnawave VPN
 
 Install with `adb install -r` or by opening the APK after allowing installs from that source. The packages use the build machine's debug key. A Play Store upload needs the owner's signing key.
 
-Open `mobile/ios-user/VpnShopUser.xcodeproj` and `mobile/ios-admin/VpnShopAdmin.xcodeproj` in Xcode 15 or newer and archive there. This release host has no Xcode, so the release has no IPA.
+Open `apps/vpn-shop/ios/VpnShopUser.xcodeproj` and `apps/lucy-admin/ios/VpnShopAdmin.xcodeproj` in Xcode 15 or newer and archive there. This release host has no Xcode, so the release has no IPA.
 
 ## Лицензия
 

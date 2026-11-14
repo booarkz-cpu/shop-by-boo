@@ -1,7 +1,7 @@
 # Технологический стек
 
 Версии взяты из `backend/requirements.txt`, `*/package.json`, `Dockerfile` и `docker-compose.yml`
-на выпуске v28.151.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
+на выпуске v28.152.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
 файлу.
 
 ## Backend
@@ -65,8 +65,8 @@
 | --- | --- | --- |
 | Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
 | Android admin | Kotlin 2.4, Compose, AGP 9.5 | `apps/lucy-admin/android` |
-| iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `mobile/ios-user` |
-| iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `mobile/ios-admin` |
+| iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
+| iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `apps/lucy-admin/ios` |
 
 Версия приложений — **3.8.0** (`versionName`, `MARKETING_VERSION`).
 Тесты: XCUITest на симуляторе, UI-тесты на эмуляторе Android, Maestro (`mobile/maestro`).
