@@ -44,7 +44,7 @@
 | 29 | Управление нодой: перезапуск, вкл/выкл, смена адреса | `remnawave.py` (`/api/nodes/{uuid}/actions/disable`, `restart-all`), `rw_selfsteal.py` | `tests/test_remnawave_architecture.py` | есть |
 | 30 | Оповещения в Telegram и копия вне сервера | `ops_alerts.py`, `telegram_backup.py`, `backups_api.py` (S3) | `tests/test_promo_generator_and_tg_backup.py` | есть (S3 вместо rclone) |
 | 31 | Сертификаты: срок, продление | `ops_alerts.py` `certificate_check` (14/3 дня; Caddy продлевает сам) | `tests/test_ops_alerts.py` | есть |
-| 32 | Firewall и SSH только с адреса владельца | `deploy/install-vps.sh` (`ADMIN_SSH_IP`), `scripts/open-ports.sh` (`SSH_ONLY_FROM`), `backend/app/rw_ports.py` | `tests/test_admin_ssh_ip.py`, `tests/test_rw_ports.py` | **перенесено** в v28.148.0 |
+| 32 | Firewall и SSH только с адреса владельца | `infrastructure/deployment/install-vps.sh` (`ADMIN_SSH_IP`), `scripts/open-ports.sh` (`SSH_ONLY_FROM`), `backend/app/rw_ports.py` | `tests/test_admin_ssh_ip.py`, `tests/test_rw_ports.py` | **перенесено** в v28.148.0 |
 | 33 | Заглушка на домене подписки | `sub_proxy.py` `mask_page` | `tests/test_subscription_middleware.py` | есть |
 
 ### Отличия, которые остаются (REQ-MIG-0022)

@@ -22,6 +22,8 @@ export function Domains({request, toast}: Props) {
   const [result, setResult] = useState<Record<number, any>>({});
   const [form, setForm] = useState({domain: "", purpose: "subscription", served_by: "shop", server_id: "", expected_ip: ""});
   const [removing, setRemoving] = useState<number | null>(null);
+  // A refused record change (the new address does not answer on 443) can be repeated without the check.
+  const [unchecked, setUnchecked] = useState<{id: number; provider: string; title: string; why: string} | null>(null);
   const load = () => {
     setError("");
     Promise.all([request("/api/admin/rw/domains"), request("/api/admin/rw/certificates"), request("/api/admin/rw/proxy-routes"),
@@ -34,6 +36,20 @@ export function Domains({request, toast}: Props) {
   const run = async (key: string, fn: () => Promise<any>, ok?: string) => {
     setError(""); setBusy(key);
     try { const out = await fn(); if (ok) toast(ok); load(); return out; } catch (e: any) { setError(e.message); } finally { setBusy(""); }
+  };
+  const setRecord = async (id: number, p: {id: string; title: string}, force = false) => {
+    setError(""); setBusy(`dns-${p.id}-${id}`);
+    try {
+      const r = await request(`/api/admin/rw/domains/${id}/dns-record?provider=${p.id}${force ? "&force=true" : ""}`, post());
+      setUnchecked(null);
+      const was = r.previous?.length && !r.previous.includes(r.content) ? `; было ${r.previous.join(", ")}` : "";
+      toast(`${p.title}: запись A → ${r.content} (${r.action === "created" ? "создана" : r.action === "unchanged" ? "уже верная" : "обновлена"})${was}`);
+      load();
+    } catch (e: any) {
+      // rw_domains.DNS_GUARD: the name works now and the new address does not answer — the owner decides.
+      if (!force && String(e.message).startsWith("Новый адрес")) setUnchecked({id, provider: p.id, title: p.title, why: e.message});
+      else setError(e.message);
+    } finally { setBusy(""); }
   };
   const add = (e: React.FormEvent) => { e.preventDefault(); run("add", async () => {
     await request("/api/admin/rw/domains", post({domain: form.domain, purpose: form.purpose, served_by: form.served_by,
@@ -60,15 +76,16 @@ export function Domains({request, toast}: Props) {
             <td>{x.http_status ?? "—"}</td>
             <td className="actions">
               <button onClick={() => check(x.id)} disabled={busy === `check-${x.id}`}>{busy === `check-${x.id}` ? "Проверка…" : "Проверить"}</button>
-              {(d.dns_providers || []).map((p: any) => <button key={p.id} onClick={() => run(`dns-${p.id}-${x.id}`, async () => {
-                const r = await request(`/api/admin/rw/domains/${x.id}/dns-record?provider=${p.id}`, post());
-                toast(`${p.title}: запись A → ${r.content} (${r.action === "created" ? "создана" : r.action === "unchanged" ? "уже верная" : "обновлена"})`); })}>Запись A в {p.title}</button>)}
+              {(d.dns_providers || []).map((p: any) => <button key={p.id} disabled={busy === `dns-${p.id}-${x.id}`} onClick={() => setRecord(x.id, {id: p.id, title: p.title})}>Запись A в {p.title}</button>)}
               {x.purpose === "subscription" && x.served_by === "shop" && d.subscription_base !== `https://${x.domain}` &&
                 <button onClick={() => run(`primary-${x.id}`, () => request(`/api/admin/rw/domains/${x.id}/primary`, post()), "Клиенты получают ссылки на этом домене")}>Сделать адресом подписки</button>}
               <button onClick={() => run(`toggle-${x.id}`, () => request(`/api/admin/rw/domains/${x.id}`, {method: "PATCH", body: JSON.stringify({enabled: !x.enabled})}))}>{x.enabled ? "Выключить" : "Включить"}</button>
               {removing === x.id ? <button className="danger" onClick={() => run(`del-${x.id}`, () => request(`/api/admin/rw/domains/${x.id}`, {method: "DELETE"}), "Домен удалён")}>Точно удалить</button>
                 : <button onClick={() => setRemoving(x.id)}>Удалить</button>}
             </td></tr>
+            {unchecked?.id === x.id && <tr><td colSpan={6} role="alert" data-dns-guard>{unchecked.why}{" "}
+              <button className="danger" onClick={() => setRecord(x.id, {id: unchecked.provider, title: unchecked.title}, true)}>Сменить без проверки</button>{" "}
+              <button onClick={() => setUnchecked(null)}>Оставить как есть</button></td></tr>}
             {(result[x.id] || x.last_error) && <tr><td colSpan={6} data-domain-result>
               {result[x.id] ? <ul><li>DNS: {result[x.id].dns}</li><li>TLS: {result[x.id].tls}</li><li>HTTPS: {result[x.id].http ?? "нет ответа"}</li></ul> : <span className="muted">{x.last_error}</span>}
               {x.dns_records && Object.keys(x.dns_records).length ? <details><summary>Записи DNS</summary><ul>{["A", "AAAA", "CNAME", "TXT", "CAA"].map(t =>

@@ -50,6 +50,7 @@ DNS_PROVIDERS = {"cloudflare": ("cloudflare_api_token", "Cloudflare"), "bunny": 
                  "gcore": ("gcore_api_key", "Gcore DNS")}
 connect = None  # tests: async (ip, port, domain) -> (cert_dict | None, verified: bool, error: str | None)
 http_get = None  # tests: async (domain, ip) -> status code
+tcp_open = None  # tests: async (ip, port) -> bool
 
 
 def _iso(value):
@@ -392,6 +393,35 @@ async def _gcore_record(domain: str, ip: str) -> tuple[str, str]:
     raise HTTPException(404, "Зона домена не найдена в Gcore DNS")
 
 
+async def _accepts(ip: str, port: int = 443) -> bool:
+    if tcp_open:
+        return await tcp_open(ip, port)
+    try:
+        _reader, writer = await asyncio.wait_for(asyncio.open_connection(ip, port), 8)
+    except (OSError, asyncio.TimeoutError):
+        return False
+    writer.close()
+    return True
+
+
+DNS_GUARD = "Новый адрес"  # the admin panel offers «Сменить без проверки» for a refusal that starts with this
+
+
+async def guard_dns_change(row: RemnawaveDomain, resolver, ip: str, force: bool) -> list[str]:
+    """REQ-INFRA-0039: before a working name is pointed elsewhere, the new address must accept connections on 443 —
+    otherwise the panel, the subscription page or the portal on that name goes dark until someone puts the record
+    back. Returns the addresses the name has now: they go to the audit log and to the answer, so the change can be
+    undone. A name without a record, the same address, a private address (cannot be probed from here) and
+    ``force`` are not checked. Only a TCP connection: a new server has no certificate for the name before DNS."""
+    current = [a for a in await _query(resolver, row.domain, "A") if a]
+    if not current or ip in current or force or not ipaddress.ip_address(ip).is_global:
+        return current
+    if await _accepts(ip):
+        return current
+    raise HTTPException(409, f"{DNS_GUARD} {ip} не принимает соединения на порту 443 — запись не изменена. Сейчас {row.domain} "
+                             f"указывает на {', '.join(current)}. Проверьте сервер и повторите, или смените запись без проверки.")
+
+
 # ---------------------------------------------------------------- admin API
 
 @router.get("/api/admin/rw/domains")
@@ -479,32 +509,32 @@ async def make_primary(domain_id: int, db: AsyncSession = Depends(get_db), admin
 
 @router.post("/api/admin/rw/domains/{domain_id}/dns-record")
 async def upsert_dns_record(domain_id: int, db: AsyncSession = Depends(get_db), admin=Depends(require_permission("settings.runtime.write")),
-                            provider: Literal["cloudflare", "bunny", "gcore"] | None = None):
+                            provider: Literal["cloudflare", "bunny", "gcore"] | None = None, force: bool = False):
     """Create or update the domain's A record to the expected address at the chosen DNS provider (default: the first
-    with a key; Cloudflare proxying off — Let's Encrypt and VPN clients must reach the server itself)."""
+    with a key; Cloudflare proxying off — Let's Encrypt and VPN clients must reach the server itself). A name that
+    already points somewhere is moved only to an address that answers on 443 (``guard_dns_change``); ``force``
+    skips that check. The previous addresses are returned and written to the audit log."""
     configured = dns_providers()
     provider = provider or (configured[0] if configured else "cloudflare")
-    if provider != "cloudflare":
-        if provider not in configured:
-            raise HTTPException(409, f"Не задан ключ {DNS_PROVIDERS[provider][1]}: «Настройки → Параметры → Remnawave»")
-        row = await _domain(db, domain_id)
-        Resolver, factory = _resolver()
-        async with factory() as client:
-            expected = await expected_addresses(db, row, Resolver(client))
-        ip = next((x for x in expected if ipaddress.ip_address(x).version == 4), None)
-        if not ip:
-            raise HTTPException(409, "Не известен адрес IPv4, на который указывать: задайте «Ожидаемый адрес»")
-        action, zone = await (_bunny_record if provider == "bunny" else _gcore_record)(row.domain, ip)
-        await _audit(db, "rw.domain.dns_record", admin.email, row.domain, f"{provider} A {ip} {action}")
-        await db.commit()
-        return {"action": action, "type": "A", "content": ip, "zone": zone, "provider": provider}
+    if provider != "cloudflare" and provider not in configured:
+        raise HTTPException(409, f"Не задан ключ {DNS_PROVIDERS[provider][1]}: «Настройки → Параметры → Remnawave»")
+    if provider == "cloudflare":
+        _cf_headers()  # no token: refused before anything is looked up
     row = await _domain(db, domain_id)
     Resolver, factory = _resolver()
     async with factory() as client:
-        expected = await expected_addresses(db, row, Resolver(client))
-    ip = next((x for x in expected if ipaddress.ip_address(x).version == 4), None)
-    if not ip:
-        raise HTTPException(409, "Не известен адрес IPv4, на который указывать: задайте «Ожидаемый адрес»")
+        resolver = Resolver(client)
+        expected = await expected_addresses(db, row, resolver)
+        ip = next((x for x in expected if ipaddress.ip_address(x).version == 4), None)
+        if not ip:
+            raise HTTPException(409, "Не известен адрес IPv4, на который указывать: задайте «Ожидаемый адрес»")
+        previous = await guard_dns_change(row, resolver, ip, force)
+    was = f"; was {', '.join(previous)}" if previous and ip not in previous else ""
+    if provider != "cloudflare":
+        action, zone = await (_bunny_record if provider == "bunny" else _gcore_record)(row.domain, ip)
+        await _audit(db, "rw.domain.dns_record", admin.email, row.domain, f"{provider} A {ip} {action}{was}{' (forced)' if force else ''}")
+        await db.commit()
+        return {"action": action, "type": "A", "content": ip, "zone": zone, "provider": provider, "previous": previous}
     zone = await _zone_for(row.domain)
     existing = (await _cf("GET", f"/zones/{zone['id']}/dns_records", params={"type": "A", "name": row.domain}))["result"]
     body = {"type": "A", "name": row.domain, "content": ip, "ttl": 300, "proxied": False}
@@ -514,9 +544,9 @@ async def upsert_dns_record(domain_id: int, db: AsyncSession = Depends(get_db), 
     else:
         await _cf("POST", f"/zones/{zone['id']}/dns_records", json=body)
         action = "created"
-    await _audit(db, "rw.domain.dns_record", admin.email, row.domain, f"A {ip} {action}")
+    await _audit(db, "rw.domain.dns_record", admin.email, row.domain, f"A {ip} {action}{was}{' (forced)' if force else ''}")
     await db.commit()
-    return {"action": action, "type": "A", "content": ip, "zone": zone.get("name"), "provider": "cloudflare"}
+    return {"action": action, "type": "A", "content": ip, "zone": zone.get("name"), "provider": "cloudflare", "previous": previous}
 
 
 @router.get("/api/admin/rw/certificates")

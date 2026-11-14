@@ -1,3 +1,11 @@
+# v28.154.0
+
+- Этап 4 структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): `git mv` `deploy` → `infrastructure/deployment` (установщик, сборка, WireGuard, сертификат почты), `infrastructure/reverse-proxy` (Caddy, nginx), `infrastructure/monitoring` (Prometheus, Grafana); `terraform` → `infrastructure/provisioning`. Обновлены пути в `docker-compose*.yml`, CI, скриптах, тестах, `install.sh`, Dependabot и документах.
+- Старые пути: в `deploy/` остались переходники `install-vps.sh`, `install-docker.sh`, `install-status.sh`, `resume-vps-after-pin.sh`, `build-production.sh`. Обновление установленного сервера старым `scripts/update.sh` идёт через переходник; сертификат из `deploy/mail-tls` копируется в новую папку один раз; `scripts/rollback.sh` собирает и снимок со старой раскладкой. Проверки — `tests/test_layout_stage4.py`.
+- REQ-INFRA-0039: запись A работающего имени (`POST /api/admin/rw/domains/{id}/dns-record`) переносится только на адрес, принимающий соединения на 443; прежние адреса — в ответе (`previous`) и в журнале; `force=true` и кнопка «Сменить без проверки» в «Доменах и сертификатах».
+- Раздел реестра INFRA сверен полностью (решение № 19): PASS — INFRA-0019, 0022; PARTIAL — 0001, 0017, 0018, 0020, 0039; BLOCKED_EXTERNAL — 0026 (замеры для SLO нужны на VPS).
+- CI (PR #343): «Mobile packages» не останавливается на пакетах, которые сборка выпуска приложила первой, и докладывает свои файлы — причина неполного v28.152.0.
+
 # v28.153.0
 
 - Этап 3 структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): `git mv` `admin` → `apps/lucy-admin/web`, `cabinet` → `apps/user-cabinet`, `miniapp` → `apps/telegram-mini-app`. Обновлены: Dockerfile веб-панели (рабочая папка `/src/apps/lucy-admin/web`, общие файлы кабинета — в `/src/apps/user-cabinet`) и Mini App, контексты сборки в `docker-compose*.yml` и `docker.yml`, матрица `frontend` в `ci.yml` (поле `dir`, имена заданий прежние), `dependabot.yml`, относительные импорты панели из кабинета (`../../../user-cabinet/src/…`), `next.config.mjs` (корень репозитория — на три уровня выше), `playwright.config.ts`, цикл lock-файлов в `deploy/install-vps.sh`, `scripts/security-scan.sh`, скрипты снимков, тесты и документы. Имена служб Docker, адреса и домены не менялись.

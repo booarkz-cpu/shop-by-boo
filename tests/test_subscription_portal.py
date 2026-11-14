@@ -171,7 +171,7 @@ async def test_cloudflare_record(database, dns, monkeypatch):
         return {"result": {}}
     monkeypatch.setattr(rw_domains, "_cf", cf)
     out = await rw_domains.upsert_dns_record(row.id, db, ADMIN)
-    assert out == {"action": "created", "type": "A", "content": "93.184.216.34", "zone": "example.com", "provider": "cloudflare"}
+    assert out == {"action": "created", "type": "A", "content": "93.184.216.34", "zone": "example.com", "provider": "cloudflare", "previous": []}
     assert calls[-1][0] == "POST" and calls[-1][2] == {"type": "A", "name": "sub.example.com", "content": "93.184.216.34", "ttl": 300, "proxied": False}
 
 
@@ -408,7 +408,7 @@ async def test_bunny_and_gcore_records(database, dns, monkeypatch):
         return 200, {}
     monkeypatch.setattr(rw_domains, "_provider_call", call)
     out = await rw_domains.upsert_dns_record(row.id, db, ADMIN)  # the first provider with a key
-    assert out == {"action": "updated", "type": "A", "content": "93.184.216.34", "zone": "example.com", "provider": "bunny"}
+    assert out == {"action": "updated", "type": "A", "content": "93.184.216.34", "zone": "example.com", "provider": "bunny", "previous": []}
     bunny = [c for c in calls if c[0] == "bunny"]
     assert ("bunny", "PUT", "/dnszone/1/records", {"Type": 0, "Ttl": 300, "Name": "sub", "Value": "93.184.216.34"}, bunny[0][4]) in bunny
     assert bunny[-1][1:3] == ("DELETE", "/dnszone/1/records/7")  # the old address goes after the new one is in place
@@ -445,3 +445,53 @@ async def test_delete_domain_and_check_all_certificates(database, dns, monkeypat
     with pytest.raises(HTTPException) as err:
         await rw_domains.delete_domain(second["id"], db, ADMIN)
     assert err.value.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_a_working_name_is_not_pointed_at_an_address_that_does_not_answer(database, dns, monkeypatch):
+    """REQ-INFRA-0039: the panel's name keeps its record when the new server is down; the old address is reported."""
+    db = database
+    row = RemnawaveDomain(domain="panel.example.com", purpose="panel", served_by="external", expected_ip="93.184.216.50", created_by="t")
+    db.add(row)
+    await db.commit()
+    dns.zone[("panel.example.com", "A")] = ["93.184.216.60"]
+    monkeypatch.setattr(settings, "cloudflare_api_token", "cf-token", raising=False)
+    calls, probed, up = [], [], {"93.184.216.50": False}
+
+    async def cf(method, path, **kw):
+        calls.append((method, path, kw.get("json")))
+        if path == "/zones":
+            return {"result": [{"id": "z1", "name": "example.com"}] if kw["params"]["name"] == "example.com" else []}
+        if path.endswith("/dns_records") and method == "GET":
+            return {"result": [{"id": "r1", "content": "93.184.216.60"}]}
+        return {"result": {}}
+
+    async def tcp_open(ip, port):
+        probed.append((ip, port))
+        return up[ip]
+    monkeypatch.setattr(rw_domains, "_cf", cf)
+    monkeypatch.setattr(rw_domains, "tcp_open", tcp_open)
+
+    with pytest.raises(HTTPException) as err:
+        await rw_domains.upsert_dns_record(row.id, db, ADMIN)
+    assert err.value.status_code == 409 and err.value.detail.startswith(rw_domains.DNS_GUARD)
+    assert "93.184.216.60" in err.value.detail and "93.184.216.50" in err.value.detail
+    assert probed == [("93.184.216.50", 443)]
+    assert not [c for c in calls if c[0] in ("PUT", "POST")], "the record is not touched"
+
+    up["93.184.216.50"] = True   # the new server is up: the record moves, the old address is kept for the way back
+    out = await rw_domains.upsert_dns_record(row.id, db, ADMIN)
+    assert out["action"] == "updated" and out["content"] == "93.184.216.50" and out["previous"] == ["93.184.216.60"]
+    log = (await db.execute(select(AuditLog).where(AuditLog.action == "rw.domain.dns_record"))).scalars().all()
+    assert "was 93.184.216.60" in log[-1].details and "forced" not in log[-1].details
+
+    up["93.184.216.50"] = False  # the owner insists (the server is being installed right now)
+    probed.clear()
+    out = await rw_domains.upsert_dns_record(row.id, db, ADMIN, force=True)
+    assert out["action"] == "updated" and probed == []
+    log = (await db.execute(select(AuditLog).where(AuditLog.action == "rw.domain.dns_record"))).scalars().all()
+    assert log[-1].details.endswith("(forced)")
+
+    dns.zone[("panel.example.com", "A")] = ["93.184.216.50"]   # already there: nothing to check
+    out = await rw_domains.upsert_dns_record(row.id, db, ADMIN)
+    assert probed == [] and out["previous"] == ["93.184.216.50"]
