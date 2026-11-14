@@ -86,3 +86,37 @@ def test_installer_passes_the_limit_to_open_ports():
     text = (ROOT / "deploy/install-vps.sh").read_text()
     assert 'SSH_ONLY_FROM="$SSH_FROM" bash "$ROOT/scripts/open-ports.sh" vds' in text
     assert os.path.exists(ROOT / "scripts/open-ports.sh")
+
+
+def ssh_question(env: dict) -> str:
+    """Owner's decision № 18: the installer asks; run non-interactively, as INSTALL_NONINTERACTIVE=1 would."""
+    text = (ROOT / "deploy/install-vps.sh").read_text()
+    helper = text[text.index("prompt() {"):text.index("prompt_required() {")]
+    start = text.index("# Owner's decision № 18")
+    end = text.index("esac\n", start) + len("esac\n")
+    script = ('warn(){ echo "WARN $*"; }; die(){ echo "DIE $*"; exit 1; }\n' + helper + text[start:end]
+              + 'echo "ADMIN_SSH_IP=${ADMIN_SSH_IP}"\n')
+    proc = subprocess.run(["bash", "-c", script], env={"PATH": "/usr/bin:/bin", "INSTALL_NONINTERACTIVE": "1", **env},
+                          capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    return proc.stdout
+
+
+def test_question_defaults_to_open_ssh():
+    out = ssh_question({"SSH_CONNECTION": "203.0.113.10 51515 198.51.100.2 22"})
+    assert "ADMIN_SSH_IP=\n" in out and "203.0.113.10" in out   # the current address is shown in the question
+
+
+def test_yes_takes_the_current_address():
+    out = ssh_question({"LIMIT_SSH": "yes", "SSH_CONNECTION": "203.0.113.10 51515 198.51.100.2 22"})
+    assert "ADMIN_SSH_IP=203.0.113.10" in out
+
+
+def test_given_address_is_kept_and_means_yes():
+    out = ssh_question({"ADMIN_SSH_IP": "192.0.2.5", "SSH_CONNECTION": "203.0.113.10 51515 198.51.100.2 22"})
+    assert "ADMIN_SSH_IP=192.0.2.5" in out
+
+
+def test_yes_without_ssh_session_warns_and_stays_open():
+    out = ssh_question({"LIMIT_SSH": "yes"})
+    assert "ADMIN_SSH_IP=\n" in out and "WARN" in out

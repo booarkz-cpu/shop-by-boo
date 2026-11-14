@@ -157,6 +157,23 @@ echo "Автообновление: сервер сам ставит новые 
 prompt AUTO_UPDATE "Включить автообновление (yes / no)" "yes"
 AUTO_UPDATE="$(printf '%s' "$AUTO_UPDATE" | tr '[:upper:]' '[:lower:]')"
 
+# Owner's decision № 18 (2026-11-14): the installer asks whether SSH should open only for the owner's address; default «no».
+SSH_CLIENT_IP="${SSH_CONNECTION:-}"
+SSH_CLIENT_IP="${SSH_CLIENT_IP%% *}"
+echo
+echo "SSH: порт можно открыть только для вашего адреса${SSH_CLIENT_IP:+ (сейчас вы подключены с ${SSH_CLIENT_IP})}."
+echo "Если ваш адрес меняется (мобильный интернет, домашний без постоянного IP), отвечайте no — иначе потеряете доступ."
+prompt LIMIT_SSH "Открыть SSH только для вашего адреса (yes / no)" "$([[ -n "${ADMIN_SSH_IP:-}" ]] && echo yes || echo no)"
+case "$(printf '%s' "$LIMIT_SSH" | tr '[:upper:]' '[:lower:]')" in
+  y|yes|д|да)
+    if [[ -z "${ADMIN_SSH_IP:-}" ]]; then
+      ADMIN_SSH_IP="$SSH_CLIENT_IP"
+      [[ -n "$ADMIN_SSH_IP" ]] || warn "Установка идёт не через SSH — адрес неизвестен, SSH останется открытым для всех (задайте ADMIN_SSH_IP=<адрес>)"
+    fi
+    ;;
+  *) ADMIN_SSH_IP="" ;;
+esac
+
 echo
 echo "Платежи: выберите провайдер для первичной настройки."
 prompt PAYMENT_PROVIDER "Провайдер (yookassa / platega / rollypay / none)" "none"
