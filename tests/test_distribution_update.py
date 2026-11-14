@@ -18,15 +18,17 @@ MANIFEST = ARCHIVE.removesuffix(".zip") + "_manifest.json"
 COMMIT = "a" * 40
 
 
-def release_fixture(tmp_path, monkeypatch, **overrides):
+def release_fixture(tmp_path, monkeypatch, stage_extra=None, installed_tag=None, **overrides):
     installed = tmp_path / "installed"
     (installed / "backend/app").mkdir(parents=True)
     (installed / "backend/app/main.py").write_text('APP_VERSION = "21.5.1"\n')
+    if installed_tag:
+        (installed / "release-manifest.template.json").write_text(json.dumps({"version": "21.5.1", "distribution_tag": installed_tag}))
     stage = tmp_path / "stage"
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, "w") as archive:
         archive.writestr("backend/app/main.py", 'APP_VERSION = "21.5.1"\n')
-        archive.writestr("release-manifest.template.json", json.dumps({"version": "21.5.1", "distribution_tag": TAG}))
+        archive.writestr("release-manifest.template.json", json.dumps({"version": "21.5.1", "distribution_tag": TAG, **(stage_extra or {})}))
     blob = stream.getvalue()
     sha = hashlib.sha256(blob).hexdigest()
     manifest = {"version": "21.5.1", "distribution_tag": TAG, "artifact": ARCHIVE, "sha256": sha, "commit": COMMIT}
@@ -97,3 +99,30 @@ def test_status_does_not_advertise_unpublished_or_preview_distribution(flag):
     names = [ARCHIVE, ARCHIVE + ".sha256", MANIFEST]
     payload = {"tag_name": TAG, flag: True, "assets": [{"name": name, "browser_download_url": f"{DOWNLOAD_PREFIX}{TAG}/{name}"} for name in names]}
     assert not release_status("21.5.1", payload, "v28.0.0")["update_available"]
+
+
+def test_a_release_refuses_an_install_older_than_its_floor(tmp_path, monkeypatch, capsys):
+    """v28.144.0 (REQ-INFRA-0009): ``min_upgrade_from`` — the oldest install the release may update in one step."""
+    release_fixture(tmp_path, monkeypatch, stage_extra={"min_upgrade_from": "28.30.0"}, installed_tag="v28.20.0")
+    with pytest.raises(SystemExit) as stop:
+        updater.main()
+    assert stop.value.code == 1
+    out = capsys.readouterr().out
+    assert "не ниже v28.30.0" in out and "установлена v28.20.0" in out and "RELEASE_TAG=v28.30.0" in out
+
+
+def test_an_install_at_or_above_the_floor_updates(tmp_path, monkeypatch):
+    _, stage, _ = release_fixture(tmp_path / "a", monkeypatch, stage_extra={"min_upgrade_from": "28.30.0"}, installed_tag="v28.30.0")
+    updater.main()
+    assert updater.current_distribution(stage) == "28.34.0"
+
+
+def test_a_broken_floor_is_refused(tmp_path, monkeypatch):
+    release_fixture(tmp_path, monkeypatch, stage_extra={"min_upgrade_from": "latest"}, installed_tag="v28.30.0")
+    with pytest.raises(SystemExit):
+        updater.main()
+
+
+def test_this_release_names_its_floor():
+    manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
+    assert updater.version_tuple(manifest["min_upgrade_from"]) <= updater.version_tuple(manifest["distribution_tag"])
