@@ -3532,5 +3532,167 @@
   ],
   "platforms": "backend/API, web admin",
   "note": "Запись A работающего имени переносится только на адрес, который принимает соединения на 443; прежние адреса возвращаются и пишутся в журнал (путь назад), обход — явной кнопкой. Смена сертификата и домена панели мастером установки такой проверки не делает; вживую на DNS-провайдере не проверено."
+ },
+ "REQ-MIG-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/REFERENCE_REPOSITORIES.md",
+   "docs/CODE_REUSE_REGISTER.md"
+  ],
+  "platforms": "all products",
+  "note": "Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). MIT, перенос разрешён, но не нужен: у магазина свой Caddy. Построчной сверки функций установщика нет; коммит источника — от 2026-10-16."
+ },
+ "REQ-MIG-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/REFERENCE_REPOSITORIES.md",
+   "docs/CODE_REUSE_REGISTER.md"
+  ],
+  "platforms": "all products",
+  "note": "Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). AGPL-3.0 — только идеи (решение № 13). Сверка функций обзорная, по разделам панели; коммит источника — от 2026-10-26."
+ },
+ "REQ-MIG-0006": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/REFERENCE_REPOSITORIES.md",
+   "docs/CODE_REUSE_REGISTER.md"
+  ],
+  "platforms": "all products",
+  "note": "Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). Commons Clause — только идеи (решение № 13). Прочитаны не все файлы бота; сверка функций обзорная."
+ },
+ "REQ-MIG-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/REFERENCE_REPOSITORIES.md",
+   "docs/CODE_REUSE_REGISTER.md"
+  ],
+  "platforms": "all products",
+  "note": "Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). AGPL-3.0 — только идеи (решение № 13). Сверка функций обзорная."
+ },
+ "REQ-MIG-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/REFERENCE_REPOSITORIES.md"
+  ],
+  "platforms": "all products",
+  "note": "StepBot изучен 2026-11-14 по клону (`7a1fe52`, MIT): лицензия, стек, кассы, сравнение идей поиском по коду. Не найдены в магазине конструктор меню бота и импорт из remnawave-shopbot; смена тарифа с зачётом и докупка трафика требуют отдельной сверки."
+ },
+ "REQ-MIG-0010": {
+  "status": "PASS",
+  "evidence": [
+   "docs/CODE_REUSE_REGISTER.md"
+  ],
+  "platforms": "all products"
+ },
+ "REQ-MIG-0011": {
+  "status": "PASS",
+  "evidence": [
+   "docs/REFERENCE_REPOSITORIES.md"
+  ],
+  "platforms": "all products"
+ },
+ "REQ-MIG-0012": {
+  "status": "PASS",
+  "evidence": [
+   "docs/REFERENCE_REPOSITORIES.md",
+   "docs/CODE_REUSE_REGISTER.md",
+   "docs/OWNER_DECISIONS.md",
+   "THIRD_PARTY_NOTICES.md"
+  ],
+  "platforms": "all products"
+ },
+ "REQ-MIG-0013": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   "apps/vpn-client/android/app/build.gradle.kts",
+   "apps/user-cabinet/package.json",
+   "apps/telegram-mini-app/package.json",
+   "apps/lucy-admin/web/package.json"
+  ],
+  "platforms": "all products",
+  "note": "В `apps/` есть vpn-client/android, vpn-shop (android, ios), user-cabinet, telegram-mini-app, lucy-admin (web, android, ios). Нет vpn-client/ios (клиент только для Android); telegram-bot и status-page — модули бэкенда, отдельными приложениями не выделены."
+ },
+ "REQ-MIG-0014": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   "docs/architecture/DOMAIN_BOUNDARIES.md"
+  ],
+  "platforms": "all products",
+  "note": "Сервисы промпта — модули одного FastAPI-приложения `backend` и отдельный `support-pro`; папки `services/` нет (этап 5). Разделение на отдельные службы не планируется без необходимости — описано в MONOREPO_LAYOUT."
+ },
+ "REQ-MIG-0015": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   "packages/localization/user.json",
+   "packages/localization/admin.json"
+  ],
+  "platforms": "all products",
+  "note": "Есть `packages/localization`. Остальных пакетов нет: общего кода между приложениями нет, пустые модули не создаются."
+ },
+ "REQ-MIG-0016": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   "infrastructure/deployment/install-vps.sh",
+   "infrastructure/reverse-proxy/Caddyfile",
+   "infrastructure/monitoring/prometheus/vpnshop-alerts.yml",
+   "infrastructure/provisioning/corgi/main.tf"
+  ],
+  "platforms": "all products",
+  "note": "Есть deployment (с установщиком), reverse-proxy, monitoring, provisioning. Нет отдельных папок docker, vpn-nodes, security, backup: Dockerfile лежат рядом с кодом, узлы ставятся модулями бэкенда, копии — скриптами в `scripts/`."
+ },
+ "REQ-MIG-0017": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   "scripts/audit/requirements_register.py",
+   "docs/PROJECT_FILE_MAP.md"
+  ],
+  "platforms": "all products",
+  "note": "Есть `scripts/audit`, `tests/`, `docs/`, `.github/workflows`. Миграции лежат в `backend/alembic` и `support-pro/alembic` (этап 5), а не в `database/`; `scripts/` и `tests/` не разбиты на подпапки по назначению."
+ },
+ "REQ-MIG-0023": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md",
+   "tests/test_layout_stage4.py",
+   "tests/test_admin_ssh_ip.py",
+   "docs/MONOREPO_LAYOUT.md"
+  ],
+  "platforms": "all products"
+ },
+ "REQ-MIG-0025": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products"
+ },
+ "REQ-MIG-0026": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/ci/secret-leak-check.py",
+   "tests/test_secret_leak_check.py",
+   ".github/workflows/ci.yml",
+   "docs/MIGRATION_MAPPING.md"
+  ],
+  "platforms": "all products",
+  "note": "Чужие коммиты не переносились — переносить было нечего (только свой код). Секреты в дереве и в файлах выпуска проверяет CI. Отдельной проверки персональных данных в тестовых данных и журналах нет."
+ },
+ "REQ-MIG-0028": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/API_ENDPOINTS.md",
+   "docs/ru/new/ADMIN_CONTROL_MATRIX.md",
+   "scripts/verify-admin-matrix.py",
+   "tests/test_layout_stage4.py",
+   "docs/MONOREPO_LAYOUT.md"
+  ],
+  "platforms": "all products",
+  "note": "После каждого этапа перекладки: список маршрутов API и матрица функций панели генерируются из кода и лежат в репозитории — пропавший маршрут или раздел виден в PR; сборки и тесты приложений идут в CI. Нет такой же описи команд бота, фоновых задач и настроек."
  }
 }

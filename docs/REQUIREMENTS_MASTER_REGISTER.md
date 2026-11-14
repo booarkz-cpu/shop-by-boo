@@ -11,21 +11,21 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **178** — 27.3%.
+- Подтверждено (`PASS`): **183** — 28.0%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 178 | Проверено, доказательство указано |
-| `PARTIAL` | 190 | Сделано частично, остаток описан |
+| `PASS` | 183 | Проверено, доказательство указано |
+| `PARTIAL` | 202 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 35 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 248 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 231 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 123 | 12 | 5 | 0 | 102 |
-| Монорепозиторий и перенос | 28 | 9 | 2 | 0 | 17 |
+| Монорепозиторий и перенос | 28 | 14 | 14 | 0 | 0 |
 | «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
 | Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
@@ -895,33 +895,48 @@
 
 > https://github.com/booarkz-cpu/remnawave-manager
 
-### REQ-MIG-0004 — `NOT_TESTED`
+### REQ-MIG-0004 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 43). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`.
+- Примечание: Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). MIT, перенос разрешён, но не нужен: у магазина свой Caddy. Построчной сверки функций установщика нет; коммит источника — от 2026-10-16.
 
 > https://github.com/eGamesAPI/remnawave-reverse-proxy
 
-### REQ-MIG-0005 — `NOT_TESTED`
+### REQ-MIG-0005 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 47). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`.
+- Примечание: Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). AGPL-3.0 — только идеи (решение № 13). Сверка функций обзорная, по разделам панели; коммит источника — от 2026-10-26.
 
 > https://github.com/Case211/remnawave-admin
 
-### REQ-MIG-0006 — `NOT_TESTED`
+### REQ-MIG-0006 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 51). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`.
+- Примечание: Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). Commons Clause — только идеи (решение № 13). Прочитаны не все файлы бота; сверка функций обзорная.
 
 > https://github.com/BEDOLAGA-DEV/remnawave-bedolaga-telegram-bot
 
-### REQ-MIG-0007 — `NOT_TESTED`
+### REQ-MIG-0007 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 55). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`.
+- Примечание: Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). AGPL-3.0 — только идеи (решение № 13). Сверка функций обзорная.
 
 > https://github.com/BEDOLAGA-DEV/bedolaga-cabinet
 
-### REQ-MIG-0008 — `NOT_TESTED`
+### REQ-MIG-0008 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 59). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`.
+- Примечание: StepBot изучен 2026-11-14 по клону (`7a1fe52`, MIT): лицензия, стек, кассы, сравнение идей поиском по коду. Не найдены в магазине конструктор меню бота и импорт из remnawave-shopbot; смена тарифа с зачётом и докупка трафика требуют отдельной сверки.
 
 > https://github.com/STEP-CORP/StepBot/tree/main
 
@@ -934,53 +949,74 @@
 
 > https://github.com/booarkz-cpu/lucy-vpn-android
 
-### REQ-MIG-0010 — `NOT_TESTED`
+### REQ-MIG-0010 — `PASS`
 
 - Источник: Часть I → Source Repositories → Mandatory Read (строка 67). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`).
+- Доказательство: `docs/CODE_REUSE_REGISTER.md`.
 
 > docs/CODE_REUSE_REGISTER.md
 
-### REQ-MIG-0011 — `NOT_TESTED`
+### REQ-MIG-0011 — `PASS`
 
 - Источник: Часть I → Source Repositories → Mandatory Read (строка 71). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`).
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`.
 
 > docs/REFERENCE_REPOSITORIES.md
 
-### REQ-MIG-0012 — `NOT_TESTED`
+### REQ-MIG-0012 — `PASS`
 
 - Источник: Часть I → Source Repositories → Rule (строка 75). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`; `docs/OWNER_DECISIONS.md`; `THIRD_PARTY_NOTICES.md`.
 
 > Исходные репозитории — источники аудита и миграции, а не отдельные целевые репозитории. Проверить лицензии, авторские права, историю, зависимости и происхождение кода. Не удалять исходные репозитории и ветки. Составить карту компонентов, API, уникальных и дублирующихся функций, ошибок, плана миграции и результатов тестов.
 
-### REQ-MIG-0013 — `NOT_TESTED`
+### REQ-MIG-0013 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Apps (строка 82). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `apps/vpn-client/android/app/build.gradle.kts`; `apps/user-cabinet/package.json`; `apps/telegram-mini-app/package.json`; `apps/lucy-admin/web/package.json`.
+- Примечание: В `apps/` есть vpn-client/android, vpn-shop (android, ios), user-cabinet, telegram-mini-app, lucy-admin (web, android, ios). Нет vpn-client/ios (клиент только для Android); telegram-bot и status-page — модули бэкенда, отдельными приложениями не выделены.
 
 > vpn-client/android; vpn-client/ios; vpn-shop; user-cabinet; telegram-bot; telegram-mini-app; lucy-admin/web; lucy-admin/android; lucy-admin/ios; status-page.
 
-### REQ-MIG-0014 — `NOT_TESTED`
+### REQ-MIG-0014 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Services (строка 86). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `docs/architecture/DOMAIN_BOUNDARIES.md`.
+- Примечание: Сервисы промпта — модули одного FastAPI-приложения `backend` и отдельный `support-pro`; папки `services/` нет (этап 5). Разделение на отдельные службы не планируется без необходимости — описано в MONOREPO_LAYOUT.
 
 > api; authentication; payment-orchestrator; subscription-manager; remnawave-integration; node-manager; node-provisioning; auto-selection; masque; notification-service; support.
 
-### REQ-MIG-0015 — `NOT_TESTED`
+### REQ-MIG-0015 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Packages (строка 90). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `packages/localization/user.json`; `packages/localization/admin.json`.
+- Примечание: Есть `packages/localization`. Остальных пакетов нет: общего кода между приложениями нет, пустые модули не создаются.
 
 > shared-ui; shared-api; shared-types; shared-config; localization; payment-contracts; security; testing.
 
-### REQ-MIG-0016 — `NOT_TESTED`
+### REQ-MIG-0016 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Infrastructure (строка 94). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `infrastructure/deployment/install-vps.sh`; `infrastructure/reverse-proxy/Caddyfile`; `infrastructure/monitoring/prometheus/vpnshop-alerts.yml`; `infrastructure/provisioning/corgi/main.tf`.
+- Примечание: Есть deployment (с установщиком), reverse-proxy, monitoring, provisioning. Нет отдельных папок docker, vpn-nodes, security, backup: Dockerfile лежат рядом с кодом, узлы ставятся модулями бэкенда, копии — скриптами в `scripts/`.
 
 > docker; installer; provisioning; vpn-nodes; reverse-proxy; monitoring; security; backup; deployment.
 
-### REQ-MIG-0017 — `NOT_TESTED`
+### REQ-MIG-0017 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Other (строка 98). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `scripts/audit/requirements_register.py`; `docs/PROJECT_FILE_MAP.md`.
+- Примечание: Есть `scripts/audit`, `tests/`, `docs/`, `.github/workflows`. Миграции лежат в `backend/alembic` и `support-pro/alembic` (этап 5), а не в `database/`; `scripts/` и `tests/` не разбиты на подпапки по назначению.
 
 > database/migrations; database/schemas; database/seeds; scripts/audit; scripts/build; scripts/migration; scripts/release; scripts/maintenance; tests/unit; tests/integration; tests/e2e; tests/security; tests/mobile; tests/infrastructure; docs/ru; docs/en; docs/uk; docs/architecture; docs/payments; docs/remnawave; docs/masque; docs/installation; docs/security; docs/screenshots; artifacts/audit; artifacts/builds; artifacts/screenshots; artifacts/reports; .github/workflows.
 
@@ -1029,9 +1065,11 @@
 
 > Сопоставить одинаковые функции, определить каноническую реализацию, перечислить отличия и уникальные возможности каждой реализации.
 
-### REQ-MIG-0023 — `NOT_TESTED`
+### REQ-MIG-0023 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1193). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `tests/test_layout_stage4.py`; `tests/test_admin_ssh_ip.py`; `docs/MONOREPO_LAYOUT.md`.
 
 > До удаления/замены дубликата доказать функциональную эквивалентность тестами и контрактами.
 
@@ -1044,15 +1082,20 @@
 
 > Сохранить attribution, лицензии, copyright notices и обязательные файлы лицензий.
 
-### REQ-MIG-0025 — `NOT_TESTED`
+### REQ-MIG-0025 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1201). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `docs/MIGRATION_MAPPING.md`.
 
 > Сохранить полезную историю изменений там, где это возможно и законно; не переписывать историю целевого репозитория.
 
-### REQ-MIG-0026 — `NOT_TESTED`
+### REQ-MIG-0026 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1205). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/ci/secret-leak-check.py`; `tests/test_secret_leak_check.py`; `.github/workflows/ci.yml`; `docs/MIGRATION_MAPPING.md`.
+- Примечание: Чужие коммиты не переносились — переносить было нечего (только свой код). Секреты в дереве и в файлах выпуска проверяет CI. Отдельной проверки персональных данных в тестовых данных и журналах нет.
 
 > Проверить отсутствие секретов и персональных данных в переносимых commit, fixture, логах и артефактах.
 
@@ -1065,9 +1108,12 @@
 
 > Создать отчёт mapping: source repository/path/commit → monorepo path → новая реализация → тесты → evidence.
 
-### REQ-MIG-0028 — `NOT_TESTED`
+### REQ-MIG-0028 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1213). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/API_ENDPOINTS.md`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`; `scripts/verify-admin-matrix.py`; `tests/test_layout_stage4.py`; `docs/MONOREPO_LAYOUT.md`.
+- Примечание: После каждого этапа перекладки: список маршрутов API и матрица функций панели генерируются из кода и лежат в репозитории — пропавший маршрут или раздел виден в PR; сборки и тесты приложений идут в CI. Нет такой же описи команд бота, фоновых задач и настроек.
 
 > После миграции проверить отсутствие потерянных endpoints, экранов, команд бота, фоновых задач, конфигураций и пользовательских сценариев.
 
