@@ -71,9 +71,9 @@ def test_native_clients_keep_session_bounds():
 
 
 def test_localization_covers_mobile_and_web_patterns():
-    cabinet = (ROOT / "cabinet/src/i18n.tsx").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
     mini = __import__("frontend_sources").cabinet_i18n()
-    admin = (ROOT / "admin/src/i18n.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/i18n.tsx").read_text()
     assert 'aria-label' in cabinet and 'aria-label' in mini and 'aria-label' in admin
     assert "Онлайн" in cabinet and "Online ${online[1]} of ${online[2]}" in cabinet
     assert "Online ${online[1]} of ${online[2]}" in mini

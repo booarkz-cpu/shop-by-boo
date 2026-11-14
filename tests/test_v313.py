@@ -93,7 +93,7 @@ def test_docs_describe_313_and_keep_312():
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_3.md").read_text()
     steps = (ROOT / "docs/archive/INSTALL_STEPS_BEFORE_ALPHA_6.md").read_text()
     docs = (ROOT / "docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md").read_text()
-    ui = (ROOT / "admin/src/main.tsx").read_text()
+    ui = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
     assert "3.1.3" in readme and "3.1.2" in readme and "3.1.1" in readme
     assert "личный кабинет" in readme and "Конструктор тарифов" in readme
     assert "installation failed at line 34" in readme

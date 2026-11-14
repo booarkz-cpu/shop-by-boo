@@ -192,7 +192,7 @@ def test_miniapp_docker_copy_sources_exist_in_root_context():
     import shlex
     root = Path(__file__).resolve().parents[1]
     # Docker joins backslash-continued lines into one instruction.
-    for line in (root / "miniapp/Dockerfile").read_text().replace("\\\n", " ").splitlines():
+    for line in (root / "apps/telegram-mini-app/Dockerfile").read_text().replace("\\\n", " ").splitlines():
         words = shlex.split(line)
         if words and words[0] == "COPY" and not words[1].startswith("--from="):
             for source in words[1:-1]:

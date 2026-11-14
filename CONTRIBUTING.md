@@ -30,9 +30,9 @@ python3 scripts/generate-project-map.py --check
 ```
 
 Новый раздел админки:
-- зарегистрировать в `admin/src/sections.ts`;
+- зарегистрировать в `apps/lucy-admin/web/src/sections.ts`;
 - добавить модуль в `backend/app/admin_center.py`;
-- снять скриншот на стенде `tests/passkey_browser_server.py`: `cd admin && node scripts/screenshots-catalog.mjs "$PWD/.."`. Без скриншота `tests/test_screenshots.py` не пройдёт.
+- снять скриншот на стенде `tests/passkey_browser_server.py`: `cd apps/lucy-admin/web && node scripts/screenshots-catalog.mjs "$PWD/../../.."`. Без скриншота `tests/test_screenshots.py` не пройдёт.
 
 ## Безопасность
 

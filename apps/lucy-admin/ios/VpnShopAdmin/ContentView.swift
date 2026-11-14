@@ -706,7 +706,7 @@ struct AdminRootView: View {
     }
 }
 
-// MARK: - Remna Dark: the look of the web admin panel (admin/src/theme.css)
+// MARK: - Remna Dark: the look of the web admin panel (apps/lucy-admin/web/src/theme.css)
 
 enum AdminDemo {
     static var enabled: Bool {

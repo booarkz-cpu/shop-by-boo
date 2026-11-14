@@ -35,7 +35,7 @@ def test_secrets_are_found(tmp_path):
 def test_examples_and_placeholders_pass(tmp_path):
     assert run(tmp_path, {
         ".env.example": "APP_SECRET=\n", "backend/.env.sample": "X=\n",
-        "admin/src/form.tsx": 'placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"\n',
+        "apps/lucy-admin/web/src/form.tsx": 'placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"\n',
         "docs/push.md": "APNS_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\\nMIGT...\\n-----END PRIVATE KEY-----\n",
         "tests/fixtures/node.key": "test key",
     }) == {}

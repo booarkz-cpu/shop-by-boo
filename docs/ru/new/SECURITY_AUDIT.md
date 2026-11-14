@@ -79,7 +79,7 @@
 | Неавторизованные изменения | Скрипт проверил тела 121 изменяющего маршрута вне админки | Все требуют вход клиента, подпись вебхука или токен агента/пробы. Без входа по смыслу: регистрация, вход, сброс пароля, `integrity/challenge` (одноразовый nonce) |
 | Вебхуки | Скрипт по 20 обработчикам `POST …/webhooks/*` | У всех есть проверка подписи (`verify_webhook*`, `compare_digest`) или белого списка IP (YooKassa), а оплата подтверждается повторно (`verify_succeeded`) |
 | SQL Injection | Поиск `text(f"…")`, `execute(f"…")`, bandit B608 | Нет. Два места с f-строкой: `sqlite_import.py` (имя таблицы через `quoted()`) и `backup_verify.py` (имена из константы `TABLES`) |
-| XSS | Поиск `dangerouslySetInnerHTML`, `innerHTML`, `v-html` в admin и cabinet | Одно место: постоянный скрипт темы в `layout.tsx`. При сборке `cabinet/scripts/csp-externalize.mjs` выносит встроенные скрипты в файлы, поэтому CSP `script-src 'self'` в Caddy их не ломает |
+| XSS | Поиск `dangerouslySetInnerHTML`, `innerHTML`, `v-html` в admin и cabinet | Одно место: постоянный скрипт темы в `layout.tsx`. При сборке `apps/user-cabinet/scripts/csp-externalize.mjs` выносит встроенные скрипты в файлы, поэтому CSP `script-src 'self'` в Caddy их не ломает |
 | CSRF | `main.py` `_require_csrf` | Двойная отправка для всех POST/PUT/PATCH/DELETE с cookie сессии; исключения — вход и вебхуки |
 | CORS | `runtime_security.py` `ScopedCORSMiddleware` | Только точные origin, `*` и `null` запрещены; в production только https и только домены магазина; у админки свой список |
 | Сессии | `user_sessions`, `admin_sessions` с `jti_hash`, cookie `HttpOnly` + `Secure`; в production запуск с `COOKIE_SECURE=false` запрещён (`config.py:412`) | В порядке |

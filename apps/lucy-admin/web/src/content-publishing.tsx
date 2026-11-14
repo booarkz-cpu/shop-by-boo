@@ -1,6 +1,6 @@
 import {SelectField} from "./components/select-field";
 import React,{useEffect,useState} from 'react';
-import {ContentBlocks,PageBlock} from '../../cabinet/src/public-pages';
+import {ContentBlocks,PageBlock} from '../../../user-cabinet/src/public-pages';
 type Requester=(path:string,options?:RequestInit)=>Promise<any>;
 const blankBlock=(kind:PageBlock['kind']='text'):PageBlock=>({kind,title:'',text:'',label:'',url:'',items:[]});
 const blank=()=>({slug:'',locale:'ru',kind:'news',title:'',summary:'',starts_at:'',ends_at:'',blocks:[blankBlock()]});

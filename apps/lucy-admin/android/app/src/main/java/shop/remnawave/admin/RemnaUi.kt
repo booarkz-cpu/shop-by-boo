@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** Remna Dark — the palette of the web admin panel (admin/src/theme.css). */
+/** Remna Dark — the palette of the web admin panel (apps/lucy-admin/web/src/theme.css). */
 object Remna {
     val bg = Color(0xFF090D16)
     val surface = Color(0xFF0F172A)

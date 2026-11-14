@@ -236,21 +236,21 @@ jobs:
           node-version: "26"
           cache: npm
           cache-dependency-path: |
-            admin/package-lock.json
-            cabinet/package-lock.json
+            apps/lucy-admin/web/package-lock.json
+            apps/user-cabinet/package-lock.json
       - name: Install runtime and browser
         run: |
           python -m pip install -r backend/requirements.txt -r backend/requirements-test.txt
-          cd admin
+          cd apps/lucy-admin/web
           npm ci
-          npm ci --prefix ../cabinet
+          npm ci --prefix ../../user-cabinet
           npx playwright install --with-deps chromium
       - name: Build and exercise public content, customer operations and WebAuthn
-        working-directory: admin
+        working-directory: apps/lucy-admin/web
         run: |
           npm run typecheck
           npm run build
-          NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
+          NEXT_BASE_PATH=/cabinet npm run build --prefix ../../user-cabinet
           status=0
           npx playwright test --reporter=line > "$RUNNER_TEMP/e2e.log" 2>&1 || status=$?
           tail -n 200 "$RUNNER_TEMP/e2e.log"
@@ -314,7 +314,7 @@ jobs:
           bandit -q -r backend/app support-pro/app -lll -iii
       - name: JavaScript dependencies
         run: |
-          for dir in admin miniapp cabinet; do
+          for dir in apps/lucy-admin/web apps/telegram-mini-app apps/user-cabinet; do
             (cd "$dir" && npm audit --audit-level=high)
           done
       - name: Secret and vulnerability scan of the repository, SBOM
@@ -338,8 +338,9 @@ jobs:
           /tmp/lic/bin/pip install -q pip-licenses -r backend/requirements.txt
           /tmp/lic/bin/pip install -q -r support-pro/requirements.txt
           /tmp/lic/bin/pip-licenses --format=json > /tmp/py-licences.json
-          for dir in admin miniapp cabinet; do
-            (cd "$dir" && npm ci --omit=dev --ignore-scripts > /dev/null && npx --yes license-checker@25.0.1 --production --json > "/tmp/$dir-licences.json")
+          for app in admin:apps/lucy-admin/web miniapp:apps/telegram-mini-app cabinet:apps/user-cabinet; do
+            name="${app%%:*}"; dir="${app#*:}"
+            (cd "$dir" && npm ci --omit=dev --ignore-scripts > /dev/null && npx --yes license-checker@25.0.1 --production --json > "/tmp/$name-licences.json")
           done
           python scripts/ci/check-licenses.py /tmp/py-licences.json /tmp/admin-licences.json /tmp/miniapp-licences.json /tmp/cabinet-licences.json
 
@@ -348,10 +349,14 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        app: [admin, miniapp, cabinet]
+        # v28.153.0 (docs/MONOREPO_LAYOUT.md, stage 3): the job names stay, the folders moved.
+        include:
+          - {app: admin, dir: apps/lucy-admin/web}
+          - {app: miniapp, dir: apps/telegram-mini-app}
+          - {app: cabinet, dir: apps/user-cabinet}
     defaults:
       run:
-        working-directory: ${{ matrix.app }}
+        working-directory: ${{ matrix.dir }}
     steps:
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -360,12 +365,12 @@ jobs:
         with:
           node-version: "26"
           cache: npm
-          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+          cache-dependency-path: ${{ matrix.dir }}/package-lock.json
       - name: Install
         run: npm ci
       - name: Install shared cabinet dependencies
         if: matrix.app == 'miniapp'
-        run: npm ci --prefix ../cabinet
+        run: npm ci --prefix ../user-cabinet
       - name: Typecheck
         run: npm run typecheck
       - name: Customer workspace interactions

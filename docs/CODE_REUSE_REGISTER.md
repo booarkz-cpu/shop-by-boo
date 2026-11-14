@@ -56,7 +56,7 @@
 | Passkeys (WebAuthn) | admin `webauthn_svc` | `passkeys`, 8 маршрутов | есть |
 | 2FA (TOTP) | admin `totp` | `security.py` (`verify_totp`) | есть |
 | RBAC | admin `rbac` | `security.py` (`PERMISSIONS`, `require_permission`) | есть |
-| Темы оформления | cabinet `BackgroundConfigEditor` | `admin/src/main.tsx` (`ThemePresets`), `app_config.py` | есть |
+| Темы оформления | cabinet `BackgroundConfigEditor` | `apps/lucy-admin/web/src/main.tsx` (`ThemePresets`), `app_config.py` | есть |
 
 **33 функции уже реализованы.** Перенос был бы дублированием, а не ускорением.
 

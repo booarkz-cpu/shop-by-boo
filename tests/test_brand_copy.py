@@ -46,7 +46,7 @@ def test_bot_welcome_carries_the_tagline_in_three_languages():
 
 
 def test_cabinet_maintenance_screen_uses_the_brand_text():
-    stickers = (ROOT / "cabinet/src/stickers.tsx").read_text(encoding="utf-8")
+    stickers = (ROOT / "apps/user-cabinet/src/stickers.tsx").read_text(encoding="utf-8")
     assert f'MAINTENANCE_TEXT = "{brand_copy.MAINTENANCE["ru"]}"' in stickers
 
 

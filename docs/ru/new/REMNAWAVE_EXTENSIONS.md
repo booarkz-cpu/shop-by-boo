@@ -1,6 +1,6 @@
 # Менеджер расширений Remnawave
 
-Этап 12. Раздел «Серверы → Расширения Remnawave» (`admin/src/rw-extensions.tsx`), backend — `backend/app/rw_extensions.py`, маршруты `/api/admin/rw/extensions/...`. Всё управляется из админки, без SSH и терминала.
+Этап 12. Раздел «Серверы → Расширения Remnawave» (`apps/lucy-admin/web/src/rw-extensions.tsx`), backend — `backend/app/rw_extensions.py`, маршруты `/api/admin/rw/extensions/...`. Всё управляется из админки, без SSH и терминала.
 
 Функции, которые есть в API панели Remnawave, вызываются через API панели: состояние хранит сама панель, магазин её не дублирует. Функции на сервере ноды (SelfSteal, IPv6, ядро Xray, WARP, NetBird, Xray Checker) выполняет мастер установки по SSH закрытым списком шагов ([DEPLOYMENT_AGENT](DEPLOYMENT_AGENT.md)).
 

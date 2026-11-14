@@ -119,7 +119,7 @@ Lusi is out for a short walk: maintenance in progress. Your subscriptions keep w
 ```
 
 Личный кабинет при технических работах показывает экран с наклейкой и текстом «Идут технические работы»
-(`cabinet/src/stickers.tsx`). Отдельной переменной `.env` для текста технических работ нет:
+(`apps/user-cabinet/src/stickers.tsx`). Отдельной переменной `.env` для текста технических работ нет:
 режим включается `MAINTENANCE_MODE` или в панели администратора.
 
 ## Оплата через ЮKassa

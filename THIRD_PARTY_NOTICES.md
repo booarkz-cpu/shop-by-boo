@@ -9,9 +9,9 @@
 | Контур | Источник состава |
 | --- | --- |
 | Backend и бот | `backend/requirements.txt`; тестовые зависимости отдельно в `backend/requirements-test.txt` |
-| Кабинет / общий Mini App | `cabinet/package-lock.json`; тестовые пакеты в devDependencies |
-| Админка | `admin/package-lock.json` |
-| Отдельная оболочка Mini App | `miniapp/package-lock.json` |
+| Кабинет / общий Mini App | `apps/user-cabinet/package-lock.json`; тестовые пакеты в devDependencies |
+| Админка | `apps/lucy-admin/web/package-lock.json` |
+| Отдельная оболочка Mini App | `apps/telegram-mini-app/package-lock.json` |
 | Support Pro | `support-pro/requirements.txt`, `requirements-dev.txt` |
 | Android | Gradle-конфигурация каждого приложения и разрешённый граф runtime-зависимостей сборки |
 | iOS | Swift Package Manager / package resolution конкретного приложения |
@@ -38,13 +38,13 @@
 
 Сервер WebAuthn использует `webauthn==3.0.1` (py_webauthn, BSD-3-Clause); браузерные тесты — `@playwright/test==1.63.0` (Apache-2.0). Сохраните их полные license/copyright notices при распространении зависимостей. Эти библиотеки не перелицензируются лицензией магазина. Нативный WebAuthn API браузера используется без копирования стороннего JS verifier. Новые модули интеграции и мониторинга написаны в этом репозитории.
 
-## UI дистрибутива v28.152.0
+## UI дистрибутива v28.153.0
 
-shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `admin/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [admin/THIRD_PARTY_LICENSES.txt](admin/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
+shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `apps/lucy-admin/web/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt](apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
 
 ## Карта стран (с v28.42.0)
 
-`admin/src/worldMap.json` — контуры стран из Natural Earth 1:110m Admin 0 Countries (https://www.naturalearthdata.com, общественное достояние). Магазин хранит упрощённые пути SVG в равнопромежуточной проекции без Антарктиды. Пути получены скриптом `scripts/geo/natural-earth-to-svg.py`.
+`apps/lucy-admin/web/src/worldMap.json` — контуры стран из Natural Earth 1:110m Admin 0 Countries (https://www.naturalearthdata.com, общественное достояние). Магазин хранит упрощённые пути SVG в равнопромежуточной проекции без Антарктиды. Пути получены скриптом `scripts/geo/natural-earth-to-svg.py`.
 
 ## Встроенный VPN-движок Android (с v28.32.0, приложение 3.1.0)
 

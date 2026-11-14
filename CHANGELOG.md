@@ -1,3 +1,11 @@
+# v28.153.0
+
+- Этап 3 структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): `git mv` `admin` → `apps/lucy-admin/web`, `cabinet` → `apps/user-cabinet`, `miniapp` → `apps/telegram-mini-app`. Обновлены: Dockerfile веб-панели (рабочая папка `/src/apps/lucy-admin/web`, общие файлы кабинета — в `/src/apps/user-cabinet`) и Mini App, контексты сборки в `docker-compose*.yml` и `docker.yml`, матрица `frontend` в `ci.yml` (поле `dir`, имена заданий прежние), `dependabot.yml`, относительные импорты панели из кабинета (`../../../user-cabinet/src/…`), `next.config.mjs` (корень репозитория — на три уровня выше), `playwright.config.ts`, цикл lock-файлов в `deploy/install-vps.sh`, `scripts/security-scan.sh`, скрипты снимков, тесты и документы. Имена служб Docker, адреса и домены не менялись.
+- `.dockerignore`: нативные приложения (`apps/vpn-client`, `apps/vpn-shop`, `apps/lucy-admin/{android,ios}`, `packages`) не попадают в контекст сборки образов из корня репозитория.
+- Проверено до PR: сборка трёх образов на раннере GitHub; `npm run typecheck`, `npm run build` панели, `npm test` кабинета, сборка Mini App.
+- Раздел реестра GOV (решение № 19): PASS — GOV-0002, 0009, 0010, 0014, 0028, 0029, 0030, 0049, 0079, 0081, 0089; PARTIAL — 0020, 0076; NOT_IMPLEMENTED — 0006, 0007, 0015, 0088.
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.152.0
 
 - Этап 2б структуры папок (решения № 14 и 17): `git mv` `mobile/ios-user` → `apps/vpn-shop/ios`, `mobile/ios-admin` → `apps/lucy-admin/ios`. Пути в CI (матрица iOS в `ci.yml` — поле `dir`, имена заданий прежние), `scripts/build-ios-packages.sh`, `scripts/build-ios-signed.sh`, `scripts/store/icons.py`, тестах и документах. Имена файлов выпуска не менялись.

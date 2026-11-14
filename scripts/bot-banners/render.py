@@ -8,14 +8,14 @@ card with a soft shadow, and the section title is set on the left in the same co
 lettering (Roboto Condensed 800, SIL OFL, fonts/). Every section has its own sticker.
 
 Output: backend/app/assets/bot_banners/<key>.jpg (1280x640) and the copies the Mini App bundles
-in cabinet/public/assets/banners/; with --extras also docs/img/hero.jpg (README cover) and
+in apps/user-cabinet/public/assets/banners/; with --extras also docs/img/hero.jpg (README cover) and
 docs/img/bot-banners-all.jpg (all banners on one sheet).
 
     python3 scripts/bot-banners/render.py              # all banners
     python3 scripts/bot-banners/render.py start buy    # selected ones
     python3 scripts/bot-banners/render.py --extras     # banners + README cover and sheet
     python3 scripts/bot-banners/render.py --stickers   # only dump the cut stickers to /tmp
-    python3 scripts/bot-banners/render.py --assets     # only the interface stickers (cabinet/public/assets/stickers)
+    python3 scripts/bot-banners/render.py --assets     # only the interface stickers (apps/user-cabinet/public/assets/stickers)
     python3 scripts/bot-banners/render.py --app        # dark banners of the Android/iOS app sections (app-*.jpg)
     python3 scripts/bot-banners/render.py --client     # «Корги Люси: клиент»: one banner per client section (client-*.jpg)
 
@@ -34,8 +34,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 STICKERS = HERE / "source/stickers"
 OUT = ROOT / "backend/app/assets/bot_banners"
-MINIAPP = ROOT / "cabinet/public/assets/banners"
-STICKER_ASSETS = ROOT / "cabinet/public/assets/stickers"
+MINIAPP = ROOT / "apps/user-cabinet/public/assets/banners"
+STICKER_ASSETS = ROOT / "apps/user-cabinet/public/assets/stickers"
 # Stickers the cabinet and Mini App show on their own: result screens, empty and error states,
 # maintenance and the pictures of promo cards (app_config.PROMO_STICKERS).
 INTERFACE_STICKERS = ("waiting", "success", "error404", "bugs", "maintenance", "goodbye",

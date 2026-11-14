@@ -15,11 +15,11 @@ def test_nginx_uses_tmp_and_is_mounted():
     assert "pid /tmp/nginx/nginx.pid;" in nginx
     assert "client_body_temp_path /tmp/nginx/client_temp;" in nginx
     assert "try_files $uri $uri/ /index.html;" in default
-    for app in ("admin", "miniapp", "cabinet"):
+    for app in ("apps/lucy-admin/web", "apps/telegram-mini-app", "apps/user-cabinet"):
         assert (ROOT / app / "nginx.conf").read_text() == nginx
         assert (ROOT / app / "default.conf").read_text() == default
         dockerfile = (ROOT / app / "Dockerfile").read_text()
-        source = f"{app}/nginx.conf" if app in ("miniapp", "admin") else "nginx.conf"
+        source = f"{app}/nginx.conf" if app != "apps/user-cabinet" else "nginx.conf"
         assert f"COPY {source} /etc/nginx/nginx.conf" in dockerfile
     compose = (ROOT / "docker-compose.yml").read_text()
     caddy = compose.split("  caddy:", 1)[1]

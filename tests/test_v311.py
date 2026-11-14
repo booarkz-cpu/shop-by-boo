@@ -28,8 +28,8 @@ def test_runner_prints_checkout_and_image_has_curl():
 
 
 def test_admin_requires_sandbox_confirmation():
-    ui = (ROOT / "admin/src/main.tsx").read_text()
-    i18n = (ROOT / "admin/src/i18n.tsx").read_text()
+    ui = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+    i18n = (ROOT / "apps/lucy-admin/web/src/i18n.tsx").read_text()
     assert "Подтверждаю sandbox-ключи" in ui
     assert "staging_confirmed:!!cfg.staging_confirmed" in ui
     assert "staging_confirmed:true" not in ui

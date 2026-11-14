@@ -38,13 +38,13 @@ jobs:
             dockerfile: ./backend/Dockerfile.bot
           - name: admin
             context: .
-            dockerfile: ./admin/Dockerfile
+            dockerfile: ./apps/lucy-admin/web/Dockerfile
           - name: cabinet
-            context: ./cabinet
-            dockerfile: ./cabinet/Dockerfile
+            context: ./apps/user-cabinet
+            dockerfile: ./apps/user-cabinet/Dockerfile
           - name: miniapp
             context: .
-            dockerfile: ./miniapp/Dockerfile
+            dockerfile: ./apps/telegram-mini-app/Dockerfile
     steps:
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -107,6 +107,6 @@ jobs:
           pip-audit -r support-pro/requirements-dev.txt
       - name: npm audit
         run: |
-          for dir in admin miniapp cabinet; do
+          for dir in apps/lucy-admin/web apps/telegram-mini-app apps/user-cabinet; do
             (cd "$dir" && npm audit --audit-level=high)
           done

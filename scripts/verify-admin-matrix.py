@@ -3,7 +3,7 @@
 
 For each administrative API route of a module the script looks for a test that exercises it:
 * a backend test that calls the endpoint function (``module.function(`` or ``function(``) or uses its path;
-* a browser test (admin/e2e) or the panel code path used by an end-to-end spec.
+* a browser test (apps/lucy-admin/web/e2e) or the panel code path used by an end-to-end spec.
 It also checks that every section of the module has a screenshot (tests/test_screenshots.py makes the catalog).
 
 Status per module: PASS — every route that changes something is exercised by a test and every section has a
@@ -24,7 +24,7 @@ OUT = ROOT / "docs/ru/new/ADMIN_VERIFICATION.md"
 
 def sources() -> tuple[str, str]:
     py = "\n".join(p.read_text(errors="ignore") for p in sorted((ROOT / "tests").rglob("*.py")))
-    e2e = "\n".join(p.read_text(errors="ignore") for p in sorted((ROOT / "admin/e2e").glob("*.ts")))
+    e2e = "\n".join(p.read_text(errors="ignore") for p in sorted((ROOT / "apps/lucy-admin/web/e2e").glob("*.ts")))
     return py, e2e
 
 

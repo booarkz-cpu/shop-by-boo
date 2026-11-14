@@ -33,9 +33,9 @@ async def test_rollypay_refund_is_signed_with_a_fresh_nonce(monkeypatch):
     assert first["X-Signature"] == hmac.new(b"sign-key", body, hashlib.sha256).hexdigest()
 
 def test_frontend_builds_require_lockfiles():
-    for d in ("admin","miniapp"):
+    for d in ("apps/lucy-admin/web","apps/telegram-mini-app"):
         text=(ROOT/d/"Dockerfile").read_text()
-        assert ('COPY cabinet/package*.json ./' if d == 'miniapp' else 'COPY admin/package*.json ./') in text
+        assert ('COPY apps/user-cabinet/package*.json ./' if d == 'apps/telegram-mini-app' else 'COPY apps/lucy-admin/web/package*.json ./') in text
         assert 'npm ci' in text and 'npm install --package-lock=false' in text
 
 def test_rollback_is_fail_closed():

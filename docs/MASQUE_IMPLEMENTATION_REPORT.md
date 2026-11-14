@@ -94,15 +94,15 @@ sing-box 1.15.0 добавляет `masque-server` и `masque-client` (HTTP/1.1,
 | Файл | Что делает |
 |---|---|
 | `backend/app/masque.py` | версия ядра ноды против требуемой; inbound и outbound по официальной схеме с проверкой полей; конфликты портов; `GET /api/admin/masque` — только чтение |
-| `admin/src/masque.tsx` | блок «MASQUE (CONNECT-IP)» на вкладке «Смена протокола»: ноды, причины, проверка порта, пример inbound |
+| `apps/lucy-admin/web/src/masque.tsx` | блок «MASQUE (CONNECT-IP)» на вкладке «Смена протокола»: ноды, причины, проверка порта, пример inbound |
 | `scripts/masque-selfcheck.sh` | проверка на настоящем Xray (см. ниже) |
 | `tests/test_masque.py` | версии, схема, отказы, порты рядом со всеми транспортами магазина |
-| `admin/e2e/masque.spec.ts` | страница готовности в браузере |
+| `apps/lucy-admin/web/e2e/masque.spec.ts` | страница готовности в браузере |
 | `backend/app/rw_masque.py` | стек MASQUE на ноде: файлы Xray, HAProxy и Compose, скрипт ноды, конфигурация клиента |
 | `backend/app/masque_panel.py` | своя панель: кому положен доступ, установка и удаление, сверка пользователей, подписка |
-| `admin/src/masque-panel.tsx` | блок «MASQUE: ноды и подписка» |
+| `apps/lucy-admin/web/src/masque-panel.tsx` | блок «MASQUE: ноды и подписка» |
 | `scripts/ci/masque-check.sh` | проверка стека ноды в CI на настоящих Caddy, Xray и HAProxy |
-| `tests/test_masque_panel.py`, `admin/e2e/masque-panel.spec.ts` | правила доступа, файлы, подписка; блок в браузере |
+| `tests/test_masque_panel.py`, `apps/lucy-admin/web/e2e/masque-panel.spec.ts` | правила доступа, файлы, подписка; блок в браузере |
 
 ### Проверка на настоящем Xray
 

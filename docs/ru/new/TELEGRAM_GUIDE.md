@@ -1,6 +1,6 @@
 # Telegram-бот: управление из админки
 
-С v28.71.0 (этап 13). Раздел «Бот и кабинет → Telegram-бот» (`admin/src/telegram-bot.tsx`), backend — `backend/app/telegram_bot.py` (`/api/admin/telegram/...`), процесс бота — `backend/app/bot.py` (контейнер `bot`, aiogram 3, long polling).
+С v28.71.0 (этап 13). Раздел «Бот и кабинет → Telegram-бот» (`apps/lucy-admin/web/src/telegram-bot.tsx`), backend — `backend/app/telegram_bot.py` (`/api/admin/telegram/...`), процесс бота — `backend/app/bot.py` (контейнер `bot`, aiogram 3, long polling).
 
 Тексты, меню, баннеры и документы бота настраиваются в соседних разделах: «Меню бота и Mini App», «Дерево кнопок», «Баннеры бота», «Документы» ([руководство по модулю](../modules/14-bot-miniapp.md)).
 
@@ -81,5 +81,5 @@
 | Переподключение с новым токеном без перезапуска, ожидание без токена, отклонённый токен (маскируется) | `tests/test_telegram_bot.py::test_supervisor_reconnects_on_a_new_token` | PASS |
 | Строка «Telegram-бот» в «Состоянии системы» | `tests/test_system_status.py::test_telegram` | PASS |
 | Тексты: три языка, одинаковые подстановки, правила правки, ответ на языке клиента, нет строк мимо реестра | `tests/test_bot_texts.py` | PASS |
-| Раздел админки, тексты на настоящем backend | `admin/e2e/telegram-bot.spec.ts` | PASS |
+| Раздел админки, тексты на настоящем backend | `apps/lucy-admin/web/e2e/telegram-bot.spec.ts` | PASS |
 | Настоящий Bot API с тестовым ботом владельца: подключение, опрос, меню на трёх языках | `tests/live/test_telegram_live.py` (задание `telegram`, секрет `TELEGRAM_TEST_BOT_TOKEN`) | PASS (CI) |
