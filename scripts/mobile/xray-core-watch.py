@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 AAR = ROOT / "scripts/mobile/build-xray-aar.sh"
-GRADLE = ROOT / "mobile/android-client/app/build.gradle.kts"
+GRADLE = ROOT / "apps/vpn-client/android/app/build.gradle.kts"
 NOTES = ROOT / "docs/ru/new/ANDROID_CLIENT_APP.md"
 COMMIT_LINE = re.compile(r'^COMMIT="\$\{XRAY_AAR_COMMIT:-([0-9a-f]{40})\}"$', re.M)
 TAG = re.compile(r"^v?\d{1,4}\.\d{1,4}\.\d{1,4}$")

@@ -1067,8 +1067,8 @@
  "REQ-CLIENT-0006": {
   "status": "PARTIAL",
   "evidence": [
-   "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
-   "mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
+   "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
   ],
   "note": "Android: баннер есть, проверен тестом на эмуляторе. Приложения «Корги Люси: клиент» для iOS нет.",
   "platforms": "Android"
@@ -1076,8 +1076,8 @@
  "REQ-CLIENT-0007": {
   "status": "PARTIAL",
   "evidence": [
-   "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
-   "mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
+   "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
   ],
   "note": "Android: слоган есть, проверен тестом на эмуляторе. Приложения для iOS нет.",
   "platforms": "Android"
@@ -1085,8 +1085,8 @@
  "REQ-CLIENT-0009": {
   "status": "PARTIAL",
   "evidence": [
-   "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
-   "mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt",
+   "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt"
   ],
   "note": "Android: счётчик дней с огоньком, баннер «ЗАЩИТА В ОДНО КАСАНИЕ» и «Безлимит» убраны, проверено тестом на эмуляторе. Элемента «маска» на главном экране нет: нужен снимок от владельца, чтобы понять, о чём речь.",
   "platforms": "Android"
@@ -1358,10 +1358,10 @@
  "REQ-SEC-0014": {
   "status": "PARTIAL",
   "evidence": [
-   "mobile/android-client/app/src/main/AndroidManifest.xml",
+   "apps/vpn-client/android/app/src/main/AndroidManifest.xml",
    "mobile/android-user/app/src/main/AndroidManifest.xml",
    "mobile/android-admin/app/src/main/AndroidManifest.xml",
-   "mobile/android-client/app/src/main/res/xml/network_security.xml",
+   "apps/vpn-client/android/app/src/main/res/xml/network_security.xml",
    "docs/THREAT_MODEL.md"
   ],
   "note": "Резервное копирование данных выключено, открытый HTTP запрещён, проверка сертификатов системная; про root сказано без гарантий. Экспортированные компоненты и deep links построчно не сверены; iOS и MASVS не проверены."
@@ -1874,7 +1874,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt"
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt"
   ],
   "note": "Слоган — в приложении «Корги Люси: клиент», в приветствии бота и подзаголовком кабинета и Mini App по умолчанию (v28.132.0). В приложениях магазина Android и iOS он не показывается."
  },
@@ -2527,7 +2527,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/ru/new/VPN_ENGINE.md",
-   "mobile/android-client",
+   "apps/vpn-client/android",
    "tests/test_v290_android_apk.py",
    ".github/workflows/build-mobile.yml"
   ],
@@ -2556,7 +2556,7 @@
   "evidence": [
    "mobile/android-user",
    "mobile/android-admin",
-   "mobile/android-client",
+   "apps/vpn-client/android",
    "mobile/ios-user",
    "mobile/ios-admin"
   ],
@@ -2650,7 +2650,7 @@
    "docs/ru/new/TERMUX_GUIDE.md"
   ],
   "platforms": "backend/API, server",
-  "note": "Пошаговая инструкция для Android/Termux написана (v28.148.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
+  "note": "Пошаговая инструкция для Android/Termux написана (v28.149.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
  },
  "REQ-INFRA-0010": {
   "status": "PASS",
@@ -2669,7 +2669,7 @@
    "scripts/github_release_fetch.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.148.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
+  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.149.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
  },
  "REQ-INFRA-0012": {
   "status": "PASS",
@@ -2754,7 +2754,7 @@
    "scripts/backup.sh"
   ],
   "platforms": "backend/API, server",
-  "note": "v28.148.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
+  "note": "v28.149.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
  },
  "REQ-INFRA-0008": {
   "status": "PASS",
@@ -2764,7 +2764,7 @@
    "tests/test_install_status.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.148.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.148.0, решение владельца 2026-11-14). На VPS не проверено."
+  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.149.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.149.0, решение владельца 2026-11-14). На VPS не проверено."
  },
  "REQ-INFRA-0009": {
   "status": "PASS",
@@ -2795,7 +2795,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.148.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
+  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.149.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
  },
  "REQ-INFRA-0015": {
   "status": "PARTIAL",
@@ -2825,7 +2825,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.148.0). Трассировки (OpenTelemetry) нет."
+  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.149.0). Трассировки (OpenTelemetry) нет."
  },
  "REQ-INFRA-0025": {
   "status": "PARTIAL",
@@ -2836,7 +2836,7 @@
    "tests/test_host_metrics.py"
   ],
   "platforms": "backend/API, server",
-  "note": "С v28.148.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
+  "note": "С v28.149.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
  },
  "REQ-INFRA-0038": {
   "status": "PARTIAL",
@@ -2872,7 +2872,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.148.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
+  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.149.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
  },
  "REQ-INFRA-0029": {
   "status": "PASS",

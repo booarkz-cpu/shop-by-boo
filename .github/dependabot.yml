@@ -64,7 +64,7 @@ updates:
     groups:
       android-admin-minor: {update-types: [minor, patch]}
   - package-ecosystem: gradle
-    directory: /mobile/android-client
+    directory: /apps/vpn-client/android
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:

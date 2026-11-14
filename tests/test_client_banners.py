@@ -5,7 +5,7 @@ import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-CLIENT = ROOT / "mobile/android-client/app/src/main"
+CLIENT = ROOT / "apps/vpn-client/android/app/src/main"
 ASSETS = CLIENT / "assets/banners"
 RENDER = ROOT / "scripts/bot-banners/render.py"
 

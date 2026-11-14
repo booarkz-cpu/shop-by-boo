@@ -6,7 +6,7 @@ import org.json.JSONObject
 
 /**
  * Stage 19, C3: the customer's own routing rules and TLS fragmentation for the embedded VPN — the same ideas as in
- * «Корги Люси: клиент» (mobile/android-client), written for this app's configs (share links and Remnawave JSON).
+ * «Корги Люси: клиент» (apps/vpn-client/android), written for this app's configs (share links and Remnawave JSON).
  *
  * A rule sends a domain or an address through the VPN, around it, or nowhere. This app carries no geoip.dat /
  * geosite.dat, so geo rules are refused when typed (Xray would reject the whole config with them).

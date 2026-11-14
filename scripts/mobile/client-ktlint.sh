@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # v1.5.0 (stage 20, N9): ktlint on the main screen of «Корги Люси: клиент» and its tests
-# (mobile/android-client/ktlint-files.txt; style in mobile/android-client/.editorconfig). The ktlint release is pinned
+# (apps/vpn-client/android/ktlint-files.txt; style in apps/vpn-client/android/.editorconfig). The ktlint release is pinned
 # by SHA-256; the older files join the list as they are rewritten.
 set -euo pipefail
 VERSION=1.7.1
 SHA256=b596a05f09364e1997b644152683af12fef58944f3acfabdf78071f5a490eb98
-cd "$(dirname "$0")/../../mobile/android-client"
+cd "$(dirname "$0")/../../apps/vpn-client/android"
 bin="${RUNNER_TEMP:-/tmp}/ktlint-$VERSION"
 if [ ! -x "$bin" ]; then
   curl -fsSL --retry 8 --retry-all-errors --retry-delay 20 -o "$bin" "https://github.com/pinterest/ktlint/releases/download/$VERSION/ktlint"

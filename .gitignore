@@ -83,4 +83,4 @@ next-env.d.ts
 screenshots/mobile/maestro/
 .control/
 docker-compose.override.yml
-mobile/android-client/app/libs/
+apps/vpn-client/android/app/libs/

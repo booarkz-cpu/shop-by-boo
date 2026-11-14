@@ -10,7 +10,7 @@
 
 | Структура промпта | Сейчас | Этап | Состояние |
 |---|---|---|---|
-| `apps/vpn-client/android` | `mobile/android-client` | 1 | план |
+| `apps/vpn-client/android` | бывш. `mobile/android-client` | 1 | **перенесено в v28.149.0** |
 | `apps/vpn-client/ios` | — (клиента iOS нет) | — | не создаётся: пустой модуль |
 | `apps/vpn-shop/android`, `apps/vpn-shop/ios` | `mobile/android-user`, `mobile/ios-user` | 2 | план |
 | `apps/lucy-admin/android`, `apps/lucy-admin/ios` | `mobile/android-admin`, `mobile/ios-admin` | 2 | план |
