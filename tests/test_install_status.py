@@ -10,7 +10,7 @@ def run(tmp_path, body: str) -> tuple[int, dict]:
     status = tmp_path / "install.json"
     script = f"""set -Eeuo pipefail
 INSTALL_STATUS={status}
-source {ROOT}/deploy/install-status.sh
+source {ROOT}/infrastructure/deployment/install-status.sh
 trap status_on_exit EXIT
 die(){{ INSTALL_LAST_ERROR="$*"; exit 1; }}
 {body}
@@ -50,7 +50,7 @@ def test_quotes_in_a_message_keep_the_file_valid(tmp_path):
 
 
 def test_the_installer_goes_through_every_stage_in_order():
-    text = (ROOT / "deploy/install-vps.sh").read_text()
+    text = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     order = [text.index(f"status_stage {name}\n") for name in
              ("preflight", "settings", "dependencies", "files", "secrets", "firewall", "images", "services", "health", "admin", "report")]
     assert order == sorted(order)
@@ -61,7 +61,7 @@ def test_a_stopped_installation_continues_from_where_it_stopped():
     """v28.145.0 (owner's decision of 2026-11-14): a second run after a failure goes on, it does not refuse."""
     import re
 
-    text = (ROOT / "deploy/install-vps.sh").read_text()
+    text = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     resume = text.index("if (( RESUME )); then")
     block_end = text.index('done > "$RESUME_FILE" )\nfi\n')
     # The questions, packages, files and secrets are inside the block a continued run skips; the firewall and later are not.

@@ -1,6 +1,6 @@
 # Инвентаризация проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.153.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
+Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
 Support Pro `0008`, мобильные приложения 3.8.0.
 
 Все числа в этом документе получены из репозитория на коммите `e3b9387` (`main`), а не из README:
@@ -51,11 +51,11 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 | `support-pro/` | 93 | отдельный сервис поддержки |
 | `scripts/` | 77 | эксплуатация и релиз |
 | `.github/` | 61 | 15 workflows, соглашения |
-| `deploy/` | 18 | Caddy, nginx, prometheus, grafana, wireguard, mail-tls |
+| `infrastructure/` | 20 | установщик, Caddy, nginx, prometheus, grafana, wireguard, mail-tls, Terraform; `deploy/` — 5 переходников старых путей |
 | `apps/telegram-mini-app/` | 6 | nginx-конфигурация Mini App |
 | `desktop/` | 4 | README-заготовки для трёх ОС |
 | `browser-extension/` | 2 | заготовка расширения |
-| `terraform/` | 1 | заготовка инфраструктуры |
+| `infrastructure/provisioning/` | 1 | заготовка инфраструктуры (Terraform) |
 
 ## 4. Backend
 
@@ -146,7 +146,7 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 
 ### Скрипты эксплуатации — 27
 
-Установка (`install.sh`, `deploy/install-vps.sh`, `deploy/install-docker.sh`), обновление
+Установка (`install.sh`, `infrastructure/deployment/install-vps.sh`, `infrastructure/deployment/install-docker.sh`), обновление
 (`update.sh`, `update-from-github.sh`, `auto-update.sh`), откат (`rollback.sh`), резервные копии
 (`backup.sh`), диагностика (`doctor.sh`, `preflight.sh`, `security-scan.sh`), секреты
 (`rotate-secrets.sh`), мобильные сборки (3 скрипта), staging/интеграция (4 скрипта),

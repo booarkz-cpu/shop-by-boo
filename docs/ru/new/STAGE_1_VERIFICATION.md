@@ -28,7 +28,7 @@
 | REFERENCE_REPOSITORIES, PROJECT_INVENTORY | наш backend: 216 файлов, 1833 / 1825 тестов | 220 файлов, 2534 теста (`pytest --collect-only`) |
 | CODE_REUSE_REGISTER | OAuth в `auth_api.py` | Яндекс — `main.py`, VK — `cabinet_api.py`, Google — `app_login.py` |
 | CODE_REUSE_REGISTER | ограничение скорости в `node_terminal.py` | `scripts/node-agent.py` (`tc`, только при `AGENT_APPLY_TC=1`) |
-| CODE_REUSE_REGISTER | мониторинг в каталоге `monitoring` (его нет) | `operations_api.py`, `ops_alerts.py`, `deploy/prometheus`, `deploy/grafana` |
+| CODE_REUSE_REGISTER | мониторинг в каталоге `monitoring` (его нет) | `operations_api.py`, `ops_alerts.py`, `infrastructure/monitoring/prometheus`, `infrastructure/monitoring/grafana` |
 | CODE_REUSE_REGISTER | S3 в `backup_verify.py` | `backups_api.py` (`boto3`) |
 
 ## Не проверялось

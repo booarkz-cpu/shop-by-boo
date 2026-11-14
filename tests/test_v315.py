@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_version_315_is_first():
     (ROOT / "scripts/build-release.sh").read_text()
-    (ROOT / "deploy/install-vps.sh").read_text()
+    (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
 
 
 def test_nginx_frontends_have_writable_cache_and_pid():
@@ -18,7 +18,7 @@ def test_nginx_frontends_have_writable_cache_and_pid():
         assert "/var/cache/nginx" in block
         assert "/run" in block
         assert "/tmp" in block
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert "docker compose logs --tail=80 admin miniapp cabinet" in installer
     assert "vm.overcommit_memory=1" in installer
     assert "restarting" in installer

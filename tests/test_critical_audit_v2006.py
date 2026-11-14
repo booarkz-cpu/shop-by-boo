@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_live_version_is_20_0_6():
     from app.main import APP_VERSION as current
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     builder = (ROOT / "scripts/build-release.sh").read_text()
     assert tuple(map(int, current.split('-', 1)[0].split('.'))) >= (20, 0, 6)
     assert f'INSTALLER_VERSION="{current}"' in installer

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.153.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.154.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2650**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2657**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1106,25 +1106,11 @@
 | [browser-extension/service-worker.js](../browser-extension/service-worker.js) | Корень проекта |
 | [conftest.py](../conftest.py) | Корень проекта |
 | [corgi-cli/README.md](../corgi-cli/README.md) | Корень проекта |
-| [deploy/Caddyfile](../deploy/Caddyfile) | Установка |
-| [deploy/Caddyfile.example](../deploy/Caddyfile.example) | Установка |
-| [deploy/build-production.sh](../deploy/build-production.sh) | Установка |
-| [deploy/caddy/Dockerfile](../deploy/caddy/Dockerfile) | Установка |
-| [deploy/grafana/vpnshop-operations.json](../deploy/grafana/vpnshop-operations.json) | Установка |
-| [deploy/grafana/vpnshop-platform.json](../deploy/grafana/vpnshop-platform.json) | Установка |
-| [deploy/install-docker.sh](../deploy/install-docker.sh) | Установка |
-| [deploy/install-status.sh](../deploy/install-status.sh) | Установка |
-| [deploy/install-vps.sh](../deploy/install-vps.sh) | Установка |
-| [deploy/mail-tls/README.txt](../deploy/mail-tls/README.txt) | Установка |
-| [deploy/nginx/default.conf](../deploy/nginx/default.conf) | Установка |
-| [deploy/nginx/nginx.conf](../deploy/nginx/nginx.conf) | Установка |
-| [deploy/nginx/test-proxy.conf](../deploy/nginx/test-proxy.conf) | Установка |
-| [deploy/prometheus/prometheus.example.yml](../deploy/prometheus/prometheus.example.yml) | Установка |
-| [deploy/prometheus/vpnshop-alerts.test.yml](../deploy/prometheus/vpnshop-alerts.test.yml) | Установка |
-| [deploy/prometheus/vpnshop-alerts.yml](../deploy/prometheus/vpnshop-alerts.yml) | Установка |
-| [deploy/resume-vps-after-pin.sh](../deploy/resume-vps-after-pin.sh) | Установка |
-| [deploy/wireguard/README_RU.md](../deploy/wireguard/README_RU.md) | Установка |
-| [deploy/wireguard/provision-node.sh](../deploy/wireguard/provision-node.sh) | Установка |
+| [deploy/build-production.sh](../deploy/build-production.sh) | Переходники старых путей установки |
+| [deploy/install-docker.sh](../deploy/install-docker.sh) | Переходники старых путей установки |
+| [deploy/install-status.sh](../deploy/install-status.sh) | Переходники старых путей установки |
+| [deploy/install-vps.sh](../deploy/install-vps.sh) | Переходники старых путей установки |
+| [deploy/resume-vps-after-pin.sh](../deploy/resume-vps-after-pin.sh) | Переходники старых путей установки |
 | [desktop/README.md](../desktop/README.md) | Корень проекта |
 | [desktop/linux/README.md](../desktop/linux/README.md) | Корень проекта |
 | [desktop/macos/README.md](../desktop/macos/README.md) | Корень проекта |
@@ -1574,6 +1560,7 @@
 | [docs/ru/RELEASE_V28_151_0.md](../docs/ru/RELEASE_V28_151_0.md) | Документация |
 | [docs/ru/RELEASE_V28_152_0.md](../docs/ru/RELEASE_V28_152_0.md) | Документация |
 | [docs/ru/RELEASE_V28_153_0.md](../docs/ru/RELEASE_V28_153_0.md) | Документация |
+| [docs/ru/RELEASE_V28_154_0.md](../docs/ru/RELEASE_V28_154_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
@@ -1895,6 +1882,26 @@
 | [docs/wiki/uk/Updates.md](../docs/wiki/uk/Updates.md) | Документация |
 | [docs/wiki/uk/_Sidebar.md](../docs/wiki/uk/_Sidebar.md) | Документация |
 | [docs_API.md](../docs_API.md) | Корень проекта |
+| [infrastructure/deployment/build-production.sh](../infrastructure/deployment/build-production.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/install-docker.sh](../infrastructure/deployment/install-docker.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/install-status.sh](../infrastructure/deployment/install-status.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/install-vps.sh](../infrastructure/deployment/install-vps.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/mail-tls/README.txt](../infrastructure/deployment/mail-tls/README.txt) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/resume-vps-after-pin.sh](../infrastructure/deployment/resume-vps-after-pin.sh) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/wireguard/README_RU.md](../infrastructure/deployment/wireguard/README_RU.md) | Установка, прокси, мониторинг |
+| [infrastructure/deployment/wireguard/provision-node.sh](../infrastructure/deployment/wireguard/provision-node.sh) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/grafana/vpnshop-operations.json](../infrastructure/monitoring/grafana/vpnshop-operations.json) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/grafana/vpnshop-platform.json](../infrastructure/monitoring/grafana/vpnshop-platform.json) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/prometheus/prometheus.example.yml](../infrastructure/monitoring/prometheus/prometheus.example.yml) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml](../infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml) | Установка, прокси, мониторинг |
+| [infrastructure/monitoring/prometheus/vpnshop-alerts.yml](../infrastructure/monitoring/prometheus/vpnshop-alerts.yml) | Установка, прокси, мониторинг |
+| [infrastructure/provisioning/corgi/main.tf](../infrastructure/provisioning/corgi/main.tf) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/Caddyfile](../infrastructure/reverse-proxy/Caddyfile) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/Caddyfile.example](../infrastructure/reverse-proxy/Caddyfile.example) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/caddy/Dockerfile](../infrastructure/reverse-proxy/caddy/Dockerfile) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/nginx/default.conf](../infrastructure/reverse-proxy/nginx/default.conf) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/nginx/nginx.conf](../infrastructure/reverse-proxy/nginx/nginx.conf) | Установка, прокси, мониторинг |
+| [infrastructure/reverse-proxy/nginx/test-proxy.conf](../infrastructure/reverse-proxy/nginx/test-proxy.conf) | Установка, прокси, мониторинг |
 | [install.sh](../install.sh) | Корень проекта |
 | [mobile/LICENSE](../mobile/LICENSE) | Мобильные приложения |
 | [mobile/__init__.py](../mobile/__init__.py) | Мобильные приложения |
@@ -2335,7 +2342,6 @@
 | [support-pro/tests/test_remote_history.py](../support-pro/tests/test_remote_history.py) | Support Pro |
 | [support-pro/tests/test_security_audit.py](../support-pro/tests/test_security_audit.py) | Support Pro |
 | [support-pro/tests/test_shop_bridge.py](../support-pro/tests/test_shop_bridge.py) | Support Pro |
-| [terraform/corgi/main.tf](../terraform/corgi/main.tf) | Корень проекта |
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
@@ -2466,6 +2472,7 @@
 | [tests/test_install_status.py](../tests/test_install_status.py) | Проверки |
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_integrity_report.py](../tests/test_integrity_report.py) | Проверки |
+| [tests/test_layout_stage4.py](../tests/test_layout_stage4.py) | Проверки |
 | [tests/test_legal_docs.py](../tests/test_legal_docs.py) | Проверки |
 | [tests/test_license_check.py](../tests/test_license_check.py) | Проверки |
 | [tests/test_license_notices.py](../tests/test_license_notices.py) | Проверки |

@@ -39,7 +39,7 @@ def test_v240_frontends_and_sandbox_script_exist():
     admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
     style = (ROOT / "apps/lucy-admin/web/src/style.css").read_text()
     compose = (ROOT / "docker-compose.yml").read_text()
-    caddy = (ROOT / "deploy/Caddyfile").read_text()
+    caddy = (ROOT / "infrastructure/reverse-proxy/Caddyfile").read_text()
     script = (ROOT / "scripts/sandbox-e2e.sh").read_text()
     assert "Личный кабинет" in cabinet
     assert "Войти через Telegram" in (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
@@ -65,7 +65,7 @@ def test_v240_frontends_and_sandbox_script_exist():
 def test_v240_docs_and_installer_cover_cabinet():
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_4_0.md").read_text()
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert "2.4.0" in readme
     assert "личный кабинет" in readme.lower() or "Личный кабинет" in readme
     assert "Sandbox" in notes or "sandbox" in notes

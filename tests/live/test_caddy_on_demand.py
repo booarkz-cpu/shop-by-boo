@@ -1,4 +1,4 @@
-"""The shop's real deploy/Caddyfile with the pinned Caddy image: a portal domain added in the Domain Manager gets a
+"""The shop's real infrastructure/reverse-proxy/Caddyfile with the pinned Caddy image: a portal domain added in the Domain Manager gets a
 certificate on demand, any other name does not (scripts/ci/caddy-on-demand-live.sh, CI job «caddy»).
 
 The backend's /caddy/ask runs here from the same router as in production, over SQLite. The only change to the file
@@ -44,7 +44,7 @@ def serve_backend():
     app.include_router(rw_domains.router)
 
     @app.get("/health/live")
-    async def live():  # the backend_lb health check of deploy/Caddyfile
+    async def live():  # the backend_lb health check of infrastructure/reverse-proxy/Caddyfile
         return {"ok": True}
 
     async def database():
@@ -74,7 +74,7 @@ def test_portal_domain_gets_a_certificate_on_demand(tmp_path):
             break
         except OSError:
             time.sleep(0.2)
-    text = (ROOT / "deploy/Caddyfile").read_text()
+    text = (ROOT / "infrastructure/reverse-proxy/Caddyfile").read_text()
     assert text.count("on_demand_tls {") == 1
     caddyfile = tmp_path / "Caddyfile"
     caddyfile.write_text(text.replace("    on_demand_tls {", "    local_certs\n    on_demand_tls {", 1))

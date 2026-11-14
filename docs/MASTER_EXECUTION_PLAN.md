@@ -1,6 +1,6 @@
 # Полный план исполнения — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.153.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008`.
+Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008`.
 
 Документ составлен по master prompt V3. Каждая задача имеет ID, исходный раздел, критерии приёмки и
 фактический статус. Статус задачи хранится в
@@ -33,7 +33,7 @@
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
 | ARC-01 | Карта сервисов и потоков данных | backend, admin, cabinet/Mini App, bot, worker, caddy, PostgreSQL, Redis, Remnawave |
-| ARC-02 | Механизм развёртывания | Docker Compose + Caddy на VPS, ответственный файл `docker-compose.yml`, `deploy/Caddyfile` |
+| ARC-02 | Механизм развёртывания | Docker Compose + Caddy на VPS, ответственный файл `docker-compose.yml`, `infrastructure/reverse-proxy/Caddyfile` |
 | ARC-03 | Карта API | `docs/API_ENDPOINTS.md` соответствует фактической таблице маршрутов |
 
 ### Этап 3. Аудит (раздел 7)
@@ -93,7 +93,7 @@
 
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
-| RPX-01 | TLS, upstream, маршрутизация | `deploy/Caddyfile` разбирается, upstream совпадает с compose |
+| RPX-01 | TLS, upstream, маршрутизация | `infrastructure/reverse-proxy/Caddyfile` разбирается, upstream совпадает с compose |
 | RPX-02 | Health checks | Caddy и backend имеют healthcheck |
 | RPX-03 | Живая проверка | Требует домен и сервер |
 

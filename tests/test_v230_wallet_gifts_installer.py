@@ -5,14 +5,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_one_step_installer_delegates_and_does_not_publish_app_ports():
     text = (ROOT / "install.sh").read_text()
-    assert "deploy/install-vps.sh" in text
+    assert "infrastructure/deployment/install-vps.sh" in text
     assert "exec bash" in text
     assert "8000/tcp" not in text
     assert "3000/tcp" not in text
 
 
 def test_vps_installer_collects_operator_settings():
-    text = (ROOT / "deploy/install-vps.sh").read_text()
+    text = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     for key in (
         "BOT_USERNAME",
         "DEFAULT_LANGUAGE",

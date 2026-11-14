@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-exec "$ROOT/deploy/install-vps.sh" "$@"
+exec "$ROOT/infrastructure/deployment/install-vps.sh" "$@"

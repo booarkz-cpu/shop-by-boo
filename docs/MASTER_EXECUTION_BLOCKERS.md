@@ -57,7 +57,7 @@
 ### B-06. Reverse proxy end-to-end
 
 * **Не проверено:** реальный TLS-обмен, сертификаты, маршрутизация до backend и standby.
-* **Сделано:** `deploy/Caddyfile` разобран, маршруты и health checks сверены, конфигурация покрыта
+* **Сделано:** `infrastructure/reverse-proxy/Caddyfile` разобран, маршруты и health checks сверены, конфигурация покрыта
   `test_zero_downtime_deploy`.
 * **Условие:** домен и хост.
 

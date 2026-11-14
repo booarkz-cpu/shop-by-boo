@@ -33,7 +33,7 @@ sudo BRANCH=v27 bash /root/shop-install.sh
 ```bash
 git clone --branch v27 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 ## Проверка исходников

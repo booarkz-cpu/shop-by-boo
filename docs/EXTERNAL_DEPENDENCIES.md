@@ -1,6 +1,6 @@
 # Внешние зависимости
 
-Дистрибутив `v28.153.0`, runtime/API `21.5.1`.
+Дистрибутив `v28.154.0`, runtime/API `21.5.1`.
 
 Перечень всего, без чего часть функций не работает. Для каждой зависимости: зачем нужна, что
 происходит без неё, где брать. Пошаговое тестирование — в
@@ -38,7 +38,7 @@
 | --- | --- | --- |
 | Docker + Compose | сервер | 17 сервисов в `docker-compose.yml` |
 | systemd | сервер | Ночное автообновление; без него агент только создаёт `.control` |
-| Caddy / nginx | сервер | TLS, маршрутизация; `deploy/Caddyfile`, `deploy/nginx/` |
+| Caddy / nginx | сервер | TLS, маршрутизация; `infrastructure/reverse-proxy/Caddyfile`, `infrastructure/reverse-proxy/nginx/` |
 | GitHub Releases | `booarkz-cpu/shop-by-boo` | Источник автообновления и мобильных артефактов |
 | Hetzner API | `HETZNER_API_TOKEN` | Автомасштабирование узлов; без него — ручное |
 

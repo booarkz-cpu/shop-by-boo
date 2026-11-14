@@ -1,6 +1,6 @@
 # Автообновление из GitHub
 
-Дистрибутив `v28.153.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Документ описывает **фактически реализованный** механизм. Всё, что здесь написано, проверено по
 исходному коду `scripts/auto_update.py`, `scripts/github_release_fetch.py`,
@@ -120,7 +120,7 @@ backend  ◀── читает ──  $APP_DIR/.control/auto-update.status.jso
 `scripts/github_release_fetch.py` проверяет дополнительно: SHA-256 скачанного архива, поля
 манифеста (`distribution_tag`, `version`, `artifact`, `sha256`) и `commit == tag_commit(tag)`.
 
-Актуальный стабильный релиз на момент документа: `v28.153.0`, опубликован `2026-10-29T14:27:31Z`.
+Актуальный стабильный релиз на момент документа: `v28.154.0`, опубликован `2026-10-29T14:27:31Z`.
 
 ## 5. Процесс обновления
 
@@ -132,7 +132,7 @@ backend  ◀── читает ──  $APP_DIR/.control/auto-update.status.jso
 6. Распаковка во временный каталог (`mktemp -d`, очистка через `trap`).
 7. `scripts/update.sh`: снимок текущего дерева в `.rollback/*.tar.gz` и дамп БД.
 8. Замена файлов (`.env`, `.env.*`, `.git`, `.rollback`, `.control` исключены).
-9. Сборка образов и запуск: `deploy/build-production.sh`, миграции Alembic.
+9. Сборка образов и запуск: `infrastructure/deployment/build-production.sh`, миграции Alembic.
 10. Проверки здоровья: `/health`, `/health/live`, `/health/ready`.
 11. Запись результата в `auto-update.status.json`.
 12. При ошибке на любом шаге срабатывает `trap rollback ERR` → `scripts/rollback.sh`.
@@ -174,7 +174,7 @@ sudo bash /opt/vpn-shop/scripts/auto-update.sh run       # проверить и
 sudo bash /opt/vpn-shop/scripts/auto-update.sh disable   # выключить (таймеры удаляются)
 ```
 
-Установщик `deploy/install-vps.sh` вызывает `install` сам. На хостах без systemd (CI, непривилегированные
+Установщик `infrastructure/deployment/install-vps.sh` вызывает `install` сам. На хостах без systemd (CI, непривилегированные
 сборки) агент только создаёт каталог `.control` и не регистрирует таймеры — это ожидаемое поведение,
 а не ошибка.
 

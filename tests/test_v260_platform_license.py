@@ -179,5 +179,5 @@ def test_license_and_bilingual_platform_docs():
     assert "Платформа" in admin
     assert '"Платформа": "Platform"' in i18n
     assert "manifest.webmanifest" in cabinet
-    assert (ROOT / "deploy/grafana/vpnshop-platform.json").is_file()
+    assert (ROOT / "infrastructure/monitoring/grafana/vpnshop-platform.json").is_file()
     assert (ROOT / "apps/user-cabinet/public/manifest.webmanifest").is_file()

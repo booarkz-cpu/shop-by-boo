@@ -2,7 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = (ROOT / "scripts/build-release.sh").read_text()
-INSTALL = (ROOT / "deploy/install-vps.sh").read_text()
+INSTALL = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
 MANIFEST = (ROOT / "release-manifest.template.json").read_text()
 
 def test_release_is_v1_0_5_realise():

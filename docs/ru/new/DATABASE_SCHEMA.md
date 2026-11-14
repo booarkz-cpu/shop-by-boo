@@ -1,4 +1,4 @@
-# Схема базы данных — v28.153.0
+# Схема базы данных — v28.154.0
 
 Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `0094_store_subscriptions`. Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.
 
@@ -15,7 +15,7 @@
 | Devices | `user_devices`, `device_blacklist` | HWID-устройства подписки |
 | Servers | — | серверы и ноды хранятся в Remnawave; магазин хранит агентов нод |
 | Nodes | `node_agents`, `agent_actions` | агент на ноде: здоровье, команды, терминал |
-| Domains | — | домены задаются в `.env` и `deploy/Caddyfile`; таблица — этап 11 |
+| Domains | — | домены задаются в `.env` и `infrastructure/reverse-proxy/Caddyfile`; таблица — этап 11 |
 | Certificates | — | сертификаты выпускает Caddy; учёт в базе — этап 11 |
 | Payments | `payments`, `payment_provider_events`, `refund_requests`, `payment_chargebacks` |  |
 | Transactions | `financial_ledger`, `referral_ledger`, `payout_transactions` | журнал денег, одна запись на операцию |

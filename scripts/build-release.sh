@@ -10,7 +10,7 @@ ARTIFACT="$(python3 -c 'import json; print(json.load(open("release-manifest.temp
 python -m pytest -q tests
 python -m compileall -q backend
 python -m pytest -q tests/test_release_quality_v2_2.py
-bash -n install.sh deploy/*.sh scripts/*.sh
+bash -n install.sh deploy/*.sh infrastructure/deployment/*.sh scripts/*.sh
 python - <<'PY'
 import yaml
 with open("docker-compose.yml") as f: yaml.safe_load(f)
