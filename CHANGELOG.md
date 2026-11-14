@@ -1,3 +1,10 @@
+# v28.150.0
+
+- Решения владельца № 16–19 (`docs/OWNER_DECISIONS.md`): lucy-vpn-android не нужен; этап 2 папок — Android и iOS отдельно; спрашивать про SSH при установке (по умолчанию «нет»); чередовать перекладку папок с разделами реестра.
+- `deploy/install-vps.sh`: вопрос «Открыть SSH только для вашего адреса (yes / no)» сразу после вопроса об автообновлении, с текущим адресом из `SSH_CONNECTION`; «yes» берёт этот адрес в `ADMIN_SSH_IP`, `ADMIN_SSH_IP=<адрес>` при запуске означает «да»; без SSH-сессии — предупреждение, SSH открыт. Тесты — `tests/test_admin_ssh_ip.py`.
+- Реестр: MIG-0009, 0020, 0021, 0027 — PASS (`docs/MIGRATION_MAPPING.md`).
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.149.0
 
 - Этап 1 новой структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): «Корги Люси: клиент» перенесён `git mv` из `mobile/android-client` в `apps/vpn-client/android` (история файлов сохранена). Пути обновлены в CI (`android-client.yml`, `mobile-release.yml` — фильтр `apps/**`, `mobile-screenshots.yml`, `xray-core-watch.yml`), `dependabot.yml`, `.gitignore`, скриптах (`client-ktlint.sh`, `client-vpn-e2e.sh`, `xray-core-watch.py`, `bot-banners/render.py`, `store/icons.py` — `android_dir()`), тестах и документации; путь к `build-xray-aar.sh` в `app/build.gradle.kts` — на уровень глубже.
