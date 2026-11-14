@@ -7,16 +7,16 @@ ENV NEXT_PUBLIC_API_URL=$VITE_API_URL \
     NEXT_PUBLIC_SURFACE=miniapp \
     NEXT_TELEMETRY_DISABLED=1
 WORKDIR /src
-COPY cabinet/package*.json ./
+COPY apps/user-cabinet/package*.json ./
 RUN if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fund; else npm install --package-lock=false --ignore-scripts --no-audit --no-fund; fi
-COPY cabinet/ .
+COPY apps/user-cabinet/ .
 RUN npm run build:miniapp
 FROM ${NGINX_BASE_IMAGE}
 # The base image is pinned by digest: the package fixes published since are installed here (v28.123.0).
 RUN apk upgrade --no-cache
 COPY --from=build /src/dist /usr/share/nginx/html
-COPY miniapp/nginx.conf /etc/nginx/nginx.conf
-COPY miniapp/default.conf /etc/nginx/conf.d/default.conf
+COPY apps/telegram-mini-app/nginx.conf /etc/nginx/nginx.conf
+COPY apps/telegram-mini-app/default.conf /etc/nginx/conf.d/default.conf
 USER 101:101
 EXPOSE 80
 CMD ["/bin/sh", "-c", "mkdir -p /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && chmod 1777 /tmp/nginx /tmp/nginx/client_temp /tmp/nginx/proxy_temp /tmp/nginx/fastcgi_temp /tmp/nginx/uwsgi_temp /tmp/nginx/scgi_temp && exec nginx -g 'daemon off;'"]

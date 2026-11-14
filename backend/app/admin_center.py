@@ -1,6 +1,6 @@
 """Admin Control Center: the 30 modules of the master task mapped to the admin panel (v28.60.0, stage 6).
 
-Each module names the panel sections (``tab`` of ``admin/src/sections.ts``) that manage it and the API
+Each module names the panel sections (``tab`` of ``apps/lucy-admin/web/src/sections.ts``) that manage it and the API
 prefixes behind them. What the module can do is not written by hand: it is read from the routes of the
 application — HTTP methods give read / create / update / delete, query parameters give search and
 filters, the dependencies give the permissions, and the handlers show whether a change is written to

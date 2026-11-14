@@ -106,7 +106,7 @@ def test_docs_describe_312_and_keep_311():
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_2.md").read_text()
     docs = (ROOT / "docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md").read_text()
     steps = (ROOT / "docs/archive/INSTALL_STEPS_BEFORE_ALPHA_6.md").read_text()
-    ui = (ROOT / "admin/src/main.tsx").read_text()
+    ui = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
     assert "3.1.2" in readme and "3.1.1" in readme and "3.1.0" in readme
     assert "личный кабинет" in readme and "Конструктор тарифов" in readme
     assert "9.16" in readme and "FULL_E2E_PASS" in readme

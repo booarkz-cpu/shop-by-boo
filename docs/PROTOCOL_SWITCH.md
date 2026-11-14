@@ -5,8 +5,8 @@
 Когда нужен: транспорт inbound перестал работать у клиентов (например, gRPC блокируется), а другой транспорт
 на том же сервере работает. Inbound переводится на другой транспорт без SSH и без переустановки ноды.
 
-Код: `backend/app/rw_protocol_switch.py`, страница `admin/src/protocol-switch.tsx`,
-тесты `tests/test_rw_protocol_switch.py` и `admin/e2e/protocol-switch.spec.ts`.
+Код: `backend/app/rw_protocol_switch.py`, страница `apps/lucy-admin/web/src/protocol-switch.tsx`,
+тесты `tests/test_rw_protocol_switch.py` и `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 ## Что меняется и что нет
 

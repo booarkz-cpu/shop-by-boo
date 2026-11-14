@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.152.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.153.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
 
 # Карта функционального покрытия
 
@@ -131,7 +131,7 @@
 | Пул WireGuard / AmneziaWG и ключи подключения | Реализовано | `wg_pool.py`, `/keys` |
 | Полный редактор хостов и сквадов | Реализовано | `panel_admin.py`, проверен на живой панели |
 | Защищённый канал Clod Clash | Не реализовано | только для приложений Clod Clash |
-| Векторная карта стран | Реализовано | v28.42.0: карта в «Географии клиентов» (`admin/src/worldMap.tsx`, Natural Earth 1:110m), строка стран в мобильных админках |
+| Векторная карта стран | Реализовано | v28.42.0: карта в «Географии клиентов» (`apps/lucy-admin/web/src/worldMap.tsx`, Natural Earth 1:110m), строка стран в мобильных админках |
 
 ## Устранение дублей
 
@@ -164,25 +164,25 @@
 
 В v28.17.0 закрыта последняя продуктовая строка: собственный приём почты (MX) для служебных адресов. В v28.16.0 закрыта строка nDPI: глубокий анализ трафика встроенным классификатором или nDPI. В v28.15.0 закрыта часть строки nDPI: распознавание BitTorrent по журналу Xray со счётчиками без адресов. В v28.14.0 закрыта строка «Терминал/snippets/shaping»: терминал узлов с подтверждением 2FA и записью сессий. В v28.13.0 закрыта часть строки MX/SPF/DMARC: проверка DNS почтового домена и отчёты DMARC. В v28.12.0 закрыта строка «Внешние helpdesk-системы»: мост Zendesk и Freshdesk в Support Pro 3.8. В v28.11.0 закрыта часть «native» строки WebAuthn: ключи доступа в приложениях Android и iOS. В v28.10.0 переработана админ-панель (страница «Все разделы», подписанные поля, новые скриншоты); строки матрицы не менялись. В v28.9.0 закрыта строка «DNS/ASN/reputation/расширенная геокарта». В v28.8.0 закрыта строка «Marketplace внешних плагинов/hotload» в части runtime: подписанные пакеты, права, hotload и откат. В v28.7.0 добавлен email-канал поддержки (строка «Email-канал поддержки»). В v28.6.0 строка «Виджет Android, push, мультипрофиль внешней админки» закрыта: виджет подписки на рабочем столе Android и несколько профилей в админ-приложениях дополнили push-уведомления из v28.5.0. В v28.4.0 закрыт перенос истории подписок и платежей, а админка, кабинет и Mini App переведены на Next.js в дизайне Remna Dark с интеграцией Telegram WebApp SDK. Остальные «частично/нет» не переименованы в «есть». [Заметки выпуска](RELEASE_V28_9_0.md).
 
-## Закрытые изменения дистрибутивов v28.1.0–v28.152.0
+## Закрытые изменения дистрибутивов v28.1.0–v28.153.0
 
 | Область | Реализация | Проверка |
 | --- | --- | --- |
-| Подсказки RU/EN и мобильный доступ | `admin/src/components/field-hints.tsx`, Radix Tooltip portal | Chromium: focus, Escape, touch, границы viewport, смена языка |
+| Подсказки RU/EN и мобильный доступ | `apps/lucy-admin/web/src/components/field-hints.tsx`, Radix Tooltip portal | Chromium: focus, Escape, touch, границы viewport, смена языка |
 | Меню темы/языка и списки | `preferences-menu.tsx`, `select-field.tsx`, `components/ui/` | Chromium: клавиатура, сохранение, disabled, редакторы |
 | Локальный лимит входа | `runtime_security.reset_login_attempts` после проверки пароля/MFA | Сброс только verified login bucket при отказе Redis |
 | Дистрибутив и публикация | `release_identity.py`, `github_release_fetch.py`, package/publisher | Манифест/commit/SHA, неизменность тега, черновик при ошибке |
 | Объединение аккаунтов | `account_merge.py`, `0063_account_merge`, кабинет безопасности | Две авторизации, self/cycle, rollback, reconciliation, aliases, passkeys, retry и PostgreSQL race |
 | Настройки без перезапуска | `runtime_settings.py`, `0064_runtime_settings`, `runtime-settings.tsx` | 104 live / 90 deployment / 2 workflow, secrets, staged apply, race, rollback, migration roundtrip и UI build |
 | Перенос истории подписок/платежей | `history_import.py`, `0065_history_import`, `history-import.tsx` | SQLite/PostgreSQL: сверка без записи, расхождение итогов, повтор без дублей, конфликт, блокировки, устаревший preview, откат и его отказ; Chromium-сценарий |
-| Next.js и Remna Dark | `admin/src/app`, `admin-shell.tsx`, `dashboard.tsx`, `cabinet/src/app`, `telegram.ts`, `csp-externalize.mjs` | Chromium под production CSP: sidebar/drawer, сетка 2×2/4×1, фильтр и меню, 390 px без прокрутки, Telegram SDK mock (тема, haptics, BackButton/MainButton) |
+| Next.js и Remna Dark | `apps/lucy-admin/web/src/app`, `admin-shell.tsx`, `dashboard.tsx`, `apps/user-cabinet/src/app`, `telegram.ts`, `csp-externalize.mjs` | Chromium под production CSP: sidebar/drawer, сетка 2×2/4×1, фильтр и меню, 390 px без прокрутки, Telegram SDK mock (тема, haptics, BackButton/MainButton) |
 | Native push Android/iOS | `push.py`, `0066_push_notifications`, `push/CorgiPush.kt`, `PushCenter` в iOS, `push-status.tsx` | SQLite/PostgreSQL: hash-индекс токена, привязка к сессии, подписи FCM/APNs, backoff, потерянный токен, logout, удалённый аккаунт; Chromium: карточка состояния; CI-сборка Android/iOS |
 | Виджет Android и профили админ-приложений | `widget.py`, `widget/CorgiWidget.kt`, `AdminProfiles.kt`, `ProfileVault` в iOS | SQLite/PostgreSQL: минимальный ответ без ссылки и балансов, состояния подписки, кэш трафика, отказ панели; CI-сборка Android/iOS |
 | Email-канал поддержки | `support-pro/app/email_channel.py`, `email_admin.py`, Support Pro `0007` | SQLite/PostgreSQL: replay и смена UIDVALIDITY без дублей, цепочка по Message-ID, отказ чужому адресу по тегу темы, автоответы и возвраты, отказ ящика и «ядовитое» письмо, заголовки ответа, исходы SMTP, вложения, удаление, перенос истории, срок хранения, миграция с защитой отката |
-| Плагины | `plugins.py`, `0067_plugin_runtime`, `admin/src/plugins.tsx`, `scripts/sign-plugin.py` | SQLite/PostgreSQL: подпись и подмена пакета, недоверенный и отозванный ключ, совместимость API, права и события, обязательные настройки, обновление с новыми правами и откат, область токена, события без истории и без дублей, HMAC-подпись, повтор и автоостановка, ротация и удаление; Chromium: полный путь в админке |
-| Сетевая аналитика узлов | `network_intel.py`, `0068_network_intel`, `admin/src/network-intel.tsx` | SQLite/PostgreSQL: внутренние, зарезервированные и документационные адреса, IPv6, DNS-ошибка, свежесть и устаревание кэша, сохранение данных при ошибке и backoff, HTTP 429 и бюджет запросов, работа без ключа и выключение, ручное обновление только адресов узлов, сводка клиентов без IP, недоступный Remnawave; Chromium: раздел и телефон |
-| Движок автоматизации и кампании | `automation.py`, `0076_growth`, `admin/src/automation.tsx` | SQLite/PostgreSQL: одно выполнение на событие, лимит в сутки, бонус в журнале, кампании через очередь рассылок; Chromium-сценарий |
+| Плагины | `plugins.py`, `0067_plugin_runtime`, `apps/lucy-admin/web/src/plugins.tsx`, `scripts/sign-plugin.py` | SQLite/PostgreSQL: подпись и подмена пакета, недоверенный и отозванный ключ, совместимость API, права и события, обязательные настройки, обновление с новыми правами и откат, область токена, события без истории и без дублей, HMAC-подпись, повтор и автоостановка, ротация и удаление; Chromium: полный путь в админке |
+| Сетевая аналитика узлов | `network_intel.py`, `0068_network_intel`, `apps/lucy-admin/web/src/network-intel.tsx` | SQLite/PostgreSQL: внутренние, зарезервированные и документационные адреса, IPv6, DNS-ошибка, свежесть и устаревание кэша, сохранение данных при ошибке и backoff, HTTP 429 и бюджет запросов, работа без ключа и выключение, ручное обновление только адресов узлов, сводка клиентов без IP, недоступный Remnawave; Chromium: раздел и телефон |
+| Движок автоматизации и кампании | `automation.py`, `0076_growth`, `apps/lucy-admin/web/src/automation.tsx` | SQLite/PostgreSQL: одно выполнение на событие, лимит в сутки, бонус в журнале, кампании через очередь рассылок; Chromium-сценарий |
 | Клиент Remnawave 3.x | `remnawave.py` (`unwrap`, `hwidDeviceLimit`) | Контракт `@remnawave/backend-contract` 3.4: обёртка `response`, числовой `id`, PATCH по `id`, действия enable/disable/extend |
-| Профиль клиента | `customer_profile.py`, `cabinet/src/profile.tsx` | Нормализация имени, отказ bidi/управляющих символов, ограниченный клиент, Chromium-сценарий |
+| Профиль клиента | `customer_profile.py`, `apps/user-cabinet/src/profile.tsx` | Нормализация имени, отказ bidi/управляющих символов, ограниченный клиент, Chromium-сценарий |
 
 Эти строки не закрывают неперенесённые продуктовые подсистемы и внешние production gates, перечисленные выше. API остаётся `21.5.1`.

@@ -271,7 +271,7 @@ async def test_summary_endpoint_lists_every_part_with_a_real_section(database, m
     monkeypatch.setattr(system_status.frontend_check, "__defaults__", (up,))
     data = await admin_api.health_summary(db=database, admin=ADMIN)
     assert [c["key"] for c in data["checks"]] == KEYS
-    tabs = set(re.findall(r'\{tab: "([A-Za-z0-9]+)"', (ROOT / "admin/src/sections.ts").read_text()))
+    tabs = set(re.findall(r'\{tab: "([A-Za-z0-9]+)"', (ROOT / "apps/lucy-admin/web/src/sections.ts").read_text()))
     for row in data["checks"]:
         assert row["status"] in {"ok", "warn", "error", "off"} and row["detail"] and row["tab"] in tabs, row
     assert data["status"] in {"ok", "attention", "degraded"} and "TOP-SECRET" not in json.dumps(data, default=str)

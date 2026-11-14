@@ -6,8 +6,8 @@
 
 | Клиент | Как обращается к магазину |
 | --- | --- |
-| Админ-панель (`admin/`) | `/api/admin/*`, права роли |
-| Личный кабинет и Mini App (`cabinet/`; Mini App — та же сборка с `NEXT_PUBLIC_SURFACE=miniapp`) | `/api/me/*`, `/api/app-config`, `/api/payments/*` |
+| Админ-панель (`apps/lucy-admin/web/`) | `/api/admin/*`, права роли |
+| Личный кабинет и Mini App (`apps/user-cabinet/`; Mini App — та же сборка с `NEXT_PUBLIC_SURFACE=miniapp`) | `/api/me/*`, `/api/app-config`, `/api/payments/*` |
 | Приложения Android и iOS (`mobile/android-*`, `mobile/ios-*`) | те же `/api/me/*`, а также `/api/mobile/*` (макет экранов, события) |
 | Telegram-бот | вызывает модули магазина напрямую в том же коде. Покупку бот отдаёт Mini App, оплата Stars идёт через `telegram_stars.py` в ту же функцию подтверждения |
 | Worker | расписания: продления, напоминания, сверка с Remnawave, резервные копии, рассылки |

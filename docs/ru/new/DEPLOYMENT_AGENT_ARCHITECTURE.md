@@ -83,6 +83,6 @@
 | Что | Тест |
 | --- | --- |
 | Шаги, повтор, откат, отмена, остановленный worker, семь режимов, действия | `tests/test_rw_installer.py` (поддельный SSH-сервер) |
-| e2e мастера установки | `admin/e2e/rw-installer.spec.ts` |
+| e2e мастера установки | `apps/lucy-admin/web/e2e/rw-installer.spec.ts` |
 | «Панель + нода» по SSH на чистом сервере CI, обновление, удаление | `tests/live/test_install_live.py` |
 | Настоящий VPS | BLOCKED_EXTERNAL — нет тестового VPS |

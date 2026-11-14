@@ -1,6 +1,6 @@
 """BACKLOG A4 (v28.88.0): every text of the web cabinet can be replaced from the admin panel, per language.
 
-The cabinet's own texts live in cabinet/src/i18n.tsx (the Russian text is the key); their list with the English
+The cabinet's own texts live in apps/user-cabinet/src/i18n.tsx (the Russian text is the key); their list with the English
 and Ukrainian defaults is ``assets/cabinet_strings.json`` (scripts/generate-cabinet-strings.py keeps it in step).
 The owner's versions are stored in ``app_settings.cabinet_texts`` as ``{lang: {key: text}}``; the cabinet reads
 them from ``GET /api/public/cabinet-texts`` and shows them instead of its defaults, without a rebuild.

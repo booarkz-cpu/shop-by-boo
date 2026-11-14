@@ -33,7 +33,7 @@
 | Настройки | `backend/app/config.py`, `runtime_settings.py` |
 | Клиент панели | `backend/app/remnawave.py` |
 | Тексты интерфейсов | `packages/localization/`, словари веб-интерфейсов |
-| Дизайн-токены и компоненты веб-панели | `admin/src/theme.css`, `admin/src/components/ui/` |
+| Дизайн-токены и компоненты веб-панели | `apps/lucy-admin/web/src/theme.css`, `apps/lucy-admin/web/src/components/ui/` |
 
 ## Описание служб
 

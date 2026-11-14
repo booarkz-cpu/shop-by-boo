@@ -105,7 +105,7 @@ def test_both_frontends_render_an_error_screen_instead_of_a_black_page():
     Next.js swaps a failed render for ``app/error.tsx``; a throw above the page — in the providers the
     root component mounts — is caught by the boundary both roots wrap around themselves.
     """
-    for surface, boundary in (("admin", "AdminErrorBoundary"), ("cabinet", "CabinetRootBoundary")):
+    for surface, boundary in (("apps/lucy-admin/web", "AdminErrorBoundary"), ("apps/user-cabinet", "CabinetRootBoundary")):
         error_page = ROOT / f"{surface}/src/app/error.tsx"
         assert error_page.is_file(), f"{surface}: app/error.tsx is what Next.js renders on a failed render"
         text = error_page.read_text(encoding="utf-8")
@@ -123,6 +123,6 @@ def test_both_frontends_render_an_error_screen_instead_of_a_black_page():
 # Worker health from WorkerState: tests/test_behaviour_plans_privacy.py (BACKLOG A1).
 
 def test_no_v33_current_release_labels():
-    for rel in ['admin/src/main.tsx','deploy/install-vps.sh','scripts/build-release.sh','release-manifest.template.json']:
+    for rel in ['apps/lucy-admin/web/src/main.tsx','deploy/install-vps.sh','scripts/build-release.sh','release-manifest.template.json']:
         text=(ROOT/rel).read_text()
         assert 'V33' not in text and 'v33' not in text and '33.0.0-production' not in text

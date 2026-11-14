@@ -540,7 +540,7 @@ PYTHON_BASE_IMAGE="$(resolve_build python:3.14-slim)"
 NODE_BASE_IMAGE="$(resolve_build node:26-alpine)"
 NGINX_BASE_IMAGE="$(resolve_build nginx:1.30-alpine)"
 log "Генерирую frontend lock-файлы автоматически (ручное редактирование не требуется)..."
-for app in admin miniapp cabinet; do
+for app in apps/lucy-admin/web apps/telegram-mini-app apps/user-cabinet; do
   [[ -f "$app/package.json" ]] || die "Не найден $app/package.json"
   docker run --rm --user "$(id -u):$(id -g)" -v "$ROOT/$app:/app" -w /app "$NODE_BASE_IMAGE" \
     timeout 180 npm install --package-lock-only --ignore-scripts --no-audit --no-fund

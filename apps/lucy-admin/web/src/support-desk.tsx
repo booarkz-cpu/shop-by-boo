@@ -1,6 +1,6 @@
 import {SelectField} from "./components/select-field";
 import {SupportTopology} from "./support-topology";
-import {AttachmentUpload,AttachmentFiles} from "../../cabinet/src/support-attachments";
+import {AttachmentUpload,AttachmentFiles} from "../../../user-cabinet/src/support-attachments";
 import React, {useEffect, useRef, useState} from "react";
 export function SupportDesk({rows,request,reload}:{rows:any[];request:(p:string,o?:RequestInit)=>Promise<any>;reload:()=>void}){
  const [filter,setFilter]=useState("open"),[selected,setSelected]=useState<any>(null),[reply,setReply]=useState(""),[thread,setThread]=useState<any>(null),[busy,setBusy]=useState(false),[error,setError]=useState("");

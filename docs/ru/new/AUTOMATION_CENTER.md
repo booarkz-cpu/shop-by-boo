@@ -2,7 +2,7 @@
 
 «Система → Automation Center» показывает на одном экране всё, что магазин делает сам. Для каждого процесса видно, включён ли он, когда сработает, чем кончился последний запуск и в каком разделе он настраивается (кнопка в строке). Ниже — сводка «Состояния системы»: сколько проверок в норме и какие требуют внимания.
 
-Данные: `GET /api/admin/automation-center` (право `ops.diagnostics`, только чтение), код — `backend/app/automation_center.py`, экран — `admin/src/automationCenter.tsx`.
+Данные: `GET /api/admin/automation-center` (право `ops.diagnostics`, только чтение), код — `backend/app/automation_center.py`, экран — `apps/lucy-admin/web/src/automationCenter.tsx`.
 
 ## Процессы
 

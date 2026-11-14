@@ -14,9 +14,9 @@
 | `worker` | Фоновые задачи: выдача и продление доступа, расписания, проверки | сборка `backend/Dockerfile` | — | есть | `volume_init`, `db`, `redis`, `backend` | всегда |
 | `mail_receiver` | Приём почты служебных адресов (включается профилем) | сборка `backend/Dockerfile` | `25 (по умолчанию)` | есть | `db`, `redis` | `mail` |
 | `bot` | Telegram-бот | сборка `backend/Dockerfile.bot` | — | есть | `db`, `redis` | всегда |
-| `admin` | Веб-панель администратора (статические файлы) | сборка `admin/Dockerfile` | — | есть | `backend` | всегда |
-| `miniapp` | Mini App Telegram (статические файлы) | сборка `miniapp/Dockerfile` | — | есть | `backend` | всегда |
-| `cabinet` | Личный кабинет (статические файлы) | сборка `cabinet/Dockerfile` | — | есть | `backend` | всегда |
+| `admin` | Веб-панель администратора (статические файлы) | сборка `apps/lucy-admin/web/Dockerfile` | — | есть | `backend` | всегда |
+| `miniapp` | Mini App Telegram (статические файлы) | сборка `apps/telegram-mini-app/Dockerfile` | — | есть | `backend` | всегда |
+| `cabinet` | Личный кабинет (статические файлы) | сборка `apps/user-cabinet/Dockerfile` | — | есть | `backend` | всегда |
 | `support_db` | База Support Pro | образ `postgres:18.6-alpine` | — | есть | — | всегда |
 | `support_redis` | Очереди и блокировки Support Pro | образ `redis:8.10-alpine` | — | есть | — | всегда |
 | `support_migrate` | Миграции базы Support Pro, выполняется и завершается | сборка `support-pro/app/Dockerfile` | — | нет | `support_db` | всегда |

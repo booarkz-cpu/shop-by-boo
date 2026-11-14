@@ -33,13 +33,13 @@ def _unserved(entry: str) -> list[str]:
 
 def test_admin_panel_only_calls_routes_that_exist():
     """Every ``/api/…`` the admin panel requests is served, parameters included."""
-    missing = _unserved("admin/src")
+    missing = _unserved("apps/lucy-admin/web/src")
     assert not missing, "the panel calls these paths but the API does not serve them: " + ", ".join(missing)
 
 
 def test_cabinet_only_calls_routes_that_exist():
     """The cabinet and the Telegram Mini App share these sources."""
-    missing = _unserved("cabinet/src")
+    missing = _unserved("apps/user-cabinet/src")
     assert not missing, "the cabinet calls these paths but the API does not serve them: " + ", ".join(missing)
 
 

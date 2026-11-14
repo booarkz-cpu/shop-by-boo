@@ -1,6 +1,6 @@
 # Чек-лист релиза
 
-Дистрибутив `v28.152.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
+Дистрибутив `v28.153.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
 Support Pro `0008`.
 
 Отмечайте пункт только при наличии подтверждения. Правило простое: то, что не проверено, остаётся
@@ -44,8 +44,8 @@ python -m pytest -q ../tests --timeout=120
 ## 4. Фронтенды
 
 ```bash
-cd admin   && npm ci && npm run typecheck && npm run build
-cd cabinet && npm ci && npm run typecheck && npm test && npm run build
+cd apps/lucy-admin/web   && npm ci && npm run typecheck && npm run build
+cd apps/user-cabinet && npm ci && npm run typecheck && npm test && npm run build
 ```
 
 - [ ] admin: typecheck (оба tsconfig) — чисто
