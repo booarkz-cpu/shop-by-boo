@@ -11,20 +11,21 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **131** — 20.1%.
+- Подтверждено (`PASS`): **136** — 20.8%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 131 | Проверено, доказательство указано |
-| `PARTIAL` | 177 | Сделано частично, остаток описан |
+| `PASS` | 136 | Проверено, доказательство указано |
+| `PARTIAL` | 182 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 19 | Функции нет |
+| `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 325 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 314 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 123 | 1 | 3 | 0 | 119 |
-| Монорепозиторий и перенос | 28 | 0 | 0 | 0 | 28 |
+| Монорепозиторий и перенос | 28 | 5 | 5 | 1 | 17 |
 | «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
 | Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
@@ -820,21 +821,30 @@
 
 ## Монорепозиторий и перенос
 
-### REQ-MIG-0001 — `NOT_TESTED`
+### REQ-MIG-0001 — `PASS`
 
 - Источник: Часть I → Primary Repository (строка 29). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `README.md`.
+- Примечание: Целевой репозиторий shop-by-boo; состояние зафиксировано в сверке.
 
 > https://github.com/booarkz-cpu/shop-by-boo.git
 
-### REQ-MIG-0002 — `NOT_TESTED`
+### REQ-MIG-0002 — `PASS`
 
 - Источник: Часть I → Source Repositories → Repo (строка 35). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: VPN-Shop-by-CorgiLusi указывает на тот же репозиторий (тот же HEAD) — прежнее имя, переносить нечего.
 
 > https://github.com/booarkz-cpu/VPN-Shop-by-CorgiLusi.git
 
-### REQ-MIG-0003 — `NOT_TESTED`
+### REQ-MIG-0003 — `PASS`
 
 - Источник: Часть I → Source Repositories → Repo (строка 39). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `tests/test_admin_ssh_ip.py`.
+- Примечание: remnawave-manager 5b83423 сверен по пунктам меню 1–33; недостающее (SSH только с адреса владельца) перенесено своим кодом.
 
 > https://github.com/booarkz-cpu/remnawave-manager
 
@@ -868,9 +878,12 @@
 
 > https://github.com/STEP-CORP/StepBot/tree/main
 
-### REQ-MIG-0009 — `NOT_TESTED`
+### REQ-MIG-0009 — `BLOCKED_EXTERNAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 63). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: lucy-vpn-android недоступен из среды разработки — нужен доступ или подтверждение владельца, что репозитория нет.
 
 > https://github.com/booarkz-cpu/lucy-vpn-android
 
@@ -924,33 +937,48 @@
 
 > database/migrations; database/schemas; database/seeds; scripts/audit; scripts/build; scripts/migration; scripts/release; scripts/maintenance; tests/unit; tests/integration; tests/e2e; tests/security; tests/mobile; tests/infrastructure; docs/ru; docs/en; docs/uk; docs/architecture; docs/payments; docs/remnawave; docs/masque; docs/installation; docs/security; docs/screenshots; artifacts/audit; artifacts/builds; artifacts/screenshots; artifacts/reports; .github/workflows.
 
-### REQ-MIG-0018 — `NOT_TESTED`
+### REQ-MIG-0018 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Rule (строка 102). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `docs/OWNER_DECISIONS.md`.
+- Примечание: План перекладки по структуре промпта без пустых модулей и с сохранением самостоятельных сборок (решение владельца № 14, 2026-11-14); этапы выполняются выпусками.
 
 > Адаптируй структуру к фактическому стеку, не создавай фиктивных пустых модулей и не теряй самостоятельность сборок.
 
-### REQ-MIG-0019 — `NOT_TESTED`
+### REQ-MIG-0019 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Single Repository (строка 1175). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `README.md`; `docs/OWNER_DECISIONS.md`.
+- Примечание: Все компоненты в одном репозитории shop-by-boo; новых целевых репозиториев не создаётся.
 
 > Единственный целевой репозиторий: https://github.com/booarkz-cpu/shop-by-boo.git, имя shop-by-boo. Не создавать новые целевые репозитории. Ранее упомянутый lucy-vpn-android и другие репозитории — источники кода/истории для миграции в монорепозиторий.
 
-### REQ-MIG-0020 — `NOT_TESTED`
+### REQ-MIG-0020 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1181). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: URL, ветка, SHA, теги, версия зафиксированы для shop-by-boo, VPN-Shop-by-CorgiLusi, remnawave-manager; lucy-vpn-android недоступен.
 
 > Зафиксировать исходные URL, default branch, commit SHA, теги, релизы, ветки и состояние каждого источника.
 
-### REQ-MIG-0021 — `NOT_TESTED`
+### REQ-MIG-0021 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1185). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: Каталог функций remnawave-manager (меню 1–33, CLI) составлен и сопоставлен; каталог lucy-vpn-android ждёт доступа.
 
 > Составить каталог всех экранов, API endpoints, фоновых задач, CLI-команд, скриптов, сервисов, конфигураций, миграций БД и пользовательских сценариев.
 
-### REQ-MIG-0022 — `NOT_TESTED`
+### REQ-MIG-0022 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1189). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: Для каждой функции указана каноническая реализация в магазине, отличия перечислены.
 
 > Сопоставить одинаковые функции, определить каноническую реализацию, перечислить отличия и уникальные возможности каждой реализации.
 
@@ -960,9 +988,12 @@
 
 > До удаления/замены дубликата доказать функциональную эквивалентность тестами и контрактами.
 
-### REQ-MIG-0024 — `NOT_TESTED`
+### REQ-MIG-0024 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1197). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `THIRD_PARTY_NOTICES.md`; `docs/REFERENCE_REPOSITORIES.md`; `docs/OWNER_DECISIONS.md`.
+- Примечание: Чужой код не копируется (решение № 13: только идеи); уведомления о сторонних зависимостях в THIRD_PARTY_NOTICES.md. Сверка старых репозиториев владельца ещё не проведена.
 
 > Сохранить attribution, лицензии, copyright notices и обязательные файлы лицензий.
 
@@ -978,9 +1009,12 @@
 
 > Проверить отсутствие секретов и персональных данных в переносимых commit, fixture, логах и артефактах.
 
-### REQ-MIG-0027 — `NOT_TESTED`
+### REQ-MIG-0027 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1209). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `tests/test_admin_ssh_ip.py`.
+- Примечание: Отчёт mapping источник/коммит → модуль магазина → тесты → статус для remnawave-manager; lucy-vpn-android ждёт доступа.
 
 > Создать отчёт mapping: source repository/path/commit → monorepo path → новая реализация → тесты → evidence.
 
@@ -3182,7 +3216,7 @@
 - Источник: Часть I → Docker Installer Vps Termux → Termux (строка 740). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
-- Примечание: Пошаговая инструкция для Android/Termux написана (v28.147.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
+- Примечание: Пошаговая инструкция для Android/Termux написана (v28.148.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
 
 > Android/Termux: инструменты; подключение к VPS; Git; проверка репозитория; установка; запуск; обновление; логи; диагностика. Пошагово для новичка.
 
@@ -3191,7 +3225,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик (строка 2297). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `deploy/install-status.sh`; `deploy/install-vps.sh`; `tests/test_install_status.py`.
-- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.147.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.147.0, решение владельца 2026-11-14). На VPS не проверено.
+- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.148.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.148.0, решение владельца 2026-11-14). На VPS не проверено.
 
 > Поддерживать идемпотентные этапы: preflight → environment validation → DNS/ports → secrets → dependencies → database → migrations → services → health checks → admin bootstrap → final report. Каждый этап должен иметь машинно-читаемый статус, лог, понятную ошибку и безопасный повтор.
 
@@ -3216,7 +3250,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2303). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `scripts/update-space.sh`; `scripts/update.sh`; `tests/test_update_space.py`; `scripts/github_release_fetch.py`.
-- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.147.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
+- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.148.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
 
 > - Проверять свободное место и доступность внешних зависимостей.
 
@@ -3313,7 +3347,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2324). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/log_format.py`; `backend/app/main.py`; `backend/app/errors.py`; `tests/test_ops_alerts.py`.
-- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.147.0). Трассировки (OpenTelemetry) нет.
+- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.148.0). Трассировки (OpenTelemetry) нет.
 
 > - Добавить structured logs, metrics, traces и correlation IDs.
 
@@ -3322,7 +3356,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2325). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/host_metrics.py`; `backend/app/observability.py`; `backend/app/main.py`; `tests/test_host_metrics.py`.
-- Примечание: С v28.147.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
+- Примечание: С v28.148.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
 
 > - Отслеживать error rate, latency percentiles, throughput, saturation, queue depth, failed jobs, webhook lag, DB pool, disk, memory, CPU, node availability и certificate expiry.
 
@@ -3337,7 +3371,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2327). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `backend/app/masque_panel.py`; `backend/app/rw_drift.py`; `tests/test_ops_alerts.py`.
-- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.147.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
+- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.148.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
 
 > - Уведомлять о backup failures, certificate expiry, payment provider outage, node degradation, failed migrations и security incidents.
 
@@ -3346,7 +3380,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2328). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `tests/test_ops_alerts.py`.
-- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.147.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
+- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.148.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
 
 > - Учитывать timezone и clock drift для cron, webhook signature и сертификатов.
 
@@ -3422,7 +3456,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2340). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/backups_api.py`; `tests/test_backup_retention_verified.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
-- Примечание: v28.147.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
+- Примечание: v28.148.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
 
 > - Не удалять последний проверенный backup автоматически.
 

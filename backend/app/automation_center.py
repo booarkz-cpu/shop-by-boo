@@ -99,7 +99,8 @@ def panel_item(p: dict) -> dict:
 
 async def backups(db: AsyncSession) -> dict:
     from . import main as shop
-    schedule = await shop.setting_value(db, "backup_schedule", "off")
+    from .backups_api import DEFAULT_SCHEDULE
+    schedule = await shop.setting_value(db, "backup_schedule", DEFAULT_SCHEDULE)
     last = (await db.execute(select(BackupJob).order_by(BackupJob.created_at.desc()).limit(1))).scalar_one_or_none()
     ok = (await db.execute(select(BackupJob).where(BackupJob.status == "completed").order_by(BackupJob.created_at.desc())
                            .limit(1))).scalar_one_or_none()

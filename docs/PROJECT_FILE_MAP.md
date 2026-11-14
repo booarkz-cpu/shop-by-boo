@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.147.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.148.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2639**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2643**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -838,6 +838,8 @@
 | [docs/MASTER_EXECUTION_PROGRESS.md](../docs/MASTER_EXECUTION_PROGRESS.md) | Документация |
 | [docs/MASTER_EXECUTION_REPORTS.md](../docs/MASTER_EXECUTION_REPORTS.md) | Документация |
 | [docs/MASTER_ROADMAP_VPN_SHOP.md](../docs/MASTER_ROADMAP_VPN_SHOP.md) | Документация |
+| [docs/MIGRATION_MAPPING.md](../docs/MIGRATION_MAPPING.md) | Документация |
+| [docs/MONOREPO_LAYOUT.md](../docs/MONOREPO_LAYOUT.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
 | [docs/OWNER_DECISIONS.md](../docs/OWNER_DECISIONS.md) | Документация |
 | [docs/PAYMENT_PROVIDER_INVENTORY.md](../docs/PAYMENT_PROVIDER_INVENTORY.md) | Документация |
@@ -1245,6 +1247,7 @@
 | [docs/ru/RELEASE_V28_145_0.md](../docs/ru/RELEASE_V28_145_0.md) | Документация |
 | [docs/ru/RELEASE_V28_146_0.md](../docs/ru/RELEASE_V28_146_0.md) | Документация |
 | [docs/ru/RELEASE_V28_147_0.md](../docs/ru/RELEASE_V28_147_0.md) | Документация |
+| [docs/ru/RELEASE_V28_148_0.md](../docs/ru/RELEASE_V28_148_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
@@ -2359,6 +2362,7 @@
 | [tests/test_admin_customer_operations.py](../tests/test_admin_customer_operations.py) | Проверки |
 | [tests/test_admin_passkeys.py](../tests/test_admin_passkeys.py) | Проверки |
 | [tests/test_admin_route_permissions.py](../tests/test_admin_route_permissions.py) | Проверки |
+| [tests/test_admin_ssh_ip.py](../tests/test_admin_ssh_ip.py) | Проверки |
 | [tests/test_admin_stepup.py](../tests/test_admin_stepup.py) | Проверки |
 | [tests/test_admin_web_ticket.py](../tests/test_admin_web_ticket.py) | Проверки |
 | [tests/test_anti_sharing.py](../tests/test_anti_sharing.py) | Проверки |
