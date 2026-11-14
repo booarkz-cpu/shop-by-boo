@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.146.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.147.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2635**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2639**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -517,6 +517,7 @@
 | [backend/app/guest_checkout.py](../backend/app/guest_checkout.py) | API, бот и worker |
 | [backend/app/heartbeat.py](../backend/app/heartbeat.py) | API, бот и worker |
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
+| [backend/app/host_metrics.py](../backend/app/host_metrics.py) | API, бот и worker |
 | [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
 | [backend/app/install_catalogue.py](../backend/app/install_catalogue.py) | API, бот и worker |
@@ -1146,6 +1147,7 @@
 | [docs/ru/CUSTOMER_PASSKEYS_CURRENT.md](../docs/ru/CUSTOMER_PASSKEYS_CURRENT.md) | Документация |
 | [docs/ru/DEPLOYMENT.md](../docs/ru/DEPLOYMENT.md) | Документация |
 | [docs/ru/DEPLOYMENT_CURRENT.md](../docs/ru/DEPLOYMENT_CURRENT.md) | Документация |
+| [docs/ru/DISASTER_RECOVERY.md](../docs/ru/DISASTER_RECOVERY.md) | Документация |
 | [docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md](../docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md) | Документация |
 | [docs/ru/DOCUMENTATION.md](../docs/ru/DOCUMENTATION.md) | Документация |
 | [docs/ru/FINAL_RELEASE_READINESS.md](../docs/ru/FINAL_RELEASE_READINESS.md) | Документация |
@@ -1242,6 +1244,7 @@
 | [docs/ru/RELEASE_V28_144_0.md](../docs/ru/RELEASE_V28_144_0.md) | Документация |
 | [docs/ru/RELEASE_V28_145_0.md](../docs/ru/RELEASE_V28_145_0.md) | Документация |
 | [docs/ru/RELEASE_V28_146_0.md](../docs/ru/RELEASE_V28_146_0.md) | Документация |
+| [docs/ru/RELEASE_V28_147_0.md](../docs/ru/RELEASE_V28_147_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
@@ -2444,6 +2447,7 @@
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |
 | [tests/test_heartbeat.py](../tests/test_heartbeat.py) | Проверки |
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
+| [tests/test_host_metrics.py](../tests/test_host_metrics.py) | Проверки |
 | [tests/test_hot_standby.py](../tests/test_hot_standby.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |

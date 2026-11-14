@@ -179,3 +179,17 @@ def test_json_logs_carry_the_request_id(capsys):
         log.removeHandler(handler)
     line = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
     assert line["message"] == "оплата 7" and line["request_id"] == "req-12345678" and line["level"] == "WARNING"
+
+
+def test_a_drifting_server_clock_is_reported():
+    """v28.147.0 (REQ-INFRA-0028): a minute of drift breaks webhook signatures and sign-in codes quietly."""
+    from email.utils import format_datetime
+    from datetime import timezone as tz
+
+    assert ops_alerts.clock_problems(None) == [] and ops_alerts.clock_problems(12.0) == []
+    ahead = ops_alerts.clock_problems(95.0)[0]
+    assert ahead.key == "clock" and "спешат на 95 с" in ahead.detail and ahead.severity == "medium"
+    assert ops_alerts.clock_problems(-400)[0].severity == "critical" and "отстают" in ops_alerts.clock_problems(-400)[0].detail
+    behind = format_datetime((datetime.utcnow() - timedelta(minutes=10)).replace(tzinfo=tz.utc), usegmt=True)
+    assert 590 <= ops_alerts.clock_drift(lambda: behind) <= 610
+    assert ops_alerts.clock_drift(lambda: "not a date") is None
