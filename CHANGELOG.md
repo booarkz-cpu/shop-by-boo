@@ -1,3 +1,9 @@
+# v28.155.0
+
+- «Корги Люси: клиент» 1.9.8 (versionCode 198): предел размера подписки 8 МБ (`core/Capped.kt`, `Store.fetchSubscription`) — бесконечный или огромный ответ сервера подписки больше не читается в память целиком; профиль сохраняет прежние серверы и показывает причину. Проверка — `CappedTest`.
+- Реестр требований (решение № 19): разделы MIG (28), NODE (71) и CLIENT (33) сверены полностью. PASS — MIG-0010, 0011, 0012, 0023, 0025; NODE-0028, 0029, 0031; CLIENT-0001, 0011, 0014, 0015, 0029, 0031. NOT_IMPLEMENTED — CLIENT-0032 (хранение ссылок подписок без ключа Android Keystore), CLIENT-0033 (замеры производительности). Остальные — PARTIAL с описанием остатка. Итог: PASS 192, PARTIAL 255, NOT_IMPLEMENTED 37, BLOCKED 2, NOT_TESTED 167.
+- Источник STEP-CORP/StepBot (MIT, `7a1fe52`) разобран в `docs/REFERENCE_REPOSITORIES.md`, раздел 6; код не переносился.
+
 # v28.154.0
 
 - Этап 4 структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): `git mv` `deploy` → `infrastructure/deployment` (установщик, сборка, WireGuard, сертификат почты), `infrastructure/reverse-proxy` (Caddy, nginx), `infrastructure/monitoring` (Prometheus, Grafana); `terraform` → `infrastructure/provisioning`. Обновлены пути в `docker-compose*.yml`, CI, скриптах, тестах, `install.sh`, Dependabot и документах.
