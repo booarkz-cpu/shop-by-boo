@@ -4,7 +4,7 @@
   vitest in apps/user-cabinet/src/http-json.test.tsx); the old ``try { d = await r.json() } catch {}`` must not come back.
 * BUG-H3: «Документы» had a second copy of ``banner`` nested in ``edit``.
 * The admin image copies single files of the cabinet; a shared file it imports but does not copy breaks the
-  Docker build only, so every import from ../../cabinet/src must have its COPY line."""
+  Docker build only, so every import from ../../../user-cabinet/src must have its COPY line."""
 import re
 from pathlib import Path
 

@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 
 const python = process.env.PASSKEY_TEST_PYTHON || 'python';
-const tool = path.resolve(__dirname, '../../scripts/sign-plugin.py');
+const tool = path.resolve(__dirname, '../../../../scripts/sign-plugin.py');
 
 function signedPackage() {
   const dir = mkdtempSync(path.join(tmpdir(), 'corgi-plugin-'));
