@@ -38,6 +38,16 @@ status_stage() {
   status_write
 }
 
+# status_resume_from <name>: a continued installation — every stage up to <name> was done by the previous run.
+status_resume_from() {
+  local now name; now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  for name in "${INSTALL_STAGES[@]}"; do
+    INSTALL_STATE[$name]=done; INSTALL_AT[$name]=$now; INSTALL_CURRENT=$name
+    [[ "$name" == "$1" ]] && break
+  done
+  status_write
+}
+
 status_fail() { INSTALL_ERROR=${1:-"остановлена"}; INSTALL_OVERALL=failed
   [[ -n "$INSTALL_CURRENT" ]] && INSTALL_STATE[$INSTALL_CURRENT]=failed; status_write; }
 

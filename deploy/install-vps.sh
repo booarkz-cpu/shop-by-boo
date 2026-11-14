@@ -7,6 +7,7 @@ export APP_DIR="$ROOT"
 SOURCE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # v28.144.0 (REQ-INFRA-0008): every stage and where it stopped, machine-readable (deploy/install-status.sh).
 source "$SOURCE_ROOT/deploy/install-status.sh"
+PREVIOUS_STATUS="$(cat "$INSTALL_STATUS" 2>/dev/null || true)"
 trap status_on_exit EXIT
 status_stage preflight
 
@@ -103,6 +104,27 @@ env_line() {
 }
 
 INSTALLER_VERSION="21.5.1"
+
+# v28.145.0 (owner's decision of 2026-11-14, REQ-INFRA-0008): an installation that stopped half way continues from
+# where it stopped. After the secrets stage the answers needed later are kept in $ROOT/.install-resume (root, 600);
+# a second run finds it next to .env, skips the questions and the finished stages and goes on. A copy of the files
+# that stopped before .env was written is removed and made again. A finished installation is never touched.
+RESUME_FILE="$ROOT/.install-resume"
+RESUME=0
+if [[ -f "$ROOT/.env" && -f "$RESUME_FILE" ]]; then
+  RESUME=1
+elif [[ -e "$ROOT/docker-compose.yml" && ! -e "$ROOT/.env" ]] && [[ "$PREVIOUS_STATUS" == *'"state":"failed"'* || "$PREVIOUS_STATUS" == *'"state":"running"'* ]]; then
+  log "Прошлая установка остановилась до записи .env: убираю её незавершённую копию файлов в $ROOT"
+  rm -rf "$ROOT"
+fi
+
+if (( RESUME )); then
+  log "Продолжаю прерванную установку: вопросы и пройденные этапы пропускаю"
+  # shellcheck source=/dev/null
+  source "$RESUME_FILE"
+  cd "$ROOT"
+  status_resume_from secrets
+else
 status_stage settings
 log "Remnawave VPN Shop — 21.5.1 stable core installer"
 echo
@@ -408,6 +430,13 @@ chmod 600 support-pro/.env
 
 # Strict production firewall: only SSH and the public web entrypoint are exposed.
 # Caddy uses TCP 80/443 and HTTP/3 uses UDP 443. All application services remain internal.
+# The answers the later stages need, for a run that has to continue after a failure (removed when the install is done).
+( umask 077
+  for name in ADMIN_DOMAIN ADMIN_EMAIL ADMIN_PASSWORD API_DOMAIN APP_DOMAIN AUTO_UPDATE CABINET_DOMAIN GENERATED_ADMIN_PASSWORD \
+              PAYMENT_PROVIDER SUPPORT_PRO_ADMIN_PASSWORD SUPPORT_PRO_DOMAIN YANDEX_CLIENT_ID YANDEX_CLIENT_SECRET; do
+    printf '%s=%q\n' "$name" "${!name-}"
+  done > "$RESUME_FILE" )
+fi
 ufw default deny incoming >/dev/null 2>&1 || true
 ufw default allow outgoing >/dev/null 2>&1 || true
 # Preserve the port of the active SSH session before enabling a default-deny firewall.
@@ -604,3 +633,4 @@ if [[ -z "$YANDEX_CLIENT_ID" || -z "$YANDEX_CLIENT_SECRET" ]]; then
   echo "Yandex ID: пропущен."
 fi
 status_done
+rm -f "$RESUME_FILE"
