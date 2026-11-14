@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **114** — 17.5%.
+- Подтверждено (`PASS`): **123** — 18.8%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 114 | Проверено, доказательство указано |
-| `PARTIAL` | 164 | Сделано частично, остаток описан |
+| `PASS` | 123 | Проверено, доказательство указано |
+| `PARTIAL` | 170 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 19 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 355 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 340 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -34,7 +34,7 @@
 | MASQUE | 12 | 5 | 7 | 0 | 0 |
 | Ноды: установка, обслуживание, защита | 71 | 13 | 23 | 0 | 34 |
 | Автовыбор | 35 | 21 | 13 | 0 | 1 |
-| Инфраструктура, установщик, копии | 41 | 3 | 0 | 0 | 38 |
+| Инфраструктура, установщик, копии | 41 | 12 | 6 | 0 | 23 |
 | Backend, API, база | 2 | 0 | 2 | 0 | 0 |
 | Интерфейсы | 10 | 1 | 9 | 0 | 0 |
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
@@ -3151,27 +3151,38 @@
 
 > Найти точные исходные формулировки этих задач в backlog, документации, issues, исходных промптах и истории. Не угадывать содержание. Создать реестр с критериями, статусами и доказательствами.
 
-### REQ-INFRA-0004 — `NOT_TESTED`
+### REQ-INFRA-0004 — `PARTIAL`
 
 - Источник: Часть I → Docker Installer Vps Termux → Checks (строка 728). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `docker-compose.yml`; `tests/test_stage15_install.py`; `tests/test_zero_downtime_deploy.py`; `.github/workflows/ci.yml`.
+- Примечание: В docker-compose.yml у служб есть проверки здоровья (14) и политики перезапуска (16), тома, сети, зависимости и переменные окружения; CI проверяет `docker compose config` и поднимает интеграционный стенд. Не сверены по пунктам журналы (ротация) и доступность служб снаружи на живом сервере.
 
 > Dockerfile; Compose; volumes; networks; ports; health checks; restart policies; dependencies; environment; secrets; database; migrations; logs; доступность сервисов.
 
-### REQ-INFRA-0005 — `NOT_TESTED`
+### REQ-INFRA-0005 — `PARTIAL`
 
 - Источник: Часть I → Docker Installer Vps Termux → Installer (строка 732). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `install.sh`; `scripts/update.sh`; `scripts/rollback.sh`; `scripts/backup.sh`; `scripts/doctor.sh`; `scripts/preflight.sh`; `scripts/ci/restore-drill.sh`.
+- Примечание: Есть установка, обновление с откатом, резервная копия и восстановление (проверяется в CI), проверка окружения и диагностика. Чистая установка и повторный запуск не проверялись на VPS.
 
 > Чистая установка; обновление; повторный запуск; восстановление; backup; rollback; проверка конфигурации; доменов; диагностика.
 
-### REQ-INFRA-0006 — `NOT_TESTED`
+### REQ-INFRA-0006 — `PASS`
 
 - Источник: Часть I → Docker Installer Vps Termux → Vps (строка 736). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `docs/INSTALLATION.md`; `docs/ru/new/DEPLOYMENT_AGENT.md`.
 
 > Подробная инструкция установки на тестовый VPS.
 
-### REQ-INFRA-0007 — `NOT_TESTED`
+### REQ-INFRA-0007 — `PARTIAL`
 
 - Источник: Часть I → Docker Installer Vps Termux → Termux (строка 740). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Пошаговая инструкция для Android/Termux написана (v28.143.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
 
 > Android/Termux: инструменты; подключение к VPS; Git; проверка репозитория; установка; запуск; обновление; логи; диагностика. Пошагово для новичка.
 
@@ -3187,33 +3198,44 @@
 
 > - Проверять совместимость текущей и целевой версии.
 
-### REQ-INFRA-0010 — `NOT_TESTED`
+### REQ-INFRA-0010 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2302). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `scripts/update.sh`; `tests/test_v2018_recovery.py`.
 
 > - Создавать backup до миграции.
 
-### REQ-INFRA-0011 — `NOT_TESTED`
+### REQ-INFRA-0011 — `PARTIAL`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2303). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `scripts/update-space.sh`; `scripts/update.sh`; `tests/test_update_space.py`; `scripts/github_release_fetch.py`.
+- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.143.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
 
 > - Проверять свободное место и доступность внешних зависимостей.
 
-### REQ-INFRA-0012 — `NOT_TESTED`
+### REQ-INFRA-0012 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2304). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `backend/alembic/env.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
 
 > - Выполнять миграции с блокировкой конкурентного запуска.
 
-### REQ-INFRA-0013 — `NOT_TESTED`
+### REQ-INFRA-0013 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2305). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `scripts/zero-downtime-backend.sh`; `deploy/build-production.sh`; `deploy/Caddyfile`; `tests/test_zero_downtime_deploy.py`.
 
 > - Поддерживать rolling/blue-green подход, если он совместим с фактической архитектурой.
 
-### REQ-INFRA-0014 — `NOT_TESTED`
+### REQ-INFRA-0014 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2306). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `scripts/update.sh`; `scripts/auto_update.py`; `tests/test_v2018_recovery.py`.
 
 > - При неуспехе останавливать rollout и выполнять документированный rollback.
 
@@ -3253,9 +3275,11 @@
 
 > - Сравнить поведение до и после миграции.
 
-### REQ-INFRA-0021 — `NOT_TESTED`
+### REQ-INFRA-0021 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий (строка 2316). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `scripts/ci/secret-leak-check.py`; `tests/test_secret_leak_check.py`; `.github/workflows/ci.yml`.
 
 > - Проверить отсутствие случайного попадания `.env`, токенов, приватных ключей, дампов и пользовательских конфигураций.
 
@@ -3265,9 +3289,11 @@
 
 > - Не удалять старые проекты/ветки/артефакты без отдельного разрешения.
 
-### REQ-INFRA-0023 — `NOT_TESTED`
+### REQ-INFRA-0023 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2323). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `backend/app/main.py`; `tests/test_diagnostics.py`.
 
 > - Разделить liveness, readiness и dependency health.
 
@@ -3313,21 +3339,29 @@
 
 > - Установить RPO/RTO только после согласования и тестирования.
 
-### REQ-INFRA-0031 — `NOT_TESTED`
+### REQ-INFRA-0031 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2334). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `scripts/backup.sh`; `scripts/backup_bundle.py`; `tests/test_backup_cli.py`.
 
 > - Защищать backup шифрованием, ограничением доступа и отдельными credentials.
 
-### REQ-INFRA-0032 — `NOT_TESTED`
+### REQ-INFRA-0032 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2335). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `backend/app/telegram_backup.py`; `tests/test_promo_generator_and_tg_backup.py`.
+- Примечание: Копия может уходить в Telegram (отдельно от сервера). По умолчанию scripts/backup.sh пишет в /var/backups на том же сервере; отдельное хранилище (S3 и т. п.) не настроено.
 
 > - Хранить копии отдельно от production host.
 
-### REQ-INFRA-0033 — `NOT_TESTED`
+### REQ-INFRA-0033 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2336). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `scripts/backup.sh`; `backend/app/ops_alerts.py`.
+- Примечание: Проверяются SHA-256, полнота (pg_restore --list, tar -t, расшифровка копии) и сбой копии (оповещение). Срок хранения копий scripts/backup.sh не задаёт.
 
 > - Проверять checksum, полноту, срок хранения и доступность.
 
@@ -3351,9 +3385,11 @@
 
 > - Снапшоты сервера не считать полноценной заменой согласованной стратегии backup.
 
-### REQ-INFRA-0037 — `NOT_TESTED`
+### REQ-INFRA-0037 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2340). Продукт: Все три.
+- Платформы: backend/API, server.
+- Доказательство: `scripts/auto_update.py`; `scripts/backup.sh`.
 
 > - Не удалять последний проверенный backup автоматически.
 

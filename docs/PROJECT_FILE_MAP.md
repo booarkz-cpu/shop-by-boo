@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.142.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.143.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2622**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2628**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1236,6 +1236,7 @@
 | [docs/ru/RELEASE_V28_140_0.md](../docs/ru/RELEASE_V28_140_0.md) | Документация |
 | [docs/ru/RELEASE_V28_141_0.md](../docs/ru/RELEASE_V28_141_0.md) | Документация |
 | [docs/ru/RELEASE_V28_142_0.md](../docs/ru/RELEASE_V28_142_0.md) | Документация |
+| [docs/ru/RELEASE_V28_143_0.md](../docs/ru/RELEASE_V28_143_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
@@ -1473,6 +1474,7 @@
 | [docs/ru/new/SUBSCRIPTION_TEMPLATES.md](../docs/ru/new/SUBSCRIPTION_TEMPLATES.md) | Документация |
 | [docs/ru/new/TELEGRAM_GUIDE.md](../docs/ru/new/TELEGRAM_GUIDE.md) | Документация |
 | [docs/ru/new/TELEGRAM_MINI_APP.md](../docs/ru/new/TELEGRAM_MINI_APP.md) | Документация |
+| [docs/ru/new/TERMUX_GUIDE.md](../docs/ru/new/TERMUX_GUIDE.md) | Документация |
 | [docs/ru/new/TEST_REPORT.md](../docs/ru/new/TEST_REPORT.md) | Документация |
 | [docs/ru/new/UI_UX_GUIDE.md](../docs/ru/new/UI_UX_GUIDE.md) | Документация |
 | [docs/ru/new/USER_CABINET_GUIDE.md](../docs/ru/new/USER_CABINET_GUIDE.md) | Документация |
@@ -2153,6 +2155,7 @@
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/restore-drill.sh](../scripts/ci/restore-drill.sh) | Эксплуатация и релиз |
 | [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/secret-leak-check.py](../scripts/ci/secret-leak-check.py) | Эксплуатация и релиз |
 | [scripts/ci/test-shard.py](../scripts/ci/test-shard.py) | Эксплуатация и релиз |
 | [scripts/ci/tinyauth-live.sh](../scripts/ci/tinyauth-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/wizard-caddy-check.sh](../scripts/ci/wizard-caddy-check.sh) | Эксплуатация и релиз |
@@ -2210,6 +2213,7 @@
 | [scripts/store/render.py](../scripts/store/render.py) | Эксплуатация и релиз |
 | [scripts/test-up.sh](../scripts/test-up.sh) | Эксплуатация и релиз |
 | [scripts/update-from-github.sh](../scripts/update-from-github.sh) | Эксплуатация и релиз |
+| [scripts/update-space.sh](../scripts/update-space.sh) | Эксплуатация и релиз |
 | [scripts/update.sh](../scripts/update.sh) | Эксплуатация и релиз |
 | [scripts/upgrade-postgres.sh](../scripts/upgrade-postgres.sh) | Эксплуатация и релиз |
 | [scripts/v15_quality_gate.py](../scripts/v15_quality_gate.py) | Эксплуатация и релиз |
@@ -2531,6 +2535,7 @@
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
 | [tests/test_schema_matches_migrations.py](../tests/test_schema_matches_migrations.py) | Проверки |
 | [tests/test_screenshots.py](../tests/test_screenshots.py) | Проверки |
+| [tests/test_secret_leak_check.py](../tests/test_secret_leak_check.py) | Проверки |
 | [tests/test_selfsteal_sites.py](../tests/test_selfsteal_sites.py) | Проверки |
 | [tests/test_single_business_logic.py](../tests/test_single_business_logic.py) | Проверки |
 | [tests/test_speed_forecast.py](../tests/test_speed_forecast.py) | Проверки |
@@ -2554,6 +2559,7 @@
 | [tests/test_traffic_analysis.py](../tests/test_traffic_analysis.py) | Проверки |
 | [tests/test_tribute.py](../tests/test_tribute.py) | Проверки |
 | [tests/test_unified_workspace.py](../tests/test_unified_workspace.py) | Проверки |
+| [tests/test_update_space.py](../tests/test_update_space.py) | Проверки |
 | [tests/test_v15_production.py](../tests/test_v15_production.py) | Проверки |
 | [tests/test_v16_v19_release.py](../tests/test_v16_v19_release.py) | Проверки |
 | [tests/test_v1_0_1_reliability.py](../tests/test_v1_0_1_reliability.py) | Проверки |
