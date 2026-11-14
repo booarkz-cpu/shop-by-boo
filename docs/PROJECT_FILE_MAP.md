@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.144.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.145.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2632**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2635**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -77,7 +77,9 @@
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.trivyignore](../.trivyignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -1239,6 +1241,7 @@
 | [docs/ru/RELEASE_V28_142_0.md](../docs/ru/RELEASE_V28_142_0.md) | Документация |
 | [docs/ru/RELEASE_V28_143_0.md](../docs/ru/RELEASE_V28_143_0.md) | Документация |
 | [docs/ru/RELEASE_V28_144_0.md](../docs/ru/RELEASE_V28_144_0.md) | Документация |
+| [docs/ru/RELEASE_V28_145_0.md](../docs/ru/RELEASE_V28_145_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
