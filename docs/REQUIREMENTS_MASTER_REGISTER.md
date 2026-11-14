@@ -1061,7 +1061,7 @@
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Branding → Banner (строка 131). Продукт: Клиент.
 - Платформы: Android.
-- Доказательство: `mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
 - Примечание: Android: баннер есть, проверен тестом на эмуляторе. Приложения «Корги Люси: клиент» для iOS нет.
 
 > Свободный Гав в интернете!
@@ -1070,7 +1070,7 @@
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Branding → Slogan (строка 135). Продукт: Клиент.
 - Платформы: Android.
-- Доказательство: `mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
 - Примечание: Android: слоган есть, проверен тестом на эмуляторе. Приложения для iOS нет.
 
 > Твой интернет. Твои правила. Твоя Люси
@@ -1085,7 +1085,7 @@
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Branding → Remove (строка 143). Продукт: Клиент.
 - Платформы: Android.
-- Доказательство: `mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `mobile/android-client/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
 - Примечание: Android: счётчик дней с огоньком, баннер «ЗАЩИТА В ОДНО КАСАНИЕ» и «Безлимит» убраны, проверено тестом на эмуляторе. Элемента «маска» на главном экране нет: нужен снимок от владельца, чтобы понять, о чём речь.
 
 > Лишние счётчики дней; декоративный огонёк; баннер «ЗАЩИТА В ОДНО КАСАНИЕ»; маска; кнопка «Безлимит».
@@ -1597,7 +1597,7 @@
 ### REQ-BRAND-0015 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1598). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `mobile/android-client/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`.
+- Доказательство: `docs/BRAND_COPY.md`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`.
 - Примечание: Слоган — в приложении «Корги Люси: клиент», в приветствии бота и подзаголовком кабинета и Mini App по умолчанию (v28.132.0). В приложениях магазина Android и iOS он не показывается.
 
 > - Слоган: «Твой интернет. Твои правила. Твоя Люси».
@@ -3216,7 +3216,7 @@
 - Источник: Часть I → Docker Installer Vps Termux → Termux (строка 740). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
-- Примечание: Пошаговая инструкция для Android/Termux написана (v28.148.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
+- Примечание: Пошаговая инструкция для Android/Termux написана (v28.149.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
 
 > Android/Termux: инструменты; подключение к VPS; Git; проверка репозитория; установка; запуск; обновление; логи; диагностика. Пошагово для новичка.
 
@@ -3225,7 +3225,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик (строка 2297). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `deploy/install-status.sh`; `deploy/install-vps.sh`; `tests/test_install_status.py`.
-- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.148.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.148.0, решение владельца 2026-11-14). На VPS не проверено.
+- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.149.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.149.0, решение владельца 2026-11-14). На VPS не проверено.
 
 > Поддерживать идемпотентные этапы: preflight → environment validation → DNS/ports → secrets → dependencies → database → migrations → services → health checks → admin bootstrap → final report. Каждый этап должен иметь машинно-читаемый статус, лог, понятную ошибку и безопасный повтор.
 
@@ -3250,7 +3250,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2303). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `scripts/update-space.sh`; `scripts/update.sh`; `tests/test_update_space.py`; `scripts/github_release_fetch.py`.
-- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.148.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
+- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.149.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
 
 > - Проверять свободное место и доступность внешних зависимостей.
 
@@ -3347,7 +3347,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2324). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/log_format.py`; `backend/app/main.py`; `backend/app/errors.py`; `tests/test_ops_alerts.py`.
-- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.148.0). Трассировки (OpenTelemetry) нет.
+- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.149.0). Трассировки (OpenTelemetry) нет.
 
 > - Добавить structured logs, metrics, traces и correlation IDs.
 
@@ -3356,7 +3356,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2325). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/host_metrics.py`; `backend/app/observability.py`; `backend/app/main.py`; `tests/test_host_metrics.py`.
-- Примечание: С v28.148.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
+- Примечание: С v28.149.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
 
 > - Отслеживать error rate, latency percentiles, throughput, saturation, queue depth, failed jobs, webhook lag, DB pool, disk, memory, CPU, node availability и certificate expiry.
 
@@ -3371,7 +3371,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2327). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `backend/app/masque_panel.py`; `backend/app/rw_drift.py`; `tests/test_ops_alerts.py`.
-- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.148.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
+- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.149.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
 
 > - Уведомлять о backup failures, certificate expiry, payment provider outage, node degradation, failed migrations и security incidents.
 
@@ -3380,7 +3380,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2328). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `tests/test_ops_alerts.py`.
-- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.148.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
+- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.149.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
 
 > - Учитывать timezone и clock drift для cron, webhook signature и сертификатов.
 
@@ -3456,7 +3456,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2340). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/backups_api.py`; `tests/test_backup_retention_verified.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
-- Примечание: v28.148.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
+- Примечание: v28.149.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
 
 > - Не удалять последний проверенный backup автоматически.
 
@@ -3601,7 +3601,7 @@
 ### REQ-MOBILE-0001 — `PARTIAL`
 
 - Источник: Часть I → Mobile → Android (строка 709). Продукт: Все три.
-- Доказательство: `docs/ru/new/VPN_ENGINE.md`; `mobile/android-client`; `tests/test_v290_android_apk.py`; `.github/workflows/build-mobile.yml`.
+- Доказательство: `docs/ru/new/VPN_ENGINE.md`; `apps/vpn-client/android`; `tests/test_v290_android_apk.py`; `.github/workflows/build-mobile.yml`.
 - Примечание: Kotlin, Compose, Material 3, VpnService, сборка APK в GitHub Actions; движки сравнены, выбран Xray-core. AAB для Google Play не собирается; производительность движков не измерялась; на устройстве не проверено.
 
 > Kotlin; Jetpack Compose; Material 3; VPNService; выбранный VPN-движок; GitHub Actions; APK/AAB. Сравнить sing-box и Xray по VLESS, REALITY, Hysteria 2, производительности, лицензиям, ограничениям, стабильности и интеграции.
@@ -3625,7 +3625,7 @@
 ### REQ-MOBILE-0004 — `PASS`
 
 - Источник: Часть I → Mobile → Rule (строка 721). Продукт: Все три.
-- Доказательство: `mobile/android-user`; `mobile/android-admin`; `mobile/android-client`; `mobile/ios-user`; `mobile/ios-admin`.
+- Доказательство: `mobile/android-user`; `mobile/android-admin`; `apps/vpn-client/android`; `mobile/ios-user`; `mobile/ios-admin`.
 - Примечание: Все пять приложений лежат в каталоге mobile/ этого репозитория.
 
 > Все мобильные приложения находятся внутри shop-by-boo.
@@ -4539,7 +4539,7 @@
 ### REQ-SEC-0014 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2360). Продукт: Все три.
-- Доказательство: `mobile/android-client/app/src/main/AndroidManifest.xml`; `mobile/android-user/app/src/main/AndroidManifest.xml`; `mobile/android-admin/app/src/main/AndroidManifest.xml`; `mobile/android-client/app/src/main/res/xml/network_security.xml`; `docs/THREAT_MODEL.md`.
+- Доказательство: `apps/vpn-client/android/app/src/main/AndroidManifest.xml`; `mobile/android-user/app/src/main/AndroidManifest.xml`; `mobile/android-admin/app/src/main/AndroidManifest.xml`; `apps/vpn-client/android/app/src/main/res/xml/network_security.xml`; `docs/THREAT_MODEL.md`.
 - Примечание: Резервное копирование данных выключено, открытый HTTP запрещён, проверка сертификатов системная; про root сказано без гарантий. Экспортированные компоненты и deep links построчно не сверены; iOS и MASVS не проверены.
 
 > - Для мобильных приложений проверить secure storage, deep links, exported components, backup rules, network security config, certificate validation и jailbreak/root limitations без ложных гарантий.

@@ -12,7 +12,7 @@
 | База магазина | Имя последней миграции | `backend/alembic/versions/` | Заметки выпуска: строка «Head магазина» |
 | Support Pro | Номер и имя последней миграции | `support-pro/VERSION`, `support-pro/alembic/` | Заметки выпуска: строка «Support Pro» |
 | Приложения магазина и администратора, Android и iOS | Одна версия на всё семейство, `MAJOR.MINOR.PATCH` | `mobile/android-*/app/build.gradle.kts`, проекты Xcode | `MOBILE.md`, раздел «Что нового» |
-| «Корги Люси: клиент» для Android | `MAJOR.MINOR.PATCH`, свой выпуск `client-vX.Y.Z` | `mobile/android-client/app/build.gradle.kts` | `docs/ru/new/ANDROID_CLIENT_APP.md` |
+| «Корги Люси: клиент» для Android | `MAJOR.MINOR.PATCH`, свой выпуск `client-vX.Y.Z` | `apps/vpn-client/android/app/build.gradle.kts` | `docs/ru/new/ANDROID_CLIENT_APP.md` |
 
 ## Правила
 

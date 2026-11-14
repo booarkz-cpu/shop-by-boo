@@ -5,7 +5,7 @@
 | | Застосунок магазину | «Корги Люси: клиент» (клієнт Коргі Люсі) |
 | --- | --- | --- |
 | Що це | Кабінет клієнта в магазині: вхід, тарифи, оплата, підписка, підтримка, вбудований VPN | VPN-клієнт для будь-якої підписки, не лише магазину |
-| Каталог | `mobile/android-user` (`shop.remnawave.user`) | `mobile/android-client` (`shop.corgi.client`) |
+| Каталог | `mobile/android-user` (`shop.remnawave.user`) | `apps/vpn-client/android` (`shop.corgi.client`) |
 | Завантажити | [corgi-lusi-android.apk](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) | [corgi-lusi-client.apk](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) |
 
 Російські оригінали: [ANDROID_ARCHITECTURE](../../ru/new/ANDROID_ARCHITECTURE.md), [ANDROID_CLIENT_APP](../../ru/new/ANDROID_CLIENT_APP.md). Інші посібники: [зміст](README.md).
@@ -37,7 +37,7 @@
 | З'єднання | Проксі для окремих застосунків, плитка швидких налаштувань, kill switch через системні налаштування, LAN, доступ через хотспот до SOCKS5/HTTP з паролем, автопідключення |
 | Інше | Віджет, Android TV і «підписка на ТВ з телефона», резервні копії (файл, QR, посилання), схеми `corgi://`, журнали тунелю, три іконки застосунку, RU/EN/UK |
 
-Оновлення: застосунок перевіряє `corgi-lusi-client.json` останнього випуску; або додайте репозиторій до [Obtainium](https://github.com/ImranR98/Obtainium) з фільтром APK `^corgi-lusi-client\.apk$`. З v28.148.0 кожна нова версія клієнта також отримує власний випуск `client-v<версія>` (ніколи не «останній»): додайте в Obtainium фільтр назв випусків `^client-v`, щоб стежити лише за клієнтом.
+Оновлення: застосунок перевіряє `corgi-lusi-client.json` останнього випуску; або додайте репозиторій до [Obtainium](https://github.com/ImranR98/Obtainium) з фільтром APK `^corgi-lusi-client\.apk$`. З v28.149.0 кожна нова версія клієнта також отримує власний випуск `client-v<версія>` (ніколи не «останній»): додайте в Obtainium фільтр назв випусків `^client-v`, щоб стежити лише за клієнтом.
 
 ## Перевірка
 

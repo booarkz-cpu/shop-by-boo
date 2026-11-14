@@ -130,7 +130,7 @@ APP_SECTIONS = {
 
 # v28.136.0: «Корги Люси: клиент» has sections of its own (it is a VPN client, not the shop). Before, it showed the shop
 # app's banners — «Информация: ответы, правила и документы» on «О приложении». key → (title, caption, sticker, accent).
-CLIENT = ROOT / "mobile/android-client/app/src/main/assets/banners"
+CLIENT = ROOT / "apps/vpn-client/android/app/src/main/assets/banners"
 CLIENT_SECTIONS = {
     "client-servers": ("Серверы", "Подписки, ссылки и QR-коды", "access", "#7cb7ff"),
     "client-settings": ("Настройки", "Маршруты, туннель, пинг и оформление", "settings", "#ffb84d"),

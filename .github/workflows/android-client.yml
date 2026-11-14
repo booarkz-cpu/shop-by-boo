@@ -1,14 +1,14 @@
 name: Android client app
 
-# v28.79.0 (stage 18): «Корги Люси: клиент» (mobile/android-client) — the third, standalone Android app. Unit tests of
+# v28.79.0 (stage 18): «Корги Люси: клиент» (apps/vpn-client/android) — the third, standalone Android app. Unit tests of
 # the link parser and the config builder, debug and release builds, and the VPN on an emulator through Xray-core to an
 # Xray server on the runner (scripts/mobile/client-vpn-e2e.sh). The customer and administrator apps are not built here.
 on:
   pull_request:
-    paths: ['mobile/android-client/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
+    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
   push:
     branches: [main]
-    paths: ['mobile/android-client/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
+    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
   workflow_dispatch:
 
 permissions:
@@ -49,20 +49,20 @@ jobs:
       - name: ktlint (main screen, view model and their tests)
         run: bash scripts/mobile/client-ktlint.sh
       - name: Gradle distribution (retries on GitHub 504)
-        run: bash scripts/ci/gradle-warm.sh mobile/android-client
+        run: bash scripts/ci/gradle-warm.sh apps/vpn-client/android
       - name: Unit tests, debug and release builds
         run: |
           set -euo pipefail
-          mkdir -p mobile/android-client/app/libs
-          cp mobile/android-user/app/libs/libv2ray.aar mobile/android-client/app/libs/
-          cd mobile/android-client
+          mkdir -p apps/vpn-client/android/app/libs
+          cp mobile/android-user/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
+          cd apps/vpn-client/android
           bash gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --no-daemon
           ls -l app/build/outputs/apk/debug app/build/outputs/apk/release
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: android-client-unit-tests
-          path: mobile/android-client/app/build/reports/tests/
+          path: apps/vpn-client/android/app/build/reports/tests/
           if-no-files-found: ignore
           retention-days: 7
       - name: Xray server for the runner (latest release, SHA-256 from its .dgst)
@@ -92,12 +92,12 @@ jobs:
           ram-size: 4096M
           # A UI test that never ends is stopped after 25 minutes, and the log names the test that was running.
           # The UI tests also save screens of the main views (ClientScreensTest.shot): pulled for the artifact below.
-          script: bash scripts/mobile/client-vpn-e2e.sh mobile/android-client/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/xray/xray" && cd mobile/android-client && (timeout 25m bash gradlew :app:connectedDebugAndroidTest --no-daemon || (adb logcat -d | grep -E "TestRunner.{2}(started|finished|failed)" | tail -n 40; adb logcat -d | grep -E "ActivityTaskManager|ActivityManager|AndroidRuntime|corgi|TestRunner|ActivityScenario" | tail -n 120; exit 1)) && (adb pull /data/local/tmp/client-screens "$GITHUB_WORKSPACE/client-screens" || echo "no screens")
+          script: bash scripts/mobile/client-vpn-e2e.sh apps/vpn-client/android/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/xray/xray" && cd apps/vpn-client/android && (timeout 25m bash gradlew :app:connectedDebugAndroidTest --no-daemon || (adb logcat -d | grep -E "TestRunner.{2}(started|finished|failed)" | tail -n 40; adb logcat -d | grep -E "ActivityTaskManager|ActivityManager|AndroidRuntime|corgi|TestRunner|ActivityScenario" | tail -n 120; exit 1)) && (adb pull /data/local/tmp/client-screens "$GITHUB_WORKSPACE/client-screens" || echo "no screens")
       # Job logs show only «there were failing tests»: print which and why (the XML results of the UI tests).
       - name: UI test failures
         if: failure()
         run: |
-          for f in mobile/android-client/app/build/outputs/androidTest-results/connected/debug/*.xml; do
+          for f in apps/vpn-client/android/app/build/outputs/androidTest-results/connected/debug/*.xml; do
             [ -f "$f" ] || continue
             python3 - "$f" <<'PY'
           import sys, xml.etree.ElementTree as ET

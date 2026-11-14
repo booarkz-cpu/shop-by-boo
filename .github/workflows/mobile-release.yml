@@ -2,7 +2,7 @@ name: Mobile packages
 
 on:
   pull_request:
-    paths: ['release-manifest.template.json', 'mobile/**', 'scripts/build-android-apk.sh', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
+    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'scripts/build-android-apk.sh', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
   push:
     # v28.122.0: every push to main, without a paths filter. The release is published for the head of main; when a
     # commit that touched no app file became the head (v28.119.0: a CI-only commit), nothing built the packages for
@@ -75,12 +75,12 @@ jobs:
               if grep -q 'CN=Android Debug' "$apk.certificate.txt"; then echo 'Debug signing certificate rejected'; exit 1; fi
             fi
           done
-          # v28.79.0: the third app «Корги Люси: клиент» (mobile/android-client), signed with the same key, under the
+          # v28.79.0: the third app «Корги Люси: клиент» (apps/vpn-client/android), signed with the same key, under the
           # permanent name corgi-lusi-client.apk. Its own Gradle project: the builds above do not change.
-          mkdir -p mobile/android-client/app/libs && cp mobile/android-user/app/libs/libv2ray.aar mobile/android-client/app/libs/
-          (cd mobile/android-client && bash gradlew :app:assembleRelease --no-daemon -q)
-          client=mobile/android-client/app/build/outputs/apk/release/app-release.apk
-          [[ -f "$client" ]] || client=mobile/android-client/app/build/outputs/apk/release/app-release-unsigned.apk
+          mkdir -p apps/vpn-client/android/app/libs && cp mobile/android-user/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
+          (cd apps/vpn-client/android && bash gradlew :app:assembleRelease --no-daemon -q)
+          client=apps/vpn-client/android/app/build/outputs/apk/release/app-release.apk
+          [[ -f "$client" ]] || client=apps/vpn-client/android/app/build/outputs/apk/release/app-release-unsigned.apk
           if [[ "$state" == signed ]]; then
             "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$client" > "$RUNNER_TEMP/client-cert.txt"
             digest="$(sed -n 's/^Signer[^:]*certificate SHA-256 digest: //p' "$RUNNER_TEMP/client-cert.txt" | head -1)"

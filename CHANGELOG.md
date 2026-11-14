@@ -1,3 +1,9 @@
+# v28.149.0
+
+- Этап 1 новой структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): «Корги Люси: клиент» перенесён `git mv` из `mobile/android-client` в `apps/vpn-client/android` (история файлов сохранена). Пути обновлены в CI (`android-client.yml`, `mobile-release.yml` — фильтр `apps/**`, `mobile-screenshots.yml`, `xray-core-watch.yml`), `dependabot.yml`, `.gitignore`, скриптах (`client-ktlint.sh`, `client-vpn-e2e.sh`, `xray-core-watch.py`, `bot-banners/render.py`, `store/icons.py` — `android_dir()`), тестах и документации; путь к `build-xray-aar.sh` в `app/build.gradle.kts` — на уровень глубже.
+- Имена файлов выпуска (`corgi-lusi-client.apk`, `client-v<версия>`) не менялись — автообновление установленных клиентов работает как прежде.
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.148.0
 - Сверка старых репозиториев (REQ-MIG-0001…0003, 0009, 0020…0022, 0027): `docs/MIGRATION_MAPPING.md` — источник, коммит, модуль магазина, тесты и статус для каждого пункта меню remnawave-manager 1–33.
 - SSH только с адреса владельца: `ADMIN_SSH_IP` в `deploy/install-vps.sh` (только если текущая SSH-сессия с этого адреса), `SSH_ONLY_FROM` в `scripts/open-ports.sh` — не открывает SSH заново; `tests/test_admin_ssh_ip.py`.

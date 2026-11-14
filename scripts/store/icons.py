@@ -115,9 +115,14 @@ def adaptive_xml(fg: str, bg: str) -> str:
             '</adaptive-icon>\n')
 
 
+def android_dir(app: str) -> pathlib.Path:
+    """v28.149.0 (docs/MONOREPO_LAYOUT.md, stage 1): the VPN client lives in apps/vpn-client/android."""
+    return ROOT / ("apps/vpn-client/android" if app == "client" else f"mobile/android-{app}")
+
+
 def android(app: str, variants: dict[str, str]) -> None:
     """``variants``: icon name → background kind."""
-    res = ROOT / f"mobile/android-{app}/app/src/main/res"
+    res = android_dir(app) / "app/src/main/res"
     fg_name = "ic_launcher_fg"
     fg = foreground(app)
     anydpi = res / "mipmap-anydpi-v26"
@@ -137,7 +142,7 @@ def android(app: str, variants: dict[str, str]) -> None:
 
 def write_all() -> None:
     android("client", {"ic_launcher": "corgi", "ic_launcher_night": "night", "ic_launcher_mint": "mint"})
-    previews = ROOT / "mobile/android-client/app/src/main/res/drawable-nodpi"
+    previews = ROOT / "apps/vpn-client/android/app/src/main/res/drawable-nodpi"
     for key in ("corgi", "night", "mint"):
         flat("client", key, 168, rounded=True).save(previews / f"icon_preview_{key}.png", optimize=True)
     android("user", {"ic_launcher": "corgi"})

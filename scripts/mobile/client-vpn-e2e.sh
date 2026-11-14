@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v28.79.0: end-to-end test of «Корги Люси: клиент» (mobile/android-client) on an emulator (CI) — the same check as
+# v28.79.0: end-to-end test of «Корги Люси: клиент» (apps/vpn-client/android) on an emulator (CI) — the same check as
 # scripts/mobile/vpn-e2e.sh of the customer app: the subscription is imported, the app connects, the page behind the
 # tunnel answers, the app disconnects.
 #
