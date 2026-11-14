@@ -18,6 +18,9 @@ from . import main as shop
 BACKUP_LOCK=asyncio.Lock()
 # v28.145.0: «1h» — the owner's recovery point objective is one hour (docs/OWNER_DECISIONS.md, 2026-11-14).
 BACKUP_INTERVALS={"off":0,"1h":3600,"6h":21600,"12h":43200,"24h":86400}
+# v28.148.0 (owner's decision of 2026-11-14): an installation where nobody chose a schedule backs up every hour and
+# keeps two days of copies. A schedule the administrator chose — «off» included — is kept as it is.
+DEFAULT_SCHEDULE, DEFAULT_RETENTION = "1h", "48"
 
 async def setting_value(db,key,default=""):
     row=await db.get(shop.AppSetting,key); return row.value if row else default
@@ -45,7 +48,7 @@ def retention_victims(rows: list, retention: int, verified: set[int]) -> list:
 
 async def enforce_backup_retention(db: AsyncSession):
     from .models import BackupVerification
-    retention = int(await shop.setting_value(db, "backup_retention", "7"))
+    retention = int(await shop.setting_value(db, "backup_retention", DEFAULT_RETENTION))
     rows = (await db.execute(shop.select(shop.BackupJob).where(shop.BackupJob.status == "completed").order_by(shop.BackupJob.created_at.desc()))).scalars().all()
     verified = set((await db.execute(shop.select(BackupVerification.backup_id).where(BackupVerification.status == "passed"))).scalars().all())
     for old in retention_victims(rows, retention, verified):
@@ -124,7 +127,7 @@ async def create_project_backup(db, actor="system"):
                     # Keep the same retention policy remotely.
                     listing=await shop.asyncio.to_thread(s3.list_objects_v2,Bucket=bucket,Prefix=prefix+"/")
                     objects=sorted(listing.get("Contents",[]),key=lambda o:o.get("LastModified"))
-                    keep=max(1,int(await shop.setting_value(db,"backup_retention","7")))
+                    keep=max(1,int(await shop.setting_value(db,"backup_retention",DEFAULT_RETENTION)))
                     for obj in objects[:-keep]:
                         await shop.asyncio.to_thread(s3.delete_object,Bucket=bucket,Key=obj["Key"])
                 except Exception as exc: raise RuntimeError(f"S3 upload failed: {exc}")
@@ -141,8 +144,8 @@ async def list_backups(db:AsyncSession=Depends(get_db),admin=Depends(require_per
     return [{"id":x.id,"status":x.status,"filename":x.filename,"size_bytes":x.size_bytes,"sha256":x.sha256,"encrypted":x.encrypted,"error":"unavailable" if x.error else None,"created_at":x.created_at,"finished_at":x.finished_at} for x in rows]
 
 class BackupConfigIn(BaseModel):
-    schedule: str = "24h"
-    retention: int = Field(default=7, ge=1, le=90)
+    schedule: str = DEFAULT_SCHEDULE
+    retention: int = Field(default=int(DEFAULT_RETENTION), ge=1, le=90)
     encrypt: bool = True
     password: str|None = Field(default=None,min_length=12,max_length=256)
     include_env: bool = True
@@ -152,7 +155,7 @@ class BackupConfigIn(BaseModel):
 
 @shop.app.get("/api/admin/backups/config")
 async def backup_config(db:AsyncSession=Depends(get_db),admin=Depends(require_permission("read"))):
-    return {"schedule":await shop.setting_value(db,"backup_schedule","off"),"retention":int(await shop.setting_value(db,"backup_retention","7")),"encrypt":await shop.setting_value(db,"backup_encrypt","1")=="1","include_env":await shop.setting_value(db,"backup_include_env","1")=="1","password_configured":bool(await shop.setting_value(db,"backup_password","")),"s3_enabled":await shop.setting_value(db,"backup_s3_enabled","0")=="1","s3_bucket":await shop.setting_value(db,"backup_s3_bucket",""),"s3_prefix":await shop.setting_value(db,"backup_s3_prefix",shop.settings.backup_s3_prefix)}
+    return {"schedule":await shop.setting_value(db,"backup_schedule",DEFAULT_SCHEDULE),"retention":int(await shop.setting_value(db,"backup_retention",DEFAULT_RETENTION)),"encrypt":await shop.setting_value(db,"backup_encrypt","1")=="1","include_env":await shop.setting_value(db,"backup_include_env","1")=="1","password_configured":bool(await shop.setting_value(db,"backup_password","")),"s3_enabled":await shop.setting_value(db,"backup_s3_enabled","0")=="1","s3_bucket":await shop.setting_value(db,"backup_s3_bucket",""),"s3_prefix":await shop.setting_value(db,"backup_s3_prefix",shop.settings.backup_s3_prefix)}
 
 @shop.app.put("/api/admin/backups/config")
 async def update_backup_config(payload:BackupConfigIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_admins"))):
@@ -188,12 +191,28 @@ async def delete_backup(backup_id:int,db:AsyncSession=Depends(get_db),admin=Depe
     if not job or not job.filename: raise shop.HTTPException(404,"Backup not found")
     shop._backup_path(job.filename).unlink(missing_ok=True); await db.delete(job); await shop.audit(db,"backup.deleted",admin.email,job.filename); await db.commit(); return {"ok":True}
 
+async def seed_backup_password(db) -> bool:
+    """v28.148.0: the password the installer put into .env (BACKUP_PASSWORD) becomes the panel's backup password once,
+    when the panel has none — so the hourly default works from the first hour. A password set in the panel wins."""
+    if await shop.setting_value(db,"backup_password","") or len(shop.settings.backup_password_env or "")<12: return False
+    await shop.set_setting(db,"backup_password",shop.encrypt_secret(shop.settings.backup_password_env)); await db.commit(); return True
+
+
+async def backup_blocked(db) -> str|None:
+    """Why a scheduled backup cannot run now (and must not fail every minute): an encrypted copy without a password."""
+    if await shop.setting_value(db,"backup_encrypt","1")=="1" and not await shop.setting_value(db,"backup_password",""):
+        return "password"
+    return None
+
+
 async def backup_scheduler():
     while True:
         try:
             await shop.asyncio.sleep(60)
             async with shop.AsyncSession(shop.engine,expire_on_commit=False) as db:
-                interval=shop.BACKUP_INTERVALS.get(await shop.setting_value(db,"backup_schedule","off"),0)
+                await seed_backup_password(db)
+                if await backup_blocked(db): continue        # ops_alerts says so once, instead of a failed copy a minute
+                interval=shop.BACKUP_INTERVALS.get(await shop.setting_value(db,"backup_schedule",DEFAULT_SCHEDULE),0)
                 if not interval or shop.BACKUP_LOCK.locked(): continue
                 last=(await db.execute(shop.select(shop.BackupJob).where(shop.BackupJob.status=="completed").order_by(shop.BackupJob.created_at.desc()).limit(1))).scalar_one_or_none()
                 if last and (shop.datetime.utcnow()-last.created_at).total_seconds()<interval: continue
