@@ -1,6 +1,6 @@
 # Тестирование функций, требующих внешних зависимостей и секретов
 
-Дистрибутив `v28.150.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.151.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Документ составлен так, чтобы после выдачи секретов можно было пройти тестирование **без повторного
 изучения проекта**: для каждой функции указаны модули, переменные окружения, команды, ожидаемый
@@ -58,7 +58,7 @@ export AUTO_RENEW_ENABLED=false
 cd backend && python -m pytest -q ../tests
 ```
 
-Полный набор — 2507 тестов; в песочнице на `v28.150.0` проходит без падений.
+Полный набор — 2507 тестов; в песочнице на `v28.151.0` проходит без падений.
 
 ## 2. Remnawave (панель VPN)
 
@@ -350,17 +350,17 @@ systemd — `BLOCKED_ACCESS`.
 
 ## 12. Android и iOS
 
-**Исходники есть.** `mobile/android-user`, `mobile/android-admin`, `mobile/ios-user`,
+**Исходники есть.** `apps/vpn-shop/android`, `apps/lucy-admin/android`, `mobile/ios-user`,
 `mobile/ios-admin`; артефакты `mobile/store/{app-store,google-play,rustore}`.
 
 ```bash
-cd mobile/android-user && bash gradlew assembleDebug --no-daemon
+cd apps/vpn-shop/android && bash gradlew assembleDebug --no-daemon
 xcodebuild -project mobile/ios-user/VpnShopUser.xcodeproj -scheme VpnShopUser \
   -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
 ```
 
 В песочнице нет Android SDK и Xcode → `BLOCKED_ACCESS`. Публикация в Google Play и App Store не
-выполнялась: в релизе `v28.150.0` лежат **unsigned** сборки (`corgi_lusi_android_user_3_4_0_unsigned.apk`
+выполнялась: в релизе `v28.151.0` лежат **unsigned** сборки (`corgi_lusi_android_user_3_4_0_unsigned.apk`
 и аналоги). Ссылок на магазины приложений в проекте нет.
 
 **Текущий статус:** `BLOCKED_ACCESS`, подпись — `BLOCKED_SECRETS`.
@@ -418,4 +418,4 @@ gh release delete vX.Y.Z --yes
 
 Не удаляйте `.rollback` на сервере и не отзывайте `.env` без резервной копии.
 
-Дата последней проверки логики в репозитории: `2026-10-31` (песочница, `v28.150.0`).
+Дата последней проверки логики в репозитории: `2026-10-31` (песочница, `v28.151.0`).

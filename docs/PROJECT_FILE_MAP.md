@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.150.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.151.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2645**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2648**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -279,158 +279,273 @@
 | [admin/src/worldMap.tsx](../admin/src/worldMap.tsx) | Админ-панель |
 | [admin/tsconfig.json](../admin/tsconfig.json) | Админ-панель |
 | [admin/tsconfig.ui.json](../admin/tsconfig.ui.json) | Админ-панель |
-| [apps/vpn-client/android/.editorconfig](../apps/vpn-client/android/.editorconfig) | Корень проекта |
-| [apps/vpn-client/android/app/build.gradle.kts](../apps/vpn-client/android/app/build.gradle.kts) | Корень проекта |
-| [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/AndroidManifest.xml](../apps/vpn-client/android/app/src/main/AndroidManifest.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-about.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-about.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-appearance.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-appearance.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-backup.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-backup.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-connection.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-connection.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-geek.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-geek.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-logs.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-logs.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-netlog.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-netlog.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-ping.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-ping.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-providers.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-providers.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-schemes.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-schemes.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-servers.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-servers.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-settings.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-settings.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-stats.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-stats.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/assets/banners/client-tunnel.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-tunnel.jpg) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ApkCheck.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ApkCheck.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppList.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppList.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/GeekConfig.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/GeekConfig.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/GeoProgress.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/GeoProgress.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/I18n.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/I18n.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Logs.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Logs.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TvReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TvReceiver.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/engine/Xray.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/engine/Xray.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppIcons.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppIcons.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Components.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Components.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Theme.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Theme.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/AndroidVpnEngine.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/AndroidVpnEngine.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/GlobeMotion.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/GlobeMotion.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/AutomationReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/AutomationReceiver.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/banner_corgi.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/banner_corgi.webp) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_corgi.png](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_corgi.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_mint.png](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_mint.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_night.png](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_night.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_globe.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_globe.webp) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_happy.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_happy.webp) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_run.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_run.webp) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_sleep.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_sleep.webp) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable/corgi_logo.xml](../apps/vpn-client/android/app/src/main/res/drawable/corgi_logo.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/drawable/widget_background.xml](../apps/vpn-client/android/app/src/main/res/drawable/widget_background.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/layout/client_widget.xml](../apps/vpn-client/android/app/src/main/res/layout/client_widget.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_mint.xml](../apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_mint.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_night.xml](../apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_night.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_mint.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_mint_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_night.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_night_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_mint.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_mint_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_night.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_night_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_mint.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_mint_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_night.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_night_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_night.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_night_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night_bg.png) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/values-en/strings.xml](../apps/vpn-client/android/app/src/main/res/values-en/strings.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/values-uk/strings.xml](../apps/vpn-client/android/app/src/main/res/values-uk/strings.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/values/strings.xml](../apps/vpn-client/android/app/src/main/res/values/strings.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/xml/client_widget_info.xml](../apps/vpn-client/android/app/src/main/res/xml/client_widget_info.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/main/res/xml/network_security.xml](../apps/vpn-client/android/app/src/main/res/xml/network_security.xml) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AdBlockTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AdBlockTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/GeekConfigTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/GeekConfigTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt) | Корень проекта |
-| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt) | Корень проекта |
-| [apps/vpn-client/android/build.gradle.kts](../apps/vpn-client/android/build.gradle.kts) | Корень проекта |
-| [apps/vpn-client/android/gradle.properties](../apps/vpn-client/android/gradle.properties) | Корень проекта |
-| [apps/vpn-client/android/gradle/wrapper/gradle-wrapper.jar](../apps/vpn-client/android/gradle/wrapper/gradle-wrapper.jar) | Корень проекта |
-| [apps/vpn-client/android/gradle/wrapper/gradle-wrapper.properties](../apps/vpn-client/android/gradle/wrapper/gradle-wrapper.properties) | Корень проекта |
-| [apps/vpn-client/android/gradlew](../apps/vpn-client/android/gradlew) | Корень проекта |
-| [apps/vpn-client/android/gradlew.bat](../apps/vpn-client/android/gradlew.bat) | Корень проекта |
-| [apps/vpn-client/android/ktlint-files.txt](../apps/vpn-client/android/ktlint-files.txt) | Корень проекта |
-| [apps/vpn-client/android/settings.gradle.kts](../apps/vpn-client/android/settings.gradle.kts) | Корень проекта |
+| [apps/lucy-admin/android/app/build.gradle.kts](../apps/lucy-admin/android/app/build.gradle.kts) | Приложения |
+| [apps/lucy-admin/android/app/src/androidTest/java/shop/remnawave/admin/AdminScreensTest.kt](../apps/lucy-admin/android/app/src/androidTest/java/shop/remnawave/admin/AdminScreensTest.kt) | Приложения |
+| [apps/lucy-admin/android/app/src/debug/AndroidManifest.xml](../apps/lucy-admin/android/app/src/debug/AndroidManifest.xml) | Приложения |
+| [apps/lucy-admin/android/app/src/main/AndroidManifest.xml](../apps/lucy-admin/android/app/src/main/AndroidManifest.xml) | Приложения |
+| [apps/lucy-admin/android/app/src/main/assets/l10n.json](../apps/lucy-admin/android/app/src/main/assets/l10n.json) | Приложения |
+| [apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt](../apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt) | Приложения |
+| [apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt](../apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt) | Приложения |
+| [apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/RemnaUi.kt](../apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/RemnaUi.kt) | Приложения |
+| [apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/update/AppUpdate.kt](../apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/update/AppUpdate.kt) | Приложения |
+| [apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/update/AppUpdater.kt](../apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/update/AppUpdater.kt) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/drawable/corgi_logo.xml](../apps/lucy-admin/android/app/src/main/res/drawable/corgi_logo.xml) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../apps/lucy-admin/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-hdpi/ic_launcher.png](../apps/lucy-admin/android/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-mdpi/ic_launcher.png](../apps/lucy-admin/android/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/values-en/strings.xml](../apps/lucy-admin/android/app/src/main/res/values-en/strings.xml) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/values/strings.xml](../apps/lucy-admin/android/app/src/main/res/values/strings.xml) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/xml/network_security.xml](../apps/lucy-admin/android/app/src/main/res/xml/network_security.xml) | Приложения |
+| [apps/lucy-admin/android/build.gradle.kts](../apps/lucy-admin/android/build.gradle.kts) | Приложения |
+| [apps/lucy-admin/android/gradle.properties](../apps/lucy-admin/android/gradle.properties) | Приложения |
+| [apps/lucy-admin/android/gradle/wrapper/gradle-wrapper.jar](../apps/lucy-admin/android/gradle/wrapper/gradle-wrapper.jar) | Приложения |
+| [apps/lucy-admin/android/gradle/wrapper/gradle-wrapper.properties](../apps/lucy-admin/android/gradle/wrapper/gradle-wrapper.properties) | Приложения |
+| [apps/lucy-admin/android/gradlew](../apps/lucy-admin/android/gradlew) | Приложения |
+| [apps/lucy-admin/android/gradlew.bat](../apps/lucy-admin/android/gradlew.bat) | Приложения |
+| [apps/lucy-admin/android/settings.gradle.kts](../apps/lucy-admin/android/settings.gradle.kts) | Приложения |
+| [apps/vpn-client/android/.editorconfig](../apps/vpn-client/android/.editorconfig) | Приложения |
+| [apps/vpn-client/android/app/build.gradle.kts](../apps/vpn-client/android/app/build.gradle.kts) | Приложения |
+| [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/AndroidManifest.xml](../apps/vpn-client/android/app/src/main/AndroidManifest.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-about.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-about.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-appearance.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-appearance.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-backup.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-backup.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-connection.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-connection.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-geek.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-geek.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-logs.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-logs.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-netlog.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-netlog.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-ping.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-ping.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-providers.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-providers.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-schemes.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-schemes.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-servers.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-servers.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-settings.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-settings.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-stats.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-stats.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/assets/banners/client-tunnel.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-tunnel.jpg) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ApkCheck.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ApkCheck.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppList.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppList.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/GeekConfig.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/GeekConfig.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/GeoProgress.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/GeoProgress.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/I18n.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/I18n.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Logs.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Logs.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TvReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TvReceiver.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/engine/Xray.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/engine/Xray.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppIcons.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppIcons.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Components.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Components.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Theme.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Theme.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/AndroidVpnEngine.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/AndroidVpnEngine.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/GlobeMotion.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/GlobeMotion.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ApkInstaller.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/AppUpdateJob.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/AutomationReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/AutomationReceiver.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientWidget.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/QuickTile.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/banner_corgi.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/banner_corgi.webp) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_corgi.png](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_corgi.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_mint.png](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_mint.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_night.png](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/icon_preview_night.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_globe.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_globe.webp) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_happy.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_happy.webp) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_run.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_run.webp) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_sleep.webp](../apps/vpn-client/android/app/src/main/res/drawable-nodpi/mascot_sleep.webp) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable/corgi_logo.xml](../apps/vpn-client/android/app/src/main/res/drawable/corgi_logo.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/drawable/widget_background.xml](../apps/vpn-client/android/app/src/main/res/drawable/widget_background.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/layout/client_widget.xml](../apps/vpn-client/android/app/src/main/res/layout/client_widget.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_mint.xml](../apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_mint.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_night.xml](../apps/vpn-client/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_night.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_mint.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_mint_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_night.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-hdpi/ic_launcher_night_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_mint.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_mint_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_night.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-mdpi/ic_launcher_night_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_mint.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_mint_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_night.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xhdpi/ic_launcher_night_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_mint_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_night.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_night_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_mint_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night_bg.png](../apps/vpn-client/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_night_bg.png) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/values-en/strings.xml](../apps/vpn-client/android/app/src/main/res/values-en/strings.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/values-uk/strings.xml](../apps/vpn-client/android/app/src/main/res/values-uk/strings.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/values/strings.xml](../apps/vpn-client/android/app/src/main/res/values/strings.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/xml/client_widget_info.xml](../apps/vpn-client/android/app/src/main/res/xml/client_widget_info.xml) | Приложения |
+| [apps/vpn-client/android/app/src/main/res/xml/network_security.xml](../apps/vpn-client/android/app/src/main/res/xml/network_security.xml) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AdBlockTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AdBlockTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/GeekConfigTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/GeekConfigTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/GeoProgressTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt) | Приложения |
+| [apps/vpn-client/android/build.gradle.kts](../apps/vpn-client/android/build.gradle.kts) | Приложения |
+| [apps/vpn-client/android/gradle.properties](../apps/vpn-client/android/gradle.properties) | Приложения |
+| [apps/vpn-client/android/gradle/wrapper/gradle-wrapper.jar](../apps/vpn-client/android/gradle/wrapper/gradle-wrapper.jar) | Приложения |
+| [apps/vpn-client/android/gradle/wrapper/gradle-wrapper.properties](../apps/vpn-client/android/gradle/wrapper/gradle-wrapper.properties) | Приложения |
+| [apps/vpn-client/android/gradlew](../apps/vpn-client/android/gradlew) | Приложения |
+| [apps/vpn-client/android/gradlew.bat](../apps/vpn-client/android/gradlew.bat) | Приложения |
+| [apps/vpn-client/android/ktlint-files.txt](../apps/vpn-client/android/ktlint-files.txt) | Приложения |
+| [apps/vpn-client/android/settings.gradle.kts](../apps/vpn-client/android/settings.gradle.kts) | Приложения |
+| [apps/vpn-shop/android/.gitignore](../apps/vpn-shop/android/.gitignore) | Приложения |
+| [apps/vpn-shop/android/app/build.gradle.kts](../apps/vpn-shop/android/app/build.gradle.kts) | Приложения |
+| [apps/vpn-shop/android/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt](../apps/vpn-shop/android/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/androidTest/java/shop/remnawave/user/BatteryGuardTest.kt](../apps/vpn-shop/android/app/src/androidTest/java/shop/remnawave/user/BatteryGuardTest.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/debug/AndroidManifest.xml](../apps/vpn-shop/android/app/src/debug/AndroidManifest.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/AndroidManifest.xml](../apps/vpn-shop/android/app/src/main/AndroidManifest.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-devices.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-devices.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-family.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-family.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-gifts.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-gifts.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-giveaways.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-giveaways.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-info.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-info.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-locations.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-locations.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-notifications.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-notifications.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-premium.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-premium.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-referral.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-referral.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-security.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-security.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-settings.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-settings.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-status.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-status.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-subscription.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-subscription.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-support.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-support.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-vpn.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-vpn.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/banners/app-wallet.jpg](../apps/vpn-shop/android/app/src/main/assets/banners/app-wallet.jpg) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/default_layout.json](../apps/vpn-shop/android/app/src/main/assets/default_layout.json) | Приложения |
+| [apps/vpn-shop/android/app/src/main/assets/l10n.json](../apps/vpn-shop/android/app/src/main/assets/l10n.json) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/support/CorgiDiagnostics.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/support/CorgiDiagnostics.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/Components.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/Components.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/Screens.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/Screens.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/ShopData.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/ShopData.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/update/AppUpdate.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/update/AppUpdate.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/update/AppUpdater.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/update/AppUpdater.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/BatteryGuard.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/BatteryGuard.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/Tuning.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/Tuning.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/VpnClients.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/VpnClients.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/XrayEngine.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/XrayEngine.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt](../apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/drawable/corgi_logo.xml](../apps/vpn-shop/android/app/src/main/res/drawable/corgi_logo.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/drawable/widget_background.xml](../apps/vpn-shop/android/app/src/main/res/drawable/widget_background.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/layout/corgi_widget.xml](../apps/vpn-shop/android/app/src/main/res/layout/corgi_widget.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../apps/vpn-shop/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-hdpi/ic_launcher.png](../apps/vpn-shop/android/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-mdpi/ic_launcher.png](../apps/vpn-shop/android/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/values-en/strings.xml](../apps/vpn-shop/android/app/src/main/res/values-en/strings.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/values/strings.xml](../apps/vpn-shop/android/app/src/main/res/values/strings.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/xml/corgi_widget_info.xml](../apps/vpn-shop/android/app/src/main/res/xml/corgi_widget_info.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/xml/network_security.xml](../apps/vpn-shop/android/app/src/main/res/xml/network_security.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/test/java/shop/remnawave/user/ui/MasqueButtonTest.kt](../apps/vpn-shop/android/app/src/test/java/shop/remnawave/user/ui/MasqueButtonTest.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/test/java/shop/remnawave/user/update/AppUpdateTest.kt](../apps/vpn-shop/android/app/src/test/java/shop/remnawave/user/update/AppUpdateTest.kt) | Приложения |
+| [apps/vpn-shop/android/app/src/test/java/shop/remnawave/user/vpn/TuningTest.kt](../apps/vpn-shop/android/app/src/test/java/shop/remnawave/user/vpn/TuningTest.kt) | Приложения |
+| [apps/vpn-shop/android/build.gradle.kts](../apps/vpn-shop/android/build.gradle.kts) | Приложения |
+| [apps/vpn-shop/android/gradle.properties](../apps/vpn-shop/android/gradle.properties) | Приложения |
+| [apps/vpn-shop/android/gradle/wrapper/gradle-wrapper.jar](../apps/vpn-shop/android/gradle/wrapper/gradle-wrapper.jar) | Приложения |
+| [apps/vpn-shop/android/gradle/wrapper/gradle-wrapper.properties](../apps/vpn-shop/android/gradle/wrapper/gradle-wrapper.properties) | Приложения |
+| [apps/vpn-shop/android/gradlew](../apps/vpn-shop/android/gradlew) | Приложения |
+| [apps/vpn-shop/android/gradlew.bat](../apps/vpn-shop/android/gradlew.bat) | Приложения |
+| [apps/vpn-shop/android/settings.gradle.kts](../apps/vpn-shop/android/settings.gradle.kts) | Приложения |
 | [backend/.dockerignore](../backend/.dockerignore) | API, бот и worker |
 | [backend/Dockerfile](../backend/Dockerfile) | API, бот и worker |
 | [backend/Dockerfile.bot](../backend/Dockerfile.bot) | API, бот и worker |
@@ -1003,11 +1118,13 @@
 | [docs/REFERENCE_REPOSITORIES.md](../docs/REFERENCE_REPOSITORIES.md) | Документация |
 | [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md) | Документация |
 | [docs/RELEASE_LIMITATIONS.md](../docs/RELEASE_LIMITATIONS.md) | Документация |
+| [docs/RELEASE_PROCESS.md](../docs/RELEASE_PROCESS.md) | Документация |
 | [docs/REPOSITORY_AUDIT.md](../docs/REPOSITORY_AUDIT.md) | Документация |
 | [docs/REQUIREMENTS_CHANGELOG.md](../docs/REQUIREMENTS_CHANGELOG.md) | Документация |
 | [docs/REQUIREMENTS_MASTER_REGISTER.md](../docs/REQUIREMENTS_MASTER_REGISTER.md) | Документация |
 | [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
 | [docs/RW_DRIFT.md](../docs/RW_DRIFT.md) | Документация |
+| [docs/SBOM_AND_LICENSES.md](../docs/SBOM_AND_LICENSES.md) | Документация |
 | [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
 | [docs/SERVER_PORTS.md](../docs/SERVER_PORTS.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
@@ -1403,6 +1520,7 @@
 | [docs/ru/RELEASE_V28_149_0.md](../docs/ru/RELEASE_V28_149_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_150_0.md](../docs/ru/RELEASE_V28_150_0.md) | Документация |
+| [docs/ru/RELEASE_V28_151_0.md](../docs/ru/RELEASE_V28_151_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
@@ -1733,122 +1851,7 @@
 | [miniapp/package.json](../miniapp/package.json) | Telegram Mini App |
 | [mobile/LICENSE](../mobile/LICENSE) | Мобильные приложения |
 | [mobile/__init__.py](../mobile/__init__.py) | Мобильные приложения |
-| [mobile/android-admin/app/build.gradle.kts](../mobile/android-admin/app/build.gradle.kts) | Мобильные приложения |
-| [mobile/android-admin/app/src/androidTest/java/shop/remnawave/admin/AdminScreensTest.kt](../mobile/android-admin/app/src/androidTest/java/shop/remnawave/admin/AdminScreensTest.kt) | Мобильные приложения |
-| [mobile/android-admin/app/src/debug/AndroidManifest.xml](../mobile/android-admin/app/src/debug/AndroidManifest.xml) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/AndroidManifest.xml](../mobile/android-admin/app/src/main/AndroidManifest.xml) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/assets/l10n.json](../mobile/android-admin/app/src/main/assets/l10n.json) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/AdminProfiles.kt) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/java/shop/remnawave/admin/RemnaUi.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/RemnaUi.kt) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdate.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdate.kt) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdater.kt](../mobile/android-admin/app/src/main/java/shop/remnawave/admin/update/AppUpdater.kt) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-admin/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../mobile/android-admin/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../mobile/android-admin/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/values-en/strings.xml](../mobile/android-admin/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/values/strings.xml](../mobile/android-admin/app/src/main/res/values/strings.xml) | Мобильные приложения |
-| [mobile/android-admin/app/src/main/res/xml/network_security.xml](../mobile/android-admin/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
-| [mobile/android-admin/build.gradle.kts](../mobile/android-admin/build.gradle.kts) | Мобильные приложения |
-| [mobile/android-admin/gradle.properties](../mobile/android-admin/gradle.properties) | Мобильные приложения |
-| [mobile/android-admin/gradle/wrapper/gradle-wrapper.jar](../mobile/android-admin/gradle/wrapper/gradle-wrapper.jar) | Мобильные приложения |
-| [mobile/android-admin/gradle/wrapper/gradle-wrapper.properties](../mobile/android-admin/gradle/wrapper/gradle-wrapper.properties) | Мобильные приложения |
-| [mobile/android-admin/gradlew](../mobile/android-admin/gradlew) | Мобильные приложения |
-| [mobile/android-admin/gradlew.bat](../mobile/android-admin/gradlew.bat) | Мобильные приложения |
-| [mobile/android-admin/settings.gradle.kts](../mobile/android-admin/settings.gradle.kts) | Мобильные приложения |
 | [mobile/android-signing-cert.sha256](../mobile/android-signing-cert.sha256) | Мобильные приложения |
-| [mobile/android-user/.gitignore](../mobile/android-user/.gitignore) | Мобильные приложения |
-| [mobile/android-user/app/build.gradle.kts](../mobile/android-user/app/build.gradle.kts) | Мобильные приложения |
-| [mobile/android-user/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt](../mobile/android-user/app/src/androidTest/java/shop/remnawave/user/AppScreensTest.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/androidTest/java/shop/remnawave/user/BatteryGuardTest.kt](../mobile/android-user/app/src/androidTest/java/shop/remnawave/user/BatteryGuardTest.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/debug/AndroidManifest.xml](../mobile/android-user/app/src/debug/AndroidManifest.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/AndroidManifest.xml](../mobile/android-user/app/src/main/AndroidManifest.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-devices.jpg](../mobile/android-user/app/src/main/assets/banners/app-devices.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-family.jpg](../mobile/android-user/app/src/main/assets/banners/app-family.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-gifts.jpg](../mobile/android-user/app/src/main/assets/banners/app-gifts.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-giveaways.jpg](../mobile/android-user/app/src/main/assets/banners/app-giveaways.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-info.jpg](../mobile/android-user/app/src/main/assets/banners/app-info.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-locations.jpg](../mobile/android-user/app/src/main/assets/banners/app-locations.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-notifications.jpg](../mobile/android-user/app/src/main/assets/banners/app-notifications.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-premium.jpg](../mobile/android-user/app/src/main/assets/banners/app-premium.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-referral.jpg](../mobile/android-user/app/src/main/assets/banners/app-referral.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-security.jpg](../mobile/android-user/app/src/main/assets/banners/app-security.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-settings.jpg](../mobile/android-user/app/src/main/assets/banners/app-settings.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-status.jpg](../mobile/android-user/app/src/main/assets/banners/app-status.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-subscription.jpg](../mobile/android-user/app/src/main/assets/banners/app-subscription.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-support.jpg](../mobile/android-user/app/src/main/assets/banners/app-support.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-vpn.jpg](../mobile/android-user/app/src/main/assets/banners/app-vpn.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/banners/app-wallet.jpg](../mobile/android-user/app/src/main/assets/banners/app-wallet.jpg) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/default_layout.json](../mobile/android-user/app/src/main/assets/default_layout.json) | Мобильные приложения |
-| [mobile/android-user/app/src/main/assets/l10n.json](../mobile/android-user/app/src/main/assets/l10n.json) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/analytics/CorgiAnalytics.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/passkey/CorgiPasskeys.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/push/CorgiPush.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiMirrors.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/security/CorgiTrust.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/support/CorgiDiagnostics.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/support/CorgiDiagnostics.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Components.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/CorgiTheme.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Screens.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/Screens.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/ui/ShopData.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/ui/ShopData.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/update/AppUpdate.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/update/AppUpdate.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/update/AppUpdater.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/update/AppUpdater.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/BatteryGuard.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/BatteryGuard.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/ShareLinks.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/Tuning.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/Tuning.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/VpnClients.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/VpnClients.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/XrayEngine.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/vpn/XrayEngine.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt](../mobile/android-user/app/src/main/java/shop/remnawave/user/widget/CorgiWidget.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/drawable/corgi_logo.xml](../mobile/android-user/app/src/main/res/drawable/corgi_logo.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/drawable/widget_background.xml](../mobile/android-user/app/src/main/res/drawable/widget_background.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/layout/corgi_widget.xml](../mobile/android-user/app/src/main/res/layout/corgi_widget.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml](../mobile/android-user/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-hdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-mdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-xhdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-xxhdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png](../mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../mobile/android-user/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/values-en/strings.xml](../mobile/android-user/app/src/main/res/values-en/strings.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/values/strings.xml](../mobile/android-user/app/src/main/res/values/strings.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml](../mobile/android-user/app/src/main/res/xml/corgi_widget_info.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/main/res/xml/network_security.xml](../mobile/android-user/app/src/main/res/xml/network_security.xml) | Мобильные приложения |
-| [mobile/android-user/app/src/test/java/shop/remnawave/user/ui/MasqueButtonTest.kt](../mobile/android-user/app/src/test/java/shop/remnawave/user/ui/MasqueButtonTest.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/test/java/shop/remnawave/user/update/AppUpdateTest.kt](../mobile/android-user/app/src/test/java/shop/remnawave/user/update/AppUpdateTest.kt) | Мобильные приложения |
-| [mobile/android-user/app/src/test/java/shop/remnawave/user/vpn/TuningTest.kt](../mobile/android-user/app/src/test/java/shop/remnawave/user/vpn/TuningTest.kt) | Мобильные приложения |
-| [mobile/android-user/build.gradle.kts](../mobile/android-user/build.gradle.kts) | Мобильные приложения |
-| [mobile/android-user/gradle.properties](../mobile/android-user/gradle.properties) | Мобильные приложения |
-| [mobile/android-user/gradle/wrapper/gradle-wrapper.jar](../mobile/android-user/gradle/wrapper/gradle-wrapper.jar) | Мобильные приложения |
-| [mobile/android-user/gradle/wrapper/gradle-wrapper.properties](../mobile/android-user/gradle/wrapper/gradle-wrapper.properties) | Мобильные приложения |
-| [mobile/android-user/gradlew](../mobile/android-user/gradlew) | Мобильные приложения |
-| [mobile/android-user/gradlew.bat](../mobile/android-user/gradlew.bat) | Мобильные приложения |
-| [mobile/android-user/settings.gradle.kts](../mobile/android-user/settings.gradle.kts) | Мобильные приложения |
 | [mobile/client_rules.py](../mobile/client_rules.py) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin.xcodeproj/project.pbxproj](../mobile/ios-admin/VpnShopAdmin.xcodeproj/project.pbxproj) | Мобильные приложения |
 | [mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/Contents.json](../mobile/ios-admin/VpnShopAdmin/Assets.xcassets/AppIcon.appiconset/Contents.json) | Мобильные приложения |
@@ -1895,8 +1898,6 @@
 | [mobile/ios-user/VpnShopUser/default_layout.json](../mobile/ios-user/VpnShopUser/default_layout.json) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUser/l10n.json](../mobile/ios-user/VpnShopUser/l10n.json) | Мобильные приложения |
 | [mobile/ios-user/VpnShopUserUITests/VpnShopUserUITests.swift](../mobile/ios-user/VpnShopUserUITests/VpnShopUserUITests.swift) | Мобильные приложения |
-| [mobile/l10n/admin.json](../mobile/l10n/admin.json) | Мобильные приложения |
-| [mobile/l10n/user.json](../mobile/l10n/user.json) | Мобильные приложения |
 | [mobile/maestro/config.yaml](../mobile/maestro/config.yaml) | Мобильные приложения |
 | [mobile/maestro/flows/01_vpn_and_premium.yaml](../mobile/maestro/flows/01_vpn_and_premium.yaml) | Мобильные приложения |
 | [mobile/maestro/flows/02_connected.yaml](../mobile/maestro/flows/02_connected.yaml) | Мобильные приложения |
@@ -1940,6 +1941,8 @@
 | [mobile/store/screenshots/ios/04-subscription.png](../mobile/store/screenshots/ios/04-subscription.png) | Мобильные приложения |
 | [mobile/store/screenshots/ios/05-giveaways.png](../mobile/store/screenshots/ios/05-giveaways.png) | Мобильные приложения |
 | [mobile/store/screenshots/ios/06-support.png](../mobile/store/screenshots/ios/06-support.png) | Мобильные приложения |
+| [packages/localization/admin.json](../packages/localization/admin.json) | Общие пакеты |
+| [packages/localization/user.json](../packages/localization/user.json) | Общие пакеты |
 | [release-manifest.template.json](../release-manifest.template.json) | Корень проекта |
 | [ruff.toml](../ruff.toml) | Корень проекта |
 | [screenshots/admin_panel/00_all_sections.png](../screenshots/admin_panel/00_all_sections.png) | Корень проекта |

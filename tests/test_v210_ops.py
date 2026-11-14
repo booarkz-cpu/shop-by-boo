@@ -67,7 +67,7 @@ def test_routes_and_release_scripts():
     update_sh = (ROOT / "scripts/update.sh").read_text()
     assert "--exclude='./.env'" in update_sh
     assert update_sh.index("pre-update-$STAMP.tar.gz") < update_sh.index("UPDATE_STAGE")
-    assert (ROOT / "mobile/android-user/app-release.apk").exists() is False
+    assert (ROOT / "apps/vpn-shop/android/app-release.apk").exists() is False
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_10_0.md").read_text()
     assert "2.10.0" in notes and "SHA-256" in notes and "2.9.0" in notes
 

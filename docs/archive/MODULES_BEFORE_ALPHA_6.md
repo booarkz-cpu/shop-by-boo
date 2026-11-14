@@ -133,7 +133,7 @@ Telegram-бот на aiogram. Приветствие, цены, кнопка м�
 
 ### `mobile/`
 
-Четыре приложения версии 2.7.0. `android-user` и `ios-user` — покупатель. `android-admin` и `ios-admin` — администратор. Общие правила адреса и узла лежат в `mobile/client_rules.py`. Kotlin и Swift повторяют те же правила. Строки — `mobile/l10n/user.json` и `mobile/l10n/admin.json`. `mobile/LICENSE` указывает на корневую проприетарную лицензию. Docker Compose эти приложения не запускает.
+Четыре приложения версии 2.7.0. `android-user` и `ios-user` — покупатель. `android-admin` и `ios-admin` — администратор. Общие правила адреса и узла лежат в `mobile/client_rules.py`. Kotlin и Swift повторяют те же правила. Строки — `packages/localization/user.json` и `packages/localization/admin.json`. `mobile/LICENSE` указывает на корневую проприетарную лицензию. Docker Compose эти приложения не запускает.
 
 ### `deploy/` и `docker-compose.yml`
 
@@ -251,7 +251,7 @@ Schema history. The 2.6.0 head is `0038_v2_6_0_platform`. The 2.5.0 head was `00
 
 ### `mobile/`
 
-Four native clients for version 2.7.0. `android-user` and `ios-user` are the buyer apps. `android-admin` and `ios-admin` are the administrator apps. Shared URL and node rules live in `mobile/client_rules.py` so tests can lock them. The Kotlin and Swift sources duplicate those rules. String catalogs are `mobile/l10n/user.json` and `mobile/l10n/admin.json`, copied into each app. `mobile/LICENSE` points at the root proprietary license. The apps are not started by Docker Compose.
+Four native clients for version 2.7.0. `android-user` and `ios-user` are the buyer apps. `android-admin` and `ios-admin` are the administrator apps. Shared URL and node rules live in `mobile/client_rules.py` so tests can lock them. The Kotlin and Swift sources duplicate those rules. String catalogs are `packages/localization/user.json` and `packages/localization/admin.json`, copied into each app. `mobile/LICENSE` points at the root proprietary license. The apps are not started by Docker Compose.
 
 ### `deploy/`, Compose and `scripts/`
 

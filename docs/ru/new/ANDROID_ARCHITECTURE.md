@@ -4,8 +4,8 @@
 
 | Приложение | Каталог | Пакет |
 | --- | --- | --- |
-| Lucy VPN (клиент) | `mobile/android-user` | `shop.remnawave.user` |
-| Админ | `mobile/android-admin` | `shop.remnawave.admin` |
+| Lucy VPN (клиент) | `apps/vpn-shop/android` | `shop.remnawave.user` |
+| Админ | `apps/lucy-admin/android` | `shop.remnawave.admin` |
 
 **Функции клиента:**
 - вход — пароль, бот, Яндекс, VK, Google, ключ доступа; PKCE ([MOBILE_API](MOBILE_API.md));

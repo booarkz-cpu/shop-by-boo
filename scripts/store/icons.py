@@ -117,7 +117,7 @@ def adaptive_xml(fg: str, bg: str) -> str:
 
 def android_dir(app: str) -> pathlib.Path:
     """v28.149.0 (docs/MONOREPO_LAYOUT.md, stage 1): the VPN client lives in apps/vpn-client/android."""
-    return ROOT / ("apps/vpn-client/android" if app == "client" else f"mobile/android-{app}")
+    return ROOT / {"client": "apps/vpn-client/android", "user": "apps/vpn-shop/android", "admin": "apps/lucy-admin/android"}[app]
 
 
 def android(app: str, variants: dict[str, str]) -> None:

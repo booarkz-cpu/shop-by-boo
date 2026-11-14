@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def android_dir(role: str) -> Path:
-    return ROOT / ("apps/vpn-client/android" if role == "client" else f"mobile/android-{role}")
+    return ROOT / {"client": "apps/vpn-client/android", "user": "apps/vpn-shop/android", "admin": "apps/lucy-admin/android"}[role]
 STORE = ROOT / "mobile/store"
 LIMITS = {"google-play/{l}/title.txt": 30, "google-play/{l}/short_description.txt": 80, "google-play/{l}/full_description.txt": 4000,
           "app-store/{a}/name.txt": 30, "app-store/{a}/subtitle.txt": 30, "app-store/{a}/keywords.txt": 100,

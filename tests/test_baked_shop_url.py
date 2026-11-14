@@ -23,11 +23,11 @@ def test_release_workflows_pass_the_repository_variable():
 
 
 def test_all_four_apps_use_the_baked_address():
-    user_android = (ROOT / "mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
+    user_android = (ROOT / "apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
     assert "BuildConfig.SHOP_URL" in user_android and "showBase = bakedBase.isBlank()" in user_android
-    admin_gradle = (ROOT / "mobile/android-admin/app/build.gradle.kts").read_text()
+    admin_gradle = (ROOT / "apps/lucy-admin/android/app/build.gradle.kts").read_text()
     assert 'buildConfigField("String", "SHOP_URL"' in admin_gradle and "buildConfig = true" in admin_gradle
-    admin_android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
+    admin_android = (ROOT / "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
     assert admin_android.count("BuildConfig.SHOP_URL") >= 2  # the first profile and every new one
     user_ios = (ROOT / "mobile/ios-user/VpnShopUser/ContentView.swift").read_text()
     assert "if bakedShopURL.isEmpty { InputField(title: t(\"server\")" in user_ios

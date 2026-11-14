@@ -3,7 +3,7 @@
 # AndroidLibXrayLite (LGPL-3.0) into libv2ray.aar. The app loads the library when it is present
 # (app/libs/libv2ray.aar) and otherwise hands the subscription to Happ/v2rayNG/Hiddify.
 #
-#   bash scripts/mobile/build-xray-aar.sh            # → mobile/android-user/app/libs/libv2ray.aar
+#   bash scripts/mobile/build-xray-aar.sh            # → apps/vpn-shop/android/app/libs/libv2ray.aar
 #
 # Needs Go (the version of the pinned go.mod), the Android SDK and NDK (ANDROID_NDK_HOME or
 # ANDROID_NDK_LATEST_HOME). The library is a separate .so in the APK, so it can be replaced as
@@ -12,7 +12,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 REPO="https://github.com/2dust/AndroidLibXrayLite"
 COMMIT="${XRAY_AAR_COMMIT:-b5a377087e74eaa34e86718710b04c50f4b767f5}"
-OUT="$ROOT/mobile/android-user/app/libs"
+OUT="$ROOT/apps/vpn-shop/android/app/libs"
 WORK="${RUNNER_TEMP:-/tmp}/xray-aar-$COMMIT"
 export ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-${ANDROID_NDK_LATEST_HOME:-}}"
 [[ -n "$ANDROID_NDK_HOME" ]] || { echo "ANDROID_NDK_HOME is not set" >&2; exit 1; }

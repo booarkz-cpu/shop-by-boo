@@ -1,6 +1,6 @@
 # Архитектура проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.150.0`, runtime/API `21.5.1`, миграция `0094_store_subscriptions`.
+Дистрибутив `v28.151.0`, runtime/API `21.5.1`, миграция `0094_store_subscriptions`.
 Схема построена по фактическому коду (`backend/app`, `docker-compose.yml`, таблица маршрутов),
 а не по проектным описаниям.
 
@@ -101,8 +101,8 @@ flowchart TD
 | Telegram-бот | вход, покупка, продление, поддержка, уведомления; меню и баннеры настраиваются в админке | `backend/app/bot.py` (860 строк) |
 | Mini App | тот же кабинет внутри Telegram; вход по подписанному `initData` | сборка `cabinet`, отдаётся через `miniapp` |
 | Личный кабинет | подписки, устройства, платежи, поддержка, рефералы | `cabinet/` (52 компонента) |
-| Android / iOS user | встроенный VPN на Android (Xray-core), импорт подписки, push | `mobile/android-user`, `mobile/ios-user` |
-| Android / iOS admin | админка в телефоне | `mobile/android-admin`, `mobile/ios-admin` |
+| Android / iOS user | встроенный VPN на Android (Xray-core), импорт подписки, push | `apps/vpn-shop/android`, `mobile/ios-user` |
+| Android / iOS admin | админка в телефоне | `apps/lucy-admin/android`, `mobile/ios-admin` |
 | Админ-панель | 60 компонентов, 458 маршрутов API | `admin/` |
 
 ### Ядро

@@ -1,6 +1,6 @@
 # Автообновление из GitHub
 
-Дистрибутив `v28.150.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.151.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Документ описывает **фактически реализованный** механизм. Всё, что здесь написано, проверено по
 исходному коду `scripts/auto_update.py`, `scripts/github_release_fetch.py`,
@@ -120,7 +120,7 @@ backend  ◀── читает ──  $APP_DIR/.control/auto-update.status.jso
 `scripts/github_release_fetch.py` проверяет дополнительно: SHA-256 скачанного архива, поля
 манифеста (`distribution_tag`, `version`, `artifact`, `sha256`) и `commit == tag_commit(tag)`.
 
-Актуальный стабильный релиз на момент документа: `v28.150.0`, опубликован `2026-10-29T14:27:31Z`.
+Актуальный стабильный релиз на момент документа: `v28.151.0`, опубликован `2026-10-29T14:27:31Z`.
 
 ## 5. Процесс обновления
 
@@ -232,7 +232,7 @@ sudo bash /opt/vpn-shop/scripts/auto-update.sh disable   # выключить (�
 
 ## 11. Приложения без участия человека
 
-Код: `mobile/android-user/…/update/`, `mobile/android-admin/…/update/` (файлы `AppUpdate.kt`, `AppUpdater.kt`),
+Код: `apps/vpn-shop/android/…/update/`, `apps/lucy-admin/android/…/update/` (файлы `AppUpdate.kt`, `AppUpdater.kt`),
 `apps/vpn-client/android/…/vpn/AppUpdateJob.kt` и `ApkInstaller.kt`.
 
 ### Android

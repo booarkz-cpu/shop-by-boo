@@ -2,7 +2,7 @@ name: Mobile packages
 
 on:
   pull_request:
-    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'scripts/build-android-apk.sh', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
+    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
   push:
     # v28.122.0: every push to main, without a paths filter. The release is published for the head of main; when a
     # commit that touched no app file became the head (v28.119.0: a CI-only commit), nothing built the packages for
@@ -37,7 +37,7 @@ jobs:
       - id: xray
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: mobile/android-user/app/libs/libv2ray.aar
+          path: apps/vpn-shop/android/app/libs/libv2ray.aar
           key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
       - name: Build the embedded VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
@@ -77,7 +77,7 @@ jobs:
           done
           # v28.79.0: the third app «Корги Люси: клиент» (apps/vpn-client/android), signed with the same key, under the
           # permanent name corgi-lusi-client.apk. Its own Gradle project: the builds above do not change.
-          mkdir -p apps/vpn-client/android/app/libs && cp mobile/android-user/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
+          mkdir -p apps/vpn-client/android/app/libs && cp apps/vpn-shop/android/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
           (cd apps/vpn-client/android && bash gradlew :app:assembleRelease --no-daemon -q)
           client=apps/vpn-client/android/app/build/outputs/apk/release/app-release.apk
           [[ -f "$client" ]] || client=apps/vpn-client/android/app/build/outputs/apk/release/app-release-unsigned.apk
@@ -237,7 +237,7 @@ jobs:
             }
             const android = fs.readFileSync('dist/mobile/android-status.txt','utf8').trim();
             const ios = fs.readFileSync('dist/mobile/ios-status.txt','utf8').trim();
-            const gradle = fs.readFileSync('mobile/android-user/app/build.gradle.kts','utf8');
+            const gradle = fs.readFileSync('apps/vpn-shop/android/app/build.gradle.kts','utf8');
             const mobileVersion = gradle.match(/versionName = "([0-9.]+)"/)[1];
             const v = mobileVersion.replace(/\./g, '_');
             const status = {version:mobileVersion, source_commit:context.sha, workflow_run:context.runId,

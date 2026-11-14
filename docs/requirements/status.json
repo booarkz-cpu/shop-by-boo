@@ -1359,8 +1359,8 @@
   "status": "PARTIAL",
   "evidence": [
    "apps/vpn-client/android/app/src/main/AndroidManifest.xml",
-   "mobile/android-user/app/src/main/AndroidManifest.xml",
-   "mobile/android-admin/app/src/main/AndroidManifest.xml",
+   "apps/vpn-shop/android/app/src/main/AndroidManifest.xml",
+   "apps/lucy-admin/android/app/src/main/AndroidManifest.xml",
    "apps/vpn-client/android/app/src/main/res/xml/network_security.xml",
    "docs/THREAT_MODEL.md"
   ],
@@ -1535,7 +1535,7 @@
   "status": "PARTIAL",
   "evidence": [
    "admin/src/main.tsx",
-   "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt",
+   "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt",
    "mobile/ios-admin/VpnShopAdmin/ContentView.swift",
    "backend/app/security.py",
    "tests/test_admin_route_permissions.py",
@@ -1708,7 +1708,7 @@
    "backend/app/security.py",
    "backend/app/remnawave.py",
    "admin/src/components/ui/button.tsx",
-   "mobile/l10n/user.json"
+   "packages/localization/user.json"
   ]
  },
  "REQ-ARCH-0004": {
@@ -2289,7 +2289,7 @@
    "cabinet/src/i18n.tsx",
    "tests/test_bot_texts.py",
    "tests/test_critical_startup_and_i18n.py",
-   "mobile/l10n/user.json"
+   "packages/localization/user.json"
   ],
   "note": "Бот, кабинет и приложения имеют русский, английский и украинский языки. Проверки, что переведена каждая строка каждого интерфейса, нет."
  },
@@ -2467,8 +2467,8 @@
   "status": "PARTIAL",
   "evidence": [
    "tests/test_critical_startup_and_i18n.py",
-   "mobile/l10n/user.json",
-   "mobile/l10n/admin.json",
+   "packages/localization/user.json",
+   "packages/localization/admin.json",
    "README.en.md",
    "README.uk.md"
   ],
@@ -2477,7 +2477,7 @@
  "REQ-UI-0005": {
   "status": "PARTIAL",
   "evidence": [
-   "mobile/l10n/user.json",
+   "packages/localization/user.json",
    "tests/test_critical_startup_and_i18n.py"
   ],
   "note": "Строки приложений и кабинета вынесены в словари. В бэкенде и веб-панели администратора часть русских строк стоит прямо в коде."
@@ -2545,7 +2545,7 @@
  "REQ-MOBILE-0003": {
   "status": "PARTIAL",
   "evidence": [
-   "mobile/android-admin",
+   "apps/lucy-admin/android",
    "mobile/ios-admin",
    "tests/test_v270_mobile_apps.py"
   ],
@@ -2554,8 +2554,8 @@
  "REQ-MOBILE-0004": {
   "status": "PASS",
   "evidence": [
-   "mobile/android-user",
-   "mobile/android-admin",
+   "apps/vpn-shop/android",
+   "apps/lucy-admin/android",
    "apps/vpn-client/android",
    "mobile/ios-user",
    "mobile/ios-admin"
@@ -2650,7 +2650,7 @@
    "docs/ru/new/TERMUX_GUIDE.md"
   ],
   "platforms": "backend/API, server",
-  "note": "Пошаговая инструкция для Android/Termux написана (v28.150.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
+  "note": "Пошаговая инструкция для Android/Termux написана (v28.151.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
  },
  "REQ-INFRA-0010": {
   "status": "PASS",
@@ -2669,7 +2669,7 @@
    "scripts/github_release_fetch.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.150.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
+  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.151.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
  },
  "REQ-INFRA-0012": {
   "status": "PASS",
@@ -2754,7 +2754,7 @@
    "scripts/backup.sh"
   ],
   "platforms": "backend/API, server",
-  "note": "v28.150.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
+  "note": "v28.151.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
  },
  "REQ-INFRA-0008": {
   "status": "PASS",
@@ -2764,7 +2764,7 @@
    "tests/test_install_status.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.150.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.150.0, решение владельца 2026-11-14). На VPS не проверено."
+  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.151.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.151.0, решение владельца 2026-11-14). На VPS не проверено."
  },
  "REQ-INFRA-0009": {
   "status": "PASS",
@@ -2795,7 +2795,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.150.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
+  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.151.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
  },
  "REQ-INFRA-0015": {
   "status": "PARTIAL",
@@ -2825,7 +2825,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.150.0). Трассировки (OpenTelemetry) нет."
+  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.151.0). Трассировки (OpenTelemetry) нет."
  },
  "REQ-INFRA-0025": {
   "status": "PARTIAL",
@@ -2836,7 +2836,7 @@
    "tests/test_host_metrics.py"
   ],
   "platforms": "backend/API, server",
-  "note": "С v28.150.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
+  "note": "С v28.151.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
  },
  "REQ-INFRA-0038": {
   "status": "PARTIAL",
@@ -2872,7 +2872,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.150.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
+  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.151.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
  },
  "REQ-INFRA-0029": {
   "status": "PASS",
@@ -2993,5 +2993,184 @@
   ],
   "platforms": "all products",
   "note": "Отчёт mapping источник/коммит → модуль магазина → тесты → статус."
+ },
+ "REQ-DOC-0006": {
+  "status": "PASS",
+  "evidence": [
+   "docs/ru/new/TERMUX_GUIDE.md"
+  ],
+  "platforms": "all products",
+  "note": "Установка и управление с Android через Termux: SSH, вход по ключу, установка, проверка, обновление, журналы."
+ },
+ "REQ-DOC-0007": {
+  "status": "PASS",
+  "evidence": [
+   "docs/ru/new/TERMUX_GUIDE.md"
+  ],
+  "platforms": "all products",
+  "note": "Раздел 9: git config user.name / user.email, глобально и для репозитория, в Termux и на компьютере."
+ },
+ "REQ-DOC-0016": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/SYSTEM_OVERVIEW.md"
+  ],
+  "platforms": "all products",
+  "note": "Обзор системы."
+ },
+ "REQ-DOC-0017": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/CONTEXT_MAP.md"
+  ],
+  "platforms": "all products",
+  "note": "Карта контекстов."
+ },
+ "REQ-DOC-0018": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/CONTAINER_DIAGRAM.md"
+  ],
+  "platforms": "all products",
+  "note": "Диаграмма контейнеров."
+ },
+ "REQ-DOC-0019": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/DATA_FLOW.md"
+  ],
+  "platforms": "all products",
+  "note": "Потоки данных."
+ },
+ "REQ-DOC-0020": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/DOMAIN_BOUNDARIES.md"
+  ],
+  "platforms": "all products",
+  "note": "Границы доменов."
+ },
+ "REQ-DOC-0021": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/API_CATALOG.md",
+   "docs/API_ENDPOINTS.md"
+  ],
+  "platforms": "all products",
+  "note": "Каталог API генерируется scripts/generate-architecture-docs.py из API_ENDPOINTS.md."
+ },
+ "REQ-DOC-0022": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/EVENT_CATALOG.md"
+  ],
+  "platforms": "all products",
+  "note": "Каталог событий."
+ },
+ "REQ-DOC-0023": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/THREAT_MODEL.md",
+   "docs/THREAT_MODEL.md"
+  ],
+  "platforms": "all products",
+  "note": "Модель угроз ведётся одним документом docs/THREAT_MODEL.md, в architecture/ — ссылка."
+ },
+ "REQ-DOC-0024": {
+  "status": "PASS",
+  "evidence": [
+   "docs/architecture/DEPLOYMENT_TOPOLOGY.md"
+  ],
+  "platforms": "all products",
+  "note": "Топология развёртывания."
+ },
+ "REQ-DOC-0027": {
+  "status": "PASS",
+  "evidence": [
+   "docs/ru/DISASTER_RECOVERY.md"
+  ],
+  "platforms": "all products",
+  "note": "Документ на русском в docs/ru/: классы данных, RPO/RTO, полное восстановление."
+ },
+ "REQ-DOC-0030": {
+  "status": "PASS",
+  "evidence": [
+   "docs/RELEASE_PROCESS.md",
+   "docs/RELEASE_CHECKLIST.md"
+  ],
+  "platforms": "all products",
+  "note": "Путь изменения до выпуска с 33 файлами, сверен с workflow."
+ },
+ "REQ-DOC-0033": {
+  "status": "PASS",
+  "evidence": [
+   "docs/ru/new/INCIDENT_RESPONSE.md"
+  ],
+  "platforms": "all products",
+  "note": "Признаки, порядок действий; документ на русском в docs/ru/new/."
+ },
+ "REQ-DOC-0036": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/SBOM_AND_LICENSES.md",
+   "THIRD_PARTY_NOTICES.md",
+   "scripts/ci/check-licenses.py"
+  ],
+  "platforms": "all products",
+  "note": "SBOM CycloneDX и проверка лицензий в CI; зависимостей Android-приложений в SBOM нет (нет gradle.lockfile), SBOM не прикреплён к выпуску файлом."
+ },
+ "REQ-DOC-0025": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/SECURITY_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-DOC-0026": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/PRIVACY_DATA_MAP.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-DOC-0028": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/OBSERVABILITY.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-DOC-0029": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/SLO_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-DOC-0031": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/UPGRADE_ROLLBACK.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-DOC-0032": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/MOBILE_RELEASE_GUIDE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-DOC-0034": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/ACCESSIBILITY_AUDIT.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-DOC-0035": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/PERFORMANCE_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-DOC-0015": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/SOURCE_TRACEABILITY_MATRIX.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
  }
 }

@@ -11,15 +11,15 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **140** — 21.4%.
+- Подтверждено (`PASS`): **154** — 23.6%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 140 | Проверено, доказательство указано |
-| `PARTIAL` | 179 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 19 | Функции нет |
+| `PASS` | 154 | Проверено, доказательство указано |
+| `PARTIAL` | 180 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 28 | Функции нет |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 314 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 290 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -39,7 +39,7 @@
 | Интерфейсы | 10 | 1 | 9 | 0 | 0 |
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
 | CI/CD и выпуски | 15 | 11 | 4 | 0 | 0 |
-| Документация | 37 | 2 | 0 | 0 | 35 |
+| Документация | 37 | 16 | 1 | 0 | 11 |
 | Аудит, тесты, скриншоты | 69 | 5 | 4 | 0 | 60 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
@@ -1470,7 +1470,7 @@
 ### REQ-SHOP-0031 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2222). Продукт: Магазин.
-- Доказательство: `backend/app/bot_texts.py`; `cabinet/src/i18n.tsx`; `tests/test_bot_texts.py`; `tests/test_critical_startup_and_i18n.py`; `mobile/l10n/user.json`.
+- Доказательство: `backend/app/bot_texts.py`; `cabinet/src/i18n.tsx`; `tests/test_bot_texts.py`; `tests/test_critical_startup_and_i18n.py`; `packages/localization/user.json`.
 - Примечание: Бот, кабинет и приложения имеют русский, английский и украинский языки. Проверки, что переведена каждая строка каждого интерфейса, нет.
 
 > - Все тексты и кнопки локализовать RU/EN/UK.
@@ -1652,7 +1652,7 @@
 ### REQ-ADMIN-0002 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Interfaces (строка 189). Продукт: Админка.
-- Доказательство: `admin/src/main.tsx`; `mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `mobile/ios-admin/VpnShopAdmin/ContentView.swift`; `backend/app/security.py`; `tests/test_admin_route_permissions.py`; `backend/app/audit_seal.py`.
+- Доказательство: `admin/src/main.tsx`; `apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `mobile/ios-admin/VpnShopAdmin/ContentView.swift`; `backend/app/security.py`; `tests/test_admin_route_permissions.py`; `backend/app/audit_seal.py`.
 - Примечание: Веб-панель, приложения администратора для Android и iOS работают через один API с ролями и журналом. В приложениях 10 разделов против примерно 100 в веб-панели.
 
 > Web Admin; Android Admin; iOS Admin; единый API; RBAC; аудит.
@@ -3215,7 +3215,7 @@
 - Источник: Часть I → Docker Installer Vps Termux → Termux (строка 740). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
-- Примечание: Пошаговая инструкция для Android/Termux написана (v28.150.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
+- Примечание: Пошаговая инструкция для Android/Termux написана (v28.151.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
 
 > Android/Termux: инструменты; подключение к VPS; Git; проверка репозитория; установка; запуск; обновление; логи; диагностика. Пошагово для новичка.
 
@@ -3224,7 +3224,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик (строка 2297). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `deploy/install-status.sh`; `deploy/install-vps.sh`; `tests/test_install_status.py`.
-- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.150.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.150.0, решение владельца 2026-11-14). На VPS не проверено.
+- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.151.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.151.0, решение владельца 2026-11-14). На VPS не проверено.
 
 > Поддерживать идемпотентные этапы: preflight → environment validation → DNS/ports → secrets → dependencies → database → migrations → services → health checks → admin bootstrap → final report. Каждый этап должен иметь машинно-читаемый статус, лог, понятную ошибку и безопасный повтор.
 
@@ -3249,7 +3249,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2303). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `scripts/update-space.sh`; `scripts/update.sh`; `tests/test_update_space.py`; `scripts/github_release_fetch.py`.
-- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.150.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
+- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.151.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
 
 > - Проверять свободное место и доступность внешних зависимостей.
 
@@ -3346,7 +3346,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2324). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/log_format.py`; `backend/app/main.py`; `backend/app/errors.py`; `tests/test_ops_alerts.py`.
-- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.150.0). Трассировки (OpenTelemetry) нет.
+- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.151.0). Трассировки (OpenTelemetry) нет.
 
 > - Добавить structured logs, metrics, traces и correlation IDs.
 
@@ -3355,7 +3355,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2325). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/host_metrics.py`; `backend/app/observability.py`; `backend/app/main.py`; `tests/test_host_metrics.py`.
-- Примечание: С v28.150.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
+- Примечание: С v28.151.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
 
 > - Отслеживать error rate, latency percentiles, throughput, saturation, queue depth, failed jobs, webhook lag, DB pool, disk, memory, CPU, node availability и certificate expiry.
 
@@ -3370,7 +3370,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2327). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `backend/app/masque_panel.py`; `backend/app/rw_drift.py`; `tests/test_ops_alerts.py`.
-- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.150.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
+- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.151.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
 
 > - Уведомлять о backup failures, certificate expiry, payment provider outage, node degradation, failed migrations и security incidents.
 
@@ -3379,7 +3379,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2328). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `tests/test_ops_alerts.py`.
-- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.150.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
+- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.151.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
 
 > - Учитывать timezone и clock drift для cron, webhook signature и сертификатов.
 
@@ -3455,7 +3455,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2340). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/backups_api.py`; `tests/test_backup_retention_verified.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
-- Примечание: v28.150.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
+- Примечание: v28.151.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
 
 > - Не удалять последний проверенный backup автоматически.
 
@@ -3541,7 +3541,7 @@
 ### REQ-UI-0004 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2365). Продукт: Все три.
-- Доказательство: `tests/test_critical_startup_and_i18n.py`; `mobile/l10n/user.json`; `mobile/l10n/admin.json`; `README.en.md`; `README.uk.md`.
+- Доказательство: `tests/test_critical_startup_and_i18n.py`; `packages/localization/user.json`; `packages/localization/admin.json`; `README.en.md`; `README.uk.md`.
 - Примечание: Русский, английский и украинский есть в кабинете, боте, приложениях и README. Полнота перевода каждой ошибки, письма, строки установщика и каждого документа не проверялась; документация в основном на русском.
 
 > - Полностью поддерживать русский, английский и украинский языки во всех трёх продуктах, включая ошибки, уведомления, письма, bot, Mini App, installer и документацию.
@@ -3549,7 +3549,7 @@
 ### REQ-UI-0005 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2366). Продукт: Все три.
-- Доказательство: `mobile/l10n/user.json`; `tests/test_critical_startup_and_i18n.py`.
+- Доказательство: `packages/localization/user.json`; `tests/test_critical_startup_and_i18n.py`.
 - Примечание: Строки приложений и кабинета вынесены в словари. В бэкенде и веб-панели администратора часть русских строк стоит прямо в коде.
 
 > - Не смешивать локализованные строки с бизнес-логикой.
@@ -3616,7 +3616,7 @@
 ### REQ-MOBILE-0003 — `PARTIAL`
 
 - Источник: Часть I → Mobile → Admin Mobile (строка 717). Продукт: Все три.
-- Доказательство: `mobile/android-admin`; `mobile/ios-admin`; `tests/test_v270_mobile_apps.py`.
+- Доказательство: `apps/lucy-admin/android`; `mobile/ios-admin`; `tests/test_v270_mobile_apps.py`.
 - Примечание: Приложения администратора есть и работают через тот же API с теми же правами. В них 10 разделов против примерно 100 в веб-панели; матрицы соответствия нет (REQ-ADMIN-0004).
 
 > Android/iOS Lucy Admin; функциональная совместимость с Web Admin; критические действия доступны согласно RBAC.
@@ -3624,7 +3624,7 @@
 ### REQ-MOBILE-0004 — `PASS`
 
 - Источник: Часть I → Mobile → Rule (строка 721). Продукт: Все три.
-- Доказательство: `mobile/android-user`; `mobile/android-admin`; `apps/vpn-client/android`; `mobile/ios-user`; `mobile/ios-admin`.
+- Доказательство: `apps/vpn-shop/android`; `apps/lucy-admin/android`; `apps/vpn-client/android`; `mobile/ios-user`; `mobile/ios-admin`.
 - Примечание: Все пять приложений лежат в каталоге mobile/ этого репозитория.
 
 > Все мобильные приложения находятся внутри shop-by-boo.
@@ -3775,15 +3775,21 @@
 
 > - Пошаговая установка на тестовый VDS.
 
-### REQ-DOC-0006 — `NOT_TESTED`
+### REQ-DOC-0006 — `PASS`
 
 - Источник: Часть II → II.5. VPS, Termux, GitHub и документация (строка 1607). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Установка и управление с Android через Termux: SSH, вход по ключу, установка, проверка, обновление, журналы.
 
 > - Пошаговая установка/управление через Android Termux.
 
-### REQ-DOC-0007 — `NOT_TESTED`
+### REQ-DOC-0007 — `PASS`
 
 - Источник: Часть II → II.5. VPS, Termux, GitHub и документация (строка 1608). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Раздел 9: git config user.name / user.email, глобально и для репозитория, в Termux и на компьютере.
 
 > - Инструкция по `git config user.name` и `git config user.email`, включая Android.
 
@@ -3833,157 +3839,214 @@
 
 > - `docs/REQUIREMENTS_CHANGELOG.md`
 
-### REQ-DOC-0015 — `NOT_TESTED`
+### REQ-DOC-0015 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2434). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SOURCE_TRACEABILITY_MATRIX.md` — нет.
+- Примечание: docs/SOURCE_TRACEABILITY_MATRIX.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/SOURCE_TRACEABILITY_MATRIX.md`
 
-### REQ-DOC-0016 — `NOT_TESTED`
+### REQ-DOC-0016 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2435). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/SYSTEM_OVERVIEW.md` — есть (`docs/architecture/SYSTEM_OVERVIEW.md`).
+- Доказательство: `docs/architecture/SYSTEM_OVERVIEW.md`.
+- Примечание: Обзор системы.
 
 > - `docs/architecture/SYSTEM_OVERVIEW.md`
 
-### REQ-DOC-0017 — `NOT_TESTED`
+### REQ-DOC-0017 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2436). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/CONTEXT_MAP.md` — есть (`docs/architecture/CONTEXT_MAP.md`).
+- Доказательство: `docs/architecture/CONTEXT_MAP.md`.
+- Примечание: Карта контекстов.
 
 > - `docs/architecture/CONTEXT_MAP.md`
 
-### REQ-DOC-0018 — `NOT_TESTED`
+### REQ-DOC-0018 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2437). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/CONTAINER_DIAGRAM.md` — есть (`docs/architecture/CONTAINER_DIAGRAM.md`).
+- Доказательство: `docs/architecture/CONTAINER_DIAGRAM.md`.
+- Примечание: Диаграмма контейнеров.
 
 > - `docs/architecture/CONTAINER_DIAGRAM.md`
 
-### REQ-DOC-0019 — `NOT_TESTED`
+### REQ-DOC-0019 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2438). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/DATA_FLOW.md` — есть (`docs/architecture/DATA_FLOW.md`).
+- Доказательство: `docs/architecture/DATA_FLOW.md`.
+- Примечание: Потоки данных.
 
 > - `docs/architecture/DATA_FLOW.md`
 
-### REQ-DOC-0020 — `NOT_TESTED`
+### REQ-DOC-0020 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2439). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/DOMAIN_BOUNDARIES.md` — есть (`docs/architecture/DOMAIN_BOUNDARIES.md`).
+- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`.
+- Примечание: Границы доменов.
 
 > - `docs/architecture/DOMAIN_BOUNDARIES.md`
 
-### REQ-DOC-0021 — `NOT_TESTED`
+### REQ-DOC-0021 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2440). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/API_CATALOG.md` — есть (`docs/architecture/API_CATALOG.md`).
+- Доказательство: `docs/architecture/API_CATALOG.md`; `docs/API_ENDPOINTS.md`.
+- Примечание: Каталог API генерируется scripts/generate-architecture-docs.py из API_ENDPOINTS.md.
 
 > - `docs/architecture/API_CATALOG.md`
 
-### REQ-DOC-0022 — `NOT_TESTED`
+### REQ-DOC-0022 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2441). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/EVENT_CATALOG.md` — есть (`docs/architecture/EVENT_CATALOG.md`).
+- Доказательство: `docs/architecture/EVENT_CATALOG.md`.
+- Примечание: Каталог событий.
 
 > - `docs/architecture/EVENT_CATALOG.md`
 
-### REQ-DOC-0023 — `NOT_TESTED`
+### REQ-DOC-0023 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2442). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/THREAT_MODEL.md` — есть (`docs/architecture/THREAT_MODEL.md`).
+- Доказательство: `docs/architecture/THREAT_MODEL.md`; `docs/THREAT_MODEL.md`.
+- Примечание: Модель угроз ведётся одним документом docs/THREAT_MODEL.md, в architecture/ — ссылка.
 
 > - `docs/architecture/THREAT_MODEL.md`
 
-### REQ-DOC-0024 — `NOT_TESTED`
+### REQ-DOC-0024 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2443). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/DEPLOYMENT_TOPOLOGY.md` — есть (`docs/architecture/DEPLOYMENT_TOPOLOGY.md`).
+- Доказательство: `docs/architecture/DEPLOYMENT_TOPOLOGY.md`.
+- Примечание: Топология развёртывания.
 
 > - `docs/architecture/DEPLOYMENT_TOPOLOGY.md`
 
-### REQ-DOC-0025 — `NOT_TESTED`
+### REQ-DOC-0025 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2444). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SECURITY_BASELINE.md` — нет.
+- Примечание: docs/SECURITY_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/SECURITY_BASELINE.md`
 
-### REQ-DOC-0026 — `NOT_TESTED`
+### REQ-DOC-0026 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2445). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/PRIVACY_DATA_MAP.md` — нет.
+- Примечание: docs/PRIVACY_DATA_MAP.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/PRIVACY_DATA_MAP.md`
 
-### REQ-DOC-0027 — `NOT_TESTED`
+### REQ-DOC-0027 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2446). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/DISASTER_RECOVERY.md` — есть (`docs/ru/DISASTER_RECOVERY.md`).
+- Доказательство: `docs/ru/DISASTER_RECOVERY.md`.
+- Примечание: Документ на русском в docs/ru/: классы данных, RPO/RTO, полное восстановление.
 
 > - `docs/DISASTER_RECOVERY.md`
 
-### REQ-DOC-0028 — `NOT_TESTED`
+### REQ-DOC-0028 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2447). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/OBSERVABILITY.md` — нет.
+- Примечание: docs/OBSERVABILITY.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/OBSERVABILITY.md`
 
-### REQ-DOC-0029 — `NOT_TESTED`
+### REQ-DOC-0029 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2448). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SLO_BASELINE.md` — нет.
+- Примечание: docs/SLO_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/SLO_BASELINE.md`
 
-### REQ-DOC-0030 — `NOT_TESTED`
+### REQ-DOC-0030 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2449). Продукт: Все три.
-- Названные файлы: `docs/RELEASE_PROCESS.md` — нет.
+- Платформы: all products.
+- Названные файлы: `docs/RELEASE_PROCESS.md` — есть (`docs/RELEASE_PROCESS.md`).
+- Доказательство: `docs/RELEASE_PROCESS.md`; `docs/RELEASE_CHECKLIST.md`.
+- Примечание: Путь изменения до выпуска с 33 файлами, сверен с workflow.
 
 > - `docs/RELEASE_PROCESS.md`
 
-### REQ-DOC-0031 — `NOT_TESTED`
+### REQ-DOC-0031 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2450). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/UPGRADE_ROLLBACK.md` — нет.
+- Примечание: docs/UPGRADE_ROLLBACK.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/UPGRADE_ROLLBACK.md`
 
-### REQ-DOC-0032 — `NOT_TESTED`
+### REQ-DOC-0032 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2451). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/MOBILE_RELEASE_GUIDE.md` — нет.
+- Примечание: docs/MOBILE_RELEASE_GUIDE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/MOBILE_RELEASE_GUIDE.md`
 
-### REQ-DOC-0033 — `NOT_TESTED`
+### REQ-DOC-0033 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2452). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/INCIDENT_RESPONSE.md` — есть (`docs/ru/new/INCIDENT_RESPONSE.md`).
+- Доказательство: `docs/ru/new/INCIDENT_RESPONSE.md`.
+- Примечание: Признаки, порядок действий; документ на русском в docs/ru/new/.
 
 > - `docs/INCIDENT_RESPONSE.md`
 
-### REQ-DOC-0034 — `NOT_TESTED`
+### REQ-DOC-0034 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2453). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/ACCESSIBILITY_AUDIT.md` — нет.
+- Примечание: docs/ACCESSIBILITY_AUDIT.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/ACCESSIBILITY_AUDIT.md`
 
-### REQ-DOC-0035 — `NOT_TESTED`
+### REQ-DOC-0035 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2454). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/PERFORMANCE_BASELINE.md` — нет.
+- Примечание: docs/PERFORMANCE_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/PERFORMANCE_BASELINE.md`
 
-### REQ-DOC-0036 — `NOT_TESTED`
+### REQ-DOC-0036 — `PARTIAL`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2455). Продукт: Все три.
-- Названные файлы: `docs/SBOM_AND_LICENSES.md` — нет.
+- Платформы: all products.
+- Названные файлы: `docs/SBOM_AND_LICENSES.md` — есть (`docs/SBOM_AND_LICENSES.md`).
+- Доказательство: `docs/SBOM_AND_LICENSES.md`; `THIRD_PARTY_NOTICES.md`; `scripts/ci/check-licenses.py`.
+- Примечание: SBOM CycloneDX и проверка лицензий в CI; зависимостей Android-приложений в SBOM нет (нет gradle.lockfile), SBOM не прикреплён к выпуску файлом.
 
 > - `docs/SBOM_AND_LICENSES.md`
 
@@ -4538,7 +4601,7 @@
 ### REQ-SEC-0014 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2360). Продукт: Все три.
-- Доказательство: `apps/vpn-client/android/app/src/main/AndroidManifest.xml`; `mobile/android-user/app/src/main/AndroidManifest.xml`; `mobile/android-admin/app/src/main/AndroidManifest.xml`; `apps/vpn-client/android/app/src/main/res/xml/network_security.xml`; `docs/THREAT_MODEL.md`.
+- Доказательство: `apps/vpn-client/android/app/src/main/AndroidManifest.xml`; `apps/vpn-shop/android/app/src/main/AndroidManifest.xml`; `apps/lucy-admin/android/app/src/main/AndroidManifest.xml`; `apps/vpn-client/android/app/src/main/res/xml/network_security.xml`; `docs/THREAT_MODEL.md`.
 - Примечание: Резервное копирование данных выключено, открытый HTTP запрещён, проверка сертификатов системная; про root сказано без гарантий. Экспортированные компоненты и deep links построчно не сверены; iOS и MASVS не проверены.
 
 > - Для мобильных приложений проверить secure storage, deep links, exported components, backup rules, network security config, certificate validation и jailbreak/root limitations без ложных гарантий.
@@ -4572,7 +4635,7 @@
 ### REQ-ARCH-0003 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2133). Продукт: Все три.
-- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `backend/app/security.py`; `backend/app/remnawave.py`; `admin/src/components/ui/button.tsx`; `mobile/l10n/user.json`.
+- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `backend/app/security.py`; `backend/app/remnawave.py`; `admin/src/components/ui/button.tsx`; `packages/localization/user.json`.
 
 > - Общими могут быть UI primitives, дизайн-токены, API-клиенты, схемы DTO, localization utilities, telemetry abstractions, test helpers и security utilities.
 

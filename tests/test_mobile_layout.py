@@ -176,7 +176,7 @@ def test_apps_ship_the_current_default_layout():
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]
     expected = json.dumps(mobile_layout.bundled_defaults(), ensure_ascii=False, indent=1, sort_keys=True) + "\n"
-    for path in ("mobile/android-user/app/src/main/assets/default_layout.json", "mobile/ios-user/VpnShopUser/default_layout.json"):
+    for path in ("apps/vpn-shop/android/app/src/main/assets/default_layout.json", "mobile/ios-user/VpnShopUser/default_layout.json"):
         assert (root / path).read_text() == expected, f"{path}: regenerate with scripts/mobile/export-default-layout.py"
     bundled = mobile_layout.bundled_defaults()
     assert set(bundled) == {"ru", "en", "uk"}
@@ -210,7 +210,7 @@ async def test_every_app_string_and_screen_block_is_editable(database):
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]
     # The backend copy of the app strings is the one the apps ship.
-    assert (root / "backend/app/assets/mobile_strings.json").read_text() == (root / "mobile/l10n/user.json").read_text()
+    assert (root / "backend/app/assets/mobile_strings.json").read_text() == (root / "packages/localization/user.json").read_text()
     strings = mobile_layout.app_strings()
     assert strings["sign_in"]["ru"] and strings["sign_in"]["en"] and len(strings) > 100
     data = edited(strings={"sign_in": {"ru": "Войти в Корги", "en": "", "uk": "Увійти до Коргі"}},

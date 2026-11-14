@@ -32,7 +32,7 @@
 | Проверка прав, шифрование секретов, токены | `backend/app/security.py` |
 | Настройки | `backend/app/config.py`, `runtime_settings.py` |
 | Клиент панели | `backend/app/remnawave.py` |
-| Тексты интерфейсов | `mobile/l10n/`, словари веб-интерфейсов |
+| Тексты интерфейсов | `packages/localization/`, словари веб-интерфейсов |
 | Дизайн-токены и компоненты веб-панели | `admin/src/theme.css`, `admin/src/components/ui/` |
 
 ## Описание служб
