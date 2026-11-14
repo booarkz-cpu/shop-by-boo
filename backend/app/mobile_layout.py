@@ -366,7 +366,7 @@ DEFAULT_SECTIONS = [
 ]
 
 
-# Strings of the apps (mobile/l10n/user.json, copied to assets/mobile_strings.json): every one can be
+# Strings of the apps (packages/localization/user.json, copied to assets/mobile_strings.json): every one can be
 # replaced from the admin panel, per language. The apps use the replacement instead of their own text.
 STRINGS_FILE = __import__("pathlib").Path(__file__).resolve().parent / "assets" / "mobile_strings.json"
 
@@ -402,7 +402,7 @@ class MobileLayout(_Strict):
     sections: list[Section] = Field(default_factory=lambda: [Section.model_validate(s) for s in DEFAULT_SECTIONS],
                                     min_length=1, max_length=40)
     texts: dict[str, Label] = Field(default_factory=dict)
-    # Replacements of the app strings (keys of mobile/l10n/user.json); an empty language keeps the app text.
+    # Replacements of the app strings (keys of packages/localization/user.json); an empty language keeps the app text.
     strings: dict[str, LongText] = Field(default_factory=dict)
     features: dict[str, bool] = Field(default_factory=lambda: {k: True for k in FEATURES})
     # Fixed links the actions use; empty values hide the buttons that need them.

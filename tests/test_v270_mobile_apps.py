@@ -24,19 +24,19 @@ def test_mobile_base_and_node_rules():
 
 def test_mobile_catalogs_are_complete_and_copied():
     for name in ("user", "admin"):
-        catalog = json.loads((ROOT / f"mobile/l10n/{name}.json").read_text())
+        catalog = json.loads((ROOT / f"packages/localization/{name}.json").read_text())
         assert set(catalog) == {"ru", "en", "uk"}
         assert catalog["ru"].keys() == catalog["en"].keys()
         assert all(catalog["ru"].values()) and all(catalog["en"].values())
-    assert (ROOT / "mobile/android-user/app/src/main/assets/l10n.json").read_text() == (ROOT / "mobile/l10n/user.json").read_text()
-    assert (ROOT / "mobile/android-admin/app/src/main/assets/l10n.json").read_text() == (ROOT / "mobile/l10n/admin.json").read_text()
-    assert (ROOT / "mobile/ios-user/VpnShopUser/l10n.json").read_text() == (ROOT / "mobile/l10n/user.json").read_text()
-    assert (ROOT / "mobile/ios-admin/VpnShopAdmin/l10n.json").read_text() == (ROOT / "mobile/l10n/admin.json").read_text()
+    assert (ROOT / "apps/vpn-shop/android/app/src/main/assets/l10n.json").read_text() == (ROOT / "packages/localization/user.json").read_text()
+    assert (ROOT / "apps/lucy-admin/android/app/src/main/assets/l10n.json").read_text() == (ROOT / "packages/localization/admin.json").read_text()
+    assert (ROOT / "mobile/ios-user/VpnShopUser/l10n.json").read_text() == (ROOT / "packages/localization/user.json").read_text()
+    assert (ROOT / "mobile/ios-admin/VpnShopAdmin/l10n.json").read_text() == (ROOT / "packages/localization/admin.json").read_text()
 
 
 def test_native_clients_keep_session_bounds():
-    user_android = (ROOT / "mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
-    admin_android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
+    user_android = (ROOT / "apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
+    admin_android = (ROOT / "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
     user_ios = (ROOT / "mobile/ios-user/VpnShopUser/VpnShopUserApp.swift").read_text()
     admin_ios = (ROOT / "mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
     for source, client in (

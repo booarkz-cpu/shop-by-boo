@@ -40,7 +40,7 @@ The current app version is **2.10.0**. The sources arrived in **2.7.0**. In **2.
 
 Four separate shop clients: Android and iOS for the buyer, Android and iOS for the administrator. The shared look is a dark Material Design scheme with the Web 3.0 accent `#00E5C0`. Each app has a **RU / EN** language switch.
 
-Русский и English живут в одном каталоге на роль: `mobile/l10n/user.json` и `mobile/l10n/admin.json`. Копии лежат в assets Android и в бандле iOS и должны совпадать побайтно.
+Русский и English живут в одном каталоге на роль: `packages/localization/user.json` и `packages/localization/admin.json`. Копии лежат в assets Android и в бандле iOS и должны совпадать побайтно.
 
 ## Логотип и карточки
 
@@ -58,8 +58,8 @@ The apps are part of Remnawave VPN Shop and are covered by the project source li
 
 | Приложение | Каталог | Идентификатор | `X-Shop-Client` | User-Agent |
 | --- | --- | --- | --- | --- |
-| Android, покупатель | `mobile/android-user` | `shop.remnawave.user` | `android-user` | `RemnawaveShop-Android-User/2.10.0` |
-| Android, администратор | `mobile/android-admin` | `shop.remnawave.admin` | `android-admin` | `RemnawaveShop-Android-Admin/2.12.0` |
+| Android, покупатель | `apps/vpn-shop/android` | `shop.remnawave.user` | `android-user` | `RemnawaveShop-Android-User/2.10.0` |
+| Android, администратор | `apps/lucy-admin/android` | `shop.remnawave.admin` | `android-admin` | `RemnawaveShop-Android-Admin/2.12.0` |
 | iOS, покупатель | `mobile/ios-user` | `shop.remnawave.user` | `ios-user` | `RemnawaveShop-iOS-User/2.10.0` |
 | iOS, администратор | `mobile/ios-admin` | `shop.remnawave.admin` | `ios-admin` | `RemnawaveShop-iOS-Admin/2.12.0` |
 
@@ -160,7 +160,7 @@ Android: релиз **2.10.0** прикладывает два release APK: `rem
 ANDROID_HOME=$HOME/android-sdk GRADLE_BIN=$HOME/gradle-8.10.2/bin/gradle bash scripts/build-android-apk.sh /tmp/apk
 ```
 
-Нужны Android SDK 35, build-tools 35.0.0 и Gradle 8.10.2. С ключом скрипт вызывает `:app:assembleRelease`, иначе `:app:assembleDebug`, в `mobile/android-user` и `mobile/android-admin` (AGP 8.7, Kotlin 2.0, compileSdk 35, minSdk 26, versionName `2.10.0`, исторический versionName `2.9.0` оставлен комментарием в Gradle). Cleartext в `network_security.xml` разрешён только для трёх локальных хостов. Пакет 2.10.0 подписан release-ключом и ставится вручную. Для Google Play подпись задаёт владелец. Закрытый ключ в git не коммитится.
+Нужны Android SDK 35, build-tools 35.0.0 и Gradle 8.10.2. С ключом скрипт вызывает `:app:assembleRelease`, иначе `:app:assembleDebug`, в `apps/vpn-shop/android` и `apps/lucy-admin/android` (AGP 8.7, Kotlin 2.0, compileSdk 35, minSdk 26, versionName `2.10.0`, исторический versionName `2.9.0` оставлен комментарием в Gradle). Cleartext в `network_security.xml` разрешён только для трёх локальных хостов. Пакет 2.10.0 подписан release-ключом и ставится вручную. Для Google Play подпись задаёт владелец. Закрытый ключ в git не коммитится.
 
 iOS: откройте `mobile/ios-user/VpnShopUser.xcodeproj` или `mobile/ios-admin/VpnShopAdmin.xcodeproj` в Xcode 15+ на macOS (iOS 16, Swift 5, MARKETING_VERSION `2.10.0`, предыдущая версия интерфейса `2.9.0`). В проекте `CODE_SIGNING_ALLOWED = NO`, чтобы дерево собиралось без команды; для устройства подпись настраивается в Xcode. `NSAllowsLocalNetworking` разрешает локальный HTTP. IPA появляется после Product → Archive в Xcode. На Linux Xcode нет, поэтому релиз IPA не содержит.
 

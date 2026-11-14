@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 
-/** v28.150.0: the customer's own MASQUE subscription — a link per subscription, copy, QR and a short how-to. */
+/** v28.151.0: the customer's own MASQUE subscription — a link per subscription, copy, QR and a short how-to. */
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Item = {subscription_id: number; name: string; url: string; over_limit?: boolean; traffic_bytes?: number; tunnels?: number};
 const gb = (bytes: number) => (bytes / 1073741824).toFixed(bytes < 1073741824 ? 2 : 1) + " ГБ";

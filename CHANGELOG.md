@@ -1,3 +1,10 @@
+# v28.151.0
+
+- Этап 2а структуры папок (решения № 14 и 17, `docs/MONOREPO_LAYOUT.md`): `git mv` `mobile/android-user` → `apps/vpn-shop/android`, `mobile/android-admin` → `apps/lucy-admin/android`, `mobile/l10n` → `packages/localization`. Пути обновлены в CI (матрица `android` в `ci.yml` — поле `dir`, имена заданий прежние), `scripts/build-android-apk.sh`, `dependabot.yml`, скриптах, тестах и документах; фильтр `mobile-release.yml` — плюс `packages/**`. Имена файлов выпуска не менялись.
+- Раздел реестра DOC (решение № 19 — чередовать с перекладкой папок): `docs/RELEASE_PROCESS.md` (REQ-DOC-0030), `docs/SBOM_AND_LICENSES.md` (REQ-DOC-0036, PARTIAL), раздел 9 «git config» в `docs/ru/new/TERMUX_GUIDE.md` (REQ-DOC-0007); статусы DOC-0006, 0016–0024, 0027, 0033 — PASS по существующим документам; ещё не написанные документы — NOT_IMPLEMENTED.
+- `docs/ru/new/TERMUX_GUIDE.md`: команда установки с номером текущего выпуска вместо шаблона `vX.Y.Z` (ночная проверка внешних ссылок считала его битой ссылкой).
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.150.0
 
 - Решения владельца № 16–19 (`docs/OWNER_DECISIONS.md`): lucy-vpn-android не нужен; этап 2 папок — Android и iOS отдельно; спрашивать про SSH при установке (по умолчанию «нет»); чередовать перекладку папок с разделами реестра.

@@ -1,6 +1,6 @@
 # Android: клиентское приложение
 
-Каталог `mobile/android-user` (Kotlin, Jetpack Compose, minSdk 26, targetSdk 35). Пакет `shop.remnawave.user`, отладочная сборка — `shop.remnawave.user.preview`. Инструкция владельцу — [модуль 16](../ru/modules/16-mobile-apps.md). Админ-приложение — `mobile/android-admin` (те же принципы, оформление Remna Dark).
+Каталог `apps/vpn-shop/android` (Kotlin, Jetpack Compose, minSdk 26, targetSdk 35). Пакет `shop.remnawave.user`, отладочная сборка — `shop.remnawave.user.preview`. Инструкция владельцу — [модуль 16](../ru/modules/16-mobile-apps.md). Админ-приложение — `apps/lucy-admin/android` (те же принципы, оформление Remna Dark).
 
 ## Устройство
 
@@ -82,7 +82,7 @@ flowchart LR
 
 | Что | Как |
 | --- | --- |
-| Отладочная сборка | `cd mobile/android-user && ./gradlew assembleDebug` |
+| Отладочная сборка | `cd apps/vpn-shop/android && ./gradlew assembleDebug` |
 | Подписанные APK и AAB | `scripts/build-android-apk.sh` с `ANDROID_KEYSTORE*` (workflow «Mobile packages») |
 | Движок VPN | `bash scripts/mobile/build-xray-aar.sh` → `app/libs/libv2ray.aar` |
 | UI-тесты | `app/src/androidTest`: экраны в демо-режиме, подсказка о батарее (`BatteryGuardTest`); CI «Android • UI tests» |

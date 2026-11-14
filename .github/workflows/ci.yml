@@ -512,7 +512,10 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        app: [android-user, android-admin]
+        # v28.151.0 (docs/MONOREPO_LAYOUT.md, stage 2a): the job names stay, the folders moved.
+        include:
+          - {app: android-user, dir: apps/vpn-shop/android}
+          - {app: android-admin, dir: apps/lucy-admin/android}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
@@ -524,9 +527,9 @@ jobs:
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
       - name: Gradle distribution (retries on GitHub 504)
-        run: bash scripts/ci/gradle-warm.sh mobile/${{ matrix.app }}
+        run: bash scripts/ci/gradle-warm.sh ${{ matrix.dir }}
       - name: Compile debug application and run JVM unit tests
-        working-directory: mobile/${{ matrix.app }}
+        working-directory: ${{ matrix.dir }}
         run: bash gradlew assembleDebug testDebugUnitTest --no-daemon
 
   android-engine:
@@ -552,15 +555,15 @@ jobs:
       - id: xray
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: mobile/android-user/app/libs/libv2ray.aar
+          path: apps/vpn-shop/android/app/libs/libv2ray.aar
           key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
       - name: Build libv2ray.aar
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
       - name: Gradle distribution (retries on GitHub 504)
-        run: bash scripts/ci/gradle-warm.sh mobile/android-user
+        run: bash scripts/ci/gradle-warm.sh apps/vpn-shop/android
       - name: Compile the app with the engine
-        working-directory: mobile/android-user
+        working-directory: apps/vpn-shop/android
         run: |
           bash gradlew assembleDebug --no-daemon
           unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -q 'libgojni.so' || { echo "::error title=engine::libgojni.so is not in the APK"; exit 1; }
@@ -581,11 +584,11 @@ jobs:
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
       - name: Gradle distribution (retries on GitHub 504)
-        run: bash scripts/ci/gradle-warm.sh mobile/android-user mobile/android-admin
+        run: bash scripts/ci/gradle-warm.sh apps/vpn-shop/android apps/lucy-admin/android
       - name: Build the apps and their tests
         run: |
-          (cd mobile/android-user && bash gradlew assembleDebug assembleDebugAndroidTest --no-daemon)
-          (cd mobile/android-admin && bash gradlew assembleDebug assembleDebugAndroidTest --no-daemon)
+          (cd apps/vpn-shop/android && bash gradlew assembleDebug assembleDebugAndroidTest --no-daemon)
+          (cd apps/lucy-admin/android && bash gradlew assembleDebug assembleDebugAndroidTest --no-daemon)
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -600,8 +603,8 @@ jobs:
           profile: pixel_6
           disable-animations: true
           script: |
-            (cd mobile/android-user && bash gradlew connectedDebugAndroidTest --no-daemon) || { grep -rh -A3 "<failure" mobile/android-user/app/build/outputs/androidTest-results | head -40 | sed 's/^/::error title=android-user UI test::/'; exit 1; }
-            (cd mobile/android-admin && bash gradlew connectedDebugAndroidTest --no-daemon) || { grep -rh -A3 "<failure" mobile/android-admin/app/build/outputs/androidTest-results | head -40 | sed 's/^/::error title=android-admin UI test::/'; exit 1; }
+            (cd apps/vpn-shop/android && bash gradlew connectedDebugAndroidTest --no-daemon) || { grep -rh -A3 "<failure" apps/vpn-shop/android/app/build/outputs/androidTest-results | head -40 | sed 's/^/::error title=android-user UI test::/'; exit 1; }
+            (cd apps/lucy-admin/android && bash gradlew connectedDebugAndroidTest --no-daemon) || { grep -rh -A3 "<failure" apps/lucy-admin/android/app/build/outputs/androidTest-results | head -40 | sed 's/^/::error title=android-admin UI test::/'; exit 1; }
 
   ios-ui:
     name: iOS • UI tests

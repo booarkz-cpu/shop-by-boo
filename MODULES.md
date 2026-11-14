@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.150.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.151.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 > Актуальная инструкция v21.5.1. head магазина `0094_store_subscriptions`, Support Pro `0008`.
 
@@ -12,7 +12,7 @@
 | `cabinet` | Общий пользовательский React-интерфейс |
 | `miniapp` | Telegram-поверхность, импортирующая общий кабинет |
 | `support-pro` | Отдельная поддержка и защищённый мост; текущий head `0008` (мост Zendesk/Freshdesk) |
-| `mobile/android-user`, `mobile/android-admin` | Исходники Android клиента и администратора |
+| `apps/vpn-shop/android`, `apps/lucy-admin/android` | Исходники Android клиента и администратора |
 | `mobile/ios-user`, `mobile/ios-admin` | Исходники iOS клиента и администратора |
 | `desktop`, `browser-extension`, `corgi-cli` | Дополнительные клиентские инструменты; проверяйте отдельные README |
 | `deploy`, `scripts` | Установка, backup/update/recovery, диагностика и упаковка |

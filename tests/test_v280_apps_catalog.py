@@ -28,8 +28,8 @@ def test_app_catalog_hides_admin_cards_and_rejects_unsafe_values():
 def test_admin_and_cabinet_expose_app_catalog():
     admin = (ROOT / "admin/src/main.tsx").read_text()
     cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
-    user_android = (ROOT / "mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
-    admin_android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
+    user_android = (ROOT / "apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
+    admin_android = (ROOT / "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
     from app_contract import missing_routes
     assert not missing_routes("GET /api/admin/apps", "GET /api/public/apps", "POST /api/admin/apps/logo")
     assert "/api/admin/apps" in admin and "Приложения" in admin and "client-logo" not in admin

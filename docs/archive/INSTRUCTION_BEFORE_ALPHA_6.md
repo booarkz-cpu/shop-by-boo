@@ -349,7 +349,7 @@ python3 scripts/node-agent.py
 2. Проверьте сумму: `sha256sum -c remnawave_vpn_shop_android_user_2_9_0.apk.sha256`.
 3. Установите пакет командой `adb install -r файл.apk` либо откройте APK на телефоне после разрешения установки из этого источника.
 4. В приложении укажите адрес API с `https://`. `http://` принимается для `localhost`, `127.0.0.1` и `10.0.2.2`.
-5. Повторная сборка из исходников: задайте `ANDROID_HOME` и `GRADLE_BIN`, затем `bash scripts/build-android-apk.sh /tmp/apk`. Каталоги `mobile/android-user` и `mobile/android-admin` также открываются в Android Studio.
+5. Повторная сборка из исходников: задайте `ANDROID_HOME` и `GRADLE_BIN`, затем `bash scripts/build-android-apk.sh /tmp/apk`. Каталоги `apps/vpn-shop/android` и `apps/lucy-admin/android` также открываются в Android Studio.
 6. iOS: на macOS откройте `mobile/ios-user/VpnShopUser.xcodeproj` и `mobile/ios-admin/VpnShopAdmin.xcodeproj` в Xcode 15 или новее, выберите команду подписи и нажмите Run. IPA создаёт Product → Archive.
 7. Подпись APK в релизе — debug-ключ машины сборки. Сборка на другой машине может потребовать удалить уже установленное приложение, если отладочный ключ отличается.
 
@@ -932,7 +932,7 @@ The four source trees live under `mobile/`: `android-user`, `android-admin`, `io
 2. Check the digest with `sha256sum -c remnawave_vpn_shop_android_user_2_9_0.apk.sha256`.
 3. Install with `adb install -r file.apk`, or open the APK on the phone after allowing installs from that source.
 4. Enter the API address as `https://`. `http://` is accepted for `localhost`, `127.0.0.1` and `10.0.2.2`.
-5. Rebuild from source with `ANDROID_HOME` and `GRADLE_BIN` set, then `bash scripts/build-android-apk.sh /tmp/apk`. Android Studio opens `mobile/android-user` and `mobile/android-admin` as well.
+5. Rebuild from source with `ANDROID_HOME` and `GRADLE_BIN` set, then `bash scripts/build-android-apk.sh /tmp/apk`. Android Studio opens `apps/vpn-shop/android` and `apps/lucy-admin/android` as well.
 6. iOS: on macOS, open `mobile/ios-user/VpnShopUser.xcodeproj` and `mobile/ios-admin/VpnShopAdmin.xcodeproj` in Xcode 15 or newer, select a signing team and press Run. Product → Archive creates the IPA.
 7. The release APKs are signed with the build machine's debug key. A later build on another machine can require uninstalling the previous copy when the debug key differs.
 

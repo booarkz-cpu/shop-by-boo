@@ -108,7 +108,7 @@
 - [ ] `GET /api/public/apps` не содержит карточку администратора, а путь логотипа начинается с `/media/`.
 
 #### Мобильные приложения 2.7.0
-- [ ] Собрать `mobile/android-user` и `mobile/android-admin` в Android Studio и два проекта Xcode в `mobile/ios-user` и `mobile/ios-admin`.
+- [ ] Собрать `apps/vpn-shop/android` и `apps/lucy-admin/android` в Android Studio и два проекта Xcode в `mobile/ios-user` и `mobile/ios-admin`.
 - [ ] Указать API с `https://`. Адрес `http://` принимается только для localhost, 127.0.0.1 и 10.0.2.2.
 - [ ] Войти из приложения покупателя и увидеть `access_token`, потому что `X-Shop-Client` равен `android-user` или `ios-user`. Повторить из браузера и увидеть JSON без `access_token`.
 - [ ] Переключить RU/EN и убедиться, что те же экраны перезагружаются.
@@ -296,7 +296,7 @@ The buyer APK stays `remnawave_vpn_shop_android_user_2_10_0.apk` (`versionName` 
 - [ ] Confirm `GET /api/public/apps` has no administrator card and the logo path starts with `/media/`.
 
 #### Mobile apps 2.7.0
-- [ ] Build `mobile/android-user` and `mobile/android-admin` in Android Studio, and the two Xcode projects under `mobile/ios-user` and `mobile/ios-admin`.
+- [ ] Build `apps/vpn-shop/android` and `apps/lucy-admin/android` in Android Studio, and the two Xcode projects under `mobile/ios-user` and `mobile/ios-admin`.
 - [ ] Point each app at an `https://` API. An `http://` address is accepted only for localhost, 127.0.0.1 and 10.0.2.2.
 - [ ] Sign in from a buyer app and confirm the JSON contains `access_token` because `X-Shop-Client` is `android-user` or `ios-user`. Repeat from a browser and confirm the JSON has no `access_token`.
 - [ ] Switch RU/EN and confirm the same screens reload.

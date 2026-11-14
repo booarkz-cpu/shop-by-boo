@@ -5,7 +5,7 @@ The shop has two Android apps for customers. Both are signed with the `corgi` ke
 | | Shop app | «Корги Люси: клиент» (Corgi Lucy client) |
 | --- | --- | --- |
 | What it is | The customer's account in the shop: sign-in, plans, payment, subscription, support, the built-in VPN | A VPN client for any subscription, not only the shop's |
-| Folder | `mobile/android-user` (`shop.remnawave.user`) | `apps/vpn-client/android` (`shop.corgi.client`) |
+| Folder | `apps/vpn-shop/android` (`shop.remnawave.user`) | `apps/vpn-client/android` (`shop.corgi.client`) |
 | Download | [corgi-lusi-android.apk](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) | [corgi-lusi-client.apk](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) |
 
 Russian originals: [ANDROID_ARCHITECTURE](../../ru/new/ANDROID_ARCHITECTURE.md), [ANDROID_CLIENT_APP](../../ru/new/ANDROID_CLIENT_APP.md). Other guides: [index](README.md).
@@ -37,7 +37,7 @@ A separate app for any subscriptions (links, QR, «Share», full Xray JSON), wri
 | Connection | Per-app proxy, quick settings tile, kill switch through the system settings, LAN, hotspot access to SOCKS5/HTTP with a password, autoconnect |
 | Other | Widget, Android TV and «subscription to TV from the phone», backups (file, QR, link), `corgi://` URL schemes, tunnel logs, three app icons, RU/EN/UK |
 
-Updates: the app checks `corgi-lusi-client.json` of the latest release; or add the repository to [Obtainium](https://github.com/ImranR98/Obtainium) with the APK filter `^corgi-lusi-client\.apk$`. Since v28.150.0 every new client version also gets its own release `client-v<version>` (never «latest»): add the release-name filter `^client-v` in Obtainium to follow the client alone.
+Updates: the app checks `corgi-lusi-client.json` of the latest release; or add the repository to [Obtainium](https://github.com/ImranR98/Obtainium) with the APK filter `^corgi-lusi-client\.apk$`. Since v28.151.0 every new client version also gets its own release `client-v<version>` (never «latest»): add the release-name filter `^client-v` in Obtainium to follow the client alone.
 
 ## Verification
 

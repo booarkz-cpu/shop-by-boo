@@ -833,8 +833,8 @@ The test stack binds TCP 18080–18083 to localhost only. The VDS installer open
 
 ### Возможности 2.7.0
 
-- **Четыре приложения.** `mobile/android-user`, `mobile/android-admin`, `mobile/ios-user`, `mobile/ios-admin`. Покупатель покупает тариф, собирает конструктор, видит серверы и копирует ссылку подписки. Администратор смотрит обзор, платежи, мониторинг и разбирает нарушения.
-- **Язык в приложении.** Переключатель RU/EN. Каталоги `mobile/l10n/user.json` и `mobile/l10n/admin.json`.
+- **Четыре приложения.** `apps/vpn-shop/android`, `apps/lucy-admin/android`, `mobile/ios-user`, `mobile/ios-admin`. Покупатель покупает тариф, собирает конструктор, видит серверы и копирует ссылку подписки. Администратор смотрит обзор, платежи, мониторинг и разбирает нарушения.
+- **Язык в приложении.** Переключатель RU/EN. Каталоги `packages/localization/user.json` и `packages/localization/admin.json`.
 - **Сессия.** Заголовок `X-Shop-Client` получает `access_token` в JSON. Веб-вход остаётся на HttpOnly cookie и токен в JSON не кладёт.
 - **Лицензия приложений.** Условия описаны в файле `LICENSE`. Разбор функций — `MOBILE.md`.
 
@@ -1063,7 +1063,7 @@ The admin **Приложения** tab stores Russian and English card text, a l
 
 ### What 2.7.0 added
 
-Four apps: `mobile/android-user`, `mobile/android-admin`, `mobile/ios-user`, `mobile/ios-admin`. The buyer pays, builds a tariff, sees servers and copies the subscription link. The administrator reads the overview, payments and monitoring and reviews violations. The RU/EN switch uses `mobile/l10n/user.json` and `mobile/l10n/admin.json`. Header `X-Shop-Client` receives `access_token` in JSON. Web sign-in keeps the JWT in an HttpOnly cookie. The license is the same `LICENSE` file. See `MOBILE.md`.
+Four apps: `apps/vpn-shop/android`, `apps/lucy-admin/android`, `mobile/ios-user`, `mobile/ios-admin`. The buyer pays, builds a tariff, sees servers and copies the subscription link. The administrator reads the overview, payments and monitoring and reviews violations. The RU/EN switch uses `packages/localization/user.json` and `packages/localization/admin.json`. Header `X-Shop-Client` receives `access_token` in JSON. Web sign-in keeps the JWT in an HttpOnly cookie. The license is the same `LICENSE` file. See `MOBILE.md`.
 
 ### What 2.6.0 added
 

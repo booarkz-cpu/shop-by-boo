@@ -6,12 +6,12 @@
 
 ## Что делает приложение магазина
 
-Приложения из `mobile/android-user`, `mobile/ios-user`, `mobile/android-admin` и `mobile/ios-admin` обращаются к API магазина. Покупатель может войти, посмотреть тариф, оплату, устройства и ссылку подписки; администратор видит доступные ему операции панели. Встроенный VPN: на Android — `CorgiVpnService` с Xray-core (`libv2ray.aar`), на iOS — расширение `CorgiTunnel` (Network Extension с Xray-core и hev-socks5-tunnel), которое встраивается в сборку владельца с разрешением Apple. Без движка приложения передают подписку в совместимый VPN-клиент (Happ, v2rayNG, Hiddify, v2RayTun). Подробно — [модуль 16](modules/16-mobile-apps.md), архитектура — [Android](../modules/android_architecture.md) и [iOS](../modules/ios_architecture.md).
+Приложения из `apps/vpn-shop/android`, `mobile/ios-user`, `apps/lucy-admin/android` и `mobile/ios-admin` обращаются к API магазина. Покупатель может войти, посмотреть тариф, оплату, устройства и ссылку подписки; администратор видит доступные ему операции панели. Встроенный VPN: на Android — `CorgiVpnService` с Xray-core (`libv2ray.aar`), на iOS — расширение `CorgiTunnel` (Network Extension с Xray-core и hev-socks5-tunnel), которое встраивается в сборку владельца с разрешением Apple. Без движка приложения передают подписку в совместимый VPN-клиент (Happ, v2rayNG, Hiddify, v2RayTun). Подробно — [модуль 16](modules/16-mobile-apps.md), архитектура — [Android](../modules/android_architecture.md) и [iOS](../modules/ios_architecture.md).
 
 ## Где взять приложения магазина
 
 1. В своём кабинете откройте раздел «Приложения». Если владелец магазина загрузил собранный APK или подписанный IPA, карточка содержит кнопку скачивания и контрольную сумму SHA-256. Администратор загружает файл и редактирует карточку в разделе «Приложения» панели.
-2. Исходники доступны в каталоге [`mobile/`](../../mobile). Android собирают Gradle в `mobile/android-user` или `mobile/android-admin`, iOS — Xcode на macOS в `mobile/ios-user` или `mobile/ios-admin`. Для распространения нужны собственные ключи подписи и проверка версии, подписи и URL API.
+2. Исходники доступны в каталоге [`mobile/`](../../mobile). Android собирают Gradle в `apps/vpn-shop/android` или `apps/lucy-admin/android`, iOS — Xcode на macOS в `mobile/ios-user` или `mobile/ios-admin`. Для распространения нужны собственные ключи подписи и проверка версии, подписи и URL API.
 3. Исторические готовые APK описаны в [`RELEASE_NOTES_V2_10_0.md`](../archive/root/RELEASE_NOTES_V2_10_0.md) и [`RELEASE_NOTES_V2_12_0.md`](../archive/root/RELEASE_NOTES_V2_12_0.md). Проверяйте источник и SHA-256 на странице соответствующего релиза перед установкой. В релизе 20.0.7 новые APK и IPA не приложены.
 
 ## Подключить покупателя к VPN

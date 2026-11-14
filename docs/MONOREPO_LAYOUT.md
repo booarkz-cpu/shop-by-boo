@@ -12,15 +12,15 @@
 |---|---|---|---|
 | `apps/vpn-client/android` | бывш. `mobile/android-client` | 1 | **перенесено в v28.149.0** |
 | `apps/vpn-client/ios` | — (клиента iOS нет) | — | не создаётся: пустой модуль |
-| `apps/vpn-shop/android`, `apps/vpn-shop/ios` | `mobile/android-user`, `mobile/ios-user` | 2 | план |
-| `apps/lucy-admin/android`, `apps/lucy-admin/ios` | `mobile/android-admin`, `mobile/ios-admin` | 2 | план |
+| `apps/vpn-shop/android`, `apps/vpn-shop/ios` | бывш. `mobile/android-user`; `mobile/ios-user` | 2а / 2б | Android перенесён в v28.151.0; iOS — следующим выпуском |
+| `apps/lucy-admin/android`, `apps/lucy-admin/ios` | бывш. `mobile/android-admin`; `mobile/ios-admin` | 2а / 2б | Android перенесён в v28.151.0; iOS — следующим выпуском |
 | `apps/lucy-admin/web` | `admin` | 3 | план |
 | `apps/user-cabinet` | `cabinet` | 3 | план |
 | `apps/telegram-mini-app` | `miniapp` | 3 | план |
 | `apps/telegram-bot`, `apps/status-page` | модули бэкенда (`backend/app/bot*`, страница статуса) | 5 | вместе с бэкендом |
 | `services/api` и остальные сервисы промпта | `backend` (один FastAPI с модулями: `auth*`, `payment*`, `subscription*`, `remnawave*`, `rw_*`, `autoselect*`, `masque*`, `notifications*`) | 5 | один сервис; модули перечисляются в карте, а не дробятся на пустые папки |
 | `services/support` | `support-pro` | 5 | план |
-| `packages/localization` | `mobile/l10n` | 2 | план |
+| `packages/localization` | бывш. `mobile/l10n` | 2а | **перенесено в v28.151.0** |
 | `packages/*` (shared-ui, shared-api, …) | — (общего кода между приложениями нет) | — | не создаются, пока нет общего кода |
 | `infrastructure/deployment`, `infrastructure/reverse-proxy`, `infrastructure/monitoring` | `deploy` (установщик, Caddy, Prometheus/Grafana) | 4 | план; `deploy/install-vps.sh` остаётся переходником для старых команд установки |
 | `infrastructure/provisioning` | `terraform` | 4 | план |

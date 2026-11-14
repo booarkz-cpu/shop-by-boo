@@ -81,7 +81,7 @@
 
 | | Клиент магазина | Админка | **Корги Люси: клиент** |
 | --- | --- | --- | --- |
-| Каталог | `mobile/android-user` | `mobile/android-admin` | `apps/vpn-client/android` |
+| Каталог | `apps/vpn-shop/android` | `apps/lucy-admin/android` | `apps/vpn-client/android` |
 | `applicationId` | `shop.remnawave.user` | `shop.remnawave.admin` | `shop.corgi.client` (отладочная сборка — `.preview`) |
 | Сборка в CI | `ci.yml`, `android-vpn-e2e.yml` | `ci.yml` | `android-client.yml` (своя) |
 | Вход в магазин | да | да | нет: подписка, ссылки или JSON |

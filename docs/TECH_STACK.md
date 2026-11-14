@@ -1,7 +1,7 @@
 # Технологический стек
 
 Версии взяты из `backend/requirements.txt`, `*/package.json`, `Dockerfile` и `docker-compose.yml`
-на выпуске v28.150.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
+на выпуске v28.151.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
 файлу.
 
 ## Backend
@@ -63,8 +63,8 @@
 
 | Платформа | Стек | Каталоги |
 | --- | --- | --- |
-| Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `mobile/android-user` |
-| Android admin | Kotlin 2.4, Compose, AGP 9.5 | `mobile/android-admin` |
+| Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
+| Android admin | Kotlin 2.4, Compose, AGP 9.5 | `apps/lucy-admin/android` |
 | iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `mobile/ios-user` |
 | iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `mobile/ios-admin` |
 

@@ -53,9 +53,9 @@ function fakeGitHub(sha, state) {
 function workspace(clientVersion) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mobile-release-'));
   fs.mkdirSync(path.join(dir, 'dist/mobile'), {recursive: true});
-  fs.mkdirSync(path.join(dir, 'mobile/android-user/app'), {recursive: true});
+  fs.mkdirSync(path.join(dir, 'apps/vpn-shop/android/app'), {recursive: true});
   fs.writeFileSync(path.join(dir, 'release-manifest.template.json'), JSON.stringify({distribution_tag: 'v28.89.0'}));
-  fs.writeFileSync(path.join(dir, 'mobile/android-user/app/build.gradle.kts'), 'versionName = "3.7.0"\n');
+  fs.writeFileSync(path.join(dir, 'apps/vpn-shop/android/app/build.gradle.kts'), 'versionName = "3.7.0"\n');
   const put = (name, data) => fs.writeFileSync(path.join(dir, 'dist/mobile', name), data);
   put('android-status.txt', 'signed\n');
   put('ios-status.txt', 'unsigned\n');

@@ -1,6 +1,6 @@
 # Мастер-дорожная карта VPN Shop
 
-Дистрибутив `v28.150.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.151.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Состояние на `2026-10-31`. Отметка «сделано» означает, что есть подтверждение в коде или в
 результате проверки; «не проверено» — что функциональность существует, но живой прогон не выполнен.
@@ -61,7 +61,7 @@
 | Адаптивная навигация и мобильная вёрстка админки | Реализовано, скриншоты в `screenshots/admin_panel` |
 | Skeleton-загрузка, пустые состояния, ошибки | Реализовано в компонентах UI |
 | Локализация кабинета | `ru` и `en` |
-| Локализация мобильных приложений | `mobile/l10n/{admin,user}.json` |
+| Локализация мобильных приложений | `packages/localization/{admin,user}.json` |
 | Обновление скриншотов под текущий UI | Частично: наборы от `v28.10.0`, `screenshots/*` актуальнее |
 | Версия в разделе «Обновления» | Исправлено в этом релизе |
 
@@ -133,9 +133,9 @@
 | Админ-панель | экран ошибки вместо чёрной страницы | IMPLEMENTED | `admin/src/app/error.tsx` | — |
 | Админ-панель | центр автоматизации | IMPLEMENTED | `automation.py`, `automation.tsx` | — |
 | Админ-панель | раздел «Обновления» | IMPLEMENTED | `autoUpdate.tsx` | update agent |
-| Мобильные | Android user с встроенным Xray | PARTIAL | `mobile/android-user` | SDK, сборка |
+| Мобильные | Android user с встроенным Xray | PARTIAL | `apps/vpn-shop/android` | SDK, сборка |
 | Мобильные | iOS user и admin | PARTIAL | `mobile/ios-user`, `mobile/ios-admin` | Xcode |
-| Мобильные | Android admin | PARTIAL | `mobile/android-admin` | SDK |
+| Мобильные | Android admin | PARTIAL | `apps/lucy-admin/android` | SDK |
 | Инфраструктура | 17 сервисов Compose, образы по digest | IMPLEMENTED | `docker-compose.yml` | Docker |
 | Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `deploy/Caddyfile` | домены |
 | Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `deploy/install-vps.sh` | чистый VPS |

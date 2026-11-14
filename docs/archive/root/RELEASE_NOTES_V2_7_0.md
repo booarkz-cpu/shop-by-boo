@@ -6,10 +6,10 @@ The previous release **2.6.0** added the abuse platform, the node agent and the 
 
 ## Что вошло
 
-- `mobile/android-user` и `mobile/ios-user`: вход и регистрация по email, обзор, тарифы, конструктор, серверы, ссылка подписки и инструкции, пробный период, поддержка.
-- `mobile/android-admin` и `mobile/ios-admin`: вход с необязательным кодом 2FA, обзор, тарифы, платежи, мониторинг Remnawave, разбор нарушений, агенты, страны, ответ в поддержку.
+- `apps/vpn-shop/android` и `mobile/ios-user`: вход и регистрация по email, обзор, тарифы, конструктор, серверы, ссылка подписки и инструкции, пробный период, поддержка.
+- `apps/lucy-admin/android` и `mobile/ios-admin`: вход с необязательным кодом 2FA, обзор, тарифы, платежи, мониторинг Remnawave, разбор нарушений, агенты, страны, ответ в поддержку.
 - Общий вид: тёмная схема Material и акцент `#00E5C0`.
-- Каталоги `mobile/l10n/user.json` и `mobile/l10n/admin.json`. Ключи ru и en совпадают, копии в приложениях побайтные.
+- Каталоги `packages/localization/user.json` и `packages/localization/admin.json`. Ключи ru и en совпадают, копии в приложениях побайтные.
 - `backend/app/mobile_auth.py`: токен попадает в JSON только при заголовке `X-Shop-Client` из списка `android-user`, `android-admin`, `ios-user`, `ios-admin`. Веб-вход cookie не меняет и токен в JSON не кладёт.
 - `GET /api/me/connection-info` выбирает английские инструкции, если `Accept-Language` начинается с `en`. Сохранённые администратором тексты по-прежнему перекрывают значения по умолчанию.
 - Веб-админка, кабинет и Mini App переводят `aria-label` и строку «Онлайн N из M».
