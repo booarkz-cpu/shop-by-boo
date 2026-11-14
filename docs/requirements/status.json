@@ -2610,5 +2610,145 @@
   "status": "NOT_IMPLEMENTED",
   "evidence": [],
   "note": "Сравнительных замеров «до и после» нет: оптимизаций производительности на этом этапе не делалось, стенда для замеров нет."
+ },
+ "REQ-INFRA-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docker-compose.yml",
+   "tests/test_stage15_install.py",
+   "tests/test_zero_downtime_deploy.py",
+   ".github/workflows/ci.yml"
+  ],
+  "platforms": "backend/API, server",
+  "note": "В docker-compose.yml у служб есть проверки здоровья (14) и политики перезапуска (16), тома, сети, зависимости и переменные окружения; CI проверяет `docker compose config` и поднимает интеграционный стенд. Не сверены по пунктам журналы (ротация) и доступность служб снаружи на живом сервере."
+ },
+ "REQ-INFRA-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "install.sh",
+   "scripts/update.sh",
+   "scripts/rollback.sh",
+   "scripts/backup.sh",
+   "scripts/doctor.sh",
+   "scripts/preflight.sh",
+   "scripts/ci/restore-drill.sh"
+  ],
+  "platforms": "backend/API, server",
+  "note": "Есть установка, обновление с откатом, резервная копия и восстановление (проверяется в CI), проверка окружения и диагностика. Чистая установка и повторный запуск не проверялись на VPS."
+ },
+ "REQ-INFRA-0006": {
+  "status": "PASS",
+  "evidence": [
+   "docs/INSTALLATION.md",
+   "docs/ru/new/DEPLOYMENT_AGENT.md"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-INFRA-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/ru/new/TERMUX_GUIDE.md"
+  ],
+  "platforms": "backend/API, server",
+  "note": "Пошаговая инструкция для Android/Termux написана (v28.143.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
+ },
+ "REQ-INFRA-0010": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/update.sh",
+   "tests/test_v2018_recovery.py"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-INFRA-0011": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/update-space.sh",
+   "scripts/update.sh",
+   "tests/test_update_space.py",
+   "scripts/github_release_fetch.py"
+  ],
+  "platforms": "backend/API, server",
+  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.143.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
+ },
+ "REQ-INFRA-0012": {
+  "status": "PASS",
+  "evidence": [
+   "backend/alembic/env.py",
+   "scripts/auto_update.py",
+   "scripts/backup.sh"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-INFRA-0013": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/zero-downtime-backend.sh",
+   "deploy/build-production.sh",
+   "deploy/Caddyfile",
+   "tests/test_zero_downtime_deploy.py"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-INFRA-0014": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/update.sh",
+   "scripts/auto_update.py",
+   "tests/test_v2018_recovery.py"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-INFRA-0021": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/ci/secret-leak-check.py",
+   "tests/test_secret_leak_check.py",
+   ".github/workflows/ci.yml"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-INFRA-0023": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/main.py",
+   "tests/test_diagnostics.py"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-INFRA-0031": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/backup.sh",
+   "scripts/backup_bundle.py",
+   "tests/test_backup_cli.py"
+  ],
+  "platforms": "backend/API, server"
+ },
+ "REQ-INFRA-0032": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/telegram_backup.py",
+   "tests/test_promo_generator_and_tg_backup.py"
+  ],
+  "platforms": "backend/API, server",
+  "note": "Копия может уходить в Telegram (отдельно от сервера). По умолчанию scripts/backup.sh пишет в /var/backups на том же сервере; отдельное хранилище (S3 и т. п.) не настроено."
+ },
+ "REQ-INFRA-0033": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/backup.sh",
+   "backend/app/ops_alerts.py"
+  ],
+  "platforms": "backend/API, server",
+  "note": "Проверяются SHA-256, полнота (pg_restore --list, tar -t, расшифровка копии) и сбой копии (оповещение). Срок хранения копий scripts/backup.sh не задаёт."
+ },
+ "REQ-INFRA-0037": {
+  "status": "PASS",
+  "evidence": [
+   "scripts/auto_update.py",
+   "scripts/backup.sh"
+  ],
+  "platforms": "backend/API, server"
  }
 }
