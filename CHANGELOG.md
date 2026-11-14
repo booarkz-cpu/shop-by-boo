@@ -1,3 +1,11 @@
+# v28.147.0
+
+- REQ-INFRA-0025: `backend/app/host_metrics.py` — перцентили задержки HTTP (последние 5000 запросов, middleware без зависимостей), диск (/ и media), память, load1, число CPU, память процесса, пул соединений БД; в `/metrics` через `observability.operational_metrics`; `tests/test_host_metrics.py`.
+- REQ-INFRA-0028: `ops_alerts.clock_check` — расхождение часов сервера с заголовком Date HTTPS-сервера больше 60 с — оповещение (≥ 5 мин — срочное), раз в 6 часов, только при `APP_ENV=production`; `tests/test_ops_alerts.py` (+1).
+- REQ-INFRA-0029/0035/0036: `docs/ru/DISASTER_RECOVERY.md` — классы данных с допустимой потерей (RPO 1 ч для базы магазина — решение владельца), почему снимок сервера не заменяет копии, порядок полного восстановления магазина, панели, нод и DNS; ссылка из `docs/INSTALLATION.md`.
+- Реестр: 0029, 0036 — PASS; 0025, 0028, 0035 — PARTIAL.
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.146.0
 
 - REQ-INFRA-0027/0038: `ops_alerts.certificate_check` — срок HTTPS-сертификатов доменов магазина (API, панель, кабинет, Mini App) раз в 6 часов; < 14 дней — оповещение, < 3 — срочное; только при `APP_ENV=production`. `tests/test_ops_alerts.py` (+2).
