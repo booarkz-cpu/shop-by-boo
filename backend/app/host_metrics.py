@@ -56,7 +56,7 @@ def _meminfo(path: str = "/proc/meminfo") -> dict[str, int]:
             if parts and parts[0].isdigit():
                 out[key] = int(parts[0]) * 1024
     except OSError:
-        pass
+        return out
     return out
 
 
@@ -86,9 +86,11 @@ def lines(media_dir: str | None = None) -> str:
         out.append(_gauge("vpnshop_memory_total_bytes", "Memory of the host", [("", mem["MemTotal"])]))
         out.append(_gauge("vpnshop_memory_available_bytes", "Memory available to new processes", [("", mem.get("MemAvailable", 0))]))
     try:
-        out.append(_gauge("vpnshop_load1", "Load average over one minute", [("", round(os.getloadavg()[0], 2))]))
+        load1 = round(os.getloadavg()[0], 2)
     except OSError:
-        pass
+        load1 = None
+    if load1 is not None:
+        out.append(_gauge("vpnshop_load1", "Load average over one minute", [("", load1)]))
     out.append(_gauge("vpnshop_cpu_count", "CPUs visible to the process", [("", os.cpu_count() or 0)]))
     rss = _resident()
     if rss is not None:
@@ -99,12 +101,18 @@ def lines(media_dir: str | None = None) -> str:
         out.append(_gauge("vpnshop_db_pool_size", "Connections the pool keeps", [("", pool.size())]))
         out.append(_gauge("vpnshop_db_pool_checked_out", "Connections in use now", [("", pool.checkedout())]))
     except Exception:  # noqa: BLE001 — a pool without these counters (NullPool, SQLite in tests)
-        pass
+        out.append("# vpnshop_db_pool: this pool has no size counters\n")
     return "".join(out)
 
 
-try:  # loaded by main.py while it includes the routers: the app exists and has not served a request yet
-    from .main import app as _app
-    _app.add_middleware(LatencyMiddleware)
-except Exception:  # noqa: BLE001 — imported elsewhere (tests, the worker)
-    pass
+def _install() -> bool:
+    """Loaded by main.py while it includes the routers: the app exists and has not served a request yet."""
+    try:
+        from .main import app
+        app.add_middleware(LatencyMiddleware)
+    except Exception:  # noqa: BLE001 — imported elsewhere (tests, the worker): nothing to measure there
+        return False
+    return True
+
+
+INSTALLED = _install()
