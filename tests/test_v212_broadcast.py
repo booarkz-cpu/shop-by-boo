@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_broadcast_admin_apps_expose_it():
     admin = (ROOT / "admin/src/main.tsx").read_text()
     android = (ROOT / "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
-    ios = (ROOT / "mobile/ios-admin/VpnShopAdmin/ContentView.swift").read_text()
+    ios = (ROOT / "apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift").read_text()
     assert 'target:btarget' in admin or "target:btarget" in admin
     assert "/api/admin/broadcasts/" in admin
     assert "Все с Telegram" in admin and "Активная подписка" in admin

@@ -48,7 +48,7 @@ flowchart LR
 с копией того же файла.
 
 Код: `backend/app/mobile_mirrors.py`, `apps/vpn-shop/android/…/security/CorgiMirrors.kt`,
-`mobile/ios-user/VpnShopUser/VpnShopUserApp.swift` (`enum CorgiMirrors`). Тесты: `tests/test_mobile_mirrors.py`.
+`apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift` (`enum CorgiMirrors`). Тесты: `tests/test_mobile_mirrors.py`.
 
 ## Монитор блокировок
 

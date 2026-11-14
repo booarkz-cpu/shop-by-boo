@@ -1536,7 +1536,7 @@
   "evidence": [
    "admin/src/main.tsx",
    "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt",
-   "mobile/ios-admin/VpnShopAdmin/ContentView.swift",
+   "apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift",
    "backend/app/security.py",
    "tests/test_admin_route_permissions.py",
    "backend/app/audit_seal.py"
@@ -2536,7 +2536,7 @@
  "REQ-MOBILE-0002": {
   "status": "PARTIAL",
   "evidence": [
-   "mobile/ios-user",
+   "apps/vpn-shop/ios",
    "docs/ru/new/VPN_ENGINE.md",
    "docs/ru/new/KNOWN_LIMITATIONS.md"
   ],
@@ -2546,7 +2546,7 @@
   "status": "PARTIAL",
   "evidence": [
    "apps/lucy-admin/android",
-   "mobile/ios-admin",
+   "apps/lucy-admin/ios",
    "tests/test_v270_mobile_apps.py"
   ],
   "note": "Приложения администратора есть и работают через тот же API с теми же правами. В них 10 разделов против примерно 100 в веб-панели; матрицы соответствия нет (REQ-ADMIN-0004)."
@@ -2557,8 +2557,8 @@
    "apps/vpn-shop/android",
    "apps/lucy-admin/android",
    "apps/vpn-client/android",
-   "mobile/ios-user",
-   "mobile/ios-admin"
+   "apps/vpn-shop/ios",
+   "apps/lucy-admin/ios"
   ],
   "note": "Все пять приложений лежат в каталоге mobile/ этого репозитория."
  },
@@ -2650,7 +2650,7 @@
    "docs/ru/new/TERMUX_GUIDE.md"
   ],
   "platforms": "backend/API, server",
-  "note": "Пошаговая инструкция для Android/Termux написана (v28.151.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
+  "note": "Пошаговая инструкция для Android/Termux написана (v28.152.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
  },
  "REQ-INFRA-0010": {
   "status": "PASS",
@@ -2669,7 +2669,7 @@
    "scripts/github_release_fetch.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.151.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
+  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.152.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
  },
  "REQ-INFRA-0012": {
   "status": "PASS",
@@ -2754,7 +2754,7 @@
    "scripts/backup.sh"
   ],
   "platforms": "backend/API, server",
-  "note": "v28.151.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
+  "note": "v28.152.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
  },
  "REQ-INFRA-0008": {
   "status": "PASS",
@@ -2764,7 +2764,7 @@
    "tests/test_install_status.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.151.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.151.0, решение владельца 2026-11-14). На VPS не проверено."
+  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.152.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.152.0, решение владельца 2026-11-14). На VPS не проверено."
  },
  "REQ-INFRA-0009": {
   "status": "PASS",
@@ -2795,7 +2795,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.151.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
+  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.152.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
  },
  "REQ-INFRA-0015": {
   "status": "PARTIAL",
@@ -2825,7 +2825,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.151.0). Трассировки (OpenTelemetry) нет."
+  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.152.0). Трассировки (OpenTelemetry) нет."
  },
  "REQ-INFRA-0025": {
   "status": "PARTIAL",
@@ -2836,7 +2836,7 @@
    "tests/test_host_metrics.py"
   ],
   "platforms": "backend/API, server",
-  "note": "С v28.151.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
+  "note": "С v28.152.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
  },
  "REQ-INFRA-0038": {
   "status": "PARTIAL",
@@ -2872,7 +2872,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.151.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
+  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.152.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
  },
  "REQ-INFRA-0029": {
   "status": "PASS",
@@ -3172,5 +3172,146 @@
   "evidence": [],
   "platforms": "all products",
   "note": "docs/SOURCE_TRACEABILITY_MATRIX.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+ },
+ "REQ-QA-0019": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   ".github/workflows/android-client.yml",
+   "admin/e2e"
+  ],
+  "platforms": "all products",
+  "note": "Playwright (Chromium end-to-end), эмулятор Android (UI-тесты, VPN на эмуляторе), XCTest (iOS UI-тесты) — в CI каждого PR."
+ },
+ "REQ-QA-0032": {
+  "status": "PASS",
+  "evidence": [
+   "docs/INSTALLATION.md",
+   "docs/ru/new/TERMUX_GUIDE.md"
+  ],
+  "platforms": "all products",
+  "note": "Установка на VDS и управление с Android через Termux."
+ },
+ "REQ-QA-0033": {
+  "status": "PASS",
+  "evidence": [
+   "docs/ru/new/TERMUX_GUIDE.md"
+  ],
+  "platforms": "all products",
+  "note": "Раздел 9: задать и проверить git config user.name / user.email, в том числе в Termux; про приватную почту GitHub."
+ },
+ "REQ-QA-0039": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_rw_autoselect.py"
+  ],
+  "platforms": "all products",
+  "note": "Каждый алгоритм строит балансировщик по выбранным хостам, неизвестный алгоритм и пустой пул отклоняются; равные метрики и устаревшие данные отдельными тестами не проверены."
+ },
+ "REQ-QA-0048": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   "tests"
+  ],
+  "platforms": "all products",
+  "note": "Unit-тесты доменной логики — Backend (2 части) в CI каждого PR."
+ },
+ "REQ-QA-0051": {
+  "status": "PASS",
+  "evidence": [
+   "admin/e2e",
+   ".github/workflows/ci.yml"
+  ],
+  "platforms": "all products",
+  "note": "E2E Playwright по админке и кабинету в CI каждого PR."
+ },
+ "REQ-QA-0053": {
+  "status": "PARTIAL",
+  "evidence": [
+   ".github/workflows/load-security.yml",
+   "tests/test_payment_load.py"
+  ],
+  "platforms": "all products",
+  "note": "Нагрузочный базовый прогон и тест нагрузки платежей; соак-тесты и нагрузка на живых нодах — только на VPS."
+ },
+ "REQ-QA-0054": {
+  "status": "PASS",
+  "evidence": [
+   ".github/workflows/ci.yml",
+   ".github/workflows/android-client.yml"
+  ],
+  "platforms": "all products",
+  "note": "UI/instrumentation-тесты Android (эмулятор) и iOS (симулятор) в CI."
+ },
+ "REQ-QA-0057": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_subscription_commerce.py"
+  ],
+  "platforms": "all products",
+  "note": "test_purchase_retries_after_quote_expiry_do_not_debit_twice, test_postgres_parallel_different_quotes_cannot_reserve_twice."
+ },
+ "REQ-QA-0058": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_v2014_security.py",
+   "tests/test_growth.py"
+  ],
+  "platforms": "all products",
+  "note": "test_duplicate_events_never_enter_payment_processing (по провайдерам), webhook Remnawave проверяется и не дублируется."
+ },
+ "REQ-QA-0059": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_admin_coverage_ops.py"
+  ],
+  "platforms": "all products",
+  "note": "Неудачная выдача после оплаты остаётся ProvisioningOperation «failed» и выполняется повтором; платёж не теряется."
+ },
+ "REQ-QA-0063": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_rw_protocol_switch.py"
+  ],
+  "platforms": "all products",
+  "note": "test_rollback_returns_the_previous_transport_and_only_the_latest_run_can_be_rolled_back."
+ },
+ "REQ-QA-0067": {
+  "status": "PASS",
+  "evidence": [
+   "tests/test_integrity_report.py",
+   "tests/test_v2_0_0_product_and_critical_audit.py",
+   "tests/test_admin_customer_operations.py"
+  ],
+  "platforms": "all products",
+  "note": "Маршруты проверяют право роли; без права — 403."
+ },
+ "REQ-QA-0023": {
+  "status": "PARTIAL",
+  "evidence": [
+   "scripts/audit/requirements_register.py",
+   "scripts/audit/check_payment_provider_registry.py"
+  ],
+  "platforms": "all products",
+  "note": "В scripts/audit/ — проверка реестра требований и реестра провайдеров; остальные проверки — в scripts/check-*.py и CI."
+ },
+ "REQ-QA-0021": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "docs/SCREENSHOT_COVERAGE.md ещё нет."
+ },
+ "REQ-QA-0025": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": ".github/workflows/autonomous-audit.yml нет; проверки идут в ci.yml и ночном docs-links.yml."
+ },
+ "REQ-QA-0026": {
+  "status": "NOT_IMPLEMENTED",
+  "evidence": [],
+  "platforms": "all products",
+  "note": "artifacts/audit/* не формируются."
  }
 }

@@ -153,7 +153,7 @@ def write_all() -> None:
     flat("admin", "admin", 1024, rounded=False).convert("RGB").save(store / "admin-icon-1024.png", optimize=True)
     flat("client", "corgi", 512, rounded=False).convert("RGB").save(store / "client-icon-512.png", optimize=True)
     for role, app, kind in (("user", "VpnShopUser", "corgi"), ("admin", "VpnShopAdmin", "admin")):
-        appicon = ROOT / f"mobile/ios-{role}/{app}/Assets.xcassets/AppIcon.appiconset"
+        appicon = ROOT / {"user": "apps/vpn-shop/ios", "admin": "apps/lucy-admin/ios"}[role] / f"{app}/Assets.xcassets/AppIcon.appiconset"
         appicon.mkdir(parents=True, exist_ok=True)
         flat(role, kind, 1024, rounded=False).convert("RGB").save(appicon / "icon-1024.png", optimize=True)
         (appicon / "Contents.json").write_text(json.dumps({"images": [{"filename": "icon-1024.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"}],

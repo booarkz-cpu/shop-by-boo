@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
   pull_request:
-    paths: ['apps/vpn-shop/android/**', 'mobile/ios-user/**', 'apps/lucy-admin/android/**', 'mobile/ios-admin/**', 'packages/localization/**', 'mobile/maestro/**', '.github/workflows/mobile-screenshots.yml']
+    paths: ['apps/vpn-shop/android/**', 'apps/vpn-shop/ios/**', 'apps/lucy-admin/android/**', 'apps/lucy-admin/ios/**', 'packages/localization/**', 'mobile/maestro/**', '.github/workflows/mobile-screenshots.yml']
 
 permissions:
   contents: read
@@ -134,8 +134,8 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Build simulator applications
         run: |
-          (cd mobile/ios-user && xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build)
-          (cd mobile/ios-admin && xcodebuild -project VpnShopAdmin.xcodeproj -scheme VpnShopAdmin -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build)
+          (cd apps/vpn-shop/ios && xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build)
+          (cd apps/lucy-admin/ios && xcodebuild -project VpnShopAdmin.xcodeproj -scheme VpnShopAdmin -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build)
       - name: Take screenshots in the simulator
         run: |
           set -eu
@@ -143,7 +143,7 @@ jobs:
           xcrun simctl boot "$device"
           xcrun simctl bootstatus "$device" -b
           xcrun simctl status_bar "$device" override --time 9:41 --batteryState charged --batteryLevel 100 || true
-          app=$(find mobile/ios-user/build/Build/Products -name 'VpnShopUser.app' -maxdepth 3 | head -1)
+          app=$(find apps/vpn-shop/ios/build/Build/Products -name 'VpnShopUser.app' -maxdepth 3 | head -1)
           xcrun simctl install "$device" "$app"
           bundle=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
           mkdir -p shots
@@ -155,7 +155,7 @@ jobs:
           xcrun simctl launch --terminate-running-process "$device" "$bundle" -CorgiDemo -CorgiVpnOn -CorgiTab vpn -shop_lang ru
           sleep 6
           xcrun simctl io "$device" screenshot "shots/ios-vpn-on.png"
-          admin=$(find mobile/ios-admin/build/Build/Products -name 'VpnShopAdmin.app' -maxdepth 3 | head -1)
+          admin=$(find apps/lucy-admin/ios/build/Build/Products -name 'VpnShopAdmin.app' -maxdepth 3 | head -1)
           xcrun simctl install "$device" "$admin"
           admin_bundle=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$admin/Info.plist")
           for tab in overview launch payments monitoring ops support panel; do

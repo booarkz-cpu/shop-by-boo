@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Build the engine of the iOS packet tunnel (mobile/ios-user/CorgiTunnel) on macOS:
+# Build the engine of the iOS packet tunnel (apps/vpn-shop/ios/CorgiTunnel) on macOS:
 #   * LibXray.xcframework — Xray-core bound with gomobile by XTLS/libXray (MIT; Xray-core MPL-2.0);
 #   * HevSocks5Tunnel.xcframework — hev-socks5-tunnel (MIT), packets of the tunnel → SOCKS of Xray.
 #
-#   bash scripts/ios/build-tunnel-frameworks.sh   # → mobile/ios-user/Frameworks/*.xcframework
+#   bash scripts/ios/build-tunnel-frameworks.sh   # → apps/vpn-shop/ios/Frameworks/*.xcframework
 #
 # Needs Xcode with the iOS and iOS Simulator SDKs, Go (the version of libXray's go.mod) and Python 3.
 # Both sources are pinned to the commits below; override with LIBXRAY_COMMIT / HEV_COMMIT.
@@ -11,7 +11,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 LIBXRAY_COMMIT="${LIBXRAY_COMMIT:-756ef80f41903eaf7bbeeb38a0a1f802ec204464}"
 HEV_COMMIT="${HEV_COMMIT:-55cc2efc280f3a72ffc60ce856772b57f5122e9c}"
-OUT="$ROOT/mobile/ios-user/Frameworks"
+OUT="$ROOT/apps/vpn-shop/ios/Frameworks"
 WORK="${RUNNER_TEMP:-/tmp}/corgi-ios-tunnel"
 mkdir -p "$OUT" "$WORK"
 

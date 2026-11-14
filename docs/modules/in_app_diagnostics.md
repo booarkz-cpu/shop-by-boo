@@ -13,7 +13,7 @@
 | `subscription` | загрузка ссылки подписки, число серверов |
 | `server` | TCP-подключение к каждому серверу подписки (до 12, таймаут 5 с) |
 
-Код: `apps/vpn-shop/android/.../support/CorgiDiagnostics.kt`, `mobile/ios-user/VpnShopUser/VpnShopUserApp.swift`
+Код: `apps/vpn-shop/android/.../support/CorgiDiagnostics.kt`, `apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift`
 (`enum CorgiDiagnostics`). Без подписки кнопка работает как раньше — обычное обращение.
 
 ## Что добавляет сервер и как выбирается причина

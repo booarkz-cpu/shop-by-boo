@@ -1,3 +1,9 @@
+# v28.152.0
+
+- Этап 2б структуры папок (решения № 14 и 17): `git mv` `mobile/ios-user` → `apps/vpn-shop/ios`, `mobile/ios-admin` → `apps/lucy-admin/ios`. Пути в CI (матрица iOS в `ci.yml` — поле `dir`, имена заданий прежние), `scripts/build-ios-packages.sh`, `scripts/build-ios-signed.sh`, `scripts/store/icons.py`, тестах и документах. Имена файлов выпуска не менялись.
+- Раздел реестра QA (решение № 19): PASS по тестам — QA-0019, 0032, 0033, 0048, 0051, 0054, 0057, 0058, 0059, 0063, 0067; PARTIAL — 0023, 0039, 0053; NOT_IMPLEMENTED — 0021, 0025, 0026.
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.151.0
 
 - Этап 2а структуры папок (решения № 14 и 17, `docs/MONOREPO_LAYOUT.md`): `git mv` `mobile/android-user` → `apps/vpn-shop/android`, `mobile/android-admin` → `apps/lucy-admin/android`, `mobile/l10n` → `packages/localization`. Пути обновлены в CI (матрица `android` в `ci.yml` — поле `dir`, имена заданий прежние), `scripts/build-android-apk.sh`, `dependabot.yml`, скриптах, тестах и документах; фильтр `mobile-release.yml` — плюс `packages/**`. Имена файлов выпуска не менялись.

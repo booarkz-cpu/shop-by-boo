@@ -43,7 +43,7 @@ def test_cabinet_only_calls_routes_that_exist():
     assert not missing, "the cabinet calls these paths but the API does not serve them: " + ", ".join(missing)
 
 
-@pytest.mark.parametrize("surface", ["apps/lucy-admin/android", "apps/vpn-shop/android", "mobile/ios-admin", "mobile/ios-user"])
+@pytest.mark.parametrize("surface", ["apps/lucy-admin/android", "apps/vpn-shop/android", "apps/lucy-admin/ios", "apps/vpn-shop/ios"])
 def test_mobile_apps_only_call_routes_that_exist(surface):
     """The Kotlin and Swift clients are held to the same contract as the web surfaces."""
     files = sorted(path for path in (ROOT / surface).rglob("*") if path.suffix in {".kt", ".swift"})

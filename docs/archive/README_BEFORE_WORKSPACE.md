@@ -773,7 +773,7 @@ The test stack binds TCP 18080–18083 to localhost only. The VDS installer open
 
 **iOS**
 
-Готового IPA в релизах GitHub нет. Администратор магазина может загрузить подписанный IPA. Тогда кабинет покупателя открывает `GET /api/public/apps/ios-user/download`, а панель — `GET /api/admin/apps/ios-admin/download`. Собрать и подписать пакет можно в Xcode на macOS из каталогов `mobile/ios-user` и `mobile/ios-admin`.
+Готового IPA в релизах GitHub нет. Администратор магазина может загрузить подписанный IPA. Тогда кабинет покупателя открывает `GET /api/public/apps/ios-user/download`, а панель — `GET /api/admin/apps/ios-admin/download`. Собрать и подписать пакет можно в Xcode на macOS из каталогов `apps/vpn-shop/ios` и `apps/lucy-admin/ios`.
 
 Краткая справка без входа: `GET /api/public/apps/install`.
 
@@ -821,7 +821,7 @@ The test stack binds TCP 18080–18083 to localhost only. The VDS installer open
 ### Возможности 2.9.0
 
 - **APK для Android.** Релиз GitHub содержит два debug-подписанных пакета для ручной установки: покупатель `remnawave_vpn_shop_android_user_2_9_0.apk` и администратор `remnawave_vpn_shop_android_admin_2_9_0.apk`. Повторная сборка — `scripts/build-android-apk.sh`.
-- **iOS.** Исходники `mobile/ios-user` и `mobile/ios-admin` открываются в Xcode на macOS. IPA собирается там же. В архиве этого релиза IPA нет.
+- **iOS.** Исходники `apps/vpn-shop/ios` и `apps/lucy-admin/ios` открываются в Xcode на macOS. IPA собирается там же. В архиве этого релиза IPA нет.
 - Платёжная ссылка в приложении покупателя открывается после разбора адреса: `https`, либо `http` только для `localhost`, `127.0.0.1` и `10.0.2.2`.
 - User-Agent приложений: `RemnawaveShop-Android-User/2.9.0`, `RemnawaveShop-Android-Admin/2.9.0`, `RemnawaveShop-iOS-User/2.9.0`, `RemnawaveShop-iOS-Admin/2.9.0`.
 
@@ -833,7 +833,7 @@ The test stack binds TCP 18080–18083 to localhost only. The VDS installer open
 
 ### Возможности 2.7.0
 
-- **Четыре приложения.** `apps/vpn-shop/android`, `apps/lucy-admin/android`, `mobile/ios-user`, `mobile/ios-admin`. Покупатель покупает тариф, собирает конструктор, видит серверы и копирует ссылку подписки. Администратор смотрит обзор, платежи, мониторинг и разбирает нарушения.
+- **Четыре приложения.** `apps/vpn-shop/android`, `apps/lucy-admin/android`, `apps/vpn-shop/ios`, `apps/lucy-admin/ios`. Покупатель покупает тариф, собирает конструктор, видит серверы и копирует ссылку подписки. Администратор смотрит обзор, платежи, мониторинг и разбирает нарушения.
 - **Язык в приложении.** Переключатель RU/EN. Каталоги `packages/localization/user.json` и `packages/localization/admin.json`.
 - **Сессия.** Заголовок `X-Shop-Client` получает `access_token` в JSON. Веб-вход остаётся на HttpOnly cookie и токен в JSON не кладёт.
 - **Лицензия приложений.** Условия описаны в файле `LICENSE`. Разбор функций — `MOBILE.md`.
@@ -1008,7 +1008,7 @@ The project packages and the file an administrator uploaded to your shop are dif
 
 **iOS**
 
-GitHub releases do not include an IPA. A shop administrator can upload a signed IPA. The buyer cabinet then opens `GET /api/public/apps/ios-user/download`, and the panel opens `GET /api/admin/apps/ios-admin/download`. Build and sign the package in Xcode on macOS from `mobile/ios-user` and `mobile/ios-admin`.
+GitHub releases do not include an IPA. A shop administrator can upload a signed IPA. The buyer cabinet then opens `GET /api/public/apps/ios-user/download`, and the panel opens `GET /api/admin/apps/ios-admin/download`. Build and sign the package in Xcode on macOS from `apps/vpn-shop/ios` and `apps/lucy-admin/ios`.
 
 The public summary is `GET /api/public/apps/install`.
 
@@ -1063,7 +1063,7 @@ The admin **Приложения** tab stores Russian and English card text, a l
 
 ### What 2.7.0 added
 
-Four apps: `apps/vpn-shop/android`, `apps/lucy-admin/android`, `mobile/ios-user`, `mobile/ios-admin`. The buyer pays, builds a tariff, sees servers and copies the subscription link. The administrator reads the overview, payments and monitoring and reviews violations. The RU/EN switch uses `packages/localization/user.json` and `packages/localization/admin.json`. Header `X-Shop-Client` receives `access_token` in JSON. Web sign-in keeps the JWT in an HttpOnly cookie. The license is the same `LICENSE` file. See `MOBILE.md`.
+Four apps: `apps/vpn-shop/android`, `apps/lucy-admin/android`, `apps/vpn-shop/ios`, `apps/lucy-admin/ios`. The buyer pays, builds a tariff, sees servers and copies the subscription link. The administrator reads the overview, payments and monitoring and reviews violations. The RU/EN switch uses `packages/localization/user.json` and `packages/localization/admin.json`. Header `X-Shop-Client` receives `access_token` in JSON. Web sign-in keeps the JWT in an HttpOnly cookie. The license is the same `LICENSE` file. See `MOBILE.md`.
 
 ### What 2.6.0 added
 

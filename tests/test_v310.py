@@ -16,7 +16,7 @@ def test_release_310_is_current_and_documented():
     assert BUYER_APK in readme and ADMIN_APK in readme
     assert "Как скачать приложения для Android и iOS" in readme
     assert "How to download the Android and iOS apps" in readme
-    assert "sha256sum -c" in readme and "mobile/ios-user" in readme and "mobile/ios-admin" in readme
+    assert "sha256sum -c" in readme and "apps/vpn-shop/ios" in readme and "apps/lucy-admin/ios" in readme
     assert "3.1.0" in security and "safe_sha256" in security
     assert "9.14" in instruction
     assert "личный кабинет" in readme and "Конструктор тарифов" in readme

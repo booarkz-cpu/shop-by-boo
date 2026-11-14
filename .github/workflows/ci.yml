@@ -613,7 +613,7 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: XCUITest on a simulator
-        working-directory: mobile/ios-user
+        working-directory: apps/vpn-shop/ios
         run: |
           set -o pipefail
           device=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
@@ -641,12 +641,14 @@ jobs:
         include:
           - app: ios-user
             project: VpnShopUser
+            dir: apps/vpn-shop/ios
           - app: ios-admin
             project: VpnShopAdmin
+            dir: apps/lucy-admin/ios
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Compile simulator application
-        working-directory: mobile/${{ matrix.app }}
+        working-directory: ${{ matrix.dir }}
         run: xcodebuild -project ${{ matrix.project }}.xcodeproj -scheme ${{ matrix.project }} -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
 
   ios-extensions:
@@ -664,18 +666,18 @@ jobs:
       - id: frameworks
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: mobile/ios-user/Frameworks
+          path: apps/vpn-shop/ios/Frameworks
           key: ios-tunnel-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh') }}
       - name: Build LibXray and HevSocks5Tunnel
         if: steps.frameworks.outputs.cache-hit != 'true'
         run: bash scripts/ios/build-tunnel-frameworks.sh
       - name: Embed the extensions
         run: |
-          ls mobile/ios-user/Frameworks 2>/dev/null | sed 's/^/::notice title=frameworks::/' || echo "::warning title=frameworks::none built"
+          ls apps/vpn-shop/ios/Frameworks 2>/dev/null | sed 's/^/::notice title=frameworks::/' || echo "::warning title=frameworks::none built"
           python3 scripts/ios/enable-extensions.py --tunnel --push | sed 's/^/::notice title=enable::/'
-          grep -c "xcframework in Frameworks" mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj | sed 's/^/::notice title=linked frameworks::/' 
+          grep -c "xcframework in Frameworks" apps/vpn-shop/ios/VpnShopUser.xcodeproj/project.pbxproj | sed 's/^/::notice title=linked frameworks::/' 
       - name: Compile app + CorgiTunnel + CorgiNotificationService
-        working-directory: mobile/ios-user
+        working-directory: apps/vpn-shop/ios
         run: |
           set -o pipefail
           xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug \
