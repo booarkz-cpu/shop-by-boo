@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-trap 'echo "ERROR: installation failed at line $LINENO" >&2' ERR
+trap 'echo "ERROR: installation failed at line $LINENO" >&2; INSTALL_LAST_ERROR="строка $LINENO"' ERR
 
 ROOT="${APP_DIR:-/opt/vpn-shop}"
 export APP_DIR="$ROOT"
 SOURCE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# v28.144.0 (REQ-INFRA-0008): every stage and where it stopped, machine-readable (deploy/install-status.sh).
+source "$SOURCE_ROOT/deploy/install-status.sh"
+trap status_on_exit EXIT
+status_stage preflight
 
 log(){ printf '\033[1;32m[VPN-SHOP]\033[0m %s\n' "$*"; }
 warn(){ printf '\033[1;33m[WARNING]\033[0m %s\n' "$*" >&2; }
-die(){ printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
+die(){ printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; INSTALL_LAST_ERROR="$*"; exit 1; }
 
 [[ $EUID -eq 0 ]] || die "Запустите от root: sudo bash deploy/install-vps.sh"
 [[ -f "$SOURCE_ROOT/docker-compose.yml" ]] || die "docker-compose.yml не найден рядом с архивом/папкой проекта."
@@ -99,6 +103,7 @@ env_line() {
 }
 
 INSTALLER_VERSION="21.5.1"
+status_stage settings
 log "Remnawave VPN Shop — 21.5.1 stable core installer"
 echo
 echo "Все основные настройки будут введены сейчас. После установки редактировать .env вручную не требуется."
@@ -259,6 +264,7 @@ SUPPORT_PRO_SESSION_SECRET="$(openssl rand -hex 32)"
 SUPPORT_PRO_ADMIN_PASSWORD="$(openssl rand -hex 16)"
 SUPPORT_REDIS_PASSWORD="$(openssl rand -hex 32)"
 
+status_stage dependencies
 log "Устанавливаю системные зависимости и Docker..."
 apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl unzip openssl ufw fail2ban unattended-upgrades
@@ -269,11 +275,13 @@ if [[ -e "$ROOT/docker-compose.yml" || -e "$ROOT/.env" ]]; then
   die "$ROOT уже содержит установку. Для существующей установки используйте: cd $ROOT && ./deploy/build-production.sh"
 fi
 
+status_stage files
 log "Копирую release в $ROOT..."
 mkdir -p "$ROOT"
 cp -a "$SOURCE_ROOT"/. "$ROOT"/
 cd "$ROOT"
 
+status_stage secrets
 umask 077
 {
   env_line APP_VERSION "$INSTALLER_VERSION"
@@ -413,6 +421,7 @@ if [[ ! "$SSH_PORT" =~ ^[0-9]+$ ]]; then
 fi
 SSH_PORT="${SSH_PORT:-22}"
 [[ "$SSH_PORT" =~ ^[0-9]+$ ]] || die "Не удалось определить SSH-порт"
+status_stage firewall
 log "Открываю SSH-порт ${SSH_PORT} в firewall"
 ufw allow "${SSH_PORT}/tcp" >/dev/null || die "Не удалось открыть SSH-порт ${SSH_PORT}"
 ufw allow 80/tcp >/dev/null 2>&1 || true
@@ -450,6 +459,7 @@ systemctl enable --now fail2ban >/dev/null 2>&1 || true
 # Enable unattended security updates where supported.
 dpkg-reconfigure -f noninteractive unattended-upgrades >/dev/null 2>&1 || true
 
+status_stage images
 log "Фиксирую build-stage image digests..."
 resolve_build(){
   local image="$1" digest
@@ -491,6 +501,7 @@ log "Собираю production-образы с актуальными базов
 bash scripts/compose-build.sh fresh
 # Shared with the auto-update agent: root owns it, the backend (uid 10001) writes the panel's requests.
 install -d -m 0770 -o 0 -g 10001 "$ROOT/.control"
+status_stage services
 if ! docker compose up -d; then
   docker compose ps >&2 || true
   docker compose logs --tail=180 backend worker admin miniapp cabinet >&2 || true
@@ -522,6 +533,7 @@ for svc in admin miniapp cabinet; do
   fi
 done
 
+status_stage health
 log "Ожидаю API и миграции..."
 healthy=0
 for i in {1..80}; do
@@ -534,6 +546,7 @@ done
   die "API не вышел в healthy state."
 }
 
+status_stage admin
 log "Создаю первого оператора Support Pro и показываю TOTP для сохранения..."
 docker compose exec -T support_pro python -m app.cli init || die "Не удалось создать оператора Support Pro"
 
@@ -575,6 +588,8 @@ echo "Все секреты сохранены в ${ROOT}/.env (chmod 600)."
 echo "2FA выключена по умолчанию. Включите её позже в Admin → Безопасность, если требуется."
 echo "Firewall V40: открыты только SSH, TCP 80/443 и UDP 443. PostgreSQL, Redis и application ports остаются внутренними."
 echo
+status_stage report
+echo "Состояние установки по этапам (для скриптов и поддержки): ${INSTALL_STATUS}"
 echo "Проверка:"
 echo "  curl -fsS https://${API_DOMAIN}/health/ready"
 echo "  cd ${ROOT} && docker compose ps"
@@ -588,3 +603,4 @@ fi
 if [[ -z "$YANDEX_CLIENT_ID" || -z "$YANDEX_CLIENT_SECRET" ]]; then
   echo "Yandex ID: пропущен."
 fi
+status_done
