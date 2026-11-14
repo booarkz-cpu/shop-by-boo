@@ -126,3 +126,56 @@ def test_recovery_point_objective_of_one_hour():
     late = ops_alerts.recovery_point("1h", now - timedelta(minutes=90), now, 3600)
     assert [k for k, *_ in late] == ["rpo:late"] and "90 мин назад" in late[0][2]
     assert "ни одной" in ops_alerts.recovery_point("1h", None, now, 3600)[0][2]
+
+
+def test_certificates_of_the_shop_domains(monkeypatch):
+    """v28.146.0 (REQ-INFRA-0027, 0038): a certificate that Caddy did not renew is reported before it expires."""
+    monkeypatch.setattr(settings, "api_domain", "api.shop.example")
+    monkeypatch.setattr(settings, "admin_domain", "localhost")
+    monkeypatch.setattr(settings, "public_base_url", "https://shop.example")
+    monkeypatch.setattr(settings, "mini_app_url", "https://203.0.113.5/app")
+    assert ops_alerts.shop_hosts()[:2] == ["api.shop.example", "shop.example"] and "localhost" not in ops_alerts.shop_hosts()
+    found = {p.key: p for p in ops_alerts.certificate_problems({"a.example": 60, "b.example": 10, "c.example": 2, "d.example": -1, "e.example": None})}
+    assert set(found) == {"cert:b.example", "cert:c.example", "cert:d.example"}
+    assert found["cert:b.example"].severity == "medium" and "Осталось дней: 10" in found["cert:b.example"].detail
+    assert found["cert:c.example"].severity == "critical" and found["cert:d.example"].title == "Сертификат d.example истёк"
+
+
+@pytest.mark.asyncio
+async def test_certificates_are_asked_at_most_every_six_hours(monkeypatch):
+    asked = []
+
+    def read(host):
+        asked.append(host)
+        return 5
+
+    monkeypatch.setattr(ops_alerts, "shop_hosts", lambda: ["shop.example"])
+    monkeypatch.setattr(ops_alerts, "_CERT_CACHE", {"at": None, "days": {}})
+    now = datetime(2026, 11, 14, 12, 0)
+    first = await ops_alerts.certificate_check(now, read)
+    await ops_alerts.certificate_check(now + timedelta(hours=5), read)
+    await ops_alerts.certificate_check(now + timedelta(hours=6), read)
+    assert [p.key for p in first] == ["cert:shop.example"] and asked == ["shop.example", "shop.example"]
+
+
+def test_json_logs_carry_the_request_id(capsys):
+    import json
+    import logging
+
+    from app import log_format
+    from app.main import _REQUEST_ID
+
+    assert log_format.install("text") is False
+    handler = logging.StreamHandler()
+    handler.setFormatter(log_format.JsonFormatter())
+    log = logging.getLogger("test.json")
+    log.addHandler(handler)
+    log.propagate = False
+    token = _REQUEST_ID.set("req-12345678")
+    try:
+        log.warning("оплата %s", 7)
+    finally:
+        _REQUEST_ID.reset(token)
+        log.removeHandler(handler)
+    line = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+    assert line["message"] == "оплата 7" and line["request_id"] == "req-12345678" and line["level"] == "WARNING"

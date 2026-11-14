@@ -152,6 +152,55 @@ async def recovery_point_problems(db: AsyncSession, now: datetime) -> list[Probl
             recovery_point(schedule, last, now, BACKUP_INTERVALS.get(schedule, 0))]
 
 
+# v28.146.0 (REQ-INFRA-0027, 0038): the HTTPS certificates of the shop's own domains. Caddy renews them by itself; when
+# it cannot (DNS moved, port 80 closed, rate limit) the first sign is the date. Asked at most every 6 hours.
+CERT_WARN_DAYS, CERT_CRITICAL_DAYS = 14, 3
+CERT_EVERY = timedelta(hours=6)
+_CERT_CACHE: dict = {"at": None, "days": {}}
+
+
+def shop_hosts() -> list[str]:
+    from urllib.parse import urlsplit
+    hosts = {settings.api_domain, settings.admin_domain, *(urlsplit(u).hostname or "" for u in
+             (settings.public_base_url, settings.mini_app_url, getattr(settings, "cabinet_url", "")))}
+    return sorted(h.lower() for h in hosts if h and "." in h and h != "localhost" and not h.replace(".", "").isdigit())
+
+
+def cert_days_left(host: str, timeout: float = 5.0) -> int | None:
+    """Days until the certificate served for ``host`` on 443 expires; None when it cannot be read."""
+    import socket
+    import ssl
+    try:
+        context = ssl.create_default_context()
+        with socket.create_connection((host, 443), timeout=timeout) as raw, context.wrap_socket(raw, server_hostname=host) as tls:
+            not_after = tls.getpeercert()["notAfter"]
+        return (datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z") - datetime.utcnow()).days
+    except (OSError, ssl.SSLError, KeyError, ValueError):
+        return None
+
+
+def certificate_problems(days: dict[str, int | None]) -> list[Problem]:
+    out = []
+    for host, left in sorted(days.items()):
+        if left is None or left >= CERT_WARN_DAYS:
+            continue
+        critical = left < CERT_CRITICAL_DAYS
+        out.append(Problem(f"cert:{host}", f"Сертификат {host} истекает" if left >= 0 else f"Сертификат {host} истёк",
+                           (f"Осталось дней: {left}. " if left >= 0 else "") + "Caddy продлевает сам; если не продлил — проверьте, что "
+                           "A-запись домена указывает на сервер и порты 80/443 открыты: docker compose logs caddy.",
+                           "critical" if critical else "medium"))
+    return out
+
+
+async def certificate_check(now: datetime, read=cert_days_left) -> list[Problem]:
+    import asyncio
+    if _CERT_CACHE["at"] is None or now - _CERT_CACHE["at"] >= CERT_EVERY:
+        hosts = shop_hosts()
+        lefts = await asyncio.gather(*(asyncio.to_thread(read, h) for h in hosts)) if hosts else []
+        _CERT_CACHE.update(at=now, days=dict(zip(hosts, lefts)))
+    return certificate_problems(_CERT_CACHE["days"])
+
+
 async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None) -> list[Problem]:
     now = now or datetime.utcnow()
     day = now - timedelta(days=1)
@@ -194,6 +243,8 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     for key, title, detail, severity in await standby_problems(db, now):
         out.append(Problem(key, title, detail, severity))
     out += await recovery_point_problems(db, now)
+    if settings.app_env == "production":       # test and local stands have no public certificates to ask
+        out += await certificate_check(now)
     backup = await db.scalar(select(BackupJob).order_by(BackupJob.id.desc()).limit(1))
     if backup and backup.status == "failed" and backup.created_at >= day:
         out.append(Problem(f"backup:{backup.id}", "Резервная копия не создана", (backup.error or "ошибка")[:300] + ". Безопасность → Резервные копии."))

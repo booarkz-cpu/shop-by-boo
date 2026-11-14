@@ -68,7 +68,7 @@
   "legacy_v2_0_2_contract": {
     "version": "2.0.2-audited"
   },
-  "artifact": "remnawave_vpn_shop_v28_145_0_full_release.zip",
+  "artifact": "remnawave_vpn_shop_v28_146_0_full_release.zip",
   "legacy_v3_1_5_artifact": "remnawave_vpn_shop_v3_1_5_full_release.zip",
   "legacy_v3_1_4_artifact": "remnawave_vpn_shop_v3_1_4_full_release.zip",
   "legacy_v3_1_3_artifact": "remnawave_vpn_shop_v3_1_3_full_release.zip",
@@ -98,7 +98,7 @@
   "previous_migration_head_legacy_marker": "0021_v43_hardening_docs",
   "tests": null,
   "signed": false,
-  "detached_manifest": "remnawave_vpn_shop_v28_145_0_full_release_manifest.json",
+  "detached_manifest": "remnawave_vpn_shop_v28_146_0_full_release_manifest.json",
   "legacy_v3_1_5_detached_manifest": "remnawave_vpn_shop_v3_1_5_full_release_manifest.json",
   "legacy_v3_1_4_detached_manifest": "remnawave_vpn_shop_v3_1_4_full_release_manifest.json",
   "legacy_v3_1_3_detached_manifest": "remnawave_vpn_shop_v3_1_3_full_release_manifest.json",
@@ -165,8 +165,8 @@
   "release_channel": "stable",
   "production_ready": false,
   "upgrade_from": "21.5.0",
-  "distribution_tag": "v28.145.0",
+  "distribution_tag": "v28.146.0",
   "min_upgrade_from": "28.0.0",
-  "release_title": "v28.145.0 — решения владельца: установка продолжается с этапа, цель RPO 1 час",
-  "release_notes": "docs/ru/RELEASE_V28_145_0.md"
+  "release_title": "v28.146.0 — журналы в JSON с меткой запроса, оповещение о сроке сертификатов",
+  "release_notes": "docs/ru/RELEASE_V28_146_0.md"
 }
