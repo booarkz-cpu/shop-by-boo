@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.143.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.144.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2628**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2634**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -77,7 +77,9 @@
 | [.github/workflows/remnawave-live.yml](../.github/workflows/remnawave-live.yml) | GitHub CI/CD |
 | [.github/workflows/resolve-image-digests.yml](../.github/workflows/resolve-image-digests.yml) | GitHub CI/CD |
 | [.github/workflows/xray-core-watch.yml](../.github/workflows/xray-core-watch.yml) | GitHub CI/CD |
+| [.github/workflows/zz-quick.yml](../.github/workflows/zz-quick.yml) | GitHub CI/CD |
 | [.gitignore](../.gitignore) | Корень проекта |
+| [.quick-tests](../.quick-tests) | Корень проекта |
 | [.trivyignore](../.trivyignore) | Корень проекта |
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
@@ -793,6 +795,7 @@
 | [deploy/grafana/vpnshop-operations.json](../deploy/grafana/vpnshop-operations.json) | Установка |
 | [deploy/grafana/vpnshop-platform.json](../deploy/grafana/vpnshop-platform.json) | Установка |
 | [deploy/install-docker.sh](../deploy/install-docker.sh) | Установка |
+| [deploy/install-status.sh](../deploy/install-status.sh) | Установка |
 | [deploy/install-vps.sh](../deploy/install-vps.sh) | Установка |
 | [deploy/mail-tls/README.txt](../deploy/mail-tls/README.txt) | Установка |
 | [deploy/nginx/default.conf](../deploy/nginx/default.conf) | Установка |
@@ -1237,6 +1240,7 @@
 | [docs/ru/RELEASE_V28_141_0.md](../docs/ru/RELEASE_V28_141_0.md) | Документация |
 | [docs/ru/RELEASE_V28_142_0.md](../docs/ru/RELEASE_V28_142_0.md) | Документация |
 | [docs/ru/RELEASE_V28_143_0.md](../docs/ru/RELEASE_V28_143_0.md) | Документация |
+| [docs/ru/RELEASE_V28_144_0.md](../docs/ru/RELEASE_V28_144_0.md) | Документация |
 | [docs/ru/RELEASE_V28_14_0.md](../docs/ru/RELEASE_V28_14_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
@@ -2365,6 +2369,7 @@
 | [tests/test_automation_engine.py](../tests/test_automation_engine.py) | Проверки |
 | [tests/test_backup_bundle.py](../tests/test_backup_bundle.py) | Проверки |
 | [tests/test_backup_cli.py](../tests/test_backup_cli.py) | Проверки |
+| [tests/test_backup_retention_verified.py](../tests/test_backup_retention_verified.py) | Проверки |
 | [tests/test_baked_shop_url.py](../tests/test_baked_shop_url.py) | Проверки |
 | [tests/test_behaviour_auth.py](../tests/test_behaviour_auth.py) | Проверки |
 | [tests/test_behaviour_csrf.py](../tests/test_behaviour_csrf.py) | Проверки |
@@ -2442,6 +2447,7 @@
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_install_catalogue.py](../tests/test_install_catalogue.py) | Проверки |
+| [tests/test_install_status.py](../tests/test_install_status.py) | Проверки |
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_integrity_report.py](../tests/test_integrity_report.py) | Проверки |
 | [tests/test_legal_docs.py](../tests/test_legal_docs.py) | Проверки |
