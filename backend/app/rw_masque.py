@@ -85,6 +85,9 @@ def server_config(domain: str, users: list[dict], prefix: str) -> dict:
     inbound = masque.inbound(domain, "/tls/cert.pem", "/tls/key.pem", users, tag=TAG, port=INNER_PORT, http=("h2",), path=path(prefix),
                              address=POOL)
     inbound["listen"] = "127.0.0.1"
+    # v28.142.0: without sniffing Xray never knows that a connection is BitTorrent, so the rule below never matched.
+    # routeOnly: the sniffed protocol is used for routing only; the destination the client asked for stays as it is.
+    inbound["sniffing"] = {"enabled": True, "destOverride": ["http", "tls", "quic"], "routeOnly": True}
     for user in inbound["settings"]["users"]:
         if not EMAIL.match(user["email"]):
             raise ValueError("Некорректный логин MASQUE")
@@ -96,6 +99,7 @@ def server_config(domain: str, users: list[dict], prefix: str) -> dict:
         "inbounds": [inbound],
         # freedom keeps Xray's default final rules: a tunnel user cannot reach the node's private networks.
         "outbounds": [{"tag": "direct", "protocol": "freedom"}, {"tag": "block", "protocol": "blackhole"}],
+        # BitTorrent through MASQUE is blocked on every node (the nodes of the panel have «Бан за торренты»).
         "routing": {"rules": [{"type": "field", "protocol": ["bittorrent"], "outboundTag": "block"}]},
     }
 

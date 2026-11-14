@@ -56,7 +56,7 @@ def up_to_date(node: dict) -> bool:
     return int(node.get("stack") or 1) == STACK and node.get("images", LEGACY_IMAGES) == IMAGES
 
 
-STACK = 3                                          # the layout of a node's stack; an older one is reinstalled by the worker
+STACK = 4                                          # the layout of a node's stack; an older one is reinstalled by the worker
 COLLECT = timedelta(minutes=5)                     # how often a node is asked for traffic
 RECHECK = timedelta(minutes=15)                    # how often the panel is asked about one subscription's usage
 PANEL_CALLS = 30                                   # at most this many panel questions per pass
