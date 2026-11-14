@@ -3694,5 +3694,367 @@
   ],
   "platforms": "all products",
   "note": "После каждого этапа перекладки: список маршрутов API и матрица функций панели генерируются из кода и лежат в репозитории — пропавший маршрут или раздел виден в PR; сборки и тесты приложений идут в CI. Нет такой же описи команд бота, фоновых задач и настроек."
+ },
+ "REQ-NODE-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "backend/app/rw_plan.py",
+   "backend/app/rw_steps.py",
+   "backend/app/node_terminal.py",
+   "backend/app/rw_snapshots.py"
+  ],
+  "note": "Добавление, удаление, параметры, SSH, установка, обновление, восстановление из снапшота, копии, проверка конфигурации и защита есть в «Установке» и «Установке Remnawave» (план → подтверждение → шаги → откат). Управление отдельными службами — через терминал сервера, отдельной страницы нет. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0002": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_plan.py",
+   "backend/app/rw_jobs.py",
+   "tests/test_rw_installer.py",
+   "apps/lucy-admin/web/e2e/rw-installer.spec.ts"
+  ],
+  "note": "Модуль ставится на несколько серверов сразу; до запуска показывается план по каждому серверу и шаги отката. Отдельного списка «что будет скопировано до изменения» в плане массовой операции нет. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "apps/lucy-admin/web/src/install-hub.tsx"
+  ],
+  "note": "Карточка: название, описание, группа, «по SSH / без SSH», выбранный сервер, кнопка, ход выполнения и журнал задачи. Требования к серверу (ресурсы, порты) в карточке не показаны; диагностика — в отдельных разделах.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0005": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/mtproto-check.sh",
+   "tests/test_rw_netmods.py",
+   "tests/test_install_catalogue.py",
+   "backend/app/rw_ports.py"
+  ],
+  "note": "Установка на выбранную ноду, FakeTLS, ссылка tg:// после установки, удаление модуля, порт открывается сам — проверено настоящим запуском в CI. Проверка доступности прокси снаружи после установки и работа с настоящим Telegram не проверены.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0007": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_steps.py",
+   "tests/test_rw_node_modules.py",
+   "backend/app/install_catalogue.py"
+  ],
+  "note": "Xray Checker проверяет каждый сервер подписки настоящим соединением. Внешний адрес выхода и разбор по этапам (DNS, маршрут, подключение) магазин сам не показывает. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0008": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/geo-check.sh",
+   "tests/test_rw_netmods.py",
+   "backend/app/rw_autoupdate.py",
+   "tests/test_rw_autoupdate.py"
+  ],
+  "note": "Российские списки geoip/geosite: источник, SHA-256, установка рядом со встроенными, подключение в compose ноды и удаление, обновление по расписанию — проверено настоящим запуском в CI. Копия прежних файлов и откат на неё, версия списка в панели не сверены.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0011": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "backend/app/rw_selfsteal.py",
+   "backend/app/rw_domains.py"
+  ],
+  "note": "«Анти-РКН: чек-лист нод»: свой сайт, проверка снаружи, порт ноды, отпечаток, запасной протокол, защита — и что исправить; панель ничего не обещает. Отдельных проверок редиректа 301 с порта 80, HSTS и версий TLS 1.2/1.3 в чек-листе нет. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0013": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_steps.py",
+   "scripts/ci/node-port-guard.sh",
+   "tests/test_install_catalogue.py",
+   "backend/app/install_catalogue.py"
+  ],
+  "note": "Служебный порт нод открыт только серверу панели, применяется на всех нодах сразу, правило снимается, если панель потеряла ноду — проверено настоящим запуском в CI. Предварительное добавление нового адреса при переезде панели не сверено. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0015": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_domains.py",
+   "tests/test_subscription_portal.py",
+   "tests/test_install_catalogue.py",
+   "backend/app/ops_alerts.py"
+  ],
+  "note": "Домен и сертификат панели, DNS, выпуск по требованию, срок сертификата и оповещение, смена домена с сохранением прежнего. Обнаружение занятого 443 с предложением другого порта и проверка порта 80 для ACME перед выпуском не сверены. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0016": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/status_page.py",
+   "tests/test_status_and_regional_pricing.py",
+   "backend/app/install_catalogue.py"
+  ],
+  "note": "Публичная страница статуса на своём домене: состояние сервисов и инциденты, без внутренних адресов. Проверка нод тестовым трафиком и задержка на странице не сверены — источник состояния нод нужно сверить с Xray Checker.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0018": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/backups_api.py",
+   "backend/app/backup_verify.py",
+   "backend/app/telegram_backup.py",
+   "scripts/ci/restore-drill.sh",
+   "backend/app/rw_snapshots.py",
+   "docs/ru/DISASTER_RECOVERY.md"
+  ],
+  "note": "Копии по расписанию (по умолчанию каждый час) с шифрованием, ротацией, проверкой восстановления, копией в S3 и Telegram, оповещением по RPO; ежедневные снапшоты панели. Проверка восстановления идёт в CI на базе магазина; восстановление базы панели на настоящем сервере не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0019": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_snapshots.py",
+   "tests/test_install_catalogue.py",
+   "backend/app/install_catalogue.py"
+  ],
+  "note": "Снапшот: база панели и файлы компонентов, шифрование в магазине, скачивание с подтверждением 2FA, запись в журнал. Контрольная сумма для скачанного архива и срок хранения временного файла не сверены.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0027": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_plan.py",
+   "backend/app/rw_steps.py",
+   "tests/test_rw_installer.py",
+   "tests/test_install_catalogue.py",
+   "docs/SERVER_PORTS.md"
+  ],
+  "note": "У модулей по SSH: план, подтверждение, шаги с проверкой, журнал, откат; каждая карточка ведёт к работающему месту (тест). Единой предварительной проверки ресурсов и свободных портов перед каждой операцией нет (порты проверяются у MASQUE и при установке).",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0028": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
+  ],
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0029": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
+  ],
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0030": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "apps/lucy-admin/web/src/install-hub.tsx"
+  ],
+  "note": "Группа «Обслуживание и защита» содержит HTTPS и статус, оповещения, копии, защиту и ускорение. Вводного списка из трёх пунктов, как на снимке владельца, над группой нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0031": {
+  "status": "PASS",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "apps/lucy-admin/web/src/install-hub.tsx"
+  ],
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0032": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_domains.py",
+   "tests/test_install_catalogue.py",
+   "backend/app/install_catalogue.py"
+  ],
+  "note": "То же, что REQ-NODE-0015.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0033": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/status_page.py",
+   "tests/test_status_and_regional_pricing.py",
+   "backend/app/install_catalogue.py"
+  ],
+  "note": "То же, что REQ-NODE-0016.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0035": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_snapshots.py",
+   "backend/app/telegram_backup.py",
+   "tests/test_install_catalogue.py",
+   "scripts/ci/restore-drill.sh"
+  ],
+  "note": "То же, что REQ-NODE-0018.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0036": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_snapshots.py",
+   "tests/test_install_catalogue.py"
+  ],
+  "note": "То же, что REQ-NODE-0019.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0041": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "apps/lucy-admin/web/src/install-hub.tsx"
+  ],
+  "note": "То же, что REQ-NODE-0004; каждая кнопка вызывает настоящую операцию (тест `test_every_card_leads_to_a_working_place`).",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0053": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/block_monitor.py",
+   "tests/test_block_monitor.py",
+   "tests/test_filter_geo_ripe.py",
+   "backend/app/install_catalogue.py"
+  ],
+  "note": "«Доступность нод»: проверки из разных сетей и RIPE Atlas, монитор блокировок. Различение блокировки одного адреса и подсети /24 отдельно не сверено. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0054": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/block_monitor.py",
+   "tests/test_block_monitor.py",
+   "backend/app/rw_netmods.py"
+  ],
+  "note": "Монитор блокировок и MSS clamp есть. Диагностика по слоям (DNS, маршрут, TCP, TLS, обрыв после объёма, MTU) одним отчётом не собрана.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0055": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/status_page.py",
+   "tests/test_incident_mode_maintenance.py",
+   "docs/BRAND_COPY.md"
+  ],
+  "note": "Инциденты и режим технических работ объявляет владелец; сами собой уведомления о блокировках клиентам не уходят, обещаний обхода в текстах нет. Готовых шаблонов сообщения «по подтверждённым данным» нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0057": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_ports.py",
+   "scripts/ci/ports-check.sh",
+   "docs/SERVER_PORTS.md"
+  ],
+  "note": "Порты серверов открываются при установке и из панели (ufw, firewalld, iptables, nftables); iptables и nftables проверены настоящим запуском в CI, ufw и firewalld — нет. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0058": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_domains.py",
+   "tests/test_install_catalogue.py",
+   "backend/app/rw_netmods.py",
+   "tests/test_rw_netmods.py"
+  ],
+  "note": "Смена домена панели с сохранением прежнего для подписок и автоподбор SNI для REALITY есть. Перенос SNI на всех хостах одной операцией не сверен. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0059": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_protocol_switch.py",
+   "tests/test_rw_protocol_switch.py",
+   "backend/app/block_monitor.py"
+  ],
+  "note": "«Починка блока: смена протокола» с откатом одной кнопкой — проверено на модели панели. Смена адреса заблокированного узла остаётся ручной. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0061": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_steps.py",
+   "tests/test_cloudflare_cdn.py",
+   "backend/app/install_catalogue.py"
+  ],
+  "note": "Cloudflare CDN включается и выключается модулем, проверено на модели API Cloudflare. Отдельной диагностики CDN (что отвечает край, что — источник) нет.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0062": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/mtproto-check.sh",
+   "tests/test_rw_netmods.py"
+  ],
+  "note": "То же, что REQ-NODE-0005.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0063": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_netmods.py",
+   "scripts/ci/geo-check.sh",
+   "tests/test_rw_netmods.py"
+  ],
+  "note": "То же, что REQ-NODE-0008.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0065": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "tests/test_install_catalogue.py",
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "backend/app/rw_selfsteal.py"
+  ],
+  "note": "То же, что REQ-NODE-0011.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0067": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_steps.py",
+   "scripts/ci/node-port-guard.sh",
+   "tests/test_admin_ssh_ip.py",
+   "infrastructure/deployment/install-vps.sh"
+  ],
+  "note": "Служебный порт нод — только для панели, с автоснятием правила; SSH сервера магазина — только с адреса владельца по вопросу установщика (по умолчанию «нет»), правило не применяется, если отрезало бы текущую сессию. Проверено в CI. Вживую на VPS не проверено.",
+  "platforms": "server, backend/API, Web"
+ },
+ "REQ-NODE-0071": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_steps.py",
+   "tests/test_rw_node_modules.py"
+  ],
+  "note": "То же, что REQ-NODE-0007.",
+  "platforms": "server, backend/API, Web"
  }
 }

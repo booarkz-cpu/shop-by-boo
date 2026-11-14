@@ -11,16 +11,16 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **183** — 28.0%.
+- Подтверждено (`PASS`): **186** — 28.5%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 183 | Проверено, доказательство указано |
-| `PARTIAL` | 202 | Сделано частично, остаток описан |
+| `PASS` | 186 | Проверено, доказательство указано |
+| `PARTIAL` | 233 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 35 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 231 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 197 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -33,7 +33,7 @@
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 1 | 13 | 0 | 0 |
 | MASQUE | 12 | 5 | 7 | 0 | 0 |
-| Ноды: установка, обслуживание, защита | 71 | 13 | 23 | 0 | 34 |
+| Ноды: установка, обслуживание, защита | 71 | 16 | 54 | 0 | 0 |
 | Автовыбор | 35 | 21 | 13 | 0 | 1 |
 | Инфраструктура, установщик, копии | 41 | 22 | 18 | 1 | 0 |
 | Backend, API, база | 2 | 0 | 2 | 0 | 0 |
@@ -2451,15 +2451,21 @@
 
 ## Ноды: установка, обслуживание, защита
 
-### REQ-NODE-0001 — `NOT_TESTED`
+### REQ-NODE-0001 — `PARTIAL`
 
 - Источник: Часть I → Node Manager → Features (строка 452). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `backend/app/rw_plan.py`; `backend/app/rw_steps.py`; `backend/app/node_terminal.py`; `backend/app/rw_snapshots.py`.
+- Примечание: Добавление, удаление, параметры, SSH, установка, обновление, восстановление из снапшота, копии, проверка конфигурации и защита есть в «Установке» и «Установке Remnawave» (план → подтверждение → шаги → откат). Управление отдельными службами — через терминал сервера, отдельной страницы нет. Вживую на VPS не проверено.
 
 > Добавление; удаление; изменение параметров; доступность; SSH; управление сервисами; мониторинг; диагностика; установка; обновление; восстановление; backup; проверка конфигураций; безопасность.
 
-### REQ-NODE-0002 — `NOT_TESTED`
+### REQ-NODE-0002 — `PARTIAL`
 
 - Источник: Часть I → Node Manager → Bulk (строка 456). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_plan.py`; `backend/app/rw_jobs.py`; `tests/test_rw_installer.py`; `apps/lucy-admin/web/e2e/rw-installer.spec.ts`.
+- Примечание: Модуль ставится на несколько серверов сразу; до запуска показывается план по каждому серверу и шаги отката. Отдельного списка «что будет скопировано до изменения» в плане массовой операции нет. Вживую на VPS не проверено.
 
 > Массовые операции показывают выбранные ноды, компоненты, последствия, rollback и backup до выполнения.
 
@@ -2472,15 +2478,21 @@
 
 > Восстановить и полноценно реализовать функциональность «Установка» и «Обслуживание и защита», показанную на скриншотах. Скриншоты — требования, не доказательство реализации. Проверить исходный код; отсутствующее реализовать; существующее проверить.
 
-### REQ-NODE-0004 — `NOT_TESTED`
+### REQ-NODE-0004 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Catalog (строка 467). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `apps/lucy-admin/web/src/install-hub.tsx`.
+- Примечание: Карточка: название, описание, группа, «по SSH / без SSH», выбранный сервер, кнопка, ход выполнения и журнал задачи. Требования к серверу (ресурсы, порты) в карточке не показаны; диагностика — в отдельных разделах.
 
 > Каталог карточек: название; описание; категория; тип подключения; целевые ноды; требования; кнопка; прогресс; результат; журнал; диагностика.
 
-### REQ-NODE-0005 — `NOT_TESTED`
+### REQ-NODE-0005 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Mtproto (строка 471). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/mtproto-check.sh`; `tests/test_rw_netmods.py`; `tests/test_install_catalogue.py`; `backend/app/rw_ports.py`.
+- Примечание: Установка на выбранную ноду, FakeTLS, ссылка tg:// после установки, удаление модуля, порт открывается сам — проверено настоящим запуском в CI. Проверка доступности прокси снаружи после установки и работа с настоящим Telegram не проверены.
 
 > Установка MTProto Proxy на выбранную ноду; автоматическая настройка; корректная ссылка; показ ссылки; проверка доступности; журнал; удаление без влияния на другие сервисы.
 
@@ -2493,15 +2505,21 @@
 
 > Каскад HAProxy через 2–3 ноды; выбор транзитных и конечной; настройка маршрута; проверка каждого звена и TCP; диагностика; без ненужного второго шифрования; безопасное применение; rollback.
 
-### REQ-NODE-0007 — `NOT_TESTED`
+### REQ-NODE-0007 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Live Traffic Test (строка 479). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_steps.py`; `tests/test_rw_node_modules.py`; `backend/app/install_catalogue.py`.
+- Примечание: Xray Checker проверяет каждый сервер подписки настоящим соединением. Внешний адрес выхода и разбор по этапам (DNS, маршрут, подключение) магазин сам не показывает. Вживую на VPS не проверено.
 
 > Проверка реальным трафиком через подписку живого клиента; тестовый запрос; фактический маршрут и внешний адрес; результат; журнал; диагностика DNS, маршрутизации и подключения. Не подменять статической проверкой.
 
-### REQ-NODE-0008 — `NOT_TESTED`
+### REQ-NODE-0008 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Geoassets (строка 483). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/geo-check.sh`; `tests/test_rw_netmods.py`; `backend/app/rw_autoupdate.py`; `tests/test_rw_autoupdate.py`.
+- Примечание: Российские списки geoip/geosite: источник, SHA-256, установка рядом со встроенными, подключение в compose ноды и удаление, обновление по расписанию — проверено настоящим запуском в CI. Копия прежних файлов и откат на неё, версия списка в панели не сверены.
 
 > Обновление geoip.dat, geosite.dat и других GeoAssets; версия; источник; целостность; checksum; хранение; backup; применение; проверка конфигурации; минимальный перезапуск; rollback. Для нод без Docker Compose — безопасный поддерживаемый способ. Ориентир около 10 секунд только измерять, не гарантировать.
 
@@ -2521,9 +2539,12 @@
 
 > Отдельная установка AdGuard Home; выбор нод; DNS; интеграция с Xray; списки; статистика; мониторинг; резервный DNS; диагностика; учитывать ресурсы. Не устанавливать конкурирующие механизмы без проверки.
 
-### REQ-NODE-0011 — `NOT_TESTED`
+### REQ-NODE-0011 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Rkn Diagnostics (строка 495). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `backend/app/rw_selfsteal.py`; `backend/app/rw_domains.py`.
+- Примечание: «Анти-РКН: чек-лист нод»: свой сайт, проверка снаружи, порт ноды, отпечаток, запасной протокол, защита — и что исправить; панель ничего не обещает. Отдельных проверок редиректа 301 с порта 80, HSTS и версий TLS 1.2/1.3 в чек-листе нет. Вживую на VPS не проверено.
 
 > Проверка 443; selfsteal; порт 80; редирект 301; TLS 1.2/1.3; HSTS; заглушка; Trojan; VLESS; Vision; открытые порты; доступность панели. Исправления безопасные и обратимые; не закрывать админ-доступ; не обещать невозможность блокировки.
 
@@ -2536,9 +2557,12 @@
 
 > Проверка MTU/MSS; маршруты до Cloudflare, Яндекс DNS и контрольных адресов; расчёт; необходимость; применение; сохранение после reboot; проверка соединений; не перезапускать VPN без нужды.
 
-### REQ-NODE-0013 — `NOT_TESTED`
+### REQ-NODE-0013 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Panel Node Access (строка 503). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_steps.py`; `scripts/ci/node-port-guard.sh`; `tests/test_install_catalogue.py`; `backend/app/install_catalogue.py`.
+- Примечание: Служебный порт нод открыт только серверу панели, применяется на всех нодах сразу, правило снимается, если панель потеряла ноду — проверено настоящим запуском в CI. Предварительное добавление нового адреса при переезде панели не сверено. Вживую на VPS не проверено.
 
 > SSH-порт; доступ только с IP панели; массовое применение; миграция панели; предварительное добавление нового IP; проверка доступности; автоматическая отмена правила при потере доступа; не блокировать SSH администратора.
 
@@ -2551,15 +2575,21 @@
 
 > Обнаружение BitTorrent в логах Xray; временный бан IP; nftables/iptables; правила; журнал; автоматическое снятие; диагностика; предупреждение о влиянии на общие ноды; до перезапуска Xray показать последствия.
 
-### REQ-NODE-0015 — `NOT_TESTED`
+### REQ-NODE-0015 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Panel Https (строка 511). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_domains.py`; `tests/test_subscription_portal.py`; `tests/test_install_catalogue.py`; `backend/app/ops_alerts.py`.
+- Примечание: Домен и сертификат панели, DNS, выпуск по требованию, срок сертификата и оповещение, смена домена с сохранением прежнего. Обнаружение занятого 443 с предложением другого порта и проверка порта 80 для ACME перед выпуском не сверены. Вживую на VPS не проверено.
 
 > HTTPS по домену; ACME; Let's Encrypt; DNS; сертификат; продление; срок; reverse proxy; доступность. При конфликте 443 обнаружить и предложить порт; проверить 80 для ACME; не перезаписывать чужую конфигурацию.
 
-### REQ-NODE-0016 — `NOT_TESTED`
+### REQ-NODE-0016 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Status Page (строка 515). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/status_page.py`; `tests/test_status_and_regional_pricing.py`; `backend/app/install_catalogue.py`.
+- Примечание: Публичная страница статуса на своём домене: состояние сервисов и инциденты, без внутренних адресов. Проверка нод тестовым трафиком и задержка на странице не сверены — источник состояния нод нужно сверить с Xray Checker.
 
 > Публичная статус-страница; реальная доступность нод; тестовый трафик; online/latency; инциденты; состояние сервисов; домен; не раскрывать секреты и внутренние адреса. TCP-порт сам по себе не доказывает работоспособность.
 
@@ -2572,15 +2602,21 @@
 
 > Определить ядро Linux, версию, виртуализацию, congestion control, права и совместимость; включать только поддерживаемый BBR/BBR3; проверить результат и rollback.
 
-### REQ-NODE-0018 — `NOT_TESTED`
+### REQ-NODE-0018 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Backups (строка 523). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/backups_api.py`; `backend/app/backup_verify.py`; `backend/app/telegram_backup.py`; `scripts/ci/restore-drill.sh`; `backend/app/rw_snapshots.py`; `docs/ru/DISASTER_RECOVERY.md`.
+- Примечание: Копии по расписанию (по умолчанию каждый час) с шифрованием, ротацией, проверкой восстановления, копией в S3 и Telegram, оповещением по RPO; ежедневные снапшоты панели. Проверка восстановления идёт в CI на базе магазина; восстановление базы панели на настоящем сервере не проверено.
 
 > Ежедневные backup PostgreSQL Remnawave, конфигураций, необходимых файлов, метаданных и инфраструктуры; расписание; ротация; размер; шифрование; целостность; off-site; Telegram-уведомления; журнал; тест восстановления; срок хранения. Не хранить секреты в открытых архивах.
 
-### REQ-NODE-0019 — `NOT_TESTED`
+### REQ-NODE-0019 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Snapshot Download (строка 527). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_snapshots.py`; `tests/test_install_catalogue.py`; `backend/app/install_catalogue.py`.
+- Примечание: Снапшот: база панели и файлы компонентов, шифрование в магазине, скачивание с подтверждением 2FA, запись в журнал. Контрольная сумма для скачанного архива и срок хранения временного файла не сверены.
 
 > Экспорт дампа БД Remnawave, конфигураций и метаданных; защищённое скачивание на устройство; права; checksum; временное хранение; журнал; предупреждение о конфиденциальности.
 
@@ -2644,46 +2680,64 @@
 
 > После смены протокола/массовой операции проверить все ноды: номер; страна; имя; online/offline; транспорт; время; ошибка; итог. Проверять не только SSH, но и реальный VPN-транспорт.
 
-### REQ-NODE-0027 — `NOT_TESTED`
+### REQ-NODE-0027 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Common Acceptance (строка 562). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_plan.py`; `backend/app/rw_steps.py`; `tests/test_rw_installer.py`; `tests/test_install_catalogue.py`; `docs/SERVER_PORTS.md`.
+- Примечание: У модулей по SSH: план, подтверждение, шаги с проверкой, журнал, откат; каждая карточка ведёт к работающему месту (тест). Единой предварительной проверки ресурсов и свободных портов перед каждой операцией нет (порты проверяются у MASQUE и при установке).
 
 > Для каждой операции: предварительная проверка; выбор серверов; совместимость; свободные порты и ресурсы; backup; план; последствия; прогресс; журнал; проверка результата; rollback; документация. Не допускать фиктивных кнопок.
 
-### REQ-NODE-0028 — `NOT_TESTED`
+### REQ-NODE-0028 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Note (строка 1282). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 
 > Ниже зафиксированы требования, извлечённые из присланных пользователем скриншотов раздела «Установка». Они являются самостоятельными критериями приёмки.
 
-### REQ-NODE-0029 — `NOT_TESTED`
+### REQ-NODE-0029 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Page Heading (строка 1286). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 
 > «Обслуживание и защита» — поддержание сервера в рабочем состоянии и сохранение данных перед изменениями.
 
-### REQ-NODE-0030 — `NOT_TESTED`
+### REQ-NODE-0030 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Intro Bullets (строка 1290). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `apps/lucy-admin/web/src/install-hub.tsx`.
+- Примечание: Группа «Обслуживание и защита» содержит HTTPS и статус, оповещения, копии, защиту и ускорение. Вводного списка из трёх пунктов, как на снимке владельца, над группой нет.
 
 > HTTPS и мониторинг; резервные копии; оптимизация и защита.
 
-### REQ-NODE-0031 — `NOT_TESTED`
+### REQ-NODE-0031 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Server Context (строка 1294). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `apps/lucy-admin/web/src/install-hub.tsx`.
 
 > Показывать, какой сервер выбран. Сертификаты, ускорение и защита должны настраиваться именно на выбранном сервере. У каждой операции отображать способ выполнения, например SSH, и реальный целевой сервер.
 
-### REQ-NODE-0032 — `NOT_TESTED`
+### REQ-NODE-0032 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → HTTPS для этой панели (строки 1299–1301). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_domains.py`; `tests/test_install_catalogue.py`; `backend/app/install_catalogue.py`.
+- Примечание: То же, что REQ-NODE-0015.
 
 > `id` = `panel-https`
 > Перевод панели с http://IP:порт на HTTPS по домену. Установка на сервер панели. Если 443 занят нодой, selfsteal или другим web-сервером, предложить другой свободный порт; для ACME проверить требуемый свободный порт 80. Обнаружить конфликт, не перезаписывать чужой web server.
 
-### REQ-NODE-0033 — `NOT_TESTED`
+### REQ-NODE-0033 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Статус-страница VPN (строки 1304–1306). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/status_page.py`; `tests/test_status_and_regional_pricing.py`; `backend/app/install_catalogue.py`.
+- Примечание: То же, что REQ-NODE-0016.
 
 > `id` = `vpn-status-page`
 > Публичная status page для клиентов; проверка каждого конфига реальным трафиком; online и latency; установка в один клик; собственный домен; безопасное публичное отображение без раскрытия внутренней информации.
@@ -2698,16 +2752,22 @@
 > `id` = `bbr`
 > Проверить ядро и виртуализацию до изменений; применить только поддерживаемую настройку TCP; не менять VPN-конфигурацию; показать фактический результат.
 
-### REQ-NODE-0035 — `NOT_TESTED`
+### REQ-NODE-0035 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Настроить автобекапы (строки 1314–1316). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_snapshots.py`; `backend/app/telegram_backup.py`; `tests/test_install_catalogue.py`; `scripts/ci/restore-drill.sh`.
+- Примечание: То же, что REQ-NODE-0018.
 
 > `id` = `automatic-backups`
 > Ежедневный дамп БД Remnawave (Postgres) плюс конфигурации, ротация, локальная копия и off-site копия в Telegram/поддерживаемом хранилище; расписание, журнал, уведомления и тест восстановления.
 
-### REQ-NODE-0036 — `NOT_TESTED`
+### REQ-NODE-0036 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Снапшот сервера — скачать (строки 1319–1321). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_snapshots.py`; `tests/test_install_catalogue.py`.
+- Примечание: То же, что REQ-NODE-0019.
 
 > `id` = `snapshot-download`
 > Архив дампа БД Remnawave и всех необходимых конфигураций; скачивание инициируется из панели на устройство пользователя; checksum, контроль доступа, срок хранения и безопасное удаление временного архива.
@@ -2750,9 +2810,12 @@
 
 > Полностью удалить Remnawave, ноду, контейнеры и конфигурации. Необратимо. Требовать точный выбор сервера, перечень удаляемых ресурсов, проверку backup и повторное подтверждение.
 
-### REQ-NODE-0041 — `NOT_TESTED`
+### REQ-NODE-0041 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Operation Ui (строка 1347). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `apps/lucy-admin/web/src/install-hub.tsx`.
+- Примечание: То же, что REQ-NODE-0004; каждая кнопка вызывает настоящую операцию (тест `test_every_card_leads_to_a_working_place`).
 
 > В карточке: категория/тип «Обслуживание сервера»; способ выполнения; иконка; заголовок; описание; кнопка «Установить»/«Скачать»; ход выполнения; журнал; результат; ошибка и диагностика. Кнопка должна вызывать реальную операцию и быть защищена от повторного нажатия.
 
@@ -2844,21 +2907,30 @@
 
 > Отображать порядковый номер; страну; название ноды; статус online/offline; транспорт; причину ошибки; время проверки. Проверять все ноды, а не только первые несколько.
 
-### REQ-NODE-0053 — `NOT_TESTED`
+### REQ-NODE-0053 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Network And Censorship Diagnostics → Rkn Context (строка 1458). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/block_monitor.py`; `tests/test_block_monitor.py`; `tests/test_filter_geo_ripe.py`; `backend/app/install_catalogue.py`.
+- Примечание: «Доступность нод»: проверки из разных сетей и RIPE Atlas, монитор блокировок. Различение блокировки одного адреса и подсети /24 отдельно не сверено. Вживую на VPS не проверено.
 
 > Пользователь ранее описывал изменения фильтрации с 20.09.2026 и необходимость диагностировать адресные блокировки /32 и возможные блокировки подсетей /24. Проверять фактическую доступность из нескольких независимых сетей/регионов, SSH, ICMP, TCP и прохождение трафика; не делать вывод по одному ping.
 
-### REQ-NODE-0054 — `NOT_TESTED`
+### REQ-NODE-0054 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Network And Censorship Diagnostics → Symptoms (строка 1462). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/block_monitor.py`; `tests/test_block_monitor.py`; `backend/app/rw_netmods.py`.
+- Примечание: Монитор блокировок и MSS clamp есть. Диагностика по слоям (DNS, маршрут, TCP, TLS, обрыв после объёма, MTU) одним отчётом не собрана.
 
 > Один IP может быть недоступен целиком; при других сценариях TCP может устанавливаться, но поток обрываться/дропаться после определённого объёма. Различать DNS, IP/route, TCP handshake, TLS, DPI/traffic filtering, firewall, MTU/MSS и проблемы самого узла.
 
-### REQ-NODE-0055 — `NOT_TESTED`
+### REQ-NODE-0055 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Network And Censorship Diagnostics → Status Communications (строка 1466). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/status_page.py`; `tests/test_incident_mode_maintenance.py`; `docs/BRAND_COPY.md`.
+- Примечание: Инциденты и режим технических работ объявляет владелец; сами собой уведомления о блокировках клиентам не уходят, обещаний обхода в текстах нет. Готовых шаблонов сообщения «по подтверждённым данным» нет.
 
 > Готовить уведомления клиентам только по подтверждённым данным. Если сервис не затронут — не заявлять о проблеме; техническое объяснение делать кратким и понятным. Не обещать обход любых блокировок.
 
@@ -2871,21 +2943,30 @@
 
 > - swap и sysctl;
 
-### REQ-NODE-0057 — `NOT_TESTED`
+### REQ-NODE-0057 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1573). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_ports.py`; `scripts/ci/ports-check.sh`; `docs/SERVER_PORTS.md`.
+- Примечание: Порты серверов открываются при установке и из панели (ufw, firewalld, iptables, nftables); iptables и nftables проверены настоящим запуском в CI, ufw и firewalld — нет. Вживую на VPS не проверено.
 
 > - HTTPS ports;
 
-### REQ-NODE-0058 — `NOT_TESTED`
+### REQ-NODE-0058 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1574). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_domains.py`; `tests/test_install_catalogue.py`; `backend/app/rw_netmods.py`; `tests/test_rw_netmods.py`.
+- Примечание: Смена домена панели с сохранением прежнего для подписок и автоподбор SNI для REALITY есть. Перенос SNI на всех хостах одной операцией не сверен. Вживую на VPS не проверено.
 
 > - миграция домена и SNI;
 
-### REQ-NODE-0059 — `NOT_TESTED`
+### REQ-NODE-0059 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1575). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `backend/app/block_monitor.py`.
+- Примечание: «Починка блока: смена протокола» с откатом одной кнопкой — проверено на модели панели. Смена адреса заблокированного узла остаётся ручной. Вживую на VPS не проверено.
 
 > - ремонт заблокированного узла;
 
@@ -2898,21 +2979,30 @@
 
 > - каскадирование HAProxy на 2–3 узла;
 
-### REQ-NODE-0061 — `NOT_TESTED`
+### REQ-NODE-0061 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1577). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_steps.py`; `tests/test_cloudflare_cdn.py`; `backend/app/install_catalogue.py`.
+- Примечание: Cloudflare CDN включается и выключается модулем, проверено на модели API Cloudflare. Отдельной диагностики CDN (что отвечает край, что — источник) нет.
 
 > - CDN diagnostics;
 
-### REQ-NODE-0062 — `NOT_TESTED`
+### REQ-NODE-0062 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1578). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/mtproto-check.sh`; `tests/test_rw_netmods.py`.
+- Примечание: То же, что REQ-NODE-0005.
 
 > - MTProto Proxy;
 
-### REQ-NODE-0063 — `NOT_TESTED`
+### REQ-NODE-0063 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1579). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/geo-check.sh`; `tests/test_rw_netmods.py`.
+- Примечание: То же, что REQ-NODE-0008.
 
 > - GEO, geoip.dat и geosite.dat с checksum и rollback;
 
@@ -2925,9 +3015,12 @@
 
 > - Xray AdBlock и AdGuard Home;
 
-### REQ-NODE-0065 — `NOT_TESTED`
+### REQ-NODE-0065 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1581). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `backend/app/rw_selfsteal.py`.
+- Примечание: То же, что REQ-NODE-0011.
 
 > - RKN diagnostics: 443, selfsteal, 80/301, TLS 1.2/1.3, HSTS, Trojan, VLESS/Vision;
 
@@ -2940,9 +3033,12 @@
 
 > - MSS clamp и MTU;
 
-### REQ-NODE-0067 — `NOT_TESTED`
+### REQ-NODE-0067 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1583). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_steps.py`; `scripts/ci/node-port-guard.sh`; `tests/test_admin_ssh_ip.py`; `infrastructure/deployment/install-vps.sh`.
+- Примечание: Служебный порт нод — только для панели, с автоснятием правила; SSH сервера магазина — только с адреса владельца по вопросу установщика (по умолчанию «нет»), правило не применяется, если отрезало бы текущую сессию. Проверено в CI. Вживую на VPS не проверено.
 
 > - ограничение SSH доступа к панели с безопасным rollback;
 
@@ -2972,9 +3068,12 @@
 
 > - безопасное удаление отдельного компонента и отдельный сценарий полной очистки сервера;
 
-### REQ-NODE-0071 — `NOT_TESTED`
+### REQ-NODE-0071 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1587). Продукт: Все три.
+- Платформы: server, backend/API, Web.
+- Доказательство: `backend/app/rw_steps.py`; `tests/test_rw_node_modules.py`.
+- Примечание: То же, что REQ-NODE-0007.
 
 > - реальный тест трафика через клиентскую подписку.
 
