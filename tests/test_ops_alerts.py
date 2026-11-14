@@ -47,7 +47,8 @@ async def test_problems_an_operator_must_act_on_are_collected(database, monkeypa
     now = datetime.utcnow()
     await seed_problems(database, now)
     found = {p.key.split(":")[0]: p for p in await ops_alerts.collect(database, now, remnawave=Panel(ok=False))}
-    assert set(found) == {"fulfillment", "stuck", "provider", "worker", "monitor", "backup", "remnawave"}
+    # v28.145.0: «rpo» — backups are off in the seed while the owner's target is one hour of data at most.
+    assert set(found) == {"fulfillment", "stuck", "provider", "worker", "monitor", "backup", "remnawave", "rpo"}
     assert found["fulfillment"].severity == "critical" and "Remnawave 500" in found["fulfillment"].detail
     assert "40 мин" in found["stuck"].detail and found["worker"].key == "worker:worker-1"
     assert not any(p.key.startswith("remnawave") for p in await ops_alerts.collect(database, now, remnawave=Panel(ok=True)))
@@ -109,3 +110,19 @@ async def test_launch_readiness_lists_what_is_missing(database, monkeypatch):
         plan.enabled = False
     await database.commit()
     assert (await ops_alerts.readiness(database, ADMIN))["ready"] is False
+
+
+def test_recovery_point_objective_of_one_hour():
+    """v28.145.0 (owner's decision of 2026-11-14): RPO 1 h, RTO 4 h — an alert when backups cannot meet them."""
+    from app.backups_api import BACKUP_INTERVALS
+    now = datetime(2026, 11, 14, 12, 0)
+    assert ops_alerts.RPO == timedelta(hours=1) and ops_alerts.RTO == timedelta(hours=4)
+    assert BACKUP_INTERVALS["1h"] == 3600
+    off = ops_alerts.recovery_point("off", None, now, 0)
+    assert [k for k, *_ in off] == ["rpo:schedule"] and "«Каждый час»" in off[0][2]
+    daily = ops_alerts.recovery_point("24h", now - timedelta(minutes=5), now, 86400)
+    assert [k for k, *_ in daily] == ["rpo:schedule"] and "раз в 24 ч" in daily[0][2]
+    assert ops_alerts.recovery_point("1h", now - timedelta(minutes=70), now, 3600) == []
+    late = ops_alerts.recovery_point("1h", now - timedelta(minutes=90), now, 3600)
+    assert [k for k, *_ in late] == ["rpo:late"] and "90 мин назад" in late[0][2]
+    assert "ни одной" in ops_alerts.recovery_point("1h", None, now, 3600)[0][2]
