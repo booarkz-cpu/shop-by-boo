@@ -121,6 +121,37 @@ def _email(text: str) -> None:
         smtp.send_message(msg)
 
 
+# The owner's recovery targets (docs/OWNER_DECISIONS.md, 2026-11-14): at most one hour of data lost (RPO), the shop
+# back within four hours (RTO). REQ-INFRA-0026/0030: targets agreed by the owner, not invented.
+RPO = timedelta(hours=1)
+RTO = timedelta(hours=4)
+RPO_GRACE = timedelta(minutes=20)          # a backup takes a while; an hourly one is late after 1 h 20 min
+
+
+def recovery_point(schedule: str, last_completed: datetime | None, now: datetime, interval_seconds: int) -> list[tuple[str, str, str]]:
+    """Why the recovery point objective is not met now: (key, title, detail); empty when it is."""
+    if schedule == "off" or not interval_seconds:
+        return [("rpo:schedule", "Резервные копии по расписанию выключены",
+                 f"Цель — терять не больше {int(RPO.total_seconds() // 3600)} ч данных. Безопасность → Резервные копии → «Каждый час».")]
+    out = []
+    if interval_seconds > RPO.total_seconds():
+        out.append(("rpo:schedule", "Копии делаются реже цели RPO",
+                    f"Расписание — раз в {interval_seconds // 3600} ч, а цель — терять не больше 1 ч данных. "
+                    "Безопасность → Резервные копии → «Каждый час»."))
+    elif last_completed is None or now - last_completed > RPO + RPO_GRACE:
+        age = "ни одной" if last_completed is None else f"последняя {int((now - last_completed).total_seconds() // 60)} мин назад"
+        out.append(("rpo:late", "Свежей резервной копии нет", f"Копия делается каждый час, но {age}. Проверьте «Резервные копии» и журнал воркера."))
+    return out
+
+
+async def recovery_point_problems(db: AsyncSession, now: datetime) -> list[Problem]:
+    from .backups_api import BACKUP_INTERVALS, setting_value
+    schedule = await setting_value(db, "backup_schedule", "off")
+    last = await db.scalar(select(BackupJob.created_at).where(BackupJob.status == "completed").order_by(BackupJob.created_at.desc()).limit(1))
+    return [Problem(key, title, detail, "medium") for key, title, detail in
+            recovery_point(schedule, last, now, BACKUP_INTERVALS.get(schedule, 0))]
+
+
 async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None) -> list[Problem]:
     now = now or datetime.utcnow()
     day = now - timedelta(days=1)
@@ -162,6 +193,7 @@ async def collect(db: AsyncSession, now: datetime | None = None, remnawave=None)
     from .hot_standby import problems as standby_problems
     for key, title, detail, severity in await standby_problems(db, now):
         out.append(Problem(key, title, detail, severity))
+    out += await recovery_point_problems(db, now)
     backup = await db.scalar(select(BackupJob).order_by(BackupJob.id.desc()).limit(1))
     if backup and backup.status == "failed" and backup.created_at >= day:
         out.append(Problem(f"backup:{backup.id}", "Резервная копия не создана", (backup.error or "ошибка")[:300] + ". Безопасность → Резервные копии."))

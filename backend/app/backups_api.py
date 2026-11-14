@@ -16,7 +16,8 @@ from . import main as shop
 
 # ---------- Backups ----------
 BACKUP_LOCK=asyncio.Lock()
-BACKUP_INTERVALS={"off":0,"6h":21600,"12h":43200,"24h":86400}
+# v28.145.0: «1h» — the owner's recovery point objective is one hour (docs/OWNER_DECISIONS.md, 2026-11-14).
+BACKUP_INTERVALS={"off":0,"1h":3600,"6h":21600,"12h":43200,"24h":86400}
 
 async def setting_value(db,key,default=""):
     row=await db.get(shop.AppSetting,key); return row.value if row else default

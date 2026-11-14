@@ -54,4 +54,33 @@ def test_the_installer_goes_through_every_stage_in_order():
     order = [text.index(f"status_stage {name}\n") for name in
              ("preflight", "settings", "dependencies", "files", "secrets", "firewall", "images", "services", "health", "admin", "report")]
     assert order == sorted(order)
-    assert text.rstrip().endswith("status_done") and "trap status_on_exit EXIT" in text
+    assert text.rstrip().endswith('status_done\nrm -f "$RESUME_FILE"') and "trap status_on_exit EXIT" in text
+
+
+def test_a_stopped_installation_continues_from_where_it_stopped():
+    """v28.145.0 (owner's decision of 2026-11-14): a second run after a failure goes on, it does not refuse."""
+    import re
+
+    text = (ROOT / "deploy/install-vps.sh").read_text()
+    resume = text.index("if (( RESUME )); then")
+    block_end = text.index('done > "$RESUME_FILE" )\nfi\n')
+    # The questions, packages, files and secrets are inside the block a continued run skips; the firewall and later are not.
+    for marker in ("status_stage settings", "prompt_required BASE_DOMAIN", "status_stage dependencies", "status_stage files",
+                   "status_stage secrets", "} > .env"):
+        assert resume < text.index(marker) < block_end, marker
+    assert block_end < text.index("status_stage firewall")
+    # Every variable the later stages read is kept for the continued run.
+    saved = set(re.search(r"for name in ([A-Z_ \\\n]+); do", text[block_end - 600:block_end]).group(1).split()) - {"\\"}
+    later = text[block_end:]
+    assigned_later = set(re.findall(r"^\s*([A-Z][A-Z0-9_]*)=", later, re.M)) | {"ROOT", "INSTALL_STATUS", "INSTALLER_VERSION", "RESUME_FILE", "SSH_CONNECTION"}   # SSH_CONNECTION: set by sshd
+    used_later = set(re.findall(r"\$\{?([A-Z][A-Z0-9_]*)", later))
+    assert used_later - assigned_later <= saved, used_later - assigned_later - saved
+    # A copy that stopped before .env is removed only when the previous run did not finish.
+    assert '"state":"failed"' in text and '! -e "$ROOT/.env"' in text and 'rm -rf "$ROOT"' in text
+
+
+def test_resume_marks_the_finished_stages(tmp_path):
+    code, doc = run(tmp_path, "status_resume_from secrets; status_stage firewall; status_done")
+    s = states(doc)
+    assert code == 0 and all(s[n] == "done" for n in ("preflight", "settings", "dependencies", "files", "secrets", "firewall"))
+    assert s["images"] == "pending"
