@@ -1,6 +1,6 @@
 # Тестирование функций, требующих внешних зависимостей и секретов
 
-Дистрибутив `v28.153.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Документ составлен так, чтобы после выдачи секретов можно было пройти тестирование **без повторного
 изучения проекта**: для каждой функции указаны модули, переменные окружения, команды, ожидаемый
@@ -58,7 +58,7 @@ export AUTO_RENEW_ENABLED=false
 cd backend && python -m pytest -q ../tests
 ```
 
-Полный набор — 2507 тестов; в песочнице на `v28.153.0` проходит без падений.
+Полный набор — 2507 тестов; в песочнице на `v28.154.0` проходит без падений.
 
 ## 2. Remnawave (панель VPN)
 
@@ -115,7 +115,7 @@ python -m pytest -q ../tests/live/test_remnawave_live.py -v
 
 **Назначение.** TLS-терминация, маршрутизация на панель и подписки, скрытие прямых портов.
 
-**Модули.** `deploy/Caddyfile`, `deploy/caddy/`, `deploy/nginx/`, `backend/app/sub_proxy.py`.
+**Модули.** `infrastructure/reverse-proxy/Caddyfile`, `infrastructure/reverse-proxy/caddy/`, `infrastructure/reverse-proxy/nginx/`, `backend/app/sub_proxy.py`.
 
 **Переменные.** `DOMAIN`, `ACME_EMAIL` (в `.env.example`), плюс параметры Caddyfile.
 
@@ -125,7 +125,7 @@ python -m pytest -q ../tests/live/test_remnawave_live.py -v
 # синтаксис конфигурации Caddy
 docker run --rm -v "$PWD/deploy:/etc/caddy" caddy:2 caddy validate --config /etc/caddy/Caddyfile
 # синтаксис nginx
-docker run --rm -v "$PWD/deploy/nginx:/etc/nginx" nginx:alpine nginx -t
+docker run --rm -v "$PWD/infrastructure/reverse-proxy/nginx:/etc/nginx" nginx:alpine nginx -t
 ```
 
 В песочнице Docker недоступен → `BLOCKED_ACCESS`. Разбор YAML/конфигов выполнен вручную: структура
@@ -330,7 +330,7 @@ python -m pytest -q ../tests/live/test_payments_live.py -v
 cp .env.example .env && cp support-pro/.env.example support-pro/.env
 docker compose -f docker-compose.yml config --quiet
 docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
-bash -n deploy/install-vps.sh
+bash -n infrastructure/deployment/install-vps.sh
 ```
 
 В песочнице Docker отсутствует → `BLOCKED_ACCESS`. YAML разобран программно: 17 сервисов в
@@ -360,7 +360,7 @@ xcodebuild -project apps/vpn-shop/ios/VpnShopUser.xcodeproj -scheme VpnShopUser 
 ```
 
 В песочнице нет Android SDK и Xcode → `BLOCKED_ACCESS`. Публикация в Google Play и App Store не
-выполнялась: в релизе `v28.153.0` лежат **unsigned** сборки (`corgi_lusi_android_user_3_4_0_unsigned.apk`
+выполнялась: в релизе `v28.154.0` лежат **unsigned** сборки (`corgi_lusi_android_user_3_4_0_unsigned.apk`
 и аналоги). Ссылок на магазины приложений в проекте нет.
 
 **Текущий статус:** `BLOCKED_ACCESS`, подпись — `BLOCKED_SECRETS`.
@@ -418,4 +418,4 @@ gh release delete vX.Y.Z --yes
 
 Не удаляйте `.rollback` на сервере и не отзывайте `.env` без резервной копии.
 
-Дата последней проверки логики в репозитории: `2026-10-31` (песочница, `v28.153.0`).
+Дата последней проверки логики в репозитории: `2026-10-31` (песочница, `v28.154.0`).

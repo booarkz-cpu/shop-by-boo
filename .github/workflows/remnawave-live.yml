@@ -6,7 +6,7 @@ on:
   pull_request:
     paths: ['backend/app/remnawave.py', 'backend/app/node_autoscale.py', 'backend/app/block_monitor.py', 'backend/app/node_health.py',
             'backend/app/rw_*.py', 'backend/app/provisioner.py', 'tests/live/**', 'scripts/ci/remnawave-live.sh',
-            'scripts/ci/rw-install-live.sh', 'scripts/ci/caddy-on-demand-live.sh', 'scripts/ci/tinyauth-live.sh', 'scripts/ci/panel-gate-live.sh', 'backend/app/panel_gate.py', 'deploy/Caddyfile', 'deploy/caddy/**',
+            'scripts/ci/rw-install-live.sh', 'scripts/ci/caddy-on-demand-live.sh', 'scripts/ci/tinyauth-live.sh', 'scripts/ci/panel-gate-live.sh', 'backend/app/panel_gate.py', 'infrastructure/reverse-proxy/Caddyfile', 'infrastructure/reverse-proxy/caddy/**',
             'backend/app/sub_proxy.py', 'backend/app/sub_portal.py', 'backend/app/bot.py', 'backend/app/telegram_bot.py',
             '.github/workflows/remnawave-live.yml']
   push:

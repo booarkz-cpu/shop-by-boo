@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_pin_images_can_run_from_non_executable_release_copy(tmp_path):
-    script = (ROOT / "deploy/install-vps.sh").read_text()
+    script = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert "bash scripts/pin-images.sh" in script
     for name in ("pin-images.sh", "preflight.sh"):
         assert (ROOT / "scripts" / name).stat().st_mode & 0o111
@@ -43,7 +43,7 @@ def test_resume_after_pin_preserves_credentials_and_finishes(tmp_path):
     docker = fakebin / "docker"
     docker.write_text("#!/bin/sh\ncase \"$*\" in *'image inspect'*) echo 'image@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';; esac\n")
     docker.chmod(0o755)
-    resume = (ROOT / "deploy/resume-vps-after-pin.sh").read_text()
+    resume = (ROOT / "infrastructure/deployment/resume-vps-after-pin.sh").read_text()
     # Run the production continuation body with a fake Docker CLI; its root-only
     # guard is checked separately by the actual script before this point.
     body = resume[resume.index("umask 077\n"):]
@@ -67,7 +67,7 @@ cd "$ROOT"
 
 
 def test_installer_produces_both_env_files_without_corrupting_secrets(tmp_path):
-    script = (ROOT / "deploy/install-vps.sh").read_text()
+    script = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     functions = script[script.index("env_line() {"):script.index("\nINSTALLER_VERSION=")]
     writer = script[script.index("umask 077\n{"):script.index("# Strict production firewall:")]
     # The writer runs in a disposable directory, before any apt, Docker, or UFW step.

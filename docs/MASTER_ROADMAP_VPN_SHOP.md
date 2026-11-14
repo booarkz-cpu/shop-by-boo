@@ -1,6 +1,6 @@
 # Мастер-дорожная карта VPN Shop
 
-Дистрибутив `v28.153.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Состояние на `2026-10-31`. Отметка «сделано» означает, что есть подтверждение в коде или в
 результате проверки; «не проверено» — что функциональность существует, но живой прогон не выполнен.
@@ -137,8 +137,8 @@
 | Мобильные | iOS user и admin | PARTIAL | `apps/vpn-shop/ios`, `apps/lucy-admin/ios` | Xcode |
 | Мобильные | Android admin | PARTIAL | `apps/lucy-admin/android` | SDK |
 | Инфраструктура | 17 сервисов Compose, образы по digest | IMPLEMENTED | `docker-compose.yml` | Docker |
-| Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `deploy/Caddyfile` | домены |
-| Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `deploy/install-vps.sh` | чистый VPS |
+| Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `infrastructure/reverse-proxy/Caddyfile` | домены |
+| Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `infrastructure/deployment/install-vps.sh` | чистый VPS |
 | Инфраструктура | откат и горячий резерв | IMPLEMENTED | `rollback.sh`, `hot-standby.sh` | снимок |
 | CI/CD | 15 workflows, gate публикации | IMPLEMENTED | `.github/workflows` | GitHub |
 | CI/CD | публикация релиза | IMPLEMENTED | `publish-release.yml` | зелёные CI и Docker |
@@ -147,7 +147,7 @@
 | Документация | контракты версии, карты, ссылок | IMPLEMENTED | `scripts/check-*.py` | — |
 | Десктоп | приложения Linux/macOS/Windows | MISSING | `desktop/*` — только README | — |
 | Расширение браузера | — | MISSING | `browser-extension` — 2 файла | — |
-| Terraform | инфраструктура как код | MISSING | `terraform/` — 1 файл | — |
+| Terraform | инфраструктура как код | MISSING | `infrastructure/provisioning/` — 1 файл | — |
 | `corgi-cli` | CLI | MISSING | `corgi-cli/README.md` | — |
 
 Итог по таблице: **27 `IMPLEMENTED`**, 5 `PARTIAL`, 7 `NOT_VERIFIED`, 4 `MISSING` — всего 43 функции.

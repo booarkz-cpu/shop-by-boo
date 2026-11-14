@@ -72,7 +72,7 @@ if [[ -n "${UPDATE_STAGE:-}" ]]; then
 fi
 # v28.23.0+: move PostgreSQL 16 data to the PostgreSQL 18 volumes once (no-op afterwards).
 bash scripts/upgrade-postgres.sh
-bash deploy/build-production.sh
+bash infrastructure/deployment/build-production.sh
 bash scripts/doctor.sh
 trap - ERR
 printf 'Update completed. Rollback snapshot: %s (database: %s)\n' "$SNAPSHOT" "$DB_DUMP"

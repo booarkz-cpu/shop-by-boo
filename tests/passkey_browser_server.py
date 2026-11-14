@@ -64,7 +64,7 @@ app.dependency_overrides[get_db]=database
 shop.app.dependency_overrides[get_db]=database
 app.add_middleware(shop.SecurityHeadersMiddleware)
 
-# Static panels get the production policy from deploy/Caddyfile so browser tests
+# Static panels get the production policy from infrastructure/reverse-proxy/Caddyfile so browser tests
 # fail if a frontend build ever needs inline scripts or third-party code.
 PANEL_CSP=("default-src 'self'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; img-src 'self' https: data:; "
            "connect-src 'self' https:; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'")

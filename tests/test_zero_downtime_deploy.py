@@ -75,7 +75,7 @@ def test_a_first_install_starts_normally(tmp_path):
 
 
 def test_caddy_prefers_the_backend_and_falls_back_to_the_standby():
-    caddy = (ROOT / "deploy/Caddyfile").read_text()
+    caddy = (ROOT / "infrastructure/reverse-proxy/Caddyfile").read_text()
     blocks = re.findall(r"reverse_proxy \{\$BACKEND_UPSTREAM:backend:8000\} \{\n(.*?)\n\s*\}", caddy, re.S)
     assert blocks and len(blocks) == caddy.count("reverse_proxy {$BACKEND_UPSTREAM")
     assert all("import backend_lb" in b for b in blocks)
@@ -90,6 +90,6 @@ def test_compose_defines_the_standby_on_its_own_ingress_address():
     assert "BACKEND_STANDBY_INGRESS_IP" in standby["networks"]["ingress"]["ipv4_address"]
     upstream = compose["services"]["caddy"]["environment"]["BACKEND_UPSTREAM"]
     assert "BACKEND_INGRESS_IP" in upstream.split()[0] and "BACKEND_STANDBY_INGRESS_IP" in upstream.split()[1]
-    build = (ROOT / "deploy/build-production.sh").read_text()
+    build = (ROOT / "infrastructure/deployment/build-production.sh").read_text()
     assert build.index("zero-downtime-backend.sh") < build.index("docker compose up -d --remove-orphans")
     assert "--profile standby down" in (ROOT / "scripts/update.sh").read_text()

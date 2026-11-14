@@ -2650,7 +2650,7 @@
    "docs/ru/new/TERMUX_GUIDE.md"
   ],
   "platforms": "backend/API, server",
-  "note": "Пошаговая инструкция для Android/Termux написана (v28.153.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
+  "note": "Пошаговая инструкция для Android/Termux написана (v28.154.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
  },
  "REQ-INFRA-0010": {
   "status": "PASS",
@@ -2669,7 +2669,7 @@
    "scripts/github_release_fetch.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.153.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
+  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.154.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
  },
  "REQ-INFRA-0012": {
   "status": "PASS",
@@ -2684,8 +2684,8 @@
   "status": "PASS",
   "evidence": [
    "scripts/zero-downtime-backend.sh",
-   "deploy/build-production.sh",
-   "deploy/Caddyfile",
+   "infrastructure/deployment/build-production.sh",
+   "infrastructure/reverse-proxy/Caddyfile",
    "tests/test_zero_downtime_deploy.py"
   ],
   "platforms": "backend/API, server"
@@ -2754,17 +2754,17 @@
    "scripts/backup.sh"
   ],
   "platforms": "backend/API, server",
-  "note": "v28.153.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
+  "note": "v28.154.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
  },
  "REQ-INFRA-0008": {
   "status": "PASS",
   "evidence": [
-   "deploy/install-status.sh",
-   "deploy/install-vps.sh",
+   "infrastructure/deployment/install-status.sh",
+   "infrastructure/deployment/install-vps.sh",
    "tests/test_install_status.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.153.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.153.0, решение владельца 2026-11-14). На VPS не проверено."
+  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.154.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.154.0, решение владельца 2026-11-14). На VPS не проверено."
  },
  "REQ-INFRA-0009": {
   "status": "PASS",
@@ -2795,7 +2795,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.153.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
+  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.154.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
  },
  "REQ-INFRA-0015": {
   "status": "PARTIAL",
@@ -2825,7 +2825,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.153.0). Трассировки (OpenTelemetry) нет."
+  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.154.0). Трассировки (OpenTelemetry) нет."
  },
  "REQ-INFRA-0025": {
   "status": "PARTIAL",
@@ -2836,7 +2836,7 @@
    "tests/test_host_metrics.py"
   ],
   "platforms": "backend/API, server",
-  "note": "С v28.153.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
+  "note": "С v28.154.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
  },
  "REQ-INFRA-0038": {
   "status": "PARTIAL",
@@ -2872,7 +2872,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.153.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
+  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.154.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
  },
  "REQ-INFRA-0029": {
   "status": "PASS",
@@ -3448,5 +3448,89 @@
   "evidence": [],
   "platforms": "all products",
   "note": "docs/SOURCE_TRACEABILITY_MATRIX.md ещё нет."
+ },
+ "REQ-INFRA-0001": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/install_catalogue.py",
+   "backend/app/rw_netmods.py",
+   "backend/app/rw_plan.py",
+   "backend/app/rw_ports.py",
+   "backend/app/rw_torrent_ban.py",
+   "backend/app/rw_extensions.py",
+   "backend/app/rw_autoselect.py",
+   "backend/app/rw_domains.py",
+   "docs/SERVER_PORTS.md"
+  ],
+  "platforms": "backend/API, server",
+  "note": "Есть в коде: swap, sysctl/BBR, порты HTTPS (rw_ports), автовыбор, смена домена и SNI, каскад мостом Shadowsocks, CDN, MTProto, гео-списки, снимки, CrowdSec, nftables, Torrent Blocker, MSS clamp, антицензура, блокировка рекламы списками, удаление компонента. Нет: AdGuard Home (REQ-NODE-0010), каскад HAProxy на 2–3 ноды (REQ-NODE-0006). На VPS вживую не проверено."
+ },
+ "REQ-INFRA-0017": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/PROJECT_INVENTORY.md",
+   "docs/PROJECT_FILE_MAP.md",
+   "docs/MIGRATION_MAPPING.md",
+   "docs/API_ENDPOINTS.md"
+  ],
+  "platforms": "all products",
+  "note": "Опись целевого репозитория есть: файлы, модули, таблицы, маршруты, workflows. Опись источников — только remnawave-manager (меню из 33 пунктов). Нет отдельных списков фоновых задач, вебхуков, ссылок на секреты и целей развёртывания по каждому исходному проекту; lucy-vpn-android недоступен (решение № 16)."
+ },
+ "REQ-INFRA-0018": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/MIGRATION_MAPPING.md",
+   "docs/MONOREPO_LAYOUT.md",
+   "docs/REFERENCE_REPOSITORIES.md"
+  ],
+  "platforms": "all products",
+  "note": "Для remnawave-manager записаны репозиторий, ветка, коммит, лицензия, модуль назначения, тесты и итог по каждому пункту меню; для перекладки папок — откуда, куда и выпуск. Для чужих источников записаны только лицензия и запрет копирования (решение № 13), построчной привязки нет."
+ },
+ "REQ-INFRA-0019": {
+  "status": "PASS",
+  "evidence": [
+   "docs/MONOREPO_LAYOUT.md",
+   "tests/test_layout_stage4.py"
+  ],
+  "platforms": "all products"
+ },
+ "REQ-INFRA-0020": {
+  "status": "PARTIAL",
+  "evidence": [
+   "tests/test_layout_stage4.py",
+   "tests/test_v2018_recovery.py",
+   ".github/workflows/ci.yml",
+   "docs/MONOREPO_LAYOUT.md"
+  ],
+  "platforms": "all products",
+  "note": "После каждого этапа перекладки идёт тот же полный CI (тесты, сборки Android и iOS, образы, e2e), этап 4 проверяет старые пути, обновление и откат на модели. Сравнение на установленном сервере (обновление настоящего VPS со старой раскладки) не проводилось: VPS нет (решение № 11)."
+ },
+ "REQ-INFRA-0022": {
+  "status": "PASS",
+  "evidence": [
+   "docs/OWNER_DECISIONS.md",
+   "docs/MIGRATION_MAPPING.md",
+   "docs/MONOREPO_LAYOUT.md"
+  ],
+  "platforms": "all products"
+ },
+ "REQ-INFRA-0026": {
+  "status": "BLOCKED_EXTERNAL",
+  "evidence": [
+   "docs/ru/OPERATIONS_MONITORING.md",
+   "infrastructure/monitoring/prometheus/vpnshop-alerts.yml"
+  ],
+  "platforms": "backend/API, server",
+  "note": "SLA и SLO не выдуманы: в документах их нет, оповещения заданы по техническим порогам. Базовые замеры нужны на рабочем VPS, которого пока нет (решение № 11); после замеров — `docs/SLO_BASELINE.md` и согласование целей с владельцем."
+ },
+ "REQ-INFRA-0039": {
+  "status": "PARTIAL",
+  "evidence": [
+   "backend/app/rw_domains.py",
+   "tests/test_subscription_portal.py",
+   "apps/lucy-admin/web/src/domains.tsx"
+  ],
+  "platforms": "backend/API, web admin",
+  "note": "Запись A работающего имени переносится только на адрес, который принимает соединения на 443; прежние адреса возвращаются и пишутся в журнал (путь назад), обход — явной кнопкой. Смена сертификата и домена панели мастером установки такой проверки не делает; вживую на DNS-провайдере не проверено."
  }
 }

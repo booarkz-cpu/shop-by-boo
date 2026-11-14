@@ -10,14 +10,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_version_313_is_first():
     (ROOT / "scripts/build-release.sh").read_text()
-    (ROOT / "deploy/install-vps.sh").read_text()
+    (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
 
 
 def test_piped_install_reads_the_terminal():
     wrapper = (ROOT / "install.sh").read_text()
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert "exec bash" in wrapper
-    assert 'exec bash "$SOURCE_DIR/deploy/install-vps.sh" </dev/tty' in wrapper
+    assert 'exec bash "$SOURCE_DIR/infrastructure/deployment/install-vps.sh" </dev/tty' in wrapper
     assert "INSTALL_NONINTERACTIVE" in wrapper
     assert "Нет терминала для вопросов установщика" in wrapper
     prompt = installer[installer.index("prompt() {"): installer.index("prompt_required() {")]
@@ -28,7 +28,7 @@ def test_piped_install_reads_the_terminal():
 
 
 def test_prompt_answers_from_a_pty_when_stdin_is_a_pipe():
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     prompt = installer[installer.index("prompt() {"): installer.index("prompt_required() {")]
     script = (
         "set -Eeuo pipefail\n"
@@ -72,7 +72,7 @@ def test_prompt_answers_from_a_pty_when_stdin_is_a_pipe():
 
 
 def test_noninteractive_prompt_does_not_read_stdin():
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     prompt = installer[installer.index("prompt() {"): installer.index("prompt_required() {")]
     script = "set -Eeuo pipefail\n" + prompt + "\nprompt BASE_DOMAIN \"Основной домен\" \"fallback.example\"\nprintf '%s\\n' \"$BASE_DOMAIN\"\n"
     proc = subprocess.run(

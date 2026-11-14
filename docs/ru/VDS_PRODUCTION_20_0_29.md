@@ -19,7 +19,7 @@
 cd /opt
 sudo git clone --branch v20.0.29 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git vpn-shop-src
 cd /opt/vpn-shop-src
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 После установки:

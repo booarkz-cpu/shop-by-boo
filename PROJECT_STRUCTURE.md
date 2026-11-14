@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.153.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.154.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -22,7 +22,8 @@ shop-by-boo/
 ├── mobile/                  Android/iOS клиентские и admin исходники
 ├── desktop/                 контракты desktop WireGuard shell
 ├── support-pro/             изолированный сервис поддержки
-├── deploy/                  production installer и operational scripts
+├── infrastructure/          установщик (deployment), Caddy и nginx (reverse-proxy), Prometheus и Grafana (monitoring), Terraform (provisioning)
+├── deploy/                  переходники старых путей установки
 ├── scripts/                 тесты, диагностика, backup и release packaging
 ├── tests/                   backend unit/integration/PostgreSQL regression tests
 ├── docs/                    актуальные инструкции, карта покрытия и архивы
@@ -40,7 +41,7 @@ shop-by-boo/
 | Remnawave/provisioning | `backend/app/remnawave.py`, `provisioner.py`, `subscriptions.py` | Повторная операция безопасна, ownership проверяется до remote-вызова |
 | Telegram | `bot/`, `backend/app/bot*` | Bot/Mini App не дублируют бизнес-правила API |
 | Web UI | `apps/lucy-admin/web/src`, `apps/user-cabinet/src`, `miniapp/src` | Визуальные токены общие, бизнес-логика остаётся в API/feature-модулях |
-| Operations | `deploy/`, `scripts/`, `.github/workflows/` | Backup/restore и release contract проверяются CI |
+| Operations | `infrastructure/`, `scripts/`, `.github/workflows/` | Backup/restore и release contract проверяются CI |
 | Live configuration | `backend/app/runtime_settings.py`, `apps/lucy-admin/web/src/runtime-settings.tsx` | Только явно типизированные поля; секреты маскируются; применение версионировано и аудируется |
 
 ## Конфигурация

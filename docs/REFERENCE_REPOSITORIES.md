@@ -65,7 +65,7 @@ NOT FOR PRODUCTION AND NOT FOR PRODUCTION USE! … USE AT YOUR OWN RISK!». То
 Документация — Astro (65 `.mdx`, 67 `.png`). 1 workflow, тестов нет.
 
 **Отношение к нашему проекту.** Магазин **не использует** его: собственный reverse proxy — Caddy
-(`deploy/Caddyfile`, сервис `caddy` в compose), который сам выпускает TLS и маршрутизирует домены.
+(`infrastructure/reverse-proxy/Caddyfile`, сервис `caddy` в compose), который сам выпускает TLS и маршрутизирует домены.
 Замена Caddy на nginx потребовала бы заново решать автоматический TLS, HTTP/3 и маршрутизацию.
 
 **Что пригодилось.** `subscription_rules.sh` и `client_balancer.sh` — идеи правил для подписки; у нас это

@@ -15,7 +15,7 @@
 | `support` — поддержка | `support-pro/`; мост `backend/app/support_*.py` | Отдельная база Support Pro | `identity` |
 | `notifications` — уведомления | `backend/app/push_*.py`, `mail_*.py`, `ops_alerts.py`, `automation.py` | Очередь писем, шаблоны | `shop`, `remnawave` |
 | `analytics` — аналитика | `backend/app/app_*.py` (события приложений), отчёты панели | События приложений | `shop`, `billing` |
-| `infrastructure` — установка, копии, обновления | `scripts/`, `deploy/`, `backend/app/auto_update_api.py`, `rw_autoupdate.py`, `backups_api.py`, `backup_verify.py` | Настройки, снимки | `nodes`, `admin` |
+| `infrastructure` — установка, копии, обновления | `scripts/`, `infrastructure/`, `backend/app/auto_update_api.py`, `rw_autoupdate.py`, `backups_api.py`, `backup_verify.py` | Настройки, снимки | `nodes`, `admin` |
 | `vpn_client` — клиент VPN | `apps/vpn-client/android/` | Нет: данные на устройстве | Только выпуски на GitHub |
 
 ## Как области связаны

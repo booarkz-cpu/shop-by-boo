@@ -22,7 +22,7 @@
 | `support_migrate` | Миграции базы Support Pro, выполняется и завершается | сборка `support-pro/app/Dockerfile` | — | нет | `support_db` | всегда |
 | `support_pro` | API Support Pro: обращения, переписка, база знаний | сборка `support-pro/app/Dockerfile` | — | есть | `volume_init`, `support_migrate`, `support_redis` | всегда |
 | `support_worker` | Фоновые задачи Support Pro | сборка `support-pro/app/Dockerfile` | — | есть | `volume_init`, `support_migrate`, `support_redis` | всегда |
-| `caddy` | Единственная точка входа: HTTPS, маршрутизация по доменам, заголовки безопасности | сборка `deploy/caddy/Dockerfile` | `80`, `443`, `443/udp` | есть | `volume_init`, `backend`, `admin`, `miniapp`, `cabinet`, `support_pro` | всегда |
+| `caddy` | Единственная точка входа: HTTPS, маршрутизация по доменам, заголовки безопасности | сборка `infrastructure/reverse-proxy/caddy/Dockerfile` | `80`, `443`, `443/udp` | есть | `volume_init`, `backend`, `admin`, `miniapp`, `cabinet`, `support_pro` | всегда |
 
 ## Сети
 

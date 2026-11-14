@@ -20,7 +20,7 @@ async def test_remnawave_uses_shared_http_pool_and_explicit_shutdown(monkeypatch
     await RemnawaveClient.close_shared_client()
 
 def test_no_current_stale_v30_labels():
-    for rel in ['PRODUCTION_CHECKLIST.md','docs_API.md','deploy/install-vps.sh']:
+    for rel in ['PRODUCTION_CHECKLIST.md','docs_API.md','infrastructure/deployment/install-vps.sh']:
         text=(ROOT/rel).read_text()
         assert 'V30 Production Checklist' not in text
         assert '## V30 API' not in text

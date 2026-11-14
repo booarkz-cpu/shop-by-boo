@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / "docs/PROJECT_FILE_MAP.md"
 AREAS = {"admin": "Админ-панель", "backend": "API, бот и worker", "cabinet": "Кабинет", "miniapp": "Telegram Mini App",
          "support-pro": "Support Pro", "mobile": "Мобильные приложения", "apps": "Приложения", "packages": "Общие пакеты", "tests": "Проверки", "scripts": "Эксплуатация и релиз",
-         "deploy": "Установка", "docs": "Документация", ".github": "GitHub CI/CD"}
+         "infrastructure": "Установка, прокси, мониторинг", "deploy": "Переходники старых путей установки", "docs": "Документация", ".github": "GitHub CI/CD"}
 
 
 def render() -> str:

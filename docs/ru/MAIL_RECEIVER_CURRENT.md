@@ -68,7 +68,7 @@ MAIL_SUPPORT_INBOUND_URL=http://support_pro:8000/email/inbound
 MAIL_INBOUND_SECRET=длинная-случайная-строка
 ```
 
-Сертификат положите в `deploy/mail-tls/`: каталог монтируется в контейнер как `/tls` только для чтения.
+Сертификат положите в `infrastructure/deployment/mail-tls/`: каталог монтируется в контейнер как `/tls` только для чтения.
 
 ### 3. `support-pro/.env`
 

@@ -65,7 +65,7 @@ sudo apt-get install -y git ca-certificates curl
 cd /opt
 sudo git clone --branch v20.0.18 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git vpn-shop-src
 cd /opt/vpn-shop-src
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 Установщик будет задавать вопросы. Когда в строке показано значение в скобках, **Enter** принимает предложенное значение. Не нажимайте Enter, если в строке нужен ваш секрет или адрес.

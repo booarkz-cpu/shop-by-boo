@@ -71,7 +71,7 @@ updates:
       android-client-minor: {update-types: [minor, patch]}
   # Base images of every Dockerfile (pinned by digest: Dependabot moves tag and digest together).
   - package-ecosystem: docker
-    directories: [/backend, /apps/lucy-admin/web, /apps/user-cabinet, /apps/telegram-mini-app, /deploy/caddy, /support-pro/app]
+    directories: [/backend, /apps/lucy-admin/web, /apps/user-cabinet, /apps/telegram-mini-app, /infrastructure/reverse-proxy/caddy, /support-pro/app]
     schedule: {interval: weekly, day: monday}
     groups:
       docker-images: {update-types: [minor, patch]}
