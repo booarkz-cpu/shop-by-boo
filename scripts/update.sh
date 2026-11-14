@@ -8,7 +8,7 @@ STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 ROLLBACK_DIR="${ROLLBACK_DIR:-$APP_DIR/.rollback}"
 mkdir -p "$ROLLBACK_DIR"
 # v28.143.0 (REQ-INFRA-0011): enough free disk for the snapshot, the dump and the new images — checked before writing.
-source "$APP_DIR/scripts/update-space.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/update-space.sh"
 install_kb=$(du -sk --exclude=./.rollback --exclude=./.git --exclude='*/node_modules' . 2>/dev/null | cut -f1 || echo 0)
 db_kb=0
 if docker compose up -d db >/dev/null 2>&1; then
