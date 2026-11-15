@@ -2650,7 +2650,7 @@
    "docs/ru/new/TERMUX_GUIDE.md"
   ],
   "platforms": "backend/API, server",
-  "note": "Пошаговая инструкция для Android/Termux написана (v28.156.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
+  "note": "Пошаговая инструкция для Android/Termux написана (v28.157.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
  },
  "REQ-INFRA-0010": {
   "status": "PASS",
@@ -2669,7 +2669,7 @@
    "scripts/github_release_fetch.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.156.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
+  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.157.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
  },
  "REQ-INFRA-0012": {
   "status": "PASS",
@@ -2754,7 +2754,7 @@
    "scripts/backup.sh"
   ],
   "platforms": "backend/API, server",
-  "note": "v28.156.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
+  "note": "v28.157.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
  },
  "REQ-INFRA-0008": {
   "status": "PASS",
@@ -2764,7 +2764,7 @@
    "tests/test_install_status.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.156.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.156.0, решение владельца 2026-11-14). На VPS не проверено."
+  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.157.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.157.0, решение владельца 2026-11-14). На VPS не проверено."
  },
  "REQ-INFRA-0009": {
   "status": "PASS",
@@ -2795,7 +2795,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.156.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
+  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.157.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
  },
  "REQ-INFRA-0015": {
   "status": "PARTIAL",
@@ -2825,7 +2825,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.156.0). Трассировки (OpenTelemetry) нет."
+  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.157.0). Трассировки (OpenTelemetry) нет."
  },
  "REQ-INFRA-0025": {
   "status": "PARTIAL",
@@ -2836,7 +2836,7 @@
    "tests/test_host_metrics.py"
   ],
   "platforms": "backend/API, server",
-  "note": "С v28.156.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
+  "note": "С v28.157.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
  },
  "REQ-INFRA-0038": {
   "status": "PARTIAL",
@@ -2872,7 +2872,7 @@
    "tests/test_ops_alerts.py"
   ],
   "platforms": "backend/API, server",
-  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.156.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
+  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.157.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
  },
  "REQ-INFRA-0029": {
   "status": "PASS",
@@ -3572,10 +3572,12 @@
  "REQ-MIG-0008": {
   "status": "PARTIAL",
   "evidence": [
-   "docs/REFERENCE_REPOSITORIES.md"
+   "docs/REFERENCE_REPOSITORIES.md",
+   "backend/app/import_presets.py",
+   "tests/test_import_presets.py"
   ],
   "platforms": "all products",
-  "note": "StepBot изучен по клону (`7a1fe52`, MIT): лицензия, стек, кассы. Сверка по модулям магазина (2026-11-15): конструктор меню бота, импорт из SQLite, смена тарифа, докупка трафика и авто-техрежим в магазине есть. Построчная сверка поведения каждой функции не проведена; готовой раскладки импорта под remnawave-shopbot нет."
+  "note": "StepBot изучен по клону (`7a1fe52`, MIT). Сверка по модулям магазина: функции из его списка в магазине есть; недостававшая готовая раскладка импорта из remnawave-shopbot сделана в v28.157.0 (`backend/app/import_presets.py`). Построчная сверка поведения каждой функции не проведена."
  },
  "REQ-MIG-0010": {
   "status": "PASS",
@@ -4243,7 +4245,7 @@
    "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt",
    "apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt"
   ],
-  "note": "Состояния в интерфейсе: выключен, подключение, подключён; запрос разрешения VPN и ошибка показываются отдельными событиями, переподключение — в уведомлении службы. Отдельных состояний preparing, reconnecting, stopping в модели нет.",
+  "note": "Состояния службы: выключен, подключение, проверка туннеля (checking), подключён, сервер не отвечает (no_answer); запрос разрешения VPN и ошибка — отдельными событиями. На экране «проверка» показывается как «подключение»; отдельных состояний reconnecting и stopping нет.",
   "platforms": "Android client"
  },
  "REQ-CLIENT-0021": {
@@ -4280,14 +4282,15 @@
   "platforms": "Android client"
  },
  "REQ-CLIENT-0024": {
-  "status": "PARTIAL",
+  "status": "PASS",
   "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Verify.kt",
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt",
    "apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt",
-   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt",
-   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt",
-   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt"
+   "apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt",
+   "scripts/mobile/client-vpn-e2e.sh",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt"
   ],
-  "note": "При включённом Smart Failover служба каждые 10 секунд проверяет выход через туннель настоящим запросом и при неудаче переключает сервер. Статус «подключён» появляется после запуска ядра, а не после первой удачной проверки.",
   "platforms": "Android client"
  },
  "REQ-CLIENT-0025": {
@@ -4359,12 +4362,14 @@
   "platforms": "Android client"
  },
  "REQ-CLIENT-0032": {
-  "status": "NOT_IMPLEMENTED",
+  "status": "PARTIAL",
   "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt",
+   "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt",
    "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt"
   ],
-  "note": "Профили со ссылками подписок лежат в обычных настройках приложения (SharedPreferences, резервное копирование системы выключено). Шифрования ключом Android Keystore нет.",
-  "platforms": "Android client"
+  "platforms": "Android client",
+  "note": "Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено."
  },
  "REQ-CLIENT-0033": {
   "status": "NOT_IMPLEMENTED",

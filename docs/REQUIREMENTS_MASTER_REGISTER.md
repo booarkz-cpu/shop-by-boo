@@ -11,13 +11,13 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **193** — 29.6%.
+- Подтверждено (`PASS`): **194** — 29.7%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 193 | Проверено, доказательство указано |
+| `PASS` | 194 | Проверено, доказательство указано |
 | `PARTIAL` | 254 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 37 | Функции нет |
+| `NOT_IMPLEMENTED` | 36 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
 | `NOT_TESTED` | 167 | Ещё не сверено с кодом |
@@ -26,7 +26,7 @@
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 123 | 12 | 5 | 0 | 102 |
 | Монорепозиторий и перенос | 28 | 14 | 14 | 0 | 0 |
-| «Корги Люси: Клиент» | 33 | 7 | 24 | 0 | 0 |
+| «Корги Люси: Клиент» | 33 | 8 | 24 | 0 | 0 |
 | Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
 | Lucy Admin | 19 | 3 | 11 | 0 | 0 |
@@ -935,8 +935,8 @@
 
 - Источник: Часть I → Source Repositories → Repo (строка 59). Продукт: Все три.
 - Платформы: all products.
-- Доказательство: `docs/REFERENCE_REPOSITORIES.md`.
-- Примечание: StepBot изучен по клону (`7a1fe52`, MIT): лицензия, стек, кассы. Сверка по модулям магазина (2026-11-15): конструктор меню бота, импорт из SQLite, смена тарифа, докупка трафика и авто-техрежим в магазине есть. Построчная сверка поведения каждой функции не проведена; готовой раскладки импорта под remnawave-shopbot нет.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `backend/app/import_presets.py`; `tests/test_import_presets.py`.
+- Примечание: StepBot изучен по клону (`7a1fe52`, MIT). Сверка по модулям магазина: функции из его списка в магазине есть; недостававшая готовая раскладка импорта из remnawave-shopbot сделана в v28.157.0 (`backend/app/import_presets.py`). Построчная сверка поведения каждой функции не проведена.
 
 > https://github.com/STEP-CORP/StepBot/tree/main
 
@@ -1291,7 +1291,7 @@
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2172). Продукт: Клиент.
 - Платформы: Android client.
 - Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt`.
-- Примечание: Состояния в интерфейсе: выключен, подключение, подключён; запрос разрешения VPN и ошибка показываются отдельными событиями, переподключение — в уведомлении службы. Отдельных состояний preparing, reconnecting, stopping в модели нет.
+- Примечание: Состояния службы: выключен, подключение, проверка туннеля (checking), подключён, сервер не отвечает (no_answer); запрос разрешения VPN и ошибка — отдельными событиями. На экране «проверка» показывается как «подключение»; отдельных состояний reconnecting и stopping нет.
 
 > - Реализовать корректные состояния: disconnected, preparing, connecting, connected, reconnecting, stopping, permission_required, error.
 
@@ -1322,12 +1322,11 @@
 
 > - Отдельно тестировать переход Wi-Fi ↔ mobile data, captive portal, потерю сети, смену IP, DNS failure, sleep/wake, Doze, low-memory и reboot.
 
-### REQ-CLIENT-0024 — `PARTIAL`
+### REQ-CLIENT-0024 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2176). Продукт: Клиент.
 - Платформы: Android client.
-- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ExternalIpTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt`.
-- Примечание: При включённом Smart Failover служба каждые 10 секунд проверяет выход через туннель настоящим запросом и при неудаче переключает сервер. Статус «подключён» появляется после запуска ядра, а не после первой удачной проверки.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Verify.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt`; `scripts/mobile/client-vpn-e2e.sh`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt`.
 
 > - Не показывать connected до подтверждения работающего tunnel/data path.
 
@@ -1393,12 +1392,12 @@
 
 > - PIN/биометрия защищают интерфейс и локальные действия, но не должны неожиданно останавливать активный VPN tunnel.
 
-### REQ-CLIENT-0032 — `NOT_IMPLEMENTED`
+### REQ-CLIENT-0032 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2187). Продукт: Клиент.
 - Платформы: Android client.
-- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`.
-- Примечание: Профили со ссылками подписок лежат в обычных настройках приложения (SharedPreferences, резервное копирование системы выключено). Шифрования ключом Android Keystore нет.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`.
+- Примечание: Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено.
 
 > - Секреты профилей хранить в защищённом хранилище платформы, где это применимо.
 
@@ -3495,7 +3494,7 @@
 - Источник: Часть I → Docker Installer Vps Termux → Termux (строка 740). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
-- Примечание: Пошаговая инструкция для Android/Termux написана (v28.156.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
+- Примечание: Пошаговая инструкция для Android/Termux написана (v28.157.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
 
 > Android/Termux: инструменты; подключение к VPS; Git; проверка репозитория; установка; запуск; обновление; логи; диагностика. Пошагово для новичка.
 
@@ -3504,7 +3503,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик (строка 2297). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `infrastructure/deployment/install-status.sh`; `infrastructure/deployment/install-vps.sh`; `tests/test_install_status.py`.
-- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.156.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.156.0, решение владельца 2026-11-14). На VPS не проверено.
+- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.157.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.157.0, решение владельца 2026-11-14). На VPS не проверено.
 
 > Поддерживать идемпотентные этапы: preflight → environment validation → DNS/ports → secrets → dependencies → database → migrations → services → health checks → admin bootstrap → final report. Каждый этап должен иметь машинно-читаемый статус, лог, понятную ошибку и безопасный повтор.
 
@@ -3529,7 +3528,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2303). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `scripts/update-space.sh`; `scripts/update.sh`; `tests/test_update_space.py`; `scripts/github_release_fetch.py`.
-- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.156.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
+- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.157.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
 
 > - Проверять свободное место и доступность внешних зависимостей.
 
@@ -3639,7 +3638,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2324). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/log_format.py`; `backend/app/main.py`; `backend/app/errors.py`; `tests/test_ops_alerts.py`.
-- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.156.0). Трассировки (OpenTelemetry) нет.
+- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.157.0). Трассировки (OpenTelemetry) нет.
 
 > - Добавить structured logs, metrics, traces и correlation IDs.
 
@@ -3648,7 +3647,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2325). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/host_metrics.py`; `backend/app/observability.py`; `backend/app/main.py`; `tests/test_host_metrics.py`.
-- Примечание: С v28.156.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
+- Примечание: С v28.157.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
 
 > - Отслеживать error rate, latency percentiles, throughput, saturation, queue depth, failed jobs, webhook lag, DB pool, disk, memory, CPU, node availability и certificate expiry.
 
@@ -3666,7 +3665,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2327). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `backend/app/masque_panel.py`; `backend/app/rw_drift.py`; `tests/test_ops_alerts.py`.
-- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.156.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
+- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.157.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
 
 > - Уведомлять о backup failures, certificate expiry, payment provider outage, node degradation, failed migrations и security incidents.
 
@@ -3675,7 +3674,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2328). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/ops_alerts.py`; `tests/test_ops_alerts.py`.
-- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.156.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
+- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.157.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
 
 > - Учитывать timezone и clock drift для cron, webhook signature и сертификатов.
 
@@ -3751,7 +3750,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2340). Продукт: Все три.
 - Платформы: backend/API, server.
 - Доказательство: `backend/app/backups_api.py`; `tests/test_backup_retention_verified.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
-- Примечание: v28.156.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
+- Примечание: v28.157.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
 
 > - Не удалять последний проверенный backup автоматически.
 

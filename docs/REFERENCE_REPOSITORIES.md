@@ -210,7 +210,7 @@ Cryptomus.
 | Идея StepBot | В магазине |
 | --- | --- |
 | Конструктор меню бота (дерево кнопок, стили, вложенные экраны) | есть: `backend/app/menu_tree.py`, редактор `apps/lucy-admin/web/src/menu-tree.tsx`, `tests/test_menu_hierarchy.py` |
-| Импорт пользователей из базы другого бота | есть: `backend/app/sqlite_import.py` (снимок SQLite до 5 МБ, сопоставление колонок), `backend/app/history_import.py`, `tests/test_admin_customer_operations.py`. Готовой раскладки колонок под `remnawave-shopbot` нет — колонки задаёт администратор |
+| Импорт пользователей из базы другого бота | есть: `backend/app/sqlite_import.py` (снимок SQLite до 5 МБ, сопоставление колонок), `backend/app/history_import.py`, `tests/test_admin_customer_operations.py`. С v28.157.0 база `remnawave-shopbot` узнаётся сама (`backend/app/import_presets.py`): поля клиентов, платежей и подписок заполняются без ручной раскладки |
 | Смена тарифа с расчётом доплаты | есть: `POST /api/me/subscription/quote` в `backend/app/subscription_commerce.py` |
 | Докупка трафика к подписке | есть: пакеты `TrafficPackage`, вид расчёта `traffic_addon` там же |
 | Автоматический режим техработ, когда панель недоступна | есть: `backend/app/panel_guard.py`, `tests/test_reconciliation.py` |

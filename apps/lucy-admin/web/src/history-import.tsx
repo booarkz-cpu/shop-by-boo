@@ -24,6 +24,7 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
   const [payments, setPayments] = useState<Record<string, string>>(EMPTY_PAYMENTS);
   const [subscriptions, setSubscriptions] = useState<Record<string, string>>(EMPTY_SUBSCRIPTIONS);
   const [paymentColumns, setPaymentColumns] = useState<string[]>([]);
+  const [recognised, setRecognised] = useState<Record<string, {title: string; notes: string[]} | null>>({});
   const [subscriptionColumns, setSubscriptionColumns] = useState<string[]>([]);
   const [control, setControl] = useState({payments_count: "", payments_total: "", subscriptions_count: ""});
   const [plans, setPlans] = useState<any[]>([]);
@@ -63,12 +64,21 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
       data.append("table", kind === "payments" ? payments.table : subscriptions.table);
       const schema = await request(ROOT + "/inspect", {method: "POST", body: data});
       const cols: string[] = schema.columns;
+      // A recognised database (remnawave-shopbot): its layout replaces the guesses below.
+      const known = schema.suggestion && schema.suggestion.kind === kind ? schema.suggestion : null;
+      setRecognised((old) => ({...old, [kind]: known}));
       if (kind === "payments") {
         setPaymentColumns(cols);
         setPayments((old) => ({...old, id: guess(cols, "id", "payment_id"), user: guess(cols, "user_id", "customer_id", "telegram_id"), amount: guess(cols, "amount", "sum", "price"), status: guess(cols, "status", "state"), paid_at: guess(cols, "paid_at", "created_at", "created", "date"), currency: guess(cols, "currency")}));
+        if (known) {
+          // the list of paid statuses stays the server's default (it already holds the shopbot ones)
+          const {paid_values: _paid, ...columnsOfPreset} = known.mapping;
+          setPayments((old) => ({...old, currency: "", description: "", ...columnsOfPreset}));
+        }
       } else {
         setSubscriptionColumns(cols);
         setSubscriptions((old) => ({...old, user: guess(cols, "user_id", "customer_id", "telegram_id"), expires_at: guess(cols, "expires_at", "expire_at", "end_date", "expires"), remnawave_uuid: guess(cols, "remnawave_id", "panel_id", "remnawave_uuid", "uuid", "panel_uuid"), subscription_url: guess(cols, "subscription_url", "sub_url", "url"), plan: guess(cols, "plan", "tariff", "plan_name"), traffic_gb: guess(cols, "traffic_gb", "traffic_limit_gb"), devices: guess(cols, "devices", "device_limit")}));
+        if (known) setSubscriptions((old) => ({...old, subscription_url: "", plan: "", traffic_gb: "", devices: "", ...known.mapping}));
       }
     } catch (e) {
       failure(e);
@@ -204,6 +214,7 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
           {usePayments && <>
             <label>Таблица платежей<input value={payments.table} onChange={(e) => { setPayments({...payments, table: e.target.value}); setPaymentColumns([]); reset(); }} /></label>
             <button type="button" disabled={!file} onClick={() => inspect("payments")}>Загрузить колонки платежей</button>
+            {recognised.payments && <p role="status" data-import-preset="payments">Узнана база {recognised.payments.title}: поля заполнены сами. {recognised.payments.notes.join(" ")}</p>}
             {!!paymentColumns.length && <>
               {select("payments", "id", "ID платежа")}
               {select("payments", "user", "ID клиента в источнике")}
@@ -221,6 +232,7 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
           {useSubscriptions && <>
             <label>Таблица подписок<input value={subscriptions.table} onChange={(e) => { setSubscriptions({...subscriptions, table: e.target.value}); setSubscriptionColumns([]); reset(); }} /></label>
             <button type="button" disabled={!file} onClick={() => inspect("subscriptions")}>Загрузить колонки подписок</button>
+            {recognised.subscriptions && <p role="status" data-import-preset="subscriptions">Узнана база {recognised.subscriptions.title}: поля заполнены сами. {recognised.subscriptions.notes.join(" ")}</p>}
             {!!subscriptionColumns.length && <>
               {select("subscriptions", "user", "ID клиента в источнике")}
               {select("subscriptions", "expires_at", "Окончание подписки")}
