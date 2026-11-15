@@ -20,7 +20,7 @@ CREATE TABLE transactions(transaction_id INTEGER PRIMARY KEY, payment_id TEXT, u
                           payment_method TEXT, metadata TEXT, created_date TEXT);
 INSERT INTO users VALUES (9001, 'anna', 500, 120.5, 30, NULL, '2026-01-02 10:00:00', 1, 0), (9002, NULL, 0, 0, 0, 9001, '2026-02-03 11:00:00', 0, 1);
 INSERT INTO vpn_keys VALUES (1, 9001, 'NL', '11111111-2222-4333-8444-555555555555', 'abc', 'u9001@x', '2027-01-01 00:00:00', 'https://sub.example/abc', 107374182400, 'nl');
-INSERT INTO transactions VALUES (1, 'pay-1', 9001, 'paid', 299.0, 'YooKassa', '{}', '2026-03-01 12:00:00'), (2, NULL, 9002, 'pending', 99.0, 'CryptoBot', NULL, '2026-03-02 12:00:00');
+INSERT INTO transactions VALUES (1, 'pay-1', 9001, 'paid', 299.0, 'card', '{}', '2026-03-01 12:00:00'), (2, NULL, 9002, 'pending', 99.0, 'crypto', NULL, '2026-03-02 12:00:00');
 """
 
 

@@ -160,9 +160,11 @@ fun HomeContent(
                 // v1.10.0: the tunnel is up, the server is silent — said plainly, the VPN is not dropped.
                 if (state.noAnswer) {
                     Text(
-                        tr("Сервер не отвечает. VPN включён, проверка продолжается — попробуйте другой сервер.",
+                        tr(
+                            "Сервер не отвечает. VPN включён, проверка продолжается — попробуйте другой сервер.",
                             "The server does not answer. The VPN is on and the check goes on — try another server.",
-                            "Сервер не відповідає. VPN увімкнено, перевірка триває — спробуйте інший сервер."),
+                            "Сервер не відповідає. VPN увімкнено, перевірка триває — спробуйте інший сервер."
+                        ),
                         Modifier.testTag("no-answer"),
                         style = MaterialTheme.typography.bodySmall,
                         color = Brand.Warm
