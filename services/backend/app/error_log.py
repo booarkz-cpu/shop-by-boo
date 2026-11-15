@@ -20,18 +20,17 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_db
+from .log_redact import redact_patterns  # one set of patterns for the journal and the logs
 from .security import require_permission
 
 router = APIRouter()
 _queue: asyncio.Queue | None = None
 RETENTION = timedelta(days=30)
-SECRET = re.compile(r"(?i)(token|secret|password|passwd|api[_-]?key|authorization|bearer)([\"'=:\s]+)([^\s\"',;]{4,})")
-BOT_TOKEN = re.compile(r"\b\d{6,12}:[A-Za-z0-9_-]{30,}\b")
 NUMBERS = re.compile(r"\d+")
 
 
 def redact(text: str) -> str:
-    return BOT_TOKEN.sub("***", SECRET.sub(lambda m: m.group(1) + m.group(2) + "***", text or ""))
+    return redact_patterns(text)
 
 
 def fingerprint(logger: str, message: str, trace: str) -> str:

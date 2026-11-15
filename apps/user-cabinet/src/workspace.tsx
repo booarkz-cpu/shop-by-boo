@@ -10,12 +10,13 @@ import {LoyaltySection} from "./loyalty";
 import {FeedbackPrompt} from "./feedback";
 import {FilterSection} from "./filter";
 import {SessionsList} from "./cabinet-security";
+import {serverDate} from "./dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Props = {key?:string;compact?:boolean;withdraw?:boolean;ticketForm?:boolean;kind: string; request: RequestFn; reload: () => Promise<void>; plans: any[]; provider: string; providers: string[]; currency: string; api: string; botUsername?:string};
 const LABELS: Record<string,string> = {pending:"Ожидает оплаты",creating:"Создаётся",creation_unknown:"Требует сверки",paid:"Оплачен",fulfilled:"Доступ выдан",failed:"Ошибка",completed:"Завершено",processing:"Обрабатывается",queued:"В очереди",refunded:"Возвращён",active:"Активна",cancel_scheduled:"Отмена запланирована",frozen:"Заморожена",expired:"Истекла",ready:"Готов к передаче",used:"Активирован",requested:"Запрошено",approved:"Одобрено",rejected:"Отклонено",disabled:"Отключено",open:"Открыто",closed:"Закрыто",resolved:"Решено",survey_reward:"Награда за опрос",wallet_import:"Перенос начального баланса",wallet_topup:"Пополнение",wallet_spend:"Покупка подписки",gift_purchase:"Покупка подарка",wallet_topup_refund:"Возврат пополнения",gift_card:"Подарочная карта",wallet_purchase_refund:"Возврат покупки"};
 const label = (v:string) => /^reward_level_[2-5]$/.test(v)?`Награда, уровень ${v.slice(-1)}`:/^refund_level_[2-5]$/.test(v)?`Отмена награды, уровень ${v.slice(-1)}`:v==="reward"?"Реферальная награда":v.startsWith("refund_reversal:")?"Отмена реферальной награды":LABELS[v] || v || "—";
-const date = (v:string) => v ? new Date(v).toLocaleString() : "—";
+const date = (v:string) => v ? serverDate(v).toLocaleString() : "—";
 const CANCEL_REASONS:[string,string][]=[["price","Дорого"],["speed","Низкая скорость"],["stability","Нестабильно работает"],["not_needed","Больше не нужен VPN"],["other_service","Перешёл к другому сервису"],["other","Другое"]];
 const partnerSlug=()=>typeof location==="undefined"?"":new URLSearchParams(location.search).get("partner")||"";
 const AGENTS:Record<string,string>={yookassa:"YooKassa",rollypay:"RollyPay",platega:"Platega",cryptobot:"Криптовалюта (CryptoBot)",freekassa:"Карта или СБП (Freekassa)",cloudpayments:"Карта или СБП (CloudPayments)",lava:"Карта или СБП (Lava)",pal24:"Карта или СБП (Pal24)",mulenpay:"Карта или СБП (Mulen Pay)",wata:"Карта или СБП (WATA)",antilopay:"Карта или СБП (Antilopay)",aurapay:"Карта или СБП (AuraPay)",anore:"Карта или СБП (Anore)",cashera:"Карта или СБП (Cashera)",paritypay:"Карта или СБП (ParityPay)",sandbox:"Тестовый платёж"};

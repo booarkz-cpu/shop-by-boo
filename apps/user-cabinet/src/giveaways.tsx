@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
+import {serverDate} from "./dates";
 type RequestFn = (path:string, options?:RequestInit)=>Promise<any>;
 const labels:Record<string,string> = {open:'Участие открыто',scheduled:'Скоро',ended:'Участие завершено',full:'Лимит участников',closed:'Акция закрыта',drawn:'Розыгрыш завершён',entered:'Вы участвуете',won:'Вы выиграли',lost:'Без награды',ineligible:'Участие недоступно'};
 
@@ -17,7 +18,7 @@ export function GiveawayCard({row,request,onDone}:{key?:number;row:any;request:R
  const [busy,setBusy]=useState(false),[error,setError]=useState('');const locked=useRef(false);
  async function enter(){if(locked.current)return;locked.current=true;setBusy(true);setError('');try{const updated=await request(`/api/me/giveaways/${row.id}/enter`,{method:'POST'});await onDone(updated)}catch(e:any){setError(e.message)}finally{locked.current=false;setBusy(false)}}
  const weights=row.prizes.reduce((total:number,p:any)=>total+p.weight,0);
- return <article className="form-card stack"><h3>{row.title}</h3><p style={{whiteSpace:'pre-wrap'}}>{row.description}</p><p>{labels[row.phase]||row.phase} · {row.entry_count}/{row.max_entries} участников</p><p>До {new Date(row.ends_at).toLocaleString()}{row.require_subscription?' · нужна действующая подписка':''}</p>
+ return <article className="form-card stack"><h3>{row.title}</h3><p style={{whiteSpace:'pre-wrap'}}>{row.description}</p><p>{labels[row.phase]||row.phase} · {row.entry_count}/{row.max_entries} участников</p><p>До {serverDate(row.ends_at).toLocaleString()}{row.require_subscription?' · нужна действующая подписка':''}</p>
  {row.kind==='contest'?<p>Победителей: не более {row.winners_count}. Награда каждому: {row.prizes[0].amount} {row.currency}. После окончания оператор проведёт один розыгрыш среди доступных аккаунтов.</p>:<><h4>Колесо призов</h4>{row.prizes.map((p:any,i:number)=><p key={i}>{p.amount} {row.currency} · вероятность {(100*p.weight/weights).toFixed(2)}%</p>)}<p>Награду определяет сервер. Повтор запроса возвращает тот же результат.</p></>}
  {row.my_entry&&<p role="status">{labels[row.my_entry.outcome]||row.my_entry.outcome}{Number(row.my_entry.reward_amount)>0?` · начислено ${row.my_entry.reward_amount} ${row.currency}`:''}</p>}
  {error&&<p role="alert" className="workspace-alert">{error}</p>}{!row.my_entry&&row.phase==='open'&&<button className="btn-primary" disabled={busy} onClick={enter}>{busy?'Отправка…':row.kind==='wheel'?'Получить результат колеса':'Участвовать бесплатно'}</button>}</article>

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {StatusBadge, type Tone} from "./components/ui/status";
 import {stepUp} from "./stepUp";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -22,7 +23,7 @@ const STATUS: Record<string, [string, Tone]> = {succeeded: ["Обновлено"
 const PANEL: Record<string, [string, Tone]> = {verified: ["проверена в CI", "ok"], newer: ["новее проверенной", "warn"],
   older: ["старше проверенной", "warn"], unknown: ["версия неизвестна", "warn"], unreachable: ["не отвечает", "danger"],
   not_connected: ["не подключена", "idle"]};
-const when = (x: string | null) => (x ? new Date(x).toLocaleString("ru-RU") : "—");
+const when = (x: string | null) => (x ? serverDate(x).toLocaleString("ru-RU") : "—");
 
 /** «Обновления → Автообновление Remnawave»: панель, ноды и страница подписки, установленные мастером. */
 export function RwAutoUpdate({request, toast}: {request: Request; toast?: (text: string) => void}) {

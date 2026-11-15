@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {EmptyState, LoadState} from "./components/ui/state";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const API = "/api/admin/rw/selfsteal";
@@ -62,7 +63,7 @@ export function SelfSteal({request, toast, apiBase = ""}: {request: Request; toa
             </tr>
             {open === n.key && n.check && <tr><td colSpan={6}><ul className="checklist" data-check-points>
               {n.check.points.map((p: any) => <li key={p.key} data-ok={p.ok}>{p.ok ? "✅" : "⚠️"} {p.text}</li>)}</ul>
-              <p className="muted">Проверено {new Date(n.check.checked_at).toLocaleString("ru-RU")} с сервера магазина по адресу ноды {n.check.address}.</p></td></tr>}
+              <p className="muted">Проверено {serverDate(n.check.checked_at).toLocaleString("ru-RU")} с сервера магазина по адресу ноды {n.check.address}.</p></td></tr>}
           </React.Fragment>)}</tbody></table></div>}
     </section>
     {change && <ChangeSite node={change} catalogue={catalogue} sites={sites} request={request} toast={toast}
@@ -140,7 +141,7 @@ function OwnSites({sites, request, toast, reload}: any) {
     </form>
     {sites.length ? <div className="table-wrap"><table data-selfsteal-sites><thead><tr><th>Сайт</th><th>Файлов</th><th>Размер</th><th>Загружен</th><th/></tr></thead>
       <tbody>{sites.map((s: any) => <tr key={s.id}><td>{s.name}<div className="muted">{s.archive}</div></td><td>{s.files}</td>
-        <td>{(s.size / 1024 / 1024).toFixed(2)} МБ</td><td>{new Date(s.uploaded_at).toLocaleString("ru-RU")} · {s.by}</td>
+        <td>{(s.size / 1024 / 1024).toFixed(2)} МБ</td><td>{serverDate(s.uploaded_at).toLocaleString("ru-RU")} · {s.by}</td>
         <td><button onClick={() => remove(s.id)}>Удалить</button></td></tr>)}</tbody></table></div>
       : <p className="muted">Своих сайтов пока нет.</p>}
   </section>;

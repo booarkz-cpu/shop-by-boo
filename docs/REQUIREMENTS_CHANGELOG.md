@@ -184,3 +184,11 @@
 - Пути доказательств в `status.json` переписаны: `backend/…` → `services/backend/…`, `support-pro/…` → `services/support-pro/…`.
 - REQ-MIG-0014, REQ-MIG-0017, REQ-INFRA-0020: примечания обновлены; статусы прежние (`PARTIAL`).
 - Удалений и объединений нет.
+
+## 2026-11-15, PARTIAL в PASS, выпуск v28.159.0
+
+- В `PASS` из `PARTIAL`: REQ-SEC-0012, REQ-QA-0005, REQ-QA-0006, REQ-QA-0043, REQ-QA-0044, REQ-CLIENT-0012, REQ-CLIENT-0019,
+  REQ-CLIENT-0026, REQ-CLIENT-0028, REQ-CLIENT-0030, REQ-AUTO-0006, REQ-AUTO-0012, REQ-AUTO-0020, REQ-SHOP-0017,
+  REQ-SHOP-0022, REQ-CI-0011 (16).
+- REQ-ARCH-0020: остаётся `PARTIAL`, доказательства дополнены записями ADR 0006–0011.
+- Удалений и объединений нет.

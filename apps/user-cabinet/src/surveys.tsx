@@ -1,4 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
+import {serverDate} from "./dates";
 type RequestFn=(path:string,options?:RequestInit)=>Promise<any>;
 const labels:Record<string,string>={open:'Доступен',scheduled:'Скоро начнётся',closed:'Завершён'};
 export function Surveys({request,reload}:{request:RequestFn;reload:()=>Promise<void>}){
@@ -19,7 +20,7 @@ export function SurveyCard({row,request,onDone}:{key?:string|number;row:any;requ
  async function submit(e:React.FormEvent){e.preventDefault();if(locked.current)return;setError('');
   if(answers.some((a,i)=>row.questions[i].kind==='text'?!a.text.trim():!a.choices.length)){setError('Ответьте на каждый вопрос');return;}
   locked.current=true;setBusy(true);try{const updated=await request(`/api/me/surveys/${row.id}/submit`,{method:'POST',body:JSON.stringify({answers})});await onDone(updated)}catch(e:any){setError(e.message)}finally{locked.current=false;setBusy(false)}}
- return <article className="form-card stack"><h3>{row.title}</h3><p style={{whiteSpace:'pre-wrap'}}>{row.description}</p><p>{labels[row.phase]||row.phase} · до {new Date(row.ends_at).toLocaleString()} · ответов {row.response_count}/{row.max_responses}</p>
+ return <article className="form-card stack"><h3>{row.title}</h3><p style={{whiteSpace:'pre-wrap'}}>{row.description}</p><p>{labels[row.phase]||row.phase} · до {serverDate(row.ends_at).toLocaleString()} · ответов {row.response_count}/{row.max_responses}</p>
  {Number(row.reward_amount)>0&&<p>Награда: {row.reward_amount} {row.currency} на баланс магазина.</p>}
  {(row.require_verified_email||row.require_subscription)&&<p className="section-sub">Условия: {[row.require_verified_email?'подтверждённый email':'',row.require_subscription?'действующая подписка':''].filter(Boolean).join(', ')}.</p>}
  {row.submitted&&<p role="status">Ответ принят.{Number(row.my_reward)>0&&` Начислено ${row.my_reward} ${row.currency}.`}</p>}{error&&<p role="alert" className="workspace-alert">{error}</p>}

@@ -51,7 +51,7 @@
 | Apple StoreKit | `apple` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс AppleStorePlatform: проверка покупки на сервере | — | `test_behaviour_store_and_webhooks.py`, `test_mobile_store_expiry.py`, `test_store_billing.py` |
 | Google Play Billing | `google` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс GooglePlayPlatform: проверка покупки на сервере | — | `test_mobile_store_expiry.py`, `test_store_billing.py` |
 | Crypto Gateway | `crypto` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс CryptoGatewayPlatform | — | `test_behaviour_payments_v2.py`, `test_critical_audit_v2003.py` |
-| Sandbox | `sandbox` | `IMPLEMENTED` | `services/backend/app/payments.py` | Класс SandboxProvider: тестовая касса без денег | — | `test_account_merge.py`, `test_app_growth.py`, `test_behaviour_plans_privacy.py` и ещё 22 |
+| Sandbox | `sandbox` | `IMPLEMENTED` | `services/backend/app/payments.py` | Класс SandboxProvider: тестовая касса без денег | — | `test_account_merge.py`, `test_app_growth.py`, `test_behaviour_plans_privacy.py` и ещё 23 |
 
 ## Расхождения по способам оплаты
 

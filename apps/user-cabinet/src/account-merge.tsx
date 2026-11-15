@@ -1,4 +1,5 @@
 import React, {useRef, useState} from "react";
+import {serverDate} from "./dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<unknown>;
 
@@ -186,7 +187,7 @@ export function AccountMerge({request, onMerged}: AccountMergeProps) {
             <label className="field" htmlFor="merge-issued-code">
               Одноразовый код
               <input id="merge-issued-code" readOnly value={issuedCode} aria-describedby="merge-issued-code-help" />
-              <small id="merge-issued-code-help">Код действует до {new Date(expiresAt).toLocaleTimeString()} и не хранится в открытом виде.</small>
+              <small id="merge-issued-code-help">Код действует до {serverDate(expiresAt).toLocaleTimeString()} и не хранится в открытом виде.</small>
             </label>
             <button type="button" className="btn-ghost" onClick={copyCode}>Скопировать код</button>
           </div>

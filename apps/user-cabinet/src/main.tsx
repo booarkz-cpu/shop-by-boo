@@ -23,6 +23,7 @@ import {AppLogin} from "./app-login";
 import {Workspace} from "./workspace";
 import {HwidDevices, ResetSubscriptionLink, useTrialPlan} from "./cabinet-security";
 import {AccountRecovery, AccountSecurity, accountLink} from "./account-recovery";
+import {MyData} from "./my-data";
 import {AccountMerge} from "./account-merge";
 import type {AccountLink} from "./account-recovery";
 import {DomLocalizer, LangProvider, detectLang, t, useLang} from "./i18n";
@@ -39,6 +40,7 @@ import {FamilySection, StarsSubscribe, StatusSection, familyCodeFromUrl} from ".
 import {CompanySection, companyCodeFromUrl} from "./company";
 import {MAINTENANCE_EVENT, MaintenanceScreen, PaymentResult, StickerState, isMaintenance, orderFromUrl} from "./stickers";
 import {ConfigIcon, ConfigNotice, ConfigSkeleton, ConsentGate, Greeting, InfoSection, PromoCards, ReferralTerms, SectionBanner, SectionBoundary, ServerCatalog, SupportButtons, WalletTopup} from "./miniapp-sections";
+import {serverDate} from "./dates";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "";
 // The same bundle serves the web cabinet and the Telegram Mini App build
@@ -139,7 +141,7 @@ function pickProvider(providers: string[] | undefined): string {
 function formatDate(value?: string | null) {
   if (!value) return "—";
   try {
-    return new Date(value).toLocaleDateString();
+    return serverDate(value).toLocaleDateString();
   } catch {
     return String(value);
   }
@@ -988,7 +990,7 @@ function App() {
 
                 {["wallet","payments","gifts","referral","subscription","security","notifications","support"].includes(activeItem?.kind||"") && <>
                   <h2 className="section-title">{activeItem.title}</h2>
-                  {activeItem.kind==="security"&&<><ProfileCard request={req} onSaved={loadSession}/><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><AppLogin request={req}/><CustomerPasskeys req={req}/><AccountMerge request={req} onMerged={loadSession}/></>}
+                  {activeItem.kind==="security"&&<><ProfileCard request={req} onSaved={loadSession}/><AccountSecurity request={req} onPasswordChanged={()=>{setAuthed(false);flash("Пароль изменён. Войдите снова.")}}/><AppLogin request={req}/><CustomerPasskeys req={req}/><AccountMerge request={req} onMerged={loadSession}/><MyData request={req} onDeleted={()=>{setAuthed(false);flash("Учётная запись удалена")}}/></>}
                   {activeItem.kind==="subscription"&&<SubscriptionProfiles profiles={profiles} request={req} reload={loadSession}/>}
                   {activeItem.kind==="wallet"&&<><ConsentGate request={req} force={needConsent} onAccepted={()=>setNeedConsent(false)}/><WalletTopup request={req} balance={String(dash?.user?.wallet_balance ?? "0.00")} reload={loadSession} flash={flash} onConsentRequired={()=>setNeedConsent(true)}/></>}
                   {activeItem.kind==="referral"&&<ReferralTerms code={dash?.user?.referral_code||""} flash={flash}/>}

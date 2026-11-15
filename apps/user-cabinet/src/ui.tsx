@@ -1,4 +1,5 @@
 import React, {useRef} from "react";
+import {serverDate} from "./dates";
 
 export type Tone = "ok" | "warn" | "danger" | "idle" | "info";
 
@@ -89,7 +90,7 @@ export function formatBytes(bytes: number | null | undefined): string {
 
 export function daysLeft(expires?: string | null): number | null {
   if (!expires) return null;
-  const end = new Date(expires).getTime();
+  const end = serverDate(expires).getTime();
   if (!Number.isFinite(end)) return null;
   return Math.ceil((end - Date.now()) / 86_400_000);
 }

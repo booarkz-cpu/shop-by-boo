@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from "react";
+import {blank, label as fullLabel, type Label} from "./safe";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
-type Label = {ru: string; en: string; uk: string};
 type Button = {id: string; label: Label; action: string; target: string; style: string; icon: string; visible: boolean; audience: string};
 type Section = {id: string; kind: string; enabled: boolean; tab: boolean; title: Label; subtitle: Label; body: Label; icon: string;
   banner: {enabled: boolean; key: string; link: string}; buttons: Button[]};
@@ -17,9 +17,10 @@ const KIND_TITLES: Record<string, string> = {vpn: "Главный экран VPN
 const blankLabel = (ru = ""): Label => ({ru, en: "", uk: ""});
 
 function LabelFields({name, value, onChange, max = 60, area = false}: {name: string; value: Label; onChange: (v: Label) => void; max?: number; area?: boolean}) {
+  value = fullLabel(value);
   return <div className="ml-label">{LANGS.map(([lang, short]) => <label className="field" key={lang}>{`${name} (${short})`}
-    {area ? <textarea rows={2} maxLength={max} value={value[lang] || ""} onChange={(e) => onChange({...value, [lang]: e.target.value})}/>
-      : <input maxLength={max} value={value[lang] || ""} placeholder={lang === "ru" ? "" : "как по-русски"} onChange={(e) => onChange({...value, [lang]: e.target.value})}/>}
+    {area ? <textarea rows={2} maxLength={max} value={value[lang] || ""} onChange={(e) => onChange(fullLabel({...value, [lang]: e.target.value}))}/>
+      : <input maxLength={max} value={value[lang] || ""} placeholder={lang === "ru" ? "" : "как по-русски"} onChange={(e) => onChange(fullLabel({...value, [lang]: e.target.value}))}/>}
   </label>)}</div>;
 }
 
@@ -180,7 +181,7 @@ export function MobileLayoutEditor({data, request, reload, toast, assetBase}: {d
           {Object.entries(texts).map(([key, def]) => <LabelFields key={key} name={def.ru} value={layout.texts[key] || blankLabel()}
             onChange={(v) => {
               const next = {...layout.texts};
-              if (v.ru.trim() || v.en.trim() || v.uk.trim()) next[key] = {...v, ru: v.ru.trim() ? v.ru : def.ru}; else delete next[key];
+              if (!blank(v)) next[key] = {...v, ru: v.ru.trim() ? v.ru : def.ru}; else delete next[key];
               setLayout({...layout, texts: next});
             }}/>)}
         </div>
@@ -208,7 +209,7 @@ export function MobileLayoutEditor({data, request, reload, toast, assetBase}: {d
               <b>{def.ru}</b> <span className="muted"><code>{key}</code></span>
               <LabelFields name={`Строка ${key}`} max={300} value={{ru: "", en: "", uk: "", ...(layout.strings?.[key] || {})}} onChange={(v) => {
                 const next = {...(layout.strings || {})};
-                if (v.ru.trim() || v.en.trim() || v.uk.trim()) next[key] = v; else delete next[key];
+                if (!blank(v)) next[key] = v; else delete next[key];
                 setLayout({...layout, strings: next});
               }}/>
             </div>)}

@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 
@@ -10,7 +11,7 @@ const STAGE: Record<string, string> = {
 };
 const RUN_STATUS: Record<string, string> = {queued: "в очереди", running: "выполняется", passed: "пройдена", failed: "не пройдена", cancelled: "остановлена"};
 const name = (p: string) => (PROVIDERS.find(x => x[0] === p) || [p, p])[1];
-const when = (v?: string | null) => v ? new Date(v).toLocaleString() : "—";
+const when = (v?: string | null) => v ? serverDate(v).toLocaleString() : "—";
 
 /** E2E v2: the staging run and the production admission of its signed result. */
 export function PaymentAdmission({request, toast}: {request: Request; toast: (m: string) => void}) {

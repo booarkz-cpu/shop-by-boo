@@ -76,6 +76,23 @@ class ClientScreensTest {
         exists("Current provider".uppercase())
     }
 
+    @Test fun theSubscriptionCardSaysWhenItIsUpdatedNext() {  // v1.10.1 (REQ-CLIENT-0012)
+        val store = Store(context)
+        val now = System.currentTimeMillis()
+        store.profiles = listOf(
+            shop.corgi.client.core.Profile("sub", "Subscription", "subscription", url = "https://sub.example.invalid/x",
+                links = links.lines(), updatedAt = now),
+        )
+        store.settings = store.settings.copy(updateOnLaunch = false)
+        launch()
+        compose.onAllNodesWithTag("next-update", useUnmergedTree = true).fetchSemanticsNodes().let { assertTrue(it.isNotEmpty()) }
+        exists("Next update: ")
+        // Automatic updates off: nothing is planned, so the line is gone.
+        store.settings = store.settings.copy(autoUpdate = false)
+        scenario?.close(); launch()
+        assertTrue(compose.onAllNodesWithTag("next-update", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+    }
+
     @Test fun serversListSearchFilterAndChoice() {
         Store(context).add(links)
         launch()
@@ -237,6 +254,33 @@ class ClientScreensTest {
         compose.onNodeWithText("Tunnel logs").tap()
         compose.onNodeWithText("debug").tap()
         assertEquals("debug", Store(context).settings.logLevel)
+    }
+
+    @Test fun aPlainBackupLinkIsCopiedOnlyAfterTheWarning() {  // v1.10.1 (REQ-CLIENT-0019)
+        Store(context).add(links)
+        val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("t", "before"))
+        }
+        launch()
+        compose.onNodeWithText("Settings").tap()
+        compose.onNodeWithText("Backup").tap()
+        compose.onNodeWithTag("backup-link").tap()
+        exists("A copy without encryption")
+        compose.onNodeWithText("Cancel").tap()
+        fun clip(): String {
+            var text = ""
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                text = clipboard.primaryClip?.getItemAt(0)?.text?.toString().orEmpty()
+            }
+            return text
+        }
+        assertEquals("before", clip())    // cancelled: nothing left the app
+        compose.onNodeWithTag("backup-link").tap()
+        compose.onNodeWithTag("plain-confirm").tap()
+        // The link carries its own creation time, so the contents are compared.
+        val copied = shop.corgi.client.core.Backup.parse(clip())
+        assertEquals(Store(context).profiles.map { it.links }, copied.profiles.map { it.links })
     }
 
     @Test fun restoreLinkIsConfirmedFirst() {

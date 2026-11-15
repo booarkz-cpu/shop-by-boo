@@ -340,6 +340,38 @@ async def refresh_pool(db: AsyncSession = Depends(get_db), admin=Depends(require
     return await get_pool(db, admin)
 
 
+@router.post("/reset-template")
+async def reset_template(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
+    """«Сбросить шаблон»: the pool's template is written again from the panel's Default template and the saved choice.
+
+    Hand edits made to the template in the panel are dropped; the tile, the hidden nodes and the choice stay as they are.
+    """
+    from .main import audit
+    config = await _config(db)
+    if not config.get("enabled"):
+        raise HTTPException(409, "Пул автовыбора не включён")
+    hosts, _, _ = await _panel_state()
+    alive = {h.get("uuid") for h in hosts if not h.get("isDisabled")}
+    members = [u for u in config.get("hosts") or [] if u in alive]
+    if not members:
+        raise HTTPException(409, "В пуле не осталось ни одного включённого хоста. Выберите узлы заново или уберите плитку.")
+    template_uuid = await _template(config)
+    fresh = build_template(await _default_json(), members, config["algorithm"])
+    current = ((await _panel("GET", f"/api/subscription-templates/{template_uuid}")) or {}).get("templateJson")
+    changed = current != fresh
+    if changed:
+        await _panel("PATCH", "/api/subscription-templates", json={"uuid": template_uuid, "templateJson": fresh})
+    if config.get("template_uuid") != template_uuid:
+        tile = config.get("tile_uuid")
+        if tile in {h.get("uuid") for h in hosts}:
+            await _panel("PATCH", "/api/hosts", json={"uuid": tile, "xrayJsonTemplateUuid": template_uuid})
+        config["template_uuid"] = template_uuid
+        await _store(db, config)
+    await audit(db, "rw.autoselect.template_reset", admin.email, template_uuid, {"changed": changed, "hosts": len(members)})
+    await db.commit()
+    return {**await get_pool(db, admin), "template_changed": changed}
+
+
 @router.delete("")
 async def delete_pool(db: AsyncSession = Depends(get_db), admin=Depends(require_permission("provision_nodes"))):
     """«Убрать плитку»: the nodes we hid come back first, then the tile and the template are deleted."""

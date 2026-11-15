@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {EmptyState, LoadState} from "./components/ui/state";
 import {stepUp} from "./stepUp";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -173,12 +174,12 @@ function Snapshots({request, toast, state}: any) {
       <label>в (МСК)<input type="time" value={plan.time} onChange={e => setPlan({...plan, time: e.target.value})}/></label>
       <label className="inline"><input type="checkbox" checked={plan.telegram} onChange={e => setPlan({...plan, telegram: e.target.checked})}/> и в Telegram (чат и пароль — «Резервные копии»)</label>
       <button onClick={saveSchedule}>Сохранить</button>
-      {plan.state?.last && <span className="muted">Последний запуск: {new Date(plan.state.last.at).toLocaleString("ru-RU")}
+      {plan.state?.last && <span className="muted">Последний запуск: {serverDate(plan.state.last.at).toLocaleString("ru-RU")}
         {plan.state.last.sent ? `, в Telegram: ${plan.state.last.sent}` : ""}{plan.state.last.errors?.length ? `, замечания: ${plan.state.last.errors.join("; ")}` : ""}</span>}
     </div>}
     {list === null ? <p className="muted">Загрузка…</p> : list.length === 0 ? <p className="muted">Снапшотов пока нет: карточка «Снапшот сервера → скачать».</p> :
       <div className="table-wrap"><table><thead><tr><th>Когда</th><th>Сервер</th><th>Что</th><th>Размер</th><th/></tr></thead>
-        <tbody>{list.map(s => <tr key={s.name}><td>{new Date(s.created_at).toLocaleString("ru-RU")}</td><td>#{s.server_id}</td>
+        <tbody>{list.map(s => <tr key={s.name}><td>{serverDate(s.created_at).toLocaleString("ru-RU")}</td><td>#{s.server_id}</td>
           <td>{s.kind === "files" ? "Файлы компонентов" : "База панели"}</td><td>{(s.size / 1024).toFixed(0)} КБ</td>
           <td className="actions"><button onClick={() => download(s.name)}>Скачать</button>
             {s.kind === "files" && state?.installation_id && s.server_id === state.server.id &&

@@ -1,4 +1,5 @@
 """Layout of the Android and iOS apps: defaults, admin edits, validation and the public document."""
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -228,3 +229,45 @@ async def test_every_app_string_and_screen_block_is_editable(database):
     admin = await mobile_layout.admin_mobile_layout(database, ADMIN)
     assert "sign_in" in admin["strings"] and "vpn_plan_card" in admin["features"]
     assert json.loads(json.dumps(admin["layout"]))["features"]["vpn_location_card"] is False
+
+
+def _labels(node, path="layout"):
+    """Every {ru, en, uk} object inside an answer, with the path to it."""
+    if isinstance(node, dict):
+        if "ru" in node and set(node) <= {"ru", "en", "uk"}:
+            yield path, node
+        else:
+            for key, value in node.items():
+                yield from _labels(value, f"{path}.{key}")
+    elif isinstance(node, list):
+        for i, value in enumerate(node):
+            yield from _labels(value, f"{path}[{i}]")
+
+
+@pytest.mark.asyncio
+async def test_every_label_the_panel_receives_has_all_three_languages_as_strings(database):
+    """The historic "Cannot read properties of undefined (reading 'trim')": a label without a language.
+
+    A layout saved by an older version may hold labels with only the Russian text. The panel must still
+    receive ru, en and uk as strings for every label, so no field of it is undefined.
+    """
+    data = edited()
+    for section in data["sections"]:
+        for field in ("title", "subtitle", "body"):
+            section[field] = {"ru": section[field]["ru"]}
+        for button in section["buttons"]:
+            button["label"] = {"ru": button["label"]["ru"]}
+    data["texts"] = {"status_off": {"ru": "Выключено"}}
+    data["strings"] = {next(iter(mobile_layout.app_strings())): {"en": "Only English"}}
+    database.add(AppSetting(key=mobile_layout.SETTING_KEY, value=json.dumps(data, ensure_ascii=False)))
+    await database.commit()
+
+    answer = await mobile_layout.admin_mobile_layout(database, ADMIN)
+    for part in ("layout", "defaults", "texts", "strings"):
+        found = list(_labels(answer[part], part))
+        assert found, part
+        for path, label in found:
+            assert set(label) == {"ru", "en", "uk"}, path
+            assert all(isinstance(v, str) for v in label.values()), path
+    # The stored short labels were read, not replaced by the defaults.
+    assert answer["layout"]["texts"]["status_off"] == {"ru": "Выключено", "en": "", "uk": ""}

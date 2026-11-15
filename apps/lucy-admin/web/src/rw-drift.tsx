@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from "react";
 import {GitCompare} from "lucide-react";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Item = {area: string; object: string; expected: string; actual: string; tab: string};
 type View = {checked_at: string | null; ok_at: string | null; error: string | null; failed_at: string | null; items: Item[]; in_sync: boolean; watched: {autoselect: boolean; torrent_ban_nodes: number; masque_nodes?: number}};
 
-const when = (value: string | null) => (value ? new Date(value).toLocaleString("ru-RU") : "ещё не было");
+const when = (value: string | null) => (value ? serverDate(value).toLocaleString("ru-RU") : "ещё не было");
 const PLACE: Record<string, string> = {autoselect: "Автовыбор", torrents: "Торренты на узлах", protocolSwitch: "MASQUE: ноды и подписка"};
 
 /** «Сверка с панелью»: what the shop set on the Remnawave panel against what the panel has now. Changes nothing. */

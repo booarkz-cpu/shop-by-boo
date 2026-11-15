@@ -1,7 +1,8 @@
 import {SelectField} from "./components/select-field";
 import React,{useEffect,useRef,useState} from 'react';
+import {serverDate} from "../../../user-cabinet/src/dates";
 type RequestFn=(path:string,options?:RequestInit)=>Promise<any>;
-const localDate=(value:any)=>{const date=new Date(value);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16)};
+const localDate=(value:any)=>{const date=serverDate(value);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16)};
 const blank=()=>({title:'',description:'',starts_at:localDate(new Date()),ends_at:localDate(Date.now()+7*86400000),max_responses:1000,reward_amount:'0',require_verified_email:false,require_subscription:false,results_mode:'after_vote',questions:[{text:'',kind:'single',optionsText:'Первый вариант\nВторой вариант'}]});
 const labels:Record<string,string>={draft:'Черновик',published:'Опубликован',open:'Доступен',scheduled:'Запланирован',closed:'Завершён'};
 export function AdminSurveys({rows:initialRows,request,reload}:{rows:any[];request:RequestFn;reload:()=>Promise<void>}){
@@ -35,7 +36,7 @@ export function AdminSurveys({rows:initialRows,request,reload}:{rows:any[];reque
  {form.questions.length>1&&<button type="button" onClick={()=>set('questions',form.questions.filter((_,j)=>j!==i))}>Убрать вопрос</button>}</fieldset>)}
  <div className="inline"><button type="button" disabled={busy||form.questions.length>=20} onClick={()=>set('questions',[...form.questions,{text:'',kind:'single',optionsText:'Первый вариант\nВторой вариант'}])}>Добавить вопрос</button><button className="primary" disabled={busy}>Сохранить черновик</button>{editing&&<button type="button" disabled={busy} onClick={()=>{setEditing(null);setForm(blank())}}>Отмена изменения</button>}</div>
  </form></div>
- {!rows.length&&<p>Опросов пока нет.</p>}{rows.map(row=><article className="card" key={row.id}><h3>#{row.id} · {row.title}</h3><p>{labels[row.phase]||row.phase} · ответов {row.response_count}/{row.max_responses} · награда {row.reward_amount} {row.currency}</p><p>Бюджет: {row.budget_credited}/{row.budget_limit} {row.currency} · до {new Date(row.ends_at).toLocaleString()}</p>
+ {!rows.length&&<p>Опросов пока нет.</p>}{rows.map(row=><article className="card" key={row.id}><h3>#{row.id} · {row.title}</h3><p>{labels[row.phase]||row.phase} · ответов {row.response_count}/{row.max_responses} · награда {row.reward_amount} {row.currency}</p><p>Бюджет: {row.budget_credited}/{row.budget_limit} {row.currency} · до {serverDate(row.ends_at).toLocaleString()}</p>
  <div className="inline">{row.state==='draft'&&<><button disabled={busy} onClick={()=>edit(row)}>Изменить</button><button disabled={busy} onClick={()=>confirm(`Опубликовать неизменяемые условия и бюджет ${row.budget_limit} ${row.currency}?`)&&run(`/api/admin/surveys/${row.id}/publish`)}>Опубликовать</button><button disabled={busy} onClick={()=>confirm('Удалить черновик?')&&run(`/api/admin/surveys/${row.id}`,'DELETE')}>Удалить</button></>}
  {row.state==='published'&&<button disabled={busy} onClick={()=>confirm('Закрыть участие? Повторное открытие не предусмотрено.')&&run(`/api/admin/surveys/${row.id}/close`)}>Закрыть опрос</button>}<button disabled={busy} onClick={()=>loadResponses(row.id)}>Ответы участников</button></div>
  {row.questions.map((q:any,i:number)=><div key={i}><strong>{q.text}</strong>{q.kind==='text'?<p>Текстовых ответов: {row.statistics?.[i]?.answered||0}</p>:q.options.map((option:string,j:number)=><p key={j}>{option}: {row.statistics?.[i]?.[j]||0}</p>)}</div>)}</article>)}

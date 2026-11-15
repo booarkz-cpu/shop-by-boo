@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {LoadState} from "./components/ui/state";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 
 const KIND: Record<string, string> = {broadcast: "Рассылка", winback: "Возврат клиентов", retention: "Удержание", promotion: "Акция"};
 const STATUS: Record<string, string> = {draft: "черновик", scheduled: "запланирована", running: "отправляется", paused: "приостановлена", completed: "завершена"};
-const when = (v?: string | null) => v ? new Date(v).toLocaleString() : "—";
+const when = (v?: string | null) => v ? serverDate(v).toLocaleString() : "—";
 
 /** Automation: rules "event → conditions → actions" that the worker executes, and scheduled campaigns. */
 export function Automation({data, request, reload, toast}: {data: any; request: Request; reload: () => void; toast: (m: string) => void}) {

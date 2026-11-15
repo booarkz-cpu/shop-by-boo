@@ -1,4 +1,4 @@
-# Каталог API — v28.158.0 / API v21.5.1
+# Каталог API — v28.159.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -492,6 +492,7 @@ production gate остаётся закрытым без полного applicat
 | `PUT` | `/api/admin/rw/autoselect` | Put Pool | право `provision_nodes` |
 | `GET` | `/api/admin/rw/autoselect/meta` | Meta | право `read` |
 | `POST` | `/api/admin/rw/autoselect/refresh` | Refresh Pool | право `provision_nodes` |
+| `POST` | `/api/admin/rw/autoselect/reset-template` | Reset Template | право `provision_nodes` |
 | `GET` | `/api/admin/rw/certificates` | Certificates | право `read` |
 | `POST` | `/api/admin/rw/certificates/check` | Check All | право `read` |
 | `GET` | `/api/admin/rw/domains` | List Domains | право `read` |

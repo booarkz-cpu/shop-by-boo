@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from "react";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
-const when = (v?: string | null) => (v ? new Date(v).toLocaleString() : "—");
+const when = (v?: string | null) => (v ? serverDate(v).toLocaleString() : "—");
 const STATUS: Record<string, string> = {queued: "в очереди", sent: "отправлен, ждём ответ", retry: "повтор", check: "сверяем с «Мой налог»", failed: "ошибка", done: "сформирован"};
 
 /** «Тарифы и оплата → Чеки в налоговую»: «Мой налог», АТОЛ Онлайн or ЮKassa receipts for every payment. */

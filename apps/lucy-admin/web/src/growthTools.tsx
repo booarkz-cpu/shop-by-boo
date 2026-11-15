@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 
@@ -135,7 +136,7 @@ export function AntiSharing({request, toast}: {request: Request; toast: (text: s
       <label>Допуск сверх лимита<input type="number" min={0} max={5} value={cfg.tolerance} onChange={e => setCfg({...cfg, tolerance: e.target.value})}/></label>
       <button className="primary" onClick={save}>Сохранить</button>
       <p className="muted">Устройства берутся из Remnawave (HWID). Включите в панели HWID_DEVICE_LIMIT_ENABLED — тогда лишние устройства не подключатся вовсе. Снять блокировку: «Платформа → Нарушения».</p>
-      {cfg.recent?.length ? <ul>{cfg.recent.map((v: any) => <li key={v.id}>{new Date(v.created_at).toLocaleString("ru-RU")} — {v.summary} ({v.status})</li>)}</ul> : null}
+      {cfg.recent?.length ? <ul>{cfg.recent.map((v: any) => <li key={v.id}>{serverDate(v.created_at).toLocaleString("ru-RU")} — {v.summary} ({v.status})</li>)}</ul> : null}
     </div>
   );
 }
@@ -208,7 +209,7 @@ export function MobileMirrors({request, toast}: {request: Request; toast: (text:
       <label>ID GitHub Gist для автопубликации<input value={cfg.gist_id || ""} onChange={e => setCfg({...cfg, gist_id: e.target.value.trim()})}/></label>
       <label>Токен GitHub (только gist){cfg.gist_token_set ? " — сохранён" : ""}<input type="password" value={text.token} onChange={e => setText({...text, token: e.target.value})} placeholder={cfg.gist_token_set ? "оставьте пустым, чтобы не менять" : "ghp_…"}/></label>
       <label>Дополнительные сайты в обход VPN (режим «Российские сайты напрямую»)<textarea rows={3} value={text.direct} onChange={e => setText({...text, direct: e.target.value})} placeholder="online.sberbank.com"/></label>
-      {cfg.published_at ? <p className="muted">Gist обновлён: {new Date(cfg.published_at).toLocaleString("ru-RU")}</p> : null}
+      {cfg.published_at ? <p className="muted">Gist обновлён: {serverDate(cfg.published_at).toLocaleString("ru-RU")}</p> : null}
       <div className="toolbar"><button className="primary" onClick={save}>Сохранить</button><button disabled={busy || !cfg.gist_id} onClick={publish}>Опубликовать сейчас</button></div>
       <p className="muted">Ключ подписи (приложения запоминают его при первом входе): <code>{String(cfg.public_key || "").slice(0, 32)}…</code></p>
     </div>
