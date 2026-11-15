@@ -21,27 +21,44 @@ class Store(context: Context) {
 
     var profiles: List<Profile>
         get() = runCatching {
-            JSONArray(prefs.getString("profiles", "[]")).let { a -> (0 until a.length()).map { Profile.of(a.getJSONObject(it)) } }
+            // v1.10.0: kept encrypted (Vault); a value of an older version is plain and is re-saved encrypted.
+            val stored = prefs.getString("profiles", "[]") ?: "[]"
+            val text = Vault.open(stored) ?: "[]"
+            if (!Vault.isSealed(stored) && text != "[]") Vault.seal(text).takeIf { it != text }?.let { prefs.edit().putString("profiles", it).apply() }
+            JSONArray(text).let { a -> (0 until a.length()).map { Profile.of(a.getJSONObject(it)) } }
         }
             .getOrDefault(emptyList())
         set(value) {
-            prefs.edit().putString("profiles", JSONArray(value.map { it.toJson() }).toString()).apply()
+            prefs.edit().putString("profiles", Vault.seal(JSONArray(value.map { it.toJson() }).toString())).apply()
         }
 
     var settings: Settings
-        get() = Settings.of(prefs.getString("settings", null)?.let { runCatching { JSONObject(it) }.getOrNull() }).let { s ->
+        get() = Settings.of(prefs.getString("settings", null)?.let { runCatching { JSONObject(it) }.getOrNull() }?.also { j ->
+            // v1.10.0: the local proxy's password is kept encrypted (Vault); the rest of the settings is plain.
+            val pass = j.optString("proxyPass")
+            if (Vault.isSealed(pass)) {
+                j.put("proxyPass", Vault.open(pass) ?: "")
+            } else if (pass.isNotBlank()) {
+                // written by an older version: re-saved with the password encrypted
+                Vault.seal(pass).takeIf { it != pass }?.let { prefs.edit().putString("settings", JSONObject(j.toString()).put("proxyPass", it).toString()).apply() }
+            }
+        }).let { s ->
             // The local proxy's login and password: random on the first use, changed only by «Сбросить логин/пароль».
             if (s.proxyUser.isNotBlank() && s.proxyPass.isNotBlank()) {
                 s
             } else {
                 s.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16)).also {
-                    prefs.edit().putString("settings", it.toJson().toString()).apply()
+                    prefs.edit().putString("settings", stored(it)).apply()
                 }
             }
         }
         set(value) {
-            prefs.edit().putString("settings", value.toJson().toString()).apply()
+            prefs.edit().putString("settings", stored(value)).apply()
         }
+
+    /** The settings as they are written: the local proxy's password encrypted. */
+    private fun stored(value: Settings): String =
+        value.toJson().also { j -> if (value.proxyPass.isNotBlank()) j.put("proxyPass", Vault.seal(value.proxyPass)) }.toString()
 
     /** The active profile id and the server in it: an index or «auto». */
     var activeProfile: String

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.156.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.157.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2665**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2672**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -449,6 +449,7 @@
 | [apps/vpn-client/android/.editorconfig](../apps/vpn-client/android/.editorconfig) | Приложения |
 | [apps/vpn-client/android/app/build.gradle.kts](../apps/vpn-client/android/app/build.gradle.kts) | Приложения |
 | [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/AndroidManifest.xml](../apps/vpn-client/android/app/src/main/AndroidManifest.xml) | Приложения |
 | [apps/vpn-client/android/app/src/main/assets/banners/client-about.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-about.jpg) | Приложения |
 | [apps/vpn-client/android/app/src/main/assets/banners/client-appearance.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-appearance.jpg) | Приложения |
@@ -492,7 +493,9 @@
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TvReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TvReceiver.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Verify.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Verify.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/engine/Xray.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/engine/Xray.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppIcons.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppIcons.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt) | Приложения |
@@ -593,6 +596,7 @@
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt) | Приложения |
@@ -959,6 +963,7 @@
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
 | [backend/app/host_metrics.py](../backend/app/host_metrics.py) | API, бот и worker |
 | [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
+| [backend/app/import_presets.py](../backend/app/import_presets.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
 | [backend/app/install_catalogue.py](../backend/app/install_catalogue.py) | API, бот и worker |
 | [backend/app/integrity.py](../backend/app/integrity.py) | API, бот и worker |
@@ -1569,6 +1574,7 @@
 | [docs/ru/RELEASE_V28_154_0.md](../docs/ru/RELEASE_V28_154_0.md) | Документация |
 | [docs/ru/RELEASE_V28_155_0.md](../docs/ru/RELEASE_V28_155_0.md) | Документация |
 | [docs/ru/RELEASE_V28_156_0.md](../docs/ru/RELEASE_V28_156_0.md) | Документация |
+| [docs/ru/RELEASE_V28_157_0.md](../docs/ru/RELEASE_V28_157_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
@@ -2474,6 +2480,7 @@
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_host_metrics.py](../tests/test_host_metrics.py) | Проверки |
 | [tests/test_hot_standby.py](../tests/test_hot_standby.py) | Проверки |
+| [tests/test_import_presets.py](../tests/test_import_presets.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_install_catalogue.py](../tests/test_install_catalogue.py) | Проверки |
