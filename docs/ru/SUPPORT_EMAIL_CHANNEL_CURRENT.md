@@ -85,7 +85,7 @@ EMAIL_PRIVACY_NOTICE=Мы обрабатываем переписку по по�
 
 ## Проверка
 
-`support-pro/tests/test_email_channel.py` (SQLite и PostgreSQL) проверяет:
+`services/support-pro/tests/test_email_channel.py` (SQLite и PostgreSQL) проверяет:
 
 - создание обращения и отсутствие дублей при повторе и смене UIDVALIDITY;
 - цепочку по Message-ID и повторное открытие закрытого обращения;

@@ -15,7 +15,7 @@ ROOT=pathlib.Path(__file__).resolve().parents[1]
 def read(p): return p.read_text(encoding="utf-8")
 
 def test_all_python_parse():
-    for p in (ROOT/"backend").rglob("*.py"): ast.parse(read(p))
+    for p in (ROOT/"services" / "backend").rglob("*.py"): ast.parse(read(p))
 
 def test_v21_contracts():
     from app import remnawave
@@ -36,7 +36,7 @@ def test_compose_ports():
     for name in ['db','redis','backend','worker','bot','admin','miniapp']: assert not c['services'][name].get('ports')
 
 def test_admin_ui_contracts():
-    s=read(ROOT/"admin/src/main.tsx"); assert '/api/admin/payments/reconcile' in s; assert '/api/admin/sessions/revoke-all' in s; assert 'req("/health")' in s
+    s=read(ROOT/"apps/lucy-admin/web/src/main.tsx"); assert '/api/admin/payments/reconcile' in s; assert '/api/admin/sessions/revoke-all' in s; assert 'req("/health")' in s
 
 def test_miniapp_contracts():
     from frontend_sources import miniapp_sources; s=miniapp_sources(); assert '/api/me/connection-qr' in s; assert 'Автопродление' in s; assert 'Реферальная программа' in s

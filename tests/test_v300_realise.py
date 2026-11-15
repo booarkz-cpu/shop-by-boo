@@ -116,7 +116,7 @@ def test_helpers_accept_caddy_and_package_size(monkeypatch, tmp_path):
     import sys
 
     monkeypatch.setenv("MEDIA_DIR", str(tmp_path / "media"))
-    sys.path.insert(0, str(ROOT / "backend"))
+    sys.path.insert(0, str(ROOT / "services" / "backend"))
     from app.main import PACKAGE_UPLOAD_BYTES, _peer_is_trusted_proxy, _request_body_limit
 
     from app.config import settings

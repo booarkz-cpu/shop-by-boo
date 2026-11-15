@@ -58,14 +58,14 @@ async def test_replacing_media_deletes_only_inside_the_media_folder(database, mo
 
 
 def test_admin_enterprise_view_compiles_as_jsx_and_keeps_labels():
-    admin = (ROOT / "admin/src/main.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
     assert "<Корпоративный контур" not in admin
     assert "<Корпоративный d={d}" in admin
     for label in ["Корпоративный контур", "Брендинг панели", "Переключить тему", "Операции", "Аналитика", "Инциденты", "Провайдеры", "Клиенты", "Функции", "Ключи доступа", "24/7 мониторинг", "Campaign Manager", "Rules Engine", "мультиустройства", "Trial", "Личный кабинет"]:
-        assert label in admin or label in (ROOT / "admin/src/i18n.tsx").read_text()
+        assert label in admin or label in (ROOT / "apps/lucy-admin/web/src/i18n.tsx").read_text()
     assert '"status"' in admin and '"deployments"' in admin and '"notifications"' in admin
     assert "CabinetCMS" in admin
-    style = (ROOT / "admin/src/style.css").read_text()
+    style = (ROOT / "apps/lucy-admin/web/src/style.css").read_text()
     assert "--accent:" in style
     assert "Inter" in style
     assert "html[data-theme=\"light\"]" in style
@@ -73,7 +73,7 @@ def test_admin_enterprise_view_compiles_as_jsx_and_keeps_labels():
 
 
 def test_interfaces_have_russian_and_english_catalogs():
-    admin_i18n = (ROOT / "admin/src/i18n.tsx").read_text()
+    admin_i18n = (ROOT / "apps/lucy-admin/web/src/i18n.tsx").read_text()
     from frontend_sources import cabinet_i18n, miniapp_sources
     mini_i18n = cabinet_i18n()
     mini = miniapp_sources()

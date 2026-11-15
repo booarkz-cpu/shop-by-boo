@@ -75,7 +75,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
-    // Icons of the layout buttons and tabs (backend/app/mobile_layout.py ICONS).
+    // Icons of the layout buttons and tabs (services/backend/app/mobile_layout.py ICONS).
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.biometric:biometric:1.1.0")

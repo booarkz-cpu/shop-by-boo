@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.151.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.158.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # Production: установка, настройка и эксплуатация v21.5.1
 
@@ -58,12 +58,12 @@ ss -ltnp
 На свежем VDS от root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.151.0/install.sh -o /root/shop-install.sh && BRANCH=v28.151.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.158.0/install.sh -o /root/shop-install.sh && BRANCH=v28.158.0 bash /root/shop-install.sh
 ```
 
 Установщик сам клонирует точный тег, устанавливает зависимости, собирает и запускает сервисы. Ручная распаковка ZIP не нужна. Source-каталог по умолчанию `/opt/vpn-shop-src`, рабочий каталог `/opt/vpn-shop`. Для иных каталогов задайте `SOURCE_DIR` и `APP_DIR` перед `bash`.
 
-Docker ставится из его подписанного apt-репозитория через `deploy/install-docker.sh`. Работающий существующий Engine/Compose переиспользуется; live Engine не заменяется автоматически при отсутствии совместимого Compose plugin. Официальная процедура: [Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Debian](https://docs.docker.com/engine/install/debian/).
+Docker ставится из его подписанного apt-репозитория через `infrastructure/deployment/install-docker.sh`. Работающий существующий Engine/Compose переиспользуется; live Engine не заменяется автоматически при отсутствии совместимого Compose plugin. Официальная процедура: [Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Debian](https://docs.docker.com/engine/install/debian/).
 
 Установщик запросит домены, email/пароль администратора, бот, Remnawave, платежных агентов, язык, валюту, часовой пояс, цены, параметры рефералов и OAuth. Секреты вводятся скрыто. Email для сертификата передаётся Caddy. При выборе платежей `none` аккаунты касс можно настроить позднее. `PAYMENTS_SANDBOX=true` в production запрещён.
 
@@ -96,7 +96,7 @@ curl -fsS https://api.vpn.example.com/health/ready
 
 Войдите в админку с данными установщика. Настройте TOTP, сохраните recovery codes, создайте отдельные operator/viewer учётные записи по необходимым правам. Регулярную работу выполняйте своей учётной записью; audit связывает действия с оператором.
 
-Административные passkeys используют `WEBAUTHN_ORIGIN=https://admin.vpn.example.com`, клиентские — `CUSTOMER_WEBAUTHN_ORIGIN=https://cabinet.vpn.example.com`. Новая установка записывает оба origin. Для обновлённой установки добавьте их в `.env` через защищённый редактор и пересоздайте backend/worker/bot:
+Административные passkeys используют `WEBAUTHN_ORIGIN=https://admin.vpn.example.com`, клиентские — `CUSTOMER_WEBAUTHN_ORIGIN=https://cabinet.vpn.example.com`. Новая установка записывает оба origin. Для обновлённой установки добавьте их в `.env` через защищённый редактор и пересоздайте services/backend/worker/bot:
 
 ```bash
 docker compose up -d --force-recreate backend worker bot
@@ -116,7 +116,7 @@ docker compose up -d --force-recreate backend worker bot
 
 ## 8. SMTP и восстановление аккаунта
 
-Магазин отправляет письма через внешний SMTP. Собственный приёмник почты (MX) есть, но только для служебных адресов: отчёты DMARC и письма в поддержку ([приём почты](MAIL_RECEIVER_CURRENT.md)); он ничего не отправляет. Введите SMTP параметры в установщике либо задайте `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` в защищённом `.env` при последующей настройке. Кабинет должен иметь рабочий HTTPS `CABINET_URL`. Пересоздайте backend/worker, затем проверьте отправку подтверждения и password reset на свой тестовый адрес.
+Магазин отправляет письма через внешний SMTP. Собственный приёмник почты (MX) есть, но только для служебных адресов: отчёты DMARC и письма в поддержку ([приём почты](MAIL_RECEIVER_CURRENT.md)); он ничего не отправляет. Введите SMTP параметры в установщике либо задайте `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` в защищённом `.env` при последующей настройке. Кабинет должен иметь рабочий HTTPS `CABINET_URL`. Пересоздайте services/backend/worker, затем проверьте отправку подтверждения и password reset на свой тестовый адрес.
 
 Отправитель и домен должны быть разрешены вашим SMTP-провайдером. SPF/DKIM/DMARC публикуются в DNS по его точным инструкциям; результат проверьте в разделе **Система → Почтовый домен: SPF, DKIM, DMARC** ([инструкция](MAIL_DOMAIN_CURRENT.md)). SMTP-настройка не создаёт входящую почту. Проверьте Inbox/Spam, одноразовость ссылок, истечение срока и отзыв сессий при смене пароля. [Подробный сценарий](WORKSPACE_ACCOUNT_SECURITY.md).
 
@@ -181,14 +181,14 @@ df -h
 
 Логи перед передачей другим людям обезличьте. Не выполняйте `docker compose down -v` или `docker volume prune` на рабочей установке: это может удалить данные.
 
-## 14. Обновление до v28.151.0 (runtime v21.5.1)
+## 14. Обновление до v28.158.0 (runtime v21.5.1)
 
 Сначала проверьте изолированный стенд, создайте полную согласованную копию и сохраните предыдущие исходники/окружение. Затем:
 
 ```bash
 cd /opt/vpn-shop
 bash scripts/backup.sh            # полная копия обеих баз до обновления
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.151.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.158.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 docker compose exec -T backend alembic current
 bash scripts/doctor.sh
 ```

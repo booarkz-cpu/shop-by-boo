@@ -10,14 +10,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_version_313_is_first():
     (ROOT / "scripts/build-release.sh").read_text()
-    (ROOT / "deploy/install-vps.sh").read_text()
+    (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
 
 
 def test_piped_install_reads_the_terminal():
     wrapper = (ROOT / "install.sh").read_text()
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert "exec bash" in wrapper
-    assert 'exec bash "$SOURCE_DIR/deploy/install-vps.sh" </dev/tty' in wrapper
+    assert 'exec bash "$SOURCE_DIR/infrastructure/deployment/install-vps.sh" </dev/tty' in wrapper
     assert "INSTALL_NONINTERACTIVE" in wrapper
     assert "Нет терминала для вопросов установщика" in wrapper
     prompt = installer[installer.index("prompt() {"): installer.index("prompt_required() {")]
@@ -28,7 +28,7 @@ def test_piped_install_reads_the_terminal():
 
 
 def test_prompt_answers_from_a_pty_when_stdin_is_a_pipe():
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     prompt = installer[installer.index("prompt() {"): installer.index("prompt_required() {")]
     script = (
         "set -Eeuo pipefail\n"
@@ -72,7 +72,7 @@ def test_prompt_answers_from_a_pty_when_stdin_is_a_pipe():
 
 
 def test_noninteractive_prompt_does_not_read_stdin():
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     prompt = installer[installer.index("prompt() {"): installer.index("prompt_required() {")]
     script = "set -Eeuo pipefail\n" + prompt + "\nprompt BASE_DOMAIN \"Основной домен\" \"fallback.example\"\nprintf '%s\\n' \"$BASE_DOMAIN\"\n"
     proc = subprocess.run(
@@ -93,7 +93,7 @@ def test_docs_describe_313_and_keep_312():
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V3_1_3.md").read_text()
     steps = (ROOT / "docs/archive/INSTALL_STEPS_BEFORE_ALPHA_6.md").read_text()
     docs = (ROOT / "docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md").read_text()
-    ui = (ROOT / "admin/src/main.tsx").read_text()
+    ui = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
     assert "3.1.3" in readme and "3.1.2" in readme and "3.1.1" in readme
     assert "личный кабинет" in readme and "Конструктор тарифов" in readme
     assert "installation failed at line 34" in readme

@@ -23,17 +23,17 @@ def test_every_database_service_runs_postgres_18_on_the_new_volume_layout():
         assert f"{volume}:/var/lib/postgresql" in service["volumes"]
     # The PostgreSQL 16 volumes stay declared so the move and a rollback can reach them.
     assert {"postgres_data", "support_postgres_data", "postgres18_data", "support_postgres18_data"} <= set(main["volumes"])
-    support = compose("support-pro/docker-compose.yml")
+    support = compose("services/support-pro/docker-compose.yml")
     assert support["services"]["db"]["volumes"] == ["pgdata18:/var/lib/postgresql"]
     assert re.search(r"postgres:18\.\d+-alpine@", support["services"]["backup"]["image"])
     test = compose("docker-compose.test.yml")
     assert any("postgres:18." in str(s.get("image", "")) for s in test["services"].values())
-    for path in ("docker-compose.yml", "docker-compose.test.yml", "support-pro/docker-compose.yml", ".github/workflows/ci.yml", "scripts/pin-images.sh"):
+    for path in ("docker-compose.yml", "docker-compose.test.yml", "services/support-pro/docker-compose.yml", ".github/workflows/ci.yml", "scripts/pin-images.sh"):
         assert "postgres:16" not in (ROOT / path).read_text().replace("postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea", ""), path
 
 
 def test_backend_image_ships_a_postgres_18_client_for_in_app_backups():
-    docker = (ROOT / "backend/Dockerfile").read_text()
+    docker = (ROOT / "services/backend/Dockerfile").read_text()
     assert "ARG PG_CLIENT_MAJOR=18" in docker
     assert 'postgresql-client-${PG_CLIENT_MAJOR}' in docker
     assert "B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8" in docker
@@ -42,7 +42,7 @@ def test_backend_image_ships_a_postgres_18_client_for_in_app_backups():
 
 def test_update_moves_data_before_the_new_stack_starts():
     update = (ROOT / "scripts/update.sh").read_text()
-    assert update.index("bash scripts/upgrade-postgres.sh") < update.index("bash deploy/build-production.sh")
+    assert update.index("bash scripts/upgrade-postgres.sh") < update.index("bash infrastructure/deployment/build-production.sh")
     assert "scripts/upgrade-postgres.sh" in (ROOT / "scripts/preflight.sh").read_text()
     assert SCRIPT.stat().st_mode & 0o111
     subprocess.run(["bash", "-n", str(SCRIPT)], check=True)

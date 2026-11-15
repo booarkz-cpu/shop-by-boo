@@ -22,7 +22,7 @@ Support Pro закрывает исходное обращение и показ
 
 ## Обновление двух сторон
 
-1. Объявите окно обслуживания и остановите всех writers до snapshot: backend/worker/bot магазина и Support Pro app/worker. В самостоятельном контуре остановите также его собственный бот, если он пишет в ту же БД.
+1. Объявите окно обслуживания и остановите всех writers до snapshot: services/backend/worker/bot магазина и Support Pro app/worker. В самостоятельном контуре остановите также его собственный бот, если он пишет в ту же БД.
 2. Сделайте [согласованный backup](BACKUP_CURRENT.md) обеих БД и файлов при остановленных writers. Проверьте его восстановление на отдельном стенде; не возобновляйте writers до окончания обновления.
 3. Соберите актуальные образы, выполните магазинный `alembic upgrade head` и Support Pro `python -m app.migrate` (в общем Compose — `docker compose run --rm support_migrate`). Для v28.54.0 ожидаются магазинный `0088_filter_and_regions` и Support Pro `0008`; необходимая для remote mapping миграция `0062_support_delivery_identity` входит в цепочку магазина.
 4. Запустите обновлённый API магазина, затем Support Pro и его worker. Новый реальный HTTP-клиент требует метаданные версии структуры; старый API не является совместимым для нового mapping.

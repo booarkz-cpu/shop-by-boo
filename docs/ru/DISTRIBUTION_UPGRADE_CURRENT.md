@@ -7,7 +7,7 @@
 ```bash
 git clone --branch v28.54.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 Настройка DNS, Docker и секретов: [DEPLOYMENT_CURRENT.md](DEPLOYMENT_CURRENT.md).
@@ -28,7 +28,7 @@ curl --fail --show-error --silent --proto '=https' --max-time 60 \
   https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.54.0/scripts/github_release_fetch.py \
   -o "$upgrade_checker"
 RELEASE_TAG=v28.54.0 python3 "$upgrade_checker" "$shop_dir" "$upgrade_stage"
-if [ -f "$upgrade_stage/backend/app/main.py" ]; then
+if [ -f "$upgrade_stage/services/backend/app/main.py" ]; then
   APP_DIR="$shop_dir" UPDATE_STAGE="$upgrade_stage" bash "$shop_dir/scripts/update.sh"
 fi
 APP_DIR="$shop_dir" bash "$shop_dir/scripts/doctor.sh"
@@ -45,7 +45,7 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.54.0 \
   bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
-Без `RELEASE_TAG` выбирается последний стабильный GitHub Release. Обновление отдельного сервиса поддержки описано в [support-pro/UPGRADE.md](../../support-pro/UPGRADE.md).
+Без `RELEASE_TAG` выбирается последний стабильный GitHub Release. Обновление отдельного сервиса поддержки описано в [services/support-pro/UPGRADE.md](../../services/support-pro/UPGRADE.md).
 
 ## Проверка после обновления
 

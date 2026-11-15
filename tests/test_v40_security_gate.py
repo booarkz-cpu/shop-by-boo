@@ -14,7 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def read(rel): return (ROOT/rel).read_text(encoding="utf-8")
 
 def test_admin_frontend_identifiers_are_valid_and_staging_secret_preservation_is_supported():
-    s=read("admin/src/main.tsx")
+    s=read("apps/lucy-admin/web/src/main.tsx")
     assert "function Workers(" in s and "function Jobs(" in s
     assert "<Рабочие процессы" not in s and "<Задачаs" not in s
     assert "сохранить текущий" in s

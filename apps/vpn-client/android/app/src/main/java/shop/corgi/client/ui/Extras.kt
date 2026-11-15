@@ -179,19 +179,34 @@ internal fun BackupPage(store: Store, refresh: () -> Unit) {
     var message by remember { mutableStateOf("") }
     var qr by remember { mutableStateOf<String?>(null) }
     var restoring by remember { mutableStateOf<Result<Backup>?>(null) }
+    // v1.9.9: a password closes the file (it holds subscription links); a closed file asks for it when restored.
+    var password by remember { mutableStateOf("") }
+    var sealedFile by remember { mutableStateOf<String?>(null) }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) message = runCatching {
-            context.contentResolver.openOutputStream(uri)!!.use { it.write(store.backup().toJson().toString(2).toByteArray()) }
+            val text = store.backup().toJson().toString(2)
+            val file = if (password.isBlank()) text else shop.corgi.client.core.Sealed.seal(text, password)
+            context.contentResolver.openOutputStream(uri)!!.use { it.write(file.toByteArray()) }
         }.fold({ tr("Сохранено", "Saved", "Збережено") }, { it.message ?: "error" })
     }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) restoring = runCatching { Backup.parse(context.contentResolver.openInputStream(uri)!!.use { it.readBytes().toString(Charsets.UTF_8) }) }
+        if (uri != null) {
+            val text = runCatching { context.contentResolver.openInputStream(uri)!!.use { it.readBytes().toString(Charsets.UTF_8) } }
+            if (text.isSuccess && shop.corgi.client.core.Sealed.isSealed(text.getOrThrow())) sealedFile = text.getOrThrow()
+            else restoring = text.mapCatching { Backup.parse(it) }
+        }
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Section(tr("Создать резервную копию", "Create a backup", "Створити резервну копію")) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(tr("Все провайдеры, серверы, правила маршрутизации и настройки в одном файле.", "All providers, servers, routing rules and settings in one file.",
                     "Усі провайдери, сервери, правила маршрутизації й налаштування в одному файлі."), style = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(password, { password = it.take(64) }, Modifier.fillMaxWidth().testTag("backup-password"), singleLine = true,
+                    label = { Text(tr("Пароль для файла (необязательно)", "Password for the file (optional)", "Пароль для файлу (необов'язково)")) },
+                    supportingText = { Text(tr("С паролем файл зашифрован: без пароля его не открыть и не восстановить. В файле — ссылки ваших подписок.",
+                        "With a password the file is encrypted: it cannot be opened or restored without it. The file holds your subscription links.",
+                        "З паролем файл зашифровано: без пароля його не відкрити й не відновити. У файлі — посилання ваших підписок.")) },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation())
                 Button(onClick = { export.launch("corgi-client-backup.json") }, Modifier.fillMaxWidth().testTag("export")) { Text(tr("Экспортировать", "Export", "Експортувати")) }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
@@ -222,6 +237,26 @@ internal fun BackupPage(store: Store, refresh: () -> Unit) {
     }
     qr?.let { QrDialog(it) { qr = null } }
     restoring?.let { RestoreDialog(store, it) { restoring = null; refresh() } }
+    sealedFile?.let { file ->
+        var typed by remember(file) { mutableStateOf("") }
+        var wrong by remember(file) { mutableStateOf("") }
+        AlertDialog(onDismissRequest = { sealedFile = null },
+            title = { Text(tr("Файл закрыт паролем", "The file is closed with a password", "Файл закрито паролем")) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    OutlinedTextField(typed, { typed = it.take(64); wrong = "" }, Modifier.fillMaxWidth().testTag("restore-password"), singleLine = true,
+                        label = { Text(tr("Пароль", "Password", "Пароль")) }, visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation())
+                    if (wrong.isNotBlank()) Text(wrong, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    runCatching { Backup.parse(shop.corgi.client.core.Sealed.open(file, typed)) }
+                        .fold({ restoring = Result.success(it); sealedFile = null }, { wrong = it.message ?: "error" })
+                }) { Text(tr("Открыть", "Open", "Відкрити")) }
+            },
+            dismissButton = { TextButton(onClick = { sealedFile = null }) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
+    }
 }
 
 @Composable

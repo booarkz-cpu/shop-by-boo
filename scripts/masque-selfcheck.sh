@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MASQUE self-check: the inbound and outbound built by backend/app/masque.py against a real Xray-core.
+# MASQUE self-check: the inbound and outbound built by services/backend/app/masque.py against a real Xray-core.
 #
 #   bash scripts/masque-selfcheck.sh [xray tag, default v26.11.9]
 #
@@ -29,7 +29,7 @@ openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -days 
 grep -q " ${DOMAIN}\$" /etc/hosts || echo "127.0.0.1 ${DOMAIN}" | sudo tee -a /etc/hosts >/dev/null
 
 ADDRESS="$(hostname -I | awk '{print $1}')"
-PYTHONPATH="$ROOT/backend" ADDRESS="$ADDRESS" WORK="$WORK" DOMAIN="$DOMAIN" PORT="$PORT" python3 - <<'PY'
+PYTHONPATH="$ROOT/services/backend" ADDRESS="$ADDRESS" WORK="$WORK" DOMAIN="$DOMAIN" PORT="$PORT" python3 - <<'PY'
 import json, os
 from app import masque
 work, domain, port = os.environ["WORK"], os.environ["DOMAIN"], int(os.environ["PORT"])

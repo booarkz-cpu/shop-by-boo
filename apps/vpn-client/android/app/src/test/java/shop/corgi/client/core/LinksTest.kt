@@ -81,7 +81,7 @@ class LinksTest {
         assertEquals(profile, Profile.of(profile.toJson()))
     }
 
-    /** v1.9.4: the shop's MASQUE subscription (backend/app/rw_masque.py client_config) — whole JSON configs, one per node. */
+    /** v1.9.4: the shop's MASQUE subscription (services/backend/app/rw_masque.py client_config) — whole JSON configs, one per node. */
     @Test fun masqueJsonSubscription() {
         val proxy = """{"tag":"proxy","protocol":"masque","settings":{"address":"de.example.com","port":2087},
             "streamSettings":{"method":"masque","masqueSettings":{"path":"/0123456789abcdef01234567/{target}/{ipproto}/","user":"m1","pass":"p"},

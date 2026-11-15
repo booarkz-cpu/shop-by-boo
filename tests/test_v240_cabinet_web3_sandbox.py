@@ -35,27 +35,27 @@ async def test_sandbox_payments_work_only_when_enabled_outside_production(monkey
 
 
 def test_v240_frontends_and_sandbox_script_exist():
-    cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
-    admin = (ROOT / "admin/src/main.tsx").read_text()
-    style = (ROOT / "admin/src/style.css").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/main.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+    style = (ROOT / "apps/lucy-admin/web/src/style.css").read_text()
     compose = (ROOT / "docker-compose.yml").read_text()
-    caddy = (ROOT / "deploy/Caddyfile").read_text()
+    caddy = (ROOT / "infrastructure/reverse-proxy/Caddyfile").read_text()
     script = (ROOT / "scripts/sandbox-e2e.sh").read_text()
     assert "Личный кабинет" in cabinet
-    assert "Войти через Telegram" in (ROOT / "cabinet/src/i18n.tsx").read_text()
-    assert "Войти через Яндекс" in (ROOT / "cabinet/src/i18n.tsx").read_text()
-    assert "Войти через VK" in (ROOT / "cabinet/src/i18n.tsx").read_text()
+    assert "Войти через Telegram" in (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
+    assert "Войти через Яндекс" in (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
+    assert "Войти через VK" in (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
     assert "sandbox_payment" in cabinet
     assert "CabinetCMS" in admin
     assert "Личный кабинет" in admin
     assert "--accent:" in style
     assert "Inter" in style
-    assert "@fontsource-variable/inter" in (ROOT / "admin/src/app/layout.tsx").read_text()
+    assert "@fontsource-variable/inter" in (ROOT / "apps/lucy-admin/web/src/app/layout.tsx").read_text()
     assert "cabinet:" in compose
     assert "CABINET_DOMAIN" in compose
     ci = (ROOT / ".github/workflows/ci.yml").read_text()
     assert "docker compose -f docker-compose.yml config --quiet" in ci
-    assert "app: [admin, miniapp, cabinet]" in ci
+    assert all(f"{{app: {app}, dir: {path}}}" in ci for app, path in (("admin", "apps/lucy-admin/web"), ("miniapp", "apps/telegram-mini-app"), ("cabinet", "apps/user-cabinet")))
     assert "{$CABINET_DOMAIN}" in caddy
     assert "reverse_proxy cabinet:80" in caddy
     assert "PAYMENTS_SANDBOX" in script
@@ -65,7 +65,7 @@ def test_v240_frontends_and_sandbox_script_exist():
 def test_v240_docs_and_installer_cover_cabinet():
     readme = (ROOT / "docs/archive/README_BEFORE_WORKSPACE.md").read_text()
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_4_0.md").read_text()
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert "2.4.0" in readme
     assert "личный кабинет" in readme.lower() or "Личный кабинет" in readme
     assert "Sandbox" in notes or "sandbox" in notes

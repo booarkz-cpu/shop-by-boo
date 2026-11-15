@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def shop(monkeypatch):
-    monkeypatch.syspath_prepend(str(ROOT / 'backend'))
+    monkeypatch.syspath_prepend(str(ROOT / 'services' / 'backend'))
     module = importlib.import_module('app.main')
     monkeypatch.setattr(module.settings, 'app_env', 'test')
     return module
@@ -74,7 +74,7 @@ def test_production_rejects_weak_real_credentials(shop, changes, match):
 def test_all_route_permissions_are_defined(shop):
     from app.security import PERMISSIONS
     permitted = set.union(*PERMISSIONS.values())
-    for path in (ROOT / 'backend/app').glob('*.py'):
+    for path in (ROOT / 'services/backend/app').glob('*.py'):
         for node in ast.walk(ast.parse(path.read_text())):
             if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
                     and node.func.id == 'require_permission' and node.args

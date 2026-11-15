@@ -51,7 +51,7 @@ sorted pairs, computes HMAC-SHA256 with a key derived from `BOT_TOKEN` and compa
 constant time. It also rejects `auth_date` older than 10 minutes.
 
 So a forged sign-in cannot pass, even if a client sends its own data directly. The check lives in
-`backend/app/auth_api.py` and is covered by tests.
+`services/backend/app/auth_api.py` and is covered by tests.
 
 ## Notifications
 

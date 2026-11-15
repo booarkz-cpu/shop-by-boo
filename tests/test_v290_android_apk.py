@@ -16,11 +16,11 @@ def test_v290_apk_script_notes_and_clients():
     assert "RemnawaveShop-Android-User/2.9.0" in mobile
     user = (ROOT / "apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
     (ROOT / "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
-    ios_user = (ROOT / "mobile/ios-user/VpnShopUser/VpnShopUserApp.swift").read_text()
-    (ROOT / "mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
+    ios_user = (ROOT / "apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift").read_text()
+    (ROOT / "apps/lucy-admin/ios/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
     assert "externalUrlAllowed" in user
     assert "private let localHttpHosts" not in ios_user
-    assert "localHttpHosts" in (ROOT / "mobile/ios-user/VpnShopUser/ContentView.swift").read_text()
+    assert "localHttpHosts" in (ROOT / "apps/vpn-shop/ios/VpnShopUser/ContentView.swift").read_text()
     for role in ("user", "admin"):
         gradle = (ROOT / {"user": "apps/vpn-shop/android", "admin": "apps/lucy-admin/android"}[role] / "app/build.gradle.kts").read_text()
         assert re.search(r'^\s*versionName = "3\.9\.0"$', gradle, re.M)

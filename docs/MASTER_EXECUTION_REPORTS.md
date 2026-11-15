@@ -16,15 +16,15 @@
 
 Путь `GET /api/me/traffic` был объявлен дважды:
 
-* `backend/app/operations_api.py` — счётчики `traffic_used_bytes`, `traffic_limit_bytes`, `devices`;
-* `backend/app/panel_usage.py` — разбивка по дням `days`, `nodes`, `total_bytes` для «Моей статистики».
+* `services/backend/app/operations_api.py` — счётчики `traffic_used_bytes`, `traffic_limit_bytes`, `devices`;
+* `services/backend/app/panel_usage.py` — разбивка по дням `days`, `nodes`, `total_bytes` для «Моей статистики».
 
 Starlette обслуживает первый совпавший маршрут.
 
 ### 2. Обнаруженные проблемы
 
 * Кабинет, Mini App и мобильные приложения получали ответ **без** `days` и `nodes`.
-  `cabinet/src/keys.tsx` читает `data.days.length` → падение
+  `apps/user-cabinet/src/keys.tsx` читает `data.days.length` → падение
   `Cannot read properties of undefined (reading 'length')`, блок статистики исчезал.
 * Маршрут `GET /api/admin/users/{user_id}/traffic` из `panel_usage.py` не попадал в таблицу маршрутов —
   кнопка «Трафик» в карточке клиента админки не работала.
@@ -48,8 +48,8 @@ Starlette обслуживает первый совпавший маршрут.
 
 ### 4. Изменённые файлы
 
-* `backend/app/panel_usage.py` — объединённый обработчик и `_subscription_traffic`.
-* `backend/app/operations_api.py` — удалён дубликат маршрута и запись в `__all__`.
+* `services/backend/app/panel_usage.py` — объединённый обработчик и `_subscription_traffic`.
+* `services/backend/app/operations_api.py` — удалён дубликат маршрута и запись в `__all__`.
 * `tests/test_v34_hardening.py` — тест переписан на проверку поведения.
 
 ### 5. Тесты
@@ -88,7 +88,7 @@ python -m pytest tests/test_v34_hardening.py tests/test_subscription_middleware.
 
 ### 1. Исходное состояние
 
-`admin/src/app/page.tsx` и `cabinet/src/app/page.tsx` монтируют корень с `ssr: false`. Файлов
+`apps/lucy-admin/web/src/app/page.tsx` и `apps/user-cabinet/src/app/page.tsx` монтируют корень с `ssr: false`. Файлов
 `error.tsx` / `global-error.tsx` не было ни в одном приложении. В кабинете `SectionBoundary` защищал только
 контент раздела, корневые провайдеры — ничем.
 
@@ -100,17 +100,17 @@ python -m pytest tests/test_v34_hardening.py tests/test_subscription_middleware.
 
 ### 3. Выполненные действия
 
-* `admin/src/app/error.tsx`, `cabinet/src/app/error.tsx` — экран ошибки Next.js: причина, «Попробовать снова»
+* `apps/lucy-admin/web/src/app/error.tsx`, `apps/user-cabinet/src/app/error.tsx` — экран ошибки Next.js: причина, «Попробовать снова»
   (`reset`, сессия сохраняется), «Перезагрузить».
-* `CabinetRootBoundary` в `cabinet/src/main.tsx` и `AdminErrorBoundary`, навешенный на корень
-  `admin/src/main.tsx`, — ловят сбой **выше** страницы, в самих провайдерах.
+* `CabinetRootBoundary` в `apps/user-cabinet/src/main.tsx` и `AdminErrorBoundary`, навешенный на корень
+  `apps/lucy-admin/web/src/main.tsx`, — ловят сбой **выше** страницы, в самих провайдерах.
 * Текст экрана прямо говорит, что подписка и платежи не затронуты: сбой отрисовки не должен выглядеть как
   потеря доступа.
 
 ### 4. Изменённые файлы
 
-`admin/src/app/error.tsx` (новый), `cabinet/src/app/error.tsx` (новый), `admin/src/main.tsx`,
-`cabinet/src/main.tsx`, `tests/test_v34_hardening.py`.
+`apps/lucy-admin/web/src/app/error.tsx` (новый), `apps/user-cabinet/src/app/error.tsx` (новый), `apps/lucy-admin/web/src/main.tsx`,
+`apps/user-cabinet/src/main.tsx`, `tests/test_v34_hardening.py`.
 
 ### 5. Тесты
 
@@ -165,7 +165,7 @@ FastAPI выводит `operationId` из имени функции, поэто�
 
 ### 4. Изменённые файлы
 
-`backend/app/payments_api.py`, `tests/test_v34_hardening.py`.
+`services/backend/app/payments_api.py`, `tests/test_v34_hardening.py`.
 
 ### 5. Тесты
 
@@ -223,11 +223,11 @@ ids: {'get': 'freekassa_webhook_get', 'post': 'freekassa_webhook_post'}
 ### Проверено
 
 * `reading 'trim'`: единственные места, где `.trim()` вызывается на значении метки, — обработчики
-  `admin/src/mobileLayout.tsx` (строки 183, 211), читающие `v.ru`/`v.en`/`v.uk`. Backend отдаёт
-  `texts` как `dict[str, Label]` с полями `ru`/`en`/`uk` (`backend/app/mobile_layout.py`, классы
+  `apps/lucy-admin/web/src/mobileLayout.tsx` (строки 183, 211), читающие `v.ru`/`v.en`/`v.uk`. Backend отдаёт
+  `texts` как `dict[str, Label]` с полями `ru`/`en`/`uk` (`services/backend/app/mobile_layout.py`, классы
   `Label`, `LongText`) и `strings` как `dict[str, LongText]`. Форма совпадает, воспроизвести падение на
   текущем коде нельзя.
-* `map is not a function`: нормализация `list()` уже есть в `admin/src/main.tsx` и обрабатывает `items`,
+* `map is not a function`: нормализация `list()` уже есть в `apps/lucy-admin/web/src/main.tsx` и обрабатывает `items`,
   `results`, `data`. В кабинете списки читаются через `?.`/`|| []`.
 
 ### Решение
@@ -248,7 +248,7 @@ ids: {'get': 'freekassa_webhook_get', 'post': 'freekassa_webhook_post'}
 * Версия синхронизирована в 63 файлах (`v28.55.0` → `v28.56.0`, артефакт
   `remnawave_vpn_shop_v28_56_0_full_release.zip`). Исторические записи не тронуты: `CHANGELOG.md`
   получил новую секцию сверху, `docs/AUTOMATION_LOG.md` и `docs/ru/RELEASE_V28_55_0.md` сохранены как есть.
-* `backend/app/release_identity.py`: `DISTRIBUTION_TAG = "v28.56.0"`, `RUNTIME_VERSION = "21.5.1"`.
+* `services/backend/app/release_identity.py`: `DISTRIBUTION_TAG = "v28.56.0"`, `RUNTIME_VERSION = "21.5.1"`.
 * `release-manifest.template.json`: тег, заголовок, release notes, имена артефактов. Флаги
   `production_ready`, `full_function_transfer`, `production_e2e_verified`, `signed` оставлены `false` —
   это честное состояние, а не готовность к production.

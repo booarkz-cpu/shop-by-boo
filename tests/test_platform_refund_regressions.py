@@ -11,7 +11,7 @@ import pytest
 
 @pytest.fixture
 def modules(monkeypatch):
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "backend"))
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "services" / "backend"))
     shop = importlib.import_module("app.main")
     monkeypatch.setattr(shop, "register_provider_event", AsyncMock(return_value=True))
     monkeypatch.setattr(shop, "finish_provider_event", AsyncMock())

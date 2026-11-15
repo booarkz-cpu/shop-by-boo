@@ -168,7 +168,7 @@ async def test_postgres_last_slot_and_duplicate_race(database,monkeypatch):
 @pytest.mark.asyncio
 async def test_postgres_draw_race_and_migration_guard(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('Requires PostgreSQL')
-    spec=importlib.util.spec_from_file_location('giveaway_migration',Path('backend/alembic/versions/0052_giveaways.py'))
+    spec=importlib.util.spec_from_file_location('giveaway_migration',Path('services/backend/alembic/versions/0052_giveaways.py'))
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     from alembic.migration import MigrationContext
     from alembic.operations import Operations

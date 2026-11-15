@@ -4,7 +4,7 @@
 #   bash scripts/compose-build.sh          # fresh: --pull --no-cache (default of deploy and install)
 #   bash scripts/compose-build.sh cached   # --pull, reuse layers
 #
-# backend, worker and mail_receiver share backend/Dockerfile and its context. A plain
+# backend, worker and mail_receiver share services/backend/Dockerfile and its context. A plain
 # `docker compose build --no-cache` ran that whole build (apt, PostgreSQL client, pip) three
 # times; here the backend image is built fresh once and the other two are served from its
 # layers. Every other service is built as before.

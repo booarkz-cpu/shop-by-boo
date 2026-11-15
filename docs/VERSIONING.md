@@ -7,10 +7,10 @@
 
 | Что | Вид версии | Где записана | Где журнал изменений |
 | --- | --- | --- | --- |
-| Дистрибутив магазина (всё целиком) | `vMAJOR.MINOR.PATCH`, тег и выпуск на GitHub | `backend/app/release_identity.py` (`DISTRIBUTION_TAG`), `release-manifest.template.json` | `CHANGELOG.md`, `docs/ru/RELEASE_V…md` на каждый выпуск |
-| Runtime/API магазина | `MAJOR.MINOR.PATCH` | `backend/app/release_identity.py` (`RUNTIME_VERSION`), `backend/app/main.py` (`APP_VERSION`) | Заметки выпуска, в котором версия менялась |
-| База магазина | Имя последней миграции | `backend/alembic/versions/` | Заметки выпуска: строка «Head магазина» |
-| Support Pro | Номер и имя последней миграции | `support-pro/VERSION`, `support-pro/alembic/` | Заметки выпуска: строка «Support Pro» |
+| Дистрибутив магазина (всё целиком) | `vMAJOR.MINOR.PATCH`, тег и выпуск на GitHub | `services/backend/app/release_identity.py` (`DISTRIBUTION_TAG`), `release-manifest.template.json` | `CHANGELOG.md`, `docs/ru/RELEASE_V…md` на каждый выпуск |
+| Runtime/API магазина | `MAJOR.MINOR.PATCH` | `services/backend/app/release_identity.py` (`RUNTIME_VERSION`), `services/backend/app/main.py` (`APP_VERSION`) | Заметки выпуска, в котором версия менялась |
+| База магазина | Имя последней миграции | `services/backend/alembic/versions/` | Заметки выпуска: строка «Head магазина» |
+| Support Pro | Номер и имя последней миграции | `services/support-pro/VERSION`, `services/support-pro/alembic/` | Заметки выпуска: строка «Support Pro» |
 | Приложения магазина и администратора, Android и iOS | Одна версия на всё семейство, `MAJOR.MINOR.PATCH` | `mobile/android-*/app/build.gradle.kts`, проекты Xcode | `MOBILE.md`, раздел «Что нового» |
 | «Корги Люси: клиент» для Android | `MAJOR.MINOR.PATCH`, свой выпуск `client-vX.Y.Z` | `apps/vpn-client/android/app/build.gradle.kts` | `docs/ru/new/ANDROID_CLIENT_APP.md` |
 

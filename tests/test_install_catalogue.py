@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def admin_tabs() -> set[str]:
-    source = (ROOT / "admin/src/main.tsx").read_text()
+    source = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
     return set(re.findall(r'"([A-Za-z0-9]+)"', re.search(r"type Tab=([^;]+);", source).group(1)))
 
 

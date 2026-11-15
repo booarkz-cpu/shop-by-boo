@@ -45,7 +45,7 @@ sudo mv /opt/vpn-shop "/opt/vpn-shop-incomplete-$(date -u +%Y%m%dT%H%M%SZ)" && \
 sudo git -C /opt/vpn-shop-src fetch --tags origin && \
 sudo git -C /opt/vpn-shop-src checkout v20.0.27 && \
 cd /opt/vpn-shop-src && \
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 Если первая проверка не удалась, остановитесь: эти команды рассчитаны на стандартные пути `/opt/vpn-shop` и `/opt/vpn-shop-src`. Повторно введите параметры установки; при случайном пароле администратора будет создан новый пароль. Не копируйте старый `.env` в новую установку. Сохранённую папку с секретами удаляйте только после успешного запуска и переноса нужных сведений в защищённое хранилище.
@@ -118,7 +118,7 @@ git rev-parse --short HEAD
 
 ```bash
 cd /opt/vpn-shop-src
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 На вопросы ответьте доменами из таблицы, email администратора, паролем (или Enter для случайного), бот-токеном, именем бота без `@`, URL и токеном Remnawave. Секретные поля на экране не отображаются. Выберите `none` для платёжного провайдера, если ещё нет тестового контура и согласованных настроек. Остальные параметры можно оставить по умолчанию только после прочтения подсказки. `PAYMENTS_SANDBOX=true` для production запрещён. При неудачной проверке имени домена установка останавливается **до** изменений firewall.

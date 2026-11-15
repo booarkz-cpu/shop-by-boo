@@ -42,6 +42,8 @@ data class VpnUiState(
     /** v1.6.0 (N10): the address the internet sees and its flag, after connecting. */
     val externalIp: String = "",
     val externalFlag: String = "",
+    /** v1.10.0: the tunnel is up but the server has not answered through it — a warning, the VPN stays. */
+    val noAnswer: Boolean = false,
     val error: String = ""
 ) {
     val isConnected: Boolean get() = status == VpnStatus.Connected
@@ -57,7 +59,7 @@ sealed interface HomeEvent {
 
 /** What the view model needs from the tunnel and the settings — the real service in the app, a fake in tests and previews. */
 interface VpnEngine {
-    /** «off», «connecting» or «on» (ClientVpnService.STATE_*). */
+    /** «off», «connecting», «checking», «no_answer» or «on» (ClientVpnService.STATE_*). */
     fun state(): String
 
     /** Calls [listener] on the main thread on every change of the state; returns the way to stop listening. */
@@ -159,9 +161,10 @@ class VpnViewModel(
     }
 
     private fun read(previous: VpnUiState): VpnUiState {
-        val status = when (engine.state()) {
-            STATE_ON -> VpnStatus.Connected
-            STATE_CONNECTING -> VpnStatus.Connecting
+        val raw = engine.state()
+        val status = when (raw) {
+            STATE_ON, STATE_NO_ANSWER -> VpnStatus.Connected
+            STATE_CONNECTING, STATE_CHECKING -> VpnStatus.Connecting
             else -> VpnStatus.Idle
         }
         val session = if (status == VpnStatus.Connected) engine.session() else Session()
@@ -180,6 +183,7 @@ class VpnViewModel(
             externalFlag = if (status == VpnStatus.Connected) previous.externalFlag else "",
             configBusy = engine.configBusy(),
             mustChoose = engine.mustChoose(),
+            noAnswer = raw == STATE_NO_ANSWER,
             error = if (status == VpnStatus.Idle) engine.lastError() else ""
         )
     }
@@ -188,5 +192,7 @@ class VpnViewModel(
         const val TICK_MS = 1000L
         const val STATE_ON = "on"
         const val STATE_CONNECTING = "connecting"
+        const val STATE_CHECKING = "checking"
+        const val STATE_NO_ANSWER = "no_answer"
     }
 }

@@ -11,7 +11,7 @@ GitHub служит только источником проверенных р�
 | --- | --- | --- |
 | Хост (root, systemd) | ночной таймер и агент | `scripts/auto_update.py`, `scripts/auto-update.sh` |
 | Хост | загрузка и проверка релиза (SHA-256, манифест) | `scripts/update-from-github.sh` |
-| Backend | только пишет запрос и читает состояние | `backend/app/auto_update_api.py` |
+| Backend | только пишет запрос и читает состояние | `services/backend/app/auto_update_api.py` |
 | Панель | кнопки и статус | раздел «Обновления» |
 
 Обмен идёт через два JSON-файла в `.control`: панель пишет запрос, агент пишет состояние. Агент принимает
@@ -62,7 +62,7 @@ bash scripts/rollback.sh
 
 ```bash
 bash scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.151.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.158.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 ## Что видно в разделе «Обновления»

@@ -75,15 +75,15 @@ jobs:
         with:
           python-version: "3.14"
           cache: pip
-          cache-dependency-path: backend/requirements.txt
+          cache-dependency-path: services/backend/requirements.txt
       - name: Install dependencies
-        working-directory: backend
+        working-directory: services/backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-test.txt
       - name: Compile Python
-        working-directory: backend
+        working-directory: services/backend
         run: python -m compileall -q app worker.py
       - name: Current release documentation contract
         run: |
@@ -118,19 +118,19 @@ jobs:
           sudo apt-get install -y -qq nftables iproute2 >/dev/null
           sudo env "PATH=$PATH" bash scripts/ci/node-port-guard.sh
       - name: Server modules of «Установка» (guard, MSS clamp, swap) for real
-        # v28.92.0 (N7): backend/app/rw_netmods.py scripts in network namespaces and a swap file on the runner.
+        # v28.92.0 (N7): services/backend/app/rw_netmods.py scripts in network namespaces and a swap file on the runner.
         if: matrix.shard == 1
         timeout-minutes: 8
         run: |
           sudo apt-get install -y -qq nftables iproute2 iputils-ping >/dev/null
           sudo env "PATH=$PATH" bash scripts/ci/netmods-check.sh
       - name: CrowdSec module of «Установка» for real (install, ban reaches nftables, removal)
-        # v28.114.0: the script of backend/app/rw_netmods.py on the runner, from the official CrowdSec repository.
+        # v28.114.0: the script of services/backend/app/rw_netmods.py on the runner, from the official CrowdSec repository.
         if: matrix.shard == 1
         timeout-minutes: 10
         run: sudo env "PATH=$PATH" bash scripts/ci/crowdsec-check.sh
       - name: MASQUE on a node behind the SelfSteal site, for real (tunnel, hot users, removal)
-        # v28.129.0: the script and files of backend/app/rw_masque.py on the runner — the node's SelfSteal Caddy, the
+        # v28.129.0: the script and files of services/backend/app/rw_masque.py on the runner — the node's SelfSteal Caddy, the
         # pinned Xray and HAProxy images and a real Xray client.
         if: matrix.shard == 2
         timeout-minutes: 12
@@ -141,7 +141,7 @@ jobs:
         timeout-minutes: 2
         run: python3 scripts/ci/secret-leak-check.py
       - name: Ports of a server, for real (iptables and nftables in network namespaces)
-        # v28.135.0: the script of backend/app/rw_ports.py opens, reapplies after a «reboot» and closes ports; SSH is never closed.
+        # v28.135.0: the script of services/backend/app/rw_ports.py opens, reapplies after a «reboot» and closes ports; SSH is never closed.
         if: matrix.shard == 2
         timeout-minutes: 5
         run: sudo env "PATH=$PATH" bash scripts/ci/ports-check.sh
@@ -168,10 +168,10 @@ jobs:
           GH_API_TOKEN: ${{ github.token }}
         run: sudo env "PATH=$PATH" GH_API_TOKEN="$GH_API_TOKEN" bash scripts/ci/geo-check.sh
       - name: Alembic heads
-        working-directory: backend
+        working-directory: services/backend
         run: alembic heads
       - name: Alembic upgrade
-        working-directory: backend
+        working-directory: services/backend
         run: alembic upgrade head
       - name: Tests
         # A hung test fails after 5 minutes with all thread stacks instead of blocking the job.
@@ -210,7 +210,7 @@ jobs:
       - name: ruff (ruff.toml)
         run: |
           pip install ruff==0.17.3
-          ruff check backend scripts tests --output-format github
+          ruff check services/backend scripts tests --output-format github
       - name: Shell scripts parse
         run: |
           status=0
@@ -229,28 +229,28 @@ jobs:
           # Cached downloads: the job installs the same backend requirements on every run.
           cache: pip
           cache-dependency-path: |
-            backend/requirements.txt
-            backend/requirements-test.txt
+            services/backend/requirements.txt
+            services/backend/requirements-test.txt
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "26"
           cache: npm
           cache-dependency-path: |
-            admin/package-lock.json
-            cabinet/package-lock.json
+            apps/lucy-admin/web/package-lock.json
+            apps/user-cabinet/package-lock.json
       - name: Install runtime and browser
         run: |
-          python -m pip install -r backend/requirements.txt -r backend/requirements-test.txt
-          cd admin
+          python -m pip install -r services/backend/requirements.txt -r services/backend/requirements-test.txt
+          cd apps/lucy-admin/web
           npm ci
-          npm ci --prefix ../cabinet
+          npm ci --prefix ../../user-cabinet
           npx playwright install --with-deps chromium
       - name: Build and exercise public content, customer operations and WebAuthn
-        working-directory: admin
+        working-directory: apps/lucy-admin/web
         run: |
           npm run typecheck
           npm run build
-          NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
+          NEXT_BASE_PATH=/cabinet npm run build --prefix ../../user-cabinet
           status=0
           npx playwright test --reporter=line > "$RUNNER_TEMP/e2e.log" 2>&1 || status=$?
           tail -n 200 "$RUNNER_TEMP/e2e.log"
@@ -285,7 +285,7 @@ jobs:
         with:
           python-version: "3.14"
       - name: Install and test
-        working-directory: support-pro
+        working-directory: services/support-pro
         run: |
           python -m pip install -r requirements-dev.txt
           PYTHONPATH=. python -m pytest -q tests
@@ -304,17 +304,17 @@ jobs:
       - name: Python dependencies
         run: |
           python -m pip install pip-audit
-          for file in backend/requirements.txt support-pro/requirements.txt support-pro/requirements-dev.txt; do
+          for file in services/backend/requirements.txt services/support-pro/requirements.txt services/support-pro/requirements-dev.txt; do
             pip-audit -r "$file"
           done
       - name: Python static security analysis
         # High-severity, high-confidence findings only (bandit -lll -iii); anything it reports blocks the merge.
         run: |
           python -m pip install bandit
-          bandit -q -r backend/app support-pro/app -lll -iii
+          bandit -q -r services/backend/app services/support-pro/app -lll -iii
       - name: JavaScript dependencies
         run: |
-          for dir in admin miniapp cabinet; do
+          for dir in apps/lucy-admin/web apps/telegram-mini-app apps/user-cabinet; do
             (cd "$dir" && npm audit --audit-level=high)
           done
       - name: Secret and vulnerability scan of the repository, SBOM
@@ -335,11 +335,12 @@ jobs:
         # (scripts/ci/check-licenses.py; weak copyleft — LGPL, MPL — is allowed for a library used as is).
         run: |
           python -m venv /tmp/lic
-          /tmp/lic/bin/pip install -q pip-licenses -r backend/requirements.txt
-          /tmp/lic/bin/pip install -q -r support-pro/requirements.txt
+          /tmp/lic/bin/pip install -q pip-licenses -r services/backend/requirements.txt
+          /tmp/lic/bin/pip install -q -r services/support-pro/requirements.txt
           /tmp/lic/bin/pip-licenses --format=json > /tmp/py-licences.json
-          for dir in admin miniapp cabinet; do
-            (cd "$dir" && npm ci --omit=dev --ignore-scripts > /dev/null && npx --yes license-checker@25.0.1 --production --json > "/tmp/$dir-licences.json")
+          for app in admin:apps/lucy-admin/web miniapp:apps/telegram-mini-app cabinet:apps/user-cabinet; do
+            name="${app%%:*}"; dir="${app#*:}"
+            (cd "$dir" && npm ci --omit=dev --ignore-scripts > /dev/null && npx --yes license-checker@25.0.1 --production --json > "/tmp/$name-licences.json")
           done
           python scripts/ci/check-licenses.py /tmp/py-licences.json /tmp/admin-licences.json /tmp/miniapp-licences.json /tmp/cabinet-licences.json
 
@@ -348,10 +349,14 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        app: [admin, miniapp, cabinet]
+        # v28.153.0 (docs/MONOREPO_LAYOUT.md, stage 3): the job names stay, the folders moved.
+        include:
+          - {app: admin, dir: apps/lucy-admin/web}
+          - {app: miniapp, dir: apps/telegram-mini-app}
+          - {app: cabinet, dir: apps/user-cabinet}
     defaults:
       run:
-        working-directory: ${{ matrix.app }}
+        working-directory: ${{ matrix.dir }}
     steps:
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -360,12 +365,12 @@ jobs:
         with:
           node-version: "26"
           cache: npm
-          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+          cache-dependency-path: ${{ matrix.dir }}/package-lock.json
       - name: Install
         run: npm ci
       - name: Install shared cabinet dependencies
         if: matrix.app == 'miniapp'
-        run: npm ci --prefix ../cabinet
+        run: npm ci --prefix ../user-cabinet
       - name: Typecheck
         run: npm run typecheck
       - name: Customer workspace interactions
@@ -383,12 +388,12 @@ jobs:
       - name: Validate compose
         run: |
           cp .env.example .env
-          cp support-pro/.env.example support-pro/.env
+          cp services/support-pro/.env.example support-pro/.env
           docker compose -f docker-compose.yml config --quiet
           # Every PostgreSQL image reference is the same tag pinned to one digest, and that digest still exists in the
           # registry. Docker Hub rebuilds the tag (base image updates, twice on 2026-11-05): a newer digest is reported
           # as a notice to repin (scripts/repin-images.sh), not a failure of every pull request.
-          refs="$(grep -rhoE 'postgres:[0-9][^ "}]*' docker-compose.yml docker-compose.test.yml support-pro/docker-compose.yml | sort -u)"
+          refs="$(grep -rhoE 'postgres:[0-9][^ "}]*' docker-compose.yml docker-compose.test.yml services/support-pro/docker-compose.yml | sort -u)"
           echo "$refs"
           test "$(echo "$refs" | wc -l)" = 1
           echo "$refs" | grep -qE '^postgres:18\.6-alpine@sha256:[0-9a-f]{64}$'
@@ -399,10 +404,10 @@ jobs:
           cp .env.test.example .env.test
           docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
       - name: Prometheus alert rules
-        # v28.75.0: the alert rules are checked and unit-tested with promtool (the image of the deploy/ stack).
+        # v28.75.0: the alert rules are checked and unit-tested with promtool (the image of the infrastructure/monitoring stack).
         run: |
-          docker run --rm -v "$PWD/deploy/prometheus:/rules:ro" --entrypoint promtool prom/prometheus:v3.5.0 check rules /rules/vpnshop-alerts.yml
-          docker run --rm -v "$PWD/deploy/prometheus:/rules:ro" -w /rules --entrypoint promtool prom/prometheus:v3.5.0 test rules vpnshop-alerts.test.yml
+          docker run --rm -v "$PWD/infrastructure/monitoring/prometheus:/rules:ro" --entrypoint promtool prom/prometheus:v3.5.0 check rules /rules/vpnshop-alerts.yml
+          docker run --rm -v "$PWD/infrastructure/monitoring/prometheus:/rules:ro" -w /rules --entrypoint promtool prom/prometheus:v3.5.0 test rules vpnshop-alerts.test.yml
 
   containers:
     name: Containers • non-root startup and Redis authentication
@@ -413,7 +418,7 @@ jobs:
       - name: Prepare isolated test configuration
         run: |
           cp .env.example .env
-          cp support-pro/.env.example support-pro/.env
+          cp services/support-pro/.env.example support-pro/.env
           python3 scripts/harden-env.py
           python3 - <<'PY'
           from pathlib import Path
@@ -613,7 +618,7 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: XCUITest on a simulator
-        working-directory: mobile/ios-user
+        working-directory: apps/vpn-shop/ios
         run: |
           set -o pipefail
           device=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
@@ -641,12 +646,14 @@ jobs:
         include:
           - app: ios-user
             project: VpnShopUser
+            dir: apps/vpn-shop/ios
           - app: ios-admin
             project: VpnShopAdmin
+            dir: apps/lucy-admin/ios
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Compile simulator application
-        working-directory: mobile/${{ matrix.app }}
+        working-directory: ${{ matrix.dir }}
         run: xcodebuild -project ${{ matrix.project }}.xcodeproj -scheme ${{ matrix.project }} -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
 
   ios-extensions:
@@ -664,18 +671,18 @@ jobs:
       - id: frameworks
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: mobile/ios-user/Frameworks
+          path: apps/vpn-shop/ios/Frameworks
           key: ios-tunnel-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh') }}
       - name: Build LibXray and HevSocks5Tunnel
         if: steps.frameworks.outputs.cache-hit != 'true'
         run: bash scripts/ios/build-tunnel-frameworks.sh
       - name: Embed the extensions
         run: |
-          ls mobile/ios-user/Frameworks 2>/dev/null | sed 's/^/::notice title=frameworks::/' || echo "::warning title=frameworks::none built"
+          ls apps/vpn-shop/ios/Frameworks 2>/dev/null | sed 's/^/::notice title=frameworks::/' || echo "::warning title=frameworks::none built"
           python3 scripts/ios/enable-extensions.py --tunnel --push | sed 's/^/::notice title=enable::/'
-          grep -c "xcframework in Frameworks" mobile/ios-user/VpnShopUser.xcodeproj/project.pbxproj | sed 's/^/::notice title=linked frameworks::/' 
+          grep -c "xcframework in Frameworks" apps/vpn-shop/ios/VpnShopUser.xcodeproj/project.pbxproj | sed 's/^/::notice title=linked frameworks::/' 
       - name: Compile app + CorgiTunnel + CorgiNotificationService
-        working-directory: mobile/ios-user
+        working-directory: apps/vpn-shop/ios
         run: |
           set -o pipefail
           xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug \

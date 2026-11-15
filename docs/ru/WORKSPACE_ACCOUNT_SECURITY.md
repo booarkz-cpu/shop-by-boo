@@ -8,7 +8,7 @@
 
 В серверном `.env` задайте `CABINET_URL=https://cabinet.example.com`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`; при необходимости `SMTP_USER` и `SMTP_PASSWORD`. `CABINET_URL` должен быть HTTPS адресом кабинета без credentials, query или fragment. Если он пуст, используется `MINI_APP_URL`. Отправитель должен быть разрешён вашим SMTP-сервисом. Порт 465 использует SMTP SSL; остальные порты — STARTTLS с проверкой сертификата. Соединения без TLS не поддерживаются.
 
-После резервного копирования примените миграции и пересоздайте backend/worker:
+После резервного копирования примените миграции и пересоздайте services/backend/worker:
 
 ```bash
 cd /opt/vpn-shop

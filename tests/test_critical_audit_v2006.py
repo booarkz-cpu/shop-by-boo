@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_live_version_is_20_0_6():
     from app.main import APP_VERSION as current
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     builder = (ROOT / "scripts/build-release.sh").read_text()
     assert tuple(map(int, current.split('-', 1)[0].split('.'))) >= (20, 0, 6)
     assert f'INSTALLER_VERSION="{current}"' in installer
@@ -22,7 +22,7 @@ def test_internal_runner_routes_exist():
 
 def test_runner_prints_the_marker_only_as_the_final_line():
     host = (ROOT / "scripts/staging-e2e.sh").read_text()
-    image = (ROOT / "backend/scripts/staging-e2e.sh").read_text()
+    image = (ROOT / "services/backend/scripts/staging-e2e.sh").read_text()
     assert host == image
     assert (ROOT / "scripts/staging-e2e.sh").stat().st_mode & 0o111
     lines = [line for line in host.splitlines() if "FULL_E2E_PASS" in line]

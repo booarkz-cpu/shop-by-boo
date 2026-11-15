@@ -36,10 +36,22 @@ def version_tuple(value: str) -> tuple:
     return base + (3, 0)
 
 
+def api_dir(root: Path) -> Path | None:
+    """The folder of the shop's API in a tree: services/backend/app, or backend/app in a tree older than layout
+    stage 5 (an installed server before its first update past that release, or a restored snapshot)."""
+    for candidate in ("services/backend/app", "backend/app"):
+        if (root / candidate / "main.py").is_file():
+            return root / candidate
+    return None
+
+
 def current_version(app_dir: Path) -> str:
-    text = (app_dir / "backend/app/main.py").read_text(encoding="utf-8")
+    app = api_dir(app_dir)
+    if app is None:
+        raise FileNotFoundError(f"{app_dir}: services/backend/app/main.py")
+    text = (app / "main.py").read_text(encoding="utf-8")
     if "MAIN_PY_ASSEMBLED_FROM_PARTS" in text:
-        text = (app_dir / "backend/app/main_src/part-00").read_text(encoding="utf-8")
+        text = (app / "main_src/part-00").read_text(encoding="utf-8")
     marker = 'APP_VERSION = "'
     start = text.index(marker) + len(marker)
     return text[start:text.index('"', start)]
@@ -158,10 +170,10 @@ def safe_extract(blob: bytes, destination: Path) -> None:
                     if written > MAX_ARCHIVE_BYTES:
                         fail("Release archive is too large")
                     handle.write(chunk)
-    if (destination / "backend/app/main.py").is_file():
+    if api_dir(destination):
         return
     children = [path for path in destination.iterdir() if path.name != "__MACOSX"]
-    if len(children) == 1 and children[0].is_dir() and (children[0] / "backend/app/main.py").is_file():
+    if len(children) == 1 and children[0].is_dir() and api_dir(children[0]):
         nested = children[0]
         for item in list(nested.iterdir()):
             target = destination / item.name

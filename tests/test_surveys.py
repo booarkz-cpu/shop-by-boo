@@ -97,7 +97,7 @@ async def test_postgres_migration_round_trip_and_response_guard(database):
     from pathlib import Path
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
-    spec=importlib.util.spec_from_file_location('survey_migration',Path('backend/alembic/versions/0051_surveys.py'))
+    spec=importlib.util.spec_from_file_location('survey_migration',Path('services/backend/alembic/versions/0051_surveys.py'))
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     async with database.bind.begin() as conn:
         def cycle(connection):

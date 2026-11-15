@@ -24,7 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 def shop(monkeypatch, tmp_path):
     monkeypatch.setenv('APP_ENV', 'test')
     monkeypatch.setenv('MEDIA_DIR', str(tmp_path / 'media'))
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'backend'))
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'services' / 'backend'))
     return importlib.import_module('app.main')
 
 
