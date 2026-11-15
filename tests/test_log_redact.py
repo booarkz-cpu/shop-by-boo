@@ -1,5 +1,6 @@
 """REQ-SEC-0012: no configured secret reaches a log line of any process (console, JSON format, error journal)."""
 import io
+import asyncio
 import json
 import logging
 
@@ -119,3 +120,56 @@ def test_the_token_after_bearer_is_masked_not_the_word(secrets):
             assert "Bearer ***" in out, out
     assert log_redact.mask("token: abcdef123456") == "token: ***"
     assert log_redact.mask("api_key=abcd1234 and secret='zzzz9999'") == "api_key=*** and secret='***'"
+
+
+def test_json_exception_cannot_recreate_the_unmasked_traceback(secrets):
+    logger, stream, handler = capture("test.redact.json.exception", log_format.JsonFormatter())
+    try:
+        try:
+            raise RuntimeError(f"service refused {METRICS}")
+        except RuntimeError:
+            logger.exception("operation failed")
+    finally:
+        logger.removeHandler(handler)
+    out = json.loads(stream.getvalue())
+    assert METRICS not in out["exception"]
+    assert "RuntimeError: service refused ***" in out["exception"]
+
+
+def test_error_database_masks_configured_values_without_a_secret_field_name(secrets, monkeypatch):
+    from app import error_log
+    queue = asyncio.Queue()
+    monkeypatch.setattr(error_log, "_queue", queue)
+    logger = logging.getLogger("test.redact.database")
+    handler = error_log.DatabaseHandler()
+    logger.addHandler(handler)
+    logger.setLevel(logging.ERROR)
+    try:
+        try:
+            raise RuntimeError(f"service refused {METRICS}")
+        except RuntimeError:
+            logger.exception("operation failed")
+    finally:
+        logger.removeHandler(handler)
+    item = queue.get_nowait()
+    assert METRICS not in item["traceback"]
+    assert "RuntimeError: service refused ***" in item["traceback"]
+    assert METRICS not in error_log.redact(f"service refused {METRICS}")
+
+
+def test_stack_information_is_masked_before_plain_text_formatting(secrets):
+    record = logging.getLogRecordFactory()("test.stack", logging.ERROR, __file__, 1, "failed", (), None,
+                                          sinfo=f"Stack source contains {METRICS}")
+    out = logging.Formatter().format(record)
+    assert METRICS not in out
+    assert "Stack source contains ***" in out
+
+
+def test_malformed_format_does_not_expose_arguments_through_logging_errors(secrets, capsys):
+    logger, stream, handler = capture("test.redact.badformat")
+    try:
+        logger.error("invalid %q", METRICS)
+    finally:
+        logger.removeHandler(handler)
+    assert METRICS not in capsys.readouterr().err
+    assert stream.getvalue() == "Log entry suppressed: formatting failed\n"

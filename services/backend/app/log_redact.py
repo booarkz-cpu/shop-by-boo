@@ -86,10 +86,15 @@ def install(settings) -> bool:
                     record.msg = mask(record.msg)
                 if mask(record.getMessage()) != record.getMessage():
                     record.msg, record.args = masked, None  # a secret split between the template and an argument
-            if record.exc_info and not record.exc_text:
+            if record.exc_text:
+                record.exc_text = mask(record.exc_text)
+            elif record.exc_info:
                 record.exc_text = mask(plain.formatException(record.exc_info))
-        except Exception:  # noqa: BLE001 — logging must never raise; the record stays as it was
-            return record
+            if record.stack_info:
+                record.stack_info = mask(record.stack_info)
+        except Exception:  # noqa: BLE001 — malformed logging must not disclose the original arguments via handleError
+            record.msg, record.args = "Log entry suppressed: formatting failed", ()
+            record.exc_info, record.exc_text, record.stack_info = None, None, None
         return record
 
     logging.setLogRecordFactory(factory)
