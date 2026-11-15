@@ -47,4 +47,4 @@ def test_sqlalchemy_asyncio_extra_brings_greenlet():
 def test_dependabot_watches_the_files_that_are_installed():
     config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text())
     pip_dirs = {u["directory"] for u in config["updates"] if u["package-ecosystem"] == "pip"}
-    assert pip_dirs == {"/backend", "/support-pro"}
+    assert pip_dirs == {"/services/backend", "/services/support-pro"}

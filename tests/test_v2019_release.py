@@ -41,7 +41,7 @@ class ReleaseSelectionTests(unittest.TestCase):
         data = io.BytesIO()
         with zipfile.ZipFile(data, "w") as archive:
             archive.writestr("services/backend/app/main.py", 'APP_VERSION = "20.0.20"\n')
-            archive.writestr("backend\\app\\main.py", 'APP_VERSION = "20.0.19"\n')
+            archive.writestr("services\\backend\\app\\main.py", 'APP_VERSION = "20.0.19"\n')
         with tempfile.TemporaryDirectory() as base:
             with self.assertRaises(SystemExit):
                 fetcher.safe_extract(data.getvalue(), Path(base))

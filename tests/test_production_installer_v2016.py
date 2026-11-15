@@ -32,7 +32,7 @@ def test_pin_images_can_run_from_non_executable_release_copy(tmp_path):
 
 def test_resume_after_pin_preserves_credentials_and_finishes(tmp_path):
     (tmp_path / "scripts").mkdir()
-    (tmp_path / "services" / "support-pro").mkdir()
+    (tmp_path / "support-pro").mkdir()
     shutil.copyfile(ROOT / "scripts/pin-images.sh", tmp_path / "scripts/pin-images.sh")
     (tmp_path / "scripts/pin-images.sh").chmod(0o644)
     (tmp_path / ".env").write_text("APP_VERSION='20.0.22'\nBOT_TOKEN='preserved-secret'\n")
@@ -91,7 +91,7 @@ def test_installer_produces_both_env_files_without_corrupting_secrets(tmp_path):
     inputs.update(API_DOMAIN="api.example.com", ADMIN_DOMAIN="admin.example.com",
                   CABINET_DOMAIN="cabinet.example.com", SUPPORT_PRO_DOMAIN="support.example.com",
                   BOT_TOKEN="a'long$token", YOOKASSA_SECRET_KEY="configured-key")
-    (tmp_path / "services" / "support-pro").mkdir()
+    (tmp_path / "support-pro").mkdir()
     env = {**os.environ, **inputs}
     env.pop("SUPPORT_REDIS_PASSWORD", None)
     generation = 'SUPPORT_REDIS_PASSWORD="$(openssl rand -hex 32)"\n'
