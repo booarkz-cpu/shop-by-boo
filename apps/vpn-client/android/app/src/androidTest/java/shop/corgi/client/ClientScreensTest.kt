@@ -18,6 +18,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
@@ -118,6 +119,8 @@ class ClientScreensTest {
         assertEquals("custom", Store(context).settings.routing)
         compose.onNodeWithText("example.com / 10.0.0.0/8 / geosite:category-ads-all").performTextInput("Example.com")
         compose.onNodeWithText("Add rule").tap()
+        // Adding a row above the input can leave it outside the lazy list's composed viewport.
+        compose.onNodeWithTag("routing-rules-list").performScrollToNode(hasText("domain:example.com → direct"))
         exists("domain:example.com → direct")
         shot("routing")  // N13: README
         assertEquals("domain:example.com", Store(context).settings.rules.single().match)
@@ -259,22 +262,34 @@ class ClientScreensTest {
     @Test fun aPlainBackupLinkIsCopiedOnlyAfterTheWarning() {  // v1.10.1 (REQ-CLIENT-0019)
         Store(context).add(links)
         val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
-        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("t", "before"))
-        }
         launch()
-        compose.onNodeWithText("Settings").tap()
-        compose.onNodeWithText("Backup").tap()
-        compose.onNodeWithTag("backup-link").tap()
-        exists("A copy without encryption")
-        compose.onNodeWithText("Cancel").tap()
+        fun focused() {
+            compose.waitUntil(10_000) {
+                var active = false
+                scenario?.onActivity { active = it.hasWindowFocus() }
+                active
+            }
+        }
         fun clip(): String {
+            focused()
             var text = ""
             androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync {
                 text = clipboard.primaryClip?.getItemAt(0)?.text?.toString().orEmpty()
             }
             return text
         }
+        // Android restricts clipboard access without focus. Establish the sentinel while resumed,
+        // and verify it before exercising cancellation rather than assuming setup succeeded.
+        focused()
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("t", "before"))
+        }
+        assertEquals("before", clip())
+        compose.onNodeWithText("Settings").tap()
+        compose.onNodeWithText("Backup").tap()
+        compose.onNodeWithTag("backup-link").tap()
+        exists("A copy without encryption")
+        compose.onNodeWithText("Cancel").tap()
         assertEquals("before", clip())    // cancelled: nothing left the app
         compose.onNodeWithTag("backup-link").tap()
         compose.onNodeWithTag("plain-confirm").tap()
