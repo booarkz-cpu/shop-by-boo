@@ -238,7 +238,7 @@ def test_telegram_banners_follow_the_owners_format():
         assert re.search(re.escape(block) + r"position:absolute;left:\{SAFE\}px", source), block
     assert ".brand{position:absolute;left:%dpx;top:%dpx;" in source and '""" % (W, H, INK, SAFE, SAFE)' in source
     assert "bottom:{SAFE}px" in source
-    banners = [p for p in (root / "backend/app/assets/bot_banners").glob("*.jpg") if not p.name.startswith("app-")]
+    banners = [p for p in (root / "services/backend/app/assets/bot_banners").glob("*.jpg") if not p.name.startswith("app-")]
     assert len(banners) >= 25
     for path in banners:
         with Image.open(path) as image:

@@ -25,5 +25,5 @@ def test_release_301_is_current_and_documented():
 def test_gift_lock_order():
     # The wallet key and one debit: tests/test_behaviour_gift_cards.py; the checkout key for another plan:
     # tests/test_behaviour_payments_v2.py (BACKLOG A1).
-    gift = (ROOT / "backend/app/gift_orders.py").read_text()
+    gift = (ROOT / "services/backend/app/gift_orders.py").read_text()
     assert gift.index("with_for_update") < gift.index("code='GIFT_'")

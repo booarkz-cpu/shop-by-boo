@@ -1,6 +1,6 @@
 # Вход, бот и маршрутизация
 
-Код: `backend/app/auth_api.py` (клиенты), `admin_auth_api.py` (администраторы), `app_login.py` (вход в приложения), `cabinet_api.py` (почта, VK, обмен кода приложений), `mobile_auth.py` (PKCE и доказательство клиента), `mobile_integrity.py`, `bot.py`. Тесты поведения: `tests/test_behaviour_auth.py`, `tests/test_app_login.py`.
+Код: `services/backend/app/auth_api.py` (клиенты), `admin_auth_api.py` (администраторы), `app_login.py` (вход в приложения), `cabinet_api.py` (почта, VK, обмен кода приложений), `mobile_auth.py` (PKCE и доказательство клиента), `mobile_integrity.py`, `bot.py`. Тесты поведения: `tests/test_behaviour_auth.py`, `tests/test_app_login.py`.
 
 ## Маршрутизация запросов
 

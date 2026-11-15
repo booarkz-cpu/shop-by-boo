@@ -43,7 +43,7 @@ Downgrade `0053` блокируется, пока в `webauthn_credentials` ес
 Браузерный тест использует Chromium virtual authenticator: UI регистрации → выход → discoverable вход → перезагрузка → удаление. В CI это отдельный обязательный job. Это проверка приложения с виртуальным аутентификатором; поведение конкретного телефона, USB-ключа или синхронизации владельца требует отдельной проверки.
 
 ```bash
-python -m pip install -r backend/requirements.txt -r backend/requirements-test.txt
+python -m pip install -r services/backend/requirements.txt -r services/backend/requirements-test.txt
 cd apps/lucy-admin/web
 npm ci
 npx playwright install chromium

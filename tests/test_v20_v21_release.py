@@ -15,7 +15,7 @@ ROOT=pathlib.Path(__file__).resolve().parents[1]
 def read(p): return p.read_text(encoding="utf-8")
 
 def test_all_python_parse():
-    for p in (ROOT/"backend").rglob("*.py"): ast.parse(read(p))
+    for p in (ROOT/"services" / "backend").rglob("*.py"): ast.parse(read(p))
 
 def test_v21_contracts():
     from app import remnawave

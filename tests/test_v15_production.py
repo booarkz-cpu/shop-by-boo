@@ -2,13 +2,13 @@ import ast
 from pathlib import Path
 import unittest
 ROOT = Path(__file__).resolve().parents[1]
-BOT = (ROOT / "backend/app/bot.py").read_text()
+BOT = (ROOT / "services/backend/app/bot.py").read_text()
 class V15ProductionTests(unittest.TestCase):
     # The old in-memory login bucket is no longer filled anywhere (sign-in limits live in runtime_security);
     # the menu delete takes no body: tests/test_v16_v19_release.py.
 
     def test_python_sources_parse(self):
-        for p in (ROOT / "backend/app").glob("*.py"):
+        for p in (ROOT / "services/backend/app").glob("*.py"):
             ast.parse(p.read_text())
     # test_security_contracts_v15 and test_promo_usage_is_reserved_then_consumed_safely: replaced by the behaviour tests
     # tests/test_behaviour_csrf.py and tests/test_behaviour_promo_consume.py (C1, stage 19).

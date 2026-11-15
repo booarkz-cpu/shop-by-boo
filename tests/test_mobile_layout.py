@@ -210,7 +210,7 @@ async def test_every_app_string_and_screen_block_is_editable(database):
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]
     # The backend copy of the app strings is the one the apps ship.
-    assert (root / "backend/app/assets/mobile_strings.json").read_text() == (root / "packages/localization/user.json").read_text()
+    assert (root / "services/backend/app/assets/mobile_strings.json").read_text() == (root / "packages/localization/user.json").read_text()
     strings = mobile_layout.app_strings()
     assert strings["sign_in"]["ru"] and strings["sign_in"]["en"] and len(strings) > 100
     data = edited(strings={"sign_in": {"ru": "Войти в Корги", "en": "", "uk": "Увійти до Коргі"}},

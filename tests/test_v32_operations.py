@@ -29,6 +29,6 @@ def test_build_stage_images_are_pinnable():
     compose=read(ROOT/'docker-compose.yml')
     for x in ['PYTHON_BASE_IMAGE','NODE_BASE_IMAGE','NGINX_BASE_IMAGE']:
         assert x in compose
-    assert 'ARG PYTHON_BASE_IMAGE' in read(ROOT/'backend/Dockerfile')
+    assert 'ARG PYTHON_BASE_IMAGE' in read(ROOT/'services/backend/Dockerfile')
     assert 'ARG NODE_BASE_IMAGE' in read(ROOT/'apps/lucy-admin/web/Dockerfile')
     assert 'ARG NGINX_BASE_IMAGE' in read(ROOT/'apps/lucy-admin/web/Dockerfile')

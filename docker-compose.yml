@@ -56,7 +56,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ./services/backend
       dockerfile: Dockerfile
       args:
         PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966}
@@ -119,7 +119,7 @@ services:
 
   worker:
     build:
-      context: ./backend
+      context: ./services/backend
       dockerfile: Dockerfile
       args:
         PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966}
@@ -166,7 +166,7 @@ services:
     # Started only with: docker compose --profile mail up -d mail_receiver
     profiles: ["mail"]
     build:
-      context: ./backend
+      context: ./services/backend
       dockerfile: Dockerfile
       args:
         PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966}
@@ -204,7 +204,7 @@ services:
 
   bot:
     build:
-      context: ./backend
+      context: ./services/backend
       dockerfile: Dockerfile.bot
       args:
         PYTHON_BASE_IMAGE: ${PYTHON_BASE_IMAGE:-python:3.14-slim@sha256:930e1abba7c4e8f96ed93e8012c35d174d7732752731bbd5e8e757d7ec6f3966}
@@ -374,7 +374,7 @@ services:
 
   support_migrate:
     build:
-      context: ./support-pro
+      context: ./services/support-pro
       dockerfile: app/Dockerfile
     restart: 'no'
     env_file: ./support-pro/.env
@@ -393,7 +393,7 @@ services:
 
   support_pro:
     build:
-      context: ./support-pro
+      context: ./services/support-pro
       dockerfile: app/Dockerfile
     networks:
       default: {}
@@ -436,7 +436,7 @@ services:
 
   support_worker:
     build:
-      context: ./support-pro
+      context: ./services/support-pro
       dockerfile: app/Dockerfile
     restart: unless-stopped
     healthcheck:

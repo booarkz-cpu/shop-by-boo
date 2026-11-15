@@ -1,8 +1,8 @@
 # Портал подписки
 
 С v28.67.0 (этап 11). Ссылка подписки клиента — `https://<домен портала>/<shortUuid>` — отвечает двум видам клиентов:
-- **VPN-приложение** получает подписку. Прослойка (`backend/app/sub_proxy.py`) забирает её у панели Remnawave, как раньше: правила по приложению, дополнительные ключи, блокировка устройств.
-- **Браузер** получает страницу клиента (`backend/app/sub_portal.py`).
+- **VPN-приложение** получает подписку. Прослойка (`services/backend/app/sub_proxy.py`) забирает её у панели Remnawave, как раньше: правила по приложению, дополнительные ключи, блокировка устройств.
+- **Браузер** получает страницу клиента (`services/backend/app/sub_portal.py`).
 
 Домен портала настраивается в [SUBSCRIPTION_DOMAIN](SUBSCRIPTION_DOMAIN.md), шаблоны и тексты — в [SUBSCRIPTION_TEMPLATES](SUBSCRIPTION_TEMPLATES.md), защита — в [SUBSCRIPTION_SECURITY](SUBSCRIPTION_SECURITY.md).
 

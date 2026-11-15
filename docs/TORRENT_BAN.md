@@ -2,7 +2,7 @@
 
 Раздел панели администратора: **Серверы → Торренты на узлах**, блок «Временный бан за торренты».
 
-Код: `backend/app/rw_torrent_ban.py`, блок `apps/lucy-admin/web/src/torrent-ban.tsx`,
+Код: `services/backend/app/rw_torrent_ban.py`, блок `apps/lucy-admin/web/src/torrent-ban.tsx`,
 тесты `tests/test_rw_torrent_ban.py` и `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`.
 
 ## Что это

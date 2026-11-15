@@ -19,7 +19,7 @@ TARGET = ROOT / "docs/ru/new/DATABASE_SCHEMA.md"
 ENTITIES = [
     ("Users", "users", "клиенты; администраторы — `admin_users`"),
     ("Roles", "admin_users.role", "роль администратора: `viewer`, `operator` или `admin`"),
-    ("Permissions", "—", "словарь `PERMISSIONS` в `backend/app/security.py`; проверка — `require_permission`"),
+    ("Permissions", "—", "словарь `PERMISSIONS` в `services/backend/app/security.py`; проверка — `require_permission`"),
     ("Sessions", "user_sessions, admin_sessions", "отзываемые сессии по хэшу `jti`"),
     ("Subscriptions", "subscriptions", "`remnawave_uuid` (в коде `remnawave_user_id`) — числовой id пользователя Remnawave 3.x"),
     ("Tariffs", "plans, tariff_constructors, tariff_constructor_options, traffic_packages", ""),
@@ -43,7 +43,7 @@ ENTITIES = [
 
 def render() -> str:
     os.environ.setdefault("APP_ENV", "test")
-    sys.path.insert(0, str(ROOT / "backend"))
+    sys.path.insert(0, str(ROOT / "services" / "backend"))
     from app.models import Base
 
     manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
@@ -51,7 +51,7 @@ def render() -> str:
     lines = [
         f"# Схема базы данных — {manifest['distribution_tag']}",
         "",
-        f"Сгенерировано из моделей `backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `{manifest['migration_head']}`. "
+        f"Сгенерировано из моделей `services/backend/app/models.py` командой `python scripts/generate-db-schema.py`. Head миграций: `{manifest['migration_head']}`. "
         "Модели и миграции описывают одну схему: это проверяет `tests/test_schema_matches_migrations.py`.",
         "",
         "## Сущности задания",

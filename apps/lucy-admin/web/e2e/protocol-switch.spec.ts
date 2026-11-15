@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.113.0: «Серверы → Смена протокола». The backend is a stub shaped like backend/app/rw_protocol_switch.py
+// v28.113.0: «Серверы → Смена протокола». The backend is a stub shaped like services/backend/app/rw_protocol_switch.py
 // (tests/test_rw_protocol_switch.py runs the same flow against a model of the Remnawave panel).
 const PROFILE = '00000001-0000-4000-8000-000000000000';
 const stage = (key: string, title: string, status: string, log: string[] = ['2026-11-11T05:00:00+00:00 запись']) => ({key, title, status, started_at: '2026-11-11T05:00:00+00:00', finished_at: status === 'running' ? null : '2026-11-11T05:00:01+00:00', log});

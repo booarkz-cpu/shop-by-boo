@@ -17,14 +17,14 @@
 | `apps/lucy-admin/web` | бывш. `admin` | 3 | **перенесено в v28.153.0** |
 | `apps/user-cabinet` | бывш. `cabinet` | 3 | **перенесено в v28.153.0** |
 | `apps/telegram-mini-app` | бывш. `miniapp` | 3 | **перенесено в v28.153.0** |
-| `apps/telegram-bot`, `apps/status-page` | модули бэкенда (`backend/app/bot*`, страница статуса) | 5 | вместе с бэкендом |
-| `services/api` и остальные сервисы промпта | `backend` (один FastAPI с модулями: `auth*`, `payment*`, `subscription*`, `remnawave*`, `rw_*`, `autoselect*`, `masque*`, `notifications*`) | 5 | один сервис; модули перечисляются в карте, а не дробятся на пустые папки |
-| `services/support` | `support-pro` | 5 | план |
+| `apps/telegram-bot`, `apps/status-page` | модули бэкенда (`services/backend/app/bot*`, страница статуса) | 5 | вместе с бэкендом |
+| `services/backend` (вместо `services/api` и остальных сервисов промпта) | бывш. `backend` — один FastAPI с модулями (`auth*`, `payment*`, `subscription*`, `remnawave*`, `rw_*`, `autoselect*`, `masque*`, `notification*` …) | 5 | **перенесено в v28.158.0** целиком, без деления на службы; по старому пути остался `backend/app/main.py` — только номер версии для обновления установленных серверов |
+| `services/support-pro` | бывш. `support-pro` | 5 | **перенесено в v28.158.0**; настройки установленного сервера остались в `support-pro/.env` |
 | `packages/localization` | бывш. `mobile/l10n` | 2а | **перенесено в v28.151.0** |
 | `packages/*` (shared-ui, shared-api, …) | — (общего кода между приложениями нет) | — | не создаются, пока нет общего кода |
 | `infrastructure/deployment` (установщик, сборка, WireGuard, сертификат почты), `infrastructure/reverse-proxy` (Caddy, nginx), `infrastructure/monitoring` (Prometheus, Grafana) | бывш. `deploy` | 4 | **перенесено в v28.154.0**; в `deploy/` остались пять переходников (`install-vps.sh`, `install-docker.sh`, `install-status.sh`, `resume-vps-after-pin.sh`, `build-production.sh`) |
 | `infrastructure/provisioning` | бывш. `terraform` | 4 | **перенесено в v28.154.0** |
-| `database/migrations` | `backend/alembic`, `support-pro/alembic` | 5 | вместе с сервисами |
+| `database/migrations` | `services/backend/alembic`, `services/support-pro/alembic` | 5 | вместе с сервисами |
 | `scripts/…`, `tests/…`, `docs/…`, `.github/workflows` | уже на месте | — | без изменений |
 
 Остальное (`browser-extension`, `desktop`, `corgi-cli`, `screenshots`) — в `apps/` на этапе 3, если это действующий код.
@@ -53,4 +53,23 @@
   (решения № 12 и 16 в [OWNER_DECISIONS.md](OWNER_DECISIONS.md)); на сервере старая папка `deploy/` остаётся на месте.
 * **Не проверено:** обновление настоящего сервера со старой раскладки — VPS пока нет (решение № 11).
 
-Следующий — этап 5 (`services/` ← `backend`, `support-pro`), последним.
+## Этап 5 (v28.158.0): что проверено
+
+* **Обновление установленного сервера.** Программа обновления прежних выпусков читает установленную версию из
+  `backend/app/main.py` и принимает скачанный выпуск, только если этот файл в нём есть. Поэтому файл остался по старому
+  пути: в нём одна строка с версией, равной версии настоящего приложения (`tests/test_layout_stage5.py`,
+  `scripts/check-current-docs.py`). Новая программа обновления понимает обе раскладки (`api_dir`).
+* **Секреты Support Pro.** Файл `support-pro/.env` на сервере остаётся на месте: `docker-compose.yml`, установщик,
+  агент обновлений и `configure-support-bridge.py` читают его по прежнему пути.
+* **Docker.** Имена служб (`backend`, `worker`, `bot`, `support_pro`, `support_worker` …), тома, адреса и домены не
+  менялись — только папки сборки (`context: ./services/backend`, `./services/support-pro`).
+* **Откат.** `scripts/rollback.sh` восстанавливает и снимок со старой раскладкой.
+* **Что остаётся на обновлённом сервере.** Обновление копирует новое дерево поверх старого и ничего не удаляет: старые
+  папки `backend/` и `support-pro/` с прежним кодом остаются на диске и не используются. Удалять их не обязательно.
+* **История Git.** Перенос сделан `git mv`. Исключение — `main.py`: по старому пути остался файл с тем же именем,
+  поэтому Git показывает `services/backend/app/main.py` как новый файл; прежнюю историю смотрите по
+  `git log -- backend/app/main.py`.
+* **Не проверено:** обновление настоящего сервера со старой раскладки — VPS пока нет (решение № 11).
+
+Перекладка папок по решению № 14 завершена. Не делаются: деление бэкенда на отдельные службы, `database/`, разбивка
+`scripts/` и `tests/` по подпапкам, пакеты общего кода — причины в таблице выше.

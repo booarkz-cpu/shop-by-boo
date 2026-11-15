@@ -1,3 +1,9 @@
+# v28.158.0
+
+- Этап 5 структуры папок (решения владельца № 14 и 23): `git mv` `backend` → `services/backend`, `support-pro` → `services/support-pro`. Обновлены пути в `docker-compose*.yml`, Dockerfile, CI, скриптах, тестах, Dependabot и документах. Имена служб Docker, тома и домены не менялись.
+- Совместимость с установленными серверами: `backend/app/main.py` остался по старому пути и содержит только `APP_VERSION` (по нему программа обновления прежних выпусков узнаёт версию и принимает архив); `scripts/github_release_fetch.py` и `scripts/update.sh` понимают обе раскладки (`api_dir`); секреты Support Pro остаются в `support-pro/.env`. Проверки — `tests/test_layout_stage5.py`.
+- Перекладка папок завершена; состояние и то, что не делается, — `docs/MONOREPO_LAYOUT.md`.
+
 # v28.157.0
 
 - «Корги Люси: клиент» 1.10.0 (versionCode 1100), решение владельца № 22:

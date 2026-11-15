@@ -1,6 +1,6 @@
 # Telegram: функции бота и Mini App
 
-Этап 13. Бот — `backend/app/bot.py`, `bot_workspace.py` (контейнер `bot`). Mini App — личный кабинет, собранный для Telegram (`apps/user-cabinet/`, `NEXT_PUBLIC_SURFACE=miniapp`, контейнер `miniapp`). Бизнес-логика у бота, Mini App, кабинета и приложений общая: покупка, продление, промокоды, подарки и устройства проходят через одни и те же API backend. Бот показывает данные и открывает нужный раздел Mini App, второй логики у него нет.
+Этап 13. Бот — `services/backend/app/bot.py`, `bot_workspace.py` (контейнер `bot`). Mini App — личный кабинет, собранный для Telegram (`apps/user-cabinet/`, `NEXT_PUBLIC_SURFACE=miniapp`, контейнер `miniapp`). Бизнес-логика у бота, Mini App, кабинета и приложений общая: покупка, продление, промокоды, подарки и устройства проходят через одни и те же API backend. Бот показывает данные и открывает нужный раздел Mini App, второй логики у него нет.
 
 Управление ботом — [TELEGRAM_GUIDE](TELEGRAM_GUIDE.md), кабинет — [USER_CABINET_GUIDE](USER_CABINET_GUIDE.md).
 

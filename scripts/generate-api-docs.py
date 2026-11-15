@@ -68,7 +68,7 @@ def access_table(app):
 
 def render():
     os.environ.setdefault('APP_ENV', 'test')
-    sys.path.insert(0, str(ROOT/'backend'))
+    sys.path.insert(0, str(ROOT/'services' / 'backend'))
     from app.main import app
     manifest = json.loads((ROOT/'release-manifest.template.json').read_text())
     access = access_table(app)
@@ -88,8 +88,8 @@ def render():
 Legacy callbacks прежних агентов служат историческим операциям. Новые покупки используют YooKassa/Platega/RollyPay;
 production gate остаётся закрытым без полного application E2E. Mobile purchase verify закрыт ответом 410.
 
-Обновление: `PYTHONPATH=backend python scripts/generate-api-docs.py`; проверка: добавьте `--check`.
-Колонка «Доступ» берётся из зависимостей маршрута: для админки — право роли (RBAC, `backend/app/security.py`),
+Обновление: `PYTHONPATH=services/backend python scripts/generate-api-docs.py`; проверка: добавьте `--check`.
+Колонка «Доступ» берётся из зависимостей маршрута: для админки — право роли (RBAC, `services/backend/app/security.py`),
 для остальных — кто вызывает маршрут. Правила общие для всех маршрутов — в [API.md](ru/new/API.md).
 
 | Метод | Путь | Операция | Доступ |

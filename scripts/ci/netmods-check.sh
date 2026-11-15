@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # v28.92.0 (stage 20, N7): the server modules of «Установка» checked for real — the very scripts of
-# backend/app/rw_netmods.py in network namespaces (and a swap file on the runner):
+# services/backend/app/rw_netmods.py in network namespaces (and a swap file on the runner):
 #  * node_guard: an outsider who opens new connections faster than the limit is banned; an allowed address is not;
 #    «observe» only counts; «off» removes the table;
 #  * mss_clamp: node → router → far host where the far link has MTU 1400: the script finds the path MTU and
@@ -10,7 +10,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 dir=$(mktemp -d); trap 'for n in g-node g-ok g-out m-node m-rt m-far; do ip netns del $n 2>/dev/null || true; done; rm -rf "$dir"' EXIT
-PYTHONPATH=backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
+PYTHONPATH=services/backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
 import sys
 from app import rw_netmods as m
 for name in ("GUARD", "MSS", "SWAP"):

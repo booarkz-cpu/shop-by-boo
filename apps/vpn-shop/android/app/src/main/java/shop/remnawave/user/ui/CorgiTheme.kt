@@ -46,7 +46,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 
-/** Icon names of the layout (backend/app/mobile_layout.py ICONS) → Material icons. */
+/** Icon names of the layout (services/backend/app/mobile_layout.py ICONS) → Material icons. */
 fun layoutIcon(name: String): ImageVector? = when (name) {
     "power" -> Icons.Rounded.PowerSettingsNew
     "shield" -> Icons.Rounded.Shield

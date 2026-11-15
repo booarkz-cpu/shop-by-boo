@@ -8,11 +8,11 @@
 
 | Контур | Источник состава |
 | --- | --- |
-| Backend и бот | `backend/requirements.txt`; тестовые зависимости отдельно в `backend/requirements-test.txt` |
+| Backend и бот | `services/backend/requirements.txt`; тестовые зависимости отдельно в `services/backend/requirements-test.txt` |
 | Кабинет / общий Mini App | `apps/user-cabinet/package-lock.json`; тестовые пакеты в devDependencies |
 | Админка | `apps/lucy-admin/web/package-lock.json` |
 | Отдельная оболочка Mini App | `apps/telegram-mini-app/package-lock.json` |
-| Support Pro | `support-pro/requirements.txt`, `requirements-dev.txt` |
+| Support Pro | `services/support-pro/requirements.txt`, `requirements-dev.txt` |
 | Android | Gradle-конфигурация каждого приложения и разрешённый граф runtime-зависимостей сборки |
 | iOS | Swift Package Manager / package resolution конкретного приложения |
 | Docker | Закреплённые базовые образы, их пакеты ОС и зависимости приложения |
@@ -38,7 +38,7 @@
 
 Сервер WebAuthn использует `webauthn==3.0.1` (py_webauthn, BSD-3-Clause); браузерные тесты — `@playwright/test==1.63.0` (Apache-2.0). Сохраните их полные license/copyright notices при распространении зависимостей. Эти библиотеки не перелицензируются лицензией магазина. Нативный WebAuthn API браузера используется без копирования стороннего JS verifier. Новые модули интеграции и мониторинга написаны в этом репозитории.
 
-## UI дистрибутива v28.157.0
+## UI дистрибутива v28.158.0
 
 shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `apps/lucy-admin/web/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt](apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
 
@@ -80,7 +80,7 @@ shadcn-совместимые компоненты используют Radix To
 
 | Проект | Лицензия | Что взято | Как входит |
 | --- | --- | --- | --- |
-| [booarkz-cpu/remnawave-manager](https://github.com/booarkz-cpu/remnawave-manager) | MIT, © Корги Люси | Транспорты ноды, защита сервера, самовосстановление, сертификат Hysteria2, правила фаервола (v28.81–v28.84) | Код переписан шагами мастера установки (`backend/app/rw_steps.py`) |
+| [booarkz-cpu/remnawave-manager](https://github.com/booarkz-cpu/remnawave-manager) | MIT, © Корги Люси | Транспорты ноды, защита сервера, самовосстановление, сертификат Hysteria2, правила фаервола (v28.81–v28.84) | Код переписан шагами мастера установки (`services/backend/app/rw_steps.py`) |
 | [eGamesAPI/remnawave-reverse-proxy](https://github.com/eGamesAPI/remnawave-reverse-proxy) | MIT, © 2025 eGames | Идеи модулей ноды, SelfSteal, защита панели, TinyAuth | Код написан заново |
 | [legiz-ru/Orion](https://github.com/legiz-ru/Orion) | MIT, © 2025 legiz-ru | Шаблон страницы подписки | Скачивается мастером по выбору администратора, SHA-256 закреплён |
 | [kutovoys/xray-checker](https://github.com/kutovoys/xray-checker) | MIT | Проверка серверов подписки | Отдельный контейнер, образ закреплён по digest |

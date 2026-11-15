@@ -100,7 +100,7 @@ async def test_postgres_remote_history_migration_backfills_and_protects_mappings
     from alembic.operations import Operations
     from alembic.migration import MigrationContext
     spec=importlib.util.spec_from_file_location('remote_migration',Path('alembic/versions/0006_remote_history.py'))
-    if not Path('alembic/versions/0006_remote_history.py').exists():spec=importlib.util.spec_from_file_location('remote_migration',Path('support-pro/alembic/versions/0006_remote_history.py'))
+    if not Path('alembic/versions/0006_remote_history.py').exists():spec=importlib.util.spec_from_file_location('remote_migration',Path('services/support-pro/alembic/versions/0006_remote_history.py'))
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     async with env['session']() as s:
         legacy=Ticket(telegram_user_id=-23,shop_ticket_id=4,subject='Legacy',channel='shop');s.add(legacy);await s.flush()

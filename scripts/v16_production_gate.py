@@ -2,7 +2,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 checks=[]
 def ok(name, value): checks.append((name,bool(value)))
-ok('production launch api', (ROOT/'backend/app/production_launch_api.py').exists())
+ok('production launch api', (ROOT/'services/backend/app/production_launch_api.py').exists())
 ok('wireguard provisioner', (ROOT/'infrastructure/deployment/wireguard/provision-node.sh').exists())
 ok('wireguard docs', (ROOT/'infrastructure/deployment/wireguard/README_RU.md').exists())
 ok('launch runbook', (ROOT/'docs/production/PRODUCTION_LAUNCH_V16_RU.md').exists())

@@ -12,7 +12,7 @@ from app_contract import permissions
 from test_subscription_commerce import database  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[1]
-REQ = (ROOT / "backend/requirements.txt").read_text()
+REQ = (ROOT / "services/backend/requirements.txt").read_text()
 MANIFEST = (ROOT / "release-manifest.template.json").read_text()
 UI = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
 CSS = (ROOT / "apps/lucy-admin/web/src/style.css").read_text()

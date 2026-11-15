@@ -1,6 +1,6 @@
 # Shop by Boo — структура проекта
 
-Дистрибутив `v28.157.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`. Полный список всех отслеживаемых файлов: [PROJECT_FILE_MAP.md](docs/PROJECT_FILE_MAP.md).
 
 Каноническая карта каталогов для текущего стабильного runtime. Репозиторий использует FastAPI/aiogram на backend и React/Vite для web-клиентов. Это зафиксированное архитектурное решение: переход на Next.js App Router потребует отдельного миграционного релиза с переносом маршрутизации, SSR-контрактов и E2E, поэтому текущие production-контракты не маскируются под Next.js.
 
@@ -8,7 +8,7 @@
 
 ```text
 shop-by-boo/
-├── backend/                 FastAPI API, модели, миграции и фоновые операции
+├── services/backend/                 FastAPI API, модели, миграции и фоновые операции
 │   ├── app/                 роутеры, безопасность, платежи, provisioning, support
 │   ├── alembic/             миграции PostgreSQL/SQLite
 │   └── requirements*.txt    runtime и test зависимости Python
@@ -21,7 +21,7 @@ shop-by-boo/
 ├── apps/telegram-mini-app/                 Docker-образ Mini App: сборка кабинета с NEXT_PUBLIC_SURFACE=miniapp
 ├── mobile/                  Android/iOS клиентские и admin исходники
 ├── desktop/                 контракты desktop WireGuard shell
-├── support-pro/             изолированный сервис поддержки
+├── services/support-pro/             изолированный сервис поддержки
 ├── infrastructure/          установщик (deployment), Caddy и nginx (reverse-proxy), Prometheus и Grafana (monitoring), Terraform (provisioning)
 ├── deploy/                  переходники старых путей установки
 ├── scripts/                 тесты, диагностика, backup и release packaging
@@ -36,13 +36,13 @@ shop-by-boo/
 
 | Контур | Владелец | Правило изменений |
 | --- | --- | --- |
-| Identity/security | `backend/app/security.py`, `passkeys.py`, `customer_passkeys.py`, `account_merge.py` | Любая новая auth-функция требует негативного теста и аудита; merge требует обе стороны, preview и reconciliation |
-| Commerce/payments | `backend/app/subscription_commerce.py`, `payments.py`, `payment_policy.py` | Финансовые записи неизменяемы; webhook идемпотентен |
-| Remnawave/provisioning | `backend/app/remnawave.py`, `provisioner.py`, `subscriptions.py` | Повторная операция безопасна, ownership проверяется до remote-вызова |
-| Telegram | `bot/`, `backend/app/bot*` | Bot/Mini App не дублируют бизнес-правила API |
+| Identity/security | `services/backend/app/security.py`, `passkeys.py`, `customer_passkeys.py`, `account_merge.py` | Любая новая auth-функция требует негативного теста и аудита; merge требует обе стороны, preview и reconciliation |
+| Commerce/payments | `services/backend/app/subscription_commerce.py`, `payments.py`, `payment_policy.py` | Финансовые записи неизменяемы; webhook идемпотентен |
+| Remnawave/provisioning | `services/backend/app/remnawave.py`, `provisioner.py`, `subscriptions.py` | Повторная операция безопасна, ownership проверяется до remote-вызова |
+| Telegram | `bot/`, `services/backend/app/bot*` | Bot/Mini App не дублируют бизнес-правила API |
 | Web UI | `apps/lucy-admin/web/src`, `apps/user-cabinet/src`, `miniapp/src` | Визуальные токены общие, бизнес-логика остаётся в API/feature-модулях |
 | Operations | `infrastructure/`, `scripts/`, `.github/workflows/` | Backup/restore и release contract проверяются CI |
-| Live configuration | `backend/app/runtime_settings.py`, `apps/lucy-admin/web/src/runtime-settings.tsx` | Только явно типизированные поля; секреты маскируются; применение версионировано и аудируется |
+| Live configuration | `services/backend/app/runtime_settings.py`, `apps/lucy-admin/web/src/runtime-settings.tsx` | Только явно типизированные поля; секреты маскируются; применение версионировано и аудируется |
 
 ## Конфигурация
 
@@ -60,64 +60,64 @@ shop-by-boo/
 | `apps/lucy-admin/web/src/components/ui/` | shadcn/Radix кнопки, меню, списки и tooltip |
 | `apps/lucy-admin/web/src/components/field-hints.tsx` | Контекстная помощь RU/EN для динамических форм |
 | `apps/lucy-admin/web/src/components/select-field.tsx` | Адаптер существующих форм к Radix Select |
-| `backend/app/account_merge.py` | Двухсторонняя авторизация, conflict preview, атомарный перенос, aliases и retry journal |
-| `backend/alembic/versions/0063_account_merge.py` | Merge schema и credential-specific passkey handles |
+| `services/backend/app/account_merge.py` | Двухсторонняя авторизация, conflict preview, атомарный перенос, aliases и retry journal |
+| `services/backend/alembic/versions/0063_account_merge.py` | Merge schema и credential-specific passkey handles |
 | `apps/user-cabinet/src/account-merge.tsx` | Двухшаговый доступный интерфейс объединения аккаунтов |
 | `docs/ru/ACCOUNT_MERGE_CURRENT.md` | Пользовательский, security и операторский регламент merge |
-| `backend/app/runtime_settings.py` | Полный реестр, проверка зависимостей, шифрование, stage/apply/rollback и polling |
-| `backend/alembic/versions/0064_runtime_settings.py` | Версия и защищённая история runtime-настроек |
-| `backend/app/history_import.py` | Версионированный перенос истории подписок/платежей: сверка, повтор без дублей, откат |
-| `backend/alembic/versions/0065_history_import.py` | Журнал переноса истории, импортированные платежи и связи подписок |
-| `backend/alembic/versions/0066_push_notifications.py` | Реестр push-устройств и очередь доставки FCM/APNs |
-| `backend/app/push.py` | Регистрация push-токенов, доставка FCM/APNs, отзыв при выходе и потере токена |
-| `backend/alembic/versions/0067_plugin_runtime.py` | Издатели, пакеты, установки и доставки плагинов |
-| `backend/alembic/versions/0072_traffic_analysis.py` | Вид срабатывания в счётчиках торрентов |
-| `backend/alembic/versions/0073_e2e_v2.py` | Проверки staging E2E v2: запуски, случаи по платёжным системам, зашифрованные webhook для повтора |
-| `backend/alembic/versions/0074_automation_engine.py` | Однократные выполнения правил автоматизации, обратимое ограничение подписок |
-| `backend/alembic/versions/0075_app_config.py` | Согласия с офертой и сумма платежей Telegram Stars |
-| `backend/app/app_config.py` | Конфигурация Mini App `GET /api/app-config`, согласие с офертой, редактор в админке |
-| `backend/alembic/versions/0076_growth.py` | Места в семье, хеш IP пробных периодов, комиссия за подарок, события Remnawave, подписки Stars, семьи, причины отмены |
-| `backend/alembic/versions/0078_campaign_ab.py` | Аналитика приложений (`app_events`) и push-кампании по сегментам (`push_campaigns`) |
-| `backend/alembic/versions/0083_corporate_seats.py` | Корпоративные тарифы: места, сотрудники и счета компаний |
-| `backend/alembic/versions/0084_subscription_freeze.py` | Заморозки подписок (`subscription_freezes`) |
-| `backend/alembic/versions/0085_loyalty.py` | Достигнутые уровни лояльности (`loyalty_members`) |
-| `backend/alembic/versions/0086_feedback.py` | Оценки поддержки и ответы NPS (`feedback_ratings`) |
-| `backend/alembic/versions/0087_speed_tests.py` | Замеры скорости из приложений (`speed_tests`) |
-| `backend/alembic/versions/0088_filter_and_regions.py` | Фильтр подписки (`subscriptions.dns_filter`) и регион сессии (`vpn_sessions.region`) |
-| `backend/alembic/versions/0089_index_cleanup.py` | Без повторяющихся индексов, недостающие индексы, `gift_redemptions.operation_key NOT NULL` (v28.58.0) |
-| `backend/alembic/versions/0090_remnawave_installer.py` | v28.66.0: таблицы `remnawave_servers`, `remnawave_installations`, `remnawave_deployment_steps` мастера установки Remnawave |
-| `backend/alembic/versions/0091_remnawave_domains.py` | v28.67.0: таблица `remnawave_domains` менеджера доменов |
-| `backend/alembic/versions/0092_telegram_bot.py` | v28.71.0: таблица `telegram_bot_state` — связь бота с Telegram |
-| `backend/alembic/versions/0093_ssh_key_rotation.py` | v28.75.0: поля SSH-ключа магазина у `remnawave_servers` (отпечаток, пометка, время смены) |
-| `backend/alembic/versions/0094_store_subscriptions.py` | v28.89.0: `store_subscriptions` — подписки из Google Play и App Store (покупатель, подписка магазина, тариф, последний заказ) |
-| `backend/app/heartbeat.py` | Файл жизни для healthcheck worker, бота и приёма почты |
-| `backend/app/seat_access.py` | Выдача доступа месту в семейной и корпоративной подписке |
-| `backend/app/pagination.py` | Страницы списков: `limit`, `offset`, `X-Total-Count` |
-| `backend/app/integrity.py` | Отчёт целостности: записи без клиента, подписки, платежа или тарифа |
-| `backend/app/admin_center.py` | Админ-центр: 30 модулей с операциями из маршрутов API, права ролей |
-| `backend/app/system_status.py` | «Состояние системы» (System Control Center): 14 типизированных проверок частей установки (v28.62.0) |
-| `backend/app/cabinet_security.py` | Кабинет: сессии по одной, устройства под лимитом подписки (HWID Remnawave) (v28.63.0) |
+| `services/backend/app/runtime_settings.py` | Полный реестр, проверка зависимостей, шифрование, stage/apply/rollback и polling |
+| `services/backend/alembic/versions/0064_runtime_settings.py` | Версия и защищённая история runtime-настроек |
+| `services/backend/app/history_import.py` | Версионированный перенос истории подписок/платежей: сверка, повтор без дублей, откат |
+| `services/backend/alembic/versions/0065_history_import.py` | Журнал переноса истории, импортированные платежи и связи подписок |
+| `services/backend/alembic/versions/0066_push_notifications.py` | Реестр push-устройств и очередь доставки FCM/APNs |
+| `services/backend/app/push.py` | Регистрация push-токенов, доставка FCM/APNs, отзыв при выходе и потере токена |
+| `services/backend/alembic/versions/0067_plugin_runtime.py` | Издатели, пакеты, установки и доставки плагинов |
+| `services/backend/alembic/versions/0072_traffic_analysis.py` | Вид срабатывания в счётчиках торрентов |
+| `services/backend/alembic/versions/0073_e2e_v2.py` | Проверки staging E2E v2: запуски, случаи по платёжным системам, зашифрованные webhook для повтора |
+| `services/backend/alembic/versions/0074_automation_engine.py` | Однократные выполнения правил автоматизации, обратимое ограничение подписок |
+| `services/backend/alembic/versions/0075_app_config.py` | Согласия с офертой и сумма платежей Telegram Stars |
+| `services/backend/app/app_config.py` | Конфигурация Mini App `GET /api/app-config`, согласие с офертой, редактор в админке |
+| `services/backend/alembic/versions/0076_growth.py` | Места в семье, хеш IP пробных периодов, комиссия за подарок, события Remnawave, подписки Stars, семьи, причины отмены |
+| `services/backend/alembic/versions/0078_campaign_ab.py` | Аналитика приложений (`app_events`) и push-кампании по сегментам (`push_campaigns`) |
+| `services/backend/alembic/versions/0083_corporate_seats.py` | Корпоративные тарифы: места, сотрудники и счета компаний |
+| `services/backend/alembic/versions/0084_subscription_freeze.py` | Заморозки подписок (`subscription_freezes`) |
+| `services/backend/alembic/versions/0085_loyalty.py` | Достигнутые уровни лояльности (`loyalty_members`) |
+| `services/backend/alembic/versions/0086_feedback.py` | Оценки поддержки и ответы NPS (`feedback_ratings`) |
+| `services/backend/alembic/versions/0087_speed_tests.py` | Замеры скорости из приложений (`speed_tests`) |
+| `services/backend/alembic/versions/0088_filter_and_regions.py` | Фильтр подписки (`subscriptions.dns_filter`) и регион сессии (`vpn_sessions.region`) |
+| `services/backend/alembic/versions/0089_index_cleanup.py` | Без повторяющихся индексов, недостающие индексы, `gift_redemptions.operation_key NOT NULL` (v28.58.0) |
+| `services/backend/alembic/versions/0090_remnawave_installer.py` | v28.66.0: таблицы `remnawave_servers`, `remnawave_installations`, `remnawave_deployment_steps` мастера установки Remnawave |
+| `services/backend/alembic/versions/0091_remnawave_domains.py` | v28.67.0: таблица `remnawave_domains` менеджера доменов |
+| `services/backend/alembic/versions/0092_telegram_bot.py` | v28.71.0: таблица `telegram_bot_state` — связь бота с Telegram |
+| `services/backend/alembic/versions/0093_ssh_key_rotation.py` | v28.75.0: поля SSH-ключа магазина у `remnawave_servers` (отпечаток, пометка, время смены) |
+| `services/backend/alembic/versions/0094_store_subscriptions.py` | v28.89.0: `store_subscriptions` — подписки из Google Play и App Store (покупатель, подписка магазина, тариф, последний заказ) |
+| `services/backend/app/heartbeat.py` | Файл жизни для healthcheck worker, бота и приёма почты |
+| `services/backend/app/seat_access.py` | Выдача доступа месту в семейной и корпоративной подписке |
+| `services/backend/app/pagination.py` | Страницы списков: `limit`, `offset`, `X-Total-Count` |
+| `services/backend/app/integrity.py` | Отчёт целостности: записи без клиента, подписки, платежа или тарифа |
+| `services/backend/app/admin_center.py` | Админ-центр: 30 модулей с операциями из маршрутов API, права ролей |
+| `services/backend/app/system_status.py` | «Состояние системы» (System Control Center): 14 типизированных проверок частей установки (v28.62.0) |
+| `services/backend/app/cabinet_security.py` | Кабинет: сессии по одной, устройства под лимитом подписки (HWID Remnawave) (v28.63.0) |
 | `scripts/repin-images.sh` | При обновлении переводит закреплённые в `.env` образы Redis и Caddy на версии выпуска (v28.64.0) |
-| `backend/app/lucy_plans.py` | Тарифы Lucy Mini/Max/Ultra и пробный период только на Lucy Mini (v28.63.0) |
-| `backend/app/rw_api.py`, `rw_plan.py`, `rw_steps.py`, `rw_remote.py`, `rw_jobs.py` | Мастер установки Remnawave: реестр серверов, план по режиму, закрытый список шагов по SSH, исполнитель с откатом (v28.66.0) |
+| `services/backend/app/lucy_plans.py` | Тарифы Lucy Mini/Max/Ultra и пробный период только на Lucy Mini (v28.63.0) |
+| `services/backend/app/rw_api.py`, `rw_plan.py`, `rw_steps.py`, `rw_remote.py`, `rw_jobs.py` | Мастер установки Remnawave: реестр серверов, план по режиму, закрытый список шагов по SSH, исполнитель с откатом (v28.66.0) |
 | `apps/lucy-admin/web/src/rw-installer.tsx` | Раздел «Установка Remnawave»: серверы, мастер, план, задачи и журналы (v28.66.0) |
-| `backend/app/rw_domains.py`, `sub_portal.py` | Домены, сертификаты, маршруты Caddy и вопрос on-demand TLS; портал подписки в браузере (v28.67.0) |
+| `services/backend/app/rw_domains.py`, `sub_portal.py` | Домены, сертификаты, маршруты Caddy и вопрос on-demand TLS; портал подписки в браузере (v28.67.0) |
 | `apps/lucy-admin/web/src/domains.tsx` | Раздел «Домены и сертификаты» (v28.67.0) |
-| `backend/app/rw_extensions.py`, `apps/lucy-admin/web/src/rw-extensions.tsx` | Менеджер расширений Remnawave через API панели: профили и REALITY, плагины нод, правила подписки, страница и шаблоны подписки (v28.69.0) |
-| `backend/app/telegram_stars.py` | Telegram Stars: пополнение кошелька, подписка с автопродлением каждые 30 дней, проверка, зачисление, возврат |
-| `backend/app/remnawave_events.py` | Подписанные вебхуки Remnawave: уведомления клиентам, события автоматизации, защита пробного периода (IP, Telegram, HWID) |
-| `backend/app/growth.py` | Семейная подписка, аналитика удержания, публичный статус сервиса |
+| `services/backend/app/rw_extensions.py`, `apps/lucy-admin/web/src/rw-extensions.tsx` | Менеджер расширений Remnawave через API панели: профили и REALITY, плагины нод, правила подписки, страница и шаблоны подписки (v28.69.0) |
+| `services/backend/app/telegram_stars.py` | Telegram Stars: пополнение кошелька, подписка с автопродлением каждые 30 дней, проверка, зачисление, возврат |
+| `services/backend/app/remnawave_events.py` | Подписанные вебхуки Remnawave: уведомления клиентам, события автоматизации, защита пробного периода (IP, Telegram, HWID) |
+| `services/backend/app/growth.py` | Семейная подписка, аналитика удержания, публичный статус сервиса |
 | `scripts/upgrade-postgres.sh` | Перенос данных PostgreSQL 16 в PostgreSQL 18 при обновлении |
-| `backend/app/network_intel.py` | ASN, владелец сети и репутация адресов узлов с кэшем свежести |
-| `backend/app/plugins.py` | Среда плагинов: подписанные пакеты и каталоги, подтверждение прав, API плагина, подписанные события |
-| `backend/app/widget.py` | Минимальная сводка подписки для виджета Android с кэшем трафика |
-| `support-pro/app/email_channel.py` | Email-канал Support Pro: приём IMAP, цепочки, ответы SMTP, удаление и срок хранения |
-| `backend/app/customer_profile.py` | Профиль клиента: имя и способы входа |
+| `services/backend/app/network_intel.py` | ASN, владелец сети и репутация адресов узлов с кэшем свежести |
+| `services/backend/app/plugins.py` | Среда плагинов: подписанные пакеты и каталоги, подтверждение прав, API плагина, подписанные события |
+| `services/backend/app/widget.py` | Минимальная сводка подписки для виджета Android с кэшем трафика |
+| `services/support-pro/app/email_channel.py` | Email-канал Support Pro: приём IMAP, цепочки, ответы SMTP, удаление и срок хранения |
+| `services/backend/app/customer_profile.py` | Профиль клиента: имя и способы входа |
 | `apps/user-cabinet/src/telegram.ts` | Обёртка Telegram WebApp SDK: тема, haptics, BackButton/MainButton |
 | `apps/user-cabinet/scripts/csp-externalize.mjs` | Перенос inline-скриптов Next.js в файлы для строгой CSP |
 | `apps/lucy-admin/web/src/runtime-settings.tsx` | Поиск, группы, preview, история и deployment-классификация |
 | `docs/ru/RUNTIME_SETTINGS_CURRENT.md` | Операторская инструкция live-config |
-| `backend/app/release_identity.py` | Версия дистрибутива независимо от API |
+| `services/backend/app/release_identity.py` | Версия дистрибутива независимо от API |
 | `scripts/package-distribution.py` | Архив, checksum и detached manifest |
 | `scripts/publish-github-release.cjs` | Проверка и публикация GitHub Release |
 | `scripts/generate-project-map.py` | Полная проверяемая карта файлов |

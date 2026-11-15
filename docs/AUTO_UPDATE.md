@@ -1,10 +1,10 @@
 # Автообновление из GitHub
 
-Дистрибутив `v28.157.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Документ описывает **фактически реализованный** механизм. Всё, что здесь написано, проверено по
 исходному коду `scripts/auto_update.py`, `scripts/github_release_fetch.py`,
-`backend/app/auto_update_api.py`, `apps/lucy-admin/web/src/autoUpdate.tsx`. То, что нельзя проверить без VPS,
+`services/backend/app/auto_update_api.py`, `apps/lucy-admin/web/src/autoUpdate.tsx`. То, что нельзя проверить без VPS,
 помечено явно.
 
 Подробности цикла и откат: [modules/auto_update_and_rollback.md](modules/auto_update_and_rollback.md).
@@ -27,7 +27,7 @@ GitHub Actions не имеет доступа к файловой системе
 | Хост (root, systemd) | Ночной таймер `vpn-shop-update` и агент `vpn-shop-update-agent` | `scripts/auto_update.py`, `scripts/auto-update.sh` |
 | Хост | Загрузка и проверка релиза (SHA-256, манифест, commit) | `scripts/github_release_fetch.py` |
 | Хост | Снимок, замена файлов, сборка, миграции, health, откат | `scripts/update.sh`, `scripts/rollback.sh` |
-| backend | Экран «Обновления» и запрос «Обновить сейчас» | `backend/app/auto_update_api.py` |
+| backend | Экран «Обновления» и запрос «Обновить сейчас» | `services/backend/app/auto_update_api.py` |
 | admin | UI «Автообновление с GitHub» | `apps/lucy-admin/web/src/autoUpdate.tsx` |
 
 ```
@@ -104,10 +104,10 @@ backend  ◀── читает ──  $APP_DIR/.control/auto-update.status.jso
 ## 4. Источник обновлений
 
 Единственный источник — **стабильные GitHub Releases** репозитория `booarkz-cpu/shop-by-boo`
-(`GITHUB_REPO` в `backend/app/github_update.py`). Обновление из ветки `main` не поддерживается
+(`GITHUB_REPO` в `services/backend/app/github_update.py`). Обновление из ветки `main` не поддерживается
 этим механизмом: канала «main» в коде нет, и включать его настройкой нельзя.
 
-`release_status()` в `backend/app/github_update.py` считает релиз пригодным, только если:
+`release_status()` в `services/backend/app/github_update.py` считает релиз пригодным, только если:
 
 1. тег строго соответствует `^v\d+\.\d+\.\d+$`;
 2. `draft == false` и `prerelease == false`;
@@ -120,7 +120,7 @@ backend  ◀── читает ──  $APP_DIR/.control/auto-update.status.jso
 `scripts/github_release_fetch.py` проверяет дополнительно: SHA-256 скачанного архива, поля
 манифеста (`distribution_tag`, `version`, `artifact`, `sha256`) и `commit == tag_commit(tag)`.
 
-Актуальный стабильный релиз на момент документа: `v28.157.0`, опубликован `2026-10-29T14:27:31Z`.
+Актуальный стабильный релиз на момент документа: `v28.158.0`, опубликован `2026-10-29T14:27:31Z`.
 
 ## 5. Процесс обновления
 
@@ -200,7 +200,7 @@ sudo bash /opt/vpn-shop/scripts/auto-update.sh disable   # выключить (�
 | Компонент | Статус | Чем подтверждено |
 | --- | --- | --- |
 | Агент, таймеры, расписание | Реализовано | `scripts/auto_update.py`, тесты `tests/test_auto_update_agent.py` |
-| Проверка релиза, SHA-256, манифест | Реализовано | `scripts/github_release_fetch.py`, `backend/app/github_update.py` |
+| Проверка релиза, SHA-256, манифест | Реализовано | `scripts/github_release_fetch.py`, `services/backend/app/github_update.py` |
 | API панели, права, защита от повтора | Реализовано | `tests/test_auto_update_api.py` — проходит |
 | UI «Автообновление» | Реализовано | `apps/lucy-admin/web/src/autoUpdate.tsx`, typecheck и build проходят |
 | Снимок и откат при сбое | Реализовано | `scripts/update.sh`, `scripts/rollback.sh` |
@@ -209,13 +209,13 @@ sudo bash /opt/vpn-shop/scripts/auto-update.sh disable   # выключить (�
 ## 10. Вся экосистема
 
 Раздел «Обновления» начинается с таблицы «Вся экосистема: автообновление с GitHub»
-(`backend/app/ecosystem_updates.py`, `apps/lucy-admin/web/src/ecosystem-updates.tsx`). Таблица ничего не меняет:
+(`services/backend/app/ecosystem_updates.py`, `apps/lucy-admin/web/src/ecosystem-updates.tsx`). Таблица ничего не меняет:
 она читает состояние существующих механизмов и последний выпуск на GitHub.
 
 | Часть | Автообновление | Механизм | Где настраивается |
 | --- | --- | --- | --- |
 | Магазин: бот, Mini App, кабинет, панель администратора, Support Pro | Есть | Агент на сервере, разделы 1–8 этого документа | «Обновления → Автообновление с GitHub» |
-| Панель Remnawave, ноды, страница подписки | Есть, по умолчанию выключено | `backend/app/rw_autoupdate.py`: только версии, проверенные выпуском магазина; копия базы и откат | «Обновления → Автообновление Remnawave» |
+| Панель Remnawave, ноды, страница подписки | Есть, по умолчанию выключено | `services/backend/app/rw_autoupdate.py`: только версии, проверенные выпуском магазина; копия базы и откат | «Обновления → Автообновление Remnawave» |
 | Гео-списки на нодах | Есть, по умолчанию выключено | Там же, галочка «Гео-списки» | «Обновления → Автообновление Remnawave» |
 | «Корги Люси: клиент» для Android | Есть | Раздел 11: скачивает, проверяет SHA-256 и ставит сам (клиент 1.9.2) | Настройки приложения |
 | Приложение магазина для Android | Есть, с версии 3.7.0 | Раздел 11; файл `corgi-lusi-android.json` в выпуске | — |

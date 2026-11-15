@@ -1,6 +1,6 @@
 # Домены, сертификаты и маршруты Caddy
 
-С v28.67.0 (этап 11). Раздел «Серверы → Домены и сертификаты» (`apps/lucy-admin/web/src/domains.tsx`), backend — `backend/app/rw_domains.py`, таблица `remnawave_domains` (миграция `0091_remnawave_domains`). Закрывает модули 15 Domains, 16 Certificates и 17 Reverse Proxy из [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md).
+С v28.67.0 (этап 11). Раздел «Серверы → Домены и сертификаты» (`apps/lucy-admin/web/src/domains.tsx`), backend — `services/backend/app/rw_domains.py`, таблица `remnawave_domains` (миграция `0091_remnawave_domains`). Закрывает модули 15 Domains, 16 Certificates и 17 Reverse Proxy из [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md).
 
 ## 1. Кто обслуживает домен
 

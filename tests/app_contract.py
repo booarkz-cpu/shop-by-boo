@@ -86,7 +86,7 @@ def columns(table: str) -> set[str]:
 def _scripts():
     from alembic.script import ScriptDirectory
 
-    return ScriptDirectory(str(ROOT / "backend/alembic"))
+    return ScriptDirectory(str(ROOT / "services/backend/alembic"))
 
 
 def revision(rev: str):

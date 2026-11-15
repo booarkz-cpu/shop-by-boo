@@ -45,7 +45,7 @@ sequenceDiagram
 | Клиент | Находится по идентификатору пользователя панели |
 | Действие | Сообщение клиенту, запуск правил автоматизации, защита от повторного пробного периода |
 
-Код: `backend/app/remnawave_events.py`.
+Код: `services/backend/app/remnawave_events.py`.
 
 ## 3. Установка и изменение ноды
 
@@ -57,7 +57,7 @@ sequenceDiagram
 | Панель | Нода и её профиль регистрируются через API панели |
 | Проверка | Состояние в панели и открытый порт; при сбое — откат шага |
 
-Код: `backend/app/rw_api.py`, `rw_steps.py`, `rw_remote.py`. Тесты: `tests/test_rw_ssh.py`, `tests/live/test_node_modules_live.py`.
+Код: `services/backend/app/rw_api.py`, `rw_steps.py`, `rw_remote.py`. Тесты: `tests/test_rw_ssh.py`, `tests/live/test_node_modules_live.py`.
 
 ## 4. Обновления
 

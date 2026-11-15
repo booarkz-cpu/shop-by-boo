@@ -21,12 +21,12 @@ def run(tmp_path, files: dict) -> dict:
 
 def test_secrets_are_found(tmp_path):
     found = run(tmp_path, {
-        ".env": "APP_SECRET=x\n", "backend/.env.production": "X=1\n", "deploy/server.key": "x", "backups/shop.sql.gz": "x",
+        ".env": "APP_SECRET=x\n", "services/backend/.env.production": "X=1\n", "deploy/server.key": "x", "backups/shop.sql.gz": "x",
         "app/config.py": "TOKEN = '123456789:AA" + "b" * 33 + "'\n",
         "docs/note.md": f"-----BEGIN OPENSSH PRIVATE KEY-----\n{KEY_BODY}\n",
         "scripts/x.sh": "GH=ghp_" + "a1" * 18 + "\n", "infra/aws.txt": "AKIA" + "ABCDEFGHIJKLMNOP\n",
     })
-    assert found == {".env": "файл окружения .env", "backend/.env.production": "файл окружения .env",
+    assert found == {".env": "файл окружения .env", "services/backend/.env.production": "файл окружения .env",
                      "deploy/server.key": "файл ключа или хранилища ключей", "backups/shop.sql.gz": "дамп базы или резервная копия",
                      "app/config.py": "токен Telegram-бота", "docs/note.md": "приватный ключ в тексте",
                      "scripts/x.sh": "токен GitHub", "infra/aws.txt": "ключ AWS"}
@@ -34,7 +34,7 @@ def test_secrets_are_found(tmp_path):
 
 def test_examples_and_placeholders_pass(tmp_path):
     assert run(tmp_path, {
-        ".env.example": "APP_SECRET=\n", "backend/.env.sample": "X=\n",
+        ".env.example": "APP_SECRET=\n", "services/backend/.env.sample": "X=\n",
         "apps/lucy-admin/web/src/form.tsx": 'placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"\n',
         "docs/push.md": "APNS_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\\nMIGT...\\n-----END PRIVATE KEY-----\n",
         "tests/fixtures/node.key": "test key",

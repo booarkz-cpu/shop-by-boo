@@ -7,7 +7,7 @@ type Plan = {id: number; name: string; enabled: boolean; traffic_limit_gb: numbe
 type Shield = {strict_sni: boolean; tls_like_site: boolean; probe_ban: boolean; ban_after: number; ban_minutes: number};
 type Node = {server_id: number; name: string; address: string; domain: string | null; ready: boolean; installed: boolean; port: number | null; users: number | null; synced_at: string | null; install_log?: InstallLog | null; error: string | null; shield: Shield | null};
 type InstallLog = {steps: string[]; last: string | null; rollback: string | null};
-// v28.141.0: the stages of the last install on the node (backend/app/rw_masque.py STEPS) and how a failure was undone.
+// v28.141.0: the stages of the last install on the node (services/backend/app/rw_masque.py STEPS) and how a failure was undone.
 const STEPS: Record<string, string> = {check: "проверка ноды", files: "файлы стека", cert: "сертификат сайта", config: "настройки Xray и HAProxy",
   containers: "запуск контейнеров", start: "проверка запуска", firewall: "порт в брандмауэре"};
 const UNDONE: Record<string, string> = {previous: "изменения отменены, работает прежняя установка", removed: "незавершённая установка удалена",

@@ -29,7 +29,7 @@
 
 ## Состояние системы (System Control Center)
 
-«Аналитика → Состояние системы» (`GET /api/admin/health/summary`, право `ops.diagnostics`) — одна страница с состоянием всех частей установки. Код: `backend/app/system_status.py`.
+«Аналитика → Состояние системы» (`GET /api/admin/health/summary`, право `ops.diagnostics`) — одна страница с состоянием всех частей установки. Код: `services/backend/app/system_status.py`.
 
 У каждой строки:
 - статус: «в норме», «внимание», «ошибка» или «не настроено»;

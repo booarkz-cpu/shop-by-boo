@@ -29,7 +29,7 @@ Run every step for each provider; record timestamps, IDs, expected and actual st
 | 7 | Request a full sandbox refund and await notification | Provider and shop agree on refund; no falsely paid order remains |
 | 8 | Exercise a transient Remnawave failure | Controlled retry succeeds without duplicate fulfillment |
 
-Also test checkout cancellation, expiry, concurrent requests, delayed webhooks, and backend/worker restart. Test backup restoration separately. An API `verify` response is not a substitute for a webhook.
+Also test checkout cancellation, expiry, concurrent requests, delayed webhooks, and services/backend/worker restart. Test backup restoration separately. An API `verify` response is not a substitute for a webhook.
 
 ## Running and interpreting the automated check
 

@@ -1,4 +1,4 @@
-# Каталог API — v28.157.0 / API v21.5.1
+# Каталог API — v28.158.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -7,8 +7,8 @@
 Legacy callbacks прежних агентов служат историческим операциям. Новые покупки используют YooKassa/Platega/RollyPay;
 production gate остаётся закрытым без полного application E2E. Mobile purchase verify закрыт ответом 410.
 
-Обновление: `PYTHONPATH=backend python scripts/generate-api-docs.py`; проверка: добавьте `--check`.
-Колонка «Доступ» берётся из зависимостей маршрута: для админки — право роли (RBAC, `backend/app/security.py`),
+Обновление: `PYTHONPATH=services/backend python scripts/generate-api-docs.py`; проверка: добавьте `--check`.
+Колонка «Доступ» берётся из зависимостей маршрута: для админки — право роли (RBAC, `services/backend/app/security.py`),
 для остальных — кто вызывает маршрут. Правила общие для всех маршрутов — в [API.md](ru/new/API.md).
 
 | Метод | Путь | Операция | Доступ |
@@ -580,6 +580,8 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/security/secrets/status` | Secret Status | право `manage_admins` |
 | `GET` | `/api/admin/security/step-up` | Step Up State | право `security.stepup` |
 | `POST` | `/api/admin/security/step-up` | Step Up | право `security.stepup` |
+| `POST` | `/api/admin/services/support-pro/sso` | Support Pro Sso | право `support.read` |
+| `GET` | `/api/admin/services/support-pro/status` | Support Pro Status | право `support.read` |
 | `GET` | `/api/admin/sessions` | Admin Sessions | право `sessions.manage` |
 | `GET` | `/api/admin/sessions/anomalies` | Get Anomalies | право `users.read` |
 | `GET` | `/api/admin/sessions/config` | Get Config | право `ops.diagnostics` |
@@ -619,8 +621,6 @@ production gate остаётся закрытым без полного applicat
 | `GET` | `/api/admin/subscription-feed` | Subscription Feed | право `read` |
 | `GET` | `/api/admin/subscription-operations` | Admin Operations | право `payments.read` |
 | `POST` | `/api/admin/subscription-operations/{operation_id}/refund` | Refund Change | право `payments.refund` |
-| `POST` | `/api/admin/support-pro/sso` | Support Pro Sso | право `support.read` |
-| `GET` | `/api/admin/support-pro/status` | Support Pro Status | право `support.read` |
 | `GET` | `/api/admin/support/ai` | Support Ai Settings | право `support.read` |
 | `PUT` | `/api/admin/support/ai` | Save Support Ai | право `support.write` |
 | `DELETE` | `/api/admin/support/attachments/{attachment_id}` | Admin Remove | право `support.write` |

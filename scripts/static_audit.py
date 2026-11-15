@@ -6,13 +6,13 @@ ROOT = Path(__file__).resolve().parents[1]
 errors=[]
 
 # Python syntax / duplicate route guard.
-for path in (ROOT / "backend" / "app").glob("*.py"):
+for path in (ROOT / "services" / "backend" / "app").glob("*.py"):
     try:
         ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     except SyntaxError as exc:
         errors.append(f"Python syntax: {path}: {exc}")
 
-main=(ROOT/"backend"/"app"/"main.py").read_text(encoding="utf-8")
+main=(ROOT/"services" / "backend"/"app"/"main.py").read_text(encoding="utf-8")
 for marker in ["CSRF validation failed", "TrustedHostMiddleware", "X-Content-Type-Options", "require_permission("]:
     if marker not in main:
         errors.append(f"Security control missing: {marker}")

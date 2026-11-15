@@ -14,7 +14,7 @@ from fastapi import HTTPException
     ({"ignored": False}, None),
 ])
 async def test_sandbox_completion_respects_refund_race(monkeypatch, result, expected_status):
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "backend"))
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "services" / "backend"))
     cabinet = importlib.import_module("app.cabinet_api")
     main = importlib.import_module("app.main")
     sandbox = importlib.import_module("app.sandbox_mode")

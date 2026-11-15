@@ -9,7 +9,7 @@ import tempfile
 test_files=tempfile.TemporaryDirectory(prefix="vpnshop-browser-")
 os.environ["MEDIA_DIR"]=str(Path(test_files.name)/"media")
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'backend'))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'services' / 'backend'))
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine

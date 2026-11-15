@@ -68,7 +68,7 @@ bash scripts/cleanup-branches.sh --apply   # выполнить
 - `audit/v21.1.0-published-assets` — без PR
 - `cleanup/obsolete-publish-artifacts` — #21 закрыт влит
 - `dependabot/github_actions/actions/upload-artifact-7` — #41 закрыт не влит
-- `dependabot/pip/support-pro/aiofiles-25.1.0` — #111 закрыт не влит
+- `dependabot/pip/services/support-pro/aiofiles-25.1.0` — #111 закрыт не влит
 - `docs/real-payments-readme-guide` — #27 закрыт влит
 - `docs/staging-vds-e2e-operator-v20-0-18` — #34 закрыт влит
 - `docs/ui-screenshots` — #83 закрыт влит

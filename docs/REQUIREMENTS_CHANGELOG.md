@@ -178,3 +178,9 @@
 - REQ-CLIENT-0032: `NOT_IMPLEMENTED` → `PARTIAL` (профили и пароль прокси под ключом Android Keystore, `data/Vault.kt`).
 - REQ-CLIENT-0020, REQ-MIG-0008: примечания обновлены.
 - Удалений и объединений нет.
+
+## 2026-11-15, этап 5 структуры папок, выпуск v28.158.0
+
+- Пути доказательств в `status.json` переписаны: `backend/…` → `services/backend/…`, `support-pro/…` → `services/support-pro/…`.
+- REQ-MIG-0014, REQ-MIG-0017, REQ-INFRA-0020: примечания обновлены; статусы прежние (`PARTIAL`).
+- Удалений и объединений нет.

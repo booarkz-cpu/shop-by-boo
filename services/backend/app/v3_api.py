@@ -184,7 +184,7 @@ def _support_token(payload: dict) -> str:
     return f"{raw}.{sig}"
 
 
-@router.get('/api/admin/support-pro/status')
+@router.get('/api/admin/services/support-pro/status')
 async def support_pro_status(admin=Depends(require_permission('support.read'))):
     url = settings.support_pro_url.rstrip('/')
     if not url:
@@ -198,7 +198,7 @@ async def support_pro_status(admin=Depends(require_permission('support.read'))):
         return {"configured": True, "online": False, "url": url, "error": str(exc)[:240]}
 
 
-@router.post('/api/admin/support-pro/sso')
+@router.post('/api/admin/services/support-pro/sso')
 async def support_pro_sso(request: Request, admin=Depends(require_permission('support.read'))):
     url = settings.support_pro_url.rstrip('/')
     if not url or not settings.support_pro_sso_secret:

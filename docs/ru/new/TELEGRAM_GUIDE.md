@@ -1,6 +1,6 @@
 # Telegram-бот: управление из админки
 
-С v28.71.0 (этап 13). Раздел «Бот и кабинет → Telegram-бот» (`apps/lucy-admin/web/src/telegram-bot.tsx`), backend — `backend/app/telegram_bot.py` (`/api/admin/telegram/...`), процесс бота — `backend/app/bot.py` (контейнер `bot`, aiogram 3, long polling).
+С v28.71.0 (этап 13). Раздел «Бот и кабинет → Telegram-бот» (`apps/lucy-admin/web/src/telegram-bot.tsx`), backend — `services/backend/app/telegram_bot.py` (`/api/admin/telegram/...`), процесс бота — `services/backend/app/bot.py` (контейнер `bot`, aiogram 3, long polling).
 
 Тексты, меню, баннеры и документы бота настраиваются в соседних разделах: «Меню бота и Mini App», «Дерево кнопок», «Баннеры бота», «Документы» ([руководство по модулю](../modules/14-bot-miniapp.md)).
 
@@ -54,7 +54,7 @@
 
 ## 6. Тексты бота
 
-С v28.72.0. «Telegram-бот → Тексты бота»: каждое сообщение и кнопка бота (около 100 текстов, по разделам) на русском, английском и украинском. Реестр — `backend/app/bot_texts.py`, правки владельца хранятся в `app_settings.bot_texts`.
+С v28.72.0. «Telegram-бот → Тексты бота»: каждое сообщение и кнопка бота (около 100 текстов, по разделам) на русском, английском и украинском. Реестр — `services/backend/app/bot_texts.py`, правки владельца хранятся в `app_settings.bot_texts`.
 
 - **Язык клиента** берётся из его Telegram (`language_code`): украинский, английский, остальным русский (или «Язык по умолчанию» магазина).
 - **Подстановки** в фигурных скобках (`{name}`, `{date}`) сохраняются. Неизвестная подстановка отклоняется при сохранении.

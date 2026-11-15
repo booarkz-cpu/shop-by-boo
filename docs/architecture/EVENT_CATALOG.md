@@ -8,8 +8,8 @@
 | Источник | Событие | Проверка | Где принимается | Что запускает |
 | --- | --- | --- | --- | --- |
 | Платёжный провайдер | Платёж оплачен, отменён, возвращён | Подпись и повторная сверка у провайдера | `/api/webhooks/…`, `/api/payments/…` | Выдачу или отзыв доступа, запись в финансовый журнал |
-| Панель Remnawave | `user.expiration`, `user.expired`, `user.limited`, `user.bandwidth_usage_threshold_reached`, `user.first_connected`, `user.not_connected`, `user_hwid_devices.added` | Подпись HMAC-SHA256 | `/api/webhooks/remnawave` (`backend/app/remnawave_events.py`) | Сообщение клиенту, правила автоматизации, защиту пробного периода |
-| Telegram | Сообщения и нажатия в боте | Бот сам забирает обновления у Telegram (long polling); входящего webhook нет | `backend/app/bot.py` | Сценарии бота |
+| Панель Remnawave | `user.expiration`, `user.expired`, `user.limited`, `user.bandwidth_usage_threshold_reached`, `user.first_connected`, `user.not_connected`, `user_hwid_devices.added` | Подпись HMAC-SHA256 | `/api/webhooks/remnawave` (`services/backend/app/remnawave_events.py`) | Сообщение клиенту, правила автоматизации, защиту пробного периода |
+| Telegram | Сообщения и нажатия в боте | Бот сам забирает обновления у Telegram (long polling); входящего webhook нет | `services/backend/app/bot.py` | Сценарии бота |
 | Агент ноды | Запросы и ответы агента на ноде | Токен агента ноды | `/api/agent/…` | Терминал на ноде, мониторинг |
 | Приложения | События использования | Сессия клиента | `/api/me/…`, `/api/mobile/…` | Аналитику |
 
@@ -26,7 +26,7 @@
 | Действие администратора | `audit_logs` | Все административные маршруты | Журнал действий, печати |
 | Событие безопасности | `security_incident_events` | Проверки входа и доступа | Раздел безопасности |
 
-Правила автоматизации (`backend/app/automation.py`) подписываются на события вида `remnawave.*`:
+Правила автоматизации (`services/backend/app/automation.py`) подписываются на события вида `remnawave.*`:
 `remnawave.traffic_threshold`, `remnawave.limited`, `remnawave.expired`, `remnawave.first_connected`,
 `remnawave.not_connected`, `remnawave.expiration`.
 
@@ -35,8 +35,8 @@
 | Событие | Кому | Канал |
 | --- | --- | --- |
 | Подписка готова, скоро закончится, закончилась | Клиенту | Telegram, приложение, почта |
-| Нода недоступна, копия не сделана, платёж завис | Администраторам | Telegram, почта (`backend/app/ops_alerts.py`) |
-| Панель отличается от настроек магазина | Администраторам | Telegram (`backend/app/rw_drift.py`) |
+| Нода недоступна, копия не сделана, платёж завис | Администраторам | Telegram, почта (`services/backend/app/ops_alerts.py`) |
+| Панель отличается от настроек магазина | Администраторам | Telegram (`services/backend/app/rw_drift.py`) |
 | Обновление выполнено или не удалось | Администраторам | Telegram |
 
 ## Чего нет

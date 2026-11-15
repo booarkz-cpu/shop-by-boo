@@ -115,8 +115,8 @@ HELPDESK_IMPORT_SINCE=2026-10-01   # пусто — последние 30 дне
 
 ## API
 
-Магазин: `GET /api/admin/support/tickets`, ответ и вложения — `/api/admin/support/...`, `GET /api/admin/support-pro/status`, `POST /api/admin/support-pro/sso`. Клиент: `/api/me/support/...`. Support Pro: `/live`, `/ready`, `/metrics`, `POST /email/inbound`.
+Магазин: `GET /api/admin/support/tickets`, ответ и вложения — `/api/admin/support/...`, `GET /api/admin/services/support-pro/status`, `POST /api/admin/services/support-pro/sso`. Клиент: `/api/me/support/...`. Support Pro: `/live`, `/ready`, `/metrics`, `POST /email/inbound`.
 
 ## Подробнее
 
-[Мост магазина и Support Pro](../WORKSPACE_SUPPORT_BRIDGE.md) · [Email-канал](../SUPPORT_EMAIL_CHANNEL_CURRENT.md) · [Zendesk/Freshdesk](../SUPPORT_HELPDESK_BRIDGE_CURRENT.md) · [Объединение и разделение](../SUPPORT_TOPOLOGY_CURRENT.md) · [История после объединения](../SUPPORT_REMOTE_HISTORY_CURRENT.md) · [Support Pro README](../../../support-pro/README.md).
+[Мост магазина и Support Pro](../WORKSPACE_SUPPORT_BRIDGE.md) · [Email-канал](../SUPPORT_EMAIL_CHANNEL_CURRENT.md) · [Zendesk/Freshdesk](../SUPPORT_HELPDESK_BRIDGE_CURRENT.md) · [Объединение и разделение](../SUPPORT_TOPOLOGY_CURRENT.md) · [История после объединения](../SUPPORT_REMOTE_HISTORY_CURRENT.md) · [Support Pro README](../../../services/support-pro/README.md).

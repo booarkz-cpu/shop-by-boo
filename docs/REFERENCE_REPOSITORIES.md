@@ -40,7 +40,7 @@ webauthn, pyotp. Frontend: React + TypeScript (194 `.tsx`, 112 `.ts`). 709 `.py`
 **270 тестовых файлов** (215 `test_*.py` и 55 `*.test/spec.ts(x)`; прежняя цифра 267 считалась другим фильтром). Compose: `bot`, `remnawave-admin-db`, `web-backend`, `web-collector`,
 `web-frontend`, `prometheus`, `redis`.
 
-**Архитектурно интересное** (`web/backend/core/`, 60+ модулей): `hwid_guard`, `ip_guard`, `login_guard`,
+**Архитектурно интересное** (`web/services/backend/core/`, 60+ модулей): `hwid_guard`, `ip_guard`, `login_guard`,
 `attack_detector`, `torrent_p2p_whitelist`, `traffic_rate_monitor`, `throttle_sync`, `shaper_rollout`,
 `ndpi_rollout`, `plugin_installer`, `webhook_security`, `api_key_auth`, `token_blacklist`, `fail2ban_logger`,
 `reputation`, `sessions`, `violation_notifier`, `online_snapshot_recorder`.
@@ -149,8 +149,8 @@ backend бота. У нас кабинет — самостоятельное Ne
 
 | Функция middleware | Наш аналог | Статус |
 | --- | --- | --- |
-| Зеркало подписки на своём домене | `backend/app/sub_proxy.py` (537 строк) | есть, с тем же обоснованием |
-| Грейс-доступ при истечении | `backend/app/grace_access.py` | есть, с cooldown и «сброс трафика при оплате» |
+| Зеркало подписки на своём домене | `services/backend/app/sub_proxy.py` (537 строк) | есть, с тем же обоснованием |
+| Грейс-доступ при истечении | `services/backend/app/grace_access.py` | есть, с cooldown и «сброс трафика при оплате» |
 | Заглушка для заблокированного устройства по HWID | `sub_proxy.py` (блок по `x-hwid`) | есть |
 | Переписывание заголовков по приложению | `sub_proxy.py` (правила по User-Agent и ОС) | есть |
 | Склейка двух подписок в одну ссылку | `sub_proxy.py` (`addsub`) | есть |
@@ -209,11 +209,11 @@ Cryptomus.
 
 | Идея StepBot | В магазине |
 | --- | --- |
-| Конструктор меню бота (дерево кнопок, стили, вложенные экраны) | есть: `backend/app/menu_tree.py`, редактор `apps/lucy-admin/web/src/menu-tree.tsx`, `tests/test_menu_hierarchy.py` |
-| Импорт пользователей из базы другого бота | есть: `backend/app/sqlite_import.py` (снимок SQLite до 5 МБ, сопоставление колонок), `backend/app/history_import.py`, `tests/test_admin_customer_operations.py`. С v28.157.0 база `remnawave-shopbot` узнаётся сама (`backend/app/import_presets.py`): поля клиентов, платежей и подписок заполняются без ручной раскладки |
-| Смена тарифа с расчётом доплаты | есть: `POST /api/me/subscription/quote` в `backend/app/subscription_commerce.py` |
+| Конструктор меню бота (дерево кнопок, стили, вложенные экраны) | есть: `services/backend/app/menu_tree.py`, редактор `apps/lucy-admin/web/src/menu-tree.tsx`, `tests/test_menu_hierarchy.py` |
+| Импорт пользователей из базы другого бота | есть: `services/backend/app/sqlite_import.py` (снимок SQLite до 5 МБ, сопоставление колонок), `services/backend/app/history_import.py`, `tests/test_admin_customer_operations.py`. С v28.157.0 база `remnawave-shopbot` узнаётся сама (`services/backend/app/import_presets.py`): поля клиентов, платежей и подписок заполняются без ручной раскладки |
+| Смена тарифа с расчётом доплаты | есть: `POST /api/me/subscription/quote` в `services/backend/app/subscription_commerce.py` |
 | Докупка трафика к подписке | есть: пакеты `TrafficPackage`, вид расчёта `traffic_addon` там же |
-| Автоматический режим техработ, когда панель недоступна | есть: `backend/app/panel_guard.py`, `tests/test_reconciliation.py` |
+| Автоматический режим техработ, когда панель недоступна | есть: `services/backend/app/panel_guard.py`, `tests/test_reconciliation.py` |
 | Гейт подписки на каналы, устройства HWID, gift-коды, реферальные выплаты, постбеки S2S, атрибуция кампаний, чеки, сверка с панелью | есть |
 
 Построчная сверка поведения (что именно умеет каждая функция StepBot и чего из этого нет в магазине) не проводилась —

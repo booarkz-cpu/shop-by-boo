@@ -18,7 +18,7 @@
 | Требование промпта | Состояние |
 | --- | --- |
 | Отдельные bounded contexts с публичными контрактами | Области — группы модулей одного процесса `backend`. Модуль одной области может вызвать функцию другой напрямую |
-| Запрет прямого доступа к таблицам чужой области | Не обеспечен: все модули `backend` работают с одной базой через общие модели `backend/app/models.py` |
+| Запрет прямого доступа к таблицам чужой области | Не обеспечен: все модули `backend` работают с одной базой через общие модели `services/backend/app/models.py` |
 | Отсутствие циклических зависимостей | Автоматически не проверяется. Многие модули импортируют `main` внутри функций, чтобы обойти цикл |
 | Владелец каждой области | Не назначен: проект ведёт один владелец |
 | События между областями | Шины событий нет; см. [EVENT_CATALOG.md](EVENT_CATALOG.md) |
@@ -29,9 +29,9 @@
 
 | Что | Где |
 | --- | --- |
-| Проверка прав, шифрование секретов, токены | `backend/app/security.py` |
-| Настройки | `backend/app/config.py`, `runtime_settings.py` |
-| Клиент панели | `backend/app/remnawave.py` |
+| Проверка прав, шифрование секретов, токены | `services/backend/app/security.py` |
+| Настройки | `services/backend/app/config.py`, `runtime_settings.py` |
+| Клиент панели | `services/backend/app/remnawave.py` |
 | Тексты интерфейсов | `packages/localization/`, словари веб-интерфейсов |
 | Дизайн-токены и компоненты веб-панели | `apps/lucy-admin/web/src/theme.css`, `apps/lucy-admin/web/src/components/ui/` |
 
@@ -44,7 +44,7 @@
 | --- | --- |
 | Назначение, зависимости, проверки готовности, тома | [CONTAINER_DIAGRAM.md](CONTAINER_DIAGRAM.md) |
 | Настройки и секреты | `.env.example`, [SECURITY_MODEL_RU.md](../../SECURITY_MODEL_RU.md) |
-| Миграции | `backend/alembic/`, `support-pro/alembic/` |
+| Миграции | `services/backend/alembic/`, `services/support-pro/alembic/` |
 | Копии и восстановление | `scripts/backup.sh`, `scripts/ci/restore-drill.sh`, [OPERATIONS_RUNBOOK_RU.md](../../OPERATIONS_RUNBOOK_RU.md) |
 | Обновление и откат | [AUTO_UPDATE.md](../AUTO_UPDATE.md) |
 | Журналы и метрики | [OPERATIONS_RUNBOOK_RU.md](../../OPERATIONS_RUNBOOK_RU.md) |

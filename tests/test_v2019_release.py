@@ -20,12 +20,12 @@ class ReleaseSelectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as base:
             root = Path(base)
             app = root / "app"
-            (app / "backend/app").mkdir(parents=True)
-            (app / "backend/app/main.py").write_text('APP_VERSION = "20.0.19"\n')
+            (app / "services/backend/app").mkdir(parents=True)
+            (app / "services/backend/app/main.py").write_text('APP_VERSION = "20.0.19"\n')
             name = "remnawave_vpn_shop_v20_0_20_full_release.zip"
             data = io.BytesIO()
             with zipfile.ZipFile(data, "w") as archive:
-                archive.writestr("backend/app/main.py", 'APP_VERSION = "20.0.19"\n')
+                archive.writestr("services/backend/app/main.py", 'APP_VERSION = "20.0.19"\n')
             payload = {"tag_name": "v20.0.20", "assets": [
                 {"name": value, "browser_download_url": fetcher.DOWNLOAD_PREFIX + "v20.0.20/" + value}
                 for value in (name, name + ".sha256")
@@ -40,23 +40,23 @@ class ReleaseSelectionTests(unittest.TestCase):
     def test_rejects_duplicate_archive_path(self):
         data = io.BytesIO()
         with zipfile.ZipFile(data, "w") as archive:
-            archive.writestr("backend/app/main.py", 'APP_VERSION = "20.0.20"\n')
+            archive.writestr("services/backend/app/main.py", 'APP_VERSION = "20.0.20"\n')
             archive.writestr("backend\\app\\main.py", 'APP_VERSION = "20.0.19"\n')
         with tempfile.TemporaryDirectory() as base:
             with self.assertRaises(SystemExit):
                 fetcher.safe_extract(data.getvalue(), Path(base))
-            self.assertFalse((Path(base) / "backend").exists())
+            self.assertFalse((Path(base) / "services" / "backend").exists())
 
     def test_accepts_matching_release_archive(self):
         with tempfile.TemporaryDirectory() as base:
             root = Path(base)
             app = root / "app"
-            (app / "backend/app").mkdir(parents=True)
-            (app / "backend/app/main.py").write_text('APP_VERSION = "20.0.19"\n')
+            (app / "services/backend/app").mkdir(parents=True)
+            (app / "services/backend/app/main.py").write_text('APP_VERSION = "20.0.19"\n')
             name = "remnawave_vpn_shop_v20_0_20_full_release.zip"
             data = io.BytesIO()
             with zipfile.ZipFile(data, "w") as archive:
-                archive.writestr("backend/app/main.py", 'APP_VERSION = "20.0.20"\n')
+                archive.writestr("services/backend/app/main.py", 'APP_VERSION = "20.0.20"\n')
             checksum = (hashlib.sha256(data.getvalue()).hexdigest() + "  " + name).encode()
             payload = {"tag_name": "v20.0.20", "assets": [
                 {"name": value, "browser_download_url": fetcher.DOWNLOAD_PREFIX + "v20.0.20/" + value}
@@ -73,8 +73,8 @@ class ReleaseSelectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as base:
             root = Path(base)
             app = root / "app"
-            (app / "backend/app").mkdir(parents=True)
-            (app / "backend/app/main.py").write_text('APP_VERSION = "20.0.18"\n')
+            (app / "services/backend/app").mkdir(parents=True)
+            (app / "services/backend/app/main.py").write_text('APP_VERSION = "20.0.18"\n')
             payload = {"tag_name": tag, "assets": [
                 {"name": name, "browser_download_url": fetcher.DOWNLOAD_PREFIX + tag + "/" + name}
                 for name in names
@@ -95,8 +95,8 @@ class ReleaseSelectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as base:
             root = Path(base)
             app = root / "app"
-            (app / "backend/app").mkdir(parents=True)
-            (app / "backend/app/main.py").write_text('APP_VERSION = "20.0.20"\n')
+            (app / "services/backend/app").mkdir(parents=True)
+            (app / "services/backend/app/main.py").write_text('APP_VERSION = "20.0.20"\n')
             name = "remnawave_vpn_shop_v20_0_21_full_release.zip"
             payload = {"tag_name": "v20.0.21", "assets": [
                 {"name": value, "browser_download_url": fetcher.DOWNLOAD_PREFIX + "v20.0.20/" + value}
@@ -117,8 +117,8 @@ class ReleaseSelectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as base:
             root = Path(base)
             app = root / "app"
-            (app / "backend/app").mkdir(parents=True)
-            (app / "backend/app/main.py").write_text('APP_VERSION = "20.0.18"\n')
+            (app / "services/backend/app").mkdir(parents=True)
+            (app / "services/backend/app/main.py").write_text('APP_VERSION = "20.0.18"\n')
             name = "remnawave_vpn_shop_v20_0_19_full_release.zip"
             payload = {"tag_name": "v20.0.19", "assets": [
                 {"name": value, "browser_download_url": fetcher.DOWNLOAD_PREFIX + "v20.0.19/" + value}

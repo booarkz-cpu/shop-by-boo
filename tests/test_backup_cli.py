@@ -15,7 +15,7 @@ ROOT=Path(__file__).parents[1]
 
 @pytest.fixture
 def install(tmp_path):
-    app=tmp_path/'app';app.mkdir();(app/'support-pro').mkdir()
+    app=tmp_path/'app';app.mkdir();(app/'services' / 'support-pro').mkdir()
     (app/'.env').write_text('APP_SECRET=shop-test-secret\n')
     (app/'support-pro/.env').write_text('SESSION_SECRET=support-test-secret\n')
     (app/'release-manifest.template.json').write_text('{"version":"21.0.1"}')

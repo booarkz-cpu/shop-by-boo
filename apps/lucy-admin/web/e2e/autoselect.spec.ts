@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.112.0: «Серверы → Пул автовыбора». The panel is answered by a stub shaped like backend/app/rw_autoselect.py
+// v28.112.0: «Серверы → Пул автовыбора». The panel is answered by a stub shaped like services/backend/app/rw_autoselect.py
 // (tests/test_rw_autoselect.py runs the same flow against a model of the Remnawave panel).
 const DE = '00000001-0000-4000-8000-000000000000', CZ = '00000002-0000-4000-8000-000000000000', OFF = '00000004-0000-4000-8000-000000000000';
 const host = (uuid: string, name: string, country: string, extra: object = {}) => ({uuid, name, address: `${country.toLowerCase()}1.example.com`, country,
