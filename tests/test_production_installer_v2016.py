@@ -154,7 +154,10 @@ def test_ci_concurrency_is_scoped_to_one_commit():
         assert "github.sha" in group, f"{name}: the concurrency group must include the commit ({group})"
         assert workflow["concurrency"]["cancel-in-progress"] is True, f"{name}: retries of one commit still supersede each other"
 
-    gate = (ROOT / ".github/workflows/publish-release.yml").read_text()
+    workflow = (ROOT / ".github/workflows/publish-release.yml").read_text()
+    assert "require('./scripts/release-gate.cjs')" in workflow
+    assert "await requireVerifiedMain({github, context, core})" in workflow
+    gate = (ROOT / "scripts/release-gate.cjs").read_text()
     assert "head_sha === sha" in gate, "the gate matches the check runs to the release commit itself"
     assert "conclusion !== 'success'" in gate, "the gate refuses anything but a green run"
 
