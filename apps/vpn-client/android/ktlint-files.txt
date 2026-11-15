@@ -40,3 +40,7 @@ app/src/main/java/shop/corgi/client/core/Backoff.kt
 app/src/test/java/shop/corgi/client/core/BackoffTest.kt
 app/src/main/java/shop/corgi/client/core/Sealed.kt
 app/src/test/java/shop/corgi/client/core/SealedTest.kt
+app/src/main/java/shop/corgi/client/core/Verify.kt
+app/src/test/java/shop/corgi/client/core/VerifyTest.kt
+app/src/main/java/shop/corgi/client/data/Vault.kt
+app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt
