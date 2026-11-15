@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-APP = ROOT / 'backend/app'
+APP = ROOT / 'services/backend/app'
 OUTPUT = ROOT / 'docs/PAYMENT_PROVIDER_INVENTORY.md'
 
 # The owner's list (docs/prompts/MASTER_PROMPT_V6.md, lines 256, 260, 272–346): name, config id, expected methods.
@@ -88,7 +88,7 @@ def build() -> tuple[str, list[str]]:
         elif key in ('freekassa_sbp', 'freekassa_card') and key.split('_')[1] in methods.get('freekassa', ()):
             where, what = 'Способ оплаты кассы `freekassa`', key.split('_')[1]
         elif key in OTHER and (APP / OTHER[key][0]).is_file() and (key not in CLASS or f'class {CLASS[key]}' in (APP / OTHER[key][0]).read_text(encoding='utf-8')):
-            where, what = f'`backend/app/{OTHER[key][0]}`', OTHER[key][1]
+            where, what = f'`services/backend/app/{OTHER[key][0]}`', OTHER[key][1]
         else:
             where, what = '**Нет в коде**', '—'
             absent.append(title)
@@ -110,8 +110,8 @@ def build() -> tuple[str, list[str]]:
         '',
         '<!-- Файл создаёт scripts/audit/check_payment_provider_registry.py. Не править руками. -->',
         '',
-        'Таблица собрана из исходного кода: `backend/app/payment_policy.py` (очередь касс, автопродление, возвраты),',
-        '`backend/app/payment_methods.py` (способы оплаты) и модулей платформ. Список владельца — из мастер-промпта',
+        'Таблица собрана из исходного кода: `services/backend/app/payment_policy.py` (очередь касс, автопродление, возвраты),',
+        '`services/backend/app/payment_methods.py` (способы оплаты) и модулей платформ. Список владельца — из мастер-промпта',
         '(`docs/prompts/MASTER_PROMPT_V6.md`, строки 256–346).',
         '',
         '**Что таблица доказывает и чего нет.** «Есть в коде» значит: адаптер написан и проверяется тестами с подменой',

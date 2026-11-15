@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock
 import httpx
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "services" / "backend"))
 @pytest.fixture
 def pay():
     # Delay Settings initialization until per-test environment fixtures run.

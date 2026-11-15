@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_version_311_is_first():
     (ROOT / "scripts/build-release.sh").read_text()
-    (ROOT / "deploy/install-vps.sh").read_text()
+    (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
 
 
 # Blank staging secrets, refusals and the redacted output: tests/test_behaviour_plans_privacy.py (BACKLOG A1).
@@ -14,7 +14,7 @@ def test_version_311_is_first():
 
 def test_runner_prints_checkout_and_image_has_curl():
     host = (ROOT / "scripts/staging-e2e.sh").read_text()
-    image = (ROOT / "backend/scripts/staging-e2e.sh").read_text()
+    image = (ROOT / "services/backend/scripts/staging-e2e.sh").read_text()
     assert host == image
     for text in (host, image):
         assert "[CHECKOUT]" in text
@@ -22,14 +22,14 @@ def test_runner_prints_checkout_and_image_has_curl():
         assert "startswith('https://')" in text
         assert "awaiting_checkout" in text
         assert "в контейнере backend нет curl" in text
-    docker = (ROOT / "backend/Dockerfile").read_text()
+    docker = (ROOT / "services/backend/Dockerfile").read_text()
     assert "curl" in docker
     assert "COPY scripts/staging-e2e.sh ./staging-e2e.sh" in docker
 
 
 def test_admin_requires_sandbox_confirmation():
-    ui = (ROOT / "admin/src/main.tsx").read_text()
-    i18n = (ROOT / "admin/src/i18n.tsx").read_text()
+    ui = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+    i18n = (ROOT / "apps/lucy-admin/web/src/i18n.tsx").read_text()
     assert "Подтверждаю sandbox-ключи" in ui
     assert "staging_confirmed:!!cfg.staging_confirmed" in ui
     assert "staging_confirmed:true" not in ui

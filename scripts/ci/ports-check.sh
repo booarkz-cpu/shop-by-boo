@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v28.134.0 (owner's task of 2026-11-13): the ports script of backend/app/rw_ports.py for real, on the CI runner —
+# v28.134.0 (owner's task of 2026-11-13): the ports script of services/backend/app/rw_ports.py for real, on the CI runner —
 # a server with iptables closing INPUT and a server with an nftables input chain «policy drop», each in a network
 # namespace with a web server behind the firewall. Open → reachable; scan sees it; reboot (rules lost) → reapply
 # brings it back; close → unreachable again; the SSH port is never closed. Needs root.
@@ -8,7 +8,7 @@ cd "$(dirname "$0")/../.."
 W=$(mktemp -d)
 fail() { echo "FAIL: $*"; exit 1; }
 ok() { echo "ok: $*"; }
-PYTHONPATH=backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups APP_SECRET=x python3 -c 'from app import rw_ports; open("'"$W"'/node.sh", "w").write(rw_ports.NODE)'
+PYTHONPATH=services/backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups APP_SECRET=x python3 -c 'from app import rw_ports; open("'"$W"'/node.sh", "w").write(rw_ports.NODE)'
 cleanup() { for ns in cfw cnf; do ip netns pids "$ns" 2>/dev/null | xargs -r kill 2>/dev/null || true; ip netns del "$ns" 2>/dev/null || true; done; }
 trap cleanup EXIT
 

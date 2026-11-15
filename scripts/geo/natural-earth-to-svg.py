@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# usage: python3 scripts/geo/natural-earth-to-svg.py ne_110m_admin_0_countries.geojson admin/src/worldMap.json
+# usage: python3 scripts/geo/natural-earth-to-svg.py ne_110m_admin_0_countries.geojson apps/lucy-admin/web/src/worldMap.json
 """Natural Earth 1:110m countries (public domain) -> compact SVG paths keyed by ISO 3166-1 alpha-2, equirectangular."""
 import json, sys
 src, out = sys.argv[1], sys.argv[2]

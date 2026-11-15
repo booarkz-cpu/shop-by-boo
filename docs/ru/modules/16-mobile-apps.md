@@ -9,9 +9,9 @@
 | Приложение | Каталог |
 | --- | --- |
 | Android для клиентов | `apps/vpn-shop/android` |
-| iOS для клиентов | `mobile/ios-user` |
+| iOS для клиентов | `apps/vpn-shop/ios` |
 | Android для администраторов | `apps/lucy-admin/android` |
-| iOS для администраторов | `mobile/ios-admin` |
+| iOS для администраторов | `apps/lucy-admin/ios` |
 
 Клиентское приложение 3.8.0 (Android и iOS) устроено так:
 

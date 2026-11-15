@@ -194,13 +194,13 @@ private val localHttpHosts = setOf("localhost", "127.0.0.1", "10.0.2.2")
 
 private val ORDER_ID = Regex("[A-Za-z0-9_.:-]{6,128}")
 
-/** Order of corgi://payment?order=… (backend/app/app_login.py payment_link); null for anything else. */
+/** Order of corgi://payment?order=… (services/backend/app/app_login.py payment_link); null for anything else. */
 fun paymentOrder(uri: Uri?): String? {
     if (uri == null || uri.scheme != "corgi" || uri.host != "payment") return null
     return uri.getQueryParameter("order")?.takeIf { ORDER_ID.matches(it) }
 }
 
-/** Sign-in link: the shop it belongs to and a one-use code (backend/app/app_login.py). */
+/** Sign-in link: the shop it belongs to and a one-use code (services/backend/app/app_login.py). */
 data class LoginLink(val base: String, val code: String) {
     companion object {
         private val CODE = Regex("[A-Za-z0-9_-]{20,128}")

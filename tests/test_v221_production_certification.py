@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_payment_provider_never_uses_unpinned_http_client():
-    tree = ast.parse((ROOT / "backend/app/payments.py").read_text())
+    tree = ast.parse((ROOT / "services/backend/app/payments.py").read_text())
     offenders=[]
     for node in ast.walk(tree):
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "AsyncClient":

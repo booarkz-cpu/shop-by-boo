@@ -67,7 +67,7 @@
    docker compose up -d support_pro support_worker
    ```
 
-   В самостоятельном развёртывании Support Pro (каталог `support-pro/`): `docker compose run --rm migrate`, затем `docker compose up -d app worker`.
+   В самостоятельном развёртывании Support Pro (каталог `services/support-pro/`): `docker compose run --rm migrate`, затем `docker compose up -d app worker`.
 4. Откройте **Внешний helpdesk** в меню Support Pro (только администратор): там видны система и домен, время последней успешной синхронизации, число импортированных обращений и комментариев, пауза по 429 и последняя ошибка. Кнопка «Синхронизировать сейчас» запускает цикл без ожидания.
 
 В обращении из внешней системы есть ссылка «Открыть во внешней системе».
@@ -91,7 +91,7 @@
 
 ## Проверка
 
-`support-pro/tests/test_helpdesk_bridge.py` (SQLite и PostgreSQL) на имитации API Zendesk и Freshdesk проверяет:
+`services/support-pro/tests/test_helpdesk_bridge.py` (SQLite и PostgreSQL) на имитации API Zendesk и Freshdesk проверяет:
 
 - импорт истории с клиентом, комментариями, заметками и статусом; повтор страницы без дублей;
 - присоединение к существующему клиенту по email;
@@ -104,6 +104,6 @@
 - импорт и ответ Freshdesk (HTML экранируется);
 - страницу моста и выключенный мост без настроек.
 
-`support-pro/tests/test_migrations.py` проверяет roundtrip миграции `0008` и защиту отката.
+`services/support-pro/tests/test_migrations.py` проверяет roundtrip миграции `0008` и защиту отката.
 
 Работу с реальной учётной записью Zendesk или Freshdesk (права агента, лимиты тарифа, вложения больших размеров) проверяет оператор на своём стенде.

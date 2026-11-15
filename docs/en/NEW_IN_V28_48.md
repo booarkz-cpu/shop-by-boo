@@ -1,6 +1,6 @@
 # What is new in v28.48.0
 
-**Corporate plans** (`backend/app/corporate.py`, migration `0083_corporate_seats`):
+**Corporate plans** (`services/backend/app/corporate.py`, migration `0083_corporate_seats`):
 
 - **Company account.** A company has requisites, a plan, seats and a device pool (seats × devices per seat).
 - **Company admin.** The admin invites employees by a link, assigns devices from the pool, removes employees and sees the invoices.

@@ -1,7 +1,7 @@
 # Карточки модулей в мобильных админках
 
 Чтобы каждый новый модуль сразу был в Android и iOS админках без выпуска новой версии приложений, магазин сам описывает
-карточки: `GET /api/admin/mobile/panels` (`backend/app/mobile_panels.py`).
+карточки: `GET /api/admin/mobile/panels` (`services/backend/app/mobile_panels.py`).
 
 ```json
 {"panels": [{"id": "payment_methods", "title": "Способы оплаты",

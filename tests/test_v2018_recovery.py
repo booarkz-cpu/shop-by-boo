@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class RecoveryTests(unittest.TestCase):
     def test_installer_writes_one_cabinet_cors_origin(self):
-        script = (ROOT / "deploy/install-vps.sh").read_text()
+        script = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
         writer = script[script.index("umask 077\n{"):script.index("# Strict production firewall:")]
         self.assertEqual(writer.count("env_line CABINET_CORS_ORIGINS "), 1)
         self.assertIn('env_line CABINET_CORS_ORIGINS "https://${CABINET_DOMAIN}"', writer)
@@ -98,8 +98,8 @@ class RecoveryTests(unittest.TestCase):
             (app / ".git" / "head").write_text("git-marker")
             (app / "support-pro").mkdir()
             (app / "support-pro" / ".env").write_text("support-secret")
-            (app / "backend").mkdir()
-            (app / "backend" / ".env.local").write_text("backend-secret")
+            (app / "services" / "backend").mkdir(parents=True)
+            (app / "services" / "backend" / ".env.local").write_text("backend-secret")
             (app / "current.txt").write_text("current")
             (app / ".rollback").mkdir()
             old = app / ".rollback" / "old.tar.gz"
@@ -129,7 +129,7 @@ class RecoveryTests(unittest.TestCase):
             self.assertEqual((app / ".git" / "head").read_text(), "git-marker")
             self.assertEqual((app / ".env.previous").read_text(), "previous-secret")
             self.assertEqual((app / "support-pro" / ".env").read_text(), "support-secret")
-            self.assertEqual((app / "backend" / ".env.local").read_text(), "backend-secret")
+            self.assertEqual((app / "services" / "backend" / ".env.local").read_text(), "backend-secret")
             snapshot = next((app / ".rollback").glob("pre-rollback-*.tar.gz"))
             with tarfile.open(snapshot) as archive:
                 names = archive.getnames()
@@ -164,13 +164,13 @@ class RecoveryTests(unittest.TestCase):
             (app / ".env").write_text("APP_ENV=test\n")
             (app / "support-pro" / ".env").write_text("original-secret\n")
             stage = base / "release"
-            (stage / "backend" / "app").mkdir(parents=True)
-            (stage / "backend" / "app" / "main.py").write_text("release")
+            (stage / "services" / "backend" / "app").mkdir(parents=True)
+            (stage / "services" / "backend" / "app" / "main.py").write_text("release")
             (stage / "support-pro").mkdir()
             (stage / "support-pro" / ".env").write_text("release-secret\n")
-            (stage / "deploy").mkdir()
+            (stage / "infrastructure" / "deployment").mkdir(parents=True)
             (stage / "scripts").mkdir()
-            for path in (stage / "deploy" / "build-production.sh", stage / "scripts" / "doctor.sh", stage / "scripts" / "upgrade-postgres.sh"):
+            for path in (stage / "infrastructure" / "deployment" / "build-production.sh", stage / "scripts" / "doctor.sh", stage / "scripts" / "upgrade-postgres.sh"):
                 path.write_text("#!/bin/sh\nexit 0\n")
                 path.chmod(0o755)
             fakebin = base / "bin"
@@ -184,7 +184,7 @@ class RecoveryTests(unittest.TestCase):
                                  capture_output=True, text=True)
             self.assertEqual(run.returncode, 0, run.stderr)
             self.assertEqual((app / "support-pro" / ".env").read_text(), "original-secret\n")
-            self.assertEqual((app / "backend" / "app" / "main.py").read_text(), "release")
+            self.assertEqual((app / "services" / "backend" / "app" / "main.py").read_text(), "release")
 
 
 if __name__ == "__main__":

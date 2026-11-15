@@ -2,8 +2,8 @@
 
 <!-- Файл создаёт scripts/audit/check_payment_provider_registry.py. Не править руками. -->
 
-Таблица собрана из исходного кода: `backend/app/payment_policy.py` (очередь касс, автопродление, возвраты),
-`backend/app/payment_methods.py` (способы оплаты) и модулей платформ. Список владельца — из мастер-промпта
+Таблица собрана из исходного кода: `services/backend/app/payment_policy.py` (очередь касс, автопродление, возвраты),
+`services/backend/app/payment_methods.py` (способы оплаты) и модулей платформ. Список владельца — из мастер-промпта
 (`docs/prompts/MASTER_PROMPT_V6.md`, строки 256–346).
 
 **Что таблица доказывает и чего нет.** «Есть в коде» значит: адаптер написан и проверяется тестами с подменой
@@ -17,8 +17,8 @@
 
 | Провайдер | ID | Статус | Где в коде | Что умеет в коде | Что ждёт владелец | Тесты |
 | --- | --- | --- | --- | --- | --- | --- |
-| Telegram Stars | `telegram_stars` | `IMPLEMENTED` | `backend/app/telegram_stars.py` | Счёт в боте: invoice, pre-checkout, successful_payment; подписки за Stars | — | `test_app_config.py`, `test_growth.py`, `test_single_business_logic.py` |
-| Tribute | `tribute` | `IMPLEMENTED` | `backend/app/tribute.py` | Пополнение кошелька по ссылке Tribute, вебхук с подписью | — | `test_tribute.py` |
+| Telegram Stars | `telegram_stars` | `IMPLEMENTED` | `services/backend/app/telegram_stars.py` | Счёт в боте: invoice, pre-checkout, successful_payment; подписки за Stars | — | `test_app_config.py`, `test_growth.py`, `test_single_business_logic.py` |
+| Tribute | `tribute` | `IMPLEMENTED` | `services/backend/app/tribute.py` | Пополнение кошелька по ссылке Tribute, вебхук с подписью | — | `test_tribute.py` |
 | CryptoBot | `cryptobot` | `IMPLEMENTED` | Касса в очереди оплаты | crypto | — | `test_cryptobot.py`, `test_e2e_journeys.py`, `test_payment_failover_chain.py` и ещё 2 |
 | Heleket | `heleket` | — | **Нет в коде** | — | — | — |
 | YooKassa | `yookassa` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · автопродление, возврат | card; sbp | `test_admin_coverage_payments.py`, `test_admin_customer_operations.py`, `test_app_config.py` и ещё 68 |
@@ -46,12 +46,12 @@
 | TabPay | `tabpay` | — | **Нет в коде** | — | card; sbp | — |
 | ParityPay | `paritypay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_cashera_paritypay.py` |
 | Cashera | `cashera` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | динамические — проверить | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_cashera_paritypay.py` |
-| Stripe | `stripe` | `IMPLEMENTED` | `backend/app/payment_platform.py` | Класс StripePlatform | — | `test_audit_v2009_runtime.py`, `test_behaviour_store_and_webhooks.py`, `test_critical_audit_v2002.py` и ещё 5 |
-| PayPal | `paypal` | `IMPLEMENTED` | `backend/app/payment_platform.py` | Класс PayPalPlatform | — | `test_app_config.py`, `test_behaviour_store_and_webhooks.py`, `test_critical_audit_v2002.py` и ещё 7 |
-| Apple StoreKit | `apple` | `IMPLEMENTED` | `backend/app/payment_platform.py` | Класс AppleStorePlatform: проверка покупки на сервере | — | `test_behaviour_store_and_webhooks.py`, `test_mobile_store_expiry.py`, `test_store_billing.py` |
-| Google Play Billing | `google` | `IMPLEMENTED` | `backend/app/payment_platform.py` | Класс GooglePlayPlatform: проверка покупки на сервере | — | `test_mobile_store_expiry.py`, `test_store_billing.py` |
-| Crypto Gateway | `crypto` | `IMPLEMENTED` | `backend/app/payment_platform.py` | Класс CryptoGatewayPlatform | — | `test_behaviour_payments_v2.py`, `test_critical_audit_v2003.py` |
-| Sandbox | `sandbox` | `IMPLEMENTED` | `backend/app/payments.py` | Класс SandboxProvider: тестовая касса без денег | — | `test_account_merge.py`, `test_app_growth.py`, `test_behaviour_plans_privacy.py` и ещё 22 |
+| Stripe | `stripe` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс StripePlatform | — | `test_audit_v2009_runtime.py`, `test_behaviour_store_and_webhooks.py`, `test_critical_audit_v2002.py` и ещё 5 |
+| PayPal | `paypal` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс PayPalPlatform | — | `test_app_config.py`, `test_behaviour_store_and_webhooks.py`, `test_critical_audit_v2002.py` и ещё 7 |
+| Apple StoreKit | `apple` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс AppleStorePlatform: проверка покупки на сервере | — | `test_behaviour_store_and_webhooks.py`, `test_mobile_store_expiry.py`, `test_store_billing.py` |
+| Google Play Billing | `google` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс GooglePlayPlatform: проверка покупки на сервере | — | `test_mobile_store_expiry.py`, `test_store_billing.py` |
+| Crypto Gateway | `crypto` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс CryptoGatewayPlatform | — | `test_behaviour_payments_v2.py`, `test_critical_audit_v2003.py` |
+| Sandbox | `sandbox` | `IMPLEMENTED` | `services/backend/app/payments.py` | Класс SandboxProvider: тестовая касса без денег | — | `test_account_merge.py`, `test_app_growth.py`, `test_behaviour_plans_privacy.py` и ещё 22 |
 
 ## Расхождения по способам оплаты
 

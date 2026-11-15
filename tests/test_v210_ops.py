@@ -21,7 +21,7 @@ def _fetch_module():
 
 
 def test_client_proof_matches_backend_and_known_shape():
-    sys.path.insert(0, str(ROOT / "backend"))
+    sys.path.insert(0, str(ROOT / "services" / "backend"))
     from app.mobile_auth import client_proof as api_proof
 
     message = rules.proof_message("android-user", "1700000000", "get", "/api/me/devices")

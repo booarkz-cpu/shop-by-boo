@@ -47,8 +47,8 @@ flowchart LR
 не возвращается в API. Firebase Hosting или любой статический хостинг подключаются как ещё один `bootstrap`-адрес
 с копией того же файла.
 
-Код: `backend/app/mobile_mirrors.py`, `apps/vpn-shop/android/…/security/CorgiMirrors.kt`,
-`mobile/ios-user/VpnShopUser/VpnShopUserApp.swift` (`enum CorgiMirrors`). Тесты: `tests/test_mobile_mirrors.py`.
+Код: `services/backend/app/mobile_mirrors.py`, `apps/vpn-shop/android/…/security/CorgiMirrors.kt`,
+`apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift` (`enum CorgiMirrors`). Тесты: `tests/test_mobile_mirrors.py`.
 
 ## Монитор блокировок
 

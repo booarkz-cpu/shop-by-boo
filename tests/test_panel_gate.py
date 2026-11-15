@@ -1,5 +1,5 @@
 """v28.78.0 (stage 18): «Доступ к панели → Вход через магазин» — the shop's own login in front of a Remnawave panel
-(backend/app/panel_gate.py) instead of the TinyAuth container. The real Caddy runs it in tests/live/test_panel_gate_live.py."""
+(services/backend/app/panel_gate.py) instead of the TinyAuth container. The real Caddy runs it in tests/live/test_panel_gate_live.py."""
 from datetime import datetime, timedelta
 
 import pytest

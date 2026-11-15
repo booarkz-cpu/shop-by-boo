@@ -10,8 +10,8 @@
 | Хост (root, systemd) | Агент: ночной таймер `vpn-shop-update` и таймер `vpn-shop-update-agent` (раз в минуту) | `scripts/auto_update.py`, `scripts/auto-update.sh` |
 | Хост | Загрузка и проверка выпуска (SHA-256, манифест) | `scripts/update-from-github.sh`, `scripts/github_release_fetch.py` |
 | Хост | Снимок, замена файлов, сборка, откат при ошибке | `scripts/update.sh`, `scripts/rollback.sh` |
-| Хост | Сборка образов, переключение без простоя, проверки здоровья | `deploy/build-production.sh`, `scripts/zero-downtime-backend.sh` |
-| backend | Экран в админке, запрос «Обновить сейчас» | `backend/app/auto_update_api.py` |
+| Хост | Сборка образов, переключение без простоя, проверки здоровья | `infrastructure/deployment/build-production.sh`, `scripts/zero-downtime-backend.sh` |
+| backend | Экран в админке, запрос «Обновить сейчас» | `services/backend/app/auto_update_api.py` |
 
 Панель и агент связаны только двумя файлами в `$APP_DIR/.control` (в контейнере — `/data/control`):
 

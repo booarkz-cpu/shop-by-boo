@@ -30,7 +30,7 @@ Production APK требует постоянного ключа владельц
 
 Нужен iOS 16 или новее. **Unsigned IPA нельзя напрямую установить на iPhone.** Это готовый собранный пакет без Apple-подписи, не TestFlight/App Store-релиз. Для установки на физическое устройство нужны сертификат Apple и provisioning profile, соответствующие bundle ID и выбранному способу распространения. Эти данные не включены в репозиторий.
 
-Для собственной подписанной сборки откройте `mobile/ios-user/VpnShopUser.xcodeproj` или `mobile/ios-admin/VpnShopAdmin.xcodeproj` в Xcode. В Signing & Capabilities выберите свой Team, включите signing и задайте разрешённый Team bundle ID. В Build Settings измените `CODE_SIGNING_ALLOWED` с `NO` на `YES`. Выполните Product → Archive → Distribute App; способ распространения определяется вашим Apple Developer аккаунтом. Одна только перепаковка/переименование unsigned IPA не добавляет подпись.
+Для собственной подписанной сборки откройте `apps/vpn-shop/ios/VpnShopUser.xcodeproj` или `apps/lucy-admin/ios/VpnShopAdmin.xcodeproj` в Xcode. В Signing & Capabilities выберите свой Team, включите signing и задайте разрешённый Team bundle ID. В Build Settings измените `CODE_SIGNING_ALLOWED` с `NO` на `YES`. Выполните Product → Archive → Distribute App; способ распространения определяется вашим Apple Developer аккаунтом. Одна только перепаковка/переименование unsigned IPA не добавляет подпись.
 
 Для симулятора распакуйте `*_simulator.zip`, загрузите совместимый iOS Simulator и выполните:
 

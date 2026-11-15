@@ -8,7 +8,7 @@ PostgreSQL 18 — единственный источник истины: ден
 
 | Что | Как |
 | --- | --- |
-| Доступ | SQLAlchemy 2 async + asyncpg (`backend/app/db.py`, `pool_pre_ping`) |
+| Доступ | SQLAlchemy 2 async + asyncpg (`services/backend/app/db.py`, `pool_pre_ping`) |
 | Схема | Alembic, текущая голова — в `scripts/build-release.sh` и `release-manifest.template.json`; миграции совместимы назад (см. [zero_downtime.md](zero_downtime.md)) |
 | Очередь заданий | Таблица `jobs`: выдача подписок, пробный период, бонусные дни, рассылки. Worker берёт задание `SELECT … FOR UPDATE SKIP LOCKED`, поэтому несколько worker-процессов делят очередь без двойного выполнения; у каждого свой `worker_identity()` (роль:хост:pid) |
 | Идемпотентность | Уникальные `order_id`, `idempotency_key`, `jobs.job_key`, события провайдеров (`register_provider_event`) |

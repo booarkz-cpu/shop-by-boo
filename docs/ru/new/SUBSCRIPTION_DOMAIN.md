@@ -1,6 +1,6 @@
 # Домены, сертификаты и маршруты Caddy
 
-С v28.67.0 (этап 11). Раздел «Серверы → Домены и сертификаты» (`admin/src/domains.tsx`), backend — `backend/app/rw_domains.py`, таблица `remnawave_domains` (миграция `0091_remnawave_domains`). Закрывает модули 15 Domains, 16 Certificates и 17 Reverse Proxy из [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md).
+С v28.67.0 (этап 11). Раздел «Серверы → Домены и сертификаты» (`apps/lucy-admin/web/src/domains.tsx`), backend — `services/backend/app/rw_domains.py`, таблица `remnawave_domains` (миграция `0091_remnawave_domains`). Закрывает модули 15 Domains, 16 Certificates и 17 Reverse Proxy из [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md).
 
 ## 1. Кто обслуживает домен
 
@@ -10,11 +10,11 @@
 | Caddy сервера Remnawave | Домен панели и страницы подписки, поставленных мастером ([REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md)) | Выпускает Caddy того сервера |
 | Внешний | Домен ноды (SNI) или чужого сервиса | Только проверяется |
 
-Второго обратного прокси нет: на сервере магазина один Caddy (`deploy/Caddyfile`), на каждом сервере Remnawave — свой.
+Второго обратного прокси нет: на сервере магазина один Caddy (`infrastructure/reverse-proxy/Caddyfile`), на каждом сервере Remnawave — свой.
 
 ## 2. Как домен портала начинает работать без перезапуска
 
-В `deploy/Caddyfile`:
+В `infrastructure/reverse-proxy/Caddyfile`:
 - глобально — `on_demand_tls { ask … /caddy/ask }`;
 - в конце — блок `https://` с `tls { on_demand }`: принимает любой домен, не названный выше, и отдаёт его backend как `/sub/…`.
 
@@ -103,6 +103,6 @@
 | Что | Где | Статус |
 | --- | --- | --- |
 | Ввод, вопрос Caddy, DNS-статусы, сертификат, адрес подписки, Cloudflare, частные адреса | `tests/test_subscription_portal.py` | PASS |
-| Настоящий `deploy/Caddyfile` в закреплённом образе Caddy: домен портала получает сертификат on demand, другие имена и выключенный домен — нет, `/caddy/ask` снаружи — 404 | `tests/live/test_caddy_on_demand.py`, задача CI `caddy` (внутренний CA вместо ACME) | CI |
-| Раздел админки | `admin/e2e/domains-portal.spec.ts` | PASS |
+| Настоящий `infrastructure/reverse-proxy/Caddyfile` в закреплённом образе Caddy: домен портала получает сертификат on demand, другие имена и выключенный домен — нет, `/caddy/ask` снаружи — 404 | `tests/live/test_caddy_on_demand.py`, задача CI `caddy` (внутренний CA вместо ACME) | CI |
+| Раздел админки | `apps/lucy-admin/web/e2e/domains-portal.spec.ts` | PASS |
 | Let's Encrypt для настоящего домена | нужен домен владельца | BLOCKED_EXTERNAL |

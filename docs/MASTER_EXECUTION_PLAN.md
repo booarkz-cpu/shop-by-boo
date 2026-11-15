@@ -1,6 +1,6 @@
 # Полный план исполнения — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.151.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008`.
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008`.
 
 Документ составлен по master prompt V3. Каждая задача имеет ID, исходный раздел, критерии приёмки и
 фактический статус. Статус задачи хранится в
@@ -33,7 +33,7 @@
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
 | ARC-01 | Карта сервисов и потоков данных | backend, admin, cabinet/Mini App, bot, worker, caddy, PostgreSQL, Redis, Remnawave |
-| ARC-02 | Механизм развёртывания | Docker Compose + Caddy на VPS, ответственный файл `docker-compose.yml`, `deploy/Caddyfile` |
+| ARC-02 | Механизм развёртывания | Docker Compose + Caddy на VPS, ответственный файл `docker-compose.yml`, `infrastructure/reverse-proxy/Caddyfile` |
 | ARC-03 | Карта API | `docs/API_ENDPOINTS.md` соответствует фактической таблице маршрутов |
 
 ### Этап 3. Аудит (раздел 7)
@@ -44,7 +44,7 @@
 | AUD-02 | Проверка дублирования маршрутов | Скрипт/тест: нет `(method, path)`, объявленных дважды |
 | AUD-03 | Проверка `operationId` OpenAPI | Все `operationId` уникальны |
 | AUD-04 | Проверка отсутствия корневых границ ошибок | Оба фронтенда имеют `app/error.tsx` и корневой boundary |
-| AUD-05 | Проверка `SessionLocal` / `AsyncSessionLocal` | Единственное имя в `backend/app/db.py`, импорты согласованы |
+| AUD-05 | Проверка `SessionLocal` / `AsyncSessionLocal` | Единственное имя в `services/backend/app/db.py`, импорты согласованы |
 | AUD-06 | Проверка строки 427 установщика | Строка существует, `bash -n` проходит, сценарий firewall корректен |
 
 ### Этап 4. Backend (раздел 8)
@@ -67,7 +67,7 @@
 
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
-| ADM-01 | Все разделы имеют страницу и API | Каждый `tab` в `admin/src/main.tsx` указывает на существующий маршрут |
+| ADM-01 | Все разделы имеют страницу и API | Каждый `tab` в `apps/lucy-admin/web/src/main.tsx` указывает на существующий маршрут |
 | ADM-02 | Серверная проверка прав | Каждый админский маршрут имеет `require_permission` |
 | ADM-03 | Состояния загрузки, пустые, ошибки | `SectionSkeleton`, `empty-state`, `AdminErrorBoundary` присутствуют |
 | ADM-04 | Редизайн и токены темы | `#090D16`, `#0F172A`, Inter, JetBrains Mono в `design-system.css`/`theme.css` |
@@ -85,7 +85,7 @@
 
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
-| REM-01 | Клиент соответствует API панели | Пути и поля сверены с `backend/app/remnawave.py` |
+| REM-01 | Клиент соответствует API панели | Пути и поля сверены с `services/backend/app/remnawave.py` |
 | REM-02 | Ограничения устройств и трафик | `trafficLimitBytes`, `deviceLimit`, снимки в подписке |
 | REM-03 | Живая проверка | Требует `REMNAWAVE_URL` + `REMNAWAVE_TOKEN` |
 
@@ -93,7 +93,7 @@
 
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
-| RPX-01 | TLS, upstream, маршрутизация | `deploy/Caddyfile` разбирается, upstream совпадает с compose |
+| RPX-01 | TLS, upstream, маршрутизация | `infrastructure/reverse-proxy/Caddyfile` разбирается, upstream совпадает с compose |
 | RPX-02 | Health checks | Caddy и backend имеют healthcheck |
 | RPX-03 | Живая проверка | Требует домен и сервер |
 
@@ -101,7 +101,7 @@
 
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
-| TG-01 | `/start`, меню, callback | Обработчики присутствуют в `backend/app/bot.py` |
+| TG-01 | `/start`, меню, callback | Обработчики присутствуют в `services/backend/app/bot.py` |
 | TG-02 | Проверка `initData` на сервере | Подпись проверяется в бэкенде, не в клиенте |
 | TG-03 | Идемпотентность событий | Повторный callback не выдаёт подписку дважды |
 | TG-04 | Живая проверка | Требует `BOT_TOKEN` и домен |
@@ -176,7 +176,7 @@
 
 | ID | Задача | Критерий приёмки |
 | --- | --- | --- |
-| I18N-01 | ru/en/uk в кабинете | `cabinet/src/i18n.tsx`, переключение языка |
+| I18N-01 | ru/en/uk в кабинете | `apps/user-cabinet/src/i18n.tsx`, переключение языка |
 | I18N-02 | Строки приложений | `packages/localization/user.json`, редактор строк в панели |
 | I18N-03 | Отсутствие отсутствующих ключей | Тесты i18n проходят |
 

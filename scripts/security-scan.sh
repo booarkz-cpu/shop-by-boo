@@ -4,14 +4,14 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 STRICT_SECURITY="${STRICT_SECURITY:-0}"
 echo "== Python syntax =="
-python3 -m compileall -q backend
+python3 -m compileall -q services/backend
 if command -v pip-audit >/dev/null 2>&1; then
-  echo "== pip-audit =="; pip-audit -r backend/requirements.txt
+  echo "== pip-audit =="; pip-audit -r services/backend/requirements.txt
 else
   if [[ "$STRICT_SECURITY" == "1" ]]; then echo "FAIL: pip-audit is required in strict security mode" >&2; exit 2; fi
   echo "WARN: pip-audit not installed; install it in CI to run dependency vulnerability scanning."
 fi
-for dir in admin miniapp cabinet; do
+for dir in apps/lucy-admin/web apps/telegram-mini-app apps/user-cabinet; do
   if [[ -f "$dir/package-lock.json" ]] && command -v npm >/dev/null 2>&1; then
     echo "== npm audit $dir =="; (cd "$dir" && npm audit --omit=dev --audit-level=high)
   else

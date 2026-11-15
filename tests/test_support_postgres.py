@@ -8,7 +8,7 @@ import sys
 
 os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("APP_SECRET", "support-test-secret")
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "services" / "backend"))
 
 import pytest
 import pytest_asyncio
@@ -67,10 +67,10 @@ async def test_support_migration_keeps_existing_operator_reply(support_pg):
         await db.commit()
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
-    path=Path(__file__).resolve().parents[1]/"backend/alembic/versions/0043_support_conversations.py"
+    path=Path(__file__).resolve().parents[1]/"services/backend/alembic/versions/0043_support_conversations.py"
     spec=importlib.util.spec_from_file_location("conversation_migration",path)
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
-    delivery_path=Path(__file__).resolve().parents[1]/"backend/alembic/versions/0062_support_delivery_identity.py"
+    delivery_path=Path(__file__).resolve().parents[1]/"services/backend/alembic/versions/0062_support_delivery_identity.py"
     delivery_spec=importlib.util.spec_from_file_location("delivery_migration",delivery_path)
     delivery=importlib.util.module_from_spec(delivery_spec);delivery_spec.loader.exec_module(delivery)
     def migrate(connection):

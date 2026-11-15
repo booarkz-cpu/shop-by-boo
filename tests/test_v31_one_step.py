@@ -6,12 +6,12 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_one_step_wrapper_exists_and_execs_installer():
     p = ROOT / "install.sh"
     text = p.read_text()
-    assert "deploy/install-vps.sh" in text
+    assert "infrastructure/deployment/install-vps.sh" in text
     assert p.stat().st_mode & 0o111
 
 
 def test_installer_generates_lockfiles_and_never_requires_manual_lockfile_editing():
-    text = (ROOT / "deploy/install-vps.sh").read_text()
+    text = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert "npm install --package-lock-only" in text
     assert "package-lock.json" in text
     assert "npm ci" not in text

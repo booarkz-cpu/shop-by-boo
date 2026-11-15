@@ -124,3 +124,37 @@ test('without signed Android packages no client release is made', async () => {
   await run(dir, state);
   assert.equal(state.releases.length, 1);
 });
+
+// v28.152.0 was published with 25 files of 33: the runner queue let «Build mobile apps for a release» attach its
+// packages first, and this job stopped at the first one that differed, before the client and the status.
+test('packages the release build already attached are kept, and the files only this job makes still arrive', async () => {
+  const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false, body: 'notes'}], assets: {}, uploads: []};
+  const dir = workspace('1.4.0');
+  const put = (name, data) => fs.writeFileSync(path.join(dir, 'dist/mobile', name), data);
+  const shop = ['corgi_lusi_android_user_3_7_0_release.apk', 'corgi_lusi_android_user_3_7_0_release.apk.sha256',
+    'corgi_lusi_android_user_3_7_0_release.aab', 'corgi_lusi_android_admin_3_7_0_release.apk',
+    'corgi-lusi-android.apk', 'corgi-lusi-android.apk.sha256', 'corgi-lusi-android.json', 'corgi-lusi-android-admin.apk'];
+  for (const name of shop) put(name, `built by Mobile packages: ${name}`);
+  put('corgi_lusi_android_user_3_7_0_release.apk.certificate.txt', 'SHA-256 of the signing certificate');
+  put('corgi_lusi_android_user_3_7_0_release.apk.package.txt', 'shop.remnawave.user');
+  // the release build finished first: the same names, other bytes
+  state.assets[1] = shop.map(name => ({id: name, name, size: 7, digest: digest(Buffer.from(`release build: ${name}`))}));
+
+  const notices = await run(dir, state);
+  const uploaded = state.uploads.filter(u => u.startsWith('1/')).map(u => u.slice(2)).sort();
+  assert.deepEqual(uploaded, ['corgi-lusi-client.apk', 'corgi-lusi-client.apk.sha256', 'corgi-lusi-client.json',
+    'corgi_lusi_android_user_3_7_0_release.apk.certificate.txt', 'corgi_lusi_android_user_3_7_0_release.apk.package.txt',
+    'mobile-production-status.json']);
+  for (const name of shop) {
+    assert.equal(state.assets[1].find(a => a.name === name).digest, digest(Buffer.from(`release build: ${name}`)), `${name} is not replaced`);
+  }
+  assert.ok(notices.some(n => n.includes('kept') && n.includes('corgi-lusi-android.apk')));
+  assert.ok(state.releases.find(r => r.tag_name === 'client-v1.4.0'), 'the client release is made as usual');
+});
+
+test('a client package that differs from the attached one still stops the job', async () => {
+  const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false, body: 'notes'}], assets: {}, uploads: []};
+  state.assets[1] = [{id: 9, name: 'corgi-lusi-client.apk', size: 3, digest: digest(Buffer.from('another client build'))}];
+  await assert.rejects(run(workspace('1.4.0'), state), /Asset differs; refusing to replace corgi-lusi-client\.apk/);
+  assert.deepEqual(state.uploads.filter(u => u.startsWith('1/')), [], 'nothing is attached next to a foreign client package');
+});

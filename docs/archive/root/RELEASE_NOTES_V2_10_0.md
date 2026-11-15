@@ -25,7 +25,7 @@ Two sideload APKs are signed with this build's release key. They are not a Play 
 
 ## iOS
 
-Исходники `mobile/ios-user` и `mobile/ios-admin` открываются в Xcode на macOS. `MARKETING_VERSION` — `2.10.0`, `CURRENT_PROJECT_VERSION` — `2100`. IPA на этой Linux-сборке не создаётся: Xcode здесь нет.
+Исходники `apps/vpn-shop/ios` и `apps/lucy-admin/ios` открываются в Xcode на macOS. `MARKETING_VERSION` — `2.10.0`, `CURRENT_PROJECT_VERSION` — `2100`. IPA на этой Linux-сборке не создаётся: Xcode здесь нет.
 
 The iOS sources open in Xcode on macOS. This Linux build does not produce an IPA because Xcode is not available here.
 

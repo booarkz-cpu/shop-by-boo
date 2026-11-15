@@ -19,7 +19,7 @@
 
 - Покупатель Android 2.10.0: https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk и файл `.sha256` рядом. Проверка: `sha256sum -c remnawave_vpn_shop_android_user_2_10_0.apk.sha256`.
 - Администратор Android 2.12.0: https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk и файл `.sha256` рядом.
-- iOS: IPA в релизах GitHub нет. Сборка в Xcode из `mobile/ios-user` и `mobile/ios-admin`. Кабинет отдаёт IPA только если администратор загрузил его на карточку.
+- iOS: IPA в релизах GitHub нет. Сборка в Xcode из `apps/vpn-shop/ios` и `apps/lucy-admin/ios`. Кабинет отдаёт IPA только если администратор загрузил его на карточку.
 
 ## English
 
@@ -40,4 +40,4 @@ How to download the apps:
 
 - Android buyer 2.10.0: https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.10.0/remnawave_vpn_shop_android_user_2_10_0.apk and the `.sha256` file beside it. Check with `sha256sum -c remnawave_vpn_shop_android_user_2_10_0.apk.sha256`.
 - Android administrator 2.12.0: https://github.com/booarkz-cpu/remnawave-vpn-shop/releases/download/v2.12.0/remnawave_vpn_shop_android_admin_2_12_0.apk and the `.sha256` file beside it.
-- iOS: GitHub releases do not include an IPA. Build it in Xcode from `mobile/ios-user` and `mobile/ios-admin`. The cabinet serves an IPA only after an administrator uploads it to the card.
+- iOS: GitHub releases do not include an IPA. Build it in Xcode from `apps/vpn-shop/ios` and `apps/lucy-admin/ios`. The cabinet serves an IPA only after an administrator uploads it to the card.

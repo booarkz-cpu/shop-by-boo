@@ -148,7 +148,7 @@ async def test_postgres_migration_cycle_and_financial_downgrade_guard(database):
     from pathlib import Path
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
-    spec=importlib.util.spec_from_file_location('referral_migration',Path('backend/alembic/versions/0054_referral_levels.py'))
+    spec=importlib.util.spec_from_file_location('referral_migration',Path('services/backend/alembic/versions/0054_referral_levels.py'))
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     await database.commit()
     async with database.bind.begin() as connection:

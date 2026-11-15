@@ -7,7 +7,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 dir=$(mktemp -d); trap 'rm -rf "$dir"; rm -rf /opt/remnanode/geo' EXIT
-PYTHONPATH=backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
+PYTHONPATH=services/backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
 import asyncio, json, sys
 from app import rw_plan, rw_releases, rw_steps
 version, files = asyncio.run(rw_releases.geo_lists())

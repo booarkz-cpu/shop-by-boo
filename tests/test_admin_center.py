@@ -1,6 +1,6 @@
 """v28.60.0 (stage 6): the Admin Control Center maps the 30 modules of the task to the panel honestly.
 
-* every panel section it names exists in admin/src/sections.ts, and every API prefix has routes;
+* every panel section it names exists in apps/lucy-admin/web/src/sections.ts, and every API prefix has routes;
 * a module without a section names the stage that adds it and shows no operations (no fake switches);
 * every permission a route asks for is held by some role and has a label;
 * the generated docs/ru/new/ADMIN_CONTROL_MATRIX.md is current;
@@ -24,7 +24,7 @@ ADMIN = SimpleNamespace(email="root@example.test", role="admin")
 
 
 def _tabs() -> set[str]:
-    return set(re.findall(r'\{tab: "([A-Za-z0-9]+)"', (ROOT / "admin/src/sections.ts").read_text()))
+    return set(re.findall(r'\{tab: "([A-Za-z0-9]+)"', (ROOT / "apps/lucy-admin/web/src/sections.ts").read_text()))
 
 
 def test_thirty_modules_with_real_sections_and_routes():

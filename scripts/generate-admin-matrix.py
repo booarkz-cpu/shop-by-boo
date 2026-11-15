@@ -2,8 +2,8 @@
 """Generate docs/ru/new/ADMIN_CONTROL_MATRIX.md and docs/ru/new/ADMIN_MODULES.md from the routes of the
 application (v28.60.0 / v28.62.0, stage 6).
 
-The same data feeds «Система → Админ-центр» (``backend/app/admin_center.py``); section names and
-descriptions come from ``admin/src/sections.ts``. ``--check`` fails when a document is stale;
+The same data feeds «Система → Админ-центр» (``services/backend/app/admin_center.py``); section names and
+descriptions come from ``apps/lucy-admin/web/src/sections.ts``. ``--check`` fails when a document is stale;
 tests/test_admin_center.py runs it in CI."""
 from __future__ import annotations
 
@@ -29,12 +29,12 @@ def verified() -> dict[int, str]:
 
 
 def tab_labels() -> dict[str, str]:
-    text = (ROOT / "admin/src/sections.ts").read_text()
+    text = (ROOT / "apps/lucy-admin/web/src/sections.ts").read_text()
     return dict(re.findall(r'\{tab: "([A-Za-z0-9]+)", label: "([^"]+)"', text))
 
 
 def tab_descriptions() -> dict[str, tuple[str, str]]:
-    text = (ROOT / "admin/src/sections.ts").read_text()
+    text = (ROOT / "apps/lucy-admin/web/src/sections.ts").read_text()
     return {tab: (label, description) for tab, label, description
             in re.findall(r'\{tab: "([A-Za-z0-9]+)", label: "([^"]+)", description: "([^"]+)"', text)}
 
@@ -45,7 +45,7 @@ OP_WORDS = {"read": "просмотр", "create": "создание", "update": 
 
 def render_modules() -> str:
     os.environ.setdefault("APP_ENV", "test")
-    sys.path.insert(0, str(ROOT / "backend"))
+    sys.path.insert(0, str(ROOT / "services" / "backend"))
     from app.admin_center import matrix
 
     manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
@@ -54,8 +54,8 @@ def render_modules() -> str:
     lines = [
         f"# Модули админ-панели — {manifest['distribution_tag']}",
         "",
-        "Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `backend/app/admin_center.py` "
-        "и маршрутов приложения, разделы и их описания — из `admin/src/sections.ts`. Сводная таблица операций — "
+        "Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `services/backend/app/admin_center.py` "
+        "и маршрутов приложения, разделы и их описания — из `apps/lucy-admin/web/src/sections.ts`. Сводная таблица операций — "
         "[ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — "
         "[ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).",
         "",
@@ -80,7 +80,7 @@ def render_modules() -> str:
 
 def render() -> str:
     os.environ.setdefault("APP_ENV", "test")
-    sys.path.insert(0, str(ROOT / "backend"))
+    sys.path.insert(0, str(ROOT / "services" / "backend"))
     from app.admin_center import matrix, outside_modules
 
     manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
@@ -92,7 +92,7 @@ def render() -> str:
         f"# Управляемость из админки — {manifest['distribution_tag']}",
         "",
         "Сгенерировано командой `python scripts/generate-admin-matrix.py` из маршрутов приложения "
-        "(`backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».",
+        "(`services/backend/app/admin_center.py`). Те же данные показывает «Система → Админ-центр».",
         "",
         "Операции определяются по маршрутам API: GET → чтение, POST → создание, PUT/PATCH → изменение, DELETE → удаление; "
         "поиск/фильтр — параметры запроса (`status`, `q`, `actor`, `since`…); настройки и проверка — по путям (`config`, `test`, `health`…); "

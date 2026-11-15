@@ -471,7 +471,7 @@ async def test_postgres_two_staged_changes_cannot_both_apply(database):
 async def test_runtime_settings_migration_roundtrip(database):
     if database.bind.dialect.name != "postgresql":
         pytest.skip("PostgreSQL DDL")
-    path = Path("backend/alembic/versions/0064_runtime_settings.py")
+    path = Path("services/backend/alembic/versions/0064_runtime_settings.py")
     spec = importlib.util.spec_from_file_location("runtime_settings_migration", path)
     migration = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(migration)

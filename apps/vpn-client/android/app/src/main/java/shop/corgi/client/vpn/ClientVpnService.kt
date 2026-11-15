@@ -28,6 +28,7 @@ class ClientVpnService : VpnService() {
     private var wake: PowerManager.WakeLock? = null
     @Volatile private var speedThread: Thread? = null
     @Volatile private var failoverThread: Thread? = null
+    @Volatile private var verifyThread: Thread? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) { shutdown(); return START_NOT_STICKY }
@@ -99,8 +100,28 @@ class ClientVpnService : VpnService() {
 
     private fun afterStart(s: Settings, tags: List<String>, check: shop.corgi.client.core.IpCheck) {
         session = Session(System.currentTimeMillis())
-        state(this, STATE_ON)
+        // v1.10.0: «подключён» only after a page answered through the tunnel; a silent server gives a warning after
+        // Verify.WARN_MS, the VPN stays up and the check goes on (owner's decision № 22).
+        state(this, STATE_CHECKING)
         QuickTile.refresh(this)
+        verifyThread = thread {
+            val started = System.currentTimeMillis()
+            var shown = STATE_CHECKING
+            while (Xray.running && verifyThread == Thread.currentThread()) {
+                val answered = shop.corgi.client.core.ExternalIp.probe(check, s.pingUrl)
+                if (!Xray.running || verifyThread != Thread.currentThread()) break
+                val since = System.currentTimeMillis() - started
+                val next = shop.corgi.client.core.Verify.state(answered, since)
+                if (next != shown) {
+                    shown = next
+                    state(this, next)
+                    QuickTile.refresh(this)
+                    if (next == STATE_NO_ANSWER) Logs(filesDir).app("[VPN] the server does not answer through the tunnel (${s.pingUrl})")
+                }
+                if (answered) break
+                try { Thread.sleep(shop.corgi.client.core.Verify.pause(since)) } catch (_: InterruptedException) { break }
+            }
+        }
         if (s.wakelock) wake = getSystemService(PowerManager::class.java)?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "corgi:vpn")?.apply { acquire() }
         speedThread = thread {
             // Once a second: bytes through the proxy outbounds since the previous second — for the main screen
@@ -162,6 +183,7 @@ class ClientVpnService : VpnService() {
     private fun restart() {
         speedThread = null
         failoverThread = null
+        verifyThread = null
         Xray.stop()
         try { tun?.close() } catch (_: Exception) { }
         tun = null
@@ -175,6 +197,7 @@ class ClientVpnService : VpnService() {
     private fun shutdown() {
         speedThread = null
         failoverThread = null
+        verifyThread = null
         ipCheck = null
         session = Session()
         runCatching { wake?.takeIf { it.isHeld }?.release() }
@@ -219,6 +242,10 @@ class ClientVpnService : VpnService() {
         const val STATE_OFF = "off"
         const val STATE_CONNECTING = "connecting"
         const val STATE_ON = "on"
+
+        /** v1.10.0: the core runs, the tunnel has not answered yet / has not answered for Verify.WARN_MS. */
+        const val STATE_CHECKING = "checking"
+        const val STATE_NO_ANSWER = "no_answer"
         val listeners = mutableListOf<(String) -> Unit>()
 
         /** v1.5.0: the running session for the main screen — when it began and the traffic of its last second and in all. */

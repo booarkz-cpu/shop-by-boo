@@ -87,7 +87,9 @@ with open(path,'wb') as f:
  plistlib.dump({'method':method,'destination':'export','teamID':team,'signingStyle':'manual',
                'signingCertificate':identity,'provisioningProfiles':dict(p.split('=',1) for p in profiles)},f)
 PY
-  xcodebuild -project "$ROOT/mobile/ios-$role/$project.xcodeproj" -scheme "$project" \
+  ios_dir="$ROOT/apps/vpn-shop/ios"
+  [[ "$role" != admin ]] || ios_dir="$ROOT/apps/lucy-admin/ios"
+  xcodebuild -project "$ios_dir/$project.xcodeproj" -scheme "$project" \
     -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
     -archivePath "$WORK/$project.xcarchive" CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Manual \
     CODE_SIGN_IDENTITY="$IDENTITY" DEVELOPMENT_TEAM="$IOS_TEAM_ID" ${profile_arg[@]+"${profile_arg[@]}"} \

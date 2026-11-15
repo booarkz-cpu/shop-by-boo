@@ -20,14 +20,14 @@ COMMIT = "a" * 40
 
 def release_fixture(tmp_path, monkeypatch, stage_extra=None, installed_tag=None, **overrides):
     installed = tmp_path / "installed"
-    (installed / "backend/app").mkdir(parents=True)
-    (installed / "backend/app/main.py").write_text('APP_VERSION = "21.5.1"\n')
+    (installed / "services/backend/app").mkdir(parents=True)
+    (installed / "services/backend/app/main.py").write_text('APP_VERSION = "21.5.1"\n')
     if installed_tag:
         (installed / "release-manifest.template.json").write_text(json.dumps({"version": "21.5.1", "distribution_tag": installed_tag}))
     stage = tmp_path / "stage"
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, "w") as archive:
-        archive.writestr("backend/app/main.py", 'APP_VERSION = "21.5.1"\n')
+        archive.writestr("services/backend/app/main.py", 'APP_VERSION = "21.5.1"\n')
         archive.writestr("release-manifest.template.json", json.dumps({"version": "21.5.1", "distribution_tag": TAG, **(stage_extra or {})}))
     blob = stream.getvalue()
     sha = hashlib.sha256(blob).hexdigest()

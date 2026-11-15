@@ -6,8 +6,8 @@ The previous release **2.6.0** added the abuse platform, the node agent and the 
 
 ## Что вошло
 
-- `apps/vpn-shop/android` и `mobile/ios-user`: вход и регистрация по email, обзор, тарифы, конструктор, серверы, ссылка подписки и инструкции, пробный период, поддержка.
-- `apps/lucy-admin/android` и `mobile/ios-admin`: вход с необязательным кодом 2FA, обзор, тарифы, платежи, мониторинг Remnawave, разбор нарушений, агенты, страны, ответ в поддержку.
+- `apps/vpn-shop/android` и `apps/vpn-shop/ios`: вход и регистрация по email, обзор, тарифы, конструктор, серверы, ссылка подписки и инструкции, пробный период, поддержка.
+- `apps/lucy-admin/android` и `apps/lucy-admin/ios`: вход с необязательным кодом 2FA, обзор, тарифы, платежи, мониторинг Remnawave, разбор нарушений, агенты, страны, ответ в поддержку.
 - Общий вид: тёмная схема Material и акцент `#00E5C0`.
 - Каталоги `packages/localization/user.json` и `packages/localization/admin.json`. Ключи ru и en совпадают, копии в приложениях побайтные.
 - `backend/app/mobile_auth.py`: токен попадает в JSON только при заголовке `X-Shop-Client` из списка `android-user`, `android-admin`, `ios-user`, `ios-admin`. Веб-вход cookie не меняет и токен в JSON не кладёт.

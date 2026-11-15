@@ -1,8 +1,8 @@
 # API магазина: общие правила
 
-Один backend на FastAPI (`backend/app`) обслуживает всех клиентов: админ-панель, личный кабинет, Telegram Mini App, бота, приложения Android и iOS, агентов на нодах и платёжные системы. Ниже правила, общие для всех маршрутов.
+Один backend на FastAPI (`services/backend/app`) обслуживает всех клиентов: админ-панель, личный кабинет, Telegram Mini App, бота, приложения Android и iOS, агентов на нодах и платёжные системы. Ниже правила, общие для всех маршрутов.
 
-- **Перечень маршрутов** — [docs/API_ENDPOINTS.md](../../API_ENDPOINTS.md): метод, путь, операция и колонка «Доступ» (право роли или вид вызывающего). Он генерируется из приложения командой `PYTHONPATH=backend python scripts/generate-api-docs.py`, а CI проверяет, что перечень совпадает с кодом.
+- **Перечень маршрутов** — [docs/API_ENDPOINTS.md](../../API_ENDPOINTS.md): метод, путь, операция и колонка «Доступ» (право роли или вид вызывающего). Он генерируется из приложения командой `PYTHONPATH=services/backend python scripts/generate-api-docs.py`, а CI проверяет, что перечень совпадает с кодом.
 - **Схема базы** — [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
 - **Устройство backend** — [BACKEND_ARCHITECTURE.md](BACKEND_ARCHITECTURE.md).
 
@@ -12,7 +12,7 @@
 
 | Вызывающий | Пути | Как проверяется |
 | --- | --- | --- |
-| Администратор | `/api/admin/*` | `Authorization: Bearer <JWT>` или cookie `rw_admin` (`HttpOnly`, `Secure`); затем `require_permission("<право>")` по роли `viewer` / `operator` / `admin` (словарь `PERMISSIONS`, `backend/app/security.py`). Вход — `/api/admin/auth/*`: пароль и TOTP, passkey или Telegram |
+| Администратор | `/api/admin/*` | `Authorization: Bearer <JWT>` или cookie `rw_admin` (`HttpOnly`, `Secure`); затем `require_permission("<право>")` по роли `viewer` / `operator` / `admin` (словарь `PERMISSIONS`, `services/backend/app/security.py`). Вход — `/api/admin/auth/*`: пароль и TOTP, passkey или Telegram |
 | Клиент: кабинет, Mini App, приложения | `/api/me/*`, `/api/payments/create` и др. | `Authorization: Bearer <JWT>` (приложения) или cookie `rw_user`; сессия проверяется по таблице `user_sessions` и может быть отозвана. Mini App дополнительно передаёт `X-Telegram-Init-Data`. Вход — `/api/auth/*` (Telegram, Яндекс ID, VK ID, Google, пароль, passkey) |
 | Платёжная система | `/api/webhooks/*`, `/api/payments/webhooks/*` | подпись провайдера (`verify_webhook*`) или белый список IP (YooKassa), затем повторная проверка оплаты у провайдера |
 | Агент ноды, проба доступности | `/api/agent/*`, `/api/probe/*` | токен агента или пробы |
@@ -36,11 +36,11 @@
 | 429 | превышен лимит частоты | `{"detail": "Too many requests"}` + `Retry-After` |
 | 500 | непредвиденная ошибка | `{"detail": "Внутренняя ошибка сервера…", "request_id": "..."}` — причина только в журнале сервера (с v28.59.0) |
 
-У каждого ответа есть заголовок `X-Request-ID`: его можно прислать, иначе сервер создаст свой. Клиенты (`cabinet/src/http-json.ts`) считают ошибкой и успешный ответ, который не является JSON (с v28.58.0).
+У каждого ответа есть заголовок `X-Request-ID`: его можно прислать, иначе сервер создаст свой. Клиенты (`apps/user-cabinet/src/http-json.ts`) считают ошибкой и успешный ответ, который не является JSON (с v28.58.0).
 
 ## Списки: страницы, фильтры, сортировка
 
-- Новые и растущие списки админки принимают `?limit=` (по умолчанию 500, не больше 1000) и `?offset=`. Тело ответа сохраняет прежний вид, общее число строк приходит в заголовке `X-Total-Count`, сначала идут новые записи. Общая реализация — `backend/app/pagination.py`; с v28.59.0 её используют `/api/admin/corporate-accounts` и `/api/admin/enterprise/campaigns`.
+- Новые и растущие списки админки принимают `?limit=` (по умолчанию 500, не больше 1000) и `?offset=`. Тело ответа сохраняет прежний вид, общее число строк приходит в заголовке `X-Total-Count`, сначала идут новые записи. Общая реализация — `services/backend/app/pagination.py`; с v28.59.0 её используют `/api/admin/corporate-accounts` и `/api/admin/enterprise/campaigns`.
 - Отчёты с периодом принимают `?days=`. Например, `/api/admin/payments/analytics?days=30`: суммы считаются в базе за период.
 - Фильтры каждого списка описаны в параметрах его маршрута; общего языка фильтров нет. Перевод старых списков на `pagination.py` — по мере работы с ними (этап 6).
 
@@ -52,7 +52,7 @@
 
 ## Лимиты частоты
 
-Лимиты считаются по IP в Redis в окне 60 с; без Redis — в памяти процесса. Таблица лимитов — `RATE_LIMITS` в `backend/app/main.py`. Примеры: вход 12 в минуту, регистрация 8, сброс пароля 5, ввод кодов 10, `/sub` 240. Для `/api/admin/*` по умолчанию 120 GET и 40 изменений в минуту.
+Лимиты считаются по IP в Redis в окне 60 с; без Redis — в памяти процесса. Таблица лимитов — `RATE_LIMITS` в `services/backend/app/main.py`. Примеры: вход 12 в минуту, регистрация 8, сброс пароля 5, ввод кодов 10, `/sub` 240. Для `/api/admin/*` по умолчанию 120 GET и 40 изменений в минуту.
 
 ## Журналирование
 

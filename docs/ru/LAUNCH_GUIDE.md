@@ -1,4 +1,4 @@
-> Актуальная инструкция дистрибутива v28.151.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
+> Актуальная инструкция дистрибутива v28.158.0. Runtime/API `21.5.1`, head магазина `0094_store_subscriptions`, Support Pro `0008`.
 
 # Запуск магазина в работу: полный порядок
 
@@ -60,7 +60,7 @@ ssh -t root@SERVER_IP
 Выполните одну команду установки:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.151.0/install.sh -o /root/shop-install.sh && BRANCH=v28.151.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.158.0/install.sh -o /root/shop-install.sh && BRANCH=v28.158.0 bash /root/shop-install.sh
 ```
 
 Установщик ставит Docker, клонирует точный тег, задаёт вопросы, создаёт `.env`, собирает и запускает все сервисы, включает firewall (открыты только SSH, 80/443 TCP и 443 UDP). Рабочий каталог — `/opt/vpn-shop`.
@@ -256,7 +256,7 @@ Support Pro установлен вместе с магазином и связ�
 ## Шаг 15. Мониторинг и оповещения
 
 1. **Оповещения в Telegram:** `ALERT_TELEGRAM_CHAT_ID` — ID чата, куда бот присылает алерты (бот должен быть в этом чате).
-2. **Prometheus и Grafana:** `METRICS_TOKEN` создан установщиком. Подключите `/metrics` к своему Prometheus по примеру `deploy/prometheus/`, импортируйте дашборд `deploy/grafana/vpnshop-operations.json`.
+2. **Prometheus и Grafana:** `METRICS_TOKEN` создан установщиком. Подключите `/metrics` к своему Prometheus по примеру `infrastructure/monitoring/prometheus/`, импортируйте дашборд `infrastructure/monitoring/grafana/vpnshop-operations.json`.
 3. Ежедневно смотрите **Аналитика → Состояние системы** и **Система → Фоновые процессы**: worker должен быть онлайн, очередь не должна стоять.
 
 [Модуль «Состояние, инциденты и мониторинг»](modules/02-health-incidents-monitoring.md).
