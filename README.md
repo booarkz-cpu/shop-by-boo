@@ -36,8 +36,8 @@ Telegram-бот и Mini App · личный кабинет · приложени
 > ‼️ **Проект создан только в ознакомительных целях.** ‼️
 > Код и документация публикуются для изучения и демонстрации. Используя их, вы сами отвечаете за соблюдение законов своей страны, за безопасность серверов и данных клиентов. Автор не даёт гарантий и не отвечает за последствия использования.
 
-> **v28.149.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008` / 3.8, приложения Android и iOS `3.9.0`, «Корги Люси: клиент» `1.9.7`.
-> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.149.0`, `/health` отвечает `21.5.1`.
+> **v28.158.0** — текущий стабильный выпуск. Runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008` / 3.8, приложения Android и iOS `3.9.0`, «Корги Люси: клиент» `1.9.7`.
+> Тег выпуска и версия API — разные числа намеренно: устанавливается `v28.158.0`, `/health` отвечает `21.5.1`.
 > Точная карта готовности: [покрытие](docs/ru/WORKSPACE_COVERAGE.md) · [критерии завершения](docs/ru/MATRIX_COMPLETION_21_5_1.md) · [CHANGELOG](CHANGELOG.md).
 
 ## 📑 Оглавление
@@ -203,8 +203,8 @@ ssh root@IP_СЕРВЕРА
 Скопируйте **целиком** и вставьте в окно сервера (в PowerShell вставка — правой кнопкой мыши):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.149.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.149.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.158.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.158.0 bash /root/shop-install.sh
 ```
 
 Установщик задаст несколько вопросов. Отвечайте так:
@@ -387,6 +387,71 @@ APK — в каждом [выпуске](https://github.com/booarkz-cpu/shop-by-
 </details>
 
 Больше ответов — в [справочнике по функциям](docs/ru/FUNCTION_GUIDE.md) и [инструкциях по 30 модулям](docs/ru/modules/README.md).
+
+## 🆕 Новое в v28.158.0
+
+| | |
+| --- | --- |
+| 🗂 **Бэкенд и Support Pro в `services/`** | Последний, пятый этап новой структуры папок: `services/backend` и `services/support-pro`. Установленный сервер обновляется как обычно: службы Docker, домены и настройки не менялись, секреты Support Pro остаются в `support-pro/.env`. [Подробнее](docs/ru/RELEASE_V28_158_0.md) |
+
+## 🆕 Новое в v28.157.0
+
+| | |
+| --- | --- |
+| 🔒 **Клиент 1.10.0: подписки на телефоне зашифрованы** | Ссылки подписок, серверы и пароль локального прокси хранятся зашифрованными ключом Android Keystore: копия файлов приложения больше не выдаёт подписки. Данные прежних версий переносятся сами. [Подробнее](docs/ru/RELEASE_V28_157_0.md) |
+| ✅ **Клиент 1.10.0: «подключён» — только когда туннель отвечает** | После запуска клиент проверяет туннель настоящим запросом. Если сервер молчит 15 секунд — предупреждение «Сервер не отвечает», VPN не рвётся, проверка продолжается. |
+| 🚚 **Переезд с remnawave-shopbot без ручной раскладки колонок** | Импорт клиентов и импорт истории узнают базу `users.db` этого бота и заполняют поля сами: клиенты, платежи, подписки. Предпросмотр и контрольные итоги — как раньше. |
+
+## 🆕 Новое в v28.156.0
+
+| | |
+| --- | --- |
+| 🔐 **Клиент 1.9.9: файл резервной копии под паролем** | В файле копии лежат ссылки ваших подписок. Теперь его можно закрыть паролем: без пароля файл не открыть и не восстановить. Без пароля всё работает как раньше. [Подробнее](docs/ru/RELEASE_V28_156_0.md) |
+| ⏳ **Клиент 1.9.9: неисправный сервер подписки не опрашивается без конца** | После неудачного обновления следующая автоматическая попытка ждёт 15 минут, потом 30, час — до 6 часов. Кнопка «Обновить» работает сразу. |
+
+## 🆕 Новое в v28.155.0
+
+| | |
+| --- | --- |
+| 🐶 **Клиент 1.9.8: огромный ответ сервера больше не роняет приложение** | Подписка читается не больше 8 МБ. Если сервер подписки отвечает бесконечным или огромным ответом, загрузка останавливается, прежние серверы остаются, причина показывается. [Подробнее](docs/ru/RELEASE_V28_155_0.md) |
+| 📋 **Реестр требований: разделы «Миграция», «Ноды» и «Клиент» сверены полностью** | 81 требование получило статус с доказательствами и описанием того, чего не хватает. Впервые разобран источник StepBot из мастер-промпта. |
+
+## 🆕 Новое в v28.154.0
+
+| | |
+| --- | --- |
+| 🗂 **Установщик, Caddy и мониторинг в `infrastructure/`** | Этап 4 новой структуры: `infrastructure/deployment` (установщик и сборка), `infrastructure/reverse-proxy` (Caddy, nginx), `infrastructure/monitoring` (Prometheus, Grafana), `infrastructure/provisioning` (Terraform). Старые команды работают: в `deploy/` остались переходники, установленный сервер обновляется как обычно. [Подробнее](docs/ru/RELEASE_V28_154_0.md) |
+| 🛟 **Запись DNS не уводит работающий домен в никуда** | Кнопка «Запись A» переносит имя, которое уже работает, только на адрес, отвечающий на порту 443. Прежний адрес показывается и пишется в журнал; обойти проверку можно явной кнопкой. |
+| 📦 **Выпуск собирается полным при любой очереди** | Если сборка выпуска приложила пакеты приложений первой, клиент, файл состояния и сведения о сертификатах всё равно прикладываются (так v28.152.0 остался с 25 файлами из 33). |
+
+## 🆕 Новое в v28.153.0
+
+| | |
+| --- | --- |
+| 🗂 **Веб-панель, кабинет и Mini App в `apps/`** | Этап 3 новой структуры: `apps/lucy-admin/web`, `apps/user-cabinet`, `apps/telegram-mini-app`. Имена служб Docker (`admin`, `cabinet`, `miniapp`), адреса и домены не менялись — установленный сервер обновляется как обычно. |
+| 🧭 **Сверка правил проекта (GOV)** | Один репозиторий, статусы только с доказательствами, PR → зелёный CI → слияние, отчёты на русском — подтверждены файлами и проверками. |
+
+## 🆕 Новое в v28.152.0
+
+| | |
+| --- | --- |
+| 🗂 **iOS-приложения в `apps/`** | Этап 2б новой структуры: `apps/vpn-shop/ios` и `apps/lucy-admin/ios`. Приложения магазина и администратора теперь целиком в `apps/` — Android и iOS рядом. Имена файлов выпуска не менялись. |
+| ✅ **Сверка проверок (QA)** | Требования к тестам сопоставлены с настоящими тестами и заданиями CI: повторная оплата, повтор webhook, откат смены протокола, права ролей и другие. |
+
+## 🆕 Новое в v28.151.0
+
+| | |
+| --- | --- |
+| 🗂 **Приложения в `apps/`, переводы в `packages/`** | Этап 2а новой структуры: Android-приложения магазина (`apps/vpn-shop/android`) и администратора (`apps/lucy-admin/android`), переводы (`packages/localization`). Имена файлов выпуска не менялись — автообновление работает как прежде. iOS — следующим выпуском. |
+| 📚 **Процесс выпуска, состав и лицензии** | `docs/RELEASE_PROCESS.md` — путь изменения до выпуска с 33 файлами; `docs/SBOM_AND_LICENSES.md` — какие проверки состава и лицензий идут в каждом PR. |
+| 🔧 **`git config` с телефона** | В руководстве по Termux — как задать имя и почту для коммитов. |
+
+## 🆕 Новое в v28.150.0
+
+| | |
+| --- | --- |
+| 🔐 **Установщик спрашивает про SSH** | «Открыть SSH только для вашего адреса?» — показывает ваш текущий адрес; Enter — SSH открыт для всех, как раньше. |
+| 🧭 **Сверка старых репозиториев закрыта** | lucy-vpn-android не нужен (решение владельца № 16): прежний клиент заменён своим. |
 
 ## 🆕 Новое в v28.149.0
 
@@ -1445,16 +1510,16 @@ flowchart LR
 
 | Каталог | Что внутри |
 | --- | --- |
-| `backend/app` | FastAPI: `main.py` (ядро) и модули разделов — `auth_api.py`, `admin_auth_api.py`, `payments_api.py`, `push_campaigns.py`, `app_funnel.py`, `fiscal.py`, `remnawave.py`, `bot.py` и другие ([карта](docs/PROJECT_MAP_RU.md)) |
-| `backend/alembic` | Миграции PostgreSQL, head `0094_store_subscriptions` |
-| `backend/worker.py` | Фоновые процессы: очередь выдачи (`run_next_job`), чеки, кампании, push, автопродление |
+| `services/backend/app` | FastAPI: `main.py` (ядро) и модули разделов — `auth_api.py`, `admin_auth_api.py`, `payments_api.py`, `push_campaigns.py`, `app_funnel.py`, `fiscal.py`, `remnawave.py`, `bot.py` и другие ([карта](docs/PROJECT_MAP_RU.md)) |
+| `services/backend/alembic` | Миграции PostgreSQL, head `0094_store_subscriptions` |
+| `services/backend/worker.py` | Фоновые процессы: очередь выдачи (`run_next_job`), чеки, кампании, push, автопродление |
 | `admin`, `cabinet`, `miniapp` | Next.js: админ-панель, личный кабинет, Mini App |
-| `mobile/android-user`, `mobile/ios-user` | Клиентские приложения (Kotlin Compose, SwiftUI); `mobile/ios-user/CorgiTunnel` — Network Extension, `CorgiNotificationService` — push с картинками |
-| `mobile/android-admin`, `mobile/ios-admin` | Админ-приложения |
+| `apps/vpn-shop/android`, `mobile/ios-user` | Клиентские приложения (Kotlin Compose, SwiftUI); `mobile/ios-user/CorgiTunnel` — Network Extension, `CorgiNotificationService` — push с картинками |
+| `apps/lucy-admin/android`, `mobile/ios-admin` | Админ-приложения |
 | `mobile/maestro`, `mobile/store` | Сценарии Maestro и материалы для сторов |
 | `support-pro` | Встроенная служба поддержки |
 | `deploy`, `scripts`, `install.sh` | Установка на сервер в одну команду, обновление, копии, сборки |
-| `tests` | Тесты backend (pytest), e2e (Playwright) — `admin/e2e` |
+| `tests` | Тесты backend (pytest), e2e (Playwright) — `apps/lucy-admin/web/e2e` |
 | `docs` | Документация: [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md), [30 модулей для владельца](docs/ru/modules/README.md) |
 
 ### 📱 Mini App на данных
@@ -1491,8 +1556,8 @@ flowchart LR
 Нужен чистый сервер на Ubuntu 24.04 или Debian 12: 4 vCPU, 8 ГБ RAM, 40 ГБ диска. Нужны и DNS-записи A для пяти доменов: `api`, `admin`, `app`, `cabinet`, `support`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.149.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.149.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.158.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.158.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, спрашивает домены, токены и цены, создаёт `.env` со случайными секретами, собирает и запускает сервисы. После установки:
@@ -1509,7 +1574,7 @@ bash scripts/doctor.sh                    # сводная проверка
 ### Ручная установка через Docker Compose
 
 ```bash
-git clone --branch v28.149.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.158.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env
 # Заполните .env: секреты, домены, BOT_TOKEN, REMNAWAVE_*, ключи провайдеров (см. таблицу ниже)
@@ -1525,12 +1590,12 @@ docker compose ps
 ### Локальный стенд без касс, Telegram и Remnawave
 
 ```bash
-git clone --branch v28.149.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.158.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh   # создаст .env.test, покажет адреса и вход
 ```
 
-Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.149.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
+Обновление существующей установки: `bash scripts/backup.sh`, затем `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.158.0 bash /opt/vpn-shop/scripts/update-from-github.sh` ([регламент](docs/ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
 
 ## ⚙️ Переменные окружения
 
@@ -1567,7 +1632,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ### Mini App
 
-Настоящие снимки собранного Mini App (390×844) со стандартными баннерами. Обновить: `(cd cabinet && npm run build:miniapp) && node scripts/screenshots/miniapp.mjs`.
+Настоящие снимки собранного Mini App (390×844) со стандартными баннерами. Обновить: `(cd apps/user-cabinet && npm run build:miniapp) && node scripts/screenshots/miniapp.mjs`.
 
 | Главная | Пополнение | Рефералы | Поддержка |
 | :---: | :---: | :---: | :---: |
@@ -1585,7 +1650,7 @@ bash scripts/test-up.sh   # создаст .env.test, покажет адрес�
 
 ### Админ-панель и личный кабинет
 
-Ниже настоящие снимки всех разделов админ-панели и кабинета (Remna Dark, 1440×900). Их снимает скрипт [`admin/scripts/screenshots-catalog.mjs`](admin/scripts/screenshots-catalog.mjs) на изолированном тестовом стенде с тестовыми тарифами и sandbox-оплатами. Поэтому серверы Remnawave на снимках недоступны, а суммы и клиенты тестовые. Описание каждого раздела — в [руководстве по админ-панели](docs/ru/ADMIN_PANEL_CURRENT.md).
+Ниже настоящие снимки всех разделов админ-панели и кабинета (Remna Dark, 1440×900). Их снимает скрипт [`apps/lucy-admin/web/scripts/screenshots-catalog.mjs`](apps/lucy-admin/web/scripts/screenshots-catalog.mjs) на изолированном тестовом стенде с тестовыми тарифами и sandbox-оплатами. Поэтому серверы Remnawave на снимках недоступны, а суммы и клиенты тестовые. Описание каждого раздела — в [руководстве по админ-панели](docs/ru/ADMIN_PANEL_CURRENT.md).
 
 | Админ-панель | Личный кабинет |
 | --- | --- |
@@ -2215,7 +2280,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Проверить конфигурацию Compose | `docker compose config` |
 | Health-check API | `curl -s localhost:8000/health` |
 | Резервная копия | `bash scripts/backup.sh` |
-| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.149.0 bash scripts/update-from-github.sh` |
+| Обновить до выпуска | `sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.158.0 bash scripts/update-from-github.sh` |
 | Откатить версию | `bash scripts/rollback.sh` |
 | Включить ночные обновления | `sudo bash scripts/auto-update.sh install` |
 | Состояние автообновления | `sudo bash scripts/auto-update.sh status` |
@@ -2260,7 +2325,7 @@ bash scripts/doctor.sh                                   # 3. проверка �
 | Android и iOS: сборка, экраны, кнопки, строки | [Модуль 16](docs/ru/modules/16-mobile-apps.md), [мобильные приложения](docs/ru/MOBILE_GUIDE.md), [MOBILE.md](MOBILE.md) |
 | Частые вопросы, правила, политика, оферта | [Документы](docs/ru/modules/13-content-pages.md) |
 | Архитектура новых функций | [Автообновление и откат](docs/modules/auto_update_and_rollback.md), [без простоя](docs/modules/zero_downtime.md), [PostgreSQL и Redis](docs/modules/redis_and_postgres.md), [защита от блокировок](docs/modules/anti_blocking.md), [split tunneling](docs/modules/split_tunneling.md), [языки](docs/modules/i18n.md), [ИИ-поддержка](docs/modules/ai_support.md) |
-| Что вошло в выпуск | [Заметки v28.149.0](docs/ru/RELEASE_V28_149_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
+| Что вошло в выпуск | [Заметки v28.158.0](docs/ru/RELEASE_V28_158_0.md), [CHANGELOG](CHANGELOG.md), [установка](docs/INSTALLATION.md), [архитектура модулей](docs/modules/README.md) |
 | Все документы | [DOCUMENTATION.md](DOCUMENTATION.md), [указатель](docs/INDEX.md), [архив прошлых выпусков](docs/archive/root/README.md) |
 | Wiki на трёх языках | [русский](docs/wiki/ru/Home.md), [English](docs/wiki/en/Home.md), [українська](docs/wiki/uk/Home.md) — готовые страницы для GitHub Wiki |
 | English / Українська | [docs/en](docs/en/README.md), [docs/uk](docs/uk/README.md) |
@@ -2269,12 +2334,12 @@ bash scripts/doctor.sh                                   # 3. проверка �
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -r backend/requirements.txt -r backend/requirements-test.txt
-APP_ENV=test APP_SECRET=test-only-secret PYTHONPATH=backend .venv/bin/python -m pytest -q tests
+.venv/bin/pip install -r services/backend/requirements.txt -r services/backend/requirements-test.txt
+APP_ENV=test APP_SECRET=test-only-secret PYTHONPATH=services/backend .venv/bin/python -m pytest -q tests
 
-cd admin && npm ci && npm run typecheck && npm run build
-cd ../cabinet && npm ci && npm run typecheck && npm test && npm run build
-cd ../admin && NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet && npx playwright test   # Chromium под production CSP
+cd apps/lucy-admin/web && npm ci && npm run typecheck && npm run build
+cd ../../user-cabinet && npm ci && npm run typecheck && npm test && npm run build
+cd ../lucy-admin/web && NEXT_BASE_PATH=/cabinet npm run build --prefix ../../user-cabinet && npx playwright test   # Chromium под production CSP
 ```
 
 Тесты с PostgreSQL и Redis включаются переменными `AUDIT_TEST_DATABASE_URL` и `REDIS_URL`. **CI** (`.github/workflows/ci.yml`) поднимает PostgreSQL 18 и Redis 7.4 и выполняет:
@@ -2329,10 +2394,10 @@ Performance / Documentation / Removed / Migration. Даты взяты из Git-
 | `v28.48.0` | 2026-10-29 | Added | Корпоративные тарифы (`corporate.py`, миграция `0083_corporate_seats`) | [заметки](docs/ru/RELEASE_V28_48_0.md) |
 | `v28.47.0` | 2026-10-29 | Added | Страница статуса (`status_page.py`, миграция `0082_status_subscribers`) | [заметки](docs/ru/RELEASE_V28_47_0.md) |
 | `v28.46.0` | 2026-10-29 | Payments | CloudPayments, возвраты через API | [заметки](docs/ru/RELEASE_V28_46_0.md) |
-| `v28.45.0` | 2026-10-29 | Payments | Пакет `backend/app/gateways/`: у каждой дополнительной кассы свой модуль, общая часть вынесена в `common.py` | [заметки](docs/ru/RELEASE_V28_45_0.md) |
+| `v28.45.0` | 2026-10-29 | Payments | Пакет `services/backend/app/gateways/`: у каждой дополнительной кассы свой модуль, общая часть вынесена в `common.py` | [заметки](docs/ru/RELEASE_V28_45_0.md) |
 | `v28.44.0` | 2026-10-28 | Payments | Tribute (`tribute.py`): пополнение кошелька донатом в Telegram | [заметки](docs/ru/RELEASE_V28_44_0.md) |
 | `v28.43.0` | 2026-10-28 | Payments | Кассы Cashera и ParityPay (карты, СБП) в `payments_extra.py` | [заметки](docs/ru/RELEASE_V28_43_0.md) |
-| `v28.42.0` | 2026-10-28 | Added | «География клиентов» (Мониторинг): векторная карта стран (`admin/src/worldMap.tsx`) | [заметки](docs/ru/RELEASE_V28_42_0.md) |
+| `v28.42.0` | 2026-10-28 | Added | «География клиентов» (Мониторинг): векторная карта стран (`apps/lucy-admin/web/src/worldMap.tsx`) | [заметки](docs/ru/RELEASE_V28_42_0.md) |
 | `v28.41.0` | 2026-10-28 | Payments | Кассы AuraPay и Anore (карты, СБП) в `payments_extra.py` | [заметки](docs/ru/RELEASE_V28_41_0.md) |
 | `v28.40.0` | 2026-10-28 | Payments | Кассы WATA и Antilopay (карты, СБП) в `payments_extra.py` | [заметки](docs/ru/RELEASE_V28_40_0.md) |
 | `v28.39.0` | 2026-10-28 | Payments | Кассы Pal24 (PayPalych) и Mulen Pay (карты, СБП) в `payments_extra.py` | [заметки](docs/ru/RELEASE_V28_39_0.md) |
@@ -2353,7 +2418,7 @@ Performance / Documentation / Removed / Migration. Даты взяты из Git-
 | `v28.25.0` | 2026-10-25 | Payments | Платежи: возвраты из кабинетов Platega и RollyPay подхватываются по уведомлению с перепроверкой через API; подписка Telegram Stars с автопродлением кажд… | [заметки](docs/ru/RELEASE_V28_25_0.md) |
 | `v28.24.0` | 2026-10-25 | Added | Все 19 стандартных баннеров бота и Mini App перерисованы в фирменном стиле: корги Люси из фирменного рисунка на солнечной террасе, подпись «Корги Люси ·… | [заметки](docs/ru/RELEASE_V28_24_0.md) |
 | `v28.23.0` | 2026-10-25 | Added | PostgreSQL 18.6 для магазина, Support Pro, стенда и CI (закреплённый digest, проверка в CI); `postgresql-client-18` из PGDG в backend; новые тома `postg… | [заметки](docs/ru/RELEASE_V28_23_0.md) |
-| `v28.22.0` | 2026-10-25 | Added | Баннеры разделов бота: 13 стандартных баннеров с корги Люси (`backend/app/assets/bot_banners/`, генератор `scripts/bot-banners/render.py`), свои изображ… | [заметки](docs/ru/RELEASE_V28_22_0.md) |
+| `v28.22.0` | 2026-10-25 | Added | Баннеры разделов бота: 13 стандартных баннеров с корги Люси (`services/backend/app/assets/bot_banners/`, генератор `scripts/bot-banners/render.py`), свои изображ… | [заметки](docs/ru/RELEASE_V28_22_0.md) |
 | `v28.21.0` | 2026-10-25 | Payments | Автоматизация исполняется: правила «событие → условия → действия» (истечение подписки, оплата, новый клиент, клиент без покупки) выполняются фоновым про… | [заметки](docs/ru/RELEASE_V28_21_0.md) |
 | `v28.20.0` | 2026-10-24 | Payments | Реальные платежи открыты с момента установки: оплата тарифа, пополнение кошелька и автопродление работают, как только заданы ключи провайдера | [заметки](docs/ru/RELEASE_V28_20_0.md) |
 | `v28.19.0` | 2026-10-24 | Payments | Допуск реальных платежей — staging E2E v2 ([инструкция](docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md)) | [заметки](docs/ru/RELEASE_V28_19_0.md) |

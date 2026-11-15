@@ -49,15 +49,15 @@ async def test_staging_keys_are_sandbox_only_encrypted_and_never_shown(database,
     assert "test_SANDBOX_KEY" not in str(shown) and "rw-staging-token" not in str(shown)
 
 def test_admin_ui_has_russian_staging_and_telegram_controls():
-    ui=(ROOT/'admin/src/main.tsx').read_text()
+    ui=(ROOT/'apps/lucy-admin/web/src/main.tsx').read_text()
     assert 'Telegram ID' in ui
     assert 'Войти через Telegram' in ui
     assert 'Проверка ключей песочницы (v1)' in ui
-    assert '/api/admin/e2e-v2/overview' in (ROOT/'admin/src/payment-admission.tsx').read_text()
+    assert '/api/admin/e2e-v2/overview' in (ROOT/'apps/lucy-admin/web/src/payment-admission.tsx').read_text()
     assert '/api/admin/staging-e2e/run' in ui
 
 
 def test_staging_isolation_and_runner_are_safe():
-    docker=(ROOT/'backend/Dockerfile').read_text(); sh=(ROOT/'scripts/staging-e2e.sh').read_text()
+    docker=(ROOT/'services/backend/Dockerfile').read_text(); sh=(ROOT/'scripts/staging-e2e.sh').read_text()
     assert 'COPY scripts/staging-e2e.sh ./staging-e2e.sh' in docker
     assert '/api/internal/staging-e2e/payment' in sh and 'STAGING_RUNNER_TOKEN' in sh

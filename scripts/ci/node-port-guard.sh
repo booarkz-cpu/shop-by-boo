@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # v28.90.0 (stage 20, N5): the node's port is reachable only from the panel. Runs the very FIREWALL script of
-# backend/app/rw_steps.py inside a «node» network namespace with two neighbours — «panel» (allowed) and «outsider»
+# services/backend/app/rw_steps.py inside a «node» network namespace with two neighbours — «panel» (allowed) and «outsider»
 # — and checks with real TCP connections: the panel connects to the node's port, the outsider does not, the
 # outsider still reaches another port of the node, an extra address added later connects, and «delete» opens the
 # port again. Needs root, iproute2, nftables and python3.
@@ -8,7 +8,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 PORT=2222
 script=$(mktemp); trap 'rm -f "$script"; for n in cpg-node cpg-panel cpg-out; do ip netns del $n 2>/dev/null || true; done' EXIT
-PYTHONPATH=backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$script" <<'PY'
+PYTHONPATH=services/backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$script" <<'PY'
 import sys
 from app import rw_steps
 open(sys.argv[1], "w").write(rw_steps.FIREWALL)

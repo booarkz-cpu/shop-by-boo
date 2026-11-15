@@ -1,6 +1,6 @@
 # Що нового у v28.43.0
 
-- Ще дві каси для карток і СБП — **Cashera** і **ParityPay** (`backend/app/payments_extra.py`). Обидві приймають лише разові платежі.
+- Ще дві каси для карток і СБП — **Cashera** і **ParityPay** (`services/backend/app/payments_extra.py`). Обидві приймають лише разові платежі.
 - Ключі задаються в налаштуваннях без перезапуску або в `.env`:
   - Cashera: `CASHERA_API_KEY`, `CASHERA_API_SECRET`;
   - ParityPay: `PARITYPAY_SHOP_ID`, `PARITYPAY_SECRET_KEY`, `PARITYPAY_CALLBACK_SECRET`.

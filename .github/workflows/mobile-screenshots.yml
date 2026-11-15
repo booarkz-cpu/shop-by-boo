@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
   pull_request:
-    paths: ['mobile/android-user/**', 'mobile/ios-user/**', 'mobile/android-admin/**', 'mobile/ios-admin/**', 'mobile/l10n/**', 'mobile/maestro/**', '.github/workflows/mobile-screenshots.yml']
+    paths: ['apps/vpn-shop/android/**', 'apps/vpn-shop/ios/**', 'apps/lucy-admin/android/**', 'apps/lucy-admin/ios/**', 'packages/localization/**', 'mobile/maestro/**', '.github/workflows/mobile-screenshots.yml']
 
 permissions:
   contents: read
@@ -39,8 +39,8 @@ jobs:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
       - name: Build debug applications
         run: |
-          (cd mobile/android-user && bash gradlew assembleDebug --no-daemon)
-          (cd mobile/android-admin && bash gradlew assembleDebug --no-daemon)
+          (cd apps/vpn-shop/android && bash gradlew assembleDebug --no-daemon)
+          (cd apps/lucy-admin/android && bash gradlew assembleDebug --no-daemon)
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -56,12 +56,12 @@ jobs:
           disable-animations: true
           script: |
             bash scripts/mobile/emulator-quiet.sh
-            adb install -r mobile/android-user/app/build/outputs/apk/debug/app-debug.apk
+            adb install -r apps/vpn-shop/android/app/build/outputs/apk/debug/app-debug.apk
             mkdir -p shots
             for tab in vpn subscription premium locations settings support devices family status giveaways; do adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab $tab --es corgi_lang ru; sleep 6; bash scripts/mobile/emulator-quiet.sh dismiss; adb exec-out screencap -p > shots/android-$tab.png; done
             adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --ez corgi_vpn_on true --es corgi_tab vpn --es corgi_lang ru; sleep 6; bash scripts/mobile/emulator-quiet.sh dismiss; adb exec-out screencap -p > shots/android-vpn-on.png
             adb shell am force-stop shop.remnawave.user.preview; adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true --es corgi_tab vpn --es corgi_lang en; sleep 6; bash scripts/mobile/emulator-quiet.sh dismiss; adb exec-out screencap -p > shots/android-vpn-en.png
-            adb install -r mobile/android-admin/app/build/outputs/apk/debug/app-debug.apk
+            adb install -r apps/lucy-admin/android/app/build/outputs/apk/debug/app-debug.apk
             for tab in overview launch payments monitoring ops support panel; do adb shell am force-stop shop.remnawave.admin.preview; adb shell am start -W -n shop.remnawave.admin.preview/shop.remnawave.admin.MainActivity --ez corgi_demo true --es corgi_tab $tab; sleep 6; bash scripts/mobile/emulator-quiet.sh dismiss; adb exec-out screencap -p > shots/android-admin-$tab.png; done
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -86,7 +86,7 @@ jobs:
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
       - name: Build the debug customer app
-        run: (cd mobile/android-user && bash gradlew assembleDebug --no-daemon)
+        run: (cd apps/vpn-shop/android && bash gradlew assembleDebug --no-daemon)
       - name: Install Maestro
         run: |
           # Pinned: Maestro releases change behaviour (2.12.0 changed screenshot paths); raise deliberately.
@@ -111,7 +111,7 @@ jobs:
           ram-size: 4096M
           script: |
             bash scripts/mobile/emulator-quiet.sh
-            adb install -r mobile/android-user/app/build/outputs/apk/debug/app-debug.apk
+            adb install -r apps/vpn-shop/android/app/build/outputs/apk/debug/app-debug.apk
             # The CI emulator starts a freshly installed debug build slowly («failed to attach»): compile it ahead
             # of time and open it once, so every flow's cold start fits Maestro's wait.
             adb shell cmd package compile -m speed -f shop.remnawave.user.preview || true
@@ -134,8 +134,8 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Build simulator applications
         run: |
-          (cd mobile/ios-user && xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build)
-          (cd mobile/ios-admin && xcodebuild -project VpnShopAdmin.xcodeproj -scheme VpnShopAdmin -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build)
+          (cd apps/vpn-shop/ios && xcodebuild -project VpnShopUser.xcodeproj -scheme VpnShopUser -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build)
+          (cd apps/lucy-admin/ios && xcodebuild -project VpnShopAdmin.xcodeproj -scheme VpnShopAdmin -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build)
       - name: Take screenshots in the simulator
         run: |
           set -eu
@@ -143,7 +143,7 @@ jobs:
           xcrun simctl boot "$device"
           xcrun simctl bootstatus "$device" -b
           xcrun simctl status_bar "$device" override --time 9:41 --batteryState charged --batteryLevel 100 || true
-          app=$(find mobile/ios-user/build/Build/Products -name 'VpnShopUser.app' -maxdepth 3 | head -1)
+          app=$(find apps/vpn-shop/ios/build/Build/Products -name 'VpnShopUser.app' -maxdepth 3 | head -1)
           xcrun simctl install "$device" "$app"
           bundle=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
           mkdir -p shots
@@ -155,7 +155,7 @@ jobs:
           xcrun simctl launch --terminate-running-process "$device" "$bundle" -CorgiDemo -CorgiVpnOn -CorgiTab vpn -shop_lang ru
           sleep 6
           xcrun simctl io "$device" screenshot "shots/ios-vpn-on.png"
-          admin=$(find mobile/ios-admin/build/Build/Products -name 'VpnShopAdmin.app' -maxdepth 3 | head -1)
+          admin=$(find apps/lucy-admin/ios/build/Build/Products -name 'VpnShopAdmin.app' -maxdepth 3 | head -1)
           xcrun simctl install "$device" "$admin"
           admin_bundle=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$admin/Info.plist")
           for tab in overview launch payments monitoring ops support panel; do
@@ -197,24 +197,24 @@ jobs:
           python-version: "3.14"
           cache: pip
           cache-dependency-path: |
-            backend/requirements.txt
-            backend/requirements-test.txt
+            services/backend/requirements.txt
+            services/backend/requirements-test.txt
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "26"
           cache: npm
           cache-dependency-path: |
-            admin/package-lock.json
-            cabinet/package-lock.json
+            apps/lucy-admin/web/package-lock.json
+            apps/user-cabinet/package-lock.json
       - name: Install and build
         run: |
-          python -m pip install -r backend/requirements.txt -r backend/requirements-test.txt
-          cd admin
+          python -m pip install -r services/backend/requirements.txt -r services/backend/requirements-test.txt
+          cd apps/lucy-admin/web
           npm ci
-          npm ci --prefix ../cabinet
+          npm ci --prefix ../../user-cabinet
           npx playwright install --with-deps chromium
           npm run build
-          NEXT_BASE_PATH=/cabinet npm run build --prefix ../cabinet
+          NEXT_BASE_PATH=/cabinet npm run build --prefix ../../user-cabinet
       - name: Capture every admin and cabinet section
         env:
           APP_ENV: test
@@ -230,7 +230,7 @@ jobs:
         run: |
           python tests/passkey_browser_server.py > "$RUNNER_TEMP/server.log" 2>&1 &
           for i in $(seq 1 60); do curl -fsS -o /dev/null http://localhost:8777/ && break; sleep 2; done
-          node admin/scripts/screenshots-catalog.mjs "$PWD"
+          node apps/lucy-admin/web/scripts/screenshots-catalog.mjs "$PWD"
           cp "$(python3 -c 'import tempfile; print(tempfile.gettempdir())')/admin-screenshots-index.json" screenshots/admin-screenshots-index.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -264,7 +264,7 @@ jobs:
       - id: xray
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: mobile/android-user/app/libs/libv2ray.aar
+          path: apps/vpn-shop/android/app/libs/libv2ray.aar
           key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
       - name: Build the VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
@@ -273,7 +273,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p apps/vpn-client/android/app/libs
-          cp mobile/android-user/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
+          cp apps/vpn-shop/android/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
           cd apps/vpn-client/android && bash gradlew :app:assembleDebug --no-daemon
       - name: Enable KVM
         run: |

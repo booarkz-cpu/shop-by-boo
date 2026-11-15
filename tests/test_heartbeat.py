@@ -28,7 +28,7 @@ def test_fresh_beat_passes_and_a_stale_or_missing_one_fails(tmp_path, monkeypatc
 
 
 def test_command_line_exit_code_is_what_docker_reads(tmp_path):
-    env = {**os.environ, "HEARTBEAT_DIR": str(tmp_path), "PYTHONPATH": str(ROOT / "backend")}
+    env = {**os.environ, "HEARTBEAT_DIR": str(tmp_path), "PYTHONPATH": str(ROOT / "services" / "backend")}
     run = lambda: subprocess.run([sys.executable, "-m", "app.heartbeat", "bot", "120"], env=env, cwd=tmp_path).returncode  # noqa: E731
     assert run() == 1
     (tmp_path / "bot.alive").write_text("1")

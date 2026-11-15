@@ -1,8 +1,8 @@
 # Портал подписки
 
 С v28.67.0 (этап 11). Ссылка подписки клиента — `https://<домен портала>/<shortUuid>` — отвечает двум видам клиентов:
-- **VPN-приложение** получает подписку. Прослойка (`backend/app/sub_proxy.py`) забирает её у панели Remnawave, как раньше: правила по приложению, дополнительные ключи, блокировка устройств.
-- **Браузер** получает страницу клиента (`backend/app/sub_portal.py`).
+- **VPN-приложение** получает подписку. Прослойка (`services/backend/app/sub_proxy.py`) забирает её у панели Remnawave, как раньше: правила по приложению, дополнительные ключи, блокировка устройств.
+- **Браузер** получает страницу клиента (`services/backend/app/sub_portal.py`).
 
 Домен портала настраивается в [SUBSCRIPTION_DOMAIN](SUBSCRIPTION_DOMAIN.md), шаблоны и тексты — в [SUBSCRIPTION_TEMPLATES](SUBSCRIPTION_TEMPLATES.md), защита — в [SUBSCRIPTION_SECURITY](SUBSCRIPTION_SECURITY.md).
 
@@ -62,5 +62,5 @@ VPN-приложения присылают свой User-Agent и не прос
 | Браузер получает портал; шаблон «Короткая»; скрипт копирования; журнал | `tests/test_subscription_portal.py::test_browser_gets_the_portal` | PASS |
 | VPN-клиент получает подписку через прослойку | `tests/live/test_remnawave_live.py::test_connections_bandwidth_keys_and_subscription_proxy` | PASS (CI) |
 | Смена ссылки на настоящей панели | `test_revoke_subscription_link` | CI |
-| Настройки портала в админке | `admin/e2e/domains-portal.spec.ts` | PASS |
+| Настройки портала в админке | `apps/lucy-admin/web/e2e/domains-portal.spec.ts` | PASS |
 | Портал на настоящем домене с сертификатом Let's Encrypt | нужен домен владельца | BLOCKED_EXTERNAL |

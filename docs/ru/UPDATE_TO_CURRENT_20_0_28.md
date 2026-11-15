@@ -73,7 +73,7 @@ Cron для автоматического обновления этим скр�
 
 ```bash
 cd /opt/vpn-shop
-grep -n 'APP_VERSION' backend/app/main.py
+grep -n 'APP_VERSION' services/backend/app/main.py
 sudo docker compose ps
 ```
 

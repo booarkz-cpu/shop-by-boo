@@ -1,10 +1,10 @@
 from pathlib import Path
 
 root=Path(__file__).resolve().parents[1]
-main=(root/"cabinet/src/main.tsx").read_text()
-css=(root/"cabinet/src/style.css").read_text()
+main=(root/"apps/user-cabinet/src/main.tsx").read_text()
+css=(root/"apps/user-cabinet/src/style.css").read_text()
 compose=(root/"docker-compose.yml").read_text()
-caddy=(root/"deploy/Caddyfile").read_text()
+caddy=(root/"infrastructure/reverse-proxy/Caddyfile").read_text()
 checks={
 "cabinet_service": "  cabinet:" in compose,
 "email_register": "/api/auth/register" in main,

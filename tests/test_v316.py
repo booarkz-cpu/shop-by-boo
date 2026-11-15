@@ -6,26 +6,26 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_version_316_is_first():
     (ROOT / "scripts/build-release.sh").read_text()
-    (ROOT / "deploy/install-vps.sh").read_text()
+    (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
 
 
 def test_nginx_uses_tmp_and_is_mounted():
-    nginx = (ROOT / "deploy/nginx/nginx.conf").read_text()
-    default = (ROOT / "deploy/nginx/default.conf").read_text()
+    nginx = (ROOT / "infrastructure/reverse-proxy/nginx/nginx.conf").read_text()
+    default = (ROOT / "infrastructure/reverse-proxy/nginx/default.conf").read_text()
     assert "pid /tmp/nginx/nginx.pid;" in nginx
     assert "client_body_temp_path /tmp/nginx/client_temp;" in nginx
     assert "try_files $uri $uri/ /index.html;" in default
-    for app in ("admin", "miniapp", "cabinet"):
+    for app in ("apps/lucy-admin/web", "apps/telegram-mini-app", "apps/user-cabinet"):
         assert (ROOT / app / "nginx.conf").read_text() == nginx
         assert (ROOT / app / "default.conf").read_text() == default
         dockerfile = (ROOT / app / "Dockerfile").read_text()
-        source = f"{app}/nginx.conf" if app in ("miniapp", "admin") else "nginx.conf"
+        source = f"{app}/nginx.conf" if app != "apps/user-cabinet" else "nginx.conf"
         assert f"COPY {source} /etc/nginx/nginx.conf" in dockerfile
     compose = (ROOT / "docker-compose.yml").read_text()
     caddy = compose.split("  caddy:", 1)[1]
     for name in ("admin", "miniapp", "cabinet"):
         block = compose.split(f"  {name}:", 1)[1].split(f"  {'miniapp' if name == 'admin' else 'cabinet' if name == 'miniapp' else 'caddy'}:", 1)[0]
-        assert "./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" in block
+        assert "./infrastructure/reverse-proxy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" in block
         assert "/tmp/nginx/client_temp" in block
         assert "condition: service_healthy" in caddy.split(f"{name}:", 1)[1].split("\n", 3)[1]
 

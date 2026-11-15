@@ -99,6 +99,26 @@ class VpnViewModelTest {
 
     @After fun tearDown() = Dispatchers.resetMain()
 
+    /** v1.10.0: connected only after the tunnel answered; a silent server is a warning with the VPN still on. */
+    @Test fun connectedOnlyAfterTheTunnelAnswered() = runTest(dispatcher) {
+        val engine = FakeEngine()
+        val model = VpnViewModel(engine, { clock }, dispatcher)
+        runCurrent()
+        engine.set("checking")
+        assertEquals(VpnStatus.Connecting, model.state.value.status)
+        assertEquals(false, model.state.value.isConnected)
+        assertEquals(false, model.state.value.noAnswer)
+        engine.set("no_answer")
+        assertEquals(VpnStatus.Connected, model.state.value.status)
+        assertTrue(model.state.value.noAnswer)
+        engine.set("on")
+        assertTrue(model.state.value.isConnected)
+        assertEquals(false, model.state.value.noAnswer)
+        engine.set("off")
+        assertEquals(VpnStatus.Idle, model.state.value.status)
+        assertEquals(false, model.state.value.noAnswer)
+    }
+
     @Test fun idleAsksTheScreenToConnectAndFollowsTheService() = runTest(dispatcher) {
         val engine = FakeEngine()
         val model = VpnViewModel(engine, { clock }, dispatcher)

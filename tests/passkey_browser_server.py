@@ -9,7 +9,7 @@ import tempfile
 test_files=tempfile.TemporaryDirectory(prefix="vpnshop-browser-")
 os.environ["MEDIA_DIR"]=str(Path(test_files.name)/"media")
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'backend'))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'services' / 'backend'))
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -64,7 +64,7 @@ app.dependency_overrides[get_db]=database
 shop.app.dependency_overrides[get_db]=database
 app.add_middleware(shop.SecurityHeadersMiddleware)
 
-# Static panels get the production policy from deploy/Caddyfile so browser tests
+# Static panels get the production policy from infrastructure/reverse-proxy/Caddyfile so browser tests
 # fail if a frontend build ever needs inline scripts or third-party code.
 PANEL_CSP=("default-src 'self'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; img-src 'self' https: data:; "
            "connect-src 'self' https:; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'")
@@ -76,8 +76,8 @@ async def panel_content_security_policy(request,call_next):
     if not request.url.path.startswith(("/api/","/media/")):
         response.headers["Content-Security-Policy"]=PANEL_CSP
     return response
-app.mount('/cabinet',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'cabinet/dist'),html=True))
-app.mount('/',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'admin/dist'),html=True))
+app.mount('/cabinet',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'apps/user-cabinet/dist'),html=True))
+app.mount('/',StaticFiles(directory=str(Path(__file__).resolve().parents[1]/'apps/lucy-admin/web/dist'),html=True))
 
 if __name__=='__main__':
     uvicorn.run(app,host='127.0.0.1',port=8777,log_level='warning')

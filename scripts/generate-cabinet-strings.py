@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """BACKLOG A4 (v28.88.0): the cabinet's texts as the admin panel edits them.
 
-The cabinet keeps its texts in cabinet/src/i18n.tsx: the Russian text is the key, EN and UK are tables (plus
-``Object.assign`` additions). This script reads those tables and writes backend/app/assets/cabinet_strings.json —
+The cabinet keeps its texts in apps/user-cabinet/src/i18n.tsx: the Russian text is the key, EN and UK are tables (plus
+``Object.assign`` additions). This script reads those tables and writes services/backend/app/assets/cabinet_strings.json —
 {key: {"en": …, "uk": …}} — which the backend uses to list and check the texts the owner may replace.
 
     python scripts/generate-cabinet-strings.py           # write
@@ -14,8 +14,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "cabinet/src/i18n.tsx"
-TARGET = ROOT / "backend/app/assets/cabinet_strings.json"
+SOURCE = ROOT / "apps/user-cabinet/src/i18n.tsx"
+TARGET = ROOT / "services/backend/app/assets/cabinet_strings.json"
 HEADER = re.compile(r"export const (EN|UK)\b[^=]*=\s*\{|Object\.assign\((EN|UK),\s*\{")
 PAIR = re.compile(r'"((?:[^"\\]|\\.)*)"\s*:\s*"((?:[^"\\]|\\.)*)"')
 

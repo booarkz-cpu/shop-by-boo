@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # v28.129.0 (owner's task of 2026-11-12): MASQUE on a node behind the SelfSteal site, checked for real — the very
-# script and files of backend/app/rw_masque.py on the CI runner (Ubuntu, Docker, systemd):
+# script and files of services/backend/app/rw_masque.py on the CI runner (Ubuntu, Docker, systemd):
 #  * the node's own SelfSteal Caddy runs as on a node (internal certificate), MASQUE is installed next to it;
 #  * a visitor of the MASQUE port gets the SelfSteal site and its 404 page, also on a wrong and on the right «secret» path;
 #  * protections against detection (v28.130.0): strict SNI, the site's TLS settings, no proxy error pages, an invisible
@@ -16,7 +16,7 @@ fail() { echo "FAIL: $*"; exit 1; }
 ok() { echo "ok: $*"; }
 cleanup() { pkill -f "$W/xray" >/dev/null 2>&1 || true; pkill -f "http.server 8099" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
-py() { PYTHONPATH="$ROOT/backend" APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 "$@"; }
+py() { PYTHONPATH="$ROOT/services/backend" APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 "$@"; }
 
 grep -q " $DOMAIN\$" /etc/hosts || echo "127.0.0.1 $DOMAIN" >> /etc/hosts
 mkdir -p "$SS/sites/current"

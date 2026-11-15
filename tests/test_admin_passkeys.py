@@ -199,7 +199,7 @@ async def test_postgres_migration_cycle_and_identity_downgrade_guard(database,mo
     from pathlib import Path
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
-    spec=importlib.util.spec_from_file_location('passkey_migration',Path('backend/alembic/versions/0053_admin_passkeys.py'))
+    spec=importlib.util.spec_from_file_location('passkey_migration',Path('services/backend/alembic/versions/0053_admin_passkeys.py'))
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     await database.commit()
     async with database.bind.begin() as connection:

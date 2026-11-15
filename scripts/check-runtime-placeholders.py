@@ -9,9 +9,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOTS = (
-    ROOT / "backend" / "app",
-    ROOT / "backend" / "alembic",
-    ROOT / "support-pro" / "app",
+    ROOT / "services" / "backend" / "app",
+    ROOT / "services" / "backend" / "alembic",
+    ROOT / "services" / "support-pro" / "app",
     ROOT / "scripts",
 )
 

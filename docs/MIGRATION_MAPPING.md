@@ -10,7 +10,7 @@
 | `booarkz-cpu/shop-by-boo` | целевой; ветка `main`, перед этой сверкой — `fbe430c` (v28.147.0) | — |
 | `booarkz-cpu/VPN-Shop-by-CorgiLusi` | при подключении указывает на тот же репозиторий, что и shop-by-boo (тот же `HEAD fbe430c`) — это прежнее имя | переносить нечего |
 | `booarkz-cpu/remnawave-manager` | публичный, MIT, © Корги Люси (автор — владелец); ветка `main`, `5b83423d5be35b67340a94c97eab0e627944777b` от 2026-09-24; версия скрипта `1.5.6`; тегов 0, других веток нет; 6466 строк `remnawave-manager.sh`, меню 1–33 в `docs/MENU.en.md` | сверено по пунктам ниже |
-| `booarkz-cpu/lucy-vpn-android` | из этой среды недоступен (клонирование и API отказали: нет доступа или репозитория нет) | ждёт владельца: доступ или статус |
+| `booarkz-cpu/lucy-vpn-android` | из среды разработки недоступен (клонирование и API отказали) | закрыт решением владельца № 16 (2026-11-14): не нужен — прежний клиент заменён своим `apps/vpn-client/android`; сам репозиторий не трогается |
 | Чужие источники (REQ-MIG-0004…0008) | AGPL / Commons Clause / без лицензии | только идеи (решение № 13); учёт — `docs/REFERENCE_REPOSITORIES.md`, `docs/CODE_REUSE_REGISTER.md` |
 
 ## 2. remnawave-manager → shop-by-boo (REQ-MIG-0021, 0022, 0027)
@@ -44,7 +44,7 @@
 | 29 | Управление нодой: перезапуск, вкл/выкл, смена адреса | `remnawave.py` (`/api/nodes/{uuid}/actions/disable`, `restart-all`), `rw_selfsteal.py` | `tests/test_remnawave_architecture.py` | есть |
 | 30 | Оповещения в Telegram и копия вне сервера | `ops_alerts.py`, `telegram_backup.py`, `backups_api.py` (S3) | `tests/test_promo_generator_and_tg_backup.py` | есть (S3 вместо rclone) |
 | 31 | Сертификаты: срок, продление | `ops_alerts.py` `certificate_check` (14/3 дня; Caddy продлевает сам) | `tests/test_ops_alerts.py` | есть |
-| 32 | Firewall и SSH только с адреса владельца | `deploy/install-vps.sh` (`ADMIN_SSH_IP`), `scripts/open-ports.sh` (`SSH_ONLY_FROM`), `backend/app/rw_ports.py` | `tests/test_admin_ssh_ip.py`, `tests/test_rw_ports.py` | **перенесено** в v28.148.0 |
+| 32 | Firewall и SSH только с адреса владельца | `infrastructure/deployment/install-vps.sh` (`ADMIN_SSH_IP`), `scripts/open-ports.sh` (`SSH_ONLY_FROM`), `backend/app/rw_ports.py` | `tests/test_admin_ssh_ip.py`, `tests/test_rw_ports.py` | **перенесено** в v28.148.0 |
 | 33 | Заглушка на домене подписки | `sub_proxy.py` `mask_page` | `tests/test_subscription_middleware.py` | есть |
 
 ### Отличия, которые остаются (REQ-MIG-0022)
@@ -57,6 +57,5 @@
 
 ## 3. Что дальше
 
-* lucy-vpn-android — нужен доступ или подтверждение, что репозитория больше нет (REQ-MIG-0009).
 * REQ-MIG-0023, 0028 — проверка «ничего не потеряно» после переноса папок по `docs/MONOREPO_LAYOUT.md` (решение № 14),
   по одному этапу на выпуск.

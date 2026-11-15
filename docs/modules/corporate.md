@@ -1,6 +1,6 @@
 # Корпоративные тарифы (v28.48)
 
-Код: `backend/app/corporate.py`. Миграция `0083_corporate_seats`: в `corporate_accounts` добавлены новые поля и появились таблицы `corporate_members` и `corporate_invoices`.
+Код: `services/backend/app/corporate.py`. Миграция `0083_corporate_seats`: в `corporate_accounts` добавлены новые поля и появились таблицы `corporate_members` и `corporate_invoices`.
 
 ## Как это работает
 

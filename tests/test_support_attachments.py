@@ -62,7 +62,7 @@ async def test_postgres_attachment_migration_preserves_conversation(database):
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
     database.add(SupportTicket(id=1,user_id=1,subject='VPN',message='Original'));await database.commit();await database.rollback()
-    path=Path(__file__).resolve().parents[1]/'backend/alembic/versions/0047_support_attachments.py'
+    path=Path(__file__).resolve().parents[1]/'services/backend/alembic/versions/0047_support_attachments.py'
     spec=importlib.util.spec_from_file_location('files_migration',path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     async with database.bind.begin() as conn:
         def migrate(connection):

@@ -1,4 +1,4 @@
-# Матрица функций и критерии завершения — дистрибутив v28.149.0
+# Матрица функций и критерии завершения — дистрибутив v28.158.0
 
 Этот документ завершает **описание** функциональной матрицы: у каждой открытой области есть владелец проверки, обязательный сценарий и условие, после которого статус можно повысить. Он не подменяет отсутствующую реализацию и не объявляет внешнюю production-проверку выполненной.
 
@@ -33,7 +33,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Собственный MX-сервер | Сервис `mail_receiver` (профиль `mail`): SMTP-приёмник на asyncio только для адресов из `MAIL_RECEIVER_ROUTES` (остальные — 550, не open relay); SPF, DKIM (rsa-sha256, ed25519-sha256, simple/relaxed) и DMARC (`mail_auth.py`) с отказом при SPF fail и DMARC reject; грейлистинг с белым списком, лимиты размера, частоты, соединений, получателей и длины строки, тайм-ауты; ClamAV INSTREAM с временным отказом при недоступности; STARTTLS (TLS 1.2+); `Authentication-Results` сверху с удалением подделанных; доставка отчётов DMARC в раздел почтового домена и обращений в Support Pro через подписанный `POST /email/inbound`; никаких писем о недоставке; журнал приёма в разделе «Почтовый домен» | `tests/test_mail_receiver.py`: настоящий SMTP-сеанс — релей, DKIM RSA/Ed25519, SPF/DMARC-отказы, подделанные заголовки, лимиты, грейлистинг, ClamAV, недоступный Support Pro, отчёт DMARC, STARTTLS, канонизация по примерам RFC 6376; `support-pro/tests/test_email_inbound.py`: подпись, свежесть, дубли, размер. [Регламент](MAIL_RECEIVER_CURRENT.md) |
+| Собственный MX-сервер | Сервис `mail_receiver` (профиль `mail`): SMTP-приёмник на asyncio только для адресов из `MAIL_RECEIVER_ROUTES` (остальные — 550, не open relay); SPF, DKIM (rsa-sha256, ed25519-sha256, simple/relaxed) и DMARC (`mail_auth.py`) с отказом при SPF fail и DMARC reject; грейлистинг с белым списком, лимиты размера, частоты, соединений, получателей и длины строки, тайм-ауты; ClamAV INSTREAM с временным отказом при недоступности; STARTTLS (TLS 1.2+); `Authentication-Results` сверху с удалением подделанных; доставка отчётов DMARC в раздел почтового домена и обращений в Support Pro через подписанный `POST /email/inbound`; никаких писем о недоставке; журнал приёма в разделе «Почтовый домен» | `tests/test_mail_receiver.py`: настоящий SMTP-сеанс — релей, DKIM RSA/Ed25519, SPF/DMARC-отказы, подделанные заголовки, лимиты, грейлистинг, ClamAV, недоступный Support Pro, отчёт DMARC, STARTTLS, канонизация по примерам RFC 6376; `services/support-pro/tests/test_email_inbound.py`: подпись, свежесть, дубли, размер. [Регламент](MAIL_RECEIVER_CURRENT.md) |
 
 Приём на вашем домене (порт 25, MX, сертификат) — за оператором.
 
@@ -73,7 +73,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Внешние helpdesk-системы (Zendesk/Freshdesk) | Support Pro 3.8, миграция `0008`: `helpdesk_bridge.py` — идентичность клиента по ID внешнего пользователя с объединением по email, импорт истории по курсору (Zendesk incremental export, Freshdesk `updated_since`) с уникальными связями `helpdesk_links` и курсором в одной транзакции со страницей; входящие комментарии, заметки, статусы и вложения с антивирусом; обратная синхронизация ответов через общую очередь доставки со связыванием созданного комментария, сверкой «результат неизвестен» и паузой по 429; удаление данных клиента с меткой против повторного импорта; страница «Внешний helpdesk» | `support-pro/tests/test_helpdesk_bridge.py` (SQLite/PostgreSQL): replay страницы, перенос к существующему клиенту, повторное открытие с вложением через перенаправление, однократная отправка, потеря подтверждения, классификация отказов и пауза 429, удаление данных; `support-pro/tests/test_migrations.py`: roundtrip `0008` и защита отката. [Регламент](SUPPORT_HELPDESK_BRIDGE_CURRENT.md) |
+| Внешние helpdesk-системы (Zendesk/Freshdesk) | Support Pro 3.8, миграция `0008`: `helpdesk_bridge.py` — идентичность клиента по ID внешнего пользователя с объединением по email, импорт истории по курсору (Zendesk incremental export, Freshdesk `updated_since`) с уникальными связями `helpdesk_links` и курсором в одной транзакции со страницей; входящие комментарии, заметки, статусы и вложения с антивирусом; обратная синхронизация ответов через общую очередь доставки со связыванием созданного комментария, сверкой «результат неизвестен» и паузой по 429; удаление данных клиента с меткой против повторного импорта; страница «Внешний helpdesk» | `services/support-pro/tests/test_helpdesk_bridge.py` (SQLite/PostgreSQL): replay страницы, перенос к существующему клиенту, повторное открытие с вложением через перенаправление, однократная отправка, потеря подтверждения, классификация отказов и пауза 429, удаление данных; `services/support-pro/tests/test_migrations.py`: roundtrip `0008` и защита отката. [Регламент](SUPPORT_HELPDESK_BRIDGE_CURRENT.md) |
 
 Проверка на реальной учётной записи Zendesk или Freshdesk — за оператором. Другие helpdesk-системы подключаются тем же интерфейсом адаптера.
 
@@ -87,7 +87,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Расширенная DNS/ASN/reputation карта | Источники данных: RIPEstat Data API (ASN, владелец, префикс, анонс, страна RIR; без ключа, с `sourceapp`) и AbuseIPDB v2 (репутация, по ключу оператора); лицензирование и атрибуция указаны в интерфейсе и регламенте; кэш на IP и источник со сроком 7 дней / 24 часа и отметкой свежести; последние данные сохраняются при ошибке с backoff; бюджет запросов на окно и пауза по `Retry-After`; DNS A/AAAA; внутренние и зарезервированные адреса не отправляются; UI анализа с предупреждениями и сводкой сетей клиентов без IP | `tests/test_network_intel.py` (SQLite/PostgreSQL): ошибка источника, устаревание, IPv6, приватные адреса, rate limits; `admin/e2e/remna-design.spec.ts`. [Регламент](NETWORK_INTEL_CURRENT.md) |
+| Расширенная DNS/ASN/reputation карта | Источники данных: RIPEstat Data API (ASN, владелец, префикс, анонс, страна RIR; без ключа, с `sourceapp`) и AbuseIPDB v2 (репутация, по ключу оператора); лицензирование и атрибуция указаны в интерфейсе и регламенте; кэш на IP и источник со сроком 7 дней / 24 часа и отметкой свежести; последние данные сохраняются при ошибке с backoff; бюджет запросов на окно и пауза по `Retry-After`; DNS A/AAAA; внутренние и зарезервированные адреса не отправляются; UI анализа с предупреждениями и сводкой сетей клиентов без IP | `tests/test_network_intel.py` (SQLite/PostgreSQL): ошибка источника, устаревание, IPv6, приватные адреса, rate limits; `apps/lucy-admin/web/e2e/remna-design.spec.ts`. [Регламент](NETWORK_INTEL_CURRENT.md) |
 
 Проверка источников на реальных адресах узлов — за оператором.
 
@@ -95,7 +95,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Plugin runtime/hotload | Плагин — внешний HTTPS-сервис, код в магазине не выполняется. Подписанный Ed25519 пакетный формат (манифест и README), доверенные ключи издателей с отзывом; capability sandbox: API `/api/plugin/v1` с отдельным токеном и только подтверждёнными правами, события только при наличии права; lifecycle: загрузка, подтверждение прав, включение, выключение, удаление; обновление ждёт подтверждения новых прав, откат к любой версии в пределах подтверждённых прав без перезапуска; совместимость `api_version`; изоляция секретов (настройки зашифрованы и видны только своему плагину, токен хранится хешем); HMAC-подписанные события с повтором и автоостановкой | `tests/test_plugins.py` (SQLite/PostgreSQL): недоверенный и изменённый пакет, отказ и откат, обновление, изоляция секретов и прав; `admin/e2e/plugins.spec.ts`. [Регламент](PLUGINS_CURRENT.md) |
+| Plugin runtime/hotload | Плагин — внешний HTTPS-сервис, код в магазине не выполняется. Подписанный Ed25519 пакетный формат (манифест и README), доверенные ключи издателей с отзывом; capability sandbox: API `/api/plugin/v1` с отдельным токеном и только подтверждёнными правами, события только при наличии права; lifecycle: загрузка, подтверждение прав, включение, выключение, удаление; обновление ждёт подтверждения новых прав, откат к любой версии в пределах подтверждённых прав без перезапуска; совместимость `api_version`; изоляция секретов (настройки зашифрованы и видны только своему плагину, токен хранится хешем); HMAC-подписанные события с повтором и автоостановкой | `tests/test_plugins.py` (SQLite/PostgreSQL): недоверенный и изменённый пакет, отказ и откат, обновление, изоляция секретов и прав; `apps/lucy-admin/web/e2e/plugins.spec.ts`. [Регламент](PLUGINS_CURRENT.md) |
 
 Публичный каталог плагинов не входит в выпуск.
 
@@ -103,7 +103,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Email-канал (из строки «Внешние helpdesk/email каналы») | Support Pro 3.7, миграция `0007`: идентичность канала (уникальный email-адрес клиента), приём IMAP с курсором в той же транзакции, дедупликация по Message-ID (в том числе после смены UIDVALIDITY), цепочка ответов только от того же адреса, пропуск автоответов, рассылок и собственного адреса, разбор возвратов; обратная доставка SMTP с In-Reply-To/References и сохранением Message-ID до отправки; уведомление о приватности в ответах, срок хранения и удаление данных клиента; перенос истории к существующему клиенту | `support-pro/tests/test_email_channel.py` (SQLite/PostgreSQL): replay события, перенос истории, отказ ящика и SMTP, удаление данных; `support-pro/tests/test_migrations.py`: roundtrip и защита отката. [Регламент](SUPPORT_EMAIL_CHANNEL_CURRENT.md) |
+| Email-канал (из строки «Внешние helpdesk/email каналы») | Support Pro 3.7, миграция `0007`: идентичность канала (уникальный email-адрес клиента), приём IMAP с курсором в той же транзакции, дедупликация по Message-ID (в том числе после смены UIDVALIDITY), цепочка ответов только от того же адреса, пропуск автоответов, рассылок и собственного адреса, разбор возвратов; обратная доставка SMTP с In-Reply-To/References и сохранением Message-ID до отправки; уведомление о приватности в ответах, срок хранения и удаление данных клиента; перенос истории к существующему клиенту | `services/support-pro/tests/test_email_channel.py` (SQLite/PostgreSQL): replay события, перенос истории, отказ ящика и SMTP, удаление данных; `services/support-pro/tests/test_migrations.py`: roundtrip и защита отката. [Регламент](SUPPORT_EMAIL_CHANNEL_CURRENT.md) |
 
 Проверка на реальном почтовом ящике и сервере SMTP — за оператором.
 
@@ -119,7 +119,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Native push (из строки «Native push/widget/multiprofile admin») | Реестр устройств с SHA-256 индексом и AES-GCM токеном, привязка к сессии входа, очередь `push_deliveries`, FCM HTTP v1 (OAuth сервисного аккаунта) и APNs (ES256, HTTP/2), повтор с backoff, отзыв при потерянном токене, выходе, смене аккаунта и удалении; opt-in в Android (FCM без google-services) и iOS; состояние в админке | `tests/test_push.py` (SQLite/PostgreSQL): регистрация и повтор, переход токена между аккаунтами, лимит устройств, подписи FCM/APNs, скрытие текста ответа поддержки, UNREGISTERED/410, backoff до отказа, logout без обращения к провайдеру, удалённый аккаунт, отсутствие ключей; `admin/e2e/remna-design.spec.ts`; CI-сборка Android/iOS. [Регламент](PUSH_NOTIFICATIONS_CURRENT.md) |
+| Native push (из строки «Native push/widget/multiprofile admin») | Реестр устройств с SHA-256 индексом и AES-GCM токеном, привязка к сессии входа, очередь `push_deliveries`, FCM HTTP v1 (OAuth сервисного аккаунта) и APNs (ES256, HTTP/2), повтор с backoff, отзыв при потерянном токене, выходе, смене аккаунта и удалении; opt-in в Android (FCM без google-services) и iOS; состояние в админке | `tests/test_push.py` (SQLite/PostgreSQL): регистрация и повтор, переход токена между аккаунтами, лимит устройств, подписи FCM/APNs, скрытие текста ответа поддержки, UNREGISTERED/410, backoff до отказа, logout без обращения к провайдеру, удалённый аккаунт, отсутствие ключей; `apps/lucy-admin/web/e2e/remna-design.spec.ts`; CI-сборка Android/iOS. [Регламент](PUSH_NOTIFICATIONS_CURRENT.md) |
 
 Виджет Android и административный мультипрофиль закрыты в v28.6.0. Реальная доставка через Firebase/Apple требует ключей оператора и проверяется на стенде.
 
@@ -127,8 +127,8 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Исторический импорт VPN/платежей | Версионированный адаптер `generic-sqlite-v1`, зашифрованный неизменяемый снимок сверки с fingerprint состояния, контрольные итоги, повтор без дублей по ID платежа и UUID Remnawave, конфликт изменённых строк, журнал и откат с проверкой использования; платежи только как история | `tests/test_history_import.py` (SQLite и PostgreSQL): preview без записи, расхождение сумм блокирует apply, повтор без дублей, устаревший preview, откат и его отказ; roundtrip `0065_history_import`; `admin/e2e/history-import.spec.ts`. [Регламент](HISTORY_IMPORT_CURRENT.md). Внешняя приёмка на копии реальной выгрузки — за оператором |
-| Интерфейсы и Telegram Mini App | Next.js static export, Remna Dark, сворачиваемый sidebar/drawer, дашборд метрик, кабинет с трафиком/сроком/QR, Telegram WebApp SDK, строгая CSP | `admin/e2e/remna-design.spec.ts`, `admin/e2e/cabinet-design.spec.ts` под production CSP; Vitest кабинета |
+| Исторический импорт VPN/платежей | Версионированный адаптер `generic-sqlite-v1`, зашифрованный неизменяемый снимок сверки с fingerprint состояния, контрольные итоги, повтор без дублей по ID платежа и UUID Remnawave, конфликт изменённых строк, журнал и откат с проверкой использования; платежи только как история | `tests/test_history_import.py` (SQLite и PostgreSQL): preview без записи, расхождение сумм блокирует apply, повтор без дублей, устаревший preview, откат и его отказ; roundtrip `0065_history_import`; `apps/lucy-admin/web/e2e/history-import.spec.ts`. [Регламент](HISTORY_IMPORT_CURRENT.md). Внешняя приёмка на копии реальной выгрузки — за оператором |
+| Интерфейсы и Telegram Mini App | Next.js static export, Remna Dark, сворачиваемый sidebar/drawer, дашборд метрик, кабинет с трафиком/сроком/QR, Telegram WebApp SDK, строгая CSP | `apps/lucy-admin/web/e2e/remna-design.spec.ts`, `apps/lucy-admin/web/e2e/cabinet-design.spec.ts` под production CSP; Vitest кабинета |
 
 ## Закрыто в v28.3.0
 
@@ -136,7 +136,7 @@
 | --- | --- | --- |
 | Настройки без перезапуска | 96 типизированных live-полей, AES-GCM для секретов и payload, зависимости, staged apply, optimistic lock, audit, rollback и polling API/worker/bot; все 187 полей классифицированы | `tests/test_runtime_settings.py`: типы, зависимости, masking, apply/rollback/discard, полный реестр, PostgreSQL race и миграция; admin strict typecheck/build. [Регламент](RUNTIME_SETTINGS_CURRENT.md) |
 
-Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
+Объединение аккаунтов закрыто в v28.2.0: две повторные авторизации, conflict preview, атомарный перенос, login aliases и idempotency journal проверяются `tests/test_account_merge.py` и `apps/user-cabinet/src/account-merge.test.tsx`. [Регламент](ACCOUNT_MERGE_CURRENT.md).
 
 ## Порядок закрытия матрицы
 
@@ -150,9 +150,9 @@
 ## Проверка текущего выпуска
 
 ```bash
-python3 -m compileall -q backend/app backend/worker.py
+python3 -m compileall -q services/backend/app services/backend/worker.py
 python3 scripts/check-current-docs.py
 git diff --check
 ```
 
-Полный CI дополнительно поднимает PostgreSQL/Redis, применяет Alembic, запускает backend/Support Pro tests, frontend typecheck/build/E2E, Compose и container-boundary проверки. [Подробная инструкция](TESTING.md).
+Полный CI дополнительно поднимает PostgreSQL/Redis, применяет Alembic, запускает services/backend/Support Pro tests, frontend typecheck/build/E2E, Compose и container-boundary проверки. [Подробная инструкция](TESTING.md).

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from backend.app.mobile_catalog import (
+from app.mobile_catalog import (
     card_from_input,
     parse_catalog,
     public_cards,
@@ -47,8 +47,8 @@ def attach_roundtrip():
 
 
 def test_panel_and_cabinet_expose_download_links():
-    admin = (ROOT / "admin/src/main.tsx").read_text()
-    cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/main.tsx").read_text()
     assert "Скачать приложение администратора" in admin
     assert "/api/admin/apps/" in admin and "/file" in admin
     assert "client-logo" not in admin

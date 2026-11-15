@@ -1,6 +1,6 @@
 # Установка: от нуля до продакшена
 
-Пошаговая инструкция для дистрибутива `v28.149.0` (runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
+Пошаговая инструкция для дистрибутива `v28.158.0` (runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`, Support Pro `0008`). Она собирает в одном месте то, что подробно описано в [руководстве по запуску](ru/LAUNCH_GUIDE.md), [инструкции production](ru/PRODUCTION_CURRENT.md) и [30 инструкциях по модулям](ru/modules/README.md). Если что-то здесь расходится с ними, верны они.
 
 С телефона на Android (через Termux, пошагово для новичка) — [TERMUX_GUIDE.md](ru/new/TERMUX_GUIDE.md).
 Если сервер потерян целиком — порядок полного восстановления и классы данных: [DISASTER_RECOVERY.md](ru/DISASTER_RECOVERY.md).
@@ -77,11 +77,11 @@ AAAA добавляйте только если IPv6 действительно 
 ## 4. Установка одной командой
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.149.0/install.sh -o /root/shop-install.sh \
-  && BRANCH=v28.149.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.158.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.158.0 bash /root/shop-install.sh
 ```
 
-Что делает установщик (`install.sh` → `deploy/install-vps.sh`):
+Что делает установщик (`install.sh` → `infrastructure/deployment/install-vps.sh`):
 
 1. Ставит Docker и Compose, настраивает firewall и системные параметры.
 2. Скачивает дистрибутив точного тега в `/opt/vpn-shop`.
@@ -93,7 +93,7 @@ curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.149.0/i
 Ручная установка без установщика:
 
 ```bash
-git clone --branch v28.149.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
+git clone --branch v28.158.0 https://github.com/booarkz-cpu/shop-by-boo.git /opt/vpn-shop
 cd /opt/vpn-shop
 cp .env.example .env            # заполните (раздел 5)
 python3 scripts/harden-env.py   # сгенерирует недостающие секреты (значения не печатаются)
@@ -135,7 +135,7 @@ docker compose up -d
 
 ## 6. Миграции базы данных
 
-Миграции применяются сами: каждый запуск контейнера backend выполняет `alembic upgrade head` до старта API (`backend/entrypoint.sh`). Проверить текущую версию схемы:
+Миграции применяются сами: каждый запуск контейнера backend выполняет `alembic upgrade head` до старта API (`services/backend/entrypoint.sh`). Проверить текущую версию схемы:
 
 ```bash
 docker compose exec -T backend alembic current     # ожидается 0094_store_subscriptions (head)
@@ -174,7 +174,7 @@ bash scripts/doctor.sh                       # здоровье API и отве�
 
 ```bash
 bash /opt/vpn-shop/scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.149.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.158.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 Скрипт скачивает архив выпуска, сверяет SHA-256 и манифест, делает копию, собирает образы, применяет миграции и проверяет здоровье ([регламент](ru/DISTRIBUTION_UPGRADE_CURRENT.md)).
@@ -185,7 +185,7 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.149.0 bash /opt/vpn-shop/scripts/
 - Панель и агент обмениваются файлами в `/opt/vpn-shop/.control` (в контейнере `/data/control`); backend не выполняет команд на сервере.
 - Выпуск, который не установился (откат выполнен автоматически), ночью повторно не ставится; «Обновить сейчас» пробует снова. В режиме восстановления (`.rollback/RECOVERY_MODE`) автообновление останавливается до ручной проверки.
 - Итог приходит в Telegram (`ALERT_TELEGRAM_CHAT_ID`, иначе `ADMIN_TELEGRAM_ID`). Хранятся 5 последних снимков.
-- Сервер, установленный раньше, получает агент сам при обновлении до v28.34.0 и новее (сборка `deploy/build-production.sh` вызывает `auto_update.py ensure`); выключенное автообновление остаётся выключенным. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, а также `status`, `run` (обновить сейчас) и `disable`.
+- Сервер, установленный раньше, получает агент сам при обновлении до v28.34.0 и новее (сборка `infrastructure/deployment/build-production.sh` вызывает `auto_update.py ensure`); выключенное автообновление остаётся выключенным. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, а также `status`, `run` (обновить сейчас) и `disable`.
 
 **Из GitHub Actions** (альтернатива: push-деплой по SSH) («Corgi Lusi Production Deploy»). Workflow подключается к серверу по SSH и запускает то же обновление. Настройка:
 

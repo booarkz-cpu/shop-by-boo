@@ -14,7 +14,7 @@ Python-тесты используют настоящую EC-криптогра�
 
 CI также выполняет отдельный Chromium virtual authenticator сценарий через браузерный UI: регистрация → выход → discoverable вход → reload → удаление. Локальная загрузка Chromium в рабочей среде первоначально вернула повреждённый CDN-архив; после получения того же Chromium из официального Chrome for Testing хранилища полный локальный UI-сценарий прошёл (1 passed). Финальный источник истины для браузерного job — успешный CI на конкретном release commit.
 
-Существующие backend/Support Pro тесты, Alembic, audits, три web build/typecheck, Docker/non-root/Redis и Android/iOS compile checks остаются обязательными. Конкретный CI run, commit и статус включаются в detached release manifest после успешного main CI.
+Существующие services/backend/Support Pro тесты, Alembic, audits, три web build/typecheck, Docker/non-root/Redis и Android/iOS compile checks остаются обязательными. Конкретный CI run, commit и статус включаются в detached release manifest после успешного main CI.
 
 Локальная общая suite: **684 passed, 144 skipped** (PostgreSQL проверки входят в CI). Аудиты pip/npm не обнаружили известных уязвимостей. Админка прошла typecheck/build. Promtool 3.15.0 проверил scrape config, пять alert rules, их пять сценариев срабатывания и 14 PromQL запросов dashboard.
 

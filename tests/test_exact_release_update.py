@@ -13,8 +13,8 @@ updater=importlib.util.module_from_spec(spec);spec.loader.exec_module(updater)
 
 
 def setup(monkeypatch,tmp_path,payload):
-    install=tmp_path/'installed';(install/'backend/app').mkdir(parents=True)
-    (install/'backend/app/main.py').write_text('APP_VERSION = "20.0.29"\n')
+    install=tmp_path/'installed';(install/'services/backend/app').mkdir(parents=True)
+    (install/'services/backend/app/main.py').write_text('APP_VERSION = "20.0.29"\n')
     monkeypatch.setattr(sys,'argv',['updater',str(install),str(tmp_path/'stage')])
     fetch=__import__('unittest.mock',fromlist=['Mock']).Mock(return_value=payload)
     monkeypatch.setattr(updater,'fetch_json',fetch)
@@ -24,7 +24,7 @@ def setup(monkeypatch,tmp_path,payload):
 def test_exact_tag_fetch_and_checksum(monkeypatch,tmp_path):
     tag='v21.0.0';name='remnawave_vpn_shop_v21_0_0_full_release.zip'
     blob=io.BytesIO()
-    with zipfile.ZipFile(blob,'w') as archive:archive.writestr('backend/app/main.py','APP_VERSION = "21.0.0"\n')
+    with zipfile.ZipFile(blob,'w') as archive:archive.writestr('services/backend/app/main.py','APP_VERSION = "21.0.0"\n')
     content=blob.getvalue();checksum=f'{hashlib.sha256(content).hexdigest()}  {name}\n'.encode()
     payload={'tag_name':tag,'draft':False,'prerelease':False,'assets':[{'name':n,'browser_download_url':f'{updater.DOWNLOAD_PREFIX}{tag}/{n}'} for n in (name,name+'.sha256')]}
     fetch=setup(monkeypatch,tmp_path,payload);monkeypatch.setenv('RELEASE_TAG',tag)

@@ -46,5 +46,5 @@ def test_update_and_rollback_keep_secrets_and_agent_state():
 
 
 def test_installer_enables_the_auto_update_agent():
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert 'scripts/auto-update.sh" install' in installer

@@ -1,6 +1,6 @@
 # Що нового у v28.41.0
 
-Ще дві каси для карток і СБП: **AuraPay** і **Anore** (`backend/app/payments_extra.py`). Head міграцій магазину — `0081_subscription_proxy`, застосунки — 3.4.0.
+Ще дві каси для карток і СБП: **AuraPay** і **Anore** (`services/backend/app/payments_extra.py`). Head міграцій магазину — `0081_subscription_proxy`, застосунки — 3.4.0.
 
 - Каса стає в чергу кас і у вибір способу оплати, щойно задано її ключі в налаштуваннях без перезапуску або в `.env`:
   - AuraPay: `AURAPAY_SHOP_ID`, `AURAPAY_API_KEY`, `AURAPAY_SECRET_KEY`;

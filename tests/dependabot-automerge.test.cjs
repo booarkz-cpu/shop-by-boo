@@ -6,7 +6,7 @@ const message = (...types) => `build(deps): bump x\n\n---\nupdated-dependencies:
   `- dependency-name: dep${i}\n  dependency-version: 1.0.${i}\n  dependency-type: direct:production\n  update-type: ${t}\n`).join('')}...\n\nSigned-off-by: dependabot[bot] <support@github.com>`;
 const green = [{name: 'Backend', status: 'completed', conclusion: 'success'}, {name: 'Docker', status: 'completed', conclusion: 'success'},
   {name: 'Merge green patch update', status: 'in_progress', conclusion: null}];
-const base = {author: 'dependabot[bot]', headRef: 'dependabot/pip/backend/x-1.0.1', checkRuns: green, ownRunName: 'Merge green patch update'};
+const base = {author: 'dependabot[bot]', headRef: 'dependabot/pip/services/backend/x-1.0.1', checkRuns: green, ownRunName: 'Merge green patch update'};
 
 assert.deepEqual(updateTypes(message('version-update:semver-patch', 'version-update:semver-minor')),
   ['version-update:semver-patch', 'version-update:semver-minor']);

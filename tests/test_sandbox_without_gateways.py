@@ -78,7 +78,7 @@ def test_sandbox_test_stack_files():
     assert "APP_ENV=development" in (ROOT / ".env.test.example").read_text()
     compose = (ROOT / "docker-compose.test.yml").read_text()
     opener = (ROOT / "scripts/open-ports.sh").read_text()
-    installer = (ROOT / "deploy/install-vps.sh").read_text()
+    installer = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     assert '"127.0.0.1:18080:8000"' in compose
     assert '"127.0.0.1:18081:80"' in compose
     assert "--env-file .env.test" in (ROOT / "scripts/test-up.sh").read_text()

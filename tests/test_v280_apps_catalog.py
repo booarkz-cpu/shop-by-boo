@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from backend.app.mobile_catalog import card_from_input, parse_catalog, public_cards, safe_media_path
+from app.mobile_catalog import card_from_input, parse_catalog, public_cards, safe_media_path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -26,10 +26,10 @@ def test_app_catalog_hides_admin_cards_and_rejects_unsafe_values():
 
 
 def test_admin_and_cabinet_expose_app_catalog():
-    admin = (ROOT / "admin/src/main.tsx").read_text()
-    cabinet = (ROOT / "cabinet/src/main.tsx").read_text()
-    user_android = (ROOT / "mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
-    admin_android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/main.tsx").read_text()
+    user_android = (ROOT / "apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
+    admin_android = (ROOT / "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
     from app_contract import missing_routes
     assert not missing_routes("GET /api/admin/apps", "GET /api/public/apps", "POST /api/admin/apps/logo")
     assert "/api/admin/apps" in admin and "Приложения" in admin and "client-logo" not in admin
@@ -37,8 +37,8 @@ def test_admin_and_cabinet_expose_app_catalog():
     assert "/api/public/apps" in cabinet and "Приложения" in cabinet
     assert "/api/public/apps" in user_android and "safeMediaPath" in user_android
     assert "/api/admin/apps" in admin_android and "safeMediaPath" in admin_android
-    assert "safeMediaPath" in (ROOT / "mobile/ios-user/VpnShopUser/VpnShopUserApp.swift").read_text()
-    assert "/api/admin/apps" in (ROOT / "mobile/ios-admin/VpnShopAdmin/ContentView.swift").read_text()
+    assert "safeMediaPath" in (ROOT / "apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift").read_text()
+    assert "/api/admin/apps" in (ROOT / "apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift").read_text()
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_8_0.md").read_text()
     assert "2.8.0" in notes and "логотип" in notes.lower()
     assert "9.7" in (ROOT / "docs/archive/INSTRUCTION_BEFORE_ALPHA_6.md").read_text()

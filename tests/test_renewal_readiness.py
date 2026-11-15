@@ -70,7 +70,7 @@ async def test_postgres_new_migrations_preserve_existing_users_and_protect_snaps
     from alembic.operations import Operations
     modules=[]
     for file in ('0049_renewal_terms.py','0050_account_actions.py'):
-        spec=importlib.util.spec_from_file_location(file[:-3],Path('backend/alembic/versions')/file)
+        spec=importlib.util.spec_from_file_location(file[:-3],Path('services/backend/alembic/versions')/file)
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);modules.append(module)
     conn=await database.connection()
     def cycle(sync):

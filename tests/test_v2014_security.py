@@ -11,7 +11,7 @@ from starlette.requests import Request
 
 @pytest.fixture
 def modules(monkeypatch):
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'backend'))
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'services' / 'backend'))
     return NS(**{name: importlib.import_module('app.' + name) for name in
                  ('config','runtime_security','mobile_auth','payments','restore_approval','main')})
 

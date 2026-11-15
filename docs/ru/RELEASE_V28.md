@@ -29,7 +29,7 @@
 ```bash
 git clone --branch v28 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 Для обновления существующей установки используйте [регламент обновления](WORKSPACE_UPGRADE.md), а не повторную установку.

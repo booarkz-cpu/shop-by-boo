@@ -1,6 +1,6 @@
 # Ограничения релиза
 
-Дистрибутив `v28.149.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Документ существует, чтобы продукт не считался полностью проверенным там, где проверки не было.
 Каждое ограничение имеет статус и указание, что нужно для его снятия.
@@ -54,27 +54,27 @@ lint, shell-синтаксис, компиляция, 2507 backend-тестов,
 | Ссылок на магазины приложений нет | В коде и документации их нет |
 | Desktop-приложения отсутствуют | `desktop/{linux,macos,windows}` содержат только `README.md` |
 | `browser-extension` и `corgi-cli` минимальны | `manifest.json` + `service-worker.js`; `README.md` |
-| Локализация кабинета: `ru` и `en` | `Lang = "ru" | "en"` в `cabinet/src/i18n.tsx`; украинский для кабинета не заявлен |
-| Мобильная локализация: `mobile/l10n/{admin,user}.json` | Отдельный набор, не общий с вебом |
+| Локализация кабинета: `ru` и `en` | `Lang = "ru" | "en"` в `apps/user-cabinet/src/i18n.tsx`; украинский для кабинета не заявлен |
+| Мобильная локализация: `packages/localization/{admin,user}.json` | Отдельный набор, не общий с вебом |
 | Тест платежей требует переменных как в CI | Без `PAYMENTS_SANDBOX=true` и `APP_ENV=test` один тест падает |
 
-## 3а. Подтверждённые результаты публикации `v28.149.0`
+## 3а. Подтверждённые результаты публикации `v28.158.0`
 
 Релиз не просто объявлен — проверено его фактическое содержимое 2026-11-01.
 
 | Что проверено | Результат |
 | --- | --- |
-| Тег `v28.149.0` существует | **PASS** — `GET /git/ref/tags/v28.149.0` → `200`, указывает на коммит `18afbcd1669e9fe5d8273565c351ce49fd2336e2` |
+| Тег `v28.158.0` существует | **PASS** — `GET /git/ref/tags/v28.158.0` → `200`, указывает на коммит `18afbcd1669e9fe5d8273565c351ce49fd2336e2` |
 | Релиз опубликован | **PASS** — `draft: false`, `prerelease: false`, `2026-10-31T23:42:20Z` |
 | Ассетов в релизе | **PASS** — 19 файлов: дистрибутив, `.sha256`, `_manifest.json` и по паре APK/AAB/IPA/симулятор для клиентского и админского приложений |
 | `sha256sum -c` на скачанном архиве | **PASS** — `OK` |
-| Манифест привязан к коммиту релиза | **PASS** — `commit = 18afbcd…`, `distribution_tag = v28.149.0`, `version = 21.5.1` |
+| Манифест привязан к коммиту релиза | **PASS** — `commit = 18afbcd…`, `distribution_tag = v28.158.0`, `version = 21.5.1` |
 | В архиве нет `.env` | **PASS** — только `.env.example`; секреты не публикуются |
-| `install.sh` с адреса тега | **PASS** — `raw.githubusercontent.com/.../v28.149.0/install.sh` → `200` |
+| `install.sh` с адреса тега | **PASS** — `raw.githubusercontent.com/.../v28.158.0/install.sh` → `200` |
 | Прогон `publish-release.yml` | **PASS** — шаги «Package deterministic distribution» и «Publish verified files» выполнены, run `41253605668` |
 | CI и Docker на коммите релиза | **PASS** — оба зелёные на `18afbcd` |
 
-Ссылка: https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.149.0
+Ссылка: https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.158.0
 
 ### История блокировки публикации
 
@@ -97,7 +97,7 @@ lint, shell-синтаксис, компиляция, 2507 backend-тестов,
 | --- | --- | --- |
 | Заглушка версии в админке | `Текущая версия: <b>корпоративный контур</b>` | `{git?.current_tag || git?.current || '—'}` |
 
-Файл: `admin/src/main.tsx`. Проверено: typecheck (оба tsconfig) чист, профильные тесты — 31 passed.
+Файл: `apps/lucy-admin/web/src/main.tsx`. Проверено: typecheck (оба tsconfig) чист, профильные тесты — 31 passed.
 
 ## 5. Исторические симптомы: перепроверены, не воспроизводятся
 
@@ -108,7 +108,7 @@ lint, shell-синтаксис, компиляция, 2507 backend-тестов,
 | Чёрные страницы админки | Не воспроизводятся: `next build` успешен, 3/3 страниц |
 | Чёрные страницы кабинета | Не воспроизводятся: `next build` успешен, 3/3 страниц |
 | Недоступность модулей | Не воспроизводится: 370 маршрутов в приложении |
-| Ошибка установщика «около строки 427» | `install.sh` — 77 строк; реальный установщик `deploy/install-vps.sh` проходит `bash -n` |
+| Ошибка установщика «около строки 427» | `install.sh` — 77 строк; реальный установщик `infrastructure/deployment/install-vps.sh` проходит `bash -n` |
 | `AsyncSessionLocal` vs `SessionLocal` | Не дефект: `db.py` объявляет `SessionLocal = async_sessionmaker(...)`; `AsyncSessionLocal` не существует и не импортируется |
 | Ошибки Docker Compose | YAML валиден (17/7/3/9 сервисов); запуск не проверен — нет Docker |
 | Ошибки миграций | Не воспроизводятся: один head, 88 миграций |

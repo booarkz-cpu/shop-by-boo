@@ -1,12 +1,12 @@
 import ast, pathlib, re, yaml
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-MAIN=ROOT/'backend/app/main.py'
+MAIN=ROOT/'services/backend/app/main.py'
 COMPOSE=ROOT/'docker-compose.yml'
 
 def read(p): return p.read_text(encoding='utf-8')
 
 def test_python_compiles():
-    for p in (ROOT/'backend/app').glob('*.py'):
+    for p in (ROOT/'services/backend/app').glob('*.py'):
         ast.parse(read(p))
 
 def test_main_has_v19_features():
@@ -34,7 +34,7 @@ def test_models():
         assert column in models.User.__table__.columns, column
 
 def test_migration_chain():
-    files=sorted((ROOT/'backend/alembic/versions').glob('*.py'))
+    files=sorted((ROOT/'services/backend/alembic/versions').glob('*.py'))
     revisions=[]; downs=[]
     for p in files:
         s=read(p); m=re.search(r'revision\s*=\s*["\']([^"\']+)',s); d=re.search(r'down_revision\s*=\s*["\']([^"\']+)',s)

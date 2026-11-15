@@ -1,6 +1,6 @@
 # iOS: клиентское приложение и расширения
 
-Каталог `mobile/ios-user` (SwiftUI, iOS 16+). Bundle ID `shop.remnawave.user`. Инструкция владельцу — [модуль 16](../ru/modules/16-mobile-apps.md). Админ-приложение — `mobile/ios-admin`.
+Каталог `apps/vpn-shop/ios` (SwiftUI, iOS 16+). Bundle ID `shop.remnawave.user`. Инструкция владельцу — [модуль 16](../ru/modules/16-mobile-apps.md). Админ-приложение — `apps/lucy-admin/ios`.
 
 ## Цели проекта
 
@@ -79,7 +79,7 @@ flowchart TB
 `enable-extensions.py`:
 
 - добавляет фазу «Embed App Extensions» и зависимости целей;
-- для туннеля — `CORGI_TUNNEL = YES`, права Network Extension и App Group в `VpnShopUser.entitlements`, линковку фреймворков из `mobile/ios-user/Frameworks`;
+- для туннеля — `CORGI_TUNNEL = YES`, права Network Extension и App Group в `VpnShopUser.entitlements`, линковку фреймворков из `apps/vpn-shop/ios/Frameworks`;
 - для ручной подписи — `PROVISIONING_PROFILE_SPECIFIER` в каждой цели (профиль в командной строке применился бы ко всем целям);
 - повторный запуск ничего не меняет.
 

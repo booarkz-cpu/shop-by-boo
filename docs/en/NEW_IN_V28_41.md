@@ -1,6 +1,6 @@
 # What is new in v28.41.0
 
-Two more gateways for cards and SBP, **AuraPay** and **Anore**, in `backend/app/payments_extra.py`. The shop migration head stays at `0081_subscription_proxy`. The apps stay at 3.4.0.
+Two more gateways for cards and SBP, **AuraPay** and **Anore**, in `services/backend/app/payments_extra.py`. The shop migration head stays at `0081_subscription_proxy`. The apps stay at 3.4.0.
 
 - **Keys.** A gateway joins the gateway queue and the payment method routing once its keys are set in runtime settings or in `.env`:
   - `AURAPAY_SHOP_ID`, `AURAPAY_API_KEY`, `AURAPAY_SECRET_KEY`;

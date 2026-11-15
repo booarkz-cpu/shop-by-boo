@@ -45,7 +45,7 @@ curl -fsS http://127.0.0.1:18081/ >/dev/null
 
 # stdin stays open a few seconds: nc closes the connection at end of input, before a tunnelled answer arrives.
 probe() { adb shell "(printf 'GET / HTTP/1.0\r\n\r\n'; sleep 4) | toybox nc -w 6 198.18.0.42 80 2>/dev/null" | tr -d '\r' || true; }
-state() { adb shell "run-as $PKG cat shared_prefs/client_vpn.xml 2>/dev/null" | sed -n 's/.*name="state">\([a-z]*\)<.*/\1/p'; }
+state() { adb shell "run-as $PKG cat shared_prefs/client_vpn.xml 2>/dev/null" | sed -n 's/.*name="state">\([a-z_]*\)<.*/\1/p'; }
 
 adb install -r "$APK" >/dev/null
 adb shell appops set "$PKG" ACTIVATE_VPN allow
@@ -70,13 +70,28 @@ sleep 2
 if probe | grep -q corgi-tunnel-ok; then echo "FAIL: the page still answers after disconnecting" >&2; exit 1; fi
 echo "3/3 disconnected: no answer again"
 done
+# v1.10.0: «подключён» only after the tunnel answered. The check page of the app is pointed at an address nobody answers:
+# the state must not become «on» — it stays «checking» and turns into «no_answer» (a warning) after 15 seconds, while the
+# tunnel itself keeps working (the page behind it still answers) and is not dropped.
+echo "— a silent server: a warning, the VPN stays"
+cp sub/links.txt sub/index.html
+adb shell "am start -W -n $PKG/shop.corgi.client.ui.MainActivity --es client_test_settings '{\"pingUrl\":\"https://198.18.0.43/\"}' --es client_test_import http://10.0.2.2:18081/ --ez client_test_connect true" >/dev/null
+seen=""; for i in $(seq 1 40); do s="$(state)"; case "$s" in on) echo "FAIL: «on» although the check page never answered" >&2; exit 1;; checking) seen=1;; no_answer) break;; esac; sleep 2; done
+[ "$(state)" = no_answer ] || { echo "FAIL: no warning for a silent server (state: $(state))" >&2; adb shell "run-as $PKG cat files/logs/app.log" >&2 || true; exit 1; }
+[ -n "$seen" ] || echo "note: «checking» was not caught between the polls"
+ok=""; for i in $(seq 1 10); do if probe | grep -q corgi-tunnel-ok; then ok=1; break; fi; sleep 2; done
+[ -n "$ok" ] || { echo "FAIL: the tunnel was dropped while the warning is shown" >&2; exit 1; }
+echo "a silent server: the state is «no_answer», the tunnel still carries traffic"
+adb shell am start -W -n "$PKG/shop.corgi.client.ui.MainActivity" --ez client_test_stop true >/dev/null
+for i in $(seq 1 15); do [ "$(state)" = off ] && break; sleep 2; done
+[ "$(state)" = off ] || { echo "FAIL: the VPN did not disconnect after the warning" >&2; exit 1; }
 # v1.3.0: «только прокси» — no VPN interface; SOCKS5 and HTTP on the device with a login and password. The host reaches
 # them through adb forward: with the password the check page answers through the server, without it the proxy refuses,
 # and the device itself (no tunnel) still cannot reach the page.
 echo "— proxy only (SOCKS5 / HTTP with a password)"
 cp sub/links.txt sub/index.html
 # One string for the device's shell, the JSON in single quotes there: unquoted, its shell would brace-expand «{a,b}».
-SETTINGS='{"tunnelMode":"proxy","proxyAuth":true,"httpAuth":true,"proxyUser":"ci","proxyPass":"cisecret","socksPort":10808,"httpPort":10809}'
+SETTINGS='{"pingUrl":"https://www.gstatic.com/generate_204","tunnelMode":"proxy","proxyAuth":true,"httpAuth":true,"proxyUser":"ci","proxyPass":"cisecret","socksPort":10808,"httpPort":10809}'
 adb shell "am start -W -n $PKG/shop.corgi.client.ui.MainActivity --es client_test_settings '$SETTINGS' --es client_test_import http://10.0.2.2:18081/ --ez client_test_connect true" >/dev/null
 for i in $(seq 1 30); do [ "$(state)" = on ] && break; sleep 2; done
 [ "$(state)" = on ] || { echo "FAIL: proxy mode did not start (state: $(state))" >&2; adb shell "run-as $PKG cat shared_prefs/client_vpn.xml" >&2 || true

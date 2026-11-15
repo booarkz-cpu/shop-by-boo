@@ -1,7 +1,7 @@
 # Архитектура проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.149.0`, runtime/API `21.5.1`, миграция `0094_store_subscriptions`.
-Схема построена по фактическому коду (`backend/app`, `docker-compose.yml`, таблица маршрутов),
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция `0094_store_subscriptions`.
+Схема построена по фактическому коду (`services/backend/app`, `docker-compose.yml`, таблица маршрутов),
 а не по проектным описаниям.
 
 ## 1. Общая схема
@@ -98,20 +98,20 @@ flowchart TD
 
 | Компонент | Что делает | Где живёт |
 | --- | --- | --- |
-| Telegram-бот | вход, покупка, продление, поддержка, уведомления; меню и баннеры настраиваются в админке | `backend/app/bot.py` (860 строк) |
+| Telegram-бот | вход, покупка, продление, поддержка, уведомления; меню и баннеры настраиваются в админке | `services/backend/app/bot.py` (860 строк) |
 | Mini App | тот же кабинет внутри Telegram; вход по подписанному `initData` | сборка `cabinet`, отдаётся через `miniapp` |
-| Личный кабинет | подписки, устройства, платежи, поддержка, рефералы | `cabinet/` (52 компонента) |
-| Android / iOS user | встроенный VPN на Android (Xray-core), импорт подписки, push | `mobile/android-user`, `mobile/ios-user` |
-| Android / iOS admin | админка в телефоне | `mobile/android-admin`, `mobile/ios-admin` |
-| Админ-панель | 60 компонентов, 458 маршрутов API | `admin/` |
+| Личный кабинет | подписки, устройства, платежи, поддержка, рефералы | `apps/user-cabinet/` (52 компонента) |
+| Android / iOS user | встроенный VPN на Android (Xray-core), импорт подписки, push | `apps/vpn-shop/android`, `mobile/ios-user` |
+| Android / iOS admin | админка в телефоне | `apps/lucy-admin/android`, `mobile/ios-admin` |
+| Админ-панель | 60 компонентов, 458 маршрутов API | `apps/lucy-admin/web/` |
 
 ### Ядро
 
 | Компонент | Роль | Ключевые файлы |
 | --- | --- | --- |
 | FastAPI backend | REST API, webhook, авторизация, RBAC | `main.py`, `security.py`, 173 модуля |
-| Worker | выдача и продление доступа, планировщики, ретраи | `backend/worker.py`, `schedulers.py` |
-| Support Pro | тикеты, переписка, автоответы, база знаний; отдельные БД и Redis | `support-pro/` (93 файла) |
+| Worker | выдача и продление доступа, планировщики, ретраи | `services/backend/worker.py`, `schedulers.py` |
+| Support Pro | тикеты, переписка, автоответы, база знаний; отдельные БД и Redis | `services/support-pro/` (93 файла) |
 | mail_receiver | приём почты служебных адресов (DMARC, обращения) | профиль `mail` |
 
 ### Данные

@@ -1,6 +1,6 @@
 # Проверка сервера перед установкой (preflight)
 
-Preflight — первый шаг каждой установки и кнопка «Проверить» в реестре серверов. Скрипт `PREFLIGHT` в `backend/app/rw_steps.py` только читает и ничего не меняет. Вывод — строки `ключ=значение`, разбирает их `parse_facts`, решение принимает `evaluate`. Мастер — [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md).
+Preflight — первый шаг каждой установки и кнопка «Проверить» в реестре серверов. Скрипт `PREFLIGHT` в `services/backend/app/rw_steps.py` только читает и ничего не меняет. Вывод — строки `ключ=значение`, разбирает их `parse_facts`, решение принимает `evaluate`. Мастер — [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md).
 
 ## 1. Подключение
 

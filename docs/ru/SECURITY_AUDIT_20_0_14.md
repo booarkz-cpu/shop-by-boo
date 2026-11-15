@@ -14,7 +14,7 @@
 | 8 | Доверие всем private IP | Приложение доверяет только `TRUSTED_PROXY_CIDRS`. Uvicorn не переписывает peer из headers. Caddy и backend соединяются отдельной ingress-сетью с закреплёнными IP; Compose доверяет только IP Caddy `/32`. |
 | 9 | Разные механизмы Platega | Класс и endpoint используют официальный `X-MerchantId` + `X-Secret`, constant-time comparison, fail-closed, повторную проверку состояния/суммы/валюты/order через API и дедупликацию. Выдуманный HMAC или timestamp не добавлен: провайдер их не присылает. |
 | 10 | Stripe/PayPal без event dedupe | После аутентификации требуется ID события. Атомарный claim в PostgreSQL предшествует бизнес-действиям; завершённые события пропускаются, неуспешные допускают повтор. Есть конкурентный тест claim. |
-| 11 | Runtime `exec(compile(parts))` | `backend/app/main.py` — обычный полный исходный модуль. Фрагменты `main_src` удалены. Python компилируется непосредственно в CI; дополнительная сборка не нужна. |
+| 11 | Runtime `exec(compile(parts))` | `services/backend/app/main.py` — обычный полный исходный модуль. Фрагменты `main_src` удалены. Python компилируется непосредственно в CI; дополнительная сборка не нужна. |
 | 12 | SSO token в URL | Слабый/default SSO secret отклоняется. POST form вместо query string; TTL ≤60 секунд, одноразовое поглощение Redis, `Referrer-Policy: no-referrer`. Дополнительно устранено повышение всех ролей до admin: роль сохраняется, конфликт с существующей локальной ролью отклоняется. |
 | 13 | Root runtime | Backend/bot/Support уже имели непривилегированного пользователя. Теперь frontend nginx и Caddy тоже запускаются с явным UID, без capabilities. Standalone Support nginx/backup также непривилегированные. См. исключения и миграцию volumes ниже. |
 | 14 | HTML из CMS | Cabinet выводит `body` как React text с сохранением переносов строк. `dangerouslySetInnerHTML` для CMS удалён; HTML отображается текстом. |
@@ -40,7 +40,7 @@ PKCE связывает ответ входа с verifier конкретной �
 
 ```bash
 APP_ENV=test python -m pytest -q tests
-(cd support-pro && python -m pytest -q tests)
+(cd services/support-pro && python -m pytest -q tests)
 for app in admin cabinet miniapp; do (cd "$app" && npm ci && npm run typecheck && npm run build); done
 ```
 

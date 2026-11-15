@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "miniapp",
+  "description": "Telegram Mini App surface: the customer cabinet built with NEXT_PUBLIC_SURFACE=miniapp.",
+  "scripts": {
+    "build": "npm run build:miniapp --prefix ../user-cabinet",
+    "typecheck": "npm run typecheck --prefix ../user-cabinet"
+  }
+}

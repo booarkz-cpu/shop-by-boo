@@ -1,6 +1,6 @@
 # Оплата и чеки в налоговую
 
-Код: `backend/app/payments_api.py` (checkout, webhook, выдача, возвраты), `main.py` (кошелёк, `_return_url`, статус заказа), `subscription_commerce.py` (смена тарифа и докупки), `fiscal.py` (чеки), `app_login.py` (возврат в приложение). Инструкции владельцу — [модуль 7](../ru/modules/07-payments.md). Тесты: `tests/test_behaviour_payments*.py`, `tests/test_fiscal.py`, `tests/test_integration_billing_vpn.py`.
+Код: `services/backend/app/payments_api.py` (checkout, webhook, выдача, возвраты), `main.py` (кошелёк, `_return_url`, статус заказа), `subscription_commerce.py` (смена тарифа и докупки), `fiscal.py` (чеки), `app_login.py` (возврат в приложение). Инструкции владельцу — [модуль 7](../ru/modules/07-payments.md). Тесты: `tests/test_behaviour_payments*.py`, `tests/test_fiscal.py`, `tests/test_integration_billing_vpn.py`.
 
 ## Платёж от заказа до выдачи
 
@@ -163,7 +163,7 @@ sequenceDiagram
 
 ## Tribute: пополнение кошелька донатом в Telegram (v28.44)
 
-Tribute принимает донаты внутри Telegram, а не оплату счёта на сумму заказа. Поэтому Tribute не входит в очередь касс, а только пополняет кошелёк (`backend/app/tribute.py`); с баланса клиент покупает тарифы как обычно.
+Tribute принимает донаты внутри Telegram, а не оплату счёта на сумму заказа. Поэтому Tribute не входит в очередь касс, а только пополняет кошелёк (`services/backend/app/tribute.py`); с баланса клиент покупает тарифы как обычно.
 
 1. Владелец создаёт в Tribute донат-ссылку и задаёт в «Настройках без перезапуска» `TRIBUTE_DONATE_LINK` и `TRIBUTE_API_KEY`.
 2. В кошельке кабинета и Mini App появляется кнопка «Пополнить донатом в Telegram», в команде бота `/balance` — кнопка Tribute. Ссылку также отдаёт `GET /api/me/wallet/tribute` для бота и приложений.
