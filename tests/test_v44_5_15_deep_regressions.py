@@ -1,8 +1,8 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MODELS = (ROOT / "backend/app/models.py").read_text()
-MIGRATIONS = ROOT / "backend/alembic/versions"
+MODELS = (ROOT / "services/backend/app/models.py").read_text()
+MIGRATIONS = ROOT / "services/backend/alembic/versions"
 
 
 # test_privacy_delete_blocks_indefinite_subscription_and_revokes_remote_access: replaced by the behaviour test

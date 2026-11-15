@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from backend.app.mobile_catalog import card_from_input, parse_catalog, public_cards, safe_media_path
+from app.mobile_catalog import card_from_input, parse_catalog, public_cards, safe_media_path
 
 ROOT = Path(__file__).resolve().parents[1]
 

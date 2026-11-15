@@ -10,7 +10,7 @@ import java.util.UUID
 import kotlin.concurrent.thread
 
 /**
- * Anonymous app statistics («Приложения: аналитика», backend/app/app_growth.py).
+ * Anonymous app statistics («Приложения: аналитика», services/backend/app/app_growth.py).
  *
  * A random installation id (never the device id), the platform, the app version, the event and
  * the screen. Events wait in memory and leave in batches; nothing is sent when the shop switched

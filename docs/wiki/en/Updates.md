@@ -11,7 +11,7 @@ is only the source of verified releases and has no access to the server filesyst
 | --- | --- | --- |
 | Host (root, systemd) | nightly timer and agent | `scripts/auto_update.py`, `scripts/auto-update.sh` |
 | Host | fetch and verify the release (SHA-256, manifest) | `scripts/update-from-github.sh` |
-| Backend | only writes a request and reads state | `backend/app/auto_update_api.py` |
+| Backend | only writes a request and reads state | `services/backend/app/auto_update_api.py` |
 | Panel | buttons and status | "Updates" section |
 
 The exchange goes through two JSON files in `.control`: the panel writes a request, the agent writes state. The
@@ -61,7 +61,7 @@ If a safe rollback is impossible, the update stops, diagnostics are preserved an
 
 ```bash
 bash scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.157.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.158.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 ## What the "Updates" section shows

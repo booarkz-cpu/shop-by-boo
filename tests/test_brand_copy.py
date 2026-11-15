@@ -35,7 +35,7 @@ def test_every_language_has_every_text():
 
 def test_the_english_name_is_one_everywhere():
     assert bot_texts.DEFAULTS["shop_name"][2] == brand_copy.NAME["en"] == "Corgi Lusi"
-    for path in (ROOT / "backend/app").glob("*.py"):
+    for path in (ROOT / "services/backend/app").glob("*.py"):
         assert "Corgi Lucy" not in path.read_text(encoding="utf-8"), path.name
 
 

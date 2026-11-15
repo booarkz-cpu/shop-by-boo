@@ -13,7 +13,7 @@ for lang in ('ru','en','uk'):
 for p in [ROOT/'apps/vpn-shop/android/app/src/main/AndroidManifest.xml', ROOT/'apps/lucy-admin/android/app/src/main/AndroidManifest.xml', ROOT/'apps/vpn-shop/ios/VpnShopUser/Info.plist', ROOT/'apps/lucy-admin/ios/VpnShopAdmin/Info.plist']:
     try: ET.parse(p); ok(f'XML {p.name}', True)
     except Exception: ok(f'XML {p.name}', False)
-ok('production api', (ROOT/'backend/app/production_api.py').exists())
+ok('production api', (ROOT/'services/backend/app/production_api.py').exists())
 ok('android vpn service', (ROOT/'apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/vpn/CorgiVpnService.kt').exists())
 ok('ios packet tunnel provider', (ROOT/'apps/vpn-shop/ios/VpnShopUser/VPN/CorgiPacketTunnelProvider.swift').exists())
 ok('browser extension', (ROOT/'browser-extension/manifest.json').exists())

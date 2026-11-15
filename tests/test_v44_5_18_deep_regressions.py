@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REQ = (ROOT / "backend/requirements.txt").read_text()
+REQ = (ROOT / "services/backend/requirements.txt").read_text()
 BUILD = (ROOT / "scripts/build-release.sh").read_text()
 
 

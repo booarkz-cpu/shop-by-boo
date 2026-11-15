@@ -11,7 +11,7 @@ import pytest
 
 @pytest.fixture
 def platform(monkeypatch):
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "backend"))
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "services" / "backend"))
     return importlib.import_module("app.payment_platform")
 
 

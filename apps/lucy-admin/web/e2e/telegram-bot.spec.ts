@@ -21,7 +21,7 @@ test('without a token the section says how to connect the bot', async ({page}) =
   await expect(page.locator('[data-bot-commands]').getByRole('button', {name: 'Сохранить и применить'})).toBeDisabled();
 
   // v28.72.0: the bot's texts are saved by the real backend (no token is needed for them).
-  // The default is the brand text since v28.132.0 (backend/app/brand_copy.py, owner's decision 4).
+  // The default is the brand text since v28.132.0 (services/backend/app/brand_copy.py, owner's decision 4).
   const WELCOME_EN = 'Welcome to {name} — free internet without the extra woof!\nYour internet. Your rules. Your Lusi.';
   const texts = page.locator('[data-bot-texts]');
   await texts.getByLabel('Язык', {exact: true}).selectOption('en');

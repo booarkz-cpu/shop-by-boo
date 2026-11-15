@@ -6,7 +6,7 @@ name: Load and security baseline
 # missing here, so ZAP may report them (Medium) for the cabinet; High alerts fail the scan step.
 on:
   pull_request:
-    paths: ['backend/**', 'tests/load/**', '.zap/**', 'docker-compose.test.yml', '.github/workflows/load-security.yml']
+    paths: ['services/backend/**', 'tests/load/**', '.zap/**', 'docker-compose.test.yml', '.github/workflows/load-security.yml']
   push:
     branches: [main]
   schedule:

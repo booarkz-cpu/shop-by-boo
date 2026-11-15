@@ -12,7 +12,7 @@ def test_live_version_is_20_0_5():
 def test_reconciliation_uses_the_lookup_not_a_new_payment():
     # The admin reconciliation: behaviour in tests/test_behaviour_payments_v2.py (BACKLOG A1). The background scheduler is an
     # endless loop, so here only that it calls the same lookup and never create().
-    scheduler = (ROOT / "backend/app/schedulers.py").read_text()
+    scheduler = (ROOT / "services/backend/app/schedulers.py").read_text()
     assert scheduler.count("find_by_order_id(p.order_id, p.created_at)") == 1
     assert "provider.create(" not in scheduler
 

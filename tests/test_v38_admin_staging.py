@@ -58,6 +58,6 @@ def test_admin_ui_has_russian_staging_and_telegram_controls():
 
 
 def test_staging_isolation_and_runner_are_safe():
-    docker=(ROOT/'backend/Dockerfile').read_text(); sh=(ROOT/'scripts/staging-e2e.sh').read_text()
+    docker=(ROOT/'services/backend/Dockerfile').read_text(); sh=(ROOT/'scripts/staging-e2e.sh').read_text()
     assert 'COPY scripts/staging-e2e.sh ./staging-e2e.sh' in docker
     assert '/api/internal/staging-e2e/payment' in sh and 'STAGING_RUNNER_TOKEN' in sh

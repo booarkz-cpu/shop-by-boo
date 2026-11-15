@@ -3,8 +3,8 @@
 
 The bot cannot be photographed without a live Telegram account, so this renders a faithful
 Telegram (dark theme, 390x844 phone) chat: the user's command, the bot's photo message with
-the section banner from backend/app/assets/bot_banners, its caption and inline buttons.
-Texts follow backend/app/bot.py and bot_workspace.py with demo values.
+the section banner from services/backend/app/assets/bot_banners, its caption and inline buttons.
+Texts follow services/backend/app/bot.py and bot_workspace.py with demo values.
 
     python3 scripts/screenshots/bot_chat.py [out-dir]   # default: docs/img
 """
@@ -14,7 +14,7 @@ import pathlib
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-BANNERS = ROOT / "backend/app/assets/bot_banners"
+BANNERS = ROOT / "services/backend/app/assets/bot_banners"
 sys.path.insert(0, str(ROOT / "scripts/bot-banners"))
 from render import sticker  # noqa: E402  the bot avatar is corgi Lusi from the sticker sheets
 OUT = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "docs/img"

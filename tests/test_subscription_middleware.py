@@ -387,10 +387,10 @@ async def test_subscription_keys_list(env, monkeypatch):
 
 def test_routers_and_main_stay_small():
     from pathlib import Path
-    routers = Path("backend/app/routers.py").read_text()
+    routers = Path("services/backend/app/routers.py").read_text()
     for name in ("sub_proxy", "client_versions", "panel_api_stats", "webhook_tee", "first_connect", "vpn_sessions", "panel_usage", "wg_pool"):
         assert f'"{name}"' in routers
-    assert len(Path("backend/app/main.py").read_text().splitlines()) < 1000
+    assert len(Path("services/backend/app/main.py").read_text().splitlines()) < 1000
     assert json.loads(json.dumps({"ok": True}))
 
 

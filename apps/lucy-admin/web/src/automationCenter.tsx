@@ -12,7 +12,7 @@ const HEALTH: Record<string, [Tone, string]> = {ok: ["ok", "Все систем�
 const when = (x: string | null) => (x ? new Date(/Z|[+-]\d\d:\d\d$/.test(x) ? x : x + "Z").toLocaleString("ru-RU") : "—");
 
 /** «Система → Automation Center» (v28.74.0, этап 15). Data: GET /api/admin/automation-center
- *  (backend/app/automation_center.py): every automatic process with its state, schedule and last run, plus the
+ *  (services/backend/app/automation_center.py): every automatic process with its state, schedule and last run, plus the
  *  summary of «Состояние системы». Buttons open the section where the process is configured. */
 export function AutomationCenter({d, navigate, reload}: {d: any; navigate: (tab: string) => void; reload: () => void}) {
   const items: any[] = d?.processes || [];

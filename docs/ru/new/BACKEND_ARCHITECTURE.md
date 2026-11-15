@@ -1,6 +1,6 @@
 # Устройство backend
 
-Один процесс FastAPI (`backend/app/main.py`, сервис `backend` и резерв `backend_standby`), фоновый `worker` (`backend/worker.py`) и бот (`backend/app/bot.py`, aiogram) работают на одном коде, одной базе PostgreSQL и одном Redis. Support Pro — отдельное приложение со своей базой (`support-pro/`), с магазином связано мостом `shop_bridge`. Правила API — [API.md](API.md), таблицы — [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
+Один процесс FastAPI (`services/backend/app/main.py`, сервис `backend` и резерв `backend_standby`), фоновый `worker` (`services/backend/worker.py`) и бот (`services/backend/app/bot.py`, aiogram) работают на одном коде, одной базе PostgreSQL и одном Redis. Support Pro — отдельное приложение со своей базой (`services/support-pro/`), с магазином связано мостом `shop_bridge`. Правила API — [API.md](API.md), таблицы — [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
 
 ## Клиенты и общий код
 

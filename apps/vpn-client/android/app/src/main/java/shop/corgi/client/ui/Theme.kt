@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.Density
 import shop.corgi.client.core.Settings
 
 /**
- * The «Корги Люси» brand: the same palette as the shop's apps (backend/app/mobile_layout.py defaults — corgi orange
+ * The «Корги Люси» brand: the same palette as the shop's apps (services/backend/app/mobile_layout.py defaults — corgi orange
  * #FF8A1F, warm #FFC069 on a night background). «Корги» is the brand's dark theme; light and plain dark keep the accent.
  */
 object Brand {

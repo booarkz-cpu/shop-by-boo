@@ -1,14 +1,14 @@
 # Технологический стек
 
-Версии взяты из `backend/requirements.txt`, `*/package.json`, `Dockerfile` и `docker-compose.yml`
-на выпуске v28.157.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
+Версии взяты из `services/backend/requirements.txt`, `*/package.json`, `Dockerfile` и `docker-compose.yml`
+на выпуске v28.158.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
 файлу.
 
 ## Backend
 
 | Компонент | Версия | Файл | Назначение |
 | --- | --- | --- | --- |
-| Python | 3.14-slim (pinned digest) | `backend/Dockerfile` | язык исполнения |
+| Python | 3.14-slim (pinned digest) | `services/backend/Dockerfile` | язык исполнения |
 | FastAPI | 0.162.0 | `requirements.txt` | REST API, зависимости, OpenAPI |
 | Starlette | 1.10.0 | `requirements.txt` | ASGI-основа FastAPI |
 | Uvicorn | 0.54.0 (`[standard]`) | `requirements.txt` | ASGI-сервер |

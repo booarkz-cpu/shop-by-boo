@@ -71,4 +71,4 @@ def test_release_signature_verifier_exists():
     assert 'DEFAULT_MANIFEST' in text and '_manifest.json' in text
 
 def test_v30_migration_exists():
-    assert (ROOT/"backend/alembic/versions/0014_v30_final_hardening.py").exists()
+    assert (ROOT/"services/backend/alembic/versions/0014_v30_final_hardening.py").exists()

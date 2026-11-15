@@ -1,6 +1,6 @@
 # Автоматизация GitHub и Claude Code
 
-Дистрибутив `v28.157.0`, runtime/API `21.5.1`.
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`.
 
 Как устроена автоматизация репозитория, какие права нужны, и что намеренно **не** автоматизировано.
 
@@ -100,7 +100,7 @@
 
 ```bash
 ruff check backend scripts tests
-cd backend && python -m compileall -q app worker.py && alembic heads
+cd services/backend && python -m compileall -q app worker.py && alembic heads
 python3 scripts/check-current-docs.py
 python3 scripts/check-runtime-placeholders.py
 python3 scripts/generate-project-map.py --check

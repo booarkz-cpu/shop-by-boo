@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.118.0: «Обновления» → «Вся экосистема». The backend is a stub shaped like backend/app/ecosystem_updates.py
+// v28.118.0: «Обновления» → «Вся экосистема». The backend is a stub shaped like services/backend/app/ecosystem_updates.py
 // (tests/test_ecosystem_updates.py checks how the rows are built).
 const row = (key: string, title: string, extra: any = {}) => ({key, title, installed: null, latest: null, state: 'unknown', auto: 'none', schedule: null, last_result: null, how: 'Как обновляется.', tab: 'releases', note: null, ...extra});
 

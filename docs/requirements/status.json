@@ -52,7 +52,7 @@
    "scripts/ci/restore-drill.sh",
    ".github/workflows/ci.yml"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-QA-0064": {
   "status": "PASS",
@@ -60,7 +60,7 @@
    "scripts/ci/restore-drill.sh",
    "scripts/backup.sh"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-GOV-0042": {
   "status": "PARTIAL",
@@ -86,18 +86,18 @@
  "REQ-QA-0004": {
   "status": "PASS",
   "evidence": [
-   "backend/app/db.py",
+   "services/backend/app/db.py",
    "docs/MASTER_EXECUTION_REPORTS.md"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-QA-0042": {
   "status": "PASS",
   "evidence": [
-   "backend/app/db.py",
+   "services/backend/app/db.py",
    "docs/MASTER_EXECUTION_REPORTS.md"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-QA-0005": {
   "status": "PARTIAL",
@@ -143,12 +143,12 @@
  "REQ-PAY-0002": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/payment_policy.py",
-   "backend/app/payment_methods.py",
-   "backend/app/gateway_ops.py",
-   "backend/app/payment_journal.py",
-   "backend/app/payment_fraud.py",
-   "backend/app/fiscal.py",
+   "services/backend/app/payment_policy.py",
+   "services/backend/app/payment_methods.py",
+   "services/backend/app/gateway_ops.py",
+   "services/backend/app/payment_journal.py",
+   "services/backend/app/payment_fraud.py",
+   "services/backend/app/fiscal.py",
    "tests/test_payment_failover_chain.py",
    "tests/test_payment_contract.py"
   ],
@@ -173,16 +173,16 @@
  "REQ-PAY-0005": {
   "status": "PASS",
   "evidence": [
-   "backend/app/payment_policy.py",
-   "backend/app/payment_methods.py",
-   "backend/app/payment_platform.py",
+   "services/backend/app/payment_policy.py",
+   "services/backend/app/payment_methods.py",
+   "services/backend/app/payment_platform.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ]
  },
  "REQ-PAY-0006": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "tests/test_payment_methods.py"
   ],
   "note": "Есть карта, СБП и криптовалюта. Отдельных способов «QR СБП», SberPay и YooMoney в коде нет."
@@ -190,61 +190,61 @@
  "REQ-PAY-0007": {
   "status": "PASS",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "tests/test_gateway_ops.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-PAY-0008": {
   "status": "PASS",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "tests/test_gateway_ops.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-PAY-0010": {
   "status": "PASS",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "tests/test_gateway_ops.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-PAY-0014": {
   "status": "PASS",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "tests/test_gateway_ops.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-PAY-0019": {
   "status": "PASS",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "tests/test_gateway_ops.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-PAY-0023": {
   "status": "PASS",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "tests/test_gateway_ops.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-PAY-0009": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
   "note": "Platega в коде принимает карту и СБП из постоянной таблицы. Список способов у самой кассы не запрашивается: нужны ключи (O7)."
@@ -252,7 +252,7 @@
  "REQ-PAY-0024": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
   "note": "Cashera в коде принимает карту и СБП из постоянной таблицы. Список способов у самой кассы не запрашивается: нужны ключи (O7)."
@@ -309,7 +309,7 @@
  "REQ-PAY-0012": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
   "note": "RollyPay: карта и СБП есть, криптовалюты через RollyPay в коде нет."
@@ -317,7 +317,7 @@
  "REQ-PAY-0016": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
   "note": "Antilopay: карта и СБП есть, SberPay в коде нет."
@@ -325,7 +325,7 @@
  "REQ-PAY-0021": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "docs/PAYMENT_PROVIDER_INVENTORY.md"
   ],
   "note": "Anore: карта и СБП есть, YooMoney и криптовалюты через Anore в коде нет."
@@ -372,7 +372,7 @@
    "tests/test_store_billing.py",
    "tests/test_behaviour_store_and_webhooks.py",
    "tests/test_tribute.py",
-   "backend/app/telegram_stars.py"
+   "services/backend/app/telegram_stars.py"
   ],
   "note": "Проверка покупок Apple и Google на сервере, продление и возврат проверены тестами с подменой магазинов. Tribute проверен тестом. Для Telegram Stars поведенческий тест pre-checkout и successful_payment ещё не найден. Вживую — нужны аккаунты магазинов и бот."
  },
@@ -406,7 +406,7 @@
    "tests/test_behaviour_webhooks_refunded.py",
    "tests/test_payment_contract.py"
   ],
-  "platforms": "backend/API"
+  "platforms": "services/backend/API"
  },
  "REQ-PAY-0037": {
   "status": "PARTIAL",
@@ -418,7 +418,7 @@
  "REQ-PAY-0044": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/payment_methods.py",
+   "services/backend/app/payment_methods.py",
    "tests/test_payment_methods.py",
    "tests/test_payment_failover_chain.py"
   ],
@@ -427,7 +427,7 @@
  "REQ-AUTO-0001": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx",
    "docs/AUTO_SELECTION.md"
@@ -437,7 +437,7 @@
  "REQ-AUTO-0002": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "docs/AUTO_SELECTION.md"
   ],
@@ -449,20 +449,20 @@
    "docs/AUTO_SELECTION.md",
    "apps/lucy-admin/web/src/autoselect.tsx"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0005": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0006": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_extensions.py",
+   "services/backend/app/rw_extensions.py",
    "docs/AUTO_SELECTION.md"
   ],
   "note": "Заготовка балансировщика по всему списку есть в «Расширения Remnawave → Готовые фрагменты»; владелец вставляет её в шаблон сам. Пул автовыбора старый режим не меняет. Теста на заготовку нет."
@@ -470,47 +470,47 @@
  "REQ-AUTO-0007": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0008": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0009": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0010": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0011": {
   "status": "PASS",
   "evidence": [
    "docs/AUTO_SELECTION.md",
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ]
  },
  "REQ-AUTO-0012": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx",
    "apps/lucy-admin/web/e2e/autoselect.spec.ts"
@@ -520,7 +520,7 @@
  "REQ-AUTO-0013": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx",
    "apps/lucy-admin/web/e2e/autoselect.spec.ts"
@@ -530,25 +530,25 @@
  "REQ-AUTO-0014": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0015": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0016": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "docs/AUTO_SELECTION.md"
   ],
@@ -581,14 +581,14 @@
   "evidence": [
    "apps/lucy-admin/web/src/autoselect.tsx",
    "apps/lucy-admin/web/e2e/autoselect.spec.ts",
-   "backend/app/rw_autoselect.py"
+   "services/backend/app/rw_autoselect.py"
   ],
   "note": "Есть «Убрать плитку», «Включить <алгоритм>», «Обновить пул». Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при «Обновить пул»."
  },
  "REQ-AUTO-0021": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx"
   ],
@@ -598,14 +598,14 @@
   "status": "PASS",
   "evidence": [
    "docs/AUTO_SELECTION.md",
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ]
  },
  "REQ-AUTO-0023": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx",
    "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
@@ -614,16 +614,16 @@
  "REQ-AUTO-0024": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/e2e/autoselect.spec.ts"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0025": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx",
    "apps/lucy-admin/web/e2e/autoselect.spec.ts"
@@ -649,7 +649,7 @@
  "REQ-AUTO-0028": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx"
   ],
@@ -658,40 +658,40 @@
  "REQ-AUTO-0029": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ]
  },
  "REQ-AUTO-0030": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0031": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0032": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "apps/lucy-admin/web/src/autoselect.tsx"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-AUTO-0033": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
    "docs/AUTO_SELECTION.md"
   ],
@@ -710,25 +710,25 @@
   "evidence": [
    "apps/lucy-admin/web/src/autoselect.tsx",
    "apps/lucy-admin/web/e2e/autoselect.spec.ts",
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0025": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
    "apps/lucy-admin/web/src/protocol-switch.tsx",
    "apps/lucy-admin/web/e2e/protocol-switch.spec.ts"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0026": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
    "apps/lucy-admin/web/src/protocol-switch.tsx",
    "docs/PROTOCOL_SWITCH.md"
@@ -741,52 +741,52 @@
    "apps/lucy-admin/web/src/protocol-switch.tsx",
    "apps/lucy-admin/web/e2e/protocol-switch.spec.ts"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0043": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0044": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0045": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0046": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0047": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0048": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
    "apps/lucy-admin/web/src/protocol-switch.tsx"
   ],
@@ -798,93 +798,93 @@
    "apps/lucy-admin/web/src/protocol-switch.tsx",
    "apps/lucy-admin/web/e2e/protocol-switch.spec.ts"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0050": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0051": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
    "apps/lucy-admin/web/src/protocol-switch.tsx"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0052": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
    "apps/lucy-admin/web/src/protocol-switch.tsx",
    "apps/lucy-admin/web/e2e/protocol-switch.spec.ts"
   ],
-  "platforms": "Web, backend/API"
+  "platforms": "Web, services/backend/API"
  },
  "REQ-NODE-0020": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/crowdsec-check.sh",
    "tests/test_rw_netmods.py",
    "docs/CROWDSEC.md"
   ],
   "note": "Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список, список блокировок и снятие ложной блокировки из панели, полное удаление — проверено настоящей установкой в CI. Нет: уведомлений о блокировках и сценариев для журналов веб-сервера.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0037": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/crowdsec-check.sh",
    "tests/test_rw_netmods.py",
    "docs/CROWDSEC.md"
   ],
   "note": "Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список, список блокировок и снятие ложной блокировки из панели, полное удаление — проверено настоящей установкой в CI. Нет: уведомлений о блокировках и сценариев для журналов веб-сервера.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0003": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "Каталог «Установка» восстановлен и проверен тестами и сценарием в браузере. Нет: AdGuard Home, каскада HAProxy, временного бана IP за торренты. CrowdSec — частично.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0006": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_extensions.py",
+   "services/backend/app/rw_extensions.py",
    "tests/test_rw_extensions.py"
   ],
   "note": "Каскад сделан мостом Shadowsocks между двумя нодами через API панели, не HAProxy. Цепочки из 2–3 нод и проверки каждого звена нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0060": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_extensions.py",
+   "services/backend/app/rw_extensions.py",
    "tests/test_rw_extensions.py"
   ],
   "note": "То же, что REQ-NODE-0006.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0009": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_extensions.py",
+   "services/backend/app/rw_extensions.py",
    "tests/test_rw_extensions.py"
   ],
   "note": "Есть правило geosite:category-ads-all первым в профиле для всех клиентов, выключение возвращает профиль. Нет: выбора нод, своих доменов, проверки DNS.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0010": {
   "status": "NOT_IMPLEMENTED",
@@ -894,175 +894,175 @@
  "REQ-NODE-0064": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_extensions.py",
+   "services/backend/app/rw_extensions.py",
    "tests/test_rw_extensions.py"
   ],
   "note": "Блокировка рекламы правилом Xray есть (REQ-NODE-0009). AdGuard Home нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0012": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/netmods-check.sh",
    "tests/test_rw_netmods.py"
   ],
   "note": "MTU пути до 1.1.1.1 и 77.88.8.8 измеряется, MSS рассчитывается и включается только при необходимости, сохраняется после перезагрузки, нода не перезапускается — проверено настоящим запуском в CI. Проверки соединений клиентов после включения нет; других контрольных адресов нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0066": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/netmods-check.sh",
    "tests/test_rw_netmods.py"
   ],
   "note": "MTU пути до 1.1.1.1 и 77.88.8.8 измеряется, MSS рассчитывается и включается только при необходимости, сохраняется после перезагрузки, нода не перезапускается — проверено настоящим запуском в CI. Проверки соединений клиентов после включения нет; других контрольных адресов нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0014": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_torrent_ban.py",
+   "services/backend/app/rw_torrent_ban.py",
    "tests/test_rw_torrent_ban.py",
    "apps/lucy-admin/web/e2e/torrent-ban.spec.ts",
-   "backend/app/torrent_detection.py",
+   "services/backend/app/torrent_detection.py",
    "tests/test_torrent_detection.py",
    "docs/TORRENT_BAN.md"
   ],
   "note": "Временный бан адреса с автоматическим снятием включается одной кнопкой в «Торренты на узлах»: это плагин Torrent Blocker ноды (nftables), срок, список исключений, выбор нод, журнал блокировок. Счётчики, уведомления и учёт нарушений есть. На настоящей ноде блокировка и её снятие не проверены: нет VPS.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0068": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_torrent_ban.py",
+   "services/backend/app/rw_torrent_ban.py",
    "tests/test_rw_torrent_ban.py",
    "apps/lucy-admin/web/e2e/torrent-ban.spec.ts",
-   "backend/app/torrent_detection.py",
+   "services/backend/app/torrent_detection.py",
    "tests/test_torrent_detection.py",
    "docs/TORRENT_BAN.md"
   ],
   "note": "То же, что REQ-NODE-0014.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0017": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_steps.py",
    "tests/test_rw_server_modules.py",
    "tests/live/test_node_modules_live.py"
   ],
   "note": "Перед включением BBR определяются виртуализация и ядро; на OpenVZ и LXC шаг пропускается с объяснением; результат проверяется, выключение возвращает прежнее — проверено на живой машине CI. Отдельной поддержки BBR3 нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0034": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_steps.py",
    "tests/test_rw_server_modules.py",
    "tests/live/test_node_modules_live.py"
   ],
   "note": "То же, что REQ-NODE-0017.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0021": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/netmods-check.sh",
    "tests/test_rw_netmods.py"
   ],
   "note": "Отдельная таблица nftables, лимит новых соединений с адреса, бан на 10 минут, белый список (магазин, панель, администратор, CGNAT), действующие соединения не трогаются, выключение убирает таблицу — проверено настоящим запуском в CI. Доступность панели после включения отдельно не проверяется.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0038": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/netmods-check.sh",
    "tests/test_rw_netmods.py"
   ],
   "note": "Отдельная таблица nftables, лимит новых соединений с адреса, бан на 10 минут, белый список (магазин, панель, администратор, CGNAT), действующие соединения не трогаются, выключение убирает таблицу — проверено настоящим запуском в CI. Доступность панели после включения отдельно не проверяется.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0022": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "Удаляются по одному: панель (после копии её базы), страница подписки, Caddy, нода, сайт SelfSteal, Xray Checker; MTProto — выключением модуля. Бот и статус-страница — части магазина, а не сервера ноды, отдельной операции для них здесь нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0039": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "То же, что REQ-NODE-0022.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0023": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0040": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
   "note": "То же, что REQ-NODE-0023.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0024": {
   "status": "PASS",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py"
   ],
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0070": {
   "status": "PASS",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0056": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/netmods-check.sh",
-   "backend/app/rw_steps.py"
+   "services/backend/app/rw_steps.py"
   ],
   "note": "Файл подкачки с проверкой свободного места и vm.swappiness — есть, проверено настоящим запуском в CI. Из sysctl — только подкачка и BBR; общего раздела настроек sysctl нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0069": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/netmods-check.sh",
    "scripts/ci/crowdsec-check.sh",
    "tests/test_install_catalogue.py"
   ],
   "note": "CrowdSec — частично (REQ-NODE-0020). Защита nftables и снапшоты есть и проверены.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-CLIENT-0006": {
   "status": "PARTIAL",
@@ -1107,7 +1107,7 @@
   "evidence": [
    "scripts/auto_update.py",
    "tests/test_auto_update_agent.py",
-   "backend/app/rw_autoupdate.py",
+   "services/backend/app/rw_autoupdate.py",
    "tests/test_rw_autoupdate.py",
    ".github/workflows/xray-core-watch.yml",
    "docs/AUTO_UPDATE.md"
@@ -1128,9 +1128,9 @@
   "status": "PASS",
   "evidence": [
    "docs/AUTO_UPDATE.md",
-   "backend/app/ecosystem_updates.py",
+   "services/backend/app/ecosystem_updates.py",
    "tests/test_ecosystem_updates.py",
-   "backend/app/auto_update_api.py"
+   "services/backend/app/auto_update_api.py"
   ]
  },
  "REQ-CI-0005": {
@@ -1138,8 +1138,8 @@
   "evidence": [
    "apps/lucy-admin/web/src/autoUpdate.tsx",
    "apps/lucy-admin/web/src/ecosystem-updates.tsx",
-   "backend/app/auto_update_api.py",
-   "backend/app/ecosystem_updates.py",
+   "services/backend/app/auto_update_api.py",
+   "services/backend/app/ecosystem_updates.py",
    "tests/test_auto_update_api.py"
   ],
   "note": "Раздел «Обновления» показывает версии, выпуски, дату и итог последнего запуска, ошибки; откат агент делает сам. Запуска GitHub workflow из панели нет."
@@ -1168,7 +1168,7 @@
  "REQ-CI-0008": {
   "status": "PASS",
   "evidence": [
-   "backend/requirements.txt",
+   "services/backend/requirements.txt",
    "apps/lucy-admin/web/package-lock.json",
    "apps/user-cabinet/package-lock.json",
    "apps/telegram-mini-app/package-lock.json",
@@ -1217,7 +1217,7 @@
   "evidence": [
    "scripts/auto_update.py",
    "tests/test_auto_update_agent.py",
-   "backend/app/rw_autoupdate.py",
+   "services/backend/app/rw_autoupdate.py",
    "tests/test_rw_autoupdate.py"
   ]
  },
@@ -1225,7 +1225,7 @@
   "status": "PASS",
   "evidence": [
    "docs/AUTO_UPDATE.md",
-   "backend/app/ecosystem_updates.py",
+   "services/backend/app/ecosystem_updates.py",
    "tests/test_ecosystem_updates.py"
   ]
  },
@@ -1273,7 +1273,7 @@
    "scripts/auto_update.py",
    "tests/test_auto_update_agent.py",
    "tests/test_admin_stepup.py",
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_stage15_install.py"
   ],
   "note": "Опасные действия в панели требуют подтверждения, обновление делает копию и откат, наружу открыты только нужные порты. На настоящем сервере не проверено: нет VPS."
@@ -1375,10 +1375,10 @@
  "REQ-RW-0001": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/remnawave.py",
-   "backend/app/rw_api.py",
-   "backend/app/rw_extensions.py",
-   "backend/app/install_catalogue.py",
+   "services/backend/app/remnawave.py",
+   "services/backend/app/rw_api.py",
+   "services/backend/app/rw_extensions.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_remnawave_contract.py",
    ".github/workflows/remnawave-live.yml"
   ],
@@ -1387,9 +1387,9 @@
  "REQ-RW-0002": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/remnawave.py",
-   "backend/app/remnawave_shop_api.py",
-   "backend/app/remnawave_events.py",
+   "services/backend/app/remnawave.py",
+   "services/backend/app/remnawave_shop_api.py",
+   "services/backend/app/remnawave_events.py",
    "tests/test_remnawave_contract.py",
    "tests/test_remnawave_squads.py"
   ],
@@ -1401,18 +1401,18 @@
    ".github/workflows/remnawave-live.yml",
    "tests/live/test_remnawave_live.py",
    "tests/test_remnawave_contract.py",
-   "backend/app/remnawave.py",
-   "backend/app/rw_snapshots.py"
+   "services/backend/app/remnawave.py",
+   "services/backend/app/rw_snapshots.py"
   ],
   "note": "Настоящий API проверяется в CI на настоящей панели; есть предохранитель от шквала повторов, журнал, копии базы панели. Миграции между панелями нет."
  },
  "REQ-RW-0004": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/remnawave.py",
+   "services/backend/app/remnawave.py",
    "tests/test_remnawave_contract.py",
-   "backend/app/rw_autoupdate.py",
-   "backend/app/rw_torrent_ban.py"
+   "services/backend/app/rw_autoupdate.py",
+   "services/backend/app/rw_torrent_ban.py"
   ],
   "note": "Единый клиент панели с проверкой контракта есть; версия панели читается и сравнивается с проверенной. Таблицы возможностей по версиям нет: проверка версии сделана отдельно в каждой функции."
  },
@@ -1429,22 +1429,22 @@
  "REQ-RW-0007": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_drift.py",
+   "services/backend/app/rw_drift.py",
    "tests/test_rw_drift.py",
    "apps/lucy-admin/web/e2e/rw-drift.spec.ts",
    "docs/RW_DRIFT.md",
-   "backend/app/rw_torrent_ban.py"
+   "services/backend/app/rw_torrent_ban.py"
   ],
   "note": "Магазин хранит время последней сверки и последней сверки без расхождений и выявляет расхождения с панелью для пула автовыбора и бана за торренты (по кнопке и каждые шесть часов). Подписки, профили и хосты вне пула не сверяются."
  },
  "REQ-RW-0008": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "backend/app/rw_autoselect.py",
+   "services/backend/app/rw_autoselect.py",
    "tests/test_rw_autoselect.py",
-   "backend/app/rw_torrent_ban.py",
+   "services/backend/app/rw_torrent_ban.py",
    "tests/test_rw_torrent_ban.py"
   ],
   "note": "Смена протокола сохраняет прежний inbound до первого изменения; автовыбор и бан за торренты не трогают чужие объекты. Общего правила «инвентаризация и копия перед любым изменением inbound» для всех разделов нет."
@@ -1452,10 +1452,10 @@
  "REQ-RW-0009": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "backend/app/rw_plan.py",
-   "backend/app/rw_autoselect.py"
+   "services/backend/app/rw_plan.py",
+   "services/backend/app/rw_autoselect.py"
   ],
   "note": "Откат есть у смены протокола и обновлений; установка показывает план до запуска. Пробного запуска без изменений (dry-run) у операций с панелью нет."
  },
@@ -1472,25 +1472,25 @@
  "REQ-RW-0011": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_torrent_ban.py",
+   "services/backend/app/rw_torrent_ban.py",
    "tests/test_rw_torrent_ban.py",
-   "backend/app/rw_autoupdate.py",
-   "backend/app/rw_extensions.py"
+   "services/backend/app/rw_autoupdate.py",
+   "services/backend/app/rw_extensions.py"
   ],
   "note": "Версии ноды и Xray показываются по каждой ноде, плагины не предлагаются старым нодам. sing-box не поддерживается; единой проверки совместимости конфигурации с каждой нодой нет."
  },
  "REQ-RW-0012": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_remote.py",
+   "services/backend/app/rw_remote.py",
    "tests/test_rw_ssh.py",
-   "backend/app/rw_ssh.py"
+   "services/backend/app/rw_ssh.py"
   ]
  },
  "REQ-RW-0013": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_ssh.py",
+   "services/backend/app/rw_ssh.py",
    "tests/test_rw_ssh.py",
    "tests/test_stage15_install.py"
   ],
@@ -1499,18 +1499,18 @@
  "REQ-RW-0014": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_jobs.py",
-   "backend/app/rw_api.py",
-   "backend/app/remnawave.py"
+   "services/backend/app/rw_jobs.py",
+   "services/backend/app/rw_api.py",
+   "services/backend/app/remnawave.py"
   ],
   "note": "Задачи установки идут очередью; у клиента панели есть предохранитель. Явного ограничения числа одновременных SSH-операций и частоты нет."
  },
  "REQ-RW-0015": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
-   "backend/app/rw_autoupdate.py",
-   "backend/app/rw_snapshots.py",
+   "services/backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_autoupdate.py",
+   "services/backend/app/rw_snapshots.py",
    "tests/test_rw_autoupdate.py",
    "docs/PROTOCOL_SWITCH.md"
   ],
@@ -1519,9 +1519,9 @@
  "REQ-RW-0016": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_steps.py",
    "tests/live/test_node_modules_live.py"
   ],
   "note": "После операции проверяются состояние в панели и открытый порт; Xray Checker проверяет подключение по расписанию. Проверки настоящим клиентом сразу после операции нет."
@@ -1537,9 +1537,9 @@
    "apps/lucy-admin/web/src/main.tsx",
    "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt",
    "apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift",
-   "backend/app/security.py",
+   "services/backend/app/security.py",
    "tests/test_admin_route_permissions.py",
-   "backend/app/audit_seal.py"
+   "services/backend/app/audit_seal.py"
   ],
   "note": "Веб-панель, приложения администратора для Android и iOS работают через один API с ролями и журналом. В приложениях 10 разделов против примерно 100 в веб-панели."
  },
@@ -1576,7 +1576,7 @@
  "REQ-ADMIN-0007": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/security.py",
+   "services/backend/app/security.py",
    "docs/ru/new/RBAC.md",
    "tests/test_rbac_doc.py",
    "tests/test_admin_route_permissions.py"
@@ -1587,14 +1587,14 @@
   "status": "PASS",
   "evidence": [
    "tests/test_admin_route_permissions.py",
-   "backend/app/security.py",
+   "services/backend/app/security.py",
    "tests/test_admin_center.py"
   ]
  },
  "REQ-ADMIN-0009": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/security.py",
+   "services/backend/app/security.py",
    "docs/ru/new/RBAC.md",
    "tests/test_admin_route_permissions.py"
   ],
@@ -1603,16 +1603,16 @@
  "REQ-ADMIN-0010": {
   "status": "PASS",
   "evidence": [
-   "backend/app/admin_stepup.py",
+   "services/backend/app/admin_stepup.py",
    "tests/test_admin_stepup.py"
   ]
  },
  "REQ-ADMIN-0011": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/models.py",
-   "backend/app/main.py",
-   "backend/app/admin_api.py",
+   "services/backend/app/models.py",
+   "services/backend/app/main.py",
+   "services/backend/app/admin_api.py",
    "apps/lucy-admin/web/src/control-center.tsx"
   ],
   "note": "В записи есть администратор, действие, объект, время, идентификатор запроса и подробности без секретов. Отдельного поля результата и единого формата «было — стало» нет."
@@ -1620,7 +1620,7 @@
  "REQ-ADMIN-0013": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/admin_api.py",
+   "services/backend/app/admin_api.py",
    "apps/lucy-admin/web/src/control-center.tsx",
    "docs/ru/new/ADMIN_CONTROL_MATRIX.md"
   ],
@@ -1638,9 +1638,9 @@
   "status": "PARTIAL",
   "evidence": [
    "apps/lucy-admin/web/src/control-center.tsx",
-   "backend/app/ecosystem_updates.py",
+   "services/backend/app/ecosystem_updates.py",
    "apps/lucy-admin/web/src/ecosystem-updates.tsx",
-   "backend/app/ops_alerts.py"
+   "services/backend/app/ops_alerts.py"
   ],
   "note": "«Центр управления» и «Готовность» сводят сервисы, ноды, платежи, копии; обновления сведены отдельной таблицей. Состояния мобильных сборок и CI на одном экране нет."
  },
@@ -1657,10 +1657,10 @@
  "REQ-ADMIN-0018": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_jobs.py",
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_jobs.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "backend/app/rw_api.py"
+   "services/backend/app/rw_api.py"
   ],
   "note": "Установка и смена протокола идут задачами на сервере с ходом, журналом и откатом. Ключа идемпотентности, общего срока и правила отмены у всех опасных действий нет."
  },
@@ -1677,11 +1677,11 @@
  "REQ-ADMIN-0012": {
   "status": "PASS",
   "evidence": [
-   "backend/app/audit_seal.py",
+   "services/backend/app/audit_seal.py",
    "tests/test_audit_seal.py",
    "apps/lucy-admin/web/e2e/audit-seal.spec.ts",
    "docs/AUDIT_LOG_INTEGRITY.md",
-   "backend/app/admin_api.py"
+   "services/backend/app/admin_api.py"
   ],
   "note": "Записи запечатываются каждые десять минут подписью с секретом сервера; изменённая или удалённая запись находится проверкой. Пределы защиты описаны в документе."
  },
@@ -1705,8 +1705,8 @@
   "status": "PASS",
   "evidence": [
    "docs/architecture/DOMAIN_BOUNDARIES.md",
-   "backend/app/security.py",
-   "backend/app/remnawave.py",
+   "services/backend/app/security.py",
+   "services/backend/app/remnawave.py",
    "apps/lucy-admin/web/src/components/ui/button.tsx",
    "packages/localization/user.json"
   ]
@@ -1737,7 +1737,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/architecture/CONTEXT_MAP.md",
-   "backend/app/remnawave.py",
+   "services/backend/app/remnawave.py",
    "tests/test_remnawave_contract.py"
   ],
   "note": "С панелью, провайдерами, нодами и Support Pro магазин связан через API и webhook. Внутри магазина области вызывают функции друг друга напрямую."
@@ -1847,28 +1847,28 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "backend/app/brand_copy.py",
+   "services/backend/app/brand_copy.py",
    "tests/test_brand_copy.py"
   ],
-  "note": "Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
+  "note": "Тексты вшиты значениями по умолчанию (services/backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
  },
  "REQ-BRAND-0002": {
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "backend/app/brand_copy.py",
+   "services/backend/app/brand_copy.py",
    "tests/test_brand_copy.py"
   ],
-  "note": "Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
+  "note": "Тексты вшиты значениями по умолчанию (services/backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
  },
  "REQ-BRAND-0014": {
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "backend/app/brand_copy.py",
+   "services/backend/app/brand_copy.py",
    "tests/test_brand_copy.py"
   ],
-  "note": "Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
+  "note": "Тексты вшиты значениями по умолчанию (services/backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений."
  },
  "REQ-BRAND-0015": {
   "status": "PARTIAL",
@@ -1881,7 +1881,7 @@
  "REQ-BRAND-0003": {
   "status": "PASS",
   "evidence": [
-   "backend/app/lucy_plans.py",
+   "services/backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
    "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
@@ -1889,7 +1889,7 @@
  "REQ-BRAND-0004": {
   "status": "PASS",
   "evidence": [
-   "backend/app/lucy_plans.py",
+   "services/backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
    "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
@@ -1897,7 +1897,7 @@
  "REQ-BRAND-0005": {
   "status": "PASS",
   "evidence": [
-   "backend/app/lucy_plans.py",
+   "services/backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
    "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
@@ -1905,7 +1905,7 @@
  "REQ-BRAND-0016": {
   "status": "PASS",
   "evidence": [
-   "backend/app/lucy_plans.py",
+   "services/backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
    "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
@@ -1914,7 +1914,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "backend/app/lucy_plans.py"
+   "services/backend/app/lucy_plans.py"
   ],
   "note": "Описания каждого тарифа, сравнительный блок и текстовый вариант подготовлены в docs/BRAND_COPY.md; панель не даёт сделать Ultra невыгоднее Max. В интерфейсы эти описания не вшиты."
  },
@@ -1922,7 +1922,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "backend/app/lucy_plans.py"
+   "services/backend/app/lucy_plans.py"
   ],
   "note": "Описания каждого тарифа, сравнительный блок и текстовый вариант подготовлены в docs/BRAND_COPY.md; панель не даёт сделать Ultra невыгоднее Max. В интерфейсы эти описания не вшиты."
  },
@@ -1930,26 +1930,26 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "backend/app/brand_copy.py",
+   "services/backend/app/brand_copy.py",
    "tests/test_brand_copy.py"
   ],
-  "note": "Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено."
+  "note": "Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в services/backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено."
  },
  "REQ-BRAND-0018": {
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "backend/app/brand_copy.py",
+   "services/backend/app/brand_copy.py",
    "tests/test_brand_copy.py"
   ],
-  "note": "Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено."
+  "note": "Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в services/backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено."
  },
  "REQ-BRAND-0008": {
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
    "apps/user-cabinet/src/stickers.tsx",
-   "backend/app/brand_copy.py"
+   "services/backend/app/brand_copy.py"
   ],
   "note": "Кабинет показывает текст бренда на экране технических работ, ответ API 503 несёт его на трёх языках (v28.132.0). Бот отдельного сообщения о технических работах не показывает; переменной .env для текста нет."
  },
@@ -1972,7 +1972,7 @@
   "evidence": [
    "scripts/bot-banners/render.py",
    "tests/test_bot_banners.py",
-   "backend/app/assets/bot_banners/home.jpg",
+   "services/backend/app/assets/bot_banners/home.jpg",
    "docs/BRAND_COPY.md"
   ]
  },
@@ -1981,7 +1981,7 @@
   "evidence": [
    "scripts/bot-banners/render.py",
    "tests/test_bot_banners.py",
-   "backend/app/assets/bot_banners/home.jpg",
+   "services/backend/app/assets/bot_banners/home.jpg",
    "docs/BRAND_COPY.md"
   ]
  },
@@ -1990,7 +1990,7 @@
   "evidence": [
    "scripts/bot-banners/render.py",
    "tests/test_bot_banners.py",
-   "backend/app/assets/bot_banners/home.jpg",
+   "services/backend/app/assets/bot_banners/home.jpg",
    "docs/BRAND_COPY.md"
   ]
  },
@@ -1999,7 +1999,7 @@
   "evidence": [
    "scripts/bot-banners/render.py",
    "tests/test_bot_banners.py",
-   "backend/app/assets/bot_banners/home.jpg"
+   "services/backend/app/assets/bot_banners/home.jpg"
   ],
   "note": "Текст баннеров отступает от краёв на 80 px, шрифт уменьшается для длинных заголовков; это проверяет тест. Читаемость на экране телефона на устройстве не проверена."
  },
@@ -2007,7 +2007,7 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/BRAND_COPY.md",
-   "backend/app/lucy_plans.py"
+   "services/backend/app/lucy_plans.py"
   ],
   "note": "Правило честности записано, тексты обещают только условия тарифов. Автоматической проверки всех текстов интерфейсов на лишние обещания нет."
  },
@@ -2029,7 +2029,7 @@
  "REQ-SHOP-0003": {
   "status": "PASS",
   "evidence": [
-   "backend/app/lucy_plans.py",
+   "services/backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
    "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
@@ -2037,7 +2037,7 @@
  "REQ-SHOP-0004": {
   "status": "PASS",
   "evidence": [
-   "backend/app/lucy_plans.py",
+   "services/backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
    "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
@@ -2045,7 +2045,7 @@
  "REQ-SHOP-0005": {
   "status": "PASS",
   "evidence": [
-   "backend/app/lucy_plans.py",
+   "services/backend/app/lucy_plans.py",
    "tests/test_cabinet_stage8.py",
    "apps/lucy-admin/web/src/lucy-plans.tsx"
   ]
@@ -2053,7 +2053,7 @@
  "REQ-SHOP-0006": {
   "status": "PASS",
   "evidence": [
-   "backend/app/lucy_plans.py",
+   "services/backend/app/lucy_plans.py",
    "apps/lucy-admin/web/src/lucy-plans.tsx",
    "docs/BRAND_COPY.md"
   ],
@@ -2062,7 +2062,7 @@
  "REQ-SHOP-0007": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/auth_api.py",
+   "services/backend/app/auth_api.py",
    "tests/test_behaviour_auth.py",
    "tests/test_audit_v2009_runtime.py",
    "tests/test_account_actions.py"
@@ -2072,7 +2072,7 @@
  "REQ-SHOP-0010": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/auth_api.py",
+   "services/backend/app/auth_api.py",
    "tests/test_behaviour_auth.py",
    "tests/test_audit_v2009_runtime.py",
    "tests/test_account_actions.py"
@@ -2082,7 +2082,7 @@
  "REQ-SHOP-0008": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/bot.py",
+   "services/backend/app/bot.py",
    "tests/test_bot_api_rules.py",
    "tests/test_bot_texts.py",
    "tests/test_bot_banners.py",
@@ -2093,8 +2093,8 @@
  "REQ-SHOP-0009": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/customer_api.py",
-   "backend/app/account_sync.py",
+   "services/backend/app/customer_api.py",
+   "services/backend/app/account_sync.py",
    "tests/test_account_sync.py",
    "tests/test_multiple_subscriptions.py",
    "tests/test_subscription_portal.py"
@@ -2105,7 +2105,7 @@
   "status": "PASS",
   "evidence": [
    "docs/architecture/API_CATALOG.md",
-   "backend/app/account_sync.py",
+   "services/backend/app/account_sync.py",
    "tests/test_account_sync.py",
    "tests/test_single_business_logic.py"
   ]
@@ -2113,8 +2113,8 @@
  "REQ-SHOP-0012": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/models.py",
-   "backend/app/account_merge.py",
+   "services/backend/app/models.py",
+   "services/backend/app/account_merge.py",
    "tests/test_account_merge.py",
    "docs/architecture/CONTEXT_MAP.md"
   ],
@@ -2123,7 +2123,7 @@
  "REQ-SHOP-0013": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/account_merge.py",
+   "services/backend/app/account_merge.py",
    "tests/test_account_merge.py",
    "tests/test_audit_v2009_runtime.py",
    "tests/test_behaviour_auth.py"
@@ -2136,13 +2136,13 @@
    "tests/test_audit_v2009_runtime.py",
    "tests/test_account_merge.py",
    "tests/test_behaviour_auth.py",
-   "backend/app/account_merge.py"
+   "services/backend/app/account_merge.py"
   ]
  },
  "REQ-SHOP-0015": {
   "status": "PASS",
   "evidence": [
-   "backend/app/account_actions.py",
+   "services/backend/app/account_actions.py",
    "tests/test_account_actions.py",
    "tests/test_behaviour_auth.py",
    "tests/test_login_fallback_reset.py"
@@ -2151,7 +2151,7 @@
  "REQ-SHOP-0016": {
   "status": "PASS",
   "evidence": [
-   "backend/app/account_actions.py",
+   "services/backend/app/account_actions.py",
    "tests/test_account_actions.py"
   ]
  },
@@ -2160,15 +2160,15 @@
   "evidence": [
    "tests/test_matrix_privacy.py",
    "tests/test_multiple_subscriptions.py",
-   "backend/app/legal_texts.py"
+   "services/backend/app/legal_texts.py"
   ],
   "note": "Удаление учётной записи стирает ключи и имена. Выгрузки своих данных клиентом нет."
  },
  "REQ-SHOP-0018": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/models.py",
-   "backend/app/subscription_commerce.py",
+   "services/backend/app/models.py",
+   "services/backend/app/subscription_commerce.py",
    "tests/test_subscription_commerce.py",
    "docs/architecture/DATA_FLOW.md"
   ],
@@ -2177,17 +2177,17 @@
  "REQ-SHOP-0019": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/account_sync.py",
+   "services/backend/app/account_sync.py",
    "tests/test_account_sync.py",
-   "backend/app/rw_drift.py"
+   "services/backend/app/rw_drift.py"
   ],
   "note": "Состояние подписки для всех клиентов отдаёт один маршрут синхронизации; срок и лимиты исполняет панель. Сверки подписок магазина с панелью нет."
  },
  "REQ-SHOP-0020": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/grace_access.py",
-   "backend/app/subscription_freeze.py",
+   "services/backend/app/grace_access.py",
+   "services/backend/app/subscription_freeze.py",
    "tests/test_behaviour_refund_revoke.py",
    "tests/test_behaviour_webhooks_refunded.py",
    "tests/test_reconciliation.py"
@@ -2215,8 +2215,8 @@
  "REQ-SHOP-0023": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/lucy_plans.py",
-   "backend/app/remnawave.py",
+   "services/backend/app/lucy_plans.py",
+   "services/backend/app/remnawave.py",
    "tests/test_remnawave_contract.py",
    "tests/test_cabinet_stage8.py"
   ],
@@ -2227,7 +2227,7 @@
   "evidence": [
    "tests/test_behaviour_fulfil_locks.py",
    "tests/test_e2e_journeys.py",
-   "backend/app/remnawave.py",
+   "services/backend/app/remnawave.py",
    "tests/test_subscription_commerce.py"
   ],
   "note": "Выдача повторяется ограниченное число раз, оплаченный заказ не теряется, есть предохранитель запросов к панели. Отдельной очереди исходящих операций (outbox) нет."
@@ -2235,7 +2235,7 @@
  "REQ-SHOP-0025": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/bot.py",
+   "services/backend/app/bot.py",
    "tests/test_bot_api_rules.py",
    "docs/architecture/EVENT_CATALOG.md"
   ],
@@ -2244,7 +2244,7 @@
  "REQ-SHOP-0026": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/bot.py",
+   "services/backend/app/bot.py",
    "tests/test_bot_api_rules.py"
   ],
   "note": "Покупка и выдача идемпотентны на стороне API. Отдельного теста повторной доставки одной команды или нажатия нет."
@@ -2260,7 +2260,7 @@
  "REQ-SHOP-0028": {
   "status": "PASS",
   "evidence": [
-   "backend/app/auth_api.py",
+   "services/backend/app/auth_api.py",
    "tests/test_behaviour_auth.py"
   ]
  },
@@ -2269,7 +2269,7 @@
   "evidence": [
    "tests/test_behaviour_csrf.py",
    "tests/test_behaviour_auth.py",
-   "backend/app/auth_api.py"
+   "services/backend/app/auth_api.py"
   ],
   "note": "Точные origin, привязка сессии к устройству, срок жизни и отзыв сессии проверяются. Проверки домена и HTTPS Mini App на настоящем домене не было."
  },
@@ -2285,7 +2285,7 @@
  "REQ-SHOP-0031": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/bot_texts.py",
+   "services/backend/app/bot_texts.py",
    "apps/user-cabinet/src/i18n.tsx",
    "tests/test_bot_texts.py",
    "tests/test_critical_startup_and_i18n.py",
@@ -2298,15 +2298,15 @@
   "evidence": [
    "tests/test_e2e_v2.py",
    "tests/test_e2e_journeys.py",
-   "backend/app/staging_e2e_api.py"
+   "services/backend/app/staging_e2e_api.py"
   ],
   "note": "Сквозной прогон «заказ → оплата → выдача → подписка» идёт через настоящие маршруты на стенде; есть сценарии резервной кассы и автопродления. Шагов «бот: старт» и «обращение в поддержку» в одном сценарии нет."
  },
  "REQ-MASQUE-0001": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_masque.py",
-   "backend/app/masque_panel.py",
+   "services/backend/app/rw_masque.py",
+   "services/backend/app/masque_panel.py",
    "scripts/ci/masque-check.sh",
    "apps/lucy-admin/web/e2e/masque-panel.spec.ts"
   ],
@@ -2315,8 +2315,8 @@
  "REQ-MASQUE-0002": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_masque.py",
-   "backend/app/masque.py",
+   "services/backend/app/rw_masque.py",
+   "services/backend/app/masque.py",
    "docs/MASQUE_IMPLEMENTATION_REPORT.md"
   ],
   "note": "Тега v26.10.10 не существует. Для MASQUE магазин ставит на ноду свой Xray 26.11.9, закреплённый по хешу образа. Ядро Xray самой ноды Remnawave до этой версии магазин не поднимает."
@@ -2333,17 +2333,17 @@
  "REQ-MASQUE-0004": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_masque.py",
+   "services/backend/app/rw_masque.py",
    "scripts/ci/masque-check.sh",
-   "backend/app/masque_panel.py"
+   "services/backend/app/masque_panel.py"
   ],
   "note": "Установка на ноду по SSH, проверка порта, TLS с сертификатом ноды, передача файлов с контрольной суммой — есть и проверены в CI. Свой выпуск сертификата не нужен: берётся сертификат сайта SelfSteal. Занятость порта другим процессом перед установкой не проверяется; на VPS не проверено."
  },
  "REQ-MASQUE-0005": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_masque.py",
-   "backend/app/masque.py",
+   "services/backend/app/rw_masque.py",
+   "services/backend/app/masque.py",
    "scripts/ci/masque-check.sh",
    "docs/MASQUE_IMPLEMENTATION_REPORT.md"
   ],
@@ -2352,8 +2352,8 @@
  "REQ-MASQUE-0006": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_masque.py",
-   "backend/app/masque_panel.py",
+   "services/backend/app/rw_masque.py",
+   "services/backend/app/masque_panel.py",
    "scripts/ci/masque-check.sh",
    "tests/test_masque_panel.py"
   ],
@@ -2362,8 +2362,8 @@
  "REQ-MASQUE-0007": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/masque_panel.py",
-   "backend/app/rw_masque.py",
+   "services/backend/app/masque_panel.py",
+   "services/backend/app/rw_masque.py",
    "tests/test_masque_panel.py",
    "docs/MASQUE_PANEL.md",
    "apps/user-cabinet/src/masque.tsx",
@@ -2377,7 +2377,7 @@
    "apps/lucy-admin/web/src/masque-panel.tsx",
    "apps/lucy-admin/web/e2e/masque-panel.spec.ts",
    "apps/lucy-admin/web/src/masque.tsx",
-   "backend/app/masque_panel.py"
+   "services/backend/app/masque_panel.py"
   ],
   "note": "Есть переключатель выдачи, выбор тарифов, установка с выбором защит, изменение защит, удаление, проверка совместимости и маскировки, состояние ноды, понятные причины отказа. Пошагового прогресса установки нет: кнопка ждёт результата."
  },
@@ -2386,7 +2386,7 @@
   "evidence": [
    "docs/MASQUE_IMPLEMENTATION_REPORT.md",
    "scripts/ci/masque-check.sh",
-   "backend/app/rw_masque.py",
+   "services/backend/app/rw_masque.py",
    "tests/test_masque_panel.py"
   ],
   "note": "Посторонний видит сайт SelfSteal и его 404, в том числе на секретном пути; строгий SNI, TLS как у сайта, ответы на непонятные запросы и незаметная блокировка зондирования проверены в CI. Ограничения описаны в отчёте, §9. Защита от DPI не обещается."
@@ -2403,8 +2403,8 @@
   "evidence": [
    "docs/MASQUE_IMPLEMENTATION_REPORT.md",
    "docs/MASQUE_PANEL.md",
-   "backend/app/rw_masque.py",
-   "backend/app/masque_panel.py",
+   "services/backend/app/rw_masque.py",
+   "services/backend/app/masque_panel.py",
    "scripts/ci/masque-check.sh",
    "tests/test_masque_panel.py"
   ],
@@ -2423,7 +2423,7 @@
    "docs/architecture/API_CATALOG.md",
    "tests/test_rbac_doc.py",
    "tests/test_error_format.py",
-   "backend/app/audit_seal.py"
+   "services/backend/app/audit_seal.py"
   ],
   "note": "API, RBAC, миграции, единый формат ошибок, журнал действий и фоновые задачи есть и покрыты тестами. Построчной сверки каждого пункта для каждого маршрута не было; отдельной очереди задач нет — фоновые циклы идут в процессе API под блокировкой Redis."
  },
@@ -2619,7 +2619,7 @@
    "tests/test_zero_downtime_deploy.py",
    ".github/workflows/ci.yml"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "В docker-compose.yml у служб есть проверки здоровья (14) и политики перезапуска (16), тома, сети, зависимости и переменные окружения; CI проверяет `docker compose config` и поднимает интеграционный стенд. Не сверены по пунктам журналы (ротация) и доступность служб снаружи на живом сервере."
  },
  "REQ-INFRA-0005": {
@@ -2633,7 +2633,7 @@
    "scripts/preflight.sh",
    "scripts/ci/restore-drill.sh"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "Есть установка, обновление с откатом, резервная копия и восстановление (проверяется в CI), проверка окружения и диагностика. Чистая установка и повторный запуск не проверялись на VPS."
  },
  "REQ-INFRA-0006": {
@@ -2642,15 +2642,15 @@
    "docs/INSTALLATION.md",
    "docs/ru/new/DEPLOYMENT_AGENT.md"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0007": {
   "status": "PARTIAL",
   "evidence": [
    "docs/ru/new/TERMUX_GUIDE.md"
   ],
-  "platforms": "backend/API, server",
-  "note": "Пошаговая инструкция для Android/Termux написана (v28.157.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
+  "platforms": "services/backend/API, server",
+  "note": "Пошаговая инструкция для Android/Termux написана (v28.158.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена."
  },
  "REQ-INFRA-0010": {
   "status": "PASS",
@@ -2658,7 +2658,7 @@
    "scripts/update.sh",
    "tests/test_v2018_recovery.py"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0011": {
   "status": "PARTIAL",
@@ -2668,17 +2668,17 @@
    "tests/test_update_space.py",
    "scripts/github_release_fetch.py"
   ],
-  "platforms": "backend/API, server",
-  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.157.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
+  "platforms": "services/backend/API, server",
+  "note": "Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.158.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление."
  },
  "REQ-INFRA-0012": {
   "status": "PASS",
   "evidence": [
-   "backend/alembic/env.py",
+   "services/backend/alembic/env.py",
    "scripts/auto_update.py",
    "scripts/backup.sh"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0013": {
   "status": "PASS",
@@ -2688,7 +2688,7 @@
    "infrastructure/reverse-proxy/Caddyfile",
    "tests/test_zero_downtime_deploy.py"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0014": {
   "status": "PASS",
@@ -2697,7 +2697,7 @@
    "scripts/auto_update.py",
    "tests/test_v2018_recovery.py"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0021": {
   "status": "PASS",
@@ -2706,15 +2706,15 @@
    "tests/test_secret_leak_check.py",
    ".github/workflows/ci.yml"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0023": {
   "status": "PASS",
   "evidence": [
-   "backend/app/main.py",
+   "services/backend/app/main.py",
    "tests/test_diagnostics.py"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0031": {
   "status": "PASS",
@@ -2723,38 +2723,38 @@
    "scripts/backup_bundle.py",
    "tests/test_backup_cli.py"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0032": {
   "status": "PASS",
   "evidence": [
-   "backend/app/backups_api.py",
-   "backend/app/telegram_backup.py",
+   "services/backend/app/backups_api.py",
+   "services/backend/app/telegram_backup.py",
    "tests/test_promo_generator_and_tg_backup.py"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "Копии уходят в S3-совместимое хранилище (размер сверяется после загрузки) и/или в Telegram; включается в панели «Резервные копии»."
  },
  "REQ-INFRA-0033": {
   "status": "PASS",
   "evidence": [
    "scripts/backup.sh",
-   "backend/app/backups_api.py",
-   "backend/app/backup_verify.py",
-   "backend/app/ops_alerts.py"
+   "services/backend/app/backups_api.py",
+   "services/backend/app/backup_verify.py",
+   "services/backend/app/ops_alerts.py"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0037": {
   "status": "PASS",
   "evidence": [
-   "backend/app/backups_api.py",
+   "services/backend/app/backups_api.py",
    "tests/test_backup_retention_verified.py",
    "scripts/auto_update.py",
    "scripts/backup.sh"
   ],
-  "platforms": "backend/API, server",
-  "note": "v28.157.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
+  "platforms": "services/backend/API, server",
+  "note": "v28.158.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных)."
  },
  "REQ-INFRA-0008": {
   "status": "PASS",
@@ -2763,8 +2763,8 @@
    "infrastructure/deployment/install-vps.sh",
    "tests/test_install_status.py"
   ],
-  "platforms": "backend/API, server",
-  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.157.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.157.0, решение владельца 2026-11-14). На VPS не проверено."
+  "platforms": "services/backend/API, server",
+  "note": "Этапы с машиночитаемым состоянием и ошибкой (v28.158.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.158.0, решение владельца 2026-11-14). На VPS не проверено."
  },
  "REQ-INFRA-0009": {
   "status": "PASS",
@@ -2773,37 +2773,37 @@
    "release-manifest.template.json",
    "tests/test_distribution_update.py"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0030": {
   "status": "PARTIAL",
   "evidence": [
    "docs/OWNER_DECISIONS.md",
-   "backend/app/ops_alerts.py",
-   "backend/app/backups_api.py",
+   "services/backend/app/ops_alerts.py",
+   "services/backend/app/backups_api.py",
    "tests/test_ops_alerts.py"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "RPO 1 ч и RTO 4 ч согласованы владельцем 2026-11-14; есть расписание «Каждый час» и оповещение при нарушении RPO. Время восстановления (RTO) на VPS не измерено."
  },
  "REQ-INFRA-0027": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/ops_alerts.py",
-   "backend/app/masque_panel.py",
-   "backend/app/rw_drift.py",
+   "services/backend/app/ops_alerts.py",
+   "services/backend/app/masque_panel.py",
+   "services/backend/app/rw_drift.py",
    "tests/test_ops_alerts.py"
   ],
-  "platforms": "backend/API, server",
-  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.157.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
+  "platforms": "services/backend/API, server",
+  "note": "Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.158.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности."
  },
  "REQ-INFRA-0015": {
   "status": "PARTIAL",
   "evidence": [
    "scripts/update.sh",
-   "backend/alembic/env.py"
+   "services/backend/alembic/env.py"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "Миграции не откатываются вниз автоматически: при сбое обновления база восстанавливается из копии, снятой перед обновлением и проверенной на непустоту. Отдельной пометки необратимых миграций нет."
  },
  "REQ-INFRA-0016": {
@@ -2813,73 +2813,73 @@
    "scripts/doctor.sh",
    "scripts/zero-downtime-backend.sh"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "После обновления — doctor.sh (API, панель, кабинет, Mini App) и /health/ready нового выпуска до переключения. Ключевые E2E-сценарии после выкладки на сервере не запускаются."
  },
  "REQ-INFRA-0024": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/log_format.py",
-   "backend/app/main.py",
-   "backend/app/errors.py",
+   "services/backend/app/log_format.py",
+   "services/backend/app/main.py",
+   "services/backend/app/errors.py",
    "tests/test_ops_alerts.py"
   ],
-  "platforms": "backend/API, server",
-  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.157.0). Трассировки (OpenTelemetry) нет."
+  "platforms": "services/backend/API, server",
+  "note": "Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.158.0). Трассировки (OpenTelemetry) нет."
  },
  "REQ-INFRA-0025": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/host_metrics.py",
-   "backend/app/observability.py",
-   "backend/app/main.py",
+   "services/backend/app/host_metrics.py",
+   "services/backend/app/observability.py",
+   "services/backend/app/main.py",
    "tests/test_host_metrics.py"
   ],
-  "platforms": "backend/API, server",
-  "note": "С v28.157.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
+  "platforms": "services/backend/API, server",
+  "note": "С v28.158.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями)."
  },
  "REQ-INFRA-0038": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_domains.py",
-   "backend/app/selfsteal_check.py",
-   "backend/app/ops_alerts.py"
+   "services/backend/app/rw_domains.py",
+   "services/backend/app/selfsteal_check.py",
+   "services/backend/app/ops_alerts.py"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "Проверяются DNS доменов, сертификат сайта SelfSteal (выпускатель, имя, срок), срок сертификатов доменов магазина; конфликты портов — rw_ports и проверка порта MASQUE. TTL, цепочка и SAN отдельно не контролируются."
  },
  "REQ-INFRA-0040": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_steps.py"
+   "services/backend/app/rw_steps.py"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "Каждый файл Caddy, compose и .env на сервере перед заменой сохраняется как .rw-prev и возвращается при откате шага."
  },
  "REQ-INFRA-0041": {
   "status": "PASS",
   "evidence": [
-   "backend/app/rw_ssh.py",
-   "backend/app/security.py"
+   "services/backend/app/rw_ssh.py",
+   "services/backend/app/security.py"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "Приватные SSH-ключи хранятся зашифрованными, срок жизни ключа ограничен; файлы с секретами на серверах — с правами 600."
  },
  "REQ-INFRA-0028": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/ops_alerts.py",
+   "services/backend/app/ops_alerts.py",
    "tests/test_ops_alerts.py"
   ],
-  "platforms": "backend/API, server",
-  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.157.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
+  "platforms": "services/backend/API, server",
+  "note": "Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.158.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам."
  },
  "REQ-INFRA-0029": {
   "status": "PASS",
   "evidence": [
    "docs/ru/DISASTER_RECOVERY.md"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-INFRA-0035": {
   "status": "PARTIAL",
@@ -2888,7 +2888,7 @@
    "docs/ru/BACKUP_CURRENT.md",
    "scripts/ci/restore-drill.sh"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "Порядок восстановления базы, настроек, секретов, панели, нод и DNS описан; восстановление магазина из копии проверяется в CI. Восстановление панели и нод по документу вживую не проверено."
  },
  "REQ-INFRA-0036": {
@@ -2896,7 +2896,7 @@
   "evidence": [
    "docs/ru/DISASTER_RECOVERY.md"
   ],
-  "platforms": "backend/API, server"
+  "platforms": "services/backend/API, server"
  },
  "REQ-MIG-0018": {
   "status": "PARTIAL",
@@ -3452,17 +3452,17 @@
  "REQ-INFRA-0001": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
-   "backend/app/rw_netmods.py",
-   "backend/app/rw_plan.py",
-   "backend/app/rw_ports.py",
-   "backend/app/rw_torrent_ban.py",
-   "backend/app/rw_extensions.py",
-   "backend/app/rw_autoselect.py",
-   "backend/app/rw_domains.py",
+   "services/backend/app/install_catalogue.py",
+   "services/backend/app/rw_netmods.py",
+   "services/backend/app/rw_plan.py",
+   "services/backend/app/rw_ports.py",
+   "services/backend/app/rw_torrent_ban.py",
+   "services/backend/app/rw_extensions.py",
+   "services/backend/app/rw_autoselect.py",
+   "services/backend/app/rw_domains.py",
    "docs/SERVER_PORTS.md"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "Есть в коде: swap, sysctl/BBR, порты HTTPS (rw_ports), автовыбор, смена домена и SNI, каскад мостом Shadowsocks, CDN, MTProto, гео-списки, снимки, CrowdSec, nftables, Torrent Blocker, MSS clamp, антицензура, блокировка рекламы списками, удаление компонента. Нет: AdGuard Home (REQ-NODE-0010), каскад HAProxy на 2–3 ноды (REQ-NODE-0006). На VPS вживую не проверено."
  },
  "REQ-INFRA-0017": {
@@ -3498,12 +3498,13 @@
   "status": "PARTIAL",
   "evidence": [
    "tests/test_layout_stage4.py",
+   "tests/test_layout_stage5.py",
    "tests/test_v2018_recovery.py",
    ".github/workflows/ci.yml",
    "docs/MONOREPO_LAYOUT.md"
   ],
   "platforms": "all products",
-  "note": "После каждого этапа перекладки идёт тот же полный CI (тесты, сборки Android и iOS, образы, e2e), этап 4 проверяет старые пути, обновление и откат на модели. Сравнение на установленном сервере (обновление настоящего VPS со старой раскладки) не проводилось: VPS нет (решение № 11)."
+  "note": "После каждого этапа перекладки идёт тот же полный CI (тесты, сборки Android и iOS, образы, e2e); этапы 4 и 5 проверяют старые пути, обновление и откат на модели (`tests/test_layout_stage4.py`, `tests/test_layout_stage5.py`). Сравнение на установленном сервере (обновление настоящего VPS со старой раскладки) не проводилось: VPS нет (решение № 11)."
  },
  "REQ-INFRA-0022": {
   "status": "PASS",
@@ -3520,17 +3521,17 @@
    "docs/ru/OPERATIONS_MONITORING.md",
    "infrastructure/monitoring/prometheus/vpnshop-alerts.yml"
   ],
-  "platforms": "backend/API, server",
+  "platforms": "services/backend/API, server",
   "note": "SLA и SLO не выдуманы: в документах их нет, оповещения заданы по техническим порогам. Базовые замеры нужны на рабочем VPS, которого пока нет (решение № 11); после замеров — `docs/SLO_BASELINE.md` и согласование целей с владельцем."
  },
  "REQ-INFRA-0039": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_domains.py",
+   "services/backend/app/rw_domains.py",
    "tests/test_subscription_portal.py",
    "apps/lucy-admin/web/src/domains.tsx"
   ],
-  "platforms": "backend/API, web admin",
+  "platforms": "services/backend/API, web admin",
   "note": "Запись A работающего имени переносится только на адрес, который принимает соединения на 443; прежние адреса возвращаются и пишутся в журнал (путь назад), обход — явной кнопкой. Смена сертификата и домена панели мастером установки такой проверки не делает; вживую на DNS-провайдере не проверено."
  },
  "REQ-MIG-0004": {
@@ -3573,11 +3574,11 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/REFERENCE_REPOSITORIES.md",
-   "backend/app/import_presets.py",
+   "services/backend/app/import_presets.py",
    "tests/test_import_presets.py"
   ],
   "platforms": "all products",
-  "note": "StepBot изучен по клону (`7a1fe52`, MIT). Сверка по модулям магазина: функции из его списка в магазине есть; недостававшая готовая раскладка импорта из remnawave-shopbot сделана в v28.157.0 (`backend/app/import_presets.py`). Построчная сверка поведения каждой функции не проведена."
+  "note": "StepBot изучен по клону (`7a1fe52`, MIT). Сверка по модулям магазина: функции из его списка в магазине есть; недостававшая готовая раскладка импорта из remnawave-shopbot сделана в v28.157.0 (`services/backend/app/import_presets.py`). Построчная сверка поведения каждой функции не проведена."
  },
  "REQ-MIG-0010": {
   "status": "PASS",
@@ -3619,10 +3620,13 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/MONOREPO_LAYOUT.md",
+   "services/backend/app/main.py",
+   "services/support-pro/app/main.py",
+   "tests/test_layout_stage5.py",
    "docs/architecture/DOMAIN_BOUNDARIES.md"
   ],
   "platforms": "all products",
-  "note": "Сервисы промпта — модули одного FastAPI-приложения `backend` и отдельный `support-pro`; папки `services/` нет (этап 5). Разделение на отдельные службы не планируется без необходимости — описано в MONOREPO_LAYOUT."
+  "note": "С v28.158.0 есть `services/backend` и `services/support-pro`. Сервисы промпта (api, auth, payment, subscription …) — модули одного FastAPI-приложения, отдельными службами не выделены: причины в MONOREPO_LAYOUT."
  },
  "REQ-MIG-0015": {
   "status": "PARTIAL",
@@ -3654,7 +3658,7 @@
    "docs/PROJECT_FILE_MAP.md"
   ],
   "platforms": "all products",
-  "note": "Есть `scripts/audit`, `tests/`, `docs/`, `.github/workflows`. Миграции лежат в `backend/alembic` и `support-pro/alembic` (этап 5), а не в `database/`; `scripts/` и `tests/` не разбиты на подпапки по назначению."
+  "note": "Есть `scripts/audit`, `tests/`, `docs/`, `.github/workflows`. Миграции лежат в `services/backend/alembic` и `services/support-pro/alembic`, а не в `database/`; `scripts/` и `tests/` не разбиты на подпапки по назначению."
  },
  "REQ-MIG-0023": {
   "status": "PASS",
@@ -3700,364 +3704,364 @@
  "REQ-NODE-0001": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts",
-   "backend/app/rw_plan.py",
-   "backend/app/rw_steps.py",
-   "backend/app/node_terminal.py",
-   "backend/app/rw_snapshots.py"
+   "services/backend/app/rw_plan.py",
+   "services/backend/app/rw_steps.py",
+   "services/backend/app/node_terminal.py",
+   "services/backend/app/rw_snapshots.py"
   ],
   "note": "Добавление, удаление, параметры, SSH, установка, обновление, восстановление из снапшота, копии, проверка конфигурации и защита есть в «Установке» и «Установке Remnawave» (план → подтверждение → шаги → откат). Управление отдельными службами — через терминал сервера, отдельной страницы нет. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0002": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_plan.py",
-   "backend/app/rw_jobs.py",
+   "services/backend/app/rw_plan.py",
+   "services/backend/app/rw_jobs.py",
    "tests/test_rw_installer.py",
    "apps/lucy-admin/web/e2e/rw-installer.spec.ts"
   ],
   "note": "Модуль ставится на несколько серверов сразу; до запуска показывается план по каждому серверу и шаги отката. Отдельного списка «что будет скопировано до изменения» в плане массовой операции нет. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0004": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts",
    "apps/lucy-admin/web/src/install-hub.tsx"
   ],
   "note": "Карточка: название, описание, группа, «по SSH / без SSH», выбранный сервер, кнопка, ход выполнения и журнал задачи. Требования к серверу (ресурсы, порты) в карточке не показаны; диагностика — в отдельных разделах.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0005": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/mtproto-check.sh",
    "tests/test_rw_netmods.py",
    "tests/test_install_catalogue.py",
-   "backend/app/rw_ports.py"
+   "services/backend/app/rw_ports.py"
   ],
   "note": "Установка на выбранную ноду, FakeTLS, ссылка tg:// после установки, удаление модуля, порт открывается сам — проверено настоящим запуском в CI. Проверка доступности прокси снаружи после установки и работа с настоящим Telegram не проверены.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0007": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_steps.py",
    "tests/test_rw_node_modules.py",
-   "backend/app/install_catalogue.py"
+   "services/backend/app/install_catalogue.py"
   ],
   "note": "Xray Checker проверяет каждый сервер подписки настоящим соединением. Внешний адрес выхода и разбор по этапам (DNS, маршрут, подключение) магазин сам не показывает. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0008": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/geo-check.sh",
    "tests/test_rw_netmods.py",
-   "backend/app/rw_autoupdate.py",
+   "services/backend/app/rw_autoupdate.py",
    "tests/test_rw_autoupdate.py"
   ],
   "note": "Российские списки geoip/geosite: источник, SHA-256, установка рядом со встроенными, подключение в compose ноды и удаление, обновление по расписанию — проверено настоящим запуском в CI. Копия прежних файлов и откат на неё, версия списка в панели не сверены.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0011": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts",
-   "backend/app/rw_selfsteal.py",
-   "backend/app/rw_domains.py"
+   "services/backend/app/rw_selfsteal.py",
+   "services/backend/app/rw_domains.py"
   ],
   "note": "«Анти-РКН: чек-лист нод»: свой сайт, проверка снаружи, порт ноды, отпечаток, запасной протокол, защита — и что исправить; панель ничего не обещает. Отдельных проверок редиректа 301 с порта 80, HSTS и версий TLS 1.2/1.3 в чек-листе нет. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0013": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_steps.py",
    "scripts/ci/node-port-guard.sh",
    "tests/test_install_catalogue.py",
-   "backend/app/install_catalogue.py"
+   "services/backend/app/install_catalogue.py"
   ],
   "note": "Служебный порт нод открыт только серверу панели, применяется на всех нодах сразу, правило снимается, если панель потеряла ноду — проверено настоящим запуском в CI. Предварительное добавление нового адреса при переезде панели не сверено. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0015": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_domains.py",
+   "services/backend/app/rw_domains.py",
    "tests/test_subscription_portal.py",
    "tests/test_install_catalogue.py",
-   "backend/app/ops_alerts.py"
+   "services/backend/app/ops_alerts.py"
   ],
   "note": "Домен и сертификат панели, DNS, выпуск по требованию, срок сертификата и оповещение, смена домена с сохранением прежнего. Обнаружение занятого 443 с предложением другого порта и проверка порта 80 для ACME перед выпуском не сверены. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0016": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/status_page.py",
+   "services/backend/app/status_page.py",
    "tests/test_status_and_regional_pricing.py",
-   "backend/app/install_catalogue.py"
+   "services/backend/app/install_catalogue.py"
   ],
   "note": "Публичная страница статуса на своём домене: состояние сервисов и инциденты, без внутренних адресов. Проверка нод тестовым трафиком и задержка на странице не сверены — источник состояния нод нужно сверить с Xray Checker.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0018": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/backups_api.py",
-   "backend/app/backup_verify.py",
-   "backend/app/telegram_backup.py",
+   "services/backend/app/backups_api.py",
+   "services/backend/app/backup_verify.py",
+   "services/backend/app/telegram_backup.py",
    "scripts/ci/restore-drill.sh",
-   "backend/app/rw_snapshots.py",
+   "services/backend/app/rw_snapshots.py",
    "docs/ru/DISASTER_RECOVERY.md"
   ],
   "note": "Копии по расписанию (по умолчанию каждый час) с шифрованием, ротацией, проверкой восстановления, копией в S3 и Telegram, оповещением по RPO; ежедневные снапшоты панели. Проверка восстановления идёт в CI на базе магазина; восстановление базы панели на настоящем сервере не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0019": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_snapshots.py",
+   "services/backend/app/rw_snapshots.py",
    "tests/test_install_catalogue.py",
-   "backend/app/install_catalogue.py"
+   "services/backend/app/install_catalogue.py"
   ],
   "note": "Снапшот: база панели и файлы компонентов, шифрование в магазине, скачивание с подтверждением 2FA, запись в журнал. Контрольная сумма для скачанного архива и срок хранения временного файла не сверены.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0027": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_plan.py",
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_plan.py",
+   "services/backend/app/rw_steps.py",
    "tests/test_rw_installer.py",
    "tests/test_install_catalogue.py",
    "docs/SERVER_PORTS.md"
   ],
   "note": "У модулей по SSH: план, подтверждение, шаги с проверкой, журнал, откат; каждая карточка ведёт к работающему месту (тест). Единой предварительной проверки ресурсов и свободных портов перед каждой операцией нет (порты проверяются у MASQUE и при установке).",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0028": {
   "status": "PASS",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0029": {
   "status": "PASS",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts"
   ],
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0030": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts",
    "apps/lucy-admin/web/src/install-hub.tsx"
   ],
   "note": "Группа «Обслуживание и защита» содержит HTTPS и статус, оповещения, копии, защиту и ускорение. Вводного списка из трёх пунктов, как на снимке владельца, над группой нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0031": {
   "status": "PASS",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts",
    "apps/lucy-admin/web/src/install-hub.tsx"
   ],
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0032": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_domains.py",
+   "services/backend/app/rw_domains.py",
    "tests/test_install_catalogue.py",
-   "backend/app/install_catalogue.py"
+   "services/backend/app/install_catalogue.py"
   ],
   "note": "То же, что REQ-NODE-0015.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0033": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/status_page.py",
+   "services/backend/app/status_page.py",
    "tests/test_status_and_regional_pricing.py",
-   "backend/app/install_catalogue.py"
+   "services/backend/app/install_catalogue.py"
   ],
   "note": "То же, что REQ-NODE-0016.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0035": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_snapshots.py",
-   "backend/app/telegram_backup.py",
+   "services/backend/app/rw_snapshots.py",
+   "services/backend/app/telegram_backup.py",
    "tests/test_install_catalogue.py",
    "scripts/ci/restore-drill.sh"
   ],
   "note": "То же, что REQ-NODE-0018.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0036": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_snapshots.py",
+   "services/backend/app/rw_snapshots.py",
    "tests/test_install_catalogue.py"
   ],
   "note": "То же, что REQ-NODE-0019.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0041": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts",
    "apps/lucy-admin/web/src/install-hub.tsx"
   ],
   "note": "То же, что REQ-NODE-0004; каждая кнопка вызывает настоящую операцию (тест `test_every_card_leads_to_a_working_place`).",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0053": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/block_monitor.py",
+   "services/backend/app/block_monitor.py",
    "tests/test_block_monitor.py",
    "tests/test_filter_geo_ripe.py",
-   "backend/app/install_catalogue.py"
+   "services/backend/app/install_catalogue.py"
   ],
   "note": "«Доступность нод»: проверки из разных сетей и RIPE Atlas, монитор блокировок. Различение блокировки одного адреса и подсети /24 отдельно не сверено. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0054": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/block_monitor.py",
+   "services/backend/app/block_monitor.py",
    "tests/test_block_monitor.py",
-   "backend/app/rw_netmods.py"
+   "services/backend/app/rw_netmods.py"
   ],
   "note": "Монитор блокировок и MSS clamp есть. Диагностика по слоям (DNS, маршрут, TCP, TLS, обрыв после объёма, MTU) одним отчётом не собрана.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0055": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/status_page.py",
+   "services/backend/app/status_page.py",
    "tests/test_incident_mode_maintenance.py",
    "docs/BRAND_COPY.md"
   ],
   "note": "Инциденты и режим технических работ объявляет владелец; сами собой уведомления о блокировках клиентам не уходят, обещаний обхода в текстах нет. Готовых шаблонов сообщения «по подтверждённым данным» нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0057": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_ports.py",
+   "services/backend/app/rw_ports.py",
    "scripts/ci/ports-check.sh",
    "docs/SERVER_PORTS.md"
   ],
   "note": "Порты серверов открываются при установке и из панели (ufw, firewalld, iptables, nftables); iptables и nftables проверены настоящим запуском в CI, ufw и firewalld — нет. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0058": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_domains.py",
+   "services/backend/app/rw_domains.py",
    "tests/test_install_catalogue.py",
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "tests/test_rw_netmods.py"
   ],
   "note": "Смена домена панели с сохранением прежнего для подписок и автоподбор SNI для REALITY есть. Перенос SNI на всех хостах одной операцией не сверен. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0059": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_protocol_switch.py",
+   "services/backend/app/rw_protocol_switch.py",
    "tests/test_rw_protocol_switch.py",
-   "backend/app/block_monitor.py"
+   "services/backend/app/block_monitor.py"
   ],
   "note": "«Починка блока: смена протокола» с откатом одной кнопкой — проверено на модели панели. Смена адреса заблокированного узла остаётся ручной. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0061": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_steps.py",
    "tests/test_cloudflare_cdn.py",
-   "backend/app/install_catalogue.py"
+   "services/backend/app/install_catalogue.py"
   ],
   "note": "Cloudflare CDN включается и выключается модулем, проверено на модели API Cloudflare. Отдельной диагностики CDN (что отвечает край, что — источник) нет.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0062": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/mtproto-check.sh",
    "tests/test_rw_netmods.py"
   ],
   "note": "То же, что REQ-NODE-0005.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0063": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_netmods.py",
+   "services/backend/app/rw_netmods.py",
    "scripts/ci/geo-check.sh",
    "tests/test_rw_netmods.py"
   ],
   "note": "То же, что REQ-NODE-0008.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0065": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/install_catalogue.py",
+   "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
    "apps/lucy-admin/web/e2e/install-hub.spec.ts",
-   "backend/app/rw_selfsteal.py"
+   "services/backend/app/rw_selfsteal.py"
   ],
   "note": "То же, что REQ-NODE-0011.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0067": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_steps.py",
    "scripts/ci/node-port-guard.sh",
    "tests/test_admin_ssh_ip.py",
    "infrastructure/deployment/install-vps.sh"
   ],
   "note": "Служебный порт нод — только для панели, с автоснятием правила; SSH сервера магазина — только с адреса владельца по вопросу установщика (по умолчанию «нет»), правило не применяется, если отрезало бы текущую сессию. Проверено в CI. Вживую на VPS не проверено.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0071": {
   "status": "PARTIAL",
   "evidence": [
-   "backend/app/rw_steps.py",
+   "services/backend/app/rw_steps.py",
    "tests/test_rw_node_modules.py"
   ],
   "note": "То же, что REQ-NODE-0007.",
-  "platforms": "server, backend/API, Web"
+  "platforms": "server, services/backend/API, Web"
  },
  "REQ-CLIENT-0001": {
   "status": "PASS",

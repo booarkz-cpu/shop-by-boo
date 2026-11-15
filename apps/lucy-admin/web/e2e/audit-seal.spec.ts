@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.125.0: «Журнал действий» → «Целостность журнала». The backend is a stub shaped like backend/app/audit_seal.py
+// v28.125.0: «Журнал действий» → «Целостность журнала». The backend is a stub shaped like services/backend/app/audit_seal.py
 // (tests/test_audit_seal.py checks the seals on a real table).
 const base = {sealed_records: 180, seals: 3, sealed_upto: 180, last_seal_at: '2026-11-12T09:50:00+00:00', unsealed_records: 2, verified_at: null, broken: [], intact: false, every_minutes: 10};
 

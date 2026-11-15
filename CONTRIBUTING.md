@@ -13,8 +13,8 @@
 
 ## Правила кода
 
-- `backend/app/main.py` короче 1000 строк. Новые модули — отдельными роутерами (`backend/app/routers.py`).
-- База данных меняется только миграциями Alembic (`backend/alembic/versions/`), с тестом туда и обратно.
+- `services/backend/app/main.py` короче 1000 строк. Новые модули — отдельными роутерами (`services/backend/app/routers.py`).
+- База данных меняется только миграциями Alembic (`services/backend/alembic/versions/`), с тестом туда и обратно.
 - Никаких секретов в репозитории, логах и скриншотах. Демо-данные — без настоящих e-mail, телефонов, токенов и ссылок подписок.
 - Без заглушек и «пустых» переключателей: функция либо работает, либо её нет в интерфейсе.
 - iOS: режим Swift 6, строгая проверка многопоточности без замечаний ([IOS_ARCHITECTURE](docs/ru/new/IOS_ARCHITECTURE.md)).
@@ -31,7 +31,7 @@ python3 scripts/generate-project-map.py --check
 
 Новый раздел админки:
 - зарегистрировать в `apps/lucy-admin/web/src/sections.ts`;
-- добавить модуль в `backend/app/admin_center.py`;
+- добавить модуль в `services/backend/app/admin_center.py`;
 - снять скриншот на стенде `tests/passkey_browser_server.py`: `cd apps/lucy-admin/web && node scripts/screenshots-catalog.mjs "$PWD/../../.."`. Без скриншота `tests/test_screenshots.py` не пройдёт.
 
 ## Безопасность
@@ -41,7 +41,7 @@ python3 scripts/generate-project-map.py --check
 ## English summary
 
 - Branch from `main` and open a pull request; it is squash-merged only when every CI check, iOS included, is green.
-- Database changes go through Alembic migrations only. Keep `backend/app/main.py` under 1000 lines.
+- Database changes go through Alembic migrations only. Keep `services/backend/app/main.py` under 1000 lines.
 - Never commit secrets or real customer data.
 - Run the checks above before opening a PR.
 - A new admin section needs a screenshot (`tests/test_screenshots.py`).

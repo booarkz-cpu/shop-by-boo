@@ -3,7 +3,7 @@
 Карточка **CrowdSec — защита от брутфорса** в разделе «Установка → Обслуживание и защита». Ставится на любой
 сервер установки: панель или ноду.
 
-Код: скрипт `CROWDSEC` в `backend/app/rw_netmods.py`, шаг в `backend/app/rw_steps.py`.
+Код: скрипт `CROWDSEC` в `services/backend/app/rw_netmods.py`, шаг в `services/backend/app/rw_steps.py`.
 Проверка: `scripts/ci/crowdsec-check.sh` (настоящая установка в CI) и `tests/test_rw_netmods.py`.
 
 ## Что делает

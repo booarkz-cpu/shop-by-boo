@@ -12,7 +12,7 @@ const OVERALL: Record<string, [Tone, string]> = {
 };
 
 /** «Аналитика → Состояние системы» (v28.62.0, stage 6 — System Control Center).
- *  Data: GET /api/admin/health/summary (backend/app/system_status.py). Every row is a read-only check;
+ *  Data: GET /api/admin/health/summary (services/backend/app/system_status.py). Every row is a read-only check;
  *  the button opens the section where that part is managed. */
 export function SystemStatus({d, navigate, reload}: {d: any; navigate: (tab: string) => void; reload: () => void}) {
   const checks: any[] = d?.checks || [];

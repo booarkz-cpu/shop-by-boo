@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSIONS = ROOT / "backend" / "alembic" / "versions"
+VERSIONS = ROOT / "services" / "backend" / "alembic" / "versions"
 
 
 def _literal(node: ast.AST):

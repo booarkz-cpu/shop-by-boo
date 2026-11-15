@@ -21,7 +21,7 @@ def test_version_312_is_first():
 
 def test_remote_payload_and_audit_are_redacted():
     os.environ.setdefault("MEDIA_DIR", "/tmp/media")
-    sys.path.insert(0, str(ROOT / "backend"))
+    sys.path.insert(0, str(ROOT / "services" / "backend"))
     from app.main import _public_audit_details, _public_refund_reason, _remote_user_id
     from app.remnawave import redact_remote
 

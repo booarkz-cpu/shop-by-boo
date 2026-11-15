@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.129.0: «Смена протокола» → «MASQUE: ноды и подписка». The backend is a stub shaped like backend/app/masque_panel.py
+// v28.129.0: «Смена протокола» → «MASQUE: ноды и подписка». The backend is a stub shaped like services/backend/app/masque_panel.py
 // (tests/test_masque_panel.py checks the rules; scripts/ci/masque-check.sh runs the node part for real).
 const SHIELD = {strict_sni: true, tls_like_site: true, probe_ban: true, ban_after: 30, ban_minutes: 10};
 const node = (over: object = {}) => ({server_id: 3, name: 'de-1', address: '203.0.113.5', domain: 'de.example.com', ready: true, installed: false, port: null, users: null, synced_at: null, error: null, shield: null, ...over});

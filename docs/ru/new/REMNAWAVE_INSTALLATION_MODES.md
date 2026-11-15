@@ -1,6 +1,6 @@
 # Режимы установки Remnawave
 
-Режим — это набор ролей на серверах реестра: `panel`, `node`, `subscription_page`. По ролям `backend/app/rw_plan.py` (`build_plan`) строит план из шагов закрытого списка ([DEPLOYMENT_AGENT](DEPLOYMENT_AGENT.md)). Как пользоваться — в [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md).
+Режим — это набор ролей на серверах реестра: `panel`, `node`, `subscription_page`. По ролям `services/backend/app/rw_plan.py` (`build_plan`) строит план из шагов закрытого списка ([DEPLOYMENT_AGENT](DEPLOYMENT_AGENT.md)). Как пользоваться — в [REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md).
 
 ## 1. Семь режимов
 

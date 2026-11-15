@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from backend.app.mobile_catalog import (
+from app.mobile_catalog import (
     card_from_input,
     parse_catalog,
     public_cards,

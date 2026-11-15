@@ -14,7 +14,7 @@ def _between(text: str, start: str, end: str) -> set[str]:
 
 
 def test_both_apps_know_every_layout_action():
-    backend = (ROOT / "backend/app/mobile_layout.py").read_text(encoding="utf-8")
+    backend = (ROOT / "services/backend/app/mobile_layout.py").read_text(encoding="utf-8")
     actions = set(re.findall(r'^    "([a-z_]+)": "', backend[backend.index("ACTIONS: dict"):backend.index("Action = Literal")], re.M))
     android = _between((ROOT / "apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/ui/AppLayout.kt").read_text(encoding="utf-8"),
                        "val KNOWN_ACTIONS", ")")
