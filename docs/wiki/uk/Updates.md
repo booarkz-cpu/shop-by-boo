@@ -11,7 +11,7 @@
 | --- | --- | --- |
 | Хост (root, systemd) | нічний таймер і агент | `scripts/auto_update.py`, `scripts/auto-update.sh` |
 | Хост | завантаження й перевірка релізу (SHA-256, маніфест) | `scripts/update-from-github.sh` |
-| Backend | лише пише запит і читає стан | `backend/app/auto_update_api.py` |
+| Backend | лише пише запит і читає стан | `services/backend/app/auto_update_api.py` |
 | Панель | кнопки та статус | розділ «Оновлення» |
 
 Обмін іде через два JSON-файли в `.control`: панель пише запит, агент пише стан. Агент приймає рівно три поля
@@ -61,7 +61,7 @@ bash scripts/rollback.sh
 
 ```bash
 bash scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.149.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.158.0 bash /opt/vpn-shop/scripts/update-from-github.sh
 ```
 
 ## Що видно в розділі «Оновлення»

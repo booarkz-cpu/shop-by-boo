@@ -1,6 +1,6 @@
 # Що нового у v28.40.0
 
-Ще дві каси для карток і СБП: **WATA** і **Antilopay**. Код — у `backend/app/payments_extra.py`. Head міграцій магазину — `0081_subscription_proxy`, застосунки — 3.4.0.
+Ще дві каси для карток і СБП: **WATA** і **Antilopay**. Код — у `services/backend/app/payments_extra.py`. Head міграцій магазину — `0081_subscription_proxy`, застосунки — 3.4.0.
 
 - **Ключі.** Каса стає в чергу кас і у вибір способу оплати, щойно задано її ключі в налаштуваннях без перезапуску або в `.env`.
   - WATA: `WATA_ACCESS_TOKEN`.

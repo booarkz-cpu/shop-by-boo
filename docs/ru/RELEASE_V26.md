@@ -40,7 +40,7 @@ sudo BRANCH=v26 bash /root/shop-install.sh
 ```bash
 git clone --branch v26 --depth 1 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
-sudo bash deploy/install-vps.sh
+sudo bash infrastructure/deployment/install-vps.sh
 ```
 
 Полная инструкция: [установка на VDS](DEPLOYMENT_CURRENT.md). Обновление существующего магазина: [согласованный upgrade](WORKSPACE_UPGRADE.md).

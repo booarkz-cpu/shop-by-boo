@@ -1,6 +1,6 @@
 # Инвентаризация проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.149.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
 Support Pro `0008`, мобильные приложения 3.8.0.
 
 Все числа в этом документе получены из репозитория на коммите `e3b9387` (`main`), а не из README:
@@ -42,27 +42,27 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 | Каталог | Файлов | Назначение |
 | --- | --- | --- |
 | `docs/` | 573 | документация на трёх языках + архив |
-| `backend/` | 331 | API, бот, worker, миграции |
+| `services/backend/` | 331 | API, бот, worker, миграции |
 | `tests/` | 228 | pytest-набор |
 | `mobile/` | 176 | Android и iOS, user и admin |
 | `screenshots/` | 142 | галереи интерфейсов |
-| `admin/` | 120 | админ-панель (Next.js) |
-| `cabinet/` | 110 | личный кабинет и Mini App (Next.js) |
-| `support-pro/` | 93 | отдельный сервис поддержки |
+| `apps/lucy-admin/web/` | 120 | админ-панель (Next.js) |
+| `apps/user-cabinet/` | 110 | личный кабинет и Mini App (Next.js) |
+| `services/support-pro/` | 93 | отдельный сервис поддержки |
 | `scripts/` | 77 | эксплуатация и релиз |
 | `.github/` | 61 | 15 workflows, соглашения |
-| `deploy/` | 18 | Caddy, nginx, prometheus, grafana, wireguard, mail-tls |
-| `miniapp/` | 6 | nginx-конфигурация Mini App |
+| `infrastructure/` | 20 | установщик, Caddy, nginx, prometheus, grafana, wireguard, mail-tls, Terraform; `deploy/` — 5 переходников старых путей |
+| `apps/telegram-mini-app/` | 6 | nginx-конфигурация Mini App |
 | `desktop/` | 4 | README-заготовки для трёх ОС |
 | `browser-extension/` | 2 | заготовка расширения |
-| `terraform/` | 1 | заготовка инфраструктуры |
+| `infrastructure/provisioning/` | 1 | заготовка инфраструктуры (Terraform) |
 
 ## 4. Backend
 
 | Параметр | Значение |
 | --- | --- |
-| Python-модулей в `backend/app` | **173** |
-| Строк в `backend/app` | **45 728** |
+| Python-модулей в `services/backend/app` | **173** |
+| Строк в `services/backend/app` | **45 728** |
 | Крупнейшие модули | `models.py` 2166, `mail_domain.py` 1052, `payments.py` 1046, `payments_api.py` 1009, `main.py` 991, `e2e_v2.py` 959, `runtime_settings.py` 956 |
 | Маршрутов (метод, путь) | **836** |
 | Уникальных путей | **718** |
@@ -103,10 +103,10 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 
 | Приложение | Файлов | Стек |
 | --- | --- | --- |
-| `mobile/android-user` | — | Kotlin + Compose, встроенный Xray-core |
-| `mobile/android-admin` | — | Kotlin + Compose |
-| `mobile/ios-user` | 10 `.swift` | Swift + SwiftUI |
-| `mobile/ios-admin` | — | Swift + SwiftUI |
+| `apps/vpn-shop/android` | — | Kotlin + Compose, встроенный Xray-core |
+| `apps/lucy-admin/android` | — | Kotlin + Compose |
+| `apps/vpn-shop/ios` | 10 `.swift` | Swift + SwiftUI |
+| `apps/lucy-admin/ios` | — | Swift + SwiftUI |
 
 Всего 24 файла Kotlin и 10 Swift. Версия приложений 3.8.0. Сборка проверяется в CI
 (`Android • PKCE build`, `iOS • PKCE build`, UI-тесты на эмуляторе и симуляторе).
@@ -146,7 +146,7 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 
 ### Скрипты эксплуатации — 27
 
-Установка (`install.sh`, `deploy/install-vps.sh`, `deploy/install-docker.sh`), обновление
+Установка (`install.sh`, `infrastructure/deployment/install-vps.sh`, `infrastructure/deployment/install-docker.sh`), обновление
 (`update.sh`, `update-from-github.sh`, `auto-update.sh`), откат (`rollback.sh`), резервные копии
 (`backup.sh`), диагностика (`doctor.sh`, `preflight.sh`, `security-scan.sh`), секреты
 (`rotate-secrets.sh`), мобильные сборки (3 скрипта), staging/интеграция (4 скрипта),
@@ -158,7 +158,7 @@ hot-standby, zero-downtime, миграция PostgreSQL.
 | --- | --- | --- |
 | Backend pytest | **220 файлов**, 2534 теста собирается (`pytest --collect-only`, 2026-11-02) | `pytest -q tests --timeout=180` |
 | Кабинет vitest | 16 файлов, 55 тестов | `npm test` в `cabinet` |
-| E2E Playwright | 8+ спецификаций в `admin/e2e` | `npx playwright test` |
+| E2E Playwright | 8+ спецификаций в `apps/lucy-admin/web/e2e` | `npx playwright test` |
 | Мобильные UI | Android эмулятор, iOS симулятор | workflows `ci.yml` |
 | Контракты документации | 5 скриптов | `scripts/check-*.py` |
 

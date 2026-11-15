@@ -1,14 +1,14 @@
 # Технологический стек
 
-Версии взяты из `backend/requirements.txt`, `*/package.json`, `Dockerfile` и `docker-compose.yml`
-на выпуске v28.149.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
+Версии взяты из `services/backend/requirements.txt`, `*/package.json`, `Dockerfile` и `docker-compose.yml`
+на выпуске v28.158.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
 файлу.
 
 ## Backend
 
 | Компонент | Версия | Файл | Назначение |
 | --- | --- | --- | --- |
-| Python | 3.14-slim (pinned digest) | `backend/Dockerfile` | язык исполнения |
+| Python | 3.14-slim (pinned digest) | `services/backend/Dockerfile` | язык исполнения |
 | FastAPI | 0.162.0 | `requirements.txt` | REST API, зависимости, OpenAPI |
 | Starlette | 1.10.0 | `requirements.txt` | ASGI-основа FastAPI |
 | Uvicorn | 0.54.0 (`[standard]`) | `requirements.txt` | ASGI-сервер |
@@ -41,8 +41,8 @@
 | pytest-asyncio | 1.4.1.post1 | `requirements-test.txt` |
 | pytest-timeout | 2.4.0 | `requirements-test.txt` |
 | aiosqlite | 0.22.1 | `requirements-test.txt` (локальный SQLite-прогон) |
-| Vitest | см. `cabinet/package.json` | модульные тесты кабинета |
-| Playwright | см. `admin/package.json` | e2e в браузере |
+| Vitest | см. `apps/user-cabinet/package.json` | модульные тесты кабинета |
+| Playwright | см. `apps/lucy-admin/web/package.json` | e2e в браузере |
 
 ## Frontend
 
@@ -54,7 +54,7 @@
 | React DOM | 19.3.1 | `admin` | рендер |
 | TypeScript | 7.0.2 | `admin` | строгая типизация |
 | Tailwind CSS | ^4.3.3 | `admin` | стили |
-| nginx | 1.30 (pinned digest) | `admin/Dockerfile`, `cabinet/Dockerfile`, `miniapp` | раздача собранной статики |
+| nginx | 1.30 (pinned digest) | `apps/lucy-admin/web/Dockerfile`, `apps/user-cabinet/Dockerfile`, `miniapp` | раздача собранной статики |
 
 Шрифты интерфейса: **Inter** (текст) и **JetBrains Mono** (технические данные), заданы в стилях
 панели и кабинета.
@@ -63,10 +63,10 @@
 
 | Платформа | Стек | Каталоги |
 | --- | --- | --- |
-| Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `mobile/android-user` |
-| Android admin | Kotlin 2.4, Compose, AGP 9.5 | `mobile/android-admin` |
-| iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `mobile/ios-user` |
-| iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `mobile/ios-admin` |
+| Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
+| Android admin | Kotlin 2.4, Compose, AGP 9.5 | `apps/lucy-admin/android` |
+| iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
+| iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `apps/lucy-admin/ios` |
 
 Версия приложений — **3.8.0** (`versionName`, `MARKETING_VERSION`).
 Тесты: XCUITest на симуляторе, UI-тесты на эмуляторе Android, Maestro (`mobile/maestro`).
@@ -77,10 +77,10 @@
 | --- | --- | --- | --- |
 | PostgreSQL | 18.6-alpine (pinned digest) | `docker-compose.yml` | основная БД и Support Pro |
 | Redis | 8.10-alpine (pinned digest) | `docker-compose.yml` | блокировки, кэш |
-| Caddy | 2.11, build из `deploy/caddy` | `docker-compose.yml` | TLS, HTTP/3, маршруты |
-| Prometheus | конфиг `deploy/prometheus` | `prometheus.example.yml`, `vpnshop-alerts.yml` | метрики и алерты |
-| Grafana | 2 дашборда | `deploy/grafana/*.json` | `vpnshop-operations`, `vpnshop-platform` |
-| WireGuard | конфиг `deploy/wireguard` | — | служебный туннель |
+| Caddy | 2.11, build из `infrastructure/reverse-proxy/caddy` | `docker-compose.yml` | TLS, HTTP/3, маршруты |
+| Prometheus | конфиг `infrastructure/monitoring/prometheus` | `prometheus.example.yml`, `vpnshop-alerts.yml` | метрики и алерты |
+| Grafana | 2 дашборда | `infrastructure/monitoring/grafana/*.json` | `vpnshop-operations`, `vpnshop-platform` |
+| WireGuard | конфиг `infrastructure/deployment/wireguard` | — | служебный туннель |
 | OWASP ZAP | `.zap/` | — | сканирование в CI |
 
 Все внешние образы закреплены по digest `@sha256:` — это исключает подмену тега.

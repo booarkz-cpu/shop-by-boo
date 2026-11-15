@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v28.99.0 (stage 20, N7): psiphond checked for real on the runner — the very script of backend/app/rw_netmods.py builds
+# v28.99.0 (stage 20, N7): psiphond checked for real on the runner — the very script of services/backend/app/rw_netmods.py builds
 # psiphond from the pinned commit in the pinned Go image, generates the server's keys and runs it as a systemd service;
 # then Psiphon's own ConsoleClient (built the same way) is given only this server's entry and must fetch a page through
 # the tunnel. A second «on» keeps the keys; «off» removes the service, the user's files and the port. Needs root,
@@ -7,7 +7,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 dir=$(mktemp -d); trap 'bash "$dir/psiphon.sh" off >/dev/null 2>&1 || true; docker rm -f corgi-psiphon-client >/dev/null 2>&1 || true; rm -rf "$dir"' EXIT
-read -r commit image < <(PYTHONPATH=backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
+read -r commit image < <(PYTHONPATH=services/backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
 import sys
 from app import rw_netmods as m
 open(f"{sys.argv[1]}/psiphon.sh", "w").write(m.PSIPHON)
@@ -24,7 +24,7 @@ systemctl is-active --quiet corgi-psiphon || fail "the service is not active"
 [ "$(stat -c %U /opt/corgi-psiphon/psiphond.config)" = corgi-psiphon ] || fail "the config is not the service user's"
 [ "$(stat -c %a /opt/corgi-psiphon/server-entry.dat)" = 600 ] || fail "the server entry is not 0600"
 echo "ok: psiphond built from $commit and running as corgi-psiphon"
-PYTHONPATH=backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$line" "$dir/client.json" <<'PY'
+PYTHONPATH=services/backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$line" "$dir/client.json" <<'PY'
 import json, sys
 from app import rw_netmods as m
 client = m.psiphon_client(sys.argv[1])

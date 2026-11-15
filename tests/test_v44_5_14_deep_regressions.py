@@ -114,7 +114,7 @@ async def test_a_provider_answer_without_a_payment_id_is_not_a_checkout(database
 def _pin(name):
     """Exact pinned version of a backend requirement as a tuple of ints (Dependabot moves pins forward)."""
     import re
-    for line in (ROOT / "backend/requirements.txt").read_text().splitlines():
+    for line in (ROOT / "services/backend/requirements.txt").read_text().splitlines():
         m = re.match(rf"^{re.escape(name)}(\[[^\]]*\])?==([0-9][0-9.]*)\s*$", line.strip(), re.I)
         if m:
             return tuple(int(x) for x in m.group(2).split("."))

@@ -1,6 +1,6 @@
 # What is new in v28.45.0
 
-- **Gateway package** `backend/app/gateways/`.
+- **Gateway package** `services/backend/app/gateways/`.
   - Each extra gateway now has its own module, plus a `GATEWAYS` table: keys, notification address, signature, re-check, refunds, recurring.
   - The queue, recovery and alert maps are built from this table.
   - `payments_extra.py` is kept as a compatibility module.

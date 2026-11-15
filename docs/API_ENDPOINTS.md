@@ -1,4 +1,4 @@
-# Каталог API — v28.149.0 / API v21.5.1
+# Каталог API — v28.158.0 / API v21.5.1
 
 Сгенерирован из OpenAPI текущих исходников. Миграция: `0094_store_subscriptions`.
 Авторизация, права, CSRF и принадлежность записей проверяются сервером; схема маршрута не заменяет права роли.
@@ -7,8 +7,8 @@
 Legacy callbacks прежних агентов служат историческим операциям. Новые покупки используют YooKassa/Platega/RollyPay;
 production gate остаётся закрытым без полного application E2E. Mobile purchase verify закрыт ответом 410.
 
-Обновление: `PYTHONPATH=backend python scripts/generate-api-docs.py`; проверка: добавьте `--check`.
-Колонка «Доступ» берётся из зависимостей маршрута: для админки — право роли (RBAC, `backend/app/security.py`),
+Обновление: `PYTHONPATH=services/backend python scripts/generate-api-docs.py`; проверка: добавьте `--check`.
+Колонка «Доступ» берётся из зависимостей маршрута: для админки — право роли (RBAC, `services/backend/app/security.py`),
 для остальных — кто вызывает маршрут. Правила общие для всех маршрутов — в [API.md](ru/new/API.md).
 
 | Метод | Путь | Операция | Доступ |

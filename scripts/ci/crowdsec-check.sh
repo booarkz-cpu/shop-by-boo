@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # v28.114.0 (master prompt v6, REQ-NODE-0020 / 0037): the CrowdSec module of «Установка» checked for real — the very
-# script of backend/app/rw_netmods.py on the CI runner (Ubuntu, systemd):
+# script of services/backend/app/rw_netmods.py on the CI runner (Ubuntu, systemd):
 #  * the engine and the nftables bouncer are installed from the official repository and both services run;
 #  * the allowlist holds the addresses passed to the script;
 #  * without the shared blocklist the engine does not talk to the Central API;
@@ -10,7 +10,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 dir=$(mktemp -d); trap 'rm -rf "$dir"' EXIT
-PYTHONPATH=backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
+PYTHONPATH=services/backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
 import sys
 from app import rw_netmods as m
 open(f"{sys.argv[1]}/crowdsec.sh", "w").write(m.CROWDSEC)

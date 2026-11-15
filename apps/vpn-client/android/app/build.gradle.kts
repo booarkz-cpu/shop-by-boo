@@ -1,6 +1,6 @@
 // «Корги Люси: клиент» — the third Android app (v28.79.0, stage 18): a standalone VPN client on the shop's Xray engine
-// for any subscriptions, not only the shop's. Separate from the customer (mobile/android-user) and administrator
-// (mobile/android-admin) apps: its own applicationId, tags and APK name; nothing here changes their builds.
+// for any subscriptions, not only the shop's. Separate from the customer (apps/vpn-shop/android) and administrator
+// (apps/lucy-admin/android) apps: its own applicationId, tags and APK name; nothing here changes their builds.
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -13,8 +13,8 @@ android {
         applicationId = "shop.corgi.client"
         minSdk = 26
         targetSdk = 36
-        versionCode = 197
-        versionName = "1.9.7"
+        versionCode = 1100
+        versionName = "1.10.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // v1.6.1 (N11): the AndroidLibXrayLite commit the AAR is built from, shown in «О приложении».
         val xrayAar = rootProject.file("../../../scripts/mobile/build-xray-aar.sh")

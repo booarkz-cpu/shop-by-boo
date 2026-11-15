@@ -9,7 +9,7 @@
 | «Ноды → Здоровье нод» | доступность нод через API панели, автоперезапуск, агенты на нодах, Xray |
 | «Мониторинг → Журналы контейнеров» | хвост журнала любой службы магазина, секреты скрыты (v28.75.0) |
 | «Сессии → История безопасности» | входы, неудачные попытки, подтверждения опасных действий (v28.75.0) |
-| Prometheus и Grafana | `deploy/prometheus/`, `deploy/grafana/` — метрики `/metrics` (включаются в «Настройках без перезапуска», нужен `METRICS_TOKEN`) |
+| Prometheus и Grafana | `infrastructure/monitoring/prometheus/`, `infrastructure/monitoring/grafana/` — метрики `/metrics` (включаются в «Настройках без перезапуска», нужен `METRICS_TOKEN`) |
 
 ## Метрики `/metrics`
 
@@ -28,7 +28,7 @@
 | `vpnshop_rw_installations_failed_24h` | неудачные установки, обновления и модули мастера за сутки (v28.75.0) |
 | `vpnshop_rw_ssh_key_rotation_due` | серверы с ключом владельца или ключом магазина старше 180 дней (v28.75.0) |
 
-## Правила оповещений (`deploy/prometheus/vpnshop-alerts.yml`)
+## Правила оповещений (`infrastructure/monitoring/prometheus/vpnshop-alerts.yml`)
 
 | Правило | Уровень | Когда |
 | --- | --- | --- |
@@ -48,7 +48,7 @@
 ## Подключение
 
 1. В «Настройках без перезапуска» включите «Prometheus-метрики» и задайте `METRICS_TOKEN` в `.env`.
-2. Скопируйте `deploy/prometheus/prometheus.example.yml`, укажите домен API и токен в заголовке `X-Metrics-Token`.
-3. Подключите `vpnshop-alerts.yml` и импортируйте дашборды из `deploy/grafana/`.
+2. Скопируйте `infrastructure/monitoring/prometheus/prometheus.example.yml`, укажите домен API и токен в заголовке `X-Metrics-Token`.
+3. Подключите `vpnshop-alerts.yml` и импортируйте дашборды из `infrastructure/monitoring/grafana/`.
 
 Мониторинг самих нод (CPU, RAM, трафик) — в панели Remnawave и в «Ноды → Здоровье нод». Отдельный сбор метрик с нод магазин не ставит.

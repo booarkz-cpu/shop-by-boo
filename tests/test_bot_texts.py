@@ -13,7 +13,7 @@ from app.models import AppSetting
 from test_subscription_commerce import database  # noqa: F401
 
 ADMIN = SimpleNamespace(email="owner@corgi.test", role="admin")
-APP = Path(__file__).resolve().parents[1] / "backend" / "app"
+APP = Path(__file__).resolve().parents[1] / "services" / "backend" / "app"
 CYRILLIC = re.compile("[А-Яа-яЁёІіЇїЄєҐґ]")
 # Texts for the owner's admin panel (not for customers) stay Russian like the rest of the panel.
 ALLOWED = {"BOT_TOKEN не задан"}

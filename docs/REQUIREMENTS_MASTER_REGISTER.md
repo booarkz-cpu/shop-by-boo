@@ -11,37 +11,37 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **136** — 20.8%.
+- Подтверждено (`PASS`): **194** — 29.7%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 136 | Проверено, доказательство указано |
-| `PARTIAL` | 182 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 19 | Функции нет |
+| `PASS` | 194 | Проверено, доказательство указано |
+| `PARTIAL` | 254 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 36 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 314 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 167 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Правила работы и приёмка | 123 | 1 | 3 | 0 | 119 |
-| Монорепозиторий и перенос | 28 | 5 | 5 | 1 | 17 |
-| «Корги Люси: Клиент» | 33 | 0 | 3 | 0 | 30 |
+| Правила работы и приёмка | 123 | 12 | 5 | 0 | 102 |
+| Монорепозиторий и перенос | 28 | 14 | 14 | 0 | 0 |
+| «Корги Люси: Клиент» | 33 | 8 | 24 | 0 | 0 |
 | Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
 | Lucy Admin | 19 | 3 | 11 | 0 | 0 |
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 1 | 13 | 0 | 0 |
 | MASQUE | 12 | 5 | 7 | 0 | 0 |
-| Ноды: установка, обслуживание, защита | 71 | 13 | 23 | 0 | 34 |
+| Ноды: установка, обслуживание, защита | 71 | 16 | 54 | 0 | 0 |
 | Автовыбор | 35 | 21 | 13 | 0 | 1 |
-| Инфраструктура, установщик, копии | 41 | 20 | 13 | 0 | 8 |
+| Инфраструктура, установщик, копии | 41 | 22 | 18 | 1 | 0 |
 | Backend, API, база | 2 | 0 | 2 | 0 | 0 |
 | Интерфейсы | 10 | 1 | 9 | 0 | 0 |
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
 | CI/CD и выпуски | 15 | 11 | 4 | 0 | 0 |
-| Документация | 37 | 2 | 0 | 0 | 35 |
-| Аудит, тесты, скриншоты | 69 | 5 | 4 | 0 | 60 |
+| Документация | 37 | 16 | 1 | 0 | 11 |
+| Аудит, тесты, скриншоты | 69 | 16 | 7 | 0 | 43 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
 | Производительность и стоимость | 7 | 1 | 4 | 0 | 0 |
@@ -54,9 +54,12 @@
 
 > Полный мастер-промпт Claude AI. Все задачи, требования и критерии сохраняются. Разрешено добавлять и объединять дубли только без потери уникальных требований.
 
-### REQ-GOV-0002 — `NOT_TESTED`
+### REQ-GOV-0002 — `PASS`
 
 - Источник: Часть I → Critical Rule (строка 21). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `README.md`; `docs/OWNER_DECISIONS.md`.
+- Примечание: Один целевой репозиторий shop-by-boo; новые не создаются.
 
 > Единственный целевой репозиторий всей экосистемы — shop-by-boo. Название не менять. Не создавать отдельные целевые репозитории для приложений, сервисов, API, мобильных клиентов, админки, платежей, инфраструктуры, документации или тестов. Всё находится в одном монорепозитории, но сохраняет логические границы, независимые сборки и возможность независимого развёртывания сервисов.
 
@@ -78,17 +81,21 @@
 
 > Все три продукта развиваются параллельно и имеют равную продуктовую значимость. P0–P5 обозначают только техническую срочность, риски и зависимости, не ценность продукта.
 
-### REQ-GOV-0006 — `NOT_TESTED`
+### REQ-GOV-0006 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Balanced Development → Documents (строка 855). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет.
+- Примечание: docs/PROJECT_BALANCED_DEVELOPMENT.md, PROJECT_WORKLOAD_MATRIX.md, PROJECT_COMPLETION_MATRIX.md ещё нет.
 
 > docs/PROJECT_BALANCED_DEVELOPMENT.md; docs/PROJECT_WORKLOAD_MATRIX.md; docs/PROJECT_COMPLETION_MATRIX.md.
 
-### REQ-GOV-0007 — `NOT_TESTED`
+### REQ-GOV-0007 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Acceptance Checklist → File (строка 862). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет.
+- Примечание: docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md ещё нет.
 
 > docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md
 
@@ -98,15 +105,21 @@
 
 > Уникальный ID; исходная формулировка; описание; критерии; зависимости; статус; ссылка на код; тест; доказательство; дата; версия.
 
-### REQ-GOV-0009 — `NOT_TESTED`
+### REQ-GOV-0009 — `PASS`
 
 - Источник: Часть I → Acceptance Checklist → Statuses (строка 870). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/requirements_register.py`.
+- Примечание: Статусы реестра: PASS, PARTIAL, FAIL, NOT_IMPLEMENTED, BLOCKED_EXTERNAL, BLOCKED_SECRETS, SOURCE_UNAVAILABLE, NOT_APPLICABLE, NOT_TESTED, RETIRED_BY_OWNER.
 
 > PASS; FAIL; PARTIAL; NOT_IMPLEMENTED; BLOCKED_EXTERNAL; NOT_APPLICABLE; NOT_TESTED.
 
-### REQ-GOV-0010 — `NOT_TESTED`
+### REQ-GOV-0010 — `PASS`
 
 - Источник: Часть I → Acceptance Checklist → Rules (строка 874). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/requirements_register.py`; `tests/test_requirements_register.py`.
+- Примечание: --check отклоняет PASS/PARTIAL без доказательств и доказательство-путь, которого нет.
 
 > PASS только с реальным подтверждением; PARTIAL при частичной реализации; BLOCKED_EXTERNAL при внешней блокировке; NOT_TESTED если тест не выполнен; NOT_IMPLEMENTED если функции нет.
 
@@ -129,16 +142,21 @@
 
 > PROMPT_VPN_SHOP_<DATE>_STAGE_<NUMBER>.md
 
-### REQ-GOV-0014 — `NOT_TESTED`
+### REQ-GOV-0014 — `PASS`
 
 - Источник: Часть I → State Tracking → Rule (строка 916). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/AUTOMATION_LOG.md`.
+- Примечание: Каждая задача записана в журнал автоматизации: задача, что сделано, чем проверено.
 
 > Фиксировать каждую задачу и не терять состояние после перезапуска рабочего окружения.
 
-### REQ-GOV-0015 — `NOT_TESTED`
+### REQ-GOV-0015 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Final Reports → Required (строка 923). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `FINAL_ACCEPTANCE.md` — есть (`docs/ru/new/FINAL_ACCEPTANCE.md`); `FINAL_IMPLEMENTATION_REPORT.md` — нет; `FINAL_PROJECT_AUDIT.md` — нет; `FINAL_SECURITY_REPORT.md` — нет; `FINAL_TEST_REPORT.md` — нет.
+- Примечание: Финальные отчёты пишутся в конце работ.
 
 > FINAL_PROJECT_AUDIT.md; FINAL_IMPLEMENTATION_REPORT.md; FINAL_SECURITY_REPORT.md; FINAL_TEST_REPORT.md; FINAL_ACCEPTANCE.md.
 
@@ -168,9 +186,12 @@
 > `n` = `2`
 > Найти все функции; каталогизировать модули; выявить уникальное, дубли и неработающее; матрица требований; список того, что нельзя потерять.
 
-### REQ-GOV-0020 — `NOT_TESTED`
+### REQ-GOV-0020 — `PARTIAL`
 
 - Источник: Часть I → First Execution Sequence → Monorepo architecture (строки 966–968). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`.
+- Примечание: Структура по промпту — этапы 1–3 перенесены (клиент, мобильные приложения, веб-панель, кабинет, Mini App); этапы 4–5 (infrastructure/, services/) впереди.
 
 > `n` = `3`
 > Сохранить имя shop-by-boo; подготовить структуру; границы трёх продуктов; общие библиотеки; API; БД; контракты; независимые сборки; план миграции и проверки сохранности.
@@ -224,21 +245,30 @@
 > `n` = `10`
 > Обновить README, Wiki, документацию и отчёты. Подготовить релиз; публиковать только после проверки и в пределах прав.
 
-### REQ-GOV-0028 — `NOT_TESTED`
+### REQ-GOV-0028 — `PASS`
 
 - Источник: Часть I → Acceptance Criteria → Criterion (строка 1010). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `docs/MIGRATION_MAPPING.md`.
+- Примечание: Все компоненты в shop-by-boo; источники сверены.
 
 > Все целевые компоненты в одном shop-by-boo.
 
-### REQ-GOV-0029 — `NOT_TESTED`
+### REQ-GOV-0029 — `PASS`
 
 - Источник: Часть I → Acceptance Criteria → Criterion (строка 1014). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `README.md`.
+- Примечание: Репозиторий называется shop-by-boo.
 
 > Название репозитория не изменено.
 
-### REQ-GOV-0030 — `NOT_TESTED`
+### REQ-GOV-0030 — `PASS`
 
 - Источник: Часть I → Acceptance Criteria → Criterion (строка 1018). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`.
+- Примечание: Функции remnawave-manager сопоставлены с магазином, недостающее перенесено; lucy-vpn-android закрыт решением владельца № 16.
 
 > Уникальные функции исходных проектов сохранены или обоснованно отмечены как несовместимые/непереносимые.
 
@@ -352,9 +382,12 @@
 
 > Acceptance Checklist содержит доказательства.
 
-### REQ-GOV-0049 — `NOT_TESTED`
+### REQ-GOV-0049 — `PASS`
 
 - Источник: Часть I → Acceptance Criteria → Criterion (строка 1094). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/ci.yml`; `docs/RELEASE_PROCESS.md`.
+- Примечание: CI на каждый PR, выпуск после зелёного CI и Docker на main.
 
 > CI/CD работает.
 
@@ -517,9 +550,12 @@
 
 > - Все три продукта равноправны по ценности.
 
-### REQ-GOV-0076 — `NOT_TESTED`
+### REQ-GOV-0076 — `PARTIAL`
 
 - Источник: Часть II → II.7. Обязательные проектные принципы (строка 1619). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `.github/workflows/ci.yml`.
+- Примечание: Один репозиторий с отдельными сборками каждого приложения; backend ещё один сервис с модулями.
 
 > - Один целевой монорепозиторий `shop-by-boo`, но чёткое разделение бизнес-доменов и независимые сборки/развёртывания.
 
@@ -535,9 +571,12 @@
 
 > - Весь доступный аудит/тестирование выполнять автономно, не просить пользователя запускать то, что можно сделать самому.
 
-### REQ-GOV-0079 — `NOT_TESTED`
+### REQ-GOV-0079 — `PASS`
 
 - Источник: Часть II → II.7. Обязательные проектные принципы (строка 1622). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/RELEASE_PROCESS.md`; `.github/workflows/ci.yml`.
+- Примечание: PR → полностью зелёный CI (CI gate) → squash merge; защита ветки не обходится.
 
 > - PR → зелёный CI → review → squash merge, если политика репозитория это допускает; не обходить защиту.
 
@@ -547,9 +586,12 @@
 
 > - Не использовать mocks для выдачи ложного статуса готовности; тестовые mocks допустимы только как явно обозначенные тестовые двойники.
 
-### REQ-GOV-0081 — `NOT_TESTED`
+### REQ-GOV-0081 — `PASS`
 
 - Источник: Часть II → II.7. Обязательные проектные принципы (строка 1624). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/AUTOMATION_LOG.md`; `docs/ru/RELEASE_V28_151_0.md`.
+- Примечание: Отчёты, заметки к выпускам и журнал — на русском.
 
 > - Все отчёты пользователю — на русском.
 
@@ -601,16 +643,21 @@
 
 > 5. Вести `docs/REQUIREMENTS_CHANGELOG.md`. Запрещено физически удалять требования из реестра. Отменённые требования помечать `RETIRED_BY_OWNER` с причиной и ссылкой на решение владельца.
 
-### REQ-GOV-0088 — `NOT_TESTED`
+### REQ-GOV-0088 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 23. Протокол сохранения требований и управления изменениями (строка 2120). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SOURCE_TRACEABILITY_MATRIX.md` — нет.
+- Примечание: docs/SOURCE_TRACEABILITY_MATRIX.md ещё нет.
 
 > 6. Вести `docs/SOURCE_TRACEABILITY_MATRIX.md`: источник → требования → код → тесты → evidence → релиз.
 
-### REQ-GOV-0089 — `NOT_TESTED`
+### REQ-GOV-0089 — `PASS`
 
 - Источник: Часть IV → 23. Протокол сохранения требований и управления изменениями (строка 2121). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/requirements_register.py`.
+- Примечание: Статус SOURCE_UNAVAILABLE есть в реестре.
 
 > 7. При недоступной истории/изображении/репозитории фиксировать `SOURCE_UNAVAILABLE`, а не восстанавливать точный текст догадкой. Продолжать работу по доступным задачам.
 
@@ -848,92 +895,128 @@
 
 > https://github.com/booarkz-cpu/remnawave-manager
 
-### REQ-MIG-0004 — `NOT_TESTED`
+### REQ-MIG-0004 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 43). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`.
+- Примечание: Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). MIT, перенос разрешён, но не нужен: у магазина свой Caddy. Построчной сверки функций установщика нет; коммит источника — от 2026-10-16.
 
 > https://github.com/eGamesAPI/remnawave-reverse-proxy
 
-### REQ-MIG-0005 — `NOT_TESTED`
+### REQ-MIG-0005 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 47). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`.
+- Примечание: Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). AGPL-3.0 — только идеи (решение № 13). Сверка функций обзорная, по разделам панели; коммит источника — от 2026-10-26.
 
 > https://github.com/Case211/remnawave-admin
 
-### REQ-MIG-0006 — `NOT_TESTED`
+### REQ-MIG-0006 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 51). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`.
+- Примечание: Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). Commons Clause — только идеи (решение № 13). Прочитаны не все файлы бота; сверка функций обзорная.
 
 > https://github.com/BEDOLAGA-DEV/remnawave-bedolaga-telegram-bot
 
-### REQ-MIG-0007 — `NOT_TESTED`
+### REQ-MIG-0007 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 55). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`.
+- Примечание: Источник изучен по клону: лицензия, стек, последний коммит, что из него нужно магазину (`docs/REFERENCE_REPOSITORIES.md`). AGPL-3.0 — только идеи (решение № 13). Сверка функций обзорная.
 
 > https://github.com/BEDOLAGA-DEV/bedolaga-cabinet
 
-### REQ-MIG-0008 — `NOT_TESTED`
+### REQ-MIG-0008 — `PARTIAL`
 
 - Источник: Часть I → Source Repositories → Repo (строка 59). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `services/backend/app/import_presets.py`; `tests/test_import_presets.py`.
+- Примечание: StepBot изучен по клону (`7a1fe52`, MIT). Сверка по модулям магазина: функции из его списка в магазине есть; недостававшая готовая раскладка импорта из remnawave-shopbot сделана в v28.157.0 (`services/backend/app/import_presets.py`). Построчная сверка поведения каждой функции не проведена.
 
 > https://github.com/STEP-CORP/StepBot/tree/main
 
-### REQ-MIG-0009 — `BLOCKED_EXTERNAL`
+### REQ-MIG-0009 — `PASS`
 
 - Источник: Часть I → Source Repositories → Repo (строка 63). Продукт: Все три.
 - Платформы: all products.
-- Доказательство: `docs/MIGRATION_MAPPING.md`.
-- Примечание: lucy-vpn-android недоступен из среды разработки — нужен доступ или подтверждение владельца, что репозитория нет.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `docs/OWNER_DECISIONS.md`.
+- Примечание: lucy-vpn-android закрыт решением владельца № 16: не нужен, клиент заменён своим apps/vpn-client/android; репозиторий не трогается.
 
 > https://github.com/booarkz-cpu/lucy-vpn-android
 
-### REQ-MIG-0010 — `NOT_TESTED`
+### REQ-MIG-0010 — `PASS`
 
 - Источник: Часть I → Source Repositories → Mandatory Read (строка 67). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`).
+- Доказательство: `docs/CODE_REUSE_REGISTER.md`.
 
 > docs/CODE_REUSE_REGISTER.md
 
-### REQ-MIG-0011 — `NOT_TESTED`
+### REQ-MIG-0011 — `PASS`
 
 - Источник: Часть I → Source Repositories → Mandatory Read (строка 71). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`).
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`.
 
 > docs/REFERENCE_REPOSITORIES.md
 
-### REQ-MIG-0012 — `NOT_TESTED`
+### REQ-MIG-0012 — `PASS`
 
 - Источник: Часть I → Source Repositories → Rule (строка 75). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/REFERENCE_REPOSITORIES.md`; `docs/CODE_REUSE_REGISTER.md`; `docs/OWNER_DECISIONS.md`; `THIRD_PARTY_NOTICES.md`.
 
 > Исходные репозитории — источники аудита и миграции, а не отдельные целевые репозитории. Проверить лицензии, авторские права, историю, зависимости и происхождение кода. Не удалять исходные репозитории и ветки. Составить карту компонентов, API, уникальных и дублирующихся функций, ошибок, плана миграции и результатов тестов.
 
-### REQ-MIG-0013 — `NOT_TESTED`
+### REQ-MIG-0013 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Apps (строка 82). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `apps/vpn-client/android/app/build.gradle.kts`; `apps/user-cabinet/package.json`; `apps/telegram-mini-app/package.json`; `apps/lucy-admin/web/package.json`.
+- Примечание: В `apps/` есть vpn-client/android, vpn-shop (android, ios), user-cabinet, telegram-mini-app, lucy-admin (web, android, ios). Нет vpn-client/ios (клиент только для Android); telegram-bot и status-page — модули бэкенда, отдельными приложениями не выделены.
 
 > vpn-client/android; vpn-client/ios; vpn-shop; user-cabinet; telegram-bot; telegram-mini-app; lucy-admin/web; lucy-admin/android; lucy-admin/ios; status-page.
 
-### REQ-MIG-0014 — `NOT_TESTED`
+### REQ-MIG-0014 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Services (строка 86). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `services/backend/app/main.py`; `services/support-pro/app/main.py`; `tests/test_layout_stage5.py`; `docs/architecture/DOMAIN_BOUNDARIES.md`.
+- Примечание: С v28.158.0 есть `services/backend` и `services/support-pro`. Сервисы промпта (api, auth, payment, subscription …) — модули одного FastAPI-приложения, отдельными службами не выделены: причины в MONOREPO_LAYOUT.
 
 > api; authentication; payment-orchestrator; subscription-manager; remnawave-integration; node-manager; node-provisioning; auto-selection; masque; notification-service; support.
 
-### REQ-MIG-0015 — `NOT_TESTED`
+### REQ-MIG-0015 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Packages (строка 90). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `packages/localization/user.json`; `packages/localization/admin.json`.
+- Примечание: Есть `packages/localization`. Остальных пакетов нет: общего кода между приложениями нет, пустые модули не создаются.
 
 > shared-ui; shared-api; shared-types; shared-config; localization; payment-contracts; security; testing.
 
-### REQ-MIG-0016 — `NOT_TESTED`
+### REQ-MIG-0016 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Infrastructure (строка 94). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `infrastructure/deployment/install-vps.sh`; `infrastructure/reverse-proxy/Caddyfile`; `infrastructure/monitoring/prometheus/vpnshop-alerts.yml`; `infrastructure/provisioning/corgi/main.tf`.
+- Примечание: Есть deployment (с установщиком), reverse-proxy, monitoring, provisioning. Нет отдельных папок docker, vpn-nodes, security, backup: Dockerfile лежат рядом с кодом, узлы ставятся модулями бэкенда, копии — скриптами в `scripts/`.
 
 > docker; installer; provisioning; vpn-nodes; reverse-proxy; monitoring; security; backup; deployment.
 
-### REQ-MIG-0017 — `NOT_TESTED`
+### REQ-MIG-0017 — `PARTIAL`
 
 - Источник: Часть I → Monorepo → Other (строка 98). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `scripts/audit/requirements_register.py`; `docs/PROJECT_FILE_MAP.md`.
+- Примечание: Есть `scripts/audit`, `tests/`, `docs/`, `.github/workflows`. Миграции лежат в `services/backend/alembic` и `services/support-pro/alembic`, а не в `database/`; `scripts/` и `tests/` не разбиты на подпапки по назначению.
 
 > database/migrations; database/schemas; database/seeds; scripts/audit; scripts/build; scripts/migration; scripts/release; scripts/maintenance; tests/unit; tests/integration; tests/e2e; tests/security; tests/mobile; tests/infrastructure; docs/ru; docs/en; docs/uk; docs/architecture; docs/payments; docs/remnawave; docs/masque; docs/installation; docs/security; docs/screenshots; artifacts/audit; artifacts/builds; artifacts/screenshots; artifacts/reports; .github/workflows.
 
@@ -955,21 +1038,21 @@
 
 > Единственный целевой репозиторий: https://github.com/booarkz-cpu/shop-by-boo.git, имя shop-by-boo. Не создавать новые целевые репозитории. Ранее упомянутый lucy-vpn-android и другие репозитории — источники кода/истории для миграции в монорепозиторий.
 
-### REQ-MIG-0020 — `PARTIAL`
+### REQ-MIG-0020 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1181). Продукт: Все три.
 - Платформы: all products.
 - Доказательство: `docs/MIGRATION_MAPPING.md`.
-- Примечание: URL, ветка, SHA, теги, версия зафиксированы для shop-by-boo, VPN-Shop-by-CorgiLusi, remnawave-manager; lucy-vpn-android недоступен.
+- Примечание: URL, ветка, SHA, теги, версия зафиксированы для всех собственных источников; lucy-vpn-android закрыт решением № 16.
 
 > Зафиксировать исходные URL, default branch, commit SHA, теги, релизы, ветки и состояние каждого источника.
 
-### REQ-MIG-0021 — `PARTIAL`
+### REQ-MIG-0021 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1185). Продукт: Все три.
 - Платформы: all products.
 - Доказательство: `docs/MIGRATION_MAPPING.md`.
-- Примечание: Каталог функций remnawave-manager (меню 1–33, CLI) составлен и сопоставлен; каталог lucy-vpn-android ждёт доступа.
+- Примечание: Каталог функций remnawave-manager (меню 1–33, CLI) составлен и сопоставлен с модулями магазина; других собственных источников для переноса нет.
 
 > Составить каталог всех экранов, API endpoints, фоновых задач, CLI-команд, скриптов, сервисов, конфигураций, миграций БД и пользовательских сценариев.
 
@@ -982,9 +1065,11 @@
 
 > Сопоставить одинаковые функции, определить каноническую реализацию, перечислить отличия и уникальные возможности каждой реализации.
 
-### REQ-MIG-0023 — `NOT_TESTED`
+### REQ-MIG-0023 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1193). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `tests/test_layout_stage4.py`; `tests/test_admin_ssh_ip.py`; `docs/MONOREPO_LAYOUT.md`.
 
 > До удаления/замены дубликата доказать функциональную эквивалентность тестами и контрактами.
 
@@ -997,63 +1082,85 @@
 
 > Сохранить attribution, лицензии, copyright notices и обязательные файлы лицензий.
 
-### REQ-MIG-0025 — `NOT_TESTED`
+### REQ-MIG-0025 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1201). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `docs/MIGRATION_MAPPING.md`.
 
 > Сохранить полезную историю изменений там, где это возможно и законно; не переписывать историю целевого репозитория.
 
-### REQ-MIG-0026 — `NOT_TESTED`
+### REQ-MIG-0026 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1205). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/ci/secret-leak-check.py`; `tests/test_secret_leak_check.py`; `.github/workflows/ci.yml`; `docs/MIGRATION_MAPPING.md`.
+- Примечание: Чужие коммиты не переносились — переносить было нечего (только свой код). Секреты в дереве и в файлах выпуска проверяет CI. Отдельной проверки персональных данных в тестовых данных и журналах нет.
 
 > Проверить отсутствие секретов и персональных данных в переносимых commit, fixture, логах и артефактах.
 
-### REQ-MIG-0027 — `PARTIAL`
+### REQ-MIG-0027 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1209). Продукт: Все три.
 - Платформы: all products.
 - Доказательство: `docs/MIGRATION_MAPPING.md`; `tests/test_admin_ssh_ip.py`.
-- Примечание: Отчёт mapping источник/коммит → модуль магазина → тесты → статус для remnawave-manager; lucy-vpn-android ждёт доступа.
+- Примечание: Отчёт mapping источник/коммит → модуль магазина → тесты → статус.
 
 > Создать отчёт mapping: source repository/path/commit → monorepo path → новая реализация → тесты → evidence.
 
-### REQ-MIG-0028 — `NOT_TESTED`
+### REQ-MIG-0028 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Repository Migration Expanded → Migration Inventory → Task (строка 1213). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/API_ENDPOINTS.md`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`; `scripts/verify-admin-matrix.py`; `tests/test_layout_stage4.py`; `docs/MONOREPO_LAYOUT.md`.
+- Примечание: После каждого этапа перекладки: список маршрутов API и матрица функций панели генерируются из кода и лежат в репозитории — пропавший маршрут или раздел виден в PR; сборки и тесты приложений идут в CI. Нет такой же описи команд бота, фоновых задач и настроек.
 
 > После миграции проверить отсутствие потерянных endpoints, экранов, команд бота, фоновых задач, конфигураций и пользовательских сценариев.
 
 
 ## «Корги Люси: Клиент»
 
-### REQ-CLIENT-0001 — `NOT_TESTED`
+### REQ-CLIENT-0001 — `PASS`
 
 - Источник: Часть I → Products → Корги Люси: Клиент (строка 109). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt`; `apps/vpn-client/android/app/build.gradle.kts`; `docs/ru/new/ANDROID_CLIENT_APP.md`.
 
 > `id` = `vpn-client`
 
-### REQ-CLIENT-0002 — `NOT_TESTED`
+### REQ-CLIENT-0002 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Purpose (строка 113). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `docs/ru/new/ANDROID_CLIENT_APP.md`.
+- Примечание: Клиент для Android бесплатный, без регистрации и покупки, работает с любой подпиской и не обращается к серверу магазина (кроме проверки обновлений на GitHub). Клиента для iOS нет: нужен Apple Developer (O11).
 
 > Полностью бесплатный универсальный VPN-клиент Android/iOS для совместимых сторонних VPN-подписок. Не зависит от коммерческого backend VPN Shop, не требует обязательной регистрации или покупки.
 
-### REQ-CLIENT-0003 — `NOT_TESTED`
+### REQ-CLIENT-0003 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Imports (строка 117). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt`.
+- Примечание: Ссылка, QR, буфер обмена, файл, ручной ввод, несколько подписок, обновление, изменение, удаление, экспорт копией, пинг серверов. Отдельной «диагностики конфигурации» с разбором ошибок по полям нет. На телефоне не проверено.
 
 > URL; QR; файл; буфер обмена; ручное добавление; несколько подписок; обновление; редактирование; удаление; экспорт; диагностика конфигурации; проверка доступности серверов.
 
-### REQ-CLIENT-0004 — `NOT_TESTED`
+### REQ-CLIENT-0004 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Protocols (строка 121). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt`; `docs/MASQUE_PANEL.md`.
+- Примечание: Разбираются ссылки VLESS (в том числе REALITY), Trojan, Shadowsocks, VMess, Hysteria 2 и подписка MASQUE; неподдержанные ссылки считаются и показываются как пропущенные. TUIC не поддержан. Работа каждого протокола на телефоне не проверена; в CI VPN на эмуляторе проверяется на VLESS.
 
 > VLESS; REALITY; Trojan; Shadowsocks; VMess; Hysteria 2; TUIC; MASQUE и другие — только если подтверждены движком и платформой.
 
-### REQ-CLIENT-0005 — `NOT_TESTED`
+### REQ-CLIENT-0005 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Features (строка 125). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt`; `docs/ru/new/ANDROID_CLIENT_APP.md`.
+- Примечание: Есть: прокси по приложениям, маршрутизация, статистика трафика, прокси для локальной сети, переключение на запасной сервер, вибрация, автовыбор, пинг, уведомления, блокировка приложения отпечатком или PIN телефона, журналы и диагностика. Нет отдельного режима экономии батареи и «Погладить корги»; своего PIN приложение не хранит (системный). На телефоне не проверено.
 
 > Split Tunneling; Smart Routing; Live Traffic; LAN Proxy Share; Self-Healing; Battery Saver; Pet the Corgi; Haptic Feedback; авто-выбор сервера; проверка задержки; уведомления; PIN; биометрия; диагностика; профили; импорт/экспорт; восстановление подключения.
 
@@ -1075,9 +1182,12 @@
 
 > Твой интернет. Твои правила. Твоя Люси
 
-### REQ-CLIENT-0008 — `NOT_TESTED`
+### REQ-CLIENT-0008 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Branding → Style (строка 139). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Theme.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/HomeScreen.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt`; `screenshots/client/home.png`; `screenshots/client/home-servers.png`.
+- Примечание: Тёмная тема бренда с градиентом, маскот, список серверов, цветной статус и задержка в мс, заметные переключатели — на снимках из CI. Соответствие макету владельца на телефоне не подтверждено им.
 
 > Тёмная/космическая градиентная концепция; маскот корги; список серверов; цветной статус; задержка XX ms; SVG Add; заметные переключатели.
 
@@ -1090,147 +1200,213 @@
 
 > Лишние счётчики дней; декоративный огонёк; баннер «ЗАЩИТА В ОДНО КАСАНИЕ»; маска; кнопка «Безлимит».
 
-### REQ-CLIENT-0010 — `NOT_TESTED`
+### REQ-CLIENT-0010 — `PARTIAL`
 
 - Источник: Часть I → Products → Корги Люси: Клиент → Critical Bug (строка 148). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt`; `docs/ru/new/ANDROID_CLIENT_APP.md`.
+- Примечание: Блокировка переписана в 1.8.1: системный запрос (BiometricPrompt или подтверждение блокировки экрана), включение только после успешного запроса, VPN при блокировке не останавливается. Logcat с телефона владельца с исходным вылетом не получен, на устройстве не перепроверено.
 
 > Приложение может падать при включении PIN/биометрии из настроек подключения. Получить Logcat/stack trace; найти первопричину; проверить Activity/Service lifecycle, VPNService, блокировку UI, разрешения и состояние подключения; исправить; блокировка UI не должна завершать VPNService или сессию; проверить минимум 15 сценариев.
 
-### REQ-CLIENT-0011 — `NOT_TESTED`
+### REQ-CLIENT-0011 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2160). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt`.
 
 > - Поддерживать несколько независимых подписок и локальных профилей.
 
-### REQ-CLIENT-0012 — `NOT_TESTED`
+### REQ-CLIENT-0012 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2161). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt`.
+- Примечание: Показываются срок действия, трафик, время последнего обновления, число серверов, число пропущенных ссылок и ошибка. Время следующего обновления не показывается.
 
 > - Отображать источник, дату последнего обновления, дату следующего обновления, срок действия, количество конфигураций и ошибки.
 
-### REQ-CLIENT-0013 — `NOT_TESTED`
+### REQ-CLIENT-0013 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2162). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backoff.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/BackoffTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/UpdateJob.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt`.
 
 > - Поддерживать обновление вручную и по расписанию с разумными ограничениями, backoff и защитой от одновременных обновлений.
 
-### REQ-CLIENT-0014 — `NOT_TESTED`
+### REQ-CLIENT-0014 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2163). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt`.
 
 > - Не перезаписывать рабочий профиль невалидным ответом сервера.
 
-### REQ-CLIENT-0015 — `NOT_TESTED`
+### REQ-CLIENT-0015 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2164). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt`.
 
 > - При ошибке обновления сохранять последнюю рабочую конфигурацию и показывать понятную диагностику.
 
-### REQ-CLIENT-0016 — `NOT_TESTED`
+### REQ-CLIENT-0016 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2165). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/LinksTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt`.
+- Примечание: Пустой список, неизвестный протокол, неверный формат, недоступный адрес, ошибка HTTP и TLS оставляют прежние серверы и показывают причину; с 1.9.8 ответ больше 8 МБ не читается. Истёкшая подписка показывается по заголовку подписки. Дубли серверов не убираются; отдельных тестов на редирект и ошибку TLS нет.
 
 > - Обрабатывать истёкшую подписку, пустой список, некорректный формат, неизвестный протокол, дубли, недоступный URL, redirect, TLS error и oversized response.
 
-### REQ-CLIENT-0017 — `NOT_TESTED`
+### REQ-CLIENT-0017 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2166). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Links.kt`.
+- Примечание: Подписка — только по https:// (http — лишь в отладочной сборке), сертификат проверяет система, размер ограничен, содержимое разбирается по известным схемам. Адрес подписки на внутренние сети не запрещён: пользователь сам вводит адрес на своём устройстве, ответ никуда не пересылается.
 
 > - Импортировать только разрешённые схемы; проверять URL, redirects, сертификаты, размер и содержимое; не допускать SSRF через произвольные внутренние адреса.
 
-### REQ-CLIENT-0018 — `NOT_TESTED`
+### REQ-CLIENT-0018 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2167). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Sealed.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SealedTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt`.
+- Примечание: Копия в файл с паролем шифруется (AES-256-GCM, ключ из пароля по PBKDF2); логин и пароль локального прокси в копию не попадают. Пароль необязателен; копия ссылкой и QR-кодом не шифруется. На телефоне не проверено.
 
 > - Поддерживать резервное копирование и перенос профилей с защитой приватных данных.
 
-### REQ-CLIENT-0019 — `NOT_TESTED`
+### REQ-CLIENT-0019 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2168). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt`.
+- Примечание: Экспорт и «поделиться» — только по нажатию пользователя. Отдельного предупреждения о ключах и UUID перед экспортом нет.
 
 > - Экспортировать конфигурации только после явного действия пользователя и предупреждать о чувствительных ключах/UUID.
 
-### REQ-CLIENT-0020 — `NOT_TESTED`
+### REQ-CLIENT-0020 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2172). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt`.
+- Примечание: Состояния службы: выключен, подключение, проверка туннеля (checking), подключён, сервер не отвечает (no_answer); запрос разрешения VPN и ошибка — отдельными событиями. На экране «проверка» показывается как «подключение»; отдельных состояний reconnecting и stopping нет.
 
 > - Реализовать корректные состояния: disconnected, preparing, connecting, connected, reconnecting, stopping, permission_required, error.
 
-### REQ-CLIENT-0021 — `NOT_TESTED`
+### REQ-CLIENT-0021 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2173). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt`.
+- Примечание: Кнопка недоступна, пока меняется конфигурация; модель экрана покрыта тестами. Отдельного теста на серию быстрых нажатий нет.
 
 > - Исключить гонки при быстрых нажатиях connect/disconnect и смене профиля.
 
-### REQ-CLIENT-0022 — `NOT_TESTED`
+### REQ-CLIENT-0022 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2174). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/home/VpnViewModel.kt`.
+- Примечание: VPN работает в службе переднего плана и не зависит от экрана; состояние экран берёт у службы. Поворот, сворачивание и блокировка устройства на телефоне не проверялись; в CI — запуск на эмуляторе.
 
 > - Сохранять состояние VPN при смене Activity/Scene, повороте экрана, сворачивании приложения и блокировке устройства.
 
-### REQ-CLIENT-0023 — `NOT_TESTED`
+### REQ-CLIENT-0023 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2175). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/NetworkReceiver.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/BootReceiver.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Failover.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/FailoverTest.kt`.
+- Примечание: Смена сети, доверенные Wi-Fi, запуск после перезагрузки и переключение на запасной сервер реализованы и покрыты тестами логики. Переходы Wi-Fi ↔ мобильная сеть, портал авторизации, Doze, нехватка памяти на устройствах не проверялись.
 
 > - Отдельно тестировать переход Wi-Fi ↔ mobile data, captive portal, потерю сети, смену IP, DNS failure, sleep/wake, Doze, low-memory и reboot.
 
-### REQ-CLIENT-0024 — `NOT_TESTED`
+### REQ-CLIENT-0024 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2176). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Verify.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt`; `scripts/mobile/client-vpn-e2e.sh`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt`.
 
 > - Не показывать connected до подтверждения работающего tunnel/data path.
 
-### REQ-CLIENT-0025 — `NOT_TESTED`
+### REQ-CLIENT-0025 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2177). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/ClientVpnService.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/vpn/Session.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt`.
+- Примечание: Остановка закрывает туннель, ядро и потоки, обрабатывается отзыв разрешения VPN. Отсутствие «зависшей» службы на устройствах длительно не проверялось.
 
 > - Обеспечить корректное завершение соединения, освобождение ресурсов и защиту от zombie service.
 
-### REQ-CLIENT-0026 — `NOT_TESTED`
+### REQ-CLIENT-0026 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2178). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Logs.kt`.
+- Примечание: Журналы одним .zip по нажатию. Вычищение адресов серверов и UUID из журналов перед экспортом не сверено.
 
 > - Реализовать диагностический экспорт без секретов и персональных данных по умолчанию.
 
-### REQ-CLIENT-0027 — `NOT_TESTED`
+### REQ-CLIENT-0027 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2182). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt`.
+- Примечание: Разрешения запрашиваются в момент включения функции, с подписью у переключателя (уведомления, доверенные сети — геолокация для имени Wi-Fi). Отдельного экрана с объяснением разрешения VPN перед первым запросом нет.
 
 > - Объяснять назначение VPN permission, локального VPN API, уведомлений и иных разрешений.
 
-### REQ-CLIENT-0028 — `NOT_TESTED`
+### REQ-CLIENT-0028 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2183). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt`.
+- Примечание: История трафика — только объём по дням, на устройстве. Журнал сети (домены и маршруты) выключен по умолчанию, включается пользователем и хранится только на устройстве. Политики приватности клиента отдельным документом нет.
 
 > - Не собирать историю трафика, содержимое пакетов или browsing history без необходимости и явного основания.
 
-### REQ-CLIENT-0029 — `NOT_TESTED`
+### REQ-CLIENT-0029 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2184). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ApkCheck.kt`.
+- Примечание: Журналы уходят из приложения только кнопкой «поделиться»; библиотек аналитики и отчётов о сбоях в сборке нет. Серверу подписки по умолчанию передаётся идентификатор устройства (заголовок x-hwid) — отключается в настройках.
 
 > - Не передавать диагностические данные без согласия пользователя.
 
-### REQ-CLIENT-0030 — `NOT_TESTED`
+### REQ-CLIENT-0030 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2185). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt`; `docs/BRAND_COPY.md`.
+- Примечание: В текстах клиента и бренда нет обещаний анонимности и обхода любых блокировок. Явной оговорки об этом в приложении или в документе клиента нет.
 
 > - Документировать, что VPN не гарантирует анонимность, защиту от всех угроз или обход всех блокировок.
 
-### REQ-CLIENT-0031 — `NOT_TESTED`
+### REQ-CLIENT-0031 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2186). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/MainActivity.kt`.
 
 > - PIN/биометрия защищают интерфейс и локальные действия, но не должны неожиданно останавливать активный VPN tunnel.
 
-### REQ-CLIENT-0032 — `NOT_TESTED`
+### REQ-CLIENT-0032 — `PARTIAL`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2187). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`.
+- Примечание: Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено.
 
 > - Секреты профилей хранить в защищённом хранилище платформы, где это применимо.
 
-### REQ-CLIENT-0033 — `NOT_TESTED`
+### REQ-CLIENT-0033 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.4. Производительность (строка 2191). Продукт: Клиент.
+- Платформы: Android client.
+- Доказательство: `docs/ru/new/ANDROID_CLIENT_APP.md`.
+- Примечание: Замеров холодного и тёплого запуска, времени подключения, процессора, памяти, батареи и доли сессий без сбоев нет; численных улучшений проект не заявляет. Нужны устройства (O12).
 
 > Измерять cold start, warm start, connect time, reconnect time, CPU, RAM, battery impact, app size, crash-free sessions и throughput на сопоставимых тестовых условиях. Не заявлять численные улучшения без baseline и повторяемых измерений.
 
@@ -1255,14 +1431,14 @@
 ### REQ-SHOP-0003 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Max (строка 159). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > `devices` = `2`; `traffic` = `unlimited`
 
 ### REQ-SHOP-0004 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Ultra (строки 162–164). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > `devices` = `4`; `traffic` = `unlimited`
 > Визуально и коммерчески выгоднее Lucy Max.
@@ -1270,7 +1446,7 @@
 ### REQ-SHOP-0005 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Lucy Mini — Test (строки 167–169). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > `duration` = `3 days`; `devices` = `1`
 > Для тестирования сервиса.
@@ -1278,7 +1454,7 @@
 ### REQ-SHOP-0006 — `PASS`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Rule (строка 173). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `admin/src/lucy-plans.tsx`; `docs/BRAND_COPY.md`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`; `docs/BRAND_COPY.md`.
 - Примечание: Цены задаёт только владелец в панели; код и тексты цен не содержат и не меняют.
 
 > Не менять цены и коммерческие условия без обоснования и разрешения.
@@ -1286,7 +1462,7 @@
 ### REQ-SHOP-0007 — `PARTIAL`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Authentication (строка 177). Продукт: Магазин.
-- Доказательство: `backend/app/auth_api.py`; `tests/test_behaviour_auth.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_account_actions.py`.
+- Доказательство: `services/backend/app/auth_api.py`; `tests/test_behaviour_auth.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_account_actions.py`.
 - Примечание: Вход по почте, через VK и Яндекс реализован и покрыт тестами на подделку и захват учётной записи. С настоящими ключами OAuth не проверено: ключей нет.
 
 > Email; VK; Yandex — если безопасно и технически подтверждено.
@@ -1294,7 +1470,7 @@
 ### REQ-SHOP-0008 — `PARTIAL`
 
 - Источник: Часть I → Products → VPN Shop by Corgi Lucy → Telegram (строка 181). Продукт: Магазин.
-- Доказательство: `backend/app/bot.py`; `tests/test_bot_api_rules.py`; `tests/test_bot_texts.py`; `tests/test_bot_banners.py`; `tests/live/test_telegram_live.py`.
+- Доказательство: `services/backend/app/bot.py`; `tests/test_bot_api_rules.py`; `tests/test_bot_texts.py`; `tests/test_bot_banners.py`; `tests/live/test_telegram_live.py`.
 - Примечание: Команды, меню, тексты и баннеры бота покрыты тестами; есть проверка с настоящим Telegram API в CI. Сквозной прогон покупки в настоящем боте с оплатой не проводился.
 
 > Проверить и исправить ранее сообщавшуюся проблему неработающего Telegram Bot. Проверить команды, меню, регистрацию, покупку, продление, оплату, выдачу подписки, уведомления, поддержку, Mini App, webhook, ошибки и восстановление после перезапуска.
@@ -1302,7 +1478,7 @@
 ### REQ-SHOP-0009 — `PARTIAL`
 
 - Источник: Часть I → User Cabinet Telegram → Features (строка 694). Продукт: Магазин.
-- Доказательство: `backend/app/customer_api.py`; `backend/app/account_sync.py`; `tests/test_account_sync.py`; `tests/test_multiple_subscriptions.py`; `tests/test_subscription_portal.py`.
+- Доказательство: `services/backend/app/customer_api.py`; `services/backend/app/account_sync.py`; `tests/test_account_sync.py`; `tests/test_multiple_subscriptions.py`; `tests/test_subscription_portal.py`.
 - Примечание: Кабинет даёт вход, профиль, устройства, покупку, продление, подписку, QR, поддержку, уведомления и историю платежей. Построчной сверки каждого пункта с экраном не было.
 
 > Регистрация; вход; профиль; устройства; покупка; продление; подписка; срок; тариф; трафик; конфигурация; QR; инструкции; поддержка; уведомления; история платежей.
@@ -1310,7 +1486,7 @@
 ### REQ-SHOP-0010 — `PARTIAL`
 
 - Источник: Часть I → User Cabinet Telegram → Auth (строка 698). Продукт: Магазин.
-- Доказательство: `backend/app/auth_api.py`; `tests/test_behaviour_auth.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_account_actions.py`.
+- Доказательство: `services/backend/app/auth_api.py`; `tests/test_behaviour_auth.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_account_actions.py`.
 - Примечание: Вход по почте, через VK и Яндекс реализован и покрыт тестами на подделку и захват учётной записи. С настоящими ключами OAuth не проверено: ключей нет.
 
 > Email; VK; Yandex при безопасной реализации.
@@ -1318,14 +1494,14 @@
 ### REQ-SHOP-0011 — `PASS`
 
 - Источник: Часть I → User Cabinet Telegram → Mini App (строка 702). Продукт: Магазин.
-- Доказательство: `docs/architecture/API_CATALOG.md`; `backend/app/account_sync.py`; `tests/test_account_sync.py`; `tests/test_single_business_logic.py`.
+- Доказательство: `docs/architecture/API_CATALOG.md`; `services/backend/app/account_sync.py`; `tests/test_account_sync.py`; `tests/test_single_business_logic.py`.
 
 > Использовать общий API, не дублировать бизнес-логику.
 
 ### REQ-SHOP-0012 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2197). Продукт: Магазин.
-- Доказательство: `backend/app/models.py`; `backend/app/account_merge.py`; `tests/test_account_merge.py`; `docs/architecture/CONTEXT_MAP.md`.
+- Доказательство: `services/backend/app/models.py`; `services/backend/app/account_merge.py`; `tests/test_account_merge.py`; `docs/architecture/CONTEXT_MAP.md`.
 - Примечание: Учётная запись, способы входа, устройства, подписки, заказы, платежи и обращения связаны с одним клиентом. Отдельных сущностей счёта (invoice) и настроек уведомлений по единому образцу нет.
 
 > - Единая модель account, profile, credentials, linked identities, devices, subscriptions, orders, payments, invoices, support tickets и notification preferences.
@@ -1333,7 +1509,7 @@
 ### REQ-SHOP-0013 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2198). Продукт: Магазин.
-- Доказательство: `backend/app/account_merge.py`; `tests/test_account_merge.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_behaviour_auth.py`.
+- Доказательство: `services/backend/app/account_merge.py`; `tests/test_account_merge.py`; `tests/test_audit_v2009_runtime.py`; `tests/test_behaviour_auth.py`.
 - Примечание: Привязка способов входа и объединение учётных записей есть. Отвязка каждого способа входа по отдельности не сверена.
 
 > - Поддерживать безопасную привязку/отвязку email, VK, Yandex и Telegram identity.
@@ -1341,28 +1517,28 @@
 ### REQ-SHOP-0014 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2199). Продукт: Магазин.
-- Доказательство: `tests/test_audit_v2009_runtime.py`; `tests/test_account_merge.py`; `tests/test_behaviour_auth.py`; `backend/app/account_merge.py`.
+- Доказательство: `tests/test_audit_v2009_runtime.py`; `tests/test_account_merge.py`; `tests/test_behaviour_auth.py`; `services/backend/app/account_merge.py`.
 
 > - Защитить account linking от takeover и подмены identity.
 
 ### REQ-SHOP-0015 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2200). Продукт: Магазин.
-- Доказательство: `backend/app/account_actions.py`; `tests/test_account_actions.py`; `tests/test_behaviour_auth.py`; `tests/test_login_fallback_reset.py`.
+- Доказательство: `services/backend/app/account_actions.py`; `tests/test_account_actions.py`; `tests/test_behaviour_auth.py`; `tests/test_login_fallback_reset.py`.
 
 > - Реализовать восстановление доступа, смену пароля, logout all sessions, revoke sessions и подтверждение критичных действий.
 
 ### REQ-SHOP-0016 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2201). Продукт: Магазин.
-- Доказательство: `backend/app/account_actions.py`; `tests/test_account_actions.py`.
+- Доказательство: `services/backend/app/account_actions.py`; `tests/test_account_actions.py`.
 
 > - Не раскрывать существование аккаунта в ответах восстановления пароля.
 
 ### REQ-SHOP-0017 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2202). Продукт: Магазин.
-- Доказательство: `tests/test_matrix_privacy.py`; `tests/test_multiple_subscriptions.py`; `backend/app/legal_texts.py`.
+- Доказательство: `tests/test_matrix_privacy.py`; `tests/test_multiple_subscriptions.py`; `services/backend/app/legal_texts.py`.
 - Примечание: Удаление учётной записи стирает ключи и имена. Выгрузки своих данных клиентом нет.
 
 > - Предусмотреть удаление/экспорт данных в пределах применимого законодательства и политики сервиса.
@@ -1370,7 +1546,7 @@
 ### REQ-SHOP-0018 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2206). Продукт: Магазин.
-- Доказательство: `backend/app/models.py`; `backend/app/subscription_commerce.py`; `tests/test_subscription_commerce.py`; `docs/architecture/DATA_FLOW.md`.
+- Доказательство: `services/backend/app/models.py`; `services/backend/app/subscription_commerce.py`; `tests/test_subscription_commerce.py`; `docs/architecture/DATA_FLOW.md`.
 - Примечание: Тариф, заказ, платёж и подписка — разные записи; настройка VPN живёт в панели. Отдельной сущности права на услугу (entitlement) нет: её роль выполняет подписка.
 
 > - Разделить тарифный план, заказ, платёж, entitlement, активную подписку и техническую конфигурацию VPN.
@@ -1378,7 +1554,7 @@
 ### REQ-SHOP-0019 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2207). Продукт: Магазин.
-- Доказательство: `backend/app/account_sync.py`; `tests/test_account_sync.py`; `backend/app/rw_drift.py`.
+- Доказательство: `services/backend/app/account_sync.py`; `tests/test_account_sync.py`; `services/backend/app/rw_drift.py`.
 - Примечание: Состояние подписки для всех клиентов отдаёт один маршрут синхронизации; срок и лимиты исполняет панель. Сверки подписок магазина с панелью нет.
 
 > - Определить единственный авторитетный источник состояния подписки.
@@ -1386,7 +1562,7 @@
 ### REQ-SHOP-0020 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2208). Продукт: Магазин.
-- Доказательство: `backend/app/grace_access.py`; `backend/app/subscription_freeze.py`; `tests/test_behaviour_refund_revoke.py`; `tests/test_behaviour_webhooks_refunded.py`; `tests/test_reconciliation.py`.
+- Доказательство: `services/backend/app/grace_access.py`; `services/backend/app/subscription_freeze.py`; `tests/test_behaviour_refund_revoke.py`; `tests/test_behaviour_webhooks_refunded.py`; `tests/test_reconciliation.py`.
 - Примечание: Ожидание оплаты, активная, льготный период, истёкшая, замороженная и возвращённая подписки обрабатываются. Состояния past_due, chargeback и migration отдельно не выделены.
 
 > - Обработать pending, active, grace period, past_due, expired, canceled, suspended, refunded, chargeback и migration states.
@@ -1409,7 +1585,7 @@
 ### REQ-SHOP-0023 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2211). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `backend/app/remnawave.py`; `tests/test_remnawave_contract.py`; `tests/test_cabinet_stage8.py`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `services/backend/app/remnawave.py`; `tests/test_remnawave_contract.py`; `tests/test_cabinet_stage8.py`.
 - Примечание: Предел устройств тарифа передаётся панели и показывается в кабинете. Сквозного теста «изменили предел — совпало в панели и кабинете» нет.
 
 > - Изменение числа устройств должно отражаться в Remnawave и пользовательском кабинете согласованно.
@@ -1417,7 +1593,7 @@
 ### REQ-SHOP-0024 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2212). Продукт: Магазин.
-- Доказательство: `tests/test_behaviour_fulfil_locks.py`; `tests/test_e2e_journeys.py`; `backend/app/remnawave.py`; `tests/test_subscription_commerce.py`.
+- Доказательство: `tests/test_behaviour_fulfil_locks.py`; `tests/test_e2e_journeys.py`; `services/backend/app/remnawave.py`; `tests/test_subscription_commerce.py`.
 - Примечание: Выдача повторяется ограниченное число раз, оплаченный заказ не теряется, есть предохранитель запросов к панели. Отдельной очереди исходящих операций (outbox) нет.
 
 > - При частичной недоступности Remnawave применять retry/outbox и reconciliation, а не терять оплаченный заказ.
@@ -1425,7 +1601,7 @@
 ### REQ-SHOP-0025 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2216). Продукт: Магазин.
-- Доказательство: `backend/app/bot.py`; `tests/test_bot_api_rules.py`; `docs/architecture/EVENT_CATALOG.md`.
+- Доказательство: `services/backend/app/bot.py`; `tests/test_bot_api_rules.py`; `docs/architecture/EVENT_CATALOG.md`.
 - Примечание: Бот забирает обновления сам (long polling), входящего webhook Telegram нет, поэтому секрет webhook не применяется. Обработка пределов Telegram API покрыта частично.
 
 > - Проверить webhook secret token, обработку update ID, повторов, out-of-order events, timeout и Telegram API rate limits.
@@ -1433,7 +1609,7 @@
 ### REQ-SHOP-0026 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2217). Продукт: Магазин.
-- Доказательство: `backend/app/bot.py`; `tests/test_bot_api_rules.py`.
+- Доказательство: `services/backend/app/bot.py`; `tests/test_bot_api_rules.py`.
 - Примечание: Покупка и выдача идемпотентны на стороне API. Отдельного теста повторной доставки одной команды или нажатия нет.
 
 > - Поддерживать идемпотентную обработку команд и callback queries.
@@ -1448,14 +1624,14 @@
 ### REQ-SHOP-0028 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2219). Продукт: Магазин.
-- Доказательство: `backend/app/auth_api.py`; `tests/test_behaviour_auth.py`.
+- Доказательство: `services/backend/app/auth_api.py`; `tests/test_behaviour_auth.py`.
 
 > - Проверять Telegram Mini App `initData` на сервере, timestamp и подпись; не доверять присланному `user` JSON без валидации.
 
 ### REQ-SHOP-0029 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2220). Продукт: Магазин.
-- Доказательство: `tests/test_behaviour_csrf.py`; `tests/test_behaviour_auth.py`; `backend/app/auth_api.py`.
+- Доказательство: `tests/test_behaviour_csrf.py`; `tests/test_behaviour_auth.py`; `services/backend/app/auth_api.py`.
 - Примечание: Точные origin, привязка сессии к устройству, срок жизни и отзыв сессии проверяются. Проверки домена и HTTPS Mini App на настоящем домене не было.
 
 > - Проверять домен, HTTPS, allowed origins, session binding и срок жизни сессии.
@@ -1463,7 +1639,7 @@
 ### REQ-SHOP-0030 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2221). Продукт: Магазин.
-- Доказательство: `tests/test_behaviour_auth.py`; `tests/test_account_sync.py`; `cabinet/src/stickers.tsx`.
+- Доказательство: `tests/test_behaviour_auth.py`; `tests/test_account_sync.py`; `apps/user-cabinet/src/stickers.tsx`.
 - Примечание: Повторный вход, несколько устройств и экран после оплаты покрыты. Закрытие и повторное открытие Mini App на телефоне не проверены.
 
 > - Корректно обрабатывать повторный вход, несколько устройств, закрытие Mini App и возврат после оплаты.
@@ -1471,7 +1647,7 @@
 ### REQ-SHOP-0031 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2222). Продукт: Магазин.
-- Доказательство: `backend/app/bot_texts.py`; `cabinet/src/i18n.tsx`; `tests/test_bot_texts.py`; `tests/test_critical_startup_and_i18n.py`; `mobile/l10n/user.json`.
+- Доказательство: `services/backend/app/bot_texts.py`; `apps/user-cabinet/src/i18n.tsx`; `tests/test_bot_texts.py`; `tests/test_critical_startup_and_i18n.py`; `packages/localization/user.json`.
 - Примечание: Бот, кабинет и приложения имеют русский, английский и украинский языки. Проверки, что переведена каждая строка каждого интерфейса, нет.
 
 > - Все тексты и кнопки локализовать RU/EN/UK.
@@ -1479,7 +1655,7 @@
 ### REQ-SHOP-0032 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.3. Telegram Bot и Mini App (строка 2223). Продукт: Магазин.
-- Доказательство: `tests/test_e2e_v2.py`; `tests/test_e2e_journeys.py`; `backend/app/staging_e2e_api.py`.
+- Доказательство: `tests/test_e2e_v2.py`; `tests/test_e2e_journeys.py`; `services/backend/app/staging_e2e_api.py`.
 - Примечание: Сквозной прогон «заказ → оплата → выдача → подписка» идёт через настоящие маршруты на стенде; есть сценарии резервной кассы и автопродления. Шагов «бот: старт» и «обращение в поддержку» в одном сценарии нет.
 
 > - Создать E2E сценарии: start → register/login → choose tariff → create order → payment → entitlement → subscription/config → support → renewal.
@@ -1490,44 +1666,44 @@
 ### REQ-BRAND-0001 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Brand Name (строка 1221). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
-- Примечание: Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений.
+- Доказательство: `docs/BRAND_COPY.md`; `services/backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
+- Примечание: Тексты вшиты значениями по умолчанию (services/backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений.
 
 > Корги Люси — Свободный интернет без лишнего Гав.
 
 ### REQ-BRAND-0002 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Brand Variants (строка 1225). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
-- Примечание: Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений.
+- Доказательство: `docs/BRAND_COPY.md`; `services/backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
+- Примечание: Тексты вшиты значениями по умолчанию (services/backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений.
 
 > Корги Люси — «Свободный Гав!»; Корги Люси — Свободный интернет от Люси.
 
 ### REQ-BRAND-0003 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Max (строка 1231). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > Lucy Max: 2 устройства, безлимитный трафик.
 
 ### REQ-BRAND-0004 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Ultra (строка 1235). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > Lucy Ultra: 4 устройства, безлимитный трафик; показать очевидную выгоду относительно Max без изменения цены/условий без разрешения.
 
 ### REQ-BRAND-0005 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Mini (строка 1239). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > Lucy Mini — Test: 3 дня, 1 устройство, тестовый тариф.
 
 ### REQ-BRAND-0006 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Tariff Copy → Task (строка 1243). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `backend/app/lucy_plans.py`.
+- Доказательство: `docs/BRAND_COPY.md`; `services/backend/app/lucy_plans.py`.
 - Примечание: Описания каждого тарифа, сравнительный блок и текстовый вариант подготовлены в docs/BRAND_COPY.md; панель не даёт сделать Ultra невыгоднее Max. В интерфейсы эти описания не вшиты.
 
 > Подготовить описания каждого тарифа отдельно, единый сравнительный блок трёх тарифов и упрощённый текстовый вариант.
@@ -1535,15 +1711,15 @@
 ### REQ-BRAND-0007 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Service Descriptions (строка 1248). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
-- Примечание: Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено.
+- Доказательство: `docs/BRAND_COPY.md`; `services/backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
+- Примечание: Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в services/backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено.
 
 > Подготовить русское и английское описание сервиса для .env и пользовательских интерфейсов.
 
 ### REQ-BRAND-0008 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Maintenance Message (строка 1252). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `cabinet/src/stickers.tsx`; `backend/app/brand_copy.py`.
+- Доказательство: `docs/BRAND_COPY.md`; `apps/user-cabinet/src/stickers.tsx`; `services/backend/app/brand_copy.py`.
 - Примечание: Кабинет показывает текст бренда на экране технических работ, ответ API 503 несёт его на трёх языках (v28.132.0). Бот отдельного сообщения о технических работах не показывает; переменной .env для текста нет.
 
 > Подготовить короткое уведомление о технических работах в фирменном стиле Lucy для .env/бота/кабинета.
@@ -1559,21 +1735,21 @@
 ### REQ-BRAND-0010 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Banner Size (строка 1262). Продукт: Магазин.
-- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
+- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `services/backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
 
 > 1280×640 px, соотношение 2:1.
 
 ### REQ-BRAND-0011 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Format (строка 1266). Продукт: Магазин.
-- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
+- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `services/backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
 
 > JPEG, качество 90–95%, ориентир размера файла 200 KB, без прозрачности.
 
 ### REQ-BRAND-0012 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Layout (строка 1270). Продукт: Магазин.
-- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `backend/app/assets/bot_banners/home.jpg`.
+- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `services/backend/app/assets/bot_banners/home.jpg`.
 - Примечание: Текст баннеров отступает от краёв на 80 px, шрифт уменьшается для длинных заголовков; это проверяет тест. Читаемость на экране телефона на устройстве не проверена.
 
 > Текст не ближе 80 px от краёв; при необходимости уменьшить шрифт; проверить читаемость на мобильном экране.
@@ -1581,7 +1757,7 @@
 ### REQ-BRAND-0013 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Vpn Shop Brand And Customer Content → Visual Assets → Rule (строка 1274). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `backend/app/lucy_plans.py`.
+- Доказательство: `docs/BRAND_COPY.md`; `services/backend/app/lucy_plans.py`.
 - Примечание: Правило честности записано, тексты обещают только условия тарифов. Автоматической проверки всех текстов интерфейсов на лишние обещания нет.
 
 > Фирменные тексты и баннеры согласовать с брендингом. Не использовать ложные заявления о скорости, безопасности, доступности или безлимитности сверх фактических условий.
@@ -1589,8 +1765,8 @@
 ### REQ-BRAND-0014 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1597). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
-- Примечание: Тексты вшиты значениями по умолчанию (backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений.
+- Доказательство: `docs/BRAND_COPY.md`; `services/backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
+- Примечание: Тексты вшиты значениями по умолчанию (services/backend/app/brand_copy.py, решение владельца 4): приветствие бота, подзаголовок кабинета и Mini App, поле brand публичной настройки. Не проверено на устройстве и в магазинах приложений.
 
 > - Название и стиль: «Корги Люси — Свободный интернет без лишнего Гав», «Корги Люси — Свободный Гав!», «Корги Люси — Свободный интернет от Люси».
 
@@ -1605,14 +1781,14 @@
 ### REQ-BRAND-0016 — `PASS`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1599). Продукт: Магазин.
-- Доказательство: `backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `admin/src/lucy-plans.tsx`.
+- Доказательство: `services/backend/app/lucy_plans.py`; `tests/test_cabinet_stage8.py`; `apps/lucy-admin/web/src/lucy-plans.tsx`.
 
 > - Lucy Max: 2 устройства, безлимитный трафик; Lucy Ultra: 4 устройства, безлимитный трафик, выгоднее Max; Lucy Mini — Test: 3 дня, 1 устройство.
 
 ### REQ-BRAND-0017 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1600). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `backend/app/lucy_plans.py`.
+- Доказательство: `docs/BRAND_COPY.md`; `services/backend/app/lucy_plans.py`.
 - Примечание: Описания каждого тарифа, сравнительный блок и текстовый вариант подготовлены в docs/BRAND_COPY.md; панель не даёт сделать Ultra невыгоднее Max. В интерфейсы эти описания не вшиты.
 
 > - Отдельные описания тарифов, единый тарифный блок и простой plain-text вариант; Ultra визуально выгоднее.
@@ -1620,8 +1796,8 @@
 ### REQ-BRAND-0018 — `PARTIAL`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1601). Продукт: Магазин.
-- Доказательство: `docs/BRAND_COPY.md`; `backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
-- Примечание: Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено.
+- Доказательство: `docs/BRAND_COPY.md`; `services/backend/app/brand_copy.py`; `tests/test_brand_copy.py`.
+- Примечание: Описание сервиса на трёх языках и сообщение о технических работах — значения по умолчанию в services/backend/app/brand_copy.py, отдаются в /api/public/config (brand). Переменных .env для них нет: правит владелец в панели. В магазинах приложений описание не размещено.
 
 > - Короткое сообщение о технических работах для `.env` в стиле Люси; описание сервиса в `.env` на русском и английском.
 
@@ -1636,7 +1812,7 @@
 ### REQ-BRAND-0020 — `PASS`
 
 - Источник: Часть II → II.4. Бренд и контент (строка 1603). Продукт: Магазин.
-- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
+- Доказательство: `scripts/bot-banners/render.py`; `tests/test_bot_banners.py`; `services/backend/app/assets/bot_banners/home.jpg`; `docs/BRAND_COPY.md`.
 
 > - Telegram promo banner: 1280×640 px, 2:1, JPEG quality 90–95%, ориентир 200 KB, без прозрачности, текст отступает 80 px от краёв, уменьшенный шрифт.
 
@@ -1653,7 +1829,7 @@
 ### REQ-ADMIN-0002 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Interfaces (строка 189). Продукт: Админка.
-- Доказательство: `admin/src/main.tsx`; `mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `mobile/ios-admin/VpnShopAdmin/ContentView.swift`; `backend/app/security.py`; `tests/test_admin_route_permissions.py`; `backend/app/audit_seal.py`.
+- Доказательство: `apps/lucy-admin/web/src/main.tsx`; `apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt`; `apps/lucy-admin/ios/VpnShopAdmin/ContentView.swift`; `services/backend/app/security.py`; `tests/test_admin_route_permissions.py`; `services/backend/app/audit_seal.py`.
 - Примечание: Веб-панель, приложения администратора для Android и iOS работают через один API с ролями и журналом. В приложениях 10 разделов против примерно 100 в веб-панели.
 
 > Web Admin; Android Admin; iOS Admin; единый API; RBAC; аудит.
@@ -1661,7 +1837,7 @@
 ### REQ-ADMIN-0003 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Modules (строка 193). Продукт: Админка.
-- Доказательство: `admin/src/sections.ts`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`; `docs/ru/new/ADMIN_MODULES.md`; `scripts/verify-admin-matrix.py`.
+- Доказательство: `apps/lucy-admin/web/src/sections.ts`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`; `docs/ru/new/ADMIN_MODULES.md`; `scripts/verify-admin-matrix.py`.
 - Примечание: Разделы веб-панели покрывают перечень; построчной сверки каждого названного раздела не было. MASQUE и Hysteria 2 в панели не сверены.
 
 > Dashboard; Users; Roles; Tariffs; Subscriptions; Payments; Payment Providers; Remnawave; VPN Nodes; Node Provisioning; MASQUE; VLESS/REALITY; Hysteria 2; Server Monitoring; Network Monitoring; Telegram Bot; Telegram Mini App; User Cabinet; VPN Client Management; Commercial App Management; Android Builds; iOS Builds; GitHub; CI/CD; Pull Requests; Releases; Docker; Installer; Database; Backup/Restore/Rollback; Updates; Security Center; Audit Logs; API Management; Notifications; Support; Localization; Documentation; System Settings; Automation Center; Autonomous Audit; Checklist Dashboard; Screenshot Coverage; Admin Feature Parity; Payment Testing; Protocol Compatibility; Infrastructure Diagnostics; Node Installation and Maintenance; Auto-selection Management; Subscription Status Page; Server Protection; Dangerous Operations; Repair and Recovery; Migration Tools.
@@ -1684,7 +1860,7 @@
 ### REQ-ADMIN-0006 — `PARTIAL`
 
 - Источник: Часть I → Products → Lucy Admin → Rule (строка 205). Продукт: Админка.
-- Доказательство: `scripts/verify-admin-matrix.py`; `docs/ru/new/ADMIN_VERIFICATION.md`; `tests/test_admin_center.py`; `admin/e2e/torrent-ban.spec.ts`.
+- Доказательство: `scripts/verify-admin-matrix.py`; `docs/ru/new/ADMIN_VERIFICATION.md`; `tests/test_admin_center.py`; `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`.
 - Примечание: Автоматически проверяется каждый раздел: у него есть маршруты API и тесты. Каждая отдельная кнопка автоматически не проверяется.
 
 > Ни одна кнопка не должна быть декоративной или фиктивной.
@@ -1692,7 +1868,7 @@
 ### REQ-ADMIN-0007 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2229). Продукт: Админка.
-- Доказательство: `backend/app/security.py`; `docs/ru/new/RBAC.md`; `tests/test_rbac_doc.py`; `tests/test_admin_route_permissions.py`.
+- Доказательство: `services/backend/app/security.py`; `docs/ru/new/RBAC.md`; `tests/test_rbac_doc.py`; `tests/test_admin_route_permissions.py`.
 - Примечание: Роли и права по разделам и действиям есть, документ сверяется с кодом тестом. Отдельных прав export и deploy для каждого ресурса нет.
 
 > - Определить роли и permissions по ресурсам и операциям, включая read/create/update/delete/execute/export/refund/deploy.
@@ -1700,14 +1876,14 @@
 ### REQ-ADMIN-0008 — `PASS`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2230). Продукт: Админка.
-- Доказательство: `tests/test_admin_route_permissions.py`; `backend/app/security.py`; `tests/test_admin_center.py`.
+- Доказательство: `tests/test_admin_route_permissions.py`; `services/backend/app/security.py`; `tests/test_admin_center.py`.
 
 > - Применять авторизацию на backend, а не только скрывать UI.
 
 ### REQ-ADMIN-0009 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2231). Продукт: Админка.
-- Доказательство: `backend/app/security.py`; `docs/ru/new/RBAC.md`; `tests/test_admin_route_permissions.py`.
+- Доказательство: `services/backend/app/security.py`; `docs/ru/new/RBAC.md`; `tests/test_admin_route_permissions.py`.
 - Примечание: Роли оператора и администратора разделены, опасные права выданы только администратору. Разделения обязанностей (двое на одно действие) и прав по окружениям нет.
 
 > - Поддерживать принцип наименьших привилегий, разделение обязанностей и доступ по окружениям.
@@ -1715,14 +1891,14 @@
 ### REQ-ADMIN-0010 — `PASS`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2232). Продукт: Админка.
-- Доказательство: `backend/app/admin_stepup.py`; `tests/test_admin_stepup.py`.
+- Доказательство: `services/backend/app/admin_stepup.py`; `tests/test_admin_stepup.py`.
 
 > - Критические операции требовать повторной аутентификации или дополнительного подтверждения в соответствии с риском.
 
 ### REQ-ADMIN-0011 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2233). Продукт: Админка.
-- Доказательство: `backend/app/models.py`; `backend/app/main.py`; `backend/app/admin_api.py`; `admin/src/control-center.tsx`.
+- Доказательство: `services/backend/app/models.py`; `services/backend/app/main.py`; `services/backend/app/admin_api.py`; `apps/lucy-admin/web/src/control-center.tsx`.
 - Примечание: В записи есть администратор, действие, объект, время, идентификатор запроса и подробности без секретов. Отдельного поля результата и единого формата «было — стало» нет.
 
 > - Audit log должен содержать actor, action, resource, timestamp, result, correlation ID и безопасный diff без секретов.
@@ -1730,7 +1906,7 @@
 ### REQ-ADMIN-0012 — `PASS`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2234). Продукт: Админка.
-- Доказательство: `backend/app/audit_seal.py`; `tests/test_audit_seal.py`; `admin/e2e/audit-seal.spec.ts`; `docs/AUDIT_LOG_INTEGRITY.md`; `backend/app/admin_api.py`.
+- Доказательство: `services/backend/app/audit_seal.py`; `tests/test_audit_seal.py`; `apps/lucy-admin/web/e2e/audit-seal.spec.ts`; `docs/AUDIT_LOG_INTEGRITY.md`; `services/backend/app/admin_api.py`.
 - Примечание: Записи запечатываются каждые десять минут подписью с секретом сервера; изменённая или удалённая запись находится проверкой. Пределы защиты описаны в документе.
 
 > - Логи аудита должны быть защищены от незаметного изменения и доступны для расследования.
@@ -1738,7 +1914,7 @@
 ### REQ-ADMIN-0013 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.2. Административные списки и операции (строка 2238). Продукт: Админка.
-- Доказательство: `backend/app/admin_api.py`; `admin/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
+- Доказательство: `services/backend/app/admin_api.py`; `apps/lucy-admin/web/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
 - Примечание: Поиск, фильтры и серверная постраничная выдача есть в основных таблицах. Сохранённых представлений и предпросмотра массовых действий во всех таблицах нет; построчной сверки семи таблиц не было.
 
 > Для таблиц Users, Nodes, Payments, Subscriptions, Orders, Tickets и Audit Logs реализовать поиск, фильтры, сортировку, пагинацию, сохранённые представления, экспорт с RBAC, bulk actions с preview, подтверждением и журналом. Обеспечить серверную пагинацию и устойчивость к большим наборам данных.
@@ -1746,7 +1922,7 @@
 ### REQ-ADMIN-0014 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.3. Dashboard и мониторинг (строка 2242). Продукт: Админка.
-- Доказательство: `admin/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
+- Доказательство: `apps/lucy-admin/web/src/control-center.tsx`; `docs/ru/new/ADMIN_CONTROL_MATRIX.md`.
 - Примечание: Показатели берутся из базы и панели. Источник, период и время обновления подписаны не у каждого показателя; сверки по списку не было.
 
 > Показывать только реальные метрики с указанием источника, периода и времени последнего обновления: revenue, paid orders, conversion, active/expired subscriptions, churn, node health, latency, traffic, service health, payment provider health, queue lag, failed jobs, webhook failures и incidents. Не подменять отсутствующие данные нулями или фиктивными графиками.
@@ -1754,7 +1930,7 @@
 ### REQ-ADMIN-0015 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2246). Продукт: Админка.
-- Доказательство: `admin/src/control-center.tsx`; `backend/app/ecosystem_updates.py`; `admin/src/ecosystem-updates.tsx`; `backend/app/ops_alerts.py`.
+- Доказательство: `apps/lucy-admin/web/src/control-center.tsx`; `services/backend/app/ecosystem_updates.py`; `apps/lucy-admin/web/src/ecosystem-updates.tsx`; `services/backend/app/ops_alerts.py`.
 - Примечание: «Центр управления» и «Готовность» сводят сервисы, ноды, платежи, копии; обновления сведены отдельной таблицей. Состояния мобильных сборок и CI на одном экране нет.
 
 > - Объединить статус сервисов, нод, интеграций, платежей, бота, Mini App, кабинета, мобильных сборок, backup jobs и CI/CD.
@@ -1776,7 +1952,7 @@
 ### REQ-ADMIN-0018 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2249). Продукт: Админка.
-- Доказательство: `backend/app/rw_jobs.py`; `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `backend/app/rw_api.py`.
+- Доказательство: `services/backend/app/rw_jobs.py`; `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `services/backend/app/rw_api.py`.
 - Примечание: Установка и смена протокола идут задачами на сервере с ходом, журналом и откатом. Ключа идемпотентности, общего срока и правила отмены у всех опасных действий нет.
 
 > - Опасные действия выполнять через backend jobs с idempotency key, progress, logs, timeout, cancellation policy и rollback strategy.
@@ -1784,7 +1960,7 @@
 ### REQ-ADMIN-0019 — `PARTIAL`
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.4. Операционный центр (строка 2250). Продукт: Админка.
-- Доказательство: `admin/e2e/torrent-ban.spec.ts`; `admin/e2e/protocol-switch.spec.ts`; `admin/e2e/autoselect.spec.ts`; `admin/e2e/rw-drift.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `apps/lucy-admin/web/e2e/rw-drift.spec.ts`.
 - Примечание: В проверенных разделах экран меняется только после ответа сервера. По всем разделам это не проверено.
 
 > - UI не должен утверждать, что операция выполнена, пока backend не вернул подтверждённый результат.
@@ -1803,7 +1979,7 @@
 ### REQ-PAY-0002 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Architecture (строка 252). Продукт: Все три.
-- Доказательство: `backend/app/payment_policy.py`; `backend/app/payment_methods.py`; `backend/app/gateway_ops.py`; `backend/app/payment_journal.py`; `backend/app/payment_fraud.py`; `backend/app/fiscal.py`; `tests/test_payment_failover_chain.py`; `tests/test_payment_contract.py`.
+- Доказательство: `services/backend/app/payment_policy.py`; `services/backend/app/payment_methods.py`; `services/backend/app/gateway_ops.py`; `services/backend/app/payment_journal.py`; `services/backend/app/payment_fraud.py`; `services/backend/app/fiscal.py`; `tests/test_payment_failover_chain.py`; `tests/test_payment_contract.py`.
 - Примечание: Очередь касс, способы оплаты, проверка здоровья с выводом кассы из очереди, журнал уведомлений, антифрод и чеки есть и проверены тестами. Каждый из 23 компонентов списка по отдельности ещё не сверен.
 
 > Provider Registry; Adapter Interface; Capabilities Registry; Method Registry; Router; Priority Queue; Health Monitor; Circuit Breaker; Payment API; Webhook Router; Signature Validator; State Machine; Idempotency; Transaction Registry; Order Registry; Reconciliation; Refund Service; Recurring Payments; Risk Assessment; Chargeback Management; Tax/Fiscalization; Analytics; Audit Log.
@@ -1827,14 +2003,14 @@
 ### REQ-PAY-0005 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Classification (строка 264). Продукт: Все три.
-- Доказательство: `backend/app/payment_policy.py`; `backend/app/payment_methods.py`; `backend/app/payment_platform.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Доказательство: `services/backend/app/payment_policy.py`; `services/backend/app/payment_methods.py`; `services/backend/app/payment_platform.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > Не путать провайдера, метод оплаты, конфигурационный ID, платформенный платёж и sandbox. Наличие адаптера/ID не означает работоспособность.
 
 ### REQ-PAY-0006 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Methods (строка 268). Продукт: Все три.
-- Доказательство: `backend/app/payment_methods.py`; `tests/test_payment_methods.py`.
+- Доказательство: `services/backend/app/payment_methods.py`; `tests/test_payment_methods.py`.
 - Примечание: Есть карта, СБП и криптовалюта. Отдельных способов «QR СБП», SberPay и YooMoney в коде нет.
 
 > Банковские карты; СБП; QR СБП; SberPay; YooMoney; криптовалюта; встроенные методы платформ; иные методы только при подтверждении API.
@@ -1842,23 +2018,23 @@
 ### REQ-PAY-0007 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → YooKassa (строка 274). Продукт: Все три.
-- Платформы: backend/API.
-- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Платформы: services/backend/API.
+- Доказательство: `services/backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > card; sbp
 
 ### REQ-PAY-0008 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Pal24 (строка 278). Продукт: Все три.
-- Платформы: backend/API.
-- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Платформы: services/backend/API.
+- Доказательство: `services/backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > sbp; card
 
 ### REQ-PAY-0009 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Platega (строка 282). Продукт: Все три.
-- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Доказательство: `services/backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 - Примечание: Platega в коде принимает карту и СБП из постоянной таблицы. Список способов у самой кассы не запрашивается: нужны ключи (O7).
 
 > Динамические методы — проверить.
@@ -1866,8 +2042,8 @@
 ### REQ-PAY-0010 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → FreeKassa (строка 286). Продукт: Все три.
-- Платформы: backend/API.
-- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Платформы: services/backend/API.
+- Доказательство: `services/backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > sbp; card
 
@@ -1882,7 +2058,7 @@
 ### REQ-PAY-0012 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → RollyPay (строка 294). Продукт: Все три.
-- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Доказательство: `services/backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 - Примечание: RollyPay: карта и СБП есть, криптовалюты через RollyPay в коде нет.
 
 > sbp; card; crypto
@@ -1898,8 +2074,8 @@
 ### REQ-PAY-0014 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → AuraPay (строка 302). Продукт: Все три.
-- Платформы: backend/API.
-- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Платформы: services/backend/API.
+- Доказательство: `services/backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > card; sbp
 
@@ -1914,7 +2090,7 @@
 ### REQ-PAY-0016 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Antilopay (строка 310). Продукт: Все три.
-- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Доказательство: `services/backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 - Примечание: Antilopay: карта и СБП есть, SberPay в коде нет.
 
 > card; sbp; sberpay
@@ -1938,8 +2114,8 @@
 ### REQ-PAY-0019 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Lava (строка 322). Продукт: Все три.
-- Платформы: backend/API.
-- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Платформы: services/backend/API.
+- Доказательство: `services/backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > card; sbp
 
@@ -1954,7 +2130,7 @@
 ### REQ-PAY-0021 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Anore (строка 330). Продукт: Все три.
-- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Доказательство: `services/backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 - Примечание: Anore: карта и СБП есть, YooMoney и криптовалюты через Anore в коде нет.
 
 > sbp; card; yoomoney; crypto
@@ -1970,15 +2146,15 @@
 ### REQ-PAY-0023 — `PASS`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → ParityPay (строка 338). Продукт: Все три.
-- Платформы: backend/API.
-- Доказательство: `backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Платформы: services/backend/API.
+- Доказательство: `services/backend/app/payment_methods.py`; `tests/test_gateway_ops.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 
 > card; sbp
 
 ### REQ-PAY-0024 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Known Capabilities → Cashera (строка 342). Продукт: Все три.
-- Доказательство: `backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
+- Доказательство: `services/backend/app/payment_methods.py`; `docs/PAYMENT_PROVIDER_INVENTORY.md`.
 - Примечание: Cashera в коде принимает карту и СБП из постоянной таблицы. Список способов у самой кассы не запрашивается: нужны ключи (O7).
 
 > Динамические методы — проверить.
@@ -2018,7 +2194,7 @@
 ### REQ-PAY-0029 — `PARTIAL`
 
 - Источник: Часть I → Payment Ecosystem → Platforms (строка 363). Продукт: Все три.
-- Доказательство: `tests/test_store_billing.py`; `tests/test_behaviour_store_and_webhooks.py`; `tests/test_tribute.py`; `backend/app/telegram_stars.py`.
+- Доказательство: `tests/test_store_billing.py`; `tests/test_behaviour_store_and_webhooks.py`; `tests/test_tribute.py`; `services/backend/app/telegram_stars.py`.
 - Примечание: Проверка покупок Apple и Google на сервере, продление и возврат проверены тестами с подменой магазинов. Tribute проверен тестом. Для Telegram Stars поведенческий тест pre-checkout и successful_payment ещё не найден. Вживую — нужны аккаунты магазинов и бот.
 
 > Apple StoreKit и Google Play Billing: серверная проверка транзакций, статусы, отмены, истечения, восстановление. Telegram Stars: invoice, pre-checkout, successful_payment. Tribute: проверить фактические механизмы.
@@ -2070,7 +2246,7 @@
 ### REQ-PAY-0036 — `PASS`
 
 - Источник: Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.2. Надёжность (строка 2261). Продукт: Все три.
-- Платформы: backend/API.
+- Платформы: services/backend/API.
 - Доказательство: `tests/test_behaviour_webhooks_refunded.py`; `tests/test_payment_contract.py`.
 
 > - Обрабатывать повторные, задержанные и пришедшие не по порядку webhook.
@@ -2122,7 +2298,7 @@
 ### REQ-PAY-0044 — `PARTIAL`
 
 - Источник: Часть IV → 28. Платежи — дополнительная строгая спецификация → 28.4. Отображение методов (строка 2275). Продукт: Все три.
-- Доказательство: `backend/app/payment_methods.py`; `tests/test_payment_methods.py`; `tests/test_payment_failover_chain.py`.
+- Доказательство: `services/backend/app/payment_methods.py`; `tests/test_payment_methods.py`; `tests/test_payment_failover_chain.py`.
 - Примечание: Способ показывается, только если есть включённая касса с ключами. Ограничений по валюте, сумме, стране и платформе в коде нет.
 
 > Список методов оплаты строить из подтверждённых capabilities и настроек merchant account. Не показывать метод, если он не активирован, не доступен для валюты/суммы/страны/платформы. Не смешивать `provider_id`, `method_id`, `config_id`, `payment_system` и `platform_billing`.
@@ -2133,7 +2309,7 @@
 ### REQ-RW-0001 — `PARTIAL`
 
 - Источник: Часть I → Remnawave → Goal (строка 386). Продукт: Все три.
-- Доказательство: `backend/app/remnawave.py`; `backend/app/rw_api.py`; `backend/app/rw_extensions.py`; `backend/app/install_catalogue.py`; `tests/test_remnawave_contract.py`; `.github/workflows/remnawave-live.yml`.
+- Доказательство: `services/backend/app/remnawave.py`; `services/backend/app/rw_api.py`; `services/backend/app/rw_extensions.py`; `services/backend/app/install_catalogue.py`; `tests/test_remnawave_contract.py`; `.github/workflows/remnawave-live.yml`.
 - Примечание: Магазин продаёт и ведёт подписки через панель, ставит панель и ноды, управляет профилями, хостами, плагинами из панели администратора. Требования RW-0004 – 0007 о слое согласования состояния не выполнены.
 
 > Полная интеграция Remnawave в экосистему и Lucy Admin.
@@ -2141,7 +2317,7 @@
 ### REQ-RW-0002 — `PARTIAL`
 
 - Источник: Часть I → Remnawave → Capabilities (строка 390). Продукт: Все три.
-- Доказательство: `backend/app/remnawave.py`; `backend/app/remnawave_shop_api.py`; `backend/app/remnawave_events.py`; `tests/test_remnawave_contract.py`; `tests/test_remnawave_squads.py`.
+- Доказательство: `services/backend/app/remnawave.py`; `services/backend/app/remnawave_shop_api.py`; `services/backend/app/remnawave_events.py`; `tests/test_remnawave_contract.py`; `tests/test_remnawave_squads.py`.
 - Примечание: Пользователи, подписки, сроки, трафик, устройства, ноды, блокировки, продление и выдача есть. Построчной сверки каждого пункта списка с экраном панели администратора не было.
 
 > Пользователи; подписки; тарифы; устройства; трафик; сроки; ноды; конфигурации; статусы; подключения; статистика; блокировки; продление; выдача подписок.
@@ -2149,7 +2325,7 @@
 ### REQ-RW-0003 — `PARTIAL`
 
 - Источник: Часть I → Remnawave → Requirements (строка 394). Продукт: Все три.
-- Доказательство: `.github/workflows/remnawave-live.yml`; `tests/live/test_remnawave_live.py`; `tests/test_remnawave_contract.py`; `backend/app/remnawave.py`; `backend/app/rw_snapshots.py`.
+- Доказательство: `.github/workflows/remnawave-live.yml`; `tests/live/test_remnawave_live.py`; `tests/test_remnawave_contract.py`; `services/backend/app/remnawave.py`; `services/backend/app/rw_snapshots.py`.
 - Примечание: Настоящий API проверяется в CI на настоящей панели; есть предохранитель от шквала повторов, журнал, копии базы панели. Миграции между панелями нет.
 
 > Проверить реальные API, модели, ограничения и версии; синхронизация; обработка ошибок; повторы; журнал; мониторинг; восстановление; контроль панели; миграция; backup. Продажа подписок через Remnawave через единый backend и платежи.
@@ -2157,7 +2333,7 @@
 ### REQ-RW-0004 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2279). Продукт: Все три.
-- Доказательство: `backend/app/remnawave.py`; `tests/test_remnawave_contract.py`; `backend/app/rw_autoupdate.py`; `backend/app/rw_torrent_ban.py`.
+- Доказательство: `services/backend/app/remnawave.py`; `tests/test_remnawave_contract.py`; `services/backend/app/rw_autoupdate.py`; `services/backend/app/rw_torrent_ban.py`.
 - Примечание: Единый клиент панели с проверкой контракта есть; версия панели читается и сравнивается с проверенной. Таблицы возможностей по версиям нет: проверка версии сделана отдельно в каждой функции.
 
 > - Создать единый Remnawave adapter с versioned API contract и capability detection.
@@ -2179,7 +2355,7 @@
 ### REQ-RW-0007 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2282). Продукт: Все три.
-- Доказательство: `backend/app/rw_drift.py`; `tests/test_rw_drift.py`; `admin/e2e/rw-drift.spec.ts`; `docs/RW_DRIFT.md`; `backend/app/rw_torrent_ban.py`.
+- Доказательство: `services/backend/app/rw_drift.py`; `tests/test_rw_drift.py`; `apps/lucy-admin/web/e2e/rw-drift.spec.ts`; `docs/RW_DRIFT.md`; `services/backend/app/rw_torrent_ban.py`.
 - Примечание: Магазин хранит время последней сверки и последней сверки без расхождений и выявляет расхождения с панелью для пула автовыбора и бана за торренты (по кнопке и каждые шесть часов). Подписки, профили и хосты вне пула не сверяются.
 
 > - Сохранять состояние последней успешной синхронизации и выявлять drift.
@@ -2187,7 +2363,7 @@
 ### REQ-RW-0008 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2283). Продукт: Все три.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `services/backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`.
 - Примечание: Смена протокола сохраняет прежний inbound до первого изменения; автовыбор и бан за торренты не трогают чужие объекты. Общего правила «инвентаризация и копия перед любым изменением inbound» для всех разделов нет.
 
 > - Не удалять и не перезаписывать существующие inbounds без инвентаризации и backup.
@@ -2195,7 +2371,7 @@
 ### REQ-RW-0009 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2284). Продукт: Все три.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `backend/app/rw_plan.py`; `backend/app/rw_autoselect.py`.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `services/backend/app/rw_plan.py`; `services/backend/app/rw_autoselect.py`.
 - Примечание: Откат есть у смены протокола и обновлений; установка показывает план до запуска. Пробного запуска без изменений (dry-run) у операций с панелью нет.
 
 > - Поддерживать безопасные операции create/update/disable/enable/delete с dry-run, preview и rollback.
@@ -2203,7 +2379,7 @@
 ### REQ-RW-0010 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2285). Продукт: Все три.
-- Доказательство: `admin/src/torrent-ban.tsx`; `admin/src/protocol-switch.tsx`; `admin/src/autoselect.tsx`; `admin/e2e/torrent-ban.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/src/torrent-ban.tsx`; `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`.
 - Примечание: Разделы показывают выбранные ноды и что изменится; зависимые сервисы и оценка влияния не выводятся.
 
 > - Для bulk actions выводить список целевых узлов, итоговые изменения, зависимые сервисы и оценку влияния.
@@ -2211,7 +2387,7 @@
 ### REQ-RW-0011 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2286). Продукт: Все три.
-- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `backend/app/rw_autoupdate.py`; `backend/app/rw_extensions.py`.
+- Доказательство: `services/backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `services/backend/app/rw_autoupdate.py`; `services/backend/app/rw_extensions.py`.
 - Примечание: Версии ноды и Xray показываются по каждой ноде, плагины не предлагаются старым нодам. sing-box не поддерживается; единой проверки совместимости конфигурации с каждой нодой нет.
 
 > - Учитывать разные версии панели, API, Xray/sing-box и типы серверов; не считать одинаковую конфигурацию совместимой со всеми узлами.
@@ -2219,14 +2395,14 @@
 ### REQ-RW-0012 — `PASS`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2287). Продукт: Все три.
-- Доказательство: `backend/app/rw_remote.py`; `tests/test_rw_ssh.py`; `backend/app/rw_ssh.py`.
+- Доказательство: `services/backend/app/rw_remote.py`; `tests/test_rw_ssh.py`; `services/backend/app/rw_ssh.py`.
 
 > - Проверять SSH host key, не отключать host key checking ради удобства.
 
 ### REQ-RW-0013 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2288). Продукт: Все три.
-- Доказательство: `backend/app/rw_ssh.py`; `tests/test_rw_ssh.py`; `tests/test_stage15_install.py`.
+- Доказательство: `services/backend/app/rw_ssh.py`; `tests/test_rw_ssh.py`; `tests/test_stage15_install.py`.
 - Примечание: Службы работают не от root, у ключей SSH есть отпечаток и смена. Установка на ноду идёт от root: отдельной ограниченной учётной записи для неё нет.
 
 > - Использовать ограниченные сервисные учётные записи и минимальные права.
@@ -2234,7 +2410,7 @@
 ### REQ-RW-0014 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2289). Продукт: Все три.
-- Доказательство: `backend/app/rw_jobs.py`; `backend/app/rw_api.py`; `backend/app/remnawave.py`.
+- Доказательство: `services/backend/app/rw_jobs.py`; `services/backend/app/rw_api.py`; `services/backend/app/remnawave.py`.
 - Примечание: Задачи установки идут очередью; у клиента панели есть предохранитель. Явного ограничения числа одновременных SSH-операций и частоты нет.
 
 > - Ограничивать параллелизм SSH операций и иметь rate limits.
@@ -2242,7 +2418,7 @@
 ### REQ-RW-0015 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2290). Продукт: Все три.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `backend/app/rw_autoupdate.py`; `backend/app/rw_snapshots.py`; `tests/test_rw_autoupdate.py`; `docs/PROTOCOL_SWITCH.md`.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `services/backend/app/rw_autoupdate.py`; `services/backend/app/rw_snapshots.py`; `tests/test_rw_autoupdate.py`; `docs/PROTOCOL_SWITCH.md`.
 - Примечание: Перед обновлением делается копия базы панели, смена протокола хранит данные для отката. Доступность восстановления в обход основной сети перед операцией не проверяется.
 
 > - Перед обновлением/сменой протокола проверять backup, доступность out-of-band восстановления и способ rollback.
@@ -2250,7 +2426,7 @@
 ### REQ-RW-0016 — `PARTIAL`
 
 - Источник: Часть IV → 29. Remnawave и управление нодами — расширение (строка 2291). Продукт: Все три.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `backend/app/rw_steps.py`; `tests/live/test_node_modules_live.py`.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `services/backend/app/rw_steps.py`; `tests/live/test_node_modules_live.py`.
 - Примечание: После операции проверяются состояние в панели и открытый порт; Xray Checker проверяет подключение по расписанию. Проверки настоящим клиентом сразу после операции нет.
 
 > - После операции проверять не только process status, но и реальное подключение клиентом.
@@ -2261,7 +2437,7 @@
 ### REQ-MASQUE-0001 — `PASS`
 
 - Источник: Часть I → Masque → Goal (строка 401). Продукт: Все три.
-- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `admin/e2e/masque-panel.spec.ts`.
+- Доказательство: `services/backend/app/rw_masque.py`; `services/backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `apps/lucy-admin/web/e2e/masque-panel.spec.ts`.
 - Примечание: Установка одной кнопкой: сертификат, контейнеры, порт, пользователи; дальше доступ сам следует за подписками. Проверено в CI на настоящих Caddy, Xray и HAProxy.
 
 > Максимально автоматизированный Zero-Touch Provisioning MASQUE.
@@ -2269,7 +2445,7 @@
 ### REQ-MASQUE-0002 — `PARTIAL`
 
 - Источник: Часть I → Masque → Version Claim (строка 405). Продукт: Все три.
-- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Доказательство: `services/backend/app/rw_masque.py`; `services/backend/app/masque.py`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
 - Примечание: Тега v26.10.10 не существует. Для MASQUE магазин ставит на ноду свой Xray 26.11.9, закреплённый по хешу образа. Ядро Xray самой ноды Remnawave до этой версии магазин не поднимает.
 
 > Xray-core v26.10.10+
@@ -2285,7 +2461,7 @@
 ### REQ-MASQUE-0004 — `PARTIAL`
 
 - Источник: Часть I → Masque → Node Provisioning (строка 413). Продукт: Все три.
-- Доказательство: `backend/app/rw_masque.py`; `scripts/ci/masque-check.sh`; `backend/app/masque_panel.py`.
+- Доказательство: `services/backend/app/rw_masque.py`; `scripts/ci/masque-check.sh`; `services/backend/app/masque_panel.py`.
 - Примечание: Установка на ноду по SSH, проверка порта, TLS с сертификатом ноды, передача файлов с контрольной суммой — есть и проверены в CI. Свой выпуск сертификата не нужен: берётся сертификат сайта SelfSteal. Занятость порта другим процессом перед установкой не проверяется; на VPS не проверено.
 
 > Python/Next.js; Bash; SSH; Docker; установка на чистую ноду; проверка портов; ACME/Let's Encrypt; TLS; безопасная передача сертификатов и ключей.
@@ -2293,7 +2469,7 @@
 ### REQ-MASQUE-0005 — `PARTIAL`
 
 - Источник: Часть I → Masque → Multiplexing (строка 417). Продукт: Все три.
-- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque.py`; `scripts/ci/masque-check.sh`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
+- Доказательство: `services/backend/app/rw_masque.py`; `services/backend/app/masque.py`; `scripts/ci/masque-check.sh`; `docs/MASQUE_IMPLEMENTATION_REPORT.md`.
 - Примечание: Конфликты исследованы; рабочая схема — отдельный TCP-порт, HAProxy по пути, Xray на loopback — проверена в CI. HTTP/3 не используется: его нельзя спрятать за сайтом. Общий порт 443 с REALITY не делается.
 
 > Исследовать MASQUE HTTP/3 UDP; MASQUE HTTP/2 TCP; Hysteria 2 UDP; VLESS+REALITY TCP/UDP; конфликты 443; разные порты; ALPN; SNI; routing; listener; reverse proxy; ограничения REALITY; QUIC/TCP. Подготовить проверенные inbounds/routing.
@@ -2301,7 +2477,7 @@
 ### REQ-MASQUE-0006 — `PARTIAL`
 
 - Источник: Часть I → Masque → Grpc (строка 421). Продукт: Все три.
-- Доказательство: `backend/app/rw_masque.py`; `backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `tests/test_masque_panel.py`.
+- Доказательство: `services/backend/app/rw_masque.py`; `services/backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `tests/test_masque_panel.py`.
 - Примечание: Пользователи добавляются и убираются через API Xray без перезапуска; трафик по подпискам копится, лимит тарифа и число устройств применяются — проверено в CI. Отключение по лимиту не мгновенное (до 15 минут); лимит туннелей считается на каждой ноде отдельно.
 
 > Проверить HandlerService, AddInbound, StatsService и необходимые методы. Реализовать hot reload без неоправданного прерывания соединений, точную статистику и синхронизацию лимитов.
@@ -2309,7 +2485,7 @@
 ### REQ-MASQUE-0007 — `PARTIAL`
 
 - Источник: Часть I → Masque → Subscriptions (строка 425). Продукт: Все три.
-- Доказательство: `backend/app/masque_panel.py`; `backend/app/rw_masque.py`; `tests/test_masque_panel.py`; `docs/MASQUE_PANEL.md`; `cabinet/src/masque.tsx`; `cabinet/src/masque.test.tsx`.
+- Доказательство: `services/backend/app/masque_panel.py`; `services/backend/app/rw_masque.py`; `tests/test_masque_panel.py`; `docs/MASQUE_PANEL.md`; `apps/user-cabinet/src/masque.tsx`; `apps/user-cabinet/src/masque.test.tsx`.
 - Примечание: MASQUE выдаётся своей подпиской в формате JSON и не затрагивает подписку Remnawave; покупатель видит ссылку в кабинете и Mini App и может её перевыпустить. Ссылок для v2rayNG и NekoBox нет; на клиентах не проверено.
 
 > VLESS Reality; Hysteria 2; MASQUE; JSON/Base64 bundle; v2rayNG; NekoBox. Неподдерживаемый MASQUE не должен ломать остальные конфигурации.
@@ -2317,7 +2493,7 @@
 ### REQ-MASQUE-0008 — `PARTIAL`
 
 - Источник: Часть I → Masque → Admin Ui (строка 429). Продукт: Все три.
-- Доказательство: `admin/src/masque-panel.tsx`; `admin/e2e/masque-panel.spec.ts`; `admin/src/masque.tsx`; `backend/app/masque_panel.py`.
+- Доказательство: `apps/lucy-admin/web/src/masque-panel.tsx`; `apps/lucy-admin/web/e2e/masque-panel.spec.ts`; `apps/lucy-admin/web/src/masque.tsx`; `services/backend/app/masque_panel.py`.
 - Примечание: Есть переключатель выдачи, выбор тарифов, установка с выбором защит, изменение защит, удаление, проверка совместимости и маскировки, состояние ноды, понятные причины отказа. Пошагового прогресса установки нет: кнопка ждёт результата.
 
 > Переключатели MASQUE; проверка совместимости; скрытие дублирующих настроек; fallback domain; мониторинг установки; прогресс; диагностика.
@@ -2325,7 +2501,7 @@
 ### REQ-MASQUE-0009 — `PASS`
 
 - Источник: Часть I → Masque → Anti Dpi (строка 433). Продукт: Все три.
-- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `scripts/ci/masque-check.sh`; `backend/app/rw_masque.py`; `tests/test_masque_panel.py`.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `scripts/ci/masque-check.sh`; `services/backend/app/rw_masque.py`; `tests/test_masque_panel.py`.
 - Примечание: Посторонний видит сайт SelfSteal и его 404, в том числе на секретном пути; строгий SNI, TLS как у сайта, ответы на непонятные запросы и незаметная блокировка зондирования проверены в CI. Ограничения описаны в отчёте, §9. Защита от DPI не обещается.
 
 > Исследовать unauthorized requests; probing; fallback; легитимный веб-сервер; ограничения защиты. Не обещать гарантированную защиту от DPI.
@@ -2341,7 +2517,7 @@
 ### REQ-MASQUE-0011 — `PARTIAL`
 
 - Источник: Часть I → Masque → Deliverables (строка 441). Продукт: Все три.
-- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `docs/MASQUE_PANEL.md`; `backend/app/rw_masque.py`; `backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `tests/test_masque_panel.py`.
+- Доказательство: `docs/MASQUE_IMPLEMENTATION_REPORT.md`; `docs/MASQUE_PANEL.md`; `services/backend/app/rw_masque.py`; `services/backend/app/masque_panel.py`; `scripts/ci/masque-check.sh`; `tests/test_masque_panel.py`.
 - Примечание: Архитектура, подтверждение, код, конфигурации, тесты, ограничения, безопасность и документация есть. Не проверено на VPS и на клиентских устройствах.
 
 > Архитектура; официальное подтверждение; код; конфигурации; тесты; ограничения; безопасность; документация.
@@ -2358,65 +2534,83 @@
 
 ## Ноды: установка, обслуживание, защита
 
-### REQ-NODE-0001 — `NOT_TESTED`
+### REQ-NODE-0001 — `PARTIAL`
 
 - Источник: Часть I → Node Manager → Features (строка 452). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `services/backend/app/rw_plan.py`; `services/backend/app/rw_steps.py`; `services/backend/app/node_terminal.py`; `services/backend/app/rw_snapshots.py`.
+- Примечание: Добавление, удаление, параметры, SSH, установка, обновление, восстановление из снапшота, копии, проверка конфигурации и защита есть в «Установке» и «Установке Remnawave» (план → подтверждение → шаги → откат). Управление отдельными службами — через терминал сервера, отдельной страницы нет. Вживую на VPS не проверено.
 
 > Добавление; удаление; изменение параметров; доступность; SSH; управление сервисами; мониторинг; диагностика; установка; обновление; восстановление; backup; проверка конфигураций; безопасность.
 
-### REQ-NODE-0002 — `NOT_TESTED`
+### REQ-NODE-0002 — `PARTIAL`
 
 - Источник: Часть I → Node Manager → Bulk (строка 456). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_plan.py`; `services/backend/app/rw_jobs.py`; `tests/test_rw_installer.py`; `apps/lucy-admin/web/e2e/rw-installer.spec.ts`.
+- Примечание: Модуль ставится на несколько серверов сразу; до запуска показывается план по каждому серверу и шаги отката. Отдельного списка «что будет скопировано до изменения» в плане массовой операции нет. Вживую на VPS не проверено.
 
 > Массовые операции показывают выбранные ноды, компоненты, последствия, rollback и backup до выполнения.
 
 ### REQ-NODE-0003 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Rule (строка 463). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: Каталог «Установка» восстановлен и проверен тестами и сценарием в браузере. Нет: AdGuard Home, каскада HAProxy, временного бана IP за торренты. CrowdSec — частично.
 
 > Восстановить и полноценно реализовать функциональность «Установка» и «Обслуживание и защита», показанную на скриншотах. Скриншоты — требования, не доказательство реализации. Проверить исходный код; отсутствующее реализовать; существующее проверить.
 
-### REQ-NODE-0004 — `NOT_TESTED`
+### REQ-NODE-0004 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Catalog (строка 467). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `apps/lucy-admin/web/src/install-hub.tsx`.
+- Примечание: Карточка: название, описание, группа, «по SSH / без SSH», выбранный сервер, кнопка, ход выполнения и журнал задачи. Требования к серверу (ресурсы, порты) в карточке не показаны; диагностика — в отдельных разделах.
 
 > Каталог карточек: название; описание; категория; тип подключения; целевые ноды; требования; кнопка; прогресс; результат; журнал; диагностика.
 
-### REQ-NODE-0005 — `NOT_TESTED`
+### REQ-NODE-0005 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Mtproto (строка 471). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/mtproto-check.sh`; `tests/test_rw_netmods.py`; `tests/test_install_catalogue.py`; `services/backend/app/rw_ports.py`.
+- Примечание: Установка на выбранную ноду, FakeTLS, ссылка tg:// после установки, удаление модуля, порт открывается сам — проверено настоящим запуском в CI. Проверка доступности прокси снаружи после установки и работа с настоящим Telegram не проверены.
 
 > Установка MTProto Proxy на выбранную ноду; автоматическая настройка; корректная ссылка; показ ссылки; проверка доступности; журнал; удаление без влияния на другие сервисы.
 
 ### REQ-NODE-0006 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Haproxy Cascade (строка 475). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
 - Примечание: Каскад сделан мостом Shadowsocks между двумя нодами через API панели, не HAProxy. Цепочки из 2–3 нод и проверки каждого звена нет.
 
 > Каскад HAProxy через 2–3 ноды; выбор транзитных и конечной; настройка маршрута; проверка каждого звена и TCP; диагностика; без ненужного второго шифрования; безопасное применение; rollback.
 
-### REQ-NODE-0007 — `NOT_TESTED`
+### REQ-NODE-0007 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Live Traffic Test (строка 479). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_steps.py`; `tests/test_rw_node_modules.py`; `services/backend/app/install_catalogue.py`.
+- Примечание: Xray Checker проверяет каждый сервер подписки настоящим соединением. Внешний адрес выхода и разбор по этапам (DNS, маршрут, подключение) магазин сам не показывает. Вживую на VPS не проверено.
 
 > Проверка реальным трафиком через подписку живого клиента; тестовый запрос; фактический маршрут и внешний адрес; результат; журнал; диагностика DNS, маршрутизации и подключения. Не подменять статической проверкой.
 
-### REQ-NODE-0008 — `NOT_TESTED`
+### REQ-NODE-0008 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Geoassets (строка 483). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/geo-check.sh`; `tests/test_rw_netmods.py`; `services/backend/app/rw_autoupdate.py`; `tests/test_rw_autoupdate.py`.
+- Примечание: Российские списки geoip/geosite: источник, SHA-256, установка рядом со встроенными, подключение в compose ноды и удаление, обновление по расписанию — проверено настоящим запуском в CI. Копия прежних файлов и откат на неё, версия списка в панели не сверены.
 
 > Обновление geoip.dat, geosite.dat и других GeoAssets; версия; источник; целостность; checksum; хранение; backup; применение; проверка конфигурации; минимальный перезапуск; rollback. Для нод без Docker Compose — безопасный поддерживаемый способ. Ориентир около 10 секунд только измерять, не гарантировать.
 
 ### REQ-NODE-0009 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Xray Adblock (строка 487). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
 - Примечание: Есть правило geosite:category-ads-all первым в профиле для всех клиентов, выключение возвращает профиль. Нет: выбора нод, своих доменов, проверки DNS.
 
 > Отдельная блокировка рекламы/трекеров через DNS/geosite и подтверждённые возможности Xray; выбор нод; пользовательские домены; проверка DNS; rollback.
@@ -2428,74 +2622,92 @@
 
 > Отдельная установка AdGuard Home; выбор нод; DNS; интеграция с Xray; списки; статистика; мониторинг; резервный DNS; диагностика; учитывать ресурсы. Не устанавливать конкурирующие механизмы без проверки.
 
-### REQ-NODE-0011 — `NOT_TESTED`
+### REQ-NODE-0011 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Rkn Diagnostics (строка 495). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `services/backend/app/rw_selfsteal.py`; `services/backend/app/rw_domains.py`.
+- Примечание: «Анти-РКН: чек-лист нод»: свой сайт, проверка снаружи, порт ноды, отпечаток, запасной протокол, защита — и что исправить; панель ничего не обещает. Отдельных проверок редиректа 301 с порта 80, HSTS и версий TLS 1.2/1.3 в чек-листе нет. Вживую на VPS не проверено.
 
 > Проверка 443; selfsteal; порт 80; редирект 301; TLS 1.2/1.3; HSTS; заглушка; Trojan; VLESS; Vision; открытые порты; доступность панели. Исправления безопасные и обратимые; не закрывать админ-доступ; не обещать невозможность блокировки.
 
 ### REQ-NODE-0012 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Mss Clamp (строка 499). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
 - Примечание: MTU пути до 1.1.1.1 и 77.88.8.8 измеряется, MSS рассчитывается и включается только при необходимости, сохраняется после перезагрузки, нода не перезапускается — проверено настоящим запуском в CI. Проверки соединений клиентов после включения нет; других контрольных адресов нет.
 
 > Проверка MTU/MSS; маршруты до Cloudflare, Яндекс DNS и контрольных адресов; расчёт; необходимость; применение; сохранение после reboot; проверка соединений; не перезапускать VPN без нужды.
 
-### REQ-NODE-0013 — `NOT_TESTED`
+### REQ-NODE-0013 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Panel Node Access (строка 503). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_steps.py`; `scripts/ci/node-port-guard.sh`; `tests/test_install_catalogue.py`; `services/backend/app/install_catalogue.py`.
+- Примечание: Служебный порт нод открыт только серверу панели, применяется на всех нодах сразу, правило снимается, если панель потеряла ноду — проверено настоящим запуском в CI. Предварительное добавление нового адреса при переезде панели не сверено. Вживую на VPS не проверено.
 
 > SSH-порт; доступ только с IP панели; массовое применение; миграция панели; предварительное добавление нового IP; проверка доступности; автоматическая отмена правила при потере доступа; не блокировать SSH администратора.
 
 ### REQ-NODE-0014 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Torrent Blocker (строка 507). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `admin/e2e/torrent-ban.spec.ts`; `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`; `services/backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
 - Примечание: Временный бан адреса с автоматическим снятием включается одной кнопкой в «Торренты на узлах»: это плагин Torrent Blocker ноды (nftables), срок, список исключений, выбор нод, журнал блокировок. Счётчики, уведомления и учёт нарушений есть. На настоящей ноде блокировка и её снятие не проверены: нет VPS.
 
 > Обнаружение BitTorrent в логах Xray; временный бан IP; nftables/iptables; правила; журнал; автоматическое снятие; диагностика; предупреждение о влиянии на общие ноды; до перезапуска Xray показать последствия.
 
-### REQ-NODE-0015 — `NOT_TESTED`
+### REQ-NODE-0015 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Panel Https (строка 511). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_domains.py`; `tests/test_subscription_portal.py`; `tests/test_install_catalogue.py`; `services/backend/app/ops_alerts.py`.
+- Примечание: Домен и сертификат панели, DNS, выпуск по требованию, срок сертификата и оповещение, смена домена с сохранением прежнего. Обнаружение занятого 443 с предложением другого порта и проверка порта 80 для ACME перед выпуском не сверены. Вживую на VPS не проверено.
 
 > HTTPS по домену; ACME; Let's Encrypt; DNS; сертификат; продление; срок; reverse proxy; доступность. При конфликте 443 обнаружить и предложить порт; проверить 80 для ACME; не перезаписывать чужую конфигурацию.
 
-### REQ-NODE-0016 — `NOT_TESTED`
+### REQ-NODE-0016 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Status Page (строка 515). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/status_page.py`; `tests/test_status_and_regional_pricing.py`; `services/backend/app/install_catalogue.py`.
+- Примечание: Публичная страница статуса на своём домене: состояние сервисов и инциденты, без внутренних адресов. Проверка нод тестовым трафиком и задержка на странице не сверены — источник состояния нод нужно сверить с Xray Checker.
 
 > Публичная статус-страница; реальная доступность нод; тестовый трафик; online/latency; инциденты; состояние сервисов; домен; не раскрывать секреты и внутренние адреса. TCP-порт сам по себе не доказывает работоспособность.
 
 ### REQ-NODE-0017 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Bbr (строка 519). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_steps.py`; `tests/test_rw_server_modules.py`; `tests/live/test_node_modules_live.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_steps.py`; `tests/test_rw_server_modules.py`; `tests/live/test_node_modules_live.py`.
 - Примечание: Перед включением BBR определяются виртуализация и ядро; на OpenVZ и LXC шаг пропускается с объяснением; результат проверяется, выключение возвращает прежнее — проверено на живой машине CI. Отдельной поддержки BBR3 нет.
 
 > Определить ядро Linux, версию, виртуализацию, congestion control, права и совместимость; включать только поддерживаемый BBR/BBR3; проверить результат и rollback.
 
-### REQ-NODE-0018 — `NOT_TESTED`
+### REQ-NODE-0018 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Backups (строка 523). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/backups_api.py`; `services/backend/app/backup_verify.py`; `services/backend/app/telegram_backup.py`; `scripts/ci/restore-drill.sh`; `services/backend/app/rw_snapshots.py`; `docs/ru/DISASTER_RECOVERY.md`.
+- Примечание: Копии по расписанию (по умолчанию каждый час) с шифрованием, ротацией, проверкой восстановления, копией в S3 и Telegram, оповещением по RPO; ежедневные снапшоты панели. Проверка восстановления идёт в CI на базе магазина; восстановление базы панели на настоящем сервере не проверено.
 
 > Ежедневные backup PostgreSQL Remnawave, конфигураций, необходимых файлов, метаданных и инфраструктуры; расписание; ротация; размер; шифрование; целостность; off-site; Telegram-уведомления; журнал; тест восстановления; срок хранения. Не хранить секреты в открытых архивах.
 
-### REQ-NODE-0019 — `NOT_TESTED`
+### REQ-NODE-0019 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Snapshot Download (строка 527). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_snapshots.py`; `tests/test_install_catalogue.py`; `services/backend/app/install_catalogue.py`.
+- Примечание: Снапшот: база панели и файлы компонентов, шифрование в магазине, скачивание с подтверждением 2FA, запись в журнал. Контрольная сумма для скачанного архива и срок хранения временного файла не сверены.
 
 > Экспорт дампа БД Remnawave, конфигураций и метаданных; защищённое скачивание на устройство; права; checksum; временное хранение; журнал; предупреждение о конфиденциальности.
 
 ### REQ-NODE-0020 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Crowdsec (строка 531). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/crowdsec-check.sh`; `tests/test_rw_netmods.py`; `docs/CROWDSEC.md`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/crowdsec-check.sh`; `tests/test_rw_netmods.py`; `docs/CROWDSEC.md`.
 - Примечание: Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список, список блокировок и снятие ложной блокировки из панели, полное удаление — проверено настоящей установкой в CI. Нет: уведомлений о блокировках и сценариев для журналов веб-сервера.
 
 > Установка; защита SSH/web от brute force; обнаружение сканирования; community blocklists при соблюдении условий; мониторинг; журнал; уведомления; firewall bouncer; снятие ложных блокировок.
@@ -2503,8 +2715,8 @@
 ### REQ-NODE-0021 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Hubguard (строка 535). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
 - Примечание: Отдельная таблица nftables, лимит новых соединений с адреса, бан на 10 минут, белый список (магазин, панель, администратор, CGNAT), действующие соединения не трогаются, выключение убирает таблицу — проверено настоящим запуском в CI. Доступность панели после включения отдельно не проверяется.
 
 > Защита nftables; ограничение новых соединений; защита от сканирования и перебора; отдельная таблица; не ломать ufw/CrowdSec; whitelist SSH и необходимого CGNAT; сохранять действующие сессии; проверить доступность панели; rollback.
@@ -2512,8 +2724,8 @@
 ### REQ-NODE-0022 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Remove Component (строка 541). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: Удаляются по одному: панель (после копии её базы), страница подписки, Caddy, нода, сайт SelfSteal, Xray Checker; MTProto — выключением модуля. Бот и статус-страница — части магазина, а не сервера ноды, отдельной операции для них здесь нет.
 
 > Удалять только выбранный компонент: бот, ноду, status page, MTProto или другой модуль. Не затрагивать остальные сервисы.
@@ -2521,8 +2733,8 @@
 ### REQ-NODE-0023 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Clean Server (строка 545). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены.
 
 > Полное удаление Remnawave, нод, контейнеров, конфигураций и связанных компонентов. Необратимая операция: повторное подтверждение; точный сервер; список ресурсов; проверка backup; журнал; проверка полномочий.
@@ -2530,67 +2742,85 @@
 ### REQ-NODE-0024 — `PASS`
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Rule (строка 549). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`.
 
 > Не путать удаление одного компонента с полной очисткой сервера.
 
 ### REQ-NODE-0025 — `PASS`
 
 - Источник: Часть I → Server Installation Maintenance → Protocol Switch Repair (строка 554). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 > Последовательные этапы: чтение текущего транспорта; смена протокола inbound; обновление hosts; проверка реконнекта нод. Каждый этап показывает состояние, индикатор, журнал, ошибку, результат, время, диагностику. Определить inbound/profile; обновить и применить; обновить hosts; дождаться реконнекта; проверить все ноды; сохранить старый и новый транспорт. Не объявлять успех до проверок.
 
 ### REQ-NODE-0026 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Node Reconnect (строка 558). Продукт: Все три.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `docs/PROTOCOL_SWITCH.md`.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`; `docs/PROTOCOL_SWITCH.md`.
 - Примечание: Таблица нод после смены протокола есть: номер, страна, имя, состояние, транспорт, время, причина, итог. Проверяется подключение ноды к панели с новым профилем, а не трафик клиента через ноду. После других массовых операций таблица не показывается.
 
 > После смены протокола/массовой операции проверить все ноды: номер; страна; имя; online/offline; транспорт; время; ошибка; итог. Проверять не только SSH, но и реальный VPN-транспорт.
 
-### REQ-NODE-0027 — `NOT_TESTED`
+### REQ-NODE-0027 — `PARTIAL`
 
 - Источник: Часть I → Server Installation Maintenance → Common Acceptance (строка 562). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_plan.py`; `services/backend/app/rw_steps.py`; `tests/test_rw_installer.py`; `tests/test_install_catalogue.py`; `docs/SERVER_PORTS.md`.
+- Примечание: У модулей по SSH: план, подтверждение, шаги с проверкой, журнал, откат; каждая карточка ведёт к работающему месту (тест). Единой предварительной проверки ресурсов и свободных портов перед каждой операцией нет (порты проверяются у MASQUE и при установке).
 
 > Для каждой операции: предварительная проверка; выбор серверов; совместимость; свободные порты и ресурсы; backup; план; последствия; прогресс; журнал; проверка результата; rollback; документация. Не допускать фиктивных кнопок.
 
-### REQ-NODE-0028 — `NOT_TESTED`
+### REQ-NODE-0028 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Note (строка 1282). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 
 > Ниже зафиксированы требования, извлечённые из присланных пользователем скриншотов раздела «Установка». Они являются самостоятельными критериями приёмки.
 
-### REQ-NODE-0029 — `NOT_TESTED`
+### REQ-NODE-0029 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Page Heading (строка 1286). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 
 > «Обслуживание и защита» — поддержание сервера в рабочем состоянии и сохранение данных перед изменениями.
 
-### REQ-NODE-0030 — `NOT_TESTED`
+### REQ-NODE-0030 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Intro Bullets (строка 1290). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `apps/lucy-admin/web/src/install-hub.tsx`.
+- Примечание: Группа «Обслуживание и защита» содержит HTTPS и статус, оповещения, копии, защиту и ускорение. Вводного списка из трёх пунктов, как на снимке владельца, над группой нет.
 
 > HTTPS и мониторинг; резервные копии; оптимизация и защита.
 
-### REQ-NODE-0031 — `NOT_TESTED`
+### REQ-NODE-0031 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Server Context (строка 1294). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `apps/lucy-admin/web/src/install-hub.tsx`.
 
 > Показывать, какой сервер выбран. Сертификаты, ускорение и защита должны настраиваться именно на выбранном сервере. У каждой операции отображать способ выполнения, например SSH, и реальный целевой сервер.
 
-### REQ-NODE-0032 — `NOT_TESTED`
+### REQ-NODE-0032 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → HTTPS для этой панели (строки 1299–1301). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_domains.py`; `tests/test_install_catalogue.py`; `services/backend/app/install_catalogue.py`.
+- Примечание: То же, что REQ-NODE-0015.
 
 > `id` = `panel-https`
 > Перевод панели с http://IP:порт на HTTPS по домену. Установка на сервер панели. Если 443 занят нодой, selfsteal или другим web-сервером, предложить другой свободный порт; для ACME проверить требуемый свободный порт 80. Обнаружить конфликт, не перезаписывать чужой web server.
 
-### REQ-NODE-0033 — `NOT_TESTED`
+### REQ-NODE-0033 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Статус-страница VPN (строки 1304–1306). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/status_page.py`; `tests/test_status_and_regional_pricing.py`; `services/backend/app/install_catalogue.py`.
+- Примечание: То же, что REQ-NODE-0016.
 
 > `id` = `vpn-status-page`
 > Публичная status page для клиентов; проверка каждого конфига реальным трафиком; online и latency; установка в один клик; собственный домен; безопасное публичное отображение без раскрытия внутренней информации.
@@ -2598,23 +2828,29 @@
 ### REQ-NODE-0034 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Ускорение BBR / BBR3 (строки 1309–1311). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_steps.py`; `tests/test_rw_server_modules.py`; `tests/live/test_node_modules_live.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_steps.py`; `tests/test_rw_server_modules.py`; `tests/live/test_node_modules_live.py`.
 - Примечание: То же, что REQ-NODE-0017.
 
 > `id` = `bbr`
 > Проверить ядро и виртуализацию до изменений; применить только поддерживаемую настройку TCP; не менять VPN-конфигурацию; показать фактический результат.
 
-### REQ-NODE-0035 — `NOT_TESTED`
+### REQ-NODE-0035 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Настроить автобекапы (строки 1314–1316). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_snapshots.py`; `services/backend/app/telegram_backup.py`; `tests/test_install_catalogue.py`; `scripts/ci/restore-drill.sh`.
+- Примечание: То же, что REQ-NODE-0018.
 
 > `id` = `automatic-backups`
 > Ежедневный дамп БД Remnawave (Postgres) плюс конфигурации, ротация, локальная копия и off-site копия в Telegram/поддерживаемом хранилище; расписание, журнал, уведомления и тест восстановления.
 
-### REQ-NODE-0036 — `NOT_TESTED`
+### REQ-NODE-0036 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → Снапшот сервера — скачать (строки 1319–1321). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_snapshots.py`; `tests/test_install_catalogue.py`.
+- Примечание: То же, что REQ-NODE-0019.
 
 > `id` = `snapshot-download`
 > Архив дампа БД Remnawave и всех необходимых конфигураций; скачивание инициируется из панели на устройство пользователя; checksum, контроль доступа, срок хранения и безопасное удаление временного архива.
@@ -2622,8 +2858,8 @@
 ### REQ-NODE-0037 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → CrowdSec — защита от брутфорса (строки 1324–1326). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/crowdsec-check.sh`; `tests/test_rw_netmods.py`; `docs/CROWDSEC.md`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/crowdsec-check.sh`; `tests/test_rw_netmods.py`; `docs/CROWDSEC.md`.
 - Примечание: Есть: установка, блокировка перебора SSH и сканеров, блокировщик nftables, общий список блокировок по желанию, белый список, список блокировок и снятие ложной блокировки из панели, полное удаление — проверено настоящей установкой в CI. Нет: уведомлений о блокировках и сценариев для журналов веб-сервера.
 
 > `id` = `crowdsec`
@@ -2632,8 +2868,8 @@
 ### REQ-NODE-0038 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Cards → HUBGuard — защита nftables (строки 1329–1331). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
 - Примечание: Отдельная таблица nftables, лимит новых соединений с адреса, бан на 10 минут, белый список (магазин, панель, администратор, CGNAT), действующие соединения не трогаются, выключение убирает таблицу — проверено настоящим запуском в CI. Доступность панели после включения отдельно не проверяется.
 
 > `id` = `hubguard`
@@ -2642,8 +2878,8 @@
 ### REQ-NODE-0039 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Remove Component (строка 1338). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: То же, что REQ-NODE-0022.
 
 > Снять с сервера ОДИН компонент (например, бот, ноду, status page, MTProto), не трогая остальные. Ясно объяснить, что это не полная очистка сервера.
@@ -2651,70 +2887,73 @@
 ### REQ-NODE-0040 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Clean Server (строка 1342). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 - Примечание: То же, что REQ-NODE-0023.
 
 > Полностью удалить Remnawave, ноду, контейнеры и конфигурации. Необратимо. Требовать точный выбор сервера, перечень удаляемых ресурсов, проверку backup и повторное подтверждение.
 
-### REQ-NODE-0041 — `NOT_TESTED`
+### REQ-NODE-0041 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Operation Ui (строка 1347). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `apps/lucy-admin/web/src/install-hub.tsx`.
+- Примечание: То же, что REQ-NODE-0004; каждая кнопка вызывает настоящую операцию (тест `test_every_card_leads_to_a_working_place`).
 
 > В карточке: категория/тип «Обслуживание сервера»; способ выполнения; иконка; заголовок; описание; кнопка «Установить»/«Скачать»; ход выполнения; журнал; результат; ошибка и диагностика. Кнопка должна вызывать реальную операцию и быть защищена от повторного нажатия.
 
 ### REQ-NODE-0042 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Title (строка 1356). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 > Починка блока: смена протокола
 
 ### REQ-NODE-0043 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage (строка 1362). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Чтение текущего транспорта.
 
 ### REQ-NODE-0044 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage (строка 1366). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Смена протокола inbound.
 
 ### REQ-NODE-0045 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage (строка 1370). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Обновление hosts.
 
 ### REQ-NODE-0046 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage (строка 1374). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Проверка реконнекта нод.
 
 ### REQ-NODE-0047 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Example Observed State (строка 1379). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > В пользовательском интерфейсе отображался inbound STEAL-T12 в профиле узла; исходный транспорт gRPC, целевой xHTTP. Это пример диагностического сценария, а не фиксированное имя для всех серверов.
 
 ### REQ-NODE-0048 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Stage Detail (строка 1383). Продукт: Все три.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`.
 - Примечание: Все шаги есть. Итоговый транспорт в таблице — тот, что записан в профиль; фактический транспорт на самой ноде не измеряется. На настоящей панели не проверено: O1.
 
 > Показать текущий профиль и inbound; прочитать фактический транспорт; обновить профиль Remnawave; инициировать корректное применение/перегенерацию конфигурации; обновить hosts; дождаться переподключения; проверить каждую ноду и итоговый транспорт.
@@ -2722,142 +2961,175 @@
 ### REQ-NODE-0049 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Progress Ui (строка 1387). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 > Общий статус; зелёные/ошибочные этапы; раскрываемый лог каждого этапа; временные метки; прогресс; ссылка «К списку»; возможность безопасного просмотра деталей.
 
 ### REQ-NODE-0050 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Rollback (строка 1391). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`.
 
 > Сохранить старую конфигурацию и транспорт; при ошибке восстановить исходное состояние, если это безопасно; не оставлять часть нод на несовместимых параметрах.
 
 ### REQ-NODE-0051 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Protocol Repair → Observed Result Example (строка 1395). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`.
 
 > В одном из показанных тестов обновился один hosts entry, а проверка сообщила об online-статусе 11 из 18 нод; это не считать универсальной нормой. Всегда показывать фактическое количество проверенных, online и offline нод.
 
 ### REQ-NODE-0052 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Node Reconnect Matrix (строка 1400). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `admin/src/protocol-switch.tsx`; `admin/e2e/protocol-switch.spec.ts`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `apps/lucy-admin/web/src/protocol-switch.tsx`; `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`.
 
 > Отображать порядковый номер; страну; название ноды; статус online/offline; транспорт; причину ошибки; время проверки. Проверять все ноды, а не только первые несколько.
 
-### REQ-NODE-0053 — `NOT_TESTED`
+### REQ-NODE-0053 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Network And Censorship Diagnostics → Rkn Context (строка 1458). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/block_monitor.py`; `tests/test_block_monitor.py`; `tests/test_filter_geo_ripe.py`; `services/backend/app/install_catalogue.py`.
+- Примечание: «Доступность нод»: проверки из разных сетей и RIPE Atlas, монитор блокировок. Различение блокировки одного адреса и подсети /24 отдельно не сверено. Вживую на VPS не проверено.
 
 > Пользователь ранее описывал изменения фильтрации с 20.09.2026 и необходимость диагностировать адресные блокировки /32 и возможные блокировки подсетей /24. Проверять фактическую доступность из нескольких независимых сетей/регионов, SSH, ICMP, TCP и прохождение трафика; не делать вывод по одному ping.
 
-### REQ-NODE-0054 — `NOT_TESTED`
+### REQ-NODE-0054 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Network And Censorship Diagnostics → Symptoms (строка 1462). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/block_monitor.py`; `tests/test_block_monitor.py`; `services/backend/app/rw_netmods.py`.
+- Примечание: Монитор блокировок и MSS clamp есть. Диагностика по слоям (DNS, маршрут, TCP, TLS, обрыв после объёма, MTU) одним отчётом не собрана.
 
 > Один IP может быть недоступен целиком; при других сценариях TCP может устанавливаться, но поток обрываться/дропаться после определённого объёма. Различать DNS, IP/route, TCP handshake, TLS, DPI/traffic filtering, firewall, MTU/MSS и проблемы самого узла.
 
-### REQ-NODE-0055 — `NOT_TESTED`
+### REQ-NODE-0055 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Network And Censorship Diagnostics → Status Communications (строка 1466). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/status_page.py`; `tests/test_incident_mode_maintenance.py`; `docs/BRAND_COPY.md`.
+- Примечание: Инциденты и режим технических работ объявляет владелец; сами собой уведомления о блокировках клиентам не уходят, обещаний обхода в текстах нет. Готовых шаблонов сообщения «по подтверждённым данным» нет.
 
 > Готовить уведомления клиентам только по подтверждённым данным. Если сервис не затронут — не заявлять о проблеме; техническое объяснение делать кратким и понятным. Не обещать обход любых блокировок.
 
 ### REQ-NODE-0056 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1572). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `backend/app/rw_steps.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `services/backend/app/rw_steps.py`.
 - Примечание: Файл подкачки с проверкой свободного места и vm.swappiness — есть, проверено настоящим запуском в CI. Из sysctl — только подкачка и BBR; общего раздела настроек sysctl нет.
 
 > - swap и sysctl;
 
-### REQ-NODE-0057 — `NOT_TESTED`
+### REQ-NODE-0057 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1573). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_ports.py`; `scripts/ci/ports-check.sh`; `docs/SERVER_PORTS.md`.
+- Примечание: Порты серверов открываются при установке и из панели (ufw, firewalld, iptables, nftables); iptables и nftables проверены настоящим запуском в CI, ufw и firewalld — нет. Вживую на VPS не проверено.
 
 > - HTTPS ports;
 
-### REQ-NODE-0058 — `NOT_TESTED`
+### REQ-NODE-0058 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1574). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_domains.py`; `tests/test_install_catalogue.py`; `services/backend/app/rw_netmods.py`; `tests/test_rw_netmods.py`.
+- Примечание: Смена домена панели с сохранением прежнего для подписок и автоподбор SNI для REALITY есть. Перенос SNI на всех хостах одной операцией не сверен. Вживую на VPS не проверено.
 
 > - миграция домена и SNI;
 
-### REQ-NODE-0059 — `NOT_TESTED`
+### REQ-NODE-0059 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1575). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_protocol_switch.py`; `tests/test_rw_protocol_switch.py`; `services/backend/app/block_monitor.py`.
+- Примечание: «Починка блока: смена протокола» с откатом одной кнопкой — проверено на модели панели. Смена адреса заблокированного узла остаётся ручной. Вживую на VPS не проверено.
 
 > - ремонт заблокированного узла;
 
 ### REQ-NODE-0060 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1576). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
 - Примечание: То же, что REQ-NODE-0006.
 
 > - каскадирование HAProxy на 2–3 узла;
 
-### REQ-NODE-0061 — `NOT_TESTED`
+### REQ-NODE-0061 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1577). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_steps.py`; `tests/test_cloudflare_cdn.py`; `services/backend/app/install_catalogue.py`.
+- Примечание: Cloudflare CDN включается и выключается модулем, проверено на модели API Cloudflare. Отдельной диагностики CDN (что отвечает край, что — источник) нет.
 
 > - CDN diagnostics;
 
-### REQ-NODE-0062 — `NOT_TESTED`
+### REQ-NODE-0062 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1578). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/mtproto-check.sh`; `tests/test_rw_netmods.py`.
+- Примечание: То же, что REQ-NODE-0005.
 
 > - MTProto Proxy;
 
-### REQ-NODE-0063 — `NOT_TESTED`
+### REQ-NODE-0063 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1579). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/geo-check.sh`; `tests/test_rw_netmods.py`.
+- Примечание: То же, что REQ-NODE-0008.
 
 > - GEO, geoip.dat и geosite.dat с checksum и rollback;
 
 ### REQ-NODE-0064 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1580). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`.
 - Примечание: Блокировка рекламы правилом Xray есть (REQ-NODE-0009). AdGuard Home нет.
 
 > - Xray AdBlock и AdGuard Home;
 
-### REQ-NODE-0065 — `NOT_TESTED`
+### REQ-NODE-0065 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1581). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `services/backend/app/rw_selfsteal.py`.
+- Примечание: То же, что REQ-NODE-0011.
 
 > - RKN diagnostics: 443, selfsteal, 80/301, TLS 1.2/1.3, HSTS, Trojan, VLESS/Vision;
 
 ### REQ-NODE-0066 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1582). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `tests/test_rw_netmods.py`.
 - Примечание: MTU пути до 1.1.1.1 и 77.88.8.8 измеряется, MSS рассчитывается и включается только при необходимости, сохраняется после перезагрузки, нода не перезапускается — проверено настоящим запуском в CI. Проверки соединений клиентов после включения нет; других контрольных адресов нет.
 
 > - MSS clamp и MTU;
 
-### REQ-NODE-0067 — `NOT_TESTED`
+### REQ-NODE-0067 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1583). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_steps.py`; `scripts/ci/node-port-guard.sh`; `tests/test_admin_ssh_ip.py`; `infrastructure/deployment/install-vps.sh`.
+- Примечание: Служебный порт нод — только для панели, с автоснятием правила; SSH сервера магазина — только с адреса владельца по вопросу установщика (по умолчанию «нет»), правило не применяется, если отрезало бы текущую сессию. Проверено в CI. Вживую на VPS не проверено.
 
 > - ограничение SSH доступа к панели с безопасным rollback;
 
 ### REQ-NODE-0068 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1584). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `admin/e2e/torrent-ban.spec.ts`; `backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_torrent_ban.py`; `tests/test_rw_torrent_ban.py`; `apps/lucy-admin/web/e2e/torrent-ban.spec.ts`; `services/backend/app/torrent_detection.py`; `tests/test_torrent_detection.py`; `docs/TORRENT_BAN.md`.
 - Примечание: То же, что REQ-NODE-0014.
 
 > - временная блокировка torrent IP через nftables/iptables;
@@ -2865,8 +3137,8 @@
 ### REQ-NODE-0069 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1585). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `scripts/ci/crowdsec-check.sh`; `tests/test_install_catalogue.py`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_netmods.py`; `scripts/ci/netmods-check.sh`; `scripts/ci/crowdsec-check.sh`; `tests/test_install_catalogue.py`.
 - Примечание: CrowdSec — частично (REQ-NODE-0020). Защита nftables и снапшоты есть и проверены.
 
 > - CrowdSec, HUBGuard, nftables, backup snapshots;
@@ -2874,14 +3146,17 @@
 ### REQ-NODE-0070 — `PASS`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1586). Продукт: Все три.
-- Платформы: server, backend/API, Web.
-- Доказательство: `backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `admin/e2e/install-hub.spec.ts`.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
 
 > - безопасное удаление отдельного компонента и отдельный сценарий полной очистки сервера;
 
-### REQ-NODE-0071 — `NOT_TESTED`
+### REQ-NODE-0071 — `PARTIAL`
 
 - Источник: Часть II → II.2. Дополнительные серверные операции, которые нельзя потерять (строка 1587). Продукт: Все три.
+- Платформы: server, services/backend/API, Web.
+- Доказательство: `services/backend/app/rw_steps.py`; `tests/test_rw_node_modules.py`.
+- Примечание: То же, что REQ-NODE-0007.
 
 > - реальный тест трафика через клиентскую подписку.
 
@@ -2891,7 +3166,7 @@
 ### REQ-AUTO-0001 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Purpose (строка 569). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `docs/AUTO_SELECTION.md`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `docs/AUTO_SELECTION.md`.
 - Примечание: Проверено на модели панели. На настоящей панели Remnawave и в приложениях клиентов не проверено: нужен VPS (O1).
 
 > Полноценный пул автовыбора VPN-ноды.
@@ -2899,7 +3174,7 @@
 ### REQ-AUTO-0002 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Modes → server-side (строка 575). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
 - Примечание: Панель формирует отдельную плитку и шаблон с балансировщиком; узел по этому шаблону выбирает ядро Xray в приложении клиента. Выбора узла на самом сервере при выдаче подписки нет. Проверено на модели панели. На настоящей панели Remnawave и в приложениях клиентов не проверено: нужен VPS (O1).
 
 > Панель/сервер выбирает ноду и формирует подписку или отдельную плитку.
@@ -2913,23 +3188,23 @@
 ### REQ-AUTO-0004 — `PASS`
 
 - Источник: Часть I → Auto Selection → Modes → Rule (строка 583). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `docs/AUTO_SELECTION.md`; `admin/src/autoselect.tsx`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `docs/AUTO_SELECTION.md`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > Не смешивать серверный и клиентский автовыбор.
 
 ### REQ-AUTO-0005 — `PASS`
 
 - Источник: Часть I → Auto Selection → Delivery → separate-tile (строка 590). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Отдельная плитка «Автовыбор»; обычные ноды могут отображаться отдельно.
 
 ### REQ-AUTO-0006 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Delivery → all-list (строка 594). Продукт: Все три.
-- Доказательство: `backend/app/rw_extensions.py`; `docs/AUTO_SELECTION.md`.
+- Доказательство: `services/backend/app/rw_extensions.py`; `docs/AUTO_SELECTION.md`.
 - Примечание: Заготовка балансировщика по всему списку есть в «Расширения Remnawave → Готовые фрагменты»; владелец вставляет её в шаблон сам. Пул автовыбора старый режим не меняет. Теста на заготовку нет.
 
 > Старый режим «Весь список»; балансировка только при поддержке формата.
@@ -2937,46 +3212,46 @@
 ### REQ-AUTO-0007 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → leastPing (строка 601). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > По минимальной задержке.
 
 ### REQ-AUTO-0008 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → leastLoad (строка 605). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > По минимальной нагрузке.
 
 ### REQ-AUTO-0009 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → roundRobin (строка 609). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > По кругу.
 
 ### REQ-AUTO-0010 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → random (строка 613). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Случайно.
 
 ### REQ-AUTO-0011 — `PASS`
 
 - Источник: Часть I → Auto Selection → Algorithms → Rule (строка 617). Продукт: Все три.
-- Доказательство: `docs/AUTO_SELECTION.md`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Доказательство: `docs/AUTO_SELECTION.md`; `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Для каждого алгоритма определить входные данные, выбор, недоступность, обновление метрик, равные значения и fallback.
 
 ### REQ-AUTO-0012 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Management (строка 622). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: Есть: включение, обновление, удаление плитки, имя, алгоритм, выбор узлов, «выбрать все» и «снять все», скрытие, состав, доступность. Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при каждом «Обновить пул».
 
 > Включение; отключение; обновление; сброс шаблона; удаление плитки; имя; алгоритм; выбор нод; массовое включение/исключение; скрытие; состав; доступность.
@@ -2984,7 +3259,7 @@
 ### REQ-AUTO-0013 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Hide Nodes (строка 626). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: Скрытие и возврат узлов проверены на модели панели; ограничение форматов показано на странице. Поведение в настоящих клиентах Clash, sing-box и Base64 не проверено: нужен VPS (O1).
 
 > Опция «Скрыть узлы пула из списка приложения»: при включении клиент видит только плитку «Автовыбор»; при выключении узлы возвращаются после обновления подписки. Проверить Clash, sing-box, Base64 и другие клиенты. Если формат не поддерживает настоящий балансировщик, показать ограничение; не выдавать первую ноду за балансировщик.
@@ -2992,23 +3267,23 @@
 ### REQ-AUTO-0014 — `PASS`
 
 - Источник: Часть I → Auto Selection → Statistics (строка 630). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > Количество нод в подписке и пуле; доступные; выдаваемые; online/offline; исключённые; последняя проверка; актуальность метрик. Только реальные данные.
 
 ### REQ-AUTO-0015 — `PASS`
 
 - Источник: Часть I → Auto Selection → Tile (строка 634). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > Имя; иконка; алгоритм; ноды; видимость; состояние; отображение клиенту. Пример: ⚡ Автовыбор.
 
 ### REQ-AUTO-0016 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Failure (строка 638). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
 - Примечание: Недоступный узел пропускается, запасной — первый узел пула, напрямую трафик не идёт; состояние узлов видно на странице. Событие переключения не записывается: узел выбирает приложение клиента, сервер о переключении не знает.
 
 > При недоступности выбранной ноды выбрать доступную; fallback; не выдавать недействительную конфигурацию; записать событие; обновить состояние.
@@ -3016,7 +3291,7 @@
 ### REQ-AUTO-0017 — `PARTIAL`
 
 - Источник: Часть I → Auto Selection → Tests (строка 642). Продукт: Все три.
-- Доказательство: `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: На модели панели проверены: четыре алгоритма, скрытие и возврат, удаление плитки, смена имени, смена состава, пустой пул, удалённый узел. Изменение задержки и нагрузки, реконнект и разные форматы подписки требуют настоящего клиента Xray: O1.
 
 > Все четыре алгоритма; отключение ноды; изменение нагрузки/задержки; обновление подписки; скрытие/возврат; удаление плитки; изменение имени; отсутствие доступных нод; совместимость форматов; реконнект; fallback.
@@ -3033,14 +3308,14 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Heading (строка 1406). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 
 > Пул автовыбора — «быстрейшая нода клиенту».
 
 ### REQ-AUTO-0020 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Actions (строка 1410). Продукт: Все три.
-- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `backend/app/rw_autoselect.py`.
+- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `services/backend/app/rw_autoselect.py`.
 - Примечание: Есть «Убрать плитку», «Включить <алгоритм>», «Обновить пул». Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при «Обновить пул».
 
 > Сбросить шаблон; убрать плитку; включить leastPing; обновить пул.
@@ -3048,7 +3323,7 @@
 ### REQ-AUTO-0021 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Metrics (строка 1414). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 - Примечание: Показано «Видны в подписке X/Y» и «В пуле X/Y» из данных панели. Признаков «у ноды есть открытая плитка» и «inbound входит в пул» на странице нет.
 
 > Видны в подписке X/Y; раздаются клиентам X/Y; у ноды есть открытая плитка; inbound входит в пул. Значения брать из реального состояния.
@@ -3056,7 +3331,7 @@
 ### REQ-AUTO-0022 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Mode (строка 1418). Продукт: Все три.
-- Доказательство: `docs/AUTO_SELECTION.md`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Доказательство: `docs/AUTO_SELECTION.md`; `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Отдельная плитка «Автовыбор» (новый режим) либо «Весь список» (старый режим). Обеспечить совместимость и не менять режим без явного действия администратора.
 
@@ -3064,22 +3339,22 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Algorithm Options (строка 1422). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `backend/app/rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 
 > По задержке (leastPing); по нагрузке (leastLoad); по кругу (roundRobin); случайно (random).
 
 ### REQ-AUTO-0024 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Tile Name (строка 1426). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 
 > Настраиваемое имя, пример «⚡ Автовыбор».
 
 ### REQ-AUTO-0025 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Hide Pool Nodes (строка 1430). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: Переключатель есть, скрытие и возврат проверены на модели панели. Возврат узлов у настоящего клиента после обновления подписки не проверен: O1.
 
 > Переключатель скрытия узлов пула из списка приложения. При включении клиенты видят только плитку; при выключении обычные узлы возвращаются после обновления подписки.
@@ -3088,21 +3363,21 @@
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Client Compatibility Warning (строка 1434). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `docs/AUTO_SELECTION.md`.
+- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `docs/AUTO_SELECTION.md`.
 
 > В Clash/sing-box/Base64 и других форматах может отсутствовать поддержка настоящего балансировщика. В таком случае честно объяснить, что плитка может вести на первый узел пула; не заявлять полноценный клиентский балансировщик.
 
 ### REQ-AUTO-0027 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Explanation (строка 1438). Продукт: Все три.
-- Доказательство: `docs/AUTO_SELECTION.md`; `admin/src/autoselect.tsx`.
+- Доказательство: `docs/AUTO_SELECTION.md`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > Панельный автовыбор выбирает ноду на серверной стороне; «Автовыбор в приложении» выбирает клиент. Отдельная плитка означает, что клиент видит одну плитку «Автовыбор» плюс обычные ноды, если скрытие не включено.
 
 ### REQ-AUTO-0028 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Node Table (строка 1442). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 - Примечание: Есть: галочка, страна с флагом, имя, состояние, признак «раздаётся», число клиентов. Задержки и нагрузки по узлам нет: их измеряет приложение клиента, панели они неизвестны. Время проверки одно на всю страницу.
 
 > Чекбокс включения ноды в пул; флаг/страна; имя; статус online; признак «раздаётся»; число пользователей; доступность; задержка/нагрузка; последняя проверка.
@@ -3110,38 +3385,38 @@
 ### REQ-AUTO-0029 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Observed Example (строка 1446). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > В показанном интерфейсе было 11/11 видимых в подписке и 11/11 раздаваемых; пример пула включал Германию №1, Чехию №1 и Нидерланды №2. Эти числа и страны не являются константами — только динамические данные.
 
 ### REQ-AUTO-0030 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Retry (строка 1450). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > Повторный запуск обновляет пул по отмеченным галочкам; проверить идемпотентность и корректное сохранение настроек.
 
 ### REQ-AUTO-0031 — `PASS`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1590). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > - Пул должен показывать число узлов в подписке и пуле, доступные/выдаваемые, online/offline, исключённые, последнюю проверку и актуальность метрик.
 
 ### REQ-AUTO-0032 — `PASS`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1591). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `admin/src/autoselect.tsx`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`.
 
 > - Плитка имеет имя, иконку, алгоритм, список узлов, видимость и состояние; пример имени — `⚡ Автовыбор`.
 
 ### REQ-AUTO-0033 — `PARTIAL`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1592). Продукт: Все три.
-- Доказательство: `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
+- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
 - Примечание: То же, что REQ-AUTO-0016: событие переключения не записывается.
 
 > - При недоступности выбранной ноды выполнить fallback на доступную, не выдавать недействительную конфигурацию, записать событие.
@@ -3149,7 +3424,7 @@
 ### REQ-AUTO-0034 — `PARTIAL`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1593). Продукт: Все три.
-- Доказательство: `tests/test_rw_autoselect.py`; `admin/e2e/autoselect.spec.ts`.
+- Доказательство: `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
 - Примечание: То же, что REQ-AUTO-0017.
 
 > - Проверить все алгоритмы: leastPing, leastLoad, roundRobin, random; отключение узла; изменение метрик; обновление подписки; скрытие/возврат; удаление плитки; переименование; отсутствие доступных узлов; совместимость форматов; reconnect и fallback.
@@ -3157,17 +3432,20 @@
 ### REQ-AUTO-0035 — `PASS`
 
 - Источник: Часть II → II.3. Автовыбор узлов — уточнения из скриншотов/описаний (строка 1594). Продукт: Все три.
-- Платформы: Web, backend/API.
-- Доказательство: `admin/src/autoselect.tsx`; `admin/e2e/autoselect.spec.ts`; `backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
+- Платформы: Web, services/backend/API.
+- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`.
 
 > - Если формат клиента не поддерживает настоящий балансировщик, честно показать ограничение; не выдавать первую ноду за полноценный балансировщик.
 
 
 ## Инфраструктура, установщик, копии
 
-### REQ-INFRA-0001 — `NOT_TESTED`
+### REQ-INFRA-0001 — `PARTIAL`
 
 - Источник: Часть I → Additional Infrastructure → Items (строка 653). Продукт: Все три.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/install_catalogue.py`; `services/backend/app/rw_netmods.py`; `services/backend/app/rw_plan.py`; `services/backend/app/rw_ports.py`; `services/backend/app/rw_torrent_ban.py`; `services/backend/app/rw_extensions.py`; `services/backend/app/rw_autoselect.py`; `services/backend/app/rw_domains.py`; `docs/SERVER_PORTS.md`.
+- Примечание: Есть в коде: swap, sysctl/BBR, порты HTTPS (rw_ports), автовыбор, смена домена и SNI, каскад мостом Shadowsocks, CDN, MTProto, гео-списки, снимки, CrowdSec, nftables, Torrent Blocker, MSS clamp, антицензура, блокировка рекламы списками, удаление компонента. Нет: AdGuard Home (REQ-NODE-0010), каскад HAProxy на 2–3 ноды (REQ-NODE-0006). На VPS вживую не проверено.
 
 > swap; sysctl; HTTPS ports; auto-select; domain migration; SNI; repair blocked node; cascade; CDN diagnostics; MTProto; GEO; backup snapshots; CrowdSec; nftables; torrent-blocker; MSS clamp; anti-censorship; AdBlock; AdGuard; safe component removal.
 
@@ -3188,7 +3466,7 @@
 ### REQ-INFRA-0004 — `PARTIAL`
 
 - Источник: Часть I → Docker Installer Vps Termux → Checks (строка 728). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `docker-compose.yml`; `tests/test_stage15_install.py`; `tests/test_zero_downtime_deploy.py`; `.github/workflows/ci.yml`.
 - Примечание: В docker-compose.yml у служб есть проверки здоровья (14) и политики перезапуска (16), тома, сети, зависимости и переменные окружения; CI проверяет `docker compose config` и поднимает интеграционный стенд. Не сверены по пунктам журналы (ротация) и доступность служб снаружи на живом сервере.
 
@@ -3197,7 +3475,7 @@
 ### REQ-INFRA-0005 — `PARTIAL`
 
 - Источник: Часть I → Docker Installer Vps Termux → Installer (строка 732). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `install.sh`; `scripts/update.sh`; `scripts/rollback.sh`; `scripts/backup.sh`; `scripts/doctor.sh`; `scripts/preflight.sh`; `scripts/ci/restore-drill.sh`.
 - Примечание: Есть установка, обновление с откатом, резервная копия и восстановление (проверяется в CI), проверка окружения и диагностика. Чистая установка и повторный запуск не проверялись на VPS.
 
@@ -3206,7 +3484,7 @@
 ### REQ-INFRA-0006 — `PASS`
 
 - Источник: Часть I → Docker Installer Vps Termux → Vps (строка 736). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `docs/INSTALLATION.md`; `docs/ru/new/DEPLOYMENT_AGENT.md`.
 
 > Подробная инструкция установки на тестовый VPS.
@@ -3214,25 +3492,25 @@
 ### REQ-INFRA-0007 — `PARTIAL`
 
 - Источник: Часть I → Docker Installer Vps Termux → Termux (строка 740). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
-- Примечание: Пошаговая инструкция для Android/Termux написана (v28.149.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
+- Примечание: Пошаговая инструкция для Android/Termux написана (v28.158.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
 
 > Android/Termux: инструменты; подключение к VPS; Git; проверка репозитория; установка; запуск; обновление; логи; диагностика. Пошагово для новичка.
 
 ### REQ-INFRA-0008 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик (строка 2297). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `deploy/install-status.sh`; `deploy/install-vps.sh`; `tests/test_install_status.py`.
-- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.149.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.149.0, решение владельца 2026-11-14). На VPS не проверено.
+- Платформы: services/backend/API, server.
+- Доказательство: `infrastructure/deployment/install-status.sh`; `infrastructure/deployment/install-vps.sh`; `tests/test_install_status.py`.
+- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.158.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.158.0, решение владельца 2026-11-14). На VPS не проверено.
 
 > Поддерживать идемпотентные этапы: preflight → environment validation → DNS/ports → secrets → dependencies → database → migrations → services → health checks → admin bootstrap → final report. Каждый этап должен иметь машинно-читаемый статус, лог, понятную ошибку и безопасный повтор.
 
 ### REQ-INFRA-0009 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2301). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/github_release_fetch.py`; `release-manifest.template.json`; `tests/test_distribution_update.py`.
 
 > - Проверять совместимость текущей и целевой версии.
@@ -3240,7 +3518,7 @@
 ### REQ-INFRA-0010 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2302). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/update.sh`; `tests/test_v2018_recovery.py`.
 
 > - Создавать backup до миграции.
@@ -3248,32 +3526,32 @@
 ### REQ-INFRA-0011 — `PARTIAL`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2303). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/update-space.sh`; `scripts/update.sh`; `tests/test_update_space.py`; `scripts/github_release_fetch.py`.
-- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.149.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
+- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.158.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
 
 > - Проверять свободное место и доступность внешних зависимостей.
 
 ### REQ-INFRA-0012 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2304). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/alembic/env.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/alembic/env.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
 
 > - Выполнять миграции с блокировкой конкурентного запуска.
 
 ### REQ-INFRA-0013 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2305). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `scripts/zero-downtime-backend.sh`; `deploy/build-production.sh`; `deploy/Caddyfile`; `tests/test_zero_downtime_deploy.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `scripts/zero-downtime-backend.sh`; `infrastructure/deployment/build-production.sh`; `infrastructure/reverse-proxy/Caddyfile`; `tests/test_zero_downtime_deploy.py`.
 
 > - Поддерживать rolling/blue-green подход, если он совместим с фактической архитектурой.
 
 ### REQ-INFRA-0014 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2306). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/update.sh`; `scripts/auto_update.py`; `tests/test_v2018_recovery.py`.
 
 > - При неуспехе останавливать rollout и выполнять документированный rollback.
@@ -3281,8 +3559,8 @@
 ### REQ-INFRA-0015 — `PARTIAL`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2307). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `scripts/update.sh`; `backend/alembic/env.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `scripts/update.sh`; `services/backend/alembic/env.py`.
 - Примечание: Миграции не откатываются вниз автоматически: при сбое обновления база восстанавливается из копии, снятой перед обновлением и проверенной на непустоту. Отдельной пометки необратимых миграций нет.
 
 > - Не откатывать базу данных автоматически, если миграция необратима или rollback не проверен.
@@ -3290,104 +3568,120 @@
 ### REQ-INFRA-0016 — `PARTIAL`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2308). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/update.sh`; `scripts/doctor.sh`; `scripts/zero-downtime-backend.sh`.
 - Примечание: После обновления — doctor.sh (API, панель, кабинет, Mini App) и /health/ready нового выпуска до переключения. Ключевые E2E-сценарии после выкладки на сервере не запускаются.
 
 > - Проверять post-deploy health и ключевые E2E сценарии.
 
-### REQ-INFRA-0017 — `NOT_TESTED`
+### REQ-INFRA-0017 — `PARTIAL`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий (строка 2312). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/PROJECT_INVENTORY.md`; `docs/PROJECT_FILE_MAP.md`; `docs/MIGRATION_MAPPING.md`; `docs/API_ENDPOINTS.md`.
+- Примечание: Опись целевого репозитория есть: файлы, модули, таблицы, маршруты, workflows. Опись источников — только remnawave-manager (меню из 33 пунктов). Нет отдельных списков фоновых задач, вебхуков, ссылок на секреты и целей развёртывания по каждому исходному проекту; lucy-vpn-android недоступен (решение № 16).
 
 > - Создать inventory файлов, модулей, конфигураций, таблиц, endpoints, background jobs, webhooks, cron jobs, secrets references, workflows и deploy targets каждого исходного проекта.
 
-### REQ-INFRA-0018 — `NOT_TESTED`
+### REQ-INFRA-0018 — `PARTIAL`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий (строка 2313). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MIGRATION_MAPPING.md`; `docs/MONOREPO_LAYOUT.md`; `docs/REFERENCE_REPOSITORIES.md`.
+- Примечание: Для remnawave-manager записаны репозиторий, ветка, коммит, лицензия, модуль назначения, тесты и итог по каждому пункту меню; для перекладки папок — откуда, куда и выпуск. Для чужих источников записаны только лицензия и запрет копирования (решение № 13), построчной привязки нет.
 
 > - Для каждого компонента зафиксировать source repo/branch/commit, license, destination path, адаптации, тесты и результат.
 
-### REQ-INFRA-0019 — `NOT_TESTED`
+### REQ-INFRA-0019 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий (строка 2314). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `tests/test_layout_stage4.py`.
 
 > - Сохранять Git history, если это возможно и не создаёт конфликтов/рисков.
 
-### REQ-INFRA-0020 — `NOT_TESTED`
+### REQ-INFRA-0020 — `PARTIAL`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий (строка 2315). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_layout_stage4.py`; `tests/test_layout_stage5.py`; `tests/test_v2018_recovery.py`; `.github/workflows/ci.yml`; `docs/MONOREPO_LAYOUT.md`.
+- Примечание: После каждого этапа перекладки идёт тот же полный CI (тесты, сборки Android и iOS, образы, e2e); этапы 4 и 5 проверяют старые пути, обновление и откат на модели (`tests/test_layout_stage4.py`, `tests/test_layout_stage5.py`). Сравнение на установленном сервере (обновление настоящего VPS со старой раскладки) не проводилось: VPS нет (решение № 11).
 
 > - Сравнить поведение до и после миграции.
 
 ### REQ-INFRA-0021 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий (строка 2316). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/ci/secret-leak-check.py`; `tests/test_secret_leak_check.py`; `.github/workflows/ci.yml`.
 
 > - Проверить отсутствие случайного попадания `.env`, токенов, приватных ключей, дампов и пользовательских конфигураций.
 
-### REQ-INFRA-0022 — `NOT_TESTED`
+### REQ-INFRA-0022 — `PASS`
 
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.3. Миграция в монорепозиторий (строка 2317). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/OWNER_DECISIONS.md`; `docs/MIGRATION_MAPPING.md`; `docs/MONOREPO_LAYOUT.md`.
 
 > - Не удалять старые проекты/ветки/артефакты без отдельного разрешения.
 
 ### REQ-INFRA-0023 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2323). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/main.py`; `tests/test_diagnostics.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/main.py`; `tests/test_diagnostics.py`.
 
 > - Разделить liveness, readiness и dependency health.
 
 ### REQ-INFRA-0024 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2324). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/log_format.py`; `backend/app/main.py`; `backend/app/errors.py`; `tests/test_ops_alerts.py`.
-- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.149.0). Трассировки (OpenTelemetry) нет.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/log_format.py`; `services/backend/app/main.py`; `services/backend/app/errors.py`; `tests/test_ops_alerts.py`.
+- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.158.0). Трассировки (OpenTelemetry) нет.
 
 > - Добавить structured logs, metrics, traces и correlation IDs.
 
 ### REQ-INFRA-0025 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2325). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/host_metrics.py`; `backend/app/observability.py`; `backend/app/main.py`; `tests/test_host_metrics.py`.
-- Примечание: С v28.149.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/host_metrics.py`; `services/backend/app/observability.py`; `services/backend/app/main.py`; `tests/test_host_metrics.py`.
+- Примечание: С v28.158.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
 
 > - Отслеживать error rate, latency percentiles, throughput, saturation, queue depth, failed jobs, webhook lag, DB pool, disk, memory, CPU, node availability и certificate expiry.
 
-### REQ-INFRA-0026 — `NOT_TESTED`
+### REQ-INFRA-0026 — `BLOCKED_EXTERNAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2326). Продукт: Все три.
+- Платформы: services/backend/API, server.
+- Доказательство: `docs/ru/OPERATIONS_MONITORING.md`; `infrastructure/monitoring/prometheus/vpnshop-alerts.yml`.
+- Примечание: SLA и SLO не выдуманы: в документах их нет, оповещения заданы по техническим порогам. Базовые замеры нужны на рабочем VPS, которого пока нет (решение № 11); после замеров — `docs/SLO_BASELINE.md` и согласование целей с владельцем.
 
 > - Определить SLI/SLO только после измерения baseline и согласования целей; не придумывать SLA.
 
 ### REQ-INFRA-0027 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2327). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/ops_alerts.py`; `backend/app/masque_panel.py`; `backend/app/rw_drift.py`; `tests/test_ops_alerts.py`.
-- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.149.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/ops_alerts.py`; `services/backend/app/masque_panel.py`; `services/backend/app/rw_drift.py`; `tests/test_ops_alerts.py`.
+- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.158.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
 
 > - Уведомлять о backup failures, certificate expiry, payment provider outage, node degradation, failed migrations и security incidents.
 
 ### REQ-INFRA-0028 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2328). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/ops_alerts.py`; `tests/test_ops_alerts.py`.
-- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.149.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/ops_alerts.py`; `tests/test_ops_alerts.py`.
+- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.158.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
 
 > - Учитывать timezone и clock drift для cron, webhook signature и сертификатов.
 
 ### REQ-INFRA-0029 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2332). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `docs/ru/DISASTER_RECOVERY.md`.
 
 > - Классифицировать данные по критичности и допустимой потере.
@@ -3395,8 +3689,8 @@
 ### REQ-INFRA-0030 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2333). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `docs/OWNER_DECISIONS.md`; `backend/app/ops_alerts.py`; `backend/app/backups_api.py`; `tests/test_ops_alerts.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `docs/OWNER_DECISIONS.md`; `services/backend/app/ops_alerts.py`; `services/backend/app/backups_api.py`; `tests/test_ops_alerts.py`.
 - Примечание: RPO 1 ч и RTO 4 ч согласованы владельцем 2026-11-14; есть расписание «Каждый час» и оповещение при нарушении RPO. Время восстановления (RTO) на VPS не измерено.
 
 > - Установить RPO/RTO только после согласования и тестирования.
@@ -3404,7 +3698,7 @@
 ### REQ-INFRA-0031 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2334). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/backup.sh`; `scripts/backup_bundle.py`; `tests/test_backup_cli.py`.
 
 > - Защищать backup шифрованием, ограничением доступа и отдельными credentials.
@@ -3412,8 +3706,8 @@
 ### REQ-INFRA-0032 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2335). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/backups_api.py`; `backend/app/telegram_backup.py`; `tests/test_promo_generator_and_tg_backup.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/backups_api.py`; `services/backend/app/telegram_backup.py`; `tests/test_promo_generator_and_tg_backup.py`.
 - Примечание: Копии уходят в S3-совместимое хранилище (размер сверяется после загрузки) и/или в Telegram; включается в панели «Резервные копии».
 
 > - Хранить копии отдельно от production host.
@@ -3421,15 +3715,15 @@
 ### REQ-INFRA-0033 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2336). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `scripts/backup.sh`; `backend/app/backups_api.py`; `backend/app/backup_verify.py`; `backend/app/ops_alerts.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `scripts/backup.sh`; `services/backend/app/backups_api.py`; `services/backend/app/backup_verify.py`; `services/backend/app/ops_alerts.py`.
 
 > - Проверять checksum, полноту, срок хранения и доступность.
 
 ### REQ-INFRA-0034 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2337). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/ci/restore-drill.sh`; `.github/workflows/ci.yml`.
 
 > - Выполнять регулярный restore drill в изолированной среде.
@@ -3437,7 +3731,7 @@
 ### REQ-INFRA-0035 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2338). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `docs/ru/DISASTER_RECOVERY.md`; `docs/ru/BACKUP_CURRENT.md`; `scripts/ci/restore-drill.sh`.
 - Примечание: Порядок восстановления базы, настроек, секретов, панели, нод и DNS описан; восстановление магазина из копии проверяется в CI. Восстановление панели и нод по документу вживую не проверено.
 
@@ -3446,7 +3740,7 @@
 ### REQ-INFRA-0036 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2339). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `docs/ru/DISASTER_RECOVERY.md`.
 
 > - Снапшоты сервера не считать полноценной заменой согласованной стратегии backup.
@@ -3454,32 +3748,35 @@
 ### REQ-INFRA-0037 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2340). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/backups_api.py`; `tests/test_backup_retention_verified.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
-- Примечание: v28.149.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/backups_api.py`; `tests/test_backup_retention_verified.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
+- Примечание: v28.158.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
 
 > - Не удалять последний проверенный backup автоматически.
 
 ### REQ-INFRA-0038 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.3. Сертификаты и DNS (строка 2344). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/rw_domains.py`; `backend/app/selfsteal_check.py`; `backend/app/ops_alerts.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/rw_domains.py`; `services/backend/app/selfsteal_check.py`; `services/backend/app/ops_alerts.py`.
 - Примечание: Проверяются DNS доменов, сертификат сайта SelfSteal (выпускатель, имя, срок), срок сертификатов доменов магазина; конфликты портов — rw_ports и проверка порта MASQUE. TTL, цепочка и SAN отдельно не контролируются.
 
 > - Контролировать DNS records, TTL, ACME challenge, certificate chain, expiry, SAN, renewal и port conflicts.
 
-### REQ-INFRA-0039 — `NOT_TESTED`
+### REQ-INFRA-0039 — `PARTIAL`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.3. Сертификаты и DNS (строка 2345). Продукт: Все три.
+- Платформы: services/backend/API, web admin.
+- Доказательство: `services/backend/app/rw_domains.py`; `tests/test_subscription_portal.py`; `apps/lucy-admin/web/src/domains.tsx`.
+- Примечание: Запись A работающего имени переносится только на адрес, который принимает соединения на 443; прежние адреса возвращаются и пишутся в журнал (путь назад), обход — явной кнопкой. Смена сертификата и домена панели мастером установки такой проверки не делает; вживую на DNS-провайдере не проверено.
 
 > - Перед изменением DNS или TLS проверять доступность панели и способ восстановления.
 
 ### REQ-INFRA-0040 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.3. Сертификаты и DNS (строка 2346). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/rw_steps.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/rw_steps.py`.
 - Примечание: Каждый файл Caddy, compose и .env на сервере перед заменой сохраняется как .rw-prev и возвращается при откате шага.
 
 > - Не перезаписывать существующие reverse proxy/server blocks без backup.
@@ -3487,8 +3784,8 @@
 ### REQ-INFRA-0041 — `PASS`
 
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.3. Сертификаты и DNS (строка 2347). Продукт: Все три.
-- Платформы: backend/API, server.
-- Доказательство: `backend/app/rw_ssh.py`; `backend/app/security.py`.
+- Платформы: services/backend/API, server.
+- Доказательство: `services/backend/app/rw_ssh.py`; `services/backend/app/security.py`.
 - Примечание: Приватные SSH-ключи хранятся зашифрованными, срок жизни ключа ограничен; файлы с секретами на серверах — с правами 600.
 
 > - Поддерживать безопасное хранение приватных ключей и ограничение доступа.
@@ -3499,7 +3796,7 @@
 ### REQ-API-0001 — `PARTIAL`
 
 - Источник: Часть I → Backend Api Database → Scope (строка 668). Продукт: Все три.
-- Доказательство: `docs/architecture/API_CATALOG.md`; `tests/test_rbac_doc.py`; `tests/test_error_format.py`; `backend/app/audit_seal.py`.
+- Доказательство: `docs/architecture/API_CATALOG.md`; `tests/test_rbac_doc.py`; `tests/test_error_format.py`; `services/backend/app/audit_seal.py`.
 - Примечание: API, RBAC, миграции, единый формат ошибок, журнал действий и фоновые задачи есть и покрыты тестами. Построчной сверки каждого пункта для каждого маршрута не было; отдельной очереди задач нет — фоновые циклы идут в процессе API под блокировкой Redis.
 
 > API; авторизация; RBAC; модели; схемы; миграции; транзакции; обработка ошибок; валидация; аудит; фоновые задачи; очереди; уведомления.
@@ -3518,7 +3815,7 @@
 ### REQ-UI-0001 — `PARTIAL`
 
 - Источник: Часть I → Ui Ux → Design (строка 679). Продукт: Все три.
-- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `admin/e2e/mobile-layout.spec.ts`; `tests/test_mobile_layout.py`; `admin/e2e/all-sections.spec.ts`.
+- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `apps/lucy-admin/web/e2e/mobile-layout.spec.ts`; `tests/test_mobile_layout.py`; `apps/lucy-admin/web/e2e/all-sections.spec.ts`.
 - Примечание: Единые карточки, статусы, боковое меню и мобильная раскладка есть и проверяются в браузере. Приложения Android собраны на Material 3; веб-панель следует собственной дизайн-системе, а не Material 3. Доступность проверена частично (REQ-UI-0007).
 
 > Material Design/Material 3; адаптивность; понятное боковое меню; современные кнопки; единые карточки; ясные статусы; мобильная совместимость; доступность; светлая/тёмная темы по необходимости.
@@ -3534,7 +3831,7 @@
 ### REQ-UI-0003 — `PARTIAL`
 
 - Источник: Часть I → Ui Ux → Fix (строка 687). Продукт: Все три.
-- Доказательство: `admin/e2e/all-sections.spec.ts`; `scripts/check-runtime-placeholders.py`; `tests/test_error_format.py`.
+- Доказательство: `apps/lucy-admin/web/e2e/all-sections.spec.ts`; `scripts/check-runtime-placeholders.py`; `tests/test_error_format.py`.
 - Примечание: Тест открывает каждый раздел веб-панели и проверяет, что он не пуст; заглушки в коде останавливают CI. Формы, модальные окна и таблицы всех разделов по отдельности не проверялись; мобильные экраны на устройстве не проверены.
 
 > Чёрные страницы; недоступные и пустые разделы; фиктивные кнопки; ошибки форм, модальных окон, таблиц, мобильных экранов и API. Показывать загрузку, успех и понятные ошибки.
@@ -3542,7 +3839,7 @@
 ### REQ-UI-0004 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2365). Продукт: Все три.
-- Доказательство: `tests/test_critical_startup_and_i18n.py`; `mobile/l10n/user.json`; `mobile/l10n/admin.json`; `README.en.md`; `README.uk.md`.
+- Доказательство: `tests/test_critical_startup_and_i18n.py`; `packages/localization/user.json`; `packages/localization/admin.json`; `README.en.md`; `README.uk.md`.
 - Примечание: Русский, английский и украинский есть в кабинете, боте, приложениях и README. Полнота перевода каждой ошибки, письма, строки установщика и каждого документа не проверялась; документация в основном на русском.
 
 > - Полностью поддерживать русский, английский и украинский языки во всех трёх продуктах, включая ошибки, уведомления, письма, bot, Mini App, installer и документацию.
@@ -3550,7 +3847,7 @@
 ### REQ-UI-0005 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2366). Продукт: Все три.
-- Доказательство: `mobile/l10n/user.json`; `tests/test_critical_startup_and_i18n.py`.
+- Доказательство: `packages/localization/user.json`; `tests/test_critical_startup_and_i18n.py`.
 - Примечание: Строки приложений и кабинета вынесены в словари. В бэкенде и веб-панели администратора часть русских строк стоит прямо в коде.
 
 > - Не смешивать локализованные строки с бизнес-логикой.
@@ -3558,7 +3855,7 @@
 ### REQ-UI-0006 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2367). Продукт: Все три.
-- Доказательство: `tests/test_mobile_layout.py`; `admin/e2e/mobile-layout.spec.ts`.
+- Доказательство: `tests/test_mobile_layout.py`; `apps/lucy-admin/web/e2e/mobile-layout.spec.ts`.
 - Примечание: Обрезание и горизонтальная прокрутка проверяются на узком экране. Множественное число, длинные переводы, часовые пояса и RTL системно не проверялись.
 
 > - Проверять длинные строки, pluralization, даты, валюты, timezone, RTL readiness при необходимости и отсутствие обрезания.
@@ -3566,7 +3863,7 @@
 ### REQ-UI-0007 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2368). Продукт: Все три.
-- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `admin/e2e/masque.spec.ts`.
+- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `apps/lucy-admin/web/e2e/masque.spec.ts`.
 - Примечание: Тесты браузера находят элементы по ролям и подписям, поэтому подписи полей и кнопок обязательны. Контраст, порядок фокуса, экранный диктор и уменьшение движения инструментом не проверялись.
 
 > - Проверять keyboard navigation, focus management, labels, contrast, touch target sizes, screen readers, semantic headings и reduced motion.
@@ -3574,7 +3871,7 @@
 ### REQ-UI-0008 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2369). Продукт: Все три.
-- Доказательство: `admin/e2e/mobile-layout.spec.ts`; `tests/test_mobile_layout.py`.
+- Доказательство: `apps/lucy-admin/web/e2e/mobile-layout.spec.ts`; `tests/test_mobile_layout.py`.
 - Примечание: Раскладка проверяется в браузере на ширине телефона, длинные таблицы прокручиваются внутри блока. Безопасные области и экранная клавиатура на настоящих устройствах не проверены.
 
 > - Проверять responsive layouts на реальных viewport widths, safe areas, virtual keyboard и длинных таблицах.
@@ -3582,7 +3879,7 @@
 ### REQ-UI-0009 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2370). Продукт: Все три.
-- Доказательство: `admin/e2e/masque.spec.ts`; `admin/e2e/plans-editor.spec.ts`; `tests/test_error_format.py`.
+- Доказательство: `apps/lucy-admin/web/e2e/masque.spec.ts`; `apps/lucy-admin/web/e2e/plans-editor.spec.ts`; `tests/test_error_format.py`.
 - Примечание: Серверная проверка и единый формат ошибок есть везде; в новых формах есть проверка в браузере, состояние отправки и сообщение у поля. По каждой форме проекта проверка не проводилась.
 
 > - Для каждой формы проверять client-side и server-side validation, field-level errors, submit loading, duplicate submit и сохранение данных при ошибке.
@@ -3590,7 +3887,7 @@
 ### REQ-UI-0010 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2371). Продукт: Все три.
-- Доказательство: `admin/e2e/protocol-switch.spec.ts`; `admin/e2e/rw-installer.spec.ts`.
+- Доказательство: `apps/lucy-admin/web/e2e/protocol-switch.spec.ts`; `apps/lucy-admin/web/e2e/rw-installer.spec.ts`.
 - Примечание: Опасные операции с нодами идут с подтверждением, прогрессом, итогом и откатом. Единого правила для каждой операции проекта и его проверки нет.
 
 > - Для каждой операции иметь понятные confirmation, progress, success/failure и recovery states.
@@ -3609,7 +3906,7 @@
 ### REQ-MOBILE-0002 — `PARTIAL`
 
 - Источник: Часть I → Mobile → Ios (строка 713). Продукт: Все три.
-- Доказательство: `mobile/ios-user`; `docs/ru/new/VPN_ENGINE.md`; `docs/ru/new/KNOWN_LIMITATIONS.md`.
+- Доказательство: `apps/vpn-shop/ios`; `docs/ru/new/VPN_ENGINE.md`; `docs/ru/new/KNOWN_LIMITATIONS.md`.
 - Примечание: SwiftUI, Packet Tunnel Provider, Keychain и биометрия собираются и проходят UI-тесты в CI на симуляторе. Подписанной сборки и проверки на устройстве нет: нужен Apple Developer.
 
 > Swift 6; SwiftUI; Network Extension; NEVPNManager; Packet Tunnel Provider; Keychain; Face ID; Touch ID; entitlements; Apple Developer requirements. Не обещать возможности, ограниченные iOS или правилами Apple.
@@ -3617,7 +3914,7 @@
 ### REQ-MOBILE-0003 — `PARTIAL`
 
 - Источник: Часть I → Mobile → Admin Mobile (строка 717). Продукт: Все три.
-- Доказательство: `mobile/android-admin`; `mobile/ios-admin`; `tests/test_v270_mobile_apps.py`.
+- Доказательство: `apps/lucy-admin/android`; `apps/lucy-admin/ios`; `tests/test_v270_mobile_apps.py`.
 - Примечание: Приложения администратора есть и работают через тот же API с теми же правами. В них 10 разделов против примерно 100 в веб-панели; матрицы соответствия нет (REQ-ADMIN-0004).
 
 > Android/iOS Lucy Admin; функциональная совместимость с Web Admin; критические действия доступны согласно RBAC.
@@ -3625,7 +3922,7 @@
 ### REQ-MOBILE-0004 — `PASS`
 
 - Источник: Часть I → Mobile → Rule (строка 721). Продукт: Все три.
-- Доказательство: `mobile/android-user`; `mobile/android-admin`; `apps/vpn-client/android`; `mobile/ios-user`; `mobile/ios-admin`.
+- Доказательство: `apps/vpn-shop/android`; `apps/lucy-admin/android`; `apps/vpn-client/android`; `apps/vpn-shop/ios`; `apps/lucy-admin/ios`.
 - Примечание: Все пять приложений лежат в каталоге mobile/ этого репозитория.
 
 > Все мобильные приложения находятся внутри shop-by-boo.
@@ -3643,7 +3940,7 @@
 ### REQ-CI-0002 — `PARTIAL`
 
 - Источник: Часть I → Github Cicd → Nightly (строка 751). Продукт: Все три.
-- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `backend/app/rw_autoupdate.py`; `tests/test_rw_autoupdate.py`; `.github/workflows/xray-core-watch.yml`; `docs/AUTO_UPDATE.md`.
+- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `services/backend/app/rw_autoupdate.py`; `tests/test_rw_autoupdate.py`; `.github/workflows/xray-core-watch.yml`; `docs/AUTO_UPDATE.md`.
 - Примечание: Ночной агент проверяет выпуск, делает копию, обновляет, проверяет и откатывает; есть отчёт. Проверено тестами и на машине CI. Ночной прогон на настоящем сервере не проверен: нет VPS.
 
 > Проверка новых изменений; получение обновлений; анализ diff; dependency checks; backup; тестирование; сборка; совместимость; отчёт; rollback.
@@ -3658,14 +3955,14 @@
 ### REQ-CI-0004 — `PASS`
 
 - Источник: Часть I → Github Cicd → Runner Rule (строка 759). Продукт: Все три.
-- Доказательство: `docs/AUTO_UPDATE.md`; `backend/app/ecosystem_updates.py`; `tests/test_ecosystem_updates.py`; `backend/app/auto_update_api.py`.
+- Доказательство: `docs/AUTO_UPDATE.md`; `services/backend/app/ecosystem_updates.py`; `tests/test_ecosystem_updates.py`; `services/backend/app/auto_update_api.py`.
 
 > Не обещать работу без реального runner или иной среды выполнения.
 
 ### REQ-CI-0005 — `PARTIAL`
 
 - Источник: Часть I → Github Cicd → Admin Control (строка 763). Продукт: Все три.
-- Доказательство: `admin/src/autoUpdate.tsx`; `admin/src/ecosystem-updates.tsx`; `backend/app/auto_update_api.py`; `backend/app/ecosystem_updates.py`; `tests/test_auto_update_api.py`.
+- Доказательство: `apps/lucy-admin/web/src/autoUpdate.tsx`; `apps/lucy-admin/web/src/ecosystem-updates.tsx`; `services/backend/app/auto_update_api.py`; `services/backend/app/ecosystem_updates.py`; `tests/test_auto_update_api.py`.
 - Примечание: Раздел «Обновления» показывает версии, выпуски, дату и итог последнего запуска, ошибки; откат агент делает сам. Запуска GitHub workflow из панели нет.
 
 > Lucy Admin показывает версии, изменения, проверки, дату, ошибки и rollback; может безопасно инициировать GitHub workflow. Не хранить токены открыто.
@@ -3687,7 +3984,7 @@
 ### REQ-CI-0008 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2410). Продукт: Все три.
-- Доказательство: `backend/requirements.txt`; `admin/package-lock.json`; `cabinet/package-lock.json`; `miniapp/package-lock.json`; `.github/workflows/ci.yml`.
+- Доказательство: `services/backend/requirements.txt`; `apps/lucy-admin/web/package-lock.json`; `apps/user-cabinet/package-lock.json`; `apps/telegram-mini-app/package-lock.json`; `.github/workflows/ci.yml`.
 
 > - Кэшировать зависимости безопасно и фиксировать lockfiles.
 
@@ -3732,14 +4029,14 @@
 ### REQ-CI-0014 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2416). Продукт: Все три.
-- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `backend/app/rw_autoupdate.py`; `tests/test_rw_autoupdate.py`.
+- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `services/backend/app/rw_autoupdate.py`; `tests/test_rw_autoupdate.py`.
 
 > - Nightly jobs не должны автоматически внедрять непроверенные изменения в production.
 
 ### REQ-CI-0015 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2417). Продукт: Все три.
-- Доказательство: `docs/AUTO_UPDATE.md`; `backend/app/ecosystem_updates.py`; `tests/test_ecosystem_updates.py`.
+- Доказательство: `docs/AUTO_UPDATE.md`; `services/backend/app/ecosystem_updates.py`; `tests/test_ecosystem_updates.py`.
 
 > - Не обещать автоматическое выполнение задач, если runner отключён или не настроен.
 
@@ -3776,15 +4073,21 @@
 
 > - Пошаговая установка на тестовый VDS.
 
-### REQ-DOC-0006 — `NOT_TESTED`
+### REQ-DOC-0006 — `PASS`
 
 - Источник: Часть II → II.5. VPS, Termux, GitHub и документация (строка 1607). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Установка и управление с Android через Termux: SSH, вход по ключу, установка, проверка, обновление, журналы.
 
 > - Пошаговая установка/управление через Android Termux.
 
-### REQ-DOC-0007 — `NOT_TESTED`
+### REQ-DOC-0007 — `PASS`
 
 - Источник: Часть II → II.5. VPS, Termux, GitHub и документация (строка 1608). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Раздел 9: git config user.name / user.email, глобально и для репозитория, в Termux и на компьютере.
 
 > - Инструкция по `git config user.name` и `git config user.email`, включая Android.
 
@@ -3834,157 +4137,214 @@
 
 > - `docs/REQUIREMENTS_CHANGELOG.md`
 
-### REQ-DOC-0015 — `NOT_TESTED`
+### REQ-DOC-0015 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2434). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SOURCE_TRACEABILITY_MATRIX.md` — нет.
+- Примечание: docs/SOURCE_TRACEABILITY_MATRIX.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/SOURCE_TRACEABILITY_MATRIX.md`
 
-### REQ-DOC-0016 — `NOT_TESTED`
+### REQ-DOC-0016 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2435). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/SYSTEM_OVERVIEW.md` — есть (`docs/architecture/SYSTEM_OVERVIEW.md`).
+- Доказательство: `docs/architecture/SYSTEM_OVERVIEW.md`.
+- Примечание: Обзор системы.
 
 > - `docs/architecture/SYSTEM_OVERVIEW.md`
 
-### REQ-DOC-0017 — `NOT_TESTED`
+### REQ-DOC-0017 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2436). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/CONTEXT_MAP.md` — есть (`docs/architecture/CONTEXT_MAP.md`).
+- Доказательство: `docs/architecture/CONTEXT_MAP.md`.
+- Примечание: Карта контекстов.
 
 > - `docs/architecture/CONTEXT_MAP.md`
 
-### REQ-DOC-0018 — `NOT_TESTED`
+### REQ-DOC-0018 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2437). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/CONTAINER_DIAGRAM.md` — есть (`docs/architecture/CONTAINER_DIAGRAM.md`).
+- Доказательство: `docs/architecture/CONTAINER_DIAGRAM.md`.
+- Примечание: Диаграмма контейнеров.
 
 > - `docs/architecture/CONTAINER_DIAGRAM.md`
 
-### REQ-DOC-0019 — `NOT_TESTED`
+### REQ-DOC-0019 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2438). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/DATA_FLOW.md` — есть (`docs/architecture/DATA_FLOW.md`).
+- Доказательство: `docs/architecture/DATA_FLOW.md`.
+- Примечание: Потоки данных.
 
 > - `docs/architecture/DATA_FLOW.md`
 
-### REQ-DOC-0020 — `NOT_TESTED`
+### REQ-DOC-0020 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2439). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/DOMAIN_BOUNDARIES.md` — есть (`docs/architecture/DOMAIN_BOUNDARIES.md`).
+- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`.
+- Примечание: Границы доменов.
 
 > - `docs/architecture/DOMAIN_BOUNDARIES.md`
 
-### REQ-DOC-0021 — `NOT_TESTED`
+### REQ-DOC-0021 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2440). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/API_CATALOG.md` — есть (`docs/architecture/API_CATALOG.md`).
+- Доказательство: `docs/architecture/API_CATALOG.md`; `docs/API_ENDPOINTS.md`.
+- Примечание: Каталог API генерируется scripts/generate-architecture-docs.py из API_ENDPOINTS.md.
 
 > - `docs/architecture/API_CATALOG.md`
 
-### REQ-DOC-0022 — `NOT_TESTED`
+### REQ-DOC-0022 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2441). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/EVENT_CATALOG.md` — есть (`docs/architecture/EVENT_CATALOG.md`).
+- Доказательство: `docs/architecture/EVENT_CATALOG.md`.
+- Примечание: Каталог событий.
 
 > - `docs/architecture/EVENT_CATALOG.md`
 
-### REQ-DOC-0023 — `NOT_TESTED`
+### REQ-DOC-0023 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2442). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/THREAT_MODEL.md` — есть (`docs/architecture/THREAT_MODEL.md`).
+- Доказательство: `docs/architecture/THREAT_MODEL.md`; `docs/THREAT_MODEL.md`.
+- Примечание: Модель угроз ведётся одним документом docs/THREAT_MODEL.md, в architecture/ — ссылка.
 
 > - `docs/architecture/THREAT_MODEL.md`
 
-### REQ-DOC-0024 — `NOT_TESTED`
+### REQ-DOC-0024 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2443). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/architecture/DEPLOYMENT_TOPOLOGY.md` — есть (`docs/architecture/DEPLOYMENT_TOPOLOGY.md`).
+- Доказательство: `docs/architecture/DEPLOYMENT_TOPOLOGY.md`.
+- Примечание: Топология развёртывания.
 
 > - `docs/architecture/DEPLOYMENT_TOPOLOGY.md`
 
-### REQ-DOC-0025 — `NOT_TESTED`
+### REQ-DOC-0025 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2444). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SECURITY_BASELINE.md` — нет.
+- Примечание: docs/SECURITY_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/SECURITY_BASELINE.md`
 
-### REQ-DOC-0026 — `NOT_TESTED`
+### REQ-DOC-0026 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2445). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/PRIVACY_DATA_MAP.md` — нет.
+- Примечание: docs/PRIVACY_DATA_MAP.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/PRIVACY_DATA_MAP.md`
 
-### REQ-DOC-0027 — `NOT_TESTED`
+### REQ-DOC-0027 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2446). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/DISASTER_RECOVERY.md` — есть (`docs/ru/DISASTER_RECOVERY.md`).
+- Доказательство: `docs/ru/DISASTER_RECOVERY.md`.
+- Примечание: Документ на русском в docs/ru/: классы данных, RPO/RTO, полное восстановление.
 
 > - `docs/DISASTER_RECOVERY.md`
 
-### REQ-DOC-0028 — `NOT_TESTED`
+### REQ-DOC-0028 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2447). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/OBSERVABILITY.md` — нет.
+- Примечание: docs/OBSERVABILITY.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/OBSERVABILITY.md`
 
-### REQ-DOC-0029 — `NOT_TESTED`
+### REQ-DOC-0029 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2448). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SLO_BASELINE.md` — нет.
+- Примечание: docs/SLO_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/SLO_BASELINE.md`
 
-### REQ-DOC-0030 — `NOT_TESTED`
+### REQ-DOC-0030 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2449). Продукт: Все три.
-- Названные файлы: `docs/RELEASE_PROCESS.md` — нет.
+- Платформы: all products.
+- Названные файлы: `docs/RELEASE_PROCESS.md` — есть (`docs/RELEASE_PROCESS.md`).
+- Доказательство: `docs/RELEASE_PROCESS.md`; `docs/RELEASE_CHECKLIST.md`.
+- Примечание: Путь изменения до выпуска с 33 файлами, сверен с workflow.
 
 > - `docs/RELEASE_PROCESS.md`
 
-### REQ-DOC-0031 — `NOT_TESTED`
+### REQ-DOC-0031 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2450). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/UPGRADE_ROLLBACK.md` — нет.
+- Примечание: docs/UPGRADE_ROLLBACK.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/UPGRADE_ROLLBACK.md`
 
-### REQ-DOC-0032 — `NOT_TESTED`
+### REQ-DOC-0032 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2451). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/MOBILE_RELEASE_GUIDE.md` — нет.
+- Примечание: docs/MOBILE_RELEASE_GUIDE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/MOBILE_RELEASE_GUIDE.md`
 
-### REQ-DOC-0033 — `NOT_TESTED`
+### REQ-DOC-0033 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2452). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/INCIDENT_RESPONSE.md` — есть (`docs/ru/new/INCIDENT_RESPONSE.md`).
+- Доказательство: `docs/ru/new/INCIDENT_RESPONSE.md`.
+- Примечание: Признаки, порядок действий; документ на русском в docs/ru/new/.
 
 > - `docs/INCIDENT_RESPONSE.md`
 
-### REQ-DOC-0034 — `NOT_TESTED`
+### REQ-DOC-0034 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2453). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/ACCESSIBILITY_AUDIT.md` — нет.
+- Примечание: docs/ACCESSIBILITY_AUDIT.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/ACCESSIBILITY_AUDIT.md`
 
-### REQ-DOC-0035 — `NOT_TESTED`
+### REQ-DOC-0035 — `NOT_IMPLEMENTED`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2454). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/PERFORMANCE_BASELINE.md` — нет.
+- Примечание: docs/PERFORMANCE_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/PERFORMANCE_BASELINE.md`
 
-### REQ-DOC-0036 — `NOT_TESTED`
+### REQ-DOC-0036 — `PARTIAL`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2455). Продукт: Все три.
-- Названные файлы: `docs/SBOM_AND_LICENSES.md` — нет.
+- Платформы: all products.
+- Названные файлы: `docs/SBOM_AND_LICENSES.md` — есть (`docs/SBOM_AND_LICENSES.md`).
+- Доказательство: `docs/SBOM_AND_LICENSES.md`; `THIRD_PARTY_NOTICES.md`; `scripts/ci/check-licenses.py`.
+- Примечание: SBOM CycloneDX и проверка лицензий в CI; зависимостей Android-приложений в SBOM нет (нет gradle.lockfile), SBOM не прикреплён к выпуску файлом.
 
 > - `docs/SBOM_AND_LICENSES.md`
 
@@ -4020,8 +4380,8 @@
 ### REQ-QA-0004 — `PASS`
 
 - Источник: Часть I → Full Audit → Known Error (строка 225). Продукт: Все три.
-- Платформы: backend/API.
-- Доказательство: `backend/app/db.py`; `docs/MASTER_EXECUTION_REPORTS.md`.
+- Платформы: services/backend/API.
+- Доказательство: `services/backend/app/db.py`; `docs/MASTER_EXECUTION_REPORTS.md`.
 
 > ImportError: cannot import AsyncSessionLocal from app.db; suggested SessionLocal
 
@@ -4038,7 +4398,7 @@
 
 - Источник: Часть I → Full Audit → Known Error (строка 233). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `admin/src/main.tsx`.
+- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `apps/lucy-admin/web/src/main.tsx`.
 - Примечание: В панели списки приводятся к массиву функцией list() (отчёт AUD-05). Отдельного теста на этот симптом нет.
 
 > (s || []).map is not a function
@@ -4115,9 +4475,12 @@
 
 > Пул; состав; статистика; алгоритмы; настройки плитки; скрытие нод; выбор нод; обновление; ошибки; fallback.
 
-### REQ-QA-0019 — `NOT_TESTED`
+### REQ-QA-0019 — `PASS`
 
 - Источник: Часть I → Screenshot Coverage → Tools (строка 832). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/ci.yml`; `.github/workflows/android-client.yml`; `apps/lucy-admin/web/e2e`.
+- Примечание: Playwright (Chromium end-to-end), эмулятор Android (UI-тесты, VPN на эмуляторе), XCTest (iOS UI-тесты) — в CI каждого PR.
 
 > Playwright; Android Emulator; XCTest и доступные инструменты автоматизации.
 
@@ -4127,10 +4490,12 @@
 
 > Скриншоты настоящие, из запущенного приложения, актуальные и привязанные к версии. Не генерировать фальшивые скриншоты и не использовать макеты как доказательство. Проверять desktop/mobile, адаптивность, loading, ошибки, успешные операции, доступность элементов, отсутствие чёрных и пустых экранов.
 
-### REQ-QA-0021 — `NOT_TESTED`
+### REQ-QA-0021 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Screenshot Coverage → Document (строка 840). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `docs/SCREENSHOT_COVERAGE.md` — нет.
+- Примечание: docs/SCREENSHOT_COVERAGE.md ещё нет.
 
 > docs/SCREENSHOT_COVERAGE.md
 
@@ -4140,9 +4505,12 @@
 
 > Приложение; модуль; маршрут; версия; дата; сценарий; ожидаемый/фактический результат; путь к скриншоту; статус.
 
-### REQ-QA-0023 — `NOT_TESTED`
+### REQ-QA-0023 — `PARTIAL`
 
 - Источник: Часть I → Audit Automation → Directory (строка 881). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/requirements_register.py`; `scripts/audit/check_payment_provider_registry.py`.
+- Примечание: В scripts/audit/ — проверка реестра требований и реестра провайдеров; остальные проверки — в scripts/check-*.py и CI.
 
 > scripts/audit/
 
@@ -4153,17 +4521,21 @@
 
 > run_full_audit.py; check_requirements.py; check_documentation.py; check_doc_links.py; check_screenshots.py; check_admin_parity.py; check_products_separation.py; check_api_contracts.py; check_runtime_placeholders.py; check_secrets.py; check_dependencies.py; check_licenses.py; check_docker.py; check_installation.py; check_mobile_builds.py; check_release_artifacts.py; check_tests.py; check_masque_support.py; check_vpn_protocols.py; check_node_provisioning.py; check_balanced_development.py; check_payments.py; check_remnawave.py; check_android_client.py; check_ios_client.py; generate_project_map.py; generate_audit_report.py; generate_checklist.py; check_auto_selection.py; check_node_maintenance.py; check_backup_restore.py; check_server_security.py; check_protocol_repair.py; check_status_page.py; check_mobile_ui.py; check_repository_monorepo.py; check_migration_integrity.py.
 
-### REQ-QA-0025 — `NOT_TESTED`
+### REQ-QA-0025 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Audit Automation → Workflow (строка 889). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `.github/workflows/autonomous-audit.yml` — нет.
+- Примечание: .github/workflows/autonomous-audit.yml нет; проверки идут в ci.yml и ночном docs-links.yml.
 
 > .github/workflows/autonomous-audit.yml
 
-### REQ-QA-0026 — `NOT_TESTED`
+### REQ-QA-0026 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Audit Automation → Artifacts (строка 893). Продукт: Все три.
+- Платформы: all products.
 - Названные файлы: `artifacts/audit/FULL_AUDIT_REPORT.md` — нет; `artifacts/audit/checklist-results.json` — нет.
+- Примечание: artifacts/audit/* не формируются.
 
 > artifacts/audit/checklist-results.json; artifacts/audit/FULL_AUDIT_REPORT.md.
 
@@ -4197,15 +4569,21 @@
 
 > Проверить, что все ссылки на мобильные приложения в README ведут на реальные релизы/артефакты, а не на несуществующие файлы.
 
-### REQ-QA-0032 — `NOT_TESTED`
+### REQ-QA-0032 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Product And Service Reliability → Task (строка 1489). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/INSTALLATION.md`; `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Установка на VDS и управление с Android через Termux.
 
 > Подготовить пошаговые инструкции для установки на тестовый VDS и управления с Android через Termux.
 
-### REQ-QA-0033 — `NOT_TESTED`
+### REQ-QA-0033 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Product And Service Reliability → Task (строка 1493). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
+- Примечание: Раздел 9: задать и проверить git config user.name / user.email, в том числе в Termux; про приватную почту GitHub.
 
 > Подготовить пошаговую инструкцию, как проверить git config user.name и user.email, в том числе с Android/Termux; не публиковать личный email без необходимости.
 
@@ -4239,9 +4617,12 @@
 
 > Для каждой серверной операции: dry-run; совместимость; порт занят/свободен; SSH недоступен; sudo отсутствует; диск заполнен; DNS ошибка; ACME failure; частичная установка; повторный запуск; rollback; удаление только компонента; восстановление.
 
-### REQ-QA-0039 — `NOT_TESTED`
+### REQ-QA-0039 — `PARTIAL`
 
 - Источник: Часть I → Completeness Supplement → Expanded Test Matrix → Auto Select (строка 1520). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_rw_autoselect.py`.
+- Примечание: Каждый алгоритм строит балансировщик по выбранным хостам, неизвестный алгоритм и пустой пул отклоняются; равные метрики и устаревшие данные отдельными тестами не проверены.
 
 > Проверить алгоритмы leastPing/leastLoad/roundRobin/random на детерминированных тестовых данных; равные метрики; устаревшие метрики; нода offline; все ноды offline; смена состава; скрытие; возвращение; подписка; разные клиентские форматы.
 
@@ -4260,8 +4641,8 @@
 ### REQ-QA-0042 — `PASS`
 
 - Источник: Часть II → II.1. Дополнительные технические ошибки и проверки (строка 1564). Продукт: Все три.
-- Платформы: backend/API.
-- Доказательство: `backend/app/db.py`; `docs/MASTER_EXECUTION_REPORTS.md`.
+- Платформы: services/backend/API.
+- Доказательство: `services/backend/app/db.py`; `docs/MASTER_EXECUTION_REPORTS.md`.
 
 > - Проверить ранее упомянутую ошибку Python `ImportError: cannot import AsyncSessionLocal from app.db`; сообщение предлагало `SessionLocal`, но сначала изучить реальный session factory и импорты.
 
@@ -4278,7 +4659,7 @@
 
 - Источник: Часть II → II.1. Дополнительные технические ошибки и проверки (строка 1566). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `admin/src/main.tsx`.
+- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `apps/lucy-admin/web/src/main.tsx`.
 - Примечание: То же, что REQ-QA-0006.
 
 > - Исправить `(s || []).map is not a function`.
@@ -4303,9 +4684,12 @@
 
 > - Проверить недоступные страницы и чёрные экраны админки и кабинета; проверить Telegram Bot end-to-end.
 
-### REQ-QA-0048 — `NOT_TESTED`
+### REQ-QA-0048 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2377). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/ci.yml`; `tests`.
+- Примечание: Unit-тесты доменной логики — Backend (2 части) в CI каждого PR.
 
 > - Unit tests для доменной логики и edge cases.
 
@@ -4321,9 +4705,12 @@
 
 > - Integration tests для БД, очередей, фоновых задач и сервисных взаимодействий.
 
-### REQ-QA-0051 — `NOT_TESTED`
+### REQ-QA-0051 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2380). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `apps/lucy-admin/web/e2e`; `.github/workflows/ci.yml`.
+- Примечание: E2E Playwright по админке и кабинету в CI каждого PR.
 
 > - E2E tests для критических пользовательских и административных сценариев.
 
@@ -4333,15 +4720,21 @@
 
 > - Security tests и regression tests для известных ошибок.
 
-### REQ-QA-0053 — `NOT_TESTED`
+### REQ-QA-0053 — `PARTIAL`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2382). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/load-security.yml`; `tests/test_payment_load.py`.
+- Примечание: Нагрузочный базовый прогон и тест нагрузки платежей; соак-тесты и нагрузка на живых нодах — только на VPS.
 
 > - Load/soak tests для критичных API, платежей, очередей и VPN-node orchestration.
 
-### REQ-QA-0054 — `NOT_TESTED`
+### REQ-QA-0054 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.1. Уровни тестов (строка 2383). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `.github/workflows/ci.yml`; `.github/workflows/android-client.yml`.
+- Примечание: UI/instrumentation-тесты Android (эмулятор) и iOS (симулятор) в CI.
 
 > - Mobile UI/instrumentation tests на Android и доступные iOS simulator tests.
 
@@ -4357,21 +4750,30 @@
 
 > - Chaos/failure injection только на изолированном тестовом контуре.
 
-### REQ-QA-0057 — `NOT_TESTED`
+### REQ-QA-0057 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2389). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_subscription_commerce.py`.
+- Примечание: test_purchase_retries_after_quote_expiry_do_not_debit_twice, test_postgres_parallel_different_quotes_cannot_reserve_twice.
 
 > - Покупка/продление не создаёт дубли.
 
-### REQ-QA-0058 — `NOT_TESTED`
+### REQ-QA-0058 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2390). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_v2014_security.py`; `tests/test_growth.py`.
+- Примечание: test_duplicate_events_never_enter_payment_processing (по провайдерам), webhook Remnawave проверяется и не дублируется.
 
 > - Повтор webhook безопасен.
 
-### REQ-QA-0059 — `NOT_TESTED`
+### REQ-QA-0059 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2391). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_admin_coverage_ops.py`.
+- Примечание: Неудачная выдача после оплаты остаётся ProvisioningOperation «failed» и выполняется повтором; платёж не теряется.
 
 > - Ошибка Remnawave не теряет подтверждённый платёж.
 
@@ -4393,16 +4795,19 @@
 
 > - PIN/биометрия не останавливают VPNService.
 
-### REQ-QA-0063 — `NOT_TESTED`
+### REQ-QA-0063 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2395). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_rw_protocol_switch.py`.
+- Примечание: test_rollback_returns_the_previous_transport_and_only_the_latest_run_can_be_rolled_back.
 
 > - Изменение протокола имеет rollback.
 
 ### REQ-QA-0064 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2396). Продукт: Все три.
-- Платформы: backend/API, server.
+- Платформы: services/backend/API, server.
 - Доказательство: `scripts/ci/restore-drill.sh`; `scripts/backup.sh`.
 
 > - Backup восстанавливается.
@@ -4419,9 +4824,12 @@
 
 > - Изменение локали не ломает layout и валидацию.
 
-### REQ-QA-0067 — `NOT_TESTED`
+### REQ-QA-0067 — `PASS`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.2. Обязательные проверки регрессии (строка 2399). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `tests/test_integrity_report.py`; `tests/test_v2_0_0_product_and_critical_audit.py`; `tests/test_admin_customer_operations.py`.
+- Примечание: Маршруты проверяют право роли; без права — 403.
 
 > - Пользователь без нужных прав не может выполнить операцию через прямой API.
 
@@ -4465,7 +4873,7 @@
 ### REQ-SEC-0004 — `PARTIAL`
 
 - Источник: Часть I → Git Security → Production Safety (строка 950). Продукт: Все три.
-- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `tests/test_admin_stepup.py`; `backend/app/rw_protocol_switch.py`; `tests/test_stage15_install.py`.
+- Доказательство: `scripts/auto_update.py`; `tests/test_auto_update_agent.py`; `tests/test_admin_stepup.py`; `services/backend/app/rw_protocol_switch.py`; `tests/test_stage15_install.py`.
 - Примечание: Опасные действия в панели требуют подтверждения, обновление делает копию и откат, наружу открыты только нужные порты. На настоящем сервере не проверено: нет VPS.
 
 > Перед опасными действиями определить среду, сервер и права; сделать backup; подготовить rollback; показать последствия; получить разрешение. Не отключать защиту; не открывать лишние порты; не раскрывать токены, пароли, ключи, конфигурации пользователей, персональные данные и платёжные реквизиты. Вести audit log.
@@ -4539,7 +4947,7 @@
 ### REQ-SEC-0014 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2360). Продукт: Все три.
-- Доказательство: `apps/vpn-client/android/app/src/main/AndroidManifest.xml`; `mobile/android-user/app/src/main/AndroidManifest.xml`; `mobile/android-admin/app/src/main/AndroidManifest.xml`; `apps/vpn-client/android/app/src/main/res/xml/network_security.xml`; `docs/THREAT_MODEL.md`.
+- Доказательство: `apps/vpn-client/android/app/src/main/AndroidManifest.xml`; `apps/vpn-shop/android/app/src/main/AndroidManifest.xml`; `apps/lucy-admin/android/app/src/main/AndroidManifest.xml`; `apps/vpn-client/android/app/src/main/res/xml/network_security.xml`; `docs/THREAT_MODEL.md`.
 - Примечание: Резервное копирование данных выключено, открытый HTTP запрещён, проверка сертификатов системная; про root сказано без гарантий. Экспортированные компоненты и deep links построчно не сверены; iOS и MASVS не проверены.
 
 > - Для мобильных приложений проверить secure storage, deep links, exported components, backup rules, network security config, certificate validation и jailbreak/root limitations без ложных гарантий.
@@ -4573,7 +4981,7 @@
 ### REQ-ARCH-0003 — `PASS`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2133). Продукт: Все три.
-- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `backend/app/security.py`; `backend/app/remnawave.py`; `admin/src/components/ui/button.tsx`; `mobile/l10n/user.json`.
+- Доказательство: `docs/architecture/DOMAIN_BOUNDARIES.md`; `services/backend/app/security.py`; `services/backend/app/remnawave.py`; `apps/lucy-admin/web/src/components/ui/button.tsx`; `packages/localization/user.json`.
 
 > - Общими могут быть UI primitives, дизайн-токены, API-клиенты, схемы DTO, localization utilities, telemetry abstractions, test helpers и security utilities.
 
@@ -4603,7 +5011,7 @@
 ### REQ-ARCH-0007 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.1. Общие доменные принципы (строка 2137). Продукт: Все три.
-- Доказательство: `docs/architecture/CONTEXT_MAP.md`; `backend/app/remnawave.py`; `tests/test_remnawave_contract.py`.
+- Доказательство: `docs/architecture/CONTEXT_MAP.md`; `services/backend/app/remnawave.py`; `tests/test_remnawave_contract.py`.
 - Примечание: С панелью, провайдерами, нодами и Support Pro магазин связан через API и webhook. Внутри магазина области вызывают функции друг друга напрямую.
 
 > - Интеграции должны идти через API, события или документированные application services.

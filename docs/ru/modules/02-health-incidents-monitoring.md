@@ -45,12 +45,12 @@
 ### Prometheus и Grafana
 
 1. Установщик уже задал `METRICS_ENABLED=true` и случайный `METRICS_TOKEN`. Без токена `/metrics` отвечает `503`, с неверным токеном — `401`.
-2. На сервере мониторинга возьмите `deploy/prometheus/prometheus.example.yml`, замените адрес на свой API-домен, токен положите в файл `/etc/prometheus/secrets/vpnshop-metrics-token` (только для процесса Prometheus).
-3. Добавьте правила `deploy/prometheus/vpnshop-alerts.yml`. Проверьте их:
+2. На сервере мониторинга возьмите `infrastructure/monitoring/prometheus/prometheus.example.yml`, замените адрес на свой API-домен, токен положите в файл `/etc/prometheus/secrets/vpnshop-metrics-token` (только для процесса Prometheus).
+3. Добавьте правила `infrastructure/monitoring/prometheus/vpnshop-alerts.yml`. Проверьте их:
    - `promtool check config /etc/prometheus/prometheus.yml`;
    - `promtool check rules /etc/prometheus/vpnshop-alerts.yml`.
 4. Подключите Alertmanager к своему каналу уведомлений. Сами правила никуда не отправляют сообщений.
-5. В Grafana импортируйте `deploy/grafana/vpnshop-operations.json` (14 панелей: API, БД, worker, RPS, доля 5xx, очередь, платежи, возвраты, обращения, подписки, нарушения, агенты, вебхуки).
+5. В Grafana импортируйте `infrastructure/monitoring/grafana/vpnshop-operations.json` (14 панелей: API, БД, worker, RPS, доля 5xx, очередь, платежи, возвраты, обращения, подписки, нарушения, агенты, вебхуки).
 
 Правила алертов:
 

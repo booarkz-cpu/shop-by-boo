@@ -24,21 +24,21 @@ def test_mobile_base_and_node_rules():
 
 def test_mobile_catalogs_are_complete_and_copied():
     for name in ("user", "admin"):
-        catalog = json.loads((ROOT / f"mobile/l10n/{name}.json").read_text())
+        catalog = json.loads((ROOT / f"packages/localization/{name}.json").read_text())
         assert set(catalog) == {"ru", "en", "uk"}
         assert catalog["ru"].keys() == catalog["en"].keys()
         assert all(catalog["ru"].values()) and all(catalog["en"].values())
-    assert (ROOT / "mobile/android-user/app/src/main/assets/l10n.json").read_text() == (ROOT / "mobile/l10n/user.json").read_text()
-    assert (ROOT / "mobile/android-admin/app/src/main/assets/l10n.json").read_text() == (ROOT / "mobile/l10n/admin.json").read_text()
-    assert (ROOT / "mobile/ios-user/VpnShopUser/l10n.json").read_text() == (ROOT / "mobile/l10n/user.json").read_text()
-    assert (ROOT / "mobile/ios-admin/VpnShopAdmin/l10n.json").read_text() == (ROOT / "mobile/l10n/admin.json").read_text()
+    assert (ROOT / "apps/vpn-shop/android/app/src/main/assets/l10n.json").read_text() == (ROOT / "packages/localization/user.json").read_text()
+    assert (ROOT / "apps/lucy-admin/android/app/src/main/assets/l10n.json").read_text() == (ROOT / "packages/localization/admin.json").read_text()
+    assert (ROOT / "apps/vpn-shop/ios/VpnShopUser/l10n.json").read_text() == (ROOT / "packages/localization/user.json").read_text()
+    assert (ROOT / "apps/lucy-admin/ios/VpnShopAdmin/l10n.json").read_text() == (ROOT / "packages/localization/admin.json").read_text()
 
 
 def test_native_clients_keep_session_bounds():
-    user_android = (ROOT / "mobile/android-user/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
-    admin_android = (ROOT / "mobile/android-admin/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
-    user_ios = (ROOT / "mobile/ios-user/VpnShopUser/VpnShopUserApp.swift").read_text()
-    admin_ios = (ROOT / "mobile/ios-admin/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
+    user_android = (ROOT / "apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt").read_text()
+    admin_android = (ROOT / "apps/lucy-admin/android/app/src/main/java/shop/remnawave/admin/MainActivity.kt").read_text()
+    user_ios = (ROOT / "apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift").read_text()
+    admin_ios = (ROOT / "apps/lucy-admin/ios/VpnShopAdmin/VpnShopAdminApp.swift").read_text()
     for source, client in (
         (user_android, "android-user"),
         (admin_android, "android-admin"),
@@ -71,9 +71,9 @@ def test_native_clients_keep_session_bounds():
 
 
 def test_localization_covers_mobile_and_web_patterns():
-    cabinet = (ROOT / "cabinet/src/i18n.tsx").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/i18n.tsx").read_text()
     mini = __import__("frontend_sources").cabinet_i18n()
-    admin = (ROOT / "admin/src/i18n.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/i18n.tsx").read_text()
     assert 'aria-label' in cabinet and 'aria-label' in mini and 'aria-label' in admin
     assert "Онлайн" in cabinet and "Online ${online[1]} of ${online[2]}" in cabinet
     assert "Online ${online[1]} of ${online[2]}" in mini

@@ -1,6 +1,6 @@
 # What is new in v28.40.0
 
-Two more gateways for cards and SBP, **WATA** and **Antilopay**, in `backend/app/payments_extra.py`. The shop migration head stays at `0081_subscription_proxy`. The apps stay at 3.4.0.
+Two more gateways for cards and SBP, **WATA** and **Antilopay**, in `services/backend/app/payments_extra.py`. The shop migration head stays at `0081_subscription_proxy`. The apps stay at 3.4.0.
 
 - **Keys.** A gateway joins the gateway queue and the payment method routing once its keys are set in runtime settings or in `.env`.
   - WATA: `WATA_ACCESS_TOKEN`.

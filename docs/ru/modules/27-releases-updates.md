@@ -35,7 +35,7 @@
 | Режим восстановления (`.rollback/RECOVERY_MODE`) | Автообновление остановлено до ручной проверки |
 | Агент не отвечает дольше 5 минут | Карточка показывает команду установки агента |
 
-Сервер, установленный до v28.54.0, получает агент сам при обновлении: сборка выпуска (`deploy/build-production.sh`) вызывает `auto_update.py ensure`. Ответ «нет» в установщике и команда `disable` сохраняются. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, `status`, `run`, `disable`.
+Сервер, установленный до v28.54.0, получает агент сам при обновлении: сборка выпуска (`infrastructure/deployment/build-production.sh`) вызывает `auto_update.py ensure`. Ответ «нет» в установщике и команда `disable` сохраняются. Вручную: `sudo bash /opt/vpn-shop/scripts/auto-update.sh install`, `status`, `run`, `disable`.
 
 ## Версии
 
@@ -76,13 +76,13 @@ docker compose logs --tail=100 backend worker bot
 
 ## Обновления зависимостей (Dependabot)
 
-Раз в неделю (по понедельникам) Dependabot открывает PR с обновлениями: Python-пакеты магазина (`backend/requirements.txt`) и Support Pro (`support-pro/requirements.txt`), npm-пакеты админки и кабинета, базовый образ backend и GitHub Actions. Минорные и патч-обновления приходят одним PR на проект, мажорные — отдельными.
+Раз в неделю (по понедельникам) Dependabot открывает PR с обновлениями: Python-пакеты магазина (`services/backend/requirements.txt`) и Support Pro (`services/support-pro/requirements.txt`), npm-пакеты админки и кабинета, базовый образ backend и GitHub Actions. Минорные и патч-обновления приходят одним PR на проект, мажорные — отдельными.
 
 Каждый PR проходит полный CI: тесты магазина и Support Pro, сборки, e2e в Chromium и аудит уязвимостей. Мержить можно только зелёный PR; мажорные обновления дополнительно читайте в заметках пакета.
 
 Правила проекта:
 
-- **Support Pro — один список версий** `support-pro/requirements.txt`: его ставят и тесты, и образ (контекст сборки — `support-pro`). Вторая копия `support-pro/app/requirements.txt` удалена, чтобы версии не расходились (`tests/test_dependency_locks.py`).
+- **Support Pro — один список версий** `services/support-pro/requirements.txt`: его ставят и тесты, и образ (контекст сборки — `support-pro`). Вторая копия `services/support-pro/app/requirements.txt` удалена, чтобы версии не расходились (`tests/test_dependency_locks.py`).
 - **SQLAlchemy 2.1+ ставится как `sqlalchemy[asyncio]`**: иначе не установится `greenlet` и асинхронный движок не запустится.
 - **`@types/node` — только мажорная версия рантайма** (образы и CI на Node 26); мажорные обновления типов Dependabot не предлагает.
 - **`pydantic` в Support Pro — ниже 2.14**, пока `aiogram` не поддержит новее.

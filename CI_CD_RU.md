@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.149.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.158.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 # CI/CD — v21.5.1
 
@@ -12,4 +12,4 @@ Mobile workflow запускается при изменении mobile/build sc
 
 Production Deploy запускается вручную с точным опубликованным `release_tag`. Нужны environment `production` и secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PATH`, при необходимости `DEPLOY_PORT`. Он вызывает проверенный updater и не разворачивает магазин при самой публикации релиза. [Обновление](docs/ru/WORKSPACE_UPGRADE.md), [backup](docs/ru/BACKUP_CURRENT.md).
 
-Перегенерация API-каталога: `PYTHONPATH=backend python scripts/generate-api-docs.py`. Проверка актуальности: добавьте `--check`. Регистр текущих руководств: [docs/current-guides.json](docs/current-guides.json). [Основная документация](DOCUMENTATION.md).
+Перегенерация API-каталога: `PYTHONPATH=services/backend python scripts/generate-api-docs.py`. Проверка актуальности: добавьте `--check`. Регистр текущих руководств: [docs/current-guides.json](docs/current-guides.json). [Основная документация](DOCUMENTATION.md).

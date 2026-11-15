@@ -155,7 +155,7 @@ async def test_postgres_delivery_identity_migration_roundtrip_and_downgrade_guar
     from pathlib import Path
     from alembic.operations import Operations
     from alembic.migration import MigrationContext
-    spec=importlib.util.spec_from_file_location('delivery_migration',Path('backend/alembic/versions/0062_support_delivery_identity.py'))
+    spec=importlib.util.spec_from_file_location('delivery_migration',Path('services/backend/alembic/versions/0062_support_delivery_identity.py'))
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     database.add(SupportTicket(id=1,user_id=1,subject='Keep',message='Keep'));await database.flush()
     database.add(SupportMessage(ticket_id=1,role='admin',body='Keep',idempotency_key='sp:support-main:reply:1'));await database.commit()

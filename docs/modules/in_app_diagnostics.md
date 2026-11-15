@@ -13,12 +13,12 @@
 | `subscription` | загрузка ссылки подписки, число серверов |
 | `server` | TCP-подключение к каждому серверу подписки (до 12, таймаут 5 с) |
 
-Код: `mobile/android-user/.../support/CorgiDiagnostics.kt`, `mobile/ios-user/VpnShopUser/VpnShopUserApp.swift`
+Код: `apps/vpn-shop/android/.../support/CorgiDiagnostics.kt`, `apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift`
 (`enum CorgiDiagnostics`). Без подписки кнопка работает как раньше — обычное обращение.
 
 ## Что добавляет сервер и как выбирается причина
 
-`backend/app/diagnostics.py` добавляет подписку (активна/истекла), устройства против лимита, ноды онлайн и последнюю
+`services/backend/app/diagnostics.py` добавляет подписку (активна/истекла), устройства против лимита, ноды онлайн и последнюю
 оплату. Причины проверяются по порядку, первая сработавшая — ответ:
 
 1. `no_subscription`, 2. `expired` — нет или закончилась подписка;

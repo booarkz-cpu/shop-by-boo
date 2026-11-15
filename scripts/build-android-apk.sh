@@ -12,8 +12,8 @@ if [[ ! -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" && ! -d "$ANDROID
 fi
 GRADLE="${GRADLE_BIN:-}"
 if [[ -z "$GRADLE" ]]; then
-  if [[ -x "$ROOT/mobile/android-user/gradlew" ]]; then
-    GRADLE="$ROOT/mobile/android-user/gradlew"
+  if [[ -x "$ROOT/apps/vpn-shop/android/gradlew" ]]; then
+    GRADLE="$ROOT/apps/vpn-shop/android/gradlew"
   else
     echo "Gradle не найден. Соберите wrapper или задайте GRADLE_BIN." >&2
     exit 1
@@ -67,8 +67,8 @@ verify_signature() {
   echo "Signed with the expected key: $(basename "$file")"
 }
 for app in android-user android-admin; do
-  dir="$ROOT/mobile/$app"
-  if [[ "$GRADLE" == "$ROOT/mobile/android-user/gradlew" ]]; then
+  case "$app" in android-user) dir="$ROOT/apps/vpn-shop/android" ;; android-admin) dir="$ROOT/apps/lucy-admin/android" ;; esac
+  if [[ "$GRADLE" == "$ROOT/apps/vpn-shop/android/gradlew" ]]; then
     (cd "$dir" && bash "$dir/gradlew" "$TASK" --no-daemon)
   else
     (cd "$dir" && "$GRADLE" "$TASK" --no-daemon)
@@ -84,7 +84,7 @@ for app in android-user android-admin; do
   # Google Play takes an Android App Bundle: every release build also produces the .aab
   # (signed with the release key, or unsigned for signing later in Play Console / by the owner).
   if [[ "$KIND" == release ]]; then
-    if [[ "$GRADLE" == "$ROOT/mobile/android-user/gradlew" ]]; then
+    if [[ "$GRADLE" == "$ROOT/apps/vpn-shop/android/gradlew" ]]; then
       (cd "$dir" && bash "$dir/gradlew" ":app:bundleRelease" --no-daemon)
     else
       (cd "$dir" && "$GRADLE" ":app:bundleRelease" --no-daemon)

@@ -1,6 +1,10 @@
 package shop.corgi.client.data
 
 import android.content.Context
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.UUID
 import org.json.JSONArray
 import org.json.JSONObject
 import shop.corgi.client.core.Links
@@ -9,10 +13,6 @@ import shop.corgi.client.core.Settings
 import shop.corgi.client.core.SubInfo
 import shop.corgi.client.core.Update
 import shop.corgi.client.core.tr
-import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.UUID
 
 /** Profiles, the chosen server and the settings in one private SharedPreferences file (no cloud backup). */
 class Store(context: Context) {
@@ -20,38 +20,75 @@ class Store(context: Context) {
     private val prefs = app.getSharedPreferences("client", 0)
 
     var profiles: List<Profile>
-        get() = runCatching { JSONArray(prefs.getString("profiles", "[]")).let { a -> (0 until a.length()).map { Profile.of(a.getJSONObject(it)) } } }
+        get() = runCatching {
+            // v1.10.0: kept encrypted (Vault); a value of an older version is plain and is re-saved encrypted.
+            val stored = prefs.getString("profiles", "[]") ?: "[]"
+            val text = Vault.open(stored) ?: "[]"
+            if (!Vault.isSealed(stored) && text != "[]") Vault.seal(text).takeIf { it != text }?.let { prefs.edit().putString("profiles", it).apply() }
+            JSONArray(text).let { a -> (0 until a.length()).map { Profile.of(a.getJSONObject(it)) } }
+        }
             .getOrDefault(emptyList())
-        set(value) { prefs.edit().putString("profiles", JSONArray(value.map { it.toJson() }).toString()).apply() }
+        set(value) {
+            prefs.edit().putString("profiles", Vault.seal(JSONArray(value.map { it.toJson() }).toString())).apply()
+        }
 
     var settings: Settings
-        get() = Settings.of(prefs.getString("settings", null)?.let { runCatching { JSONObject(it) }.getOrNull() }).let { s ->
+        get() = Settings.of(prefs.getString("settings", null)?.let { runCatching { JSONObject(it) }.getOrNull() }?.also { j ->
+            // v1.10.0: the local proxy's password is kept encrypted (Vault); the rest of the settings is plain.
+            val pass = j.optString("proxyPass")
+            if (Vault.isSealed(pass)) {
+                j.put("proxyPass", Vault.open(pass) ?: "")
+            } else if (pass.isNotBlank()) {
+                // written by an older version: re-saved with the password encrypted
+                Vault.seal(pass).takeIf { it != pass }?.let { prefs.edit().putString("settings", JSONObject(j.toString()).put("proxyPass", it).toString()).apply() }
+            }
+        }).let { s ->
             // The local proxy's login and password: random on the first use, changed only by «Сбросить логин/пароль».
-            if (s.proxyUser.isNotBlank() && s.proxyPass.isNotBlank()) s
-            else s.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16)).also { prefs.edit().putString("settings", it.toJson().toString()).apply() }
+            if (s.proxyUser.isNotBlank() && s.proxyPass.isNotBlank()) {
+                s
+            } else {
+                s.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16)).also {
+                    prefs.edit().putString("settings", stored(it)).apply()
+                }
+            }
         }
-        set(value) { prefs.edit().putString("settings", value.toJson().toString()).apply() }
+        set(value) {
+            prefs.edit().putString("settings", stored(value)).apply()
+        }
+
+    /** The settings as they are written: the local proxy's password encrypted. */
+    private fun stored(value: Settings): String =
+        value.toJson().also { j -> if (value.proxyPass.isNotBlank()) j.put("proxyPass", Vault.seal(value.proxyPass)) }.toString()
 
     /** The active profile id and the server in it: an index or «auto». */
     var activeProfile: String
         get() = prefs.getString("active_profile", "").orEmpty()
-        set(value) { prefs.edit().putString("active_profile", value).putBoolean("choose_server", false).apply() }
+        set(value) {
+            prefs.edit().putString("active_profile", value).putBoolean("choose_server", false).apply()
+        }
 
     /** v1.6.0 (N10): the active server was removed — nothing is connected until the user picks another one. */
     val mustChoose: Boolean get() = prefs.getBoolean("choose_server", false)
 
     var activeServer: String
         get() = prefs.getString("active_server", "auto").orEmpty()
-        set(value) { prefs.edit().putString("active_server", value).putBoolean("choose_server", false).apply() }
+        set(value) {
+            prefs.edit().putString("active_server", value).putBoolean("choose_server", false).apply()
+        }
 
     fun active(): Profile? = profiles.firstOrNull { it.id == activeProfile } ?: profiles.firstOrNull()
 
     fun add(text: String): Profile {
         val debuggable = (app.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        require(debuggable || !text.trim().startsWith("http://")) { tr("Подписка — только по https://", "Subscriptions only over https://", "Підписка — лише через https://") }
+        require(debuggable || !text.trim().startsWith("http://")) {
+            tr("Подписка — только по https://", "Subscriptions only over https://", "Підписка — лише через https://")
+        }
         val profile = Profile.fromText(text, UUID.randomUUID().toString(), System.currentTimeMillis())
         profiles = profiles + profile
-        if (profiles.size == 1 || activeProfile.isBlank()) { activeProfile = profile.id; activeServer = "auto" }
+        if (profiles.size == 1 || activeProfile.isBlank()) {
+            activeProfile = profile.id
+            activeServer = "auto"
+        }
         return profile
     }
 
@@ -70,26 +107,75 @@ class Store(context: Context) {
         wasActive
     }
 
-    fun replace(profile: Profile) { profiles = profiles.map { if (it.id == profile.id) profile else it } }
+    fun replace(profile: Profile) {
+        profiles = profiles.map { if (it.id == profile.id) profile else it }
+    }
 
     /** Downloads a subscription now (call off the main thread). Keeps the previous servers when it fails. */
     fun update(profile: Profile): Profile = shop.corgi.client.core.ConfigGate.run { updateNow(profile) }
 
+    /** v1.9.9: counts failures in a row, so the background update leaves a failing server alone for longer each time. */
     private fun updateNow(profile: Profile): Profile {
         if (profile.kind != "subscription") return profile
+        val fetched = fetchInto(profile)
+        val now = System.currentTimeMillis()
+        val counted = if (fetched.error.isBlank()) fetched.copy(failures = 0, triedAt = now) else fetched.copy(failures = profile.failures + 1, triedAt = now)
+        replace(counted)
+        return counted
+    }
+
+    private fun fetchInto(profile: Profile): Profile {
         val updated = try {
             val (body, info) = fetchSubscription(profile.url)
             // Remnawave answers some clients with Xray JSON instead of share links: both are understood.
             val configs = Links.jsonConfigs(body)
             if (configs != null) {
-                val updated = if (configs.isEmpty()) profile.copy(error = tr("В подписке нет поддерживаемых серверов", "The subscription has no supported servers", "У підписці немає підтримуваних серверів"), updatedAt = System.currentTimeMillis())
-                    else profile.copy(configs = configs.map { it.second }, links = emptyList(), skipped = 0, error = "", updatedAt = System.currentTimeMillis(), info = info)
+                val updated = if (configs.isEmpty()) {
+                    profile.copy(
+                        error = tr(
+                            "В подписке нет поддерживаемых серверов",
+                            "The subscription has no supported servers",
+                            "У підписці немає підтримуваних серверів"
+                        ),
+                        updatedAt = System.currentTimeMillis()
+                    )
+                } else {
+                    profile.copy(
+                        configs = configs.map {
+                            it.second
+                        },
+                        links = emptyList(),
+                        skipped = 0,
+                        error = "",
+                        updatedAt = System.currentTimeMillis(),
+                        info = info
+                    )
+                }
                 replace(updated)
                 return updated
             }
             val (servers, skipped) = Links.parseBody(body)
-            if (servers.isEmpty()) profile.copy(error = tr("В подписке нет поддерживаемых серверов", "The subscription has no supported servers", "У підписці немає підтримуваних серверів"), updatedAt = System.currentTimeMillis())
-            else profile.copy(links = servers.map { it.link }, configs = emptyList(), skipped = skipped, error = "", updatedAt = System.currentTimeMillis(), info = info)
+            if (servers.isEmpty()) {
+                profile.copy(
+                    error = tr(
+                        "В подписке нет поддерживаемых серверов",
+                        "The subscription has no supported servers",
+                        "У підписці немає підтримуваних серверів"
+                    ),
+                    updatedAt = System.currentTimeMillis()
+                )
+            } else {
+                profile.copy(
+                    links = servers.map {
+                        it.link
+                    },
+                    configs = emptyList(),
+                    skipped = skipped,
+                    error = "",
+                    updatedAt = System.currentTimeMillis(),
+                    info = info
+                )
+            }
         } catch (exc: Exception) {
             profile.copy(error = exc.message ?: exc.javaClass.simpleName)
         }
@@ -104,19 +190,24 @@ class Store(context: Context) {
         val now = System.currentTimeMillis()
         return profiles.filter { p ->
             val minutes = if (p.info.updateHours > 0) minOf(s.updateMinutes, p.info.updateHours * 60) else s.updateMinutes
-            p.kind == "subscription" && now - p.updatedAt >= minutes * 60_000L
+            p.kind == "subscription" && shop.corgi.client.core.Backoff.due(now, p.updatedAt, p.triedAt, p.failures, minutes * 60_000L)
         }.map { update(it) }
     }
 
     fun updateAll(): List<Profile> = profiles.filter { it.kind == "subscription" }.map { update(it) }
 
     /** A random id of this install, sent as «x-hwid» when the user allows it (Remnawave counts devices by it). */
-    val hwid: String get() = prefs.getString("hwid", null) ?: UUID.randomUUID().toString().uppercase().also { prefs.edit().putString("hwid", it).apply() }
+    val hwid: String get() = prefs.getString("hwid", null)
+        ?: UUID.randomUUID().toString().uppercase().also { prefs.edit().putString("hwid", it).apply() }
 
     /** Last measured delays: server link → ms (-1 — no answer). */
     var pings: Map<String, Int>
-        get() = runCatching { JSONObject(prefs.getString("pings", "{}")!!).let { j -> j.keys().asSequence().associateWith { j.getInt(it) } } }.getOrDefault(emptyMap())
-        set(value) { prefs.edit().putString("pings", JSONObject(value.mapValues { it.value }).toString()).apply() }
+        get() = runCatching {
+            JSONObject(prefs.getString("pings", "{}")!!).let { j -> j.keys().asSequence().associateWith { j.getInt(it) } }
+        }.getOrDefault(emptyMap())
+        set(value) {
+            prefs.edit().putString("pings", JSONObject(value.mapValues { it.value }).toString()).apply()
+        }
 
     private fun random(n: Int): String {
         val chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -129,16 +220,22 @@ class Store(context: Context) {
         val mine = settings
         profiles = backup.profiles
         settings = backup.settings.copy(proxyUser = mine.proxyUser, proxyPass = mine.proxyPass)
-        activeProfile = backup.activeProfile.takeIf { id -> backup.profiles.any { it.id == id } } ?: backup.profiles.firstOrNull()?.id.orEmpty()
+        activeProfile =
+            backup.activeProfile.takeIf { id -> backup.profiles.any { it.id == id } } ?: backup.profiles.firstOrNull()?.id.orEmpty()
         activeServer = backup.activeServer.ifBlank { "auto" }
     }
 
-    fun backup(): shop.corgi.client.core.Backup = shop.corgi.client.core.Backup(profiles, settings, activeProfile, activeServer, System.currentTimeMillis())
+    fun backup(): shop.corgi.client.core.Backup =
+        shop.corgi.client.core.Backup(profiles, settings, activeProfile, activeServer, System.currentTimeMillis())
 
-    fun newProxyCredentials() { settings = settings.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16)) }
+    fun newProxyCredentials() {
+        settings = settings.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16))
+    }
 
     /** Everything back to a fresh install, except the profiles and this install's id. */
-    fun resetSettings() { prefs.edit().remove("settings").remove("pings").apply() }
+    fun resetSettings() {
+        prefs.edit().remove("settings").remove("pings").apply()
+    }
 
     fun geoReady(): Boolean = File(app.filesDir, "geoip.dat").length() > 0 && File(app.filesDir, "geosite.dat").length() > 0
 
@@ -166,12 +263,22 @@ class Store(context: Context) {
         val current = currentVersion()
         if (!shop.corgi.client.core.ApkCheck.checkDue(now, prefs.getLong("update_checked", 0), force)) return cachedUpdate()
         val found = Update.newer(fetch(Update.MANIFEST), current)
-        prefs.edit().putLong("update_checked", now).putString("update", found?.let { "${it.versionCode}|${it.versionName}|${it.sha256}|${it.apk}" } ?: "").apply()
+        prefs.edit().putLong("update_checked", now).putString(
+            "update",
+            found?.let { "${it.versionCode}|${it.versionName}|${it.sha256}|${it.apk}" } ?: ""
+        ).apply()
         return found
     }
 
     fun currentVersion(): Int = app.packageManager.getPackageInfo(app.packageName, 0)
-        .let { if (android.os.Build.VERSION.SDK_INT >= 28) it.longVersionCode.toInt() else @Suppress("DEPRECATION") it.versionCode }
+        .let {
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
+                it.longVersionCode.toInt()
+            } else {
+                @Suppress("DEPRECATION")
+                it.versionCode
+            }
+        }
 
     /** v1.6.1 (N11): the APK of [update] in the app's cache, checked by its SHA-256 (call off the main thread). */
     fun downloadUpdate(update: Update): File {
@@ -182,14 +289,18 @@ class Store(context: Context) {
         dir.listFiles()?.forEach { it.delete() }
         val tmp = File(dir, "download.part")
         open(update.apk).inputStream.use { input -> tmp.outputStream().use { input.copyTo(it) } }
-        require(shop.corgi.client.core.ApkCheck.matches(tmp, update.sha256)) { tr("Контрольная сумма не совпала", "Checksum mismatch", "Контрольна сума не збіглася") }
+        require(shop.corgi.client.core.ApkCheck.matches(tmp, update.sha256)) {
+            tr("Контрольная сумма не совпала", "Checksum mismatch", "Контрольна сума не збіглася")
+        }
         tmp.renameTo(apk)
         return apk
     }
 
     /** The downloaded APK of the newer version, if it is there and intact. */
     fun readyUpdate(): File? = cachedUpdate()?.let { u ->
-        File(File(app.cacheDir, "updates"), "corgi-lusi-client-${u.versionCode}.apk").takeIf { shop.corgi.client.core.ApkCheck.matches(it, u.sha256) }
+        File(File(app.cacheDir, "updates"), "corgi-lusi-client-${u.versionCode}.apk").takeIf {
+            shop.corgi.client.core.ApkCheck.matches(it, u.sha256)
+        }
     }
 
     /** v1.6.1 (N11): when the shop was last asked for a newer client (0 — never). */
@@ -205,7 +316,9 @@ class Store(context: Context) {
     /** v1.8.1 (N12): the hand-edited Xray JSON of Geek Mode (empty — none). */
     var geekConfig: String
         get() = prefs.getString("geek_config", "") ?: ""
-        set(value) { prefs.edit().putString("geek_config", value).apply() }
+        set(value) {
+            prefs.edit().putString("geek_config", value).apply()
+        }
 
     /** The config the tunnel would start with now, without Geek Mode (for «Взять текущий»). */
     fun generatedConfig(): String? {
@@ -226,23 +339,27 @@ class Store(context: Context) {
         ?.let { runCatching { Update(it[0].toInt(), it[1], it[2], it[3]) }.getOrNull() }
         ?.let { shop.corgi.client.core.ApkCheck.stillNewer(it, currentVersion()) }
 
-    private fun open(url: String, subscription: Boolean = false): HttpURLConnection = (URL(url).openConnection() as HttpURLConnection).apply {
-        instanceFollowRedirects = true; connectTimeout = 15000; readTimeout = 30000
-        val s = settings
-        // Remnawave and most panels answer v2ray-style clients with base64 share links or Xray JSON.
-        setRequestProperty("User-Agent", if (subscription) s.userAgent else Settings.DEFAULT_AGENT)
-        if (subscription && s.sendHwid) {
-            setRequestProperty("x-hwid", hwid)
-            setRequestProperty("x-device-os", "Android")
-            setRequestProperty("x-ver-os", android.os.Build.VERSION.RELEASE.orEmpty())
-            setRequestProperty("x-device-model", "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}".trim().take(64))
+    private fun open(url: String, subscription: Boolean = false): HttpURLConnection =
+        (URL(url).openConnection() as HttpURLConnection).apply {
+            instanceFollowRedirects = true
+            connectTimeout = 15000
+            readTimeout = 30000
+            val s = settings
+            // Remnawave and most panels answer v2ray-style clients with base64 share links or Xray JSON.
+            setRequestProperty("User-Agent", if (subscription) s.userAgent else Settings.DEFAULT_AGENT)
+            if (subscription && s.sendHwid) {
+                setRequestProperty("x-hwid", hwid)
+                setRequestProperty("x-device-os", "Android")
+                setRequestProperty("x-ver-os", android.os.Build.VERSION.RELEASE.orEmpty())
+                setRequestProperty("x-device-model", "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}".trim().take(64))
+            }
+            if (responseCode !in 200..299) throw IllegalStateException("HTTP $responseCode")
         }
-        if (responseCode !in 200..299) throw IllegalStateException("HTTP $responseCode")
-    }
 
     private fun fetchSubscription(url: String): Pair<String, SubInfo> {
         val connection = open(url, subscription = true)
-        val body = connection.inputStream.bufferedReader().use { it.readText() }
+        // v1.9.8: at most Capped.SUBSCRIPTION_BYTES — an endless answer no longer fills the memory.
+        val body = connection.inputStream.use { shop.corgi.client.core.Capped.text(it, declared = connection.contentLengthLong) }
         return body to SubInfo.parse { name -> connection.getHeaderField(name) }
     }
 

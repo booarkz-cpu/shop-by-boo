@@ -193,7 +193,7 @@ async def test_postgres_commerce_migration_round_trip(database):
     if database.bind.dialect.name!='postgresql':pytest.skip('Migration verified on PostgreSQL')
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
-    path=Path(__file__).resolve().parents[1]/'backend/alembic/versions/0044_subscription_commerce.py'
+    path=Path(__file__).resolve().parents[1]/'services/backend/alembic/versions/0044_subscription_commerce.py'
     spec=importlib.util.spec_from_file_location('commerce_migration',path)
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     await database.rollback()

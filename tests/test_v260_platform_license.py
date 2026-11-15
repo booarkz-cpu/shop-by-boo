@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _abuse():
-    spec = importlib.util.spec_from_file_location("abuse_v260", ROOT / "backend/app/abuse.py")
+    spec = importlib.util.spec_from_file_location("abuse_v260", ROOT / "services/backend/app/abuse.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -157,9 +157,9 @@ def test_license_and_bilingual_platform_docs():
     modules = (ROOT / "docs/archive/MODULES_BEFORE_ALPHA_6.md").read_text()
     notes = (ROOT / "docs/archive/root/RELEASE_NOTES_V2_6_0.md").read_text()
     index = (ROOT / "docs/archive/DOCUMENTATION_BEFORE_ALPHA_6.md").read_text()
-    admin = (ROOT / "admin/src/main.tsx").read_text()
-    i18n = (ROOT / "admin/src/i18n.tsx").read_text()
-    cabinet = (ROOT / "cabinet/src/app/layout.tsx").read_text()
+    admin = (ROOT / "apps/lucy-admin/web/src/main.tsx").read_text()
+    i18n = (ROOT / "apps/lucy-admin/web/src/i18n.tsx").read_text()
+    cabinet = (ROOT / "apps/user-cabinet/src/app/layout.tsx").read_text()
     assert "LicenseRef-CorgiLusi-Commercial-Use" in license_text
     assert "VPN Shop Source License" in license_text
     assert "Source License" in license_text
@@ -179,5 +179,5 @@ def test_license_and_bilingual_platform_docs():
     assert "Платформа" in admin
     assert '"Платформа": "Platform"' in i18n
     assert "manifest.webmanifest" in cabinet
-    assert (ROOT / "deploy/grafana/vpnshop-platform.json").is_file()
-    assert (ROOT / "cabinet/public/manifest.webmanifest").is_file()
+    assert (ROOT / "infrastructure/monitoring/grafana/vpnshop-platform.json").is_file()
+    assert (ROOT / "apps/user-cabinet/public/manifest.webmanifest").is_file()

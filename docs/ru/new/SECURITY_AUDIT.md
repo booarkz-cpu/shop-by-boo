@@ -64,12 +64,12 @@
 
 | ID | Уровень | Где | Суть | Что сделать (этап 4) |
 | --- | --- | --- | --- | --- |
-| SEC-01 | средний | `backend/app/webhook_tee.py`, `backend/app/ad_postbacks.py` | Адрес получателя проверяется только на `https://`. Внутренние адреса (`https://10.0.0.5`, `https://localhost`, имя, которое резолвится во внутреннюю сеть) не отсекаются, DNS не закрепляется. Администратор с правом `settings.runtime.write` может слать запросы во внутреннюю сеть сервера (SSRF без ответа) | Использовать готовые `validate_public_url` и `_pinned_public_http_client` из `content_branding_api.py`, как уже сделано в `plugins.py` |
-| SEC-02 | средний | `backend/app/provisioner.py` | Установка ноды выполняет на сервере от root `curl -fsSL https://get.docker.com \| sh`. Скрипт с чужого сайта, без закреплённой версии и контрольной суммы | Ставить Docker из пакетов дистрибутива или проверять контрольную сумму скрипта; заодно этап 12 |
+| SEC-01 | средний | `services/backend/app/webhook_tee.py`, `services/backend/app/ad_postbacks.py` | Адрес получателя проверяется только на `https://`. Внутренние адреса (`https://10.0.0.5`, `https://localhost`, имя, которое резолвится во внутреннюю сеть) не отсекаются, DNS не закрепляется. Администратор с правом `settings.runtime.write` может слать запросы во внутреннюю сеть сервера (SSRF без ответа) | Использовать готовые `validate_public_url` и `_pinned_public_http_client` из `content_branding_api.py`, как уже сделано в `plugins.py` |
+| SEC-02 | средний | `services/backend/app/provisioner.py` | Установка ноды выполняет на сервере от root `curl -fsSL https://get.docker.com \| sh`. Скрипт с чужого сайта, без закреплённой версии и контрольной суммы | Ставить Docker из пакетов дистрибутива или проверять контрольную сумму скрипта; заодно этап 12 |
 | SEC-03 | низкий | `main.py` (`RATE_LIMITS`) | Нет ограничения частоты для `/api/me/gifts/redeem`, `/api/me/payment/gift-card/redeem`, `/api/me/referral/apply`, `/api/me/company/join`, `/api/auth/guest`. Перебор кодов практически невозможен: коды подарков — 160 бит, коды партий — 10 символов из 32 (50 бит) | Добавить строки в `RATE_LIMITS` |
-| SEC-04 | низкий | `backend/app/mail_domain.py:596` | Отчёты DMARC разбираются стандартным `xml.etree`. Защита есть: XML с `DOCTYPE`/`ENTITY` отклоняется заранее | Перейти на `defusedxml` |
+| SEC-04 | низкий | `services/backend/app/mail_domain.py:596` | Отчёты DMARC разбираются стандартным `xml.etree`. Защита есть: XML с `DOCTYPE`/`ENTITY` отклоняется заранее | Перейти на `defusedxml` |
 | SEC-05 | низкий | 121 изменяющий маршрут вне `/api/admin` | Вход клиента проверяется внутри обработчика (`user_from_token`, `_owner`, `customer` и т. п.), а не через `Depends`. Все 121 проверены вручную или скриптом: проверка есть везде, где нужна. Но пропуск такого вызова в новом маршруте ничем не ловится, а в OpenAPI нет схемы авторизации | Тест-перечень маршрутов (этап 4) и общая зависимость (этап 5) |
-| SEC-06 | низкий | `backend/app/config.py` (`COOKIE_SAMESITE=none`) | Cookie сессий по умолчанию `SameSite=None`. Это нужно для Mini App и кабинета на других доменах; от CSRF защищает проверка двойной отправки (`rw_csrf` + `X-CSRF-Token`) | Оставить; описать в документации для тех, у кого всё на одном домене (`lax`) |
+| SEC-06 | низкий | `services/backend/app/config.py` (`COOKIE_SAMESITE=none`) | Cookie сессий по умолчанию `SameSite=None`. Это нужно для Mini App и кабинета на других доменах; от CSRF защищает проверка двойной отправки (`rw_csrf` + `X-CSRF-Token`) | Оставить; описать в документации для тех, у кого всё на одном домене (`lax`) |
 
 ## Что проверено и в порядке
 
@@ -79,17 +79,17 @@
 | Неавторизованные изменения | Скрипт проверил тела 121 изменяющего маршрута вне админки | Все требуют вход клиента, подпись вебхука или токен агента/пробы. Без входа по смыслу: регистрация, вход, сброс пароля, `integrity/challenge` (одноразовый nonce) |
 | Вебхуки | Скрипт по 20 обработчикам `POST …/webhooks/*` | У всех есть проверка подписи (`verify_webhook*`, `compare_digest`) или белого списка IP (YooKassa), а оплата подтверждается повторно (`verify_succeeded`) |
 | SQL Injection | Поиск `text(f"…")`, `execute(f"…")`, bandit B608 | Нет. Два места с f-строкой: `sqlite_import.py` (имя таблицы через `quoted()`) и `backup_verify.py` (имена из константы `TABLES`) |
-| XSS | Поиск `dangerouslySetInnerHTML`, `innerHTML`, `v-html` в admin и cabinet | Одно место: постоянный скрипт темы в `layout.tsx`. При сборке `cabinet/scripts/csp-externalize.mjs` выносит встроенные скрипты в файлы, поэтому CSP `script-src 'self'` в Caddy их не ломает |
+| XSS | Поиск `dangerouslySetInnerHTML`, `innerHTML`, `v-html` в admin и cabinet | Одно место: постоянный скрипт темы в `layout.tsx`. При сборке `apps/user-cabinet/scripts/csp-externalize.mjs` выносит встроенные скрипты в файлы, поэтому CSP `script-src 'self'` в Caddy их не ломает |
 | CSRF | `main.py` `_require_csrf` | Двойная отправка для всех POST/PUT/PATCH/DELETE с cookie сессии; исключения — вход и вебхуки |
 | CORS | `runtime_security.py` `ScopedCORSMiddleware` | Только точные origin, `*` и `null` запрещены; в production только https и только домены магазина; у админки свой список |
 | Сессии | `user_sessions`, `admin_sessions` с `jti_hash`, cookie `HttpOnly` + `Secure`; в production запуск с `COOKIE_SECURE=false` запрещён (`config.py:412`) | В порядке |
 | Перебор паролей | `RATE_LIMITS` в Redis | Вход 12/мин, регистрация 8, сброс пароля 5, вход администратора 8, passkey 8 на IP. Пробелы — SEC-03 |
 | SSH | `provisioner.py` `_FingerprintPolicy` | Без отпечатка ключа хоста подключение отклоняется; аргументы команд экранируются `shlex.quote`. Поддерживаются только ключи Ed25519. Замечание — SEC-02 |
 | Секреты в репозитории | Поиск приватных ключей, `AKIA…`, `ghp_…`, `sk_live_…`, токенов ботов, файлов `.env`/`.pem`/`.key` по `git ls-files` | Нет. Совпадения — шаблон в документации (`MIGT...`) и проверка формата в `push.py` |
-| Статический анализ | `bandit -r backend/app support-pro/app -ll` (bandit 1.9.4) | Высокий уровень: 0 (CI требует 0). Средний: 7, разобраны: B608, B314 — см. выше и SEC-04; B104 `0.0.0.0` — адрес прослушивания внутри контейнера и заглушка IP; B601 — SEC-02; B610 — ложное срабатывание (функция `extra` из `payment_fraud`) |
-| Зависимости Python | `pip-audit -r backend/requirements.txt` | Известных уязвимостей нет |
+| Статический анализ | `bandit -r services/backend/app services/support-pro/app -ll` (bandit 1.9.4) | Высокий уровень: 0 (CI требует 0). Средний: 7, разобраны: B608, B314 — см. выше и SEC-04; B104 `0.0.0.0` — адрес прослушивания внутри контейнера и заглушка IP; B601 — SEC-02; B610 — ложное срабатывание (функция `extra` из `payment_fraud`) |
+| Зависимости Python | `pip-audit -r services/backend/requirements.txt` | Известных уязвимостей нет |
 | Зависимости JavaScript | `npm audit --audit-level=high` в CI (проверка «Dependency vulnerability audit» в PR #164) | Пройдено |
-| Заголовки | `deploy/Caddyfile` | `HSTS`, `X-Frame-Options DENY`/`frame-ancestors`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, строгий CSP; `Server` убран |
+| Заголовки | `infrastructure/reverse-proxy/Caddyfile` | `HSTS`, `X-Frame-Options DENY`/`frame-ancestors`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, строгий CSP; `Server` убран |
 | Контейнеры | `docker-compose.yml`, Dockerfile | Сервисы приложения не root (backend `10001`, фронтенды `101`, Caddy `10001`), `read_only`, `cap_drop: ALL`, образы закреплены по digest. Наружу открыты только 80/443 (Caddy) и 25 (приём почты) |
 
 ## Не проверено

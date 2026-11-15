@@ -11,9 +11,9 @@
 
 ## 1. Правила
 
-1. **Один backend.** Remnawave Manager — часть backend магазина (`backend/app`), а не отдельный сервис. Права (`require_permission`), журнал действий (`audit_logs`), очередь задач (`jobs`) и состояние системы общие ([RBAC](RBAC.md), [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md)).
+1. **Один backend.** Remnawave Manager — часть backend магазина (`services/backend/app`), а не отдельный сервис. Права (`require_permission`), журнал действий (`audit_logs`), очередь задач (`jobs`) и состояние системы общие ([RBAC](RBAC.md), [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md)).
 2. **Никаких команд из браузера.** Браузер отправляет только типизированные значения: адрес, порт, домен, выбранный режим. Сервер сам строит из них файлы и шаги. Шаги — заранее известные, версионированные, с проверкой контрольной суммы ([DEPLOYMENT_AGENT_ARCHITECTURE](DEPLOYMENT_AGENT_ARCHITECTURE.md)).
-3. **Без второго прокси и второй подписки на сервере магазина.** Порты 80/443 сервера магазина держит Caddy (`deploy/Caddyfile`). Свой домен подписки — это существующая прослойка `backend/app/sub_proxy.py` за тем же Caddy. На отдельных серверах Remnawave свой обратный прокси допустим: там нет Caddy магазина.
+3. **Без второго прокси и второй подписки на сервере магазина.** Порты 80/443 сервера магазина держит Caddy (`infrastructure/reverse-proxy/Caddyfile`). Свой домен подписки — это существующая прослойка `services/backend/app/sub_proxy.py` за тем же Caddy. На отдельных серверах Remnawave свой обратный прокси допустим: там нет Caddy магазина.
 4. **Только проверенный API Remnawave.** Вызовы панели берутся из `@remnawave/backend-contract` и проверяются на настоящей панели последней версии в CI (`tests/live/test_remnawave_live.py`). Пока функция не прошла такую проверку, она не считается поддерживаемой.
 5. **Каждое действие — задача.** Долгие операции идут через очередь задач с шагами и журналом, а не внутри HTTP-запроса. Исключение — существующие быстрые вызовы API панели.
 
@@ -47,7 +47,7 @@
 ```mermaid
 flowchart LR
   subgraph Shop["Сервер магазина"]
-    Caddy["Caddy :80/:443<br/>deploy/Caddyfile"] --> Backend["backend: API, Remnawave Manager,<br/>sub_proxy"]
+    Caddy["Caddy :80/:443<br/>infrastructure/reverse-proxy/Caddyfile"] --> Backend["backend: API, Remnawave Manager,<br/>sub_proxy"]
     Backend --> Worker["worker: очередь задач"]
     Backend --> DB[("PostgreSQL 18")]
     Backend --> Redis[("Redis 8")]
@@ -79,20 +79,20 @@ flowchart LR
 
 | № | Компонент | За что отвечает | Что уже есть в коде | Чего нет и когда появится |
 | --- | --- | --- | --- | --- |
-| 1 | Remnawave Manager | Связь с панелью: адрес, токен, проверка совместимости, профили, хосты, сквады | `backend/app/remnawave.py` (клиент 3.x, обрыв цепи при сбоях), `backend/app/panel_admin.py`, `backend/app/panel_guard.py`, `backend/app/panel_api_stats.py`, вебхуки `backend/app/remnawave_events.py` | Проверка версии панели против проверенной в CI — этап 10 |
-| 2 | Deployment Manager | План установки по режиму, его выполнение по шагам, откат | `backend/app/provisioner.py`: установка ноды по SSH с проверкой отпечатка, Docker из подписанного репозитория. `POST /api/admin/provision-node` с v28.65.0 принимает только типизированные значения | Сделано в v28.66.0: мастер `backend/app/rw_api.py`, план `backend/app/rw_plan.py`, шаги `backend/app/rw_steps.py`, исполнитель `backend/app/rw_jobs.py` ([REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md)) |
-| 3 | Server Registry | Список серверов: адрес, порт SSH, отпечаток, назначение, ресурсы, состояние | Частично: агенты узлов `node_agents` (`backend/app/platform_api.py`), серверы автомасштабирования Hetzner (`backend/app/node_autoscale.py`) | Сделано в v28.66.0: таблица `remnawave_servers`, раздел «Установка Remnawave» (`admin/src/rw-installer.tsx`) |
-| 4 | Node Manager | Ноды панели: создание, перезапуск, обновление, нагрузка, терминал | `backend/app/node_health.py`, `backend/app/node_autoscale.py`, `backend/app/node_forecast.py`, `backend/app/node_terminal.py`, `scripts/node-agent.py` | Сделано в v28.66.0: режимы «Только нода» и «Добавить ноду» |
-| 5 | Domain Manager | Домены панели, подписки, нод; DNS-проверка | `backend/app/rw_domains.py`, раздел «Домены и сертификаты» (v28.67.0); записи A через Cloudflare. Домены самого магазина — в `.env` | — |
-| 6 | Certificate Manager | Сертификаты доменов, сроки, продление | Сертификаты сервера магазина выпускает Caddy; срок и проверку цепочки показывает «Состояние системы» (`backend/app/system_status.py`) | Сделано в v28.67.0: проверка сертификатов всех доменов, выпуск on demand (`deploy/Caddyfile`), ежедневная проверка и оповещения. DNS-01 — этап 15 |
-| 7 | Proxy Manager | Маршруты обратного прокси | `deploy/Caddyfile` (общий Caddy магазина), Caddy серверов мастера (`backend/app/rw_plan.py`), «Маршруты Caddy» (`GET /api/admin/rw/proxy-routes`) | Сделано в v28.67.0: домены портала без перезапуска (on-demand TLS), закрытие доступа к панели |
-| 8 | Subscription Manager | Выдача подписки: свой домен, правила приложений, блокировка устройств | `backend/app/sub_proxy.py`, `backend/app/client_versions.py`, `backend/app/subscriptions.py` | Сделано в v28.67.0: портал подписки (`backend/app/sub_portal.py`), защита от перебора, смена ссылки |
-| 9 | Module Manager | Расширения нод: SelfSteal, WARP, IPv6, маршрутизация и др. | Нет | v28.69.0: менеджер расширений через API панели (`backend/app/rw_extensions.py`): профили и REALITY, плагины нод, SRR, страница и шаблоны подписки. Модули на серверах (SelfSteal, IPv6, Xray, WARP, NetBird, Xray Checker) — этап 12, часть Б |
-| 10 | Backup Manager | Копии магазина и Remnawave | Копии магазина: `backend/app/backups_api.py`, `backend/app/backup_verify.py`, `backend/app/telegram_backup.py`, `backend/app/hot_standby.py` | v28.66.0: шаг `backup_panel` — копия на сервере панели перед обновлением и удалением. Передача в хранилище магазина — этап 15 |
-| 11 | Update Manager | Обновления магазина, панели и нод | Магазин: `backend/app/auto_update_api.py`, `backend/app/github_update.py`, `scripts/update.sh`. Ноды: `POST /api/admin/nodes/update` | v28.66.0: «Обновить» в мастере (закреплённые образы). Автообновление по расписанию — этап 15 |
-| 12 | Health Manager | Состояние всех частей | `backend/app/system_status.py` (14 проверок), `backend/app/node_health.py`, `backend/app/ops_alerts.py`, `backend/app/block_monitor.py` | Проверки серверов Remnawave (TLS, ресурсы) — этапы 10–11 |
-| 13 | Job Manager | Очередь, повторы, состояние шагов | `jobs` и `backend/worker.py`; раздел «Очередь задач» | Сделано в v28.66.0: `remnawave_installations` и `remnawave_deployment_steps`, свой цикл в worker |
-| 14 | Audit Manager | Кто, что и когда изменил | `audit()` в `backend/app/main.py`, `GET /api/admin/audit` с фильтрами | — (используется всеми компонентами) |
+| 1 | Remnawave Manager | Связь с панелью: адрес, токен, проверка совместимости, профили, хосты, сквады | `services/backend/app/remnawave.py` (клиент 3.x, обрыв цепи при сбоях), `services/backend/app/panel_admin.py`, `services/backend/app/panel_guard.py`, `services/backend/app/panel_api_stats.py`, вебхуки `services/backend/app/remnawave_events.py` | Проверка версии панели против проверенной в CI — этап 10 |
+| 2 | Deployment Manager | План установки по режиму, его выполнение по шагам, откат | `services/backend/app/provisioner.py`: установка ноды по SSH с проверкой отпечатка, Docker из подписанного репозитория. `POST /api/admin/provision-node` с v28.65.0 принимает только типизированные значения | Сделано в v28.66.0: мастер `services/backend/app/rw_api.py`, план `services/backend/app/rw_plan.py`, шаги `services/backend/app/rw_steps.py`, исполнитель `services/backend/app/rw_jobs.py` ([REMNAWAVE_INSTALLATION_WIZARD](REMNAWAVE_INSTALLATION_WIZARD.md)) |
+| 3 | Server Registry | Список серверов: адрес, порт SSH, отпечаток, назначение, ресурсы, состояние | Частично: агенты узлов `node_agents` (`services/backend/app/platform_api.py`), серверы автомасштабирования Hetzner (`services/backend/app/node_autoscale.py`) | Сделано в v28.66.0: таблица `remnawave_servers`, раздел «Установка Remnawave» (`apps/lucy-admin/web/src/rw-installer.tsx`) |
+| 4 | Node Manager | Ноды панели: создание, перезапуск, обновление, нагрузка, терминал | `services/backend/app/node_health.py`, `services/backend/app/node_autoscale.py`, `services/backend/app/node_forecast.py`, `services/backend/app/node_terminal.py`, `scripts/node-agent.py` | Сделано в v28.66.0: режимы «Только нода» и «Добавить ноду» |
+| 5 | Domain Manager | Домены панели, подписки, нод; DNS-проверка | `services/backend/app/rw_domains.py`, раздел «Домены и сертификаты» (v28.67.0); записи A через Cloudflare. Домены самого магазина — в `.env` | — |
+| 6 | Certificate Manager | Сертификаты доменов, сроки, продление | Сертификаты сервера магазина выпускает Caddy; срок и проверку цепочки показывает «Состояние системы» (`services/backend/app/system_status.py`) | Сделано в v28.67.0: проверка сертификатов всех доменов, выпуск on demand (`infrastructure/reverse-proxy/Caddyfile`), ежедневная проверка и оповещения. DNS-01 — этап 15 |
+| 7 | Proxy Manager | Маршруты обратного прокси | `infrastructure/reverse-proxy/Caddyfile` (общий Caddy магазина), Caddy серверов мастера (`services/backend/app/rw_plan.py`), «Маршруты Caddy» (`GET /api/admin/rw/proxy-routes`) | Сделано в v28.67.0: домены портала без перезапуска (on-demand TLS), закрытие доступа к панели |
+| 8 | Subscription Manager | Выдача подписки: свой домен, правила приложений, блокировка устройств | `services/backend/app/sub_proxy.py`, `services/backend/app/client_versions.py`, `services/backend/app/subscriptions.py` | Сделано в v28.67.0: портал подписки (`services/backend/app/sub_portal.py`), защита от перебора, смена ссылки |
+| 9 | Module Manager | Расширения нод: SelfSteal, WARP, IPv6, маршрутизация и др. | Нет | v28.69.0: менеджер расширений через API панели (`services/backend/app/rw_extensions.py`): профили и REALITY, плагины нод, SRR, страница и шаблоны подписки. Модули на серверах (SelfSteal, IPv6, Xray, WARP, NetBird, Xray Checker) — этап 12, часть Б |
+| 10 | Backup Manager | Копии магазина и Remnawave | Копии магазина: `services/backend/app/backups_api.py`, `services/backend/app/backup_verify.py`, `services/backend/app/telegram_backup.py`, `services/backend/app/hot_standby.py` | v28.66.0: шаг `backup_panel` — копия на сервере панели перед обновлением и удалением. Передача в хранилище магазина — этап 15 |
+| 11 | Update Manager | Обновления магазина, панели и нод | Магазин: `services/backend/app/auto_update_api.py`, `services/backend/app/github_update.py`, `scripts/update.sh`. Ноды: `POST /api/admin/nodes/update` | v28.66.0: «Обновить» в мастере (закреплённые образы). Автообновление по расписанию — этап 15 |
+| 12 | Health Manager | Состояние всех частей | `services/backend/app/system_status.py` (14 проверок), `services/backend/app/node_health.py`, `services/backend/app/ops_alerts.py`, `services/backend/app/block_monitor.py` | Проверки серверов Remnawave (TLS, ресурсы) — этапы 10–11 |
+| 13 | Job Manager | Очередь, повторы, состояние шагов | `jobs` и `services/backend/worker.py`; раздел «Очередь задач» | Сделано в v28.66.0: `remnawave_installations` и `remnawave_deployment_steps`, свой цикл в worker |
+| 14 | Audit Manager | Кто, что и когда изменил | `audit()` в `services/backend/app/main.py`, `GET /api/admin/audit` с фильтрами | — (используется всеми компонентами) |
 
 ## 5. Семь режимов
 
@@ -100,7 +100,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | Panel + Node | Один VPS: панель, нода, обратный прокси с TLS | VPS, домен панели, домен подписки | Связь панели и ноды — да, в CI с v28.65.0. Установка мастером по SSH — да, в CI с v28.66.0 (сервер CI вместо VPS). Настоящий VPS — BLOCKED_EXTERNAL |
 | Panel Only | VPS с панелью; ноды добавляются позже | VPS, домены | Панель — да (каждый прогон CI). Установка мастером — mock-тест; на VPS — BLOCKED_EXTERNAL |
-| Node Only | VPS с нодой для существующей панели | VPS, панель (из настроек магазина) | Связь с панелью — да. Установка: `backend/app/provisioner.py` уже ставит ноду по SSH; на настоящем VPS не проверена |
+| Node Only | VPS с нодой для существующей панели | VPS, панель (из настроек магазина) | Связь с панелью — да. Установка: `services/backend/app/provisioner.py` уже ставит ноду по SSH; на настоящем VPS не проверена |
 | Panel + Subscription Page | Панель и официальная страница подписки на одном VPS | VPS, домен панели, домен страницы | Страница отдаёт подписку VPN-клиенту — да, в CI с v28.65.0. Веб-страница для браузера — по правилам SRR панели (этап 11) |
 | Subscription Page Only | Только страница подписки | VPS или сервер магазина. На сервере магазина эту роль играет `sub_proxy` за общим Caddy, второго сервиса нет | Страница — да; `sub_proxy` — да |
 | Distributed Deployment | Панель, страница подписки и ноды на разных VPS | Несколько VPS и назначение каждого | По частям — да. Как целое — mock-тест v28.66.0; на нескольких VPS — BLOCKED_EXTERNAL |
@@ -138,8 +138,8 @@ flowchart LR
   - `POST /api/admin/provision-node` ключи не хранит: они передаются на одну установку;
   - реестр мастера (v28.66.0) хранит ключ или пароль зашифрованным (`security.encrypt_secret`) и наружу не отдаёт: обновление и удаление идут по SSH;
   - рекомендуется вход по ключу.
-- **Агент.** Принимает только действия из списка (`throttle`, `clear`, `update_node`, `restart_node` и новые типы этапа 10). Неизвестное действие отклоняется на стороне магазина (`backend/app/platform_api.py`).
-- **Секреты Remnawave** не попадают в браузер и журнал: токен API, `SECRET_KEY` нод, пароли баз. Ответы панели клиенту не передаются (`backend/app/errors.py`).
+- **Агент.** Принимает только действия из списка (`throttle`, `clear`, `update_node`, `restart_node` и новые типы этапа 10). Неизвестное действие отклоняется на стороне магазина (`services/backend/app/platform_api.py`).
+- **Секреты Remnawave** не попадают в браузер и журнал: токен API, `SECRET_KEY` нод, пароли баз. Ответы панели клиенту не передаются (`services/backend/app/errors.py`).
 
 ## 8. Найдено при проектировании
 

@@ -161,7 +161,7 @@ async def test_postgres_menu_migration_guard_and_roundtrip(database):
     from pathlib import Path
     from alembic.operations import Operations
     from alembic.migration import MigrationContext
-    spec=importlib.util.spec_from_file_location('menu_migration',Path('backend/alembic/versions/0061_menu_hierarchy.py'))
+    spec=importlib.util.spec_from_file_location('menu_migration',Path('services/backend/alembic/versions/0061_menu_hierarchy.py'))
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     database.add(BotMenuItem(title='Legacy',action='https://example.com',item_type='url'));await database.commit()
     async with database.bind.begin() as conn:
@@ -184,7 +184,7 @@ async def test_postgres_mini_tree_alone_blocks_menu_downgrade(database):
     from pathlib import Path
     from alembic.operations import Operations
     from alembic.migration import MigrationContext
-    spec=importlib.util.spec_from_file_location('menu_migration',Path('backend/alembic/versions/0061_menu_hierarchy.py'))
+    spec=importlib.util.spec_from_file_location('menu_migration',Path('services/backend/alembic/versions/0061_menu_hierarchy.py'))
     migration=importlib.util.module_from_spec(spec);spec.loader.exec_module(migration)
     database.add(AppSetting(key='miniapp_buttons',value=json.dumps([{'id':'folder','type':'folder','title':'Keep'}])));await database.commit()
     with pytest.raises(RuntimeError,match='Mini App tree/styles prevent downgrade'):

@@ -6,7 +6,7 @@ WebAuthn реализован в HTTPS браузере кабинета. Сер
 
 ## Настройка оператора
 
-В `.env` задайте `CUSTOMER_WEBAUTHN_ORIGIN=https://cabinet.YOUR_DOMAIN` без пути и завершающего `/`. Пересоздайте backend/worker/bot. В админке включите feature flag `passkeys`. Миграция `0055_customer_passkeys` должна быть применена. Новая VDS установка записывает origin автоматически.
+В `.env` задайте `CUSTOMER_WEBAUTHN_ORIGIN=https://cabinet.YOUR_DOMAIN` без пути и завершающего `/`. Пересоздайте services/backend/worker/bot. В админке включите feature flag `passkeys`. Миграция `0055_customer_passkeys` должна быть применена. Новая VDS установка записывает origin автоматически.
 
 Не меняйте hostname после регистрации без плана переноса: credential связан с RP ID. Mini App на другом hostname требует отдельной интеграции. Ключи доступа в приложениях Android и iOS описаны в [отдельной инструкции](NATIVE_PASSKEYS_CURRENT.md): они используют тот же RP ID и те же ключи. HTTP допустим только на localhost в test/development.
 

@@ -1,3 +1,67 @@
+# v28.158.0
+
+- Этап 5 структуры папок (решения владельца № 14 и 23): `git mv` `backend` → `services/backend`, `support-pro` → `services/support-pro`. Обновлены пути в `docker-compose*.yml`, Dockerfile, CI, скриптах, тестах, Dependabot и документах. Имена служб Docker, тома и домены не менялись.
+- Совместимость с установленными серверами: `backend/app/main.py` остался по старому пути и содержит только `APP_VERSION` (по нему программа обновления прежних выпусков узнаёт версию и принимает архив); `scripts/github_release_fetch.py` и `scripts/update.sh` понимают обе раскладки (`api_dir`); секреты Support Pro остаются в `support-pro/.env`. Проверки — `tests/test_layout_stage5.py`.
+- Перекладка папок завершена; состояние и то, что не делается, — `docs/MONOREPO_LAYOUT.md`.
+
+# v28.157.0
+
+- «Корги Люси: клиент» 1.10.0 (versionCode 1100), решение владельца № 22:
+  - профили (ссылки подписок, серверы) и пароль локального прокси хранятся зашифрованными ключом Android Keystore (`data/Vault.kt`, AES-256-GCM); значения прежних версий читаются и пересохраняются зашифрованными; остальные настройки — как были. Проверка на эмуляторе — `VaultTest`;
+  - «подключён» только после ответа через туннель (`core/Verify.kt`, состояния службы `checking` и `no_answer`): сервер молчит 15 секунд — предупреждение на главном экране, VPN остаётся, проверка продолжается. Проверки — `VerifyTest`, `VpnViewModelTest`, сценарий «a silent server» в `scripts/mobile/client-vpn-e2e.sh`.
+- Импорт из remnawave-shopbot (решение № 21): `backend/app/import_presets.py` — «Прочитать поля» в импорте клиентов и в импорте истории узнаёт таблицы `users`, `transactions`, `vpn_keys` и отдаёт готовую раскладку колонок (`suggestion`); панель заполняет поля и пишет, что не переносится (реферальный баланс, блокировки, лимит трафика в байтах). Проверка — `tests/test_import_presets.py` на настоящем файле SQLite.
+- Реестр: REQ-CLIENT-0024 → PASS; REQ-CLIENT-0032 — NOT_IMPLEMENTED → PARTIAL.
+
+# v28.156.0
+
+- «Корги Люси: клиент» 1.9.9 (versionCode 199), решение владельца № 22:
+  - пауза после ошибок обновления подписки (`core/Backoff.kt`, `Profile.failures`/`triedAt`, `Store.updateDue`): 15 минут, далее вдвое, до 6 часов; ручное обновление не откладывается. REQ-CLIENT-0013 → PASS;
+  - файл резервной копии под паролем (`core/Sealed.kt`, AES-256-GCM, ключ PBKDF2-HMAC-SHA256, 210 000 итераций, своя соль у каждого файла); закрытый файл при восстановлении спрашивает пароль; файлы без пароля открываются как раньше. Копия ссылкой и QR не шифруется — REQ-CLIENT-0018 остаётся PARTIAL.
+- `docs/REFERENCE_REPOSITORIES.md`, раздел 6: исправлена сверка StepBot — конструктор меню бота, импорт из SQLite, смена тарифа, докупка трафика и авто-техрежим в магазине есть.
+- `docs/OWNER_DECISIONS.md`: решения № 20–24.
+
+# v28.155.0
+
+- «Корги Люси: клиент» 1.9.8 (versionCode 198): предел размера подписки 8 МБ (`core/Capped.kt`, `Store.fetchSubscription`) — бесконечный или огромный ответ сервера подписки больше не читается в память целиком; профиль сохраняет прежние серверы и показывает причину. Проверка — `CappedTest`.
+- Реестр требований (решение № 19): разделы MIG (28), NODE (71) и CLIENT (33) сверены полностью. PASS — MIG-0010, 0011, 0012, 0023, 0025; NODE-0028, 0029, 0031; CLIENT-0001, 0011, 0014, 0015, 0029, 0031. NOT_IMPLEMENTED — CLIENT-0032 (хранение ссылок подписок без ключа Android Keystore), CLIENT-0033 (замеры производительности). Остальные — PARTIAL с описанием остатка. Итог: PASS 192, PARTIAL 255, NOT_IMPLEMENTED 37, BLOCKED 2, NOT_TESTED 167.
+- Источник STEP-CORP/StepBot (MIT, `7a1fe52`) разобран в `docs/REFERENCE_REPOSITORIES.md`, раздел 6; код не переносился.
+
+# v28.154.0
+
+- Этап 4 структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): `git mv` `deploy` → `infrastructure/deployment` (установщик, сборка, WireGuard, сертификат почты), `infrastructure/reverse-proxy` (Caddy, nginx), `infrastructure/monitoring` (Prometheus, Grafana); `terraform` → `infrastructure/provisioning`. Обновлены пути в `docker-compose*.yml`, CI, скриптах, тестах, `install.sh`, Dependabot и документах.
+- Старые пути: в `deploy/` остались переходники `install-vps.sh`, `install-docker.sh`, `install-status.sh`, `resume-vps-after-pin.sh`, `build-production.sh`. Обновление установленного сервера старым `scripts/update.sh` идёт через переходник; сертификат из `deploy/mail-tls` копируется в новую папку один раз; `scripts/rollback.sh` собирает и снимок со старой раскладкой. Проверки — `tests/test_layout_stage4.py`.
+- REQ-INFRA-0039: запись A работающего имени (`POST /api/admin/rw/domains/{id}/dns-record`) переносится только на адрес, принимающий соединения на 443; прежние адреса — в ответе (`previous`) и в журнале; `force=true` и кнопка «Сменить без проверки» в «Доменах и сертификатах».
+- Раздел реестра INFRA сверен полностью (решение № 19): PASS — INFRA-0019, 0022; PARTIAL — 0001, 0017, 0018, 0020, 0039; BLOCKED_EXTERNAL — 0026 (замеры для SLO нужны на VPS).
+- CI (PR #343): «Mobile packages» не останавливается на пакетах, которые сборка выпуска приложила первой, и докладывает свои файлы — причина неполного v28.152.0.
+
+# v28.153.0
+
+- Этап 3 структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): `git mv` `admin` → `apps/lucy-admin/web`, `cabinet` → `apps/user-cabinet`, `miniapp` → `apps/telegram-mini-app`. Обновлены: Dockerfile веб-панели (рабочая папка `/src/apps/lucy-admin/web`, общие файлы кабинета — в `/src/apps/user-cabinet`) и Mini App, контексты сборки в `docker-compose*.yml` и `docker.yml`, матрица `frontend` в `ci.yml` (поле `dir`, имена заданий прежние), `dependabot.yml`, относительные импорты панели из кабинета (`../../../user-cabinet/src/…`), `next.config.mjs` (корень репозитория — на три уровня выше), `playwright.config.ts`, цикл lock-файлов в `deploy/install-vps.sh`, `scripts/security-scan.sh`, скрипты снимков, тесты и документы. Имена служб Docker, адреса и домены не менялись.
+- `.dockerignore`: нативные приложения (`apps/vpn-client`, `apps/vpn-shop`, `apps/lucy-admin/{android,ios}`, `packages`) не попадают в контекст сборки образов из корня репозитория.
+- Проверено до PR: сборка трёх образов на раннере GitHub; `npm run typecheck`, `npm run build` панели, `npm test` кабинета, сборка Mini App.
+- Раздел реестра GOV (решение № 19): PASS — GOV-0002, 0009, 0010, 0014, 0028, 0029, 0030, 0049, 0079, 0081, 0089; PARTIAL — 0020, 0076; NOT_IMPLEMENTED — 0006, 0007, 0015, 0088.
+- Миграций нет; runtime/API 21.5.1.
+
+# v28.152.0
+
+- Этап 2б структуры папок (решения № 14 и 17): `git mv` `mobile/ios-user` → `apps/vpn-shop/ios`, `mobile/ios-admin` → `apps/lucy-admin/ios`. Пути в CI (матрица iOS в `ci.yml` — поле `dir`, имена заданий прежние), `scripts/build-ios-packages.sh`, `scripts/build-ios-signed.sh`, `scripts/store/icons.py`, тестах и документах. Имена файлов выпуска не менялись.
+- Раздел реестра QA (решение № 19): PASS по тестам — QA-0019, 0032, 0033, 0048, 0051, 0054, 0057, 0058, 0059, 0063, 0067; PARTIAL — 0023, 0039, 0053; NOT_IMPLEMENTED — 0021, 0025, 0026.
+- Миграций нет; runtime/API 21.5.1.
+
+# v28.151.0
+
+- Этап 2а структуры папок (решения № 14 и 17, `docs/MONOREPO_LAYOUT.md`): `git mv` `mobile/android-user` → `apps/vpn-shop/android`, `mobile/android-admin` → `apps/lucy-admin/android`, `mobile/l10n` → `packages/localization`. Пути обновлены в CI (матрица `android` в `ci.yml` — поле `dir`, имена заданий прежние), `scripts/build-android-apk.sh`, `dependabot.yml`, скриптах, тестах и документах; фильтр `mobile-release.yml` — плюс `packages/**`. Имена файлов выпуска не менялись.
+- Раздел реестра DOC (решение № 19 — чередовать с перекладкой папок): `docs/RELEASE_PROCESS.md` (REQ-DOC-0030), `docs/SBOM_AND_LICENSES.md` (REQ-DOC-0036, PARTIAL), раздел 9 «git config» в `docs/ru/new/TERMUX_GUIDE.md` (REQ-DOC-0007); статусы DOC-0006, 0016–0024, 0027, 0033 — PASS по существующим документам; ещё не написанные документы — NOT_IMPLEMENTED.
+- `docs/ru/new/TERMUX_GUIDE.md`: команда установки с номером текущего выпуска вместо шаблона `vX.Y.Z` (ночная проверка внешних ссылок считала его битой ссылкой).
+- Миграций нет; runtime/API 21.5.1.
+
+# v28.150.0
+
+- Решения владельца № 16–19 (`docs/OWNER_DECISIONS.md`): lucy-vpn-android не нужен; этап 2 папок — Android и iOS отдельно; спрашивать про SSH при установке (по умолчанию «нет»); чередовать перекладку папок с разделами реестра.
+- `deploy/install-vps.sh`: вопрос «Открыть SSH только для вашего адреса (yes / no)» сразу после вопроса об автообновлении, с текущим адресом из `SSH_CONNECTION`; «yes» берёт этот адрес в `ADMIN_SSH_IP`, `ADMIN_SSH_IP=<адрес>` при запуске означает «да»; без SSH-сессии — предупреждение, SSH открыт. Тесты — `tests/test_admin_ssh_ip.py`.
+- Реестр: MIG-0009, 0020, 0021, 0027 — PASS (`docs/MIGRATION_MAPPING.md`).
+- Миграций нет; runtime/API 21.5.1.
+
 # v28.149.0
 
 - Этап 1 новой структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): «Корги Люси: клиент» перенесён `git mv` из `mobile/android-client` в `apps/vpn-client/android` (история файлов сохранена). Пути обновлены в CI (`android-client.yml`, `mobile-release.yml` — фильтр `apps/**`, `mobile-screenshots.yml`, `xray-core-watch.yml`), `dependabot.yml`, `.gitignore`, скриптах (`client-ktlint.sh`, `client-vpn-e2e.sh`, `xray-core-watch.py`, `bot-banners/render.py`, `store/icons.py` — `android_dir()`), тестах и документации; путь к `build-xray-aar.sh` в `app/build.gradle.kts` — на уровень глубже.

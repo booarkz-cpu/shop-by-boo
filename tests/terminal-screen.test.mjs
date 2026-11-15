@@ -1,7 +1,7 @@
 // Node terminal screen model: run with `node --experimental-strip-types --test tests/terminal-screen.test.mjs`.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Screen, keyToInput, color256} from '../admin/src/terminal-screen.ts';
+import {Screen, keyToInput, color256} from '../apps/lucy-admin/web/src/terminal-screen.ts';
 
 test('text, wrap, carriage return and scrolling into scrollback', () => {
   const s = new Screen(10, 3);

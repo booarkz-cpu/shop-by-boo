@@ -121,7 +121,7 @@ async def test_postgres_subscription_and_gift_migrations_preserve_binding(databa
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
     def load(name):
-        path=Path(__file__).resolve().parents[1]/'backend/alembic/versions'/name
+        path=Path(__file__).resolve().parents[1]/'services/backend/alembic/versions'/name
         spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
     m45=load('0045_multiple_subscriptions.py');m46=load('0046_gift_snapshots.py')
     database.add_all([GiftCode(id=1,code='OLD',plan_id=1,purchaser_user_id=1),

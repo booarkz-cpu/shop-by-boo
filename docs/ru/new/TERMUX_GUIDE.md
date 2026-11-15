@@ -54,12 +54,11 @@ ssh-copy-id root@203.0.113.10    # один раз введите пароль
 ## 4. Установить магазин
 
 На сервере (после `ssh`) выполните команду из раздела «Установка одной командой» в
-[INSTALLATION.md](../../INSTALLATION.md#4-установка-одной-командой) — там всегда номер текущего выпуска. Она выглядит так
-(`vX.Y.Z` — этот номер):
+[INSTALLATION.md](../../INSTALLATION.md#4-установка-одной-командой). Для текущего выпуска она такая:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/vX.Y.Z/install.sh -o /root/shop-install.sh \
-  && BRANCH=vX.Y.Z bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.151.0/install.sh -o /root/shop-install.sh \
+  && BRANCH=v28.151.0 bash /root/shop-install.sh
 ```
 
 Установщик сам ставит Docker, скачивает магазин и задаёт вопросы: домены, токен бота, адрес и токен панели Remnawave,
@@ -120,3 +119,19 @@ Ctrl на телефоне: в Termux над клавиатурой есть с�
 
 Пароли, токены и содержимое `.env` никому не присылайте — даже в поддержку. Для помощи достаточно вывода `doctor.sh`:
 он секреты не печатает.
+
+## 9. Имя и почта для git (компьютер и Android)
+
+Нужны, только если вы сами делаете коммиты (правите файлы и отправляете их на GitHub). Для установки и обновления
+магазина не нужны. Одинаково в Termux, Linux, macOS и Git Bash на Windows:
+
+```bash
+git config --global user.name "Ваше имя"
+git config --global user.email "почта@example.com"   # та, что привязана к GitHub, или адрес вида id+login@users.noreply.github.com
+git config --global --list | grep user.               # проверить
+```
+
+Только для одного репозитория — те же команды без `--global`, выполненные внутри папки репозитория. В Termux
+настройки лежат в `~/.gitconfig` внутри Termux и не связаны с другими приложениями телефона. Чтобы почта не
+появлялась в публичной истории, включите на GitHub «Keep my email addresses private» и используйте адрес
+`…@users.noreply.github.com` со страницы Settings → Emails.

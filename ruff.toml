@@ -4,7 +4,7 @@
 # imports (F401) are reported separately and cleaned file by file.
 line-length = 200
 target-version = "py314"
-extend-exclude = ["**/node_modules", "backend/alembic/versions"]
+extend-exclude = ["**/node_modules", "services/backend/alembic/versions"]
 
 [lint]
 select = ["F", "E9", "B006", "B023"]

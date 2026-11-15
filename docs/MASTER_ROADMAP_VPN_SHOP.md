@@ -1,6 +1,6 @@
 # Мастер-дорожная карта VPN Shop
 
-Дистрибутив `v28.149.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Состояние на `2026-10-31`. Отметка «сделано» означает, что есть подтверждение в коде или в
 результате проверки; «не проверено» — что функциональность существует, но живой прогон не выполнен.
@@ -57,11 +57,11 @@
 
 | Задача | Статус |
 | --- | --- |
-| Единый design system (тёмная тема, Inter, JetBrains Mono) | Реализовано: `admin/src/style.css` содержит `--accent`, `--surface`, Inter, `html[data-theme="light"]` |
+| Единый design system (тёмная тема, Inter, JetBrains Mono) | Реализовано: `apps/lucy-admin/web/src/style.css` содержит `--accent`, `--surface`, Inter, `html[data-theme="light"]` |
 | Адаптивная навигация и мобильная вёрстка админки | Реализовано, скриншоты в `screenshots/admin_panel` |
 | Skeleton-загрузка, пустые состояния, ошибки | Реализовано в компонентах UI |
 | Локализация кабинета | `ru` и `en` |
-| Локализация мобильных приложений | `mobile/l10n/{admin,user}.json` |
+| Локализация мобильных приложений | `packages/localization/{admin,user}.json` |
 | Обновление скриншотов под текущий UI | Частично: наборы от `v28.10.0`, `screenshots/*` актуальнее |
 | Версия в разделе «Обновления» | Исправлено в этом релизе |
 
@@ -106,11 +106,11 @@
 
 | Компонент | Функция | Состояние | Файлы | Зависимости |
 | --- | --- | --- | --- | --- |
-| Backend | REST API, 836 маршрутов на 718 путях | IMPLEMENTED | `backend/app/main.py`, 173 модуля | PostgreSQL, Redis |
+| Backend | REST API, 836 маршрутов на 718 путях | IMPLEMENTED | `services/backend/app/main.py`, 173 модуля | PostgreSQL, Redis |
 | Backend | health `/health`, `/health/live`, `/health/ready` | IMPLEMENTED | `main.py` | PostgreSQL, Redis |
 | Backend | RBAC на каждом админ-маршруте | IMPLEMENTED | `security.py`, `require_permission` | — |
 | Backend | идемпотентность платежей и webhook | IMPLEMENTED | `payments_api.py` (`register_provider_event`) | PostgreSQL |
-| Backend | 88 миграций, единственный head | IMPLEMENTED | `backend/alembic/versions` | PostgreSQL |
+| Backend | 88 миграций, единственный head | IMPLEMENTED | `services/backend/alembic/versions` | PostgreSQL |
 | Backend | фоновые задачи и планировщики | IMPLEMENTED | `schedulers.py`, `worker.py` | Redis |
 | Backend | интеграция Remnawave (доступ, срок, трафик) | NOT_VERIFIED | `remnawave*`, `panel_usage.py` | `REMNAWAVE_URL`, `REMNAWAVE_TOKEN` |
 | Backend | 17 платёжных касс и Telegram Stars | PARTIAL | `payments.py`, `payments_api.py`, `gateways/` | ключи касс |
@@ -127,18 +127,18 @@
 | Бот | `/start`, меню, покупка, поддержка | NOT_VERIFIED | `bot.py` (860 строк) | `BOT_TOKEN` |
 | Бот | меню и баннеры из админки | IMPLEMENTED | `bot_banners.py`, `menu-tree.tsx` | — |
 | Mini App | серверная проверка `initData` | IMPLEMENTED | `auth_api.telegram_user_from_init_data` | `BOT_TOKEN` |
-| Кабинет | подписки, устройства, платежи, поддержка | IMPLEMENTED | `cabinet/` 52 компонента | API |
-| Кабинет | 55 vitest-тестов | IMPLEMENTED | `cabinet/src/*.test.tsx` | — |
-| Админ-панель | 458 маршрутов, 60 компонентов | IMPLEMENTED | `admin/src` | API |
-| Админ-панель | экран ошибки вместо чёрной страницы | IMPLEMENTED | `admin/src/app/error.tsx` | — |
+| Кабинет | подписки, устройства, платежи, поддержка | IMPLEMENTED | `apps/user-cabinet/` 52 компонента | API |
+| Кабинет | 55 vitest-тестов | IMPLEMENTED | `apps/user-cabinet/src/*.test.tsx` | — |
+| Админ-панель | 458 маршрутов, 60 компонентов | IMPLEMENTED | `apps/lucy-admin/web/src` | API |
+| Админ-панель | экран ошибки вместо чёрной страницы | IMPLEMENTED | `apps/lucy-admin/web/src/app/error.tsx` | — |
 | Админ-панель | центр автоматизации | IMPLEMENTED | `automation.py`, `automation.tsx` | — |
 | Админ-панель | раздел «Обновления» | IMPLEMENTED | `autoUpdate.tsx` | update agent |
-| Мобильные | Android user с встроенным Xray | PARTIAL | `mobile/android-user` | SDK, сборка |
-| Мобильные | iOS user и admin | PARTIAL | `mobile/ios-user`, `mobile/ios-admin` | Xcode |
-| Мобильные | Android admin | PARTIAL | `mobile/android-admin` | SDK |
+| Мобильные | Android user с встроенным Xray | PARTIAL | `apps/vpn-shop/android` | SDK, сборка |
+| Мобильные | iOS user и admin | PARTIAL | `apps/vpn-shop/ios`, `apps/lucy-admin/ios` | Xcode |
+| Мобильные | Android admin | PARTIAL | `apps/lucy-admin/android` | SDK |
 | Инфраструктура | 17 сервисов Compose, образы по digest | IMPLEMENTED | `docker-compose.yml` | Docker |
-| Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `deploy/Caddyfile` | домены |
-| Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `deploy/install-vps.sh` | чистый VPS |
+| Инфраструктура | Caddy: TLS, HTTP/3, маршруты | IMPLEMENTED | `infrastructure/reverse-proxy/Caddyfile` | домены |
+| Инфраструктура | установщик | NOT_VERIFIED | `install.sh`, `infrastructure/deployment/install-vps.sh` | чистый VPS |
 | Инфраструктура | откат и горячий резерв | IMPLEMENTED | `rollback.sh`, `hot-standby.sh` | снимок |
 | CI/CD | 15 workflows, gate публикации | IMPLEMENTED | `.github/workflows` | GitHub |
 | CI/CD | публикация релиза | IMPLEMENTED | `publish-release.yml` | зелёные CI и Docker |
@@ -147,7 +147,7 @@
 | Документация | контракты версии, карты, ссылок | IMPLEMENTED | `scripts/check-*.py` | — |
 | Десктоп | приложения Linux/macOS/Windows | MISSING | `desktop/*` — только README | — |
 | Расширение браузера | — | MISSING | `browser-extension` — 2 файла | — |
-| Terraform | инфраструктура как код | MISSING | `terraform/` — 1 файл | — |
+| Terraform | инфраструктура как код | MISSING | `infrastructure/provisioning/` — 1 файл | — |
 | `corgi-cli` | CLI | MISSING | `corgi-cli/README.md` | — |
 
 Итог по таблице: **27 `IMPLEMENTED`**, 5 `PARTIAL`, 7 `NOT_VERIFIED`, 4 `MISSING` — всего 43 функции.

@@ -11,7 +11,7 @@ from app_contract import missing_paths, revision, tables
 from test_subscription_commerce import database  # noqa: F401
 
 ROOT=Path(__file__).resolve().parents[1]
-ADMIN=(ROOT/"admin/src/main.tsx").read_text()+(ROOT/"admin/src/sections.ts").read_text()
+ADMIN=(ROOT/"apps/lucy-admin/web/src/main.tsx").read_text()+(ROOT/"apps/lucy-admin/web/src/sections.ts").read_text()
 
 
 def test_v44_contract_and_migration_chain():
@@ -36,7 +36,7 @@ async def test_monitoring_targets_are_public_https_only(database):
 
 def test_v44_5_release_tooling_is_consistent():
     (ROOT/"scripts/build-release.sh").read_text()
-    (ROOT/"deploy/install-vps.sh").read_text()
+    (ROOT/"infrastructure/deployment/install-vps.sh").read_text()
     manifest=(ROOT/"release-manifest.template.json").read_text()
     assert 'previous_migration_head": "0021_v43_hardening_docs"' in manifest
     assert 'remnawave_vpn_shop_v1_0_0_realise_deep_audited_fixed_manifest.json' in manifest
