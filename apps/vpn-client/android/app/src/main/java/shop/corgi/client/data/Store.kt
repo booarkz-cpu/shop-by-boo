@@ -97,8 +97,17 @@ class Store(context: Context) {
     /** Downloads a subscription now (call off the main thread). Keeps the previous servers when it fails. */
     fun update(profile: Profile): Profile = shop.corgi.client.core.ConfigGate.run { updateNow(profile) }
 
+    /** v1.9.9: counts failures in a row, so the background update leaves a failing server alone for longer each time. */
     private fun updateNow(profile: Profile): Profile {
         if (profile.kind != "subscription") return profile
+        val fetched = fetchInto(profile)
+        val now = System.currentTimeMillis()
+        val counted = if (fetched.error.isBlank()) fetched.copy(failures = 0, triedAt = now) else fetched.copy(failures = profile.failures + 1, triedAt = now)
+        replace(counted)
+        return counted
+    }
+
+    private fun fetchInto(profile: Profile): Profile {
         val updated = try {
             val (body, info) = fetchSubscription(profile.url)
             // Remnawave answers some clients with Xray JSON instead of share links: both are understood.
@@ -164,7 +173,7 @@ class Store(context: Context) {
         val now = System.currentTimeMillis()
         return profiles.filter { p ->
             val minutes = if (p.info.updateHours > 0) minOf(s.updateMinutes, p.info.updateHours * 60) else s.updateMinutes
-            p.kind == "subscription" && now - p.updatedAt >= minutes * 60_000L
+            p.kind == "subscription" && shop.corgi.client.core.Backoff.due(now, p.updatedAt, p.triedAt, p.failures, minutes * 60_000L)
         }.map { update(it) }
     }
 

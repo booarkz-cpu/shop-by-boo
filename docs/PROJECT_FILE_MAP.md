@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.155.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.156.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2660**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2665**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -468,6 +468,7 @@
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppList.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppList.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backoff.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backoff.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Приложения |
@@ -483,6 +484,7 @@
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Sealed.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Sealed.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt) | Приложения |
@@ -573,6 +575,7 @@
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/BackoffTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/BackoffTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt) | Приложения |
@@ -585,6 +588,7 @@
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SealedTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SealedTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt) | Приложения |
@@ -1564,6 +1568,7 @@
 | [docs/ru/RELEASE_V28_153_0.md](../docs/ru/RELEASE_V28_153_0.md) | Документация |
 | [docs/ru/RELEASE_V28_154_0.md](../docs/ru/RELEASE_V28_154_0.md) | Документация |
 | [docs/ru/RELEASE_V28_155_0.md](../docs/ru/RELEASE_V28_155_0.md) | Документация |
+| [docs/ru/RELEASE_V28_156_0.md](../docs/ru/RELEASE_V28_156_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
