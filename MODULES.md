@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.154.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Актуальный дистрибутив: `v28.158.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
 
 > Актуальная инструкция v21.5.1. head магазина `0094_store_subscriptions`, Support Pro `0008`.
 
@@ -6,8 +6,8 @@
 
 | Каталог / сервис | Назначение |
 | --- | --- |
-| `backend/app`, `backend/worker.py` | API магазина, checkout, выдача, финансовый журнал, задачи и бот |
-| `backend/alembic` | Миграции PostgreSQL; текущий head `0094_store_subscriptions` |
+| `services/backend/app`, `services/backend/worker.py` | API магазина, checkout, выдача, финансовый журнал, задачи и бот |
+| `services/backend/alembic` | Миграции PostgreSQL; текущий head `0094_store_subscriptions` |
 | `admin` | Административная React-панель, поиск, таблицы и операторские действия |
 | `cabinet` | Общий пользовательский React-интерфейс |
 | `miniapp` | Telegram-поверхность, импортирующая общий кабинет |

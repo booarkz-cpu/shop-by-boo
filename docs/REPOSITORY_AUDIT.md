@@ -139,7 +139,7 @@ Commons Clause **отзывает право продажи**: нельзя пр
 
 **Отношение к проекту:** та же ниша. Ключевая идея — **конструктор**: меню и кнопки собираются в
 кабинете. В проекте это уже есть в другой форме: `apps/lucy-admin/web/src/menu-tree.tsx`,
-`backend/app/mobile_layout.py` (590 строк), `apps/lucy-admin/web/src/botBanners.tsx`, `app_config.py`.
+`services/backend/app/mobile_layout.py` (590 строк), `apps/lucy-admin/web/src/botBanners.tsx`, `app_config.py`.
 
 **Что можно взять:** ничего переносить не требуется. MIT разрешает перенос, но дублировать уже
 работающий конструктор смысла нет.

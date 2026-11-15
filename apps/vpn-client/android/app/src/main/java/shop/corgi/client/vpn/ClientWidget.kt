@@ -43,8 +43,8 @@ class ClientWidget : AppWidgetProvider() {
         private fun paint(context: Context, manager: AppWidgetManager, ids: IntArray) {
             val views = RemoteViews(context.packageName, R.layout.client_widget)
             views.setTextViewText(R.id.widget_state, context.getString(when (ClientVpnService.current(context)) {
-                ClientVpnService.STATE_ON -> R.string.connected
-                ClientVpnService.STATE_CONNECTING -> R.string.vpn_connecting
+                ClientVpnService.STATE_ON, ClientVpnService.STATE_NO_ANSWER -> R.string.connected
+                ClientVpnService.STATE_CONNECTING, ClientVpnService.STATE_CHECKING -> R.string.vpn_connecting
                 else -> R.string.vpn_off
             }))
             val store = Store(context)
@@ -59,7 +59,7 @@ class ClientWidget : AppWidgetProvider() {
             val state = ClientVpnService.current(context)
             views.setImageViewResource(R.id.widget_mascot, when (state) {
                 ClientVpnService.STATE_ON -> R.drawable.mascot_happy
-                ClientVpnService.STATE_CONNECTING -> R.drawable.mascot_run
+                ClientVpnService.STATE_CONNECTING, ClientVpnService.STATE_CHECKING, ClientVpnService.STATE_NO_ANSWER -> R.drawable.mascot_run
                 else -> R.drawable.mascot_sleep
             })
             val session = ClientVpnService.session

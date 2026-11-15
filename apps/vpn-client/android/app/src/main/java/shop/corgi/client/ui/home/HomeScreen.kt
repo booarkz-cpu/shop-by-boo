@@ -157,6 +157,19 @@ fun HomeContent(
                 // v1.8.1 (N12): Corgi Lusi sleeps when off, runs while connecting and is happy when on.
                 if (mascot) Mascot(state.status)
                 StatusBadge(state.status)
+                // v1.10.0: the tunnel is up, the server is silent — said plainly, the VPN is not dropped.
+                if (state.noAnswer) {
+                    Text(
+                        tr(
+                            "Сервер не отвечает. VPN включён, проверка продолжается — попробуйте другой сервер.",
+                            "The server does not answer. The VPN is on and the check goes on — try another server.",
+                            "Сервер не відповідає. VPN увімкнено, перевірка триває — спробуйте інший сервер."
+                        ),
+                        Modifier.testTag("no-answer"),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Brand.Warm
+                    )
+                }
                 // v1.6.0 (N10): the address the internet sees, with its country's flag.
                 AnimatedVisibility(state.isConnected && state.externalIp.isNotEmpty(), enter = fadeIn(), exit = fadeOut()) {
                     Text(

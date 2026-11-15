@@ -1,3 +1,31 @@
+# v28.158.0
+
+- Этап 5 структуры папок (решения владельца № 14 и 23): `git mv` `backend` → `services/backend`, `support-pro` → `services/support-pro`. Обновлены пути в `docker-compose*.yml`, Dockerfile, CI, скриптах, тестах, Dependabot и документах. Имена служб Docker, тома и домены не менялись.
+- Совместимость с установленными серверами: `backend/app/main.py` остался по старому пути и содержит только `APP_VERSION` (по нему программа обновления прежних выпусков узнаёт версию и принимает архив); `scripts/github_release_fetch.py` и `scripts/update.sh` понимают обе раскладки (`api_dir`); секреты Support Pro остаются в `support-pro/.env`. Проверки — `tests/test_layout_stage5.py`.
+- Перекладка папок завершена; состояние и то, что не делается, — `docs/MONOREPO_LAYOUT.md`.
+
+# v28.157.0
+
+- «Корги Люси: клиент» 1.10.0 (versionCode 1100), решение владельца № 22:
+  - профили (ссылки подписок, серверы) и пароль локального прокси хранятся зашифрованными ключом Android Keystore (`data/Vault.kt`, AES-256-GCM); значения прежних версий читаются и пересохраняются зашифрованными; остальные настройки — как были. Проверка на эмуляторе — `VaultTest`;
+  - «подключён» только после ответа через туннель (`core/Verify.kt`, состояния службы `checking` и `no_answer`): сервер молчит 15 секунд — предупреждение на главном экране, VPN остаётся, проверка продолжается. Проверки — `VerifyTest`, `VpnViewModelTest`, сценарий «a silent server» в `scripts/mobile/client-vpn-e2e.sh`.
+- Импорт из remnawave-shopbot (решение № 21): `backend/app/import_presets.py` — «Прочитать поля» в импорте клиентов и в импорте истории узнаёт таблицы `users`, `transactions`, `vpn_keys` и отдаёт готовую раскладку колонок (`suggestion`); панель заполняет поля и пишет, что не переносится (реферальный баланс, блокировки, лимит трафика в байтах). Проверка — `tests/test_import_presets.py` на настоящем файле SQLite.
+- Реестр: REQ-CLIENT-0024 → PASS; REQ-CLIENT-0032 — NOT_IMPLEMENTED → PARTIAL.
+
+# v28.156.0
+
+- «Корги Люси: клиент» 1.9.9 (versionCode 199), решение владельца № 22:
+  - пауза после ошибок обновления подписки (`core/Backoff.kt`, `Profile.failures`/`triedAt`, `Store.updateDue`): 15 минут, далее вдвое, до 6 часов; ручное обновление не откладывается. REQ-CLIENT-0013 → PASS;
+  - файл резервной копии под паролем (`core/Sealed.kt`, AES-256-GCM, ключ PBKDF2-HMAC-SHA256, 210 000 итераций, своя соль у каждого файла); закрытый файл при восстановлении спрашивает пароль; файлы без пароля открываются как раньше. Копия ссылкой и QR не шифруется — REQ-CLIENT-0018 остаётся PARTIAL.
+- `docs/REFERENCE_REPOSITORIES.md`, раздел 6: исправлена сверка StepBot — конструктор меню бота, импорт из SQLite, смена тарифа, докупка трафика и авто-техрежим в магазине есть.
+- `docs/OWNER_DECISIONS.md`: решения № 20–24.
+
+# v28.155.0
+
+- «Корги Люси: клиент» 1.9.8 (versionCode 198): предел размера подписки 8 МБ (`core/Capped.kt`, `Store.fetchSubscription`) — бесконечный или огромный ответ сервера подписки больше не читается в память целиком; профиль сохраняет прежние серверы и показывает причину. Проверка — `CappedTest`.
+- Реестр требований (решение № 19): разделы MIG (28), NODE (71) и CLIENT (33) сверены полностью. PASS — MIG-0010, 0011, 0012, 0023, 0025; NODE-0028, 0029, 0031; CLIENT-0001, 0011, 0014, 0015, 0029, 0031. NOT_IMPLEMENTED — CLIENT-0032 (хранение ссылок подписок без ключа Android Keystore), CLIENT-0033 (замеры производительности). Остальные — PARTIAL с описанием остатка. Итог: PASS 192, PARTIAL 255, NOT_IMPLEMENTED 37, BLOCKED 2, NOT_TESTED 167.
+- Источник STEP-CORP/StepBot (MIT, `7a1fe52`) разобран в `docs/REFERENCE_REPOSITORIES.md`, раздел 6; код не переносился.
+
 # v28.154.0
 
 - Этап 4 структуры папок (решение № 14, `docs/MONOREPO_LAYOUT.md`): `git mv` `deploy` → `infrastructure/deployment` (установщик, сборка, WireGuard, сертификат почты), `infrastructure/reverse-proxy` (Caddy, nginx), `infrastructure/monitoring` (Prometheus, Grafana); `terraform` → `infrastructure/provisioning`. Обновлены пути в `docker-compose*.yml`, CI, скриптах, тестах, `install.sh`, Dependabot и документах.

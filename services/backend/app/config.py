@@ -371,7 +371,7 @@ class Settings(BaseSettings):
     miniapp_port: int = Field(default=8080, alias="MINIAPP_PORT")
 
     # ---------- Файлы и каталоги ----------
-    # Docker Compose монтирует эти пути в backend/worker. Не меняйте их,
+    # Docker Compose монтирует эти пути в services/backend/worker. Не меняйте их,
     # если не меняете volumes в docker-compose.yml.
     media_dir: str = Field(default="/data/media", alias="MEDIA_DIR")
     backups_dir: str = Field(default="/data/backups", alias="BACKUPS_DIR")

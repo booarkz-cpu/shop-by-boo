@@ -185,7 +185,7 @@ https://api.stage.vpn.example.com/api/webhooks/yookassa
 
 В **«Интеграция» → «HTTP-уведомления» → «Изменить настройки»** рабочего магазина задайте **рабочий** URL `https://api.vpn.example.com/api/webhooks/yookassa`, отметьте необходимые события и сохраните. Не оставляйте staging-адрес в рабочем магазине.
 
-**В терминале рабочего VDS:** выполните `cd /opt/vpn-shop && sudoedit .env`; впишите рабочие `YOOKASSA_SHOP_ID` и `YOOKASSA_SECRET_KEY` в одноимённые строки. Проверьте `APP_ENV=production`, `PAYMENTS_SANDBOX=false`, `COOKIE_SECURE=true`, `DEFAULT_CURRENCY=RUB`, `WEBHOOK_BASE_URL=https://api.vpn.example.com`. Сохраните файл; не показывайте его целиком в чате/логах. Проверьте конфигурацию `sudo docker compose --env-file .env config --quiet`, затем перезапустите backend/worker по инструкции **нового** релиза и снова проверьте `/health/ready`.
+**В терминале рабочего VDS:** выполните `cd /opt/vpn-shop && sudoedit .env`; впишите рабочие `YOOKASSA_SHOP_ID` и `YOOKASSA_SECRET_KEY` в одноимённые строки. Проверьте `APP_ENV=production`, `PAYMENTS_SANDBOX=false`, `COOKIE_SECURE=true`, `DEFAULT_CURRENCY=RUB`, `WEBHOOK_BASE_URL=https://api.vpn.example.com`. Сохраните файл; не показывайте его целиком в чате/логах. Проверьте конфигурацию `sudo docker compose --env-file .env config --quiet`, затем перезапустите services/backend/worker по инструкции **нового** релиза и снова проверьте `/health/ready`.
 
 ## 12. Включите допуск и проверьте одну настоящую покупку
 

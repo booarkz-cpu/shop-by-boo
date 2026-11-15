@@ -1,6 +1,6 @@
 # Що нового у v28.44.0
 
-- **Tribute** (`backend/app/tribute.py`): поповнення гаманця донатом у Telegram. Tribute не приймає оплату рахунків, тому до черги кас не входить.
+- **Tribute** (`services/backend/app/tribute.py`): поповнення гаманця донатом у Telegram. Tribute не приймає оплату рахунків, тому до черги кас не входить.
 - Власник задає `TRIBUTE_DONATE_LINK` і `TRIBUTE_API_KEY`. Після цього в гаманці кабінету й Mini App з'являється кнопка «Пополнить донатом в Telegram».
 - Сповіщення надходить на `https://<API_DOMAIN>/api/webhooks/tribute` з підписом `trbt-signature` (HMAC-SHA256). Магазин зараховує суму клієнту, у якого збігається Telegram-акаунт.
   - Кожен донат зараховується один раз.

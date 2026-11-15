@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.154.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.158.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2657**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2676**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -449,6 +449,7 @@
 | [apps/vpn-client/android/.editorconfig](../apps/vpn-client/android/.editorconfig) | Приложения |
 | [apps/vpn-client/android/app/build.gradle.kts](../apps/vpn-client/android/app/build.gradle.kts) | Приложения |
 | [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/AndroidManifest.xml](../apps/vpn-client/android/app/src/main/AndroidManifest.xml) | Приложения |
 | [apps/vpn-client/android/app/src/main/assets/banners/client-about.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-about.jpg) | Приложения |
 | [apps/vpn-client/android/app/src/main/assets/banners/client-appearance.jpg](../apps/vpn-client/android/app/src/main/assets/banners/client-appearance.jpg) | Приложения |
@@ -468,7 +469,9 @@
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppList.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppList.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/AppLock.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Automation.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backoff.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backoff.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Capped.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigBuilder.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ConfigGate.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/ExternalIp.kt) | Приложения |
@@ -482,6 +485,7 @@
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Sealed.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Sealed.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt) | Приложения |
@@ -489,7 +493,9 @@
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrustedNetworks.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TvReceiver.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TvReceiver.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Updates.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Verify.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Verify.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/engine/Xray.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/engine/Xray.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppIcons.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppIcons.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/AppsScreen.kt) | Приложения |
@@ -572,6 +578,8 @@
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ApkCheckTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppListTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/AppLockTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/BackoffTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/BackoffTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/CappedTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigBuilderTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ConfigGateTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/DnsSettingsTest.kt) | Приложения |
@@ -583,10 +591,12 @@
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SealedTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SealedTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt) | Приложения |
@@ -713,395 +723,7 @@
 | [apps/vpn-shop/ios/VpnShopUser/default_layout.json](../apps/vpn-shop/ios/VpnShopUser/default_layout.json) | Приложения |
 | [apps/vpn-shop/ios/VpnShopUser/l10n.json](../apps/vpn-shop/ios/VpnShopUser/l10n.json) | Приложения |
 | [apps/vpn-shop/ios/VpnShopUserUITests/VpnShopUserUITests.swift](../apps/vpn-shop/ios/VpnShopUserUITests/VpnShopUserUITests.swift) | Приложения |
-| [backend/.dockerignore](../backend/.dockerignore) | API, бот и worker |
-| [backend/Dockerfile](../backend/Dockerfile) | API, бот и worker |
-| [backend/Dockerfile.bot](../backend/Dockerfile.bot) | API, бот и worker |
-| [backend/alembic.ini](../backend/alembic.ini) | API, бот и worker |
-| [backend/alembic/README](../backend/alembic/README) | API, бот и worker |
-| [backend/alembic/env.py](../backend/alembic/env.py) | API, бот и worker |
-| [backend/alembic/versions/0001_production_baseline.py](../backend/alembic/versions/0001_production_baseline.py) | API, бот и worker |
-| [backend/alembic/versions/0002_cms_yandex.py](../backend/alembic/versions/0002_cms_yandex.py) | API, бот и worker |
-| [backend/alembic/versions/0003_marketing.py](../backend/alembic/versions/0003_marketing.py) | API, бот и worker |
-| [backend/alembic/versions/0004_miniapp_editor.py](../backend/alembic/versions/0004_miniapp_editor.py) | API, бот и worker |
-| [backend/alembic/versions/0005_v11_backups.py](../backend/alembic/versions/0005_v11_backups.py) | API, бот и worker |
-| [backend/alembic/versions/0006_v14_security.py](../backend/alembic/versions/0006_v14_security.py) | API, бот и worker |
-| [backend/alembic/versions/0007_v15_production.py](../backend/alembic/versions/0007_v15_production.py) | API, бот и worker |
-| [backend/alembic/versions/0008_v16_v19.py](../backend/alembic/versions/0008_v16_v19.py) | API, бот и worker |
-| [backend/alembic/versions/0009_v20_v21.py](../backend/alembic/versions/0009_v20_v21.py) | API, бот и worker |
-| [backend/alembic/versions/0010_v22_hardening.py](../backend/alembic/versions/0010_v22_hardening.py) | API, бот и worker |
-| [backend/alembic/versions/0011_v23_reliability.py](../backend/alembic/versions/0011_v23_reliability.py) | API, бот и worker |
-| [backend/alembic/versions/0012_v24_v28_operations.py](../backend/alembic/versions/0012_v24_v28_operations.py) | API, бот и worker |
-| [backend/alembic/versions/0013_v29_final_hardening.py](../backend/alembic/versions/0013_v29_final_hardening.py) | API, бот и worker |
-| [backend/alembic/versions/0014_v30_final_hardening.py](../backend/alembic/versions/0014_v30_final_hardening.py) | API, бот и worker |
-| [backend/alembic/versions/0015_v32_operations.py](../backend/alembic/versions/0015_v32_operations.py) | API, бот и worker |
-| [backend/alembic/versions/0016_v38_admin_staging.py](../backend/alembic/versions/0016_v38_admin_staging.py) | API, бот и worker |
-| [backend/alembic/versions/0017_v39_staging_isolation.py](../backend/alembic/versions/0017_v39_staging_isolation.py) | API, бот и worker |
-| [backend/alembic/versions/0018_v40_security_gate.py](../backend/alembic/versions/0018_v40_security_gate.py) | API, бот и worker |
-| [backend/alembic/versions/0019_v41_enterprise_features.py](../backend/alembic/versions/0019_v41_enterprise_features.py) | API, бот и worker |
-| [backend/alembic/versions/0020_v42_bot_miniapp.py](../backend/alembic/versions/0020_v42_bot_miniapp.py) | API, бот и worker |
-| [backend/alembic/versions/0021_v43_hardening_docs.py](../backend/alembic/versions/0021_v43_hardening_docs.py) | API, бот и worker |
-| [backend/alembic/versions/0022_enterprise_suite.py](../backend/alembic/versions/0022_enterprise_suite.py) | API, бот и worker |
-| [backend/alembic/versions/0023_v44_5_3_billing_snapshots.py](../backend/alembic/versions/0023_v44_5_3_billing_snapshots.py) | API, бот и worker |
-| [backend/alembic/versions/0024_v44_5_7_logic_hardening.py](../backend/alembic/versions/0024_v44_5_7_logic_hardening.py) | API, бот и worker |
-| [backend/alembic/versions/0025_v44_5_8_entitlement_idempotency.py](../backend/alembic/versions/0025_v44_5_8_entitlement_idempotency.py) | API, бот и worker |
-| [backend/alembic/versions/0026_v44_5_9_retry_hardening.py](../backend/alembic/versions/0026_v44_5_9_retry_hardening.py) | API, бот и worker |
-| [backend/alembic/versions/0027_v44_5_10_financial_integrity.py](../backend/alembic/versions/0027_v44_5_10_financial_integrity.py) | API, бот и worker |
-| [backend/alembic/versions/0028_v44_5_12_logic_integrity.py](../backend/alembic/versions/0028_v44_5_12_logic_integrity.py) | API, бот и worker |
-| [backend/alembic/versions/0029_v44_5_15_safety_integrity.py](../backend/alembic/versions/0029_v44_5_15_safety_integrity.py) | API, бот и worker |
-| [backend/alembic/versions/0030_v44_5_16_privacy_and_refund_integrity.py](../backend/alembic/versions/0030_v44_5_16_privacy_and_refund_integrity.py) | API, бот и worker |
-| [backend/alembic/versions/0031_v1_0_0_idempotency_integrity.py](../backend/alembic/versions/0031_v1_0_0_idempotency_integrity.py) | API, бот и worker |
-| [backend/alembic/versions/0032_v2_0_0_product_features.py](../backend/alembic/versions/0032_v2_0_0_product_features.py) | API, бот и worker |
-| [backend/alembic/versions/0033_v2_1_0_production_hardening.py](../backend/alembic/versions/0033_v2_1_0_production_hardening.py) | API, бот и worker |
-| [backend/alembic/versions/0034_v2_2_0_platform_features.py](../backend/alembic/versions/0034_v2_2_0_platform_features.py) | API, бот и worker |
-| [backend/alembic/versions/0035_v2_3_0_wallet_gifts.py](../backend/alembic/versions/0035_v2_3_0_wallet_gifts.py) | API, бот и worker |
-| [backend/alembic/versions/0036_v2_4_0_cabinet.py](../backend/alembic/versions/0036_v2_4_0_cabinet.py) | API, бот и worker |
-| [backend/alembic/versions/0037_v2_5_0_tariff_constructor.py](../backend/alembic/versions/0037_v2_5_0_tariff_constructor.py) | API, бот и worker |
-| [backend/alembic/versions/0038_v2_6_0_platform.py](../backend/alembic/versions/0038_v2_6_0_platform.py) | API, бот и worker |
-| [backend/alembic/versions/0039_v19_marketplace.py](../backend/alembic/versions/0039_v19_marketplace.py) | API, бот и worker |
-| [backend/alembic/versions/0040_v20_payment_platform.py](../backend/alembic/versions/0040_v20_payment_platform.py) | API, бот и worker |
-| [backend/alembic/versions/0041_enable_platform_modules.py](../backend/alembic/versions/0041_enable_platform_modules.py) | API, бот и worker |
-| [backend/alembic/versions/0042_workspace_withdrawal_idempotency.py](../backend/alembic/versions/0042_workspace_withdrawal_idempotency.py) | API, бот и worker |
-| [backend/alembic/versions/0043_support_conversations.py](../backend/alembic/versions/0043_support_conversations.py) | API, бот и worker |
-| [backend/alembic/versions/0044_subscription_commerce.py](../backend/alembic/versions/0044_subscription_commerce.py) | API, бот и worker |
-| [backend/alembic/versions/0045_multiple_subscriptions.py](../backend/alembic/versions/0045_multiple_subscriptions.py) | API, бот и worker |
-| [backend/alembic/versions/0046_gift_snapshots.py](../backend/alembic/versions/0046_gift_snapshots.py) | API, бот и worker |
-| [backend/alembic/versions/0047_support_attachments.py](../backend/alembic/versions/0047_support_attachments.py) | API, бот и worker |
-| [backend/alembic/versions/0048_support_bridge.py](../backend/alembic/versions/0048_support_bridge.py) | API, бот и worker |
-| [backend/alembic/versions/0049_renewal_terms.py](../backend/alembic/versions/0049_renewal_terms.py) | API, бот и worker |
-| [backend/alembic/versions/0050_account_actions.py](../backend/alembic/versions/0050_account_actions.py) | API, бот и worker |
-| [backend/alembic/versions/0051_surveys.py](../backend/alembic/versions/0051_surveys.py) | API, бот и worker |
-| [backend/alembic/versions/0052_giveaways.py](../backend/alembic/versions/0052_giveaways.py) | API, бот и worker |
-| [backend/alembic/versions/0053_admin_passkeys.py](../backend/alembic/versions/0053_admin_passkeys.py) | API, бот и worker |
-| [backend/alembic/versions/0054_referral_levels.py](../backend/alembic/versions/0054_referral_levels.py) | API, бот и worker |
-| [backend/alembic/versions/0055_customer_passkeys.py](../backend/alembic/versions/0055_customer_passkeys.py) | API, бот и worker |
-| [backend/alembic/versions/0056_support_topology.py](../backend/alembic/versions/0056_support_topology.py) | API, бот и worker |
-| [backend/alembic/versions/0057_partner_commissions.py](../backend/alembic/versions/0057_partner_commissions.py) | API, бот и worker |
-| [backend/alembic/versions/0058_customer_operations.py](../backend/alembic/versions/0058_customer_operations.py) | API, бот и worker |
-| [backend/alembic/versions/0059_content_publishing.py](../backend/alembic/versions/0059_content_publishing.py) | API, бот и worker |
-| [backend/alembic/versions/0060_promo_audiences.py](../backend/alembic/versions/0060_promo_audiences.py) | API, бот и worker |
-| [backend/alembic/versions/0061_menu_hierarchy.py](../backend/alembic/versions/0061_menu_hierarchy.py) | API, бот и worker |
-| [backend/alembic/versions/0062_support_delivery_identity.py](../backend/alembic/versions/0062_support_delivery_identity.py) | API, бот и worker |
-| [backend/alembic/versions/0063_account_merge.py](../backend/alembic/versions/0063_account_merge.py) | API, бот и worker |
-| [backend/alembic/versions/0064_runtime_settings.py](../backend/alembic/versions/0064_runtime_settings.py) | API, бот и worker |
-| [backend/alembic/versions/0065_history_import.py](../backend/alembic/versions/0065_history_import.py) | API, бот и worker |
-| [backend/alembic/versions/0066_push_notifications.py](../backend/alembic/versions/0066_push_notifications.py) | API, бот и worker |
-| [backend/alembic/versions/0067_plugin_runtime.py](../backend/alembic/versions/0067_plugin_runtime.py) | API, бот и worker |
-| [backend/alembic/versions/0068_network_intel.py](../backend/alembic/versions/0068_network_intel.py) | API, бот и worker |
-| [backend/alembic/versions/0069_mail_domain.py](../backend/alembic/versions/0069_mail_domain.py) | API, бот и worker |
-| [backend/alembic/versions/0070_node_terminal.py](../backend/alembic/versions/0070_node_terminal.py) | API, бот и worker |
-| [backend/alembic/versions/0071_torrent_detection.py](../backend/alembic/versions/0071_torrent_detection.py) | API, бот и worker |
-| [backend/alembic/versions/0072_traffic_analysis.py](../backend/alembic/versions/0072_traffic_analysis.py) | API, бот и worker |
-| [backend/alembic/versions/0073_e2e_v2.py](../backend/alembic/versions/0073_e2e_v2.py) | API, бот и worker |
-| [backend/alembic/versions/0074_automation_engine.py](../backend/alembic/versions/0074_automation_engine.py) | API, бот и worker |
-| [backend/alembic/versions/0075_app_config.py](../backend/alembic/versions/0075_app_config.py) | API, бот и worker |
-| [backend/alembic/versions/0076_growth.py](../backend/alembic/versions/0076_growth.py) | API, бот и worker |
-| [backend/alembic/versions/0077_app_growth.py](../backend/alembic/versions/0077_app_growth.py) | API, бот и worker |
-| [backend/alembic/versions/0078_campaign_ab.py](../backend/alembic/versions/0078_campaign_ab.py) | API, бот и worker |
-| [backend/alembic/versions/0079_acquisition.py](../backend/alembic/versions/0079_acquisition.py) | API, бот и worker |
-| [backend/alembic/versions/0080_reconciliation.py](../backend/alembic/versions/0080_reconciliation.py) | API, бот и worker |
-| [backend/alembic/versions/0081_subscription_proxy.py](../backend/alembic/versions/0081_subscription_proxy.py) | API, бот и worker |
-| [backend/alembic/versions/0082_status_subscribers.py](../backend/alembic/versions/0082_status_subscribers.py) | API, бот и worker |
-| [backend/alembic/versions/0083_corporate_seats.py](../backend/alembic/versions/0083_corporate_seats.py) | API, бот и worker |
-| [backend/alembic/versions/0084_subscription_freeze.py](../backend/alembic/versions/0084_subscription_freeze.py) | API, бот и worker |
-| [backend/alembic/versions/0085_loyalty.py](../backend/alembic/versions/0085_loyalty.py) | API, бот и worker |
-| [backend/alembic/versions/0086_feedback.py](../backend/alembic/versions/0086_feedback.py) | API, бот и worker |
-| [backend/alembic/versions/0087_speed_tests.py](../backend/alembic/versions/0087_speed_tests.py) | API, бот и worker |
-| [backend/alembic/versions/0088_filter_and_regions.py](../backend/alembic/versions/0088_filter_and_regions.py) | API, бот и worker |
-| [backend/alembic/versions/0089_index_cleanup.py](../backend/alembic/versions/0089_index_cleanup.py) | API, бот и worker |
-| [backend/alembic/versions/0090_remnawave_installer.py](../backend/alembic/versions/0090_remnawave_installer.py) | API, бот и worker |
-| [backend/alembic/versions/0091_remnawave_domains.py](../backend/alembic/versions/0091_remnawave_domains.py) | API, бот и worker |
-| [backend/alembic/versions/0092_telegram_bot.py](../backend/alembic/versions/0092_telegram_bot.py) | API, бот и worker |
-| [backend/alembic/versions/0093_ssh_key_rotation.py](../backend/alembic/versions/0093_ssh_key_rotation.py) | API, бот и worker |
-| [backend/alembic/versions/0094_store_subscriptions.py](../backend/alembic/versions/0094_store_subscriptions.py) | API, бот и worker |
-| [backend/app/__init__.py](../backend/app/__init__.py) | API, бот и worker |
-| [backend/app/abuse.py](../backend/app/abuse.py) | API, бот и worker |
-| [backend/app/account_actions.py](../backend/app/account_actions.py) | API, бот и worker |
-| [backend/app/account_merge.py](../backend/app/account_merge.py) | API, бот и worker |
-| [backend/app/account_sync.py](../backend/app/account_sync.py) | API, бот и worker |
-| [backend/app/activity_log.py](../backend/app/activity_log.py) | API, бот и worker |
-| [backend/app/ad_postbacks.py](../backend/app/ad_postbacks.py) | API, бот и worker |
-| [backend/app/admin_api.py](../backend/app/admin_api.py) | API, бот и worker |
-| [backend/app/admin_auth_api.py](../backend/app/admin_auth_api.py) | API, бот и worker |
-| [backend/app/admin_center.py](../backend/app/admin_center.py) | API, бот и worker |
-| [backend/app/admin_customer_operations.py](../backend/app/admin_customer_operations.py) | API, бот и worker |
-| [backend/app/admin_stepup.py](../backend/app/admin_stepup.py) | API, бот и worker |
-| [backend/app/admin_web_ticket.py](../backend/app/admin_web_ticket.py) | API, бот и worker |
-| [backend/app/anti_sharing.py](../backend/app/anti_sharing.py) | API, бот и worker |
-| [backend/app/app_config.py](../backend/app/app_config.py) | API, бот и worker |
-| [backend/app/app_funnel.py](../backend/app/app_funnel.py) | API, бот и worker |
-| [backend/app/app_growth.py](../backend/app/app_growth.py) | API, бот и worker |
-| [backend/app/app_login.py](../backend/app/app_login.py) | API, бот и worker |
-| [backend/app/assets/bot_banners/account.jpg](../backend/app/assets/bot_banners/account.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-devices.jpg](../backend/app/assets/bot_banners/app-devices.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-family.jpg](../backend/app/assets/bot_banners/app-family.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-gifts.jpg](../backend/app/assets/bot_banners/app-gifts.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-giveaways.jpg](../backend/app/assets/bot_banners/app-giveaways.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-info.jpg](../backend/app/assets/bot_banners/app-info.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-locations.jpg](../backend/app/assets/bot_banners/app-locations.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-notifications.jpg](../backend/app/assets/bot_banners/app-notifications.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-premium.jpg](../backend/app/assets/bot_banners/app-premium.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-referral.jpg](../backend/app/assets/bot_banners/app-referral.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-security.jpg](../backend/app/assets/bot_banners/app-security.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-settings.jpg](../backend/app/assets/bot_banners/app-settings.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-status.jpg](../backend/app/assets/bot_banners/app-status.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-subscription.jpg](../backend/app/assets/bot_banners/app-subscription.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-support.jpg](../backend/app/assets/bot_banners/app-support.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-vpn.jpg](../backend/app/assets/bot_banners/app-vpn.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/app-wallet.jpg](../backend/app/assets/bot_banners/app-wallet.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/balance.jpg](../backend/app/assets/bot_banners/balance.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/buy.jpg](../backend/app/assets/bot_banners/buy.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/channels.jpg](../backend/app/assets/bot_banners/channels.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/connection.jpg](../backend/app/assets/bot_banners/connection.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/contest.jpg](../backend/app/assets/bot_banners/contest.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/devices.jpg](../backend/app/assets/bot_banners/devices.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/family.jpg](../backend/app/assets/bot_banners/family.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/faq.jpg](../backend/app/assets/bot_banners/faq.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/gifts.jpg](../backend/app/assets/bot_banners/gifts.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/guest.jpg](../backend/app/assets/bot_banners/guest.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/home.jpg](../backend/app/assets/bot_banners/home.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/info.jpg](../backend/app/assets/bot_banners/info.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/menu.jpg](../backend/app/assets/bot_banners/menu.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/offer.jpg](../backend/app/assets/bot_banners/offer.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/payments.jpg](../backend/app/assets/bot_banners/payments.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/privacy.jpg](../backend/app/assets/bot_banners/privacy.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/promo.jpg](../backend/app/assets/bot_banners/promo.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/referral.jpg](../backend/app/assets/bot_banners/referral.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/rules.jpg](../backend/app/assets/bot_banners/rules.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/servers.jpg](../backend/app/assets/bot_banners/servers.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/start.jpg](../backend/app/assets/bot_banners/start.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/stats.jpg](../backend/app/assets/bot_banners/stats.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/status.jpg](../backend/app/assets/bot_banners/status.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/subscription.jpg](../backend/app/assets/bot_banners/subscription.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/support.jpg](../backend/app/assets/bot_banners/support.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/surveys.jpg](../backend/app/assets/bot_banners/surveys.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/topup.jpg](../backend/app/assets/bot_banners/topup.jpg) | API, бот и worker |
-| [backend/app/assets/bot_banners/trial.jpg](../backend/app/assets/bot_banners/trial.jpg) | API, бот и worker |
-| [backend/app/assets/cabinet_strings.json](../backend/app/assets/cabinet_strings.json) | API, бот и worker |
-| [backend/app/assets/mobile_strings.json](../backend/app/assets/mobile_strings.json) | API, бот и worker |
-| [backend/app/audit_seal.py](../backend/app/audit_seal.py) | API, бот и worker |
-| [backend/app/auth_api.py](../backend/app/auth_api.py) | API, бот и worker |
-| [backend/app/auto_update_api.py](../backend/app/auto_update_api.py) | API, бот и worker |
-| [backend/app/automation.py](../backend/app/automation.py) | API, бот и worker |
-| [backend/app/automation_center.py](../backend/app/automation_center.py) | API, бот и worker |
-| [backend/app/avatar.py](../backend/app/avatar.py) | API, бот и worker |
-| [backend/app/backup_verify.py](../backend/app/backup_verify.py) | API, бот и worker |
-| [backend/app/backups_api.py](../backend/app/backups_api.py) | API, бот и worker |
-| [backend/app/block_monitor.py](../backend/app/block_monitor.py) | API, бот и worker |
-| [backend/app/bonus_days.py](../backend/app/bonus_days.py) | API, бот и worker |
-| [backend/app/bot.py](../backend/app/bot.py) | API, бот и worker |
-| [backend/app/bot_banners.py](../backend/app/bot_banners.py) | API, бот и worker |
-| [backend/app/bot_texts.py](../backend/app/bot_texts.py) | API, бот и worker |
-| [backend/app/bot_workspace.py](../backend/app/bot_workspace.py) | API, бот и worker |
-| [backend/app/brand_copy.py](../backend/app/brand_copy.py) | API, бот и worker |
-| [backend/app/cabinet_api.py](../backend/app/cabinet_api.py) | API, бот и worker |
-| [backend/app/cabinet_security.py](../backend/app/cabinet_security.py) | API, бот и worker |
-| [backend/app/cabinet_texts.py](../backend/app/cabinet_texts.py) | API, бот и worker |
-| [backend/app/channel_gate.py](../backend/app/channel_gate.py) | API, бот и worker |
-| [backend/app/churn.py](../backend/app/churn.py) | API, бот и worker |
-| [backend/app/client_versions.py](../backend/app/client_versions.py) | API, бот и worker |
-| [backend/app/cloudflare_cdn.py](../backend/app/cloudflare_cdn.py) | API, бот и worker |
-| [backend/app/cohorts.py](../backend/app/cohorts.py) | API, бот и worker |
-| [backend/app/config.py](../backend/app/config.py) | API, бот и worker |
-| [backend/app/connection_quality.py](../backend/app/connection_quality.py) | API, бот и worker |
-| [backend/app/container_logs.py](../backend/app/container_logs.py) | API, бот и worker |
-| [backend/app/content_branding_api.py](../backend/app/content_branding_api.py) | API, бот и worker |
-| [backend/app/content_publishing.py](../backend/app/content_publishing.py) | API, бот и worker |
-| [backend/app/corporate.py](../backend/app/corporate.py) | API, бот и worker |
-| [backend/app/customer_api.py](../backend/app/customer_api.py) | API, бот и worker |
-| [backend/app/customer_insights.py](../backend/app/customer_insights.py) | API, бот и worker |
-| [backend/app/customer_ops_api.py](../backend/app/customer_ops_api.py) | API, бот и worker |
-| [backend/app/customer_passkeys.py](../backend/app/customer_passkeys.py) | API, бот и worker |
-| [backend/app/customer_profile.py](../backend/app/customer_profile.py) | API, бот и worker |
-| [backend/app/customer_workspace_api.py](../backend/app/customer_workspace_api.py) | API, бот и worker |
-| [backend/app/daily_billing.py](../backend/app/daily_billing.py) | API, бот и worker |
-| [backend/app/db.py](../backend/app/db.py) | API, бот и worker |
-| [backend/app/diagnostics.py](../backend/app/diagnostics.py) | API, бот и worker |
-| [backend/app/dns_filter.py](../backend/app/dns_filter.py) | API, бот и worker |
-| [backend/app/dunning.py](../backend/app/dunning.py) | API, бот и worker |
-| [backend/app/e2e_v2.py](../backend/app/e2e_v2.py) | API, бот и worker |
-| [backend/app/economics.py](../backend/app/economics.py) | API, бот и worker |
-| [backend/app/ecosystem_updates.py](../backend/app/ecosystem_updates.py) | API, бот и worker |
-| [backend/app/email_templates.py](../backend/app/email_templates.py) | API, бот и worker |
-| [backend/app/enterprise_api.py](../backend/app/enterprise_api.py) | API, бот и worker |
-| [backend/app/error_log.py](../backend/app/error_log.py) | API, бот и worker |
-| [backend/app/errors.py](../backend/app/errors.py) | API, бот и worker |
-| [backend/app/feedback.py](../backend/app/feedback.py) | API, бот и worker |
-| [backend/app/first_connect.py](../backend/app/first_connect.py) | API, бот и worker |
-| [backend/app/fiscal.py](../backend/app/fiscal.py) | API, бот и worker |
-| [backend/app/gateway_ops.py](../backend/app/gateway_ops.py) | API, бот и worker |
-| [backend/app/gateways/__init__.py](../backend/app/gateways/__init__.py) | API, бот и worker |
-| [backend/app/gateways/anore.py](../backend/app/gateways/anore.py) | API, бот и worker |
-| [backend/app/gateways/antilopay.py](../backend/app/gateways/antilopay.py) | API, бот и worker |
-| [backend/app/gateways/aurapay.py](../backend/app/gateways/aurapay.py) | API, бот и worker |
-| [backend/app/gateways/cashera.py](../backend/app/gateways/cashera.py) | API, бот и worker |
-| [backend/app/gateways/cloudpayments.py](../backend/app/gateways/cloudpayments.py) | API, бот и worker |
-| [backend/app/gateways/common.py](../backend/app/gateways/common.py) | API, бот и worker |
-| [backend/app/gateways/lava.py](../backend/app/gateways/lava.py) | API, бот и worker |
-| [backend/app/gateways/mulenpay.py](../backend/app/gateways/mulenpay.py) | API, бот и worker |
-| [backend/app/gateways/pal24.py](../backend/app/gateways/pal24.py) | API, бот и worker |
-| [backend/app/gateways/paritypay.py](../backend/app/gateways/paritypay.py) | API, бот и worker |
-| [backend/app/gateways/wata.py](../backend/app/gateways/wata.py) | API, бот и worker |
-| [backend/app/geoip.py](../backend/app/geoip.py) | API, бот и worker |
-| [backend/app/gift_batches.py](../backend/app/gift_batches.py) | API, бот и worker |
-| [backend/app/gift_orders.py](../backend/app/gift_orders.py) | API, бот и worker |
-| [backend/app/github_update.py](../backend/app/github_update.py) | API, бот и worker |
-| [backend/app/giveaways.py](../backend/app/giveaways.py) | API, бот и worker |
-| [backend/app/grace_access.py](../backend/app/grace_access.py) | API, бот и worker |
-| [backend/app/growth.py](../backend/app/growth.py) | API, бот и worker |
-| [backend/app/guest_checkout.py](../backend/app/guest_checkout.py) | API, бот и worker |
-| [backend/app/heartbeat.py](../backend/app/heartbeat.py) | API, бот и worker |
-| [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
-| [backend/app/host_metrics.py](../backend/app/host_metrics.py) | API, бот и worker |
-| [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
-| [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
-| [backend/app/install_catalogue.py](../backend/app/install_catalogue.py) | API, бот и worker |
-| [backend/app/integrity.py](../backend/app/integrity.py) | API, бот и worker |
-| [backend/app/legal_docs.py](../backend/app/legal_docs.py) | API, бот и worker |
-| [backend/app/legal_texts.py](../backend/app/legal_texts.py) | API, бот и worker |
-| [backend/app/log_format.py](../backend/app/log_format.py) | API, бот и worker |
-| [backend/app/loyalty.py](../backend/app/loyalty.py) | API, бот и worker |
-| [backend/app/lucy_plans.py](../backend/app/lucy_plans.py) | API, бот и worker |
-| [backend/app/mail_auth.py](../backend/app/mail_auth.py) | API, бот и worker |
-| [backend/app/mail_domain.py](../backend/app/mail_domain.py) | API, бот и worker |
-| [backend/app/mail_receiver.py](../backend/app/mail_receiver.py) | API, бот и worker |
-| [backend/app/main.py](../backend/app/main.py) | API, бот и worker |
-| [backend/app/marketing_api.py](../backend/app/marketing_api.py) | API, бот и worker |
-| [backend/app/marketplace_api.py](../backend/app/marketplace_api.py) | API, бот и worker |
-| [backend/app/masque.py](../backend/app/masque.py) | API, бот и worker |
-| [backend/app/masque_panel.py](../backend/app/masque_panel.py) | API, бот и worker |
-| [backend/app/menu_tree.py](../backend/app/menu_tree.py) | API, бот и worker |
-| [backend/app/mobile_api.py](../backend/app/mobile_api.py) | API, бот и worker |
-| [backend/app/mobile_auth.py](../backend/app/mobile_auth.py) | API, бот и worker |
-| [backend/app/mobile_catalog.py](../backend/app/mobile_catalog.py) | API, бот и worker |
-| [backend/app/mobile_integrity.py](../backend/app/mobile_integrity.py) | API, бот и worker |
-| [backend/app/mobile_layout.py](../backend/app/mobile_layout.py) | API, бот и worker |
-| [backend/app/mobile_mirrors.py](../backend/app/mobile_mirrors.py) | API, бот и worker |
-| [backend/app/mobile_panels.py](../backend/app/mobile_panels.py) | API, бот и worker |
-| [backend/app/models.py](../backend/app/models.py) | API, бот и worker |
-| [backend/app/moderation.py](../backend/app/moderation.py) | API, бот и worker |
-| [backend/app/network_intel.py](../backend/app/network_intel.py) | API, бот и worker |
-| [backend/app/node_autoscale.py](../backend/app/node_autoscale.py) | API, бот и worker |
-| [backend/app/node_forecast.py](../backend/app/node_forecast.py) | API, бот и worker |
-| [backend/app/node_health.py](../backend/app/node_health.py) | API, бот и worker |
-| [backend/app/node_terminal.py](../backend/app/node_terminal.py) | API, бот и worker |
-| [backend/app/notifications_status_api.py](../backend/app/notifications_status_api.py) | API, бот и worker |
-| [backend/app/observability.py](../backend/app/observability.py) | API, бот и worker |
-| [backend/app/operations_api.py](../backend/app/operations_api.py) | API, бот и worker |
-| [backend/app/ops_alerts.py](../backend/app/ops_alerts.py) | API, бот и worker |
-| [backend/app/pagination.py](../backend/app/pagination.py) | API, бот и worker |
-| [backend/app/panel_admin.py](../backend/app/panel_admin.py) | API, бот и worker |
-| [backend/app/panel_api_stats.py](../backend/app/panel_api_stats.py) | API, бот и worker |
-| [backend/app/panel_gate.py](../backend/app/panel_gate.py) | API, бот и worker |
-| [backend/app/panel_guard.py](../backend/app/panel_guard.py) | API, бот и worker |
-| [backend/app/panel_usage.py](../backend/app/panel_usage.py) | API, бот и worker |
-| [backend/app/partners.py](../backend/app/partners.py) | API, бот и worker |
-| [backend/app/passkeys.py](../backend/app/passkeys.py) | API, бот и worker |
-| [backend/app/payment_fraud.py](../backend/app/payment_fraud.py) | API, бот и worker |
-| [backend/app/payment_journal.py](../backend/app/payment_journal.py) | API, бот и worker |
-| [backend/app/payment_methods.py](../backend/app/payment_methods.py) | API, бот и worker |
-| [backend/app/payment_platform.py](../backend/app/payment_platform.py) | API, бот и worker |
-| [backend/app/payment_platform_api.py](../backend/app/payment_platform_api.py) | API, бот и worker |
-| [backend/app/payment_policy.py](../backend/app/payment_policy.py) | API, бот и worker |
-| [backend/app/payments.py](../backend/app/payments.py) | API, бот и worker |
-| [backend/app/payments_api.py](../backend/app/payments_api.py) | API, бот и worker |
-| [backend/app/payments_extra.py](../backend/app/payments_extra.py) | API, бот и worker |
-| [backend/app/personal_offers.py](../backend/app/personal_offers.py) | API, бот и worker |
-| [backend/app/pinned_message.py](../backend/app/pinned_message.py) | API, бот и worker |
-| [backend/app/platform_api.py](../backend/app/platform_api.py) | API, бот и worker |
-| [backend/app/plugins.py](../backend/app/plugins.py) | API, бот и worker |
-| [backend/app/pnl.py](../backend/app/pnl.py) | API, бот и worker |
-| [backend/app/production_api.py](../backend/app/production_api.py) | API, бот и worker |
-| [backend/app/production_launch_api.py](../backend/app/production_launch_api.py) | API, бот и worker |
-| [backend/app/promo_generator.py](../backend/app/promo_generator.py) | API, бот и worker |
-| [backend/app/provider_report.py](../backend/app/provider_report.py) | API, бот и worker |
-| [backend/app/provisioner.py](../backend/app/provisioner.py) | API, бот и worker |
-| [backend/app/push.py](../backend/app/push.py) | API, бот и worker |
-| [backend/app/push_campaigns.py](../backend/app/push_campaigns.py) | API, бот и worker |
-| [backend/app/push_style.py](../backend/app/push_style.py) | API, бот и worker |
-| [backend/app/recovery_api.py](../backend/app/recovery_api.py) | API, бот и worker |
-| [backend/app/referral_contests.py](../backend/app/referral_contests.py) | API, бот и worker |
-| [backend/app/referral_program.py](../backend/app/referral_program.py) | API, бот и worker |
-| [backend/app/referrals.py](../backend/app/referrals.py) | API, бот и worker |
-| [backend/app/refund_accounting.py](../backend/app/refund_accounting.py) | API, бот и worker |
-| [backend/app/regional_pricing.py](../backend/app/regional_pricing.py) | API, бот и worker |
-| [backend/app/release_identity.py](../backend/app/release_identity.py) | API, бот и worker |
-| [backend/app/remnawave.py](../backend/app/remnawave.py) | API, бот и worker |
-| [backend/app/remnawave_events.py](../backend/app/remnawave_events.py) | API, бот и worker |
-| [backend/app/remnawave_shop_api.py](../backend/app/remnawave_shop_api.py) | API, бот и worker |
-| [backend/app/reseller_orders.py](../backend/app/reseller_orders.py) | API, бот и worker |
-| [backend/app/restore_approval.py](../backend/app/restore_approval.py) | API, бот и worker |
-| [backend/app/ripe_atlas.py](../backend/app/ripe_atlas.py) | API, бот и worker |
-| [backend/app/routers.py](../backend/app/routers.py) | API, бот и worker |
-| [backend/app/runtime_security.py](../backend/app/runtime_security.py) | API, бот и worker |
-| [backend/app/runtime_settings.py](../backend/app/runtime_settings.py) | API, бот и worker |
-| [backend/app/rw_api.py](../backend/app/rw_api.py) | API, бот и worker |
-| [backend/app/rw_autoselect.py](../backend/app/rw_autoselect.py) | API, бот и worker |
-| [backend/app/rw_autoupdate.py](../backend/app/rw_autoupdate.py) | API, бот и worker |
-| [backend/app/rw_domains.py](../backend/app/rw_domains.py) | API, бот и worker |
-| [backend/app/rw_drift.py](../backend/app/rw_drift.py) | API, бот и worker |
-| [backend/app/rw_extensions.py](../backend/app/rw_extensions.py) | API, бот и worker |
-| [backend/app/rw_jobs.py](../backend/app/rw_jobs.py) | API, бот и worker |
-| [backend/app/rw_masque.py](../backend/app/rw_masque.py) | API, бот и worker |
-| [backend/app/rw_netmods.py](../backend/app/rw_netmods.py) | API, бот и worker |
-| [backend/app/rw_plan.py](../backend/app/rw_plan.py) | API, бот и worker |
-| [backend/app/rw_ports.py](../backend/app/rw_ports.py) | API, бот и worker |
-| [backend/app/rw_protocol_switch.py](../backend/app/rw_protocol_switch.py) | API, бот и worker |
-| [backend/app/rw_releases.py](../backend/app/rw_releases.py) | API, бот и worker |
-| [backend/app/rw_remote.py](../backend/app/rw_remote.py) | API, бот и worker |
-| [backend/app/rw_selfsteal.py](../backend/app/rw_selfsteal.py) | API, бот и worker |
-| [backend/app/rw_snapshots.py](../backend/app/rw_snapshots.py) | API, бот и worker |
-| [backend/app/rw_ssh.py](../backend/app/rw_ssh.py) | API, бот и worker |
-| [backend/app/rw_steps.py](../backend/app/rw_steps.py) | API, бот и worker |
-| [backend/app/rw_torrent_ban.py](../backend/app/rw_torrent_ban.py) | API, бот и worker |
-| [backend/app/sandbox_mode.py](../backend/app/sandbox_mode.py) | API, бот и worker |
-| [backend/app/schedulers.py](../backend/app/schedulers.py) | API, бот и worker |
-| [backend/app/seat_access.py](../backend/app/seat_access.py) | API, бот и worker |
-| [backend/app/security.py](../backend/app/security.py) | API, бот и worker |
-| [backend/app/selfsteal_check.py](../backend/app/selfsteal_check.py) | API, бот и worker |
-| [backend/app/selfsteal_sites.py](../backend/app/selfsteal_sites.py) | API, бот и worker |
-| [backend/app/smart_cart.py](../backend/app/smart_cart.py) | API, бот и worker |
-| [backend/app/speed_test.py](../backend/app/speed_test.py) | API, бот и worker |
-| [backend/app/sqlite_import.py](../backend/app/sqlite_import.py) | API, бот и worker |
-| [backend/app/staging_e2e_api.py](../backend/app/staging_e2e_api.py) | API, бот и worker |
-| [backend/app/staging_gate.py](../backend/app/staging_gate.py) | API, бот и worker |
-| [backend/app/status_page.py](../backend/app/status_page.py) | API, бот и worker |
-| [backend/app/store_billing.py](../backend/app/store_billing.py) | API, бот и worker |
-| [backend/app/sub_portal.py](../backend/app/sub_portal.py) | API, бот и worker |
-| [backend/app/sub_proxy.py](../backend/app/sub_proxy.py) | API, бот и worker |
-| [backend/app/subscription_commerce.py](../backend/app/subscription_commerce.py) | API, бот и worker |
-| [backend/app/subscription_freeze.py](../backend/app/subscription_freeze.py) | API, бот и worker |
-| [backend/app/subscriptions.py](../backend/app/subscriptions.py) | API, бот и worker |
-| [backend/app/support_ai.py](../backend/app/support_ai.py) | API, бот и worker |
-| [backend/app/support_attachments.py](../backend/app/support_attachments.py) | API, бот и worker |
-| [backend/app/support_autoreply.py](../backend/app/support_autoreply.py) | API, бот и worker |
-| [backend/app/support_bridge.py](../backend/app/support_bridge.py) | API, бот и worker |
-| [backend/app/support_threads.py](../backend/app/support_threads.py) | API, бот и worker |
-| [backend/app/support_topology.py](../backend/app/support_topology.py) | API, бот и worker |
-| [backend/app/surveys.py](../backend/app/surveys.py) | API, бот и worker |
-| [backend/app/system_status.py](../backend/app/system_status.py) | API, бот и worker |
-| [backend/app/tariff_api.py](../backend/app/tariff_api.py) | API, бот и worker |
-| [backend/app/telegram_backup.py](../backend/app/telegram_backup.py) | API, бот и worker |
-| [backend/app/telegram_bot.py](../backend/app/telegram_bot.py) | API, бот и worker |
-| [backend/app/telegram_stars.py](../backend/app/telegram_stars.py) | API, бот и worker |
-| [backend/app/tg.py](../backend/app/tg.py) | API, бот и worker |
-| [backend/app/themes.py](../backend/app/themes.py) | API, бот и worker |
-| [backend/app/torrent_detection.py](../backend/app/torrent_detection.py) | API, бот и worker |
-| [backend/app/totp.py](../backend/app/totp.py) | API, бот и worker |
-| [backend/app/traffic_report.py](../backend/app/traffic_report.py) | API, бот и worker |
-| [backend/app/tribute.py](../backend/app/tribute.py) | API, бот и worker |
-| [backend/app/v3_api.py](../backend/app/v3_api.py) | API, бот и worker |
-| [backend/app/v6_api.py](../backend/app/v6_api.py) | API, бот и worker |
-| [backend/app/vpn_sessions.py](../backend/app/vpn_sessions.py) | API, бот и worker |
-| [backend/app/webhook_tee.py](../backend/app/webhook_tee.py) | API, бот и worker |
-| [backend/app/weekly_digest.py](../backend/app/weekly_digest.py) | API, бот и worker |
-| [backend/app/wg_pool.py](../backend/app/wg_pool.py) | API, бот и worker |
-| [backend/app/widget.py](../backend/app/widget.py) | API, бот и worker |
-| [backend/bot-entrypoint.sh](../backend/bot-entrypoint.sh) | API, бот и worker |
-| [backend/entrypoint.sh](../backend/entrypoint.sh) | API, бот и worker |
-| [backend/requirements-test.txt](../backend/requirements-test.txt) | API, бот и worker |
-| [backend/requirements.txt](../backend/requirements.txt) | API, бот и worker |
-| [backend/scripts/staging-e2e.sh](../backend/scripts/staging-e2e.sh) | API, бот и worker |
-| [backend/worker.py](../backend/worker.py) | API, бот и worker |
+| [backend/app/main.py](../backend/app/main.py) | Переходник старого пути (версия для обновления) |
 | [browser-extension/manifest.json](../browser-extension/manifest.json) | Корень проекта |
 | [browser-extension/service-worker.js](../browser-extension/service-worker.js) | Корень проекта |
 | [conftest.py](../conftest.py) | Корень проекта |
@@ -1561,6 +1183,10 @@
 | [docs/ru/RELEASE_V28_152_0.md](../docs/ru/RELEASE_V28_152_0.md) | Документация |
 | [docs/ru/RELEASE_V28_153_0.md](../docs/ru/RELEASE_V28_153_0.md) | Документация |
 | [docs/ru/RELEASE_V28_154_0.md](../docs/ru/RELEASE_V28_154_0.md) | Документация |
+| [docs/ru/RELEASE_V28_155_0.md](../docs/ru/RELEASE_V28_155_0.md) | Документация |
+| [docs/ru/RELEASE_V28_156_0.md](../docs/ru/RELEASE_V28_156_0.md) | Документация |
+| [docs/ru/RELEASE_V28_157_0.md](../docs/ru/RELEASE_V28_157_0.md) | Документация |
+| [docs/ru/RELEASE_V28_158_0.md](../docs/ru/RELEASE_V28_158_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
@@ -2249,99 +1875,490 @@
 | [scripts/verify-admin-matrix.py](../scripts/verify-admin-matrix.py) | Эксплуатация и релиз |
 | [scripts/verify-release.sh](../scripts/verify-release.sh) | Эксплуатация и релиз |
 | [scripts/zero-downtime-backend.sh](../scripts/zero-downtime-backend.sh) | Эксплуатация и релиз |
-| [support-pro/.dockerignore](../support-pro/.dockerignore) | Support Pro |
-| [support-pro/.env.example](../support-pro/.env.example) | Support Pro |
-| [support-pro/README.md](../support-pro/README.md) | Support Pro |
-| [support-pro/TEST_REPORT.md](../support-pro/TEST_REPORT.md) | Support Pro |
-| [support-pro/UPGRADE.md](../support-pro/UPGRADE.md) | Support Pro |
-| [support-pro/VERSION](../support-pro/VERSION) | Support Pro |
-| [support-pro/alembic.ini](../support-pro/alembic.ini) | Support Pro |
-| [support-pro/alembic/env.py](../support-pro/alembic/env.py) | Support Pro |
-| [support-pro/alembic/script.py.mako](../support-pro/alembic/script.py.mako) | Support Pro |
-| [support-pro/alembic/versions/0001_initial.py](../support-pro/alembic/versions/0001_initial.py) | Support Pro |
-| [support-pro/alembic/versions/0002_support_3.py](../support-pro/alembic/versions/0002_support_3.py) | Support Pro |
-| [support-pro/alembic/versions/0003_product_layer.py](../support-pro/alembic/versions/0003_product_layer.py) | Support Pro |
-| [support-pro/alembic/versions/0004_operations.py](../support-pro/alembic/versions/0004_operations.py) | Support Pro |
-| [support-pro/alembic/versions/0005_shop_bridge.py](../support-pro/alembic/versions/0005_shop_bridge.py) | Support Pro |
-| [support-pro/alembic/versions/0006_remote_history.py](../support-pro/alembic/versions/0006_remote_history.py) | Support Pro |
-| [support-pro/alembic/versions/0007_email_channel.py](../support-pro/alembic/versions/0007_email_channel.py) | Support Pro |
-| [support-pro/alembic/versions/0008_helpdesk_bridge.py](../support-pro/alembic/versions/0008_helpdesk_bridge.py) | Support Pro |
-| [support-pro/app/Dockerfile](../support-pro/app/Dockerfile) | Support Pro |
-| [support-pro/app/__init__.py](../support-pro/app/__init__.py) | Support Pro |
-| [support-pro/app/access.py](../support-pro/app/access.py) | Support Pro |
-| [support-pro/app/bot.py](../support-pro/app/bot.py) | Support Pro |
-| [support-pro/app/cli.py](../support-pro/app/cli.py) | Support Pro |
-| [support-pro/app/client_ip.py](../support-pro/app/client_ip.py) | Support Pro |
-| [support-pro/app/db.py](../support-pro/app/db.py) | Support Pro |
-| [support-pro/app/email_admin.py](../support-pro/app/email_admin.py) | Support Pro |
-| [support-pro/app/email_channel.py](../support-pro/app/email_channel.py) | Support Pro |
-| [support-pro/app/email_inbound.py](../support-pro/app/email_inbound.py) | Support Pro |
-| [support-pro/app/events.py](../support-pro/app/events.py) | Support Pro |
-| [support-pro/app/helpdesk_admin.py](../support-pro/app/helpdesk_admin.py) | Support Pro |
-| [support-pro/app/helpdesk_bridge.py](../support-pro/app/helpdesk_bridge.py) | Support Pro |
-| [support-pro/app/jobs.py](../support-pro/app/jobs.py) | Support Pro |
-| [support-pro/app/main.py](../support-pro/app/main.py) | Support Pro |
-| [support-pro/app/migrate.py](../support-pro/app/migrate.py) | Support Pro |
-| [support-pro/app/models.py](../support-pro/app/models.py) | Support Pro |
-| [support-pro/app/operations.py](../support-pro/app/operations.py) | Support Pro |
-| [support-pro/app/outbound.py](../support-pro/app/outbound.py) | Support Pro |
-| [support-pro/app/portal.py](../support-pro/app/portal.py) | Support Pro |
-| [support-pro/app/realtime.py](../support-pro/app/realtime.py) | Support Pro |
-| [support-pro/app/schema_v2.json](../support-pro/app/schema_v2.json) | Support Pro |
-| [support-pro/app/security.py](../support-pro/app/security.py) | Support Pro |
-| [support-pro/app/services.py](../support-pro/app/services.py) | Support Pro |
-| [support-pro/app/shop_bridge.py](../support-pro/app/shop_bridge.py) | Support Pro |
-| [support-pro/app/shop_migrate.py](../support-pro/app/shop_migrate.py) | Support Pro |
-| [support-pro/app/sla.py](../support-pro/app/sla.py) | Support Pro |
-| [support-pro/app/static/app.css](../support-pro/app/static/app.css) | Support Pro |
-| [support-pro/app/static/app.js](../support-pro/app/static/app.js) | Support Pro |
-| [support-pro/app/static/icons.svg](../support-pro/app/static/icons.svg) | Support Pro |
-| [support-pro/app/static/theme.js](../support-pro/app/static/theme.js) | Support Pro |
-| [support-pro/app/storage.py](../support-pro/app/storage.py) | Support Pro |
-| [support-pro/app/templates/_ui.html](../support-pro/app/templates/_ui.html) | Support Pro |
-| [support-pro/app/templates/audit.html](../support-pro/app/templates/audit.html) | Support Pro |
-| [support-pro/app/templates/base.html](../support-pro/app/templates/base.html) | Support Pro |
-| [support-pro/app/templates/calls.html](../support-pro/app/templates/calls.html) | Support Pro |
-| [support-pro/app/templates/catalog.html](../support-pro/app/templates/catalog.html) | Support Pro |
-| [support-pro/app/templates/client.html](../support-pro/app/templates/client.html) | Support Pro |
-| [support-pro/app/templates/dashboard.html](../support-pro/app/templates/dashboard.html) | Support Pro |
-| [support-pro/app/templates/email.html](../support-pro/app/templates/email.html) | Support Pro |
-| [support-pro/app/templates/error.html](../support-pro/app/templates/error.html) | Support Pro |
-| [support-pro/app/templates/helpdesk.html](../support-pro/app/templates/helpdesk.html) | Support Pro |
-| [support-pro/app/templates/knowledge.html](../support-pro/app/templates/knowledge.html) | Support Pro |
-| [support-pro/app/templates/knowledge_article.html](../support-pro/app/templates/knowledge_article.html) | Support Pro |
-| [support-pro/app/templates/login.html](../support-pro/app/templates/login.html) | Support Pro |
-| [support-pro/app/templates/operations.html](../support-pro/app/templates/operations.html) | Support Pro |
-| [support-pro/app/templates/operators.html](../support-pro/app/templates/operators.html) | Support Pro |
-| [support-pro/app/templates/portal.html](../support-pro/app/templates/portal.html) | Support Pro |
-| [support-pro/app/templates/reports.html](../support-pro/app/templates/reports.html) | Support Pro |
-| [support-pro/app/templates/rules.html](../support-pro/app/templates/rules.html) | Support Pro |
-| [support-pro/app/templates/settings.html](../support-pro/app/templates/settings.html) | Support Pro |
-| [support-pro/app/templates/ticket.html](../support-pro/app/templates/ticket.html) | Support Pro |
-| [support-pro/app/templates/twofa.html](../support-pro/app/templates/twofa.html) | Support Pro |
-| [support-pro/app/templates/webhook_secret.html](../support-pro/app/templates/webhook_secret.html) | Support Pro |
-| [support-pro/app/templates/webhooks.html](../support-pro/app/templates/webhooks.html) | Support Pro |
-| [support-pro/app/worker.py](../support-pro/app/worker.py) | Support Pro |
-| [support-pro/docker-compose.yml](../support-pro/docker-compose.yml) | Support Pro |
-| [support-pro/install.sh](../support-pro/install.sh) | Support Pro |
-| [support-pro/nginx/main.conf](../support-pro/nginx/main.conf) | Support Pro |
-| [support-pro/nginx/nginx.conf](../support-pro/nginx/nginx.conf) | Support Pro |
-| [support-pro/pytest.ini](../support-pro/pytest.ini) | Support Pro |
-| [support-pro/requirements-dev.txt](../support-pro/requirements-dev.txt) | Support Pro |
-| [support-pro/requirements.txt](../support-pro/requirements.txt) | Support Pro |
-| [support-pro/scripts/backup.sh](../support-pro/scripts/backup.sh) | Support Pro |
-| [support-pro/scripts/renew-cert.sh](../support-pro/scripts/renew-cert.sh) | Support Pro |
-| [support-pro/scripts/restore-check.sh](../support-pro/scripts/restore-check.sh) | Support Pro |
-| [support-pro/tests/conftest.py](../support-pro/tests/conftest.py) | Support Pro |
-| [support-pro/tests/test_email_channel.py](../support-pro/tests/test_email_channel.py) | Support Pro |
-| [support-pro/tests/test_email_inbound.py](../support-pro/tests/test_email_inbound.py) | Support Pro |
-| [support-pro/tests/test_flows.py](../support-pro/tests/test_flows.py) | Support Pro |
-| [support-pro/tests/test_helpdesk_bridge.py](../support-pro/tests/test_helpdesk_bridge.py) | Support Pro |
-| [support-pro/tests/test_migrations.py](../support-pro/tests/test_migrations.py) | Support Pro |
-| [support-pro/tests/test_operations.py](../support-pro/tests/test_operations.py) | Support Pro |
-| [support-pro/tests/test_remote_history.py](../support-pro/tests/test_remote_history.py) | Support Pro |
-| [support-pro/tests/test_security_audit.py](../support-pro/tests/test_security_audit.py) | Support Pro |
-| [support-pro/tests/test_shop_bridge.py](../support-pro/tests/test_shop_bridge.py) | Support Pro |
+| [services/backend/.dockerignore](../services/backend/.dockerignore) | API, бот, worker и Support Pro |
+| [services/backend/Dockerfile](../services/backend/Dockerfile) | API, бот, worker и Support Pro |
+| [services/backend/Dockerfile.bot](../services/backend/Dockerfile.bot) | API, бот, worker и Support Pro |
+| [services/backend/alembic.ini](../services/backend/alembic.ini) | API, бот, worker и Support Pro |
+| [services/backend/alembic/README](../services/backend/alembic/README) | API, бот, worker и Support Pro |
+| [services/backend/alembic/env.py](../services/backend/alembic/env.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0001_production_baseline.py](../services/backend/alembic/versions/0001_production_baseline.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0002_cms_yandex.py](../services/backend/alembic/versions/0002_cms_yandex.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0003_marketing.py](../services/backend/alembic/versions/0003_marketing.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0004_miniapp_editor.py](../services/backend/alembic/versions/0004_miniapp_editor.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0005_v11_backups.py](../services/backend/alembic/versions/0005_v11_backups.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0006_v14_security.py](../services/backend/alembic/versions/0006_v14_security.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0007_v15_production.py](../services/backend/alembic/versions/0007_v15_production.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0008_v16_v19.py](../services/backend/alembic/versions/0008_v16_v19.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0009_v20_v21.py](../services/backend/alembic/versions/0009_v20_v21.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0010_v22_hardening.py](../services/backend/alembic/versions/0010_v22_hardening.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0011_v23_reliability.py](../services/backend/alembic/versions/0011_v23_reliability.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0012_v24_v28_operations.py](../services/backend/alembic/versions/0012_v24_v28_operations.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0013_v29_final_hardening.py](../services/backend/alembic/versions/0013_v29_final_hardening.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0014_v30_final_hardening.py](../services/backend/alembic/versions/0014_v30_final_hardening.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0015_v32_operations.py](../services/backend/alembic/versions/0015_v32_operations.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0016_v38_admin_staging.py](../services/backend/alembic/versions/0016_v38_admin_staging.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0017_v39_staging_isolation.py](../services/backend/alembic/versions/0017_v39_staging_isolation.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0018_v40_security_gate.py](../services/backend/alembic/versions/0018_v40_security_gate.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0019_v41_enterprise_features.py](../services/backend/alembic/versions/0019_v41_enterprise_features.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0020_v42_bot_miniapp.py](../services/backend/alembic/versions/0020_v42_bot_miniapp.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0021_v43_hardening_docs.py](../services/backend/alembic/versions/0021_v43_hardening_docs.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0022_enterprise_suite.py](../services/backend/alembic/versions/0022_enterprise_suite.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0023_v44_5_3_billing_snapshots.py](../services/backend/alembic/versions/0023_v44_5_3_billing_snapshots.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0024_v44_5_7_logic_hardening.py](../services/backend/alembic/versions/0024_v44_5_7_logic_hardening.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0025_v44_5_8_entitlement_idempotency.py](../services/backend/alembic/versions/0025_v44_5_8_entitlement_idempotency.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0026_v44_5_9_retry_hardening.py](../services/backend/alembic/versions/0026_v44_5_9_retry_hardening.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0027_v44_5_10_financial_integrity.py](../services/backend/alembic/versions/0027_v44_5_10_financial_integrity.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0028_v44_5_12_logic_integrity.py](../services/backend/alembic/versions/0028_v44_5_12_logic_integrity.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0029_v44_5_15_safety_integrity.py](../services/backend/alembic/versions/0029_v44_5_15_safety_integrity.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0030_v44_5_16_privacy_and_refund_integrity.py](../services/backend/alembic/versions/0030_v44_5_16_privacy_and_refund_integrity.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0031_v1_0_0_idempotency_integrity.py](../services/backend/alembic/versions/0031_v1_0_0_idempotency_integrity.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0032_v2_0_0_product_features.py](../services/backend/alembic/versions/0032_v2_0_0_product_features.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0033_v2_1_0_production_hardening.py](../services/backend/alembic/versions/0033_v2_1_0_production_hardening.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0034_v2_2_0_platform_features.py](../services/backend/alembic/versions/0034_v2_2_0_platform_features.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0035_v2_3_0_wallet_gifts.py](../services/backend/alembic/versions/0035_v2_3_0_wallet_gifts.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0036_v2_4_0_cabinet.py](../services/backend/alembic/versions/0036_v2_4_0_cabinet.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0037_v2_5_0_tariff_constructor.py](../services/backend/alembic/versions/0037_v2_5_0_tariff_constructor.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0038_v2_6_0_platform.py](../services/backend/alembic/versions/0038_v2_6_0_platform.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0039_v19_marketplace.py](../services/backend/alembic/versions/0039_v19_marketplace.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0040_v20_payment_platform.py](../services/backend/alembic/versions/0040_v20_payment_platform.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0041_enable_platform_modules.py](../services/backend/alembic/versions/0041_enable_platform_modules.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0042_workspace_withdrawal_idempotency.py](../services/backend/alembic/versions/0042_workspace_withdrawal_idempotency.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0043_support_conversations.py](../services/backend/alembic/versions/0043_support_conversations.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0044_subscription_commerce.py](../services/backend/alembic/versions/0044_subscription_commerce.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0045_multiple_subscriptions.py](../services/backend/alembic/versions/0045_multiple_subscriptions.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0046_gift_snapshots.py](../services/backend/alembic/versions/0046_gift_snapshots.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0047_support_attachments.py](../services/backend/alembic/versions/0047_support_attachments.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0048_support_bridge.py](../services/backend/alembic/versions/0048_support_bridge.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0049_renewal_terms.py](../services/backend/alembic/versions/0049_renewal_terms.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0050_account_actions.py](../services/backend/alembic/versions/0050_account_actions.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0051_surveys.py](../services/backend/alembic/versions/0051_surveys.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0052_giveaways.py](../services/backend/alembic/versions/0052_giveaways.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0053_admin_passkeys.py](../services/backend/alembic/versions/0053_admin_passkeys.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0054_referral_levels.py](../services/backend/alembic/versions/0054_referral_levels.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0055_customer_passkeys.py](../services/backend/alembic/versions/0055_customer_passkeys.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0056_support_topology.py](../services/backend/alembic/versions/0056_support_topology.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0057_partner_commissions.py](../services/backend/alembic/versions/0057_partner_commissions.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0058_customer_operations.py](../services/backend/alembic/versions/0058_customer_operations.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0059_content_publishing.py](../services/backend/alembic/versions/0059_content_publishing.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0060_promo_audiences.py](../services/backend/alembic/versions/0060_promo_audiences.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0061_menu_hierarchy.py](../services/backend/alembic/versions/0061_menu_hierarchy.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0062_support_delivery_identity.py](../services/backend/alembic/versions/0062_support_delivery_identity.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0063_account_merge.py](../services/backend/alembic/versions/0063_account_merge.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0064_runtime_settings.py](../services/backend/alembic/versions/0064_runtime_settings.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0065_history_import.py](../services/backend/alembic/versions/0065_history_import.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0066_push_notifications.py](../services/backend/alembic/versions/0066_push_notifications.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0067_plugin_runtime.py](../services/backend/alembic/versions/0067_plugin_runtime.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0068_network_intel.py](../services/backend/alembic/versions/0068_network_intel.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0069_mail_domain.py](../services/backend/alembic/versions/0069_mail_domain.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0070_node_terminal.py](../services/backend/alembic/versions/0070_node_terminal.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0071_torrent_detection.py](../services/backend/alembic/versions/0071_torrent_detection.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0072_traffic_analysis.py](../services/backend/alembic/versions/0072_traffic_analysis.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0073_e2e_v2.py](../services/backend/alembic/versions/0073_e2e_v2.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0074_automation_engine.py](../services/backend/alembic/versions/0074_automation_engine.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0075_app_config.py](../services/backend/alembic/versions/0075_app_config.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0076_growth.py](../services/backend/alembic/versions/0076_growth.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0077_app_growth.py](../services/backend/alembic/versions/0077_app_growth.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0078_campaign_ab.py](../services/backend/alembic/versions/0078_campaign_ab.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0079_acquisition.py](../services/backend/alembic/versions/0079_acquisition.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0080_reconciliation.py](../services/backend/alembic/versions/0080_reconciliation.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0081_subscription_proxy.py](../services/backend/alembic/versions/0081_subscription_proxy.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0082_status_subscribers.py](../services/backend/alembic/versions/0082_status_subscribers.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0083_corporate_seats.py](../services/backend/alembic/versions/0083_corporate_seats.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0084_subscription_freeze.py](../services/backend/alembic/versions/0084_subscription_freeze.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0085_loyalty.py](../services/backend/alembic/versions/0085_loyalty.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0086_feedback.py](../services/backend/alembic/versions/0086_feedback.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0087_speed_tests.py](../services/backend/alembic/versions/0087_speed_tests.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0088_filter_and_regions.py](../services/backend/alembic/versions/0088_filter_and_regions.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0089_index_cleanup.py](../services/backend/alembic/versions/0089_index_cleanup.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0090_remnawave_installer.py](../services/backend/alembic/versions/0090_remnawave_installer.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0091_remnawave_domains.py](../services/backend/alembic/versions/0091_remnawave_domains.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0092_telegram_bot.py](../services/backend/alembic/versions/0092_telegram_bot.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0093_ssh_key_rotation.py](../services/backend/alembic/versions/0093_ssh_key_rotation.py) | API, бот, worker и Support Pro |
+| [services/backend/alembic/versions/0094_store_subscriptions.py](../services/backend/alembic/versions/0094_store_subscriptions.py) | API, бот, worker и Support Pro |
+| [services/backend/app/__init__.py](../services/backend/app/__init__.py) | API, бот, worker и Support Pro |
+| [services/backend/app/abuse.py](../services/backend/app/abuse.py) | API, бот, worker и Support Pro |
+| [services/backend/app/account_actions.py](../services/backend/app/account_actions.py) | API, бот, worker и Support Pro |
+| [services/backend/app/account_merge.py](../services/backend/app/account_merge.py) | API, бот, worker и Support Pro |
+| [services/backend/app/account_sync.py](../services/backend/app/account_sync.py) | API, бот, worker и Support Pro |
+| [services/backend/app/activity_log.py](../services/backend/app/activity_log.py) | API, бот, worker и Support Pro |
+| [services/backend/app/ad_postbacks.py](../services/backend/app/ad_postbacks.py) | API, бот, worker и Support Pro |
+| [services/backend/app/admin_api.py](../services/backend/app/admin_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/admin_auth_api.py](../services/backend/app/admin_auth_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/admin_center.py](../services/backend/app/admin_center.py) | API, бот, worker и Support Pro |
+| [services/backend/app/admin_customer_operations.py](../services/backend/app/admin_customer_operations.py) | API, бот, worker и Support Pro |
+| [services/backend/app/admin_stepup.py](../services/backend/app/admin_stepup.py) | API, бот, worker и Support Pro |
+| [services/backend/app/admin_web_ticket.py](../services/backend/app/admin_web_ticket.py) | API, бот, worker и Support Pro |
+| [services/backend/app/anti_sharing.py](../services/backend/app/anti_sharing.py) | API, бот, worker и Support Pro |
+| [services/backend/app/app_config.py](../services/backend/app/app_config.py) | API, бот, worker и Support Pro |
+| [services/backend/app/app_funnel.py](../services/backend/app/app_funnel.py) | API, бот, worker и Support Pro |
+| [services/backend/app/app_growth.py](../services/backend/app/app_growth.py) | API, бот, worker и Support Pro |
+| [services/backend/app/app_login.py](../services/backend/app/app_login.py) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/account.jpg](../services/backend/app/assets/bot_banners/account.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-devices.jpg](../services/backend/app/assets/bot_banners/app-devices.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-family.jpg](../services/backend/app/assets/bot_banners/app-family.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-gifts.jpg](../services/backend/app/assets/bot_banners/app-gifts.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-giveaways.jpg](../services/backend/app/assets/bot_banners/app-giveaways.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-info.jpg](../services/backend/app/assets/bot_banners/app-info.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-locations.jpg](../services/backend/app/assets/bot_banners/app-locations.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-notifications.jpg](../services/backend/app/assets/bot_banners/app-notifications.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-premium.jpg](../services/backend/app/assets/bot_banners/app-premium.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-referral.jpg](../services/backend/app/assets/bot_banners/app-referral.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-security.jpg](../services/backend/app/assets/bot_banners/app-security.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-settings.jpg](../services/backend/app/assets/bot_banners/app-settings.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-status.jpg](../services/backend/app/assets/bot_banners/app-status.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-subscription.jpg](../services/backend/app/assets/bot_banners/app-subscription.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-support.jpg](../services/backend/app/assets/bot_banners/app-support.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-vpn.jpg](../services/backend/app/assets/bot_banners/app-vpn.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/app-wallet.jpg](../services/backend/app/assets/bot_banners/app-wallet.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/balance.jpg](../services/backend/app/assets/bot_banners/balance.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/buy.jpg](../services/backend/app/assets/bot_banners/buy.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/channels.jpg](../services/backend/app/assets/bot_banners/channels.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/connection.jpg](../services/backend/app/assets/bot_banners/connection.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/contest.jpg](../services/backend/app/assets/bot_banners/contest.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/devices.jpg](../services/backend/app/assets/bot_banners/devices.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/family.jpg](../services/backend/app/assets/bot_banners/family.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/faq.jpg](../services/backend/app/assets/bot_banners/faq.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/gifts.jpg](../services/backend/app/assets/bot_banners/gifts.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/guest.jpg](../services/backend/app/assets/bot_banners/guest.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/home.jpg](../services/backend/app/assets/bot_banners/home.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/info.jpg](../services/backend/app/assets/bot_banners/info.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/menu.jpg](../services/backend/app/assets/bot_banners/menu.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/offer.jpg](../services/backend/app/assets/bot_banners/offer.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/payments.jpg](../services/backend/app/assets/bot_banners/payments.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/privacy.jpg](../services/backend/app/assets/bot_banners/privacy.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/promo.jpg](../services/backend/app/assets/bot_banners/promo.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/referral.jpg](../services/backend/app/assets/bot_banners/referral.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/rules.jpg](../services/backend/app/assets/bot_banners/rules.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/servers.jpg](../services/backend/app/assets/bot_banners/servers.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/start.jpg](../services/backend/app/assets/bot_banners/start.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/stats.jpg](../services/backend/app/assets/bot_banners/stats.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/status.jpg](../services/backend/app/assets/bot_banners/status.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/subscription.jpg](../services/backend/app/assets/bot_banners/subscription.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/support.jpg](../services/backend/app/assets/bot_banners/support.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/surveys.jpg](../services/backend/app/assets/bot_banners/surveys.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/topup.jpg](../services/backend/app/assets/bot_banners/topup.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/bot_banners/trial.jpg](../services/backend/app/assets/bot_banners/trial.jpg) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/cabinet_strings.json](../services/backend/app/assets/cabinet_strings.json) | API, бот, worker и Support Pro |
+| [services/backend/app/assets/mobile_strings.json](../services/backend/app/assets/mobile_strings.json) | API, бот, worker и Support Pro |
+| [services/backend/app/audit_seal.py](../services/backend/app/audit_seal.py) | API, бот, worker и Support Pro |
+| [services/backend/app/auth_api.py](../services/backend/app/auth_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/auto_update_api.py](../services/backend/app/auto_update_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/automation.py](../services/backend/app/automation.py) | API, бот, worker и Support Pro |
+| [services/backend/app/automation_center.py](../services/backend/app/automation_center.py) | API, бот, worker и Support Pro |
+| [services/backend/app/avatar.py](../services/backend/app/avatar.py) | API, бот, worker и Support Pro |
+| [services/backend/app/backup_verify.py](../services/backend/app/backup_verify.py) | API, бот, worker и Support Pro |
+| [services/backend/app/backups_api.py](../services/backend/app/backups_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/block_monitor.py](../services/backend/app/block_monitor.py) | API, бот, worker и Support Pro |
+| [services/backend/app/bonus_days.py](../services/backend/app/bonus_days.py) | API, бот, worker и Support Pro |
+| [services/backend/app/bot.py](../services/backend/app/bot.py) | API, бот, worker и Support Pro |
+| [services/backend/app/bot_banners.py](../services/backend/app/bot_banners.py) | API, бот, worker и Support Pro |
+| [services/backend/app/bot_texts.py](../services/backend/app/bot_texts.py) | API, бот, worker и Support Pro |
+| [services/backend/app/bot_workspace.py](../services/backend/app/bot_workspace.py) | API, бот, worker и Support Pro |
+| [services/backend/app/brand_copy.py](../services/backend/app/brand_copy.py) | API, бот, worker и Support Pro |
+| [services/backend/app/cabinet_api.py](../services/backend/app/cabinet_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/cabinet_security.py](../services/backend/app/cabinet_security.py) | API, бот, worker и Support Pro |
+| [services/backend/app/cabinet_texts.py](../services/backend/app/cabinet_texts.py) | API, бот, worker и Support Pro |
+| [services/backend/app/channel_gate.py](../services/backend/app/channel_gate.py) | API, бот, worker и Support Pro |
+| [services/backend/app/churn.py](../services/backend/app/churn.py) | API, бот, worker и Support Pro |
+| [services/backend/app/client_versions.py](../services/backend/app/client_versions.py) | API, бот, worker и Support Pro |
+| [services/backend/app/cloudflare_cdn.py](../services/backend/app/cloudflare_cdn.py) | API, бот, worker и Support Pro |
+| [services/backend/app/cohorts.py](../services/backend/app/cohorts.py) | API, бот, worker и Support Pro |
+| [services/backend/app/config.py](../services/backend/app/config.py) | API, бот, worker и Support Pro |
+| [services/backend/app/connection_quality.py](../services/backend/app/connection_quality.py) | API, бот, worker и Support Pro |
+| [services/backend/app/container_logs.py](../services/backend/app/container_logs.py) | API, бот, worker и Support Pro |
+| [services/backend/app/content_branding_api.py](../services/backend/app/content_branding_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/content_publishing.py](../services/backend/app/content_publishing.py) | API, бот, worker и Support Pro |
+| [services/backend/app/corporate.py](../services/backend/app/corporate.py) | API, бот, worker и Support Pro |
+| [services/backend/app/customer_api.py](../services/backend/app/customer_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/customer_insights.py](../services/backend/app/customer_insights.py) | API, бот, worker и Support Pro |
+| [services/backend/app/customer_ops_api.py](../services/backend/app/customer_ops_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/customer_passkeys.py](../services/backend/app/customer_passkeys.py) | API, бот, worker и Support Pro |
+| [services/backend/app/customer_profile.py](../services/backend/app/customer_profile.py) | API, бот, worker и Support Pro |
+| [services/backend/app/customer_workspace_api.py](../services/backend/app/customer_workspace_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/daily_billing.py](../services/backend/app/daily_billing.py) | API, бот, worker и Support Pro |
+| [services/backend/app/db.py](../services/backend/app/db.py) | API, бот, worker и Support Pro |
+| [services/backend/app/diagnostics.py](../services/backend/app/diagnostics.py) | API, бот, worker и Support Pro |
+| [services/backend/app/dns_filter.py](../services/backend/app/dns_filter.py) | API, бот, worker и Support Pro |
+| [services/backend/app/dunning.py](../services/backend/app/dunning.py) | API, бот, worker и Support Pro |
+| [services/backend/app/e2e_v2.py](../services/backend/app/e2e_v2.py) | API, бот, worker и Support Pro |
+| [services/backend/app/economics.py](../services/backend/app/economics.py) | API, бот, worker и Support Pro |
+| [services/backend/app/ecosystem_updates.py](../services/backend/app/ecosystem_updates.py) | API, бот, worker и Support Pro |
+| [services/backend/app/email_templates.py](../services/backend/app/email_templates.py) | API, бот, worker и Support Pro |
+| [services/backend/app/enterprise_api.py](../services/backend/app/enterprise_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/error_log.py](../services/backend/app/error_log.py) | API, бот, worker и Support Pro |
+| [services/backend/app/errors.py](../services/backend/app/errors.py) | API, бот, worker и Support Pro |
+| [services/backend/app/feedback.py](../services/backend/app/feedback.py) | API, бот, worker и Support Pro |
+| [services/backend/app/first_connect.py](../services/backend/app/first_connect.py) | API, бот, worker и Support Pro |
+| [services/backend/app/fiscal.py](../services/backend/app/fiscal.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateway_ops.py](../services/backend/app/gateway_ops.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/__init__.py](../services/backend/app/gateways/__init__.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/anore.py](../services/backend/app/gateways/anore.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/antilopay.py](../services/backend/app/gateways/antilopay.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/aurapay.py](../services/backend/app/gateways/aurapay.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/cashera.py](../services/backend/app/gateways/cashera.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/cloudpayments.py](../services/backend/app/gateways/cloudpayments.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/common.py](../services/backend/app/gateways/common.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/lava.py](../services/backend/app/gateways/lava.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/mulenpay.py](../services/backend/app/gateways/mulenpay.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/pal24.py](../services/backend/app/gateways/pal24.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/paritypay.py](../services/backend/app/gateways/paritypay.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/wata.py](../services/backend/app/gateways/wata.py) | API, бот, worker и Support Pro |
+| [services/backend/app/geoip.py](../services/backend/app/geoip.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gift_batches.py](../services/backend/app/gift_batches.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gift_orders.py](../services/backend/app/gift_orders.py) | API, бот, worker и Support Pro |
+| [services/backend/app/github_update.py](../services/backend/app/github_update.py) | API, бот, worker и Support Pro |
+| [services/backend/app/giveaways.py](../services/backend/app/giveaways.py) | API, бот, worker и Support Pro |
+| [services/backend/app/grace_access.py](../services/backend/app/grace_access.py) | API, бот, worker и Support Pro |
+| [services/backend/app/growth.py](../services/backend/app/growth.py) | API, бот, worker и Support Pro |
+| [services/backend/app/guest_checkout.py](../services/backend/app/guest_checkout.py) | API, бот, worker и Support Pro |
+| [services/backend/app/heartbeat.py](../services/backend/app/heartbeat.py) | API, бот, worker и Support Pro |
+| [services/backend/app/history_import.py](../services/backend/app/history_import.py) | API, бот, worker и Support Pro |
+| [services/backend/app/host_metrics.py](../services/backend/app/host_metrics.py) | API, бот, worker и Support Pro |
+| [services/backend/app/hot_standby.py](../services/backend/app/hot_standby.py) | API, бот, worker и Support Pro |
+| [services/backend/app/import_presets.py](../services/backend/app/import_presets.py) | API, бот, worker и Support Pro |
+| [services/backend/app/info_pages.py](../services/backend/app/info_pages.py) | API, бот, worker и Support Pro |
+| [services/backend/app/install_catalogue.py](../services/backend/app/install_catalogue.py) | API, бот, worker и Support Pro |
+| [services/backend/app/integrity.py](../services/backend/app/integrity.py) | API, бот, worker и Support Pro |
+| [services/backend/app/legal_docs.py](../services/backend/app/legal_docs.py) | API, бот, worker и Support Pro |
+| [services/backend/app/legal_texts.py](../services/backend/app/legal_texts.py) | API, бот, worker и Support Pro |
+| [services/backend/app/log_format.py](../services/backend/app/log_format.py) | API, бот, worker и Support Pro |
+| [services/backend/app/loyalty.py](../services/backend/app/loyalty.py) | API, бот, worker и Support Pro |
+| [services/backend/app/lucy_plans.py](../services/backend/app/lucy_plans.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mail_auth.py](../services/backend/app/mail_auth.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mail_domain.py](../services/backend/app/mail_domain.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mail_receiver.py](../services/backend/app/mail_receiver.py) | API, бот, worker и Support Pro |
+| [services/backend/app/main.py](../services/backend/app/main.py) | API, бот, worker и Support Pro |
+| [services/backend/app/marketing_api.py](../services/backend/app/marketing_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/marketplace_api.py](../services/backend/app/marketplace_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/masque.py](../services/backend/app/masque.py) | API, бот, worker и Support Pro |
+| [services/backend/app/masque_panel.py](../services/backend/app/masque_panel.py) | API, бот, worker и Support Pro |
+| [services/backend/app/menu_tree.py](../services/backend/app/menu_tree.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mobile_api.py](../services/backend/app/mobile_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mobile_auth.py](../services/backend/app/mobile_auth.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mobile_catalog.py](../services/backend/app/mobile_catalog.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mobile_integrity.py](../services/backend/app/mobile_integrity.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mobile_layout.py](../services/backend/app/mobile_layout.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mobile_mirrors.py](../services/backend/app/mobile_mirrors.py) | API, бот, worker и Support Pro |
+| [services/backend/app/mobile_panels.py](../services/backend/app/mobile_panels.py) | API, бот, worker и Support Pro |
+| [services/backend/app/models.py](../services/backend/app/models.py) | API, бот, worker и Support Pro |
+| [services/backend/app/moderation.py](../services/backend/app/moderation.py) | API, бот, worker и Support Pro |
+| [services/backend/app/network_intel.py](../services/backend/app/network_intel.py) | API, бот, worker и Support Pro |
+| [services/backend/app/node_autoscale.py](../services/backend/app/node_autoscale.py) | API, бот, worker и Support Pro |
+| [services/backend/app/node_forecast.py](../services/backend/app/node_forecast.py) | API, бот, worker и Support Pro |
+| [services/backend/app/node_health.py](../services/backend/app/node_health.py) | API, бот, worker и Support Pro |
+| [services/backend/app/node_terminal.py](../services/backend/app/node_terminal.py) | API, бот, worker и Support Pro |
+| [services/backend/app/notifications_status_api.py](../services/backend/app/notifications_status_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/observability.py](../services/backend/app/observability.py) | API, бот, worker и Support Pro |
+| [services/backend/app/operations_api.py](../services/backend/app/operations_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/ops_alerts.py](../services/backend/app/ops_alerts.py) | API, бот, worker и Support Pro |
+| [services/backend/app/pagination.py](../services/backend/app/pagination.py) | API, бот, worker и Support Pro |
+| [services/backend/app/panel_admin.py](../services/backend/app/panel_admin.py) | API, бот, worker и Support Pro |
+| [services/backend/app/panel_api_stats.py](../services/backend/app/panel_api_stats.py) | API, бот, worker и Support Pro |
+| [services/backend/app/panel_gate.py](../services/backend/app/panel_gate.py) | API, бот, worker и Support Pro |
+| [services/backend/app/panel_guard.py](../services/backend/app/panel_guard.py) | API, бот, worker и Support Pro |
+| [services/backend/app/panel_usage.py](../services/backend/app/panel_usage.py) | API, бот, worker и Support Pro |
+| [services/backend/app/partners.py](../services/backend/app/partners.py) | API, бот, worker и Support Pro |
+| [services/backend/app/passkeys.py](../services/backend/app/passkeys.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payment_fraud.py](../services/backend/app/payment_fraud.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payment_journal.py](../services/backend/app/payment_journal.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payment_methods.py](../services/backend/app/payment_methods.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payment_platform.py](../services/backend/app/payment_platform.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payment_platform_api.py](../services/backend/app/payment_platform_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payment_policy.py](../services/backend/app/payment_policy.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payments.py](../services/backend/app/payments.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payments_api.py](../services/backend/app/payments_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/payments_extra.py](../services/backend/app/payments_extra.py) | API, бот, worker и Support Pro |
+| [services/backend/app/personal_offers.py](../services/backend/app/personal_offers.py) | API, бот, worker и Support Pro |
+| [services/backend/app/pinned_message.py](../services/backend/app/pinned_message.py) | API, бот, worker и Support Pro |
+| [services/backend/app/platform_api.py](../services/backend/app/platform_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/plugins.py](../services/backend/app/plugins.py) | API, бот, worker и Support Pro |
+| [services/backend/app/pnl.py](../services/backend/app/pnl.py) | API, бот, worker и Support Pro |
+| [services/backend/app/production_api.py](../services/backend/app/production_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/production_launch_api.py](../services/backend/app/production_launch_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/promo_generator.py](../services/backend/app/promo_generator.py) | API, бот, worker и Support Pro |
+| [services/backend/app/provider_report.py](../services/backend/app/provider_report.py) | API, бот, worker и Support Pro |
+| [services/backend/app/provisioner.py](../services/backend/app/provisioner.py) | API, бот, worker и Support Pro |
+| [services/backend/app/push.py](../services/backend/app/push.py) | API, бот, worker и Support Pro |
+| [services/backend/app/push_campaigns.py](../services/backend/app/push_campaigns.py) | API, бот, worker и Support Pro |
+| [services/backend/app/push_style.py](../services/backend/app/push_style.py) | API, бот, worker и Support Pro |
+| [services/backend/app/recovery_api.py](../services/backend/app/recovery_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/referral_contests.py](../services/backend/app/referral_contests.py) | API, бот, worker и Support Pro |
+| [services/backend/app/referral_program.py](../services/backend/app/referral_program.py) | API, бот, worker и Support Pro |
+| [services/backend/app/referrals.py](../services/backend/app/referrals.py) | API, бот, worker и Support Pro |
+| [services/backend/app/refund_accounting.py](../services/backend/app/refund_accounting.py) | API, бот, worker и Support Pro |
+| [services/backend/app/regional_pricing.py](../services/backend/app/regional_pricing.py) | API, бот, worker и Support Pro |
+| [services/backend/app/release_identity.py](../services/backend/app/release_identity.py) | API, бот, worker и Support Pro |
+| [services/backend/app/remnawave.py](../services/backend/app/remnawave.py) | API, бот, worker и Support Pro |
+| [services/backend/app/remnawave_events.py](../services/backend/app/remnawave_events.py) | API, бот, worker и Support Pro |
+| [services/backend/app/remnawave_shop_api.py](../services/backend/app/remnawave_shop_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/reseller_orders.py](../services/backend/app/reseller_orders.py) | API, бот, worker и Support Pro |
+| [services/backend/app/restore_approval.py](../services/backend/app/restore_approval.py) | API, бот, worker и Support Pro |
+| [services/backend/app/ripe_atlas.py](../services/backend/app/ripe_atlas.py) | API, бот, worker и Support Pro |
+| [services/backend/app/routers.py](../services/backend/app/routers.py) | API, бот, worker и Support Pro |
+| [services/backend/app/runtime_security.py](../services/backend/app/runtime_security.py) | API, бот, worker и Support Pro |
+| [services/backend/app/runtime_settings.py](../services/backend/app/runtime_settings.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_api.py](../services/backend/app/rw_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_autoselect.py](../services/backend/app/rw_autoselect.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_autoupdate.py](../services/backend/app/rw_autoupdate.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_domains.py](../services/backend/app/rw_domains.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_drift.py](../services/backend/app/rw_drift.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_extensions.py](../services/backend/app/rw_extensions.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_jobs.py](../services/backend/app/rw_jobs.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_masque.py](../services/backend/app/rw_masque.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_netmods.py](../services/backend/app/rw_netmods.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_plan.py](../services/backend/app/rw_plan.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_ports.py](../services/backend/app/rw_ports.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_protocol_switch.py](../services/backend/app/rw_protocol_switch.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_releases.py](../services/backend/app/rw_releases.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_remote.py](../services/backend/app/rw_remote.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_selfsteal.py](../services/backend/app/rw_selfsteal.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_snapshots.py](../services/backend/app/rw_snapshots.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_ssh.py](../services/backend/app/rw_ssh.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_steps.py](../services/backend/app/rw_steps.py) | API, бот, worker и Support Pro |
+| [services/backend/app/rw_torrent_ban.py](../services/backend/app/rw_torrent_ban.py) | API, бот, worker и Support Pro |
+| [services/backend/app/sandbox_mode.py](../services/backend/app/sandbox_mode.py) | API, бот, worker и Support Pro |
+| [services/backend/app/schedulers.py](../services/backend/app/schedulers.py) | API, бот, worker и Support Pro |
+| [services/backend/app/seat_access.py](../services/backend/app/seat_access.py) | API, бот, worker и Support Pro |
+| [services/backend/app/security.py](../services/backend/app/security.py) | API, бот, worker и Support Pro |
+| [services/backend/app/selfsteal_check.py](../services/backend/app/selfsteal_check.py) | API, бот, worker и Support Pro |
+| [services/backend/app/selfsteal_sites.py](../services/backend/app/selfsteal_sites.py) | API, бот, worker и Support Pro |
+| [services/backend/app/smart_cart.py](../services/backend/app/smart_cart.py) | API, бот, worker и Support Pro |
+| [services/backend/app/speed_test.py](../services/backend/app/speed_test.py) | API, бот, worker и Support Pro |
+| [services/backend/app/sqlite_import.py](../services/backend/app/sqlite_import.py) | API, бот, worker и Support Pro |
+| [services/backend/app/staging_e2e_api.py](../services/backend/app/staging_e2e_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/staging_gate.py](../services/backend/app/staging_gate.py) | API, бот, worker и Support Pro |
+| [services/backend/app/status_page.py](../services/backend/app/status_page.py) | API, бот, worker и Support Pro |
+| [services/backend/app/store_billing.py](../services/backend/app/store_billing.py) | API, бот, worker и Support Pro |
+| [services/backend/app/sub_portal.py](../services/backend/app/sub_portal.py) | API, бот, worker и Support Pro |
+| [services/backend/app/sub_proxy.py](../services/backend/app/sub_proxy.py) | API, бот, worker и Support Pro |
+| [services/backend/app/subscription_commerce.py](../services/backend/app/subscription_commerce.py) | API, бот, worker и Support Pro |
+| [services/backend/app/subscription_freeze.py](../services/backend/app/subscription_freeze.py) | API, бот, worker и Support Pro |
+| [services/backend/app/subscriptions.py](../services/backend/app/subscriptions.py) | API, бот, worker и Support Pro |
+| [services/backend/app/support_ai.py](../services/backend/app/support_ai.py) | API, бот, worker и Support Pro |
+| [services/backend/app/support_attachments.py](../services/backend/app/support_attachments.py) | API, бот, worker и Support Pro |
+| [services/backend/app/support_autoreply.py](../services/backend/app/support_autoreply.py) | API, бот, worker и Support Pro |
+| [services/backend/app/support_bridge.py](../services/backend/app/support_bridge.py) | API, бот, worker и Support Pro |
+| [services/backend/app/support_threads.py](../services/backend/app/support_threads.py) | API, бот, worker и Support Pro |
+| [services/backend/app/support_topology.py](../services/backend/app/support_topology.py) | API, бот, worker и Support Pro |
+| [services/backend/app/surveys.py](../services/backend/app/surveys.py) | API, бот, worker и Support Pro |
+| [services/backend/app/system_status.py](../services/backend/app/system_status.py) | API, бот, worker и Support Pro |
+| [services/backend/app/tariff_api.py](../services/backend/app/tariff_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/telegram_backup.py](../services/backend/app/telegram_backup.py) | API, бот, worker и Support Pro |
+| [services/backend/app/telegram_bot.py](../services/backend/app/telegram_bot.py) | API, бот, worker и Support Pro |
+| [services/backend/app/telegram_stars.py](../services/backend/app/telegram_stars.py) | API, бот, worker и Support Pro |
+| [services/backend/app/tg.py](../services/backend/app/tg.py) | API, бот, worker и Support Pro |
+| [services/backend/app/themes.py](../services/backend/app/themes.py) | API, бот, worker и Support Pro |
+| [services/backend/app/torrent_detection.py](../services/backend/app/torrent_detection.py) | API, бот, worker и Support Pro |
+| [services/backend/app/totp.py](../services/backend/app/totp.py) | API, бот, worker и Support Pro |
+| [services/backend/app/traffic_report.py](../services/backend/app/traffic_report.py) | API, бот, worker и Support Pro |
+| [services/backend/app/tribute.py](../services/backend/app/tribute.py) | API, бот, worker и Support Pro |
+| [services/backend/app/v3_api.py](../services/backend/app/v3_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/v6_api.py](../services/backend/app/v6_api.py) | API, бот, worker и Support Pro |
+| [services/backend/app/vpn_sessions.py](../services/backend/app/vpn_sessions.py) | API, бот, worker и Support Pro |
+| [services/backend/app/webhook_tee.py](../services/backend/app/webhook_tee.py) | API, бот, worker и Support Pro |
+| [services/backend/app/weekly_digest.py](../services/backend/app/weekly_digest.py) | API, бот, worker и Support Pro |
+| [services/backend/app/wg_pool.py](../services/backend/app/wg_pool.py) | API, бот, worker и Support Pro |
+| [services/backend/app/widget.py](../services/backend/app/widget.py) | API, бот, worker и Support Pro |
+| [services/backend/bot-entrypoint.sh](../services/backend/bot-entrypoint.sh) | API, бот, worker и Support Pro |
+| [services/backend/entrypoint.sh](../services/backend/entrypoint.sh) | API, бот, worker и Support Pro |
+| [services/backend/requirements-test.txt](../services/backend/requirements-test.txt) | API, бот, worker и Support Pro |
+| [services/backend/requirements.txt](../services/backend/requirements.txt) | API, бот, worker и Support Pro |
+| [services/backend/scripts/staging-e2e.sh](../services/backend/scripts/staging-e2e.sh) | API, бот, worker и Support Pro |
+| [services/backend/worker.py](../services/backend/worker.py) | API, бот, worker и Support Pro |
+| [services/support-pro/.dockerignore](../services/support-pro/.dockerignore) | API, бот, worker и Support Pro |
+| [services/support-pro/.env.example](../services/support-pro/.env.example) | API, бот, worker и Support Pro |
+| [services/support-pro/README.md](../services/support-pro/README.md) | API, бот, worker и Support Pro |
+| [services/support-pro/TEST_REPORT.md](../services/support-pro/TEST_REPORT.md) | API, бот, worker и Support Pro |
+| [services/support-pro/UPGRADE.md](../services/support-pro/UPGRADE.md) | API, бот, worker и Support Pro |
+| [services/support-pro/VERSION](../services/support-pro/VERSION) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic.ini](../services/support-pro/alembic.ini) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/env.py](../services/support-pro/alembic/env.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/script.py.mako](../services/support-pro/alembic/script.py.mako) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0001_initial.py](../services/support-pro/alembic/versions/0001_initial.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0002_support_3.py](../services/support-pro/alembic/versions/0002_support_3.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0003_product_layer.py](../services/support-pro/alembic/versions/0003_product_layer.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0004_operations.py](../services/support-pro/alembic/versions/0004_operations.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0005_shop_bridge.py](../services/support-pro/alembic/versions/0005_shop_bridge.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0006_remote_history.py](../services/support-pro/alembic/versions/0006_remote_history.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0007_email_channel.py](../services/support-pro/alembic/versions/0007_email_channel.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0008_helpdesk_bridge.py](../services/support-pro/alembic/versions/0008_helpdesk_bridge.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/Dockerfile](../services/support-pro/app/Dockerfile) | API, бот, worker и Support Pro |
+| [services/support-pro/app/__init__.py](../services/support-pro/app/__init__.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/access.py](../services/support-pro/app/access.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/bot.py](../services/support-pro/app/bot.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/cli.py](../services/support-pro/app/cli.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/client_ip.py](../services/support-pro/app/client_ip.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/db.py](../services/support-pro/app/db.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/email_admin.py](../services/support-pro/app/email_admin.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/email_channel.py](../services/support-pro/app/email_channel.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/email_inbound.py](../services/support-pro/app/email_inbound.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/events.py](../services/support-pro/app/events.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/helpdesk_admin.py](../services/support-pro/app/helpdesk_admin.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/helpdesk_bridge.py](../services/support-pro/app/helpdesk_bridge.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/jobs.py](../services/support-pro/app/jobs.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/main.py](../services/support-pro/app/main.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/migrate.py](../services/support-pro/app/migrate.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/models.py](../services/support-pro/app/models.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/operations.py](../services/support-pro/app/operations.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/outbound.py](../services/support-pro/app/outbound.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/portal.py](../services/support-pro/app/portal.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/realtime.py](../services/support-pro/app/realtime.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/schema_v2.json](../services/support-pro/app/schema_v2.json) | API, бот, worker и Support Pro |
+| [services/support-pro/app/security.py](../services/support-pro/app/security.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/services.py](../services/support-pro/app/services.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/shop_bridge.py](../services/support-pro/app/shop_bridge.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/shop_migrate.py](../services/support-pro/app/shop_migrate.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/sla.py](../services/support-pro/app/sla.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/static/app.css](../services/support-pro/app/static/app.css) | API, бот, worker и Support Pro |
+| [services/support-pro/app/static/app.js](../services/support-pro/app/static/app.js) | API, бот, worker и Support Pro |
+| [services/support-pro/app/static/icons.svg](../services/support-pro/app/static/icons.svg) | API, бот, worker и Support Pro |
+| [services/support-pro/app/static/theme.js](../services/support-pro/app/static/theme.js) | API, бот, worker и Support Pro |
+| [services/support-pro/app/storage.py](../services/support-pro/app/storage.py) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/_ui.html](../services/support-pro/app/templates/_ui.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/audit.html](../services/support-pro/app/templates/audit.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/base.html](../services/support-pro/app/templates/base.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/calls.html](../services/support-pro/app/templates/calls.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/catalog.html](../services/support-pro/app/templates/catalog.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/client.html](../services/support-pro/app/templates/client.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/dashboard.html](../services/support-pro/app/templates/dashboard.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/email.html](../services/support-pro/app/templates/email.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/error.html](../services/support-pro/app/templates/error.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/helpdesk.html](../services/support-pro/app/templates/helpdesk.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/knowledge.html](../services/support-pro/app/templates/knowledge.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/knowledge_article.html](../services/support-pro/app/templates/knowledge_article.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/login.html](../services/support-pro/app/templates/login.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/operations.html](../services/support-pro/app/templates/operations.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/operators.html](../services/support-pro/app/templates/operators.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/portal.html](../services/support-pro/app/templates/portal.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/reports.html](../services/support-pro/app/templates/reports.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/rules.html](../services/support-pro/app/templates/rules.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/settings.html](../services/support-pro/app/templates/settings.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/ticket.html](../services/support-pro/app/templates/ticket.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/twofa.html](../services/support-pro/app/templates/twofa.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/webhook_secret.html](../services/support-pro/app/templates/webhook_secret.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/templates/webhooks.html](../services/support-pro/app/templates/webhooks.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/worker.py](../services/support-pro/app/worker.py) | API, бот, worker и Support Pro |
+| [services/support-pro/docker-compose.yml](../services/support-pro/docker-compose.yml) | API, бот, worker и Support Pro |
+| [services/support-pro/install.sh](../services/support-pro/install.sh) | API, бот, worker и Support Pro |
+| [services/support-pro/nginx/main.conf](../services/support-pro/nginx/main.conf) | API, бот, worker и Support Pro |
+| [services/support-pro/nginx/nginx.conf](../services/support-pro/nginx/nginx.conf) | API, бот, worker и Support Pro |
+| [services/support-pro/pytest.ini](../services/support-pro/pytest.ini) | API, бот, worker и Support Pro |
+| [services/support-pro/requirements-dev.txt](../services/support-pro/requirements-dev.txt) | API, бот, worker и Support Pro |
+| [services/support-pro/requirements.txt](../services/support-pro/requirements.txt) | API, бот, worker и Support Pro |
+| [services/support-pro/scripts/backup.sh](../services/support-pro/scripts/backup.sh) | API, бот, worker и Support Pro |
+| [services/support-pro/scripts/renew-cert.sh](../services/support-pro/scripts/renew-cert.sh) | API, бот, worker и Support Pro |
+| [services/support-pro/scripts/restore-check.sh](../services/support-pro/scripts/restore-check.sh) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/conftest.py](../services/support-pro/tests/conftest.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_email_channel.py](../services/support-pro/tests/test_email_channel.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_email_inbound.py](../services/support-pro/tests/test_email_inbound.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_flows.py](../services/support-pro/tests/test_flows.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_helpdesk_bridge.py](../services/support-pro/tests/test_helpdesk_bridge.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_migrations.py](../services/support-pro/tests/test_migrations.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_operations.py](../services/support-pro/tests/test_operations.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_remote_history.py](../services/support-pro/tests/test_remote_history.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_security_audit.py](../services/support-pro/tests/test_security_audit.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_shop_bridge.py](../services/support-pro/tests/test_shop_bridge.py) | API, бот, worker и Support Pro |
+| [support-pro/README.txt](../support-pro/README.txt) | Настройки Support Pro на сервере (.env) |
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
@@ -2466,6 +2483,7 @@
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_host_metrics.py](../tests/test_host_metrics.py) | Проверки |
 | [tests/test_hot_standby.py](../tests/test_hot_standby.py) | Проверки |
+| [tests/test_import_presets.py](../tests/test_import_presets.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_install_catalogue.py](../tests/test_install_catalogue.py) | Проверки |
@@ -2473,6 +2491,7 @@
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_integrity_report.py](../tests/test_integrity_report.py) | Проверки |
 | [tests/test_layout_stage4.py](../tests/test_layout_stage4.py) | Проверки |
+| [tests/test_layout_stage5.py](../tests/test_layout_stage5.py) | Проверки |
 | [tests/test_legal_docs.py](../tests/test_legal_docs.py) | Проверки |
 | [tests/test_license_check.py](../tests/test_license_check.py) | Проверки |
 | [tests/test_license_notices.py](../tests/test_license_notices.py) | Проверки |

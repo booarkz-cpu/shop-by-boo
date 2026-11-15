@@ -60,7 +60,7 @@ def test_overall_status():
 
 def test_migration_head_is_read_from_the_shipped_scripts():
     head = system_status.migration_head()
-    assert head and (ROOT / "backend/alembic/versions" / f"{head}.py").exists()
+    assert head and (ROOT / "services/backend/alembic/versions" / f"{head}.py").exists()
 
 
 @pytest.mark.asyncio

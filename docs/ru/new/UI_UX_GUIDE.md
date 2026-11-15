@@ -74,7 +74,7 @@
 1. Описать раздел в `apps/lucy-admin/web/src/sections.ts`: группа, `tab`, название и одно предложение описания.
 2. Добавить `tab` в тип `Tab`, значок в `NavIcon` и адрес первоначальной загрузки в `load()` (`apps/lucy-admin/web/src/main.tsx`).
 3. Написать компонент в отдельном файле и подключить его в переключатель разделов. Состояния — через `components/ui/state.tsx`.
-4. Если раздел относится к одному из 30 модулей задания, добавить его в `MODULES` (`backend/app/admin_center.py`) и пересоздать `ADMIN_CONTROL_MATRIX.md`.
+4. Если раздел относится к одному из 30 модулей задания, добавить его в `MODULES` (`services/backend/app/admin_center.py`) и пересоздать `ADMIN_CONTROL_MATRIX.md`.
 
 ## Разделы Remnawave, портала подписки и установки (v28.61.0)
 

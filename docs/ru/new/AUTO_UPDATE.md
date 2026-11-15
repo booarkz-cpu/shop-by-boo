@@ -21,7 +21,7 @@
 
 ## Remnawave: панель, ноды, страница подписки
 
-Обновляет то, что поставил [мастер установки](REMNAWAVE_INSTALLATION_WIZARD.md). Код — `backend/app/rw_autoupdate.py`.
+Обновляет то, что поставил [мастер установки](REMNAWAVE_INSTALLATION_WIZARD.md). Код — `services/backend/app/rw_autoupdate.py`.
 
 ### Какая версия ставится
 

@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.124.0: «Расширения Remnawave» → «Сверка с панелью». The backend is a stub shaped like backend/app/rw_drift.py
+// v28.124.0: «Расширения Remnawave» → «Сверка с панелью». The backend is a stub shaped like services/backend/app/rw_drift.py
 // (tests/test_rw_drift.py checks how the differences are found).
 const base = {checked_at: null, ok_at: null, error: null, failed_at: null, items: [], in_sync: false, watched: {autoselect: true, torrent_ban_nodes: 2}};
 

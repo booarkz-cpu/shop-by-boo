@@ -11,7 +11,7 @@
 3. **Ключ доступа (passkey).** `/api/auth/passkeys/login/options` и `/verify`.
 4. **Токен.** `POST /api/auth/mobile/token` с `code_verifier` — только из приложения, код без верификатора бесполезен браузеру. Токен хранится в Keychain (iOS) или зашифрованным ключом AES-GCM из Android Keystore (Android) и передаётся в `Authorization: Bearer`.
 
-Проверка целостности (по желанию владельца): `POST /api/mobile/integrity/challenge`, затем Play Integrity / DeviceCheck при обмене кода. Подробно — `backend/app/mobile_auth.py`, `app_login.py`.
+Проверка целостности (по желанию владельца): `POST /api/mobile/integrity/challenge`, затем Play Integrity / DeviceCheck при обмене кода. Подробно — `services/backend/app/mobile_auth.py`, `app_login.py`.
 
 ## Что настраивается из админки
 
@@ -34,7 +34,7 @@ Push-токены — `POST /api/me/push/devices` и `/unregister`. Событи
 
 ## Администраторское приложение
 
-Использует маршруты `/api/admin/*` с теми же правами ролей ([RBAC](RBAC.md)) и панели Telegram/мобильных админок (`backend/app/mobile_panels.py`). Опасные действия ([подтверждение](RBAC.md#подтверждение-опасных-действий-step-up)) из приложения не вызываются — их делают в веб-админке.
+Использует маршруты `/api/admin/*` с теми же правами ролей ([RBAC](RBAC.md)) и панели Telegram/мобильных админок (`services/backend/app/mobile_panels.py`). Опасные действия ([подтверждение](RBAC.md#подтверждение-опасных-действий-step-up)) из приложения не вызываются — их делают в веб-админке.
 
 ## Адрес магазина вшит в сборку (с v28.86.0)
 

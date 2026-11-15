@@ -1,6 +1,6 @@
 # Мастер-дорожная карта VPN Shop
 
-Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Состояние на `2026-10-31`. Отметка «сделано» означает, что есть подтверждение в коде или в
 результате проверки; «не проверено» — что функциональность существует, но живой прогон не выполнен.
@@ -106,11 +106,11 @@
 
 | Компонент | Функция | Состояние | Файлы | Зависимости |
 | --- | --- | --- | --- | --- |
-| Backend | REST API, 836 маршрутов на 718 путях | IMPLEMENTED | `backend/app/main.py`, 173 модуля | PostgreSQL, Redis |
+| Backend | REST API, 836 маршрутов на 718 путях | IMPLEMENTED | `services/backend/app/main.py`, 173 модуля | PostgreSQL, Redis |
 | Backend | health `/health`, `/health/live`, `/health/ready` | IMPLEMENTED | `main.py` | PostgreSQL, Redis |
 | Backend | RBAC на каждом админ-маршруте | IMPLEMENTED | `security.py`, `require_permission` | — |
 | Backend | идемпотентность платежей и webhook | IMPLEMENTED | `payments_api.py` (`register_provider_event`) | PostgreSQL |
-| Backend | 88 миграций, единственный head | IMPLEMENTED | `backend/alembic/versions` | PostgreSQL |
+| Backend | 88 миграций, единственный head | IMPLEMENTED | `services/backend/alembic/versions` | PostgreSQL |
 | Backend | фоновые задачи и планировщики | IMPLEMENTED | `schedulers.py`, `worker.py` | Redis |
 | Backend | интеграция Remnawave (доступ, срок, трафик) | NOT_VERIFIED | `remnawave*`, `panel_usage.py` | `REMNAWAVE_URL`, `REMNAWAVE_TOKEN` |
 | Backend | 17 платёжных касс и Telegram Stars | PARTIAL | `payments.py`, `payments_api.py`, `gateways/` | ключи касс |

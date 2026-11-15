@@ -22,7 +22,7 @@ def test_internal_runner_routes_exist():
 
 def test_runner_prints_the_marker_only_as_the_final_line():
     host = (ROOT / "scripts/staging-e2e.sh").read_text()
-    image = (ROOT / "backend/scripts/staging-e2e.sh").read_text()
+    image = (ROOT / "services/backend/scripts/staging-e2e.sh").read_text()
     assert host == image
     assert (ROOT / "scripts/staging-e2e.sh").stat().st_mode & 0o111
     lines = [line for line in host.splitlines() if "FULL_E2E_PASS" in line]

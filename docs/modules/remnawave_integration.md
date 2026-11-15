@@ -1,6 +1,6 @@
 # Интеграция с Remnawave
 
-Код: `backend/app/remnawave.py` (HTTP-клиент), `payments_api.py` (`fulfill`, выдача после оплаты), `backend/worker.py` (`run_next_job`: пробный период и выдача), `remnawave_events.py` (вебхуки панели, защита пробного периода), `subscription_commerce.py` (смена тарифа, докупка трафика). Инструкция владельцу — [модуль 18](../ru/modules/18-nodes-routing.md). Тесты: `tests/test_integration_billing_vpn.py` (панель в памяти за `httpx.MockTransport`), `tests/test_behaviour_payments.py`.
+Код: `services/backend/app/remnawave.py` (HTTP-клиент), `payments_api.py` (`fulfill`, выдача после оплаты), `services/backend/worker.py` (`run_next_job`: пробный период и выдача), `remnawave_events.py` (вебхуки панели, защита пробного периода), `subscription_commerce.py` (смена тарифа, докупка трафика). Инструкция владельцу — [модуль 18](../ru/modules/18-nodes-routing.md). Тесты: `tests/test_integration_billing_vpn.py` (панель в памяти за `httpx.MockTransport`), `tests/test_behaviour_payments.py`.
 
 ## Клиент
 

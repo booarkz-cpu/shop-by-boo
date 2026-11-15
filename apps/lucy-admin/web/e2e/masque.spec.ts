@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-// v28.128.0: «Смена протокола» → «MASQUE (CONNECT-IP)». The backend is a stub shaped like backend/app/masque.py
+// v28.128.0: «Смена протокола» → «MASQUE (CONNECT-IP)». The backend is a stub shaped like services/backend/app/masque.py
 // (tests/test_masque.py checks the versions, the inbound and the port conflicts).
 const blockers = [{key: 'panel', title: 'Панель Remnawave не знает MASQUE', text: 'Панель не добавляет пользователей.'},
   {key: 'link', title: 'Нет общей ссылки для клиента', text: 'Только JSON.'}, {key: 'reality', title: 'Не работает с REALITY', text: 'Только TLS.'}];

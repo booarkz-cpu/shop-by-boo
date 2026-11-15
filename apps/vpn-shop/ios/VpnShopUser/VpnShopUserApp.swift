@@ -98,8 +98,8 @@ enum CorgiTrust {
     }
 }
 
-/// corgi://login?base=…&code=… — a one-use sign-in link (backend/app/app_login.py).
-/// Order of corgi://payment?order=… (back from the payment page, backend/app/app_login.py).
+/// corgi://login?base=…&code=… — a one-use sign-in link (services/backend/app/app_login.py).
+/// Order of corgi://payment?order=… (back from the payment page, services/backend/app/app_login.py).
 func paymentOrder(_ url: URL) -> String? {
     guard url.scheme == "corgi", url.host == "payment",
           let order = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "order" })?.value,
@@ -140,7 +140,7 @@ final class Handoff<Value>: @unchecked Sendable {
     }
 }
 
-/// Anonymous app statistics («Приложения: аналитика», backend/app/app_growth.py): a random
+/// Anonymous app statistics («Приложения: аналитика», services/backend/app/app_growth.py): a random
 /// installation id (never a device identifier), platform, app version, event and screen.
 enum CorgiAnalytics {
     // All three are read and written only while holding `lock`.

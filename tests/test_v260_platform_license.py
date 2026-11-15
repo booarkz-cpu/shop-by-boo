@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _abuse():
-    spec = importlib.util.spec_from_file_location("abuse_v260", ROOT / "backend/app/abuse.py")
+    spec = importlib.util.spec_from_file_location("abuse_v260", ROOT / "services/backend/app/abuse.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

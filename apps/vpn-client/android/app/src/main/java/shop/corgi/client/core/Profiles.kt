@@ -23,6 +23,9 @@ data class Profile(
     val configs: List<String> = emptyList(),
     // v1.3.0: what the subscription says about itself (traffic, expiry, support, site) — from its response headers.
     val info: SubInfo = SubInfo(),
+    // v1.9.9: failed updates in a row and the time of the last try — the background update waits longer after each.
+    val failures: Int = 0,
+    val triedAt: Long = 0,
 ) {
     /** The name to show: the subscription's own title when it sends one. */
     val title: String get() = info.title.ifBlank { name }
@@ -50,13 +53,14 @@ data class Profile(
 
     fun toJson(): JSONObject = JSONObject().put("id", id).put("name", name).put("kind", kind).put("url", url).put("links", JSONArray(links))
         .put("json", json).put("updatedAt", updatedAt).put("autoUpdateHours", autoUpdateHours).put("skipped", skipped).put("error", error)
-        .put("configs", JSONArray(configs)).put("info", info.toJson())
+        .put("configs", JSONArray(configs)).put("info", info.toJson()).put("failures", failures).put("triedAt", triedAt)
 
     companion object {
         fun of(j: JSONObject) = Profile(j.getString("id"), j.getString("name"), j.getString("kind"), j.optString("url"),
             j.optJSONArray("links")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList(), j.optString("json"),
             j.optLong("updatedAt"), j.optInt("autoUpdateHours", 12), j.optInt("skipped"), j.optString("error"),
-            j.optJSONArray("configs")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList(), SubInfo.of(j.optJSONObject("info")))
+            j.optJSONArray("configs")?.let { a -> (0 until a.length()).map { a.getString(it) } } ?: emptyList(), SubInfo.of(j.optJSONObject("info")),
+            j.optInt("failures"), j.optLong("triedAt"))
 
         /** What the user pasted or scanned: a subscription URL, links (one per line, or base64), or a JSON config. */
         fun fromText(text: String, id: String, now: Long): Profile {

@@ -11,7 +11,7 @@ from test_subscription_commerce import database
 
 
 def migration(name):
-    path=Path('backend/alembic/versions')/(name+'.py')
+    path=Path('services/backend/alembic/versions')/(name+'.py')
     spec=importlib.util.spec_from_file_location(name,path)
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     return module

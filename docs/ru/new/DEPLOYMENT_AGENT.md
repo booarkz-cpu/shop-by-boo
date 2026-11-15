@@ -6,12 +6,12 @@
 
 | Часть | Файл |
 | --- | --- |
-| Маршруты админки `/api/admin/rw/...` | `backend/app/rw_api.py` |
-| План по режиму, файлы compose, `.env`, Caddyfile | `backend/app/rw_plan.py` |
-| Шаги — закрытый список, их скрипты и откаты | `backend/app/rw_steps.py` |
-| SSH с закреплённым ключом сервера | `backend/app/rw_remote.py` |
-| Исполнитель: очередь, шаги, откат, «пульс» | `backend/app/rw_jobs.py`, цикл `installer_worker` в `backend/worker.py` |
-| Таблицы `remnawave_servers`, `remnawave_installations`, `remnawave_deployment_steps` | `backend/app/models.py`, миграция `0090_remnawave_installer` |
+| Маршруты админки `/api/admin/rw/...` | `services/backend/app/rw_api.py` |
+| План по режиму, файлы compose, `.env`, Caddyfile | `services/backend/app/rw_plan.py` |
+| Шаги — закрытый список, их скрипты и откаты | `services/backend/app/rw_steps.py` |
+| SSH с закреплённым ключом сервера | `services/backend/app/rw_remote.py` |
+| Исполнитель: очередь, шаги, откат, «пульс» | `services/backend/app/rw_jobs.py`, цикл `installer_worker` в `services/backend/worker.py` |
+| Таблицы `remnawave_servers`, `remnawave_installations`, `remnawave_deployment_steps` | `services/backend/app/models.py`, миграция `0090_remnawave_installer` |
 | Раздел админки | `apps/lucy-admin/web/src/rw-installer.tsx` |
 
 Исполнитель — отдельный цикл worker, не общая очередь `jobs`: установка длится до получаса и не должна задерживать платежи и выдачу подписок.

@@ -41,7 +41,7 @@ sudo bash infrastructure/deployment/install-vps.sh
 ```bash
 python3 scripts/check-runtime-placeholders.py
 python3 scripts/check-current-docs.py
-python3 -m compileall -q backend/app support-pro/app
+python3 -m compileall -q services/backend/app services/support-pro/app
 bash -n install.sh deploy/*.sh scripts/*.sh
 ```
 

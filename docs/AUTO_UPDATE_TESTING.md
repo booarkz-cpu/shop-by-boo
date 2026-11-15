@@ -1,6 +1,6 @@
 # Автообновление: проверки
 
-Дистрибутив `v28.154.0`, runtime/API `21.5.1`. Механизм: [AUTO_UPDATE.md](AUTO_UPDATE.md).
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`. Механизм: [AUTO_UPDATE.md](AUTO_UPDATE.md).
 
 Документ фиксирует, что можно проверить **без production-сервера** (в репозитории и в CI) и что
 требует хоста с systemd и root. Не отмечайте сценарий как пройденный, пока не получен результат.
@@ -10,7 +10,7 @@
 Оба файла проходят в песочнице на текущем коммите.
 
 ```bash
-cd backend && MEDIA_DIR=/tmp/media APP_SECRET=ci-only-secret APP_ENV=test \
+cd services/backend && MEDIA_DIR=/tmp/media APP_SECRET=ci-only-secret APP_ENV=test \
   python -m pytest -q ../tests/test_auto_update_api.py ../tests/test_auto_update_agent.py
 ```
 
@@ -139,4 +139,4 @@ gh release delete vX.Y.Z --yes
 ```
 
 Дата и результат проверки: заполняется оператором при прохождении. В репозитории на момент
-`v28.154.0` сценарии с 8 по 12, 16 и 18 имеют статус `NOT_RUN` — они требуют хоста.
+`v28.158.0` сценарии с 8 по 12, 16 и 18 имеют статус `NOT_RUN` — они требуют хоста.

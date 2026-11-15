@@ -14,7 +14,7 @@ def test_version_314_is_first():
 
 
 def test_migration_boot_is_serialized():
-    env = (ROOT / "backend/alembic/env.py").read_text()
+    env = (ROOT / "services/backend/alembic/env.py").read_text()
     create_at = env.index("CREATE TABLE IF NOT EXISTS alembic_version")
     lock_at = env.index("pg_advisory_xact_lock(872663041314)")
     assert lock_at < create_at
@@ -87,7 +87,7 @@ def test_parallel_alembic_upgrade_survives_the_race():
     procs = [
         subprocess.Popen(
             ["python3", "-m", "alembic", "upgrade", "head"],
-            cwd=ROOT / "backend",
+            cwd=ROOT / "services" / "backend",
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,

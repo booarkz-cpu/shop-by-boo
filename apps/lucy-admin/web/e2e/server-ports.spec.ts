@@ -1,7 +1,7 @@
 import {expect, test} from '@playwright/test';
 
 // v28.135.0 (owner's task of 2026-11-13): «Установка» → «Порты сервера». The backend is a stub shaped like
-// backend/app/rw_ports.py (tests/test_rw_ports.py checks the rules; scripts/ci/ports-check.sh runs the node script for real).
+// services/backend/app/rw_ports.py (tests/test_rw_ports.py checks the rules; scripts/ci/ports-check.sh runs the node script for real).
 const row = (over: object) => ({proto: 'tcp', port: 443, why: '', scope: 'all', firewall: 'open', listening: true, process: 'xray',
   opened_by_shop: false, ssh: false, required: true, reachable: null, ...over});
 const view = (over: object = {}) => ({server_id: 2, name: 'de-1', host: '198.51.100.2', firewalls: ['ufw'], checked_outside: false,

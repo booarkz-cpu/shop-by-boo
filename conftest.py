@@ -8,7 +8,7 @@ _test_media = tempfile.TemporaryDirectory(prefix="vpnshop-tests-media-")
 os.environ.setdefault("MEDIA_DIR", _test_media.name)
 from pathlib import Path
 import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent / "backend"))
+sys.path.insert(0, str(Path(__file__).resolve().parent / "services" / "backend"))
 
 _read_text = Path.read_text
 

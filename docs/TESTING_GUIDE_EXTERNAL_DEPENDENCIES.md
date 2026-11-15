@@ -1,13 +1,13 @@
 # Тестирование функций, требующих внешних зависимостей и секретов
 
-Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`.
 
 Документ составлен так, чтобы после выдачи секретов можно было пройти тестирование **без повторного
 изучения проекта**: для каждой функции указаны модули, переменные окружения, команды, ожидаемый
 результат и критерии приёмки.
 
-Все имена секретов и переменных взяты из фактического кода (`backend/app/config.py`,
-`backend/app/gateways/*.py`, `.github/workflows/*.yml`) — ни одно имя не придумано.
+Все имена секретов и переменных взяты из фактического кода (`services/backend/app/config.py`,
+`services/backend/app/gateways/*.py`, `.github/workflows/*.yml`) — ни одно имя не придумано.
 
 ## Статусы
 
@@ -29,7 +29,7 @@
 git clone https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 python -m venv .venv && . .venv/bin/activate
-pip install -r backend/requirements.txt -r backend/requirements-test.txt
+pip install -r services/backend/requirements.txt -r services/backend/requirements-test.txt
 
 cp .env.example .env
 # заполните только те группы, которые собираетесь проверять
@@ -49,22 +49,22 @@ export AUTO_RENEW_ENABLED=false
 ```
 
 `PAYMENTS_SANDBOX=true` действует только при `APP_ENV` из
-`{development, dev, test, testing, staging, sandbox}` (`backend/app/sandbox_mode.py`). В `production`
+`{development, dev, test, testing, staging, sandbox}` (`services/backend/app/sandbox_mode.py`). В `production`
 флаг отклоняется на старте — это защита, а не баг.
 
 Базовый прогон тестов:
 
 ```bash
-cd backend && python -m pytest -q ../tests
+cd services/backend && python -m pytest -q ../tests
 ```
 
-Полный набор — 2507 тестов; в песочнице на `v28.154.0` проходит без падений.
+Полный набор — 2507 тестов; в песочнице на `v28.158.0` проходит без падений.
 
 ## 2. Remnawave (панель VPN)
 
 **Назначение.** Выдача и продление подписок, устройства, узлы, синхронизация статусов.
 
-**Модули.** `backend/app/remnawave.py`, `remnawave_events.py`, `remnawave_shop_api.py`,
+**Модули.** `services/backend/app/remnawave.py`, `remnawave_events.py`, `remnawave_shop_api.py`,
 `sub_proxy.py`, `subscription_freeze.py`.
 
 **Переменные.**
@@ -115,7 +115,7 @@ python -m pytest -q ../tests/live/test_remnawave_live.py -v
 
 **Назначение.** TLS-терминация, маршрутизация на панель и подписки, скрытие прямых портов.
 
-**Модули.** `infrastructure/reverse-proxy/Caddyfile`, `infrastructure/reverse-proxy/caddy/`, `infrastructure/reverse-proxy/nginx/`, `backend/app/sub_proxy.py`.
+**Модули.** `infrastructure/reverse-proxy/Caddyfile`, `infrastructure/reverse-proxy/caddy/`, `infrastructure/reverse-proxy/nginx/`, `services/backend/app/sub_proxy.py`.
 
 **Переменные.** `DOMAIN`, `ACME_EMAIL` (в `.env.example`), плюс параметры Caddyfile.
 
@@ -148,7 +148,7 @@ curl -s https://shop.example.com/api/webhooks/remnawave -X POST -H 'X-Remnawave-
 
 **Назначение.** `/start`, меню, покупка, выдача конфигурации, уведомления, поддержка.
 
-**Модули.** `backend/app/bot.py`, `bot_workspace.py`, `bot_banners.py`, `telegram_stars.py`,
+**Модули.** `services/backend/app/bot.py`, `bot_workspace.py`, `bot_banners.py`, `telegram_stars.py`,
 `telegram_backup.py`, `bot-entrypoint.sh`, сервис `bot` в `docker-compose.yml`.
 
 **Переменные.**
@@ -191,7 +191,7 @@ getUpdates» — запущены два инстанса бота или одн
 
 **Назначение.** Магазин внутри Telegram; авторизация через `initData`.
 
-**Модули.** `apps/telegram-mini-app/`, `backend/app/auth_api.py`, `admin_auth_api.py`, `app_login.py`.
+**Модули.** `apps/telegram-mini-app/`, `services/backend/app/auth_api.py`, `admin_auth_api.py`, `app_login.py`.
 
 **Переменные.** `BOT_TOKEN` (ключ HMAC для проверки подписи), `MINI_APP_URL`, `CABINET_URL`.
 
@@ -216,7 +216,7 @@ HMAC-сверка `hmac.compare_digest`, отказ при отсутствии 
 **Назначение.** Создание платежа, подтверждение, выдача подписки, возвраты.
 
 **Провайдеры в коде.** `yookassa`, `platega`, `rollypay`, `cryptobot`, `freekassa`, `sandbox`,
-плюс шлюзы из `backend/app/gateways/`: `anore`, `antilopay`, `aurapay`, `cashera`, `cloudpayments`,
+плюс шлюзы из `services/backend/app/gateways/`: `anore`, `antilopay`, `aurapay`, `cashera`, `cloudpayments`,
 `lava`, `mulenpay`, `pal24`, `paritypay`, `wata`.
 
 **Переменные.**
@@ -327,7 +327,7 @@ python -m pytest -q ../tests/live/test_payments_live.py -v
 ## 10. Docker и установщик
 
 ```bash
-cp .env.example .env && cp support-pro/.env.example support-pro/.env
+cp .env.example .env && cp services/support-pro/.env.example support-pro/.env
 docker compose -f docker-compose.yml config --quiet
 docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
 bash -n infrastructure/deployment/install-vps.sh
@@ -360,7 +360,7 @@ xcodebuild -project apps/vpn-shop/ios/VpnShopUser.xcodeproj -scheme VpnShopUser 
 ```
 
 В песочнице нет Android SDK и Xcode → `BLOCKED_ACCESS`. Публикация в Google Play и App Store не
-выполнялась: в релизе `v28.154.0` лежат **unsigned** сборки (`corgi_lusi_android_user_3_4_0_unsigned.apk`
+выполнялась: в релизе `v28.158.0` лежат **unsigned** сборки (`corgi_lusi_android_user_3_4_0_unsigned.apk`
 и аналоги). Ссылок на магазины приложений в проекте нет.
 
 **Текущий статус:** `BLOCKED_ACCESS`, подпись — `BLOCKED_SECRETS`.
@@ -392,7 +392,7 @@ xcodebuild -project apps/vpn-shop/ios/VpnShopUser.xcodeproj -scheme VpnShopUser 
 ## 15. Порядок действий после выдачи секретов
 
 1. Заполнить `.env` (не коммитить).
-2. `cd backend && python -m pytest -q ../tests` — базовая линия должна остаться зелёной.
+2. `cd services/backend && python -m pytest -q ../tests` — базовая линия должна остаться зелёной.
 3. Remnawave: `tests/live/test_remnawave_live.py`.
 4. Платежи: `tests/live/test_payments_live.py` с минимальной суммой.
 5. Telegram: `/start` и покупка в тестовом боте.
@@ -418,4 +418,4 @@ gh release delete vX.Y.Z --yes
 
 Не удаляйте `.rollback` на сервере и не отзывайте `.env` без резервной копии.
 
-Дата последней проверки логики в репозитории: `2026-10-31` (песочница, `v28.154.0`).
+Дата последней проверки логики в репозитории: `2026-10-31` (песочница, `v28.158.0`).

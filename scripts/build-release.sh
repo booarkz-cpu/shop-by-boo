@@ -8,7 +8,7 @@ VERSION="21.5.1"
 # Current migration head: 0094_store_subscriptions (the manifest reads it from Alembic below)
 ARTIFACT="$(python3 -c 'import json; print(json.load(open("release-manifest.template.json"))["artifact"])')"
 python -m pytest -q tests
-python -m compileall -q backend
+python -m compileall -q services/backend
 python -m pytest -q tests/test_release_quality_v2_2.py
 bash -n install.sh deploy/*.sh infrastructure/deployment/*.sh scripts/*.sh
 python - <<'PY'
@@ -30,7 +30,7 @@ fi
 python - "$VERSION" "$ARTIFACT" <<'PY'
 import json,sys
 p='release-manifest.template.json'
-m=json.load(open(p)); m['sha256']=None; m['tests']=None; m['artifact']=sys.argv[2]; m['version']=sys.argv[1]; m['migration_head']=__import__('alembic.script',fromlist=['ScriptDirectory']).ScriptDirectory('backend/alembic').get_current_head(); m['detached_manifest']=sys.argv[2].removesuffix('.zip')+'_manifest.json'; m['signed']=False
+m=json.load(open(p)); m['sha256']=None; m['tests']=None; m['artifact']=sys.argv[2]; m['version']=sys.argv[1]; m['migration_head']=__import__('alembic.script',fromlist=['ScriptDirectory']).ScriptDirectory('services/backend/alembic').get_current_head(); m['detached_manifest']=sys.argv[2].removesuffix('.zip')+'_manifest.json'; m['signed']=False
 m['note']='Template only. The exact release manifest is shipped as a detached file next to the ZIP because embedding the ZIP SHA inside the ZIP is self-referential.'
 json.dump(m,open(p,'w'),ensure_ascii=False,indent=2); open(p,'a').write('\n')
 PY

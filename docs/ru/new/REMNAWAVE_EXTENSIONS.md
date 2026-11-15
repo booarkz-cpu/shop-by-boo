@@ -1,6 +1,6 @@
 # Менеджер расширений Remnawave
 
-Этап 12. Раздел «Серверы → Расширения Remnawave» (`apps/lucy-admin/web/src/rw-extensions.tsx`), backend — `backend/app/rw_extensions.py`, маршруты `/api/admin/rw/extensions/...`. Всё управляется из админки, без SSH и терминала.
+Этап 12. Раздел «Серверы → Расширения Remnawave» (`apps/lucy-admin/web/src/rw-extensions.tsx`), backend — `services/backend/app/rw_extensions.py`, маршруты `/api/admin/rw/extensions/...`. Всё управляется из админки, без SSH и терминала.
 
 Функции, которые есть в API панели Remnawave, вызываются через API панели: состояние хранит сама панель, магазин её не дублирует. Функции на сервере ноды (SelfSteal, IPv6, ядро Xray, WARP, NetBird, Xray Checker) выполняет мастер установки по SSH закрытым списком шагов ([DEPLOYMENT_AGENT](DEPLOYMENT_AGENT.md)).
 
@@ -153,11 +153,11 @@ SelfSteal ставится вместе с нодой: в мастере уст�
 
 ### Раздел «SelfSteal» (v28.91.0)
 
-«Серверы → SelfSteal»: сводка нод («известно про N из M»: ноды мастера и ноды подключённой панели), проверка снаружи по 11 пунктам (`backend/app/selfsteal_check.py`: только адрес ноды из реестра, только публичный адрес), свой сайт из архива (`backend/app/selfsteal_sites.py`: zip / tar.gz до 20 МБ, проверка каждого файла), каталог из 22 шаблонов с отдельной сборкой для каждой ноды. Сайт выкладывается на ноду целиком (`rw_steps.SITE`: SHA-256, `sites/site-<sha>`, ссылка `current`, откат). Caddy ноды: своя страница 404, HSTS, без заголовка Server, без перенаправления всех адресов на главную. Подробности — [RELEASE_V28_91_0](../RELEASE_V28_91_0.md).
+«Серверы → SelfSteal»: сводка нод («известно про N из M»: ноды мастера и ноды подключённой панели), проверка снаружи по 11 пунктам (`services/backend/app/selfsteal_check.py`: только адрес ноды из реестра, только публичный адрес), свой сайт из архива (`services/backend/app/selfsteal_sites.py`: zip / tar.gz до 20 МБ, проверка каждого файла), каталог из 22 шаблонов с отдельной сборкой для каждой ноды. Сайт выкладывается на ноду целиком (`rw_steps.SITE`: SHA-256, `sites/site-<sha>`, ссылка `current`, откат). Caddy ноды: своя страница 404, HSTS, без заголовка Server, без перенаправления всех адресов на главную. Подробности — [RELEASE_V28_91_0](../RELEASE_V28_91_0.md).
 
 ### Раздел «Установка» и модули серверов (v28.92.0)
 
-«Серверы → Установка» собирает все операции с серверами (`backend/app/install_catalogue.py`). Новые модули (`backend/app/rw_netmods.py`): «Защита ноды» (таблица `inet corgi_guard`: лимит новых соединений с адреса, бан на 10 минут, белый список — адреса магазина и панели, CGNAT), «MSS clamp» (`inet corgi_mss`, по измеренному MTU пути), «Файл подкачки», «Подбор сайта для REALITY» (только чтение). Действия установки «snapshot» (копия базы панели и файлы компонентов в зашифрованном хранилище магазина) и «remove_component»; ежедневные снапшоты — `backend/app/rw_snapshots.py`. Блокировка рекламы на нодах — `POST /api/admin/rw/extensions/profiles/{uuid}/adblock`. Проверка в CI настоящими соединениями — `scripts/ci/netmods-check.sh`.
+«Серверы → Установка» собирает все операции с серверами (`services/backend/app/install_catalogue.py`). Новые модули (`services/backend/app/rw_netmods.py`): «Защита ноды» (таблица `inet corgi_guard`: лимит новых соединений с адреса, бан на 10 минут, белый список — адреса магазина и панели, CGNAT), «MSS clamp» (`inet corgi_mss`, по измеренному MTU пути), «Файл подкачки», «Подбор сайта для REALITY» (только чтение). Действия установки «snapshot» (копия базы панели и файлы компонентов в зашифрованном хранилище магазина) и «remove_component»; ежедневные снапшоты — `services/backend/app/rw_snapshots.py`. Блокировка рекламы на нодах — `POST /api/admin/rw/extensions/profiles/{uuid}/adblock`. Проверка в CI настоящими соединениями — `scripts/ci/netmods-check.sh`.
 
 ### Экстренное восстановление и «Анти-РКН» (v28.93.0)
 

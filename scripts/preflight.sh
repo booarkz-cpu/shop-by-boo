@@ -5,7 +5,7 @@ cd "$ROOT"
 if [[ -f .env.images ]]; then set -a; . ./.env.images; set +a; fi
 # Host dependencies are not required on a fresh VDS; CI runs the full test suite.
 bash -n install.sh infrastructure/deployment/install-docker.sh infrastructure/deployment/install-vps.sh infrastructure/deployment/build-production.sh scripts/update.sh scripts/pin-images.sh scripts/repin-images.sh scripts/upgrade-postgres.sh
-python3 -m compileall -q backend
+python3 -m compileall -q services/backend
 if command -v docker >/dev/null 2>&1; then if [[ "${REQUIRE_PINNED_IMAGES:-1}" == "1" ]]; then
   [[ -f .env.images ]] || { echo "Missing .env.images: run ./scripts/pin-images.sh before production start." >&2; exit 2; }
   grep -Eq '^REDIS_IMAGE=.*@sha256:' .env.images || { echo "REDIS_IMAGE is not digest-pinned" >&2; exit 2; }

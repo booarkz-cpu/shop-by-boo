@@ -1,6 +1,6 @@
 # Инвентаризация проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
 Support Pro `0008`, мобильные приложения 3.8.0.
 
 Все числа в этом документе получены из репозитория на коммите `e3b9387` (`main`), а не из README:
@@ -42,13 +42,13 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 | Каталог | Файлов | Назначение |
 | --- | --- | --- |
 | `docs/` | 573 | документация на трёх языках + архив |
-| `backend/` | 331 | API, бот, worker, миграции |
+| `services/backend/` | 331 | API, бот, worker, миграции |
 | `tests/` | 228 | pytest-набор |
 | `mobile/` | 176 | Android и iOS, user и admin |
 | `screenshots/` | 142 | галереи интерфейсов |
 | `apps/lucy-admin/web/` | 120 | админ-панель (Next.js) |
 | `apps/user-cabinet/` | 110 | личный кабинет и Mini App (Next.js) |
-| `support-pro/` | 93 | отдельный сервис поддержки |
+| `services/support-pro/` | 93 | отдельный сервис поддержки |
 | `scripts/` | 77 | эксплуатация и релиз |
 | `.github/` | 61 | 15 workflows, соглашения |
 | `infrastructure/` | 20 | установщик, Caddy, nginx, prometheus, grafana, wireguard, mail-tls, Terraform; `deploy/` — 5 переходников старых путей |
@@ -61,8 +61,8 @@ Support Pro `0008`, мобильные приложения 3.8.0.
 
 | Параметр | Значение |
 | --- | --- |
-| Python-модулей в `backend/app` | **173** |
-| Строк в `backend/app` | **45 728** |
+| Python-модулей в `services/backend/app` | **173** |
+| Строк в `services/backend/app` | **45 728** |
 | Крупнейшие модули | `models.py` 2166, `mail_domain.py` 1052, `payments.py` 1046, `payments_api.py` 1009, `main.py` 991, `e2e_v2.py` 959, `runtime_settings.py` 956 |
 | Маршрутов (метод, путь) | **836** |
 | Уникальных путей | **718** |

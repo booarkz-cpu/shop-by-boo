@@ -7,7 +7,7 @@ is cut out of its sheet without the caption, placed on the right as a slightly t
 card with a soft shadow, and the section title is set on the left in the same condensed bold
 lettering (Roboto Condensed 800, SIL OFL, fonts/). Every section has its own sticker.
 
-Output: backend/app/assets/bot_banners/<key>.jpg (1280x640) and the copies the Mini App bundles
+Output: services/backend/app/assets/bot_banners/<key>.jpg (1280x640) and the copies the Mini App bundles
 in apps/user-cabinet/public/assets/banners/; with --extras also docs/img/hero.jpg (README cover) and
 docs/img/bot-banners-all.jpg (all banners on one sheet).
 
@@ -33,7 +33,7 @@ from PIL import Image
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 STICKERS = HERE / "source/stickers"
-OUT = ROOT / "backend/app/assets/bot_banners"
+OUT = ROOT / "services/backend/app/assets/bot_banners"
 MINIAPP = ROOT / "apps/user-cabinet/public/assets/banners"
 STICKER_ASSETS = ROOT / "apps/user-cabinet/public/assets/stickers"
 # Stickers the cabinet and Mini App show on their own: result screens, empty and error states,

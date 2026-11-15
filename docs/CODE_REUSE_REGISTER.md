@@ -24,13 +24,13 @@
 
 | Функция | Источник-идея | Наша реализация | Статус |
 | --- | --- | --- | --- |
-| Зеркало подписки на своём домене | middleware `index.php` | `backend/app/sub_proxy.py` (537 строк) | есть, с тем же обоснованием: домен панели не открывается из РФ |
+| Зеркало подписки на своём домене | middleware `index.php` | `services/backend/app/sub_proxy.py` (537 строк) | есть, с тем же обоснованием: домен панели не открывается из РФ |
 | Блок устройства по HWID с заглушкой | middleware `overrides.php` | `sub_proxy.py` (`x-hwid`, `x-hwid` в User-Agent) | есть |
-| Грейс-доступ при истечении | middleware `grace.php` | `backend/app/grace_access.py` | есть, с cooldown и «сбрасывать трафик при оплате» |
+| Грейс-доступ при истечении | middleware `grace.php` | `services/backend/app/grace_access.py` | есть, с cooldown и «сбрасывать трафик при оплате» |
 | Переписывание заголовков по приложению | middleware `clientver.php` | `sub_proxy.py` (правила по User-Agent и ОС) | есть |
 | Склейка двух подписок в одну ссылку | middleware `addsub.php` | `sub_proxy.py` | есть, только для URI-списков |
 | Журнал запросов подписки | middleware `request_log` | `sub_proxy.py` → «Журнал подписки» | есть, 14 дней |
-| Доп. конфиги WireGuard/VLESS | middleware `wglease.php` | `backend/app/wg_pool.py` | есть |
+| Доп. конфиги WireGuard/VLESS | middleware `wglease.php` | `services/backend/app/wg_pool.py` | есть |
 | Нейтральная страница для сканеров | middleware `landing.php` | `sub_proxy.py` | есть |
 | Reverse proxy с автоматическим TLS | reverse-proxy целиком | `infrastructure/reverse-proxy/Caddyfile` + сервис `caddy` | есть, TLS и HTTP/3 |
 | Анти-абьюз по HWID/IP/UA | admin `hwid_guard`, `ip_guard` | `anti_sharing.py`, `abuse.py` | есть |
@@ -147,7 +147,7 @@ Anore, Cashera, ParityPay; крипта — CryptoBot и `crypto`; звёзды 
 | Доступность пяти репозиториев | `git clone --depth 60`, все успешны |
 | Лицензия каждого | чтение `LICENSE`/`COPYING`/`NOTICE` в корне и на глубине 2 |
 | Отсутствие лицензии у middleware | `find . -iname "*licen*" -o -iname "*copying*" -o -iname "*notice*"` — пусто; grep по README и INSTALL — пусто |
-| Наличие функции у нас | grep по `backend/app/*.py` и таблица маршрутов собранного приложения |
+| Наличие функции у нас | grep по `services/backend/app/*.py` и таблица маршрутов собранного приложения |
 | Число касс | подсчёт уникальных путей `/api/webhooks/*` и записей `GATEWAYS` |
 | Отсутствие переноса | в `THIRD_PARTY_NOTICES.md` только библиотеки; сторонних исходников в дереве нет |
 

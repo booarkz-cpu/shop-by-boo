@@ -47,7 +47,7 @@ jobs:
         run: python3 scripts/generate-project-map.py --check
 
       - name: Python lint
-        run: ruff check backend scripts tests
+        run: ruff check services/backend scripts tests
 
       - name: Single migration head
         # Reads the revision graph straight from the migration sources. Running

@@ -12,7 +12,7 @@ import ast
 from collections import defaultdict
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1] / "backend" / "app"
+ROOT = Path(__file__).resolve().parents[1] / "services" / "backend" / "app"
 
 ALLOWED = {
     "create_user": {"payments_api", "gift_orders", "seat_access"},

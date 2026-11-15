@@ -7,7 +7,7 @@ import sys
 
 os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("APP_SECRET", "workspace-test-secret")
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "services" / "backend"))
 
 import pytest
 import pytest_asyncio

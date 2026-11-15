@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # v28.94.0 (stage 20, N7): the MTProto module checked for real on the runner — the very script of
-# backend/app/rw_netmods.py with the pinned image: «on» makes a FakeTLS secret, starts the container and the port
+# services/backend/app/rw_netmods.py with the pinned image: «on» makes a FakeTLS secret, starts the container and the port
 # answers a TLS ClientHello with the cover site's name; a second «on» keeps the secret; «off» removes the container,
 # the secret and the port. Needs Docker and python3.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 dir=$(mktemp -d); trap 'bash "$dir/mtproto.sh" off >/dev/null 2>&1 || true; rm -rf "$dir"' EXIT
-image=$(PYTHONPATH=backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
+image=$(PYTHONPATH=services/backend APP_ENV=test MEDIA_DIR=/tmp/media BACKUP_DIR=/tmp/backups python3 - "$dir" <<'PY'
 import sys
 from app import rw_netmods as m
 open(f"{sys.argv[1]}/mtproto.sh", "w").write(m.MTPROTO)

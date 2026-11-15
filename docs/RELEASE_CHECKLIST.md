@@ -1,6 +1,6 @@
 # Чек-лист релиза
 
-Дистрибутив `v28.154.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
+Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
 Support Pro `0008`.
 
 Отмечайте пункт только при наличии подтверждения. Правило простое: то, что не проверено, остаётся
@@ -18,7 +18,7 @@ Support Pro `0008`.
 ```bash
 ruff check backend scripts tests
 while IFS= read -r -d '' f; do bash -n "$f" || echo "FAIL $f"; done < <(git ls-files -z '*.sh')
-cd backend && python -m compileall -q app worker.py
+cd services/backend && python -m compileall -q app worker.py
 ```
 
 - [ ] Lint Python — чисто
@@ -28,7 +28,7 @@ cd backend && python -m compileall -q app worker.py
 ## 3. Тесты
 
 ```bash
-cd backend
+cd services/backend
 export MEDIA_DIR=/tmp/media APP_SECRET=ci-only-secret APP_ENV=test COOKIE_SECURE=false
 export PAYMENTS_SANDBOX=true MOBILE_REQUIRE_PROOF=false AUTO_RENEW_ENABLED=false
 python -m pytest -q ../tests --timeout=120
@@ -57,7 +57,7 @@ cd apps/user-cabinet && npm ci && npm run typecheck && npm test && npm run build
 ## 5. Миграции и схема
 
 ```bash
-cd backend
+cd services/backend
 alembic heads     # один head: 0094_store_subscriptions
 alembic upgrade head
 ```
@@ -85,7 +85,7 @@ python3 scripts/generate-project-map.py --check
 ## 7. Docker
 
 ```bash
-cp .env.example .env && cp support-pro/.env.example support-pro/.env
+cp .env.example .env && cp services/support-pro/.env.example support-pro/.env
 docker compose -f docker-compose.yml config --quiet
 docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
 docker compose build

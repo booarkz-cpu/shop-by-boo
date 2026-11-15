@@ -194,8 +194,8 @@
     "docs/uk/README.md",
     "docs/uk/TESTING.md",
     "docs_API.md",
-    "support-pro/README.md",
-    "support-pro/UPGRADE.md"
+    "services/support-pro/README.md",
+    "services/support-pro/UPGRADE.md"
   ],
   "distribution_tag": "v28.54.0"
 }

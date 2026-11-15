@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ALLOWED = {
     ".env.example": "образец без значений",
     ".env.test.example": "образец для тестов",
-    "support-pro/.env.example": "образец без значений",
+    "services/support-pro/.env.example": "образец без значений",
     "scripts/ci/secret-leak-check.py": "эта проверка сама описывает шаблоны",
     "tests/": "тестовые данные: ключи и токены сгенерированы для тестов и нигде не действуют",
     "docs/archive/": "история выпусков, без действующих значений",

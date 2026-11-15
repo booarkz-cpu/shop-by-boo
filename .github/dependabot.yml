@@ -3,14 +3,14 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: /backend
+    directory: /services/backend
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:
       backend-minor: {update-types: [minor, patch]}
   - package-ecosystem: pip
-    # support-pro/requirements.txt is the only Support Pro lock: tests and the image install it.
-    directory: /support-pro
+    # services/support-pro/requirements.txt is the only Support Pro lock: tests and the image install it.
+    directory: /services/support-pro
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
     groups:
@@ -71,13 +71,13 @@ updates:
       android-client-minor: {update-types: [minor, patch]}
   # Base images of every Dockerfile (pinned by digest: Dependabot moves tag and digest together).
   - package-ecosystem: docker
-    directories: [/backend, /apps/lucy-admin/web, /apps/user-cabinet, /apps/telegram-mini-app, /infrastructure/reverse-proxy/caddy, /support-pro/app]
+    directories: [/services/backend, /apps/lucy-admin/web, /apps/user-cabinet, /apps/telegram-mini-app, /infrastructure/reverse-proxy/caddy, /services/support-pro/app]
     schedule: {interval: weekly, day: monday}
     groups:
       docker-images: {update-types: [minor, patch]}
   # Images of the compose files (PostgreSQL, Redis, Caddy, …).
   - package-ecosystem: docker-compose
-    directories: [/, /support-pro]
+    directories: [/, /services/support-pro]
     schedule: {interval: weekly, day: monday}
     groups:
       compose-images: {update-types: [minor, patch]}

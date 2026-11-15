@@ -14,7 +14,7 @@ def test_version_311_is_first():
 
 def test_runner_prints_checkout_and_image_has_curl():
     host = (ROOT / "scripts/staging-e2e.sh").read_text()
-    image = (ROOT / "backend/scripts/staging-e2e.sh").read_text()
+    image = (ROOT / "services/backend/scripts/staging-e2e.sh").read_text()
     assert host == image
     for text in (host, image):
         assert "[CHECKOUT]" in text
@@ -22,7 +22,7 @@ def test_runner_prints_checkout_and_image_has_curl():
         assert "startswith('https://')" in text
         assert "awaiting_checkout" in text
         assert "в контейнере backend нет curl" in text
-    docker = (ROOT / "backend/Dockerfile").read_text()
+    docker = (ROOT / "services/backend/Dockerfile").read_text()
     assert "curl" in docker
     assert "COPY scripts/staging-e2e.sh ./staging-e2e.sh" in docker
 

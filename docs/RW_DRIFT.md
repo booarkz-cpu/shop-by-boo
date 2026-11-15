@@ -2,7 +2,7 @@
 
 Раздел панели администратора: **Расширения Remnawave**, блок «Сверка с панелью».
 
-Код: `backend/app/rw_drift.py`, блок `apps/lucy-admin/web/src/rw-drift.tsx`,
+Код: `services/backend/app/rw_drift.py`, блок `apps/lucy-admin/web/src/rw-drift.tsx`,
 тесты `tests/test_rw_drift.py` и `apps/lucy-admin/web/e2e/rw-drift.spec.ts`.
 
 ## Зачем

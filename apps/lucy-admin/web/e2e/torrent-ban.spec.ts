@@ -1,7 +1,7 @@
 import {expect, test} from '@playwright/test';
 
 // v28.117.0: «Серверы → Торренты на узлах» → «Временный бан за торренты». The backend is a stub shaped like
-// backend/app/rw_torrent_ban.py (tests/test_rw_torrent_ban.py runs the same flow against a model of the panel).
+// services/backend/app/rw_torrent_ban.py (tests/test_rw_torrent_ban.py runs the same flow against a model of the panel).
 const DE = '00000001-0000-4000-8000-000000000000', CZ = '00000002-0000-4000-8000-000000000000';
 
 function view(state: any) {

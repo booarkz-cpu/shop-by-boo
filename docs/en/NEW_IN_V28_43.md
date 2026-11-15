@@ -1,6 +1,6 @@
 # What is new in v28.43.0
 
-- Two more gateways for cards and SBP, **Cashera** and **ParityPay**, in `backend/app/payments_extra.py`. They take one-time payments only. The shop migration head stays at `0081_subscription_proxy`, and the apps stay at 3.4.0.
+- Two more gateways for cards and SBP, **Cashera** and **ParityPay**, in `services/backend/app/payments_extra.py`. They take one-time payments only. The shop migration head stays at `0081_subscription_proxy`, and the apps stay at 3.4.0.
 - Keys go in runtime settings or `.env`:
   - Cashera: `CASHERA_API_KEY`, `CASHERA_API_SECRET`.
   - ParityPay: `PARITYPAY_SHOP_ID`, `PARITYPAY_SECRET_KEY`, `PARITYPAY_CALLBACK_SECRET`.

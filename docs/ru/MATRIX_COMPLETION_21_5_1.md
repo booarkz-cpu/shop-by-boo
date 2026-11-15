@@ -1,4 +1,4 @@
-# Матрица функций и критерии завершения — дистрибутив v28.154.0
+# Матрица функций и критерии завершения — дистрибутив v28.158.0
 
 Этот документ завершает **описание** функциональной матрицы: у каждой открытой области есть владелец проверки, обязательный сценарий и условие, после которого статус можно повысить. Он не подменяет отсутствующую реализацию и не объявляет внешнюю production-проверку выполненной.
 
@@ -33,7 +33,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Собственный MX-сервер | Сервис `mail_receiver` (профиль `mail`): SMTP-приёмник на asyncio только для адресов из `MAIL_RECEIVER_ROUTES` (остальные — 550, не open relay); SPF, DKIM (rsa-sha256, ed25519-sha256, simple/relaxed) и DMARC (`mail_auth.py`) с отказом при SPF fail и DMARC reject; грейлистинг с белым списком, лимиты размера, частоты, соединений, получателей и длины строки, тайм-ауты; ClamAV INSTREAM с временным отказом при недоступности; STARTTLS (TLS 1.2+); `Authentication-Results` сверху с удалением подделанных; доставка отчётов DMARC в раздел почтового домена и обращений в Support Pro через подписанный `POST /email/inbound`; никаких писем о недоставке; журнал приёма в разделе «Почтовый домен» | `tests/test_mail_receiver.py`: настоящий SMTP-сеанс — релей, DKIM RSA/Ed25519, SPF/DMARC-отказы, подделанные заголовки, лимиты, грейлистинг, ClamAV, недоступный Support Pro, отчёт DMARC, STARTTLS, канонизация по примерам RFC 6376; `support-pro/tests/test_email_inbound.py`: подпись, свежесть, дубли, размер. [Регламент](MAIL_RECEIVER_CURRENT.md) |
+| Собственный MX-сервер | Сервис `mail_receiver` (профиль `mail`): SMTP-приёмник на asyncio только для адресов из `MAIL_RECEIVER_ROUTES` (остальные — 550, не open relay); SPF, DKIM (rsa-sha256, ed25519-sha256, simple/relaxed) и DMARC (`mail_auth.py`) с отказом при SPF fail и DMARC reject; грейлистинг с белым списком, лимиты размера, частоты, соединений, получателей и длины строки, тайм-ауты; ClamAV INSTREAM с временным отказом при недоступности; STARTTLS (TLS 1.2+); `Authentication-Results` сверху с удалением подделанных; доставка отчётов DMARC в раздел почтового домена и обращений в Support Pro через подписанный `POST /email/inbound`; никаких писем о недоставке; журнал приёма в разделе «Почтовый домен» | `tests/test_mail_receiver.py`: настоящий SMTP-сеанс — релей, DKIM RSA/Ed25519, SPF/DMARC-отказы, подделанные заголовки, лимиты, грейлистинг, ClamAV, недоступный Support Pro, отчёт DMARC, STARTTLS, канонизация по примерам RFC 6376; `services/support-pro/tests/test_email_inbound.py`: подпись, свежесть, дубли, размер. [Регламент](MAIL_RECEIVER_CURRENT.md) |
 
 Приём на вашем домене (порт 25, MX, сертификат) — за оператором.
 
@@ -73,7 +73,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Внешние helpdesk-системы (Zendesk/Freshdesk) | Support Pro 3.8, миграция `0008`: `helpdesk_bridge.py` — идентичность клиента по ID внешнего пользователя с объединением по email, импорт истории по курсору (Zendesk incremental export, Freshdesk `updated_since`) с уникальными связями `helpdesk_links` и курсором в одной транзакции со страницей; входящие комментарии, заметки, статусы и вложения с антивирусом; обратная синхронизация ответов через общую очередь доставки со связыванием созданного комментария, сверкой «результат неизвестен» и паузой по 429; удаление данных клиента с меткой против повторного импорта; страница «Внешний helpdesk» | `support-pro/tests/test_helpdesk_bridge.py` (SQLite/PostgreSQL): replay страницы, перенос к существующему клиенту, повторное открытие с вложением через перенаправление, однократная отправка, потеря подтверждения, классификация отказов и пауза 429, удаление данных; `support-pro/tests/test_migrations.py`: roundtrip `0008` и защита отката. [Регламент](SUPPORT_HELPDESK_BRIDGE_CURRENT.md) |
+| Внешние helpdesk-системы (Zendesk/Freshdesk) | Support Pro 3.8, миграция `0008`: `helpdesk_bridge.py` — идентичность клиента по ID внешнего пользователя с объединением по email, импорт истории по курсору (Zendesk incremental export, Freshdesk `updated_since`) с уникальными связями `helpdesk_links` и курсором в одной транзакции со страницей; входящие комментарии, заметки, статусы и вложения с антивирусом; обратная синхронизация ответов через общую очередь доставки со связыванием созданного комментария, сверкой «результат неизвестен» и паузой по 429; удаление данных клиента с меткой против повторного импорта; страница «Внешний helpdesk» | `services/support-pro/tests/test_helpdesk_bridge.py` (SQLite/PostgreSQL): replay страницы, перенос к существующему клиенту, повторное открытие с вложением через перенаправление, однократная отправка, потеря подтверждения, классификация отказов и пауза 429, удаление данных; `services/support-pro/tests/test_migrations.py`: roundtrip `0008` и защита отката. [Регламент](SUPPORT_HELPDESK_BRIDGE_CURRENT.md) |
 
 Проверка на реальной учётной записи Zendesk или Freshdesk — за оператором. Другие helpdesk-системы подключаются тем же интерфейсом адаптера.
 
@@ -103,7 +103,7 @@
 
 | Область | Реализация | Доказательство в исходниках |
 | --- | --- | --- |
-| Email-канал (из строки «Внешние helpdesk/email каналы») | Support Pro 3.7, миграция `0007`: идентичность канала (уникальный email-адрес клиента), приём IMAP с курсором в той же транзакции, дедупликация по Message-ID (в том числе после смены UIDVALIDITY), цепочка ответов только от того же адреса, пропуск автоответов, рассылок и собственного адреса, разбор возвратов; обратная доставка SMTP с In-Reply-To/References и сохранением Message-ID до отправки; уведомление о приватности в ответах, срок хранения и удаление данных клиента; перенос истории к существующему клиенту | `support-pro/tests/test_email_channel.py` (SQLite/PostgreSQL): replay события, перенос истории, отказ ящика и SMTP, удаление данных; `support-pro/tests/test_migrations.py`: roundtrip и защита отката. [Регламент](SUPPORT_EMAIL_CHANNEL_CURRENT.md) |
+| Email-канал (из строки «Внешние helpdesk/email каналы») | Support Pro 3.7, миграция `0007`: идентичность канала (уникальный email-адрес клиента), приём IMAP с курсором в той же транзакции, дедупликация по Message-ID (в том числе после смены UIDVALIDITY), цепочка ответов только от того же адреса, пропуск автоответов, рассылок и собственного адреса, разбор возвратов; обратная доставка SMTP с In-Reply-To/References и сохранением Message-ID до отправки; уведомление о приватности в ответах, срок хранения и удаление данных клиента; перенос истории к существующему клиенту | `services/support-pro/tests/test_email_channel.py` (SQLite/PostgreSQL): replay события, перенос истории, отказ ящика и SMTP, удаление данных; `services/support-pro/tests/test_migrations.py`: roundtrip и защита отката. [Регламент](SUPPORT_EMAIL_CHANNEL_CURRENT.md) |
 
 Проверка на реальном почтовом ящике и сервере SMTP — за оператором.
 
@@ -150,9 +150,9 @@
 ## Проверка текущего выпуска
 
 ```bash
-python3 -m compileall -q backend/app backend/worker.py
+python3 -m compileall -q services/backend/app services/backend/worker.py
 python3 scripts/check-current-docs.py
 git diff --check
 ```
 
-Полный CI дополнительно поднимает PostgreSQL/Redis, применяет Alembic, запускает backend/Support Pro tests, frontend typecheck/build/E2E, Compose и container-boundary проверки. [Подробная инструкция](TESTING.md).
+Полный CI дополнительно поднимает PostgreSQL/Redis, применяет Alembic, запускает services/backend/Support Pro tests, frontend typecheck/build/E2E, Compose и container-boundary проверки. [Подробная инструкция](TESTING.md).

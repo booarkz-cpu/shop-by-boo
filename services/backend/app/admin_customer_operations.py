@@ -41,7 +41,10 @@ async def uploaded(file):
 
 @router.post('/import/inspect')
 async def inspect(file: UploadFile = File(...), table: str = Form('users'), admin=Depends(require_permission('users.import'))):
-    return {**await asyncio.to_thread(extract, await uploaded(file), table), 'currency': settings.default_currency}
+    from .import_presets import suggest
+    schema = await asyncio.to_thread(extract, await uploaded(file), table)
+    # A database the shop recognises (remnawave-shopbot): the column mapping comes with the answer.
+    return {**schema, 'currency': settings.default_currency, 'suggestion': suggest(table, schema['columns'], ('profile',))}
 
 
 async def import_snapshot(db, payload, lock=False):

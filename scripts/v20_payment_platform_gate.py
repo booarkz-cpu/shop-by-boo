@@ -2,9 +2,9 @@
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 checks={
-'payment_platform_adapter':root/'backend/app/payment_platform.py',
-'payment_models':root/'backend/app/models.py',
-'payment_migration':root/'backend/alembic/versions/0040_v20_payment_platform.py',
+'payment_platform_adapter':root/'services/backend/app/payment_platform.py',
+'payment_models':root/'services/backend/app/models.py',
+'payment_migration':root/'services/backend/alembic/versions/0040_v20_payment_platform.py',
 'payment_env':root/'.env.example',
 'payment_release_notes':root/'docs/archive/root/V20_PAYMENT_PLATFORM_RU.md',
 }

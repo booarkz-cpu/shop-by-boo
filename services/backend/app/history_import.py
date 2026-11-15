@@ -356,7 +356,9 @@ def summary(job: HistoryImportJob, payments, subscriptions, report) -> dict:
 @router.post("/inspect")
 async def inspect(file: UploadFile = File(...), table: str = Form(...), admin=Depends(require_permission("users.import"))):
     columns, _ = await asyncio.to_thread(read_table, await uploaded(file), table)
-    return {"table": table, "columns": columns, "currency": settings.default_currency, "adapter": ADAPTER, "max_rows": MAX_ROWS}
+    from .import_presets import suggest
+    return {"table": table, "columns": columns, "currency": settings.default_currency, "adapter": ADAPTER, "max_rows": MAX_ROWS,
+            "suggestion": suggest(table, columns, ("payments", "subscriptions"))}
 
 
 @router.get("")

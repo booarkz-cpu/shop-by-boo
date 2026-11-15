@@ -1866,7 +1866,7 @@ class CancellationFeedback(Base):
 
 
 class AppEvent(Base):
-    """Anonymous app analytics event (backend/app/app_growth.py); no IP, no device identifiers."""
+    """Anonymous app analytics event (services/backend/app/app_growth.py); no IP, no device identifiers."""
     __tablename__ = "app_events"
     id: Mapped[int] = mapped_column(primary_key=True)
     install_hash: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
@@ -1912,7 +1912,7 @@ class PushCampaignRecipient(Base):
 
 
 class FiscalReceipt(Base):
-    """A receipt sent to the tax service for a payment (backend/app/fiscal.py): «Мой налог», АТОЛ Онлайн or ЮKassa."""
+    """A receipt sent to the tax service for a payment (services/backend/app/fiscal.py): «Мой налог», АТОЛ Онлайн or ЮKassa."""
     __tablename__ = "fiscal_receipts"
     __table_args__ = (UniqueConstraint("payment_id", "kind", name="uq_fiscal_receipts_payment_kind"),)
     id: Mapped[int] = mapped_column(primary_key=True)

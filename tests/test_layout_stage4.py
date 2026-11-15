@@ -99,7 +99,7 @@ def test_a_fresh_install_without_the_old_folder_builds(tmp_path):
 
 
 def test_everything_docker_compose_mounts_or_builds_exists():
-    for name in ("docker-compose.yml", "docker-compose.test.yml", "docker-compose.integration.yml", "support-pro/docker-compose.yml"):
+    for name in ("docker-compose.yml", "docker-compose.test.yml", "docker-compose.integration.yml", "services/support-pro/docker-compose.yml"):
         text = (ROOT / name).read_text()
         base = (ROOT / name).parent
         assert not re.search(r"\./deploy/|\./terraform/", text), name
@@ -117,7 +117,7 @@ def test_no_live_file_points_at_a_moved_path():
     assert not (ROOT / "terraform").exists()
     moved = re.compile(r"(?<![A-Za-z0-9_-])deploy/(Caddyfile|caddy/|nginx/|prometheus|grafana|wireguard|mail-tls)|(?<![A-Za-z0-9_/-])terraform/corgi")
     allowed = {"tests/test_layout_stage4.py", "infrastructure/deployment/build-production.sh"}
-    listed = subprocess.run(["git", "ls-files", ".github/workflows", "scripts", "tests", "backend/app", "*.yml", "*.sh"],
+    listed = subprocess.run(["git", "ls-files", ".github/workflows", "scripts", "tests", "services/backend/app", "*.yml", "*.sh"],
                             cwd=ROOT, capture_output=True, text=True).stdout.split()
     bad = []
     for rel in listed:
