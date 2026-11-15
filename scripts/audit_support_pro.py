@@ -8,7 +8,7 @@ checks = {
     'support compose': 'support_pro:' in (ROOT/'docker-compose.yml').read_text(),
     'support caddy': '{$SUPPORT_PRO_DOMAIN}' in (ROOT/'infrastructure/reverse-proxy/Caddyfile').read_text(),
     'support sso endpoint': '/sso' in (ROOT/'services/support-pro/app/main.py').read_text(),
-    'admin support api': '/api/admin/services/support-pro/status' in (ROOT/'services/backend/app/v3_api.py').read_text(),
+    'admin support api': '/api/admin/support-pro/status' in (ROOT/'services/backend/app/v3_api.py').read_text(),
     'admin support ui': 'SupportProDesk' in (ROOT/'apps/lucy-admin/web/src/main.tsx').read_text(),
 }
 for py in [ROOT/'services/backend/app/v3_api.py', ROOT/'services/support-pro/app/main.py']:

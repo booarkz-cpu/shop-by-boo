@@ -115,7 +115,7 @@ HELPDESK_IMPORT_SINCE=2026-10-01   # пусто — последние 30 дне
 
 ## API
 
-Магазин: `GET /api/admin/support/tickets`, ответ и вложения — `/api/admin/support/...`, `GET /api/admin/services/support-pro/status`, `POST /api/admin/services/support-pro/sso`. Клиент: `/api/me/support/...`. Support Pro: `/live`, `/ready`, `/metrics`, `POST /email/inbound`.
+Магазин: `GET /api/admin/support/tickets`, ответ и вложения — `/api/admin/support/...`, `GET /api/admin/support-pro/status`, `POST /api/admin/support-pro/sso`. Клиент: `/api/me/support/...`. Support Pro: `/live`, `/ready`, `/metrics`, `POST /email/inbound`.
 
 ## Подробнее
 

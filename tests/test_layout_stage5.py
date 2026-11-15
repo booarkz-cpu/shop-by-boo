@@ -106,3 +106,22 @@ def test_nothing_live_points_at_the_old_folders():
             continue
         bad += [f"{rel}: {m.group(0)}" for m in old.finditer(text)]
     assert not bad, bad[:20]
+
+
+def test_the_move_did_not_rewrite_api_routes_or_foreign_addresses():
+    """Folder names also appear in API routes and in other projects' addresses; those must stay as they were."""
+    bad = re.compile(r"/api/[^\s\"'`]*services/(backend|support-pro)|remnawave/services/|web/services/backend")
+    found = []
+    for rel in subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split():
+        path = ROOT / rel
+        if rel == "tests/test_layout_stage5.py" or path.suffix in {".png", ".jpg", ".webp", ".ico", ".jar", ".pdf", ".zip", ".gz"} or not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        found += [f"{rel}: {m.group(0)}" for m in bad.finditer(text)]
+    assert not found, found
+    routes = (ROOT / "services/backend/app/v3_api.py").read_text(encoding="utf-8")
+    assert "@router.get('/api/admin/support-pro/status')" in routes
+    assert "@router.post('/api/admin/support-pro/sso')" in routes

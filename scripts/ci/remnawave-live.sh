@@ -5,8 +5,8 @@ set -Eeuo pipefail
 WORK="${RUNNER_TEMP:-/tmp}/remnawave"
 mkdir -p "$WORK" && cd "$WORK"
 REF="${REMNAWAVE_REF:-main}"
-curl -fsSL -o docker-compose.yml "https://raw.githubusercontent.com/remnawave/services/backend/refs/heads/$REF/docker-compose-prod.yml"
-curl -fsSL -o .env "https://raw.githubusercontent.com/remnawave/services/backend/refs/heads/$REF/.env.sample"
+curl -fsSL -o docker-compose.yml "https://raw.githubusercontent.com/remnawave/backend/refs/heads/$REF/docker-compose-prod.yml"
+curl -fsSL -o .env "https://raw.githubusercontent.com/remnawave/backend/refs/heads/$REF/.env.sample"
 for key in JWT_AUTH_SECRET JWT_API_TOKENS_SECRET APP_SECRET METRICS_PASS WEBHOOK_SECRET_HEADER; do
   sed -i "s/^$key=.*/$key=$(openssl rand -hex 32)/" .env
 done

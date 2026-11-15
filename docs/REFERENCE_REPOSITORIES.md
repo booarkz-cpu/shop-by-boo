@@ -40,7 +40,7 @@ webauthn, pyotp. Frontend: React + TypeScript (194 `.tsx`, 112 `.ts`). 709 `.py`
 **270 тестовых файлов** (215 `test_*.py` и 55 `*.test/spec.ts(x)`; прежняя цифра 267 считалась другим фильтром). Compose: `bot`, `remnawave-admin-db`, `web-backend`, `web-collector`,
 `web-frontend`, `prometheus`, `redis`.
 
-**Архитектурно интересное** (`web/services/backend/core/`, 60+ модулей): `hwid_guard`, `ip_guard`, `login_guard`,
+**Архитектурно интересное** (`web/backend/core/`, 60+ модулей): `hwid_guard`, `ip_guard`, `login_guard`,
 `attack_detector`, `torrent_p2p_whitelist`, `traffic_rate_monitor`, `throttle_sync`, `shaper_rollout`,
 `ndpi_rollout`, `plugin_installer`, `webhook_security`, `api_key_auth`, `token_blacklist`, `fail2ban_logger`,
 `reputation`, `sessions`, `violation_notifier`, `online_snapshot_recorder`.
