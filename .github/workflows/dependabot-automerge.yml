@@ -58,6 +58,8 @@ jobs:
               core.warning(`PR #${pr.number} is ready but GitHub refused the merge: ${error.message}`);
               return;
             }
-            // A merge made with GITHUB_TOKEN starts no push workflows: run CI on main explicitly.
-            await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id: 'ci.yml', ref: 'main'});
+            // GITHUB_TOKEN starts no push workflows. Both checks are required by the release gate.
+            for (const workflow_id of ['ci.yml', 'docker.yml']) {
+              await github.rest.actions.createWorkflowDispatch({owner, repo, workflow_id, ref: 'main'});
+            }
             core.notice(`Merged #${pr.number}: ${verdict.reason}`);
