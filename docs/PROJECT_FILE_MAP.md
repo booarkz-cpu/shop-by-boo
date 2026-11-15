@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2660**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2662**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -955,6 +955,7 @@
 | [backend/app/history_import.py](../backend/app/history_import.py) | API, бот и worker |
 | [backend/app/host_metrics.py](../backend/app/host_metrics.py) | API, бот и worker |
 | [backend/app/hot_standby.py](../backend/app/hot_standby.py) | API, бот и worker |
+| [backend/app/import_presets.py](../backend/app/import_presets.py) | API, бот и worker |
 | [backend/app/info_pages.py](../backend/app/info_pages.py) | API, бот и worker |
 | [backend/app/install_catalogue.py](../backend/app/install_catalogue.py) | API, бот и worker |
 | [backend/app/integrity.py](../backend/app/integrity.py) | API, бот и worker |
@@ -2469,6 +2470,7 @@
 | [tests/test_history_import.py](../tests/test_history_import.py) | Проверки |
 | [tests/test_host_metrics.py](../tests/test_host_metrics.py) | Проверки |
 | [tests/test_hot_standby.py](../tests/test_hot_standby.py) | Проверки |
+| [tests/test_import_presets.py](../tests/test_import_presets.py) | Проверки |
 | [tests/test_incident_mode_maintenance.py](../tests/test_incident_mode_maintenance.py) | Проверки |
 | [tests/test_info_pages.py](../tests/test_info_pages.py) | Проверки |
 | [tests/test_install_catalogue.py](../tests/test_install_catalogue.py) | Проверки |
