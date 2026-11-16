@@ -85,6 +85,9 @@ jobs:
       - name: Compile Python
         working-directory: services/backend
         run: python -m compileall -q app worker.py
+      - name: Distribution accepted by installed updater (real package)
+        if: matrix.shard == 1
+        run: python3 tests/test_release_archive_compatibility.py
       - name: Current release documentation contract
         run: |
           python scripts/check-current-docs.py

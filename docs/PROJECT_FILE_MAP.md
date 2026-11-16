@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2696**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2698**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -760,6 +760,7 @@
 | [docs/CLAUDE_GITHUB_AUTOMATION.md](../docs/CLAUDE_GITHUB_AUTOMATION.md) | Документация |
 | [docs/CODE_REUSE_REGISTER.md](../docs/CODE_REUSE_REGISTER.md) | Документация |
 | [docs/CROWDSEC.md](../docs/CROWDSEC.md) | Документация |
+| [docs/DISTRIBUTION_ARCHIVE.md](../docs/DISTRIBUTION_ARCHIVE.md) | Документация |
 | [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
@@ -2573,6 +2574,7 @@
 | [tests/test_reconciliation.py](../tests/test_reconciliation.py) | Проверки |
 | [tests/test_referral_bonus_days.py](../tests/test_referral_bonus_days.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
+| [tests/test_release_archive_compatibility.py](../tests/test_release_archive_compatibility.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
 | [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |
 | [tests/test_remnawave_architecture.py](../tests/test_remnawave_architecture.py) | Проверки |

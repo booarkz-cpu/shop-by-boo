@@ -1523,3 +1523,7 @@ Inspection of actual privacy_export/privacy_delete found incomplete export categ
 ### 2026-11-16 — Final dependency candidate for v28.159
 
 PR #357 merged as d1e3db50 after full green current-head CI and empty reviews. Integrate that main into #355 and the reviewed manifest/lock changes of #359 (head414ba454, user-event14.6.10). All working jobs of #359 passed; its required gate was still queued at preparation, so #359 itself was not merged early. This candidate includes both dependency updates for a fresh full CI; neither old branch results nor a prepared candidate imply a published release. No runtime feature or privacy status changed in this integration.
+
+### 2026-11-16 — Distribution size failure reproduced and repaired
+
+The v28.158 source inventory expands to 95,468,574 bytes, over the installed updater's 83,886,080-byte cap. A real e4df01b6 candidate package reproduced refusal (80,430,009 compressed / 95,623,187 expanded bytes; exit1, no files extracted). Exclude only root screenshots review artifacts from installation archives; preserve runtime assets and every repository screenshot. Enforce compressed/expanded limits before replacing an artifact. Add a real-package extraction regression with byte comparisons of tracked runtime assets. Fresh full CI is mandatory; old green results do not prove this head. Historical releases and live installations are unchanged.
