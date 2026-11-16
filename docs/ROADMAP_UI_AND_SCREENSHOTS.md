@@ -99,7 +99,7 @@
 
 - Исходников desktop-приложений: `desktop/{linux,macos,windows}` содержат только `README.md`.
 - Опубликованных ссылок на Google Play / App Store / RuStore.
-- Подписанных мобильных артефактов: в релизе `v28.160.0` — `*_unsigned.apk` / `*_unsigned.aab`.
+- Подписанных мобильных артефактов: в релизе `v28.159.0` — `*_unsigned.apk` / `*_unsigned.aab`.
 
 ## 9. Порядок дальнейших работ по UI
 
