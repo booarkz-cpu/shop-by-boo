@@ -1485,3 +1485,7 @@ line 2: alembic: command not found
 (`Cannot read properties of undefined (reading 'bind')`) на Node 20. Воспроизведено
 на чистом дереве без этих правок — это дефект окружения, а не изменение кода.
 В CI job «cabinet» на ubuntu-24.04 vitest проходит.
+
+### 2026-11-16 — Observability documentation and backup alert drift
+
+Created docs/OBSERVABILITY.md from actual main4a7cb78d sources. It distinguishes live/ready health, process-local counters versus database gauges, metrics authentication, request IDs, error-log retention, alert delivery semantics and scheduler role conditions. It records unverified VPS/physical-client checks and the pending #355 redaction change instead of claiming production validation. Found Prometheus backup alert still using36h/for30m despite owner RPO1h +20m grace; align to4800s/for5m and add missing/boundary/aging/recovery promtool cases. Real promtool is required in CI; Docker/promtool are unavailable locally. No live notification or payment was triggered.

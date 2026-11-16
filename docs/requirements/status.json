@@ -3132,10 +3132,16 @@
   "note": "docs/PRIVACY_DATA_MAP.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
  },
  "REQ-DOC-0028": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
+  "status": "PASS",
+  "evidence": [
+   "docs/OBSERVABILITY.md",
+   "services/backend/app/observability.py",
+   "services/backend/app/ops_alerts.py",
+   "services/backend/app/host_metrics.py",
+   "infrastructure/monitoring/prometheus/vpnshop-alerts.yml"
+  ],
   "platforms": "all products",
-  "note": "docs/OBSERVABILITY.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "note": "Написан содержательный docs/OBSERVABILITY.md по коду main4a7cb78d и изменениям правила RPO: маршруты health/ready/metrics и ошибки авторизации, каталог и область метрик, ограничения реплик/квантилей, JSON/request_id, error log, оповещения и их гарантии/планировщик, Prometheus/Grafana, read-only диагностика и фактические пробелы. PASS относится к документу, не к живому мониторингу VPS или результату нового promtool; для инфраструктуры остаются внешние проверки. После слияния #355 нужно пересверить описание маскирования журналов."
  },
  "REQ-DOC-0029": {
   "status": "NOT_IMPLEMENTED",
@@ -4382,5 +4388,16 @@
   ],
   "note": "Замеров холодного и тёплого запуска, времени подключения, процессора, памяти, батареи и доли сессий без сбоев нет; численных улучшений проект не заявляет. Нужны устройства (O12).",
   "platforms": "Android client"
+ },
+ "REQ-DOC-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/OBSERVABILITY.md",
+   "docs/ru/OPERATIONS_MONITORING.md",
+   "docs/ru/new/REMNAWAVE_MONITORING.md",
+   "scripts/check-doc-links.py"
+  ],
+  "platforms": "all products",
+  "note": "Исправлены найденные устаревшие инструкции мониторинга: «актуальный v28.54» заменён ссылкой на текущий README; версия promtool описана по CI без выдуманного результата; старый порог копии36ч согласован с RPO1ч +20мин допуска/for5мин. Относительные ссылки проверены. Полная семантическая сверка всех живых документов, дублей и инструкций остальных подсистем ещё не выполнена; прохождение link-check её не заменяет."
  }
 }
