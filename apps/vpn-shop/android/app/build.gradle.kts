@@ -80,7 +80,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.biometric:biometric:1.1.0")
     // FCM without the google-services plugin: FirebaseApp is initialised from BuildConfig.
-    implementation("com.google.firebase:firebase-messaging:26.0.1")
+    implementation("com.google.firebase:firebase-messaging:26.0.2")
     // Passkeys: Credential Manager (Play services provider for Android 9-13, platform on 14+).
     implementation("androidx.credentials:credentials:1.6.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.6.0")
