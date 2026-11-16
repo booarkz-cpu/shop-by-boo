@@ -11,13 +11,13 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **198** — 30.3%.
+- Подтверждено (`PASS`): **200** — 30.6%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 198 | Проверено, доказательство указано |
+| `PASS` | 200 | Проверено, доказательство указано |
 | `PARTIAL` | 255 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 32 | Функции нет |
+| `NOT_IMPLEMENTED` | 30 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
 | `NOT_TESTED` | 166 | Ещё не сверено с кодом |
@@ -40,7 +40,7 @@
 | Интерфейсы | 10 | 1 | 9 | 0 | 0 |
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
 | CI/CD и выпуски | 15 | 11 | 4 | 0 | 0 |
-| Документация | 37 | 20 | 2 | 0 | 10 |
+| Документация | 37 | 22 | 2 | 0 | 10 |
 | Аудит, тесты, скриншоты | 69 | 16 | 7 | 0 | 43 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
@@ -4298,12 +4298,13 @@
 
 > - `docs/RELEASE_PROCESS.md`
 
-### REQ-DOC-0031 — `NOT_IMPLEMENTED`
+### REQ-DOC-0031 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2450). Продукт: Все три.
-- Платформы: all products.
-- Названные файлы: `docs/UPGRADE_ROLLBACK.md` — нет.
-- Примечание: docs/UPGRADE_ROLLBACK.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Платформы: server, all products.
+- Названные файлы: `docs/UPGRADE_ROLLBACK.md` — есть (`docs/UPGRADE_ROLLBACK.md`).
+- Доказательство: `docs/UPGRADE_ROLLBACK.md`; `scripts/update-from-github.sh`; `scripts/github_release_fetch.py`; `scripts/update.sh`; `scripts/rollback.sh`; `scripts/upgrade-postgres.sh`.
+- Примечание: Содержательный документ по проверенному коду: стадирование до snapshot, предел80MiB/дефект опубликованного состава, незашифрованный SQL только магазина, сохранение секретов, PG16→18, recovery marker, ручной откат, границы doctor и ещё не измеренные VPS RPO/RTO. PASS относится к документу, не живому обновлению.
 
 > - `docs/UPGRADE_ROLLBACK.md`
 
@@ -4336,12 +4337,13 @@
 
 > - `docs/ACCESSIBILITY_AUDIT.md`
 
-### REQ-DOC-0035 — `NOT_IMPLEMENTED`
+### REQ-DOC-0035 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2454). Продукт: Все три.
-- Платформы: all products.
-- Названные файлы: `docs/PERFORMANCE_BASELINE.md` — нет.
-- Примечание: docs/PERFORMANCE_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Платформы: services/backend API, CI.
+- Названные файлы: `docs/PERFORMANCE_BASELINE.md` — есть (`docs/PERFORMANCE_BASELINE.md`).
+- Доказательство: `docs/PERFORMANCE_BASELINE.md`; `tests/load/shop.js`; `.github/workflows/load-security.yml`; `docker-compose.test.yml`.
+- Примечание: Зафиксирован реальный k6 run43820979540/job133143742123 на e4df01b6: окружение, профиль, точные метрики, допустимые409/429 и отсутствие разбивки статусов, пределы sandbox/локальногоCI. Это документ замера; production/VPS/VPN SLO и устройства не подтверждены.
 
 > - `docs/PERFORMANCE_BASELINE.md`
 

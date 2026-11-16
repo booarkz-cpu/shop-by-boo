@@ -3164,10 +3164,17 @@
   "note": "docs/SLO_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
  },
  "REQ-DOC-0031": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
-  "platforms": "all products",
-  "note": "docs/UPGRADE_ROLLBACK.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "status": "PASS",
+  "evidence": [
+   "docs/UPGRADE_ROLLBACK.md",
+   "scripts/update-from-github.sh",
+   "scripts/github_release_fetch.py",
+   "scripts/update.sh",
+   "scripts/rollback.sh",
+   "scripts/upgrade-postgres.sh"
+  ],
+  "note": "Содержательный документ по проверенному коду: стадирование до snapshot, предел80MiB/дефект опубликованного состава, незашифрованный SQL только магазина, сохранение секретов, PG16→18, recovery marker, ручной откат, границы doctor и ещё не измеренные VPS RPO/RTO. PASS относится к документу, не живому обновлению.",
+  "platforms": "server, all products"
  },
  "REQ-DOC-0032": {
   "status": "PASS",
@@ -3188,10 +3195,15 @@
   "note": "docs/ACCESSIBILITY_AUDIT.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
  },
  "REQ-DOC-0035": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
-  "platforms": "all products",
-  "note": "docs/PERFORMANCE_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "status": "PASS",
+  "evidence": [
+   "docs/PERFORMANCE_BASELINE.md",
+   "tests/load/shop.js",
+   ".github/workflows/load-security.yml",
+   "docker-compose.test.yml"
+  ],
+  "note": "Зафиксирован реальный k6 run43820979540/job133143742123 на e4df01b6: окружение, профиль, точные метрики, допустимые409/429 и отсутствие разбивки статусов, пределы sandbox/локальногоCI. Это документ замера; production/VPS/VPN SLO и устройства не подтверждены.",
+  "platforms": "services/backend API, CI"
  },
  "REQ-DOC-0015": {
   "status": "NOT_IMPLEMENTED",

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2681**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2683**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -771,6 +771,7 @@
 | [docs/OBSERVABILITY.md](../docs/OBSERVABILITY.md) | Документация |
 | [docs/OWNER_DECISIONS.md](../docs/OWNER_DECISIONS.md) | Документация |
 | [docs/PAYMENT_PROVIDER_INVENTORY.md](../docs/PAYMENT_PROVIDER_INVENTORY.md) | Документация |
+| [docs/PERFORMANCE_BASELINE.md](../docs/PERFORMANCE_BASELINE.md) | Документация |
 | [docs/PRIVACY_DATA_MAP.md](../docs/PRIVACY_DATA_MAP.md) | Документация |
 | [docs/PROJECT_ARCHITECTURE.md](../docs/PROJECT_ARCHITECTURE.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
@@ -794,6 +795,7 @@
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/THREAT_MODEL.md](../docs/THREAT_MODEL.md) | Документация |
 | [docs/TORRENT_BAN.md](../docs/TORRENT_BAN.md) | Документация |
+| [docs/UPGRADE_ROLLBACK.md](../docs/UPGRADE_ROLLBACK.md) | Документация |
 | [docs/VERSIONING.md](../docs/VERSIONING.md) | Документация |
 | [docs/architecture/ADR/0000-template.md](../docs/architecture/ADR/0000-template.md) | Документация |
 | [docs/architecture/ADR/0001-audit-seals-in-settings.md](../docs/architecture/ADR/0001-audit-seals-in-settings.md) | Документация |

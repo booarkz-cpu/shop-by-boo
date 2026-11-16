@@ -1497,3 +1497,7 @@ Added SECURITY_BASELINE and PRIVACY_DATA_MAP from actual authentication, configu
 ### 2026-11-16 — Mobile release guide
 
 Documented the actual Mobile packages and build-mobile paths, product/version separation, signing states, certificate checks, update manifests,33asset verification, client-v tags, Main moved and existing clobber risk. Distinguish unsigned iOS/simulator output from a signed device release and physical installation; preserve owner decision20 not to repair historicalv28.152. No workflow was dispatched or published by creating this guide.
+
+### 2026-11-16 — Verified rollback documentation and measured CI baseline
+
+Write UPGRADE_ROLLBACK from main4a7 sources, explicitly distinguishing code/shopSQL rollback from bothDB encrypted DR and retaining unknown live RPO/RTO. Write PERFORMANCE_BASELINE from actual e4df01b6 k6 run43820979540/job133143742123, including expected409/429 and inability to infer useful200 capacity. Upgrade only DOC0031/0035 document requirements. CI43819452995 promtool3.5 check and rule tests actually succeeded; Android UI failed before tests at Maven Central HTTP429 for JUnit, not an assertion. Further commits need fresh CI.

@@ -15,3 +15,7 @@
 Справочники: [Passkeys](ru/ADMIN_PASSKEYS.md), [операционный мониторинг](ru/OPERATIONS_MONITORING.md), [проверки и ограничения](ru/RELEASE_21_0_0_ALPHA_7.md).
 
 Точное обновление: [DISTRIBUTION_UPGRADE_CURRENT.md](ru/DISTRIBUTION_UPGRADE_CURRENT.md). Проверка сервера: [INFRASTRUCTURE_CHECKS_CURRENT.md](ru/INFRASTRUCTURE_CHECKS_CURRENT.md). Полная карта: [PROJECT_FILE_MAP.md](PROJECT_FILE_MAP.md).
+
+## Эксплуатационные основания
+
+[Безопасность](SECURITY_BASELINE.md), [карта персональных данных](PRIVACY_DATA_MAP.md), [наблюдаемость](OBSERVABILITY.md), [обновление и откат](UPGRADE_ROLLBACK.md), [выпуск приложений](MOBILE_RELEASE_GUIDE.md), [измеренный CI baseline](PERFORMANCE_BASELINE.md). Каждый документ отдельно перечисляет подтверждённое поведение и оставшиеся внешние проверки.
