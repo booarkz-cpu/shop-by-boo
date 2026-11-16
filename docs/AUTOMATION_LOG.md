@@ -2,6 +2,24 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-16 — продолжение очереди PR и проверок клиента
+**Что завершено.** PR #356 слит squash-коммитом `23534b828e68ad311027950cb5f871345a1162f8` после успешных
+20 заданий CI, включая Android и iOS. На main запущены CI, Docker и Mobile packages; фактическая публикация
+v28.158.0 с 33 файлами пока ожидается. Обычная очередь слияний до неё не продвигается.
+**Что исправляется.** В #355 проверка буфера обмена не получила фокус окна за 10 секунд ещё до установки
+контрольного значения. Эмулятор перед длинными VPN-пробами теперь разблокируется и остаётся включённым;
+при повторном сбое выводятся состояние питания и фокус окон. Утверждения об отмене и содержимом копии сохранены.
+Конфликты с main разрешены с сохранением обоих разделов журнала и перегенерацией карты файлов.
+**Чем проверено.** Локально: YAML и bash-синтаксис сценария эмулятора, контракт заглушек, реестр 653 требований,
+карта файлов и документационный контракт. Полный CI нового head #355 ещё требуется; причина отсутствия фокуса
+не объявляется окончательно подтверждённой до прогона на эмуляторе.
+
+## 2026-11-15 — PARTIAL в PASS, выпуск v28.159.0
+**Задача.** Решение владельца № 24: закрыть требования, которые закрываются без VPS и телефона.
+**Что сделано.** [RELEASE_V28_159_0.md](ru/RELEASE_V28_159_0.md): маскировка секретов в журналах, время UTC в интерфейсах, «Мои данные», «Сбросить шаблон», клиент 1.10.1, ADR 0006–0011.
+**Чем проверено.** Полный набор тестов Python, тесты кабинета в четырёх часовых поясах, проверки панели на Node, ktlint; клиент и браузерные сценарии — в CI.
+**Что осталось.** 239 PARTIAL, включая REQ-SEC-0012 (полный охват секретов из базы и персональных данных ещё не доказан); документ лимитов (REQ-PERF-0004) — нужен лимит параллельных вебхуков.
+
 ## 2026-11-15 — восстановление цепочки выпуска после Dependabot
 **Задача.** Устранить остановку публикации v28.158.0 после автоматического слияния #352; затем проверить все открытые PR.
 **Причина.** Слияние с `GITHUB_TOKEN` не запускает push-workflow. Автоматика запускала только CI вручную,
@@ -1486,6 +1504,30 @@ line 2: alembic: command not found
 на чистом дереве без этих правок — это дефект окружения, а не изменение кода.
 В CI job «cabinet» на ubuntu-24.04 vitest проходит.
 
+### 2026-11-16 — Android emulator script execution
+
+PR #355 run 43805377711 stopped before instrumentation: android-emulator-runner executes each script line in a separate shell, so the multiline failure block was incomplete. Move the full sequence to scripts/mobile/client-ui-e2e.sh and invoke it as one command. Preserve the real tunnel probes, clipboard assertions and diagnostic failure exit. A fresh device run is required; this change alone does not prove the focus issue fixed.
+
+### 2026-11-16 — Focus failure evidence
+
+Run 43806437911 still failed at the initial focus wait (18/19 device tests passed), despite an awake display. Post-run dumpsys showed an ANR window for com.google.android.apps.nexuslauncher, but this was after ActivityScenario teardown and does not prove the focus owner during the failing assertion. Switch the standalone client test image to AOSP default (Google services are not required here), and capture dumpsys power/window inside the focus timeout before rethrowing the original failure. Keep all clipboard and data assertions. REQ-CLIENT-0019 remains PARTIAL until actual passing evidence.
+
+### 2026-11-16 — Verified Android export and Python3.15 integration
+
+PR #354 merged normally as 4a7cb78d5fff582093aa4836aee95c4dc9da31cf after all20 CI jobs, including gate/iOS, passed. Standalone Android client run43807885310/job133102823342 on dda67a16 passed real links/JSON tunnel probes and connectedDebugAndroidTest on AOSP/API34. Restore REQ-CLIENT-0019 to PASS with exact evidence; no physical-device claim. Merge current main into #355 without conflicts and preserve new pinned Actions/Gradle/npm/Python3.15. New full CI is required for the integrated head. #345 was closed unmerged by Dependabot and replaced with #359 (user-event14.6.10); #357 has a new head, so old results do not prove it.
+
+### 2026-11-16 — Privacy source verification
+
+Inspection of actual privacy_export/privacy_delete found incomplete export categories and retained support text/history/backups. Restore REQ-SHOP-0017 to PARTIAL: existence of UI is not evidence of the full policy/legal-scope requirement. No live data or deletion behavior changed. Correct client privacy statements: Vault.seal returns plaintext on Keystore failure, proxy username is outside Vault, TrafficHistory uses takeLast(90) dated records rather than a calendar TTL. Preserve REQ-CLIENT-0032 PARTIAL and all653 requirement IDs. Fresh integrated CI remains required.
+
+### 2026-11-16 — Final dependency candidate for v28.159
+
+PR #357 merged as d1e3db50 after full green current-head CI and empty reviews. Integrate that main into #355 and the reviewed manifest/lock changes of #359 (head414ba454, user-event14.6.10). All working jobs of #359 passed; its required gate was still queued at preparation, so #359 itself was not merged early. This candidate includes both dependency updates for a fresh full CI; neither old branch results nor a prepared candidate imply a published release. No runtime feature or privacy status changed in this integration.
+
+### 2026-11-16 — Distribution size failure reproduced and repaired
+
+The v28.158 source inventory expands to 95,468,574 bytes, over the installed updater's 83,886,080-byte cap. A real e4df01b6 candidate package reproduced refusal (80,430,009 compressed / 95,623,187 expanded bytes; exit1, no files extracted). Exclude only root screenshots review artifacts from installation archives; preserve runtime assets and every repository screenshot. Enforce compressed/expanded limits before replacing an artifact. Add a real-package extraction regression with byte comparisons of tracked runtime assets. Fresh full CI is mandatory; old green results do not prove this head. Historical releases and live installations are unchanged.
+
 ### 2026-11-16 — Observability documentation and backup alert drift
 
 Created docs/OBSERVABILITY.md from actual main4a7cb78d sources. It distinguishes live/ready health, process-local counters versus database gauges, metrics authentication, request IDs, error-log retention, alert delivery semantics and scheduler role conditions. It records unverified VPS/physical-client checks and the pending #355 redaction change instead of claiming production validation. Found Prometheus backup alert still using36h/for30m despite owner RPO1h +20m grace; align to4800s/for5m and add missing/boundary/aging/recovery promtool cases. Real promtool is required in CI; Docker/promtool are unavailable locally. No live notification or payment was triggered.
@@ -1505,3 +1547,7 @@ Write UPGRADE_ROLLBACK from main4a7 sources, explicitly distinguishing code/shop
 ## 2026-11-16 — Accessibility source audit (PR360)
 
 Added ACCESSIBILITY_AUDIT from exact92363652 sources: dark button text contrast3.678/hover2.542, missing modal focus containment/return, incomplete auth tabs, unknown Meter value semantics. Six opaque token pairs calculated with sRGB relative luminance. Distinguish source findings from browser/device proof; document native checks as NOT_RUN. DOC0034 documents only; UI0007 stays PARTIAL. No runtime/UI or live systems changed. Current PR355 head da012b79 has six successful workflow runs, including full CI43840760256 with20 successful jobs and empty review/thread lists. Landing helper cannot run authenticated here (gh auth status: not logged in); no merge claimed.
+
+## 2026-11-16 — Integrate main after355 into documentation
+
+Merge main2a204cd3 into PR360 without moving main during159 publication. Preserve source/dependencies and seven operational documents. Resolve SHOP0017/CLIENT0032 by retaining PARTIAL and unioning evidence/notes. Regenerate215PASS/241PARTIAL/29NOT_IMPLEMENTED/166NOT_TESTED+2BLOCKED=653; map2705paths. Source reconstruction of the canonical register exactly reproduced the previous316607-character output before generating merged data. Update logging/archive/privacy against355; append PR361/873febf0 proof71Chromium/74unit without device claims. No terminal used; fresh CI required. v28.159.0 currently25of33assets; no further main merge.

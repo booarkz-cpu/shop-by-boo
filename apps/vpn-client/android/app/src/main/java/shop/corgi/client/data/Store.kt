@@ -189,9 +189,16 @@ class Store(context: Context) {
         if (!s.autoUpdate) return emptyList()
         val now = System.currentTimeMillis()
         return profiles.filter { p ->
-            val minutes = if (p.info.updateHours > 0) minOf(s.updateMinutes, p.info.updateHours * 60) else s.updateMinutes
-            p.kind == "subscription" && shop.corgi.client.core.Backoff.due(now, p.updatedAt, p.triedAt, p.failures, minutes * 60_000L)
+            val interval = shop.corgi.client.core.Backoff.interval(s.updateMinutes, p.info.updateHours)
+            p.kind == "subscription" && shop.corgi.client.core.Backoff.due(now, p.updatedAt, p.triedAt, p.failures, interval)
         }.map { update(it) }
+    }
+
+    /** v1.10.1: when this subscription is updated next by itself, or null (not a subscription, or updates are off). */
+    fun nextUpdate(p: Profile): Long? {
+        if (p.kind != "subscription") return null
+        val s = settings
+        return shop.corgi.client.core.Backoff.planned(s.autoUpdate, s.updateMinutes, p.info.updateHours, p.updatedAt, p.triedAt, p.failures)
     }
 
     fun updateAll(): List<Profile> = profiles.filter { it.kind == "subscription" }.map { update(it) }

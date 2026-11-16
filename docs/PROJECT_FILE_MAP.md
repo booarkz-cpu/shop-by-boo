@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.158.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.159.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2684**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2705**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -302,6 +302,7 @@
 | [apps/lucy-admin/web/src/rw-extensions.tsx](../apps/lucy-admin/web/src/rw-extensions.tsx) | Приложения |
 | [apps/lucy-admin/web/src/rw-installer.tsx](../apps/lucy-admin/web/src/rw-installer.tsx) | Приложения |
 | [apps/lucy-admin/web/src/rwAutoUpdate.tsx](../apps/lucy-admin/web/src/rwAutoUpdate.tsx) | Приложения |
+| [apps/lucy-admin/web/src/safe.ts](../apps/lucy-admin/web/src/safe.ts) | Приложения |
 | [apps/lucy-admin/web/src/sections.ts](../apps/lucy-admin/web/src/sections.ts) | Приложения |
 | [apps/lucy-admin/web/src/selfsteal.tsx](../apps/lucy-admin/web/src/selfsteal.tsx) | Приложения |
 | [apps/lucy-admin/web/src/server-ports.tsx](../apps/lucy-admin/web/src/server-ports.tsx) | Приложения |
@@ -397,6 +398,8 @@
 | [apps/user-cabinet/src/cabinet-texts.test.tsx](../apps/user-cabinet/src/cabinet-texts.test.tsx) | Приложения |
 | [apps/user-cabinet/src/company.tsx](../apps/user-cabinet/src/company.tsx) | Приложения |
 | [apps/user-cabinet/src/connection.tsx](../apps/user-cabinet/src/connection.tsx) | Приложения |
+| [apps/user-cabinet/src/dates.test.tsx](../apps/user-cabinet/src/dates.test.tsx) | Приложения |
+| [apps/user-cabinet/src/dates.ts](../apps/user-cabinet/src/dates.ts) | Приложения |
 | [apps/user-cabinet/src/documents.test.tsx](../apps/user-cabinet/src/documents.test.tsx) | Приложения |
 | [apps/user-cabinet/src/feedback.tsx](../apps/user-cabinet/src/feedback.tsx) | Приложения |
 | [apps/user-cabinet/src/filter.tsx](../apps/user-cabinet/src/filter.tsx) | Приложения |
@@ -416,6 +419,8 @@
 | [apps/user-cabinet/src/masque.tsx](../apps/user-cabinet/src/masque.tsx) | Приложения |
 | [apps/user-cabinet/src/miniapp-sections.tsx](../apps/user-cabinet/src/miniapp-sections.tsx) | Приложения |
 | [apps/user-cabinet/src/mock-config.json](../apps/user-cabinet/src/mock-config.json) | Приложения |
+| [apps/user-cabinet/src/my-data.test.tsx](../apps/user-cabinet/src/my-data.test.tsx) | Приложения |
+| [apps/user-cabinet/src/my-data.tsx](../apps/user-cabinet/src/my-data.tsx) | Приложения |
 | [apps/user-cabinet/src/overview.tsx](../apps/user-cabinet/src/overview.tsx) | Приложения |
 | [apps/user-cabinet/src/partner.tsx](../apps/user-cabinet/src/partner.tsx) | Приложения |
 | [apps/user-cabinet/src/passkeys.tsx](../apps/user-cabinet/src/passkeys.tsx) | Приложения |
@@ -485,6 +490,7 @@
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Ping.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Profiles.kt) | Приложения |
+| [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Redact.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Redact.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Sealed.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Sealed.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt) | Приложения |
 | [apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt](../apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SpeedTest.kt) | Приложения |
@@ -591,6 +597,7 @@
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/RedactTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/RedactTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SealedTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SealedTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt) | Приложения |
@@ -754,6 +761,7 @@
 | [docs/CLAUDE_GITHUB_AUTOMATION.md](../docs/CLAUDE_GITHUB_AUTOMATION.md) | Документация |
 | [docs/CODE_REUSE_REGISTER.md](../docs/CODE_REUSE_REGISTER.md) | Документация |
 | [docs/CROWDSEC.md](../docs/CROWDSEC.md) | Документация |
+| [docs/DISTRIBUTION_ARCHIVE.md](../docs/DISTRIBUTION_ARCHIVE.md) | Документация |
 | [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
@@ -804,6 +812,12 @@
 | [docs/architecture/ADR/0003-pin-actions-and-scanner-by-digest.md](../docs/architecture/ADR/0003-pin-actions-and-scanner-by-digest.md) | Документация |
 | [docs/architecture/ADR/0004-apps-self-update-from-github.md](../docs/architecture/ADR/0004-apps-self-update-from-github.md) | Документация |
 | [docs/architecture/ADR/0005-runtime-images-without-packaging-tools.md](../docs/architecture/ADR/0005-runtime-images-without-packaging-tools.md) | Документация |
+| [docs/architecture/ADR/0006-folder-layout-in-stages-with-shims.md](../docs/architecture/ADR/0006-folder-layout-in-stages-with-shims.md) | Документация |
+| [docs/architecture/ADR/0007-foreign-sources-ideas-only.md](../docs/architecture/ADR/0007-foreign-sources-ideas-only.md) | Документация |
+| [docs/architecture/ADR/0008-hourly-backups-rpo-rto.md](../docs/architecture/ADR/0008-hourly-backups-rpo-rto.md) | Документация |
+| [docs/architecture/ADR/0009-installer-resumes-from-the-failed-stage.md](../docs/architecture/ADR/0009-installer-resumes-from-the-failed-stage.md) | Документация |
+| [docs/architecture/ADR/0010-client-secrets-in-android-keystore.md](../docs/architecture/ADR/0010-client-secrets-in-android-keystore.md) | Документация |
+| [docs/architecture/ADR/0011-log-records-masked-at-creation.md](../docs/architecture/ADR/0011-log-records-masked-at-creation.md) | Документация |
 | [docs/architecture/ADR/README.md](../docs/architecture/ADR/README.md) | Документация |
 | [docs/architecture/API_CATALOG.md](../docs/architecture/API_CATALOG.md) | Документация |
 | [docs/architecture/CONTAINER_DIAGRAM.md](../docs/architecture/CONTAINER_DIAGRAM.md) | Документация |
@@ -1194,6 +1208,7 @@
 | [docs/ru/RELEASE_V28_156_0.md](../docs/ru/RELEASE_V28_156_0.md) | Документация |
 | [docs/ru/RELEASE_V28_157_0.md](../docs/ru/RELEASE_V28_157_0.md) | Документация |
 | [docs/ru/RELEASE_V28_158_0.md](../docs/ru/RELEASE_V28_158_0.md) | Документация |
+| [docs/ru/RELEASE_V28_159_0.md](../docs/ru/RELEASE_V28_159_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
@@ -1382,6 +1397,7 @@
 | [docs/ru/new/BUG_REGISTRY.md](../docs/ru/new/BUG_REGISTRY.md) | Документация |
 | [docs/ru/new/CI_CD.md](../docs/ru/new/CI_CD.md) | Документация |
 | [docs/ru/new/CLIENT_BALANCER.md](../docs/ru/new/CLIENT_BALANCER.md) | Документация |
+| [docs/ru/new/CLIENT_PRIVACY.md](../docs/ru/new/CLIENT_PRIVACY.md) | Документация |
 | [docs/ru/new/DATABASE_SCHEMA.md](../docs/ru/new/DATABASE_SCHEMA.md) | Документация |
 | [docs/ru/new/DEPLOYMENT_AGENT.md](../docs/ru/new/DEPLOYMENT_AGENT.md) | Документация |
 | [docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md](../docs/ru/new/DEPLOYMENT_AGENT_ARCHITECTURE.md) | Документация |
@@ -1840,6 +1856,7 @@
 | [scripts/masque-selfcheck.sh](../scripts/masque-selfcheck.sh) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-ktlint.sh](../scripts/mobile/client-ktlint.sh) | Эксплуатация и релиз |
+| [scripts/mobile/client-ui-e2e.sh](../scripts/mobile/client-ui-e2e.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-vpn-e2e.sh](../scripts/mobile/client-vpn-e2e.sh) | Эксплуатация и релиз |
 | [scripts/mobile/emulator-quiet.sh](../scripts/mobile/emulator-quiet.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
@@ -2130,6 +2147,7 @@
 | [services/backend/app/legal_docs.py](../services/backend/app/legal_docs.py) | API, бот, worker и Support Pro |
 | [services/backend/app/legal_texts.py](../services/backend/app/legal_texts.py) | API, бот, worker и Support Pro |
 | [services/backend/app/log_format.py](../services/backend/app/log_format.py) | API, бот, worker и Support Pro |
+| [services/backend/app/log_redact.py](../services/backend/app/log_redact.py) | API, бот, worker и Support Pro |
 | [services/backend/app/loyalty.py](../services/backend/app/loyalty.py) | API, бот, worker и Support Pro |
 | [services/backend/app/lucy_plans.py](../services/backend/app/lucy_plans.py) | API, бот, worker и Support Pro |
 | [services/backend/app/mail_auth.py](../services/backend/app/mail_auth.py) | API, бот, worker и Support Pro |
@@ -2367,6 +2385,7 @@
 | [services/support-pro/tests/test_security_audit.py](../services/support-pro/tests/test_security_audit.py) | API, бот, worker и Support Pro |
 | [services/support-pro/tests/test_shop_bridge.py](../services/support-pro/tests/test_shop_bridge.py) | API, бот, worker и Support Pro |
 | [support-pro/README.txt](../support-pro/README.txt) | Настройки Support Pro на сервере (.env) |
+| [tests/admin-safe.test.mjs](../tests/admin-safe.test.mjs) | Проверки |
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
@@ -2503,6 +2522,7 @@
 | [tests/test_legal_docs.py](../tests/test_legal_docs.py) | Проверки |
 | [tests/test_license_check.py](../tests/test_license_check.py) | Проверки |
 | [tests/test_license_notices.py](../tests/test_license_notices.py) | Проверки |
+| [tests/test_log_redact.py](../tests/test_log_redact.py) | Проверки |
 | [tests/test_login_fallback_reset.py](../tests/test_login_fallback_reset.py) | Проверки |
 | [tests/test_loyalty.py](../tests/test_loyalty.py) | Проверки |
 | [tests/test_mail_domain.py](../tests/test_mail_domain.py) | Проверки |
@@ -2561,6 +2581,7 @@
 | [tests/test_reconciliation.py](../tests/test_reconciliation.py) | Проверки |
 | [tests/test_referral_bonus_days.py](../tests/test_referral_bonus_days.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
+| [tests/test_release_archive_compatibility.py](../tests/test_release_archive_compatibility.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
 | [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |
 | [tests/test_remnawave_architecture.py](../tests/test_remnawave_architecture.py) | Проверки |

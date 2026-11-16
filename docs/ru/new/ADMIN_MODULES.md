@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.158.0
+# Модули админ-панели — v28.159.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `services/backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `apps/lucy-admin/web/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
@@ -127,7 +127,7 @@ API: `/api/admin/panel`, `/api/admin/panel-guard`, `/api/admin/panel-changes`, `
 
 ## 12. Installation
 
-Статус: `IMPLEMENTED`. Маршрутов API: 85. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 86. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |
@@ -201,7 +201,7 @@ API: `/api/admin/sub-proxy`. Права: `ops.diagnostics`, `settings.runtime.wr
 
 ## 19. Node Extensions
 
-Статус: `IMPLEMENTED`. Маршрутов API: 54. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
+Статус: `IMPLEMENTED`. Маршрутов API: 55. Операции: просмотр, создание, изменение, удаление, настройки, проверка, запись в журнал действий.
 
 | Раздел панели | Что в нём |
 | --- | --- |

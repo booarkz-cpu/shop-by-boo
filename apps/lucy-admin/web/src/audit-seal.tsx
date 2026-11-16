@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from "react";
 import {ShieldCheck} from "lucide-react";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Broken = {from: number; to: number; sealed: number; found: number; sealed_at: string};
 type View = {sealed_records: number; seals: number; sealed_upto: number | null; last_seal_at: string | null; unsealed_records: number; verified_at: string | null; broken: Broken[]; intact: boolean; every_minutes: number};
 
-const when = (value: string | null) => (value ? new Date(value).toLocaleString("ru-RU") : "ещё не было");
+const when = (value: string | null) => (value ? serverDate(value).toLocaleString("ru-RU") : "ещё не было");
 
 /** «Журнал действий → Целостность журнала»: a changed or deleted record breaks the seal of its range. */
 export function AuditSeal({request}: {request: RequestFn}) {

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SelectField } from "@/components/select-field";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type SettingValue = boolean | number | string | null;
 type SettingKind =
@@ -162,7 +163,7 @@ function statusLabel(status: string): string {
 
 function dateTime(value: string | null): string {
   if (!value) return "—";
-  const date = new Date(value);
+  const date = serverDate(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString("ru-RU");
 }
 

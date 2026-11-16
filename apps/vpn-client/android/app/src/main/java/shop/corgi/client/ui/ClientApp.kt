@@ -352,6 +352,13 @@ internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, on
             Text((if (profile.updatedAt > 0) date(profile.updatedAt) + " · " else "") + tr("серверов: ", "servers: ", "серверів: ") + count +
                 (if (profile.skipped > 0) " · " + tr("пропущено ", "skipped ", "пропущено ") + profile.skipped else ""),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.End))
+            // v1.10.1 (REQ-CLIENT-0012): when the subscription is asked next by itself.
+            store.nextUpdate(profile)?.let { next ->
+                Text(tr("Следующее обновление: ", "Next update: ", "Наступне оновлення: ") +
+                    if (next <= System.currentTimeMillis()) tr("скоро", "soon", "незабаром") else date(next),
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.End).testTag("next-update"))
+            }
         }
     }
     qr?.let { text -> QrDialog(text) { qr = null } }

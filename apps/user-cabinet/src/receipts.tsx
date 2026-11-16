@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {serverDate} from "./dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 
@@ -9,7 +10,7 @@ export function MyReceipts({request}: {request: Request}) {
   if (!rows || rows.length === 0) return null;
   return <div className="workspace-receipts" data-receipts><h3>Чеки</h3>
     <ul>{rows.map((r, i) => <li key={i}>
-      <span>{new Date(r.created_at).toLocaleDateString()} · {r.kind === "refund" ? "возврат" : "оплата"} · {r.amount} ₽ · {r.name}</span>{" "}
+      <span>{serverDate(r.created_at).toLocaleDateString()} · {r.kind === "refund" ? "возврат" : "оплата"} · {r.amount} ₽ · {r.name}</span>{" "}
       {r.receipt_url ? <a href={r.receipt_url} target="_blank" rel="noreferrer">Открыть чек</a> : <span className="muted">чек отправлен на почту</span>}
     </li>)}</ul></div>;
 }

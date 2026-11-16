@@ -4,10 +4,11 @@ import React, {useEffect, useState} from "react";
 import {useAppConfig} from "./app-config";
 import {isTelegram, openAnyLink, openInvoice} from "./telegram";
 import {StatusBadge} from "./ui";
+import {serverDate} from "./dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 type Flash = (text: string, error?: boolean) => void;
-const date = (v?: string | null) => (v ? new Date(v).toLocaleDateString() : "—");
+const date = (v?: string | null) => (v ? serverDate(v).toLocaleDateString() : "—");
 
 /** Invitation code from ?family= (cabinet link) or the bot deep link start=family_<code>. */
 export function familyCodeFromUrl(search = typeof location === "undefined" ? "" : location.search): string {
@@ -94,7 +95,7 @@ export function StatusSection({api, request}: {api: string; request?: Request}) 
   const [tone, label] = LEVEL[data.status] || LEVEL.unknown;
   return <div className="status-section" data-status={data.status}>
     <h2 className="section-title">Состояние сервиса</h2>
-    <div className="form-card status-head"><StatusBadge tone={tone}>{label}</StatusBadge><span>{`Онлайн ${data.servers.online} из ${data.servers.total} · проверено ${new Date(data.checked_at + (String(data.checked_at).endsWith("Z") ? "" : "Z")).toLocaleTimeString()}`}</span></div>
+    <div className="form-card status-head"><StatusBadge tone={tone}>{label}</StatusBadge><span>{`Онлайн ${data.servers.online} из ${data.servers.total} · проверено ${serverDate(data.checked_at).toLocaleTimeString()}`}</span></div>
     {(data.components || []).length > 0 && <div className="form-card">{data.components.map((c: any) => <p key={c.name}><StatusBadge tone={c.status === "operational" ? "ok" : c.status === "outage" ? "danger" : "warn"}>{c.name}</StatusBadge> {c.message}</p>)}</div>}
     {data.incidents.length > 0 && <div className="form-card"><h3>Известные проблемы</h3>{data.incidents.map((i: any, n: number) => <p key={n}><b>{i.title}</b> · с {date(i.since)}</p>)}</div>}
     <div className="status-countries">{data.countries.map((c: any) => <div className="status-country" key={c.country}>

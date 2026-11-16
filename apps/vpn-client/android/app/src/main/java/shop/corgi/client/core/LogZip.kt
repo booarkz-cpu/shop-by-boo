@@ -8,6 +8,7 @@ import java.util.zip.ZipOutputStream
 /**
  * v1.8.0 (N12, phase 3): «Экспорт логов» — the app's and the core's logs (and the network log) in one .zip for the
  * support, with a short note about the app and the device. The user picks where to save it; nothing is sent by itself.
+ * v1.10.1: every line goes through [Redact], so the archive carries no keys, server links or addresses.
  */
 object LogZip {
     /** Every log file at most [MAX_FILE] bytes from its end, so a huge log does not make a huge archive. */
@@ -23,7 +24,10 @@ object LogZip {
                 file.inputStream().use { input ->
                     val skip = (file.length() - MAX_FILE).coerceAtLeast(0)
                     if (skip > 0) input.skip(skip)
-                    input.copyTo(zip)
+                    // v1.10.1: keys, server links and addresses are masked line by line (Redact).
+                    input.bufferedReader().lineSequence().forEach { line ->
+                        zip.write((Redact.line(line) + "\n").toByteArray())
+                    }
                 }
                 zip.closeEntry()
             }

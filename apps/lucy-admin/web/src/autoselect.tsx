@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {RefreshCw, Trash2, Zap} from "lucide-react";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Host = {uuid: string; name: string; address: string; country: string | null; in_pool: boolean; hidden: boolean; disabled: boolean; online: boolean | null; users_online: number | null; nodes: string[]};
@@ -19,7 +20,7 @@ type View = {
 };
 
 const API = "/api/admin/rw/autoselect";
-const when = (v: string) => new Date(v).toLocaleString("ru-RU", {dateStyle: "short", timeStyle: "medium"});
+const when = (v: string) => serverDate(v).toLocaleString("ru-RU", {dateStyle: "short", timeStyle: "medium"});
 const flag = (code: string | null) => (code && /^[A-Z]{2}$/.test(code) ? String.fromCodePoint(...[...code].map((c) => 127397 + c.charCodeAt(0))) : "🌐");
 
 /** «Пул автовыбора»: one tile in the customer's list that picks a node; every figure is the panel's own data. */
@@ -52,12 +53,13 @@ export function AutoSelect({request, toast}: {request: RequestFn; toast: (m: str
   }, []);
 
   // One request at a time: a second click while the panel is being changed does nothing.
-  async function run(action: () => Promise<View>, done: string) {
+  async function run(action: () => Promise<View>, done: string | ((answer: any) => string)) {
     if (busy) return;
     setBusy(true);
     try {
-      show(await action());
-      toast(done);
+      const answer = await action();
+      show(answer);
+      toast(typeof done === "function" ? done(answer) : done);
     } catch (e: any) {
       toast(e.message || "Не удалось выполнить");
       await load();
@@ -67,6 +69,11 @@ export function AutoSelect({request, toast}: {request: RequestFn; toast: (m: str
   }
   const save = () => run(() => request(API, {method: "PUT", body: JSON.stringify({name, algorithm, hide_nodes: hide, hosts: picked})}), view?.enabled ? "Пул обновлён" : "Плитка «Автовыбор» включена");
   const refresh = () => run(() => request(`${API}/refresh`, {method: "POST"}), "Пул обновлён по сохранённому выбору");
+  const resetTemplate = () => {
+    if (!window.confirm("Сбросить шаблон пула? Ручные правки шаблона в панели будут заменены шаблоном Default и выбранными узлами. Плитка и скрытые узлы не меняются.")) return;
+    run(() => request(`${API}/reset-template`, {method: "POST"}),
+      (answer) => answer?.template_changed ? "Шаблон пула записан заново" : "Шаблон пула уже совпадал с сохранённым выбором");
+  };
   const remove = () => {
     if (!window.confirm("Убрать плитку «Автовыбор»? Скрытые узлы вернутся в список клиентов, плитка и её шаблон будут удалены из панели.")) return;
     run(() => request(API, {method: "DELETE"}), "Плитка убрана, узлы возвращены в список");
@@ -148,6 +155,7 @@ export function AutoSelect({request, toast}: {request: RequestFn; toast: (m: str
         <p>
           <button type="button" disabled={busy || picked.length === 0} onClick={save}>{busy ? "Выполняется…" : view.enabled ? "Сохранить и обновить пул" : `Включить ${algorithm}`}</button>{" "}
           {view.enabled && <button type="button" className="secondary" disabled={busy} onClick={refresh}><RefreshCw aria-hidden="true" /> Обновить пул</button>}{" "}
+          {view.enabled && <button type="button" className="secondary" disabled={busy} onClick={resetTemplate}>Сбросить шаблон</button>}{" "}
           {(view.enabled || view.tile.exists) && <button type="button" className="danger" disabled={busy} onClick={remove}><Trash2 aria-hidden="true" /> Убрать плитку</button>}
         </p>
         {picked.length === 1 && <p className="muted">В пуле один узел: выбирать будет не из чего. Добавьте хотя бы второй.</p>}

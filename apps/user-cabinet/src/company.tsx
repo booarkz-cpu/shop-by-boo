@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {serverDate} from "./dates";
 
 /** v28.48 «Компания»: корпоративный тариф — сотрудник видит свой доступ, администратор управляет местами, устройствами и счетами. */
 type Request = (path: string, options?: RequestInit) => Promise<any>;
@@ -10,7 +11,7 @@ export function companyCodeFromUrl(search = typeof location === "undefined" ? ""
   return /^[A-Za-z0-9]{6,32}$/.test(raw) && (params.get("company") || /^company_/.test(params.get("tgWebAppStartParam") || params.get("startapp") || "")) ? raw : "";
 }
 
-const day = (v?: string | null) => (v ? new Date(v + (String(v).endsWith("Z") ? "" : "Z")).toLocaleDateString() : "—");
+const day = (v?: string | null) => (v ? serverDate(v).toLocaleDateString() : "—");
 
 export function CompanySection({request, flash, api, reload}: {request: Request; flash: Flash; api: string; reload?: () => Promise<void> | void}) {
   const [d, setD] = useState<any>(null);

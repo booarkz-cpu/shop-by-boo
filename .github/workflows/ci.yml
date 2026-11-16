@@ -85,6 +85,9 @@ jobs:
       - name: Compile Python
         working-directory: services/backend
         run: python -m compileall -q app worker.py
+      - name: Distribution accepted by installed updater (real package)
+        if: matrix.shard == 1
+        run: python3 tests/test_release_archive_compatibility.py
       - name: Current release documentation contract
         run: |
           python scripts/check-current-docs.py
@@ -110,6 +113,8 @@ jobs:
         run: node --test tests/release-publisher.test.cjs tests/dependabot-automerge.test.cjs tests/mobile-client-release.test.cjs
       - name: Terminal screen model
         run: node --experimental-strip-types --test tests/terminal-screen.test.mjs
+      - name: Panel survives a wrapped list and an incomplete label
+        run: TZ=Europe/Moscow node --experimental-strip-types --test tests/admin-safe.test.mjs
       - name: Node port only for the panel (nftables in network namespaces)
         # v28.90.0 (N5): the installer's FIREWALL script itself; real TCP connections from «panel» and «outsider».
         if: matrix.shard == 1

@@ -182,6 +182,8 @@ internal fun BackupPage(store: Store, refresh: () -> Unit) {
     // v1.9.9: a password closes the file (it holds subscription links); a closed file asks for it when restored.
     var password by remember { mutableStateOf("") }
     var sealedFile by remember { mutableStateOf<String?>(null) }
+    // v1.10.1 (REQ-CLIENT-0019): a copy without encryption carries the keys of the servers; asked once before it leaves.
+    var plain by remember { mutableStateOf<(() -> Unit)?>(null) }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) message = runCatching {
             val text = store.backup().toJson().toString(2)
@@ -207,15 +209,21 @@ internal fun BackupPage(store: Store, refresh: () -> Unit) {
                         "With a password the file is encrypted: it cannot be opened or restored without it. The file holds your subscription links.",
                         "З паролем файл зашифровано: без пароля його не відкрити й не відновити. У файлі — посилання ваших підписок.")) },
                     visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation())
-                Button(onClick = { export.launch("corgi-client-backup.json") }, Modifier.fillMaxWidth().testTag("export")) { Text(tr("Экспортировать", "Export", "Експортувати")) }
+                Button(onClick = {
+                    val go = { export.launch("corgi-client-backup.json") }
+                    if (password.isBlank()) plain = go else go()
+                }, Modifier.fillMaxWidth().testTag("export")) { Text(tr("Экспортировать", "Export", "Експортувати")) }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
-                        val link = store.backup().link()
-                        if (link.length <= 2900) qr = link else message = tr("Слишком большая для QR — используйте файл или ссылку", "Too large for a QR — use the file or the link",
-                            "Завелика для QR — використайте файл або посилання")
-                    }, Modifier.weight(1f)) { Text(tr("Показать QR", "Show QR", "Показати QR")) }
-                    OutlinedButton(onClick = { copy(context, "backup", store.backup().link()); message = tr("Ссылка скопирована", "Link copied", "Посилання скопійовано") },
-                        Modifier.weight(1f)) { Text(tr("Копировать ссылку", "Copy link", "Копіювати посилання")) }
+                        plain = {
+                            val link = store.backup().link()
+                            if (link.length <= 2900) qr = link else message = tr("Слишком большая для QR — используйте файл или ссылку", "Too large for a QR — use the file or the link",
+                                "Завелика для QR — використайте файл або посилання")
+                        }
+                    }, Modifier.weight(1f).testTag("backup-qr")) { Text(tr("Показать QR", "Show QR", "Показати QR")) }
+                    OutlinedButton(onClick = {
+                        plain = { copy(context, "backup", store.backup().link()); message = tr("Ссылка скопирована", "Link copied", "Посилання скопійовано") }
+                    }, Modifier.weight(1f).testTag("backup-link")) { Text(tr("Копировать ссылку", "Copy link", "Копіювати посилання")) }
                 }
             }
         }
@@ -236,6 +244,15 @@ internal fun BackupPage(store: Store, refresh: () -> Unit) {
         if (message.isNotBlank()) Text(message, color = MaterialTheme.colorScheme.primary)
     }
     qr?.let { QrDialog(it) { qr = null } }
+    plain?.let { go ->
+        AlertDialog(onDismissRequest = { plain = null },
+            title = { Text(tr("Копия без шифрования", "A copy without encryption", "Копія без шифрування")) },
+            text = { Text(tr("В копии — ссылки ваших подписок и ключи серверов (UUID, пароли) открытым текстом. Кто её получит, сможет подключаться по вашей подписке. Передавайте только себе. Файл можно закрыть паролем.",
+                "The copy holds your subscription links and server keys (UUIDs, passwords) in plain text. Whoever gets it can connect with your subscription. Keep it to yourself. The file can be closed with a password.",
+                "У копії — посилання ваших підписок і ключі серверів (UUID, паролі) відкритим текстом. Хто її отримає, зможе підключатися за вашою підпискою. Передавайте лише собі. Файл можна закрити паролем.")) },
+            confirmButton = { Button(onClick = { plain = null; go() }, Modifier.testTag("plain-confirm")) { Text(tr("Продолжить", "Continue", "Продовжити")) } },
+            dismissButton = { TextButton(onClick = { plain = null }) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
+    }
     restoring?.let { RestoreDialog(store, it) { restoring = null; refresh() } }
     sealedFile?.let { file ->
         var typed by remember(file) { mutableStateOf("") }
@@ -312,7 +329,7 @@ internal fun LogsPage(store: Store, s: Settings, save: (Settings) -> Unit) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedButton(onClick = { revision++ }) { Text(tr("Обновить", "Refresh", "Оновити")) }
-            OutlinedButton(onClick = { copy(context, "log", lines.joinToString("\n")) }) { Text(tr("Копировать", "Copy", "Копіювати")) }
+            OutlinedButton(onClick = { copy(context, "log", shop.corgi.client.core.Redact.text(lines.joinToString("\n"))) }) { Text(tr("Копировать", "Copy", "Копіювати")) }
             OutlinedButton(onClick = { share(context, files) }) { Text(tr("Экспорт", "Export", "Експорт")) }
             OutlinedButton(onClick = { saveZip.launch(shop.corgi.client.core.LogZip.name(System.currentTimeMillis())) }, modifier = Modifier.testTag("logs-zip")) { Text(".zip") }
             TextButton(onClick = { logs.clear(); revision++ }) { Text(tr("Удалить", "Delete", "Видалити"), color = MaterialTheme.colorScheme.error) }
@@ -321,8 +338,8 @@ internal fun LogsPage(store: Store, s: Settings, save: (Settings) -> Unit) {
     }
 }
 
-/** «Экспорт всех»: the logs as text into any app the user picks (they may contain addresses — the user decides). */
+/** «Экспорт всех»: the logs as text into any app the user picks; v1.10.1: masked like the .zip (Redact). */
 private fun share(context: Context, files: List<File>) {
-    val text = files.joinToString("\n\n") { "=== ${it.name} ===\n" + it.readText().takeLast(100_000) }.take(400_000)
+    val text = files.joinToString("\n\n") { "=== ${it.name} ===\n" + shop.corgi.client.core.Redact.text(it.readText().takeLast(100_000)) }.take(400_000)
     context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
 }

@@ -1,6 +1,6 @@
 # Архитектура проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.158.0`, runtime/API `21.5.1`, миграция `0094_store_subscriptions`.
+Дистрибутив `v28.159.0`, runtime/API `21.5.1`, миграция `0094_store_subscriptions`.
 Схема построена по фактическому коду (`services/backend/app`, `docker-compose.yml`, таблица маршрутов),
 а не по проектным описаниям.
 

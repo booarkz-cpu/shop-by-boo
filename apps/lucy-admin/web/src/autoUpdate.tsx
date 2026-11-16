@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {StatusBadge, type Tone} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 type State = {
@@ -91,7 +92,7 @@ export function AutoUpdate({request, toast}: {request: Request; toast?: (text: s
           : result ? <StatusBadge tone={result[1]}>{result[0]}</StatusBadge> : "—"}
       </p>
       {s.last_message ? <p className="muted">{s.last_message}</p> : null}
-      {s.last_run_at ? <p className="muted"><span>Последний запуск</span>: {new Date(s.last_run_at).toLocaleString("ru-RU")}</p> : null}
+      {s.last_run_at ? <p className="muted"><span>Последний запуск</span>: {serverDate(s.last_run_at).toLocaleString("ru-RU")}</p> : null}
       {s.next_run ? <p className="muted"><span>Следующая проверка</span>: {s.next_run}</p> : null}
       {s.failed_release ? <p className="muted">Выпуск {s.failed_release} не установился и ночью повторно не ставится; «Обновить сейчас» попробует снова.</p> : null}
       <label className="check"><input type="checkbox" checked={enabled} disabled={!ready} onChange={e => setEnabled(e.target.checked)}/> Обновлять автоматически каждую ночь</label>

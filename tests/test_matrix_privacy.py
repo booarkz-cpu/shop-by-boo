@@ -85,3 +85,29 @@ async def test_an_endless_subscription_blocks_deletion_and_a_panel_failure_stops
     await database.rollback()
     assert (await database.get(User, 1, populate_existing=True)).deleted_at is None
     assert (await database.get(Subscription, 1, populate_existing=True)).remnawave_uuid == 'remote-1', 'the link to the panel is kept for the next try'
+
+
+@pytest.mark.asyncio
+async def test_the_customer_exports_own_data_without_secrets_or_other_customers(database):
+    """REQ-SHOP-0017: «Скачать мои данные» in the cabinet — GET /api/me/privacy/export."""
+    from decimal import Decimal
+    from app.models import Payment, SupportTicket
+    from app import operations_api
+    owner = await database.get(User, 1)
+    owner.email = 'owner@example.test'; owner.email_password_hash = 'pbkdf2$secret-hash'
+    database.add_all([
+        Payment(user_id=1, plan_id=1, amount=Decimal('100'), currency='RUB', provider='sandbox', status='fulfilled', idempotency_key='own-1', order_id='own-order-1'),
+        Payment(user_id=2, plan_id=1, amount=Decimal('999'), currency='RUB', provider='sandbox', status='fulfilled', idempotency_key='other-1', order_id='other-order-1'),
+        SupportTicket(user_id=1, subject='Не подключается', message='Помогите', status='open'),
+        SupportTicket(user_id=2, subject='Чужое обращение', message='не моё', status='open'),
+    ])
+    await database.commit()
+    data = await operations_api.privacy_export(request(), database)
+    assert data['user']['id'] == 1 and data['user']['referral_code'] == 'OWNER'
+    assert [p['id'] for p in data['payments']] and all(p['amount'].startswith('100') for p in data['payments'])
+    assert len(data['payments']) == 1
+    assert [t['subject'] for t in data['tickets']] == ['Не подключается']
+    assert [s['id'] for s in data['subscriptions']] == [1]
+    text = repr(data)
+    assert 'secret-hash' not in text and 'Чужое обращение' not in text and '999' not in text
+    assert data['exported_at']

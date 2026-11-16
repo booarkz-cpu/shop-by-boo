@@ -216,7 +216,7 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
             LinearProgressIndicator(progress = { value }, modifier = Modifier.fillMaxWidth())
         }
     }
-    LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    LazyColumn(Modifier.fillMaxSize().padding(12.dp).testTag("routing-rules-list"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         // v1.4.0: «Профили маршрутизации» — the mode and rules saved under a name, applied in one tap.
         item { Text(tr("Профили маршрутизации", "Routing profiles", "Профілі маршрутизації"), style = MaterialTheme.typography.titleMedium) }
         items(s.routingProfiles, key = { "profile-" + it.name }) { p ->

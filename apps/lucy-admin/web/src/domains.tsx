@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from "react";
 import {EmptyState, LoadState} from "./components/ui/state";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 type Props = {request: Request; toast: (text: string) => void};
 const post = (body?: unknown): RequestInit => ({method: "POST", body: body === undefined ? undefined : JSON.stringify(body)});
-const when = (v?: string | null) => (v ? new Date(v).toLocaleString() : "—");
+const when = (v?: string | null) => (v ? serverDate(v).toLocaleString() : "—");
 const DNS: Record<string, string> = {unknown: "не проверен", ok: "в порядке", missing: "нет записи", mismatch: "другой адрес", caa: "CAA запрещает", error: "ошибка DNS"};
 const CERT: Record<string, string> = {unknown: "не проверен", valid: "действует", expiring: "скоро истекает", expired: "истёк", invalid: "недоверенный", missing: "нет"};
 const SERVED: Record<string, string> = {shop: "Caddy магазина", remnawave: "Caddy сервера Remnawave", external: "Внешний"};
@@ -72,7 +73,7 @@ export function Domains({request, toast}: Props) {
               {!x.enabled ? <div className="muted">выключен</div> : null}</td>
             <td>{x.purpose_title}<div className="muted">{SERVED[x.served_by]}</div></td>
             <td data-status={x.dns_status}>{DNS[x.dns_status] || x.dns_status}<div className="muted">{when(x.dns_checked_at)}</div></td>
-            <td data-status={x.cert_status}>{CERT[x.cert_status] || x.cert_status}<div className="muted">{x.cert_issuer || ""}{x.cert_expires_at ? ` · до ${new Date(x.cert_expires_at).toLocaleDateString()}` : ""}</div></td>
+            <td data-status={x.cert_status}>{CERT[x.cert_status] || x.cert_status}<div className="muted">{x.cert_issuer || ""}{x.cert_expires_at ? ` · до ${serverDate(x.cert_expires_at).toLocaleDateString()}` : ""}</div></td>
             <td>{x.http_status ?? "—"}</td>
             <td className="actions">
               <button onClick={() => check(x.id)} disabled={busy === `check-${x.id}`}>{busy === `check-${x.id}` ? "Проверка…" : "Проверить"}</button>
@@ -114,7 +115,7 @@ export function Domains({request, toast}: Props) {
       {certs?.certificates?.length ? <div className="table-wrap"><table>
         <thead><tr><th>Домен</th><th>Состояние</th><th>Издатель</th><th>Действует до</th><th>Продление</th></tr></thead>
         <tbody>{certs.certificates.map((c: any) => <tr key={c.domain} data-cert={c.domain} data-status={c.status}><td>{c.domain}</td><td>{CERT[c.status] || c.status}</td><td>{c.issuer || "—"}</td>
-          <td>{c.expires_at ? `${new Date(c.expires_at).toLocaleDateString()} (${c.days_left} дн.)` : "—"}</td><td className="muted">{c.renewal}</td></tr>)}</tbody>
+          <td>{c.expires_at ? `${serverDate(c.expires_at).toLocaleDateString()} (${c.days_left} дн.)` : "—"}</td><td className="muted">{c.renewal}</td></tr>)}</tbody>
       </table></div> : <p className="muted">Сертификаты появятся после проверки доменов.</p>}
     </div>
     <div className="card" data-proxy-routes>

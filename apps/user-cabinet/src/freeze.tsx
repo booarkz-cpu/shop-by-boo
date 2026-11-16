@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from "react";
+import {serverDate} from "./dates";
 
 /** v28.50 «Заморозка подписки»: пауза оплаченной подписки вместо отмены (отпуск, перерыв). */
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 
-const day = (v?: string) => v ? new Date(v + (v.endsWith("Z") ? "" : "Z")).toLocaleDateString("ru-RU") : "—";
+const day = (v?: string) => v ? serverDate(v).toLocaleDateString("ru-RU") : "—";
 
 export function FreezeSection({request, reload, subscriptionId}: {request: RequestFn; reload: () => Promise<void>; subscriptionId?: number}) {
   const [s, setS] = useState<any>(null);

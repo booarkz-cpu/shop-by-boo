@@ -1,4 +1,5 @@
 import {Button} from "./components/ui/button";
+import {list} from "./safe";
 import {readJsonBody} from "../../../user-cabinet/src/http-json";
 import {FieldHints} from "./components/field-hints";
 import {PreferencesMenu,LanguageMenu} from "./components/preferences-menu";
@@ -98,7 +99,7 @@ class AdminErrorBoundary extends React.Component<{children:React.ReactNode;key?:
  render(){if(this.state.error)return <div className="loading-screen"><div className="card" style={{maxWidth:720,width:"calc(100% - 32px)"}}><h2>Раздел не удалось открыть</h2><p className="error">{this.state.error}</p><p className="muted">Проверьте доступ API и повторите открытие раздела. Панель не будет оставаться чёрной.</p><button className="primary" onClick={()=>window.location.reload()}>Перезагрузить панель</button></div></div>;return this.props.children}
 }
 const API=process.env.NEXT_PUBLIC_API_URL||"";
-const STATUS_RU:any={pending:"ожидает",processing:"обрабатывается",failed:"ошибка",completed:"завершено",running:"выполняется",queued:"в очереди",paid:"оплачен",requested:"запрошен",approved:"одобрен",rejected:"отклонён",retry:"повтор",active:"активен",disabled:"отключён"}; const ru=(v:any)=>STATUS_RU[String(v)]||v||"—"; const list=(v:any):any[]=>Array.isArray(v)?v:Array.isArray(v?.items)?v.items:Array.isArray(v?.results)?v.results:Array.isArray(v?.data)?v.data:[];
+const STATUS_RU:any={pending:"ожидает",processing:"обрабатывается",failed:"ошибка",completed:"завершено",running:"выполняется",queued:"в очереди",paid:"оплачен",requested:"запрошен",approved:"одобрен",rejected:"отклонён",retry:"повтор",active:"активен",disabled:"отключён"}; const ru=(v:any)=>STATUS_RU[String(v)]||v||"—";
 function csrf(){return decodeURIComponent(document.cookie.split('; ').find(x=>x.startsWith('rw_csrf='))?.split('=')[1]||'')}
 /** Server error as a readable sentence: FastAPI validation lists become "field: reason; …". */
 export function errorText(d:any,status:number):string{if(typeof d?.detail==="string")return d.detail;if(typeof d?.detail?.message==="string")return d.detail.message;if(Array.isArray(d?.detail)&&d.detail.length){return d.detail.slice(0,3).map((e:any)=>{const msg=String(e?.msg||"").replace(/^Value error, /,"").replace(/^Assertion failed, /,"");const field=(e?.loc||[]).filter((x:any)=>x!=="body"&&typeof x!=="number").slice(-1)[0];return field&&!msg.includes(String(field))?`${field}: ${msg}`:msg}).filter(Boolean).join("; ")||`HTTP ${status}`}return `HTTP ${status}`}
