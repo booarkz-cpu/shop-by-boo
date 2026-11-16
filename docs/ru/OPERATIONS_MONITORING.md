@@ -1,4 +1,4 @@
-> Актуальный дистрибутив: `v28.54.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+> Текущий дистрибутив указан в [README](../../README.md); runtime/API: `21.5.1`. Границы сигналов и проверки: [OBSERVABILITY](../OBSERVABILITY.md).
 
 # Операционный мониторинг магазина
 
@@ -37,4 +37,6 @@
 
 Alerts: недоступность scrape 2 минуты, отказ метрик БД 2 минуты, отсутствие worker 3 минуты, queued задача старше 15 минут в течение 5 минут, доля 5xx выше 5% в течение 5 минут. Подстройте пороги под нагрузку и retry policy. Исторические failed задачи сохраняются, поэтому на их ненулевое число по умолчанию alert не создан.
 
-Правила имеют [тесты срабатывания](../../infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml): `promtool test rules infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml`. Конфигурация, правила и все запросы dashboard проверены promtool 3.15.0.
+Правила имеют [тесты срабатывания](../../infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml): `promtool test rules infrastructure/monitoring/prometheus/vpnshop-alerts.test.yml`. В CI правила проверяются и исполняются promtool из `prom/prometheus:v3.5.0`. Новый результат CI нужен после каждой правки; наличие команды не является результатом проверки.
+
+Порог копии `VpnShopBackupStale` — возраст более 4800 секунд (RPO 1 час + 20 минут допуска) либо отсутствие completed-копии, с `for: 5m`. Это техническое оповещение по решению владельца №8, а не доказательство выполнения RPO/RTO на VPS.

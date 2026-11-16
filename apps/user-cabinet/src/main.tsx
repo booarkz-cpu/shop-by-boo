@@ -227,6 +227,7 @@ function App() {
   useEffect(() => { const on = () => setMaintenance(true); window.addEventListener(MAINTENANCE_EVENT, on); return () => window.removeEventListener(MAINTENANCE_EVENT, on); }, []);
   const [accountFlow,setAccountFlow]=useState<AccountLink|null>(accountLink);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const authTabs = useRef<(HTMLButtonElement | null)[]>([]);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -765,15 +766,21 @@ function App() {
           <section className="auth-layout">
             {guestCheckout && <GuestPurchase request={req} onReady={() => loadSession()} />}
             <div className="form-card">
-              <div className="auth-switch" role="tablist">
-                <button type="button" role="tab" aria-selected={authMode === "login"} className={`tab ${authMode === "login" ? "active" : ""}`} onClick={() => setAuthMode("login")}>
+              <div className="auth-switch" role="tablist" aria-label="Вход и регистрация" onKeyDown={(event) => {
+                if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                event.preventDefault();
+                const next = event.key === "Home" ? "login" : event.key === "End" ? "register" : authMode === "login" ? "register" : "login";
+                setAuthMode(next);
+                authTabs.current[next === "login" ? 0 : 1]?.focus();
+              }}>
+                <button ref={(element) => { authTabs.current[0] = element; }} id="auth-login" type="button" role="tab" aria-controls="auth-panel" tabIndex={authMode === "login" ? 0 : -1} aria-selected={authMode === "login"} className={`tab ${authMode === "login" ? "active" : ""}`} onClick={() => setAuthMode("login")}>
                   Вход
                 </button>
-                <button type="button" role="tab" aria-selected={authMode === "register"} className={`tab ${authMode === "register" ? "active" : ""}`} onClick={() => setAuthMode("register")}>
+                <button ref={(element) => { authTabs.current[1] = element; }} id="auth-register" type="button" role="tab" aria-controls="auth-panel" tabIndex={authMode === "register" ? 0 : -1} aria-selected={authMode === "register"} className={`tab ${authMode === "register" ? "active" : ""}`} onClick={() => setAuthMode("register")}>
                   Регистрация
                 </button>
               </div>
-              <form className="stack" onSubmit={submitAuth}>
+              <form id="auth-panel" role="tabpanel" aria-labelledby={`auth-${authMode}`} className="stack" onSubmit={submitAuth}>
                 {authMode === "register" && (
                   <label className="field">
                     Имя пользователя

@@ -1,10 +1,10 @@
 # Полная карта файлов проекта
 
-Дистрибутив `v28.159.0`; runtime/API `21.5.1`.
+Дистрибутив `v28.160.0`; runtime/API `21.5.1`.
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2698**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2707**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -446,6 +446,7 @@
 | [apps/user-cabinet/src/surveys.tsx](../apps/user-cabinet/src/surveys.tsx) | Приложения |
 | [apps/user-cabinet/src/telegram.ts](../apps/user-cabinet/src/telegram.ts) | Приложения |
 | [apps/user-cabinet/src/tribute.tsx](../apps/user-cabinet/src/tribute.tsx) | Приложения |
+| [apps/user-cabinet/src/ui-accessibility.test.tsx](../apps/user-cabinet/src/ui-accessibility.test.tsx) | Приложения |
 | [apps/user-cabinet/src/ui.tsx](../apps/user-cabinet/src/ui.tsx) | Приложения |
 | [apps/user-cabinet/src/workspace.test.tsx](../apps/user-cabinet/src/workspace.test.tsx) | Приложения |
 | [apps/user-cabinet/src/workspace.tsx](../apps/user-cabinet/src/workspace.tsx) | Приложения |
@@ -747,6 +748,7 @@
 | [docker-compose.integration.yml](../docker-compose.integration.yml) | Корень проекта |
 | [docker-compose.test.yml](../docker-compose.test.yml) | Корень проекта |
 | [docker-compose.yml](../docker-compose.yml) | Корень проекта |
+| [docs/ACCESSIBILITY_AUDIT.md](../docs/ACCESSIBILITY_AUDIT.md) | Документация |
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
 | [docs/AUDIT_LOG_INTEGRITY.md](../docs/AUDIT_LOG_INTEGRITY.md) | Документация |
 | [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
@@ -773,10 +775,14 @@
 | [docs/MASTER_EXECUTION_REPORTS.md](../docs/MASTER_EXECUTION_REPORTS.md) | Документация |
 | [docs/MASTER_ROADMAP_VPN_SHOP.md](../docs/MASTER_ROADMAP_VPN_SHOP.md) | Документация |
 | [docs/MIGRATION_MAPPING.md](../docs/MIGRATION_MAPPING.md) | Документация |
+| [docs/MOBILE_RELEASE_GUIDE.md](../docs/MOBILE_RELEASE_GUIDE.md) | Документация |
 | [docs/MONOREPO_LAYOUT.md](../docs/MONOREPO_LAYOUT.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
+| [docs/OBSERVABILITY.md](../docs/OBSERVABILITY.md) | Документация |
 | [docs/OWNER_DECISIONS.md](../docs/OWNER_DECISIONS.md) | Документация |
 | [docs/PAYMENT_PROVIDER_INVENTORY.md](../docs/PAYMENT_PROVIDER_INVENTORY.md) | Документация |
+| [docs/PERFORMANCE_BASELINE.md](../docs/PERFORMANCE_BASELINE.md) | Документация |
+| [docs/PRIVACY_DATA_MAP.md](../docs/PRIVACY_DATA_MAP.md) | Документация |
 | [docs/PROJECT_ARCHITECTURE.md](../docs/PROJECT_ARCHITECTURE.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_INVENTORY.md](../docs/PROJECT_INVENTORY.md) | Документация |
@@ -792,12 +798,14 @@
 | [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
 | [docs/RW_DRIFT.md](../docs/RW_DRIFT.md) | Документация |
 | [docs/SBOM_AND_LICENSES.md](../docs/SBOM_AND_LICENSES.md) | Документация |
+| [docs/SECURITY_BASELINE.md](../docs/SECURITY_BASELINE.md) | Документация |
 | [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
 | [docs/SERVER_PORTS.md](../docs/SERVER_PORTS.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/THREAT_MODEL.md](../docs/THREAT_MODEL.md) | Документация |
 | [docs/TORRENT_BAN.md](../docs/TORRENT_BAN.md) | Документация |
+| [docs/UPGRADE_ROLLBACK.md](../docs/UPGRADE_ROLLBACK.md) | Документация |
 | [docs/VERSIONING.md](../docs/VERSIONING.md) | Документация |
 | [docs/architecture/ADR/0000-template.md](../docs/architecture/ADR/0000-template.md) | Документация |
 | [docs/architecture/ADR/0001-audit-seals-in-settings.md](../docs/architecture/ADR/0001-audit-seals-in-settings.md) | Документация |
@@ -1203,6 +1211,7 @@
 | [docs/ru/RELEASE_V28_158_0.md](../docs/ru/RELEASE_V28_158_0.md) | Документация |
 | [docs/ru/RELEASE_V28_159_0.md](../docs/ru/RELEASE_V28_159_0.md) | Документация |
 | [docs/ru/RELEASE_V28_15_0.md](../docs/ru/RELEASE_V28_15_0.md) | Документация |
+| [docs/ru/RELEASE_V28_160_0.md](../docs/ru/RELEASE_V28_160_0.md) | Документация |
 | [docs/ru/RELEASE_V28_16_0.md](../docs/ru/RELEASE_V28_16_0.md) | Документация |
 | [docs/ru/RELEASE_V28_17_0.md](../docs/ru/RELEASE_V28_17_0.md) | Документация |
 | [docs/ru/RELEASE_V28_18_0.md](../docs/ru/RELEASE_V28_18_0.md) | Документация |

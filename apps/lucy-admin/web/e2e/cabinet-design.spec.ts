@@ -109,3 +109,36 @@ test('Telegram Mini App integration drives theme, haptics, BackButton and MainBu
   await page.evaluate(() => (window as any).Telegram.WebApp.MainButton.handlers.forEach((cb: () => void) => cb()));
   await expect(page.getByRole('heading', {name: 'Тарифы', level: 2})).toBeVisible();
 });
+
+
+test('authentication tabs expose their panel and support keyboard selection without losing input', async ({page}) => {
+  await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
+  await page.goto('/cabinet/');
+  const tabs = page.getByRole('tablist', {name: 'Вход и регистрация'});
+  const login = tabs.getByRole('tab', {name: 'Вход', exact: true});
+  const register = tabs.getByRole('tab', {name: 'Регистрация', exact: true});
+  const email = page.getByLabel('Электронная почта');
+  await email.fill('keyboard@example.test');
+  await login.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(register).toBeFocused();
+  await expect(register).toHaveAttribute('aria-selected', 'true');
+  await expect(register).toHaveAttribute('tabindex', '0');
+  await expect(login).toHaveAttribute('tabindex', '-1');
+  const panel = page.getByRole('tabpanel', {name: 'Регистрация', exact: true});
+  await expect(panel).toHaveAttribute('id', await register.getAttribute('aria-controls') as string);
+  await expect(panel.getByLabel('Имя пользователя')).toBeVisible();
+  await expect(email).toHaveValue('keyboard@example.test');
+  await page.keyboard.press('Home');
+  await expect(login).toBeFocused();
+  await expect(page.getByRole('tabpanel', {name: 'Вход', exact: true})).toBeVisible();
+  await page.keyboard.press('End');
+  await expect(register).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  await expect(login).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
+  await expect(register).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByLabel('Имя пользователя')).toBeFocused();
+  await expect(email).toHaveValue('keyboard@example.test');
+});

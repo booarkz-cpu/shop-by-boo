@@ -11,16 +11,16 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **208** — 31.9%.
+- Подтверждено (`PASS`): **215** — 32.9%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 208 | Проверено, доказательство указано |
-| `PARTIAL` | 240 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 36 | Функции нет |
+| `PASS` | 215 | Проверено, доказательство указано |
+| `PARTIAL` | 241 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 29 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 167 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 166 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -40,7 +40,7 @@
 | Интерфейсы | 10 | 1 | 9 | 0 | 0 |
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
 | CI/CD и выпуски | 15 | 12 | 3 | 0 | 0 |
-| Документация | 37 | 16 | 1 | 0 | 11 |
+| Документация | 37 | 23 | 2 | 0 | 10 |
 | Аудит, тесты, скриншоты | 69 | 20 | 3 | 0 | 43 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
@@ -1396,8 +1396,8 @@
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2187). Продукт: Клиент.
 - Платформы: Android client.
-- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`.
-- Примечание: Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено. Дополнительно установлено по Vault.seal(): при отказе Android Keystore сохраняется открытый исходный текст. Поэтому шифрование профилей не гарантировано на каждом устройстве; этот fallback и чувствительные поля вне Vault остаются задачей.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`; `docs/SECURITY_BASELINE.md`; `docs/PRIVACY_DATA_MAP.md`.
+- Примечание: Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено. Дополнительно установлено по Vault.seal(): при отказе Android Keystore сохраняется открытый исходный текст. Поэтому шифрование профилей не гарантировано на каждом устройстве; этот fallback и чувствительные поля вне Vault остаются задачей. Дополнительные источники и границы сохранены в SECURITY_BASELINE/PRIVACY_DATA_MAP.
 
 > - Секреты профилей хранить в защищённом хранилище платформы, где это применимо.
 
@@ -1538,8 +1538,8 @@
 ### REQ-SHOP-0017 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2202). Продукт: Магазин.
-- Доказательство: `apps/user-cabinet/src/my-data.test.tsx`; `apps/user-cabinet/src/my-data.tsx`; `services/backend/app/legal_texts.py`; `services/backend/app/operations_api.py`; `tests/test_matrix_privacy.py`; `tests/test_multiple_subscriptions.py`.
-- Примечание: GET /api/me/privacy/export и DELETE /api/me/privacy/account существуют; #355 добавил кнопки кабинета и подтверждение. В этой ветке основной объект user экспортирует email, дату его подтверждения и vk_id наряду с Telegram/Yandex; регрессия проверяет связанные/отсутствующие идентификаторы, отсутствие чужих данных и хеша/handle. Свежие SQLite/PostgreSQL результаты CI ещё требуются. Удаление по-прежнему проверяет подписки/покупки/партнёрские обязательства и отключение Remnawave. Полный PASS не доказан: сессии/IP/User-Agent и вложения не включены; анонимизация сохраняет тексты SupportTicket/SupportMessage, финансовую историю, аудит и старые копии. Это не утверждение о незаконности хранения: применимая политика, полнота экспорта/очистки и законные сроки ещё не установлены/не подтверждены. Наличие UI и исправление трёх полей не закрывают весь исходный пункт.
+- Доказательство: `apps/user-cabinet/src/my-data.test.tsx`; `apps/user-cabinet/src/my-data.tsx`; `services/backend/app/legal_texts.py`; `services/backend/app/operations_api.py`; `tests/test_matrix_privacy.py`; `tests/test_multiple_subscriptions.py`; `docs/PRIVACY_DATA_MAP.md`; `services/backend/app/main.py`.
+- Примечание: GET /api/me/privacy/export и DELETE /api/me/privacy/account существуют; #355 добавил кнопки кабинета и подтверждение. В этой ветке основной объект user экспортирует email, дату его подтверждения и vk_id наряду с Telegram/Yandex; регрессия проверяет связанные/отсутствующие идентификаторы, отсутствие чужих данных и хеша/handle. Идентификаторы наce9 подтверждены полнымCI43855041769; дополнительный HTTP no-store контракт на618 ещё не исполнялся из-за конфликтов. После интеграции требуется свежийCI. Удаление по-прежнему проверяет подписки/покупки/партнёрские обязательства и отключение Remnawave. Полный PASS не доказан: сессии/IP/User-Agent и вложения не включены; анонимизация сохраняет тексты SupportTicket/SupportMessage, финансовую историю, аудит и старые копии. Это не утверждение о незаконности хранения: применимая политика, полнота экспорта/очистки и законные сроки ещё не установлены/не подтверждены. Наличие UI и исправление трёх полей не закрывают весь исходный пункт. Карта данных и границы документированы в docs/PRIVACY_DATA_MAP.md.
 
 > - Предусмотреть удаление/экспорт данных в пределах применимого законодательства и политики сервиса.
 
@@ -3863,8 +3863,8 @@
 ### REQ-UI-0007 — `PARTIAL`
 
 - Источник: Часть IV → 33. Локализация, доступность и качество интерфейсов (строка 2368). Продукт: Все три.
-- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `apps/lucy-admin/web/e2e/masque.spec.ts`.
-- Примечание: Тесты браузера находят элементы по ролям и подписям, поэтому подписи полей и кнопок обязательны. Контраст, порядок фокуса, экранный диктор и уменьшение движения инструментом не проверялись.
+- Доказательство: `docs/ru/new/UI_UX_GUIDE.md`; `apps/lucy-admin/web/e2e/masque.spec.ts`; `docs/ACCESSIBILITY_AUDIT.md`; `apps/lucy-admin/web/e2e/remna-design.spec.ts`; `apps/lucy-admin/web/e2e/cabinet-design.spec.ts`; `apps/user-cabinet/src/ui-accessibility.test.tsx`.
+- Примечание: A11Y-01..04 имеют исправления и профильные доказательства на873febf0:71ChromiumE2E/74unit, computedcontrast обеихтем,modal focus/close,auth-tabs иMeterunknown/границы. ПервыйTab-regression выявил отказ70/71, исправленный без ослабления теста. Новыйcombinedhead160 требует свежего полногоCI. Устройства/дикторы/всеформы/axe/всеtouch-target/reduced-motion направления не подтверждены; общийстатусPARTIAL.
 
 > - Проверять keyboard navigation, focus management, labels, contrast, touch target sizes, screen readers, semantic headings и reduced motion.
 
@@ -4061,9 +4061,12 @@
 
 > Архитектура; установка; администратор; пользователь; разработчик; платежи; Remnawave; VPN-ноды; MASQUE; мобильные приложения; восстановление; обновления; безопасность.
 
-### REQ-DOC-0004 — `NOT_TESTED`
+### REQ-DOC-0004 — `PARTIAL`
 
 - Источник: Часть I → Documentation → Rule (строка 782). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `docs/OBSERVABILITY.md`; `docs/ru/OPERATIONS_MONITORING.md`; `docs/ru/new/REMNAWAVE_MONITORING.md`; `scripts/check-doc-links.py`.
+- Примечание: Исправлены найденные устаревшие инструкции мониторинга: «актуальный v28.54» заменён ссылкой на текущий README; версия promtool описана по CI без выдуманного результата; старый порог копии36ч согласован с RPO1ч +20мин допуска/for5мин. Относительные ссылки проверены. Полная семантическая сверка всех живых документов, дублей и инструкций остальных подсистем ещё не выполнена; прохождение link-check её не заменяет.
 
 > Не оставлять устаревшие инструкции и ненужные дубли.
 
@@ -4236,21 +4239,23 @@
 
 > - `docs/architecture/DEPLOYMENT_TOPOLOGY.md`
 
-### REQ-DOC-0025 — `NOT_IMPLEMENTED`
+### REQ-DOC-0025 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2444). Продукт: Все три.
 - Платформы: all products.
-- Названные файлы: `docs/SECURITY_BASELINE.md` — нет.
-- Примечание: docs/SECURITY_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Названные файлы: `docs/SECURITY_BASELINE.md` — есть (`docs/SECURITY_BASELINE.md`).
+- Доказательство: `docs/SECURITY_BASELINE.md`; `services/backend/app/security.py`; `services/backend/app/operations_api.py`; `services/backend/app/models.py`; `services/support-pro/app/models.py`.
+- Примечание: Создан содержательный документ по исходникам main4a7cb78d: границы реализованных мер/данных, фактические хранилища и внешние потоки, доступ, сроки и остатки. Не является сертификацией ASVS/MASVS, подтверждением полноты удаления, юридическим заключением или живой проверкой VPS. После #355 пересверить изменения логирования и кабинета; PASS относится к документу.
 
 > - `docs/SECURITY_BASELINE.md`
 
-### REQ-DOC-0026 — `NOT_IMPLEMENTED`
+### REQ-DOC-0026 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2445). Продукт: Все три.
 - Платформы: all products.
-- Названные файлы: `docs/PRIVACY_DATA_MAP.md` — нет.
-- Примечание: docs/PRIVACY_DATA_MAP.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Названные файлы: `docs/PRIVACY_DATA_MAP.md` — есть (`docs/PRIVACY_DATA_MAP.md`).
+- Доказательство: `docs/PRIVACY_DATA_MAP.md`; `services/backend/app/security.py`; `services/backend/app/operations_api.py`; `services/backend/app/models.py`; `services/support-pro/app/models.py`.
+- Примечание: Создан содержательный документ по исходникам main4a7cb78d: границы реализованных мер/данных, фактические хранилища и внешние потоки, доступ, сроки и остатки. Не является сертификацией ASVS/MASVS, подтверждением полноты удаления, юридическим заключением или живой проверкой VPS. После #355 пересверить изменения логирования и кабинета; PASS относится к документу.
 
 > - `docs/PRIVACY_DATA_MAP.md`
 
@@ -4264,12 +4269,13 @@
 
 > - `docs/DISASTER_RECOVERY.md`
 
-### REQ-DOC-0028 — `NOT_IMPLEMENTED`
+### REQ-DOC-0028 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2447). Продукт: Все три.
 - Платформы: all products.
-- Названные файлы: `docs/OBSERVABILITY.md` — нет.
-- Примечание: docs/OBSERVABILITY.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Названные файлы: `docs/OBSERVABILITY.md` — есть (`docs/OBSERVABILITY.md`).
+- Доказательство: `docs/OBSERVABILITY.md`; `services/backend/app/observability.py`; `services/backend/app/ops_alerts.py`; `services/backend/app/host_metrics.py`; `infrastructure/monitoring/prometheus/vpnshop-alerts.yml`.
+- Примечание: Написан содержательный docs/OBSERVABILITY.md по коду main4a7cb78d и изменениям правила RPO: маршруты health/ready/metrics и ошибки авторизации, каталог и область метрик, ограничения реплик/квантилей, JSON/request_id, error log, оповещения и их гарантии/планировщик, Prometheus/Grafana, read-only диагностика и фактические пробелы. PASS относится к документу, не к живому мониторингу VPS или результату нового promtool; для инфраструктуры остаются внешние проверки. После слияния #355 нужно пересверить описание маскирования журналов.
 
 > - `docs/OBSERVABILITY.md`
 
@@ -4292,21 +4298,23 @@
 
 > - `docs/RELEASE_PROCESS.md`
 
-### REQ-DOC-0031 — `NOT_IMPLEMENTED`
+### REQ-DOC-0031 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2450). Продукт: Все три.
-- Платформы: all products.
-- Названные файлы: `docs/UPGRADE_ROLLBACK.md` — нет.
-- Примечание: docs/UPGRADE_ROLLBACK.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Платформы: server, all products.
+- Названные файлы: `docs/UPGRADE_ROLLBACK.md` — есть (`docs/UPGRADE_ROLLBACK.md`).
+- Доказательство: `docs/UPGRADE_ROLLBACK.md`; `scripts/update-from-github.sh`; `scripts/github_release_fetch.py`; `scripts/update.sh`; `scripts/rollback.sh`; `scripts/upgrade-postgres.sh`.
+- Примечание: Содержательный документ по проверенному коду: стадирование до snapshot, предел80MiB/дефект опубликованного состава, незашифрованный SQL только магазина, сохранение секретов, PG16→18, recovery marker, ручной откат, границы doctor и ещё не измеренные VPS RPO/RTO. PASS относится к документу, не живому обновлению.
 
 > - `docs/UPGRADE_ROLLBACK.md`
 
-### REQ-DOC-0032 — `NOT_IMPLEMENTED`
+### REQ-DOC-0032 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2451). Продукт: Все три.
 - Платформы: all products.
-- Названные файлы: `docs/MOBILE_RELEASE_GUIDE.md` — нет.
-- Примечание: docs/MOBILE_RELEASE_GUIDE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Названные файлы: `docs/MOBILE_RELEASE_GUIDE.md` — есть (`docs/MOBILE_RELEASE_GUIDE.md`).
+- Доказательство: `docs/MOBILE_RELEASE_GUIDE.md`; `.github/workflows/mobile-release.yml`; `.github/workflows/build-mobile.yml`; `scripts/build-android-apk.sh`; `scripts/build-ios-signed.sh`.
+- Примечание: Создан MOBILE_RELEASE_GUIDE по реальным скриптам/workflow: отдельные версии/продукты, PR против production signing, AndroidAPK/AAB и манифесты, iOSunsigned/signing/entitlements, проверка33assets и Main moved, риски clobber, самостоятельный клиентский тег и ограничения обновления/отката. Это статус документа; подписи Apple, магазины и физические устройства не объявляются проверенными.
 
 > - `docs/MOBILE_RELEASE_GUIDE.md`
 
@@ -4320,21 +4328,23 @@
 
 > - `docs/INCIDENT_RESPONSE.md`
 
-### REQ-DOC-0034 — `NOT_IMPLEMENTED`
+### REQ-DOC-0034 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2453). Продукт: Все три.
-- Платформы: all products.
-- Названные файлы: `docs/ACCESSIBILITY_AUDIT.md` — нет.
-- Примечание: docs/ACCESSIBILITY_AUDIT.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Платформы: all products; static web audit, native checks NOT_RUN.
+- Названные файлы: `docs/ACCESSIBILITY_AUDIT.md` — есть (`docs/ACCESSIBILITY_AUDIT.md`).
+- Доказательство: `docs/ACCESSIBILITY_AUDIT.md`; `apps/lucy-admin/web/src/admin-shell.tsx`; `apps/user-cabinet/src/main.tsx`; `apps/user-cabinet/src/ui.tsx`; `apps/user-cabinet/src/style.css`; `apps/lucy-admin/web/src/theme.css`.
+- Примечание: Содержательный аудит по снимку92363652: измерены шесть непрозрачных цветовых пар, описаны четыре A11Y-находки с исходниками/приоритетом/регрессиями и матрица непроверенных браузерных/нативных направлений. PASS относится только к документу; WCAG, screen readers, устройства и устранение дефектов не подтверждены.
 
 > - `docs/ACCESSIBILITY_AUDIT.md`
 
-### REQ-DOC-0035 — `NOT_IMPLEMENTED`
+### REQ-DOC-0035 — `PASS`
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2454). Продукт: Все три.
-- Платформы: all products.
-- Названные файлы: `docs/PERFORMANCE_BASELINE.md` — нет.
-- Примечание: docs/PERFORMANCE_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
+- Платформы: services/backend API, CI.
+- Названные файлы: `docs/PERFORMANCE_BASELINE.md` — есть (`docs/PERFORMANCE_BASELINE.md`).
+- Доказательство: `docs/PERFORMANCE_BASELINE.md`; `tests/load/shop.js`; `.github/workflows/load-security.yml`; `docker-compose.test.yml`.
+- Примечание: Зафиксирован реальный k6 run43820979540/job133143742123 на e4df01b6: окружение, профиль, точные метрики, допустимые409/429 и отсутствие разбивки статусов, пределы sandbox/локальногоCI. Это документ замера; production/VPS/VPN SLO и устройства не подтверждены.
 
 > - `docs/PERFORMANCE_BASELINE.md`
 

@@ -14,7 +14,7 @@
 **Виправлення:** у v28.159.0 форма закріплена тестом на сервері. На старішому збиранні — оновіться:
 
 ```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.159.0 bash scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.160.0 bash scripts/update-from-github.sh
 ```
 
 ### `(s || []).map is not a function`

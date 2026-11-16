@@ -2180,18 +2180,6 @@
    "tests/test_account_actions.py"
   ]
  },
- "REQ-SHOP-0017": {
-  "status": "PARTIAL",
-  "evidence": [
-   "apps/user-cabinet/src/my-data.test.tsx",
-   "apps/user-cabinet/src/my-data.tsx",
-   "services/backend/app/legal_texts.py",
-   "services/backend/app/operations_api.py",
-   "tests/test_matrix_privacy.py",
-   "tests/test_multiple_subscriptions.py"
-  ],
-  "note": "GET /api/me/privacy/export и DELETE /api/me/privacy/account существуют; #355 добавил кнопки кабинета и подтверждение. В этой ветке основной объект user экспортирует email, дату его подтверждения и vk_id наряду с Telegram/Yandex; регрессия проверяет связанные/отсутствующие идентификаторы, отсутствие чужих данных и хеша/handle. Свежие SQLite/PostgreSQL результаты CI ещё требуются. Удаление по-прежнему проверяет подписки/покупки/партнёрские обязательства и отключение Remnawave. Полный PASS не доказан: сессии/IP/User-Agent и вложения не включены; анонимизация сохраняет тексты SupportTicket/SupportMessage, финансовую историю, аудит и старые копии. Это не утверждение о незаконности хранения: применимая политика, полнота экспорта/очистки и законные сроки ещё не установлены/не подтверждены. Наличие UI и исправление трёх полей не закрывают весь исходный пункт."
- },
  "REQ-SHOP-0018": {
   "status": "PARTIAL",
   "evidence": [
@@ -2525,9 +2513,13 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/ru/new/UI_UX_GUIDE.md",
-   "apps/lucy-admin/web/e2e/masque.spec.ts"
+   "apps/lucy-admin/web/e2e/masque.spec.ts",
+   "docs/ACCESSIBILITY_AUDIT.md",
+   "apps/lucy-admin/web/e2e/remna-design.spec.ts",
+   "apps/lucy-admin/web/e2e/cabinet-design.spec.ts",
+   "apps/user-cabinet/src/ui-accessibility.test.tsx"
   ],
-  "note": "Тесты браузера находят элементы по ролям и подписям, поэтому подписи полей и кнопок обязательны. Контраст, порядок фокуса, экранный диктор и уменьшение движения инструментом не проверялись."
+  "note": "A11Y-01..04 имеют исправления и профильные доказательства на873febf0:71ChromiumE2E/74unit, computedcontrast обеихтем,modal focus/close,auth-tabs иMeterunknown/границы. ПервыйTab-regression выявил отказ70/71, исправленный без ослабления теста. Новыйcombinedhead160 требует свежего полногоCI. Устройства/дикторы/всеформы/axe/всеtouch-target/reduced-motion направления не подтверждены; общийстатусPARTIAL."
  },
  "REQ-UI-0008": {
   "status": "PARTIAL",
@@ -3151,22 +3143,40 @@
   "note": "SBOM CycloneDX и проверка лицензий в CI; зависимостей Android-приложений в SBOM нет (нет gradle.lockfile), SBOM не прикреплён к выпуску файлом."
  },
  "REQ-DOC-0025": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
+  "status": "PASS",
+  "evidence": [
+   "docs/SECURITY_BASELINE.md",
+   "services/backend/app/security.py",
+   "services/backend/app/operations_api.py",
+   "services/backend/app/models.py",
+   "services/support-pro/app/models.py"
+  ],
   "platforms": "all products",
-  "note": "docs/SECURITY_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "note": "Создан содержательный документ по исходникам main4a7cb78d: границы реализованных мер/данных, фактические хранилища и внешние потоки, доступ, сроки и остатки. Не является сертификацией ASVS/MASVS, подтверждением полноты удаления, юридическим заключением или живой проверкой VPS. После #355 пересверить изменения логирования и кабинета; PASS относится к документу."
  },
  "REQ-DOC-0026": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
+  "status": "PASS",
+  "evidence": [
+   "docs/PRIVACY_DATA_MAP.md",
+   "services/backend/app/security.py",
+   "services/backend/app/operations_api.py",
+   "services/backend/app/models.py",
+   "services/support-pro/app/models.py"
+  ],
   "platforms": "all products",
-  "note": "docs/PRIVACY_DATA_MAP.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "note": "Создан содержательный документ по исходникам main4a7cb78d: границы реализованных мер/данных, фактические хранилища и внешние потоки, доступ, сроки и остатки. Не является сертификацией ASVS/MASVS, подтверждением полноты удаления, юридическим заключением или живой проверкой VPS. После #355 пересверить изменения логирования и кабинета; PASS относится к документу."
  },
  "REQ-DOC-0028": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
+  "status": "PASS",
+  "evidence": [
+   "docs/OBSERVABILITY.md",
+   "services/backend/app/observability.py",
+   "services/backend/app/ops_alerts.py",
+   "services/backend/app/host_metrics.py",
+   "infrastructure/monitoring/prometheus/vpnshop-alerts.yml"
+  ],
   "platforms": "all products",
-  "note": "docs/OBSERVABILITY.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "note": "Написан содержательный docs/OBSERVABILITY.md по коду main4a7cb78d и изменениям правила RPO: маршруты health/ready/metrics и ошибки авторизации, каталог и область метрик, ограничения реплик/квантилей, JSON/request_id, error log, оповещения и их гарантии/планировщик, Prometheus/Grafana, read-only диагностика и фактические пробелы. PASS относится к документу, не к живому мониторингу VPS или результату нового promtool; для инфраструктуры остаются внешние проверки. После слияния #355 нужно пересверить описание маскирования журналов."
  },
  "REQ-DOC-0029": {
   "status": "NOT_IMPLEMENTED",
@@ -3175,28 +3185,53 @@
   "note": "docs/SLO_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
  },
  "REQ-DOC-0031": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
-  "platforms": "all products",
-  "note": "docs/UPGRADE_ROLLBACK.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "status": "PASS",
+  "evidence": [
+   "docs/UPGRADE_ROLLBACK.md",
+   "scripts/update-from-github.sh",
+   "scripts/github_release_fetch.py",
+   "scripts/update.sh",
+   "scripts/rollback.sh",
+   "scripts/upgrade-postgres.sh"
+  ],
+  "note": "Содержательный документ по проверенному коду: стадирование до snapshot, предел80MiB/дефект опубликованного состава, незашифрованный SQL только магазина, сохранение секретов, PG16→18, recovery marker, ручной откат, границы doctor и ещё не измеренные VPS RPO/RTO. PASS относится к документу, не живому обновлению.",
+  "platforms": "server, all products"
  },
  "REQ-DOC-0032": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
+  "status": "PASS",
+  "evidence": [
+   "docs/MOBILE_RELEASE_GUIDE.md",
+   ".github/workflows/mobile-release.yml",
+   ".github/workflows/build-mobile.yml",
+   "scripts/build-android-apk.sh",
+   "scripts/build-ios-signed.sh"
+  ],
   "platforms": "all products",
-  "note": "docs/MOBILE_RELEASE_GUIDE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "note": "Создан MOBILE_RELEASE_GUIDE по реальным скриптам/workflow: отдельные версии/продукты, PR против production signing, AndroidAPK/AAB и манифесты, iOSunsigned/signing/entitlements, проверка33assets и Main moved, риски clobber, самостоятельный клиентский тег и ограничения обновления/отката. Это статус документа; подписи Apple, магазины и физические устройства не объявляются проверенными."
  },
  "REQ-DOC-0034": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
-  "platforms": "all products",
-  "note": "docs/ACCESSIBILITY_AUDIT.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "status": "PASS",
+  "evidence": [
+   "docs/ACCESSIBILITY_AUDIT.md",
+   "apps/lucy-admin/web/src/admin-shell.tsx",
+   "apps/user-cabinet/src/main.tsx",
+   "apps/user-cabinet/src/ui.tsx",
+   "apps/user-cabinet/src/style.css",
+   "apps/lucy-admin/web/src/theme.css"
+  ],
+  "platforms": "all products; static web audit, native checks NOT_RUN",
+  "note": "Содержательный аудит по снимку92363652: измерены шесть непрозрачных цветовых пар, описаны четыре A11Y-находки с исходниками/приоритетом/регрессиями и матрица непроверенных браузерных/нативных направлений. PASS относится только к документу; WCAG, screen readers, устройства и устранение дефектов не подтверждены."
  },
  "REQ-DOC-0035": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
-  "platforms": "all products",
-  "note": "docs/PERFORMANCE_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "status": "PASS",
+  "evidence": [
+   "docs/PERFORMANCE_BASELINE.md",
+   "tests/load/shop.js",
+   ".github/workflows/load-security.yml",
+   "docker-compose.test.yml"
+  ],
+  "note": "Зафиксирован реальный k6 run43820979540/job133143742123 на e4df01b6: окружение, профиль, точные метрики, допустимые409/429 и отсутствие разбивки статусов, пределы sandbox/локальногоCI. Это документ замера; production/VPS/VPN SLO и устройства не подтверждены.",
+  "platforms": "services/backend API, CI"
  },
  "REQ-DOC-0015": {
   "status": "NOT_IMPLEMENTED",
@@ -4396,16 +4431,6 @@
   ],
   "platforms": "Android client"
  },
- "REQ-CLIENT-0032": {
-  "status": "PARTIAL",
-  "evidence": [
-   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt",
-   "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt",
-   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt"
-  ],
-  "platforms": "Android client",
-  "note": "Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено. Дополнительно установлено по Vault.seal(): при отказе Android Keystore сохраняется открытый исходный текст. Поэтому шифрование профилей не гарантировано на каждом устройстве; этот fallback и чувствительные поля вне Vault остаются задачей."
- },
  "REQ-CLIENT-0033": {
   "status": "NOT_IMPLEMENTED",
   "evidence": [
@@ -4413,5 +4438,42 @@
   ],
   "note": "Замеров холодного и тёплого запуска, времени подключения, процессора, памяти, батареи и доли сессий без сбоев нет; численных улучшений проект не заявляет. Нужны устройства (O12).",
   "platforms": "Android client"
+ },
+ "REQ-DOC-0004": {
+  "status": "PARTIAL",
+  "evidence": [
+   "docs/OBSERVABILITY.md",
+   "docs/ru/OPERATIONS_MONITORING.md",
+   "docs/ru/new/REMNAWAVE_MONITORING.md",
+   "scripts/check-doc-links.py"
+  ],
+  "platforms": "all products",
+  "note": "Исправлены найденные устаревшие инструкции мониторинга: «актуальный v28.54» заменён ссылкой на текущий README; версия promtool описана по CI без выдуманного результата; старый порог копии36ч согласован с RPO1ч +20мин допуска/for5мин. Относительные ссылки проверены. Полная семантическая сверка всех живых документов, дублей и инструкций остальных подсистем ещё не выполнена; прохождение link-check её не заменяет."
+ },
+ "REQ-SHOP-0017": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/user-cabinet/src/my-data.test.tsx",
+   "apps/user-cabinet/src/my-data.tsx",
+   "services/backend/app/legal_texts.py",
+   "services/backend/app/operations_api.py",
+   "tests/test_matrix_privacy.py",
+   "tests/test_multiple_subscriptions.py",
+   "docs/PRIVACY_DATA_MAP.md",
+   "services/backend/app/main.py"
+  ],
+  "note": "GET /api/me/privacy/export и DELETE /api/me/privacy/account существуют; #355 добавил кнопки кабинета и подтверждение. В этой ветке основной объект user экспортирует email, дату его подтверждения и vk_id наряду с Telegram/Yandex; регрессия проверяет связанные/отсутствующие идентификаторы, отсутствие чужих данных и хеша/handle. Идентификаторы наce9 подтверждены полнымCI43855041769; дополнительный HTTP no-store контракт на618 ещё не исполнялся из-за конфликтов. После интеграции требуется свежийCI. Удаление по-прежнему проверяет подписки/покупки/партнёрские обязательства и отключение Remnawave. Полный PASS не доказан: сессии/IP/User-Agent и вложения не включены; анонимизация сохраняет тексты SupportTicket/SupportMessage, финансовую историю, аудит и старые копии. Это не утверждение о незаконности хранения: применимая политика, полнота экспорта/очистки и законные сроки ещё не установлены/не подтверждены. Наличие UI и исправление трёх полей не закрывают весь исходный пункт. Карта данных и границы документированы в docs/PRIVACY_DATA_MAP.md."
+ },
+ "REQ-CLIENT-0032": {
+  "status": "PARTIAL",
+  "evidence": [
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt",
+   "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt",
+   "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+   "docs/SECURITY_BASELINE.md",
+   "docs/PRIVACY_DATA_MAP.md"
+  ],
+  "platforms": "Android client",
+  "note": "Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено. Дополнительно установлено по Vault.seal(): при отказе Android Keystore сохраняется открытый исходный текст. Поэтому шифрование профилей не гарантировано на каждом устройстве; этот fallback и чувствительные поля вне Vault остаются задачей. Дополнительные источники и границы сохранены в SECURITY_BASELINE/PRIVACY_DATA_MAP."
  }
 }

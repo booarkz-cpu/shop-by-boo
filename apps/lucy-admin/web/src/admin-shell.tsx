@@ -71,6 +71,7 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
   const [commandQuery, setCommandQuery] = useState("");
   const [commandIndex, setCommandIndex] = useState(0);
   const menuButton = useRef<HTMLButtonElement>(null);
+  const commandDialog = useRef<HTMLDialogElement>(null);
   const content = useRef<HTMLDivElement>(null);
   const flat: SectionItem<T>[] = groups.flatMap((group) => group.items);
   const {item: current, group: currentGroup} = sectionInfo(tab);
@@ -132,6 +133,37 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
       if (frame) cancelAnimationFrame(frame);
     };
   }, [pageTitle]);
+
+  useEffect(() => {
+    if (!command) return;
+    const dialog = commandDialog.current;
+    if (!dialog) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // Native modal isolation keeps keyboard and assistive-technology focus off the background.
+    dialog.showModal();
+    dialog.querySelector<HTMLInputElement>("input")?.focus();
+    return () => {
+      dialog.close();
+      if (previous?.isConnected) previous.focus();
+    };
+  }, [command]);
+
+  function containCommandFocus(event: React.KeyboardEvent<HTMLDialogElement>) {
+    if (event.key !== "Tab") return;
+    const dialog = event.currentTarget;
+    const controls = Array.from(dialog.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), [tabindex='0']"))
+      .filter((element) => element.getClientRects().length > 0);
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (!first || !last) { event.preventDefault(); return; }
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
 
   function go(next: T) {
     onNavigate(next);
@@ -249,12 +281,11 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
         </div>
       </main>
       {command && (
-        <div className="command-overlay" onClick={() => setCommand(false)}>
-          <div className="command-box" role="dialog" aria-modal="true" aria-label="Быстрый поиск" onClick={(event) => event.stopPropagation()}>
+        <dialog ref={commandDialog} className="command-overlay" aria-label="Быстрый поиск" onKeyDown={containCommandFocus} onCancel={(event) => { event.preventDefault(); setCommand(false); }} onClick={(event) => { if (event.target === event.currentTarget) setCommand(false); }}>
+          <div className="command-box">
             <div className="command-search" data-no-field-help="">
               <Search aria-hidden="true" />
               <input
-                autoFocus
                 aria-label="Поиск раздела"
                 value={commandQuery}
                 onChange={(event) => {
@@ -275,7 +306,7 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
                 }}
                 placeholder="Название раздела или задача…"
               />
-              <kbd>ESC</kbd>
+              <button type="button" className="command-close" aria-label="Закрыть поиск" onClick={() => setCommand(false)}><X aria-hidden="true" /></button>
             </div>
             <div className="command-results">
               {commandHits.map((item, index) => (
@@ -291,7 +322,7 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
               {!commandHits.length && <p className="nav-empty">Раздел не найден</p>}
             </div>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );
