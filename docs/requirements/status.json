@@ -3170,10 +3170,16 @@
   "note": "docs/UPGRADE_ROLLBACK.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
  },
  "REQ-DOC-0032": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
+  "status": "PASS",
+  "evidence": [
+   "docs/MOBILE_RELEASE_GUIDE.md",
+   ".github/workflows/mobile-release.yml",
+   ".github/workflows/build-mobile.yml",
+   "scripts/build-android-apk.sh",
+   "scripts/build-ios-signed.sh"
+  ],
   "platforms": "all products",
-  "note": "docs/MOBILE_RELEASE_GUIDE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "note": "Создан MOBILE_RELEASE_GUIDE по реальным скриптам/workflow: отдельные версии/продукты, PR против production signing, AndroidAPK/AAB и манифесты, iOSunsigned/signing/entitlements, проверка33assets и Main moved, риски clobber, самостоятельный клиентский тег и ограничения обновления/отката. Это статус документа; подписи Apple, магазины и физические устройства не объявляются проверенными."
  },
  "REQ-DOC-0034": {
   "status": "NOT_IMPLEMENTED",

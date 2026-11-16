@@ -197,3 +197,8 @@
 - REQ-DOC-0025/0026: NOT_IMPLEMENTED → PASS: содержательные SECURITY_BASELINE и PRIVACY_DATA_MAP по проверенному коду. Эти статусы относятся к документам, а не к устранению всех SEC/privacy рисков.
 - REQ-SHOP-0017 остаётся PARTIAL: нет доказательства полноты экспорта/очистки по применимой политике; описаны сохраняемые тексты, история и копии. REQ-CLIENT-0032 остаётся PARTIAL с plaintext fallback при отказе Keystore. Изменены только доказательства/примечания, runtime-удаление не менялось.
 - Эта ветка от main4a7cb78d:197PASS/255PARTIAL/33NOT_IMPLEMENTED/166NOT_TESTED и2BLOCKED,653ID; изменения #355 интегрировать отдельно без отката его статусов.
+
+## 2026-11-16, инструкция мобильного выпуска
+
+- REQ-DOC-0032: NOT_IMPLEMENTED → PASS: MOBILE_RELEASE_GUIDE.md сверён с workflow и сборочными скриптами, включая Main moved, статусы unsigned, подписи/сертификаты, манифесты,33assets и риск повторного clobber. Это не проверка живого телефона/Apple-публикации.
+- Ветка#360:198PASS/255PARTIAL/32NOT_IMPLEMENTED/166NOT_TESTED+2BLOCKED,653ID; не смешивать с текущими main/#355.

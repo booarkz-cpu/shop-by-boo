@@ -1493,3 +1493,7 @@ Created docs/OBSERVABILITY.md from actual main4a7cb78d sources. It distinguishes
 ### 2026-11-16 — Source-based security and privacy documents
 
 Added SECURITY_BASELINE and PRIVACY_DATA_MAP from actual authentication, configuration, models, privacy routes, Support Pro, backup and Android client sources. Explicitly distinguish document completion from ASVS/MASVS, legal-policy compliance and production proof. Found plaintext Keystore fallback, plain Support Pro TOTP storage, retained shop support bodies/history/backups and export omissions; keep relevant functional requirements PARTIAL. No live deletion, payment, alert or credential rotation performed.
+
+### 2026-11-16 — Mobile release guide
+
+Documented the actual Mobile packages and build-mobile paths, product/version separation, signing states, certificate checks, update manifests,33asset verification, client-v tags, Main moved and existing clobber risk. Distinguish unsigned iOS/simulator output from a signed device release and physical installation; preserve owner decision20 not to repair historicalv28.152. No workflow was dispatched or published by creating this guide.

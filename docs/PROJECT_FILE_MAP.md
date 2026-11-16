@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2680**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2681**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -765,6 +765,7 @@
 | [docs/MASTER_EXECUTION_REPORTS.md](../docs/MASTER_EXECUTION_REPORTS.md) | Документация |
 | [docs/MASTER_ROADMAP_VPN_SHOP.md](../docs/MASTER_ROADMAP_VPN_SHOP.md) | Документация |
 | [docs/MIGRATION_MAPPING.md](../docs/MIGRATION_MAPPING.md) | Документация |
+| [docs/MOBILE_RELEASE_GUIDE.md](../docs/MOBILE_RELEASE_GUIDE.md) | Документация |
 | [docs/MONOREPO_LAYOUT.md](../docs/MONOREPO_LAYOUT.md) | Документация |
 | [docs/NODE_MONITORING_RUNBOOK_RU.md](../docs/NODE_MONITORING_RUNBOOK_RU.md) | Документация |
 | [docs/OBSERVABILITY.md](../docs/OBSERVABILITY.md) | Документация |
