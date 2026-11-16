@@ -235,3 +235,80 @@ test('all-sections hub lists every feature with a description and finds them by 
   await page.setViewportSize({width: 390, height: 844});
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
+
+
+test('command search isolates focus and restores it for every close path', async ({page}) => {
+  await signIn(page);
+  const trigger = page.locator('.command-trigger');
+  await trigger.click();
+  const dialog = page.getByRole('dialog', {name: 'Быстрый поиск', exact: true});
+  const input = dialog.getByRole('textbox', {name: 'Поиск раздела'});
+  const close = dialog.getByRole('button', {name: 'Закрыть поиск'});
+  await expect(input).toBeFocused();
+  expect(await dialog.evaluate(node => node.matches(':modal'))).toBe(true);
+  // Scripted focus must not escape to the inert background either.
+  await trigger.evaluate(node => (node as HTMLElement).focus());
+  await expect(input).toBeFocused();
+  await input.fill('no-section-matches-this-unique-query');
+  await expect(dialog.locator('.command-results button')).toHaveCount(0);
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(input).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(close).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+
+  await page.keyboard.press('Control+k');
+  await expect(input).toBeFocused();
+  const lastResult = dialog.locator('.command-results button').last();
+  await page.keyboard.press('Shift+Tab');
+  await expect(lastResult).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(input).toBeFocused();
+  await close.click();
+  await expect(trigger).toBeFocused();
+
+  await trigger.click();
+  await dialog.click({position: {x: 4, y: 4}});
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+
+  await trigger.click();
+  await input.fill('Главная');
+  await page.keyboard.press('Enter');
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('heading', {level: 1, name: 'Главная'})).toBeVisible();
+  await expect(trigger).toBeFocused();
+});
+
+test('primary action text meets contrast in both themes and hover states', async ({page}) => {
+  // The server fixture serves the real builds; expected ratios come from computed sRGB colours.
+  for (const path of ['/', '/cabinet/']) {
+    await page.goto(path);
+    const submit = path === '/' ? page.locator('.auth-submit') : page.locator('form').getByRole('button', {name: 'Войти', exact: true});
+    await expect(submit).toBeVisible();
+    for (const theme of ['dark', 'light']) {
+      await page.evaluate(theme => { document.documentElement.dataset.theme = theme; }, theme);
+      for (const hover of [false, true]) {
+        if (hover) await submit.hover();
+        else await page.mouse.move(0, 0);
+        // Poll through colour transitions; no fixed sleep or rounded threshold.
+        await expect.poll(() => submit.evaluate(node => {
+          const style = getComputedStyle(node);
+          function luminance(colour: string) {
+            const components = colour.match(/[0-9.]+/g)!.slice(0, 3).map(Number).map(value => {
+              const v = value / 255;
+              return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4;
+            });
+            return components[0] * .2126 + components[1] * .7152 + components[2] * .0722;
+          }
+          const values = [luminance(style.color), luminance(style.backgroundColor)].sort((a, b) => a - b);
+          return (values[1] + .05) / (values[0] + .05);
+        }), {message: `${path} ${theme} ${hover ? 'hover' : 'rest'} text contrast`}).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  }
+});

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2698**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2699**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -446,6 +446,7 @@
 | [apps/user-cabinet/src/surveys.tsx](../apps/user-cabinet/src/surveys.tsx) | Приложения |
 | [apps/user-cabinet/src/telegram.ts](../apps/user-cabinet/src/telegram.ts) | Приложения |
 | [apps/user-cabinet/src/tribute.tsx](../apps/user-cabinet/src/tribute.tsx) | Приложения |
+| [apps/user-cabinet/src/ui-accessibility.test.tsx](../apps/user-cabinet/src/ui-accessibility.test.tsx) | Приложения |
 | [apps/user-cabinet/src/ui.tsx](../apps/user-cabinet/src/ui.tsx) | Приложения |
 | [apps/user-cabinet/src/workspace.test.tsx](../apps/user-cabinet/src/workspace.test.tsx) | Приложения |
 | [apps/user-cabinet/src/workspace.tsx](../apps/user-cabinet/src/workspace.tsx) | Приложения |
