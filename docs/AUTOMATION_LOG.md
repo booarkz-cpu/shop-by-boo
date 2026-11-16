@@ -2,6 +2,14 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-16 — исправление исторических строк при подготовке v28.160.0
+
+**Причина.** При подготовке версии на голове `47c40cbb` номер нового выпуска попал в 17 исторических строк: прежние результаты тестов, даты проверки и утверждения о первом появлении функций.
+**Что исправлено.** В 12 документах эти строки восстановлены точно по main `2a204cd3`. Актуальные заголовки, манифест, установка и команды обновления по-прежнему указывают v28.160.0. Опубликованные v28.159.0 и его 33 файла не изменялись.
+**Чем проверено.** Каждая заменяемая строка найдена ровно один раз; восстановленные строки совпадают с базовым diff; команды RELEASE_TAG=v28.160.0 в трёх языках сохранены. Проверка выполнена через GitHub без терминала. Свежий CI этой новой головы обязателен; результаты исходной 47c40cbb не заменяют его.
+**Границы.** Это устранение новой ошибки bump, а не полный аудит достоверности унаследованных исторических документов. REQ-DOC-0004 остаётся PARTIAL; все 653 требования и runtime-код сохранены.
+
+
 ## 2026-11-16 — продолжение очереди PR и проверок клиента
 **Что завершено.** PR #356 слит squash-коммитом `23534b828e68ad311027950cb5f871345a1162f8` после успешных
 20 заданий CI, включая Android и iOS. На main запущены CI, Docker и Mobile packages; фактическая публикация
@@ -1527,3 +1535,41 @@ PR #357 merged as d1e3db50 after full green current-head CI and empty reviews. I
 ### 2026-11-16 — Distribution size failure reproduced and repaired
 
 The v28.158 source inventory expands to 95,468,574 bytes, over the installed updater's 83,886,080-byte cap. A real e4df01b6 candidate package reproduced refusal (80,430,009 compressed / 95,623,187 expanded bytes; exit1, no files extracted). Exclude only root screenshots review artifacts from installation archives; preserve runtime assets and every repository screenshot. Enforce compressed/expanded limits before replacing an artifact. Add a real-package extraction regression with byte comparisons of tracked runtime assets. Fresh full CI is mandatory; old green results do not prove this head. Historical releases and live installations are unchanged.
+
+### 2026-11-16 — Observability documentation and backup alert drift
+
+Created docs/OBSERVABILITY.md from actual main4a7cb78d sources. It distinguishes live/ready health, process-local counters versus database gauges, metrics authentication, request IDs, error-log retention, alert delivery semantics and scheduler role conditions. It records unverified VPS/physical-client checks and the pending #355 redaction change instead of claiming production validation. Found Prometheus backup alert still using36h/for30m despite owner RPO1h +20m grace; align to4800s/for5m and add missing/boundary/aging/recovery promtool cases. Real promtool is required in CI; Docker/promtool are unavailable locally. No live notification or payment was triggered.
+
+### 2026-11-16 — Source-based security and privacy documents
+
+Added SECURITY_BASELINE and PRIVACY_DATA_MAP from actual authentication, configuration, models, privacy routes, Support Pro, backup and Android client sources. Explicitly distinguish document completion from ASVS/MASVS, legal-policy compliance and production proof. Found plaintext Keystore fallback, plain Support Pro TOTP storage, retained shop support bodies/history/backups and export omissions; keep relevant functional requirements PARTIAL. No live deletion, payment, alert or credential rotation performed.
+
+### 2026-11-16 — Mobile release guide
+
+Documented the actual Mobile packages and build-mobile paths, product/version separation, signing states, certificate checks, update manifests,33asset verification, client-v tags, Main moved and existing clobber risk. Distinguish unsigned iOS/simulator output from a signed device release and physical installation; preserve owner decision20 not to repair historicalv28.152. No workflow was dispatched or published by creating this guide.
+
+### 2026-11-16 — Verified rollback documentation and measured CI baseline
+
+Write UPGRADE_ROLLBACK from main4a7 sources, explicitly distinguishing code/shopSQL rollback from bothDB encrypted DR and retaining unknown live RPO/RTO. Write PERFORMANCE_BASELINE from actual e4df01b6 k6 run43820979540/job133143742123, including expected409/429 and inability to infer useful200 capacity. Upgrade only DOC0031/0035 document requirements. CI43819452995 promtool3.5 check and rule tests actually succeeded; Android UI failed before tests at Maven Central HTTP429 for JUnit, not an assertion. Further commits need fresh CI.
+
+## 2026-11-16 — Accessibility source audit (PR360)
+
+Added ACCESSIBILITY_AUDIT from exact92363652 sources: dark button text contrast3.678/hover2.542, missing modal focus containment/return, incomplete auth tabs, unknown Meter value semantics. Six opaque token pairs calculated with sRGB relative luminance. Distinguish source findings from browser/device proof; document native checks as NOT_RUN. DOC0034 documents only; UI0007 stays PARTIAL. No runtime/UI or live systems changed. Current PR355 head da012b79 has six successful workflow runs, including full CI43840760256 with20 successful jobs and empty review/thread lists. Landing helper cannot run authenticated here (gh auth status: not logged in); no merge claimed.
+
+## 2026-11-16 — Integrate main after355 into documentation
+
+Merge main2a204cd3 into PR360 without moving main during159 publication. Preserve source/dependencies and seven operational documents. Resolve SHOP0017/CLIENT0032 by retaining PARTIAL and unioning evidence/notes. Regenerate215PASS/241PARTIAL/29NOT_IMPLEMENTED/166NOT_TESTED+2BLOCKED=653; map2705paths. Source reconstruction of the canonical register exactly reproduced the previous316607-character output before generating merged data. Update logging/archive/privacy against355; append PR361/873febf0 proof71Chromium/74unit without device claims. No terminal used; fresh CI required. v28.159.0 currently25of33assets; no further main merge.
+
+## 2026-11-16 — Accessibility corrections after source audit
+
+PR355 was merged normally through the connected GitHub service at exact head da012b79: main2a204cd367aced3332f4cbbb904c6fe1d1e35841. User requested autonomous continuation without terminal; no CLI login, protection bypass or force push. Main workflows/release159 still require completion and33uploaded nonempty assets before another merge.
+
+Prepared A11Y-01..04 corrections on a separate branch from main2a204cd3: dark primary text uses navy while light retains white; command search uses native modal dialog isolation and explicit focus return/close; auth-tabs link their shared panel and support arrows/Home/End/roving focus; Meter(null/non-finite) announces unavailable data rather than a number. Browser regressions exercise computed contrast in eight real states, modal close/focus paths, and auth-tab semantics/input preservation. Unit regressions exercise missing/zero/clamped/non-finite Meter values. No local terminal tests were run after the user's instruction; fresh CI is mandatory. UI0007 and physical/screen-reader checks remain PARTIAL/NOT_RUN. No new release version or main merge requested for these fixes while159 builds.
+
+### Browser regression follow-up
+
+CI43848153471/job133233513369:70 of71 Chromium E2E passed; the new modal focus regression failed at remna-design.spec.ts:257 after Tab from the last close button in an empty search. Native showModal isolates the background but did not guarantee the APG boundary wrap in this browser. Add explicit Tab/Shift+Tab first/last-control wrap without weakening the regression or removing native isolation. Cabinet tabs and computed primary contrast regressions passed in this run. Unit tests74/74 and web typecheck/build passed on7765b725; all those checks must run anew after this fix.
+
+## 2026-11-16 — Prepare combined distribution160
+
+Combine docs360/b240 and accessibility361/873 as ordinary two-parent ancestry; prepare160 current identities without changing159 notes/history/assets. Fix stale handoff and current README client version. Preserve653requirements, UI0007PARTIAL with71/74 profile evidence from873febf0. Combinedhead requires freshCI; no old gate reused. Hourly autonomous continuation already exists; no duplicates. GitHub operations without terminal.

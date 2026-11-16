@@ -1,3 +1,12 @@
+# v28.160.0
+
+- Исправления веб-доступности A11Y-01..04: контраст primary-текста, modal search/изоляция фона/замыканиеTab/возврат фокуса, keyboard auth-tabs, Meter unknown отдельно от измерения0..100.
+- На исходной873febf0 подтверждены71/71 Chromium E2E и74/74 unit кабинета; новый combinedhead требует полногоCI.
+- Семь эксплуатационных документов: OBSERVABILITY, SECURITY_BASELINE, PRIVACY_DATA_MAP, MOBILE_RELEASE_GUIDE, UPGRADE_ROLLBACK, PERFORMANCE_BASELINE, ACCESSIBILITY_AUDIT.
+- Backup-age alert:>4800с либо нет completed-копии,for5m,8promtool-сценариев. Это не измеренный VPS SLO.
+- Все653требования сохранены:215PASS/241PARTIAL/29NOT_IMPLEMENTED/166NOT_TESTED+2BLOCKED. UI0007/SHOP0017/CLIENT0032/SEC0012 остаютсяPARTIAL.
+- Runtime21.5.1, shop0094_store_subscriptions, SupportPro0008, семейство3.9.0/клиент1.10.1 без изменения.
+
 # v28.159.0
 
 - Журналы без секретов (REQ-SEC-0012): `services/backend/app/log_redact.py` — фабрика записей журнала ставится импортом `app.config` в каждом процессе; значения секретных настроек (в том числе пароли в `DATABASE_URL`/`REDIS_URL`) и шаблоны `token=`, `password:`, `Bearer`, токен бота маскируются до любого обработчика. Шаблоны общие с журналом ошибок; исправлено: в `Bearer <токен>` маскировалось слово, а не токен. Проверки — `tests/test_log_redact.py`. ADR 0011.

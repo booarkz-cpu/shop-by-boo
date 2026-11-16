@@ -76,13 +76,55 @@ tests:
         exp_alerts:
           - exp_labels: {job: vpnshop, severity: critical}
             exp_annotations: {summary: 'Remnawave nodes are down'}
+  # Owner decision #8: RPO 1h + the same 20m grace as ops_alerts.RPO_GRACE.
+  # A missing backup is actionable after 5m; a healthy/equal-boundary sample is not.
   - interval: 1m
     input_series:
       - series: 'vpnshop_backup_last_success_age_seconds{job="vpnshop"}'
-        values: '-1x40'
+        values: '-1x8'
     alert_rule_test:
-      - eval_time: 35m
+      - eval_time: 4m
+        alertname: VpnShopBackupStale
+        exp_alerts: []
+      - eval_time: 5m
         alertname: VpnShopBackupStale
         exp_alerts:
           - exp_labels: {job: vpnshop, severity: warning}
-            exp_annotations: {summary: 'No completed backup within thirty-six hours'}
+            exp_annotations: {summary: 'No completed backup or its age exceeds the one-hour RPO plus twenty-minute grace'}
+  - interval: 1m
+    input_series:
+      - series: 'vpnshop_backup_last_success_age_seconds{job="vpnshop"}'
+        values: '4800x8'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: VpnShopBackupStale
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'vpnshop_backup_last_success_age_seconds{job="vpnshop"}'
+        values: '0+60x90'
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: VpnShopBackupStale
+        exp_alerts: []
+      - eval_time: 85m
+        alertname: VpnShopBackupStale
+        exp_alerts: []
+      - eval_time: 86m
+        alertname: VpnShopBackupStale
+        exp_alerts:
+          - exp_labels: {job: vpnshop, severity: warning}
+            exp_annotations: {summary: 'No completed backup or its age exceeds the one-hour RPO plus twenty-minute grace'}
+  - interval: 1m
+    input_series:
+      - series: 'vpnshop_backup_last_success_age_seconds{job="vpnshop"}'
+        values: '5000x6 0+60x6'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: VpnShopBackupStale
+        exp_alerts:
+          - exp_labels: {job: vpnshop, severity: warning}
+            exp_annotations: {summary: 'No completed backup or its age exceeds the one-hour RPO plus twenty-minute grace'}
+      - eval_time: 7m
+        alertname: VpnShopBackupStale
+        exp_alerts: []

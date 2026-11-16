@@ -22,7 +22,12 @@ export function StatusBadge({tone, children}: {tone: Tone; children: React.React
 
 /** Horizontal meter. `value` is 0..1; `null` renders an indeterminate (unknown) bar. */
 export function Meter({value, tone = "info", label}: {value: number | null; tone?: Tone; label: string}) {
-  const pct = value === null ? null : Math.max(0, Math.min(1, value));
+  const pct = value === null || !Number.isFinite(value) ? null : Math.max(0, Math.min(1, value));
+  if (pct === null) {
+    return <div className="ui-meter" data-tone={tone} role="img" aria-label={`${label}: нет данных`}>
+      <span style={{width: "100%"}} data-unknown="true" />
+    </div>;
+  }
   return (
     <div
       className="ui-meter"
@@ -31,9 +36,9 @@ export function Meter({value, tone = "info", label}: {value: number | null; tone
       aria-label={label}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-valuenow={pct === null ? undefined : Math.round(pct * 100)}
+      aria-valuenow={Math.round(pct * 100)}
     >
-      <span style={{width: pct === null ? "100%" : `${pct * 100}%`}} data-unknown={pct === null || undefined} />
+      <span style={{width: `${pct * 100}%`}} />
     </div>
   );
 }

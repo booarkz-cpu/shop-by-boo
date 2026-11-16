@@ -13,7 +13,7 @@ Symptom → cause → how to check → how to fix.
 **Fix:** as of v28.159.0 the shape is enforced by a server-side test. On an older build, update:
 
 ```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.159.0 bash scripts/update-from-github.sh
+sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.160.0 bash scripts/update-from-github.sh
 ```
 
 ### `(s || []).map is not a function`
