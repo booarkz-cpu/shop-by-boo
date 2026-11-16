@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2708**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2709**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -605,6 +605,7 @@
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrustedNetworksTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/UpdatesTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/VerifyTest.kt) | Приложения |
+| [apps/vpn-client/android/app/src/test/java/shop/corgi/client/data/VaultFailureTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/data/VaultFailureTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/GlobeMotionTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/ui/home/VpnViewModelTest.kt) | Приложения |
 | [apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt](../apps/vpn-client/android/app/src/test/java/shop/corgi/client/vpn/SessionTest.kt) | Приложения |

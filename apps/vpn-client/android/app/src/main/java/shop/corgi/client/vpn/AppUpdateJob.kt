@@ -30,7 +30,14 @@ class AppUpdateJob : JobService() {
     override fun onStartJob(params: JobParameters): Boolean {
         thread {
             val store = Store(this)
-            val s = store.settings
+            val s = runCatching { store.settings }.getOrElse {
+                jobFinished(params, false)
+                return@thread
+            }
+            if (store.settingsLocked) {
+                jobFinished(params, false)
+                return@thread
+            }
             if (s.autoUpdateApp) {
                 runCatching { store.checkUpdate() }.getOrNull()?.let { update ->
                     // v1.9.7: downloaded on any network (on mobile data too) and installed without the person.

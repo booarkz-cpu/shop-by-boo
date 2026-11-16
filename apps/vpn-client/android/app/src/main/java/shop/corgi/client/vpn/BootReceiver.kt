@@ -14,9 +14,10 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action !in listOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED)) return
         val store = Store(context)
-        UpdateJob.schedule(context)
-        NetworkReceiver.sync(context)
-        val s = store.settings
+        runCatching { UpdateJob.schedule(context) }
+        runCatching { NetworkReceiver.sync(context) }
+        val s = runCatching { store.settings }.getOrNull() ?: return
+        if (store.settingsLocked || store.profilesLocked) return
         if (intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             AppUpdateJob.schedule(context)
             // v1.9.7: the update was installed under a working VPN — it comes back at once.

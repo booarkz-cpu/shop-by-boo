@@ -204,7 +204,7 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
     toDelete?.let { r ->
         AlertDialog(onDismissRequest = { toDelete = null }, title = { Text(tr("Удалить правило?", "Delete the rule?", "Видалити правило?")) },
             text = { Text("${r.match} → ${r.action}") },
-            confirmButton = { Button(onClick = { store.settings = store.settings.let { it.copy(rules = it.rules - r) }; toDelete = null; refresh() },
+            confirmButton = { Button(onClick = { runCatching { store.settings = store.settings.let { it.copy(rules = it.rules - r) } }; toDelete = null; refresh() },
                 modifier = Modifier.testTag("rule-delete-confirm")) { Text(tr("Удалить", "Delete", "Видалити")) } },
             dismissButton = { TextButton(onClick = { toDelete = null }) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
     }
@@ -222,11 +222,11 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
         items(s.routingProfiles, key = { "profile-" + it.name }) { p ->
             val active = p.routing == s.routing && p.rules == s.rules
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f).clickable { store.settings = s.copy(routing = p.routing, rules = p.rules); refresh() }.testTag("routing-profile")) {
+                Column(Modifier.weight(1f).clickable { runCatching { store.settings = s.copy(routing = p.routing, rules = p.rules) }; refresh() }.testTag("routing-profile")) {
                     Text((if (active) "● " else "") + p.name, style = MaterialTheme.typography.titleSmall)
                     Text(tr("правил: ", "rules: ", "правил: ") + p.rules.size, style = MaterialTheme.typography.bodySmall)
                 }
-                TextButton(onClick = { store.settings = s.copy(routingProfiles = s.routingProfiles - p); refresh() }) { Text("✕") }
+                TextButton(onClick = { runCatching { store.settings = s.copy(routingProfiles = s.routingProfiles - p) }; refresh() }) { Text("✕") }
             }
         }
         item {
@@ -237,7 +237,7 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
                     val name = profileName.trim()
                     message = runCatching {
                         val profile = RoutingProfile(name, s.routing, s.rules)
-                        store.settings = s.copy(routingProfiles = s.routingProfiles.filterNot { it.name == name } + profile)
+                        runCatching { store.settings = s.copy(routingProfiles = s.routingProfiles.filterNot { it.name == name } + profile) }
                         profileName = ""; refresh()
                     }.fold({ tr("Профиль сохранён", "Profile saved", "Профіль збережено") }, { tr("Нужно имя (до 40 символов), не больше 20 профилей", "A name (up to 40 characters), at most 20 profiles", "Потрібна назва (до 40 символів), не більше 20 профілів") })
                 }) { Text(tr("Сохранить текущие", "Save current", "Зберегти поточні")) }
@@ -248,13 +248,13 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
             "bypass_lan" to tr("Всё, кроме локальной сети", "All but the local network", "Усе, крім локальної мережі"),
             "bypass_ru" to tr("Российские сайты напрямую", "Russian sites direct", "Російські сайти напряму"),
             "custom" to tr("Свои правила", "Own rules", "Власні правила"))) { (key, label) ->
-            ServerRow(label, "", s.routing == key) { store.settings = s.copy(routing = key); refresh() }
+            ServerRow(label, "", s.routing == key) { runCatching { store.settings = s.copy(routing = key) }; refresh() }
         }
         item { Text(tr("Правила (домен, IP, geosite:, geoip:)", "Rules (domain, IP, geosite:, geoip:)", "Правила (домен, IP, geosite:, geoip:)"), style = MaterialTheme.typography.titleMedium) }
         // v1.7.0 (N12): the order of own rules — as written, or «block» first, then «proxy», then «direct».
         item {
             Row(Modifier.fillMaxWidth().clickable {
-                store.settings = s.copy(ruleOrder = if (s.ruleOrder == "written") "block_proxy_direct" else "written"); refresh()
+                runCatching { store.settings = s.copy(ruleOrder = if (s.ruleOrder == "written") "block_proxy_direct" else "written") }; refresh()
             }.testTag("rule-order"), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(tr("Порядок: блок → прокси → напрямую", "Order: block → proxy → direct", "Порядок: блок → проксі → напряму"), style = MaterialTheme.typography.titleSmall)
@@ -270,7 +270,8 @@ internal fun RoutingScreen(store: Store, refresh: () -> Unit) {
             Row { Rule.ACTIONS.forEach { a -> Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(action == a, { action = a }); Text(a) } } }
             Button(onClick = {
                 try { store.settings = s.copy(rules = s.rules + Rule(Rule.normalize(rule), action)); rule = ""; refresh() }
-                catch (exc: Exception) { message = tr("Неверное правило", "Invalid rule", "Невірне правило") }
+                catch (exc: shop.corgi.client.data.VaultUnavailable) { message = exc.message ?: "vault" }
+                catch (_: Exception) { message = tr("Неверное правило", "Invalid rule", "Невірне правило") }
             }) { Text(tr("Добавить правило", "Add rule", "Додати правило")) }
         } }
         item { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {

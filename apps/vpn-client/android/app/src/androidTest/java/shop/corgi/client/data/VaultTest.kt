@@ -3,10 +3,12 @@ package shop.corgi.client.data
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,6 +22,11 @@ class VaultTest {
 
     @Before fun clean() {
         prefs.edit().clear().commit()
+        Vault.cipher = Vault.androidCipher
+    }
+
+    @After fun restoreCipher() {
+        Vault.cipher = Vault.androidCipher
     }
 
     @Test fun aValueComesBackAndIsNotReadableWhenStored() {
@@ -29,7 +36,55 @@ class VaultTest {
         assertEquals("vless://secret-uuid@host:443#Дом", Vault.open(stored))
         assertNotEquals("every write has its own nonce", stored, Vault.seal("vless://secret-uuid@host:443#Дом"))
         assertEquals("a value of an older version is read as it is", "[]", Vault.open("[]"))
-        assertEquals(null, Vault.open(stored.dropLast(4) + "AAAA"))
+        try {
+            Vault.open(stored.dropLast(4) + "AAAA")
+            fail("tampered ciphertext must not open")
+        } catch (error: VaultUnavailable) {
+            assertFalse(error.message.orEmpty().contains("secret-uuid"))
+        }
+    }
+
+    @Test fun aFailedSealDoesNotReturnPlaintext() {
+        Vault.cipher = object : VaultCipher {
+            override fun encrypt(plain: String): String = throw VaultUnavailable("seal down")
+            override fun decrypt(stored: String): String = throw VaultUnavailable("open down")
+        }
+        try {
+            val returned = Vault.seal("vless://secret-uuid@host:443")
+            fail("seal returned $returned")
+        } catch (error: VaultUnavailable) {
+            assertFalse(error.message.orEmpty().contains("secret-uuid"))
+        }
+    }
+
+    @Test fun unreadableProfilesAndPasswordAreNotReplaced() {
+        val store = Store(context)
+        store.profiles = listOf(Profile("a", "Home", "subscription", url = "https://sub.example/secret-token"))
+        val password = store.settings.proxyPass
+        val profiles = prefs.getString("profiles", "")!!
+        val settings = prefs.getString("settings", "")!!
+        Vault.cipher = object : VaultCipher {
+            override fun encrypt(plain: String): String = throw VaultUnavailable("seal down")
+            override fun decrypt(stored: String): String = throw VaultUnavailable("open down")
+        }
+        val again = Store(context)
+        assertTrue(again.profiles.isEmpty() && again.profilesLocked)
+        assertTrue(again.settingsLocked)
+        assertEquals(profiles, prefs.getString("profiles", ""))
+        assertEquals(settings, prefs.getString("settings", ""))
+        try {
+            again.add("https://evil.example/new")
+            fail("add replaced unreadable profiles")
+        } catch (_: VaultUnavailable) {
+            assertEquals(profiles, prefs.getString("profiles", ""))
+        }
+        try {
+            again.newProxyCredentials()
+            fail("credentials were regenerated")
+        } catch (_: VaultUnavailable) {
+            assertEquals(settings, prefs.getString("settings", ""))
+            assertFalse(prefs.getString("settings", "")!!.contains(password))
+        }
     }
 
     @Test fun profilesAreStoredEncryptedAndOldOnesAreMoved() {

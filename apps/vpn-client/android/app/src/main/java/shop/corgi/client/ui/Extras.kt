@@ -64,7 +64,7 @@ internal fun SchemeDialog(store: Store, scheme: Scheme, onDone: () -> Unit) {
                 if (scheme.rules.size > 20) Text("… +${scheme.rules.size - 20}") } },
             confirmButton = { Button(onClick = {
                 val s = store.settings
-                store.settings = s.copy(rules = (s.rules + scheme.rules).distinct(), routing = if (scheme.apply) "custom" else s.routing)
+                runCatching { store.settings = s.copy(rules = (s.rules + scheme.rules).distinct(), routing = if (scheme.apply) "custom" else s.routing) }
                 onDone()
             }) { Text(if (scheme.apply) tr("Добавить и применить", "Add and apply", "Додати й застосувати") else tr("Добавить", "Add", "Додати")) } },
             dismissButton = { TextButton(onClick = onDone) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
@@ -86,7 +86,9 @@ internal fun RestoreDialog(store: Store, backup: Result<Backup>, onDone: () -> U
             } }, { Text(it.message ?: tr("Файл не читается", "The file cannot be read", "Файл не читається"), color = MaterialTheme.colorScheme.error) })
         },
         confirmButton = { if (backup.isSuccess) Button(onClick = {
-            store.restore(backup.getOrThrow()); shop.corgi.client.vpn.UpdateJob.schedule(context); AppIcons.apply(context, store.settings.appIcon); onDone()
+            runCatching { store.restore(backup.getOrThrow()) }.onSuccess {
+                shop.corgi.client.vpn.UpdateJob.schedule(context); AppIcons.apply(context, store.settings.appIcon); onDone()
+            }
         }, Modifier.testTag("restore-confirm")) { Text(tr("Восстановить", "Restore", "Відновити")) } },
         dismissButton = { TextButton(onClick = onDone) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
 }
@@ -135,7 +137,11 @@ internal fun ProxySection(store: Store, s: Settings, save: (Settings) -> Unit) {
                     message = runCatching { save(s.copy(socksPort = socks.trim().toInt(), httpPort = http.trim().toInt())) }
                         .fold({ tr("Сохранено", "Saved", "Збережено") }, { tr("Порты 1024–65535, разные", "Ports 1024–65535, different", "Порти 1024–65535, різні") })
                 }) { Text(tr("Сохранить порты", "Save ports", "Зберегти порти")) }
-                TextButton(onClick = { store.newProxyCredentials(); message = tr("Новые логин и пароль", "New login and password", "Нові логін і пароль"); save(store.settings) }) {
+                TextButton(onClick = {
+                    val error = runCatching { store.newProxyCredentials() }.exceptionOrNull()
+                    message = error?.message ?: tr("Новые логин и пароль", "New login and password", "Нові логін і пароль")
+                    if (error == null) save(store.settings)
+                }) {
                     Text(tr("Сбросить логин/пароль", "Reset login/password", "Скинути логін/пароль")) }
             }
             if (message.isNotBlank()) Text(message, Modifier.padding(horizontal = 14.dp, vertical = 6.dp), color = MaterialTheme.colorScheme.primary)
