@@ -1503,3 +1503,7 @@ line 2: alembic: command not found
 (`Cannot read properties of undefined (reading 'bind')`) на Node 20. Воспроизведено
 на чистом дереве без этих правок — это дефект окружения, а не изменение кода.
 В CI job «cabinet» на ubuntu-24.04 vitest проходит.
+
+### 2026-11-16 — Android emulator script execution
+
+PR #355 run 43805377711 stopped before instrumentation: android-emulator-runner executes each script line in a separate shell, so the multiline failure block was incomplete. Move the full sequence to scripts/mobile/client-ui-e2e.sh and invoke it as one command. Preserve the real tunnel probes, clipboard assertions and diagnostic failure exit. A fresh device run is required; this change alone does not prove the focus issue fixed.
