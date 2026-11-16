@@ -31,6 +31,12 @@
 | Подписанные пакеты, клиент | `mobile-release.yml` («Mobile packages»): APK/AAB, iOS, контрольные суммы; отдельный выпуск `client-v<версия>` клиента | push в `main`, ждёт CI |
 | Развёртывание | `deploy.yml` | после «Publish GitHub release» или вручную с точным тегом |
 
+После автоматического слияния Dependabot с `GITHUB_TOKEN` событие push не запускает новые workflow. Поэтому
+`dependabot-automerge.yml` явно запускает **оба** workflow — `ci.yml` и `docker.yml` — на `main`.
+Публикация принимает успешные `push` и `workflow_dispatch`, только если CI и Docker проверили один текущий
+коммит `main`. Незавершённый или неуспешный новый прогон не заменяется старым успешным; проверки PR,
+другой ветки или другого коммита публикацию не разрешают. Уже опубликованный тег не переносится.
+
 Готовый выпуск — 33 файла. Проверка: `gh api repos/<owner>/<repo>/releases/tags/vX.Y.Z --jq '.assets|length'`.
 
 ## 4. Если что-то упало

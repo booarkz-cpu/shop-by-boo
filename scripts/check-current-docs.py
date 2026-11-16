@@ -53,7 +53,8 @@ def main() -> None:
     require("PROJECT_SPEC.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "134")
     require("PROJECT_STRUCTURE.md", DISTRIBUTION_TAG, SHOP_HEAD, "runtime_settings.py")
     require("docs/PROJECT_MAP_RU.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "Remna Dark", "history_import.py", "push.py", "widget.py", "email_channel.py", "plugins.py", "network_intel.py", "mail_domain.py", "node_terminal.py", "torrent_detection.py", "mail_receiver.py", "e2e_v2.py")
-    require(".github/workflows/publish-release.yml", "package-distribution.py", "publish-github-release.cjs", "['ci.yml', 'docker.yml']")
+    require(".github/workflows/publish-release.yml", "package-distribution.py", "publish-github-release.cjs", "release-gate.cjs", "requireVerifiedMain")
+    require("scripts/release-gate.cjs", "['ci.yml', 'docker.yml']", "main !== sha", "run.status !== 'completed'", "run.conclusion !== 'success'")
     require("services/backend/app/release_identity.py", f'DISTRIBUTION_TAG = "{DISTRIBUTION_TAG}"', f'RUNTIME_VERSION = "{VERSION}"')
 
     manifest = json.loads(read("release-manifest.template.json"))

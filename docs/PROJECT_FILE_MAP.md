@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2694**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2695**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1862,6 +1862,7 @@
 | [scripts/pin-images.sh](../scripts/pin-images.sh) | Эксплуатация и релиз |
 | [scripts/preflight.sh](../scripts/preflight.sh) | Эксплуатация и релиз |
 | [scripts/publish-github-release.cjs](../scripts/publish-github-release.cjs) | Эксплуатация и релиз |
+| [scripts/release-gate.cjs](../scripts/release-gate.cjs) | Эксплуатация и релиз |
 | [scripts/repin-images.sh](../scripts/repin-images.sh) | Эксплуатация и релиз |
 | [scripts/rollback.sh](../scripts/rollback.sh) | Эксплуатация и релиз |
 | [scripts/rotate-secrets.sh](../scripts/rotate-secrets.sh) | Эксплуатация и релиз |

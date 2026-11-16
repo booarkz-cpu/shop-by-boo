@@ -6,11 +6,85 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const {publish} = require('../scripts/publish-github-release.cjs');
+const {requireVerifiedMain} = require('../scripts/release-gate.cjs');
 const SHA = 'a'.repeat(40), TAG = 'v28.34.0';
 const ARTIFACT = 'remnawave_vpn_shop_v28_34_0_full_release.zip';
 const MANIFEST = ARTIFACT.replace('.zip', '_manifest.json');
 const digest = data => 'sha256:' + crypto.createHash('sha256').update(data).digest('hex');
 const notFound = () => Object.assign(new Error('Not found'), {status: 404});
+
+function gateFixture(event = 'push') {
+  const successful = (id, kind = event) => ({id, head_sha: SHA, head_branch: 'main', event: kind,
+    status: 'completed', conclusion: 'success', html_url: `https://github.com/test/shop/actions/runs/${id}`});
+  const state = {main: SHA, runs: {'ci.yml': [successful(1)], 'docker.yml': [successful(2)]}, outputs: {}};
+  const args = {
+    github: {rest: {
+      repos: {getBranch: async () => ({data: {commit: {sha: state.main}}})},
+      actions: {listWorkflowRuns: async ({workflow_id}) => ({data: {workflow_runs: state.runs[workflow_id]}})},
+    }},
+    context: {repo: {owner: 'test', repo: 'shop'}, payload: {workflow_run: successful(2)}},
+    core: {setOutput: (name, value) => {state.outputs[name] = value;}, info() {}},
+  };
+  return {state, args, successful};
+}
+
+for (const event of ['push', 'workflow_dispatch']) {
+  test(`release gate accepts both verified main workflows after ${event}`, async () => {
+    const {state, args} = gateFixture(event);
+    await requireVerifiedMain(args);
+    assert.equal(state.outputs.ready, 'true');
+    assert.equal(state.outputs.ci_run, state.runs['ci.yml'][0].html_url);
+  });
+}
+
+test('release gate accepts a push and a dispatched check of the same main commit', async () => {
+  const {state, args} = gateFixture('workflow_dispatch');
+  state.runs['ci.yml'][0].event = 'push';
+  await requireVerifiedMain(args);
+  assert.equal(state.outputs.ready, 'true');
+});
+
+for (const change of [
+  run => {run.event = 'pull_request';},
+  run => {run.head_branch = 'feature';},
+  run => {run.head_sha = 'b'.repeat(40);},
+  run => {run.status = 'in_progress'; run.conclusion = null;},
+  run => {run.conclusion = 'failure';},
+]) {
+  test(`release gate rejects an unverified trigger: ${change.toString()}`, async () => {
+    const {state, args} = gateFixture();
+    change(args.context.payload.workflow_run);
+    await requireVerifiedMain(args);
+    assert.equal(state.outputs.ready, 'false');
+    assert.equal(state.outputs.ci_run, undefined);
+  });
+}
+
+for (const workflow of ['ci.yml', 'docker.yml']) {
+  for (const result of ['failure', 'pending', 'missing', 'other-sha', 'pull-request', 'other-branch']) {
+    test(`release gate waits for ${workflow}: ${result}`, async () => {
+      const {state, args, successful} = gateFixture('workflow_dispatch');
+      const newest = successful(9);
+      if (result === 'failure') newest.conclusion = 'failure';
+      if (result === 'pending') {newest.status = 'in_progress'; newest.conclusion = null;}
+      if (result === 'other-sha') newest.head_sha = 'b'.repeat(40);
+      if (result === 'pull-request') newest.event = 'pull_request';
+      if (result === 'other-branch') newest.head_branch = 'feature';
+      state.runs[workflow] = ['failure', 'pending'].includes(result)
+        ? [state.runs[workflow][0], newest] : result === 'missing' ? [] : [newest];
+      await requireVerifiedMain(args);
+      assert.equal(state.outputs.ready, 'false');
+      assert.equal(state.outputs.ci_run, undefined);
+    });
+  }
+}
+
+test('release gate never publishes the previous main after a concurrent merge', async () => {
+  const {state, args} = gateFixture('workflow_dispatch');
+  state.main = 'b'.repeat(40);
+  await requireVerifiedMain(args);
+  assert.equal(state.outputs.ready, 'false');
+});
 
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shop-release-'));
