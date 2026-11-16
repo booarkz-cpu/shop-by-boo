@@ -1515,3 +1515,7 @@ Run 43806437911 still failed at the initial focus wait (18/19 device tests passe
 ### 2026-11-16 — Verified Android export and Python3.15 integration
 
 PR #354 merged normally as 4a7cb78d5fff582093aa4836aee95c4dc9da31cf after all20 CI jobs, including gate/iOS, passed. Standalone Android client run43807885310/job133102823342 on dda67a16 passed real links/JSON tunnel probes and connectedDebugAndroidTest on AOSP/API34. Restore REQ-CLIENT-0019 to PASS with exact evidence; no physical-device claim. Merge current main into #355 without conflicts and preserve new pinned Actions/Gradle/npm/Python3.15. New full CI is required for the integrated head. #345 was closed unmerged by Dependabot and replaced with #359 (user-event14.6.10); #357 has a new head, so old results do not prove it.
+
+### 2026-11-16 — Privacy source verification
+
+Inspection of actual privacy_export/privacy_delete found incomplete export categories and retained support text/history/backups. Restore REQ-SHOP-0017 to PARTIAL: existence of UI is not evidence of the full policy/legal-scope requirement. No live data or deletion behavior changed. Correct client privacy statements: Vault.seal returns plaintext on Keystore failure, proxy username is outside Vault, TrafficHistory uses takeLast(90) dated records rather than a calendar TTL. Preserve REQ-CLIENT-0032 PARTIAL and all653 requirement IDs. Fresh integrated CI remains required.
