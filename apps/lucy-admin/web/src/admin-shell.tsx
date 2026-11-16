@@ -148,6 +148,23 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
     };
   }, [command]);
 
+  function containCommandFocus(event: React.KeyboardEvent<HTMLDialogElement>) {
+    if (event.key !== "Tab") return;
+    const dialog = event.currentTarget;
+    const controls = Array.from(dialog.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), [tabindex='0']"))
+      .filter((element) => element.getClientRects().length > 0);
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (!first || !last) { event.preventDefault(); return; }
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   function go(next: T) {
     onNavigate(next);
     setDrawer(false);
@@ -264,7 +281,7 @@ export function AdminShell<T extends string>(props: ShellProps<T>) {
         </div>
       </main>
       {command && (
-        <dialog ref={commandDialog} className="command-overlay" aria-label="Быстрый поиск" onCancel={(event) => { event.preventDefault(); setCommand(false); }} onClick={(event) => { if (event.target === event.currentTarget) setCommand(false); }}>
+        <dialog ref={commandDialog} className="command-overlay" aria-label="Быстрый поиск" onKeyDown={containCommandFocus} onCancel={(event) => { event.preventDefault(); setCommand(false); }} onClick={(event) => { if (event.target === event.currentTarget) setCommand(false); }}>
           <div className="command-box">
             <div className="command-search" data-no-field-help="">
               <Search aria-hidden="true" />
