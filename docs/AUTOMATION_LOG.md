@@ -1501,3 +1501,7 @@ Documented the actual Mobile packages and build-mobile paths, product/version se
 ### 2026-11-16 — Verified rollback documentation and measured CI baseline
 
 Write UPGRADE_ROLLBACK from main4a7 sources, explicitly distinguishing code/shopSQL rollback from bothDB encrypted DR and retaining unknown live RPO/RTO. Write PERFORMANCE_BASELINE from actual e4df01b6 k6 run43820979540/job133143742123, including expected409/429 and inability to infer useful200 capacity. Upgrade only DOC0031/0035 document requirements. CI43819452995 promtool3.5 check and rule tests actually succeeded; Android UI failed before tests at Maven Central HTTP429 for JUnit, not an assertion. Further commits need fresh CI.
+
+## 2026-11-16 — Accessibility source audit (PR360)
+
+Added ACCESSIBILITY_AUDIT from exact92363652 sources: dark button text contrast3.678/hover2.542, missing modal focus containment/return, incomplete auth tabs, unknown Meter value semantics. Six opaque token pairs calculated with sRGB relative luminance. Distinguish source findings from browser/device proof; document native checks as NOT_RUN. DOC0034 documents only; UI0007 stays PARTIAL. No runtime/UI or live systems changed. Current PR355 head da012b79 has six successful workflow runs, including full CI43840760256 with20 successful jobs and empty review/thread lists. Landing helper cannot run authenticated here (gh auth status: not logged in); no merge claimed.

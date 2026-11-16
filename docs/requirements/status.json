@@ -2496,9 +2496,10 @@
   "status": "PARTIAL",
   "evidence": [
    "docs/ru/new/UI_UX_GUIDE.md",
-   "apps/lucy-admin/web/e2e/masque.spec.ts"
+   "apps/lucy-admin/web/e2e/masque.spec.ts",
+   "docs/ACCESSIBILITY_AUDIT.md"
   ],
-  "note": "Тесты браузера находят элементы по ролям и подписям, поэтому подписи полей и кнопок обязательны. Контраст, порядок фокуса, экранный диктор и уменьшение движения инструментом не проверялись."
+  "note": "Статический аудит92363652 и расчёт контраста выявили A11Y-01..04: недостаточный контраст dark primary/hover, неполное управление фокусом поиска, семантика auth-tabs и Meter(null). Функциональный статус остаётся PARTIAL: нет нового полного browser/axe прохода, экранных дикторов, измерений всех touch targets/состояний и нативных устройств. План/источники в ACCESSIBILITY_AUDIT.md."
  },
  "REQ-UI-0008": {
   "status": "PARTIAL",
@@ -3189,10 +3190,17 @@
   "note": "Создан MOBILE_RELEASE_GUIDE по реальным скриптам/workflow: отдельные версии/продукты, PR против production signing, AndroidAPK/AAB и манифесты, iOSunsigned/signing/entitlements, проверка33assets и Main moved, риски clobber, самостоятельный клиентский тег и ограничения обновления/отката. Это статус документа; подписи Apple, магазины и физические устройства не объявляются проверенными."
  },
  "REQ-DOC-0034": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
-  "platforms": "all products",
-  "note": "docs/ACCESSIBILITY_AUDIT.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "status": "PASS",
+  "evidence": [
+   "docs/ACCESSIBILITY_AUDIT.md",
+   "apps/lucy-admin/web/src/admin-shell.tsx",
+   "apps/user-cabinet/src/main.tsx",
+   "apps/user-cabinet/src/ui.tsx",
+   "apps/user-cabinet/src/style.css",
+   "apps/lucy-admin/web/src/theme.css"
+  ],
+  "platforms": "all products; static web audit, native checks NOT_RUN",
+  "note": "Содержательный аудит по снимку92363652: измерены шесть непрозрачных цветовых пар, описаны четыре A11Y-находки с исходниками/приоритетом/регрессиями и матрица непроверенных браузерных/нативных направлений. PASS относится только к документу; WCAG, screen readers, устройства и устранение дефектов не подтверждены."
  },
  "REQ-DOC-0035": {
   "status": "PASS",

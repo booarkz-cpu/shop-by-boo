@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2683**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2684**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -740,6 +740,7 @@
 | [docker-compose.integration.yml](../docker-compose.integration.yml) | Корень проекта |
 | [docker-compose.test.yml](../docker-compose.test.yml) | Корень проекта |
 | [docker-compose.yml](../docker-compose.yml) | Корень проекта |
+| [docs/ACCESSIBILITY_AUDIT.md](../docs/ACCESSIBILITY_AUDIT.md) | Документация |
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
 | [docs/AUDIT_LOG_INTEGRITY.md](../docs/AUDIT_LOG_INTEGRITY.md) | Документация |
 | [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
